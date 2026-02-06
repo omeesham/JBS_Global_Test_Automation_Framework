@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Quick Setup Script for RAAPID Python Automation Framework
+# Quick Setup Script for Python Automation Framework
 
 echo "============================================"
-echo "RAAPID Automation Framework Setup"
+echo "Automation Framework Setup"
 echo "============================================"
 echo ""
 

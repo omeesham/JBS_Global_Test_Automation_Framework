@@ -87,17 +87,15 @@ class LoginPage:
                 Log.info("MFA page detected, generating TOTP code")
                 
                 # Determine MFA secret key based on username
-                mfa_secret_key = "mfa_secret"
-                if "automation" in username.lower():
-                    mfa_secret_key = "mfa_secret_automation"
-                elif "review" in username.lower():
-                    mfa_secret_key = "mfa_secret_reviewL2" if "l2" in username.lower() else "mfa_secret_review"
+                # Try to get config-specific MFA secret, fall back to generic key
+                mfa_secret_key = f"mfa_secret_{username.lower()}" if config else "mfa_secret"
                 
                 if not config:
                     Log.error("Config not provided for MFA authentication")
                     return False
                 
-                mfa_secret = config.get(mfa_secret_key)
+                # Try user-specific key first, then fall back to generic key
+                mfa_secret = config.get(mfa_secret_key) or config.get("mfa_secret")
                 if not mfa_secret:
                     Log.error(f"MFA secret not found for {username} (key: {mfa_secret_key})")
                     return False

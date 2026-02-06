@@ -1,12 +1,11 @@
-# Hybrid Automation Framework Sample
+# Automation Framework
 
-A modern Python async Playwright automation framework, built for maintainable, reliable, and scalable web application testing while being easy to use, maintain, and extend. With Agentic-AI, these type of requirement specific frameworks can be built in a matter of days and deployed within weeks. Gone are the days of writing code, with playwright MCP combined with agentic-ai, we can write complex E2E tests in plain English under minutes (depending on complexity). Witness the magic of Agentic-AI.
+A modern Python async Playwright automation framework for maintainable, reliable, and scalable web application testing.
 
 ## 🚀 Features
 
 - **Async Playwright** - Fast, reliable browser automation
 - **Page Object Model** - Clean, maintainable test architecture
-- **Self-Healing** - Automatic locator correction using custom logic. (Removed from current version due to proprietary logic.)
 - **CSV Locator Repository** - Centralized element management
 - **Allure Reporting** - Beautiful, detailed test reports
 - **Multi-browser Support** - Chrome, Chromium, Firefox, WebKit
@@ -56,9 +55,8 @@ This will:
 Edit `configs/config.properties`:
 ```properties
 url = https://your-app-url.com
-username = your_username
-password = your_password
-Project = Your_Project_Name
+username_automation = test_user
+password_automation = test_password
 ```
 
 ### 3. Run Tests
@@ -74,14 +72,11 @@ source venv/bin/activate
 
 Then run tests:
 ```bash
-# Run example test
-pytest tests/test_example.py -v
-
 # Run all tests
 pytest tests/ -v
 
-# Run specific test suite
-pytest tests/test_smoke_ra_audit.py -v
+# Run specific test file
+pytest tests/test_example.py -v
 
 # Run with specific browser
 pytest tests/ --browser=chrome
@@ -118,9 +113,9 @@ class TestMyFeature:
         assert result is True
     
     @step(2)
-    async def test_change_project(self):
-        """Test project change."""
-        result = await self.landing_page.change_project("automation_c2")
+    async def test_example_action(self):
+        """Test example action."""
+        result = await self.landing_page.perform_action()
         assert result is True
 ```
 
@@ -150,8 +145,8 @@ All page objects and config are automatically available in class-based tests via
 | `self.page` | Playwright Page object | Direct browser control |
 | `self.config` | Configuration dictionary | `self.config["username"]` |
 | `self.login_page` | LoginPage instance | `await self.login_page.login_with_mfa(...)` |
-| `self.landing_page` | LandingPage instance | `await self.landing_page.change_project(...)` |
-| `self.home_page` | HomePage instance | `await self.home_page.verify_audit_product_texts()` |
+| `self.landing_page` | LandingPage instance | `await self.landing_page.perform_action(...)` |
+| `self.home_page` | HomePage instance | `await self.home_page.verify_content()` |
 | `self.working_screen_page` | WorkingScreenPage instance | Working screen tests |
 | `self.working_screen_page_audit` | Audit page instance | Audit workflow tests |
 | `self.common_methods` | CommonMethods instance | Utility methods |
@@ -218,7 +213,7 @@ class TestMyWorkflow:
     @step(2)
     async def test_step2_navigate(self):
         """Step 2: Navigate (browser still open from step 1)."""
-        result = await self.landing_page.change_project("MyProject")
+        result = await self.landing_page.perform_action()
         assert result is True
 ```
 
@@ -374,9 +369,9 @@ Validate several fields using a dictionary:
 
 ```python
 await CommonMethods.validate_fields(page, {
-    "lbl_Model": AppConstants.HCC_MODEL,
-    "lbl_Version": AppConstants.HCC_MODEL_VERSION,
-    "lbl_DOB": AppConstants.HCC_DOB
+    "lbl_Field1": AppConstants.EXPECTED_VALUE1,
+    "lbl_Field2": AppConstants.EXPECTED_VALUE2,
+    "lbl_Field3": AppConstants.EXPECTED_VALUE3
 }, AppConstants.WORKING_ELEMENTS)
 ```
 
@@ -465,18 +460,7 @@ txtUsername,"input[name='username']"
 
 ## 🤖 AI Self-Healing
 
-The framework automatically corrects broken locators using OpenAI:
-
-1. When a locator fails, the framework captures the page DOM
-2. Sends it to OpenAI for analysis
-3. Receives a corrected locator
-4. Updates the CSV file automatically
-5. Continues test execution
-
-**To enable**: Set your OpenAI API key in `utils/app_constants.py`:
-```python
-API_KEY = "your-openai-api-key"
-```
+Optional AI-powered locator correction can be enabled. When enabled, the framework will use AI to help identify broken locators. See `utils/app_constants.py` to configure.
 
 ## 📊 Test Reporting
 
@@ -586,15 +570,11 @@ jobs:
 6. **Use fixtures** - Reuse common setup via fixtures
 7. **Order tests** - Use `@pytest.mark.order()` for sequential flows
 
-## 📞 Need Help?
+## 📞 Support
 
 - Check logs in `logs/` directory
 - Review test reports in `reports/` directory
-- See `QUICK_START.md` for common commands
-
-## 📄 Creator
-
-Rutvik Khorasiya
+- Refer to configuration in `configs/config.properties`
 
 ---
 

@@ -1,0 +1,7 @@
+{
+  "browser": "chrome",
+  "url": "https://your-app-url.com",
+  "home_url": "https://your-app-url.com",
+  "username_automation": "test_user",
+  "password_automation": "test_password"
+}

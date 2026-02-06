@@ -13,7 +13,7 @@ class Log:
     def _get_logger(cls):
         """Get or create logger instance."""
         if cls._logger is None:
-            cls._logger = logging.getLogger("RaapidAutomation")
+            cls._logger = logging.getLogger("AutomationFramework")
             cls._logger.setLevel(logging.INFO)
 
             # Create logs directory if it doesn't exist
