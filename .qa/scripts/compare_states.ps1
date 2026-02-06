@@ -104,9 +104,12 @@ $(try {
 } catch { "None" })
 
 ==========================================
-4. PYTHON FILES
+4. PYTHON FILES (REMOVED - Framework retired 2026-02-06)
 ==========================================
 
+Python framework has been removed. This section is no longer tracked.
+
+<#
 Before Count: $((Get-Content "$BeforeDir\python_files.txt" | Measure-Object -Line).Lines)
 After Count: $((Get-Content "$AfterDir\python_files.txt" | Measure-Object -Line).Lines)
 
@@ -125,6 +128,7 @@ $(try {
     $deleted = Compare-Object $before $after | Where-Object { $_.SideIndicator -eq '<=' } | Select-Object -ExpandProperty InputObject
     if ($deleted) { $deleted -join "`n" } else { "None" }
 } catch { "None" })
+#>
 
 ==========================================
 5. DIRECTORY STRUCTURE CHANGES

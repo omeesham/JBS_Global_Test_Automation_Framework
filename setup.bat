@@ -1,55 +1,55 @@
 @echo off
-REM Quick Setup Script for Python Automation Framework
+REM Quick Setup Script for TypeScript Automation Framework
 
 echo ============================================
-echo Automation Framework Setup
+echo TypeScript Automation Framework Setup
 echo ============================================
 echo.
 
-REM Check if Python is installed
-python --version >nul 2>&1
+REM Check if Node.js is installed
+node --version >nul 2>&1
 if errorlevel 1 (
-    echo ERROR: Python is not installed or not in PATH
-    echo Please install Python 3.8 or higher
+    echo ERROR: Node.js is not installed or not in PATH
+    echo Please install Node.js 18 or higher
     pause
     exit /b 1
 )
 
-echo [1/4] Python detected
-python --version
+echo [1/4] Node.js detected
+node --version
 echo.
 
-REM Create virtual environment
-echo [2/4] Creating virtual environment...
-python -m venv venv
-echo Virtual environment created successfully
-echo.
-
-REM Activate virtual environment and install dependencies
-echo [3/4] Installing dependencies...
-call venv\Scripts\activate.bat
-pip install --upgrade pip
-pip install -r requirements.txt
+REM Install dependencies
+echo [2/4] Installing dependencies...
+call npm install
 echo Dependencies installed successfully
 echo.
 
 REM Install Playwright browsers
-echo [4/4] Installing Playwright browsers...
-playwright install chromium
+echo [3/4] Installing Playwright browsers...
+call npx playwright install chromium firefox webkit
 echo Playwright browsers installed successfully
+echo.
+
+REM Copy .env.example to .env
+echo [4/4] Setting up environment...
+if not exist .env (
+    copy .env.example .env
+    echo Created .env file - please update it with your credentials
+) else (
+    echo .env file already exists
+)
 echo.
 
 echo ============================================
 echo Setup completed successfully!
 echo ============================================
 echo.
-echo To activate the virtual environment, run:
-echo     venv\Scripts\activate
-echo.
 echo To run tests, use:
-echo     pytest tests/
+echo     npm test
+echo     npm run test:headed
+echo     npm run test:chrome
 echo.
 echo For more information, see README.md
 echo.
 pause
-

@@ -1,8 +1,13 @@
 # MIGRATION COMPLETION SUMMARY
 
+> **📢 FRAMEWORK PROMOTION NOTICE**  
+> **Date Promoted:** February 6, 2026  
+> **Action:** TypeScript framework promoted to project root. Python framework retired.  
+> **Location:** All TypeScript files now reside at project root (formerly in `hybrid_typescript_converted/`)  
+
 **Date:** February 6, 2026  
 **Project:** Hybrid Playwright Framework - Python to TypeScript  
-**Status:** ✅ **COMPLETE**
+**Status:** ✅ **COMPLETE & PROMOTED TO ROOT**
 
 ---
 

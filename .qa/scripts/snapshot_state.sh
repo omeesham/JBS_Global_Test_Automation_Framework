@@ -40,9 +40,10 @@ find . -type f -not -path '*/\.*' -not -path '*/node_modules/*' -not -path '*/lo
 echo "Capturing TypeScript files..."
 find . -name "*.ts" -not -path '*/node_modules/*' | sort > "$SNAPSHOT_DIR/typescript_files.txt"
 
-# 6. Python files
-echo "Capturing Python files..."
-find . -name "*.py" -not -path '*/\.*' | sort > "$SNAPSHOT_DIR/python_files.txt"
+# 6. Python files (REMOVED - Python framework retired 2026-02-06)
+# echo "Capturing Python files..."
+# find . -name "*.py" -not -path '*/\.*' | sort > "$SNAPSHOT_DIR/python_files.txt"
+echo "Python framework removed 2026-02-06" > "$SNAPSHOT_DIR/python_files.txt"
 
 # 7. Configuration files
 echo "Capturing configuration files..."

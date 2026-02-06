@@ -1,12 +1,15 @@
 # VERIFICATION CHECKLIST
 
+> **📢 NOTE:** TypeScript framework promoted to project root on February 6, 2026.  
+> All commands now run from project root directory.
+
 **Complete this checklist to verify the TypeScript migration**
 
 ## ✅ Phase 1: Installation & Setup
 
-- [ ] Navigate to TypeScript directory
+- [ ] Navigate to project root (if not already there)
   ```bash
-  cd hybrid_typescript_converted
+  cd C:\Users\rutvi\projects\hybrid_framework
   ```
 
 - [ ] Install Node dependencies

@@ -1,53 +1,53 @@
 #!/bin/bash
 
-# Quick Setup Script for Python Automation Framework
+# Quick Setup Script for TypeScript Automation Framework
 
 echo "============================================"
-echo "Automation Framework Setup"
+echo "TypeScript Automation Framework Setup"
 echo "============================================"
 echo ""
 
-# Check if Python is installed
-if ! command -v python3 &> /dev/null; then
-    echo "ERROR: Python 3 is not installed"
-    echo "Please install Python 3.8 or higher"
+# Check if Node.js is installed
+if ! command -v node &> /dev/null; then
+    echo "ERROR: Node.js is not installed"
+    echo "Please install Node.js 18 or higher"
     exit 1
 fi
 
-echo "[1/4] Python detected"
-python3 --version
+echo "[1/4] Node.js detected"
+node --version
 echo ""
 
-# Create virtual environment
-echo "[2/4] Creating virtual environment..."
-python3 -m venv venv
-echo "Virtual environment created successfully"
-echo ""
-
-# Activate virtual environment and install dependencies
-echo "[3/4] Installing dependencies..."
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+# Install dependencies
+echo "[2/4] Installing dependencies..."
+npm install
 echo "Dependencies installed successfully"
 echo ""
 
 # Install Playwright browsers
-echo "[4/4] Installing Playwright browsers..."
-playwright install chromium
+echo "[3/4] Installing Playwright browsers..."
+npx playwright install chromium firefox webkit
 echo "Playwright browsers installed successfully"
+echo ""
+
+# Copy .env.example to .env
+echo "[4/4] Setting up environment..."
+if [ ! -f .env ]; then
+    cp .env.example .env
+    echo "Created .env file - please update it with your credentials"
+else
+    echo ".env file already exists"
+fi
 echo ""
 
 echo "============================================"
 echo "Setup completed successfully!"
 echo "============================================"
 echo ""
-echo "To activate the virtual environment, run:"
-echo "    source venv/bin/activate"
-echo ""
 echo "To run tests, use:"
-echo "    pytest tests/"
+echo "    npm test"
+echo "    npm run test:headed"
+echo "    npm run test:chrome"
 echo ""
 echo "For more information, see README.md"
 echo ""
-

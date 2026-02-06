@@ -57,13 +57,17 @@ Get-ChildItem -Recurse -Filter "*.ts" -File |
     Sort-Object |
     Out-File "$SnapshotDir\typescript_files.txt" -Encoding utf8
 
-# 6. Python files
+# 6. Python files (REMOVED - Python framework retired 2026-02-06)
+<#
 Write-Host "Capturing Python files..." -ForegroundColor Gray
 Get-ChildItem -Recurse -Filter "*.py" -File |
     Where-Object { $_.FullName -notmatch '[\\/]\.' } |
     ForEach-Object { $_.FullName.Replace($PWD.Path + '\', '.\') } |
     Sort-Object |
     Out-File "$SnapshotDir\python_files.txt" -Encoding utf8
+#>
+Write-Host "Python framework retired - skipping Python file tracking" -ForegroundColor Yellow
+Set-Content "$SnapshotDir\python_files.txt" "Python framework removed 2026-02-06" -Encoding utf8
 
 # 7. Configuration files
 Write-Host "Capturing configuration files..." -ForegroundColor Gray

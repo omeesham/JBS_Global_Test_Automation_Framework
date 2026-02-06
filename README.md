@@ -1,38 +1,67 @@
-# Automation Framework
+# Playwright TypeScript Automation Framework
 
-A modern Python async Playwright automation framework for maintainable, reliable, and scalable web application testing.
+A modern TypeScript async Playwright automation framework for maintainable, reliable, and scalable web application testing.
+
+**Migrated from Python + Playwright** ✅
 
 ## 🚀 Features
 
-- **Async Playwright** - Fast, reliable browser automation
+- **TypeScript + Playwright** - Type-safe, fast, reliable browser automation
 - **Page Object Model** - Clean, maintainable test architecture
 - **CSV Locator Repository** - Centralized element management
 - **Allure Reporting** - Beautiful, detailed test reports
 - **Multi-browser Support** - Chrome, Chromium, Firefox, WebKit
-- **Easy Configuration** - Properties-based setup
-- **Modular Structure** - Test classes, fixtures, and methods
-- **CI/CD Integration** - GitHub Actions / Jenkins ready
-
+- **Easy Configuration** - Environment variables + JSON config
+- **Modular Structure** - Page objects, utilities, and fixtures
+- **MFA/TOTP Support** - Automated time-based OTP generation
+- **AI Self-Healing** - Optional OpenAI-powered locator correction
+- **CI/CD Ready** - GitHub Actions / Jenkins compatible
 
 ## 📁 Project Structure
 
 ```
-├── pages/              # Page Object Model classes
-├── utils/              # Utilities (factory, logger, OpenAI, constants)
-├── tests/              # Test files (conftest.py - do not modify)
-├── configs/            # Configuration files
-│   ├── config.properties      # Active configuration
-│   └── test_data/             # Historical test data
-├── object_repository/  # Element locators (CSV files)
-├── reports/            # Test execution reports
-├── logs/               # Log files
-├── requirements.txt    # Python dependencies
-└── pytest.ini         # Pytest configuration
+hybrid_typescript_converted/
+├── pages/                  # Page Object Model classes
+│   ├── login.page.ts
+│   ├── landing.page.ts
+│   ├── home.page.ts
+│   ├── working-screen.page.ts
+│   ├── working-screen-audit.page.ts
+│   └── index.ts
+├── utils/                  # Utility modules
+│   ├── logger.ts          # Winston-based logging
+│   ├── common-methods.ts  # Validation helpers, CSV loader
+│   ├── openai-utils.ts    # AI self-healing locators
+│   ├── app-constants.ts   # Application constants
+│   └── index.ts           # Barrel exports
+├── tests/                  # Test specifications
+│   ├── fixtures.ts        # Custom fixtures
+│   ├── global-setup.ts    # Global setup hook
+│   ├── global-teardown.ts # Global teardown hook
+│   └── example.spec.ts    # Example tests
+├── configs/                # Configuration files
+│   └── config.json        # Application config
+├── object_repository/      # Element locators (CSV files)
+│   └── Login_Elements.csv
+├── types/                  # TypeScript type definitions
+│   └── index.d.ts
+├── logs/                   # Runtime logs
+├── reports/                # Test reports
+├── playwright.config.ts    # Playwright configuration
+├── tsconfig.json          # TypeScript configuration
+├── package.json           # Dependencies & scripts
+├── .env.example           # Environment variables template
+└── README.md              # This file
 ```
 
 ## ⚡ Quick Start
 
-### 1. Setup (First Time)
+### 1. Prerequisites
+
+- **Node.js** 18+ and npm 9+
+- **TypeScript** 5+ (installed via npm)
+
+### 2. Setup (First Time)
 
 **Windows:**
 ```cmd
@@ -46,538 +75,499 @@ chmod +x setup.sh
 ```
 
 This will:
-- Create a virtual environment
-- Install all dependencies
+- Install all npm dependencies
 - Install Playwright browsers
+- Create .env file from template
 
-### 2. Configure
+### 3. Configure
 
-Edit `configs/config.properties`:
-```properties
-url = https://your-app-url.com
-username_automation = test_user
-password_automation = test_password
+Edit `.env` file:
+```env
+BASE_URL=https://your-app-url.com
+HOME_URL=https://your-app-url.com
+USERNAME_AUTOMATION=test_user
+PASSWORD_AUTOMATION=test_password
+MFA_SECRET=YOUR_BASE32_ENCODED_SECRET
 ```
 
-### 3. Run Tests
+### 4. Run Tests
 
-Activate the virtual environment first:
-```bash
-# Windows
-venv\Scripts\activate
-
-# Linux/Mac
-source venv/bin/activate
-```
-
-Then run tests:
 ```bash
 # Run all tests
-pytest tests/ -v
+npm test
 
-# Run specific test file
-pytest tests/test_example.py -v
+# Run with headed browser
+npm run test:headed
 
-# Run with specific browser
-pytest tests/ --browser=chrome
-pytest tests/ --browser=firefox
+# Run specific browser
+npm run test:chrome
+npm run test:firefox
+npm run test:webkit
+
+# Debug mode
+npm run test:debug
+
+# UI mode (interactive)
+npm run test:ui
 ```
 
-### 4. View Results
+### 5. View Reports
 
-- **Logs**: `logs/test_execution.log`
-- **HTML Report**: `reports/report.html`
-- **Screenshots**: `reports/*.png` (on failure)
+```bash
+# View HTML report
+npm run report
+
+# Generate & view Allure report
+npm run allure:generate
+npm run allure:open
+```
+
+- **Logs**: `logs/test-execution.log`
+- **HTML Report**: `reports/html-report/index.html`
+- **Allure Report**: `reports/allure-report/index.html`
+- **Screenshots**: `reports/screenshots/` (on failure)
 
 ## 📝 Writing New Tests
 
 ### Basic Test Structure
 
-Create a new file in `tests/` directory (e.g., `test_my_feature.py`):
+Create a new file in `tests/` directory (e.g., `tests/my-feature.spec.ts`):
 
-```python
-"""My feature tests."""
-from utils.local_imports import *
+```typescript
+import { test, expect } from './fixtures';
+import { Log } from '../utils/logger';
 
-class TestMyFeature:
-    """Class-based tests - all page objects auto-injected via self."""
+test.describe.serial('My Feature Tests', () => {
+  test('should perform action', async ({ loginPage, config, page }) => {
+    // Login
+    const result = await loginPage.loginWithMfa(
+      config.username_automation,
+      config.password_automation,
+      config
+    );
     
-    @step(1)
-    async def test_login(self):
-        """Test login functionality."""
-        result = await self.login_page.login_with_mfa(
-            self.config["username"],
-            self.config["password"],
-            self.config
-        )
-        assert result is True
-    
-    @step(2)
-    async def test_example_action(self):
-        """Test example action."""
-        result = await self.landing_page.perform_action()
-        assert result is True
+    expect(result).toBe(true);
+    expect(page.url()).toContain(config.home_url);
+  });
+
+  test('should verify something', async ({ homePage }) => {
+    const verified = await homePage.verifyContent();
+    expect(verified).toBe(true);
+  });
+});
 ```
 
-### Key Points for Writing Tests:
+### Key Points:
 
-1. **Use class-based tests** - All page objects automatically available via `self`
-2. **Use `@step(n)` decorator** - Combines `@pytest.mark.asyncio` and `@pytest.mark.order(n)`
-3. **Access pages via self** - `self.login_page`, `self.home_page`, `self.landing_page`, etc.
-4. **Access config via self** - `self.config["key"]`
-5. **No fixture parameters needed** - All injected automatically into the test class
-6. **Use `async def`** - Test functions must be async with `await` for page methods
+1. **Import fixtures**: `import { test, expect } from './fixtures'`
+2. **Use test.describe.serial()** - For ordered execution
+3. **Access fixtures via parameters** - `{ loginPage, config, page }`
+4. **All page objects are auto-injected** - No manual instantiation needed
+5. **Use async/await** - All page methods are asynchronous
+6. **Add logging** - `Log.info('message')` for debugging
 
-## 🎯 Test Fixtures Explained
+## 🎯 Available Fixtures
 
-Fixtures automatically provide everything your tests need without manual imports.
+All fixtures are automatically available in your tests:
 
-### What Are Fixtures?
+| Fixture | Type | Description |
+|---------|------|-------------|
+| `page` | Page | Playwright page instance |
+| `config` | IConfig | Configuration object from .env & config.json |
+| `commonMethods` | CommonMethods | Utility methods instance |
+| `loginPage` | LoginPage | Login page object |
+| `landingPage` | LandingPage | Landing page object |
+| `homePage` | HomePage | Home page object |
+| `workingScreenPage` | WorkingScreenPage | Working screen page object |
+| `workingScreenPageAudit` | WorkingScreenPageAudit | Audit page object |
 
-Fixtures are pre-configured objects injected into your tests. They're defined in `tests/conftest.py`.
+### Example Usage:
 
-### Available Page Objects (Auto-Injected)
-
-All page objects and config are automatically available in class-based tests via `self`:
-
-| Access via self | What It Provides | Example Usage |
-|-------------|------------------|-------------|
-| `self.page` | Playwright Page object | Direct browser control |
-| `self.config` | Configuration dictionary | `self.config["username"]` |
-| `self.login_page` | LoginPage instance | `await self.login_page.login_with_mfa(...)` |
-| `self.landing_page` | LandingPage instance | `await self.landing_page.perform_action(...)` |
-| `self.home_page` | HomePage instance | `await self.home_page.verify_content()` |
-| `self.working_screen_page` | WorkingScreenPage instance | Working screen tests |
-| `self.working_screen_page_audit` | Audit page instance | Audit workflow tests |
-| `self.common_methods` | CommonMethods instance | Utility methods |
-
-### How to Use in Tests
-
-**All pages are automatically available via `self` in class-based tests:**
-
-```python
-from utils.local_imports import *
-
-class TestLogin:
-    @step(1)
-    async def test_login(self):
-        """Test login - no parameters needed!"""
-        # All page objects auto-injected via self
-        result = await self.login_page.login_with_mfa(
-            self.config["username"],
-            self.config["password"],
-            self.config
-        )
-        assert result is True
+```typescript
+test('example', async ({ loginPage, config, page, commonMethods }) => {
+  // All fixtures ready to use!
+  await loginPage.loginWithMfa(config.username_automation, config.password_automation, config);
+  
+  // Use common validation methods
+  await commonMethods.validateText(page, 'element_key', 'expected_text', 'CSV_FILE');
+});
 ```
-
-**No fixture parameters needed!** Everything is auto-injected into `self`.
-
-### Why Use Fixtures?
-
-✅ **No manual object creation**
-```python
-# ❌ Old way - manual setup
-page = await browser.new_page()
-login_page = LoginPage(page)
-
-# ✅ New way - automatic via fixture
-async def test_something(login_page: LoginPage):
-    # Already ready to use!
-```
-
-✅ **Automatic cleanup** - Fixtures handle browser close, session management
-
-✅ **Session reuse** - Within a test class, browser stays open for speed
-
-✅ **Cleaner test code** - Focus on test logic, not setup
-
-### Test Class Structure for Session Reuse
-
-```python
-from utils.local_imports import *
-
-class TestMyWorkflow:
-    """Tests in this class share one browser session."""
-    
-    @step(1)
-    async def test_step1_login(self):
-        """Step 1: Login."""
-        result = await self.login_page.login_with_mfa(
-            self.config["username"], 
-            self.config["password"], 
-            self.config
-        )
-        assert result is True
-    
-    @step(2)
-    async def test_step2_navigate(self):
-        """Step 2: Navigate (browser still open from step 1)."""
-        result = await self.landing_page.perform_action()
-        assert result is True
-```
-
-**Key Point:** All tests in `TestMyWorkflow` class run in same browser session. Browser closes after all tests complete.
-
-### Fixture Scopes
-
-Defined in `conftest.py`:
-
-- **`scope="class"`** - One instance per test class (browser, page)
-- **`scope="function"`** - New instance per test (page objects)
-
-This means:
-- Browser opens once per test class
-- Page objects are fresh for each test
-- Login session persists across tests in a class
 
 ## 🎯 Creating New Page Objects
 
 ### Step 1: Create the Page Class
 
-Create a new file in `pages/` directory:
+Create `pages/my-page.page.ts`:
 
-```python
-"""My new page object."""
-from playwright.async_api import Page
-from utils.logger import Log
-from utils.common_methods import CommonMethods
-from utils.openai_utils import OpenAIUtils
-from utils.app_constants import AppConstants
+```typescript
+import { Page } from '@playwright/test';
+import { Log } from '../utils/logger';
+import { CommonMethods } from '../utils/common-methods';
+import { OpenAIUtils } from '../utils/openai-utils';
+import { AppConstants } from '../utils/app-constants';
 
+export class MyPage {
+  private page: Page;
+  private openaiUtils: OpenAIUtils;
 
-class MyNewPage:
-    """My new page class."""
+  constructor(page: Page) {
+    Log.info('MyPage constructor');
+    this.page = page;
+    this.openaiUtils = new OpenAIUtils();
+  }
 
-    def __init__(self, page: Page):
-        """Initialize page."""
-        Log.info("MyNewPage constructor")
-        self.page = page
-        self.openai_utils = OpenAIUtils()
+  async performAction(param: string): Promise<boolean> {
+    try {
+      const locator = CommonMethods.getValuesFromCsv(
+        'element_name',
+        AppConstants.MY_ELEMENTS_CSV
+      );
 
-    async def my_action(self, param: str) -> bool:
-        """
-        Perform my action.
-        
-        Args:
-            param: Some parameter
-            
-        Returns:
-            bool: True if successful
-        """
-        try:
-            # Get locator from CSV
-            locator = await self.openai_utils.verify_and_get_locators_using_ai(
-                self.page, "element_name", AppConstants.MY_ELEMENTS_CSV
-            )
-            
-            # Perform action
-            await self.page.click(locator)
-            
-            Log.info("Action completed successfully")
-            return True
-        except Exception as e:
-            Log.error(f"Error: {e}")
-            return False
+      if (!locator) {
+        Log.error('Locator not found');
+        return false;
+      }
+
+      await this.page.click(locator);
+      Log.info('Action completed');
+      return true;
+    } catch (error) {
+      Log.error(`Error: ${error}`);
+      return false;
+    }
+  }
+}
 ```
 
-### Step 2: Add Fixture to conftest.py
+### Step 2: Add to Barrel Export
 
-Edit `tests/conftest.py` and add:
+Edit `pages/index.ts`:
 
-```python
-from pages.my_new_page import MyNewPage
-
-@pytest.fixture(scope="function")
-async def my_new_page(page) -> MyNewPage:
-    """Get MyNewPage instance."""
-    return MyNewPage(page)
+```typescript
+export { MyPage } from './my-page.page';
 ```
 
-### Step 3: Add CSV Locators
+### Step 3: Add Fixture
 
-Create `object_repository/MyPage_Elements.csv`:
-```csv
-Element Name,Locator
-my_button,"//button[@id='submit']"
-my_input,"input[name='username']"
+Edit `tests/fixtures.ts`:
+
+```typescript
+import { MyPage } from '../pages/my-page.page';
+
+type MyFixtures = {
+  // ... existing fixtures
+  myPage: MyPage;
+};
+
+export const test = base.extend<MyFixtures>({
+  // ... existing fixtures
+  myPage: async ({ page }, use) => {
+    const myPage = new MyPage(page);
+    await use(myPage);
+  },
+});
 ```
 
 ### Step 4: Use in Tests
 
-```python
-@pytest.mark.asyncio
-async def test_my_feature(my_new_page: MyNewPage):
-    """Test using my new page."""
-    result = await my_new_page.my_action("test_param")
-    assert result is True
+```typescript
+test('my test', async ({ myPage }) => {
+  const result = await myPage.performAction('param');
+  expect(result).toBe(true);
+});
 ```
 
 ## 🔍 Validation Helpers
 
-The framework provides one-liner validation methods for common testing patterns.
+The framework provides built-in validation methods:
 
-### Available Validation Methods
-
-All methods are in `CommonMethods` class:
-
-#### 1. Text Validation
-Validate a single element's text matches expected value:
-
-```python
-await CommonMethods.validate_text(
-    page,                                    # Playwright page
-    "lbl_Title",                            # Element name from CSV
-    AppConstants.EXPECTED_TITLE,            # Expected text
-    AppConstants.LOGIN_ELEMENTS             # CSV file
-)
+### Text Validation
+```typescript
+await CommonMethods.validateText(
+  page,
+  'lbl_Title',
+  'Expected Title',
+  AppConstants.LOGIN_ELEMENTS
+);
 ```
 
-**What it does:**
-1. Looks up "lbl_Title" in Login_Elements.csv
-2. Gets the locator (e.g., "//h1[@class='title']")
-3. Finds element on page and extracts text
-4. Compares with expected value
-5. Passes ✅ if match, fails ❌ with clear error
-
-#### 2. Popup Validation
-Validate popup/dialog title AND message together:
-
-```python
-await CommonMethods.validate_popup(
-    page,
-    AppConstants.WARNING_TITLE,             # Expected title
-    AppConstants.WARNING_MESSAGE,           # Expected message
-    AppConstants.WORKING_ELEMENTS
-)
+### Popup Validation
+```typescript
+await CommonMethods.validatePopup(
+  page,
+  'Warning',
+  'Warning Message',
+  AppConstants.WORKING_ELEMENTS
+);
 ```
 
-#### 3. List/Dropdown Options Validation
-Validate dropdown options match expected array:
-
-```python
-await CommonMethods.validate_list_options(
-    page,
-    "chk_RejectOptions",                    # Dropdown element
-    AppConstants.REJECT_OPTIONS,            # Expected array
-    AppConstants.WORKING_ELEMENTS
-)
+### List Options Validation
+```typescript
+await CommonMethods.validateListOptions(
+  page,
+  'dropdown_id',
+  ['Option 1', 'Option 2', 'Option 3'],
+  AppConstants.HOME_ELEMENTS
+);
 ```
 
-#### 4. Multiple Fields at Once
-Validate several fields using a dictionary:
-
-```python
-await CommonMethods.validate_fields(page, {
-    "lbl_Field1": AppConstants.EXPECTED_VALUE1,
-    "lbl_Field2": AppConstants.EXPECTED_VALUE2,
-    "lbl_Field3": AppConstants.EXPECTED_VALUE3
-}, AppConstants.WORKING_ELEMENTS)
+### Multiple Fields Validation
+```typescript
+await CommonMethods.validateFields(page, {
+  'lbl_Field1': 'Value 1',
+  'lbl_Field2': 'Value 2',
+  'lbl_Field3': 'Value 3'
+}, AppConstants.WORKING_ELEMENTS);
 ```
 
-#### 5. Search List Validation
-Validate search list options:
+## ⚙️ Configuration
 
-```python
-await CommonMethods.validate_search_list(
-    page,
-    AppConstants.LANDING_ELEMENTS
-)
+### Environment Variables (.env)
+
+```env
+# URLs
+BASE_URL=https://your-app.com
+HOME_URL=https://your-app.com/home
+
+# Credentials
+USERNAME_AUTOMATION=user
+PASSWORD_AUTOMATION=pass
+
+# MFA
+MFA_SECRET=YOUR_BASE32_SECRET
+
+# OpenAI (optional)
+OPENAI_API_KEY=sk-...
+ENABLE_OPENAI_SELF_HEALING=false
+
+# Browser
+DEFAULT_BROWSER=chrome
+HEADLESS=false
 ```
 
-### When to Use Validation Helpers
+### Config JSON (configs/config.json)
 
-**Use for:**
-- ✅ Verifying page titles, labels, messages
-- ✅ Checking popup/dialog content
-- ✅ Validating dropdown options
-- ✅ Confirming default values
-- ✅ Testing role-based content
+Supplements .env with additional config:
 
-**Don't use for:**
-- ❌ Simple visibility checks (use `page.is_visible()`)
-- ❌ Navigation verification (use URL checks)
-- ❌ Element presence only (use `wait_for_selector()`)
-
-### Example: Adding Validation to Page Object
-
-```python
-class MyPage:
-    async def verify_success_message(self) -> bool:
-        """Verify success message appears."""
-        try:
-            # One-liner validation
-            await CommonMethods.validate_text(
-                self.page,
-                "lbl_SuccessMsg",
-                AppConstants.SUCCESS_MESSAGE,
-                AppConstants.MY_ELEMENTS
-            )
-            return True
-        except AssertionError as e:
-            Log.error(f"Validation failed: {e}")
-            return False
+```json
+{
+  "browser": "chrome",
+  "url": "https://your-app.com",
+  "custom_property": "value"
+}
 ```
 
-## 🔧 Configuration
+### CSV Locators (object_repository/)
 
-### config.properties
+Store element locators in CSV files:
 
-Main configuration file with test data and URLs:
-```properties
-url = https://your-app.com
-username = user
-password = pass
-Project = ProjectName
-NPINo = 1234567890
-```
-
-### pytest.ini
-
-Pytest configuration for markers and options:
-```ini
-[pytest]
-markers =
-    order: test execution order
-    smoke: smoke tests
-    audit: audit tests
-```
-
-### CSV Locator Files
-
-Element locators stored in `object_repository/`:
-- `Login_Elements.csv`
-- `LandingPage_Elements.csv`
-- `HomePage_Elements.csv`
-- `WorkingPage_Elements.csv`
-
-Format:
 ```csv
 Element Name,Locator
-btnLogin,"//button[@id='login']"
-txtUsername,"input[name='username']"
+txtUsername,input[formcontrolname='userName']
+btnLogin,//button[@type='submit']
 ```
 
 ## 🤖 AI Self-Healing
 
-Optional AI-powered locator correction can be enabled. When enabled, the framework will use AI to help identify broken locators. See `utils/app_constants.py` to configure.
+Enable AI-powered locator correction:
+
+1. Set in `.env`:
+```env
+OPENAI_API_KEY=sk-your-key-here
+ENABLE_OPENAI_SELF_HEALING=true
+```
+
+2. The framework will automatically:
+   - Try the CSV locator first
+   - If it fails, use OpenAI to find a working locator
+   - Update the CSV with the new locator
 
 ## 📊 Test Reporting
 
-### HTML Report
+### Playwright HTML Report
 ```bash
-pytest tests/ --html=reports/report.html --self-contained-html
+npm test
+npm run report
 ```
-Open `reports/report.html` in browser.
 
 ### Allure Report
 ```bash
-# Generate results
-pytest tests/ --alluredir=reports/allure-results
-
-# View report
-allure serve reports/allure-results
+npm test
+npm run allure:generate
+npm run allure:open
 ```
 
-## 🎨 Test Markers
+### Custom Reporters
 
-Use markers to organize and run specific test groups:
+Configured in `playwright.config.ts`:
+- List reporter (console)
+- HTML reporter
+- JSON reporter
+- JUnit XML reporter
+- Allure reporter
 
-```python
-@pytest.mark.smoke
-@pytest.mark.audit
-@pytest.mark.order(1)
-async def test_something():
-    pass
+## 🎨 Test Organization
+
+### Test Markers (Tags)
+
+```typescript
+test('smoke test @smoke', async ({ loginPage }) => {
+  // Smoke test logic
+});
+
+test('regression test @regression', async ({ homePage }) => {
+  // Regression test logic
+});
 ```
 
-Run tests by marker:
+Run by tag:
 ```bash
-pytest tests/ -m smoke
-pytest tests/ -m audit
+npx playwright test --grep @smoke
+npx playwright test --grep @regression
+```
+
+### Serial vs Parallel
+
+**Serial execution** (tests run in order):
+```typescript
+test.describe.serial('Ordered Tests', () => {
+  test('step 1', async () => { /* ... */ });
+  test('step 2', async () => { /* ... */ });
+});
+```
+
+**Parallel execution** (default):
+```typescript
+test.describe('Parallel Tests', () => {
+  test('test A', async () => { /* ... */ });
+  test('test B', async () => { /* ... */ });
+});
 ```
 
 ## 🐛 Debugging
 
 ### View Logs
 ```bash
-tail -f logs/test_execution.log  # Linux/Mac
-Get-Content logs\test_execution.log -Wait  # Windows PowerShell
+# PowerShell
+Get-Content logs\test-execution.log -Wait
+
+# Bash
+tail -f logs/test-execution.log
 ```
 
-### Run Single Test with Debug
+### Debug Single Test
 ```bash
-pytest tests/test_example.py::test_simple_login_example -v -s
+npx playwright test tests/example.spec.ts --debug
 ```
 
-### Common Issues
-
-**Import Errors:**
+### UI Mode
 ```bash
-# Make sure virtual environment is activated
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # Linux/Mac
+npm run test:ui
 ```
 
-**Browser Not Found:**
-```bash
-playwright install
-```
+### VS Code Debugger
 
-**Locator Not Found:**
-- Check CSV file in `object_repository/`
-- Enable AI self-healing with valid OpenAI API key
-- Check element name matches CSV exactly
-
-## 📦 Dependencies
-
-Main packages (see `requirements.txt` for full list):
-- `playwright` - Browser automation
-- `pytest` - Testing framework
-- `allure-pytest` - Test reporting
-- `openai` - AI self-healing
-- `jproperties` - Configuration management
+1. Install "Playwright Test for VSCode" extension
+2. Set breakpoints in your test
+3. Click "Run Test" in the sidebar
 
 ## 🔄 CI/CD Integration
 
-### GitHub Actions Example
+### GitHub Actions
 
 ```yaml
-name: Tests
-on: [push]
+name: Playwright Tests
+on: [push, pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          python-version: '3.9'
-      - run: |
-          pip install -r requirements.txt
-          playwright install chromium
-      - run: pytest tests/ --browser=chromium
+          node-version: '18'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm test
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: reports/
 ```
 
-## 🎓 Best Practices
+## 📚 Best Practices
 
 1. **Keep tests independent** - Each test should work standalone
-2. **Use Page Objects** - Don't put locators directly in tests
-3. **Add logging** - Use `Log.info()` for important steps
-4. **Handle waits** - Use `await page.wait_for_selector()`
-5. **Clean up** - Tests should clean up after themselves
-6. **Use fixtures** - Reuse common setup via fixtures
-7. **Order tests** - Use `@pytest.mark.order()` for sequential flows
+2. **Use Page Objects** - Don't put locators in tests
+3. **Add logging** - `Log.info()` for debugging
+4. **Handle waits** - Use `page.waitForSelector()`, never hard sleeps
+5. **Clean up** - Tests should restore state
+6. **Use fixtures** - Reuse setup via fixtures
+7. **Type everything** - Leverage TypeScript's type system
+8. **Serial when needed** - Use `.serial()` for ordered flows
+
+## 🆚 Python vs TypeScript Comparison
+
+| Feature | Python | TypeScript |
+|---------|--------|------------|
+| Test runner | pytest | @playwright/test |
+| Fixtures | conftest.py | fixtures.ts |
+| Decorators | @step(n) | test.describe.serial() |
+| CSV parsing | csv.DictReader | csv-parse |
+| TOTP | pyotp | otplib |
+| Logging | logging | winston |
+| Config | .properties | .env + JSON |
+| Types | Type hints | Full TypeScript |
+
+## 🔧 Troubleshooting
+
+**Import Errors:**
+```bash
+npm install
+```
+
+**Browser Not Found:**
+```bash
+npx playwright install
+```
+
+**Locator Not Found:**
+- Check CSV file in `object_repository/`
+- Enable AI self-healing
+- Verify element name matches CSV exactly
+
+**TypeScript Errors:**
+```bash
+npm run typecheck
+```
+
+## 📦 Dependencies
+
+Main packages (see `package.json`):
+- `@playwright/test` - Browser automation & testing
+- `typescript` - TypeScript compiler
+- `winston` - Logging
+- `allure-playwright` - Test reporting
+- `openai` - AI self-healing
+- `otplib` - TOTP generation
+- `csv-parse` - CSV locator loading
+- `dotenv` - Environment configuration
 
 ## 📞 Support
 
 - Check logs in `logs/` directory
 - Review test reports in `reports/` directory
-- Refer to configuration in `configs/config.properties`
+- See configuration in `.env` and `configs/config.json`
+- Review  migration manifest: `../MIGRATION_MANIFEST.md`
 
 ---
 
-**Version:** 1.0.0  
-**Python:** 3.8+  
-**Playwright:** 1.40.0
+**Version:** 2.0.0 (TypeScript)  
+**Migrated From:** Python 1.0.0  
+**Node.js:** 18+  
+**Playwright:** 1.40.0  
+**TypeScript:** 5.3+
+
+🎉 **Migration Complete! All features preserved.**
