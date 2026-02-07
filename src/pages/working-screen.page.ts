@@ -1,7 +1,14 @@
 /**
- * Working Screen Page Object
- * Handles working screen interactions
- * Migrated from pages/working_screen_page.py
+ * FILE: src/pages/working-screen.page.ts
+ * PURPOSE: Working screen page object for main application workspace
+ * WHY NECESSARY: Encapsulates interactions within primary working/task area
+ * USED BY: Workflow tests, business logic tests requiring work screen access
+ * 
+ * HOW IT WORKS:
+ * 1. Uses CSV locators from object_repository/Working_Elements.csv
+ * 2. Provides methods for work screen-specific actions
+ * 3. Supports OpenAI self-healing for element location
+ * 4. Enables test interaction with work-related UI components
  */
 
 import { Page } from '@playwright/test';

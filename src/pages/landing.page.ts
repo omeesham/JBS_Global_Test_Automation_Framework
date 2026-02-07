@@ -1,7 +1,14 @@
 /**
- * Landing Page Object
- * Handles landing page interactions after login
- * Migrated from pages/landing_page.py
+ * FILE: src/pages/landing.page.ts
+ * PURPOSE: Landing page object for post-login actions
+ * WHY NECESSARY: Handles navigation and interactions immediately after successful authentication
+ * USED BY: Tests requiring post-login navigation, workflow tests
+ * 
+ * HOW IT WORKS:
+ * 1. Uses CSV locators from object_repository/Landing_Elements.csv
+ * 2. Provides methods for verifying successful login landing
+ * 3. Supports OpenAI self-healing for locator discovery
+ * 4. Enables navigation to application sections from landing page
  */
 
 import { Page } from '@playwright/test';

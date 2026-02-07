@@ -1,7 +1,15 @@
 /**
- * Application Constants
- * Application-wide constants and configuration
- * Migrated from utils/app_constants.py
+ * FILE: src/utils/app-constants.ts
+ * PURPOSE: Application-wide constants and environment configuration
+ * WHY NECESSARY: Single source of truth for framework constants and feature flags
+ * USED BY: All framework files requiring constants (OpenAI config, CSV filenames)
+ * 
+ * HOW IT WORKS:
+ * 1. Defines CSV filename constants for object repository files
+ * 2. Loads OpenAI API key and feature flags from environment variables
+ * 3. Provides search list and other application-specific constants
+ * 4. Readonly static properties prevent accidental modification
+ * 5. Accessed via AppConstants.PROPERTY_NAME pattern
  */
 
 export class AppConstants {

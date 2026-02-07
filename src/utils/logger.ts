@@ -1,7 +1,15 @@
 /**
- * Logger Utility
- * Centralized logging with file and console output
- * Migrated from utils/logger.py
+ * FILE: src/utils/logger.ts
+ * PURPOSE: Centralized logging utility with file and console output
+ * WHY NECESSARY: Provides consistent logging across framework with automatic file rotation
+ * USED BY: All test files, page objects, utilities, adapters
+ * 
+ * HOW IT WORKS:
+ * 1. Singleton pattern ensures single logger instance across framework
+ * 2. Uses winston for structured logging with levels (info, warn, error, debug)
+ * 3. Writes to logs/ directory with daily rotation
+ * 4. Console output colorized by log level for readability
+ * 5. Exported Log class provides static methods: info(), warn(), error(), debug()
  */
 
 import * as winston from 'winston';

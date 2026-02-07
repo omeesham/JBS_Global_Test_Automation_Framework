@@ -1,7 +1,16 @@
 /**
- * Common Methods Utility
- * Shared utility methods for framework operations
- * Migrated from utils/common_methods.py
+ * FILE: src/utils/common-methods.ts
+ * PURPOSE: Shared utility methods for framework-wide operations
+ * WHY NECESSARY: Centralizes common operations (CSV reading, config loading, MFA)
+ * USED BY: All page objects, test files, workflow methods
+ * 
+ * HOW IT WORKS:
+ * 1. Provides initProp() to load IConfig from .env and config.json
+ * 2. getValuesFromCsv() reads element locators from CSV files
+ * 3. generateMfaCode() creates TOTP codes for authentication
+ * 4. File I/O methods for JSON/CSV reading and writing
+ * 5. Validation helpers for text content, element state
+ * 6. Integrates with Allure reporting for test documentation
  */
 
 import { Page } from '@playwright/test';

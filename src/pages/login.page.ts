@@ -1,7 +1,15 @@
 /**
- * Login Page Object
- * Handles login page interactions and MFA
- * Migrated from pages/login_page.py
+ * FILE: src/pages/login.page.ts
+ * PURPOSE: Login page object with MFA support
+ * WHY NECESSARY: Encapsulates login page interactions for authentication flows
+ * USED BY: Login tests (tests/specs/auth/login.spec.ts), test fixtures
+ * 
+ * HOW IT WORKS:
+ * 1. Uses CSV locators from object_repository/Login_Elements.csv
+ * 2. Implements loginWithMfa() for standard + MFA authentication
+ * 3. Supports OpenAI self-healing for element location
+ * 4. Integrates with CommonMethods for CSV reading and validation
+ * 5. Returns boolean success/failure for all public methods
  */
 
 import { Page } from '@playwright/test';

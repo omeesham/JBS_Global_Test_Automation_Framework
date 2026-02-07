@@ -1,7 +1,16 @@
 /**
- * OpenAI Utilities for Self-Healing Locators
- * AI-powered locator verification and correction
- * Migrated from utils/openai_utils.py
+ * FILE: src/utils/openai-utils.ts
+ * PURPOSE: AI-powered self-healing locator verification and correction
+ * WHY NECESSARY: Automatically finds and corrects broken element locators using OpenAI
+ * USED BY: Page objects when elements cannot be found with standard locators
+ * 
+ * HOW IT WORKS:
+ * 1. Enabled via ENABLE_OPENAI_SELF_HEALING environment variable
+ * 2. When element not found, captures page HTML/screenshot
+ * 3. Sends context to OpenAI GPT-4 with prompt to suggest correct locator
+ * 4. Parses AI response and returns suggested locator string
+ * 5. Falls back to original locator if AI unavailable or disabled
+ * 6. Logs all AI interactions for debugging and cost tracking
  */
 
 import { Page } from '@playwright/test';

@@ -1,7 +1,14 @@
 /**
- * Working Screen Page Object for Audit Workflow
- * Handles audit-specific working screen interactions
- * Migrated from pages/working_screen_page_audit.py
+ * FILE: src/pages/working-screen-audit.page.ts
+ * PURPOSE: Audit-specific working screen page object
+ * WHY NECESSARY: Handles audit workflow elements distinct from standard work screen
+ * USED BY: Audit workflow tests, compliance verification tests
+ * 
+ * HOW IT WORKS:
+ * 1. Extends/specializes standard working screen functionality for audit use cases
+ * 2. Uses CSV locators from object_repository (audit-specific elements)
+ * 3. Supports OpenAI self-healing for element discovery
+ * 4. Provides audit-specific navigation and interaction methods
  */
 
 import { Page } from '@playwright/test';
