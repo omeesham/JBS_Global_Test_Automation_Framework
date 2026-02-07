@@ -1,0 +1,101 @@
+// Jenkinsfile for Windows
+// Jenkins Pipeline for Playwright Tests on Windows
+
+pipeline {
+    agent {
+        label 'windows'
+    }
+    
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Environment to run tests against')
+        choice(name: 'BROWSER', choices: ['chrome', 'chromium', 'firefox', 'webkit'], description: 'Browser to run tests')
+        string(name: 'TEST_PATTERN', defaultValue: '**/*.spec.ts', description: 'Test file pattern')
+    }
+    
+    environment {
+        NODE_ENV = "${params.ENVIRONMENT}"
+        PLAYWRIGHT_BROWSERS_PATH = "${WORKSPACE}\\ms-playwright"
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                bat 'git log -1'
+            }
+        }
+        
+        stage('Install Dependencies') {
+            steps {
+                bat 'node --version'
+                bat 'npm --version'
+                bat 'npm clean-install'
+            }
+        }
+        
+        stage('Install Playwright Browsers') {
+            steps {
+                bat 'npx playwright install --with-deps'
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                script {
+                    bat """
+                        set NODE_ENV=${params.ENVIRONMENT}
+                        npx playwright test --project=${params.BROWSER} --reporter=list,html,json,junit,allure-playwright
+                    """
+                }
+            }
+        }
+        
+        stage('Generate Allure Report') {
+            steps {
+                bat 'npx allure generate reports/allure-results --clean -o reports/allure-report'
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Publish test results
+            junit 'reports/junit-results.xml'
+            
+            // Publish HTML report
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'reports/html-report',
+                reportFiles: 'index.html',
+                reportName: 'Playwright HTML Report'
+            ])
+            
+            // Publish Allure report
+            allure([
+                includeProperties: false,
+                jdk: '',
+                properties: [],
+                reportBuildPolicy: 'ALWAYS',
+                results: [[path: 'reports/allure-results']]
+            ])
+            
+            // Archive artifacts
+            archiveArtifacts artifacts: 'reports/**,test-results/**', allowEmptyArchive: true
+        }
+        
+        failure {
+            emailext(
+                subject: "Test Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """Test execution failed. 
+                
+                Environment: ${params.ENVIRONMENT}
+                Browser: ${params.BROWSER}
+                
+                Check: ${env.BUILD_URL}""",
+                recipientProviders: [developers(), requestor()]
+            )
+        }
+    }
+}

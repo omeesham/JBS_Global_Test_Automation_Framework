@@ -5,7 +5,7 @@
  */
 
 import { FullConfig } from '@playwright/test';
-import { Log } from '../utils/logger';
+import { Log } from '../src/utils/logger';
 
 async function globalTeardown(config: FullConfig) {
   Log.info('=== Global Test Teardown Started ===');

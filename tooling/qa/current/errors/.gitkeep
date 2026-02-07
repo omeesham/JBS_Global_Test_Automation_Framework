@@ -1,0 +1,3 @@
+# This directory stores error artifacts for forensic debugging
+# Files are automatically generated when state validation fails
+# Format: {errorType}_{timestamp}_{pid}.json

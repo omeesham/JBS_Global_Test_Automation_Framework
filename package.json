@@ -11,6 +11,7 @@
     "test:webkit": "playwright test --project=webkit",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
+    "test:adapters": "playwright test --config=playwright.config.ts \"src/data/adapters/__tests__/**/*.spec.ts\"",
     "report": "playwright show-report",
     "allure:generate": "allure generate reports/allure-results --clean -o reports/allure-report",
     "allure:open": "allure open reports/allure-report",
@@ -44,12 +45,18 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.984.0",
+    "axios": "^1.13.4",
     "csv-parse": "^5.5.3",
     "csv-stringify": "^6.4.5",
     "dotenv": "^16.3.1",
+    "dotenv-flow": "^4.1.0",
+    "knex": "^3.1.0",
     "openai": "^4.20.1",
     "otplib": "^12.0.1",
-    "winston": "^3.11.0"
+    "pg": "^8.18.0",
+    "winston": "^3.11.0",
+    "xlsx": "^0.18.5"
   },
   "engines": {
     "node": ">=18.0.0",

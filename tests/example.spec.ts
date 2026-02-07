@@ -9,7 +9,7 @@
  */
 
 import { test, expect } from './fixtures';
-import { Log } from '../utils/logger';
+import { Log } from '../src/utils/logger';
 
 /**
  * Example Test Suite

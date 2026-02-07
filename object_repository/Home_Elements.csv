@@ -1,0 +1,11 @@
+Element Name,Locator
+lnkDashboard,a[href*='dashboard']
+lnkProfile,a[href*='profile']
+lnkSettings,a[href*='settings']
+lnkLogout,button[data-action='logout']
+txtWelcomeMessage,.welcome-message
+imgUserAvatar,.user-avatar
+divMainContent,#main-content
+navSidebar,.sidebar-navigation
+btnNotifications,.notifications-button
+spanNotificationCount,.notification-count

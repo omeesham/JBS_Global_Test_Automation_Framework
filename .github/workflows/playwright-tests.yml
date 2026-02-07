@@ -1,0 +1,92 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *'  # Nightly at 2 AM UTC
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }} - ${{ matrix.browser }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        browser: [chrome, firefox]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      
+      - name: Run Playwright tests
+        env:
+          NODE_ENV: ${{ github.event.inputs.environment || 'dev' }}
+        run: npx playwright test --project=${{ matrix.browser }} --reporter=list,html,json,junit,allure-playwright
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-results-${{ matrix.os }}-${{ matrix.browser }}
+          path: |
+            reports/
+            test-results/
+          retention-days: 30
+      
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-report-${{ matrix.os }}-${{ matrix.browser }}
+          path: reports/html-report
+          retention-days: 30
+      
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('reports/test-results.json', 'utf8'));
+            const body = `## Test Results - ${{ matrix.os }} - ${{ matrix.browser }}
+            
+            ✅ Passed: ${results.stats.expected}
+            ❌ Failed: ${results.stats.unexpected}
+            ⏭️ Skipped: ${results.stats.skipped}
+            
+            [View full report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              body: body
+            });

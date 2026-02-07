@@ -1,0 +1,16 @@
+# tooling/qa/current/.gitignore
+# Ignore transient state and runtime files
+
+# Active task state (transient)
+ACTIVE_TASK.json
+
+# Lock files
+*.lock
+.*.lock
+
+# Error artifacts
+errors/*.json
+
+# Keep directory structure
+!.gitkeep
+!errors/.gitkeep

@@ -1,0 +1,37 @@
+﻿[
+  {
+    "username": "test_user_001",
+    "password": "ValidPass123!",
+    "expected_result": "success",
+    "scenario_name": "Valid user login",
+    "notes": "Standard test user with valid credentials"
+  },
+  {
+    "username": "invalid_user",
+    "password": "WrongPass123!",
+    "expected_result": "failure",
+    "scenario_name": "Invalid credentials",
+    "notes": "User does not exist in system"
+  },
+  {
+    "username": "locked_user",
+    "password": "LockedPass123!",
+    "expected_result": "locked",
+    "scenario_name": "Locked account",
+    "notes": "Account locked due to failed attempts"
+  },
+  {
+    "username": "test_user_mfa",
+    "password": "ValidPass123!",
+    "expected_result": "mfa_required",
+    "scenario_name": "MFA-enabled user",
+    "notes": "Requires TOTP code after initial auth"
+  },
+  {
+    "username": "admin_user",
+    "password": "AdminPass123!",
+    "expected_result": "success",
+    "scenario_name": "Admin user login",
+    "notes": "User with elevated privileges"
+  }
+]

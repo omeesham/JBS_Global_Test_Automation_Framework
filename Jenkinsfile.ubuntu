@@ -1,0 +1,112 @@
+// Jenkinsfile for Ubuntu
+// Jenkins Pipeline for Playwright Tests on Ubuntu/Linux
+
+pipeline {
+    agent {
+        label 'ubuntu'
+    }
+    
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Environment to run tests against')
+        choice(name: 'BROWSER', choices: ['chrome', 'chromium', 'firefox', 'webkit', 'all'], description: 'Browser to run tests')
+        booleanParam(name: 'PARALLEL', defaultValue: true, description: 'Run tests in parallel')
+    }
+    
+    environment {
+        NODE_ENV = "${params.ENVIRONMENT}"
+        PLAYWRIGHT_BROWSERS_PATH = "${WORKSPACE}/ms-playwright"
+        CI = "true"
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                sh 'git log -1 --oneline'
+            }
+        }
+        
+        stage('Install Dependencies') {
+            steps {
+                sh 'node --version'
+                sh 'npm --version'
+                sh 'npm clean-install'
+            }
+        }
+        
+        stage('Install Playwright Browsers') {
+            steps {
+                sh 'npx playwright install --with-deps'
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                script {
+                    def browser = params.BROWSER == 'all' ? '' : "--project=${params.BROWSER}"
+                    
+                    sh """
+                        export NODE_ENV=${params.ENVIRONMENT}
+                        npx playwright test ${browser} \\
+                            --reporter=list,html,json,junit,allure-playwright
+                    """
+                }
+            }
+        }
+        
+        stage('Generate Allure Report') {
+            steps {
+                sh 'npx allure generate reports/allure-results --clean -o reports/allure-report'
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Publish test results
+            junit 'reports/junit-results.xml'
+            
+            // Publish HTML report
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'reports/html-report',
+                reportFiles: 'index.html',
+                reportName: 'Playwright HTML Report'
+            ])
+            
+            // Publish Allure report
+            allure([
+                includeProperties: false,
+                jdk: '',
+                properties: [],
+                reportBuildPolicy: 'ALWAYS',
+                results: [[path: 'reports/allure-results']]
+            ])
+            
+            // Archive artifacts
+            archiveArtifacts artifacts: 'reports/**/*,test-results/**/*', allowEmptyArchive: true
+            
+            // Clean workspace
+            cleanWs()
+        }
+        
+        success {
+            echo "Tests passed successfully!"
+        }
+        
+        failure {
+            emailext(
+                subject: "❌ Test Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """<h2>Test Execution Failed</h2>
+                <p><strong>Environment:</strong> ${params.ENVIRONMENT}</p>
+                <p><strong>Browser:</strong> ${params.BROWSER}</p>
+                <p><strong>Build URL:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                mimeType: 'text/html',
+                recipientProviders: [developers(), requestor()]
+            )
+        }
+    }
+}

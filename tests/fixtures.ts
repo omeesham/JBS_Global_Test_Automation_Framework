@@ -5,12 +5,12 @@
  */
 
 import { test as base, Page } from '@playwright/test';
-import { LoginPage } from '../pages/login.page';
-import { LandingPage } from '../pages/landing.page';
-import { HomePage } from '../pages/home.page';
-import { WorkingScreenPage } from '../pages/working-screen.page';
-import { WorkingScreenPageAudit } from '../pages/working-screen-audit.page';
-import { CommonMethods } from '../utils/common-methods';
+import { LoginPage } from '../src/pages/login.page';
+import { LandingPage } from '../src/pages/landing.page';
+import { HomePage } from '../src/pages/home.page';
+import { WorkingScreenPage } from '../src/pages/working-screen.page';
+import { WorkingScreenPageAudit } from '../src/pages/working-screen-audit.page';
+import { CommonMethods } from '../src/utils/common-methods';
 import { IConfig } from '../types';
 
 // Define fixture types

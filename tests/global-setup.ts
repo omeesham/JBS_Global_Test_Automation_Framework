@@ -5,7 +5,7 @@
  */
 
 import { chromium, FullConfig } from '@playwright/test';
-import { Log } from '../utils/logger';
+import { Log } from '../src/utils/logger';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
