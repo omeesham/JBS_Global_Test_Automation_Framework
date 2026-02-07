@@ -16,11 +16,6 @@ playwright-report/
 playwright/.cache/
 .playwright/
 
-# QA system artifacts (temporary, not committed)
-tooling/qa/tasks/.locks/
-tooling/qa/.qa-mistakes/mistakes.jsonl
-tooling/qa/tasks/active/*/prompt_snapshot_*.md
-
 # Logs
 logs/
 *.log
