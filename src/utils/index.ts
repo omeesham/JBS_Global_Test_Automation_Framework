@@ -8,7 +8,8 @@
  */
 
 // Re-export Playwright types
-export { Page, expect, Browser, BrowserContext } from '@playwright/test';
+export type { Page, Browser, BrowserContext } from '@playwright/test';
+export { expect } from '@playwright/test';
 
 // Re-export utility classes
 export { Log, Logger } from './logger';
@@ -17,7 +18,7 @@ export { OpenAIUtils } from './openai-utils';
 export { AppConstants } from './app-constants';
 
 // Re-export types
-export * from '../types';
+export type * from '../../types';
 
 // Standard library re-exports that are commonly used
 export type { Locator } from '@playwright/test';

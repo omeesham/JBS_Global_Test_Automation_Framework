@@ -21,7 +21,7 @@ import { stringify } from 'csv-stringify/sync';
 import { authenticator } from 'otplib';
 import * as dotenv from 'dotenv';
 import { Log } from './logger';
-import { IConfig, ILocatorRepository, IValidationFields } from '../types';
+import { IConfig, ILocatorRepository, IValidationFields } from '../../types';
 
 // Load environment variables
 dotenv.config();
@@ -128,7 +128,7 @@ export class CommonMethods {
    * Retrieve value from CSV file
    */
   static getValuesFromCsv(elementName: string, fileName: string): string | null {
-    let locator: string | null = null;
+    let locator: string | null | undefined = null;
 
     if (this._loadedFiles.has(fileName)) {
       Log.info(`Locators already loaded for ${fileName}`);
@@ -146,7 +146,7 @@ export class CommonMethods {
       Log.info(`Available keys in _locators: ${keys.join(', ')}`);
     }
 
-    return locator;
+    return locator || null;
   }
 
   /**

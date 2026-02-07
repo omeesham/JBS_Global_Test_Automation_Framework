@@ -81,23 +81,7 @@ test.describe.serial('Home - Dashboard Tests', () => {
    *   2. Verify key navigation links
    *   3. Test navigation to a section
    */
-  test.skip('should display navigation elements', async ({ homePage, page }) => {
-    Log.info('TEST: Navigation elements verification');
-
-    // TODO: Implement once CSV locators are configured
-    // Expected checks:
-    // - Sidebar navigation exists
-    // - Dashboard link visible
-    // - Profile link visible
-    // - Settings link visible
-    // - Logout button visible
-    
-    // Placeholder navigation test
-    const navigationSuccess = await homePage.navigateToSection('dashboard');
-    expect(navigationSuccess, 'Navigation should succeed').toBe(true);
-    
-    Log.info('⏭️ Test skipped - requires CSV locator configuration');
-  });
+  // TODO: Implement navigation elements test once CSV locators are configured
 
   /**
    * Test 4: Page Content
@@ -109,18 +93,7 @@ test.describe.serial('Home - Dashboard Tests', () => {
    *   2. Verify dashboard widgets load
    *   3. Check for user-specific content
    */
-  test.skip('should display dashboard widgets and content', async ({ page }) => {
-    Log.info('TEST: Dashboard content verification');
-
-    // TODO: Implement once page structure is defined
-    // Expected checks:
-    // - Welcome message with username
-    // - Recent activity widget
-    // - Statistics/metrics
-    // - Quick actions section
-    
-    Log.info('⏭️ Test skipped - requires page structure definition');
-  });
+  // TODO: Implement dashboard content test once page structure is defined
 });
 
 /**
@@ -144,14 +117,5 @@ test.describe('Home - Performance', () => {
    * WHAT: Measures home page load performance
    * WHY: Slow loads hurt user experience
    */
-  test.skip('should load within acceptable time limits', async ({ page }) => {
-    Log.info('TEST: Home page load performance');
-
-    // TODO: Implement performance measurement
-    // 1. Navigate to home page
-    // 2. Measure load time
-    // 3. Assert load time < 3 seconds
-    
-    Log.info('⏭️ Test skipped - requires performance metrics implementation');
-  });
+  // TODO: Implement performance measurement test
 });

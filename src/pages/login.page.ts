@@ -13,19 +13,19 @@
  */
 
 import { Page } from '@playwright/test';
+import { BasePage } from '../common/base-page';
 import { Log } from '../utils/logger';
 import { CommonMethods, allure } from '../utils/common-methods';
 import { OpenAIUtils } from '../utils/openai-utils';
 import { AppConstants } from '../utils/app-constants';
-import { IConfig } from '../types';
+import { IConfig } from '../../types';
 
-export class LoginPage {
-  private page: Page;
+export class LoginPage extends BasePage {
   private openaiUtils: OpenAIUtils;
 
-  constructor(page: Page) {
+  constructor(page: Page, config?: IConfig) {
+    super(page, config);
     Log.info('Login page constructor');
-    this.page = page;
     this.openaiUtils = new OpenAIUtils();
   }
 

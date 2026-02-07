@@ -12,9 +12,11 @@
  */
 
 import { Page } from '@playwright/test';
+import { BasePage } from '../common/base-page';
 import { Log } from '../utils/logger';
 import { CommonMethods } from '../utils/common-methods';
 import { AppConstants } from '../utils/app-constants';
+import { IConfig } from '../../types';
 
 /**
  * HomePage Class
@@ -23,25 +25,24 @@ import { AppConstants } from '../utils/app-constants';
  * Provides methods to interact with home page elements and verify page state.
  * 
  * USAGE:
- *   const homePage = new HomePage(page);
+ *   const homePage = new HomePage(page, config);
  *   await homePage.isLoaded();
  *   await homePage.navigateToSection('dashboard');
  */
-export class HomePage {
-  private page: Page;
-
+export class HomePage extends BasePage {
   /**
    * Constructor
    * 
    * @param page Playwright Page instance
+   * @param config Configuration object (optional)
    * 
    * HOW IT WORKS:
-   * - Stores page reference for all interactions
+   * - Calls BasePage constructor with page and config
    * - Logs page initialization
    */
-  constructor(page: Page) {
+  constructor(page: Page, config?: IConfig) {
+    super(page, config);
     Log.info('HomePage constructor initialized');
-    this.page = page;
   }
 
   /**

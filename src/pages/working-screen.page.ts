@@ -12,16 +12,17 @@
  */
 
 import { Page } from '@playwright/test';
+import { BasePage } from '../common/base-page';
 import { Log } from '../utils/logger';
 import { OpenAIUtils } from '../utils/openai-utils';
+import { IConfig } from '../../types';
 
-export class WorkingScreenPage {
-  private page: Page;
+export class WorkingScreenPage extends BasePage {
   private openaiUtils: OpenAIUtils;
 
-  constructor(page: Page) {
+  constructor(page: Page, config?: IConfig) {
+    super(page, config);
     Log.info('Working screen page constructor');
-    this.page = page;
     this.openaiUtils = new OpenAIUtils();
   }
 

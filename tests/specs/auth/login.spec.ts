@@ -93,23 +93,7 @@ test.describe.serial('Login - Authentication Tests', () => {
    *   2. Verify error message displayed
    *   3. Ensure user remains on login page
    */
-  test.skip('should show error message for invalid credentials', async ({ 
-    loginPage, 
-    page 
-  }) => {
-    Log.info('TEST: Invalid credentials error handling');
-
-    // Note: This test is skipped as it requires specific error handling logic
-    // to be implemented in loginWithMfa method
-    
-    // TODO: Implement test once error handling is in place
-    // Expected behavior:
-    // - Login attempt should fail
-    // - Error message should be visible
-    // - User should remain on login page
-    
-    Log.info('⏭️ Test skipped - requires error handling implementation');
-  });
+  // TODO: Implement test for invalid credentials error handling
 });
 
 /**
@@ -128,16 +112,7 @@ test.describe('Login - Accessibility', () => {
    * WHAT: Verifies login form is accessible via keyboard
    * WHY: Users with mobility issues rely on keyboard navigation
    */
-  test.skip('should support keyboard navigation through login form', async ({ page }) => {
-    Log.info('TEST: Keyboard navigation');
-    
-    // TODO: Implement keyboard navigation test
-    // 1. Tab through form elements
-    // 2. Verify focus order
-    // 3. Test Enter key submission
-    
-    Log.info('⏭️ Test skipped - requires implementation');
-  });
+  // TODO: Implement keyboard navigation test
 
   /**
    * Test: Screen Reader Labels
@@ -145,14 +120,5 @@ test.describe('Login - Accessibility', () => {
    * WHAT: Verifies form inputs have proper ARIA labels
    * WHY: Screen reader users need proper element labeling
    */
-  test.skip('should have proper ARIA labels for form inputs', async ({ page }) => {
-    Log.info('TEST: ARIA labels');
-    
-    // TODO: Implement ARIA label verification
-    // 1. Check username input has label
-    // 2. Check password input has label
-    // 3. Verify button has accessible name
-    
-    Log.info('⏭️ Test skipped - requires implementation');
-  });
+  // TODO: Implement ARIA label verification
 });

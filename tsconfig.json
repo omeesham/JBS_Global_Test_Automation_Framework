@@ -41,10 +41,13 @@
     // Path Mapping
     "baseUrl": "./",
     "paths": {
-      "@pages/*": ["pages/*"],
-      "@utils/*": ["utils/*"],
+      "@pages/*": ["src/pages/*"],
+      "@utils/*": ["src/utils/*"],
+      "@common/*": ["src/common/*"],
+      "@data/*": ["src/data/*"],
+      "@api/*": ["src/api/*"],
       "@tests/*": ["tests/*"],
-      "@configs/*": ["configs/*"],
+      "@config/*": ["config/*"],
       "@types/*": ["types/*"]
     },
     

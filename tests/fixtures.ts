@@ -49,46 +49,46 @@ export const test = base.extend<MyFixtures>({
 
   /**
    * LoginPage fixture
-   * Auto-initialized LoginPage instance
+   * Auto-initialized LoginPage instance with config
    */
-  loginPage: async ({ page }, use) => {
-    const loginPage = new LoginPage(page);
+  loginPage: async ({ page, config }, use) => {
+    const loginPage = new LoginPage(page, config);
     await use(loginPage);
   },
 
   /**
    * LandingPage fixture
-   * Auto-initialized LandingPage instance
+   * Auto-initialized LandingPage instance with config
    */
-  landingPage: async ({ page }, use) => {
-    const landingPage = new LandingPage(page);
+  landingPage: async ({ page, config }, use) => {
+    const landingPage = new LandingPage(page, config);
     await use(landingPage);
   },
 
   /**
    * HomePage fixture
-   * Auto-initialized HomePage instance
+   * Auto-initialized HomePage instance with config
    */
-  homePage: async ({ page }, use) => {
-    const homePage = new HomePage(page);
+  homePage: async ({ page, config }, use) => {
+    const homePage = new HomePage(page, config);
     await use(homePage);
   },
 
   /**
    * WorkingScreenPage fixture
-   * Auto-initialized WorkingScreenPage instance
+   * Auto-initialized WorkingScreenPage instance with config
    */
-  workingScreenPage: async ({ page }, use) => {
-    const workingScreenPage = new WorkingScreenPage(page);
+  workingScreenPage: async ({ page, config }, use) => {
+    const workingScreenPage = new WorkingScreenPage(page, config);
     await use(workingScreenPage);
   },
 
   /**
    * WorkingScreenPageAudit fixture
-   * Auto-initialized WorkingScreenPageAudit instance
+   * Auto-initialized WorkingScreenPageAudit instance with config
    */
-  workingScreenPageAudit: async ({ page }, use) => {
-    const workingScreenPageAudit = new WorkingScreenPageAudit(page);
+  workingScreenPageAudit: async ({ page, config }, use) => {
+    const workingScreenPageAudit = new WorkingScreenPageAudit(page, config);
     await use(workingScreenPageAudit);
   },
 

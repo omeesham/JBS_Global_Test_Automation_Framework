@@ -14,9 +14,8 @@ async function globalSetup(config: FullConfig) {
   dotenv.config();
 
   Log.info('=== Global Test Setup Started ===');
-  Log.info(`Base URL: ${config.use?.baseURL || 'Not set'}`);
   Log.info(`Workers: ${config.workers}`);
-  Log.info(`Retries: ${config.retries}`);
+  Log.info(`Projects: ${config.projects?.length || 0}`);
   
   // You can add any global setup logic here
   // For example: database connection, API authentication, etc.
