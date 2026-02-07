@@ -262,11 +262,12 @@ export class UiCommon {
 
       // Clear session and local storage
       await page.context().clearCookies();
-      // Type-safe storage clearing using Playwright evaluate
+      // Browser storage clearing (using globalThis with type assertion for cross-context safety)
       await page.evaluate(() => {
         try {
-          globalThis.sessionStorage?.clear();
-          globalThis.localStorage?.clear();
+          const ctx = globalThis as any;
+          ctx.sessionStorage?.clear();
+          ctx.localStorage?.clear();
         } catch (e) {
           // Ignore storage clearing errors (may not be available in all contexts)
         }

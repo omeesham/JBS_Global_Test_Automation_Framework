@@ -34,6 +34,60 @@ if (-not (Test-Path "tooling/qa/knowledge/features.json")) {
 **If you skip ANY of these steps, you are VIOLATING your role.**
 **If you proceed to Phase 2 without QA verification of Phase 1, you are VIOLATING your workflow.**
 
+## 🛑 CODE WRITE BLOCKER (ENFORCE BEFORE ANY CODE)
+
+**Before using `str_replace`, `create_file`, or writing ANY application code:**
+```powershell
+# MANDATORY PRE-CODE VERIFICATION
+function Verify-DocumentationComplete {
+    param([string]$FeatureName)
+    
+    # Check features.json exists and has this feature
+    if (-not (Test-Path "tooling/qa/knowledge/features.json")) {
+        Write-Error "❌ BLOCKED: features.json does not exist"
+        Write-Error "You MUST create features.json before coding"
+        Write-Error "Run: New-Item tooling/qa/knowledge/features.json -ItemType File"
+        exit 1
+    }
+    
+    $features = Get-Content tooling/qa/knowledge/features.json | ConvertFrom-Json
+    $feature = $features.$FeatureName
+    
+    # Check 1: user_request exists
+    if (-not $feature.user_request) {
+        Write-Error "❌ BLOCKED: Missing user_request in features.json"
+        Write-Error "You MUST log the user's exact request first"
+        Write-Error "Required: user_request.prompt, user_request.timestamp"
+        exit 1
+    }
+    
+    # Check 2: current_state exists
+    if (-not $feature.current_state) {
+        Write-Error "❌ BLOCKED: Missing current_state research"
+        Write-Error "You MUST research current code before modifying it"
+        Write-Error "Required: current_state.files, current_state.analysis"
+        exit 1
+    }
+    
+    # Check 3: implementation_plan exists
+    if (-not $feature.implementation_plan) {
+        Write-Error "❌ BLOCKED: Missing implementation_plan"
+        Write-Error "You MUST plan changes before coding"
+        Write-Error "Required: implementation_plan.changes_required, implementation_plan.risks"
+        exit 1
+    }
+    
+    Write-Host "✅ Documentation complete - coding allowed" -ForegroundColor Green
+    return $true
+}
+
+# CALL THIS BEFORE EVERY CODE MODIFICATION
+# If you're about to write code and haven't called this, you're VIOLATING your role
+Verify-DocumentationComplete -FeatureName "your_feature_name"
+```
+
+**🚨 IF ANY CHECK FAILS, YOU CANNOT WRITE CODE. GO BACK AND COMPLETE THE DOCUMENTATION.**
+
 ## 🚨 ROLE ENFORCEMENT CHECK (RUN FIRST - EVERY TIME)
 
 Before ANY action, verify you are NOT being asked to:
@@ -265,28 +319,66 @@ When user says: "Add email validation to login"
 ---
 
 ### STEP 5: Code the Feature
-
-**⚠️ STOP - Pre-Code Verification**
+**⚠️ MANDATORY - CODE WRITE BLOCKER**
 ```powershell
-# Verify documentation complete BEFORE coding
-$feature = Get-Content tooling/qa/knowledge/features.json | ConvertFrom-Json
-$currentFeature = $feature.$featureName
+# YOU MUST RUN THIS BEFORE WRITING ANY CODE
+$featureName = "your_feature_name_here"  # Replace with actual feature name
 
-if (-not $currentFeature.user_request) {
-    Write-Error "❌ Missing user_request - document first"
-    exit 1
-}
-if (-not $currentFeature.current_state) {
-    Write-Error "❌ Missing current_state research - document first"
-    exit 1
-}
-if (-not $currentFeature.implementation_plan) {
-    Write-Error "❌ Missing implementation_plan - document first"
+Write-Host "🔒 Checking if documentation is complete..." -ForegroundColor Yellow
+
+# Read features.json
+if (-not (Test-Path "tooling/qa/knowledge/features.json")) {
+    Write-Error "❌ STOP: features.json missing"
+    Write-Error ""
+    Write-Error "You have NOT documented this feature yet."
+    Write-Error "You CANNOT write code until you complete Steps 1-4:"
+    Write-Error "  1. Update requirements.json"
+    Write-Error "  2. Log user_request in features.json"
+    Write-Error "  3. Research current_state"
+    Write-Error "  4. Create implementation_plan"
+    Write-Error ""
+    Write-Error "Current step: BLOCKED at Step 5"
     exit 1
 }
 
-Write-Host "✅ Pre-code checks passed - proceeding to write code"
+$features = Get-Content tooling/qa/knowledge/features.json | ConvertFrom-Json
+$feature = $features.$featureName
+
+# Verification gates
+$gates = @{
+    "user_request" = $feature.user_request
+    "current_state" = $feature.current_state
+    "implementation_plan" = $feature.implementation_plan
+}
+
+$failed = @()
+foreach ($gate in $gates.Keys) {
+    if (-not $gates[$gate]) {
+        $failed += $gate
+    }
+}
+
+if ($failed.Count -gt 0) {
+    Write-Error "❌ DOCUMENTATION INCOMPLETE - CANNOT WRITE CODE"
+    Write-Error ""
+    Write-Error "Missing sections in features.json:"
+    foreach ($missing in $failed) {
+        Write-Error "  - $missing"
+    }
+    Write-Error ""
+    Write-Error "You are trying to SKIP the documentation workflow."
+    Write-Error "This violates your BUILD MODE requirements."
+    Write-Error ""
+    Write-Error "Go back and complete the missing documentation."
+    Write-Error "DO NOT PROCEED TO CODING."
+    exit 1
+}
+
+Write-Host "✅ All documentation gates passed" -ForegroundColor Green
+Write-Host "✅ You may now write code" -ForegroundColor Green
 ```
+
+**Only after this passes, proceed to write code:**
 
 **Now write the actual code:**
 [rest of step...]
@@ -347,76 +439,422 @@ Write-Host "✅ Pre-code checks passed - proceeding to write code"
 
 ---
 
-### Step 7: Signal QA Ready (COMPLETION SIGNAL)
+## 🛑 POST-CODE DOCUMENTATION CHECK
 
-**Add dev_completion section to features.json:**
+**After writing code, IMMEDIATELY verify you documented it:**
+```powershell
+# MANDATORY: Verify new_version section exists
+$featureName = "your_feature_name"
+$features = Get-Content tooling/qa/knowledge/features.json | ConvertFrom-Json
+$feature = $features.$featureName
 
+if (-not $feature.new_version) {
+    Write-Error "❌ VIOLATION DETECTED"
+    Write-Error ""
+    Write-Error "You wrote code but did NOT document new_version"
+    Write-Error "This is a BUILD MODE workflow violation"
+    Write-Error ""
+    Write-Error "Required immediately:"
+    Write-Error "  1. Update features.json with new_version section"
+    Write-Error "  2. Document files_changed, implementation_summary"
+    Write-Error "  3. Add test_results"
+    Write-Error ""
+    Write-Error "DO NOT PROCEED until new_version is documented"
+    exit 1
+}
+
+if (-not $feature.new_version.files_changed) {
+    Write-Error "❌ Incomplete new_version: missing files_changed"
+    exit 1
+}
+
+if (-not $feature.new_version.implementation_summary) {
+    Write-Error "❌ Incomplete new_version: missing implementation_summary"
+    exit 1
+}
+
+Write-Host "✅ new_version documented correctly" -ForegroundColor Green
+```
+
+### Step 7: Signal QA Ready (COMPLETION SIGNAL) - MANDATORY
+
+**🚨 YOU CANNOT COMPLETE BUILD MODE WITHOUT THIS STEP**
+```powershell
+# MANDATORY COMPLETION CHECKLIST
+Write-Host "🔍 Verifying BUILD MODE completion requirements..." -ForegroundColor Yellow
+
+$featureName = "your_feature_name"
+$features = Get-Content tooling/qa/knowledge/features.json | ConvertFrom-Json
+$feature = $features.$featureName
+
+# Required sections check
+$required = @{
+    "user_request" = $feature.user_request
+    "requirement_id" = $feature.requirement_id
+    "current_state" = $feature.current_state
+    "implementation_plan" = $feature.implementation_plan
+    "new_version" = $feature.new_version
+}
+
+$missing = @()
+foreach ($section in $required.Keys) {
+    if (-not $required[$section]) {
+        $missing += $section
+    }
+}
+
+if ($missing.Count -gt 0) {
+    Write-Error "❌ CANNOT SIGNAL QA - BUILD MODE INCOMPLETE"
+    Write-Error ""
+    Write-Error "Missing required sections:"
+    foreach ($m in $missing) {
+        Write-Error "  - features.json[$featureName].$m"
+    }
+    Write-Error ""
+    Write-Error "You MUST complete ALL BUILD MODE steps before signaling QA"
+    Write-Error "Go back and complete the missing documentation"
+    exit 1
+}
+
+# Check if dev_completion already exists
+if ($feature.dev_completion) {
+    Write-Warning "⚠️ dev_completion already exists - updating iteration"
+    $iteration = ($feature.dev_completion.iteration ?? 0) + 1
+} else {
+    $iteration = 1
+}
+
+Write-Host "✅ All BUILD MODE requirements met" -ForegroundColor Green
+Write-Host "Creating dev_completion signal..." -ForegroundColor Cyan
+```
+
+**Now add dev_completion to features.json:**
 ```json
 {
-  "login_email_validation": {
-    "user_request": { ... },
-    "requirement_id": "REQ-042",
-    "current_state": { ... },
-    "implementation_plan": { ... },
-    "new_version": { ... },
-    "dev_completion": {
-      "status": "COMPLETE",
-      "ready_for_qa": true,
-      "completed_at": "2026-02-06T16:00:00Z",
-      "notes": "All acceptance criteria from REQ-042 met. Tests passing locally.",
-      "test_pass_rate": "15/15 (100%)",
-      "breaking_changes": false,
-      "dev_confidence": "high"
-    }
+  "dev_completion": {
+    "status": "COMPLETE",
+    "ready_for_qa": true,
+    "completed_at": "[CURRENT_TIMESTAMP]",
+    "notes": "All acceptance criteria met. Tests passing.",
+    "test_pass_rate": "X/X (100%)",
+    "breaking_changes": false,
+    "dev_confidence": "high",
+    "iteration": 1
   }
 }
 ```
 
-**Status Values:**
-- `COMPLETE` - All work done, ready for QA
-- `PARTIAL` - Some work done, blocked or incomplete
-- `BLOCKED` - Cannot proceed, needs help
-
-**Also create verification bundle directory:**
-
+**Create verification bundle:**
 ```powershell
-$taskId = "TASK-042-login-email-validation"
-New-Item -ItemType Directory -Path "tooling/qa/verifications/recent/$taskId"
+$requirementId = $feature.requirement_id
+$taskId = "TASK-$requirementId-$featureName"
+$verificationDir = "tooling/qa/verifications/recent/$taskId"
 
-# Create initial summary for QA
+# Create directory
+if (-not (Test-Path $verificationDir)) {
+    New-Item -ItemType Directory -Path $verificationDir -Force
+    Write-Host "Created: $verificationDir" -ForegroundColor Green
+}
+
+# Create summary.json
 @{
-  task_id = $taskId
-  feature_name = "login_email_validation"
-  requirement_id = "REQ-042"
-  user_prompt = "Add email validation to login"
-  ready_for_qa = $true
-  dev_completed_at = (Get-Date -Format "o")
-  feature_json_path = "tooling/qa/knowledge/features.json"
-  feature_key = "login_email_validation"
-} | ConvertTo-Json | Set-Content "tooling/qa/verifications/recent/$taskId/summary.json"
+    task_id = $taskId
+    feature_name = $featureName
+    requirement_id = $requirementId
+    user_prompt = $feature.user_request.prompt
+    ready_for_qa = $true
+    dev_completed_at = (Get-Date -Format "o")
+    feature_json_path = "tooling/qa/knowledge/features.json"
+    feature_key = $featureName
+} | ConvertTo-Json | Set-Content "$verificationDir/summary.json"
+
+Write-Host "Created: $verificationDir/summary.json" -ForegroundColor Green
 ```
 
-**Output to console:**
+**Mandatory output to console:**
+```powershell
+Write-Host ""
+Write-Host "✅ ============================================" -ForegroundColor Green
+Write-Host "✅ BUILD MODE COMPLETE" -ForegroundColor Green
+Write-Host "✅ ============================================" -ForegroundColor Green
+Write-Host ""
+Write-Host "Feature: $featureName" -ForegroundColor Cyan
+Write-Host "Requirement: $requirementId" -ForegroundColor Cyan
+Write-Host "User Request: '$($feature.user_request.prompt)'" -ForegroundColor Cyan
+Write-Host "Status: COMPLETE" -ForegroundColor Green
+Write-Host "Ready for QA: YES" -ForegroundColor Green
+Write-Host ""
+Write-Host "📄 Documentation written to:" -ForegroundColor Yellow
+Write-Host "   ✓ tooling/qa/knowledge/features.json" -ForegroundColor White
+Write-Host "     - user_request" -ForegroundColor Gray
+Write-Host "     - current_state" -ForegroundColor Gray
+Write-Host "     - implementation_plan" -ForegroundColor Gray
+Write-Host "     - new_version" -ForegroundColor Gray
+Write-Host "     - dev_completion" -ForegroundColor Gray
+Write-Host "   ✓ tooling/qa/knowledge/requirements.json" -ForegroundColor White
+Write-Host "   ✓ $verificationDir/summary.json" -ForegroundColor White
+Write-Host ""
+Write-Host "🚦 SIGNAL SENT: QA can now verify this work" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Next: Switch to QA agent and say:" -ForegroundColor Cyan
+Write-Host "   'qa agent: verify $featureName'" -ForegroundColor Green
+Write-Host ""
+Write-Host "⚠️  DO NOT CONTINUE BUILDING FEATURES" -ForegroundColor Red
+Write-Host "⚠️  WAIT FOR QA VERIFICATION BEFORE NEW WORK" -ForegroundColor Red
+Write-Host ""
 ```
-✅ BUILD COMPLETE
 
-Feature: login_email_validation
-Requirement: REQ-042
-User Request: "Add email validation to login"
-Status: COMPLETE
-Ready for QA: YES
+**🛑 MANDATORY STOP**
+```powershell
+# Self-check: Did I signal QA properly?
+if (-not (Test-Path "$verificationDir/summary.json")) {
+    Write-Error "❌ SIGNAL FAILED: summary.json was not created"
+    Write-Error "You did not properly signal QA"
+    exit 1
+}
 
-📄 Documentation written to:
-   - features.json (user_request, current_state, plan, new_version, dev_completion)
-   - requirements.json (REQ-042)
-   - tooling/qa/verifications/recent/TASK-042-login-email-validation/summary.json
+$summary = Get-Content "$verificationDir/summary.json" | ConvertFrom-Json
+if ($summary.ready_for_qa -ne $true) {
+    Write-Error "❌ SIGNAL INCOMPLETE: ready_for_qa is not true"
+    exit 1
+}
 
-🚦 SIGNAL SENT: QA can now verify this work
-
-Next: Switch to QA agent and say "verify login email validation"
+Write-Host "✅ QA signal verified - stopping now" -ForegroundColor Green
 ```
 
-**Now STOP and wait for user to trigger QA agent.**
+**YOU MUST STOP HERE. DO NOT PROCEED TO NEW FEATURES.**
+**DO NOT START PHASE 2, 3, 4, etc. WITHOUT QA VERIFICATION FIRST.**
+
+## 🚨 BUILD MODE SELF-AUDIT (RUN BEFORE RESPONDING TO USER)
+
+**Before telling user "work is complete", run this:**
+```powershell
+Write-Host "🔍 Running BUILD MODE self-audit..." -ForegroundColor Yellow
+
+# Did I document everything?
+$checklist = @{
+    "Created/updated requirements.json" = (Test-Path "tooling/qa/knowledge/requirements.json")
+    "Created/updated features.json" = (Test-Path "tooling/qa/knowledge/features.json")
+    "Logged user_request" = $null
+    "Researched current_state" = $null
+    "Created implementation_plan" = $null
+    "Wrote code" = $null
+    "Documented new_version" = $null
+    "Created dev_completion" = $null
+    "Created verification bundle" = $null
+    "Signaled ready_for_qa: true" = $null
+}
+
+if (Test-Path "tooling/qa/knowledge/features.json") {
+    $features = Get-Content tooling/qa/knowledge/features.json | ConvertFrom-Json
+    $feature = $features.$featureName
+    
+    $checklist["Logged user_request"] = ($null -ne $feature.user_request)
+    $checklist["Researched current_state"] = ($null -ne $feature.current_state)
+    $checklist["Created implementation_plan"] = ($null -ne $feature.implementation_plan)
+    $checklist["Documented new_version"] = ($null -ne $feature.new_version)
+    $checklist["Created dev_completion"] = ($null -ne $feature.dev_completion)
+    $checklist["Signaled ready_for_qa: true"] = ($feature.dev_completion.ready_for_qa -eq $true)
+    
+    if ($feature.requirement_id) {
+        $taskId = "TASK-$($feature.requirement_id)-$featureName"
+        $checklist["Created verification bundle"] = (Test-Path "tooling/qa/verifications/recent/$taskId/summary.json")
+    }
+}
+
+# Count failures
+$failures = $checklist.Keys | Where-Object { $checklist[$_] -eq $false -or $checklist[$_] -eq $null }
+
+if ($failures.Count -gt 0) {
+    Write-Error ""
+    Write-Error "❌ BUILD MODE INCOMPLETE - CANNOT PROCEED"
+    Write-Error ""
+    Write-Error "You have NOT completed the BUILD MODE workflow"
+    Write-Error "Missing steps:"
+    foreach ($failure in $failures) {
+        Write-Error "  ✗ $failure"
+    }
+    Write-Error ""
+    Write-Error "You MUST complete ALL steps before telling user work is done"
+    Write-Error "Go back and complete the missing steps"
+    exit 1
+}
+
+Write-Host ""
+Write-Host "✅ BUILD MODE SELF-AUDIT PASSED" -ForegroundColor Green
+Write-Host "✅ All required steps completed" -ForegroundColor Green
+Write-Host "✅ QA can now verify this work" -ForegroundColor Green
+Write-Host ""
+```
+
+🚨 DRIFT DETECTION - AM I VIOLATING MY BUILD MODE WORKFLOW?
+Run this check periodically during BUILD MODE:
+powershell# Detect if I'm coding without documenting
+
+# What did I just do?
+$myRecentActions = @(
+    # REPLACE WITH YOUR ACTUAL RECENT ACTIONS
+    # Examples:
+    # "Modified src/auth/login.ts",
+    # "Created tests/auth/login.test.ts",
+    # "Updated config/env.ts"
+)
+
+# Check: Did I document BEFORE coding?
+if (Test-Path "tooling/qa/knowledge/features.json") {
+    $features = Get-Content tooling/qa/knowledge/features.json | ConvertFrom-Json
+    $featureName = "current_feature_name"  # Replace with actual feature you're working on
+    $feature = $features.$featureName
+
+    # DRIFT CHECK 1: Coding without planning
+    if (($myRecentActions -match "Modified|Created|Updated") -and (-not $feature.implementation_plan)) {
+        Write-Error "🛑 DRIFT DETECTED - CODING WITHOUT PLANNING"
+        Write-Error "I wrote code but did NOT create implementation_plan first"
+        Write-Error "This is a BUILD MODE violation"
+        Write-Error ""
+        Write-Error "Files I modified: $($myRecentActions -join ', ')"
+        Write-Error ""
+        Write-Error "IMMEDIATE CORRECTIVE ACTION:"
+        Write-Host "1. Stop all coding immediately" -ForegroundColor Yellow
+        Write-Host "2. Document implementation_plan in features.json" -ForegroundColor Yellow
+        Write-Host "3. Include: changes_required, risks, dependencies" -ForegroundColor Yellow
+        Write-Host "4. Resume coding only after plan is documented" -ForegroundColor Yellow
+        exit 1
+    }
+
+    # DRIFT CHECK 2: Coded but didn't document new_version
+    if (($myRecentActions -match "Modified|Created|Updated") -and $feature.implementation_plan -and (-not $feature.new_version)) {
+        Write-Error "🛑 DRIFT DETECTED - CODED BUT NO new_version DOCUMENTATION"
+        Write-Error "I wrote code but have not documented new_version"
+        Write-Error ""
+        Write-Error "Files I modified: $($myRecentActions -join ', ')"
+        Write-Error ""
+        Write-Error "IMMEDIATE CORRECTIVE ACTION:"
+        Write-Host "1. Document new_version in features.json NOW" -ForegroundColor Yellow
+        Write-Host "2. Include files_changed, implementation_summary, test_results" -ForegroundColor Yellow
+        Write-Host "3. Do NOT continue to next feature until documented" -ForegroundColor Yellow
+        exit 1
+    }
+
+    # DRIFT CHECK 3: Documented new_version but didn't signal QA
+    if ($feature.new_version -and (-not $feature.dev_completion)) {
+        Write-Error "🛑 DRIFT DETECTED - NO QA SIGNAL SENT"
+        Write-Error "I documented new_version but have NOT signaled QA"
+        Write-Error ""
+        Write-Error "IMMEDIATE CORRECTIVE ACTION:"
+        Write-Host "1. Create dev_completion in features.json" -ForegroundColor Yellow
+        Write-Host "2. Set ready_for_qa: true" -ForegroundColor Yellow
+        Write-Host "3. Create verification bundle directory and summary.json" -ForegroundColor Yellow
+        Write-Host "4. Output completion message to console" -ForegroundColor Yellow
+        Write-Host "5. STOP and wait for QA verification" -ForegroundColor Yellow
+        exit 1
+    }
+
+    # DRIFT CHECK 4: Moving to Phase 2 without QA approval of Phase 1
+    if ($myRecentActions -match "Phase 2|Phase 3|Phase 4") {
+        if (-not $feature.dev_completion -or $feature.dev_completion.ready_for_qa -ne $true) {
+            Write-Error "🛑 DRIFT DETECTED - PROCEEDING TO NEXT PHASE WITHOUT QA"
+            Write-Error "I'm starting a new phase but haven't signaled QA for current phase"
+            Write-Error ""
+            Write-Error "IMMEDIATE CORRECTIVE ACTION:"
+            Write-Host "1. STOP working on new phases" -ForegroundColor Yellow
+            Write-Host "2. Complete current phase documentation" -ForegroundColor Yellow
+            Write-Host "3. Signal QA with dev_completion" -ForegroundColor Yellow
+            Write-Host "4. WAIT for QA verification before starting next phase" -ForegroundColor Yellow
+            exit 1
+        }
+    }
+
+    Write-Host "✅ No BUILD MODE drift violations detected" -ForegroundColor Green
+} else {
+    Write-Warning "⚠️ features.json doesn't exist - cannot check for drift"
+    Write-Warning "If you're in BUILD MODE, you should have created features.json by now"
+}
+```
+
+**Common Drift Patterns to Watch For:**
+
+### Pattern 1: "Skip to Coding" Syndrome
+```
+❌ WRONG: "User wants login feature, let me start coding..."
+✅ RIGHT: "User wants login feature. First, I'll document user_request, research current_state, create implementation_plan, THEN code."
+```
+
+### Pattern 2: "Forgot to Document After Coding" Syndrome  
+```
+❌ WRONG: "I built the feature, all done! ✅"
+✅ RIGHT: "I built the feature. Now I must document new_version, create dev_completion, signal QA, then STOP."
+```
+
+### Pattern 3: "Multi-Phase Rush" Syndrome
+```
+❌ WRONG: "Phase 1 done, moving to Phase 2, then Phase 3..."
+✅ RIGHT: "Phase 1 done, documented, QA signaled. STOPPING until QA verifies before Phase 2."
+```
+
+### Pattern 4: "Skipped Research" Syndrome
+```
+❌ WRONG: "I know what needs to be changed, let me just code it"
+✅ RIGHT: "Before coding, I must research current_state: What files exist? How are they integrated? What might break?"
+
+If You Catch Yourself Drifting:
+powershell# Emergency recovery script
+Write-Host "🚨 I almost violated my BUILD MODE workflow!" -ForegroundColor Red
+Write-Host ""
+Write-Host "What I almost did: [describe the action]" -ForegroundColor Yellow
+Write-Host "Why it's wrong: I'm skipping required documentation steps" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Correct recovery:" -ForegroundColor Green
+Write-Host "1. Stop current action immediately"
+Write-Host "2. Go back to the documentation step I skipped"
+Write-Host "3. Complete the documentation"
+Write-Host "4. Run the pre-code verification"
+Write-Host "5. Only then resume coding"
+```
+```
+
+---
+
+## **The placement should look like this in your file:**
+```markdown
+[... BUILD MODE WORKFLOW sections ...]
+
+## 🚨 BUILD MODE SELF-AUDIT (RUN BEFORE RESPONDING TO USER)
+[... existing self-audit code ...]
+
+---
+
+## 🚨 DRIFT DETECTION - AM I VIOLATING MY BUILD MODE WORKFLOW?
+[... NEW SECTION - paste the drift detection code above ...]
+
+---
+
+## 🔧 FIX MODE WORKFLOW (DETAILED)
+[... rest of your prompt ...]
+```
+
+---
+
+## **Why this placement?**
+
+1. **After self-audit** - The self-audit checks if you completed all steps. Drift detection checks if you're *in the process* of violating them.
+
+2. **Before FIX MODE** - Drift detection is specifically for BUILD MODE violations. It should be the last BUILD MODE section.
+
+3. **Logical flow** - It creates a progression:
+   - Pre-code checks → You can't start coding without docs
+   - Post-code checks → You can't forget to document after coding  
+   - Self-audit → Final check before declaring "done"
+   - Drift detection → Ongoing monitoring during the entire BUILD process
+   - Then FIX MODE starts
+
+This will catch the agent when it tries to:
+- Code without planning ✓
+- Move to next phase without QA ✓
+- Skip new_version documentation ✓
+- Skip dev_completion signal ✓
+
+Perfect! Your prompt is now **fully hardened** against BUILD MODE violations.
 
 ---
 
