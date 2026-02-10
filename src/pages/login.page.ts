@@ -1,32 +1,56 @@
 /**
  * FILE: src/pages/login.page.ts
- * PURPOSE: Login page object with MFA support
+ * PURPOSE: Login page object for EspoCRM with optional MFA support
  * WHY NECESSARY: Encapsulates login page interactions for authentication flows
  * USED BY: Login tests (tests/specs/auth/login.spec.ts), test fixtures
- * 
+ *
  * HOW IT WORKS:
  * 1. Uses CSV locators from object_repository/Login_Elements.csv
  * 2. Implements loginWithMfa() for standard + MFA authentication
- * 3. Supports OpenAI self-healing for element location
- * 4. Integrates with CommonMethods for CSV reading and validation
- * 5. Returns boolean success/failure for all public methods
+ * 3. Integrates with CommonMethods for CSV reading and validation
+ * 4. Returns boolean success/failure for all public methods
  */
 
 import { Page } from '@playwright/test';
 import { BasePage } from '../common/base-page';
 import { Log } from '../utils/logger';
 import { CommonMethods, allure } from '../utils/common-methods';
-import { OpenAIUtils } from '../utils/openai-utils';
 import { AppConstants } from '../utils/app-constants';
-import { IConfig } from '../../types';
+import { IConfig } from '../../src/framework-contracts';
 
 export class LoginPage extends BasePage {
-  private openaiUtils: OpenAIUtils;
-
   constructor(page: Page, config?: IConfig) {
     super(page, config);
     Log.info('Login page constructor');
-    this.openaiUtils = new OpenAIUtils();
+  }
+
+  /**
+   * Navigate to login page and wait for form to render
+   */
+  async goto(): Promise<void> {
+    const url = this.config?.base_url || process.env.BASE_URL || 'https://demo.us.espocrm.com/';
+    await this.page.goto(url, { timeout: 60000, waitUntil: 'domcontentloaded' });
+    const frmLogin = CommonMethods.getValuesFromCsv('frmLogin', AppConstants.LOGIN_ELEMENTS);
+    if (frmLogin) {
+      await this.page.waitForSelector(frmLogin, { state: 'visible', timeout: 15000 });
+    }
+    Log.info(`Navigated to login page: ${url}`);
+  }
+
+  /**
+   * Check if login was successful (navigated away from login page)
+   */
+  async isLoggedIn(): Promise<boolean> {
+    try {
+      const divMain = CommonMethods.getValuesFromCsv('divMainContent', AppConstants.HOME_ELEMENTS);
+      if (divMain) {
+        return await this.page.locator(divMain).isVisible({ timeout: 10000 });
+      }
+      const url = this.page.url();
+      return url.includes('#');
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -37,27 +61,27 @@ export class LoginPage extends BasePage {
       'lnkForgotPassword',
       AppConstants.LOGIN_ELEMENTS
     );
-    
+
     if (!lnkForgotPassword) return false;
     return await this.page.isVisible(lnkForgotPassword);
   }
 
   /**
-   * Check if Azure AD login link exists
+   * Check if login form is displayed
    */
-  async isLoginUsingAzureAdLinkExist(): Promise<boolean> {
-    const lnkAzureAd = CommonMethods.getValuesFromCsv(
-      'lnkAzureAd',
+  async isLoginFormDisplayed(): Promise<boolean> {
+    const frmLogin = CommonMethods.getValuesFromCsv(
+      'frmLogin',
       AppConstants.LOGIN_ELEMENTS
     );
-    
-    if (!lnkAzureAd) return false;
-    return await this.page.isVisible(lnkAzureAd);
+
+    if (!frmLogin) return false;
+    return await this.page.isVisible(frmLogin);
   }
 
   /**
    * Login to the application with MFA support
-   * 
+   *
    * @param username Username
    * @param password Password
    * @param config Configuration dictionary (optional, required for MFA)
@@ -83,9 +107,8 @@ export class LoginPage extends BasePage {
         return false;
       }
 
-      // Wait and reload page
-      await this.page.waitForTimeout(3000);
-      await this.page.reload();
+      // Wait for login form to be ready
+      await this.page.waitForSelector(strUnLocator, { state: 'visible', timeout: 10000 });
 
       // Fill credentials
       Log.info(`Filling username: ${username}`);
@@ -169,19 +192,22 @@ export class LoginPage extends BasePage {
       }
 
       // Wait for navigation away from login page
-      await this.page.waitForTimeout(6000);
+      await this.page.waitForLoadState('networkidle');
 
       // Check if login was successful by verifying URL changed
       const currentUrl = this.page.url();
       Log.info(`Current URL after login: ${currentUrl}`);
 
-      const homeUrl = config?.home_url;
-      if (currentUrl === homeUrl) {
-        Log.info('Logged in Successfully - navigated to home page from login page');
+      // EspoCRM redirects to /#Home or similar after login
+      const isOnLoginPage = currentUrl.includes('/login') || currentUrl.endsWith('/');
+      const hasFragment = currentUrl.includes('#');
+
+      if (hasFragment || !isOnLoginPage) {
+        Log.info('Logged in Successfully - navigated away from login page');
         allure.after(`Logged in Successfully - Current URL: ${currentUrl}`);
         return true;
       } else {
-        Log.error('Login unsuccessful - still on main login page');
+        Log.error('Login unsuccessful - still on login page');
         return false;
       }
     } catch (error) {
@@ -192,7 +218,7 @@ export class LoginPage extends BasePage {
 
   /**
    * Logout from the application
-   * 
+   *
    * @returns True if logout successful
    */
   async logout(): Promise<boolean> {
@@ -200,28 +226,28 @@ export class LoginPage extends BasePage {
       // Attach test info to Allure report
       allure.before('Verify user should be Logout from the application');
 
-      // Check for "Later" button and click if visible
+      // Check for modal popup and dismiss if visible
       const btnLater = CommonMethods.getValuesFromCsv(
-        'btn_Later',
+        'btnLater',
         AppConstants.WORKING_ELEMENTS
       );
 
       if (btnLater && await this.page.isVisible(btnLater)) {
         await this.page.click(btnLater);
-        
+
         const icoProfile = CommonMethods.getValuesFromCsv(
-          'ico_Profile',
+          'icoProfile',
           AppConstants.LANDING_ELEMENTS
         );
-        
+
         if (icoProfile) {
           await this.page.waitForSelector(icoProfile);
         }
       }
 
-      // Click profile icon
+      // Click profile icon / user menu
       const icoProfile = CommonMethods.getValuesFromCsv(
-        'ico_Profile',
+        'icoProfile',
         AppConstants.LANDING_ELEMENTS
       );
 
@@ -235,7 +261,7 @@ export class LoginPage extends BasePage {
 
       // Click logout link
       const lnkLogout = CommonMethods.getValuesFromCsv(
-        'lnk_Logout',
+        'lnkLogout',
         AppConstants.LANDING_ELEMENTS
       );
 
@@ -264,5 +290,33 @@ export class LoginPage extends BasePage {
       Log.error(`Error during logout: ${error}`);
       return false;
     }
+  }
+
+  /**
+   * Check if error state is shown on login form
+   */
+  async hasLoginError(): Promise<boolean> {
+    const errGroup = CommonMethods.getValuesFromCsv('errUsernameGroup', AppConstants.LOGIN_ELEMENTS);
+    if (!errGroup) return false;
+    return await this.page.locator(errGroup).isVisible({ timeout: 3000 }).catch(() => false);
+  }
+
+  /**
+   * Simple login and wait for navigation (no MFA)
+   */
+  async loginAndWait(username: string, password: string): Promise<void> {
+    const txtUsername = CommonMethods.getValuesFromCsv('txtUsername', AppConstants.LOGIN_ELEMENTS);
+    const txtPassword = CommonMethods.getValuesFromCsv('txtPassword', AppConstants.LOGIN_ELEMENTS);
+    const btnLogin = CommonMethods.getValuesFromCsv('btnLogin', AppConstants.LOGIN_ELEMENTS);
+
+    if (!txtUsername || !txtPassword || !btnLogin) {
+      throw new Error('Login form locators not found in CSV');
+    }
+
+    await this.page.fill(txtUsername, username);
+    await this.page.fill(txtPassword, password);
+    await this.page.click(btnLogin);
+    await this.page.waitForLoadState('networkidle');
+    Log.info(`Login attempted for user: ${username}`);
   }
 }

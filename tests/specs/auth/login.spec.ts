@@ -70,17 +70,17 @@ test.describe.serial('Login - Authentication Tests', () => {
   });
 
   /**
-   * Test 3: Azure AD Authentication Option (5 lines)
-   * 
-   * WHAT: Verifies Azure AD SSO option is available
-   * WHY: Enterprise users may authenticate via Azure AD
+   * Test 3: Login Form Display (5 lines)
+   *
+   * WHAT: Verifies login form is displayed correctly
+   * WHY: Users need a working login form to authenticate
    */
-  test('should display Azure AD login option', async ({ loginPage }) => {
-    Log.info('TEST: Verify Azure AD login option');
-    
-    const azureAdExists = await loginPage.isLoginUsingAzureAdLinkExist();
-    expect(azureAdExists, 'Azure AD login option should exist').toBe(true);
-    Log.info('✅ Azure AD login option verified');
+  test('should display login form', async ({ loginPage }) => {
+    Log.info('TEST: Verify login form is displayed');
+
+    const formExists = await loginPage.isLoginFormDisplayed();
+    expect(formExists, 'Login form should be visible').toBe(true);
+    Log.info('Login form verified');
   });
 
   /**

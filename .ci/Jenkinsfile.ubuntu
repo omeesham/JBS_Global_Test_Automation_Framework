@@ -5,19 +5,20 @@ pipeline {
     agent {
         label 'ubuntu'
     }
-    
+
     parameters {
         choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Environment to run tests against')
         choice(name: 'BROWSER', choices: ['chrome', 'chromium', 'firefox', 'webkit', 'all'], description: 'Browser to run tests')
         booleanParam(name: 'PARALLEL', defaultValue: true, description: 'Run tests in parallel')
+        booleanParam(name: 'UPLOAD_TO_SHAREPOINT', defaultValue: false, description: 'Upload downloads to SharePoint after tests')
     }
-    
+
     environment {
         NODE_ENV = "${params.ENVIRONMENT}"
         PLAYWRIGHT_BROWSERS_PATH = "${WORKSPACE}/ms-playwright"
         CI = "true"
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -25,7 +26,7 @@ pipeline {
                 sh 'git log -1 --oneline'
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
                 sh 'node --version'
@@ -33,18 +34,18 @@ pipeline {
                 sh 'npm clean-install'
             }
         }
-        
+
         stage('Install Playwright Browsers') {
             steps {
                 sh 'npx playwright install --with-deps'
             }
         }
-        
+
         stage('Run Tests') {
             steps {
                 script {
                     def browser = params.BROWSER == 'all' ? '' : "--project=${params.BROWSER}"
-                    
+
                     sh """
                         export NODE_ENV=${params.ENVIRONMENT}
                         npx playwright test ${browser} \\
@@ -53,19 +54,31 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Generate Allure Report') {
             steps {
                 sh 'npx allure generate reports/allure-results --clean -o reports/allure-report'
             }
         }
+
+        stage('Upload to SharePoint') {
+            when {
+                allOf {
+                    expression { params.UPLOAD_TO_SHAREPOINT == true }
+                    expression { fileExists('downloads') }
+                }
+            }
+            steps {
+                sh 'npx ts-node scripts/upload-to-sharepoint.ts --dir=downloads'
+            }
+        }
     }
-    
+
     post {
         always {
             // Publish test results
             junit 'reports/junit-results.xml'
-            
+
             // Publish HTML report
             publishHTML([
                 allowMissing: false,
@@ -75,7 +88,7 @@ pipeline {
                 reportFiles: 'index.html',
                 reportName: 'Playwright HTML Report'
             ])
-            
+
             // Publish Allure report
             allure([
                 includeProperties: false,
@@ -84,21 +97,21 @@ pipeline {
                 reportBuildPolicy: 'ALWAYS',
                 results: [[path: 'reports/allure-results']]
             ])
-            
+
             // Archive artifacts
-            archiveArtifacts artifacts: 'reports/**/*,test-results/**/*', allowEmptyArchive: true
-            
+            archiveArtifacts artifacts: 'reports/**/*,test-results/**/*,downloads/**/*', allowEmptyArchive: true
+
             // Clean workspace
             cleanWs()
         }
-        
+
         success {
             echo "Tests passed successfully!"
         }
-        
+
         failure {
             emailext(
-                subject: "❌ Test Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                subject: "Test Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """<h2>Test Execution Failed</h2>
                 <p><strong>Environment:</strong> ${params.ENVIRONMENT}</p>
                 <p><strong>Browser:</strong> ${params.BROWSER}</p>

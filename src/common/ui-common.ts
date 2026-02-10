@@ -12,7 +12,7 @@
 
 import { Page } from '@playwright/test';
 import { Log } from '../utils/logger';
-import { IConfig } from '../../types';
+import { IConfig } from '../../src/framework-contracts';
 import { CredentialLoader, CredentialSource, Credentials } from './credential-loader';
 import { CommonMethods } from '../utils/common-methods';
 import { AppConstants } from '../utils/app-constants';
@@ -32,30 +32,6 @@ export class UiCommon {
     } catch (error) {
       Log.error(`❌ Navigation verification failed: ${error}`);
       throw error;
-    }
-  }
-
-  /**
-   * Generic login using role configuration
-   */
-  static async loginAs(page: Page, role: string, config: IConfig): Promise<boolean> {
-    Log.info(`Logging in as role: ${role}`);
-    
-    const usernameField = 'input[name="username"]'; // Update per application
-    const passwordField = 'input[name="password"]';
-    const submitButton = 'button[type="submit"]';
-
-    try {
-      await page.fill(usernameField, config.username_automation);
-      await page.fill(passwordField, config.password_automation);
-      await page.click(submitButton);
-      await page.waitForLoadState('networkidle');
-      
-      Log.info(`✅ Login successful: ${role}`);
-      return true;
-    } catch (error) {
-      Log.error(`❌ Login failed: ${error}`);
-      return false;
     }
   }
 

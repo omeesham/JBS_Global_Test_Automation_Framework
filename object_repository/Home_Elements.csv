@@ -1,11 +1,41 @@
+# Home_Elements.csv - EspoCRM Home/Dashboard page locators
+# Application: EspoCRM (https://demo.us.espocrm.com/)
+# Last Updated: 2026-02-09
+
 Element Name,Locator
-lnkDashboard,a[href*='dashboard']
-lnkProfile,a[href*='profile']
-lnkSettings,a[href*='settings']
-lnkLogout,button[data-action='logout']
-txtWelcomeMessage,.welcome-message
-imgUserAvatar,.user-avatar
-divMainContent,#main-content
-navSidebar,.sidebar-navigation
-btnNotifications,.notifications-button
-spanNotificationCount,.notification-count
+
+# === Top Navigation Bar (all authenticated pages) ===
+# Main navbar - top navigation container
+navMain,.navbar
+# Home/Dashboard tab - top nav, navigates to dashboard
+lnkHome,ul.navbar-nav a[data-name='Home']
+# Accounts tab - top nav, navigates to Accounts list
+lnkAccounts,ul.navbar-nav a[data-name='Account']
+# Contacts tab - top nav, navigates to Contacts list
+lnkContacts,ul.navbar-nav a[data-name='Contact']
+# Leads tab - top nav, navigates to Leads list
+lnkLeads,ul.navbar-nav a[data-name='Lead']
+# Opportunities tab - top nav, navigates to Opportunities list
+lnkOpportunities,ul.navbar-nav a[data-name='Opportunity']
+
+# === User Menu (top right) ===
+# User menu dropdown toggle - top right avatar/name, opens user menu
+btnUserMenu,#nav-menu-dropdown
+# Logout link - inside user menu dropdown, logs out and redirects to login
+lnkLogout,a[data-action='logout']
+# Profile/Preferences link - inside user menu dropdown
+lnkPreferences,a[data-name='preferences']
+
+# === Main Content Area ===
+# Main content container - holds dashboard widgets or list views
+divMainContent,#main
+# Dashboard container - dashboard-specific content area
+divDashboard,.dashboard
+
+# === Quick Create ===
+# Global create button - top nav, opens quick-create menu
+btnQuickCreate,a.quick-create
+
+# === Search ===
+# Global search input - top nav search field
+txtGlobalSearch,.global-search-container input.form-control

@@ -1,13 +1,38 @@
+# Login_Elements.csv - EspoCRM Login page and authentication flow locators
+# Application: EspoCRM (https://demo.us.espocrm.com/)
+# Last Updated: 2026-02-09
+
 Element Name,Locator
-txtUsername,input[formcontrolname='userName']
-lnkAzureAd,"//a[contains(@href,'azureadlogin')]"
-lblLoginUnsuccessfulMessage,//div[@class='loginErrorData']//p[2]
-btnLogin,//input[@class='loginFormBtn']
-lblForgotSuccessTitle,//div[@class='loginInfoData']//p[1]
-lnkForgotPassword,//a[@routerlink='forgot']
-lblLoginUnsuccessful,//div[@class='loginErrorData']//p[1]
-lblForgotSuccessMessage,//div[@class='loginInfoData']//p[2]
-lblForgotPasswordMessage,.loginInfoData>p
-txtPassword,//input[@name='password']
-txtMfaCode,input[name='mfaScanedCode']
-btnMfaSubmit,input.mfaVerifyBtn
+
+# === Main Login Page ===
+# Login form container - wraps all login fields and buttons
+frmLogin,#login-form
+# Username input - main login page, text field for username/email
+# NOTE: ID uses camelCase (field-userName), name is lowercase (username)
+txtUsername,#field-userName
+# Password input - main login page, masked password field
+txtPassword,#field-password
+# Login button - main login page, submits credentials (primary action)
+btnLogin,#btn-login
+# Sign-in button - alternative login trigger (may appear before login form)
+btnSignIn,#sign-in
+# Forgot password link - main login page, triggers password reset flow
+lnkForgotPassword,[data-action='passwordChangeRequest']
+# Show/hide password toggle - main login page, eye icon next to password field
+btnTogglePassword,[data-action='toggleShowPassword']
+
+# === Error States (shown after failed login) ===
+# Error state on username field - form-group gets .has-error class on validation failure
+errUsernameGroup,#login-form .cell[data-name='userName'].has-error
+# Error state on password field - form-group gets .has-error class on validation failure
+errPasswordGroup,#login-form .cell[data-name='password'].has-error
+
+# === Fallback Authentication ===
+# Fallback auth link - shown when alternative auth method available
+lnkFallback,[data-action='showFallback']
+
+# === Login Page Branding ===
+# Logo image - login panel header, EspoCRM branding
+imgLogo,.logo-container img
+# Login panel container - outer wrapper for entire login form
+divLoginPanel,#login .panel-default

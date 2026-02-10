@@ -2,22 +2,16 @@
  * FILE: src/utils/app-constants.ts
  * PURPOSE: Application-wide constants and environment configuration
  * WHY NECESSARY: Single source of truth for framework constants and feature flags
- * USED BY: All framework files requiring constants (OpenAI config, CSV filenames)
- * 
+ * USED BY: All framework files requiring constants (CSV filenames, expected values)
+ *
  * HOW IT WORKS:
  * 1. Defines CSV filename constants for object repository files
- * 2. Loads OpenAI API key and feature flags from environment variables
- * 3. Provides search list and other application-specific constants
- * 4. Readonly static properties prevent accidental modification
- * 5. Accessed via AppConstants.PROPERTY_NAME pattern
+ * 2. Provides search list and other application-specific constants
+ * 3. Readonly static properties prevent accidental modification
+ * 4. Accessed via AppConstants.PROPERTY_NAME pattern
  */
 
 export class AppConstants {
-  // OpenAI Configuration
-  static readonly API_KEY = process.env.OPENAI_API_KEY || 'Test';
-  static readonly ENABLE_OPENAI_SELF_HEALING = 
-    process.env.ENABLE_OPENAI_SELF_HEALING === 'true' || false;
-
   // CSV Filenames
   static readonly LOGIN_ELEMENTS = 'Login_Elements.csv';
   static readonly LANDING_ELEMENTS = 'Landing_Elements.csv';
@@ -41,8 +35,8 @@ export class AppConstants {
     'Prospective Option 2',
   ];
 
-  // Expected Values (placeholder - define actual values)
-  static readonly EXPECTED_TITLE = 'Expected Title';
+  // Expected Values (EspoCRM)
+  static readonly EXPECTED_TITLE = 'EspoCRM';
   static readonly SUCCESS_MESSAGE = 'Success';
   static readonly WARNING_TITLE = 'Warning';
   static readonly WARNING_MESSAGE = 'Warning Message';

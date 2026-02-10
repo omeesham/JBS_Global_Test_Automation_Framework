@@ -2,12 +2,12 @@
   "compilerOptions": {
     // Language and Environment
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
     
     // Emit
-    "outDir": "./dist",
+    "outDir": "./.build",
     "rootDir": "./",
     "sourceMap": true,
     "removeComments": false,
@@ -45,10 +45,10 @@
       "@utils/*": ["src/utils/*"],
       "@common/*": ["src/common/*"],
       "@data/*": ["src/data/*"],
-      "@api/*": ["src/api/*"],
       "@tests/*": ["tests/*"],
       "@config/*": ["config/*"],
-      "@types/*": ["types/*"]
+      "@types/*": ["src/framework-contracts/*"],
+      "@selectors/*": ["src/selectors/*"]
     },
     
     // Experimental
@@ -60,11 +60,11 @@
   },
   "include": [
     "**/*.ts",
-    "types/**/*.d.ts"
+    "src/framework-contracts/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
+    ".build",
     "reports",
     "logs",
     "test-results",

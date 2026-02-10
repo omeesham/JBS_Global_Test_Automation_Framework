@@ -14,13 +14,12 @@ npm test
 ## Documentation
 
 - [Complete Framework Documentation](docs/README.md)
-- [Migration Summary](docs/MIGRATION_SUMMARY.md)
-- [Verification Checklist](docs/VERIFICATION_CHECKLIST.md)
-- [Requirements Tracker](docs/REQUIREMENTS_TRACKER.md)
-- [Migration Manifest](docs/MIGRATION_MANIFEST.md)
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Requirements Tracker](REQUIREMENTS.md)
+- [Commenting Standards](docs/COMMENTING_STANDARDS.md)
 
 ---
 
 **Framework:** Playwright + TypeScript  
 **Status:** ✅ Production Ready  
-**Migrated:** February 6, 2026
+**Last Updated:** February 8, 2026

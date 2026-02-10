@@ -36,7 +36,7 @@ test.describe('Data-Driven Login Tests', () => {
     for (const user of testData.records) {
       Log.info(`Testing login for: ${user.username}`);
 
-      await page.goto(config.base_url);
+      await loginPage.goto();
 
       const loginSuccess = await loginPage.loginWithMfa(
         user.username,
@@ -52,9 +52,9 @@ test.describe('Data-Driven Login Tests', () => {
         expect(loginSuccess, `Login should fail for ${user.username}`).toBe(false);
       }
 
-      // Logout if needed
+      // Logout if needed (navigate to login page which clears session)
       if (loginSuccess) {
-        await page.goto(`${config.base_url}/logout`);
+        await loginPage.goto();
       }
     }
   });

@@ -5,18 +5,19 @@ pipeline {
     agent {
         label 'windows'
     }
-    
+
     parameters {
         choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Environment to run tests against')
-        choice(name: 'BROWSER', choices: ['chrome', 'chromium', 'firefox', 'webkit'], description: 'Browser to run tests')
+        choice(name: 'BROWSER', choices: ['chromium', 'chrome', 'firefox', 'webkit'], description: 'Browser to run tests (CI default: chromium)')
         string(name: 'TEST_PATTERN', defaultValue: '**/*.spec.ts', description: 'Test file pattern')
+        booleanParam(name: 'UPLOAD_TO_SHAREPOINT', defaultValue: false, description: 'Upload downloads to SharePoint after tests')
     }
-    
+
     environment {
         NODE_ENV = "${params.ENVIRONMENT}"
         PLAYWRIGHT_BROWSERS_PATH = "${WORKSPACE}\\ms-playwright"
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -24,7 +25,7 @@ pipeline {
                 bat 'git log -1'
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
                 bat 'node --version'
@@ -32,13 +33,13 @@ pipeline {
                 bat 'npm clean-install'
             }
         }
-        
+
         stage('Install Playwright Browsers') {
             steps {
                 bat 'npx playwright install --with-deps'
             }
         }
-        
+
         stage('Run Tests') {
             steps {
                 script {
@@ -49,19 +50,31 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Generate Allure Report') {
             steps {
                 bat 'npx allure generate reports/allure-results --clean -o reports/allure-report'
             }
         }
+
+        stage('Upload to SharePoint') {
+            when {
+                allOf {
+                    expression { params.UPLOAD_TO_SHAREPOINT == true }
+                    expression { fileExists('downloads') }
+                }
+            }
+            steps {
+                bat 'npx ts-node scripts/upload-to-sharepoint.ts --dir=downloads'
+            }
+        }
     }
-    
+
     post {
         always {
             // Publish test results
             junit 'reports/junit-results.xml'
-            
+
             // Publish HTML report
             publishHTML([
                 allowMissing: false,
@@ -71,7 +84,7 @@ pipeline {
                 reportFiles: 'index.html',
                 reportName: 'Playwright HTML Report'
             ])
-            
+
             // Publish Allure report
             allure([
                 includeProperties: false,
@@ -80,19 +93,19 @@ pipeline {
                 reportBuildPolicy: 'ALWAYS',
                 results: [[path: 'reports/allure-results']]
             ])
-            
+
             // Archive artifacts
-            archiveArtifacts artifacts: 'reports/**,test-results/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'reports/**,test-results/**,downloads/**', allowEmptyArchive: true
         }
-        
+
         failure {
             emailext(
                 subject: "Test Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """Test execution failed. 
-                
+                body: """Test execution failed.
+
                 Environment: ${params.ENVIRONMENT}
                 Browser: ${params.BROWSER}
-                
+
                 Check: ${env.BUILD_URL}""",
                 recipientProviders: [developers(), requestor()]
             )

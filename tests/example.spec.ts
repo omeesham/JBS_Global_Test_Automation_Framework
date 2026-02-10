@@ -52,15 +52,15 @@ test.describe.serial('Login Flow Tests', () => {
   });
 
   /**
-   * Test 3: Verify Azure AD link exists (5 lines)
-   * Uses: UiCommon.verifyElementWithRetry() for robust element verification
+   * Test 3: Verify login form is displayed (5 lines)
+   * Uses: LoginPage.isLoginFormDisplayed() for form verification
    */
-  test('should display Azure AD login link', async ({ loginPage, page, config }) => {
+  test('should display login form', async ({ loginPage, page, config }) => {
     await UiCommon.setupTestContext(page);
     await page.goto(config.base_url);
-    
-    const linkExists = await loginPage.isLoginUsingAzureAdLinkExist();
-    expect(linkExists).toBe(true);
+
+    const formExists = await loginPage.isLoginFormDisplayed();
+    expect(formExists).toBe(true);
   });
 });
 

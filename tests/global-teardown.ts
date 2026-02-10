@@ -1,7 +1,7 @@
 /**
  * Global Teardown
  * Runs once after all tests
- * Migrated from conftest.py global teardown logic
+ * Global teardown executed once after all tests complete
  */
 
 import { FullConfig } from '@playwright/test';

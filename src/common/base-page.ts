@@ -14,7 +14,8 @@
 import { Page, Locator } from '@playwright/test';
 import { CommonMethods } from '../utils/common-methods';
 import { Log } from '../utils/logger';
-import { IConfig } from '../../types';
+import { getTsSelector } from '../selectors';
+import { IConfig } from '../../src/framework-contracts';
 
 export class BasePage {
   protected page: Page;
@@ -25,14 +26,18 @@ export class BasePage {
     this.config = config;
   }
 
-  // Locator helpers
+  // Locator helpers — TS selectors first, CSV fallback
   protected getLocator(elementName: string, csvFile: string): string {
-    const locator = CommonMethods.getValuesFromCsv(elementName, csvFile);
+    const locator = CommonMethods.getSelector(elementName, csvFile);
     if (!locator) {
       Log.error(`Locator not found: ${elementName} in ${csvFile}`);
       throw new Error(`Locator '${elementName}' not found in '${csvFile}'`);
     }
     return locator;
+  }
+
+  protected getSelectorFromTs(elementName: string): string | null {
+    return getTsSelector(elementName);
   }
 
   protected getElement(elementName: string, csvFile: string): Locator {

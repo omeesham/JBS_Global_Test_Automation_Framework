@@ -58,7 +58,7 @@ type AdapterConstructor = new () => IAdapter;
  * Centralizes adapter creation logic for consistency.
  * Enables runtime selection of data sources based on configuration.
  * Makes it easy to add new adapter types without modifying test code.
- * Supports agent self-improvement (QA agent can query available adapters).
+ * Supports dynamic adapter registration and runtime selection.
  */
 export class AdapterFactory {
   /**
@@ -163,11 +163,10 @@ export class AdapterFactory {
    * WHY NECESSARY:
    * Enables extensibility - users can add adapters without modifying framework code.
    * Supports specialized data sources (GraphQL, gRPC, custom APIs).
-   * Allows agent to dynamically register adapters discovered at runtime.
+   * Allows dynamic adapter registration discovered at runtime.
    * 
    * USED BY:
    *   - src/setup/customAdapters.ts (registers organization-specific adapters)
-   *   - tooling/qa/qa_agent.ts (could register test-specific adapters)
    * 
    * @param type - Unique identifier for the adapter
    *               Example: 'graphql', 'redis', 'kafka'
@@ -219,11 +218,9 @@ export class AdapterFactory {
    * 
    * WHY NECESSARY:
    * Supports dynamic UI generation (dropdown menus, config validators).
-   * Enables agents to discover available data sources.
    * Useful for documentation generation and error messages.
    * 
    * USED BY:
-   *   - tooling/qa/qa_agent.ts (lists available data sources)
    *   - src/utils/configValidator.ts (validates test config files)
    * 
    * @returns AdapterType[] - Array of available adapter type identifiers

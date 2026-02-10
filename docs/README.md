@@ -2,8 +2,6 @@
 
 A modern TypeScript async Playwright automation framework for maintainable, reliable, and scalable web application testing.
 
-**Migrated from Python + Playwright** ✅
-
 ## 🚀 Features
 
 - **TypeScript + Playwright** - Type-safe, fast, reliable browser automation
@@ -20,7 +18,7 @@ A modern TypeScript async Playwright automation framework for maintainable, reli
 ## 📁 Project Structure
 
 ```
-hybrid_typescript_converted/
+hybrid_framework/
 ├── pages/                  # Page Object Model classes
 │   ├── login.page.ts
 │   ├── landing.page.ts
@@ -510,16 +508,19 @@ jobs:
 
 ## 🆚 Python vs TypeScript Comparison
 
-| Feature | Python | TypeScript |
-|---------|--------|------------|
-| Test runner | pytest | @playwright/test |
-| Fixtures | conftest.py | fixtures.ts |
-| Decorators | @step(n) | test.describe.serial() |
-| CSV parsing | csv.DictReader | csv-parse |
-| TOTP | pyotp | otplib |
-| Logging | logging | winston |
-| Config | .properties | .env + JSON |
-| Types | Type hints | Full TypeScript |
+## 🛠️ Technology Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Test Runtime | @playwright/test |
+| Language | TypeScript 5.3+ |
+| Browser Automation | Playwright 1.58.2 |
+| Fixtures | Custom fixtures.ts |
+| CSV Parsing | csv-parse |
+| MFA/TOTP | otplib |
+| Logging | winston |
+| Configuration | dotenv-flow + JSON |
+| Reporting | Allure, HTML, JUnit |
 
 ## 🔧 Troubleshooting
 
@@ -560,14 +561,11 @@ Main packages (see `package.json`):
 - Check logs in `logs/` directory
 - Review test reports in `reports/` directory
 - See configuration in `.env` and `configs/config.json`
-- Review  migration manifest: `../MIGRATION_MANIFEST.md`
+- Review requirements: `../REQUIREMENTS.md`
 
 ---
 
-**Version:** 2.0.0 (TypeScript)  
-**Migrated From:** Python 1.0.0  
+**Version:** 2.0.0  
 **Node.js:** 18+  
-**Playwright:** 1.40.0  
+**Playwright:** 1.58.2  
 **TypeScript:** 5.3+
-
-🎉 **Migration Complete! All features preserved.**

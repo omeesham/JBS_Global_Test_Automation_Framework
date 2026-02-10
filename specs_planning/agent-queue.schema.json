@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent Work Queue",
+  "description": "Shared work queue for Planner/Generator/Healer agent coordination",
+  "type": "object",
+  "required": ["version", "lastUpdated", "config", "queue", "completedLog"],
+  "properties": {
+    "version": { "type": "string" },
+    "lastUpdated": { "type": "string", "format": "date-time" },
+    "config": {
+      "type": "object",
+      "properties": {
+        "maxRetries": { "type": "integer", "minimum": 1 },
+        "autoHealOnFailure": { "type": "boolean" },
+        "batchMode": { "type": "boolean" },
+        "lockTimeoutMinutes": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["maxRetries", "autoHealOnFailure", "batchMode", "lockTimeoutMinutes"]
+    },
+    "queue": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "feature", "module", "stage", "createdAt", "priority", "artifacts"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^WQ-" },
+          "feature": { "type": "string" },
+          "module": { "type": "string" },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "pending_planning", "planning",
+              "pending_generation", "generation",
+              "pending_testing", "testing",
+              "completed",
+              "pending_healing", "healing",
+              "fixme"
+            ]
+          },
+          "lockedBy": { "type": ["string", "null"], "enum": ["planner", "generator", "healer", null] },
+          "lockedAt": { "type": ["string", "null"], "format": "date-time" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "retryCount": { "type": "integer", "minimum": 0 },
+          "priority": { "type": "string", "enum": ["high", "medium", "low"] },
+          "artifacts": {
+            "type": "object",
+            "properties": {
+              "testCaseFile": { "type": ["string", "null"] },
+              "testPlanFile": { "type": ["string", "null"] },
+              "specFiles": { "type": "array", "items": { "type": "string" } },
+              "csvLocators": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": { "type": "string", "format": "date-time" },
+                "agent": { "type": "string" },
+                "action": { "type": "string" },
+                "notes": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "completedLog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "feature": { "type": "string" },
+          "completedAt": { "type": "string", "format": "date-time" },
+          "totalDuration": { "type": "string" },
+          "specFiles": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

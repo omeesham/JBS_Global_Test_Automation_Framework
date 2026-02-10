@@ -1,7 +1,7 @@
 /**
  * Global Setup
  * Runs once before all tests
- * Migrated from conftest.py global setup logic
+ * Global setup executed once before all tests
  */
 
 import { chromium, FullConfig } from '@playwright/test';

@@ -1,9 +1,9 @@
 /**
  * Playwright Test Fixtures
  * Custom fixtures for page objects and configuration
- * Migrated from tests/conftest.py
  */
 
+import './custom-matchers';
 import { test as base, Page } from '@playwright/test';
 import { LoginPage } from '../src/pages/login.page';
 import { LandingPage } from '../src/pages/landing.page';
@@ -11,7 +11,7 @@ import { HomePage } from '../src/pages/home.page';
 import { WorkingScreenPage } from '../src/pages/working-screen.page';
 import { WorkingScreenPageAudit } from '../src/pages/working-screen-audit.page';
 import { CommonMethods } from '../src/utils/common-methods';
-import { IConfig } from '../types';
+import { IConfig } from '../src/framework-contracts';
 
 // Define fixture types
 type MyFixtures = {

@@ -16,7 +16,7 @@ import { BasePage } from '../common/base-page';
 import { Log } from '../utils/logger';
 import { CommonMethods } from '../utils/common-methods';
 import { AppConstants } from '../utils/app-constants';
-import { IConfig } from '../../types';
+import { IConfig } from '../../src/framework-contracts';
 
 /**
  * HomePage Class
