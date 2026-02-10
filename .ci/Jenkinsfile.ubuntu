@@ -17,13 +17,29 @@ pipeline {
         NODE_ENV = "${params.ENVIRONMENT}"
         PLAYWRIGHT_BROWSERS_PATH = "${WORKSPACE}/ms-playwright"
         CI = "true"
+
+        // ==================== GIT TIMEOUT FIX (OPTIONAL - USER CONFIG) ====================
+        // Uncomment these if allure-playwright is re-enabled in CI config:
+        // ALLURE_RESULTS_WITHOUT_GIT = "true"  // Skip git info collection
+        // GIT_COMMAND_TIMEOUT = "10000"         // 10 second timeout for git commands
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
-                sh 'git log -1 --oneline'
+                // FLEXIBLE CHECKOUT: Supports both SCM (production) and local testing
+                script {
+                    try {
+                        checkout scm
+                        echo "✓ Checked out from SCM (Git repository)"
+                    } catch (Exception e) {
+                        echo "⚠ SCM checkout skipped (local testing mode)"
+                        echo "Using existing workspace files from: ${WORKSPACE}"
+                    }
+                }
+
+                // Display build info (works with or without Git)
+                sh '.ci/git-info.sh'
             }
         }
 
@@ -46,20 +62,24 @@ pipeline {
                 script {
                     def browser = params.BROWSER == 'all' ? '' : "--project=${params.BROWSER}"
 
+                    // Uses playwright.config.ci.ts (no allure-playwright, avoids git timeout)
                     sh """
                         export NODE_ENV=${params.ENVIRONMENT}
-                        npx playwright test ${browser} \\
-                            --reporter=list,html,json,junit,allure-playwright
+                        npx playwright test --config=playwright.config.ci.ts ${browser}
                     """
                 }
             }
         }
 
-        stage('Generate Allure Report') {
-            steps {
-                sh 'npx allure generate reports/allure-results --clean -o reports/allure-report'
-            }
-        }
+        // ==================== ALLURE REPORT DISABLED (Git Timeout Fix) ====================
+        // allure-playwright removed from CI config (playwright.config.ci.ts) to fix GitCommitInfo timeout
+        // Uncomment this stage if you re-enable allure-playwright with ALLURE_RESULTS_WITHOUT_GIT=true
+        //
+        // stage('Generate Allure Report') {
+        //     steps {
+        //         sh 'npx allure generate reports/allure-results --clean -o reports/allure-report'
+        //     }
+        // }
 
         stage('Upload to SharePoint') {
             when {
@@ -89,14 +109,15 @@ pipeline {
                 reportName: 'Playwright HTML Report'
             ])
 
-            // Publish Allure report
-            allure([
-                includeProperties: false,
-                jdk: '',
-                properties: [],
-                reportBuildPolicy: 'ALWAYS',
-                results: [[path: 'reports/allure-results']]
-            ])
+            // Publish Allure report (DISABLED - Git Timeout Fix)
+            // Uncomment if you re-enable allure-playwright with ALLURE_RESULTS_WITHOUT_GIT=true
+            // allure([
+            //     includeProperties: false,
+            //     jdk: '',
+            //     properties: [],
+            //     reportBuildPolicy: 'ALWAYS',
+            //     results: [[path: 'reports/allure-results']]
+            // ])
 
             // Archive artifacts
             archiveArtifacts artifacts: 'reports/**/*,test-results/**/*,downloads/**/*', allowEmptyArchive: true
