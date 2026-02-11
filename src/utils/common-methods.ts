@@ -195,11 +195,18 @@ export class CommonMethods {
 
     try {
       const fileContent = fs.readFileSync(csvFile, 'utf-8');
-      const records = parse(fileContent, {
+
+      // Filter out full-line comments (lines starting with #) before parsing
+      // This preserves field values that start with # (like #login-form selectors)
+      const filteredContent = fileContent
+        .split('\n')
+        .filter(line => !line.trim().startsWith('#'))
+        .join('\n');
+
+      const records = parse(filteredContent, {
         columns: true,
         skip_empty_lines: true,
         trim: true,
-        comment: '#',
       });
 
       for (const row of records) {

@@ -1,6 +1,21 @@
 /**
- * Playwright Test Fixtures
- * Custom fixtures for page objects and configuration
+ * FILE: tests/fixtures.ts
+ * PURPOSE: Custom Playwright test fixtures for dependency injection of page objects
+ * WHY NECESSARY: Provides auto-initialized page objects and config to every test,
+ *   avoiding manual setup boilerplate. Single import gives tests everything they need.
+ * USED BY:
+ * - All test files via: import { test, expect } from './fixtures'
+ * - Automatically injects loginPage, homePage, config, etc. into test functions
+ *
+ * HOW IT WORKS:
+ * 1. Extends base Playwright test with typed custom fixtures (MyFixtures)
+ * 2. Each fixture auto-creates a page object with config and page instance
+ * 3. Imports custom-matchers.ts to register domain-specific assertions globally
+ * 4. Clears locator cache before each test for clean state
+ *
+ * @see {@link LoginPage} - src/pages/login.page.ts
+ * @see {@link HomePage} - src/pages/home.page.ts
+ * @see tests/custom-matchers.ts - Custom assertions (toBeLoggedIn, toHaveNotification)
  */
 
 import './custom-matchers';

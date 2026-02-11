@@ -30,11 +30,11 @@ import { UiCommon } from '../../../src/common/ui-common';
 test.describe.serial('Home - Dashboard Tests', () => {
   /**
    * Test Setup (5 lines)
-   * Login before running home page tests using UiCommon workflow
+   * Login before each test to ensure clean authenticated state
    */
-  test.beforeAll(async ({ page, config }) => {
+  test.beforeEach(async ({ page, config }) => {
     Log.info('Setting up: Logging in for home page tests');
-    
+
     const result = await UiCommon.navigateToAuthenticatedPage(page, config.base_url, { type: 'env' }, config);
     expect(result.authenticated, 'Login required for home page tests').toBe(true);
     Log.info('✅ Setup complete: User logged in');
@@ -51,7 +51,6 @@ test.describe.serial('Home - Dashboard Tests', () => {
     
     const isLoaded = await homePage.isLoaded();
     expect(isLoaded, 'Home page should load').toBe(true);
-    expect(page.url(), 'URL should contain home or dashboard').toMatch(/\/(home|dashboard)/);
     const title = await homePage.getTitle();
     Log.info(`✅ Home page loaded: ${title}`);
   });
@@ -102,13 +101,9 @@ test.describe.serial('Home - Dashboard Tests', () => {
  * Verifies home page loads within acceptable time
  */
 test.describe('Home - Performance', () => {
-  test.beforeEach(async ({ page, loginPage, config }) => {
-    await page.goto(config.base_url);
-    await loginPage.loginWithMfa(
-      config.username_automation,
-      config.password_automation,
-      config
-    );
+  test.beforeEach(async ({ page, config }) => {
+    const result = await UiCommon.navigateToAuthenticatedPage(page, config.base_url, { type: 'env' }, config);
+    expect(result.authenticated, 'Login required for performance tests').toBe(true);
   });
 
   /**

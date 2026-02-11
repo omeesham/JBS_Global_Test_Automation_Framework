@@ -13,6 +13,20 @@
  * Usage: npx ts-node scripts/upload-to-sharepoint.ts [--dir=downloads]
  */
 
+// IMP------------------For SharePoint upload to work, you need:
+
+// Azure AD App Registration with Sites.ReadWrite.All permission
+// 4 environment variables in .env:
+// SHAREPOINT_SITE_URL (your SharePoint site)
+// SHAREPOINT_CLIENT_ID (Azure app ID)
+// SHAREPOINT_CLIENT_SECRET (Azure app secret)
+// SHAREPOINT_TENANT_ID (Azure tenant ID)
+// SHAREPOINT_UPLOAD_PATH (optional, defaults to /Shared Documents/Test Reports/)
+// Authentication: OAuth 2.0 client credentials flow via Microsoft Graph API (not direct SharePoint API).
+
+// That's it. Code is already there, just needs Azure credentials configured.
+
+
 import * as dotenv from 'dotenv';
 dotenv.config();
 

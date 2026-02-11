@@ -1,3 +1,17 @@
+# ##############################################################################
+# FILE: .github/workflows/copilot-setup-steps.yml
+# PURPOSE: GitHub Copilot agent environment setup and validation
+# WHY NECESSARY: Ensures Copilot agents have working Node.js, dependencies,
+#   Playwright browsers, and valid TypeScript compilation before generating code
+# USED BY: GitHub Copilot Coding Agent (runs when agent is invoked)
+#
+# HOW IT WORKS:
+# 1. Checks out repository code
+# 2. Sets up Node.js LTS with dependencies (npm ci)
+# 3. Installs Playwright browsers for test generation
+# 4. Verifies TypeScript compiles without errors (npx tsc --noEmit)
+# ##############################################################################
+
 name: "Copilot Setup Steps"
 
 on:

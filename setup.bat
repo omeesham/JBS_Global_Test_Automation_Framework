@@ -1,5 +1,18 @@
 @echo off
-REM Quick Setup Script for TypeScript Automation Framework
+REM ##############################################################################
+REM FILE: setup.bat
+REM PURPOSE: One-command project setup for Windows environments
+REM WHY NECESSARY: New developers/CI can bootstrap the entire framework with setup.bat
+REM USED BY: Developers cloning the repo for the first time, Windows CI agents
+REM
+REM HOW IT WORKS:
+REM 1. Verifies Node.js 18+ is installed
+REM 2. Installs npm dependencies (package.json)
+REM 3. Installs Playwright browsers (chromium, firefox, webkit)
+REM 4. Creates .env from .env.example if not present
+REM
+REM USAGE: Double-click setup.bat or run from terminal
+REM ##############################################################################
 
 echo ============================================
 echo TypeScript Automation Framework Setup

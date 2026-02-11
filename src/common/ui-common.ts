@@ -140,19 +140,55 @@ export class UiCommon {
       const credentials = await CredentialLoader.loadCredentials(credentialSource);
       Log.info(`✅ Credentials loaded for: ${credentials.username}`);
 
-      // Step 4: Get login selectors from CSV
-      const usernameField = CommonMethods.getValuesFromCsv('txtUsername', AppConstants.LOGIN_ELEMENTS) || 'input[name="username"]';
-      const passwordField = CommonMethods.getValuesFromCsv('txtPassword', AppConstants.LOGIN_ELEMENTS) || 'input[name="password"]';
-      const loginButton = CommonMethods.getValuesFromCsv('btnLogin', AppConstants.LOGIN_ELEMENTS) || 'button[type="submit"]';
+      // Step 4: Get login selectors (TS first, CSV fallback)
+      const usernameField = CommonMethods.getSelector('txtUsername', AppConstants.LOGIN_ELEMENTS);
+      const passwordField = CommonMethods.getSelector('txtPassword', AppConstants.LOGIN_ELEMENTS);
+      const loginButton = CommonMethods.getSelector('btnLogin', AppConstants.LOGIN_ELEMENTS);
+
+      if (!usernameField || !passwordField || !loginButton) {
+        throw new Error('Login selectors not found. Check CSV (Login_Elements.csv) and TS selectors (src/selectors/index.ts).');
+      }
 
       // Step 5: Perform login
-      await page.fill(usernameField, credentials.username);
-      await page.fill(passwordField, credentials.password);
+      // Handle username field (could be text input or dropdown)
+      const usernameElement = page.locator(usernameField);
+      const usernameTagName = await usernameElement.evaluate(el => el.tagName.toLowerCase());
+
+      if (usernameTagName === 'select') {
+        // Dropdown - try label first, then value
+        try {
+          await usernameElement.selectOption({ label: credentials.username });
+          Log.info(`Selected username from dropdown: ${credentials.username}`);
+        } catch {
+          await usernameElement.selectOption(credentials.username);
+          Log.info(`Selected username by value: ${credentials.username}`);
+        }
+      } else {
+        // Text input
+        await usernameElement.fill(credentials.username);
+        Log.info(`Filled username field: ${credentials.username}`);
+      }
+
+      // Fill password if field is visible (some demo sites are passwordless)
+      const passwordElement = page.locator(passwordField);
+      const isPasswordVisible = await passwordElement.isVisible({ timeout: 2000 }).catch(() => false);
+
+      if (isPasswordVisible) {
+        await passwordElement.fill(credentials.password);
+        Log.info('Filled password field');
+      } else {
+        Log.info('Password field not visible - passwordless login');
+      }
+
       await page.click(loginButton);
 
       // Step 6: Wait for navigation
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle', { timeout: 30000 });
       await this.waitForLoadingToComplete(page);
+
+      // Wait for URL to change or hash to appear (passwordless auth may redirect via hash)
+      await page.waitForURL(url => !url.includes('/login') || url.includes('#'), { timeout: 15000 }).catch(() => {});
+      await page.waitForTimeout(2000); // Additional wait for any post-login redirects
 
       // Step 7: Verify authentication successful
       const currentUrl = page.url();
@@ -222,9 +258,14 @@ export class UiCommon {
     Log.info('Performing complete logout');
 
     try {
-      // Get logout button from CSV
-      const profileIcon = CommonMethods.getValuesFromCsv('ico_Profile', AppConstants.LANDING_ELEMENTS) || '[data-testid="profile-icon"]';
-      const logoutLink = CommonMethods.getValuesFromCsv('lnkLogout', AppConstants.LANDING_ELEMENTS) || 'text=Logout';
+      // Get logout selectors (TS first, CSV fallback)
+      const profileIcon = CommonMethods.getSelector('icoProfile', AppConstants.LANDING_ELEMENTS);
+      const logoutLink = CommonMethods.getSelector('lnkLogout', AppConstants.LANDING_ELEMENTS);
+
+      if (!profileIcon || !logoutLink) {
+        Log.error('Logout selectors not found. Check CSV (Landing_Elements.csv) and TS selectors.');
+        return false;
+      }
 
       // Click profile menu
       await page.locator(profileIcon).click();

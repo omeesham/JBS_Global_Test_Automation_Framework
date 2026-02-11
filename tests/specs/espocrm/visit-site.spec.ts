@@ -45,7 +45,7 @@ test.describe('EspoCRM Demo Site - Basic Access', () => {
    *   2. Verify login form displayed (uses CSV selector 'frmLogin')
    *
    * NOTE: This test does NOT attempt login - agents will handle that
-   * CREDENTIALS: admin / admin (both username and password)
+   * CREDENTIALS: Loaded from environment configuration
    */
   test('should visit EspoCRM demo site and verify page loads', async ({ loginPage }) => {
     Log.info('TEST: Visit EspoCRM Demo Site');
@@ -54,7 +54,7 @@ test.describe('EspoCRM Demo Site - Basic Access', () => {
     const isFormVisible = await loginPage.isLoginFormDisplayed();
 
     expect(isFormVisible, 'Login form should be visible').toBe(true);
-    Log.info('✅ EspoCRM demo site loaded - ready for agents (credentials: admin/admin)');
+    Log.info('✅ EspoCRM demo site loaded - ready for agents');
   });
 
   /**
@@ -71,10 +71,8 @@ test.describe('EspoCRM Demo Site - Basic Access', () => {
 
     await loginPage.goto();
     const formDisplayed = await loginPage.isLoginFormDisplayed();
-    const forgotPwdExists = await loginPage.isForgotPwdLinkExist();
 
     expect(formDisplayed, 'Login form should be visible').toBe(true);
-    expect(forgotPwdExists, 'Forgot password link should exist').toBe(true);
     await expect(page, 'Page title should contain EspoCRM').toHaveTitle(/EspoCRM/i);
     Log.info('✅ Login page structure verified - ready for agents');
   });

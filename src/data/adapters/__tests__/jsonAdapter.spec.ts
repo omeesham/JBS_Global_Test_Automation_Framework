@@ -112,7 +112,7 @@ test.describe('JsonAdapter', () => {
     const result = await adapter.load({ file: 'non-existent.json' });
 
     expect(result.records.length).toBe(0);
-    expect(result.metadata.warning).toContain('Error loading from file');
+    expect(result.metadata.warning).toContain('Failed to load JSON: File not found');
     expect(result.metadata.rowCount).toBe(0);
   });
 
@@ -230,12 +230,12 @@ test.describe('JsonAdapter', () => {
    * VALIDATES: Returns empty records when URL unreachable
    */
   test('should handle unreachable URL gracefully', async () => {
-    const result = await adapter.load({ 
-      url: 'https://invalid-domain-that-does-not-exist-12345.com/data.json' 
+    const result = await adapter.load({
+      url: 'https://invalid-domain-that-does-not-exist-12345.com/data.json'
     });
 
     expect(result.records.length).toBe(0);
-    expect(result.metadata.warning).toContain('Error loading from URL');
+    expect(result.metadata.warning).toContain('Failed to load JSON');
   });
 
   /**
@@ -246,7 +246,7 @@ test.describe('JsonAdapter', () => {
     const result = await adapter.load({} as any);
 
     expect(result.records.length).toBe(0);
-    expect(result.metadata.warning).toContain('Either file or url parameter required');
+    expect(result.metadata.warning).toContain('JsonAdapter requires either "file" or "url" parameter');
   });
 
   /**

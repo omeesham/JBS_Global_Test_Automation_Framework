@@ -27,6 +27,14 @@ errUsernameGroup,#login-form .cell[data-name='userName'].has-error
 # Error state on password field - form-group gets .has-error class on validation failure
 errPasswordGroup,#login-form .cell[data-name='password'].has-error
 
+# === MFA / Two-Factor Authentication ===
+# MFA code input - shown after successful credential entry when 2FA is enabled
+# TODO: Verify exact selector when EspoCRM MFA is configured
+txtMfaCode,input[name='code']
+# MFA submit button - submits the TOTP/2FA code
+# TODO: Verify exact selector when EspoCRM MFA is configured
+btnMfaSubmit,button[data-action='submit']
+
 # === Fallback Authentication ===
 # Fallback auth link - shown when alternative auth method available
 lnkFallback,[data-action='showFallback']

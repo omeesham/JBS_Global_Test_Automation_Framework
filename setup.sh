@@ -1,6 +1,18 @@
 #!/bin/bash
-
-# Quick Setup Script for TypeScript Automation Framework
+###############################################################################
+# FILE: setup.sh
+# PURPOSE: One-command project setup for Linux/macOS environments
+# WHY NECESSARY: New developers/CI can bootstrap the entire framework with ./setup.sh
+# USED BY: Developers cloning the repo for the first time, CI/CD environments
+#
+# HOW IT WORKS:
+# 1. Verifies Node.js 18+ is installed
+# 2. Installs npm dependencies (package.json)
+# 3. Installs Playwright browsers (chromium, firefox, webkit)
+# 4. Creates .env from .env.example if not present
+#
+# USAGE: chmod +x setup.sh && ./setup.sh
+###############################################################################
 
 echo "============================================"
 echo "TypeScript Automation Framework Setup"

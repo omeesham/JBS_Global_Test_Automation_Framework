@@ -1,3 +1,17 @@
+# ##############################################################################
+# FILE: .github/workflows/playwright-tests.yml
+# PURPOSE: CI pipeline for running Playwright E2E tests across OS/browser matrix
+# WHY NECESSARY: Automates test execution on push, PR, nightly schedule, and manual trigger
+# USED BY: GitHub Actions (triggers on push to main/develop, PRs, nightly cron, manual dispatch)
+#
+# HOW IT WORKS:
+# 1. Triggers on push, PR, nightly schedule (2 AM UTC), or manual dispatch
+# 2. Runs test matrix: [ubuntu, windows] x [chrome, firefox]
+# 3. Installs dependencies, Playwright browsers, runs tests
+# 4. Uploads test artifacts (reports, results) with 30-day retention
+# 5. Comments PR with pass/fail summary
+# ##############################################################################
+
 name: Playwright Tests
 
 on:

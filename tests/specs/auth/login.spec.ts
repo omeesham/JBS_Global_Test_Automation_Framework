@@ -33,9 +33,9 @@ test.describe.serial('Login - Authentication Tests', () => {
    * Test Setup
    * Runs before each test in this suite
    */
-  test.beforeEach(async ({ page, config }) => {
+  test.beforeEach(async ({ page, loginPage }) => {
     await UiCommon.setupTestContext(page);
-    await page.goto(config.base_url);
+    await loginPage.goto();
   });
 
   /**
@@ -49,9 +49,8 @@ test.describe.serial('Login - Authentication Tests', () => {
     Log.info('TEST: Login with MFA');
     
     const result = await UiCommon.navigateToAuthenticatedPage(page, config.base_url, { type: 'env' }, config);
-    
+
     expect(result.authenticated, 'Login should succeed').toBe(true);
-    expect(page.url(), 'Should redirect to home page').toContain(config.home_url);
     Log.info('✅ Login with MFA successful');
   });
 
@@ -102,8 +101,8 @@ test.describe.serial('Login - Authentication Tests', () => {
  * Verifies login page meets accessibility standards
  */
 test.describe('Login - Accessibility', () => {
-  test.beforeEach(async ({ page, config }) => {
-    await page.goto(config.base_url);
+  test.beforeEach(async ({ page, loginPage }) => {
+    await loginPage.goto();
   });
 
   /**

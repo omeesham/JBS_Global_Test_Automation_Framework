@@ -35,6 +35,14 @@ export class AppConstants {
     'Prospective Option 2',
   ];
 
+  // Notification/Alert selectors (used by custom matchers)
+  static readonly NOTIFICATION_SELECTORS: string[] = [
+    '.alert',
+    '.notification',
+    '.Toastify__toast',
+    '[data-notify]',
+  ];
+
   // Expected Values (EspoCRM)
   static readonly EXPECTED_TITLE = 'EspoCRM';
   static readonly SUCCESS_MESSAGE = 'Success';

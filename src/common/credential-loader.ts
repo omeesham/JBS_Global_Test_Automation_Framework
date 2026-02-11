@@ -25,11 +25,13 @@ import { Log } from '../utils/logger';
  * Credential source specification
  */
 export interface CredentialSource {
-  type: 'excel' | 'json' | 'db' | 's3' | 'env';
+  type: 'excel' | 'json' | 'db' | 's3' | 'env' | 'inline';
   path?: string;         // File path or S3 key
   query?: string;        // SQL query for DB source
   role?: string;         // Role/user identifier (e.g., 'admin', 'standard_user')
   sheet?: string;        // Excel sheet name (optional)
+  username?: string;     // For inline credentials (data-driven tests)
+  password?: string;     // For inline credentials (data-driven tests)
 }
 
 /**
@@ -82,6 +84,21 @@ export class CredentialLoader {
     try {
       if (source.type === 'env') {
         return this.loadFromEnv();
+      }
+
+      if (source.type === 'inline') {
+        if (!source.username || !source.password) {
+          throw new Error('Inline credentials require username and password');
+        }
+        const credentials: Credentials = {
+          username: source.username,
+          password: source.password,
+          role: 'inline',
+          metadata: { source: 'inline' }
+        };
+        this.validateCredentials(credentials);
+        Log.info(`Using inline credentials for: ${credentials.username}`);
+        return credentials;
       }
 
       if (!source.path) {
@@ -144,8 +161,8 @@ export class CredentialLoader {
    */
   private static loadFromEnv(): Credentials {
     const credentials: Credentials = {
-      username: process.env.USERNAME_AUTOMATION || 'test_user',
-      password: process.env.PASSWORD_AUTOMATION || 'test_password',
+      username: process.env.USERNAME_AUTOMATION || 'admin',
+      password: process.env.PASSWORD_AUTOMATION || 'admin',
       mfaSecret: process.env.MFA_SECRET,
       role: 'env',
       metadata: { source: 'environment variables' }
@@ -198,11 +215,18 @@ export class CredentialLoader {
       return [this.loadFromEnv()];
     }
 
+    if (source.type === 'inline') {
+      if (!source.username || !source.password) {
+        throw new Error('Inline credentials require username and password');
+      }
+      return [{ username: source.username, password: source.password, role: 'inline', metadata: { source: 'inline' } }];
+    }
+
     if (!source.path) {
       throw new Error(`Path required for ${source.type} credential source`);
     }
 
-    const adapter = AdapterFactory.getAdapter(source.type);
+    const adapter = AdapterFactory.getAdapter(source.type as Exclude<CredentialSource['type'], 'env' | 'inline'>);
     const data = await adapter.load({
       file: source.path,
       query: source.query,

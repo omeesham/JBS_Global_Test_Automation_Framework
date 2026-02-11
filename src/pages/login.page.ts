@@ -63,7 +63,7 @@ export class LoginPage extends BasePage {
     );
 
     if (!lnkForgotPassword) return false;
-    return await this.page.isVisible(lnkForgotPassword);
+    return await this.page.locator(lnkForgotPassword).isVisible({ timeout: 3000 }).catch(() => false);
   }
 
   /**
@@ -110,9 +110,24 @@ export class LoginPage extends BasePage {
       // Wait for login form to be ready
       await this.page.waitForSelector(strUnLocator, { state: 'visible', timeout: 10000 });
 
-      // Fill credentials
-      Log.info(`Filling username: ${username}`);
-      await this.page.fill(strUnLocator, username);
+      // Fill credentials - handle both text input and dropdown
+      const usernameElement = this.page.locator(strUnLocator);
+      const usernameTagName = await usernameElement.evaluate(el => el.tagName.toLowerCase());
+
+      if (usernameTagName === 'select') {
+        // Dropdown - try label first, then value
+        try {
+          await usernameElement.selectOption({ label: username });
+          Log.info(`Selected username from dropdown: ${username}`);
+        } catch {
+          await usernameElement.selectOption(username);
+          Log.info(`Selected username by value: ${username}`);
+        }
+      } else {
+        // Text input
+        Log.info(`Filling username: ${username}`);
+        await usernameElement.fill(username);
+      }
 
       // Get password field locator
       const strPwdLocator = CommonMethods.getValuesFromCsv(
@@ -313,7 +328,22 @@ export class LoginPage extends BasePage {
       throw new Error('Login form locators not found in CSV');
     }
 
-    await this.page.fill(txtUsername, username);
+    // Handle username field - could be text input or dropdown
+    const usernameElement = this.page.locator(txtUsername);
+    const usernameTagName = await usernameElement.evaluate(el => el.tagName.toLowerCase());
+
+    if (usernameTagName === 'select') {
+      // Dropdown
+      try {
+        await usernameElement.selectOption({ label: username });
+      } catch {
+        await usernameElement.selectOption(username);
+      }
+    } else {
+      // Text input
+      await usernameElement.fill(username);
+    }
+
     await this.page.fill(txtPassword, password);
     await this.page.click(btnLogin);
     await this.page.waitForLoadState('networkidle');

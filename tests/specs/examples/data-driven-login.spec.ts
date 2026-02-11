@@ -13,6 +13,7 @@
 import { test, expect } from '../../fixtures';
 import { AdapterFactory } from '../../../src/data/adapters/adapterFactory';
 import { Log } from '../../../src/utils/logger';
+import { UiCommon } from '../../../src/common/ui-common';
 
 /**
  * Example: Data-driven login tests using Excel adapter
@@ -22,7 +23,7 @@ import { Log } from '../../../src/utils/logger';
  * HOW: Uses AdapterFactory to load users.xlsx
  */
 test.describe('Data-Driven Login Tests', () => {
-  test('should login with multiple users from Excel', async ({ page, loginPage, config }) => {
+  test('should login with multiple users from Excel', async ({ page, config }) => {
     // Load test data from Excel (CSV format also supported)
     const adapter = AdapterFactory.getAdapter('excel');
     const testData = await adapter.load({
@@ -32,29 +33,24 @@ test.describe('Data-Driven Login Tests', () => {
 
     Log.info(`Loaded ${testData.records.length} test scenarios from Excel`);
 
-    // Iterate through each user scenario
+    // Iterate through each user scenario using UiCommon workflow
     for (const user of testData.records) {
       Log.info(`Testing login for: ${user.username}`);
 
-      await loginPage.goto();
-
-      const loginSuccess = await loginPage.loginWithMfa(
-        user.username,
-        user.password,
+      // Use UiCommon workflow (handles navigation, cookies, loading, MFA)
+      const result = await UiCommon.navigateToAuthenticatedPage(
+        page, config.base_url,
+        { type: 'inline', username: user.username, password: user.password },
         config
       );
 
       // Assert based on expected_result column in Excel
-      if (user.expected_result === 'success') {
-        expect(loginSuccess, `Login should succeed for ${user.username}`).toBe(true);
-        expect(page.url()).toContain(config.home_url);
-      } else {
-        expect(loginSuccess, `Login should fail for ${user.username}`).toBe(false);
-      }
+      const shouldSucceed = user.expected_result === 'success';
+      expect(result.authenticated, `Login should ${shouldSucceed ? 'succeed' : 'fail'} for ${user.username}`).toBe(shouldSucceed);
 
-      // Logout if needed (navigate to login page which clears session)
-      if (loginSuccess) {
-        await loginPage.goto();
+      // Proper logout with session clearing
+      if (result.authenticated) {
+        await UiCommon.performCompleteLogout(page);
       }
     }
   });

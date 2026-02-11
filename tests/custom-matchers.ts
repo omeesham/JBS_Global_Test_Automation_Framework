@@ -13,6 +13,7 @@
 import { expect, Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+import { AppConstants } from '../src/utils/app-constants';
 
 expect.extend({
   /**
@@ -38,12 +39,7 @@ expect.extend({
    * Usage: await expect(page).toHaveNotification('Success')
    */
   async toHaveNotification(page: Page, text?: string) {
-    const notificationSelectors = [
-      '.alert',
-      '.notification',
-      '.Toastify__toast',
-      '[data-notify]',
-    ];
+    const notificationSelectors = AppConstants.NOTIFICATION_SELECTORS;
 
     let found = false;
     let actualText = '';
