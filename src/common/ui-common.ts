@@ -115,7 +115,7 @@ export class UiCommon {
    * const result = await UiCommon.navigateToAuthenticatedPage(
    *   page,
    *   'https://app.com/login',
-   *   { type: 'excel', path: 'config/test-data/users.csv', role: 'admin' },
+   *   { type: 'excel', path: 'tests/test-data/users.csv', role: 'admin' },
    *   config
    * );
    * expect(result.authenticated).toBe(true);
@@ -152,6 +152,10 @@ export class UiCommon {
       // Step 5: Perform login
       // Handle username field (could be text input or dropdown)
       const usernameElement = page.locator(usernameField);
+      
+      // Wait for username field to be visible before evaluating (SPA apps need this)
+      await usernameElement.waitFor({ state: 'visible', timeout: 30000 });
+      
       const usernameTagName = await usernameElement.evaluate(el => el.tagName.toLowerCase());
 
       if (usernameTagName === 'select') {
@@ -187,7 +191,7 @@ export class UiCommon {
       await this.waitForLoadingToComplete(page);
 
       // Wait for URL to change or hash to appear (passwordless auth may redirect via hash)
-      await page.waitForURL(url => !url.includes('/login') || url.includes('#'), { timeout: 15000 }).catch(() => {});
+      await page.waitForURL(url => !url.href.includes('/login') || url.href.includes('#'), { timeout: 15000 }).catch(() => {});
       await page.waitForTimeout(2000); // Additional wait for any post-login redirects
 
       // Step 7: Verify authentication successful

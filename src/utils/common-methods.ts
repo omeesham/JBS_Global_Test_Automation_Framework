@@ -5,7 +5,7 @@
  * USED BY: All page objects, test files, workflow methods
  *
  * HOW IT WORKS:
- * 1. Provides initProp() to load IConfig from .env and config.json
+ * 1. Provides initProp() to load IConfig from .env files
  * 2. getValuesFromCsv() reads element locators from CSV files
  * 3. getSelector() unified lookup (TypeScript first, CSV fallback)
  * 4. generateMfaCode() creates TOTP codes for authentication
@@ -99,16 +99,6 @@ export class CommonMethods {
       password_automation: process.env.PASSWORD_AUTOMATION || 'test_password',
       mfa_secret: process.env.MFA_SECRET,
     };
-
-    const configPath = path.join(process.cwd(), 'config', 'config.json');
-    if (fs.existsSync(configPath)) {
-      try {
-        const fileConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-        Object.assign(config, fileConfig);
-      } catch (error) {
-        Log.error(`Error loading config.json: ${error}`);
-      }
-    }
 
     this._props = config;
     return config;
@@ -538,6 +528,30 @@ export class CommonMethods {
       case 'DD/MM/YYYY': return `${day}/${month}/${year}`;
       default: return `${year}-${month}-${day}`;
     }
+  }
+
+  /**
+   * Add or subtract days from a date
+   * @param date - Date object or string
+   * @param days - Number of days (positive = future, negative = past)
+   * @returns New Date object
+   */
+  static addDays(date: Date | string, days: number): Date {
+    const dateObj = typeof date === 'string' ? new Date(date) : new Date(date);
+    dateObj.setDate(dateObj.getDate() + days);
+    return dateObj;
+  }
+
+  /**
+   * Add or subtract months from a date
+   * @param date - Date object or string
+   * @param months - Number of months (positive = future, negative = past)
+   * @returns New Date object
+   */
+  static addMonths(date: Date | string, months: number): Date {
+    const dateObj = typeof date === 'string' ? new Date(date) : new Date(date);
+    dateObj.setMonth(dateObj.getMonth() + months);
+    return dateObj;
   }
 
   static matchesPattern(text: string, pattern: string | RegExp): boolean {

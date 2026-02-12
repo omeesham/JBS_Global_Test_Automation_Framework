@@ -116,3 +116,37 @@ expect.extend({
     };
   },
 });
+
+// TypeScript declarations for custom matchers
+declare global {
+  namespace PlaywrightTest {
+    interface Matchers<R, T = unknown> {
+      /**
+       * Assert page is authenticated (URL contains hash fragment)
+       * @example await expect(page).toBeLoggedIn()
+       */
+      toBeLoggedIn(): R;
+      
+      /**
+       * Assert a notification/alert is visible, optionally matching text
+       * @param text - Optional text to match in notification
+       * @example await expect(page).toHaveNotification('Success')
+       */
+      toHaveNotification(text?: string): R;
+      
+      /**
+       * Assert a file was downloaded to directory
+       * @param fileName - Optional filename to check for
+       * @example expect(downloadsDir).toHaveFileDownloaded('report.xlsx')
+       */
+      toHaveFileDownloaded(fileName?: string): R;
+      
+      /**
+       * Assert page is on a specific EspoCRM module
+       * @param moduleName - Module name to check (e.g., 'Contact', 'Document')
+       * @example await expect(page).toBeOnModule('Document')
+       */
+      toBeOnModule(moduleName: string): R;
+    }
+  }
+}

@@ -85,11 +85,11 @@ pipeline {
             when {
                 allOf {
                     expression { params.UPLOAD_TO_SHAREPOINT == true }
-                    expression { fileExists('downloads') }
+                    expression { fileExists('tests/test-data/downloads') }
                 }
             }
             steps {
-                sh 'npx ts-node scripts/upload-to-sharepoint.ts --dir=downloads'
+                sh 'npx ts-node scripts/upload-to-sharepoint.ts --dir=tests/test-data/downloads'
             }
         }
     }
@@ -120,7 +120,7 @@ pipeline {
             // ])
 
             // Archive artifacts
-            archiveArtifacts artifacts: 'reports/**/*,test-results/**/*,downloads/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'reports/**/*,test-results/**/*,tests/test-data/downloads/**/*', allowEmptyArchive: true
 
             // Clean workspace
             cleanWs()

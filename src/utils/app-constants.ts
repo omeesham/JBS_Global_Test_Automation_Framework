@@ -17,6 +17,7 @@ export class AppConstants {
   static readonly LANDING_ELEMENTS = 'Landing_Elements.csv';
   static readonly WORKING_ELEMENTS = 'Working_Elements.csv';
   static readonly HOME_ELEMENTS = 'Home_Elements.csv';
+  static readonly DOCUMENTS_ELEMENTS = 'Documents_Elements.csv'; // DEMO_TARGET: Documents module
 
   // Search List Options (placeholder - define actual values)
   static readonly SEARCH_LIST: string[] = [
@@ -52,4 +53,13 @@ export class AppConstants {
   static readonly EXPECTED_VALUE1 = 'Value 1';
   static readonly EXPECTED_VALUE2 = 'Value 2';
   static readonly EXPECTED_VALUE3 = 'Value 3';
+
+  // Timeout Constants (Documents Module)
+  static readonly DOCUMENTS_UPLOAD_WAIT_MS = 2000; // EspoCRM file processing delay
+  static readonly DOCUMENTS_MODAL_TIMEOUT_MS = 10000; // Modal appearance/disappearance
+  static readonly DOCUMENTS_LIST_RENDER_TIMEOUT_MS = 10000; // SPA rendering delay
+  static readonly STEALTH_PAGE_LOAD_TIMEOUT_MS = 90000; // Initial page load with stealth (resources never finish)
+  static readonly STEALTH_LOGIN_WAIT_MS = 30000; // Login button/navbar visibility
+  static readonly DOCUMENTS_SPA_WAIT_MS = 500; // Post-scroll wait for SPA rendering
+  static readonly DOCUMENTS_FORM_RENDER_MS = 1000; // Full form render after navigation
 }

@@ -1,6 +1,0 @@
-﻿username,password,expected_result,scenario_name,notes
-test_user_001,ValidPass123!,success,Valid user login,Standard test user with valid credentials
-invalid_user,WrongPass123!,failure,Invalid credentials,User does not exist in system
-locked_user,LockedPass123!,locked,Locked account,Account locked due to failed attempts
-test_user_mfa,ValidPass123!,mfa_required,MFA-enabled user,Requires TOTP code after initial auth
-admin_user,AdminPass123!,success,Admin user login,User with elevated privileges

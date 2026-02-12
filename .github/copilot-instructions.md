@@ -49,6 +49,59 @@ Users describe test flows in **plain English** to Claude Code or any Copilot age
 
 ---
 
+## 0.1 Pipeline Containment Rules — CRITICAL
+
+**The Copilot agent (you) is the INTAKE ONLY.** Your job ends after creating documentation and queue entries.
+
+**NEVER DO ANY OF THESE:**
+- NEVER create `.spec.ts` files (Generator's job)
+- NEVER create or modify `src/pages/*.page.ts` files (Generator/Healer's job)
+- NEVER modify `src/selectors/index.ts` (Planner/Generator/Healer's job)
+- NEVER modify `object_repository/*.csv` (Planner/Generator/Healer's job)
+- NEVER set queue stage to anything other than `"pending_planning"` for new items
+- NEVER mark test cases as "Automated" (Generator does this after tests pass)
+- NEVER skip the Planner stage
+
+**Before starting any work:**
+1. Read `specs_planning/agent-mistakes.md` — check Copilot section for past violations
+2. Read `docs/read_only_docs/AGENT_SHARED_RULES.md` — refresh shared protocols
+3. Log activity to `specs_planning/agent-activity-log.md`:
+   - Append started entry when beginning work
+   - Append completed entry when finished
+
+**Your output for test requests:**
+1. Update REQUIREMENTS.md (with user approval)
+2. Create `specs_planning/test-cases/{feature}-test-cases.md`
+3. Add queue entry with `stage: "pending_planning"`
+4. Tell user: "Ready. Invoke @playwright-test-planner next."
+5. STOP. Do not proceed to code.
+
+### 0.2 User Override Protocol
+
+**The above NEVER rules apply to AUTONOMOUS behavior only.** If the user EXPLICITLY asks you to:
+- Create a .spec.ts file
+- Modify page objects
+- Edit selectors/CSV files
+- Skip the pipeline
+
+**You MUST:**
+1. **Confirm**: "You're asking me to do [Generator/Planner/Healer]'s job directly. Are you sure? The designated agent would normally handle this."
+2. **If user confirms**: Proceed, but follow ALL rules of the agent whose role you're taking on
+3. **Read that agent's prompt file before starting** (e.g., read `.github/agents/playwright-test-generator.agent.md`)
+4. **You are now responsible for that agent's quality standards.** No excuses.
+5. **Log this override** in `specs_planning/agent-activity-log.md` with note: "USER OVERRIDE - Copilot acting as [Agent Name]"
+
+**Example override confirmation:**
+> User: "Create a spec file for login tests"
+> 
+> Copilot: "⚠️ You're asking me to create a .spec.ts file directly, which is normally the Generator's job. The proper pipeline would be: describe the test flows → I create test cases → invoke @playwright-test-generator → it creates the spec file with proper selectors and page objects. Are you sure you want me to bypass the pipeline and create the spec now?"
+> 
+> User: "Yes, do it."
+> 
+> Copilot: ✅ [Reads playwright-test-generator.agent.md, follows all Generator rules, creates spec, logs override]
+
+---
+
 ## 1. Critical Rules — Read First
 
 ### 1.1 REQUIREMENTS.md Access Rules
@@ -83,106 +136,19 @@ pending_planning → planning → pending_generation → generation → pending_
 
 ### 1.3 Search-Before-Create Protocol
 
-**EVERY agent MUST follow this before creating ANY new code/file**:
-
-```
-NEED UTILITY FUNCTION?
-  → Search src/utils/common-methods.ts
-  → FOUND exact match? Import and use
-  → FOUND similar? Can you ADJUST safely without breaking callers? → Adjust
-  → NOT FOUND? Add to CommonMethods class — NEVER create new util files
-
-NEED PAGE METHOD?
-  → Search src/pages/*.page.ts
-  → FOUND? Use via fixture
-  → FOUND but needs tweaking? Adjust if safe, else add new variant
-  → NOT FOUND? Add to relevant page object
-
-NEED LOCATOR/SELECTOR?
-  → Search src/selectors/index.ts (TypeScript — fast, no I/O)
-  → Search object_repository/*.csv (CSV — fallback)
-  → FOUND? Use existing
-  → NOT FOUND? Add to BOTH TypeScript AND CSV
-
-NEED CONSTANT?
-  → Search src/utils/app-constants.ts
-  → FOUND? Use
-  → NOT FOUND? Add to AppConstants class
-
-NEED CUSTOM ASSERTION?
-  → Search tests/custom-matchers.ts
-  → FOUND? Use via expect(x).toBeXxx()
-  → NOT FOUND? Add to custom-matchers.ts + add type declaration in framework-contracts/index.d.ts
-
-NEED FIXTURE?
-  → Search tests/fixtures.ts
-  → FOUND? Use existing fixture
-  → NOT FOUND? Add new fixture definition + import page object
-
-NEED TEST FILE?
-  → Search tests/specs/**/*.spec.ts
-  → FOUND? Add test cases to existing file
-  → NOT FOUND? Create in tests/specs/{module}/
-```
+See `docs/read_only_docs/AGENT_SHARED_RULES.md` Section 1 for the complete Search-Before-Create Protocol that all agents follow.
 
 ### 1.4 File Ownership Matrix
 
-**Philosophy**: Agents are autonomous workers who build everything — but humans control the framework foundation. **Code once, reuse everywhere** — agents search for existing solutions first, adjust if safe, create new only in the right existing file.
+See `docs/read_only_docs/AGENT_SHARED_RULES.md` Section 2 for the complete File Ownership Matrix with all agent columns (Planner, Generator, Healer, QA, Copilot).
 
-#### Agent-Maintained: Tests, Page Objects, Selectors
-
-| File | Planner | Generator | Healer | Notes |
-|------|---------|-----------|--------|-------|
-| `tests/specs/**/*.spec.ts` | — | **CREATE** | **FIX/fixme** | Generator builds tests, Healer fixes failures |
-| `src/pages/*.page.ts` | READ | **ADD methods** | **FIX methods** | Generator extends, Healer repairs |
-| `src/pages/index.ts` | READ | **UPDATE exports** | — | Generator updates barrel file |
-| `object_repository/*.csv` | **ADD rows** | **ADD rows** | **FIX rows** | All agents maintain selectors (add/fix) |
-| `src/selectors/index.ts` | **ADD props** | **ADD props** | **FIX props** | Keep synced with CSV always |
-
-#### Agent-Maintained: Reusable Code (code once, reuse everywhere)
-
-| File | Planner | Generator | Healer | Notes |
-|------|---------|-----------|--------|-------|
-| `src/utils/common-methods.ts` | READ | **ADD / ADJUST** | **FIX** | ALL utilities here. Add new, adjust existing safely. Never delete. Never create new util files. |
-| `src/utils/app-constants.ts` | READ | **ADD** | **FIX** | Constants. Add new, fix incorrect. Never delete. |
-| `src/utils/file-utils.ts` | READ | **ADD** | **FIX** | File ops. Add new, fix broken. Never delete. |
-| `src/utils/index.ts` | READ | **UPDATE** | READ | Barrel exports. Generator updates when adding. |
-| `src/common/base-page.ts` | READ | **ADD helpers** | **FIX** | Base POM patterns. Generator adds, Healer fixes. |
-| `src/common/ui-common.ts` | READ | **ADD methods** | **FIX** | Shared workflows (login, nav). |
-| `tests/custom-matchers.ts` | READ | **ADD matchers** | **FIX** | Domain assertions via expect.extend(). |
-| `tests/fixtures.ts` | READ | **ADD fixtures** | **FIX** | Test fixtures. Generator adds, Healer fixes wiring. |
-| `src/framework-contracts/index.d.ts` | READ | **ADD types** | **FIX** | Type declarations for matchers, interfaces. |
-
-#### Agent-Maintained: Documentation & Queue
-
-| File | Planner | Generator | Healer | Notes |
-|------|---------|-----------|--------|-------|
-| `specs_planning/agent-queue.json` | **READ-WRITE** | **READ-WRITE** | **READ-WRITE** | All agents lock/unlock/update |
-| `specs_planning/test-cases/*.md` | **CREATE+UPDATE** | **UPDATE status** | **UPDATE results** | Planner creates, others update metadata |
-| `specs_planning/test-plans/*.md` | **CREATE** | READ | READ | Planner creates technical plans |
-
-#### Human-Controlled (agents READ-ONLY or NEVER)
-
-| File | Agents | Why |
-|------|--------|-----|
-| `REQUIREMENTS.md` | **Playwright agents: READ-ONLY. Copilot agents: UPDATE on user request (show changes first)** | Website knowledge base |
-| `tests/global-setup.ts` | READ-ONLY | Global hooks — report issues to user |
-| `tests/global-teardown.ts` | READ-ONLY | Global hooks — report issues to user |
-| `tests/seed.spec.ts` | READ-ONLY | Context seed for agents |
-| `src/utils/logger.ts` | READ-ONLY | Logging infrastructure — use Log.*, don't reconfigure |
-| `src/data/adapters/*` | READ-ONLY | Data layer — user configures data sources |
-| `src/integrations/*` | READ-ONLY | SharePoint etc — user configures integrations |
-| `specs_planning/TEMPLATE.md` | READ-ONLY | Templates are user-owned |
-| `specs_planning/agent-queue.schema.json` | READ-ONLY | Schema — user defines queue structure |
-| `.env*` | **NEVER** | Credentials and secrets |
-| `.ci/*`, `.github/workflows/*` | **NEVER** | CI/CD infrastructure |
-| `.github/agents/*.agent.md` | **NEVER** | Agent instructions — agents never rewrite own rules |
-| `.github/copilot-instructions.md` | **NEVER** | Master instructions — user-owned |
-| `playwright.config.ts` | **NEVER** | Test execution config |
-| `tsconfig.json`, `package.json` | **NEVER** | Framework config and dependencies |
-| `docs/*`, `README.md` | **NEVER** | Documentation |
-| `export_test_cases/*` | **NEVER** | Export tooling |
-| `scripts/*` | **NEVER** | Build/deploy scripts |
+**Key Copilot-specific rules:**
+- **CREATE**: `specs_planning/test-cases/*.md` (with user approval)
+- **UPDATE**: `REQUIREMENTS.md` (with user approval - show changes first)
+- **READ-WRITE**: `specs_planning/agent-queue.json` (add queue entries only)
+- **READ-ONLY**: `specs_planning/agent-mistakes.md` (QA Agent owns writes)
+- **APPEND-ONLY**: `specs_planning/agent-activity-log.md`
+- **NEVER**: `.spec.ts` files, page objects, selectors, CSV files
 
 ### 1.5 Never Break These Patterns
 
@@ -250,6 +216,8 @@ hybrid_framework/
 │   ├── seed.spec.ts                   # EspoCRM context for agents
 │   ├── fixtures.ts                    # Fixtures + custom matchers import
 │   ├── custom-matchers.ts             # expect.extend() — toBeLoggedIn, toBeOnModule, etc.
+│   ├── test-data/                     # Sample files for upload/download tests
+│   │   └── test.xlsx                  # Pre-staged upload data (Excel, docs, etc.)
 │   ├── specs/                         # ONLY .spec.ts files
 │   │   ├── auth/
 │   │   └── dashboard/

@@ -1,136 +1,188 @@
-// Jenkinsfile for Windows
-// Jenkins Pipeline for Playwright Tests on Windows
+// Jenkinsfile for Windows (Pipeline Script - paste into Jenkins UI)
+// IMPORTANT: Every npm/npx command MUST use "call" prefix in Windows batch.
+// Without "call", npm.cmd takes over and the parent batch script exits silently.
 
 pipeline {
-    agent {
-        label 'windows'
-    }
+    agent { label 'built-in' }
 
     parameters {
-        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Environment to run tests against')
-        choice(name: 'BROWSER', choices: ['chromium', 'chrome', 'firefox', 'webkit'], description: 'Browser to run tests (CI default: chromium)')
-        string(name: 'TEST_PATTERN', defaultValue: '**/*.spec.ts', description: 'Test file pattern')
-        booleanParam(name: 'UPLOAD_TO_SHAREPOINT', defaultValue: false, description: 'Upload downloads to SharePoint after tests')
+        choice(name: 'ENVIRONMENT', choices: ['development', 'staging', 'production'], description: 'Target environment')
+        choice(name: 'BROWSER', choices: ['chromium', 'chrome', 'firefox', 'webkit'], description: 'Browser to run tests')
+        string(name: 'TEST_PATTERN', defaultValue: '', description: 'Specific test grep pattern (empty = all tests)')
+        booleanParam(name: 'ENABLE_VIDEO', defaultValue: true, description: 'Record test videos')
+        booleanParam(name: 'ENABLE_TRACING', defaultValue: true, description: 'Capture Playwright traces')
+        booleanParam(name: 'ENABLE_SCREENSHOTS', defaultValue: true, description: 'Capture screenshots on failure')
+        booleanParam(name: 'HEADED', defaultValue: false, description: 'Run with visible browser (local debug only)')
     }
 
     environment {
-        NODE_ENV = "${params.ENVIRONMENT}"
-        PLAYWRIGHT_BROWSERS_PATH = "${WORKSPACE}\\ms-playwright"
-
-        // ==================== GIT TIMEOUT FIX (OPTIONAL - USER CONFIG) ====================
-        // Uncomment these if allure-playwright is re-enabled in CI config:
-        // ALLURE_RESULTS_WITHOUT_GIT = "true"  // Skip git info collection
-        // GIT_COMMAND_TIMEOUT = "10000"         // 10 second timeout for git commands
+        PROJECT_SRC = "C:\\Users\\rutvi\\projects\\hybrid_framework"
+        CI = "true"
+        CI_ENV = "${params.ENVIRONMENT}"
+        PLAYWRIGHT_BROWSERS_PATH = "${WORKSPACE}\\.browsers"
+        ENABLE_VIDEO = "${params.ENABLE_VIDEO}"
+        ENABLE_TRACING = "${params.ENABLE_TRACING}"
+        ENABLE_SCREENSHOTS = "${params.ENABLE_SCREENSHOTS}"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Kill Old Processes') {
             steps {
-                // FLEXIBLE CHECKOUT: Supports both SCM (production) and local testing
-                script {
-                    try {
-                        checkout scm
-                        echo "✓ Checked out from SCM (Git repository)"
-                    } catch (Exception e) {
-                        echo "⚠ SCM checkout skipped (local testing mode)"
-                        echo "Using existing workspace files from: ${WORKSPACE}"
-                    }
-                }
+                bat '''
+                    taskkill /f /im node.exe /t 2>nul || exit /b 0
+                    taskkill /f /im chrome-headless-shell.exe /t 2>nul || exit /b 0
+                    taskkill /f /im chrome.exe /t 2>nul || exit /b 0
+                    taskkill /f /im firefox.exe /t 2>nul || exit /b 0
+                    echo Processes cleaned
+                '''
+            }
+        }
 
-                // Display build info (works with or without Git)
-                bat '.ci\\git-info.bat'
+        stage('Clean Workspace') {
+            steps {
+                bat '''
+                    echo Cleaning workspace...
+                    for /d %%i in (*) do rmdir /s /q "%%i" 2>nul || echo Skipped %%i
+                    del /f /q * 2>nul || echo Cleaned files
+                '''
+            }
+        }
+
+        stage('Copy Framework') {
+            steps {
+                bat '''
+                    echo Copying from %PROJECT_SRC%
+                    robocopy "%PROJECT_SRC%" "%WORKSPACE%" /E /XD node_modules ms-playwright test-results reports logs .git .browsers /XF .env.local /NFL /NDL /NJH /NJS /nc /ns /np || exit /b 0
+                    if exist "%WORKSPACE%\\package.json" (
+                        echo Framework copied successfully
+                    ) else (
+                        echo ERROR: package.json not found after copy!
+                        exit /b 1
+                    )
+                '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                bat 'node --version'
-                bat 'npm --version'
-                bat 'npm clean-install'
+                bat '''
+                    echo ========================================
+                    echo STAGE: Install Dependencies
+                    echo ========================================
+
+                    call node --version
+                    call npm --version
+
+                    echo Checking for package.json...
+                    if not exist package.json (
+                        echo ERROR: package.json not found!
+                        exit /b 1
+                    )
+                    echo Found package.json
+
+                    if exist package-lock.json (
+                        echo Found package-lock.json - using npm ci
+                        call npm ci --no-audit --prefer-offline
+                    ) else (
+                        echo No package-lock.json - using npm install
+                        call npm install --no-audit
+                    )
+
+                    if errorlevel 1 (
+                        echo ERROR: npm install failed!
+                        exit /b 1
+                    )
+
+                    if not exist node_modules (
+                        echo ERROR: node_modules was not created!
+                        exit /b 1
+                    )
+
+                    if not exist "node_modules\\@playwright\\test" (
+                        echo ERROR: @playwright/test not installed!
+                        exit /b 1
+                    )
+
+                    echo SUCCESS: Dependencies installed
+                    echo ========================================
+                '''
             }
         }
 
         stage('Install Playwright Browsers') {
             steps {
-                bat 'npx playwright install --with-deps'
+                bat '''
+                    echo Installing %BROWSER% browser with dependencies...
+                    call npx playwright install %BROWSER% --with-deps
+
+                    if errorlevel 1 (
+                        echo ERROR: Browser installation failed
+                        exit /b 1
+                    )
+
+                    call npx playwright --version
+                    if errorlevel 1 (
+                        echo ERROR: Playwright not found after install!
+                        exit /b 1
+                    )
+
+                    echo Browser installed successfully
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
                 script {
-                    // Uses playwright.config.ci.ts (no allure-playwright, avoids git timeout)
+                    def headedFlag = params.HEADED ? '--headed' : ''
+                    def grepFlag = params.TEST_PATTERN ? "--grep=\"${params.TEST_PATTERN}\"" : ''
+
                     bat """
-                        set NODE_ENV=${params.ENVIRONMENT}
-                        npx playwright test --config=playwright.config.ci.ts --project=${params.BROWSER}
+                        set PLAYWRIGHT_BROWSERS_PATH=%WORKSPACE%\\.browsers
+                        set CI=true
+                        set CI_ENV=${params.ENVIRONMENT}
+                        set ENABLE_VIDEO=${params.ENABLE_VIDEO}
+                        set ENABLE_TRACING=${params.ENABLE_TRACING}
+                        set ENABLE_SCREENSHOTS=${params.ENABLE_SCREENSHOTS}
+
+                        echo Running Playwright tests...
+                        echo Browser: ${params.BROWSER}
+                        echo Pattern: ${params.TEST_PATTERN ?: 'ALL TESTS'}
+
+                        call npx playwright test tests/specs/espocrm --config=playwright.config.ci.ts --project=${params.BROWSER} ${headedFlag} ${grepFlag}
                     """
                 }
-            }
-        }
-
-        // ==================== ALLURE REPORT DISABLED (Git Timeout Fix) ====================
-        // allure-playwright removed from CI config (playwright.config.ci.ts) to fix GitCommitInfo timeout
-        // Uncomment this stage if you re-enable allure-playwright with ALLURE_RESULTS_WITHOUT_GIT=true
-        //
-        // stage('Generate Allure Report') {
-        //     steps {
-        //         bat 'npx allure generate reports/allure-results --clean -o reports/allure-report'
-        //     }
-        // }
-
-        stage('Upload to SharePoint') {
-            when {
-                allOf {
-                    expression { params.UPLOAD_TO_SHAREPOINT == true }
-                    expression { fileExists('downloads') }
-                }
-            }
-            steps {
-                bat 'npx ts-node scripts/upload-to-sharepoint.ts --dir=downloads'
             }
         }
     }
 
     post {
         always {
-            // Publish test results
-            junit 'reports/junit-results.xml'
+            junit allowEmptyResults: true, testResults: 'reports/junit-results.xml'
 
-            // Publish HTML report
             publishHTML([
-                allowMissing: false,
+                allowMissing: true,
                 alwaysLinkToLastBuild: true,
                 keepAll: true,
                 reportDir: 'reports/html-report',
                 reportFiles: 'index.html',
-                reportName: 'Playwright HTML Report'
+                reportName: 'Playwright Test Report'
             ])
 
-            // Publish Allure report (DISABLED - Git Timeout Fix)
-            // Uncomment if you re-enable allure-playwright with ALLURE_RESULTS_WITHOUT_GIT=true
-            // allure([
-            //     includeProperties: false,
-            //     jdk: '',
-            //     properties: [],
-            //     reportBuildPolicy: 'ALWAYS',
-            //     results: [[path: 'reports/allure-results']]
-            // ])
+            archiveArtifacts artifacts: 'reports/**,test-results/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'test-results/**/*.zip', allowEmptyArchive: true
+        }
 
-            // Archive artifacts
-            archiveArtifacts artifacts: 'reports/**,test-results/**,downloads/**', allowEmptyArchive: true
+        success {
+            echo "Tests passed on ${params.BROWSER} in ${params.ENVIRONMENT} environment!"
         }
 
         failure {
-            emailext(
-                subject: "Test Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """Test execution failed.
+            echo "Tests failed - check artifacts for debugging"
+        }
 
-                Environment: ${params.ENVIRONMENT}
-                Browser: ${params.BROWSER}
-
-                Check: ${env.BUILD_URL}""",
-                recipientProviders: [developers(), requestor()]
-            )
+        cleanup {
+            bat 'taskkill /f /im node.exe /t 2>nul || exit /b 0'
         }
     }
 }

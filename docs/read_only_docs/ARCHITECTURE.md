@@ -550,7 +550,7 @@ ExcelAdapter (src/data/adapters/excelAdapter.ts)
     ↓ implements
 IAdapter (src/data/adapters/IAdapter.ts)
     ↓ loads data from
-Excel File (config/test-data/users.xlsx)
+Excel File (tests/test-data/users.xlsx)
     ↓ returns
 AdapterResult (normalized test data)
     ↓ loops through
@@ -633,21 +633,18 @@ Both tests reuse the same `LoginPage` class.
 
 ---
 
-### Q3: What's the difference between `config/` and `src/`?
+### Q3: Where does configuration live?
 
-**Answer**: Configuration vs Implementation
+**Answer**: Environment configuration lives at the project root via `.env.*` files.
 
-- **`config/`** = Environment settings, test data files
-  - `.env` files
-  - `config.json`
-  - `test-data/users.xlsx`
-  
+- **`.env.development`** / **`.env.staging`** / **`.env.production`** = Environment-specific settings
+- **`.env.example`** = Template for new environments
+- **`playwright.config.ts`** = Loads env via `dotenv-flow`, defines test execution config
+
 - **`src/`** = Framework implementation code
   - TypeScript classes
   - Business logic
   - Reusable functions
-
-**Rule**: `config/` = data, `src/` = code
 
 ---
 

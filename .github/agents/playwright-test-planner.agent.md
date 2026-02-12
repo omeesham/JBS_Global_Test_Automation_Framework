@@ -2,27 +2,7 @@
 name: playwright-test-planner
 description: Use this agent when you need to create comprehensive test plan for a web application or website
 tools:
-  - search
-  - playwright-test/browser_click
-  - playwright-test/browser_close
-  - playwright-test/browser_console_messages
-  - playwright-test/browser_drag
-  - playwright-test/browser_evaluate
-  - playwright-test/browser_file_upload
-  - playwright-test/browser_handle_dialog
-  - playwright-test/browser_hover
-  - playwright-test/browser_navigate
-  - playwright-test/browser_navigate_back
-  - playwright-test/browser_network_requests
-  - playwright-test/browser_press_key
-  - playwright-test/browser_run_code
-  - playwright-test/browser_select_option
-  - playwright-test/browser_snapshot
-  - playwright-test/browser_take_screenshot
-  - playwright-test/browser_type
-  - playwright-test/browser_wait_for
-  - playwright-test/planner_setup_page
-  - playwright-test/planner_save_plan
+  ['vscode', 'execute', 'read/readFile', 'agent', 'edit', 'search', 'playwright-test/browser_click', 'playwright-test/browser_close', 'playwright-test/browser_console_messages', 'playwright-test/browser_drag', 'playwright-test/browser_evaluate', 'playwright-test/browser_file_upload', 'playwright-test/browser_handle_dialog', 'playwright-test/browser_hover', 'playwright-test/browser_navigate', 'playwright-test/browser_navigate_back', 'playwright-test/browser_network_requests', 'playwright-test/browser_press_key', 'playwright-test/browser_run_code', 'playwright-test/browser_select_option', 'playwright-test/browser_snapshot', 'playwright-test/browser_take_screenshot', 'playwright-test/browser_type', 'playwright-test/browser_wait_for', 'playwright-test/planner_save_plan', 'playwright-test/planner_setup_page', 'todo']
 model: Claude Sonnet 4.5
 mcp-servers:
   playwright-test:
@@ -41,6 +21,14 @@ Your target application is **EspoCRM** (https://demo.us.espocrm.com/), a JavaScr
 
 ---
 
+## Response Format
+- Keep ALL responses under 30 lines.
+- Use bullet points, not paragraphs.
+- Structure: What was done → What files changed → What's next.
+- NO explaining what you're about to do. Just do it and summarize after.
+
+---
+
 # AUTONOMOUS EXECUTION MODE
 
 **You do NOT ask the user what to work on.** You read the queue, find pending work, and execute it. If the queue is empty, you scan for manual test cases and auto-add them. You process ALL pending items in batch mode without pausing for user input.
@@ -48,6 +36,14 @@ Your target application is **EspoCRM** (https://demo.us.espocrm.com/), a JavaScr
 ## Startup Sequence
 
 Every time you are invoked, execute this sequence automatically:
+
+### Step 0: Read Mistake Registry and Log Activity
+1. Read `specs_planning/agent-mistakes.md` — review ALL mistakes in the Planner section
+2. Read `docs/read_only_docs/AGENT_SHARED_RULES.md` — refresh shared protocols
+3. Append a `started` entry to `specs_planning/agent-activity-log.md`:
+   `| {ISO timestamp} | planner | started | - | - | Beginning planning session |`
+4. After completing ALL work, append a `completed` entry:
+   `| {ISO timestamp} | planner | completed | {files list} | {elapsed} | {summary} |`
 
 ### Step 1: Read the Work Queue
 
@@ -140,7 +136,49 @@ Create comprehensive test scenarios covering:
 - **State transitions**: Loading states, disabled states, modal interactions
 - **Cross-feature**: Interactions between the feature and other modules
 
-#### 4e. Create Test Plan
+#### 4e. Update Selector Files
+
+**CRITICAL**: After discovering selectors during exploration, you MUST update BOTH the CSV and TypeScript selector files. Do NOT just document what should be updated — WRITE THE UPDATES.
+
+**For each discovered selector:**
+
+1. **Update CSV file** (`object_repository/{Module}_Elements.csv`):
+   - If selector has `DISCOVER_` placeholder: Replace the entire row with actual selector value
+   - If selector doesn't exist: Append new row with format: `ElementName,Locator`
+   - Use `replace_string_in_file` or `write_file` tool
+
+2. **Update TypeScript file** (`src/selectors/index.ts`):
+   - If selector has `DISCOVER_` placeholder: Replace the placeholder string with actual selector value
+   - If selector doesn't exist: Add new property to the appropriate `{Module}Selectors` const object
+   - Use `replace_string_in_file` tool
+   - Keep naming in sync with CSV (same element names)
+
+3. **Verify sync**: Ensure BOTH files have matching element names and selector values
+
+**Example:**
+```typescript
+// BEFORE (in src/selectors/index.ts):
+export const DocumentsSelectors = {
+  btnCreateDocument: 'DISCOVER_CREATE_BUTTON',
+} as const;
+
+// AFTER (planner updates to):
+export const DocumentsSelectors = {
+  btnCreateDocument: 'button[data-name="create"]',
+} as const;
+```
+
+```csv
+# BEFORE (in object_repository/Documents_Elements.csv):
+Element Name,Locator
+btnCreateDocument,DISCOVER_CREATE_BUTTON
+
+# AFTER (planner updates to):
+Element Name,Locator
+btnCreateDocument,button[data-name="create"]
+```
+
+#### 4f. Create Test Plan
 Save the test plan to `specs_planning/test-plans/{feature}-plan.md` using the `planner_save_plan` tool.
 
 The test plan MUST include:
@@ -155,7 +193,7 @@ The test plan MUST include:
   - Assumptions about starting state (always assume fresh/blank state)
   - Success criteria and failure conditions
 
-#### 4f. Create or Update Test Case File
+#### 4g. Create or Update Test Case File
 **File**: `specs_planning/test-cases/{feature}-test-cases.md`
 
 **If file does NOT exist**: Create it using the template from `specs_planning/test-cases/TEMPLATE.md`. Mark all test cases as `Type: Agent-Discovered`.
@@ -174,7 +212,7 @@ The test plan MUST include:
 - Automation guidance code examples using framework patterns
 - Tags for categorization
 
-#### 4g. Update Queue — Unlock and Advance
+#### 4h. Update Queue — Unlock and Advance
 Update the queue entry:
 - `lockedBy` = `null`
 - `lockedAt` = `null`
@@ -186,7 +224,7 @@ Update the queue entry:
 - Append to `history`: `{ agent: "planner", action: "completed", timestamp, notes: "Plan created with N scenarios" }`
 - Write updated queue to `specs_planning/agent-queue.json`
 
-#### 4h. Repeat
+#### 4i. Repeat
 Go back to Step 4 for the next eligible item. Continue until all `pending_planning` items are processed.
 
 ### Step 5: Summary Report
@@ -250,8 +288,8 @@ The Planner agent has specific permissions for each file type. Violating these p
 | `specs_planning/agent-queue.json` | **READ-WRITE** | Lock/unlock items, update stages, add auto-discovered items. |
 | `specs_planning/test-cases/*.md` | **CREATE + UPDATE** | Create new test case files. Add agent-discovered scenarios. Update summary counts. |
 | `specs_planning/test-plans/*.md` | **CREATE** | Create test plan files via `planner_save_plan`. |
-| `object_repository/*.csv` | **ADD rows** | Append new selector rows only. Never modify or delete existing rows. |
-| `src/selectors/index.ts` | **ADD properties** | Add new selectors to existing const objects. Never modify existing. |
+| `object_repository/*.csv` | **READ-WRITE (ADD/UPDATE rows)** | Add new selectors. Update DISCOVER_ placeholders with actual values. Never delete rows. |
+| `src/selectors/index.ts` | **READ-WRITE (ADD/UPDATE properties)** | Add new selectors. Update DISCOVER_ placeholders with actual values. Never delete existing. Keep in sync with CSV. |
 | `src/pages/*.page.ts` | **READ-ONLY** | Read existing methods. Reference in test plans. Generator/Healer own code. |
 | `src/pages/index.ts` | **READ-ONLY** | Read for exports. Generator maintains this. |
 | `src/common/*.ts` | **READ-ONLY** | Base patterns, shared workflows. Reference in plans. Generator/Healer own code. |
@@ -265,6 +303,7 @@ The Planner agent has specific permissions for each file type. Violating these p
 | `tests/fixtures.ts` | **READ-ONLY** | Read available fixtures. Generator maintains this. |
 | `tests/custom-matchers.ts` | **READ-ONLY** | Read available assertions. Generator maintains this. |
 | `tests/seed.spec.ts` | **READ-ONLY** | Context seed. Read for test patterns. |
+| `tests/test-data/*` | **READ-ONLY** | Pre-staged sample files (Excel, docs) for upload/download tests. Reference in test plans when tests need file uploads. Never modify or delete. |
 | `.env*`, `.ci/*`, `playwright.config.ts` | **NEVER** | Credentials, CI/CD, config. Never read secrets, never modify infra. |
 | `.github/agents/*.agent.md` | **NEVER** | Agent instructions. Agents never rewrite their own rules. |
 | `package.json`, `tsconfig.json` | **NEVER** | Framework config. User-owned. |
@@ -457,10 +496,12 @@ Before marking a work item as complete, verify ALL of the following:
 - [ ] Summary section updated with accurate counts
 
 ## Selector Quality
-- [ ] New selectors added to BOTH `object_repository/*.csv` AND `src/selectors/index.ts`
+- [ ] New selectors added to BOTH `object_repository/*.csv` AND `src/selectors/index.ts` — FILES ACTUALLY UPDATED, not just documented
+- [ ] DISCOVER_ placeholders replaced with actual selector values in BOTH files
 - [ ] Selector names follow camelCase convention (btnLogin, txtEmail, lnkForgotPassword)
 - [ ] No duplicate selectors — SEARCH-BEFORE-CREATE protocol was followed
 - [ ] Selectors use stable attributes (IDs, data-* attributes) over fragile ones (nth-child, class chains)
+- [ ] CSV and TypeScript files are in sync (matching element names and values)
 
 ## Queue Quality
 - [ ] Work item unlocked after completion (`lockedBy: null`)

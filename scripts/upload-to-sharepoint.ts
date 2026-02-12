@@ -5,12 +5,12 @@
  * USED BY: Jenkinsfile.ubuntu, Jenkinsfile.windows (post-build stage)
  *
  * HOW IT WORKS:
- * 1. Reads --dir argument (default: downloads/)
+ * 1. Reads --dir argument (default: tests/test-data/downloads/)
  * 2. Validates SharePoint config from .env
  * 3. Uploads all files in directory to SharePoint
  * 4. Exits 0 (success) or 1 (failure) for Jenkins
  *
- * Usage: npx ts-node scripts/upload-to-sharepoint.ts [--dir=downloads]
+ * Usage: npx ts-node scripts/upload-to-sharepoint.ts [--dir=tests/test-data/downloads]
  */
 
 // IMP------------------For SharePoint upload to work, you need:
@@ -35,7 +35,7 @@ import { SharePointClient } from '../src/integrations/sharepoint-client';
 async function main(): Promise<void> {
   // Parse --dir argument
   const dirArg = process.argv.find(arg => arg.startsWith('--dir='));
-  const uploadDir = dirArg ? dirArg.split('=')[1]! : 'downloads';
+  const uploadDir = dirArg ? dirArg.split('=')[1]! : 'tests/test-data/downloads';
 
   console.log(`[Upload] Target directory: ${uploadDir}`);
 

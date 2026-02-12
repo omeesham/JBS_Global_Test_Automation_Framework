@@ -60,7 +60,7 @@ export class CredentialLoader {
    * // Load admin credentials from Excel
    * const creds = await CredentialLoader.loadCredentials({
    *   type: 'excel',
-   *   path: 'config/test-data/users.csv',
+   *   path: 'tests/test-data/users.csv',
    *   role: 'admin'
    * });
    * 
@@ -68,7 +68,7 @@ export class CredentialLoader {
    * // Load from JSON
    * const creds = await CredentialLoader.loadCredentials({
    *   type: 'json',
-   *   path: 'config/test-data/test-users.json',
+   *   path: 'tests/test-data/test-users.json',
    *   role: 'standard_user'
    * });
    * 
@@ -205,7 +205,7 @@ export class CredentialLoader {
    * // Load all users from Excel for data-driven test
    * const allUsers = await CredentialLoader.loadAllCredentials({
    *   type: 'excel',
-   *   path: 'config/test-data/users.csv'
+   *   path: 'tests/test-data/users.csv'
    * });
    */
   static async loadAllCredentials(source: CredentialSource): Promise<Credentials[]> {

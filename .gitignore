@@ -2,7 +2,6 @@
 node_modules/
 npm-debug.log
 yarn-error.log
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 .build/
@@ -60,7 +59,8 @@ coverage/
 .nyc_output/
 
 # Downloads (test artifacts)
-downloads/
+tests/test-data/downloads/
+!tests/test-data/downloads/.gitkeep
 
 # Temporary
 temp/
@@ -79,3 +79,7 @@ tmp/
 *token*
 *.pem
 *.key
+
+# Playwright browsers cache
+.browsers/
+ms-playwright/

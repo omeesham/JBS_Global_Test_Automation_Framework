@@ -10,8 +10,22 @@ dotenvFlow.config({
 });
 
 /**
+ * Helper: Map env var to Playwright artifact setting
+ * @param envVar - Environment variable name (e.g., 'ENABLE_VIDEO')
+ * @param defaultValue - Default Playwright value (e.g., 'retain-on-failure')
+ * @returns Playwright artifact setting value
+ */
+export function getArtifactSetting(envVar: string, defaultValue: string): string {
+  const value = process.env[envVar]?.toLowerCase();
+  if (!value || value === 'true') return defaultValue;
+  if (value === 'false') return 'off';
+  // Pass-through explicit Playwright values: 'on', 'retain-on-failure', 'on-first-retry', etc.
+  return value;
+}
+
+/**
  * Playwright Test Configuration
- * 
+ *
  * Central configuration for test execution: browsers, timeouts, reporters, artifacts.
  * See: https://playwright.dev/docs/test-configuration
  */
@@ -40,6 +54,8 @@ export default defineConfig({
   
   // ==================== REPORTERS ====================
   // Available: 'list', 'html', 'json', 'junit', 'allure-playwright', 'dot', 'github'
+  preserveOutput: 'always',
+  
   reporter: [
     ['list'],
     ['html', { outputFolder: 'reports/html-report', open: 'never' }],
@@ -56,15 +72,15 @@ export default defineConfig({
   use: {
     baseURL: process.env.BASE_URL || 'https://demo.us.espocrm.com/',  // EspoCRM demo instance
     
-    // ==================== DEBUGGING ARTIFACTS ====================
-    trace: 'on-first-retry',  // Options: 'on', 'off', 'retain-on-failure', 'on-first-retry'
-    
+    // ==================== DEBUGGING ARTIFACTS (Controlled via .env) ====================
+    trace: getArtifactSetting('ENABLE_TRACING', 'on-first-retry') as any,
+
     screenshot: {
-      mode: 'only-on-failure',  // Options: 'on', 'off', 'only-on-failure'
+      mode: getArtifactSetting('ENABLE_SCREENSHOTS', 'only-on-failure') as any,
       fullPage: true,
     },
-    
-    video: 'retain-on-failure',  // WARNING: Videos add ~2MB+ per test
+
+    video: getArtifactSetting('ENABLE_VIDEO', 'retain-on-failure') as any,
     
     // ==================== BROWSER SETTINGS ====================
     viewport: null,  // null = maximized; { width: 1920, height: 1080 } for fixed size
@@ -95,6 +111,24 @@ export default defineConfig({
       name: 'chromium',
       use: { 
         viewport: null,
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        launchOptions: {
+          args: [
+            '--disable-blink-features=AutomationControlled',
+            '--disable-web-security',
+            '--disable-features=IsolateOrigins,site-per-process',
+            '--disable-dev-shm-usage',
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-infobars',
+            '--window-position=0,0',
+            '--ignore-certificate-errors',
+            '--ignore-certificate-errors-spki-list',
+            '--disable-blink-features=AutomationControlled',
+            '--excludeSwitches=enable-automation',
+            '--disable-features=VizDisplayCompositor',
+          ],
+        },
       },
     },
     

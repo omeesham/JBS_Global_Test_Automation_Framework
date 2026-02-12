@@ -1,3 +1,5 @@
+// spec: specs_planning/test-plans/data-driven-examples-plan.md
+// seed: tests/seed.spec.ts
 /**
  * FILE: tests/specs/examples/data-driven-login.spec.ts
  * PURPOSE: Example of data-driven testing using adapters
@@ -27,7 +29,7 @@ test.describe('Data-Driven Login Tests', () => {
     // Load test data from Excel (CSV format also supported)
     const adapter = AdapterFactory.getAdapter('excel');
     const testData = await adapter.load({
-      file: 'config/test-data/users.csv',
+      file: 'tests/test-data/users.csv',
       sheet: 'Sheet1'  // For CSV, sheet parameter is optional
     });
 
@@ -61,7 +63,7 @@ test.describe('Data-Driven Login Tests', () => {
   test('should load user data from JSON', async ({ page }) => {
     const adapter = AdapterFactory.getAdapter('json');
     const testData = await adapter.load({
-      file: 'config/test-data/test-users.json'
+      file: 'tests/test-data/test-users.json'
     });
 
     Log.info(`Loaded ${testData.records.length} users from JSON`);

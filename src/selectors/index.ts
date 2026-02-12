@@ -1,33 +1,50 @@
 /**
  * FILE: src/selectors/index.ts
- * PURPOSE: TypeScript selector constants (PLACEHOLDER - Currently using CSV only)
- * WHY NECESSARY: Reserved for future migration to TypeScript selectors if needed
+ * PURPOSE: TypeScript selector constants (dual repository - TS side)
+ * WHY NECESSARY: Fast selector lookup without CSV I/O, type-safe
  * USED BY: CommonMethods.getSelector() checks this first, falls back to CSV
  *
  * HOW IT WORKS:
- * 1. Framework currently uses CSV-only approach (object_repository/*.csv)
- * 2. This file kept as placeholder for future TS selector migration if requested
- * 3. CommonMethods.getSelector() will use TS selectors if populated
- * 4. For now, all selectors come from CSV files
- *
- * FUTURE MIGRATION:
- * If client requests TypeScript selectors:
- * - Add selector objects here (LoginSelectors, HomeSelectors, etc.)
- * - getTsSelector() will return selectors from TS instead of CSV
- * - Provides type safety and faster lookup (no file I/O)
+ * 1. Define selector objects for each module (LoginSelectors, HomeSelectors, etc.)
+ * 2. Merge all into ALL_SELECTORS for getTsSelector() lookup
+ * 3. Agents must keep CSV and TS in sync when adding selectors
  */
+
+// DEMO_TARGET: EspoCRM Documents module selectors - discovered via playwright-test-planner agent
+// Updated: 2026-02-11 - Added notification, modal, publishDate display selectors (Copilot user override)
+// Updated: 2026-02-11 - Simplified lnkDocuments selector for reliability (Copilot refactor)
+export const DocumentsSelectors = {
+  lnkDocuments: 'a[href="#Document"]',
+  btnCreateDocument: 'a[data-name="quickCreate"][data-action="quickCreate"]',
+  inputFileChooser: 'input[type="file"].file',
+  iconDownloadAttachment: 'span.fas.fa-paperclip.small',
+  txtDocumentName: 'input[data-name="name"].main-element',
+  txtDocumentDescription: 'textarea[data-name="description"].main-element',
+  btnFullForm: 'button[data-name="fullForm"]',
+  inputPublishDate: 'input[data-name="publishDate"].numeric-text',
+  inputExpirationDate: 'input[data-name="expirationDate"].numeric-text',
+  btnSaveQuickForm: 'button[data-name="save"].btn-primary',
+  btnSaveFullForm: 'button[data-action="save"][data-name="save"].detail-action-item',
+  lstDocumentsList: '.list-container',
+  notificationSuccess: '.growl-notification.alert-success',
+  modalDialog: '.modal',
+  modalFooter: '.modal-footer',
+  displayPublishDate: '[data-name="publishDate"]:not(input)',
+  attachmentContainer: '.attachment',
+  fileAttachmentLabel: '.attach-file-label',
+} as const;
+
+// Merge all selector objects for lookup
+export const ALL_SELECTORS: Record<string, string> = {
+  ...DocumentsSelectors, // DEMO_TARGET: Documents selectors
+};
 
 /**
  * Get TypeScript selector by element name
  * @returns selector string or null if not found
- *
- * NOTE: Currently returns null (CSV-only mode)
- * Populate selector objects above to enable TS selector lookup
  */
 export function getTsSelector(elementName: string): string | null {
-  // Currently empty - using CSV only
-  // Future: return ALL_SELECTORS[elementName] ?? null;
-  return null;
+  return ALL_SELECTORS[elementName] ?? null;
 }
 
 export type SelectorKey<T> = keyof T & string;

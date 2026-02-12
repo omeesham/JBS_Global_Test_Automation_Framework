@@ -1,5 +1,28 @@
 # Test Plans & Test Cases
 
+## ⚠️ AGENT CHECKLIST — Avoid Common Mistakes
+
+**For Copilot agents creating test documentation:**
+
+### ❌ DO NOT:
+1. Mark tests as `✅ Automated` when creating initial test cases — use `⚠️ Manual`
+2. Set queue stage to `"completed"` — use `"pending_planning"`
+3. Add `"testResults"` or `"completedAt"` to queue entries — Generator adds these after running tests
+4. Fill "Actual Results" with PASS/FAIL — leave as `(Pending execution)`
+5. Add "Automation File" field to test cases — Generator adds this after tests pass
+6. Claim 100% automation coverage when Status = Manual
+
+### ✅ DO:
+1. Create test cases with `**Status:** ⚠️ Manual`
+2. Create queue with `"stage": "pending_planning"`
+3. Let Generator update Status → ✅ Automated after tests pass
+4. Let Planner/Generator fill execution results
+5. Follow TEMPLATE.md structure exactly
+
+**See `test-cases/TEMPLATE.md` for detailed rules and examples.**
+
+---
+
 ## How to Request Tests (Start Here)
 
 **Just describe what you want to test in plain English.** No formal tables, no file paths, no selectors needed.

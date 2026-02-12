@@ -22,7 +22,7 @@
  */
 
 import { defineConfig } from '@playwright/test';
-import baseConfig from './playwright.config';
+import baseConfig, { getArtifactSetting } from './playwright.config';
 
 export default defineConfig({
   ...baseConfig,
@@ -52,16 +52,16 @@ export default defineConfig({
     // allure-playwright REMOVED - causes git timeout in Jenkins workspace
   ],
 
-  // ==================== CI ARTIFACT SETTINGS ====================
+  // ==================== CI ARTIFACT SETTINGS (Controlled via .env) ====================
   use: {
     ...baseConfig.use,
 
-    // Only capture artifacts on failure (reduces CI storage)
-    video: 'retain-on-failure',  // Base config also uses this
-    trace: 'retain-on-failure',  // Changed from 'on-first-retry' to save space
+    // CI defaults: capture on failure for debugging, env vars can override
+    video: getArtifactSetting('ENABLE_VIDEO', 'retain-on-failure') as any,
+    trace: getArtifactSetting('ENABLE_TRACING', 'retain-on-failure') as any,  // Changed from on-first-retry
 
     screenshot: {
-      mode: 'only-on-failure',
+      mode: getArtifactSetting('ENABLE_SCREENSHOTS', 'only-on-failure') as any,
       fullPage: true,
     },
   },

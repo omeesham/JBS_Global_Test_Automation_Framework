@@ -21,7 +21,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export class FileUtils {
-  private static downloadDir: string = './downloads';
+  private static downloadDir: string = './tests/test-data/downloads';
 
   /**
    * Download file triggered by browser action

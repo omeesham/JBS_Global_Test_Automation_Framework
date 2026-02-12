@@ -11,8 +11,11 @@
 ## Login Module
 
 The website has a standard login page at the root URL. It contains:
-- A username field and a password field (both required)
+- A username field (may be prefilled with demo credentials) <!-- DEMO_TARGET: Demo site behavior -->
+- A language dropdown (prefilled by default) <!-- DEMO_TARGET: Demo site behavior -->
+- A password field
 - A login button that submits the form
+- User can submit immediately if credentials are prefilled (demo site behavior) <!-- DEMO_TARGET: EspoCRM demo -->
 - A "Forgot Password?" link below the form
 - The login form loads via JavaScript (SPA) — the page needs the form to render before interaction
 
@@ -98,6 +101,49 @@ These are the main modules visible in the navigation bar. The Planner agent can 
 - **Documents** — File storage and management
 
 Each module typically has: list view, detail view, create form, edit form, and related panels.
+
+---
+
+## Documents Module <!-- DEMO_TARGET: EspoCRM-specific -->
+
+**Location:** Left navigation panel (scroll to bottom to find Documents link)
+
+### Document List View
+- Displays existing documents in a table/list format
+- Documents with attachments show a paperclip icon: `<span class="fas fa-paperclip small"></span>`
+- Clicking paperclip icon downloads the attached file to browser's downloads folder
+- Downloaded files retain their original filename and format
+
+### Create Document Workflow
+
+#### Quick Form (Default)
+Click "Create Document" button → opens modal with:
+- **File Upload Field** — Click to browse and attach file from local system
+- **Name** — Document title (required field)
+- **Description** — Multi-line text field for document details
+- **Save Button** — Creates document record and closes modal
+
+#### Full Form (Advanced)
+Click "Full Form" option during creation → opens expanded form with additional fields:
+- **Name** — Document title (required)
+- **Description** — Document description text
+- **Publish Date** — Date picker field, defaults to today, can select future dates (e.g., today + 7 days)
+- **Expiration Date** — Date picker field, must be after publish date (validation enforced)
+- **File Upload** — Same as quick form, browse and attach file
+- **Save Button** — Validates date logic and creates document
+
+### Known Behaviors
+- Quick form → full form: "Full Form" toggle/link available during creation
+- Date validation: Expiration date must be chronologically after publish date
+- File upload: Supports Excel (.xlsx, .xls), PDF, images, documents
+- Success notification: Shows toast/alert message after successful save
+- List refresh: Newly created documents appear in list view immediately
+- Round-trip testing: Files can be downloaded, then re-uploaded to verify integrity
+
+### Test Data
+- Sample file location: `tests/test-data/test.xlsx` (or similar)
+- Demo naming convention: Prefix with "DEMO" or "POC" to indicate test records
+- Description examples: "POC demo file", "Uploading downloaded file for testing"
 
 ---
 

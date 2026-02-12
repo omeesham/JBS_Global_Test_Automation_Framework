@@ -15,6 +15,7 @@ export { Log, Logger } from './logger';
 export { CommonMethods, AllureHelper, allure } from './common-methods';
 export { AppConstants } from './app-constants';
 export { FileUtils } from './file-utils';
+export { StealthHelpers } from './stealth-helpers';
 
 // Re-export types
 export type * from '../../src/framework-contracts';

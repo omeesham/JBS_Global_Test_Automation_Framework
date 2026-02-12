@@ -223,7 +223,7 @@ graph TB
     end
     
     subgraph "Configuration Loading"
-        C1[config/env.ts] --> C2{Check CI_ENV<br/>or NODE_ENV}
+        C1[playwright.config.ts<br/>dotenv-flow] --> C2{Check CI_ENV<br/>or NODE_ENV}
         C2 -->|development| L1
         C2 -->|staging| S1
         C2 -->|production| P1

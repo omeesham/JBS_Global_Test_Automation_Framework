@@ -8,3 +8,4 @@ export { LandingPage } from './landing.page';
 export { HomePage } from './home.page';
 export { WorkingScreenPage } from './working-screen.page';
 export { WorkingScreenPageAudit } from './working-screen-audit.page';
+export { DocumentsPage } from './documents.page'; // DEMO_TARGET: Documents module
