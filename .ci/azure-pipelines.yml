@@ -70,7 +70,7 @@ stages:
           
           - script: |
               set NODE_ENV=${{ parameters.environment }}
-              npx playwright test --project=$(browserName) --reporter=list,html,json,junit,allure-playwright
+              npx playwright test --config=playwright.config.ci.ts --project=$(browserName) --reporter=list,html,json,junit
             displayName: 'Run tests'
           
           - task: PublishTestResults@2
@@ -118,7 +118,7 @@ stages:
           
           - script: |
               export NODE_ENV=${{ parameters.environment }}
-              npx playwright test --project=$(browserName) --reporter=list,html,json,junit,allure-playwright
+              npx playwright test --config=playwright.config.ci.ts --project=$(browserName) --reporter=list,html,json,junit
             displayName: 'Run tests'
           
           - task: PublishTestResults@2

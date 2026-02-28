@@ -1,4 +1,14 @@
 /**
+ * @agent-doc
+ * PURPOSE: Centralized file handling for download, upload, validation, and Excel operations. Playwright Download API + xlsx library for Excel validation.
+ * OWNER: human-only
+ * IMPACT: high - Report validation, data-driven tests, and file download tests depend on this. Breaking it fails all file-based tests.
+ * DEPENDS-ON: @playwright/test, xlsx, path, fs
+ * USED-BY: POC demo tests, data-driven tests, report validation tests, CommonMethods
+ * RULES: Never delete downloadFile() or validateExcelFile(). Keep Excel column validation working. Maintain Playwright Download API compatibility.
+ */
+
+/**
  * File Operations Utility
  *
  * PURPOSE: Centralized file handling for download, upload, validation, and Excel operations

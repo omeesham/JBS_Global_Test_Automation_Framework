@@ -1,39 +1,6 @@
-/**
- * FILE: api-testing/api-tests/auth/authentication.spec.ts
- * PURPOSE: API tests for authentication endpoints
- * WHY NECESSARY: Verifies API-level authentication behavior independent of UI
- * USED BY: Playwright API test runner
- * 
- * HOW IT WORKS:
- * 1. Uses AuthApiClient for direct HTTP calls to auth endpoints
- * 2. Tests run independently of UI (no browser needed)
- * 3. Validates HTTP status codes, response structure, token generation
- * 4. Supports hybrid API+UI testing workflows
- * 
- * NON-TECHNICAL EXPLANATION:
- * Think of this as "testing the login vending machine" directly.
- * - No browser needed - talks directly to API
- * - Faster than UI tests (no clicking, waiting for page loads)
- * - Tests what server returns (tokens, user data, errors)
- * 
- * TEST COVERAGE:
- * - Successful authentication (username/password)
- * - Invalid credentials handling
- * - MFA flow (if implemented)
- * - Token generation and format validation
- * - Error response formats
- * 
- * ⚠️ PLACEHOLDER TESTS ⚠️
- * These tests use EXAMPLE API structure. To activate:
- * 1. Paste DevTools Network data from EspoCRM's actual API
- * 2. Update api-contracts/auth.api.ts with real response structure
- * 3. Update api-helpers/auth-api.ts with correct endpoints
- * 4. Remove test.fixme() and change to test()
- * 
- * See api-testing/README.md for "How to provide API data from DevTools"
- */
+/** API tests for authentication endpoints */
 
-import { test, expect } from '../../../tests/fixtures';
+import { test, expect } from '../../../tests/setup/fixtures';
 import { AuthApiClient } from '../../api-helpers/auth-api';
 import { Log } from '../../../src/utils/logger';
 
@@ -71,7 +38,7 @@ test.describe('API - Authentication', () => {
     expect(response.success).toBe(true);
     expect(response.token).toBeDefined();
     expect(response.user).toBeDefined();
-    Log.info('✅ API login successful');
+    Log.info('[OK] API login successful');
   });
 
   /**
@@ -91,7 +58,7 @@ test.describe('API - Authentication', () => {
       expect(false, 'Should have thrown error').toBe(true);
     } catch (error: any) {
       expect(error.response?.status).toBe(401);
-      Log.info('✅ API correctly rejected invalid credentials');
+      Log.info('[OK] API correctly rejected invalid credentials');
     }
   });
 
@@ -112,7 +79,7 @@ test.describe('API - Authentication', () => {
       expect(false, 'Should have thrown validation error').toBe(true);
     } catch (error: any) {
       expect([400, 422]).toContain(error.response?.status);
-      Log.info('✅ API correctly validated empty credentials');
+      Log.info('[OK] API correctly validated empty credentials');
     }
   });
 
@@ -132,7 +99,7 @@ test.describe('API - Authentication', () => {
     
     expect(response.token).toBeDefined();
     expect(response.token).toMatch(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/); // JWT regex
-    Log.info('✅ Token has valid JWT format');
+    Log.info('[OK] Token has valid JWT format');
   });
 
   /**
@@ -153,6 +120,6 @@ test.describe('API - Authentication', () => {
     expect(response.user?.id).toBeDefined();
     expect(response.user?.username).toBe(config.username_automation);
     expect(response.user?.email).toBeDefined();
-    Log.info('✅ User data structure validated');
+    Log.info('[OK] User data structure validated');
   });
 });

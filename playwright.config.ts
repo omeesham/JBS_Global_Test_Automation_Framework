@@ -1,10 +1,21 @@
-import { defineConfig, devices } from '@playwright/test';
+/**
+ * @agent-doc
+ * PURPOSE: Main Playwright configuration for local test runs. Defines browsers (Chrome, Firefox, Edge), viewport settings, timeouts, and artifact collection. Multi-environment support via dotenv-flow.
+ * OWNER: human-only
+ * IMPACT: critical - All local test runs depend on this. Breaking browser configs stops all tests. Timeout changes affect test stability.
+ * DEPENDS-ON: @playwright/test, dotenv-flow, config/environments/.env files
+ * USED-BY: Playwright test runner (npx playwright test), all local development
+ * RULES: NEVER spread device presets (causes deviceScaleFactor conflict). Keep chrome anti-phoning-home args. Don't reduce timeouts below current values. CI uses playwright.config.ci.ts instead.
+ */
+
+import { defineConfig } from '@playwright/test';
 import * as dotenvFlow from 'dotenv-flow';
 import * as path from 'path';
 
 // Load environment-specific variables using dotenv-flow
-// Loads: .env → .env.local → .env.{environment} → .env.{environment}.local
+// Loads from config/environments/ in order: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
 dotenvFlow.config({
+  path: path.join(__dirname, 'config', 'environments'),
   node_env: process.env.CI_ENV || process.env.NODE_ENV || 'development',
   silent: true
 });
@@ -31,9 +42,9 @@ export function getArtifactSetting(envVar: string, defaultValue: string): string
  */
 export default defineConfig({
   // ==================== TEST DISCOVERY ====================
-  // No testDir specified - searches entire project for .spec.ts files
-  // This allows tests in both tests/ (UI) and api-testing/api-tests/ (API)
-  testMatch: '**/*.spec.ts',  // Match all .spec.ts files recursively
+  // Scoped to tests/ and api-testing/ -- prevents stray root-level specs from running
+  testMatch: ['tests/**/*.spec.ts', 'api-testing/**/*.spec.ts'],
+  testIgnore: ['**/examples/**'],
   
   // ==================== TIMEOUTS ====================
   timeout: 30 * 1000,  // Per-test timeout (increase for long E2E flows)
@@ -58,7 +69,11 @@ export default defineConfig({
   
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'reports/html-report', open: 'never' }],
+    ['html', { 
+      outputFolder: 'reports/html-report', 
+      open: 'never',
+      attachmentsBaseURL: 'none'  // Disables error-context.md and other HTML attachments
+    }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['junit', { outputFile: 'reports/junit-results.xml' }],
     ['allure-playwright', { 
@@ -66,14 +81,15 @@ export default defineConfig({
       detail: true,
       suiteTitle: true 
     }],
+    ['./src/utils/agent-reporter.ts'],
   ],
   
   // ==================== SHARED SETTINGS (ALL BROWSERS) ====================
   use: {
-    baseURL: process.env.BASE_URL || 'https://demo.us.espocrm.com/',  // EspoCRM demo instance
+    baseURL: process.env.BASE_URL || 'https://ca-nginx-dev.proudmoss-1eeb612c.centralus.azurecontainerapps.io/navigator/',  // Navigator Cloud
     
     // ==================== DEBUGGING ARTIFACTS (Controlled via .env) ====================
-    trace: getArtifactSetting('ENABLE_TRACING', 'on-first-retry') as any,
+    trace: getArtifactSetting('ENABLE_TRACING', 'retain-on-failure') as any,
 
     screenshot: {
       mode: getArtifactSetting('ENABLE_SCREENSHOTS', 'only-on-failure') as any,
@@ -83,7 +99,10 @@ export default defineConfig({
     video: getArtifactSetting('ENABLE_VIDEO', 'retain-on-failure') as any,
     
     // ==================== BROWSER SETTINGS ====================
-    viewport: null,  // null = maximized; { width: 1920, height: 1080 } for fixed size
+    // RCA 2026-02-27: viewport:null is ignored in headless mode -- browser uses narrow default
+    // causing Navigator Cloud's responsive sidebar to collapse, hiding the Setup button.
+    // Fixed to 1920x1080 for consistent headless+headed behavior.
+    viewport: { width: 1920, height: 1080 },
     locale: 'en-US',
     timezoneId: 'America/New_York',
     permissions: [],  // Example: ['geolocation', 'notifications']
@@ -100,9 +119,21 @@ export default defineConfig({
       name: 'chrome',
       use: { 
         channel: 'chrome',
+        // viewport:null defers sizing to --start-maximized (headed-only).
+        // Not suitable for headless runs -- use the chromium project for CI/headless.
         viewport: null,
         launchOptions: {
-          args: ['--start-maximized'],
+          args: [
+            '--start-maximized',
+            '--disable-default-apps',
+            '--no-first-run',
+            '--disable-translate',
+            '--disable-sync',
+            '--disable-features=TranslateUI,OptimizationHints,MediaRouter',
+            '--disable-component-extensions-with-background-pages',
+            '--disable-domain-reliability',
+            '--metrics-recording-only'
+          ],
         },
       },
     },
@@ -110,13 +141,10 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { 
-        viewport: null,
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        viewport: { width: 1920, height: 1080 },  // explicit -- headless ignores null
         launchOptions: {
           args: [
             '--disable-blink-features=AutomationControlled',
-            '--disable-web-security',
-            '--disable-features=IsolateOrigins,site-per-process',
             '--disable-dev-shm-usage',
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -124,9 +152,10 @@ export default defineConfig({
             '--window-position=0,0',
             '--ignore-certificate-errors',
             '--ignore-certificate-errors-spki-list',
-            '--disable-blink-features=AutomationControlled',
-            '--excludeSwitches=enable-automation',
             '--disable-features=VizDisplayCompositor',
+            '--disable-default-apps',
+            '--no-first-run',
+            '--disable-domain-reliability',
           ],
         },
       },
@@ -134,15 +163,19 @@ export default defineConfig({
     
     {
       name: 'firefox',
-      use: { 
-        viewport: null,
+      use: {
+        // viewport:null is ignored in headless mode (no --start-maximized equivalent).
+        // Explicit size ensures consistent layout in both headed and headless runs.
+        viewport: { width: 1920, height: 1080 },
       },
     },
     
     {
       name: 'webkit',
-      use: { 
-        viewport: null,
+      use: {
+        // viewport:null is ignored in headless mode (no --start-maximized equivalent).
+        // Explicit size ensures consistent layout in both headed and headless runs.
+        viewport: { width: 1920, height: 1080 },
       },
     },
 
@@ -153,12 +186,12 @@ export default defineConfig({
   ],
   
   // ==================== OUTPUT DIRECTORIES ====================
-  outputDir: 'test-results/',
-  snapshotDir: 'test-results/snapshots',  // Visual regression baseline images
+  outputDir: 'reports/test-results/',
+  snapshotDir: 'reports/test-results/snapshots',  // Visual regression baseline images
   
   // ==================== GLOBAL HOOKS (Examples) ====================
-  // globalSetup: require.resolve('./tests/global-setup'),
-  // globalTeardown: require.resolve('./tests/global-teardown'),
+  globalSetup: require.resolve('./tests/setup/global-setup'),
+  globalTeardown: require.resolve('./tests/setup/global-teardown'),
   
   // ==================== DEV SERVER (Example) ====================
   // webServer: {

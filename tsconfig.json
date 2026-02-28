@@ -1,3 +1,13 @@
+/**
+ * @agent-doc
+ * PURPOSE: TypeScript compiler configuration for the framework. Defines compilation targets, module resolution, type checking strictness, and output settings.
+ * OWNER: human-only
+ * IMPACT: critical - All TypeScript compilation depends on this. Breaking it prevents builds. Type checking rules affect code quality.
+ * DEPENDS-ON: None (TypeScript built-in)
+ * USED-BY: TypeScript compiler (tsc), VS Code IntelliSense, npm run typecheck
+ * RULES: Never disable strict checks. Keep ES2022 target for modern features. Keep paths aligned with package.json. Changes require full rebuild and typecheck.
+ */
+
 {
   "compilerOptions": {
     // Language and Environment
@@ -38,19 +48,6 @@
     // Completeness
     "skipLibCheck": true,
     
-    // Path Mapping
-    "baseUrl": "./",
-    "paths": {
-      "@pages/*": ["src/pages/*"],
-      "@utils/*": ["src/utils/*"],
-      "@common/*": ["src/common/*"],
-      "@data/*": ["src/data/*"],
-      "@tests/*": ["tests/*"],
-      "@config/*": ["config/*"],
-      "@types/*": ["src/framework-contracts/*"],
-      "@selectors/*": ["src/selectors/*"]
-    },
-    
     // Experimental
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -59,15 +56,14 @@
     "resolveJsonModule": true
   },
   "include": [
-    "**/*.ts",
-    "src/framework-contracts/**/*.d.ts"
+    "**/*.ts"
   ],
   "exclude": [
     "node_modules",
     ".build",
     "reports",
     "logs",
-    "test-results",
-    "playwright-report"
+    "playwright-report",
+    "client-delivery"
   ]
 }

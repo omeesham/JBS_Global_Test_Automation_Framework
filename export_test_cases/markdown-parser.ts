@@ -1,34 +1,23 @@
 /**
- * FILE: export_test_cases/markdown-parser.ts
- * PURPOSE: Parse test case markdown files into structured data
- * WHY NECESSARY: Converts markdown test cases to TypeScript objects for export
- * USED BY: All converter implementations (to-json, to-csv, to-jira, to-testmo)
- * 
- * HOW IT WORKS:
- * 1. Reads markdown files from specs_planning/test-cases/
- * 2. Parses sections using regex patterns
- * 3. Extracts test case metadata, steps, data, results
- * 4. Returns TestCase objects for converter consumption
+ * Parse test case markdown files into structured data for export.
+ * Reads markdown files from specs_planning/test-cases/{module}/ and converts them to TypeScript objects.
+ * Used by CSV, JSON, Jira, and TestMo exporters to generate test management imports.
  */
-
 import * as fs from 'fs';
 import * as path from 'path';
 import { TestCase, TestStep, TestDataItem, TestResult, TestCaseCollection } from './types';
 
 export class MarkdownParser {
   /**
-   * Parse all test case markdown files in a directory
+   * Parse all test case markdown files in a directory (recursively).
+   * Scans module subdirectories and reads every .md file.
+   * Skips _internal folder (templates/examples).
+   * @param dirPath - Absolute path to test case directory (usually specs_planning/test-cases/)
+   * @returns Collection with metadata and array of parsed test cases
    */
   static parseDirectory(dirPath: string): TestCaseCollection {
-    const files = fs.readdirSync(dirPath).filter(f => f.endsWith('.md') && f !== 'TEMPLATE.md');
     const testCases: TestCase[] = [];
-
-    for (const file of files) {
-      const filePath = path.join(dirPath, file);
-      const content = fs.readFileSync(filePath, 'utf-8');
-      const parsedCases = this.parseMarkdownFile(content, file);
-      testCases.push(...parsedCases);
-    }
+    this.parseDirectoryRecursive(dirPath, testCases);
 
     const automated = testCases.filter(tc => tc.automationStatus === 'Automated').length;
 
@@ -45,13 +34,40 @@ export class MarkdownParser {
   }
 
   /**
-   * Parse single markdown file (may contain multiple test cases)
+   * Recursively parse markdown files from directory and subdirectories.
+   * Skips _internal folder and non-.md files.
+   */
+  private static parseDirectoryRecursive(dirPath: string, testCases: TestCase[]): void {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name);
+      
+      if (entry.isDirectory()) {
+        // Skip _internal folder (templates/examples)
+        if (entry.name === '_internal') continue;
+        this.parseDirectoryRecursive(fullPath, testCases);
+      } else if (entry.isFile() && entry.name.endsWith('.md')) {
+        const content = fs.readFileSync(fullPath, 'utf-8');
+        const parsedCases = this.parseMarkdownFile(content, entry.name);
+        testCases.push(...parsedCases);
+      }
+    }
+  }
+
+  /**
+   * Parse single markdown file (may contain multiple test cases).
+   * Splits content by ## or ### TC-XXX-YYY: headers to extract individual test cases.
+   * @param content - Raw markdown file content
+   * @param fileName - File name for error reporting
+   * @returns Array of test cases found in file
    */
   static parseMarkdownFile(content: string, fileName: string): TestCase[] {
     const testCases: TestCase[] = [];
     
-    // Split by test case headers (## TC-XXX:)
-    const sections = content.split(/^## (TC-\d+):/m);
+    // Split by test case headers (## or ### TC-MODULE-XXX:)
+    // [A-Z]? after \d+ allows optional alpha suffix (e.g., TC-LOC-LI-007A)
+    const sections = content.split(/^#{2,3} (TC-[A-Z]+-[A-Z]*-?\d+[A-Z]?):/m);
     
     // Skip first element (content before first test case)
     for (let i = 1; i < sections.length; i += 2) {
@@ -67,7 +83,13 @@ export class MarkdownParser {
   }
 
   /**
-   * Parse single test case section
+   * Parse single test case section from markdown.
+   * Extracts all fields: title, type, priority, status, steps, data, results.
+   * Supports DUAL-FORMAT: agent fields (technical) and human fields (QA-readable).
+   * @param id - Test case ID (TC-001, TC-002, etc.)
+   * @param content - Markdown content for this test case
+   * @param fileName - Source file name
+   * @returns Parsed TestCase object with both agent and human fields
    */
   private static parseTestCase(id: string, content: string, fileName: string): TestCase {
     // Extract title (first line after ID)
@@ -80,14 +102,20 @@ export class MarkdownParser {
     const automationStatus = this.validateAutomationStatus(this.extractField(content, 'Automation Status'));
     const description = this.extractField(content, 'Description') || '';
 
-    // Extract arrays
+    // Extract AGENT arrays (technical format)
     const preconditions = this.extractList(content, 'Preconditions');
     const expectedResults = this.extractList(content, 'Expected Results');
 
-    // Extract tables
+    // Extract AGENT tables
     const steps = this.extractSteps(content);
     const testData = this.extractTestData(content);
     const testResults = this.extractTestResults(content);
+
+    // Extract HUMAN fields (QA-readable format)
+    const preconditionsHuman = this.extractList(content, 'Preconditions \\(Human\\)');
+    const stepsHuman = this.extractParagraph(content, 'Steps \\(Human\\)');
+    const expectedResultsHuman = this.extractParagraph(content, 'Expected Result \\(Human\\)');
+    const notesHuman = this.extractParagraph(content, 'Notes');
 
     // Extract related files
     const relatedFiles = this.extractRelatedFiles(content);
@@ -106,10 +134,17 @@ export class MarkdownParser {
       priority,
       automationStatus,
       description,
+      // Agent fields
       preconditions,
       steps,
       testData,
       expectedResults,
+      // Human fields (optional, fallback handled by exporter)
+      preconditionsHuman: preconditionsHuman.length > 0 ? preconditionsHuman : undefined,
+      stepsHuman: stepsHuman || undefined,
+      expectedResultsHuman: expectedResultsHuman || undefined,
+      notesHuman: notesHuman || undefined,
+      // Other fields
       automationGuidance,
       relatedFiles,
       automationDetails,
@@ -121,19 +156,27 @@ export class MarkdownParser {
   }
 
   /**
-   * Extract simple field value
+   * Extract simple field value from markdown.
+   * Looks for **Field Name**: value pattern and removes emoji.
+   * @param content - Markdown content to search
+   * @param fieldName - Field name to find (e.g., "Priority", "Type")
+   * @returns Field value with emoji removed, or undefined if not found
    */
   private static extractField(content: string, fieldName: string): string | undefined {
     const regex = new RegExp(`\\*\\*${fieldName}\\*\\*:\\s*(.+?)(?=\\n|$)`, 'i');
     const match = content.match(regex);
     if (!match || !match[1]) return undefined;
 
-    // Remove emoji/icons (✅, ⚠️, etc.)
-    return match[1].replace(/[✅⚠️❌🔄]/g, '').trim();
+    // Remove emoji/icons ([OK], [WARN], etc.) and any residual Unicode symbols
+    return match[1].replace(/[\u2705\u26A0\uFE0F\u274C\u{1F504}]/gu, '').trim();
   }
 
   /**
-   * Extract bullet list
+   * Extract bullet list from markdown section.
+   * Finds **Section Name**: followed by lines starting with - (dash).
+   * @param content - Markdown content to search
+   * @param sectionName - Section header (e.g., "Preconditions", "Expected Results")
+   * @returns Array of list items with dashes removed
    */
   private static extractList(content: string, sectionName: string): string[] {
     const regex = new RegExp(`\\*\\*${sectionName}\\*\\*:?\\s*\\n([\\s\\S]*?)(?=\\n\\*\\*|\\n##|$)`, 'i');
@@ -151,7 +194,31 @@ export class MarkdownParser {
   }
 
   /**
-   * Extract test steps table
+   * Extract paragraph content from markdown section.
+   * Finds **Section Name**: followed by text until next section.
+   * Used for human-readable fields that are free-form text.
+   * @param content - Markdown content to search
+   * @param sectionName - Section header (e.g., "Steps (Human)", "Notes")
+   * @returns Paragraph content as single string, or empty string if not found
+   */
+  private static extractParagraph(content: string, sectionName: string): string {
+    const regex = new RegExp(`\\*\\*${sectionName}\\*\\*:?\\s*([\\s\\S]*?)(?=\\n\\*\\*|\\n##|\\n---|$)`, 'i');
+    const match = content.match(regex);
+    if (!match || !match[1]) return '';
+    
+    // Clean up: trim, collapse multiple newlines, remove leading dashes if present
+    return match[1]
+      .trim()
+      .replace(/\n+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  /**
+   * Extract test steps table from markdown.
+   * Parses | Step # | Action | Expected Result | format.
+   * @param content - Markdown content to search
+   * @returns Array of test steps with step number, action, expected result, notes
    */
   private static extractSteps(content: string): TestStep[] {
     const steps: TestStep[] = [];
@@ -178,7 +245,10 @@ export class MarkdownParser {
   }
 
   /**
-   * Extract test data table
+   * Extract test data table from markdown.
+   * Parses | Field | Value | Source | format.
+   * @param content - Markdown content to search
+   * @returns Array of test data items with field, value, source
    */
   private static extractTestData(content: string): TestDataItem[] {
     const data: TestDataItem[] = [];
@@ -204,7 +274,10 @@ export class MarkdownParser {
   }
 
   /**
-   * Extract test results table
+   * Extract test results table from markdown.
+   * Parses | Run Date | Result | Duration | Notes | format.
+   * @param content - Markdown content to search
+   * @returns Array of test results with run date, result (PASSED/FAILED), duration, notes
    */
   private static extractTestResults(content: string): TestResult[] {
     const results: TestResult[] = [];
@@ -231,7 +304,10 @@ export class MarkdownParser {
   }
 
   /**
-   * Extract related files
+   * Extract related file paths from markdown.
+   * Looks for Test Plan: `path`, Automation: `path`, Requirements: `path` patterns.
+   * @param content - Markdown content to search
+   * @returns Object with testPlan, automation, requirements file paths
    */
   private static extractRelatedFiles(content: string): any {
     const files: any = {};
@@ -249,7 +325,10 @@ export class MarkdownParser {
   }
 
   /**
-   * Extract automation details
+   * Extract automation details from markdown.
+   * Parses **Automation Details**: File: `path` Test: "name" Line: X-Y format.
+   * @param content - Markdown content to search
+   * @returns Object with file path, test name, line range, or undefined if not automated
    */
   private static extractAutomationDetails(content: string): any {
     const detailsMatch = content.match(/\*\*Automation Details\*\*:[\s\S]*?File:\s*`?([^\n`]+)`?[\s\S]*?Test:\s*"([^"]+)"[\s\S]*?Line:\s*([^\n]+)/i);
@@ -264,7 +343,11 @@ export class MarkdownParser {
   }
 
   /**
-   * Extract code block content
+   * Extract code block content from markdown.
+   * Looks for **Section Name**: followed by ```typescript or ``` code fence.
+   * @param content - Markdown content to search
+   * @param sectionName - Section header (e.g., "Automation Guidance")
+   * @returns Code block content without fence markers, or undefined if not found
    */
   private static extractCodeBlock(content: string, sectionName: string): string | undefined {
     const regex = new RegExp(`\\*\\*${sectionName}\\*\\*:?[\\s\\S]*?\`\`\`(?:typescript)?\\n([\\s\\S]*?)\`\`\``, 'i');
@@ -273,14 +356,18 @@ export class MarkdownParser {
   }
 
   /**
-   * Validate and sanitize test case type
+   * Validate and sanitize test case type.
+   * @param value - Raw type value from markdown
+   * @returns Valid type (User-Requested or Agent-Discovered), defaults to Agent-Discovered
    */
   private static validateType(value: string | undefined): 'User-Requested' | 'Agent-Discovered' {
     return (value === 'User-Requested' || value === 'Agent-Discovered') ? value : 'Agent-Discovered';
   }
 
   /**
-   * Validate and sanitize priority
+   * Validate and sanitize priority.
+   * @param value - Raw priority value from markdown
+   * @returns Valid priority (Critical/High/Medium/Low), defaults to Medium
    */
   private static validatePriority(value: string | undefined): 'Critical' | 'High' | 'Medium' | 'Low' {
     const validValues: Array<'Critical' | 'High' | 'Medium' | 'Low'> = ['Critical', 'High', 'Medium', 'Low'];
@@ -288,7 +375,9 @@ export class MarkdownParser {
   }
 
   /**
-   * Validate and sanitize automation status
+   * Validate and sanitize automation status.
+   * @param value - Raw status value from markdown
+   * @returns Valid status (Automated/Manual/In Progress), defaults to Manual
    */
   private static validateAutomationStatus(value: string | undefined): 'Automated' | 'Manual' | 'In Progress' {
     const validValues: Array<'Automated' | 'Manual' | 'In Progress'> = ['Automated', 'Manual', 'In Progress'];

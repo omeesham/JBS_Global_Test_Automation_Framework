@@ -16,7 +16,7 @@ pipeline {
     }
 
     environment {
-        PROJECT_SRC = "C:\\Users\\rutvi\\projects\\hybrid_framework"
+        PROJECT_SRC = "C:\\Users\\rutvi\\projects\\encore_framework"
         CI = "true"
         CI_ENV = "${params.ENVIRONMENT}"
         PLAYWRIGHT_BROWSERS_PATH = "${WORKSPACE}\\.browsers"
@@ -52,7 +52,7 @@ pipeline {
             steps {
                 bat '''
                     echo Copying from %PROJECT_SRC%
-                    robocopy "%PROJECT_SRC%" "%WORKSPACE%" /E /XD node_modules ms-playwright test-results reports logs .git .browsers /XF .env.local /NFL /NDL /NJH /NJS /nc /ns /np || exit /b 0
+                    robocopy "%PROJECT_SRC%" "%WORKSPACE%" /E /XD node_modules ms-playwright reports logs .git .browsers /XF .env.local /NFL /NDL /NJH /NJS /nc /ns /np || exit /b 0
                     if exist "%WORKSPACE%\\package.json" (
                         echo Framework copied successfully
                     ) else (
@@ -149,7 +149,7 @@ pipeline {
                         echo Browser: ${params.BROWSER}
                         echo Pattern: ${params.TEST_PATTERN ?: 'ALL TESTS'}
 
-                        call npx playwright test tests/specs/espocrm --config=playwright.config.ci.ts --project=${params.BROWSER} ${headedFlag} ${grepFlag}
+                        call npx playwright test tests/specs/navigator --config=playwright.config.ci.ts --project=${params.BROWSER} ${headedFlag} ${grepFlag}
                     """
                 }
             }
@@ -169,8 +169,13 @@ pipeline {
                 reportName: 'Playwright Test Report'
             ])
 
-            archiveArtifacts artifacts: 'reports/**,test-results/**', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'test-results/**/*.zip', allowEmptyArchive: true
+            // Debug visibility: list files before archiving
+            bat 'dir /s reports\\test-results\\ 2>nul || echo No test results'
+            bat 'dir /s logs\\ 2>nul || echo No logs'
+            bat 'dir /s tests\\test-data\\downloads\\ 2>nul || echo No downloads'
+
+            archiveArtifacts artifacts: 'reports/**,logs/**,tests/test-data/downloads/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'reports/test-results/**/*.zip', allowEmptyArchive: true
         }
 
         success {

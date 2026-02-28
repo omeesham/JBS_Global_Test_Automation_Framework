@@ -1,0 +1,151 @@
+/**
+ * @agent-doc
+ * PURPOSE: Global setup - runs once before all tests. Loads environment config, cleans up old logs, runs pre-flight health checks, and can pre-authenticate for session reuse.
+ * OWNER: human-only
+ * IMPACT: high - Environment setup, log cleanup, pre-flight checks, and session management depend on this. Breaking it can cause test environment issues.
+ * DEPENDS-ON: @playwright/test, logger.ts, dotenv-flow, scripts/cleanup-logs.ts
+ * USED-BY: Playwright test runner (referenced in playwright.config.ts)
+ * RULES: Never remove env loading. Keep log cleanup working. Pre-flight checks write reports/preflight-check.json. Session pre-auth is optional but recommended for CI.
+ */
+
+import { FullConfig } from '@playwright/test';
+import { Log } from '../../src/utils/logger';
+import * as dotenvFlow from 'dotenv-flow';
+import * as path from 'path';
+import * as fs from 'fs';
+
+/** Pre-flight check result. */
+interface PreflightResult {
+  check: string;
+  status: 'PASS' | 'FAIL' | 'WARN';
+  message: string;
+}
+
+const PREFLIGHT_OUTPUT = path.join(process.cwd(), 'reports', 'preflight-check.json');
+
+async function globalSetup(config: FullConfig) {
+  // Clean up old logs (30 day retention) - runs cleanup-logs.ts
+  try {
+    const { cleanupLogs } = require('../../scripts/cleanup-logs');
+    await cleanupLogs();
+  } catch (error) {
+    console.log('Log cleanup skipped:', error instanceof Error ? error.message : String(error));
+  }
+
+  // Load environment variables from config/environments/
+  // Cascade: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
+  dotenvFlow.config({
+    path: path.join(__dirname, '..', '..', 'config', 'environments'),
+    node_env: process.env.CI_ENV || process.env.NODE_ENV || 'development',
+    silent: true
+  });
+
+  Log.info('=== Global Test Setup Started ===');
+  Log.info(`Workers: ${config.workers}`);
+  Log.info(`Projects: ${config.projects?.length || 0}`);
+
+  // ---- Pre-flight Health Checks ----
+  const results = await runPreflightChecks();
+  writePreflightReport(results);
+
+  const failures = results.filter(r => r.status === 'FAIL');
+  if (failures.length > 0) {
+    for (const f of failures) {
+      Log.error(`[ERR] Pre-flight FAIL: ${f.check} -- ${f.message}`);
+    }
+    throw new Error(`Pre-flight checks failed: ${failures.map(f => f.check).join(', ')}`);
+  }
+
+  const warnings = results.filter(r => r.status === 'WARN');
+  for (const w of warnings) {
+    Log.info(`[WARN] Pre-flight WARN: ${w.check} -- ${w.message}`);
+  }
+
+  // Clean up old diagnostic files (7 day retention)
+  cleanupDiagnosticFiles();
+
+  Log.info('=== Global Test Setup Completed ===');
+}
+
+// ---- Pre-flight checks ----
+
+async function runPreflightChecks(): Promise<PreflightResult[]> {
+  const results: PreflightResult[] = [];
+
+  // Check 1: Required env vars
+  for (const envVar of ['BASE_URL', 'CI_ENV']) {
+    const value = process.env[envVar];
+    if (!value || value.trim() === '') {
+      results.push({ check: `env:${envVar}`, status: 'FAIL', message: `Missing required env var: ${envVar}` });
+    } else {
+      results.push({ check: `env:${envVar}`, status: 'PASS', message: `${envVar}=${value}` });
+    }
+  }
+
+  // Check 2: Base URL reachable
+  // Uses redirect: 'manual' because Navigator Cloud redirects unauthenticated requests
+  // to /auth/sign-in which may return non-2xx (SSR quirk). A 3xx redirect proves the
+  // server is up and routing correctly — that's all pre-flight needs to verify.
+  const baseUrl = process.env.BASE_URL;
+  if (baseUrl) {
+    try {
+      const response = await fetch(baseUrl, { method: 'HEAD', redirect: 'manual', signal: AbortSignal.timeout(10_000) });
+      if (response.ok || [301, 302, 303, 307, 308].includes(response.status)) {
+        results.push({ check: 'base_url_reachable', status: 'PASS', message: `HTTP ${response.status}` });
+      } else {
+        results.push({ check: 'base_url_reachable', status: 'FAIL', message: `Base URL unreachable: ${baseUrl} -- HTTP ${response.status}` });
+      }
+    } catch (error) {
+      results.push({ check: 'base_url_reachable', status: 'FAIL', message: `Base URL unreachable: ${baseUrl} -- ${error instanceof Error ? error.message : String(error)}` });
+    }
+  }
+
+  // Check 3: OAuth endpoint reachable (WARN only -- may be blocked by network policy)
+  try {
+    const oauthUrl = 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration';
+    const response = await fetch(oauthUrl, { method: 'GET', signal: AbortSignal.timeout(10_000) });
+    if (response.ok) {
+      results.push({ check: 'oauth_endpoint', status: 'PASS', message: 'OpenID configuration reachable' });
+    } else {
+      results.push({ check: 'oauth_endpoint', status: 'WARN', message: `OAuth endpoint returned HTTP ${response.status}` });
+    }
+  } catch (error) {
+    results.push({ check: 'oauth_endpoint', status: 'WARN', message: `OAuth endpoint unreachable -- ${error instanceof Error ? error.message : String(error)}` });
+  }
+
+  // Check 4: Credential source loadable
+  try {
+    const { CredentialLoader } = require('../../src/common/credential-loader');
+    await CredentialLoader.loadCredentials({ type: 'vault' });
+    results.push({ check: 'credentials', status: 'PASS', message: 'Vault credentials loaded' });
+  } catch (error) {
+    results.push({ check: 'credentials', status: 'FAIL', message: `Credentials unavailable: ${error instanceof Error ? error.message : String(error)}` });
+  }
+
+  return results;
+}
+
+function writePreflightReport(results: PreflightResult[]): void {
+  const reportsDir = path.dirname(PREFLIGHT_OUTPUT);
+  if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+  }
+  fs.writeFileSync(PREFLIGHT_OUTPUT, JSON.stringify({ timestamp: new Date().toISOString(), checks: results }, null, 2) + '\n', 'utf-8');
+}
+
+function cleanupDiagnosticFiles(): void {
+  const diagDir = path.join(process.cwd(), 'reports', 'diagnostics');
+  if (!fs.existsSync(diagDir)) return;
+  const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  try {
+    for (const file of fs.readdirSync(diagDir)) {
+      const filePath = path.join(diagDir, file);
+      const stat = fs.statSync(filePath);
+      if (stat.mtimeMs < cutoff) {
+        fs.unlinkSync(filePath);
+      }
+    }
+  } catch { /* best-effort cleanup */ }
+}
+
+export default globalSetup;

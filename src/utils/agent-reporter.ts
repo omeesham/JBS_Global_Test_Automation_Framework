@@ -1,0 +1,249 @@
+/**
+ * @agent-doc
+ * PURPOSE: Custom Playwright reporter that emits structured failure data for agent consumption.
+ * OWNER: human-only
+ * IMPACT: medium - Agents read failure-summary.json for 1-shot debugging.
+ * DEPENDS-ON: @playwright/test (Reporter interface)
+ * USED-BY: Generator agent (Step 8 diagnostic), Healer agent (Step 10 rerun)
+ * RULES: Output must be valid JSON. Do not break existing reporters. Keep failure data concise.
+ */
+
+import * as fs from 'fs';
+import * as path from 'path';
+import type {
+  Reporter,
+  TestCase,
+  TestResult,
+  FullResult,
+} from '@playwright/test/reporter';
+import {
+  FailureCategory,
+  type NetworkFailure,
+  type ConsoleEntry,
+  type AuthChainEntry,
+  type DiagnosticSnapshot,
+  type UrlBreadcrumb,
+} from '../framework-contracts/diagnostics';
+
+interface FailureEntry {
+  testName: string;
+  file: string;
+  error: string;
+  fullError: string;
+  selector: string | null;
+  duration: number;
+  screenshotPath: string | null;
+  tracePath: string | null;
+  lastActions: string[];
+  failureCategory: FailureCategory;
+  pageUrl: string;
+  workerIndex: number;
+  retryAttempt: number;
+  consoleErrors: ConsoleEntry[];
+  networkFailures: NetworkFailure[];
+  pageErrors: string[];
+  authChain: AuthChainEntry[];
+  /** First 10KB of DOM at failure time -- agent gets DOM context without opening files. */
+  domSnippet: string;
+  /** Full navigation breadcrumbs from diagnostics. */
+  urlBreadcrumbs: UrlBreadcrumb[];
+}
+
+interface FailureSummary {
+  timestamp: string;
+  failures: FailureEntry[];
+  passed: number;
+  failed: number;
+  fixme: number;
+  totalDuration: number;
+}
+
+const OUTPUT_FILE = path.join(process.cwd(), 'reports', 'failure-summary.json');
+
+/** Known selector prefixes for extraction. */
+const SELECTOR_PREFIXES = ['btn', 'txt', 'drp', 'chk', 'lnk', 'rdo', 'dlg', 'tbl', 'err', 'col', 'spin', 'tab', 'pnl'];
+
+class AgentReporter implements Reporter {
+  private failures: FailureEntry[] = [];
+  private passedCount = 0;
+  private failedCount = 0;
+  private fixmeCount = 0;
+  private totalDuration = 0;
+
+  onTestEnd(test: TestCase, result: TestResult): void {
+    this.totalDuration += result.duration;
+
+    if (result.status === 'skipped') {
+      // Count fixme/skipped tests
+      const annotations = test.annotations || [];
+      const isFixme = annotations.some(a => a.type === 'fixme');
+      if (isFixme) this.fixmeCount++;
+      return;
+    }
+
+    if (result.status === 'passed' || result.status === 'timedOut' && result.errors.length === 0) {
+      this.passedCount++;
+      return;
+    }
+
+    if (result.status === 'failed' || result.status === 'timedOut') {
+      this.failedCount++;
+
+      const fullErrorMsg = result.errors
+        .map(e => e.message || e.stack || 'Unknown error')
+        .join(' | ');
+
+      // Backward-compatible truncated error (500 chars)
+      const errorMsg = fullErrorMsg.substring(0, 500);
+
+      // Extract selector from error (look for known prefixes in quotes)
+      const selectorMatch = errorMsg.match(
+        new RegExp(`['"\`]((?:${SELECTOR_PREFIXES.join('|')})[A-Z]\\w+)['"\`]`)
+      );
+
+      // Find screenshot attachment
+      const screenshot = result.attachments.find(
+        a => a.name === 'screenshot' && a.path
+      );
+
+      // Find trace attachment
+      const trace = result.attachments.find(
+        a => a.name === 'trace' && a.path
+      );
+
+      // Read diagnostics attachment (written by commonMethods fixture teardown)
+      let diagnostics: DiagnosticSnapshot | null = null;
+      const diagAttachment = result.attachments.find(a => a.name === 'diagnostics');
+      if (diagAttachment?.body) {
+        try {
+          diagnostics = JSON.parse(diagAttachment.body.toString('utf-8')) as DiagnosticSnapshot;
+        } catch { /* malformed -- treat as no diagnostics */ }
+      }
+
+      // Classify failure using diagnostics evidence
+      const failureCategory = this.classifyFailure(fullErrorMsg, diagnostics);
+
+      // Extract last actions from steps
+      const lastActions: string[] = [];
+      const steps = result.steps || [];
+      const relevantSteps = steps.slice(-5);
+      for (const step of relevantSteps) {
+        if (step.title && !step.title.startsWith('fixture:')) {
+          lastActions.push(step.title);
+        }
+      }
+
+      this.failures.push({
+        testName: test.title,
+        file: test.location.file ? path.relative(process.cwd(), test.location.file) : 'unknown',
+        error: errorMsg,
+        fullError: fullErrorMsg,
+        selector: selectorMatch?.[1] ?? null,
+        duration: result.duration,
+        screenshotPath: screenshot?.path
+          ? path.relative(process.cwd(), screenshot.path)
+          : null,
+        tracePath: trace?.path
+          ? path.relative(process.cwd(), trace.path)
+          : null,
+        lastActions,
+        failureCategory,
+        pageUrl: diagnostics?.urlHistory.at(-1) ?? '',
+        workerIndex: test.parent?.project()?.metadata?.workerIndex ?? 0,
+        retryAttempt: result.retry,
+        consoleErrors: diagnostics?.consoleErrors ?? [],
+        networkFailures: diagnostics?.networkFailures ?? [],
+        pageErrors: diagnostics?.pageErrors ?? [],
+        authChain: diagnostics?.authChain ?? [],
+        domSnippet: (diagnostics?.domSnippet ?? '').substring(0, 10_240),
+        urlBreadcrumbs: diagnostics?.urlBreadcrumbs ?? [],
+      });
+    }
+  }
+
+  /**
+   * Classify failure into a FailureCategory using error message + diagnostic evidence.
+   * Priority-ordered pattern matching per §15 RCA Protocol.
+   */
+  private classifyFailure(errorMsg: string, diagnostics: DiagnosticSnapshot | null): FailureCategory {
+    const lower = errorMsg.toLowerCase();
+    const netFails = diagnostics?.networkFailures ?? [];
+    const consoleErrs = diagnostics?.consoleErrors ?? [];
+    const pageErrs = diagnostics?.pageErrors ?? [];
+
+    // P1: Auth
+    if (
+      lower.includes('login.microsoftonline.com') ||
+      lower.includes('oauth') ||
+      lower.includes('401') ||
+      lower.includes('403') ||
+      netFails.some(n => (n.url.includes('login.microsoftonline.com') || n.url.includes('oauth')) && n.status >= 400)
+    ) {
+      return FailureCategory.AUTH;
+    }
+
+    // P2: Network (non-auth)
+    if (netFails.some(n => n.status >= 400 && !n.url.includes('login.microsoftonline.com'))) {
+      return FailureCategory.NETWORK;
+    }
+
+    // P3: Selector
+    const selectorPattern = new RegExp(`['"\`]((?:${SELECTOR_PREFIXES.join('|')})[A-Z]\\w+)['"\`]`);
+    if (selectorPattern.test(errorMsg) || lower.includes('locator') || lower.includes('selector')) {
+      return FailureCategory.SELECTOR;
+    }
+
+    // P4: Timing
+    if (lower.includes('timeout') || lower.includes('waiting for')) {
+      return FailureCategory.TIMING;
+    }
+
+    // P5: Infrastructure
+    if (lower.includes('browser has been closed') || lower.includes('context closed') || lower.includes('target closed')) {
+      return FailureCategory.INFRASTRUCTURE;
+    }
+
+    // P6: Application
+    if (
+      pageErrs.length > 0 ||
+      consoleErrs.some(e => e.type === 'error' && (e.text.includes('unhandled') || e.text.includes('Uncaught')))
+    ) {
+      return FailureCategory.APPLICATION;
+    }
+
+    // P6.5: Data
+    if (lower.includes('expected') && lower.includes('received') && !selectorPattern.test(errorMsg)) {
+      return FailureCategory.DATA;
+    }
+
+    return FailureCategory.UNKNOWN;
+  }
+
+  onEnd(_result: FullResult): void {
+    // Guard: skip write when no tests executed (e.g., grep matched nothing, aborted run).
+    // Prevents clobbering last real failure data with empty {passed:0, failed:0} results.
+    if (this.passedCount + this.failedCount + this.fixmeCount === 0) {
+      console.log('[AgentReporter] Skipping failure-summary.json write -- no tests executed');
+      return;
+    }
+
+    const summary: FailureSummary = {
+      timestamp: new Date().toISOString(),
+      failures: this.failures,
+      passed: this.passedCount,
+      failed: this.failedCount,
+      fixme: this.fixmeCount,
+      totalDuration: this.totalDuration,
+    };
+
+    // Ensure reports directory exists
+    const reportsDir = path.dirname(OUTPUT_FILE);
+    if (!fs.existsSync(reportsDir)) {
+      fs.mkdirSync(reportsDir, { recursive: true });
+    }
+
+    fs.writeFileSync(OUTPUT_FILE, JSON.stringify(summary, null, 2) + '\n', 'utf-8');
+  }
+}
+
+export default AgentReporter;

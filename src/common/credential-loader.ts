@@ -1,42 +1,27 @@
 /**
- * FILE: src/common/credential-loader.ts
- * PURPOSE: Centralized credential loading from multiple data sources
- * WHY NECESSARY: Implements Req #2 - fetch credentials from Excel/DB/S3/JSON/etc
- * USED BY: ui-common.ts workflow methods, test files
- * 
- * HOW IT WORKS:
- * 1. Accepts credential source specification (type, path, role)
- * 2. Uses AdapterFactory to load from specified source
- * 3. Validates credential format
- * 4. Returns standardized Credentials object
- * 
- * SUPPORTS:
- * - Excel files (XLSX, CSV)
- * - JSON files
- * - Database queries
- * - AWS S3 objects
- * - .env fallback
+ * @agent-doc
+ * PURPOSE: Loads test credentials from vault (encrypted), env vars, or config files. Decrypts vault using VAULT_PASSPHRASE.
+ * OWNER: generator, healer
+ * IMPACT: high - broken = can't authenticate to Navigator Cloud
+ * DEPENDS-ON: vault.ts (encryption), dotenv, adapterFactory.ts
+ * USED-BY: fixtures.ts (authenticatedSession credential loading)
+ * RULES: NEVER log credentials or secrets. Vault passphrase MUST come from VAULT_PASSPHRASE env var. Prefer vault over env vars (more secure).
  */
 
 import { AdapterFactory } from '../data/adapters/adapterFactory';
 import { Log } from '../utils/logger';
+import { Vault } from '../security/vault';
 
-/**
- * Credential source specification
- */
 export interface CredentialSource {
-  type: 'excel' | 'json' | 'db' | 's3' | 'env' | 'inline';
-  path?: string;         // File path or S3 key
-  query?: string;        // SQL query for DB source
-  role?: string;         // Role/user identifier (e.g., 'admin', 'standard_user')
-  sheet?: string;        // Excel sheet name (optional)
-  username?: string;     // For inline credentials (data-driven tests)
-  password?: string;     // For inline credentials (data-driven tests)
+  type: 'excel' | 'json' | 'db' | 's3' | 'env' | 'inline' | 'vault';
+  path?: string;
+  query?: string;
+  role?: string;
+  sheet?: string;
+  username?: string;
+  password?: string;
 }
 
-/**
- * Standardized credentials object
- */
 export interface Credentials {
   username: string;
   password: string;
@@ -45,93 +30,22 @@ export interface Credentials {
   metadata?: Record<string, any>;
 }
 
-/**
- * CredentialLoader class
- * Centralizes credential fetching from multiple sources
- */
 export class CredentialLoader {
   /**
-   * Load credentials from specified source
-   * 
-   * @param source - Credential source specification
-   * @returns Promise<Credentials>
-   * 
-   * @example
-   * // Load admin credentials from Excel
-   * const creds = await CredentialLoader.loadCredentials({
-   *   type: 'excel',
-   *   path: 'tests/test-data/users.csv',
-   *   role: 'admin'
-   * });
-   * 
-   * @example
-   * // Load from JSON
-   * const creds = await CredentialLoader.loadCredentials({
-   *   type: 'json',
-   *   path: 'tests/test-data/test-users.json',
-   *   role: 'standard_user'
-   * });
-   * 
-   * @example
-   * // Load from .env (fallback)
-   * const creds = await CredentialLoader.loadCredentials({
-   *   type: 'env'
-   * });
+   * Load credentials from specified source.
+   * @example await CredentialLoader.loadCredentials({ type: 'env' })
    */
   static async loadCredentials(source: CredentialSource): Promise<Credentials> {
     Log.info(`Loading credentials from ${source.type} source`);
-
     try {
-      if (source.type === 'env') {
-        return this.loadFromEnv();
-      }
-
-      if (source.type === 'inline') {
-        if (!source.username || !source.password) {
-          throw new Error('Inline credentials require username and password');
-        }
-        const credentials: Credentials = {
-          username: source.username,
-          password: source.password,
-          role: 'inline',
-          metadata: { source: 'inline' }
-        };
-        this.validateCredentials(credentials);
-        Log.info(`Using inline credentials for: ${credentials.username}`);
-        return credentials;
-      }
-
-      if (!source.path) {
-        throw new Error(`Path required for ${source.type} credential source`);
-      }
-
-      const adapter = AdapterFactory.getAdapter(source.type);
-      const data = await adapter.load({
-        file: source.path,
-        query: source.query,
-        sheet: source.sheet
-      });
-
-      // Find credentials by role if specified
+      const { records } = await this._resolveSource(source);
       const record = source.role
-        ? data.records.find((r: any) => r.role === source.role || r.username === source.role)
-        : data.records[0];
-
-      if (!record) {
-        throw new Error(`No credentials found for role: ${source.role || 'default'}`);
-      }
-
-      const credentials: Credentials = {
-        username: record.username || record.user || record.email,
-        password: record.password || record.pass,
-        mfaSecret: record.mfaSecret || record.mfa_secret || record.totp_secret,
-        role: record.role || source.role,
-        metadata: record
-      };
-
+        ? records.find((r: any) => r.role === source.role || r.username === source.role)
+        : records[0];
+      if (!record) throw new Error(`No credentials found for role: ${source.role || 'default'}`);
+      const credentials = this._mapRecord(record, source.role);
       this.validateCredentials(credentials);
-      Log.info(`✅ Credentials loaded for: ${credentials.username}`);
-
+      Log.info(`[OK] Credentials loaded for: ${credentials.username}`);
       return credentials;
     } catch (error) {
       Log.error(`Failed to load credentials: ${error}`);
@@ -139,109 +53,91 @@ export class CredentialLoader {
     }
   }
 
-  /**
-   * Load credentials by role (convenience method)
-   * 
-   * @param role - User role identifier
-   * @param source - Credential source specification
-   * @returns Promise<Credentials>
-   */
-  static async loadCredentialsByRole(
-    role: string,
-    source: Omit<CredentialSource, 'role'>
-  ): Promise<Credentials> {
+  /** Load credentials by role (convenience wrapper). */
+  static async loadCredentialsByRole(role: string, source: Omit<CredentialSource, 'role'>): Promise<Credentials> {
     return this.loadCredentials({ ...source, role });
   }
 
-  /**
-   * Load credentials from environment variables
-   * Fallback method when no data source specified
-   * 
-   * @returns Credentials from .env
-   */
-  private static loadFromEnv(): Credentials {
-    const credentials: Credentials = {
-      username: process.env.USERNAME_AUTOMATION || 'admin',
-      password: process.env.PASSWORD_AUTOMATION || 'admin',
-      mfaSecret: process.env.MFA_SECRET,
-      role: 'env',
-      metadata: { source: 'environment variables' }
-    };
-
-    Log.warn('⚠️  Using credentials from .env (not from data source)');
-    return credentials;
+  /** Load multiple credentials (data-driven testing). */
+  static async loadAllCredentials(source: CredentialSource): Promise<Credentials[]> {
+    Log.info(`Loading all credentials from ${source.type} source`);
+    const { records } = await this._resolveSource(source);
+    const credentialsList = records.map((r: any) => this._mapRecord(r));
+    Log.info(`[OK] Loaded ${credentialsList.length} credential sets`);
+    return credentialsList;
   }
 
-  /**
-   * Validate credentials object
-   * Ensures required fields are present
-   * 
-   * @param credentials - Credentials to validate
-   * @throws Error if validation fails
-   */
+  /** Validate credentials -- required fields present and non-trivial. */
   static validateCredentials(credentials: Credentials): boolean {
     if (!credentials.username || !credentials.password) {
       throw new Error('Invalid credentials: username and password required');
     }
-
-    if (credentials.username.length < 3) {
-      throw new Error('Invalid credentials: username too short');
-    }
-
-    if (credentials.password.length < 3) {
-      throw new Error('Invalid credentials: password too short');
-    }
-
+    if (credentials.username.length < 3) throw new Error('Invalid credentials: username too short');
+    if (credentials.password.length < 3) throw new Error('Invalid credentials: password too short');
     return true;
   }
 
-  /**
-   * Load multiple credentials (e.g., for data-driven testing)
-   * 
-   * @param source - Credential source specification
-   * @returns Promise<Credentials[]>
-   * 
-   * @example
-   * // Load all users from Excel for data-driven test
-   * const allUsers = await CredentialLoader.loadAllCredentials({
-   *   type: 'excel',
-   *   path: 'tests/test-data/users.csv'
-   * });
-   */
-  static async loadAllCredentials(source: CredentialSource): Promise<Credentials[]> {
-    Log.info(`Loading all credentials from ${source.type} source`);
+  // ─── Private helpers ───────────────────────────────────────────────────────
+
+  /** Centralized source resolution: vault/env/inline/file-adapter -> raw records. */
+  private static async _resolveSource(source: CredentialSource): Promise<{ records: any[] }> {
+    if (source.type === 'vault') {
+      return { records: [await this._loadVaultRecord()] };
+    }
 
     if (source.type === 'env') {
-      return [this.loadFromEnv()];
+      return { records: [this._loadEnvRecord()] };
     }
 
     if (source.type === 'inline') {
       if (!source.username || !source.password) {
         throw new Error('Inline credentials require username and password');
       }
-      return [{ username: source.username, password: source.password, role: 'inline', metadata: { source: 'inline' } }];
+      return { records: [{ username: source.username, password: source.password, role: 'inline', _source: 'inline' }] };
     }
 
-    if (!source.path) {
-      throw new Error(`Path required for ${source.type} credential source`);
-    }
+    if (!source.path) throw new Error(`Path required for ${source.type} credential source`);
+    const adapter = AdapterFactory.getAdapter(source.type as Exclude<CredentialSource['type'], 'env' | 'inline' | 'vault'>);
+    const data = await adapter.load({ file: source.path, query: source.query, sheet: source.sheet });
+    return { records: data.records };
+  }
 
-    const adapter = AdapterFactory.getAdapter(source.type as Exclude<CredentialSource['type'], 'env' | 'inline'>);
-    const data = await adapter.load({
-      file: source.path,
-      query: source.query,
-      sheet: source.sheet
-    });
-
-    const credentialsList: Credentials[] = data.records.map((record: any) => ({
+  /** Map raw record fields to standardized Credentials (supports common field name variations). */
+  private static _mapRecord(record: any, role?: string): Credentials {
+    return {
       username: record.username || record.user || record.email,
       password: record.password || record.pass,
       mfaSecret: record.mfaSecret || record.mfa_secret || record.totp_secret,
-      role: record.role || record.expected_result,
-      metadata: record
-    }));
+      role: record.role || role,
+      metadata: record,
+    };
+  }
 
-    Log.info(`✅ Loaded ${credentialsList.length} credential sets`);
-    return credentialsList;
+  /** Load credentials from encrypted vault (requires VAULT_PASSPHRASE env var). */
+  private static async _loadVaultRecord(): Promise<Record<string, any>> {
+    const passphrase = process.env.VAULT_PASSPHRASE;
+    if (!passphrase) throw new Error('VAULT_PASSPHRASE environment variable not set. Cannot decrypt vault.');
+    try {
+      const vault = await Vault.initialize(passphrase);
+      const username = await vault.get('NAVIGATOR_USERNAME');
+      const password = await vault.get('NAVIGATOR_PASSWORD');
+      const mfaSecret = await vault.has('NAVIGATOR_MFA_SECRET') ? await vault.get('NAVIGATOR_MFA_SECRET') : undefined;
+      return { username, password, mfaSecret, role: 'vault', _source: 'encrypted vault' };
+    } catch (error) {
+      Log.error(`Failed to load credentials from vault: ${error}`);
+      throw new Error('Failed to decrypt vault. Check VAULT_PASSPHRASE and vault contents.');
+    }
+  }
+
+  /** Load credentials from environment variables (fallback). */
+  private static _loadEnvRecord(): Record<string, any> {
+    Log.warn('[WARN]  Using credentials from .env (not from data source)');
+    return {
+      username: process.env.USERNAME_AUTOMATION || 'admin',
+      password: process.env.PASSWORD_AUTOMATION || 'admin',
+      mfaSecret: process.env.MFA_SECRET,
+      role: 'env',
+      _source: 'environment variables',
+    };
   }
 }

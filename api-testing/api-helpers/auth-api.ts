@@ -19,9 +19,9 @@
  * 
  * NON-TECHNICAL EXPLANATION:
  * Think of this as "login/logout vending machine" for APIs.
- * - Insert credentials → Get JWT token (digital key card)
- * - Use token → Access authenticated features
- * - Logout → Destroy token, remove access
+ * - Insert credentials -> Get JWT token (digital key card)
+ * - Use token -> Access authenticated features
+ * - Logout -> Destroy token, remove access
  * 
  * @see {@link BaseApiClient} - Parent class (api-testing/api-helpers/base-api.ts)
  * @see docs/ARCHITECTURE.md#the-api-confusion-explained - API client inheritance
@@ -144,12 +144,12 @@ export class AuthApiClient extends BaseApiClient {
       
       if (response.data.token) {
         this.setAuthToken(response.data.token); // Store token in headers for future requests
-        Log.info('✅ API login successful, token stored');
+        Log.info('[OK] API login successful, token stored');
       }
       
       return response.data; // Return { success, token, user, message } to caller (test file)
     } catch (error) {
-      Log.error(`❌ API login failed: ${error}`); // Log error to logs/app.log
+      Log.error(`[ERR] API login failed: ${error}`); // Log error to logs/app.log
       throw error; // Re-throw to test file (test will fail and show error)
     }
   }
@@ -173,9 +173,9 @@ export class AuthApiClient extends BaseApiClient {
     try {
       await this.post('/api/auth/logout'); // Tell server to invalidate token in database
       this.clearAuthToken(); // Remove token from client headers
-      Log.info('✅ API logout successful');
+      Log.info('[OK] API logout successful');
     } catch (error) {
-      Log.error(`❌ API logout failed: ${error}`);
+      Log.error(`[ERR] API logout failed: ${error}`);
       throw error;
     }
   }
@@ -203,7 +203,7 @@ export class AuthApiClient extends BaseApiClient {
       const response = await this.get('/api/auth/me');
       return response.data; // { id, username, email, role, createdAt, ... }
     } catch (error) {
-      Log.error(`❌ API get user failed: ${error}`);
+      Log.error(`[ERR] API get user failed: ${error}`);
       throw error;
     }
   }

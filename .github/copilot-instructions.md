@@ -1,450 +1,240 @@
-# AI Agent Instructions - Autonomous Hybrid Playwright Framework
+# Copilot Instructions - Encore Playwright Framework
 
-## Mission & Philosophy
+**Core**: Hybrid Playwright TypeScript framework for Navigator Cloud automation. POM + TypeScript selectors + Data Adapters + 5-agent pipeline.
 
-This is a **fully autonomous hybrid Playwright TypeScript framework** for EspoCRM test automation. "Hybrid" means:
-- **Page Object Model (POM)** for UI interactions
-- **Dual Object Repository** (CSV + TypeScript selectors)
-- **Data Adapters** for flexible test data sources (Excel, JSON, Database, S3, CSV)
-- **Playwright Test Agents** (Planner, Generator, Healer) with autonomous work discovery
-- **Multi-environment support** (development, staging, production)
-- **Work Queue System** for inter-agent communication
-
-**Core Principle**: MINIMUM USER INTERVENTION, MAXIMUM AGENT EFFICIENCY, MAXIMUM AUTONOMY.
+**Your Role**: Framework development (src/, tests/, config/, scripts/). NOT test intake or pipeline orchestration.
 
 ---
 
-## 0. User Intake — How Tests Enter the Pipeline
+## 1. Critical Rules
 
-Users describe test flows in **plain English** to Claude Code or any Copilot agent. No formal tables, no file paths, no selectors needed.
+### File Access
+- **READ-WRITE**: `src/**`, `tests/**`, `config/**`, `scripts/**`
+- **READ-ONLY**: `docs/REQUIREMENTS.md`, `specs_planning/agent-queue.json`
+- **NEVER**: `.env*`, `.github/agents/*.agent.md`
+- **Delegate**: Test requests → `@playwright-requirements`
 
-**Example user input:**
-> "I want to test forgot password. User clicks 'Forgot Password?' on login page. New page opens with email field. User enters email and clicks Submit. If email is valid → success message. If email not found → error. If empty → validation error."
+### Never Break
+- Page objects MUST extend BasePage
+- Selectors ONLY in `src/selectors/index.ts`
+- NO direct `page` methods in tests → use page object methods
+- NO hardcoded URLs/credentials → use `.env` via `config` fixture
+- Tests MUST use fixtures (no `new LoginPage(page)`)
 
-**What the intake agent (Copilot agent) does:**
-
-1. **Updates `REQUIREMENTS.md`** if the user describes a new feature/module or refines existing ones:
-   - Before ANY edit, show the user a short summary of proposed changes (ADD / UPDATE / REMOVE)
-   - User reviews and approves before the file is touched
-   - ADD: New module sections, new behaviors, new fields
-   - UPDATE: Refine existing descriptions when user provides better info
-   - REMOVE: Only if user confirms a feature no longer exists in the app — be cautious
-   - Once edited, REQUIREMENTS.md stays as-is until user provides new data or clarification
-2. Creates `specs_planning/test-cases/{feature}-test-cases.md` using TEMPLATE.md format
-   - Each scenario → test case with ID, priority, steps, expected results
-   - Marked as `Type: User-Requested`, `Status: ⚠️ Manual`
-3. Adds entry to `specs_planning/agent-queue.json` with `stage: "pending_planning"`
-4. Tells user: "Ready — invoke the agents"
-
-**User then invokes agents (manual trigger, autonomous execution):**
-- `@playwright-test-planner` → Reads queue, explores website, creates detailed plan
-- `@playwright-test-generator` → Reads queue, generates .spec.ts, runs tests
-- `@playwright-test-healer` → Runs tests, finds failures, fixes them
-
-**Tips for describing flows:**
-- Describe what user DOES and what they SEE at each step
-- Include happy path + negative cases + edge cases
-- Agents discover selectors, file paths, and technical details automatically
-- You can describe multiple flows in one message
+### File Locations
+- Test docs (.md): `specs_planning/test-cases/{module}/{module}_{submodule}_test_cases.md`
+- Test plans (.md): `specs_planning/test-plans/{module}/{module}_{submodule}_test_plan.md`
+- Test specs (.spec.ts): `tests/specs/{module}/`
 
 ---
 
-## 0.1 Pipeline Containment Rules — CRITICAL
+## 2. Key Patterns
 
-**The Copilot agent (you) is the INTAKE ONLY.** Your job ends after creating documentation and queue entries.
-
-**NEVER DO ANY OF THESE:**
-- NEVER create `.spec.ts` files (Generator's job)
-- NEVER create or modify `src/pages/*.page.ts` files (Generator/Healer's job)
-- NEVER modify `src/selectors/index.ts` (Planner/Generator/Healer's job)
-- NEVER modify `object_repository/*.csv` (Planner/Generator/Healer's job)
-- NEVER set queue stage to anything other than `"pending_planning"` for new items
-- NEVER mark test cases as "Automated" (Generator does this after tests pass)
-- NEVER skip the Planner stage
-
-**Before starting any work:**
-1. Read `specs_planning/agent-mistakes.md` — check Copilot section for past violations
-2. Read `docs/read_only_docs/AGENT_SHARED_RULES.md` — refresh shared protocols
-3. Log activity to `specs_planning/agent-activity-log.md`:
-   - Append started entry when beginning work
-   - Append completed entry when finished
-
-**Your output for test requests:**
-1. Update REQUIREMENTS.md (with user approval)
-2. Create `specs_planning/test-cases/{feature}-test-cases.md`
-3. Add queue entry with `stage: "pending_planning"`
-4. Tell user: "Ready. Invoke @playwright-test-planner next."
-5. STOP. Do not proceed to code.
-
-### 0.2 User Override Protocol
-
-**The above NEVER rules apply to AUTONOMOUS behavior only.** If the user EXPLICITLY asks you to:
-- Create a .spec.ts file
-- Modify page objects
-- Edit selectors/CSV files
-- Skip the pipeline
-
-**You MUST:**
-1. **Confirm**: "You're asking me to do [Generator/Planner/Healer]'s job directly. Are you sure? The designated agent would normally handle this."
-2. **If user confirms**: Proceed, but follow ALL rules of the agent whose role you're taking on
-3. **Read that agent's prompt file before starting** (e.g., read `.github/agents/playwright-test-generator.agent.md`)
-4. **You are now responsible for that agent's quality standards.** No excuses.
-5. **Log this override** in `specs_planning/agent-activity-log.md` with note: "USER OVERRIDE - Copilot acting as [Agent Name]"
-
-**Example override confirmation:**
-> User: "Create a spec file for login tests"
-> 
-> Copilot: "⚠️ You're asking me to create a .spec.ts file directly, which is normally the Generator's job. The proper pipeline would be: describe the test flows → I create test cases → invoke @playwright-test-generator → it creates the spec file with proper selectors and page objects. Are you sure you want me to bypass the pipeline and create the spec now?"
-> 
-> User: "Yes, do it."
-> 
-> Copilot: ✅ [Reads playwright-test-generator.agent.md, follows all Generator rules, creates spec, logs override]
-
----
-
-## 1. Critical Rules — Read First
-
-### 1.1 REQUIREMENTS.md Access Rules
-
-**REQUIREMENTS.md describes the EspoCRM website** — its modules, features, user flows, and expected behaviors.
-
-**Playwright Agents (Planner, Generator, Healer): READ-ONLY — NEVER modify.**
-- Agents MUST read REQUIREMENTS.md before exploring for website context.
-- Element discoveries, selector details, test results → `specs_planning/test-cases/*.md`
-
-**Copilot Agents (Claude Code, GitHub Copilot, etc.): CAN update on user request, with approval.**
-- When user describes a new feature or refines existing info, copilot agents update REQUIREMENTS.md
-- **Before ANY edit**: Show user a short summary of proposed changes for verification
-- **ADD**: New module sections, new behaviors, new fields described by user
-- **UPDATE**: Refine existing entries when user provides better/newer info
-- **REMOVE**: Only when user confirms a feature no longer exists — be cautious
-- Once edited, the file stays as-is until user provides new data or clarification
-- **Critical**: Show changes for approval BEFORE saving — user can catch mistakes
-
-### 1.2 Work Queue System
-
-**`specs_planning/agent-queue.json`** is the shared state for all agents. Schema: `specs_planning/agent-queue.schema.json`.
-
-**Stage transitions**:
-```
-pending_planning → planning → pending_generation → generation → pending_testing → testing
-  → completed (all pass)
-  → pending_healing → healing → completed (healed) OR fixme (gave up)
-```
-
-**Lock protocol**: Before working on a queue item, set `lockedBy` to your agent name and `lockedAt` to current timestamp. When done, set `lockedBy: null`. If `lockedAt` is older than `config.lockTimeoutMinutes`, the lock is stale — steal it.
-
-### 1.3 Search-Before-Create Protocol
-
-See `docs/read_only_docs/AGENT_SHARED_RULES.md` Section 1 for the complete Search-Before-Create Protocol that all agents follow.
-
-### 1.4 File Ownership Matrix
-
-See `docs/read_only_docs/AGENT_SHARED_RULES.md` Section 2 for the complete File Ownership Matrix with all agent columns (Planner, Generator, Healer, QA, Copilot).
-
-**Key Copilot-specific rules:**
-- **CREATE**: `specs_planning/test-cases/*.md` (with user approval)
-- **UPDATE**: `REQUIREMENTS.md` (with user approval - show changes first)
-- **READ-WRITE**: `specs_planning/agent-queue.json` (add queue entries only)
-- **READ-ONLY**: `specs_planning/agent-mistakes.md` (QA Agent owns writes)
-- **APPEND-ONLY**: `specs_planning/agent-activity-log.md`
-- **NEVER**: `.spec.ts` files, page objects, selectors, CSV files
-
-### 1.5 Never Break These Patterns
-
-- **NO direct Playwright `page` methods in tests** → Use page object methods
-- **NO hardcoded element selectors** → Use dual object repository (CSV + TS)
-- **NO hardcoded environment URLs/credentials** → Use `.env.{environment}` files
-- **NO spreading `devices` in playwright.config.ts** → Causes `deviceScaleFactor` conflict
-- **ALL page objects MUST extend BasePage**
-- **ALL new website features described in REQUIREMENTS.md** (by team, not agents)
-
----
-
-## 2. Architecture & File Structure
-
-```
-hybrid_framework/
-├── .github/
-│   ├── agents/                        # Playwright Test Agents (autonomous)
-│   │   ├── playwright-test-planner.agent.md
-│   │   ├── playwright-test-generator.agent.md
-│   │   └── playwright-test-healer.agent.md
-│   └── copilot-instructions.md        # This file
-├── .ci/
-│   ├── Jenkinsfile.ubuntu             # Linux CI pipeline + SharePoint upload
-│   └── Jenkinsfile.windows            # Windows CI pipeline + SharePoint upload
-├── object_repository/                 # CSV locator files (dual repo - CSV side)
-│   ├── Login_Elements.csv
-│   ├── Home_Elements.csv
-│   ├── Landing_Elements.csv
-│   └── Working_Elements.csv
-├── specs_planning/                    # Agent work coordination
-│   ├── agent-queue.json               # Shared work queue (all agents R/W)
-│   ├── agent-queue.schema.json        # Queue validation schema
-│   ├── test-cases/                    # Jira-exportable test cases
-│   │   ├── TEMPLATE.md
-│   │   └── {feature}-test-cases.md
-│   └── test-plans/                    # Technical automation plans
-│       └── {feature}-plan.md
-├── src/
-│   ├── selectors/                     # TypeScript selectors (dual repo - TS side)
-│   │   └── index.ts                   # All selectors as const objects + getTsSelector()
-│   ├── pages/                         # Page Object Model classes (all extend BasePage)
-│   │   ├── login.page.ts
-│   │   ├── home.page.ts
-│   │   ├── landing.page.ts
-│   │   ├── working-screen.page.ts
-│   │   ├── working-screen-audit.page.ts
-│   │   └── index.ts
-│   ├── common/
-│   │   ├── base-page.ts               # Parent POM class (getLocator uses dual repo)
-│   │   ├── credential-loader.ts
-│   │   └── ui-common.ts
-│   ├── integrations/
-│   │   └── sharepoint-client.ts       # SharePoint upload via Microsoft Graph
-│   ├── data/adapters/                 # Data-driven testing adapters
-│   ├── utils/                         # 5 files only (consolidated)
-│   │   ├── common-methods.ts          # ALL utilities: CSV, scroll, timing, validation
-│   │   ├── app-constants.ts           # Constants and CSV filenames
-│   │   ├── file-utils.ts              # File/download/Excel operations
-│   │   ├── logger.ts                  # Winston logging
-│   │   └── index.ts                   # Barrel exports
-│   └── framework-contracts/
-│       └── index.d.ts                 # Types + custom matcher declarations
-├── tests/
-│   ├── seed.spec.ts                   # EspoCRM context for agents
-│   ├── fixtures.ts                    # Fixtures + custom matchers import
-│   ├── custom-matchers.ts             # expect.extend() — toBeLoggedIn, toBeOnModule, etc.
-│   ├── test-data/                     # Sample files for upload/download tests
-│   │   └── test.xlsx                  # Pre-staged upload data (Excel, docs, etc.)
-│   ├── specs/                         # ONLY .spec.ts files
-│   │   ├── auth/
-│   │   └── dashboard/
-│   ├── global-setup.ts
-│   └── global-teardown.ts
-├── scripts/
-│   └── upload-to-sharepoint.ts        # Jenkins → SharePoint upload CLI
-├── REQUIREMENTS.md                    # Website knowledge base (READ-ONLY for agents)
-└── package.json
-```
-
-**File location rules**:
-- Test documentation (.md): ONLY in `specs_planning/test-cases/`
-- Technical plans (.md): ONLY in `specs_planning/test-plans/`
-- Executable tests (.spec.ts): ONLY in `tests/specs/`
-- NEVER: `.md` files in `tests/specs/`
-- NEVER: `.spec.ts` files in `specs_planning/`
-
----
-
-## 3. Key Patterns & Conventions
-
-### 3.1 Dual Object Repository (CSV + TypeScript)
-
-**TypeScript side** (`src/selectors/index.ts`):
+### Selectors
 ```typescript
-export const LoginSelectors = {
-  txtUsername: '#field-userName',
-  btnLogin: '#btn-login',
-} as const;
-
-export function getTsSelector(elementName: string): string | null {
-  return ALL_SELECTORS[elementName] ?? null;
-}
+// src/selectors/index.ts
+export const LoginSelectors = { txtUsername: '#field-userName', btnLogin: '#btn-login' } as const;
 ```
 
-**CSV side** (`object_repository/Login_Elements.csv`):
-```csv
-Element Name,Locator
-txtUsername,#field-userName
-btnLogin,#btn-login
+### Selector Lookup Flow (All Agents)
+```
+1. READ CATALOG    → src/selectors/SELECTOR_CATALOG.md (single flat index)
+2. SEARCH KEYWORDS → match user description against Where, Text, Keywords columns
+3. DRILL INTO SOURCE → read partition file from File column for full context
+4. NOT FOUND → DISCOVER:
+   a. Tell user element not in catalog
+   b. Offer MCP browser discovery (navigate → snapshot → identify)
+   c. Add selector to partition file WITH full @where @el @text @keys annotation
+   d. Run `npm run selectors:catalog`
+5. NEVER create a selector without annotation
 ```
 
-**Unified lookup** (`CommonMethods.getSelector()`):
+### Page Objects
 ```typescript
-// TypeScript first (fast, no I/O), CSV fallback
-static getSelector(elementName: string, csvFile?: string): string | null
-```
-
-**BasePage uses dual repo automatically**:
-```typescript
-protected getLocator(elementName: string, csvFile: string): string {
-  return CommonMethods.getSelector(elementName, csvFile);
-}
-```
-
-**When adding new selectors**: Add to BOTH `src/selectors/index.ts` AND the CSV file.
-
-### 3.2 Page Object Model
-
-```typescript
-// CORRECT: All page objects extend BasePage
 export class LoginPage extends BasePage {
-  constructor(page: Page, config?: IConfig) {
-    super(page, config);
-  }
-
-  async loginWithMfa(username: string, password: string): Promise<boolean> {
-    // Uses CSV locators via CommonMethods or BasePage helpers
-    const btn = CommonMethods.getValuesFromCsv('btnLogin', AppConstants.LOGIN_ELEMENTS);
-    await this.page.click(btn!);
+  async login(user: string, pass: string): Promise<boolean> {
+    await this.fillWithValidation('txtUsername', user);
+    await this.clickWithRetry('btnLogin');
     return true;
   }
 }
 ```
 
-### 3.3 Test Structure (2-10 lines)
-
+### Tests (concise, typically 2-10 lines)
 ```typescript
-import { test, expect } from '../../fixtures';
-import { Log } from '../../../src/utils/logger';
-
-test.describe('Login Tests', () => {
-  test.beforeEach(async ({ page, config }) => {
-    await page.goto(config.base_url);
-  });
-
-  test('should verify forgot password link', async ({ loginPage }) => {
-    Log.info('TEST: Verify forgot password link');
-    const linkExists = await loginPage.isForgotPwdLinkExist();
-    expect(linkExists).toBe(true);
-    Log.info('✅ Forgot password link verified');
-  });
+import { test, expect } from '../../setup/fixtures';
+test('should verify link', async ({ loginPage }) => {
+  expect(await loginPage.isForgotPwdLinkExist()).toBe(true);
 });
 ```
 
-### 3.4 Custom Assertions
-
+### Fixtures
 ```typescript
-// Available via tests/custom-matchers.ts (auto-loaded by fixtures.ts)
-await expect(page).toBeLoggedIn();
-await expect(page).toHaveNotification('Success');
-await expect(page).toBeOnModule('Contact');
-expect(downloadsDir).toHaveFileDownloaded('report.xlsx');
-```
-
-### 3.5 SharePoint Integration
-
-```typescript
-// src/integrations/sharepoint-client.ts
-const client = new SharePointClient(); // Config from .env
-await client.authenticate();
-await client.uploadFile('downloads/report.xlsx');
-await client.uploadDirectory('downloads/');
-```
-
-Jenkins uploads via: `npx ts-node scripts/upload-to-sharepoint.ts --dir=downloads`
-
-### 3.6 Available Fixtures
-
-```typescript
-test('example', async ({
-  loginPage,           // LoginPage instance
-  homePage,            // HomePage instance
-  landingPage,         // LandingPage instance
-  workingScreenPage,   // WorkingScreenPage instance
-  workingScreenPageAudit, // Audit page instance
-  commonMethods,       // CommonMethods utilities
-  config,              // IConfig environment variables
-  page                 // Direct Playwright Page (use only when fixture unavailable)
-}) => {
-  // Test implementation
-});
+test('example', async ({ loginPage, homePage, commonMethods, config, page }) => { /* ... */ });
 ```
 
 ---
 
-## 4. Playwright Test Agents — Autonomous Workflow
+## 3. Pipeline Agents
 
-### 4.1 Agent Invocation
+<!-- SYNC:PIPELINE:START -->
+| Agent | Invoke | Creates |
+|-------|--------|---------|
+| Requirements | `@playwright-requirements` | REQUIREMENTS.md + queue entry |
+| Planner | `@playwright-test-planner` | Test cases + test plans |
+| Generator | `@playwright-test-generator` | .spec.ts files |
+| Healer | `@playwright-test-healer` | Fixes failing tests |
+| Audit | `@playwright-pipeline-audit` | Universal audit: pipeline, agents, framework, full repo |
 
-**Agent Picker in VS Code Copilot Chat**:
-1. Open Copilot Chat (Ctrl+Alt+I)
-2. Click @ → Select agent
-3. Type request (or just invoke for auto-discovery)
-
-**Auto-discover commands** (no file paths needed):
-- `@playwright-test-planner` → Reads queue, processes all pending_planning
-- `@playwright-test-generator` → Reads queue, processes all pending_generation
-- `@playwright-test-healer` → Runs all tests, heals failures
-
-### 4.2 Three-Stage Pipeline
-
-```
-Planner (explore → plan → queue)
-    ↓ pending_generation
-Generator (plan → code → test → queue)
-    ↓ completed / pending_healing
-Healer (debug → fix → retest → queue)
-    ↓ completed / fixme
-```
-
-### 4.3 Agent Self-Updating Rules
-
-**Planner**: Creates/updates `specs_planning/test-cases/*.md` and `specs_planning/test-plans/*.md`
-**Generator**: Updates test case status from ⚠️ Manual → ✅ Automated, creates `.spec.ts` files
-**Healer**: Updates test results, timestamps, known issues in test case files
-
-**All agents**: Update `specs_planning/agent-queue.json` with stage transitions and history
+**Stage flow**: `pending_requirements → requirements → pending_planning → planning → pending_generation → generation → testing → completed | pending_healing → healing → completed | fixme`
+<!-- SYNC:PIPELINE:END -->
 
 ---
 
-## 5. Consolidated Utilities Reference
+## 4. Commands
 
-### src/utils/common-methods.ts (single utility class)
-
-**CSV/Selectors**: `getValuesFromCsv()`, `getSelector()`, `updateLocator()`, `clearLocatorCache()`
-**Config**: `initProp()`
-**MFA**: `generateTotpCode()`
-**Screenshot**: `takeScreenshot()`
-**Validation (page)**: `validateText()`, `validatePopup()`, `validateListOptions()`, `validateFields()`
-**Validation (data)**: `validateEmail()`, `validatePhone()`, `validateDate()`, `validateUrl()`, `matchesPattern()`
-**Text**: `compareTexts()`, `extractNumbers()`, `normalizeDate()`, `formatDate()`
-**Scroll**: `scrollIntoView()`, `scrollToTop()`, `scrollToBottom()`, `scrollBy()`, `scrollUntil()`, `getScrollPosition()`
-**Timing**: `retryWithBackoff()`, `waitForCondition()`, `sleep()`, `executeWithTimeout()`, `poll()`
-
-### src/utils/file-utils.ts
-
-**File ops**: `downloadFile()`, `validateExcelFile()`, `readExcelAsJson()`, `deleteFileIfExists()`, `waitForFile()`, `fileExists()`, `getFileExtension()`
-
----
-
-## 6. Environment Configuration
-
+<!-- SYNC:COMMANDS:START -->
 ```bash
-npm test                    # All tests
-npm run test:chrome         # Chrome only
-npm run test:headed         # With browser visible
-npm run test:debug          # Debug mode
-npm run typecheck           # TypeScript validation
-npm run upload:sharepoint   # Upload downloads to SharePoint
+npm test                                # All tests
+npm run test:chrome                     # Chrome only
+npm run test:headed                     # UI visible
+npm run test:debug                      # Debug mode
+npm run typecheck                       # TypeScript validation
+CI_ENV=staging npm test                 # Environment switch
+npm run build                           # Compile src/ -> dist/
+npm run build:clean                     # Clean + rebuild
+npm run client:package                  # Package client deliverable
+npm run lint:testcases                  # Lint test case markdown
+npm run pipeline:validate               # Full validation (sync + queue integrity + lint)
+npm run planner:post-complete [id]      # Export CSV + validate checklist (hard gate: selfAuditPassed)
+npm run planner:export-all              # Export all pending CSVs
+npm run generator:post-complete [id]    # Validate spec output (hard gate: no --force bypass)
+npm run queue:archive                   # Archive completed items, prune old log
+npm run queue:compact                   # Also compact active item contexts
+npm run queue:validate                  # Cross-check queue, activity log, performance
+```
+<!-- SYNC:COMMANDS:END -->
+
+---
+
+## 5. Pitfalls
+
+| Problem | Solution |
+|---------|----------|
+| `deviceScaleFactor` error | Remove `...devices['Desktop Chrome']` spread |
+| Element not found | Add to `src/selectors/index.ts` |
+| Env vars not loading | Check `CI_ENV` matches `config/environments/.env.{env}` filename |
+| Agents not visible | Check MCP config in `.vscode/` |
+
+---
+
+## 6. RULES (Inline)
+<!-- SYNC:NEVER_DO:START -->
+
+| ID | Rule | Resolution |
+|----|------|------------|
+| ALL-001 | All .md edits: tables > prose, no filler, single source of truth, compress after edits | — |
+| ALL-002 | Log activity start/end with HH:MM. Every task = activity log entry | — |
+| ALL-003 | Before retrying: search agent-mistakes.md Resolution by category. After: log learning | — |
+| ALL-004 | After writing rules: sync:mistakes + build:context + validate:sync. Capture novel patterns | — |
+| ALL-005 | Before completing: answer 5-item checklist (§8). Evidence required (reconciliation table) | — |
+| ALL-006 | Selector protocol: SELECTOR_CATALOG.md first. Annotations required. Verify HTML tag via DOM | — |
+| ALL-007 | Diagnostics-first: read failure-summary.json before fix. Evidence checklist (§12). test:grep for single-TC | — |
+| ALL-008 | MCP browser: never close, wait 3s after navigate, reuse sessions, never blanket-kill node | — |
+| ALL-009 | ASCII-only in executable code. [OK], [ERR], [WARN], ->. No emoji in string literals | — |
+| ALL-010 | Evidence before code edits: Phase A first, 10/13 checklist, MCP replication for SELECTOR/TIMING | — |
+| ALL-011 | Pre-flight checks (§13) before work. Load own performance entry. Note defects/debt | — |
+| ALL-012 | User explicit requests = top priority. Rules never override direct user instructions | — |
+| COP-001 | Pipeline delegation: queue entry → delegate. Don't write specs. New items = pending_planning | — |
+| COP-002 | TypeScript must compile: run typecheck, fix all errors | — |
+| COP-003 | Research before answering: subagent, read source, verify. First response = comprehensive | — |
+| COP-004 | Verify outputs: read files after generation, check encoding, test regex edge cases | — |
+| COP-005 | TC sync: update to-csv.ts subMap + lint KNOWN_SUB_CODES + TAB_MAP for new codes | — |
+| COP-006 | Check SELECTOR_CATALOG.md before declaring selector not found | — |
+| COP-007 | Fix root causes, not symptoms. Read agent-mistakes.md first | — |
+| COP-008 | Agent file edits: compare frontmatter side-by-side. No contradictions | — |
+<!-- SYNC:NEVER_DO:END -->
+
+---
+
+## 7. Mistake Injection System
+
+### Architecture
+- **Single source of truth**: `specs_planning/agent-mistakes.md` (rules + resolutions, learnings merged)
+- **Autonomous sync**: Every agent runs sync:mistakes after writing rules — no human gatekeeping
+- **Context injection**: Queue items receive `injectedContext` with relevant rules + reminders
+
+### Commands
+```bash
+npm run sync:mistakes       # Inject registry rules into agent files
+npm run sync:mistakes:dry   # Preview changes without writing
+npm run validate:sync       # Check for drift between registry and agents
+npm run build:context       # Build injectedContext for all queue items
+npm run metrics:agents      # Generate metrics dashboard
+npm run pipeline:validate   # Full validation (sync + queue integrity + lint)
 ```
 
-Environment switching: `CI_ENV=staging npm test`
+### Autonomous Sync (No Human Steps)
+Agents write their own rules and run sync themselves. No manual steps required.
+If you (Copilot) add a rule to `agent-mistakes.md`, YOU must also run the sync pipeline:
+`npm run sync:mistakes && npm run build:context && npm run validate:sync`.
+
+### Queue Item Context
+Each queue item has `injectedContext` containing:
+- `generatedAt`: ISO timestamp of context generation
+- `targetAgent`: Which agent this context is for
+- `mistakeIds`: Agent-specific rule IDs with Resolution column for linked learnings
+- `moduleContextRef`: Reference to REQUIREMENTS.md section for this module
+- `recentDefects`: Unresolved defects to avoid repeating
+- `criticalReminders`: High-priority behavioral reminders
+- `selfAuditQuestions`: Agent-specific 5-item checklist questions (§8)
 
 ---
 
-## 7. Common Pitfalls
+## 8. References
 
-| Problem | Cause | Solution |
-|---------|-------|----------|
-| `deviceScaleFactor` error | Spreading `devices['Desktop Chrome']` | Remove device spread, keep only `viewport: null` |
-| Element not found | Missing from CSV AND TS selectors | Add to both `src/selectors/index.ts` AND CSV file |
-| Env vars not loading | Wrong `.env.{environment}` file | Check `CI_ENV` matches filename |
-| Agents not in Copilot | MCP not configured | See `docs/PLAYWRIGHT_AGENTS_SETUP.md` |
-
----
-
-## 8. Documentation Hierarchy
-
-1. **REQUIREMENTS.md** → Website knowledge base (READ-ONLY for agents)
-2. **This file** → How to work in this codebase
-3. **specs_planning/agent-queue.json** → Work queue (agents read/write)
-4. **specs_planning/test-cases/** → Test documentation (agents maintain)
-5. **docs/** → Architecture, commenting standards, setup guides
-6. **File headers** → PURPOSE, WHY NECESSARY, HOW IT WORKS, USED BY
+- **Shared Rules**: `docs/read_only_docs/AGENT_SHARED_RULES.md`
+- **Architecture**: `docs/read_only_docs/ARCHITECTURE.md`
+- **Commenting**: `docs/read_only_docs/COMMENTING_STANDARDS.md`
+- **Agent Setup**: `docs/README.md` (MCP config section)
+- **Queue Schema**: `specs_planning/agent-queue.schema.json`
+- **Rules Registry**: `specs_planning/agent-mistakes.md` (includes merged learnings)
+- **Agent Performance**: `specs_planning/agent-performance.json`
 
 ---
 
-**Last Updated**: 2026-02-10
+## 9. Agent Editing Standards
+
+### All Documentation & Markdown
+When creating, editing, or reviewing ANY `.md` file in the workspace: non-verbose, no redundancies, token-efficient, tables over prose. Single source of truth — link to canonical doc, never copy content. No beginner hand-holding unless doc is explicitly client-facing. Review for compression after every edit. See R22 + ALL-001..004.
+
+### Mistakes Registry
+When editing `specs_planning/agent-mistakes.md`: concise entries only. No verbose explanations, no redundant patterns. One line per mistake where possible.
+
+### MCP Playwright Sessions
+<!-- SYNC:MCP_CRITICAL:START -->
+- `browser_navigate` auto-opens a browser if none exists — no manual setup needed
+- **NEVER** call `browser_close` unless user explicitly requests it
+- **REUSE** same browser context to avoid Microsoft auth/2FA re-prompts
+- **User explicit requests override ALL agent rules** — always obey the user
+- Always `browser_wait_for(time:3)` between navigate and snapshot (PLN-045)
+- **Full MCP guide**: `docs/read_only_docs/MCP_BROWSER_GUIDE.md`
+<!-- SYNC:MCP_CRITICAL:END -->
+
+---
+
+## 10. Self-Audit Protocol
+
+All agents (including Copilot) must self-audit before responding. See `AGENT_SHARED_RULES.md §8` for the 3-layer protocol.
+
+**Copilot self-audit checklist**:
+- Framework changes compile (`npm run typecheck`)?
+- No file ownership violations (§2)?
+- Pipeline delegated correctly (not bypassed)?
+- NEVER DO rules respected?
+- New mistake patterns discovered → captured in `agent-mistakes.md`? (ALL-013)
+- Log: `self-audit | L1:N→L2:N→L3:N` to activity log
+
+---
+
+**Updated**: 2026-02

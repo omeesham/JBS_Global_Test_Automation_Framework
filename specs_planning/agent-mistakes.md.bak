@@ -1,0 +1,273 @@
+# Agent Mistakes Registry
+<!-- CANONICAL REGISTRY: All agent behavioral rules live here.
+     One-time audit findings (file:line fixes) go in docs/archives/.
+     This file = ongoing patterns. Archives = point-in-time bugs.
+     
+     AUTOMATED SYNC: Run `npm run sync:mistakes` to inject rules into agent files.
+     VALIDATION: Run `npm run validate:sync` to check for drift.
+     
+     ID ASSIGNMENT: IDs are permanent. Never reassign. Add new IDs at end of section.
+     CONTEXT INJECTION: Queue items receive relevant rules via task-context-builder. -->
+
+<!-- === R## RULE SUBSETS PER AGENT ===
+     Defines which R## codes from AGENT_SHARED_RULES.md apply to each agent.
+     Used by validate-agent-sync.ts for drift detection.
+     AGENT_RULES:requirements = R06,R07,R11,R15,R16,R17,R21,R23,R24,R25,R27,R29,R30
+     AGENT_RULES:planner = R01,R04,R06,R07,R09,R11,R13,R15,R16,R23,R24,R25,R27,R29,R30
+     AGENT_RULES:generator = R01,R06,R07,R09,R10,R12,R13,R14,R15,R16,R23,R24,R25,R27,R28,R29,R30
+     AGENT_RULES:healer = R01,R06,R07,R08,R09,R10,R12,R14,R15,R16,R23,R24,R25,R27,R28,R29,R30
+     AGENT_RULES:audit = R06,R07,R15,R16,R23,R24,R25,R27,R29,R30
+-->
+
+<!-- === ID MASTER LIST ===
+     Each ID is unique and permanent. Never reuse.
+     
+     ALL-001 to ALL-030: Shared rules (all agents)
+     COP-001 to COP-013: Copilot rules
+     REQ-001 to REQ-005: Requirements Agent rules
+     PLN-001 to PLN-044, PLN-054 to PLN-073: Planner rules (PLN-045..053 moved to MCP_BROWSER_GUIDE.md)
+     GEN-001 to GEN-047: Generator rules (GEN-026, GEN-029, GEN-033 retired — never assigned or merged into adjacent rules)
+     HLR-001 to HLR-013: Healer rules
+     COP-014 to COP-022: Copilot Planning Mode rules (formerly PLAN-001..008)
+     AUD-001 to AUD-027: Audit rules
+     
+     Total: 204 rules (30 ALL + 13 COP + 5 REQ + 64 PLN + 42 GEN + 13 HLR + 9 COP-PM + 27 AUD)
+-->
+
+## Shared
+| ID | NEVER DO | Correct |
+|----|----------|---------|
+| ALL-001 | Write verbose/filler text in any .md file (tutorials, analogies, emoji headers, obvious FAQs) | Minimal, scannable, token-efficient. Tables > prose. One template > repeated examples |
+| ALL-002 | Duplicate content that exists in another doc (pipeline tables, command lists, tool tables, structure trees) | Single source of truth — link to canonical file instead of copying |
+| ALL-003 | Leave a doc longer than necessary after editing it | After any doc edit, review for compression. Remove redundant sections |
+| ALL-004 | Create new .md files without checking if content belongs in an existing file | Check existing docs first. Extend > create. Fewer files = less drift |
+| ALL-005 | Skip self-audit or treat it as a formality | Execute full 3-layer self-audit (R23) before every response — verify output, validate findings, strip false positives |
+| ALL-006 | Retry without checking prior learnings | Read agent-learnings.md for matching patterns BEFORE retrying a failed action (R24) |
+| ALL-007 | Write to agent-mistakes.md or agent-learnings.md without running autonomous sync (R26) | After EVERY write: run `npm run sync:mistakes && npm run build:context && npm run validate:sync` |
+| ALL-008 | Complete a task without creating an activity log entry | Every agent, every task — log action + outcome in agent-activity-log.md. No silent completions |
+| ALL-009 | Report 0 self-audit issues on a task that produced 3+ artifacts | Statistical impossibility — re-audit more carefully or explain why 0 issues is genuine |
+| ALL-010 | Self-certify uiTestingChecklist fields as true without supporting TCs | At least 1 TC must reference the category; use false + notes when category doesn't apply |
+| ALL-011 | Set selfAuditPassed: true without logging L1→L2→L3 in history | The planner-post-complete gate verifies history — no shortcut. Do the actual self-audit |
+| ALL-012 | Use CSS tag selector `button:has-text()` when element may have `role="button"` on a non-button tag | Navigator4 uses `<a role="button">`, `<div role="button">`, etc. Always verify actual HTML tag via DOM inspection. Use `page.getByRole('button', { name })` or `[role="button"]:has-text()` instead of `button:has-text()`. CSS `button` matches only `<button>` tags — ARIA roles are invisible to CSS selectors |
+| ALL-013 | Complete a task after discovering a new mistake pattern without capturing it in agent-mistakes.md | Before finishing ANY task, evaluate: did I hit a novel anti-pattern not already in the registry? If yes → APPEND rule + run sync (R26). R24 only catches multi-attempt failures; this catches single-attempt discoveries. See §8 Step D |
+| ALL-014 | Add selector without `@where @el @text @keys` annotation | Every new selector gets full annotation — enriched during exploration. See COMMENTING_STANDARDS.md |
+| ALL-015 | Search for selectors by reading all partition files one by one | Read `src/selectors/SELECTOR_CATALOG.md` first — single-file lookup |
+| ALL-016 | Attempt fix without reading `failureCategory` from failure-summary.json | Always check failure classification first — route to correct diagnostic path (§15) |
+| ALL-017 | Diagnose test failure without checking network failures array | Network/API failures cause UI symptoms — check `networkFailures[]` before blaming selectors |
+| ALL-018 | Ignore console errors from browser during diagnosis | Console errors contain API failures, SPA crashes, unhandled rejections — read `consoleErrors[]` |
+| ALL-019 | Blame selectors when failureCategory is AUTH/NETWORK/INFRASTRUCTURE | Read failureCategory FIRST, route to correct diagnostic path per §15 |
+| ALL-020 | Run full test suite when only 1-2 tests need debugging | Use `npm run test:grep -- "TC-ID"` for surgical single-test runs |
+| ALL-021 | Run `Stop-Process -Name node` or any blanket node process kill while MCP browser session may be active | Kills the MCP server (@playwright/mcp runs on Node) -- destroys user's inspection Chrome, auth session, DOM state. Use targeted process filtering (GEN-037) or skip pre-kill. Applies to Generator, Healer, and any agent running terminal commands |
+| ALL-022 | Use emoji/Unicode symbols in executable code string literals, console.log, Log.*, or return values (✅❌⚠️→✓🔄📋 etc.) | ASCII-only in all code output: [OK], [ERR], [WARN], [ok], [STOP], [~], [#], [?], [time], [skip], [info], ->. Windows CMD CP437 corrupts UTF-8 emoji to mojibake when stdout is piped to files. Comments (//, /* */, JSDoc) are exempt. |
+| ALL-023 | Edit code before completing §15 Phase A evidence collection | Gather ALL 14 evidence items, write evidence checklist, verify hypothesis in MCP browser, THEN edit code |
+| ALL-024 | Skip MCP browser replication when debugging SELECTOR/TIMING failures | Navigate to failing page URL, reproduce the test action sequence, observe DOM state via browser_snapshot and browser_evaluate BEFORE attempting fix |
+| ALL-025 | Write "root cause" in fix-diagnosis without citing evidence checklist rows | Every root cause statement must reference specific evidence rows (e.g. "Per A7 + A14: ..."). Uncited root cause = guessing |
+| ALL-026 | Complete a task after retries without logging any learning entries | Every retry = something was learned. Log it in agent-learnings.md before completing. Post-complete gates enforce this (§17) |
+| ALL-027 | Retry a failed action without first searching agent-learnings.md for matching category | Pre-retry lookup is MANDATORY (§9A). Search by category BEFORE retrying. Apply documented solution if match found |
+| ALL-028 | Log a vague learning entry without concrete evidence (e.g., "test failed" → "be more careful") | Every learning needs: specific trigger (error msg), root cause with evidence (file:line, DOM, API), actionable solution (§9D). Quality gate rejects vague entries |
+| ALL-029 | Start work without completing pre-flight competency checks (§18) | Run all PF-01..06 checks + your agent-specific checks before ANY task work. Log pre-flight result in activity log. If any check HALTs, fix environment first |
+| ALL-030 | Ignore own defect history when starting a new session | Read your entry in agent-performance.json at session start (R25 step 4). Note unresolved defects, learning debt, recurrence rate. These are your weak spots — plan around them |
+
+## Copilot
+| ID | NEVER DO | Correct |
+|----|----------|---------|
+| COP-001 | Bypass 3-agent pipeline | Create queue entry → stop |
+| COP-002 | Skip Planner | Every test goes through Planner first |
+| COP-003 | Mark automated prematurely | Only Generator marks after tests pass |
+| COP-004 | Write test spec files directly | Test specs = Generator's job. Copilot handles framework code, docs, config |
+| COP-005 | Missing spec headers | Every .spec.ts needs `// spec:` and `// seed:` |
+| COP-006 | Wrong queue stage | New items MUST start `pending_planning` |
+| COP-007 | Mark complete without test run | Run tests, verify PASS, then mark complete |
+| COP-008 | Navigate to out-of-scope areas during audit | Audit scope = pipeline scope; "Local Information" ≠ Legal tab |
+| COP-009 | Leave TypeScript errors (red lines) | Fix all TS errors before commit; run `npm run typecheck` |
+| COP-010 | Declare agent fix done without E2E verification | Code correct ≠ feature working; verify agent actually executes the action end-to-end |
+| COP-011 | Copy partial tool list when matching another agent | Compare full frontmatter side-by-side; missing `execute`/`agent` tools break MCP sessions |
+| COP-012 | Write rules that contradict each other | Test all rules together before committing; R16 vs REQ-001 conflict broke Requirements agent |
+| COP-013 | Add TC submodule code without updating ALL 3 sync points | New TC code → update `to-csv.ts` subMap AND `lint-test-cases.ts` KNOWN_SUB_CODES AND `to-csv.ts` TAB_MAP (used by generatePreconditions); run `npm run lint:testcases` to verify |
+
+## Requirements
+| ID | NEVER DO | Correct |
+|----|----------|---------|
+| REQ-001 | Document features without live UI exploration | Use browser_navigate to reach the app FIRST, explore, then update REQUIREMENTS.md |
+| REQ-002 | Claim field exists without browser_snapshot proof | Use browser_snapshot to verify element exists in DOM before documenting |
+| REQ-003 | Fabricate validation rules from assumptions | Trigger actual error messages on live UI, document what appears |
+| REQ-004 | Update REQUIREMENTS.md without MCP browser evidence | Log browser tool usage before any documentation changes |
+| REQ-005 | Skip screenshots for new feature sections | Use browser_take_screenshot for every new feature area discovered |
+
+## Planner
+| ID | NEVER DO | Correct |
+|----|----------|---------|
+| PLN-001 | Trust REQUIREMENTS.md blindly | Verify against live website, document discrepancies |
+| PLN-002 | Assume selectors | Use browser tools to discover actual selectors |
+| PLN-003 | Skip reading REQUIREMENTS.md | Read requirements BEFORE live exploration, cross-reference during |
+| PLN-004 | Assume field dependencies from UI alone | Check requirements for dual/cascading dependencies (AllowDPCD AND PromptForApproval) |
+| PLN-005 | Document only error paths | Capture both success and error paths for API validations |
+| PLN-006 | Assert default values without checking requirements | Verify conditional defaults (IsUnion → ETS 0.23/0.24) |
+| PLN-007 | Test only enabled state | Test required field validation when fields become active |
+| PLN-008 | Miss business logic for UI mechanics | Requirements define conditional rules, not just field toggling |
+| PLN-009 | Ignore permission states | Test canEditLoc=false (read-only) and canEditLoc=true (edit) paths |
+| PLN-010 | Skip country-based rule testing | Test CountryId branches (USA vs international) |
+| PLN-011 | Document static state without triggers | Find what ENABLES disabled fields, test the trigger |
+| PLN-012 | Create contradictory TCs in same suite | Cross-reference all TCs for consistency (e.g. "always disabled" vs "conditionally disabled") |
+| PLN-013 | Use absolute language ("always", "permanently") | Verify field is truly unconditional before using absolute terms |
+| PLN-014 | Omit test data for permission/role tests | Always specify test account, role, or permission flag for executability |
+| PLN-015 | Provide vague navigation ("if exists", "or") | Specify exact tab number, panel location, or flag as "TBD pending exploration" |
+| PLN-016 | Include TCs for different tabs in same pipeline | "Local Information" pipeline = Local Information tab only; Legal tab = separate pipeline |
+| PLN-017 | Update field count in header but miss individual TCs | Search ALL TCs after count change (TC-001, TC-033) |
+| PLN-018 | Use code names in Steps (rdoBillingWay, chkApplyLDW) | Use UI labels: **Billing Way** radio, **Apply LDW** checkbox |
+| PLN-019 | Show error keys in Steps (ERR_REQUIRED) | Show actual message text. Move keys to Notes. |
+| PLN-020 | Put API/developer instructions in Steps | Move to Preconditions or Notes. Steps = tester actions only. |
+| PLN-021 | Use arrows inside values (0.33→0.50) | Use "from X to Y" format |
+| PLN-022 | Inconsistent format (bullets vs inline ✓) | All TCs use: `N. Action ✓ Expected` |
+| PLN-023 | Submit without running lint | Run `npm run lint:testcases` before marking stage complete |
+| PLN-024 | Create TCs for fields that don't exist | Verify field exists in live DOM before writing TC (e.g., "Proposal Pilot" never existed) |
+| PLN-025 | Document default values from code without live verify | Default values (ETS 0.23/0.24) must be verified live, not assumed from code reading |
+| PLN-026 | Confuse similar field names | "Enable Proposal" ≠ "Proposal Pilot"; verify exact field label in DOM |
+| PLN-027 | Create TCs with non-conforming ID format | Read existing test case files FIRST to match established ID pattern (TC-LOC-LI-001 with submodule code) |
+| PLN-028 | Skip checking parser compatibility | Verify test case format matches parser regex before creating files |
+| PLN-029 | Complete test planning without selector validation | Verify all TC steps have corresponding selectors in src/selectors/index.ts before marking stage complete |
+| PLN-030 | Mismatched test plan vs test case wording | Ensure test case Steps summarize test plan Steps accurately — no invented shortcuts |
+| PLN-031 | Implicit preconditions when field state matters | Explicitly state field's initial state (selected/unselected) before testing interactions |
+| PLN-032 | Data anomalies without explanatory notes | Add Notes explaining unusual data states (empty dropdowns, missing options, zero values) |
+| PLN-033 | Call `browser_open` or create new browser sessions | Use existing session; `browser_navigate` auto-opens if needed; use `planner_setup_page` for initial page bootstrap only (R16) |
+| PLN-034 | Skip save-reload-verify cycles | EVERY editable field must be tested: edit → save → reload → verify persisted |
+| PLN-035 | Omit cross-field date validation tests | Test date relationships (Start < End, no past dates, overlapping ranges) |
+| PLN-036 | Create TCs without triggering live validation errors | Trigger actual error on live UI, capture message text before writing TC |
+| PLN-037 | Mark planning complete without field count reconciliation | Count fields in DOM, count TCs, document any gaps with justification |
+| PLN-038 | Assume dropdown options without capturing snapshot | Use browser_snapshot to get actual dropdown options, document in TC Data |
+| PLN-039 | Skip boundary testing for numeric/date fields | Test min/max limits, edge values, invalid inputs for every bounded field |
+| PLN-040 | Omit error recovery flows | Test: trigger error → fix the cause → save succeeds (every validation) |
+| PLN-041 | Write TCs without opening live browser | Navigate to live URL, take browser_snapshot, confirm every default value before writing any TC |
+| PLN-042 | Use vague "record for baseline" assertions | Write concrete expected values (e.g. `Pay To Address="Encore"`) — live-verify then hardcode |
+| PLN-043 | Add TCs without adding test plan scenarios | Every new TC in test-cases file MUST have a matching Scenario block in the test-plan file |
+| PLN-044 | Assume CSV is current without grep verification | After adding new TCs, grep CSV for new TC IDs; re-export if missing |
+| PLN-054 | Edit TCs from prior work without visiting live site first | ALWAYS open MCP browser and take fresh snapshot BEFORE any TC editing |
+| PLN-055 | Use ambiguous numeric representations (0.04 vs 4%) | Specify unit/format explicitly: '0.04 (literal spinbutton value)' or '4% (display percentage)' |
+| PLN-056 | Skip cleanup steps for data-mutating tests | Add Postconditions or Cleanup section for TCs that modify DB state |
+| PLN-057 | Leave stale status labels after re-verification | Update ALL labels/flags when verification status changes (DISCREPANCY → CONFIRMED) |
+| PLN-058 | Create duplicate selectors with identical locators | Each selector must be unique; scope tab-specific selectors to their container |
+| PLN-059 | Omit FIELD INVENTORY section in TC files | Every TC file must start with structured FIELD INVENTORY + dependency summary |
+| PLN-060 | Omit Updated date from TC file headers | Every TC file header must include `Updated: YYYY-MM-DD`; update on every edit |
+| PLN-061 | Trust regex/parser code without edge-case testing | Test on `---` separators, `**Notes**`/`**Cleanup**` markers, double-digit steps, empty fields, format variants (with/without `(Human)` suffix) |
+| PLN-062 | Edit parser code (to-csv.ts) without re-exporting ALL CSVs | After any to-csv.ts change, re-export ALL existing CSVs; grep output for known TC IDs to verify correctness |
+| PLN-063 | Self-certify uiTestingChecklist fields true without supporting TCs | Each field (errorVerification, boundaryTesting, etc.) requires ≥1 TC exercising that category; mark false if no TC exists |
+| PLN-064 | Write 0 TCs for env-blocked functionality without flagging | Add TC with `Status: Blocked (training-env)` and note what can't be verified; 0 TCs ≠ complete coverage |
+| PLN-065 | Repeat checklist self-certification mistake after prior audit block | After audit block for self-certification (PLN-063), verify ALL subsequent queue items have accurate checklist values — do not repeat the same pattern |
+| PLN-066 | Fabricate or guess URLs — use only BASE_URL from config/environments/.env.* | Read .env file for BASE_URL, navigate to base, then click through UI to reach target page |
+| PLN-067 | Record selector as `button:has-text()` based on accessibility snapshot showing "button" | Accessibility tree shows `role` attribute, not HTML tag. Use `browser_evaluate` to check actual tag: `<a role="button">` ≠ `<button>`. Record tag + role + classes accurately |
+| PLN-068 | Document spinbutton validation range from UI label or tooltip without verifying actual accepted input format | Type boundary values directly in live DOM to confirm stored format vs display format. For percentage spinbuttons: the field may accept decimal input (0.01–1.00) while displaying as percentage (1%–100%). Document both: `accepted input: 0.01–1.00 (decimal); display: ×100 → "4.00%"`. Not doing this causes Generator to use wrong boundary data. |
+| PLN-069 | Skip performing the full save flow during MCP exploration | After editing any field, click Save in MCP — observe every dialog/toast that appears and document: (1) confirmation dialog selector + exact heading text, (2) success toast selector + exact text. Generator cannot discover these without running tests. Undocumented dialogs = clickSave() never commits to DB. |
+| PLN-070 | Leave TCs as Status: Manual when their target field is disabled for the designated test office | Flag at TC creation time with `Status: Blocked (Cat-A: {field} disabled for office {YYYY})`. Generator must not discover office limitations during test runs — Planner must identify and label env-restricted TCs before exit. |
+| PLN-071 | Create TCs without `Automatable: Yes|No|Blocked:[reason]` field | Every TC must include `Automatable:` field before marking stage complete. Lint rule AUT-001 enforces this — 0 AUT-001 warnings = required gate. 235 warnings across all non-LI modules = systemic miss. |
+| PLN-072 | Create TCs for checkboxes without covering all 3 scenarios: enabled+clickable, disabled+non-clickable, title/label verification | Every checkbox in Field Inventory must map to at least 3 TC assertions: (1) verify visible label text matches expected string, (2) toggle on/off when enabled, (3) assert disabled+non-clickable when applicable. If always-enabled: note `disabled: N/A by design`. If always-disabled: note `toggle: N/A by design`. Batch TCs (data-array loops) are acceptable and preferred for label verification |
+| PLN-073 | Create TCs for text inputs/spinbuttons without covering 4-5 scenarios: alphanumeric, special chars, inbound boundary, outbound boundary | Every text/spinbutton input must map to at least 4 scenarios: (1) valid alphanumeric input persists after save+reload, (2) special characters `@#$%&*()` — verify accepted or sanitized, (3) inbound boundary (maxLength, min/max range valid edges), (4) outbound boundary (overlong truncated, out-of-range rejected). Spinbuttons add (5) non-numeric input rejection. If field disabled for test office: create TC with `Status: Blocked (Cat-A)` — reviewer expects TC to exist even if not automatable |
+
+## Generator
+| ID | NEVER DO | Correct |
+|----|----------|---------|
+| GEN-001 | Let others write specs | Generator = sole creator of .spec.ts |
+| GEN-002 | Hardcode selectors | All selectors via `src/selectors/index.ts` |
+| GEN-003 | Skip test execution | Run tests before marking complete |
+| GEN-004 | Assume auth approach | Verify actual login mechanism on live page |
+| GEN-005 | Open/close MCP browser | Use existing session, browser_snapshot only |
+| GEN-006 | Write bloated specs with repeated inline patterns | Each test should be concise (guideline: ~2-10 lines). Extract repetition into `.data.ts` + batch page methods. No hardcoded line cap -- length is unlimited if framework patterns are followed |
+| GEN-007 | Access `page` via bracket notation in specs (`pageObj['page']`) | All page interactions MUST go through page object methods — never access raw page in spec |
+| GEN-008 | Use `waitForTimeout` for synchronization | Use `waitForSelector`, `waitForLoadState`, or Playwright auto-wait — hardcoded waits are flaky |
+| GEN-009 | Create new auth infrastructure (init-session.ts, MCP extraction) | Auth is SOLVED: vault + CredentialLoader + authenticatedSession fixture. Use it. |
+| GEN-010 | Put Log.info boilerplate in every test (start + end) | Test names are self-documenting via Playwright reporter. Remove redundant logging noise |
+| GEN-011 | Inline selectors in spec or page object (`input[name="oracleProduct"]`) | Add missing selectors to `src/selectors/index.ts` first, then reference by key |
+| GEN-012 | Write tests that mutate shared test data without isolation | Use test.describe.serial or skip destructive tests — never corrupt shared office data in parallel runs |
+| GEN-013 | Duplicate assertions across tests (same checkbox checked in 3+ tests) | One TC = one assertion target. Deduplicate or batch logically |
+| GEN-014 | Import `Log` in spec files | Specs never import `Log`. Playwright reporter handles output. Logging belongs in page objects only |
+| GEN-015 | Write N separate tests for N identical-pattern checkboxes/fields | Use data array in `.data.ts` + `for...of` loop or batch page method. One test covers all items |
+| GEN-016 | Repeat setup/teardown boilerplate inline across tests | Create composite page object methods (e.g. `testBoundaryValue()`) that encapsulate the full cycle |
+| GEN-017 | Import framework internals in specs (`CredentialLoader`, page classes) | Specs import ONLY from `../../setup/fixtures`. All infrastructure accessed via fixtures |
+| GEN-018 | Use `test.fixme()` or leave placeholder tests in spec files | Either write a complete executable test or omit it entirely. If a TC cannot be fully implemented with available selectors, page methods, and planner data — omit it silently and log `action: missing-coverage` in activity log. No `test.fixme()`, no placeholder describes, no commented-out tests, no stubs requiring human follow-up |
+| GEN-019 | Create bloated spec without data-driven grouping | Extract repeated patterns into `.data.ts` + batch methods. 300-line soft limit (warning only). NEVER split one concern into multiple files to dodge the limit |
+| GEN-026 | Split single-concern spec into multiple files to stay under line limit | Keep ALL TCs for one submodule in ONE file. Restructure with data-driven patterns instead of splitting. One file = one concern = one serial describe. Splitting creates duplicate navigation, fixture confusion, and maintenance burden |
+| GEN-020 | Mark queue stage complete without running `npm run generator:post-complete` first | Always run post-complete gate before updating queue stage — it validates selfAuditPassed, spec headers, line count, no test.fixme() (GEN-018), and learnings. If it exits non-zero, do NOT mark complete. |
+| GEN-021 | Edit framework scripts (scripts/*.ts, src/utils/*.ts) directly | Log tooling issues with action: "escalate-tooling" in activity log and proceed. Framework scripts are Copilot/human scope. |
+| GEN-022 | Log activity entries without time-of-day | Include HH:MM in the When column for all entries, e.g. 2026-02-23T14:30 |
+| GEN-023 | Run tests on code that doesn't compile | Always run `npm run typecheck` before `npx playwright test`. If typecheck fails, fix compilation errors first — do not waste a test iteration on code that won't compile. |
+| GEN-024 | Increase timeout values without diagnosing root cause first | Diagnose WHY the element isn't visible: use MCP browser_snapshot to confirm selector in live DOM, check server load timing, read failure-summary.json. If error says "browser has been closed" or "context closed" — this is auth/infrastructure, not a timeout. Escalate immediately. Only adjust timeouts AFTER evidence supports it |
+| GEN-025 | Create `test.describe.serial` blocks containing only JavaScript comments (no executable tests) | Every describe block must contain ≥1 executable test. If all TCs in a group cannot be automated, omit the entire describe block. Do NOT leave an empty describe with a beforeEach that fires against nothing |
+| GEN-027 | Run full spec or untargeted tests when debugging a single TC | During fix loop (Phase 4), use `npm run test:grep -- "TC-ID"` for single-test runs or `npm run test:failed` for retries. Full spec run reserved for initial baseline and final verification only |
+| GEN-028 | Patch framework files to fix test failures | Never modify `base-page.ts`, `credential-loader.ts`, or any file in `src/common/`, `src/utils/`, or `scripts/` to fix a test failure. These are framework files owned by Copilot/human. If a test failure points to framework behavior, log `action: escalate-tooling` in activity log with the exact failure and stop. Framework fixes are out of generator scope |
+| GEN-030 | Split single-page test flow into multiple test.describe blocks with independent beforeEach navigation | One `test.describe.serial` per spec. Navigate once in the first test. Subsequent tests reuse page state. Multiple describes = multiple navigations = slow + defeats accumulate-then-save intent. Only split describes if tests target genuinely different pages/URLs |
+| GEN-031 | Run diagnostic test executions headless | When diagnosing failures, always run with `--headed` so humans can observe live browser behavior and provide real-time feedback. Headless failures are opaque; headed failures are observable. Use: `npx playwright test <spec> --project=chromium --headed` |
+| GEN-032 | Attempt to fix auth/infrastructure failures | If `failureCategory` is `AUTH` or `INFRASTRUCTURE`, escalate immediately — not code issues. Log `action: escalate-tooling` |
+| GEN-034 | Skip web search for unfamiliar error codes | Use web tool to research 4xx/5xx codes, OAuth errors, unfamiliar exceptions before fixing |
+| GEN-035 | Attempt to fix TCs listed in fixme-registry or skippedTcIds | Auto-skip pre-classified blocked TCs, log missing-coverage, move on |
+| GEN-036 | Ask human for help in any phase | Search → learnings → web → skip. Never stop for human input |
+| GEN-037 | Launch a new `npx playwright test` run without killing stale Playwright processes first | Before test invocation, kill ONLY stale Playwright runner processes — NEVER all node processes. Use: `Get-CimInstance Win32_Process -Filter "Name='node.exe'" \| Where-Object { $_.CommandLine -match 'playwright.*test' } \| ForEach-Object { Stop-Process -Id $_.ProcessId -Force -EA SilentlyContinue }`. NEVER run `Stop-Process -Name node -Force` — this kills the MCP server and destroys the user's inspection browser (ALL-021). Only 1 Playwright run at a time. Never use `isBackground: true` for spec runs |
+| GEN-038 | Kill user browser processes (`chrome`, `msedge`) or MCP server process when cleaning up before test runs | `--project=chromium` uses bundled Chromium; `--project=chrome` (with `channel: 'chrome'`) uses system Chrome — but NEITHER shares a process with the MCP browser. MCP runs on a separate Node process (@playwright/mcp). NEVER include `chrome`, `msedge`, `chromium` in Stop-Process. NEVER use blanket `Stop-Process -Name node` (ALL-021). Use targeted cleanup per GEN-037 |
+| GEN-039 | Ship boundary data arrays without verifying each entry matches live app behavior | Before committing data file: manually test EACH boundary value via MCP browser (type → blur → check error/acceptance). TC says "valid" but app rejects, or TC says "invalid" but app accepts = test will fail forever |
+| GEN-040 | Assume input format = display format for percentage/currency spinbuttons | Verify: (1) what raw value the input accepts (e.g. `0.04` decimal), (2) what the display shows after blur (e.g. `4.00%`), (3) what `inputValue()` returns (e.g. `4.00%`). Build comparison logic AFTER confirming all 3. Format mismatches are the #1 cause of persistent LDW test failures |
+| GEN-041 | Create page objects exceeding 300 lines without extracting helpers | Page objects > 300 lines indicate insufficient abstraction. Extract reusable patterns (boundary testing, checkbox batch verification) into base class mixins or shared helpers. LocationFormHelpers base class established as the extraction target |
+| GEN-042 | Mark queue item `completed` without reviewing all remaining Manual TCs | Before marking complete, iterate every Manual TC: classify as automatable (implement it), Cat-A/Cat-B (FIXME), Covered-by-TC-XXX (update status), or NOT-AUTOMATABLE (document). Unreviewed Manual TCs = false coverage gaps that surface as client complaints |
+| GEN-043 | Use `el.fill()` on Angular textboxes without triggering change events | `page.fill()` / `el.fill()` does NOT fire Angular `blur` or `change` events — the form model stays at the prior value, so Save commits the wrong value to the API. Always call `await el.press('Tab')` after `el.fill()` on any Angular-bound text input to force model commit before Save |
+| GEN-044 | Implement checkbox tests without all 3 scenario types (enable+click, disable+non-click, label/title verification) | Before marking spec complete, verify: (1) at least one batch label/title assertion (column headers or visible label text via data array loop), (2) toggle tests for every enabled checkbox, (3) `disabled===true` assertions for every conditionally/always-disabled checkbox. If Planner TCs miss a scenario, log `action: missing-coverage` and implement it anyway — Generator owns spec completeness |
+| GEN-045 | Split a single-concern spec into multiple files to meet a line/size limit | One spec file per submodule/concern. Never create a second spec just because the first is long. Use data-driven patterns (`.data.ts`) and batch page methods to keep tests concise. Splitting duplicates navigation, breaks serial flow, and creates maintenance burden. If a spec grows, refactor patterns -- don't fragment files |
+| GEN-046 | Write "RCA CONFIRMED" or "MCP proven" before the MCP test sequence is complete | Never declare an RCA conclusion mid-sequence. Premature conclusion + navigation-without-confirm = corrupted test + wasted re-test cycle. State hypotheses as hypotheses. Only write "CONFIRMED" after full flow (type → save click → dialog confirm → navigate away → reload → read value) |
+| GEN-047 | Apply code fix without MCP replication of the failure (§15 Phase A, A13-A14) | Navigate to failing page in MCP browser, reproduce the action, evaluate the selector in live DOM, write evidence checklist, THEN fix |
+
+## Healer
+| ID | NEVER DO | Correct |
+|----|----------|---------|
+| HLR-001 | Fake signoff | Run test_run tool, show actual output |
+| HLR-002 | Ignore skipped tests | Investigate WHY tests skip |
+| HLR-003 | Blame environment first | Verify code correctness first |
+| HLR-004 | Log "completed" when not | Activity log MUST match queue reality |
+| HLR-005 | Open/close MCP browser | Use existing session, browser_snapshot only |
+| HLR-006 | Start live browser debugging without reading historical diagnostics first | Read `failure-summary.json` enriched data (network, console, auth chain) BEFORE launching MCP tools |
+| HLR-007 | Diagnose with only 4 root cause categories | Use all 8 categories: selector, timing, assertion, application, auth, network, infrastructure, data. See §15 |
+| HLR-008 | Add `test.fixme()` to spec files | Remove unfixable test entirely, log missing-coverage with reason |
+| HLR-009 | Escalate to human | Remove test, log detailed reason, move to next item |
+| HLR-010 | Accept user's TC label as the failing test ID without reading run output | Run the spec first, read terminal output to identify exact failing TC name — user description and test label often differ (e.g. "0.01" vs "-0.01") |
+| HLR-011 | Declare a DB-state-sensitive test fixed after 1 passing run | If a valid boundary test follows an invalid one in `describe.serial`, it reads DB state left by the prior test. Confirm the restore path works, then run twice before marking stable |
+| HLR-012 | Edit ANY code file before completing Evidence Checklist (§15 Phase A) | Complete all evidence-gathering steps, document checklist, verify hypothesis in MCP, THEN edit |
+| HLR-013 | Complete a healing session with fix retries but zero learning entries logged | Every fix attempt teaches something. Log it per §9B before moving to next item. Healing without learning = wasted session |
+
+## Copilot Planning Mode
+| ID | NEVER DO | Correct |
+|----|----------|---------|
+| COP-014 | Answer without investigation | Run subagent research first |
+| COP-015 | Miss timeout analysis | Check timeout configs, load times, waits |
+| COP-016 | Assume without reading | Read source → confirm bug → then claim |
+| COP-017 | Lazy multi-turn answers | First response = comprehensive research |
+| COP-018 | Skip mistake logs | Read agent-mistakes.md before starting |
+| COP-019 | Fix symptoms only | Verify full root cause resolution |
+| COP-020 | Declare export done without verifying | Read output file, verify encoding, format |
+| COP-021 | Trust regex without edge case testing | Test on double-digits, nested patterns |
+| COP-022 | Declare selector "not found" without checking SELECTOR_CATALOG.md | Always read catalog before concluding a selector doesn't exist |
+
+## Audit
+| ID | NEVER DO | Correct |
+|----|----------|---------|
+| AUD-001 | Give near-perfect scores without deep review | Assume errors exist per R15, verify every claim |
+| AUD-002 | Approve stage transition with missing selectors | Check selector file for all TC-referenced selectors first |
+| AUD-003 | Skip field count reconciliation | Verify total counts match across test-cases, test-plan, audit |
+| AUD-004 | Label unverified data as "fabricated" | Use "unverified" — fabrication implies intent |
+| AUD-005 | Miss DISCOVER_ placeholders | Search for unfilled placeholders before approval |
+| AUD-006 | Audit only structure, not content | Read test steps critically — catch logic conflicts between TCs |
+| AUD-007 | Self-serving criticism of prior audits | Focus on actionable current issues, not blame shifting |
+| AUD-008 | Miss validation timing conflicts | Cross-check TCs that mention "on save" vs "on load" |
+| AUD-009 | Miss navigation logic errors | Verify TC steps stay on the tab/page being tested |
+| AUD-010 | Miss uncertain language in TCs | Flag "(if not reset)", "may be", "TBD" as unverified assumptions |
+| AUD-011 | Approve out-of-scope TCs in pipeline | Verify all TCs test the same tab/feature; flag scope creep (Legal TCs in Local Information) |
+| AUD-012 | Log stale audit blocks without re-verification | Re-check selectors file before claiming "missing selectors" |
+| AUD-013 | Claim DISCOVER_ placeholders exist without grep | Search codebase for literal string before flagging |
+| AUD-014 | Skip rule sync verification | Verify agent NEVER DO sections contain all registry rules before auditing agent |
+| AUD-015 | Miss test plan vs test case mismatches | Compare test plan Steps with test case Steps — catch summarization errors |
+| AUD-016 | Terminate after report without completing Mode 1 checklist step 7 | Updating agent-mistakes.md is mandatory, not optional — do not end turn until registry is updated |
+| AUD-017 | Skip updating agent-mistakes.md after finding new patterns | MANDATORY: Every audit that finds genuinely new patterns MUST add them to registry before responding |
+| AUD-018 | Deliver audit report without remediation prompts | Every finding must map to a specific agent + copy-pastable fix prompt for the user |
+| AUD-019 | Audit only pipeline when asked to audit "everything" | Use Mode 4 (Full Audit) — pipeline + all agents + framework source + scripts + configs + docs |
+| AUD-020 | Accept 0 findings without justification | Zero findings require explicit justification per R15 — explain WHY nothing was found |
+| AUD-021 | Revert queue stage without documenting what agent must fix | Stage revert must include: which agent, what prompt to give them, expected fix scope |
+| AUD-022 | Skip rule quality validation during framework audit | ALWAYS check agent-mistakes.md for contradictions, duplicates, ID collisions, and low-quality rules written by other agents |
+| AUD-023 | Self-audit own methodology with 0 findings while creating 3+ rules for others | Statistical impossibility (ALL-009). Audit agent must self-audit its OWN output — finding 0 issues with own work while identifying multiple issues in others' work requires explicit justification |
+| AUD-024 | Approve a spec without checking checkbox 3-scenario and textbox 4-5 scenario coverage | During Mode 2/4 audit, build coverage matrix: for each checkbox — is title verified, is enabled+click tested, is disabled tested? For each textbox — is alphanumeric tested, are special chars tested, are inbound/outbound boundaries tested? Flag gaps as HIGH. Mandatory checklist item |
+| AUD-025 | Audit without anchoring to last logged audit entry | When invoked, read activity log FIRST, find the last `audit` action timestamp, and scope all checks to work done AFTER that timestamp. Do not re-audit already-covered periods. State the temporal scope boundary explicitly at the start of every report |
+| AUD-026 | Approve an agent session that had retries but logged zero learnings | Check agent-learnings.md for entries matching the agent + date. Zero learnings on retry sessions = critical finding (§17). Flag it, don't ignore it |
+| AUD-027 | Approve trust level promotion without verifying maturity indicators | Check maturityScore, learningYield, defectRecurrenceRate, selfAuditAccuracy — all §7 thresholds must be met before any promotion |

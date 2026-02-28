@@ -1,0 +1,79 @@
+{
+  "criticalReminders": {
+    "Requirements": [
+      "Use browser_navigate to reach target page — it auto-opens a browser if none exists",
+      "User explicit requests OVERRIDE all agent rules — always obey the user",
+      "Use browser_snapshot to verify element exists before adding to REQUIREMENTS.md",
+      "Trigger actual validation errors on live UI - never fabricate rules",
+      "Do NOT update REQUIREMENTS.md without browser evidence"
+    ],
+    "Planner": [
+      "Complete ALL uiTestingChecklist items before stage transition",
+      "Count fields in DOM, count TCs, reconcile any gaps with justification",
+      "Run npm run lint:testcases && npm run planner:post-complete",
+      "Use UI labels (**Field Name**), not code names (chkField)",
+      "NEVER edit TCs without fresh browser_snapshot from live site (PLN-001)",
+      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete"
+    ],
+    "Generator": [
+      "All selectors must come from src/selectors/index.ts",
+      "Run tests before marking complete - show actual output",
+      "Use existing MCP browser session - never open/close",
+      "Every .spec.ts needs // spec: and // seed: headers",
+      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete"
+    ],
+    "Healer": [
+      "Run test_run tool, show actual output - no fake signoffs",
+      "Investigate WHY tests skip, don't ignore them",
+      "Activity log must match queue reality",
+      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete"
+    ],
+    "Audit": [
+      "Assume errors exist - verify every claim",
+      "Check selector file for all TC-referenced selectors",
+      "Search for DISCOVER_ placeholders before approval",
+      "Compare test plan Steps with test case Steps",
+      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete"
+    ]
+  },
+  "selfAuditQuestions": {
+    "Requirements": [
+      "VERIFY: For every field I documented — did I SEE it in a browser_snapshot? Which snapshot proves it?",
+      "COUNT: Fields in my REQUIREMENTS section vs fields visible on the live page. Do they match exactly?",
+      "SCAN: Search my additions for: TBD, TODO, DISCOVER_, assumption, placeholder. Resolve each hit or remove.",
+      "SCOPE: Am I documenting fields from a different tab/submodule? Check scope boundaries.",
+      "EVIDENCE: Did I trigger actual validation errors on live UI, or did I guess the rules from field names?"
+    ],
+    "Planner": [
+      "COUNT: Fields visible in my latest browser_snapshot = ___. TCs in my file = ___. Do they match? If not, justify each gap.",
+      "SCAN: Search my TC file for: TBD, may be, if exists, or, to be confirmed, placeholder. Every hit must be resolved or removed.",
+      "CERTIFY: For each uiTestingChecklist boolean I marked true — name the specific TC ID that exercises it. If none exists, set false.",
+      "DIFF: Pick 3 random TC Steps. Open my Test Plan. Does the TC accurately summarize the plan, or did I introduce shortcuts/errors?",
+      "SELECTORS: For each TC that references a selector — does that exact selector key exist in src/selectors/index.ts?",
+      "SCOPE: Am I including any fields or tabs that belong to a different submodule? Check feature boundaries.",
+      "LIVE: Did I verify field behavior on the LIVE site via browser_snapshot, or did I just read REQUIREMENTS.md and assume?"
+    ],
+    "Generator": [
+      "GREP: Search my spec file for: page., ['page'], Log., hardcoded CSS selectors (# or . literals). Every hit is a violation — fix it.",
+      "RAN: Did I actually execute npx playwright test <my-spec> and see a PASS line in terminal? Paste the evidence.",
+      "PATTERN: Count tests that follow identical patterns (e.g., check/uncheck N checkboxes). If 3+, refactor to for...of with data array.",
+      "IMPORTS: Does my spec import ONLY from ../../setup/fixtures? No custom fixture files, no init-session, no direct @playwright/test.",
+      "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
+      "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
+    ],
+    "Healer": [
+      "ROOT CAUSE: Does my fix address the ROOT CAUSE, or just the symptom? What evidence proves root cause?",
+      "RAN: Did I run the test after my fix and see actual PASS output? Paste the terminal evidence.",
+      "CLEANUP: Are there any test.fixme() or .skip() markers I should remove now that the fix works?",
+      "ISOLATION: Could my fix break other tests? Check for shared state, selectors used elsewhere, data mutations.",
+      "LOG: Does my activity log entry accurately describe what I changed and why?"
+    ],
+    "Audit": [
+      "STALE: Am I re-checking my own prior block claims, or blindly carrying them forward? Re-verify each.",
+      "GREP: Did I search for DISCOVER_ placeholders before declaring pipeline clean?",
+      "EVIDENCE: Does every finding cite file:line evidence, or am I making claims from memory?",
+      "RECONCILE: TC count in test plan vs TC count in file vs queue notes — do all three match?",
+      "OVERCRITICISM: Am I fabricating issues to fill a quota? L3 check: would a senior QA agree these are real?"
+    ]
+  }
+}

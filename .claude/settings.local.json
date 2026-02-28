@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:context:*)",
+      "Bash(find:*)",
+      "Bash(findstr:*)",
+      "Bash(node -e:*)",
+      "Bash(npx playwright:*)",
+      "Bash(grep:*)",
+      "Bash(npx @playwright/mcp:*)",
+      "Bash(node --no-experimental-strip-types -e \"var r = require\\(''./reports/test-results.json''\\); var specs = \\(r.suites || []\\).flatMap\\(function\\(s\\) { return \\(s.suites || []\\).flatMap\\(function\\(ss\\) { return ss.specs || []; }\\); }\\); var failed = specs.filter\\(function\\(s\\) { return \\(s.tests || []\\).some\\(function\\(t\\) { return t.status != ''passed'' && t.status != ''skipped''; }\\); }\\); console.log\\(''Failed:'', failed.length\\); failed.forEach\\(function\\(s\\) { \\(s.tests || []\\).forEach\\(function\\(t\\) { if \\(t.status != ''passed'' && t.status != ''skipped''\\) { var err = \\(\\(t.results || []\\)[0] || {}\\).error; console.log\\(''  TITLE:'', s.title, ''| STATUS:'', t.status, ''| ERROR:'', \\(\\(err && err.message\\) || ''none''\\).substring\\(0, 300\\)\\); } }\\); }\\); console.log\\(''Total specs:'', specs.length\\);\")",
+      "Bash(node --no-experimental-strip-types scripts/_parse-results.js)",
+      "Bash(node --no-experimental-strip-types -e \"var r = require\\(''./reports/test-results.json''\\); console.log\\(''Config project:'', r.config && r.config.projects && r.config.projects.map\\(function\\(p\\){return p.name}\\)\\); var suites = r.suites || []; suites.forEach\\(function\\(s\\){console.log\\(''Suite:'', s.title, ''| file:'', s.file || ''n/a''\\); \\(s.suites||[]\\).forEach\\(function\\(ss\\){console.log\\(''  Sub:'', ss.title, ''| specs:'', \\(ss.specs||[]\\).length\\)}\\)}\\)\")",
+      "Bash(xargs cat)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_wait_for",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_playwright_playwright__browser_evaluate",
+      "Bash(ls -la /c/Users/rutvi/projects/encore_framework/scripts/*.ts)",
+      "Bash(test -f \"/c/Users/rutvi/projects/encore_framework/scripts/detect-duplication.ts\")",
+      "Bash(wc -l /c/Users/rutvi/projects/encore_framework/.github/agents/*.agent.md)"
+    ]
+  }
+}

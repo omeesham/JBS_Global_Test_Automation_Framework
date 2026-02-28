@@ -1,0 +1,272 @@
+/**
+ * Shared types for pipeline scripts.
+ * Single source of truth -- all scripts import from here.
+ */
+import * as path from 'path';
+
+// ── Queue Types ──
+
+export interface FixScope {
+  failedTestIds: string[];           // e.g. ["TC-LOC-LI-020", "TC-LOC-LI-030"]
+  failureSummaryPath: string | null; // path to failure-summary.json
+  description: string;               // what needs fixing
+  failureCategories?: Record<string, number>; // e.g. { "AUTH": 2, "SELECTOR": 1 }
+}
+
+export interface QueueItemArtifacts {
+  testCaseFile?: string | null;
+  testPlanFile?: string | null;
+  specFiles?: string[];
+  csvExport?: string | null;
+  [key: string]: unknown;
+}
+
+export interface QueueItemHistory {
+  agent?: string;
+  action?: string;
+  date?: string;
+  timestamp?: string;
+  notes?: string;
+}
+
+export interface UITestingChecklist {
+  fieldDiscovery?: boolean;
+  dependencyMapping?: boolean;
+  boundaryTesting?: boolean;
+  errorVerification?: boolean;
+  saveReloadCycles?: boolean;
+  crossFieldValidation?: boolean;
+  errorRecovery?: boolean;
+  dialogSymmetry?: boolean;
+  selectorReconciliation?: boolean;
+  explorationCleanup?: boolean;
+  completedAt?: string | null;
+}
+
+export interface QueueItem {
+  id: string;
+  feature?: string;
+  module: string;
+  stage: string;
+  priority?: string;
+  lockedBy?: string | null;
+  lockedAt?: string | null;
+  intent: string;
+  userNotes?: string;
+  artifacts?: QueueItemArtifacts;
+  history?: QueueItemHistory[];
+  injectedContext?: InjectedContext | Record<string, unknown>;
+  uiTestingChecklist?: UITestingChecklist;
+  selfAuditPassed?: boolean;  // Set by agent after passing self-audit checklist
+  generatorRunCount?: number; // R10 enforcement: tracks test run invocations per item
+  sessionStartedAt?: string;  // ISO timestamp set by generator-pre-run.ts; used by post-complete time metric
+  fixScope?: FixScope;        // Failure scope for Generator fix mode
+  automatableCount?: number;   // TCs with Automatable: Yes
+  totalTcCount?: number;       // All TCs including No/Blocked
+  skippedTcIds?: string[];     // TC IDs marked Automatable: No or Blocked
+  removedCoverage?: string[];  // TC IDs removed from spec by agent (missing-coverage) -- permanent
+  // Audit enforcement gates (Fix 8)
+  blocked?: boolean;           // True = item blocked from advancing until audit clears it
+  blockedBy?: string;          // Agent/reason that triggered the block (e.g. 'audit', 'healer')
+  blockedReason?: string;      // Human-readable explanation of why blocked
+  auditCleared?: boolean;      // True = audit agent has reviewed and cleared the block
+  // Outcome tracking (Fix 12)
+  outcomeTracking?: {
+    injectedRuleIds: string[];     // Rules that were active when agent worked this item
+    injectedAt: string;            // When context was injected
+    completedAt?: string;          // When item was marked completed
+    succeeded?: boolean;           // Whether the task passed all gates
+    defectsFound?: string[];       // Defect IDs found during audit
+    retryCount?: number;           // Number of retry cycles
+  };
+  [key: string]: unknown;
+}
+
+export interface CompletedLogEntry {
+  id: string;
+  feature: string;
+  module: string;
+  completedAt: string;
+  archivedAt: string;
+  historyLength: number;
+  artifacts?: Record<string, string>;
+  lastAction?: string;
+}
+
+/** Per-agent context shared across all queue items for the same agent (avoids 8x duplication) */
+export interface SharedAgentContext {
+  mistakeIds: string[];
+  mistakesRef: string;
+  learningsSummary: string[];
+  learningsRef: string;
+  recentDefects: string[];
+  criticalReminders: string[];
+  selfAuditQuestions: string[];
+  lastRunFailures?: InjectedContext['lastRunFailures'];
+}
+
+export interface QueueFile {
+  version: string;
+  lastUpdated: string;
+  config: Record<string, unknown>;
+  sharedAgentContext?: Record<string, SharedAgentContext>;
+  queue: QueueItem[];
+  completedLog?: CompletedLogEntry[];
+}
+
+// ── Mistake / Rule Types ──
+
+export interface MistakeRule {
+  id: string;
+  never: string;
+  correct: string;
+}
+
+export interface LearningEntry {
+  id: string;          // LRN-001
+  category: string;    // SELECTOR, TIMING, LOGIC, DATA, SCOPE, FORMAT, NAVIGATION, AUTH
+  trigger: string;     // What went wrong (symptom)
+  rootCause: string;   // Why it went wrong
+  solution: string;    // How to do it correctly
+  agent: string;       // Who learned it
+  date: string;        // When
+}
+
+export interface InjectedContext {
+  generatedAt: string;
+  targetAgent: string;
+  // Compact: ID-only references (agents have full rules via sync:mistakes + R25 Context Self-Load)
+  mistakeIds: string[];
+  mistakesRef: string;
+  // Compact: category + short trigger (full text in learningsRef)
+  learningsSummary: string[];
+  learningsRef: string;
+  // Ref-only: agents read REQUIREMENTS.md directly
+  moduleContextRef?: string;
+  recentDefects: string[];
+  criticalReminders: string[];
+  selfAuditQuestions: string[];
+  lastRunFailures?: {
+    timestamp: string;
+    failures: Array<{ testName: string; error: string; selector: string | null }>;
+    passed: number;
+    failed: number;
+    fixme: number;
+  };
+  // Ref-only: agents read files directly when needed
+  testPlanRef?: string;
+  existingSpecRef?: string;
+  // Normalized selector keys for the item
+  selectorKeys?: string[];
+  // Deprecated: kept for backward compat during transition, will be removed
+  mistakes?: MistakeRule[];
+  learnings?: LearningEntry[];
+  moduleContext?: string;
+  testPlanExcerpt?: string;
+  existingSpecExcerpt?: string;
+}
+
+// ── Shared Constants ──
+
+/** Maps agent-mistakes.md section headers -> agent file names. */
+export const AGENT_FILE_MAP: Record<string, string> = {
+  'Shared': 'ALL',
+  'Copilot': 'copilot',
+  'Requirements': 'playwright-requirements.agent.md',
+  'Planner': 'playwright-test-planner.agent.md',
+  'Generator': 'playwright-test-generator.agent.md',
+  'Healer': 'playwright-test-healer.agent.md',
+  'Audit': 'playwright-pipeline-audit.agent.md',
+  'Copilot Planning Mode': 'SKIP',
+};
+
+/** Regex to detect RULES/NEVER DO section boundaries in agent files. */
+export const NEVER_DO_PATTERN = /## (?:NEVER DO|RULES)[\s\S]*?(?=\n---|\n## (?!(?:NEVER DO|RULES))|```\n---)/;
+
+/** Common file paths used across pipeline scripts. */
+export const SHARED_PATHS = {
+  queue: path.join(__dirname, '../specs_planning/agent-queue.json'),
+  mistakes: path.join(__dirname, '../specs_planning/agent-mistakes.md'),
+  learnings: path.join(__dirname, '../specs_planning/agent-learnings.md'),
+  activityLog: path.join(__dirname, '../specs_planning/agent-activity-log.md'),
+  requirements: path.join(__dirname, '../docs/REQUIREMENTS.md'),
+  performance: path.join(__dirname, '../specs_planning/agent-performance.json'),
+  agentsDir: path.join(__dirname, '../.github/agents'),
+  exports: path.join(__dirname, '../export_test_cases/exports'),
+  testCases: path.join(__dirname, '../specs_planning/test-cases'),
+};
+
+// ── Shared Parsing Utilities ──
+
+/**
+ * Parse a 3-column mistake table row: `| ID | NEVER | CORRECT |`
+ * Returns null if line doesn't match.
+ */
+/**
+ * Escape-aware markdown table cell splitter.
+ * Replaces `\|` (escaped pipe inside cells) with a placeholder before splitting
+ * on `|`, then restores literal `|` in each cell value.
+ */
+function splitMdTableRow(line: string): string[] {
+  const PLACEHOLDER = '\x00PIPE\x00';
+  const safe = line.replace(/\\\|/g, PLACEHOLDER);
+  return safe.split('|').map(cell => cell.replaceAll(PLACEHOLDER, '|').trim());
+}
+
+export function parseMistakeRow(line: string): MistakeRule | null {
+  if (!line.trimStart().startsWith('|')) return null;
+  const cells = splitMdTableRow(line).filter(c => c !== '');
+  if (cells.length < 3) return null;
+  const id = cells[0]!;
+  if (!/^[A-Z]+-\d+[A-Z]?$/.test(id)) return null;
+  return { id, never: cells[1]!, correct: cells[2]! };
+}
+
+/**
+ * Parse a 2-column mistake table row: `| ID | NEVER |`
+ * Returns [id, text] or null.
+ */
+export function parseCompactMistakeRow(line: string): [string, string] | null {
+  if (!line.trimStart().startsWith('|')) return null;
+  const cells = splitMdTableRow(line).filter(c => c !== '');
+  if (cells.length < 2) return null;
+  const id = cells[0]!;
+  if (!/^[A-Z]+-\d+[A-Z]?$/.test(id)) return null;
+  return [id, cells[1]!];
+}
+
+/**
+ * Extract a `## SectionName` block from markdown content.
+ * Returns the full section text or empty string if not found.
+ */
+export function extractMarkdownSection(content: string, sectionName: string): string {
+  const pattern = new RegExp(`## ${sectionName}[\\s\\S]*?(?=\\n## |$)`);
+  const match = content.match(pattern);
+  return match ? match[0] : '';
+}
+
+/**
+ * Parse a learning table row: `| ID | Category | Trigger | Root Cause | Solution | Agent | Date |`
+ * Handles escaped pipes (`\|`) inside cell content (e.g. PowerShell pipeline commands).
+ */
+export function parseLearningRow(line: string): LearningEntry | null {
+  if (!line.trimStart().startsWith('|')) return null;
+  const cells = splitMdTableRow(line).filter(c => c !== '');
+  if (cells.length < 7) return null;
+  const id = cells[0]!;
+  if (!/^LRN-\d+$/.test(id)) return null;
+  // If there are extra cells (embedded unescaped pipes), rejoin middle columns into solution
+  // Expected: [id, category, trigger, rootCause, solution..., agent, date]
+  const agent = cells[cells.length - 2]!;
+  const date = cells[cells.length - 1]!;
+  const solution = cells.slice(4, cells.length - 2).join(' | ');
+  return {
+    id,
+    category: cells[1]!,
+    trigger: cells[2]!,
+    rootCause: cells[3]!,
+    solution,
+    agent,
+    date,
+  };
+}

@@ -1,26 +1,4 @@
-/**
- * FILE: api-testing/api-contracts/common.api.ts
- * PURPOSE: Shared TypeScript interfaces for API responses (response formats)
- * WHY NECESSARY: Type safety for API calls - ensures response structure is correct
- * USED BY: All api-helpers files, all api-tests files
- * 
- * HOW IT WORKS:
- * - Define "contracts" (expected shapes) for API responses
- * - TypeScript checks these at compile time (before tests run)
- * - If API returns different structure → TypeScript warns you
- * 
- * NON-TECHNICAL EXPLANATION:
- * Think of this as "blueprints" for API responses.
- * - Login API must return { success, token, user } → Blueprint here
- * - Contacts API must return { items, total, page } → Blueprint here
- * - Test code uses blueprints to know what fields are available
- * - If server changes response → Blueprint mismatch → Error caught early
- * 
- * WHEN TO UPDATE:
- * - When DevTools shows API changed response format
- * - When adding new API endpoints (new interfaces needed)
- * - When server adds/removes fields from responses
- */
+/** Shared TypeScript interfaces for API responses (response formats) */
 
 /**
  * Generic API response wrapper

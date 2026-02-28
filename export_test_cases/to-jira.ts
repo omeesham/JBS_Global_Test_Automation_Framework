@@ -1,26 +1,18 @@
 /**
- * FILE: export_test_cases/to-jira.ts
- * PURPOSE: Convert test case markdown to Jira import format
- * WHY NECESSARY: Jira-specific CSV format for test case import via Jira API
- * USED BY: Jira API integration, bulk test case uploads
- * 
- * HOW IT WORKS:
- * 1. Uses MarkdownParser to extract test cases
- * 2. Maps to Jira test case fields (Summary, Description, Steps, etc.)
- * 3. Outputs CSV compatible with Jira Xray/Zephyr import
- * 
- * JIRA FORMAT:
- * - Compatible with Xray Test Management plugin
- * - Can be imported via Jira REST API or CSV import
- * - Maps TestCase → Jira Test issue type
+ * Convert test case markdown to Jira import format.
+ * Supports both Jira Xray CSV import and Jira REST API JSON payload formats.
+ * Used for exporting test cases to Atlassian Jira with Xray plugin.
  */
-
 import { MarkdownParser } from './markdown-parser';
 import { TestCase, TestStep } from './types';
 
 export class JiraConverter {
   /**
-   * Convert test cases to Jira Xray CSV format
+   * Convert test cases to Jira Xray CSV format.
+   * Creates CSV with Jira-specific columns (Test Case Key, Test Summary, etc.).
+   * @param testCasesDir - Path to test case directory
+   * @param projectKey - Jira project key (e.g., "NAV4", "PROJ")
+   * @returns CSV string compatible with Jira Xray CSV import
    */
   static convert(testCasesDir: string, projectKey: string = 'PROJ'): string {
     const collection = MarkdownParser.parseDirectory(testCasesDir);
@@ -66,7 +58,10 @@ export class JiraConverter {
   }
 
   /**
-   * Convert and save to file
+   * Convert test cases to Jira Xray CSV and save to file.
+   * @param testCasesDir - Path to test case directory
+   * @param outputPath - Destination CSV file path
+   * @param projectKey - Jira project key (defaults to "PROJ")
    */
   static convertToFile(testCasesDir: string, outputPath: string, projectKey: string = 'PROJ'): void {
     const csv = this.convert(testCasesDir, projectKey);
@@ -74,13 +69,17 @@ export class JiraConverter {
     fs.writeFileSync(outputPath, csv, 'utf-8');
     
     const lineCount = csv.split('\n').length - 1;
-    console.log(`✅ Jira CSV export: ${outputPath}`);
+    console.log(`[OK] Jira CSV export: ${outputPath}`);
     console.log(`   Test cases: ${lineCount}`);
     console.log(`   Project key: ${projectKey}`);
   }
 
   /**
-   * Generate Jira API payload (JSON format)
+   * Generate Jira API payload (JSON format).
+   * Creates array of Jira REST API create-issue payloads for bulk import.
+   * @param testCasesDir - Path to test case directory
+   * @param projectKey - Jira project key
+   * @returns Array of Jira API payloads ready for POST /rest/api/2/issue/bulk
    */
   static convertToJiraApi(testCasesDir: string, projectKey: string = 'PROJ'): any[] {
     const collection = MarkdownParser.parseDirectory(testCasesDir);
@@ -102,7 +101,10 @@ export class JiraConverter {
   }
 
   /**
-   * Map priority to Jira values
+   * Map priority to Jira values.
+   * Converts framework priority to Jira priority names.
+   * @param priority - Framework priority (Critical/High/Medium/Low)
+   * @returns Jira priority (Highest/High/Medium/Low)
    */
   private static mapPriority(priority: string): string {
     const mapping: Record<string, string> = {
@@ -115,14 +117,18 @@ export class JiraConverter {
   }
 
   /**
-   * Format preconditions for Jira
+   * Format preconditions for Jira with numbered list.
+   * @param preconditions - Array of precondition strings
+   * @returns Newline-separated numbered list "1. ... 2. ..."
    */
   private static formatPreconditions(preconditions: string[]): string {
     return preconditions.map((p, i) => `${i + 1}. ${p}`).join('\n');
   }
 
   /**
-   * Format steps for Jira CSV (plain text)
+   * Format steps for Jira CSV (plain text).
+   * @param steps - Array of test steps
+   * @returns Newline-separated steps with expected results
    */
   private static formatStepsForJira(steps: TestStep[]): string {
     return steps.map(s => 
@@ -131,7 +137,9 @@ export class JiraConverter {
   }
 
   /**
-   * Format steps for Jira API (structured)
+   * Format steps for Jira API (structured).
+   * @param steps - Array of test steps
+   * @returns Array of step objects with index, action, expectedResult, data
    */
   private static formatStepsForJiraApi(steps: TestStep[]): any[] {
     return steps.map(s => ({
@@ -143,14 +151,19 @@ export class JiraConverter {
   }
 
   /**
-   * Format test data
+   * Format test data for Jira.
+   * @param data - Array of test data items
+   * @returns Newline-separated "field: value (source)" strings
    */
   private static formatTestData(data: any[]): string {
     return data.map(d => `${d.field}: ${d.value} (${d.source})`).join('\n');
   }
 
   /**
-   * Format full description for Jira
+   * Format full description for Jira.
+   * Combines description, preconditions, test data, expected results into single field.
+   * @param tc - Test case object
+   * @returns Formatted description with Jira markdown syntax
    */
   private static formatJiraDescription(tc: TestCase): string {
     let desc = tc.description + '\n\n';
@@ -171,7 +184,9 @@ export class JiraConverter {
   }
 
   /**
-   * Extract labels from test case
+   * Extract labels from test case.
+   * @param tc - Test case object
+   * @returns Comma-separated labels (type, priority, automated)
    */
   private static extractLabels(tc: TestCase): string {
     const labels: string[] = [tc.type, tc.priority];
@@ -180,19 +195,24 @@ export class JiraConverter {
   }
 
   /**
-   * Extract component from test case file path
+   * Extract component from test case file path.
+   * Parses automation file path to determine Jira component.
+   * @param tc - Test case object
+   * @returns Component name (module from file path) or "General"
    */
   private static extractComponent(tc: TestCase): string {
     if (tc.automationDetails?.file) {
       const parts = tc.automationDetails.file.split('/');
-      // Extract module from path: tests/specs/auth/login.spec.ts → auth
+      // Extract module from path: tests/specs/auth/login.spec.ts -> auth
       if (parts.length > 3 && parts[2]) return parts[2];
     }
     return 'General';
   }
 
   /**
-   * Escape CSV field
+   * Escape CSV field for Jira import.
+   * @param value - Field value to escape
+   * @returns Escaped value wrapped in quotes
    */
   private static escape(value: string): string {
     if (!value) return '""';

@@ -1,65 +1,55 @@
 /**
- * FILE: src/utils/app-constants.ts
- * PURPOSE: Application-wide constants and environment configuration
- * WHY NECESSARY: Single source of truth for framework constants and feature flags
- * USED BY: All framework files requiring constants (CSV filenames, expected values)
- *
- * HOW IT WORKS:
- * 1. Defines CSV filename constants for object repository files
- * 2. Provides search list and other application-specific constants
- * 3. Readonly static properties prevent accidental modification
- * 4. Accessed via AppConstants.PROPERTY_NAME pattern
+ * @agent-doc
+ * PURPOSE: Application-wide constants - timeout values, notification selectors, expected messages.
+ * OWNER: generator, healer
+ * IMPACT: medium - wrong timeouts = flaky tests
+ * DEPENDS-ON: none
+ * USED-BY: page objects, custom-matchers, test specs
+ * RULES: Add new constants here, never delete existing (may be used in tests). Use SCREAMING_SNAKE_CASE. Group related constants together.
+ */
+
+/**
+ * Application-wide constants for testing configuration and expected values.
+ * Includes timing constants, notification selectors, and feature-specific settings.
+ * Used by page objects, custom matchers, and test specs to avoid hardcoded values.
  */
 
 export class AppConstants {
-  // CSV Filenames
-  static readonly LOGIN_ELEMENTS = 'Login_Elements.csv';
-  static readonly LANDING_ELEMENTS = 'Landing_Elements.csv';
-  static readonly WORKING_ELEMENTS = 'Working_Elements.csv';
-  static readonly HOME_ELEMENTS = 'Home_Elements.csv';
-  static readonly DOCUMENTS_ELEMENTS = 'Documents_Elements.csv'; // DEMO_TARGET: Documents module
-
-  // Search List Options (placeholder - define actual values)
-  static readonly SEARCH_LIST: string[] = [
-    'Option 1',
-    'Option 2',
-    'Option 3',
-  ];
-
-  static readonly SEARCH_LIST_AUDITOR: string[] = [
-    'Audit Option 1',
-    'Audit Option 2',
-  ];
-
-  static readonly SEARCH_LIST_PROSPECTIVE: string[] = [
-    'Prospective Option 1',
-    'Prospective Option 2',
-  ];
-
-  // Notification/Alert selectors (used by custom matchers)
+  /**
+   * Notification/alert selectors used by custom matchers to detect messages.
+   * Ordered by priority - framework will check selectors in this order.
+   */
   static readonly NOTIFICATION_SELECTORS: string[] = [
     '.alert',
     '.notification',
     '.Toastify__toast',
     '[data-notify]',
+    '.toast',
+    '.message',
   ];
 
-  // Expected Values (EspoCRM)
-  static readonly EXPECTED_TITLE = 'EspoCRM';
-  static readonly SUCCESS_MESSAGE = 'Success';
-  static readonly WARNING_TITLE = 'Warning';
-  static readonly WARNING_MESSAGE = 'Warning Message';
-  static readonly REJECT_OPTIONS: string[] = ['Option A', 'Option B'];
-  static readonly EXPECTED_VALUE1 = 'Value 1';
-  static readonly EXPECTED_VALUE2 = 'Value 2';
-  static readonly EXPECTED_VALUE3 = 'Value 3';
-
-  // Timeout Constants (Documents Module)
-  static readonly DOCUMENTS_UPLOAD_WAIT_MS = 2000; // EspoCRM file processing delay
-  static readonly DOCUMENTS_MODAL_TIMEOUT_MS = 10000; // Modal appearance/disappearance
-  static readonly DOCUMENTS_LIST_RENDER_TIMEOUT_MS = 10000; // SPA rendering delay
-  static readonly STEALTH_PAGE_LOAD_TIMEOUT_MS = 90000; // Initial page load with stealth (resources never finish)
-  static readonly STEALTH_LOGIN_WAIT_MS = 30000; // Login button/navbar visibility
-  static readonly DOCUMENTS_SPA_WAIT_MS = 500; // Post-scroll wait for SPA rendering
-  static readonly DOCUMENTS_FORM_RENDER_MS = 1000; // Full form render after navigation
+  /**
+   * Maximum time to wait for initial page load (includes SSO redirects).
+   * Default: 60 seconds to handle Microsoft SSO authentication flow.
+   */
+  static readonly PAGE_LOAD_TIMEOUT_MS = 60000;      // Initial page load
+  
+  /**
+   * Maximum time to wait for user actions like button clicks and form submissions.
+   * Default: 15 seconds for interactive element response.
+   */
+  static readonly ACTION_TIMEOUT_MS = 15000;          // Button clicks, form submissions
+  
+  /**
+   * Maximum time to wait for page transitions and navigation changes.
+   * Default: 30 seconds for SPA route changes and full page loads.
+   */
+  static readonly NAVIGATION_TIMEOUT_MS = 30000;      // Page transitions
+  
+  /**
+   * Maximum time to wait for element visibility checks.
+   * Default: 20 seconds for elements to appear in DOM and become visible.
+   * (Increased to handle slow Microsoft SSO login page loads, avg 10s)
+   */
+  static readonly ELEMENT_WAIT_TIMEOUT_MS = 20000;    // Element visibility waits (Microsoft auth can take 10s avg)
 }

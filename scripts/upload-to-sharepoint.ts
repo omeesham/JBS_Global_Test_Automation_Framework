@@ -1,37 +1,41 @@
 /**
- * FILE: scripts/upload-to-sharepoint.ts
- * PURPOSE: CLI script for Jenkins post-build SharePoint upload
- * WHY NECESSARY: Enables automated report upload from CI/CD pipeline
- * USED BY: Jenkinsfile.ubuntu, Jenkinsfile.windows (post-build stage)
- *
- * HOW IT WORKS:
- * 1. Reads --dir argument (default: tests/test-data/downloads/)
- * 2. Validates SharePoint config from .env
- * 3. Uploads all files in directory to SharePoint
- * 4. Exits 0 (success) or 1 (failure) for Jenkins
- *
- * Usage: npx ts-node scripts/upload-to-sharepoint.ts [--dir=tests/test-data/downloads]
+ * CLI script for Jenkins post-build SharePoint upload.
+ * Uploads test artifacts (reports, screenshots, logs) to SharePoint via Microsoft Graph API.
+ * 
+ * **Prerequisites:**
+ * - Azure AD App Registration with Sites.ReadWrite.All permission
+ * - Environment variables in config/environments/.env.{environment}:
+ *   - SHAREPOINT_SITE_URL (your SharePoint site)
+ *   - SHAREPOINT_CLIENT_ID (Azure app ID)
+ *   - SHAREPOINT_CLIENT_SECRET (Azure app secret)
+ *   - SHAREPOINT_TENANT_ID (Azure tenant ID)
+ *   - SHAREPOINT_UPLOAD_PATH (optional, defaults to /Shared Documents/Test Reports/)
+ * - Authentication: OAuth 2.0 client credentials flow via Microsoft Graph API
+ * 
+ * **Usage:**
+ * ```bash
+ * npx ts-node scripts/upload-to-sharepoint.ts --dir=downloads
+ * ```
  */
 
-// IMP------------------For SharePoint upload to work, you need:
+import * as dotenvFlow from 'dotenv-flow';
+import * as path from 'path';
 
-// Azure AD App Registration with Sites.ReadWrite.All permission
-// 4 environment variables in .env:
-// SHAREPOINT_SITE_URL (your SharePoint site)
-// SHAREPOINT_CLIENT_ID (Azure app ID)
-// SHAREPOINT_CLIENT_SECRET (Azure app secret)
-// SHAREPOINT_TENANT_ID (Azure tenant ID)
-// SHAREPOINT_UPLOAD_PATH (optional, defaults to /Shared Documents/Test Reports/)
-// Authentication: OAuth 2.0 client credentials flow via Microsoft Graph API (not direct SharePoint API).
-
-// That's it. Code is already there, just needs Azure credentials configured.
-
-
-import * as dotenv from 'dotenv';
-dotenv.config();
+// Load environment variables from config/environments/
+// Cascade: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
+dotenvFlow.config({
+  path: path.join(__dirname, '..', 'config', 'environments'),
+  node_env: process.env.CI_ENV || process.env.NODE_ENV || 'development',
+  silent: true
+});
 
 import { SharePointClient } from '../src/integrations/sharepoint-client';
 
+/**
+ * Main entry point for SharePoint upload.
+ * Parses --dir argument, validates config, authenticates, uploads directory.
+ * Exits with code 0 on success, 1 on failure.
+ */
 async function main(): Promise<void> {
   // Parse --dir argument
   const dirArg = process.argv.find(arg => arg.startsWith('--dir='));

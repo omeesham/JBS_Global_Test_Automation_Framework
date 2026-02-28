@@ -1,352 +1,311 @@
 /**
- * FILE: src/pages/login.page.ts
- * PURPOSE: Login page object for EspoCRM with optional MFA support
- * WHY NECESSARY: Encapsulates login page interactions for authentication flows
- * USED BY: Login tests (tests/specs/auth/login.spec.ts), test fixtures
- *
- * HOW IT WORKS:
- * 1. Uses CSV locators from object_repository/Login_Elements.csv
- * 2. Implements loginWithMfa() for standard + MFA authentication
- * 3. Integrates with CommonMethods for CSV reading and validation
- * 4. Returns boolean success/failure for all public methods
+ * @agent-doc
+ * PURPOSE: Login page object for Navigator Cloud with Microsoft SSO and MFA support. Handles Microsoft authentication flow: Continue Now -> email -> password -> TOTP 2FA -> redirect back to app.
+ * OWNER: generator
+ * IMPACT: critical - All tests require authentication. Breaking this breaks entire test suite.
+ * DEPENDS-ON: BasePage, CommonMethods, AppConstants, selectors/index.ts, framework-contracts/index.ts
+ * USED-BY: tests/specs/navigator/*.spec.ts, tests/setup/fixtures.ts, tests/setup/global-setup.ts
+ * RULES: Never delete loginWithMfa(). Never remove Microsoft SSO flow logic. Keep Microsoft SSO flow intact. Generator can add methods, but must test thoroughly.
+ */
+
+/**
+ * Login page object for Navigator Cloud with Microsoft SSO and MFA support.
+ * Handles Microsoft authentication flow: Continue Now -> email -> password -> TOTP 2FA -> redirect back to app.
  */
 
 import { Page } from '@playwright/test';
 import { BasePage } from '../common/base-page';
 import { Log } from '../utils/logger';
-import { CommonMethods, allure } from '../utils/common-methods';
+import { CommonMethods } from '../utils/common-methods';
 import { AppConstants } from '../utils/app-constants';
-import { IConfig } from '../../src/framework-contracts';
+import { IConfig } from '../framework-contracts';
+import { MicrosoftLoginSelectors } from '../selectors';
+import type { DiagnosticsCollector } from '../utils/diagnostics-collector';
 
 export class LoginPage extends BasePage {
   constructor(page: Page, config?: IConfig) {
     super(page, config);
-    Log.info('Login page constructor');
+    Log.info('LoginPage constructed for Navigator Cloud');
   }
 
   /**
-   * Navigate to login page and wait for form to render
+   * Navigate to Navigator Cloud (auto-redirects to sign-in page, then Microsoft SSO)
    */
   async goto(): Promise<void> {
-    const url = this.config?.base_url || process.env.BASE_URL || 'https://demo.us.espocrm.com/';
-    await this.page.goto(url, { timeout: 60000, waitUntil: 'domcontentloaded' });
-    const frmLogin = CommonMethods.getValuesFromCsv('frmLogin', AppConstants.LOGIN_ELEMENTS);
-    if (frmLogin) {
-      await this.page.waitForSelector(frmLogin, { state: 'visible', timeout: 15000 });
-    }
-    Log.info(`Navigated to login page: ${url}`);
+    const url = this.config?.base_url || this.config?.url || process.env.BASE_URL || '';
+    Log.info(`Navigating to Navigator Cloud: ${url}`);
+    
+    await this.page.goto(url, { 
+      timeout: AppConstants.PAGE_LOAD_TIMEOUT_MS,
+      waitUntil: 'domcontentloaded' 
+    });
+    
+    Log.info('Page loaded, checking authentication state...');
   }
 
   /**
-   * Check if login was successful (navigated away from login page)
+   * Full Microsoft SSO login flow with MFA support
+   * Handles: email -> password -> TOTP code -> "Stay signed in?" -> redirect
+   * @param username - Microsoft email/username
+   * @param password - Microsoft password
+   * @param mfaSecret - Base32 TOTP seed (optional, required if MFA enabled)
+   * @returns True if login successful and redirected to Navigator Cloud
+   */
+  async loginWithMicrosoft(username: string, password: string, mfaSecret?: string): Promise<boolean> {
+    const collector = (this.page as unknown as Record<string, unknown>).__diagnosticsCollector as DiagnosticsCollector | undefined;
+
+    try {
+      Log.info(`Starting Microsoft SSO login for ${username}`);
+
+      // Step 0: Click "Continue Now" on Navigator Cloud sign-in page (pre-SSO step)
+      Log.info('Waiting for Navigator Cloud sign-in page...');
+      try {
+        await this.page.waitForSelector(MicrosoftLoginSelectors.btnContinueNow, { state: 'visible', timeout: 15_000 });
+        await this.page.click(MicrosoftLoginSelectors.btnContinueNow);
+        Log.info('[OK] Clicked "Continue Now" on Navigator Cloud sign-in page');
+      } catch {
+        Log.info('"Continue Now" button not found -- may already be on Microsoft login page');
+      }
+
+      // Step 1: Wait for Microsoft login page
+      await this.waitForMicrosoftLoginPage();
+      collector?.recordUrl();
+
+      // Step 2: Enter email
+      Log.info('Entering email...');
+      await this.page.fill(MicrosoftLoginSelectors.txtEmail, username);
+      await this.page.click(MicrosoftLoginSelectors.btnNext);
+
+      // Step 3: Wait for password field
+      Log.info('Waiting for password field...');
+      await this.page.waitForSelector(MicrosoftLoginSelectors.txtPassword, { 
+        state: 'visible', 
+        timeout: AppConstants.ACTION_TIMEOUT_MS 
+      });
+
+      // Step 4: Enter password
+      Log.info('Entering password...');
+      await this.page.fill(MicrosoftLoginSelectors.txtPassword, password);
+      await this.page.click(MicrosoftLoginSelectors.btnSignIn);
+
+      // Step 5: Handle MFA if required
+      if (mfaSecret) {
+        const mfaRequired = await this.handleMFA(mfaSecret);
+        if (!mfaRequired) {
+          Log.info('MFA not required or already completed');
+        }
+      }
+
+      // Step 6: Handle "Stay signed in?" prompt (optional)
+      await this.handleStaySignedIn();
+
+      // Step 7: Wait for redirect back to Navigator Cloud
+      Log.info('Waiting for redirect to Navigator Cloud...');
+      const expectedHostname = new URL(this.config?.base_url || this.config?.url || '').hostname;
+
+      try {
+        await this.page.waitForURL(
+          url => url.toString().includes(expectedHostname),
+          { timeout: AppConstants.NAVIGATION_TIMEOUT_MS }
+        );
+      } catch (redirectError) {
+        // Differentiate: check for OAuth errors, redirect loops, post-login failures
+        collector?.recordUrl();
+        const currentUrl = this.page.url();
+        const authChain = collector?.getAuthChain() ?? [];
+        const netFails = collector?.getNetworkFailures() ?? [];
+
+        // Check for OAuth 400/401 in network failures
+        const oauthFail = netFails.find(n =>
+          (n.url.includes('login.microsoftonline.com') || n.url.includes('oauth')) && n.status >= 400
+        );
+        if (oauthFail) {
+          throw new Error(`OAuth token request returned ${oauthFail.status}: ${oauthFail.body.substring(0, 500)}`);
+        }
+
+        // Check for SSO redirect loop (>5 redirects to same domain)
+        const authRedirects = authChain.filter(e => e.status >= 300 && e.status < 400);
+        if (authRedirects.length > 5) {
+          throw new Error(`SSO redirect loop detected -- ${authRedirects.length} redirects to ${authRedirects.at(-1)?.url ?? 'unknown'}`);
+        }
+
+        // Post-login app fail
+        if (!currentUrl.includes('login.microsoftonline.com') && !currentUrl.includes(expectedHostname)) {
+          throw new Error(`Post-login app failed to load -- page URL: ${currentUrl}, expected: ${expectedHostname}`);
+        }
+
+        throw redirectError;
+      }
+
+      // Wait for page resources after redirect
+      Log.info('[wait] Waiting for domcontentloaded after redirect...');
+      await this.page.waitForLoadState('domcontentloaded', { timeout: 30_000 });
+      Log.info('[wait] Waiting for full page load...');
+      await this.page.waitForLoadState('load', { timeout: 30_000 });
+      Log.info('[OK] Page load complete after redirect');
+
+      collector?.recordUrl();
+
+      // Step 8: Verify authenticated state
+      const isAuthenticated = await this.isLoggedIn();
+      if (isAuthenticated) {
+        Log.info('[OK] Microsoft SSO login successful');
+        return true;
+      } else {
+        Log.error('[ERR] Login appeared successful but authentication verification failed');
+        return false;
+      }
+    } catch (error) {
+      collector?.recordUrl();
+      Log.error(`Microsoft SSO login failed: ${error}`);
+      await this.takeScreenshot('microsoft-sso-login-failed');
+      return false;
+    }
+  }
+
+  /**
+   * Wait for Microsoft login page to appear
+   * Microsoft auth page can take 10s average to load - wait for network idle before checking elements
+   */
+  private async waitForMicrosoftLoginPage(): Promise<void> {
+    Log.info('Waiting for Microsoft login page...');
+    
+    // Step 1: Wait for URL redirect to Microsoft
+    await this.page.waitForURL(
+      url => url.toString().includes('login.microsoftonline.com'),
+      { timeout: AppConstants.NAVIGATION_TIMEOUT_MS }
+    );
+    
+    // Step 2: Wait for email field visibility (skip networkidle -- MS telemetry prevents it from resolving)
+    await this.page.waitForSelector(MicrosoftLoginSelectors.txtEmail, { 
+      state: 'visible', 
+      timeout: AppConstants.ELEMENT_WAIT_TIMEOUT_MS 
+    });
+    
+    Log.info('[OK] Microsoft login page loaded');
+  }
+
+  /**
+   * Handle MFA/TOTP challenge if present
+   * @param mfaSecret - Base32 TOTP seed
+   * @returns True if MFA was required and handled
+   */
+  private async handleMFA(mfaSecret: string): Promise<boolean> {
+    try {
+      // Wait for TOTP input field (may not appear if MFA not required)
+      await this.page.waitForSelector(MicrosoftLoginSelectors.txtOtpCode, { 
+        state: 'visible', 
+        timeout: 5000 
+      });
+
+      Log.info('MFA challenge detected, generating TOTP code...');
+
+      // Generate TOTP code
+      const totpCode = CommonMethods.generateTotpCode(mfaSecret);
+      Log.info(`Generated TOTP: ${totpCode}`);
+
+      // Enter code
+      await this.page.fill(MicrosoftLoginSelectors.txtOtpCode, totpCode);
+      await this.page.click(MicrosoftLoginSelectors.btnVerify);
+
+      // Wait for TOTP field to disappear (verification accepted)
+      try {
+        await this.page.waitForSelector(MicrosoftLoginSelectors.txtOtpCode, { state: 'hidden', timeout: 15_000 });
+      } catch {
+        throw new Error('MFA timeout -- TOTP page did not respond within 15s');
+      }
+
+      Log.info('[OK] MFA code submitted');
+      return true;
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('MFA timeout')) {
+        throw error; // re-throw differentiated error
+      }
+      // MFA field didn't appear - not required
+      Log.info('MFA not required (TOTP field not found)');
+      return false;
+    }
+  }
+
+  /**
+   * Handle optional "Stay signed in?" prompt
+   * Clicks "Yes" to keep session alive longer
+   */
+  private async handleStaySignedIn(): Promise<void> {
+    try {
+      await this.page.waitForSelector(MicrosoftLoginSelectors.btnYesStaySignedIn, { 
+        state: 'visible', 
+        timeout: 3000 
+      });
+
+      Log.info('"Stay signed in?" prompt detected, clicking Yes...');
+      await this.page.click(MicrosoftLoginSelectors.btnYesStaySignedIn);
+      Log.info('[OK] "Stay signed in" accepted');
+    } catch {
+      // Prompt didn't appear - optional
+      Log.info('"Stay signed in?" prompt not shown');
+    }
+  }
+
+  /**
+   * Check if user is authenticated (on Navigator Cloud, not Microsoft login page)
+   * @returns True if authenticated and on Navigator Cloud
    */
   async isLoggedIn(): Promise<boolean> {
     try {
-      const divMain = CommonMethods.getValuesFromCsv('divMainContent', AppConstants.HOME_ELEMENTS);
-      if (divMain) {
-        return await this.page.locator(divMain).isVisible({ timeout: 10000 });
-      }
       const url = this.page.url();
-      return url.includes('#');
+      
+      // Check if NOT on Microsoft login page
+      if (url.includes('login.microsoftonline.com')) {
+        return false;
+      }
+
+      // Check if on Navigator Cloud domain
+      const expectedHostname = new URL(this.config?.base_url || this.config?.url || '').hostname;
+      if (!url.includes(expectedHostname)) {
+        return false;
+      }
+
+      // Wait for Navigator Cloud app to load (path-based routing)
+      await this.page.waitForURL(
+        url => url.toString().includes('/navigator/locations/'),
+        { timeout: 5000 }
+      ).catch(() => {});
+
+      // Check for authenticated state indicator
+      const isNavigatorLoaded = url.includes(expectedHostname);
+      
+      Log.info(`Authentication check: ${isNavigatorLoaded ? '[OK] Authenticated' : '[ERR] Not authenticated'}`);
+      return isNavigatorLoaded;
+    } catch (error) {
+      Log.error(`isLoggedIn check failed: ${error}`);
+      return false;
+    }
+  }
+
+  /**
+   * Detect if we've been redirected to Microsoft login (session expired)
+   * @returns True if on Microsoft login page
+   */
+  async isOnMicrosoftLogin(): Promise<boolean> {
+    const url = this.page.url();
+    return url.includes('login.microsoftonline.com');
+  }
+
+  /**
+   * Check for authentication errors on Microsoft login page
+   * @returns Error message if present, null otherwise
+   */
+  async getLoginError(): Promise<string | null> {
+    try {
+      const errorDiv = await this.page.locator(MicrosoftLoginSelectors.divError).first();
+      if (await errorDiv.isVisible({ timeout: 2000 })) {
+        const errorText = await errorDiv.textContent();
+        return errorText?.trim() || 'Unknown error';
+      }
     } catch {
-      return false;
+      // No error visible
     }
-  }
-
-  /**
-   * Check if forgot password link exists
-   */
-  async isForgotPwdLinkExist(): Promise<boolean> {
-    const lnkForgotPassword = CommonMethods.getValuesFromCsv(
-      'lnkForgotPassword',
-      AppConstants.LOGIN_ELEMENTS
-    );
-
-    if (!lnkForgotPassword) return false;
-    return await this.page.locator(lnkForgotPassword).isVisible({ timeout: 3000 }).catch(() => false);
-  }
-
-  /**
-   * Check if login form is displayed
-   */
-  async isLoginFormDisplayed(): Promise<boolean> {
-    const frmLogin = CommonMethods.getValuesFromCsv(
-      'frmLogin',
-      AppConstants.LOGIN_ELEMENTS
-    );
-
-    if (!frmLogin) return false;
-    return await this.page.isVisible(frmLogin);
-  }
-
-  /**
-   * Login to the application with MFA support
-   *
-   * @param username Username
-   * @param password Password
-   * @param config Configuration dictionary (optional, required for MFA)
-   * @returns True if login successful
-   */
-  async loginWithMfa(
-    username: string,
-    password: string,
-    config?: IConfig
-  ): Promise<boolean> {
-    try {
-      // Attach test info to Allure report
-      allure.before('Verify user should be able to Login Successfully');
-
-      // Get username field locator
-      const strUnLocator = CommonMethods.getValuesFromCsv(
-        'txtUsername',
-        AppConstants.LOGIN_ELEMENTS
-      );
-
-      if (!strUnLocator) {
-        Log.error('Username field locator not found');
-        return false;
-      }
-
-      // Wait for login form to be ready
-      await this.page.waitForSelector(strUnLocator, { state: 'visible', timeout: 10000 });
-
-      // Fill credentials - handle both text input and dropdown
-      const usernameElement = this.page.locator(strUnLocator);
-      const usernameTagName = await usernameElement.evaluate(el => el.tagName.toLowerCase());
-
-      if (usernameTagName === 'select') {
-        // Dropdown - try label first, then value
-        try {
-          await usernameElement.selectOption({ label: username });
-          Log.info(`Selected username from dropdown: ${username}`);
-        } catch {
-          await usernameElement.selectOption(username);
-          Log.info(`Selected username by value: ${username}`);
-        }
-      } else {
-        // Text input
-        Log.info(`Filling username: ${username}`);
-        await usernameElement.fill(username);
-      }
-
-      // Get password field locator
-      const strPwdLocator = CommonMethods.getValuesFromCsv(
-        'txtPassword',
-        AppConstants.LOGIN_ELEMENTS
-      );
-
-      if (!strPwdLocator) {
-        Log.error('Password field locator not found');
-        return false;
-      }
-
-      Log.info('Filling password');
-      await this.page.fill(strPwdLocator, password);
-
-      // Get login button locator
-      const btnLogin = CommonMethods.getValuesFromCsv(
-        'btnLogin',
-        AppConstants.LOGIN_ELEMENTS
-      );
-
-      if (!btnLogin) {
-        Log.error('Login button locator not found');
-        return false;
-      }
-
-      await this.page.click(btnLogin);
-      Log.info('Login button clicked');
-
-      // Handle MFA if page appears
-      try {
-        // Get MFA input locator
-        const mfaInputLocator = CommonMethods.getValuesFromCsv(
-          'txtMfaCode',
-          AppConstants.LOGIN_ELEMENTS
-        );
-
-        if (mfaInputLocator) {
-          await this.page.waitForSelector(mfaInputLocator, { timeout: 5000 });
-
-          Log.info('MFA page detected, generating TOTP code');
-
-          // Determine MFA secret key based on username
-          const mfaSecretKey = `mfa_secret_${username.toLowerCase()}`;
-
-          if (!config) {
-            Log.error('Config not provided for MFA authentication');
-            return false;
-          }
-
-          // Try user-specific key first, then fall back to generic key
-          const mfaSecret = config[mfaSecretKey] || config.mfa_secret;
-          if (!mfaSecret) {
-            Log.error(`MFA secret not found for ${username} (key: ${mfaSecretKey})`);
-            return false;
-          }
-
-          // Generate and enter TOTP code
-          const totpCode = CommonMethods.generateTotpCode(mfaSecret);
-          await this.page.fill(mfaInputLocator, totpCode);
-          Log.info('TOTP code entered');
-
-          // Submit MFA
-          const mfaSubmitBtn = CommonMethods.getValuesFromCsv(
-            'btnMfaSubmit',
-            AppConstants.LOGIN_ELEMENTS
-          );
-
-          if (mfaSubmitBtn) {
-            await this.page.click(mfaSubmitBtn);
-            Log.info('MFA submitted');
-          }
-        }
-      } catch (error) {
-        Log.info(`MFA not required or error: ${error}`);
-        // Continue - MFA might not be required
-      }
-
-      // Wait for navigation away from login page
-      await this.page.waitForLoadState('networkidle');
-
-      // Check if login was successful by verifying URL changed
-      const currentUrl = this.page.url();
-      Log.info(`Current URL after login: ${currentUrl}`);
-
-      // EspoCRM redirects to /#Home or similar after login
-      const isOnLoginPage = currentUrl.includes('/login') || currentUrl.endsWith('/');
-      const hasFragment = currentUrl.includes('#');
-
-      if (hasFragment || !isOnLoginPage) {
-        Log.info('Logged in Successfully - navigated away from login page');
-        allure.after(`Logged in Successfully - Current URL: ${currentUrl}`);
-        return true;
-      } else {
-        Log.error('Login unsuccessful - still on login page');
-        return false;
-      }
-    } catch (error) {
-      Log.error(`Error during login: ${error}`);
-      return false;
-    }
-  }
-
-  /**
-   * Logout from the application
-   *
-   * @returns True if logout successful
-   */
-  async logout(): Promise<boolean> {
-    try {
-      // Attach test info to Allure report
-      allure.before('Verify user should be Logout from the application');
-
-      // Check for modal popup and dismiss if visible
-      const btnLater = CommonMethods.getValuesFromCsv(
-        'btnLater',
-        AppConstants.WORKING_ELEMENTS
-      );
-
-      if (btnLater && await this.page.isVisible(btnLater)) {
-        await this.page.click(btnLater);
-
-        const icoProfile = CommonMethods.getValuesFromCsv(
-          'icoProfile',
-          AppConstants.LANDING_ELEMENTS
-        );
-
-        if (icoProfile) {
-          await this.page.waitForSelector(icoProfile);
-        }
-      }
-
-      // Click profile icon / user menu
-      const icoProfile = CommonMethods.getValuesFromCsv(
-        'icoProfile',
-        AppConstants.LANDING_ELEMENTS
-      );
-
-      if (!icoProfile) {
-        Log.error('Profile icon locator not found');
-        return false;
-      }
-
-      await this.page.waitForSelector(icoProfile);
-      await this.page.click(icoProfile);
-
-      // Click logout link
-      const lnkLogout = CommonMethods.getValuesFromCsv(
-        'lnkLogout',
-        AppConstants.LANDING_ELEMENTS
-      );
-
-      if (!lnkLogout) {
-        Log.error('Logout link locator not found');
-        return false;
-      }
-
-      await this.page.waitForSelector(lnkLogout);
-      await this.page.click(lnkLogout);
-
-      // Verify username field is visible (back to login page)
-      const txtUsername = CommonMethods.getValuesFromCsv(
-        'txtUsername',
-        AppConstants.LOGIN_ELEMENTS
-      );
-
-      if (!txtUsername) {
-        Log.error('Username field locator not found');
-        return false;
-      }
-
-      await this.page.waitForSelector(txtUsername);
-      return await this.page.isVisible(txtUsername);
-    } catch (error) {
-      Log.error(`Error during logout: ${error}`);
-      return false;
-    }
-  }
-
-  /**
-   * Check if error state is shown on login form
-   */
-  async hasLoginError(): Promise<boolean> {
-    const errGroup = CommonMethods.getValuesFromCsv('errUsernameGroup', AppConstants.LOGIN_ELEMENTS);
-    if (!errGroup) return false;
-    return await this.page.locator(errGroup).isVisible({ timeout: 3000 }).catch(() => false);
-  }
-
-  /**
-   * Simple login and wait for navigation (no MFA)
-   */
-  async loginAndWait(username: string, password: string): Promise<void> {
-    const txtUsername = CommonMethods.getValuesFromCsv('txtUsername', AppConstants.LOGIN_ELEMENTS);
-    const txtPassword = CommonMethods.getValuesFromCsv('txtPassword', AppConstants.LOGIN_ELEMENTS);
-    const btnLogin = CommonMethods.getValuesFromCsv('btnLogin', AppConstants.LOGIN_ELEMENTS);
-
-    if (!txtUsername || !txtPassword || !btnLogin) {
-      throw new Error('Login form locators not found in CSV');
-    }
-
-    // Handle username field - could be text input or dropdown
-    const usernameElement = this.page.locator(txtUsername);
-    const usernameTagName = await usernameElement.evaluate(el => el.tagName.toLowerCase());
-
-    if (usernameTagName === 'select') {
-      // Dropdown
-      try {
-        await usernameElement.selectOption({ label: username });
-      } catch {
-        await usernameElement.selectOption(username);
-      }
-    } else {
-      // Text input
-      await usernameElement.fill(username);
-    }
-
-    await this.page.fill(txtPassword, password);
-    await this.page.click(btnLogin);
-    await this.page.waitForLoadState('networkidle');
-    Log.info(`Login attempted for user: ${username}`);
+    return null;
   }
 }

@@ -1,25 +1,4 @@
-/**
- * FILE: playwright.config.ci.ts
- * PURPOSE: CI-optimized Playwright configuration (Jenkins, GitHub Actions, etc.)
- * WHY NECESSARY: Fixes Jenkins GitCommitInfo timeout caused by allure-playwright reporter
- * USED BY: Jenkins pipelines (.ci/Jenkinsfile.windows, .ci/Jenkinsfile.ubuntu)
- *
- * HOW IT WORKS:
- * 1. Extends base playwright.config.ts configuration
- * 2. Removes allure-playwright reporter (causes git timeout in Jenkins)
- * 3. Reduces artifact generation (video/trace only on failure)
- * 4. Shorter timeouts for faster CI feedback
- *
- * ISSUE BACKGROUND:
- * - allure-playwright v2.15.1 captures git commit info via `git log -1`
- * - Hardcoded 3000ms timeout causes failures in Jenkins workspace isolation
- * - Jenkins shallow clones + file locks = git commands timeout
- * - This config eliminates allure reporter in CI, avoiding git operations entirely
- *
- * USAGE:
- * Jenkins: npx playwright test --config=playwright.config.ci.ts --project=chromium
- * Local: Use base playwright.config.ts (includes allure for local reports)
- */
+/** CI-optimized Playwright configuration (Jenkins, GitHub Actions, etc.) */
 
 import { defineConfig } from '@playwright/test';
 import baseConfig, { getArtifactSetting } from './playwright.config';
@@ -29,24 +8,25 @@ export default defineConfig({
 
   // ==================== CI TEST SCOPE ====================
   // Run ONLY user-built deployment tests (UI specs)
-  // Excludes: framework infrastructure tests, examples/demos, seed tests, API placeholders
+  // Excludes: framework infrastructure tests, examples, API placeholders
   testIgnore: [
-    '**/src/data/adapters/__tests__/**',  // Framework unit tests (not for deployment)
-    '**/tests/example.spec.ts',
-    '**/tests/seed.spec.ts',
-    '**/tests/specs/examples/**',
+    '**/tests/examples/**',               // Example patterns (not for CI)
     '**/api-testing/**',
   ],
 
   // ==================== CI-SPECIFIC TIMEOUTS ====================
-  timeout: 60 * 1000,  // Shorter timeout for CI (60s vs 30s base)
+  timeout: 60 * 1000,  // Longer timeout for CI (60s vs 30s base)
 
   // ==================== CI REPORTERS (NO ALLURE) ====================
   // Removed: allure-playwright (causes GitCommitInfo timeout in Jenkins)
   // Kept: list (console), html (archive), json (processing), junit (CI integration)
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'reports/html-report', open: 'never' }],
+    ['html', { 
+      outputFolder: 'reports/html-report', 
+      open: 'never',
+      attachmentsBaseURL: 'none'  // Disables error-context.md and other HTML attachments
+    }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['junit', { outputFile: 'reports/junit-results.xml' }],
     // allure-playwright REMOVED - causes git timeout in Jenkins workspace
@@ -56,12 +36,12 @@ export default defineConfig({
   use: {
     ...baseConfig.use,
 
-    // CI defaults: capture on failure for debugging, env vars can override
-    video: getArtifactSetting('ENABLE_VIDEO', 'retain-on-failure') as any,
-    trace: getArtifactSetting('ENABLE_TRACING', 'retain-on-failure') as any,  // Changed from on-first-retry
+    // CI defaults: always capture for thorough debugging, env vars can override
+    video: getArtifactSetting('ENABLE_VIDEO', 'on') as any,
+    trace: getArtifactSetting('ENABLE_TRACING', 'on') as any,
 
     screenshot: {
-      mode: getArtifactSetting('ENABLE_SCREENSHOTS', 'only-on-failure') as any,
+      mode: getArtifactSetting('ENABLE_SCREENSHOTS', 'on') as any,
       fullPage: true,
     },
   },

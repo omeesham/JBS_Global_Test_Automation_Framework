@@ -11,6 +11,62 @@ This folder contains converters that transform test case markdown files into for
 - **Jira** - Jira Xray/Zephyr test case import
 - **TestMo** - TestMo API import format
 
+## 🔄 Dual-Format System (Human + Agent)
+
+Test cases support **two parallel formats** in the same markdown file:
+
+| Audience | Fields | Purpose |
+|----------|--------|---------|
+| **Human (QA)** | Preconditions (Human), Steps (Human), Expected Result (Human), Notes | Plain English, UI labels, per-step expectations |
+| **Agent (Automation)** | Steps, Expected, Data | Element IDs, code syntax, parser-optimized |
+
+### Why Dual-Format?
+
+- **Agents** need element IDs (`chkApplyLDW`, `spinLDWPercentage`) for automation
+- **QA testers** need readable instructions ("**Apply LDW** checkbox", "**LDW Percentage** field")
+- **CSV export** filters by audience — human export excludes technical `_for_agent` columns
+
+### Export Types
+
+```bash
+# Human export (default) - for QA testers
+npx ts-node export_test_cases/to-csv.ts ./input.md ./output.csv
+
+# Agent export - for automation tools
+npx ts-node export_test_cases/to-csv.ts ./input.md ./output.csv --type=agent
+
+# Full export - both human and agent columns
+npx ts-node export_test_cases/to-csv.ts ./input.md ./output.csv --type=full
+```
+
+### Writing Guidelines
+
+**Human columns (for QA):**
+- One action per numbered step, plain English
+- Bold UI element labels: **Apply LDW** checkbox, **Save** button
+- No arrow syntax (`→`), no element IDs (`chkApplyLDW`)
+- Per-step expectations: "Step 2: Checkbox becomes unchecked"
+
+**Agent columns (for automation):**
+- Element IDs: `chkApplyLDW`, `spinLDWPercentage`, `btnSave`
+- Arrow syntax: `action → expected`
+- Key-value data: `` `field=value` ``
+
+**Field name translation:**
+| Element ID | Human Label |
+|------------|-------------|
+| `chkApplyLDW` | "Apply LDW" checkbox |
+| `spinLDWPercentage` | "LDW Percentage" field |
+| `drpOracleOrg` | "Oracle Organization" dropdown |
+| `btnSave` | "Save" button |
+| `txtUsername` | "Username" text field |
+
+### Example
+
+See [specs_planning/_internal/test-case-template.md](../specs_planning/_internal/test-case-template.md) for complete dual-format example.
+
+Live example: TC-LOC-015 in [local-information-test-cases.md](../specs_planning/test-cases/locations/local-information-test-cases.md).
+
 ## 🏗️ Architecture
 
 ```
@@ -242,6 +298,27 @@ await axios.post('https://app.testmo.com/api/tests/import', collection, {
   headers: { 'Authorization': `Bearer ${process.env.TESTMO_API_KEY}` }
 });
 ```
+
+## ⚠️ Submodule Code Mapping
+
+The CSV exporter maps TC ID submodule codes (e.g., `PRI` in `TC-LOC-PRI-001`) to human-readable names via `subMap` in `to-csv.ts`:
+
+| Code | Maps To | Example ID |
+|------|---------|------------|
+| `CUR` | `currency` | `TC-LOC-CUR-001` |
+| `PRI` | `pricing` | `TC-LOC-PRI-001` |
+| `PRC` | `pricing` (legacy) | — |
+| `LI` | `local_information` | `TC-LOC-LI-001` |
+| `LCL` | `local_information` (legacy) | — |
+| `ACC` | `account_address` | — |
+| `LGL` | `legal` | — |
+| `NTS` | `notes` | — |
+
+**When adding a new submodule code**: Update BOTH locations (COP-013):
+1. `export_test_cases/to-csv.ts` → `subMap` in `extractSubmodule()`
+2. `scripts/lint-test-cases.ts` → `KNOWN_SUB_CODES` set
+
+Unmapped codes trigger a `console.warn()` at export time and fail `npm run lint:testcases` with error `SUB-001`.
 
 ## 📝 Notes
 

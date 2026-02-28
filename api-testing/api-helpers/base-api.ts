@@ -1,20 +1,4 @@
-/**
- * FILE: api-testing/api-helpers/base-api.ts
- * PURPOSE: Foundation for all API connections (HTTP requests with authentication)
- * WHY NECESSARY: Provides reusable methods for talking to APIs (login, get data, etc.)
- * USED BY: All api-helpers files (auth-api.ts, contacts-api.ts, etc.)
- * 
- * HOW IT WORKS:
- * 1. Wraps axios (HTTP library) with authentication and error handling
- * 2. Provides request(), get(), post(), put(), delete() methods
- * 3. Auto-adds headers, handles retries, logs all calls
- * 
- * NON-TECHNICAL EXPLANATION:
- * Think of this as a "universal remote control" for APIs.
- * - All API helpers use this remote to send requests
- * - It handles authentication ("showing your ID card") automatically
- * - It logs everything for debugging (like a "call history")
- */
+/** Foundation for all API connections (HTTP requests with authentication) */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Log } from '../../src/utils/logger';

@@ -1,22 +1,22 @@
 /**
- * FILE: src/integrations/sharepoint-client.ts
- * PURPOSE: SharePoint file upload client via Microsoft Graph API
- * WHY NECESSARY: Enables Jenkins → SharePoint report upload pipeline
- * USED BY: scripts/upload-to-sharepoint.ts, Jenkins post-build stage
- *
- * HOW IT WORKS:
- * 1. Authenticates via Azure AD client credentials (OAuth 2.0)
- * 2. Uploads files to SharePoint document library via Microsoft Graph
- * 3. Zero new npm dependencies — uses existing axios
- *
- * REQUIRES: Azure AD app registration with Sites.ReadWrite.All permission
- * Config via .env: SHAREPOINT_SITE_URL, CLIENT_ID, CLIENT_SECRET, TENANT_ID, UPLOAD_PATH
+ * SharePoint file upload client via Microsoft Graph API.
+ * Handles authentication via Azure AD OAuth 2.0 and file uploads to SharePoint document libraries.
+ * Used by Jenkins CI pipeline to upload test artifacts to SharePoint for team access.
+ * Requires Azure AD app registration with Sites.ReadWrite.All permission.
  */
 
 import axios, { AxiosInstance } from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
+/**
+ * SharePoint configuration from environment variables.
+ * @property siteUrl - SharePoint site URL (e.g., https://company.sharepoint.com/sites/automation)
+ * @property clientId - Azure AD application (client) ID
+ * @property clientSecret - Azure AD application secret
+ * @property tenantId - Azure AD tenant ID
+ * @property uploadPath - Target path in SharePoint (defaults to /Shared Documents/Test Reports/)
+ */
 interface SharePointConfig {
   siteUrl: string;
   clientId: string;
@@ -46,7 +46,8 @@ export class SharePointClient {
   }
 
   /**
-   * Validate that all required config is present
+   * Validate that all required config is present.
+   * @returns Object with valid flag and array of missing variable names
    */
   validateConfig(): { valid: boolean; missing: string[] } {
     const missing: string[] = [];
@@ -58,7 +59,9 @@ export class SharePointClient {
   }
 
   /**
-   * Authenticate via Azure AD client credentials flow
+   * Authenticate via Azure AD client credentials flow.
+   * Obtains access token and sets Authorization header for Graph API requests.
+   * @throws Error if authentication fails
    */
   async authenticate(): Promise<void> {
     const tokenUrl = `https://login.microsoftonline.com/${this.config.tenantId}/oauth2/v2.0/token`;
@@ -81,7 +84,9 @@ export class SharePointClient {
   }
 
   /**
-   * Get SharePoint site ID from URL
+   * Get SharePoint site ID from URL.
+   * @returns SharePoint site ID for Graph API calls
+   * @private
    */
   private async getSiteId(): Promise<string> {
     const url = new URL(this.config.siteUrl);
@@ -93,7 +98,10 @@ export class SharePointClient {
   }
 
   /**
-   * Get the default document library drive ID
+   * Get the default document library drive ID.
+   * @param siteId - SharePoint site ID
+   * @returns Drive ID for file operations
+   * @private
    */
   private async getDriveId(siteId: string): Promise<string> {
     const response = await this.graphClient.get(`/sites/${siteId}/drive`);
@@ -101,10 +109,12 @@ export class SharePointClient {
   }
 
   /**
-   * Upload a single file to SharePoint
-   * @param localPath Local file path
-   * @param remotePath Remote path within upload directory (optional, uses filename)
+   * Upload a single file to SharePoint.
+   * Uses simple upload for files < 4MB, chunked upload session for larger files.
+   * @param localPath - Local file path
+   * @param remotePath - Remote path within upload directory (optional, uses filename if not provided)
    * @returns SharePoint file URL
+   * @throws Error if upload fails
    */
   async uploadFile(localPath: string, remotePath?: string): Promise<string> {
     if (!this.accessToken) await this.authenticate();
@@ -128,7 +138,7 @@ export class SharePointClient {
           maxBodyLength: Infinity,
         }
       );
-      console.log(`[SharePoint] Uploaded: ${fileName} → ${uploadTarget}`);
+      console.log(`[SharePoint] Uploaded: ${fileName} -> ${uploadTarget}`);
       return response.data.webUrl || uploadTarget;
     } else {
       // Create upload session for large files
@@ -155,16 +165,17 @@ export class SharePointClient {
         offset = end;
       }
 
-      console.log(`[SharePoint] Uploaded (large): ${fileName} → ${uploadTarget}`);
+      console.log(`[SharePoint] Uploaded (large): ${fileName} -> ${uploadTarget}`);
       return uploadTarget;
     }
   }
 
   /**
-   * Upload all files from a directory
-   * @param localDir Local directory path
-   * @param remoteDir Remote subdirectory (optional)
-   * @returns Upload results
+   * Upload all files from a directory to SharePoint.
+   * Recursively uploads all files in directory, skips subdirectories.
+   * @param localDir - Local directory path
+   * @param remoteDir - Remote subdirectory (optional, appended to uploadPath)
+   * @returns Upload results with lists of uploaded and failed files
    */
   async uploadDirectory(
     localDir: string,
@@ -199,9 +210,9 @@ export class SharePointClient {
   }
 
   /**
-   * List files in SharePoint directory
-   * @param remotePath Remote directory path (optional, uses upload path)
-   * @returns Array of file names
+   * List files in SharePoint directory.
+   * @param remotePath - Remote directory path (optional, uses uploadPath if not provided)
+   * @returns Array of file names (not full paths)
    */
   async listFiles(remotePath?: string): Promise<string[]> {
     if (!this.accessToken) await this.authenticate();

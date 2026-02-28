@@ -1,50 +1,63 @@
 /**
- * FILE: src/selectors/index.ts
- * PURPOSE: TypeScript selector constants (dual repository - TS side)
- * WHY NECESSARY: Fast selector lookup without CSV I/O, type-safe
- * USED BY: CommonMethods.getSelector() checks this first, falls back to CSV
- *
- * HOW IT WORKS:
- * 1. Define selector objects for each module (LoginSelectors, HomeSelectors, etc.)
- * 2. Merge all into ALL_SELECTORS for getTsSelector() lookup
- * 3. Agents must keep CSV and TS in sync when adding selectors
+ * @agent-doc
+ * PURPOSE: Barrel export -- re-exports partitioned selectors with collision detection.
+ * OWNER: planner, generator, healer
+ * IMPACT: critical - wrong selectors = all page objects and tests fail
+ * DEPENDS-ON: ./login, ./navigator, ./dynamic, ./setup/*
+ * USED-BY: all page objects (via getTsSelector), common-methods.ts, base-page.ts, src/index.ts
+ * RULES: Use camelCase with type prefix (btn, txt, lnk, drp, chk). Never delete existing selectors, only add/fix. DISCOVER_ prefix = placeholder for planner to fill during exploration.
+ * CATALOG: Auto-generated searchable index at src/selectors/SELECTOR_CATALOG.md -- run `npm run selectors:catalog` to regenerate.
+ * ANNOTATIONS: Every selector key MUST have `@where @el @text @keys` JSDoc annotation. See COMMENTING_STANDARDS.md.
  */
 
-// DEMO_TARGET: EspoCRM Documents module selectors - discovered via playwright-test-planner agent
-// Updated: 2026-02-11 - Added notification, modal, publishDate display selectors (Copilot user override)
-// Updated: 2026-02-11 - Simplified lnkDocuments selector for reliability (Copilot refactor)
-export const DocumentsSelectors = {
-  lnkDocuments: 'a[href="#Document"]',
-  btnCreateDocument: 'a[data-name="quickCreate"][data-action="quickCreate"]',
-  inputFileChooser: 'input[type="file"].file',
-  iconDownloadAttachment: 'span.fas.fa-paperclip.small',
-  txtDocumentName: 'input[data-name="name"].main-element',
-  txtDocumentDescription: 'textarea[data-name="description"].main-element',
-  btnFullForm: 'button[data-name="fullForm"]',
-  inputPublishDate: 'input[data-name="publishDate"].numeric-text',
-  inputExpirationDate: 'input[data-name="expirationDate"].numeric-text',
-  btnSaveQuickForm: 'button[data-name="save"].btn-primary',
-  btnSaveFullForm: 'button[data-action="save"][data-name="save"].detail-action-item',
-  lstDocumentsList: '.list-container',
-  notificationSuccess: '.growl-notification.alert-success',
-  modalDialog: '.modal',
-  modalFooter: '.modal-footer',
-  displayPublishDate: '[data-name="publishDate"]:not(input)',
-  attachmentContainer: '.attachment',
-  fileAttachmentLabel: '.attach-file-label',
+// ==================== IMPORTS ====================
+import { MicrosoftLoginSelectors } from './login';
+import { NavigatorSelectors } from './navigator';
+import { SetupLeftPanelSelectors } from './setup/left-panel';
+import { SetupLocalInfoSelectors } from './setup/local-info';
+import { SetupCurrencySelectors } from './setup/currency';
+import { SetupPricingSelectors } from './setup/pricing';
+import { SetupSharedSelectors } from './setup/shared';
+
+// ==================== RE-EXPORTS ====================
+export { MicrosoftLoginSelectors } from './login';
+export { NavigatorSelectors } from './navigator';
+export { DynamicSelectors } from './dynamic';
+export { SetupLeftPanelSelectors } from './setup/left-panel';
+export { SetupLocalInfoSelectors } from './setup/local-info';
+export { SetupCurrencySelectors } from './setup/currency';
+export { SetupPricingSelectors } from './setup/pricing';
+export { SetupSharedSelectors } from './setup/shared';
+
+// ==================== BACKWARD-COMPAT: MERGED SetupSelectors ====================
+export const SetupSelectors = {
+  ...SetupLeftPanelSelectors,
+  ...SetupLocalInfoSelectors,
+  ...SetupCurrencySelectors,
+  ...SetupPricingSelectors,
+  ...SetupSharedSelectors,
 } as const;
 
-// Merge all selector objects for lookup
-export const ALL_SELECTORS: Record<string, string> = {
-  ...DocumentsSelectors, // DEMO_TARGET: Documents selectors
-};
+// ==================== COLLISION DETECTION + LOOKUP ====================
+
+/** Merge all static selector objects with collision detection (excludes dynamic selectors). */
+function buildAllSelectors(...objects: Record<string, string>[]): Record<string, string> {
+  const merged: Record<string, string> = {};
+  for (const obj of objects) {
+    for (const [key, value] of Object.entries(obj)) {
+      if (merged[key]) throw new Error(`Selector collision: "${key}" defined in multiple groups`);
+      merged[key] = value;
+    }
+  }
+  return merged;
+}
+export const ALL_SELECTORS = buildAllSelectors(MicrosoftLoginSelectors, NavigatorSelectors, SetupSelectors);
 
 /**
- * Get TypeScript selector by element name
+ * Get TypeScript selector by element name.
+ * For dynamic selectors, use DynamicSelectors directly: DynamicSelectors.lnkOfficeCode('1604')
  * @returns selector string or null if not found
  */
 export function getTsSelector(elementName: string): string | null {
   return ALL_SELECTORS[elementName] ?? null;
 }
-
-export type SelectorKey<T> = keyof T & string;

@@ -1,3 +1,6 @@
+# Windows null device artifact
+nul
+
 # Node / TypeScript
 node_modules/
 npm-debug.log
@@ -5,37 +8,43 @@ yarn-error.log
 yarn.lock
 pnpm-lock.yaml
 .build/
+dist/
+client-delivery/
 *.tsbuildinfo
 *.js.map
 *.d.ts.map
 
 # Playwright
 test-results/
+reports/test-results/
 playwright-report/
 playwright/.cache/
 .playwright/
+reports/test-results/.last-run.json
 
 # Logs
-logs/
+logs/*
 *.log
-!logs/.gitkeep
+!logs/README.md
 *.out
 
 # Reports
-reports/
+reports/*
 !reports/.gitkeep
 allure-results/
 allure-report/
 html-report/
 screenshots/
 !screenshots/.gitkeep
-*.html
-*.xml
+reports/**/*.html
+reports/**/*.xml
 
 # Environment
 .env
 .env.local
 .env.*.local
+config/environments/.env.local
+config/environments/.env.*.local
 
 # OS
 .DS_Store
@@ -75,11 +84,46 @@ tmp/
 # Credentials (DO NOT COMMIT)
 *credentials*
 *secrets*
+!config/secrets/
+!config/secrets/vault.ts
 *password*
 *token*
 *.pem
 *.key
 
+# Vault secrets (explicit)
+config/secrets/.vault.enc
+config/secrets/.vault.key
+config/secrets/*.enc
+
+# Auth sessions
+.auth/
+
+# Root artifact junk (defensive — anchored to repo root)
+/li_run*.txt
+/seed.spec.ts
+
+# MCP browser session artifacts
+.playwright-mcp/
+
+# Agent audit reports (internal only - proprietary)
+specs_planning/audits/*.md
+!specs_planning/audits/.gitkeep
+
+# Agent performance tracking (internal only - proprietary)
+specs_planning/agent-performance.json
+
 # Playwright browsers cache
 .browsers/
 ms-playwright/
+
+# Claude Code (local only - not for git)
+CLAUDE.md
+current_plan.md
+
+# Generated artifacts (not tracked)
+export_test_cases/exports/
+specs_planning/agent-metrics-report.md
+reports/failure-summary.json
+specs_planning/test-id-registry.json
+reports/fixme-registry.json

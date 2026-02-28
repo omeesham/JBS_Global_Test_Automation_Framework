@@ -120,7 +120,7 @@ pipeline {
             // ])
 
             // Archive artifacts
-            archiveArtifacts artifacts: 'reports/**/*,test-results/**/*,tests/test-data/downloads/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'reports/**/*,tests/test-data/downloads/**/*', allowEmptyArchive: true
 
             // Clean workspace
             cleanWs()
