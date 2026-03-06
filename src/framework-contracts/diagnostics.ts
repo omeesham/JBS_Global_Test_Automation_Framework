@@ -5,10 +5,10 @@
  * IMPACT: medium - Used by DiagnosticsCollector and AgentReporter for structured failure data.
  * DEPENDS-ON: none
  * USED-BY: src/utils/diagnostics-collector.ts, src/utils/agent-reporter.ts, tests/setup/fixtures.ts
- * RULES: Keep types aligned with AgentReporter FailureEntry fields. FailureCategory values must match AGENT_SHARED_RULES §15.
+ * RULES: Keep types aligned with AgentReporter FailureEntry fields. FailureCategory values must match AGENT_SHARED_RULES §12.
  */
 
-/** Failure classification categories -- used for agent routing in RCA protocol (§15). */
+/** Failure classification categories -- used for agent routing in RCA protocol (§12). */
 export enum FailureCategory {
   AUTH = 'AUTH',
   NETWORK = 'NETWORK',

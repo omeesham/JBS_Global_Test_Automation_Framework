@@ -1,0 +1,314 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-27T18:00:00Z",
+  "promotionRules": {
+    "description": "Strict meritocracy - no self-promotion, external audit only, zero-defect required",
+    "trustLevels": ["probation", "vetting", "trusted", "autonomous"],
+    "promotionCriteria": {
+      "probation_to_vetting": {
+        "cleanCycles": 1,
+        "auditedBy": ["human", "audit", "post-complete-gate"],
+        "defectTolerance": 0
+      },
+      "vetting_to_trusted": {
+        "cleanCycles": 2,
+        "auditedBy": ["human", "audit", "post-complete-gate"],
+        "defectTolerance": 0
+      },
+      "trusted_to_autonomous": {
+        "cleanCycles": 3,
+        "auditedBy": ["human"],
+        "defectTolerance": 0
+      }
+    },
+    "demotionRules": {
+      "anyDefect": "reset cleanCycles to 0, demote one level",
+      "criticalDefect": "demote to probation immediately",
+      "noSelfPromotion": "agents cannot mark their own cycles as clean"
+    }
+  },
+  "agents": {
+    "requirements": {
+      "trustLevel": "probation",
+      "cleanCycles": 0,
+      "totalRuns": 5,
+      "defects": [
+        {
+          "date": "2026-02-18",
+          "id": "REQ-PERF-001",
+          "feature": "location-management-history",
+          "description": "Documented wrong default rows/page (said 10, actual 20), wrong empty state (said 0 rows, actual 1), wrong column duplication identification (said Set/Strike, actual Calculate CAC on Net Amount)",
+          "severity": "high",
+          "resolved": false
+        },
+        {
+          "date": "2026-02-18",
+          "id": "REQ-PERF-002",
+          "feature": "location-local-information",
+          "description": "Self-caught Legal Save button contradiction in REQUIREMENTS.md line 146",
+          "severity": "low",
+          "resolved": true
+        },
+        {
+          "date": "2026-03-02",
+          "id": "REQ-PERF-003",
+          "feature": "location-local-office-settings",
+          "description": "4 of 6 Default Date Offset UI labels wrong in REQUIREMENTS.md: 'Relative to Dispatch' (field table) vs 'Relative to Start' (DOM + own validation text). Internal inconsistency: table and validation section contradict each other for same field.",
+          "severity": "high",
+          "resolved": false
+        },
+        {
+          "date": "2026-03-02",
+          "id": "REQ-PERF-004",
+          "feature": "location-local-office-settings",
+          "description": "Misc Settings section materially incomplete: 4+ checkboxes undocumented (Items Filled From Requests Return to Availability, Allow tentative/confirmed same priority, Print Description Default, Use ServiceType for Subrental). Default new job to 1 day missing 3 sub-options. Default Order Type combobox undocumented. State column uses '*(observed)*' placeholder for most rows without actual values.",
+          "severity": "high",
+          "resolved": false
+        },
+        {
+          "date": "2026-03-02",
+          "id": "REQ-PERF-005",
+          "feature": "location-local-office-settings",
+          "description": "Default Logo section documented as 'File/image field' — live DOM shows Company Logo combobox (select from options) + two checkboxes (Quotes, Rental Orders/DROs). Wrong field type will cause Generator to write TC against non-existent file input.",
+          "severity": "high",
+          "resolved": false
+        },
+        {
+          "date": "2026-03-02",
+          "id": "REQ-PERF-006",
+          "feature": "location-local-office-settings",
+          "description": "No activity log entry for the 2026-03-02 session (ALL-002 violation). Entire local-office exploration, REQUIREMENTS.md update, and queue entry creation done with zero logging.",
+          "severity": "medium",
+          "resolved": false
+        }
+      ],
+      "lastAuditedBy": "audit",
+      "lastAuditDate": "2026-03-02",
+      "notes": "5 tasks total. 4 data accuracy defects found across sessions (1 by self, 3 by downstream agents, 3 by audit). Learning yield: 0.0 — zero learnings logged across ALL sessions. Self-audit accuracy: 0.0 — no self-audit ever completed. 2026-03-02 session: local-office settings. New defects: 4 wrong labels, incomplete Misc Settings, wrong Default Logo field type, zero activity logging.",
+      "learningsLogged": 0,
+      "learningYield": 0.0,
+      "learningDebt": 5,
+      "maturityIndicators": {
+        "defectRecurrenceRate": 0.5,
+        "selfAuditAccuracy": 0.0,
+        "maturityScore": 0
+      }
+    },
+    "planner": {
+      "trustLevel": "probation",
+      "cleanCycles": 0,
+      "totalRuns": 10,
+      "defects": [
+        {
+          "date": "2026-02-17",
+          "id": "PLN-027",
+          "description": "Created TCs with wrong ID format without reading existing patterns",
+          "severity": "medium",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-17",
+          "id": "PLN-029",
+          "feature": "location-currency",
+          "description": "Completed test planning without selector validation - 4 missing selectors (column headers, No Matches Found, save confirmation dialog)",
+          "severity": "medium",
+          "resolved": false
+        },
+        {
+          "date": "2026-02-19",
+          "id": "PLN-030",
+          "feature": "location-shared-setup",
+          "description": "AUDIT BLOCKED: 9 findings — self-certified uiTestingChecklist, TBD row-selection mechanism, zero TCs for non-self-row path, hedged expected results",
+          "severity": "critical",
+          "resolved": false
+        },
+        {
+          "date": "2026-03-02",
+          "id": "PLN-PERF-001",
+          "feature": "location-local-office-settings",
+          "description": "TC-LOS-BAS-015 step 5 asserts all 13 sections Active. DOM (MCP 2026-03-02): 4 sections inactive (Power, Rigging, Staging, Whiteboard). Self-audit claimed L1:10→L2:10→L3:10 (perfect) but missed this data accuracy issue.",
+          "severity": "high",
+          "resolved": false
+        },
+        {
+          "date": "2026-03-02",
+          "id": "PLN-PERF-002",
+          "feature": "location-local-office-settings",
+          "description": "TC-LOS-BAS-027 '~55 service type rows (verified from DOM)' — actual DOM count = 75. REQUIREMENTS also wrong at ~50. 36% undercount despite live MCP session claimed.",
+          "severity": "medium",
+          "resolved": false
+        },
+        {
+          "date": "2026-03-02",
+          "id": "PLN-PERF-003",
+          "feature": "location-local-office-settings",
+          "description": "Test plan HST IDs 3-6 out of phase with test case IDs 3-6 (shuffled order). PLN-017 now added to registry.",
+          "severity": "medium",
+          "resolved": false
+        }
+      ],
+      "lastAuditedBy": "audit",
+      "lastAuditDate": "2026-03-02",
+      "totalRuns": 11,
+      "notes": "Run 11 (2026-03-02): Local Office Settings (LOS). 56 TCs, 3 tabs, selectors. Self-audit found+fixed 10 format issues (PLN-016 added). Audit found 3 additional data accuracy issues: 4/13 sections inactive in DOM, discount exemptions 75 not 55, HST ID shuffle. Learning yield: 0.0 session (PLN-016 written but not logged in agent-learnings.md). Self-audit accuracy: ~60%.",
+      "learningsLogged": 0,
+      "learningYield": 0.0,
+      "learningDebt": 1,
+      "maturityIndicators": {
+        "defectRecurrenceRate": 0.3,
+        "selfAuditAccuracy": 0.6,
+        "maturityScore": 1
+      }
+    },
+    "generator": {
+      "trustLevel": "probation",
+      "cleanCycles": 0,
+      "totalRuns": 7,
+      "defects": [
+        {
+          "date": "2026-02-20",
+          "id": "GEN-006",
+          "feature": "location-local-information",
+          "description": "672-line spec — exceeded 200-line limit by 3.3x",
+          "severity": "critical",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-20",
+          "id": "GEN-007",
+          "feature": "location-local-information",
+          "description": "Raw page access via bracket notation 9x in spec — bypassed page object abstraction",
+          "severity": "critical",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-20",
+          "id": "GEN-008",
+          "feature": "location-local-information",
+          "description": "5x waitForTimeout in page object — synchronization anti-pattern",
+          "severity": "critical",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-20",
+          "id": "GEN-009",
+          "feature": "location-local-information",
+          "description": "Created unnecessary init-session.ts bypassing existing auth fixture",
+          "severity": "critical",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-20",
+          "id": "GEN-010",
+          "feature": "location-local-information",
+          "description": "60+ lines of Log.info boilerplate in spec",
+          "severity": "high",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-20",
+          "id": "GEN-011",
+          "feature": "location-local-information",
+          "description": "Inline selectors in spec and page object — not from selectors/index.ts",
+          "severity": "high",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-20",
+          "id": "GEN-012",
+          "feature": "location-local-information",
+          "description": "Tests mutate shared data without test.describe.serial",
+          "severity": "high",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-20",
+          "id": "GEN-013",
+          "feature": "location-local-information",
+          "description": "Test marked complete but never ran successfully — no passing output shown",
+          "severity": "high",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-20",
+          "id": "GEN-PERF-001",
+          "feature": "location-local-information",
+          "description": "Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity",
+          "severity": "high",
+          "resolved": false
+        },
+        {
+          "date": "2026-02-24",
+          "id": "GEN-PERF-002",
+          "feature": "location-local-information",
+          "description": "Run 2 clean restart: GEN-022 repeated (no HH:MM in log entries), GEN-003 repeated (tests never passed), R23/R26 skipped, empty Billing describe block (GEN-025), spec 213 lines (GEN-019), timeout increased without root cause diagnosis (GEN-024). R10 now exhausted.",
+          "severity": "critical",
+          "resolved": true
+        }
+      ],
+      "lastAuditedBy": "audit",
+      "lastAuditDate": "2026-02-27",
+      "notes": "Run 1 (02-20): catastrophic 672-line spec, never ran. Run 2 (02-23): clean restart, timeout undiagnosed. Run 3 (02-25): TC-026/045 added, 24/24 passing. Run 4 (02-25): remaining LI TCs completed. Run 5 (02-25): Currency spec completed 20/20. Run 6 (02-27): RCA+FIX 3 root causes, 19 passed/8 skipped. Run 7 (02-27): viewport fix + live DOM audit, headless 19/8/0. Post-overhaul quality good. 2 specs completed (LI 41% + Currency 100%).",
+      "learningsLogged": 7,
+      "learningYield": 1.0,
+      "learningDebt": 0,
+      "maturityIndicators": {
+        "defectRecurrenceRate": 0.0,
+        "selfAuditAccuracy": 0.0,
+        "maturityScore": 0
+      }
+    },
+    "healer": {
+      "trustLevel": "probation",
+      "cleanCycles": 0,
+      "totalRuns": 1,
+      "defects": [],
+      "lastAuditedBy": null,
+      "lastAuditDate": null,
+      "notes": "Run 1 (02-25): 20/20 LI tests passing after heal. Added HLR-010/011 + LRN-010/011. Clean session, zero defects.",
+      "learningsLogged": 2,
+      "learningYield": 1.0,
+      "learningDebt": 0,
+      "maturityIndicators": {
+        "defectRecurrenceRate": 0.0,
+        "selfAuditAccuracy": 0.0,
+        "maturityScore": 0
+      }
+    },
+    "audit": {
+      "trustLevel": "probation",
+      "cleanCycles": 0,
+      "totalRuns": 13,
+      "defects": [
+        {
+          "date": "2026-02-17",
+          "id": "AUD-PERF-001",
+          "feature": "location-local-information",
+          "description": "Initial block had 40% accuracy — 3 of 5 claims were false (selectors existed, DISCOVER_ not found). Required self-correction after re-audit.",
+          "severity": "high",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-19",
+          "id": "AUD-PERF-002",
+          "feature": "location-shared-setup",
+          "description": "Terminated without completing Mode 1 step 7 (registry update) — caught only after user challenge, not by self-audit",
+          "severity": "medium",
+          "resolved": true
+        }
+      ],
+      "lastAuditedBy": "human",
+      "lastAuditDate": "2026-02-27",
+      "notes": "13 audits across 11 days. Self-accuracy improved from 40% (02-17) to consistent findings. False positive on 02-27: F4 claimed firefox/webkit viewport:null when both have explicit 1920x1080 (COP-016 violation). Flag-and-forget pattern: findings not tracked to resolution. Performance.json abandoned 7 days (02-20 to 02-27).",
+      "learningsLogged": 0,
+      "learningYield": 0.0,
+      "learningDebt": 0,
+      "maturityIndicators": {
+        "defectRecurrenceRate": 0.0,
+        "selfAuditAccuracy": 0.0,
+        "maturityScore": 0
+      }
+    }
+  },
+  "cycleLog": []
+}

@@ -262,3 +262,93 @@
 6. Check any Is Alternative checkbox: `chkIsAlternative('MEX BO GDL MXN 2025')`, click, checked
 7. Click Pricing Save: `btnSavePricing`, click, save completes (no confirmation dialog)
 8. Reload page and return to Pricing tab: verify Is Alternative state persisted
+
+---
+
+## Scenario: TC-LOC-PRI-024 - Price Guide Inclusive — edit and persist
+
+1. Navigate to Pricing tab: `tabPricing`, click, tab loads
+2. Verify Price Guide Inclusive default: `chkPriceGuideInclusive`, check state, expected checked
+3. Uncheck Price Guide Inclusive: `chkPriceGuideInclusive`, click, unchecked
+4. Click Save: `btnSavePricing`, click, save completes
+5. Reload page and navigate to Pricing tab: tab loads
+6. Verify Price Guide Inclusive persisted unchecked: `chkPriceGuideInclusive`, check state, expected unchecked
+7. Re-check Price Guide Inclusive: `chkPriceGuideInclusive`, click, checked
+8. Click Save: `btnSavePricing`, click, save completes
+9. Reload and verify Price Guide Inclusive: `chkPriceGuideInclusive`, check state, expected checked (default restored)
+
+---
+
+## Scenario: TC-LOC-PRI-025 - Corporate Pricing — toggle state persists after Save
+
+1. Navigate to Pricing tab: `tabPricing`, click, tab loads
+2. Verify Corporate Pricing default: `chkCorporatePricing`, check state, expected checked
+3. Uncheck Corporate Pricing: `chkCorporatePricing`, click, unchecked
+4. Verify Primary pricing fields disabled: `drpPrimaryLaborPricing`, check disabled state, expected disabled
+5. Click Save: `btnSavePricing`, click, save completes
+6. Reload page and navigate to Pricing tab: tab loads
+7. Verify Corporate Pricing persisted unchecked: `chkCorporatePricing`, check state, expected unchecked
+8. Re-check Corporate Pricing: `chkCorporatePricing`, click, checked
+9. Verify Primary pricing fields re-enabled: `drpPrimaryLaborPricing`, check enabled state, expected enabled
+10. Click Save: `btnSavePricing`, click, save completes
+11. Reload and verify Corporate Pricing: `chkCorporatePricing`, check state, expected checked (default restored)
+
+---
+
+## Scenario: TC-LOC-PRI-026 - Primary Labor Pricing — select and persist specific value
+
+1. Navigate to Pricing tab: `tabPricing`, click, tab loads
+2. Verify Corporate Pricing is checked: `chkCorporatePricing`, check state, expected checked
+3. Click Primary Labor Pricing dropdown: `drpPrimaryLaborPricing`, click, dropdown opens
+4. Select option "2026-Zone 3 D": `drpPrimaryLaborPricing`, select "2026-Zone 3 D", value shown in field
+5. Click Save: `btnSavePricing`, click, save completes
+6. Reload page and navigate to Pricing tab: tab loads
+7. Verify Primary Labor Pricing persisted: `drpPrimaryLaborPricing`, check text, expected "2026-Zone 3 D"
+
+---
+
+## Scenario: TC-LOC-PRI-027 - Primary Equipment Pricing — select and persist specific value
+
+1. Navigate to Pricing tab: `tabPricing`, click, tab loads
+2. Verify Corporate Pricing is checked: `chkCorporatePricing`, check state, expected checked
+3. Click Primary Equipment Pricing dropdown: `drpPrimaryEquipmentPricing`, click, dropdown opens
+4. Select option "2026-Tier 2 Resort B": `drpPrimaryEquipmentPricing`, select "2026-Tier 2 Resort B", value shown in field
+5. Click Save: `btnSavePricing`, click, save completes
+6. Reload page and navigate to Pricing tab: tab loads
+7. Verify Primary Equipment Pricing persisted: `drpPrimaryEquipmentPricing`, check text, expected "2026-Tier 2 Resort B"
+
+---
+
+## Scenario: TC-LOC-PRI-028 - Primary Internal Equipment Pricing — select and persist specific value
+
+1. Navigate to Pricing tab: `tabPricing`, click, tab loads
+2. Verify Corporate Pricing is checked: `chkCorporatePricing`, check state, expected checked
+3. Click Primary Internal Equipment Pricing dropdown: `drpPrimaryInternalEquipmentPricing`, click, dropdown opens
+4. Select option "2023-Internal2": `drpPrimaryInternalEquipmentPricing`, select "2023-Internal2", value shown in field
+5. Click Save: `btnSavePricing`, click, save completes
+6. Reload page and navigate to Pricing tab: tab loads
+7. Verify Primary Internal Equipment Pricing persisted: `drpPrimaryInternalEquipmentPricing`, check text, expected "2023-Internal2"
+
+---
+
+## Scenario: TC-LOC-PRI-029 - Primary Production Labor Pricing — select and persist specific value
+
+1. Navigate to Pricing tab: `tabPricing`, click, tab loads
+2. Verify Corporate Pricing is checked: `chkCorporatePricing`, check state, expected checked
+3. Click Primary Production Labor Pricing dropdown: `drpPrimaryProductionLaborPricing`, click, dropdown opens
+4. Select option "2026-NP LB3": `drpPrimaryProductionLaborPricing`, select "2026-NP LB3", value shown in field
+5. Click Save: `btnSavePricing`, click, save completes
+6. Reload page and navigate to Pricing tab: tab loads
+7. Verify Primary Production Labor Pricing persisted: `drpPrimaryProductionLaborPricing`, check text, expected "2026-NP LB3"
+
+---
+
+## Scenario: TC-LOC-PRI-030 - Primary Production Equipment Pricing — select and persist specific value
+
+1. Navigate to Pricing tab: `tabPricing`, click, tab loads
+2. Verify Corporate Pricing is checked: `chkCorporatePricing`, check state, expected checked
+3. Click Primary Production Equipment Pricing dropdown: `drpPrimaryProductionEquipmentPricing`, click, dropdown opens
+4. Select option "2026-NP Tier 2": `drpPrimaryProductionEquipmentPricing`, select "2026-NP Tier 2", value shown in field
+5. Click Save: `btnSavePricing`, click, save completes
+6. Reload page and navigate to Pricing tab: tab loads
+7. Verify Primary Production Equipment Pricing persisted: `drpPrimaryProductionEquipmentPricing`, check text, expected "2026-NP Tier 2"

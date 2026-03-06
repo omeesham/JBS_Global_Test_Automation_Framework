@@ -40,8 +40,8 @@ function main(): void {
   console.log('Generator Pre-Run Gate (R10 Enforcement)');
   console.log('='.repeat(60));
 
-  // ── §18 Pre-Flight Competency Gate ──
-  console.log('\n--- Pre-Flight Competency Gate (§18) ---');
+  // ── §13 Pre-Flight Competency Gate ──
+  console.log('\n--- Pre-Flight Competency Gate (§13) ---');
   let preFlightFailed = false;
 
   // PF-01: Queue file
@@ -50,15 +50,14 @@ function main(): void {
     preFlightFailed = true;
   }
 
-  // PF-02: agent-learnings.md
-  const learningsPath = path.join(__dirname, '../specs_planning/agent-learnings.md');
-  if (!fs.existsSync(learningsPath)) {
-    console.error('[HALT] PF-02: agent-learnings.md not found. R24/R29 compliance impossible.');
+  // PF-02: learning store (agent-mistakes.md Resolution column)
+  if (!fs.existsSync(SHARED_PATHS.mistakes)) {
+    console.error('[HALT] PF-02: agent-mistakes.md not found. ALL-003/ALL-004 compliance impossible.');
     preFlightFailed = true;
   }
 
   // PF-03: agent-mistakes.md
-  const mistakesPath = path.join(__dirname, '../specs_planning/agent-mistakes.md');
+  const mistakesPath = path.join(__dirname, '../specs_planning/_internal/agent-mistakes.md');
   if (!fs.existsSync(mistakesPath)) {
     console.error('[HALT] PF-03: agent-mistakes.md not found. R5 compliance impossible.');
     preFlightFailed = true;
@@ -125,7 +124,7 @@ function main(): void {
   }
 
   // PF-06: Own performance entry
-  const perfPath = path.join(__dirname, '../specs_planning/agent-performance.json');
+  const perfPath = path.join(__dirname, '../specs_planning/_internal/agent-performance.json');
   if (fs.existsSync(perfPath)) {
     try {
       const perfData = JSON.parse(fs.readFileSync(perfPath, 'utf-8'));
@@ -159,7 +158,7 @@ function main(): void {
         const recurrence = genPerf.maturityIndicators?.defectRecurrenceRate ?? 0;
         if (recurrence > 0) {
           console.log(`[RECUR] Defect recurrence rate: ${(recurrence * 100).toFixed(0)}%. You have hit known patterns again.`);
-          console.log('[RECUR] Search agent-learnings.md for matching LRN entries and apply them proactively.');
+          console.log('[RECUR] Search agent-mistakes.md Resolution column for matching entries and apply them proactively.');
         }
       } else {
         console.warn('[WARN] PF-06: No generator entry in agent-performance.json.');
@@ -234,7 +233,7 @@ function main(): void {
   item.generatorRunCount = currentCount + 1;
   item.sessionStartedAt = new Date().toISOString();
 
-  // ── R25 consumption check (SOFT) ──
+  // ── §8 Context Self-Load check (SOFT) ──
   // Verify agent loaded injectedContext. Look for a "context-loaded" action
   // in the activity log within the last 30 minutes for this item.
   if (fs.existsSync(SHARED_PATHS.activityLog)) {
@@ -262,8 +261,8 @@ function main(): void {
 
     if (!hasRecentContextLoad) {
       console.warn('');
-      console.warn('[WARN]  R25 WARNING: No recent "context-loaded" entry found in activity log for this item.');
-      console.warn('   Generator MUST read injectedContext before starting work (R25).');
+      console.warn('[WARN]  ALL-003 WARNING: No recent "context-loaded" entry found in activity log for this item.');
+      console.warn('   Generator MUST read injectedContext before starting work (S8 Context Self-Load).');
       console.warn('   Log format: | timestamp | generator | context-loaded | Read injectedContext for <item-id> | <item-id> |');
       console.warn('');
     }
@@ -382,45 +381,47 @@ function main(): void {
       console.log('[WARN] S15 Phase A: Complete ALL 14 evidence checklist items BEFORE editing code.');
       console.log('[WARN] MANDATORY: Replicate failure in MCP browser (A13) + evaluate selector in live DOM (A14).');
 
-      // Surface matching learnings for current failure categories (S9A enforcement)
-      const learningsPath = path.join(__dirname, '../specs_planning/agent-learnings.md');
-      if (fs.existsSync(learningsPath)) {
-        const learningsContent = fs.readFileSync(learningsPath, 'utf-8');
-        const matchingLearnings: string[] = [];
+      // Surface matching Resolution entries for current failure categories (ALL-003 enforcement)
+      if (fs.existsSync(SHARED_PATHS.mistakes)) {
+        const mistakesContent = fs.readFileSync(SHARED_PATHS.mistakes, 'utf-8');
+        const matchingResolutions: string[] = [];
         for (const cat of Object.keys(failureCategories)) {
-          const regex = new RegExp(`\\| LRN-\\d+ \\| ${cat}`, 'gi');
-          const matches = learningsContent.match(regex);
-          if (matches) matchingLearnings.push(...matches);
+          const catLower = cat.toLowerCase();
+          const lines = mistakesContent.split('\n').filter(line => {
+            if (!line.trimStart().startsWith('|')) return false;
+            const cells = line.split('|').map(c => c.trim()).filter(Boolean);
+            if (cells.length < 3) return false;
+            const resolution = cells[cells.length - 1] ?? '';
+            return resolution !== '\u2014' && resolution.length > 5 &&
+              (resolution.toLowerCase().includes(catLower) || cells[1]?.toLowerCase().includes(catLower));
+          });
+          matchingResolutions.push(...lines);
         }
-        if (matchingLearnings.length > 0) {
-          console.log(`[LEARN] ${matchingLearnings.length} prior learnings match your failure categories:`);
-          for (const m of matchingLearnings.slice(0, 5)) {
-            // Extract the LRN ID
-            const idMatch = m.match(/LRN-\d+/);
-            if (idMatch) {
-              // Find the full line for this LRN ID
-              const fullLine = learningsContent.split('\n').find(l => l.includes(idMatch[0]));
-              if (fullLine) {
-                const cols = fullLine.split('|').map(c => c.trim()).filter(Boolean);
-                console.log(`  -> ${cols[0]}: ${cols[2]?.substring(0, 80) ?? ''}`);
-              }
-            }
+        if (matchingResolutions.length > 0) {
+          console.log(`[LEARN] ${matchingResolutions.length} prior Resolution entries match your failure categories:`);
+          for (const line of matchingResolutions.slice(0, 5)) {
+            const cols = line.split('|').map(c => c.trim()).filter(Boolean);
+            console.log(`  -> ${cols[0]}: ${cols[cols.length - 1]?.substring(0, 80) ?? ''}`);
           }
-          console.log('[LEARN] READ these learnings BEFORE retrying. Apply known solutions first (R24/S9A).');
+          console.log('[LEARN] READ these Resolution entries BEFORE retrying. Apply known solutions first (ALL-003/S8).');
         } else {
-          console.log('[LEARN] No prior learnings match current failure categories. Novel failures detected.');
-          console.log('[LEARN] YOU MUST log learnings during this session (S9C). Gate 19 will verify.');
+          console.log('[LEARN] No prior Resolution entries match current failure categories. Novel failures detected.');
+          console.log('[LEARN] YOU MUST log learnings during this session (S8). Gate 19 will verify.');
         }
 
         // Learning debt warning
         const currentRunCount = (item.generatorRunCount as number) ?? 0;
         if (currentRunCount >= 2) {
-          const today = new Date().toISOString().slice(0, 10);
-          const todayLearnings = learningsContent.split('\n').filter(l =>
-            l.startsWith('| LRN-') && l.toLowerCase().includes('generator') && l.includes(today)
-          );
-          if (todayLearnings.length === 0) {
-            console.log(`[DEBT] LEARNING DEBT: Run #${currentRunCount} with 0 learnings logged today.`);
+          const generatorResolutions = mistakesContent.split('\n').filter(l => {
+            if (!l.trimStart().startsWith('|')) return false;
+            const cells = l.split('|').map(c => c.trim()).filter(Boolean);
+            if (cells.length < 3) return false;
+            const id = cells[0] ?? '';
+            const resolution = cells[cells.length - 1] ?? '';
+            return id.startsWith('GEN-') && resolution !== '\u2014' && resolution.length > 5;
+          });
+          if (generatorResolutions.length === 0) {
+            console.log(`[DEBT] LEARNING DEBT: Run #${currentRunCount} with 0 Generator Resolution entries.`);
             console.log('[DEBT] Gate 19 will BLOCK post-complete until you log learnings. Do it NOW, not later.');
           }
         }
@@ -497,7 +498,7 @@ function main(): void {
       cwd: path.join(__dirname, '..'),
       stdio: 'pipe',
     });
-    const registryPath = path.join(__dirname, '../specs_planning/test-id-registry.json');
+    const registryPath = path.join(__dirname, '../specs_planning/_internal/test-id-registry.json');
     if (fs.existsSync(registryPath)) {
       const registry = JSON.parse(fs.readFileSync(registryPath, 'utf-8'));
       if (Array.isArray(registry)) {

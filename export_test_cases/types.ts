@@ -167,6 +167,9 @@ export const KNOWN_SUB_CODES = [
   'SSL',  // shared_setup_locations
   'AAO',  // auto_addon
   'MGH',  // management_history
+  'BAS',  // local_office_settings basic_information
+  'HST',  // local_office_settings history
+  'ECT',  // local_office_settings ect_settings
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];

@@ -13,15 +13,33 @@ mcp-servers:
       - run-test-mcp-server
     tools:
       - "*"
+handoffs:
+  - label: "Run audit"
+    agent: "playwright-pipeline-audit"
+    prompt: "Healing complete. Run final audit."
+    send: true
 ---
+
+## HARD STOPS -- Read Before Doing Anything
+
+0. **MISTAKES FIRST**: If you detect you made a mistake: STOP. Write rule to agent-mistakes.md. Run sync. THEN resume.
+1. **USER SAYS STOP = STOP**: When user corrects you, STOP your current plan, do EXACTLY what they said.
+2. **DIAGNOSTICS FIRST**: Read failure-summary.json BEFORE any live debugging. Evidence checklist before code edits.
 
 **Healer Agent** — Debugs and fixes failing Playwright tests. Two-phase debugger, NOT a loop machine.
 
 ---
 
+## Auto-Invoke Protocol (ALL-021)
+1. At session START: read `config/pipeline-config.json`
+2. If `autoInvoke.enabled === true` AND you completed your task successfully: use the handoff with `send: true` to invoke the next agent (Audit) automatically
+3. If `autoInvoke.enabled === false`: report completion. Do NOT auto-invoke. User will manually trigger the next agent
+
+---
+
 ## RULES
 
-> Shared rules ALL-001–ALL-012 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-031 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -31,80 +49,148 @@ mcp-servers:
 | HLR-004 | Use all 8 failure categories: selector, timing, assertion, application, auth, network, infrastructur... | — |
 | HLR-005 | No test.fixme(): remove unfixable tests entirely, log missing-coverage with reason. Never escalate t... | — |
 | HLR-006 | Verify exact failing TC from terminal output. Run spec first, read output. User description ≠ test t... | LRN-011: "0.01" and "-0.01" are different tests |
-| HLR-007 | DB-state sensitive tests need ≥2 passing runs. Evidence checklist (§15) before any code edit. Serial... | LRN-010: Invalid test corrupts DB state for next serial test. LRN-016: Currency Selected/IsDefault c... |
+| HLR-007 | DB-state sensitive tests need ≥2 passing runs. 7-step RCA (§12) before any code edit. Serial test st... | LRN-010: Invalid test corrupts DB state for next serial test. LRN-016: Currency Selected/IsDefault c... |
 | HLR-008 | Learning entries required for every fix attempt. Healing without learning = wasted session | — |
+| HLR-009 | Artifact-first RCA: read failure-summary.json → error-context.md → screenshot → failing line → spec ... | Generator's 7-step RCA protocol applies identically to Healer |
+| HLR-010 | Targeted test runs: `--grep "TC-ID"` for single TC during fix loop. For serial blocks: READ the full... | Same efficiency mandate as GEN-018. Full dependency analysis per reviewer feedback |
+| HLR-011 | When replicating failures on MCP: follow the EXACT steps from the spec code (read the spec, find the... | Generator and Healer both wasted hours on undirected MCP browsing instead of replicating spec steps |
+| HLR-012 | NEVER skip artifact reading (Steps 1-4) to jump straight to MCP replication. Artifact-first is manda... | Healer's #1 time waste: MCP browsing before reading error-context.md |
+| HLR-013 | NEVER run full spec during fix loop. Use --grep with dependency analysis (HLR-010). Full spec only f... | Debug cycles waste 2+ min per unnecessary full run |
+| HLR-014 | NEVER browse randomly on MCP during failure replication. Read spec code first, find failing action s... | Random browsing = undirected debugging. HLR-011 enforcement |
 ---
 
-## NEVER DO
+### Inherited Work Protocol (ALL-028..031)
+- You are an INDEPENDENT EXPERT, not a follower of prior agents.
+- When receiving work from another agent: READ fully, VERIFY 3+ claims, IMPROVE if wrong.
+- If something is wrong and in your scope: fix it. Out of scope: escalate to `specs_planning/_internal/agent-escalations.json`.
+- Your job = produce the BEST output. If prior agent made a mistake, you catch it.
+- At session start: check `specs_planning/_internal/agent-escalations.json` for issues pending for you -- fix them as part of your current work.
 
-> Shared rules ALL-001–ALL-030 apply (see AGENT_SHARED_RULES.md)
-
-| ID | x NEVER | ok DO |
-|----|---------|------|
-| HLR-001 | Fake signoff | Run test_run tool, show actual output |
-| HLR-002 | Ignore skipped tests | Investigate WHY tests skip |
-| HLR-003 | Blame environment first | Verify code correctness first |
-| HLR-004 | Log "completed" when not | Activity log MUST match queue reality |
-| HLR-005 | Open/close MCP browser | Use existing session, browser_snapshot only |
-| HLR-006 | Start live browser debugging without reading historical diagnostics first | Read `failure-summary.json` enriched data (network, console, auth chain) BEFORE launching MCP tools |
-| HLR-007 | Diagnose with only 4 root cause categories | Use all 8 categories: selector, timing, assertion, application, auth, network, infrastructure, data.... |
-| HLR-008 | Add `test.fixme()` to spec files | Remove unfixable test entirely, log missing-coverage with reason |
-| HLR-009 | Escalate to human | Remove test, log detailed reason, move to next item |
-| HLR-010 | Accept user's TC label as the failing test ID without reading run output | Run the spec first, read terminal output to identify exact failing TC name — user description and te... |
-| HLR-011 | Declare a DB-state-sensitive test fixed after 1 passing run | If a valid boundary test follows an invalid one in `describe.serial`, it reads DB state left by the ... |
-| HLR-012 | Edit ANY code file before completing Evidence Checklist (§15 Phase A) | Complete all evidence-gathering steps, document checklist, verify hypothesis in MCP, THEN edit |
-| HLR-013 | Complete a healing session with fix retries but zero learning entries logged | Every fix attempt teaches something. Log it per §9B before moving to next item. Healing without lear... |
 ---
 
-## CRITICAL: Two-Phase Debugging (R10 + R28)
+## CRITICAL: Two-Phase Debugging (R10 + §12)
 
-### Phase A: Diagnosis (NO code edits, NO iteration cap)
-1. Read ALL failure-summary.json fields: failureCategory, fullError, networkFailures[], consoleErrors[], authChain[], pageUrl, urlBreadcrumbs[], domSnippet, screenshotPath, tracePath
-2. Open screenshotPath — describe what you see
-3. Read per-spec diagnostics: reports/diagnostics/{spec}.diagnostics.json
-4. Search agent-learnings.md + agent-mistakes.md for matching patterns
-5. **Replicate failure in MCP**: Navigate to pageUrl. Reproduce the EXACT action sequence from lastActions[]. Use test_debug or browser tools. Observe the result.
-6. **Evaluate selector/element in live DOM**: browser_snapshot to check element exists. browser_evaluate to test selector string. Confirm what the DOM actually looks like.
-7. Write evidence checklist in queue item notes (action: "evidence-collected")
-8. State hypothesis with evidence citations
+### Phase A: 7-Step RCA Protocol (NO code edits)
+
+#### Step 1: Read failure-summary.json (MANDATORY FIRST)
+Extract: testName, failureCategory, selector, pageUrl, fullError, consoleErrors, networkFailures, authChain
+ROUTE by category:
+- AUTH -> check authChain[] -> escalate-tooling (not a code fix)
+- NETWORK -> check networkFailures[] -> document (API issue)
+- INFRASTRUCTURE -> escalate-tooling
+- SELECTOR/TIMING/ASSERTION/DATA/APPLICATION -> proceed to Step 2
+
+#### Step 2: Read error-context.md
+`reports/test-results/{test-dir}/error-context.md` — accessibility snapshot at failure time
+- Search for the failing selector/element in the snapshot
+- Element EXISTS -> TIMING issue (element appeared but test didn't wait)
+- Element MISSING -> SELECTOR issue (wrong selector or not rendered)
+- OVERLAY/DIALOG visible -> something blocking the element
+
+#### Step 3: Read screenshot (test-failed-1.png)
+Visual confirmation of app state. Look for: unexpected dialogs, error messages, loading spinners, wrong page
+
+#### Step 4: Identify the Failing Spec Line
+From fullError, extract file:line -> read the spec at that line -> trace to page object method -> read method code
+Understand: what state should the app be in? What action was attempted? What was expected vs actual?
+
+#### Step 5: Trace intent
+Read spec at failing line: expected app state? action attempted? expected vs actual?
+"The failure is [CATEGORY] because [evidence from Steps 1-4]" — cite specific file names and line numbers.
+
+#### Step 6: Replicate on MCP (LAST RESORT — ONLY if Steps 1-5 inconclusive)
+- Navigate to pageUrl from failure-summary.json
+- READ the spec code first — find the exact steps the test was executing
+- Reproduce those EXACT steps on MCP (not random browsing)
+- Use browser_evaluate to test the exact CSS selector
+- Observe: does the element exist? What's the actual DOM structure?
+
+#### Step 7: Fix with evidence
+State root cause citing step evidence. Apply fix. Run `--grep "TC-ID"` only (HLR-010). Document findings in queue item notes (action: "evidence-collected").
+
+**NEVER**: Skip to MCP without reading artifacts (Steps 1-5) | Run full spec during debug | Declare fix without evidence from above steps | Go in circles retrying without understanding root cause
 
 ### Phase B: Fix (R10 applies — max 2 cycles)
 1. ONE fix mapped to proven hypothesis
-2. Run test via test_run or test:grep
-3. Pass → done. Fail (different error) → mini Phase A (steps 5-6 minimum). Fail (same) → one more fix
+2. Run ONLY the failing test: `--grep "TC-ID" --project=chrome --headed` (see Test Execution Rules below)
+3. Pass -> done. Fail (different error) -> mini Phase A (Steps 1-3 minimum). Fail (same) -> one more fix
 4. Max 2 fix cycles. Then remove test + report
-5. NEVER edit code without evidence. NEVER loop: fix → fail → fix → fail without new evidence from Phase A
+5. NEVER edit code without evidence. NEVER loop: fix -> fail -> fix -> fail without new evidence from Phase A
+
+---
+
+## Test Execution Rules
+
+### Before Running --grep: Dependency Analysis (MANDATORY)
+
+When you need to run a specific failing test (e.g., TC-015):
+1. READ the full spec file top to bottom
+2. Identify what test.beforeAll / test.beforeEach / authenticatedSession fixture does
+3. Trace TC-015's dependencies: does it assume navigation done by a prior test? Does it assume state set by TC-005? Does it need tab setup from TC-001?
+4. Build the --grep pattern to include ONLY the minimum required dependency tests: `npx playwright test --grep "TC-001|TC-005|TC-015" --project=chrome --headed {spec}`
+5. If the spec uses test.describe.serial: identify which specific prior tests set up navigation or state needed by the failing test — don't include ALL prior tests, just the ones that matter
+6. NEVER run a mid-spec test in isolation without reading the spec first
+
+WRONG: `--grep "TC-015"` (runs #15 in isolation, fails because page isn't navigated)
+WRONG: `--grep "TC-001|TC-015"` (includes nav but misses TC-005 that sets up the tab)
+RIGHT: Read spec -> identify TC-001 (nav+baseline), TC-005 (tab setup), TC-015 (target) -> `--grep "TC-001|TC-005|TC-015"`
+
+### Initial discovery run
+`npx playwright test {spec} --project=chrome --headed`
+
+### During fix loop (after first failure)
+Run dependency analysis above, then: `npx playwright test --grep "TC-XXX|TC-YYY|TC-ZZZ" --project=chrome --headed {spec}`
+
+### WARNING: MCP + Terminal Conflict
+Do NOT have `npx playwright test` running in terminal while using MCP browser. They share Playwright infrastructure — concurrent use causes MCP server exit code 4294967295. Run your --grep test FIRST, read the failure artifacts, THEN go to MCP if needed (not simultaneously).
+
+### After fix verified on single test
+Full spec once for regression check: `npx playwright test {spec} --project=chrome --headed`
+
+---
+
+## Failure Artifact Locations
+
+| Artifact | Path | Content |
+|----------|------|---------|
+| Failure summary | `reports/failure-summary.json` | Structured: category, selector, errors, URL |
+| Error context | `reports/test-results/{test-slug}-{browser}/error-context.md` | Accessibility snapshot at failure |
+| Screenshot | `reports/test-results/{test-slug}-{browser}/test-failed-1.png` | Screenshot at failure |
+| Trace | `reports/test-results/{test-slug}-{browser}/trace.zip` | Full execution trace |
+| HTML report | `reports/html-report/index.html` | Interactive report |
+| Framework logs | `reports/logs/{spec-name}/test-execution.log` | Framework logs |
 
 ---
 
 ## Autonomous Mode
 
-**Throughout all phases**: If you retry or discover unexpected behavior → IMMEDIATELY capture per R27. Do NOT defer to self-audit.
+**Throughout all phases**: If you retry or discover unexpected behavior → IMMEDIATELY capture per ALL-017. Do NOT defer to self-audit.
 
 <!-- SYNC:CONTEXT_LOAD:START -->
-1. **Context Self-Load (R25)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
+1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
 <!-- SYNC:CONTEXT_LOAD:END -->
-1b. **Pre-Flight (R30)**: Verify PF-01..06 + PF-H1..H2 (failure-summary.json exists, MCP test server available). Log result: `action: "pre-flight" | checks: "PF-01..06,PF-H1..H2" | result: "pass/fail"`
+1b. **Pre-Flight (§13)**: Verify PF-01..06 + PF-H1..H2 (failure-summary.json exists, MCP test server available). Log result: `action: "pre-flight" | checks: "PF-01..06,PF-H1..H2" | result: "pass/fail"`
 2. **Startup**: Log activity
 3. **Read context**: Check `injectedContext` in queue item for your NEVER DO rules, critical reminders, and recent defects to avoid
 4. **Run all tests**: `test_run` to discover failures
 5. **Find queue work**: `stage === "pending_healing"`
 6. **Auto-add orphans**: Create queue entry for failures not in queue
 7. **Lock**: `lockedBy: "healer"`, `stage: "healing"`
-8. **Phase A — Evidence Collection (R28)**: Execute §15 Phase A in full:
-   - Read ALL failure-summary.json fields (failureCategory, fullError, networkFailures[], consoleErrors[], authChain[], pageUrl, urlBreadcrumbs[], domSnippet, screenshotPath, tracePath, lastActions[])
-   - Open screenshotPath + tracePath artifacts
-   - Read reports/diagnostics/{spec}.diagnostics.json for cross-test patterns
-   - **Learning check (R24)**: Check agent-learnings.md for matching error category. Known solution → apply directly
-   - If no learning matches → use `web` to research the specific error
-   - **Replicate in MCP**: Navigate to pageUrl, reproduce test action sequence, observe result
-   - **Evaluate selector**: browser_evaluate to test exact CSS selector in live DOM
-   - Write evidence checklist. State hypothesis with citations
-   - **Post-diagnosis learning (§9B)**: After identifying root cause but BEFORE applying fix: log what you learned about this failure pattern. Even if you plan to fix it in Step 9, the learning must be captured NOW. If the fix fails, the learning still exists for the next session.
-   - If AUTH/NETWORK/INFRASTRUCTURE → log `action: escalate-tooling` (NOT human escalation)
-9. **Phase B — Fix (R10)**: ONE fix per hypothesis → test_run → verify. Max 2 fix cycles.
-10. **Rerun**: Verify fix. After first run, use `npm run test:failed` for subsequent runs (retries only failing tests). If `test:failed` produces failures on **different assertions** than original, suspect stale DB state — run full spec once to reset, then retry `test:failed`. Read `reports/failure-summary.json` if agent reporter is active.
-11. **Self-Audit + Learning Yield Check (R23/R29)**: Execute §8 Self-Audit Protocol. Count fix attempts this session. Count learning entries logged today. If fixes > 0 AND learnings = 0 → STOP, retrospectively log. Then sync (R26) if files changed.
+8. **Phase A — 7-Step RCA (HLR-009)**: Execute Phase A in full:
+   - **Step 1**: Read ALL failure-summary.json fields. Route by category (AUTH/NETWORK/INFRASTRUCTURE -> escalate-tooling)
+   - **Step 2**: Read error-context.md — accessibility snapshot at failure. Element exists? TIMING. Missing? SELECTOR. Overlay? BLOCKING
+   - **Step 3**: Open screenshotPath — visual confirmation of app state
+   - **Step 4**: Identify failing spec line from fullError -> trace to page object method -> read method code
+   - **Step 5**: Form hypothesis with evidence citations from Steps 1-4
+   - **Learning check**: Check agent-mistakes.md Resolution column for matching error category. Known solution -> apply directly
+   - If no learning matches -> use `web` to research the specific error
+   - **Post-diagnosis learning**: After identifying root cause but BEFORE applying fix: log what you learned. If the fix fails, the learning still exists
+   - **Step 6**: MCP replication (LAST RESORT — only if Steps 1-5 inconclusive). Read spec code first, reproduce EXACT steps. WARNING: close any running terminal tests before MCP
+   - **Step 7**: Write evidence checklist. State hypothesis with citations
+   - If AUTH/NETWORK/INFRASTRUCTURE -> log `action: escalate-tooling` (NOT human escalation)
+9. **Phase B — Fix (R10)**: ONE fix per hypothesis -> run ONLY failing test with `--grep "TC-ID"` (dependency analysis first per HLR-010) -> verify. Max 2 fix cycles.
+10. **Rerun**: After fix, run `--grep "TC-ID"` with dependencies. If different assertions fail than original, suspect stale DB state — run full spec once to reset. After all fixes pass on --grep, run full spec for regression check.
+11. **Self-Audit + Learning Yield Check (§8)**: Execute §8 Self-Audit Protocol. Count fix attempts this session. Count learning entries logged today. If fixes > 0 AND learnings = 0 → STOP, retrospectively log. Then sync (§8 Step 9) if files changed.
 13. **Update**:
    - Pass → `stage: "completed"`, move to completedLog
    - Fail + retries left → increment `retryCount`, retry
@@ -114,7 +200,7 @@ mcp-servers:
 
 ## Root Cause Quick-Reference
 
-**Full RCA protocol**: AGENT_SHARED_RULES.md §15. **Locator priority**: data-* > id > [data-name] > semantic HTML > classes > text > XPath
+**Full RCA protocol**: AGENT_SHARED_RULES.md §12. **Locator priority**: data-* > id > [data-name] > semantic HTML > classes > text > XPath
 
 | Category | Fix |
 |----------|-----|
@@ -134,12 +220,11 @@ mcp-servers:
 | File | Permission |
 |------|------------|
 | `tests/specs/**/*.spec.ts` | FIX / remove unfixable tests (no test.fixme) |
-| `src/pages/*.page.ts` | FIX methods |
+| `src/pages/**/*.page.ts` | FIX methods |
 | `src/selectors/index.ts` | FIX selectors |
 | `specs_planning/test-cases/**` | UPDATE results |
-| `specs_planning/agent-learnings.md` | APPEND |
-| `specs_planning/agent-mistakes.md` | APPEND (HLR- prefix only) |
-| `specs_planning/agent-queue.json` | READ-WRITE |
+| `specs_planning/_internal/agent-mistakes.md` | APPEND (HLR- prefix only) |
+| `specs_planning/_internal/agent-queue.json` | READ-WRITE |
 
 ---
 
@@ -147,4 +232,4 @@ mcp-servers:
 
 TC update: `Last Test Run` date + `Result: PASSED/FAILED` + test results table. If removed: document as `missing-coverage` (HLR-008).
 
-**Checklist**: All `pending_healing` processed | orphans added | each item `completed`/`fixme` | TC docs updated | selector fixes in index.ts | no `test.fixme()` | self-audit (R23)
+**Checklist**: All `pending_healing` processed | orphans added | each item `completed`/`fixme` | TC docs updated | selector fixes in index.ts | no `test.fixme()` | self-audit (§8)

@@ -1,7 +1,7 @@
 #!/usr/bin/env ts-node
 /**
  * TC Registry Builder -- scans spec files for TC IDs in test titles.
- * Detects duplicates across files. Writes specs_planning/test-id-registry.json.
+ * Detects duplicates across files. Writes specs_planning/_internal/test-id-registry.json.
  *
  * Usage: npm run registry:build
  */
@@ -17,7 +17,7 @@ interface RegistryEntry {
 }
 
 const SPECS_DIR = path.join(__dirname, '../tests/specs');
-const OUTPUT_FILE = path.join(__dirname, '../specs_planning/test-id-registry.json');
+const OUTPUT_FILE = path.join(__dirname, '../specs_planning/_internal/test-id-registry.json');
 
 /** TC ID pattern: TC-XXX-YY-NNN */
 const TC_ID_REGEX = /TC-[A-Z]+-[A-Z]+-\d+/g;
@@ -124,7 +124,7 @@ function main(): void {
       console.log(`  [WARN] DUPLICATE: ${d.tcId} in ${d.file} (also in ${d.duplicateOf})`);
     }
   }
-  console.log(`Written to: specs_planning/test-id-registry.json`);
+  console.log(`Written to: specs_planning/_internal/test-id-registry.json`);
 }
 
 main();

@@ -10,7 +10,7 @@
 
 ### File Access
 - **READ-WRITE**: `src/**`, `tests/**`, `config/**`, `scripts/**`
-- **READ-ONLY**: `docs/REQUIREMENTS.md`, `specs_planning/agent-queue.json`
+- **READ-ONLY**: `docs/REQUIREMENTS.md`, `specs_planning/_internal/agent-queue.json`
 - **NEVER**: `.env*`, `.github/agents/*.agent.md`
 - **Delegate**: Test requests → `@playwright-requirements`
 
@@ -160,7 +160,7 @@ npm run queue:validate                  # Cross-check queue, activity log, perfo
 ## 7. Mistake Injection System
 
 ### Architecture
-- **Single source of truth**: `specs_planning/agent-mistakes.md` (rules + resolutions, learnings merged)
+- **Single source of truth**: `specs_planning/_internal/agent-mistakes.md` (rules + resolutions, learnings merged)
 - **Autonomous sync**: Every agent runs sync:mistakes after writing rules — no human gatekeeping
 - **Context injection**: Queue items receive `injectedContext` with relevant rules + reminders
 
@@ -197,9 +197,9 @@ Each queue item has `injectedContext` containing:
 - **Architecture**: `docs/read_only_docs/ARCHITECTURE.md`
 - **Commenting**: `docs/read_only_docs/COMMENTING_STANDARDS.md`
 - **Agent Setup**: `docs/README.md` (MCP config section)
-- **Queue Schema**: `specs_planning/agent-queue.schema.json`
-- **Rules Registry**: `specs_planning/agent-mistakes.md` (includes merged learnings)
-- **Agent Performance**: `specs_planning/agent-performance.json`
+- **Queue Schema**: `specs_planning/_internal/agent-queue.schema.json`
+- **Rules Registry**: `specs_planning/_internal/agent-mistakes.md` (includes merged learnings)
+- **Agent Performance**: `specs_planning/_internal/agent-performance.json`
 
 ---
 
@@ -209,7 +209,7 @@ Each queue item has `injectedContext` containing:
 When creating, editing, or reviewing ANY `.md` file in the workspace: non-verbose, no redundancies, token-efficient, tables over prose. Single source of truth — link to canonical doc, never copy content. No beginner hand-holding unless doc is explicitly client-facing. Review for compression after every edit. See R22 + ALL-001..004.
 
 ### Mistakes Registry
-When editing `specs_planning/agent-mistakes.md`: concise entries only. No verbose explanations, no redundant patterns. One line per mistake where possible.
+When editing `specs_planning/_internal/agent-mistakes.md`: concise entries only. No verbose explanations, no redundant patterns. One line per mistake where possible.
 
 ### MCP Playwright Sessions
 <!-- SYNC:MCP_CRITICAL:START -->

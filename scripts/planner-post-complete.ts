@@ -226,7 +226,7 @@ function processQueueItem(item: QueueItem, queue: QueueFile): boolean {
     process.exit(1);
   }
 
-  // ── SOFT: Mid-work capture check (R27) ──
+  // ── SOFT: Mid-work capture check (ALL-004) ──
   const midWorkWarning = checkMidWorkCapture(item, 3, 'history');
   if (midWorkWarning) {
     console.warn(`  [WARN]  ${midWorkWarning}`);

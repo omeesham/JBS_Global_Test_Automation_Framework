@@ -54,7 +54,7 @@ function trimLogFile(logPath: string): void {
  * Clean up agent activity log (time-based - 30 days)
  */
 function cleanupAgentLogs(): void {
-  const logPath = path.join(process.cwd(), 'specs_planning', 'agent-activity-log.md');
+  const logPath = path.join(process.cwd(), 'specs_planning', '_internal', 'agent-activity-log.md');
   
   if (!fs.existsSync(logPath)) {
     console.log('Agent activity log not found, skipping cleanup');
@@ -145,6 +145,33 @@ function cleanupAdHocLogFiles(): void {
 }
 
 /**
+ * Archive old audit reports (30-day retention in active folder)
+ */
+function archiveOldAuditReports(): void {
+  const auditsDir = path.join(process.cwd(), 'specs_planning', 'audits');
+  const archiveDir = path.join(auditsDir, 'archive');
+  if (!fs.existsSync(auditsDir)) return;
+
+  if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const files = fs.readdirSync(auditsDir).filter(f => f.endsWith('.md') && f !== '.gitkeep');
+  let archived = 0;
+
+  for (const file of files) {
+    const filePath = path.join(auditsDir, file);
+    const stat = fs.statSync(filePath);
+    if (stat.mtimeMs < cutoff) {
+      fs.renameSync(filePath, path.join(archiveDir, file));
+      archived++;
+    }
+  }
+
+  if (archived > 0) {
+    console.log(`Audit archive: Moved ${archived} report(s) older than 30 days to archive/`);
+  }
+}
+
+/**
  * Run all cleanup tasks
  */
 export async function cleanupLogs(): Promise<void> {
@@ -152,6 +179,7 @@ export async function cleanupLogs(): Promise<void> {
   cleanupAdHocLogFiles();
   cleanupTestLogs();
   cleanupAgentLogs();
+  archiveOldAuditReports();
   console.log('[OK] Log cleanup complete');
 }
 

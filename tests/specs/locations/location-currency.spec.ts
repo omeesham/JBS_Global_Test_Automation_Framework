@@ -1,9 +1,8 @@
 // spec: specs_planning/test-plans/locations/locations_currency_test_plan.md
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../setup/fixtures';
-import { CURRENCY_COLUMN_HEADERS, UNSELECTED_CURRENCY_STATES } from '../../test-data/location-currency.data';
-
-const OFFICE_NO = '1604';
+import { CURRENCY_COLUMN_HEADERS, UNSELECTED_CURRENCY_STATES } from '../../test-data/locations/location-currency.data';
+import { OFFICE_NO } from '../../test-data/common.data';
 
 test.describe.serial('Location Currency @locations @currency', () => {
 

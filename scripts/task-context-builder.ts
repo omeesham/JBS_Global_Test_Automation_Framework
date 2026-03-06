@@ -20,6 +20,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {
   MistakeRule, InjectedContext, QueueItem, QueueFile, SharedAgentContext,
+  EscalationQueue,
   SHARED_PATHS, parseMistakeRow, extractMarkdownSection,
 } from './shared-types';
 
@@ -56,6 +57,63 @@ const CROSS_INJECT_RULES: { [agent: string]: string[] } = {
   'Planner': ['COP-013'],
 };
 
+// === TASK-RELEVANT FILTERING ===
+// Rules not listed in RULE_FEATURE_TAGS are treated as universal (always injected).
+// Rules listed here are only injected when their tags overlap with the item's auto-detected tags.
+
+const RULE_FEATURE_TAGS: Record<string, string[]> = {
+  // Generator rules with feature-specific relevance
+  'GEN-008': ['form', 'input', 'textbox', 'spinbutton', 'angular'],
+  'GEN-009': ['boundary', 'numeric', 'spinbutton', 'validation'],
+  'GEN-013': ['manual', 'checkbox', 'review'],
+  'GEN-015': ['debug', 'fix', 'failure', 'rca'],
+  // Planner rules with feature-specific relevance
+  'PLN-007': ['country', 'permission', 'role', 'dependency', 'cascade'],
+  'PLN-011': ['spinbutton', 'percent', 'decimal', 'format'],
+  'PLN-012': ['save', 'dialog', 'toast', 'edit'],
+  'PLN-013': ['blocked', 'environment', 'server'],
+};
+
+/** Auto-detect feature tags from queue item fields */
+function extractFeatureTags(item: QueueItem): string[] {
+  const text = `${item.feature || ''} ${item.intent || ''} ${item.userNotes || ''}`.toLowerCase();
+  const tags = new Set<string>();
+
+  const TAG_PATTERNS: Record<string, RegExp> = {
+    'form':       /form|input|edit|field|fill|type|editable/,
+    'checkbox':   /checkbox|toggle|check|uncheck|boolean/,
+    'textbox':    /text|input|phone|name|label|po.?number/,
+    'spinbutton': /spinbutton|percent|multiplier|rate|decimal|offset/,
+    'numeric':    /number|numeric|boundary|range|min|max/,
+    'grid':       /grid|table|column|row|sort|filter|history/,
+    'dialog':     /dialog|modal|popup|toast|confirm/,
+    'save':       /save|persist|reload|restore/,
+    'readonly':   /read.?only|disabled|view|history|display|management/,
+    'validation': /valid|error|required|boundary/,
+    'angular':    /angular|blur|change|form.?model/,
+    'fix':        /fix|heal|repair|debug|failure/,
+    'rca':        /rca|root.?cause|diagnos/,
+    'manual':     /manual|review|classify/,
+  };
+
+  for (const [tag, pattern] of Object.entries(TAG_PATTERNS)) {
+    if (pattern.test(text)) tags.add(tag);
+  }
+  return Array.from(tags);
+}
+
+/** Filter rule IDs to only those relevant to this specific task */
+function filterRuleIdsForItem(allIds: string[], item: QueueItem): string[] {
+  const featureTags = extractFeatureTags(item);
+  if (featureTags.length === 0) return allIds;
+
+  return allIds.filter(id => {
+    const ruleTags = RULE_FEATURE_TAGS[id];
+    if (!ruleTags) return true;  // universal
+    return ruleTags.some(tag => featureTags.includes(tag));
+  });
+}
+
 // Map queue stages to agent sections in mistakes registry
 const STAGE_TO_AGENT: { [stage: string]: string } = {
   'pending_requirements': 'Requirements',
@@ -82,15 +140,26 @@ function parseMistakesForAgent(agent: string): MistakeRule[] {
   const content = fs.readFileSync(PATHS.mistakes, 'utf-8');
   const rules: MistakeRule[] = [];
   
-  // Agent-specific rules only (shared ALL-001..004 are referenced via line in agent files)
-  const sectionText = extractMarkdownSection(content, agent);
-  
-  if (sectionText) {
-    const lines = sectionText.split('\n');
-    for (const line of lines) {
+  // Shared ALL-* rules apply to every agent
+  const sharedText = extractMarkdownSection(content, 'Shared');
+  if (sharedText) {
+    for (const line of sharedText.split('\n')) {
       const parsed = parseMistakeRow(line);
       if (parsed) {
         rules.push(parsed);
+      }
+    }
+  }
+
+  // Agent-specific rules
+  const sectionText = extractMarkdownSection(content, agent);
+  if (sectionText) {
+    const seenIds = new Set(rules.map(r => r.id));
+    for (const line of sectionText.split('\n')) {
+      const parsed = parseMistakeRow(line);
+      if (parsed && !seenIds.has(parsed.id)) {
+        rules.push(parsed);
+        seenIds.add(parsed.id);
       }
     }
   }
@@ -161,9 +230,9 @@ function buildSharedAgentContext(agent: string): SharedAgentContext {
 
   const shared: SharedAgentContext = {
     mistakeIds: allMistakes.map(r => r.id),
-    mistakesRef: `specs_planning/agent-mistakes.md (${allMistakes.length} rules)`,
+    mistakesRef: `specs_planning/_internal/agent-mistakes.md (${allMistakes.length} rules)`,
     learningsSummary: resolutions.slice(0, 10),
-    learningsRef: 'specs_planning/agent-mistakes.md (Resolution column)',
+    learningsRef: 'specs_planning/_internal/agent-mistakes.md (Resolution column)',
     recentDefects: getRecentDefects(agentLower),
     criticalReminders: CRITICAL_REMINDERS[agent] || [],
     selfAuditQuestions: SELF_AUDIT_QUESTIONS[agent] || [],
@@ -188,6 +257,23 @@ function buildSharedAgentContext(agent: string): SharedAgentContext {
     } catch { /* ignore */ }
   }
 
+  // ── Escalation injection ──
+  const escPath = SHARED_PATHS.escalations;
+  if (fs.existsSync(escPath)) {
+    try {
+      const escData: EscalationQueue = JSON.parse(fs.readFileSync(escPath, 'utf-8'));
+      const pending = escData.escalations.filter(
+        e => e.pendingFor === agentLower && e.status === 'open'
+      );
+      if (pending.length > 0) {
+        (shared as any).pendingEscalations = pending.map(e => ({
+          id: e.id, from: e.createdBy, severity: e.severity,
+          summary: e.summary, artifacts: e.affectedArtifacts,
+        }));
+      }
+    } catch { /* ignore parse errors */ }
+  }
+
   return shared;
 }
 
@@ -203,11 +289,18 @@ function buildContextForItem(item: QueueItem, shared: SharedAgentContext): Injec
   if (MODULE_SECTION_MAP[moduleLower]) {
     // Find the best matching section for this specific item's feature
     const sections = MODULE_SECTION_MAP[moduleLower]!;
-    const matchedSection = sections.find(s => 
-      featureLower.includes(s.toLowerCase().replace(/ /g, '-')) ||
-      s.toLowerCase().includes(featureLower.replace(/-/g, ' '))
-    );
-    moduleRef = matchedSection 
+    // Extract keywords from feature name (strip "Location - " prefix, parens, short words)
+    const featureKeywords = featureLower
+      .replace(/^location\s*[-\u2013]\s*/, '')
+      .replace(/[()]/g, '')
+      .split(/[\s-]+/)
+      .filter(w => w.length > 2);
+
+    const matchedSection = sections.find(s => {
+      const sectionLower = s.toLowerCase();
+      return featureKeywords.some(kw => sectionLower.includes(kw));
+    });
+    moduleRef = matchedSection
       ? `docs/REQUIREMENTS.md ### ${matchedSection}`
       : `docs/REQUIREMENTS.md ### ${sections[0]}`;
   }
@@ -216,7 +309,8 @@ function buildContextForItem(item: QueueItem, shared: SharedAgentContext): Injec
   const context: InjectedContext = {
     generatedAt: new Date().toISOString(),
     targetAgent: agent,
-    mistakeIds: shared.mistakeIds,
+    // Task-relevant filtering: only inject rules relevant to THIS item's feature
+    mistakeIds: filterRuleIdsForItem(shared.mistakeIds, item),
     mistakesRef: shared.mistakesRef,
     learningsSummary: shared.learningsSummary,
     learningsRef: shared.learningsRef,
@@ -224,7 +318,13 @@ function buildContextForItem(item: QueueItem, shared: SharedAgentContext): Injec
     criticalReminders: shared.criticalReminders,
     selfAuditQuestions: shared.selfAuditQuestions,
     moduleContextRef: moduleRef,
+    featureTags: extractFeatureTags(item),
   };
+
+  // Inject pending escalations from shared context
+  if ((shared as any).pendingEscalations) {
+    context.pendingEscalations = (shared as any).pendingEscalations;
+  }
 
   // Per-item: file refs
   const testPlanFile = item.artifacts?.testPlanFile;
@@ -253,8 +353,10 @@ function buildContextForItem(item: QueueItem, shared: SharedAgentContext): Injec
     }
   }
 
-  // Per-item: last run failures if available
-  if (shared.lastRunFailures) {
+  // Per-item: last run failures ONLY if this item has actually been run before
+  const hasBeenRun = (item.generatorRunCount ?? 0) > 0 ||
+    (item.history ?? []).some(h => h.agent === 'generator');
+  if (hasBeenRun && shared.lastRunFailures) {
     context.lastRunFailures = shared.lastRunFailures;
   }
 
@@ -275,6 +377,17 @@ function formatContextForDisplay(context: InjectedContext, shared?: SharedAgentC
   const mistakeIds = shared?.mistakeIds ?? context.mistakeIds;
   const mistakeRef = shared?.mistakesRef ?? context.mistakesRef;
   
+  // Escalations
+  const escalations = context.pendingEscalations;
+  if (escalations && escalations.length > 0) {
+    output += '**[ESC] PENDING ESCALATIONS (fix these FIRST):**\n';
+    for (const esc of escalations) {
+      output += `- ${esc.id} (from: ${esc.from}, ${esc.severity}): ${esc.summary}\n`;
+      output += `  Affected: ${esc.artifacts.join(', ')}\n`;
+    }
+    output += '\n';
+  }
+
   // Self-audit questions FIRST
   if (selfAuditQ.length > 0) {
     output += '**[?] SELF-AUDIT QUESTIONS (answer each BEFORE marking complete):**\n';
@@ -387,7 +500,26 @@ function main() {
   // Save updated queue
   queue.lastUpdated = new Date().toISOString();
   fs.writeFileSync(PATHS.queue, JSON.stringify(queue, null, 2), 'utf-8');
-  
+
+  // ── Auto-clean resolved escalations (14-day retention) ──
+  if (fs.existsSync(SHARED_PATHS.escalations)) {
+    try {
+      const escData: EscalationQueue = JSON.parse(fs.readFileSync(SHARED_PATHS.escalations, 'utf-8'));
+      const cutoff = Date.now() - 14 * 24 * 60 * 60 * 1000;
+      const before = escData.escalations.length;
+      escData.escalations = escData.escalations.filter(e => {
+        if (e.status === 'open') return true; // never auto-remove open items
+        const resolved = e.resolvedAt ? new Date(e.resolvedAt).getTime() : 0;
+        return resolved > cutoff;
+      });
+      escData.lastCleaned = new Date().toISOString();
+      if (escData.escalations.length !== before) {
+        fs.writeFileSync(SHARED_PATHS.escalations, JSON.stringify(escData, null, 2), 'utf-8');
+        console.log(`  Escalation cleanup: ${before - escData.escalations.length} resolved entries removed (14-day retention)`);
+      }
+    } catch { /* ignore */ }
+  }
+
   console.log('\n' + '='.repeat(60));
   console.log(`[OK] Context built for ${itemsProcessed} queue item(s), ${agentsNeeded.size} shared agent context(s)`);
   console.log(`   Queue saved to: ${PATHS.queue}`);

@@ -92,7 +92,7 @@ export function checkMidWorkCapture(
     return (
       `${triggerField === 'runCount' ? `generatorRunCount=${count}` : `${count} history entries`} ` +
       `but no "mid-work-capture" log entries for ${item.id}. ` +
-      `R27 requires logging discoveries mid-session.`
+      `ALL-004 requires logging discoveries mid-session.`
     );
   }
   return null;

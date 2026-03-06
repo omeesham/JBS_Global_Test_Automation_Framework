@@ -60,7 +60,7 @@ function extractSpecSelectorRefs(specContent: string): { key: string; line: numb
 
   // Match property access ONLY on known selector objects: SetupSelectors.chkApplyLDW, selectors.btnSave
   // Excludes data variable access like dep.spinRestore, bc.restoreValue, tc.key (false positives)
-  const SELECTOR_OBJECT_NAMES = ['SetupSelectors', 'MicrosoftLoginSelectors', 'NavigatorSelectors',
+  const SELECTOR_OBJECT_NAMES = ['SetupSelectors', 'MicrosoftLoginSelectors',
     'SetupLocalInfoSelectors', 'SetupLeftPanelSelectors', 'SetupSharedSelectors',
     'SetupCurrencySelectors', 'SetupPricingSelectors', 'DynamicSelectors', 'ALL_SELECTORS', 'selectors'];
   const dotObjPattern = new RegExp(`(?:${SELECTOR_OBJECT_NAMES.join('|')})\\.((?:${prefixGroup})[A-Z]\\w+)`, 'g');

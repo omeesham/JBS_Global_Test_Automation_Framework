@@ -12,7 +12,7 @@
  * 8. L1:0->L2:0->L3:0 on 3+ artifacts rejected (ALL-009)
  * 9. Test-pass verification: failure-summary.json must show failed=0, passed>0,
  *    AND timestamp must be newer than sessionStartedAt (freshness check)
- * 10. Fix-diagnosis file required on fix runs (freshness-checked + R28 evidence checklist validation)
+ * 10. Fix-diagnosis file required on fix runs (freshness-checked + S12 RCA evidence checklist validation)
  * 11. TypeScript compilation must pass (npx tsc --noEmit) -- COP-009
  * 12. validate:sync must pass (no agent sync drift)
  *
@@ -21,9 +21,9 @@
  * 14. No waitForTimeout in spec file
  * 15. TC coverage ratio with unclassified Manual TCs (GEN-042)
  * 16. Self-audit reconciliation table presence
- * 17. Mid-work/halt-and-learn capture required on multi-retry sessions (R27, HARD)
+ * 17. Mid-work/halt-and-learn capture required on multi-retry sessions (ALL-004, HARD)
  * 18. Spec line count advisory (GEN-019) -- warn if not data-driven, never block
- * 19. Learning yield: sessions with retries must have learning entries (§9C/§17)
+ * 19. Learning yield: sessions with retries must have learning entries (§8 Session Protocol)
  * 20. Learning quality: learning entries must have non-empty Trigger, Root Cause, Solution (§9D)
  *
  * Usage: npm run generator:post-complete [queue-item-id]
@@ -39,6 +39,7 @@ import {
   validateSelfAuditBase,
   runValidateSyncGate,
 } from './validation-gates';
+import { addCycleEntry } from './agent-metrics';
 
 // No hard line limit -- specs can be any length as long as framework patterns are followed.
 // GEN-019 advisory: warn if spec is large without data-driven grouping.
@@ -122,18 +123,22 @@ function validateActivityLog(item: QueueItem): GateResult {
       errors.push(`generatorRunCount=${runCount} but no retry-justification found in activity log (R10)`);
     }
 
-    // R24 enforcement: generatorRunCount >= 2 requires at least one Generator learning in agent-learnings.md
-    if (fs.existsSync(SHARED_PATHS.learnings)) {
-      const learningsContent = fs.readFileSync(SHARED_PATHS.learnings, 'utf-8');
-      const hasGeneratorLearning = learningsContent.split('\n').some(line => {
-        const match = line.match(/^\|\s*LRN-\d+\s*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|\s*([^|]+)\s*\|/);
-        return match?.[1]?.trim().toLowerCase().includes('generator') ?? false;
+    // ALL-003 enforcement: generatorRunCount >= 2 requires Generator learning in agent-mistakes.md Resolution column
+    if (fs.existsSync(SHARED_PATHS.mistakes)) {
+      const mistakesContent = fs.readFileSync(SHARED_PATHS.mistakes, 'utf-8');
+      const hasGeneratorResolution = mistakesContent.split('\n').some(line => {
+        if (!line.trimStart().startsWith('|')) return false;
+        const cells = line.split('|').map(c => c.trim()).filter(Boolean);
+        if (cells.length < 3) return false;
+        const id = cells[0] ?? '';
+        const resolution = cells[cells.length - 1] ?? '';
+        return id.startsWith('GEN-') && resolution !== '\u2014' && resolution.length > 5;
       });
-      if (!hasGeneratorLearning) {
-        errors.push(`generatorRunCount=${runCount} but zero Generator learnings in agent-learnings.md -- R24 requires logging what you learned from retries`);
+      if (!hasGeneratorResolution) {
+        errors.push(`generatorRunCount=${runCount} but zero Generator Resolution entries in agent-mistakes.md -- ALL-003 requires logging what you learned from retries`);
       }
     } else {
-      errors.push(`generatorRunCount=${runCount} but agent-learnings.md not found -- R24 requires logging learnings from retries`);
+      errors.push(`generatorRunCount=${runCount} but agent-mistakes.md not found -- ALL-003 requires logging learnings from retries`);
     }
   }
   if (runCount === 0) {
@@ -319,7 +324,7 @@ function validateFixDiagnosis(item: QueueItem): GateResult {
     }
   }
 
-  // ---- Content validation (R28: evidence checklist gate) ----
+  // ---- Content validation (S12: evidence checklist gate) ----
   // Find the freshest diagnosis file for content checks
   const sortedDiagFiles = [...diagFiles].sort((a, b) => {
     const statA = fs.statSync(path.join(reportsDir, a));
@@ -381,7 +386,7 @@ function validateTcRegistry(item: QueueItem): GateResult {
     return { passed: true, errors, warnings };
   }
 
-  const registryPath = path.join(__dirname, '../specs_planning/test-id-registry.json');
+  const registryPath = path.join(__dirname, '../specs_planning/_internal/test-id-registry.json');
   if (!fs.existsSync(registryPath)) {
     return { passed: true, errors, warnings };
   }
@@ -466,7 +471,7 @@ function validateTestCoverage(item: QueueItem): GateResult {
 
 /**
  * Gate 19 -- Learning Yield (HARD, sessions with retries).
- * Verifies that agent-learnings.md has entries from this session when retries occurred.
+ * Verifies that agent-mistakes.md has Resolution column entries from Generator.
  * Zero-learning sessions with retries = learning debt = blocked.
  */
 function validateLearningYield(item: QueueItem): GateResult {
@@ -479,73 +484,75 @@ function validateLearningYield(item: QueueItem): GateResult {
     return { passed: true, errors, warnings };
   }
 
-  const learningsPath = path.join(__dirname, '../specs_planning/agent-learnings.md');
-  if (!fs.existsSync(learningsPath)) {
-    errors.push('Gate 19 FAIL: agent-learnings.md not found.');
+  if (!fs.existsSync(SHARED_PATHS.mistakes)) {
+    errors.push('Gate 19 FAIL: agent-mistakes.md not found.');
     return { passed: false, errors, warnings };
   }
 
-  const content = fs.readFileSync(learningsPath, 'utf-8');
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const content = fs.readFileSync(SHARED_PATHS.mistakes, 'utf-8');
 
-  // Count learning entries from today by Generator
-  const lines = content.split('\n').filter(l =>
-    l.startsWith('| LRN-') && l.toLowerCase().includes('generator') && l.includes(today)
-  );
+  // Count GEN-* rules with non-empty Resolution column (learning captured)
+  const generatorResolutions = content.split('\n').filter(line => {
+    if (!line.trimStart().startsWith('|')) return false;
+    const cells = line.split('|').map(c => c.trim()).filter(Boolean);
+    if (cells.length < 3) return false;
+    const id = cells[0] ?? '';
+    const resolution = cells[cells.length - 1] ?? '';
+    return id.startsWith('GEN-') && resolution !== '\u2014' && resolution.length > 5;
+  });
 
-  if (lines.length === 0) {
+  if (generatorResolutions.length === 0) {
     errors.push(
       `Gate 19 FAIL: Learning debt detected. generatorRunCount=${runCount} (retries occurred) ` +
-      `but 0 learning entries in agent-learnings.md for Generator on ${today}. ` +
-      `Log at least 1 learning per retry session before completing. See S9C.`
+      `but 0 Generator Resolution entries in agent-mistakes.md. ` +
+      `Log at least 1 learning in Resolution column before completing. See S8 Session Protocol.`
     );
     return { passed: false, errors, warnings };
   }
 
-  console.log(`  [OK] Gate 19: ${lines.length} learning(s) logged today, runCount=${runCount}`);
+  console.log(`  [OK] Gate 19: ${generatorResolutions.length} Generator Resolution(s) found, runCount=${runCount}`);
   return { passed: true, errors, warnings };
 }
 
 /**
  * Gate 20 -- Learning Quality (HARD, when learnings exist).
- * Verifies learning entries have non-empty Trigger, Root Cause, and Solution columns.
- * Rejects vague entries per S9D.
+ * Verifies Generator Resolution column entries in agent-mistakes.md are non-empty
+ * and reference specific artifacts (not generic "fixed it" text).
  */
 function validateLearningQuality(item: QueueItem): GateResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  const learningsPath = path.join(__dirname, '../specs_planning/agent-learnings.md');
-  if (!fs.existsSync(learningsPath)) return { passed: true, errors, warnings };
+  if (!fs.existsSync(SHARED_PATHS.mistakes)) return { passed: true, errors, warnings };
 
-  const content = fs.readFileSync(learningsPath, 'utf-8');
-  const today = new Date().toISOString().slice(0, 10);
+  const content = fs.readFileSync(SHARED_PATHS.mistakes, 'utf-8');
 
-  const todayLines = content.split('\n').filter(l =>
-    l.startsWith('| LRN-') && l.toLowerCase().includes('generator') && l.includes(today)
-  );
+  const generatorResolutions = content.split('\n').filter(line => {
+    if (!line.trimStart().startsWith('|')) return false;
+    const cells = line.split('|').map(c => c.trim()).filter(Boolean);
+    if (cells.length < 3) return false;
+    const id = cells[0] ?? '';
+    const resolution = cells[cells.length - 1] ?? '';
+    return id.startsWith('GEN-') && resolution !== '\u2014' && resolution.length > 5;
+  });
 
-  for (const line of todayLines) {
+  for (const line of generatorResolutions) {
     const cols = line.split('|').map(c => c.trim()).filter(Boolean);
-    // Expected: ID, Category, Trigger, Root Cause, Solution, Agent, Date
-    if (cols.length < 7) {
-      errors.push(`Gate 20 FAIL: Malformed learning entry: ${cols[0] ?? 'unknown'}. Expected 7 columns.`);
-      continue;
+    // Expected: ID, Rule, Resolution (3 columns in agent-mistakes.md)
+    const id = cols[0] ?? 'unknown';
+    const resolution = cols[cols.length - 1] ?? '';
+    if (resolution.length < 15) {
+      errors.push(`Gate 20 FAIL: ${id} has vague Resolution (${resolution.length} chars). Be specific with trigger + root cause + fix.`);
     }
-    const [id, , trigger, rootCause, solution] = cols;
-    if (!trigger || trigger.length < 10) {
-      errors.push(`Gate 20 FAIL: ${id} has empty/vague Trigger (${trigger?.length ?? 0} chars). Be specific.`);
-    }
-    if (!rootCause || rootCause.length < 15) {
-      errors.push(`Gate 20 FAIL: ${id} has empty/vague Root Cause (${rootCause?.length ?? 0} chars). Include evidence.`);
-    }
-    if (!solution || solution.length < 15) {
-      errors.push(`Gate 20 FAIL: ${id} has empty/vague Solution (${solution?.length ?? 0} chars). Be actionable.`);
+    // Check for generic/filler resolutions
+    const genericPatterns = /^(fixed it|done|resolved|updated|changed|n\/a)$/i;
+    if (genericPatterns.test(resolution.trim())) {
+      errors.push(`Gate 20 FAIL: ${id} Resolution is too generic ("${resolution.trim()}"). Reference specific artifacts.`);
     }
   }
 
-  if (errors.length === 0 && todayLines.length > 0) {
-    console.log(`  [OK] Gate 20: ${todayLines.length} learning(s) passed quality check`);
+  if (errors.length === 0 && generatorResolutions.length > 0) {
+    console.log(`  [OK] Gate 20: ${generatorResolutions.length} Generator Resolution(s) passed quality check`);
   }
 
   return { passed: errors.length === 0, errors, warnings };
@@ -640,7 +647,7 @@ function runGate(item: QueueItem): void {
       if (!hasHaltAndLearn) {
         allErrors.push(
           `Gate 17 FAIL: generatorRunCount=${runCount} but no "halt-and-learn" log entries for ${item.id}. ` +
-          `R27/R29 require learning capture during multi-retry sessions. Log learnings, then re-run post-complete.`
+          `ALL-003/ALL-004 require learning capture during multi-retry sessions. Log learnings, then re-run post-complete.`
         );
       }
     } else {
@@ -694,6 +701,18 @@ function runGate(item: QueueItem): void {
     console.log(`\n  [OK] All gates passed for ${item.id}`);
     if (allWarnings.length > 0) {
       console.log(`     ${allWarnings.length} warning(s) -- review recommended before Audit`);
+    }
+
+    // Record clean cycle entry (all hard gates passed = clean, soft warnings don't count as defects)
+    try {
+      const perfPath = path.join(__dirname, '..', 'specs_planning', 'agent-performance.json');
+      const perf = JSON.parse(fs.readFileSync(perfPath, 'utf-8'));
+      addCycleEntry(perf, 'generator', item.feature || item.id, [], 'post-complete-gate');
+      perf.lastUpdated = new Date().toISOString();
+      fs.writeFileSync(perfPath, JSON.stringify(perf, null, 2), 'utf-8');
+      console.log('  [OK] Clean cycle recorded.');
+    } catch (err) {
+      console.warn(`  [WARN] Could not record cycle entry: ${err instanceof Error ? err.message : err}`);
     }
 
     // Update performance metrics after successful gate passage

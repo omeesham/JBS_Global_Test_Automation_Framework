@@ -12,6 +12,7 @@ import { Page, Locator } from '@playwright/test';
 import { Log } from '../utils/logger';
 import { getTsSelector } from '../selectors';
 import { IConfig } from '../framework-contracts';
+import { CheckboxState } from '../pages/locations/location-form-helpers.page';
 
 export class BasePage {
   protected page: Page;
@@ -268,6 +269,191 @@ export class BasePage {
       await element.waitFor({ state: 'visible', timeout });
       return true;
     } catch {
+      return false;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // SHARED PAGE OBJECT HELPERS (PLAN_04 — extracted from Currency/Pricing/LocalInfo)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Click a save button and confirm the Save Changes dialog if it appears.
+   * Extracted from LocationCurrencyPage, LocationPricingPage, LocationLocalInfoPage (identical pattern).
+   * ALL-020: shared pattern used by 3+ page objects → belongs in BasePage.
+   * @param saveBtnKey - Selector key for the save button (e.g., 'btnSavePricing')
+   * @param dialogKey - Selector key for the confirmation dialog (default: 'dlgSaveChanges')
+   * @param confirmBtnKey - Selector key for the confirm button (default: 'btnSaveChangesConfirm')
+   * @param dialogTimeout - ms to wait for dialog to appear before assuming none (default: 5000)
+   */
+  protected async clickSaveWithDialog(
+    saveBtnKey: string,
+    dialogKey: string = 'dlgSaveChanges',
+    confirmBtnKey: string = 'btnSaveChangesConfirm',
+    dialogTimeout: number = 5_000,
+  ): Promise<void> {
+    const saveBtn = this.getElement(saveBtnKey);
+    await saveBtn.waitFor({ state: 'visible', timeout: 5_000 });
+    if (await saveBtn.isDisabled()) {
+      Log.info(`Save button disabled (${saveBtnKey}) -- skipping click`);
+      return;
+    }
+    await saveBtn.click();
+    const dialog = this.getElement(dialogKey);
+    const dialogVisible = await dialog.waitFor({ state: 'visible', timeout: dialogTimeout })
+      .then(() => true).catch(() => false);
+    if (dialogVisible) {
+      Log.info(`Save confirmation dialog appeared -- confirming`);
+      await this.getElement(confirmBtnKey).click();
+      await dialog.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
+    }
+    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    Log.info(`[OK] Save complete (${saveBtnKey})`);
+  }
+
+  /**
+   * Navigate to a settings sub-tab for a given office, clicking the tab only if not already active.
+   * Extracted from LocationCurrencyPage, LocationPricingPage, LocationLocalInfoPage (identical pattern).
+   * ALL-020: shared pattern used by 3+ page objects → belongs in BasePage.
+   * @param tabKey - Selector key for the tab element
+   * @param readinessElementKey - Selector key for an element confirming the tab content is loaded
+   * @param officeNo - Office number (default: '1604')
+   * @param settingsPath - The sub-path after /settings/ to navigate to (default: 'location')
+   */
+  protected async navigateToSubTab(
+    tabKey: string,
+    readinessElementKey: string,
+    officeNo: string = '1604',
+    settingsPath: string = 'location',
+  ): Promise<void> {
+    const currentUrl = this.page.url();
+    const expectedPath = `locations/${officeNo}/settings`;
+    if (!currentUrl.includes(expectedPath)) {
+      const baseUrl = this.config?.base_url || '';
+      Log.info(`Navigating to ${expectedPath}/${settingsPath}`);
+      await this.navigateTo(`${baseUrl}${expectedPath}/${settingsPath}`);
+      await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    }
+    const tab = this.getElement(tabKey);
+    await tab.waitFor({ state: 'visible', timeout: 30_000 });
+    const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
+    if (isSelected !== 'true') {
+      await tab.click();
+      await this.page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+    }
+    await this.getElement(readinessElementKey).waitFor({ state: 'visible', timeout: 15_000 });
+    Log.info(`[OK] Tab active: ${tabKey}`);
+  }
+
+  /**
+   * Get the checked/disabled state of a Radix UI checkbox (button[role="checkbox"] using aria-checked).
+   * Native HTML checkboxes use isChecked(); Radix uses aria-checked attribute — this handles Radix.
+   * ALL-020: shared Radix pattern used by Pricing + future pages → belongs in BasePage.
+   * @param elementKey - Selector key for the Radix checkbox element
+   */
+  protected async getRadixCheckboxState(elementKey: string): Promise<CheckboxState> {
+    const el = this.getElement(elementKey);
+    const ariaChecked = await el.getAttribute('aria-checked').catch(() => null);
+    const disabled = await el.isDisabled().catch(() => true);
+    return { checked: ariaChecked === 'true', disabled };
+  }
+
+  /**
+   * Set a Radix UI checkbox to a target checked state (clicks only if state differs).
+   * ALL-020: shared Radix pattern → BasePage.
+   * @param elementKey - Selector key for the Radix checkbox
+   * @param checked - Desired state: true = checked, false = unchecked
+   */
+  protected async setRadixCheckbox(elementKey: string, checked: boolean): Promise<void> {
+    const state = await this.getRadixCheckboxState(elementKey);
+    if (state.checked !== checked) {
+      await this.getElement(elementKey).click();
+      Log.info(`${checked ? 'Checked' : 'Unchecked'} Radix checkbox: ${elementKey}`);
+    }
+  }
+
+  /**
+   * Open a combobox/dropdown, read all [role="option"] text contents, close it, return the list.
+   * Handles Radix UI dropdowns that render a [role="listbox"] on click.
+   * ALL-020: shared pattern used by Currency + Pricing → BasePage.
+   * @param dropdownKey - Selector key for the combobox trigger element
+   * @returns Array of trimmed, non-empty option strings
+   */
+  protected async getComboboxOptions(dropdownKey: string): Promise<string[]> {
+    await this.getElement(dropdownKey).click();
+    const listbox = this.page.locator('[role="listbox"]');
+    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    const options = await listbox.locator('[role="option"]').allTextContents();
+    await this.page.keyboard.press('Escape');
+    await listbox.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => {});
+    return options.map(o => o.trim()).filter(o => o.length > 0);
+  }
+
+  /**
+   * Open a combobox/dropdown and click the option matching the given text.
+   * ALL-020: shared pattern -> BasePage.
+   * @param dropdownKey - Selector key for the combobox trigger element
+   * @param optionText - Exact display text of the option to select
+   */
+  protected async selectComboboxOption(dropdownKey: string, optionText: string): Promise<void> {
+    await this.getElement(dropdownKey).click();
+    const listbox = this.page.locator('[role="listbox"]');
+    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    await listbox.locator(`[role="option"]:has-text("${optionText}")`).click();
+    Log.info(`[OK] Selected combobox option "${optionText}" for ${dropdownKey}`);
+  }
+
+  /**
+   * Get column header texts by iterating over an array of selector keys.
+   * MNT-012: shared pattern used by Currency (4 cols) + Pricing (7 cols) -> BasePage.
+   * @param keys - Array of selector keys for column header elements
+   * @returns Array of trimmed header texts in the same order as keys
+   */
+  protected async getColumnHeadersByKeys(keys: readonly string[]): Promise<string[]> {
+    const headers: string[] = [];
+    for (const key of keys) {
+      const text = await this.getElement(key).textContent().catch(() => '');
+      headers.push((text || '').trim());
+    }
+    return headers;
+  }
+
+  /**
+   * Get displayed value of a form field (input or text element).
+   * Tries inputValue() first (for input elements), falls back to textContent().
+   * MNT-012: shared pattern used by Currency (getMerchantValue) + Pricing (getDropdownValue, getCurrencyFilterValue) -> BasePage.
+   * @param selectorKey - Selector key for the field element
+   * @returns Trimmed field display value
+   */
+  protected async getFieldDisplayValue(selectorKey: string): Promise<string> {
+    const el = this.getElement(selectorKey);
+    const value = await el.inputValue().catch(() => '') || await el.textContent().catch(() => '');
+    return (value || '').trim();
+  }
+
+  /**
+   * Wait for a save button to become enabled (form dirty state propagation).
+   * Polls the button disabled state efficiently.
+   * MNT-012: extracted from LocationPricingPage -- all tabs have save buttons.
+   * @param saveBtnKey - Selector key for the save button
+   * @param timeout - Maximum wait time in ms (default: 5000)
+   * @returns true if save became enabled within timeout, false otherwise
+   */
+  protected async waitForSaveEnabled(saveBtnKey: string, timeout = 5_000): Promise<boolean> {
+    try {
+      const btn = this.getElement(saveBtnKey);
+      const deadline = Date.now() + timeout;
+      while (Date.now() < deadline) {
+        if (!(await btn.isDisabled().catch(() => true))) {
+          Log.info('[OK] Save button enabled');
+          return true;
+        }
+        await this.page.waitForTimeout(200);
+      }
+      Log.info('[WARN] Save button did not enable within timeout');
+      return false;
+    } catch {
+      Log.info('[WARN] Save button did not enable within timeout');
       return false;
     }
   }

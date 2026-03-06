@@ -4,7 +4,7 @@
  * OWNER: human-only
  * IMPACT: critical - All test credentials depend on this. Breaking encryption breaks all authenticated tests. Security vulnerability if encryption weakened.
  * DEPENDS-ON: Node.js crypto, fs, path
- * USED-BY: CredentialLoader, global-setup.ts, scripts/vault-manager.ts
+ * USED-BY: CredentialLoader, global-setup.ts
  * RULES: NEVER weaken encryption. NEVER log passphrases. NEVER commit .vault.enc to git. Keep PBKDF2 iterations >= 100,000. Only human-controlled credential management.
  */
 

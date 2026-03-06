@@ -49,7 +49,7 @@ Generator MUST write `reports/fix-diagnosis-<feature>.md` before completing any 
 | A8 | screenshotPath | | |
 | A9 | tracePath | | |
 | A10 | per-spec diagnostics | | |
-| A11 | agent-learnings.md | | |
+| A11 | agent-mistakes.md Resolution column | | |
 | A12 | agent-mistakes.md | | |
 | A13 | MCP browser replication | | |
 | A14 | selector evaluation in live DOM | | |
@@ -71,6 +71,6 @@ HIGH / MEDIUM / LOW
 ```
 
 ## Usage
-- Referenced from Generator Phase 4 and §15 in AGENT_SHARED_RULES.md
+- Referenced from Generator Phase 4 and §12 in AGENT_SHARED_RULES.md
 - Gate 10 in `generator-post-complete.ts` enforces existence + freshness
 - Only required for fix runs (fixScope.failedTestIds populated), not fresh creation

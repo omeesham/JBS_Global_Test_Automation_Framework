@@ -751,7 +751,7 @@ Accessible via: Setup > Location > [Office Code] → "Notes" tab (right panel)
 | Character counter | display text | Format: "{used}/4000 ({remaining} left)" |
 | Progress bar | progressbar | Visual indicator of char usage |
 
-**Behaviors** (observed):
+**Behaviors**:
 - No validation errors visible — notes are optional
 - Character limit: 4000 per note
 - Multiple notes can be added via Add button
@@ -832,7 +832,7 @@ Accessible via: Setup > Location > [Office Code] → "Location Management Histor
 
 **UI Structure** (confirmed live, Location 1604):
 - Read-only DataTable (no editing, adding, or deleting)
-- Pagination: "rows per page" dropdown (default 10), first/prev/next/last page buttons
+- Pagination: "rows per page" dropdown (default 20), first/prev/next/last page buttons
 - Horizontal scrolling for 87 columns
 - Empty state message: "No results." when no history data available
 
@@ -929,7 +929,7 @@ Accessible via: Setup > Location > [Office Code] → "Location Management Histor
 | 87 | Warehouse Billing | |
 
 **Pagination Controls**:
-- Rows per page dropdown (default: 10)
+- Rows per page dropdown (default: 20)
 - Go to first page, previous page, next page, last page buttons
 - Page indicator: "{current} / {total}"
 
@@ -958,4 +958,233 @@ Accessible via: Setup > Location > [Office Code] → "Location Management Histor
 
 ---
 
-*Last Updated: 2026-02-18 — Live UI verified via MCP Playwright (location 1604, all 8 right-panel tabs + left panel + Management History)*
+*Last Updated: 2026-03-02 — Live UI verified via MCP Playwright (location 1604, all 8 right-panel tabs + left panel + Management History + Local Office Settings)*
+
+---
+
+### Local Office Settings Page
+
+**URL**: `/navigator/locations/{officeId}/settings/local-office`
+**Page Title**: "Local Office Settings"
+**Location tested**: 1604 (Parker Palm Springs, USA)
+**3 outer tabs**: Basic Information | Location Settings History | ECT Settings
+
+> **Do NOT confuse with `/settings/location`** — that is a separate page (Location Settings) with different tabs (Local Information, Legal, Pricing, Currency, Account & Address, etc.). This page covers Local Office Settings only.
+
+---
+
+#### Tab: Basic Information
+
+Single **Save** button at top — disabled by default; enables when any field changes.
+
+##### Section: Default Date Offsets
+
+Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) by default.
+
+| Field Label | `name` attr | Value (1604) |
+|---|---|---|
+| Prep Date Offset (Relative to Start) | `prepDateOffsetHours` | -1 |
+| Return Date Offset (Relative to End) | `returnDateOffsetHours` | 1 |
+| Set Date Offset (Relative to Start) | `setDateOffsetHours` | -1 |
+| Strike Date Offset (Relative to End) | `strikeDateOffsetHours` | 1 |
+| Delivery Date Offset (Relative to Start) | `deliveryDateOffsetHours` | 0 |
+| Pickup Date Offset (Relative to End) | `pickupDateOffsetHours` | 0 |
+
+**Validation (live confirmed, NM-1264)**:
+- Delivery Date Offset must be >= Prep Date Offset (both Relative to Start)
+- When Delivery < Prep: Save button disables; no inline error message visible in DOM
+- Save re-enables when the constraint is satisfied
+
+##### Section: Misc Settings
+
+| Field | Type | Default (1604) | State |
+|---|---|---|---|
+| Use Fulfillment | checkbox | unchecked | enabled |
+| Use Availability | checkbox | checked | enabled |
+| Use Equipments QC | checkbox | unchecked | **disabled** (always) |
+| Items Filled from Requests Return to Availability | checkbox | unchecked | enabled |
+| Allow tentative and confirmed Status to have the same priority | checkbox | unchecked | enabled |
+| Print Description (Default) | checkbox | checked | enabled |
+| Use ServiceType for Subrental Inventory Sources | checkbox | checked | enabled |
+| Phone 1 | textbox | 760-883-1957 | enabled; **required** |
+| Phone 2 | textbox | (empty) | enabled; optional |
+| Default new job to 1 day — Event | checkbox | unchecked | enabled |
+| Default new job to 1 day — Outside | checkbox | unchecked | enabled |
+| Default new job to 1 day — Internal | checkbox | unchecked | enabled |
+| Default Order Type | combobox | Event | enabled |
+| PO Number | textbox | (empty) | enabled |
+| PO Number Label | textbox | (empty) | enabled |
+
+##### Section: Section Configuration
+
+- **Use Section** — checkbox, checked, enabled
+- **Default** — button (resets sections to defaults)
+- Table: 2 columns — Section Name (editable textbox per row), Active (toggle)
+- Add new row: textbox with `placeholder="Add new..."` at bottom of table
+- **Duplicate active name → Save disables + "Duplicate Name" warning** (NM-1223)
+
+**Sections for 1604** (13 rows; 9 active, 4 inactive via toggle SVG check):
+
+| Section Name | Active |
+|---|---|
+| Audio | active |
+| Flipcharts | active |
+| Hybrid Meeting | active |
+| Labor | active |
+| Lighting | active |
+| Power | **inactive** |
+| Presenter Support | active |
+| Projection | active |
+| Rigging | **inactive** |
+| Scenic | active |
+| Staging | **inactive** |
+| Video | active |
+| Whiteboard | **inactive** |
+
+##### Section: Room Configuration
+
+- Table: 2 columns — Room Configuration Name, Active
+- Location 1604: **no rows configured** (empty table)
+- Add new row: textbox with `placeholder="Add new..."`
+- Same duplicate-active-name rule as Section Configuration (NM-1223)
+
+##### Section: Default Logo
+
+| Element | Type | Default (1604) | State |
+|---|---|---|---|
+| Quotes | checkbox | checked | enabled |
+| Rental Orders/DROs | checkbox | checked | enabled |
+| Company Logo | combobox | Encore New Logo | enabled |
+| Logo preview | image | Encore New Logo artwork | display only |
+
+> **Note**: This is a combobox for selecting a pre-uploaded logo (not a file upload input), plus two checkboxes controlling which document types display the logo.
+
+##### Section: Discount Exemptions
+
+- Table: 2 columns — Service Type, Exempt (toggle per row)
+- 75 service type rows for 1604
+- Toggle active (img present) = exempt for that service type
+
+---
+
+#### Tab: Location Settings History
+
+**Purpose**: Read-only history of Local Office Settings changes for this location.
+
+**UI**:
+- Filter dropdown at top (default: "Location Settings History")
+- Read-only table — no add, edit, delete, or row selection
+- Empty state: "No results." (location 1604 has no history in system)
+- Pagination: 20 rows/page (combobox), first/prev/next/last buttons, page indicator "{n}/{total}"
+
+**42 columns confirmed live** (sorted by sort button presence — "Local Office" column has no sort button; all others do):
+
+| # | Column Header |
+|---|---|
+| 1 | Local Office |
+| 2 | Prep Date Offset |
+| 3 | Return Date Offset |
+| 4 | Set Date Offset |
+| 5 | Strike Date Offset |
+| 6 | Pickup Date Offset |
+| 7 | Delivery Date Offset |
+| 8 | Use Fulfillment |
+| 9 | Use Availability |
+| 10 | Use Equip QC |
+| 11 | Print Desc |
+| 12 | Use Subrent |
+| 13 | Phone1 |
+| 14 | Phone2 |
+| 15 | Use Sect. |
+| 16 | Section Name |
+| 17 | Sect. Action |
+| 18 | Logo Name |
+| 19 | Use On Quote |
+| 20 | Use On Rental |
+| 21 | Service Type - Exempt |
+| 22 | ST Action |
+| 23 | Action |
+| 24 | Notes |
+| 25 | Marriott PMS Account Enabled |
+| 26 | Default Job to 1 day for Event Orders |
+| 27 | Default Job to 1 day for Outside Orders |
+| 28 | Default Job to 1 day for Internal Orders |
+| 29 | Default Labor to Hourly |
+| 30 | Allow tentative and confirmed Status to have the same priority |
+| 31 | Items Filled from Requests Return to Availability |
+| 32 | Default Order Type |
+| 33 | Regular Hours |
+| 34 | Regular Hours Multiplier |
+| 35 | Over Time Hours |
+| 36 | OverTime Hours Multiplier |
+| 37 | Double Time Hours |
+| 38 | DoubleTime Hours Multiplier |
+| 39 | Holiday Multiplier |
+| 40 | Recalc Labor Hours |
+| 41 | Modified By |
+| 42 | Modified On |
+
+**Confirmed**: "Default Job to 1 day for Outside Orders" appears **once** (NM-1261 resolved).
+Columns 33–40 (labor-to-hourly) are present in history even for US locations; they are Canada-only fields on the Basic Information tab but tracked in history globally.
+
+---
+
+#### Tab: ECT Settings
+
+**Header**: "1604 - Parker Palm Springs"
+**Currency selector**: combobox at top (default "USD")
+**Commission link**: "Edit/View: Commission structure" (external URL)
+
+##### Sub-section: Event Profit Target
+
+- **Save button** — disabled by default; enables when Labor Cost Assumptions are edited
+- Table: 4 columns (Lower Limit, Upper Limit, Target, Currency) — **read-only display** (no input fields)
+
+| Lower Limit | Upper Limit | Target | Currency |
+|---|---|---|---|
+| $5,000.01 | $10,000.00 | 41.0% | USD |
+| $10,000.01 | $25,000.00 | 40.0% | USD |
+| $25,000.01 | $50,000.00 | 35.0% | USD |
+| $50,000.01 | $100,000.00 | 30.0% | USD |
+| $100,000.01 | $250,000.00 | 30.0% | USD |
+| $250,000.01 | $500,000.00 | 30.0% | USD |
+| $500,000.01 | $1,000,000.00 | 30.0% | USD |
+| $1,000,000.01 | $2,000,000.00 | 30.0% | USD |
+| $2,000,000.01 | $10,000,000.00 | 30.0% | USD |
+
+##### Sub-section: Fixed Costs
+
+| Field | Value (1604/USD) | State |
+|---|---|---|
+| Venue Fixed Costs | 13.9% | display only |
+| SG&A % | 8.0% | display only |
+| Benefits Multiplier | 20.0% | **editable** textbox (`data-testid="ect-settings-input-benefits-multiplier"`) |
+| Other Rate | 0.0% | display only |
+| No Labor Rate | 0.0% | display only |
+| Approval Threshold | $0.00 | display only |
+| Historical Subrental % | 0.0% | **editable** textbox (`data-testid="ect-settings-input-historical-subrental"`) — disabled when user lacks Production & Sales role (NM-1260) |
+| Peak Labor Adjustment % | 5.0% | display only |
+| Non-Peak Labor Adjustment % | 0.0% | display only |
+
+##### Sub-section: Labor Cost Assumptions
+
+- **Separate Save button** (disabled by default)
+- Table: 2 columns (Labor Class, Labor Cost)
+- **66 rows** — all Labor Cost cells are editable textboxes (`data-testid="ect-settings-input-labor-cost-{0..65}"`)
+- Representative labor classes: Administrative Fee, Audio - Operate/Show, Audio - Set/Strike, Computer - Operator/Show, Driver, Electrical - Set/Strike, Event Management, General AV - Set/Strike, Lighting - Set/Strike, Production - Set/Strike, Projection - Set/Strike, Rigging, Union - Set/Strike, Video - Set/Strike, Virtual Events Labor (66 total)
+
+##### Sub-section: SubRental Matrix
+
+- Table: 4 columns (Lower Limit, Upper Limit, Subrental Percentage, Currency) — **read-only display** (no inputs)
+
+| Lower Limit | Upper Limit | Subrental % | Currency |
+|---|---|---|---|
+| $0.00 | $4,999.00 | 0.9% | USD |
+| $5,000.00 | $9,999.00 | 0.6% | USD |
+| $10,000.00 | $19,999.00 | 0.9% | USD |
+| $20,000.00 | $49,999.00 | 1.6% | USD |
+| $50,000.00 | $99,999.00 | 2.7% | USD |
+| $100,000.00 | $249,999.00 | 4.7% | USD |
+| $250,000.00 | $499,999.00 | 7.9% | USD |
+| $500,000.00 | $999,999.00 | 10.6% | USD |
+| $1,000,000.00 | $10,000,000.00 | 13.5% | USD |

@@ -12,9 +12,8 @@ import {
   LEFT_PANEL_EXPECTED,
   TEXT_FIELD_CONSTRAINTS,
   CHECKBOX_LABEL_CASES,
-} from '../../test-data/location-local-info.data';
-
-const OFFICE_NO = '1604';
+} from '../../test-data/locations/location-local-info.data';
+import { OFFICE_NO } from '../../test-data/common.data';
 
 test.describe.serial('Location Local Info @locations @local-info', () => {
 

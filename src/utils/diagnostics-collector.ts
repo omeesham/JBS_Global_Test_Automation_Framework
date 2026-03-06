@@ -170,7 +170,7 @@ export class DiagnosticsCollector {
 
   /**
    * Classify a failure error string + collected evidence into a FailureCategory.
-   * Priority-ordered pattern matching per §15 RCA Protocol.
+   * Priority-ordered pattern matching per §12 RCA Protocol.
    */
   classifyFailure(errorMsg: string): FailureCategory {
     const lower = errorMsg.toLowerCase();

@@ -3,7 +3,7 @@
  * Validate Agent Sync - Ensures registry rules match agent file NEVER DO sections.
  * Also validates SYNC marker consistency and R## rule subsets.
  * 
- * Compares specs_planning/agent-mistakes.md against .github/agents/*.agent.md
+ * Compares specs_planning/_internal/agent-mistakes.md against .github/agents/*.agent.md
  * Reports any drift or missing rules.
  * 
  * Usage: npm run validate:sync
@@ -29,6 +29,61 @@ interface ValidationResult {
 
 const REGISTRY_PATH = SHARED_PATHS.mistakes;
 const AGENTS_DIR = SHARED_PATHS.agentsDir;
+
+// === STALE REFERENCE DETECTION ===
+// Configurable deny-list of patterns eliminated during consolidations.
+// Add new entries here whenever a migration removes identifiers.
+
+interface StaleRefEntry {
+  pattern: RegExp;
+  replacement: string;
+  since: string;
+}
+
+const STALE_REFERENCE_DENY_LIST: StaleRefEntry[] = [
+  // 2026-03 consolidation: R23-R30 -> consolidated into ALL-*/GEN-*/HLR-*/AUD-* rules
+  { pattern: /\bR23\b/, replacement: 'ALL-005 (self-audit checklist)', since: '2026-03-03' },
+  { pattern: /\bR24\b/, replacement: 'ALL-003 (search mistakes before retry)', since: '2026-03-03' },
+  { pattern: /\bR25\b/, replacement: 'S8 Context Self-Load', since: '2026-03-03' },
+  { pattern: /\bR26\b/, replacement: 'ALL-004 (sync after writing rules)', since: '2026-03-03' },
+  { pattern: /\bR27\b/, replacement: 'ALL-004 (capture novel patterns)', since: '2026-03-03' },
+  { pattern: /\bR28\b/, replacement: 'S12 Phase B (evidence checklist)', since: '2026-03-03' },
+  { pattern: /\bR29\b/, replacement: 'ALL-003/ALL-004 (learning yield)', since: '2026-03-03' },
+  { pattern: /\bR30\b/, replacement: 'S13 Pre-Flight Competency Gate', since: '2026-03-03' },
+
+  // 2026-03 consolidation: old section numbers merged into S8 Session Protocol
+  { pattern: /§9B\b/, replacement: 'S8 Session Protocol', since: '2026-03-03' },
+  { pattern: /§9C\b/, replacement: 'S8 Session Protocol', since: '2026-03-03' },
+  { pattern: /§15\b/, replacement: 'S12 RCA Protocol', since: '2026-03-04' },
+  { pattern: /§16\b/, replacement: 'S8 Session Protocol', since: '2026-03-03' },
+  { pattern: /§17\b/, replacement: 'S8 Session Protocol', since: '2026-03-03' },
+  { pattern: /§18\b/, replacement: 'S13 Pre-Flight Gate', since: '2026-03-03' },
+
+  // 2026-03 consolidation: agent-learnings.md deprecated (merged into agent-mistakes.md Resolution)
+  { pattern: /agent-learnings\.md/, replacement: 'agent-mistakes.md Resolution column', since: '2026-03-03' },
+];
+
+// Files to scan (active code only -- exclude plan docs, historical audits, and RCA files)
+const STALE_SCAN_DIRS: { dir: string; extensions: string[] }[] = [
+  { dir: 'scripts', extensions: ['.ts'] },
+  { dir: '.github/agents', extensions: ['.agent.md'] },
+  { dir: 'docs/read_only_docs', extensions: ['.md'] },
+  { dir: 'src', extensions: ['.ts'] },
+  { dir: 'tests', extensions: ['.ts'] },
+];
+
+// Individual files to scan
+const STALE_SCAN_FILES: string[] = [
+  '.github/copilot-instructions.md',
+];
+
+// Paths to EXCLUDE from scan (historical records, plan documents)
+const STALE_SCAN_EXCLUDES: string[] = [
+  'plans',
+  'specs_planning/audits',
+  'specs_planning/_internal/agent-activity-log.md',
+  'node_modules',
+];
 
 function parseRegistryRules(content: string, sectionName: string): Map<string, string> {
   const rules = new Map<string, string>();
@@ -303,7 +358,7 @@ function validateStageFlow(): { status: 'ok' | 'drift'; details: string[] } {
   const details: string[] = [];
 
   // Read canonical stages from schema
-  const schemaPath = path.join(rootDir, 'specs_planning/agent-queue.schema.json');
+  const schemaPath = path.join(rootDir, 'specs_planning/_internal/agent-queue.schema.json');
   if (!fs.existsSync(schemaPath)) {
     return { status: 'drift', details: ['Schema file not found'] };
   }
@@ -372,7 +427,7 @@ function validatePromptsConfig(registryContent: string): string[] {
     const agents = config[section] || {};
     for (const [agent, entries] of Object.entries(agents)) {
       for (const entry of entries as string[]) {
-        // Extract referenced IDs like PLN-041, ALL-013, R27
+        // Extract referenced IDs like PLN-041, ALL-013, GEN-008
         const refs = entry.matchAll(/\b((?:ALL|COP|REQ|PLN|GEN|HLR|AUD|PMD)-\d{3}|R\d{1,2})\b/g);
         for (const ref of refs) {
           const refId = ref[1];
@@ -385,6 +440,94 @@ function validatePromptsConfig(registryContent: string): string[] {
   }
 
   return warnings;
+}
+
+// === Stale Reference Detection Functions ===
+
+interface StaleRefFinding {
+  file: string;
+  line: number;
+  matched: string;
+  replacement: string;
+  since: string;
+}
+
+/** Recursively collect files from a directory matching given extensions. */
+function collectFilesFromDir(
+  baseDir: string,
+  extensions: string[],
+  rootDir: string,
+): string[] {
+  const results: string[] = [];
+  const absDir = path.join(rootDir, baseDir);
+  if (!fs.existsSync(absDir)) return results;
+
+  const entries = fs.readdirSync(absDir, { withFileTypes: true });
+  for (const entry of entries) {
+    const relPath = path.join(baseDir, entry.name);
+    if (entry.isDirectory()) {
+      // Skip excluded directories
+      if (STALE_SCAN_EXCLUDES.some(ex => relPath.replace(/\\/g, '/').startsWith(ex))) continue;
+      results.push(...collectFilesFromDir(relPath, extensions, rootDir));
+    } else if (extensions.some(ext => entry.name.endsWith(ext))) {
+      results.push(relPath);
+    }
+  }
+  return results;
+}
+
+/** Scan active code files for stale references from the deny-list. */
+function validateStaleReferences(): StaleRefFinding[] {
+  const rootDir = path.join(__dirname, '..');
+  const findings: StaleRefFinding[] = [];
+  const filesToScan = new Set<string>();
+
+  // Collect files from scan directories
+  for (const { dir, extensions } of STALE_SCAN_DIRS) {
+    for (const f of collectFilesFromDir(dir, extensions, rootDir)) {
+      filesToScan.add(f);
+    }
+  }
+
+  // Add individual files
+  for (const f of STALE_SCAN_FILES) {
+    if (fs.existsSync(path.join(rootDir, f))) {
+      filesToScan.add(f);
+    }
+  }
+
+  // Scan each file
+  for (const relFile of filesToScan) {
+    // Skip excluded paths
+    const normalized = relFile.replace(/\\/g, '/');
+    if (STALE_SCAN_EXCLUDES.some(ex => normalized.startsWith(ex) || normalized === ex)) continue;
+
+    const absPath = path.join(rootDir, relFile);
+    if (!fs.existsSync(absPath)) continue;
+
+    const content = fs.readFileSync(absPath, 'utf-8');
+    const lines = content.split('\n');
+
+    for (let i = 0; i < lines.length; i++) {
+      const lineText = lines[i]!;
+      for (const entry of STALE_REFERENCE_DENY_LIST) {
+        if (entry.pattern.test(lineText)) {
+          // Reset lastIndex for global-like patterns
+          entry.pattern.lastIndex = 0;
+          const matchResult = lineText.match(entry.pattern);
+          findings.push({
+            file: normalized,
+            line: i + 1,
+            matched: matchResult ? matchResult[0] : entry.pattern.source,
+            replacement: entry.replacement,
+            since: entry.since,
+          });
+        }
+      }
+    }
+  }
+
+  return findings;
 }
 
 function main() {
@@ -487,6 +630,44 @@ function main() {
       console.log(`[WARN] ${pr}`);
     }
     // Orphaned references are informational — don't fail the build
+  }
+
+  // ── Orphaned NEVER DO Section Detection ──
+  console.log('\n--- Orphaned NEVER DO Detection ---\n');
+  const agentFiles = Object.values(AGENT_FILE_MAP).filter(f => f.endsWith('.agent.md'));
+  let orphanFound = false;
+  for (const agentFile of agentFiles) {
+    const filePath = path.join(AGENTS_DIR, agentFile);
+    if (!fs.existsSync(filePath)) continue;
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const rulesCount = (content.match(/## RULES/g) || []).length;
+    const neverDoCount = (content.match(/## NEVER DO/g) || []).length;
+    if (rulesCount > 0 && neverDoCount > 0) {
+      console.log(`[ERR] ${agentFile}: Has BOTH ## RULES and ## NEVER DO sections. Remove the orphaned ## NEVER DO section.`);
+      hasErrors = true;
+      orphanFound = true;
+    }
+    if (rulesCount > 1) {
+      console.log(`[ERR] ${agentFile}: Has ${rulesCount} ## RULES sections. Should have exactly 1.`);
+      hasErrors = true;
+      orphanFound = true;
+    }
+  }
+  if (!orphanFound) {
+    console.log('[OK] No orphaned NEVER DO sections found');
+  }
+
+  // ── Stale Reference Detection ──
+  console.log('\n--- Stale Reference Detection ---\n');
+  const staleFindings = validateStaleReferences();
+  if (staleFindings.length === 0) {
+    console.log('[OK] No stale references found');
+  } else {
+    console.log(`[WARN] Stale references found: ${staleFindings.length}`);
+    for (const f of staleFindings) {
+      console.log(`  STALE: ${f.file}:${f.line} -- "${f.matched}" -> use "${f.replacement}" (eliminated ${f.since})`);
+    }
+    // Informational only -- does not fail the build
   }
 
   console.log('\n' + '='.repeat(60));

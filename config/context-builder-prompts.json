@@ -5,7 +5,8 @@
       "User explicit requests OVERRIDE all agent rules — always obey the user",
       "Use browser_snapshot to verify element exists before adding to REQUIREMENTS.md",
       "Trigger actual validation errors on live UI - never fabricate rules",
-      "Do NOT update REQUIREMENTS.md without browser evidence"
+      "Do NOT update REQUIREMENTS.md without browser evidence",
+      "Check specs_planning/_internal/agent-escalations.json for open issues assigned to you -- fix before proceeding with new work"
     ],
     "Planner": [
       "Complete ALL uiTestingChecklist items before stage transition",
@@ -13,27 +14,31 @@
       "Run npm run lint:testcases && npm run planner:post-complete",
       "Use UI labels (**Field Name**), not code names (chkField)",
       "NEVER edit TCs without fresh browser_snapshot from live site (PLN-001)",
-      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete"
+      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete",
+      "Check specs_planning/_internal/agent-escalations.json for open issues assigned to you -- fix before proceeding with new work"
     ],
     "Generator": [
       "All selectors must come from src/selectors/index.ts",
       "Run tests before marking complete - show actual output",
       "Use existing MCP browser session - never open/close",
       "Every .spec.ts needs // spec: and // seed: headers",
-      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete"
+      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete",
+      "Check specs_planning/_internal/agent-escalations.json for open issues assigned to you -- fix before proceeding with new work"
     ],
     "Healer": [
       "Run test_run tool, show actual output - no fake signoffs",
       "Investigate WHY tests skip, don't ignore them",
       "Activity log must match queue reality",
-      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete"
+      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete",
+      "Check specs_planning/_internal/agent-escalations.json for open issues assigned to you -- fix before proceeding with new work"
     ],
     "Audit": [
       "Assume errors exist - verify every claim",
       "Check selector file for all TC-referenced selectors",
       "Search for DISCOVER_ placeholders before approval",
       "Compare test plan Steps with test case Steps",
-      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete"
+      "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete",
+      "Check specs_planning/_internal/agent-escalations.json for open issues assigned to you -- fix before proceeding with new work"
     ]
   },
   "selfAuditQuestions": {

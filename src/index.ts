@@ -3,7 +3,7 @@
  * PURPOSE: Barrel export -- single entry point for the compiled framework (dist/). All public types, classes, and utilities are re-exported here.
  * OWNER: human-only
  * IMPACT: critical - Client tests import everything from dist/ via this file. Breaking exports breaks all client tests.
- * DEPENDS-ON: All src/ modules (pages, utils, common, security, selectors, data, integrations, framework-contracts)
+ * DEPENDS-ON: All src/ modules (pages, utils, common, security, selectors, data, framework-contracts)
  * USED-BY: Client tests (via dist/index.js), tsconfig.build.json (entry point)
  * RULES: Only add exports here. Never remove existing exports (breaking change for clients). Keep organized by category.
  */
@@ -39,7 +39,6 @@ export {
   getTsSelector,
   ALL_SELECTORS,
   MicrosoftLoginSelectors,
-  NavigatorSelectors,
   SetupSelectors,
   DynamicSelectors,
 } from './selectors';
@@ -55,9 +54,6 @@ export { DbAdapter } from './data/adapters/dbAdapter';
 export { S3Adapter } from './data/adapters/s3Adapter';
 export type { IAdapter, AdapterRecord, AdapterMetadata, AdapterResult } from './data/adapters/IAdapter';
 export type { AdapterType } from './data/adapters/adapterFactory';
-
-// ==================== INTEGRATIONS ====================
-export { SharePointClient } from './integrations/sharepoint-client';
 
 // ==================== RE-EXPORT PLAYWRIGHT TYPES ====================
 export type { Page, Browser, BrowserContext, Locator } from '@playwright/test';

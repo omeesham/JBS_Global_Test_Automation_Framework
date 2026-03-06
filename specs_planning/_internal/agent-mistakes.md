@@ -1,0 +1,216 @@
+# Agent Rules Registry
+<!-- CANONICAL REGISTRY: All agent behavioral rules live here.
+     AUTOMATED SYNC: Run `npm run sync:mistakes` to inject rules into agent files.
+     VALIDATION: Run `npm run validate:sync` to check for drift.
+     
+     ID ASSIGNMENT: IDs are permanent. Never reassign. Add new IDs at end of section.
+     CONTEXT INJECTION: Queue items receive relevant rules via task-context-builder.
+     
+     CONSOLIDATED: 2026-03 audit reduced 204 → 71 rules. Learnings merged into Resolution column.
+     Former agent-learnings.md entries integrated here. One registry, one lookup.
+     
+     FORMAT: | ID | Rule (positive framing) | Resolution (linked learning/evidence, or — if none) | -->
+
+<!-- === R## RULE SUBSETS PER AGENT ===
+     AGENT_RULES:requirements = R01,R06,R07,R11,R15,R16,R17,R21
+     AGENT_RULES:planner = R01,R04,R06,R07,R09,R11,R13,R15,R16
+     AGENT_RULES:generator = R01,R06,R07,R09,R10,R12,R13,R14,R15,R16
+     AGENT_RULES:healer = R01,R06,R07,R08,R09,R10,R12,R14,R15,R16
+     AGENT_RULES:audit = R06,R07,R15,R16
+-->
+
+<!-- === ID MASTER LIST ===
+     ALL-001 to ALL-031: Shared rules (all agents)
+     COP-001 to COP-008: Copilot rules
+     REQ-001 to REQ-013: Requirements Agent rules
+     PLN-001 to PLN-022: Planner rules
+     GEN-001 to GEN-024: Generator rules
+     HLR-001 to HLR-014: Healer rules
+     AUD-001 to AUD-016: Audit rules
+     MNT-001 to MNT-012: Framework Maintainer rules
+     
+     Total: 134 rules (31 ALL + 8 COP + 13 REQ + 22 PLN + 24 GEN + 14 HLR + 16 AUD + 12 MNT)
+     NOTE: ALL-013..019 from PIPELINE_FIX_PLAN.md Change 6/7. ALL-020 from PLAN_04. ALL-021..027 from PLAN_05.
+     NOTE: ALL-028..031 from PLAN_17 (agent autonomy foundation).
+     NOTE: REQ-006..009 from PLAN_06. REQ-010..013 from PLAN_05.
+     NOTE: PLN-018..022, GEN-016..022, HLR-009..011, AUD-011..013 from PLAN_05.
+     NOTE: HLR-012..014 from PLAN_07.
+     NOTE: AUD-014..016 from PLAN_08.
+     NOTE: MNT-001..012 from PLAN_15 (framework maintainer agent).
+     
+     MIGRATION: Original 204-rule version was in agent-mistakes.md.bak (deleted in PLAN_18).
+     ID mapping: Old IDs → new consolidated IDs documented in SYSTEMS_AUDIT_RCA.md.
+-->
+
+## Shared
+| ID | Rule | Resolution |
+|----|------|------------|
+| ALL-001 | All .md edits: tables > prose, no filler, single source of truth (link don't copy), compress after edits. Extend existing files > create new | — |
+| ALL-002 | Log activity start/end with HH:MM timestamps. Every agent, every task = activity log entry. No silent completions | — |
+| ALL-003 | Before retrying: search agent-mistakes.md Resolution column by failure category. Apply documented solution if match. After retrying: log what was learned (specific trigger + root cause + fix) | LRN-014: Blanket node kill destroys MCP — use targeted process filter |
+| ALL-004 | After writing rules: `npm run sync:mistakes && npm run build:context && npm run validate:sync`. Capture novel patterns discovered during any task before completing | — |
+| ALL-005 | Before completing: answer agent-specific 5-item checklist (see §8). All claims require evidence. Reconciliation table with min 3 rows | — |
+| ALL-006 | Selector protocol: check SELECTOR_CATALOG.md first. New selectors need @where @el @text @keys annotation. Verify HTML tag via DOM — role="button" on `<a>` ≠ `<button>` tag | LRN-015: Radix UI checkbox = `<button role="checkbox">` not `<input>`. LRN-017: Playwright auto-pierces shadow DOM |
+| ALL-007 | Diagnostics-first debugging: read failure-summary.json (failureCategory, fullError, networkFailures, consoleErrors, authChain) BEFORE any fix. Complete 7-step RCA (§12). Use test:grep for single-TC runs | LRN-005: White page = OAuth 400 — check networkFailures before blaming selectors |
+| ALL-008 | MCP server stability is CRITICAL. Rules: (1) NEVER call browser_close. (2) NEVER Stop-Process -Name node or any blanket process kill. (3) NEVER use page.goto(), window.location, or JS navigation inside browser_evaluate. (4) Keep browser_evaluate scripts under 5 lines — complex scripts crash the server. (5) Wait 3s after browser_navigate before snapshot. (6) NEVER run npx playwright test in terminal while actively using MCP browser — they share Playwright infrastructure and conflict. (7) If MCP server exits (error code 4294967295), do NOT restart manually — just call browser_navigate and it auto-recovers. (8) Reuse existing browser sessions | LRN-002: Snapshot too fast → stale DOM. LRN-014: Stop-Process -Name node kills MCP |
+| ALL-009 | ASCII-only in executable code output. Use [OK], [ERR], [WARN], ->. No emoji/Unicode in string literals, Log.*, console.log. Comments exempt | — |
+| ALL-010 | Evidence before code edits: no code during Phase A. Read failure artifacts in order (failure-summary.json → error-context.md → screenshot). Complete 7-step RCA protocol. MCP is LAST RESORT | — |
+| ALL-011 | Pre-flight checks (§13) before any work. Load own performance entry. Note unresolved defects and learning debt | — |
+| ALL-012 | User explicit requests = top priority. Agent rules never override direct user instructions | — |
+| ALL-013 | Standard test location: Office 1604 (ID=1604). NEVER use another location unless user EXPLICITLY names a different one | Session: agent used location 1000021, explored wrong data |
+| ALL-014 | browser_take_screenshot is DISABLED (vision off). Use browser_snapshot for ALL DOM inspection. Screenshots produce no usable output | Session: 3+ wasted turns calling screenshot with no output |
+| ALL-015 | User corrections = IMMEDIATE STOP. When user corrects you: (1) stop current action, (2) acknowledge EXACT correction, (3) comply. Do NOT continue previous approach or reinterpret | Session: agent ignored 3+ corrections, required profanity |
+| ALL-016 | Navigation via browser_navigate ONLY. NEVER use page.goto(), window.location, or JS navigation inside browser_evaluate. Keep evaluate scripts under 5 lines — prefer browser_snapshot | Session: agent used page.goto() in evaluate (broken), wrote 20+ line scripts |
+| ALL-017 | MISTAKE DETECTED = STOP TASK. When you make a mistake (user corrects you, retry fails, unexpected result): (1) STOP current task, (2) write a rule to your section in agent-mistakes.md with next available ID, (3) run sync pipeline, (4) ONLY THEN resume task. Every mistake = a new rule | learningsLogged: 0 for 3/5 agents across 27 combined runs. Same URL mistake repeated by 2 agents |
+| ALL-018 | Mistake detection signals — you made a mistake if ANY of these: (1) user corrects/contradicts you, (2) you retried something that failed, (3) browser_navigate landed on unexpected page, (4) browser_snapshot shows different content than expected, (5) a command returned error, (6) you changed approach mid-task. When detected: follow ALL-017 | — |
+| ALL-019 | File writes via Node.js fs module or MCP tools ONLY. NEVER use PowerShell Set-Content, Add-Content, or Out-File for file operations — they corrupt Unicode encoding on Windows. Use node -e "fs.writeFileSync(...)" if shell needed | Session: Planner used PowerShell Set-Content -Encoding UTF8, double-encoded Unicode chars |
+| ALL-020 | Search-before-create for page object methods: check BasePage and ALL existing page objects before writing a new method. If the same pattern exists in 2+ pages, it belongs in BasePage. Duplicated methods across page objects = defect. BasePage now has: clickSaveWithDialog, navigateToSubTab, getRadixCheckboxState, setRadixCheckbox, getComboboxOptions, selectComboboxOption | PLAN_04: clickSave, tab nav, Radix checkbox, combobox read — all duplicated across Currency/Pricing/LocalInfo; extracted to BasePage |
+| ALL-021 | Every agent MUST create a detailed plan before execution in agent mode. Plan includes: what files to read, what to verify, what to create/modify, risks identified, reuse opportunities. No plan = no work | Generator and Planner both jumped to execution without planning, discovered issues mid-flight |
+| ALL-022 | Failure artifacts reading order: failure-summary.json → error-context.md → screenshot → trace. MCP browser is LAST RESORT for debugging, not first. Artifacts contain the same info the user sees in headed mode | Generator used MCP 6+ times for an issue clearly visible in error-context.md |
+| ALL-023 | Run ONLY failing tests during debug: --grep "TC-ID". For serial blocks: READ the full spec to identify ALL dependency tests (login, navigation, state setup) — build minimum required grep pattern. NEVER assume TC-001 alone is sufficient. NEVER run a mid-spec test without understanding what prior tests set up. Full spec ONLY for final validation | Generator ran full 23-test spec 8+ times during debug. Agents also ran TC-23 in isolation without TC-001 (login) or TC-005 (tab nav) |
+| ALL-024 | Truth hierarchy (highest to lowest): Live MCP session DOM > error-context.md snapshot > screenshots > failure-summary.json > REQUIREMENTS.md > test plans > test cases > Jira ticket descriptions. When ANY downstream artifact conflicts with MCP-observed reality, live DOM wins. Agents MUST NEVER follow test plans/cases/Jira blindly — ground reality on the website is always authoritative. If an observation on MCP contradicts a test case, STOP and report the discrepancy. NOTE: This defines truth AUTHORITY for conflict resolution — not debugging sequence. For debug reading order see ALL-022 | User directive: live website is greater truth than any test case/plans. PLN-020/REQ-006 cover planner/requirements but no ALL-level hierarchy existed |
+| ALL-025 | When stuck (first attempt failed), agents MUST consult the Self-Unblocking Map (§14 in AGENT_SHARED_RULES.md) before retrying. Search the table for the stuck category. If no match found, escalate with evidence. Never retry blindly — search then retry | User directive: agents need to know how to use data available in the repo to help themselves |
+| ALL-026 | Spec-level code reuse: any setup, navigation, assertion, or cleanup pattern used in 2+ spec files MUST be extracted to a fixture (tests/setup/fixtures.ts) or helper. Priority: page object method > shared fixture > helper in tests/setup/ > duplication in spec. Copy-pasted test blocks across specs = defect. 3+ similar TCs with different data = data-driven test.describe with data array | User directive: only highly reusable code in specs. PLAN_04 covers page objects but not spec-level patterns |
+| ALL-027 | MCP crash recovery: (1) NEVER run terminal commands to restart MCP server. (2) NEVER kill node/browser processes. (3) Simply call browser_navigate(url) — it auto-reconnects. (4) If that fails, tell user "MCP server needs restart" and STOP. The #1 crash cause is agents running npx playwright test in terminal while MCP browser is open — they share Playwright infrastructure | User report: MCP server dying with exit code 4294967295. ALL-008 covers prevention but had no recovery procedure |
+| ALL-028 | Before acting on another agent's output, run Inheritance Verification: (1) Read artifact fully (2) Spot-check 3 claims against source files or live DOM (3) If any claim is false, fix or escalate — never propagate errors | Blind trust chain: Generator trusts wrong Planner TC → spec tests wrong thing → Healer can't fix root cause |
+| ALL-029 | Mid-phase checkpoint: After each major work phase, pause and verify — does my output match user's original intent? Am I solving the right problem? Log `mid-check` in activity log | Intent drift compounds across phases — agent explores correctly but documents the wrong thing |
+| ALL-030 | Self-audit must be CRITICAL not confirmatory. Ask "what did I get WRONG?" If zero issues found on non-trivial work (3+ steps), justify why — zero issues is suspicious and must be explained | Agents rubber-stamp own work — self-audit becomes a checkbox exercise |
+| ALL-031 | When another agent's output is confirmed wrong vs live DOM (not a temp bug): (1) Verify via MCP (2) Create escalation in `specs_planning/_internal/agent-escalations.json` (3) Continue your work with corrected understanding | Cross-agent quality: Generator finds Planner TC wrong but Planner never learns |
+| ALL-032 | Auto-Invoke Protocol: At session start read `config/pipeline-config.json`. If `autoInvoke.enabled === true` AND task completed successfully, chain to next agent via handoff. If disabled, report and stop. Generator special case: tests pass -> Audit, tests fail -> Healer | Manual pipeline handoffs require 5 user sessions with copy-paste context |
+
+## Copilot
+| ID | Rule | Resolution |
+|----|------|------------|
+| COP-001 | Pipeline delegation: create queue entry → delegate to appropriate agent. Don't bypass pipeline. Don't write spec files (Generator's job). New items = pending_planning | — |
+| COP-002 | TypeScript must compile: run `npm run typecheck`, fix all errors before commit | — |
+| COP-003 | Research before answering: run subagent, read source code, verify claims. First response = comprehensive | — |
+| COP-004 | Verify outputs: read output files after generation, check encoding/format. Test regex on double-digits, nested patterns, edge cases | — |
+| COP-005 | TC submodule sync: update to-csv.ts subMap AND lint-test-cases.ts KNOWN_SUB_CODES AND to-csv.ts TAB_MAP for new TC codes | — |
+| COP-006 | Check SELECTOR_CATALOG.md before declaring selector not found | — |
+| COP-007 | Fix root causes, not symptoms. Read agent-mistakes.md before starting. Verify full resolution | — |
+| COP-008 | Agent file edits: compare full frontmatter side-by-side. Rules must not contradict each other | — |
+
+## Requirements
+| ID | Rule | Resolution |
+|----|------|------------|
+| REQ-001 | Live UI exploration required: browser_navigate to app FIRST, explore, then update REQUIREMENTS.md. Log browser tool usage | — |
+| REQ-002 | Evidence-backed documentation: browser_snapshot proof for every field/selector. Trigger actual error messages on live UI | — |
+| REQ-003 | Document UI state with browser_snapshot (NOT browser_take_screenshot). Vision is disabled — screenshots produce no usable output | Session: 3+ wasted turns calling screenshot |
+| REQ-004 | Verify exact UI label text from DOM (aria-label / term elements) — component code names are not UI display labels | — |
+| REQ-005 | No *(observed)* or TBD placeholder states in REQUIREMENTS.md. Document actual observed value or explain why blocked | — |
+| REQ-006 | URL discipline: navigate to EXACT path user provides. Copy character-for-character. URL pattern: {BASE_URL}locations/{officeId}/settings/local-office. If unsure, ASK | Session: agent navigated /settings/location instead of /settings/local-office 3+ times |
+| REQ-007 | Scope = ONLY the feature/tab user specified. Do NOT click adjacent tabs or explore related areas | Session: agent explored Currency, Pricing, ECT tabs when told to focus on one area |
+| REQ-008 | Phase 1 exploration is READ-ONLY: use ONLY browser_navigate + browser_snapshot + browser_hover. NEVER click form fields, checkboxes, dropdowns, or type inputs. OBSERVING only | Session: agent clicked checkboxes and filled dates during exploration |
+| REQ-009 | Phase 2 interaction requires user approval: present Phase 1 findings FIRST, get explicit OK, THEN browser_click/type. Restore all modified fields when done | Session: agent modified fields without approval or restoration |
+| REQ-010 | Requirements agent is a HUNTER, not a verifier. The initial prompt is a STARTING POINT — explore EVERYTHING on the page independently. Document every field, button, validation, error state, save dialog. The prompt data could be wrong — DOM is truth | Planner received incomplete requirements → created incomplete test cases |
+| REQ-011 | For every page/tab documented: click Save on MCP, document the exact dialog behavior (heading, text, buttons, or "no dialog"). Every clickSave() in the framework depends on this | Pricing page had undocumented Save Changes confirmation dialog |
+| REQ-012 | For every dropdown: open it on MCP, document ALL available options (exact text). For every checkbox: toggle it and document cascade effects. For every grid: count exact rows and columns. Approximate values ("~55 rows") are NEVER acceptable. NOTE: Applies during Phase 2 interactive exploration — see REQ-008 for Phase 1 read-only restrictions | Planner wrote "~55 rows" — actual was 75. "Is Alternative" — actual was "Is Alternate" |
+| REQ-013 | Verify HTML tag structure for form elements via browser_evaluate. Is it dt/dd? div/span? table/tr? Different tabs use different component libraries. Document actual structure so planner writes correct selectors | Pricing tab = Radix (div/span/button), Local Info = dt/dd. All pricing selectors were wrong because structure was assumed |
+
+## Planner
+| ID | Rule | Resolution |
+|----|------|------------|
+| PLN-001 | Verify everything on live site: navigate to URL, browser_snapshot, verify defaults/selectors/fields BEFORE writing any TC. Cross-reference against REQUIREMENTS.md. Never fabricate URLs — read BASE_URL from .env | LRN-001: Fabricated URL → ERR_NAME_NOT_RESOLVED |
+| PLN-002 | Selector validation: all TC-referenced selectors must exist in src/selectors/index.ts. Each selector unique — scope tab-specific selectors to container | LRN-003: Wrong sub code → check KNOWN_SUB_CODES |
+| PLN-003 | TC format: TC-XXX-YY-NNN IDs, Updated date, FIELD INVENTORY section, Automatable field, `N. Action -> Expected` format. UI labels in Steps (not code names). Error text in Steps, keys in Notes. "from X to Y" not arrows | — |
+| PLN-004 | Test scenario completeness: checkboxes need 3 scenarios (enabled+click, disabled+non-click, label). Inputs need 4-5 (alpha, special, inbound boundary, outbound boundary, non-numeric for spinbuttons). Dates need boundary + cross-field. Every editable field needs save-reload-verify | — |
+| PLN-005 | Error recovery flows: trigger error → fix cause → save succeeds for every validation. Document both success and error paths | — |
+| PLN-006 | Test plan ↔ test case sync: every TC has matching test plan Scenario. CSV verified after adding TCs (grep for new IDs; re-export if missing) | — |
+| PLN-007 | Domain logic coverage: country branches (USA vs intl), permissions/roles, field dependencies (cascading/dual), conditional defaults (IsUnion → ETS), trigger conditions for disabled fields, required field validation | — |
+| PLN-008 | No contradictory/vague TCs: cross-reference all TCs for consistency. No absolute language ("always", "permanently") without evidence. Explicit preconditions. Update stale status labels. Concrete expected values (not "record for baseline") | — |
+| PLN-009 | Checklist self-certification requires evidence: each true field needs ≥1 supporting TC. False + notes when N/A. Don't repeat certification mistakes after prior audit block | — |
+| PLN-010 | MCP browser reuse: never open new sessions. browser_navigate auto-opens. Use planner_setup_page for bootstrap only | LRN-002: Wait 3s between navigate and snapshot |
+| PLN-011 | Spinbutton format verification: type boundary values to confirm stored vs display format. Document both (e.g. input: 0.04 decimal, display: 4.00%) | LRN-007: inputValue() returns "4.00%" not "0.04" |
+| PLN-012 | Save flow documentation: click Save in MCP, document every dialog/toast (selector + exact heading/text). Undocumented dialogs = clickSave() never commits | — |
+| PLN-013 | Environment-blocked TCs: flag as `Status: Blocked (Cat-A: reason)` at TC creation time. Don't omit, don't leave as Manual. 0 TCs for blocked functionality = incomplete | LRN-020: Office 1604 silently rejects persistent changes |
+| PLN-014 | Parser/lint compatibility: run lint:testcases before complete. Test regex on separators, double-digits, format variants. Re-export ALL CSVs after any to-csv.ts change | — |
+| PLN-015 | Cleanup and data hygiene: restore fields after exploration. Cleanup steps for data-mutating tests. Field count reconciliation (DOM ↔ TCs). No data anomalies without explanatory notes. Scope = assigned tab only | — |
+| PLN-016 | Include TCs for different tabs in same pipeline | "Local Information" pipeline = Local Information tab only; Legal tab = separate pipeline |
+| PLN-017 | Update field count in header but miss individual TCs | Search ALL TCs after count change (TC-001, TC-033) |
+| PLN-018 | Every editable field = its own save+persist TC with specific value. No lumping 5 fields into 1 generic TC. Each TC must specify: exact value to enter, save action, reload step, persistence verification | 5 Primary Pricing dropdowns were 1 TC with "select any option" |
+| PLN-019 | Document exact save dialog behavior from MCP. Before marking pending_generation: confirm whether Save button triggers a confirmation dialog, document its structure, verify clickSave() will work | Generator's clickSave() had "no confirmation dialog" comment — dialog exists |
+| PLN-020 | All field data (column headers, dropdown options, row counts, checkbox labels) must be EXACT from DOM evaluation — not from REQUIREMENTS.md, not from Jira tickets, not from test plans. All external data sources are starting points only — DOM is truth | "Is Alternative" in requirements, "Is Alternate" in DOM. "~55 rows" in TC, 75 rows in DOM |
+| PLN-021 | Before writing ANY selector: use browser_evaluate to check actual HTML tag structure. NEVER assume dt/dd or div/span from other tabs. Each tab can use different UI components | Pricing tab uses Radix (div/span), Local Info uses dt/dd. All 8 pricing selectors were wrong |
+| PLN-022 | Planner must deliver a "Generator-Ready Package": test cases with MCP_VERIFICATION_LOG, selector file with verified HTML structure, save dialog documentation, complete dropdown options, exact grid details. Missing any = stays at pending_planning | — |
+
+## Generator
+| ID | Rule | Resolution |
+|----|------|------------|
+| GEN-001 | All selectors from src/selectors/index.ts. No inline selectors in spec or page object files | — |
+| GEN-002 | Data-driven patterns: data arrays in .data.ts + batch page methods. One file per concern. 300-line advisory (refactor, never split). One test.describe.serial per spec. Navigate once, reuse state | — |
+| GEN-003 | Architecture: use fixtures only (no constructors). No raw page.* in specs. No Log/CredentialLoader imports in specs. Import only from ../../setup/fixtures. Page interactions through page object methods only | — |
+| GEN-004 | Test execution workflow: typecheck → test → generator:post-complete. No marking complete without passing all gates. Use existing auth (vault + CredentialLoader + authenticatedSession fixture) | — |
+| GEN-005 | MCP browser: never open/close. Pre-flight selector validation (Phase 1) and last-resort RCA (Phase A Step 6 ONLY after reading all failure artifacts). No exploratory browsing. No MCP before reading failure-summary.json and error-context.md | — |
+| GEN-006 | No placeholder tests: no test.fixme(), no empty describes with only comments, no stubs. Omit unimplementable TCs silently + log action: missing-coverage. Every describe must have ≥1 executable test | — |
+| GEN-007 | Targeted test runs: `--grep "TC-ID"` for single TC during fix loop. Full spec ONLY for final validation. For serial block dependency analysis see GEN-018 | — |
+| GEN-008 | Angular form model: always el.press('Tab') after el.fill() to trigger blur/change. Verify inputValue() format via MCP before writing assertions. Input format ≠ display format for spinbuttons | LRN-013: fill() alone doesn't fire Angular change events. LRN-007: inputValue() returns "4.00%" not "0.04". LRN-008: Triple-click fails on Angular re-render → use Ctrl+A |
+| GEN-009 | Boundary data verification: MCP-test each value before committing data files (type → blur → check). Angular may disable Save for client-side boundary violations — test inline error only, not DB persistence | LRN-012: Angular disables Save on boundary violation. LRN-010: Invalid test leaves dirty DB state for next serial test |
+| GEN-010 | Process cleanup: kill ONLY stale Playwright runners via `Get-CimInstance Win32_Process -Filter "Name='node.exe'" \| Where { CommandLine -match 'playwright.*test' }`. NEVER blanket-kill node or user browser processes | LRN-014: Stop-Process -Name node kills MCP server |
+| GEN-011 | Escalation: AUTH/INFRASTRUCTURE → escalate immediately (don't fix). Web search unfamiliar errors. No human input requests. Search → learnings → web → skip. Don't create new auth infrastructure (already solved) | — |
+| GEN-012 | Pre-classified skip: auto-skip fixme-registry/skippedTcIds TCs. Log missing-coverage. Move on | — |
+| GEN-013 | Review all Manual TCs before marking complete. Classify each: automatable (implement), Cat-A/B (FIXME), covered-by (update), not-automatable (document). Checkbox 3-scenario and textbox 4-5 scenario coverage required | — |
+| GEN-014 | No framework file edits: don't modify base-page.ts, src/common/*, src/utils/*, scripts/*. Log action: escalate-tooling and proceed | — |
+| GEN-015 | RCA protocol: never declare "confirmed" mid-sequence. MCP replication required before code fix (§12 Step 6). State hypotheses as hypotheses. Only confirm after full flow (type → save → dialog → reload → verify) | LRN-019: Same-URL goto in Angular may reuse component — navigate away first |
+| GEN-016 | Phase 0 mandatory: create execution plan before ANY code. Verify planner's MCP log. Map TCs to methods. Check for reusable patterns in BasePage/existing pages. Document risks (date pickers, cascading checkboxes, save dialogs) | — |
+| GEN-017 | RCA reads artifacts in order: failure-summary.json → error-context.md → screenshot → failing line → MCP (last resort). Never jump to MCP without reading artifacts first | Generator did 6+ MCP sessions for issue visible in error-context.md |
+| GEN-018 | Debug runs = --grep "TC-ID" only. For serial blocks: READ the full spec first, trace which prior tests perform login/navigation/state setup, build minimum required dependency set as grep pattern. NEVER assume TC-001 alone is sufficient — a test at position 23 may depend on TC-001 (login) + TC-005 (tab nav) + TC-012 (state toggle). Full spec ONLY for final validation. NEVER run full spec during debug cycle | Generator ran full spec 8+ times during debug. Agents ran TC-23 in isolation without prior setup tests |
+| GEN-019 | Check BasePage for existing methods before creating page object methods. clickSaveWithDialog, navigateToSubTab, getRadixCheckboxState, getComboboxOptions — all in BasePage | 3 pages had duplicate clickSave, tab nav, checkbox toggle |
+| GEN-020 | Before writing test.beforeEach, repeated assertion logic, or navigation setup in a spec: grep existing specs (tests/specs/**/*.spec.ts) for the same pattern. If found in 2+ specs, extract to shared fixture or page object method first, then use in both specs | User directive: only highly reusable code in specs. Fixture system exists (tests/setup/fixtures.ts) |
+| GEN-021 | During RCA or Phase 0, if MCP replication reveals the test case itself was wrong (expected value doesn't match live app, selector targets non-existent element, field behavior differs from TC description): DO NOT fix the spec to match the wrong TC. Instead: (1) Set queue item stage to pending_planning, (2) Log in agent-activity-log.md: "TC-XXX conflicts with live DOM: [exact discrepancy]", (3) STOP work on that TC | No mechanism existed for generator to report TC conflicts with live DOM |
+| GEN-022 | Spec-level DRY: same setup/teardown/assertion pattern in 2+ specs = extract to fixture/helper. 3+ similar TCs with different data = data-driven test.describe with data array. Copy-pasted test blocks across specs = defect | User directive: no redundant code in specs. ALL-026 is the ALL-level mandate; this is the GEN enforcement |
+| GEN-023 | Before creating a new interface/type in a page object, search: `grep -rn "interface" src/pages/ src/common/`. If same shape exists, import it. Canonical shared types: CheckboxState (form-helpers), SpinState (form-helpers), IConfig (framework-contracts) | 4 duplicate CheckboxState definitions found across page objects + BasePage |
+| GEN-024 | Never hardcode raw CSS selectors in page object methods. Use `getElement(key)` or `getLocator(key)`. For dynamic waits, pass selectors via the registry | Pricing waitForSaveEnabled() hardcoded `button[data-testid="location-settings-btn-save"]` instead of using selector registry |
+
+## Healer
+| ID | Rule | Resolution |
+|----|------|------------|
+| HLR-001 | Run tests first, show actual test_run output. No fake signoff. Activity log must match queue reality | — |
+| HLR-002 | Investigate all test skips. Verify code correctness first — don't blame environment without evidence | — |
+| HLR-003 | Read historical diagnostics (failure-summary.json enriched data: network, console, auth chain) BEFORE launching MCP tools | — |
+| HLR-004 | Use all 8 failure categories: selector, timing, assertion, application, auth, network, infrastructure, data | — |
+| HLR-005 | No test.fixme(): remove unfixable tests entirely, log missing-coverage with reason. Never escalate to human | — |
+| HLR-006 | Verify exact failing TC from terminal output. Run spec first, read output. User description ≠ test title | LRN-011: "0.01" and "-0.01" are different tests |
+| HLR-007 | DB-state sensitive tests need ≥2 passing runs. 7-step RCA (§12) before any code edit. Serial test state leakage = restore both target + dependent fields | LRN-010: Invalid test corrupts DB state for next serial test. LRN-016: Currency Selected/IsDefault cascade |
+| HLR-008 | Learning entries required for every fix attempt. Healing without learning = wasted session | — |
+| HLR-009 | Artifact-first RCA: read failure-summary.json → error-context.md → screenshot → failing line → spec step BEFORE any MCP replication. MCP is Step 6 (last resort). Same 7-step protocol as Generator | Generator's 7-step RCA protocol applies identically to Healer |
+| HLR-010 | Targeted test runs: `--grep "TC-ID"` for single TC during fix loop. For serial blocks: READ the full spec first, identify minimum required dependency set (login, navigation, state setup tests), build grep pattern with ALL dependencies. NEVER assume TC-001 alone is sufficient. Full spec ONLY for final verification after all fixes | Same efficiency mandate as GEN-018. Full dependency analysis per reviewer feedback |
+| HLR-011 | When replicating failures on MCP: follow the EXACT steps from the spec code (read the spec, find the failing action, reproduce that sequence). Don't browse randomly — replicate precisely what the test does | Generator and Healer both wasted hours on undirected MCP browsing instead of replicating spec steps |
+| HLR-012 | NEVER skip artifact reading (Steps 1-4) to jump straight to MCP replication. Artifact-first is mandatory — MCP is Step 6 only | Healer's #1 time waste: MCP browsing before reading error-context.md |
+| HLR-013 | NEVER run full spec during fix loop. Use --grep with dependency analysis (HLR-010). Full spec only for final regression after all fixes pass | Debug cycles waste 2+ min per unnecessary full run |
+| HLR-014 | NEVER browse randomly on MCP during failure replication. Read spec code first, find failing action sequence, reproduce EXACT steps from the spec | Random browsing = undirected debugging. HLR-011 enforcement |
+
+## Audit
+| ID | Rule | Resolution |
+|----|------|------------|
+| AUD-001 | Assume errors exist (R15). Zero findings requires explicit justification. Zero self-findings while creating 3+ findings for others = re-audit own methodology | — |
+| AUD-002 | Content audit, not just structure: read test steps critically. Catch logic conflicts, validation timing ("on save" vs "on load"), navigation errors, uncertain language ("may be", "TBD") | — |
+| AUD-003 | Field/selector reconciliation: count fields DOM ↔ TCs ↔ test plan. Check all TC-referenced selectors exist. Grep for DISCOVER_ placeholders. Re-check selectors file before claiming "missing" | — |
+| AUD-004 | Mandatory registry update: new patterns found → add to agent-mistakes.md before responding. Mode 1 step 7 is not optional | — |
+| AUD-005 | Remediation prompts: every finding maps to specific agent + copy-pastable fix prompt. Stage revert must include which agent + what prompt + expected fix scope | — |
+| AUD-006 | Scope verification: all TCs test correct tab/feature. Flag scope creep. Use "unverified" not "fabricated" (implies intent). Focus on actionable current issues | — |
+| AUD-007 | Rule quality validation: check agent-mistakes.md for contradictions, duplicates, ID collisions, sync drift. Test plan vs test case wording must match | — |
+| AUD-008 | Temporal anchoring: read activity log, find last audit entry, scope all checks to work AFTER that timestamp. Don't re-audit covered periods | LRN-022: No temporal anchor → agent re-scans all history |
+| AUD-009 | Learning yield verification: check learnings proportional to retries. Zero learnings on retry session = critical finding | — |
+| AUD-010 | Trust promotion verification: all §7 thresholds (maturityScore, learningYield, defectRecurrenceRate, selfAuditAccuracy). Check checkbox 3-scenario and textbox 4-5 scenario coverage | — |
+| AUD-011 | Audit agent must audit ITS OWN audits. Check: did I read all relevant files? Did I verify via MCP when possible? Did I surface remediation prompts in chat (not just file them)? Were my findings evidence-backed? | Audit agent caught itself violating AUD-005 — remediation prompts not delivered to user |
+| AUD-012 | When auditing planner output: verify MCP_VERIFICATION_LOG exists and is complete. Check every TC has a specific (not generic) expected value. Flag any "any option" or "~N rows" language | Pricing planner output had 7 missing TCs and multiple approximate values |
+| AUD-013 | When auditing generator/healer transcripts: verify (1) truth hierarchy respected — if MCP showed different data than TC, agent reported discrepancy via GEN-021 mechanism, (2) spec-level DRY followed — no copy-pasted test blocks across specs (ALL-026), (3) full dependency analysis used for --grep (GEN-018/HLR-010), (4) MCP stability rules followed — no concurrent playwright test + MCP browser (ALL-027) | Surgical rules added 2026-03-03 had zero audit coverage. Reviewer 1 flagged this |
+| AUD-014 | Never audit an agent without using that agent's specific checklist from Mode 2. Generic checks miss agent-specific quality issues (MCP_VERIFICATION_LOG, artifact-first RCA, Phase 0 plan, etc.) | PLAN_08: audit was surface-level, same generic checklist for all agents |
+| AUD-015 | Never approve planner output without verifying MCP_VERIFICATION_LOG exists and is complete. Missing = automatic CRITICAL finding (PLN-022) | PLAN_08: planner audit missed mandatory verification log |
+| AUD-016 | Never approve generator/healer output without checking artifact-first RCA was followed. Check: failure-summary.json + error-context.md read before MCP? --grep used during debug? | PLAN_08: generator audit didn't verify RCA methodology |
+
+## Framework Maintainer
+| ID | Rule | Resolution |
+|----|------|------------|
+| MNT-001 | Duplicate interface detection: grep for same `{ field: type }` shape in 2+ page objects. Canonical source wins, others import | CheckboxState shape defined 4x (3 named interfaces in page objects + 1 inline return type in BasePage) |
+| MNT-002 | Barrel export completeness: every `*.page.ts` must be in `src/pages/index.ts`. Every selector partition must be in `src/selectors/index.ts` | LocationPricingPage missing from barrel |
+| MNT-003 | Method duplication: if same pattern exists in BasePage AND a page object, the page object must delegate. Not reimplement | Currency reimplemented checkbox helpers that exist in FormHelpers; Pricing reloadPricingTab reimplements BasePage navigateToSubTab pattern |
+| MNT-004 | Selector registry compliance: no raw CSS selectors in page object methods. Use `getElement(key)` or `getLocator(key)` | Pricing hardcoded data-testid in waitForSaveEnabled |
+| MNT-005 | Dead file detection: `.bak`, `.tmp`, `.orig` files = delete. Files not imported anywhere = investigate | 4 .bak files accumulated |
+| MNT-006 | Test location: `.spec.ts` files belong in `tests/`, not `src/` | 5 adapter tests in src/data/adapters/__tests__/ |
+| MNT-007 | `npx tsc --noEmit` and `npm run validate:sync` must both pass clean after any changes | — |
+| MNT-008 | Data-driven test compaction: when 2+ tests have identical flow differing only in a selector key or value, refactor into a `for...of` loop over a data array. Each test still gets its own TC ID via template literal | Pricing TC-024/025 (checkbox persistence) + TC-026..030 (dropdown persistence) = 7 identical-flow tests that should be 2 data-driven loops |
+| MNT-009 | Shared test constants: values used identically in 3+ spec files must live in a shared constants file (`tests/test-data/common.data.ts`), not be redefined per spec | OFFICE_NO = '1604' defined identically in 3 specs |
+| MNT-010 | Timeout consolidation: `test.setTimeout()` should be set at `test.describe` level as default. Per-test overrides only for genuinely exceptional tests | 12+ scattered setTimeout calls in pricing spec alone |
+| MNT-011 | Stale JSDoc cleanup: duplicate or outdated JSDoc comment blocks must be removed. One JSDoc per method/class | LocalInfo page has duplicate JSDoc on navigateToLocalInfoTab |
+| MNT-012 | Shared utility extraction: methods used by 2+ page objects with identical logic (differing only in selector keys) must be extracted to BasePage with parameterized keys | waitForSaveEnabled (save button polling) only on Pricing but all tabs have save buttons. getColumnHeadersByKeys pattern in 2 pages. getFieldDisplayValue pattern in 3 methods |

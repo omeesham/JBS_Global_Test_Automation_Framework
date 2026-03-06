@@ -10,7 +10,6 @@ pipeline {
         choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Environment to run tests against')
         choice(name: 'BROWSER', choices: ['chrome', 'chromium', 'firefox', 'webkit', 'all'], description: 'Browser to run tests')
         booleanParam(name: 'PARALLEL', defaultValue: true, description: 'Run tests in parallel')
-        booleanParam(name: 'UPLOAD_TO_SHAREPOINT', defaultValue: false, description: 'Upload downloads to SharePoint after tests')
     }
 
     environment {
@@ -81,17 +80,6 @@ pipeline {
         //     }
         // }
 
-        stage('Upload to SharePoint') {
-            when {
-                allOf {
-                    expression { params.UPLOAD_TO_SHAREPOINT == true }
-                    expression { fileExists('tests/test-data/downloads') }
-                }
-            }
-            steps {
-                sh 'npx ts-node scripts/upload-to-sharepoint.ts --dir=tests/test-data/downloads'
-            }
-        }
     }
 
     post {

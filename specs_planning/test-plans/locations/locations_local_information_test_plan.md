@@ -742,7 +742,7 @@ test.describe('Setup > Location > Local Information', () => {
 
 **REQUIREMENTS.md Discrepancy Noted:**
 - Menu item is "Location" not "Select Location"
-- Updated `specs_planning/agent-mistakes.md` with MISTAKE-PLN-001
+- Updated `specs_planning/_internal/agent-mistakes.md` with MISTAKE-PLN-001
 
 **Generator Recommendations:**
 - Use Page Object inheritance from BasePage for retry/validation logic

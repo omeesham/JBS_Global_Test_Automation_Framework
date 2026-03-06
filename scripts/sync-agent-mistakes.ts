@@ -3,7 +3,7 @@
  * Sync Agent Mistakes - Injects rules from registry into agent files.
  * Also syncs SYNC marker blocks: COMMANDS (from package.json), MCP_CRITICAL (from MCP_BROWSER_GUIDE.md).
  * 
- * Single source of truth: specs_planning/agent-mistakes.md (NEVER DO rules)
+ * Single source of truth: specs_planning/_internal/agent-mistakes.md (NEVER DO rules)
  * Targets: .github/agents/*.agent.md NEVER DO sections + copilot-instructions.md SYNC blocks
  * 
  * Usage: npm run sync:mistakes [--dry-run]
@@ -31,6 +31,7 @@ const AGENT_CONDENSED: { [key: string]: boolean } = {
   'playwright-test-generator.agent.md': true,
   'playwright-test-healer.agent.md': true,
   'playwright-pipeline-audit.agent.md': true,
+  'playwright-framework-maintainer.agent.md': true,
 };
 
 function parseRegistry(): AgentRules {

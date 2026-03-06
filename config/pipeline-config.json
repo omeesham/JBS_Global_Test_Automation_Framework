@@ -1,0 +1,10 @@
+{
+  "autoInvoke": {
+    "enabled": false,
+    "loop": ["requirements", "planning", "generation"],
+    "conditionalAgents": {
+      "healing": "on-generation-fail",
+      "audit": "on-generation-pass"
+    }
+  }
+}

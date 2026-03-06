@@ -176,7 +176,7 @@ All terminal commands run in **Windows PowerShell 5.1**:
 
 ---
 
-## 8.5 Failure Debugging Protocol (§15 Phase A, Steps A13-A14)
+## 8.5 Failure Debugging Protocol (§12 Steps 6-7)
 
 When debugging a test failure, MCP browser replicates the failure — not guesses at fixes.
 
@@ -198,7 +198,7 @@ When debugging a test failure, MCP browser replicates the failure — not guesse
 
 ### Evidence Capture
 10. Document findings in evidence checklist rows A13 + A14
-11. ONLY after A1-A14 complete → proceed to code fix (§15 Phase B)
+11. ONLY after Steps 1-5 complete → proceed to code fix (§12 Phase B)
 
 ### Applies To
 - **Generator**: Phase 4 fix loop (uses `playwright-browser` MCP)

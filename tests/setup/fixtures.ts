@@ -14,8 +14,9 @@ import './custom-matchers';
 import { test as base, Page, BrowserContext } from '@playwright/test';
 import { LoginPage } from '../../src/pages/login.page';
 import { HomePage } from '../../src/pages/home.page';
-import { LocationCurrencyPage } from '../../src/pages/location-currency.page';
-import { LocationLocalInfoPage } from '../../src/pages/location-local-info.page';
+import { LocationCurrencyPage } from '../../src/pages/locations/location-currency.page';
+import { LocationLocalInfoPage } from '../../src/pages/locations/location-local-info.page';
+import { LocationPricingPage } from '../../src/pages/locations/location-pricing.page';
 import { CommonMethods } from '../../src/utils/common-methods';
 import { Log, Logger } from '../../src/utils/logger';
 import { IConfig } from '../../src/framework-contracts';
@@ -37,6 +38,7 @@ type TestFixtures = {
   homePage: HomePage;
   locationCurrencyPage: LocationCurrencyPage;
   locationLocalInfoPage: LocationLocalInfoPage;
+  locationPricingPage: LocationPricingPage;
 };
 
 /**
@@ -208,6 +210,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   locationLocalInfoPage: async ({ authenticatedSession, config }, use) => {
     const locationLocalInfoPage = new LocationLocalInfoPage(authenticatedSession.page, config);
     await use(locationLocalInfoPage);
+  },
+
+  /**
+   * LocationPricingPage fixture
+   * Uses authenticatedSession page so tests start pre-authenticated.
+   */
+  locationPricingPage: async ({ authenticatedSession, config }, use) => {
+    const locationPricingPage = new LocationPricingPage(authenticatedSession.page, config);
+    await use(locationPricingPage);
   },
 
 });

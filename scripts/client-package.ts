@@ -59,8 +59,6 @@ const COPY_FILES: Array<{ src: string; dest: string }> = [
   { src: 'playwright.config.ci.ts', dest: 'playwright.config.ci.ts' },
   { src: 'config/environments/.env.example', dest: 'config/environments/.env.example' },
   { src: 'scripts/cleanup-logs.ts', dest: 'scripts/cleanup-logs.ts' },
-  { src: 'scripts/vault-manager.ts', dest: 'scripts/vault-manager.ts' },
-  { src: 'scripts/upload-to-sharepoint.ts', dest: 'scripts/upload-to-sharepoint.ts' },
   { src: 'src/selectors/SELECTOR_CATALOG.md', dest: 'src/selectors/SELECTOR_CATALOG.md' },
 ];
 
@@ -89,14 +87,6 @@ const CLIENT_SCRIPTS: Record<string, string> = {
   'typecheck': 'tsc --noEmit',
   'lint': 'eslint . --ext .ts',
   'format': 'prettier --write "**/*.{ts,json,md}"',
-  'upload:sharepoint': 'ts-node scripts/upload-to-sharepoint.ts',
-  'vault:init': 'ts-node scripts/vault-manager.ts init',
-  'vault:set': 'ts-node scripts/vault-manager.ts set',
-  'vault:get': 'ts-node scripts/vault-manager.ts get',
-  'vault:list': 'ts-node scripts/vault-manager.ts list',
-  'vault:delete': 'ts-node scripts/vault-manager.ts delete',
-  'vault:rotate': 'ts-node scripts/vault-manager.ts rotate',
-  'vault:info': 'ts-node scripts/vault-manager.ts info',
 };
 
 // ==================== IMPORT REWRITING ====================
@@ -112,8 +102,7 @@ const IMPORT_REWRITES: Array<{ pattern: RegExp; replacement: string }> = [
   { pattern: /from\s+['"]\.\.\/\.\.\/src\//g, replacement: "from '../../dist/" },
   // scripts/**      -- depth 1 (../src/ -> ../dist/)
   { pattern: /from\s+['"]\.\.\/src\//g, replacement: "from '../dist/" },
-  // scripts/vault-manager imports from src/security/vault -> dist/security/vault
-  { pattern: /from\s+['"]\.\.\/(src|config\/secrets)\/(?:security\/)?vault['"]/g, replacement: "from '../dist/security/vault'" },
+
   // require('../../scripts/...') stays as-is (scripts ship to client)
   // require('../../src/...') -> require('../../dist/...')
   { pattern: /require\(\s*['"]\.\.\/\.\.\/src\//g, replacement: "require('../../dist/" },

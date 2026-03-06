@@ -1,5 +1,5 @@
 # Location Pricing Test Cases
-**Module**: locations | **Total**: 23 | **Status**: Manual | **Updated**: 2026-02-18
+**Module**: locations | **Total**: 30 | **Status**: Manual | **Updated**: 2026-03-02
 
 ---
 
@@ -338,6 +338,96 @@
 **Data**: office=1604
 
 **Notes**: The `btnSavePricing` selector targets the Pricing tabpanel Save specifically. Other right-panel tabs (Local Information, Currency) do NOT have a tab-specific Save — they use the main panel Save.
+**Automatable**: Yes
+
+---
+## TC-LOC-PRI-024: Price Guide Inclusive - edit and persist
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Manual | User-Requested |
+
+**Steps**: 1. Navigate to Setup > Location > 1604 -> **Pricing** tab [OK] Tab loads 2. Verify **Price Guide Inclusive** checkbox [OK] Checked (default) 3. Uncheck **Price Guide Inclusive** [OK] Unchecked 4. Click **Save** (Pricing tab Save button) [OK] Save completes 5. Reload page and return to **Pricing** tab [OK] Tab loads 6. Verify **Price Guide Inclusive** [OK] Still unchecked (persisted) 7. Re-check **Price Guide Inclusive** [OK] Checked 8. Click **Save** [OK] Save completes 9. Reload and verify **Price Guide Inclusive** [OK] Checked (restored to default)
+**Expected**: Price Guide Inclusive toggle state persists after save and page reload
+**Data**: office=1604
+**Cleanup**: Step 9 restores default checked state
+**Automatable**: Yes
+
+---
+
+## TC-LOC-PRI-025: Corporate Pricing - toggle state persists after Save
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Manual | User-Requested |
+
+**Steps**: 1. Navigate to Pricing tab [OK] **Corporate Pricing** is checked (default) 2. Uncheck **Corporate Pricing** [OK] Unchecked, Primary pricing dropdowns disabled 3. Click **Save** [OK] Save completes 4. Reload page and return to Pricing tab [OK] Tab loads 5. Verify **Corporate Pricing** [OK] Still unchecked (persisted) 6. Re-check **Corporate Pricing** [OK] Checked, Primary pricing dropdowns re-enabled 7. Click **Save** [OK] Save completes 8. Reload and verify **Corporate Pricing** [OK] Checked (restored to default)
+**Expected**: Corporate Pricing checkbox state persists through save and reload
+**Data**: office=1604
+**Cleanup**: Step 8 restores default checked state
+**Automatable**: Yes
+
+---
+
+## TC-LOC-PRI-026: Primary Labor Pricing - select and persist specific value
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Manual | User-Requested |
+
+**Steps**: 1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled 2. Click **Primary Labor Pricing** dropdown [OK] Dropdown opens 3. Select **2026-Zone 3 D** [OK] Value selected 4. Click **Save** [OK] Save completes 5. Reload and return to Pricing tab [OK] Tab loads 6. Verify **Primary Labor Pricing** [OK] Shows "2026-Zone 3 D"
+**Expected**: Primary Labor Pricing "2026-Zone 3 D" persists after save
+**Data**: office=1604 | value=2026-Zone 3 D
+**Cleanup**: Reset **Primary Labor Pricing** to original value after test
+**Automatable**: Yes
+
+---
+
+## TC-LOC-PRI-027: Primary Equipment Pricing - select and persist specific value
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Manual | User-Requested |
+
+**Steps**: 1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled 2. Click **Primary Equipment Pricing** dropdown [OK] Dropdown opens 3. Select **2026-Tier 2 Resort B** [OK] Value selected 4. Click **Save** [OK] Save completes 5. Reload and return to Pricing tab [OK] Tab loads 6. Verify **Primary Equipment Pricing** [OK] Shows "2026-Tier 2 Resort B"
+**Expected**: Primary Equipment Pricing "2026-Tier 2 Resort B" persists after save
+**Data**: office=1604 | value=2026-Tier 2 Resort B
+**Cleanup**: Reset **Primary Equipment Pricing** to original value after test
+**Automatable**: Yes
+
+---
+
+## TC-LOC-PRI-028: Primary Internal Equipment Pricing - select and persist specific value
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Manual | User-Requested |
+
+**Steps**: 1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled 2. Click **Primary Internal Equipment Pricing** dropdown [OK] Dropdown opens 3. Select **2023-Internal2** [OK] Value selected 4. Click **Save** [OK] Save completes 5. Reload and return to Pricing tab [OK] Tab loads 6. Verify **Primary Internal Equipment Pricing** [OK] Shows "2023-Internal2"
+**Expected**: Primary Internal Equipment Pricing "2023-Internal2" persists after save
+**Data**: office=1604 | value=2023-Internal2
+**Cleanup**: Reset **Primary Internal Equipment Pricing** to original value after test
+**Automatable**: Yes
+
+---
+
+## TC-LOC-PRI-029: Primary Production Labor Pricing - select and persist specific value
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Manual | User-Requested |
+
+**Steps**: 1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled 2. Click **Primary Production Labor Pricing** dropdown [OK] Dropdown opens 3. Select **2026-NP LB3** [OK] Value selected 4. Click **Save** [OK] Save completes 5. Reload and return to Pricing tab [OK] Tab loads 6. Verify **Primary Production Labor Pricing** [OK] Shows "2026-NP LB3"
+**Expected**: Primary Production Labor Pricing "2026-NP LB3" persists after save
+**Data**: office=1604 | value=2026-NP LB3
+**Cleanup**: Reset **Primary Production Labor Pricing** to original value after test
+**Automatable**: Yes
+
+---
+
+## TC-LOC-PRI-030: Primary Production Equipment Pricing - select and persist specific value
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Manual | User-Requested |
+
+**Steps**: 1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled 2. Click **Primary Production Equipment Pricing** dropdown [OK] Dropdown opens 3. Select **2026-NP Tier 2** [OK] Value selected 4. Click **Save** [OK] Save completes 5. Reload and return to Pricing tab [OK] Tab loads 6. Verify **Primary Production Equipment Pricing** [OK] Shows "2026-NP Tier 2"
+**Expected**: Primary Production Equipment Pricing "2026-NP Tier 2" persists after save
+**Data**: office=1604 | value=2026-NP Tier 2
+**Cleanup**: Reset **Primary Production Equipment Pricing** to original value after test
 **Automatable**: Yes
 
 ---

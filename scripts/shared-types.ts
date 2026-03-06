@@ -79,6 +79,14 @@ export interface QueueItem {
     defectsFound?: string[];       // Defect IDs found during audit
     retryCount?: number;           // Number of retry cycles
   };
+  // Pipeline handoff context (Phase 2C) -- written by post-complete gates
+  completionContext?: {
+    phaseCompleted: string;          // Stage that just completed (e.g. 'generation', 'healing')
+    artifactsModified: string[];     // File paths modified during this phase
+    testsPassed: boolean;            // Whether tests passed (relevant for generation/healing)
+    defectsFound: number;            // Count of defects found (relevant for audit)
+    recommendedNextStage: string;    // Suggested next stage based on outcome
+  };
   [key: string]: unknown;
 }
 
@@ -135,7 +143,7 @@ export interface LearningEntry {
 export interface InjectedContext {
   generatedAt: string;
   targetAgent: string;
-  // Compact: ID-only references (agents have full rules via sync:mistakes + R25 Context Self-Load)
+  // Compact: ID-only references (agents have full rules via sync:mistakes + §8 Context Self-Load)
   mistakeIds: string[];
   mistakesRef: string;
   // Compact: category + short trigger (full text in learningsRef)
@@ -158,12 +166,46 @@ export interface InjectedContext {
   existingSpecRef?: string;
   // Normalized selector keys for the item
   selectorKeys?: string[];
+  // Auto-detected feature characteristics for this item
+  featureTags?: string[];
+  // Escalations from other agents pending for this agent
+  pendingEscalations?: Array<{
+    id: string;
+    from: string;
+    severity: string;
+    summary: string;
+    artifacts: string[];
+  }>;
   // Deprecated: kept for backward compat during transition, will be removed
   mistakes?: MistakeRule[];
   learnings?: LearningEntry[];
   moduleContext?: string;
   testPlanExcerpt?: string;
   existingSpecExcerpt?: string;
+}
+
+// ── Escalation Types ──
+
+export interface EscalationEntry {
+  id: string;                    // ESC-001, ESC-002, ...
+  createdBy: string;             // agent name: requirements | planner | generator | healer | audit
+  createdAt: string;             // ISO timestamp
+  pendingFor: string;            // agent name responsible for fixing
+  severity: 'error' | 'warning'; // error = blocks correctness, warning = quality improvement
+  category: string;              // stale-tc | wrong-selector | missing-coverage | wrong-requirement | logic-error | outdated-artifact
+  summary: string;               // one-line: what's wrong (machine-readable, not prose)
+  evidence: string;              // what proved it: MCP result, file:line, DOM snapshot ref
+  affectedArtifacts: string[];   // file paths that need updating
+  status: 'open' | 'resolved' | 'wontfix';
+  resolvedBy: string | null;
+  resolvedAt: string | null;
+  resolution: string | null;     // one-line: what was done to fix it
+}
+
+export interface EscalationQueue {
+  version: string;
+  escalations: EscalationEntry[];
+  lastCleaned: string;           // ISO timestamp of last auto-cleanup
 }
 
 // ── Shared Constants ──
@@ -177,6 +219,7 @@ export const AGENT_FILE_MAP: Record<string, string> = {
   'Generator': 'playwright-test-generator.agent.md',
   'Healer': 'playwright-test-healer.agent.md',
   'Audit': 'playwright-pipeline-audit.agent.md',
+  'Framework Maintainer': 'playwright-framework-maintainer.agent.md',
   'Copilot Planning Mode': 'SKIP',
 };
 
@@ -185,12 +228,13 @@ export const NEVER_DO_PATTERN = /## (?:NEVER DO|RULES)[\s\S]*?(?=\n---|\n## (?!(
 
 /** Common file paths used across pipeline scripts. */
 export const SHARED_PATHS = {
-  queue: path.join(__dirname, '../specs_planning/agent-queue.json'),
-  mistakes: path.join(__dirname, '../specs_planning/agent-mistakes.md'),
-  learnings: path.join(__dirname, '../specs_planning/agent-learnings.md'),
-  activityLog: path.join(__dirname, '../specs_planning/agent-activity-log.md'),
+  queue: path.join(__dirname, '../specs_planning/_internal/agent-queue.json'),
+  mistakes: path.join(__dirname, '../specs_planning/_internal/agent-mistakes.md'),
+  learnings: path.join(__dirname, '../specs_planning/_internal/agent-mistakes.md'),
+  activityLog: path.join(__dirname, '../specs_planning/_internal/agent-activity-log.md'),
   requirements: path.join(__dirname, '../docs/REQUIREMENTS.md'),
-  performance: path.join(__dirname, '../specs_planning/agent-performance.json'),
+  performance: path.join(__dirname, '../specs_planning/_internal/agent-performance.json'),
+  escalations: path.join(__dirname, '../specs_planning/_internal/agent-escalations.json'),
   agentsDir: path.join(__dirname, '../.github/agents'),
   exports: path.join(__dirname, '../export_test_cases/exports'),
   testCases: path.join(__dirname, '../specs_planning/test-cases'),

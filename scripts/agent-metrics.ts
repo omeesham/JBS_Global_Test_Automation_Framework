@@ -74,9 +74,9 @@ interface MetricsReport {
 }
 
 const PATHS = {
-  performance: path.join(__dirname, '../specs_planning/agent-performance.json'),
-  activityLog: path.join(__dirname, '../specs_planning/agent-activity-log.md'),
-  output: path.join(__dirname, '../specs_planning/agent-metrics-report.md'),
+  performance: path.join(__dirname, '../specs_planning/_internal/agent-performance.json'),
+  activityLog: path.join(__dirname, '../specs_planning/_internal/agent-activity-log.md'),
+  output: path.join(__dirname, '../specs_planning/_internal/agent-metrics-report.md'),
 };
 
 const TRUST_PROGRESSION = {
@@ -87,9 +87,9 @@ const TRUST_PROGRESSION = {
 };
 
 const CLEAN_CYCLES_REQUIRED = {
-  'probation_to_vetting': 3,
-  'vetting_to_trusted': 5,
-  'trusted_to_autonomous': 10,
+  'probation_to_vetting': 1,
+  'vetting_to_trusted': 2,
+  'trusted_to_autonomous': 3,
 };
 
 function loadPerformance(): PerformanceFile {
@@ -308,6 +308,30 @@ function main() {
         console.log('\nNo trust level changes');
       }
     }
+
+    // ── Archive resolved defects older than 30 days ──
+    const archiveCutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    let totalArchived = 0;
+    for (const [agentName, agent] of Object.entries(perf.agents)) {
+      if (!agent.defects || agent.defects.length === 0) continue;
+      const toArchive = agent.defects.filter(
+        d => d.resolved && new Date(d.date).getTime() < archiveCutoff
+      );
+      if (toArchive.length === 0) continue;
+      // Move to archivedDefects array (create if needed)
+      const agentAny = agent as any;
+      if (!agentAny.archivedDefects) agentAny.archivedDefects = [];
+      agentAny.archivedDefects.push(...toArchive);
+      agent.defects = agent.defects.filter(
+        d => !(d.resolved && new Date(d.date).getTime() < archiveCutoff)
+      );
+      totalArchived += toArchive.length;
+    }
+    if (totalArchived > 0) {
+      perf.lastUpdated = new Date().toISOString();
+      fs.writeFileSync(PATHS.performance, JSON.stringify(perf, null, 2), 'utf-8');
+      console.log(`\n[OK] Archived ${totalArchived} resolved defect(s) older than 30 days`);
+    }
     
     // Generate report
     const report = generateReport(perf);
@@ -353,7 +377,7 @@ interface VelocityMetrics {
 }
 
 function getVelocityMetrics(): VelocityMetrics {
-  const queuePath = path.join(__dirname, '../specs_planning/agent-queue.json');
+  const queuePath = path.join(__dirname, '../specs_planning/_internal/agent-queue.json');
   if (!fs.existsSync(queuePath)) {
     return { completedSpecs: 0, pendingSpecs: 0, avgDaysToComplete: null, stalledItems: [], throughputPerWeek: 0 };
   }

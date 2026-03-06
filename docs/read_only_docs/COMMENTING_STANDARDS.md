@@ -86,7 +86,7 @@ const response = await this.post<LoginResponse>('/api/auth/login', credentials);
 - **ASCII icon map**: `[OK]`, `[ERR]`, `[WARN]`, `[STOP]`, `[ok]`, `[~]`, `[#]`, `[?]`, `[time]`, `[skip]`, `[info]`, `->`
 - **Comments are exempt**: Unicode arrows (`→`) and emoji in `//` and `/* */` comments never reach stdout — OK to use
 - **Root cause**: Windows CMD Code Page 437 corrupts UTF-8 emoji bytes when console output is piped via `>` to log files
-- **Rule**: ALL-022 in `specs_planning/agent-mistakes.md`
+- **Rule**: ALL-022 in `specs_planning/_internal/agent-mistakes.md`
 
 ---
 
@@ -146,7 +146,7 @@ Use HTML comment markers to delimit content that is auto-synced from a canonical
 |--------|----------------|-----------|
 | `SYNC:PIPELINE` | `.github/copilot-instructions.md` | (inline) |
 | `SYNC:COMMANDS` | `.github/copilot-instructions.md` | (inline) |
-| `SYNC:NEVER_DO` | `specs_planning/agent-mistakes.md` | `.github/copilot-instructions.md`, agent files |
+| `SYNC:NEVER_DO` | `specs_planning/_internal/agent-mistakes.md` | `.github/copilot-instructions.md`, agent files |
 | `SYNC:MCP_CRITICAL` | `docs/read_only_docs/MCP_BROWSER_GUIDE.md` | `.github/copilot-instructions.md` |
 
 **Rules**:

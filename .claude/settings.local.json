@@ -19,7 +19,31 @@
       "mcp__plugin_playwright_playwright__browser_evaluate",
       "Bash(ls -la /c/Users/rutvi/projects/encore_framework/scripts/*.ts)",
       "Bash(test -f \"/c/Users/rutvi/projects/encore_framework/scripts/detect-duplication.ts\")",
-      "Bash(wc -l /c/Users/rutvi/projects/encore_framework/.github/agents/*.agent.md)"
+      "Bash(wc -l /c/Users/rutvi/projects/encore_framework/.github/agents/*.agent.md)",
+      "Bash(ls C:/Users/rutvi/projects/encore_framework/*.md)",
+      "Bash(git checkout HEAD -- specs_planning/_internal/agent-mistakes.md)",
+      "Bash(ls /c/Users/rutvi/projects/encore_framework/PLAN_*.md /c/Users/rutvi/projects/encore_framework/PIPELINE_FIX_PLAN.md /c/Users/rutvi/projects/encore_framework/SYSTEMS_AUDIT_RCA.md)",
+      "Bash(ls -1 /c/Users/rutvi/projects/encore_framework/PLAN*.md)",
+      "Bash(ls -1 /c/Users/rutvi/projects/encore_framework/*.md)",
+      "Bash(git -C /c/Users/rutvi/projects/encore_framework status --short)",
+      "WebFetch(domain:code.visualstudio.com)",
+      "Bash(test -f \"C:/Users/rutvi/projects/encore_framework/config/pipeline-config.json\")",
+      "Bash(test -f \"C:/Users/rutvi/projects/encore_framework/scripts/pipeline-orchestrator.ts\")",
+      "Bash(test -d \"C:/Users/rutvi/projects/encore_framework/src/pages/locations/\")",
+      "Bash(test -d \"C:/Users/rutvi/projects/encore_framework/tests/test-data/locations/\")",
+      "Bash(python3 -c \"import json; data = json.load\\(open\\(''/c/Users/rutvi/projects/encore_framework/specs_planning/_internal/agent-queue.schema.json''\\)\\); print\\(''completionContext'' in str\\(json.dumps\\(data, indent=2\\)\\)\\)\")",
+      "Bash(wc -l \"C:/Users/rutvi/projects/encore_framework/src/pages/locations\"/*.ts \"C:/Users/rutvi/projects/encore_framework/src/pages\"/*.ts)",
+      "Bash(xargs wc -l)",
+      "Bash(wc -l scripts/*.ts)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(Select-String \"^[AD]\")",
+      "Bash(test -f specs_planning/_internal/agent-metrics-report.md)",
+      "Bash(test -f specs_planning/_internal/test-id-registry.json)",
+      "Bash(test -f specs_planning/_internal/agent-queue.schema.json)",
+      "Bash(test -f \"C:/Users/rutvi/projects/encore_framework/specs_planning/agent-mistakes.md.bak\")",
+      "Bash(test -d \"C:/Users/rutvi/projects/encore_framework/src/integrations\")",
+      "Bash(test -f \"C:/Users/rutvi/projects/encore_framework/src/selectors/locations/local-office-settings.ts\")",
+      "Bash(test -f \"C:/Users/rutvi/projects/encore_framework/src/selectors/navigator.ts\")"
     ]
   }
 }

@@ -139,7 +139,7 @@ export class CommonMethods {
 
 ### `src/security/` — Credential Vault
 
-Encrypted vault at `src/security/vault.ts` (AES-256-GCM). Re-export at `config/secrets/vault.ts` for backward compatibility with `scripts/vault-manager.ts`.
+Encrypted vault at `src/security/vault.ts` (AES-256-GCM). Re-export at `config/secrets/vault.ts` for backward compatibility.
 
 ### `src/framework-contracts/` — Type Definitions
 
@@ -180,10 +180,10 @@ BasePage (src/common/base-page.ts)
     ↑ extends
     ├── LoginPage (src/pages/login.page.ts)
     ├── HomePage (src/pages/home.page.ts)
-    └── LocationFormHelpers (src/pages/location-form-helpers.page.ts) [abstract]
+    └── LocationFormHelpers (src/pages/locations/location-form-helpers.page.ts) [abstract]
         ↑ extends
-        ├── LocationLocalInfoPage (src/pages/location-local-info.page.ts)
-        └── LocationCurrencyPage (src/pages/location-currency.page.ts)
+        ├── LocationLocalInfoPage (src/pages/locations/location-local-info.page.ts)
+        └── LocationCurrencyPage (src/pages/locations/location-currency.page.ts)
 ```
 
 ### API Layer
@@ -241,7 +241,7 @@ Compilation pipeline: `tsconfig.build.json` → `tsc` → `src/` compiled to `di
 
 ### Agent Integration
 
-Agents modify selectively: `src/selectors/index.ts` (Planner adds), `src/pages/*.page.ts` (Generator adds methods), `tests/specs/*.spec.ts` (Generator creates, Healer fixes).
+Agents modify selectively: `src/selectors/index.ts` (Planner adds), `src/pages/**/*.page.ts` (Generator adds methods), `tests/specs/*.spec.ts` (Generator creates, Healer fixes).
 
 Agents never modify: `src/common/`, `src/utils/`, `src/security/`, `config/`.
 
@@ -264,7 +264,7 @@ test('should login successfully', async ({ loginPage, config }) => {
 
 | What are you adding? | Where does it go? | Example |
 |---------------------|-------------------|---------|
-| New page object | `src/pages/` | `contacts.page.ts` |
+| New page object | `src/pages/{module}/` | `locations/contacts.page.ts` |
 | New API endpoint | `api-testing/api-helpers/` | `contacts-api-client.ts` |
 | New API response type | `api-testing/api-contracts/` | `contact-response.ts` |
 | New data adapter | `src/data/adapters/` | `graphqlAdapter.ts` |
