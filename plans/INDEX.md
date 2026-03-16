@@ -1,6 +1,6 @@
 # Plans Index
 
-**Last updated**: 2026-03-05
+**Last updated**: 2026-03-14
 
 ---
 
@@ -17,10 +17,31 @@ Execute in this order. When a plan is completed: change status to DONE, add date
 | 5 | 15 | [PLAN_15](done/PLAN_15_FRAMEWORK_MAINTAINER_AGENT.md) | Create Framework Maintainer agent (GARDENER) — 12 rules for code quality + repo health + **14 pre-loaded issues from spec audit** (pricing spec ~420→~368 lines, 3 BasePage extractions, data-driven loops, shared constants) | **P1** | DONE 2026-03-05 |
 | 6 | 16 | [PLAN_16](done/PLAN_16_AGENT_ORCHESTRATION.md) | Agent-to-agent chaining with **auto-invoke toggle** (`config/pipeline-config.json` on/off). Primary loop: Req→Planner→Generator. Conditional: Healer/Audit. + pipeline orchestrator + SDK + SaaS (Phase 4 requires product design spec). Prerequisite: PLAN_15 + PLAN_17 | **P1** | DONE 2026-03-05 |
 | 7 | 18 | [PLAN_18](done/PLAN_18_FRAMEWORK_CLEANUP.md) | Framework cleanup: delete 5 dead files, strip 93 orphaned selectors, move 3 files to _internal/, fix git ghosts | **P0** | DONE 2026-03-06 |
-| 8 | 19 | [PLAN_19](pending/PLAN_19_POST_EXECUTION_CLEANUP.md) | Post-execution cleanup: fix 4 AD ghosts, 5 settings.json paths, 3 orchestrator bugs, GARDENER permissions, 28 untracked files | **P0** | DONE 2026-03-06 |
+| 8 | 19 | [PLAN_19](done/PLAN_19_POST_EXECUTION_CLEANUP.md) | Post-execution cleanup: fix 4 AD ghosts, 5 settings.json paths, 3 orchestrator bugs, GARDENER permissions, 28 untracked files | **P0** | DONE 2026-03-06 |
+| 9 | 20 | [PLAN_20](done/PLAN_20_UI_INTEGRATION_AGENT_CHAINING.md) | SaaS platform — **Phase 0 (MVP): Local worker + schema-driven orchestrator + Neon + Fastify on Render. Zero API billing. All config via pipeline-definition.json.** Phases 1-7: Multi-tenant (RLS, BullMQ, S3, JWT). Orchestration audit findings fixed. Briefing: [PLAN_20_SIMPLIFIED_TEAM_BRIEFING](PLAN_20_SIMPLIFIED_TEAM_BRIEFING.md) | **P0** | DONE 2026-03-10 |
+| 10 | 21 | [PLAN_21](done/PLAN_21_DEMO_WEBSITE.md) | API contract + frontend integration spec. Colleague's agent builds React frontend on Vercel connecting to our Render backend. Real API calls, SSE, Settings page. Agent prompt: [COLLEAGUE_AGENT_PROMPT](COLLEAGUE_AGENT_PROMPT.md) | **P1** | DONE — colleague delivered, frontend received |
+| 11 | 23 | [PLAN_23](done/PLAN_23_MONOREPO_INTEGRATION.md) | Monorepo integration — CHUNKED into Plans 24-31 (8 independent phases) | **P0** | DONE (chunked) 2026-03-12 |
+| 12 | 24 | [PLAN_24](done/PLAN_24_INFRASTRUCTURE.md) | Infrastructure: Docker Compose PostgreSQL + npm install all locations | **P0** | DONE 2026-03-12 |
+| 13 | 25 | [PLAN_25](done/PLAN_25_FOLDER_RESTRUCTURE.md) | Folder restructure: rename JBSIntelliQE-develop → website/ + .gitignore | **P0** | DONE 2026-03-12 |
+| 14 | 26 | [PLAN_26](done/PLAN_26_CONFIG_FIXES.md) | Config fixes (CRITICAL): PORT=3100, DATABASE_URL, BACKEND_URL alignment | **P0** | DONE 2026-03-12 |
+| 15 | 27 | [PLAN_27](done/PLAN_27_DEV_ENVIRONMENT.md) | Dev environment: Vite dual-proxy, start-dev.bat, launch.json | **P0** | DONE 2026-03-12 |
+| 16 | 28 | [PLAN_28](done/PLAN_28_ENCORE_INTEGRATION.md) | Encore integration (CORE): encoreApi.ts + ChatPage SSE wiring (post-audit, 9 bugs fixed) | **P0** | DONE 2026-03-12 |
+| 17 | 29 | [PLAN_29](done/PLAN_29_PAGE_POLISH.md) | Page polish: Dashboard, AgentMonitor, Execution, Settings real data | **P1** | DONE 2026-03-13 |
+| 18 | 30 | [PLAN_30](done/PLAN_30_AGENT_SCHOOL.md) | Agent School: inter-agent communication system (.claude/ + CLI tool) | **P0** | DONE 2026-03-12 |
+| 19 | 31 | [PLAN_31](done/PLAN_31_VERIFICATION.md) | Verification: E2E demo path checklist (minimum + full) | **P0** | DONE 2026-03-13 |
+| 20 | 32-old | [PLAN_32_SCOPE_REVERT](done/PLAN_32_SCOPE_REVERT.md) | Scope revert: restore render.yaml + code fallbacks to 3001 | **P0** | DONE 2026-03-13 |
+| 11 | 22 | [PLAN_22](done/PLAN_22_URL_MIGRATION.md) | Base URL migration: `ca-nginx-dev.proudmoss...azurecontainerapps.io/navigator/` → `cloudapps-e2e.encoreglobal.com/navigator/`. 10 files changed (8 config + 2 docs), runtime code untouched (reads env vars). Option B chosen (kept `/navigator/` prefix). | **P0** | DONE 2026-03-11 |
+| 21 | 32 | [PLAN_32](done/PLAN_32_SCHEMA_FOUNDATION.md) | **Schema Foundation (RUNS FIRST)**: JBSTestOpsAI admin schema, platform_users, clients, tenant template, Encore as first client, platform_settings | **P0** | DONE 2026-03-14 |
+| 22 | 33 | [PLAN_33](done/PLAN_33_FRONTEND_CLEANUP.md) | Frontend cleanup: delete 11 pages + mockData.ts + 6 config-panel comps, 16→6 routes (+ /onboarding), IP vocabulary enforcement, dynamic branding | **P0** | DONE 2026-03-14 |
+| 23 | 34 | [PLAN_34](done/PLAN_34_BACKEND_CLEANUP.md) | Backend cleanup: delete 10 fake agents + 5 mock routes + dead schemas, tenant-aware auth (bcrypt+JWT+schema routing) | **P0** | DONE 2026-03-14 |
+| 24 | 35 | [PLAN_35](done/PLAN_35_REAL_PAGES.md) | DashboardPage (drill-down + morning briefing + super admin panel) + SettingsPage (role-based progressive disclosure, 2/4/6 tabs per role) | **P0** | DONE 2026-03-14 |
+| 25 | 36 | [PLAN_36](done/PLAN_36_CHATPAGE_REWRITE.md) | ChatPage rewrite: split 85KB monolith, tri-model (haiku/sonnet/opus), ChatActionCard (cards+buttons UX), IP-safe | **P0** | DONE 2026-03-14 |
+| 26 | 37 | [PLAN_37](done/PLAN_37_WORKER_RELIABILITY.md) | Worker reliability: pre-flight checks, SSE error propagation, startup scripts, demo verification | **P1** | DONE 2026-03-14 |
+| 27 | 38 | [PLAN_38](done/PLAN_38_MULTI_TENANT.md) | Multi-tenant wiring: tenant middleware, SSE proxy, super admin endpoints, ClientContext/WebsiteContext, schema provisioning automation | **P0** | DONE 2026-03-14 |
+| 28 | 39 | [PLAN_39](done/PLAN_39_CHATBOT_ROLE_AWARE_CRUD.md) | Role-aware chatbot: full CRUD proxy, CLI bug fix, 21 actions, defense-in-depth, DashboardBriefing, SuperAdminPanel wiring | **P0** | DONE 2026-03-14 |
 
 **PLAN_11 was deleted** — phantom IDs (AUD-028..030, HLR-015..016) only exist in done/ plan files which are "do not modify." NEVER DO sections already cleaned up. Non-problem.
-**PLAN_12 was deferred** — unrequested RCA documentation. Execute only with spare session time after all P0/P1 plans are done.
+**PLAN_12 was deleted** — unrequested RCA documentation. Key findings already captured in INDEX.md "Known Issues in Done Plans" and `done/SYSTEMS_AUDIT_RCA.md`. In-session analysis was not recoverable; reconstructing it would have been fabrication.
 **PLAN_13 was deleted** — its content (type consolidation + 2 new rules) was absorbed into PLAN_14 Part G.
 
 ---
@@ -58,7 +79,7 @@ All done plans live in `done/`.
 
 | Item | What | Why Deferred |
 |---|---|---|
-| PLAN_12 | RCA reference document (documentation only) | Unrequested — supports self-audit loop but not blocking. Execute with spare session time |
+| ~~PLAN_12~~ | ~~RCA reference document~~ | Deleted 2026-03-09 — findings already in INDEX.md + SYSTEMS_AUDIT_RCA.md; in-session analysis not recoverable |
 | Fix 10 | Fixme registry: module prefix, lifecycle fields, cross-links | Lower priority — only 1 spec uses fixme currently |
 | Fix 11 | Velocity tracking: burndown, throughput metrics | Needs more specs in pipeline before metrics are meaningful |
 | Fix 12 | Outcome tracking in context builder: feedback loops | Architectural change — needs design before implementation |
@@ -70,8 +91,8 @@ All done plans live in `done/`.
 ```
 plans/
   INDEX.md              ← this file
-  done/                 ← completed plans (11 files)
-  pending/              ← active plans (2 files)
+  done/                 ← completed plans (14+ files)
+  pending/              ← active plans (briefing docs only)
 ```
 
 When completing a plan: update the Execution Queue status → move file from `pending/` to `done/`.
@@ -93,3 +114,14 @@ When completing a plan: update the Execution Queue status → move file from `pe
 | 2026-03-05 | PLAN_17 created: Agent Autonomy Foundation — self-audit (mid-phase + critical), anti-blind-following (ALL-028..031), cross-agent escalation queue (`agent-escalations.json`), move agent files to `_internal/`, auto-cleanup. Inserted at position 5 (after PLAN_14, before PLAN_15). PLAN_16 prerequisite updated to include PLAN_17 |
 | 2026-03-05 | Independent plan review (Claude Code + Copilot cross-audit): PLAN_11 deleted (non-problem — phantom IDs only in done/ files, NEVER DO already cleaned). PLAN_12 deferred (unrequested scope). PLAN_09 updated to select Option B (agent-mistakes.md Resolution column). PLAN_10 deny-list expanded (+§9C). PLAN_16 Phase 4 prereq noted. PLAN_17 Part A grep verification added. Queue renumbered: 6 pending plans. |
 | 2026-03-06 | PLAN_18 executed by Claude Code (5 file deletions, 93 selector strips, 3 file moves, 14 script edits, git ghost fixes). PLAN_19 created and executed by Copilot: 4 AD ghost fixes, 5 settings.json path corrections, 3 orchestrator bugs fixed (SCRIPT_PREFIX map + pipeline-config stage names + planner-pre-run.ts), GARDENER permissions corrected, 5 stale doc refs fixed, 2 gate scripts improved, planner agent paths expanded, 29 files tracked, INDEX updated |
+| 2026-03-09 | PLAN_20 created and audited by Claude Code: SaaS multi-tenant platform. 7 phases, 21-finding audit (4 CRITICAL, 5 HIGH, 8 MEDIUM, 4 LOW), all resolved. Companion team briefing written. Moved to pending/. |
+| 2026-03-10 | **MVP pivot**: PLAN_20 updated with Phase 0 (local worker pattern, zero API billing, schema-driven pipeline-definition.json, Fastify+Neon backend, Render deployment). Full orchestration audit: 7 issues found (hardcoded stages, file-based queue, no admin config), all addressed by pipeline-definition.json + DB-backed queue. PLAN_21 rewritten from static mock → live API contract + frontend integration spec. Colleague agent prompt created at `plans/COLLEAGUE_AGENT_PROMPT.md`. All pipeline settings fully configurable (LLM model per stage, budgets, retries, convergence guards, CLI config, timeouts). |
+| 2026-03-10 | PLAN_22 created: Base URL migration from Azure Container Apps (`ca-nginx-dev.proudmoss...`) to Encore's E2E QA env (`cloudapps-e2e.encoreglobal.com`). Full codebase audit: 10 files need changes, 12+ files dynamically read env (no change needed), 15+ historical/unrelated files explicitly excluded. Critical pre-flight: verify `/navigator/` path prefix needed or not. |
+| 2026-03-11 | PLAN_22 marked DONE (executed by Copilot, audited by Claude Code — all 10 files migrated, Option B `/navigator/` kept, zero old URL leaks in config/code). PLAN_21 marked SKIPPED — colleague-owned, `COLLEAGUE_AGENT_PROMPT.md` already covers 100% of spec. Only PLAN_20 remains pending. |
+| 2026-03-12 | PLAN_20 marked DONE (Phase 0 fully built: Fastify server, orchestrator, worker, pipeline-definition.json, DB schema, routes, serializers all exist). PLAN_21 marked DONE (colleague delivered full React frontend). PLAN_23 created then SUPERSEDED by mega plan. |
+| 2026-03-12 | **MEGA PLAN**: PLAN_23 superseded by Plans 24-31 (8-phase chunked integration). Full Phase 0 exploration verified all assumptions. 3-round external audit found 9 bugs in Plan 28 (ChatPage wiring) — all fixed. Key corrections: EventSource ref+cleanup, all 5 Encore stages mapped, exact detail strings, @/ import convention, noUnusedLocals compliance, artifact_ready pushed to chat. Plans saved to pending/. |
+| 2026-03-12 | PLAN_24 marked DONE: docker-compose.yml already existed (correct spec). Root npm deps installed (19 packages). **Blockers noted**: Docker not installed, PostgreSQL not available (neither Docker nor native). Per briefing, PG not needed for Plans 25-27. JBS frontend node_modules deferred to after Plan 25 rename. |
+| 2026-03-12 | PLAN_26 marked DONE: .env.server PORT=3100, BACKEND_URL=http://localhost:3100, DATABASE_URL=postgres:admin@localhost:5432/postgres. Also updated: render.yaml PORT=3100, server/worker code fallback defaults 3001→3100, worker doc comment. Zero stray :3001 refs in src/ or config/. |
+| 2026-03-13 | **QA SaaS OVERHAUL v5**: Plans 32-38 created (7-phase frontend rebuild + multi-tenant SaaS). Master plan v5 at `.claude/plans/graceful-foraging-charm.md`. 3 external audits resolved (23 + 8 + 12 issues). PLAN_32 (Schema Foundation) added to fix FK/auth collision. v5 upgrades: ChatActionCard (cards+buttons UX), role-based progressive disclosure for Settings, Dashboard morning briefing, configurable cost visibility, Encore pre-configured (skip onboarding). Execution order: 32→33→34→35+37→36→38. Obsolete AGENT_BRIEFING_PLANS_24_31.md deleted. |
+| 2026-03-14 | **PLAN_39 executed**: Role-aware chatbot — callClaude() bug fix (system prompt separated from user message), chat.service.ts schema-qualified (6 table refs), chatbot.service.ts major refactor (21-action catalog, role-gated context, defense-in-depth executor, formatActionData helper), chat.routes.ts wired with tenant context + whitespace validation. **Cleanup tasks**: ExecutionPage.tsx deleted (orphan), SuperAdminPanel.tsx wired to real /api/admin endpoints, DashboardBriefing.tsx + dashboard.routes.ts created (AI morning briefing), Plans 32-38 moved to done/. |
+| 2026-03-12 | PLAN_30 marked DONE: Agent School inter-agent communication system fully built. 11 files in `.claude/` (AGENT_SCHOOL.md, PROTOCOL.md, context/VISION+CURRENT_STATE+WORKFLOW+CURRENT_OWNER, agents/RUTVI+COLLEAGUE, channel/inbox/RUTVI_AGENT+COLLEAGUE_AGENT, channel/broadcast/BROADCAST). CLI tool `scripts/agent-channel.mjs` with 7 commands (school, state, inbox, broadcast, token, handoff, send). Seeded: 5 broadcast discoveries, 1 HANDOFF message to colleague with 4 questions. |

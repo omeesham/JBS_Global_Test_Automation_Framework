@@ -1,5 +1,5 @@
 // spec: specs_planning/test-plans/locations/locations_local_information_test_plan.md
-// seed: tests/specs/navigator/navigator-login.spec.ts
+// seed: tests/seed.spec.ts
 
 import { test, expect } from '../../setup/fixtures';
 import {
@@ -27,6 +27,8 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
   });
 
   test('TC-LOC-LI-002: All default states', async ({ locationLocalInfoPage }) => {
+    // Wait for form fields to become interactive -- new E2E env briefly renders fields disabled during hydration.
+    await locationLocalInfoPage.waitForFormReady('chkApplyLDW');
     const chk = await locationLocalInfoPage.getCheckboxState('chkApplyLDW');
     expect(chk.checked).toBe(true);
     const spin = await locationLocalInfoPage.getSpinState('spinLDWPercentage');

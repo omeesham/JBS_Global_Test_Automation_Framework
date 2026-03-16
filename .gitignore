@@ -117,9 +117,17 @@ specs_planning/agent-performance.json
 .browsers/
 ms-playwright/
 
-# Claude Code (local only - not for git)
+# Claude Code (personal — not for git)
 CLAUDE.md
 current_plan.md
+.claude/
+website/.claude/
+
+# Server env with real credentials (use .env.server.example)
+config/environments/.env.server
+
+# Screenshots / junk
+phase4-chat.jpeg
 
 # Generated artifacts (not tracked)
 export_test_cases/exports/
@@ -127,3 +135,11 @@ specs_planning/_internal/agent-metrics-report.md
 reports/failure-summary.json
 specs_planning/_internal/test-id-registry.json
 reports/fixme-registry.json
+
+# Website (JBS IntelliQE)
+website/frontend/node_modules/
+website/backend/node_modules/
+website/frontend/dist/
+website/backend/dist/
+website/frontend/.env
+website/backend/.env

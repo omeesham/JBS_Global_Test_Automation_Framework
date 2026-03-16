@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: intelliqe_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: postgres
+    volumes:
+      - intelliqe_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Worker Manager — spawns per-client CLI workers + shared API workers
+  worker-manager:
+    build: .
+    container_name: intelliqe_worker_manager
+    command: node dist/worker/worker-manager.js
+    environment:
+      - BACKEND_URL=http://host.docker.internal:3100
+      - WEBSITE_BACKEND_URL=http://host.docker.internal:3001
+      - WORKER_SECRET=dev-secret
+      - ENCRYPTION_SECRET=${ENCRYPTION_SECRET:-}
+      - API_WORKER_POOL_SIZE=2
+    volumes:
+      - ./workers-config:/workers  # isolated Claude auth dirs per client
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  intelliqe_pgdata:
+    name: intelliqe_pgdata

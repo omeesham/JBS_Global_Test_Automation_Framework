@@ -86,7 +86,7 @@ export default defineConfig({
   
   // ==================== SHARED SETTINGS (ALL BROWSERS) ====================
   use: {
-    baseURL: process.env.BASE_URL || 'https://ca-nginx-dev.proudmoss-1eeb612c.centralus.azurecontainerapps.io/navigator/',  // Navigator Cloud
+    baseURL: process.env.BASE_URL || 'https://cloudapps-e2e.encoreglobal.com/navigator/',  // Navigator Cloud
     
     // ==================== DEBUGGING ARTIFACTS (Controlled via .env) ====================
     trace: getArtifactSetting('ENABLE_TRACING', 'retain-on-failure') as any,

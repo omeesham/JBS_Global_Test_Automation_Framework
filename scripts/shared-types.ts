@@ -254,7 +254,7 @@ export const SHARED_PATHS = {
 function splitMdTableRow(line: string): string[] {
   const PLACEHOLDER = '\x00PIPE\x00';
   const safe = line.replace(/\\\|/g, PLACEHOLDER);
-  return safe.split('|').map(cell => cell.replaceAll(PLACEHOLDER, '|').trim());
+  return safe.split('|').map(cell => cell.split(PLACEHOLDER).join('|').trim());
 }
 
 export function parseMistakeRow(line: string): MistakeRule | null {

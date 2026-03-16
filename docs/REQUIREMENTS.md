@@ -4,7 +4,7 @@
 >
 > **This file is NOT modified by agents.** Only the team updates this document. Agents record element discoveries in `specs_planning/test-cases/*.md` files instead.
 
-**Target Application**: [Navigator Cloud Dev Environment](https://ca-nginx-dev.proudmoss-1eeb612c.centralus.azurecontainerapps.io/navigator/)
+**Target Application**: [Navigator Cloud E2E Environment](https://cloudapps-e2e.encoreglobal.com/navigator/)
 
 ---
 

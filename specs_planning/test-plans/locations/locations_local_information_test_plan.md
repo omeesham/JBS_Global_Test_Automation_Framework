@@ -5,7 +5,7 @@
 **Created**: 2026-02-17  
 **Updated**: 2026-02-18 (Live re-verification: all 3 tabs + left panel; TC-062 to TC-066 added; TC-063 concrete values; Pricing TC-023 added)  
 **Planner Agent**: LIVE-VERIFIED - Full DOM exploration of left panel, Local Information, Currency, Pricing tabs  
-**URL**: https://ca-nginx-dev.proudmoss-1eeb612c.centralus.azurecontainerapps.io/navigator/locations/1604/settings/location  
+**URL**: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location  
 **Test Office**: 1604 - The Parker Palm Springs  
 **Test Cases**: 63 requirement-aligned scenarios (TC-LOC-LI-001 to TC-LOC-LI-066, with TC-049/050/056 removed)  
 **Test Cases File**: [local-information-test-cases.md](../../test-cases/locations/local-information-test-cases.md)
@@ -279,7 +279,7 @@ SetupSelectors.lnkOfficeCode: (officeCode: string) => `a:has-text("${officeCode}
 6. Wait for page to fully render  
    - Expected: Both panels (left baseline panel + right tabs panel) visible
    - Expected: "Basic Information" tab selected by default
-   - Expected: URL: `https://ca-nginx-dev.proudmoss-1eeb612c.centralus.azurecontainerapps.io/navigator/locations/1604/settings`
+   - Expected: URL: `https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings`
 
 **Success Criteria:**
 - Office 1604 detail page loads successfully

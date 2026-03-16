@@ -18,7 +18,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync, ExecSyncOptionsWithStringEncoding } from 'child_process';
+import { execSync, execFileSync, ExecSyncOptionsWithStringEncoding } from 'child_process';
 import { QueueFile, QueueItem, SHARED_PATHS } from './shared-types';
 
 // ── Types ──
@@ -202,8 +202,9 @@ function invokeAgent(stage: string, itemId: string): { exitCode: number; output:
   }
 
   try {
-    const output = execSync(
-      `claude -p "${prompt.replace(/"/g, '\\"')}" --output-format json`,
+    const output = execFileSync(
+      'claude',
+      ['-p', prompt, '--output-format', 'json'],
       execOpts,
     );
     return { exitCode: 0, output: output ?? '' };
@@ -217,14 +218,36 @@ function invokeAgent(stage: string, itemId: string): { exitCode: number; output:
 }
 
 function buildAgentPrompt(stage: string, itemId: string): string {
-  const prompts: Record<string, string> = {
-    requirements: `Process requirements for queue item ${itemId}. Follow the Requirements Agent protocol. Update REQUIREMENTS.md and create/update the queue entry.`,
-    planning: `Create test cases and test plan for queue item ${itemId}. Follow the Planner Agent protocol. Run planner:post-complete when done.`,
-    generation: `Generate spec file for queue item ${itemId}. Follow the Generator Agent protocol. Run generator:pre-run first, then generate and test the spec. Run generator:post-complete when done.`,
-    healing: `Debug and fix failing tests for queue item ${itemId}. Follow the Healer Agent protocol. Read failure-summary.json first. Apply 7-step RCA.`,
-    audit: `Audit the completed work for queue item ${itemId}. Follow the Audit Agent protocol. Check all agent outputs for compliance.`,
+  // Load agent.md from pipeline-definition.json
+  let agentInstructions = '';
+  try {
+    const defPath = path.join(__dirname, '../config/pipeline-definition.json');
+    const definition = JSON.parse(fs.readFileSync(defPath, 'utf-8'));
+    const stageDef = definition.stages.find((s: { id: string }) => s.id === stage);
+    if (stageDef?.agentFile) {
+      const agentPath = path.join(__dirname, '..', stageDef.agentFile);
+      let content = fs.readFileSync(agentPath, 'utf-8');
+      // Strip YAML frontmatter (GitHub Copilot format)
+      if (content.startsWith('---')) {
+        const endIdx = content.indexOf('---', 3);
+        if (endIdx !== -1) content = content.slice(endIdx + 3).trim();
+      }
+      agentInstructions = content + '\n\n---\n\n';
+      console.log(`[info] Loaded agent file: ${stageDef.agentFile} (${content.length} chars)`);
+    }
+  } catch (err) {
+    console.warn(`[WARN] Could not load agent file for stage ${stage}: ${(err as Error).message}`);
+  }
+
+  const contextPrompts: Record<string, string> = {
+    requirements: `PIPELINE CONTEXT:\nProcess requirements for queue item ${itemId}. Follow the Requirements Agent protocol. Update REQUIREMENTS.md and create/update the queue entry.`,
+    planning: `PIPELINE CONTEXT:\nCreate test cases and test plan for queue item ${itemId}. Follow the Planner Agent protocol. Run planner:post-complete when done.`,
+    generation: `PIPELINE CONTEXT:\nGenerate spec file for queue item ${itemId}. Follow the Generator Agent protocol. Run generator:pre-run first, then generate and test the spec. Run generator:post-complete when done.`,
+    healing: `PIPELINE CONTEXT:\nDebug and fix failing tests for queue item ${itemId}. Follow the Healer Agent protocol. Read failure-summary.json first. Apply 7-step RCA.`,
+    audit: `PIPELINE CONTEXT:\nAudit the completed work for queue item ${itemId}. Follow the Audit Agent protocol. Check all agent outputs for compliance.`,
   };
-  return prompts[stage] ?? `Process stage ${stage} for item ${itemId}`;
+
+  return agentInstructions + (contextPrompts[stage] ?? `Process stage ${stage} for item ${itemId}`);
 }
 
 function checkTestResults(itemId: string): boolean {

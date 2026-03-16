@@ -20,11 +20,18 @@ test.describe.serial('Location Pricing @locations @pricing', () => {
   test('TC-LOC-PRI-001: Verify Pricing tab default state', async ({ locationPricingPage }) => {
     test.setTimeout(90_000);
     await locationPricingPage.navigateToPricingTab(OFFICE_NO);
-    // Pre-cleanup: reset test rows that may be dirty from a previously failed run.
+    // Pre-cleanup: reset test rows and checkboxes that may be dirty from a previously failed run.
     for (const row of [PRIMARY_TEST_ROW, SECONDARY_TEST_ROW, ECOMMERCE_TEST_ROW]) {
       const state = await locationPricingPage.getIsAlternativeState(row);
       if (state.checked) {
         await locationPricingPage.uncheckIsAlternative(row);
+      }
+    }
+    // Ensure top-level checkboxes are in their expected default state (checked).
+    for (const chk of ['chkCorporatePricing', 'chkPriceGuideInclusive'] as const) {
+      const chkState = await locationPricingPage.getCheckboxState(chk);
+      if (!chkState.checked) {
+        await locationPricingPage.checkCheckbox(chk);
       }
     }
     await locationPricingPage.clickSave();
@@ -327,8 +334,15 @@ test.describe.serial('Location Pricing @locations @pricing', () => {
     test(`${tcId}: ${label} -- uncheck, save, reload, verify persists; restore`, async ({ locationPricingPage }) => {
       test.setTimeout(120_000);
       await locationPricingPage.navigateToPricingTab(OFFICE_NO);
+      // Ensure checkbox starts checked (may be dirty from a prior failed run).
       const initial = await locationPricingPage.getCheckboxState(key);
-      expect(initial.checked, `${label} should be checked by default`).toBe(true);
+      if (!initial.checked) {
+        await locationPricingPage.checkCheckbox(key);
+        await locationPricingPage.waitForSaveEnabled();
+        await locationPricingPage.clickSave();
+        await locationPricingPage.reloadPricingTab(OFFICE_NO);
+      }
+      expect((await locationPricingPage.getCheckboxState(key)).checked, `${label} should be checked before persistence test`).toBe(true);
       await locationPricingPage.uncheckCheckbox(key);
       await locationPricingPage.waitForSaveEnabled();
       await locationPricingPage.clickSave();

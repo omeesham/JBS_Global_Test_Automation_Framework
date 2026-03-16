@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: encore-api
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build:server
+    startCommand: node dist/server/index.js
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: WORKER_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://encore-demo.vercel.app
+      - key: NODE_ENV
+        value: production
+      - key: AUTO_MIGRATE
+        value: "true"
+      - key: PORT
+        value: "3001"
+      - key: ENCRYPTION_SECRET
+        sync: false
+
+  # Worker Manager — manages CLI + API workers
+  - type: worker
+    name: encore-worker-manager
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build:worker
+    startCommand: node dist/worker/worker-manager.js
+    envVars:
+      - key: BACKEND_URL
+        fromService:
+          name: encore-api
+          type: web
+          property: hostport
+      - key: WEBSITE_BACKEND_URL
+        fromService:
+          name: encore-api
+          type: web
+          property: hostport
+      - key: WORKER_SECRET
+        sync: false
+      - key: ENCRYPTION_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: API_WORKER_POOL_SIZE
+        value: "2"

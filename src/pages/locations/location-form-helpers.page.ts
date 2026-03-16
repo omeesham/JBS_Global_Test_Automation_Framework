@@ -37,6 +37,30 @@ export abstract class LocationFormHelpers extends BasePage {
   abstract reloadAndNavigateToLocalInfo(officeNo: string): Promise<void>;
 
   // ─────────────────────────────────────────────────────────────────────────────
+  // FORM READINESS
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Wait for a form element to become enabled (not disabled).
+   * New E2E environment briefly renders form fields as disabled during hydration.
+   * @param selectorKey - Key of the element to wait on
+   * @param timeout - Max wait time in ms (default 10s)
+   */
+  async waitForFormReady(selectorKey: keyof typeof SetupSelectors, timeout = 10_000): Promise<void> {
+    const el = this.getElement(selectorKey);
+    await el.waitFor({ state: 'visible', timeout });
+    await this.page.waitForFunction(
+      (selector: string) => {
+        const node = document.querySelector(selector);
+        return node && !(node as HTMLInputElement).disabled && !node.getAttribute('aria-disabled');
+      },
+      SetupSelectors[selectorKey],
+      { timeout },
+    );
+    Log.info(`[OK] Form ready: ${selectorKey} is enabled`);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // CHECKBOX INTERACTIONS
   // ─────────────────────────────────────────────────────────────────────────────
 
