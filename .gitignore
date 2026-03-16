@@ -112,6 +112,7 @@ specs_planning/audits/*.md
 
 # Agent performance tracking (internal only - proprietary)
 specs_planning/agent-performance.json
+specs_planning/_internal/agent-activity-log.md
 
 # Playwright browsers cache
 .browsers/
