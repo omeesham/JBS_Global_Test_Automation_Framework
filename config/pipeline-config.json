@@ -1,10 +1,26 @@
 {
   "autoInvoke": {
-    "enabled": false,
+    "enabled": true,
     "loop": ["requirements", "planning", "generation"],
     "conditionalAgents": {
       "healing": "on-generation-fail",
       "audit": "on-generation-pass"
-    }
+    },
+    "note": "Legacy config for scripts/pipeline-orchestrator.ts. Real routing lives in config/pipeline-definition.json"
+  },
+  "triageConfig": {
+    "enabled": true,
+    "requiredBeforeHealing": true,
+    "bugReportDir": "reports/bugs",
+    "dispositions": ["BUG", "FEATURE_CHANGE", "TEST_DEFECT", "UNCERTAIN"],
+    "bugBlockedAnnotation": "test.skip('bug-blocked: BUG-XXX')",
+    "mcpVerificationRequired": {
+      "BUG": true,
+      "FEATURE_CHANGE": false,
+      "TEST_DEFECT": false,
+      "UNCERTAIN": true
+    },
+    "autoSkipOnBug": true,
+    "uncertainPolicy": "no-heal"
   }
 }

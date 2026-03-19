@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, Building2, Users, DollarSign, Activity } from 'lucide-react';
+import { BarChart3, Building2, Users, DollarSign, Activity, Settings2, RotateCcw } from 'lucide-react';
 import api from '@/services/api';
+import { getPipelineDefinition, updatePipelineDefinition } from '@/services/encoreApi';
+import type { PipelineDefinition } from '@/types';
 
 interface Props {
   role: string;
@@ -25,17 +27,60 @@ export default function SuperAdminPanel({ role }: Props) {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [usage, setUsage] = useState<ClientUsage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pipelineDef, setPipelineDef] = useState<PipelineDefinition | null>(null);
+  const [savingToggle, setSavingToggle] = useState(false);
+  const [toggleError, setToggleError] = useState('');
 
   useEffect(() => {
     if (role !== 'super_admin') return;
     Promise.allSettled([
       api.get('/admin/platform-stats').then(r => r.data),
       api.get('/admin/client-usage').then(r => r.data),
-    ]).then(([statsRes, usageRes]) => {
+      getPipelineDefinition(),
+    ]).then(([statsRes, usageRes, defRes]) => {
       if (statsRes.status === 'fulfilled') setStats(statsRes.value);
       if (usageRes.status === 'fulfilled') setUsage(usageRes.value);
+      if (defRes.status === 'fulfilled') setPipelineDef(defRes.value);
     }).finally(() => setLoading(false));
   }, [role]);
+
+  const toggleApprovalMode = async (stageId: string) => {
+    if (!pipelineDef || savingToggle) return;
+    setSavingToggle(true);
+    setToggleError('');
+    const updated = {
+      ...pipelineDef,
+      stages: pipelineDef.stages.map(s =>
+        s.id === stageId
+          ? { ...s, approvalMode: s.approvalMode === 'manual' ? 'auto' as const : 'manual' as const }
+          : s,
+      ),
+    };
+    try {
+      const saved = await updatePipelineDefinition(updated);
+      setPipelineDef(saved);
+    } catch {
+      setToggleError('Failed to save — check backend connection');
+    }
+    setSavingToggle(false);
+  };
+
+  const resetAllToAuto = async () => {
+    if (!pipelineDef || savingToggle) return;
+    setSavingToggle(true);
+    setToggleError('');
+    const updated = {
+      ...pipelineDef,
+      stages: pipelineDef.stages.map(s => ({ ...s, approvalMode: 'auto' as const })),
+    };
+    try {
+      const saved = await updatePipelineDefinition(updated);
+      setPipelineDef(saved);
+    } catch {
+      setToggleError('Failed to save — check backend connection');
+    }
+    setSavingToggle(false);
+  };
 
   if (role !== 'super_admin') return null;
 
@@ -96,6 +141,56 @@ export default function SuperAdminPanel({ role }: Props) {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {/* Stage Approval Mode Toggles */}
+      {pipelineDef && (
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-[#DDD6FE]/60 p-5 mt-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Settings2 className="w-4 h-4 text-[#7C3AED]" />
+              <h4 className="text-sm font-semibold text-[#1E1B4B]">Pipeline Approval Mode</h4>
+            </div>
+            <button
+              onClick={resetAllToAuto}
+              disabled={savingToggle}
+              className="flex items-center gap-1 text-[10px] text-[#6B7280] hover:text-[#1E1B4B]"
+            >
+              <RotateCcw className="w-3 h-3" /> Reset All
+            </button>
+          </div>
+          <p className="text-[10px] text-[#9CA3AF] mb-3">
+            Manual stages pause the pipeline for your review before proceeding. Changes apply to new runs only.
+          </p>
+          {toggleError && (
+            <p className="text-[10px] text-red-600 bg-red-50 rounded-lg px-3 py-1.5 mb-3">{toggleError}</p>
+          )}
+          <div className="space-y-2">
+            {pipelineDef.stages.map(stage => {
+              const isManual = stage.approvalMode === 'manual';
+              return (
+                <div key={stage.id} className="flex items-center justify-between py-2 px-3 bg-[#F5F3FF] rounded-lg">
+                  <div>
+                    <span className="text-xs font-medium text-[#1E1B4B]">{stage.name}</span>
+                    <span className="text-[10px] text-[#6B7280] ml-2">{stage.model}</span>
+                  </div>
+                  <button
+                    onClick={() => toggleApprovalMode(stage.id)}
+                    disabled={savingToggle}
+                    className={`relative w-10 h-5 rounded-full transition-colors ${
+                      isManual ? 'bg-[#7C3AED]' : 'bg-gray-300'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                        isManual ? 'translate-x-5' : 'translate-x-0.5'
+                      }`}
+                    />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

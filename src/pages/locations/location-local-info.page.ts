@@ -155,8 +155,8 @@ export class LocationLocalInfoPage extends LocationTestOrchestrators {
    * Delegates to BasePage.clickSaveWithDialog (ALL-020: shared save dialog pattern).
    * Dialog timeout extended to 10s (LI form has slower server validation).
    */
-  async clickSave(): Promise<void> {
-    await this.clickSaveWithDialog('btnSaveLocalInfo', 'dlgSaveChanges', 'btnSaveChangesConfirm', 10_000);
+  async clickSave(): Promise<{ success: boolean; networkError?: string }> {
+    return this.clickSaveWithDialog('btnSaveLocalInfo', 'dlgSaveChanges', 'btnSaveChangesConfirm', 10_000);
   }
 
   /**

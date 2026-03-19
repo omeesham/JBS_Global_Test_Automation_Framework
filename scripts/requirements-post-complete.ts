@@ -92,6 +92,11 @@ function main(): void {
     console.log('[OK] validate:sync passed');
   }
 
+  // POST-ESC: Check if escalations assigned to requirements are still open (ALL-036)
+  const { checkUnresolvedEscalations } = require('./validation-gates');
+  const escWarnings: string[] = checkUnresolvedEscalations('requirements');
+  warnings.push(...escWarnings);
+
   // Report
   console.log('\n' + '='.repeat(60));
 

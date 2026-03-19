@@ -1,139 +1,165 @@
 # Location Legal Test Plan
 **Module**: locations
 **Test Cases**: specs_planning/test-cases/locations/locations_legal_test_cases.md
+**Updated**: 2026-03-18
+
+## Selector Mapping
+
+| Key | Selector | Element |
+|-----|----------|---------|
+| tabLegal | `[data-testid="location-settings-sub-tab-legal"]` | Legal sub-tab |
+| contentLegal | `[data-testid="location-settings-sub-tab-content-legal"]` | Legal tabpanel content |
+| tblLegal | `[data-testid="location-settings-table-legal"]` | Legal grid table |
+| drpLegalServiceCharge0 | `[data-testid="location-settings-select-legal-0-service-charge"]` | Service Charge combobox (row 0) |
+| drpLegalTerms0 | `[data-testid="location-settings-select-legal-0-terms"]` | Terms and Conditions combobox (row 0) |
+| btnSaveLegal | `[data-testid="location-settings-btn-save"]` | Shared left-panel Save button |
+| dlgSaveChanges | `[role="alertdialog"]` | Save Changes confirmation dialog |
+| btnSaveDialogCancel | `[role="alertdialog"] button:has-text("Cancel")` | Dialog Cancel button |
+| btnSaveDialogConfirm | `[role="alertdialog"] button:has-text("Save")` | Dialog Save button |
+
+---
 
 ## Scenario: TC-LOC-LGL-001 - Verify Legal grid default structure
-1. Step: Navigate to Setup > Location > 1604 -- tab[Legal], expected: Legal tabpanel loads
-2. Step: Verify columnheader[Language Name], expected: visible
-3. Step: Verify columnheader[Service Charge Name], expected: visible
-4. Step: Verify columnheader[Terms and Conditions Name], expected: visible
-5. Step: Count table rows in Legal tabpanel tbody, expected: 1 data row
-6. Step: Verify button[Save] within Legal tabpanel, expected: [disabled] state
+1. Step: Navigate to Setup > Location > 1604, expected: page loads with Basic Information tab
+2. Step: Click tab[tabLegal], expected: Legal tabpanel renders
+3. Step: Verify columnheader "Language Name" in tblLegal, expected: visible
+4. Step: Verify columnheader "Service Charge Name" in tblLegal, expected: visible
+5. Step: Verify columnheader "Terms and Conditions Name" in tblLegal, expected: visible
+6. Step: Count tbody rows in tblLegal, expected: 1 data row
 
 ---
 
 ## Scenario: TC-LOC-LGL-002 - Verify Legal grid default field values
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Verify cell in row[US English] column 1, expected: text "US English"
-3. Step: Verify combobox in row[US English] column 2, expected: displays "Service Charge"
-4. Step: Verify combobox in row[US English] column 3, expected: displays "LDW"
+1. Step: Click tab[tabLegal], expected: Legal tab loads
+2. Step: Verify cell text in row[0] column[0], expected: "US English" (static text, no combobox)
+3. Step: Verify combobox[drpLegalServiceCharge0] text, expected: "Resort Service Charge"
+4. Step: Verify combobox[drpLegalTerms0] text, expected: "LDW"
 
 ---
 
 ## Scenario: TC-LOC-LGL-003 - Verify Language Name cell is read-only
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Observe cell[US English] in Language Name column, expected: no combobox rendered, static text only
-3. Step: Attempt to click Language Name cell, expected: no editor launched, cell remains static text
+1. Step: Click tab[tabLegal], expected: Legal tab loads
+2. Step: Verify cell[0][0] in tblLegal, expected: plain text "US English", no combobox or button rendered
+3. Step: Count button/combobox elements in cell[0][0], expected: 0
 
 ---
 
 ## Scenario: TC-LOC-LGL-004 - Service Charge Name dropdown opens and shows options
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Click combobox[Service Charge] in row[US English] column 2, expected: listbox/dropdown opens
-3. Step: Verify listbox contains option[Service Charge], expected: present with selection indicator
-4. Step: Verify listbox contains option[Administrative Fee], expected: present
-5. Step: Verify listbox contains option[ETS], expected: present
-6. Step: Press Escape, expected: dropdown closes, value unchanged ("Service Charge")
+1. Step: Click tab[tabLegal], expected: Legal tab loads
+2. Step: Click combobox[drpLegalServiceCharge0], expected: listbox dropdown opens
+3. Step: Count option elements in listbox, expected: 114
+4. Step: Verify option "Resort Service Charge" has data-state="checked", expected: true
+5. Step: Verify option "Administrative Fee" exists, expected: present
+6. Step: Verify option "ETS" exists, expected: present
+7. Step: Press Escape, expected: dropdown closes, combobox text still "Resort Service Charge"
 
 ---
 
 ## Scenario: TC-LOC-LGL-005 - Terms and Conditions Name dropdown opens and shows options
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Click combobox[LDW] in row[US English] column 3, expected: listbox/dropdown opens
-3. Step: Verify listbox contains option[LDW], expected: present with selection indicator
-4. Step: Verify listbox contains option[Encore Terms and Conditions], expected: present
-5. Step: Verify listbox contains option[Blank], expected: present
-6. Step: Press Escape, expected: dropdown closes, value unchanged ("LDW")
+1. Step: Click tab[tabLegal], expected: Legal tab loads
+2. Step: Click combobox[drpLegalTerms0], expected: listbox dropdown opens
+3. Step: Count option elements in listbox, expected: 50
+4. Step: Verify option "LDW" has data-state="checked", expected: true
+5. Step: Verify option "Encore Terms and Conditions" exists, expected: present
+6. Step: Verify option "Blank" exists, expected: present
+7. Step: Press Escape, expected: dropdown closes, combobox text still "LDW"
 
 ---
 
-## Scenario: TC-LOC-LGL-006 - Search/filter within Service Charge Name dropdown
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Click combobox[Service Charge] in row[US English] column 2, expected: dropdown opens
-3. Step: Type "marriott" in search input (hidden search combobox), expected: list filters to Marriott-related options
-4. Step: Verify filtered options all contain "Marriott", expected: true
-5. Step: Press Escape, expected: dropdown closes, original value retained
+## Scenario: TC-LOC-LGL-006 - Verify no search/filter exists in dropdowns
+1. Step: Click tab[tabLegal], expected: Legal tab loads
+2. Step: Click combobox[drpLegalServiceCharge0], expected: listbox opens
+3. Step: Query for input/search elements inside listbox, expected: none found
+4. Step: Press Escape, expected: dropdown closes
+5. Step: Click combobox[drpLegalTerms0], expected: listbox opens
+6. Step: Query for input/search elements inside listbox, expected: none found
+7. Step: Press Escape, expected: dropdown closes
 
 ---
 
-## Scenario: TC-LOC-LGL-007 - Legal Save button disabled by default
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Verify button[Save] within Legal tabpanel, expected: [disabled]
-3. Step: Verify no changes made, expected: unsaved changes flag = false
+## Scenario: TC-LOC-LGL-007 - Left-panel Save button disabled by default
+1. Step: Navigate to location 1604 (fresh page load), expected: page loads
+2. Step: Click tab[tabLegal], expected: Legal tab loads
+3. Step: Verify button[btnSaveLegal], expected: disabled attribute present
 
 ---
 
-## Scenario: TC-LOC-LGL-008 - Changing Service Charge Name enables Legal Save button
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Verify Legal button[Save], expected: [disabled]
-3. Step: Verify left-panel button[Save], expected: [disabled]
-4. Step: Click combobox[Service Charge] -- select option[Administrative Fee], expected: combobox shows "Administrative Fee"
-5. Step: Verify Legal button[Save], expected: enabled/not disabled
-6. Step: Verify left-panel button[Save], expected: still [disabled] (unaffected by Legal tab changes)
+## Scenario: TC-LOC-LGL-008 - Changing Service Charge Name enables left-panel Save
+1. Step: Navigate fresh, click tab[tabLegal], expected: Legal tab loads
+2. Step: Verify button[btnSaveLegal], expected: disabled
+3. Step: Click combobox[drpLegalServiceCharge0], select option "Administrative Fee", expected: combobox shows "Administrative Fee"
+4. Step: Verify button[btnSaveLegal], expected: enabled (not disabled)
+5. Step: Cleanup: reload page, accept beforeunload dialog
 
 ---
 
-## Scenario: TC-LOC-LGL-009 - Changing Terms and Conditions Name enables Legal Save button
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Click combobox[LDW] -- select option[Encore Terms and Conditions], expected: combobox shows "Encore Terms and Conditions"
-3. Step: Verify Legal button[Save], expected: enabled
-4. Step: Click combobox[Encore Terms and Conditions] -- select option[LDW], expected: combobox shows "LDW"
-5. Step: Verify Legal button[Save], expected: [disabled] (net-zero change)
+## Scenario: TC-LOC-LGL-009 - Changing Terms and Conditions Name enables left-panel Save
+1. Step: Navigate fresh, click tab[tabLegal], expected: Legal tab loads
+2. Step: Verify button[btnSaveLegal], expected: disabled
+3. Step: Click combobox[drpLegalTerms0], select option "Encore Terms and Conditions", expected: combobox shows "Encore Terms and Conditions"
+4. Step: Verify button[btnSaveLegal], expected: enabled (not disabled)
+5. Step: Cleanup: reload page, accept beforeunload dialog
 
 ---
 
-## Scenario: TC-LOC-LGL-010 - Reverting both dropdowns to original disables Legal Save
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Change Service Charge combobox to "Administrative Fee", expected: Legal button[Save] enabled
-3. Step: Change T&C combobox to "Encore Terms and Conditions", expected: Legal button[Save] still enabled
-4. Step: Revert Service Charge combobox to "Service Charge", expected: Legal button[Save] still enabled (T&C still different)
-5. Step: Revert T&C combobox to "LDW", expected: Legal button[Save] becomes [disabled]
+## Scenario: TC-LOC-LGL-010 - Reverting dropdowns to original values does NOT re-disable Save
+1. Step: Navigate fresh, click tab[tabLegal], expected: Legal tab loads
+2. Step: Click combobox[drpLegalServiceCharge0], select "Administrative Fee", expected: Save enables
+3. Step: Click combobox[drpLegalServiceCharge0], select "Resort Service Charge", expected: value reverted
+4. Step: Verify button[btnSaveLegal], expected: still enabled (NOT re-disabled)
+5. Step: Cleanup: reload page, accept beforeunload dialog
 
 ---
 
-## Scenario: TC-LOC-LGL-011 - Save legal data change persists after Save
-1. Step: Navigate to tab[Legal], expected: tab loads
-2. Step: Change T&C combobox to "Encore Terms and Conditions", expected: Legal button[Save] enabled
-3. Step: Click Legal button[Save], expected: save executes
-4. Step: Verify Legal button[Save], expected: [disabled] (changes saved)
-5. Step: Switch to tab[Local Information], then back to tab[Legal], expected: Legal tab reloads
-6. Step: Verify T&C combobox, expected: displays "Encore Terms and Conditions" (persisted)
-7. Step: [CLEANUP] Change T&C back to "LDW" -- Click Legal button[Save], expected: reverted and saved
+## Scenario: TC-LOC-LGL-011 - Save Service Charge change persists after save and reload
+1. Step: Navigate fresh, click tab[tabLegal], expected: default SC = "Resort Service Charge"
+2. Step: Click combobox[drpLegalServiceCharge0], select "Administrative Fee", expected: value updates
+3. Step: Click button[btnSaveLegal], expected: alertdialog[dlgSaveChanges] appears with heading "Save Changes"
+4. Step: Click button[btnSaveDialogConfirm], expected: save executes, dialog closes
+5. Step: Verify button[btnSaveLegal], expected: disabled (post-save)
+6. Step: Reload page, click tab[tabLegal], expected: page reloads
+7. Step: Verify combobox[drpLegalServiceCharge0], expected: "Administrative Fee" (persisted)
+8. Step: Cleanup: select "Resort Service Charge", save, confirm dialog
 
 ---
 
-## Scenario: TC-LOC-LGL-012 - Country change resets both Legal dropdowns
-1. Step: Navigate to tab[Legal], expected: default values: SC="Service Charge", T&C="LDW"
-2. Step: Navigate to Basic Information left panel, change combobox[Country] to "Canada", expected: Country updated
-3. Step: Switch to tab[Legal], expected: Legal tab visible
-4. Step: Verify combobox in row[US English] column 2, expected: value reset (not "Service Charge")
-5. Step: Verify combobox in row[US English] column 3, expected: value reset (not "LDW")
-6. Step: [CLEANUP] Revert combobox[Country] to "United States"
+## Scenario: TC-LOC-LGL-012 - Save Terms and Conditions change persists after save and reload
+1. Step: Navigate fresh, click tab[tabLegal], expected: default T&C = "LDW"
+2. Step: Click combobox[drpLegalTerms0], select "Encore Terms and Conditions", expected: value updates
+3. Step: Click button[btnSaveLegal], expected: alertdialog appears
+4. Step: Click button[btnSaveDialogConfirm], expected: save executes
+5. Step: Reload page, click tab[tabLegal], expected: page reloads
+6. Step: Verify combobox[drpLegalTerms0], expected: "Encore Terms and Conditions" (persisted)
+7. Step: Cleanup: select "LDW", save, confirm dialog
 
 ---
 
-## Scenario: TC-LOC-LGL-013 - Validation error indicator shown after Legal data reset
-1. Step: Trigger Legal data reset via Country change (see TC-LOC-LGL-012), expected: Legal dropdowns reset
-2. Step: Navigate to tab[Legal], expected: tab visible
-3. Step: Observe row[US English] column 2 (Service Charge cell), expected: exclamation error indicator visible
-4. Step: Observe row[US English] column 3 (T&C cell), expected: exclamation error indicator visible
+## Scenario: TC-LOC-LGL-013 - Cancel in Save Changes dialog discards save
+1. Step: Navigate fresh, click tab[tabLegal], expected: Legal tab loads
+2. Step: Click combobox[drpLegalServiceCharge0], select "Administrative Fee", expected: Save enables
+3. Step: Click button[btnSaveLegal], expected: alertdialog appears
+4. Step: Click button[btnSaveDialogCancel], expected: dialog closes
+5. Step: Verify button[btnSaveLegal], expected: still enabled (not saved)
+6. Step: Reload page (accept beforeunload), click tab[tabLegal], expected: page reloads
+7. Step: Verify combobox[drpLegalServiceCharge0], expected: "Resort Service Charge" (change not saved)
 
 ---
 
-## Scenario: TC-LOC-LGL-014 - Left panel Save disabled when Legal data is invalid
-1. Step: Trigger Legal data invalidation via Country change (see TC-LOC-LGL-012), expected: Legal dropdowns reset
-2. Step: Verify left-panel button[Save], expected: [disabled] due to !isValidLegalData()
-3. Step: Confirm no fix applied to Legal dropdowns, expected: errors persist
+## Scenario: TC-LOC-LGL-014 - Beforeunload dialog triggers with unsaved Legal changes
+1. Step: Navigate fresh, click tab[tabLegal], expected: Legal tab loads
+2. Step: Click combobox[drpLegalTerms0], select "Blank", expected: Save enables
+3. Step: Attempt page.reload(), expected: beforeunload dialog appears
+4. Step: Dismiss dialog (stay on page), expected: page remains, changes preserved
+5. Step: Accept dialog (leave page), expected: page reloads, changes discarded
 
 ---
 
-## Scenario: TC-LOC-LGL-015 - Fixing invalid Legal data re-enables left panel Save
-1. Step: Continue from TC-LOC-LGL-014 (Legal data invalid), expected: left-panel Save [disabled]
-2. Step: Navigate to tab[Legal], expected: exclamation icons visible in SC and T&C cells
-3. Step: Click Service Charge combobox -- select option[Service Charge], expected: SC error icon clears
-4. Step: Click T&C combobox -- select option[LDW], expected: T&C error icon clears
-5. Step: Verify Legal button[Save], expected: enabled
-6. Step: Verify left-panel button[Save], expected: enabled (legal data valid again)
-7. Step: [CLEANUP] Revert Country to "United States" -- Save
+## Scenario: TC-LOC-LGL-015 - Country change resets both Legal dropdowns
+1. Step: Click tab[tabLegal], expected: default SC = "Resort Service Charge", T&C = "LDW"
+2. Step: In left panel, change Country combobox to "Canada", expected: country updates
+3. Step: Click tab[tabLegal], expected: Legal tab reloads
+4. Step: Verify combobox[drpLegalServiceCharge0], expected: value reset (not "Resort Service Charge")
+5. Step: Verify combobox[drpLegalTerms0], expected: value reset (not "LDW")
+6. Step: Cleanup: revert Country to "United States", save
 
 ---

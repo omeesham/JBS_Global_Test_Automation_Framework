@@ -99,6 +99,11 @@ function main(): void {
     failed = true;
   }
 
+  // PF-ESC: Check pending escalations assigned to planner (ALL-036)
+  const { checkPendingEscalations } = require('./validation-gates');
+  const escMessages: string[] = checkPendingEscalations('planner');
+  for (const msg of escMessages) console.warn(msg);
+
   // Result
   console.log('\n' + '='.repeat(60));
   if (failed) {

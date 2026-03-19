@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-03-05T13:49:21.759Z",
+  "lastUpdated": "2026-03-19T08:20:32.085Z",
   "config": {
     "maxRetries": 2,
     "autoHealOnFailure": true,
@@ -96,7 +96,7 @@
         "completedAt": "2026-03-02T12:31:00.000Z"
       },
       "injectedContext": {
-        "generatedAt": "2026-03-05T13:49:21.728Z",
+        "generatedAt": "2026-03-19T08:20:32.081Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -130,6 +130,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -152,9 +153,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -197,17 +202,6 @@
           "readonly",
           "validation"
         ],
-        "pendingEscalations": [
-          {
-            "id": "ESC-TEST",
-            "from": "audit",
-            "severity": "warning",
-            "summary": "Test escalation - delete after verification",
-            "artifacts": [
-              "test.md"
-            ]
-          }
-        ],
         "testPlanRef": "specs_planning/test-plans/locations/locations_pricing_test_plan.md"
       },
       "outcomeTracking": {
@@ -243,6 +237,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -266,9 +261,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "injectedAt": "2026-03-05T13:49:21.728Z",
+        "injectedAt": "2026-03-19T08:20:32.081Z",
         "retryCount": 0
       }
     },
@@ -315,7 +314,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-05T13:49:21.730Z",
+        "generatedAt": "2026-03-19T08:20:32.083Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -349,6 +348,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -371,9 +371,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -418,17 +422,6 @@
           "validation",
           "angular"
         ],
-        "pendingEscalations": [
-          {
-            "id": "ESC-TEST",
-            "from": "audit",
-            "severity": "warning",
-            "summary": "Test escalation - delete after verification",
-            "artifacts": [
-              "test.md"
-            ]
-          }
-        ],
         "testPlanRef": "specs_planning/test-plans/locations/locations_left_panel_test_plan.md"
       },
       "outcomeTracking": {
@@ -464,6 +457,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -487,9 +481,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "injectedAt": "2026-03-05T13:49:21.730Z",
+        "injectedAt": "2026-03-19T08:20:32.083Z",
         "retryCount": 0
       }
     },
@@ -501,12 +499,15 @@
       "priority": "medium",
       "lockedBy": null,
       "lockedAt": null,
-      "intent": "Test Legal tab grid: ServiceCharge and TermsConditions dropdown validation per language row. Dropdowns filtered by LanguageId, sorted alphabetically. Both fields required (cannot be null/empty) with exclamation icon error indicators. Dedicated Save button. Grid editable only when canEditProp=true. Cross-tab impact: Country change resets Legal values; Save disabled when !isValidLegalData().",
-      "userNotes": "Legal tab confirmed live: 3-column table (Language Name [read-only], Service Charge Name [dropdown], Terms and Conditions Name [dropdown]). Location 1604 has 1 row: US English | Service Charge | LDW. Each cell has visible combobox + hidden search combobox. Dedicated Save button at top-right (disabled by default). Validation: ServiceChargeId (LOC_SERVICE_CHARGE_ID_GT_ZERO, scReq(), SCNAME_IS_REQD) and TermsConditionsId (LOC_TERMS_CONDITION_ID_GT_ZERO, tcReq(), TCNAME_IS_REQD). validateLegalDataProperty() sets item.IsValid. serviceChargeDdlValidator and termsConditionsDdlValidator for editor-level validation. Country change resets both dropdowns for all languages.",
+      "intent": "Test Legal tab grid: ServiceCharge and TermsConditions dropdown validation per language row. Dropdowns filtered by LanguageId, sorted alphabetically. Both fields required (cannot be null/empty) with exclamation icon error indicators. NO dedicated Legal Save -- uses shared left-panel Save. Grid editable only when canEditProp=true. Cross-tab impact: Country change resets Legal values; Save disabled when !isValidLegalData().",
+      "userNotes": "Legal tab re-verified live 2026-03-18: 3-column table (Language Name [read-only], Service Charge Name [combobox 114 opts], Terms and Conditions Name [combobox 50 opts]). Location 1604 has 1 row: US English | Resort Service Charge | LDW. CORRECTIONS from prior version: (1) Default SC='Resort Service Charge' not 'Service Charge'. (2) NO dedicated Legal Save button -- uses shared left-panel Save [data-testid=location-settings-btn-save]. (3) Reverting to original value does NOT re-disable Save (dirty-state does not track net-zero). (4) No search/filter in dropdowns. (5) Full data-testid selectors verified: table=location-settings-table-legal, SC=location-settings-select-legal-0-service-charge, T&C=location-settings-select-legal-0-terms. (6) Save dialog: role=alertdialog, heading='Save Changes', body='Are you sure you want to save the changes?', buttons Cancel+Save (no data-testid). New selector file: src/selectors/locations/legal.ts.",
       "artifacts": {
         "testCaseFile": "specs_planning/test-cases/locations/locations_legal_test_cases.md",
         "testPlanFile": "specs_planning/test-plans/locations/locations_legal_test_plan.md",
-        "csvExport": "export_test_cases/exports/locations_legal_test_cases.csv"
+        "csvExport": "export_test_cases/exports/locations_legal_test_cases.csv",
+        "specFile": "tests/specs/locations/location-legal.spec.ts",
+        "pageObject": "src/pages/locations/location-legal.page.ts",
+        "dataFile": "tests/test-data/locations/location-legal.data.ts"
       },
       "uiTestingChecklist": {
         "fieldDiscovery": true,
@@ -516,11 +517,15 @@
         "saveReloadCycles": true,
         "crossFieldValidation": true,
         "errorRecovery": true,
-        "dialogSymmetry": false,
+        "dialogSymmetry": true,
         "selectorReconciliation": true,
         "explorationCleanup": true,
-        "completedAt": "2026-02-19T09:19:12.281Z"
+        "completedAt": "2026-03-18T10:30:00.000Z"
       },
+      "totalTcCount": 15,
+      "automatableCount": 15,
+      "skippedTcIds": [],
+      "selfAuditPassed": true,
       "history": [
         {
           "agent": "requirements",
@@ -539,10 +544,28 @@
           "agent": "planner-post-complete",
           "action": "csv_export",
           "notes": "Auto-exported to export_test_cases/exports/locations_legal_test_cases.csv"
+        },
+        {
+          "agent": "planner",
+          "action": "rework-completed",
+          "timestamp": "2026-03-18T10:30:00.000Z",
+          "notes": "FULL REWORK: Re-explored Legal tab live via MCP. 7 CRITICAL CORRECTIONS: (1) Default SC='Resort Service Charge' not 'Service Charge'. (2) NO dedicated Legal Save -- uses shared left-panel [data-testid=location-settings-btn-save]. (3) Dirty-state does NOT track net-zero: reverting to original still shows dirty. (4) No search/filter in SC/T&C dropdowns. (5) SC=114 options, T&C=50 options (exact counts). (6) Created src/selectors/locations/legal.ts with verified data-testid selectors. (7) Updated index.ts barrel exports. All 15 TCs rewritten with correct defaults, selectors, and behavior. Test plan updated with selector mapping. MCP_VERIFICATION_LOG embedded. Lint: PASSED. Typecheck: clean (no selector errors)."
+        },
+        {
+          "agent": "planner",
+          "action": "self-audit",
+          "timestamp": "2026-03-18T10:35:00.000Z",
+          "notes": "self-audit | L1: TC count=15 matches MCP_VERIFICATION_LOG (3 fields, 15 TCs covers default, dropdown, save, revert, persist, dialog, beforeunload, country-cascade) -> L2: test plan has 15 matching scenarios with selector mapping table -> L3: selectors in src/selectors/locations/legal.ts, imported in index.ts, lint PASSED, typecheck clean. selfAuditPassed: true."
+        },
+        {
+          "agent": "generator",
+          "action": "completed",
+          "timestamp": "2026-03-18T14:00:00.000Z",
+          "notes": "14/14 tests PASS (chrome headed). TC-015 omitted (Country cascade needs left-panel Country selector not in inventory). Created: location-legal.page.ts (page object), location-legal.spec.ts (spec, 145 lines), location-legal.data.ts (test data). Fixed: selector collision (dlgSaveChanges duplicate in legal.ts removed), exact combobox option matching (selectComboboxOptionExact via getByRole exact:true), post-save dirty state requires reload before next change. Typecheck clean. Self-audit passed."
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-05T13:49:21.731Z",
+        "generatedAt": "2026-03-19T08:20:32.083Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -576,6 +599,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -597,9 +621,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -643,18 +671,14 @@
           "validation",
           "angular"
         ],
-        "pendingEscalations": [
-          {
-            "id": "ESC-TEST",
-            "from": "audit",
-            "severity": "warning",
-            "summary": "Test escalation - delete after verification",
-            "artifacts": [
-              "test.md"
-            ]
-          }
-        ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_legal_test_plan.md"
+        "testPlanRef": "specs_planning/test-plans/locations/locations_legal_test_plan.md",
+        "lastRunFailures": {
+          "timestamp": "2026-03-19T07:41:56.333Z",
+          "failures": [],
+          "passed": 17,
+          "failed": 0,
+          "fixme": 0
+        }
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -689,6 +713,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -712,9 +737,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "injectedAt": "2026-03-05T13:49:21.731Z",
+        "injectedAt": "2026-03-19T08:20:32.083Z",
         "retryCount": 0
       }
     },
@@ -768,7 +797,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-05T13:49:21.731Z",
+        "generatedAt": "2026-03-19T08:20:32.084Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -802,6 +831,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -823,9 +853,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -868,17 +902,6 @@
           "readonly",
           "validation"
         ],
-        "pendingEscalations": [
-          {
-            "id": "ESC-TEST",
-            "from": "audit",
-            "severity": "warning",
-            "summary": "Test escalation - delete after verification",
-            "artifacts": [
-              "test.md"
-            ]
-          }
-        ],
         "testPlanRef": "specs_planning/test-plans/locations/locations_account_address_test_plan.md"
       },
       "outcomeTracking": {
@@ -914,6 +937,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -937,9 +961,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "injectedAt": "2026-03-05T13:49:21.731Z",
+        "injectedAt": "2026-03-19T08:20:32.084Z",
         "retryCount": 0
       }
     },
@@ -957,14 +985,30 @@
         "testCaseFile": "specs_planning/test-cases/locations/locations_notes_test_cases.md",
         "testPlanFile": "specs_planning/test-plans/locations/locations_notes_test_plan.md",
         "selectorKeys": [
-          "txtNoteInput",
+          "tabNotes",
+          "sectionNotes",
+          "contentNotes",
           "tblNotes",
+          "lblNoNotesAvailable",
+          "txtNoteRow0",
+          "txtNoteInputAll",
           "btnNotesAdd",
           "btnNotesDelete",
+          "lblNotesCharCounter",
           "barNotesProgress",
-          "lblNotesCharCount"
+          "btnSaveNotes",
+          "dlgSaveChanges",
+          "btnSaveChangesConfirm",
+          "btnSaveChangesCancel"
         ],
-        "csvExport": "export_test_cases/exports/locations_notes_test_cases.csv"
+        "csvExport": "export_test_cases/exports/locations_notes_test_cases.csv",
+        "automatableCount": 20,
+        "totalTcCount": 23,
+        "skippedTcIds": [
+          "TC-LOC-NTS-022",
+          "TC-LOC-NTS-009",
+          "TC-LOC-NTS-011"
+        ]
       },
       "history": [
         {
@@ -984,10 +1028,16 @@
           "agent": "planner-post-complete",
           "action": "csv_export",
           "notes": "Auto-exported to export_test_cases/exports/locations_notes_test_cases.csv"
+        },
+        {
+          "agent": "planner",
+          "action": "self-audit",
+          "timestamp": "2026-03-17T13:52:54.408Z",
+          "notes": "self-audit | L1: 23 TCs match 8 DOM fields verified via browser_evaluate, MCP_VERIFICATION_LOG embedded, CRITICAL CORRECTIONS table present | L2: test plan has 23 matching scenarios (grep verified), all TC-LOC-NTS-001..023 present | L3: SetupNotesSelectors in index.ts (import+re-export+spread), typecheck no selector errors, lint:testcases PASSED (warnings only). Full QA re-run 2026-03-17 correcting 6 behavioral errors from prior 2026-02-19 run."
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-05T13:49:21.731Z",
+        "generatedAt": "2026-03-19T08:20:32.084Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1021,6 +1071,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1042,9 +1093,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1087,17 +1142,6 @@
           "save",
           "validation"
         ],
-        "pendingEscalations": [
-          {
-            "id": "ESC-TEST",
-            "from": "audit",
-            "severity": "warning",
-            "summary": "Test escalation - delete after verification",
-            "artifacts": [
-              "test.md"
-            ]
-          }
-        ],
         "testPlanRef": "specs_planning/test-plans/locations/locations_notes_test_plan.md"
       },
       "outcomeTracking": {
@@ -1133,6 +1177,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1156,10 +1201,25 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "injectedAt": "2026-03-05T13:49:21.731Z",
+        "injectedAt": "2026-03-19T08:20:32.084Z",
         "retryCount": 0
+      },
+      "selfAuditPassed": true,
+      "uiTestingChecklist": {
+        "fieldDiscovery": true,
+        "dependencyMapping": true,
+        "boundaryTesting": true,
+        "errorVerification": true,
+        "saveReloadCycles": true,
+        "crossFieldValidation": false,
+        "errorRecovery": true,
+        "notes": "crossFieldValidation=false: Notes tab fields are independent textarea rows with no cross-field dependencies. Delete trigger depends on content+count (documented in TC-016/017)."
       }
     },
     {
@@ -1173,16 +1233,9 @@
       "intent": "Test Shared Setup Locations tab: verify table displays shared locations correctly. Self-location row has Primary Office checked+disabled and Delete disabled. Test Shares Inventory toggle. Test Add button (opens location search/picker). Test Delete for non-self locations. Verify persistence after save.",
       "userNotes": "Shared Setup Locations tab confirmed live: 5-column table (Location No, Location Name, Primary Office [checkbox], Shares Inventory [checkbox], Delete [button]). Location 1604 shows 1 row: self-location with Primary Office checked+disabled, Shares Inventory unchecked+editable, Delete disabled. Add button at bottom. Planner should explore: Add button behavior (opens picker?), adding another shared location, Primary Office behavior for added locations, Delete enablement for non-self entries.",
       "selfAuditPassed": true,
-      "automatableCount": 11,
+      "automatableCount": 17,
       "totalTcCount": 17,
-      "skippedTcIds": [
-        "TC-LOC-SSL-010",
-        "TC-LOC-SSL-011",
-        "TC-LOC-SSL-012",
-        "TC-LOC-SSL-015",
-        "TC-LOC-SSL-016",
-        "TC-LOC-SSL-017"
-      ],
+      "skippedTcIds": [],
       "artifacts": {
         "testCaseFile": "specs_planning/test-cases/locations/locations_shared_setup_locations_test_cases.md",
         "testPlanFile": "specs_planning/test-plans/locations/locations_shared_setup_locations_test_plan.md",
@@ -1199,8 +1252,8 @@
         "dialogSymmetry": true,
         "selectorReconciliation": true,
         "explorationCleanup": true,
-        "notes": "boundaryTesting=N/A (no numeric/date fields); errorVerification=N/A (simple checkbox/table UI); crossFieldValidation=N/A (no cross-field deps); errorRecovery=N/A (no error flows in this tab)",
-        "completedAt": "2026-02-25T14:14:54.442Z"
+        "notes": "boundaryTesting=N/A (no numeric/date fields); errorVerification=N/A (simple checkbox/table UI); crossFieldValidation=N/A (no cross-field deps); errorRecovery=N/A (no error flows). REWORKED 2026-03-19: All 6 previously-blocked TCs now unblocked. Dialog confirmed working (4614 rows). Column headers corrected. Non-self row state verified live.",
+        "completedAt": "2026-03-19T06:57:55.719Z"
       },
       "history": [
         {
@@ -1250,10 +1303,22 @@
           "agent": "planner-post-complete",
           "action": "csv_export",
           "notes": "Auto-exported to export_test_cases/exports/locations_shared_setup_locations_test_cases.csv"
+        },
+        {
+          "timestamp": "2026-03-19T12:00:00.000Z",
+          "agent": "planner",
+          "action": "rework-completed",
+          "notes": "FULL REWORK: Re-explored live DOM via MCP browser. CRITICAL CORRECTIONS: (1) Column headers are 'Local Office'/'Local Office Name' NOT 'Location No'/'Location Name'. (2) Add dialog heading is 'Change Local Office' NOT 'Select Location'. (3) Dialog has 4614 rows with working search -- NOT blocked/empty. (4) Dialog has Select/Cancel/Close buttons NOT just Close. (5) Row selection via checkbox role='checkbox' aria-label='Select row'. (6) Non-self Primary Office is DISABLED (not editable as old TCs assumed). (7) Non-self Shares Inventory defaults to CHECKED (not unchecked). (8) Delete is instant with NO confirmation dialog. (9) Created dedicated shared-setup-locations.ts selector file (old selectors were MISSING from index.ts -- shared.ts only had dialog selectors). All 17 TCs now Automatable (0 blocked). Selectors verified via data-testid and browser_evaluate. Lint passed."
+        },
+        {
+          "timestamp": "2026-03-19T06:57:55.719Z",
+          "agent": "planner-post-complete",
+          "action": "csv_export",
+          "notes": "Auto-exported to export_test_cases/exports/locations_shared_setup_locations_test_cases.csv"
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-05T13:49:21.751Z",
+        "generatedAt": "2026-03-19T08:20:32.084Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1287,6 +1352,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1308,9 +1374,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1353,17 +1423,6 @@
           "save",
           "readonly"
         ],
-        "pendingEscalations": [
-          {
-            "id": "ESC-TEST",
-            "from": "audit",
-            "severity": "warning",
-            "summary": "Test escalation - delete after verification",
-            "artifacts": [
-              "test.md"
-            ]
-          }
-        ],
         "testPlanRef": "specs_planning/test-plans/locations/locations_shared_setup_locations_test_plan.md"
       },
       "outcomeTracking": {
@@ -1399,6 +1458,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1422,9 +1482,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "injectedAt": "2026-03-05T13:49:21.751Z",
+        "injectedAt": "2026-03-19T08:20:32.084Z",
         "retryCount": 0
       }
     },
@@ -1478,7 +1542,7 @@
         "notes": "boundaryTesting/errorVerification/crossFieldValidation/errorRecovery=false: no numeric/date fields, no inline validation errors, no cross-field dependencies beyond Save activation. dialogSymmetry=true: both Save dialog (Cancel/Save) and Unsaved Changes dialog (Cancel/OK) verified live 2026-02-19."
       },
       "injectedContext": {
-        "generatedAt": "2026-03-05T13:49:21.754Z",
+        "generatedAt": "2026-03-19T08:20:32.085Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1512,6 +1576,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1533,9 +1598,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1577,17 +1646,6 @@
           "readonly",
           "validation"
         ],
-        "pendingEscalations": [
-          {
-            "id": "ESC-TEST",
-            "from": "audit",
-            "severity": "warning",
-            "summary": "Test escalation - delete after verification",
-            "artifacts": [
-              "test.md"
-            ]
-          }
-        ],
         "testPlanRef": "specs_planning/test-plans/locations/locations_auto_addon_test_plan.md"
       },
       "outcomeTracking": {
@@ -1623,6 +1681,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1646,9 +1705,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "injectedAt": "2026-03-05T13:49:21.754Z",
+        "injectedAt": "2026-03-19T08:20:32.085Z",
         "retryCount": 0
       }
     },
@@ -1688,7 +1751,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-05T13:49:21.754Z",
+        "generatedAt": "2026-03-19T08:20:32.085Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1722,6 +1785,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1743,9 +1807,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1788,17 +1856,6 @@
           "readonly",
           "angular"
         ],
-        "pendingEscalations": [
-          {
-            "id": "ESC-TEST",
-            "from": "audit",
-            "severity": "warning",
-            "summary": "Test escalation - delete after verification",
-            "artifacts": [
-              "test.md"
-            ]
-          }
-        ],
         "testPlanRef": "specs_planning/test-plans/locations/locations_management_history_test_plan.md"
       },
       "outcomeTracking": {
@@ -1834,6 +1891,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1857,9 +1915,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "injectedAt": "2026-03-05T13:49:21.754Z",
+        "injectedAt": "2026-03-19T08:20:32.085Z",
         "retryCount": 0
       }
     },
@@ -1923,7 +1985,7 @@
         "completedAt": "2026-03-02T09:12:21.281Z"
       },
       "injectedContext": {
-        "generatedAt": "2026-03-05T13:49:21.756Z",
+        "generatedAt": "2026-03-19T08:20:32.085Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1957,6 +2019,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1980,9 +2043,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -2031,17 +2098,6 @@
           "fix",
           "manual"
         ],
-        "pendingEscalations": [
-          {
-            "id": "ESC-TEST",
-            "from": "audit",
-            "severity": "warning",
-            "summary": "Test escalation - delete after verification",
-            "artifacts": [
-              "test.md"
-            ]
-          }
-        ],
         "testPlanRef": "specs_planning/test-plans/locations/locations_local_office_settings_test_plan.md"
       },
       "outcomeTracking": {
@@ -2077,6 +2133,7 @@
           "ALL-029",
           "ALL-030",
           "ALL-031",
+          "ALL-032",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -2100,9 +2157,13 @@
           "GEN-021",
           "GEN-022",
           "GEN-023",
-          "GEN-024"
+          "GEN-024",
+          "GEN-025",
+          "GEN-026",
+          "GEN-027",
+          "GEN-028"
         ],
-        "injectedAt": "2026-03-05T13:49:21.756Z",
+        "injectedAt": "2026-03-19T08:20:32.085Z",
         "retryCount": 0
       }
     }
@@ -2177,6 +2238,7 @@
         "ALL-029",
         "ALL-030",
         "ALL-031",
+        "ALL-032",
         "GEN-001",
         "GEN-002",
         "GEN-003",
@@ -2200,9 +2262,13 @@
         "GEN-021",
         "GEN-022",
         "GEN-023",
-        "GEN-024"
+        "GEN-024",
+        "GEN-025",
+        "GEN-026",
+        "GEN-027",
+        "GEN-028"
       ],
-      "mistakesRef": "specs_planning/_internal/agent-mistakes.md (55 rules)",
+      "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
       "learningsSummary": [
         "ALL-001: —",
         "ALL-002: —",
@@ -2236,29 +2302,12 @@
         "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
       ],
       "lastRunFailures": {
-        "timestamp": "2026-03-02T17:16:14.665Z",
-        "failures": [
-          {
-            "testName": "TC-LOC-PRI-001: Verify Pricing tab default state",
-            "error": "\u001b[31mFixture \"authenticatedSession\" timeout of 300000ms exceeded during setup.\u001b[39m | Error: page.screenshot: Target page, context or browser has been closed",
-            "selector": null
-          }
-        ],
-        "passed": 0,
-        "failed": 1,
+        "timestamp": "2026-03-19T07:41:56.333Z",
+        "failures": [],
+        "passed": 17,
+        "failed": 0,
         "fixme": 0
-      },
-      "pendingEscalations": [
-        {
-          "id": "ESC-TEST",
-          "from": "audit",
-          "severity": "warning",
-          "summary": "Test escalation - delete after verification",
-          "artifacts": [
-            "test.md"
-          ]
-        }
-      ]
+      }
     }
   }
 }

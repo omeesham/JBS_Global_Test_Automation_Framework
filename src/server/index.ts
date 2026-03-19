@@ -19,7 +19,9 @@ dotenvFlow.config({ path: './config/environments' });
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { getPool, testConnection, initializeSchema, closePool } from './db/client';
-import { recoverStaleTasks } from './db/queries';
+import { recoverStaleTasks, seedDefaultPipelineDefinition } from './db/queries';
+import { seedAgentTypes } from './models/agent-registry';
+import { loadPipelineDefinition } from '../orchestrator/orchestrator';
 import { registerPipelineRoutes } from './routes/pipeline';
 import { registerEventsRoutes } from './routes/events';
 import { registerAdminRoutes, stopSpawnedWorker } from './routes/admin';
@@ -86,6 +88,23 @@ async function start() {
     // Auto-initialize schema (idempotent — uses IF NOT EXISTS)
     if (process.env.AUTO_MIGRATE !== 'false') {
       await initializeSchema();
+    }
+
+    // Seed agent types registry (idempotent upsert)
+    try {
+      await seedAgentTypes(pool);
+      app.log.info('Agent types registry seeded');
+    } catch (err) {
+      app.log.warn(`Agent type seeding failed (non-fatal): ${(err as Error).message}`);
+    }
+
+    // Seed default pipeline definition from JSON file (if no DB row exists)
+    try {
+      const fileDef = loadPipelineDefinition();
+      await seedDefaultPipelineDefinition(pool, fileDef as unknown as Record<string, unknown>);
+      app.log.info('Default pipeline definition seeded');
+    } catch (err) {
+      app.log.warn(`Pipeline definition seeding failed (non-fatal): ${(err as Error).message}`);
     }
 
     // Recover tasks stuck in 'claimed' from crashed workers

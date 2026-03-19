@@ -1,11 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { subscribeToPipelineEvents } from '@/services/encoreApi';
+import { buildInitialStages, upsertStage } from '@/utils/pipeline-stages';
 
 export interface PipelineStageState {
   key: string;
   name: string;
   status: 'pending' | 'running' | 'completed';
   detail: string;
+  startedAt?: number;
 }
 
 export interface ActivityMessage {
@@ -14,17 +16,12 @@ export interface ActivityMessage {
   timestamp: string;
 }
 
-const INITIAL_STAGES: PipelineStageState[] = [
-  { key: 'requirements', name: 'Analyzing Requirements', status: 'pending', detail: 'Pending' },
-  { key: 'planning', name: 'Planning Tests', status: 'pending', detail: 'Pending' },
-  { key: 'generation', name: 'Generating Scripts', status: 'pending', detail: 'Pending' },
-  { key: 'execution', name: 'Running Tests', status: 'pending', detail: 'Pending' },
-  { key: 'healing', name: 'Quality Checks', status: 'pending', detail: 'Pending' },
-];
-
 interface UsePipelineSSEOptions {
   onComplete?: (event: { runId?: string; totalTests?: number }) => void;
   onError?: (message: string) => void;
+  onTriageRequired?: (event: { runId?: string; failureCount?: number }) => void;
+  /** Custom initial stages (from client pipeline definition). Falls back to default 5-stage. */
+  initialStages?: PipelineStageState[];
 }
 
 export function usePipelineSSE(options?: UsePipelineSSEOptions) {
@@ -45,8 +42,9 @@ export function usePipelineSSE(options?: UsePipelineSSEOptions) {
     // Close any existing connection
     esRef.current?.close();
 
-    const initial = INITIAL_STAGES.map((s, i) =>
-      i === 0 ? { ...s, status: 'running' as const, detail: 'In progress...' } : s,
+    const base = optionsRef.current?.initialStages ?? buildInitialStages();
+    const initial = base.map((s, i) =>
+      i === 0 ? { ...s, status: 'running' as const, detail: 'In progress...' } : { ...s },
     );
     setStages(initial);
     setActivityMessages([]);
@@ -54,24 +52,25 @@ export function usePipelineSSE(options?: UsePipelineSSEOptions) {
 
     const es = subscribeToPipelineEvents(runId, (event) => {
       if (event.type === 'stage_start') {
-        setStages(prev =>
-          prev.map(s => s.key === event.stage ? { ...s, status: 'running', detail: 'In progress...' } : s),
-        );
+        setStages(prev => upsertStage(prev, event.stage!, {
+          status: 'running', detail: 'In progress...', startedAt: Date.now(),
+        }));
       } else if (event.type === 'stage_complete') {
-        setStages(prev =>
-          prev.map(s => s.key === event.stage ? { ...s, status: 'completed', detail: 'Done' } : s),
-        );
+        setStages(prev => upsertStage(prev, event.stage!, {
+          status: 'completed', detail: 'Done',
+        }));
       } else if (event.type === 'agent_progress') {
         // Live activity messages from worker — update stage detail + add to activity feed
         if (event.stage && event.message) {
-          setStages(prev =>
-            prev.map(s => s.key === event.stage ? { ...s, detail: event.message! } : s),
-          );
+          setStages(prev => upsertStage(prev, event.stage!, { detail: event.message! }));
           setActivityMessages(prev => [
             ...prev.slice(-49), // Keep last 50 messages
             { stage: event.stage!, message: event.message!, timestamp: event.timestamp || new Date().toISOString() },
           ]);
         }
+      } else if (event.type === 'triage_required') {
+        // Pipeline paused for triage — notify UI but keep connection open
+        optionsRef.current?.onTriageRequired?.({ runId: event.runId, failureCount: (event as any).failureCount });
       } else if (event.type === 'pipeline_complete') {
         es.close();
         esRef.current = null;

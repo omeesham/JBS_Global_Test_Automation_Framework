@@ -95,6 +95,11 @@ function main(): void {
     errors.push('Item is blocked and audit has not cleared it (auditCleared=false)');
   }
 
+  // POST-ESC: Check if escalations assigned to audit are still open (ALL-036)
+  const { checkUnresolvedEscalations } = require('./validation-gates');
+  const escWarnings: string[] = checkUnresolvedEscalations('audit');
+  warnings.push(...escWarnings);
+
   // Report
   console.log('\n' + '='.repeat(60));
 

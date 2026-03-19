@@ -1,6 +1,9 @@
 # Windows null device artifact
 nul
 
+# Temporary per-task files (worker MCP configs)
+.tmp/
+
 # Node / TypeScript
 node_modules/
 npm-debug.log
@@ -43,8 +46,9 @@ reports/**/*.xml
 .env
 .env.local
 .env.*.local
-config/environments/.env.local
 config/environments/.env.*.local
+!config/environments/.env.local
+!config/environments/.env.server
 
 # OS
 .DS_Store
@@ -92,9 +96,9 @@ tmp/
 *.key
 
 # Vault secrets (explicit)
-config/secrets/.vault.enc
 config/secrets/.vault.key
 config/secrets/*.enc
+!config/secrets/.vault.enc
 
 # Auth sessions
 .auth/
@@ -124,8 +128,8 @@ current_plan.md
 .claude/
 website/.claude/
 
-# Server env with real credentials (use .env.server.example)
-config/environments/.env.server
+# Server env — shared for team onboarding
+# config/environments/.env.server
 
 # Screenshots / junk
 phase4-chat.jpeg

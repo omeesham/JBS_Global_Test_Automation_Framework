@@ -1,354 +1,409 @@
 # Location Shared Setup Locations Test Cases
-**Module**: locations | **Total**: 17 | **Status**: Manual | **Updated**: 2026-02-25
+**Module**: locations | **Total**: 17 | **Status**: Automated | **Updated**: 2026-03-19
+
+---
+
+## MCP_VERIFICATION_LOG
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-03-19 |
+| URL | https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location |
+| Office/Entity | 1604 (Parker Palm Springs) |
+| Total fields found | 5 (table: 2 static text cells, 2 checkboxes, 1 button per data row; plus Add button) |
+| Total fields tested (edit+save) | 3 (Shares Inventory toggle, Add location flow, Delete row) |
+| Save dialog | Yes -- left-panel Save triggers alertdialog "Save Changes" with Save/Cancel buttons |
+| Column headers | Local Office, Local Office Name, Primary Office, Shares Inventory, (empty actions) |
+| Dropdown options | N/A -- no dropdowns in this tab |
+| Cascade behaviors | Checking dialog row checkbox enables Select button; Add enables Save; Delete enables Save |
+| Input attribute types | N/A -- no text inputs in main tab; Dialog search: placeholder="Search by Location Name, Number" |
+| Validation error patterns | N/A -- no validation errors observed |
+| Input masks/formatting | N/A |
+| Filtering mechanism | Dialog search: filters 4614 rows by text match on Local Office number or name |
+| API loading | Tab content loads instantly on tab click |
+| Strict mode risks | Dialog has 4614 rows with individual checkboxes -- use search to reduce before selecting |
+| Form structure | Save button: left-panel (shared with all tabs), not inside tabpanel |
+| Dialog side effects | Cancel=safe (no state change), Close(X)=safe, Select=adds row to table + enables Save |
+| API calls | Tab switch: no separate API call observed |
+| Post-reload timing | Table data loads instantly with tab switch |
+| Readiness signal | Wait for table data-testid="location-settings-table-shared-setup" to be visible |
+| Sequential interactions | Add->Delete->Save = dirty state remains (Save enabled) |
+| Boundary behaviors | N/A -- no text/numeric inputs in main tab |
+| Dialog details | Heading: "Change Local Office" (h2), 3-col table (checkbox, Local Office, Local Office Name), 4614 rows, Select/Cancel/Close buttons |
 
 ---
 
 ## FIELD INVENTORY
 
-**Main Table** (5 columns — Location 1604 self-row):
+**Main Table** (5 columns -- Location 1604 self-row):
 
-| Field | Element | State (self-row) | Value (1604) |
+| Column | Element | State (self-row) | Value (1604) |
 |---|---|---|---|
-| Location No | static text | display-only | 1604 |
-| Location Name | static text | display-only | Parker Palm Springs |
-| Primary Office | checkbox | **disabled + checked** | ✓ |
-| Shares Inventory | checkbox | **editable** | unchecked |
-| (Actions) | button (Delete) | **disabled** for self | — |
+| Local Office | static text | display-only | 1604 |
+| Local Office Name | static text | display-only | Parker Palm Springs |
+| Primary Office | checkbox (button role="checkbox") | **disabled + checked** | aria-checked="true" |
+| Shares Inventory | checkbox (button role="checkbox") | **editable** | aria-checked="false" |
+| (Actions) | button "Delete" | **disabled** for self | disabled=true |
 
-**Add Button**: Opens "Select Location" dialog (bottom of table)
+**Non-Self Row State** (verified by adding location 0000):
 
-**Select Location Dialog** (opened via Add):
+| Column | State |
+|---|---|
+| Local Office | static text (display-only) |
+| Local Office Name | static text (display-only) |
+| Primary Office | **disabled + unchecked** |
+| Shares Inventory | **editable + checked** (defaults to true) |
+| Delete | **enabled** |
 
-| Field | Element | State | Notes |
+**Add Button**: Inside last table row; opens "Change Local Office" dialog
+
+**Change Local Office Dialog** (opened via Add):
+
+| Element | Type | State | Notes |
 |---|---|---|---|
-| Search | text input | editable | By Location Name or Number |
-| Clear (×) | button | enabled when text present | Clears search |
-| Results Table | 2-col table (Location No, Location Name) | read-only | "No results." when empty |
-| Close | button | always enabled | Closes dialog, no selection made |
+| Heading | h2 | static | Text: "Change Local Office" |
+| Search input | text input | editable | placeholder="Search by Location Name, Number" |
+| Results table | 3-col table (checkbox, Local Office, Local Office Name) | 4614 rows | Filterable by search |
+| Row checkbox | button role="checkbox" aria-label="Select row" | per-row | Single-select by checkbox |
+| Select | button | disabled until row checked | Adds selected location to main table |
+| Cancel | button | always enabled | Closes dialog, no state change |
+| Close (X) | button | always enabled | Closes dialog, no state change |
 
-**Row selection mechanism**: Unknown — not verifiable in training env (dialog returns no results for all queries). No visible Select button observed. TCs requiring row selection are marked **Blocked (training-env)**.
+**Save Flow**: Left-panel Save -- "Save Changes" alert dialog with Save/Cancel. No dedicated tab Save.
+**Delete Flow**: Instant removal, **no confirmation dialog**.
 
-**Save Flow**: Left-panel Save -- Save Changes confirmation dialog. No dedicated tab Save.
+**Key data-testid attributes**:
+- Tab: location-settings-sub-tab-shared-setup-locations
+- Table: location-settings-table-shared-setup
 
 ---
 
 ## TC-LOC-SSL-001: Verify tab loads with table and Add button
 | Priority | Status | Type |
 |----------|--------|------|
-| High | Manual | User-Requested |
+| High | Automated | Functional |
+
+**Automatable**: Yes
 
 **Steps**:
-1. Navigate to Setup > Location > 1604 -- click **Shared Setup Locations** tab ✓ Tab activates
-2. Verify a table is visible ✓ Table has 5 columns: Location No, Location Name, Primary Office, Shares Inventory, (Actions)
-3. Verify **Add** button is visible below the table ✓ Add button present
+1. Navigate to Setup > Location > 1604 > click **Shared Setup Locations** tab -> Tab activates, tabpanel visible
+2. Verify a table with data-testid="location-settings-table-shared-setup" is visible -> Table present
+3. Verify **Add** button is visible in last table row -> Add button present and enabled
 
 **Expected**: Tab renders table with 5-column layout and Add button at bottom
 **Data**: office=1604
-**Automatable**: Yes
 
 ---
 
-## TC-LOC-SSL-002: Verify column headers order
+## TC-LOC-SSL-002: Verify column headers
 | Priority | Status | Type |
 |----------|--------|------|
-| Medium | Manual | User-Requested |
+| Medium | Automated | Functional |
+
+**Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads
-2. Inspect column headers left-to-right ✓ Order: Location No | Location Name | Primary Office | Shares Inventory | (no header for Actions)
+1. Navigate to **Shared Setup Locations** tab -> Tab loads
+2. Inspect column headers left-to-right -> Order: **Local Office** | **Local Office Name** | **Primary Office** | **Shares Inventory** | (empty actions column)
 
-**Expected**: 5 columns in order with no header on last (Actions) column
+**Expected**: 5 columns with headers "Local Office", "Local Office Name", "Primary Office", "Shares Inventory", and one empty header
 **Data**: office=1604
-**Automatable**: Yes
 
 ---
 
-## TC-LOC-SSL-003: Verify self-location row initial state
+## TC-LOC-SSL-003: Verify self-location row default state
 | Priority | Status | Type |
 |----------|--------|------|
-| High | Manual | User-Requested |
+| High | Automated | Functional |
+
+**Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads
-2. Locate row with Location No **1604** ✓ Row present
-3. Verify **Primary Office** checkbox is checked and disabled ✓ Checked + disabled
-4. Verify **Shares Inventory** checkbox is unchecked and editable ✓ Unchecked, cursor pointer
-5. Verify **Delete** button is disabled ✓ Delete button disabled
+1. Navigate to **Shared Setup Locations** tab -> Tab loads
+2. Locate first data row -> Cells show "1604" and "Parker Palm Springs"
+3. Verify **Primary Office** checkbox is checked and disabled (aria-checked="true", disabled) -> Confirmed
+4. Verify **Shares Inventory** checkbox is unchecked and editable (aria-checked="false", not disabled) -> Confirmed
+5. Verify **Delete** button is disabled -> Confirmed
 
-**Expected**: Self-location (1604) row has Primary Office locked-checked, Shares Inventory editable-unchecked, Delete disabled
+**Expected**: Self-location (1604) row: Primary Office locked-checked, Shares Inventory editable-unchecked, Delete disabled
 **Data**: office=1604
-**Automatable**: Yes
 
 ---
 
 ## TC-LOC-SSL-004: Primary Office is read-only for self-location
 | Priority | Status | Type |
 |----------|--------|------|
-| High | Manual | Validation |
+| High | Automated | Functional |
+
+**Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads
-2. Attempt to click **Primary Office** checkbox in row 1604 ✓ No interaction — checkbox is disabled
-3. Verify checkbox state unchanged ✓ Still checked
+1. Navigate to **Shared Setup Locations** tab -> Tab loads
+2. Attempt to click **Primary Office** checkbox in row 1604 -> No interaction (checkbox is disabled)
+3. Verify checkbox state unchanged -> Still checked (aria-checked="true")
 
-**Expected**: Primary Office cannot be unchecked for self-location; clicking is a no-op
+**Expected**: Primary Office cannot be unchecked for self-location; clicking is a no-op because element has disabled attribute
 **Data**: office=1604
-**Automatable**: Yes
 
 ---
 
 ## TC-LOC-SSL-005: Delete button disabled for self-location
 | Priority | Status | Type |
 |----------|--------|------|
-| High | Manual | Validation |
+| High | Automated | Functional |
+
+**Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads
-2. Inspect **Delete** button for row 1604 ✓ Button is disabled (aria-disabled or disabled attribute)
-3. Attempt to click Delete ✓ No action — button does not respond
+1. Navigate to **Shared Setup Locations** tab -> Tab loads
+2. Inspect **Delete** button for row 1604 -> Button has disabled attribute
+3. Attempt to click Delete -> No action (disabled)
 
 **Expected**: Delete button is disabled for self-location; self-row cannot be removed
 **Data**: office=1604
-**Automatable**: Yes
 
 ---
 
 ## TC-LOC-SSL-006: Shares Inventory toggle ON enables Save
 | Priority | Status | Type |
 |----------|--------|------|
-| High | Manual | Interaction |
+| Medium | Automated | Functional |
+
+**Automatable**: Yes
 
 **Preconditions**: Shares Inventory is unchecked for 1604
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads, Save button is disabled
-2. Click **Shares Inventory** checkbox in row 1604 ✓ Checkbox becomes checked
-3. Observe Save button state ✓ Save button becomes enabled
+1. Navigate to **Shared Setup Locations** tab -> Tab loads, left-panel Save button is disabled
+2. Click **Shares Inventory** checkbox in row 1604 -> Checkbox becomes checked (aria-checked="true")
+3. Observe left-panel Save button state -> Save button becomes enabled
 
 **Expected**: Toggling Shares Inventory marks form as dirty, enables left-panel Save
 **Data**: office=1604
-**Cleanup**: Uncheck **Shares Inventory** -- click **Save** -- click **Save** in dialog -- verify unchecked
-**Automatable**: Yes
+**Cleanup**: Uncheck **Shares Inventory** to revert. If Save still enabled, navigate away and accept unsaved changes dialog or reload page.
 
 ---
 
 ## TC-LOC-SSL-007: Reverting Shares Inventory disables Save
 | Priority | Status | Type |
 |----------|--------|------|
-| Medium | Manual | Interaction |
+| Medium | Automated | Functional |
+
+**Automatable**: Yes
 
 **Preconditions**: Shares Inventory is unchecked for 1604
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads
-2. Click **Shares Inventory** checkbox ✓ Becomes checked, Save enabled
-3. Click **Shares Inventory** again ✓ Becomes unchecked (reverted to original)
-4. Observe Save button state ✓ Save button is disabled again
+1. Navigate to **Shared Setup Locations** tab -> Tab loads
+2. Click **Shares Inventory** checkbox -> Becomes checked, Save enabled
+3. Click **Shares Inventory** again -> Becomes unchecked (reverted to original)
+4. Observe Save button state -> Save button is disabled again
 
 **Expected**: Reverting to original state removes dirty flag, Save disables
 **Data**: office=1604
-**Cleanup**: TC self-reverts in step 3 (Shares Inventory restored to unchecked). If any residual dirty state remains, uncheck **Shares Inventory** -- **Save** -- confirm.
-**Automatable**: Yes
 
 ---
 
-## TC-LOC-SSL-008: Shares Inventory — save and persist
+## TC-LOC-SSL-008: Shares Inventory save and persist
 | Priority | Status | Type |
 |----------|--------|------|
-| High | Manual | Persistence |
+| High | Automated | Functional |
+
+**Automatable**: Yes
 
 **Preconditions**: Shares Inventory is unchecked for 1604
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads
-2. Click **Shares Inventory** checkbox ✓ Becomes checked
-3. Click **Save** (left-panel) ✓ Save Changes confirmation dialog appears
-4. Click **Save** in dialog ✓ Data saved, dialog closes
-5. Reload page and navigate back to **Shared Setup Locations** tab ✓ Tab loads
-6. Verify **Shares Inventory** for row 1604 is checked ✓ Persisted
+1. Navigate to **Shared Setup Locations** tab -> Tab loads
+2. Click **Shares Inventory** checkbox -> Becomes checked
+3. Click left-panel **Save** -> "Save Changes" alert dialog appears with Save and Cancel buttons
+4. Click **Save** in dialog -> Data saved, dialog closes
+5. Reload page, navigate back to **Shared Setup Locations** tab -> Tab loads
+6. Verify **Shares Inventory** for row 1604 -> Checked state persisted (aria-checked="true")
 
 **Expected**: Checked state persists after save + reload
 **Data**: office=1604
-**Cleanup**: Toggle Shares Inventory OFF -- Save to restore original state
-**Automatable**: Yes
+**Cleanup**: Uncheck Shares Inventory -> Save -> confirm dialog -> verify unchecked after reload
 
 ---
 
-## TC-LOC-SSL-009: Add button opens Select Location dialog
+## TC-LOC-SSL-009: Add button opens Change Local Office dialog
 | Priority | Status | Type |
 |----------|--------|------|
-| High | Manual | User-Requested |
+| High | Automated | Functional |
+
+**Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads
-2. Click **Add** button below the table ✓ "Select Location" dialog opens
-3. Verify dialog contains: heading "Select Location", search input labeled "Search by Location Name, Number", results table (2 cols: Location No, Location Name), Close button ✓ All elements present
+1. Navigate to **Shared Setup Locations** tab -> Tab loads
+2. Click **Add** button in last table row -> "Change Local Office" dialog opens
+3. Verify dialog heading is "Change Local Office" (h2) -> Correct
+4. Verify search input with placeholder "Search by Location Name, Number" -> Present
+5. Verify results table with 3 columns (checkbox, Local Office, Local Office Name) -> Table visible with rows
+6. Verify **Select** button is disabled (no row selected) -> Confirmed
+7. Verify **Cancel** button is enabled -> Confirmed
+8. Click **Cancel** -> Dialog closes, no changes to main table
 
-**Expected**: Select Location dialog opens with search input, results table, and Close button
+**Expected**: Add opens "Change Local Office" dialog with search, results table, Select/Cancel buttons. Cancel closes without changes.
 **Data**: office=1604
+
+---
+
+## TC-LOC-SSL-010: Dialog search filters by location name
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
 **Automatable**: Yes
-
----
-
-## TC-LOC-SSL-010: Select Location dialog — search by location name
-| Priority | Status | Type |
-|----------|--------|------|
-| Medium | Blocked (training-env) | Interaction |
-
-**Steps**: Blocked in training environment — see "When unblocked, verify" section below.
-
-**Blocked**: Training env returns "No results." for all search queries — cannot verify match behavior or confirm row-selection mechanism.
-
-**When unblocked, verify**:
-1. Click **Add** -- "Select Location" dialog opens ✓ Dialog visible
-2. Type a known location name in the search field ✓ Field accepts input
-3. Wait for results ✓ Table updates showing matching rows (Location No + Location Name)
-
-**Expected**: Search input filters results table by location name; matching rows shown; "No results." when no match exists
-**Data**: office=1604
-**Automatable**: Blocked:Cat-A training-env
-
----
-
-## TC-LOC-SSL-011: Select Location dialog — search by location number
-| Priority | Status | Type |
-|----------|--------|------|
-| Medium | Blocked (training-env) | Interaction |
-
-**Steps**: Blocked in training environment — see "When unblocked, verify" section below.
-
-**Blocked**: Training env returns "No results." for all search queries — cannot verify match behavior.
-
-**When unblocked, verify**:
-1. Click **Add** -- "Select Location" dialog opens ✓ Dialog visible
-2. Type a known location number in the search field ✓ Field accepts input
-3. Wait for results ✓ Table updates showing matching row(s)
-
-**Expected**: Search input filters results table by location number; matching rows shown; "No results." when no number matches
-**Data**: office=1604
-**Automatable**: Blocked:Cat-A training-env
-
----
-
-## TC-LOC-SSL-012: Select Location dialog — clear search
-| Priority | Status | Type |
-|----------|--------|------|
-| Low | Blocked (training-env) | Interaction |
-
-**Steps**: Blocked in training environment — see "When unblocked, verify" section below.
-
-**Blocked**: Training env returns "No results." for all queries — cleared state is indistinguishable from searched state; default state (empty table vs. full list) cannot be confirmed.
-
-**When unblocked, verify**:
-1. Click **Add** -- dialog opens ✓ Dialog visible
-2. Type any text in search field ✓ Text entered, clear (×) button appears
-3. Click the clear (×) button ✓ Search field clears
-4. Verify results return to initial state ✓ Results match the state displayed when dialog first opened
-
-**Expected**: Clear button removes search text; results return to dialog's initial state (document observed behavior: empty table or pre-populated list)
-**Data**: office=1604
-**Automatable**: Blocked:Cat-A training-env
-
----
-
-## TC-LOC-SSL-013: Select Location dialog — close without selecting
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | Interaction |
 
 **Steps**:
-1. Click **Add** -- dialog opens ✓ Dialog visible
-2. Optionally type in search field ✓ (no selection made)
-3. Click **Close** button ✓ Dialog closes
-4. Verify main table still shows only row 1604 ✓ No new row added
+1. Navigate to **Shared Setup Locations** tab -> click **Add** -> Dialog opens with 4614+ rows
+2. Type "Miami" in search input -> Results filter to ~69 rows containing "Miami" in location name
+3. Verify filtered rows show matching names (e.g., "Miami Marriott Biscayne Bay") -> Matches visible
+4. Click **Cancel** to close
 
-**Expected**: Closing dialog without selecting a location makes no change to the table
-**Data**: office=1604
-**Automatable**: Yes
+**Expected**: Search input filters results table by location name substring match
+**Data**: office=1604, search="Miami"
 
 ---
 
-## TC-LOC-SSL-014: Tab uses left-panel Save (no dedicated Save)
+## TC-LOC-SSL-011: Dialog search filters by location number
 | Priority | Status | Type |
 |----------|--------|------|
-| Medium | Manual | Validation |
+| Medium | Automated | Functional |
+
+**Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads
-2. Inspect the tabpanel for a dedicated Save button ✓ No dedicated Save found inside Shared Setup Locations tabpanel
-3. Toggle **Shares Inventory** ✓ Left-panel Save becomes enabled
-4. Click left-panel **Save** ✓ Save Changes confirmation dialog appears, data saves on confirm
+1. Navigate to **Shared Setup Locations** tab -> click **Add** -> Dialog opens
+2. Type "1099" in search input -> Results filter to 1 row: "1099 - Corporate Company"
+3. Verify exact match shown -> Confirmed
+4. Click **Cancel** to close
 
-**Expected**: No dedicated Save inside this tab; save is done via left-panel Save with confirmation dialog
-**Data**: office=1604
-**Cleanup**: Revert Shares Inventory -- Save
+**Expected**: Search input filters results table by location number match
+**Data**: office=1604, search="1099"
+
+---
+
+## TC-LOC-SSL-012: Dialog row selection enables Select button
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Negative |
+
 **Automatable**: Yes
 
----
+**Steps**:
+1. Navigate to **Shared Setup Locations** tab -> click **Add** -> Dialog opens
+2. Verify **Select** button is disabled -> Disabled (no row selected)
+3. Search for "1099" -> 1 result row
+4. Click the row checkbox (role="checkbox" aria-label="Select row") -> Checkbox becomes checked
+5. Verify **Select** button is now enabled -> Enabled
 
-## TC-LOC-SSL-015: Add non-self location to shared setup — blocked (training-env)
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Blocked (training-env) | User-Requested |
-
-**Steps**: Blocked in training environment — see "When unblocked, verify" section below.
-
-**Blocked**: Training environment Search dialog returns "No results." for all queries — impossible to select and add a non-self location row.
-
-**When unblocked, verify**:
-1. Navigate to **Shared Setup Locations** tab ✓ Tab loads, only self-row (1604) present
-2. Click **Add** -- "Select Location" dialog opens ✓ Dialog visible
-3. Search for a valid location -- click the result row to select it ✓ Dialog closes, new row appears in table
-4. Verify new row: Location No filled, Location Name filled, **Primary Office** unchecked+enabled, **Shares Inventory** unchecked+enabled, **Delete** enabled ✓ All columns correct
-5. Click **Save** -- confirm -- reload -- navigate back to tab ✓ Added row persists
-
-**Expected**: Non-self location can be added via picker; row appears with editable Primary Office and Shares Inventory; Delete enabled
-**Data**: office=1604
-**Cleanup**: Delete the added row -- **Save** -- confirm -- verify table returns to self-row only
-**Automatable**: Blocked:Cat-A training-env
+**Expected**: Selecting a row checkbox enables the Select button
+**Data**: office=1604, search="1099"
+**Cleanup**: Click Cancel to close dialog
 
 ---
 
-## TC-LOC-SSL-016: Primary Office checkbox behavior on non-self row — blocked (training-env)
+## TC-LOC-SSL-013: Add location via dialog Select button
 | Priority | Status | Type |
 |----------|--------|------|
-| High | Blocked (training-env) | User-Requested |
+| High | Automated | Functional |
 
-**Steps**: Blocked in training environment — see "When unblocked, verify" section below.
+**Automatable**: Yes
 
-**Blocked**: Cannot add a non-self location row in training environment (dialog returns no results).
+**Steps**:
+1. Navigate to **Shared Setup Locations** tab -> Only self-row (1604) present
+2. Click **Add** -> Dialog opens
+3. Search for a location (e.g., "1099") -> Filter to result
+4. Check the row checkbox -> Select button enables
+5. Click **Select** -> Dialog closes, new row appears in table
+6. Verify new row shows correct Local Office number and Local Office Name -> Confirmed
+7. Verify left-panel Save button is enabled -> Form is dirty
 
-**When unblocked, verify**:
-1. Add a non-self location to the table (per TC-LOC-SSL-015 precondition) ✓ Non-self row present
-2. Verify **Primary Office** in added row is unchecked and editable ✓ Unchecked, pointer cursor
-3. Check **Primary Office** in the added row ✓ Checkbox becomes checked
-4. Verify self-row (1604) **Primary Office** remains checked+disabled ✓ Unaffected by change on added row
-5. Verify if checking a second Primary Office deselects the first (single-select behavior) — document actual enforced behavior
-
-**Expected**: Non-self rows have editable Primary Office; self-row remains locked; single-select enforcement (if any) documented from observed behavior
-**Data**: office=1604
-**Cleanup**: Uncheck Primary Office on added row (if changed) -- Delete added row -- **Save** -- confirm
-**Automatable**: Blocked:Cat-A training-env
+**Expected**: Selecting a location and clicking Select adds it to the table and marks form dirty
+**Data**: office=1604, added=1099
+**Cleanup**: Click Delete on added row -> navigate away and discard changes or reload
 
 ---
 
-## TC-LOC-SSL-017: Delete enabled and functional for non-self location row — blocked (training-env)
+## TC-LOC-SSL-014: Non-self row state verification
 | Priority | Status | Type |
 |----------|--------|------|
-| High | Blocked (training-env) | User-Requested |
+| Medium | Automated | Functional |
 
-**Steps**: Blocked in training environment — see "When unblocked, verify" section below.
+**Automatable**: Yes
 
-**Blocked**: Cannot add a non-self location row in training environment (dialog returns no results).
+**Preconditions**: A non-self location has been added via TC-LOC-SSL-013
 
-**When unblocked, verify**:
-1. Add a non-self location to the table (per TC-LOC-SSL-015 precondition) ✓ Non-self row present
-2. Verify **Delete** button in the added row is enabled ✓ Enabled, cursor pointer
-3. Verify **Delete** button in self-row (1604) remains disabled ✓ Self-row Delete still disabled
-4. Click **Delete** on the added row ✓ Row removed from table (or confirmation dialog appears — document behavior)
-5. Click **Save** -- confirm -- reload -- navigate to tab ✓ Deleted row no longer present
+**Steps**:
+1. Inspect the added (non-self) row in the table
+2. Verify **Primary Office** checkbox is unchecked and **disabled** (aria-checked="false", disabled attribute present) -> Confirmed
+3. Verify **Shares Inventory** checkbox is checked and **editable** (aria-checked="true", not disabled) -> Confirmed
+4. Verify **Delete** button is **enabled** (not disabled) -> Confirmed
 
-**Expected**: Delete is enabled only for non-self rows; clicking Delete removes the row; deletion persists after save + reload
+**Expected**: Non-self rows: Primary Office disabled+unchecked, Shares Inventory checked+editable, Delete enabled
+**Data**: office=1604, added row
+**Cleanup**: Delete added row, discard changes
+
+---
+
+## TC-LOC-SSL-015: Delete non-self row (instant, no confirmation)
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Automatable**: Yes
+
+**Preconditions**: A non-self location has been added (e.g., via TC-LOC-SSL-013)
+
+**Steps**:
+1. Verify table has 2+ data rows (self + added) -> Confirmed
+2. Click **Delete** on the added (non-self) row -> Row is immediately removed from the table (no confirmation dialog)
+3. Verify table returns to only self-row (1604) + Add row -> Confirmed
+4. Verify left-panel Save button state -> Still enabled (form dirty from add+delete cycle)
+
+**Expected**: Delete immediately removes the non-self row without any confirmation dialog
+**Data**: office=1604
+**Cleanup**: Navigate away and discard unsaved changes, or Save
+
+---
+
+## TC-LOC-SSL-016: Cancel dialog does not modify table
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | State |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Navigate to **Shared Setup Locations** tab -> Only self-row
+2. Click **Add** -> Dialog opens
+3. Search for "Miami" -> Results appear
+4. Check a row checkbox (e.g., "1233 - Miami Marriott Biscayne Bay") -> Select enabled
+5. Click **Cancel** instead of Select -> Dialog closes
+6. Verify main table still has only self-row (1604) -> No new row added
+7. Verify left-panel Save button is disabled -> No dirty state
+
+**Expected**: Cancelling dialog after selecting a row makes no changes to the table
 **Data**: office=1604
 
-**Automatable**: Blocked:Cat-A training-env
+---
+
+## TC-LOC-SSL-017: Tab uses left-panel Save (no dedicated Save)
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Functional |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Navigate to **Shared Setup Locations** tab -> Tab loads
+2. Inspect the Shared Setup Locations tabpanel for a local Save button -> None found inside tabpanel
+3. Toggle **Shares Inventory** -> Left-panel Save becomes enabled
+4. Click left-panel **Save** -> "Save Changes" alert dialog with Save and Cancel buttons
+5. Click **Save** in dialog -> Changes saved
+
+**Expected**: No dedicated Save inside this tab; save uses left-panel Save with "Save Changes" confirmation dialog
+**Data**: office=1604
+**Cleanup**: Revert Shares Inventory -> Save

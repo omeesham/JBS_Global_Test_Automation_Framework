@@ -187,8 +187,8 @@ export class LocationCurrencyPage extends BasePage {
    * Click the Currency Save button and confirm dialog if it appears.
    * Delegates to BasePage.clickSaveWithDialog (ALL-020: shared save dialog pattern).
    */
-  async clickSave(): Promise<void> {
-    await this.clickSaveWithDialog('btnSaveCurrency');
+  async clickSave(): Promise<{ success: boolean; networkError?: string }> {
+    return this.clickSaveWithDialog('btnSaveCurrency');
   }
 
   /**

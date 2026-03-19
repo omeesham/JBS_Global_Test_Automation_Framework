@@ -168,6 +168,11 @@ function main(): void {
     }
   }
 
+  // PF-ESC: Check pending escalations assigned to generator (ALL-036)
+  const { checkPendingEscalations } = require('./validation-gates');
+  const escMessages: string[] = checkPendingEscalations('generator');
+  for (const msg of escMessages) console.warn(msg);
+
   if (preFlightFailed) {
     console.error('\n[HALT] Pre-flight competency gate FAILED. Fix the issues above before proceeding.');
     process.exit(1);
@@ -296,6 +301,19 @@ function main(): void {
       for (const f of failures) {
         const cat = f.failureCategory ?? 'UNKNOWN';
         failureCategories[cat] = (failureCategories[cat] ?? 0) + 1;
+      }
+
+      // PF-DIAG: Check if diagnostics are actually populated (48A fix)
+      if (failures.length > 0) {
+        const emptyDiagnostics = failures.filter(f =>
+          (!f.networkFailures || f.networkFailures.length === 0) &&
+          (!f.consoleErrors || f.consoleErrors.length === 0) &&
+          (!f.screenshotPath)
+        );
+        if (emptyDiagnostics.length === failures.length) {
+          console.warn('   [WARN] PF-DIAG: ALL failures have empty diagnostics -- data pipeline may be broken');
+          console.warn('   Agents are operating BLIND without diagnostic data. Check diagnosticsHandler fixture in fixtures.ts.');
+        }
       }
 
       const fixScope: FixScope = {

@@ -1,23 +1,38 @@
 {
   "version": "2.0.0",
-  "lastUpdated": "2026-02-27T18:00:00Z",
+  "lastUpdated": "2026-03-19T06:57:56.992Z",
   "promotionRules": {
     "description": "Strict meritocracy - no self-promotion, external audit only, zero-defect required",
-    "trustLevels": ["probation", "vetting", "trusted", "autonomous"],
+    "trustLevels": [
+      "probation",
+      "vetting",
+      "trusted",
+      "autonomous"
+    ],
     "promotionCriteria": {
       "probation_to_vetting": {
         "cleanCycles": 1,
-        "auditedBy": ["human", "audit", "post-complete-gate"],
+        "auditedBy": [
+          "human",
+          "audit",
+          "post-complete-gate"
+        ],
         "defectTolerance": 0
       },
       "vetting_to_trusted": {
         "cleanCycles": 2,
-        "auditedBy": ["human", "audit", "post-complete-gate"],
+        "auditedBy": [
+          "human",
+          "audit",
+          "post-complete-gate"
+        ],
         "defectTolerance": 0
       },
       "trusted_to_autonomous": {
         "cleanCycles": 3,
-        "auditedBy": ["human"],
+        "auditedBy": [
+          "human"
+        ],
         "defectTolerance": 0
       }
     },
@@ -86,26 +101,19 @@
       "lastAuditDate": "2026-03-02",
       "notes": "5 tasks total. 4 data accuracy defects found across sessions (1 by self, 3 by downstream agents, 3 by audit). Learning yield: 0.0 — zero learnings logged across ALL sessions. Self-audit accuracy: 0.0 — no self-audit ever completed. 2026-03-02 session: local-office settings. New defects: 4 wrong labels, incomplete Misc Settings, wrong Default Logo field type, zero activity logging.",
       "learningsLogged": 0,
-      "learningYield": 0.0,
+      "learningYield": 0,
       "learningDebt": 5,
       "maturityIndicators": {
         "defectRecurrenceRate": 0.5,
-        "selfAuditAccuracy": 0.0,
+        "selfAuditAccuracy": 0,
         "maturityScore": 0
       }
     },
     "planner": {
       "trustLevel": "probation",
       "cleanCycles": 0,
-      "totalRuns": 10,
+      "totalRuns": 11,
       "defects": [
-        {
-          "date": "2026-02-17",
-          "id": "PLN-027",
-          "description": "Created TCs with wrong ID format without reading existing patterns",
-          "severity": "medium",
-          "resolved": true
-        },
         {
           "date": "2026-02-17",
           "id": "PLN-029",
@@ -149,16 +157,24 @@
       ],
       "lastAuditedBy": "audit",
       "lastAuditDate": "2026-03-02",
-      "totalRuns": 11,
       "notes": "Run 11 (2026-03-02): Local Office Settings (LOS). 56 TCs, 3 tabs, selectors. Self-audit found+fixed 10 format issues (PLN-016 added). Audit found 3 additional data accuracy issues: 4/13 sections inactive in DOM, discount exemptions 75 not 55, HST ID shuffle. Learning yield: 0.0 session (PLN-016 written but not logged in agent-learnings.md). Self-audit accuracy: ~60%.",
       "learningsLogged": 0,
-      "learningYield": 0.0,
+      "learningYield": 0,
       "learningDebt": 1,
       "maturityIndicators": {
         "defectRecurrenceRate": 0.3,
         "selfAuditAccuracy": 0.6,
         "maturityScore": 1
-      }
+      },
+      "archivedDefects": [
+        {
+          "date": "2026-02-17",
+          "id": "PLN-027",
+          "description": "Created TCs with wrong ID format without reading existing patterns",
+          "severity": "medium",
+          "resolved": true
+        }
+      ]
     },
     "generator": {
       "trustLevel": "probation",
@@ -250,11 +266,11 @@
       "lastAuditDate": "2026-02-27",
       "notes": "Run 1 (02-20): catastrophic 672-line spec, never ran. Run 2 (02-23): clean restart, timeout undiagnosed. Run 3 (02-25): TC-026/045 added, 24/24 passing. Run 4 (02-25): remaining LI TCs completed. Run 5 (02-25): Currency spec completed 20/20. Run 6 (02-27): RCA+FIX 3 root causes, 19 passed/8 skipped. Run 7 (02-27): viewport fix + live DOM audit, headless 19/8/0. Post-overhaul quality good. 2 specs completed (LI 41% + Currency 100%).",
       "learningsLogged": 7,
-      "learningYield": 1.0,
+      "learningYield": 1,
       "learningDebt": 0,
       "maturityIndicators": {
-        "defectRecurrenceRate": 0.0,
-        "selfAuditAccuracy": 0.0,
+        "defectRecurrenceRate": 0,
+        "selfAuditAccuracy": 0,
         "maturityScore": 0
       }
     },
@@ -267,11 +283,11 @@
       "lastAuditDate": null,
       "notes": "Run 1 (02-25): 20/20 LI tests passing after heal. Added HLR-010/011 + LRN-010/011. Clean session, zero defects.",
       "learningsLogged": 2,
-      "learningYield": 1.0,
+      "learningYield": 1,
       "learningDebt": 0,
       "maturityIndicators": {
-        "defectRecurrenceRate": 0.0,
-        "selfAuditAccuracy": 0.0,
+        "defectRecurrenceRate": 0,
+        "selfAuditAccuracy": 0,
         "maturityScore": 0
       }
     },
@@ -280,14 +296,6 @@
       "cleanCycles": 0,
       "totalRuns": 13,
       "defects": [
-        {
-          "date": "2026-02-17",
-          "id": "AUD-PERF-001",
-          "feature": "location-local-information",
-          "description": "Initial block had 40% accuracy — 3 of 5 claims were false (selectors existed, DISCOVER_ not found). Required self-correction after re-audit.",
-          "severity": "high",
-          "resolved": true
-        },
         {
           "date": "2026-02-19",
           "id": "AUD-PERF-002",
@@ -301,13 +309,23 @@
       "lastAuditDate": "2026-02-27",
       "notes": "13 audits across 11 days. Self-accuracy improved from 40% (02-17) to consistent findings. False positive on 02-27: F4 claimed firefox/webkit viewport:null when both have explicit 1920x1080 (COP-016 violation). Flag-and-forget pattern: findings not tracked to resolution. Performance.json abandoned 7 days (02-20 to 02-27).",
       "learningsLogged": 0,
-      "learningYield": 0.0,
+      "learningYield": 0,
       "learningDebt": 0,
       "maturityIndicators": {
-        "defectRecurrenceRate": 0.0,
-        "selfAuditAccuracy": 0.0,
+        "defectRecurrenceRate": 0,
+        "selfAuditAccuracy": 0,
         "maturityScore": 0
-      }
+      },
+      "archivedDefects": [
+        {
+          "date": "2026-02-17",
+          "id": "AUD-PERF-001",
+          "feature": "location-local-information",
+          "description": "Initial block had 40% accuracy — 3 of 5 claims were false (selectors existed, DISCOVER_ not found). Required self-correction after re-audit.",
+          "severity": "high",
+          "resolved": true
+        }
+      ]
     }
   },
   "cycleLog": []

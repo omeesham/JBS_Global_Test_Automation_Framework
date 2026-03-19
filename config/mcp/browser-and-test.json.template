@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--browser", "chrome"],
+      "env": { "BASE_URL": "{{BASE_URL}}" }
+    },
+    "playwright-test": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["playwright", "run-test-mcp-server"],
+      "env": { "BASE_URL": "{{BASE_URL}}" }
+    }
+  }
+}

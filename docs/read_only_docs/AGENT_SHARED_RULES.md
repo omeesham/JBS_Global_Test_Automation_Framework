@@ -179,6 +179,39 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 9. **Sync** (if rules written): Run sync pipeline. validate:sync must exit 0.
 10. **Escalation check (ALL-031)**: Read `specs_planning/_internal/agent-escalations.json`. If any entry has `pendingFor` matching your agent name AND `status: "open"` -> include those fixes in your current work. After fixing: update the entry's `status` to `"resolved"`, add `resolvedBy`, `resolvedAt`, `resolution`.
 
+### Triage & Bug Detection Rules (ALL-032..034)
+
+| ID | Rule | Violation = |
+|----|------|-------------|
+| ALL-032 | Triage before healing: classify every failure as BUG/FEATURE_CHANGE/TEST_DEFECT/UNCERTAIN before code changes | Bug laundering |
+| ALL-033 | Bug-blocked tests use `test.skip('bug-blocked: BUG-XXX')`. Must NOT be removed until bug is confirmed fixed. | Lost regression detection |
+| ALL-034 | `reports/bugs/` directory = structured bug report storage. Each BUG-{MOD}-{NNN}.json has evidence, TC source, MCP verification. | Bug tracking integrity |
+
+### Escalation Enforcement Rules (ALL-035..037)
+
+| ID | Rule | Violation = |
+|----|------|-------------|
+| ALL-035 | MANDATORY ESCALATION: When finding upstream agent's mistake that is NOT in your file scope, you MUST create an escalation entry in `specs_planning/_internal/agent-escalations.json`. Skipping = collusion. | Agent coverup |
+| ALL-036 | RESOLVE FIRST: At session start, check pending escalations. Fix ALL open items assigned to you BEFORE new work. | Ignored feedback |
+| ALL-037 | ESCALATION EVIDENCE: Every escalation must include file:line or MCP evidence proving the issue. No hearsay. | False accusation |
+
+### Upstream Quality Rules (ALL-038..041)
+
+| ID | Rule | Violation = |
+|----|------|-------------|
+| ALL-038 | Code-producing agents must prove reuse search before creating methods/interfaces/constants | Duplicate code |
+| ALL-039 | Post-write quality self-check mandatory for .spec.ts or .page.ts modifications | Quality regression |
+| ALL-040 | Generator MUST use Planner's existing selector files. Creating new selectors from scratch when Planner already delivered them = critical pipeline failure | 2-hour waste, wrong selectors |
+| ALL-041 | Planner MUST document input attribute types, validation error UI patterns, input masks, filtering mechanisms, API loading behavior, strict mode risks for EVERY field/dialog | Generator flies blind without this |
+
+### Universal Bug Detection Rules (ALL-042..044)
+
+| ID | Rule | Violation = |
+|----|------|-------------|
+| ALL-042 | Any agent using MCP MUST check `browser_network_requests` after API-triggering interactions. 4xx/5xx = potential APP_BUG. Never silently ignore. | Silent API error |
+| ALL-043 | When walkthrough reveals behavior contradicting MCP_VERIFICATION_LOG: classify (PLANNER_GAP / APP_BUG / TC_CORRECTION / SEQUENCE_SIDE_EFFECT) and escalate. Never silently proceed. | Unclassified mismatch |
+| ALL-044 | Bug detection is EVERY agent's responsibility. Planner finds 500 error → file it. Generator finds form mutation → file it. Healer finds broken API → file it. All go to `agent-escalations.json`. | Agent ignoring bugs outside their scope |
+
 ### Agent Self-Audit Checklists (5 items each, binary yes/no)
 
 **Generator**:
@@ -187,6 +220,8 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 3. No hardcoded waits? (no waitForTimeout)
 4. Post-complete gate passes? (`npm run generator:post-complete`)
 5. Novel patterns captured? (retries occurred → learnings logged)
+6. Escalations created for upstream issues found? (ALL-035)
+7. Pending escalations assigned to me resolved? (ALL-036)
 
 **Planner**:
 1. All TCs have matching test plan scenarios?
@@ -194,6 +229,8 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 3. lint:testcases passes with 0 errors?
 4. Checklist fields true only with supporting TCs?
 5. Novel patterns captured?
+6. Escalations created for upstream issues found? (ALL-035)
+7. Pending escalations assigned to me resolved? (ALL-036)
 
 **Healer**:
 1. All fixed tests pass? (targeted run → 0 failures)
@@ -201,6 +238,8 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 3. Fix uses correct failure category diagnosis?
 4. Removed tests logged as missing-coverage?
 5. Novel patterns captured?
+6. Escalations created for upstream issues found? (ALL-035)
+7. Pending escalations assigned to me resolved? (ALL-036)
 
 **Audit**:
 1. Every finding has agent + fix prompt?
@@ -208,6 +247,8 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 3. Scope anchored to last audit entry?
 4. Field counts reconciled (DOM ↔ TCs ↔ plan)?
 5. Zero-finding justified (if applicable)?
+6. Escalation discipline verified? (AUD-022: agents created escalations when needed)
+7. Pending escalations assigned to me resolved? (ALL-036)
 
 **Requirements**:
 1. All fields verified via browser_snapshot?
@@ -215,6 +256,8 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 3. Error messages triggered live?
 4. REQUIREMENTS.md updated with evidence?
 5. Novel patterns captured?
+6. Escalations created for upstream issues found? (ALL-035)
+7. Pending escalations assigned to me resolved? (ALL-036)
 
 ---
 
@@ -236,6 +279,7 @@ Self-audit checklists catch formatting and process errors. They do NOT catch rea
 | **A** | Office-limited — feature disabled/locked for execution office | Planner | Parameterize with TEST_OFFICE + per-office data |
 | **B** | DB state / ordering — serial mutations corrupt state | Generator | Fix ordering: destructive tests last. Add restore steps |
 | **C** | Genuinely untestable — different role/precondition needed | Planner | TC `Automatable: No` with reason. Removed from test count |
+| **D** | Bug-blocked — application bug, test is correct | Healer | `test.skip('bug-blocked: BUG-XXX')`. Bug fixed by dev team. Exit = bug confirmed fixed, test unskipped. |
 
 **Generator**: Categorize every fixme as A/B/C in activity log before completing.
 
@@ -247,8 +291,8 @@ Self-audit checklists catch formatting and process errors. They do NOT catch rea
 |-------|-------|----------|
 | Requirements | Full DOM exploration | Discovers all fields, documents in REQUIREMENTS.md |
 | Planner | Targeted selector validation | browser_snapshot to verify selectors. Does NOT re-discover all fields |
-| Generator | Pre-flight check only | Validates selectors exist in index.ts + match DOM. No browsing |
-| Healer | Diagnostic only | Explores DOM only when tests fail, to diagnose |
+| Generator | Phase 0.5 TC walkthrough + pre-flight selector validation | Walks through every TC step on MCP before writing code. Also validates selectors. |
+| Healer | SELECTOR/ASSERTION: mandatory MCP. Others: artifact-first | MCP diagnostic at Step 3 for selector/assertion failures. Last resort for others. |
 
 ---
 
@@ -256,6 +300,7 @@ Self-audit checklists catch formatting and process errors. They do NOT catch rea
 
 **Mandatory for**: Generator (fix loop), Healer (all diagnosis), Copilot (framework debugging).
 **Replaces**: Former 13-item checklist. Now 7-step mandatory sequence — no shortcuts.
+**Note**: Healer must run Phase 0 Triage (HLR-015) BEFORE this protocol. Triage classifies BUG/FEATURE_CHANGE/TEST_DEFECT/UNCERTAIN. Phase A RCA only runs for FEATURE_CHANGE, TEST_DEFECT, and UNCERTAIN cases.
 
 ### 7-Step Mandatory Sequence
 
@@ -342,6 +387,114 @@ Same 7-step sequence, plus after Step 4:
 - Timing change → add explicit wait, not just timeout increase
 - Test logic change → verify against TC document (TC wrong or spec wrong?)
 
+### RCA Decision Trees (ALL-045)
+
+After reading artifacts (Steps 1-3), walk the appropriate tree. At each node, cite the artifact field that answers the question.
+
+**TimeoutError tree:**
+1. Does element exist in domSnippet/error-context.md? → NO = selector issue (check selector key in selectors/*.ts)
+2. Element exists but not visible? → Check consoleErrors for JS errors preventing render
+3. Element visible but not actionable? → Check if disabled (form state), covered (modal/overlay), or outside viewport
+4. Element actionable but timeout? → Timing issue — check duration, add waitFor or expect.poll
+
+**Assertion failure tree:**
+1. Expected X got Y — is Y from a different test? → State leakage (check lastActions of prior test in serial block)
+2. Is the actual value close but not exact? → Timing (element still loading) or format difference
+3. Is the actual value completely wrong? → App behavior differs from Planner docs → verify on MCP → file escalation if Planner was wrong
+
+**Dialog error tree ("Cannot accept dialog which is already handled"):**
+1. Check: is there a `page.once('dialog')` or `page.on('dialog')` handler registered?
+2. Check: does Playwright auto-handle this dialog type? (beforeunload = auto-accepted on navigation)
+3. Fix: remove redundant handler OR use `page.on()` + `removeListener` pattern (never `page.once()` on worker-scoped pages)
+
+**Network failure tree:**
+1. Check networkFailures array — what status code?
+2. 401/403 = auth issue → check authChain
+3. 500+ = backend error → not test issue, log and retry
+4. 0 (no response) = connectivity → check urlBreadcrumbs for redirect loops
+
+### Evidence-Based Fixes (ALL-046)
+
+Every fix MUST cite its evidence source. Format:
+```
+RCA | TC-XXX | category: TIMING | evidence: failure-summary.json.duration=45000ms (>30s timeout) | fix: add waitFor before assertion
+```
+Fixes without evidence citations are GUESSES and will be flagged by Audit.
+
+### Failure Classification Accuracy (ALL-047)
+
+The `failureCategory` in failure-summary.json is auto-classified by pattern matching. It can be WRONG. Always verify against actual artifacts.
+Common misclassifications:
+- 404 on favicon → classified NETWORK but actual issue is APPLICATION or DATA
+- Timeout on page load → classified TIMING but actual issue is AUTH (redirect loop)
+- Selector not found → classified SELECTOR but actual issue is APPLICATION (element conditionally rendered)
+
+### MCP Replication — Last Resort (ALL-048)
+
+Use MCP browser replication ONLY when:
+1. Artifacts are missing or insufficient (domSnippet empty, no trace)
+2. You need to verify a Planner behavioral claim that contradicts test results
+3. The failure classification is UNKNOWN after artifact analysis
+4. You need to test a specific interaction sequence not captured in artifacts
+
+When needed: navigate to exact pageUrl from urlBreadcrumbs → reproduce exact step sequence from lastActions → browser_snapshot at failure point → browser_evaluate to check element state → compare to artifacts → document finding.
+
+### State-Aware Testing (ALL-049)
+
+When documenting or asserting page states:
+- **Default state** = what you see on FRESH page load (full URL navigation, no prior interaction)
+- **Post-action state** = what you see after save/delete/edit (NOT the default)
+- **Transient state** = what you see during animation/loading (NOT stable)
+Always label which type of state you're documenting. Never confuse them. Planner pollution (testing default state after own save-empty cycle) has caused multi-day debugging sessions.
+
+### Pareto-Ordered Investigation (ALL-050)
+
+When investigating failures, check the most common categories FIRST:
+1. **Timing/race conditions** (45% of UI test failures) — missing waits, Angular change detection
+2. **Selector issues** (25%) — element changed, selector too fragile, wrong scope
+3. **Environment/infra** (15%) — CI differences, auth, network
+4. **Test data** (10%) — state leakage, pollution from prior tests in serial blocks
+5. **Real app bugs** (5%) — actual application defect
+
+### Enhanced Artifact Catalog (ALL-051)
+
+Full fields available in `reports/failure-summary.json` per failure:
+
+| Field | What it contains | Use for |
+|-------|-----------------|---------|
+| `error` / `fullError` | Error message + stack trace | Initial classification |
+| `failureCategory` | AUTO: AUTH/NETWORK/SELECTOR/TIMING/APPLICATION/DATA/INFRASTRUCTURE/UNKNOWN | Starting point (may be wrong — ALL-047) |
+| `selector` | Extracted selector that failed | Selector drift check |
+| `lastActions` | Last 5 Playwright steps before failure | Sequence reconstruction |
+| `consoleErrors` | Browser console errors + warnings with location | JS errors, app-level errors |
+| `networkFailures` | HTTP 4xx/5xx responses + failed requests (2KB body) | API/backend issues |
+| `pageErrors` | Uncaught JS exceptions | Runtime crashes |
+| `domSnippet` | First 50KB of page DOM at failure | Element existence check |
+| `urlBreadcrumbs` | Navigation history with timestamps | Route/redirect issues |
+| `authChain` | OAuth/SSO response chain | Auth flow failures |
+| `screenshotPath` | Full-page screenshot at failure | Visual state verification |
+| `tracePath` | Playwright trace .zip (timeline + DOM + network + console) | Deep investigation |
+| `duration` | Test execution time | Timeout analysis |
+| `retryAttempt` | Which retry this was | Flakiness signal |
+
+Per-spec diagnostics in `reports/diagnostics/*.diagnostics.json`: full console log, network failure list, auth chain details.
+
+### Beforeunload Dialog Defense (ALL-052)
+
+When using MCP browser on pages with unsaved edits (dirty form state), the browser fires a `beforeunload` dialog ("Leave site?") on navigation/reload. This blocks the agent.
+
+**NEVER** call `browser_evaluate(() => window.location.reload())` — it triggers beforeunload which the agent cannot dismiss inline.
+
+**Safe navigation pattern (ALL-052):**
+1. `browser_navigate("about:blank")` — triggers beforeunload on the dirty page
+2. If beforeunload dialog fires → `browser_handle_dialog(accept: true)` to leave
+3. `browser_navigate(targetUrl)` — clean fresh load of the target page
+4. `browser_wait_for(time: 5)` — wait for page load
+
+**If stuck on beforeunload:** Call `browser_handle_dialog(accept: true)` immediately, then re-navigate.
+
+This applies to ALL agents during MCP exploration. The Encore website fires beforeunload whenever form edits are made without clicking Save.
+
 ---
 
 ## §13. Pre-Flight Competency Gate
@@ -394,3 +547,74 @@ Applies to ALL agents during exploration, code writing, selector discovery, or a
 | Spec-level pattern already exists | Existing specs for same setup/assertion | `tests/specs/**/*.spec.ts` | Before writing beforeEach or repeated assertions | `grep -r "navigateTo.*Tab" tests/specs/` |
 
 **NOTE**: `agent-learnings.md` is an empty stub — all learnings merged into agent-mistakes.md Resolution column. Do NOT reference it as primary source.
+
+---
+
+## §15. Escalation Routing by File Ownership
+
+When finding a mistake in another agent's owned files, create an escalation entry with the correct `pendingFor` agent:
+
+| Mistake Found In | Owner (pendingFor) | Category |
+|-----------------|-------------------|----------|
+| REQUIREMENTS.md wrong | requirements | wrong-requirement |
+| Test cases (specs_planning/test-cases/) | planner | stale-tc |
+| Test plan (specs_planning/test-plans/) | planner | stale-tc |
+| Selectors wrong in index.ts | planner (if new) or healer (if fix) | wrong-selector |
+| Spec file (.spec.ts) logic wrong | generator | logic-error |
+| Page object method wrong | generator (if new) or healer (if fix) | logic-error |
+| MCP_VERIFICATION_LOG outdated | planner | outdated-artifact |
+| Agent rules wrong | audit | logic-error |
+| Framework code (base-page, utils) | maintainer | logic-error |
+
+Rule: ALWAYS escalate to the agent who OWNS the file, not the one who last touched it.
+
+---
+
+## §14. Autonomy & Efficiency (ALL-054..055)
+
+### Autonomy Mode (ALL-AGENTS)
+
+When running in pipeline mode (invoked by orchestrator, not manual Copilot chat):
+- Do NOT wait for user approval at any phase boundary
+- Do NOT present findings and pause — log them and continue
+- Do NOT ask "should I proceed?" — always proceed to next phase
+- Complete your FULL workflow end-to-end without stopping
+- Only stop when: (a) task fully complete, or (b) HARD STOP error condition
+- No one is watching. Pausing = pipeline timeout = wasted money.
+- Never ask for tool permissions — execute all tools directly.
+
+### Self-Audit Evidence (ALL-054)
+
+Every self-audit claim MUST cite the actual value, not just pass/fail:
+- ❌ "TC count matches" → ✅ "TC count: 15 in header, 15 actual (TC-001..TC-015)"
+- ❌ "Selectors verified" → ✅ "Selectors: 10 in legal.ts, all 10 in index.ts, 0 collisions"
+- ❌ "Lint passes" → ✅ "Lint: 0 errors, 2 pre-existing warnings (notes, currency)"
+
+Uncited claims = unverified = will be flagged by Audit.
+
+### Learning Debt Resolution (ALL-055)
+
+If `learningDebt > 0` in your agent-performance.json entry, you MUST resolve it before queue unlock:
+1. Write learnings to agent-mistakes.md
+2. Run `npm run sync:mistakes && npm run build:context`
+3. Verify learningDebt = 0
+4. Only THEN set stage to complete
+
+---
+
+### Mistake Detection Triggers (ALL-056)
+
+Any time one of these 6 triggers fires, the agent MUST immediately log an entry to `specs_planning/_internal/agent-mistakes.md`. This is BLOCKING — stop current work, log, then resume.
+
+| # | Trigger | What to Log |
+|---|---------|-------------|
+| 1 | **User corrects you** | What was wrong, what the user said, the correction applied |
+| 2 | **Retry was needed** (first attempt failed) | What failed, why it failed, what fixed it |
+| 3 | **Unexpected state encountered** | What was expected vs. what was actually found |
+| 4 | **Output doesn't match evidence** | What you claimed vs. what the code/page actually shows |
+| 5 | **Command errors out** | The command, the error message, the resolution |
+| 6 | **Approach changed mid-task** | Original approach, why it was abandoned, new approach taken |
+
+**Format**: `| R-[next] | [trigger #] — [one-line rule] | LRN: [what happened, resolution] |`
+
+**Why these 6 and not more**: These are the exact moments where the agent's mental model diverged from reality. Capturing them builds the mistake registry that `/compile-learnings` graduates into permanent rules. Without explicit triggers, agents under-report and the learning loop stalls.

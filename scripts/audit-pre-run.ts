@@ -118,6 +118,11 @@ function main(): void {
     console.log('[OK] Performance data available for trust-level checks');
   }
 
+  // PF-ESC: Check pending escalations assigned to audit (ALL-036)
+  const { checkPendingEscalations } = require('./validation-gates');
+  const escMessages: string[] = checkPendingEscalations('audit');
+  for (const msg of escMessages) console.warn(msg);
+
   // Result
   console.log('\n' + '='.repeat(60));
   if (failed) {

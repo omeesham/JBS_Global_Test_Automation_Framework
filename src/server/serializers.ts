@@ -46,6 +46,7 @@ function normalizeStageStatus(status: string): string {
 export function serializePipelineRun(run: PipelineRun) {
   return {
     id: run.id,
+    clientId: run.client_id || null,
     feature: run.feature,
     module: run.module,
     intent: run.intent,
@@ -93,7 +94,7 @@ export function serializeArtifact(artifact: Artifact) {
     id: artifact.id,
     runId: artifact.run_id,
     name: artifact.name,
-    type: artifact.type,
+    artifactType: artifact.type,
     content: artifact.content,
     metadata: artifact.metadata,
     createdAt: artifact.created_at,

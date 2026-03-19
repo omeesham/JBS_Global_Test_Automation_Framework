@@ -22,6 +22,10 @@ export interface StageDefinition {
     condition: string;
     rules: Array<{ when: string; then: string }>;
   };
+  mcpConfig?: string;
+  approvalMode?: 'auto' | 'manual';
+  allowedTools?: string[];
+  effort?: 'low' | 'medium' | 'high' | 'max';
   preRunGate: string;
   postCompleteGate: string;
   description: string;
@@ -61,7 +65,7 @@ export interface PipelineDefinition {
 
 // ── Pipeline Run (DB row shape) ──
 
-export type PipelineRunStatus = 'queued' | 'running' | 'completed' | 'fixme' | 'cancelled' | 'error';
+export type PipelineRunStatus = 'queued' | 'running' | 'completed' | 'fixme' | 'cancelled' | 'error' | 'awaiting_triage' | 'awaiting_approval';
 
 export interface PipelineRun {
   id: string;
@@ -141,9 +145,13 @@ export type SSEEvent =
   | { type: 'retry'; runId: string; stage: string; attempt: number; maxAttempts: number; reason: string; timestamp: string; visibility?: SSEVisibility }
   | { type: 'error'; runId: string; message: string; timestamp: string; visibility?: SSEVisibility }
   | { type: 'worker_status'; connected: boolean; timestamp: string; visibility?: SSEVisibility }
-  | { type: 'agent_progress'; runId: string; stage: string; message: string; timestamp: string; visibility?: SSEVisibility };
+  | { type: 'agent_progress'; runId: string; stage: string; message: string; timestamp: string; visibility?: SSEVisibility }
+  | { type: 'triage_required'; runId: string; triageReportPath: string; failureCount: number; timestamp: string; visibility?: SSEVisibility }
+  | { type: 'approval_required'; runId: string; stage: string; artifactCount: number; timestamp: string; visibility?: SSEVisibility };
 
 // ── API Request/Response Types ──
+
+export type ExecutionMode = 'full-auto' | 'approve-per-stage' | 'dry-run';
 
 export interface CreatePipelineRequest {
   feature: string;
@@ -153,6 +161,8 @@ export interface CreatePipelineRequest {
   targetUrl?: string;
   clientId?: string;
   dryRun?: boolean;
+  startStage?: string;
+  executionMode?: ExecutionMode;
 }
 
 export interface CreatePipelineResponse {

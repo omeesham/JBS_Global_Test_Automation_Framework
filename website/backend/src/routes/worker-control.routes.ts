@@ -24,6 +24,8 @@ async function proxyToEncore(encorePath: string, method: 'GET' | 'POST', res: Re
     const resp = await fetch(`${ENCORE_URL}${encorePath}`, {
       method,
       headers: encoreHeaders,
+      // Fastify requires a body when content-type is application/json
+      ...(method === 'POST' ? { body: '{}' } : {}),
     });
     const data = await resp.json();
     res.status(resp.status).json(data);
@@ -38,9 +40,8 @@ router.get('/status', async (_req: Request, res: Response) => {
   await proxyToEncore('/api/admin/worker-status', 'GET', res);
 });
 
-/* POST /start — super_admin only */
-router.post('/start', async (req: Request, res: Response) => {
-  if (!requireSuperAdmin(req, res)) return;
+/* POST /start — any authenticated user (starting is non-destructive & idempotent) */
+router.post('/start', async (_req: Request, res: Response) => {
   await proxyToEncore('/api/admin/worker/start', 'POST', res);
 });
 

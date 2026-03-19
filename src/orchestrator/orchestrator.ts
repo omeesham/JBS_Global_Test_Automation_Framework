@@ -13,6 +13,7 @@ import {
   getPipelineRun,
   createWorkerTask,
   getStageResults,
+  getClientPipelineDefinition,
 } from '../server/db/queries';
 
 // Event callback — set by server to avoid circular dependency (orchestrator → events)
@@ -77,18 +78,55 @@ export function savePipelineDefinition(definition: PipelineDefinition): void {
   lastLoadTime = Date.now();
 }
 
+// ── Per-Client Pipeline Definition Loading (DB + file fallback) ──
+
+/** Per-client cache: clientId → { definition, timestamp } */
+const clientDefCache = new Map<string, { def: PipelineDefinition; ts: number }>();
+
+/**
+ * Load pipeline definition for a specific client.
+ * Tries DB first (per-client → default row), falls back to file.
+ */
+export async function loadPipelineDefinitionForClient(
+  pool: Pool,
+  clientId?: string | null,
+): Promise<PipelineDefinition> {
+  const cacheKey = clientId || '__default__';
+  const now = Date.now();
+  const cached = clientDefCache.get(cacheKey);
+  if (cached && process.env.NODE_ENV === 'production' && now - cached.ts < 5000) {
+    return cached.def;
+  }
+
+  try {
+    const result = await getClientPipelineDefinition(pool, clientId);
+    if (result) {
+      const def = result.definition as unknown as PipelineDefinition;
+      clientDefCache.set(cacheKey, { def, ts: now });
+      return def;
+    }
+  } catch {
+    // DB error — fall back to file
+  }
+
+  // Fallback to file-based
+  return loadPipelineDefinition();
+}
+
 // ── Stage Routing ──
 
-export function getStageDefinition(stageId: string): StageDefinition | undefined {
-  return loadPipelineDefinition().stages.find(s => s.id === stageId);
+export function getStageDefinition(stageId: string, definition?: PipelineDefinition): StageDefinition | undefined {
+  const def = definition || loadPipelineDefinition();
+  return def.stages.find(s => s.id === stageId);
 }
 
 export function getNextStageId(
   stageId: string,
-  outcome: string
+  outcome: string,
+  definition?: PipelineDefinition,
 ): string | null {
-  const definition = loadPipelineDefinition();
-  const stage = definition.stages.find(s => s.id === stageId);
+  const def = definition || loadPipelineDefinition();
+  const stage = def.stages.find(s => s.id === stageId);
   if (!stage) return null;
 
   // Check routing rules first (for conditional routing like test results)
@@ -105,11 +143,25 @@ export function getNextStageId(
 }
 
 function matchRoutingCondition(when: string, outcome: string): boolean {
-  // Simple condition matching for MVP
-  // "failedCount == 0" matches outcome "tests_pass" or "success"
-  // "failedCount > 0" matches outcome "tests_fail" or "fail"
+  // Binary pass/fail matching
   if (when.includes('== 0') && (outcome === 'tests_pass' || outcome === 'success')) return true;
   if (when.includes('> 0') && (outcome === 'tests_fail' || outcome === 'fail')) return true;
+
+  // Failure class matching: "failureClass == selector_not_found" matches "fail:selector_not_found"
+  const classMatch = when.match(/failureClass\s*==\s*(\w+)/);
+  if (classMatch && outcome === `fail:${classMatch[1]}`) return true;
+
+  // Failure class set matching: "failureClass in selector_not_found,selector_ambiguous"
+  const inMatch = when.match(/failureClass\s+in\s+(\S+)/);
+  if (inMatch) {
+    const classes = inMatch[1]!.split(',');
+    const outcomeClass = outcome.replace('fail:', '');
+    if (classes.includes(outcomeClass)) return true;
+  }
+
+  // Catch-all fail (matches any fail:* outcome too)
+  if (when === 'fail' && outcome.startsWith('fail')) return true;
+
   return false;
 }
 
@@ -125,8 +177,8 @@ async function checkConvergence(
   pool: Pool,
   runId: string,
   stageId: string,
+  definition: PipelineDefinition,
 ): Promise<ConvergenceResult> {
-  const definition = loadPipelineDefinition();
   const guards = definition.convergenceGuards;
 
   if (!guards.enabled) {
@@ -238,10 +290,12 @@ export async function processStageCompletion(
     return;
   }
 
-  const definition = loadPipelineDefinition();
+  // Load per-client definition (DB-first, file fallback)
+  const run0 = await getPipelineRun(pool, runId);
+  const definition = await loadPipelineDefinitionForClient(pool, run0?.client_id);
 
   // Check convergence guards
-  const guard = await checkConvergence(pool, runId, stageId);
+  const guard = await checkConvergence(pool, runId, stageId, definition);
   if (guard.triggered) {
     await updatePipelineRun(pool, runId, { status: 'fixme', stage: 'fixme' });
     const run = await getPipelineRun(pool, runId);
@@ -264,7 +318,7 @@ export async function processStageCompletion(
   }
 
   // Determine next stage
-  let nextStageId = getNextStageId(stageId, outcome);
+  let nextStageId = getNextStageId(stageId, outcome, definition);
 
   // Dry run: force linear routing through ALL stages (including healing)
   const isDryRun = resultData?.dryRun === true;
@@ -274,6 +328,37 @@ export async function processStageCompletion(
     nextStageId = currentIdx >= 0 && currentIdx < DRY_RUN_ORDER.length - 1
       ? DRY_RUN_ORDER[currentIdx + 1]!
       : 'completed';
+  }
+
+  // Triage pause: when audit completes, check for triage report on disk
+  if (stageId === 'audit' && !isDryRun) {
+    // Check resultData first, then fall back to reading triage report from disk
+    let triageReport = resultData?.triageReport as { totalFailures?: number } | undefined;
+
+    if (!triageReport) {
+      // Audit agent writes triage report to disk — read it if present
+      const triageReportPath = path.join(__dirname, '../../reports/triage-report.json');
+      try {
+        if (fs.existsSync(triageReportPath)) {
+          triageReport = JSON.parse(fs.readFileSync(triageReportPath, 'utf-8'));
+        }
+      } catch {
+        // File missing or malformed — skip triage
+      }
+    }
+
+    if (triageReport?.totalFailures && triageReport.totalFailures > 0) {
+      await updatePipelineRun(pool, runId, { status: 'awaiting_triage' as any, stage: 'triage' });
+      emitEvent(runId, {
+        type: 'triage_required',
+        runId,
+        triageReportPath: `reports/triage-report.json`,
+        failureCount: triageReport.totalFailures,
+        timestamp: new Date().toISOString(),
+        visibility: 'public',
+      });
+      return; // Pipeline paused — user must make decisions on dashboard
+    }
   }
 
   // Terminal state
@@ -314,6 +399,60 @@ export async function processStageCompletion(
   const run = await getPipelineRun(pool, runId);
   if (!run) return;
 
+  // Validate upstream artifacts BEFORE approval gate — don't let users approve broken state
+  const { validateUpstreamArtifacts } = await import('./artifact-validator');
+  const validationCtx = {
+    feature: run.feature,
+    module: run.module,
+    intent: run.intent,
+    targetUrl: run.target_url,
+  };
+  const validation = validateUpstreamArtifacts(nextStageId, validationCtx);
+  if (!validation.valid) {
+    console.error(`[Orchestrator] Upstream artifacts missing for ${nextStageId}:`, validation.missing);
+    emitEvent(runId, {
+      type: 'error',
+      runId,
+      message: `Stage "${nextStageId}" blocked: missing upstream artifacts. Missing: ${validation.missing.join(', ')}`,
+      timestamp: new Date().toISOString(),
+      visibility: 'admin',
+    });
+    await updatePipelineRun(pool, runId, { status: 'error', stage: stageId });
+    return;
+  }
+
+  // Approval gate: check both stage config AND per-run executionMode override.
+  // executionMode='approve-per-stage' is stored in the worker task context and
+  // propagated through resultData. If present, treat ALL stages as manual.
+  const isApprovePerStage = resultData?.executionMode === 'approve-per-stage';
+  const needsApproval = (nextStage.approvalMode === 'manual' || isApprovePerStage) && !isDryRun;
+  if (needsApproval) {
+    await updatePipelineRun(pool, runId, { status: 'awaiting_approval' as any, stage: stageId });
+    emitEvent(runId, {
+      type: 'approval_required',
+      runId,
+      stage: stageId,
+      artifactCount: 0, // Caller can look up artifacts from API
+      timestamp: new Date().toISOString(),
+      visibility: 'public',
+    });
+    return; // Pipeline paused — user must approve artifacts on dashboard
+  }
+
+  // Run pre-run gate if defined
+  if (nextStage.preRunGate) {
+    try {
+      const { runGate } = await import('./gate-runner');
+      const gateResult = runGate(nextStage.preRunGate);
+      if (!gateResult.passed) {
+        console.warn(`[Orchestrator] Pre-run gate warning for ${nextStageId}: ${gateResult.output.slice(0, 200)}`);
+        // Log but don't block — gate scripts may expect queue-item-id which isn't available in autonomous mode
+      }
+    } catch {
+      // Gate execution is best-effort in autonomous pipeline
+    }
+  }
+
   const prompt = buildStagePrompt(nextStage, run, resultData);
 
   // Create worker task for next stage (pass client_id for client-aware task routing)
@@ -326,6 +465,7 @@ export async function processStageCompletion(
     previousOutcome: outcome,
     previousResult: resultData,
     ...(isDryRun ? { dryRun: true } : {}),
+    ...(resultData?.executionMode ? { executionMode: resultData.executionMode } : {}),
   }, run.client_id);
 
   await updatePipelineRun(pool, runId, { stage: nextStageId, status: 'queued' });
@@ -371,6 +511,17 @@ function buildStagePrompt(
 
   if (previousResult) {
     parts.push('', '--- Previous Stage Result ---', JSON.stringify(previousResult, null, 2));
+
+    // Upstream fix context: when routed back due to failure classification
+    if (previousResult._upstreamBlame && previousResult._failureClass) {
+      parts.push('');
+      parts.push('--- UPSTREAM FIX REQUIRED ---');
+      parts.push('A downstream agent failed because of issues in YOUR output.');
+      parts.push(`Failure type: ${previousResult._failureClass}`);
+      parts.push(`Evidence: ${previousResult._failureEvidence || 'See previous result'}`);
+      parts.push('');
+      parts.push('Fix the issue described above. Do not redo all work -- only fix what caused the downstream failure.');
+    }
   }
 
   parts.push('', stage.description);

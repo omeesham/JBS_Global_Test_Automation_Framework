@@ -8,7 +8,7 @@
 2. **DRILL** into the source file (File column) for full selector string + context
 3. **NOT FOUND?** -> discover via MCP browser, add selector WITH annotation, regenerate catalog
 
-## Static Selectors (122)
+## Static Selectors (188)
 
 | Key | Type | Where | Text | Keywords | File |
 |-----|------|-------|------|----------|------|
@@ -22,6 +22,35 @@
 | btnNoStaySignedIn | button | Microsoft Login > Stay Signed In | No | stay-signed-in decline no | login.ts |
 | btnYesStaySignedIn | button | Microsoft Login > Stay Signed In | Yes | stay-signed-in remember yes | login.ts |
 | btnContinueNow | button | Navigator Cloud Sign-In | Continue Now | continue-now pre-sso sign-in navigator-cloud | login.ts |
+| btnSaveAccountAddress | button | Setup > Location > Account and Address | Save | save submit left-panel | locations/account-address.ts |
+| pnlAccountAndAddress | tabpanel | Setup > Location > Account and Address | Account and Address content | tabpanel content container | locations/account-address.ts |
+| btnAccMasterAddress | button | Setup > Location > Account and Address > Master | Address | master address open select-address dialog second | locations/account-address.ts |
+| btnAccName | button | Setup > Location > Account and Address > Venue | Name | venue name open account-list dialog | locations/account-address.ts |
+| btnAccVenueAddress | button | Setup > Location > Account and Address > Venue | Address | venue address open select-address dialog first | locations/account-address.ts |
+| txtAccPhone1 | input | Setup > Location > Account and Address > Venue | Phone 1 | phone1 contact required editable | locations/account-address.ts |
+| txtAccPhone2 | input | Setup > Location > Account and Address > Venue | Phone 2 | phone2 contact optional editable | locations/account-address.ts |
+| txtAccVenueName | input | Setup > Location > Account and Address > Venue | Venue Name | venue name disabled read-only | locations/account-address.ts |
+| btnAccListCancel | button | Setup > Location > Account List Dialog | Cancel | cancel close dismiss | locations/account-address.ts |
+| btnAccListClose | button | Setup > Location > Account List Dialog | Close | close x dismiss dialog | locations/account-address.ts |
+| btnAccListReset | button | Setup > Location > Account List Dialog | Reset | reset clear filters | locations/account-address.ts |
+| btnAccListSearch | button | Setup > Location > Account List Dialog | Search | search submit filter | locations/account-address.ts |
+| btnAccListSelect | button | Setup > Location > Account List Dialog | Select | select confirm row choose | locations/account-address.ts |
+| chkAccListRowSelect | checkbox | Setup > Location > Account List Dialog | Row Select | row selection checkbox first | locations/account-address.ts |
+| dlgAccountList | dialog | Setup > Location > Account List Dialog | Account List | account list search dialog modal | locations/account-address.ts |
+| drpAccListCountry | combobox | Setup > Location > Account List Dialog | Country | filter country dropdown | locations/account-address.ts |
+| drpAccListState | combobox | Setup > Location > Account List Dialog | State | filter state dropdown | locations/account-address.ts |
+| tblAccListResults | table | Setup > Location > Account List Dialog | Results | results grid table rows | locations/account-address.ts |
+| txtAccListAccountName | input | Setup > Location > Account List Dialog | Account Name | filter account-name search | locations/account-address.ts |
+| txtAccListAccountNumber | input | Setup > Location > Account List Dialog | Account Number | filter account-number search | locations/account-address.ts |
+| txtAccListAddress | input | Setup > Location > Account List Dialog | Address | filter address search | locations/account-address.ts |
+| txtAccListCity | input | Setup > Location > Account List Dialog | City | filter city search | locations/account-address.ts |
+| btnDlgCancel | button | Setup > Location > Change Local Office dialog | Cancel | dialog cancel abort close | locations/shared-setup-locations.ts |
+| btnDlgClose | button | Setup > Location > Change Local Office dialog | Close | dialog close x dismiss | locations/shared-setup-locations.ts |
+| btnDlgSelect | button | Setup > Location > Change Local Office dialog | Select | dialog select confirm add | locations/shared-setup-locations.ts |
+| dlgChangeLocalOffice | dialog | Setup > Location > Change Local Office dialog | Change Local Office | dialog add location picker | locations/shared-setup-locations.ts |
+| dlgChangeLocalOfficeHeading | heading | Setup > Location > Change Local Office dialog | Change Local Office | dialog heading title | locations/shared-setup-locations.ts |
+| tblDlgResults | table | Setup > Location > Change Local Office dialog | Location results table | dialog table results list | locations/shared-setup-locations.ts |
+| txtDlgSearch | input | Setup > Location > Change Local Office dialog | Search by Location Name, Number | search input filter | locations/shared-setup-locations.ts |
 | btnSaveCurrency | button | Setup > Location > Currency tab | Save | save submit currency form | locations/currency.ts |
 | tblCurrencyGrid | table | Setup > Location > Currency tab | Currency Grid | currency grid table rows | locations/currency.ts |
 | txtNoMatchesFound | label | Setup > Location > Currency tab | No Matches Found | empty no-results listbox | locations/currency.ts |
@@ -42,11 +71,17 @@
 | dlgErrorDialog | dialog | Setup > Location > Error Dialog | Error | error alert dialog api popup | locations/shared.ts |
 | dlgErrorMessage | label | Setup > Location > Error Dialog | Error Message | error message body detail | locations/shared.ts |
 | btnSave | button | Setup > Location > Left Panel | Save | save submit left-panel form | locations/left-panel.ts |
+| btnSaveLegal | button | Setup > Location > Left Panel | Save | save submit form left-panel | locations/legal.ts |
+| btnSaveNotes | button | Setup > Location > Left Panel | Save | save submit form left-panel | locations/notes.ts |
 | chkECommerceActive | checkbox | Setup > Location > Left Panel | eCommerce Active | ecommerce online toggle | locations/left-panel.ts |
 | chkEnableProductionsOrders | checkbox | Setup > Location > Left Panel | Enable Productions Orders | production-orders toggle | locations/left-panel.ts |
 | txtLocalOffice | input | Setup > Location > Left Panel | Local Office | local-office code disabled read-only | locations/left-panel.ts |
 | txtOffice | input | Setup > Location > Left Panel | Office | office code disabled read-only | locations/left-panel.ts |
 | txtPayToAddress | input | Setup > Location > Left Panel | Pay To Address | pay-to address name billing | locations/left-panel.ts |
+| contentLegal | region | Setup > Location > Legal tab | Legal content | legal tab content panel wrapper | locations/legal.ts |
+| tblLegal | table | Setup > Location > Legal tab | Legal grid | legal table grid rows columns | locations/legal.ts |
+| drpLegalServiceCharge0 | combobox | Setup > Location > Legal tab > Row 0 | Service Charge Name | service charge dropdown select legal row0 | locations/legal.ts |
+| drpLegalTerms0 | combobox | Setup > Location > Legal tab > Row 0 | Terms and Conditions Name | terms conditions dropdown select legal row0 | locations/legal.ts |
 | btnEffectiveDate | datepicker | Setup > Location > Local Information tab | Effective Date | effective-date calendar popover | locations/local-info.ts |
 | btnSaveLocalInfo | button | Setup > Location > Local Information tab | Save | save submit local-info form | locations/local-info.ts |
 | chkAllowDPCD | checkbox | Setup > Location > Local Information tab | Allow DPCD | dpcd allow toggle | locations/local-info.ts |
@@ -107,6 +142,15 @@
 | spinThreshold | spinbutton | Setup > Location > Local Information tab | Threshold Amount | threshold amount spin number | locations/local-info.ts |
 | txtOracleDepartment | input | Setup > Location > Local Information tab | Oracle Department | oracle department dept text | locations/local-info.ts |
 | txtOracleProduct | input | Setup > Location > Local Information tab | Oracle Product | oracle product text | locations/local-info.ts |
+| barNotesProgress | progressbar | Setup > Location > Notes tab | character usage | progress bar char usage visual | locations/notes.ts |
+| btnNotesAdd | button | Setup > Location > Notes tab | Add | add note row button | locations/notes.ts |
+| contentNotes | region | Setup > Location > Notes tab | Notes content | notes tab content panel wrapper | locations/notes.ts |
+| lblNotesCharCounter | text | Setup > Location > Notes tab | N/4000 | character counter count chars remaining | locations/notes.ts |
+| sectionNotes | region | Setup > Location > Notes tab | Notes section | notes section wrapper container | locations/notes.ts |
+| tblNotes | table | Setup > Location > Notes tab | Notes table | notes table rows grid | locations/notes.ts |
+| txtNoteInputAll | textarea | Setup > Location > Notes tab > Any row | Type notes here... | note input textarea placeholder | locations/notes.ts |
+| lblNoNotesAvailable | cell | Setup > Location > Notes tab > Empty state | No Notes Available | empty no-notes available | locations/notes.ts |
+| btnNotesDelete | button | Setup > Location > Notes tab > Row | Delete | delete note row button | locations/notes.ts |
 | btnSavePricing | button | Setup > Location > Pricing tab | Save | save submit pricing form | locations/pricing.ts |
 | chkCorporatePricing | checkbox | Setup > Location > Pricing tab | Corporate Pricing | corporate pricing toggle | locations/pricing.ts |
 | chkPriceGuideInclusive | checkbox | Setup > Location > Pricing tab | Price Guide Inclusive | price-guide inclusive toggle | locations/pricing.ts |
@@ -127,10 +171,32 @@
 | btnSaveChangesCancel | button | Setup > Location > Save Changes Dialog | Cancel | save cancel abort dialog | locations/shared.ts |
 | btnSaveChangesConfirm | button | Setup > Location > Save Changes Dialog | Save | save confirm submit dialog | locations/shared.ts |
 | dlgSaveChanges | dialog | Setup > Location > Save Changes Dialog | Save Changes | save confirm dialog alert | locations/shared.ts |
+| txtSaveChangesMessage | paragraph | Setup > Location > Save Changes Dialog | Are you sure | save confirmation message text | locations/account-address.ts |
+| btnSaveChangesCancel | button | Setup > Location > Save dialog | Cancel | dialog cancel dismiss button | locations/notes.ts |
+| btnSaveChangesConfirm | button | Setup > Location > Save dialog | Save | dialog save confirm button | locations/notes.ts |
+| dlgSaveChanges | dialog | Setup > Location > Save dialog | Save Changes | save changes dialog confirm alert | locations/notes.ts |
+| btnAddrCancel | button | Setup > Location > Select Customer Address Dialog | Cancel | cancel close dismiss | locations/account-address.ts |
+| btnAddrClose | button | Setup > Location > Select Customer Address Dialog | Close | close x dismiss dialog | locations/account-address.ts |
+| btnAddrSave | button | Setup > Location > Select Customer Address Dialog | Save | save disabled always | locations/account-address.ts |
+| btnAddrSelect | button | Setup > Location > Select Customer Address Dialog | Select | select confirm address choose | locations/account-address.ts |
+| chkAddrRow | checkbox | Setup > Location > Select Customer Address Dialog | Row Select | row selection checkbox first | locations/account-address.ts |
+| dlgSelectAddress | dialog | Setup > Location > Select Customer Address Dialog | Select Customer Address | address select dialog modal | locations/account-address.ts |
+| lblAddrTotal | generic | Setup > Location > Select Customer Address Dialog | Total Addresses: | footer count total | locations/account-address.ts |
+| tblAddrResults | table | Setup > Location > Select Customer Address Dialog | Results | address grid table rows | locations/account-address.ts |
+| txtAddrSearch | input | Setup > Location > Select Customer Address Dialog | Search... | search filter address client-side | locations/account-address.ts |
+| btnSharedAdd | button | Setup > Location > Shared Setup Locations tab | Add | add shared location button | locations/shared-setup-locations.ts |
+| tblSharedSetupLocations | table | Setup > Location > Shared Setup Locations tab | Shared setup locations grid | table grid shared locations | locations/shared-setup-locations.ts |
+| btnSelfDelete | button | Setup > Location > Shared Setup Locations tab > self-row | Delete | delete self disabled button | locations/shared-setup-locations.ts |
+| chkSelfPrimaryOffice | checkbox | Setup > Location > Shared Setup Locations tab > self-row | Primary Office | primary office self checked disabled | locations/shared-setup-locations.ts |
+| chkSelfSharesInventory | checkbox | Setup > Location > Shared Setup Locations tab > self-row | Shares Inventory | shares inventory self editable toggle | locations/shared-setup-locations.ts |
+| tabAccountAndAddress | tab | Setup > Location > Tabs | Account and Address | tab account-address navigate | locations/account-address.ts |
 | tabBasicInformation | tab | Setup > Location > Tabs | Basic Information | tab basic-info navigate | locations/left-panel.ts |
 | tabCurrency | tab | Setup > Location > Tabs | Currency | tab currency navigate | locations/left-panel.ts |
+| tabLegal | tab | Setup > Location > Tabs | Legal | tab legal navigate settings | locations/legal.ts |
 | tabLocalInformation | tab | Setup > Location > Tabs | Local Information | tab local-info navigate settings | locations/left-panel.ts |
+| tabNotes | tab | Setup > Location > Tabs | Notes | tab notes navigate settings | locations/notes.ts |
 | tabPricing | tab | Setup > Location > Tabs | Pricing | tab pricing navigate | locations/left-panel.ts |
+| tabSharedSetupLocations | tab | Setup > Location > Tabs | Shared Setup Locations | tab shared setup locations navigate | locations/shared-setup-locations.ts |
 | btnUnsavedChangesCancel | button | Setup > Location > Unsaved Changes Dialog | Cancel | unsaved cancel stay abort | locations/shared.ts |
 | btnUnsavedChangesOk | button | Setup > Location > Unsaved Changes Dialog | OK | unsaved ok discard confirm | locations/shared.ts |
 | dlgUnsavedChanges | dialog | Setup > Location > Unsaved Changes Dialog | Any unsaved changes will be lost | unsaved discard popup warning navigate-away | locations/shared.ts |
@@ -157,4 +223,4 @@
 | lnkOfficeCode | link | Setup > Location Search > Results grid | {officeCode} | office-code location link navigate | officeCode -- office code (e.g., "1604") | dynamic.ts |
 
 ---
-*Generated: 2026-03-05T19:18:21.218Z | Total: 136 selectors (122 static + 14 dynamic)*
+*Generated: 2026-03-19T06:45:30.819Z | Total: 202 selectors (188 static + 14 dynamic)*

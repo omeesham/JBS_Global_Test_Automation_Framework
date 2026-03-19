@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { X, Play, FlaskConical } from 'lucide-react';
+import { X, Play, FlaskConical, Zap, ShieldCheck } from 'lucide-react';
 import { useClient } from '@/contexts/ClientContext';
 import { useWebsite } from '@/contexts/WebsiteContext';
 import { createPipelineRun } from '@/services/encoreApi';
 import { trackWebsiteRun } from '@/services/api';
+import type { ExecutionMode, PipelineDefinition } from '@/types';
 
 interface RunPipelineModalProps {
   open: boolean;
   onClose: () => void;
   onRunStarted: (runId: string) => void;
+  pipelineDefinition?: PipelineDefinition;
 }
 
-export default function RunPipelineModal({ open, onClose, onRunStarted }: RunPipelineModalProps) {
+export default function RunPipelineModal({ open, onClose, onRunStarted, pipelineDefinition }: RunPipelineModalProps) {
   const { client } = useClient();
   const { website, websites } = useWebsite();
 
@@ -21,7 +23,8 @@ export default function RunPipelineModal({ open, onClose, onRunStarted }: RunPip
   const [intent, setIntent] = useState('');
   const [targetUrl, setTargetUrl] = useState(website?.url || '');
   const [priority, setPriority] = useState('medium');
-  const [dryRun, setDryRun] = useState(false);
+  const [startStage, setStartStage] = useState('');
+  const [executionMode, setExecutionMode] = useState<ExecutionMode>('full-auto');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -49,7 +52,9 @@ export default function RunPipelineModal({ open, onClose, onRunStarted }: RunPip
         targetUrl: targetUrl.trim() || undefined,
         priority,
         clientId: client?.id,
-        dryRun,
+        dryRun: executionMode === 'dry-run',
+        startStage: startStage || undefined,
+        executionMode,
       });
 
       // Track website-run association
@@ -64,7 +69,7 @@ export default function RunPipelineModal({ open, onClose, onRunStarted }: RunPip
       setFeature('');
       setModule('');
       setIntent('');
-      setDryRun(false);
+      setExecutionMode('full-auto');
     } catch {
       setError('Failed to start pipeline. Is the backend running?');
     }
@@ -160,32 +165,73 @@ export default function RunPipelineModal({ open, onClose, onRunStarted }: RunPip
             />
           </div>
 
-          {/* Priority + Dry Run row */}
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
-              <label className="block text-xs font-medium text-[#1E1B4B] mb-1">Priority</label>
-              <select
-                value={priority}
-                onChange={e => setPriority(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-[#DDD6FE] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/30"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
+          {/* Start Stage */}
+          <div>
+            <label className="block text-xs font-medium text-[#1E1B4B] mb-1">Start at Stage</label>
+            <select
+              value={startStage}
+              onChange={e => setStartStage(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-[#DDD6FE] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/30"
+            >
+              <option value="">Auto-detect (recommended)</option>
+              {pipelineDefinition?.stages?.filter(s => s.enabled).map(s => (
+                <option key={s.id} value={s.id}>{s.name} — {s.description || s.id}</option>
+              )) || (
+                <>
+                  <option value="requirements">Requirements — explore UI from scratch</option>
+                  <option value="planning">Planning — create/refresh test cases</option>
+                  <option value="generation">Generation — generate specs from existing test cases</option>
+                  <option value="healing">Healing — fix failing tests</option>
+                  <option value="audit">Audit — audit existing specs</option>
+                </>
+              )}
+            </select>
+            <p className="text-[10px] text-[#9CA3AF] mt-1">Auto-detect scans existing artifacts to pick the right stage</p>
+          </div>
+
+          {/* Priority */}
+          <div>
+            <label className="block text-xs font-medium text-[#1E1B4B] mb-1">Priority</label>
+            <select
+              value={priority}
+              onChange={e => setPriority(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-[#DDD6FE] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/30"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+
+          {/* Execution Mode */}
+          <div>
+            <label className="block text-xs font-medium text-[#1E1B4B] mb-2">Execution Mode</label>
+            <div className="space-y-2">
+              <label className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-colors ${executionMode === 'full-auto' ? 'border-[#7C3AED] bg-[#F5F3FF]' : 'border-[#E5E7EB] hover:border-[#DDD6FE]'}`}>
+                <input type="radio" name="executionMode" value="full-auto" checked={executionMode === 'full-auto'} onChange={() => setExecutionMode('full-auto')} className="sr-only" />
+                <Zap className={`w-4 h-4 flex-shrink-0 ${executionMode === 'full-auto' ? 'text-[#7C3AED]' : 'text-[#9CA3AF]'}`} />
+                <div>
+                  <span className="text-xs font-medium text-[#1E1B4B]">Full Auto</span>
+                  <p className="text-[10px] text-[#6B7280]">Pipeline runs end-to-end without stopping</p>
+                </div>
+              </label>
+              <label className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-colors ${executionMode === 'approve-per-stage' ? 'border-[#7C3AED] bg-[#F5F3FF]' : 'border-[#E5E7EB] hover:border-[#DDD6FE]'}`}>
+                <input type="radio" name="executionMode" value="approve-per-stage" checked={executionMode === 'approve-per-stage'} onChange={() => setExecutionMode('approve-per-stage')} className="sr-only" />
+                <ShieldCheck className={`w-4 h-4 flex-shrink-0 ${executionMode === 'approve-per-stage' ? 'text-[#7C3AED]' : 'text-[#9CA3AF]'}`} />
+                <div>
+                  <span className="text-xs font-medium text-[#1E1B4B]">Approve Per Stage</span>
+                  <p className="text-[10px] text-[#6B7280]">Pauses between stages for your review</p>
+                </div>
+              </label>
+              <label className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-colors ${executionMode === 'dry-run' ? 'border-[#7C3AED] bg-[#F5F3FF]' : 'border-[#E5E7EB] hover:border-[#DDD6FE]'}`}>
+                <input type="radio" name="executionMode" value="dry-run" checked={executionMode === 'dry-run'} onChange={() => setExecutionMode('dry-run')} className="sr-only" />
+                <FlaskConical className={`w-4 h-4 flex-shrink-0 ${executionMode === 'dry-run' ? 'text-[#7C3AED]' : 'text-[#9CA3AF]'}`} />
+                <div>
+                  <span className="text-xs font-medium text-[#1E1B4B]">Dry Run</span>
+                  <p className="text-[10px] text-[#6B7280]">Validates config without executing agents</p>
+                </div>
+              </label>
             </div>
-            <label className="flex items-center gap-2 pb-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={dryRun}
-                onChange={e => setDryRun(e.target.checked)}
-                className="w-4 h-4 rounded border-[#DDD6FE] text-[#7C3AED] focus:ring-[#7C3AED]/30"
-              />
-              <span className="flex items-center gap-1 text-xs text-[#6B7280]">
-                <FlaskConical className="w-3 h-3" />
-                Dry Run
-              </span>
-            </label>
           </div>
 
           {/* Error */}

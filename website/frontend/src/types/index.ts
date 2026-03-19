@@ -119,8 +119,13 @@ export type PipelineStage =
   | 'testing'
   | 'pending_healing'
   | 'healing'
+  | 'triage'
+  | 'audit'
   | 'completed'
   | 'fixme';
+
+export type BugSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+export type BugStatus = 'open' | 'confirmed' | 'fixed' | 'wont_fix' | 'not_a_bug';
 
 export interface AgentInfo {
   id: string;
@@ -206,6 +211,8 @@ export interface SSEEvent {
   timestamp?: string;
 }
 
+export type ExecutionMode = 'full-auto' | 'approve-per-stage' | 'dry-run';
+
 export interface CreatePipelineRequest {
   feature: string;
   module: string;
@@ -214,6 +221,8 @@ export interface CreatePipelineRequest {
   targetUrl?: string;
   clientId?: string;
   dryRun?: boolean;
+  startStage?: string;
+  executionMode?: ExecutionMode;
 }
 
 export interface StageResult {
@@ -231,10 +240,12 @@ export interface Artifact {
   name: string;
   artifactType: string;
   runId: string;
+  content?: string | null;
 }
 
 export interface PipelineRun {
   id: string;
+  clientId?: string | null;
   feature: string;
   module: string;
   intent: string;
@@ -287,6 +298,7 @@ export interface StageDefinition {
   preRunGate: string;
   postCompleteGate: string;
   description: string;
+  approvalMode?: 'auto' | 'manual';
 }
 
 export interface ConvergenceGuardConfig {
@@ -319,4 +331,32 @@ export interface PipelineDefinition {
   stages: StageDefinition[];
   terminalStates: string[];
   convergenceGuards: ConvergenceGuardConfig;
+}
+
+// ── Plan 50: Agent Registry + Per-Client Pipeline ──
+
+export interface AgentType {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: 'core' | 'testing' | 'security' | 'data' | 'custom';
+  defaultModel: string;
+  agentFile: string;
+  capabilities: string[];
+  enabled: boolean;
+  sortOrder: number;
+}
+
+export interface PipelineDefinitionResponse {
+  definition: PipelineDefinition;
+  version: number;
+  isDefault: boolean;
+  clientId: string | null;
+}
+
+export interface PipelineValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
 }

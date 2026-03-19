@@ -1,5 +1,7 @@
-import { Activity, CheckCircle2, Target, DollarSign } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Activity, CheckCircle2, Target, DollarSign, Bug } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { fetchBugStats } from '@/services/bugApi';
 
 interface Props {
   usage: {
@@ -12,6 +14,11 @@ interface Props {
 export default function RunKPIBar({ usage }: Props) {
   const { user } = useAuth();
   const isAdmin = user?.role === 'super_admin' || user?.role === 'client_admin';
+  const [bugCount, setBugCount] = useState(0);
+
+  useEffect(() => {
+    fetchBugStats().then(s => setBugCount(s.totalOpen + s.totalConfirmed)).catch(() => {});
+  }, []);
 
   const passRate = usage && usage.totalRuns > 0
     ? Math.round((usage.completedRuns / usage.totalRuns) * 100)
@@ -21,11 +28,12 @@ export default function RunKPIBar({ usage }: Props) {
     { label: 'Total Runs', value: usage?.totalRuns ?? 0, icon: Activity, color: 'bg-[#EDE9FE] text-[#7C3AED]' },
     { label: 'Completed', value: usage?.completedRuns ?? 0, icon: CheckCircle2, color: 'bg-emerald-50 text-emerald-600' },
     { label: 'Pass Rate', value: `${passRate}%`, icon: Target, color: 'bg-[#F5F3FF] text-[#6366F1]' },
+    { label: 'Bugs Found', value: bugCount, icon: Bug, color: 'bg-red-50 text-red-600' },
     ...(isAdmin ? [{ label: 'Total Cost', value: `$${(usage?.totalCost ?? 0).toFixed(2)}`, icon: DollarSign, color: 'bg-amber-50 text-amber-600' }] : []),
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
       {cards.map((card) => (
         <div
           key={card.label}

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ClientProvider } from '@/contexts/ClientContext';
 import { WebsiteProvider } from '@/contexts/WebsiteContext';
+import { ActivePipelineProvider } from '@/contexts/ActivePipelineContext';
 import Layout from '@/components/layout/Layout';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/LoginPage';
@@ -53,7 +54,9 @@ export default function App() {
       <AuthProvider>
         <ClientProvider>
           <WebsiteProvider>
-            <AppRoutes />
+            <ActivePipelineProvider>
+              <AppRoutes />
+            </ActivePipelineProvider>
           </WebsiteProvider>
         </ClientProvider>
       </AuthProvider>

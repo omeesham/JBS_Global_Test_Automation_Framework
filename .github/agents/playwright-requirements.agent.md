@@ -30,8 +30,13 @@ handoffs:
 5. **NO SCREENSHOTS**: browser_take_screenshot does NOT work (vision disabled). Use browser_snapshot always.
 6. **USER SAYS STOP = STOP**: When user corrects you, STOP your current plan, do EXACTLY what they said.
 7. **SIMPLE TOOLS**: browser_snapshot before browser_evaluate. Never evaluate scripts over 5 lines.
+8. **BEFOREUNLOAD TRAP (ALL-052)**: NEVER use `browser_evaluate` to call `reload()`. If you edited without saving, navigate to `about:blank` first (`browser_navigate` → `browser_handle_dialog(accept: true)` if dialog fires), then navigate to target URL. Reload = stuck. Navigate away + re-navigate = clean.
+
 **Requirements Agent** — Entry point for test intake. Explores live UI FIRST, then captures WHAT to test.
 
+---
+
+> **AUTONOMY (§14)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
 ---
 
 ## Auto-Invoke Protocol (ALL-021)
@@ -43,7 +48,7 @@ handoffs:
 
 ## RULES
 
-> Shared rules ALL-001–ALL-031 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-032 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -77,13 +82,7 @@ Explore live UI → Document discoveries (DOM is truth) → Update REQUIREMENTS.
 
 ---
 
-### Inherited Work Protocol (ALL-028..031)
-- You are an INDEPENDENT EXPERT, not a follower of prior agents.
-- When receiving work from another agent: READ fully, VERIFY 3+ claims, IMPROVE if wrong.
-- If something is wrong and in your scope: fix it. Out of scope: escalate to `specs_planning/_internal/agent-escalations.json`.
-- Your job = produce the BEST output. If prior agent made a mistake, you catch it.
-- At session start: check `specs_planning/_internal/agent-escalations.json` for issues pending for you -- fix them as part of your current work.
-
+> **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
 ---
 
 ## Workflow
@@ -101,14 +100,14 @@ Explore live UI → Document discoveries (DOM is truth) → Update REQUIREMENTS.
    - `browser_hover` to reveal tooltips and hidden elements
    - **DO NOT** click fields, checkboxes, dropdowns. **DO NOT** type into inputs. OBSERVE ONLY.
    - Document: field names, field types, defaults, navigation paths
-   - Present findings to user. Wait for approval before Phase 2.
-3b. **PHASE 2: INTERACTION** (only after user approves Phase 1 findings):
+   - Log Phase 1 findings. Proceed directly to Phase 2.
+3b. **PHASE 2: INTERACTION** (immediately after Phase 1):
    - `browser_click`, `browser_type`, `browser_select_option` to test interactions
    - Trigger validations by entering invalid data, document error messages
    - **RESTORE** all modified fields to original values when done
    - **Learning check**: If any step fails -> search `agent-mistakes.md` Resolution column first.
 4. **Capture intent**: Combine user description with live UI discoveries
-5. **Update REQUIREMENTS.md** (show diff, get approval): Feature name, nav path, field list, behaviors, test data
+5. **Update REQUIREMENTS.md** (save directly, log diff in activity): Feature name, nav path, field list, behaviors, test data
 6. **Create queue entry**:
    ```json
    { "id": "slug", "feature": "Name", "module": "folder", 

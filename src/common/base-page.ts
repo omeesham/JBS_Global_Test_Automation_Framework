@@ -291,13 +291,23 @@ export class BasePage {
     dialogKey: string = 'dlgSaveChanges',
     confirmBtnKey: string = 'btnSaveChangesConfirm',
     dialogTimeout: number = 5_000,
-  ): Promise<void> {
+  ): Promise<{ success: boolean; networkError?: string }> {
     const saveBtn = this.getElement(saveBtnKey);
     await saveBtn.waitFor({ state: 'visible', timeout: 5_000 });
     if (await saveBtn.isDisabled()) {
       Log.info(`Save button disabled (${saveBtnKey}) -- skipping click`);
-      return;
+      return { success: true };
     }
+
+    // Capture network responses during save to detect silent API failures
+    const networkErrors: string[] = [];
+    const responseHandler = (response: { status(): number; url(): string }) => {
+      if (response.status() >= 400) {
+        networkErrors.push(`${response.status()} ${response.url()}`);
+      }
+    };
+    this.page.on('response', responseHandler);
+
     await saveBtn.click();
     const dialog = this.getElement(dialogKey);
     const dialogVisible = await dialog.waitFor({ state: 'visible', timeout: dialogTimeout })
@@ -305,10 +315,25 @@ export class BasePage {
     if (dialogVisible) {
       Log.info(`Save confirmation dialog appeared -- confirming`);
       await this.getElement(confirmBtnKey).click();
-      await dialog.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
+      await dialog.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {
+        Log.warn(`Save dialog did not close within 10s`);
+      });
     }
-    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {
+      Log.warn(`Network did not reach idle within 15s after save`);
+    });
+
+    // Remove listener
+    this.page.off('response', responseHandler);
+
+    // Check for API errors
+    if (networkErrors.length > 0) {
+      Log.error(`[FAIL] Save had API errors: ${networkErrors.join(', ')}`);
+      return { success: false, networkError: networkErrors.join('; ') };
+    }
+
     Log.info(`[OK] Save complete (${saveBtnKey})`);
+    return { success: true };
   }
 
   /**

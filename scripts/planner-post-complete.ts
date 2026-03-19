@@ -231,7 +231,12 @@ function processQueueItem(item: QueueItem, queue: QueueFile): boolean {
   if (midWorkWarning) {
     console.warn(`  [WARN]  ${midWorkWarning}`);
   }
-  
+
+  // POST-ESC: Check if escalations assigned to planner are still open (ALL-036)
+  const { checkUnresolvedEscalations } = require('./validation-gates');
+  const escWarnings: string[] = checkUnresolvedEscalations('planner');
+  for (const w of escWarnings) console.warn(`  [WARN]  ${w}`);
+
   // Check for test case file
   if (!item.artifacts?.testCaseFile) {
     console.log(`  [skip]  Skipping: No testCaseFile in artifacts`);

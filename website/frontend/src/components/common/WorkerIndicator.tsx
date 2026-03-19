@@ -62,40 +62,44 @@ export default function WorkerIndicator({
         )}
       </div>
 
-      {/* Control buttons (super_admin only) */}
-      {isSuperAdmin && (
+      {/* Start button — any user can start when disconnected */}
+      {!connected && onStart && (
+        <div className="inline-flex items-center gap-1">
+          {actionLoading ? (
+            <Loader2 className="w-4 h-4 text-[#6B7280] animate-spin" />
+          ) : (
+            <button
+              onClick={onStart}
+              title="Start worker"
+              className="p-1 rounded hover:bg-emerald-100 text-emerald-600 transition-colors"
+            >
+              <Play className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Stop/Restart — super_admin only */}
+      {connected && isSuperAdmin && (
         <div className="inline-flex items-center gap-1">
           {actionLoading ? (
             <Loader2 className="w-4 h-4 text-[#6B7280] animate-spin" />
           ) : (
             <>
-              {!connected && (
-                <button
-                  onClick={onStart}
-                  title="Start worker"
-                  className="p-1 rounded hover:bg-emerald-100 text-emerald-600 transition-colors"
-                >
-                  <Play className="w-3.5 h-3.5" />
-                </button>
-              )}
-              {connected && (
-                <>
-                  <button
-                    onClick={onStop}
-                    title="Stop worker"
-                    className="p-1 rounded hover:bg-red-100 text-red-500 transition-colors"
-                  >
-                    <Square className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={onRestart}
-                    title="Restart worker"
-                    className="p-1 rounded hover:bg-amber-100 text-amber-600 transition-colors"
-                  >
-                    <RotateCw className="w-3.5 h-3.5" />
-                  </button>
-                </>
-              )}
+              <button
+                onClick={onStop}
+                title="Stop worker"
+                className="p-1 rounded hover:bg-red-100 text-red-500 transition-colors"
+              >
+                <Square className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={onRestart}
+                title="Restart worker"
+                className="p-1 rounded hover:bg-amber-100 text-amber-600 transition-colors"
+              >
+                <RotateCw className="w-3.5 h-3.5" />
+              </button>
             </>
           )}
         </div>

@@ -33,7 +33,7 @@ export abstract class LocationFormHelpers extends BasePage {
   // ─────────────────────────────────────────────────────────────────────────────
 
   abstract isSaveEnabled(): Promise<boolean>;
-  abstract clickSave(): Promise<void>;
+  abstract clickSave(): Promise<{ success: boolean; networkError?: string } | void>;
   abstract reloadAndNavigateToLocalInfo(officeNo: string): Promise<void>;
 
   // ─────────────────────────────────────────────────────────────────────────────

@@ -332,3 +332,130 @@ export function setSpawnedWorkerPid(pid: number | null): void {
 export function getSpawnedWorkerPid(): number | null {
   return spawnedWorkerPid;
 }
+
+// ── Pipeline Definitions (per-client) ──
+
+export interface PipelineDefinitionRow {
+  id: string;
+  client_id: string | null;
+  definition: Record<string, unknown>;
+  version: number;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Get pipeline definition for a client, falling back to default (NULL client_id).
+ * Returns null if no definition exists at all.
+ */
+export async function getClientPipelineDefinition(
+  pool: Pool,
+  clientId: string | null | undefined,
+): Promise<{ definition: Record<string, unknown>; version: number; isDefault: boolean } | null> {
+  // Try client-specific first
+  if (clientId) {
+    const { rows } = await pool.query<PipelineDefinitionRow>(
+      'SELECT definition, version FROM pipeline_definitions WHERE client_id = $1',
+      [clientId],
+    );
+    if (rows[0]) {
+      return { definition: rows[0].definition, version: rows[0].version, isDefault: false };
+    }
+  }
+
+  // Fall back to default (client_id IS NULL)
+  const { rows } = await pool.query<PipelineDefinitionRow>(
+    'SELECT definition, version FROM pipeline_definitions WHERE client_id IS NULL',
+  );
+  if (rows[0]) {
+    return { definition: rows[0].definition, version: rows[0].version, isDefault: true };
+  }
+
+  return null;
+}
+
+/**
+ * Save pipeline definition for a client (or default if clientId is null).
+ * Uses optimistic concurrency — fails with null if version doesn't match.
+ */
+export async function saveClientPipelineDefinition(
+  pool: Pool,
+  clientId: string | null,
+  definition: Record<string, unknown>,
+  expectedVersion: number,
+  createdBy: string,
+): Promise<{ version: number } | null> {
+  // Upsert with version check
+  if (expectedVersion === 0) {
+    // New row (no existing definition)
+    const { rows } = await pool.query<{ version: number }>(
+      `INSERT INTO pipeline_definitions (client_id, definition, version, created_by)
+       VALUES ($1, $2, 1, $3)
+       ON CONFLICT (client_id) DO NOTHING
+       RETURNING version`,
+      [clientId, JSON.stringify(definition), createdBy],
+    );
+    if (rows[0]) return { version: rows[0].version };
+    // Conflict: row already exists — caller should retry with GET to get current version
+    return null;
+  }
+
+  // Update existing with optimistic concurrency
+  const { rows } = await pool.query<{ version: number }>(
+    `UPDATE pipeline_definitions
+     SET definition = $1, version = version + 1, created_by = $2, updated_at = now()
+     WHERE client_id IS NOT DISTINCT FROM $3 AND version = $4
+     RETURNING version`,
+    [JSON.stringify(definition), createdBy, clientId, expectedVersion],
+  );
+  return rows[0] ? { version: rows[0].version } : null;
+}
+
+/**
+ * Clone the default pipeline definition to a specific client.
+ */
+export async function cloneDefaultToClient(
+  pool: Pool,
+  clientId: string,
+  createdBy: string,
+): Promise<{ version: number } | null> {
+  const { rows } = await pool.query<{ version: number }>(
+    `INSERT INTO pipeline_definitions (client_id, definition, version, created_by)
+     SELECT $1, definition, 1, $2
+     FROM pipeline_definitions WHERE client_id IS NULL
+     ON CONFLICT (client_id) DO NOTHING
+     RETURNING version`,
+    [clientId, createdBy],
+  );
+  return rows[0] ? { version: rows[0].version } : null;
+}
+
+/**
+ * Delete a client's custom pipeline definition (reverts to default).
+ */
+export async function deleteClientPipelineDefinition(
+  pool: Pool,
+  clientId: string,
+): Promise<boolean> {
+  const { rowCount } = await pool.query(
+    'DELETE FROM pipeline_definitions WHERE client_id = $1',
+    [clientId],
+  );
+  return (rowCount ?? 0) > 0;
+}
+
+/**
+ * Seed the default pipeline definition from a JSON object (if not already present).
+ */
+export async function seedDefaultPipelineDefinition(
+  pool: Pool,
+  definition: Record<string, unknown>,
+): Promise<void> {
+  await pool.query(
+    `INSERT INTO pipeline_definitions (client_id, definition, version, created_by)
+     VALUES (NULL, $1, 1, 'system-seed')
+     ON CONFLICT (client_id) DO NOTHING`,
+    [JSON.stringify(definition)],
+  );
+}

@@ -1,24 +1,42 @@
-import { X, MessageSquare, Download, StopCircle, FileText, Clock, DollarSign } from 'lucide-react';
-import type { PipelineRun } from '@/types';
+import { useState } from 'react';
+import { X, MessageSquare, Download, StopCircle, FileText, Clock, DollarSign, GitBranch, List } from 'lucide-react';
+import type { PipelineRun, PipelineDefinition } from '@/types';
 import type { PipelineStageState, ActivityMessage } from '@/hooks/usePipelineSSE';
 import { useAuth } from '@/contexts/AuthContext';
+import { downloadArtifacts } from '@/services/encoreApi';
 import StageTimeline from '../pipeline/StageTimeline';
 import PipelineProgress from '../chat/PipelineProgress';
 import AgentActivityFeed from '../pipeline/AgentActivityFeed';
+import PipelineGraph from '../pipeline/PipelineGraph';
 
 interface Props {
   run: PipelineRun | null;
   onClose: () => void;
   liveStages?: PipelineStageState[];
   activityMessages?: ActivityMessage[];
+  pipelineDefinition?: PipelineDefinition;
 }
 
-export default function RunDetailDrawer({ run, onClose, liveStages, activityMessages }: Props) {
+export default function RunDetailDrawer({ run, onClose, liveStages, activityMessages, pipelineDefinition }: Props) {
   if (!run) return null;
 
   const { user } = useAuth();
   const isAdmin = user?.role === 'super_admin' || user?.role === 'client_admin';
   const isRunning = run.status === 'running';
+  const [downloading, setDownloading] = useState(false);
+  const [view, setView] = useState<'graph' | 'timeline'>('graph');
+
+  const handleDownload = async () => {
+    if (run.artifacts.length === 0 || downloading) return;
+    setDownloading(true);
+    try {
+      await downloadArtifacts(run.id);
+    } catch (err) {
+      console.error('Download failed:', err);
+    } finally {
+      setDownloading(false);
+    }
+  };
   const date = new Date(run.createdAt).toLocaleString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
@@ -62,11 +80,47 @@ export default function RunDetailDrawer({ run, onClose, liveStages, activityMess
           </div>
         </div>
 
-        {/* Live Pipeline Progress (when SSE is active) */}
-        {isRunning && liveStages && liveStages.length > 0 ? (
+        {/* View Toggle */}
+        <div className="flex items-center gap-1 p-0.5 bg-[#F5F3FF] rounded-lg w-fit">
+          <button
+            onClick={() => setView('graph')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              view === 'graph' ? 'bg-white text-[#1E1B4B] shadow-sm' : 'text-[#6B7280] hover:text-[#1E1B4B]'
+            }`}
+          >
+            <GitBranch className="w-3 h-3" />
+            Graph
+          </button>
+          <button
+            onClick={() => setView('timeline')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              view === 'timeline' ? 'bg-white text-[#1E1B4B] shadow-sm' : 'text-[#6B7280] hover:text-[#1E1B4B]'
+            }`}
+          >
+            <List className="w-3 h-3" />
+            Timeline
+          </button>
+        </div>
+
+        {/* Pipeline Visualization */}
+        {view === 'graph' ? (
+          <>
+            <PipelineGraph
+              liveStages={isRunning ? liveStages : undefined}
+              stageResults={!isRunning ? run.stages : undefined}
+              pipelineStatus={run.status}
+              currentStage={run.stages?.length ? undefined : undefined}
+              showCost={isAdmin}
+              pipelineDefinition={pipelineDefinition}
+            />
+            {/* Agent Activity Feed — live messages from worker */}
+            {isRunning && activityMessages && activityMessages.length > 0 && (
+              <AgentActivityFeed messages={activityMessages} />
+            )}
+          </>
+        ) : isRunning && liveStages && liveStages.length > 0 ? (
           <>
             <PipelineProgress stages={liveStages} />
-            {/* Agent Activity Feed — live messages from worker */}
             {activityMessages && activityMessages.length > 0 && (
               <AgentActivityFeed messages={activityMessages} />
             )}
@@ -87,7 +141,6 @@ export default function RunDetailDrawer({ run, onClose, liveStages, activityMess
                   <div key={i} className="bg-[#F5F3FF] rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-medium text-[#1E1B4B] capitalize">{stage.stage.replace(/_/g, ' ')}</span>
-                      {/* Per-stage cost — admin only */}
                       {isAdmin && (
                         <span className="text-[10px] text-[#6B7280]">${stage.cost.toFixed(3)}</span>
                       )}
@@ -140,9 +193,13 @@ export default function RunDetailDrawer({ run, onClose, liveStages, activityMess
           <MessageSquare className="w-3.5 h-3.5" />
           View in Chat
         </button>
-        <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F5F3FF] hover:bg-[#EDE9FE] text-[#1E1B4B] text-xs font-medium rounded-lg border border-[#DDD6FE] transition-colors">
+        <button
+          onClick={handleDownload}
+          disabled={run.artifacts.length === 0 || downloading}
+          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F5F3FF] hover:bg-[#EDE9FE] text-[#1E1B4B] text-xs font-medium rounded-lg border border-[#DDD6FE] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
           <Download className="w-3.5 h-3.5" />
-          Download
+          {downloading ? 'Downloading...' : 'Download'}
         </button>
         {isRunning && (
           <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg border border-red-200 transition-colors">

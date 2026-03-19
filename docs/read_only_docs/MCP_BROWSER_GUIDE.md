@@ -206,6 +206,47 @@ When debugging a test failure, MCP browser replicates the failure — not guesse
 
 ---
 
+## 8.6 Handling Beforeunload Dialogs (ALL-052)
+
+When the Encore website has unsaved form edits, navigating away or reloading triggers a native `beforeunload` dialog ("Leave site? Changes you made may not be saved."). This dialog **blocks** MCP browser operations — the agent gets stuck.
+
+### The Problem
+```
+browser_evaluate(() => window.location.reload())  ← BLOCKED by beforeunload
+browser_navigate(sameUrl)                          ← BLOCKED by beforeunload
+```
+
+### The Solution — Navigate Away Pattern
+```
+Step 1: browser_navigate("about:blank")
+        ↳ If beforeunload fires → browser_handle_dialog(accept: true)
+Step 2: browser_navigate(targetUrl)          ← Clean fresh load
+Step 3: browser_wait_for(time: 5)            ← Wait for page load
+```
+
+### MCP Tool Call Sequence
+```json
+// Step 1: Navigate away (triggers beforeunload if dirty)
+{ "tool": "browser_navigate", "url": "about:blank" }
+// Step 1b: If dialog fires, accept it to leave
+{ "tool": "browser_handle_dialog", "accept": true }
+// Step 2: Navigate to target URL (clean load)
+{ "tool": "browser_navigate", "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location" }
+// Step 3: Wait for page load
+{ "tool": "browser_wait_for", "time": 5 }
+```
+
+### When This Happens
+- After changing a dropdown/combobox value without clicking Save
+- After typing in a text field without clicking Save
+- After ANY form interaction that marks the form as "dirty"
+- The Encore website fires beforeunload on ALL settings pages when edits are unsaved
+
+### Prevention
+Best practice: **save or discard** before navigating. If you need to discard, use the navigate-away pattern above instead of trying to reload.
+
+---
+
 ## 9. Office Separation
 
 | Office | ID | Purpose | Used by |

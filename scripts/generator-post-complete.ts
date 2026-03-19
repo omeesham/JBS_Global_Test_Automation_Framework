@@ -665,6 +665,30 @@ function runGate(item: QueueItem): void {
   allErrors.push(...gate20.errors);
   allWarnings.push(...gate20.warnings);
 
+  // ── Gate 21: Code quality checks (SOFT — GEN-025/026) ──
+  if (item.artifacts?.specFiles && Array.isArray(item.artifacts.specFiles)) {
+    for (const specFile of item.artifacts.specFiles as string[]) {
+      const specPath = path.isAbsolute(specFile) ? specFile : path.join(__dirname, '..', specFile);
+      if (fs.existsSync(specPath)) {
+        const specContent = fs.readFileSync(specPath, 'utf-8');
+        // GEN-026: Check for waitForTimeout
+        if (specContent.includes('waitForTimeout')) {
+          allWarnings.push(`Gate 21: waitForTimeout found in ${specFile}. Use proper waits.`);
+        }
+        // GEN-024: Check for inline CSS selectors
+        const inlineSelectors = specContent.match(/page\.\$\(|page\.locator\(/g);
+        if (inlineSelectors && inlineSelectors.length > 0) {
+          allWarnings.push(`Gate 21: ${inlineSelectors.length} raw page.$/page.locator() calls in ${specFile}. Use page objects.`);
+        }
+        // GEN-022: Check for duplicate patterns
+        const testBlocks = specContent.match(/test\(/g);
+        if (testBlocks && testBlocks.length > 15) {
+          allWarnings.push(`Gate 21: ${testBlocks.length} test blocks in ${specFile}. Consider data-driven patterns for similar tests.`);
+        }
+      }
+    }
+  }
+
   // ── Time-to-first-test-run metric (Step 14) ──
   if (item.sessionStartedAt) {
     const failureSummaryPath = path.join(__dirname, '../reports/failure-summary.json');
@@ -686,6 +710,11 @@ function runGate(item: QueueItem): void {
       }
     }
   }
+
+  // POST-ESC: Check if escalations assigned to generator are still open (ALL-036)
+  const { checkUnresolvedEscalations } = require('./validation-gates');
+  const escWarnings: string[] = checkUnresolvedEscalations('generator');
+  allWarnings.push(...escWarnings);
 
   // Report errors (hard gates)
   for (const err of allErrors) {

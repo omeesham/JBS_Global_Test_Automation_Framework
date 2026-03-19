@@ -107,6 +107,30 @@ function main(): void {
     console.log('[OK] validate:sync passed');
   }
 
+  // Gate 6: Code quality checks (soft warnings — HLR-024..027)
+  if (item.artifacts?.specFiles && Array.isArray(item.artifacts.specFiles)) {
+    for (const specFile of item.artifacts.specFiles) {
+      const specPath = path.isAbsolute(specFile) ? specFile : path.join(__dirname, '..', specFile);
+      if (fs.existsSync(specPath)) {
+        const specContent = fs.readFileSync(specPath, 'utf-8');
+        // HLR-027: Check for per-test setTimeout
+        const setTimeoutMatches = specContent.match(/test\.setTimeout\(/g);
+        if (setTimeoutMatches && setTimeoutMatches.length > 1) {
+          warnings.push(`HLR-027: ${setTimeoutMatches.length} test.setTimeout() calls found in ${specFile}. Use describe-level timeout.`);
+        }
+        // HLR-027: Check for waitForTimeout
+        if (specContent.includes('waitForTimeout')) {
+          warnings.push(`HLR-027: waitForTimeout found in ${specFile}. Use proper waits (waitForLoadState, expect.poll).`);
+        }
+      }
+    }
+  }
+
+  // POST-ESC: Check if escalations assigned to healer are still open (ALL-036)
+  const { checkUnresolvedEscalations } = require('./validation-gates');
+  const escWarnings: string[] = checkUnresolvedEscalations('healer');
+  warnings.push(...escWarnings);
+
   // Report
   console.log('\n' + '='.repeat(60));
 

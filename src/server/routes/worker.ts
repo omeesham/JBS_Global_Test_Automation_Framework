@@ -13,7 +13,7 @@ import {
   completeStageResult,
   createWorkerTask as createNewTask,
 } from '../db/queries';
-import { loadPipelineDefinition } from '../../orchestrator/orchestrator';
+import { loadPipelineDefinitionForClient } from '../../orchestrator/orchestrator';
 import { processStageCompletion } from '../../orchestrator/orchestrator';
 import { broadcastSSE } from './events';
 import type { CompletedTaskPayload } from '../../orchestrator/types';
@@ -44,8 +44,8 @@ export function registerWorkerRoutes(app: FastifyInstance) {
       await updatePipelineRun(app.db, run.id, { stage: task.stage_id, status: 'running' });
     }
 
-    // Create stage result entry
-    const definition = loadPipelineDefinition();
+    // Create stage result entry (per-client definition for correct model/retries)
+    const definition = await loadPipelineDefinitionForClient(app.db, task.client_id);
     const stageDef = definition.stages.find(s => s.id === task.stage_id);
     const stageResult = await createStageResult(
       app.db,
@@ -80,6 +80,7 @@ export function registerWorkerRoutes(app: FastifyInstance) {
         timeoutSeconds: stageDef.timeoutSeconds,
         budgetCap: stageDef.budgetCap,
         agentFile: stageDef.agentFile,
+        mcpConfig: stageDef.mcpConfig || null,
       } : null,
     });
   });
@@ -167,12 +168,33 @@ export function registerWorkerRoutes(app: FastifyInstance) {
       await incrementRunCost(pool, task.run_id, payload.cost);
     }
 
+    // Classify failure for intelligent routing
+    let routingOutcome = payload.success ? 'success' : 'fail';
+    if (!payload.success && payload.result) {
+      const { classifyFailure } = await import('../../orchestrator/failure-classifier');
+      const classification = classifyFailure(payload.result as Record<string, unknown>);
+
+      // Enrich result data with classification
+      payload.result = {
+        ...payload.result,
+        _failureClass: classification.failureClass,
+        _failureConfidence: classification.confidence,
+        _upstreamBlame: classification.upstreamBlame,
+        _failureEvidence: classification.evidence,
+      };
+
+      // Use specific outcome for routing if high confidence upstream blame
+      if (classification.confidence === 'high' && classification.upstreamBlame) {
+        routingOutcome = `fail:${classification.failureClass}`;
+      }
+    }
+
     // Process stage completion (route to next stage or terminal)
     await processStageCompletion(
       pool,
       task.run_id,
       task.stage_id,
-      payload.success ? 'success' : 'fail',
+      routingOutcome,
       payload.result
     );
 

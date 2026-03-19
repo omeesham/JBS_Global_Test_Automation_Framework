@@ -152,6 +152,15 @@ export class DiagnosticsCollector {
     return this.authChain;
   }
 
+  // ---- Summaries ----
+
+  /** Human-readable summary of API errors (4xx/5xx) for agent diagnostics. */
+  getNetworkErrorSummary(): string {
+    const errors = this.networkFailures.filter(n => n.status >= 400);
+    if (errors.length === 0) return 'No API errors';
+    return errors.map(e => `${e.status} ${e.url.split('/').pop()}: ${e.body.substring(0, 200)}`).join('\n');
+  }
+
   // ---- Snapshot ----
 
   /** Returns full diagnostic snapshot for attachment/persistence. */

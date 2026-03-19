@@ -59,6 +59,9 @@ interface TaskResponse {
     timeoutSeconds: number;
     budgetCap: number;
     agentFile: string;
+    mcpConfig: string | null;
+    allowedTools?: string[];
+    effort?: 'low' | 'medium' | 'high' | 'max';
   } | null;
 }
 
@@ -181,7 +184,8 @@ function loadAgentFile(agentFile: string): string | null {
   const agentPath = path.resolve(__dirname, '../../', agentFile);
   try {
     let content = fs.readFileSync(agentPath, 'utf-8');
-    // Strip YAML frontmatter (GitHub Copilot format — not actionable by Claude CLI)
+    // Strip YAML frontmatter (VS Code Copilot extension format — contains mcp-servers config
+    // which is provided separately via --mcp-config flag for Claude CLI invocations)
     if (content.startsWith('---')) {
       const endIdx = content.indexOf('---', 3);
       if (endIdx !== -1) content = content.slice(endIdx + 3).trim();
@@ -197,7 +201,7 @@ function loadAgentFile(agentFile: string): string | null {
 // ── CLI Execution (streaming via spawn) ──
 
 // Progress reporting: sends high-level status messages to backend for SSE broadcast
-const PROGRESS_INTERVAL_MS = 5000; // Don't flood — max 1 progress event per 5s
+const PROGRESS_INTERVAL_MS = 2000; // Chat-like streaming — max 1 progress event per 2s
 
 function createProgressReporter(task: TaskResponse) {
   let lastTime = 0;
@@ -226,22 +230,64 @@ function createProgressReporter(task: TaskResponse) {
 
 // Extract a user-safe progress message from CLI output lines.
 // NEVER expose raw code, prompts, or internal details.
+// Returns conversational, chat-like messages for a non-technical audience.
 function extractProgressMessage(line: string, stageId: string): string | null {
   const lower = line.toLowerCase();
+  const trimmed = line.trim();
 
-  // Skip empty, JSON-only, or overly technical lines
-  if (!line.trim() || line.trim().startsWith('{') || line.trim().startsWith('[')) return null;
+  // Skip empty, JSON-only, binary, or sensitive lines
+  if (!trimmed || trimmed.startsWith('{') || trimmed.startsWith('[')) return null;
   if (lower.includes('api key') || lower.includes('secret') || lower.includes('token')) return null;
+  if (lower.includes('error:') && lower.includes('enoent')) return null; // filesystem noise
 
-  // Map common Claude CLI patterns to user-friendly messages
+  // ── Tool call detection (Claude CLI outputs tool names) ──
+  if (lower.includes('browser_navigate') || lower.includes('navigating to')) return `Navigating to the page...`;
+  if (lower.includes('browser_snapshot') || lower.includes('taking snapshot')) return `Capturing current page state...`;
+  if (lower.includes('browser_click')) return `Clicking an element on the page...`;
+  if (lower.includes('browser_fill')) return `Filling in a form field...`;
+  if (lower.includes('browser_select')) return `Selecting a dropdown option...`;
+
+  // ── File operations ──
   if (lower.includes('reading file') || lower.includes('read tool')) return `Reading project files...`;
-  if (lower.includes('writing file') || lower.includes('write tool')) return `Writing output files...`;
-  if (lower.includes('searching') || lower.includes('grep') || lower.includes('glob')) return `Searching codebase...`;
-  if (lower.includes('running') || lower.includes('executing') || lower.includes('bash')) return `Running commands...`;
-  if (lower.includes('analyzing') || lower.includes('processing')) return `Analyzing ${stageId}...`;
+  if (lower.includes('writing file') || lower.includes('write tool')) {
+    // Try to extract filename
+    const match = trimmed.match(/(?:writing|wrote|created?)\s+(?:file\s+)?['"]?([^\s'"]+\.(?:ts|md|json))/i);
+    if (match) { const fname = match[1]!.split('/').pop(); return `Creating ${fname ?? match[1]!}...`; }
+    return `Writing output files...`;
+  }
 
-  // Generic fallback for long-running stages
-  return `Working on ${stageId}...`;
+  // ── Test operations ──
+  if (lower.includes('test case') || lower.includes('tc-')) {
+    const tcMatch = trimmed.match(/TC-[A-Z]+-[A-Z]+-\d+/i);
+    if (tcMatch) return `Working on test case ${tcMatch[0]!}...`;
+    return `Building test cases...`;
+  }
+  if (lower.includes('selector') && (lower.includes('found') || lower.includes('creating') || lower.includes('mapping'))) return `Mapping page selectors...`;
+  if (lower.includes('spec') && (lower.includes('generat') || lower.includes('creat') || lower.includes('writing'))) return `Generating test script...`;
+  if (lower.includes('assert') || lower.includes('expect(')) return `Adding test assertions...`;
+
+  // ── Search operations ──
+  if (lower.includes('searching') || lower.includes('grep') || lower.includes('glob')) return `Searching the codebase...`;
+
+  // ── Execution/analysis ──
+  if (lower.includes('running') || lower.includes('executing') || lower.includes('bash')) return `Running a command...`;
+  if (lower.includes('analyzing') || lower.includes('processing')) return `Analyzing ${stageId} artifacts...`;
+  if (lower.includes('found') && lower.includes('field')) {
+    const countMatch = trimmed.match(/(\d+)\s+field/);
+    if (countMatch) return `Found ${countMatch[1]!} form fields to test...`;
+  }
+  if (lower.includes('found') && lower.includes('element')) {
+    const countMatch = trimmed.match(/(\d+)\s+element/);
+    if (countMatch) return `Found ${countMatch[1]!} UI elements...`;
+  }
+
+  // ── Completion signals ──
+  if (lower.includes('complete') || lower.includes('finished') || lower.includes('done')) return `Finishing up ${stageId}...`;
+  if (lower.includes('saving') || lower.includes('persisting')) return `Saving results...`;
+
+  // ── Skip generic/noisy lines (don't flood with "Working on...") ──
+  // Only produce a message if we matched something specific above
+  return null;
 }
 
 async function executeClaudeCliStage(
@@ -269,6 +315,43 @@ async function executeClaudeCliStage(
   if (stageConfig) {
     cliArgs.push('--max-turns', String(isDryRun ? 1 : stageConfig.maxTurns));
     cliArgs.push('--model', stageConfig.model);
+  }
+
+  // Auto-approve tools to prevent permission prompts from blocking pipeline execution.
+  // Claude CLI prompts for "y/n" on tool calls — in headless pipeline mode, no one
+  // is watching, so unapproved tools = silent hang. Use --allowedTools to pre-approve.
+  // Per-stage allowedTools can be configured in pipeline-definition.json; default = all.
+  const allowedTools = stageConfig?.allowedTools || ['Bash', 'Read', 'Edit', 'Write', 'Glob', 'Grep', 'WebFetch', 'WebSearch', 'mcp__*'];
+  for (const tool of allowedTools) {
+    cliArgs.push('--allowedTools', tool);
+  }
+
+  // Effort level: controls how much thinking/reasoning Claude does per turn.
+  // 'medium' for simple stages (requirements, audit), 'high' for complex (generation, healing).
+  if (stageConfig?.effort) {
+    cliArgs.push('--effort', stageConfig.effort);
+  }
+
+  // NOTE: --max-budget-usd only works with API key auth, not subscriptions.
+  // Our cost model uses CLI subscriptions, so this flag is intentionally omitted.
+  // Budget enforcement happens at orchestrator level via budgetCap + convergence guards.
+
+  // Generate per-task MCP config if stage has mcpConfig
+  let tempMcpPath: string | null = null;
+  if (stageConfig?.mcpConfig) {
+    const templatePath = path.resolve(__dirname, `../../config/mcp/${stageConfig.mcpConfig}.json.template`);
+    if (fs.existsSync(templatePath)) {
+      let template = fs.readFileSync(templatePath, 'utf-8');
+      const targetUrl = (task.context as Record<string, unknown>)?.targetUrl as string || '';
+      template = template.replace(/\{\{BASE_URL\}\}/g, targetUrl);
+
+      const tmpDir = path.resolve(__dirname, '../../.tmp');
+      if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+      tempMcpPath = path.resolve(tmpDir, `mcp-${task.taskId}.json`);
+      fs.writeFileSync(tempMcpPath, template);
+      cliArgs.push('--mcp-config', tempMcpPath);
+      console.log(`[Worker] MCP config generated: ${tempMcpPath} (template: ${stageConfig.mcpConfig}, targetUrl: ${targetUrl || 'none'})`);
+    }
   }
 
   const promptPreview = agentPrompt.length > 80 ? agentPrompt.slice(0, 80) + '...' : agentPrompt;
@@ -319,6 +402,11 @@ async function executeClaudeCliStage(
 
     child.on('close', (code) => {
       clearTimeout(timer);
+
+      // Cleanup per-task MCP config
+      if (tempMcpPath && fs.existsSync(tempMcpPath)) {
+        try { fs.unlinkSync(tempMcpPath); } catch { /* best-effort */ }
+      }
 
       if (code !== 0 && !stdout.trim()) {
         // Non-zero exit with no stdout = failure
@@ -528,6 +616,12 @@ async function workerLoop(): Promise<void> {
       // Safety net: even if Claude doesn't return dryRun, worker guarantees it
       if (task.context?.dryRun) {
         result.result = { ...result.result, dryRun: true };
+      }
+
+      // Propagate executionMode through result — orchestrator checks this
+      // for approve-per-stage gate logic across the full pipeline chain
+      if (task.context?.executionMode) {
+        result.result = { ...result.result, executionMode: task.context.executionMode };
       }
 
       console.log(`[Worker] Task ${task.taskId} completed: ${result.success ? 'SUCCESS' : 'FAIL'}${task.context?.dryRun ? ' (DRY RUN)' : ''}`);

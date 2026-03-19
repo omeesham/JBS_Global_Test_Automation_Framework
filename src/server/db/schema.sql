@@ -82,3 +82,42 @@ DROP TRIGGER IF EXISTS trg_pipeline_runs_updated ON pipeline_runs;
 CREATE TRIGGER trg_pipeline_runs_updated
   BEFORE UPDATE ON pipeline_runs
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ── Agent Registry (Plan 50) ──
+
+CREATE TABLE IF NOT EXISTS agent_types (
+  id VARCHAR(100) PRIMARY KEY,
+  name VARCHAR(200) NOT NULL,
+  description TEXT,
+  icon VARCHAR(100) DEFAULT 'Bot',
+  category VARCHAR(50) DEFAULT 'core',
+  default_model VARCHAR(50) DEFAULT 'sonnet',
+  agent_file TEXT,
+  capabilities TEXT[],
+  enabled BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- ── Per-Client Pipeline Definitions (Plan 50) ──
+
+CREATE TABLE IF NOT EXISTS pipeline_definitions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id VARCHAR(100),
+  definition JSONB NOT NULL,
+  version INTEGER DEFAULT 1,
+  created_by VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT uq_pipeline_def_client UNIQUE NULLS NOT DISTINCT (client_id)
+);
+
+-- Fast lookup by client
+CREATE INDEX IF NOT EXISTS idx_pipeline_def_client
+  ON pipeline_definitions (client_id) WHERE client_id IS NOT NULL;
+
+-- Auto-update updated_at on pipeline_definitions
+DROP TRIGGER IF EXISTS trg_pipeline_defs_updated ON pipeline_definitions;
+CREATE TRIGGER trg_pipeline_defs_updated
+  BEFORE UPDATE ON pipeline_definitions
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();

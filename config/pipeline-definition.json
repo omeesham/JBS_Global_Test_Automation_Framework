@@ -44,6 +44,8 @@
       "next": {
         "success": "planning"
       },
+      "mcpConfig": "browser-only",
+      "approvalMode": "auto",
       "preRunGate": "requirements-pre-run.ts",
       "postCompleteGate": "requirements-post-complete.ts",
       "description": "Explores target URL, captures UI structure and requirements"
@@ -62,6 +64,8 @@
       "next": {
         "success": "generation"
       },
+      "mcpConfig": "browser-only",
+      "approvalMode": "auto",
       "preRunGate": "planner-pre-run.ts",
       "postCompleteGate": "planner-post-complete.ts",
       "description": "Creates detailed test cases from requirements"
@@ -89,11 +93,21 @@
             "then": "audit"
           },
           {
+            "when": "failureClass in selector_not_found,selector_ambiguous,missing_selectors",
+            "then": "planning"
+          },
+          {
+            "when": "failureClass == typescript_compile",
+            "then": "healing"
+          },
+          {
             "when": "failedCount > 0",
             "then": "healing"
           }
         ]
       },
+      "mcpConfig": "browser-and-test",
+      "approvalMode": "auto",
       "preRunGate": "generator-pre-run.ts",
       "postCompleteGate": "generator-post-complete.ts",
       "description": "Generates Playwright spec files from test cases"
@@ -114,6 +128,29 @@
         "tests_fail": "healing",
         "max_retries": "fixme"
       },
+      "routing": {
+        "condition": "testResults",
+        "rules": [
+          {
+            "when": "failedCount == 0",
+            "then": "audit"
+          },
+          {
+            "when": "failureClass in selector_not_found,selector_ambiguous",
+            "then": "planning"
+          },
+          {
+            "when": "failedCount > 0",
+            "then": "healing"
+          },
+          {
+            "when": "fail",
+            "then": "healing"
+          }
+        ]
+      },
+      "mcpConfig": "browser-and-test",
+      "approvalMode": "auto",
       "preRunGate": "healer-pre-run.ts",
       "postCompleteGate": "healer-post-complete.ts",
       "description": "Debugs and fixes failing test specs"
@@ -133,6 +170,8 @@
         "pass": "completed",
         "critical": "healing"
       },
+      "mcpConfig": null,
+      "approvalMode": "auto",
       "preRunGate": "audit-pre-run.ts",
       "postCompleteGate": "audit-post-complete.ts",
       "description": "Reviews all artifacts for quality and completeness"

@@ -18,3 +18,5 @@ export { HomePage } from './home.page';
 export { LocationCurrencyPage } from './locations/location-currency.page';
 export { LocationLocalInfoPage } from './locations/location-local-info.page';
 export { LocationPricingPage } from './locations/location-pricing.page';
+export { LocationAccountAddressPage } from './locations/location-account-address.page';
+export { LocationNotesPage } from './locations/location-notes.page';

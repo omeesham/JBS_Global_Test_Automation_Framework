@@ -28,5 +28,5 @@ export const SetupLeftPanelSelectors = {
 
   // ---- Left Panel Save Button ----
   /** @where Setup > Location > Left Panel @el button @text "Save" @keys save submit left-panel form */
-  btnSave: 'form:has(input[name="localOfficeName"]) button:has-text("Save")',
+  btnSave: '[data-testid="location-settings-btn-save"]',
 } as const;

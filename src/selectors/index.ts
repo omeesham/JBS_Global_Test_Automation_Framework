@@ -16,7 +16,11 @@ import { SetupLeftPanelSelectors } from './locations/left-panel';
 import { SetupLocalInfoSelectors } from './locations/local-info';
 import { SetupCurrencySelectors } from './locations/currency';
 import { SetupPricingSelectors } from './locations/pricing';
+import { SetupAccountAddressSelectors } from './locations/account-address';
 import { SetupSharedSelectors } from './locations/shared';
+import { SetupSharedSetupLocationsSelectors } from './locations/shared-setup-locations';
+import { SetupNotesSelectors } from './locations/notes';
+import { SetupLegalSelectors } from './locations/legal';
 
 // ==================== RE-EXPORTS ====================
 export { MicrosoftLoginSelectors } from './login';
@@ -25,7 +29,11 @@ export { SetupLeftPanelSelectors } from './locations/left-panel';
 export { SetupLocalInfoSelectors } from './locations/local-info';
 export { SetupCurrencySelectors } from './locations/currency';
 export { SetupPricingSelectors } from './locations/pricing';
+export { SetupAccountAddressSelectors } from './locations/account-address';
 export { SetupSharedSelectors } from './locations/shared';
+export { SetupSharedSetupLocationsSelectors } from './locations/shared-setup-locations';
+export { SetupNotesSelectors } from './locations/notes';
+export { SetupLegalSelectors } from './locations/legal';
 
 // ==================== BACKWARD-COMPAT: MERGED SetupSelectors ====================
 export const SetupSelectors = {
@@ -33,7 +41,11 @@ export const SetupSelectors = {
   ...SetupLocalInfoSelectors,
   ...SetupCurrencySelectors,
   ...SetupPricingSelectors,
+  ...SetupAccountAddressSelectors,
   ...SetupSharedSelectors,
+  ...SetupSharedSetupLocationsSelectors,
+  ...SetupNotesSelectors,
+  ...SetupLegalSelectors,
 } as const;
 
 // ==================== COLLISION DETECTION + LOOKUP ====================

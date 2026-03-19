@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Loader2, Play } from 'lucide-react';
-import { getAdminUsage, listPipelineRuns, getWorkerStatus, getPipelineRunDetail } from '@/services/encoreApi';
+import { getAdminUsage, listPipelineRuns, getWorkerStatus, getPipelineRunDetail, getClientPipelineDefinition } from '@/services/encoreApi';
 import { startWorker, stopWorker, restartWorker, getWorkerControlStatus } from '@/services/api';
-import type { AdminUsage, WorkerStatus, PipelineRun } from '@/types';
+import type { AdminUsage, WorkerStatus, PipelineRun, PipelineDefinition } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useClient } from '@/contexts/ClientContext';
+import { buildInitialStages } from '@/utils/pipeline-stages';
+import { useActivePipeline } from '@/contexts/ActivePipelineContext';
 import { usePipelineSSE } from '@/hooks/usePipelineSSE';
 import RunKPIBar from '@/components/dashboard/RunKPIBar';
 import RunTable from '@/components/dashboard/RunTable';
@@ -13,9 +16,14 @@ import SuperAdminPanel from '@/components/dashboard/SuperAdminPanel';
 import DashboardBriefing from '@/components/dashboard/DashboardBriefing';
 import WorkerIndicator from '@/components/common/WorkerIndicator';
 import RunPipelineModal from '@/components/dashboard/RunPipelineModal';
+import BugDiscoveryPanel from '@/components/dashboard/BugDiscoveryPanel';
+import TriagePanel from '@/components/dashboard/TriagePanel';
+import ArtifactApprovalPanel from '@/components/dashboard/ArtifactApprovalPanel';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { client } = useClient();
+  const activePipeline = useActivePipeline();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [usage, setUsage] = useState<AdminUsage | null>(null);
@@ -25,7 +33,15 @@ export default function DashboardPage() {
   const [filter, setFilter] = useState('all');
   const [showRunModal, setShowRunModal] = useState(false);
   const [workerActionLoading, setWorkerActionLoading] = useState(false);
+  const [clientDefinition, setClientDefinition] = useState<PipelineDefinition | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval>>();
+
+  // Fetch client pipeline definition
+  useEffect(() => {
+    getClientPipelineDefinition(client?.id || undefined)
+      .then(resp => setClientDefinition(resp.definition))
+      .catch(() => setClientDefinition(null));
+  }, [client?.id]);
 
   const refreshWorkerStatus = useCallback(async () => {
     try {
@@ -42,6 +58,7 @@ export default function DashboardPage() {
   }, []);
 
   // Pipeline SSE for live progress on dashboard
+  const dynamicStages = clientDefinition ? buildInitialStages(clientDefinition) : undefined;
   const pipeline = usePipelineSSE({
     onComplete: () => {
       refreshRuns();
@@ -49,6 +66,7 @@ export default function DashboardPage() {
     onError: () => {
       refreshRuns();
     },
+    initialStages: dynamicStages,
   });
 
   useEffect(() => {
@@ -92,8 +110,10 @@ export default function DashboardPage() {
   const handleRestartWorker = useCallback(() => handleWorkerAction(restartWorker), [handleWorkerAction]);
 
   const handleRunStarted = async (runId: string) => {
-    // Start SSE watch for live progress
+    // Start SSE watch for live progress (local dashboard hook)
     pipeline.startWatch(runId);
+    // Sync global context so banner/chat page track the run
+    activePipeline.startPipeline(runId, 'auto', clientDefinition);
     // Fetch the new run and select it to show in drawer
     try {
       const run = await getPipelineRunDetail(runId);
@@ -156,6 +176,18 @@ export default function DashboardPage() {
 
       <RunKPIBar usage={usage} />
 
+      {/* Approval panel — show when any run is awaiting approval */}
+      {runs.filter(r => r.status === 'awaiting_approval').map(r => (
+        <ArtifactApprovalPanel key={r.id} runId={r.id} onResume={refreshRuns} />
+      ))}
+
+      {/* Triage panel — show when any run is awaiting triage */}
+      {runs.filter(r => r.status === 'awaiting_triage').map(r => (
+        <TriagePanel key={r.id} runId={r.id} onResume={refreshRuns} />
+      ))}
+
+      <BugDiscoveryPanel />
+
       <ChartSection runs={runs} />
 
       <RunTable
@@ -170,6 +202,7 @@ export default function DashboardPage() {
         onClose={() => setSelectedRun(null)}
         liveStages={pipeline.isActive ? pipeline.stages : undefined}
         activityMessages={pipeline.isActive ? pipeline.activityMessages : undefined}
+        pipelineDefinition={clientDefinition || undefined}
       />
 
       {isSuperAdmin && <SuperAdminPanel role={user.role} />}
@@ -178,6 +211,7 @@ export default function DashboardPage() {
         open={showRunModal}
         onClose={() => setShowRunModal(false)}
         onRunStarted={handleRunStarted}
+        pipelineDefinition={clientDefinition || undefined}
       />
     </div>
   );

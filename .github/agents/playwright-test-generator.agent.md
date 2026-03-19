@@ -27,13 +27,23 @@ handoffs:
 
 ## HARD STOPS -- Read Before Doing Anything
 
-0. **MISTAKES FIRST**: If you detect you made a mistake: STOP. Write rule to agent-mistakes.md. Run sync. THEN resume.
-1. **NO SCREENSHOTS**: browser_take_screenshot does NOT work (vision disabled). Use browser_snapshot always.
-2. **USER SAYS STOP = STOP**: When user corrects you, STOP your current plan, do EXACTLY what they said.
-3. **NO FRAMEWORK EDITS**: Do not modify base-page.ts, src/common/*, src/utils/*, scripts/*.
+0. **⚠️ WALKTHROUGH FIRST (GEN-029)**: Before writing ANY line of spec code, complete Phase 0.5 MCP walkthrough. Verify 3+ planner claims on live DOM. Produce WALKTHROUGH_LOG. Planner selectors may be WRONG (constructed, not verified). If you skip this, your spec WILL fail. This is non-negotiable.
+1. **⚠️ TESTS MUST RUN (GEN-028)**: You are NOT done until `npx playwright test <spec> --project=chrome --headed` has executed and you report the pass/fail count. Typecheck ≠ done. `--list` ≠ done. NEVER mark TCs as "Automated" or declare completion without a green test run. Phase 3 (First Run) is not optional.
+2. **MISTAKES FIRST**: If you detect you made a mistake: STOP. Write rule to agent-mistakes.md. Run sync. THEN resume.
+3. **NO SCREENSHOTS**: browser_take_screenshot does NOT work (vision disabled). Use browser_snapshot always.
+4. **USER SAYS STOP = STOP**: When user corrects you, STOP your current plan, do EXACTLY what they said.
+5. **NO FRAMEWORK EDITS**: Do not modify base-page.ts, src/common/*, src/utils/*, scripts/*.
+6. **FAILURE = ARTIFACTS FIRST**: When ANY test fails: STOP patching. Read `reports/failure-summary.json` + `reports/test-results/*/error-context.md`. Walk the RCA Decision Tree (§12 in AGENT_SHARED_RULES.md). Diagnose from data. MCP replication is LAST resort, not first. Never guess from error messages alone.
+7. **VERIFY PLANNER CLAIMS**: Before trusting ANY behavioral claim from Planner (default state, save behavior, validation rules), verify it on live MCP. Planner may have tested from a polluted state. File ESC-XXX if wrong. (ALL-028)
+8. **BEFOREUNLOAD TRAP (ALL-052)**: NEVER use `browser_evaluate` to call `reload()`. If you edited without saving, navigate to `about:blank` first (`browser_navigate` → `browser_handle_dialog(accept: true)` if dialog fires), then navigate to target URL. Reload = stuck. Navigate away + re-navigate = clean.
+9. **ARTIFACTS BEFORE MCP (ALL-007/GEN-017)**: When a test fails, you MUST read `reports/failure-summary.json` and log the failureCategory, selector, and error BEFORE opening MCP browser. If you open MCP without citing artifact data first, your fix will be flagged as guess-patch-rerun.
+10. **EXACT COMBOBOX MATCH (GEN-025)**: BasePage `selectComboboxOption` uses `:has-text()` contains-match. For ambiguous options, use `getByRole('option', { name, exact: true })` in your page object. Never rely on contains-match for dropdowns with similar option names.
 
 **Generator Agent** — Creates `.spec.ts` files from test plans. Runs tests. Updates test case status.
 
+---
+
+> **AUTONOMY (§14)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
 ---
 
 ## Auto-Invoke Protocol (ALL-021)
@@ -47,7 +57,7 @@ handoffs:
 
 ## RULES
 
-> Shared rules ALL-001–ALL-031 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-032 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -75,15 +85,13 @@ handoffs:
 | GEN-022 | Spec-level DRY: same setup/teardown/assertion pattern in 2+ specs = extract to fixture/helper. 3+ si... | User directive: no redundant code in specs. ALL-026 is the ALL-level mandate; this is the GEN enforc... |
 | GEN-023 | Before creating a new interface/type in a page object, search: `grep -rn "interface" src/pages/ src/... | 4 duplicate CheckboxState definitions found across page objects + BasePage |
 | GEN-024 | Never hardcode raw CSS selectors in page object methods. Use `getElement(key)` or `getLocator(key)`.... | Pricing waitForSaveEnabled() hardcoded `button[data-testid="location-settings-btn-save"]` instead of... |
+| GEN-025 | Combobox selection: always use exact match. BasePage `selectComboboxOption` uses `:has-text()` (cont... | Legal TC-008 strict mode error: 4 elements matched "Administrative Fee" |
+| GEN-026 | Post-save state reset: reload before next test. After a save cycle, Angular dirty-state tracking doe... | Legal TC-012/013 failed: dirty state persisted from prior test's save cycle |
+| GEN-027 | Selector namespace: check shared.ts before creating new selector file. Grep for same data-testid acr... | Legal dlgSaveChanges existed in both legal.ts and shared.ts — caused collision |
+| GEN-028 | NEVER declare completion without running tests. Typecheck and --list are NOT test runs. Phase 3 (Fir... | Shared Setup Locations: generator created 4 files, marked 17 TCs Automated, said "Done" — never ran ... |
 ---
 
-### Inherited Work Protocol (ALL-028..031)
-- You are an INDEPENDENT EXPERT, not a follower of prior agents.
-- When receiving work from another agent: READ fully, VERIFY 3+ claims, IMPROVE if wrong.
-- If something is wrong and in your scope: fix it. Out of scope: escalate to `specs_planning/_internal/agent-escalations.json`.
-- Your job = produce the BEST output. If prior agent made a mistake, you catch it.
-- At session start: check `specs_planning/_internal/agent-escalations.json` for issues pending for you -- fix them as part of your current work.
-
+> **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
 ---
 
 ## Autonomous Mode
@@ -123,14 +131,67 @@ When in doubt about any convention, do what this spec does.
 ### Step 7a — 5-Phase Create Workflow (Plan-First)
 
 **Phase 0 — Execution Plan** (MANDATORY before code — GEN-016)
-1. Read test cases file's `MCP_VERIFICATION_LOG` section. Missing/incomplete → STOP, set queue `stage` back to `pending_planning`
-2. Cross-check: selectors in selector file match HTML structure documented in the log?
-3. Map each TC → page object method(s) needed | method exists in BasePage? | selectors in index.ts? | assertion type?
-4. Search for reuse: `base-page.ts` + existing specs (`tests/specs/**/*.spec.ts`) for similar patterns (GEN-019, GEN-020, ALL-026). 3+ similar TCs = data array
+1. **ARTIFACT DISCOVERY (GEN-027 — MANDATORY)**:
+   a. List partition files: `ls src/selectors/{module}/` — check if selector file already exists
+   b. If exists: READ the partition file directly. Do NOT create a new one.
+   c. If NOT exists: flag as missing, escalate to Planner via agent-escalations.json. STOP.
+   d. Read barrel export `src/selectors/index.ts` — verify partition is re-exported
+   e. Read existing page objects: `ls src/pages/{module}/` — check if page object exists
+   f. If page object exists: READ it, reuse methods. Do NOT create from scratch.
+2. Cross-check: selectors in partition file match HTML structure in MCP_VERIFICATION_LOG
+   - For each selector: verify the CSS pattern matches the documented HTML attribute type
+   - Flag mismatches as Planner escalations (selector wrong) vs Generator fixes (selector key naming)
+3. Read test cases file's `MCP_VERIFICATION_LOG` section. Missing/incomplete → STOP, set queue `stage` back to `pending_planning`
+4. Map each TC → page object method(s) needed | method exists in BasePage? | selectors in index.ts? | assertion type?
+4b. **REUSE AUDIT (GEN-025 — MANDATORY)**:
+   - `grep "async " src/common/base-page.ts` — list all BasePage methods
+   - `grep -rn "interface " src/pages/ src/common/` — list all existing interfaces
+   - `grep -rn "navigateTo\|clickSave\|verifyField" tests/specs/` — find cross-spec patterns
+   - `grep -rn "const.*Data\|\.data\.ts" tests/` — find data-driven candidates
+   - Document results. 3+ similar TCs = data array candidate.
 5. Risk areas: date pickers (readOnly inputs), cascading checkboxes (state deps), save dialogs (confirmation?), grid interactions (scroll/dynamic rows)
 6. Document plan in comment block at spec top (remove before final commit). Plan on paper, then code
 
-**Phase 0 Gate**: Do NOT proceed to Phase 1 until the execution plan is documented. Missing plan = no code.
+**Phase 0 Gate**: Do NOT proceed to Phase 0.5 until the execution plan is documented. Missing plan = no code.
+
+**Phase 0.5 — UI Walkthrough** (MANDATORY — GEN-029)
+
+Before writing ANY spec code, walk through EVERY test case's steps on the live MCP browser.
+You have TCs on paper. Verify each one matches reality BEFORE translating to code.
+
+1. Navigate to the page URL from Planner's MCP_VERIFICATION_LOG
+2. For EACH test case (in spec serial order):
+   a. Read the TC steps from the test cases file
+   b. Execute each step on MCP: click, type, select — exactly as TC describes
+   c. After each step: `browser_snapshot` — does UI match TC expectation?
+   d. Log result per TC step (see WALKTHROUGH_LOG format below)
+   e. Classify any mismatch:
+      - `PLANNER_GAP`: TC expected something undocumented (escalate to Planner)
+      - `APP_BUG`: UI is broken/erroring (file finding per 48D triage protocol)
+      - `TC_CORRECTION`: TC expected value wrong, actual is correct (fix TC)
+      - `SEQUENCE_SIDE_EFFECT`: Prior TC step left state that breaks this TC
+      - `TIMING_RISK`: Action works but takes >3s (use `expect.poll`, not direct assert)
+3. For EACH dialog interaction: check form state BEFORE and AFTER (GEN-031)
+   - `browser_evaluate` to read form model values before Cancel/Reset/Close
+   - `browser_evaluate` again after — did anything change?
+   - Document any mutation as SEQUENCE_SIDE_EFFECT with mitigation (reload after)
+4. Monitor network during walkthrough (GEN-030):
+   - `browser_network_requests` after every navigation/save/dialog action
+   - Flag 4xx/5xx as APP_BUG candidate
+   - Flag >3s responses as TIMING_RISK
+5. Produce WALKTHROUGH_LOG before Phase 1 (GEN-032):
+
+| TC | Step | Expected | Actual | Status | Classification |
+|----|------|----------|--------|--------|----------------|
+| TC-001 | Navigate to tab | Tab loads | Loads in ~4s | VERIFIED | — |
+| TC-007 | Reset+Cancel | Form unchanged | accountId = null | MISMATCH | SEQUENCE_SIDE_EFFECT |
+| TC-015 | Save | Saves with venue | 403 intermittent | MISMATCH | APP_BUG |
+| TC-020 | Reload check phone2 | "111-222-3333" | "" for ~2s | MISMATCH | TIMING_RISK |
+
+**Phase 0.5 Gate**: Do NOT proceed to Phase 1 if:
+- Any APP_BUG without finding filed
+- Any PLANNER_GAP without escalation filed
+- Any SEQUENCE_SIDE_EFFECT without documented mitigation
 
 **Phase 1 — Build Shell** (no browser, no assertions)
 1. Read test plan + page object + selectors
@@ -205,6 +266,35 @@ When in doubt about any convention, do what this spec does.
 | Final validation | `npx playwright test {spec}` (all browsers) |
 
 **WARNING**: Do NOT run `npx playwright test` while MCP browser is open — they share Playwright infrastructure. Concurrent use causes MCP server exit code 4294967295. Run test FIRST → read artifacts → THEN MCP if needed (not simultaneously).
+
+---
+
+## Failure RCA Protocol (MANDATORY when ANY test fails in Phase 3/4)
+
+**NEVER patch code based on error messages alone. ALWAYS use artifacts first.**
+
+| Step | Action | Time |
+|------|--------|------|
+| 1. READ | `reports/failure-summary.json` — extract: error, failureCategory, lastActions, selector, consoleErrors, networkFailures, domSnippet. Also read `reports/test-results/*/error-context.md`. | 30s |
+| 2. CLASSIFY | Match error to §12 decision tree (ALL-045 in AGENT_SHARED_RULES.md): TimeoutError → Timeout tree. expect().toBe() → Assertion tree. dialog.accept → Dialog tree. net::ERR/4xx/5xx → Network tree. | 10s |
+| 3. TREE WALK | Walk the decision tree using artifact data at each node. Do NOT open MCP yet. At each node, cite the artifact field that answers the question. | 1-2m |
+| 4. DIAGNOSE | State root cause with evidence: `RCA \| TC-XXX \| category \| evidence: {artifact}.{field}={value} \| root cause: {explanation}` | 30s |
+| 5. FIX | Apply fix. Re-run ONLY the failing TC: `--grep "TC-XXX"`. | varies |
+| 6. MCP | ONLY if Step 3 was inconclusive. Replicate exact steps from lastActions on live MCP. | 3-5m |
+
+Steps 1-4 resolve 80%+ of failures WITHOUT MCP. Artifacts = 30 seconds. MCP = 3-5 minutes.
+
+---
+
+## Phase 5: Self-Audit (Maintainer Checklist)
+
+Before declaring done, verify your code against MNT rules:
+- [ ] Zero `waitForTimeout` calls? If any: justify or replace with `waitFor`/`expect.poll`
+- [ ] Zero `page.once('dialog')` in worker-scoped page objects? (use `page.on` + `removeListener`)
+- [ ] Zero raw CSS selectors in spec? All via `getElement`/`getLocator`?
+- [ ] Zero bracket-notation private access in spec? (expose public methods instead)
+- [ ] Reload/dialog handler patterns match existing page objects? (no duplication)
+- [ ] Save operations have observable outcomes? (`expect(isSaveEnabled()).toBe(true)` before saves that must succeed)
 
 ---
 

@@ -483,7 +483,7 @@ export class LocationPricingPage extends BasePage {
    * Click the Pricing Save button and confirm the Save Changes dialog if it appears.
    * Delegates to BasePage.clickSaveWithDialog (ALL-020: shared save dialog pattern).
    */
-  async clickSave(): Promise<void> {
-    await this.clickSaveWithDialog('btnSavePricing');
+  async clickSave(): Promise<{ success: boolean; networkError?: string }> {
+    return this.clickSaveWithDialog('btnSavePricing');
   }
 }

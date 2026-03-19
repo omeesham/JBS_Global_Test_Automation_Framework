@@ -76,6 +76,26 @@ function main(): void {
       const summary = JSON.parse(fs.readFileSync(failureSummaryPath, 'utf-8'));
       const failCount = summary.failed ?? 0;
       console.log(`[OK] PF-H1: failure-summary.json exists (${failCount} failures recorded)`);
+
+      // PF-DIAG: Check if diagnostics are actually populated (48A fix)
+      const failures: Array<{
+        networkFailures?: unknown[];
+        consoleErrors?: unknown[];
+        pageUrl?: string;
+        domSnippet?: string;
+      }> = summary.failures ?? [];
+      if (failures.length > 0) {
+        const emptyDiagnostics = failures.filter(f =>
+          (!f.networkFailures || f.networkFailures.length === 0) &&
+          (!f.consoleErrors || f.consoleErrors.length === 0) &&
+          (!f.pageUrl || f.pageUrl === '') &&
+          (!f.domSnippet || f.domSnippet === '')
+        );
+        if (emptyDiagnostics.length === failures.length) {
+          console.warn('[WARN] PF-DIAG: ALL failures have empty diagnostics -- data pipeline may be broken');
+          console.warn('  Agents are operating BLIND without diagnostic data. Check diagnosticsHandler fixture in fixtures.ts.');
+        }
+      }
     } catch {
       console.warn('[WARN] PF-H1: failure-summary.json exists but is invalid JSON');
     }
@@ -95,6 +115,11 @@ function main(): void {
   } else {
     console.warn('[WARN] No spec files listed in queue item artifacts');
   }
+
+  // PF-ESC: Check pending escalations assigned to healer (ALL-036)
+  const { checkPendingEscalations } = require('./validation-gates');
+  const escMessages: string[] = checkPendingEscalations('healer');
+  for (const msg of escMessages) console.warn(msg);
 
   // Result
   console.log('\n' + '='.repeat(60));

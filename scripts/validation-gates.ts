@@ -98,6 +98,61 @@ export function checkMidWorkCapture(
   return null;
 }
 
+// ── Escalation Enforcement (ALL-035/036) ──
+
+/**
+ * PF-ESC: Check pending escalations assigned to an agent.
+ * Returns formatted log messages. Non-blocking (soft warning) in pre-run.
+ */
+export function checkPendingEscalations(agentName: string): string[] {
+  const escFile = path.join(__dirname, '../specs_planning/_internal/agent-escalations.json');
+  if (!fs.existsSync(escFile)) return [];
+
+  try {
+    const escData = JSON.parse(fs.readFileSync(escFile, 'utf-8'));
+    const pending = (escData.escalations ?? []).filter(
+      (e: { pendingFor: string; status: string }) => e.pendingFor === agentName && e.status === 'open'
+    );
+    if (pending.length === 0) return [];
+
+    const lines: string[] = [];
+    lines.push(`[PF-ESC] ${pending.length} open escalation(s) assigned to ${agentName}:`);
+    for (const esc of pending) {
+      lines.push(`  - ${esc.id}: ${esc.summary} (from ${esc.createdBy}, severity: ${esc.severity})`);
+    }
+    lines.push('[PF-ESC] RESOLVE these before proceeding with new work (ALL-036).');
+    return lines;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * POST-ESC: Check if escalations assigned to an agent are still open after session.
+ * Returns warnings for unresolved escalations.
+ */
+export function checkUnresolvedEscalations(agentName: string): string[] {
+  const escFile = path.join(__dirname, '../specs_planning/_internal/agent-escalations.json');
+  if (!fs.existsSync(escFile)) return [];
+
+  try {
+    const escData = JSON.parse(fs.readFileSync(escFile, 'utf-8'));
+    const stillOpen = (escData.escalations ?? []).filter(
+      (e: { pendingFor: string; status: string }) => e.pendingFor === agentName && e.status === 'open'
+    );
+    if (stillOpen.length === 0) return [];
+
+    const lines: string[] = [];
+    lines.push(`[POST-ESC] WARNING: ${stillOpen.length} escalation(s) still open after session:`);
+    for (const esc of stillOpen) {
+      lines.push(`  - ${esc.id}: ${esc.summary}`);
+    }
+    return lines;
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Load queue file and find a specific item by ID from CLI args.
  * Exits process with error if queue or item not found.

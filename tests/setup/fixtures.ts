@@ -17,6 +17,10 @@ import { HomePage } from '../../src/pages/home.page';
 import { LocationCurrencyPage } from '../../src/pages/locations/location-currency.page';
 import { LocationLocalInfoPage } from '../../src/pages/locations/location-local-info.page';
 import { LocationPricingPage } from '../../src/pages/locations/location-pricing.page';
+import { LocationAccountAddressPage } from '../../src/pages/locations/location-account-address.page';
+import { LocationNotesPage } from '../../src/pages/locations/location-notes.page';
+import { LocationLegalPage } from '../../src/pages/locations/location-legal.page';
+import { LocationSharedSetupLocationsPage } from '../../src/pages/locations/location-shared-setup-locations.page';
 import { CommonMethods } from '../../src/utils/common-methods';
 import { Log, Logger } from '../../src/utils/logger';
 import { IConfig } from '../../src/framework-contracts';
@@ -33,12 +37,17 @@ type WorkerFixtures = {
 
 // Define test-scoped fixtures (fresh instance per test)
 type TestFixtures = {
+  diagnosticsHandler: void;
   commonMethods: CommonMethods;
   loginPage: LoginPage;
   homePage: HomePage;
   locationCurrencyPage: LocationCurrencyPage;
   locationLocalInfoPage: LocationLocalInfoPage;
   locationPricingPage: LocationPricingPage;
+  locationAccountAddressPage: LocationAccountAddressPage;
+  locationNotesPage: LocationNotesPage;
+  locationLegalPage: LocationLegalPage;
+  locationSharedSetupLocationsPage: LocationSharedSetupLocationsPage;
 };
 
 /**
@@ -46,6 +55,60 @@ type TestFixtures = {
  * Usage: import { test, expect } from './fixtures';
  */
 export const test = base.extend<TestFixtures, WorkerFixtures>({
+  /**
+   * Diagnostics handler fixture (auto-use)
+   * Reads from authenticatedSession.page (where collector is attached).
+   * Runs for EVERY test — ensures diagnostics are captured even when
+   * tests only use page object fixtures (locationPricingPage, etc.).
+   */
+  diagnosticsHandler: [async ({ authenticatedSession }, use, testInfo) => {
+    const { page } = authenticatedSession;
+    await use(undefined as unknown as void);
+
+    // Teardown — extract diagnostics from the CORRECT page (authenticatedSession.page)
+    const collector = (page as unknown as Record<string, unknown>).__diagnosticsCollector as DiagnosticsCollector | undefined;
+    if (collector) {
+      collector.recordUrl();
+      const snapshot = collector.getSnapshot();
+
+      if (testInfo.status !== 'passed') {
+        try {
+          const domContent = await page.content();
+          snapshot.domSnippet = domContent.slice(0, 50_000);
+        } catch { /* page may be closed */ }
+      }
+
+      testInfo.attach('diagnostics', {
+        contentType: 'application/json',
+        body: Buffer.from(JSON.stringify(snapshot)),
+      });
+
+      // Persist per-spec diagnostics file for agent drill-down
+      if (testInfo.status !== 'passed') {
+        const specName = path.basename(testInfo.file, '.spec.ts');
+        const diagDir = path.join(process.cwd(), 'reports', 'diagnostics');
+        if (!fs.existsSync(diagDir)) fs.mkdirSync(diagDir, { recursive: true });
+        const diagFile = path.join(diagDir, `${specName}.diagnostics.json`);
+        try {
+          let existing: { spec: string; tests: unknown[] } = { spec: specName, tests: [] };
+          if (fs.existsSync(diagFile)) {
+            existing = JSON.parse(fs.readFileSync(diagFile, 'utf-8'));
+          }
+          existing.tests.push({
+            name: testInfo.title,
+            status: testInfo.status,
+            consoleErrors: snapshot.consoleErrors,
+            networkFailures: snapshot.networkFailures,
+            pageErrors: snapshot.pageErrors,
+            pageUrl: snapshot.urlHistory.at(-1) ?? '',
+            authChain: snapshot.authChain,
+          });
+          fs.writeFileSync(diagFile, JSON.stringify(existing, null, 2) + '\n', 'utf-8');
+        } catch { /* best-effort persistence */ }
+      }
+    }
+  }, { auto: true }],
+
   /**
    * Configuration fixture (worker-scoped)
    * Loads environment config once per worker process for efficiency
@@ -125,54 +188,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   commonMethods: async ({ page }, use, testInfo) => {
     // R14 exception (intentional): Uses bare `page` not `authenticatedSession.page`.
     // CommonMethods only provides static utilities (initProp, generateTotpCode) -- no page interaction.
+    // Diagnostics teardown is handled by auto-use `diagnosticsHandler` fixture (reads from authenticatedSession.page).
     Logger.setSpecContext(testInfo.file);
     const commonMethods = new CommonMethods(page);
     await use(commonMethods);
-
-    // Teardown -- attach diagnostics snapshot to testInfo for AgentReporter consumption
-    const collector = (page as unknown as Record<string, unknown>).__diagnosticsCollector as DiagnosticsCollector | undefined;
-    if (collector) {
-      collector.recordUrl();
-      const snapshot = collector.getSnapshot();
-
-      // C1: Capture DOM snapshot on failure -- equivalent to browser_snapshot but automatic
-      if (testInfo.status !== 'passed') {
-        try {
-          const domContent = await page.content();
-          snapshot.domSnippet = domContent.slice(0, 50_000);
-        } catch { /* page may be closed -- best effort */ }
-      }
-
-      testInfo.attach('diagnostics', {
-        contentType: 'application/json',
-        body: Buffer.from(JSON.stringify(snapshot)),
-      });
-
-      // Persist per-spec diagnostics file for agent drill-down
-      if (testInfo.status !== 'passed') {
-        const specName = path.basename(testInfo.file, '.spec.ts');
-        const diagDir = path.join(process.cwd(), 'reports', 'diagnostics');
-        if (!fs.existsSync(diagDir)) fs.mkdirSync(diagDir, { recursive: true });
-        const diagFile = path.join(diagDir, `${specName}.diagnostics.json`);
-        try {
-          // Append test result to existing file or create new
-          let existing: { spec: string; tests: unknown[] } = { spec: specName, tests: [] };
-          if (fs.existsSync(diagFile)) {
-            existing = JSON.parse(fs.readFileSync(diagFile, 'utf-8'));
-          }
-          existing.tests.push({
-            name: testInfo.title,
-            status: testInfo.status,
-            consoleErrors: snapshot.consoleErrors,
-            networkFailures: snapshot.networkFailures,
-            pageErrors: snapshot.pageErrors,
-            pageUrl: snapshot.urlHistory.at(-1) ?? '',
-            authChain: snapshot.authChain,
-          });
-          fs.writeFileSync(diagFile, JSON.stringify(existing, null, 2) + '\n', 'utf-8');
-        } catch { /* best-effort persistence */ }
-      }
-    }
   },
 
   /**
@@ -219,6 +238,42 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   locationPricingPage: async ({ authenticatedSession, config }, use) => {
     const locationPricingPage = new LocationPricingPage(authenticatedSession.page, config);
     await use(locationPricingPage);
+  },
+
+  /**
+   * LocationAccountAddressPage fixture
+   * Uses authenticatedSession page so tests start pre-authenticated.
+   */
+  locationAccountAddressPage: async ({ authenticatedSession, config }, use) => {
+    const locationAccountAddressPage = new LocationAccountAddressPage(authenticatedSession.page, config);
+    await use(locationAccountAddressPage);
+  },
+
+  /**
+   * LocationNotesPage fixture
+   * Uses authenticatedSession page so tests start pre-authenticated.
+   */
+  locationNotesPage: async ({ authenticatedSession, config }, use) => {
+    const locationNotesPage = new LocationNotesPage(authenticatedSession.page, config);
+    await use(locationNotesPage);
+  },
+
+  /**
+   * LocationLegalPage fixture
+   * Uses authenticatedSession page so tests start pre-authenticated.
+   */
+  locationLegalPage: async ({ authenticatedSession, config }, use) => {
+    const locationLegalPage = new LocationLegalPage(authenticatedSession.page, config);
+    await use(locationLegalPage);
+  },
+
+  /**
+   * LocationSharedSetupLocationsPage fixture
+   * Uses authenticatedSession page so tests start pre-authenticated.
+   */
+  locationSharedSetupLocationsPage: async ({ authenticatedSession, config }, use) => {
+    const locationSharedSetupLocationsPage = new LocationSharedSetupLocationsPage(authenticatedSession.page, config);
+    await use(locationSharedSetupLocationsPage);
   },
 
 });

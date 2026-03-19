@@ -83,6 +83,11 @@ function main(): void {
   // PF-R1: MCP browser availability (soft check -- warn only)
   console.log('[OK] PF-R1: MCP browser check deferred to runtime (requires VS Code session)');
 
+  // PF-ESC: Check pending escalations assigned to requirements (ALL-036)
+  const { checkPendingEscalations } = require('./validation-gates');
+  const escMessages: string[] = checkPendingEscalations('requirements');
+  for (const msg of escMessages) console.warn(msg);
+
   // Result
   console.log('\n' + '='.repeat(60));
   if (failed) {

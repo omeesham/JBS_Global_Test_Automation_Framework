@@ -40,6 +40,7 @@
     "export:csv:full": "ts-node export_test_cases/to-csv.ts ./specs_planning/test-cases ./exports/test-cases-full.csv --type=full",
     "lint:testcases": "ts-node scripts/lint-test-cases.ts",
     "sync:mistakes": "ts-node scripts/sync-agent-mistakes.ts",
+    "sync:copilot": "ts-node scripts/sync-copilot-session.ts",
     "sync:mistakes:dry": "ts-node scripts/sync-agent-mistakes.ts --dry-run",
     "capture:mistake": "ts-node scripts/capture-mistake.ts",
     "validate:sync": "ts-node scripts/validate-agent-sync.ts",

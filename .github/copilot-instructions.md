@@ -117,6 +117,17 @@ npm run queue:validate                  # Cross-check queue, activity log, perfo
 
 ---
 
+## 4b. Bug-Blocked Tests
+
+When the Healer triages a failure as **BUG** (real application bug, not test defect):
+- Test gets `test.skip('bug-blocked: BUG-XXX')` annotation — do NOT remove or heal
+- Bug report stored in `reports/bugs/BUG-{MOD}-{NNN}.json`
+- Bug-blocked tests re-enter pipeline only when bug is fixed (§10 Cat-D lifecycle)
+- See `config/pipeline-config.json` triageConfig for triage settings
+- Rules: ALL-032 (triage before heal), ALL-033 (bug-blocked immutable), ALL-034 (bug report storage)
+
+---
+
 ## 5. Pitfalls
 
 | Problem | Solution |
@@ -193,6 +204,7 @@ Each queue item has `injectedContext` containing:
 
 ## 8. References
 
+- **RCA Protocol**: `docs/read_only_docs/AGENT_SHARED_RULES.md` §12 — artifact-first debugging, decision trees (ALL-045..051), evidence-based fixes, Pareto-ordered investigation
 - **Shared Rules**: `docs/read_only_docs/AGENT_SHARED_RULES.md`
 - **Architecture**: `docs/read_only_docs/ARCHITECTURE.md`
 - **Commenting**: `docs/read_only_docs/COMMENTING_STANDARDS.md`
