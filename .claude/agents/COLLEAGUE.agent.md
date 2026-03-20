@@ -1,11 +1,17 @@
-# Colleague's Agent — COLLEAGUE_AGENT
+> **TEMPLATE** — This file is a starter for new collaborators.
+> When onboarding, copy this file to `<YOUR_NAME>.agent.md` and personalize it.
+> See CLAUDE.md "First-Time Setup" for the full onboarding flow.
+
+---
+
+# Collaborator Agent — <YOUR_NAME>_AGENT
 
 ---
 
 ## Identity
 
-- **Human**: Rutvik's colleague (omeesha)
-- **Agent name**: COLLEAGUE_AGENT
+- **Human**: <YOUR_NAME> (replace during onboarding)
+- **Agent name**: <YOUR_NAME>_AGENT (replace during onboarding)
 - **Tool**: Claude Code (CLI) or GitHub Copilot
 - **Primary workspace**: `website/` (frontend + backend)
 

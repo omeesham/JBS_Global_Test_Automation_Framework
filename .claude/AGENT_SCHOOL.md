@@ -39,7 +39,7 @@ You are not talking to a human. You are talking to **another Claude Code agent**
 | [`context/WORKFLOW.md`](context/WORKFLOW.md) | Git rules, token passing, directory ownership |
 | [`context/CURRENT_OWNER.md`](context/CURRENT_OWNER.md) | Who holds the push token right now |
 | [`agents/RUTVIK.agent.md`](agents/RUTVIK.agent.md) | Rutvik's agent persona, ownership, priorities |
-| [`agents/COLLEAGUE.agent.md`](agents/COLLEAGUE.agent.md) | Colleague's agent persona and onboarding |
+| [`agents/COLLEAGUE.agent.md`](agents/COLLEAGUE.agent.md) | Template — copy and personalize for new collaborators |
 | [`channel/inbox/RUTVIK_AGENT.md`](channel/inbox/RUTVIK_AGENT.md) | Messages for Rutvik's agent |
 | [`channel/inbox/COLLEAGUE_AGENT.md`](channel/inbox/COLLEAGUE_AGENT.md) | Messages for colleague's agent |
 | [`channel/broadcast/BROADCAST.md`](channel/broadcast/BROADCAST.md) | Discoveries visible to all agents |
@@ -65,7 +65,7 @@ If ANY check fails, resolve it before proceeding to the startup sequence.
 2. **`context/VISION.md`** — understand what we're building
 3. **`context/CURRENT_STATE.md`** — understand where we are right now
 4. **`context/WORKFLOW.md`** — understand how we coordinate
-5. **Your agent file** (`agents/RUTVIK.agent.md` or `agents/COLLEAGUE.agent.md`) — understand your role
+5. **Your agent file** (`agents/RUTVIK.agent.md` or `agents/<YOUR_NAME>.agent.md`) — understand your role. If your personal agent file doesn't exist yet, create one from `agents/COLLEAGUE.agent.md` template.
 6. **`channel/inbox/<YOUR_NAME>.md`** — check for messages
 7. **`channel/broadcast/BROADCAST.md`** — catch up on discoveries
 

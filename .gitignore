@@ -96,10 +96,9 @@ tmp/
 *.pem
 *.key
 
-# Vault secrets (explicit)
+# Vault secrets — each developer creates their own vault locally
 config/secrets/.vault.key
 config/secrets/*.enc
-!config/secrets/.vault.enc
 
 # Auth sessions
 .auth/

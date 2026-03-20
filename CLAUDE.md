@@ -3,52 +3,94 @@
 ## First-Time Setup (New Collaborators)
 
 **On every session start**, check if `config/environments/.env.local` exists.
-If it does NOT exist, the user has not set up their personal environment yet.
+If it does NOT exist, this is a new collaborator. Run onboarding BEFORE any other work.
 
-**When `.env.local` is missing — do this BEFORE any other work:**
+### Onboarding Flow
 
-1. Tell the user: "This repo needs personal environment setup before you can run anything. Let me walk you through it."
+**Step 1 — Personalize your agent identity**
 
-2. Copy the template files:
-   ```bash
-   cp config/environments/.env.example config/environments/.env.local
-   cp config/environments/.env.server.example config/environments/.env.server
-   ```
+Ask the user: "What's your name?" Then:
+- Copy `.claude/agents/COLLEAGUE.agent.md` → `.claude/agents/<NAME>.agent.md`
+- In the new file: replace placeholder name with the user's actual name
+- Replace `COLLEAGUE_AGENT` with `<NAME>_AGENT` throughout
+- Update ownership sections based on what areas the user will work on
+- Commit and push the new agent file so the team knows who they are
 
-3. Ask the user to fill in their personal values in `.env.local`:
-   - `VAULT_PASSPHRASE` — "Ask Rutvik for the team vault passphrase. This decrypts test credentials."
-   - `NAVIGATOR_USERNAME` — their own Microsoft SSO email
-   - `DATABASE_URL` — default `postgresql://postgres:admin@localhost:5432/postgres` works if using docker-compose
+**Step 2 — Set up Encore credentials (Navigator Cloud SSO)**
 
-4. Generate their encryption secret for `.env.server`:
-   ```bash
-   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-   ```
-   Put the output as `ENCRYPTION_SECRET=<generated>` in `.env.server`.
+Each collaborator needs their OWN Navigator Cloud test account. Ask the user for:
+- Their Navigator Cloud email (Microsoft SSO)
+- Their Navigator Cloud password
+- Their MFA secret (Base32 TOTP seed, if MFA is enabled)
 
-5. Install all dependencies:
-   ```bash
-   npm install
-   cd website/frontend && npm install && cd ../..
-   cd website/backend && npm install && cd ../..
-   ```
+Then create their personal encrypted vault:
+```bash
+npm run vault:init                                        # Prompts for a NEW passphrase — pick your own, remember it
+npm run vault:set NAVIGATOR_USERNAME your_email@domain.com
+npm run vault:set NAVIGATOR_PASSWORD your_password
+npm run vault:set NAVIGATOR_MFA_SECRET your_mfa_base32    # if MFA enabled
+```
 
-6. Start PostgreSQL:
-   ```bash
-   docker compose up -d
-   ```
+This creates `config/secrets/.vault.enc` encrypted with THEIR passphrase.
+The vault file is gitignored — each developer has their own.
 
-7. Verify everything works:
-   ```bash
-   curl -s http://localhost:3100/api/health   # Encore backend
-   curl -s http://localhost:3001/api/health   # Website backend
-   ```
+**Step 3 — Create `.env.local`**
 
-**SECURITY — NON-NEGOTIABLE:**
-- NEVER commit `.env.local` or `.env.server` (gitignored)
+```bash
+cp config/environments/.env.example config/environments/.env.local
+```
+
+Edit `.env.local` and set:
+- `VAULT_PASSPHRASE=<the passphrase you chose in Step 2>`
+- All other defaults are fine for local development
+
+**Step 4 — Install Claude CLI** (required for pipeline worker)
+
+```bash
+npm install -g @anthropic-ai/claude-code
+claude login
+```
+
+Each person needs their own Claude subscription. Follow the auth prompts.
+
+Verify:
+```bash
+claude --version
+claude -p "respond with OK" --model haiku --max-turns 1
+```
+
+**Step 5 — Install dependencies + browsers**
+
+```bash
+npm install
+npx playwright install
+```
+
+**Step 6 — Verify Encore pipeline works**
+
+```bash
+npm test -- --project=chrome tests/seed.spec.ts
+```
+
+This runs the auth smoke test. If it passes, Navigator Cloud credentials + vault are working.
+
+**Step 7 — Full stack setup** (for website + pipeline UI work)
+
+```bash
+cp config/environments/.env.server.example config/environments/.env.server
+# Edit .env.server: set ENCRYPTION_SECRET (generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+cd website/frontend && npm install && cd ../..
+cd website/backend && npm install && cd ../..
+docker compose up -d                    # PostgreSQL
+npm run server:start                    # Encore backend (port 3100)
+cd website/backend && npm run dev       # Website backend (port 3001)
+cd website/frontend && npm run dev      # Frontend (port 5173)
+```
+
+### SECURITY — NON-NEGOTIABLE
+- NEVER commit `.env.local`, `.env.server`, or `.vault.enc` (all gitignored)
 - NEVER hardcode credentials in any tracked file
-- NEVER copy another person's `.env.local` — each developer uses their OWN
-- The vault passphrase is communicated out-of-band (Slack/in-person), never via git
+- Each developer has their OWN vault with their OWN passphrase — never share
 - If you find credentials in any tracked file, flag it immediately
 
 ---
