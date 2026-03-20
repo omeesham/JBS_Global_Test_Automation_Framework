@@ -40,7 +40,7 @@ If you are COLLEAGUE_AGENT reading this for the first time:
 - DB schema is `JBSTestOpsAI` (SET search_path in every query)
 - CORS is wide open: `app.use(cors())` — intentional for local dev
 - Template generation is NOT mock — it's keyword matching + templates, runs in <100ms
-- Login credentials for testing: `jbsadmin` / `Omeesha@19` (admin role, sees all pages)
+- Login credentials for testing: stored in `.env.local` — ask Rutvik for access
 - The 5 mock pages (Workflows, Integrations, Analytics, CustomTestSuite, Automation) are intentional placeholders — don't try to wire them to real APIs
 - `website/backend/src/agents/` are Express route handlers, NOT AI agents — they use keyword matching and templates, no LLM calls
 

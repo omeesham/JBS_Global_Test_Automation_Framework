@@ -1,5 +1,58 @@
 # Encore Framework — Claude Code Configuration
 
+## First-Time Setup (New Collaborators)
+
+**On every session start**, check if `config/environments/.env.local` exists.
+If it does NOT exist, the user has not set up their personal environment yet.
+
+**When `.env.local` is missing — do this BEFORE any other work:**
+
+1. Tell the user: "This repo needs personal environment setup before you can run anything. Let me walk you through it."
+
+2. Copy the template files:
+   ```bash
+   cp config/environments/.env.example config/environments/.env.local
+   cp config/environments/.env.server.example config/environments/.env.server
+   ```
+
+3. Ask the user to fill in their personal values in `.env.local`:
+   - `VAULT_PASSPHRASE` — "Ask Rutvik for the team vault passphrase. This decrypts test credentials."
+   - `NAVIGATOR_USERNAME` — their own Microsoft SSO email
+   - `DATABASE_URL` — default `postgresql://postgres:admin@localhost:5432/postgres` works if using docker-compose
+
+4. Generate their encryption secret for `.env.server`:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+   Put the output as `ENCRYPTION_SECRET=<generated>` in `.env.server`.
+
+5. Install all dependencies:
+   ```bash
+   npm install
+   cd website/frontend && npm install && cd ../..
+   cd website/backend && npm install && cd ../..
+   ```
+
+6. Start PostgreSQL:
+   ```bash
+   docker compose up -d
+   ```
+
+7. Verify everything works:
+   ```bash
+   curl -s http://localhost:3100/api/health   # Encore backend
+   curl -s http://localhost:3001/api/health   # Website backend
+   ```
+
+**SECURITY — NON-NEGOTIABLE:**
+- NEVER commit `.env.local` or `.env.server` (gitignored)
+- NEVER hardcode credentials in any tracked file
+- NEVER copy another person's `.env.local` — each developer uses their OWN
+- The vault passphrase is communicated out-of-band (Slack/in-person), never via git
+- If you find credentials in any tracked file, flag it immediately
+
+---
+
 ## Skill Auto-Routing
 
 When the user's message matches an intent pattern below, auto-invoke the corresponding skill.
