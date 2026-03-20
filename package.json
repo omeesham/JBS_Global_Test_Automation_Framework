@@ -80,7 +80,13 @@
     "server:start": "ts-node src/server/index.ts",
     "server:dev": "node --watch -r ts-node/register src/server/index.ts",
     "worker:start": "ts-node src/worker/index.ts",
-    "db:migrate": "ts-node -e \"require('./src/server/db/client').initializeSchema().then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); })\""
+    "db:migrate": "ts-node -e \"require('./src/server/db/client').initializeSchema().then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); })\"",
+    "vault:init": "ts-node client-delivery/scripts/vault-manager.ts init",
+    "vault:set": "ts-node client-delivery/scripts/vault-manager.ts set",
+    "vault:get": "ts-node client-delivery/scripts/vault-manager.ts get",
+    "vault:list": "ts-node client-delivery/scripts/vault-manager.ts list",
+    "vault:rotate": "ts-node client-delivery/scripts/vault-manager.ts rotate",
+    "vault:info": "ts-node client-delivery/scripts/vault-manager.ts info"
   },
   "keywords": [
     "playwright",

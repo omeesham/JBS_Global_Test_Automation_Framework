@@ -3,95 +3,56 @@
 ## First-Time Setup (New Collaborators)
 
 **On every session start**, check if `config/environments/.env.local` exists.
-If it does NOT exist, this is a new collaborator. Run onboarding BEFORE any other work.
+If missing → this is a new collaborator. Run onboarding BEFORE any other work.
 
-### Onboarding Flow
+### Step 1 — Create your agent identity
+Ask: "What's your name?" Copy `.claude/agents/COLLEAGUE.agent.md` → `.claude/agents/<NAME>.agent.md`, replace all `<YOUR_NAME>` placeholders, commit + push.
 
-**Step 1 — Personalize your agent identity**
-
-Ask the user: "What's your name?" Then:
-- Copy `.claude/agents/COLLEAGUE.agent.md` → `.claude/agents/<NAME>.agent.md`
-- In the new file: replace placeholder name with the user's actual name
-- Replace `COLLEAGUE_AGENT` with `<NAME>_AGENT` throughout
-- Update ownership sections based on what areas the user will work on
-- Commit and push the new agent file so the team knows who they are
-
-**Step 2 — Set up Encore credentials (Navigator Cloud SSO)**
-
-Each collaborator needs their OWN Navigator Cloud test account. Ask the user for:
-- Their Navigator Cloud email (Microsoft SSO)
-- Their Navigator Cloud password
-- Their MFA secret (Base32 TOTP seed, if MFA is enabled)
-
-Then create their personal encrypted vault:
+### Step 2 — Set up Encore credentials
+Each person needs their OWN Navigator Cloud SSO account. Ask for their email, password, and MFA secret, then:
 ```bash
-npm run vault:init                                        # Prompts for a NEW passphrase — pick your own, remember it
-npm run vault:set NAVIGATOR_USERNAME your_email@domain.com
+npm run vault:init                                     # Pick your own passphrase
+npm run vault:set NAVIGATOR_USERNAME user@domain.com
 npm run vault:set NAVIGATOR_PASSWORD your_password
-npm run vault:set NAVIGATOR_MFA_SECRET your_mfa_base32    # if MFA enabled
+npm run vault:set NAVIGATOR_MFA_SECRET your_base32     # if MFA enabled
 ```
 
-This creates `config/secrets/.vault.enc` encrypted with THEIR passphrase.
-The vault file is gitignored — each developer has their own.
-
-**Step 3 — Create `.env.local`**
-
+### Step 3 — Create `.env.local`
 ```bash
 cp config/environments/.env.example config/environments/.env.local
 ```
+Set `VAULT_PASSPHRASE=<passphrase from Step 2>`. Other defaults are fine.
 
-Edit `.env.local` and set:
-- `VAULT_PASSPHRASE=<the passphrase you chose in Step 2>`
-- All other defaults are fine for local development
-
-**Step 4 — Install Claude CLI** (required for pipeline worker)
-
+### Step 4 — Install Claude CLI
 ```bash
-npm install -g @anthropic-ai/claude-code
-claude login
+npm install -g @anthropic-ai/claude-code && claude login
+```
+Each person needs their own Claude subscription.
+
+### Step 5 — Install deps + browsers
+```bash
+npm install && npx playwright install
 ```
 
-Each person needs their own Claude subscription. Follow the auth prompts.
-
-Verify:
-```bash
-claude --version
-claude -p "respond with OK" --model haiku --max-turns 1
-```
-
-**Step 5 — Install dependencies + browsers**
-
-```bash
-npm install
-npx playwright install
-```
-
-**Step 6 — Verify Encore pipeline works**
-
+### Step 6 — Verify
 ```bash
 npm test -- --project=chrome tests/seed.spec.ts
 ```
+Passes = Navigator Cloud credentials + vault are working.
 
-This runs the auth smoke test. If it passes, Navigator Cloud credentials + vault are working.
-
-**Step 7 — Full stack setup** (for website + pipeline UI work)
-
+### Step 7 — Full stack (optional, for website/UI work)
 ```bash
 cp config/environments/.env.server.example config/environments/.env.server
-# Edit .env.server: set ENCRYPTION_SECRET (generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+# Set ENCRYPTION_SECRET: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 cd website/frontend && npm install && cd ../..
 cd website/backend && npm install && cd ../..
-docker compose up -d                    # PostgreSQL
-npm run server:start                    # Encore backend (port 3100)
-cd website/backend && npm run dev       # Website backend (port 3001)
-cd website/frontend && npm run dev      # Frontend (port 5173)
+docker compose up -d && npm run server:start
 ```
 
-### SECURITY — NON-NEGOTIABLE
+### Security Rules
 - NEVER commit `.env.local`, `.env.server`, or `.vault.enc` (all gitignored)
-- NEVER hardcode credentials in any tracked file
-- Each developer has their OWN vault with their OWN passphrase — never share
-- If you find credentials in any tracked file, flag it immediately
+- NEVER hardcode credentials in tracked files
+- Each developer has their OWN vault — never share passphrase via git
 
 ---
 

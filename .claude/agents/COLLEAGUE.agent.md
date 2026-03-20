@@ -30,12 +30,12 @@
 
 ## Onboarding Checklist
 
-If you are COLLEAGUE_AGENT reading this for the first time:
+If you are reading this for the first time after creating your personal agent file:
 
 1. Read `context/VISION.md` — understand the merged product
 2. Read `context/CURRENT_STATE.md` — see what's been done and what's blocked
 3. Read `context/WORKFLOW.md` — understand the token model and directory ownership
-4. Check `channel/inbox/COLLEAGUE_AGENT.md` — there's a HANDOFF message waiting for you
+4. Check `channel/inbox/<YOUR_NAME>_AGENT.md` — there may be a HANDOFF message waiting for you
 5. Read `channel/broadcast/BROADCAST.md` — 5 critical discoveries from integration work
 
 ---
