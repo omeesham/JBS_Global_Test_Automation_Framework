@@ -12,6 +12,9 @@ import type {
   CreatePipelineRequest,
   CompletedTaskPayload,
   AdminUsage,
+  Page,
+  PageStageStatus,
+  PageWithStages,
 } from '../../orchestrator/types';
 
 // ── Pipeline Runs ──
@@ -164,6 +167,36 @@ export async function getArtifacts(pool: Pool, runId: string): Promise<Artifact[
   return rows;
 }
 
+export async function getArtifactsByPageId(pool: Pool, pageId: string): Promise<Artifact[]> {
+  const { rows } = await pool.query<Artifact>(
+    `SELECT a.* FROM artifacts a
+     JOIN pipeline_runs pr ON a.run_id = pr.id
+     WHERE pr.page_id = $1
+     AND (a.metadata IS NULL OR NOT (a.metadata ? 'deleted'))
+     ORDER BY a.created_at ASC`,
+    [pageId]
+  );
+  return rows;
+}
+
+export async function createArtifactDirect(
+  pool: Pool,
+  runId: string,
+  name: string,
+  type: string,
+  content: string | null,
+  pageId?: string | null,
+  metadata?: Record<string, unknown>
+): Promise<Artifact> {
+  const { rows } = await pool.query<Artifact>(
+    `INSERT INTO artifacts (run_id, name, type, content, page_id, metadata)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING *`,
+    [runId, name, type, content, pageId || null, metadata ? JSON.stringify(metadata) : null]
+  );
+  return rows[0]!;
+}
+
 // ── Worker Tasks ──
 
 export async function createWorkerTask(
@@ -253,8 +286,12 @@ export async function recoverStaleTasks(pool: Pool): Promise<number> {
   const { rowCount } = await pool.query(
     `UPDATE worker_tasks
      SET status = 'pending', claimed_at = NULL
-     WHERE status = 'claimed'
-     AND claimed_at < NOW() - INTERVAL '30 minutes'`
+     WHERE id IN (
+       SELECT id FROM worker_tasks
+       WHERE status = 'claimed'
+       AND claimed_at < NOW() - INTERVAL '30 minutes'
+       LIMIT 100
+     )`
   );
   return rowCount ?? 0;
 }
@@ -458,4 +495,193 @@ export async function seedDefaultPipelineDefinition(
      ON CONFLICT (client_id) DO NOTHING`,
     [JSON.stringify(definition)],
   );
+}
+
+// ── Pages (Plan 53B) ──
+
+export async function createPage(
+  pool: Pool,
+  data: { client_id?: string | null; module: string; page_slug: string; display_name: string; target_url?: string | null; parent_page_id?: string | null; depth?: number; sort_order?: number; metadata?: Record<string, unknown> | null }
+): Promise<Page> {
+  const { rows } = await pool.query<Page>(
+    `INSERT INTO pages (client_id, module, page_slug, display_name, target_url, parent_page_id, depth, sort_order, metadata)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     RETURNING *`,
+    [data.client_id || null, data.module, data.page_slug, data.display_name, data.target_url || null, data.parent_page_id || null, data.depth ?? 0, data.sort_order ?? 0, data.metadata ? JSON.stringify(data.metadata) : null]
+  );
+  return rows[0]!;
+}
+
+export async function getPage(pool: Pool, id: string): Promise<Page | null> {
+  const { rows } = await pool.query<Page>('SELECT * FROM pages WHERE id = $1', [id]);
+  return rows[0] || null;
+}
+
+export async function getPageBySlug(pool: Pool, clientId: string | null, module: string, slug: string): Promise<Page | null> {
+  const { rows } = await pool.query<Page>(
+    'SELECT * FROM pages WHERE client_id IS NOT DISTINCT FROM $1 AND module = $2 AND page_slug = $3',
+    [clientId, module, slug]
+  );
+  return rows[0] || null;
+}
+
+export async function listPages(pool: Pool, clientId?: string | null): Promise<PageWithStages[]> {
+  const whereClause = clientId ? 'WHERE p.client_id = $1' : '';
+  const params = clientId ? [clientId] : [];
+  const { rows } = await pool.query<Page & { stages_json: string }>(
+    `SELECT p.*, COALESCE(
+       json_agg(json_build_object(
+         'id', pss.id, 'page_id', pss.page_id, 'stage_id', pss.stage_id,
+         'status', pss.status, 'active_run_id', pss.active_run_id,
+         'last_run_id', pss.last_run_id, 'last_completed_at', pss.last_completed_at,
+         'artifact_summary', pss.artifact_summary, 'approved_by', pss.approved_by,
+         'approved_at', pss.approved_at, 'explore_without_reqs', pss.explore_without_reqs,
+         'explore_permitted_by', pss.explore_permitted_by,
+         'created_at', pss.created_at, 'updated_at', pss.updated_at
+       )) FILTER (WHERE pss.id IS NOT NULL), '[]'
+     )::text AS stages_json
+     FROM pages p
+     LEFT JOIN page_stage_status pss ON pss.page_id = p.id
+     ${whereClause}
+     GROUP BY p.id
+     ORDER BY p.sort_order ASC, p.display_name ASC`,
+    params
+  );
+  return rows.map(r => {
+    const { stages_json, ...page } = r;
+    return { ...page, stages: JSON.parse(stages_json) } as PageWithStages;
+  });
+}
+
+export async function getPageTree(pool: Pool, clientId?: string | null): Promise<Page[]> {
+  const whereClause = clientId ? 'WHERE client_id = $1' : '';
+  const params = clientId ? [clientId] : [];
+  const { rows } = await pool.query<Page>(
+    `WITH RECURSIVE tree AS (
+       SELECT *, 0 AS tree_depth FROM pages ${whereClause} AND parent_page_id IS NULL
+       UNION ALL
+       SELECT p.*, t.tree_depth + 1
+       FROM pages p JOIN tree t ON p.parent_page_id = t.id
+     )
+     SELECT * FROM tree ORDER BY tree_depth, sort_order, display_name`,
+    params
+  );
+  return rows;
+}
+
+export async function updatePage(pool: Pool, id: string, data: Partial<Pick<Page, 'display_name' | 'target_url' | 'metadata' | 'sort_order'>>): Promise<Page | null> {
+  const sets: string[] = [];
+  const vals: unknown[] = [];
+  let idx = 1;
+  if (data.display_name !== undefined) { sets.push(`display_name = $${idx++}`); vals.push(data.display_name); }
+  if (data.target_url !== undefined) { sets.push(`target_url = $${idx++}`); vals.push(data.target_url); }
+  if (data.metadata !== undefined) { sets.push(`metadata = $${idx++}`); vals.push(JSON.stringify(data.metadata)); }
+  if (data.sort_order !== undefined) { sets.push(`sort_order = $${idx++}`); vals.push(data.sort_order); }
+  if (sets.length === 0) return getPage(pool, id);
+  vals.push(id);
+  const { rows } = await pool.query<Page>(`UPDATE pages SET ${sets.join(', ')} WHERE id = $${idx} RETURNING *`, vals);
+  return rows[0] || null;
+}
+
+export async function deletePage(pool: Pool, id: string): Promise<boolean> {
+  const { rowCount } = await pool.query('DELETE FROM pages WHERE id = $1', [id]);
+  return (rowCount ?? 0) > 0;
+}
+
+// ── Page Stage Status (Plan 53B) ──
+
+export async function upsertPageStageStatus(
+  pool: Pool,
+  pageId: string,
+  stageId: string,
+  patch: Partial<Pick<PageStageStatus, 'status' | 'active_run_id' | 'last_run_id' | 'last_completed_at' | 'artifact_summary' | 'approved_by' | 'approved_at' | 'explore_without_reqs' | 'explore_permitted_by'>>
+): Promise<PageStageStatus> {
+  const { rows } = await pool.query<PageStageStatus>(
+    `INSERT INTO page_stage_status (page_id, stage_id, status, active_run_id, last_run_id, last_completed_at, artifact_summary, approved_by, approved_at, explore_without_reqs, explore_permitted_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+     ON CONFLICT (page_id, stage_id) DO UPDATE SET
+       status = COALESCE($3, page_stage_status.status),
+       active_run_id = COALESCE($4, page_stage_status.active_run_id),
+       last_run_id = COALESCE($5, page_stage_status.last_run_id),
+       last_completed_at = COALESCE($6, page_stage_status.last_completed_at),
+       artifact_summary = COALESCE($7, page_stage_status.artifact_summary),
+       approved_by = COALESCE($8, page_stage_status.approved_by),
+       approved_at = COALESCE($9, page_stage_status.approved_at),
+       explore_without_reqs = COALESCE($10, page_stage_status.explore_without_reqs),
+       explore_permitted_by = COALESCE($11, page_stage_status.explore_permitted_by)
+     RETURNING *`,
+    [pageId, stageId, patch.status || 'not_started', patch.active_run_id || null, patch.last_run_id || null, patch.last_completed_at || null, patch.artifact_summary ? JSON.stringify(patch.artifact_summary) : null, patch.approved_by || null, patch.approved_at || null, patch.explore_without_reqs ?? false, patch.explore_permitted_by || null]
+  );
+  return rows[0]!;
+}
+
+export async function getPageStageStatuses(pool: Pool, pageId: string): Promise<PageStageStatus[]> {
+  const { rows } = await pool.query<PageStageStatus>(
+    'SELECT * FROM page_stage_status WHERE page_id = $1 ORDER BY stage_id',
+    [pageId]
+  );
+  return rows;
+}
+
+export async function checkPageConcurrency(pool: Pool, pageId: string, stageId: string): Promise<{ locked: boolean; activeRunId: string | null }> {
+  const { rows } = await pool.query<{ active_run_id: string | null }>(
+    'SELECT active_run_id FROM page_stage_status WHERE page_id = $1 AND stage_id = $2',
+    [pageId, stageId]
+  );
+  const activeRunId = rows[0]?.active_run_id || null;
+  return { locked: !!activeRunId, activeRunId };
+}
+
+// ── Versioned Artifact Operations (Plan 53B) ──
+
+export async function updateArtifactVersioned(
+  pool: Pool,
+  artifactId: string,
+  content: string,
+  editedBy: string
+): Promise<Artifact> {
+  // Create new version, link old → new via replaced_by
+  const { rows: [old] } = await pool.query<Artifact>('SELECT * FROM artifacts WHERE id = $1', [artifactId]);
+  if (!old) throw new Error(`Artifact ${artifactId} not found`);
+
+  const { rows: [newArtifact] } = await pool.query<Artifact>(
+    `INSERT INTO artifacts (run_id, name, type, content, metadata, page_id, version, edited_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING *`,
+    [old.run_id, old.name, old.type, content, old.metadata ? JSON.stringify(old.metadata) : null, old.page_id, (old.version || 1) + 1, editedBy]
+  );
+
+  // Link old to new
+  await pool.query('UPDATE artifacts SET replaced_by = $1 WHERE id = $2', [newArtifact!.id, artifactId]);
+  return newArtifact!;
+}
+
+// ── Fuzzy Page Search (Plan 53F) ──
+
+export async function searchPages(pool: Pool, clientId: string | null, query: string): Promise<Page[]> {
+  const pattern = `%${query}%`;
+  const { rows } = await pool.query<Page>(
+    `SELECT * FROM pages WHERE client_id IS NOT DISTINCT FROM $1
+     AND (display_name ILIKE $2 OR page_slug ILIKE $2 OR target_url ILIKE $2)
+     ORDER BY display_name ASC LIMIT 10`,
+    [clientId, pattern]
+  );
+  return rows;
+}
+
+export async function findPageByUrl(pool: Pool, clientId: string | null, url: string): Promise<Page | null> {
+  const { rows } = await pool.query<Page>(
+    'SELECT * FROM pages WHERE client_id IS NOT DISTINCT FROM $1 AND target_url = $2',
+    [clientId, url]
+  );
+  return rows[0] || null;
+}
+
+export async function softDeleteArtifact(pool: Pool, artifactId: string, deletedBy: string): Promise<boolean> {
+  // Soft delete = mark with metadata flag (no physical delete)
+  const { rowCount } = await pool.query(
+    `UPDATE artifacts SET metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object('deleted', true, 'deleted_by', $1, 'deleted_at', now()::text) WHERE id = $2`,
+    [deletedBy, artifactId]
+  );
+  return (rowCount ?? 0) > 0;
 }

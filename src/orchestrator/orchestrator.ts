@@ -14,6 +14,7 @@ import {
   createWorkerTask,
   getStageResults,
   getClientPipelineDefinition,
+  upsertPageStageStatus,
 } from '../server/db/queries';
 
 // Event callback — set by server to avoid circular dependency (orchestrator → events)
@@ -105,8 +106,8 @@ export async function loadPipelineDefinitionForClient(
       clientDefCache.set(cacheKey, { def, ts: now });
       return def;
     }
-  } catch {
-    // DB error — fall back to file
+  } catch (err) {
+    console.warn('[Orchestrator] DB lookup failed for client definition, falling back to file:', (err as Error).message);
   }
 
   // Fallback to file-based
@@ -317,8 +318,55 @@ export async function processStageCompletion(
     return;
   }
 
-  // Determine next stage
-  let nextStageId = getNextStageId(stageId, outcome, definition);
+  // Update page_stage_status on completion (if page-scoped run)
+  if (run0?.page_id) {
+    const pageStatus = outcome === 'success' || outcome === 'tests_pass'
+      ? 'completed' as const
+      : 'failed' as const;
+    await upsertPageStageStatus(pool, run0.page_id, stageId, {
+      status: pageStatus,
+      active_run_id: null,
+      last_run_id: runId,
+      ...(pageStatus === 'completed' ? { last_completed_at: new Date().toISOString() } : {}),
+    });
+    emitEvent(runId, {
+      type: 'page_stage_updated',
+      runId,
+      pageId: run0.page_id,
+      stageId,
+      status: pageStatus,
+      timestamp: new Date().toISOString(),
+      visibility: 'public',
+    });
+  }
+
+  // Determine next stage — cascade_plan overrides normal routing
+  let nextStageId: string | null = null;
+
+  if (run0?.cascade_plan && Array.isArray(run0.cascade_plan)) {
+    const cascadePlan = run0.cascade_plan as unknown as string[];
+    const currentIdx = cascadePlan.indexOf(stageId);
+    if (currentIdx >= 0 && currentIdx < cascadePlan.length - 1) {
+      nextStageId = cascadePlan[currentIdx + 1]!;
+      // Emit cascade progress
+      if (run0.page_id) {
+        emitEvent(runId, {
+          type: 'cascade_progress',
+          runId,
+          pageId: run0.page_id,
+          completedStage: stageId,
+          nextStage: nextStageId,
+          timestamp: new Date().toISOString(),
+          visibility: 'public',
+        });
+      }
+    }
+    // If cascade exhausted, fall through to normal routing
+  }
+
+  if (!nextStageId) {
+    nextStageId = getNextStageId(stageId, outcome, definition);
+  }
 
   // Dry run: force linear routing through ALL stages (including healing)
   const isDryRun = resultData?.dryRun === true;
@@ -342,12 +390,68 @@ export async function processStageCompletion(
         if (fs.existsSync(triageReportPath)) {
           triageReport = JSON.parse(fs.readFileSync(triageReportPath, 'utf-8'));
         }
-      } catch {
-        // File missing or malformed — skip triage
+      } catch (err) {
+        console.warn('[Orchestrator] Could not read triage report:', (err as Error).message);
       }
     }
 
     if (triageReport?.totalFailures && triageReport.totalFailures > 0) {
+      // Auto-triage: if run is in auto mode, apply defaults and continue silently
+      const isAutoMode = run0?.execution_mode_live === 'auto' || run0?.execution_mode_live === 'full-auto';
+      const autoTriageDefaults = (definition as any).autoTriageDefaults as Record<string, string> | undefined;
+
+      if (isAutoMode && autoTriageDefaults && Object.keys(autoTriageDefaults).length > 0) {
+        // Apply auto-triage defaults — try multiple triage report formats
+        const report = triageReport as any;
+        let triageItems: any[] = [];
+        if (report.groups && Array.isArray(report.groups)) {
+          triageItems = report.groups.flatMap((g: any) => g.items || []);
+        } else if (Array.isArray(report.failures)) {
+          triageItems = report.failures;
+        } else if (Array.isArray(report)) {
+          triageItems = report;
+        }
+        if (triageItems.length === 0) {
+          console.warn('[Orchestrator] Auto-triage: could not parse triage items from report, falling back to manual triage');
+          // Fall through to manual triage below
+        } else {
+        const decisions = triageItems.map((item: any) => ({
+          testName: item.testName || item.name || 'Unknown',
+          action: autoTriageDefaults[item.category] || autoTriageDefaults['UNCERTAIN'] || 'dismiss',
+        }));
+        const healCount = decisions.filter((d: any) => d.action === 'heal_feature_change').length;
+        const bugCount = decisions.filter((d: any) => d.action === 'report_bug').length;
+        console.log(`[Orchestrator] Auto-triage applied: ${healCount} healed, ${bugCount} reported, ${decisions.length - healCount - bugCount} dismissed`);
+
+        // If heals needed, route to healer (same logic as resume-triage endpoint)
+        if (healCount > 0) {
+          const healerStage = definition.stages.find(s => s.id === 'healing' && s.enabled);
+          if (healerStage) {
+            const prompt = [
+              `Pipeline Stage: ${healerStage.name} (${healerStage.id})`,
+              `Feature: ${run0?.feature || 'unknown'}`,
+              `Module: ${run0?.module || 'unknown'}`,
+              `Intent: ${run0?.intent || 'unknown'}`,
+              '', '--- AUTO-TRIAGE DECISIONS ---',
+              ...decisions.filter((d: any) => d.action === 'heal_feature_change').map((d: any) => `- ${d.testName}: feature changed, update test`),
+              '', healerStage.description,
+            ].join('\n');
+            await createWorkerTask(pool, runId, 'healing', prompt, {
+              feature: run0?.feature, module: run0?.module, intent: run0?.intent,
+              targetUrl: run0?.target_url, autoTriage: true,
+            }, run0?.client_id);
+            await updatePipelineRun(pool, runId, { stage: 'healing', status: 'queued' });
+            return;
+          }
+        }
+        // No heals — pipeline completes
+        await updatePipelineRun(pool, runId, { status: 'completed' as any, stage: 'completed' });
+        emitEvent(runId, { type: 'pipeline_complete', runId, status: 'completed', totalCost: run0 ? Number(run0.cost) : 0, timestamp: new Date().toISOString(), visibility: 'public' });
+        return;
+        } // end else (triageItems.length > 0)
+      }
+
+      // Manual triage: pause and notify
       await updatePipelineRun(pool, runId, { status: 'awaiting_triage' as any, stage: 'triage' });
       emitEvent(runId, {
         type: 'triage_required',
@@ -448,9 +552,26 @@ export async function processStageCompletion(
         console.warn(`[Orchestrator] Pre-run gate warning for ${nextStageId}: ${gateResult.output.slice(0, 200)}`);
         // Log but don't block — gate scripts may expect queue-item-id which isn't available in autonomous mode
       }
-    } catch {
-      // Gate execution is best-effort in autonomous pipeline
+    } catch (err) {
+      console.warn(`[Orchestrator] Pre-run gate failed for ${nextStageId}:`, (err as Error).message);
     }
+  }
+
+  // Update page_stage_status to in_progress for next stage
+  if (run.page_id) {
+    await upsertPageStageStatus(pool, run.page_id, nextStage.id, {
+      status: 'running',
+      active_run_id: runId,
+    });
+    emitEvent(runId, {
+      type: 'page_stage_updated',
+      runId,
+      pageId: run.page_id,
+      stageId: nextStage.id,
+      status: 'running',
+      timestamp: new Date().toISOString(),
+      visibility: 'public',
+    });
   }
 
   const prompt = buildStagePrompt(nextStage, run, resultData);

@@ -27,6 +27,8 @@ import { registerEventsRoutes } from './routes/events';
 import { registerAdminRoutes, stopSpawnedWorker } from './routes/admin';
 import { registerWorkerRoutes } from './routes/worker';
 import { registerHealthRoutes } from './routes/health';
+import { registerPageRoutes } from './routes/pages';
+import { registerSetupRoutes } from './routes/setup';
 import { setEventCallback } from '../orchestrator/orchestrator';
 import { broadcastSSE } from './routes/events';
 
@@ -64,6 +66,8 @@ async function start() {
   registerEventsRoutes(app);
   registerAdminRoutes(app);
   registerWorkerRoutes(app);
+  registerPageRoutes(app);
+  registerSetupRoutes(app);
 
   // Graceful shutdown
   const shutdown = async (signal: string) => {

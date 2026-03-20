@@ -9,15 +9,20 @@ import {
   getStageResults,
   getArtifacts,
   createWorkerTask,
+  getPageBySlug,
+  createPage,
+  checkPageConcurrency,
+  upsertPageStageStatus,
 } from '../db/queries';
 import { loadPipelineDefinition, loadPipelineDefinitionForClient, buildDryRunPrompt, processStageCompletion } from '../../orchestrator/orchestrator';
+import { checkPageReadiness, buildCascadePlan } from '../../orchestrator/dependency-engine';
 import type { CreatePipelineRequest } from '../../orchestrator/types';
 import { broadcastSSE } from './events';
 import { serializePipelineRun, serializePipelineRunWithDetails } from '../serializers';
 
 export function registerPipelineRoutes(app: FastifyInstance) {
   // Create a new pipeline run
-  app.post<{ Body: CreatePipelineRequest }>('/api/pipeline/run', async (req, reply) => {
+  app.post<{ Body: CreatePipelineRequest & { pageId?: string; pageSlug?: string; pageName?: string } }>('/api/pipeline/run', async (req, reply) => {
     const { feature, module, intent, priority, targetUrl, clientId, dryRun, executionMode } = req.body;
 
     if (!feature || !module || !intent) {
@@ -28,7 +33,31 @@ export function registerPipelineRoutes(app: FastifyInstance) {
     const isDryRun = dryRun || executionMode === 'dry-run';
 
     const pool = app.db;
+
+    // Resolve page (if page-scoped run)
+    let pageId = req.body.pageId || null;
+    if (!pageId && req.body.pageSlug) {
+      // Try to find existing page by slug
+      let page = await getPageBySlug(pool, clientId || null, module, req.body.pageSlug);
+      if (!page) {
+        // Auto-create page from slug
+        page = await createPage(pool, {
+          client_id: clientId || null,
+          module,
+          page_slug: req.body.pageSlug,
+          display_name: req.body.pageName || req.body.pageSlug,
+          target_url: targetUrl || null,
+        });
+      }
+      pageId = page.id;
+    }
+
     const run = await createPipelineRun(pool, { feature, module, intent, priority, targetUrl, clientId });
+
+    // If page-scoped, update run with page_id
+    if (pageId) {
+      await pool.query('UPDATE pipeline_runs SET page_id = $1 WHERE id = $2', [pageId, run.id]);
+    }
 
     // Smart stage detection: check existing artifacts to resume from the right stage
     const detectedStage = req.body.startStage || detectStartStage(module, feature);
@@ -36,7 +65,51 @@ export function registerPipelineRoutes(app: FastifyInstance) {
     // Load per-client pipeline definition (deep-clone to avoid mutating cached copy)
     const definition = JSON.parse(JSON.stringify(await loadPipelineDefinitionForClient(app.db, clientId))) as ReturnType<typeof loadPipelineDefinition>;
 
-    const firstStage = definition.stages.find(s => s.id === detectedStage && s.enabled)
+    // Page-scoped: concurrency check + dependency cascade
+    let cascadePlan: string[] | null = null;
+    let effectiveStartStage = detectedStage;
+
+    if (pageId) {
+      // Concurrency check
+      const concurrency = await checkPageConcurrency(pool, pageId, detectedStage);
+      if (concurrency.locked) {
+        return reply.code(409).send({
+          error: 'Stage is already running for this page',
+          activeRunId: concurrency.activeRunId,
+        });
+      }
+
+      // Check readiness and build cascade plan
+      const readiness = await checkPageReadiness(pool, pageId, detectedStage, definition);
+
+      if (!readiness.satisfied && readiness.canAutoCascade) {
+        // Auto mode: build cascade plan
+        cascadePlan = await buildCascadePlan(pool, pageId, detectedStage, definition);
+        if (cascadePlan.length > 0) {
+          effectiveStartStage = cascadePlan[0]!;
+          // Store cascade plan on run
+          await pool.query('UPDATE pipeline_runs SET cascade_plan = $1 WHERE id = $2', [JSON.stringify(cascadePlan), run.id]);
+        }
+      } else if (!readiness.satisfied && !readiness.canAutoCascade) {
+        // Can't auto-cascade (stages in progress)
+        return reply.code(400).send({
+          error: 'Prerequisites not satisfied and cannot auto-cascade',
+          missing: readiness.missing,
+          failed: readiness.failed,
+          inProgress: readiness.inProgress,
+        });
+      }
+
+      if (readiness.needsRequirements) {
+        return reply.code(200).send({
+          runId: run.id,
+          needsRequirements: true,
+          pageId,
+        });
+      }
+    }
+
+    const firstStage = definition.stages.find(s => s.id === effectiveStartStage && s.enabled)
       || definition.stages.find(s => s.enabled);
     if (firstStage) {
       const prompt = isDryRun
@@ -53,9 +126,21 @@ export function registerPipelineRoutes(app: FastifyInstance) {
 
       // Update run to show it's queued for first stage
       await updatePipelineRun(pool, run.id, { stage: firstStage.id, status: 'queued' });
+
+      // Mark page_stage_status as in_progress
+      if (pageId) {
+        await upsertPageStageStatus(pool, pageId, firstStage.id, {
+          status: 'running',
+          active_run_id: run.id,
+        });
+      }
     }
 
-    reply.code(201).send({ runId: run.id });
+    reply.code(201).send({
+      runId: run.id,
+      ...(cascadePlan ? { cascade: true, cascadePlan } : {}),
+      ...(pageId ? { pageId } : {}),
+    });
   });
 
   // List pipeline runs
@@ -353,6 +438,80 @@ export function registerPipelineRoutes(app: FastifyInstance) {
       .header('Content-Disposition', `attachment; filename="${filename}"`)
       .send(JSON.stringify(bundle, null, 2));
   });
+  // Batch run: run stage for multiple pages
+  app.post<{ Body: { pageIds: string[]; targetStage: string; mode: 'auto' | 'manual'; intent: string; clientId?: string } }>('/api/pipeline/batch-run', async (req, reply) => {
+    const { pageIds, targetStage, mode, intent, clientId } = req.body;
+    if (!pageIds?.length || !targetStage || !intent) {
+      return reply.code(400).send({ error: 'pageIds, targetStage, and intent are required' });
+    }
+
+    const pool = app.db;
+    const definition = JSON.parse(JSON.stringify(await loadPipelineDefinitionForClient(pool, clientId))) as ReturnType<typeof loadPipelineDefinition>;
+    const batchId = require('crypto').randomUUID();
+    const started: { pageId: string; runId: string }[] = [];
+    const skipped: { pageId: string; reason: string }[] = [];
+
+    for (const pageId of pageIds) {
+      const concurrency = await checkPageConcurrency(pool, pageId, targetStage);
+      if (concurrency.locked) {
+        skipped.push({ pageId, reason: 'Stage already running' });
+        continue;
+      }
+
+      const readiness = await checkPageReadiness(pool, pageId, targetStage, definition);
+      let cascadePlan: string[] | null = null;
+      let startStage = targetStage;
+
+      if (!readiness.satisfied && readiness.canAutoCascade && mode === 'auto') {
+        cascadePlan = await buildCascadePlan(pool, pageId, targetStage, definition);
+        startStage = cascadePlan[0] || targetStage;
+      } else if (!readiness.satisfied) {
+        skipped.push({ pageId, reason: `Prerequisites not met: ${readiness.missing.join(', ')}` });
+        continue;
+      }
+
+      const run = await createPipelineRun(pool, { feature: 'batch', module: 'batch', intent, clientId });
+      await pool.query('UPDATE pipeline_runs SET page_id = $1, batch_id = $2, execution_mode_live = $3, cascade_plan = $4 WHERE id = $5',
+        [pageId, batchId, mode, cascadePlan ? JSON.stringify(cascadePlan) : null, run.id]);
+
+      const firstStage = definition.stages.find(s => s.id === startStage && s.enabled);
+      if (firstStage) {
+        const prompt = buildStagePrompt(firstStage.id, { feature: 'batch', module: 'batch', intent });
+        await createWorkerTask(pool, run.id, firstStage.id, prompt, { feature: 'batch', module: 'batch', intent }, clientId);
+        await updatePipelineRun(pool, run.id, { stage: firstStage.id, status: 'queued' });
+        await upsertPageStageStatus(pool, pageId, firstStage.id, { status: 'running', active_run_id: run.id });
+      }
+
+      started.push({ pageId, runId: run.id });
+    }
+
+    reply.code(201).send({ batchId, started, skipped });
+  });
+
+  // Switch auto↔manual mid-run
+  app.patch<{ Params: { id: string }; Body: { mode: 'auto' | 'manual' } }>('/api/pipeline/:id/mode', async (req, reply) => {
+    const pool = app.db;
+    const run = await getPipelineRun(pool, req.params.id);
+    if (!run) return reply.code(404).send({ error: 'Pipeline run not found' });
+
+    const newMode = req.body.mode;
+    await pool.query('UPDATE pipeline_runs SET execution_mode_live = $1 WHERE id = $2', [newMode, run.id]);
+
+    // If switching to auto and currently awaiting approval — auto-approve
+    if (newMode === 'auto' && run.status === 'awaiting_approval') {
+      await processStageCompletion(pool, run.id, run.stage, 'success', null);
+    }
+
+    broadcastSSE(run.id, {
+      type: 'mode_switched',
+      runId: run.id,
+      mode: newMode,
+      timestamp: new Date().toISOString(),
+      visibility: 'public',
+    });
+
+    reply.send({ mode: newMode });
+  });
 }
 
 function buildStagePrompt(stageId: string, context: {
@@ -374,31 +533,35 @@ function buildStagePrompt(stageId: string, context: {
  * Detect the best stage to start from based on existing artifacts.
  * Scans the repo for test cases, selectors, specs, and failure data.
  */
-function detectStartStage(module: string, feature: string): string {
-  const root = process.cwd();
-  const featureSlug = feature.toLowerCase().replace(/\s+/g, '-');
+function detectStartStage(module: string, _feature: string): string {
+  try {
+    const root = process.cwd();
 
-  // Check for existing spec files
-  const specsDir = path.join(root, 'tests', 'specs', module);
-  const hasSpec = fs.existsSync(specsDir) &&
-    fs.readdirSync(specsDir).some(f => f.endsWith('.spec.ts'));
+    // Check for existing spec files
+    const specsDir = path.join(root, 'tests', 'specs', module);
+    const hasSpec = fs.existsSync(specsDir) &&
+      fs.readdirSync(specsDir).some(f => f.endsWith('.spec.ts'));
 
-  // Check for failure data (recent test run failed)
-  const failureSummary = path.join(root, 'reports', 'failure-summary.json');
-  const hasRecentFailures = fs.existsSync(failureSummary) &&
-    (() => { try { return JSON.parse(fs.readFileSync(failureSummary, 'utf-8')).failed > 0; } catch { return false; } })();
+    // Check for failure data (recent test run failed)
+    const failureSummary = path.join(root, 'reports', 'failure-summary.json');
+    const hasRecentFailures = fs.existsSync(failureSummary) &&
+      (() => { try { return JSON.parse(fs.readFileSync(failureSummary, 'utf-8')).failed > 0; } catch { return false; } })();
 
-  // Check for test cases + selectors (planner output)
-  const tcDir = path.join(root, 'specs_planning', 'test-cases', module);
-  const hasTestCases = fs.existsSync(tcDir) &&
-    fs.readdirSync(tcDir).some(f => f.endsWith('.md'));
-  const selectorDir = path.join(root, 'src', 'selectors', module);
-  const hasSelectors = fs.existsSync(selectorDir) &&
-    fs.readdirSync(selectorDir).some(f => f.endsWith('.ts'));
+    // Check for test cases + selectors (planner output)
+    const tcDir = path.join(root, 'specs_planning', 'test-cases', module);
+    const hasTestCases = fs.existsSync(tcDir) &&
+      fs.readdirSync(tcDir).some(f => f.endsWith('.md'));
+    const selectorDir = path.join(root, 'src', 'selectors', module);
+    const hasSelectors = fs.existsSync(selectorDir) &&
+      fs.readdirSync(selectorDir).some(f => f.endsWith('.ts'));
 
-  // Route based on artifact existence
-  if (hasSpec && hasRecentFailures) return 'healing';
-  if (hasTestCases && hasSelectors) return 'generation';
-  if (hasTestCases) return 'planning'; // TCs exist but no selectors — resume planning
-  return 'requirements';
+    // Route based on artifact existence
+    if (hasSpec && hasRecentFailures) return 'healing';
+    if (hasTestCases && hasSelectors) return 'generation';
+    if (hasTestCases) return 'planning';
+    return 'requirements';
+  } catch (err) {
+    console.warn('[Pipeline] detectStartStage failed, defaulting to requirements:', (err as Error).message);
+    return 'requirements';
+  }
 }

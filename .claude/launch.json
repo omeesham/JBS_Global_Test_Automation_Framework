@@ -1,0 +1,31 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "5173"],
+      "port": 5173,
+      "cwd": "website/frontend"
+    },
+    {
+      "name": "website-backend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/tsx/dist/cli.mjs", "watch", "src/index.ts"],
+      "port": 3001,
+      "cwd": "website/backend"
+    },
+    {
+      "name": "encore-backend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--watch", "-r", "ts-node/register", "src/server/index.ts"],
+      "port": 3100
+    },
+    {
+      "name": "arch-diagram",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "require('http').createServer((q,r)=>{r.setHeader('Content-Type','text/html');require('fs').createReadStream('plans/arch_diag/architecture-diagram.html').pipe(r)}).listen(8090)"],
+      "port": 8090
+    }
+  ]
+}

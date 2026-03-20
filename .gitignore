@@ -47,8 +47,9 @@ reports/**/*.xml
 .env.local
 .env.*.local
 config/environments/.env.*.local
-!config/environments/.env.local
-!config/environments/.env.server
+# Use .env.example / .env.server.example as templates — never commit real .env files
+config/environments/.env.local
+config/environments/.env.server
 
 # OS
 .DS_Store
@@ -122,17 +123,25 @@ specs_planning/_internal/agent-activity-log.md
 .browsers/
 ms-playwright/
 
-# Claude Code (personal — not for git)
-CLAUDE.md
+# Claude Code — team files tracked, personal files ignored
+# Tracked for collaborators: CLAUDE.md, .claude/skills/, .claude/agents/,
+#   .claude/context/, .claude/PROTOCOL.md, .claude/AGENT_SCHOOL.md,
+#   .claude/launch.json, website/.claude/launch.json
+.claude/settings.local.json
+website/.claude/settings.local.json
+.claude/channel/
+.claude/worktrees/
+.claude/scheduled-tasks/
+.claude/plans/
 current_plan.md
-.claude/
-website/.claude/
 
 # Server env — shared for team onboarding
 # config/environments/.env.server
 
-# Screenshots / junk
-phase4-chat.jpeg
+# Screenshots / junk artifacts (root level only)
+/phase4-chat.jpeg
+/*.jpeg
+/*.png
 
 # Generated artifacts (not tracked)
 export_test_cases/exports/

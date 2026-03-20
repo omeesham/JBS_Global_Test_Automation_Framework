@@ -123,6 +123,11 @@ const ACTION_CATALOG: Record<string, { desc: string; params: string; roles: stri
   get_jira_story:    { desc: 'Get JIRA story details with acceptance criteria', params: '{ storyKey }', roles: '*' },
   list_test_cases:   { desc: 'List saved test cases for a run', params: '{ testRunId }', roles: '*' },
   export_test_cases: { desc: 'Export test cases as CSV (returns download link)', params: '{ testRunId, format? }', roles: '*' },
+  // Page-aware actions (Plan 53F)
+  run_stage_for_page: { desc: 'Run a specific stage for a page (e.g. "run planner for login page")', params: '{ pageName, stageId?, mode? }', roles: '*' },
+  check_page_status:  { desc: 'Check stage completion status for a page', params: '{ pageName }', roles: '*' },
+  approve_stage:      { desc: 'Approve current stage and continue pipeline', params: '{ pageHint? }', roles: '*' },
+  setup_project:      { desc: 'Start project onboarding/setup wizard', params: '{}', roles: ['super_admin', 'client_admin'] },
   // Client admin + super admin
   create_website:    { desc: 'Add a new website to test', params: '{ name, url, authType?, clientId? }', roles: ['super_admin', 'client_admin'] },
   update_website:    { desc: 'Update website config', params: '{ websiteId, updates }', roles: ['super_admin', 'client_admin'] },
@@ -213,12 +218,14 @@ async function gatherContext(req: ChatAskRequest): Promise<RoleContext> {
         const websiteQueries = allClients.slice(0, 10).map((c: any) =>
           queryWithSchema(c.db_schema, 'SELECT id, name, base_url, enabled_services, is_active FROM websites ORDER BY created_at DESC LIMIT 5')
             .then(r => r.rows)
-            .catch(() => [])
+            .catch((e) => { console.warn('[Chatbot] Schema query failed:', e?.message); return []; })
         );
         const results = await Promise.all(websiteQueries);
         websites = results.flat().slice(0, 30);
         context.websites = websites;
-      } catch { /* proceed without websites */ }
+      } catch (err) {
+        console.warn('[Chatbot] Failed to load websites for context:', (err as Error).message);
+      }
     }
   }
 
@@ -542,6 +549,60 @@ async function executeAction(
         }
         const data = await res.json();
         return { success: true, data };
+      }
+
+      // ── Page-aware actions (Plan 53F) ──
+
+      case 'run_stage_for_page': {
+        const { pageName, stageId, mode: runMode } = params;
+        if (!pageName) return { success: false, error: 'pageName is required' };
+        // Fuzzy search for the page
+        const searchRes = await fetch(`${ENCORE_URL}/api/pages?clientId=${encodeURIComponent(context.websites?.[0]?.id || '')}`, { headers: { 'content-type': 'application/json' } });
+        const pages = await searchRes.json() as any[];
+        const match = pages.find((p: any) =>
+          p.display_name?.toLowerCase().includes(pageName.toLowerCase()) ||
+          p.page_slug?.toLowerCase().includes(pageName.toLowerCase())
+        );
+        if (!match) {
+          const names = pages.map((p: any) => p.display_name).slice(0, 10).join(', ');
+          return { success: true, data: { message: `Couldn't find "${pageName}". Available pages: ${names || 'none'}` } };
+        }
+        const runRes = await fetch(`${ENCORE_URL}/api/pipeline/run`, {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ feature: match.display_name, module: match.module, intent: `Run ${stageId || 'pipeline'} for ${match.display_name}`, clientId: context.websites?.[0]?.id, startStage: stageId || undefined, pageId: match.id }),
+        });
+        const runData = await runRes.json();
+        return { success: true, data: { ...runData, pageName: match.display_name, action: 'run_stage_for_page' } };
+      }
+
+      case 'check_page_status': {
+        const { pageName: pn } = params;
+        if (!pn) return { success: false, error: 'pageName is required' };
+        const pagesRes = await fetch(`${ENCORE_URL}/api/pages?clientId=${encodeURIComponent(context.websites?.[0]?.id || '')}`, { headers: { 'content-type': 'application/json' } });
+        const allPages = await pagesRes.json() as any[];
+        const found = allPages.find((p: any) =>
+          p.display_name?.toLowerCase().includes(pn.toLowerCase()) ||
+          p.page_slug?.toLowerCase().includes(pn.toLowerCase())
+        );
+        if (!found) return { success: true, data: { message: `Page "${pn}" not found.` } };
+        const detailRes = await fetch(`${ENCORE_URL}/api/pages/${found.id}/stages`, { headers: { 'content-type': 'application/json' } });
+        const stages = await detailRes.json();
+        return { success: true, data: { pageName: found.display_name, stages, action: 'check_page_status' } };
+      }
+
+      case 'approve_stage': {
+        // Find latest awaiting_approval run
+        const runsRes = await fetch(`${ENCORE_URL}/api/pipeline/list?status=awaiting_approval`, { headers: { 'content-type': 'application/json' } });
+        const awaitingRuns = await runsRes.json() as any[];
+        if (awaitingRuns.length === 0) return { success: true, data: { message: 'No stages awaiting approval.' } };
+        const latestRun = awaitingRuns[0];
+        const approveRes = await fetch(`${ENCORE_URL}/api/pipeline/${latestRun.id}/approve`, { method: 'POST', headers: { 'content-type': 'application/json' } });
+        const approveData = await approveRes.json();
+        return { success: true, data: { ...approveData, runId: latestRun.id, action: 'approve_stage' } };
+      }
+
+      case 'setup_project': {
+        return { success: true, data: { action: 'setup_project', message: 'Opening setup wizard...' } };
       }
 
       default:

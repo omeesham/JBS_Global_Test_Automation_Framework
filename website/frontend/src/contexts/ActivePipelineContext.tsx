@@ -10,160 +10,209 @@ import type { PipelineDefinition } from '@/types';
 
 type PendingAction = null | 'approval_required' | 'triage_required';
 
+const MAX_SSE_SUBSCRIPTIONS = 10;
+
+interface ActiveRunState {
+  runId: string;
+  pageId?: string;
+  pageName?: string;
+  mode: 'auto' | 'manual';
+  stages: PipelineStageState[];
+  activityMessages: ActivityMessage[];
+  status: string | null;
+  pendingAction: PendingAction;
+  definition: PipelineDefinition | null;
+}
+
 interface ActivePipelineState {
+  // === EXISTING (backwards-compat — computed from focusedRun) ===
   runId: string | null;
   stages: PipelineStageState[];
   activityMessages: ActivityMessage[];
   isActive: boolean;
   pipelineStatus: string | null;
   pendingAction: PendingAction;
-  /** Client-side pipeline mode preference */
   pipelineMode: 'auto' | 'manual';
-  /** Pipeline definition captured at run start (frozen for the run's lifetime) */
   pipelineDefinition: PipelineDefinition | null;
+
+  // === NEW (multi-run) ===
+  activeRuns: Map<string, ActiveRunState>;
+  focusedRunId: string | null;
+  pendingCount: number;
 }
 
 interface ActivePipelineContextValue extends ActivePipelineState {
-  /** Start watching a new pipeline run */
   startPipeline: (runId: string, mode?: 'auto' | 'manual', definition?: PipelineDefinition | null) => void;
-  /** Stop watching */
   stopPipeline: () => void;
-  /** Set pipeline mode */
   setPipelineMode: (mode: 'auto' | 'manual') => void;
-  /** Clear pending action (after user handles approval/triage) */
   clearPendingAction: () => void;
+  focusRun: (runId: string) => void;
+  startPipelineForPage: (runId: string, mode: 'auto' | 'manual', pageId: string, pageName: string) => void;
 }
 
 const ActivePipelineContext = createContext<ActivePipelineContextValue | null>(null);
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                             */
+/* ------------------------------------------------------------------ */
+
+function computeFromFocused(runs: Map<string, ActiveRunState>, focusedId: string | null): Partial<ActivePipelineState> {
+  const focused = focusedId ? runs.get(focusedId) : null;
+  const anyActive = Array.from(runs.values()).some(r => r.status === 'running' || r.status === 'awaiting_approval' || r.status === 'awaiting_triage');
+  const pendingCount = Array.from(runs.values()).filter(r => r.pendingAction !== null).length;
+
+  return {
+    runId: focused?.runId || null,
+    stages: focused?.stages || [],
+    activityMessages: focused?.activityMessages || [],
+    isActive: anyActive,
+    pipelineStatus: focused?.status || null,
+    pendingAction: focused?.pendingAction || null,
+    pipelineMode: focused?.mode || 'auto',
+    pipelineDefinition: focused?.definition || null,
+    pendingCount,
+  };
+}
 
 /* ------------------------------------------------------------------ */
 /* Provider                                                            */
 /* ------------------------------------------------------------------ */
 
 export function ActivePipelineProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<ActivePipelineState>({
-    runId: null,
-    stages: [],
-    activityMessages: [],
-    isActive: false,
-    pipelineStatus: null,
-    pendingAction: null,
-    pipelineMode: 'auto',
-    pipelineDefinition: null,
-  });
+  const [activeRuns, setActiveRuns] = useState<Map<string, ActiveRunState>>(new Map());
+  const [focusedRunId, setFocusedRunId] = useState<string | null>(null);
+  const esRefs = useRef<Map<string, EventSource>>(new Map());
+  const focusedRunIdRef = useRef<string | null>(null);
+  // Keep ref in sync
+  focusedRunIdRef.current = focusedRunId;
 
-  const esRef = useRef<EventSource | null>(null);
+  const subscribeToRun = useCallback((runState: ActiveRunState) => {
+    const { runId } = runState;
 
-  /** Subscribe to SSE events for a pipeline run */
-  const subscribeToRun = useCallback((runId: string, definition?: PipelineDefinition | null) => {
-    esRef.current?.close();
-
-    const initial = buildInitialStages(definition);
-    // Mark first stage as running
-    if (initial.length > 0) {
-      initial[0] = { ...initial[0]!, status: 'running', detail: 'In progress...' };
+    // Cap subscriptions
+    if (esRefs.current.size >= MAX_SSE_SUBSCRIPTIONS) {
+      // Close oldest non-focused
+      const oldest = Array.from(esRefs.current.entries()).find(([id]) => id !== focusedRunIdRef.current);
+      if (oldest) {
+        oldest[1].close();
+        esRefs.current.delete(oldest[0]);
+      }
     }
 
-    setState(prev => ({
-      ...prev,
-      runId,
-      stages: initial,
-      activityMessages: [],
-      isActive: true,
-      pipelineStatus: 'running',
-      pendingAction: null,
-      pipelineDefinition: definition || null,
-    }));
+    // Close existing for this run
+    esRefs.current.get(runId)?.close();
 
     const es = subscribeToPipelineEvents(runId, (event) => {
-      if (event.type === 'stage_start') {
-        setState(prev => ({
-          ...prev,
-          stages: upsertStage(prev.stages, event.stage!, {
-            status: 'running', detail: 'In progress...', startedAt: Date.now(),
-          }),
-        }));
-      } else if (event.type === 'stage_complete') {
-        setState(prev => ({
-          ...prev,
-          stages: upsertStage(prev.stages, event.stage!, {
-            status: 'completed', detail: 'Done',
-          }),
-        }));
-      } else if (event.type === 'agent_progress') {
-        if (event.stage && event.message) {
-          setState(prev => ({
-            ...prev,
-            stages: upsertStage(prev.stages, event.stage!, { detail: event.message! }),
-            activityMessages: [
-              ...prev.activityMessages.slice(-49),
-              { stage: event.stage!, message: event.message!, timestamp: event.timestamp || new Date().toISOString() },
-            ],
-          }));
+      setActiveRuns(prev => {
+        const run = prev.get(runId);
+        if (!run) return prev;
+        const next = new Map(prev);
+
+        if (event.type === 'stage_start') {
+          next.set(runId, { ...run, stages: upsertStage(run.stages, event.stage!, { status: 'running', detail: 'In progress...', startedAt: Date.now() }) });
+        } else if (event.type === 'stage_complete') {
+          next.set(runId, { ...run, stages: upsertStage(run.stages, event.stage!, { status: 'completed', detail: 'Done' }) });
+        } else if (event.type === 'agent_progress' && event.stage && event.message) {
+          const prefix = run.pageName ? `[${run.pageName}] ` : '';
+          next.set(runId, {
+            ...run,
+            stages: upsertStage(run.stages, event.stage!, { detail: event.message! }),
+            activityMessages: [...run.activityMessages.slice(-49), { stage: event.stage!, message: `${prefix}${event.message!}`, timestamp: event.timestamp || new Date().toISOString() }],
+          });
+        } else if (event.type === 'triage_required') {
+          next.set(runId, { ...run, pendingAction: 'triage_required', status: 'awaiting_triage' });
+        } else if (event.type === 'approval_required') {
+          next.set(runId, { ...run, pendingAction: 'approval_required', status: 'awaiting_approval' });
+        } else if (event.type === 'pipeline_complete') {
+          esRefs.current.get(runId)?.close();
+          esRefs.current.delete(runId);
+          next.set(runId, { ...run, status: 'completed', pendingAction: null });
+        } else if (event.type === 'error') {
+          esRefs.current.get(runId)?.close();
+          esRefs.current.delete(runId);
+          next.set(runId, { ...run, status: 'failed', pendingAction: null });
         }
-      } else if (event.type === 'triage_required') {
-        setState(prev => ({
-          ...prev,
-          pendingAction: 'triage_required',
-          pipelineStatus: 'awaiting_triage',
-        }));
-      } else if (event.type === 'approval_required') {
-        setState(prev => ({
-          ...prev,
-          pendingAction: 'approval_required',
-          pipelineStatus: 'awaiting_approval',
-        }));
-      } else if (event.type === 'pipeline_complete') {
-        es.close();
-        esRef.current = null;
-        setState(prev => ({
-          ...prev,
-          isActive: false,
-          pipelineStatus: 'completed',
-          pendingAction: null,
-        }));
-      } else if (event.type === 'error') {
-        es.close();
-        esRef.current = null;
-        setState(prev => ({
-          ...prev,
-          isActive: false,
-          pipelineStatus: 'failed',
-          pendingAction: null,
-        }));
-      }
+
+        return next;
+      });
     });
 
     es.onerror = () => {
       es.close();
-      esRef.current = null;
-      setState(prev => ({ ...prev, isActive: false, pipelineStatus: 'error' }));
+      esRefs.current.delete(runId);
+      setActiveRuns(prev => {
+        const run = prev.get(runId);
+        if (!run) return prev;
+        const next = new Map(prev);
+        next.set(runId, { ...run, status: 'error' });
+        return next;
+      });
     };
 
-    esRef.current = es;
-  }, []);
+    esRefs.current.set(runId, es);
+  }, []); // No deps — uses refs for mutable values
 
   const startPipeline = useCallback((runId: string, mode: 'auto' | 'manual' = 'auto', definition?: PipelineDefinition | null) => {
-    setState(prev => ({ ...prev, pipelineMode: mode }));
-    subscribeToRun(runId, definition);
+    const initial = buildInitialStages(definition);
+    if (initial.length > 0) initial[0] = { ...initial[0]!, status: 'running', detail: 'In progress...' };
+
+    const runState: ActiveRunState = {
+      runId, mode, stages: initial, activityMessages: [], status: 'running',
+      pendingAction: null, definition: definition || null,
+    };
+
+    setActiveRuns(prev => new Map(prev).set(runId, runState));
+    setFocusedRunId(runId);
+    subscribeToRun(runState);
+  }, [subscribeToRun]);
+
+  const startPipelineForPage = useCallback((runId: string, mode: 'auto' | 'manual', pageId: string, pageName: string) => {
+    const runState: ActiveRunState = {
+      runId, mode, pageId, pageName, stages: buildInitialStages(), activityMessages: [],
+      status: 'running', pendingAction: null, definition: null,
+    };
+
+    setActiveRuns(prev => new Map(prev).set(runId, runState));
+    setFocusedRunId(runId);
+    subscribeToRun(runState);
   }, [subscribeToRun]);
 
   const stopPipeline = useCallback(() => {
-    esRef.current?.close();
-    esRef.current = null;
-    setState(prev => ({ ...prev, isActive: false, runId: null, stages: [], activityMessages: [], pipelineStatus: null, pendingAction: null, pipelineDefinition: null }));
+    esRefs.current.forEach(es => es.close());
+    esRefs.current.clear();
+    setActiveRuns(new Map());
+    setFocusedRunId(null);
   }, []);
 
   const setPipelineMode = useCallback((mode: 'auto' | 'manual') => {
-    setState(prev => ({ ...prev, pipelineMode: mode }));
+    setActiveRuns(prev => {
+      const fid = focusedRunIdRef.current;
+      if (!fid) return prev;
+      const run = prev.get(fid);
+      if (!run) return prev;
+      const next = new Map(prev);
+      next.set(fid, { ...run, mode });
+      return next;
+    });
   }, []);
 
   const clearPendingAction = useCallback(() => {
-    setState(prev => ({ ...prev, pendingAction: null }));
+    setActiveRuns(prev => {
+      const fid = focusedRunIdRef.current;
+      if (!fid) return prev;
+      const run = prev.get(fid);
+      if (!run) return prev;
+      const next = new Map(prev);
+      next.set(fid, { ...run, pendingAction: null });
+      return next;
+    });
   }, []);
 
-  // On mount: check if there's an already-running pipeline to resume watching
-  // Only poll when user is authenticated (token exists in sessionStorage)
+  const focusRun = useCallback((runId: string) => {
+    setFocusedRunId(runId);
+  }, []);
+
+  // Resume running pipelines on mount
   useEffect(() => {
     const token = sessionStorage.getItem('intelliqe_token');
     if (!token) return;
@@ -172,28 +221,34 @@ export function ActivePipelineProvider({ children }: { children: ReactNode }) {
       .then(async (runs) => {
         if (runs.length > 0) {
           const latest = runs[0]!;
-          // Try to fetch client definition for the resumed run
           let definition: PipelineDefinition | null = null;
           try {
             const resp = await getClientPipelineDefinition(latest.clientId || undefined);
             definition = resp.definition;
-          } catch (err) { console.warn('[ActivePipeline] Failed to fetch client definition, using defaults:', err); }
-          subscribeToRun(latest.id, definition);
+          } catch { /* use defaults */ }
+          startPipeline(latest.id, 'auto', definition);
         }
       })
       .catch(() => {});
 
-    return () => { esRef.current?.close(); };
-  }, [subscribeToRun]);
+    return () => { esRefs.current.forEach(es => es.close()); };
+  }, [startPipeline]);
+
+  // Compute backwards-compat state from focused run
+  const computed = computeFromFocused(activeRuns, focusedRunId);
 
   return (
     <ActivePipelineContext.Provider
       value={{
-        ...state,
+        ...computed as ActivePipelineState,
+        activeRuns,
+        focusedRunId,
         startPipeline,
         stopPipeline,
         setPipelineMode,
         clearPendingAction,
+        focusRun,
+        startPipelineForPage,
       }}
     >
       {children}

@@ -45,6 +45,10 @@ CREATE TABLE IF NOT EXISTS artifacts (
   type TEXT NOT NULL,
   content TEXT,
   metadata JSONB,
+  page_id UUID,
+  version INT DEFAULT 1,
+  replaced_by UUID,
+  edited_by TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -120,4 +124,93 @@ CREATE INDEX IF NOT EXISTS idx_pipeline_def_client
 DROP TRIGGER IF EXISTS trg_pipeline_defs_updated ON pipeline_definitions;
 CREATE TRIGGER trg_pipeline_defs_updated
   BEFORE UPDATE ON pipeline_definitions
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ── Page Registry (Plan 53B) ──
+
+CREATE TABLE IF NOT EXISTS pages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id VARCHAR(100),
+  module TEXT NOT NULL,
+  page_slug TEXT NOT NULL,
+  display_name TEXT NOT NULL,
+  target_url TEXT,
+  parent_page_id UUID REFERENCES pages(id) ON DELETE SET NULL,
+  depth INT DEFAULT 0,
+  sort_order INT DEFAULT 0,
+  metadata JSONB,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT uq_page_client_module_slug UNIQUE (client_id, module, page_slug)
+);
+CREATE INDEX IF NOT EXISTS idx_pages_client ON pages(client_id);
+CREATE INDEX IF NOT EXISTS idx_pages_module ON pages(client_id, module);
+CREATE INDEX IF NOT EXISTS idx_pages_parent ON pages(parent_page_id);
+
+DROP TRIGGER IF EXISTS trg_pages_updated ON pages;
+CREATE TRIGGER trg_pages_updated
+  BEFORE UPDATE ON pages
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ── Per-Page Stage Tracking (Plan 53B) ──
+
+CREATE TABLE IF NOT EXISTS page_stage_status (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  page_id UUID NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
+  stage_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'not_started',
+  active_run_id UUID REFERENCES pipeline_runs(id) ON DELETE SET NULL,
+  last_run_id UUID REFERENCES pipeline_runs(id) ON DELETE SET NULL,
+  last_completed_at TIMESTAMPTZ,
+  artifact_summary JSONB,
+  approved_by TEXT,
+  approved_at TIMESTAMPTZ,
+  explore_without_reqs BOOLEAN DEFAULT false,
+  explore_permitted_by TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT uq_page_stage UNIQUE (page_id, stage_id)
+);
+CREATE INDEX IF NOT EXISTS idx_page_stage_page ON page_stage_status(page_id);
+
+DROP TRIGGER IF EXISTS trg_page_stage_updated ON page_stage_status;
+CREATE TRIGGER trg_page_stage_updated
+  BEFORE UPDATE ON page_stage_status
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ── Extend pipeline_runs for page tracking (Plan 53B) ──
+
+ALTER TABLE pipeline_runs ADD COLUMN IF NOT EXISTS page_id UUID REFERENCES pages(id) ON DELETE SET NULL;
+ALTER TABLE pipeline_runs ADD COLUMN IF NOT EXISTS cascade_plan JSONB;
+ALTER TABLE pipeline_runs ADD COLUMN IF NOT EXISTS batch_id UUID;
+ALTER TABLE pipeline_runs ADD COLUMN IF NOT EXISTS execution_mode_live TEXT;
+CREATE INDEX IF NOT EXISTS idx_pipeline_runs_page ON pipeline_runs(page_id);
+CREATE INDEX IF NOT EXISTS idx_pipeline_runs_batch ON pipeline_runs(batch_id) WHERE batch_id IS NOT NULL;
+
+-- ── Extend artifacts for page + versioning (Plan 53B) ──
+
+ALTER TABLE artifacts ADD COLUMN IF NOT EXISTS page_id UUID REFERENCES pages(id) ON DELETE SET NULL;
+ALTER TABLE artifacts ADD COLUMN IF NOT EXISTS version INT DEFAULT 1;
+ALTER TABLE artifacts ADD COLUMN IF NOT EXISTS replaced_by UUID REFERENCES artifacts(id) ON DELETE SET NULL;
+ALTER TABLE artifacts ADD COLUMN IF NOT EXISTS edited_by TEXT;
+CREATE INDEX IF NOT EXISTS idx_artifacts_page ON artifacts(page_id);
+
+-- ── Client Setup / Onboarding (Plan 53E) ──
+
+CREATE TABLE IF NOT EXISTS client_setup (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id VARCHAR(100) NOT NULL UNIQUE,
+  status TEXT NOT NULL DEFAULT 'pending',
+  home_url TEXT,
+  auth_config JSONB,
+  setup_config JSONB,
+  setup_run_id UUID REFERENCES pipeline_runs(id) ON DELETE SET NULL,
+  initiated_by TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+DROP TRIGGER IF EXISTS trg_client_setup_updated ON client_setup;
+CREATE TRIGGER trg_client_setup_updated
+  BEFORE UPDATE ON client_setup
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();

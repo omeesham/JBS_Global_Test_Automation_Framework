@@ -19,6 +19,8 @@ import RunPipelineModal from '@/components/dashboard/RunPipelineModal';
 import BugDiscoveryPanel from '@/components/dashboard/BugDiscoveryPanel';
 import TriagePanel from '@/components/dashboard/TriagePanel';
 import ArtifactApprovalPanel from '@/components/dashboard/ArtifactApprovalPanel';
+import PageStatusGrid from '@/components/dashboard/PageStatusGrid';
+import PageDetailPanel from '@/components/dashboard/PageDetailPanel';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -32,6 +34,8 @@ export default function DashboardPage() {
   const [selectedRun, setSelectedRun] = useState<PipelineRun | null>(null);
   const [filter, setFilter] = useState('all');
   const [showRunModal, setShowRunModal] = useState(false);
+  const [dashboardTab, setDashboardTab] = useState<'runs' | 'pages'>('runs');
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [workerActionLoading, setWorkerActionLoading] = useState(false);
   const [clientDefinition, setClientDefinition] = useState<PipelineDefinition | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval>>();
@@ -168,6 +172,16 @@ export default function DashboardPage() {
 
       <DashboardBriefing />
 
+      {/* Tab toggle: Runs | Pages */}
+      <div className="flex rounded-lg bg-gray-100 p-0.5 max-w-xs">
+        <button onClick={() => setDashboardTab('runs')} className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${dashboardTab === 'runs' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+          Runs
+        </button>
+        <button onClick={() => setDashboardTab('pages')} className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${dashboardTab === 'pages' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+          Pages
+        </button>
+      </div>
+
       {error && (
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700">
           {error}
@@ -188,14 +202,24 @@ export default function DashboardPage() {
 
       <BugDiscoveryPanel />
 
-      <ChartSection runs={runs} />
+      {dashboardTab === 'runs' && (
+        <>
+          <ChartSection runs={runs} />
+          <RunTable
+            runs={runs}
+            onSelectRun={setSelectedRun}
+            filter={filter}
+            onFilterChange={setFilter}
+          />
+        </>
+      )}
 
-      <RunTable
-        runs={runs}
-        onSelectRun={setSelectedRun}
-        filter={filter}
-        onFilterChange={setFilter}
-      />
+      {dashboardTab === 'pages' && (
+        <PageStatusGrid
+          onPageClick={setSelectedPageId}
+          onSetupRequired={() => setShowRunModal(true)}
+        />
+      )}
 
       <RunDetailDrawer
         run={selectedRun}
@@ -204,6 +228,10 @@ export default function DashboardPage() {
         activityMessages={pipeline.isActive ? pipeline.activityMessages : undefined}
         pipelineDefinition={clientDefinition || undefined}
       />
+
+      {selectedPageId && (
+        <PageDetailPanel pageId={selectedPageId} onClose={() => setSelectedPageId(null)} />
+      )}
 
       {isSuperAdmin && <SuperAdminPanel role={user.role} />}
 

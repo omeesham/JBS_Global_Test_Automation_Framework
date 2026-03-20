@@ -13,10 +13,11 @@ import ChatInput from '@/components/chat/ChatInput';
 import ChatWelcome from '@/components/chat/ChatWelcome';
 import ModelSelector from '@/components/chat/ModelSelector';
 import JiraImportFlow from '@/components/chat/JiraImportFlow';
-import PipelineProgress from '@/components/chat/PipelineProgress';
 import PipelineLaunchCard from '@/components/chat/PipelineLaunchCard';
 import ChatApprovalCard from '@/components/chat/ChatApprovalCard';
 import ChatTriageCard from '@/components/chat/ChatTriageCard';
+import ArtifactPreviewCard from '@/components/chat/ArtifactPreviewCard';
+import RequirementsGateCard from '@/components/chat/RequirementsGateCard';
 import TestCaseResults from '@/components/chat/TestCaseResults';
 import ColumnSelector from '@/components/chat/ColumnSelector';
 import PipelineGraph from '@/components/pipeline/PipelineGraph';
@@ -35,7 +36,7 @@ export interface ChatMessage {
 
 type ChatModel = 'haiku' | 'sonnet' | 'opus';
 
-type View = 'chat' | 'jira' | 'column-select' | 'results' | 'pipeline' | 'launch';
+type ActiveModal = 'launch' | 'jira' | 'column-select' | null;
 
 const ALL_COLUMNS = [
   { key: 'tcNumber', label: 'TC Number', default: true },
@@ -57,7 +58,7 @@ export default function ChatPage() {
   const { client } = useClient();
   const { website } = useWebsite();
   const activePipeline = useActivePipeline();
-  const { pendingAction, pipelineMode, isActive: pipelineIsActive, stages: pipelineStages, activityMessages, runId: activeRunId, pipelineStatus, pipelineDefinition } = activePipeline;
+  const { pendingAction, pipelineMode, isActive: pipelineIsActive, stages: pipelineStages, activityMessages, runId: activeRunId, pipelineStatus, pipelineDefinition, pendingCount, activeRuns, focusRun } = activePipeline;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -65,7 +66,9 @@ export default function ChatPage() {
   const [thinking, setThinking] = useState(false);
   const [sending, setSending] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [view, setView] = useState<View>('chat');
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+  const [minimizedCards, setMinimizedCards] = useState<Set<string>>(new Set());
+  const [requirementsGate, setRequirementsGate] = useState<{ pageId: string; runId: string } | null>(null);
 
   // Pipeline hero section state
   const [showActivity, setShowActivity] = useState(true);
@@ -87,6 +90,27 @@ export default function ChatPage() {
 
   useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
+  // Global Escape key handler for modals
+  // Global Escape key handler for modals — empty deps, reads activeModal via closure
+  const activeModalRef = useRef(activeModal);
+  activeModalRef.current = activeModal;
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && activeModalRef.current) setActiveModal(null);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  const toggleMinimize = useCallback((cardKey: string) => {
+    setMinimizedCards(prev => {
+      const next = new Set(prev);
+      if (next.has(cardKey)) next.delete(cardKey);
+      else next.add(cardKey);
+      return next;
+    });
+  }, []);
+
   const push = useCallback((sender: 'user' | 'assistant', text: string, extra?: Partial<ChatMessage>) => {
     setMessages(prev => [...prev, { id: uid(), sender, text, ...extra }]);
   }, []);
@@ -95,11 +119,11 @@ export default function ChatPage() {
   const pipeline = usePipelineSSE({
     onComplete: (event) => {
       push('assistant', 'Testing complete!', { responseType: 'results', data: { count: event.totalTests || 0, runId: event.runId } });
-      setView('chat');
+      setActiveModal(null);
     },
     onError: (message) => {
       push('assistant', `Error: ${message}`);
-      setView('chat');
+      setActiveModal(null);
     },
     initialStages: pipelineDefinition ? buildInitialStages(pipelineDefinition) : undefined,
   });
@@ -133,7 +157,9 @@ export default function ChatPage() {
         try {
           const s = await getWorkerControlStatus();
           setWorkerOnline(s.connected);
-        } catch {}
+        } catch (err) {
+          console.warn('[ChatPage] Worker status check failed:', (err as Error).message);
+        }
         setWorkerActionLoading(false);
       }, 3000);
     } catch {
@@ -167,7 +193,7 @@ export default function ChatPage() {
       });
 
       // Handle actions
-      if (response.action === 'connect_jira') setView('jira');
+      if (response.action === 'connect_jira') setActiveModal('jira');
       if (response.action === 'trigger_run' && response.runId) {
         // Chat-triggered pipeline auto-start (A5)
         if (!client?.id) {
@@ -176,10 +202,38 @@ export default function ChatPage() {
           const mode = text.match(/manual|step.by.step|review.each/i) ? 'manual' : 'auto';
           activePipeline.startPipeline(response.runId, mode);
           push('assistant', `Pipeline started in ${mode} mode. Watch the live progress above.`);
-          setView('chat');
+          setActiveModal(null);
         }
       }
       if (response.action === 'show_dashboard') window.location.href = '/dashboard';
+      if (response.action === 'run_stage_for_page' && response.params) {
+        const { pageName, stageId, mode: runMode } = response.params as { pageName?: string; stageId?: string; mode?: string };
+        push('assistant', `Starting ${stageId || 'pipeline'} for "${pageName || 'page'}"...`);
+        try {
+          const { runId } = await createPipelineRun({
+            feature: pageName || 'chat',
+            module: 'chat',
+            intent: text,
+            clientId: client?.id,
+            startStage: stageId,
+          });
+          activePipeline.startPipeline(runId, (runMode as 'auto' | 'manual') || 'auto');
+        } catch (err) {
+          push('assistant', `Failed to start: ${(err as Error).message}`);
+        }
+      }
+      if (response.action === 'setup_project') setActiveModal('launch');
+      if (response.action === 'check_page_status' && response.params) {
+        push('assistant', response.text || 'Checking page status...');
+      }
+      if (response.action === 'approve_stage') {
+        // Auto-approve via existing pipeline context
+        if (activePipeline.runId) {
+          const { approvePipelineRun } = await import('@/services/encoreApi');
+          await approvePipelineRun(activePipeline.runId);
+          push('assistant', 'Approved! Pipeline continuing to next stage.');
+        }
+      }
     } catch {
       push('assistant', 'Failed to reach the AI. Check if the backend is running.');
     }
@@ -190,11 +244,11 @@ export default function ChatPage() {
   const handleQuickAction = (action: string) => {
     if (action === 'run_pipeline') {
       push('assistant', 'Let\'s set up your test pipeline. Choose your options below:');
-      setView('launch');
+      setActiveModal('launch');
     } else if (action === 'past_runs') {
       window.location.href = '/dashboard';
     } else if (action === 'generate') handleSend('I want to generate tests');
-    else if (action === 'jira' || action === 'Import from JIRA') setView('jira');
+    else if (action === 'jira' || action === 'Import from JIRA') setActiveModal('jira');
     else if (action === 'dashboard' || action === 'View Dashboard') window.location.href = '/dashboard';
     else if (action === 'status') handleSend('What is the status of my latest run?');
     else handleSend(action);
@@ -203,7 +257,7 @@ export default function ChatPage() {
   /* ── Pipeline launched from card ── */
   const handlePipelineStarted = (_runId: string) => {
     push('assistant', 'Pipeline started! Watch the live progress above.');
-    setView('chat');
+    setActiveModal(null);
   };
 
   /* ── Action card clicks ── */
@@ -221,19 +275,19 @@ export default function ChatPage() {
       responseType: 'jira_stories',
       data: { stories },
     });
-    setView('chat');
+    setActiveModal(null);
   };
 
   const handleStorySelected = (storyKey: string, requirements: string) => {
     setPendingRequirements(requirements);
     push('user', `Selected: ${storyKey}`);
     push('assistant', 'Choose which columns you want in your test cases, then click Generate.');
-    setView('column-select');
+    setActiveModal('column-select');
   };
 
   /* ── Column select → generate ── */
   const handleColumnConfirm = async () => {
-    setView('chat');
+    setActiveModal(null);
     push('assistant', 'Starting test generation...');
     setSending(true);
     try {
@@ -248,7 +302,6 @@ export default function ChatPage() {
         trackWebsiteRun(website.id, runId).catch(() => {});
       }
       activePipeline.startPipeline(runId, 'auto');
-      setView('chat');
     } catch {
       push('assistant', 'Could not start the testing process. Backend may be unavailable.');
     }
@@ -346,50 +399,105 @@ export default function ChatPage() {
         </div>
       )}
 
+      {/* Multi-page context bar — only for page-scoped runs */}
+      {(() => {
+        const pageRuns = Array.from(activeRuns.values()).filter(r => r.pageId);
+        if (pageRuns.length === 0) return null;
+        const focused = pageRuns.find(r => r.runId === activePipeline.runId);
+        return (
+          <div className="flex-shrink-0 px-4 py-1.5 border-b border-violet-100 flex items-center gap-2 text-xs">
+            <span className="text-gray-500">Current:</span>
+            <span className="font-medium text-gray-800">{focused?.pageName || 'Pipeline'}</span>
+            {pageRuns.length > 1 && (
+              <select onChange={e => focusRun(e.target.value)} value={activePipeline.runId || ''} className="ml-2 text-xs border border-gray-200 rounded px-1 py-0.5 bg-white">
+                {pageRuns.map(r => (
+                  <option key={r.runId} value={r.runId}>{r.pageName || r.runId.slice(0, 8)}</option>
+                ))}
+              </select>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* Multi-run pending badge */}
+      {pendingCount > 1 && (
+        <div className="flex-shrink-0 px-4 py-1.5 border-b border-amber-200 bg-amber-50 flex items-center gap-2 text-xs">
+          <span className="font-medium text-amber-700">{pendingCount} stages awaiting action</span>
+          <div className="flex gap-1 ml-2">
+            {Array.from(activeRuns.values()).filter(r => r.pendingAction).map(r => (
+              <button key={r.runId} onClick={() => focusRun(r.runId)} className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-800 hover:bg-amber-300 transition-colors">
+                {r.pageName || r.runId.slice(0, 8)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Main content area — flex row to accommodate thinking panel */}
       <div className="flex-1 flex overflow-hidden">
         {/* Chat content column */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-          {messages.length === 0 && view === 'chat' && !showPipelineHero && (
+          {messages.length === 0 && !activeModal && !showPipelineHero && (
             <ChatWelcome username={user?.username || 'there'} onQuickAction={handleQuickAction} />
           )}
 
           <ChatMessageList messages={messages} scrollRef={scrollRef} onCardAction={handleCardAction} />
 
-          {view === 'jira' && (
-            <JiraImportFlow username={user?.username || 'admin'} onStoriesLoaded={handleStoriesLoaded} onStorySelected={handleStorySelected} />
+          {/* Auto-pilot status line (auto mode only) */}
+          {pipelineMode === 'auto' && pipelineIsActive && (
+            <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-violet-50 border border-violet-200 max-w-md mx-auto">
+              <div className="w-3 h-3 bg-violet-500 rounded-full animate-pulse" />
+              <span className="text-sm text-violet-700">Pipeline running automatically...</span>
+              <a href="/dashboard" className="text-xs text-violet-500 hover:text-violet-700 underline ml-auto">View Dashboard</a>
+            </div>
           )}
-
-          {view === 'column-select' && (
-            <div className="max-w-lg ml-11">
-              <ColumnSelector columns={ALL_COLUMNS} selected={selectedColumns} onChange={setSelectedColumns} onConfirm={handleColumnConfirm} />
+          {pipelineMode === 'auto' && pipelineStatus === 'completed' && (
+            <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 max-w-md mx-auto">
+              <span className="text-sm text-emerald-700">Pipeline complete!</span>
+              <a href="/dashboard" className="text-xs text-emerald-500 hover:text-emerald-700 underline ml-auto">View Results</a>
+            </div>
+          )}
+          {pipelineMode === 'auto' && pipelineStatus === 'failed' && (
+            <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-red-50 border border-red-200 max-w-md mx-auto">
+              <span className="text-sm text-red-700">Pipeline failed.</span>
+              <a href="/dashboard" className="text-xs text-red-500 hover:text-red-700 underline ml-auto">View Details</a>
             </div>
           )}
 
-          {view === 'launch' && (
-            <div className="flex justify-center pipeline-card-enter">
-              <PipelineLaunchCard onStarted={handlePipelineStarted} />
-            </div>
-          )}
-
-          {view === 'pipeline' && pipeline.stages.length > 0 && (
-            <div className="max-w-md ml-11">
-              <PipelineProgress stages={pipeline.stages} />
-            </div>
-          )}
-
-          {/* Approval gate card (manual mode) */}
+          {/* Approval gate card (manual mode) — ArtifactPreviewCard or minimized pill */}
           {pendingAction === 'approval_required' && pipelineMode === 'manual' && (
+            minimizedCards.has('approval') ? (
+              <div className="flex justify-center">
+                <button onClick={() => toggleMinimize('approval')} className="px-4 py-2 rounded-full bg-amber-100 text-amber-700 text-sm font-medium hover:bg-amber-200 transition-all">
+                  Stage awaiting approval — Review
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-center pipeline-card-enter">
+                <ArtifactPreviewCard runId={activeRunId} />
+              </div>
+            )
+          )}
+          {/* Approval in auto mode — simple card */}
+          {pendingAction === 'approval_required' && pipelineMode === 'auto' && (
             <div className="flex justify-center pipeline-card-enter">
-              <ChatApprovalCard />
+              <ChatApprovalCard onMinimize={() => toggleMinimize('approval')} />
             </div>
           )}
 
-          {/* Triage decision card */}
+          {/* Triage decision card — inline with minimize */}
           {pendingAction === 'triage_required' && (
-            <div className="flex justify-center pipeline-card-enter">
-              <ChatTriageCard />
-            </div>
+            minimizedCards.has('triage') ? (
+              <div className="flex justify-center">
+                <button onClick={() => toggleMinimize('triage')} className="px-4 py-2 rounded-full bg-amber-100 text-amber-700 text-sm font-medium hover:bg-amber-200 transition-all">
+                  Triage pending — Review
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-center pipeline-card-enter">
+                <ChatTriageCard onDecideLater={() => toggleMinimize('triage')} />
+              </div>
+            )
           )}
 
           {testCases.length > 0 && (
@@ -415,6 +523,45 @@ export default function ChatPage() {
           />
         )}
       </div>
+
+      {/* Modal overlays — chat stays visible behind backdrop */}
+      {activeModal === 'launch' && !requirementsGate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+             onClick={(e) => e.target === e.currentTarget && setActiveModal(null)}>
+          <PipelineLaunchCard onStarted={(id) => { handlePipelineStarted(id); setActiveModal(null); }}
+                              onClose={() => setActiveModal(null)}
+                              onNeedsRequirements={(pageId, runId) => setRequirementsGate({ pageId, runId })} />
+        </div>
+      )}
+      {requirementsGate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+             onClick={(e) => e.target === e.currentTarget && setRequirementsGate(null)}>
+          <RequirementsGateCard
+            pageId={requirementsGate.pageId}
+            runId={requirementsGate.runId}
+            hasUrl={false}
+            onComplete={() => { setRequirementsGate(null); setActiveModal(null); }}
+          />
+        </div>
+      )}
+      {activeModal === 'jira' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+             onClick={(e) => e.target === e.currentTarget && setActiveModal(null)}>
+          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto p-6 relative">
+            <button onClick={() => setActiveModal(null)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            <JiraImportFlow username={user?.username || 'admin'} onStoriesLoaded={handleStoriesLoaded} onStorySelected={handleStorySelected} />
+          </div>
+        </div>
+      )}
+      {activeModal === 'column-select' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+             onClick={(e) => e.target === e.currentTarget && setActiveModal(null)}>
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 p-6 relative">
+            <button onClick={() => setActiveModal(null)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            <ColumnSelector columns={ALL_COLUMNS} selected={selectedColumns} onChange={setSelectedColumns} onConfirm={handleColumnConfirm} />
+          </div>
+        </div>
+      )}
 
       {/* Chat input */}
       <div className="flex-shrink-0 px-4 py-3 border-t border-[#EDE9FE] bg-white/50 backdrop-blur-sm">

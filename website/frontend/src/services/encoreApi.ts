@@ -160,6 +160,125 @@ export async function deleteClientPipelineDefinition(clientId: string): Promise<
   return data;
 }
 
+// --- Pages (Plan 53D) ---
+
+export interface Page {
+  id: string;
+  client_id: string | null;
+  module: string;
+  page_slug: string;
+  display_name: string;
+  target_url: string | null;
+  parent_page_id: string | null;
+  depth: number;
+  sort_order: number;
+  metadata: Record<string, unknown> | null;
+  stages?: PageStageStatus[];
+}
+
+export interface PageStageStatus {
+  id: string;
+  page_id: string;
+  stage_id: string;
+  status: string;
+  active_run_id: string | null;
+  last_run_id: string | null;
+  last_completed_at: string | null;
+  artifact_summary: Record<string, unknown> | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  explore_without_reqs: boolean;
+  explore_permitted_by: string | null;
+}
+
+export async function listPages(clientId?: string, module?: string): Promise<Page[]> {
+  const params: Record<string, string> = {};
+  if (clientId) params.clientId = clientId;
+  if (module) params.module = module;
+  const { data } = await encore.get('/pages', { params });
+  return data;
+}
+
+export async function createPageRecord(page: { client_id?: string; module: string; page_slug: string; display_name: string; target_url?: string; parent_page_id?: string }): Promise<Page> {
+  const { data } = await encore.post('/pages', page);
+  return data;
+}
+
+export async function getPageDetail(id: string): Promise<Page & { stages: PageStageStatus[]; artifacts: any[] }> {
+  const { data } = await encore.get(`/pages/${encodeURIComponent(id)}`);
+  return data;
+}
+
+export async function updatePageRecord(id: string, patch: { display_name?: string; target_url?: string; metadata?: Record<string, unknown>; sort_order?: number }): Promise<Page> {
+  const { data } = await encore.put(`/pages/${encodeURIComponent(id)}`, patch);
+  return data;
+}
+
+export async function deletePageRecord(id: string): Promise<void> {
+  await encore.delete(`/pages/${encodeURIComponent(id)}`);
+}
+
+export async function getPageStages(id: string): Promise<PageStageStatus[]> {
+  const { data } = await encore.get(`/pages/${encodeURIComponent(id)}/stages`);
+  return data;
+}
+
+export async function permitExplore(pageId: string, permittedBy: string, stageId?: string): Promise<PageStageStatus> {
+  const { data } = await encore.post(`/pages/${encodeURIComponent(pageId)}/permit-explore`, { permittedBy, stageId });
+  return data;
+}
+
+export async function getPageTree(clientId?: string): Promise<Page[]> {
+  const params = clientId ? { clientId } : {};
+  const { data } = await encore.get('/pages/tree', { params });
+  return data;
+}
+
+export async function updateArtifact(artifactId: string, content: string, editedBy: string): Promise<any> {
+  const { data } = await encore.put(`/artifacts/${encodeURIComponent(artifactId)}`, { content, editedBy });
+  return data;
+}
+
+export async function deleteArtifact(artifactId: string, deletedBy: string): Promise<void> {
+  await encore.delete(`/artifacts/${encodeURIComponent(artifactId)}`, { data: { deletedBy } });
+}
+
+export async function getArtifactVersions(artifactId: string): Promise<any[]> {
+  const { data } = await encore.get(`/artifacts/${encodeURIComponent(artifactId)}/versions`);
+  return data;
+}
+
+export async function batchRunPipeline(params: { pageIds: string[]; targetStage: string; mode: 'auto' | 'manual'; intent: string; clientId?: string }): Promise<{ batchId: string; started: { pageId: string; runId: string }[]; skipped: { pageId: string; reason: string }[] }> {
+  const { data } = await encore.post('/pipeline/batch-run', params);
+  return data;
+}
+
+export async function switchPipelineMode(runId: string, mode: 'auto' | 'manual'): Promise<{ mode: string }> {
+  const { data } = await encore.patch(`/pipeline/${encodeURIComponent(runId)}/mode`, { mode });
+  return data;
+}
+
+// --- Setup / Onboarding (Plan 53E) ---
+
+export async function initiateSetup(params: { clientId: string; homeUrl: string; authType?: string; credentials?: Record<string, string>; maxPages?: number; maxDepth?: number; initiatedBy: string }): Promise<{ setupId: string; status: string }> {
+  const { data } = await encore.post('/setup/initiate', params);
+  return data;
+}
+
+export async function getSetupStatus(clientId: string): Promise<{ status: string; home_url?: string; setup_run_id?: string }> {
+  const { data } = await encore.get('/setup/status', { params: { clientId } });
+  return data;
+}
+
+export async function storeSetupCredentials(clientId: string, authType: string, credentials: Record<string, string>): Promise<void> {
+  await encore.post('/setup/credentials', { clientId, authType, credentials });
+}
+
+export async function rediscoverPages(clientId: string, initiatedBy: string): Promise<{ setupId: string; status: string }> {
+  const { data } = await encore.post('/setup/rediscover', { clientId, initiatedBy });
+  return data;
+}
+
 // --- Health ---
 // Note: Encore health is at /health (no /api prefix), so we bypass the axios baseURL
 export async function encoreHealthCheck(): Promise<HealthResponse> {

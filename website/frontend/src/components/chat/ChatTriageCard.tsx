@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Bug, Wrench, XCircle, CheckCircle2, Send } from 'lucide-react';
+import { Search, Bug, Wrench, XCircle, CheckCircle2, Send, Clock } from 'lucide-react';
 import { resumeTriagePipeline, getPipelineRunDetail } from '@/services/encoreApi';
 import { useActivePipeline } from '@/contexts/ActivePipelineContext';
 import '@/styles/pipeline-animations.css';
@@ -16,7 +16,11 @@ interface TriageItem {
  * Inline chat card for triage decisions.
  * Rendered when SSE fires `triage_required`.
  */
-export default function ChatTriageCard() {
+interface ChatTriageCardProps {
+  onDecideLater?: () => void;
+}
+
+export default function ChatTriageCard({ onDecideLater }: ChatTriageCardProps) {
   const { runId, clearPendingAction } = useActivePipeline();
   const [items, setItems] = useState<TriageItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +75,9 @@ export default function ChatTriageCard() {
       setSummary({ healed, bugs, dismissed });
       setSubmitted(true);
       clearPendingAction();
-    } catch { /* ignore */ }
+    } catch (err) {
+      console.error('[ChatTriageCard] Submit failed:', (err as Error).message);
+    }
     setSubmitting(false);
   };
 
@@ -94,9 +100,16 @@ export default function ChatTriageCard() {
   return (
     <div className="pipeline-card-enter pipeline-awaiting-action bg-white rounded-2xl border-2 border-amber-300 shadow-sm max-w-2xl">
       <div className="px-5 pt-4 pb-3">
-        <div className="flex items-center gap-2 text-amber-700 font-semibold">
-          <Search className="w-5 h-5" />
-          Triage Required — {items.length} issue{items.length !== 1 ? 's' : ''} found
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-amber-700 font-semibold">
+            <Search className="w-5 h-5" />
+            Triage Required — {items.length} issue{items.length !== 1 ? 's' : ''} found
+          </div>
+          {onDecideLater && (
+            <button onClick={onDecideLater} className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 transition-colors px-2 py-1 rounded-lg hover:bg-gray-100">
+              <Clock className="w-3.5 h-3.5" /> Decide Later
+            </button>
+          )}
         </div>
         <p className="text-sm text-gray-500 mt-0.5">Decide what to do with each failure</p>
       </div>

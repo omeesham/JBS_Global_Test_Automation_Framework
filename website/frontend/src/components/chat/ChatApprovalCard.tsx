@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, RotateCcw, Pause } from 'lucide-react';
+import { CheckCircle2, RotateCcw, Pause, Minus } from 'lucide-react';
 import { approvePipelineRun, rejectPipelineRun } from '@/services/encoreApi';
 import { useActivePipeline } from '@/contexts/ActivePipelineContext';
 import '@/styles/pipeline-animations.css';
@@ -8,7 +8,11 @@ import '@/styles/pipeline-animations.css';
  * Inline chat card for manual approval gates.
  * Rendered when SSE fires `approval_required` and pipeline mode is 'manual'.
  */
-export default function ChatApprovalCard() {
+interface ChatApprovalCardProps {
+  onMinimize?: () => void;
+}
+
+export default function ChatApprovalCard({ onMinimize }: ChatApprovalCardProps) {
   const { runId, stages, clearPendingAction } = useActivePipeline();
   const [decision, setDecision] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [rejectReason, setRejectReason] = useState('');
@@ -26,7 +30,9 @@ export default function ChatApprovalCard() {
       await approvePipelineRun(runId);
       setDecision('approved');
       clearPendingAction();
-    } catch { /* ignore */ }
+    } catch (err) {
+      console.error('[ChatApprovalCard] Approve failed:', (err as Error).message);
+    }
     setLoading(false);
   };
 
@@ -37,7 +43,9 @@ export default function ChatApprovalCard() {
       await rejectPipelineRun(runId, rejectReason || undefined);
       setDecision('rejected');
       clearPendingAction();
-    } catch { /* ignore */ }
+    } catch (err) {
+      console.error('[ChatApprovalCard] Reject failed:', (err as Error).message);
+    }
     setLoading(false);
   };
 
@@ -67,9 +75,16 @@ export default function ChatApprovalCard() {
   return (
     <div className="pipeline-card-enter pipeline-awaiting-action bg-white rounded-2xl border-2 border-amber-300 shadow-sm max-w-lg">
       <div className="px-5 pt-4 pb-3">
-        <div className="flex items-center gap-2 text-amber-700 font-semibold">
-          <Pause className="w-5 h-5" />
-          Stage Complete — Review Required
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-amber-700 font-semibold">
+            <Pause className="w-5 h-5" />
+            Stage Complete — Review Required
+          </div>
+          {onMinimize && (
+            <button onClick={onMinimize} className="text-gray-400 hover:text-gray-600 transition-colors p-1" title="Minimize">
+              <Minus className="w-4 h-4" />
+            </button>
+          )}
         </div>
         <p className="text-sm text-gray-600 mt-1">
           <strong>{lastStage?.name || 'Stage'}</strong> finished. Review the results and decide whether to continue or re-run.

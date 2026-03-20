@@ -78,6 +78,10 @@ export interface PipelineRun {
   status: PipelineRunStatus;
   priority: string;
   cost: number;
+  page_id: string | null;
+  cascade_plan: Record<string, unknown> | null;
+  batch_id: string | null;
+  execution_mode_live: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -110,6 +114,10 @@ export interface Artifact {
   type: string;
   content: string | null;
   metadata: Record<string, unknown> | null;
+  page_id: string | null;
+  version: number;
+  replaced_by: string | null;
+  edited_by: string | null;
   created_at: string;
 }
 
@@ -131,6 +139,46 @@ export interface WorkerTask {
   created_at: string;
 }
 
+// ── Page (DB row shape — Plan 53B) ──
+
+export interface Page {
+  id: string;
+  client_id: string | null;
+  module: string;
+  page_slug: string;
+  display_name: string;
+  target_url: string | null;
+  parent_page_id: string | null;
+  depth: number;
+  sort_order: number;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PageStageStatusValue = 'not_started' | 'running' | 'completed' | 'failed';
+
+export interface PageStageStatus {
+  id: string;
+  page_id: string;
+  stage_id: string;
+  status: PageStageStatusValue;
+  active_run_id: string | null;
+  last_run_id: string | null;
+  last_completed_at: string | null;
+  artifact_summary: Record<string, unknown> | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  explore_without_reqs: boolean;
+  explore_permitted_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PageWithStages extends Page {
+  stages: PageStageStatus[];
+}
+
 // ── SSE Event Types ──
 // visibility: 'public' events are sent to all connections; 'admin' events only to admin connections.
 // Default (undefined) = 'public' for backwards compatibility.
@@ -147,7 +195,11 @@ export type SSEEvent =
   | { type: 'worker_status'; connected: boolean; timestamp: string; visibility?: SSEVisibility }
   | { type: 'agent_progress'; runId: string; stage: string; message: string; timestamp: string; visibility?: SSEVisibility }
   | { type: 'triage_required'; runId: string; triageReportPath: string; failureCount: number; timestamp: string; visibility?: SSEVisibility }
-  | { type: 'approval_required'; runId: string; stage: string; artifactCount: number; timestamp: string; visibility?: SSEVisibility };
+  | { type: 'approval_required'; runId: string; stage: string; artifactCount: number; timestamp: string; visibility?: SSEVisibility }
+  | { type: 'page_stage_updated'; runId: string; pageId: string; stageId: string; status: string; timestamp: string; visibility?: SSEVisibility }
+  | { type: 'cascade_progress'; runId: string; pageId: string; completedStage: string; nextStage: string | null; timestamp: string; visibility?: SSEVisibility }
+  | { type: 'artifact_updated'; runId: string; artifactId: string; action: 'edited' | 'deleted'; timestamp: string; visibility?: SSEVisibility }
+  | { type: 'mode_switched'; runId: string; mode: 'auto' | 'manual'; timestamp: string; visibility?: SSEVisibility };
 
 // ── API Request/Response Types ──
 
