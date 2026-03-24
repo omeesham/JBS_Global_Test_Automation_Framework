@@ -368,10 +368,10 @@ export async function processStageCompletion(
     nextStageId = getNextStageId(stageId, outcome, definition);
   }
 
-  // Dry run: force linear routing through ALL stages (including healing)
+  // Dry run: force linear routing through pipeline stages (no healing — healer is standalone)
   const isDryRun = resultData?.dryRun === true;
   if (isDryRun) {
-    const DRY_RUN_ORDER = ['requirements', 'planning', 'generation', 'healing', 'audit'];
+    const DRY_RUN_ORDER = ['requirements', 'planning', 'generation', 'audit'];
     const currentIdx = DRY_RUN_ORDER.indexOf(stageId);
     nextStageId = currentIdx >= 0 && currentIdx < DRY_RUN_ORDER.length - 1
       ? DRY_RUN_ORDER[currentIdx + 1]!
@@ -419,32 +419,11 @@ export async function processStageCompletion(
           testName: item.testName || item.name || 'Unknown',
           action: autoTriageDefaults[item.category] || autoTriageDefaults['UNCERTAIN'] || 'dismiss',
         }));
-        const healCount = decisions.filter((d: any) => d.action === 'heal_feature_change').length;
         const bugCount = decisions.filter((d: any) => d.action === 'report_bug').length;
-        console.log(`[Orchestrator] Auto-triage applied: ${healCount} healed, ${bugCount} reported, ${decisions.length - healCount - bugCount} dismissed`);
+        const dismissCount = decisions.filter((d: any) => d.action === 'dismiss').length;
+        console.log(`[Orchestrator] Auto-triage applied: ${bugCount} reported, ${dismissCount} dismissed`);
 
-        // If heals needed, route to healer (same logic as resume-triage endpoint)
-        if (healCount > 0) {
-          const healerStage = definition.stages.find(s => s.id === 'healing' && s.enabled);
-          if (healerStage) {
-            const prompt = [
-              `Pipeline Stage: ${healerStage.name} (${healerStage.id})`,
-              `Feature: ${run0?.feature || 'unknown'}`,
-              `Module: ${run0?.module || 'unknown'}`,
-              `Intent: ${run0?.intent || 'unknown'}`,
-              '', '--- AUTO-TRIAGE DECISIONS ---',
-              ...decisions.filter((d: any) => d.action === 'heal_feature_change').map((d: any) => `- ${d.testName}: feature changed, update test`),
-              '', healerStage.description,
-            ].join('\n');
-            await createWorkerTask(pool, runId, 'healing', prompt, {
-              feature: run0?.feature, module: run0?.module, intent: run0?.intent,
-              targetUrl: run0?.target_url, autoTriage: true,
-            }, run0?.client_id);
-            await updatePipelineRun(pool, runId, { stage: 'healing', status: 'queued' });
-            return;
-          }
-        }
-        // No heals — pipeline completes
+        // Auto-triage completes the pipeline — healer is standalone, not auto-invoked
         await updatePipelineRun(pool, runId, { status: 'completed' as any, stage: 'completed' });
         emitEvent(runId, { type: 'pipeline_complete', runId, status: 'completed', totalCost: run0 ? Number(run0.cost) : 0, timestamp: new Date().toISOString(), visibility: 'public' });
         return;
@@ -503,7 +482,28 @@ export async function processStageCompletion(
   const run = await getPipelineRun(pool, runId);
   if (!run) return;
 
-  // Validate upstream artifacts BEFORE approval gate — don't let users approve broken state
+  // Approval gate: check both stage config AND per-run executionMode override.
+  // executionMode='approve-per-stage' is stored in the worker task context and
+  // propagated through resultData. If present, treat ALL stages as manual.
+  // NOTE: Approval gate runs BEFORE artifact validation — in manual mode, the user
+  // should review and approve the current stage's output before we check whether
+  // the next stage's prerequisites are satisfied (artifacts may be created during approval).
+  const isApprovePerStage = resultData?.executionMode === 'approve-per-stage';
+  const needsApproval = (nextStage.approvalMode === 'manual' || isApprovePerStage) && !isDryRun;
+  if (needsApproval) {
+    await updatePipelineRun(pool, runId, { status: 'awaiting_approval' as any, stage: stageId });
+    emitEvent(runId, {
+      type: 'approval_required',
+      runId,
+      stage: stageId,
+      artifactCount: 0, // Caller can look up artifacts from API
+      timestamp: new Date().toISOString(),
+      visibility: 'public',
+    });
+    return; // Pipeline paused — user must approve artifacts on dashboard
+  }
+
+  // Validate upstream artifacts (only in auto mode — manual mode pauses above)
   const { validateUpstreamArtifacts } = await import('./artifact-validator');
   const validationCtx = {
     feature: run.feature,
@@ -523,24 +523,6 @@ export async function processStageCompletion(
     });
     await updatePipelineRun(pool, runId, { status: 'error', stage: stageId });
     return;
-  }
-
-  // Approval gate: check both stage config AND per-run executionMode override.
-  // executionMode='approve-per-stage' is stored in the worker task context and
-  // propagated through resultData. If present, treat ALL stages as manual.
-  const isApprovePerStage = resultData?.executionMode === 'approve-per-stage';
-  const needsApproval = (nextStage.approvalMode === 'manual' || isApprovePerStage) && !isDryRun;
-  if (needsApproval) {
-    await updatePipelineRun(pool, runId, { status: 'awaiting_approval' as any, stage: stageId });
-    emitEvent(runId, {
-      type: 'approval_required',
-      runId,
-      stage: stageId,
-      artifactCount: 0, // Caller can look up artifacts from API
-      timestamp: new Date().toISOString(),
-      visibility: 'public',
-    });
-    return; // Pipeline paused — user must approve artifacts on dashboard
   }
 
   // Run pre-run gate if defined

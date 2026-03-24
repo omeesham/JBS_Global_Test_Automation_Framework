@@ -157,8 +157,8 @@ export function registerPageRoutes(app: FastifyInstance) {
     // Now walk forward from root
     currentId = rootId;
     while (currentId) {
-      const result = await app.db.query<Artifact>('SELECT * FROM artifacts WHERE id = $1', [currentId]);
-      const row = result.rows[0];
+      const result: { rows: Artifact[] } = await app.db.query<Artifact>('SELECT * FROM artifacts WHERE id = $1', [currentId]);
+      const row: Artifact | undefined = result.rows[0];
       if (!row) break;
       versions.push(row);
       currentId = row.replaced_by;

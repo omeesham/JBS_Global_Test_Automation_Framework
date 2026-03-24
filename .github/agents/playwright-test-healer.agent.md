@@ -47,7 +47,15 @@ handoffs:
 2. **DIAGNOSTICS FIRST**: Read failure-summary.json BEFORE any live debugging. Log the EXACT values: `error`, `failureCategory`, `selector`, `lastActions[0..2]` in your first response BEFORE any other action. No artifact cite = no MCP access.
 3. **RCA DECISION TREE**: After reading failure-summary.json (HARD STOP #2), walk the RCA Decision Tree (§12) using artifacts before ANY code edit. Classify → Artifacts → Tree Walk → Diagnose → Fix. MCP replication only if artifacts insufficient. (ALL-045)
 4. **NO GUESS-PATCH-RERUN**: Never apply a fix based solely on an error message. Every fix must cite evidence: artifact file + field that proves the root cause. If you can't cite evidence, you haven't found the root cause yet. (ALL-046)
-5. **BEFOREUNLOAD TRAP (ALL-052)**: NEVER use `browser_evaluate` to call `reload()`. If you edited without saving, navigate to `about:blank` first (`browser_navigate` → `browser_handle_dialog(accept: true)` if dialog fires), then navigate to target URL. Reload = stuck. Navigate away + re-navigate = clean.
+5. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
+   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
+   - THEN call `browser_navigate` to `about:blank`
+   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
+   - THEN navigate to your target URL
+   - Wait 5 seconds for page load
+   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
+   NEVER call `browser_navigate` to the same URL as a reload — use about:blank → target pattern.
+   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
 
 **Healer Agent** — Debugs and fixes failing Playwright tests. Two-phase debugger, NOT a loop machine.
 
@@ -83,6 +91,45 @@ handoffs:
 | HLR-012 | NEVER skip artifact reading (Steps 1-4) to jump straight to MCP replication. Artifact-first is manda... | Healer's #1 time waste: MCP browsing before reading error-context.md |
 | HLR-013 | NEVER run full spec during fix loop. Use --grep with dependency analysis (HLR-010). Full spec only f... | Debug cycles waste 2+ min per unnecessary full run |
 | HLR-014 | NEVER browse randomly on MCP during failure replication. Read spec code first, find failing action s... | Random browsing = undirected debugging. HLR-011 enforcement |
+| HLR-015 | Before modifying ANY selector, assertion, or page object method: READ `reports/walkthrough/{itemId}.walkthrough.md` if it exists. Check if the element/assertion was VERIFIED in the walkthrough. If VERIFIED: do NOT change the selector/assertion without re-verifying on MCP first. If not in walkthrough: verify on MCP before changing. Append your verification rows to the walkthrough file. | Prevents healer from undoing generator's MCP-verified work. Generator Phase 0.5 produces walkthrough with verified selectors/values — healer must consult it before making changes. |
+| HLR-017 | RCA-FIRST is a HARD GATE. Before writing ANY code change: complete Phase A (7-Step RCA) in FULL. Evidence checklist must be written BEFORE Phase B (Fix). If you skip RCA and jump to fixing, you WILL go in circles. The /rca skill protocol (IS/IS-NOT + Fishbone + 5 Whys) is the MANDATORY framework. For EVERY failure: read failure-summary.json → error-context.md → screenshot → trace → IS/IS-NOT table → THEN fix. | Session 2026-03-24: 4 fix attempts on ECT-009 without completing RCA = wasted 30+ minutes. IS/IS-NOT analysis would have identified the cause in 5 minutes. |
+
+### HLR-018: STALE ARTIFACT NOTIFICATION
+After successfully healing a SMALL feature change (`FEATURE_CHANGED_SMALL`):
+1. Write notification to `specs_planning/_internal/agent-notifications/` for Generator: `{ type: 'stale_artifact', toAgent: 'generator', affectedFiles: [...], changeSummary: 'what changed and how it was healed' }`
+2. Write same notification for Planner: `{ type: 'stale_artifact', toAgent: 'planner', ... }`
+Use `notifyStaleArtifacts()` from `src/utils/agent-notification-writer.ts`.
+This ensures Generator/Planner update their artifacts on next invocation.
+
+### HLR-019: BIG CHANGE ESCALATION
+For BIG feature changes (`FEATURE_CHANGED_BIG`):
+1. Write escalation to `agent-escalations.json` with `{ targetAgent: <affected agent>, changeScopeFiles, affectedSelectors, reason }`
+2. Set queue item `blockedByBigChange: true`
+3. Do NOT attempt healing. The change is too large — prior agents (Requirements/Planner) must rework their artifacts first.
+4. Target selection: if only TCs are stale → target Planner. If page structure changed → target Requirements + Planner.
+
+### HLR-020: USE CLASSIFIER FUNCTION
+Use `classifyBugHuntCategory()` from `src/utils/bug-hunt-classifier.ts` for ALL triage classifications.
+Do NOT classify manually. The function ensures:
+- Consistent classification across all agents
+- Populates BOTH `bugHuntCategory` AND legacy `disposition` fields
+- Handles retry/flake detection, infrastructure transient detection, and dedup
+
+### HLR-021: BUG VERIFICATION
+At session start, check `reports/bugs/` for bugs with status `fixed`.
+For each fixed bug:
+1. Run the bug-blocked test via `--grep "TC-ID"`
+2. If test PASSES → update bug status to `verified`, remove `test.skip('bug-blocked: BUG-XXX')` from spec
+3. If test FAILS → update bug status back to `in_progress` with note "fix didn't work"
+This closes the bug lifecycle loop: open → confirmed → fixed → verified → closed.
+
+### HLR-022: FIRST-RUN BASELINE
+On first run for a page (no `test_id_registry` entries or testid-inventory file):
+- `TESTID_CHANGED` is IMPOSSIBLE to detect — there is no previous value to compare against
+- Only `PRESENT` or `MISSING` can be detected
+- All detected testids populate the registry as baseline for future comparison
+- Do NOT classify anything as "changed" without a prior value
+
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
@@ -132,6 +179,24 @@ WARNING: Close playwright-test before opening playwright-browser.
 | FEATURE_CHANGE | Proceed to Phase A + B. Document change. Update TC expected values. (HLR-020) |
 | TEST_DEFECT | Proceed to Phase A + B. Normal healing. |
 | UNCERTAIN | Phase A for more evidence. Re-triage. If still uncertain → partial report, no heal. (HLR-019) |
+
+#### 4-Category Bug Hunting Rulebook (enhances Step 0.4 above)
+
+Use `classifyBugHuntCategory()` from `src/utils/bug-hunt-classifier.ts` for consistent classification.
+The function returns BOTH `bugHuntCategory` (detailed) and `disposition` (coarse backward-compat).
+
+| Evidence Pattern | BugHuntCategory | Autonomy | Action |
+|---|---|---|---|
+| No change signals + console error / network 5xx / value mismatch | `UNCHANGED_FAILURE` | AUTONOMOUS | Bug report → `reports/bugs/`. `test.skip('bug-blocked')`. Do NOT heal. |
+| data-testid gone / never existed | `TESTID_MISSING` | AUTONOMOUS | Bug report (critical). `test.skip('bug-blocked')`. |
+| data-testid value changed | `TESTID_CHANGED` | HUMAN_REVIEW | Report + adapt selector. Send to triage for user review ("could be known change or bug"). |
+| Feature change, ≤3 files + ≤5 selectors | `FEATURE_CHANGED_SMALL` | AUTONOMOUS | Heal framework + spec. Write notification to `agent-notifications/` for Generator + Planner. |
+| Feature change, >3 files OR >5 selectors | `FEATURE_CHANGED_BIG` | HUMAN_REVIEW | DENY working. Write escalation. Set `blockedByBigChange=true`. Previous agents need rework first. |
+| Test passes on retry (retryAttempt > 0, eventually passes) | `FLAKE` | AUTONOMOUS | Log to failure_history. Do NOT file bug. If same test flakes 3+ times in 5 runs → promote to UNCHANGED_FAILURE. |
+| Network-only failure, no DOM/console evidence | `INFRASTRUCTURE_TRANSIENT` | AUTONOMOUS | Auto-retry once. If passes → FLAKE. If fails again → UNCHANGED_FAILURE. |
+| Mixed/insufficient signals | (keep as UNCERTAIN) | HUMAN_REVIEW | Phase A for more evidence. If still uncertain → triage to user. |
+
+**DEDUP**: Before filing any bug report, compute `errorHash` via `computeErrorHash(testName, failureCategory, errorMessage)` and check `reports/bugs/` for existing report with same hash. If found → UPDATE existing report with new evidence (add `sourceAgent: 'healer'`), don't create duplicate.
 
 ---
 

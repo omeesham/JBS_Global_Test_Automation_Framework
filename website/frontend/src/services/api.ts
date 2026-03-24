@@ -123,8 +123,26 @@ export async function chatAsk(payload: {
   model?: 'haiku' | 'sonnet' | 'opus';
   thinkingEnabled?: boolean;
   websiteContext?: Record<string, unknown>;
+  agent?: string;
+  executionMode?: string;
 }) {
   const { data } = await api.post('/chat/ask', payload);
+  return data;
+}
+
+// --- Direct pipeline start (bypasses chatbot AI when agent is explicitly selected) ---
+export async function startPipelineFromChat(payload: {
+  agent: string;
+  executionMode: 'auto' | 'manual';
+  intent: string;
+  clientId?: string;
+  pageId?: string;
+  model?: string;
+  targetUrl?: string;
+  module?: string;
+  feature?: string;
+}) {
+  const { data } = await api.post('/chat/start-pipeline', payload);
   return data;
 }
 

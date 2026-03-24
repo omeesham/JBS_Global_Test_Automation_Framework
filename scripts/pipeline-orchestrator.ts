@@ -2,7 +2,7 @@
 /**
  * Pipeline Orchestrator -- runs the full agent pipeline for a queue item.
  *
- * Stages: requirements -> planning -> generation -> (healing if fail) -> audit
+ * Stages: requirements -> planning -> generation -> audit (linear, no healing in normal flow)
  * Each stage runs: pre-run gate -> agent invocation -> post-complete gate -> stage transition.
  *
  * Usage:
@@ -87,30 +87,20 @@ interface RouteDecision {
   reason: string;
 }
 
-function routeAfterStage(stage: string, testsPassed: boolean, retryCount: number): RouteDecision {
+function routeAfterStage(stage: string, testsPassed: boolean, _retryCount: number): RouteDecision {
   switch (stage) {
     case 'requirements':
       return { nextStage: 'pending_planning', reason: 'Requirements complete -> planning' };
     case 'planning':
       return { nextStage: 'pending_generation', reason: 'Planning complete -> generation' };
     case 'generation':
-      if (testsPassed) {
-        return { nextStage: 'pending_audit', reason: 'Tests pass -> audit' };
-      }
-      return { nextStage: 'pending_healing', reason: 'Tests fail -> healing' };
-    case 'healing':
-      if (testsPassed) {
-        return { nextStage: 'pending_audit', reason: 'Healing succeeded -> audit' };
-      }
-      if (retryCount >= 3) {
-        return { nextStage: 'fixme', reason: 'Healing failed 3+ retries -> blocked' };
-      }
-      return { nextStage: 'pending_healing', reason: 'Healing failed -> retry' };
+      // Generator runs in copilot loop until tests pass. No routing to healer.
+      return { nextStage: 'pending_audit', reason: 'Generation complete -> audit' };
     case 'audit':
       if (testsPassed) {
         return { nextStage: 'completed', reason: 'Audit passed -> completed' };
       }
-      return { nextStage: 'pending_healing', reason: 'Audit critical findings -> healing' };
+      return { nextStage: 'fixme', reason: 'Audit critical findings -> fixme' };
     default:
       return { nextStage: 'fixme', reason: `Unknown stage: ${stage}` };
   }
@@ -327,8 +317,8 @@ function runPipeline(itemId: string, startFromStage?: string): void {
   const startIdx = fullSequence.indexOf(currentPipelineStage);
 
   if (startIdx === -1) {
-    // Check conditional agents
-    if (currentPipelineStage === 'healing' || currentPipelineStage === 'audit') {
+    // Check conditional agents (audit can run standalone)
+    if (currentPipelineStage === 'audit') {
       runSingleStage(queue, item, currentPipelineStage, config);
       return;
     }
@@ -353,36 +343,14 @@ function runPipeline(itemId: string, startFromStage?: string): void {
       process.exit(1);
     }
 
-    // After generation: check if we need conditional routing
+    // After generation: route to audit (generator handles its own test loop)
     if (stage === 'generation') {
-      const testsPassed = checkTestResults(itemId);
-      const route = routeAfterStage(stage, testsPassed, retryCount);
+      const route = routeAfterStage(stage, true, retryCount);
       console.log(`\n[->] Routing: ${route.reason}`);
 
       // Reload queue after potential modifications
       const freshQueue = loadQueue();
       transitionStage(freshQueue, itemId, route.nextStage, route.reason);
-
-      if (!testsPassed) {
-        // Run healing
-        console.log('\n[->] Entering healing stage...');
-        const healQueue = loadQueue();
-        const healItem = findItem(healQueue, itemId);
-        if (healItem) {
-          const healResult = runSingleStage(healQueue, healItem, 'healing', config);
-          if (healResult.transitioned) {
-            const healTestsPassed = checkTestResults(itemId);
-            const healRoute = routeAfterStage('healing', healTestsPassed, ++retryCount);
-            const postHealQueue = loadQueue();
-            transitionStage(postHealQueue, itemId, healRoute.nextStage, healRoute.reason);
-
-            if (healRoute.nextStage === 'fixme') {
-              console.log('\n[BLOCKED] Item moved to fixme after 3+ healing retries');
-              process.exit(1);
-            }
-          }
-        }
-      }
 
       // Run audit as final stage
       if (QUEUE_TO_PIPELINE[findItem(loadQueue(), itemId)?.stage ?? ''] === 'audit') {

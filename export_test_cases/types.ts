@@ -169,6 +169,7 @@ export const KNOWN_SUB_CODES = [
   'MGH',  // management_history
   'BAS',  // local_office_settings basic_information
   'HST',  // local_office_settings history
+  'HIS',  // local_office_settings history (alias)
   'ECT',  // local_office_settings ect_settings
 ] as const;
 

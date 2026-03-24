@@ -131,6 +131,79 @@ function main(): void {
   const escWarnings: string[] = checkUnresolvedEscalations('healer');
   warnings.push(...escWarnings);
 
+  // ── Bug Hunt Gate: Escalation + Notification ──
+
+  // Gate: BIG CHANGE ESCALATION
+  // If bugHuntCategory is FEATURE_CHANGED_BIG, do NOT transition to pending_audit.
+  // Instead, mark item as blocked and write escalation.
+  let blockedByBigChange = false;
+  if ((item as any).bugHuntCategory === 'FEATURE_CHANGED_BIG') {
+    (item as any).blockedByBigChange = true;
+    (item as any).blockedReason = (item as any).escalationReason || 'Big feature change requires prior agent rework';
+    blockedByBigChange = true;
+    console.log(`[healer-post-complete] BIG CHANGE: Item ${item.id} blocked. Escalation required.`);
+    // Note: Escalation should have been written by Healer during Phase 0 (HLR-019).
+    // This gate verifies it exists.
+    // Skip the normal stage transition
+  }
+
+  // Gate: SMALL CHANGE NOTIFICATION (HLR-018)
+  // If bugHuntCategory is FEATURE_CHANGED_SMALL, write stale_artifact notifications to generator + planner.
+  if ((item as any).bugHuntCategory === 'FEATURE_CHANGED_SMALL') {
+    try {
+      const { notifyStaleArtifacts } = require('../src/utils/agent-notification-writer');
+      const affectedFiles = (item as any).affectedFiles || [];
+      const changeSummary = (item as any).changeSummary || `Small feature change healed for item ${item.id}`;
+      const notifIds = notifyStaleArtifacts('healer', affectedFiles, changeSummary);
+      console.log(`[healer-post-complete] Wrote ${notifIds.length} stale_artifact notifications (HLR-018): ${notifIds.join(', ')}`);
+    } catch (err) {
+      console.warn(`[healer-post-complete] WARNING: Failed to write stale_artifact notifications: ${err}`);
+    }
+  }
+
+  // Gate: BUG VERIFICATION (HLR-021)
+  // Check for bugs with status 'fixed' that need re-testing. Attempt re-test if possible.
+  const bugDir = path.join(__dirname, '../reports/bugs');
+  if (fs.existsSync(bugDir)) {
+    const bugFiles = fs.readdirSync(bugDir).filter(f => f.endsWith('.json'));
+    const fixedBugs: { file: string; bug: any }[] = [];
+    for (const file of bugFiles) {
+      try {
+        const bug = JSON.parse(fs.readFileSync(path.join(bugDir, file), 'utf-8'));
+        if (bug.status === 'fixed') fixedBugs.push({ file, bug });
+      } catch (err) {
+        console.warn(`[healer-post-complete] Skipping malformed bug file ${file}: ${err}`);
+      }
+    }
+    if (fixedBugs.length > 0) {
+      console.log(`[healer-post-complete] ${fixedBugs.length} fixed bugs pending verification (HLR-021).`);
+      for (const { file, bug } of fixedBugs) {
+        const tcId = bug.testCaseId || bug.id;
+        console.log(`[healer-post-complete] Verifying fix for ${tcId}...`);
+        try {
+          const { execSync } = require('child_process');
+          execSync(`npx playwright test --grep "${tcId}" --reporter=line`, {
+            cwd: path.join(__dirname, '..'),
+            timeout: 120_000,
+            encoding: 'utf-8',
+            stdio: 'pipe',
+          });
+          // Test passed — update bug to verified
+          bug.status = 'verified';
+          bug.updatedAt = new Date().toISOString();
+          fs.writeFileSync(path.join(bugDir, file), JSON.stringify(bug, null, 2), 'utf-8');
+          console.log(`[healer-post-complete] BUG VERIFIED: ${tcId} — test passed. Status: verified.`);
+        } catch {
+          // Test still fails — update back to in_progress
+          bug.status = 'in_progress';
+          bug.updatedAt = new Date().toISOString();
+          fs.writeFileSync(path.join(bugDir, file), JSON.stringify(bug, null, 2), 'utf-8');
+          console.log(`[healer-post-complete] BUG NOT FIXED: ${tcId} — test still fails. Status: in_progress.`);
+        }
+      }
+    }
+  }
+
   // Report
   console.log('\n' + '='.repeat(60));
 
@@ -148,7 +221,21 @@ function main(): void {
 
   console.log('\n[PASS] Healer post-complete gate passed');
 
-  // Stage transition
+  // Stage transition (blocked if BIG CHANGE escalation)
+  if (blockedByBigChange) {
+    console.log(`[healer-post-complete] Stage transition SKIPPED — item ${item.id} blocked by big change escalation.`);
+    if (!item.history) item.history = [];
+    item.history.push({
+      agent: 'healer-post-complete',
+      action: 'blocked-big-change',
+      timestamp: new Date().toISOString(),
+      notes: `Stage transition blocked: FEATURE_CHANGED_BIG escalation`,
+    });
+    queue.lastUpdated = new Date().toISOString();
+    fs.writeFileSync(SHARED_PATHS.queue, JSON.stringify(queue, null, 2) + '\n', 'utf-8');
+    process.exit(0);
+  }
+
   item.stage = 'pending_audit';
   item.lockedBy = null;
   item.lockedAt = null;

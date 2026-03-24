@@ -172,6 +172,25 @@ const EXTENDED_RULES = {
   }
 };
 
+// Structural section validation rules (file-level, not line-level)
+const STRUCTURAL_RULES = {
+  'STRUCT-001': {
+    name: 'FIELD INVENTORY section required',
+    check: (content: string) => /^## FIELD INVENTORY/im.test(content),
+    message: 'Missing "## FIELD INVENTORY" section. Every test case file must document all editable fields in a table.',
+  },
+  'STRUCT-002': {
+    name: 'Validation Rules section required',
+    check: (content: string) => /^## Validation Rules/im.test(content),
+    message: 'Missing "## Validation Rules" section. Required even if N/A — add "## Validation Rules\\nN/A — [reason]".',
+  },
+  'STRUCT-003': {
+    name: 'MCP_VERIFICATION_LOG section required',
+    check: (content: string) => /^## MCP_VERIFICATION_LOG/im.test(content),
+    message: 'Missing "## MCP_VERIFICATION_LOG" section. Every test case file must include MCP verification evidence.',
+  },
+};
+
 function findMarkdownFiles(dir: string): string[] {
   const files: string[] = [];
   
@@ -232,6 +251,19 @@ function lintFile(filePath: string): Violation[] {
           severity: rule.severity
         });
       }
+    }
+  }
+
+  // Structural section rules (file-level checks)
+  for (const [ruleId, rule] of Object.entries(STRUCTURAL_RULES)) {
+    if (!rule.check(content)) {
+      violations.push({
+        rule: ruleId,
+        file: filePath,
+        line: 1,
+        text: rule.message,
+        severity: 'error',
+      });
     }
   }
 

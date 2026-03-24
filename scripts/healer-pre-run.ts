@@ -116,6 +116,44 @@ function main(): void {
     console.warn('[WARN] No spec files listed in queue item artifacts');
   }
 
+  // ── RCA-FIRST reminder (HLR-017 — injected into agent context) ──
+  console.log('');
+  console.log('[REMINDER] RCA-FIRST HARD GATE (HLR-017):');
+  console.log('   Phase A (7-Step RCA) is MANDATORY before Phase B (Fix).');
+  console.log('   Read ALL artifacts: failure-summary.json → error-context.md → screenshot → trace.');
+  console.log('   Complete IS/IS-NOT table. Cite evidence for root cause. THEN write fix code.');
+  console.log('   /rca skill protocol is the mandatory framework.');
+  console.log('');
+
+  // ── Bug Hunt: Check for resolved escalations ──
+  // If this item was previously blocked by a big change, check if escalation is now resolved.
+  if (item && (item as any).blockedByBigChange) {
+    const escalationsPath = path.join(__dirname, '../reports/escalations.json');
+    if (fs.existsSync(escalationsPath)) {
+      try {
+        const data = JSON.parse(fs.readFileSync(escalationsPath, 'utf-8'));
+        const relatedEscalation = data.escalations?.find((e: any) => e.blockedItemId === item!.id);
+        if (relatedEscalation && relatedEscalation.status === 'resolved') {
+          console.log(`[healer-pre-run] Escalation ${relatedEscalation.id} resolved. Unblocking item ${item!.id}.`);
+          (item as any).blockedByBigChange = false;
+          (item as any).awaitingPriorAgentRework = false;
+          // Save updated queue
+          const queue: QueueFile = JSON.parse(fs.readFileSync(SHARED_PATHS.queue, 'utf-8'));
+          const queueItem = queue.queue.find(q => q.id === item!.id);
+          if (queueItem) {
+            (queueItem as any).blockedByBigChange = false;
+            (queueItem as any).awaitingPriorAgentRework = false;
+          }
+          queue.lastUpdated = new Date().toISOString();
+          fs.writeFileSync(SHARED_PATHS.queue, JSON.stringify(queue, null, 2) + '\n', 'utf-8');
+        } else {
+          console.log(`[healer-pre-run] Item ${item!.id} still blocked by big change escalation. Cannot proceed.`);
+          process.exit(1);
+        }
+      } catch { /* skip if escalations file is malformed */ }
+    }
+  }
+
   // PF-ESC: Check pending escalations assigned to healer (ALL-036)
   const { checkPendingEscalations } = require('./validation-gates');
   const escMessages: string[] = checkPendingEscalations('healer');

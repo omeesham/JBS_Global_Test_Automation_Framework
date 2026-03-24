@@ -12,12 +12,11 @@ import '@/styles/pipeline-animations.css';
 /* ------------------------------------------------------------------ */
 
 const STAGES = [
-  { id: null,            label: 'Full Run', icon: Workflow, desc: 'Run all 5 agents end-to-end' },
-  { id: 'requirements',  label: 'Discover',  icon: Search,   desc: 'Explore the UI & map selectors' },
-  { id: 'planning',      label: 'Planner',       icon: Bot,      desc: 'Create test case definitions' },
-  { id: 'generation',    label: 'Generator',     icon: Zap,      desc: 'Generate Playwright scripts' },
-  { id: 'healing',       label: 'Healer',        icon: Wrench,   desc: 'Fix broken tests automatically' },
-  { id: 'audit',         label: 'Audit',         icon: Shield,   desc: 'Quality check all specs' },
+  { id: null,            label: 'Full Run', icon: Workflow, desc: 'Run all agents end-to-end' },
+  { id: 'requirements',  label: 'Requirements', icon: Search, desc: 'Explore the UI & map selectors' },
+  { id: 'planning',      label: 'Planner',      icon: Bot,    desc: 'Create test case definitions' },
+  { id: 'generation',    label: 'Generator',    icon: Zap,    desc: 'Generate Playwright scripts' },
+  { id: 'audit',         label: 'Audit',        icon: Shield, desc: 'Quality check all specs' },
 ] as const;
 
 /* ------------------------------------------------------------------ */
@@ -32,7 +31,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function StageSquares({ stages }: { stages?: Array<{ stage_id: string; status: string }> }) {
-  const stageOrder = ['requirements', 'planning', 'generation', 'healing', 'audit'];
+  const stageOrder = ['requirements', 'planning', 'generation', 'audit'];
   const statusMap = new Map(stages?.map(s => [s.stage_id, s.status]) || []);
   return (
     <div className="flex gap-0.5">
@@ -101,9 +100,10 @@ export default function PipelineLaunchCard({ onStarted, onClose, onNeedsRequirem
         }
         onStarted?.(result.batchId);
       } else {
+        const selectedPage = pages.find(p => p.id === selectedPageId);
         const resp = await createPipelineRun({
-          feature: website?.name || 'default',
-          module: 'chat-launch',
+          feature: selectedPage?.display_name || website?.name || 'default',
+          module: selectedPage?.module || 'default',
           intent: intent.trim(),
           priority: 'medium',
           targetUrl: website?.url,

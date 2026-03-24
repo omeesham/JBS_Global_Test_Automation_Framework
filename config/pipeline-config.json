@@ -3,7 +3,6 @@
     "enabled": true,
     "loop": ["requirements", "planning", "generation"],
     "conditionalAgents": {
-      "healing": "on-generation-fail",
       "audit": "on-generation-pass"
     },
     "note": "Legacy config for scripts/pipeline-orchestrator.ts. Real routing lives in config/pipeline-definition.json"
@@ -22,5 +21,38 @@
     },
     "autoSkipOnBug": true,
     "uncertainPolicy": "no-heal"
+  },
+  "bugHuntingRulebook": {
+    "enabled": true,
+    "changeSizeThreshold": {
+      "maxFilesForSmall": 3,
+      "maxSelectorsForSmall": 5,
+      "note": "Changes exceeding EITHER threshold are classified as BIG"
+    },
+    "autonomyRules": {
+      "UNCHANGED_FAILURE": "autonomous",
+      "TESTID_MISSING": "autonomous",
+      "TESTID_CHANGED": "human_review",
+      "FEATURE_CHANGED_SMALL": "autonomous",
+      "FEATURE_CHANGED_BIG": "human_review",
+      "FLAKE": "autonomous",
+      "INFRASTRUCTURE_TRANSIENT": "autonomous"
+    },
+    "flakeConfig": {
+      "promotionThreshold": 3,
+      "promotionWindow": 5,
+      "note": "FLAKE with same errorHash 3+ times in last 5 runs auto-promotes to UNCHANGED_FAILURE (real bug)"
+    },
+    "escalationSLA": {
+      "warningHours": 24,
+      "criticalHours": 48,
+      "note": "Big change escalations that go unreviewed trigger warnings then critical alerts"
+    },
+    "notificationConfig": {
+      "enabled": true,
+      "notificationDir": "specs_planning/_internal/agent-notifications",
+      "perFilePattern": true,
+      "note": "Each notification is a separate file to avoid race conditions with parallel workers"
+    }
   }
 }

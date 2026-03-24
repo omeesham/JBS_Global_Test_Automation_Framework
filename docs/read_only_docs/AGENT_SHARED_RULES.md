@@ -618,3 +618,18 @@ Any time one of these 6 triggers fires, the agent MUST immediately log an entry 
 **Format**: `| R-[next] | [trigger #] — [one-line rule] | LRN: [what happened, resolution] |`
 
 **Why these 6 and not more**: These are the exact moments where the agent's mental model diverged from reality. Capturing them builds the mistake registry that `/compile-learnings` graduates into permanent rules. Without explicit triggers, agents under-report and the learning loop stalls.
+
+---
+
+## §13  Bug Hunting Rulebook — Universal Rules
+
+These rules apply to ALL pipeline agents. They implement the 4-Category Bug Hunting system.
+
+| ID | Rule | Applies To | What It Catches |
+|----|------|-----------|-----------------|
+| **ALL-053** | **NOTIFICATION CHECK AT SESSION START** — Every agent MUST read `specs_planning/_internal/agent-notifications/` directory for pending notifications addressed to them (files containing their agent name). Stale artifact notifications = priority work before user task. Acknowledge by deleting the file after processing. | All agents | Prevents working with stale data after another agent detected changes |
+| **ALL-054** | **ESCALATION FILING PROTOCOL** — When discovering upstream agent mistakes or app bugs beyond your scope, file escalation to `agent-escalations.json` with: evidence (file:line or MCP snapshot), target agent, severity, affected artifacts. Never silently correct another agent's output without filing. Uses existing `EscalationEntry` interface in `scripts/shared-types.ts`. | All agents | Prevents silent coverup of upstream issues |
+| **ALL-055** | **BUG REPORT FORMAT** — All bug reports (from any agent) use identical format in `reports/bugs/BUG-{MOD}-{NNN}.json` matching the `BugReport` interface from `src/framework-contracts/diagnostics.ts`. Required fields: id, testCaseId, module, severity, title, description, failureCategory, sourceAgent, errorHash. Dedup via `computeErrorHash()` from `src/utils/bug-hunt-classifier.ts` before creating new report. | Generator, Healer, Audit | Prevents duplicate/inconsistent bug reports across agents |
+| **ALL-056** | **TESTID VERIFICATION** — Any agent that navigates to a page and reads DOM MUST check for `data-testid` presence on interactive elements (buttons, inputs, selects, links). Missing testids = `[MISSING_TESTID]` tag or escalation. This is the foundation of automation testing best practices. Use `browser_evaluate(() => !!document.querySelector('[data-testid="X"]'))` for individual checks. | Requirements, Planner, Generator | Missing testids propagate through entire pipeline as selector failures |
+| **ALL-057** | **BUGHUNT CATEGORY MAPPING** — When an agent classifies a failure or issue, it MUST use `BugHuntCategory` enum (UNCHANGED_FAILURE, FEATURE_CHANGED_SMALL, FEATURE_CHANGED_BIG, TESTID_MISSING, TESTID_CHANGED, FLAKE, INFRASTRUCTURE_TRANSIENT) AND set the legacy `disposition` field for backward compat. Use `classifyBugHuntCategory()` from `src/utils/bug-hunt-classifier.ts` which handles both. | Healer, Generator, Audit | Inconsistent classification across agents |
+| **ALL-058** | **FIRST-RUN BASELINE** — On first pipeline run for a page, there is no historical data. `TESTID_CHANGED` cannot be detected — there is no previous value to compare against. All data collected becomes the BASELINE for future comparison. Agents MUST NOT classify anything as "changed" without a prior value in `testid-inventory` or `test_id_registry`. | All agents | False positive "changed" classifications on first run |

@@ -21,7 +21,7 @@ process.on('unhandledRejection', (reason) => {
  *   npm run worker:start
  *
  * Environment:
- *   BACKEND_URL        — Backend API URL (default: http://localhost:3001)
+ *   BACKEND_URL        — Backend API URL (default: http://localhost:3100)
  *   WORKER_SECRET      — Shared secret for worker auth (default: dev-secret)
  *   WORKER_ID          — Worker identifier (default: local-worker-1)
  */
@@ -37,7 +37,7 @@ import { callAnthropicAPI } from './sdk-executor';
 
 // ── Config ──
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3100';
 const WEBSITE_BACKEND_URL = process.env.WEBSITE_BACKEND_URL || 'http://localhost:3001';
 const WORKER_SECRET = process.env.WORKER_SECRET || 'dev-secret';
 const WORKER_ID = process.env.WORKER_ID || 'local-worker-1';
@@ -62,6 +62,7 @@ interface TaskResponse {
     mcpConfig: string | null;
     allowedTools?: string[];
     effort?: 'low' | 'medium' | 'high' | 'max';
+    postCompleteGate?: string;
   } | null;
 }
 
@@ -115,7 +116,6 @@ const headers = {
 
 async function pollForTask(): Promise<TaskResponse | null> {
   try {
-    // CLI dedicated workers filter by client_id; shared workers get any task
     const url = WORKER_CLIENT_ID
       ? `${BACKEND_URL}/api/worker/next-task?client_id=${encodeURIComponent(WORKER_CLIENT_ID)}`
       : `${BACKEND_URL}/api/worker/next-task`;
@@ -139,7 +139,6 @@ async function completeTask(
   artifacts?: Array<{ name: string; type: string; content: string }>,
   cost?: number,
 ): Promise<void> {
-  // Retry up to 3 times with 2s backoff — task was already executed, losing completion is critical
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const res = await fetch(`${BACKEND_URL}/api/worker/complete-task`, {
@@ -184,8 +183,7 @@ function loadAgentFile(agentFile: string): string | null {
   const agentPath = path.resolve(__dirname, '../../', agentFile);
   try {
     let content = fs.readFileSync(agentPath, 'utf-8');
-    // Strip YAML frontmatter (VS Code Copilot extension format — contains mcp-servers config
-    // which is provided separately via --mcp-config flag for Claude CLI invocations)
+    // Strip YAML frontmatter (VS Code Copilot extension format)
     if (content.startsWith('---')) {
       const endIdx = content.indexOf('---', 3);
       if (endIdx !== -1) content = content.slice(endIdx + 3).trim();
@@ -200,8 +198,7 @@ function loadAgentFile(agentFile: string): string | null {
 
 // ── CLI Execution (streaming via spawn) ──
 
-// Progress reporting: sends high-level status messages to backend for SSE broadcast
-const PROGRESS_INTERVAL_MS = 2000; // Chat-like streaming — max 1 progress event per 2s
+const PROGRESS_INTERVAL_MS = 2000;
 
 function createProgressReporter(task: TaskResponse) {
   let lastTime = 0;
@@ -223,40 +220,32 @@ function createProgressReporter(task: TaskResponse) {
         }),
       });
     } catch {
-      // Non-fatal — progress updates are best-effort
+      // Non-fatal
     }
   };
 }
 
-// Extract a user-safe progress message from CLI output lines.
-// NEVER expose raw code, prompts, or internal details.
-// Returns conversational, chat-like messages for a non-technical audience.
 function extractProgressMessage(line: string, stageId: string): string | null {
   const lower = line.toLowerCase();
   const trimmed = line.trim();
 
-  // Skip empty, JSON-only, binary, or sensitive lines
   if (!trimmed || trimmed.startsWith('{') || trimmed.startsWith('[')) return null;
   if (lower.includes('api key') || lower.includes('secret') || lower.includes('token')) return null;
-  if (lower.includes('error:') && lower.includes('enoent')) return null; // filesystem noise
+  if (lower.includes('error:') && lower.includes('enoent')) return null;
 
-  // ── Tool call detection (Claude CLI outputs tool names) ──
   if (lower.includes('browser_navigate') || lower.includes('navigating to')) return `Navigating to the page...`;
   if (lower.includes('browser_snapshot') || lower.includes('taking snapshot')) return `Capturing current page state...`;
   if (lower.includes('browser_click')) return `Clicking an element on the page...`;
   if (lower.includes('browser_fill')) return `Filling in a form field...`;
   if (lower.includes('browser_select')) return `Selecting a dropdown option...`;
 
-  // ── File operations ──
   if (lower.includes('reading file') || lower.includes('read tool')) return `Reading project files...`;
   if (lower.includes('writing file') || lower.includes('write tool')) {
-    // Try to extract filename
     const match = trimmed.match(/(?:writing|wrote|created?)\s+(?:file\s+)?['"]?([^\s'"]+\.(?:ts|md|json))/i);
     if (match) { const fname = match[1]!.split('/').pop(); return `Creating ${fname ?? match[1]!}...`; }
     return `Writing output files...`;
   }
 
-  // ── Test operations ──
   if (lower.includes('test case') || lower.includes('tc-')) {
     const tcMatch = trimmed.match(/TC-[A-Z]+-[A-Z]+-\d+/i);
     if (tcMatch) return `Working on test case ${tcMatch[0]!}...`;
@@ -266,28 +255,87 @@ function extractProgressMessage(line: string, stageId: string): string | null {
   if (lower.includes('spec') && (lower.includes('generat') || lower.includes('creat') || lower.includes('writing'))) return `Generating test script...`;
   if (lower.includes('assert') || lower.includes('expect(')) return `Adding test assertions...`;
 
-  // ── Search operations ──
   if (lower.includes('searching') || lower.includes('grep') || lower.includes('glob')) return `Searching the codebase...`;
 
-  // ── Execution/analysis ──
   if (lower.includes('running') || lower.includes('executing') || lower.includes('bash')) return `Running a command...`;
   if (lower.includes('analyzing') || lower.includes('processing')) return `Analyzing ${stageId} artifacts...`;
-  if (lower.includes('found') && lower.includes('field')) {
-    const countMatch = trimmed.match(/(\d+)\s+field/);
-    if (countMatch) return `Found ${countMatch[1]!} form fields to test...`;
-  }
-  if (lower.includes('found') && lower.includes('element')) {
-    const countMatch = trimmed.match(/(\d+)\s+element/);
-    if (countMatch) return `Found ${countMatch[1]!} UI elements...`;
-  }
 
-  // ── Completion signals ──
   if (lower.includes('complete') || lower.includes('finished') || lower.includes('done')) return `Finishing up ${stageId}...`;
   if (lower.includes('saving') || lower.includes('persisting')) return `Saving results...`;
 
-  // ── Skip generic/noisy lines (don't flood with "Working on...") ──
-  // Only produce a message if we matched something specific above
   return null;
+}
+
+function verifyStageOutput(stageId: string, context: Record<string, unknown> | null): {
+  hasOutput: boolean; expected: string[];
+} {
+  const mod = String(context?.module || '');
+  if (!mod || mod === 'chat' || mod === 'chat-launch') return { hasOutput: true, expected: [] };
+  const root = process.cwd();
+  const checks: Record<string, string[]> = {
+    planning: [`specs_planning/test-cases/${mod}`, `src/selectors/${mod}`],
+    generation: [`tests/specs/${mod}`],
+    requirements: ['docs/REQUIREMENTS.md'],
+  };
+  const expected = checks[stageId] || [];
+  for (const p of expected) {
+    const full = path.join(root, p);
+    if (fs.existsSync(full)) {
+      const stat = fs.statSync(full);
+      if (stat.isDirectory() && fs.readdirSync(full).length > 0) return { hasOutput: true, expected };
+      if (stat.isFile()) return { hasOutput: true, expected };
+    }
+  }
+  return { hasOutput: expected.length === 0, expected };
+}
+
+/**
+ * Returns a compliance enforcement suffix for the agent prompt.
+ * This tells the agent exactly what the post-complete gate will verify,
+ * so it cannot skip mandatory structural sections.
+ * In Copilot, the user enforces compliance by reading output in real-time.
+ * In CLI mode, this suffix is the equivalent — the agent knows it will be rejected
+ * if it skips these requirements.
+ */
+function getComplianceSuffix(stageId: string): string {
+  if (stageId === 'planning') {
+    return `
+
+---
+
+MANDATORY OUTPUT COMPLIANCE (POST-COMPLETE GATE WILL REJECT IF MISSING):
+
+Your output file WILL be automatically validated. The following checks are HARD GATES
+that will cause your work to be REJECTED and you will have to redo everything:
+
+1. STRUCT-001: Test case file MUST contain a "## FIELD INVENTORY" section with a markdown table
+   listing every editable field (name, type, default value, state, data-testid). Add it AFTER
+   the MCP_VERIFICATION_LOG section, BEFORE the first TC.
+
+2. STRUCT-002: Test case file MUST contain a "## Validation Rules" section. If no validation
+   exists (e.g., checkboxes only), write: "## Validation Rules\\nN/A — [reason]".
+
+3. STRUCT-003: Test case file MUST contain a "## MCP_VERIFICATION_LOG" section with at minimum
+   "| Date |" and "| Selector verification |" rows.
+
+4. STRUCT-004: The "Updated:" date in the test case file MUST match the test plan file date.
+   Update BOTH files to today's date.
+
+5. COVERAGE-001: You must have at least 1.5x TCs per field. 5 fields = minimum 8 TCs.
+   Each editable field needs its own save+persist TC.
+
+6. PLN-004 CHECKBOX RULE: Every checkbox must appear in ≥2 TC sections (toggle + default state).
+   Do NOT only test 2 out of 5 checkboxes — test ALL of them individually.
+
+7. SELF-AUDIT: Before completing, verify your output matches ALL of the above. The gate checks
+   selfAuditPassed=true in the queue item — set it only after confirming compliance.
+
+DO NOT skip any of these. The post-complete gate runs automatically after you finish and will
+hard-reject non-compliant output. There is no --force bypass for structural checks.`;
+  }
+
+  // Other stages can have their own compliance suffixes in the future
+  return '';
 }
 
 async function executeClaudeCliStage(
@@ -296,17 +344,20 @@ async function executeClaudeCliStage(
 ): Promise<{ success: boolean; result: Record<string, unknown>; cost: number; artifacts: StageArtifact[] }> {
   const { agentPrompt, stageConfig } = task;
 
-  // Dry run: skip agent file to prevent real work
   const isDryRun = task.context?.dryRun === true;
 
-  // Load full agent instructions from .agent.md file (skipped for dry runs)
   const agentInstructions = (!isDryRun && stageConfig?.agentFile) ? loadAgentFile(stageConfig.agentFile) : null;
+
+  // Build compliance enforcement suffix — tells the agent exactly what the
+  // post-complete gate will check, so it cannot skip mandatory sections.
+  // This compensates for the lack of human-in-the-loop oversight in CLI mode.
+  const complianceSuffix = getComplianceSuffix(task.stageId);
+
   const fullPrompt = agentInstructions
-    ? agentInstructions + '\n\n---\n\nPIPELINE CONTEXT:\n' + agentPrompt
+    ? agentInstructions + '\n\n---\n\nPIPELINE CONTEXT:\n' + agentPrompt + complianceSuffix
     : agentPrompt;
 
-  // Build args — prompt piped via stdin to avoid Windows 32k CLI arg limit.
-  // Claude CLI reads from stdin when '-p' is given '-' as the value.
+  // Prompt piped via stdin to avoid Windows 32k CLI arg limit
   const cliArgs: string[] = [
     '-p', '-',
     '--output-format', cliConfig.cliOutputFormat,
@@ -317,24 +368,31 @@ async function executeClaudeCliStage(
     cliArgs.push('--model', stageConfig.model);
   }
 
-  // Auto-approve tools to prevent permission prompts from blocking pipeline execution.
-  // Claude CLI prompts for "y/n" on tool calls — in headless pipeline mode, no one
-  // is watching, so unapproved tools = silent hang. Use --allowedTools to pre-approve.
-  // Per-stage allowedTools can be configured in pipeline-definition.json; default = all.
+  // Auto-approve tools to prevent permission prompts from blocking
   const allowedTools = stageConfig?.allowedTools || ['Bash', 'Read', 'Edit', 'Write', 'Glob', 'Grep', 'WebFetch', 'WebSearch', 'mcp__*'];
   for (const tool of allowedTools) {
     cliArgs.push('--allowedTools', tool);
   }
 
-  // Effort level: controls how much thinking/reasoning Claude does per turn.
-  // 'medium' for simple stages (requirements, audit), 'high' for complex (generation, healing).
   if (stageConfig?.effort) {
     cliArgs.push('--effort', stageConfig.effort);
   }
 
-  // NOTE: --max-budget-usd only works with API key auth, not subscriptions.
-  // Our cost model uses CLI subscriptions, so this flag is intentionally omitted.
-  // Budget enforcement happens at orchestrator level via budgetCap + convergence guards.
+  // Pre-install Playwright browser if MCP config requires it
+  if (stageConfig?.mcpConfig) {
+    try {
+      console.log('[Worker] Ensuring Playwright browser is installed...');
+      execFileSync('npx', ['playwright', 'install', 'chromium'], {
+        cwd: path.resolve(__dirname, '../..'),
+        timeout: 120_000,
+        stdio: 'pipe',
+        shell: true,
+      });
+      console.log('[Worker] Playwright browser ready');
+    } catch (err) {
+      console.warn(`[Worker] Playwright install warning: ${(err as Error).message?.slice(0, 200)}`);
+    }
+  }
 
   // Generate per-task MCP config if stage has mcpConfig
   let tempMcpPath: string | null = null;
@@ -350,12 +408,11 @@ async function executeClaudeCliStage(
       tempMcpPath = path.resolve(tmpDir, `mcp-${task.taskId}.json`);
       fs.writeFileSync(tempMcpPath, template);
       cliArgs.push('--mcp-config', tempMcpPath);
-      console.log(`[Worker] MCP config generated: ${tempMcpPath} (template: ${stageConfig.mcpConfig}, targetUrl: ${targetUrl || 'none'})`);
+      console.log(`[Worker] MCP config generated: ${tempMcpPath}`);
     }
   }
 
-  const promptPreview = agentPrompt.length > 80 ? agentPrompt.slice(0, 80) + '...' : agentPrompt;
-  console.log(`[Worker] Executing: ${cliConfig.cliPath} -p - (stdin ${fullPrompt.length} chars) --output-format ${cliConfig.cliOutputFormat}${stageConfig ? ` --model ${stageConfig.model} --max-turns ${stageConfig.maxTurns}` : ''}`);
+  console.log(`[Worker] Executing: ${cliConfig.cliPath} -p - (stdin ${fullPrompt.length} chars)`);
 
   const timeout = (stageConfig?.timeoutSeconds || 600) * 1000;
 
@@ -365,21 +422,20 @@ async function executeClaudeCliStage(
     const child = spawn(cliConfig.cliPath, cliArgs, {
       stdio: ['pipe', 'pipe', 'pipe'],
       env: process.env,
+      shell: true,
     });
 
-    // Pipe prompt via stdin to avoid Windows arg length limits
+    // Pipe prompt via stdin
     child.stdin.write(fullPrompt);
     child.stdin.end();
 
     let stdout = '';
     let stderr = '';
 
-    // Stream stdout — collect full output + extract progress messages
     child.stdout.on('data', (chunk: Buffer) => {
       const text = chunk.toString('utf-8');
       stdout += text;
 
-      // Extract and report progress (best-effort, non-blocking)
       const lines = text.split('\n');
       for (const line of lines) {
         const msg = extractProgressMessage(line, task.stageId);
@@ -393,39 +449,29 @@ async function executeClaudeCliStage(
       stderr += chunk.toString('utf-8');
     });
 
-    // Manual timeout enforcement (spawn doesn't support timeout natively)
     const timer = setTimeout(() => {
       child.kill('SIGTERM');
-      // Give 5s grace period then force kill
       setTimeout(() => { try { child.kill('SIGKILL'); } catch {} }, 5000);
     }, timeout);
 
     child.on('close', (code) => {
       clearTimeout(timer);
 
-      // Cleanup per-task MCP config
       if (tempMcpPath && fs.existsSync(tempMcpPath)) {
         try { fs.unlinkSync(tempMcpPath); } catch { /* best-effort */ }
       }
 
       if (code !== 0 && !stdout.trim()) {
-        // Non-zero exit with no stdout = failure
         console.error(`[Worker] CLI execution failed: exit code ${code}`);
-        const errorArtifacts: StageArtifact[] = [{
-          name: `${task.stageId}-error.txt`,
-          type: 'text',
-          content: (`Exit code: ${code}\n${stderr}`).slice(0, 50_000),
-        }];
         resolve({
           success: false,
           result: { error: `CLI exited with code ${code}`, exitCode: code, stderr: stderr.slice(0, 5000) },
           cost: 0,
-          artifacts: errorArtifacts,
+          artifacts: [{ name: `${task.stageId}-error.txt`, type: 'text', content: (`Exit code: ${code}\n${stderr}`).slice(0, 50_000) }],
         });
         return;
       }
 
-      // Try to parse JSON output
       let parsed: Record<string, unknown>;
       try {
         parsed = JSON.parse(stdout);
@@ -433,34 +479,54 @@ async function executeClaudeCliStage(
         parsed = { rawOutput: stdout.slice(0, 10000) };
       }
 
-      // Capture output as artifact for dashboard visibility
-      const artifacts: StageArtifact[] = [{
-        name: `${task.stageId}-output.json`,
-        type: 'json',
-        content: JSON.stringify(parsed, null, 2).slice(0, 50_000),
-      }];
+      // Verify output files were actually written to disk
+      const outputCheck = verifyStageOutput(task.stageId, task.context);
+      if (!outputCheck.hasOutput) {
+        console.warn(`[Worker] WARNING: Stage "${task.stageId}" exited 0 but no output files found at: ${outputCheck.expected.join(', ')}`);
+        parsed._noFilesWritten = true;
+        parsed._expectedPaths = outputCheck.expected;
+      }
+
+      // Auto-run post-complete gate after successful agent execution
+      if (stageConfig?.postCompleteGate) {
+        const gatePath = path.resolve(__dirname, `../../scripts/${stageConfig.postCompleteGate}`);
+        if (fs.existsSync(gatePath)) {
+          const moduleId = (task.context as Record<string, unknown>)?.module as string || '';
+          try {
+            execFileSync('npx', ['tsx', gatePath, moduleId], {
+              cwd: path.resolve(__dirname, '../..'),
+              timeout: 60_000,
+              stdio: 'pipe',
+              shell: true,
+            });
+            console.log(`[Worker] Post-complete gate passed: ${stageConfig.postCompleteGate}`);
+            parsed._postCompleteGatePassed = true;
+          } catch (gateErr) {
+            const gateStderr = (gateErr as { stderr?: Buffer })?.stderr?.toString() ?? '';
+            console.error(`[Worker] Post-complete gate FAILED: ${stageConfig.postCompleteGate}`);
+            console.error(`[Worker] Gate output: ${gateStderr.slice(0, 500)}`);
+            parsed._postCompleteGatePassed = false;
+            parsed._postCompleteGateError = gateStderr.slice(0, 2000);
+          }
+        }
+      }
 
       resolve({
         success: true,
         result: parsed,
-        cost: 0, // CLI with Max sub = $0 API cost
-        artifacts,
+        cost: 0,
+        artifacts: [{ name: `${task.stageId}-output.json`, type: 'json', content: JSON.stringify(parsed, null, 2).slice(0, 50_000) }],
       });
     });
 
     child.on('error', (err) => {
       clearTimeout(timer);
       console.error(`[Worker] CLI spawn failed: ${err.message}`);
-      const errorArtifacts: StageArtifact[] = [{
-        name: `${task.stageId}-error.txt`,
-        type: 'text',
-        content: err.message.slice(0, 50_000),
-      }];
       resolve({
         success: false,
         result: { error: err.message },
         cost: 0,
-        artifacts: errorArtifacts,
+        artifacts: [{ name: `${task.stageId}-error.txt`, type: 'text', content: err.message.slice(0, 50_000) }],
       });
     });
   });
@@ -469,51 +535,52 @@ async function executeClaudeCliStage(
 // ── Pre-flight Checks ──
 
 async function preflight(): Promise<boolean> {
-  const skipPreflight = process.env.SKIP_PREFLIGHT === 'true';
-  if (skipPreflight) {
+  if (process.env.SKIP_PREFLIGHT === 'true') {
     console.log('[Worker] Pre-flight checks skipped (SKIP_PREFLIGHT=true)');
     return true;
   }
 
-  // API-only workers don't need CLI checks
   if (WORKER_TYPE === 'api_shared') {
     console.log('[Worker] Pre-flight: API worker — skipping CLI checks');
     return true;
   }
 
-  // Check 1: Claude CLI exists on PATH
   try {
-    execFileSync('claude', ['--version'], { timeout: 10000, encoding: 'utf-8' });
+    execFileSync('claude', ['--version'], { timeout: 10000, encoding: 'utf-8', shell: true });
     console.log('[Worker] Pre-flight: Claude CLI found');
   } catch {
     console.error('[Worker] Pre-flight FAILED: Claude CLI not found on PATH');
-    console.error('[Worker] Install Claude Code: https://docs.anthropic.com/claude-code');
-    console.error('[Worker] Ensure "claude" is on your PATH');
     return false;
   }
 
-  // Check 2: Claude CLI is authenticated
   try {
     execFileSync('claude', ['-p', 'respond with just the word OK', '--output-format', 'json', '--max-turns', '1'], {
-      timeout: 30000,
-      encoding: 'utf-8',
+      timeout: 30000, encoding: 'utf-8', shell: true,
     });
     console.log('[Worker] Pre-flight: Claude CLI authenticated');
   } catch (err) {
     console.error('[Worker] Pre-flight FAILED: Claude CLI auth failed');
-    console.error('[Worker] Run: claude login');
     console.error(`[Worker] Error: ${(err as Error).message}`);
     return false;
   }
 
-  // Check 3: Backend is reachable
+  // Pre-install Playwright browser for MCP-dependent stages
+  try {
+    execFileSync('npx', ['playwright', 'install', 'chromium'], {
+      timeout: 120_000,
+      stdio: 'pipe',
+      shell: true,
+      cwd: path.resolve(__dirname, '../..'),
+    });
+    console.log('[Worker] Pre-flight: Playwright browser installed');
+  } catch {
+    console.warn('[Worker] Pre-flight: Playwright install failed — MCP stages may fail');
+  }
+
   try {
     const res = await fetch(`${BACKEND_URL}/api/health`);
-    if (res.ok) {
-      console.log('[Worker] Pre-flight: Backend reachable');
-    } else {
-      console.warn('[Worker] Pre-flight: Backend returned non-OK. Starting anyway...');
-    }
+    if (res.ok) console.log('[Worker] Pre-flight: Backend reachable');
+    else console.warn('[Worker] Pre-flight: Backend returned non-OK. Starting anyway...');
   } catch {
     console.warn('[Worker] Pre-flight: Backend unreachable. Will retry on poll...');
   }
@@ -521,62 +588,33 @@ async function preflight(): Promise<boolean> {
   return true;
 }
 
-// ── Stale Task Recovery ──
-
-async function recoverStaleTasks(): Promise<void> {
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/worker/recover-stale`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ workerId: WORKER_ID, staleMinutes: 30 }),
-    });
-    if (res.ok) {
-      const data = await res.json() as { recovered: number };
-      if (data.recovered > 0) {
-        console.log(`[Worker] Recovered ${data.recovered} stale tasks`);
-      }
-    }
-  } catch {
-    // Non-fatal — backend may not support this endpoint yet
-    console.warn('[Worker] Stale task recovery skipped (endpoint unavailable)');
-  }
-}
-
 // ── Main Worker Loop ──
 
 let running = true;
 
 async function workerLoop(): Promise<void> {
-  // Run pre-flight checks
   const ready = await preflight();
   if (!ready) {
     console.error('[Worker] Pre-flight failed. Fix issues above and restart.');
     process.exit(1);
   }
 
-  // Recover tasks stuck in 'claimed'/'running' from previous crashes
-  await recoverStaleTasks();
-
   const cfg = await loadConfig();
   let currentTaskId: string | undefined;
 
   console.log(`[Worker] Starting with config:`, {
     backendUrl: BACKEND_URL,
-    websiteBackendUrl: WEBSITE_BACKEND_URL,
     workerId: WORKER_ID,
     workerType: WORKER_TYPE,
     clientId: WORKER_CLIENT_ID || '(shared)',
     pollInterval: cfg.workerPollIntervalMs,
-    heartbeatInterval: cfg.workerHeartbeatIntervalMs,
     agentRunner: cfg.agentRunner,
   });
 
-  // Heartbeat interval
   const heartbeatTimer = setInterval(() => {
     sendHeartbeat(currentTaskId);
   }, cfg.workerHeartbeatIntervalMs);
 
-  // Initial heartbeat
   await sendHeartbeat();
 
   while (running) {
@@ -591,41 +629,28 @@ async function workerLoop(): Promise<void> {
       currentTaskId = task.taskId;
       console.log(`[Worker] Picked up task ${task.taskId} for stage "${task.stageId}" (run: ${task.runId})`);
 
-      // Execute based on worker type and agentRunner config
       let result: { success: boolean; result: Record<string, unknown>; cost: number; artifacts: StageArtifact[] };
 
       if (WORKER_TYPE === 'api_shared' || cfg.agentRunner === 'sdk') {
-        // API mode — resolve execution config for this client
         result = await executeClaudeSdkStage(task);
       } else {
-        // CLI mode (default)
         result = await executeClaudeCliStage(task, cfg);
 
-        // Rate limit detection: check for rate limit errors in CLI output
         if (!result.success && isRateLimitError(result.result)) {
-          console.warn(`[Worker] CLI rate limit detected for client ${task.clientId}`);
-          // Attempt overflow to API if client supports it
+          console.warn(`[Worker] CLI rate limit detected`);
           const overflowResult = await attemptApiOverflow(task);
-          if (overflowResult) {
-            result = overflowResult;
-          }
+          if (overflowResult) result = overflowResult;
         }
       }
 
-      // Enforce dryRun flag in result — orchestrator uses this for routing
-      // Safety net: even if Claude doesn't return dryRun, worker guarantees it
       if (task.context?.dryRun) {
         result.result = { ...result.result, dryRun: true };
       }
-
-      // Propagate executionMode through result — orchestrator checks this
-      // for approve-per-stage gate logic across the full pipeline chain
       if (task.context?.executionMode) {
         result.result = { ...result.result, executionMode: task.context.executionMode };
       }
 
-      console.log(`[Worker] Task ${task.taskId} completed: ${result.success ? 'SUCCESS' : 'FAIL'}${task.context?.dryRun ? ' (DRY RUN)' : ''}`);
-
+      console.log(`[Worker] Task ${task.taskId} completed: ${result.success ? 'SUCCESS' : 'FAIL'}`);
       await completeTask(task.taskId, result.success, result.result, result.artifacts, result.cost);
       currentTaskId = undefined;
     } catch (err) {
@@ -645,10 +670,9 @@ async function executeClaudeSdkStage(
 ): Promise<{ success: boolean; result: Record<string, unknown>; cost: number; artifacts: StageArtifact[] }> {
   const clientId = task.clientId;
   if (!clientId) {
-    return { success: false, result: { error: 'No clientId on task — cannot resolve API key' }, cost: 0, artifacts: [] };
+    return { success: false, result: { error: 'No clientId — cannot resolve API key' }, cost: 0, artifacts: [] };
   }
 
-  // Resolve execution config from website backend
   type ResolvedConfig = { mode: string; apiKey?: string; model?: string };
   let resolved: ResolvedConfig | null = null;
   try {
@@ -656,22 +680,17 @@ async function executeClaudeSdkStage(
       headers: { 'x-worker-secret': WORKER_SECRET },
     });
     if (res.ok) resolved = await res.json() as ResolvedConfig;
-  } catch {
-    // Fall back to env API key
-  }
+  } catch {}
 
   const apiKey = resolved?.apiKey || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return { success: false, result: { error: 'No API key available for SDK execution' }, cost: 0, artifacts: [] };
+    return { success: false, result: { error: 'No API key available' }, cost: 0, artifacts: [] };
   }
 
   const model = task.stageConfig?.model || resolved?.model || 'sonnet';
   const timeout = (task.stageConfig?.timeoutSeconds || 600) * 1000;
-
-  // Dry run: skip agent file (same as CLI path)
   const isDryRunSdk = task.context?.dryRun === true;
 
-  // Load full agent instructions into system message (skipped for dry runs)
   const agentInstructions = (!isDryRunSdk && task.stageConfig?.agentFile) ? loadAgentFile(task.stageConfig.agentFile) : null;
   const systemMessage = agentInstructions
     ? agentInstructions + '\n\n---\n\nPipeline Stage: ' + task.stageId
@@ -679,48 +698,25 @@ async function executeClaudeSdkStage(
 
   console.log(`[Worker] SDK execution for client ${clientId} (model=${model})`);
 
-  const sdkResult = await callAnthropicAPI(
-    apiKey,
-    model,
-    systemMessage,
-    task.agentPrompt,
-    4096,
-    timeout,
-  );
+  const sdkResult = await callAnthropicAPI(apiKey, model, systemMessage, task.agentPrompt, 4096, timeout);
 
   if (!sdkResult.success) {
-    const errorArtifacts: StageArtifact[] = [{
-      name: `${task.stageId}-error.txt`,
-      type: 'text',
-      content: (sdkResult.error || 'Unknown SDK error').slice(0, 50_000),
-    }];
     return {
       success: false,
       result: { error: sdkResult.error, inputTokens: sdkResult.inputTokens, outputTokens: sdkResult.outputTokens },
       cost: sdkResult.costUsd,
-      artifacts: errorArtifacts,
+      artifacts: [{ name: `${task.stageId}-error.txt`, type: 'text', content: (sdkResult.error || 'Unknown').slice(0, 50_000) }],
     };
   }
 
-  // Parse output
   let parsed: Record<string, unknown>;
-  try {
-    parsed = JSON.parse(sdkResult.output);
-  } catch {
-    parsed = { rawOutput: sdkResult.output.slice(0, 10000) };
-  }
-
-  const artifacts: StageArtifact[] = [{
-    name: `${task.stageId}-output.json`,
-    type: 'json',
-    content: JSON.stringify(parsed, null, 2).slice(0, 50_000),
-  }];
+  try { parsed = JSON.parse(sdkResult.output); } catch { parsed = { rawOutput: sdkResult.output.slice(0, 10000) }; }
 
   return {
     success: true,
     result: { ...parsed, inputTokens: sdkResult.inputTokens, outputTokens: sdkResult.outputTokens },
     cost: sdkResult.costUsd,
-    artifacts,
+    artifacts: [{ name: `${task.stageId}-output.json`, type: 'json', content: JSON.stringify(parsed, null, 2).slice(0, 50_000) }],
   };
 }
 
@@ -737,22 +733,15 @@ async function attemptApiOverflow(
   task: TaskResponse,
 ): Promise<{ success: boolean; result: Record<string, unknown>; cost: number; artifacts: StageArtifact[] } | null> {
   if (!task.clientId) return null;
-
   try {
-    // Check if client has overflow configured
     const res = await fetch(`${WEBSITE_BACKEND_URL}/api/ai/internal/resolve/${task.clientId}`, {
       headers: { 'x-worker-secret': WORKER_SECRET },
     });
     if (!res.ok) return null;
-
-    const resolved = await res.json() as { mode: string; apiKey?: string; model?: string };
+    const resolved = await res.json() as { mode: string; apiKey?: string };
     if (!resolved.apiKey) return null;
-
-    console.log(`[Worker] Overflow to API for client ${task.clientId}`);
     return await executeClaudeSdkStage(task);
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 function sleep(ms: number): Promise<void> {

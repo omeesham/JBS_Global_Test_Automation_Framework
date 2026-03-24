@@ -1,8 +1,8 @@
 # Local Office Settings Test Plan
 
-**Module**: locations | **Test Cases**: [test-cases/locations/locations_local_office_settings_test_cases.md](../test-cases/locations/locations_local_office_settings_test_cases.md)
+**Module**: locations | **Test Cases**: [test-cases/locations/locations_local_office_settings_test_cases.md](../../test-cases/locations/locations_local_office_settings_test_cases.md)
 **URL**: `/navigator/locations/{officeId}/settings/local-office`
-**Updated**: 2026-03-02 | **Status**: Manual | **Total TCs**: 56
+**Updated**: 2026-03-23 | **Status**: Manual | **Total TCs**: 58
 
 ---
 
@@ -10,25 +10,30 @@
 
 | Sub-Module | TC ID Range | Count | Key Risks |
 |---|---|---|---|
-| Basic Information — Date Offsets | TC-LOS-BAS-001 to 006 | 6 | NM-1264 cross-field validation, save toggling |
-| Basic Information — Misc Settings | TC-LOS-BAS-007 to 014 | 8 | Phone 1 required, always-disabled QC, default order type |
-| Basic Information — Section Config | TC-LOS-BAS-015 to 020 | 6 | NM-1223 duplicate name, Default reset |
-| Basic Information — Room Config | TC-LOS-BAS-021 to 023 | 3 | NM-1223 duplicate room, empty table |
-| Basic Information — Default Logo | TC-LOS-BAS-024 to 026 | 3 | Preview update, 12 options |
-| Basic Information — Discount Exemptions | TC-LOS-BAS-027 to 028 | 2 | Toggle exempt, verify defaults |
-| Basic Information — Navigation | TC-LOS-BAS-029 to 031 | 3 | Unsaved changes dialog |
-| Basic Information — Multi-Field / Boundary | TC-LOS-BAS-032 to 035 | 4 | Compound changes, negative/-zero values |
-| Location Settings History | TC-LOS-HST-001 to 006 | 6 | Read-only, 42 columns, filter, pagination |
-| ECT Settings | TC-LOS-ECT-001 to 015 | 15 | Dual save buttons, role-gated field, read-only tables |
+| Page Load & Tab Structure | BAS-001 | 1 | Tab default state |
+| Date Offsets — Defaults & CRUD | BAS-002 to BAS-010 | 9 | NM-1264 cross-field, non-numeric rejection, boundary values |
+| Misc Settings — Checkboxes | BAS-011 to BAS-014 | 4 | Fulfillment->QC cascade, Default Labor to Hourly |
+| Misc Settings — Phone Fields | BAS-015 to BAS-019 | 5 | Phone 1 required (no format validation), Phone 2 optional |
+| Misc Settings — Other Fields | BAS-020 to BAS-024 | 5 | Default Job sub-checkboxes, Default Order Type (2 opts), PO fields |
+| Section Configuration | BAS-025 to BAS-029 | 5 | 13 active default, toggle, edit, add, Default reset |
+| Room Configuration | BAS-030 to BAS-031 | 2 | Empty table, add room |
+| Default Logo | BAS-032 to BAS-034 | 3 | Checkboxes, 12 combobox options, preview update |
+| Discount Exemptions | BAS-035 | 1 | Exempt toggles |
+| Save & Unsaved Changes Dialogs | BAS-036 to BAS-038 | 3 | Save dialog text, unsaved Stay/Discard |
+| Boundary — XSS | BAS-039 | 1 | XSS in text fields |
+| History Tab | HIS-001 to HIS-007 | 7 | Read-only audit log, 42 columns, history type selector, pagination |
+| ECT — Display & Structure | ECT-001 to ECT-004 | 4 | Currency selector, profit target table, fixed cost fields |
+| ECT — Editable Fields & Save | ECT-005 to ECT-009 | 5 | Benefits Multiplier decimal format, 2 independent Saves, labor costs |
+| ECT — Validation & Read-Only | ECT-010 to ECT-012 | 3 | Non-numeric revert, subrental matrix, no-dialog save |
 
 ---
 
 ## Preconditions (All Scenarios)
 
-- User is authenticated with at minimum Read+Write on location 1604
-- Browser navigated to `/navigator/locations/1604/settings/local-office`
+- User authenticated with Read+Write on location 1604
+- Browser at `/navigator/locations/1604/settings/local-office`
 - No unsaved changes on page load
-- For ECT Settings role tests: user must have Production & Sales role (NM-1260)
+- Save button disabled on fresh load
 
 ---
 
@@ -37,12 +42,12 @@
 ### TC-LOS-BAS-001
 1. Navigate to `[BASE_URL]/navigator/locations/1604/settings/local-office`
 2. Assert `document.title` = "Local Office Settings | Navigator"
-3. Assert `h1` visible with text "Local Office Settings"
+3. Assert `h1` text "Local Office Settings" visible
 4. Assert `[data-testid="local-office-settings-tab-basic-information"]` has `aria-selected="true"`
 5. Assert `[data-testid="local-office-settings-tab-location-settings-history"]` visible
 6. Assert `[data-testid="local-office-settings-tab-ect-settings"]` visible
-7. Assert Save button `[data-testid="local-office-settings-btn-save"]` is disabled
-8. Expected: Page rendered with correct title; Basic Information active; Save disabled
+7. Assert `[data-testid="local-office-settings-btn-save"]` is disabled
+8. Expected: Page rendered; Basic Information active; Save disabled
 
 ---
 
@@ -55,381 +60,461 @@
 4. Assert `[data-testid="local-office-settings-input-strike-date-offset"]` value = "1"
 5. Assert `[data-testid="local-office-settings-input-delivery-date-offset"]` value = "0"
 6. Assert `[data-testid="local-office-settings-input-pickup-date-offset"]` value = "0"
-7. Expected: All 6 offset defaults verified
+7. Expected: All 6 offsets match defaults (-1,1,-1,1,0,0)
 
 ### TC-LOS-BAS-003
-1. Assert Save button disabled on load
-2. `fill([data-testid="local-office-settings-input-prep-date-offset"], "-2")` + press Tab
-3. Assert Save button enabled
-4. `fill([data-testid="local-office-settings-input-prep-date-offset"], "-1")` + press Tab
-5. Assert Save button disabled; Expected: Dirty state toggling works
+1. Assert Save button `[data-testid="local-office-settings-btn-save"]` disabled on fresh load
+2. Expected: Save disabled with no edits
 
-### TC-LOS-BAS-005 — NM-1264 Cross-Field Validation
-1. Assert Save disabled (clean state)
-2. `fill([data-testid="local-office-settings-input-delivery-date-offset"], "-5")` + press Tab
-3. Assert Save button disabled (Delivery -5 < Prep -1 = invalid)
-4. Assert no visible error paragraph in DOM
-5. Expected: Delivery < Prep silently disables Save | **Data**: delivery=-5, prep=-1
+### TC-LOS-BAS-004
+1. Assert Save disabled
+2. Fill `[data-testid="local-office-settings-input-prep-date-offset"]` with "-2"
+3. Assert Save enabled
+4. Cleanup: Restore "-1"
+5. Expected: Any date offset edit enables Save
+
+### TC-LOS-BAS-005
+1. Fill `[data-testid="local-office-settings-input-prep-date-offset"]` with "-2"
+2. Click Save `[data-testid="local-office-settings-btn-save"]`
+3. Assert shared "Save Changes" dialog appears
+4. Assert dialog body "Are you sure you want to save the changes?"
+5. Click **Save** in dialog; assert dialog closes
+6. Reload page; assert prep offset = "-2"
+7. Cleanup: Restore "-1" and save
+8. Expected: Edit persists after save + reload
 
 ### TC-LOS-BAS-006
-1. (State: delivery=-5, Save disabled) `fill([data-testid="local-office-settings-input-delivery-date-offset"], "0")` + press Tab
-2. Assert Save enables (Delivery 0 >= Prep -1 = valid)
-3. `fill([data-testid="local-office-settings-input-delivery-date-offset"], "-1")` + press Tab
-4. Assert Save disables (reverted to original "0"? — revert delivery to "0")
-5. Expected: Constraint fix re-enables Save
+1. Fill `[data-testid="local-office-settings-input-prep-date-offset"]` with "abc"
+2. Assert field has `aria-invalid="true"`
+3. Assert Save disabled
+4. Cleanup: Restore "-1"
+5. Expected: Non-numeric input triggers aria-invalid, Save blocked
 
-### TC-LOS-BAS-034 — Boundary: Negative Values
-1. `fill([data-testid="local-office-settings-input-pickup-date-offset"], "-3")` + press Tab
-2. Assert `[data-testid="local-office-settings-input-pickup-date-offset"]` has no error state
-3. Assert Save button enabled
-4. Revert pickup to "0" + press Tab; assert Save disabled
-5. Expected: Negative integer accepted without error
+### TC-LOS-BAS-007 — NM-1264 Cross-Field
+1. Fill `[data-testid="local-office-settings-input-delivery-date-offset"]` with "-5"
+2. Assert `[data-testid="local-office-settings-input-delivery-date-offset"]` has `aria-invalid="true"`
+3. Assert Save disabled (Delivery -5 < Prep -1 = invalid)
+4. Cleanup: Restore "0"
+5. Expected: Delivery < Prep triggers aria-invalid on Delivery
 
-### TC-LOS-BAS-035 — Boundary: Zero Value
-1. `fill([data-testid="local-office-settings-input-prep-date-offset"], "0")` + press Tab
-2. Assert delivery (value "0") >= prep (value "0") — valid; Save enables
-3. Revert prep to "-1"; assert Save disables
-4. Expected: Zero is a valid offset value; delivery==prep is valid (not a conflict)
+### TC-LOS-BAS-008
+1. (State: Delivery=-5, aria-invalid, Save disabled)
+2. Fill `[data-testid="local-office-settings-input-delivery-date-offset"]` with "-1"
+3. Assert `aria-invalid` removed from Delivery field
+4. Assert Save enabled (form dirty: Delivery changed from server-original 0 to -1)
+5. Expected: Correcting violation clears error
+
+### TC-LOS-BAS-009
+1. Fill `[data-testid="local-office-settings-input-set-date-offset"]` with "-10"
+2. Assert field does NOT have `aria-invalid`
+3. Assert Save enabled
+4. Cleanup: Restore "-1"
+5. Expected: Negative values valid for "relative to start" offset fields
+
+### TC-LOS-BAS-010
+1. Fill `[data-testid="local-office-settings-input-prep-date-offset"]` with "0"
+2. Assert field does NOT have `aria-invalid`
+3. Assert Save enabled
+4. Cleanup: Restore "-1"
+5. Expected: Zero is valid
 
 ---
 
-## Scenario Group 3: Misc Settings
+## Scenario Group 3: Misc Settings — Checkboxes
 
-### TC-LOS-BAS-007 — Default Checkbox States
-1. Assert `[data-testid="local-office-settings-checkbox-use-fulfillment"]` unchecked, enabled
-2. Assert `[data-testid="local-office-settings-checkbox-use-availability"]` checked, enabled
-3. Assert `[data-testid="local-office-settings-checkbox-use-equipments-qc"]` unchecked, **disabled**
-4. Assert `[data-testid="local-office-settings-checkbox-request-items-return"]` unchecked, enabled
-5. Assert `[data-testid="local-office-settings-checkbox-same-priority"]` unchecked, enabled
-6. Assert `[data-testid="local-office-settings-checkbox-print-description"]` checked, enabled
-7. Assert `[data-testid="local-office-settings-checkbox-use-subrent-service-type"]` checked, enabled
-8. Expected: 7 checkboxes; Use Equipments QC is disabled
+### TC-LOS-BAS-011
+1. Assert `[data-testid="local-office-settings-checkbox-use-fulfillment"]` `aria-checked="false"`
+2. Assert `[data-testid="local-office-settings-checkbox-use-equipments-qc"]` `aria-checked="false"` AND `disabled`
+3. Assert `[data-testid="local-office-settings-checkbox-default-labor-to-hourly"]` `aria-checked="false"`, enabled
+4. Assert `[data-testid="local-office-settings-checkbox-default-job-one-day-event"]` `aria-checked="false"`
+5. Assert `[data-testid="local-office-settings-checkbox-default-job-one-day-outside"]` `aria-checked="false"`
+6. Assert `[data-testid="local-office-settings-checkbox-default-job-one-day-internal"]` `aria-checked="false"`
+7. Expected: All checkboxes unchecked; QC disabled when Fulfillment unchecked
 
-### TC-LOS-BAS-008 — QC Always Disabled
-1. Assert `[data-testid="local-office-settings-checkbox-use-equipments-qc"]` has `disabled` attribute
-2. `click([data-testid="local-office-settings-checkbox-use-equipments-qc"])` — assert no state change
-3. Assert Save button remains disabled
-4. Expected: Use Equipments QC cannot be interacted with
+### TC-LOS-BAS-012 — Fulfillment->QC Cascade
+1. Assert QC `[data-testid="local-office-settings-checkbox-use-equipments-qc"]` disabled
+2. Click `[data-testid="local-office-settings-checkbox-use-fulfillment"]`
+3. Assert Fulfillment `aria-checked="true"`
+4. Assert QC now enabled (no `disabled` attribute)
+5. Assert Save enabled
+6. Cleanup: Uncheck Fulfillment; assert QC disabled again
+7. Expected: Fulfillment enables/disables QC
 
-### TC-LOS-BAS-009 — Phone 1 Required: Empty → aria-invalid
-1. `fill([data-testid="local-office-settings-input-phone-1"], "")` + press Tab
-2. Assert `[data-testid="local-office-settings-input-phone-1"]` has `aria-invalid="true"`
-3. Assert Save button disabled
-4. Expected: Phone 1 empty triggers aria-invalid; Save blocked
+### TC-LOS-BAS-013
+1. Click `[data-testid="local-office-settings-checkbox-use-fulfillment"]`; assert checked
+2. Click Save; confirm dialog; click Yes
+3. Reload; assert Fulfillment checked, QC enabled
+4. Cleanup: Uncheck Fulfillment, save
+5. Expected: Fulfillment state + QC cascade persists
 
-### TC-LOS-BAS-010 — Phone 1 Error Recovery
-1. (State: Phone 1 empty, Save disabled) `fill([data-testid="local-office-settings-input-phone-1"], "760-883-1957")` + press Tab
-2. Assert `aria-invalid` not "true" on Phone 1
-3. Assert Save button enables then disables (reverted to original = no net change)
-4. Expected: Restoring Phone 1 clears error and returns to clean state
+### TC-LOS-BAS-014
+1. Assert `[data-testid="local-office-settings-checkbox-default-labor-to-hourly"]` unchecked
+2. Click checkbox; assert `aria-checked="true"`
+3. Click Save; confirm; reload
+4. Assert checkbox still checked
+5. Cleanup: Uncheck, save
+6. Expected: Default Labor to Hourly persists
 
-### TC-LOS-BAS-011 — Phone 2 Optional
-1. (`[data-testid="local-office-settings-input-phone-2"]` is empty — default)
-2. Confirm Save disabled (clean state)
-3. `fill([data-testid="local-office-settings-input-phone-2"], "555-0100")` + press Tab; assert Save enables
-4. Clear Phone 2; assert no `aria-invalid`; assert Save disables
-5. Expected: Phone 2 optional; empty never invalid
+---
 
-### TC-LOS-BAS-012 — Default Job 1 Day (3 Checkboxes)
-1. Assert all 3 default-job checkboxes unchecked
-2. Click `[data-testid="local-office-settings-checkbox-default-job-one-day-event"]`; assert Save enables
-3. Revert all; assert Save disables
-4. Expected: All 3 unchecked by default; each independently enables Save
+## Scenario Group 4: Misc Settings — Phone Fields
 
-### TC-LOS-BAS-013 — Default Order Type: 3 Options
+### TC-LOS-BAS-015
+1. Clear `[data-testid="local-office-settings-input-phone-1"]`; Tab
+2. Assert `aria-invalid="true"` on Phone 1
+3. Assert Save disabled
+4. Cleanup: Restore original value
+5. Expected: Empty Phone 1 triggers validation
+
+### TC-LOS-BAS-016
+1. Fill `[data-testid="local-office-settings-input-phone-1"]` with "not-a-phone"; Tab
+2. Assert NO `aria-invalid` (no format validation, only required check)
+3. Assert Save enabled
+4. Cleanup: Restore original
+5. Expected: Non-phone format accepted (no format validation)
+
+### TC-LOS-BAS-017
+1. Fill `[data-testid="local-office-settings-input-phone-1"]` with "555-123-4567"
+2. Click Save; confirm; reload
+3. Assert Phone 1 = "555-123-4567"
+4. Cleanup: Restore original, save
+5. Expected: Valid phone persists
+
+### TC-LOS-BAS-018
+1. Clear Phone 1; assert aria-invalid, Save disabled
+2. Fill "555-000-1111"; assert aria-invalid removed, Save enabled
+3. Expected: Error recovery works
+
+### TC-LOS-BAS-019
+1. Clear `[data-testid="local-office-settings-input-phone-2"]`; Tab
+2. Assert NO `aria-invalid`
+3. Assert Save enabled (if other changes) or remains clean
+4. Expected: Phone 2 is optional
+
+---
+
+## Scenario Group 5: Misc Settings — Other Fields
+
+### TC-LOS-BAS-020
+1. Assert 3 sub-checkboxes under Default New Job to 1 Day: Event, Outside, Internal
+2. Click Event `[data-testid="local-office-settings-checkbox-default-job-one-day-event"]`; assert checked
+3. Click Outside; assert checked
+4. Click Internal; assert checked
+5. Assert Save enabled
+6. Cleanup: Uncheck all
+7. Expected: Each toggles independently
+
+### TC-LOS-BAS-021
 1. Assert `[data-testid="local-office-settings-select-default-order-type"]` value = "Event"
-2. Click combobox; assert options: "Event", "Outside", "Internal"
-3. Select "Outside"; assert Save enables
-4. Select "Event" again; assert Save disables
-5. Expected: 3 options; default = Event
+2. Click combobox; assert exactly 2 options: "Event", "Outside"
+3. Select "Outside"; assert Save enabled
+4. Cleanup: Select "Event"
+5. Expected: 2 options (NOT 3); default = Event
 
-### TC-LOS-BAS-014 — PO Number and Label (Optional Text)
-1. Assert `[data-testid="local-office-settings-input-po-number"]` empty; `[data-testid="local-office-settings-input-po-number-label"]` empty
-2. Fill PO Number "PO-TEST"; assert Save enables
-3. Clear PO Number; assert Save disables
-4. Fill PO Number Label "Purchase Order"; assert Save enables
-5. Clear PO Number Label; assert Save disables
-6. Expected: Both PO fields are empty by default and optional
+### TC-LOS-BAS-022
+1. Select "Outside" in Default Order Type
+2. Click Save; confirm; reload
+3. Assert Default Order Type = "Outside"
+4. Cleanup: Restore "Event", save
+5. Expected: Selection persists
 
----
+### TC-LOS-BAS-023
+1. Fill `[data-testid="local-office-settings-input-po-number"]` with "PO-TEST-123"
+2. Click Save; confirm; reload
+3. Assert PO Number = "PO-TEST-123"
+4. Cleanup: Clear, save
+5. Expected: PO Number persists
 
-## Scenario Group 4: Section Configuration
-
-### TC-LOS-BAS-015 — 13 Active Sections Default
-1. Assert `[data-testid="local-office-settings-checkbox-use-section"]` checked
-2. Assert `[data-testid="local-office-settings-table-sections"]` has 13 data rows
-3. Assert row names: Audio, Flipcharts, Hybrid Meeting, Labor, Lighting, Power, Presenter Support, Projection, Rigging, Scenic, Staging, Video, Whiteboard
-4. Assert "Add new..." placeholder input visible
-5. Expected: 13 active sections in documented order
-
-### TC-LOS-BAS-016 — Use Section Toggle
-1. Click `[data-testid="local-office-settings-checkbox-use-section"]`; assert Save enables
-2. Revert; assert Save disables
-3. Expected: Use Section checkbox is editable
-
-### TC-LOS-BAS-017 — Edit Section Name
-1. Click "Flipcharts" row textbox; change to "Flipcharts Updated" + Tab; assert Save enables
-2. Revert to "Flipcharts" + Tab; assert Save disables
-3. Expected: Name edit enables Save; revert disables it
-
-### TC-LOS-BAS-018 — Add New Section
-1. Fill "Add new..." input in sections table with "TestSection" + press Enter
-2. Assert new row "TestSection" appears; assert Save enables
-3. Expected: New section row created on confirm
-
-### TC-LOS-BAS-019 — NM-1223: Duplicate Active Section Name
-1. Edit "Flipcharts" name to "Audio" + Tab (duplicate of existing active "Audio")
-2. Assert Save disabled
-3. Expected: Duplicate active name prevents save per NM-1223
-
-### TC-LOS-BAS-020 — Default Button Resets Sections
-1. Click `[data-testid="local-office-settings-btn-default-section"]`
-2. Observe result (dialog or immediate reset); assert Save enables
-3. Expected: Default button triggers a reset action
-
-### TC-LOS-BAS-033 — Active Toggle per Row
-1. Identify "Video" row active toggle; click toggle; assert Save enables; assert inactive state
-2. Click toggle again; assert active state; assert Save disables
-3. Expected: Each row toggle independently toggleable
+### TC-LOS-BAS-024
+1. Fill `[data-testid="local-office-settings-input-po-number-label"]` with "Purchase Order #"
+2. Click Save; confirm; reload
+3. Assert PO Number Label = "Purchase Order #"
+4. Cleanup: Clear, save
+5. Expected: PO Number Label persists
 
 ---
 
-## Scenario Group 5: Room Configuration
+## Scenario Group 6: Section Configuration
 
-### TC-LOS-BAS-021 — Empty Table Default
-1. Assert `[data-testid="local-office-settings-table-room-config"]` has 0 data rows
-2. Assert "Add new..." placeholder input visible in table
-3. Expected: Room Configuration is empty for location 1604
+### TC-LOS-BAS-025
+1. Assert `[data-testid="local-office-settings-table-sections"]` has 13 rows
+2. Assert all rows have SVG checkmark (`lucide lucide-check text-primary`) in Use Section
+3. Verify names: Audio Visual, Business Center, Decor, Electrical, Event Technology, Floral, Food & Beverage, Internet/Telecom, Lighting, Production & Staging, Rigging, Signage & Graphics, Specialty
+4. Expected: 13 active sections
 
-### TC-LOS-BAS-022 — Add New Room
-1. Fill "Add new..." in room config with "Ballroom A" + Enter
-2. Assert new row "Ballroom A" appears; assert Save enables
-3. Expected: Room can be added via Add new
+### TC-LOS-BAS-026
+1. Click Use Section checkbox for first section
+2. Assert checkmark disappears
+3. Assert Save enabled
+4. Cleanup: Click again to restore
+5. Expected: Toggle active/inactive
 
-### TC-LOS-BAS-023 — NM-1223: Duplicate Active Room Name
-1. Add room "Conf A"; then add another "Conf A"; assert both active
-2. Assert Save disabled
-3. Expected: Duplicate active room name blocks save per NM-1223
+### TC-LOS-BAS-027
+1. Click section name "Audio Visual"; edit to "AV Services"
+2. Assert Save enabled
+3. Cleanup: Restore "Audio Visual"
+4. Expected: Name edit enables Save
 
----
+### TC-LOS-BAS-028
+1. Click Add button below sections table
+2. Assert new empty row added
+3. Type "Test Section" in new row
+4. Assert Save enabled
+5. Cleanup: Reload without saving
+6. Expected: Add creates new editable row
 
-## Scenario Group 6: Default Logo
-
-### TC-LOS-BAS-024 — Logo Checkboxes Default
-1. Assert `[data-testid="local-office-settings-checkbox-use-quote-logo"]` checked
-2. Assert `[data-testid="local-office-settings-checkbox-use-rental-logo"]` checked
-3. Uncheck Quotes; assert Save enables; revert; assert Save disables
-4. Expected: Both logo checkboxes checked by default; each independently toggleable
-
-### TC-LOS-BAS-025 — Company Logo Combobox (12 Options)
-1. Assert `[data-testid="local-office-settings-select-company-logo"]` value = "Encore New Logo"
-2. Click combobox; assert listbox has exactly 12 options (see FIELD INVENTORY)
-3. Select "Encore Blue Logo"; assert Save enables
-4. Revert to "Encore New Logo"; assert Save disables
-5. Expected: 12 logo options; default = Encore New Logo
-
-### TC-LOS-BAS-026 — Logo Preview Updates
-1. Assert `[data-testid="local-office-settings-logo-preview"]` `src` attribute reflects Encore New Logo
-2. Select "Encore Blue Logo" from Company Logo combobox
-3. Assert logo preview `src` attribute changes
-4. Expected: Preview is responsive to selection changes
+### TC-LOS-BAS-029
+1. Toggle a section inactive + rename another
+2. Click Default `[data-testid="local-office-settings-btn-default-section"]`
+3. Assert sections reset to system defaults
+4. Assert Save enabled
+5. Cleanup: Reload without saving
+6. Expected: Default resets to system defaults
 
 ---
 
-## Scenario Group 7: Discount Exemptions
+## Scenario Group 7: Room Configuration
 
-### TC-LOS-BAS-027 — Service Type Exempt Toggle
-1. Locate `[data-testid="local-office-settings-table-discount-exemptions"]`; find "APP Downloaded" row (non-exempt)
-2. Click "APP Downloaded" Exempt toggle; assert Save enables
-3. Revert; assert Save disables
-4. Expected: Discount exemption toggles are interactive per service type row
+### TC-LOS-BAS-030
+1. Assert `[data-testid="local-office-settings-table-room-config"]` shows "No results."
+2. Assert Add button present
+3. Assert Default button present
+4. Expected: Empty table for 1604
 
-### TC-LOS-BAS-028 — Pre-Exempt Services Confirmed
-1. Verify "HSIA - Labor" toggle img active (exempt state)
-2. Verify "Loss Damage Waiver" toggle img active (exempt state)
-3. Verify "Operator Labor" toggle img active (exempt state)
-4. Expected: Known-exempt services confirmed in initial state
-
----
-
-## Scenario Group 8: Unsaved Changes Dialog
-
-### TC-LOS-BAS-029 — Stay (Basic Info)
-1. Click Use Fulfillment; assert Save enabled (dirty)
-2. Click ECT Settings tab; assert `[role="alertdialog"]` with heading "Unsaved changes" appears
-3. Assert body text "You have unsaved changes. Do you want to discard them?"
-4. Assert "Stay" button and "Discard" button present
-5. Click "Stay"; assert dialog closes; still on Basic Information; Save still enabled
-6. Revert Use Fulfillment; assert Save disables
-
-### TC-LOS-BAS-030 — Discard (Basic Info to History)
-1. Click Use Fulfillment; assert Save enabled
-2. Click Location Settings History tab; assert dialog appears
-3. Click "Discard"; assert Location Settings History tab activates; changes lost
-
-### TC-LOS-BAS-031 — ECT Tab → Basic Info (Same Dialog)
-1. Navigate to ECT Settings tab; edit Benefits Multiplier to "21.0%" + Tab; assert Fixed Costs Save enabled
-2. Click Basic Information tab; assert "Unsaved changes" dialog appears
-3. Click "Discard"; assert Basic Information tab activates; ECT Benefits Multiplier reverted to "20.0%"
-
-### TC-LOS-BAS-032 — Multi-Field Compound Changes
-1. Check Use Fulfillment, fill Phone 2 "555-0100", fill PO Number "PO-001"
-2. Assert Save enabled throughout
-3. Revert all 3 fields to original values
-4. Assert Save disables
-5. Expected: All changes must be reverted to return to clean state
+### TC-LOS-BAS-031
+1. Click Add button in Room Configuration
+2. Assert new row with empty name, Use Room checkmark active
+3. Type "Ballroom A"
+4. Assert Save enabled
+5. Cleanup: Reload without saving
+6. Expected: Add creates room row
 
 ---
 
-## Scenario Group 9: Location Settings History Tab
+## Scenario Group 8: Default Logo
 
-### TC-LOS-HST-001 — Empty State for Location 1604
+### TC-LOS-BAS-032
+1. Assert `[data-testid="local-office-settings-checkbox-use-quote-logo"]` state (checked/unchecked)
+2. Assert `[data-testid="local-office-settings-checkbox-use-rental-logo"]` state
+3. Record defaults for 1604
+4. Expected: Logo checkboxes at documented defaults
+
+### TC-LOS-BAS-033
+1. Click `[data-testid="local-office-settings-select-company-logo"]` to open
+2. Count options -> 12
+3. Verify includes PSAV, Encore, and venue-specific logos
+4. Close without changing
+5. Expected: 12 logo options
+
+### TC-LOS-BAS-034
+1. Note current Company Logo selection + preview `[data-testid="local-office-settings-logo-preview"]` `src`
+2. Change Company Logo to different option
+3. Assert preview image `src` changed
+4. Cleanup: Restore original
+5. Expected: Preview updates on selection
+
+---
+
+## Scenario Group 9: Discount Exemptions
+
+### TC-LOS-BAS-035
+1. Assert `[data-testid="local-office-settings-table-discount-exemptions"]` visible
+2. Assert columns: Service Type, Exempt (checkbox)
+3. Count exempt services
+4. Toggle one unchecked to checked; assert Save enabled
+5. Cleanup: Toggle back
+6. Expected: Exempt toggles independently
+
+---
+
+## Scenario Group 10: Save & Unsaved Changes Dialogs
+
+### TC-LOS-BAS-036
+1. Make any edit; click Save
+2. Assert shared "Save Changes" dialog appears
+3. Assert dialog body "Are you sure you want to save the changes?"
+4. Assert Cancel + Save buttons present
+5. Click Cancel; assert dialog closes, changes NOT saved, Save still enabled
+6. Cleanup: Reload
+7. Expected: Shared Save Changes dialog; Cancel dismisses
+
+### TC-LOS-BAS-037
+1. Make any edit; click History tab
+2. Assert dialog text "Are you sure you want to leave this view? Any unsaved changes will be lost."
+3. Click Stay; assert remain on Basic Information tab
+4. Assert edit still present
+5. Cleanup: Reload
+6. Expected: Stay preserves changes
+
+### TC-LOS-BAS-038
+1. Make any edit; click History tab
+2. Click Discard in unsaved changes dialog
+3. Assert navigated to History tab
+4. Click Basic Information tab; assert edit discarded
+5. Expected: Discard navigates away, loses changes
+
+---
+
+## Scenario Group 11: Boundary
+
+### TC-LOS-BAS-039
+1. Fill `[data-testid="local-office-settings-input-po-number"]` with "<script>alert(1)</script>"
+2. Assert no script execution
+3. If Save enabled: save + reload; assert stored as plain text
+4. Cleanup: Clear, save
+5. Expected: XSS payload never executed
+
+---
+
+## Scenario Group 12: History Tab — Navigation & Structure
+
+### TC-LOS-HIS-001
 1. Click `[data-testid="local-office-settings-tab-location-settings-history"]`
-2. Assert `[data-testid="local-office-settings-history-select-type"]` shows "Location Settings History"
-3. Assert `p:has-text("No results.")` visible inside history table container
-4. Assert pagination buttons all disabled
+2. Assert tab `aria-selected="true"`
+3. Assert `[data-testid="local-office-settings-history-select-type"]` visible with text "Location Management History"
+4. Assert `[data-testid="local-office-settings-history-table"]` visible
+5. Expected: History tab shows type selector and data table
 
-### TC-LOS-HST-002 — Filter Dropdown 2 Options
-1. Click `[data-testid="local-office-settings-history-select-type"]`
-2. Assert exactly 2 options: "Location Settings History" and "Location Settings Legacy History"
-3. Select "Location Settings Legacy History"; assert table reloads
+### TC-LOS-HIS-002
+1. On History tab, assert `[data-testid="local-office-settings-history-table"]` has 42 `th` elements
+2. Assert first 5 headers: Local Office, Prep Date Offset, Return Date Offset, Set Date Offset, Strike Date Offset
+3. Assert last 4 headers: Holiday Multiplier, Recalc Labor Hours, Modified By, Modified On
+4. Expected: 42 column headers present in correct order
 
-### TC-LOS-HST-003 — 42 Columns; Local Office No Sort Button
-1. Assert `[data-testid="local-office-settings-history-table"]` visible
-2. Assert "Local Office" columnheader has no `<button>` child
-3. Assert all other 41 columnheaders each contain a sort `<button>`
-4. Expected: 41 sortable + 1 non-sortable = 42 total columns
+### TC-LOS-HIS-003
+1. On History tab, assert table body contains "No results." text
+2. Assert pagination "1 / 1"
+3. Assert all 4 nav buttons disabled (first, prev, next, last)
+4. Expected: Empty state for location 1604
 
-### TC-LOS-HST-004 — Rows Per Page Dropdown
-1. Assert default rows-per-page combobox value = "20"
-2. Click combobox; assert options: 10, 20, 30, 40, 50
-3. Select "10"; assert combobox value updates
-4. Expected: 5 page-size options; default 20
+### TC-LOS-HIS-004
+1. Click `[data-testid="local-office-settings-history-select-type"]` to open dropdown
+2. Assert 2 options: "Location Management History" (selected), "Location Management Legacy History"
+3. Close dropdown; assert original selection maintained
+4. Expected: 2 history type options
 
-### TC-LOS-HST-005 — Read-Only Table
-1. Assert no Add, Edit, or Delete buttons in history tab panel
-2. Attempt click on any table cell; assert no input appears
-3. Expected: No modification capability on history table
+### TC-LOS-HIS-005
+1. On History tab, assert rows-per-page combobox value = "20"
+2. Assert page indicator "1 / 1"
+3. Assert 4 nav buttons present (first, prev, next, last)
+4. Expected: Pagination controls present; default 20 rows/page
 
-### TC-LOS-HST-006 — Filter Change Triggers Reload
-1. Switch filter to "Location Settings Legacy History"; assert table update response
-2. Switch back to "Location Settings History"; assert table resets
-3. Expected: Both filter options trigger data reload
+### TC-LOS-HIS-006
+1. On History tab, assert no `button[type="submit"]` or Save button within tabpanel
+2. Assert no `input`, `textarea`, or editable fields within tabpanel (except pagination)
+3. Expected: History tab is read-only
+
+### TC-LOS-HIS-007
+1. On History tab, count `th button` elements inside `[data-testid="local-office-settings-history-table"]`
+2. Assert 38 sort buttons (42 columns - 4 non-sortable: Local Office, Section Name, Service Type - Exempt, Notes)
+3. Assert non-sortable columns contain only text, no button child
+4. Expected: 38 sortable + 4 non-sortable columns
 
 ---
 
-## Scenario Group 10: ECT Settings Tab
+## Scenario Group 13: ECT Tab — Navigation & Display
 
-### TC-LOS-ECT-001 — Header and Location Info
+### TC-LOS-ECT-001
 1. Click `[data-testid="local-office-settings-tab-ect-settings"]`
-2. Assert `[data-testid="ect-settings-label-location-name"]` has text "1604 - Parker Palm Springs"
-3. Assert `[data-testid="ect-settings-link-commission-structure"]` visible
-4. Assert `[data-testid="ect-settings-select-currency"]` value = "USD"
-5. Expected: ECT header correct for location 1604
+2. Assert tab `aria-selected="true"`
+3. Assert `[data-testid="ect-settings-label-location-name"]` text = "1604 - Parker Palm Springs"
+4. Assert `[data-testid="ect-settings-link-commission-structure"]` visible with text "Commission structure"
+5. Assert `[data-testid="ect-settings-select-currency"]` text contains "USD"
+6. Expected: ECT header, commission link, currency selector displayed
 
-### TC-LOS-ECT-002 — Currency Selector (USD only)
-1. Click `[data-testid="ect-settings-select-currency"]`; assert only "USD" option
-2. Close dropdown; assert value "USD" unchanged
-3. Expected: Only USD available for 1604
+### TC-LOS-ECT-002
+1. Click `[data-testid="ect-settings-select-currency"]` to open dropdown
+2. Assert 1 option: "USD"
+3. Close dropdown
+4. Expected: Single currency option
 
-### TC-LOS-ECT-003 — Commission Structure Link
-1. Assert `[data-testid="ect-settings-link-commission-structure"]` has `href` containing "1604"
-2. Expected: Link references the correct office ID | **Status**: Blocked (Cat-A: external legacy URL)
+### TC-LOS-ECT-003
+1. Assert `[data-testid="ect-settings-section-title-event-profit-target"]` text = "Event Profit Target"
+2. Assert table within `[data-testid="ect-settings-table-event-profit-target"]` has 4 columns + 9 rows
+3. Assert first row: $5,000.01 | $10,000.00 | 40.0% | USD
+4. Assert last row: $2,000,000.01 | $10,000,000.00 | 30.0% | USD
+5. Assert no input elements in table (read-only)
+6. Expected: 9-row profit target table, read-only
 
-### TC-LOS-ECT-004 — Event Profit Target Read-Only
-1. Assert `[data-testid="ect-settings-table-event-profit-target"]` has 9 rows
-2. Click any cell; assert no input appears
-3. Expected: Event Profit Target is read-only
-
-### TC-LOS-ECT-005 — Fixed Costs Display Fields
-1. Assert Venue Fixed Costs display = "13.9%"
-2. Assert SG&A = "8.0%"
-3. Assert Other Rate = "0.0%"
-4. Assert No Labor = "0.0%"
-5. Assert Approval Threshold = "$0.00"
-6. Assert Peak Labor = "5.0%"
-7. Assert Non-Peak = "0.0%"
-8. Attempt to click each → no input; Expected: 7 display-only fields
-
-### TC-LOS-ECT-006 — Benefits Multiplier: Editable; Fixed Costs Save Independent
-1. Assert `[data-testid="ect-settings-btn-save-fixed-costs-btn"]` disabled; `[data-testid="ect-settings-btn-save-labor-costs-btn"]` disabled
-2. `fill([data-testid="ect-settings-input-benefits-multiplier"], "21.0%")` + Tab
-3. Assert Fixed Costs Save enabled; Labor Costs Save still disabled
-4. Revert Benefits Multiplier to "20.0%" + Tab; assert Fixed Costs Save disabled
-5. Expected: Benefits Multiplier enables ONLY Fixed Costs Save
-
-### TC-LOS-ECT-007 — Historical Subrental (NM-1260)
-1. Assert `[data-testid="ect-settings-input-historical-subrental"]` not disabled (for Production & Sales user)
-2. Fill "1.0%" + Tab; assert Fixed Costs Save enables; Labor Costs Save unaffected
-3. Revert to "0.0%"; assert Fixed Costs Save disables
-4. Expected: Historical Subrental editable for role; role-gating tested in separate manual step
-
-### TC-LOS-ECT-008 — Labor Costs Save Independent of Fixed Costs
-1. `fill([data-testid="ect-settings-input-labor-cost-0"], "40.00")` + Tab
-2. Assert Labor Costs Save enabled; Fixed Costs Save still disabled
-3. Revert to "35.00" + Tab; assert Labor Costs Save disables
-4. Expected: Labor Cost edit enables ONLY Labor Costs Save
-
-### TC-LOS-ECT-009 — Two Saves Fully Independent
-1. Edit Benefits Multiplier → Fixed Costs Save enabled, Labor Costs Save disabled
-2. Revert Benefits Multiplier → both disabled
-3. Edit labor cost row 0 → Labor Costs Save enabled, Fixed Costs Save disabled
-4. Revert → both disabled; Expected: Zero cross-activation between save buttons
-
-### TC-LOS-ECT-010 — Labor Cost Assumptions 66 Rows
-1. Assert `[data-testid="ect-settings-table-labor-cost-assumptions"]` row count = 66
-2. Assert `[data-testid="ect-settings-input-labor-cost-0"]` (Administrative Fee) value = "35.00"
-3. Assert `[data-testid="ect-settings-input-labor-cost-65"]` (zzzFinishing Service) value = "37.10"
-4. Expected: 66 editable rows; spot-check first/last
-
-### TC-LOS-ECT-011 — SubRental Matrix Read-Only
-1. Assert `[data-testid="ect-settings-table-sub-rental-matrix"]` has 9 rows
-2. Click any cell; assert no input appears
-3. Expected: SubRental Matrix is read-only
-
-### TC-LOS-ECT-012 — Unsaved Changes Dialog: ECT → History (Stay)
-1. (ECT dirty: edit Benefits Multiplier) Click Location Settings History tab
-2. Assert "Unsaved changes" alertdialog appears
-3. Click "Stay"; assert remain on ECT Settings; change preserved
-4. Revert Benefits Multiplier to "20.0%"
-
-### TC-LOS-ECT-013 — Unsaved Changes Dialog: ECT → Basic Info (Discard)
-1. (ECT dirty: edit Benefits Multiplier to "21.0%") Click Basic Information tab
-2. Assert dialog appears; click "Discard"
-3. Assert Basic Information tab active; return to ECT → assert Benefits = "20.0%"
-
-### TC-LOS-ECT-014 — Fixed Costs Explanatory Text Present
-1. Assert 3 explanatory paragraph elements visible under Fixed Costs
-2. Assert text includes "Fixed costs include salaried labor", "actual percentage", "SG&A (Selling, General, and Administrative)"
-3. Expected: Informational text renders correctly
-
-### TC-LOS-ECT-015 — Historical Subrental Enabled for Current Test User
-1. Assert `[data-testid="ect-settings-input-historical-subrental"]` is NOT disabled
-2. Click and confirm it accepts input
-3. Expected: Rutvik test account (Production & Sales role) can edit the field
+### TC-LOS-ECT-004
+1. Assert `[data-testid="ect-settings-field-venue-fixed-costs"]` contains "13.9%"
+2. Assert `[data-testid="ect-settings-field-sga-percent"]` contains "8.0%"
+3. Assert `[data-testid="ect-settings-field-other-rate"]` contains "0.0%"
+4. Assert `[data-testid="ect-settings-field-no-labour-rate"]` contains "0.0%"
+5. Assert `[data-testid="ect-settings-field-approval-threshold"]` contains "$10,000,000.00"
+6. Assert `[data-testid="ect-settings-field-peak-labor-adjustment"]` contains "5.0%"
+7. Assert `[data-testid="ect-settings-field-non-peak-labor-adjustment"]` contains "0.0%"
+8. Expected: 7 read-only fields with correct values
 
 ---
 
-## Execution Order
+## Scenario Group 14: ECT Tab — Editable Fields & Save
 
-1. Basic Info page load + tab checks (TC-LOS-BAS-001, 002, 003)
-2. Date Offset defaults + save toggle (TC-LOS-BAS-002–006, 034, 035)
-3. Misc Settings defaults (TC-LOS-BAS-007–015)
-4. Section Config (TC-LOS-BAS-015–020, 033)
-5. Room Config (TC-LOS-BAS-021–023)
-6. Default Logo (TC-LOS-BAS-024–026)
-7. Discount Exemptions (TC-LOS-BAS-027–028)
-8. Unsaved Changes dialog (TC-LOS-BAS-029–031)
-9. Multi-field compound (TC-LOS-BAS-032)
-10. History tab (TC-LOS-HST-001–006)
-11. ECT Settings (TC-LOS-ECT-001–015)
+### TC-LOS-ECT-005
+1. Assert `[data-testid="ect-settings-input-benefits-multiplier"]` display = "20.0%"
+2. Click field; assert raw value = "0.2"
+3. Fill "0.25"; Tab out; assert display = "25.0%"
+4. Assert `[data-testid="ect-settings-btn-save-fixed-costs-btn"]` enabled
+5. Click Save; assert no confirmation dialog
+6. Navigate away + return; assert value = "25.0%"
+7. Cleanup: Restore "0.2" and save
+8. Expected: Decimal-to-percent format; persists after save
+
+### TC-LOS-ECT-006
+1. Assert `[data-testid="ect-settings-input-historical-subrental"]` display = "0.0%"
+2. Click field; fill "0.1"; Tab out; assert display = "10.0%"
+3. Assert Fixed Costs Save enabled
+4. Cleanup: Restore "0" and save
+5. Expected: Historical Subrental % editable; decimal format
+
+### TC-LOS-ECT-007
+1. Assert `[data-testid="ect-settings-btn-save-fixed-costs-btn"]` disabled
+2. Assert `[data-testid="ect-settings-btn-save-labor-costs-btn"]` disabled
+3. Edit Benefits Multiplier
+4. Assert Fixed Costs Save enabled; Labor Costs Save still disabled
+5. Cleanup: Restore original
+6. Expected: Independent Save buttons per section
+
+### TC-LOS-ECT-008
+1. Assert `[data-testid="ect-settings-section-title-labor-cost-assumptions"]` text = "Labor Cost Assumptions"
+2. Assert table has 2 columns: Labor Class, Labor Cost
+3. Count rows = 66
+4. Assert first row: "Administrative Fee" / "35.00"
+5. Assert last row: "zzzFinishing Service" / "37.10"
+6. Assert Labor Class cells have no input (read-only); Labor Cost cells have `input` elements
+7. Expected: 66-row table; only costs editable
+
+### TC-LOS-ECT-009
+1. Click `[data-testid="ect-settings-input-labor-cost-0"]`; assert raw value "35"
+2. Fill "40"; Tab out; assert display "40.00"
+3. Assert `[data-testid="ect-settings-btn-save-labor-costs-btn"]` enabled
+4. Click Save; assert no dialog
+5. Navigate away + return; assert value "40.00"
+6. Cleanup: Restore "35" and save
+7. Expected: Labor cost editable; persists; no save dialog
 
 ---
 
-## Known Issues
+## Scenario Group 15: ECT Tab — Validation & Read-Only Tables
 
-| Bug | TC(s) | Description |
-|---|---|---|
-| NM-1264 | TC-LOS-BAS-005/006 | Delivery < Prep silently disables Save; no inline error |
-| NM-1223 | TC-LOS-BAS-019/023 | Duplicate active name silently disables Save |
-| NM-1260 | TC-LOS-ECT-007/015 | Historical Subrental gated by Production & Sales role |
+### TC-LOS-ECT-010
+1. Click `[data-testid="ect-settings-input-labor-cost-0"]`; fill "abc"; Tab out
+2. Assert value reverted to "35.00" (original)
+3. Assert no `aria-invalid`, no error message displayed
+4. Expected: Non-numeric input silently rejected; reverts to original
+
+### TC-LOS-ECT-011
+1. Assert `[data-testid="ect-settings-section-title-sub-rental-matrix"]` text = "SubRental Matrix"
+2. Assert table has 4 columns: Lower Limit, Upper Limit, Subrental Percentage, Currency
+3. Count rows = 9
+4. Assert first row: $0.00 | $4,999.00 | 0.9% | USD
+5. Assert last row: $1,000,000.00 | $10,000,000.00 | 13.5% | USD
+6. Assert no input elements in table
+7. Expected: 9-row subrental matrix, read-only
+
+### TC-LOS-ECT-012
+1. Edit Benefits Multiplier; click Fixed Costs Save
+2. Assert no confirmation dialog; save completes
+3. Navigate to another tab; assert no unsaved changes dialog
+4. Cleanup: Restore values
+5. Expected: ECT saves without dialog

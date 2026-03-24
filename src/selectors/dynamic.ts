@@ -38,9 +38,7 @@ export const DynamicSelectors = {
   /** @where Setup > Location > Pricing tab > Currency filter @el row @text "{currency}" @keys currency filter option listbox @param currency -- currency code */
   optCurrencyFilter: (currency: string) => `[role="listbox"] [role="option"]:has-text("${currency}")`,
 
-  // ---- Auto Add-On Tab (Shadow DOM) ----
-  /** @where Setup > Location > Auto Add-On tab @el checkbox @text "{itemName}" @keys auto-addon item toggle shadow-dom @param itemName -- add-on item label (e.g., "Encore Music") */
-  chkAutoAddOnItem: (itemName: string) => `next-location-settings >> div:has(label:text-is("${itemName}")) button[data-slot="checkbox"]`,
-  /** @where Setup > Location > Auto Add-On tab @el label @text "{itemName}" @keys auto-addon item label shadow-dom @param itemName -- add-on item label */
-  lblAutoAddOnItem: (itemName: string) => `next-location-settings >> label:text-is("${itemName}")`,
+  // ---- Auto Add-On Tab ----
+  // NOTE: Shadow DOM (next-location-settings >>) was eliminated. Use static selectors in src/selectors/locations/auto-addon.ts instead.
+  // These dynamic selectors are DEPRECATED — kept only for reference. Use the data-testid-based selectors.
 } as const;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Loader2, Play } from 'lucide-react';
 import { getAdminUsage, listPipelineRuns, getWorkerStatus, getPipelineRunDetail, getClientPipelineDefinition } from '@/services/encoreApi';
 import { startWorker, stopWorker, restartWorker, getWorkerControlStatus } from '@/services/api';
@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [workerActionLoading, setWorkerActionLoading] = useState(false);
   const [clientDefinition, setClientDefinition] = useState<PipelineDefinition | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval>>();
+  const bugSectionRef = useRef<HTMLDivElement>(null);
 
   // Fetch client pipeline definition
   useEffect(() => {
@@ -129,6 +130,22 @@ export default function DashboardPage() {
     }
   };
 
+  const handleKpiClick = useCallback((action: string) => {
+    switch (action) {
+      case 'total-runs':
+      case 'pass-rate':
+        setDashboardTab('runs');
+        break;
+      case 'completed':
+        setDashboardTab('runs');
+        setFilter('completed');
+        break;
+      case 'bugs-found':
+        bugSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+        break;
+    }
+  }, []);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -188,7 +205,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <RunKPIBar usage={usage} />
+      <RunKPIBar usage={usage} onCardClick={handleKpiClick} />
 
       {/* Approval panel — show when any run is awaiting approval */}
       {runs.filter(r => r.status === 'awaiting_approval').map(r => (
@@ -200,7 +217,9 @@ export default function DashboardPage() {
         <TriagePanel key={r.id} runId={r.id} onResume={refreshRuns} />
       ))}
 
-      <BugDiscoveryPanel />
+      <div ref={bugSectionRef}>
+        <BugDiscoveryPanel />
+      </div>
 
       {dashboardTab === 'runs' && (
         <>
@@ -218,6 +237,7 @@ export default function DashboardPage() {
         <PageStatusGrid
           onPageClick={setSelectedPageId}
           onSetupRequired={() => setShowRunModal(true)}
+          fallbackRuns={runs}
         />
       )}
 

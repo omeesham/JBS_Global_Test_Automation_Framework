@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Search, Bug, Wrench, XCircle, CheckCircle2, Send, Clock } from 'lucide-react';
+import { Search, Bug, Wrench, XCircle, CheckCircle2, Send, Clock, AlertTriangle, ArrowRightLeft, ToggleLeft, ToggleRight } from 'lucide-react';
 import { resumeTriagePipeline, getPipelineRunDetail } from '@/services/encoreApi';
+import { createEscalation } from '@/services/escalationApi';
 import { useActivePipeline } from '@/contexts/ActivePipelineContext';
 import '@/styles/pipeline-animations.css';
 
@@ -10,6 +11,13 @@ interface TriageItem {
   category: string;
   recommendation: string;
   disposition?: 'heal' | 'bug' | 'dismiss';
+  bugHuntCategory?: string;
+  escalationReason?: string;
+  targetAgent?: string;
+  oldTestId?: string;
+  newTestId?: string;
+  runId?: string;
+  module?: string;
 }
 
 /**
@@ -27,6 +35,9 @@ export default function ChatTriageCard({ onDecideLater }: ChatTriageCardProps) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [summary, setSummary] = useState<{ healed: number; bugs: number; dismissed: number }>({ healed: 0, bugs: 0, dismissed: 0 });
+  const [escalatingIdx, setEscalatingIdx] = useState<number | null>(null);
+  const [confirmHealOverride, setConfirmHealOverride] = useState<number | null>(null);
+  const [testIdDecisions, setTestIdDecisions] = useState<Record<number, 'known' | 'bug'>>({});
 
   // Fetch triage data from run detail
   useEffect(() => {
@@ -138,7 +149,108 @@ export default function ChatTriageCard({ onDecideLater }: ChatTriageCardProps) {
                 </span>
               </div>
 
-              {/* Decision buttons */}
+              {/* FEATURE_CHANGED_BIG: Escalation card */}
+              {item.bugHuntCategory === 'FEATURE_CHANGED_BIG' && (
+                <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                    <span className="text-xs font-medium text-amber-800">Big change detected</span>
+                  </div>
+                  <p className="text-[11px] text-amber-700 mb-2">
+                    {item.escalationReason || 'Significant change detected'}. {item.targetAgent || 'Target agent'} needs to rework before healing can proceed.
+                  </p>
+                  {confirmHealOverride === idx ? (
+                    <div className="p-2 bg-red-50 border border-red-200 rounded-lg mb-2">
+                      <p className="text-[10px] text-red-700 mb-1.5">Healing without rework may use stale data and produce unreliable tests. Are you sure?</p>
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={() => { setDisposition(idx, 'heal'); setConfirmHealOverride(null); }}
+                          className="px-2 py-1 text-[10px] font-medium bg-red-600 text-white rounded-md hover:bg-red-700"
+                        >
+                          Yes, Heal Anyway
+                        </button>
+                        <button
+                          onClick={() => setConfirmHealOverride(null)}
+                          className="px-2 py-1 text-[10px] font-medium bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={async () => {
+                          setEscalatingIdx(idx);
+                          try {
+                            await createEscalation({
+                              runId: item.runId || runId || '',
+                              module: item.module || item.testName,
+                              reason: item.escalationReason || 'Big change detected',
+                              targetAgent: item.targetAgent || 'healer',
+                            });
+                            setDisposition(idx, 'bug');
+                          } catch (err) {
+                            console.error('[ChatTriageCard] Escalation failed:', err);
+                          }
+                          setEscalatingIdx(null);
+                        }}
+                        disabled={escalatingIdx === idx}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50"
+                      >
+                        <AlertTriangle className="w-3 h-3" />
+                        {escalatingIdx === idx ? 'Escalating...' : 'Approve Escalation'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmHealOverride(idx)}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      >
+                        <Wrench className="w-3 h-3" /> Override: Heal Anyway
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TESTID_CHANGED: Review section */}
+              {item.bugHuntCategory === 'TESTID_CHANGED' && (
+                <div className="mt-2 p-2.5 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <ArrowRightLeft className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-xs font-medium text-blue-800">Test-ID Changed</span>
+                  </div>
+                  {(item.oldTestId || item.newTestId) && (
+                    <div className="flex items-center gap-2 mb-2 text-[10px] font-mono">
+                      <span className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded line-through">{item.oldTestId || '(none)'}</span>
+                      <span className="text-gray-400">→</span>
+                      <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded">{item.newTestId || '(none)'}</span>
+                    </div>
+                  )}
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => { setTestIdDecisions(p => ({ ...p, [idx]: 'known' })); setDisposition(idx, 'heal'); }}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                        testIdDecisions[idx] === 'known' ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                      }`}
+                    >
+                      {testIdDecisions[idx] === 'known' ? <ToggleRight className="w-3 h-3" /> : <ToggleLeft className="w-3 h-3" />}
+                      Known Change (adapt)
+                    </button>
+                    <button
+                      onClick={() => { setTestIdDecisions(p => ({ ...p, [idx]: 'bug' })); setDisposition(idx, 'bug'); }}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                        testIdDecisions[idx] === 'bug' ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100'
+                      }`}
+                    >
+                      {testIdDecisions[idx] === 'bug' ? <ToggleRight className="w-3 h-3" /> : <ToggleLeft className="w-3 h-3" />}
+                      This is a Bug (report)
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Standard decision buttons (hidden for special categories that have their own UI) */}
+              {item.bugHuntCategory !== 'FEATURE_CHANGED_BIG' && item.bugHuntCategory !== 'TESTID_CHANGED' && (
               <div className="flex gap-1.5 mt-2">
                 <button
                   onClick={() => setDisposition(idx, 'heal')}
@@ -171,6 +283,7 @@ export default function ChatTriageCard({ onDecideLater }: ChatTriageCardProps) {
                   <XCircle className="w-3 h-3" /> Dismiss
                 </button>
               </div>
+              )}
             </div>
           ))}
         </div>

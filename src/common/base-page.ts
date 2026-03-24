@@ -58,6 +58,32 @@ export class BasePage {
   }
 
   /**
+   * Navigate safely when page may have unsaved form state (dirty Angular forms).
+   * Registers a temporary beforeunload dialog handler, navigates, then removes it.
+   * Use this instead of navigateTo() when the page might have unsaved edits.
+   * LR-011: Reload after non-numeric input requires safe navigation to avoid beforeunload trap.
+   */
+  protected async safeNavigateTo(url: string, options?: { waitUntil?: 'load' | 'domcontentloaded' | 'networkidle'; timeout?: number }): Promise<void> {
+    const handler = async (dialog: { type(): string; accept(): Promise<void> }) => {
+      if (dialog.type() === 'beforeunload') {
+        try {
+          Log.info('[dialog] Auto-accepting beforeunload dialog during safe navigation');
+          await dialog.accept();
+        } catch {
+          // Dialog already accepted by global fixture handler — safe to ignore
+          Log.info('[dialog] Beforeunload dialog already handled by another listener');
+        }
+      }
+    };
+    this.page.on('dialog', handler);
+    try {
+      await this.navigateTo(url, options);
+    } finally {
+      this.page.off('dialog', handler);
+    }
+  }
+
+  /**
    * Navigate to URL with retry logic.
    * @param url - Target URL
    * @param options - Configuration (waitUntil: 'domcontentloaded', timeout: 30000ms, maxRetries: 2)
@@ -481,5 +507,41 @@ export class BasePage {
       Log.info('[WARN] Save button did not enable within timeout');
       return false;
     }
+  }
+
+  /**
+   * Poll until a field's aria-invalid becomes "true" (async Angular cross-field validators).
+   * LR-010: Cross-field validation (e.g. NM-1264) fires asynchronously after input events.
+   * @param key - Selector key for the form field
+   * @param timeout - Maximum wait time in ms (default: 5000)
+   * @returns true if field became invalid within timeout, false otherwise
+   */
+  protected async waitForFieldInvalid(key: string, timeout = 5_000): Promise<boolean> {
+    const el = this.getElement(key);
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      const val = await el.getAttribute('aria-invalid').catch(() => null);
+      if (val === 'true') return true;
+      await this.page.waitForTimeout(200);
+    }
+    return false;
+  }
+
+  /**
+   * Poll until a field's aria-invalid becomes "false" or absent (async validator cleared).
+   * LR-010: Cross-field validators may take time to clear after correcting a value.
+   * @param key - Selector key for the form field
+   * @param timeout - Maximum wait time in ms (default: 5000)
+   * @returns true if field became valid within timeout, false otherwise
+   */
+  protected async waitForFieldValid(key: string, timeout = 5_000): Promise<boolean> {
+    const el = this.getElement(key);
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      const val = await el.getAttribute('aria-invalid').catch(() => null);
+      if (val !== 'true') return true;
+      await this.page.waitForTimeout(200);
+    }
+    return false;
   }
 }

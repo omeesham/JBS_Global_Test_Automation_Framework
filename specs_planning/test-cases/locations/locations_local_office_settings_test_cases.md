@@ -1,88 +1,106 @@
-# Local Office Settings Test Cases — **Module**: locations | **Total**: 56 | **Status**: Manual
+# Local Office Settings Test Cases — **Module**: locations | **Total**: 58 | **Status**: Manual
 
 **URL**: `/navigator/locations/{officeId}/settings/local-office`
 **Location tested**: 1604 (Parker Palm Springs, USA)
-**Updated**: 2026-03-02
-**Tabs**: Basic Information | Location Settings History | ECT Settings
+**Updated**: 2026-03-23
+**Scope**: All 3 tabs — Basic Information (39 TCs) | Location Settings History (7 TCs) | ECT Settings (12 TCs)
+**Selector file**: `src/selectors/locations/local-office-settings.ts`
+
+---
+
+## MCP_VERIFICATION_LOG
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-03-23 |
+| URL | https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/local-office |
+| Office/Entity | 1604 (Parker Palm Springs) |
+| Total fields found | 36 (6 offsets + 9 checkboxes + 3 job-day checkboxes + 1 labor-hourly + 2 phones + 1 combobox + 2 PO inputs + 1 Use Section + 1 Default btn + sections table + rooms table + 2 logo checkboxes + 1 logo combobox + 1 logo preview + exemptions table) |
+| Total fields tested (edit+save) | 12 (Use Fulfillment, Delivery offset NM-1264, Prep non-numeric, Phone 1 empty/XSS/valid, Default Labor to Hourly, Default Order Type options, Logo combobox, Unsaved changes dialog) |
+| Save dialog | Shared "Save Changes" dialog on Save click: alertdialog "Save Changes" / "Are you sure you want to save the changes?" / Cancel + Save buttons. Unsaved changes dialog on tab-switch: alertdialog "Unsaved changes" / "Are you sure you want to leave this view? Any unsaved changes will be lost." / Stay + Discard buttons |
+| Column headers | Sections: Section Name, Active. Rooms: Room Configuration Name, Active. Exemptions: Service Type, Exempt |
+| Dropdown options | Default Order Type: [Event, Outside] (2 options — Internal NOT present). Company Logo: [Header with Dust Ears and Text, PSAV Presentation Services (V3), PSAV DEG Red Bar(V2), SAV_Cropped, SAVLogoNew, Concise New York Logo Orig, CSI Logo, Concise New York Logo, Encore Blue Logo, Encore New Logo, Concise New Logo Large, DISNEY NEW Logo] (12 options) |
+| Cascade behaviors | Use Fulfillment checked -> Use Equipments QC enabled. Use Fulfillment unchecked -> QC disabled. |
+| Input attribute types | Date offsets: type=text, name=prepDateOffsetHours etc. Phone 1: type=text, name=contactPhone1. PO Number/Label: type=text, no name. |
+| Validation error patterns | Date offsets: aria-invalid=true on non-numeric, NM-1264 violation, or positivity constraint violation ("relative to start" fields must be <= 0, "relative to end" fields must be >= 0). Phone 1: aria-invalid=true when empty (required field only — NO format validation). No visible error text paragraphs. |
+| Input masks/formatting | Date offsets: accept any text, validated client-side (aria-invalid). Phone 1: required-only (rejects empty with aria-invalid=true, accepts ANY non-empty text including non-phone formats). |
+| Filtering mechanism | N/A for Basic Information tab |
+| API loading | Basic Info tab loads immediately |
+| Strict mode risks | Discount exemptions toggle cells have no data-testid — locate by row text |
+| Form structure | Save button inside `<form data-testid="local-office-settings-form">` — type=button, disabled by default |
+| Dialog side effects | Unsaved changes dialog: Stay=safe (returns to tab, changes preserved). Discard=navigates away, changes lost. |
+| Boundary behaviors | Date offsets: non-numeric "abc" -> aria-invalid=true, Save disabled. Positive values for "relative to start" fields -> aria-invalid=true. Negative values for "relative to end" fields -> aria-invalid=true. Phone 1: XSS `<script>alert(1)</script>` -> accepted (no format validation), Save enabled. |
+| Section toggle mechanism | Active = SVG checkmark (class "lucide lucide-check text-primary"). Inactive = no SVG. Click toggles. |
 
 ---
 
 ## FIELD INVENTORY — Basic Information Tab
 
-| Field | Type | Default (1604) | State |
-|---|---|---|---|
-| Save | button | — | disabled (enables on any change) |
-| Prep Date Offset (Relative to Start) | textbox | -1 | enabled |
-| Return Date Offset (Relative to End) | textbox | 1 | enabled |
-| Set Date Offset (Relative to Start) | textbox | -1 | enabled |
-| Strike Date Offset (Relative to End) | textbox | 1 | enabled |
-| Delivery Date Offset (Relative to Start) | textbox | 0 | enabled |
-| Pickup Date Offset (Relative to End) | textbox | 0 | enabled |
-| Use Fulfillment | checkbox | unchecked | enabled |
-| Use Availability | checkbox | checked | enabled |
-| Use Equipments QC | checkbox | unchecked | **disabled** (always) |
-| Items Filled from Requests Return to Availability | checkbox | unchecked | enabled |
-| Allow tentative and confirmed Status to have the same priority | checkbox | unchecked | enabled |
-| Print Description (Default) | checkbox | checked | enabled |
-| Use ServiceType for Subrental Inventory Sources | checkbox | checked | enabled |
-| Phone 1 | textbox | 760-883-1957 | enabled; **required** |
-| Phone 2 | textbox | (empty) | enabled; optional |
-| Default new job to 1 day — Event | checkbox | unchecked | enabled |
-| Default new job to 1 day — Outside | checkbox | unchecked | enabled |
-| Default new job to 1 day — Internal | checkbox | unchecked | enabled |
-| Default Order Type | combobox | Event | enabled; options: Event / Outside / Internal |
-| PO Number | textbox | (empty) | enabled |
-| PO Number Label | textbox | (empty) | enabled |
-| Use Section | checkbox | checked | enabled |
-| Default (sections) | button | — | enabled |
-| Section Name (table — each row) | textbox | see 13 sections | enabled |
-| Active (section — each row) | toggle | 9 active / 4 inactive (Power, Rigging, Staging, Whiteboard = inactive) | enabled |
-| Add new section | textbox | (placeholder: Add new...) | enabled |
-| Room Configuration Name (table) | textbox | (no rows) | enabled |
-| Active (room — each row) | toggle | — | enabled |
-| Add new room | textbox | (placeholder: Add new...) | enabled |
-| Quotes (logo) | checkbox | checked | enabled |
-| Rental Orders/DROs (logo) | checkbox | checked | enabled |
-| Company Logo | combobox | Encore New Logo | enabled; 12 options |
-| Logo preview | image | Encore New Logo artwork | display only |
-| Discount Exemptions — each service type toggle | toggle | varies | enabled |
+| Field | Type | Default (1604) | State | data-testid |
+|---|---|---|---|---|
+| Save | button | — | disabled by default | `local-office-settings-btn-save` |
+| Prep Date Offset (Relative to Start) | textbox | -1 | enabled | `local-office-settings-input-prep-date-offset` |
+| Return Date Offset (Relative to End) | textbox | 1 | enabled | `local-office-settings-input-return-date-offset` |
+| Set Date Offset (Relative to Start) | textbox | -1 | enabled | `local-office-settings-input-set-date-offset` |
+| Strike Date Offset (Relative to End) | textbox | 1 | enabled | `local-office-settings-input-strike-date-offset` |
+| Delivery Date Offset (Relative to Start) | textbox | 0 | enabled | `local-office-settings-input-delivery-date-offset` |
+| Pickup Date Offset (Relative to End) | textbox | 0 | enabled | `local-office-settings-input-pickup-date-offset` |
+| Use Fulfillment | checkbox | unchecked | enabled; **enables QC when checked** | `local-office-settings-checkbox-use-fulfillment` |
+| Use Availability | checkbox | checked | enabled | `local-office-settings-checkbox-use-availability` |
+| Use Equipments QC | checkbox | unchecked | **conditionally disabled** (disabled when Use Fulfillment unchecked; enabled when checked) | `local-office-settings-checkbox-use-equipments-qc` |
+| Items Filled from Requests Return to Availability | checkbox | unchecked | enabled | `local-office-settings-checkbox-request-items-return` |
+| Allow tentative and confirmed Status to have the same priority | checkbox | unchecked | enabled | `local-office-settings-checkbox-same-priority` |
+| Print Description (Default) | checkbox | checked | enabled | `local-office-settings-checkbox-print-description` |
+| Use ServiceType for Subrental Inventory Sources | checkbox | checked | enabled | `local-office-settings-checkbox-use-subrent-service-type` |
+| Phone 1 | textbox | 760-883-1957 | enabled; **required only (no format validation)** | `local-office-settings-input-phone-1` |
+| Phone 2 | textbox | (empty) | enabled; optional | `local-office-settings-input-phone-2` |
+| Default new job to 1 day — Event | checkbox | unchecked | enabled | `local-office-settings-checkbox-default-job-one-day-event` |
+| Default new job to 1 day — Outside | checkbox | unchecked | enabled | `local-office-settings-checkbox-default-job-one-day-outside` |
+| Default new job to 1 day — Internal | checkbox | unchecked | enabled | `local-office-settings-checkbox-default-job-one-day-internal` |
+| Default Labor to Hourly | checkbox | unchecked | enabled | `local-office-settings-checkbox-default-labor-to-hourly` |
+| Default Order Type | combobox | Event | enabled; **2 options: Event / Outside** | `local-office-settings-select-default-order-type` |
+| PO Number | textbox | (empty) | enabled | `local-office-settings-input-po-number` |
+| PO Number Label | textbox | (empty) | enabled | `local-office-settings-input-po-number-label` |
+| Use Section | checkbox | checked | enabled | `local-office-settings-checkbox-use-section` |
+| Default (sections) | button | — | enabled | `local-office-settings-btn-default-section` |
+| Section Name (table — each row) | textbox | see 13 sections | enabled | (no individual data-testid — use aria-label) |
+| Active (section — each row) | toggle (SVG checkmark) | 9 active / 4 inactive | enabled | (no data-testid — use row text + cell position) |
+| Add new section | textbox | (placeholder: Add New...) | enabled | (use placeholder selector) |
+| Room Configuration Name (table) | textbox | (no rows for 1604) | enabled | (no individual data-testid) |
+| Active (room — each row) | toggle | — | enabled | (no data-testid) |
+| Add new room | textbox | (placeholder: Add New...) | enabled | (use placeholder selector) |
+| Quotes (logo) | checkbox | checked | enabled | `local-office-settings-checkbox-use-quote-logo` |
+| Rental Orders/DROs (logo) | checkbox | checked | enabled | `local-office-settings-checkbox-use-rental-logo` |
+| Company Logo | combobox | Encore New Logo | enabled; 12 options | `local-office-settings-select-company-logo` |
+| Logo preview | image | Encore New Logo artwork | display only | `local-office-settings-logo-preview` |
+| Discount Exemptions — each service type toggle | toggle (SVG checkmark) | 75 rows; 4 exempt | enabled | (table: `local-office-settings-table-discount-exemptions`) |
 
 ---
 
-## FIELD INVENTORY — Location Settings History Tab
+## CORRECTIONS FROM PREVIOUS VERSION (2026-03-02)
 
-| Element | Type | Default | State |
-|---|---|---|---|
-| Filter | combobox | Location Settings History | enabled; 2 options |
-| History table | table | "No results." (1604) | read-only |
-| Rows per page | combobox | 20 | options: 10/20/30/40/50 |
-| Pagination buttons | buttons | disabled (1604 empty) | — |
-| 41 column sort buttons | button | — | enabled |
-| Local Office column header | columnheader | — | no sort button |
+| Issue | Old (Wrong) | New (Correct, MCP-verified 2026-03-23) |
+|-------|-------------|---------------------------------------|
+| Use Equipments QC | "always disabled" | Conditionally disabled — enabled when Use Fulfillment is checked |
+| Default Order Type options | 3 (Event/Outside/Internal) | 2 (Event/Outside) — Internal option removed |
+| Default Labor to Hourly | Missing from field inventory | New checkbox field, unchecked by default, enabled |
+| NM-1264 validation | "no inline error" | Delivery input gets `aria-invalid="true"` |
+| Phone 1 validation | "required" only | Required-only — NO format validation. Any non-empty string accepted |
+| Unsaved changes dialog text | "You have unsaved changes. Do you want to discard them?" | "Are you sure you want to leave this view? Any unsaved changes will be lost." |
+| Section toggle mechanism | "img present/absent" | SVG checkmark (`lucide lucide-check text-primary`) present/absent |
 
----
+## CORRECTIONS FROM 2026-03-24 AUDIT
 
-## FIELD INVENTORY — ECT Settings Tab
-
-| Field | Type | Default (1604/USD) | State |
-|---|---|---|---|
-| Location header | heading | "1604 - Parker Palm Springs" | display only |
-| Edit/View Commission structure | link | — | enabled (external URL) |
-| Currency | combobox | USD | enabled; USD-only for 1604 |
-| Fixed Costs Save | button | — | disabled (enables on edit) |
-| Event Profit Target | table | 9 rows | read-only |
-| Venue Fixed Costs | display | 13.9% | read-only |
-| SG&A % | display | 8.0% | read-only |
-| Benefits Multiplier | textbox | 20.0% | **editable** |
-| Other Rate | display | 0.0% | read-only |
-| No Labor Rate | display | 0.0% | read-only |
-| Approval Threshold | display | $0.00 | read-only |
-| Historical Subrental % | textbox | 0.0% | editable (role-dependent: Production & Sales) |
-| Peak Labor Adjustment % | display | 5.0% | read-only |
-| Non-Peak Labor Adjustment % | display | 0.0% | read-only |
-| Labor Costs Save | button | — | disabled (enables on edit); **separate from Fixed Costs** |
-| Labor Cost Assumptions | table | 66 rows, all editable | enabled |
-| SubRental Matrix | table | 9 rows | read-only |
+| Issue | Old (Wrong) | New (Correct, MCP-verified 2026-03-24) |
+|-------|-------------|---------------------------------------|
+| Save dialog | Self-contradicting: MCP log said "No dialog" but TCs said "Save Local Office Settings / Yes / No" | Uses shared "Save Changes" dialog with Cancel/Save buttons |
+| BAS-004 test value | Prep=5 (violates NM-1264 + positivity: Prep must be <= 0) | Prep=-2 (valid: <= 0 and Delivery(0) >= Prep(-2)) |
+| BAS-005 test value | Prep=10 (same violation) | Prep=-2 |
+| BAS-008 recovery value | Delivery=0 (restores to server-original, Angular sees no net change, Save stays disabled) | Delivery=-1 (different from original 0, form is dirty, Save enables) |
+| BAS-009 field + value | Return=-10 (negative invalid for "relative to end" fields) | Set=-10 (negative valid for "relative to start" fields) |
+| BAS-016 assertion | Expected aria-invalid on "not-a-phone" | No format validation exists; any non-empty string accepted |
+| Positivity constraints | Undocumented | "Relative to start" fields (Prep, Set, Delivery) must be <= 0. "Relative to end" fields (Return, Strike, Pickup) must be >= 0 |
+| Selector file | Dead selectors: dlgSaveLocalOffice, btnSaveLocalOfficeYes, btnSaveLocalOfficeNo | Removed — uses shared dlgSaveChanges/btnSaveChangesConfirm from shared.ts |
 
 ---
 
@@ -93,56 +111,49 @@
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to `/navigator/locations/1604/settings/local-office` ✓ Page title = "Local Office Settings | Navigator"
-2. Verify heading `<h1>` reads **Local Office Settings** ✓ Heading "Local Office Settings" visible
-3. Verify 3 tabs present: **Basic Information** | **Location Settings History** | **ECT Settings** ✓ 3 tabs visible in tablist
-4. Verify **Basic Information** tab is selected/active by default ✓ Tab has `aria-selected="true"`, content panel visible
+1. Navigate to `/navigator/locations/1604/settings/local-office` -> Page title = "Local Office Settings | Navigator"
+2. Verify heading reads **Local Office Settings** -> h1 heading visible
+3. Verify 3 tabs present: **Basic Information** | **Location Settings History** | **ECT Settings** -> 3 tabs in tablist
+4. Verify **Basic Information** tab is selected by default -> Tab has `aria-selected="true"`
 
-**Expected**: Page loads on `/settings/local-office`, h1 = "Local Office Settings", 3 tabs, Basic Information active
-
+**Expected**: Page loads with 3 tabs, Basic Information active by default
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-BAS-002: Default Date Offsets — Default Values
+## TC-LOS-BAS-002: Default Date Offsets — Default Values (Fresh Load)
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings page, Basic Information tab active ✓ Tab panel visible
-2. Verify 6 offset fields in **Default Date Offsets** section ✓ All 6 fields visible with "Hrs" suffix label
-3. Verify **Prep Date Offset (Relative to Start)** = `-1` Hrs ✓ Input value = "-1"
-4. Verify **Return Date Offset (Relative to End)** = `1` Hrs ✓ Input value = "1"
-5. Verify **Set Date Offset (Relative to Start)** = `-1` Hrs ✓ Input value = "-1"
-6. Verify **Strike Date Offset (Relative to End)** = `1` Hrs ✓ Input value = "1"
-7. Verify **Delivery Date Offset (Relative to Start)** = `0` Hrs ✓ Input value = "0"
-8. Verify **Pickup Date Offset (Relative to End)** = `0` Hrs ✓ Input value = "0"
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Verify **Prep Date Offset (Relative to Start)** = `-1` Hrs -> Input value = "-1"
+3. Verify **Return Date Offset (Relative to End)** = `1` Hrs -> Input value = "1"
+4. Verify **Set Date Offset (Relative to Start)** = `-1` Hrs -> Input value = "-1"
+5. Verify **Strike Date Offset (Relative to End)** = `1` Hrs -> Input value = "1"
+6. Verify **Delivery Date Offset (Relative to Start)** = `0` Hrs -> Input value = "0"
+7. Verify **Pickup Date Offset (Relative to End)** = `0` Hrs -> Input value = "0"
 
-**Expected**: All 6 offset inputs match documented defaults | **Data**: location=1604
-
+**Expected**: All 6 offset inputs match defaults: -1, 1, -1, 1, 0, 0 | **Data**: location=1604
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-BAS-003: Save Button — Disabled by Default, Enables on Field Edit
+## TC-LOS-BAS-003: Save Button — Disabled by Default
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ **Save** button is `disabled`
-2. Click **Use Fulfillment** checkbox ✓ checkbox state changes; **Save** button becomes enabled
-3. Click **Use Fulfillment** checkbox again (revert to original state) ✓ **Save** button returns to `disabled`
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Locate **Save** button in left sidebar -> Button with `data-testid="local-office-settings-button-save"`
+3. Verify Save button has `disabled` attribute -> Button is not clickable
 
-**Expected**: Save is disabled on load, enables on any field change, disables again when all fields match original values
-
+**Expected**: Save button disabled on fresh page load with no edits
 **Automatable**: Yes
-
 
 ---
 
@@ -150,1030 +161,1082 @@
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
+| High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ **Save** disabled
-2. Click on **Prep Date Offset (Relative to Start)** input, change value from `-1` to `-2`, press Tab ✓ **Save** enables
-3. Revert value back to `-1`, press Tab ✓ **Save** disables again
+1. Navigate to Local Office Settings, Basic Information tab -> Save button disabled
+2. Clear **Prep Date Offset** field and type `-2` -> Field value changes to "-2"
+3. Verify Save button is now **enabled** (no `disabled` attribute) -> Button clickable
+4. **Cleanup**: Clear field and type `-1` to restore original value
 
-**Expected**: Editing any date offset field enables Save; reverting disables again
-
+**Expected**: Editing any date offset field enables the Save button
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-BAS-005: Default Date Offsets — Delivery < Prep Cross-Field Validation (NM-1264)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Validation | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Prep = -1, Delivery = 0
-2. Click **Delivery Date Offset (Relative to Start)**, change to `-5`, press Tab ✓ Delivery (-5) < Prep (-1) constraint violated
-3. Verify **Save** button is `disabled` ✓ Save disabled even though field was edited
-4. Verify no inline error message text appears in the DOM ✓ No visible error paragraph; constraint silent
-5. Revert **Delivery Date Offset** back to `0`, press Tab ✓ Delivery (0) >= Prep (-1), constraint satisfied
-
-**Expected**: Delivery < Prep disables Save silently (no inline error). Confirmed NM-1264. | **Data**: prep=-1, delivery=-5
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-006: Default Date Offsets — Delivery Validation Error Recovery
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Validation | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Prep = -1, Delivery = 0
-2. Set **Delivery Date Offset** to `-5`, press Tab ✓ Save disabled (Delivery < Prep)
-3. Correct **Delivery Date Offset** to `0` (>= Prep of -1), press Tab ✓ Save re-enables (constraint satisfied again)
-
-**Expected**: Fixing Delivery >= Prep re-enables Save button. Error recovery confirmed.
-**Cleanup**: Revert delivery to `0`
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-007: Misc Settings — Checkbox Default States
+## TC-LOS-BAS-005: Date Offset — Edit, Save, Persist
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Misc Settings section visible
-2. Verify **Use Fulfillment** = unchecked, enabled ✓
-3. Verify **Use Availability** = checked, enabled ✓
-4. Verify **Use Equipments QC** = unchecked, **disabled** ✓ cursor=not-allowed or no cursor; cannot interact
-5. Verify **Items Filled from Requests Return to Availability** = unchecked, enabled ✓
-6. Verify **Allow tentative and confirmed Status to have the same priority** = unchecked, enabled ✓
-7. Verify **Print Description (Default)** = checked, enabled ✓
-8. Verify **Use ServiceType for Subrental Inventory Sources** = checked, enabled ✓
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Clear **Prep Date Offset** field and type `-2` -> Field shows "-2"
+3. Click **Save** -> Shared "Save Changes" dialog appears: "Are you sure you want to save the changes?" / Cancel + Save buttons
+4. Click **Save** in dialog -> Dialog closes, save completes
+5. Reload page -> Page reloads fresh
+6. Verify **Prep Date Offset** = `-2` -> Value persisted
+7. **Cleanup**: Change back to `-1` and save
 
-**Expected**: 6 enabled checkboxes match defaults; Use Equipments QC is always disabled | **Data**: location=1604
-
+**Expected**: Date offset value persists after save and reload | **Data**: Prep from -1 to -2
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-BAS-008: Misc Settings — Use Equipments QC Always Disabled
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Misc Settings section present
-2. Locate **Use Equipments QC** checkbox ✓ Checkbox visible
-3. Verify checkbox `disabled` attribute is set (aria snapshot shows `[disabled]`) ✓ Cannot click or interact
-4. Attempt click — verify state does not change and Save remains disabled ✓
-
-**Expected**: Use Equipments QC is permanently disabled; cannot be toggled
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-009: Misc Settings — Phone 1 Required: Empty Triggers aria-invalid + Save Disabled
+## TC-LOS-BAS-006: Date Offset — Non-Numeric Input Rejected
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Validation | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ **Phone 1** = "760-883-1957"
-2. Click **Phone 1** input, select all, clear to empty, press Tab ✓ Input is now empty
-3. Verify **Phone 1** input has `aria-invalid="true"` ✓ aria-invalid set to true
-4. Verify **Save** button is `disabled` ✓ Save disabled despite change being detected
-5. Verify no visible error text paragraph appears ✓ No inline message
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Clear **Prep Date Offset** field and type `abc` -> Field gets `aria-invalid="true"`
+3. Verify Save button is **disabled** -> Button has `disabled` attribute
+4. **Cleanup**: Clear and type `-1` to restore
 
-**Expected**: Clearing Phone 1 makes it invalid (aria-invalid=true) and disables Save | **Data**: clear phone="760-883-1957"
-
+**Expected**: Non-numeric input triggers aria-invalid and disables Save
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-BAS-010: Misc Settings — Phone 1 Error Recovery
+## TC-LOS-BAS-007: Date Offset — Delivery < Prep Cross-Field Validation (NM-1264)
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Validation | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information; clear **Phone 1** ✓ Save disabled, aria-invalid=true
-2. Type `760-883-1957` into **Phone 1**, press Tab ✓ aria-invalid clears; Save disables (value matches original — no net change)
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Clear **Delivery Date Offset** and type `-5` -> Field shows "-5"
+3. Verify **Prep Date Offset** = `-1` (default) -> Delivery (-5) < Prep (-1)
+4. Verify **Delivery Date Offset** field gets `aria-invalid="true"` -> Validation error on Delivery
+5. Verify Save button is **disabled** -> Cannot save invalid state
+6. **Cleanup**: Clear Delivery and type `0` to restore
 
-**Expected**: Providing the original Phone 1 value restores valid state; Save disables because field matches original | **Cleanup**: No action needed (value already matches original)
-
+**Expected**: When Delivery offset < Prep offset, Delivery field shows aria-invalid and Save disabled
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-BAS-011: Misc Settings — Phone 2 Optional (Empty is Valid)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ **Phone 2** is empty (placeholder text)
-2. Verify **Save** button is `disabled` (no changes yet) ✓
-3. Type a value into **Phone 2**, press Tab ✓ Save enables
-4. Clear **Phone 2** back to empty, press Tab ✓ Save disables (back to original); no aria-invalid on Phone 2
-
-**Expected**: Phone 2 is optional; empty is always valid
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-012: Misc Settings — Default New Job to 1 Day (3 Checkboxes)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Misc Settings section present
-2. Verify **Default new job to 1 day — Event** = unchecked, enabled ✓
-3. Verify **Default new job to 1 day — Outside** = unchecked, enabled ✓
-4. Verify **Default new job to 1 day — Internal** = unchecked, enabled ✓
-5. Click **Default new job to 1 day — Event** ✓ Save enables
-6. Click **Default new job to 1 day — Event** again to revert to unchecked ✓ Save disables
-
-**Expected**: 3 independent checkboxes, all unchecked by default, each independently enables Save
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-013: Misc Settings — Default Order Type Dropdown (3 Options)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ **Default Order Type** combobox shows "Event"
-2. Click **Default Order Type** combobox ✓ Dropdown opens; listbox visible
-3. Verify 3 options: **Event**, **Outside**, **Internal** ✓ All 3 options present
-4. Select **Outside** ✓ Combobox now shows "Outside"; Save enables
-5. Select back **Event** ✓ Combobox shows "Event"; Save disables (reverted)
-
-**Expected**: Default Order Type has 3 options (Event/Outside/Internal), defaults to Event. Selection enables Save.
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-014: Misc Settings — PO Number and PO Number Label Accept Text
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Low | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ **PO Number** and **PO Number Label** both empty
-2. Click **PO Number**, type `PO-TEST-001`, press Tab ✓ Save enables
-3. Click **PO Number Label**, type `Purchase Order`, press Tab ✓ Both fields filled; Save still enabled
-4. Clear both fields ✓ Save disables (back to original empty state)
-
-**Expected**: Both PO fields accept text input; their defaults are empty (optional)
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-015: Section Configuration — Default 13 Active Sections
+## TC-LOS-BAS-008: Date Offset — NM-1264 Error Recovery
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Section Configuration section visible
-2. Verify **Use Section** checkbox is checked ✓ Checked state confirmed
-3. Verify Section table has exactly 13 data rows ✓ Row count = 13
-4. Verify section names: Audio, Flipcharts, Hybrid Meeting, Labor, Lighting, Power, Presenter Support, Projection, Rigging, Scenic, Staging, Video, Whiteboard ✓ All 13 names match
-5. Verify 9 sections are **Active** and 4 are **Inactive**:
-   - Active: Audio, Flipcharts, Hybrid Meeting, Labor, Lighting, Presenter Support, Projection, Scenic, Video
-   - Inactive: Power, Rigging, Staging, Whiteboard ✓ Active/Inactive states match DOM
-6. Verify **Add new...** blank row exists at bottom ✓ Placeholder input visible
+1. Trigger NM-1264 validation: set Delivery to `-5` with Prep at `-1` -> Delivery has aria-invalid, Save disabled
+2. Clear **Delivery Date Offset** and type `-1` -> Delivery >= Prep condition restored (use `-1` not `0` to avoid restoring to server-original which leaves form pristine)
+3. Verify **Delivery Date Offset** no longer has `aria-invalid` -> Error cleared
+4. Verify Save button is **enabled** -> Can save valid state (form is dirty: Delivery changed from 0 to -1)
 
-**Expected**: 13 sections; 9 active, 4 inactive (Power, Rigging, Staging, Whiteboard are inactive) | **Data**: location=1604
-
+**Expected**: Correcting the cross-field violation clears error and re-enables Save
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-BAS-016: Section Configuration — Use Section Checkbox Effect
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ **Use Section** = checked
-2. Click **Use Section** to uncheck ✓ Save enables
-3. Revert **Use Section** to checked ✓ Save disables
-4. Note: ability to observe section table changes requires further exploration of UI behavior when Use Section is toggled
-
-**Expected**: Use Section is editable; toggling enables Save | **Note**: May hide/show section table — explore live
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-017: Section Configuration — Edit Existing Section Name
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Section table visible
-2. Click **Flipcharts** section name textbox ✓ Input focused
-3. Change name to `Flipcharts Updated`, press Tab ✓ Save enables
-4. Revert name back to `Flipcharts`, press Tab ✓ Save disables
-**Cleanup**: Ensure section name is reverted to `Flipcharts`
-
-**Expected**: Editing any section name textbox enables Save; reverting disables it
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-018: Section Configuration — Add New Section
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Section table with 13 rows
-2. Click the **Add new...** textbox at the bottom of the Section table ✓ Input focused
-3. Type `TestSection`, press Enter ✓ New row added to the table; Save enables
-4. Verify new row appears with name `TestSection` ✓ Row visible in table
-
-**Expected**: Typing in Add new + Enter creates a new section row | **Cleanup**: Remove TestSection row before save
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-019: Section Configuration — Duplicate Active Name Prevents Save (NM-1223)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Validation | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Section table: 13 rows
-2. Edit the **Flipcharts** section name to `Audio` (which already exists and is active), press Tab ✓ Two "Audio" active rows exist
-3. Verify **Save** button is `disabled` ✓ Save stays disabled (duplicate validation)
-4. Verify a **"Duplicate Name"** warning appears adjacent to the duplicate row ✓ Warning message visible inline
-
-**Expected**: Duplicate active section name prevents Save (NM-1223); "Duplicate Name" warning appears adjacent to the duplicate row | **Cleanup**: Reload page to restore Flipcharts
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-020: Section Configuration — Default Button Resets Sections
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Section Configuration present
-2. Locate the **Default** button next to Use Section ✓ Button visible and enabled
-3. Click **Default** ✓ No confirmation dialog appears; sections table is immediately updated with system defaults; Save enables
-4. Verify section list is reset to system defaults (DOM-verified: Audio, Flipcharts, Hybrid Meeting, Labor, Lighting, Power, Presenter Support, Projection, Rigging, Scenic, Staging, Video, Whiteboard) ✓ Sections restored
-5. Verify **Save** is enabled after Default is clicked ✓ Save enabled (state differs from saved)
-
-**Expected**: Default button immediately applies system default sections with no confirmation dialog; Save enables to allow persisting the reset
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-021: Room Configuration — Empty Table by Default
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Room Configuration section visible
-2. Verify Room Configuration table has **0 data rows** (empty table) ✓ No rows except Add new
-3. Verify **Add new...** placeholder input exists at bottom ✓ Input visible
-
-**Expected**: Room Configuration is empty for 1604 | **Data**: location=1604
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-022: Room Configuration — Add New Room Configuration Name
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Room Configuration empty
-2. Click **Add new...** textbox in Room Configuration table ✓ Input focused
-3. Type `Ballroom A`, press Enter ✓ New row added; Save enables
-4. Verify row appears with name `Ballroom A` ✓
-
-**Expected**: Adding a name to Add new row creates a room configuration entry | **Cleanup**: Remove row before save
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-023: Room Configuration — Duplicate Active Room Name Prevents Save (NM-1223)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Validation | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information; add room `ConferenceA`, save it (if needed) ✓
-2. Add a second room with name `ConferenceA` ✓ Two active "ConferenceA" entries
-3. Verify **Save** is `disabled` ✓ Duplicate active room name prevents save (NM-1223)
-**Cleanup**: Remove duplicate entry
-
-**Expected**: Same NM-1223 rule applies to Room Configuration table
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-024: Default Logo — Checkboxes and Default State
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Default Logo section visible
-2. Verify **Quotes** checkbox = checked ✓
-3. Verify **Rental Orders/DROs** checkbox = checked ✓
-4. Click **Quotes** to uncheck ✓ Save enables
-5. Revert **Quotes** to checked ✓ Save disables
-
-**Expected**: Both logo checkboxes are checked by default; each is independently toggleable
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-025: Default Logo — Company Logo Combobox (12 Options)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ **Company Logo** = "Encore New Logo"
-2. Click **Company Logo** combobox ✓ Dropdown opens
-3. Verify 12 logo options available: Concise New York Logo, DISNEY NEW Logo, SAVLogoNew, Concise New Logo Large, Encore New Logo, PSAV DEG Red Bar(V2), Encore Blue Logo, SAV_Cropped, PSAV Presentation Services (V3), Concise New York Logo Orig, CSI Logo, Header with Dust Ears and Text ✓ All 12 present
-4. Select a different logo (e.g., **Encore Blue Logo**) ✓ Combobox updates; Save enables
-5. Revert to **Encore New Logo** ✓ Save disables
-
-**Expected**: Company Logo combobox has 12 options; default = "Encore New Logo"
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-026: Default Logo — Preview Image Updates on Logo Selection Change
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Logo preview shows Encore New Logo artwork
-2. Click **Company Logo** combobox, select **Encore Blue Logo** ✓ Combobox changes
-3. Verify logo preview image updates to show the Encore Blue Logo ✓ Preview `img` src changes
-4. Revert Company Logo to **Encore New Logo** ✓ Preview reverts
-
-**Expected**: Logo preview image reflects the currently selected Company Logo | **Data**: testid=local-office-settings-logo-preview
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-027: Discount Exemptions — Service Type Toggle
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Discount Exemptions section visible
-2. Verify table has Service Type and Exempt columns ✓
-3. Verify 75 service type rows present (verified from DOM: APP Downloaded, App Quality Assurance, ... through ZSub Rental Specialty) ✓
-4. Identify a currently non-exempt service type (toggle img NOT present), e.g., **APP Downloaded** ✓
-5. Click its **Exempt** toggle cell ✓ Toggle activates; Save enables
-6. Revert toggle back to original state ✓ Save disables
-
-**Expected**: Each service type has an independently toggleable Exempt status; toggling enables Save
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-028: Discount Exemptions — Currently Exempt Services
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information, Discount Exemptions section ✓
-2. Identify services that are currently exempt (img present in toggle cell): HSIA - Labor, HSIA - Subrental Equipment, Loss Damage Waiver, Operator Labor ✓ These 4 have active toggle img (verified from DOM snapshot)
-3. Verify toggle img is NOT present for the majority of non-exempt services ✓
-4. Click **Loss Damage Waiver** toggle to remove exemption ✓ img disappears; Save enables
-5. Revert **Loss Damage Waiver** toggle to exempt ✓ img appears; Save disables
-
-**Expected**: Confirmed exempt services have active toggle; each is independently toggleable | **Data**: location=1604
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-029: Unsaved Changes Dialog — Stay Keeps Changes
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Navigation | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Save disabled
-2. Click **Use Fulfillment** checkbox ✓ Save enables (change made)
-3. Click **ECT Settings** tab ✓ "Unsaved changes" alertdialog appears: heading "Unsaved changes", paragraph "You have unsaved changes. Do you want to discard them?", buttons **Stay** and **Discard**
-4. Click **Stay** ✓ Dialog closes; remain on Basic Information tab; change is preserved; Save remains enabled
-
-**Expected**: "Unsaved changes" dialog with Stay/Discard. Stay → remain on current tab with unsaved changes intact | **Cleanup**: Revert Use Fulfillment
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-030: Unsaved Changes Dialog — Discard Navigates Away
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Navigation | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Save disabled
-2. Click **Use Fulfillment** checkbox ✓ Save enables
-3. Click **Location Settings History** tab ✓ "Unsaved changes" alertdialog appears
-4. Click **Discard** ✓ Dialog closes; navigates to Location Settings History tab; changes discarded; Save on Basic Info would be disabled
-
-**Expected**: Discard → navigate to target tab, changes lost | **Cleanup**: No action needed (changes discarded)
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-031: Unsaved Changes Dialog — ECT Settings Tab Switch Triggers Same Dialog
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Navigation | Yes |
-
-**Steps**:
-1. Navigate to ECT Settings tab ✓ Active
-2. Edit **Benefits Multiplier** from `20.0%` to `21.0%`, press Tab ✓ Fixed Costs Save enables
-3. Click **Basic Information** tab ✓ "Unsaved changes" alertdialog appears with Stay/Discard
-4. Click **Discard** ✓ Navigates to Basic Information; ECT changes discarded
-5. Return to ECT Settings ✓ Benefits Multiplier reverted to `20.0%`
-
-**Expected**: Same "Unsaved changes" dialog works for ECT Settings tab navigation | **Cleanup**: Verify ECT values restored
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-032: Basic Information — Multiple Field Changes in One Session
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Save disabled
-2. Change **Use Fulfillment** (check), **Phone 2** (type "555-0100"), **PO Number** (type "PO-001") ✓
-3. Verify **Save** is enabled ✓ Multiple changes tracked
-4. Revert all 3 to originals ✓ Save disables when all reverted
-
-**Expected**: Multiple field changes compound; all must be reverted to re-disable Save
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-033: Section Toggle — Active/Inactive Toggle Updates Table Row
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Basic Information, Section Configuration ✓ All 13 sections active
-2. Click the **Active** toggle cell for **Video** (toggle img present = active) ✓ Toggle changes state; Save enables
-3. Verify Video row now shows inactive state (img disappears or changes) ✓
-4. Click the toggle again to re-activate ✓ img returns; Save disables
-
-**Expected**: Section active toggle is independently toggleable; toggling enables Save
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-BAS-034: Default Date Offsets — Negative Values Accepted
+## TC-LOS-BAS-009: Date Offset — Negative Value Accepted (Relative to Start)
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | Medium | Manual | Boundary | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Prep = -1 (already negative)
-2. Verify **Prep Date Offset** = `-1` is already a valid negative value ✓ No error shown
-3. Change **Pickup Date Offset** from `0` to `-3`, press Tab ✓ Negative value accepted; Save enables
-4. Revert to `0` ✓ Save disables
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Clear **Set Date Offset (Relative to Start)** and type `-10` -> Field shows "-10"
+3. Verify field does NOT have `aria-invalid` -> Negative value valid for "relative to start" fields
+4. Verify Save button is **enabled** -> Can save
+5. **Cleanup**: Clear and type `-1` to restore
 
-**Expected**: Date offset inputs accept negative integers (verified by default values of -1) | **Cleanup**: Revert
-
+**Expected**: Negative values are valid for "relative to start" date offset fields (Prep, Set, Delivery)
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-BAS-035: Default Date Offsets — Zero Value Accepted
+## TC-LOS-BAS-010: Date Offset — Zero Value Accepted
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | Medium | Manual | Boundary | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information ✓ Delivery = 0, Pickup = 0
-2. Verify both `0` values are saved/valid without error ✓ No error showing
-3. Change **Prep Date Offset** from `-1` to `0`, press Tab ✓ Value = 0 accepted; Save enables
-4. Note: Delivery (0) = Prep (0) → Delivery >= Prep valid (not a violation) ✓
-5. Revert Prep to `-1` ✓ Save disables
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Clear **Prep Date Offset** and type `0` -> Field shows "0"
+3. Verify field does NOT have `aria-invalid` -> Zero valid
+4. Verify Save button is **enabled** -> Can save
+5. **Cleanup**: Clear and type `-1` to restore
 
-**Expected**: Zero is a valid date offset value; Delivery == Prep is valid (not a violation)
-
+**Expected**: Zero is a valid value for date offset fields
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-HST-001: Location Settings History Tab — Structure and Empty State
+## TC-LOS-BAS-011: Misc Settings — Checkbox Default States
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, click **Location Settings History** tab ✓ History tab panel activates
-2. Verify filter combobox shows **Location Settings History** (default) ✓
-3. Verify table is visible with column headers ✓
-4. Verify empty state text = "No results." ✓ (location 1604 has no history)
-5. Verify pagination row shows rows-per-page combobox = `20` ✓
-6. Verify all pagination buttons (first/prev/next/last) are disabled ✓
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Scroll to **Misc Settings** section -> Section visible
+3. Verify **Use Fulfillment** checkbox is **unchecked** -> `aria-checked="false"`
+4. Verify **Use Equipments QC** checkbox is **unchecked** AND **disabled** -> `aria-checked="false"`, `disabled` attribute present
+5. Verify **Default Labor to Hourly** checkbox is **unchecked** -> `aria-checked="false"`, enabled
+6. Verify **Default New Job to 1 Day** has 3 sub-checkboxes: **Event** (unchecked), **Outside** (unchecked), **Internal** (unchecked) -> All `aria-checked="false"`
 
-**Expected**: History tab loads with filter, empty table "No results.", pagination disabled | **Data**: location=1604
-
+**Expected**: All checkboxes unchecked by default; Use Equipments QC disabled when Use Fulfillment unchecked
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-HST-002: History Filter Dropdown — Two Options
+## TC-LOS-BAS-012: Misc Settings — Use Fulfillment Toggle + Cascade to Use Equipments QC
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Location Settings History tab ✓ Filter combobox visible
-2. Click the **filter combobox** (default: "Location Settings History") ✓ Dropdown opens
-3. Verify exactly 2 options: **Location Settings History** and **Location Settings Legacy History** ✓
-4. Select **Location Settings Legacy History** ✓ Filter updates; table may show different data
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings section visible
+2. Verify **Use Equipments QC** is **disabled** -> Has `disabled` attribute
+3. Click **Use Fulfillment** checkbox -> Checkbox becomes checked (`aria-checked="true"`)
+4. Verify **Use Equipments QC** is now **enabled** (no `disabled` attribute) -> Cascade effect
+5. Verify Save button is **enabled** -> Edit detected
+6. **Cleanup**: Uncheck **Use Fulfillment** -> Use Equipments QC becomes disabled again
 
-**Expected**: Filter has 2 options; selection changes the data source | **Data**: testid=local-office-settings-history-select-type
-
+**Expected**: Checking Use Fulfillment enables Use Equipments QC; unchecking disables it
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-HST-003: History Table — 42 Columns, All Sortable Except Local Office
+## TC-LOS-BAS-013: Misc Settings — Use Fulfillment Save and Persist
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, Location Settings History tab ✓ Table visible
-2. Verify **Local Office** column header has no sort button ✓ Only plain text header
-3. Verify all other 41 columns have a sort button (clickable) ✓ Sort buttons present on all others
-4. Verify column list matches documented 42 columns: Local Office, Prep Date Offset, Return Date Offset, Set Date Offset, Strike Date Offset, Pickup Date Offset, Delivery Date Offset, Use Fulfillment, Use Availability, Use Equip QC, Print Desc, Use Subrent, Phone1, Phone2, Use Sect., Section Name, Sect. Action, Logo Name, Use On Quote, Use On Rental, Service Type - Exempt, ST Action, Action, Notes, Marriott PMS Account Enabled, Default Job to 1 day for Event Orders, Default Job to 1 day for Outside Orders, Default Job to 1 day for Internal Orders, Default Labor to Hourly, Allow tentative and confirmed Status to have the same priority, Items Filled from Requests Return to Availability, Default Order Type, Regular Hours, Regular Hours Multiplier, Over Time Hours, OverTime Hours Multiplier, Double Time Hours, DoubleTime Hours Multiplier, Holiday Multiplier, Recalc Labor Hours, Modified By, Modified On ✓ All 42 present
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Click **Use Fulfillment** checkbox -> Becomes checked
+3. Click **Save** -> Shared "Save Changes" dialog appears
+4. Click **Save** in dialog -> Save completes
+5. Reload page -> Page reloads fresh
+6. Verify **Use Fulfillment** is **checked** -> `aria-checked="true"`
+7. Verify **Use Equipments QC** is **enabled** -> Cascade persisted
+8. **Cleanup**: Uncheck Use Fulfillment, save, confirm
 
-**Expected**: 42 columns total; Local Office unique in having no sort button
-
+**Expected**: Use Fulfillment checked state persists; Use Equipments QC enabled on reload
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-HST-004: History Pagination — Rows Per Page Options
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Location Settings History tab ✓ Pagination visible
-2. Click **rows per page** combobox (default: 20) ✓ Dropdown opens
-3. Verify options: **10**, **20**, **30**, **40**, **50** ✓ All 5 options present
-4. Select `10` ✓ Rows per page updates to 10
-
-**Expected**: Rows per page has 5 options (10/20/30/40/50); default is 20
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-HST-005: History Tab — Read-Only Table (No Add/Edit/Delete)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Location Settings History tab ✓ Table visible
-2. Verify there is no **Add** button, no row-level **Edit** or **Delete** controls ✓
-3. Attempt to click/edit any cell in the table — confirm no input appears ✓ Table is read-only
-
-**Expected**: History table is entirely read-only. No modification controls exist.
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-HST-006: History Filter Change Triggers Table Reload
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, Location Settings History tab ✓ Default filter = "Location Settings History"
-2. Change filter to **Location Settings Legacy History** ✓ Table reloads with legacy data (or still shows "No results." for 1604)
-3. Change filter back to **Location Settings History** ✓ Table reloads with current data view
-
-**Expected**: Changing the filter dropdown triggers a table data reload
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-ECT-001: ECT Settings — Page Header and Location Info
+## TC-LOS-BAS-014: Misc Settings — Default Labor to Hourly Toggle, Save, Persist
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, click **ECT Settings** tab ✓ ECT tab panel activates
-2. Verify heading `<h6>` reads **1604 - Parker Palm Springs** ✓ testid=ect-settings-label-location-name
-3. Verify "Edit/View: Commission structure" link is visible ✓ testid=ect-settings-link-commission-structure
-4. Verify **Currency** combobox shows **USD** ✓ testid=ect-settings-select-currency
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Verify **Default Labor to Hourly** is **unchecked** -> `aria-checked="false"`
+3. Click **Default Labor to Hourly** -> Becomes checked (`aria-checked="true"`)
+4. Click **Save** -> Shared "Save Changes" dialog appears
+5. Click **Save** in dialog -> Save completes
+6. Reload page -> Page reloads fresh
+7. Verify **Default Labor to Hourly** is **checked** -> Persisted
+8. **Cleanup**: Uncheck, save, confirm
 
-**Expected**: ECT Settings shows correct location header, commission link, and USD currency selector
-
+**Expected**: Default Labor to Hourly toggle persists after save and reload
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-ECT-002: ECT Settings — Currency Selector (USD-only for Location 1604)
+## TC-LOS-BAS-015: Misc Settings — Phone 1 Required: Empty Triggers Validation
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
+| High | Manual | Validation | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ Currency = "USD"
-2. Click **Currency** combobox ✓ Dropdown opens
-3. Verify only **USD** is available as an option ✓ One option in listbox
-4. Close dropdown without selecting ✓ Currency remains "USD"
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Note current **Phone 1** value (non-empty by default for 1604)
+3. Clear **Phone 1** field completely -> Field empty
+4. Tab out of field -> Field gets `aria-invalid="true"`
+5. Verify Save button is **disabled** -> Cannot save empty required field
+6. **Cleanup**: Type original phone value back
 
-**Expected**: Location 1604 has only USD currency in ECT Settings | **Data**: location=1604
-
+**Expected**: Empty Phone 1 triggers aria-invalid and disables Save
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-ECT-003: ECT Settings — Commission Structure Link
+## TC-LOS-BAS-016: Misc Settings — Phone 1 No Format Validation
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
-| Low | Manual | Navigation | No |
+| High | Manual | Validation | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ Commission link visible
-2. Verify **Commission structure** is a clickable link ✓
-3. Verify the link URL contains the office ID (1604) ✓ Confirmed URL pattern: `#/commissons/commissionstier/:1604/`
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Clear **Phone 1** and type `not-a-phone` -> Field shows text
+3. Tab out -> Field does NOT get `aria-invalid` -> No format validation, only required check
+4. Verify Save button is **enabled** -> Non-empty value accepted
+5. **Cleanup**: Restore original phone value
 
-**Expected**: Commission structure link is present and navigates to external commission configuration | **Status**: Blocked (Cat-A: external URL in legacy app)
-
-**Automatable**: No
-
-
----
-
-## TC-LOS-ECT-004: ECT Settings — Event Profit Target Table Read-Only
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ Event Profit Target table visible
-2. Verify table has 4 columns: Lower Limit, Upper Limit, Target, Currency ✓
-3. Verify 9 data rows with expected values starting from $5,000.01 → $10,000.01 → $25,000.01 → etc ✓
-4. Attempt to click/edit any cell ✓ No input appears; table is read-only
-
-**Expected**: Event Profit Target table has 9 read-only rows | **Data**: first row = $5,000.01 / $10,000.00 / 41.0% / USD
-
+**Expected**: Phone 1 has no format validation; any non-empty text is accepted | **Data**: input="not-a-phone"
 **Automatable**: Yes
 
-
 ---
 
-## TC-LOS-ECT-005: ECT Settings — Fixed Costs Display Fields (Read-Only)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Medium | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ Fixed Costs section visible
-2. Verify **Venue Fixed Costs** = 13.9% (display only) ✓
-3. Verify **SG&A %** = 8.0% (display only) ✓
-4. Verify **Other Rate** = 0.0% (display only) ✓
-5. Verify **No Labor Rate** = 0.0% (display only) ✓
-6. Verify **Approval Threshold** = $0.00 (display only) ✓
-7. Verify **Peak Labor Adjustment %** = 5.0% (display only) ✓
-8. Verify **Non-Peak Labor Adjustment %** = 0.0% (display only) ✓
-
-**Expected**: 7 display-only Fixed Cost fields match documented values | **Data**: location=1604, currency=USD
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-ECT-006: ECT Settings — Benefits Multiplier Editable; Fixed Costs Save Enables
+## TC-LOS-BAS-017: Misc Settings — Phone 1 Edit, Save, Persist
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ **Benefits Multiplier** = "20.0%"; **Fixed Costs Save** disabled
-2. Click **Benefits Multiplier** input, change to `21.0%`, press Tab ✓ Fixed Costs Save enables
-3. Verify **Labor Costs Save** button remains disabled ✓ Independent save — not affected by Fixed Costs edit
-4. Revert **Benefits Multiplier** to `20.0%`, press Tab ✓ Fixed Costs Save disables again
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Note current **Phone 1** value
+3. Clear **Phone 1** and type `555-123-4567` -> Field shows new number
+4. Click **Save** -> Shared "Save Changes" dialog appears
+5. Click **Save** in dialog -> Save completes
+6. Reload page -> Verify **Phone 1** = "555-123-4567" -> Persisted
+7. **Cleanup**: Restore original value and save
 
-**Expected**: Benefits Multiplier enables Fixed Costs Save only; Labor Costs Save unaffected | **Cleanup**: Revert to 20.0%
-
+**Expected**: Valid phone number persists after save and reload | **Data**: Phone 1 = "555-123-4567"
 **Automatable**: Yes
 
-
 ---
 
-## TC-LOS-ECT-007: ECT Settings — Historical Subrental % Role-Gated (NM-1260)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Functional | No |
-
-**Steps**:
-1. Login as user WITH **Production & Sales** role; navigate to Local Office Settings, ECT Settings ✓ **Historical Subrental %** = editable textbox
-2. Click **Historical Subrental %**, change value to `1.0%`, press Tab ✓ Fixed Costs Save enables
-3. Revert to `0.0%` ✓ Save disables
-4. Login as user WITHOUT **Production & Sales** role; navigate to ECT Settings per NM-1260 ✓ **Historical Subrental %** = **disabled** (cannot edit)
-
-**Expected**: Historical Subrental % is editable only for users with Production & Sales role (NM-1260) | **Status**: Partially blocked (requires role switching; step 4 blocked = Cat-A: role not available in test env) | **Cleanup**: Revert to 0.0%
-
-**Automatable**: No
-
-
----
-
-## TC-LOS-ECT-008: ECT Settings — Labor Costs Save Enables on Any Row Edit
+## TC-LOS-BAS-018: Misc Settings — Phone 1 Error Recovery
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ **Labor Costs Save** disabled; **Fixed Costs Save** disabled
-2. Click **Administrative Fee** labor cost input (row 0), change value from `35.00` to `40.00`, press Tab ✓ **Labor Costs Save** enables
-3. Verify **Fixed Costs Save** remains disabled ✓ Independent from Labor Costs section
-4. Revert **Administrative Fee** to `35.00`, press Tab ✓ Labor Costs Save disables again
+1. Clear **Phone 1** -> aria-invalid, Save disabled
+2. Type valid phone number `555-000-1111` -> `aria-invalid` removed
+3. Verify Save button is **enabled** -> Can save after recovery
 
-**Expected**: Editing any Labor Cost row enables Labor Costs Save ONLY; Fixed Costs Save unaffected | **Cleanup**: Revert to 35.00
-
+**Expected**: Entering valid phone after error clears validation and re-enables Save
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-ECT-009: ECT Settings — Two Separate Save Buttons (Fixed Costs + Labor Costs)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ Both Save buttons disabled
-2. Edit **Benefits Multiplier** ✓ Only Fixed Costs Save enables; Labor Costs Save remains disabled
-3. Revert Benefits Multiplier; then edit **Administrative Fee** labor cost ✓ Only Labor Costs Save enables; Fixed Costs Save remains disabled
-4. Revert all changes ✓ Both saves disabled
-
-**Expected**: Fixed Costs Save and Labor Costs Save are completely independent and do not cross-enable | **Cleanup**: Revert all edits
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-ECT-010: ECT Settings — Labor Cost Assumptions Table (66 Rows All Editable)
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ Labor Cost Assumptions table visible
-2. Verify table has 2 columns: **Labor Class** (read-only text), **Labor Cost** (editable textbox) ✓
-3. Verify exactly **66** labor cost rows via data-testid pattern `ect-settings-input-labor-cost-{0..65}` ✓
-4. Spot-check row 0 (**Administrative Fee**) = 35.00 ✓
-5. Spot-check row 2 (**Audio - Operate/Show**) = 37.10 ✓
-6. Spot-check last row (index 65, **zzzFinishing Service**) = 37.10 ✓
-
-**Expected**: 66 labor cost rows, all Labor Cost cells editable, Labor Class cells read-only | **Data**: location=1604
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-ECT-011: ECT Settings — SubRental Matrix Table Read-Only
+## TC-LOS-BAS-019: Misc Settings — Phone 2 Optional (Empty Valid)
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | Medium | Manual | Functional | Yes |
 
 **Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ SubRental Matrix section visible
-2. Verify 4 columns: Lower Limit, Upper Limit, Subrental Percentage, Currency ✓
-3. Verify 9 data rows with expected values (e.g., row 1: $0.00 / $4,999.00 / 0.9% / USD) ✓
-4. Attempt to edit any cell ✓ No input; table is read-only
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Clear **Phone 2** field completely -> Field empty
+3. Tab out -> Field does NOT get `aria-invalid` -> Optional field
+4. Verify Save button is **enabled** (if other changes present) -> Empty Phone 2 valid
 
-**Expected**: SubRental Matrix has 9 read-only rows | **Data**: testid=ect-settings-table-sub-rental-matrix
-
+**Expected**: Phone 2 is optional; empty value does not trigger validation error
 **Automatable**: Yes
-
 
 ---
 
-## TC-LOS-ECT-012: ECT Settings — Unsaved Changes Dialog on Tab Switch
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Navigation | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ Both Saves disabled
-2. Edit **Benefits Multiplier** from `20.0%` to `21.0%`, press Tab ✓ Fixed Costs Save enables
-3. Click **Location Settings History** tab ✓ "Unsaved changes" alertdialog appears
-4. Verify dialog heading: "Unsaved changes" ✓
-5. Verify body: "You have unsaved changes. Do you want to discard them?" ✓
-6. Verify 2 buttons: **Stay** (keeps user on ECT Settings) and **Discard** (navigates to History) ✓
-7. Click **Stay** ✓ Remains on ECT Settings; Benefits Multiplier = 21.0% preserved; Save still enabled
-
-**Expected**: Unsaved changes dialog with Stay/Discard; Stay preserves context | **Cleanup**: Revert Benefits Multiplier to 20.0%
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-ECT-013: ECT Settings — Unsaved Changes Discard Navigates and Loses Changes
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Navigation | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab; edit **Benefits Multiplier** to `21.0%` ✓ Save enables
-2. Click **Basic Information** tab ✓ "Unsaved changes" dialog appears
-3. Click **Discard** ✓ Navigates to Basic Information; ECT edits lost
-4. Return to ECT Settings ✓ Benefits Multiplier = `20.0%` (original value restored)
-
-**Expected**: Discard navigates away and loses unsaved ECT changes | **Cleanup**: No action needed
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-ECT-014: ECT Settings — Fixed Costs Explanatory Text Present
-
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| Low | Manual | Functional | Yes |
-
-**Steps**:
-1. Navigate to Local Office Settings, ECT Settings tab ✓ Fixed Costs section visible
-2. Verify explanatory paragraphs exist below the Fixed Costs fields ✓ 3 paragraphs: "Fixed costs include salaried labor...", "The Fixed cost percentage above is the actual percentage...", "SG&A (Selling, General, and Administrative)..."
-
-**Expected**: Fixed Costs section includes 3 informational paragraphs explaining the metrics
-
-**Automatable**: Yes
-
-
----
-
-## TC-LOS-ECT-015: ECT Settings — Historical Subrental % Enabled for Current User
+## TC-LOS-BAS-020: Misc Settings — Default New Job to 1 Day Sub-Checkboxes
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | Medium | Manual | Functional | Yes |
 
 **Steps**:
-1. Login as current test user (Rutvik Khorasiya — has Production & Sales role) ✓
-2. Navigate to Local Office Settings, ECT Settings tab ✓
-3. Verify **Historical Subrental %** input is enabled (not disabled) ✓ `isDisabled=false` confirmed live
-4. Click and edit the value ✓ Fixed Costs Save enables
-5. Revert ✓
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Verify 3 sub-checkboxes under **Default New Job to 1 Day**: **Event**, **Outside**, **Internal** -> All present
+3. Click **Event** checkbox -> Becomes checked (`aria-checked="true"`)
+4. Click **Outside** checkbox -> Becomes checked
+5. Click **Internal** checkbox -> Becomes checked
+6. Verify Save button is **enabled** -> Changes detected
+7. **Cleanup**: Uncheck all three
 
-**Expected**: Current test user can edit Historical Subrental % (has required role) | **Cleanup**: Revert to 0.0%
-
+**Expected**: Each sub-checkbox toggles independently; each toggle enables Save
 **Automatable**: Yes
 
+---
+
+## TC-LOS-BAS-021: Misc Settings — Default Order Type Dropdown (2 Options)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Verify **Default Order Type** dropdown default value = "Event" -> Combobox shows "Event"
+3. Click dropdown to open -> 2 options visible: **Event**, **Outside**
+4. Select **Outside** -> Dropdown shows "Outside"
+5. Verify Save button is **enabled** -> Change detected
+6. **Cleanup**: Select "Event" to restore
+
+**Expected**: Default Order Type has exactly 2 options (Event, Outside); default is Event
+**Automatable**: Yes
 
 ---
+
+## TC-LOS-BAS-022: Misc Settings — Default Order Type Save and Persist
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Change **Default Order Type** from "Event" to "Outside" -> Dropdown shows "Outside"
+3. Click **Save** -> Shared "Save Changes" dialog appears
+4. Click **Save** in dialog -> Save completes
+5. Reload page -> Verify **Default Order Type** = "Outside" -> Persisted
+6. **Cleanup**: Change back to "Event" and save
+
+**Expected**: Default Order Type selection persists after save and reload | **Data**: from Event to Outside
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-023: Misc Settings — PO Number Field Edit, Save, Persist
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Note current **PO Number** value (default empty for 1604)
+3. Clear and type `PO-TEST-123` -> Field shows "PO-TEST-123"
+4. Click **Save** -> Shared "Save Changes" dialog appears
+5. Click **Save** in dialog -> Save completes
+6. Reload page -> Verify **PO Number** = "PO-TEST-123" -> Persisted
+7. **Cleanup**: Restore original value and save
+
+**Expected**: PO Number text persists after save and reload | **Data**: PO Number = "PO-TEST-123"
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-024: Misc Settings — PO Number Label Field Edit, Save, Persist
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Note current **PO Number Label** value (default empty for 1604)
+3. Clear and type `Purchase Order #` -> Field shows "Purchase Order #"
+4. Click **Save** -> Shared "Save Changes" dialog appears
+5. Click **Save** in dialog -> Save completes
+6. Reload page -> Verify **PO Number Label** = "Purchase Order #" -> Persisted
+7. **Cleanup**: Restore original value and save
+
+**Expected**: PO Number Label text persists after save and reload | **Data**: PO Number Label = "Purchase Order #"
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-025: Section Configuration — Default Active Sections Count
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Scroll to **Section Configuration** table -> Table visible
+3. Count total rows -> 13 rows present
+4. For each row, verify **Use Section** column has SVG checkmark (`lucide lucide-check text-primary`) -> All 13 active
+5. Verify section names: Audio Visual, Business Center, Decor, Electrical, Event Technology, Floral, Food & Beverage, Internet/Telecom, Lighting, Production & Staging, Rigging, Signage & Graphics, Specialty
+
+**Expected**: 13 sections all active (checkmark present) | **Data**: location=1604
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-026: Section Configuration — Toggle Section Active/Inactive
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Section Configuration visible
+2. Click the **Use Section** checkbox for first section (e.g., Audio Visual) -> SVG checkmark disappears (section inactive)
+3. Verify Save button is **enabled** -> Change detected
+4. **Cleanup**: Click checkbox again to restore checkmark
+
+**Expected**: Clicking Use Section toggles between active (checkmark) and inactive (no checkmark)
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-027: Section Configuration — Edit Section Name
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Section Configuration visible
+2. Click on a section name cell (e.g., "Audio Visual") -> Cell becomes editable
+3. Clear and type `AV Services` -> Cell shows "AV Services"
+4. Verify Save button is **enabled** -> Change detected
+5. **Cleanup**: Clear and type `Audio Visual` to restore
+
+**Expected**: Section names are editable inline; edits enable Save button
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-028: Section Configuration — Add New Section
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Section Configuration visible
+2. Click **Add** button below the table -> New empty row added at bottom
+3. Type section name `Test Section` in new row -> Row shows "Test Section"
+4. Verify new row has Use Section checkmark by default -> Active
+5. Verify Save button is **enabled** -> Change detected
+6. **Cleanup**: Remove the new row or reload without saving
+
+**Expected**: Add button creates new editable row; new sections are active by default
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-029: Section Configuration — Default Button Resets
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Section Configuration visible
+2. Toggle a section inactive and rename another -> Changes pending
+3. Click **Default** button -> Sections reset to system defaults
+4. Verify Save button is **enabled** -> Reset counts as change
+5. **Cleanup**: Reload without saving to restore actual saved state
+
+**Expected**: Default button resets section configuration to system defaults
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-030: Room Configuration — Empty Table by Default
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Scroll to **Room Configuration** section -> Table visible
+3. Verify table shows "No results." -> Empty for location 1604
+4. Verify **Add** button is present -> Can add rooms
+5. Verify **Default** button is present -> Can reset
+
+**Expected**: Room Configuration table empty by default for location 1604
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-031: Room Configuration — Add New Room
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Room Configuration visible
+2. Click **Add** button -> New row added with empty name, Use Room checkmark active
+3. Type room name `Ballroom A` -> Row shows "Ballroom A"
+4. Verify Save button is **enabled** -> Change detected
+5. **Cleanup**: Reload without saving
+
+**Expected**: Add button creates new room row with active checkmark; name is editable
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-032: Default Logo — Checkbox Default States
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Scroll to **Default Logo** section -> Section visible
+3. Verify **Use Default Proposal Logo** checkbox -> Check current state (checked/unchecked)
+4. Verify **Use Default Convention Services Logo** checkbox -> Check current state
+5. Record both states as defaults for location 1604
+
+**Expected**: Logo checkboxes have documented default states | **Data**: location=1604
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-033: Default Logo — Company Logo Combobox Options
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Default Logo section visible
+2. Click **Company Logo** combobox to open -> Dropdown opens
+3. Count and record all options -> 12 options present
+4. Verify options include: PSAV, Encore, and venue-specific logos
+5. Verify current selected value matches page default
+6. Close dropdown without changing
+
+**Expected**: Company Logo combobox has 12 options | **Data**: location=1604
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-034: Default Logo — Preview Image Updates on Selection
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Default Logo section visible
+2. Note current **Company Logo** selection and preview image `src` attribute
+3. Change **Company Logo** to a different option -> Selected option changes
+4. Verify logo preview image `src` attribute changed -> Different image URL
+5. **Cleanup**: Restore original selection
+
+**Expected**: Changing Company Logo updates the preview image
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-035: Discount Exemptions — Service Type Toggles
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Scroll to **Discount Exemptions** section -> Section visible
+3. Verify table has columns: **Service Type**, **Exempt** (checkbox)
+4. Count service types with Exempt checked -> Record count
+5. Toggle one unchecked service type to checked -> Checkmark appears
+6. Verify Save button is **enabled** -> Change detected
+7. **Cleanup**: Toggle back to unchecked
+
+**Expected**: Exempt checkboxes toggle independently; changes enable Save
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-036: Save Dialog — Exact Content and Buttons
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Make any edit (e.g., change date offset to -2)
+2. Click **Save** -> Shared "Save Changes" dialog appears
+3. Verify dialog heading = "Save Changes" -> Exact text
+4. Verify dialog body = "Are you sure you want to save the changes?" -> Exact text
+5. Verify two buttons: **Cancel** and **Save** -> Both present
+6. Click **Cancel** -> Dialog closes, changes NOT saved, Save button still enabled
+7. **Cleanup**: Reload without saving
+
+**Expected**: Save uses shared "Save Changes" dialog with Cancel/Save buttons; Cancel dismisses dialog
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-037: Unsaved Changes Dialog — Stay Keeps Changes
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Make any edit
+2. Click **Location Settings History** tab to navigate away -> Unsaved changes dialog appears
+3. Verify dialog text = "Are you sure you want to leave this view? Any unsaved changes will be lost." -> Exact text
+4. Click **Stay** -> Dialog closes, remain on Basic Information tab
+5. Verify pending edit is still present -> Changes preserved
+6. **Cleanup**: Reload without saving
+
+**Expected**: Stay button keeps user on current tab with pending changes intact
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-038: Unsaved Changes Dialog — Discard Leaves
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Make any edit
+2. Click **Location Settings History** tab -> Unsaved changes dialog appears
+3. Click **Discard** -> Navigates to History tab, changes lost
+4. Click **Basic Information** tab -> Return to Basic Information
+5. Verify field has original value (edit was discarded) -> Changes not persisted
+
+**Expected**: Discard button navigates away and discards all unsaved changes
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-039: Boundary — XSS Input in Text Fields
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Boundary | Yes |
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
+2. Clear **PO Number** and type `<script>alert(1)</script>` -> Text entered
+3. Tab out -> Verify field does NOT execute script (no alert)
+4. If Save is enabled, save and reload -> Verify stored as plain text, no execution
+5. **Cleanup**: Clear PO Number and restore original value
+
+**Expected**: XSS payload stored as plain text or rejected; never executed | **Data**: input=`<script>alert(1)</script>`
+**Automatable**: Yes
+
+---
+
+# Location Settings History Test Cases
+
+## FIELD INVENTORY — Location Settings History Tab
+
+| Field | Type | Default (1604) | State | data-testid |
+|---|---|---|---|---|
+| History Type Selector | combobox | Location Management History | enabled; 2 options | `local-office-settings-history-select-type` |
+| History Table | table | "No results." (empty) | read-only | `local-office-settings-history-table` |
+| Rows Per Page | combobox | 20 | enabled | (no data-testid — pagination control) |
+| First/Prev/Next/Last Page | buttons | all disabled (1 page) | disabled when empty | (no data-testid — pagination nav) |
+
+**History Type Options**: Location Management History, Location Management Legacy History
+
+**Column Headers (42 total)**: Local Office, Prep Date Offset, Return Date Offset, Set Date Offset, Strike Date Offset, Pickup Date Offset, Delivery Date Offset, Use Fulfillment, Use Availability, Use Equipment QC, Print Desc, Use Subrent, Phone1, Phone2, Use Sect., Section Name, Sect. Action, Logo Name, Use On Quote, Use On Rental, Service Type - Exempt, ST Action, Action, Notes, Marriott PMS Account Enabled, Default Job to 1 day for Event Orders, Default Job to 1 day for Outside Orders, Default Job to 1 day for Internal Orders, Default Labor to Hourly, Allow tentative and confirmed Status to have the same priority, Items Filled from Requests Return to Availability, Default Order Type, Regular Hours, Regular Hours Multiplier, Over Time Hours, OverTime Hours Multiplier, Double Time Hours, DoubleTime Hours Multiplier, Holiday Multiplier, Recalc Labor Hours, Modified By, Modified On
+
+**Sortable Columns**: All except Local Office, Section Name, Service Type - Exempt, Notes (those have plain text, no sort button)
+
+---
+
+## TC-LOS-HIS-001: History Tab — Navigation and Default View
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to `/navigator/locations/1604/settings/local-office` -> Page loads with Basic Information tab active
+2. Click **Location Settings History** tab -> Tab becomes selected (`aria-selected="true"`)
+3. Verify **History Type Selector** combobox is visible with default value "Location Management History" -> Combobox displayed
+4. Verify history table container is visible -> Table with column headers and data/empty state
+
+**Expected**: Clicking History tab shows history type selector and data table
+**Automatable**: Yes
+
+---
+
+## TC-LOS-HIS-002: History Tab — Column Headers (42 Columns)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to History tab -> Tab panel visible
+2. Verify table has exactly 42 column headers -> Count matches
+3. Verify first columns: **Local Office**, **Prep Date Offset**, **Return Date Offset**, **Set Date Offset**, **Strike Date Offset** -> Present in order
+4. Verify last columns: **Holiday Multiplier**, **Recalc Labor Hours**, **Modified By**, **Modified On** -> Present in order
+
+**Expected**: History table shows all 42 expected column headers | **Data**: location=1604
+**Automatable**: Yes
+
+---
+
+## TC-LOS-HIS-003: History Tab — Empty State for Location 1604
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to History tab -> Table visible
+2. Verify table body shows "No results." text -> Empty state message displayed
+3. Verify pagination shows page "1 / 1" -> Only single empty page
+4. Verify all pagination nav buttons (first, prev, next, last) are **disabled** -> Cannot navigate
+
+**Expected**: Location 1604 has no history records; empty state displayed correctly
+**Automatable**: Yes
+
+---
+
+## TC-LOS-HIS-004: History Tab — History Type Selector Options
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to History tab -> History Type Selector visible
+2. Click **History Type Selector** combobox to open dropdown -> Dropdown options visible
+3. Verify exactly 2 options: **Location Management History** (selected), **Location Management Legacy History** -> Both present
+4. Close dropdown without selecting -> Original selection maintained
+
+**Expected**: History Type Selector has 2 options; default is "Location Management History"
+**Automatable**: Yes
+
+---
+
+## TC-LOS-HIS-005: History Tab — Pagination Controls
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to History tab -> Pagination area visible below table
+2. Verify **Rows Per Page** combobox shows "20" -> Default page size
+3. Verify page indicator text "1 / 1" -> Current page and total pages
+4. Verify 4 navigation buttons: **Go to first page**, **Go to previous page**, **Go to next page**, **Go to last page** -> All present
+
+**Expected**: Pagination controls present with default 20 rows per page, all nav disabled when no data
+**Automatable**: Yes
+
+---
+
+## TC-LOS-HIS-006: History Tab — No Save Button (Read-Only)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to History tab -> Tab panel visible
+2. Verify no **Save** button exists on this tab -> No save button in tab content
+3. Verify no editable fields (textboxes, checkboxes) exist -> Tab is read-only audit log
+
+**Expected**: History tab is read-only; no Save button or editable fields
+**Automatable**: Yes
+
+---
+
+## TC-LOS-HIS-007: History Tab — Column Sorting Buttons
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to History tab -> Table with column headers visible
+2. Verify sortable columns have sort buttons (e.g., **Prep Date Offset**, **Modified By**, **Modified On**) -> Button elements inside columnheaders
+3. Verify non-sortable columns (**Local Office**, **Section Name**, **Service Type - Exempt**, **Notes**) have plain text, no sort button -> No button child
+4. Click a sort button (e.g., **Modified On**) -> Sort icon changes direction (ascending/descending indicator)
+
+**Expected**: 38 columns have sort buttons; 4 columns are plain text (not sortable)
+**Automatable**: Yes
+
+---
+
+# ECT Settings Test Cases
+
+## MCP_VERIFICATION_LOG — ECT Settings Tab
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-03-23 |
+| URL | https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/local-office |
+| Office/Entity | 1604 (Parker Palm Springs) |
+| Total fields found | 77 (2 editable inputs + 66 labor cost inputs + 1 currency combobox + 1 commission link + 7 read-only display fields) |
+| Total fields tested (edit+save) | 4 (Benefits Multiplier edit+save+restore, Historical Subrental focus, Admin Fee labor cost edit+restore, Currency dropdown options) |
+| Save dialog | No confirmation dialog — saves directly on click. ECT tab has TWO independent Save buttons (Fixed Costs + Labor Costs) |
+| Column headers | Event Profit Target: Lower Limit, Upper Limit, Target, Currency. Labor Cost: Labor Class, Labor Cost. SubRental: Lower Limit, Upper Limit, Subrental Percentage, Currency |
+| Dropdown options | Currency: [USD] (1 option only) |
+| Input masks/formatting | Benefits Multiplier: display "20.0%", raw value "0.2" (decimal). Labor Cost: display "35.00", raw value "35" (auto-adds decimals on blur) |
+| Validation error patterns | Labor cost non-numeric: field reverts to original value on blur — no aria-invalid, no error message, silent rejection |
+| Form structure | Two Save buttons: `ect-settings-btn-save-fixed-costs-btn` (for fixed costs) and `ect-settings-btn-save-labor-costs-btn` (for labor costs). Both disabled by default |
+| Boundary behaviors | Labor cost: non-numeric "abc" -> reverts to original value silently. Benefits Multiplier: accepts decimal values only |
+
+## FIELD INVENTORY — ECT Settings Tab
+
+| Field | Type | Default (1604) | State | data-testid |
+|---|---|---|---|---|
+| Location Name | heading (h6) | 1604 - Parker Palm Springs | display only | `ect-settings-label-location-name` |
+| Commission Structure Link | link | External URL | enabled | `ect-settings-link-commission-structure` |
+| Select Currency | combobox | USD | enabled; 1 option | `ect-settings-select-currency` |
+| Save (Fixed Costs) | button | disabled | disabled by default | `ect-settings-btn-save-fixed-costs-btn` |
+| Event Profit Target Table | table | 9 rows, 4 columns | read-only | `ect-settings-table-event-profit-target` |
+| Venue Fixed Costs | display | 13.9% | read-only | `ect-settings-field-venue-fixed-costs` |
+| SG&A % | display | 8.0% | read-only | `ect-settings-field-sga-percent` |
+| Benefits Multiplier | textbox | 20.0% (raw: 0.2) | editable; decimal-to-percent | `ect-settings-input-benefits-multiplier` |
+| Other Rate | display | 0.0% | read-only | `ect-settings-field-other-rate` |
+| No Labor Rate | display | 0.0% | read-only | `ect-settings-field-no-labour-rate` |
+| Approval Threshold | display | $10,000,000.00 | read-only | `ect-settings-field-approval-threshold` |
+| Historical Subrental % | textbox | 0.0% (raw: 0.0) | editable; decimal-to-percent | `ect-settings-input-historical-subrental` |
+| Peak Labor Adjustment % | display | 5.0% | read-only | `ect-settings-field-peak-labor-adjustment` |
+| Non-Peak Labor Adjustment % | display | 0.0% | read-only | `ect-settings-field-non-peak-labor-adjustment` |
+| Save (Labor Costs) | button | disabled | disabled by default | `ect-settings-btn-save-labor-costs-btn` |
+| Labor Cost Assumptions Table | table | 66 rows, 2 columns | editable costs | `ect-settings-table-labor-cost-assumptions` |
+| Labor Cost Input (per row) | textbox | varies (24.44-50.00) | editable; `ect-settings-input-labor-cost-{0..65}` | indexed |
+| SubRental Matrix Table | table | 9 rows, 4 columns | read-only | `ect-settings-table-sub-rental-matrix` |
+
+---
+
+## TC-LOS-ECT-001: ECT Tab — Navigation and Header Display
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to `/navigator/locations/1604/settings/local-office` -> Page loads
+2. Click **ECT Settings** tab -> Tab becomes selected (`aria-selected="true"`)
+3. Verify heading reads "1604 - Parker Palm Springs" (h6) -> Location name displayed
+4. Verify **Edit/View** label with **Commission structure** link -> Link present and clickable
+5. Verify **Select Currency** combobox shows "USD" -> Default currency
+
+**Expected**: ECT tab displays location name, commission link, and currency selector
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-002: ECT Tab — Currency Selector (Single Option)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Tab panel visible
+2. Click **Select Currency** combobox to open dropdown -> Options visible
+3. Verify exactly 1 option: **USD** -> Only USD available
+4. Close dropdown -> No change
+
+**Expected**: Currency selector has only USD option for location 1604
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-003: ECT Tab — Event Profit Target Table (Read-Only)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Scroll to **Event Profit Target** section
+2. Verify heading "Event Profit Target" (h4) -> Heading present
+3. Verify table has 4 columns: **Lower Limit**, **Upper Limit**, **Target**, **Currency** -> Headers match
+4. Verify table has 9 data rows -> Row count = 9
+5. Verify first row: $5,000.01 | $10,000.00 | 40.0% | USD -> Data matches
+6. Verify last row: $2,000,000.01 | $10,000,000.00 | 30.0% | USD -> Data matches
+7. Verify no editable fields in table -> All cells are display-only
+
+**Expected**: Event Profit Target table shows 9 rows of tiered profit targets, all read-only
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-004: ECT Tab — Fixed Cost Display Fields (Read-Only)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Fixed costs section visible
+2. Verify **Venue Fixed Costs** = "13.9%" -> Read-only display
+3. Verify **SG&A %** = "8.0%" -> Read-only display
+4. Verify **Other Rate** = "0.0%" -> Read-only display
+5. Verify **No Labor Rate** = "0.0%" -> Read-only display
+6. Verify **Approval Threshold** = "$10,000,000.00" -> Read-only display
+7. Verify **Peak Labor Adjustment %** = "5.0%" -> Read-only display
+8. Verify **Non-Peak Labor Adjustment %** = "0.0%" -> Read-only display
+
+**Expected**: All 7 read-only fixed cost fields display correct values | **Data**: location=1604
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-005: ECT Tab — Benefits Multiplier Edit, Save, Persist
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Fixed costs section visible
+2. Verify **Benefits Multiplier** default = "20.0%" -> Displayed as percentage
+3. Click **Benefits Multiplier** field -> Raw value "0.2" shown (decimal format)
+4. Clear and type `0.25` -> Value entered
+5. Tab out -> Field displays "25.0%"
+6. Verify **Save** (Fixed Costs) button is **enabled** -> Change detected
+7. Click **Save** -> Value saved (no confirmation dialog)
+8. Navigate away and return to ECT tab -> Reload ECT settings
+9. Verify **Benefits Multiplier** = "25.0%" -> Persisted
+10. **Cleanup**: Change back to `0.2` (displays 20.0%) and save
+
+**Expected**: Benefits Multiplier editable as decimal; displays as percentage; persists after save | **Data**: from 0.2 to 0.25
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-006: ECT Tab — Historical Subrental % Edit
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Fixed costs section visible
+2. Verify **Historical Subrental %** default = "0.0%" -> Displayed as percentage
+3. Click field -> Raw value "0" shown
+4. Clear and type `0.1` -> Value entered
+5. Tab out -> Field displays "10.0%"
+6. Verify **Save** (Fixed Costs) button is **enabled** -> Change detected
+7. **Cleanup**: Change back to `0` and save
+
+**Expected**: Historical Subrental % editable as decimal; displays as percentage
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-007: ECT Tab — Two Independent Save Buttons
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Tab panel visible
+2. Verify **Save** button for Fixed Costs section exists and is **disabled** -> `data-testid="ect-settings-btn-save-fixed-costs-btn"`
+3. Verify **Save** button for Labor Costs section exists and is **disabled** -> `data-testid="ect-settings-btn-save-labor-costs-btn"`
+4. Edit **Benefits Multiplier** (Fixed Costs) -> Fixed Costs Save becomes **enabled**, Labor Costs Save stays **disabled**
+5. **Cleanup**: Restore original value
+
+**Expected**: Each section has its own Save button; editing one section only enables that section's Save
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-008: ECT Tab — Labor Cost Assumptions Table Structure
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Scroll to **Labor Cost Assumptions** section
+2. Verify heading "Labor Cost Assumptions" (h4) -> Heading present
+3. Verify table has 2 columns: **Labor Class**, **Labor Cost** -> Headers match
+4. Verify table has 66 data rows -> Row count = 66
+5. Verify first row: "Administrative Fee" | "35.00" -> Data matches
+6. Verify last row: "zzzFinishing Service" | "37.10" -> Data matches
+7. Verify **Labor Class** column is read-only, **Labor Cost** column has editable textboxes -> Only costs editable
+
+**Expected**: Labor Cost Assumptions table has 66 rows; Labor Class read-only, Labor Cost editable
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-009: ECT Tab — Labor Cost Edit, Save, Persist
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Labor Cost Assumptions section visible
+2. Click **Administrative Fee** labor cost cell -> Raw value "35" shown
+3. Clear and type `40` -> Value entered
+4. Tab out -> Field displays "40.00"
+5. Verify **Save** (Labor Costs) button is **enabled** -> Change detected
+6. Click **Save** -> Value saved (no confirmation dialog)
+7. Navigate away and return -> Reload
+8. Verify **Administrative Fee** labor cost = "40.00" -> Persisted
+9. **Cleanup**: Change back to `35` and save
+
+**Expected**: Labor cost values editable and persist after save | **Data**: Administrative Fee from 35.00 to 40.00
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-010: ECT Tab — Labor Cost Non-Numeric Input Reverts
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Validation | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Labor Cost Assumptions visible
+2. Click **Administrative Fee** labor cost cell -> Value "35" shown
+3. Clear and type `abc` -> Non-numeric text entered
+4. Tab out -> Field reverts to original "35.00" (no error message, no aria-invalid)
+5. Verify Save button state -> May or may not be enabled (field silently reverted)
+
+**Expected**: Non-numeric input in labor cost field silently reverts to original value; no validation error displayed
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-011: ECT Tab — SubRental Matrix Table (Read-Only)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Scroll to **SubRental Matrix** section
+2. Verify heading "SubRental Matrix" (h4) -> Heading present
+3. Verify table has 4 columns: **Lower Limit**, **Upper Limit**, **Subrental Percentage**, **Currency** -> Headers match
+4. Verify table has 9 data rows -> Row count = 9
+5. Verify first row: $0.00 | $4,999.00 | 0.9% | USD -> Data matches
+6. Verify last row: $1,000,000.00 | $10,000,000.00 | 13.5% | USD -> Data matches
+7. Verify no editable fields in table -> All cells are display-only
+
+**Expected**: SubRental Matrix table shows 9 rows of tiered subrental percentages, all read-only
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-012: ECT Tab — Save Behavior (No Confirmation Dialog)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Steps**:
+1. Navigate to ECT Settings tab -> Make any edit (e.g., change Benefits Multiplier)
+2. Click **Save** (Fixed Costs) -> Verify NO confirmation dialog appears
+3. Verify save completes immediately -> Field retains new value
+4. Navigate to another tab -> Verify no unsaved changes dialog (already saved)
+5. **Cleanup**: Restore original values if changed
+
+**Expected**: ECT Settings Save buttons save directly without confirmation dialog; no unsaved changes dialog after save
+**Automatable**: Yes

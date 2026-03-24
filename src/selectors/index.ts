@@ -21,6 +21,8 @@ import { SetupSharedSelectors } from './locations/shared';
 import { SetupSharedSetupLocationsSelectors } from './locations/shared-setup-locations';
 import { SetupNotesSelectors } from './locations/notes';
 import { SetupLegalSelectors } from './locations/legal';
+import { SetupAutoAddonSelectors } from './locations/auto-addon';
+import { LocalOfficeSettingsSelectors } from './locations/local-office-settings';
 
 // ==================== RE-EXPORTS ====================
 export { MicrosoftLoginSelectors } from './login';
@@ -34,6 +36,8 @@ export { SetupSharedSelectors } from './locations/shared';
 export { SetupSharedSetupLocationsSelectors } from './locations/shared-setup-locations';
 export { SetupNotesSelectors } from './locations/notes';
 export { SetupLegalSelectors } from './locations/legal';
+export { SetupAutoAddonSelectors } from './locations/auto-addon';
+export { LocalOfficeSettingsSelectors } from './locations/local-office-settings';
 
 // ==================== BACKWARD-COMPAT: MERGED SetupSelectors ====================
 export const SetupSelectors = {
@@ -46,6 +50,8 @@ export const SetupSelectors = {
   ...SetupSharedSetupLocationsSelectors,
   ...SetupNotesSelectors,
   ...SetupLegalSelectors,
+  ...SetupAutoAddonSelectors,
+  ...LocalOfficeSettingsSelectors,
 } as const;
 
 // ==================== COLLISION DETECTION + LOOKUP ====================

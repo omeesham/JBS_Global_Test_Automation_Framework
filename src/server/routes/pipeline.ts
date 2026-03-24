@@ -329,78 +329,25 @@ export function registerPipelineRoutes(app: FastifyInstance) {
     }
 
     const { decisions } = req.body;
-    const healItems = decisions.filter(d => d.action === 'heal_feature_change');
     const bugItems = decisions.filter(d => d.action === 'report_bug');
+    const dismissItems = decisions.filter(d => d.action === 'dismiss');
 
-    // If there are items to heal, route to healer with full triage context
-    if (healItems.length > 0) {
-      const definition = await loadPipelineDefinitionForClient(app.db, run.client_id);
-      const healerStage = definition.stages.find(s => s.id === 'healing' && s.enabled);
-      if (healerStage) {
-        // Read full triage report from disk for rich failure context
-        let triageDetails = '';
-        const triageReportPath = path.join(process.cwd(), 'reports', 'triage-report.json');
-        try {
-          if (fs.existsSync(triageReportPath)) {
-            const triageReport = JSON.parse(fs.readFileSync(triageReportPath, 'utf-8'));
-            // Extract relevant failure details for each heal item
-            const groups = triageReport.groups || [];
-            for (const group of groups) {
-              const matchingItems = (group.items || []).filter((gi: any) =>
-                healItems.some(h => h.testName === gi.testName),
-              );
-              if (matchingItems.length > 0) {
-                triageDetails += `\nRoot Cause: ${group.rootCause || 'Unknown'}\n`;
-                for (const mi of matchingItems) {
-                  triageDetails += `  - ${mi.testName}: ${mi.whatHappened || ''} | Fix: ${mi.whatToDo || ''}\n`;
-                  if (mi.testFile) triageDetails += `    File: ${mi.testFile}\n`;
-                }
-              }
-            }
-          }
-        } catch { /* triage report unavailable — proceed with basic context */ }
-
-        const prompt = [
-          `Pipeline Stage: ${healerStage.name} (${healerStage.id})`,
-          `Feature: ${run.feature}`,
-          `Module: ${run.module}`,
-          `Intent: ${run.intent}`,
-          run.target_url ? `Target URL: ${run.target_url}` : '',
-          '',
-          '--- TRIAGE DECISIONS (Feature Changes to Heal) ---',
-          ...healItems.map(h => `- ${h.testName}: feature changed, update test`),
-          triageDetails ? `\n--- DETAILED FAILURE CONTEXT ---${triageDetails}` : '',
-          '',
-          healerStage.description,
-        ].filter(Boolean).join('\n');
-
-        await createWorkerTask(pool, run.id, 'healing', prompt, {
-          feature: run.feature,
-          module: run.module,
-          intent: run.intent,
-          targetUrl: run.target_url,
-          triageDecisions: decisions,
-        }, run.client_id);
-
-        await updatePipelineRun(pool, run.id, { stage: 'healing', status: 'queued' });
-      }
-    } else {
-      // No heal items — pipeline completes (bugs are just reported, dismissed items ignored)
-      await updatePipelineRun(pool, run.id, { stage: 'completed', status: 'completed' as any });
-      broadcastSSE(run.id, {
-        type: 'pipeline_complete',
-        runId: run.id,
-        status: 'completed',
-        totalCost: Number(run.cost),
-        timestamp: new Date().toISOString(),
-        visibility: 'public',
-      });
-    }
+    // Triage completes the pipeline — healer is standalone, invoked separately by user
+    // Bugs are reported, dismissed items ignored, feature changes logged for manual healer invocation
+    await updatePipelineRun(pool, run.id, { stage: 'completed', status: 'completed' as any });
+    broadcastSSE(run.id, {
+      type: 'pipeline_complete',
+      runId: run.id,
+      status: 'completed',
+      totalCost: Number(run.cost),
+      timestamp: new Date().toISOString(),
+      visibility: 'public',
+    });
 
     reply.send({
       resumed: true,
-      healCount: healItems.length,
       bugCount: bugItems.length,
+      dismissCount: dismissItems.length,
     });
   });
 
@@ -520,13 +467,32 @@ function buildStagePrompt(stageId: string, context: {
   intent: string;
   targetUrl?: string;
 }): string {
-  return [
+  const lines = [
     `Pipeline Stage: ${stageId}`,
     `Feature: ${context.feature}`,
     `Module: ${context.module}`,
     `Intent: ${context.intent}`,
     context.targetUrl ? `Target URL: ${context.targetUrl}` : '',
-  ].filter(Boolean).join('\n');
+    `Working Directory: ${process.cwd()}`,
+    '',
+    'OUTPUT INSTRUCTIONS:',
+    'You MUST write output files to disk using the Write/Edit tools. Do NOT just respond with text.',
+  ];
+
+  if (stageId === 'planning' || stageId === 'requirements') {
+    lines.push(`  Write test cases to: specs_planning/test-cases/${context.module}/`);
+    lines.push(`  Write selectors to: src/selectors/${context.module}/`);
+  } else if (stageId === 'generation') {
+    lines.push(`  Write spec files to: tests/specs/${context.module}/`);
+  } else if (stageId === 'audit') {
+    lines.push(`  Write audit report to: reports/${context.module}/`);
+  }
+
+  if (context.targetUrl) {
+    lines.push('', `NAVIGATE to ${context.targetUrl} using MCP browser tools to explore the live application.`);
+  }
+
+  return lines.filter(Boolean).join('\n');
 }
 
 /**
@@ -555,8 +521,8 @@ function detectStartStage(module: string, _feature: string): string {
     const hasSelectors = fs.existsSync(selectorDir) &&
       fs.readdirSync(selectorDir).some(f => f.endsWith('.ts'));
 
-    // Route based on artifact existence
-    if (hasSpec && hasRecentFailures) return 'healing';
+    // Route based on artifact existence (healer is standalone, never auto-started)
+    if (hasSpec) return 'generation';
     if (hasTestCases && hasSelectors) return 'generation';
     if (hasTestCases) return 'planning';
     return 'requirements';

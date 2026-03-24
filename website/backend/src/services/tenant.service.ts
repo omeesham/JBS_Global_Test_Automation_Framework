@@ -78,11 +78,71 @@ CREATE TABLE IF NOT EXISTS "{schema}".jira_connections (
   UNIQUE(user_id)
 );
 
+CREATE TABLE IF NOT EXISTS "{schema}".bug_reports (
+  id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  test_case_id       VARCHAR(50) NOT NULL,
+  test_file          TEXT,
+  module             VARCHAR(200),
+  feature            VARCHAR(200),
+  severity           VARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
+  title              TEXT NOT NULL,
+  description        TEXT,
+  steps_to_reproduce JSONB DEFAULT '[]',
+  expected_behavior  TEXT,
+  actual_behavior    TEXT,
+  page_url           TEXT,
+  screenshot_path    TEXT,
+  failure_category   VARCHAR(50),
+  bug_hunt_category  VARCHAR(50),
+  source_agent       VARCHAR(50),
+  error_hash         VARCHAR(64),
+  triage_result      JSONB,
+  rca_evidence       JSONB DEFAULT '{}',
+  status             VARCHAR(20) DEFAULT 'open',
+  confidence         VARCHAR(20) DEFAULT 'HIGH',
+  run_id             UUID,
+  queue_item_id      VARCHAR(200),
+  website_id         UUID,
+  created_at         TIMESTAMPTZ DEFAULT NOW(),
+  updated_at         TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS "{schema}".test_id_registry (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  selector_key      VARCHAR(200) NOT NULL,
+  test_id_value     VARCHAR(500),
+  page_url          TEXT,
+  status            VARCHAR(20) DEFAULT 'present',
+  first_seen_run    UUID,
+  last_verified_run UUID,
+  last_verified_at  TIMESTAMPTZ DEFAULT NOW(),
+  change_history    JSONB DEFAULT '[]',
+  website_id        UUID,
+  UNIQUE(selector_key, COALESCE(website_id, '00000000-0000-0000-0000-000000000000'))
+);
+
+CREATE TABLE IF NOT EXISTS "{schema}".failure_history (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  test_name         VARCHAR(500) NOT NULL,
+  test_file         TEXT,
+  error_hash        VARCHAR(64),
+  failure_category  VARCHAR(50),
+  bug_hunt_category VARCHAR(50),
+  run_id            UUID,
+  website_id        UUID,
+  created_at        TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS idx_{schema_safe}_users_username ON "{schema}".users(username);
 CREATE INDEX IF NOT EXISTS idx_{schema_safe}_websites_slug ON "{schema}".websites(slug);
 CREATE INDEX IF NOT EXISTS idx_{schema_safe}_chat_conv_user ON "{schema}".chat_conversations(user_id);
 CREATE INDEX IF NOT EXISTS idx_{schema_safe}_chat_msg_conv ON "{schema}".chat_messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_{schema_safe}_test_cases_website ON "{schema}".test_cases(website_id);
+CREATE INDEX IF NOT EXISTS idx_{schema_safe}_bug_reports_status ON "{schema}".bug_reports(status);
+CREATE INDEX IF NOT EXISTS idx_{schema_safe}_bug_reports_website ON "{schema}".bug_reports(website_id);
+CREATE INDEX IF NOT EXISTS idx_{schema_safe}_test_id_registry_website ON "{schema}".test_id_registry(website_id);
+CREATE INDEX IF NOT EXISTS idx_{schema_safe}_failure_history_test ON "{schema}".failure_history(test_name);
+CREATE INDEX IF NOT EXISTS idx_{schema_safe}_failure_history_hash ON "{schema}".failure_history(error_hash);
 `;
 
 /**

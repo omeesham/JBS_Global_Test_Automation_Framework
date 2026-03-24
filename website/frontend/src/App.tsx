@@ -4,6 +4,7 @@ import { ClientProvider } from '@/contexts/ClientContext';
 import { WebsiteProvider } from '@/contexts/WebsiteContext';
 import { ActivePipelineProvider } from '@/contexts/ActivePipelineContext';
 import Layout from '@/components/layout/Layout';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/LoginPage';
 import ChatPage from '@/pages/ChatPage';
@@ -33,7 +34,9 @@ function AppRoutes() {
       <Route
         element={
           <ProtectedRoute>
-            <Layout />
+            <ErrorBoundary>
+              <Layout />
+            </ErrorBoundary>
           </ProtectedRoute>
         }
       >

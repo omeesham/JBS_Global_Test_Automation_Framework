@@ -88,11 +88,63 @@ export interface ChatAskRequest {
     authType?: string;
     enabledServices?: string[];
   };
+  agent?: string;
+  executionMode?: 'auto' | 'manual';
   // Role context from tenant middleware
   userRole: string;
   userId: string;
   clientId?: string;
   tenantSchema: string;
+}
+
+/* ------------------------------------------------------------------ */
+/* Pipeline prerequisite checking                                      */
+/* ------------------------------------------------------------------ */
+
+export const PIPELINE_CHAIN = ['requirements', 'planning', 'generation', 'audit'] as const;
+
+export async function checkPrerequisites(
+  targetAgent: string,
+  pageId?: string,
+): Promise<{ canRun: boolean; needsAgent?: string; missingStages?: string[] }> {
+  if (targetAgent === 'auto' || targetAgent === 'healing') return { canRun: true };
+  if (!pageId) return { canRun: true };
+  const targetIndex = PIPELINE_CHAIN.indexOf(targetAgent as typeof PIPELINE_CHAIN[number]);
+  if (targetIndex < 0) return { canRun: true }; // unknown agent — let Encore validate
+  if (targetIndex === 0) return { canRun: true }; // requirements — no prereqs
+
+  try {
+    const res = await fetch(`${ENCORE_URL}/api/pages/${pageId}/stages`);
+    if (!res.ok) return { canRun: true };
+    const stages = await res.json();
+    const missing: string[] = [];
+    for (let i = 0; i < targetIndex; i++) {
+      const s = Array.isArray(stages) ? stages.find((s: any) => s.stage_id === PIPELINE_CHAIN[i]) : null;
+      if (!s || s.status !== 'completed') missing.push(PIPELINE_CHAIN[i]!);
+    }
+    return missing.length > 0
+      ? { canRun: false, needsAgent: missing[0], missingStages: missing }
+      : { canRun: true };
+  } catch {
+    return { canRun: true };
+  }
+}
+
+export async function detectStartAgent(pageId?: string): Promise<string> {
+  if (!pageId) return 'requirements';
+  try {
+    const res = await fetch(`${ENCORE_URL}/api/pages/${pageId}/stages`);
+    if (!res.ok) return 'requirements';
+    const stages = await res.json();
+    if (!Array.isArray(stages)) return 'requirements';
+    for (const stageId of PIPELINE_CHAIN) {
+      const s = stages.find((s: any) => s.stage_id === stageId);
+      if (!s || s.status !== 'completed') return stageId;
+    }
+    return 'audit';
+  } catch {
+    return 'requirements';
+  }
 }
 
 export interface ChatAskResponse {
@@ -124,9 +176,10 @@ const ACTION_CATALOG: Record<string, { desc: string; params: string; roles: stri
   list_test_cases:   { desc: 'List saved test cases for a run', params: '{ testRunId }', roles: '*' },
   export_test_cases: { desc: 'Export test cases as CSV (returns download link)', params: '{ testRunId, format? }', roles: '*' },
   // Page-aware actions (Plan 53F)
-  run_stage_for_page: { desc: 'Run a specific stage for a page (e.g. "run planner for login page")', params: '{ pageName, stageId?, mode? }', roles: '*' },
+  run_stage_for_page: { desc: 'Run a specific stage for a page (e.g. "run planner for login page")', params: '{ pageName, stageId?, mode?, targetUrl? }', roles: '*' },
   check_page_status:  { desc: 'Check stage completion status for a page', params: '{ pageName }', roles: '*' },
   approve_stage:      { desc: 'Approve current stage and continue pipeline', params: '{ pageHint? }', roles: '*' },
+  automate_jira_ticket: { desc: 'Fetch JIRA ticket and start pipeline automation for it', params: '{ storyKey, startAgent? }', roles: '*' },
   setup_project:      { desc: 'Start project onboarding/setup wizard', params: '{}', roles: ['super_admin', 'client_admin'] },
   // Client admin + super admin
   create_website:    { desc: 'Add a new website to test', params: '{ name, url, authType?, clientId? }', roles: ['super_admin', 'client_admin'] },
@@ -144,6 +197,16 @@ const ACTION_CATALOG: Record<string, { desc: string; params: string; roles: stri
   start_worker:          { desc: 'Start the pipeline worker process', params: '{}', roles: ['super_admin'] },
   stop_worker:           { desc: 'Stop the pipeline worker process', params: '{}', roles: ['super_admin'] },
   restart_worker:        { desc: 'Restart the pipeline worker process', params: '{}', roles: ['super_admin'] },
+  // Bug reports & escalations (Plan 53 SUBPLAN_C)
+  show_bugs:             { desc: 'List bug reports with optional filters', params: '{ module?, severity?, status? }', roles: '*' },
+  view_bug_history:      { desc: 'Show failure history for a test', params: '{ testName }', roles: '*' },
+  show_flaky_tests:      { desc: 'Show tests with high flake rates', params: '{}', roles: '*' },
+  view_escalations:      { desc: 'Show open escalations blocking pipeline', params: '{}', roles: '*' },
+  view_test_id_changes:  { desc: 'Show test-ID changes from latest run', params: '{ runId? }', roles: '*' },
+  mark_bug_fixed:        { desc: 'Mark a bug as fixed', params: '{ bugId }', roles: ['super_admin', 'client_admin'] },
+  verify_bug_fix:        { desc: 'Re-test a fixed bug to verify the fix works', params: '{ bugId }', roles: ['super_admin', 'client_admin'] },
+  reclassify_bug:        { desc: 'Reclassify a bug (e.g., flake to real bug)', params: '{ bugId, newCategory }', roles: ['super_admin', 'client_admin'] },
+  resolve_escalation:    { desc: 'Resolve an escalation and unblock pipeline', params: '{ escalationId, action }', roles: ['super_admin', 'client_admin'] },
 };
 
 // Step 4: Role context interface
@@ -293,7 +356,12 @@ ${runList}
 Note: Status details available via check_status or get_run actions (local data has cost/date only).
 
 ### JIRA integration
-${jiraBlock}
+${jiraBlock}${context.jiraStatus.connected ? `
+When the user mentions a JIRA ticket (e.g., "ABC-2944", "Ticket 2944", "PROJ-123"):
+- If they want to automate/test it, use action "automate_jira_ticket" with { storyKey: "ABC-2944", startAgent: "requirements" }
+- If they just want to see ticket details, use action "get_jira_story" with { storyKey: "ABC-2944" }
+- If they say just a number like "2944", try common project keys or ask for the full key
+- "automate ticket X" = fetch ticket + start pipeline with its requirements as intent` : ''}
 
 ### System
 - Worker: ${context.workerOnline ? 'Online' : 'Offline'}
@@ -349,6 +417,7 @@ async function executeAction(
   action: string,
   params: Record<string, unknown>,
   req: ChatAskRequest,
+  context: RoleContext,
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
   // Role validation (defense in depth)
   const entry = ACTION_CATALOG[action];
@@ -554,36 +623,55 @@ async function executeAction(
       // ── Page-aware actions (Plan 53F) ──
 
       case 'run_stage_for_page': {
-        const { pageName, stageId, mode: runMode } = params;
+        const pageName = String(params.pageName || '');
+        const stageId = params.stageId ? String(params.stageId) : undefined;
         if (!pageName) return { success: false, error: 'pageName is required' };
-        // Fuzzy search for the page
-        const searchRes = await fetch(`${ENCORE_URL}/api/pages?clientId=${encodeURIComponent(context.websites?.[0]?.id || '')}`, { headers: { 'content-type': 'application/json' } });
-        const pages = await searchRes.json() as any[];
-        const match = pages.find((p: any) =>
-          p.display_name?.toLowerCase().includes(pageName.toLowerCase()) ||
-          p.page_slug?.toLowerCase().includes(pageName.toLowerCase())
-        );
-        if (!match) {
-          const names = pages.map((p: any) => p.display_name).slice(0, 10).join(', ');
-          return { success: true, data: { message: `Couldn't find "${pageName}". Available pages: ${names || 'none'}` } };
-        }
+        // Try fuzzy search for the page — pages API may not exist yet
+        let match: any = null;
+        try {
+          const searchRes = await fetch(`${ENCORE_URL}/api/pages?clientId=${encodeURIComponent(context.websites?.[0]?.id || '')}`, { headers: { 'content-type': 'application/json' } });
+          const pagesRaw = await searchRes.json();
+          const pages = Array.isArray(pagesRaw) ? pagesRaw : [];
+          match = pages.find((p: any) =>
+            p.display_name?.toLowerCase().includes(pageName.toLowerCase()) ||
+            p.page_slug?.toLowerCase().includes(pageName.toLowerCase())
+          );
+          if (!match && pages.length > 0) {
+            const names = pages.map((p: any) => p.display_name).slice(0, 10).join(', ');
+            return { success: true, data: { message: `Couldn't find "${pageName}". Available pages: ${names || 'none'}` } };
+          }
+        } catch { /* pages API unavailable — fall through to direct run */ }
+        // Direct pipeline run with page name as feature
         const runRes = await fetch(`${ENCORE_URL}/api/pipeline/run`, {
           method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ feature: match.display_name, module: match.module, intent: `Run ${stageId || 'pipeline'} for ${match.display_name}`, clientId: context.websites?.[0]?.id, startStage: stageId || undefined, pageId: match.id }),
+          body: JSON.stringify({
+            feature: match?.display_name || pageName,
+            module: match?.module || pageName,
+            intent: `Run ${stageId || 'pipeline'} for ${pageName}`,
+            targetUrl: match?.target_url || params.targetUrl || context.websites?.[0]?.base_url || '',
+            clientId: context.websites?.[0]?.id,
+            startStage: stageId || undefined,
+            pageId: match?.id || undefined,
+          }),
         });
+        if (!runRes.ok) return { success: false, error: `Testing engine error (${runRes.status}). Is the worker running?` };
         const runData = await runRes.json();
-        return { success: true, data: { ...runData, pageName: match.display_name, action: 'run_stage_for_page' } };
+        return { success: true, data: { ...runData, pageName: match?.display_name || pageName, action: 'run_stage_for_page' } };
       }
 
       case 'check_page_status': {
-        const { pageName: pn } = params;
+        const pn = String(params.pageName || '');
         if (!pn) return { success: false, error: 'pageName is required' };
-        const pagesRes = await fetch(`${ENCORE_URL}/api/pages?clientId=${encodeURIComponent(context.websites?.[0]?.id || '')}`, { headers: { 'content-type': 'application/json' } });
-        const allPages = await pagesRes.json() as any[];
-        const found = allPages.find((p: any) =>
-          p.display_name?.toLowerCase().includes(pn.toLowerCase()) ||
-          p.page_slug?.toLowerCase().includes(pn.toLowerCase())
-        );
+        let found: any = null;
+        try {
+          const pagesRes = await fetch(`${ENCORE_URL}/api/pages?clientId=${encodeURIComponent(context.websites?.[0]?.id || '')}`, { headers: { 'content-type': 'application/json' } });
+          const pagesRaw = await pagesRes.json();
+          const allPages = Array.isArray(pagesRaw) ? pagesRaw : [];
+          found = allPages.find((p: any) =>
+            p.display_name?.toLowerCase().includes(pn.toLowerCase()) ||
+            p.page_slug?.toLowerCase().includes(pn.toLowerCase())
+          );
+        } catch { /* pages API unavailable */ }
         if (!found) return { success: true, data: { message: `Page "${pn}" not found.` } };
         const detailRes = await fetch(`${ENCORE_URL}/api/pages/${found.id}/stages`, { headers: { 'content-type': 'application/json' } });
         const stages = await detailRes.json();
@@ -603,6 +691,63 @@ async function executeAction(
 
       case 'setup_project': {
         return { success: true, data: { action: 'setup_project', message: 'Opening setup wizard...' } };
+      }
+
+      case 'automate_jira_ticket': {
+        const storyKey = String(params.storyKey || '');
+        if (!storyKey) return { success: false, error: 'Missing ticket key. Example: "automate ticket ABC-2944"' };
+
+        // 1. Fetch JIRA ticket
+        const creds = await getCredsForUser(req.userId);
+        if (!creds) return { success: false, error: 'JIRA not connected. Go to Settings → Integrations to connect.' };
+
+        let story: any;
+        try {
+          story = await getStory(creds, storyKey);
+        } catch (err) {
+          return { success: false, error: `Could not fetch ticket ${storyKey}: ${(err as Error).message}` };
+        }
+
+        // 2. Extract requirements
+        const intent = [
+          story.summary || '',
+          story.acceptanceCriteria || '',
+          story.description || '',
+        ].filter(Boolean).join('\n\n');
+
+        if (!intent.trim()) {
+          return { success: true, data: { storyKey, summary: story.summary, message: `Ticket ${storyKey} found but has no description or acceptance criteria to automate.` } };
+        }
+
+        // 3. Start pipeline
+        const startAgent = params.startAgent ? String(params.startAgent) : undefined;
+        try {
+          const runRes = await fetch(`${ENCORE_URL}/api/pipeline/run`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              feature: story.summary || storyKey,
+              module: 'jira-import',
+              intent,
+              clientId: context.websites?.[0]?.id,
+              startStage: startAgent || undefined,
+            }),
+          });
+          if (!runRes.ok) return { success: false, error: `Pipeline start failed (${runRes.status}). Is the worker running?` };
+          const runData = await runRes.json() as any;
+          return {
+            success: true,
+            data: {
+              runId: runData.runId,
+              storyKey,
+              summary: story.summary,
+              action: 'automate_jira_ticket',
+              message: `Fetched ticket ${storyKey}: "${story.summary}". Pipeline started.`,
+            },
+          };
+        } catch (err) {
+          return { success: false, error: `Pipeline start failed: ${(err as Error).message}` };
+        }
       }
 
       default:
@@ -956,7 +1101,7 @@ export async function chatAsk(req: ChatAskRequest): Promise<ChatAskResponse> {
 
   // 6. Execute action with role validation (defense in depth)
   if (response.action && response.action !== 'none') {
-    const result = await executeAction(response.action, response.params || {}, req);
+    const result = await executeAction(response.action, response.params || {}, req, context);
     if (result.success && result.data !== undefined) {
       response.data = result.data;
       // For data-returning actions, format the result as readable text (Edge Case M)
@@ -965,7 +1110,8 @@ export async function chatAsk(req: ChatAskRequest): Promise<ChatAskResponse> {
         response.text = formatActionData(response.action, result.data);
       }
     } else if (!result.success) {
-      response.text += `\n\n⚠️ ${result.error}`;
+      // Replace the optimistic text entirely — don't show "Starting X..." + error simultaneously
+      response.text = `⚠️ ${result.error}`;
       response.error = true;
     }
     // Preserve runId for trigger_run

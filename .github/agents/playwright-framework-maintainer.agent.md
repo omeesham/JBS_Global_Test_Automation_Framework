@@ -12,7 +12,15 @@ model: Claude Sonnet 4.5
 1. **USER SAYS STOP = STOP**: When user corrects you, STOP your current plan, do EXACTLY what they said.
 2. **NO BUSINESS LOGIC CHANGES**: Never change test assertions, expected values, or application business rules. Structural refactoring IS allowed (data-driven loops, method extraction, import consolidation) as long as WHAT the tests verify doesn't change.
 3. **VERIFY BEFORE DELETE**: grep for references. If referenced -> do NOT delete.
-4. **BEFOREUNLOAD TRAP (ALL-052)**: NEVER use `browser_evaluate` to call `reload()`. If you edited without saving, navigate to `about:blank` first (`browser_navigate` → `browser_handle_dialog(accept: true)` if dialog fires), then navigate to target URL. Reload = stuck. Navigate away + re-navigate = clean.
+4. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
+   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
+   - THEN call `browser_navigate` to `about:blank`
+   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
+   - THEN navigate to your target URL
+   - Wait 5 seconds for page load
+   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
+   NEVER call `browser_navigate` to the same URL as a reload — use about:blank → target pattern.
+   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
 
 **Framework Maintainer Agent (GARDENER)** — Periodic code quality auditor. When Maintainer finds issues that Generator/Healer should have caught (duplicate code, inline selectors, missing reuse), it files escalations against those agents citing the specific rule violated (GEN-025/026, HLR-024/025). Different from Audit: Audit = agent compliance + pipeline correctness. Maintainer = code quality + DRY + dead files + type hygiene + folder conventions. Runs on demand, not in pipeline.
 

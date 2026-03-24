@@ -9,9 +9,10 @@ interface Props {
     completedRuns: number;
     totalCost: number;
   } | null;
+  onCardClick?: (action: string) => void;
 }
 
-export default function RunKPIBar({ usage }: Props) {
+export default function RunKPIBar({ usage, onCardClick }: Props) {
   const { user } = useAuth();
   const isAdmin = user?.role === 'super_admin' || user?.role === 'client_admin';
   const [bugCount, setBugCount] = useState(0);
@@ -25,11 +26,11 @@ export default function RunKPIBar({ usage }: Props) {
     : 0;
 
   const cards = [
-    { label: 'Total Runs', value: usage?.totalRuns ?? 0, icon: Activity, color: 'bg-[#EDE9FE] text-[#7C3AED]' },
-    { label: 'Completed', value: usage?.completedRuns ?? 0, icon: CheckCircle2, color: 'bg-emerald-50 text-emerald-600' },
-    { label: 'Pass Rate', value: `${passRate}%`, icon: Target, color: 'bg-[#F5F3FF] text-[#6366F1]' },
-    { label: 'Bugs Found', value: bugCount, icon: Bug, color: 'bg-red-50 text-red-600' },
-    ...(isAdmin ? [{ label: 'Total Cost', value: `$${(usage?.totalCost ?? 0).toFixed(2)}`, icon: DollarSign, color: 'bg-amber-50 text-amber-600' }] : []),
+    { label: 'Total Runs', value: usage?.totalRuns ?? 0, icon: Activity, color: 'bg-[#EDE9FE] text-[#7C3AED]', action: 'total-runs' },
+    { label: 'Completed', value: usage?.completedRuns ?? 0, icon: CheckCircle2, color: 'bg-emerald-50 text-emerald-600', action: 'completed' },
+    { label: 'Pass Rate', value: `${passRate}%`, icon: Target, color: 'bg-[#F5F3FF] text-[#6366F1]', action: 'pass-rate' },
+    { label: 'Bugs Found', value: bugCount, icon: Bug, color: 'bg-red-50 text-red-600', action: 'bugs-found' },
+    ...(isAdmin ? [{ label: 'Total Cost', value: `$${(usage?.totalCost ?? 0).toFixed(2)}`, icon: DollarSign, color: 'bg-amber-50 text-amber-600', action: '' }] : []),
   ];
 
   return (
@@ -37,7 +38,8 @@ export default function RunKPIBar({ usage }: Props) {
       {cards.map((card) => (
         <div
           key={card.label}
-          className="bg-white/80 backdrop-blur-sm rounded-xl border border-[#DDD6FE]/60 p-4 hover:shadow-lg hover:shadow-purple-500/5 transition-all"
+          onClick={() => card.action && onCardClick?.(card.action)}
+          className={`bg-white/80 backdrop-blur-sm rounded-xl border border-[#DDD6FE]/60 p-4 hover:shadow-lg hover:shadow-purple-500/5 transition-all ${card.action ? 'cursor-pointer hover:border-[#7C3AED]/40' : ''}`}
         >
           <div className="flex items-center justify-between">
             <div>

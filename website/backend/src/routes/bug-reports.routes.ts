@@ -22,8 +22,19 @@ interface BugReport {
   actualBehavior: string;
   pageUrl: string;
   screenshotPath: string | null;
+  failureCategory?: string;
+  bugHuntCategory?: string;
+  sourceAgent?: string;
+  errorHash?: string;
+  triageResult?: Record<string, unknown>;
+  rcaEvidence?: Record<string, unknown>;
+  confidence?: string;
+  runId?: string;
+  queueItemId?: string;
+  websiteId?: string;
   status: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 function readBugReports(): BugReport[] {
@@ -70,6 +81,91 @@ router.get('/stats', (_req: Request, res: Response) => {
     res.json({ totalOpen: open, totalConfirmed: confirmed, totalFixed: fixed, bySeverity, byModule });
   } catch (err) {
     res.status(500).json({ error: 'Failed to compute bug stats' });
+  }
+});
+
+// ── Failure History Endpoints ──
+
+const FAILURE_HISTORY_PATH = path.resolve(__dirname, '../../../../reports/failure-history.json');
+
+interface FailureHistoryEntry {
+  testName: string;
+  testFile?: string;
+  errorHash?: string;
+  failureCategory?: string;
+  bugHuntCategory?: string;
+  runId?: string;
+  websiteId?: string;
+  createdAt: string;
+}
+
+function readFailureHistory(): FailureHistoryEntry[] {
+  try {
+    if (!fs.existsSync(FAILURE_HISTORY_PATH)) return [];
+    const content = fs.readFileSync(FAILURE_HISTORY_PATH, 'utf-8');
+    const data = JSON.parse(content);
+    return Array.isArray(data) ? data : (data.entries || []);
+  } catch (err) {
+    console.error('[bug-reports] Failed to read failure history:', err);
+    return [];
+  }
+}
+
+/** GET /api/bugs/history?testName=X — failure history for a test */
+router.get('/history', (req: Request, res: Response) => {
+  try {
+    const testName = req.query.testName as string | undefined;
+    if (!testName) {
+      return res.status(400).json({ error: 'testName query parameter is required' });
+    }
+    const history = readFailureHistory().filter(e => e.testName === testName);
+    history.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    res.json({ testName, history, total: history.length });
+  } catch (err) {
+    console.error('[bug-reports] Failed to read failure history:', err);
+    res.status(500).json({ error: 'Failed to read failure history' });
+  }
+});
+
+/** GET /api/bugs/correlation?runId=X — failure patterns for a run */
+router.get('/correlation', (req: Request, res: Response) => {
+  try {
+    const runId = req.query.runId as string | undefined;
+    if (!runId) {
+      return res.status(400).json({ error: 'runId query parameter is required' });
+    }
+    const history = readFailureHistory();
+    const runFailures = history.filter(e => e.runId === runId);
+
+    // Build correlation: group by errorHash to find repeated patterns
+    const byHash: Record<string, FailureHistoryEntry[]> = {};
+    for (const entry of runFailures) {
+      const key = entry.errorHash || 'unknown';
+      if (!byHash[key]) byHash[key] = [];
+      byHash[key].push(entry);
+    }
+
+    // For each hash in this run, find total historical occurrences
+    const patterns = Object.entries(byHash).map(([hash, entries]) => {
+      const allOccurrences = hash !== 'unknown'
+        ? history.filter(e => e.errorHash === hash).length
+        : entries.length;
+      return {
+        errorHash: hash,
+        testsInRun: entries.map(e => e.testName),
+        countInRun: entries.length,
+        totalHistorical: allOccurrences,
+        isRecurring: allOccurrences > entries.length,
+        category: entries[0]?.failureCategory || null,
+        bugHuntCategory: entries[0]?.bugHuntCategory || null,
+      };
+    });
+
+    patterns.sort((a, b) => b.totalHistorical - a.totalHistorical);
+    res.json({ runId, patterns, totalFailures: runFailures.length });
+  } catch (err) {
+    console.error('[bug-reports] Failed to compute correlation:', err);
+    res.status(500).json({ error: 'Failed to compute failure correlation' });
   }
 });
 
@@ -127,6 +223,7 @@ interface TriageItem {
   disposition: string;
   confidence: string;
   severity: string | null;
+  bugHuntCategory?: string;
   decision: 'report_bug' | 'heal_feature_change' | 'dismiss' | null;
   decidedAt: string | null;
 }
@@ -172,6 +269,7 @@ router.post('/triage', (req: Request, res: Response) => {
       disposition: item.disposition || 'UNCERTAIN',
       confidence: item.confidence || 'LOW',
       severity: item.severity || null,
+      bugHuntCategory: item.bugHuntCategory || undefined,
       decision: null,
       decidedAt: null,
     }));

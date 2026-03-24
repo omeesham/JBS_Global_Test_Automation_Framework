@@ -204,6 +204,100 @@ function main(): void {
     process.exit(1);
   }
 
+  // ── PF-G5: WALKTHROUGH_LOG existence — HARD STOP on ALL runs ──
+  // GEN-029 enforcement: generator MUST produce a walkthrough file during Phase 0.5
+  // before writing any spec code. This gate ensures no model (Haiku, Sonnet, Opus) can
+  // skip the live DOM verification step. The walkthrough must verify at least 3 planner
+  // claims on the live MCP browser before spec generation begins.
+  const walkthroughDir = path.resolve(__dirname, '../reports/walkthrough');
+  const walkthroughFile = path.resolve(walkthroughDir, `${itemId}.walkthrough.md`);
+  if (!fs.existsSync(walkthroughFile)) {
+    console.error('');
+    console.error(`[HALT] PF-G5: WALKTHROUGH_LOG missing: ${walkthroughFile}`);
+    console.error('   Generator MUST produce a walkthrough file during Phase 0.5 before writing spec code.');
+    console.error('   The walkthrough must verify at least 3 planner claims on the live DOM via MCP.');
+    console.error('   Create the file at: reports/walkthrough/' + itemId + '.walkthrough.md');
+    console.error('   Contents: For each verified claim, document: claim text, MCP result, PASS/FAIL.');
+    console.error('');
+    // Don't process.exit here — inject into item context so the agent sees the requirement
+    // but can produce the walkthrough in the same session. Only HALT on retry (run > 0).
+    const currentRunForG5 = (item.generatorRunCount as number) ?? 0;
+    if (currentRunForG5 > 0) {
+      console.error('   This is run #' + (currentRunForG5 + 1) + ' — WALKTHROUGH_LOG should have been created in run #1.');
+      console.error('   HALTING. Create the walkthrough file first, then re-run.');
+      process.exit(1);
+    } else {
+      console.warn('   [WARN] First run — generator MUST create this file before writing any spec code.');
+      console.warn('   Phase 0.5 is MANDATORY. If you skip it, run #2 will HALT here.');
+    }
+  } else {
+    // ── PF-G5b: WALKTHROUGH_LOG content validation (GEN-029, GEN-032, GEN-033) ──
+    // File exists — validate content structure and minimum verification count.
+    const walkContent = fs.readFileSync(walkthroughFile, 'utf-8');
+    const walkthroughErrors: string[] = [];
+
+    // GEN-032: Check table structure (| TC | Step | Expected | Actual | Status | Classification |)
+    const hasTableHeader = /^\|[^|]*TC[^|]*\|[^|]*Step[^|]*\|[^|]*Expected[^|]*\|[^|]*Actual[^|]*\|[^|]*Status[^|]*\|/m.test(walkContent);
+    if (!hasTableHeader) {
+      walkthroughErrors.push('GEN-032: Missing required table header: | TC | Step | Expected | Actual | Status | Classification |');
+    }
+
+    // GEN-029: Count VERIFIED/PASS entries — require ≥3
+    const verifiedEntries = (walkContent.match(/\|\s*(VERIFIED|PASS)\s*\|/gi) || []).length;
+    if (verifiedEntries < 3) {
+      walkthroughErrors.push(`GEN-029: Only ${verifiedEntries} verified claims found (minimum: 3). Verify more planner claims on live DOM.`);
+    }
+
+    // GEN-033: Check for unresolved APP_BUG (must reference ESC- or BUG- for resolution)
+    const appBugLines = walkContent.match(/^.*APP_BUG.*$/gm) || [];
+    const unresolvedBugs = appBugLines.filter(line => !/(ESC-|BUG-|filed|resolved)/i.test(line));
+    if (unresolvedBugs.length > 0) {
+      walkthroughErrors.push(`GEN-033: ${unresolvedBugs.length} APP_BUG(s) without filed finding. All APP_BUGs must have a bug report.`);
+    }
+
+    // GEN-033: Check for unresolved PLANNER_GAP (must reference ESC- for escalation)
+    const plannerGapLines = walkContent.match(/^.*PLANNER_GAP.*$/gm) || [];
+    const unresolvedGaps = plannerGapLines.filter(line => !/(ESC-|escalat|corrected)/i.test(line));
+    if (unresolvedGaps.length > 0) {
+      walkthroughErrors.push(`GEN-033: ${unresolvedGaps.length} PLANNER_GAP(s) without escalation. All PLANNER_GAPs must have an ESC- reference.`);
+    }
+
+    if (walkthroughErrors.length > 0) {
+      console.error('');
+      console.error('[HALT] PF-G5: WALKTHROUGH_LOG content validation FAILED:');
+      for (const err of walkthroughErrors) {
+        console.error(`  [ERR] ${err}`);
+      }
+      console.error('');
+      console.error('   Fix the walkthrough file and re-run. Phase 0.5 verification must be complete before code generation.');
+      process.exit(1);
+    }
+
+    console.log(`[OK] PF-G5: WALKTHROUGH_LOG validated (${verifiedEntries} verified claims, table structure correct)`);
+  }
+
+  // ── RCA-FIRST reminder (GEN-037 — injected into agent context) ──
+  console.log('');
+  console.log('[REMINDER] RCA-FIRST HARD GATE (GEN-037):');
+  console.log('   When tests fail: STOP → Read artifacts → IS/IS-NOT analysis → Evidence → THEN fix.');
+  console.log('   NEVER apply a fix based solely on error message text.');
+  console.log('   NEVER retry without understanding root cause.');
+  console.log('   Use /rca protocol: failure-summary → error-context → trace → IS/IS-NOT → 5 Whys → Fix.');
+  console.log('');
+
+  // ── PF-G6: Post-complete enforcement on retries ──
+  // If a previous generator run exists but post-complete was never executed,
+  // the prior run's quality is unverified. Halt and require post-complete first.
+  const currentCountForG6 = (item.generatorRunCount as number) ?? 0;
+  if (currentCountForG6 > 0 && item.selfAuditPassed !== true) {
+    console.error('');
+    console.error('[HALT] PF-G6: Previous generator run did not complete the post-complete gate.');
+    console.error(`   generatorRunCount=${currentCountForG6}, selfAuditPassed=${item.selfAuditPassed ?? 'undefined'}`);
+    console.error('   Run: npm run generator:post-complete ' + itemId);
+    console.error('   Then re-run the generator.');
+    process.exit(1);
+  }
+
   const currentCount = (item.generatorRunCount as number) ?? 0;
   console.log(`\n[#] Item: ${item.id} (stage: ${item.stage})`);
   console.log(`   Current run count: ${currentCount}`);
@@ -529,6 +623,45 @@ function main(): void {
     }
   } catch (e) {
     console.warn(`   [WARN] TC registry build failed (non-blocking): ${e}`);
+  }
+
+  // ── Bug Hunt: Notification Check (GEN-035) ──
+  const notifDir = path.join(__dirname, '../specs_planning/_internal/agent-notifications');
+  if (fs.existsSync(notifDir)) {
+    const notifFiles = fs.readdirSync(notifDir).filter(f => f.endsWith('.json'));
+    const pendingForGenerator: any[] = [];
+    for (const file of notifFiles) {
+      try {
+        const notif = JSON.parse(fs.readFileSync(path.join(notifDir, file), 'utf-8'));
+        if (notif.toAgent === 'generator' && !notif.acknowledged) {
+          pendingForGenerator.push(notif);
+        }
+      } catch { /* skip malformed notification files */ }
+    }
+    if (pendingForGenerator.length > 0) {
+      console.log(`[generator-pre-run] \u26a0 ${pendingForGenerator.length} stale_artifact notifications pending. Generator should prioritize updating affected specs.`);
+      // Inject notification context into the queue item
+      if (!item.injectedContext) item.injectedContext = {} as any;
+      (item.injectedContext as any).pendingNotifications = pendingForGenerator.map(n => ({
+        id: n.id,
+        from: n.fromAgent,
+        type: n.type,
+        affectedFiles: n.affectedFiles,
+        changeSummary: n.changeSummary,
+      }));
+      // Acknowledge processed notifications (delete files to prevent re-processing)
+      for (const notif of pendingForGenerator) {
+        try {
+          const notifPath = path.join(notifDir, `${notif.id}.json`);
+          if (fs.existsSync(notifPath)) fs.unlinkSync(notifPath);
+        } catch (err) {
+          console.warn(`[generator-pre-run] Failed to ack notification ${notif.id}: ${err}`);
+        }
+      }
+      // Re-save queue with injected notifications
+      queue.lastUpdated = new Date().toISOString();
+      fs.writeFileSync(SHARED_PATHS.queue, JSON.stringify(queue, null, 2) + '\n');
+    }
   }
 
   console.log(`\n[OK] Run allowed -- proceeding to test execution`);

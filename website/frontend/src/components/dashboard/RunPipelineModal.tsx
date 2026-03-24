@@ -80,9 +80,9 @@ export default function RunPipelineModal({ open, onClose, onRunStarted, pipeline
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-[#DDD6FE]">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-[#DDD6FE] max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[#EDE9FE]">
+        <div className="flex items-center justify-between p-5 border-b border-[#EDE9FE] flex-shrink-0">
           <div className="flex items-center gap-2">
             <Play className="w-4 h-4 text-[#7C3AED]" />
             <h3 className="text-sm font-semibold text-[#1E1B4B]">Run Pipeline</h3>
@@ -96,7 +96,7 @@ export default function RunPipelineModal({ open, onClose, onRunStarted, pipeline
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
           {/* Website */}
           {websites.length > 0 && (
             <div>
@@ -181,7 +181,6 @@ export default function RunPipelineModal({ open, onClose, onRunStarted, pipeline
                   <option value="requirements">Requirements — explore UI from scratch</option>
                   <option value="planning">Planning — create/refresh test cases</option>
                   <option value="generation">Generation — generate specs from existing test cases</option>
-                  <option value="healing">Healing — fix failing tests</option>
                   <option value="audit">Audit — audit existing specs</option>
                 </>
               )}

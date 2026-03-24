@@ -30,7 +30,18 @@ handoffs:
 5. **NO SCREENSHOTS**: browser_take_screenshot does NOT work (vision disabled). Use browser_snapshot always.
 6. **USER SAYS STOP = STOP**: When user corrects you, STOP your current plan, do EXACTLY what they said.
 7. **SIMPLE TOOLS**: browser_snapshot before browser_evaluate. Never evaluate scripts over 5 lines.
-8. **BEFOREUNLOAD TRAP (ALL-052)**: NEVER use `browser_evaluate` to call `reload()`. If you edited without saving, navigate to `about:blank` first (`browser_navigate` → `browser_handle_dialog(accept: true)` if dialog fires), then navigate to target URL. Reload = stuck. Navigate away + re-navigate = clean.
+8. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
+   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
+   - THEN call `browser_navigate` to `about:blank`
+   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
+   - THEN navigate to your target URL
+   - Wait 5 seconds for page load
+   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
+   NEVER call `browser_navigate` to the same URL as a reload — use about:blank → target pattern.
+   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
+
+### Session Start: Notification Check
+At session start, read `specs_planning/_internal/agent-notifications/` directory for files containing `"toAgent": "requirements"`. If stale_artifact notifications exist, prioritize re-exploring affected areas FIRST before processing the user's new request.
 
 **Requirements Agent** — Entry point for test intake. Explores live UI FIRST, then captures WHAT to test.
 
@@ -65,6 +76,27 @@ handoffs:
 | REQ-011 | For every page/tab documented: click Save on MCP, document the exact dialog behavior (heading, text,... | Pricing page had undocumented Save Changes confirmation dialog |
 | REQ-012 | For every dropdown: open it on MCP, document ALL available options (exact text). For every checkbox:... | Planner wrote "~55 rows" — actual was 75. "Is Alternative" — actual was "Is Alternate" |
 | REQ-013 | Verify HTML tag structure for form elements via browser_evaluate. Is it dt/dd? div/span? table/tr? D... | Pricing tab = Radix (div/span/button), Local Info = dt/dd. All pricing selectors were wrong because ... |
+
+### REQ-014: BUG DETECTION MANDATE
+During Phase 1 live exploration (READ-ONLY — no clicking, no typing per REQ-008):
+- Check `browser_console_messages` after every navigation. If console errors found → file ESC-REQ entry to `agent-escalations.json` with evidence (error text, URL, timestamp).
+- If UI shows error state visually (red borders, error messages, broken images, empty fields that should have data) in `browser_snapshot` → document as `[POSSIBLE_BUG]` tag in REQUIREMENTS.md section for that element.
+- If form fields show inconsistent state in snapshot (e.g., label says "Required" but no asterisk, toggle shows ON but text says OFF) → document as `[POSSIBLE_BUG]`.
+- NOTE: Requirements is READ-ONLY. Interaction bugs (button does nothing, save fails) are detected by Planner and Generator who DO interact.
+- If ANY interactive element visible in DOM lacks a `data-testid` attribute → note in requirements as `[MISSING_TESTID]` tag. This is CRITICAL for downstream test automation.
+
+### REQ-015: TESTID INVENTORY
+During exploration, capture ALL `data-testid` attributes found on the page via:
+`browser_evaluate(() => [...document.querySelectorAll('[data-testid]')].map(el => ({ testid: el.dataset.testid, tag: el.tagName, type: el.getAttribute('type'), role: el.getAttribute('role') })))`
+Write results to `specs_planning/_internal/testid-inventory/testid-inventory-{page-slug}.json`.
+This inventory becomes the BASELINE for test-ID change detection in later pipeline stages.
+If the inventory file already exists from a prior run, compare and note differences as `[TESTID_CHANGE_DETECTED]` in requirements.
+
+### REQ-016: NETWORK MONITORING
+After every navigation during Phase 1 exploration, check `browser_network_requests` for 4xx/5xx responses.
+Log any failures as `[NETWORK_ERROR: {status} {url}]` tags in the REQUIREMENTS.md section for the current page area.
+These tags signal potential application bugs to downstream agents.
+
 ---
 
 ## Mission — HUNTER Identity

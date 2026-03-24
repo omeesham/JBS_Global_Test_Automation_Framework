@@ -36,7 +36,15 @@ handoffs:
 10. **POST-COMPLETE MANDATORY**: Before unlocking queue, run `npm run planner:post-complete [id]`. Verify: selfAuditPassed=true, CSV exported. Do NOT skip.
 11. **NO POWERSHELL FILE WRITES**: Use MCP tools or Node.js `fs` for ALL file operations. PowerShell `Set-Content` corrupts Unicode (ALL-019).
 12. **FRESH STATE FOR DEFAULTS**: Before documenting "default state" of ANY tab/page, navigate to a FRESH location (full URL reload, not tab switch). Your own save/delete/interaction actions change the state. Post-action state ≠ default state. Verify by: reload → observe → document. (ALL-049)
-13. **BEFOREUNLOAD TRAP (ALL-052)**: NEVER use `browser_evaluate` to call `reload()`. If you edited without saving, navigate to `about:blank` first (`browser_navigate` → `browser_handle_dialog(accept: true)` if dialog fires), then navigate to target URL. Reload = stuck. Navigate away + re-navigate = clean.
+13. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
+   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
+   - THEN call `browser_navigate` to `about:blank`
+   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
+   - THEN navigate to your target URL
+   - Wait 5 seconds for page load
+   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
+   NEVER call `browser_navigate` to the same URL as a reload — use about:blank → target pattern.
+   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
 14. **DEFAULTS FROM DOM ONLY (PLN-023)**: Default field values MUST come from a fresh page load DOM read, NEVER from REQUIREMENTS.md or memory. Navigate → read DOM → record exact text.
 15. **VERIFY SAVE BUTTON SCOPE (PLN-024)**: Before documenting save behavior, use `browser_evaluate` to find ALL Save buttons. Document: shared vs tab-specific, exact data-testid, disabled state.
 16. **TEST REVERT BEHAVIOR (PLN-025)**: Change field → revert → check Save button state. Document actual behavior. Encore forms stay dirty after revert.
@@ -90,6 +98,56 @@ handoffs:
 | PLN-026 | Dropdown features: verify search/filter exists by opening dropdown and checking for input/search element. Never assum... |
 | PLN-027 | Every CSS selector in *.ts selector files MUST be MCP-verified: run `browser_evaluate(() => !!document.querySelector(... |
 | PLN-028 | Selector files must match MCP_VERIFICATION_LOG documentation. If log says "Save is shared left-panel", selector file ... |
+
+### PLN-033: BUG DETECTION MANDATE
+During Phase 2 manual QA (live interaction on MCP):
+- If save/submit produces a 500 error (check `browser_network_requests` after every form submission) → file ESC-PLN to `agent-escalations.json`. Do NOT create TC for broken feature — mark as `[APP_BUG]` and skip.
+- If validation error message is wrong/misleading (message says "required" but field has a value) → document as `[APP_BUG]` in test case notes field.
+- If dropdown/select is empty when it should have options → `[APP_BUG]`.
+- If `data-testid` from Requirements inventory (`specs_planning/_internal/testid-inventory/testid-inventory-{page}.json`) is MISSING on live DOM → `[TESTID_MISSING_BUG]` in TC + file escalation.
+- ALL bugs found during QA use the BugHuntCategory classification: UNCHANGED_FAILURE for app bugs, TESTID_MISSING for missing testids.
+
+### PLN-034: MANDATORY SELECTOR HARD GATE
+**HARD GATE — blocks TC finalization if failed.**
+Every selector referenced in any TC MUST be validated on live DOM:
+`browser_evaluate(() => !!document.querySelector('[data-testid="X"]'))`
+Run this for EVERY data-testid selector in EVERY TC before finalizing the test plan.
+If verify fails for ANY selector:
+1. Do NOT include that selector in the finalized TC
+2. File escalation as `[TESTID_MISSING_BUG]`
+3. If a replacement selector is found via DOM exploration, document both old and new in the TC
+This gate uses the same validation approach as `src/utils/selector-registry-validator.ts` — ONE implementation, never two independent checks.
+
+### PLN-035: UPSTREAM VALIDATION
+Cross-check Requirements `[POSSIBLE_BUG]` and `[MISSING_TESTID]` tags from REQUIREMENTS.md:
+- For each `[POSSIBLE_BUG]` tag: verify on live DOM via MCP. If confirmed → file bug report via escalation with MCP evidence. If resolved (works now) → note as `[BUG_CLEARED]` in TC.
+- For each `[MISSING_TESTID]` tag: verify on live DOM. If still missing → `[TESTID_MISSING_BUG]` escalation. If now present → update testid inventory and proceed.
+
+### PLN-036: NOTIFICATION CHECK
+At session start, read `specs_planning/_internal/agent-notifications/` directory for files containing `"toAgent": "planner"`.
+If stale_artifact notifications exist from Healer or other agents:
+1. Read the `affectedFiles` and `changeSummary` from each notification
+2. Prioritize updating the affected TCs FIRST before processing new work
+3. Acknowledge each notification after updating (delete the notification file)
+
+### PLN-037: HARD STOP — SAVE DIALOG MCP VERIFICATION
+HARD STOP: Before writing ANY test case that involves a Save dialog: MCP-click Save on the live DOM, capture the EXACT dialog heading, body text, and button labels. Cross-reference against `src/selectors/locations/shared.ts` dialog selectors. NEVER create custom dialog selectors unless MCP proof shows a non-standard dialog. Default assumption: all Location Settings tabs use the shared 'Save Changes' dialog (`dlgSaveChanges` / `btnSaveChangesConfirm`).
+
+### PLN-038: HARD STOP — NUMERIC FIELD VALUE VERIFICATION
+HARD STOP: All numeric field test values MUST be MCP-verified before inclusion in test cases. For each test value: type it into the field on MCP → Tab → check `aria-invalid` → document result. Include a 'Validation Rules' table in test cases documenting: field name, type, valid range, invalid example, MCP verification date. NEVER assume positive values are valid for offset fields — always verify.
+
+### PLN-039: FIELD INVENTORY testid completeness (HARD GATE)
+Every row in FIELD INVENTORY MUST have a non-empty `data-testid` value in the testid column, OR explicitly state `(no testid — use aria-label "X" / text "Y")` with the exact fallback selector strategy. Blank testid cells are NOT allowed — generator cannot derive selectors from blanks. Enforced by planner-post-complete gate (WARN level, date-gated for items planned after 2026-03-24).
+
+### PLN-040: Async assertion markers [POLL] (MANDATORY)
+For ANY TC step involving: cross-field validation (e.g., NM-1264 Delivery >= Prep), cascading enables/disables (e.g., Fulfillment → QC), or server-side validation (async response) — tag the step with `[POLL]` to signal generator to use `expect.poll()` instead of direct `expect()`. Omitting [POLL] on async checks causes flaky tests (LR-010). Enforced by planner-post-complete gate (WARN level).
+
+### PLN-041: Save dialog documentation in MCP_VERIFICATION_LOG (MANDATORY)
+For EVERY tab that has a Save button, add a row to MCP_VERIFICATION_LOG: `| Save dialog | {exact heading text} | {button labels} | {selectors or "shared dlgSaveChanges from shared.ts"} |`. If a tab has NO save dialog (direct save): `| Save dialog | No dialog — direct save | N/A | N/A |`. Generator needs exact dialog text/selectors to write clickSaveAndConfirm() correctly. Enforced by planner-post-complete gate (WARN level).
+
+### PLN-042: RCA-FIRST for Rework Sessions
+When returning to a module for rework (re-exploration, corrections, re-planning): 1. READ the prior session's artifacts: test-cases file, MCP_VERIFICATION_LOG, agent-mistakes.md. 2. Identify WHAT failed and WHY before making changes. 3. Do NOT overwrite prior MCP_VERIFICATION_LOG entries — APPEND new verification results. 4. Document what changed since last session (new selectors, changed defaults, app updates). Rework without understanding prior failures = repeating the same mistakes.
+
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
@@ -312,9 +370,13 @@ Before setting `stage: "pending_generation"`, verify ALL artifacts exist:
 | Test plan file | Matching scenario for every TC | PLN-006 sync check |
 | Selectors | All selectors verified against live DOM HTML structure | browser_evaluate proof |
 | MCP verification log | Every field tested: edit+save+reload+verify | Embedded in test cases |
-| Save dialog docs | Exact dialog text, buttons, selectors — or "No dialog" | PLN-019 |
+| Save dialog docs | Exact dialog text, buttons, selectors — or "No dialog" | PLN-019. Document in MCP_VERIFICATION_LOG as `\| Save dialog \| {heading} \| {buttons} \| {selectors or "shared dlgSaveChanges"} \|` |
 | Dropdown options | Complete list per dropdown from live DOM | browser_snapshot proof |
 | Grid details | Exact row count, exact column headers, cascade behavior | browser_evaluate proof |
+| FIELD INVENTORY testid column | EVERY row MUST have a non-empty `data-testid` value OR explicit fallback `(no testid — use aria-label/text)` with strategy. Blank testid cells are NOT allowed — generator cannot derive selectors from blanks (PLN-039). | Review FIELD INVENTORY table |
+| Async assertion markers | For ANY TC step involving cross-field validation, cascading enables/disables, or server-side validation: tag the step with `[POLL]` to signal generator to use `expect.poll()`. Omitting `[POLL]` on async checks causes flaky tests (PLN-040). | Review TC steps |
+
+**Default value scoping (PLN-041)**: Default values, enabled/disabled states, and dropdown option lists MUST come from a DOM read on a dated MCP session. The FIELD INVENTORY date column serves as the MCP-VERIFIED timestamp. Structural counts (tab count, column headers, field count) MUST match FIELD INVENTORY.
 
 **If ANY are missing, the queue item stays at `pending_planning`.** Do NOT advance.
 

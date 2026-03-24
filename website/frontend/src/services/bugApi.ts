@@ -57,6 +57,10 @@ export interface TriageItemSummary {
   whyItHappened: string;
   whatToDo: string;
   disposition: 'BUG' | 'FEATURE_CHANGE' | 'TEST_DEFECT' | 'UNCERTAIN';
+  bugHuntCategory?: string;
+  changeSize?: string;
+  testIdStatus?: string;
+  autonomyDecision?: string;
   confidence: 'HIGH' | 'MEDIUM' | 'LOW';
   severity: string | null;
   decision: 'report_bug' | 'heal_feature_change' | 'dismiss' | null;

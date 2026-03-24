@@ -21,6 +21,8 @@ import { LocationAccountAddressPage } from '../../src/pages/locations/location-a
 import { LocationNotesPage } from '../../src/pages/locations/location-notes.page';
 import { LocationLegalPage } from '../../src/pages/locations/location-legal.page';
 import { LocationSharedSetupLocationsPage } from '../../src/pages/locations/location-shared-setup-locations.page';
+import { LocationLocalOfficeSettingsPage } from '../../src/pages/locations/location-local-office-settings.page';
+import { LocationAutoAddonPage } from '../../src/pages/locations/location-auto-addon.page';
 import { CommonMethods } from '../../src/utils/common-methods';
 import { Log, Logger } from '../../src/utils/logger';
 import { IConfig } from '../../src/framework-contracts';
@@ -48,6 +50,8 @@ type TestFixtures = {
   locationNotesPage: LocationNotesPage;
   locationLegalPage: LocationLegalPage;
   locationSharedSetupLocationsPage: LocationSharedSetupLocationsPage;
+  locationLocalOfficeSettingsPage: LocationLocalOfficeSettingsPage;
+  locationAutoAddonPage: LocationAutoAddonPage;
 };
 
 /**
@@ -129,6 +133,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     const context = await browser.newContext();
     const page = await context.newPage();
 
+    // Global safety net: auto-accept native beforeunload dialogs to prevent test hangs.
+    // ALL-052 enforcement: Angular forms fire beforeunload when navigating with unsaved edits.
+    page.on('dialog', async (dialog) => {
+      if (dialog.type() === 'beforeunload') {
+        Log.info('[fixture] Auto-accepting beforeunload dialog');
+        await dialog.accept();
+      }
+    });
+
     // Attach runtime diagnostics collector (console, network, page errors, auth chain)
     const collector = attachDiagnostics(page);
 
@@ -151,25 +164,25 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       throw new Error('Authenticated session creation failed -- SSO login did not succeed');
     }
 
-    // Wait for the Setup nav button to become visible -- signals the app has fully loaded
+    // Wait for the Dashboard heading to become visible -- signals the app has fully loaded
     // after the post-SSO redirect chain. 60s timeout: Navigator Cloud loads fast (no Angular bundle).
-    // Element is a <button> in the sidebar navigation.
-    Log.info('[wait] Waiting for Setup button to be visible (app ready signal)...');
+    // Landing page shows "Dashboard" h1 on the main home page.
+    Log.info('[wait] Waiting for Dashboard heading to be visible (app ready signal)...');
     const setupWaitStart = Date.now();
     try {
-      await page.getByRole('button', { name: 'Setup' }).waitFor({ state: 'visible', timeout: 60_000 });
+      await page.getByRole('heading', { name: 'Dashboard', level: 1 }).waitFor({ state: 'visible', timeout: 60_000 });
     } catch (setupError) {
       const elapsed = Date.now() - setupWaitStart;
-      Log.error(`[TIMEOUT] Setup button not visible after ${elapsed}ms. URL: ${page.url()}`);
+      Log.error(`[TIMEOUT] Dashboard heading not visible after ${elapsed}ms. URL: ${page.url()}`);
       const bodyText = await page.locator('body').textContent({ timeout: 5_000 }).catch(() => '');
       if (!bodyText || bodyText.trim().length < 10) {
         Log.error('[DIAGNOSIS] Page body is empty -- app likely did not load');
       } else {
-        Log.error(`[DIAGNOSIS] Page body has content (${bodyText.trim().length} chars) -- app may have loaded but Setup button not found`);
+        Log.error(`[DIAGNOSIS] Page body has content (${bodyText.trim().length} chars) -- app may have loaded but Dashboard heading not found`);
       }
       throw setupError;
     }
-    Log.info(`[OK] Fresh login complete -- Setup button visible after ${Date.now() - setupWaitStart}ms`);
+    Log.info(`[OK] Fresh login complete -- Dashboard visible after ${Date.now() - setupWaitStart}ms`);
 
     // Record URL after successful auth for diagnostics
     collector.recordUrl();
@@ -274,6 +287,16 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   locationSharedSetupLocationsPage: async ({ authenticatedSession, config }, use) => {
     const locationSharedSetupLocationsPage = new LocationSharedSetupLocationsPage(authenticatedSession.page, config);
     await use(locationSharedSetupLocationsPage);
+  },
+
+  locationLocalOfficeSettingsPage: async ({ authenticatedSession, config }, use) => {
+    const locationLocalOfficeSettingsPage = new LocationLocalOfficeSettingsPage(authenticatedSession.page, config);
+    await use(locationLocalOfficeSettingsPage);
+  },
+
+  locationAutoAddonPage: async ({ authenticatedSession, config }, use) => {
+    const locationAutoAddonPage = new LocationAutoAddonPage(authenticatedSession.page, config);
+    await use(locationAutoAddonPage);
   },
 
 });

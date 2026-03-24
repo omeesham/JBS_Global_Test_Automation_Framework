@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Play, RefreshCw, Plus, ExternalLink } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Play, RefreshCw, Plus, ExternalLink, FileText } from 'lucide-react';
 import { listPages, batchRunPipeline, createPipelineRun } from '@/services/encoreApi';
 import type { Page } from '@/services/encoreApi';
 import { useClient } from '@/contexts/ClientContext';
@@ -19,9 +19,10 @@ const STATUS_STYLES: Record<string, string> = {
 interface PageStatusGridProps {
   onPageClick?: (pageId: string) => void;
   onSetupRequired?: () => void;
+  fallbackRuns?: Array<{ id: string; feature?: string; module?: string; status?: string; stages?: any[]; created_at?: string }>;
 }
 
-export default function PageStatusGrid({ onPageClick, onSetupRequired }: PageStatusGridProps) {
+export default function PageStatusGrid({ onPageClick, onSetupRequired, fallbackRuns }: PageStatusGridProps) {
   const { client } = useClient();
   const { startPipelineForPage } = useActivePipeline();
   const [pages, setPages] = useState<Page[]>([]);
@@ -97,17 +98,75 @@ export default function PageStatusGrid({ onPageClick, onSetupRequired }: PageSta
     setSelectedPages(new Set());
   };
 
+  // Derive pseudo-pages from runs when no real pages exist (must be before early returns — hooks rule)
+  const runDerivedPages = useMemo(() => {
+    if (!fallbackRuns || fallbackRuns.length === 0) return [];
+    const grouped = new Map<string, { feature: string; module: string; runs: typeof fallbackRuns; latestStatus: string }>();
+    for (const run of fallbackRuns) {
+      const key = `${run.feature || 'Unknown'}::${run.module || 'default'}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, { feature: run.feature || 'Unknown', module: run.module || 'default', runs: [], latestStatus: run.status || 'unknown' });
+      }
+      grouped.get(key)!.runs.push(run);
+    }
+    return Array.from(grouped.values());
+  }, [fallbackRuns]);
+
   if (loading) {
     return <div className="flex items-center justify-center py-12 text-gray-400 text-sm">Loading pages...</div>;
   }
 
-  if (pages.length === 0) {
+  if (pages.length === 0 && runDerivedPages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <p className="text-gray-500 text-sm">No pages discovered yet</p>
         <button onClick={onSetupRequired} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-medium hover:bg-violet-700">
           <Plus className="w-4 h-4" /> Setup Project
         </button>
+      </div>
+    );
+  }
+
+  if (pages.length === 0 && runDerivedPages.length > 0) {
+    return (
+      <div className="space-y-3">
+        <p className="text-xs text-[#6B7280]">Pages derived from {fallbackRuns?.length || 0} pipeline runs</p>
+        <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left px-3 py-2 font-medium text-gray-600">Feature</th>
+                <th className="text-left px-3 py-2 font-medium text-gray-600">Module</th>
+                <th className="text-center px-3 py-2 font-medium text-gray-600">Runs</th>
+                <th className="text-center px-3 py-2 font-medium text-gray-600">Latest Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {runDerivedPages.map((group, i) => (
+                <tr key={i} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-3.5 h-3.5 text-violet-400" />
+                      <span className="font-medium text-gray-800">{group.feature}</span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-gray-600">{group.module}</td>
+                  <td className="text-center px-3 py-2">
+                    <span className="px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-xs font-medium">{group.runs.length}</span>
+                  </td>
+                  <td className="text-center px-3 py-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      group.latestStatus === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                      group.latestStatus === 'failed' ? 'bg-red-100 text-red-700' :
+                      group.latestStatus === 'running' ? 'bg-violet-100 text-violet-700' :
+                      'bg-gray-100 text-gray-600'
+                    }`}>{group.latestStatus}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }

@@ -26,7 +26,7 @@ import {
   type TriageResult,
 } from '../framework-contracts/diagnostics';
 
-interface FailureEntry {
+export interface FailureEntry {
   testName: string;
   file: string;
   error: string;
@@ -52,6 +52,14 @@ interface FailureEntry {
   triage: TriageResult | null;
   /** Bug report ID if triage = BUG (e.g., "BUG-LOC-PRI-001"). */
   bugReportId: string | null;
+  /** Detailed bug hunt category from classifier (populated by Healer post-triage, null initially). */
+  bugHuntCategory: string | null;
+  /** Test-ID status: PRESENT/MISSING/CHANGED (populated by Healer post-triage, null initially). */
+  testIdStatus: string | null;
+  /** Feature change magnitude: SMALL/BIG (populated by Healer post-triage, null initially). */
+  changeSize: string | null;
+  /** How many times this test has failed in recent runs (from reports/failure-history.json). */
+  failureCount: number;
 }
 
 interface FailureSummary {
@@ -68,6 +76,25 @@ interface FailureSummary {
 }
 
 const OUTPUT_FILE = path.join(process.cwd(), 'reports', 'failure-summary.json');
+const FAILURE_HISTORY_FILE = path.join(process.cwd(), 'reports', 'failure-history.json');
+
+/**
+ * Read reports/failure-history.json and count entries matching the given test name.
+ * Returns 0 if the file doesn't exist or is malformed.
+ */
+function getFailureCount(testName: string): number {
+  try {
+    if (!fs.existsSync(FAILURE_HISTORY_FILE)) return 0;
+    const raw = fs.readFileSync(FAILURE_HISTORY_FILE, 'utf-8');
+    const history = JSON.parse(raw);
+    if (!Array.isArray(history)) return 0;
+    return history.filter(
+      (entry: { testName?: string }) => entry.testName === testName,
+    ).length;
+  } catch {
+    return 0;
+  }
+}
 
 /** Known selector prefixes for extraction. */
 const SELECTOR_PREFIXES = ['btn', 'txt', 'drp', 'chk', 'lnk', 'rdo', 'dlg', 'tbl', 'err', 'col', 'spin', 'tab', 'pnl'];
@@ -168,6 +195,10 @@ class AgentReporter implements Reporter {
         urlBreadcrumbs: diagnostics?.urlBreadcrumbs ?? [],
         triage: null,
         bugReportId: null,
+        bugHuntCategory: null,
+        testIdStatus: null,
+        changeSize: null,
+        failureCount: getFailureCount(test.title),
       });
     }
   }
@@ -185,10 +216,11 @@ class AgentReporter implements Reporter {
     // P1: Auth
     if (
       lower.includes('login.microsoftonline.com') ||
+      lower.includes('b2clogin.com') ||
       lower.includes('oauth') ||
       lower.includes('401') ||
       lower.includes('403') ||
-      netFails.some(n => (n.url.includes('login.microsoftonline.com') || n.url.includes('oauth')) && n.status >= 400)
+      netFails.some(n => (n.url.includes('login.microsoftonline.com') || n.url.includes('b2clogin.com') || n.url.includes('oauth')) && n.status >= 400)
     ) {
       return FailureCategory.AUTH;
     }

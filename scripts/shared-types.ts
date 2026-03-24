@@ -79,6 +79,22 @@ export interface QueueItem {
     defectsFound?: string[];       // Defect IDs found during audit
     retryCount?: number;           // Number of retry cycles
   };
+  // Bug Hunt 4-Category Rulebook fields
+  /** Detailed bug hunt classification from classifier. */
+  bugHuntCategory?: string;
+  /** Reason for escalation when bugHuntCategory is FEATURE_CHANGED_BIG. */
+  escalationReason?: string;
+  /** True when big feature change blocks this item until prior agents rework. */
+  blockedByBigChange?: boolean;
+  /** True when prior agent rework is in progress for this item. */
+  awaitingPriorAgentRework?: boolean;
+  /** Context injected when user force-continues past a big change escalation. */
+  forceOverrideContext?: {
+    overriddenAt: string;
+    overriddenBy: string;
+    originalEscalationId: string;
+    staleArtifacts: string[];
+  };
   // Pipeline handoff context (Phase 2C) -- written by post-complete gates
   completionContext?: {
     phaseCompleted: string;          // Stage that just completed (e.g. 'generation', 'healing')
@@ -235,6 +251,8 @@ export const SHARED_PATHS = {
   requirements: path.join(__dirname, '../docs/REQUIREMENTS.md'),
   performance: path.join(__dirname, '../specs_planning/_internal/agent-performance.json'),
   escalations: path.join(__dirname, '../specs_planning/_internal/agent-escalations.json'),
+  notifications: path.join(__dirname, '../specs_planning/_internal/agent-notifications'),
+  testIdInventory: path.join(__dirname, '../specs_planning/_internal/testid-inventory'),
   agentsDir: path.join(__dirname, '../.github/agents'),
   exports: path.join(__dirname, '../export_test_cases/exports'),
   testCases: path.join(__dirname, '../specs_planning/test-cases'),

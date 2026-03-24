@@ -87,6 +87,14 @@ export interface TriageResult {
   actualValue: string | null;
   changeDescription: string | null;
   bugSeverity: BugSeverity | null;
+  /** Detailed classification from 4-category rulebook. When present, takes precedence over disposition. */
+  bugHuntCategory?: BugHuntCategory;
+  /** Feature change magnitude (only set when bugHuntCategory is FEATURE_CHANGED_*). */
+  changeSize?: ChangeSize;
+  /** Test-ID status (only set when bugHuntCategory is TESTID_*). */
+  testIdStatus?: TestIdStatus;
+  /** Whether this was auto-decided or needs human review. */
+  autonomyDecision?: AutonomyDecision;
 }
 
 /** Structured bug report for application bugs discovered during test healing. */
@@ -106,10 +114,33 @@ export interface BugReport {
   screenshotPath: string | null;
   failureCategory: FailureCategory;
   triageResult: TriageResult;
-  status: 'open' | 'confirmed' | 'fixed' | 'wont_fix' | 'not_a_bug';
+  status: BugStatus;
   createdAt: string;
   queueItemId: string;
+  /** Which agent filed this bug (healer, generator, planner). */
+  sourceAgent?: string;
+  /** Hash for dedup: hash(testName + failureCategory + truncatedError). */
+  errorHash?: string;
+  /** Detailed bug hunt classification. */
+  bugHuntCategory?: BugHuntCategory;
+  /** Full RCA evidence JSONB for rich display. */
+  rcaEvidence?: {
+    consoleErrors?: string[];
+    networkFailures?: string[];
+    domSnippet?: string;
+    screenshotUrl?: string;
+    traceUrl?: string;
+    harEntries?: string[];
+  };
+  /** Pipeline run ID. */
+  runId?: string;
+  /** Confidence level (LOW when from force-continued runs). */
+  confidence?: TriageConfidence;
+  updatedAt?: string;
 }
+
+/** Bug lifecycle status — from discovery to verified resolution. */
+export type BugStatus = 'open' | 'confirmed' | 'in_progress' | 'fixed' | 'verified' | 'closed' | 'wont_fix' | 'not_a_bug';
 
 /** Single failure item in a triage report — includes plain English RCA for non-technical users. */
 export interface TriageItem {
@@ -160,4 +191,126 @@ export interface DiagnosticSnapshot {
   authChain: AuthChainEntry[];
   /** DOM content at failure time, truncated to 50KB. Only populated on test failure. */
   domSnippet?: string;
+  /** HAR entries: failed requests + surrounding context. Optional, controlled by HAR_MAX_SIZE env. */
+  harEntries?: HarEntry[];
+  /** Full DOM serialization at failure point. Optional. */
+  domState?: string;
+}
+
+/** Single HAR entry — captured for failed requests + context. */
+export interface HarEntry {
+  url: string;
+  method: string;
+  status: number;
+  requestHeaders?: Record<string, string>;
+  responseHeaders?: Record<string, string>;
+  requestBody?: string;
+  responseBody?: string;
+  timestamp: number;
+  duration: number;
+}
+
+// ── Bug Hunt Classification (4-Category Rulebook) ──
+
+/**
+ * Detailed bug hunt classification — extends the coarse TriageDisposition.
+ * Maps to disposition for backward compat:
+ *   UNCHANGED_FAILURE, TESTID_MISSING → BUG
+ *   TESTID_CHANGED, FEATURE_CHANGED_SMALL, FEATURE_CHANGED_BIG → FEATURE_CHANGE
+ *   FLAKE, INFRASTRUCTURE_TRANSIENT → TEST_DEFECT
+ */
+export enum BugHuntCategory {
+  /** Feature intact, test fails (console/network/value errors) — this IS a bug. */
+  UNCHANGED_FAILURE = 'UNCHANGED_FAILURE',
+  /** Feature change, small scope (≤ threshold) — heal autonomously. */
+  FEATURE_CHANGED_SMALL = 'FEATURE_CHANGED_SMALL',
+  /** Feature change, big scope (> threshold) — deny, escalate to prior agents. */
+  FEATURE_CHANGED_BIG = 'FEATURE_CHANGED_BIG',
+  /** data-testid gone or never existed — report bug. */
+  TESTID_MISSING = 'TESTID_MISSING',
+  /** data-testid value changed — report + adapt, user reviews. */
+  TESTID_CHANGED = 'TESTID_CHANGED',
+  /** Transient failure, passes on retry — not a bug, track for flake patterns. */
+  FLAKE = 'FLAKE',
+  /** Network-only failure with no DOM evidence — retry once before classifying. */
+  INFRASTRUCTURE_TRANSIENT = 'INFRASTRUCTURE_TRANSIENT',
+}
+
+/** Change magnitude for feature change classification. */
+export enum ChangeSize {
+  SMALL = 'SMALL',
+  BIG = 'BIG',
+}
+
+/** Test-ID (data-testid) status for selector tracking. */
+export enum TestIdStatus {
+  PRESENT = 'PRESENT',
+  MISSING = 'MISSING',
+  CHANGED = 'CHANGED',
+}
+
+/** Whether the system handles this autonomously or requires human review. */
+export enum AutonomyDecision {
+  AUTONOMOUS = 'AUTONOMOUS',
+  HUMAN_REVIEW = 'HUMAN_REVIEW',
+}
+
+/** Maps BugHuntCategory to coarse TriageDisposition for backward compat. */
+export const BUG_HUNT_TO_DISPOSITION: Record<BugHuntCategory, TriageDisposition> = {
+  [BugHuntCategory.UNCHANGED_FAILURE]: TriageDisposition.BUG,
+  [BugHuntCategory.TESTID_MISSING]: TriageDisposition.BUG,
+  [BugHuntCategory.TESTID_CHANGED]: TriageDisposition.FEATURE_CHANGE,
+  [BugHuntCategory.FEATURE_CHANGED_SMALL]: TriageDisposition.FEATURE_CHANGE,
+  [BugHuntCategory.FEATURE_CHANGED_BIG]: TriageDisposition.FEATURE_CHANGE,
+  [BugHuntCategory.FLAKE]: TriageDisposition.TEST_DEFECT,
+  [BugHuntCategory.INFRASTRUCTURE_TRANSIENT]: TriageDisposition.TEST_DEFECT,
+};
+
+/** Inter-agent notification for stale artifacts, selector changes, or escalations. */
+export interface AgentNotification {
+  id: string;
+  fromAgent: string;
+  toAgent: string;
+  type: 'stale_artifact' | 'selector_change' | 'big_change_escalation';
+  affectedFiles: string[];
+  changeSummary: string;
+  timestamp: string;
+  acknowledged: boolean;
+}
+
+/** Escalation request when a change is too big for current agent to handle. */
+export interface BugHuntEscalation {
+  id: string;
+  sourceAgent: string;
+  targetAgent: string;
+  reason: string;
+  changeScopeFiles: string[];
+  affectedSelectors: string[];
+  blockedItemId: string;
+  pageId?: string;
+  status: 'open' | 'resolved' | 'overridden' | 'rework_in_progress';
+  createdAt: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+}
+
+/** Test-ID tracking entry for the selector registry. */
+export interface TestIdTracker {
+  selectorKey: string;
+  expectedTestId: string;
+  actualTestId: string | null;
+  status: TestIdStatus;
+  lastVerified: string;
+  pageUrl: string;
+}
+
+/** Complete bug hunt classification result from the classifier. */
+export interface BugHuntClassification {
+  bugHuntCategory: BugHuntCategory;
+  disposition: TriageDisposition;
+  changeSize: ChangeSize | null;
+  testIdStatus: TestIdStatus | null;
+  autonomyDecision: AutonomyDecision;
+  confidence: TriageConfidence;
+  reasoning: string;
 }

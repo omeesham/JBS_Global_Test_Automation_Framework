@@ -390,6 +390,7 @@ export class CsvConverter {
     'MGH': { submodule: 'management_history', tab: 'Location Management History tab is active' },
     'BAS': { submodule: 'basic_information', tab: 'Basic Information tab is active' },
     'HST': { submodule: 'history', tab: 'Location Settings History tab is active' },
+    'HIS': { submodule: 'history', tab: 'Location Settings History tab is active' },
     'ECT': { submodule: 'ect_settings', tab: 'ECT Settings tab is active' },
   };
 

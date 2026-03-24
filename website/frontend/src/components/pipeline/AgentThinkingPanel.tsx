@@ -1,6 +1,7 @@
-import { useMemo, useState, useEffect } from 'react';
-import { X, Clock, CheckCircle2, XCircle, AlertTriangle, Hourglass, Bot } from 'lucide-react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { X, Clock, CheckCircle2, XCircle, AlertTriangle, Hourglass, Bot, Square } from 'lucide-react';
 import type { PipelineStageState, ActivityMessage } from '@/hooks/usePipelineSSE';
+import { cancelPipelineRun } from '@/services/encoreApi';
 import AgentActivityFeed from './AgentActivityFeed';
 import '@/styles/pipeline-animations.css';
 
@@ -14,6 +15,7 @@ interface AgentThinkingPanelProps {
   activityMessages: ActivityMessage[];
   onClose: () => void;
   showCost?: boolean;
+  runId?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -38,9 +40,20 @@ export default function AgentThinkingPanel({
   activityMessages,
   onClose,
   showCost = false,
+  runId,
 }: AgentThinkingPanelProps) {
   const stage = stages.find(s => s.key === stageId);
   const display = STAGE_DISPLAY[stageId] || { name: stageId, description: '' };
+  const [stopping, setStopping] = useState(false);
+
+  const handleStop = useCallback(async () => {
+    if (!runId || stopping) return;
+    setStopping(true);
+    try {
+      await cancelPipelineRun(runId);
+    } catch { /* ignore */ }
+    setStopping(false);
+  }, [runId, stopping]);
 
   // Filter activity messages to this stage
   const stageMessages = useMemo(
@@ -108,12 +121,24 @@ export default function AgentThinkingPanel({
             </div>
             <p className="text-[10px] text-gray-500 mt-0.5 truncate">{display.description}</p>
           </div>
-          <button
-            onClick={onClose}
-            className="ml-2 p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1 ml-2">
+            {stage?.status === 'running' && runId && (
+              <button
+                onClick={handleStop}
+                disabled={stopping}
+                className="p-1 rounded-md hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"
+                title="Stop agent"
+              >
+                <Square className={`w-4 h-4 ${stopping ? 'animate-pulse' : ''}`} />
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Stats bar */}
@@ -167,8 +192,8 @@ export default function AgentThinkingPanel({
           {stage?.status === 'pending' && (
             <div className="flex flex-col items-center justify-center h-full text-center p-6">
               <Hourglass className="w-8 h-8 text-gray-300 mb-3" />
-              <p className="text-sm font-medium text-gray-500">Waiting</p>
-              <p className="text-xs text-gray-400 mt-1">This stage will start after the previous stage completes.</p>
+              <p className="text-sm font-medium text-gray-500">Queued</p>
+              <p className="text-xs text-gray-400 mt-1">Waiting for previous stages to complete before starting.</p>
             </div>
           )}
 

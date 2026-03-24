@@ -63,21 +63,25 @@ interface PipelineGraphProps {
 /* Stage Definitions (topology)                                        */
 /* ------------------------------------------------------------------ */
 
+/** Pipeline stages — linear flow: Requirements → Planner → Generator → Audit → Done */
 const STAGE_META: Record<string, { name: string; model: string }> = {
-  requirements: { name: 'Requirements', model: 'haiku' },
+  requirements: { name: 'Requirements', model: 'sonnet' },
   planning:     { name: 'Planner',      model: 'sonnet' },
   generation:   { name: 'Generator',    model: 'sonnet' },
-  healing:      { name: 'Healer',       model: 'sonnet' },
-  audit:        { name: 'Audit',        model: 'haiku' },
+  audit:        { name: 'Audit',        model: 'sonnet' },
 };
 
-/** Fixed positions — manual layout for the DAG with cycles */
+/** Healer is a standalone post-production tool — NOT in the normal pipeline */
+const STANDALONE_AGENTS: Record<string, { name: string; model: string; label: string }> = {
+  healing: { name: 'Healer', model: 'sonnet', label: 'post-prod' },
+};
+
+/** Fixed positions — linear layout */
 const POSITIONS: Record<string, { x: number; y: number }> = {
   requirements: { x: 0,   y: 130 },
   planning:     { x: 220, y: 130 },
   generation:   { x: 440, y: 130 },
-  audit:        { x: 660, y: 40 },
-  healing:      { x: 660, y: 220 },
+  audit:        { x: 660, y: 130 },
 };
 
 /** Hero mode: spread nodes further apart for visual impact */
@@ -85,22 +89,16 @@ const HERO_POSITIONS: Record<string, { x: number; y: number }> = {
   requirements: { x: 0,   y: 140 },
   planning:     { x: 260, y: 140 },
   generation:   { x: 520, y: 140 },
-  audit:        { x: 780, y: 40 },
-  healing:      { x: 780, y: 240 },
+  audit:        { x: 780, y: 140 },
 };
 
-/** All edges in the DAG — derived from pipeline-definition.json */
+/** Pipeline edges — linear: req → plan → gen → audit → done. Selector loop back to planner. */
 const EDGE_DEFS: { id: string; source: string; target: string; label: string }[] = [
   { id: 'req-plan',     source: 'requirements', target: 'planning',   label: '' },
   { id: 'plan-gen',     source: 'planning',     target: 'generation', label: '' },
-  { id: 'gen-audit',    source: 'generation',   target: 'audit',      label: 'pass' },
-  { id: 'gen-heal',     source: 'generation',   target: 'healing',    label: 'fail' },
+  { id: 'gen-audit',    source: 'generation',   target: 'audit',      label: '' },
   { id: 'gen-plan',     source: 'generation',   target: 'planning',   label: 'selectors' },
-  { id: 'heal-audit',   source: 'healing',      target: 'audit',      label: 'pass' },
-  { id: 'heal-heal',    source: 'healing',      target: 'healing',    label: 'retry' },
-  { id: 'heal-plan',    source: 'healing',      target: 'planning',   label: 'selectors' },
-  { id: 'audit-done',   source: 'audit',        target: 'completed',  label: 'pass' },
-  { id: 'audit-heal',   source: 'audit',        target: 'healing',    label: 'critical' },
+  { id: 'audit-done',   source: 'audit',        target: 'completed',  label: '' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -435,7 +433,8 @@ function PipelineGraphInner({
     // Hardcoded fallback
     const result: Node[] = [];
     for (const [id, pos] of Object.entries(positions)) {
-      const meta = STAGE_META[id]!;
+      const meta = STAGE_META[id] || STANDALONE_AGENTS[id];
+      if (!meta) continue;
       const s = stageStatusMap[id];
       result.push({
         id,

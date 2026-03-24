@@ -126,7 +126,8 @@ export function ActivePipelineProvider({ children }: { children: ReactNode }) {
         } else if (event.type === 'pipeline_complete') {
           esRefs.current.get(runId)?.close();
           esRefs.current.delete(runId);
-          next.set(runId, { ...run, status: 'completed', pendingAction: null });
+          const finalStatus = (event as Record<string, unknown>).status === 'fixme' ? 'failed' : 'completed';
+          next.set(runId, { ...run, status: finalStatus, pendingAction: null });
         } else if (event.type === 'error') {
           esRefs.current.get(runId)?.close();
           esRefs.current.delete(runId);

@@ -1,239 +1,377 @@
-# Location Auto Add-On Test Cases
-**Module**: locations | **Total**: 16 | **Status**: Manual | **Updated**: 2026-02-19
+# Auto Add-On Test Cases — **Module**: locations | **Total**: 16 | **Status**: Manual
+**Updated**: 2026-03-24 | **Page URL**: `https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location` (Setup > Location > Auto Add-On tab)
+
+## MCP_VERIFICATION_LOG
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-03-24 |
+| URL | https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location |
+| Office/Entity | 1604 Parker Palm Springs |
+| Total fields found | 5 checkboxes |
+| Total fields tested (edit+save) | 5 — all toggled, saved, reloaded, verified |
+| Save dialog | Yes — `alertdialog` heading "Save Changes" \| body "Are you sure you want to save the changes?" \| buttons "Cancel" + "Ok" |
+| Unsaved Changes dialog | Yes — `alertdialog` heading "Unsaved changes" \| body "Are you sure you want to leave this view? Any unsaved changes will be lost." \| buttons "Stay" + "Discard" |
+| Checkbox items (location 1604) | Encore Music (checked), Wireless Presenter (checked), Express Content Design Session (unchecked), Wordly (checked), Labor (checked) |
+| Cascade behaviors | None — simple independent toggles, no field dependencies |
+| Input attribute types | `button[role="checkbox"]` \| testid pattern: `location-settings-checkbox-auto-add-on-{isDefault}_{lowercase item name}` |
+| Validation error patterns | None — no validation, any toggle is valid |
+| Filtering mechanism | N/A — no filter/search on this tab |
+| API loading | Readiness: wait for `[data-testid="location-settings-checkbox-auto-add-on-false_encore music"]` to appear |
+| Strict mode risks | `chkAutoAddonAll` selector matches 5 elements — use specific testid selectors per item for assertions |
+| Form structure | Save button: shared left-panel `[data-testid="location-settings-btn-save"]` — disabled when no changes, unique on page |
+| Dialog side effects | Save dialog Cancel = safe (pending change preserved, Save still enabled) |
+| Post-reload timing | All 5 checkboxes load simultaneously — no async stagger observed |
+| Readiness signal | Wait for `[data-testid="location-settings-checkbox-auto-add-on-false_encore music"]` to be present |
+| Sequential interactions | Sub-tab switch with unsaved Auto Add-On changes → pending state preserved in UI, NO Unsaved Changes dialog triggered |
+| Boundary behaviors | Checkbox toggles only — no text input, no numeric fields, no XSS/SQL surface |
+| Smart form diff | Reverting toggle to saved state RE-DISABLES Save button (smart diff, not just dirty flag) |
+| Items vary per location | Item count and labels are location-specific — 5 items confirmed for location 1604 on 2026-03-24 |
+| Selector verification | 10/10 selectors PASS — verified via `browser_evaluate(() => !!document.querySelector(...))` on 2026-03-24 |
 
 ---
 
-## FIELD INVENTORY & DISCOVERY
+## FIELD INVENTORY
 
-**Auto Add-On Tab** (1 element type, dynamic list):
-| Element | Type | State | Value (1604) |
-|---|---|---|---|
-| Checkbox list | list of `button[role="checkbox"][data-slot="checkbox"]` | inside shadow DOM (`next-location-settings`) | 5 items |
-| Encore Music | checkbox | CHECKED | `aria-checked="true"` |
-| Wireless Presenter | checkbox | CHECKED | `aria-checked="true"` |
-| Express Content Design Session | checkbox | UNCHECKED | `aria-checked="false"` |
-| Wordly | checkbox | CHECKED | `aria-checked="true"` |
-| Labor | checkbox | CHECKED | `aria-checked="true"` |
+| Field | Type | Default (1604) | State | data-testid |
+|---|---|---|---|---|
+| Encore Music | checkbox | checked | enabled | `location-settings-checkbox-auto-add-on-false_encore music` |
+| Wireless Presenter | checkbox | checked | enabled | `location-settings-checkbox-auto-add-on-false_wireless presenter` |
+| Express Content Design Session | checkbox | unchecked | enabled | `location-settings-checkbox-auto-add-on-false_express content design session` |
+| Wordly | checkbox | checked | enabled | `location-settings-checkbox-auto-add-on-false_wordly` |
+| Labor | checkbox | checked | enabled | `location-settings-checkbox-auto-add-on-true_labor` |
 
-**Behavioral Notes (Verified Live 2026-02-19)**:
-- Checkbox items vary per location — 1604 shows 5 items
-- **DISCREPANCY**: Requirements agent (2026-02-18) documented 6 items for office 1604, including "Test Labor - Jonathan". Live verification 2026-02-19 found only 5 items — "Test Labor - Jonathan" is no longer present in the DOM for office 1604. Remaining 5 items confirmed: Encore Music, Wireless Presenter, Express Content Design Session, Wordly, Labor.
-- No dedicated Save — relies on shared left-panel **Save** button
-- Toggling any checkbox -- Save button activates (fires `[LocationDetail] Unsaved changes event received: true`)
-- Reverting a toggle to original state does NOT disable Save (event-based tracking doesn't reset)
-- No inline validation or required-field errors — pure toggle selection
-- Checkboxes are inside shadow DOM: `next-location-settings` custom element
-- Selector pattern: `next-location-settings >> div:has(label:text-is("ItemName")) button[data-slot="checkbox"]`
+## Validation Rules
+
+N/A — Auto Add-On tab contains checkboxes only. No numeric, text, or date fields requiring validation rules.
 
 ---
 
-## TC-LOC-AAO-001: Verify Auto Add-On tab navigation and panel load
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+## TC-LOC-AAO-001: Navigate to Auto Add-On Tab
 
-**Steps**: 1. Navigate to Setup > Location > office 1604 ✓ Location detail opens 2. Click **Auto Add-On** tab ✓ Tab becomes selected 3. Verify tabpanel "Auto Add-On" is visible ✓ Panel loads with checkbox list 4. Verify at least 1 checkbox item is present ✓ Items visible
-**Expected**: Auto Add-On tabpanel loads, checkbox list renders without errors
-**Data**: office=1604
-**Automatable**: Yes
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
 
----
+**Preconditions**: User is on Location Settings page for location 1604. Any sub-tab may be active.
 
-## TC-LOC-AAO-002: Verify correct item count displayed for location 1604
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+**Steps**:
+1. Click **Auto Add-On** tab → Expected: tab becomes selected, tabpanel `[data-testid="location-settings-sub-tab-content-auto-add-on"]` is visible, form `[data-testid="location-settings-form-auto-add-on"]` is present, checkbox list renders
 
-**Steps**: 1. Open **Auto Add-On** tab for office 1604 ✓ Tabpanel loads 2. Count all checkbox items in the list ✓ 5 items present 3. Verify item labels match expected set ✓ "Encore Music", "Wireless Presenter", "Express Content Design Session", "Wordly", "Labor"
-**Expected**: Exactly 5 items for location 1604 with correct labels
-**Data**: office=1604 | expected_count=5
-**Automatable**: Yes
+**Expected**: Auto Add-On tabpanel displays with all checkbox items visible. No errors. URL remains `/settings/location`.
+
+**Data**: `tabAutoAddon = [data-testid="location-settings-sub-tab-auto-add-on"]`
 
 ---
 
-## TC-LOC-AAO-003: Verify checked items show checked state on load
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+## TC-LOC-AAO-002: Default State of Checkbox Items (location 1604)
 
-**Steps**: 1. Open **Auto Add-On** tab ✓ Tabpanel loads 2. Verify **Encore Music** checkbox ✓ `aria-checked="true"`, `data-state="checked"` 3. Verify **Wireless Presenter** checkbox ✓ `aria-checked="true"` 4. Verify **Wordly** checkbox ✓ `aria-checked="true"` 5. Verify **Labor** checkbox ✓ `aria-checked="true"`
-**Expected**: All 4 checked items show checked state on initial load without any user interaction
-**Data**: office=1604
-**Automatable**: Yes
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
 
----
+**Preconditions**: Fresh page load of location 1604 settings (navigate via `about:blank` then target URL). **Auto Add-On** tab clicked.
 
-## TC-LOC-AAO-004: Verify unchecked item shows unchecked state on load
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+**Steps**:
+1. Navigate fresh to location 1604 settings → click **Auto Add-On** tab → Expected: 5 checkbox items visible
+2. Observe **Encore Music** → Expected: checked (`aria-checked="true"`)
+3. Observe **Wireless Presenter** → Expected: checked
+4. Observe **Express Content Design Session** → Expected: unchecked (`aria-checked="false"`)
+5. Observe **Wordly** → Expected: checked
+6. Observe **Labor** → Expected: checked
+7. Observe **Save** button → Expected: disabled
 
-**Steps**: 1. Open **Auto Add-On** tab ✓ Tabpanel loads 2. Verify **Express Content Design Session** checkbox ✓ `aria-checked="false"`, `data-state="unchecked"` 3. Confirm no visual check indicator ✓ Checkbox visually empty
-**Expected**: Express Content Design Session shows unchecked on initial load
-**Data**: office=1604
-**Automatable**: Yes
+**Expected**: 5 items in order: Encore Music (✓), Wireless Presenter (✓), Express Content Design Session (✗), Wordly (✓), Labor (✓). Save disabled.
 
----
-
-## TC-LOC-AAO-005: Verify Save button is disabled on initial tab load
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
-
-**Steps**: 1. Navigate fresh to office 1604 ✓ Location detail opens 2. Click **Auto Add-On** tab without making changes ✓ Tabpanel loads 3. Verify left-panel **Save** button ✓ Button is `disabled` (no changes pending)
-**Expected**: Save button disabled when Auto Add-On tab is opened with no modifications
-**Data**: office=1604
-**Automatable**: Yes
+**Data**: Default state MCP-verified 2026-03-24 from fresh page load per PLN-023.
 
 ---
 
-## TC-LOC-AAO-006: Toggle checked item to unchecked — Save button activates
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+## TC-LOC-AAO-003: Toggle Checked Item to Unchecked — Save Enables
 
-**Steps**: 1. Open **Auto Add-On** tab ✓ Encore Music is checked 2. Click **Encore Music** checkbox ✓ `aria-checked` changes from `"true"` to `"false"` 3. Verify Save button ✓ Left-panel **Save** is now enabled (no longer disabled)
-**Expected**: Unchecking a checked item activates the Save button
-**Data**: office=1604 | item="Encore Music" | from=checked | to=unchecked
-**Cleanup**: Click **Encore Music** again to restore to checked state
-**Automatable**: Yes
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
 
----
+**Preconditions**: **Auto Add-On** tab active. **Encore Music** is checked (default). **Save** is disabled.
 
-## TC-LOC-AAO-007: Toggle unchecked item to checked — Save button activates
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+**Steps**:
+1. Click **Encore Music** checkbox → Expected: becomes unchecked (`aria-checked="false"`)
+2. Observe **Save** button → Expected: enabled (no `disabled` attribute)
 
-**Steps**: 1. Open **Auto Add-On** tab ✓ Express Content Design Session is unchecked 2. Click **Express Content Design Session** ✓ `aria-checked` changes from `"false"` to `"true"` 3. Verify Save button ✓ Left-panel **Save** is now enabled
-**Expected**: Checking an unchecked item activates the Save button
-**Data**: office=1604 | item="Express Content Design Session" | from=unchecked | to=checked
-**Cleanup**: Click **Express Content Design Session** again to restore to unchecked state
-**Automatable**: Yes
+**Expected**: Unchecking a checked item immediately enables Save.
+
+**Data**: `chkAutoAddonEncoreMusic = [data-testid="location-settings-checkbox-auto-add-on-false_encore music"]`
+
+**Cleanup**: Re-check **Encore Music** → **Save** → **Ok** to restore default.
 
 ---
 
-## TC-LOC-AAO-008: Toggle and revert — Save button remains enabled
-| Priority | Status | Type |
-|----------|--------|------|
-| Medium | Manual | User-Requested |
+## TC-LOC-AAO-004: Toggle Unchecked Item to Checked — Save Enables
 
-**Steps**: 1. Open **Auto Add-On** tab ✓ Encore Music checked 2. Click **Encore Music** to uncheck ✓ Save button activates 3. Click **Encore Music** again to re-check ✓ Checkbox back to original state 4. Verify Save button ✓ Still enabled (does not reset to disabled)
-**Expected**: Reverting a toggle does not disable the Save button — unsaved-change tracking is event-based and does not auto-reset
-**Data**: office=1604 | item="Encore Music"
-**Cleanup**: Navigate away without saving (use Back to Location Search -- Discard)
-**Automatable**: Yes
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
 
----
+**Preconditions**: **Auto Add-On** tab active. **Express Content Design Session** is unchecked (default). **Save** is disabled.
 
-## TC-LOC-AAO-009: Click Save with unsaved changes — confirmation dialog appears
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+**Steps**:
+1. Click **Express Content Design Session** checkbox → Expected: becomes checked (`aria-checked="true"`)
+2. Observe **Save** button → Expected: enabled
 
-**Steps**: 1. Open **Auto Add-On** tab ✓ Express Content Design Session unchecked 2. Click **Express Content Design Session** ✓ Save button activates 3. Click **Save** button ✓ Confirmation dialog appears 4. Verify dialog heading "Save Changes" ✓ 5. Verify dialog body "Are you sure you want to save the changes?" ✓ 6. Verify dialog has **Cancel** and **Save** buttons ✓
-**Expected**: `dlgSaveChanges` dialog appears with exact text and two buttons; dialog is `[role="alertdialog"]`
-**Data**: office=1604 | item="Express Content Design Session"
-**Cleanup**: Click **Cancel** in dialog; click **Express Content Design Session** to restore unchecked state
-**Automatable**: Yes
+**Expected**: Checking an unchecked item immediately enables Save.
+
+**Data**: `chkAutoAddonExpressContentDesignSession = [data-testid="location-settings-checkbox-auto-add-on-false_express content design session"]`
+
+**Cleanup**: Uncheck **Express Content Design Session** → **Save** → **Ok**.
 
 ---
 
-## TC-LOC-AAO-010: Cancel save dialog — no change persisted
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+## TC-LOC-AAO-005: Revert Toggle Re-Disables Save (Smart Form Diff)
 
-**Steps**: 1. Open **Auto Add-On** tab, click **Express Content Design Session** ✓ Checked; Save activates 2. Click **Save** ✓ Confirmation dialog appears 3. Click **Cancel** in dialog ✓ Dialog closes 4. Verify **Express Content Design Session** still shows checked ✓ DOM state unchanged 5. Reload page ✓ Express Content Design Session returns to unchecked (original)
-**Expected**: Cancelling the save dialog does not persist the change; reload confirms original state
-**Data**: office=1604 | item="Express Content Design Session"
-**Automatable**: Yes
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
 
----
+**Preconditions**: **Auto Add-On** tab active. **Express Content Design Session** is unchecked (default). **Save** is disabled.
 
-## TC-LOC-AAO-011: Confirm save — changes persist after page reload
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+**Steps**:
+1. Click **Express Content Design Session** (unchecked → checked) → Expected: Save enables
+2. Click **Express Content Design Session** again (checked → unchecked, back to original) → Expected: Save becomes disabled again
 
-**Steps**: 1. Open **Auto Add-On** tab, click **Express Content Design Session** ✓ Checked; Save activates 2. Click **Save** ✓ Dialog appears 3. Confirm save ✓ Dialog closes; changes saved 4. Reload page ✓ Page reloads for office 1604 5. Open **Auto Add-On** tab ✓ Tabpanel loads 6. Verify **Express Content Design Session** ✓ Still checked (`aria-checked="true"`)
-**Expected**: Confirmed save persists checkbox state across page reload
-**Data**: office=1604 | item="Express Content Design Session"
-**Cleanup**: Uncheck **Express Content Design Session**, Save, Confirm -- restore original state
-**Automatable**: Yes
+**Expected**: Reverting a toggle to its original saved value re-disables Save. The form uses smart diff — it compares to server state, not just tracks events.
+
+**Data**: `btnSave = [data-testid="location-settings-btn-save"]`
 
 ---
 
-## TC-LOC-AAO-012: Toggle multiple items — all changes tracked as single unsaved state
-| Priority | Status | Type |
-|----------|--------|------|
-| Medium | Manual | User-Requested |
+## TC-LOC-AAO-006: Save Dialog Appears on Save Click
 
-**Steps**: 1. Open **Auto Add-On** tab ✓ 4 checked, 1 unchecked 2. Click **Encore Music** (uncheck) ✓ Save activates 3. Click **Express Content Design Session** (check) ✓ Save still enabled 4. Click **Wordly** (uncheck) ✓ Save still enabled 5. Verify all 3 changes are visually reflected ✓ State matches clicks 6. Verify Save button ✓ Still enabled (one Save handles all pending changes)
-**Expected**: Multiple toggle changes combine into a single unsaved state; Save button stays enabled across all of them
-**Data**: office=1604
-**Cleanup**: Revert all 3 items to original state; navigate away without saving
-**Automatable**: Yes
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
 
----
+**Preconditions**: **Auto Add-On** tab active. A checkbox has been toggled (Save enabled).
 
-## TC-LOC-AAO-013: Navigate away with unsaved changes — discard prompt
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+**Steps**:
+1. Toggle **Express Content Design Session** (unchecked → checked) → Save enables
+2. Click **Save** button → Expected: `alertdialog` appears
+3. Observe dialog heading → Expected: "Save Changes"
+4. Observe dialog body → Expected: "Are you sure you want to save the changes?"
+5. Observe dialog buttons → Expected: "Cancel" (left) and "Ok" (right) present
 
-**Steps**: 1. Open **Auto Add-On** tab, click **Express Content Design Session** ✓ Checked; Save activates 2. Click **Back to Location Search** button ✓ 3. Verify dialog heading "Unsaved Changes" ✓ 4. Verify dialog body "Are you sure you want to leave this view? Any unsaved changes will be lost." ✓ 5. Verify dialog has **Cancel** and **OK** buttons ✓ (no role=dialog; custom div wrapper)
-**Expected**: Navigating away triggers `dlgUnsavedChanges` dialog — distinct from Save dialog; uses **OK** not **Save**
-**Data**: office=1604
-**Automatable**: Yes
+**Expected**: Save Changes alertdialog appears with exact text and buttons as MCP-verified on 2026-03-24.
+
+**Data**: `dlgSaveChanges = [role="alertdialog"]:has(h2:text-is("Save Changes"))` | Note: dialog has NO `data-testid`
+
+**Cleanup**: Click **Cancel** → revert ECDS.
 
 ---
 
-## TC-LOC-AAO-014: Discard unsaved changes — original state restored
-| Priority | Status | Type |
-|----------|--------|------|
-| High | Manual | User-Requested |
+## TC-LOC-AAO-007: Save Dialog Cancel — Dismisses Without Saving
 
-**Steps**: 1. Open **Auto Add-On** tab, click **Express Content Design Session** ✓ Checked 2. Click **Back to Location Search** ✓ "Unsaved Changes" dialog appears 3. Click **OK** in dialog ✓ Navigation proceeds to location search page 4. Navigate back to office 1604 **Auto Add-On** tab ✓ Tab loads 5. Verify **Express Content Design Session** ✓ `aria-checked="false"` (original state)
-**Expected**: Clicking **OK** in `dlgUnsavedChanges` discards changes and navigates away; reload shows original state
-**Data**: office=1604 | item="Express Content Design Session"
-**Automatable**: Yes
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
 
----
+**Preconditions**: Save Changes dialog is open (ECDS toggled, Save clicked).
 
-## TC-LOC-AAO-015: Verify Auto Add-On tab with no items configured — blocked (training-env)
-| Priority | Status | Type |
-|----------|--------|------|
-| Low | Blocked (training-env) | User-Requested |
+**Steps**:
+1. Toggle **Express Content Design Session** → click **Save** → dialog opens
+2. Click **Cancel** → Expected: dialog dismisses
+3. Observe **Express Content Design Session** → Expected: still shows toggled state (checked)
+4. Observe **Save** button → Expected: still enabled
 
-**Blocked**: No alternative location without Auto Add-On items could be identified in the training environment. Cannot verify empty-state behavior (blank panel vs. placeholder message) until a location with zero configured items is available.
+**Expected**: Cancel closes dialog without saving. Pending change is preserved. Save remains enabled.
 
-**When unblocked, verify**:
-1. Navigate to Setup > Location > [location with no add-ons] ✓ Location detail opens
-2. Click **Auto Add-On** tab ✓ Tabpanel loads
-3. Verify empty list ✓ No checkboxes present; either blank panel or placeholder message
-4. Verify **Save** button ✓ Disabled (no changes possible with empty list)
+**Data**: `btnSaveChangesCancel = [role="alertdialog"]:has(h2:text-is("Save Changes")) button:has-text("Cancel")`
 
-**Expected**: Location with no add-ons configured shows empty panel without errors; Save remains disabled
-**Data**: office=to be identified when alternative location available
-**Automatable**: Blocked:Cat-A training-env
+**Cleanup**: Click **Save** → **Ok**, or click ECDS again to revert (Save re-disables).
 
 ---
 
-## TC-LOC-AAO-016: Items vary per location — different location shows different list — blocked (training-env)
-| Priority | Status | Type |
-|----------|--------|------|
-| Medium | Blocked (training-env) | User-Requested |
+## TC-LOC-AAO-008: Save Dialog Ok — Saves Successfully with Toast
 
-**Blocked**: No confirmed alternative location with a different Auto Add-On item set could be identified in the training environment during planning (2026-02-19). Cannot verify cross-location item variability until a second location is available for comparison.
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
 
-**When unblocked, verify**:
-1. Open **Auto Add-On** tab for office 1604 ✓ 5 items shown: Encore Music, Wireless Presenter, Express Content Design Session, Wordly, Labor
-2. Navigate to [second location] ✓ Location detail loads
-3. Click **Auto Add-On** tab on second location ✓ Tab loads
-4. Verify item list differs from office 1604 ✓ Different add-on items and/or item count
+**Preconditions**: **Auto Add-On** tab active. **Express Content Design Session** is unchecked (default).
 
-**Expected**: Auto Add-On checkbox list is location-specific — item sets differ between locations
-**Data**: office=1604 (baseline, 5 items) | office=to be identified when alternative location available
+**Steps**:
+1. Click **Express Content Design Session** (unchecked → checked)
+2. Click **Save** → dialog appears
+3. Click **Ok** → Expected: dialog closes, toast notification appears with text "Local information updated", Save button becomes disabled
 
-**Automatable**: Blocked:Cat-A training-env
+**Expected**: Save succeeds. Toast "Local information updated" is shown. Save re-disables after successful save.
+
+**Data**: `btnSaveChangesOk = [role="alertdialog"]:has(h2:text-is("Save Changes")) button:has-text("Ok")`
+
+**Cleanup**: Uncheck ECDS → **Save** → **Ok** to restore default.
+
+---
+
+## TC-LOC-AAO-009: Toggle Persists After Page Reload
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Preconditions**: **Auto Add-On** tab. **Express Content Design Session** is unchecked (default saved state).
+
+**Steps**:
+1. Click **Express Content Design Session** (unchecked → checked)
+2. Click **Save** → click **Ok** → Expected: toast "Local information updated"
+3. Navigate away (e.g., `about:blank`) then back to `locations/1604/settings/location`
+4. Click **Auto Add-On** tab → Expected: fresh load
+5. Observe **Express Content Design Session** → Expected: checked (`aria-checked="true"`)
+
+**Expected**: Toggled value persists after full page reload — server state was updated.
+
+**Data**: Check `aria-checked="true"` on `[data-testid="location-settings-checkbox-auto-add-on-false_express content design session"]` after reload.
+
+**Cleanup**: Uncheck ECDS → **Save** → **Ok**.
+
+---
+
+## TC-LOC-AAO-010: Save Button Disabled on Fresh Load (No Changes)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Preconditions**: None.
+
+**Steps**:
+1. Navigate fresh to location 1604 settings → click **Auto Add-On** tab
+2. Do NOT interact with any checkbox
+3. Observe **Save** button → Expected: disabled (`disabled` attribute present, button not clickable)
+
+**Expected**: Save button is disabled on fresh load with no pending changes.
+
+**Data**: `btnSave = [data-testid="location-settings-btn-save"]`
+
+---
+
+## TC-LOC-AAO-011: Multiple Toggles Saved Together
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Preconditions**: **Auto Add-On** tab active. Default: ECDS=unchecked, Encore Music=checked.
+
+**Steps**:
+1. Click **Express Content Design Session** (unchecked → checked)
+2. Click **Encore Music** (checked → unchecked)
+3. Observe **Save** → Expected: enabled
+4. Click **Save** → click **Ok** → Expected: save confirmed, toast shown
+5. Navigate away then back → click **Auto Add-On** tab
+6. Observe **Express Content Design Session** → Expected: checked
+7. Observe **Encore Music** → Expected: unchecked
+
+**Expected**: Multiple checkbox changes in a single save all persist correctly after reload.
+
+**Cleanup**: Re-check Encore Music + Uncheck ECDS → **Save** → **Ok** to restore both to defaults.
+
+---
+
+## TC-LOC-AAO-012: Sub-Tab Switch with Unsaved Changes — No Dialog
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional | Yes |
+
+**Preconditions**: **Auto Add-On** tab active. A checkbox toggle has been made (Save enabled).
+
+**Steps**:
+1. Toggle **Express Content Design Session** (Save enables)
+2. Click **Local Information** sub-tab → Expected: switches to Local Information, NO dialog appears
+3. Click **Auto Add-On** sub-tab → Expected: returns to Auto Add-On, pending change still reflects in checkbox state (ECDS checked)
+
+**Expected**: Switching sub-tabs with unsaved changes does NOT trigger the Unsaved Changes dialog. Pending form state is preserved through sub-tab switches.
+
+**Data**: `tabLocalInfo = [data-testid="location-settings-sub-tab-local-information"]`
+
+**Cleanup**: Revert ECDS or Save → Ok.
+
+---
+
+## TC-LOC-AAO-013: Unsaved Changes Dialog Appears on Page Navigation Away
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Preconditions**: **Auto Add-On** tab active. A checkbox toggle has been made WITHOUT saving (Save enabled).
+
+**Steps**:
+1. Toggle **Express Content Design Session** (Save enables) — do NOT click Save
+2. Click **Home** link in sidebar → Expected: `alertdialog` with heading "Unsaved changes" appears
+3. Observe dialog heading → Expected: "Unsaved changes" (note: lowercase 'c')
+4. Observe dialog body → Expected: "Are you sure you want to leave this view? Any unsaved changes will be lost."
+5. Observe dialog buttons → Expected: "Stay" and "Discard"
+
+**Expected**: Unsaved Changes alertdialog appears when navigating away from the page with pending changes. Exact text must match.
+
+**Data**: `dlgUnsavedChanges = [role="alertdialog"]:has(h2:text-is("Unsaved changes"))` | Note: heading is "Unsaved changes" NOT "Unsaved Changes"
+
+---
+
+## TC-LOC-AAO-014: Unsaved Changes — Stay Button Keeps User on Page
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Preconditions**: Unsaved Changes dialog is open (Auto Add-On has pending ECDS toggle, Home link was clicked).
+
+**Steps**:
+1. Toggle ECDS → click **Home** → Unsaved Changes dialog appears
+2. Click **Stay** → Expected: dialog closes, URL remains `/settings/location`, Auto Add-On tab still active
+3. Observe **Express Content Design Session** → Expected: still shows checked (pending state preserved)
+4. Observe **Save** button → Expected: still enabled
+
+**Expected**: Stay closes dialog. User remains on Location Settings page. All pending changes are intact.
+
+**Data**: `btnUnsavedChangesStay = [role="alertdialog"]:has(h2:text-is("Unsaved changes")) button:has-text("Stay")`
+
+**Cleanup**: Revert ECDS or **Save** → **Ok**.
+
+---
+
+## TC-LOC-AAO-015: Unsaved Changes — Discard Button Navigates Away
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional | Yes |
+
+**Preconditions**: Unsaved Changes dialog is open (pending ECDS toggle, Home link clicked).
+
+**Steps**:
+1. Toggle ECDS → click **Home** → dialog opens
+2. Click **Discard** → Expected: dialog closes, page navigates to Home (`/locations/1604/home`)
+3. Navigate back to **Auto Add-On** tab (fresh load)
+4. Observe **Express Content Design Session** → Expected: unchecked (original saved state — change was discarded)
+
+**Expected**: Discard navigates to Home page. Unsaved toggle is discarded. DB retains original saved value.
+
+**Data**: `btnUnsavedChangesDiscard = [role="alertdialog"]:has(h2:text-is("Unsaved changes")) button:has-text("Discard")`
+
+---
+
+## TC-LOC-AAO-016: Item Count Is Location-Specific
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Low | Manual | Functional | No |
+
+**Preconditions**: Access to at least two different location settings pages with different add-on configurations.
+
+**Steps**:
+1. Navigate to **Auto Add-On** tab for location 1604 → count checkbox items → Expected: 5 items
+2. Navigate to **Auto Add-On** tab for a different location → count items → Expected: count may differ from 1604
+
+**Expected**: The Auto Add-On checkbox list is location-specific. Location 1604 has 5 items as of 2026-03-24. Other locations may have different counts and labels.
+
+**Status**: Blocked (Cat-A: requires access to a second location with different add-on configuration from 1604 — environment constraint)

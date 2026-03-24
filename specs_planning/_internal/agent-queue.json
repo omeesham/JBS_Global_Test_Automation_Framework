@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-03-19T08:20:32.085Z",
+  "lastUpdated": "2026-03-24T08:31:47.526Z",
   "config": {
     "maxRetries": 2,
     "autoHealOnFailure": true,
@@ -1496,10 +1496,10 @@
       "id": "location-auto-addon",
       "feature": "Location - Auto Add-On",
       "module": "locations",
-      "stage": "pending_generation",
+      "stage": "planning",
       "priority": "low",
-      "lockedBy": null,
-      "lockedAt": null,
+      "lockedBy": "planner",
+      "lockedAt": "2026-03-24T08:31:47.526Z",
       "intent": "Test Auto Add-On tab: verify checkbox list displays available add-on items. Toggle checkboxes on/off. Verify selections persist after save. List items may vary per location.",
       "userNotes": "Auto Add-On tab confirmed live: Simple vertical checkbox list (no table/grid). 6 items for location 1604: Encore Music (checked), Wireless Presenter (checked), Express Content Design Session (unchecked), Wordly (checked), Test Labor - Jonathan (unchecked), Labor (checked). No complex validation Ã¢â‚¬â€ pure toggle selection. No dedicated Save Ã¢â‚¬â€ relies on left-panel Save.",
       "artifacts": {
@@ -1525,6 +1525,24 @@
           "agent": "planner-post-complete",
           "action": "csv_export",
           "notes": "Auto-exported to export_test_cases/exports/locations_auto_addon_test_cases.csv"
+        },
+        {
+          "agent": "planner",
+          "action": "re-verification",
+          "timestamp": "2026-03-23T00:00:00Z",
+          "notes": "PLN-022 fix: created missing src/selectors/locations/auto-addon.ts (16 keys, PLN-027 10/10 PASS). Shadow DOM eliminated — next-location-settings gone, all checkboxes now React/Radix in main DOM. Breaking changes found vs 2026-02-19: (1) save dialog confirm button is 'Ok' not 'Save', (2) unsaved changes heading is 'Unsaved changes' (lowercase c) not 'Unsaved Changes', (3) unsaved changes buttons are 'Stay'/'Discard' not 'Cancel'/'OK', (4) unsaved changes triggered by sidebar nav only, NOT by sub-tab switching, (5) smart form diff: revert re-disables Save. Test cases TC-008, TC-009, TC-013, TC-014 updated. Test plan selector keys corrected. selfAuditPassed=true."
+        },
+        {
+          "agent": "planner",
+          "action": "redo-locked",
+          "timestamp": "2026-03-24T08:31:47.526Z",
+          "notes": "Redo from scratch with fresh MCP verification per user request"
+        },
+        {
+          "agent": "audit",
+          "action": "structural-fix",
+          "timestamp": "2026-03-24T16:00:00.000Z",
+          "notes": "Added FIELD INVENTORY section (5 checkboxes), Validation Rules (N/A), fixed test plan date sync (2026-03-23→2026-03-24), fixed test plan scenario 015 mismatch (was empty state, now matches TC-015 Discard). Added HARD gates to planner-post-complete.ts: STRUCT-001/002/003/004, COVERAGE-001/002/003. Added STRUCT rules to lint-test-cases.ts. Made checklist evidence checks blocking for boundaryTesting/errorVerification."
         }
       ],
       "uiTestingChecklist": {
@@ -1538,8 +1556,8 @@
         "dialogSymmetry": true,
         "selectorReconciliation": true,
         "explorationCleanup": true,
-        "completedAt": "2026-02-19T17:20:43.752Z",
-        "notes": "boundaryTesting/errorVerification/crossFieldValidation/errorRecovery=false: no numeric/date fields, no inline validation errors, no cross-field dependencies beyond Save activation. dialogSymmetry=true: both Save dialog (Cancel/Save) and Unsaved Changes dialog (Cancel/OK) verified live 2026-02-19."
+        "completedAt": "2026-03-23T00:00:00Z",
+        "notes": "Re-verified 2026-03-23. Shadow DOM eliminated. PLN-027 gate: 10/10 selectors PASS. Dialog buttons corrected: Save dialog = Cancel+Ok; Unsaved changes dialog = Stay+Discard. Smart form diff confirmed. Sub-tab switching confirmed NOT triggering Unsaved changes dialog. selfAuditPassed=true."
       },
       "injectedContext": {
         "generatedAt": "2026-03-19T08:20:32.085Z",
@@ -1964,14 +1982,23 @@
           "agent": "planner-post-complete",
           "action": "csv_export",
           "notes": "Auto-exported to export_test_cases/exports/locations_local_office_settings_test_cases.csv"
+        },
+        {
+          "agent": "planner",
+          "action": "re-exploration",
+          "timestamp": "2026-03-23T12:00:00.000Z",
+          "notes": "Basic Information tab re-explored via MCP on 1604. Scope narrowed: BAS-only (39 TCs, all automatable). Removed HST/ECT TCs (will be separate items). 7 corrections: Use Equipments QC is conditionally disabled (cascade from Fulfillment), Default Order Type now 2 options (Event/Outside), new Default Labor to Hourly checkbox, NM-1264 shows aria-invalid, Phone 1 format validation, dialog text updated, section toggles use SVG checkmark. New selectors file created. Test plan updated with matching 39 scenarios."
+        },
+        {
+          "agent": "planner",
+          "action": "completed-all-tabs",
+          "timestamp": "2026-03-23T18:00:00.000Z",
+          "notes": "All 3 tabs explored via MCP on 1604. History tab: read-only 42-column table, 2 type options (Legacy causes timeout-potential bug), pagination, empty state. ECT tab: 2 independent Save buttons (Fixed Costs + Labor Costs), Benefits Multiplier decimal-to-percent format (raw 0.2 = 20.0%), 66 labor cost rows, non-numeric input silently reverts, no save dialog. Selectors added for History (4) and ECT (30+). 58 TCs total: 39 BAS + 7 HIS + 12 ECT. All automatable. Test plan synced 58/58."
         }
       ],
-      "automatableCount": 54,
-      "totalTcCount": 56,
-      "skippedTcIds": [
-        "TC-LOS-ECT-003",
-        "TC-LOS-ECT-007"
-      ],
+      "automatableCount": 58,
+      "totalTcCount": 58,
+      "skippedTcIds": [],
       "selfAuditPassed": true,
       "uiTestingChecklist": {
         "fieldDiscovery": true,
@@ -1981,8 +2008,8 @@
         "saveReloadCycles": true,
         "crossFieldValidation": true,
         "errorRecovery": true,
-        "notes": "All 3 tabs MCP-explored. 56 TCs cover spinbutton boundaries+cross-field NM-1264, misc checkboxes, required Phone 1, sections/rooms NM-1223, logo combobox, discount exemptions, unsaved-changes dialog, history filter/read-only, ECT dual-save/NM-1260 role gate. Self-audit caught+fixed 10 issues.",
-        "completedAt": "2026-03-02T09:12:21.281Z"
+        "notes": "All 3 tabs explored (2026-03-23). 58 TCs (39 BAS + 7 HIS + 12 ECT), all automatable. MCP-verified: BAS (6 offsets, Fulfillment->QC cascade, Default Labor to Hourly, Phone 1 format, sections, rooms, logo, exemptions, save/unsaved dialogs, XSS). HIS (42-col read-only table, 2 type options, pagination, empty state). ECT (2 Saves, Benefits Multiplier decimal-to-percent, 66 labor costs, currency USD-only, profit target + subrental read-only tables).",
+        "completedAt": "2026-03-23T18:00:00.000Z"
       },
       "injectedContext": {
         "generatedAt": "2026-03-19T08:20:32.085Z",

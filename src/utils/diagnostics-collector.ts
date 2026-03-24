@@ -16,6 +16,7 @@ import {
   type AuthChainEntry,
   type DiagnosticSnapshot,
   type UrlBreadcrumb,
+  type HarEntry,
 } from '../framework-contracts/diagnostics';
 
 /** Max response body length to capture (2KB). */
@@ -35,6 +36,8 @@ export class DiagnosticsCollector {
   private urlHistory: string[] = [];
   private urlBreadcrumbs: UrlBreadcrumb[] = [];
   private authChain: AuthChainEntry[] = [];
+  /** All HTTP responses (for HAR context window around failures). */
+  private allResponses: HarEntry[] = [];
 
   constructor(private readonly page: Page) {
     this.attachListeners();
@@ -74,6 +77,18 @@ export class DiagnosticsCollector {
             timestamp: Date.now(),
           });
         }
+
+        // Track all responses for HAR context window
+        try {
+          const req = response.request();
+          this.allResponses.push({
+            url,
+            method: req.method(),
+            status,
+            timestamp: Date.now(),
+            duration: 0, // precise timing not available from listener
+          });
+        } catch { /* best-effort HAR tracking */ }
 
         // Only persist 4xx/5xx failures
         if (status >= 400) {
@@ -150,6 +165,63 @@ export class DiagnosticsCollector {
   /** Full auth chain (all responses from auth-related URLs). */
   getAuthChain(): AuthChainEntry[] {
     return this.authChain;
+  }
+
+  // ---- HAR & DOM capture ----
+
+  /**
+   * Capture HAR entries: all FAILED requests (4xx/5xx) plus 5 requests before and after each failure
+   * for context. Respects HAR_MAX_SIZE env (default 1MB = 1048576 bytes).
+   */
+  captureHar(): HarEntry[] {
+    const maxSize = parseInt(process.env.HAR_MAX_SIZE ?? '1048576', 10);
+    const failedIndices: number[] = [];
+
+    // Find indices of failed responses
+    for (let i = 0; i < this.allResponses.length; i++) {
+      const resp = this.allResponses[i];
+      if (resp && resp.status >= 400) {
+        failedIndices.push(i);
+      }
+    }
+
+    if (failedIndices.length === 0) return [];
+
+    // Build context window: include 5 before and 5 after each failure
+    const includeIndices = new Set<number>();
+    for (const idx of failedIndices) {
+      for (let j = Math.max(0, idx - 5); j <= Math.min(this.allResponses.length - 1, idx + 5); j++) {
+        includeIndices.add(j);
+      }
+    }
+
+    const entries: HarEntry[] = [];
+    let totalSize = 0;
+
+    for (const idx of Array.from(includeIndices).sort((a, b) => a - b)) {
+      const entry = this.allResponses[idx];
+      if (!entry) continue;
+      const entrySize = JSON.stringify(entry).length;
+      if (totalSize + entrySize > maxSize) break;
+      entries.push(entry);
+      totalSize += entrySize;
+    }
+
+    return entries;
+  }
+
+  /**
+   * Capture full DOM serialization as a string via page.evaluate.
+   * Higher size limit than domSnippet (50KB vs 10KB).
+   * Returns empty string if page is closed or evaluation fails.
+   */
+  async captureDomState(): Promise<string> {
+    try {
+      const dom = await this.page.evaluate(() => document.documentElement.outerHTML);
+      return (dom ?? '').substring(0, 51_200); // 50KB cap
+    } catch {
+      return '';
+    }
   }
 
   // ---- Summaries ----

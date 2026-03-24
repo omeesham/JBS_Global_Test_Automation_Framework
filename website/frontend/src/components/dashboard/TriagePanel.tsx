@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { AlertTriangle, Bug, Wrench, ChevronDown, ChevronRight, CheckSquare, Square, Send, X } from 'lucide-react';
+import { AlertTriangle, Bug, Wrench, ChevronDown, ChevronRight, CheckSquare, Square, Send, X, Search, RefreshCw, Server, HelpCircle, Zap, UserCheck } from 'lucide-react';
 import { fetchTriageItems, bulkDecideTriage, type TriageItemSummary } from '@/services/bugApi';
 import { resumeTriagePipeline } from '@/services/encoreApi';
 
@@ -19,6 +19,17 @@ const DISPOSITION_LABEL: Record<string, { label: string; color: string }> = {
   FEATURE_CHANGE: { label: 'Feature Changed', color: 'text-amber-600' },
   TEST_DEFECT: { label: 'Test Issue', color: 'text-blue-600' },
   UNCERTAIN: { label: 'Needs Review', color: 'text-gray-500' },
+};
+
+const BUG_HUNT_LABEL: Record<string, { label: string; color: string; bgColor: string; icon: typeof Bug; auto: boolean }> = {
+  UNCHANGED_FAILURE: { label: 'Bug (Feature Intact)', color: 'text-red-600', bgColor: 'bg-red-50', icon: Bug, auto: true },
+  FEATURE_CHANGED_SMALL: { label: 'Small Change (Auto-heal)', color: 'text-blue-600', bgColor: 'bg-blue-50', icon: Wrench, auto: true },
+  FEATURE_CHANGED_BIG: { label: 'Big Change (Escalated)', color: 'text-amber-600', bgColor: 'bg-amber-50', icon: AlertTriangle, auto: false },
+  TESTID_MISSING: { label: 'Test-ID Missing (Bug)', color: 'text-red-600', bgColor: 'bg-red-50', icon: Bug, auto: true },
+  TESTID_CHANGED: { label: 'Test-ID Changed (Review)', color: 'text-amber-600', bgColor: 'bg-amber-50', icon: Search, auto: false },
+  FLAKE: { label: 'Flaky (Transient)', color: 'text-yellow-500', bgColor: 'bg-yellow-50', icon: RefreshCw, auto: true },
+  INFRASTRUCTURE_TRANSIENT: { label: 'Infra (Transient)', color: 'text-gray-500', bgColor: 'bg-gray-50', icon: Server, auto: true },
+  UNCERTAIN: { label: 'Needs Review', color: 'text-gray-500', bgColor: 'bg-gray-50', icon: HelpCircle, auto: false },
 };
 
 const DECISION_ICONS = {
@@ -42,8 +53,35 @@ export default function TriagePanel({ runId, onResume }: Props) {
       .finally(() => setLoading(false));
   }, [runId]);
 
-  // Group by disposition
+  // Helper: resolve label for an item (bugHuntCategory takes priority)
+  const getItemLabel = (item: TriageItemSummary) => {
+    const bhc = item.bugHuntCategory;
+    if (bhc && BUG_HUNT_LABEL[bhc]) return { ...BUG_HUNT_LABEL[bhc], key: bhc };
+    const disp = DISPOSITION_LABEL[item.disposition];
+    return disp ? { ...disp, bgColor: 'bg-gray-50', icon: Bug, auto: false, key: item.disposition } : null;
+  };
+
+  // Group by disposition (or bugHuntCategory when present)
   const groups = useMemo(() => {
+    const hasBugHunt = items.some(i => i.bugHuntCategory && BUG_HUNT_LABEL[i.bugHuntCategory]);
+
+    if (hasBugHunt) {
+      const order = Object.keys(BUG_HUNT_LABEL);
+      const grouped = new Map<string, TriageItemSummary[]>();
+      for (const item of items) {
+        const bhc = item.bugHuntCategory;
+        const key = (bhc && BUG_HUNT_LABEL[bhc]) ? bhc : item.disposition;
+        if (!grouped.has(key)) grouped.set(key, []);
+        grouped.get(key)!.push(item);
+      }
+      // Show bugHunt categories first, then remaining dispositions
+      const allKeys = [...order, ...['BUG', 'FEATURE_CHANGE', 'TEST_DEFECT', 'UNCERTAIN']];
+      const seen = new Set<string>();
+      return allKeys
+        .filter(k => { if (seen.has(k) || !grouped.has(k)) return false; seen.add(k); return true; })
+        .map(k => ({ disposition: k, items: grouped.get(k)! }));
+    }
+
     const order: string[] = ['BUG', 'FEATURE_CHANGE', 'TEST_DEFECT', 'UNCERTAIN'];
     const grouped = new Map<string, TriageItemSummary[]>();
     for (const item of items) {
@@ -53,6 +91,20 @@ export default function TriagePanel({ runId, onResume }: Props) {
     }
     return order.filter(k => grouped.has(k)).map(k => ({ disposition: k, items: grouped.get(k)! }));
   }, [items]);
+
+  // Autonomous action log: split items by auto vs manual
+  const { autoItems, manualItems } = useMemo(() => {
+    const auto: TriageItemSummary[] = [];
+    const manual: TriageItemSummary[] = [];
+    for (const item of items) {
+      const bhc = item.bugHuntCategory;
+      if (bhc && BUG_HUNT_LABEL[bhc]) {
+        (BUG_HUNT_LABEL[bhc].auto ? auto : manual).push(item);
+      }
+    }
+    return { autoItems: auto, manualItems: manual };
+  }, [items]);
+  const showAutonomousLog = autoItems.length > 0 || manualItems.length > 0;
 
   const pendingCount = items.filter(i => !i.decision).length;
   const allSelected = items.length > 0 && selected.size === items.length;
@@ -177,13 +229,26 @@ export default function TriagePanel({ runId, onResume }: Props) {
         {groups.map(group => (
           <div key={group.disposition}>
             {/* Group header */}
-            {groups.length > 1 && (
-              <div className="px-4 py-2 bg-[#F5F3FF]">
-                <span className={`text-[10px] font-semibold uppercase tracking-wide ${DISPOSITION_LABEL[group.disposition]?.color}`}>
-                  {DISPOSITION_LABEL[group.disposition]?.label} ({group.items.length})
-                </span>
-              </div>
-            )}
+            {groups.length > 1 && (() => {
+              const bhl = BUG_HUNT_LABEL[group.disposition];
+              const dl = DISPOSITION_LABEL[group.disposition];
+              const label = bhl?.label || dl?.label || group.disposition;
+              const color = bhl?.color || dl?.color || 'text-gray-500';
+              const BhIcon = bhl?.icon;
+              return (
+                <div className={`px-4 py-2 ${bhl?.bgColor || 'bg-[#F5F3FF]'} flex items-center gap-1.5`}>
+                  {BhIcon && <BhIcon className={`w-3.5 h-3.5 ${color}`} />}
+                  <span className={`text-[10px] font-semibold uppercase tracking-wide ${color}`}>
+                    {label} ({group.items.length})
+                  </span>
+                  {bhl && (
+                    <span className={`ml-auto text-[9px] px-1.5 py-0.5 rounded-full font-medium ${bhl.auto ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {bhl.auto ? 'Auto-decided' : 'Your decision'}
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Items */}
             {group.items.map(item => {
@@ -246,8 +311,13 @@ export default function TriagePanel({ runId, onResume }: Props) {
                         <div className="flex items-center gap-1.5 mt-2">
                           <button
                             onClick={async () => {
-                              await bulkDecideTriage([item.id], 'report_bug');
-                              setItems(prev => prev.map(i => i.id === item.id ? { ...i, decision: 'report_bug', decidedAt: new Date().toISOString() } : i));
+                              try {
+                                await bulkDecideTriage([item.id], 'report_bug');
+                                setItems(prev => prev.map(i => i.id === item.id ? { ...i, decision: 'report_bug', decidedAt: new Date().toISOString() } : i));
+                              } catch (err) {
+                                console.error('[TriagePanel] Failed to report bug:', err);
+                                setError('Failed to report bug. Please try again.');
+                              }
                             }}
                             className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100"
                           >
@@ -255,8 +325,13 @@ export default function TriagePanel({ runId, onResume }: Props) {
                           </button>
                           <button
                             onClick={async () => {
-                              await bulkDecideTriage([item.id], 'heal_feature_change');
-                              setItems(prev => prev.map(i => i.id === item.id ? { ...i, decision: 'heal_feature_change', decidedAt: new Date().toISOString() } : i));
+                              try {
+                                await bulkDecideTriage([item.id], 'heal_feature_change');
+                                setItems(prev => prev.map(i => i.id === item.id ? { ...i, decision: 'heal_feature_change', decidedAt: new Date().toISOString() } : i));
+                              } catch (err) {
+                                console.error('[TriagePanel] Failed to heal:', err);
+                                setError('Failed to heal feature change. Please try again.');
+                              }
                             }}
                             className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-100"
                           >
@@ -264,8 +339,13 @@ export default function TriagePanel({ runId, onResume }: Props) {
                           </button>
                           <button
                             onClick={async () => {
-                              await bulkDecideTriage([item.id], 'dismiss');
-                              setItems(prev => prev.map(i => i.id === item.id ? { ...i, decision: 'dismiss', decidedAt: new Date().toISOString() } : i));
+                              try {
+                                await bulkDecideTriage([item.id], 'dismiss');
+                                setItems(prev => prev.map(i => i.id === item.id ? { ...i, decision: 'dismiss', decidedAt: new Date().toISOString() } : i));
+                              } catch (err) {
+                                console.error('[TriagePanel] Failed to dismiss:', err);
+                                setError('Failed to dismiss item. Please try again.');
+                              }
                             }}
                             className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium bg-gray-50 text-gray-500 border border-gray-200 rounded-md hover:bg-gray-100"
                           >
@@ -281,6 +361,30 @@ export default function TriagePanel({ runId, onResume }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Autonomous Action Log */}
+      {showAutonomousLog && (
+        <div className="px-4 py-3 border-t border-[#EDE9FE]">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="w-3.5 h-3.5 text-[#7C3AED]" />
+            <h4 className="text-[10px] font-semibold uppercase tracking-wide text-[#1E1B4B]">Autonomous Action Log</h4>
+          </div>
+          <div className="flex gap-3">
+            {autoItems.length > 0 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <Zap className="w-3 h-3 text-emerald-600" />
+                <span className="text-[10px] font-medium text-emerald-700">{autoItems.length} Auto-decided</span>
+              </div>
+            )}
+            {manualItems.length > 0 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+                <UserCheck className="w-3 h-3 text-amber-600" />
+                <span className="text-[10px] font-medium text-amber-700">{manualItems.length} Your decision needed</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Error */}
       {error && (

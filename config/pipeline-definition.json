@@ -1,16 +1,17 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "defaults": {
     "model": "sonnet",
-    "maxTurnsPerStage": 50,
-    "budgetPerRunUsd": 2,
-    "budgetPerStageUsd": 0.5,
+    "maxTurnsPerStage": 0,
+    "budgetPerRunUsd": 0,
+    "budgetPerStageUsd": 0,
     "workerPollIntervalMs": 5000,
     "workerHeartbeatIntervalMs": 30000,
     "cliPath": "claude",
     "cliOutputFormat": "json",
     "agentRunner": "cli",
-    "autoInvoke": true
+    "autoInvoke": true,
+    "note_budgets": "0 = unlimited. Only the user can stop an agent (like stopping Claude mid-chat)."
   },
   "models": {
     "available": [
@@ -35,12 +36,13 @@
       "name": "Requirements Intake",
       "agent": "playwright-requirements",
       "agentFile": ".github/agents/playwright-requirements.agent.md",
-      "model": "haiku",
+      "model": "sonnet",
+      "effort": "high",
       "enabled": true,
-      "maxTurns": 30,
-      "budgetCap": 0.1,
+      "maxTurns": 0,
+      "budgetCap": 0,
       "retries": 0,
-      "timeoutSeconds": 300,
+      "timeoutSeconds": 0,
       "next": {
         "success": "planning"
       },
@@ -56,11 +58,12 @@
       "agent": "playwright-test-planner",
       "agentFile": ".github/agents/playwright-test-planner.agent.md",
       "model": "sonnet",
+      "effort": "high",
       "enabled": true,
-      "maxTurns": 50,
-      "budgetCap": 0.15,
+      "maxTurns": 0,
+      "budgetCap": 0,
       "retries": 0,
-      "timeoutSeconds": 600,
+      "timeoutSeconds": 0,
       "next": {
         "success": "generation"
       },
@@ -76,14 +79,14 @@
       "agent": "playwright-test-generator",
       "agentFile": ".github/agents/playwright-test-generator.agent.md",
       "model": "sonnet",
+      "effort": "high",
       "enabled": true,
-      "maxTurns": 80,
-      "budgetCap": 0.2,
+      "maxTurns": 0,
+      "budgetCap": 0,
       "retries": 0,
-      "timeoutSeconds": 600,
+      "timeoutSeconds": 0,
       "next": {
-        "tests_pass": "audit",
-        "tests_fail": "healing"
+        "success": "audit"
       },
       "routing": {
         "condition": "testResults",
@@ -95,16 +98,9 @@
           {
             "when": "failureClass in selector_not_found,selector_ambiguous,missing_selectors",
             "then": "planning"
-          },
-          {
-            "when": "failureClass == typescript_compile",
-            "then": "healing"
-          },
-          {
-            "when": "failedCount > 0",
-            "then": "healing"
           }
-        ]
+        ],
+        "note": "Generator runs in copilot loop until tests pass. No routing to healer. Selector issues go back to planner."
       },
       "mcpConfig": "browser-and-test",
       "approvalMode": "auto",
@@ -118,57 +114,36 @@
       "agent": "playwright-test-healer",
       "agentFile": ".github/agents/playwright-test-healer.agent.md",
       "model": "sonnet",
+      "effort": "high",
       "enabled": true,
-      "maxTurns": 60,
-      "budgetCap": 0.15,
-      "retries": 3,
-      "timeoutSeconds": 600,
-      "next": {
-        "tests_pass": "audit",
-        "tests_fail": "healing",
-        "max_retries": "fixme"
-      },
-      "routing": {
-        "condition": "testResults",
-        "rules": [
-          {
-            "when": "failedCount == 0",
-            "then": "audit"
-          },
-          {
-            "when": "failureClass in selector_not_found,selector_ambiguous",
-            "then": "planning"
-          },
-          {
-            "when": "failedCount > 0",
-            "then": "healing"
-          },
-          {
-            "when": "fail",
-            "then": "healing"
-          }
-        ]
-      },
+      "pipelineStage": false,
+      "standalone": true,
+      "maxTurns": 0,
+      "budgetCap": 0,
+      "retries": 0,
+      "timeoutSeconds": 0,
+      "next": {},
       "mcpConfig": "browser-and-test",
       "approvalMode": "auto",
       "preRunGate": "healer-pre-run.ts",
       "postCompleteGate": "healer-post-complete.ts",
-      "description": "Debugs and fixes failing test specs"
+      "description": "Post-production support bot. Fixes previously-working tests that broke due to app changes. NOT part of normal pipeline — invoked manually by user."
     },
     {
       "id": "audit",
       "name": "Quality Audit",
       "agent": "playwright-pipeline-audit",
       "agentFile": ".github/agents/playwright-pipeline-audit.agent.md",
-      "model": "haiku",
+      "model": "sonnet",
+      "effort": "high",
       "enabled": true,
-      "maxTurns": 40,
-      "budgetCap": 0.05,
-      "retries": 2,
-      "timeoutSeconds": 300,
+      "maxTurns": 0,
+      "budgetCap": 0,
+      "retries": 0,
+      "timeoutSeconds": 0,
       "next": {
         "pass": "completed",
-        "critical": "healing"
+        "critical": "fixme"
       },
       "mcpConfig": null,
       "approvalMode": "auto",
@@ -183,23 +158,24 @@
     "cancelled"
   ],
   "convergenceGuards": {
-    "enabled": true,
+    "enabled": false,
+    "note": "Disabled — no turn/budget limits. User controls agent lifecycle.",
     "sameFindings": {
-      "enabled": true,
+      "enabled": false,
       "action": "fixme"
     },
     "notDecreasing": {
-      "enabled": true,
+      "enabled": false,
       "windowSize": 2,
       "action": "fixme"
     },
     "maxIterations": {
-      "enabled": true,
-      "limit": 3,
+      "enabled": false,
+      "limit": 0,
       "action": "fixme"
     },
     "budgetExhausted": {
-      "enabled": true,
+      "enabled": false,
       "action": "fixme"
     }
   }

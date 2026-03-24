@@ -23,6 +23,8 @@ import dashboardRoutes from './routes/dashboard.routes.js';
 import aiProviderRoutes from './routes/ai-provider.routes.js';
 import workerControlRoutes from './routes/worker-control.routes.js';
 import bugReportsRoutes from './routes/bug-reports.routes.js';
+import testIdsRoutes from './routes/test-ids.routes.js';
+import escalationsRoutes from './routes/escalations.routes.js';
 import tenantMiddleware from './middleware/tenant.middleware.js';
 import pool, { initDb } from './db.js';
 
@@ -51,6 +53,8 @@ app.use('/api/website-runs', tenantMiddleware, websiteRunsRoutes);
 app.use('/api/admin', tenantMiddleware, adminRoutes);
 app.use('/api/dashboard', tenantMiddleware, dashboardRoutes);
 app.use('/api/bugs', tenantMiddleware, bugReportsRoutes);
+app.use('/api/test-ids', tenantMiddleware, testIdsRoutes);
+app.use('/api/escalations', tenantMiddleware, escalationsRoutes);
 
 // Worker control — JWT-protected proxy to Encore worker lifecycle endpoints.
 // Mounted at /api/worker-control (NOT /api/admin) because Vite dev proxy

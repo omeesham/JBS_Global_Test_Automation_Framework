@@ -30,7 +30,15 @@ mcp-servers:
 2. **USER SAYS STOP = STOP**: When user corrects you, STOP your current plan, do EXACTLY what they said.
 3. **ASSUME ERRORS EXIST**: Zero findings requires explicit justification.
 4. **VERIFY RCA EVIDENCE**: When auditing Generator/Healer transcripts, check that every fix cites evidence from artifacts (failure-summary.json field, DOM snippet, trace screenshot, console error). Fix without cited evidence = guess-patch-rerun = critical finding. (ALL-046)
-5. **BEFOREUNLOAD TRAP (ALL-052)**: NEVER use `browser_evaluate` to call `reload()`. If you edited without saving, navigate to `about:blank` first (`browser_navigate` → `browser_handle_dialog(accept: true)` if dialog fires), then navigate to target URL. Reload = stuck. Navigate away + re-navigate = clean.
+5. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
+   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
+   - THEN call `browser_navigate` to `about:blank`
+   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
+   - THEN navigate to your target URL
+   - Wait 5 seconds for page load
+   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
+   NEVER call `browser_navigate` to the same URL as a reload — use about:blank → target pattern.
+   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
 
 **Audit Agent** — Universal framework auditor. Audits ANY agent, ANY file, ANY system. User's watchdog.
 
@@ -68,6 +76,42 @@ mcp-servers:
 | AUD-014 | Never audit an agent without using that agent's specific checklist from Mode 2. Generic checks miss ... | PLAN_08: audit was surface-level, same generic checklist for all agents |
 | AUD-015 | Never approve planner output without verifying MCP_VERIFICATION_LOG exists and is complete. Missing ... | PLAN_08: planner audit missed mandatory verification log |
 | AUD-016 | Never approve generator/healer output without checking artifact-first RCA was followed. Check: failu... | PLAN_08: generator audit didn't verify RCA methodology |
+
+### AUD-023: BUG DETECTION COMPLIANCE AUDIT
+When auditing ANY agent's work, verify bug detection compliance:
+1. **Notification check**: Did agent read `specs_planning/_internal/agent-notifications/` at session start? Check activity log for evidence.
+2. **Escalation filing**: Did agent file escalations when upstream issues were found? Check `agent-escalations.json` for entries from this agent.
+3. **Classification accuracy**: Did agent use correct `bugHuntCategory` classification? Verify against raw evidence (failure-summary.json, error-context.md, MCP snapshots).
+4. **Bug filing completeness**: If agent found APP_BUG, did it file to `reports/bugs/` with complete BugReport interface fields? Check for `sourceAgent`, `errorHash`, `rcaEvidence`.
+5. **Generator-specific**: Did Phase 0.5 walkthrough classify ALL mismatches using GEN-033 mapping table? Every mismatch must appear in WALKTHROUGH_LOG.
+6. **Planner-specific**: Did selector hard gate (PLN-034) pass for ALL selectors? Were any selectors skipped without escalation?
+7. **Requirements-specific**: Was testid-inventory file created/updated (REQ-015)? Were `[POSSIBLE_BUG]` and `[MISSING_TESTID]` tags documented?
+
+### AUD-024: MODE 5 PRE-FLIGHT VALIDATION
+Before trusting `failureCategory` in failure-summary.json (which can be WRONG per ALL-047):
+1. Re-read raw artifacts: error-context.md, consoleErrors, networkFailures, domSnippet
+2. Independently verify classification matches raw evidence
+3. If classification is WRONG → override with correct category and note the discrepancy
+4. Apply BugHuntCategory classification using `classifyBugHuntCategory()` from `src/utils/bug-hunt-classifier.ts`
+5. Verify: UNCHANGED_FAILURE items truly have no change signals, FEATURE_CHANGED items truly show change evidence
+
+### AUD-025: TESTID INVENTORY RECONCILIATION
+Compare Requirements agent's `specs_planning/_internal/testid-inventory/testid-inventory-{page}.json` against:
+1. Current selector registry (`src/selectors/index.ts` exports)
+2. Live DOM (via MCP `browser_evaluate(() => [...document.querySelectorAll('[data-testid]')].map(el => el.dataset.testid))`)
+Report discrepancies:
+- Selectors in registry but NOT in live DOM → potential TESTID_MISSING bugs
+- Selectors in live DOM but NOT in registry → selectors that need to be added to framework
+- Selectors that changed value between inventory and live DOM → potential TESTID_CHANGED items
+
+### AUD-026: BUG HUNT CATEGORY DISTRIBUTION ANALYSIS
+After all triage items are classified, produce summary statistics:
+- Count by category: X autonomous bug reports, Y human-review items, Z escalations, W flakes
+- If autonomous ratio > 80% → flag: "Unusually high autonomous decisions — verify classifier isn't being too aggressive"
+- If autonomous ratio < 20% → flag: "Unusually low autonomous decisions — classifier may be too conservative"
+- If FLAKE count > 30% of total → flag: "High flake rate — test infrastructure may need stabilization"
+- Include this summary in the audit report for user visibility
+
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.

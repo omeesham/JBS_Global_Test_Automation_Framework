@@ -2,8 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClient } from '@/contexts/ClientContext';
 import { useWebsite } from '@/contexts/WebsiteContext';
-import { chatAsk, createChatConversation, saveTestCases, exportTestCases, trackWebsiteRun, startWorker, getWorkerControlStatus } from '@/services/api';
-import { createPipelineRun } from '@/services/encoreApi';
+import { chatAsk, createChatConversation, saveTestCases, exportTestCases, trackWebsiteRun, startWorker, getWorkerControlStatus, startPipelineFromChat } from '@/services/api';
+import { createPipelineRun, approvePipelineRun } from '@/services/encoreApi';
 import WorkerIndicator from '@/components/common/WorkerIndicator';
 import { usePipelineSSE } from '@/hooks/usePipelineSSE';
 import { useActivePipeline } from '@/contexts/ActivePipelineContext';
@@ -11,13 +11,11 @@ import { buildInitialStages } from '@/utils/pipeline-stages';
 import ChatMessageList from '@/components/chat/ChatMessageList';
 import ChatInput from '@/components/chat/ChatInput';
 import ChatWelcome from '@/components/chat/ChatWelcome';
-import ModelSelector from '@/components/chat/ModelSelector';
+import AgentSelector from '@/components/chat/AgentSelector';
+import CollapsedArtifactCard from '@/components/chat/CollapsedArtifactCard';
 import JiraImportFlow from '@/components/chat/JiraImportFlow';
-import PipelineLaunchCard from '@/components/chat/PipelineLaunchCard';
-import ChatApprovalCard from '@/components/chat/ChatApprovalCard';
 import ChatTriageCard from '@/components/chat/ChatTriageCard';
 import ArtifactPreviewCard from '@/components/chat/ArtifactPreviewCard';
-import RequirementsGateCard from '@/components/chat/RequirementsGateCard';
 import TestCaseResults from '@/components/chat/TestCaseResults';
 import ColumnSelector from '@/components/chat/ColumnSelector';
 import PipelineGraph from '@/components/pipeline/PipelineGraph';
@@ -30,13 +28,22 @@ export interface ChatMessage {
   id: string;
   sender: 'user' | 'assistant';
   text: string;
-  responseType?: 'options' | 'progress' | 'results' | 'jira_stories' | 'text';
+  responseType?: 'options' | 'progress' | 'results' | 'jira_stories' | 'text' | 'collapsed_artifact';
   data?: any;
 }
 
 type ChatModel = 'haiku' | 'sonnet' | 'opus';
 
-type ActiveModal = 'launch' | 'jira' | 'column-select' | null;
+type ActiveModal = 'jira' | 'column-select' | null;
+
+const AGENT_DISPLAY_NAMES: Record<string, string> = {
+  auto: 'Auto-detect',
+  requirements: 'Requirements',
+  planning: 'Planner',
+  generation: 'Generator',
+  audit: 'Audit',
+  healing: 'Healer',
+};
 
 const ALL_COLUMNS = [
   { key: 'tcNumber', label: 'TC Number', default: true },
@@ -62,13 +69,17 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [model, setModel] = useState<ChatModel>('sonnet');
-  const [thinking, setThinking] = useState(false);
+  const model: ChatModel = 'sonnet';
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const [agentModel, setAgentModel] = useState<ChatModel | null>(null);
+  const [executionMode, setExecutionMode] = useState<'auto' | 'manual'>(
+    () => (localStorage.getItem('encore_execution_mode') as 'auto' | 'manual') || 'auto'
+  );
+  const [pipelineModule, setPipelineModule] = useState('');
   const [sending, setSending] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [minimizedCards, setMinimizedCards] = useState<Set<string>>(new Set());
-  const [requirementsGate, setRequirementsGate] = useState<{ pageId: string; runId: string } | null>(null);
 
   // Pipeline hero section state
   const [showActivity, setShowActivity] = useState(true);
@@ -85,13 +96,17 @@ export default function ChatPage() {
   const [workerActionLoading, setWorkerActionLoading] = useState(false);
   const autoStartAttempted = useRef(false);
 
-  // Show pipeline hero when pipeline is active or recently completed
   const showPipelineHero = pipelineIsActive || pipelineStatus === 'completed' || pipelineStatus === 'failed' || pipelineStatus === 'awaiting_triage' || pipelineStatus === 'awaiting_approval';
 
   useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
+  // Persist execution mode
+  const handleModeChange = useCallback((mode: 'auto' | 'manual') => {
+    setExecutionMode(mode);
+    localStorage.setItem('encore_execution_mode', mode);
+  }, []);
+
   // Global Escape key handler for modals
-  // Global Escape key handler for modals — empty deps, reads activeModal via closure
   const activeModalRef = useRef(activeModal);
   activeModalRef.current = activeModal;
   useEffect(() => {
@@ -115,20 +130,54 @@ export default function ChatPage() {
     setMessages(prev => [...prev, { id: uid(), sender, text, ...extra }]);
   }, []);
 
-  // Pipeline SSE hook (page-specific callbacks only)
+  // Pipeline SSE hook
   const pipeline = usePipelineSSE({
     onComplete: (event) => {
       push('assistant', 'Testing complete!', { responseType: 'results', data: { count: event.totalTests || 0, runId: event.runId } });
-      setActiveModal(null);
     },
     onError: (message) => {
       push('assistant', `Error: ${message}`);
-      setActiveModal(null);
     },
     initialStages: pipelineDefinition ? buildInitialStages(pipelineDefinition) : undefined,
   });
 
-  // Check worker status — auto-start if offline (one attempt per page load)
+  // Auto-approve in auto mode — instant, no countdown
+  const lastAutoApproveRef = useRef<string | null>(null);
+  const pipelineStagesRef = useRef(pipelineStages);
+  pipelineStagesRef.current = pipelineStages;
+
+  useEffect(() => {
+    if (pendingAction === 'approval_required' && executionMode === 'auto' && activeRunId) {
+      if (lastAutoApproveRef.current === activeRunId) return;
+      lastAutoApproveRef.current = activeRunId;
+
+      const completedStage = pipelineStagesRef.current.filter(s => s.status === 'completed').pop();
+      const stageName = completedStage?.key || completedStage?.name || 'Stage';
+
+      setMessages(prev => [...prev, {
+        id: uid(),
+        sender: 'assistant',
+        text: `${stageName} complete — auto-approved`,
+        responseType: 'collapsed_artifact',
+        data: { runId: activeRunId, stageName },
+      }]);
+
+      approvePipelineRun(activeRunId)
+        .then(() => activePipeline.clearPendingAction())
+        .catch(() => {
+          setMessages(prev => [...prev, {
+            id: uid(),
+            sender: 'assistant',
+            text: 'Auto-approve failed. Review manually.',
+          }]);
+        });
+    }
+    if (pendingAction !== 'approval_required') {
+      lastAutoApproveRef.current = null;
+    }
+  }, [pendingAction, executionMode, activeRunId, activePipeline]);
+
+  // Check worker status — auto-start if offline
   useEffect(() => {
     getWorkerControlStatus()
       .then((s) => {
@@ -176,88 +225,105 @@ export default function ChatPage() {
     }
   }, [user?.username, conversationId]);
 
-  /* ── Send message to AI ── */
+  /* ── Send message — two paths ── */
   const handleSend = async (text: string) => {
     push('user', text);
     setSending(true);
-    try {
-      const response = await chatAsk({
-        message: text,
-        conversationId: conversationId || undefined,
-        model,
-        thinkingEnabled: thinking,
-      });
-      push('assistant', response.text, {
-        responseType: response.responseType,
-        data: response.data || response.params,
-      });
 
-      // Handle actions
-      if (response.action === 'connect_jira') setActiveModal('jira');
-      if (response.action === 'trigger_run' && response.runId) {
-        // Chat-triggered pipeline auto-start (A5)
-        if (!client?.id) {
-          push('assistant', 'Please select a client first before running the pipeline.');
+    try {
+      if (selectedAgent) {
+        // PATH A: Agent selected → direct pipeline start (bypass chatbot AI)
+        const agentName = AGENT_DISPLAY_NAMES[selectedAgent] || selectedAgent;
+        push('assistant', `Starting ${agentName}...`);
+
+        const result = await startPipelineFromChat({
+          agent: selectedAgent,
+          executionMode,
+          intent: text,
+          clientId: client?.id,
+          model: agentModel || undefined,
+          targetUrl: website?.url || undefined,
+          module: pipelineModule || undefined,
+          feature: text.trim().slice(0, 80) || undefined,
+        });
+
+        if (result.prerequisiteMissing) {
+          // Manual mode — prereqs not met
+          push('assistant', `${result.error || 'Prerequisites missing.'} ${result.suggestion || ''}`);
+        } else if (result.success && result.runId) {
+          activePipeline.startPipeline(result.runId, executionMode);
+          if (result.autoChained) {
+            const fromName = AGENT_DISPLAY_NAMES[result.startedFrom || ''] || result.startedFrom;
+            push('assistant', `Starting from ${fromName} (prerequisite). Running in ${executionMode} mode.`);
+          } else {
+            push('assistant', `Pipeline started in ${executionMode} mode.`);
+          }
         } else {
-          const mode = text.match(/manual|step.by.step|review.each/i) ? 'manual' : 'auto';
-          activePipeline.startPipeline(response.runId, mode);
-          push('assistant', `Pipeline started in ${mode} mode. Watch the live progress above.`);
-          setActiveModal(null);
+          push('assistant', result.error || 'Failed to start pipeline. Is the worker running?');
         }
-      }
-      if (response.action === 'show_dashboard') window.location.href = '/dashboard';
-      if (response.action === 'run_stage_for_page' && response.params) {
-        const { pageName, stageId, mode: runMode } = response.params as { pageName?: string; stageId?: string; mode?: string };
-        push('assistant', `Starting ${stageId || 'pipeline'} for "${pageName || 'page'}"...`);
-        try {
-          const { runId } = await createPipelineRun({
-            feature: pageName || 'chat',
-            module: 'chat',
-            intent: text,
-            clientId: client?.id,
-            startStage: stageId,
-          });
-          activePipeline.startPipeline(runId, (runMode as 'auto' | 'manual') || 'auto');
-        } catch (err) {
-          push('assistant', `Failed to start: ${(err as Error).message}`);
+      } else {
+        // PATH B: No agent selected → conversational AI (chatAsk)
+        const response = await chatAsk({
+          message: text,
+          conversationId: conversationId || undefined,
+          model,
+        });
+        push('assistant', response.text, {
+          responseType: response.responseType,
+          data: response.data || response.params,
+        });
+
+        // Handle chatbot actions
+        if (response.action === 'connect_jira') setActiveModal('jira');
+        if (response.action === 'trigger_run' && response.runId) {
+          if (!client?.id) {
+            push('assistant', 'Please select a client first before running the pipeline.');
+          } else {
+            const mode = text.match(/manual|step.by.step|review.each/i) ? 'manual' : executionMode;
+            activePipeline.startPipeline(response.runId, mode);
+            push('assistant', `Pipeline started in ${mode} mode.`);
+          }
         }
-      }
-      if (response.action === 'setup_project') setActiveModal('launch');
-      if (response.action === 'check_page_status' && response.params) {
-        push('assistant', response.text || 'Checking page status...');
-      }
-      if (response.action === 'approve_stage') {
-        // Auto-approve via existing pipeline context
-        if (activePipeline.runId) {
-          const { approvePipelineRun } = await import('@/services/encoreApi');
-          await approvePipelineRun(activePipeline.runId);
-          push('assistant', 'Approved! Pipeline continuing to next stage.');
+        if (response.action === 'show_dashboard') window.location.href = '/dashboard';
+        if (response.action === 'run_stage_for_page' && response.params) {
+          const { pageName, stageId, mode: runMode } = response.params as { pageName?: string; stageId?: string; mode?: string };
+          push('assistant', `Starting ${stageId || 'pipeline'} for "${pageName || 'page'}"...`);
+          try {
+            const { runId } = await createPipelineRun({
+              feature: pageName || 'chat',
+              module: 'chat',
+              intent: text,
+              clientId: client?.id,
+              startStage: stageId,
+            });
+            activePipeline.startPipeline(runId, (runMode as 'auto' | 'manual') || executionMode);
+          } catch (err) {
+            push('assistant', `Failed to start: ${(err as Error).message}`);
+          }
+        }
+        if (response.action === 'check_page_status' && response.params) {
+          push('assistant', response.text || 'Checking page status...');
+        }
+        if (response.action === 'approve_stage') {
+          if (activePipeline.runId) {
+            await approvePipelineRun(activePipeline.runId);
+            push('assistant', 'Approved! Pipeline continuing to next stage.');
+          }
+        }
+        if (response.action === 'automate_jira_ticket' && response.data?.runId) {
+          activePipeline.startPipeline(response.data.runId, executionMode);
         }
       }
     } catch {
-      push('assistant', 'Failed to reach the AI. Check if the backend is running.');
+      push('assistant', 'Failed to reach the backend. Check if the server is running.');
     }
     setSending(false);
   };
 
-  /* ── Quick actions ── */
+  /* ── Quick actions (minimal — chat is conversational) ── */
   const handleQuickAction = (action: string) => {
-    if (action === 'run_pipeline') {
-      push('assistant', 'Let\'s set up your test pipeline. Choose your options below:');
-      setActiveModal('launch');
-    } else if (action === 'past_runs') {
-      window.location.href = '/dashboard';
-    } else if (action === 'generate') handleSend('I want to generate tests');
-    else if (action === 'jira' || action === 'Import from JIRA') setActiveModal('jira');
-    else if (action === 'dashboard' || action === 'View Dashboard') window.location.href = '/dashboard';
-    else if (action === 'status') handleSend('What is the status of my latest run?');
+    if (action === 'jira' || action === 'Import from JIRA') setActiveModal('jira');
     else handleSend(action);
-  };
-
-  /* ── Pipeline launched from card ── */
-  const handlePipelineStarted = (_runId: string) => {
-    push('assistant', 'Pipeline started! Watch the live progress above.');
-    setActiveModal(null);
   };
 
   /* ── Action card clicks ── */
@@ -297,7 +363,6 @@ export default function ChatPage() {
         intent: pendingRequirements || 'Generate test cases',
         clientId: client?.id,
       });
-      // Track website-run association
       if (website?.id) {
         trackWebsiteRun(website.id, runId).catch(() => {});
       }
@@ -347,12 +412,21 @@ export default function ChatPage() {
     setIsExporting(false);
   };
 
+  // Build placeholder text
+  const getPlaceholder = () => {
+    if (sending) return 'Thinking...';
+    if (selectedAgent) {
+      const name = AGENT_DISPLAY_NAMES[selectedAgent] || selectedAgent;
+      return `Tell ${name} what to test...`;
+    }
+    return 'Ask me anything about testing...';
+  };
+
   /* ── Render ── */
   return (
     <div className="flex flex-col h-full">
-      {/* Model selector bar */}
+      {/* Worker status bar */}
       <div className="flex-shrink-0 px-4 py-2 border-b border-[#EDE9FE] flex items-center justify-between flex-wrap gap-2">
-        <ModelSelector model={model} onModelChange={setModel} thinking={thinking} onThinkingChange={setThinking} />
         {workerOnline !== null && (
           <WorkerIndicator
             connected={workerOnline}
@@ -362,10 +436,9 @@ export default function ChatPage() {
         )}
       </div>
 
-      {/* Pipeline Hero Section — always visible when pipeline is active */}
+      {/* Pipeline Hero Section */}
       {showPipelineHero && (
         <div className="flex-shrink-0 border-b border-[#EDE9FE] bg-[#FAFAFE] pipeline-card-enter">
-          {/* Pipeline Graph */}
           <PipelineGraph
             liveStages={pipelineStages}
             pipelineStatus={pipelineStatus || undefined}
@@ -374,8 +447,6 @@ export default function ChatPage() {
             onNodeClick={setSelectedStageId}
             pipelineDefinition={pipelineDefinition || undefined}
           />
-
-          {/* Agent Activity Feed — collapsible */}
           <div className="border-t border-[#EDE9FE]">
             <button
               onClick={() => setShowActivity(!showActivity)}
@@ -399,7 +470,7 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Multi-page context bar — only for page-scoped runs */}
+      {/* Multi-page context bar */}
       {(() => {
         const pageRuns = Array.from(activeRuns.values()).filter(r => r.pageId);
         if (pageRuns.length === 0) return null;
@@ -433,39 +504,47 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Main content area — flex row to accommodate thinking panel */}
+      {/* Main content area */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Chat content column */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
           {messages.length === 0 && !activeModal && !showPipelineHero && (
-            <ChatWelcome username={user?.username || 'there'} onQuickAction={handleQuickAction} />
+            <ChatWelcome username={user?.username || 'there'} />
           )}
 
-          <ChatMessageList messages={messages} scrollRef={scrollRef} onCardAction={handleCardAction} />
+          <ChatMessageList messages={messages.filter(m => m.responseType !== 'collapsed_artifact')} scrollRef={scrollRef} onCardAction={handleCardAction} />
 
-          {/* Auto-pilot status line (auto mode only) */}
-          {pipelineMode === 'auto' && pipelineIsActive && (
+          {/* Inline collapsed artifact cards for auto-approved stages */}
+          {messages.filter(m => m.responseType === 'collapsed_artifact').map(m => (
+            <div key={m.id} className="flex justify-center">
+              <CollapsedArtifactCard
+                runId={m.data?.runId}
+                stageName={m.data?.stageName || 'Stage'}
+              />
+            </div>
+          ))}
+
+          {/* Auto-pilot status line */}
+          {executionMode === 'auto' && pipelineIsActive && (
             <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-violet-50 border border-violet-200 max-w-md mx-auto">
               <div className="w-3 h-3 bg-violet-500 rounded-full animate-pulse" />
               <span className="text-sm text-violet-700">Pipeline running automatically...</span>
-              <a href="/dashboard" className="text-xs text-violet-500 hover:text-violet-700 underline ml-auto">View Dashboard</a>
             </div>
           )}
-          {pipelineMode === 'auto' && pipelineStatus === 'completed' && (
+          {pipelineStatus === 'completed' && (
             <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 max-w-md mx-auto">
               <span className="text-sm text-emerald-700">Pipeline complete!</span>
               <a href="/dashboard" className="text-xs text-emerald-500 hover:text-emerald-700 underline ml-auto">View Results</a>
             </div>
           )}
-          {pipelineMode === 'auto' && pipelineStatus === 'failed' && (
+          {pipelineStatus === 'failed' && (
             <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-red-50 border border-red-200 max-w-md mx-auto">
               <span className="text-sm text-red-700">Pipeline failed.</span>
               <a href="/dashboard" className="text-xs text-red-500 hover:text-red-700 underline ml-auto">View Details</a>
             </div>
           )}
 
-          {/* Approval gate card (manual mode) — ArtifactPreviewCard or minimized pill */}
-          {pendingAction === 'approval_required' && pipelineMode === 'manual' && (
+          {/* Manual mode: full artifact review card */}
+          {pendingAction === 'approval_required' && executionMode === 'manual' && (
             minimizedCards.has('approval') ? (
               <div className="flex justify-center">
                 <button onClick={() => toggleMinimize('approval')} className="px-4 py-2 rounded-full bg-amber-100 text-amber-700 text-sm font-medium hover:bg-amber-200 transition-all">
@@ -478,14 +557,8 @@ export default function ChatPage() {
               </div>
             )
           )}
-          {/* Approval in auto mode — simple card */}
-          {pendingAction === 'approval_required' && pipelineMode === 'auto' && (
-            <div className="flex justify-center pipeline-card-enter">
-              <ChatApprovalCard onMinimize={() => toggleMinimize('approval')} />
-            </div>
-          )}
 
-          {/* Triage decision card — inline with minimize */}
+          {/* Triage decision card */}
           {pendingAction === 'triage_required' && (
             minimizedCards.has('triage') ? (
               <div className="flex justify-center">
@@ -513,37 +586,19 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* Agent Thinking Panel — right sidebar when a node is clicked */}
+        {/* Agent Thinking Panel — right sidebar */}
         {selectedStageId && showPipelineHero && (
           <AgentThinkingPanel
             stageId={selectedStageId}
             stages={pipelineStages}
             activityMessages={activityMessages}
             onClose={() => setSelectedStageId(null)}
+            runId={activeRunId || undefined}
           />
         )}
       </div>
 
-      {/* Modal overlays — chat stays visible behind backdrop */}
-      {activeModal === 'launch' && !requirementsGate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
-             onClick={(e) => e.target === e.currentTarget && setActiveModal(null)}>
-          <PipelineLaunchCard onStarted={(id) => { handlePipelineStarted(id); setActiveModal(null); }}
-                              onClose={() => setActiveModal(null)}
-                              onNeedsRequirements={(pageId, runId) => setRequirementsGate({ pageId, runId })} />
-        </div>
-      )}
-      {requirementsGate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
-             onClick={(e) => e.target === e.currentTarget && setRequirementsGate(null)}>
-          <RequirementsGateCard
-            pageId={requirementsGate.pageId}
-            runId={requirementsGate.runId}
-            hasUrl={false}
-            onComplete={() => { setRequirementsGate(null); setActiveModal(null); }}
-          />
-        </div>
-      )}
+      {/* Modal overlays (JIRA, column select — no pipeline launch modal) */}
       {activeModal === 'jira' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
              onClick={(e) => e.target === e.currentTarget && setActiveModal(null)}>
@@ -563,9 +618,33 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Chat input */}
-      <div className="flex-shrink-0 px-4 py-3 border-t border-[#EDE9FE] bg-white/50 backdrop-blur-sm">
-        <ChatInput onSend={handleSend} disabled={sending} placeholder={sending ? 'Thinking...' : 'Ask me anything about testing...'} />
+      {/* Agent selector + Chat input */}
+      <div className="flex-shrink-0 border-t border-[#EDE9FE] bg-white/50 backdrop-blur-sm">
+        <AgentSelector
+          selectedAgent={selectedAgent}
+          selectedModel={agentModel}
+          executionMode={executionMode}
+          onSelect={(agentId, agentMdl) => { setSelectedAgent(agentId); setAgentModel(agentMdl); }}
+          onModeChange={handleModeChange}
+        />
+        {selectedAgent && (
+          <div className="px-4 pt-2 flex items-center gap-2">
+            <label className="text-xs font-medium text-gray-500 whitespace-nowrap">Module:</label>
+            <input
+              type="text"
+              value={pipelineModule}
+              onChange={e => setPipelineModule(e.target.value)}
+              placeholder="e.g. locations"
+              className="flex-1 px-2 py-1 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-400"
+            />
+            {website?.url && (
+              <span className="text-xs text-gray-400 truncate max-w-[200px]" title={website.url}>{website.url}</span>
+            )}
+          </div>
+        )}
+        <div className="px-4 py-3">
+          <ChatInput onSend={handleSend} disabled={sending} placeholder={getPlaceholder()} />
+        </div>
       </div>
     </div>
   );

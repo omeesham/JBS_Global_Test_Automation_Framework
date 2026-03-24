@@ -19,15 +19,11 @@ handoffs:
     agent: "playwright-pipeline-audit"
     prompt: "Spec generation complete. Run audit on the completed item."
     send: true
-  - label: "Heal failures"
-    agent: "playwright-test-healer"
-    prompt: "Tests have failures. Run healing cycle."
-    send: true
 ---
 
 ## HARD STOPS -- Read Before Doing Anything
 
-0. **⚠️ WALKTHROUGH FIRST (GEN-029)**: Before writing ANY line of spec code, complete Phase 0.5 MCP walkthrough. Verify 3+ planner claims on live DOM. Produce WALKTHROUGH_LOG. Planner selectors may be WRONG (constructed, not verified). If you skip this, your spec WILL fail. This is non-negotiable.
+0. **⚠️ WALKTHROUGH FIRST (GEN-029)**: HARD STOP — ENFORCED BY PRE-RUN GATE PF-G5. The generator CANNOT write spec code until `reports/walkthrough/{itemId}.walkthrough.md` exists. The pre-run script will HALT on retries if this file is missing. This applies to ALL runs. Even Opus skipped Phase 0.5 — so this gate is enforced in code, not just rules. Verify 3+ planner claims on live DOM. Produce WALKTHROUGH_LOG. Planner selectors may be WRONG (constructed, not verified). If you skip this, your spec WILL fail. This is non-negotiable.
 1. **⚠️ TESTS MUST RUN (GEN-028)**: You are NOT done until `npx playwright test <spec> --project=chrome --headed` has executed and you report the pass/fail count. Typecheck ≠ done. `--list` ≠ done. NEVER mark TCs as "Automated" or declare completion without a green test run. Phase 3 (First Run) is not optional.
 2. **MISTAKES FIRST**: If you detect you made a mistake: STOP. Write rule to agent-mistakes.md. Run sync. THEN resume.
 3. **NO SCREENSHOTS**: browser_take_screenshot does NOT work (vision disabled). Use browser_snapshot always.
@@ -35,7 +31,15 @@ handoffs:
 5. **NO FRAMEWORK EDITS**: Do not modify base-page.ts, src/common/*, src/utils/*, scripts/*.
 6. **FAILURE = ARTIFACTS FIRST**: When ANY test fails: STOP patching. Read `reports/failure-summary.json` + `reports/test-results/*/error-context.md`. Walk the RCA Decision Tree (§12 in AGENT_SHARED_RULES.md). Diagnose from data. MCP replication is LAST resort, not first. Never guess from error messages alone.
 7. **VERIFY PLANNER CLAIMS**: Before trusting ANY behavioral claim from Planner (default state, save behavior, validation rules), verify it on live MCP. Planner may have tested from a polluted state. File ESC-XXX if wrong. (ALL-028)
-8. **BEFOREUNLOAD TRAP (ALL-052)**: NEVER use `browser_evaluate` to call `reload()`. If you edited without saving, navigate to `about:blank` first (`browser_navigate` → `browser_handle_dialog(accept: true)` if dialog fires), then navigate to target URL. Reload = stuck. Navigate away + re-navigate = clean.
+8. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
+   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
+   - THEN call `browser_navigate` to `about:blank`
+   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
+   - THEN navigate to your target URL
+   - Wait 5 seconds for page load
+   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
+   NEVER call `browser_navigate` to the same URL as a reload — use about:blank -> target pattern.
+   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
 9. **ARTIFACTS BEFORE MCP (ALL-007/GEN-017)**: When a test fails, you MUST read `reports/failure-summary.json` and log the failureCategory, selector, and error BEFORE opening MCP browser. If you open MCP without citing artifact data first, your fix will be flagged as guess-patch-rerun.
 10. **EXACT COMBOBOX MATCH (GEN-025)**: BasePage `selectComboboxOption` uses `:has-text()` contains-match. For ambiguous options, use `getByRole('option', { name, exact: true })` in your page object. Never rely on contains-match for dropdowns with similar option names.
 
@@ -68,7 +72,7 @@ handoffs:
 | GEN-005 | MCP browser: never open/close. Pre-flight selector validation (Phase 1) and last-resort RCA (Phase A... | — |
 | GEN-006 | No placeholder tests: no test.fixme(), no empty describes with only comments, no stubs. Omit unimple... | — |
 | GEN-007 | Targeted test runs: `--grep "TC-ID"` for single TC during fix loop. Full spec ONLY for final validat... | — |
-| GEN-008 | Angular form model: always el.press('Tab') after el.fill() to trigger blur/change. Verify inputValue... | LRN-013: fill() alone doesn't fire Angular change events. LRN-007: inputValue() returns "4.00%" not ... |
+| GEN-008 | Angular form model: always el.press('Tab') after el.fill() to trigger blur/change. Verify inputValue... Cross-field validation is ALWAYS async. After fill+Tab on any field with cross-field validators (e.g., NM-1264 Delivery >= Prep), use `expect.poll(() => isFieldInvalid(key))` or the `expectInvalid()`/`expectValid()` polling helpers from the page object. NEVER use immediate `isFieldInvalid()` for fields that have dependencies on other fields. | LRN-013: fill() alone doesn't fire Angular change events. LRN-007: inputValue() returns "4.00%" not ... |
 | GEN-009 | Boundary data verification: MCP-test each value before committing data files (type → blur → check). ... | LRN-012: Angular disables Save on boundary violation. LRN-010: Invalid test leaves dirty DB state fo... |
 | GEN-010 | Process cleanup: kill ONLY stale Playwright runners via `Get-CimInstance Win32_Process -Filter "Name... | LRN-014: Stop-Process -Name node kills MCP server |
 | GEN-011 | Escalation: AUTH/INFRASTRUCTURE → escalate immediately (don't fix). Web search unfamiliar errors. No... | — |
@@ -89,6 +93,42 @@ handoffs:
 | GEN-026 | Post-save state reset: reload before next test. After a save cycle, Angular dirty-state tracking doe... | Legal TC-012/013 failed: dirty state persisted from prior test's save cycle |
 | GEN-027 | Selector namespace: check shared.ts before creating new selector file. Grep for same data-testid acr... | Legal dlgSaveChanges existed in both legal.ts and shared.ts — caused collision |
 | GEN-028 | NEVER declare completion without running tests. Typecheck and --list are NOT test runs. Phase 3 (Fir... | Shared Setup Locations: generator created 4 files, marked 17 TCs Automated, said "Done" — never ran ... |
+
+### GEN-033: BUG DETECTION MANDATE
+During Phase 0.5 walkthrough, classify EVERY mismatch between TC expected values and live DOM.
+Use ALL-043 categories, then MAP to BugHuntCategory for consistent classification:
+
+| ALL-043 Category | Maps to BugHuntCategory | Action |
+|---|---|---|
+| `APP_BUG` | `UNCHANGED_FAILURE` | STOP. File bug report to `reports/bugs/BUG-{MOD}-{NNN}.json`. Check dedup via errorHash first (`src/utils/bug-hunt-classifier.ts::computeErrorHash()`). If existing bug found, UPDATE it with Generator evidence instead of creating duplicate. Mark TC as `bug-blocked`. Do NOT generate spec for bug-blocked TC. |
+| `PLANNER_GAP` | _(not a bug — escalation)_ | File ESC-GEN to `agent-escalations.json` targeting Planner with evidence. Continue with corrected values but flag in WALKTHROUGH_LOG. |
+| `TC_CORRECTION` | _(not a bug — inline fix)_ | Fix inline in spec, document correction in WALKTHROUGH_LOG. |
+| `SEQUENCE_SIDE_EFFECT` | _(not a bug — spec fix)_ | Document in WALKTHROUGH_LOG, add cleanup step to spec (e.g., navigate to fresh state after side-effect-causing action). |
+
+Bug report format MUST match Healer's `reports/bugs/` structure exactly (same BugReport interface from `src/framework-contracts/diagnostics.ts`). Include `sourceAgent: 'generator'` field.
+
+### GEN-034: TESTID VERIFICATION DURING WALKTHROUGH
+For every selector used in any TC, verify `data-testid` exists on live DOM during Phase 0.5 walkthrough:
+`browser_evaluate(() => !!document.querySelector('[data-testid="X"]'))`
+- If missing AND never in testid-inventory → classify as `TESTID_MISSING` (BugHuntCategory). File bug report.
+- If missing BUT was in testid-inventory from prior run → classify as `TESTID_MISSING` (testid disappeared). File bug report.
+- If present BUT different value from Planner's TC → classify as `TESTID_CHANGED`. Create triage item for user review (could be known change or bug).
+- On FIRST RUN (no prior testid-inventory): TESTID_CHANGED is impossible. Only PRESENT or MISSING can be detected.
+
+### GEN-035: NOTIFICATION CHECK
+At session start, read `specs_planning/_internal/agent-notifications/` directory for files containing `"toAgent": "generator"`.
+If stale_artifact notifications exist from Healer or other agents:
+1. Read the `affectedFiles` and `changeSummary` from each notification
+2. Prioritize updating the affected specs/artifacts FIRST before processing new work
+3. If notification says "Button label changed Save→Submit on /settings page" → update TC expected values in the spec accordingly
+4. Acknowledge each notification after updating (delete the notification file)
+
+### GEN-036: Recovery value must differ from server-saved default
+When testing error recovery (invalid->valid), use a value DIFFERENT from the original. Restoring to original triggers Angular 'no net change' -> Save stays disabled. Example: Delivery default=0, invalid=-5, recovery=**-1** (NOT 0).
+
+### GEN-037: Reload after non-numeric input corruption
+After typing invalid/non-numeric values (e.g. 'abc' into a numeric field), cleanup MUST include `reloadBasicInfo()` or full page reload. Angular model corruption from NaN is invisible — typing a valid value back does NOT reliably fix the internal model. A reload is the ONLY safe cleanup.
+
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
@@ -188,10 +228,44 @@ You have TCs on paper. Verify each one matches reality BEFORE translating to cod
 | TC-015 | Save | Saves with venue | 403 intermittent | MISMATCH | APP_BUG |
 | TC-020 | Reload check phone2 | "111-222-3333" | "" for ~2s | MISMATCH | TIMING_RISK |
 
+**Phase 0.5 Verification Checklist** (GEN-035 — all MUST be done during walkthrough):
+
+1. **SELECTOR VERIFICATION**: For EVERY `data-testid` in the planner's FIELD INVENTORY,
+   run `browser_evaluate(() => !!document.querySelector('[data-testid="X"]'))` on live DOM.
+   Log each as VERIFIED or TESTID_MISSING in the walkthrough table.
+
+2. **DEFAULT VALUE VERIFICATION**: For EVERY hardcoded default in the test cases file,
+   run `browser_evaluate(() => document.querySelector('[data-testid="X"]').value)` on live DOM.
+   If actual differs from planner claim, classify as PLANNER_GAP or TC_CORRECTION.
+
+3. **TOGGLE/CHECKBOX MECHANISM**: For ANY toggle, checkbox, or switch element referenced in TCs,
+   verify the EXACT inner DOM structure via
+   `browser_evaluate(() => el.querySelector('td:last-child').innerHTML.substring(0, 200))`.
+   Document whether active state uses `<svg>`, `<img>`, `<input checked>`, or `aria-checked`.
+
+4. **ASYNC VALIDATION CHECK**: For ANY TC step involving cross-field validation, cascading
+   enables/disables, or server-side validation (tagged `[POLL]` in TCs), verify timing on MCP:
+   edit field → check `aria-invalid` immediately → wait 3s → check again.
+   If validation is async (changes after delay), use `expect.poll()` in spec, NOT direct assert.
+
+5. DOM STRUCTURE VERIFICATION (GEN-036): For EVERY selector that references element types
+   (svg, img, tr, td, input, button), verify the ACTUAL HTML tag via:
+   `browser_evaluate(() => document.querySelector('[data-testid="X"]').tagName)`
+   and for child elements:
+   `browser_evaluate(() => document.querySelector('[data-testid="X"]').innerHTML.substring(0, 300))`
+   The accessibility tree reports ROLES (img for svg, row for tr) — these are NOT HTML tags (LR-016).
+   Document actual tag names in walkthrough. If planner said "SVG checkmark" but actual is
+   `<img>`, classify as TC_CORRECTION and use the correct tag.
+
+**Minimum threshold**: 3+ VERIFIED claims AND all FIELD INVENTORY selectors checked.
+The pre-run gate (PF-G5) validates walkthrough content on retry runs. Missing or invalid walkthrough = HALT.
+
 **Phase 0.5 Gate**: Do NOT proceed to Phase 1 if:
 - Any APP_BUG without finding filed
 - Any PLANNER_GAP without escalation filed
 - Any SEQUENCE_SIDE_EFFECT without documented mitigation
+- Walkthrough has fewer than 3 VERIFIED entries
+- Any FIELD INVENTORY selector not checked on live DOM
 
 **Phase 1 — Build Shell** (no browser, no assertions)
 1. Read test plan + page object + selectors
@@ -219,6 +293,16 @@ You have TCs on paper. Verify each one matches reality BEFORE translating to cod
 4. Auto-skip Cat-A/Cat-B TCs from FIXME registry
 5. Final: full spec run to confirm no regressions → `npm run generator:post-complete <id>`
 
+### GEN-037: RCA-FIRST HARD GATE (NO EXCEPTIONS)
+When ANY test fails during Phase 3/4 execution:
+1. **STOP. Do NOT edit code.**
+2. Follow /rca protocol: Read failure-summary.json → error-context.md → screenshot → trace.zip
+3. Complete IS/IS-NOT analysis (Kepner-Tregoe): WHERE fails vs WHERE works, WHEN vs WHEN NOT
+4. Document root cause with evidence citations BEFORE writing ANY fix
+5. If you cannot cite artifact evidence for your root cause, you have NOT found it yet
+6. Max 2 fix cycles per failure. After 2 failed fixes → test.skip() with documented RCA
+**NEVER**: Apply a fix based solely on error message text. **NEVER**: Retry the same approach hoping for different results. Session 2026-03-24: 4 fix attempts on ECT-009 without completing RCA = wasted 30+ minutes. IS/IS-NOT analysis would have identified the cause in 5 minutes.
+
 ### Phase A — Artifact-First RCA (on ANY test failure — GEN-017)
 
 | Step | Action | Source |
@@ -236,7 +320,7 @@ You have TCs on paper. Verify each one matches reality BEFORE translating to cod
 ### Phase 4 — Completion (continued)
 
 11. **Self-Audit + Learning Yield Check (§8)**: Execute §8 Self-Audit Protocol. Then: count retries this session, count learning entries (GEN-*) with Resolution in agent-mistakes.md. If retries > 0 AND learnings = 0 → STOP, retrospectively log learnings for each retry. Gate 19 blocks post-complete if you don't. If wrote to `agent-mistakes.md` → run `npm run sync:mistakes && npm run build:context && npm run validate:sync`.
-12. **Update**: Pass → `completed`. Fail + autoHeal → `pending_healing`. Fail otherwise → `fixme`. **Repeat** for all pending.
+12. **Update**: Pass → `completed`. Fail → `fixme` (generator must make tests pass in its own loop). **Repeat** for all pending.
 
 ---
 
@@ -313,7 +397,7 @@ Before declaring done, verify your code against MNT rules:
 
 ## Error Handling
 
-No queue items → STOP | Missing plan → `fixme` | Fail + autoHeal → `pending_healing` | Fail otherwise → `fixme` | ALL same hook → `escalate-tooling` | 2 fixes same TC → `escalate-tooling`
+No queue items → STOP | Missing plan → `fixme` | Fail → `fixme` | ALL same hook → `escalate-tooling` | 2 fixes same TC → `escalate-tooling`
 
 **Spec template**: See `tests/examples/`. Post-gen: TC status → Automated.
 
