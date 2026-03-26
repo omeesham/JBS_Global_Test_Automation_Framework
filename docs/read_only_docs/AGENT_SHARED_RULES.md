@@ -570,7 +570,7 @@ Rule: ALWAYS escalate to the agent who OWNS the file, not the one who last touch
 
 ---
 
-## §14. Autonomy & Efficiency (ALL-054..055)
+## §16. Autonomy & Efficiency (ALL-054..055)
 
 ### Autonomy Mode (ALL-AGENTS)
 
@@ -621,7 +621,7 @@ Any time one of these 6 triggers fires, the agent MUST immediately log an entry 
 
 ---
 
-## §13  Bug Hunting Rulebook — Universal Rules
+## §17. Bug Hunting Rulebook — Universal Rules
 
 These rules apply to ALL pipeline agents. They implement the 4-Category Bug Hunting system.
 
@@ -633,3 +633,17 @@ These rules apply to ALL pipeline agents. They implement the 4-Category Bug Hunt
 | **ALL-056** | **TESTID VERIFICATION** — Any agent that navigates to a page and reads DOM MUST check for `data-testid` presence on interactive elements (buttons, inputs, selects, links). Missing testids = `[MISSING_TESTID]` tag or escalation. This is the foundation of automation testing best practices. Use `browser_evaluate(() => !!document.querySelector('[data-testid="X"]'))` for individual checks. | Requirements, Planner, Generator | Missing testids propagate through entire pipeline as selector failures |
 | **ALL-057** | **BUGHUNT CATEGORY MAPPING** — When an agent classifies a failure or issue, it MUST use `BugHuntCategory` enum (UNCHANGED_FAILURE, FEATURE_CHANGED_SMALL, FEATURE_CHANGED_BIG, TESTID_MISSING, TESTID_CHANGED, FLAKE, INFRASTRUCTURE_TRANSIENT) AND set the legacy `disposition` field for backward compat. Use `classifyBugHuntCategory()` from `src/utils/bug-hunt-classifier.ts` which handles both. | Healer, Generator, Audit | Inconsistent classification across agents |
 | **ALL-058** | **FIRST-RUN BASELINE** — On first pipeline run for a page, there is no historical data. `TESTID_CHANGED` cannot be detected — there is no previous value to compare against. All data collected becomes the BASELINE for future comparison. Agents MUST NOT classify anything as "changed" without a prior value in `testid-inventory` or `test_id_registry`. | All agents | False positive "changed" classifications on first run |
+
+---
+
+## §18. Module Boundary Enforcement
+
+1. Every page in Navigator4 belongs to exactly ONE module defined in `docs/MODULE_REGISTRY.md`
+2. Different URLs = different modules. No exceptions.
+3. Before creating ANY file, verify the correct module by checking the registry
+4. If a module directory doesn't exist, CREATE IT — don't force files into an existing module
+5. Tabs within a page are NOT separate modules. A tab shares its parent page's module
+6. Selector partitions MUST be kept separate per module. Never spread one module's selectors into another's merged object
+7. Collision detection in `src/selectors/index.ts` checks ALL partitions individually — if you add a new partition, add it to `buildAllSelectors()` call
+8. Violation of module boundaries is a P0 bug — same severity as broken tests
+9. Directory hierarchy mirrors app navigation: {section}/{module}/ (e.g., setup/locations/, actions/reports/)

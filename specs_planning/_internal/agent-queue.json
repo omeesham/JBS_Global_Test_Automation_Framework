@@ -1945,17 +1945,17 @@
     },
     {
       "id": "location-local-office-settings",
-      "feature": "Location - Local Office Settings",
-      "module": "locations",
-      "stage": "pending_generation",
+      "feature": "Local Office Settings",
+      "module": "local-office",
+      "stage": "testing",
       "priority": "high",
       "lockedBy": null,
       "lockedAt": null,
       "intent": "Test the Local Office Settings page (/settings/local-office) with 3 tabs: Basic Information (Default Date Offsets, Misc Settings, Section Configuration, Room Configuration, Default Logo, Discount Exemptions), Location Settings History (read-only 42-column table with filter), and ECT Settings (Event Profit Target, Fixed Costs, Labor Cost Assumptions, SubRental Matrix). Key validation rules: Delivery >= Prep cross-field constraint (NM-1264), duplicate active section/room name prevents save (NM-1223), Phone 1 required, Historical Subrental role-gated (NM-1260), 2 separate save buttons in ECT Settings, Unsaved Changes dialog on tab-switch.",
       "userNotes": "URL: /navigator/locations/{officeId}/settings/local-office. Live verified on 1604 (Parker Palm Springs). 3 outer tabs: Basic Information (active by default) | Location Settings History | ECT Settings. Save button on Basic Info: disabled by default, enables on any field edit. Key fields: 6 Date Offset numeric inputs (each with Hrs suffix), 7 Misc checkboxes (Use Equipments QC always disabled), Phone 1/2, Default new job to 1 day (3 checkboxes: Event/Outside/Internal), Default Order Type combobox (Event/Outside/Internal options), PO Number/Label textboxes. Section config table: 13 active rows + add-new row. Room config table: empty + add-new row. Default Logo: 2 checkboxes + Company Logo combobox (12 options) + preview image. Discount Exemptions: ~55 service type rows with exempt toggles. History tab: 2 filter options (Location Settings History / Location Settings Legacy History), rows-per-page 10/20/30/40/50, 42 sortable columns (Local Office has no sort), empty state 'No results.' for 1604. ECT tab: 2 separate Save buttons (Fixed Costs + Labor Costs), currency selector (USD only for 1604), commission link, Event Profit Target 9-row read-only table, Fixed Costs with Benefits Multiplier + Historical Subrental as editables, 66 Labor Cost rows all editable. Unsaved changes dialog ('Stay'/'Discard') on tab-switch with pending changes.",
       "artifacts": {
-        "testCaseFile": "specs_planning/test-cases/locations/locations_local_office_settings_test_cases.md",
-        "testPlanFile": "specs_planning/test-plans/locations/locations_local_office_settings_test_plan.md",
+        "testCaseFile": "specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md",
+        "testPlanFile": "specs_planning/test-plans/setup/local-office/local_office_settings_test_plan.md",
         "csvExport": "export_test_cases/exports/locations_local_office_settings_test_cases.csv"
       },
       "history": [

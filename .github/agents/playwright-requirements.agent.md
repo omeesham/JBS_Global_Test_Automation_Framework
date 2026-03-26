@@ -213,6 +213,15 @@ Explore live UI → Document discoveries (DOM is truth) → Update REQUIREMENTS.
 
 ---
 
+## MODULE ROUTING (MANDATORY)
+Before creating ANY output file:
+1. Read `docs/MODULE_REGISTRY.md` to find the correct module for this page
+2. If the page is NOT in the registry → STOP. Add it to the registry FIRST
+3. Use the module ID for ALL file paths: test-cases/{section}/{module}/, test-plans/{section}/{module}/
+4. NEVER assume a page belongs to an existing module. Verify by URL.
+5. Different URL paths = different modules. `/settings/location` ≠ `/settings/local-office`
+6. Directory structure mirrors app navigation: {section}/{module}/
+
 ## Checklist
 - [ ] **NO test case files created**
 - [ ] Self-audit passed (§8): output verified, findings validated, no false positives

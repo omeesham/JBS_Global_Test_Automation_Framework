@@ -39,7 +39,8 @@ export {
   getTsSelector,
   ALL_SELECTORS,
   MicrosoftLoginSelectors,
-  SetupSelectors,
+  LocationSettingsSelectors,
+  LocalOfficeSettingsSelectors,
   DynamicSelectors,
 } from './selectors';
 

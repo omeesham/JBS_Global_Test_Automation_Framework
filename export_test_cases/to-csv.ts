@@ -409,6 +409,14 @@ export class CsvConverter {
       const tabEntry = subCode ? this.TAB_MAP[subCode] : undefined;
       preconditions.push(tabEntry ? tabEntry.tab : 'Basic Information tab is active');
     }
+
+    if (id.includes('TC-LOS')) {
+      preconditions.push('Local Office Settings page is open (Office 1604)');
+      const subMatch = id.match(/TC-LOS-([A-Z]+)-\d+/);
+      const subCode = subMatch?.[1] ?? '';
+      const tabEntry = subCode ? this.TAB_MAP[subCode] : undefined;
+      preconditions.push(tabEntry ? tabEntry.tab : 'Basic Information tab is active');
+    }
     
     // Add field state hints based on test content
     if (/Apply LDW|chkApplyLDW/i.test(steps)) {
@@ -549,6 +557,7 @@ export class CsvConverter {
     const code = match[1];
     const moduleMap: Record<string, string> = {
       'LOC': 'locations',
+      'LOS': 'local-office',
       'AUTH': 'authentication',
       'ORD': 'orders',
       'USR': 'users',

@@ -21,6 +21,10 @@
 - NO hardcoded URLs/credentials → use `.env` via `config` fixture
 - Tests MUST use fixtures (no `new LoginPage(page)`)
 
+### Module Registry
+All file paths for pages, selectors, specs, and test data are defined in `docs/MODULE_REGISTRY.md`.
+Check the registry before creating any new files to ensure correct module placement.
+
 ### File Locations
 - Test docs (.md): `specs_planning/test-cases/{module}/{module}_{submodule}_test_cases.md`
 - Test plans (.md): `specs_planning/test-plans/{module}/{module}_{submodule}_test_plan.md`

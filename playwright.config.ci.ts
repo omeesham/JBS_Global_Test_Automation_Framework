@@ -17,31 +17,43 @@ export default defineConfig({
   // ==================== CI-SPECIFIC TIMEOUTS ====================
   timeout: 60 * 1000,  // Longer timeout for CI (60s vs 30s base)
 
-  // ==================== CI REPORTERS (NO ALLURE) ====================
-  // Removed: allure-playwright (causes GitCommitInfo timeout in Jenkins)
-  // Kept: list (console), html (archive), json (processing), junit (CI integration)
+  // ==================== CI REPORTERS ====================
+  // allure-playwright re-enabled with ALLURE_RESULTS_WITHOUT_GIT=true (set in CI env)
+  // to prevent GitCommitInfo timeout in Jenkins. See .ci/Jenkinsfile.ubuntu.
   reporter: [
     ['list'],
-    ['html', { 
-      outputFolder: 'reports/html-report', 
+    ['html', {
+      outputFolder: 'reports/html-report',
       open: 'never',
-      attachmentsBaseURL: 'none'  // Disables error-context.md and other HTML attachments
     }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['junit', { outputFile: 'reports/junit-results.xml' }],
-    // allure-playwright REMOVED - causes git timeout in Jenkins workspace
+    ['./src/utils/agent-reporter.ts'],
+    ['allure-playwright', {
+      outputFolder: 'reports/allure-results',
+      detail: true,
+      suiteTitle: true,
+      environmentInfo: {
+        Framework: 'Encore Playwright',
+        Environment: process.env.CI_ENV || 'ci',
+        'Base URL': process.env.BASE_URL || 'https://cloudapps-e2e.encoreglobal.com/navigator/',
+        Node: process.version,
+        Platform: process.platform,
+      },
+      categories: require('./config/allure/categories.json'),
+    }],
   ],
 
   // ==================== CI ARTIFACT SETTINGS (Controlled via .env) ====================
   use: {
     ...baseConfig.use,
 
-    // CI defaults: always capture for thorough debugging, env vars can override
-    video: getArtifactSetting('ENABLE_VIDEO', 'on') as any,
-    trace: getArtifactSetting('ENABLE_TRACING', 'on') as any,
+    // CI defaults: capture only on failure to avoid storage bloat (~95% reduction)
+    video: getArtifactSetting('ENABLE_VIDEO', 'retain-on-failure') as any,
+    trace: getArtifactSetting('ENABLE_TRACING', 'on-first-retry') as any,
 
     screenshot: {
-      mode: getArtifactSetting('ENABLE_SCREENSHOTS', 'on') as any,
+      mode: getArtifactSetting('ENABLE_SCREENSHOTS', 'only-on-failure') as any,
       fullPage: true,
     },
   },

@@ -14,15 +14,15 @@ import './custom-matchers';
 import { test as base, Page, BrowserContext } from '@playwright/test';
 import { LoginPage } from '../../src/pages/login.page';
 import { HomePage } from '../../src/pages/home.page';
-import { LocationCurrencyPage } from '../../src/pages/locations/location-currency.page';
-import { LocationLocalInfoPage } from '../../src/pages/locations/location-local-info.page';
-import { LocationPricingPage } from '../../src/pages/locations/location-pricing.page';
-import { LocationAccountAddressPage } from '../../src/pages/locations/location-account-address.page';
-import { LocationNotesPage } from '../../src/pages/locations/location-notes.page';
-import { LocationLegalPage } from '../../src/pages/locations/location-legal.page';
-import { LocationSharedSetupLocationsPage } from '../../src/pages/locations/location-shared-setup-locations.page';
-import { LocationLocalOfficeSettingsPage } from '../../src/pages/locations/location-local-office-settings.page';
-import { LocationAutoAddonPage } from '../../src/pages/locations/location-auto-addon.page';
+import { LocationCurrencyPage } from '../../src/pages/setup/locations/location-currency.page';
+import { LocationLocalInfoPage } from '../../src/pages/setup/locations/location-local-info.page';
+import { LocationPricingPage } from '../../src/pages/setup/locations/location-pricing.page';
+import { LocationAccountAddressPage } from '../../src/pages/setup/locations/location-account-address.page';
+import { LocationNotesPage } from '../../src/pages/setup/locations/location-notes.page';
+import { LocationLegalPage } from '../../src/pages/setup/locations/location-legal.page';
+import { LocationSharedSetupLocationsPage } from '../../src/pages/setup/locations/location-shared-setup-locations.page';
+import { LocalOfficeSettingsPage } from '../../src/pages/setup/local-office/local-office-settings.page';
+import { LocationAutoAddonPage } from '../../src/pages/setup/locations/location-auto-addon.page';
 import { CommonMethods } from '../../src/utils/common-methods';
 import { Log, Logger } from '../../src/utils/logger';
 import { IConfig } from '../../src/framework-contracts';
@@ -50,7 +50,7 @@ type TestFixtures = {
   locationNotesPage: LocationNotesPage;
   locationLegalPage: LocationLegalPage;
   locationSharedSetupLocationsPage: LocationSharedSetupLocationsPage;
-  locationLocalOfficeSettingsPage: LocationLocalOfficeSettingsPage;
+  localOfficeSettingsPage: LocalOfficeSettingsPage;
   locationAutoAddonPage: LocationAutoAddonPage;
 };
 
@@ -135,8 +135,14 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
     // Global safety net: auto-accept native beforeunload dialogs to prevent test hangs.
     // ALL-052 enforcement: Angular forms fire beforeunload when navigating with unsaved edits.
+    // Tests that need to control beforeunload dialogs can set page.__skipBeforeunloadAutoAccept = true.
     page.on('dialog', async (dialog) => {
       if (dialog.type() === 'beforeunload') {
+        const skip = (page as unknown as Record<string, unknown>).__skipBeforeunloadAutoAccept;
+        if (skip) {
+          Log.info('[fixture] beforeunload dialog deferred to test handler (skip flag set)');
+          return;
+        }
         Log.info('[fixture] Auto-accepting beforeunload dialog');
         await dialog.accept();
       }
@@ -148,20 +154,35 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     // Load credentials from encrypted vault
     const credentials = await CredentialLoader.loadCredentials({ type: 'vault' });
 
-    // Navigate to app -- triggers redirect to Navigator Cloud sign-in page
-    // 78s (1.3 min) timeout: allows SSO redirect chain to initiate; no waitUntil to avoid networkidle stall
-    await page.goto(config.base_url, { timeout: 78_000 });
+    // SSO login with retry -- OAuth callback can fail transiently (CSRF/state mismatch, B2C hiccup)
+    const MAX_LOGIN_ATTEMPTS = 2;
+    let loginSuccess = false;
 
-    // Full SSO + MFA login flow
-    const loginPage = new LoginPage(page, config);
-    const loginSuccess = await loginPage.loginWithMicrosoft(
-      credentials.username,
-      credentials.password,
-      credentials.mfaSecret,
-    );
+    for (let attempt = 1; attempt <= MAX_LOGIN_ATTEMPTS; attempt++) {
+      if (attempt > 1) {
+        Log.info(`[retry] Login attempt ${attempt}/${MAX_LOGIN_ATTEMPTS} -- resetting page state and retrying`);
+        await page.goto('about:blank', { timeout: 5_000 }).catch(() => {});
+        await context.clearCookies();
+      }
+
+      // Navigate to app -- triggers redirect to Navigator Cloud sign-in page
+      // 78s (1.3 min) timeout: allows SSO redirect chain to initiate; no waitUntil to avoid networkidle stall
+      await page.goto(config.base_url, { timeout: 78_000 });
+
+      // Full SSO + MFA login flow
+      const loginPage = new LoginPage(page, config);
+      loginSuccess = await loginPage.loginWithMicrosoft(
+        credentials.username,
+        credentials.password,
+        credentials.mfaSecret,
+      );
+
+      if (loginSuccess) break;
+      Log.error(`[ERR] Login attempt ${attempt}/${MAX_LOGIN_ATTEMPTS} failed`);
+    }
 
     if (!loginSuccess) {
-      throw new Error('Authenticated session creation failed -- SSO login did not succeed');
+      throw new Error(`Authenticated session creation failed -- SSO login did not succeed after ${MAX_LOGIN_ATTEMPTS} attempts`);
     }
 
     // Wait for the Dashboard heading to become visible -- signals the app has fully loaded
@@ -289,9 +310,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     await use(locationSharedSetupLocationsPage);
   },
 
-  locationLocalOfficeSettingsPage: async ({ authenticatedSession, config }, use) => {
-    const locationLocalOfficeSettingsPage = new LocationLocalOfficeSettingsPage(authenticatedSession.page, config);
-    await use(locationLocalOfficeSettingsPage);
+  localOfficeSettingsPage: async ({ authenticatedSession, config }, use) => {
+    const localOfficeSettingsPage = new LocalOfficeSettingsPage(authenticatedSession.page, config);
+    await use(localOfficeSettingsPage);
   },
 
   locationAutoAddonPage: async ({ authenticatedSession, config }, use) => {

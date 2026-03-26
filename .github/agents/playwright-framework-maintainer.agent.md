@@ -87,3 +87,7 @@ model: Claude Sonnet 4.5
 3. Did I preserve all test assertions and expected values? (HARD STOP 2)
 4. Did I capture new findings as MNT-013+ rules?
 5. Does `npm run validate:sync` pass clean? (MNT-007)
+
+## MODULE ROUTING
+When maintaining selectors or page objects, check docs/MODULE_REGISTRY.md for correct module.
+Each module has its own selector partition. Never merge selectors across modules.

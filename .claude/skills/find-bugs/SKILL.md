@@ -104,6 +104,30 @@ After the targeted probing:
   - `==` instead of `===` (in JS/TS)
 - **Check for inconsistencies** between similar components (if A handles errors, does B?)
 
+### Step 5: Pattern Learning (MANDATORY — do not skip)
+
+Every bug you find is a **pattern**, not just an instance. This step is the difference between finding 2 bugs and finding 20.
+
+1. **Extract the pattern** from each bug found in Steps 2-4:
+   - BUG: "stale reference after rename" → PATTERN: "after any rename, all consumers may have stale refs"
+   - BUG: "duplicate section numbering" → PATTERN: "after adding numbered items, sequence may be broken elsewhere"
+   - BUG: "import path wrong after file move" → PATTERN: "all importers of moved files may have wrong paths"
+
+2. **Check memory for prior patterns** — recall `feedback_bug_pattern_learning` and any past bug hunt reports. Prior patterns are test cases for THIS scope.
+
+3. **Sweep the entire codebase for each pattern**:
+   - If you found pattern X in area A, check areas B, C, D, E...
+   - If one test plan has stale refs, check ALL test plans
+   - If one numbered list has a gap, check ALL numbered lists
+   - If one file has a wrong import, check ALL files at the same depth
+
+4. **MANDATORY GATE**: Before finalizing the bug count, ask yourself:
+   > "For each bug I found, did I sweep the codebase for the same pattern in different forms?"
+
+   If the answer is NO for any bug, **go back and sweep**. The report is incomplete.
+
+5. **Store new patterns** — add significant new patterns to `specs_planning/_internal/agent-mistakes.md` so future agents learn from them too.
+
 ## Auto-Calls
 
 None — this is a standalone skill. It finds bugs. Other skills fix them.

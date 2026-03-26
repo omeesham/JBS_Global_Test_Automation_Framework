@@ -382,6 +382,15 @@ Before setting `stage: "pending_generation"`, verify ALL artifacts exist:
 
 Set: `stage: "pending_generation"`, `lockedBy: null`, artifacts: `testCaseFile` + `testPlanFile`, history: `planner/completed/N test cases`
 
+## MODULE ROUTING (MANDATORY)
+Before creating ANY output file:
+1. Read `docs/MODULE_REGISTRY.md` to find the correct module for this page
+2. If the page is NOT in the registry → STOP. Add it to the registry FIRST
+3. Use the module ID for ALL file paths: test-cases/{section}/{module}/, test-plans/{section}/{module}/
+4. NEVER assume a page belongs to an existing module. Verify by URL.
+5. Different URL paths = different modules. `/settings/location` ≠ `/settings/local-office`
+6. Directory structure mirrors app navigation: {section}/{module}/
+
 ## Checklist
 - [ ] Explored every field + mapped disabled triggers + 15-25 TCs + test plan + selectors verified on DOM
 - [ ] Queue unlocked, artifacts set, REQUIREMENTS.md NOT modified, self-audit passed (§8)

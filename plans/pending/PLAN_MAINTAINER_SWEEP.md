@@ -1,3 +1,5 @@
+> **⚠️ STALE**: Paths changed by PLAN_P0_LOCAL_OFFICE_DECONTAMINATION (2026-03-25). All `locations/` paths are now `setup/locations/` or `setup/local-office/`. `SetupSelectors` → `LocationSettingsSelectors`. Review before executing.
+
 # PLAN: Framework Maintainer Sweep — Selector Collision Architecture Fix
 
 **ID**: PLAN_MAINTAINER_SWEEP
@@ -21,7 +23,8 @@ A full exhaustive audit of all ~281 selector keys across 12 partition files foun
 This plan was subjected to two rounds of adversarial review. Corrections applied:
 - V1: 4 critical defects, 9 high-risk gaps, 8 ambiguity bombs → full rewrite
 - V2: 7 discrepancies found via code verification → corrections below
-- V3 (this version): All claims grep-verified, counts corrected, cross-references fixed
+- V3: All claims grep-verified, counts corrected, cross-references fixed
+- V4 (this version): 8 corrections from adversarial counter-audit (Opus 4.6 + Copilot rebuttal) folded in.
 
 ---
 
@@ -66,6 +69,18 @@ btnUnsavedChangesCancel:'[role="alertdialog"]:has-text("Any unsaved changes will
 ```
 
 **Safety assessment**: `:has-text("Save Changes")` on `[role="alertdialog"]` is safe — the `role` attribute scoping prevents stray matches. This is Playwright's recommended dialog targeting pattern. Less specific than auto-addon's `h2:text-is()` but correct for the shared dialog structure.
+
+### DEFAULT-PARAMETER CASCADING RISK (P-04 counter-audit correction)
+
+`BasePage.clickSaveWithDialog` has default params `dialogKey='dlgSaveChanges'` and `confirmBtnKey='btnSaveChangesConfirm'`. **5 page objects** use these defaults (only passing the save button key), so they silently inherit the selector value change from notes.ts → shared.ts:
+
+1. `location-account-address.page.ts` — `clickSaveWithDialog('btnSaveAccountAddress')`
+2. `location-pricing.page.ts` — `clickSaveWithDialog('btnSavePricing')`
+3. `location-currency.page.ts` — `clickSaveWithDialog('btnSaveCurrency')`
+4. `location-notes.page.ts` — `clickSaveWithDialog('btnSaveNotes')`
+5. `location-shared-setup-locations.page.ts` — `clickSaveWithDialog('btnSave')`
+
+**Pre-execution requirement**: MCP-verify that ALL Location Settings pages' save dialogs contain the exact text "Save Changes" in the dialog body. If any page uses different text (e.g., "Confirm Save"), shared.ts's `:has-text("Save Changes")` will fail silently.
 
 ---
 
@@ -126,8 +141,14 @@ export const ALL_SELECTORS = mergeWithCollisionCheck([
 
 Page object updates:
 - `location-auto-addon.page.ts` line 53: `SetupAutoAddonSelectors.btnSave` → `SetupAutoAddonSelectors.btnSaveAutoAddon`
-- `location-local-office-settings.page.ts` lines 65, 80: `getElement('btnSave')` → `getElement('btnSaveLocalOffice')`
-  - Find via: `grep -n "getElement.*btnSave" src/pages/locations/location-local-office-settings.page.ts`
+- `location-local-office-settings.page.ts` lines 65, 70, 75, 80: ALL `'btnSave'` refs → `'btnSaveLocalOffice'`
+  - Line 65: `this.getElement('btnSave').isDisabled()` → `this.getElement('btnSaveLocalOffice').isDisabled()`
+  - Line 70: `this.waitForSaveEnabled('btnSave', timeout)` → `this.waitForSaveEnabled('btnSaveLocalOffice', timeout)`
+  - Line 75: `this.clickSaveWithDialog('btnSave', ...)` → `this.clickSaveWithDialog('btnSaveLocalOffice', ...)`
+  - Line 80: `this.getElement('btnSave').click()` → `this.getElement('btnSaveLocalOffice').click()`
+  - Find via: `grep -n "'btnSave'" src/pages/locations/location-local-office-settings.page.ts`
+- `location-shared-setup-locations.page.ts` lines 135, 140: `'btnSave'` resolves to left-panel.ts after fix — **pre-existing bug fix** (currently resolves to local-office-settings.ts WRONG testid). **No code change needed** — correct resolution is automatic after local-office-settings.ts rename.
+  - Find via: `grep -n "'btnSave'" src/pages/locations/location-shared-setup-locations.page.ts`
 
 **Collision #2: `tabBasicInformation` (2-way)**
 
@@ -155,7 +176,7 @@ Page object updates after notes.ts deletion:
 - `location-notes.page.ts` lines 230, 239, 240, 245, 246 — uses `dlgSaveChanges`, `btnSaveChangesConfirm`, `btnSaveChangesCancel`. After deletion from notes.ts, these resolve to shared.ts. **No code changes needed.**
 
 Page object updates for auto-addon.ts renames:
-- `location-auto-addon.page.ts` — **13 getElement refs** to update:
+- `location-auto-addon.page.ts` — **12 getElement refs + 1 direct import = 13 total** to update:
   - `'dlgSaveChanges'` → `'dlgAutoAddonSaveChanges'` (6 refs: find via `grep -n "'dlgSaveChanges'" src/pages/locations/location-auto-addon.page.ts`)
   - `'btnSaveChangesCancel'` → `'btnAutoAddonSaveCancel'` (1 ref: find via `grep -n "'btnSaveChangesCancel'" src/pages/locations/location-auto-addon.page.ts`)
   - `'dlgUnsavedChanges'` → `'dlgAutoAddonUnsavedChanges'` (5 refs: find via `grep -n "'dlgUnsavedChanges'" src/pages/locations/location-auto-addon.page.ts`)
@@ -191,8 +212,8 @@ Previously untracked collision victim:
 | `src/selectors/locations/auto-addon.ts` | RENAME 4 keys, DELETE 1 | `btnSave→btnSaveAutoAddon`, `dlgSaveChanges→dlgAutoAddonSaveChanges`, `btnSaveChangesCancel→btnAutoAddonSaveCancel`, `dlgUnsavedChanges→dlgAutoAddonUnsavedChanges`, DELETE `toastLocalInfoUpdated` |
 | `src/selectors/locations/notes.ts` | DELETE 3 keys + add comments | `dlgSaveChanges`, `btnSaveChangesConfirm`, `btnSaveChangesCancel` |
 | `src/selectors/locations/local-office-settings.ts` | RENAME 2 keys | `btnSave→btnSaveLocalOffice`, `tabBasicInformation→tabLocalOfficeBasicInfo` |
-| `src/pages/locations/location-auto-addon.page.ts` | UPDATE 13 getElement refs + 1 direct import ref | All renamed keys |
-| `src/pages/locations/location-local-office-settings.page.ts` | UPDATE 3 refs | `btnSave→btnSaveLocalOffice` (×2), `tabBasicInformation→tabLocalOfficeBasicInfo` (×1 in navigateToSubTab call) |
+| `src/pages/locations/location-auto-addon.page.ts` | UPDATE 12 getElement refs + 1 direct import ref = 13 total | All renamed keys |
+| `src/pages/locations/location-local-office-settings.page.ts` | UPDATE 5 refs | `btnSave→btnSaveLocalOffice` (×4: lines 65,70,75,80), `tabBasicInformation→tabLocalOfficeBasicInfo` (×1 in navigateToSubTab call) |
 | `src/selectors/SELECTOR_CATALOG.md` | REGENERATE | Run `npm run selectors:catalog` (confirmed in package.json:64) |
 
 #### Verification (SP-01+SP-02 together)
@@ -204,23 +225,28 @@ npx tsc --noEmit
 # 2. Runtime collision check — no throw
 npx ts-node -e "require('./src/selectors')"
 
-# 3. Collision resolution grep checks
-grep -rn "dlgSaveChanges:" src/selectors/locations/    # ONLY shared.ts
-grep -rn "btnSave:" src/selectors/locations/            # each file has unique key
-grep -rn "tabBasicInformation:" src/selectors/locations/ # ONLY left-panel.ts
+# 3. Collision resolution grep checks (use quoted key strings, NOT getElement.*key)
+grep -rn "'dlgSaveChanges'" src/selectors/locations/    # ONLY shared.ts + auto-addon (renamed)
+grep -rn "'btnSave'" src/selectors/locations/            # each file has unique key
+grep -rn "'tabBasicInformation'" src/selectors/locations/ # ONLY left-panel.ts
 
-# 4. Test runs — all affected page objects
+# 4. Test runs — ALL 9 affected spec files (not just 4!)
 npm test -- --project=chrome tests/specs/locations/location-auto-addon.spec.ts
 npm test -- --project=chrome tests/specs/locations/location-currency.spec.ts
 npm test -- --project=chrome tests/specs/locations/location-legal.spec.ts
 npm test -- --project=chrome tests/specs/locations/location-local-office-settings.spec.ts
+npm test -- --project=chrome tests/specs/locations/location-notes.spec.ts
+npm test -- --project=chrome tests/specs/locations/location-shared-setup-locations.spec.ts
+npm test -- --project=chrome tests/specs/locations/location-account-address.spec.ts
+npm test -- --project=chrome tests/specs/locations/location-local-information.spec.ts
+npm test -- --project=chrome tests/specs/locations/location-pricing.spec.ts
 
 # 5. Regenerate catalog
 npm run selectors:catalog
 ```
 
-**Risk**: HIGH — key renames propagate to 2 page objects with 16 references total. Wrong rename = runtime failure.
-**Mitigation**: Grep-first navigation for EVERY edit (never trust line numbers). Run 4 spec files covering all affected page objects.
+**Risk**: HIGH — key renames propagate to 2 page objects with 18 references total. Wrong rename = runtime failure. shared-setup-locations gets an accidental pre-existing bug fix (btnSave resolution changes from wrong → correct page).
+**Mitigation**: Grep-first navigation for EVERY edit (use `'key'` not `getElement.*key`). Run 9 spec files covering all affected page objects. MCP-verify save dialog text before execution.
 **Reversibility**: Full (single commit revert).
 
 ---
@@ -248,7 +274,7 @@ export { LocationSharedSetupLocationsPage } from './locations/location-shared-se
 
 ### SP-05: `waitForNetworkIdle` Method Extraction (P2)
 
-**Problem**: `page.waitForLoadState('networkidle', { timeout: N }).catch(() => {})` duplicated **20 times** across 7 files (including 1 in BasePage itself).
+**Problem**: `page.waitForLoadState('networkidle', { timeout: N }).catch(() => {})` duplicated **23 times** across 8 files (including 3 in BasePage itself).
 
 **Exact enumeration** (grep-verified):
 
@@ -260,7 +286,8 @@ export { LocationSharedSetupLocationsPage } from './locations/location-shared-se
 | `location-currency.page.ts` | 5 | 5_000 (×4), 15_000 (×1) |
 | `location-notes.page.ts` | 1 | 10_000 |
 | `location-shared-setup-locations.page.ts` | 1 | 15_000 |
-| `base-page.ts` (navigateToSubTab, line 386) | 1 | 15_000 |
+| `base-page.ts` (lines 348, 386, 393) | 3 | 15_000 (×3) |
+| `ui-common.ts` (line 112) | 1 | **no timeout** (uses Playwright default) — **SPECIAL HANDLING**: calling `waitForNetworkIdle()` here would ADD a 15_000ms timeout where none existed. Either pass no timeout or preserve current behavior. |
 
 **File: `src/common/base-page.ts`** — Add:
 ```typescript
@@ -273,8 +300,8 @@ protected async waitForNetworkIdle(timeout = 15_000): Promise<void> {
 
 **Each replacement**: `await this.waitForNetworkIdle(N)` — preserving the ORIGINAL timeout value. Do NOT default to 15_000 when the original uses 5_000 or 10_000.
 
-**Verification**: `grep -rn "waitForLoadState.*networkidle.*catch" src/pages/ src/common/base-page.ts | wc -l` → 0 hits (excluding the new method definition)
-**Risk**: LOW (identical behavior)
+**Verification**: `grep -rn "waitForLoadState.*networkidle.*catch" src/pages/ src/common/base-page.ts src/utils/ui-common.ts | wc -l` → 0 hits (excluding the new method definition in base-page.ts). Note: `ui-common.ts` uses `this.page` not `this` — needs manual verification since it's a utility, not a page object extending BasePage.
+**Risk**: LOW (identical behavior for page objects). MEDIUM for ui-common.ts (different class hierarchy).
 
 ---
 
@@ -330,17 +357,17 @@ Add `"selectors:lint": "npx ts-node -e \"require('./src/selectors')\""` to packa
 | 1 | **SP-01 + SP-02** (atomic) | `fix: resolve 7 silent selector collisions + add partition-aware detection` |
 | 2 | SP-04 | `chore: add missing page object barrel exports` |
 | 3 | SP-06 | `refactor: move CheckboxState/SpinState to framework-contracts` |
-| 4 | SP-05 | `refactor: extract waitForNetworkIdle to BasePage (20 occurrences)` |
+| 4 | SP-05 | `refactor: extract waitForNetworkIdle to BasePage (23 occurrences across 8 files)` |
 | 5 | SP-09 | `docs: add MNT-013, MNT-014, LR-017 learned rules` |
 
 ---
 
 ## GUARD RAILS
 
-1. After SP-01+SP-02: `npx tsc --noEmit` + run 4 spec files (auto-addon, currency, legal, local-office-settings) + `npm run selectors:catalog`
+1. After SP-01+SP-02: `npx tsc --noEmit` + run **9 spec files** (auto-addon, currency, legal, local-office-settings, notes, shared-setup-locations, account-address, local-information, pricing) + `npm run selectors:catalog`
 2. After SP-04: `npx tsc --noEmit`
 3. After SP-06: `npx tsc --noEmit`
-4. After SP-05: `grep -rn "waitForLoadState.*networkidle.*catch" src/pages/ src/common/base-page.ts | wc -l` → 0 (excluding method definition) + run one spec
+4. After SP-05: `grep -rn "waitForLoadState.*networkidle.*catch" src/pages/ src/common/base-page.ts src/utils/ui-common.ts | wc -l` → 0 (excluding method definition) + run one spec
 5. After SP-09: visual review of appended rules
 
 ---
@@ -362,8 +389,8 @@ Add `"selectors:lint": "npx ts-node -e \"require('./src/selectors')\""` to packa
 
 | Subplan | Risk | Mitigation |
 |---------|------|------------|
-| SP-01+SP-02 | **HIGH** | Grep-first navigation. Run 4 spec files. Single atomic commit. 16 page object refs to update across 2 files. |
+| SP-01+SP-02 | **HIGH** | Grep-first navigation (use `'key'` not `getElement.*key`). Run **9 spec files**. Single atomic commit. 18 page object refs to update across 2 files. Pre-exec: MCP-verify all save dialogs contain "Save Changes" text. |
 | SP-04 | NONE | Additive only. FormHelpers + TestOrchestrators intentionally excluded (internal utilities). |
-| SP-05 | MEDIUM | 20 replacements preserving 3 different timeout values (5k, 10k, 15k). Grep verification after. |
+| SP-05 | MEDIUM | 23 replacements across 8 files preserving 3 different timeout values (5k, 10k, 15k). ui-common.ts needs special handling (no explicit timeout currently). Grep verification after. |
 | SP-06 | LOW | TypeScript catches type mismatches. Also migrates SpinState (not just CheckboxState). |
 | SP-09 | NONE | Documentation only. Appended after MNT-012 in agent-mistakes.md. |

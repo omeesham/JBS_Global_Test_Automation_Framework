@@ -219,3 +219,12 @@ Always verify actual HTML tag via `browser_evaluate(() => el.tagName)` before wr
 selectors like `svg`, `img`, `tr`, `td`. The accessibility tree is for FINDING elements,
 not for understanding their DOM structure.
 **Trigger**: Any Phase 0.5 walkthrough or healer session examining DOM structure.
+
+### LR-017: Different pages MUST have separate selector namespaces and directories
+Pages at different URLs are DIFFERENT pages. Never merge selectors into a shared flat
+object or co-locate files in the same directory. Each page group gets its own selector
+partition, own directory, and own collision detection boundary.
+"Location Settings" (`/settings/location`) ≠ "Local Office Settings" (`/settings/local-office`).
+Check REQUIREMENTS.md and docs/MODULE_REGISTRY.md for page boundaries before creating any new page object.
+Directory structure mirrors the app navigation hierarchy: `{section}/{module}/`.
+**Trigger**: Any new page object or selector file creation.

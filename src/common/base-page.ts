@@ -12,7 +12,7 @@ import { Page, Locator } from '@playwright/test';
 import { Log } from '../utils/logger';
 import { getTsSelector } from '../selectors';
 import { IConfig } from '../framework-contracts';
-import { CheckboxState } from '../pages/locations/location-form-helpers.page';
+import { CheckboxState } from '../pages/setup/locations/location-form-helpers.page';
 
 export class BasePage {
   protected page: Page;

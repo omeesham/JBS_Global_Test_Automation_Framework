@@ -380,4 +380,10 @@ Full spec once for regression check: `npx playwright test {spec} --project=chrom
 
 TC update: `Last Test Run` date + `Result: PASSED/FAILED` + test results table. If removed: document as `missing-coverage` (HLR-008).
 
+## MODULE ROUTING
+LOS specs are at tests/specs/setup/local-office/, NOT tests/specs/locations/
+LOS page object is at src/pages/setup/local-office/, NOT src/pages/locations/
+LOS selectors are at src/selectors/setup/local-office/, NOT src/selectors/locations/
+Always check docs/MODULE_REGISTRY.md before searching for files to heal.
+
 **Checklist**: All `pending_healing` processed | orphans added | each item `completed`/`fixme` | TC docs updated | selector fixes in index.ts | no `test.fixme()` | self-audit (§8)

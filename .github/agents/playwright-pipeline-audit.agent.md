@@ -302,3 +302,7 @@ Each finding → ONE agent + copy-pastable prompt. Multi-agent → separate rows
 - [ ] Activity log updated
 - [ ] Learning check: any failed first-attempts → search agent-mistakes.md Resolution column
 - [ ] Rule quality verified: no contradictions, duplicates, ID collisions, or vague rules across all agent sections
+
+## MODULE ROUTING
+Validate module directory matches docs/MODULE_REGISTRY.md during audits.
+Flag any LOS artifacts found in locations/ directories as P0 module boundary violations.

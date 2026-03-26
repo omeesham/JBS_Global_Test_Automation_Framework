@@ -401,4 +401,13 @@ No queue items → STOP | Missing plan → `fixme` | Fail → `fixme` | ALL same
 
 **Spec template**: See `tests/examples/`. Post-gen: TC status → Automated.
 
+## MODULE ROUTING (MANDATORY)
+Before creating ANY spec, page object, or selector file:
+1. Read `docs/MODULE_REGISTRY.md` to find the correct module
+2. Create files in the module's directory (src/pages/{section}/{module}/, tests/specs/{section}/{module}/, etc.)
+3. If the module directory doesn't exist → CREATE IT. Don't dump into an existing module
+4. Each page's selectors go in their OWN selector partition file, in their OWN module directory
+5. NEVER add a new page's selectors to an existing merged selector object
+6. Golden reference is `tests/specs/setup/locations/location-currency.spec.ts` — copy the PATTERN, not the PATH
+
 **Checklist**: fixtures-only | no `test.fixme()` | 3+ same → data-driven | ≤200 lines | selectors in index.ts | TC → Automated | typecheck | test:grep for fixes | no framework mods | self-audit (§8)

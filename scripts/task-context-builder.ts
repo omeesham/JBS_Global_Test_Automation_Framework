@@ -43,6 +43,13 @@ const MODULE_SECTION_MAP: { [module: string]: string[] } = {
     'Auto Add-On Tab',
     'Location Management History',
   ],
+  'local-office': [
+    'Local Office Settings',
+    'Default Date Offsets',
+    'ECT Settings',
+    'Room Configuration',
+    'Discount Exemptions',
+  ],
 };
 
 // Cross-inject: extra mistake sections pulled for an agent beyond its own section.

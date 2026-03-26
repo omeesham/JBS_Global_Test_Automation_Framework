@@ -58,9 +58,9 @@ function extractSpecSelectorRefs(specContent: string): { key: string; line: numb
   // Match quoted selector keys: 'chkApplyLDW', "btnSave", `spinLDWPercentage`
   const quotedPattern = new RegExp(`['"\`]((?:${prefixGroup})[A-Z]\\w+)['"\`]`, 'g');
 
-  // Match property access ONLY on known selector objects: SetupSelectors.chkApplyLDW, selectors.btnSave
+  // Match property access ONLY on known selector objects: LocationSettingsSelectors.chkApplyLDW, selectors.btnSave
   // Excludes data variable access like dep.spinRestore, bc.restoreValue, tc.key (false positives)
-  const SELECTOR_OBJECT_NAMES = ['SetupSelectors', 'MicrosoftLoginSelectors',
+  const SELECTOR_OBJECT_NAMES = ['LocationSettingsSelectors', 'LocalOfficeSettingsSelectors', 'MicrosoftLoginSelectors',
     'SetupLocalInfoSelectors', 'SetupLeftPanelSelectors', 'SetupSharedSelectors',
     'SetupCurrencySelectors', 'SetupPricingSelectors', 'DynamicSelectors', 'ALL_SELECTORS', 'selectors'];
   const dotObjPattern = new RegExp(`(?:${SELECTOR_OBJECT_NAMES.join('|')})\\.((?:${prefixGroup})[A-Z]\\w+)`, 'g');
@@ -97,7 +97,7 @@ function main(): void {
   const specPath = process.argv[2];
   if (!specPath) {
     console.error('Usage: npm run generator:validate-selectors <spec-file>');
-    console.error('Example: npm run generator:validate-selectors tests/specs/locations/location-local-information.spec.ts');
+    console.error('Example: npm run generator:validate-selectors tests/specs/setup/locations/location-local-information.spec.ts');
     process.exit(1);
   }
 

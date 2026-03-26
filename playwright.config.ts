@@ -69,19 +69,26 @@ export default defineConfig({
   
   reporter: [
     ['list'],
-    ['html', { 
-      outputFolder: 'reports/html-report', 
+    ['html', {
+      outputFolder: 'reports/html-report',
       open: 'never',
-      attachmentsBaseURL: 'none'  // Disables error-context.md and other HTML attachments
     }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['junit', { outputFile: 'reports/junit-results.xml' }],
-    ['allure-playwright', { 
+    ['./src/utils/agent-reporter.ts'],
+    ['allure-playwright', {
       outputFolder: 'reports/allure-results',
       detail: true,
-      suiteTitle: true 
+      suiteTitle: true,
+      environmentInfo: {
+        Framework: 'Encore Playwright',
+        Environment: process.env.CI_ENV || 'development',
+        'Base URL': process.env.BASE_URL || 'https://cloudapps-e2e.encoreglobal.com/navigator/',
+        Node: process.version,
+        Platform: process.platform,
+      },
+      categories: require('./config/allure/categories.json'),
     }],
-    ['./src/utils/agent-reporter.ts'],
   ],
   
   // ==================== SHARED SETTINGS (ALL BROWSERS) ====================

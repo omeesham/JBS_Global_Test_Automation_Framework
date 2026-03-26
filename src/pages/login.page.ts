@@ -254,7 +254,7 @@ export class LoginPage extends BasePage {
   async isLoggedIn(): Promise<boolean> {
     try {
       const url = this.page.url();
-      
+
       // Check if NOT on Microsoft login page
       if (url.includes('login.microsoftonline.com')) {
         return false;
@@ -266,16 +266,23 @@ export class LoginPage extends BasePage {
         return false;
       }
 
+      // Check for OAuth/auth error params in URL (NextAuth error codes)
+      if (url.includes('error=OAuth') || url.includes('error=Callback') || url.includes('/auth/sign-in')) {
+        Log.error(`[ERR] OAuth error detected in URL: ${url}`);
+        return false;
+      }
+
       // Wait for Navigator Cloud app to load (path-based routing)
       await this.page.waitForURL(
-        url => url.toString().includes('/navigator/locations/'),
+        u => u.toString().includes('/navigator/locations/'),
         { timeout: 5000 }
       ).catch(() => {});
 
-      // Check for authenticated state indicator
-      const isNavigatorLoaded = url.includes(expectedHostname);
-      
-      Log.info(`Authentication check: ${isNavigatorLoaded ? '[OK] Authenticated' : '[ERR] Not authenticated'}`);
+      // Re-read URL after potential redirect
+      const currentUrl = this.page.url();
+      const isNavigatorLoaded = currentUrl.includes(expectedHostname) && !currentUrl.includes('/auth/sign-in');
+
+      Log.info(`Authentication check: ${isNavigatorLoaded ? '[OK] Authenticated' : '[ERR] Not authenticated'} -- URL: ${currentUrl}`);
       return isNavigatorLoaded;
     } catch (error) {
       Log.error(`isLoggedIn check failed: ${error}`);
