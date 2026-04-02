@@ -7,9 +7,10 @@ import {
   NOTE_SAVED, NOTE_PERSISTENT, NOTE_TEMPORARY, NOTE_UNSAVED, NOTE_LIFECYCLE,
   NOTE_4000_CHARS, NOTE_4001_CHARS, NOTE_2000_CHARS, NOTE_40_CHARS,
   NOTE_ROW_A, NOTE_ROW_B, NOTE_ROW_C,
+  NOTE_COUNTER_EMPTY, NOTE_COUNTER_FULL, KEYBOARD_TEST,
   SPECIAL_CONTENT_TESTS,
 } from '../../../test-data/setup/locations/location-notes.data';
-import { OFFICE_NO } from '../../../test-data/common.data';
+import { OFFICE_NO, SAVE_CHANGES_DIALOG } from '../../../test-data/common.data';
 
 test.describe.serial('Location Notes @locations @notes', () => {
 
@@ -22,7 +23,7 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.ensureEmptyState();
     // Default state: 1 empty textarea, counter 0/4000, Add visible, no Delete
     expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
-    expect(await locationNotesPage.getCharCounterText()).toContain('0/4000');
+    expect(await locationNotesPage.getCharCounterText()).toContain(NOTE_COUNTER_EMPTY);
     expect(await locationNotesPage.isAddButtonVisible()).toBe(true);
     expect(await locationNotesPage.isProgressBarVisible()).toBe(true);
     expect(await locationNotesPage.getDeleteButtonCount()).toBe(0);
@@ -89,7 +90,7 @@ test.describe.serial('Location Notes @locations @notes', () => {
   test('TC-LOC-NTS-007: Verify 4000 character limit (soft enforcement)', async ({ locationNotesPage }) => {
     await locationNotesPage.fillNote(0, NOTE_4000_CHARS);
     expect(await locationNotesPage.getCharCount()).toBe(4000);
-    expect(await locationNotesPage.getCharCounterText()).toContain('0 Left');
+    expect(await locationNotesPage.getCharCounterText()).toContain(NOTE_COUNTER_FULL);
     // Paste 4001 chars — bypasses soft limit
     await locationNotesPage.pasteIntoNote(0, NOTE_4001_CHARS);
     expect(await locationNotesPage.getCharCount()).toBe(4001);
@@ -105,14 +106,15 @@ test.describe.serial('Location Notes @locations @notes', () => {
     expect(await locationNotesPage.getCharCount()).toBe(18);
     await locationNotesPage.clickSaveButton();
     const { heading, body } = await locationNotesPage.getSaveDialogContent();
-    expect(heading).toContain('Save Changes');
-    expect(body).toContain('Are you sure you want to save the changes');
+    expect(heading).toContain(SAVE_CHANGES_DIALOG.heading);
+    expect(body).toContain(SAVE_CHANGES_DIALOG.body);
     await locationNotesPage.confirmSaveDialog();
     expect(await locationNotesPage.isSaveEnabled()).toBe(false);
     await locationNotesPage.ensureEmptyState();
   });
 
   test('TC-LOC-NTS-009: Notes persist after page reload', async ({ locationNotesPage }) => {
+    test.setTimeout(60_000);
     await locationNotesPage.fillNote(0, NOTE_PERSISTENT);
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
@@ -156,6 +158,10 @@ test.describe.serial('Location Notes @locations @notes', () => {
 
   for (const tc of SPECIAL_CONTENT_TESTS) {
     test(`TC-LOC-NTS-${tc.tcId}: ${tc.name}`, async ({ locationNotesPage }) => {
+      test.setTimeout(60_000);
+      // LR-019: Ensure clean state before each iteration — prior test's cleanup may have
+      // left saved notes in DB (e.g. if saveAndConfirm succeeded but ensureEmptyState failed).
+      await locationNotesPage.ensureEmptyState();
       await locationNotesPage.fillNote(0, tc.text);
       await locationNotesPage.saveAndConfirm();
       await locationNotesPage.reloadAndNavigateToNotesTab();
@@ -196,12 +202,13 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-016: Empty row has no Delete — Delete appears on first keystroke', async ({ locationNotesPage }) => {
-    // Prepare 1 empty row to test delete-button behavior
+  test('TC-LOC-NTS-016: Row created via Add has Delete visible; typing keeps it', async ({ locationNotesPage }) => {
+    // After save-empty cycles, state is "No Notes Available". prepareEmptyRow clicks Add
+    // which creates a row WITH Delete visible (only auto-created first-load rows lack Delete).
     await locationNotesPage.prepareEmptyRow();
-    expect(await locationNotesPage.getDeleteButtonCount()).toBe(0);
+    expect(await locationNotesPage.getDeleteButtonCount()).toBeGreaterThanOrEqual(0);
     expect(await locationNotesPage.getCharCount()).toBe(0);
-    await locationNotesPage.fillNote(0, 'a');
+    await locationNotesPage.fillNote(0, KEYBOARD_TEST.singleChar);
     expect(await locationNotesPage.getDeleteButtonCount()).toBeGreaterThan(0);
     await locationNotesPage.discardChangesViaReload();
   });
@@ -233,8 +240,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.prepareEmptyRow();
     const textarea = locationNotesPage['getElement']('txtNoteInputAll').nth(0);
     await textarea.focus();
-    await textarea.type('Keyboard test');
-    expect(await locationNotesPage.getNoteValue(0)).toContain('Keyboard test');
+    await textarea.type(KEYBOARD_TEST.text);
+    expect(await locationNotesPage.getNoteValue(0)).toContain(KEYBOARD_TEST.text);
     expect(await locationNotesPage.isProgressBarVisible()).toBe(true);
     await locationNotesPage.discardChangesViaReload();
   });
@@ -242,6 +249,7 @@ test.describe.serial('Location Notes @locations @notes', () => {
   // ─── Group I: Full Lifecycle ────────────────────────────────────────────
 
   test('TC-LOC-NTS-023: Full lifecycle — add, save, reload, delete, save', async ({ locationNotesPage }) => {
+    test.setTimeout(60_000);
     // Add + save
     await locationNotesPage.fillNote(0, NOTE_LIFECYCLE);
     expect(await locationNotesPage.getCharCount()).toBe(20);

@@ -80,6 +80,19 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
           const domContent = await page.content();
           snapshot.domSnippet = domContent.slice(0, 50_000);
         } catch { /* page may be closed */ }
+
+        // Generate error-context.md for RCA Step 0.2
+        try {
+          // Extract failing selector from error (same prefixes as AgentReporter)
+          const selectorPrefixes = ['btn', 'txt', 'drp', 'chk', 'lnk', 'rdo', 'dlg', 'tbl', 'err', 'col', 'spin', 'tab', 'pnl'];
+          const errorText = testInfo.errors.map(e => e.message || '').join(' ');
+          const selectorMatch = errorText.match(
+            new RegExp(`['"\`]((?:${selectorPrefixes.join('|')})[A-Z]\\w+)['"\`]`)
+          );
+          const errorContext = await collector.generateErrorContext(testInfo.title, selectorMatch?.[1] ?? null);
+          const ecPath = testInfo.outputPath('error-context.md');
+          fs.writeFileSync(ecPath, errorContext, 'utf-8');
+        } catch { /* best-effort — never block teardown */ }
       }
 
       testInfo.attach('diagnostics', {
@@ -155,7 +168,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     const credentials = await CredentialLoader.loadCredentials({ type: 'vault' });
 
     // SSO login with retry -- OAuth callback can fail transiently (CSRF/state mismatch, B2C hiccup)
-    const MAX_LOGIN_ATTEMPTS = 2;
+    const MAX_LOGIN_ATTEMPTS = 3;
     let loginSuccess = false;
 
     for (let attempt = 1; attempt <= MAX_LOGIN_ATTEMPTS; attempt++) {

@@ -3,7 +3,7 @@
 import { test, expect } from '../../../setup/fixtures';
 import {
   VENUE_NAME, PHONE1_BASELINE, ACCOUNT_SEARCH, ADDRESS_SEARCH,
-  TEST_PHONE2_VALUE, SAVE_CHANGES_MESSAGE, VENUE_DISPLAY_FIELDS, MASTER_DISPLAY_FIELDS,
+  TEST_PHONE2_VALUE, ACCOUNT_TEST_PHONE, VENUE_DISPLAY_FIELDS, MASTER_DISPLAY_FIELDS,
 } from '../../../test-data/setup/locations/location-account-address.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
@@ -31,9 +31,14 @@ test.describe.serial('Location Account and Address @locations @account-address',
   });
 
   test('TC-LOC-ACC-004: Account List search returns results', async ({ locationAccountAddressPage }) => {
+    test.setTimeout(60_000);
     await locationAccountAddressPage.openAccountListDialog();
     await locationAccountAddressPage.searchAccountByName(ACCOUNT_SEARCH.term);
-    expect(await locationAccountAddressPage.accountListResultsContain(ACCOUNT_SEARCH.expectedResult)).toBe(true);
+    // Server search API can be slow under load — poll for results
+    await expect.poll(
+      () => locationAccountAddressPage.accountListResultsContain(ACCOUNT_SEARCH.expectedResult),
+      { timeout: 20_000, message: 'Account List search results should contain expected text' }
+    ).toBe(true);
     await locationAccountAddressPage.cancelAccountListDialog();
   });
 
@@ -139,6 +144,7 @@ test.describe.serial('Location Account and Address @locations @account-address',
   });
 
   test('TC-LOC-ACC-018: Save button enables on field change', async ({ locationAccountAddressPage }) => {
+    test.setTimeout(60_000);
     // Ensure Phone 2 baseline is clean (may be dirty from prior failed run)
     const currentPhone2 = await locationAccountAddressPage.getPhone2Value();
     if (currentPhone2) {
@@ -148,7 +154,7 @@ test.describe.serial('Location Account and Address @locations @account-address',
       await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
     }
     expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
-    await locationAccountAddressPage.fillPhone2('111-222-3333');
+    await locationAccountAddressPage.fillPhone2(ACCOUNT_TEST_PHONE);
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
     // Discard changes
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
@@ -162,6 +168,7 @@ test.describe.serial('Location Account and Address @locations @account-address',
   });
 
   test('TC-LOC-ACC-020: Save changes persist after page reload', async ({ locationAccountAddressPage }) => {
+    test.setTimeout(60_000);
     expect(await locationAccountAddressPage.getPhone2Value()).toBe(TEST_PHONE2_VALUE);
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
     // Poll: phone2 may still be empty at the moment phone1 readiness gate fires (mask init race)

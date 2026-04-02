@@ -97,6 +97,15 @@ After every navigation during Phase 1 exploration, check `browser_network_reques
 Log any failures as `[NETWORK_ERROR: {status} {url}]` tags in the REQUIREMENTS.md section for the current page area.
 These tags signal potential application bugs to downstream agents.
 
+### REQ-017: FIELD COVERAGE MATRIX (MANDATORY)
+Requirements agent MUST output a Field Coverage Matrix for every page explored. This matrix becomes the planner's primary input for coverage planning (PLN-043 Persistence Coverage Mandate). Format:
+```
+| Field | Type | Saveable? | Needs Round-Trip | Needs Negative | Needs BVA | Dependencies |
+|-------|------|-----------|-----------------|---------------|-----------|-------------|
+| Example Field | checkbox | Yes | Yes | No | No | Disables X when unchecked |
+```
+For each field, determine: (a) type (checkbox, dropdown, text, date, radio, grid-cell), (b) whether the field is saveable (editable + persisted), (c) whether it needs round-trip testing (all saveable fields = Yes), (d) whether it has invalid input classes (needs negative testing), (e) whether it has constrained ranges (needs BVA), (f) dependencies on other fields. The planner uses this matrix to ensure every saveable field gets a persistence TC.
+
 ---
 
 ## Mission — HUNTER Identity

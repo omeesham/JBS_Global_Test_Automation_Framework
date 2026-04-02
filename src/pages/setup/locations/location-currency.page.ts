@@ -114,7 +114,7 @@ export class LocationCurrencyPage extends BasePage {
   /** Open a merchant dropdown, collect option texts, close it, return the list. */
   async getMerchantOptions(dropdownKey: string): Promise<string[]> {
     await this.getElement(dropdownKey).click();
-    await this.page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
+    await this.waitForAngularStable();
     const listbox = this.page.locator('[role="listbox"]');
     const isVisible = await listbox.isVisible().catch(() => false);
     if (!isVisible) {
@@ -134,7 +134,7 @@ export class LocationCurrencyPage extends BasePage {
    */
   async isMerchantDropdownAccessible(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
-    await this.page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
+    await this.waitForAngularStable();
     const listbox = this.page.locator('[role="listbox"]');
     const visible = await listbox.isVisible().catch(() => false);
     await this.page.keyboard.press('Escape');
@@ -149,7 +149,7 @@ export class LocationCurrencyPage extends BasePage {
    */
   async isMerchantNoMatchesFound(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
-    await this.page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
+    await this.waitForAngularStable();
     const listbox = this.page.locator('[role="listbox"]');
     const visible = await listbox.isVisible().catch(() => false);
     if (!visible) { await this.page.keyboard.press('Escape'); return false; }
@@ -164,7 +164,7 @@ export class LocationCurrencyPage extends BasePage {
   /** Select a merchant option by its text label. */
   async selectMerchantOption(dropdownKey: string, optionText: string): Promise<void> {
     await this.getElement(dropdownKey).click();
-    await this.page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
+    await this.waitForAngularStable();
     const option = this.page.locator(`[role="listbox"] [role="option"]:has-text("${optionText}")`);
     await option.waitFor({ state: 'visible', timeout: 5_000 });
     await option.click();
@@ -228,7 +228,7 @@ export class LocationCurrencyPage extends BasePage {
     if (await dialog.isVisible().catch(() => false)) {
       await this.getElement('btnSaveChangesConfirm').click();
       await dialog.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
-      await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+      await this.waitForAngularStable();
     }
   }
 

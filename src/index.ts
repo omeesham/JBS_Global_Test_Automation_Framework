@@ -26,8 +26,6 @@ export { BasePage } from './common/base-page';
 // ==================== COMMON ====================
 export { CredentialLoader } from './common/credential-loader';
 export type { CredentialSource, Credentials } from './common/credential-loader';
-export { UiCommon } from './common/ui-common';
-
 // ==================== UTILITIES ====================
 export { Log, Logger } from './utils/logger';
 export { CommonMethods } from './utils/common-methods';

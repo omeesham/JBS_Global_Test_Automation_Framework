@@ -247,6 +247,92 @@ export class DiagnosticsCollector {
     };
   }
 
+  // ---- Error Context ----
+
+  /**
+   * Generate structured DOM analysis for RCA Step 0.2.
+   * Single page.evaluate() call for efficiency (<100ms).
+   * Returns formatted markdown; degrades gracefully if page is closed.
+   */
+  async generateErrorContext(testName: string, failingSelector?: string | null): Promise<string> {
+    try {
+      const analysis = await this.page.evaluate((selector) => {
+        const dialogs = document.querySelectorAll('[role="alertdialog"], [role="dialog"]');
+        const overlays = document.querySelectorAll('[data-radix-popper-content-wrapper], [data-state="open"][role="dialog"]');
+        const alerts = document.querySelectorAll('[role="alert"]');
+        const invalidFields = Array.from(document.querySelectorAll('[aria-invalid="true"]')).map(el => {
+          return el.getAttribute('aria-label') || el.getAttribute('data-testid') || el.tagName;
+        });
+        const disabledButtons = Array.from(document.querySelectorAll('button[disabled]')).map(el =>
+          el.getAttribute('data-testid') || el.textContent?.trim().slice(0, 40) || 'unknown'
+        );
+
+        let selectorFound = null;
+        if (selector) {
+          const el = document.querySelector(`[data-testid="${selector}"]`);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            selectorFound = {
+              exists: true,
+              visible: rect.width > 0 && rect.height > 0,
+              disabled: (el as HTMLElement).hasAttribute('disabled'),
+            };
+          } else {
+            selectorFound = { exists: false, visible: false, disabled: false };
+          }
+        }
+
+        return {
+          url: location.href,
+          title: document.title,
+          dialogCount: dialogs.length,
+          overlayCount: overlays.length,
+          alertCount: alerts.length,
+          invalidFields,
+          disabledButtons,
+          selectorFound,
+          domSnippet: document.documentElement.outerHTML.slice(0, 20_480),
+        };
+      }, failingSelector).catch(() => null);
+
+      if (!analysis) return `# Error Context: ${testName}\n\nPage unavailable at capture time.\n`;
+
+      const lines = [
+        `# Error Context: ${testName}`,
+        '',
+        '## Page State',
+        `- URL: ${analysis.url}`,
+        `- Title: ${analysis.title}`,
+        '',
+        '## Blocking Elements',
+        `- Dialogs: ${analysis.dialogCount}`,
+        `- Overlays: ${analysis.overlayCount}`,
+        `- Alerts: ${analysis.alertCount}`,
+      ];
+
+      if (failingSelector && analysis.selectorFound) {
+        lines.push('', `## Selector: ${failingSelector}`);
+        lines.push(`- In DOM: ${analysis.selectorFound.exists ? 'YES' : 'NO'}`);
+        if (analysis.selectorFound.exists) {
+          lines.push(`- Visible: ${analysis.selectorFound.visible ? 'YES' : 'NO'}`);
+          lines.push(`- Disabled: ${analysis.selectorFound.disabled ? 'YES' : 'NO'}`);
+        }
+      }
+
+      if (analysis.invalidFields.length > 0) {
+        lines.push('', '## Invalid Fields', ...analysis.invalidFields.map(f => `- ${f}`));
+      }
+      if (analysis.disabledButtons.length > 0) {
+        lines.push('', '## Disabled Buttons', ...analysis.disabledButtons.map(b => `- ${b}`));
+      }
+
+      lines.push('', '## DOM Snapshot', '```html', analysis.domSnippet, '```');
+      return lines.join('\n');
+    } catch {
+      return `# Error Context: ${testName}\n\nCapture failed — page may be closed.\n`;
+    }
+  }
+
   // ---- Classification ----
 
   /**

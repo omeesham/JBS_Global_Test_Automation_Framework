@@ -39,6 +39,8 @@ export class LocationPricingPage extends BasePage {
    */
   async navigateToPricingTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabPricing', 'chkCorporatePricing', officeNo);
+    // Wait for pricing API to populate persisted checkbox states (default render is unchecked).
+    await this.waitForPricingDataLoaded();
   }
 
   /**
@@ -53,14 +55,35 @@ export class LocationPricingPage extends BasePage {
 
   /**
    * Wait for the pricing API data to fully load after tab navigation.
-   * The Pricing tab renders checkboxes with default state before the API response
-   * populates them with persisted values. This method waits for networkidle to ensure
-   * all API calls have completed before reading checkbox states.
+   * The Pricing tab renders checkboxes with DEFAULT state before the API response
+   * populates them with persisted values. networkidle alone is unreliable because
+   * Angular's change detection applies API data to DOM attributes AFTER the HTTP
+   * response is received (async gap). RCA PRI-025: in serial runs, this gap widens
+   * enough that checkbox reads return stale default values.
+   *
+   * Signal: Primary Labor Pricing dropdown value becomes non-empty (populated by API).
    */
   async waitForPricingDataLoaded(): Promise<void> {
-    await this.page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {
-      Log.warn('[WARN] networkidle timeout waiting for pricing data -- proceeding');
-    });
+    await this.waitForAngularStable();
+    // Signal 1: Primary Labor Pricing dropdown value populated by API
+    const dropdown = this.getElement('drpPrimaryLaborPricing');
+    for (let i = 0; i < 40; i++) {
+      const text = (await dropdown.textContent() ?? '').trim();
+      if (text.length > 0 && text !== 'Select') break;
+      await this.page.waitForTimeout(250);
+    }
+    // Signal 2: Grid rows rendered — grid data loads AFTER dropdown in a separate
+    // Angular change detection cycle. Without this, date inputs and checkbox states
+    // read as empty/default (RCA: PRI-020 flakiness).
+    const gridRows = this.page.locator('[role="tabpanel"] table tbody tr');
+    for (let i = 0; i < 20; i++) {
+      const count = await gridRows.count();
+      if (count > 0) break;
+      await this.page.waitForTimeout(250);
+    }
+    // Signal 3: Final Angular stability pass — ensures checkbox aria-checked and
+    // date input values reflect persisted state (not default render values).
+    await this.waitForAngularStable();
   }
 
   // ---------------------------------------------------------------------------

@@ -87,7 +87,7 @@ handoffs:
 | PLN-015 | Cleanup and data hygiene: restore fields after exploration. Cleanup steps for data-mutating tests. Field count reconc... |
 | PLN-016 | Include TCs for different tabs in same pipeline |
 | PLN-017 | Update field count in header but miss individual TCs |
-| PLN-018 | Every editable field = its own save+persist TC with specific value. No lumping 5 fields into 1 generic TC. Each TC mu... |
+| PLN-018 | Every editable field = its own save+reload+verify TC with specific value. "Persist" means: change → save → reload → assert value survived. Interacting with the field without save+reload does NOT satisfy this rule. No lumping 5 fields into 1 generic TC. Each TC mu... |
 | PLN-019 | Document exact save dialog behavior from MCP. Before marking pending_generation: confirm whether Save button triggers... |
 | PLN-020 | All field data (column headers, dropdown options, row counts, checkbox labels) must be EXACT from DOM evaluation — no... |
 | PLN-021 | Before writing ANY selector: use browser_evaluate to check actual HTML tag structure. NEVER assume dt/dd or div/span ... |
@@ -137,16 +137,37 @@ HARD STOP: Before writing ANY test case that involves a Save dialog: MCP-click S
 HARD STOP: All numeric field test values MUST be MCP-verified before inclusion in test cases. For each test value: type it into the field on MCP → Tab → check `aria-invalid` → document result. Include a 'Validation Rules' table in test cases documenting: field name, type, valid range, invalid example, MCP verification date. NEVER assume positive values are valid for offset fields — always verify.
 
 ### PLN-039: FIELD INVENTORY testid completeness (HARD GATE)
-Every row in FIELD INVENTORY MUST have a non-empty `data-testid` value in the testid column, OR explicitly state `(no testid — use aria-label "X" / text "Y")` with the exact fallback selector strategy. Blank testid cells are NOT allowed — generator cannot derive selectors from blanks. Enforced by planner-post-complete gate (WARN level, date-gated for items planned after 2026-03-24).
+Every row in FIELD INVENTORY MUST have a non-empty `data-testid` value in the testid column, OR explicitly state `(no testid — use aria-label "X" / text "Y")` with the exact fallback selector strategy. Blank testid cells are NOT allowed — generator cannot derive selectors from blanks. Enforced by planner-post-complete gate (HARD GATE — blocks advancement).
 
-### PLN-040: Async assertion markers [POLL] (MANDATORY)
-For ANY TC step involving: cross-field validation (e.g., NM-1264 Delivery >= Prep), cascading enables/disables (e.g., Fulfillment → QC), or server-side validation (async response) — tag the step with `[POLL]` to signal generator to use `expect.poll()` instead of direct `expect()`. Omitting [POLL] on async checks causes flaky tests (LR-010). Enforced by planner-post-complete gate (WARN level).
+### PLN-040: Async assertion markers [POLL] (MANDATORY — HARD GATE)
+For ANY TC step involving: cross-field validation (e.g., NM-1264 Delivery >= Prep), cascading enables/disables (e.g., Fulfillment → QC), or server-side validation (async response) — tag the step with `[POLL]` to signal generator to use `expect.poll()` instead of direct `expect()`. Omitting [POLL] on async checks causes flaky tests (LR-010). Enforced by planner-post-complete gate (HARD GATE — blocks advancement).
 
-### PLN-041: Save dialog documentation in MCP_VERIFICATION_LOG (MANDATORY)
-For EVERY tab that has a Save button, add a row to MCP_VERIFICATION_LOG: `| Save dialog | {exact heading text} | {button labels} | {selectors or "shared dlgSaveChanges from shared.ts"} |`. If a tab has NO save dialog (direct save): `| Save dialog | No dialog — direct save | N/A | N/A |`. Generator needs exact dialog text/selectors to write clickSaveAndConfirm() correctly. Enforced by planner-post-complete gate (WARN level).
+### PLN-041: Save dialog documentation in MCP_VERIFICATION_LOG (MANDATORY — HARD GATE)
+For EVERY tab that has a Save button, add a row to MCP_VERIFICATION_LOG: `| Save dialog | {exact heading text} | {button labels} | {selectors or "shared dlgSaveChanges from shared.ts"} |`. If a tab has NO save dialog (direct save): `| Save dialog | No dialog — direct save | N/A | N/A |`. Generator needs exact dialog text/selectors to write clickSaveAndConfirm() correctly. Enforced by planner-post-complete gate (HARD GATE — blocks advancement).
 
 ### PLN-042: RCA-FIRST for Rework Sessions
 When returning to a module for rework (re-exploration, corrections, re-planning): 1. READ the prior session's artifacts: test-cases file, MCP_VERIFICATION_LOG, agent-mistakes.md. 2. Identify WHAT failed and WHY before making changes. 3. Do NOT overwrite prior MCP_VERIFICATION_LOG entries — APPEND new verification results. 4. Document what changed since last session (new selectors, changed defaults, app updates). Rework without understanding prior failures = repeating the same mistakes.
+
+### PLN-043: Persistence Coverage Mandate (HARD GATE)
+Every editable field on the page MUST have at least one TC with the Round-Trip pattern: change value → save → reload → verify persisted value matches. Planner must output a PERSISTENCE MATRIX as part of the test-cases deliverable:
+```
+| Field | Persist TC | Status |
+|-------|-----------|--------|
+| Field Name | TC-XXX | Covered / Skipped (reason) |
+```
+If any saveable field has no TC and no skip-with-documented-reason, advance is BLOCKED. "Interact with field" does NOT satisfy this rule — the TC must include save + reload + assertion. Coverage metric: `round_trip_fields / total_saveable_fields` must be reported. Target: >50%.
+
+### PLN-044: Negative Test Ratio (HARD GATE)
+Minimum 20% of TCs must be tagged `[NEGATIVE]` — testing invalid inputs, boundary violations, error states, or rejection paths. Planner must report: `Positive: N, Negative: M, Ratio: M/(N+M)`. Below 20% = BLOCKED. Negative TCs include: invalid field values, boundary violations, empty-when-required, wrong types, cross-field constraint violations, and error recovery paths.
+
+### PLN-045: Grid/Table Coverage Mandate
+For any page with grid or table components, planner MUST: (a) assert total row count matches expected, (b) test first row, last row, AND at least one middle row, (c) include at least one multi-row combination test (e.g., check 2+ rows then save), (d) verify read-only columns are truly non-interactive (click/type has no effect). Grids with N editable columns × M rows do NOT require exhaustive testing — use representative rows but cover position boundaries.
+
+### PLN-046: Testing Technique Tags (HARD GATE)
+Every TC must be tagged with its primary testing technique: `[ROUND-TRIP]`, `[DECISION-TABLE]`, `[STATE-TRANSITION]`, `[BVA]`, `[EP]`, `[NEGATIVE]`, `[ERROR-GUESSING]`, `[EXPLORATORY]`, `[CHECKLIST]`, `[A11Y]`. Planner reports technique distribution summary. If ALL THREE of `[ROUND-TRIP]`, `[NEGATIVE]`, and `[STATE-TRANSITION]` have 0 TCs = BLOCKED. This ensures test design uses diverse techniques, not just positive happy-path interaction.
+
+### PLN-047: State-Transition Model (MANDATORY for pages with Save)
+For any page with Save functionality, planner MUST produce a state-transition model BEFORE writing TCs. Minimum states: `[Loading] [Clean] [Dirty] [Saving] [Save-OK] [Save-Failed] [Validation-Error]`. Optional states (include if applicable): `[Navigate-Away-Prompt] [Load-Failed]`. For each transition, map to a TC or document why it's skipped. Untested transitions = documented gaps, not invisible omissions.
 
 ---
 
@@ -268,7 +289,7 @@ For the page under test:
 9d. Check every dialog has `aria-role` and `aria-label`
 9e. Check color contrast of error states (if possible via MCP evaluate)
 
-Create 1-2 Accessibility TCs per module documenting keyboard navigation flow.
+Create 1-2 Accessibility TCs per module documenting keyboard navigation flow. This is MANDATORY — current compliance is 1/10 specs (10%). Every test plan MUST include at least 1 `[A11Y]`-tagged TC or document why a11y is not applicable (rare — most pages have interactive elements).
 
 **Step 10 — BEHAVIORAL INTERACTION QA (PLN-032..036)**
 

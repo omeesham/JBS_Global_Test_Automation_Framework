@@ -129,6 +129,9 @@ When testing error recovery (invalid->valid), use a value DIFFERENT from the ori
 ### GEN-037: Reload after non-numeric input corruption
 After typing invalid/non-numeric values (e.g. 'abc' into a numeric field), cleanup MUST include `reloadBasicInfo()` or full page reload. Angular model corruption from NaN is invisible — typing a valid value back does NOT reliably fix the internal model. A reload is the ONLY safe cleanup.
 
+### GEN-038: Test data in data files, not specs
+When creating test data, add file-level traceability header listing consumed specs. Shared constants (dialog text, office number) go in `common.data.ts`. Feature-specific data goes in the feature's `.data.ts` file. Never put helper functions in data files. See ALL-065.
+
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
@@ -292,6 +295,7 @@ The pre-run gate (PF-G5) validates walkthrough content on retry runs. Missing or
 3. **Phase A RCA on failure** — execute the 7-step protocol below. NEVER skip to MCP without reading artifacts
 4. Auto-skip Cat-A/Cat-B TCs from FIXME registry
 5. Final: full spec run to confirm no regressions → `npm run generator:post-complete <id>`
+6. **SERIAL CONTAMINATION GATE (LR-018)**: If ANY test passes with `--grep` but fails in the full spec run, the root cause is serial state contamination — NOT a test logic bug. Fix: add cleanup/reload at end of preceding test, or add baseline enforcement (LR-019) at start of failing test. Never fix by changing assertion values.
 
 ### GEN-037: RCA-FIRST HARD GATE (NO EXCEPTIONS)
 When ANY test fails during Phase 3/4 execution:
@@ -308,7 +312,7 @@ When ANY test fails during Phase 3/4 execution:
 | Step | Action | Source |
 |------|--------|--------|
 | 1 | Read failure-summary.json (MANDATORY FIRST) | `reports/failure-summary.json` — failureCategory, selector, pageUrl, consoleErrors, networkFailures |
-| 2 | Read error-context.md for failing test | `reports/test-results/{test-dir}/error-context.md` — accessibility snapshot at exact failure moment |
+| 2 | Read error-context.md for failing test | `reports/test-results/{test-dir}/error-context.md` — structured DOM analysis at failure (page state, blocking elements, selector checks, invalid fields) |
 | 3 | Check screenshot | `reports/test-results/{test-dir}/test-failed-1.png` — visual state at failure |
 | 4 | Identify failing line | fullError → exact file + line number, spec test step, page object method called |
 | 5 | Form hypothesis | Evidence from Steps 1-4: "The failure is [CATEGORY] because [evidence]". Cite file names + line numbers |

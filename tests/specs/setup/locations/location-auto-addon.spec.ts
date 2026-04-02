@@ -2,7 +2,7 @@
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../../setup/fixtures';
 import { AUTO_ADDON_DEFAULTS } from '../../../test-data/setup/locations/location-auto-addon.data';
-import { OFFICE_NO } from '../../../test-data/common.data';
+import { OFFICE_NO, SAVE_CHANGES_DIALOG, UNSAVED_CHANGES_DIALOG } from '../../../test-data/common.data';
 
 test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
 
@@ -38,33 +38,36 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
 
   test('TC-LOC-AAO-003: Toggle Checked Item to Unchecked -- Save Enables', async ({ locationAutoAddonPage }) => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonEncoreMusic');
-    expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonEncoreMusic')).toBe(false);
-    expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
+    // LR-010: Radix checkbox toggle fires async state update — poll for checked state.
+    await expect.poll(() => locationAutoAddonPage.isCheckboxChecked('chkAutoAddonEncoreMusic'), { timeout: 5_000 }).toBe(false);
+    await expect.poll(() => locationAutoAddonPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
     // Cleanup: revert
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonEncoreMusic');
   });
 
   test('TC-LOC-AAO-004: Toggle Unchecked Item to Checked -- Save Enables', async ({ locationAutoAddonPage }) => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
-    expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession')).toBe(true);
-    expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
+    // LR-010: Radix checkbox toggle fires async state update — poll for checked state.
+    await expect.poll(() => locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession'), { timeout: 5_000 }).toBe(true);
+    await expect.poll(() => locationAutoAddonPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
     // Cleanup: revert
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
   test('TC-LOC-AAO-005: Revert Toggle Re-Disables Save (Smart Form Diff)', async ({ locationAutoAddonPage }) => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
-    expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
+    // LR-010: Radix checkbox toggle fires async state update — poll for Save state.
+    await expect.poll(() => locationAutoAddonPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
-    expect(await locationAutoAddonPage.isSaveEnabled()).toBe(false);
+    await expect.poll(() => locationAutoAddonPage.isSaveEnabled(), { timeout: 5_000 }).toBe(false);
   });
 
   test('TC-LOC-AAO-006: Save Dialog Appears on Save Click', async ({ locationAutoAddonPage }) => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.clickSaveButton();
     expect(await locationAutoAddonPage.isSaveDialogVisible()).toBe(true);
-    expect(await locationAutoAddonPage.getSaveDialogHeading()).toBe('Save Changes');
-    expect(await locationAutoAddonPage.getSaveDialogBody()).toBe('Are you sure you want to save the changes?');
+    expect(await locationAutoAddonPage.getSaveDialogHeading()).toBe(SAVE_CHANGES_DIALOG.heading);
+    expect(await locationAutoAddonPage.getSaveDialogBody()).toBe(SAVE_CHANGES_DIALOG.body);
     // Cleanup: cancel dialog + revert
     await locationAutoAddonPage.clickSaveCancel();
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
@@ -92,6 +95,7 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
   });
 
   test('TC-LOC-AAO-009: Toggle Persists After Page Reload', async ({ locationAutoAddonPage }) => {
+    test.setTimeout(60_000);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.clickSave();
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
@@ -107,6 +111,7 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
   });
 
   test('TC-LOC-AAO-011: Multiple Toggles Saved Together', async ({ locationAutoAddonPage }) => {
+    test.setTimeout(60_000);
     // Navigate fresh to normalize server state (prior cleanup saves may fail silently)
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
     await locationAutoAddonPage.checkCheckbox('chkAutoAddonExpressContentDesignSession');
@@ -140,9 +145,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
     await locationAutoAddonPage.clickSidebarHome();
     expect(await locationAutoAddonPage.isUnsavedDialogVisible()).toBe(true);
-    expect(await locationAutoAddonPage.getUnsavedDialogHeading()).toBe('Unsaved changes');
-    expect(await locationAutoAddonPage.getUnsavedDialogBody()).toBe(
-      'Are you sure you want to leave this view? Any unsaved changes will be lost.');
+    expect(await locationAutoAddonPage.getUnsavedDialogHeading()).toBe(UNSAVED_CHANGES_DIALOG.heading);
+    expect(await locationAutoAddonPage.getUnsavedDialogBody()).toBe(UNSAVED_CHANGES_DIALOG.body);
     // Cleanup: stay + revert
     await locationAutoAddonPage.clickUnsavedStay();
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');

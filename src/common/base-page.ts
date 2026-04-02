@@ -211,6 +211,41 @@ export class BasePage {
   }
 
   /**
+   * Wait for Angular to finish all pending async operations (zone.js stability).
+   * Falls back silently if Angular testabilities are not available (non-Angular pages).
+   * Use this after navigation/reload instead of networkidle for Angular SPAs.
+   * RCA 2026-04-01: networkidle hangs on Angular SPAs because zone.js micro-tasks
+   * keep the network "active". This method uses Angular's own stability API instead.
+   */
+  protected async waitForAngularStable(timeout = 10_000): Promise<void> {
+    try {
+      await this.page.evaluate((t) => {
+        return new Promise<void>((resolve) => {
+          const maxWait = setTimeout(() => resolve(), t);
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const testabilities = (window as any).getAllAngularTestabilities?.();
+            if (!testabilities || testabilities.length === 0) {
+              clearTimeout(maxWait);
+              resolve();
+              return;
+            }
+            testabilities[0].whenStable(() => {
+              clearTimeout(maxWait);
+              resolve();
+            });
+          } catch {
+            clearTimeout(maxWait);
+            resolve();
+          }
+        });
+      }, timeout);
+    } catch {
+      // page.evaluate can throw if page navigated away — safe to ignore
+    }
+  }
+
+  /**
    * Take screenshot and save to reports/test-results/screenshots/.
    * @param name - Screenshot filename prefix
    * @param fullPage - Capture full scrollable page (default: true)
@@ -345,9 +380,8 @@ export class BasePage {
         Log.warn(`Save dialog did not close within 10s`);
       });
     }
-    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {
-      Log.warn(`Network did not reach idle within 15s after save`);
-    });
+    // Wait for Angular to process the save response (replaces unreliable networkidle)
+    await this.waitForAngularStable();
 
     // Remove listener
     this.page.off('response', responseHandler);
@@ -379,18 +413,18 @@ export class BasePage {
   ): Promise<void> {
     const currentUrl = this.page.url();
     const expectedPath = `locations/${officeNo}/settings`;
-    if (!currentUrl.includes(expectedPath)) {
+    if (!currentUrl.includes(`${expectedPath}/${settingsPath}`)) {
       const baseUrl = this.config?.base_url || '';
       Log.info(`Navigating to ${expectedPath}/${settingsPath}`);
       await this.navigateTo(`${baseUrl}${expectedPath}/${settingsPath}`);
-      await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+      await this.waitForAngularStable();
     }
     const tab = this.getElement(tabKey);
     await tab.waitFor({ state: 'visible', timeout: 30_000 });
     const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
     if (isSelected !== 'true') {
       await tab.click();
-      await this.page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+      await this.waitForAngularStable();
     }
     await this.getElement(readinessElementKey).waitFor({ state: 'visible', timeout: 15_000 });
     Log.info(`[OK] Tab active: ${tabKey}`);
@@ -418,7 +452,8 @@ export class BasePage {
   protected async setRadixCheckbox(elementKey: string, checked: boolean): Promise<void> {
     const state = await this.getRadixCheckboxState(elementKey);
     if (state.checked !== checked) {
-      await this.getElement(elementKey).click();
+      // Extended timeout: form inputs may be temporarily disabled during save API processing
+      await this.getElement(elementKey).click({ timeout: 30_000 });
       Log.info(`${checked ? 'Checked' : 'Unchecked'} Radix checkbox: ${elementKey}`);
     }
   }

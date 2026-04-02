@@ -5,6 +5,7 @@ import {
   SSL_COLUMN_HEADERS,
   SELF_ROW,
   ADD_LOCATION,
+  SSL_DIALOG_HEADING,
 } from '../../../test-data/setup/locations/location-shared-setup-locations.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
@@ -13,8 +14,18 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
   test('TC-LOC-SSL-001: Tab loads with shared-setup table and Add button', async ({ locationSharedSetupLocationsPage: pg }) => {
     test.setTimeout(60_000);
     await pg.navigateToSharedSetupTab(OFFICE_NO);
-    // Baseline enforcement: guarantee Shares Inventory is unchecked before all subsequent TCs.
-    // Guards against DB state left dirty by a prior aborted run.
+    // LR-019: Baseline enforcement — clean up any extra rows saved by a prior failed run.
+    // Row count should be 1 (self only). If > 1, delete extras (index 2..N) and save.
+    let rowCount = await pg.getDataRowCount();
+    if (rowCount > 1) {
+      // Delete from last row backwards to avoid index shift issues
+      for (let i = rowCount; i >= 2; i--) {
+        await pg.deleteNonSelfRow(i);
+      }
+      await pg.clickSave();
+      await pg.navigateToSharedSetupTab(OFFICE_NO);
+    }
+    // Guarantee Shares Inventory is unchecked before all subsequent TCs.
     const inventoryState = await pg.getSelfSharesInventoryState();
     if (inventoryState.checked) {
       await pg.toggleSelfSharesInventory();
@@ -86,7 +97,7 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
   test('TC-LOC-SSL-009: Add button opens Change Local Office dialog', async ({ locationSharedSetupLocationsPage: pg }) => {
     await pg.clickAdd();
     expect(await pg.isAddDialogVisible()).toBe(true);
-    expect(await pg.getDialogHeading()).toBe('Change Local Office');
+    expect(await pg.getDialogHeading()).toBe(SSL_DIALOG_HEADING);
     expect(await pg.isElementVisible('txtDlgSearch')).toBe(true);
     expect(await pg.isElementVisible('tblDlgResults')).toBe(true);
     expect(await pg.isDialogSelectEnabled()).toBe(false);
@@ -119,7 +130,9 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
     await pg.searchInDialog(ADD_LOCATION.searchByNumber);
     await expect.poll(() => pg.getDialogRowCount(), { timeout: 5_000 }).toBe(1);
     await pg.selectFirstDialogRow();
-    expect(await pg.isDialogSelectEnabled()).toBe(true);
+    // RCA SSL-012: dispatchEvent('click') fires async React state update —
+    // Select button enable propagates after a short delay. Use expect.poll.
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
     await pg.clickDialogCancel();
   });
 
@@ -165,7 +178,7 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
     await expect.poll(() => pg.getDialogRowCount(), { timeout: 5_000 })
       .toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
     await pg.selectFirstDialogRow();
-    expect(await pg.isDialogSelectEnabled()).toBe(true);
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
     await pg.clickDialogCancel();
     expect(await pg.getDataRowCount()).toBe(1);
     await expect.poll(() => pg.isSaveEnabled(), { timeout: 3_000 }).toBe(false);

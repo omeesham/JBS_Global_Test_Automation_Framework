@@ -40,7 +40,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
   /** Full page reload (for persistence verification), then re-navigates to the tab. */
   async reloadPage(): Promise<void> {
     await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
-    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    await this.waitForAngularStable();
   }
 
   /**

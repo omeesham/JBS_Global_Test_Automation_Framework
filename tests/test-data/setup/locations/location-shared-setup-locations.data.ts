@@ -1,6 +1,11 @@
 /**
- * Test data for Location Shared Setup Locations tab.
- * MCP-verified 2026-03-19 against office 1604 (Parker Palm Springs).
+ * Test data for: Location Shared Setup Locations tab
+ * Consumed by: tests/specs/setup/locations/location-shared-setup-locations.spec.ts
+ * Office: 1604 (Parker Palm Springs)
+ * Last verified: 2026-04-01
+ * @office-dependent
+ *
+ * Changing values here affects the listed spec.
  */
 
 export const SSL_COLUMN_HEADERS = [
@@ -26,3 +31,6 @@ export const ADD_LOCATION = {
   /** Location name matching searchByNumber. */
   expectedName: 'Corporate Company',
 } as const;
+
+/** Dialog heading when clicking Add. */
+export const SSL_DIALOG_HEADING = 'Change Local Office';

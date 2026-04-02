@@ -228,3 +228,57 @@ partition, own directory, and own collision detection boundary.
 Check REQUIREMENTS.md and docs/MODULE_REGISTRY.md for page boundaries before creating any new page object.
 Directory structure mirrors the app navigation hierarchy: `{section}/{module}/`.
 **Trigger**: Any new page object or selector file creation.
+
+### LR-018: Spec-fixing workflow — run-all is the only truth
+When fixing failing specs, follow this exact order:
+1. Run ALL specs together → identify failures
+2. Run each failing spec INDIVIDUALLY → classify as "run-all only" vs "always fails"
+3. Fix "always fails" specs first (selector, logic, timeout issues)
+4. Run fixed specs individually → confirm fix
+5. Run ALL specs together again → check for serial contamination
+6. If spec passes individually but fails in run-all → RCA is serial state, timing, or auth
+7. Iterate until run-all is green
+**Trigger**: Any spec-fixing session. Enforced by healer/maintainer agents.
+
+### LR-019: First test in describe.serial MUST enforce baseline state
+The first test (TC-001) in any serial block must:
+1. Navigate to the page fresh
+2. Read current state from DOM (not assume defaults)
+3. Reset any dirty state from prior runs (toggle checkboxes, clear fields)
+4. Save if needed to persist clean baseline
+5. Re-navigate to ensure clean state
+Never hardcode expected initial values without baseline enforcement.
+**Trigger**: Every new spec with describe.serial. Generator must implement.
+
+### LR-020: Verify all plan claims against actual codebase before finalizing
+Plans are artifacts — they drift from reality the moment they're written.
+Before finalizing ANY plan: verify rule numbers (grep agent files for last PLN/REQ/ALL),
+verify test counts (grep spec files for `test(`), verify file references exist,
+verify cross-references between plans match current filenames.
+Rule numbering collisions silently overwrite existing rules. Stale test counts
+undermine the audit's credibility. Stale filenames break cross-plan traceability.
+**Trigger**: Any plan that references rule numbers, test counts, or other plan filenames.
+
+### LR-021: Un-skip before rewrite — always try original logic first
+When fixing a skipped test, FIRST remove the skip and run the original test logic AS-IS.
+If it passes, the underlying bug was fixed — keep the original assertions.
+Only rewrite to "test actual behavior" if the original logic STILL fails.
+This prevents unnecessary test rewrites and catches silently-fixed bugs.
+**Trigger**: Any session that involves fixing skipped tests.
+
+### LR-022: No hardcoded structural counts in assertions
+Never assert exact counts of DOM elements (`.toBe(42)`, `.toHaveLength(114)`) unless
+the count itself is the feature under test. These break on any UI addition/removal
+without catching real bugs. Use content assertions (`.toContain()`), behavior assertions
+(click → verify effect), or existence checks (`.toBeGreaterThan(0)`).
+**Trigger**: Any test generation or review session.
+
+### LR-023: No networkidle in Angular SPA — use waitForAngularStable + data signals
+Never use `waitForLoadState('networkidle')` or `waitUntil: 'networkidle'` in Playwright
+page objects for Angular apps. Angular's zone.js micro-tasks keep the network "active"
+indefinitely or resolve prematurely between route change and API response.
+Replace with: `waitForAngularStable()` (calls `getAllAngularTestabilities().whenStable()`)
+for general stability, and poll for concrete data-loaded signals (dropdown text, grid
+rows, checkbox aria-checked) for assertions that depend on API-persisted values.
+For page reloads: `waitUntil: 'domcontentloaded'` + `waitForAngularStable()`.
+**Trigger**: Any page object or spec that needs to wait for page/data readiness.

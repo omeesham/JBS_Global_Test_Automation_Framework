@@ -369,7 +369,8 @@ export class LocationAccountAddressPage extends BasePage {
 
   /** Reload the page and re-navigate to Account and Address tab. */
   async reloadAndNavigate(officeNo: string = '1604'): Promise<void> {
-    await this.page.reload({ waitUntil: 'networkidle', timeout: 30_000 });
+    await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
+    await this.waitForAngularStable();
     await this.navigateToAccountAndAddressTab(officeNo);
     Log.info('[OK] Reloaded and navigated to Account and Address tab');
   }

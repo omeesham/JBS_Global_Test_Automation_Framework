@@ -1,12 +1,11 @@
 /**
- * @agent-doc
- * PURPOSE: Data-driven test data for Location Local Information tab.
- *          Defines expected defaults, boundary values, and field states for office 1604.
- *          Specs import these constants and pass to batch verification methods.
- * OWNER: generator
- * IMPACT: medium -- changing values here changes test expectations.
- * USED-BY: tests/specs/setup/locations/location-local-information.spec.ts
- * RULES: Values must match live DOM for office 1604. Update when defaults change.
+ * Test data for: Location Local Information tab
+ * Consumed by: tests/specs/setup/locations/location-local-information.spec.ts
+ * Office: 1604 (Parker Palm Springs)
+ * Last verified: 2026-04-01
+ * @office-dependent — checkbox defaults, field values tied to office 1604
+ *
+ * Changing values here affects the listed spec.
  */
 
 import { LocationSettingsSelectors } from '../../../../src/selectors';
@@ -111,19 +110,11 @@ export const LDW_BOUNDARIES: BoundaryCase[] = [
   // Valid decimal input range: 0.1-1.0 (= 10%-100%). Blur -> x100 -> displays "X.XX%".
   // restoreValue '0.04' is grandfathered DB value; accepted by server as existing value.
   // testBoundaryValue compares: parseFloat(value) x 100 === stripped display (e.g. 0.10x100=10.00).
-  {
-    label: 'valid min (10%)',
-    value: '0.10',
-    valid: true,
-    restoreValue: '0.04',
-    // Cat-B: server silently rejects 0.10 for office 1604 which has a grandfathered 4% floor below the
-    // UI minimum. Server response corrects the form value back to 0.04 without any client-side error signal.
-    // Same class of issue as the 0.01-0.09 omissions noted above.
-    pending: 'Cat-B: server silently rejects 0.10 for office 1604 (grandfathered 4% floor, no client-side error signal)',
-  },
-  { label: 'valid mid (50%)',           value: '0.50',  valid: true,  restoreValue: '0.04', pending: 'Cat-B: server silently rejects new LDW% for office 1604 (DB reverts to grandfathered 4% regardless of value)' },
-  { label: 'valid near max (99%)',      value: '0.99',  valid: true,  restoreValue: '0.04', pending: 'Cat-B: server silently rejects new LDW% for office 1604 (DB reverts to grandfathered 4% regardless of value)' },
-  { label: 'valid max (100%)',          value: '1.00',  valid: true,  restoreValue: '0.04', pending: 'Cat-B: server silently rejects new LDW% for office 1604 (DB reverts to grandfathered 4% regardless of value)' },
+  // Cat-B resolved 2026-03-31: server now accepts LDW% changes for office 1604.
+  { label: 'valid min (10%)',           value: '0.10',  valid: true,  restoreValue: '0.04' },
+  { label: 'valid mid (50%)',           value: '0.50',  valid: true,  restoreValue: '0.04' },
+  { label: 'valid near max (99%)',      value: '0.99',  valid: true,  restoreValue: '0.04' },
+  { label: 'valid max (100%)',          value: '1.00',  valid: true,  restoreValue: '0.04' },
   // Invalid values -- CLIENT validates on blur (inline error shown); no DB mutation.
   // errMinBoundary: "Number must be greater than or equal to 0" (< 0 values)
   // errMaxBoundary: "Number must be less than or equal to 100" (> 1.0 values after x100 display)
@@ -180,7 +171,7 @@ export const SIMPLE_DEPENDENCIES: DependencyCase[] = [
     target: 'txtOracleProduct', targetType: 'spin', // using spin for generic disabled check
     expectedDisabled: true,
     restore: [{ key: 'chkSkipBilling', action: 'uncheck' }],
-    pending: 'Skip Billing only disables Oracle Product after save+reload; immediate toggle has no effect. Once saved=checked, control becomes locked. Requires a dedicated resettable office.',
+    pending: 'Tested standalone — Skip Billing requires save+reload, not immediate toggle. See TC-LOC-LI-SKIP-BILLING in spec.',
   },
   {
     label: 'Comm Receiver -> Allow DPCD',
@@ -255,6 +246,18 @@ export interface CheckboxLabelCase {
   key: string;
   expected: string;
 }
+
+/** Test values for inline spec assertions (billing, Oracle fields, special chars). */
+export const LOCAL_INFO_TEST_VALUES = {
+  billingType: 'Master',
+  billingTypeDirect: 'Direct',
+  oracleProductTest: 'PROD001',
+  oracleProductDefault: '0000',
+  oracleDeptTest: 'DEPT001',
+  oracleProductShort: 'CHG',
+  oracleDeptDefault: '900',
+  specialChars: 'TEST@#$%&*()',
+} as const;
 
 /** Verified label text extracted from dt:has-text("...") in src/selectors/setup/locations/local-info.ts */
 export const CHECKBOX_LABEL_CASES: CheckboxLabelCase[] = [

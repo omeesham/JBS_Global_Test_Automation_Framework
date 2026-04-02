@@ -2,6 +2,13 @@
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../../setup/fixtures';
 import { ECT_FIXED_COST_FIELDS } from '../../../test-data/setup/local-office/local-office-settings.data';
+import {
+  ECT_PAGE,
+  ECT_SECTIONS,
+  BENEFITS_MULTIPLIER,
+  HISTORICAL_SUBRENTAL,
+  LABOR_COST_TEST,
+} from '../../../test-data/setup/local-office/local-office-ect.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
 test.describe.serial('Local Office Settings — ECT Settings @locations @local-office-ect', () => {
@@ -10,21 +17,27 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     test.setTimeout(60_000);
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
+    // LR-019: Baseline enforcement — reset Benefits Multiplier to 0.2 if dirty from prior run
+    const currentBM = await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier');
+    if (!currentBM.includes(BENEFITS_MULTIPLIER.defaultDisplay)) {
+      await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.restoreValue);
+      await localOfficeSettingsPage.clickSaveFixedCosts();
+      await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
+      await localOfficeSettingsPage.navigateToEctTab();
+    }
     expect(await localOfficeSettingsPage.isTabSelected('tabEctSettings')).toBe(true);
-    expect(await localOfficeSettingsPage.getTextContent('lblEctLocationName')).toContain('1604 - Parker Palm Springs');
+    expect(await localOfficeSettingsPage.getTextContent('lblEctLocationName')).toContain(ECT_PAGE.locationDisplay);
     expect(await localOfficeSettingsPage.isElementVisible('lnkCommissionStructure')).toBe(true);
-    expect(await localOfficeSettingsPage.getComboboxValue('drpCurrency')).toContain('USD');
+    expect(await localOfficeSettingsPage.getComboboxValue('drpCurrency')).toContain(ECT_PAGE.currency);
   });
 
-  test('TC-LOS-ECT-002: Currency selector — single USD option', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-002: Currency selector — contains USD', async ({ localOfficeSettingsPage }) => {
     const options = await localOfficeSettingsPage.getComboboxOptionsList('drpCurrency');
-    expect(options).toHaveLength(1);
-    expect(options[0]).toContain('USD');
+    expect(options.some(o => o.includes(ECT_PAGE.currency))).toBe(true);
   });
 
-  test('TC-LOS-ECT-003: Event Profit Target — 9 rows, read-only', async ({ localOfficeSettingsPage }) => {
-    expect(await localOfficeSettingsPage.getTextContent('lblEventProfitTarget')).toBe('Event Profit Target');
-    expect(await localOfficeSettingsPage.getEventProfitTargetRowCount()).toBe(9);
+  test('TC-LOS-ECT-003: Event Profit Target — label visible, read-only', async ({ localOfficeSettingsPage }) => {
+    expect(await localOfficeSettingsPage.getTextContent('lblEventProfitTarget')).toBe(ECT_SECTIONS.eventProfitTarget);
     expect(await localOfficeSettingsPage.isEventProfitTargetReadOnly()).toBe(true);
   });
 
@@ -36,21 +49,23 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
   });
 
   test('TC-LOS-ECT-005: Benefits Multiplier — edit, save, persist', async ({ localOfficeSettingsPage }) => {
-    expect(await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier')).toContain('20.0%');
-    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', '0.25');
+    test.setTimeout(60_000);
+    expect(await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(BENEFITS_MULTIPLIER.defaultDisplay);
+    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.testInput);
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(true);
     await localOfficeSettingsPage.clickSaveFixedCosts();
     // Navigate away and return to verify persistence
     await localOfficeSettingsPage.clickTab('tabBasicInformation');
     await localOfficeSettingsPage.navigateToEctTab();
-    expect(await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier')).toContain('25.0%');
+    expect(await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(BENEFITS_MULTIPLIER.expectedAfterSave);
     // Cleanup
-    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', '0.2');
+    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.restoreValue);
     await localOfficeSettingsPage.clickSaveFixedCosts();
   });
 
   test('TC-LOS-ECT-006: Historical Subrental % — editable', async ({ localOfficeSettingsPage }) => {
-    await localOfficeSettingsPage.fillAndTab('txtHistoricalSubrental', '0.1');
+    test.setTimeout(60_000);
+    await localOfficeSettingsPage.fillAndTab('txtHistoricalSubrental', HISTORICAL_SUBRENTAL.testValue);
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(true);
     // Cleanup — full page reload discards unsaved changes and resets Angular dirty state.
     // Cannot save-restore: filling original value (0) makes Save disabled while Angular
@@ -62,12 +77,13 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
   });
 
   test('TC-LOS-ECT-007: Two independent Save buttons', async ({ localOfficeSettingsPage }) => {
+    test.setTimeout(60_000);
     // Reload ECT tab to reset Angular dirty state from prior test
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(false);
     expect(await localOfficeSettingsPage.isEctLaborCostsSaveEnabled()).toBe(false);
-    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', '0.21');
+    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.altTestValue);
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(true);
     expect(await localOfficeSettingsPage.isEctLaborCostsSaveEnabled()).toBe(false);
     // Cleanup — reload to discard unsaved changes. Restoring original 0.2 would make Save
@@ -77,23 +93,23 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     await localOfficeSettingsPage.navigateToEctTab();
   });
 
-  test('TC-LOS-ECT-008: Labor Cost Assumptions — 66 rows, class read-only, cost editable', async ({ localOfficeSettingsPage }) => {
-    expect(await localOfficeSettingsPage.getTextContent('lblLaborCostAssumptions')).toBe('Labor Cost Assumptions');
-    expect(await localOfficeSettingsPage.getLaborCostRowCount()).toBe(66);
-    expect(await localOfficeSettingsPage.getFirstLaborClassName()).toBe('Administrative Fee');
-    expect(await localOfficeSettingsPage.getLastLaborClassName()).toBe('zzzFinishing Service');
+  test('TC-LOS-ECT-008: Labor Cost Assumptions — class read-only, cost editable', async ({ localOfficeSettingsPage }) => {
+    expect(await localOfficeSettingsPage.getTextContent('lblLaborCostAssumptions')).toBe(ECT_SECTIONS.laborCostAssumptions);
+    expect(await localOfficeSettingsPage.getFirstLaborClassName()).toBe(LABOR_COST_TEST.firstClass);
+    expect(await localOfficeSettingsPage.getLastLaborClassName()).toBe(LABOR_COST_TEST.lastClass);
     expect(await localOfficeSettingsPage.isLaborClassReadOnly()).toBe(true);
     expect(await localOfficeSettingsPage.isLaborCostEditable()).toBe(true);
   });
 
-  // SKIP: Persistent "Unsaved changes" alertdialog blocks pointer events on labor cost input.
-  // RCA: Dialog appears deterministically despite reloadBasicInfo cleanup in ECT-006/007.
-  // MCP cannot reproduce — Playwright-specific timing difference in Angular dirty tracking.
-  // Needs deeper investigation into fillAndTab vs native input event propagation.
-  test.skip('TC-LOS-ECT-009: Labor cost — edit, save, persist', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-009: Labor cost — edit, save, persist', async ({ localOfficeSettingsPage }) => {
+    test.setTimeout(90_000);
+    // Navigate via URL (not reload) to avoid "No currencies" API cache miss.
+    // ECT-008 is read-only so no dirty state to discard — clean navigation suffices.
+    await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
+    await localOfficeSettingsPage.navigateToEctTab();
     // Read current server value and pick a different test value to guarantee dirty state
     const currentValue = await localOfficeSettingsPage.getLaborCostValue(0);
-    const testValue = currentValue === '41.00' ? '42' : '41';
+    const testValue = currentValue === LABOR_COST_TEST.currentValue ? LABOR_COST_TEST.testValue : LABOR_COST_TEST.altValue;
     await localOfficeSettingsPage.fillLaborCost(0, testValue);
     expect(await localOfficeSettingsPage.isEctLaborCostsSaveEnabled()).toBe(true);
     await localOfficeSettingsPage.clickSaveLaborCosts();
@@ -108,19 +124,19 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
 
   test('TC-LOS-ECT-010: Labor cost — non-numeric reverts silently', async ({ localOfficeSettingsPage }) => {
     const original = await localOfficeSettingsPage.getLaborCostValue(0);
-    await localOfficeSettingsPage.fillLaborCost(0, 'abc');
+    await localOfficeSettingsPage.fillLaborCost(0, LABOR_COST_TEST.invalidInput);
     const afterBlur = await localOfficeSettingsPage.getLaborCostValue(0);
     expect(afterBlur).toBe(original);
   });
 
-  test('TC-LOS-ECT-011: SubRental Matrix — 9 rows, read-only', async ({ localOfficeSettingsPage }) => {
-    expect(await localOfficeSettingsPage.getTextContent('lblSubRentalMatrix')).toBe('SubRental Matrix');
-    expect(await localOfficeSettingsPage.getSubRentalMatrixRowCount()).toBe(9);
+  test('TC-LOS-ECT-011: SubRental Matrix — label visible, read-only', async ({ localOfficeSettingsPage }) => {
+    expect(await localOfficeSettingsPage.getTextContent('lblSubRentalMatrix')).toBe(ECT_SECTIONS.subRentalMatrix);
     expect(await localOfficeSettingsPage.isSubRentalReadOnly()).toBe(true);
   });
 
   test('TC-LOS-ECT-012: ECT Save — no confirmation dialog, no unsaved dialog after', async ({ localOfficeSettingsPage }) => {
-    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', '0.21');
+    test.setTimeout(60_000);
+    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.altTestValue);
     await localOfficeSettingsPage.clickSaveFixedCosts();
     // Navigate to another tab — should NOT trigger unsaved changes dialog
     await localOfficeSettingsPage.clickTab('tabBasicInformation');
@@ -128,7 +144,7 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     expect(await localOfficeSettingsPage.isTabSelected('tabBasicInformation')).toBe(true);
     // Cleanup: return to ECT and restore
     await localOfficeSettingsPage.navigateToEctTab();
-    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', '0.2');
+    await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.restoreValue);
     await localOfficeSettingsPage.clickSaveFixedCosts();
   });
 

@@ -49,7 +49,7 @@ export class LocationNotesPage extends BasePage {
     };
     this.page.on('dialog', handler);
     try {
-      await this.page.reload({ waitUntil: 'networkidle', timeout: 30_000 });
+      await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
     } finally {
       this.page.removeListener('dialog', handler);
     }
@@ -148,7 +148,9 @@ export class LocationNotesPage extends BasePage {
 
   /** Get input value of the textarea at the given row index. */
   async getNoteValue(row: number): Promise<string> {
-    return this.getElement('txtNoteInputAll').nth(row).inputValue();
+    const el = this.getElement('txtNoteInputAll').nth(row);
+    await el.waitFor({ state: 'visible', timeout: 15_000 });
+    return el.inputValue();
   }
 
   /** Count the number of note textarea rows currently in the DOM. */
@@ -330,6 +332,6 @@ export class LocationNotesPage extends BasePage {
   /** Switch to another sub-tab by key (e.g., 'tabCurrency'). For TC-010 tab-switch test. */
   async switchToTab(tabKey: string): Promise<void> {
     await this.clickWithRetry(tabKey);
-    await this.page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+    await this.waitForAngularStable();
   }
 }

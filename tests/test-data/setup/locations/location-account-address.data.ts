@@ -1,6 +1,11 @@
 /**
- * Test data for Location Account and Address tab tests.
- * Baseline values from office 1604 (Parker Palm Springs).
+ * Test data for: Location Account and Address tab
+ * Consumed by: tests/specs/setup/locations/location-account-address.spec.ts
+ * Office: 1604 (Parker Palm Springs)
+ * Last verified: 2026-04-01
+ * @office-dependent — venue name, phone, address tied to office 1604
+ *
+ * Changing values here affects the listed spec.
  */
 
 /** Venue/Branch Account display fields (read-only, TC-013). Order: City, State, Zip, Country. */
@@ -34,5 +39,5 @@ export const ADDRESS_SEARCH = { filterTerm: 'Beverly', expectedMatch: 'Beverly',
 /** Test phone value for save/persist tests. */
 export const TEST_PHONE2_VALUE = '555-000-0001';
 
-/** Save Changes dialog confirmation message. */
-export const SAVE_CHANGES_MESSAGE = 'Are you sure you want to save the changes?';
+/** Test phone number for save-enable/persistence tests (TC-018). */
+export const ACCOUNT_TEST_PHONE = '111-222-3333';

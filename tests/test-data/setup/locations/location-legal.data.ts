@@ -1,4 +1,12 @@
-/** Legal tab test data -- verified on live MCP 2026-03-18 (office 1604). */
+/**
+ * Test data for: Location Legal tab
+ * Consumed by: tests/specs/setup/locations/location-legal.spec.ts
+ * Office: 1604 (Parker Palm Springs)
+ * Last verified: 2026-04-01
+ * @office-dependent — legal defaults tied to office 1604
+ *
+ * Changing values here affects the listed spec.
+ */
 
 export const LEGAL_COLUMN_HEADERS = ['Language Name', 'Service Charge Name', 'Terms and Conditions Name'] as const;
 
@@ -7,9 +15,6 @@ export const LEGAL_DEFAULTS = {
   serviceChargeName: 'Resort Service Charge',
   termsName: 'LDW',
 } as const;
-
-export const LEGAL_SC_OPTION_COUNT = 114;
-export const LEGAL_TC_OPTION_COUNT = 50;
 
 /** Alternate SC value used for change/save/revert tests. */
 export const LEGAL_ALT_SC = 'Administrative Fee';

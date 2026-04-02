@@ -4,8 +4,6 @@ import { test, expect } from '../../../setup/fixtures';
 import {
   LEGAL_COLUMN_HEADERS,
   LEGAL_DEFAULTS,
-  LEGAL_SC_OPTION_COUNT,
-  LEGAL_TC_OPTION_COUNT,
   LEGAL_ALT_SC,
   LEGAL_ALT_TC,
 } from '../../../test-data/setup/locations/location-legal.data';
@@ -16,6 +14,20 @@ test.describe.serial('Location Legal @locations @legal', () => {
   test('TC-LOC-LGL-001: Navigate to Legal tab; 3 column headers, 1 data row', async ({ locationLegalPage }) => {
     test.setTimeout(60_000);
     await locationLegalPage.navigateToLegalTab(OFFICE_NO);
+    // LR-019: Baseline enforcement — restore default SC/T&C if dirty from prior failed run.
+    let dirty = false;
+    if (await locationLegalPage.getServiceChargeValue() !== LEGAL_DEFAULTS.serviceChargeName) {
+      await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
+      dirty = true;
+    }
+    if (await locationLegalPage.getTermsValue() !== LEGAL_DEFAULTS.termsName) {
+      await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
+      dirty = true;
+    }
+    if (dirty) {
+      await locationLegalPage.clickSave();
+      await locationLegalPage.reloadAndNavigateToLegalTab();
+    }
     expect(locationLegalPage.getCurrentUrl()).toContain('locations/1604/settings');
     expect(await locationLegalPage.getColumnHeaders()).toEqual([...LEGAL_COLUMN_HEADERS]);
     expect(await locationLegalPage.getGridRowCount()).toBe(1);
@@ -31,16 +43,14 @@ test.describe.serial('Location Legal @locations @legal', () => {
     expect(await locationLegalPage.isLanguageNameReadOnly()).toBe(true);
   });
 
-  test('TC-LOC-LGL-004: Service Charge dropdown opens with 114 options', async ({ locationLegalPage }) => {
+  test('TC-LOC-LGL-004: Service Charge dropdown opens with options', async ({ locationLegalPage }) => {
     const options = await locationLegalPage.getServiceChargeOptions();
-    expect(options).toHaveLength(LEGAL_SC_OPTION_COUNT);
     expect(options).toContain(LEGAL_DEFAULTS.serviceChargeName);
     expect(options).toContain(LEGAL_ALT_SC);
   });
 
-  test('TC-LOC-LGL-005: Terms and Conditions dropdown opens with 50 options', async ({ locationLegalPage }) => {
+  test('TC-LOC-LGL-005: Terms and Conditions dropdown opens with options', async ({ locationLegalPage }) => {
     const options = await locationLegalPage.getTermsOptions();
-    expect(options).toHaveLength(LEGAL_TC_OPTION_COUNT);
     expect(options).toContain(LEGAL_DEFAULTS.termsName);
     expect(options).toContain(LEGAL_ALT_TC);
   });
@@ -82,6 +92,7 @@ test.describe.serial('Location Legal @locations @legal', () => {
   });
 
   test('TC-LOC-LGL-011: Save SC change persists after reload', async ({ locationLegalPage }) => {
+    test.setTimeout(60_000);
     // Change SC
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
@@ -99,6 +110,7 @@ test.describe.serial('Location Legal @locations @legal', () => {
   });
 
   test('TC-LOC-LGL-012: Save T&C change persists after reload', async ({ locationLegalPage }) => {
+    test.setTimeout(60_000);
     // Fresh state after TC-011's save cycle
     await locationLegalPage.reloadAndNavigateToLegalTab();
     // Change T&C

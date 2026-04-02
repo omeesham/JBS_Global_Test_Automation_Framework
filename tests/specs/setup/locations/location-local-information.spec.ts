@@ -12,6 +12,7 @@ import {
   LEFT_PANEL_EXPECTED,
   TEXT_FIELD_CONSTRAINTS,
   CHECKBOX_LABEL_CASES,
+  LOCAL_INFO_TEST_VALUES,
 } from '../../../test-data/setup/locations/location-local-info.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
@@ -22,13 +23,34 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
   test('TC-LOC-LI-001: Navigate to Local Info tab; URL correct, Save disabled', async ({ locationLocalInfoPage }) => {
     test.setTimeout(60_000);
     await locationLocalInfoPage.navigateToLocalInfoTab(OFFICE_NO);
+    // LR-019: Baseline enforcement — reset checkboxes if dirty from prior crashed run.
+    await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 30_000);
+    let dirty = false;
+    for (const key of UNCHECKED_DEFAULTS) {
+      const state = await locationLocalInfoPage.getCheckboxState(key);
+      if (state.checked) {
+        await locationLocalInfoPage.uncheckCheckbox(key);
+        dirty = true;
+      }
+    }
+    // LR-019: Also reset spinner values if dirty from prior crashed run.
+    const ldwSpin = await locationLocalInfoPage.getSpinState('spinLDWPercentage');
+    if (!ldwSpin.disabled && parseFloat(ldwSpin.value) < 1) {
+      await locationLocalInfoPage.setSpinValue('spinLDWPercentage', '0.04');
+      dirty = true;
+    }
+    if (dirty) {
+      await locationLocalInfoPage.clickSave();
+      await locationLocalInfoPage.navigateToLocalInfoTab(OFFICE_NO);
+      await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 30_000);
+    }
     expect(locationLocalInfoPage.getCurrentUrl()).toContain('locations/1604/settings');
     expect(await locationLocalInfoPage.isSaveEnabled()).toBe(false);
   });
 
   test('TC-LOC-LI-002: All default states', async ({ locationLocalInfoPage }) => {
     // Wait for form fields to become interactive -- new E2E env briefly renders fields disabled during hydration.
-    await locationLocalInfoPage.waitForFormReady('chkApplyLDW');
+    await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 30_000);
     const chk = await locationLocalInfoPage.getCheckboxState('chkApplyLDW');
     expect(chk.checked).toBe(true);
     const spin = await locationLocalInfoPage.getSpinState('spinLDWPercentage');
@@ -37,7 +59,7 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
     expect(parseFloat(spin.value), `LDW% out of valid range: ${spin.value}`).toBeLessThanOrEqual(100);
     expect(spin.disabled).toBe(false);
 
-    expect(await locationLocalInfoPage.getBillingType()).toBe('Master');
+    expect(await locationLocalInfoPage.getBillingType()).toBe(LOCAL_INFO_TEST_VALUES.billingType);
     expect(await locationLocalInfoPage.isEffectiveDateDisabled()).toBe(true);
     expect(await locationLocalInfoPage.isBillingCycleDisabled()).toBe(false);
 
@@ -94,9 +116,16 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
   test('TC-LOC-LI-007: Threshold enabled only when AllowDPCD=false AND PromptForApproval=true', async ({ locationLocalInfoPage }) => {
     expect((await locationLocalInfoPage.getSpinState('spinThreshold')).disabled).toBe(true);
     await locationLocalInfoPage.checkCheckbox('chkPromptForApproval');
-    expect((await locationLocalInfoPage.getSpinState('spinThreshold')).disabled).toBe(true);
+    // LR-010: cross-field dependency cascade is async — poll for spinThreshold disabled state.
+    await expect.poll(
+      () => locationLocalInfoPage.getSpinState('spinThreshold').then(s => s.disabled),
+      { timeout: 5_000 },
+    ).toBe(true);
     await locationLocalInfoPage.uncheckCheckbox('chkAllowDPCD');
-    expect((await locationLocalInfoPage.getSpinState('spinThreshold')).disabled).toBe(false);
+    await expect.poll(
+      () => locationLocalInfoPage.getSpinState('spinThreshold').then(s => s.disabled),
+      { timeout: 5_000 },
+    ).toBe(false);
     await locationLocalInfoPage.checkCheckbox('chkAllowDPCD');
     await locationLocalInfoPage.uncheckCheckbox('chkPromptForApproval');
     await locationLocalInfoPage.clickSave();
@@ -104,8 +133,7 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
 
   for (const bc of LDW_BOUNDARIES) {
     test(`TC-LOC-LI: LDW% = ${bc.value} (${bc.label})`, async ({ locationLocalInfoPage }) => {
-      // Cat-B skip: server silently rejects some values without a client-side error signal.
-      if (bc.pending) test.skip(true, bc.pending);
+      // Cat-B resolved 2026-03-31: server now accepts LDW% changes for office 1604.
       // Valid cases do 2 save+confirmation+reload cycles (~20s each) -- 90s covers worst case.
       if (bc.valid) test.setTimeout(90_000);
       const result = await locationLocalInfoPage.testBoundaryValue(
@@ -137,30 +165,28 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
   });
 
   // Timeout: 90s -- 2 save+reload cycles (~20-25s each).
+  // Cat-B resolved 2026-03-31: server now accepts Billing Type changes for office 1604.
   test('TC-LOC-LI-025: Billing Type radio -- Direct persists, restored to Master', async ({ locationLocalInfoPage }) => {
     test.setTimeout(90_000);
-    // Cat-B: server silently rejects Billing Type changes for office 1604 (reverts to Master on reload).
-    test.skip(true, 'Cat-B: server silently rejects Billing Type changes for office 1604');
-    expect(await locationLocalInfoPage.getBillingType()).toBe('Master');
-    await locationLocalInfoPage.selectBillingType('Direct');
+    expect(await locationLocalInfoPage.getBillingType()).toBe(LOCAL_INFO_TEST_VALUES.billingType);
+    await locationLocalInfoPage.selectBillingType(LOCAL_INFO_TEST_VALUES.billingTypeDirect);
     expect(await locationLocalInfoPage.isSaveEnabled()).toBe(true);
     await locationLocalInfoPage.clickSave();
     await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
-    expect(await locationLocalInfoPage.getBillingType()).toBe('Direct');
-    await locationLocalInfoPage.selectBillingType('Master');
+    expect(await locationLocalInfoPage.getBillingType()).toBe(LOCAL_INFO_TEST_VALUES.billingTypeDirect);
+    await locationLocalInfoPage.selectBillingType(LOCAL_INFO_TEST_VALUES.billingType);
     await locationLocalInfoPage.clickSave();
   });
 
   // TC-021: valid short text persists; TC-029: standalone checkbox toggle + persist.
+  // Cat-B resolved 2026-03-31: server now accepts persistent changes for office 1604.
   test('TC-LOC-LI-021/029: Oracle Product valid input + Calculate LDW Net Amount toggle persist', async ({ locationLocalInfoPage }) => {
     test.setTimeout(120_000);
-    // Cat-B: server silently rejects all persistent changes for office 1604 (Oracle Product reverts to "0000" on reload).
-    test.skip(true, 'Cat-B: server silently rejects all persistent changes for office 1604');
-    await locationLocalInfoPage.fillText('txtOracleProduct', 'PROD001');
+    await locationLocalInfoPage.fillText('txtOracleProduct', LOCAL_INFO_TEST_VALUES.oracleProductTest);
     await locationLocalInfoPage.clickSave();
     await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
-    expect(await locationLocalInfoPage.getTextValue('txtOracleProduct')).toBe('PROD001');
-    await locationLocalInfoPage.fillText('txtOracleProduct', '0000');
+    expect(await locationLocalInfoPage.getTextValue('txtOracleProduct')).toBe(LOCAL_INFO_TEST_VALUES.oracleProductTest);
+    await locationLocalInfoPage.fillText('txtOracleProduct', LOCAL_INFO_TEST_VALUES.oracleProductDefault);
     await locationLocalInfoPage.checkCheckbox('chkCalculateLDWonNetAmount');
     await locationLocalInfoPage.clickSave();
     await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
@@ -192,9 +218,9 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
     expect(await locationLocalInfoPage.isSaveEnabled()).toBe(true);
     await locationLocalInfoPage.setSpinValue('spinLDWPercentage', '0.04');
     // textbox
-    await locationLocalInfoPage.fillText('txtOracleProduct', 'CHG');
+    await locationLocalInfoPage.fillText('txtOracleProduct', LOCAL_INFO_TEST_VALUES.oracleProductShort);
     expect(await locationLocalInfoPage.isSaveEnabled()).toBe(true);
-    await locationLocalInfoPage.fillText('txtOracleProduct', '0000');
+    await locationLocalInfoPage.fillText('txtOracleProduct', LOCAL_INFO_TEST_VALUES.oracleProductDefault);
     await locationLocalInfoPage.clickSave();
   });
 
@@ -211,31 +237,65 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
   });
 
   // Special chars in Oracle Product persist after save+reload; restore original value.
+  // Cat-B resolved 2026-03-31: server now accepts persistent changes for office 1604.
   test('TC-LOC-LI-068: Oracle Product accepts special characters; value persists', async ({ locationLocalInfoPage }) => {
     test.setTimeout(90_000);
-    // Cat-B: server silently rejects all persistent changes for office 1604.
-    test.skip(true, 'Cat-B: server silently rejects all persistent changes for office 1604');
     const original = await locationLocalInfoPage.getTextValue('txtOracleProduct');
-    await locationLocalInfoPage.fillText('txtOracleProduct', 'TEST@#$%&*()');
+    await locationLocalInfoPage.fillText('txtOracleProduct', LOCAL_INFO_TEST_VALUES.specialChars);
     await locationLocalInfoPage.clickSave();
     await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
-    expect(await locationLocalInfoPage.getTextValue('txtOracleProduct')).toBe('TEST@#$%&*()');
-    await locationLocalInfoPage.fillText('txtOracleProduct', original || '0000');
+    expect(await locationLocalInfoPage.getTextValue('txtOracleProduct')).toBe(LOCAL_INFO_TEST_VALUES.specialChars);
+    await locationLocalInfoPage.fillText('txtOracleProduct', original || LOCAL_INFO_TEST_VALUES.oracleProductDefault);
     await locationLocalInfoPage.clickSave();
   });
 
   // Alphanumeric value in Oracle Department persists after save+reload; restore original value.
+  // Cat-B resolved 2026-03-31: server now accepts persistent changes for office 1604.
   test('TC-LOC-LI-069: Oracle Department alphanumeric value persists after save', async ({ locationLocalInfoPage }) => {
     test.setTimeout(90_000);
-    // Cat-B: server silently rejects all persistent changes for office 1604.
-    test.skip(true, 'Cat-B: server silently rejects all persistent changes for office 1604');
     const original = await locationLocalInfoPage.getTextValue('txtOracleDepartment');
-    await locationLocalInfoPage.fillText('txtOracleDepartment', 'DEPT001');
+    await locationLocalInfoPage.fillText('txtOracleDepartment', LOCAL_INFO_TEST_VALUES.oracleDeptTest);
     await locationLocalInfoPage.clickSave();
     await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
-    expect(await locationLocalInfoPage.getTextValue('txtOracleDepartment')).toBe('DEPT001');
-    await locationLocalInfoPage.fillText('txtOracleDepartment', original || '900');
+    expect(await locationLocalInfoPage.getTextValue('txtOracleDepartment')).toBe(LOCAL_INFO_TEST_VALUES.oracleDeptTest);
+    await locationLocalInfoPage.fillText('txtOracleDepartment', original || LOCAL_INFO_TEST_VALUES.oracleDeptDefault);
     await locationLocalInfoPage.clickSave();
+  });
+
+  // MCP-verified 2026-04-01: Skip Billing does NOT disable Oracle Product (checkbox is a billing flag only).
+  // Rewritten to test actual behavior: toggle persists after save+reload.
+  test('TC-LOC-LI-SKIP-BILLING: Skip Billing toggle persists after save+reload', async ({ locationLocalInfoPage }) => {
+    test.setTimeout(120_000);
+    // Wait for Angular form hydration before ANY interaction
+    await locationLocalInfoPage.waitForFormReady('chkSkipBilling');
+    // Read initial state
+    const initial = await locationLocalInfoPage.getCheckboxState('chkSkipBilling');
+    try {
+      // Toggle to opposite state
+      if (initial.checked) {
+        await locationLocalInfoPage.uncheckCheckbox('chkSkipBilling');
+      } else {
+        await locationLocalInfoPage.checkCheckbox('chkSkipBilling');
+      }
+      await locationLocalInfoPage.clickSave();
+      await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
+      await locationLocalInfoPage.waitForFormReady('chkSkipBilling');
+      // Verify toggled state persisted
+      const afterToggle = await locationLocalInfoPage.getCheckboxState('chkSkipBilling');
+      expect(afterToggle.checked).toBe(!initial.checked);
+    } finally {
+      // ALWAYS restore original state -- prevents pollution for LI-002 on next run
+      await locationLocalInfoPage.waitForFormReady('chkSkipBilling');
+      const current = await locationLocalInfoPage.getCheckboxState('chkSkipBilling');
+      if (current.checked !== initial.checked) {
+        if (initial.checked) {
+          await locationLocalInfoPage.checkCheckbox('chkSkipBilling');
+        } else {
+          await locationLocalInfoPage.uncheckCheckbox('chkSkipBilling');
+        }
+        await locationLocalInfoPage.clickSave();
+      }
+    }
   });
 
 });

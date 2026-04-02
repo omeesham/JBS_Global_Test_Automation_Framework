@@ -1,7 +1,7 @@
 // spec: specs_planning/test-plans/locations/locations_currency_test_plan.md
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../../setup/fixtures';
-import { CURRENCY_COLUMN_HEADERS, UNSELECTED_CURRENCY_STATES } from '../../../test-data/setup/locations/location-currency.data';
+import { CURRENCY_COLUMN_HEADERS, UNSELECTED_CURRENCY_STATES, MERCHANT_DATA, DEFAULT_CURRENCY } from '../../../test-data/setup/locations/location-currency.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
 test.describe.serial('Location Currency @locations @currency', () => {
@@ -24,7 +24,7 @@ test.describe.serial('Location Currency @locations @currency', () => {
   test('TC-LOC-CUR-002: USD default -- Selected, Is Default checked; merchant set', async ({ locationCurrencyPage }) => {
     expect((await locationCurrencyPage.getCheckboxState('chkUSDSelected')).checked).toBe(true);
     expect((await locationCurrencyPage.getCheckboxState('chkUSDIsDefault')).checked).toBe(true);
-    expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain('316370');
+    expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain(MERCHANT_DATA.usd.id);
   });
 
   for (const cur of UNSELECTED_CURRENCY_STATES) {
@@ -35,7 +35,7 @@ test.describe.serial('Location Currency @locations @currency', () => {
   }
 
   test('TC-LOC-CUR-018: Currency Code column is read-only', async ({ locationCurrencyPage }) => {
-    expect(await locationCurrencyPage.isCurrencyCodeReadOnly('USD')).toBe(true);
+    expect(await locationCurrencyPage.isCurrencyCodeReadOnly(DEFAULT_CURRENCY)).toBe(true);
   });
 
   test('TC-LOC-CUR-019: Merchant dropdown accessible for unselected currency', async ({ locationCurrencyPage }) => {
@@ -52,7 +52,11 @@ test.describe.serial('Location Currency @locations @currency', () => {
   test('TC-LOC-CUR-005: Selecting currency enables its Is Default checkbox', async ({ locationCurrencyPage }) => {
     expect((await locationCurrencyPage.getCheckboxState('chkCADIsDefault')).disabled).toBe(true);
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
-    expect((await locationCurrencyPage.getCheckboxState('chkCADIsDefault')).disabled).toBe(false);
+    // LR-010: selecting currency enables Is Default async — poll for disabled state.
+    await expect.poll(
+      () => locationCurrencyPage.getCheckboxState('chkCADIsDefault').then(s => s.disabled),
+      { timeout: 5_000 },
+    ).toBe(false);
     await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
   });
 
@@ -82,14 +86,14 @@ test.describe.serial('Location Currency @locations @currency', () => {
   test('TC-LOC-CUR-008: USD Merchant dropdown shows 2 options', async ({ locationCurrencyPage }) => {
     const options = await locationCurrencyPage.getMerchantOptions('drpUSDMerchant');
     expect(options).toHaveLength(2);
-    expect(options.some(o => o.includes('316370'))).toBe(true);
-    expect(options.some(o => o.includes('316426'))).toBe(true);
+    expect(options.some(o => o.includes(MERCHANT_DATA.usd.id))).toBe(true);
+    expect(options.some(o => o.includes(MERCHANT_DATA.bahamas.id))).toBe(true);
   });
 
   test('TC-LOC-CUR-009: CAD Merchant dropdown shows 1 option', async ({ locationCurrencyPage }) => {
     const options = await locationCurrencyPage.getMerchantOptions('drpCADMerchant');
     expect(options).toHaveLength(1);
-    expect(options[0]).toContain('316446');
+    expect(options[0]).toContain(MERCHANT_DATA.canada.id);
   });
 
   test('TC-LOC-CUR-010: MXN Merchant dropdown shows No Matches Found', async ({ locationCurrencyPage }) => {
@@ -104,25 +108,25 @@ test.describe.serial('Location Currency @locations @currency', () => {
 
   test('TC-LOC-CUR-011: Select merchant for CAD currency', async ({ locationCurrencyPage }) => {
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
-    await locationCurrencyPage.selectMerchantOption('drpCADMerchant', '316446 - PSAV Canada/CAD');
-    expect(await locationCurrencyPage.getMerchantValue('drpCADMerchant')).toContain('316446');
+    await locationCurrencyPage.selectMerchantOption('drpCADMerchant', MERCHANT_DATA.canada.display);
+    expect(await locationCurrencyPage.getMerchantValue('drpCADMerchant')).toContain(MERCHANT_DATA.canada.id);
     await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
     await locationCurrencyPage.clickSave();
   });
 
   test('TC-LOC-CUR-012: Merchant value persists when currency is unselected', async ({ locationCurrencyPage }) => {
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
-    await locationCurrencyPage.selectMerchantOption('drpCADMerchant', '316446 - PSAV Canada/CAD');
+    await locationCurrencyPage.selectMerchantOption('drpCADMerchant', MERCHANT_DATA.canada.display);
     await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
-    expect(await locationCurrencyPage.getMerchantValue('drpCADMerchant')).toContain('316446');
+    expect(await locationCurrencyPage.getMerchantValue('drpCADMerchant')).toContain(MERCHANT_DATA.canada.id);
     await locationCurrencyPage.clickSave();
   });
 
   test('TC-LOC-CUR-016: USD Merchant can be changed to alternate option', async ({ locationCurrencyPage }) => {
-    expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain('316370');
-    await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', '316426 - Encore Bahamas/USD');
-    expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain('316426');
-    await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', '316370 - PSAV US/USD');
+    expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain(MERCHANT_DATA.usd.id);
+    await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', MERCHANT_DATA.bahamas.display);
+    expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain(MERCHANT_DATA.bahamas.id);
+    await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', MERCHANT_DATA.usd.display);
     await locationCurrencyPage.clickSave();
   });
 

@@ -1,7 +1,10 @@
 /**
- * Location Notes tab test data.
- * Verified live 2026-03-17 (office 1604).
- * Character counts pre-calculated for counter assertions.
+ * Test data for: Location Notes tab
+ * Consumed by: tests/specs/setup/locations/location-notes.spec.ts
+ * Office: 1604 (Parker Palm Springs)
+ * Last verified: 2026-04-01
+ *
+ * Changing values here affects the listed spec.
  */
 
 // ---- Standard Test Strings ----
@@ -33,6 +36,16 @@ export const NOTE_SPECIAL_CHARS = '"test", <div>, &amp;, é, ñ';
 export const NOTE_XSS = '<script>alert(1)</script>';
 export const NOTE_SQL = "'; DROP TABLE notes; --";
 export const NOTE_EMOJI = 'café résumé 😀 中文';
+
+// ---- Counter Display Constants ----
+export const NOTE_COUNTER_EMPTY = '0/4000';
+export const NOTE_COUNTER_FULL = '0 Left';
+
+// ---- Keyboard Test Values ----
+export const KEYBOARD_TEST = {
+  text: 'Keyboard test',
+  singleChar: 'a',
+} as const;
 
 // ---- Data-Driven: Special Content Save+Reload (TC-013, TC-018, TC-019, TC-020) ----
 export interface SpecialContentData {

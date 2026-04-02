@@ -54,7 +54,7 @@ Extract ALL fields:
 ### Step 0.2: Read error-context.md
 `reports/test-results/{test-slug}-{browser}/error-context.md`
 
-This is the accessibility snapshot at the exact moment of failure. Search for:
+This is a structured DOM analysis captured at the exact moment of failure. It contains page state, blocking elements (dialogs/overlays/alerts), selector existence checks, invalid fields, disabled buttons, and a raw DOM snapshot. Search for:
 - **Failing selector/element**: Does it exist in the snapshot?
   - EXISTS → TIMING (appeared but test didn't wait) or BLOCKING (overlay/dialog)
   - MISSING → SELECTOR (wrong selector or element not rendered)
@@ -79,10 +79,19 @@ Or analyze programmatically:
 - Check console tab for JavaScript errors
 - Identify the LAST SUCCESSFUL action before the failure
 
+### Step 0.4b: Check video recording (TIMING/BLOCKING only)
+`reports/test-results/{test-slug}-{browser}/video.webm`
+
+If the failure is TIMING or BLOCKING, the video shows the exact visual sequence — flickering, race conditions, animations blocking interaction. Only retained on failure.
+
 ### Step 0.5: Read the failing spec code
 From `fullError`, extract file:line → read spec at that line → trace to page object method → read method code.
 
 Map: **What state should the app be in? What action was attempted? What was expected vs actual?**
+
+### Supplementary Reads
+- **Framework logs**: `logs/{spec-name}/test-execution.log` — page object actions with timestamps (checkbox states, button enabled/disabled, tab activations, save operations). Shows what the test *thought* it did.
+- **Per-spec diagnostics**: `reports/diagnostics/{spec-name}.diagnostics.json` — contains ALL tests in the spec (not just failures). Useful for serial failure analysis: compare test N-1 state vs test N.
 
 ---
 

@@ -47,7 +47,7 @@ export class LocationLegalPage extends BasePage {
     };
     this.page.on('dialog', handler);
     try {
-      await this.page.reload({ waitUntil: 'networkidle', timeout: 30_000 });
+      await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
     } finally {
       this.page.removeListener('dialog', handler);
     }
@@ -134,7 +134,14 @@ export class LocationLegalPage extends BasePage {
     await this.getElement(dropdownKey).click();
     const listbox = this.page.locator('[role="listbox"]');
     await listbox.waitFor({ state: 'visible', timeout: 5_000 });
-    await listbox.getByRole('option', { name: optionText, exact: true }).click();
+    // Wait for Angular change detection to settle — options can detach/re-render after
+    // dropdown opens (RCA LGL-010: "element was detached from the DOM").
+    await this.waitForAngularStable();
+    // Wait for options to populate (API-driven, may lag behind Angular stable)
+    await listbox.getByRole('option').first().waitFor({ state: 'visible', timeout: 10_000 });
+    // Radix dropdowns detach+reattach options after initial render — use longer timeout
+    // to let Playwright's built-in retry survive the re-render cycle.
+    await listbox.getByRole('option', { name: optionText, exact: true }).click({ timeout: 15_000 });
     Log.info(`[OK] Selected exact option "${optionText}" for ${dropdownKey}`);
   }
 

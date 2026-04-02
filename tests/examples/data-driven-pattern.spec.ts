@@ -4,6 +4,19 @@
  *
  * Adapters available: 'excel' (xlsx/csv), 'json', 'db', 's3'
  * Adapters never throw -- empty records with warning if file missing.
+ *
+ * TEST DATA CONVENTION (ALL-065):
+ * - All test data constants go in `tests/test-data/<section>/<module>/<feature>.data.ts`
+ * - Each data file starts with a traceability header:
+ *     /**
+ *      * Test data for: <Feature Name>
+ *      * Consumed by: tests/specs/<path>.spec.ts
+ *      * Office: 1604 (Parker Palm Springs)
+ *      * Last verified: YYYY-MM-DD
+ *      * @office-dependent — (if values are tied to a specific office)
+ *      *\/
+ * - Shared constants (dialog text, office number) → `tests/test-data/common.data.ts`
+ * - Import pattern: `import { CONSTANT } from '../../../test-data/<path>.data';`
  */
 
 import { test, expect } from '../setup/fixtures';

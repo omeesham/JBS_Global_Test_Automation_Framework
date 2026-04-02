@@ -17,7 +17,7 @@ export class LocationAutoAddonPage extends BasePage {
     const baseUrl = this.config?.base_url || '';
     await this.safeNavigateTo('about:blank');
     await this.navigateTo(`${baseUrl}locations/${officeNo}/settings/location`);
-    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    await this.waitForAngularStable();
     await this.navigateToAutoAddonTab(officeNo);
   }
 
@@ -31,7 +31,8 @@ export class LocationAutoAddonPage extends BasePage {
   }
 
   async toggleCheckbox(key: string): Promise<void> {
-    await this.getElement(key).click();
+    // Extended timeout: form inputs are temporarily disabled during save API processing
+    await this.getElement(key).click({ timeout: 30_000 });
   }
 
   async checkCheckbox(key: string): Promise<void> {
@@ -63,13 +64,21 @@ export class LocationAutoAddonPage extends BasePage {
     }
     await saveBtn.click();
     const dialog = this.getElement('dlgSaveChanges');
-    const dialogVisible = await dialog.waitFor({ state: 'visible', timeout: 5_000 })
+    const dialogVisible = await dialog.waitFor({ state: 'visible', timeout: 15_000 })
       .then(() => true).catch(() => false);
     if (dialogVisible) {
       await this.getElement('btnSaveChangesOk').click();
       await dialog.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
     }
-    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    await this.waitForAngularStable();
+    // Wait for form to re-enable after save API completes
+    const firstCheckbox = this.getElement('chkAutoAddonEncoreMusic');
+    const deadline = Date.now() + 15_000;
+    while (Date.now() < deadline) {
+      const isDisabled = await firstCheckbox.isDisabled().catch(() => true);
+      if (!isDisabled) break;
+      await this.page.waitForTimeout(500);
+    }
     return { success: true };
   }
 
@@ -97,6 +106,10 @@ export class LocationAutoAddonPage extends BasePage {
   async clickSaveOk(): Promise<void> {
     await this.getElement('btnSaveChangesOk').click();
     await this.getElement('dlgSaveChanges').waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
+    // Wait for save API to complete — form inputs are disabled during save processing
+    await this.waitForAngularStable();
+    // Wait for form to re-enable (first checkbox becomes interactive)
+    await this.getElement('chkAutoAddonEncoreMusic').waitFor({ state: 'visible', timeout: 15_000 }).catch(() => {});
   }
 
   async waitForToast(): Promise<boolean> {
@@ -147,7 +160,7 @@ export class LocationAutoAddonPage extends BasePage {
 
   async clickLocalInformationTab(): Promise<void> {
     await this.getElement('tabLocalInformation').click();
-    await this.page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+    await this.waitForAngularStable();
   }
 
   getCurrentUrl(): string {

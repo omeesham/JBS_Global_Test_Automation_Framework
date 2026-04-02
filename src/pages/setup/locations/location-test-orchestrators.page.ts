@@ -44,17 +44,17 @@ export abstract class LocationTestOrchestrators extends LocationFormHelpers {
         }
         await this.setSpinValue(spinKey, restoreValue);
         await this.clickSave();
-        await this.page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+        await this.waitForAngularStable();
         return { passed: true, detail: `${value} -> silently invalid (save disabled, no inline error -- Cat-B) [ok]` };
       }
       await this.setSpinValue(spinKey, restoreValue);
       await this.clickSave();
-      await this.page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+      await this.waitForAngularStable();
       return { passed: true, detail: `${value} -> invalid (error shown) [ok]` };
     }
 
     await this.clickSave();
-    await this.page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+    await this.waitForAngularStable();
     await this.reloadAndNavigateToLocalInfo(officeNo);
 
     const spin = await this.getSpinState(spinKey);
@@ -73,7 +73,7 @@ export abstract class LocationTestOrchestrators extends LocationFormHelpers {
     if (restoreEnableKey) { await this.checkCheckbox(restoreEnableKey); }
     await this.setSpinValue(spinKey, restoreValue);
     await this.clickSave();
-    await this.page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+    await this.waitForAngularStable();
     return { passed: true, detail: `${value} -> valid [ok]` };
   }
 

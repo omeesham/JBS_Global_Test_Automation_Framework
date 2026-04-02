@@ -46,7 +46,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
     if (isSelected !== 'true') {
       await tab.click();
-      await this.page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+      await this.waitForAngularStable();
     }
     await this.getElement('tblHistory').waitFor({ state: 'visible', timeout: 15_000 });
   }
@@ -56,20 +56,50 @@ export class LocalOfficeSettingsPage extends BasePage {
     const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
     if (isSelected !== 'true') {
       await tab.click();
-      await this.page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+      await this.waitForAngularStable();
     }
-    await this.getElement('lblEctLocationName').waitFor({ state: 'visible', timeout: 15_000 });
+    // RCA ECT-009: "No currencies" / "No data available" can persist under API load.
+    // Retry up to 3 times with full page reload. Dismiss Angular "Unsaved changes" dialog
+    // if it appears during reload (prior tests can leave dirty form state).
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const panelContent = await this.page.locator('[role="tabpanel"]').textContent().catch(() => '');
+      const noCurrencies = panelContent?.includes('No currencies for selected location');
+      if (!noCurrencies) break;
+      Log.warn(`ECT tab shows "No currencies" — retry ${attempt + 1}/3 via page reload`);
+      await this.dismissAlertDialogIfVisible();
+      await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
+      await this.waitForAngularStable();
+      await this.dismissAlertDialogIfVisible();
+      await this.getElement('tabEctSettings').click();
+      await this.waitForAngularStable();
+    }
+    await this.getElement('lblEctLocationName').waitFor({ state: 'visible', timeout: 30_000 });
     // Verify ECT data actually loaded (API can fail under load — "No data available" rows).
-    // If data missing, reload page and re-navigate once.
     const table = this.getElement('tblLaborCostAssumptions');
     const hasData = await table.locator('tbody tr').count() > 1
       || !(await table.textContent() || '').includes('No data available');
     if (!hasData) {
       Log.warn('ECT data not loaded (API failure) — retrying via page reload');
-      await this.page.reload({ waitUntil: 'networkidle', timeout: 30_000 });
+      await this.dismissAlertDialogIfVisible();
+      await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
+      await this.waitForAngularStable();
+      await this.dismissAlertDialogIfVisible();
       await this.getElement('tabEctSettings').click();
-      await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
-      await this.getElement('lblEctLocationName').waitFor({ state: 'visible', timeout: 15_000 });
+      await this.waitForAngularStable();
+      await this.getElement('lblEctLocationName').waitFor({ state: 'visible', timeout: 30_000 });
+    }
+  }
+
+  /** Dismiss Angular/Radix "Unsaved changes" alertdialog if visible. */
+  async dismissAlertDialogIfVisible(): Promise<void> {
+    const dialog = this.page.locator('[role="alertdialog"]');
+    if (await dialog.isVisible().catch(() => false)) {
+      const discardBtn = dialog.locator('button:has-text("Discard")');
+      if (await discardBtn.isVisible().catch(() => false)) {
+        await discardBtn.click();
+        await dialog.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+        Log.info('Dismissed "Unsaved changes" alertdialog');
+      }
     }
   }
 
@@ -78,7 +108,7 @@ export class LocalOfficeSettingsPage extends BasePage {
   async reloadBasicInfo(officeNo = '1604'): Promise<void> {
     const baseUrl = this.config?.base_url || '';
     await this.safeNavigateTo(`${baseUrl}locations/${officeNo}/settings/local-office`);
-    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    await this.waitForAngularStable();
     await this.getElement('frmBasicInfo').waitFor({ state: 'visible', timeout: 15_000 });
   }
 
@@ -128,12 +158,12 @@ export class LocalOfficeSettingsPage extends BasePage {
 
   async clickSaveFixedCosts(): Promise<void> {
     await this.getElement('btnSaveFixedCosts').click();
-    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    await this.waitForAngularStable();
   }
 
   async clickSaveLaborCosts(): Promise<void> {
     await this.getElement('btnSaveLaborCosts').click();
-    await this.page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+    await this.waitForAngularStable();
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -418,10 +448,20 @@ export class LocalOfficeSettingsPage extends BasePage {
     return input.inputValue();
   }
 
-  /** Fill labor cost input by row index, press Tab (GEN-008 + LRN-LOS-002). */
+  /** Fill labor cost input by row index, press Tab (GEN-008 + LRN-LOS-002).
+   *  RCA ECT-009: Angular can fire "Unsaved changes" alertdialog asynchronously after
+   *  tab load. If the click is intercepted, dismiss the dialog and retry. */
   async fillLaborCost(rowIndex: number, value: string): Promise<void> {
     const input = this.page.locator(`[data-testid="ect-settings-input-labor-cost-${rowIndex}"]`);
-    await input.click();
+    try {
+      await input.click({ timeout: 5_000 });
+    } catch {
+      // Dialog may have appeared after tab load — dismiss and retry.
+      // After dismissal, the app may revert to Basic Info tab. Re-navigate to ECT.
+      await this.dismissAlertDialogIfVisible();
+      await this.navigateToEctTab();
+      await input.click({ timeout: 10_000 });
+    }
     await this.page.keyboard.press('Control+a');
     await this.page.keyboard.type(value);
     await input.press('Tab');

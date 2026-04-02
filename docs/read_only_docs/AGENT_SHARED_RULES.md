@@ -315,7 +315,7 @@ Extract: failureCategory, testName, selector, pageUrl, fullError, consoleErrors[
 | SELECTOR / TIMING / DATA / APPLICATION | Proceed to Step 2 | — |
 
 **Step 2: Read error-context.md (SELECTOR/TIMING failures)**
-Path: `reports/test-results/{test-dir}/error-context.md` — accessibility snapshot at failure time
+Path: `reports/test-results/{test-dir}/error-context.md` — structured DOM analysis at failure time (page state, blocking elements, selector checks, invalid fields, disabled buttons, DOM snapshot)
 
 | Finding | Diagnosis |
 |---------|-----------|
@@ -367,11 +367,13 @@ Pass → full spec regression. Fail (same) → one more attempt (max 2). Fail (d
 | Artifact | Path | Content |
 |----------|------|---------|
 | Failure summary | `reports/failure-summary.json` | Structured: category, selector, errors, URL |
-| Error context | `reports/test-results/{test-slug}-{browser}/error-context.md` | Accessibility snapshot at failure |
+| Error context | `reports/test-results/{test-slug}-{browser}/error-context.md` | Structured DOM analysis at failure |
 | Screenshot | `reports/test-results/{test-slug}-{browser}/test-failed-1.png` | Screenshot at failure |
 | Trace | `reports/test-results/{test-slug}-{browser}/trace.zip` | Full trace (`npx playwright show-trace`) |
+| Video recording | `reports/test-results/{test-slug}-{browser}/video.webm` | Visual replay (TIMING/BLOCKING failures) |
 | HTML report | `reports/html-report/index.html` | Interactive visual report |
-| Framework logs | `reports/logs/{spec-name}/test-execution.log` | All Log.info/error calls |
+| Framework logs | `logs/{spec-name}/test-execution.log` | Page object actions + state changes |
+| Per-spec diagnostics | `reports/diagnostics/{spec-name}.diagnostics.json` | All tests in spec (serial failure analysis) |
 
 ### Planner Selector Verification (RCA subset)
 
@@ -633,6 +635,13 @@ These rules apply to ALL pipeline agents. They implement the 4-Category Bug Hunt
 | **ALL-056** | **TESTID VERIFICATION** — Any agent that navigates to a page and reads DOM MUST check for `data-testid` presence on interactive elements (buttons, inputs, selects, links). Missing testids = `[MISSING_TESTID]` tag or escalation. This is the foundation of automation testing best practices. Use `browser_evaluate(() => !!document.querySelector('[data-testid="X"]'))` for individual checks. | Requirements, Planner, Generator | Missing testids propagate through entire pipeline as selector failures |
 | **ALL-057** | **BUGHUNT CATEGORY MAPPING** — When an agent classifies a failure or issue, it MUST use `BugHuntCategory` enum (UNCHANGED_FAILURE, FEATURE_CHANGED_SMALL, FEATURE_CHANGED_BIG, TESTID_MISSING, TESTID_CHANGED, FLAKE, INFRASTRUCTURE_TRANSIENT) AND set the legacy `disposition` field for backward compat. Use `classifyBugHuntCategory()` from `src/utils/bug-hunt-classifier.ts` which handles both. | Healer, Generator, Audit | Inconsistent classification across agents |
 | **ALL-058** | **FIRST-RUN BASELINE** — On first pipeline run for a page, there is no historical data. `TESTID_CHANGED` cannot be detected — there is no previous value to compare against. All data collected becomes the BASELINE for future comparison. Agents MUST NOT classify anything as "changed" without a prior value in `testid-inventory` or `test_id_registry`. | All agents | False positive "changed" classifications on first run |
+| **ALL-059** | **SAVE COVERAGE METRIC** — Audit/review agents MUST count `clickSave()` calls and `reload*()` calls in each spec file. Compare against saveable field count from requirements (REQ-017 Field Coverage Matrix). Report: `round_trip_fields / total_saveable_fields`. Flag if ratio < 50%. Saves used only for state cleanup (no assertion after reload) do NOT count as round-trip coverage. | Audit, Review agents | Tests with many saves but zero reloads = interaction coverage, not verification coverage |
+| **ALL-060** | **TECHNIQUE DISTRIBUTION CHECK** — Audit/review agents MUST check technique tag distribution in test plans and specs. Parse TC names/comments for technique tags (`[ROUND-TRIP]`, `[NEGATIVE]`, `[STATE-TRANSITION]`, `[BVA]`, `[DECISION-TABLE]`, `[A11Y]`). Flag if any core technique (round-trip, negative, state-transition) has 0 representation. Report distribution summary. | Audit, Review agents | Prevents mono-technique test suites (all positive happy-path, zero negative/boundary) |
+| **ALL-061** | **ZERO TOLERANCE FOR test.skip()** — Every `test.skip()` must have a corresponding fix plan or be rewritten to test actual behavior. Skipping because "the server rejects changes" is not acceptable — rewrite to verify the rejection IS the expected behavior. If an underlying bug blocks the test, document it AND write the test to expect the current (broken) behavior. When the bug is fixed, the test fails → signals the fix. | Generator, Healer | Prevents skip accumulation (12 skips found in 2026-03 audit, all fixable) |
+| **ALL-062** | **NO HARDCODED STRUCTURAL COUNT ASSERTIONS** — Tests must NOT assert exact counts of DOM elements (column headers, rows, options, buttons) unless the count itself IS the feature under test. Instead: (a) assert content/labels (`.toContain()`), (b) assert behavior (click → verify effect), (c) use `.toBeGreaterThan(0)` for existence checks. Hardcoded counts break on any UI addition/removal without catching real bugs. | Generator, Audit | Prevents brittle tests (10 filler tests found in 2026-03 audit) |
+| **ALL-063** | **VERIFY SERVER BEHAVIOR BEFORE ASSUMING BUGS** — Before skipping a test for "server rejects" or "API 500": run the operation live (MCP or probe test). Server bugs get fixed. What was broken last month may work today. Workflow: un-skip → run AS-IS → if passes, keep original assertions → if still fails, THEN rewrite to test actual behavior. | All agents | Prevents stale assumptions (7 Cat-B "server rejects" were actually fixed in 2026-03) |
+| **ALL-064** | **NO `networkidle` IN ANGULAR SPA TESTS** — Never use `waitForLoadState('networkidle')` or `waitUntil: 'networkidle'` in page objects or specs. Angular's zone.js fires micro-tasks continuously after route changes, making networkidle either never resolve or resolve too early (between route change and API response). Use `waitForAngularStable()` (calls `getAllAngularTestabilities().whenStable()`) + element visibility/state polling instead. For page reloads, use `waitUntil: 'domcontentloaded'` + `waitForAngularStable()`. For data-dependent assertions after save+reload, poll for a concrete data-loaded signal (e.g., dropdown populated, grid rows present). | Generator, Healer, Maintainer | Prevents flakiness (networkidle was root cause of 5 intermittent failures in 2026-04 audit) |
+| **ALL-065** | **ALL TEST DATA IN `tests/test-data/`** — All test data values (strings, numbers, objects used as inputs or expected values) MUST live in `tests/test-data/`. Specs MUST NOT contain hardcoded test data. Shared constants (dialog text, office number) go in `common.data.ts`. Feature-specific data goes in the feature's `.data.ts` file. Structural count assertions (column counts, row counts) are NOT test data — see LR-022. Computed arithmetic values (character count = string1.length + delimiter + string2.length) may remain inline with comments explaining the math. | All agents | Single source of truth for test data; enables future CSV conversion |
 
 ---
 

@@ -171,16 +171,106 @@ function archiveOldAuditReports(): void {
   }
 }
 
+// ── Artifact retention (auto-clean on every test run) ──
+
+interface ArtifactTarget {
+  dir: string;
+  retentionDays: number;
+  /** If true, remove entire subdirectories when their newest file is expired. */
+  recursive: boolean;
+  description: string;
+}
+
+const ARTIFACT_TARGETS: ArtifactTarget[] = [
+  { dir: 'reports/test-results', retentionDays: 3, recursive: true, description: 'Test results (traces, screenshots, video, error-context)' },
+  { dir: 'reports/allure-results', retentionDays: 7, recursive: false, description: 'Allure result files' },
+  { dir: '.playwright-mcp', retentionDays: 3, recursive: false, description: 'Playwright MCP snapshots' },
+  { dir: 'specs_planning/audits/archive', retentionDays: 90, recursive: false, description: 'Archived audit reports' },
+];
+
+/**
+ * Clean artifact directories with age-based retention.
+ * For recursive targets: removes entire subdirectories when ALL files inside are older than cutoff.
+ * For flat targets: removes individual files older than cutoff.
+ */
+function cleanupArtifacts(): void {
+  let totalDeleted = 0;
+
+  for (const target of ARTIFACT_TARGETS) {
+    const dirPath = path.join(process.cwd(), target.dir);
+    if (!fs.existsSync(dirPath)) continue;
+
+    const cutoff = Date.now() - target.retentionDays * 24 * 60 * 60 * 1000;
+    let deleted = 0;
+
+    try {
+      const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
+      if (target.recursive) {
+        // Remove entire subdirectories when newest file is expired
+        for (const entry of entries) {
+          if (!entry.isDirectory()) continue;
+          const subDir = path.join(dirPath, entry.name);
+          try {
+            const newestMtime = getNewestMtime(subDir);
+            if (newestMtime < cutoff) {
+              fs.rmSync(subDir, { recursive: true, force: true });
+              deleted++;
+            }
+          } catch { /* skip if locked */ }
+        }
+      } else {
+        // Remove individual files older than cutoff
+        for (const entry of entries) {
+          if (!entry.isFile()) continue;
+          const filePath = path.join(dirPath, entry.name);
+          try {
+            const stat = fs.statSync(filePath);
+            if (stat.mtimeMs < cutoff) {
+              fs.unlinkSync(filePath);
+              deleted++;
+            }
+          } catch { /* skip if locked */ }
+        }
+      }
+    } catch { /* dir read failed */ }
+
+    if (deleted > 0) {
+      console.log(`Artifact cleanup: ${target.description} — deleted ${deleted} item(s) older than ${target.retentionDays}d`);
+      totalDeleted += deleted;
+    }
+  }
+
+  if (totalDeleted > 0) {
+    console.log(`Artifact cleanup: ${totalDeleted} total item(s) cleaned`);
+  }
+}
+
+/** Get the newest mtime (ms) of any file in a directory (non-recursive, one level). */
+function getNewestMtime(dirPath: string): number {
+  let newest = 0;
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isFile()) continue;
+    try {
+      const stat = fs.statSync(path.join(dirPath, entry.name));
+      if (stat.mtimeMs > newest) newest = stat.mtimeMs;
+    } catch { /* skip */ }
+  }
+  return newest;
+}
+
 /**
  * Run all cleanup tasks
  */
 export async function cleanupLogs(): Promise<void> {
-  console.log('Starting log cleanup...');
+  console.log('Starting pre-run cleanup...');
   cleanupAdHocLogFiles();
   cleanupTestLogs();
   cleanupAgentLogs();
   archiveOldAuditReports();
-  console.log('[OK] Log cleanup complete');
+  cleanupArtifacts();
+  console.log('[OK] Pre-run cleanup complete');
 }
 
 // Allow running as standalone script

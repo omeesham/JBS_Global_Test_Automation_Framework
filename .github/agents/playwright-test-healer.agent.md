@@ -162,6 +162,9 @@ On first run for a page (no `test_id_registry` entries or testid-inventory file)
 | SIG-TIMING-FLAKE | Passed before, fails intermittently | TEST_DEFECT | moderate |
 | SIG-BAD-SELECTOR | Fragile selector pattern | TEST_DEFECT | moderate |
 | SIG-INFRA | Browser crash, context closed | TEST_DEFECT | strong |
+| SIG-SERIAL-CONTAMINATION | Passes with --grep, fails in full-file run | TEST_DEFECT | strong |
+
+**SERIAL_CONTAMINATION classification (LR-018)**: Test passes with `--grep` but fails in full-file run. Root cause is always serial state — prior test left dirty state (unsaved form edits, checkbox toggles, DB mutations without cleanup). Fix: add cleanup/reload at end of preceding test, or add baseline enforcement (LR-019) at start of failing test. Never fix by changing assertion values to match contaminated state.
 
 #### Step 0.3: MCP Live Verification (REQUIRED for BUG — HLR-017, HLR-023)
 WARNING: Close playwright-test before opening playwright-browser.
@@ -211,7 +214,7 @@ ROUTE by category:
 - SELECTOR/TIMING/ASSERTION/DATA/APPLICATION -> proceed to Step 2
 
 #### Step 2: Read error-context.md
-`reports/test-results/{test-dir}/error-context.md` — accessibility snapshot at failure time
+`reports/test-results/{test-dir}/error-context.md` — structured DOM analysis at failure time (page state, blocking elements, selector checks, invalid fields, disabled buttons, DOM snapshot)
 - Search for the failing selector/element in the snapshot
 - Element EXISTS -> TIMING issue (element appeared but test didn't wait)
 - Element MISSING -> SELECTOR issue (wrong selector or not rendered)
@@ -302,11 +305,13 @@ Full spec once for regression check: `npx playwright test {spec} --project=chrom
 | Artifact | Path | Content |
 |----------|------|---------|
 | Failure summary | `reports/failure-summary.json` | Structured: category, selector, errors, URL |
-| Error context | `reports/test-results/{test-slug}-{browser}/error-context.md` | Accessibility snapshot at failure |
+| Error context | `reports/test-results/{test-slug}-{browser}/error-context.md` | Structured DOM analysis at failure |
 | Screenshot | `reports/test-results/{test-slug}-{browser}/test-failed-1.png` | Screenshot at failure |
 | Trace | `reports/test-results/{test-slug}-{browser}/trace.zip` | Full execution trace |
+| Video recording | `reports/test-results/{test-slug}-{browser}/video.webm` | Visual replay (TIMING/BLOCKING failures) |
 | HTML report | `reports/html-report/index.html` | Interactive report |
-| Framework logs | `reports/logs/{spec-name}/test-execution.log` | Framework logs |
+| Framework logs | `logs/{spec-name}/test-execution.log` | Page object actions + state changes |
+| Per-spec diagnostics | `reports/diagnostics/{spec-name}.diagnostics.json` | All tests in spec (serial failure analysis) |
 
 ---
 
@@ -326,7 +331,7 @@ Full spec once for regression check: `npx playwright test {spec} --project=chrom
 7. **Lock**: `lockedBy: "healer"`, `stage: "healing"`
 8. **Phase A — 7-Step RCA (HLR-009)**: Execute Phase A in full:
    - **Step 1**: Read ALL failure-summary.json fields. Route by category (AUTH/NETWORK/INFRASTRUCTURE -> escalate-tooling)
-   - **Step 2**: Read error-context.md — accessibility snapshot at failure. Element exists? TIMING. Missing? SELECTOR. Overlay? BLOCKING
+   - **Step 2**: Read error-context.md — structured DOM analysis at failure. Element exists? TIMING. Missing? SELECTOR. Overlay? BLOCKING
    - **Step 3**: Open screenshotPath — visual confirmation of app state
    - **Step 4**: Identify failing spec line from fullError -> trace to page object method -> read method code
    - **Step 5**: Form hypothesis with evidence citations from Steps 1-4
@@ -386,4 +391,4 @@ LOS page object is at src/pages/setup/local-office/, NOT src/pages/locations/
 LOS selectors are at src/selectors/setup/local-office/, NOT src/selectors/locations/
 Always check docs/MODULE_REGISTRY.md before searching for files to heal.
 
-**Checklist**: All `pending_healing` processed | orphans added | each item `completed`/`fixme` | TC docs updated | selector fixes in index.ts | no `test.fixme()` | self-audit (§8)
+**Checklist**: All `pending_healing` processed | orphans added | each item `completed`/`fixme` | TC docs updated | selector fixes in index.ts | no `test.fixme()` | test data in `.data.ts` files not specs (ALL-065) | self-audit (§8)

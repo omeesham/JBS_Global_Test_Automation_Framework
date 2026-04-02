@@ -120,7 +120,7 @@ function main(): void {
   console.log('');
   console.log('[REMINDER] RCA-FIRST HARD GATE (HLR-017):');
   console.log('   Phase A (7-Step RCA) is MANDATORY before Phase B (Fix).');
-  console.log('   Read ALL artifacts: failure-summary.json → error-context.md → screenshot → trace.');
+  console.log('   Read ALL artifacts: failure-summary.json → error-context.md → screenshot → trace → video (TIMING) → framework logs.');
   console.log('   Complete IS/IS-NOT table. Cite evidence for root cause. THEN write fix code.');
   console.log('   /rca skill protocol is the mandatory framework.');
   console.log('');

@@ -1,5 +1,11 @@
 /**
- * Local Office Settings test data — verified live on location 1604 (2026-03-23).
+ * Test data for: Local Office Settings — Basic Information tab
+ * Consumed by: tests/specs/setup/local-office/local-office-settings.spec.ts,
+ *              tests/specs/setup/local-office/local-office-ect.spec.ts (ECT_FIXED_COST_FIELDS only)
+ * Office: 1604 (Parker Palm Springs)
+ * Last verified: 2026-03-23
+ *
+ * Changing values here affects the listed specs.
  */
 
 /** Default date offset values for location 1604. */
@@ -35,6 +41,50 @@ export const DEFAULT_SECTIONS = [
   'Power', 'Presenter Support', 'Projection', 'Rigging',
   'Scenic', 'Staging', 'Video', 'Whiteboard',
 ] as const;
+
+/** Date offset TEST values (distinct from defaults — used for boundary/recovery tests). */
+export const DATE_OFFSET_TEST_VALUES = {
+  valid: '-2',
+  invalid: 'abc',
+  deliveryInvalid: '-5',
+  zero: '0',
+  extremeNegative: '-10',
+  recovery: '-1',  // LR-009: must differ from default (0)
+} as const;
+
+/** Phone number test values. */
+export const PHONE_TEST_VALUES = {
+  invalid: 'not-a-phone',
+  testFormat: '555-123-4567',
+  recovery: '555-000-1111',
+} as const;
+
+/** Section editing test values. */
+export const SECTION_TEST_VALUES = {
+  editValue: 'AV Services',       // value typed into rename field
+  originalName: 'Audio Visual',    // pre-edit section name at index 0
+  newSection: 'Test Section',
+} as const;
+
+/** Room test values. */
+export const ROOM_TEST_VALUES = {
+  testRoom: 'Ballroom A',
+} as const;
+
+/** Default Order Type test values. */
+export const ORDER_TYPE_VALUES = {
+  default: 'Event',
+  alternate: 'Outside',
+} as const;
+
+/** PO field test values. */
+export const PO_TEST_VALUES = {
+  number: 'PO-TEST-123',
+  label: 'Purchase Order #',
+} as const;
+
+/** XSS payload for security round-trip testing. */
+export const XSS_PAYLOAD = '<script>alert(1)</script>';
 
 /** Default Phone 1 value for location 1604. */
 export const DEFAULT_PHONE_1 = '760-883-1957';

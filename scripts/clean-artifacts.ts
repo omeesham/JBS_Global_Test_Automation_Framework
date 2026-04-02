@@ -19,9 +19,12 @@ interface CleanTarget {
   description: string;
 }
 
+// NOTE: allure-results and .playwright-mcp are now auto-cleaned by pretest hook (cleanup-logs.ts).
+// This script is kept for manual "force clean" use cases only.
 const TARGETS: CleanTarget[] = [
-  { dir: 'reports/allure-results', retentionDays: 7, description: 'Allure result files' },
-  { dir: '.playwright-mcp', retentionDays: 3, description: 'Playwright MCP snapshots' },
+  { dir: 'reports/allure-results', retentionDays: 0, description: 'Allure result files (force clean)' },
+  { dir: '.playwright-mcp', retentionDays: 0, description: 'Playwright MCP snapshots (force clean)' },
+  { dir: 'reports/test-results', retentionDays: 0, description: 'Test results — traces, screenshots, video (force clean)' },
 ];
 
 function cleanDirectory(target: CleanTarget): number {
