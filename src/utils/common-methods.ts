@@ -34,9 +34,9 @@ export class CommonMethods {
       url: baseUrl,
       base_url: baseUrl,
       home_url: process.env.HOME_URL || '',
-      username_automation: process.env.USERNAME_AUTOMATION || 'test_user',
-      password_automation: process.env.PASSWORD_AUTOMATION || 'test_password',
-      mfa_secret: process.env.MFA_SECRET,
+      username_automation: process.env.NAVIGATOR_USERNAME || process.env.USERNAME_AUTOMATION || 'test_user',
+      password_automation: process.env.NAVIGATOR_PASSWORD || process.env.PASSWORD_AUTOMATION || 'test_password',
+      mfa_secret: process.env.NAVIGATOR_MFA_SECRET || process.env.MFA_SECRET,
     };
 
     return config;

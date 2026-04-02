@@ -31,7 +31,6 @@ encore_framework/
 │   ├── framework-contracts/# TypeScript type definitions (IConfig, ILocator)
 │   ├── integrations/       # External integrations (SharePoint)
 │   ├── pages/              # Page objects (LoginPage, HomePage)
-│   ├── security/           # Vault (AES-256-GCM credential encryption)
 │   ├── selectors/          # TypeScript selector repository
 │   ├── utils/              # Utilities (logger, common-methods)
 │   └── index.ts            # Barrel export (single entry point)
@@ -136,10 +135,6 @@ export class CommonMethods {
   static generateTotpCode(secret: string): string
 }
 ```
-
-### `src/security/` — Credential Vault
-
-Encrypted vault at `src/security/vault.ts` (AES-256-GCM). Re-export at `config/secrets/vault.ts` for backward compatibility.
 
 ### `src/framework-contracts/` — Type Definitions
 

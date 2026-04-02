@@ -137,7 +137,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   /**
    * Authenticated session fixture (worker-scoped)
-   * Fresh login per worker -- authenticates via Microsoft SSO + MFA using vault credentials.
+   * Fresh login per worker -- authenticates via Microsoft SSO + MFA using env credentials.
    * No session persistence. Reuses the authenticated page directly (no about:blank).
    * Each spec file gets its own worker, so this = one login per spec file.
    */
@@ -164,8 +164,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     // Attach runtime diagnostics collector (console, network, page errors, auth chain)
     const collector = attachDiagnostics(page);
 
-    // Load credentials from encrypted vault
-    const credentials = await CredentialLoader.loadCredentials({ type: 'vault' });
+    // Load credentials from environment variables
+    const credentials = await CredentialLoader.loadCredentials({ type: 'env' });
 
     // SSO login with retry -- OAuth callback can fail transiently (CSRF/state mismatch, B2C hiccup)
     const MAX_LOGIN_ATTEMPTS = 3;

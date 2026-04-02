@@ -145,7 +145,7 @@
 | GEN-001 | All selectors from src/selectors/index.ts. No inline selectors in spec or page object files | — |
 | GEN-002 | Data-driven patterns: data arrays in .data.ts + batch page methods. One file per concern. 300-line advisory (refactor, never split). One test.describe.serial per spec. Navigate once, reuse state | — |
 | GEN-003 | Architecture: use fixtures only (no constructors). No raw page.* in specs. No Log/CredentialLoader imports in specs. Import only from ../../setup/fixtures. Page interactions through page object methods only | — |
-| GEN-004 | Test execution workflow: typecheck → test → generator:post-complete. No marking complete without passing all gates. Use existing auth (vault + CredentialLoader + authenticatedSession fixture) | — |
+| GEN-004 | Test execution workflow: typecheck → test → generator:post-complete. No marking complete without passing all gates. Use existing auth (CredentialLoader + authenticatedSession fixture, env source) | — |
 | GEN-005 | MCP browser: never open/close. Pre-flight selector validation (Phase 1) and last-resort RCA (Phase A Step 6 ONLY after reading all failure artifacts). No exploratory browsing. No MCP before reading failure-summary.json and error-context.md | — |
 | GEN-006 | No placeholder tests: no test.fixme(), no empty describes with only comments, no stubs. Omit unimplementable TCs silently + log action: missing-coverage. Every describe must have ≥1 executable test | — |
 | GEN-007 | Targeted test runs: `--grep "TC-ID"` for single TC during fix loop. Full spec ONLY for final validation. For serial block dependency analysis see GEN-018 | — |

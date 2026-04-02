@@ -2,26 +2,24 @@
 
 ## First-Time Setup (New Collaborators)
 
-**On every session start**, check if `config/environments/.env.local` exists.
-If missing → this is a new collaborator. Run onboarding BEFORE any other work.
+**On every session start**, TWO checks:
+1. Check if `config/environments/.env.local` exists → if missing, new collaborator onboarding
+2. **Identity check**: If the user's request involves pipeline work (requirements, test planning,
+   spec generation, test healing, auditing, or maintenance), invoke `/identity` to adopt the
+   correct agent persona BEFORE starting. For general framework work, auto-adopt OWNER identity.
 
 ### Step 1 — Create your agent identity
 Ask: "What's your name?" Copy `.claude/agents/COLLEAGUE.agent.md` → `.claude/agents/<NAME>.agent.md`, replace all `<YOUR_NAME>` placeholders, commit + push.
 
-### Step 2 — Set up Encore credentials
-Each person needs their OWN Navigator Cloud SSO account. Ask for their email, password, and MFA secret, then:
-```bash
-npm run vault:init                                     # Pick your own passphrase
-npm run vault:set NAVIGATOR_USERNAME user@domain.com
-npm run vault:set NAVIGATOR_PASSWORD your_password
-npm run vault:set NAVIGATOR_MFA_SECRET your_base32     # if MFA enabled
-```
+### Step 2 — Credentials are pre-configured
+Credentials are stored directly in `config/environments/.env.development` (committed to git).
+No vault setup needed — clone and run.
 
-### Step 3 — Create `.env.local`
+### Step 3 — (Optional) Create `.env.local` for overrides
+Only needed if you want to override defaults (e.g., different browser, timeouts).
 ```bash
 cp config/environments/.env.example config/environments/.env.local
 ```
-Set `VAULT_PASSPHRASE=<passphrase from Step 2>`. Other defaults are fine.
 
 ### Step 4 — Install Claude CLI
 ```bash
@@ -38,7 +36,7 @@ npm install && npx playwright install
 ```bash
 npm test -- --project=chrome tests/seed.spec.ts
 ```
-Passes = Navigator Cloud credentials + vault are working.
+Passes = Navigator Cloud credentials are working.
 
 ### Step 7 — Full stack (optional, for website/UI work)
 ```bash
@@ -50,9 +48,8 @@ docker compose up -d && npm run server:start
 ```
 
 ### Security Rules
-- NEVER commit `.env.local`, `.env.server`, or `.vault.enc` (all gitignored)
-- NEVER hardcode credentials in tracked files
-- Each developer has their OWN vault — never share passphrase via git
+- `.env.local` and `.env.server` are gitignored (for personal overrides)
+- Credentials are stored in plain text in `.env` files by design (clone-and-run)
 
 ---
 
@@ -63,6 +60,7 @@ If multiple intents match, use the FIRST matching rule. If the user explicitly n
 
 | Priority | Intent Pattern | Skill | Notes |
 |----------|---------------|-------|-------|
+| 0 | Session start with pipeline work, "/identity", "be the HUNTER/GIVER/etc", "switch identity" | `/identity` | MUST run before pipeline work. Auto-OWNER for general tasks |
 | 1 | User explicitly says `/skillname` | That skill | Always highest priority |
 | 2 | "RCA", "root cause", "why is this failing", "analyze failure" | `/rca` | Professional artifact-first root cause analysis |
 | 3 | "fix bug", "broken", "not working", "error", "crash" | `/bugfix` | General bug fixing with root cause analysis |
@@ -92,6 +90,24 @@ If intent is unclear, DO NOT auto-route. Ask the user which skill applies, or an
 
 ---
 
+## Identity Enforcement
+
+**Hard rule**: Pipeline-stage work (requirements capture, test planning, spec generation,
+test healing, auditing, maintenance sweeps) requires an active identity via `/identity`.
+General framework work auto-adopts OWNER (no prompt needed).
+
+**Active identity constrains ALL actions**:
+- File writes checked against §2 ownership (AGENT_SHARED_RULES.md)
+- Tool usage checked against agent file frontmatter
+- Rules filtered to agent's prefix + ALL-* + LR-*
+- Self-audit checklist applies at task end and identity switch
+
+**Override**: User says "override" for single-action file ownership bypass (logged).
+
+**Codenames**: HUNTER | GIVER | BUILDER | HEALER | WATCHDOG | GARDENER | OWNER
+
+---
+
 ## Skill Dependency Graph (Auto-Calls)
 
 ```
@@ -104,8 +120,8 @@ If intent is unclear, DO NOT auto-route. Ask the user which skill applies, or an
 /audit    ──auto-calls──> /reflect
 
 Leaf skills (no auto-calls):
-  /regression-guard, /reflect, /compile-learnings, /research
-  /review, /questionnaire, /share-kt, /rca
+  /identity, /regression-guard, /reflect, /compile-learnings, /research
+  /review, /questionnaire, /share-kt, /rca, /find-bugs
 ```
 
 No circular dependencies exist. `/regression-guard` and `/reflect` are always leaves.

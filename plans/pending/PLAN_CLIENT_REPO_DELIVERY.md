@@ -72,7 +72,6 @@ const CLIENT_DIST_DIRS = [
   'pages',               // login, home, setup/locations/*, setup/local-office/*
   'selectors',           // all selectors (static + dynamic + setup/)
   'utils',               // logger, common-methods, app-constants, file-utils, diagnostics-collector
-  'security',            // vault (AES-256-GCM)
   'data',                // adapters (Excel + JSON only)
   'framework-contracts', // IConfig, diagnostics types
 ];
@@ -96,7 +95,7 @@ Generate new `dist/index.js` + `dist/index.d.ts` that ONLY exports:
 - BasePage, CredentialLoader, UiCommon, SessionManager
 - Log, Logger, CommonMethods, AppConstants, FileUtils
 - getTsSelector, ALL_SELECTORS, MicrosoftLoginSelectors, SetupSelectors, DynamicSelectors
-- Vault, AdapterFactory, ExcelAdapter, JsonAdapter
+- AdapterFactory, ExcelAdapter, JsonAdapter
 - DiagnosticsCollector, attachDiagnostics
 - **EXCLUDE:** DbAdapter, S3Adapter (they require pg/@aws-sdk at import time)
 
@@ -145,13 +144,10 @@ Each uses `authenticatedSession.page` (not bare `page`) per main repo pattern.
 
 ---
 
-### Task 3: vault-manager + cleanup-logs + SELECTOR_CATALOG fixes
+### Task 3: cleanup-logs + SELECTOR_CATALOG fixes
 **Files:** `scripts/client-package.ts`, `client-delivery/scripts/cleanup-logs.ts`
 
-**3a: Add vault-manager.ts to COPY_FILES:**
-```typescript
-{ src: 'client-delivery/scripts/vault-manager.ts', dest: 'scripts/vault-manager.ts' },
-```
+**3a: (REMOVED — vault retired, no vault-manager needed)**
 
 **3b: Fix cleanup-logs.ts** — create client-safe version:
 - Remove reference to `specs_planning/agent-activity-log.md`
@@ -348,7 +344,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Create .env.local from secrets
         run: |
-          echo "VAULT_PASSPHRASE=${{ secrets.VAULT_PASSPHRASE }}" > config/environments/.env.local
+          cp config/environments/.env.example config/environments/.env.local
       - run: npx playwright test --project=chrome
         env:
           CI: true
@@ -397,7 +393,7 @@ of [Company Name].
 
 **10c: Scrub .env.example** — AFTER copying from root to output (NOT on root):
 - Remove: Database section, S3 section, SharePoint section
-- Keep: environment ID, app URLs, timeouts, Navigator credentials (vault), feature flags, retry/browser, logging, downloads
+- Keep: environment ID, app URLs, timeouts, Navigator credentials (env vars), feature flags, retry/browser, logging, downloads
 
 **10d: Clean stale testIgnore** in playwright.config.ci.ts:
 - Remove `**/src/data/adapters/__tests__/**` (no src/ in client)
@@ -411,7 +407,7 @@ of [Company Name].
 Task 1 (clean build + selective dist + barrel rewrite)
   ↓ barrel must exist before dep trim
 Task 2 (merge client fixtures — add pages + diagnostics + retry, keep session reuse)
-Task 3 (vault + cleanup-logs + SELECTOR_CATALOG fix)
+Task 3 (cleanup-logs + SELECTOR_CATALOG fix)
 Task 4 (strip @agent-doc + internal comments)
 Task 5 (remove SharePoint script + refs)
 Task 6 (expand validation + IP content scan)

@@ -40,7 +40,7 @@ Navigator Cloud uses **Microsoft SSO (Single Sign-On)** with **TOTP-based 2FA (T
 
 ### MFA/TOTP Details
 - OTP codes are generated using TOTP algorithm (Time-based One-Time Password)
-- Base32-encoded secret is stored in credential vault
+- Base32-encoded secret is stored in `.env` files
 - Codes are 6 digits, valid for 30 seconds
 - Framework uses `otplib` npm package for code generation
 
@@ -105,12 +105,12 @@ Key routes:
 
 ## Test Data Strategy
 
-Test credentials are stored in encrypted vault (`config/secrets/.vault.enc`):
+Test credentials are stored in `.env` files (`config/environments/.env.development`):
 - `NAVIGATOR_USERNAME` - Microsoft SSO email
 - `NAVIGATOR_PASSWORD` - Microsoft SSO password
 - `NAVIGATOR_MFA_SECRET` - Base32 TOTP seed for 2FA
 
-The `Vault` class implementation lives in `src/security/vault.ts` (AES-256-GCM encryption). A backward-compatible re-export exists at `config/secrets/vault.ts` for script consumers. Vault is decrypted at runtime using `VAULT_PASSPHRASE` environment variable (never stored in files).
+Credentials are loaded at runtime by `CredentialLoader` from environment variables.
 
 ---
 

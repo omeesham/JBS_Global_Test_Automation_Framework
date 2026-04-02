@@ -1,19 +1,18 @@
 /**
  * @agent-doc
- * PURPOSE: Loads test credentials from vault (encrypted), env vars, or config files. Decrypts vault using VAULT_PASSPHRASE.
+ * PURPOSE: Loads test credentials from env vars, inline, or config files. Reads NAVIGATOR_* env vars from .env files.
  * OWNER: generator, healer
  * IMPACT: high - broken = can't authenticate to Navigator Cloud
- * DEPENDS-ON: vault.ts (encryption), dotenv, adapterFactory.ts
+ * DEPENDS-ON: dotenv, adapterFactory.ts
  * USED-BY: fixtures.ts (authenticatedSession credential loading)
- * RULES: NEVER log credentials or secrets. Vault passphrase MUST come from VAULT_PASSPHRASE env var. Prefer vault over env vars (more secure).
+ * RULES: NEVER log credentials or secrets.
  */
 
 import { AdapterFactory } from '../data/adapters/adapterFactory';
 import { Log } from '../utils/logger';
-import { Vault } from '../security/vault';
 
 export interface CredentialSource {
-  type: 'excel' | 'json' | 'db' | 's3' | 'env' | 'inline' | 'vault';
+  type: 'excel' | 'json' | 'db' | 's3' | 'env' | 'inline';
   path?: string;
   query?: string;
   role?: string;
@@ -79,12 +78,8 @@ export class CredentialLoader {
 
   // ─── Private helpers ───────────────────────────────────────────────────────
 
-  /** Centralized source resolution: vault/env/inline/file-adapter -> raw records. */
+  /** Centralized source resolution: env/inline/file-adapter -> raw records. */
   private static async _resolveSource(source: CredentialSource): Promise<{ records: any[] }> {
-    if (source.type === 'vault') {
-      return { records: [await this._loadVaultRecord()] };
-    }
-
     if (source.type === 'env') {
       return { records: [this._loadEnvRecord()] };
     }
@@ -97,7 +92,7 @@ export class CredentialLoader {
     }
 
     if (!source.path) throw new Error(`Path required for ${source.type} credential source`);
-    const adapter = AdapterFactory.getAdapter(source.type as Exclude<CredentialSource['type'], 'env' | 'inline' | 'vault'>);
+    const adapter = AdapterFactory.getAdapter(source.type as Exclude<CredentialSource['type'], 'env' | 'inline'>);
     const data = await adapter.load({ file: source.path, query: source.query, sheet: source.sheet });
     return { records: data.records };
   }
@@ -113,29 +108,12 @@ export class CredentialLoader {
     };
   }
 
-  /** Load credentials from encrypted vault (requires VAULT_PASSPHRASE env var). */
-  private static async _loadVaultRecord(): Promise<Record<string, any>> {
-    const passphrase = process.env.VAULT_PASSPHRASE;
-    if (!passphrase) throw new Error('VAULT_PASSPHRASE environment variable not set. Cannot decrypt vault.');
-    try {
-      const vault = await Vault.initialize(passphrase);
-      const username = await vault.get('NAVIGATOR_USERNAME');
-      const password = await vault.get('NAVIGATOR_PASSWORD');
-      const mfaSecret = await vault.has('NAVIGATOR_MFA_SECRET') ? await vault.get('NAVIGATOR_MFA_SECRET') : undefined;
-      return { username, password, mfaSecret, role: 'vault', _source: 'encrypted vault' };
-    } catch (error) {
-      Log.error(`Failed to load credentials from vault: ${error}`);
-      throw new Error('Failed to decrypt vault. Check VAULT_PASSPHRASE and vault contents.');
-    }
-  }
-
-  /** Load credentials from environment variables (fallback). */
+  /** Load credentials from environment variables (.env files). */
   private static _loadEnvRecord(): Record<string, any> {
-    Log.warn('[WARN]  Using credentials from .env (not from data source)');
     return {
-      username: process.env.USERNAME_AUTOMATION || 'admin',
-      password: process.env.PASSWORD_AUTOMATION || 'admin',
-      mfaSecret: process.env.MFA_SECRET,
+      username: process.env.NAVIGATOR_USERNAME || process.env.USERNAME_AUTOMATION || 'admin',
+      password: process.env.NAVIGATOR_PASSWORD || process.env.PASSWORD_AUTOMATION || 'admin',
+      mfaSecret: process.env.NAVIGATOR_MFA_SECRET || process.env.MFA_SECRET,
       role: 'env',
       _source: 'environment variables',
     };

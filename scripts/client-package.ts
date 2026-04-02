@@ -63,7 +63,7 @@ const COPY_FILES: Array<{ src: string; dest: string }> = [
 ];
 
 /** Directories to create empty (with .gitkeep) */
-const EMPTY_DIRS = ['reports', 'logs', 'reports/test-results', 'config/secrets', 'tests/test-data/downloads'];
+const EMPTY_DIRS = ['reports', 'logs', 'reports/test-results', 'tests/test-data/downloads'];
 
 // ==================== CLIENT PACKAGE.JSON ====================
 
@@ -217,15 +217,7 @@ tests/test-data/downloads/
 
 # Credentials
 *credentials*
-*secrets*
-!config/secrets/
-*password*
 *token*
-
-# Vault secrets
-config/secrets/.vault.enc
-config/secrets/.vault.key
-config/secrets/*.enc
 `;
 
 // ==================== CLIENT README ====================
@@ -244,15 +236,9 @@ npx playwright install chromium
 
 # 3. Configure environment
 cp config/environments/.env.example config/environments/.env.development
-# Edit .env.development with your credentials and URLs
+# Credentials are pre-configured — edit URLs if needed
 
-# 4. Initialize vault (encrypted credential storage)
-npm run vault:init
-
-# 5. Store credentials in vault
-npm run vault:set    # Follow prompts to add NAVIGATOR_USERNAME, NAVIGATOR_PASSWORD, NAVIGATOR_MFA_SECRET
-
-# 6. Run tests
+# 4. Run tests
 npm test                    # All tests
 npm run test:chrome         # Chrome only
 npm run test:headed         # UI visible
@@ -268,7 +254,6 @@ npm run test:debug          # Debug mode
 |   +-- specs/              <- Test specifications
 +-- config/
 |   +-- environments/       <- Environment config (.env files)
-|   +-- secrets/            <- Encrypted vault storage
 +-- .ci/                    <- CI pipeline configs (Jenkins, Azure)
 +-- scripts/                <- Utility scripts
 +-- reports/                <- Test reports + Playwright artifacts (auto-generated)
@@ -286,7 +271,6 @@ npm run test:debug          # Debug mode
 | \`npm run test:debug\` | Debug mode with inspector |
 | \`npm run report\` | Open HTML test report |
 | \`npm run typecheck\` | Validate TypeScript |
-| \`npm run vault:list\` | List stored credentials |
 | \`npm run clean\` | Clear reports/logs/results |
 
 ## Environment Configuration
@@ -295,7 +279,9 @@ Copy \`.env.example\` to \`.env.development\` and set:
 
 - \`BASE_URL\` -- Application URL
 - \`HOME_URL\` -- Post-login landing URL
-- \`VAULT_PASSPHRASE\` -- Master password for credential vault
+- \`NAVIGATOR_USERNAME\` -- Microsoft SSO email
+- \`NAVIGATOR_PASSWORD\` -- Microsoft SSO password
+- \`NAVIGATOR_MFA_SECRET\` -- Base32 TOTP seed for MFA
 
 ## CI Integration
 

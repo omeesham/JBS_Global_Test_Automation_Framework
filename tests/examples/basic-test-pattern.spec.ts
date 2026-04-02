@@ -28,7 +28,7 @@ test.describe('Example: Login Flow @example', () => {
 
     // Login -- page object handles entire SSO + MFA flow
     const { CredentialLoader } = await import('../../src/common/credential-loader');
-    const creds = await CredentialLoader.loadCredentials({ type: 'vault' });
+    const creds = await CredentialLoader.loadCredentials({ type: 'env' });
     const success = await loginPage.loginWithMicrosoft(creds.username, creds.password, creds.mfaSecret);
     expect(success, 'Login should succeed').toBe(true);
 

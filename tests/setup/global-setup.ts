@@ -116,8 +116,8 @@ async function runPreflightChecks(): Promise<PreflightResult[]> {
   // Check 4: Credential source loadable
   try {
     const { CredentialLoader } = require('../../src/common/credential-loader');
-    await CredentialLoader.loadCredentials({ type: 'vault' });
-    results.push({ check: 'credentials', status: 'PASS', message: 'Vault credentials loaded' });
+    await CredentialLoader.loadCredentials({ type: 'env' });
+    results.push({ check: 'credentials', status: 'PASS', message: 'Credentials loaded from environment' });
   } catch (error) {
     results.push({ check: 'credentials', status: 'FAIL', message: `Credentials unavailable: ${error instanceof Error ? error.message : String(error)}` });
   }

@@ -86,19 +86,10 @@ tmp/
 *.sqlite
 *.sqlite3
 
-# Credentials (DO NOT COMMIT)
-*credentials*
-*secrets*
-!config/secrets/
-!config/secrets/vault.ts
-*password*
+# Security files
 *token*
 *.pem
 *.key
-
-# Vault secrets — each developer creates their own vault locally
-config/secrets/.vault.key
-config/secrets/*.enc
 
 # Auth sessions
 .auth/

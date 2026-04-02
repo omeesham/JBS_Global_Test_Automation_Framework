@@ -3,7 +3,7 @@
  * PURPOSE: Barrel export -- single entry point for the compiled framework (dist/). All public types, classes, and utilities are re-exported here.
  * OWNER: human-only
  * IMPACT: critical - Client tests import everything from dist/ via this file. Breaking exports breaks all client tests.
- * DEPENDS-ON: All src/ modules (pages, utils, common, security, selectors, data, framework-contracts)
+ * DEPENDS-ON: All src/ modules (pages, utils, common, selectors, data, framework-contracts)
  * USED-BY: Client tests (via dist/index.js), tsconfig.build.json (entry point)
  * RULES: Only add exports here. Never remove existing exports (breaking change for clients). Keep organized by category.
  */
@@ -41,9 +41,6 @@ export {
   LocalOfficeSettingsSelectors,
   DynamicSelectors,
 } from './selectors';
-
-// ==================== SECURITY ====================
-export { Vault } from './security/vault';
 
 // ==================== DATA ADAPTERS ====================
 export { AdapterFactory } from './data/adapters/adapterFactory';

@@ -18,7 +18,6 @@ import * as path from 'path';
 const SENTINELS: { label: string; pattern: RegExp; maxAllowed: number }[] = [
   { label: 'Pipeline command (sync:mistakes + build:context + validate:sync)', pattern: /sync:mistakes.*build:context.*validate:sync|sync:mistakes\s*&&\s*.*build:context/g, maxAllowed: 12 },
   { label: 'MCP auto-opens browser', pattern: /browser_navigate\s+auto[- ]?opens/gi, maxAllowed: 8 },
-  { label: 'AES-256-GCM vault reference', pattern: /AES-256-GCM/g, maxAllowed: 3 },
   { label: 'Stage flow enum (full 11-stage)', pattern: /pending_requirements\s*→?\s*requirements\s*→?\s*pending_planning/g, maxAllowed: 3 },
   { label: 'deviceScaleFactor pitfall', pattern: /deviceScaleFactor/g, maxAllowed: 2 },
 ];
