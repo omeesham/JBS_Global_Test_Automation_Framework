@@ -38,6 +38,7 @@ export class LocationLegalPage extends BasePage {
   async clickLegalTab(): Promise<void> {
     await this.clickWithRetry('tabLegal');
     await this.getElement('contentLegal').waitFor({ state: 'visible', timeout: 15_000 });
+    await this.waitForAngularStable();
   }
 
   /** Reload page and return to Legal tab. Handles potential beforeunload dialog. */
@@ -51,6 +52,7 @@ export class LocationLegalPage extends BasePage {
     } finally {
       this.page.removeListener('dialog', handler);
     }
+    await this.waitForAngularStable();
     await this.clickLegalTab();
   }
 
@@ -125,24 +127,32 @@ export class LocationLegalPage extends BasePage {
   }
 
   /**
-   * Exact-match combobox option selection.
+   * Exact-match combobox option selection with retry.
    * BasePage.selectComboboxOption uses :has-text() (contains match) which fails when
    * multiple options share substrings (e.g. "Administrative Fee" matches 4 options).
    * This uses getByRole with exact:true for unambiguous selection.
+   *
+   * RCA LGL-010/013: Radix UI Select with 114 options auto-scrolls to the checked item
+   * on open, causing options above the scroll position to be "not stable" then "detached
+   * from DOM" as the portal re-renders. Retry loop handles this by re-opening the listbox.
    */
   private async selectComboboxOptionExact(dropdownKey: string, optionText: string): Promise<void> {
-    await this.getElement(dropdownKey).click();
-    const listbox = this.page.locator('[role="listbox"]');
-    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
-    // Wait for Angular change detection to settle — options can detach/re-render after
-    // dropdown opens (RCA LGL-010: "element was detached from the DOM").
-    await this.waitForAngularStable();
-    // Wait for options to populate (API-driven, may lag behind Angular stable)
-    await listbox.getByRole('option').first().waitFor({ state: 'visible', timeout: 10_000 });
-    // Radix dropdowns detach+reattach options after initial render — use longer timeout
-    // to let Playwright's built-in retry survive the re-render cycle.
-    await listbox.getByRole('option', { name: optionText, exact: true }).click({ timeout: 15_000 });
-    Log.info(`[OK] Selected exact option "${optionText}" for ${dropdownKey}`);
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await this.openComboboxListbox(dropdownKey);
+        const option = this.page.getByRole('option', { name: optionText, exact: true });
+        await option.scrollIntoViewIfNeeded({ timeout: 3_000 });
+        await option.click({ timeout: 5_000 });
+        Log.info(`[OK] Selected exact option "${optionText}" for ${dropdownKey}`);
+        return;
+      } catch (err) {
+        if (attempt === maxRetries) throw err;
+        Log.warn(`[RETRY ${attempt}/${maxRetries}] Option click failed for "${optionText}" — re-opening listbox`);
+        await this.page.keyboard.press('Escape');
+        await this.page.locator('[role="listbox"]').waitFor({ state: 'hidden', timeout: 2_000 }).catch(() => {});
+      }
+    }
   }
 
   /**
@@ -150,9 +160,7 @@ export class LocationLegalPage extends BasePage {
    * Opens dropdown, checks for input/search elements, closes it.
    */
   async hasDropdownSearch(dropdownKey: string): Promise<boolean> {
-    await this.getElement(dropdownKey).click();
-    const listbox = this.page.locator('[role="listbox"]');
-    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    const listbox = await this.openComboboxListbox(dropdownKey);
     const searchCount = await listbox.locator('input, [type="search"], [cmdk-input]').count();
     await this.page.keyboard.press('Escape');
     await listbox.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => {});
@@ -163,9 +171,7 @@ export class LocationLegalPage extends BasePage {
    * Open a combobox, verify the checked option, close it. Returns the checked option text.
    */
   async getCheckedOption(dropdownKey: string): Promise<string | null> {
-    await this.getElement(dropdownKey).click();
-    const listbox = this.page.locator('[role="listbox"]');
-    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    const listbox = await this.openComboboxListbox(dropdownKey);
     const checked = listbox.locator('[role="option"][data-state="checked"]');
     const text = await checked.count() > 0 ? (await checked.textContent() || '').trim() : null;
     await this.page.keyboard.press('Escape');

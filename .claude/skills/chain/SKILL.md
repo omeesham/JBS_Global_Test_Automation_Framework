@@ -12,6 +12,8 @@ When the user invokes `/chain`, you become an autonomous plan execution engine. 
 
 ## When to Use
 
+**Identity**: OWNER (auto-sets OWNER if not active). Incompatible identity triggers a warning — see `/identity`.
+
 - User says "run all plans", "execute pending", "chain", "autonomous pipeline", "batch execute"
 - User wants hands-off plan execution with quality gates
 - Multiple plans in `plans/pending/` need processing

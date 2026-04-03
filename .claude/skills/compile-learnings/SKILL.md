@@ -12,6 +12,8 @@ Turns recurring mistakes into permanent rules. Without this, the same mistakes g
 
 ## When to Use
 
+**Identity**: OWNER, WATCHDOG. Incompatible identity triggers a warning — see `/identity`.
+
 - **Periodic**: Weekly or when mistake files grow large
 - **Flagged**: `/reflect` found graduation candidates (3+ occurrences)
 - **Manual**: user says "compile learnings", "graduate patterns", "clean up mistakes", "what patterns are recurring"

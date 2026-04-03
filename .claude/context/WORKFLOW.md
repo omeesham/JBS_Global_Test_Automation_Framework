@@ -32,6 +32,8 @@ Only one person pushes at a time. The push token is tracked in `CURRENT_OWNER.md
 
 **Shared integration surface**: `website/frontend/` is where the two systems meet. Both agents may need to modify files here (e.g., Rutvik wiring `encoreApi.ts`, colleague building UI components). Coordinate via HANDOFF messages before touching the other agent's recent work.
 
+**Identity enforcement**: In Claude Code sessions, directory ownership is enforced by the `/identity` skill. See `AGENT_SHARED_RULES.md §2.1` for rules ALL-066 through ALL-069. Pipeline identities map to the §2 ownership columns. OWNER identity has RW on framework/infra paths.
+
 ---
 
 ## Branch Strategy

@@ -12,6 +12,8 @@ When the user invokes `/execute`, follow this exact workflow. Do NOT skip steps.
 
 ## When to Use
 
+**Identity**: OWNER, BUILDER. Incompatible identity triggers a warning — see `/identity`.
+
 - User says "execute", "implement", "build this", "do it", "run the plan"
 - A plan exists in `plans/pending/` and user wants it implemented
 - User provides a plan inline and says to execute it

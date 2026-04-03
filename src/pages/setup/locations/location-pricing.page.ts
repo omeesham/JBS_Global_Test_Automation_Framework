@@ -537,4 +537,57 @@ export class LocationPricingPage extends BasePage {
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSavePricing');
   }
+
+  /** Click the Save button WITHOUT confirming the dialog. Opens the Save Changes dialog. */
+  async clickSaveButton(): Promise<void> {
+    const el = this.getElement('btnSavePricing');
+    await el.click();
+    await this.getElement('dlgSaveChanges').waitFor({ state: 'visible', timeout: 5_000 });
+    Log.info('Clicked Save button — dialog opened');
+  }
+
+  /** Click Cancel on the Save Changes dialog (dismiss without saving). */
+  async clickSaveCancel(): Promise<void> {
+    await this.getElement('btnSaveChangesCancel').click();
+    await this.getElement('dlgSaveChanges').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+    Log.info('Clicked Save Cancel — dialog dismissed');
+  }
+
+  /** Check if the Save Changes dialog is currently visible. */
+  async isSaveDialogVisible(): Promise<boolean> {
+    return this.getElement('dlgSaveChanges').isVisible();
+  }
+
+  // ---------------------------------------------------------------------------
+  // UNSAVED CHANGES DIALOG
+  // ---------------------------------------------------------------------------
+
+  /** Click sidebar Home link to trigger unsaved changes dialog. Suppresses beforeunload to get app-level dialog. */
+  async clickSidebarHome(): Promise<void> {
+    const homeLink = this.page.getByRole('link', { name: 'Home' });
+    if (!await homeLink.isVisible().catch(() => false)) {
+      await this.page.setViewportSize({ width: 1920, height: 1080 });
+      await homeLink.waitFor({ state: 'visible', timeout: 5_000 });
+    }
+    // Suppress beforeunload so the app-level "Unsaved changes" alertdialog fires instead
+    await this.page.evaluate(() => {
+      window.onbeforeunload = null;
+      window.addEventListener('beforeunload', (e) => e.stopImmediatePropagation(), true);
+    });
+    await homeLink.click();
+  }
+
+  /** Wait for the Unsaved Changes dialog and check visibility. */
+  async isUnsavedDialogVisible(): Promise<boolean> {
+    const dlg = this.page.locator('[role="alertdialog"]:has(h2:text-is("Unsaved changes"))');
+    return dlg.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true).catch(() => false);
+  }
+
+  /** Click Stay on the Unsaved Changes dialog. */
+  async clickUnsavedStay(): Promise<void> {
+    const dlg = this.page.locator('[role="alertdialog"]:has(h2:text-is("Unsaved changes"))');
+    await dlg.locator('button:has-text("Stay")').click();
+    await dlg.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+    Log.info('Clicked Stay on Unsaved Changes dialog');
+  }
 }

@@ -91,6 +91,10 @@ test('example', async ({ loginPage, homePage, commonMethods, config, page }) => 
 | Audit | `@playwright-pipeline-audit` | Universal audit: pipeline, agents, framework, full repo |
 
 **Stage flow**: `pending_requirements → requirements → pending_planning → planning → pending_generation → generation → testing → completed | pending_healing → healing → completed | fixme`
+
+**Identity Enforcement**: Before doing pipeline agent work in Claude Code, set identity
+via `/identity` skill. Codenames: HUNTER (Req) | GIVER (Plan) | BUILDER (Gen) | HEALER (Heal) |
+WATCHDOG (Audit) | GARDENER (Maint) | OWNER (non-pipeline). See AGENT_SHARED_RULES.md §2.1.
 <!-- SYNC:PIPELINE:END -->
 
 ---
@@ -116,6 +120,8 @@ npm run generator:post-complete [id]    # Validate spec output (hard gate: no --
 npm run queue:archive                   # Archive completed items, prune old log
 npm run queue:compact                   # Also compact active item contexts
 npm run queue:validate                  # Cross-check queue, activity log, performance
+/identity                               # Set agent identity (interactive menu)
+/identity HUNTER                        # Adopt Requirements agent identity directly
 ```
 <!-- SYNC:COMMANDS:END -->
 

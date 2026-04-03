@@ -37,6 +37,7 @@ If you are reading this for the first time after creating your personal agent fi
 3. Read `context/WORKFLOW.md` — understand the token model and directory ownership
 4. Check `channel/inbox/<YOUR_NAME>_AGENT.md` — there may be a HANDOFF message waiting for you
 5. Read `channel/broadcast/BROADCAST.md` — 5 critical discoveries from integration work
+6. **Set your identity** — Run `/identity` before any pipeline work to adopt an agent persona. See `AGENT_SHARED_RULES.md §2.1` for enforcement rules.
 
 ---
 

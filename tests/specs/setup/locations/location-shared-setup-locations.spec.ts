@@ -30,6 +30,7 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
     if (inventoryState.checked) {
       await pg.toggleSelfSharesInventory();
       await pg.clickSave();
+      await pg.navigateToSharedSetupTab(OFFICE_NO);
     }
     expect(await pg.isElementVisible('tblSharedSetupLocations')).toBe(true);
     expect(await pg.isElementVisible('btnSharedAdd')).toBe(true);

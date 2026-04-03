@@ -12,6 +12,8 @@ Finds and removes dead weight from the codebase. This is destructive work — al
 
 ## When to Use
 
+**Identity**: OWNER, GARDENER. Incompatible identity triggers a warning — see `/identity`.
+
 - **Manual**: user says "clean up", "dead code", "remove unused", "orphaned files", "consolidate", "hygiene"
 - After major refactors or feature removals
 - When file count or code size grows suspiciously

@@ -50,13 +50,19 @@ export const ECOMMERCE_TEST_ROW = '2022-NP LB1';
 /** Default currency filter value. */
 export const DEFAULT_CURRENCY_FILTER = 'All';
 
-/** Dropdown persistence test cases (TC-026..030). MNT-008: data-driven loop. */
+/**
+ * Dropdown persistence test cases (TC-026..030). MNT-008: data-driven loop.
+ * Each entry has `option` (target/DB value) and `alternateOption` (different value for bidirectional toggle).
+ * The toggle pattern ensures tests ALWAYS change the dropdown — fixing the silent-pass bug where
+ * selectPrimaryDropdownOption skips interaction when current DB value already matches `option`.
+ * Alternate options MCP-verified 2026-04-02: all confirmed to exist in the live dropdown popover.
+ */
 export const DROPDOWN_PERSISTENCE_CASES = [
-  { tcId: 'TC-LOC-PRI-026', key: 'drpPrimaryLaborPricing', option: '2026-Zone 3 D', label: 'Primary Labor Pricing' },
-  { tcId: 'TC-LOC-PRI-027', key: 'drpPrimaryEquipmentPricing', option: '2026-Tier 2 Resort B', label: 'Primary Equipment Pricing' },
-  { tcId: 'TC-LOC-PRI-028', key: 'drpPrimaryInternalEquipmentPricing', option: '2023-Internal2', label: 'Primary Internal Equipment Pricing' },
-  { tcId: 'TC-LOC-PRI-029', key: 'drpPrimaryProductionLaborPricing', option: '2026-NP LB3', label: 'Primary Production Labor Pricing' },
-  { tcId: 'TC-LOC-PRI-030', key: 'drpPrimaryProductionEquipmentPricing', option: '2026-NP Tier 2', label: 'Primary Production Equipment Pricing' },
+  { tcId: 'TC-LOC-PRI-026', key: 'drpPrimaryLaborPricing', option: '2026-Zone 3 D', alternateOption: '2026-Zone 3 E', label: 'Primary Labor Pricing' },
+  { tcId: 'TC-LOC-PRI-027', key: 'drpPrimaryEquipmentPricing', option: '2026-Tier 2 Resort B', alternateOption: '2026-Tier 2 Resort A', label: 'Primary Equipment Pricing' },
+  { tcId: 'TC-LOC-PRI-028', key: 'drpPrimaryInternalEquipmentPricing', option: '2023-Internal2', alternateOption: '2023-Internal1', label: 'Primary Internal Equipment Pricing' },
+  { tcId: 'TC-LOC-PRI-029', key: 'drpPrimaryProductionLaborPricing', option: '2026-NP LB3', alternateOption: '2026-NP LB2', label: 'Primary Production Labor Pricing' },
+  { tcId: 'TC-LOC-PRI-030', key: 'drpPrimaryProductionEquipmentPricing', option: '2026-NP Tier 2', alternateOption: '2026-NP Tier 1', label: 'Primary Production Equipment Pricing' },
 ] as const;
 
 /** Date test values (used in skipped TC-020). */

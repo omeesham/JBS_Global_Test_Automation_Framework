@@ -298,3 +298,42 @@ for general stability, and poll for concrete data-loaded signals (dropdown text,
 rows, checkbox aria-checked) for assertions that depend on API-persisted values.
 For page reloads: `waitUntil: 'domcontentloaded'` + `waitForAngularStable()`.
 **Trigger**: Any page object or spec that needs to wait for page/data readiness.
+
+### LR-024: Clean artifacts and run fresh BEFORE any RCA — never diagnose from stale data
+When fixing failing specs: (1) clean ALL artifacts (`npm run clean`, clear `.auth/`),
+(2) run the spec fresh, (3) THEN RCA from the actual failure evidence.
+Stale diagnostics accumulate from multiple prior runs and will lead to wrong root causes.
+In this session: stale diagnostics said LGL-010 was an SSO reload issue. Fresh run showed
+LGL-013 failed (Radix dropdown instability). Second fresh run showed LGL-010 failed with
+the SAME Radix issue. The stale diagnostics were 100% wrong about the root cause.
+**Corollary**: Run the failing spec TWICE before RCA to confirm the failure is consistent
+and identify whether it's deterministic or intermittent (same test vs different test each time).
+**Trigger**: Any spec-fixing session. Complements LR-018 workflow.
+
+### LR-025: Radix UI large-option dropdowns need retry on option selection
+Radix UI Select with many options (50+) auto-scrolls to the checked item on open.
+Options above the scroll position become "not stable" (bounding box changing during
+scroll animation) then "detached from DOM" (portal re-render). This is intermittent —
+depends on timing, browser load, and how far the target option is from the checked one.
+Fix pattern: wrap open+click in a retry loop (max 3). On failure: press Escape to close
+the listbox, wait for hidden, re-open, `scrollIntoViewIfNeeded()`, then click.
+Reduce per-attempt timeout (5s) so retries stay within total budget.
+**Trigger**: Any combobox/select interaction with 50+ options in Radix UI.
+
+### LR-026: Angular form dirty state is unreliable — always handle defensively
+Angular's form dirty state (`FormControl.dirty`) does NOT reliably reset after save.
+Three known manifestations:
+1. **Save button disables but form stays dirty** — the app explicitly disables the button
+   after save API completes, but doesn't call `markAsPristine()`. Navigating to another
+   tab triggers "Unsaved changes" alertdialog even though save succeeded (GEN-033).
+2. **Dirty state persists across test boundaries** — save cycle doesn't reset dirty tracking.
+   Must reload page between tests that modify and save data (GEN-026).
+3. **Net-zero changes not detected** — reverting to original value makes Angular detect
+   "no net change" → Save stays disabled. Recovery values must differ from server-saved (LR-009).
+Fix patterns:
+- After save: wait for button disabled (confirms API done) BUT don't assume form pristine
+- Any tab navigation: check for `[role="alertdialog"]` and dismiss with "Discard" if visible
+- Between serial tests that save: reload page to reset form state
+- Recovery values must differ from the server-saved original
+**Trigger**: Any test that saves data then navigates, or any serial test after a save.
+**Graduated from**: LR-009, GEN-026, GEN-033, session 2026-04-02

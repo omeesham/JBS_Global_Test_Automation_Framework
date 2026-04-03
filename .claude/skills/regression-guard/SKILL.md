@@ -12,6 +12,8 @@ Captures a structural snapshot of your codebase BEFORE and AFTER changes to catc
 
 ## When to Use
 
+**Identity**: OWNER, BUILDER, HEALER, WATCHDOG, GARDENER. Incompatible identity triggers a warning — see `/identity`.
+
 - **Auto-called** by `/execute` (before + after Phase 2)
 - **Auto-called** by `/bugfix` (before + after fix phase)
 - **Auto-called** by `/cleanup` (before + after removal phase)

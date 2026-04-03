@@ -12,6 +12,8 @@ When the user invokes `/audit`, perform a rigorous QA audit of everything that h
 
 ## When to Use
 
+**Identity**: OWNER, WATCHDOG. Incompatible identity triggers a warning — see `/identity`.
+
 - User says "audit", "find issues", "what's missing", "check everything", "what broke"
 - After `/execute` completes (called by `/chain` Phase 5)
 - User wants full-chain verification: prompt → intent → plan → execution → outcome

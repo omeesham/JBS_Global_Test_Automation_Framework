@@ -459,6 +459,29 @@ export class BasePage {
   }
 
   /**
+   * Click a Radix combobox trigger and wait for [role="listbox"] to appear.
+   * Retries the click once if the dropdown doesn't open — Radix Select uses pointerdown
+   * to open and the subsequent pointerup/click events can intermittently interfere,
+   * leaving the dropdown closed despite a successful click.
+   * @param dropdownKey - Selector key for the combobox trigger element
+   * @returns The listbox Locator (visible and ready for interaction)
+   */
+  protected async openComboboxListbox(dropdownKey: string): Promise<import('@playwright/test').Locator> {
+    const trigger = this.getElement(dropdownKey);
+    const listbox = this.page.locator('[role="listbox"]');
+
+    await trigger.click();
+    const opened = await listbox.waitFor({ state: 'visible', timeout: 3_000 })
+      .then(() => true).catch(() => false);
+    if (!opened) {
+      Log.warn(`[RETRY] Listbox not visible after click — retrying ${dropdownKey}`);
+      await trigger.click();
+      await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    }
+    return listbox;
+  }
+
+  /**
    * Open a combobox/dropdown, read all [role="option"] text contents, close it, return the list.
    * Handles Radix UI dropdowns that render a [role="listbox"] on click.
    * ALL-020: shared pattern used by Currency + Pricing → BasePage.
@@ -466,9 +489,7 @@ export class BasePage {
    * @returns Array of trimmed, non-empty option strings
    */
   protected async getComboboxOptions(dropdownKey: string): Promise<string[]> {
-    await this.getElement(dropdownKey).click();
-    const listbox = this.page.locator('[role="listbox"]');
-    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    const listbox = await this.openComboboxListbox(dropdownKey);
     const options = await listbox.locator('[role="option"]').allTextContents();
     await this.page.keyboard.press('Escape');
     await listbox.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => {});
@@ -482,9 +503,7 @@ export class BasePage {
    * @param optionText - Exact display text of the option to select
    */
   protected async selectComboboxOption(dropdownKey: string, optionText: string): Promise<void> {
-    await this.getElement(dropdownKey).click();
-    const listbox = this.page.locator('[role="listbox"]');
-    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    const listbox = await this.openComboboxListbox(dropdownKey);
     await listbox.locator(`[role="option"]:has-text("${optionText}")`).click();
     Log.info(`[OK] Selected combobox option "${optionText}" for ${dropdownKey}`);
   }

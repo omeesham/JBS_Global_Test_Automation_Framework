@@ -26,6 +26,7 @@ You are not talking to a human. You are talking to **another Claude Code agent**
 4. **Read before writing.** Before modifying any shared file, read it. Your context is stale the moment the other agent pushes.
 5. **Never overwrite inbox messages.** Append only. Messages are immutable once written.
 6. **Use the protocol.** Every message in `channel/` follows the format in `PROTOCOL.md`. No freeform.
+7. **Know your identity.** Before pipeline work, set identity via `/identity`. Your identity determines what files you can write, what tools you can use, and which rules apply. Operating without identity on pipeline tasks = unscoped edits = audit violations.
 
 ---
 
@@ -66,6 +67,7 @@ If ANY check fails, resolve it before proceeding to the startup sequence.
 3. **`context/CURRENT_STATE.md`** — understand where we are right now
 4. **`context/WORKFLOW.md`** — understand how we coordinate
 5. **Your agent file** (`agents/RUTVIK.agent.md` or `agents/<YOUR_NAME>.agent.md`) — understand your role. If your personal agent file doesn't exist yet, create one from `agents/COLLEAGUE.agent.md` template.
+5b. **Set your identity** — If doing pipeline work, run `/identity` to adopt the correct agent persona (HUNTER, GIVER, BUILDER, HEALER, WATCHDOG, GARDENER). For general framework work, `/identity OWNER`. This enforces file ownership, tool restrictions, and rules filtering for your session.
 6. **`channel/inbox/<YOUR_NAME>.md`** — check for messages
 7. **`channel/broadcast/BROADCAST.md`** — catch up on discoveries
 

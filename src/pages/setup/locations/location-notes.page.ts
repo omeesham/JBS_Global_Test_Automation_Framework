@@ -220,6 +220,19 @@ export class LocationNotesPage extends BasePage {
     if (!result.success) {
       Log.error(`[ERR] Save failed: ${result.networkError}`);
     }
+    // Wait for Save button to become disabled — confirms save API response was received
+    // and the form is pristine. Without this, immediate page.reload() can race with the
+    // server processing the save, causing reload to fetch pre-save (stale) data.
+    await this.page.waitForFunction(
+      (sel: string) => {
+        const btn = document.querySelector(sel);
+        return btn && (btn as HTMLButtonElement).disabled;
+      },
+      this.getLocator('btnSaveNotes'),
+      { timeout: 10_000 },
+    ).catch(() => {
+      Log.warn('[WARN] Save button did not disable within 10s after save');
+    });
   }
 
   /** Click Save button only (does NOT auto-confirm dialog). For TC-008 dialog verification. */
@@ -261,11 +274,36 @@ export class LocationNotesPage extends BasePage {
     const deleteCount = await this.getElement('btnNotesDelete').count();
     if (deleteCount > 0) {
       await this.deleteAllRows();
-      // Wait for Angular change detection to update Save button state after deletion
       await this.page.waitForTimeout(500);
+
+      // Angular app behavior: after save marks form pristine, deleting notes in the SAME
+      // session does NOT re-enable Save (dirty flag not set). Reload to get fresh form state
+      // from DB, then re-delete on the fresh form (which properly marks dirty → Save enables).
+      if (!(await this.isSaveEnabled())) {
+        Log.info('[INFO] Save disabled after delete — reloading for fresh form state');
+        await this.reloadAndNavigateToNotesTab();
+        const retryDelCount = await this.getElement('btnNotesDelete').count();
+        if (retryDelCount > 0) {
+          await this.deleteAllRows();
+          await this.page.waitForTimeout(500);
+        }
+      }
     }
     if (await this.isSaveEnabled()) {
       await this.saveAndConfirm();
+      // Wait for Save to become disabled — confirms save API response received and form is pristine.
+      // Without this, page.reload() can race with save completion on the server,
+      // causing reload to fetch stale data (pre-save notes still in DB).
+      await this.page.waitForFunction(
+        (sel: string) => {
+          const btn = document.querySelector(sel);
+          return btn && (btn as HTMLButtonElement).disabled;
+        },
+        this.getLocator('btnSaveNotes'),
+        { timeout: 10_000 },
+      ).catch(() => {
+        Log.warn('[WARN] Save did not disable within 10s after saving empty notes');
+      });
     }
     // Always reload after cleanup to reset Angular form controller
     await this.reloadAndNavigateToNotesTab();

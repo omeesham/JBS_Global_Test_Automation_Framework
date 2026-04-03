@@ -12,6 +12,8 @@ Systematic bug fixing with root cause analysis, regression protection, and learn
 
 ## When to Use
 
+**Identity**: OWNER, BUILDER, HEALER. Incompatible identity triggers a warning — see `/identity`.
+
 - **Manual**: user says "fix bug", "broken", "not working", "error", "crash", "wrong behavior"
 - When something unexpected happened during execution
 - When Healer agent escalates a pipeline issue beyond its scope

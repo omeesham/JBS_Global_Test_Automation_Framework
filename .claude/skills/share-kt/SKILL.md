@@ -12,6 +12,8 @@ When the user invokes `/share-kt`, follow this workflow to sync knowledge betwee
 
 ## When to Use
 
+**Identity**: OWNER. Incompatible identity triggers a warning — see `/identity`.
+
 - User says "KT", "knowledge transfer", "share learnings", "sync with other repo"
 - User wants to compare Encore with another codebase
 - User wants to extract patterns from a reference repo

@@ -12,6 +12,8 @@ End-to-end deployment with safety checks at every stage. Catches problems before
 
 ## When to Use
 
+**Identity**: OWNER. Incompatible identity triggers a warning — see `/identity`.
+
 - **Manual**: user says "deploy", "push to prod", "ship it", "go live", "push changes"
 - After a `/chain` completes and user wants to push
 - After implementing changes and user is satisfied

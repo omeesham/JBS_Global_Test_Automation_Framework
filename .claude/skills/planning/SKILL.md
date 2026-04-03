@@ -12,6 +12,8 @@ When the user invokes `/planning`, follow this exact workflow. Do NOT skip steps
 
 ## When to Use
 
+**Identity**: OWNER. Incompatible identity triggers a warning — see `/identity`.
+
 - User says "plan", "design", "how should we", "create a plan", "approach"
 - User describes a feature or change without saying "just do it"
 - Complex multi-file changes that need thought before execution

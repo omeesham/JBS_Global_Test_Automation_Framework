@@ -12,6 +12,8 @@ Captures what was learned during this session and persists it to memory so futur
 
 ## When to Use
 
+**Identity**: ALL. No identity restrictions for this skill.
+
 - **End of session** (before the user leaves)
 - **After major task completion** (post-/execute, post-/chain)
 - **Auto-called** by `/execute` (after Phase 3 post-audit)

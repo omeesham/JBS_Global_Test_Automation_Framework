@@ -68,6 +68,8 @@ When all topics are covered, output a clean **"Decisions Made"** summary — a n
 
 ## When to Use This Skill
 
+**Identity**: ALL. No identity restrictions for this skill.
+
 The user will invoke `/questionnaire` when:
 - They want to sign off on a plan before execution
 - They lack confidence in what you're about to do

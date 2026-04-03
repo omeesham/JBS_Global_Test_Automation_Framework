@@ -14,6 +14,8 @@ Systematic, evidence-driven root cause analysis for automated test failures. Com
 
 ## When to Use
 
+**Identity**: OWNER, HEALER. Incompatible identity triggers a warning — see `/identity`.
+
 - **Manual**: user says "RCA", "root cause", "why is this failing", "analyze this failure"
 - Before any bug fix that involves test failures
 - When a fix attempt failed and you need to restart analysis from scratch

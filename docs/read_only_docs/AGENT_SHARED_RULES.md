@@ -50,22 +50,28 @@
 
 ## §2. File Ownership (Compact)
 
-**Agent Identities**: Requirements = HUNTER | Planner = GIVER | Generator = MOST IMPORTANT | Healer = SPECIALIZED RCA DEBUGGER | Audit = COMPREHENSIVE WATCHDOG | Framework Maintainer = GARDENER
+**Agent Identities**: Requirements = HUNTER | Planner = GIVER | Generator = BUILDER (Most Important) | Healer = HEALER (Specialized RCA Debugger) | Audit = WATCHDOG (Comprehensive Watchdog) | Framework Maintainer = GARDENER | Framework Owner = OWNER (non-pipeline)
 
 **Agent-Maintained**:
-| Path | Req | Pln | Gen | Heal | Audit | Maint |
-|------|-----|-----|-----|------|-------|-------|
-| `tests/specs/**/*.spec.ts` | — | — | CREATE | FIX | READ | REFACTOR |
-| `src/pages/**/*.page.ts` | — | READ | ADD | FIX | READ | REFACTOR |
-| `src/common/base-page.ts` | — | READ | — | — | READ | REFACTOR |
-| `src/selectors/index.ts` | — | ADD | ADD | FIX | READ | READ |
-| `src/utils/common-methods.ts` | — | READ | ADD | FIX | READ | READ |
-| `docs/REQUIREMENTS.md` | UPDATE | READ | READ | READ | READ | READ |
-| `specs_planning/_internal/agent-queue.json` | CREATE | RW | RW | RW | RW | READ |
-| `specs_planning/test-cases/**` | — | CREATE | UPDATE | UPDATE | READ | READ |
-| `specs_planning/test-plans/**` | — | CREATE | READ | READ | READ | READ |
-| `specs_planning/_internal/agent-mistakes.md` | APPEND | APPEND | APPEND | APPEND | RW (quality gate) | APPEND |
-| `specs_planning/_internal/agent-activity-log.md` | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND |
+| Path | Req | Pln | Gen | Heal | Audit | Maint | Owner |
+|------|-----|-----|-----|------|-------|-------|-------|
+| `tests/specs/**/*.spec.ts` | — | — | CREATE | FIX | READ | REFACTOR | READ |
+| `tests/test-data/**` | — | — | CREATE | FIX | READ | READ | READ |
+| `src/pages/**/*.page.ts` | — | READ | ADD | FIX | READ | REFACTOR | READ |
+| `src/common/base-page.ts` | — | READ | — | — | READ | REFACTOR | READ |
+| `src/selectors/index.ts` | — | ADD | ADD | FIX | READ | READ | READ |
+| `src/utils/common-methods.ts` | — | READ | ADD | FIX | READ | READ | READ |
+| `docs/REQUIREMENTS.md` | UPDATE | READ | READ | READ | READ | READ | READ |
+| `specs_planning/_internal/agent-queue.json` | CREATE | RW | RW | RW | RW | READ | READ |
+| `specs_planning/test-cases/**` | — | CREATE | UPDATE | UPDATE | READ | READ | READ |
+| `specs_planning/test-plans/**` | — | CREATE | READ | READ | READ | READ | READ |
+| `specs_planning/_internal/agent-mistakes.md` | APPEND | APPEND | APPEND | APPEND | RW (quality gate) | APPEND | APPEND |
+| `specs_planning/_internal/agent-activity-log.md` | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND |
+| `scripts/**` | — | — | — | — | — | — | RW |
+| `config/**` | — | — | — | — | — | — | RW |
+| `.claude/skills/**` | — | — | — | — | — | — | RW |
+| `plans/**` | — | — | — | — | — | — | RW |
+| `.github/agents/**` | — | — | — | — | — | — | SYNC ONLY |
 
 **Audit Agent scope**: Can READ any file. WRITE limited to: agent-mistakes.md (RW — quality gate), audits/*.md, agent-performance.json, agent-queue.json (history/stage), agent-activity-log.md.
 
@@ -74,6 +80,22 @@
 **Human-Controlled (NEVER modify)**: `.env*`, `playwright.config.*`, `package.json`, `tsconfig.json`, `.ci/*`
 
 **Script-Controlled**: `.github/agents/*` — modify ONLY via `npm run sync:mistakes`. NEVER edit agent files directly.
+
+### §2.1 Identity Enforcement in Claude Code Sessions
+
+When operating in a Claude Code session (not pipeline orchestrator), the `/identity` skill
+enforces agent identity. The §2 ownership table applies identically. OWNER identity has
+RW access to: `scripts/`, `config/`, `.claude/skills/`, `plans/`, `docs/` (non-REQUIREMENTS),
+`website/`. READ-ONLY on all pipeline artifact paths.
+
+| ID | Rule | Violation = |
+|----|------|-------------|
+| ALL-066 | Pipeline-stage work requires active identity via `/identity` | Unscoped edit |
+| ALL-067 | File ownership override must be user-authorized and logged | Audit trail gap |
+| ALL-068 | Identity switch requires completing current identity's self-audit first | Abandoned audit |
+| ALL-069 | Rules outside active identity's prefix are invisible — never apply them | Cross-identity leak |
+
+**Codenames**: HUNTER | GIVER | BUILDER | HEALER | WATCHDOG | GARDENER | OWNER
 
 ---
 
@@ -306,6 +328,8 @@ Self-audit checklists catch formatting and process errors. They do NOT catch rea
 
 **Step 1: Read failure-summary.json (MANDATORY FIRST)**
 Extract: failureCategory, testName, selector, pageUrl, fullError, consoleErrors[], networkFailures[], authChain[]
+
+> **HARD RULE — ALL-070: NEVER re-run a failing spec before completing Step 1-3.** Re-running overwrites failure-summary.json, error-context.md, and screenshots — destroying the evidence you need. DiagnosticsCollector already captures ALL 4xx/5xx API responses in `networkFailures[]`. If you must re-run (e.g., for diagnostics), COPY the original artifacts first. Violation of this rule wastes hours: the pricing TC-026-030 RCA (2026-04-02) required a multi-hour investigation because artifacts were overwritten before reading — the 500 from `update-location-pricing` was already captured in networkFailures[].
 
 | Category | Route | Skip To |
 |----------|-------|---------|

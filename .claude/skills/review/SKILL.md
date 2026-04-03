@@ -12,6 +12,8 @@ Focused code review of specific changes. This is NOT `/audit` — audit traces t
 
 ## When to Use
 
+**Identity**: OWNER, WATCHDOG, GARDENER. Incompatible identity triggers a warning — see `/identity`.
+
 - **Auto-called** by `/deploy` (before commit)
 - **Manual**: user says "review", "check this code", "code review", "look at this PR", "is this good"
 - After implementing changes, before committing
