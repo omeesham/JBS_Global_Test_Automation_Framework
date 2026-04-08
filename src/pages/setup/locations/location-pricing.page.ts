@@ -495,8 +495,35 @@ export class LocationPricingPage extends BasePage {
    */
   async enableFullCascade(priceBookName: string): Promise<void> {
     await this.checkIsAlternative(priceBookName);
+    // LR-010: checkbox cascade is async — poll until Use Effective Date is enabled
+    // before clicking it. Without this, checkUseEffectiveDate hits a disabled checkbox (no-op).
+    let cascadeReady = false;
+    for (let i = 0; i < 20; i++) {
+      const state = await this.getUseEffectiveDateState(priceBookName);
+      if (!state.disabled) { cascadeReady = true; break; }
+      await this.page.waitForTimeout(250);
+    }
+    if (!cascadeReady) {
+      Log.warn(`[WARN] UseEffectiveDate still disabled after 5s poll for ${priceBookName}`);
+    }
     await this.checkUseEffectiveDate(priceBookName);
     Log.info(`Full cascade enabled for ${priceBookName}`);
+  }
+
+  /**
+   * Count interactive elements (button, input, checkbox, combobox) in a grid row's
+   * read-only columns (Pricing Strategy, Pricebook, Currency — columns 1-3).
+   * Returns 0 if all three columns are display-only as expected.
+   */
+  async getReadOnlyColumnInteractiveCount(priceBookName: string): Promise<number> {
+    const row = this.page.locator(DynamicSelectors.rowPriceBook(priceBookName));
+    let total = 0;
+    for (const colIdx of [1, 2, 3]) {
+      const cell = row.locator(`td:nth-child(${colIdx})`);
+      total += await cell.locator('button, input, [role="checkbox"], [role="combobox"]').count();
+    }
+    Log.info(`Read-only columns [${priceBookName}]: ${total} interactive elements`);
+    return total;
   }
 
   /**

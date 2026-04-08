@@ -12,7 +12,7 @@ When the user invokes `/share-kt`, follow this workflow to sync knowledge betwee
 
 ## When to Use
 
-**Identity**: OWNER. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER. Auto-loaded via Identity Gate.
 
 - User says "KT", "knowledge transfer", "share learnings", "sync with other repo"
 - User wants to compare Encore with another codebase
@@ -20,6 +20,9 @@ When the user invokes `/share-kt`, follow this workflow to sync knowledge betwee
 
 ## Input
 The user specifies which repo to learn from (default: `website/` for JBSIntelliQE).
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/share-kt`. No-op if compatible identity active.
 
 ## Step 1: Read Previous KT
 - Read `memory/reference_intelliqe_features.md` (or equivalent reference memory) to understand what was already captured

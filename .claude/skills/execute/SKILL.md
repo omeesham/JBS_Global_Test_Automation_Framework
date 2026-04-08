@@ -2,7 +2,7 @@
 name: execute
 description: Execute an approved plan with pre-research, gap analysis, and post-execution audit — never implement blindly. Use when user says "execute", "implement", "build this", "do it".
 user-invocable: true
-auto-calls: regression-guard, reflect
+auto-calls: relevant, regression-guard, reflect
 tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
 ---
 
@@ -12,7 +12,7 @@ When the user invokes `/execute`, follow this exact workflow. Do NOT skip steps.
 
 ## When to Use
 
-**Identity**: OWNER, BUILDER. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER, BUILDER. Auto-loaded via Identity Gate.
 
 - User says "execute", "implement", "build this", "do it", "run the plan"
 - A plan exists in `plans/pending/` and user wants it implemented
@@ -21,9 +21,29 @@ When the user invokes `/execute`, follow this exact workflow. Do NOT skip steps.
 ## Input
 The user will reference a plan (from `plans/pending/` or the current conversation). Load it first.
 
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/execute`. No-op if compatible identity active.
+
+## Phase 0: Context Loading (MANDATORY — before ANYTHING else)
+
+Before reading the plan, before building todos, before writing a single line — load the repo's institutional memory. Agents that skip this step make the same mistakes documented in these files. Activity logs show 40+ instances of agents skipping context loading and repeating known mistakes.
+
+1. **Read `specs_planning/_internal/agent-mistakes.md`** — 134 categorized rules from past sessions. Search for your task type prefix: ALL-* (shared), GEN-* (generator), HLR-* (healer), AUD-* (audit), PLN-* (planner). Each rule has a Resolution column — follow it.
+2. **Read `.claude/context/patterns.md`** — Decision tree patterns for recurring situations (spec-fixing start, Radix UI dropdowns, Angular save→tab race, etc.). If your task matches a pattern, follow the tree.
+3. **Scan CLAUDE.md Learned Rules (LR-001 through LR-026)** — Each has a Trigger condition. If your current task matches ANY trigger, that rule is ACTIVE for this session. Key ones for test work: LR-007 (MCP-verify claims), LR-009 (Angular dirty state), LR-010 (cross-field async), LR-018 (run-all is truth), LR-019 (baseline enforcement), LR-023 (no networkidle), LR-024 (clean before RCA), LR-026 (Angular form dirty defensive).
+4. **If a master plan or parent plan is referenced in the task** — read it FIRST to understand broader context, gap statuses, and what's blocked vs actionable. Never work on a subplan without understanding the master.
+
+**Checkpoint**: Before proceeding to Phase 0.5, you must be able to answer: "What are the 3 most relevant ALL-* rules and 3 most relevant LR-* rules for THIS specific task?" If you can't, re-read the files.
+
+---
+
 ## Phase 0.5: Build Execution Todo List (TodoWrite)
 
 Before any research or code, create a TodoWrite todo list for THIS plan's internal steps. This makes execution trackable and embeds skill references for each sub-task. **Not optional. Every /execute call starts with this.**
+
+### Auto-call `/relevant` (skill injection)
+
+Before manually building the todo list, run `/relevant` to scan available skills against the plan's subtasks. This ensures no skill coverage is missed — especially valuable for Sonnet sessions or complex multi-domain plans. If `/relevant` produces tagged items, use them as the basis for the todo list below. If the plan is simple and skills are obvious, `/relevant` may be skipped.
 
 ### Parse the Plan
 
@@ -36,6 +56,7 @@ Every /execute run creates AT MINIMUM these items (add plan-specific `[implement
 ```
 [research] Pre-execution research — read all plan files, grep for cross-references
 [gap-analysis] Hunt for what the plan missed — imports, tests, types, edge cases
+[pre-flight] Verify test data constants exist in live UI via MCP — Phase 1 BLOCKED until all verified
 [/regression-guard] BEFORE snapshot — [list the key files from the plan]
 [implement] [Change group 1 description] — file1.ts, file2.ts
 [implement] [Change group 2 description] — file3.ts
@@ -44,6 +65,12 @@ Every /execute run creates AT MINIMUM these items (add plan-specific `[implement
 [/audit] Post-execution audit — verify plan fulfillment, focus on what was NOT done
 [/reflect] Capture learnings from this execution
 ```
+
+### Context Injection Per Item
+
+After building the todo list, inject relevant context INTO each item. From Phase 0's context loading, tag each todo with its active LR rules, relevant agent-mistakes entries, and guardrails. The context travels WITH the task — not in a separate mental model.
+
+Example: `[implement] Fix test data constants — LR-007(verify before code), GEN-034(run don't assume)`
 
 ### Plan-Specific Items
 
@@ -86,7 +113,7 @@ Before writing a single line of code:
 
 1. Work through each item methodically — one at a time
 2. Mark each todo as `in_progress` when starting it, then `completed` only when VERIFIED (not just written, but confirmed working)
-3. If you discover something unexpected mid-execution, STOP and assess before continuing
+3. If you discover something unexpected mid-execution, STOP and assess before continuing. On 2nd failure at same fix type → you're guessing, not fixing. Switch to root-cause trace (read evidence, hypothesize, verify) before attempt #3.
 4. Keep a mental ledger of every decision: what you did, what you chose NOT to do, and why
 
 **Auto-call `/regression-guard` AFTER** — re-snapshot, diff, review. If SUSPICIOUS or SILENT BREAK items found, investigate before proceeding.
@@ -122,6 +149,27 @@ After ALL changes are made, do NOT declare done. Instead:
 6. Auto-call `/reflect` — capture any learnings from this execution
 7. Any unexpected behavior? Write to `specs_planning/_internal/agent-mistakes.md`
 8. New patterns discovered? Write to relevant memory file
+
+## Phase 3.5: Plan Finalization (MANDATORY — enforced by LR-027/LR-028)
+
+After post-execution audit, before declaring done:
+
+1. **Update plan status**: Edit the plan file:
+   - Add `**Executed**: YYYY-MM-DD` to header
+   - Change `**Status**:` to `DONE`
+   - Add `### Execution Summary` section (see LR-027 for required fields)
+   - Document EVERY planned TC: implemented, dropped (with reason), or deferred
+
+2. **Move plan**: `mv plans/pending/PLAN_XXX.md plans/done/PLAN_XXX.md`
+
+3. **Update activity log**: Append session entry to `specs_planning/_internal/agent-activity-log.md`
+   Format: `| YYYY-MM-DDThh:mm | {agent} | done | {files} | {description} |`
+
+4. **Update agent-mistakes.md**: If ANY unexpected behavior was found during execution
+   (MCP showed different behavior than plan assumed, selector didn't match, validation
+   didn't fire as expected), add a new rule entry.
+
+Skip Phase 3.5 ONLY if the plan was NOT in plans/pending/ (ad-hoc execution without plan).
 
 ## Auto-Calls
 

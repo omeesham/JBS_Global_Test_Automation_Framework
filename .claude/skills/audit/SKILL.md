@@ -12,7 +12,7 @@ When the user invokes `/audit`, perform a rigorous QA audit of everything that h
 
 ## When to Use
 
-**Identity**: OWNER, WATCHDOG. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER, WATCHDOG. Auto-loaded via Identity Gate.
 
 - User says "audit", "find issues", "what's missing", "check everything", "what broke"
 - After `/execute` completes (called by `/chain` Phase 5)
@@ -20,6 +20,9 @@ When the user invokes `/audit`, perform a rigorous QA audit of everything that h
 
 ## Input
 The user may reference a specific plan, or you audit the current session's work. Gather all context first.
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/audit`. No-op if compatible identity active.
 
 ## Step 1: Reconstruct the Chain
 

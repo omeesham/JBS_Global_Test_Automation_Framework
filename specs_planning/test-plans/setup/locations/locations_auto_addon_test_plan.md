@@ -24,6 +24,10 @@
 | TC-LOC-AAO-014 | tabAutoAddon, chkAutoAddonExpressContentDesignSession, dlgUnsavedChanges, btnUnsavedChangesStay |
 | TC-LOC-AAO-015 | tabAutoAddon, chkAutoAddonExpressContentDesignSession, dlgUnsavedChanges, btnUnsavedChangesDiscard |
 | TC-LOC-AAO-016 | tabAutoAddon, chkAutoAddonAll |
+| TC-LOC-AAO-017 | tabAutoAddon, chkAutoAddonWordly, btnSave, dlgSaveChanges, btnSaveChangesOk |
+| TC-LOC-AAO-018 | tabAutoAddon, chkAutoAddonLabor, btnSave, dlgSaveChanges, btnSaveChangesOk |
+| TC-LOC-AAO-019 | tabAutoAddon, chkAutoAddonExpressContentDesignSession, btnSave, dlgSaveChanges, btnSaveChangesCancel |
+| TC-LOC-AAO-020 | tabAutoAddon, chkAutoAddonEncoreMusic, chkAutoAddonWirelessPresenter, chkAutoAddonExpressContentDesignSession, chkAutoAddonWordly, chkAutoAddonLabor, btnSave, dlgSaveChanges, btnSaveChangesOk |
 
 ## UI Testing Checklist
 
@@ -34,7 +38,7 @@
 | saveButtonBehavior | PASS — Smart form diff: Save re-disables on revert to original state |
 | dialogInventory | PASS — Save Changes: role=alertdialog, heading "Save Changes", buttons Cancel + Ok. Unsaved changes: role=alertdialog, heading "Unsaved changes" (lowercase c), buttons Stay + Discard. |
 | fieldCountReconciliation | PASS — 5 items for office 1604 (2026-03-24): Encore Music, Wireless Presenter, Express Content Design Session, Wordly, Labor |
-| tcPlanSync | PASS — All 16 scenarios match TC titles and steps 1:1 (re-synced 2026-03-24) |
+| tcPlanSync | PASS — All 20 scenarios match TC titles and steps 1:1 (re-synced 2026-04-08) |
 
 ---
 
@@ -182,3 +186,43 @@
 2. Step: Navigate to a different location; tabAutoAddon.click(); count chkAutoAddonAll, expected: may differ from 5
 3. Step: Verify item list is location-specific, expected: different locations may have different items/counts
 NOTE: Status: Blocked (Cat-A: requires second location with different add-on config)
+
+---
+
+## Scenario: TC-LOC-AAO-017 - Wordly Uncheck Persists After Save+Reload
+1. Step: Navigate fresh to office 1604; tabAutoAddon.click(), expected: Wordly checked (default)
+2. Step: uncheckCheckbox('chkAutoAddonWordly'), expected: unchecked; btnSave enabled
+3. Step: clickSave(), expected: save dialog → Ok → toast → save completes
+4. Step: navigateFresh(OFFICE_NO), expected: fresh page load
+5. Step: Verify chkAutoAddonWordly.getAttribute("aria-checked"), expected: "false" (persisted)
+6. Step: Cleanup: checkCheckbox('chkAutoAddonWordly'); clickSave(), expected: default restored
+
+---
+
+## Scenario: TC-LOC-AAO-018 - Labor Uncheck Persists After Save+Reload
+1. Step: Navigate fresh to office 1604; tabAutoAddon.click(), expected: Labor checked (default, isDefault=true testid)
+2. Step: uncheckCheckbox('chkAutoAddonLabor'), expected: unchecked; btnSave enabled
+3. Step: clickSave(), expected: save dialog → Ok → toast → save completes
+4. Step: navigateFresh(OFFICE_NO), expected: fresh page load
+5. Step: Verify chkAutoAddonLabor.getAttribute("aria-checked"), expected: "false" (persisted)
+6. Step: Cleanup: checkCheckbox('chkAutoAddonLabor'); clickSave(), expected: default restored
+
+---
+
+## Scenario: TC-LOC-AAO-019 - Cancel Does Not Persist Toggle
+1. Step: navigateFresh(OFFICE_NO), expected: fresh page load, ECDS unchecked
+2. Step: toggleCheckbox('chkAutoAddonExpressContentDesignSession'), expected: checked; btnSave enabled
+3. Step: clickSaveButton(), expected: dlgSaveChanges appears
+4. Step: clickSaveCancel(), expected: dialog closes, pending change preserved
+5. Step: navigateFresh(OFFICE_NO), expected: fresh page load (safeNavigateTo handles dirty form)
+6. Step: Verify chkAutoAddonExpressContentDesignSession.getAttribute("aria-checked"), expected: "false" (cancel = no save)
+
+---
+
+## Scenario: TC-LOC-AAO-020 - Bulk Invert All Checkboxes Persists After Save+Reload
+1. Step: navigateFresh(OFFICE_NO), expected: fresh page load, all defaults
+2. Step: Invert all 5: uncheck Encore Music, Wireless Presenter, Wordly, Labor; check ECDS, expected: btnSave enabled
+3. Step: clickSave(), expected: save dialog → Ok → toast → save completes
+4. Step: navigateFresh(OFFICE_NO), expected: fresh page load
+5. Step: Verify all 5 inverted: Encore Music=false, Wireless Presenter=false, ECDS=true, Wordly=false, Labor=false
+6. Step: Cleanup: restore all 5 to AUTO_ADDON_DEFAULTS; clickSave(), expected: defaults restored

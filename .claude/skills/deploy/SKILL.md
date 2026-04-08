@@ -12,11 +12,14 @@ End-to-end deployment with safety checks at every stage. Catches problems before
 
 ## When to Use
 
-**Identity**: OWNER. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER. Auto-loaded via Identity Gate.
 
 - **Manual**: user says "deploy", "push to prod", "ship it", "go live", "push changes"
 - After a `/chain` completes and user wants to push
 - After implementing changes and user is satisfied
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/deploy`. No-op if compatible identity active.
 
 ## Steps
 

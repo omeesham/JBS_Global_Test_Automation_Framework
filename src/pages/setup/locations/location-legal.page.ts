@@ -169,6 +169,7 @@ export class LocationLegalPage extends BasePage {
 
   /**
    * Open a combobox, verify the checked option, close it. Returns the checked option text.
+   * @deprecated Unused — candidate for cleanup. No test calls this method (verified 2026-04-06).
    */
   async getCheckedOption(dropdownKey: string): Promise<string | null> {
     const listbox = await this.openComboboxListbox(dropdownKey);

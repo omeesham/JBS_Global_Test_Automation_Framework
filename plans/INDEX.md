@@ -1,6 +1,6 @@
 # Plans Index
 
-**Last updated**: 2026-03-18
+**Last updated**: 2026-04-08
 
 ---
 
@@ -96,6 +96,29 @@ All done plans live in `done/`.
 - PLAN_07 references phantom IDs HLR-015..016 — content covered by HLR-013..014 (documentation debt only, no active code impact)
 - PLAN_06 has ambiguous completion evidence — plan body says "Status Check Needed" while INDEX says DONE
 - 3 SYSTEMS_AUDIT fixes (10: fixme registry, 11: velocity tracking, 12: outcome tracking) have no plan — deferred
+
+---
+
+## Test Quality Audit Plans (2026-03 to 2026-04)
+
+Per-page audit subplans from `PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md`.
+
+| File | Summary | Status |
+|------|---------|--------|
+| [PLAN_V2_REQUIREMENTS_GAPS](done/PLAN_V2_REQUIREMENTS_GAPS.md) | V2 requirements gap analysis | DONE |
+| [PLAN_ALL_PAGES_TEST_COVERAGE_AUDIT_AND_FIX](done/PLAN_ALL_PAGES_TEST_COVERAGE_AUDIT_AND_FIX.md) | Master coverage audit template | DONE |
+| [PLAN_TEST_DATA_PERFECTION](done/PLAN_TEST_DATA_PERFECTION.md) | Test data MCP-verification sweep | DONE |
+| [PLAN_RCA_FULL_RUN_FAILURES](done/PLAN_RCA_FULL_RUN_FAILURES.md) | RCA for full-run serial failures | DONE |
+| [PLAN_FILLER_TESTS_AND_PIPELINE_RULES](done/PLAN_FILLER_TESTS_AND_PIPELINE_RULES.md) | Fill test gaps + pipeline rule enforcement | DONE |
+| [PLAN_AUDIT_LOCAL_OFFICE_SETTINGS](done/PLAN_AUDIT_LOCAL_OFFICE_SETTINGS.md) | Local Office Settings audit (39 TCs) | DONE |
+| [PLAN_AUDIT_LEGAL](done/PLAN_AUDIT_LEGAL.md) | Legal tab audit (15 TCs) | DONE |
+| [PLAN_AUDIT_PRICING](done/PLAN_AUDIT_PRICING.md) | Pricing tab audit (25 TCs) | DONE |
+| [PLAN_AUDIT_CURRENCY](done/PLAN_AUDIT_CURRENCY.md) | Currency tab audit (+7 TCs, RT 0%→100%) | DONE 2026-04-06 |
+| [PLAN_AUDIT_ACCOUNT_ADDRESS](done/PLAN_AUDIT_ACCOUNT_ADDRESS.md) | Account & Address audit (+6 TCs, RT→100%) | DONE 2026-04-07 |
+| [PLAN_AUDIT_SHARED_SETUP](done/PLAN_AUDIT_SHARED_SETUP.md) | Shared Setup Locations audit | DONE (partial — 1 blocker) |
+| [PLAN_AUDIT_AUTO_ADDON](done/PLAN_AUDIT_AUTO_ADDON.md) | Auto Add-On audit (+4 TCs, RT 13%→100%, MCP-verified 2026-04-08) | DONE 2026-04-08 |
+| [PLAN_AUDIT_REMEDIATION_AND_GUARDRAILS](done/PLAN_AUDIT_REMEDIATION_AND_GUARDRAILS.md) | Post-audit remediation + embedded gates | DONE |
+| PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE | Master plan (pending — orchestrates all above) | ACTIVE |
 
 ---
 

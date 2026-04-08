@@ -352,3 +352,53 @@
 5. Click Save: `btnSavePricing`, click, save completes
 6. Reload page and navigate to Pricing tab: tab loads
 7. Verify Primary Production Equipment Pricing persisted: `drpPrimaryProductionEquipmentPricing`, check text, expected "2026-NP Tier 2"
+
+---
+
+## Scenario: TC-LOC-PRI-031 - Save dialog Cancel — edit, Save, Cancel, form stays dirty, no data saved
+
+1. Check Is Alternative on primary test row: checkbox checked, form dirty
+2. Verify Save button enabled: `btnSavePricing`, expected enabled
+3. Click Save button: `btnSavePricing`, click, Save Changes dialog appears
+4. Click Cancel on dialog: dialog dismissed
+5. Verify Save button still enabled: `btnSavePricing`, expected enabled (form still dirty)
+6. Reload Pricing tab: tab loads with clean state
+7. Verify Is Alternative on primary test row: expected unchecked (data NOT persisted)
+
+---
+
+## Scenario: TC-LOC-PRI-032 - Unsaved changes dialog — edit, navigate away, Stay returns to form
+
+1. Navigate to Pricing tab: `tabPricing`, click, tab loads
+2. Uncheck Corporate Pricing: `chkCorporatePricing`, uncheck, form dirty
+3. Verify Save button enabled: `btnSavePricing`, expected enabled
+4. Click sidebar Home link: triggers unsaved changes dialog
+5. Verify unsaved changes dialog visible: expected true
+6. Click Stay: dialog dismissed, stays on Pricing tab
+7. Verify URL contains locations path: expected still on pricing page
+8. Verify Save button still enabled: `btnSavePricing`, expected enabled (form still dirty)
+9. Cleanup: Re-check Corporate Pricing → reload Pricing tab
+
+---
+
+## Scenario: TC-LOC-PRI-033 - Grid validation errors block Save — missing dates with cascade enabled
+
+1. Reload Pricing tab: tab loads with clean state (LR-026)
+2. Verify Save button disabled: `btnSavePricing`, expected disabled (no pending changes)
+3. Check Is Alternative on primary test row: checkbox checked
+4. Poll for Use Effective Date enabled: expected enabled (LR-010)
+5. Check Use Effective Date on primary test row: checkbox checked
+6. Poll for date fields enabled: expected enabled (LR-010)
+7. Verify Save button state with empty dates: expected disabled (validation: required dates missing)
+8. Enter valid Start Date and End Date: dates entered
+9. Verify Save button enabled: `btnSavePricing`, expected enabled (dirty + no validation errors)
+10. Cleanup: Reset grid row (uncheck Is Alternative) → reload Pricing tab (LR-026)
+
+---
+
+## Scenario: TC-LOC-PRI-035 - Read-only columns (Pricing Strategy, Pricebook, Currency) have no interactive elements
+
+1. Navigate to Pricing tab: `tabPricing`, click, tab loads
+2. Inspect columns 1-3 on primary test row: check for button, checkbox, input elements
+3. Verify interactive element count: expected 0 (display-only columns)
+Note: TC-LOC-PRI-034 intentionally does not exist (skipped ID)

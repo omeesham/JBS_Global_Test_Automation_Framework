@@ -12,11 +12,14 @@ Turns recurring mistakes into permanent rules. Without this, the same mistakes g
 
 ## When to Use
 
-**Identity**: OWNER, WATCHDOG. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER, WATCHDOG. Auto-loaded via Identity Gate.
 
 - **Periodic**: Weekly or when mistake files grow large
 - **Flagged**: `/reflect` found graduation candidates (3+ occurrences)
 - **Manual**: user says "compile learnings", "graduate patterns", "clean up mistakes", "what patterns are recurring"
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/compile-learnings`. No-op if compatible identity active.
 
 ## Steps
 
@@ -64,6 +67,18 @@ Create or update `.claude/context/patterns.md` with practical decision trees:
 **Because**: [why — from the mistakes that taught this]
 **Graduated from**: R-XX, R-YY, R-ZZ
 ```
+
+## Post-Graduation: Upgrade Check
+
+After graduating any pattern to a permanent LR rule, run `/upgrade` logic inline:
+
+1. For each newly graduated LR rule, extract its TRIGGER and SCOPE
+2. Scan current session's active work (TodoWrite items, recently modified files)
+3. Check: does this new LR rule apply to anything in the current session?
+4. If yes: flag as `APPLY NOW` — fix before session ends
+5. If no: note why and move on
+
+This ensures newly graduated rules are immediately applied, not just saved for future sessions. See `/upgrade` SKILL.md for full methodology.
 
 ## Auto-Calls
 

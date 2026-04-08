@@ -24,5 +24,8 @@ export const MERCHANT_DATA = {
   canada: { id: '316446', display: '316446 - PSAV Canada/CAD' },
 } as const;
 
+/** Alternate USD merchant for round-trip persistence tests */
+export const ALTERNATE_USD_MERCHANT = MERCHANT_DATA.bahamas;
+
 /** Default currency for office 1604. */
 export const DEFAULT_CURRENCY = 'USD';

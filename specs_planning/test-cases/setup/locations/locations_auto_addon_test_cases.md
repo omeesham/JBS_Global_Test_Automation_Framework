@@ -1,4 +1,4 @@
-# Auto Add-On Test Cases — **Module**: locations | **Total**: 16 | **Status**: Manual
+# Auto Add-On Test Cases — **Module**: locations | **Total**: 20 | **Status**: Manual
 **Updated**: 2026-03-24 | **Page URL**: `https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location` (Setup > Location > Auto Add-On tab)
 
 ## MCP_VERIFICATION_LOG
@@ -375,3 +375,94 @@ N/A — Auto Add-On tab contains checkboxes only. No numeric, text, or date fiel
 **Expected**: The Auto Add-On checkbox list is location-specific. Location 1604 has 5 items as of 2026-03-24. Other locations may have different counts and labels.
 
 **Status**: Blocked (Cat-A: requires access to a second location with different add-on configuration from 1604 — environment constraint)
+
+---
+
+## TC-LOC-AAO-017: Wordly Uncheck Persists After Save+Reload
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional (RT) | Yes |
+
+**Preconditions**: **Auto Add-On** tab active. **Wordly** is checked (default for 1604).
+
+**Steps**:
+1. Navigate fresh to location 1604 → click **Auto Add-On** tab → Verify **Wordly** is checked
+2. Uncheck **Wordly** → Expected: Save enables
+3. Click **Save** → **Ok** → Expected: toast shown, save completes
+4. Navigate fresh (about:blank → target URL) → click **Auto Add-On** tab
+5. Observe **Wordly** → Expected: unchecked (`aria-checked="false"`) — persisted
+
+**Expected**: Unchecking Wordly and saving persists the unchecked state through a full page reload.
+
+**Data**: `chkAutoAddonWordly = [data-testid="location-settings-checkbox-auto-add-on-false_wordly"]`
+
+**Cleanup**: Re-check **Wordly** → **Save** → **Ok** to restore default.
+
+---
+
+## TC-LOC-AAO-018: Labor Uncheck Persists After Save+Reload
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional (RT) | Yes |
+
+**Preconditions**: **Auto Add-On** tab active. **Labor** is checked (default for 1604, isDefault=true testid pattern).
+
+**Steps**:
+1. Navigate fresh to location 1604 → click **Auto Add-On** tab → Verify **Labor** is checked
+2. Uncheck **Labor** → Expected: Save enables
+3. Click **Save** → **Ok** → Expected: toast shown, save completes
+4. Navigate fresh (about:blank → target URL) → click **Auto Add-On** tab
+5. Observe **Labor** → Expected: unchecked (`aria-checked="false"`) — persisted
+
+**Expected**: Unchecking Labor (isDefault=true testid variant) and saving persists the unchecked state through a full page reload.
+
+**Data**: `chkAutoAddonLabor = [data-testid="location-settings-checkbox-auto-add-on-true_labor"]`
+
+**Cleanup**: Re-check **Labor** → **Save** → **Ok** to restore default.
+
+---
+
+## TC-LOC-AAO-019: Cancel Does Not Persist Toggle
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Functional (Negative) | Yes |
+
+**Preconditions**: **Auto Add-On** tab active. **Express Content Design Session** is unchecked (default).
+
+**Steps**:
+1. Navigate fresh to location 1604 → click **Auto Add-On** tab
+2. Click **Express Content Design Session** (unchecked → checked) → Expected: Save enables
+3. Click **Save** → dialog appears
+4. Click **Cancel** → Expected: dialog closes, pending change preserved
+5. Navigate fresh (about:blank → target URL) → click **Auto Add-On** tab
+6. Observe **Express Content Design Session** → Expected: unchecked (`aria-checked="false"`) — cancel did NOT save
+
+**Expected**: Clicking Cancel in Save dialog does not persist the change. After reload, ECDS returns to its original unchecked state.
+
+**Data**: `chkAutoAddonExpressContentDesignSession`, `btnSaveChangesCancel`
+
+---
+
+## TC-LOC-AAO-020: Bulk Invert All Checkboxes Persists After Save+Reload
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Manual | Functional (RT, Bulk) | Yes |
+
+**Preconditions**: **Auto Add-On** tab active. All 5 checkboxes at default state (Encore Music=✓, Wireless Presenter=✓, ECDS=✗, Wordly=✓, Labor=✓).
+
+**Steps**:
+1. Navigate fresh to location 1604 → click **Auto Add-On** tab
+2. Invert all 5 checkboxes: uncheck Encore Music, Wireless Presenter, Wordly, Labor; check ECDS → Expected: Save enables
+3. Click **Save** → **Ok** → Expected: toast shown, save completes
+4. Navigate fresh → click **Auto Add-On** tab
+5. Verify all 5 inverted: Encore Music=✗, Wireless Presenter=✗, ECDS=✓, Wordly=✗, Labor=✗
+
+**Expected**: All 5 checkbox inversions persist after save+reload. Covers 100% field-instance persistence.
+
+**Data**: All 5 checkbox selectors from `AUTO_ADDON_DEFAULTS`
+
+**Cleanup**: Restore all 5 to defaults → **Save** → **Ok**.

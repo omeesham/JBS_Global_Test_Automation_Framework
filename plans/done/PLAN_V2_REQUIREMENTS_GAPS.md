@@ -1,3 +1,5 @@
+> **SUPERSEDED**: Content absorbed into `plans/pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md`. SP items referenced as gaps #9, #10, #11, #12, #20.
+
 # PLAN: V2 Requirements Gaps — New Fields & Test Coverage
 
 **Source**: `docs/read_only_docs/Encore-Requirements-V2.docx` (client Jira agent full doc retrieval, 2026-03-30)

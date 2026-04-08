@@ -107,6 +107,36 @@ export class LocationAccountAddressPage extends BasePage {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
+  // VENUE DISPLAY FIELD READERS
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /** Get the venue address line text (first dd after Address button). */
+  async getVenueAddressText(): Promise<string> {
+    const panel = this.getPanel();
+    const venueSection = panel.locator(':text("Venue/Branch Account")').locator('..').locator('..');
+    const addressDd = venueSection.locator('dt:has-text("Address") + dd').first();
+    return (await addressDd.textContent() ?? '').trim();
+  }
+
+  /**
+   * Get the venue City text (dd element containing city value).
+   * Uses positional indexing because City/State/Zip/Country are standalone <dd> elements
+   * WITHOUT <dt> labels (see account-address.ts selectors, line 10: "Address display fields
+   * are <dd> static text"). Only Name/Address have <dt> labels with buttons.
+   * Venue section dd order: [0]=name (textbox), [1]=address, [2]=city, [3]=state, [4]=zip, [5]=country.
+   * If the app adds a dd before City, this index must be updated.
+   */
+  async getVenueCityText(): Promise<string> {
+    const cityText = await this.page.evaluate(() => {
+      const panel = document.querySelector('[data-testid="location-settings-sub-tab-content-account-and-address"]');
+      if (!panel) return '';
+      const allDds = panel.querySelectorAll('dd');
+      return allDds[2]?.textContent?.trim() ?? '';
+    });
+    return cityText;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // CARD SECTION VISIBILITY
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -161,20 +191,7 @@ export class LocationAccountAddressPage extends BasePage {
 
   /** Fill account name filter and click Search. Waits for results to render with actual content. */
   async searchAccountByName(name: string): Promise<void> {
-    await this.fillWithValidation('txtAccListAccountName', name);
-    await this.clickWithRetry('btnAccListSearch');
-    // Wait for search API to return and table cells to have actual text content.
-    // Skeleton rows are visible but empty — wait for a cell with real text.
-    const table = this.getElement('tblAccListResults');
-    const firstDataCell = table.locator('tbody tr:first-child td:nth-child(2)');
-    await firstDataCell.waitFor({ state: 'visible', timeout: 15_000 });
-    // Poll until cell has non-empty text (skeleton → real data)
-    for (let i = 0; i < 30; i++) {
-      const text = (await firstDataCell.textContent() ?? '').trim();
-      if (text.length > 0) break;
-      await this.page.waitForTimeout(500);
-    }
-    Log.info(`Searched account: ${name}`);
+    await this.searchAccountByFilter('txtAccListAccountName', name, 'name');
   }
 
   /** Check if the Select button in Account List dialog is disabled. */
@@ -223,6 +240,39 @@ export class LocationAccountAddressPage extends BasePage {
     } catch {
       return false;
     }
+  }
+
+  /** Fill Address filter and click Search. Waits for results. */
+  async searchAccountByAddress(address: string): Promise<void> {
+    await this.searchAccountByFilter('txtAccListAddress', address, 'address');
+  }
+
+  /** Fill City filter and click Search. Waits for results. */
+  async searchAccountByCity(city: string): Promise<void> {
+    await this.searchAccountByFilter('txtAccListCity', city, 'city');
+  }
+
+  /** Shared search logic: fill a filter field, click Search, wait for results to render. */
+  private async searchAccountByFilter(selectorKey: string, value: string, label: string): Promise<void> {
+    await this.fillWithValidation(selectorKey, value);
+    await this.clickWithRetry('btnAccListSearch');
+    const table = this.getElement('tblAccListResults');
+    const firstDataCell = table.locator('tbody tr:first-child td:nth-child(2)');
+    await firstDataCell.waitFor({ state: 'visible', timeout: 15_000 });
+    for (let i = 0; i < 30; i++) {
+      const text = (await firstDataCell.textContent() ?? '').trim();
+      if (text.length > 0) break;
+      await this.page.waitForTimeout(500);
+    }
+    Log.info(`Searched account by ${label}: ${value}`);
+  }
+
+  /** Check first row and click Select to apply account. Waits for dialog to close. */
+  async selectAccountListFirstRow(): Promise<void> {
+    await this.clickWithRetry('chkAccListRowSelect');
+    await this.clickWithRetry('btnAccListSelect');
+    await this.getElement('dlgAccountList').waitFor({ state: 'hidden', timeout: 10_000 });
+    Log.info('[OK] Selected first account row and applied');
   }
 
   /** Check if Account List dialog has filter fields. */
@@ -323,6 +373,16 @@ export class LocationAccountAddressPage extends BasePage {
     return content;
   }
 
+  /** Check a specific row by address text, then click Select to apply. Waits for dialog to close. */
+  async selectAddressRow(addressText: string): Promise<void> {
+    const table = this.getElement('tblAddrResults');
+    const row = table.locator(`tbody tr:has-text("${addressText}")`).first();
+    await row.locator('td:first-child button[role="checkbox"]').click();
+    await this.clickWithRetry('btnAddrSelect');
+    await this.getElement('dlgSelectAddress').waitFor({ state: 'hidden', timeout: 10_000 });
+    Log.info(`[OK] Selected address row: ${addressText}`);
+  }
+
   /** Cancel/close the address dialog. */
   async cancelAddressDialog(): Promise<void> {
     await this.clickWithRetry('btnAddrCancel');
@@ -349,6 +409,13 @@ export class LocationAccountAddressPage extends BasePage {
   /** Click left-panel Save and confirm the Save Changes dialog. */
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSaveAccountAddress');
+  }
+
+  /** Click Save button to open the Save Changes dialog WITHOUT confirming. */
+  async openSaveDialog(): Promise<void> {
+    await this.clickWithRetry('btnSaveAccountAddress');
+    await this.waitForElement('dlgSaveChanges', 5_000);
+    Log.info('[OK] Save Changes dialog opened (not confirmed)');
   }
 
   /** Cancel the Save Changes dialog (for discard scenarios). */

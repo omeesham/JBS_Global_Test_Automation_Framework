@@ -154,7 +154,7 @@ Accessible via: Dashboard → "Setup" menu (top navigation) → "Select Location
 **Page Layout**:
 - **Save button** (top area of left panel): Present for Basic Information fields; [disabled] until content changes
 - **Pricing-specific Save** (top-right inside Pricing tabpanel): Separate Save button unique to the Pricing tab, always enabled when Pricing tab is open
-- **Legal-specific Save** (top-right inside Legal tabpanel): Separate Save button, disabled by default until Legal data changes
+- **Legal tab** — no dedicated Save; uses shared left-panel Save (`location-settings-btn-save`)
 - **Other tabs** (Local Information, Currency, Account & Address, Notes, Shared Setup Locations, Auto Add-On): No dedicated Save button — rely on the main left-panel Save
 - Two outer tabs: "Basic Information" (active), "Location Management History"
 
@@ -394,7 +394,7 @@ Accessible via: Setup > Location > [Office Code] → "Currency" tab (right panel
 - Is Default checkbox is **enabled** only when Selected is checked
 - Merchant dropdown is **always accessible** (clickable) regardless of Selected state — CAD and MXN dropdowns open even when not selected
 - Only one currency can be "Is Default" at a time — selecting a new default auto-deselects the previous (single-default enforcement)
-- Minimum 1 currency must remain selected; attempting to uncheck the only selected currency shows validation error: "At least one currency must be selected"
+- Minimum 1 currency must remain selected; unchecking the only selected currency keeps Save disabled (no error dialog — passive validation via button state)
 - Merchant value persists against a currency row even when Selected is unchecked
 
 **Validation Rules** (confirmed):
@@ -476,11 +476,11 @@ Accessible via: Setup > Location > [Office Code] → "Pricing" tab (right panel)
 ##### Is Alternative Checkbox
 - **UI Label**: "Is Alternative" (code: `IsAlternate`)
 - **On Check**:
-  - Marks `IsNew = true` if first selection
+  - Marks `IsNew = true` if first selection — **NOT UI-TESTABLE** (backend flag, no UI indicator)
   - Enables "Use Effective Date" checkbox
 - **On Uncheck**:
   - Clears all validation errors
-  - Sets `IsDeleted = true`
+  - Sets `IsDeleted = true` — **NOT UI-TESTABLE** (backend flag, no UI indicator)
   - Sets Use Effective Date = false
   - Clears Start Date and End Date values
 
@@ -505,6 +505,7 @@ Accessible via: Setup > Location > [Office Code] → "Pricing" tab (right panel)
 - **Method**: `validateCorporatePriceGrid()`
 - Iterates all price book rows; if any row has errors, sets `CorporatePrices` control error `{ invalid: true }`
 - **Service**: `priceBookValidationService.validate()` runs after any cell value change or checkbox toggle
+- **Impact on Save button**: Grid validation errors may block Save — MCP-1 unverified (API 500 as of 2026-04-06). Tested by TC-LOC-PRI-033.
 
 #### Cell Edit Restrictions (`onBeforeEditCell`)
 - **Start Date / End Date**: Editable only if Is Alternative=true AND Use Effective Date=true
@@ -624,7 +625,7 @@ Accessible via: Setup > Location > [Office Code] → "Legal" tab (right panel)
 **Source Component**: `location-detail-legal` in Navigator App
 
 **UI Structure** (confirmed live, Location 1604):
-- Dedicated Save button at top-right (disabled by default)
+- No dedicated Save button — uses shared left-panel Save (`location-settings-btn-save`)
 - Table: 3 columns (Language Name, Service Charge Name, Terms and Conditions Name)
 - Row count depends on configured languages (1604 has 1 row: US English)
 
@@ -633,14 +634,14 @@ Accessible via: Setup > Location > [Office Code] → "Legal" tab (right panel)
 | Column | Type | Notes |
 |---|---|---|
 | Language Name | static text (read-only) | Language identifier |
-| Service Charge Name | combobox (dropdown) | Options filtered by LanguageId, sorted alphabetically |
-| Terms and Conditions Name | combobox (dropdown) | Options filtered by LanguageId, sorted alphabetically |
+| Service Charge Name | combobox (dropdown) | Options filtered by LanguageId. v1 says "sorted alphabetically" but **live is NOT sorted** (MCP-verified 2026-04-06: generic names first, then location-specific — APP BUG) |
+| Terms and Conditions Name | combobox (dropdown) | Options filtered by LanguageId. v1 says "sorted alphabetically" but **live is NOT sorted** (MCP-verified 2026-04-06: same pattern — APP BUG) |
 
 **Grid — Default Data** (Location 1604):
 
 | Language | Service Charge | Terms & Conditions |
 |---|---|---|
-| US English | Service Charge | LDW |
+| US English | Resort Service Charge | LDW |
 
 **Validation Rules**:
 
@@ -661,8 +662,8 @@ Accessible via: Setup > Location > [Office Code] → "Legal" tab (right panel)
 - **Visual**: Exclamation icon in grid cell
 
 **Dropdown Options**:
-- ServiceChargeNames: Filtered by LanguageId, sorted alphabetically
-- TermConditionNames: Filtered by LanguageId, sorted alphabetically
+- ServiceChargeNames: Filtered by LanguageId. v1 requirement says sorted alphabetically but **live is NOT sorted** (APP BUG, MCP-verified 2026-04-06)
+- TermConditionNames: Filtered by LanguageId. v1 requirement says sorted alphabetically but **live is NOT sorted** (APP BUG, MCP-verified 2026-04-06)
 
 **Item Validation**:
 - **Method**: `validateLegalDataProperty()`
@@ -701,10 +702,10 @@ Accessible via: Setup > Location > [Office Code] → "Account and Address" tab (
 | Field | Type | Default (1604) | State |
 |---|---|---|---|
 | Name | text input | Parker Palm Springs | disabled |
-| Address | static text (clickable) | 4200 E Palm Canyon Dr | clickable button (likely opens Address editor) |
-| City | static text | PALM SPRINGS | display-only |
+| Address | static text (clickable) | 8899 Beverly Blvd Ste 412 | clickable button — opens Select Customer Address dialog |
+| City | static text | WEST HOLLYWOOD | display-only |
 | State | static text | CA | display-only |
-| Zip | static text | 92264 | display-only |
+| Zip | static text | 90048 | display-only |
 | Country | static text | United States | display-only |
 | Phone 1 | text input | 760-883-1957 | editable |
 | Phone 2 | text input | (empty) | editable |
@@ -713,16 +714,16 @@ Accessible via: Setup > Location > [Office Code] → "Account and Address" tab (
 
 | Field | Type | Default (1604) | Notes |
 |---|---|---|---|
-| Address | static text (clickable) | 4200 E Palm Canyon Dr | clickable button |
-| City | static text | PALM SPRINGS | display-only |
+| Address | static text (clickable) | 8899 Beverly Blvd Ste 412 | clickable button — opens Select Customer Address dialog |
+| City | static text | WEST HOLLYWOOD | display-only |
 | State | static text | CA | display-only |
-| Zip | static text | 92264 | display-only |
+| Zip | static text | 90048 | display-only |
 | Country | static text | United States | display-only |
 
 **Validation Rules** (from requirements):
 - Phone 1: Required field (`required="true"`, Error: `ERR_REQUIRED`)
 - Phone 2: Optional (no validation)
-- "Name" and "Address" labels are clickable buttons — clicking did NOT open a modal in live testing (may require specific permissions or edit mode)
+- "Name" button opens Account List dialog; "Address" buttons open Select Customer Address dialog (MCP-verified 2026-04-07)
 - Master Address must exist with Line1 for Save button to be enabled
 
 ---
@@ -787,8 +788,8 @@ Accessible via: Setup > Location > [Office Code] → "Shared Setup Locations" ta
 
 **Behaviors**:
 - Self-location row: Primary Office checked and disabled, Delete disabled
-- Other shared locations: Primary Office editable, Delete enabled
-- "Add" button opens location search/picker (needs further exploration — may require permissions)
+- Other shared locations: Primary Office unchecked and disabled, Delete enabled
+- "Add" button opens "Change Local Office" dialog with search/filter; dialog excludes already-added locations; selecting a row and clicking Select adds the location to the table (unsaved until left-panel Save)
 - No dedicated Save — relies on left-panel Save
 
 ---
@@ -811,7 +812,6 @@ Accessible via: Setup > Location > [Office Code] → "Auto Add-On" tab (right pa
 | Wireless Presenter | ✓ checked |
 | Express Content Design Session | unchecked |
 | Wordly | ✓ checked |
-| Test Labor - Jonathan | unchecked |
 | Labor | ✓ checked |
 
 **Behaviors**:
@@ -990,10 +990,36 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 | Delivery Date Offset (Relative to Start) | `deliveryDateOffsetHours` | 0 |
 | Pickup Date Offset (Relative to End) | `pickupDateOffsetHours` | 0 |
 
-**Validation (live confirmed, NM-1264)**:
+**Validation (live confirmed 2026-04-06, NM-1264 + MCP-5/6 findings)**:
+
+*Positivity constraints (per field type):*
+- "Relative to Start" fields (Prep, Set, Delivery) must be **<= 0** (negative or zero). Positive value → `aria-invalid="true"`.
+- "Relative to End" fields (Return, Strike, Pickup) must be **>= 0** (positive or zero). Negative value → `aria-invalid="true"`.
+
+*Cross-field validation (NM-1264 — ONLY live rule):*
 - Delivery Date Offset must be >= Prep Date Offset (both Relative to Start)
 - When Delivery < Prep: Save button disables; no inline error message visible in DOM
 - Save re-enables when the constraint is satisfied
+
+*Cross-validators NOT implemented in live app (MCP-5/6 verified 2026-04-06):*
+- Set >= Delivery — **NOT ENFORCED** (no `aria-invalid` when violated)
+- Return >= Strike — **NOT ENFORCED**
+- Return >= Pickup — **NOT ENFORCED**
+- Pickup >= Strike — **NOT ENFORCED**
+- The v1 `Validate()` spec describes these paths but the Angular implementation only wires NM-1264.
+
+*Non-numeric input:*
+- Typing non-numeric text (e.g., "abc") into any offset field → `aria-invalid="true"` (synchronous, same-field).
+- Non-numeric input corrupts Angular's internal model to NaN. Typing a valid value back does NOT reliably fix the model — **page reload is the only safe cleanup** (LR-011).
+
+*Null/empty offsets (NM-1453, MCP-7 verified 2026-04-06):*
+- Clearing an offset field → Save → Reload preserves **empty string** (not "0"). Null offsets are a valid state.
+- Clearing Prep while Delivery has a value does NOT trigger NM-1264 cross-validation (Prep is treated as absent).
+
+*MaxLen boundaries:*
+- Prep Date Offset: `maxLength=3`
+- Set Date Offset: `maxLength=4`
+- Other offset fields: not explicitly constrained (accept longer input)
 
 ##### Section: Misc Settings
 
@@ -1022,6 +1048,9 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 - Table: 2 columns — Section Name (editable textbox per row), Active (toggle)
 - Add new row: textbox with `placeholder="Add new..."` at bottom of table
 - **Duplicate active name → Save disables + "Duplicate Name" warning** (NM-1223)
+- **Empty/whitespace name → reverts to previous value** on blur/Tab (MCP-1, 2026-04-06)
+- **Escape key does NOT cancel editing** — typed value persists after Escape (no custom keydown handler; MCP verified 2026-04-06)
+- **No delete UI** — sections cannot be removed from the grid (MCP-9, 2026-04-06)
 
 **Sections for 1604** (13 rows; 9 active, 4 inactive via toggle SVG check):
 
@@ -1047,6 +1076,9 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 - Location 1604: **no rows configured** (empty table)
 - Add new row: textbox with `placeholder="Add new..."`
 - Same duplicate-active-name rule as Section Configuration (NM-1223)
+- **Empty/whitespace name → reverts to previous value** on blur (same mechanism as sections; MCP-8, 2026-04-06)
+- **No delete UI** — rooms cannot be removed from the grid (MCP-9, 2026-04-06)
+- Room toggle (active/inactive) persists through save+reload round-trip
 
 ##### Section: Default Logo
 
@@ -1137,7 +1169,6 @@ Columns 33–40 (labor-to-hourly) are present in history even for US locations; 
 
 ##### Sub-section: Event Profit Target
 
-- **Save button** — disabled by default; enables when Labor Cost Assumptions are edited
 - Table: 4 columns (Lower Limit, Upper Limit, Target, Currency) — **read-only display** (no input fields)
 
 | Lower Limit | Upper Limit | Target | Currency |
@@ -1161,14 +1192,16 @@ Columns 33–40 (labor-to-hourly) are present in history even for US locations; 
 | Benefits Multiplier | 20.0% | **editable** textbox (`data-testid="ect-settings-input-benefits-multiplier"`) |
 | Other Rate | 0.0% | display only |
 | No Labor Rate | 0.0% | display only |
-| Approval Threshold | $0.00 | display only |
+| Approval Threshold | $10,000,000.00 | display only |
 | Historical Subrental % | 0.0% | **editable** textbox (`data-testid="ect-settings-input-historical-subrental"`) — disabled when user lacks Production & Sales role (NM-1260) |
 | Peak Labor Adjustment % | 5.0% | display only |
 | Non-Peak Labor Adjustment % | 0.0% | display only |
 
+- **Fixed Costs Save button** (`btnSaveFixedCosts`) — disabled by default; enables when Benefits Multiplier or Historical Subrental % is edited
+
 ##### Sub-section: Labor Cost Assumptions
 
-- **Separate Save button** (disabled by default)
+- **Labor Costs Save button** (`btnSaveLaborCosts`) — disabled by default; enables when any Labor Cost cell is edited
 - Table: 2 columns (Labor Class, Labor Cost)
 - **66 rows** — all Labor Cost cells are editable textboxes (`data-testid="ect-settings-input-labor-cost-{0..65}"`)
 - Representative labor classes: Administrative Fee, Audio - Operate/Show, Audio - Set/Strike, Computer - Operator/Show, Driver, Electrical - Set/Strike, Event Management, General AV - Set/Strike, Lighting - Set/Strike, Production - Set/Strike, Projection - Set/Strike, Rigging, Union - Set/Strike, Video - Set/Strike, Virtual Events Labor (66 total)

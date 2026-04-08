@@ -62,13 +62,13 @@ export const PHONE_TEST_VALUES = {
 /** Section editing test values. */
 export const SECTION_TEST_VALUES = {
   editValue: 'AV Services',       // value typed into rename field
-  originalName: 'Audio Visual',    // pre-edit section name at index 0
+  originalName: 'Audio',           // DA-01 fix: pre-edit section name at index 0 (matches DEFAULT_SECTIONS[0])
   newSection: 'Test Section',
 } as const;
 
 /** Room test values. */
 export const ROOM_TEST_VALUES = {
-  testRoom: 'Ballroom A',
+  testRoom: 'Conference Room Z',
 } as const;
 
 /** Default Order Type test values. */
@@ -88,6 +88,53 @@ export const XSS_PAYLOAD = '<script>alert(1)</script>';
 
 /** Default Phone 1 value for location 1604. */
 export const DEFAULT_PHONE_1 = '760-883-1957';
+
+/** "Relative to start" fields — positive value is INVALID (pattern: neg or zero only). BAS-053. */
+export const POSITIVITY_VIOLATIONS_START = [
+  { key: 'txtPrepDateOffset', label: 'Prep', invalidValue: '5', defaultValue: '-1' },
+  { key: 'txtSetDateOffset', label: 'Set', invalidValue: '3', defaultValue: '-1' },
+  { key: 'txtDeliveryDateOffset', label: 'Delivery', invalidValue: '2', defaultValue: '0' },
+] as const;
+
+/** "Relative to end" fields — negative value is INVALID (pattern: positive or empty only). BAS-054. */
+export const POSITIVITY_VIOLATIONS_END = [
+  { key: 'txtReturnDateOffset', label: 'Return', invalidValue: '-3', defaultValue: '1' },
+  { key: 'txtStrikeDateOffset', label: 'Strike', invalidValue: '-2', defaultValue: '1' },
+  { key: 'txtPickupDateOffset', label: 'Pickup', invalidValue: '-1', defaultValue: '0' },
+] as const;
+
+/** Fields to test non-numeric input (extends BAS-006 to Return/Delivery). BAS-055/056. */
+export const NON_NUMERIC_TEST_FIELDS = [
+  { key: 'txtReturnDateOffset', label: 'Return', defaultValue: '1' },
+  { key: 'txtDeliveryDateOffset', label: 'Delivery', defaultValue: '0' },
+] as const;
+
+/** MaxLen boundary test values. BAS-061/062.
+ *  Prep maxLen=3, Set maxLen=4 per v1 requirements. */
+export const MAXLEN_BOUNDARY = {
+  threeChar: { key: 'txtPrepDateOffset', overLimit: '1234', defaultValue: '-1' },
+  fourChar: { key: 'txtSetDateOffset', atLimit: '-999', defaultValue: '-1' },
+} as const;
+
+/** Multi-field error recovery: trigger cross-validation, correct with non-default value. BAS-063.
+ *  LR-009: recoveryValue MUST differ from defaultValue to keep form dirty. */
+export const MULTI_FIELD_RECOVERY = {
+  triggerField: 'txtDeliveryDateOffset',
+  triggerValue: '-5',       // Delivery (-5) < Prep (-1) → NM-1264 cross-validation error
+  recoveryValue: '-1',      // LR-009: differs from default (0), satisfies Delivery >= Prep
+  defaultValue: '0',
+} as const;
+
+/** Null offset round-trip test fields. BAS-064/065/067.
+ *  MCP-7 verified: clearing an offset → save → reload preserves empty (not "0"). */
+export const NULL_OFFSET_FIELDS = [
+  { key: 'txtPrepDateOffset', label: 'Prep', defaultValue: '-1' },
+  { key: 'txtReturnDateOffset', label: 'Return', defaultValue: '1' },
+  { key: 'txtSetDateOffset', label: 'Set', defaultValue: '-1' },
+  { key: 'txtStrikeDateOffset', label: 'Strike', defaultValue: '1' },
+  { key: 'txtDeliveryDateOffset', label: 'Delivery', defaultValue: '0' },
+  { key: 'txtPickupDateOffset', label: 'Pickup', defaultValue: '0' },
+] as const;
 
 /** ECT fixed cost read-only field values for BAS-ECT-004 data-driven loop. */
 export const ECT_FIXED_COST_FIELDS = [

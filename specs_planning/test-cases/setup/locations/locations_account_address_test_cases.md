@@ -1,5 +1,5 @@
 # Location Account and Address Test Cases
-**Module**: locations | **Total**: 20 | **Status**: Manual | **Updated**: 2026-02-19
+**Module**: locations | **Total**: 26 | **Status**: Automated | **Updated**: 2026-04-07
 
 ---
 
@@ -10,10 +10,10 @@
 |---|---|---|---|
 | Section Header | generic text | display-only | "Venue/Branch Account" |
 | Name | button (in term) + disabled textbox (in definition) | button clickable, textbox disabled | Parker Palm Springs |
-| Address | button (in term) + static text (in definition) | button clickable, text display-only | 4200 E Palm Canyon Dr |
-| City | definition text | display-only | PALM SPRINGS |
+| Address | button (in term) + static text (in definition) | button clickable, text display-only | 8899 Beverly Blvd Ste 412 |
+| City | definition text | display-only | WEST HOLLYWOOD |
 | State | definition text | display-only | CA |
-| Zip | definition text | display-only | 92264 |
+| Zip | definition text | display-only | 90048 |
 | Country | definition text | display-only | United States |
 | Phone 1 | text input | editable, **required** | 760-883-1957 |
 | Phone 2 | text input | editable, optional | (empty) |
@@ -22,10 +22,10 @@
 | Field | Element | State | Value (1604) |
 |---|---|---|---|
 | Section Header | generic text | display-only | "Master Bill To Address" |
-| Address | button (in term) + static text (in definition) | button clickable, text display-only | 4200 E Palm Canyon Dr |
-| City | definition text | display-only | PALM SPRINGS |
+| Address | button (in term) + static text (in definition) | button clickable, text display-only | 8899 Beverly Blvd Ste 412 |
+| City | definition text | display-only | WEST HOLLYWOOD |
 | State | definition text | display-only | CA |
-| Zip | definition text | display-only | 92264 |
+| Zip | definition text | display-only | 90048 |
 | Country | definition text | display-only | United States |
 
 **Save Flow**: Left-panel Save (shared). No dedicated Save in this tab.
@@ -186,7 +186,7 @@
 |----------|--------|------|
 | Medium | Manual | User-Requested |
 
-**Steps**: 1. Open **Account and Address** tab ✓ 2. Verify fields below Address in Venue card ✓ City: "PALM SPRINGS", State: "CA", Zip: "92264", Country: "United States" — all static text (no inputs or controls)
+**Steps**: 1. Open **Account and Address** tab ✓ 2. Verify fields below Address in Venue card ✓ City: "WEST HOLLYWOOD", State: "CA", Zip: "90048", Country: "United States" — all static text (no inputs or controls)
 **Expected**: City, State, Zip, Country in Venue section are display-only; no edit controls
 **Data**: office=1604
 **Automatable**: Yes
@@ -198,7 +198,7 @@
 |----------|--------|------|
 | Medium | Manual | User-Requested |
 
-**Steps**: 1. Open **Account and Address** tab ✓ 2. Verify fields below Address in Master card ✓ City: "PALM SPRINGS", State: "CA", Zip: "92264", Country: "United States" — all static text
+**Steps**: 1. Open **Account and Address** tab ✓ 2. Verify fields below Address in Master card ✓ City: "WEST HOLLYWOOD", State: "CA", Zip: "90048", Country: "United States" — all static text
 **Expected**: City, State, Zip, Country in Master Bill To Address are display-only
 **Data**: office=1604
 **Automatable**: Yes
@@ -283,4 +283,99 @@
 
 **Cleanup**: Restore Phone 2 to empty baseline after verification
 
+**Automatable**: Yes
+
+---
+
+## TC-LOC-ACC-021: DROPPED — Phone 1 round-trip persistence
+| Priority | Status | Type |
+|----------|--------|------|
+| P0 | DROPPED | NOT-AUTOMATABLE |
+
+**Reason**: MCP verification (2026-04-07) proved Phone 1 is account-linked. `fill()` does not trigger Angular dirty tracking for masked inputs. `pressSequentially()` triggers dirty and save completes, but value always reverts to account phone on reload. The server overwrites Phone 1 with the account's phone number regardless of what was saved.
+**Automatable**: No
+
+---
+
+## TC-LOC-ACC-022: Cancel Save dialog discards save without persisting
+| Priority | Status | Type |
+|----------|--------|------|
+| P1 | Automated | Negative / State Transition |
+
+**Steps**: 1. Edit Phone 2 with test value ✓ Save enables 2. Click Save → Save Changes dialog appears 3. Click Cancel in dialog ✓ Dialog closes 4. Verify: Save still enabled, Phone 2 still has value (changes not committed) 5. Reload to discard (LR-026)
+**Expected**: Cancel in Save Changes dialog dismisses without persisting; form stays dirty
+**Data**: office=1604, phone=ACCOUNT_TEST_PHONE
+**Automatable**: Yes
+
+---
+
+## TC-LOC-ACC-023: Phone 1 cleared shows invalid state and error icon
+| Priority | Status | Type |
+|----------|--------|------|
+| P1 | Automated | Validation / Error Guessing |
+
+**Steps**: 1. Clear Phone 1, blur ✓ 2. Verify aria-invalid=true and error icon visible 3. Verify Save remains enabled (Angular does NOT block save on invalid Phone 1 — MCP-verified 2026-04-07) 4. Reload to restore baseline (LR-026)
+**Expected**: Clearing Phone 1 shows validation indicators but does NOT disable Save
+**Data**: office=1604
+**Note**: Plan originally assumed invalid Phone 1 blocks Save. MCP proved otherwise — Save stays enabled.
+**Automatable**: Yes
+
+---
+
+## TC-LOC-ACC-024: DROPPED — Unsaved Changes dialog on tab switch
+| Priority | Status | Type |
+|----------|--------|------|
+| P1 | DROPPED | MCP-5 FAIL |
+
+**Reason**: MCP-5 verification (2026-04-07) failed. Dirty form + tab switch did NOT trigger an Unsaved Changes alertdialog. Angular's tab navigation within the same component does not fire the unsaved changes guard for this page.
+**Automatable**: No (behavior does not exist)
+
+---
+
+## TC-LOC-ACC-025: Account List Address filter returns matching results
+| Priority | Status | Type |
+|----------|--------|------|
+| P2 | Automated | Decision Table |
+
+**Steps**: 1. Open Account List dialog 2. Fill Address filter with "Beverly" 3. Click Search ✓ Results filtered 4. Verify results contain "Beverly" 5. Cancel dialog
+**Expected**: Address filter returns accounts with matching address
+**Data**: office=1604, address=Beverly
+**Automatable**: Yes
+
+---
+
+## TC-LOC-ACC-026: Account List City filter returns matching results
+| Priority | Status | Type |
+|----------|--------|------|
+| P2 | Automated | Decision Table |
+
+**Steps**: 1. Open Account List dialog 2. Fill City filter with "LOS ANGELES" 3. Click Search ✓ Results filtered 4. Verify results contain "LOS ANGELES" 5. Cancel dialog
+**Expected**: City filter returns accounts with matching city
+**Data**: office=1604, city=LOS ANGELES
+**Automatable**: Yes
+
+---
+
+## TC-LOC-ACC-027: Address selection changes venue display fields
+| Priority | Status | Type |
+|----------|--------|------|
+| P1 | Automated | E2E Display |
+
+**Steps**: 1. Verify starting city is "WEST HOLLYWOOD" 2. Open Venue Address dialog 3. Select alternate address row (4200 E Palm Canyon Dr) 4. Verify city changed to "PALM SPRINGS" 5. Verify Save enables (form dirty) 6. Reload to discard — verify city restored to "WEST HOLLYWOOD"
+**Expected**: Address selection updates display fields but changes are discarded on reload (Angular form model does NOT serialize address changes into save payload — MCP-verified 2026-04-07)
+**Data**: office=1604, ALT_ADDRESS, ORIGINAL_ADDRESS
+**Note**: Originally planned as persistence test (save+reload+verify). MCP proved address selection doesn't persist through save — display change only.
+**Automatable**: Yes
+
+---
+
+## TC-LOC-ACC-028: Account selection changes venue name and persists
+| Priority | Status | Type |
+|----------|--------|------|
+| P0 | Automated | RT + E2E |
+
+**Steps**: 1. Read current venue name (store for cleanup) 2. Open Account List → search current account → select (re-selecting triggers dirty) 3. Verify Save enables 4. Save and confirm 5. Reload → verify venue name persisted 6. try/finally: if name changed, restore original account
+**Expected**: Account selection applies, persists through save+reload
+**Data**: office=1604, ACCOUNT_SEARCH
+**Risk**: HIGH — changes venue fields. Wrapped in try/finally. Positioned LAST in serial block.
 **Automatable**: Yes

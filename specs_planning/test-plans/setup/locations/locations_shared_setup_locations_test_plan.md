@@ -1,5 +1,5 @@
 # Location Shared Setup Locations Test Plan
-**Module**: locations | **Test Cases**: [test-cases/locations/locations_shared_setup_locations_test_cases.md](../test-cases/locations/locations_shared_setup_locations_test_cases.md) | **Total**: 17
+**Module**: locations | **Test Cases**: [test-cases/locations/locations_shared_setup_locations_test_cases.md](../test-cases/locations/locations_shared_setup_locations_test_cases.md) | **Total**: 24
 
 ---
 
@@ -160,3 +160,55 @@ Precondition: Non-self location added
 5. Assert dlgSaveChanges has Save and Cancel buttons
 6. Click btnSaveChangesConfirm -- saved
 7. **Cleanup**: Revert chkSelfSharesInventory -- save
+
+## TC-LOC-SSL-018: Add location -> save -> reload -> persists
+1. reloadAndNavigateToSSLTab -- ensureCleanSSLTable
+2. clickAdd -- searchInDialog("Miami") -- poll getDialogRowCount < 100
+3. Capture added row via findNonSelfRow (from TABLE, not dialog)
+4. selectFirstDialogRow -- clickDialogSelect -- assert getDataRowCount=2
+5. clickSave -- assert success
+6. reloadAndNavigateToSSLTab -- assert getDataRowCount=2
+7. findNonSelfRow -- assert localOffice + localOfficeName match captured values
+8. **Cleanup**: deleteNonSelfRow(dynamic index) -- clickSave
+
+## TC-LOC-SSL-019: Non-self SI toggle -> save -> reload -> persisted
+1. reloadAndNavigateToSSLTab -- ensureCleanSSLTable
+2. Add location via name search "Miami" -- clickSave -- reload
+3. findNonSelfRow -- assert sharesInventory.checked=true (default)
+4. toggleNonSelfSharesInventory(dynamic index) -- poll isSaveEnabled
+5. clickSave -- reload -- assert sharesInventory.checked=false
+6. **Cleanup**: deleteNonSelfRow(dynamic index) -- clickSave
+
+## TC-LOC-SSL-020: Delete location -> save -> reload -> row removed
+1. reloadAndNavigateToSSLTab -- ensureCleanSSLTable
+2. Add location via name search "Miami" -- clickSave -- reload -- assert 2 rows
+3. findNonSelfRow -- deleteNonSelfRow(dynamic index) -- poll getDataRowCount=1
+4. clickSave -- reload -- assert getDataRowCount=1
+
+## TC-LOC-SSL-021: Combined self SI + add location -> save -> reload -> both persisted
+1. reloadAndNavigateToSSLTab -- ensureCleanSSLTable
+2. toggleSelfSharesInventory -- add location via "Miami" name search
+3. clickSave -- assert success
+4. reload -- assert getSelfSharesInventoryState.checked=true AND getDataRowCount=2
+5. **Cleanup**: try { setSelfSharesInventory(false) + deleteNonSelfRow + clickSave } catch { reload + ensureCleanSSLTable }
+
+## TC-LOC-SSL-022: Cancel Save dialog -> changes not persisted
+1. reloadAndNavigateToSSLTab -- ensureCleanSSLTable
+2. toggleSelfSharesInventory -- assert checked=true, isSaveEnabled=true
+3. openSaveDialog -- cancelSaveDialog -- assert isSaveEnabled still true
+4. reloadAndNavigateToSSLTab -- assert getSelfSharesInventoryState.checked=false
+
+## TC-LOC-SSL-023: Beforeunload fires when dirty
+1. reloadAndNavigateToSSLTab -- ensureCleanSSLTable
+2. toggleSelfSharesInventory -- poll isSaveEnabled=true
+3. triggerBeforeunloadAndStay -- assert returned true
+4. **Cleanup**: discardAndReturn
+
+## TC-LOC-SSL-024: Already-added location absent from dialog
+1. reloadAndNavigateToSSLTab -- ensureCleanSSLTable
+2. Add location via "Miami" name search -- clickSave
+3. findNonSelfRow -- capture localOffice number
+4. clickAdd -- searchInDialog(captured number)
+5. poll getDialogRowCount=1 -- getFirstDialogRowText -- assert localOffice != captured
+6. clickDialogCancel
+7. **Cleanup**: deleteNonSelfRow(dynamic index) -- clickSave

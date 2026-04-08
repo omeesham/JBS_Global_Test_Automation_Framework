@@ -360,14 +360,23 @@ export class BasePage {
       return { success: true };
     }
 
-    // Capture network responses during save to detect silent API failures
+    // Capture network responses during save to detect silent API failures.
+    // Track in-flight requests so we wait for ALL concurrent responses before checking errors.
+    // Race condition fix: Angular may stabilize after a fast 200 while a slow 500 is still
+    // in-flight. Without draining, page.off() removed the listener before the 500 arrived.
     const networkErrors: string[] = [];
+    let inFlight = 0;
+    const requestTracker = () => { inFlight++; };
     const responseHandler = (response: { status(): number; url(): string }) => {
       if (response.status() >= 400) {
         networkErrors.push(`${response.status()} ${response.url()}`);
       }
     };
+    const requestDoneTracker = () => { inFlight = Math.max(0, inFlight - 1); };
+    this.page.on('request', requestTracker);
     this.page.on('response', responseHandler);
+    this.page.on('requestfinished', requestDoneTracker);
+    this.page.on('requestfailed', requestDoneTracker);
 
     await saveBtn.click();
     const dialog = this.getElement(dialogKey);
@@ -383,8 +392,21 @@ export class BasePage {
     // Wait for Angular to process the save response (replaces unreliable networkidle)
     await this.waitForAngularStable();
 
-    // Remove listener
+    // Drain in-flight requests: wait until all concurrent save responses arrive (max 5s).
+    // Angular may stabilize after the fast 200 before a slow concurrent 500 arrives.
+    const drainDeadline = Date.now() + 5_000;
+    while (inFlight > 0 && Date.now() < drainDeadline) {
+      await this.page.waitForTimeout(100);
+    }
+    if (inFlight > 0) {
+      Log.warn(`[WARN] ${inFlight} request(s) still in-flight after 5s drain — proceeding`);
+    }
+
+    // Remove all listeners
+    this.page.off('request', requestTracker);
     this.page.off('response', responseHandler);
+    this.page.off('requestfinished', requestDoneTracker);
+    this.page.off('requestfailed', requestDoneTracker);
 
     // Check for API errors
     if (networkErrors.length > 0) {

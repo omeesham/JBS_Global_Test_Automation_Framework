@@ -44,7 +44,7 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
       await locationLocalInfoPage.navigateToLocalInfoTab(OFFICE_NO);
       await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 30_000);
     }
-    expect(locationLocalInfoPage.getCurrentUrl()).toContain('locations/1604/settings');
+    expect(locationLocalInfoPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
     expect(await locationLocalInfoPage.isSaveEnabled()).toBe(false);
   });
 

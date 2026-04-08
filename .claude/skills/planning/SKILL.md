@@ -12,7 +12,7 @@ When the user invokes `/planning`, follow this exact workflow. Do NOT skip steps
 
 ## When to Use
 
-**Identity**: OWNER. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER. Auto-loaded via Identity Gate.
 
 - User says "plan", "design", "how should we", "create a plan", "approach"
 - User describes a feature or change without saying "just do it"
@@ -20,6 +20,9 @@ When the user invokes `/planning`, follow this exact workflow. Do NOT skip steps
 
 ## Input
 The user will describe what they want planned. If their description is vague, ask HIGH-IMPACT clarifying questions before proceeding.
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/planning`. No-op if compatible identity active.
 
 ## Step 0: Research (if unfamiliar territory)
 
@@ -45,23 +48,14 @@ Write an initial plan covering:
 
 ## Step 3: Enemy Audit (3 rounds — mandatory)
 
-### Round 1 — Scope Completeness
-Act as an enemy reviewer trying to find missed files, edge cases, and incomplete coverage:
-- Grep for ALL occurrences of affected strings/patterns across the entire codebase
-- Check imports, tests, configs, docs that reference changed code
-- Ask: "What did I miss? What file will break that I didn't think of?"
+### Round 1 — Compare Against Reference Plan
+Open the most recent completed plan in `plans/done/` for the same category (audit, bugfix, feature, etc.). Compare section-by-section. Flag any section present in the reference that's missing in yours. If no reference exists, use the most complex completed plan as baseline.
 
-### Round 2 — Naming & Design Consistency
-Act as a UX/architecture critic:
-- Do new names/patterns align with existing conventions elsewhere in the codebase?
-- Are there inconsistencies between the plan and existing code?
-- Ask: "Will this look/feel wrong next to existing code?"
+### Round 2 — Verify Listed Rules Are Applied
+For each rule listed in your plan's "Active Rules" section (or equivalent), verify it's actually reflected in the plan body (implementation steps, code snippets, or explicit exclusion with reason). Rule listed but not applied in the plan = gap. Fix before proceeding.
 
-### Round 3 — Breaking Changes & Side Effects
-Act as a QA engineer trying to break the implementation:
-- Will any internal types, APIs, state, or contracts break?
-- Are there runtime behaviors that depend on the old values?
-- Ask: "What could go wrong when this ships?"
+### Round 3 — Grep Target in agent-mistakes.md
+Grep for the target page/module name in `specs_planning/_internal/agent-mistakes.md`. Read every hit. Verify none of the documented mistakes are repeated in your plan. Also grep for any function names or patterns your plan proposes to use.
 
 After each round, FIX any issues found in the plan before proceeding to the next round.
 

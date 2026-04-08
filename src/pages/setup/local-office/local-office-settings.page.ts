@@ -309,6 +309,12 @@ export class LocalOfficeSettingsPage extends BasePage {
    * persists. Clicking another tab triggers the dirty guard → "Unsaved changes" dialog.
    * Dismiss with "Discard" to complete the navigation.
    */
+  /** Click a tab WITHOUT auto-dismissing the unsaved changes dialog.
+   *  Use this when the test needs to interact with the dialog itself (BAS-037/038). */
+  async clickTabDirect(tabKey: string): Promise<void> {
+    await this.getElement(tabKey).click();
+  }
+
   async clickTab(tabKey: string): Promise<void> {
     await this.getElement(tabKey).click();
     await this.page.waitForTimeout(300); // Allow Angular to render dialog if dirty
@@ -336,6 +342,12 @@ export class LocalOfficeSettingsPage extends BasePage {
   /** Count data rows in the Sections table. */
   async getSectionRowCount(): Promise<number> {
     return this.getSectionDataRows().count();
+  }
+
+  /** Get a single section name by row index. */
+  async getSectionNameByIndex(rowIndex: number): Promise<string> {
+    const row = this.getSectionDataRows().nth(rowIndex);
+    return (await row.locator('td:first-child input').inputValue()).trim();
   }
 
   /** Get all section names from the Sections table (reads input values). */
@@ -373,6 +385,16 @@ export class LocalOfficeSettingsPage extends BasePage {
     await input.press('Tab');
   }
 
+  /** Start editing a section name, type a value, then press Escape to cancel. */
+  async editSectionNameAndCancel(rowIndex: number, tempName: string): Promise<void> {
+    const row = this.getSectionDataRows().nth(rowIndex);
+    const input = row.locator('td:first-child input');
+    await input.click();
+    await input.clear();
+    await input.fill(tempName);
+    await input.press('Escape');
+  }
+
   /** Type a name in the "Add New" input at the bottom of the Sections table. */
   async addSection(name: string): Promise<void> {
     const section = this.getElement('tblSections');
@@ -389,12 +411,56 @@ export class LocalOfficeSettingsPage extends BasePage {
   // ROOMS TABLE
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async isRoomTableEmpty(): Promise<boolean> {
+  /** Get data rows from room table (excludes the "add new" placeholder row). */
+  private getRoomDataRows() {
     const table = this.getElement('tblRoomConfig');
-    const dataRows = table.locator('tbody tr').filter({
+    return table.locator('tbody tr').filter({
       hasNot: this.page.locator('input[placeholder="Add New..."]'),
     });
-    return (await dataRows.count()) === 0;
+  }
+
+  async isRoomTableEmpty(): Promise<boolean> {
+    return (await this.getRoomDataRows().count()) === 0;
+  }
+
+  /** Count data rows in the Room table. */
+  async getRoomRowCount(): Promise<number> {
+    return this.getRoomDataRows().count();
+  }
+
+  /** Get all room names from the Room table (reads input values). */
+  async getRoomNames(): Promise<string[]> {
+    const rows = this.getRoomDataRows();
+    const count = await rows.count();
+    const names: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const input = rows.nth(i).locator('td:first-child input');
+      const val = await input.inputValue();
+      if (val.trim().length > 0) names.push(val.trim());
+    }
+    return names;
+  }
+
+  /** Check if a room row has the active checkmark (SVG in toggle cell). */
+  async isRoomActive(rowIndex: number): Promise<boolean> {
+    const row = this.getRoomDataRows().nth(rowIndex);
+    return (await row.locator('td:last-child svg').count()) > 0;
+  }
+
+  /** Click the active/checkmark cell for a room row to toggle. */
+  async toggleRoomActive(rowIndex: number): Promise<void> {
+    const row = this.getRoomDataRows().nth(rowIndex);
+    await row.locator('td:last-child').click();
+  }
+
+  /** Edit a room name by clicking the input and typing. */
+  async editRoomName(rowIndex: number, newName: string): Promise<void> {
+    const row = this.getRoomDataRows().nth(rowIndex);
+    const input = row.locator('td:first-child input');
+    await input.click();
+    await input.clear();
+    await input.fill(newName);
+    await input.press('Tab');
   }
 
   async addRoom(name: string): Promise<void> {

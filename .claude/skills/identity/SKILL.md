@@ -46,6 +46,42 @@ Wait for user selection before proceeding.
 
 ---
 
+## Step 1.5: Skill-Triggered Auto-Detection (called by Identity Gates)
+
+When invoked by a skill's Identity Gate (not directly by user):
+
+1. Look up calling skill in the **Step 4 table** → get Default identity and Compatible list
+2. Apply Priority Chain:
+   - **Rule 1**: User explicitly set `/identity X` this session? → keep X, return silently
+   - **Rule 2**: Active identity is in the skill's Compatible list? → keep, return silently
+   - **Rule 3**: No identity or incompatible → auto-load Default from table
+3. On auto-load (Rule 3): skip the menu, proceed to Step 2 (loading protocol), log:
+   `[AUTO-IDENTITY] {CODENAME} — for {skill}`
+4. On skip (Rule 1/2): emit nothing — current banner continues
+
+**No menu**: Step 1.5 NEVER shows the selection menu. It is a deterministic lookup.
+
+---
+
+## Step 1.6: Task-Level Detection (no-skill fallback)
+
+When Skill Auto-Routing (CLAUDE.md) matches NO skill but the user's message implies work:
+
+| Keywords in user message | Identity |
+|--------------------------|----------|
+| "fix spec", "fix test", "failing test", "broken test" | HEALER |
+| "write spec", "generate test", "create spec" | BUILDER |
+| "test cases", "test plan", "plan tests" | GIVER |
+| "explore UI", "requirements", "capture requirements" | HUNTER |
+| "audit", "find issues", "compliance", "what's missing" | WATCHDOG |
+| "refactor", "clean up", "DRY", "dead code" | GARDENER |
+| Default / questions / ambiguous | OWNER |
+
+Rules: same Priority Chain applies. Case-insensitive substring match. First match wins.
+Only reached when NO skill was auto-routed.
+
+---
+
 ## Step 2: Identity Loading Protocol
 
 After selection, load the identity:
@@ -95,28 +131,27 @@ OWNER applies ALL-* + LR-* only. Any rule outside your prefix is **invisible** �
 
 ## Step 4: Skill Compatibility Matrix
 
-If a skill is invoked while an identity is active, check compatibility:
+| Skill | Default | Compatible Identities |
+|-------|---------|----------------------|
+| /planning | OWNER | OWNER |
+| /execute | OWNER | OWNER, BUILDER |
+| /chain | OWNER | OWNER |
+| /audit | WATCHDOG | OWNER, WATCHDOG |
+| /bugfix | HEALER | OWNER, BUILDER, HEALER |
+| /rca | HEALER | OWNER, HEALER |
+| /cleanup | GARDENER | OWNER, GARDENER |
+| /review | WATCHDOG | OWNER, WATCHDOG, GARDENER |
+| /deploy | OWNER | OWNER |
+| /find-bugs | WATCHDOG | OWNER, WATCHDOG |
+| /compile-learnings | OWNER | OWNER, WATCHDOG |
+| /research | OWNER | OWNER, HUNTER, GIVER, BUILDER |
+| /share-kt | OWNER | OWNER |
+| /reflect | (inherit) | ALL |
+| /regression-guard | (inherit) | OWNER, BUILDER, HEALER, WATCHDOG, GARDENER |
+| /questionnaire | (inherit) | ALL |
 
-| Skill | Compatible Identities |
-|-------|----------------------|
-| /planning | OWNER |
-| /execute | OWNER, BUILDER |
-| /chain | OWNER (auto-sets OWNER if not active) |
-| /audit | OWNER, WATCHDOG |
-| /rca | OWNER, HEALER |
-| /cleanup | OWNER, GARDENER |
-| /bugfix | OWNER, BUILDER, HEALER |
-| /review | OWNER, WATCHDOG, GARDENER |
-| /research | OWNER, HUNTER, GIVER, BUILDER |
-| /deploy | OWNER |
-| /find-bugs | OWNER, WATCHDOG |
-| /compile-learnings | OWNER, WATCHDOG |
-| /reflect | ALL |
-| /regression-guard | OWNER, BUILDER, HEALER, WATCHDOG, GARDENER |
-| /questionnaire | ALL |
-| /share-kt | OWNER |
-
-If active identity is NOT compatible: warn `[WARN] {skill} is not typical for {CODENAME}. Continue or /identity {suggested}?`
+**Via Identity Gate (Step 1.5)**: auto-load Default — no prompt, no warning.
+**Via explicit user choice**: if incompatible, warn `[WARN] {skill} not typical for {CODENAME}. Override: /identity {default}`
 
 ---
 

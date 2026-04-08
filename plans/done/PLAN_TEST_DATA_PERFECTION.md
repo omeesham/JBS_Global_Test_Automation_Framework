@@ -3,6 +3,25 @@
 **Priority**: P1 — Foundation for future CSV conversion
 **Depends on**: None
 **Blocks**: PLAN_TEST_DATA_CSV_CONVERSION
+**Status**: COMPLETED (2026-04-03)
+
+## Completion Notes
+
+- **SP-01**: File-level headers done (10/10). Per-export @specs/@tc/@fields/@verified
+  tags intentionally descoped — judged too verbose. ALL-065 and GEN-038 codify
+  file-level headers only.
+- **SP-02 through SP-08**: All meaningful constants extracted. Count-based constants
+  (LOGO_OPTIONS_COUNT, CURRENCY_GRID_ROW_COUNT, HISTORY_GRID, LEGAL_GRID counts)
+  intentionally NOT created — superseded by ALL-062 (no structural count assertions).
+- **SP-04**: NOTE_CHAR_COUNTS and noteCounter() intentionally NOT created — ALL-065
+  exempts computed arithmetic with inline comments.
+- **SP-05**: CHECKBOX_PERSISTENCE_CASES not extracted — TC-024/TC-025 have individual
+  skip logic that precludes data-driven looping.
+- **SP-08e**: ACCOUNT_PHONE_FORMAT_TEST dropped — spec doesn't use that value.
+- **SP-09**: Dialog constants consolidated. URL_PATHS replaced with `OFFICE_NO`
+  template literals (2026-04-03).
+- **SP-10**: ALL-065 + GEN-038 rules added. Healer references ALL-065 in checklist.
+- **SP-11**: Example updated with convention docs.
 
 ---
 

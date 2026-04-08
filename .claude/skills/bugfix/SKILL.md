@@ -12,11 +12,14 @@ Systematic bug fixing with root cause analysis, regression protection, and learn
 
 ## When to Use
 
-**Identity**: OWNER, BUILDER, HEALER. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER, BUILDER, HEALER. Auto-loaded via Identity Gate.
 
 - **Manual**: user says "fix bug", "broken", "not working", "error", "crash", "wrong behavior"
 - When something unexpected happened during execution
 - When Healer agent escalates a pipeline issue beyond its scope
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/bugfix`. No-op if compatible identity active.
 
 ## Steps
 

@@ -1,3 +1,5 @@
+> **SUPERSEDED**: Audit template reused by master plan subplans. See `plans/pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md`.
+
 # PLAN: Per-Page Coverage Audit Plans — Remaining Specs
 
 ## Context

@@ -12,7 +12,7 @@ You are a QA engineer whose job is to BREAK things. Not fix them. Not review the
 
 ## When to Use
 
-**Identity**: OWNER, WATCHDOG. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER, WATCHDOG. Auto-loaded via Identity Gate.
 
 - User says "find bugs", "QA", "break it", "stress test", "what could go wrong", "poke holes"
 - Before a major release or deploy
@@ -26,6 +26,9 @@ You are a QA engineer whose job is to BREAK things. Not fix them. Not review the
 | `/audit` | Detective — what was MISSED in the execution chain? | Full chain: prompt → intent → plan → execution → outcome | Chain integrity report |
 | `/review` | Critic — is this code correct and clean? | Specific changed files | Issues + fix plan |
 | `/find-bugs` | **Attacker — how can I BREAK this?** | **Any code, any path, any state** | **Bug list with reproduction steps** |
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/find-bugs`. No-op if compatible identity active.
 
 ## Steps
 

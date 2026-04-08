@@ -14,7 +14,7 @@ export const SetupPricingSelectors = {
   /** @where Setup > Location > Pricing tab @el dropdown @text "Currency" @keys currency filter combobox pricing */
   drpCurrencyFilter: 'div.flex:has(> span:text-is("Currency")) [role="combobox"]',
   /** @where Setup > Location > Pricing tab @el button @text "Save" @keys save submit pricing form */
-  btnSavePricing: 'button:has-text("Save")',
+  btnSavePricing: '[data-testid="location-settings-btn-save"]',
 
   // ---- Primary Pricing Fields ----
   /** @where Setup > Location > Pricing tab @el dropdown @text "Primary Labor Pricing" @keys primary labor pricing combobox */

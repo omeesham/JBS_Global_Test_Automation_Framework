@@ -1,5 +1,5 @@
 # Location Pricing Test Cases
-**Module**: locations | **Total**: 30 | **Status**: Manual | **Updated**: 2026-03-02
+**Module**: locations | **Total**: 34 | **Status**: Manual | **Updated**: 2026-04-07
 
 ---
 
@@ -429,5 +429,65 @@
 **Data**: office=1604 | value=2026-NP Tier 2
 **Cleanup**: Reset **Primary Production Equipment Pricing** to original value after test
 **Automatable**: Yes
+
+---
+
+## TC-LOC-PRI-031: Save dialog Cancel — edit, Save, Cancel, form stays dirty, no data saved
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | ✅ Automated | State Transition |
+
+**Steps**: 1. Check **Is Alternative** on primary test row ✓ Checked 2. Verify **Save** enabled ✓ Enabled 3. Click **Save** ✓ Save Changes dialog appears 4. Click **Cancel** ✓ Dialog dismissed 5. Verify **Save** still enabled ✓ Enabled (form still dirty) 6. Reload Pricing tab ✓ Tab loads 7. Verify **Is Alternative** on primary test row ✓ Unchecked (data NOT persisted)
+**Expected**: Cancelling the Save Changes dialog discards all pending changes; reload shows original state
+**Data**: office=1604
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-pricing.spec.ts
+**Automatable**: Yes
+
+---
+
+## TC-LOC-PRI-032: Unsaved changes dialog — edit, navigate away, Stay returns to form
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | ✅ Automated | State Transition |
+
+**Steps**: 1. Navigate to **Pricing** tab ✓ Tab loads 2. Uncheck **Corporate Pricing** ✓ Unchecked (form dirty) 3. Verify **Save** enabled ✓ Enabled 4. Click sidebar Home link ✓ Unsaved changes dialog appears 5. Click **Stay** ✓ Dialog dismissed, stays on Pricing tab 6. Verify URL still contains locations path ✓ Correct page 7. Verify **Save** still enabled ✓ Enabled (form still dirty)
+**Expected**: Clicking Stay on unsaved changes dialog returns to form with dirty state preserved
+**Data**: office=1604
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-pricing.spec.ts
+**Cleanup**: Re-check **Corporate Pricing** -- reload Pricing tab to discard dirty state
+**Automatable**: Yes
+
+---
+
+## TC-LOC-PRI-033: Grid validation errors block Save — missing dates with cascade enabled
+| Priority | Status | Type |
+|----------|--------|------|
+| High | ✅ Automated | Validation |
+
+**Steps**: 1. Reload **Pricing** tab ✓ Tab loads (clean state, LR-026) 2. Verify **Save** disabled ✓ Disabled (no pending changes) 3. Check **Is Alternative** on primary test row ✓ Checked 4. Wait for **Use Effective Date** enabled (LR-010 poll) ✓ Enabled 5. Check **Use Effective Date** ✓ Checked 6. Wait for date fields enabled (LR-010 poll) ✓ Enabled 7. Verify **Save** state with empty dates ✓ Disabled (validation error: required dates missing) 8. Enter valid Start Date and End Date ✓ Dates entered 9. Verify **Save** enabled ✓ Enabled (dirty + no validation errors)
+**Expected**: Grid validation blocks Save when required date fields are empty after enabling cascade; Save enables after valid dates entered
+**Data**: office=1604
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-pricing.spec.ts
+**Cleanup**: Reset grid row (uncheck Is Alternative) -- reload Pricing tab (LR-026)
+**Automatable**: Yes
+**Notes**: MCP-1 unverified due to API 500 issue — hypothesis assertion will fail informatively if wrong
+
+---
+
+## TC-LOC-PRI-035: Read-only columns (Pricing Strategy, Pricebook, Currency) have no interactive elements
+| Priority | Status | Type |
+|----------|--------|------|
+| Low | ✅ Automated | Structure |
+
+**Steps**: 1. Navigate to **Pricing** tab ✓ Tab loads 2. Inspect columns 1-3 (Pricing Strategy, Pricebook, Currency) on primary test row ✓ No button, checkbox, or input elements found
+**Expected**: Read-only columns contain only display text — no interactive elements
+**Data**: office=1604
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-pricing.spec.ts
+**Automatable**: Yes
+**Notes**: TC-LOC-PRI-034 intentionally does not exist (skipped ID)
 
 ---

@@ -1,5 +1,5 @@
 # Location Legal Test Cases
-**Module**: locations | **Total**: 15 | **Status**: Manual | **Updated**: 2026-03-18
+**Module**: locations | **Total**: 18 | **Status**: Manual | **Updated**: 2026-04-06
 
 ---
 
@@ -12,7 +12,7 @@
 | Office/Entity | 1604 (Parker Palm Springs) |
 | Total fields found | 3 (Language Name [static], Service Charge Name [combobox], Terms and Conditions Name [combobox]) |
 | Total fields tested (edit+save) | 2 (Service Charge Name, Terms and Conditions Name) |
-| Save dialog | Yes -- heading "Save Changes", body "Are you sure you want to save the changes?", buttons Cancel + Save |
+| Save dialog | Yes -- heading "Save Changes", body "Are you sure you want to save the changes?", buttons Cancel + Ok |
 | Column headers | Language Name, Service Charge Name, Terms and Conditions Name |
 | Dropdown options | Service Charge Name: 114 options (first 10: Service Charge, Administrative Fee, Hotel Service Charge, Marriott Hotel Service Charge, Resort Service Charge, Standard 22% Resort Service Charge, Hotel collected Service Charge, Marriott 2013 Service Charge, NoCharge, ETS) |
 | Dropdown options | Terms and Conditions Name: 50 options (Service Charges, Administration Fees, Service Charges (Hilton), Administration Fees (Hilton), LDW, Marriott 2013 Service Charge, ET Support and LDW, Admin Fee + LDW, ... Encore Terms and Conditions, Show Quote, Show Quote MX (Eng)) |
@@ -24,7 +24,7 @@
 | API loading | Legal tab: table loads immediately after tab click (~1s) |
 | Strict mode risks | None -- all selectors use data-testid, unique per querySelectorAll |
 | Form structure | Save button: shared left-panel [data-testid="location-settings-btn-save"], NOT inside Legal tabpanel |
-| Dialog side effects | Save Changes dialog: Cancel=safe (no save), Save=persists |
+| Dialog side effects | Save Changes dialog: Cancel=safe (no save), Ok=persists |
 | Post-reload timing | SC and T&C comboboxes load together (~1s after tab render) |
 | Readiness signal | Wait for combobox [data-testid="location-settings-select-legal-0-service-charge"] to have non-empty text |
 | Boundary behaviors | N/A -- no free-text input fields on Legal tab |
@@ -267,7 +267,7 @@
 2. Click **Service Charge Name** combobox -> Select "Administrative Fee" -> Value updates
 3. Verify left-panel **Save** button -> Enabled
 4. Click left-panel **Save** button -> Save Changes dialog appears: heading "Save Changes", body "Are you sure you want to save the changes?"
-5. Click **Save** button in dialog -> Save executes, dialog closes
+5. Click **Ok** button in dialog -> Save executes, dialog closes
 6. Verify left-panel **Save** button -> Returns to disabled (changes saved)
 7. Reload page -> Page reloads
 8. Click **Legal** tab -> Verify **Service Charge Name** -> Displays "Administrative Fee" (persisted)
@@ -289,7 +289,7 @@
 1. Navigate to **Legal** tab (fresh page load) -> Defaults loaded: T&C = "LDW"
 2. Click **Terms and Conditions Name** combobox -> Select "Encore Terms and Conditions" -> Value updates
 3. Click left-panel **Save** button -> Save Changes dialog appears
-4. Click **Save** in dialog -> Save executes
+4. Click **Ok** in dialog -> Save executes
 5. Reload page -> Page reloads
 6. Click **Legal** tab -> Verify **Terms and Conditions Name** -> Displays "Encore Terms and Conditions" (persisted)
 7. **Cleanup**: Change T&C back to "LDW" -> Save -> Confirm -> Verify restored
@@ -359,6 +359,71 @@
 
 ---
 
+## TC-LOC-LGL-016: Verify Service Charge dropdown options are sorted alphabetically
+| Priority | Status | Type |
+|----------|--------|------|
+| Low | OMITTED | Functional |
+
+**Automatable**: No (APP BUG)
+
+**Steps**:
+1. Navigate to **Legal** tab -> Tab loads
+2. Click **Service Charge Name** combobox -> Listbox opens
+3. Read all option texts -> Collect into array
+4. Compare to case-insensitive alphabetical sort -> Assert sorted
+
+**Expected**: Options sorted alphabetically per v1 requirement
+**Data**: office=1604
+
+**OMITTED Reason**: MCP-verified 2026-04-06: SC dropdown is NOT sorted alphabetically. Generic names appear first, then location-specific. This is an **APP BUG** — v1 requirement says "sorted alphabetically". Test would fail against live behavior. Logged in REQUIREMENTS.md and master plan.
+
+---
+
+## TC-LOC-LGL-017: Verify Terms and Conditions dropdown options are sorted alphabetically
+| Priority | Status | Type |
+|----------|--------|------|
+| Low | OMITTED | Functional |
+
+**Automatable**: No (APP BUG)
+
+**Steps**:
+1. Navigate to **Legal** tab -> Tab loads
+2. Click **Terms and Conditions Name** combobox -> Listbox opens
+3. Read all option texts -> Collect into array
+4. Compare to case-insensitive alphabetical sort -> Assert sorted
+
+**Expected**: Options sorted alphabetically per v1 requirement
+**Data**: office=1604
+
+**OMITTED Reason**: MCP-verified 2026-04-06: T&C dropdown is NOT sorted alphabetically. Same pattern as SC. **APP BUG** logged in REQUIREMENTS.md and master plan.
+
+---
+
+## TC-LOC-LGL-018: Combined SC + T&C change saves and persists both
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Reload page and navigate to **Legal** tab (LR-026: clean form state before save cycle)
+2. Change **Service Charge Name** to "Administrative Fee" -> Value updates
+3. Change **Terms and Conditions Name** to "Encore Terms and Conditions" -> Value updates
+4. Verify left-panel **Save** button -> Enabled
+5. Click left-panel **Save** button -> Save Changes dialog appears
+6. Click **Ok** in dialog -> Save executes, dialog closes
+7. Verify left-panel **Save** button -> Returns to disabled
+8. Reload page and navigate to **Legal** tab -> Fresh state loaded
+9. Verify **Service Charge Name** -> Displays "Administrative Fee" (persisted)
+10. Verify **Terms and Conditions Name** -> Displays "Encore Terms and Conditions" (persisted)
+11. **Cleanup**: Change **Service Charge Name** back to "Resort Service Charge" -> Change **Terms and Conditions Name** back to "LDW" -> Save -> Confirm dialog -> Verify both restored
+
+**Expected**: Changing both dropdowns simultaneously and saving persists both values through reload; cleanup restores defaults
+**Data**: office=1604, altSC="Administrative Fee", altTC="Encore Terms and Conditions", defaultSC="Resort Service Charge", defaultTC="LDW"
+
+---
+
 <!-- Execution Notes:
 - Legal tab: [data-testid="location-settings-sub-tab-legal"]
 - Legal content: [data-testid="location-settings-sub-tab-content-legal"]
@@ -366,7 +431,7 @@
 - SC combobox row 0: [data-testid="location-settings-select-legal-0-service-charge"]
 - T&C combobox row 0: [data-testid="location-settings-select-legal-0-terms"]
 - Save button: [data-testid="location-settings-btn-save"] (shared left-panel)
-- Save dialog: [role="alertdialog"] with Cancel + Save buttons (no data-testid)
+- Save dialog: [role="alertdialog"] with Cancel + Ok buttons (no data-testid)
 - canEditProp=true confirmed for office 1604
 - TC-011, TC-012: destructive -- always revert after test (annotated with Cleanup steps)
 - TC-015: cross-tab -- requires Country change; always CLEANUP country after test

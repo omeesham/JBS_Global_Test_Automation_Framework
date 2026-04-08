@@ -41,3 +41,25 @@ export const TEST_PHONE2_VALUE = '555-000-0001';
 
 /** Test phone number for save-enable/persistence tests (TC-018). */
 export const ACCOUNT_TEST_PHONE = '111-222-3333';
+
+/** Account List filter terms for TC-025/026. MCP-verified 2026-04-07: "Beverly" in Address returns 3 accounts. */
+export const ACCOUNT_LIST_FILTERS = {
+  address: 'Beverly',
+  addressExpected: 'Beverly',  // Results contain "Beverly" in address column
+  city: 'LOS ANGELES',
+  cityExpected: 'LOS ANGELES', // Results contain "LOS ANGELES" in city column
+} as const;
+
+/** Alternate address for TC-027: PALM SPRINGS address row (row 2 in dialog, MCP-3 verified). */
+export const ALT_ADDRESS = {
+  city: 'PALM SPRINGS',
+  zip: '92264',
+  address1: '4200 E Palm Canyon Dr',
+} as const;
+
+/** Original venue address for TC-027 restore (MCP-1 verified). */
+export const ORIGINAL_ADDRESS = {
+  city: 'WEST HOLLYWOOD',
+  zip: '90048',
+  address1: '8899 Beverly Blvd Ste 412',
+} as const;

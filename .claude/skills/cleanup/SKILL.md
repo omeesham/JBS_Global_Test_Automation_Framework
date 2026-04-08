@@ -12,11 +12,14 @@ Finds and removes dead weight from the codebase. This is destructive work — al
 
 ## When to Use
 
-**Identity**: OWNER, GARDENER. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER, GARDENER. Auto-loaded via Identity Gate.
 
 - **Manual**: user says "clean up", "dead code", "remove unused", "orphaned files", "consolidate", "hygiene"
 - After major refactors or feature removals
 - When file count or code size grows suspiciously
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/cleanup`. No-op if compatible identity active.
 
 ## Steps
 

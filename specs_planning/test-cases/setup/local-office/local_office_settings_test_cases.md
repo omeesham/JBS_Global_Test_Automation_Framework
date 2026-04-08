@@ -1,9 +1,9 @@
-# Local Office Settings Test Cases — **Module**: locations | **Total**: 58 | **Status**: Manual
+# Local Office Settings Test Cases — **Module**: locations | **Total**: 76 | **Status**: Automated
 
 **URL**: `/navigator/locations/{officeId}/settings/local-office`
 **Location tested**: 1604 (Parker Palm Springs, USA)
-**Updated**: 2026-03-23
-**Scope**: All 3 tabs — Basic Information (39 TCs) | Location Settings History (7 TCs) | ECT Settings (12 TCs)
+**Updated**: 2026-04-06
+**Scope**: All 3 tabs — Basic Information (59 TCs) | Location Settings History (7 TCs) | ECT Settings (17 TCs)
 **Selector file**: `src/selectors/locations/local-office-settings.ts`
 
 ---
@@ -827,6 +827,367 @@
 
 ---
 
+## TC-LOS-BAS-040: Empty Section Name — Reverts to Previous Value on Blur
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Functional | Yes |
+
+**Steps**:
+1. Reload Basic Info for clean state
+2. Get section[0] name (expect "Audio")
+3. Edit section[0] to empty string, press Tab
+4. Verify name reverted to original "Audio"
+
+**Expected**: Empty section name reverts to previous value | **MCP-1 verified 2026-04-06**
+
+---
+
+## TC-LOS-BAS-041: Whitespace-Only Section Name — Accepted as New Content
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Automated | Boundary | Yes |
+
+**Steps**:
+1. Get section[0] name
+2. Edit section[0] to `"   "` (whitespace), press Tab
+3. Verify name is either whitespace (accepted) or reverted (rejected)
+4. Cleanup: restore original name if accepted, reload
+
+**Expected**: Whitespace may be accepted (MCP-3 showed whitespace accepted via Add New) | **MCP-3 verified 2026-04-06**
+
+---
+
+## TC-LOS-BAS-044: Add New Section with Empty Name — Rejected
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Negative | Yes |
+
+**Steps**:
+1. Count section rows before
+2. Add section with empty name via Add New input, press Tab
+3. Count section rows after — expect unchanged
+
+**Expected**: Empty section name via Add New is rejected | **MCP-3 verified 2026-04-06**
+
+---
+
+## TC-LOS-BAS-045: Add New Section with Duplicate Name — Silently Rejected
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Negative | Yes |
+
+**Steps**:
+1. Count section rows before
+2. Add section with name "Audio" (already exists) via Add New, press Tab
+3. Count section rows after — expect unchanged
+4. Verify Save is disabled (no change was made)
+
+**Expected**: Duplicate section via Add New is silently rejected, no error icon | **MCP-2 verified 2026-04-06**
+
+---
+
+## TC-LOS-BAS-047: Section Edit — Escape Does NOT Revert
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Automated | Functional | Yes |
+
+**Steps**:
+1. Reload for clean state, get section[0] name ("Audio")
+2. Type "TEMP CANCEL TEST" into section[0], press Escape
+3. Verify name is "TEMP CANCEL TEST" (Escape does NOT revert)
+4. Cleanup: restore original name, reload
+
+**Expected**: Escape key does not cancel editing — no custom Escape handler on section inputs | **MCP verified 2026-04-06**
+
+---
+
+## TC-LOS-BAS-048: Room Toggle Round-Trip — Toggle Inactive → Save → Reload → Verify
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Round-trip | Yes |
+
+**Steps**:
+1. Reload, ensure room "Room Toggle Test" exists (add if needed, save)
+2. Ensure room starts active (toggle + save if inactive from prior run)
+3. Toggle room to inactive
+4. Save + reload
+5. Find room, verify still inactive after reload
+6. Cleanup: toggle back to active + save
+
+**Expected**: Room active/inactive toggle persists through save+reload round-trip | **Gap #19**
+
+---
+
+## TC-LOS-BAS-049: Room Edit Name Round-Trip — Rename → Save → Reload → Verify
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Round-trip | Yes |
+
+**Steps**:
+1. Reload, ensure room "Room Edit Test" exists (handle prior-run rename to "Room Edit Renamed")
+2. Rename room to "Room Edit Renamed"
+3. Save + reload
+4. Verify "Room Edit Renamed" in room names, "Room Edit Test" absent
+5. Cleanup: rename back to original + save
+
+**Expected**: Room name edit persists through save+reload round-trip | **Gap #19**
+
+---
+
+## TC-LOS-BAS-050: Empty Room Name — Revert Behavior
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Functional | Yes |
+
+**Steps**:
+1. Reload, count rooms before
+2. Add "Conference Room Z" via Add New
+3. Edit last room to empty string, press Tab
+4. Verify room count unchanged (name reverted or row preserved)
+5. Cleanup: reload to discard
+
+**Expected**: Empty room name reverts like sections | **MCP-8 verified 2026-04-06**
+
+---
+
+## TC-LOS-BAS-051: Duplicate Room Name via Add New — Silently Rejected
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Negative | Yes |
+
+**Steps**:
+1. Add "Conference Room Z" via Add New, record count
+2. Add "Conference Room Z" again via Add New
+3. Verify count unchanged
+
+**Expected**: Duplicate room name via Add New is silently rejected | **MCP-4 verified 2026-04-06**
+
+---
+
+## TC-LOS-BAS-053: Positive Value in "Relative to Start" Fields — aria-invalid
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Validation | Yes |
+
+**Steps**:
+1. Reload, for each of Prep/Set/Delivery:
+   - Type positive value (5, 3, 2)
+   - Poll until aria-invalid=true
+   - Restore default value
+2. Reload after all fields tested
+
+**Expected**: Positive values in "relative to start" fields trigger aria-invalid | **LR-008**
+
+---
+
+## TC-LOS-BAS-054: Negative Value in "Relative to End" Fields — aria-invalid
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Validation | Yes |
+
+**Steps**:
+1. For each of Return/Strike/Pickup:
+   - Type negative value (-3, -2, -1)
+   - Poll until aria-invalid=true
+   - Restore default value
+2. Reload after all fields tested
+
+**Expected**: Negative values in "relative to end" fields trigger aria-invalid | **LR-008**
+
+---
+
+## TC-LOS-BAS-055: Non-Numeric Input on Return Field — aria-invalid
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Automated | Validation | Yes |
+
+**Steps**:
+1. Type "abc" into Return Date Offset, Tab
+2. Poll until aria-invalid=true
+3. Verify Save disabled
+4. Reload to clear Angular model corruption (LR-011)
+
+**Expected**: Non-numeric input triggers aria-invalid on Return field
+
+---
+
+## TC-LOS-BAS-056: Non-Numeric Input on Delivery Field — aria-invalid
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Automated | Validation | Yes |
+
+**Steps**:
+1. Type "abc" into Delivery Date Offset, Tab
+2. Poll until aria-invalid=true
+3. Verify Save disabled
+4. Reload to clear Angular model corruption (LR-011)
+
+**Expected**: Non-numeric input triggers aria-invalid on Delivery field
+
+---
+
+## TC-LOS-BAS-061: MaxLen Boundary — 3-Char Field Rejects 4+ Chars
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Automated | Boundary | Yes |
+
+**Steps**:
+1. Type "1234" into Prep (maxLen=3)
+2. Verify stored length <= 3 (HTML maxlength truncates)
+3. Truncated "123" is positive for "relative to start" → aria-invalid
+4. Cleanup: restore default, reload
+
+**Expected**: Input truncated to 3 chars; truncated positive value triggers validation
+
+---
+
+## TC-LOS-BAS-062: MaxLen Boundary — 4-Char Field Accepts Value at Limit
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Automated | Boundary | Yes |
+
+**Steps**:
+1. Type "-999" into Set (maxLen=4)
+2. Verify stored value = "-999"
+3. Verify aria-invalid=false (negative is valid for "relative to start")
+4. Verify Save enabled
+5. Cleanup: restore default, reload
+
+**Expected**: 4-char value at limit accepted; negative value valid for "relative to start" field
+
+---
+
+## TC-LOS-BAS-063: Multi-Field Error Recovery — Cross-Validation Clears After Correction
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Functional | Yes |
+
+**Steps**:
+1. Set Delivery = -5 (violates NM-1264: Delivery < Prep(-1))
+2. Poll until Delivery aria-invalid=true
+3. Verify Save disabled
+4. Set Delivery = -1 (LR-009: differs from default 0)
+5. Poll until Delivery aria-invalid=false
+6. Verify Save enabled
+7. Cleanup: restore default, reload
+
+**Expected**: Cross-validation error clears after correction | **NM-1264, LR-009, LR-010**
+
+---
+
+## TC-LOS-BAS-064: Clear Prep Offset — Save, Reload, Verify Empty (NM-1453)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Functional | Yes |
+
+**Steps**:
+1. Clear Prep Date Offset, Tab
+2. Save + confirm
+3. Reload, verify Prep value = "" (not "0")
+4. Cleanup: restore to -1, save
+
+**Expected**: Null offset preserved as empty string, not "0" | **MCP-7 verified 2026-04-06, NM-1453**
+
+---
+
+## TC-LOS-BAS-065: Clear Return Offset — Save, Reload, Verify Empty (NM-1453)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Functional | Yes |
+
+**Steps**:
+1. Clear Return Date Offset, Tab
+2. Save + confirm
+3. Reload, verify Return value = "" (not "0")
+4. Cleanup: restore to 1, save
+
+**Expected**: Null offset preserved as empty string | **NM-1453**
+
+---
+
+## TC-LOS-BAS-066: Clear Prep But Keep Delivery — No Cross-Validation Error
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| Medium | Automated | Functional | Yes |
+
+**Steps**:
+1. Reload, clear Prep (default -1)
+2. Leave Delivery at default (0)
+3. Poll: Delivery should NOT be aria-invalid (NM-1264 skipped when Prep is null)
+4. Verify Save enabled (Prep was changed)
+5. Cleanup: reload to discard
+
+**Expected**: NM-1264 not triggered when Prep is null | **MCP-7 verified**
+
+---
+
+## TC-LOS-BAS-067: Clear All 6 Offsets — Save, Reload, All Empty (NM-1453)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Functional | Yes |
+
+**Steps**:
+1. Reload, clear all 6 date offsets
+2. Save + confirm
+3. Reload, verify all 6 values = "" (not "0")
+4. Cleanup: restore all defaults, save
+
+**Expected**: All null offsets preserved as empty after bulk clear | **NM-1453**
+
+---
+
+## BLOCKED / NOT-AUTOMATABLE / DEFERRED TCs (2026-04-06)
+
+| TC ID | Gap | Status | Reason |
+|-------|-----|--------|--------|
+| BAS-042 | #18 | NOT APPLICABLE | Duplicate section via rename has NO validation on live app (v1 spec not implemented) |
+| BAS-043 | #18 | NOT APPLICABLE | Recovery from duplicate icon — no icon exists (see BAS-042) |
+| BAS-046 | #18 | NOT-AUTOMATABLE | No delete UI for sections (MCP-9 verified 2026-04-06) |
+| BAS-052 | #19 | NOT-AUTOMATABLE | No delete UI for rooms (MCP-9 verified 2026-04-06) |
+| BAS-057 | #20 | PLAN INVALIDATED | Set < Delivery cross-validation NOT IMPLEMENTED in Angular (MCP-5). Plan assumed Validate() path existed. |
+| BAS-058 | #20 | PLAN INVALIDATED | Return < Pickup cross-validation NOT IMPLEMENTED (MCP-6). Plan path 6 assumption invalid. |
+| BAS-059 | #20 | PLAN INVALIDATED | Strike < Return cross-validation NOT IMPLEMENTED (MCP-6). Plan path 6 assumption invalid. |
+| BAS-060 | #20 | PLAN INVALIDATED | Pickup >= Strike cross-validation NOT IMPLEMENTED (MCP-5/6). Plan path 5/6 assumption invalid. |
+
+### Validate() Path Coverage — Plan vs Reality
+
+The audit plan defined 8 Validate() paths. MCP verification proved only **NM-1264** (Delivery >= Prep) is wired in the Angular implementation. The other cross-validators (Set/Delivery, Return/Strike, Return/Pickup, Pickup/Strike) are described in v1 spec but **not implemented** in the live app.
+
+| Path | Plan Claim | Actual Status |
+|------|-----------|---------------|
+| 1 | Covered by BAS-066 + BAS-057 | BAS-066 ✅, BAS-057 INVALIDATED (Set >= Delivery not enforced) |
+| 2 | Covered by BAS-007 + BAS-057 | BAS-007 ✅ (NM-1264 only), BAS-057 INVALIDATED |
+| 3 | P2 DEFERRED | INVALIDATED — requires unimplemented Set >= Prep check |
+| 4 | Covered by BAS-007 | ✅ NM-1264 only live path |
+| 5 | Covered by BAS-060 | INVALIDATED — Pickup >= Strike not enforced |
+| 6 | Covered by BAS-058/059/060 | INVALIDATED — all 3 cross-validators missing |
+| 7 | P2 DEFERRED | INVALIDATED |
+| 8 | P2 DEFERRED | INVALIDATED |
+
+**Effective coverage**: Path 4 (NM-1264 only) is the sole live cross-validation path. Covered by BAS-007. Path 1 partially covered (BAS-066 tests null-Prep behavior). All other paths test validators that don't exist.
+
+---
+
 # Location Settings History Test Cases
 
 ## FIELD INVENTORY — Location Settings History Tab
@@ -1239,4 +1600,97 @@
 5. **Cleanup**: Restore original values if changed
 
 **Expected**: ECT Settings Save buttons save directly without confirmation dialog; no unsaved changes dialog after save
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-013: Historical Subrental % — Edit, Save, Persist (RT)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Round-Trip | Yes |
+
+**Steps**:
+1. Read current Historical Subrental value (defensive — don't assume default)
+2. Pick test value different from current (e.g., if 0.0% → fill 0.1; if already changed → fill 0)
+3. Save Fixed Costs → wait for save button disabled
+4. Navigate to Basic Info → return to ECT
+5. Verify display shows expected percent
+6. Restore: fill original raw value → save → verify restored
+
+**Expected**: Historical Subrental % persists across save-reload cycle
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-014: Labor Cost Middle Row (Index 33) — Persistence (RT)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Round-Trip / BVA | Yes |
+
+**Steps**:
+1. Navigate to ECT tab
+2. Read current labor cost value at row index 33
+3. Pick different test value
+4. Fill → save Labor Costs → navigate away → return → verify persisted
+5. Restore original value
+
+**Expected**: Labor cost middle row (index 33) persists correctly; data-driven with TC-015
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-015: Labor Cost Last Row (Index 65) — Persistence (RT)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Round-Trip / BVA | Yes |
+
+**Steps**:
+1. Navigate to ECT tab
+2. Read current labor cost value at row index 65 (last row of 66-row table)
+3. Pick different test value
+4. Fill → save Labor Costs → navigate away → return → verify persisted
+5. Restore original value
+
+**Expected**: Labor cost last row (index 65) persists correctly; exercises scroll + BVA upper boundary
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-016: Multi-field Fixed Costs — Single Save Persists Both (RT)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | Round-Trip | Yes |
+
+**Steps**:
+1. Read current BM and HS values
+2. Edit both Benefits Multiplier and Historical Subrental %
+3. Single save (Fixed Costs)
+4. Full page reload → navigate to ECT
+5. Verify both values persisted
+6. Restore both → single save → verify restored
+
+**Expected**: Editing both BM and HS then saving once persists BOTH values
+**Automatable**: Yes
+
+---
+
+## TC-LOS-ECT-017: Discard Unsaved Changes — No Persistence (State Transition)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Automated | State Transition / Negative RT | Yes |
+
+**Steps**:
+1. Read current BM value (baseline)
+2. Fill BM with different value (dirty the form)
+3. Click Basic Info tab directly (triggers unsaved changes dialog)
+4. Click Discard on the dialog
+5. Navigate back to ECT
+6. Verify BM is unchanged (original value)
+
+**Expected**: Discarding unsaved changes prevents persistence; Angular dirty guard fires correctly on ECT tab
 **Automatable**: Yes

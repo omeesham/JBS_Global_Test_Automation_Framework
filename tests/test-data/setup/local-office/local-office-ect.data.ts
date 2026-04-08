@@ -33,7 +33,16 @@ export const BENEFITS_MULTIPLIER = {
 /** Historical Subrental test values. */
 export const HISTORICAL_SUBRENTAL = {
   testValue: '0.1',
+  defaultDisplay: '0.0%',
+  expectedAfterSave: '10.0%',
+  restoreValue: '0',
 } as const;
+
+/** Labor cost rows for data-driven round-trip tests (MNT-008). */
+export const LABOR_COST_RT_ROWS = [
+  { rowIndex: 33, name: 'Middle row' },
+  { rowIndex: 65, name: 'Last row' },
+] as const;
 
 /** Labor cost test values. */
 export const LABOR_COST_TEST = {

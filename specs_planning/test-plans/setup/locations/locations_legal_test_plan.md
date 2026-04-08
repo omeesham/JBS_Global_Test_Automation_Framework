@@ -1,7 +1,7 @@
 # Location Legal Test Plan
 **Module**: locations
 **Test Cases**: specs_planning/test-cases/locations/locations_legal_test_cases.md
-**Updated**: 2026-03-18
+**Updated**: 2026-04-06
 
 ## Selector Mapping
 
@@ -13,9 +13,9 @@
 | drpLegalServiceCharge0 | `[data-testid="location-settings-select-legal-0-service-charge"]` | Service Charge combobox (row 0) |
 | drpLegalTerms0 | `[data-testid="location-settings-select-legal-0-terms"]` | Terms and Conditions combobox (row 0) |
 | btnSaveLegal | `[data-testid="location-settings-btn-save"]` | Shared left-panel Save button |
-| dlgSaveChanges | `[role="alertdialog"]` | Save Changes confirmation dialog |
-| btnSaveDialogCancel | `[role="alertdialog"] button:has-text("Cancel")` | Dialog Cancel button |
-| btnSaveDialogConfirm | `[role="alertdialog"] button:has-text("Save")` | Dialog Save button |
+| dlgSaveChanges | `[role="alertdialog"]:has-text("Save Changes")` | Save Changes confirmation dialog (from shared.ts) |
+| btnSaveChangesCancel | `[role="alertdialog"] button:has-text("Cancel")` | Dialog Cancel button (from shared.ts) |
+| btnSaveChangesConfirm | `[role="alertdialog"] button:has-text("Ok")` | Dialog Ok/Confirm button (from shared.ts) |
 
 ---
 
@@ -115,7 +115,7 @@
 1. Step: Navigate fresh, click tab[tabLegal], expected: default SC = "Resort Service Charge"
 2. Step: Click combobox[drpLegalServiceCharge0], select "Administrative Fee", expected: value updates
 3. Step: Click button[btnSaveLegal], expected: alertdialog[dlgSaveChanges] appears with heading "Save Changes"
-4. Step: Click button[btnSaveDialogConfirm], expected: save executes, dialog closes
+4. Step: Click button[btnSaveChangesConfirm], expected: save executes, dialog closes
 5. Step: Verify button[btnSaveLegal], expected: disabled (post-save)
 6. Step: Reload page, click tab[tabLegal], expected: page reloads
 7. Step: Verify combobox[drpLegalServiceCharge0], expected: "Administrative Fee" (persisted)
@@ -127,7 +127,7 @@
 1. Step: Navigate fresh, click tab[tabLegal], expected: default T&C = "LDW"
 2. Step: Click combobox[drpLegalTerms0], select "Encore Terms and Conditions", expected: value updates
 3. Step: Click button[btnSaveLegal], expected: alertdialog appears
-4. Step: Click button[btnSaveDialogConfirm], expected: save executes
+4. Step: Click button[btnSaveChangesConfirm], expected: save executes
 5. Step: Reload page, click tab[tabLegal], expected: page reloads
 6. Step: Verify combobox[drpLegalTerms0], expected: "Encore Terms and Conditions" (persisted)
 7. Step: Cleanup: select "LDW", save, confirm dialog
@@ -138,7 +138,7 @@
 1. Step: Navigate fresh, click tab[tabLegal], expected: Legal tab loads
 2. Step: Click combobox[drpLegalServiceCharge0], select "Administrative Fee", expected: Save enables
 3. Step: Click button[btnSaveLegal], expected: alertdialog appears
-4. Step: Click button[btnSaveDialogCancel], expected: dialog closes
+4. Step: Click button[btnSaveChangesCancel], expected: dialog closes
 5. Step: Verify button[btnSaveLegal], expected: still enabled (not saved)
 6. Step: Reload page (accept beforeunload), click tab[tabLegal], expected: page reloads
 7. Step: Verify combobox[drpLegalServiceCharge0], expected: "Resort Service Charge" (change not saved)
@@ -161,5 +161,40 @@
 4. Step: Verify combobox[drpLegalServiceCharge0], expected: value reset (not "Resort Service Charge")
 5. Step: Verify combobox[drpLegalTerms0], expected: value reset (not "LDW")
 6. Step: Cleanup: revert Country to "United States", save
+
+---
+
+## Scenario: TC-LOC-LGL-016 - OMITTED: Service Charge dropdown sorted alphabetically
+**Status**: OMITTED (APP BUG — MCP-verified 2026-04-06)
+1. Step: Click tab[tabLegal], expected: Legal tab loads
+2. Step: Click combobox[drpLegalServiceCharge0], expected: listbox opens
+3. Step: Read all option texts, expected: sorted alphabetically (case-insensitive)
+
+**Why OMITTED**: Live dropdown is NOT sorted. Generic names first, location-specific after. v1 requirement says "sorted alphabetically" but app does not implement it. Test would fail against live behavior. Logged as APP BUG.
+
+---
+
+## Scenario: TC-LOC-LGL-017 - OMITTED: Terms and Conditions dropdown sorted alphabetically
+**Status**: OMITTED (APP BUG — MCP-verified 2026-04-06)
+1. Step: Click tab[tabLegal], expected: Legal tab loads
+2. Step: Click combobox[drpLegalTerms0], expected: listbox opens
+3. Step: Read all option texts, expected: sorted alphabetically (case-insensitive)
+
+**Why OMITTED**: Same as TC-016. Live dropdown is NOT sorted. Logged as APP BUG.
+
+---
+
+## Scenario: TC-LOC-LGL-018 - Combined SC + T&C change saves and persists both
+1. Step: Reload page, click tab[tabLegal], expected: clean form state (LR-026)
+2. Step: Click combobox[drpLegalServiceCharge0], select "Administrative Fee", expected: value updates
+3. Step: Click combobox[drpLegalTerms0], select "Encore Terms and Conditions", expected: value updates
+4. Step: Verify button[btnSaveLegal], expected: enabled
+5. Step: Click button[btnSaveLegal], expected: alertdialog[dlgSaveChanges] appears
+6. Step: Click button[btnSaveChangesConfirm], expected: save executes, dialog closes
+7. Step: Verify button[btnSaveLegal], expected: disabled (post-save)
+8. Step: Reload page, click tab[tabLegal], expected: fresh state loaded
+9. Step: Verify combobox[drpLegalServiceCharge0], expected: "Administrative Fee" (persisted)
+10. Step: Verify combobox[drpLegalTerms0], expected: "Encore Terms and Conditions" (persisted)
+11. Step: Cleanup: select "Resort Service Charge" + "LDW", save, confirm dialog
 
 ---

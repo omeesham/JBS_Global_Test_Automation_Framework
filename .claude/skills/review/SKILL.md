@@ -12,12 +12,15 @@ Focused code review of specific changes. This is NOT `/audit` — audit traces t
 
 ## When to Use
 
-**Identity**: OWNER, WATCHDOG, GARDENER. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER, WATCHDOG, GARDENER. Auto-loaded via Identity Gate.
 
 - **Auto-called** by `/deploy` (before commit)
 - **Manual**: user says "review", "check this code", "code review", "look at this PR", "is this good"
 - After implementing changes, before committing
 - When reviewing someone else's code or a colleague's PR
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/review`. No-op if compatible identity active.
 
 ## Steps
 

@@ -26,10 +26,10 @@ export const ADD_LOCATION = {
   searchByName: 'Miami',
   /** Max expected results after name search -- guards against full 4614-row list returning. */
   searchByNameMaxResults: 100,
-  /** Search term that returns exactly 1 row. */
-  searchByNumber: '1099',
+  /** Search term that returns exactly 1 row (dialog number search). Used by TC-011/TC-012/TC-013 only — never saved. */
+  searchByNumber: '990002',
   /** Location name matching searchByNumber. */
-  expectedName: 'Corporate Company',
+  expectedName: '990002 - Test Server1',
 } as const;
 
 /** Dialog heading when clicking Add. */

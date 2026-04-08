@@ -14,7 +14,7 @@ Systematic, evidence-driven root cause analysis for automated test failures. Com
 
 ## When to Use
 
-**Identity**: OWNER, HEALER. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER, HEALER. Auto-loaded via Identity Gate.
 
 - **Manual**: user says "RCA", "root cause", "why is this failing", "analyze this failure"
 - Before any bug fix that involves test failures
@@ -31,6 +31,9 @@ Systematic, evidence-driven root cause analysis for automated test failures. Com
 - Guess that "timing" or "flaky" is the cause without proving it
 
 ---
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/rca`. No-op if compatible identity active.
 
 ## Phase 0: Collect Artifacts (READ ONLY — no edits, no MCP)
 

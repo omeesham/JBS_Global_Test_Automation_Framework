@@ -2,7 +2,7 @@
 
 | Module | Test Cases | Automated | Manual | Out of Scope | Updated |
 |--------|------------|-----------|--------|--------------|--------|
-| Locations | 20 | 20 (100%) | 0 (0%) | 0 (0%) | 2026-02-25 |
+| Locations | 27 | 27 (100%) | 0 (0%) | 0 (0%) | 2026-04-07 |
 
 ---
 
@@ -299,3 +299,102 @@
 **Data**: office=1604
 **Status**: ✅ Automated
 **Automation File**: tests/specs/locations/location-currency.spec.ts
+
+---
+
+## TC-LOC-CUR-021: Selected currency persists after save and reload
+| Priority | Status | Type |
+|----------|--------|------|
+| High | ✅ Automated | Round-Trip Persistence |
+
+**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked 3. Verify **Save** button enabled ✓ Enabled 4. Click **Save** ✓ Save dialog confirmed, save completes 5. Verify **Save** button disabled ✓ Disabled (post-save) 6. Reload and navigate to **Currency** tab ✓ Tab loads 7. Verify CAD **Selected** ✓ Still checked (persisted)
+**Expected**: Selecting a currency and saving persists the selection through page reload
+**Data**: office=1604
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-currency.spec.ts
+**Cleanup**: Uncheck CAD **Selected** -- click **Save** -- confirm dialog
+
+---
+
+## TC-LOC-CUR-022: Merchant change persists after save and reload
+| Priority | Status | Type |
+|----------|--------|------|
+| High | ✅ Automated | Round-Trip Persistence |
+
+**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Open USD **Merchant** dropdown, select "316426 - Encore Bahamas/USD" ✓ Merchant changed 3. Verify USD **Merchant** field ✓ Shows "316426" 4. Verify **Save** enabled ✓ Enabled 5. Click **Save** ✓ Save completes 6. Verify **Save** disabled ✓ Disabled (post-save) 7. Reload and navigate to **Currency** tab ✓ Tab loads 8. Verify USD **Merchant** ✓ Still shows "316426 - Encore Bahamas/USD" (persisted)
+**Expected**: Changing merchant and saving persists the selection through page reload
+**Data**: office=1604 | alternate_merchant=316426 - Encore Bahamas/USD
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-currency.spec.ts
+**Cleanup**: Select USD **Merchant** "316370 - PSAV US/USD" (original) -- click **Save** -- confirm dialog
+
+---
+
+## TC-LOC-CUR-023: IsDefault change persists after save and reload (cascade)
+| Priority | Status | Type |
+|----------|--------|------|
+| High | ✅ Automated | Round-Trip Persistence |
+
+**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked 3. Check CAD **Is Default** checkbox ✓ CAD Is Default checked 4. Verify USD **Is Default** auto-unchecked ✓ Unchecked (cascade) 5. Verify **Save** enabled ✓ Enabled 6. Click **Save** ✓ Save completes 7. Verify **Save** disabled ✓ Disabled (post-save) 8. Reload and navigate to **Currency** tab ✓ Tab loads 9. Verify CAD **Is Default** ✓ Checked (persisted) 10. Verify USD **Is Default** ✓ Unchecked (cascade persisted)
+**Expected**: Changing default currency and saving persists the cascade through page reload
+**Data**: office=1604
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-currency.spec.ts
+**Cleanup**: Uncheck CAD **Selected** (auto-disables CAD Is Default) -- check USD **Is Default** -- click **Save** -- confirm dialog
+
+---
+
+## TC-LOC-CUR-024: Combined changes persist after single save and reload
+| Priority | Status | Type |
+|----------|--------|------|
+| High | ✅ Automated | Round-Trip Persistence |
+
+**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked 3. Change USD **Merchant** to "316426 - Encore Bahamas/USD" ✓ Merchant changed 4. Verify **Save** enabled ✓ Enabled 5. Click **Save** (single save for both changes) ✓ Save completes 6. Verify **Save** disabled ✓ Disabled (post-save) 7. Reload and navigate to **Currency** tab ✓ Tab loads 8. Verify CAD **Selected** ✓ Checked (persisted) 9. Verify USD **Merchant** ✓ Shows "316426 - Encore Bahamas/USD" (persisted)
+**Expected**: Multiple changes in a single save cycle all persist through page reload
+**Data**: office=1604 | alternate_merchant=316426 - Encore Bahamas/USD
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-currency.spec.ts
+**Cleanup**: Uncheck CAD **Selected** -- select USD **Merchant** "316370 - PSAV US/USD" -- click **Save** -- confirm dialog
+
+---
+
+## TC-LOC-CUR-025: Cancel save discards changes — reload shows original state
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | ✅ Automated | State Transition |
+
+**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked 3. Verify **Save** enabled ✓ Enabled 4. Click **Save** button ✓ Save Changes dialog appears 5. Click **Cancel** on Save Changes dialog ✓ Dialog dismissed 6. Reload and navigate to **Currency** tab ✓ Tab loads 7. Verify CAD **Selected** ✓ Unchecked (change was NOT saved)
+**Expected**: Cancelling the Save Changes dialog discards all pending changes
+**Data**: office=1604
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-currency.spec.ts
+**Notes**: No cleanup needed — cancel means nothing was saved
+
+---
+
+## TC-LOC-CUR-026: Beforeunload dialog fires when form is dirty
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | ✅ Automated | State Transition |
+
+**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked (form dirty) 3. Verify **Save** enabled ✓ Enabled 4. Attempt page reload ✓ Beforeunload dialog fires 5. Dismiss dialog (stay on page) ✓ Page stays
+**Expected**: Browser beforeunload dialog fires when attempting to navigate away from a dirty form
+**Data**: office=1604
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-currency.spec.ts
+**Cleanup**: Reload and navigate to **Currency** tab to discard dirty state
+**Notes**: MCP-verified 2026-04-06 (MCP-4)
+
+---
+
+## TC-LOC-CUR-027: No-default state persists after save and reload
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | ✅ Automated | Edge Case |
+
+**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Uncheck USD **Is Default** checkbox ✓ Unchecked (no currency is default) 3. Verify **Save** enabled ✓ Enabled 4. Click **Save** ✓ Save dialog confirmed, save completes 5. Verify **Save** disabled ✓ Disabled (post-save) 6. Reload and navigate to **Currency** tab ✓ Tab loads 7. Verify USD **Is Default** ✓ Still unchecked (no-default state persisted)
+**Expected**: Saving with no default currency set persists that state through page reload
+**Data**: office=1604
+**Status**: ✅ Automated
+**Automation File**: tests/specs/locations/location-currency.spec.ts
+**Cleanup**: Check USD **Is Default** -- click **Save** -- confirm dialog

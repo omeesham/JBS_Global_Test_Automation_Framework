@@ -62,6 +62,18 @@ For each learning identified, classify as:
 4. **References**: Write to `reference_*.md` in memory directory
 5. **Update MEMORY.md index** if any new files were created
 
+### Step 4.5: Upgrade Check (self-referential improvement)
+
+If Step 4 wrote any new mistakes or patterns, run `/upgrade` logic inline:
+
+1. For each new rule/pattern just captured, extract its TRIGGER and SCOPE
+2. Scan the current session's active TodoWrite items and recently modified files
+3. Check: does this new rule apply to anything we did or are doing RIGHT NOW?
+4. If yes: flag as `APPLY NOW` — the agent should fix before session ends
+5. If no: note why and move on
+
+This catches the "I just wrote a rule I'm violating" pattern. See `/upgrade` SKILL.md for full methodology.
+
 ### Step 5: Check for Graduation Candidates
 
 Scan `specs_planning/_internal/agent-mistakes.md` for patterns with **3+ occurrences** (similar root cause or same rule violated repeatedly).

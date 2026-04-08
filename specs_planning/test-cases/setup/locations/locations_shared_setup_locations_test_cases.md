@@ -1,5 +1,5 @@
 # Location Shared Setup Locations Test Cases
-**Module**: locations | **Total**: 17 | **Status**: Automated | **Updated**: 2026-03-19
+**Module**: locations | **Total**: 24 | **Status**: Automated | **Updated**: 2026-04-07
 
 ---
 
@@ -276,12 +276,12 @@
 
 **Steps**:
 1. Navigate to **Shared Setup Locations** tab -> click **Add** -> Dialog opens
-2. Type "1099" in search input -> Results filter to 1 row: "1099 - Corporate Company"
+2. Type "990002" in search input -> Results filter to 1 row: "990002 - Test Server1"
 3. Verify exact match shown -> Confirmed
 4. Click **Cancel** to close
 
 **Expected**: Search input filters results table by location number match
-**Data**: office=1604, search="1099"
+**Data**: office=1604, search="990002"
 
 ---
 
@@ -407,3 +407,140 @@
 **Expected**: No dedicated Save inside this tab; save uses left-panel Save with "Save Changes" confirmation dialog
 **Data**: office=1604
 **Cleanup**: Revert Shares Inventory -> Save
+
+---
+
+## TC-LOC-SSL-018: Add location via dialog -> save -> reload -> row persists
+| Priority | Status | Type |
+|----------|--------|------|
+| Critical | Automated | Persistence |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Reload and navigate to **Shared Setup Locations** tab -> Clean state (self only)
+2. Click **Add** -> Search "Miami" -> Select first available result -> Click **Select**
+3. Verify table now has 2 rows -> Confirmed
+4. Click **Save** -> Confirm dialog -> Save succeeds
+5. Reload page and navigate back to SSL tab -> Table reloads from server
+6. Verify table still has 2 rows and added location data matches -> Persisted
+
+**Expected**: Added location persists after save + reload round-trip
+**Data**: office=1604, search="Miami" (dynamic — picks first available)
+**Cleanup**: Delete added row + Save
+
+---
+
+## TC-LOC-SSL-019: Non-self Shares Inventory toggle -> save -> reload -> persisted
+| Priority | Status | Type |
+|----------|--------|------|
+| Critical | Automated | Persistence |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Setup: add first available location via name search + save + reload
+2. Verify non-self row has SI=checked (default) -> Confirmed
+3. Toggle **Shares Inventory** OFF on non-self row -> Save enabled
+4. Click **Save** -> Succeeds
+5. Reload and navigate back -> Non-self SI is unchecked -> Persisted
+
+**Expected**: Non-self Shares Inventory toggle persists after save + reload
+**Data**: office=1604, search="Miami" (dynamic)
+**Cleanup**: Delete added row + Save
+
+---
+
+## TC-LOC-SSL-020: Delete location -> save -> reload -> row removed
+| Priority | Status | Type |
+|----------|--------|------|
+| Critical | Automated | Persistence |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Setup: add first available location + save + reload -> 2 rows
+2. Delete non-self row -> Row removed instantly, Save enabled
+3. Click **Save** -> Succeeds
+4. Reload and navigate back -> Only self-row remains -> Deletion persisted
+
+**Expected**: Deleted location stays removed after save + reload
+**Data**: office=1604, search="Miami" (dynamic)
+
+---
+
+## TC-LOC-SSL-021: Combined self SI + add location -> save -> reload -> both persisted
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Persistence |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Reload to clean state -> Self SI=unchecked, 1 row
+2. Toggle self **Shares Inventory** ON
+3. Add location via name search dialog
+4. Click **Save** -> Succeeds
+5. Reload -> Self SI=checked AND added row present -> Both changes persisted
+
+**Expected**: Multiple changes (self SI toggle + add location) persist together
+**Data**: office=1604, search="Miami" (dynamic)
+**Cleanup**: Reset SI to unchecked + delete added row + Save (try/finally for LR-026)
+
+---
+
+## TC-LOC-SSL-022: Cancel Save dialog -> changes not persisted after reload
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Negative |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Reload to clean state -> Self SI=unchecked
+2. Toggle self **Shares Inventory** ON -> Save enabled
+3. Click **Save** -> "Save Changes" dialog appears
+4. Click **Cancel** in dialog -> Dialog closes, form still dirty
+5. Reload without saving -> Self SI reverts to unchecked -> Not persisted
+
+**Expected**: Cancelling the Save dialog does NOT persist changes
+**Data**: office=1604
+
+---
+
+## TC-LOC-SSL-023: Beforeunload fires when SSL form is dirty
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Functional |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Reload to clean state
+2. Toggle self **Shares Inventory** -> Form dirty, Save enabled
+3. Trigger page reload -> Browser beforeunload dialog fires
+4. Dismiss dialog (stay on page) -> Page remains
+
+**Expected**: Dirty form triggers beforeunload dialog on navigation/reload
+**Data**: office=1604
+**Cleanup**: Navigate away to discard
+
+---
+
+## TC-LOC-SSL-024: Already-added location absent from Change Local Office dialog
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Automatable**: Yes
+
+**Steps**:
+1. Setup: add first available location + save
+2. Read the added location's number from the table
+3. Click **Add** -> Dialog opens
+4. Search for the added location's number -> "No results." (count=1, localOffice empty)
+5. Verify the row is NOT the added location -> Confirmed absent
+
+**Expected**: Dialog excludes locations already associated with this office
+**Data**: office=1604, search=dynamic (captured from table after add)
+**Cleanup**: Delete added row + Save

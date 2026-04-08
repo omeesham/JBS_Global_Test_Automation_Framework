@@ -158,3 +158,90 @@
 2. Step: Click CAD row checkbox[Selected], expected: checked
 3. Step: Click MXN row checkbox[Selected], expected: checked
 4. Step: Verify all three checkbox[Selected] states, expected: all checked
+
+---
+
+## Scenario: TC-LOC-CUR-021 - Selected currency persists after save and reload
+1. Step: Reload page and navigate to tab[Currency], expected: tab loads with clean state
+2. Step: Click CAD row checkbox[Selected], expected: checked
+3. Step: Verify button[Save] enabled, expected: true
+4. Step: Click button[Save], expected: alertdialog[Save Changes] appears, confirm, save completes
+5. Step: Verify button[Save] disabled, expected: true (post-save)
+6. Step: Reload page and navigate to tab[Currency], expected: tab loads
+7. Step: Verify CAD row checkbox[Selected], expected: checked (persisted)
+8. Cleanup: Uncheck CAD Selected → Save → confirm dialog
+
+---
+
+## Scenario: TC-LOC-CUR-022 - Merchant change persists after save and reload
+1. Step: Reload page and navigate to tab[Currency], expected: tab loads
+2. Step: Click USD row combobox[Merchant], select "316426 - Encore Bahamas/USD", expected: merchant changed
+3. Step: Verify USD row combobox[Merchant] text, expected: contains "316426"
+4. Step: Verify button[Save] enabled, expected: true
+5. Step: Click button[Save], expected: save completes
+6. Step: Verify button[Save] disabled, expected: true (post-save)
+7. Step: Reload page and navigate to tab[Currency], expected: tab loads
+8. Step: Verify USD row combobox[Merchant] text, expected: "316426 - Encore Bahamas/USD" (persisted)
+9. Cleanup: Select USD Merchant "316370 - PSAV US/USD" → Save → confirm dialog
+
+---
+
+## Scenario: TC-LOC-CUR-023 - IsDefault change persists after save and reload (cascade)
+1. Step: Reload page and navigate to tab[Currency], expected: tab loads
+2. Step: Click CAD row checkbox[Selected], expected: checked
+3. Step: Click CAD row checkbox[Is Default], expected: checked
+4. Step: Verify USD row checkbox[Is Default], expected: unchecked (auto-cascade)
+5. Step: Verify button[Save] enabled, expected: true
+6. Step: Click button[Save], expected: save completes
+7. Step: Verify button[Save] disabled, expected: true (post-save)
+8. Step: Reload page and navigate to tab[Currency], expected: tab loads
+9. Step: Verify CAD row checkbox[Is Default], expected: checked (persisted)
+10. Step: Verify USD row checkbox[Is Default], expected: unchecked (cascade persisted)
+11. Cleanup: Uncheck CAD Selected → check USD Is Default → Save → confirm dialog
+
+---
+
+## Scenario: TC-LOC-CUR-024 - Combined changes persist after single save and reload
+1. Step: Reload page and navigate to tab[Currency], expected: tab loads
+2. Step: Click CAD row checkbox[Selected], expected: checked
+3. Step: Click USD row combobox[Merchant], select "316426 - Encore Bahamas/USD", expected: merchant changed
+4. Step: Verify button[Save] enabled, expected: true
+5. Step: Click button[Save] (single save for both changes), expected: save completes
+6. Step: Verify button[Save] disabled, expected: true (post-save)
+7. Step: Reload page and navigate to tab[Currency], expected: tab loads
+8. Step: Verify CAD row checkbox[Selected], expected: checked (persisted)
+9. Step: Verify USD row combobox[Merchant] text, expected: "316426 - Encore Bahamas/USD" (persisted)
+10. Cleanup: Uncheck CAD Selected → select USD Merchant "316370 - PSAV US/USD" → Save → confirm dialog
+
+---
+
+## Scenario: TC-LOC-CUR-025 - Cancel save discards changes — reload shows original state
+1. Step: Reload page and navigate to tab[Currency], expected: tab loads
+2. Step: Click CAD row checkbox[Selected], expected: checked
+3. Step: Verify button[Save] enabled, expected: true
+4. Step: Click button[Save], expected: alertdialog[Save Changes] appears
+5. Step: Click Cancel on dialog, expected: dialog dismissed
+6. Step: Reload page and navigate to tab[Currency], expected: tab loads
+7. Step: Verify CAD row checkbox[Selected], expected: unchecked (change NOT saved)
+
+---
+
+## Scenario: TC-LOC-CUR-026 - Beforeunload dialog fires when form is dirty
+1. Step: Reload page and navigate to tab[Currency], expected: tab loads
+2. Step: Click CAD row checkbox[Selected], expected: checked (form dirty)
+3. Step: Verify button[Save] enabled, expected: true
+4. Step: Attempt page reload, expected: beforeunload dialog fires
+5. Step: Dismiss dialog (stay on page), expected: page stays, no navigation
+6. Cleanup: Reload to discard dirty state
+
+---
+
+## Scenario: TC-LOC-CUR-027 - No-default state persists after save and reload
+1. Step: Reload page and navigate to tab[Currency], expected: tab loads
+2. Step: Uncheck USD row checkbox[Is Default], expected: unchecked (no currency is default)
+3. Step: Verify button[Save] enabled, expected: true
+4. Step: Click button[Save], expected: alertdialog[Save Changes] appears, confirm, save completes
+5. Step: Verify button[Save] disabled, expected: true (post-save)
+6. Step: Reload page and navigate to tab[Currency], expected: tab loads
+7. Step: Verify USD row checkbox[Is Default], expected: unchecked (no-default state persisted)
+8. Cleanup: Check USD Is Default → Save → confirm dialog

@@ -4,9 +4,8 @@
 
 **On every session start**, TWO checks:
 1. Check if `config/environments/.env.local` exists → if missing, new collaborator onboarding
-2. **Identity check**: If the user's request involves pipeline work (requirements, test planning,
-   spec generation, test healing, auditing, or maintenance), invoke `/identity` to adopt the
-   correct agent persona BEFORE starting. For general framework work, auto-adopt OWNER identity.
+2. **Identity check**: Auto-detected by skill Identity Gates. For non-skill pipeline work,
+   `/identity` Step 1.6 detects from keywords. Manual `/identity` still available. OWNER is default.
 
 ### Step 1 — Create your agent identity
 Ask: "What's your name?" Copy `.claude/agents/COLLEAGUE.agent.md` → `.claude/agents/<NAME>.agent.md`, replace all `<YOUR_NAME>` placeholders, commit + push.
@@ -60,7 +59,7 @@ If multiple intents match, use the FIRST matching rule. If the user explicitly n
 
 | Priority | Intent Pattern | Skill | Notes |
 |----------|---------------|-------|-------|
-| 0 | Session start with pipeline work, "/identity", "be the HUNTER/GIVER/etc", "switch identity" | `/identity` | MUST run before pipeline work. Auto-OWNER for general tasks |
+| 0 | Session start with pipeline work, "/identity", "be the HUNTER/GIVER/etc", "switch identity" | `/identity` | Auto-detected by Identity Gates. Manual invoke shows menu. |
 | 1 | User explicitly says `/skillname` | That skill | Always highest priority |
 | 2 | "RCA", "root cause", "why is this failing", "analyze failure" | `/rca` | Professional artifact-first root cause analysis |
 | 3 | "fix bug", "broken", "not working", "error", "crash" | `/bugfix` | General bug fixing with root cause analysis |
@@ -78,6 +77,9 @@ If multiple intents match, use the FIRST matching rule. If the user explicitly n
 | 15 | "KT", "knowledge transfer", "share learnings" | `/share-kt` | Cross-repo KT |
 | 16 | "find bugs", "QA", "break it", "stress test", "what could go wrong" | `/find-bugs` | Adversarial bug hunting |
 | 17 | "check for regressions", "did anything break", "fingerprint" | `/regression-guard` | Structural before/after diff |
+| 18 | Complex multi-step task, "what skills should I use", "check skills" | `/relevant` | Pre-task skill injection |
+| 19 | "does this apply", "upgrade check", "check current work" | `/upgrade` | Self-referential improvement check |
+| 20 | "use sonnet", "sonnet mode", "/sonnet" | `/sonnet` | Model-aware guardrails activation |
 
 ### Multi-Intent Resolution
 If the user's message spans multiple intents (e.g., "fix the bug then deploy"):
@@ -92,9 +94,13 @@ If intent is unclear, DO NOT auto-route. Ask the user which skill applies, or an
 
 ## Identity Enforcement
 
-**Hard rule**: Pipeline-stage work (requirements capture, test planning, spec generation,
-test healing, auditing, maintenance sweeps) requires an active identity via `/identity`.
-General framework work auto-adopts OWNER (no prompt needed).
+**Auto-detected**: Every non-leaf skill auto-calls `/identity` via Identity Gate as its first step.
+The right identity is loaded from the Step 4 mapping table — no manual invocation needed.
+
+**Priority Chain**: Explicit `/identity X` > Active+Compatible (skip) > Auto-Load Default
+
+**Task-level fallback**: When no skill is matched, `/identity` Step 1.6 detects identity
+from keywords in the user's message. OWNER is the safe default.
 
 **Active identity constrains ALL actions**:
 - File writes checked against §2 ownership (AGENT_SHARED_RULES.md)
@@ -108,23 +114,47 @@ General framework work auto-adopts OWNER (no prompt needed).
 
 ---
 
+## Model-Aware Guardrails
+
+**Sonnet task boundaries** — same HALT mechanism as /identity file ownership:
+- **[HALT]** Sonnet + MCP browser tools = BLOCKED. Write handoff note, skip step.
+- **[HALT]** Sonnet + RCA/debugging/hypothesis = BLOCKED. Flag with [?], skip step.
+- **SAFE**: Page objects, specs, test data, selectors, docs (deterministic file edits).
+- Plans tag steps [SONNET-SAFE] or [OPUS-ONLY]. Sonnet skips [OPUS-ONLY] with handoff.
+
+**Activation**: `/sonnet` or "sonnet mode". **Deactivation**: `/sonnet off`.
+Full guardrails (checklists, breadcrumbs, handoff format): see `/sonnet` SKILL.md.
+
+---
+
 ## Skill Dependency Graph (Auto-Calls)
 
 ```
-/planning ──auto-calls──> /research
-/execute  ──auto-calls──> /regression-guard (before+after), /reflect
-/bugfix   ──auto-calls──> /regression-guard (before+after), /reflect
-/cleanup  ──auto-calls──> /regression-guard (before+after)
-/deploy   ──auto-calls──> /regression-guard, /review
-/chain    ──auto-calls──> /regression-guard, /reflect, /research
-/audit    ──auto-calls──> /reflect
+/identity (universal gate — auto-called by all non-leaf skills as first step)
 
-Leaf skills (no auto-calls):
-  /identity, /regression-guard, /reflect, /compile-learnings, /research
-  /review, /questionnaire, /share-kt, /rca, /find-bugs
+/planning ──auto-calls──> /identity, /research
+/execute  ──auto-calls──> /identity, /relevant (Phase 0.5), /regression-guard (before+after), /reflect
+/bugfix   ──auto-calls──> /identity, /regression-guard (before+after), /reflect
+/cleanup  ──auto-calls──> /identity, /regression-guard (before+after)
+/deploy   ──auto-calls──> /identity, /regression-guard, /review
+/chain    ──auto-calls──> /identity, /relevant (Phase 0.5, per plan), /regression-guard, /reflect, /research
+/audit    ──auto-calls──> /identity, /reflect
+/rca      ──auto-calls──> /identity
+/review   ──auto-calls──> /identity
+/find-bugs──auto-calls──> /identity
+/compile-learnings ──auto-calls──> /identity
+/research ──auto-calls──> /identity
+/share-kt ──auto-calls──> /identity
+
+Leaf skills (inherit parent identity, no /identity auto-call):
+  /reflect, /regression-guard, /questionnaire
+
+Utility skills (no auto-calls, available to all identities):
+  /relevant, /upgrade, /sonnet
 ```
 
-No circular dependencies exist. `/regression-guard` and `/reflect` are always leaves.
+No circular dependencies. `/identity` is always a leaf — it never auto-calls other skills.
+`/upgrade` is embedded as a step within `/reflect` (Step 4.5) and `/compile-learnings` — not auto-called.
 
 ---
 
@@ -337,3 +367,32 @@ Fix patterns:
 - Recovery values must differ from the server-saved original
 **Trigger**: Any test that saves data then navigates, or any serial test after a save.
 **Graduated from**: LR-009, GEN-026, GEN-033, session 2026-04-02
+
+### LR-027: Plan finalization — execution summary MANDATORY before move to done/
+When moving a plan from `plans/pending/` to `plans/done/`:
+1. Update status field: `**Status**: DONE`
+2. Add `**Executed**: YYYY-MM-DD` date
+3. Write `### Execution Summary` section with:
+   - TCs implemented (count + IDs)
+   - TCs dropped (count + IDs + per-TC justification citing MCP finding)
+   - MCP verification results (numbered, with outcome)
+   - Documentation changes made
+   - Test pass confirmation with date
+4. If ANY planned TC is not implemented, it MUST have one of:
+   - `NOT-AUTOMATABLE` — with MCP evidence why
+   - `DEFERRED` — with reason and tracking reference
+   - `APP BUG` — with documentation in REQUIREMENTS.md
+   A TC with no justification = audit finding.
+**Trigger**: Any plan movement from pending/ to done/.
+**Graduated from**: WATCHDOG audit 2026-04-06 (F-002, F-003, F-004).
+
+### LR-028: Session bookkeeping — activity log entry at session end
+Before ending any session that modified pipeline artifacts (specs, page objects, selectors,
+test data, test cases, test plans, REQUIREMENTS.md):
+1. Append entry to `specs_planning/_internal/agent-activity-log.md`
+   Format: `| YYYY-MM-DDThh:mm | agent | done | file1, file2, ... | DESCRIPTION |`
+2. If unexpected behaviors were discovered → write to `agent-mistakes.md`
+3. If MCP findings contradicted plan assumptions → update the plan's execution summary
+Activity log is the audit trail. Missing entry = invisible session = audit finding.
+**Trigger**: End of any session that touched pipeline files.
+**Graduated from**: WATCHDOG audit 2026-04-06 (F-001).

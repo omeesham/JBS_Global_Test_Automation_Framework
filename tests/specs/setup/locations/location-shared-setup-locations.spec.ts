@@ -14,24 +14,8 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
   test('TC-LOC-SSL-001: Tab loads with shared-setup table and Add button', async ({ locationSharedSetupLocationsPage: pg }) => {
     test.setTimeout(60_000);
     await pg.navigateToSharedSetupTab(OFFICE_NO);
-    // LR-019: Baseline enforcement — clean up any extra rows saved by a prior failed run.
-    // Row count should be 1 (self only). If > 1, delete extras (index 2..N) and save.
-    let rowCount = await pg.getDataRowCount();
-    if (rowCount > 1) {
-      // Delete from last row backwards to avoid index shift issues
-      for (let i = rowCount; i >= 2; i--) {
-        await pg.deleteNonSelfRow(i);
-      }
-      await pg.clickSave();
-      await pg.navigateToSharedSetupTab(OFFICE_NO);
-    }
-    // Guarantee Shares Inventory is unchecked before all subsequent TCs.
-    const inventoryState = await pg.getSelfSharesInventoryState();
-    if (inventoryState.checked) {
-      await pg.toggleSelfSharesInventory();
-      await pg.clickSave();
-      await pg.navigateToSharedSetupTab(OFFICE_NO);
-    }
+    // LR-019: Baseline enforcement — clean up any extra rows and reset SI.
+    await pg.ensureCleanSSLTable(OFFICE_NO);
     expect(await pg.isElementVisible('tblSharedSetupLocations')).toBe(true);
     expect(await pg.isElementVisible('btnSharedAdd')).toBe(true);
   });
@@ -77,18 +61,19 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
   });
 
   test('TC-LOC-SSL-007: Reverting Shares Inventory to original state disables Save', async ({ locationSharedSetupLocationsPage: pg }) => {
+    // Verify starting state before toggling (form must be stable from TC-006 cleanup)
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(false);
     await pg.toggleSelfSharesInventory();
     await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
     await pg.toggleSelfSharesInventory();
-    await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(false);
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 8_000 }).toBe(false);
   });
 
   test('TC-LOC-SSL-008: Shares Inventory save persists after reload', async ({ locationSharedSetupLocationsPage: pg }) => {
     test.setTimeout(90_000);
     await pg.toggleSelfSharesInventory();
     await pg.clickSave();
-    await pg.reloadPage();
-    await pg.navigateToSharedSetupTab(OFFICE_NO);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
     expect((await pg.getSelfSharesInventoryState()).checked).toBe(true);
     // Cleanup: restore original unchecked state
     await pg.toggleSelfSharesInventory();
@@ -195,6 +180,194 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
     // Cleanup: revert Shares Inventory to keep DB in known clean state
     await pg.toggleSelfSharesInventory();
     await pg.clickSave();
+  });
+
+  test('TC-LOC-SSL-018: Add location via dialog -> save -> reload -> row persists', async ({ locationSharedSetupLocationsPage: pg }) => {
+    test.setTimeout(90_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    // Add first available location via name search (ghost-proof — always finds an available one)
+    await pg.clickAdd();
+    await pg.searchInDialog(ADD_LOCATION.searchByName);
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 })
+      .toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+    await pg.selectFirstDialogRow();
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+    await pg.clickDialogSelect();
+    expect(await pg.getDataRowCount()).toBe(2);
+    // Capture added row from TABLE (not dialog — dialog text timing is unreliable)
+    const added = await pg.findNonSelfRow();
+    expect(added).not.toBeNull();
+    // Save
+    const result = await pg.clickSave();
+    expect(result.success).toBe(true);
+    // Reload and verify
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    expect(await pg.getDataRowCount()).toBe(2);
+    const persisted = await pg.findNonSelfRow();
+    expect(persisted).not.toBeNull();
+    expect(persisted!.localOffice).toBe(added!.localOffice);
+    expect(persisted!.localOfficeName).toBe(added!.localOfficeName);
+    // Cleanup: delete + save (use dynamic index)
+    await pg.deleteNonSelfRow(persisted!.index);
+    const cleanup = await pg.clickSave();
+    expect(cleanup.success).toBe(true);
+  });
+
+  test('TC-LOC-SSL-019: Non-self Shares Inventory toggle -> save -> reload -> persisted', async ({ locationSharedSetupLocationsPage: pg }) => {
+    test.setTimeout(90_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    // Setup: add first available location and save
+    await pg.clickAdd();
+    await pg.searchInDialog(ADD_LOCATION.searchByName);
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 })
+      .toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+    await pg.selectFirstDialogRow();
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+    await pg.clickDialogSelect();
+    const addSave = await pg.clickSave();
+    expect(addSave.success).toBe(true);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    // Find the non-self row (sort order varies)
+    const nsRow = await pg.findNonSelfRow();
+    expect(nsRow).not.toBeNull();
+    // Default: SI is checked for non-self rows. Toggle OFF.
+    expect((await pg.getNonSelfRowState(nsRow!.index)).sharesInventory.checked).toBe(true);
+    await pg.toggleNonSelfSharesInventory(nsRow!.index);
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+    const result = await pg.clickSave();
+    expect(result.success).toBe(true);
+    // Reload and verify SI is OFF
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    const nsRow2 = await pg.findNonSelfRow();
+    expect((await pg.getNonSelfRowState(nsRow2!.index)).sharesInventory.checked).toBe(false);
+    // Cleanup: delete row + save
+    await pg.deleteNonSelfRow(nsRow2!.index);
+    const cleanup = await pg.clickSave();
+    expect(cleanup.success).toBe(true);
+  });
+
+  test('TC-LOC-SSL-020: Delete location -> save -> reload -> row removed', async ({ locationSharedSetupLocationsPage: pg }) => {
+    test.setTimeout(90_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    // Setup: add first available location and save
+    await pg.clickAdd();
+    await pg.searchInDialog(ADD_LOCATION.searchByName);
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 })
+      .toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+    await pg.selectFirstDialogRow();
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+    await pg.clickDialogSelect();
+    const addSave = await pg.clickSave();
+    expect(addSave.success).toBe(true);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    expect(await pg.getDataRowCount()).toBe(2);
+    // Delete non-self row and save (use dynamic index — sort order varies)
+    const nsRow = await pg.findNonSelfRow();
+    await pg.deleteNonSelfRow(nsRow!.index);
+    await expect.poll(() => pg.getDataRowCount(), { timeout: 5_000 }).toBe(1);
+    const result = await pg.clickSave();
+    expect(result.success).toBe(true);
+    // Reload and verify row is gone
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    expect(await pg.getDataRowCount()).toBe(1);
+  });
+
+  test('TC-LOC-SSL-021: Combined self SI + add location -> save -> reload -> both persisted', async ({ locationSharedSetupLocationsPage: pg }) => {
+    test.setTimeout(90_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    // Make two changes: toggle self SI ON + add location via name search
+    await pg.toggleSelfSharesInventory();
+    await pg.clickAdd();
+    await pg.searchInDialog(ADD_LOCATION.searchByName);
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 })
+      .toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+    await pg.selectFirstDialogRow();
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+    await pg.clickDialogSelect();
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+    const result = await pg.clickSave();
+    expect(result.success).toBe(true);
+    // Reload and verify both changes persisted
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    expect((await pg.getSelfSharesInventoryState()).checked).toBe(true);
+    expect(await pg.getDataRowCount()).toBe(2);
+    // Cleanup (per LR-026, use try/finally for combined dirty state)
+    try {
+      await pg.setSelfSharesInventory(false);
+      const nsRow = await pg.findNonSelfRow();
+      if (nsRow) await pg.deleteNonSelfRow(nsRow.index);
+      await pg.clickSave();
+    } catch {
+      await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+      await pg.ensureCleanSSLTable(OFFICE_NO);
+    }
+  });
+
+  test('TC-LOC-SSL-022: Cancel Save dialog -> changes not persisted after reload', async ({ locationSharedSetupLocationsPage: pg }) => {
+    test.setTimeout(90_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    // Make a change
+    await pg.toggleSelfSharesInventory();
+    expect((await pg.getSelfSharesInventoryState()).checked).toBe(true);
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+    // Open Save dialog and cancel it
+    await pg.openSaveDialog();
+    await pg.cancelSaveDialog();
+    // Form still dirty after cancel
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 3_000 }).toBe(true);
+    // Reload without saving — change should NOT persist
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    expect((await pg.getSelfSharesInventoryState()).checked).toBe(false);
+  });
+
+  test('TC-LOC-SSL-023: Beforeunload fires when SSL form is dirty', async ({ locationSharedSetupLocationsPage: pg }) => {
+    test.setTimeout(90_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    // Make form dirty
+    await pg.toggleSelfSharesInventory();
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+    // Trigger reload — beforeunload should fire and be dismissed (stay on page)
+    const fired = await pg.triggerBeforeunloadAndStay();
+    expect(fired).toBe(true);
+    // Cleanup: navigate away to discard
+    await pg.discardAndReturn(OFFICE_NO);
+  });
+
+  test('TC-LOC-SSL-024: Already-added location is absent from Change Local Office dialog', async ({ locationSharedSetupLocationsPage: pg }) => {
+    test.setTimeout(90_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    // Setup: add first available location and save
+    await pg.clickAdd();
+    await pg.searchInDialog(ADD_LOCATION.searchByName);
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 })
+      .toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+    await pg.selectFirstDialogRow();
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+    await pg.clickDialogSelect();
+    const result = await pg.clickSave();
+    expect(result.success).toBe(true);
+    // Read the added location from the TABLE (reliable, not dialog)
+    const added = await pg.findNonSelfRow();
+    expect(added).not.toBeNull();
+    // Test: open dialog, search for the same location number — must not appear
+    await pg.clickAdd();
+    await pg.searchInDialog(added!.localOffice);
+    // Wait for debounce — "No results." row shows (count stays 1 but localOffice is empty)
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 }).toBe(1);
+    const row = await pg.getFirstDialogRowText();
+    expect(row.localOffice).not.toBe(added!.localOffice);
+    await pg.clickDialogCancel();
+    // Cleanup: delete + save (use dynamic index)
+    await pg.deleteNonSelfRow(added!.index);
+    const cleanup = await pg.clickSave();
+    expect(cleanup.success).toBe(true);
   });
 
 });

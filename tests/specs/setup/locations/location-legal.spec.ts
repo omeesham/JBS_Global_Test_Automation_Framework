@@ -28,7 +28,7 @@ test.describe.serial('Location Legal @locations @legal', () => {
       await locationLegalPage.clickSave();
       await locationLegalPage.reloadAndNavigateToLegalTab();
     }
-    expect(locationLegalPage.getCurrentUrl()).toContain('locations/1604/settings');
+    expect(locationLegalPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
     expect(await locationLegalPage.getColumnHeaders()).toEqual([...LEGAL_COLUMN_HEADERS]);
     expect(await locationLegalPage.getGridRowCount()).toBe(1);
   });
@@ -152,5 +152,32 @@ test.describe.serial('Location Legal @locations @legal', () => {
 
   // TC-LOC-LGL-015 OMITTED: Country cascade test requires left-panel Country selector
   // that does not exist in current selector inventory. Logged as missing-coverage.
+
+  // TC-LOC-LGL-016/017 OMITTED: Sort order assertion — v1 requirement says "sorted alphabetically"
+  // but MCP-verified 2026-04-06: BOTH dropdowns are NOT sorted (generic names first, location-specific after).
+  // Logged as APP BUG in REQUIREMENTS.md and master plan. Tests would fail against live behavior.
+
+  test('TC-LOC-LGL-018: Combined SC + T&C change saves and persists both', async ({ locationLegalPage }) => {
+    test.setTimeout(60_000);
+    // LR-026: reload before save cycle to ensure clean form state
+    await locationLegalPage.reloadAndNavigateToLegalTab();
+    // Change BOTH fields
+    await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
+    await locationLegalPage.selectTerms(LEGAL_ALT_TC);
+    expect(await locationLegalPage.isSaveEnabled()).toBe(true);
+    // Save
+    const result = await locationLegalPage.clickSave();
+    expect(result.success).toBe(true);
+    expect(await locationLegalPage.isSaveEnabled()).toBe(false);
+    // Reload and verify both persisted
+    await locationLegalPage.reloadAndNavigateToLegalTab();
+    expect(await locationLegalPage.getServiceChargeValue()).toBe(LEGAL_ALT_SC);
+    expect(await locationLegalPage.getTermsValue()).toBe(LEGAL_ALT_TC);
+    // Cleanup: restore BOTH to defaults
+    await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
+    await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
+    const restore = await locationLegalPage.clickSave();
+    expect(restore.success).toBe(true);
+  });
 
 });

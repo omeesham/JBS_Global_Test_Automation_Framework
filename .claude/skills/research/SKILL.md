@@ -12,12 +12,15 @@ Focused web research that synthesizes findings and maps them to our specific sta
 
 ## When to Use
 
-**Identity**: OWNER, HUNTER, GIVER, BUILDER. Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER, HUNTER, GIVER, BUILDER. Auto-loaded via Identity Gate.
 
 - **Auto-called** by `/planning` (Step 0, when unfamiliar territory)
 - **Auto-called** by `/chain` (Phase 1/4, when knowledge gaps found)
 - **Manual**: user says "research", "best practices", "how do others do", "what's the standard approach", "look this up"
 - **Error recovery**: when a command fails or behavior is unexpected — search before guessing
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/research`. No-op if compatible identity active.
 
 ## Steps
 

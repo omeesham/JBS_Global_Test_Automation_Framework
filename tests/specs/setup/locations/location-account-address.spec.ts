@@ -4,6 +4,7 @@ import { test, expect } from '../../../setup/fixtures';
 import {
   VENUE_NAME, PHONE1_BASELINE, ACCOUNT_SEARCH, ADDRESS_SEARCH,
   TEST_PHONE2_VALUE, ACCOUNT_TEST_PHONE, VENUE_DISPLAY_FIELDS, MASTER_DISPLAY_FIELDS,
+  ACCOUNT_LIST_FILTERS, ALT_ADDRESS, ORIGINAL_ADDRESS,
 } from '../../../test-data/setup/locations/location-account-address.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
@@ -177,6 +178,109 @@ test.describe.serial('Location Account and Address @locations @account-address',
     // Cleanup: restore Phone 2 to empty baseline
     await locationAccountAddressPage.fillPhone2('');
     await locationAccountAddressPage.clickSave();
+  });
+
+  // ─── New TCs (Session 2: PLAN_AUDIT_ACCOUNT_ADDRESS) ────────────────────────
+  // TC-021 DROPPED: MCP verification (2026-04-07) proved Phone 1 is account-linked.
+  // Save completes but value always reverts to account phone on reload. NOT-AUTOMATABLE.
+
+  test('TC-LOC-ACC-022: Cancel Save dialog discards save without persisting', async ({ locationAccountAddressPage }) => {
+    test.setTimeout(60_000);
+    await locationAccountAddressPage.fillPhone2(ACCOUNT_TEST_PHONE);
+    await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+    // Click Save → Cancel in confirmation dialog
+    await locationAccountAddressPage.openSaveDialog();
+    await locationAccountAddressPage.cancelSaveDialog();
+    // Verify: Save still enabled (changes not committed), value still present
+    expect(await locationAccountAddressPage.isSaveEnabled()).toBe(true);
+    expect(await locationAccountAddressPage.getPhone2Value()).toBe(ACCOUNT_TEST_PHONE);
+    // Discard changes via reload (LR-026)
+    await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
+  });
+
+  test('TC-LOC-ACC-023: Phone 1 cleared shows invalid state and error icon', async ({ locationAccountAddressPage }) => {
+    // MCP-verified (2026-04-07): clearing Phone 1 shows aria-invalid=true but Save stays enabled.
+    // This TC verifies validation indicators; Save blocking is NOT app behavior.
+    await locationAccountAddressPage.clearPhone1AndBlur();
+    expect(await locationAccountAddressPage.isPhone1Invalid()).toBe(true);
+    expect(await locationAccountAddressPage.isPhone1ErrorIconVisible()).toBe(true);
+    // Save remains enabled even with invalid field (Angular doesn't block)
+    expect(await locationAccountAddressPage.isSaveEnabled()).toBe(true);
+    // Discard — reload to restore server-saved baseline (LR-026)
+    await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
+  });
+
+  test('TC-LOC-ACC-025: Account List Address filter returns matching results', async ({ locationAccountAddressPage }) => {
+    test.setTimeout(60_000);
+    await locationAccountAddressPage.openAccountListDialog();
+    await locationAccountAddressPage.searchAccountByAddress(ACCOUNT_LIST_FILTERS.address);
+    await expect.poll(
+      () => locationAccountAddressPage.accountListResultsContain(ACCOUNT_LIST_FILTERS.addressExpected),
+      { timeout: 20_000, message: 'Address filter should return matching results' }
+    ).toBe(true);
+    await locationAccountAddressPage.cancelAccountListDialog();
+  });
+
+  test('TC-LOC-ACC-026: Account List City filter returns matching results', async ({ locationAccountAddressPage }) => {
+    test.setTimeout(60_000);
+    await locationAccountAddressPage.openAccountListDialog();
+    await locationAccountAddressPage.searchAccountByCity(ACCOUNT_LIST_FILTERS.city);
+    await expect.poll(
+      () => locationAccountAddressPage.accountListResultsContain(ACCOUNT_LIST_FILTERS.cityExpected),
+      { timeout: 20_000, message: 'City filter should return matching results' }
+    ).toBe(true);
+    await locationAccountAddressPage.cancelAccountListDialog();
+  });
+
+  test('TC-LOC-ACC-027: Address selection changes venue display fields', async ({ locationAccountAddressPage }) => {
+    test.setTimeout(60_000);
+    // MCP-verified (2026-04-07): address selection updates display but does NOT persist through save+reload.
+    // Angular form model doesn't serialize the new address. This TC tests E2E display change only.
+    // Verify starting state
+    await expect.poll(() => locationAccountAddressPage.getVenueCityText(), { timeout: 5_000 }).toBe(ORIGINAL_ADDRESS.city);
+    // Select alternate address
+    await locationAccountAddressPage.openVenueAddressDialog();
+    await locationAccountAddressPage.selectAddressRow(ALT_ADDRESS.address1);
+    // Verify display changed
+    await expect.poll(() => locationAccountAddressPage.getVenueCityText(), { timeout: 5_000 }).toBe(ALT_ADDRESS.city);
+    // Save enables (form dirty from selection)
+    await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+    // Discard: reload restores original (LR-026)
+    await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
+    await expect.poll(() => locationAccountAddressPage.getVenueCityText(), { timeout: 10_000 }).toBe(ORIGINAL_ADDRESS.city);
+  });
+
+  test('TC-LOC-ACC-028: Account selection changes venue name and persists', async ({ locationAccountAddressPage }) => {
+    test.setTimeout(120_000);
+    const originalName = await locationAccountAddressPage.getVenueNameValue();
+    try {
+      // Open Account List → search for current account → select (re-selecting same triggers dirty)
+      await locationAccountAddressPage.openAccountListDialog();
+      await locationAccountAddressPage.searchAccountByName(ACCOUNT_SEARCH.term);
+      await expect.poll(
+        () => locationAccountAddressPage.accountListResultsContain(ACCOUNT_SEARCH.expectedResult),
+        { timeout: 20_000 }
+      ).toBe(true);
+      await locationAccountAddressPage.selectAccountListFirstRow();
+      // Verify form dirty → Save enabled
+      await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+      // Save and verify persistence
+      await locationAccountAddressPage.clickSave();
+      expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
+      await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
+      // Venue name should still be the same (re-selected same account)
+      await expect.poll(() => locationAccountAddressPage.getVenueNameValue(), { timeout: 10_000 }).toBe(originalName);
+    } finally {
+      // Ensure clean state — if we somehow changed the account, restore it
+      const currentName = await locationAccountAddressPage.getVenueNameValue();
+      if (currentName !== originalName) {
+        await locationAccountAddressPage.openAccountListDialog();
+        await locationAccountAddressPage.searchAccountByName(originalName);
+        await locationAccountAddressPage.selectAccountListFirstRow();
+        await locationAccountAddressPage.clickSave();
+        await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
+      }
+    }
   });
 
 });

@@ -70,3 +70,9 @@ export const DATE_TEST_VALUES = {
   startDate: '04/01/2026',
   endDate: '04/30/2026',
 } as const;
+
+/** Date test values for TC-033 (grid validation → Save). Different from DATE_TEST_VALUES to avoid cross-test date collision with TC-020. */
+export const TC033_DATE_VALUES = {
+  startDate: '05/01/2026',
+  endDate: '05/31/2026',
+} as const;

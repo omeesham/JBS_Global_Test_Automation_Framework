@@ -11,9 +11,9 @@
  *        Live behavior (2026-02-18): USD default=selected+isDefault; CAD/MXN unselected.
  *        Merchant always accessible regardless of Selected state.
  * NOTE: Extends BasePage directly (not LocationFormHelpers) by design.
- *       Currency has no spinbutton boundaries, no reload-verify-persistence orchestration,
- *       and uses dialog-based save flow unlike LI. ~13 lines of checkbox overlap is acceptable
- *       vs inheriting 200+ lines of unused LI-specific orchestrators.
+ *       Currency has no spinbutton boundaries; reload-verify-persistence orchestration added
+ *       for round-trip tests. Uses dialog-based save flow unlike LI. ~13 lines of checkbox
+ *       overlap is acceptable vs inheriting 200+ lines of unused LI-specific orchestrators.
  */
 
 import { Page } from '@playwright/test';
@@ -42,6 +42,23 @@ export class LocationCurrencyPage extends BasePage {
    */
   async navigateToCurrencyTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabCurrency', 'tblCurrencyGrid', officeNo);
+  }
+
+  /** Reload page and return to Currency tab. Handles potential beforeunload dialog. */
+  async reloadAndNavigateToCurrencyTab(): Promise<void> {
+    const handler = async (d: import('@playwright/test').Dialog) => {
+      try { await d.accept(); } catch { /* dialog may already be handled */ }
+    };
+    this.page.on('dialog', handler);
+    try {
+      await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
+    } finally {
+      this.page.removeListener('dialog', handler);
+    }
+    await this.waitForAngularStable();
+    await this.clickWithRetry('tabCurrency');
+    await this.getElement('tblCurrencyGrid').waitFor({ state: 'visible', timeout: 15_000 });
+    await this.waitForAngularStable();
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -245,6 +262,29 @@ export class LocationCurrencyPage extends BasePage {
     await this.getElement('dlgErrorDialog').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info(`Error dialog text: ${text}`);
     return text;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BEFOREUNLOAD
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Attempt page reload. Returns true if a beforeunload dialog fired (dismissed — stayed on page).
+   * Useful for TC-LOC-CUR-026 to verify dirty state triggers beforeunload.
+   */
+  async triggerBeforeunloadAndStay(): Promise<boolean> {
+    let dialogFired = false;
+    const handler = async (d: import('@playwright/test').Dialog) => {
+      dialogFired = true;
+      try { await d.dismiss(); } catch { /* already handled */ }
+    };
+    this.page.on('dialog', handler);
+    try {
+      await this.page.reload({ timeout: 5_000 }).catch(() => {});
+    } finally {
+      this.page.removeListener('dialog', handler);
+    }
+    return dialogFired;
   }
 
 }

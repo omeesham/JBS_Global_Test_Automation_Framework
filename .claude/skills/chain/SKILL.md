@@ -2,7 +2,7 @@
 name: chain
 description: Autonomously execute all pending plans in sequence — reads plans/pending/, orders by priority and dependencies, runs full skill pipeline per plan (audit → refine → questionnaire → execute → post-audit → fix), compacts context between plans to prevent pollution, and stops when all plans are done. Use this skill whenever the user wants to batch-execute plans, run the full pipeline autonomously, process the pending queue, or mentions "chain", "run all plans", "execute pending", or "autonomous pipeline". Also triggers when the user wants hands-off plan execution with quality gates.
 user-invocable: true
-auto-calls: regression-guard, reflect, research
+auto-calls: relevant, regression-guard, reflect, research
 tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite, AskUserQuestion, WebSearch, WebFetch
 ---
 
@@ -12,7 +12,7 @@ When the user invokes `/chain`, you become an autonomous plan execution engine. 
 
 ## When to Use
 
-**Identity**: OWNER (auto-sets OWNER if not active). Incompatible identity triggers a warning — see `/identity`.
+**Identity**: OWNER. Auto-loaded via Identity Gate.
 
 - User says "run all plans", "execute pending", "chain", "autonomous pipeline", "batch execute"
 - User wants hands-off plan execution with quality gates
@@ -21,6 +21,9 @@ When the user invokes `/chain`, you become an autonomous plan execution engine. 
 The reason context compaction matters: without it, implementation details from Plan A bleed into Plan B's execution, causing the agent to make assumptions, carry stale patterns, or repeat mistakes. Each plan deserves the same fresh-session quality a human would get by starting a new conversation. This skill simulates that.
 
 ---
+
+## Identity Gate
+Runs `/identity` Step 1.5 with caller=`/chain`. No-op if compatible identity active.
 
 ## Phase 0: Discovery & Ordering
 
@@ -62,6 +65,8 @@ Before touching any plan:
 ## Phase 0.5: Build Execution Manifest (TodoWrite)
 
 After discovery and ordering, IMMEDIATELY call TodoWrite to create the execution manifest. This is the SINGLE source of progress tracking for the entire chain. **Not optional. Every chain run starts with this.**
+
+**Auto-call `/relevant`**: Before building the manifest, run `/relevant` against each plan to scan for skill coverage across subtasks. This ensures the manifest's skill tags are comprehensive, not just based on agent memory. Especially valuable for Sonnet sessions or plans spanning multiple domains.
 
 ### Todo Item Format
 
@@ -125,6 +130,18 @@ CHAIN: Plan [N/total] — [plan filename]
 Priority: [P0/P1/P2] | Dependencies: [list or "none"]
 ═══════════════════════════════════════════════════
 ```
+
+---
+
+### Phase 0.9: Context Loading (MANDATORY — once per chain, before Phase 1 of first plan)
+
+Before auditing the first plan, load the repo's institutional memory. This context persists across plans in the chain (it's universal, not plan-specific). Agents that skip this step repeat mistakes documented in these files — activity logs show 40+ occurrences.
+
+1. **Read `specs_planning/_internal/agent-mistakes.md`** — 134 rules. Focus on ALL-* (shared) and your task-type prefix.
+2. **Read `.claude/context/patterns.md`** — Decision tree patterns for recurring situations.
+3. **Scan CLAUDE.md Learned Rules (LR-001 through LR-026)** — note which triggers are active for this chain's plans.
+
+This is done ONCE at chain start, not per plan. The context carries forward (unlike plan-specific context which is compacted).
 
 ---
 

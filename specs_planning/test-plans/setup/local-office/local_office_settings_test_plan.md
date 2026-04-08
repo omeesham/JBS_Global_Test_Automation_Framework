@@ -2,7 +2,7 @@
 
 **Module**: locations | **Test Cases**: [test-cases/locations/locations_local_office_settings_test_cases.md](../../test-cases/locations/locations_local_office_settings_test_cases.md)
 **URL**: `/navigator/locations/{officeId}/settings/local-office`
-**Updated**: 2026-03-23 | **Status**: Manual | **Total TCs**: 58
+**Updated**: 2026-04-08 | **Status**: Manual | **Total TCs**: 63
 
 ---
 
@@ -518,3 +518,48 @@
 3. Navigate to another tab; assert no unsaved changes dialog
 4. Cleanup: Restore values
 5. Expected: ECT saves without dialog
+
+---
+
+## Scenario Group 16: ECT Tab — Persistence Gap-Fill (RT)
+
+### TC-LOS-ECT-013
+1. Read current Historical Subrental % value (defensive)
+2. Fill different test value; save Fixed Costs; wait for save disabled
+3. Navigate to Basic Info → return to ECT
+4. Assert HS % shows expected persisted value
+5. Restore original value; save; verify restored
+6. Expected: Historical Subrental % persists across save-reload
+
+### TC-LOS-ECT-014
+1. Navigate to ECT tab
+2. Read current labor cost at row index 33 (middle row)
+3. Fill different test value; save Labor Costs
+4. Navigate away → return; assert value persisted
+5. Restore original; save
+6. Expected: Middle-row labor cost persists correctly (BVA middle boundary)
+
+### TC-LOS-ECT-015
+1. Navigate to ECT tab
+2. Read current labor cost at row index 65 (last row)
+3. Fill different test value; save Labor Costs
+4. Navigate away → return; assert value persisted
+5. Restore original; save
+6. Expected: Last-row labor cost persists correctly (BVA upper boundary)
+
+### TC-LOS-ECT-016
+1. Navigate to ECT tab; read current BM and HS values
+2. Edit both Benefits Multiplier and Historical Subrental %
+3. Single Fixed Costs save
+4. Full page reload → navigate to ECT
+5. Assert both BM and HS show expected persisted values
+6. Restore both; single save; verify restored
+7. Expected: Single save persists both editable Fixed Costs fields
+
+### TC-LOS-ECT-017
+1. Navigate to ECT tab; read current BM value
+2. Fill BM with different value (dirty the form)
+3. Click Basic Info tab directly (triggers unsaved dialog)
+4. Click Discard on the dialog
+5. Navigate back to ECT; assert BM unchanged (original value)
+6. Expected: Discarding unsaved changes prevents persistence
