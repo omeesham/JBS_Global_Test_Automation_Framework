@@ -73,7 +73,8 @@ jobs:
           path: |
             reports/
           retention-days: 30
-      
+          if-no-files-found: warn
+
       - name: Upload HTML report
         if: always()
         uses: actions/upload-artifact@v4
@@ -81,6 +82,7 @@ jobs:
           name: html-report-${{ matrix.os }}-${{ matrix.browser }}
           path: reports/html-report
           retention-days: 30
+          if-no-files-found: warn
       
       - name: Comment PR with results
         if: github.event_name == 'pull_request' && always()
@@ -88,15 +90,20 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const results = JSON.parse(fs.readFileSync('reports/test-results.json', 'utf8'));
+            const resultsPath = 'reports/test-results.json';
+            if (!fs.existsSync(resultsPath)) {
+              core.warning('test-results.json not found -- skipping PR comment');
+              return;
+            }
+            const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
             const body = `## Test Results - ${{ matrix.os }} - ${{ matrix.browser }}
-            
-            ✅ Passed: ${results.stats.expected}
-            ❌ Failed: ${results.stats.unexpected}
-            ⏭️ Skipped: ${results.stats.skipped}
-            
+
+            Passed: ${results.stats.expected}
+            Failed: ${results.stats.unexpected}
+            Skipped: ${results.stats.skipped}
+
             [View full report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

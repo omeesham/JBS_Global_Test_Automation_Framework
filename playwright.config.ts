@@ -77,7 +77,7 @@ export default defineConfig({
     ['junit', { outputFile: 'reports/junit-results.xml' }],
     ['./src/utils/agent-reporter.ts'],
     ['allure-playwright', {
-      outputFolder: 'reports/allure-results',
+      resultsDir: 'reports/allure-results',
       detail: true,
       suiteTitle: true,
       environmentInfo: {

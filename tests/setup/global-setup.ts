@@ -44,6 +44,9 @@ async function globalSetup(config: FullConfig) {
   Log.info(`Workers: ${config.workers}`);
   Log.info(`Projects: ${config.projects?.length || 0}`);
 
+  // ---- Ensure report directories exist (defensive — survives npm run clean) ----
+  ensureReportDirectories();
+
   // ---- Pre-flight Health Checks ----
   const results = await runPreflightChecks();
   writePreflightReport(results);
@@ -65,6 +68,25 @@ async function globalSetup(config: FullConfig) {
   cleanupDiagnosticFiles();
 
   Log.info('=== Global Test Setup Completed ===');
+}
+
+// ---- Report directory pre-creation ----
+
+const REPORT_DIRS = [
+  'reports/allure-results',
+  'reports/html-report',
+  'reports/test-results',
+  'reports/diagnostics',
+];
+
+function ensureReportDirectories(): void {
+  for (const dir of REPORT_DIRS) {
+    const dirPath = path.join(process.cwd(), dir);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      Log.info(`Created report directory: ${dir}`);
+    }
+  }
 }
 
 // ---- Pre-flight checks ----

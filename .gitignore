@@ -19,11 +19,9 @@ client-delivery/
 
 # Playwright
 test-results/
-reports/test-results/
 playwright-report/
 playwright/.cache/
 .playwright/
-reports/test-results/.last-run.json
 
 # Logs
 logs/*
@@ -31,16 +29,14 @@ logs/*
 !logs/README.md
 *.out
 
-# Reports
+# Reports — all generated output ignored, dirs created at runtime by global-setup.ts + ensure-report-dirs.js
 reports/*
 !reports/.gitkeep
-allure-results/
-allure-report/
-html-report/
+/allure-results/
+/allure-report/
+/html-report/
 screenshots/
 !screenshots/.gitkeep
-reports/**/*.html
-reports/**/*.xml
 
 # Environment
 .env
@@ -101,6 +97,10 @@ tmp/
 # MCP browser session artifacts
 .playwright-mcp/
 
+# Private skills (never commit)
+.claude/skills/end-day/
+specs_planning/_internal/daily-status-bank.json
+
 # Agent audit reports (internal only - proprietary)
 specs_planning/audits/*.md
 !specs_planning/audits/.gitkeep
@@ -136,9 +136,7 @@ current_plan.md
 # Generated artifacts (not tracked)
 export_test_cases/exports/
 specs_planning/_internal/agent-metrics-report.md
-reports/failure-summary.json
 specs_planning/_internal/test-id-registry.json
-reports/fixme-registry.json
 
 # Website (JBS IntelliQE)
 website/frontend/node_modules/
