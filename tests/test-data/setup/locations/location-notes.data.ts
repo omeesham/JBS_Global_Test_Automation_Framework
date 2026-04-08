@@ -60,3 +60,12 @@ export const SPECIAL_CONTENT_TESTS: SpecialContentData[] = [
   { tcId: '019', name: 'SQL injection stored as text', text: NOTE_SQL },
   { tcId: '020', name: 'Emoji and unicode preserved', text: NOTE_EMOJI },
 ];
+
+// ---- Persistence Gap-Fill (TC-024..027) ----
+export const NOTE_ROW_ALPHA = 'Row Alpha';           // 9 chars
+export const NOTE_ROW_BETA = 'Row Beta';             // 8 chars
+export const NOTE_ROW_GAMMA = 'Row Gamma';           // 9 chars
+export const NOTE_KEEP_FIRST = 'Keep First';         // 10 chars
+export const NOTE_DELETE_ME = 'Delete Me';           // 9 chars
+export const NOTE_KEEP_LAST = 'Keep Last';           // 9 chars
+export const NOTE_CANCEL_TEST = 'Cancel test note';  // 16 chars

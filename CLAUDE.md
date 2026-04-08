@@ -60,6 +60,7 @@ If multiple intents match, use the FIRST matching rule. If the user explicitly n
 | Priority | Intent Pattern | Skill | Notes |
 |----------|---------------|-------|-------|
 | 0 | Session start with pipeline work, "/identity", "be the HUNTER/GIVER/etc", "switch identity" | `/identity` | Auto-detected by Identity Gates. Manual invoke shows menu. |
+| 0.5 | "ultrathink", "ultra think", "ultrathink this" | `/ultrathink` | Quality-gated wrapper — fires before task routing |
 | 1 | User explicitly says `/skillname` | That skill | Always highest priority |
 | 2 | "RCA", "root cause", "why is this failing", "analyze failure" | `/rca` | Professional artifact-first root cause analysis |
 | 3 | "fix bug", "broken", "not working", "error", "crash" | `/bugfix` | General bug fixing with root cause analysis |
@@ -138,6 +139,7 @@ Full guardrails (checklists, breadcrumbs, handoff format): see `/sonnet` SKILL.m
 /cleanup  ──auto-calls──> /identity, /regression-guard (before+after)
 /deploy   ──auto-calls──> /identity, /regression-guard, /review
 /chain    ──auto-calls──> /identity, /relevant (Phase 0.5, per plan), /regression-guard, /reflect, /research
+/ultrathink ──auto-calls──> /identity, /planning, /execute, /audit, /reflect
 /audit    ──auto-calls──> /identity, /reflect
 /rca      ──auto-calls──> /identity
 /review   ──auto-calls──> /identity

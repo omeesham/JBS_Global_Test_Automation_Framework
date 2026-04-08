@@ -9,13 +9,13 @@ export const DynamicSelectors = {
 
   // ---- Currency Tab Grid ----
   /** @where Setup > Location > Currency tab > Grid @el checkbox @text "{currency}" @keys currency selected toggle enable @param currency -- currency code (e.g., "USD") */
-  chkCurrencySelected: (currency: string) => `[data-testid="currency-${currency.toLowerCase()}-selected"]`,
+  chkCurrencySelected: (currency: string) => `[data-testid="location-settings-checkbox-currency-${currency}-selected"]`,
   /** @where Setup > Location > Currency tab > Grid @el checkbox @text "{currency}" @keys currency default primary @param currency -- currency code (e.g., "USD") */
-  chkCurrencyIsDefault: (currency: string) => `[data-testid="currency-${currency.toLowerCase()}-default"]`,
+  chkCurrencyIsDefault: (currency: string) => `[data-testid="location-settings-checkbox-currency-${currency}-default"]`,
   /** @where Setup > Location > Currency tab > Grid @el dropdown @text "{currency}" @keys currency merchant combobox @param currency -- currency code (e.g., "USD") */
-  drpCurrencyMerchant: (currency: string) => `[data-testid="currency-${currency.toLowerCase()}-merchant"]`,
+  drpCurrencyMerchant: (currency: string) => `[data-testid="location-settings-select-currency-${currency}-merchant"]`,
   /** @where Setup > Location > Currency tab > Grid @el cell @text "{currency}" @keys currency code cell value @param currency -- currency code (e.g., "USD") */
-  cellCurrencyCode: (currency: string) => `[data-testid="currency-${currency.toLowerCase()}-code"]`,
+  cellCurrencyCode: (currency: string) => `[data-testid="location-settings-cell-currency-${currency}-code"]`,
 
   // ---- Dropdown Options ----
   /** @where Setup > Location > Currency tab > Merchant dropdown @el row @text "{merchantName}" @keys merchant option listbox select @param merchantName -- merchant name */

@@ -1,5 +1,5 @@
 # Location Notes Test Plan
-**Module**: locations | **Updated**: 2026-03-17
+**Module**: locations | **Updated**: 2026-04-08
 **Test Cases**: specs_planning/test-cases/locations/locations_notes_test_cases.md
 
 ## Selector Mapping (Verified 2026-03-17 from src/selectors/locations/notes.ts)
@@ -29,6 +29,10 @@
 | TC-LOC-NTS-021 | tabNotes, btnNotesAdd, txtNoteRow0, lblNotesCharCounter |
 | TC-LOC-NTS-022 | tabNotes, btnNotesAdd, txtNoteInputAll, btnNotesAdd, barNotesProgress |
 | TC-LOC-NTS-023 | tabNotes, btnNotesAdd, txtNoteRow0, btnNotesDelete, btnSaveNotes, dlgSaveChanges, btnSaveChangesConfirm |
+| TC-LOC-NTS-024 | tabNotes, btnNotesAdd, txtNoteInputAll, btnSaveNotes, dlgSaveChanges, btnSaveChangesConfirm, lblNotesCharCounter |
+| TC-LOC-NTS-025 | tabNotes, btnNotesAdd, txtNoteRow0, btnSaveNotes, dlgSaveChanges, btnSaveChangesConfirm, lblNotesCharCounter |
+| TC-LOC-NTS-026 | tabNotes, btnNotesAdd, txtNoteInputAll, btnNotesDelete, btnSaveNotes, dlgSaveChanges, btnSaveChangesConfirm |
+| TC-LOC-NTS-027 | tabNotes, btnNotesAdd, txtNoteRow0, btnSaveNotes, dlgSaveChanges, btnSaveChangesCancel |
 
 ## UI Testing Checklist (Verified 2026-03-17)
 
@@ -232,3 +236,35 @@
 4. Step: Click Delete, expected: "No Notes Available"; counter "0/4000"; Save enables
 5. Step: Save + confirm, expected: saved; Save disables
 6. Step: Reload + click Notes tab, expected: "No Notes Available" — deletion persisted
+
+---
+
+## Scenario: TC-LOC-NTS-024 - Multi-row persistence (3 rows save+reload+verify)
+1. Step: Ensure empty state, fill row 0 "Row Alpha", Add + fill row 1 "Row Beta", Add + fill row 2 "Row Gamma", expected: 3 rows, counter 28/4000
+2. Step: Save + confirm, expected: saved
+3. Step: Reload + click Notes tab, expected: 3 rows persist in order with correct content; counter 28/4000
+4. Step: Clean up via ensureEmptyState
+
+---
+
+## Scenario: TC-LOC-NTS-025 - Boundary persistence (4000 chars save+reload)
+1. Step: Ensure empty state, fill row 0 with 4000 'A' chars, expected: counter 4000/4000
+2. Step: Save + confirm, expected: saved
+3. Step: Reload + click Notes tab, expected: counter 4000/4000; value.length = 4000
+4. Step: Clean up via ensureEmptyState
+
+---
+
+## Scenario: TC-LOC-NTS-026 - Partial deletion persistence (delete middle row, save, verify remaining)
+1. Step: Ensure empty state, fill 3 rows: "Keep First", "Delete Me", "Keep Last", expected: 3 rows
+2. Step: Delete row 1 ("Delete Me"), expected: 2 rows remain
+3. Step: Save + confirm, expected: saved
+4. Step: Reload + click Notes tab, expected: 2 rows persist ("Keep First", "Keep Last")
+5. Step: Clean up via ensureEmptyState
+
+---
+
+## Scenario: TC-LOC-NTS-027 - Cancel save dialog (verify changes NOT persisted)
+1. Step: Ensure empty state, fill row 0 "Cancel test note", expected: Save enabled
+2. Step: Click Save button (opens dialog), click Cancel, expected: dialog closes; Save still enabled
+3. Step: Reload page + click Notes tab, expected: empty state ("No Notes Available") — note NOT saved

@@ -477,7 +477,7 @@ None. All 4 proposed TCs implemented and passing.
 - `docs/REQUIREMENTS.md`: 6 corrections to Notes section (table structure, default state, delete behavior, char limit type, delimiter counting, save button)
 - `specs_planning/test-cases/setup/locations/locations_notes_test_cases.md`: Count 23→27, +4 TC entries
 - `specs_planning/test-plans/setup/locations/locations_notes_test_plan.md`: +4 scenarios, +4 selector mapping rows
-- `plans/pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md`: Notes RT% DONE (46%), test count 20→24, batch checkmark
+- `plans/pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md`: Notes RT% DONE (42%), test count 20→24, batch checkmark
 
 ### Code Changes
 - `tests/test-data/setup/locations/location-notes.data.ts`: +7 constants (NOTE_ROW_ALPHA, NOTE_ROW_BETA, NOTE_ROW_GAMMA, NOTE_KEEP_FIRST, NOTE_DELETE_ME, NOTE_KEEP_LAST, NOTE_CANCEL_TEST)
@@ -490,7 +490,7 @@ None. All 4 proposed TCs implemented and passing.
 ### Test Pass Confirmation
 - **27 passed (3.6m)** — 2026-04-08, Chrome, all 24 source-level tests (27 runtime with data-driven expansion)
 - TypeScript compiles clean (COP-002)
-- RT coverage: 35% → 46% (7/20 → 11/24), exceeds >40% target
+- RT coverage: 35% → 42% (7/20 → 10/24), exceeds >40% target
 
 ### Step 6: /regression-guard AFTER (5 min)
 

@@ -734,29 +734,29 @@ Accessible via: Setup > Location > [Office Code] → "Notes" tab (right panel)
 
 **Purpose**: Add and manage location-specific notes.
 
-**UI Structure** (confirmed live, Location 1604):
-- Table: 3 columns (#, Location Notes, Actions)
-- Default: 1 empty row with textbox placeholder "Type notes here..."
+**UI Structure** (confirmed live, Location 1604; MCP-verified 2026-04-08):
+- Table: 2 cells per row (textarea cell + actions cell). No `<thead>`, no visible row number column.
+- Default: "No Notes Available" (empty table with colspan row, 0 textareas). First row appears only after clicking Add.
 - "Add" button below the table to add new note rows
-- Character counter: "0/4000 (4000 left)"
+- Character counter: "0/4000 (4000 Left)"
 - Progress bar indicator (character usage visualization)
+- Delimiter counting: each additional row adds +1 delimiter character to total count. E.g., 3 rows with "Hello"(5), "World"(5), "End"(3) = 15 total (5+1+5+1+3).
 
 **Fields**:
 
 | Element | Type | Notes |
 |---|---|---|
-| # (row number) | static text | Auto-incremented |
-| Location Notes | textbox | Placeholder: "Type notes here...", max 4000 chars |
-| Actions | button (Delete) | Delete button appears when 2+ rows exist; empty when only 1 row |
+| Location Notes | textbox | Placeholder: "Type notes here...", no HTML `maxlength` attribute |
+| Actions | button (Delete) | Delete appears when (a) single row has text content, OR (b) 2+ rows exist (all rows get Delete). Empty single row has no Delete. |
 | Add button | button | Adds new note row |
-| Character counter | display text | Format: "{used}/4000 ({remaining} left)" |
+| Character counter | display text | Format: "{used}/4000 ({remaining} Left)" |
 | Progress bar | progressbar | Visual indicator of char usage |
 
 **Behaviors**:
 - No validation errors visible — notes are optional
-- Character limit: 4000 per note
+- Character limit: 4000 soft limit — keyboard input blocked at 4000 by JS handler, but paste/programmatic input can exceed. Counter shows overage (e.g., "4001/4000").
 - Multiple notes can be added via Add button
-- No save button in Notes tab — relies on left-panel Save
+- Save uses shared `[data-testid="location-settings-btn-save"]` button (from `SetupSharedSelectors` in `shared.ts`). Save triggers "Save Changes" `alertdialog` with Cancel + Ok buttons.
 
 ---
 

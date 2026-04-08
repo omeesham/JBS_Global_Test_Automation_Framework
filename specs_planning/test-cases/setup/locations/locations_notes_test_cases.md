@@ -1,5 +1,5 @@
 # Location Notes Test Cases
-**Module**: locations | **Total**: 23 | **Status**: Manual | **Updated**: 2026-03-17
+**Module**: locations | **Total**: 27 | **Status**: Manual | **Updated**: 2026-04-08
 
 ---
 
@@ -341,3 +341,47 @@
 **Steps**: 1. Open **Notes** tab ✓ Empty state ("No Notes Available") 2. Click **Add**, type "Sequential test note" (20 chars) ✓ Counter: "20/4000", Delete visible 3. Click left-panel **Save**, confirm in dialog ✓ Saved; Save button disables 4. Reload page, click **Notes** tab ✓ "Sequential test note" persists; counter: "20/4000" 5. Click **Delete** on the note ✓ "No Notes Available"; counter: "0/4000"; Save enables 6. Click left-panel **Save**, confirm in dialog ✓ Saved; Save button disables 7. Reload page, click **Notes** tab ✓ "No Notes Available" — deletion also persisted
 **Expected**: Full add → save → reload → delete → save → reload lifecycle works correctly at every step
 **Data**: office=1604 | text="Sequential test note" (20 chars)
+
+---
+
+## TC-LOC-NTS-024: Multi-row persistence — 3 rows save+reload+verify
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Round-trip | Yes |
+
+**Steps**: 1. Open **Notes** tab, ensure empty state 2. Fill row 0 "Row Alpha" (9 chars), click **Add**, fill row 1 "Row Beta" (8 chars), click **Add**, fill row 2 "Row Gamma" (9 chars) ✓ 3 rows, counter: "28/4000" 3. Click **Save**, confirm dialog ✓ Saved 4. Reload page, click **Notes** tab ✓ 3 rows persist: row 0="Row Alpha", row 1="Row Beta", row 2="Row Gamma"; counter: "28/4000" 5. Clean up: delete all rows + save
+**Expected**: All 3 rows persist after save+reload with correct content and order
+**Data**: office=1604 | text0="Row Alpha" (9) | text1="Row Beta" (8) | text2="Row Gamma" (9)
+
+---
+
+## TC-LOC-NTS-025: Boundary persistence — 4000 chars save+reload
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Round-trip + BVA | Yes |
+
+**Steps**: 1. Open **Notes** tab, ensure empty state 2. Fill row 0 with 4000 'A' chars ✓ Counter: "4000/4000" 3. Click **Save**, confirm dialog ✓ Saved 4. Reload page, click **Notes** tab ✓ Counter: "4000/4000"; text length = 4000 5. Clean up: delete + save
+**Expected**: Full 4000-char content persists after save+reload without truncation
+**Data**: office=1604 | text='A'.repeat(4000)
+
+---
+
+## TC-LOC-NTS-026: Partial deletion persistence — delete middle row, save, verify remaining
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Round-trip + State Transition | Yes |
+
+**Steps**: 1. Open **Notes** tab, ensure empty state 2. Fill row 0 "Keep First" (10), click **Add**, fill row 1 "Delete Me" (9), click **Add**, fill row 2 "Keep Last" (9) ✓ 3 rows 3. Delete row 1 ("Delete Me") ✓ 2 rows: row 0="Keep First", row 1="Keep Last" 4. Click **Save**, confirm dialog ✓ Saved 5. Reload page, click **Notes** tab ✓ 2 rows persist: "Keep First" and "Keep Last" 6. Clean up: delete + save
+**Expected**: After deleting middle row + save + reload, only remaining rows persist
+**Data**: office=1604 | text0="Keep First" | text1="Delete Me" | text2="Keep Last"
+
+---
+
+## TC-LOC-NTS-027: Cancel save dialog — verify changes NOT persisted
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Negative Persistence | Yes |
+
+**Steps**: 1. Open **Notes** tab, ensure empty state 2. Fill row 0 "Cancel test note" (16 chars) ✓ Save enabled 3. Click **Save** button (opens dialog) 4. Click **Cancel** in dialog ✓ Dialog closes; Save still enabled 5. Reload page, click **Notes** tab ✓ Empty state ("No Notes Available") — note was NOT saved
+**Expected**: Cancelling save dialog prevents persistence; note is discarded on reload
+**Data**: office=1604 | text="Cancel test note" (16 chars)

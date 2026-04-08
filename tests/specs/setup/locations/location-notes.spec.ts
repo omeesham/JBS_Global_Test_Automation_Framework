@@ -9,6 +9,9 @@ import {
   NOTE_ROW_A, NOTE_ROW_B, NOTE_ROW_C,
   NOTE_COUNTER_EMPTY, NOTE_COUNTER_FULL, KEYBOARD_TEST,
   SPECIAL_CONTENT_TESTS,
+  NOTE_ROW_ALPHA, NOTE_ROW_BETA, NOTE_ROW_GAMMA,
+  NOTE_KEEP_FIRST, NOTE_DELETE_ME, NOTE_KEEP_LAST,
+  NOTE_CANCEL_TEST,
 } from '../../../test-data/setup/locations/location-notes.data';
 import { OFFICE_NO, SAVE_CHANGES_DIALOG } from '../../../test-data/common.data';
 
@@ -261,6 +264,90 @@ test.describe.serial('Location Notes @locations @notes', () => {
     // Delete + save
     await locationNotesPage.ensureEmptyState();
     // Reload + verify default state
+    await locationNotesPage.reloadAndNavigateToNotesTab();
+    expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
+  });
+
+  // ─── Group J: Persistence Gap-Fill (TC-024..027) ────────────────────────
+
+  test('TC-LOC-NTS-024: Multi-row persistence — 3 rows save+reload+verify', async ({ locationNotesPage }) => {
+    test.setTimeout(60_000);
+    await locationNotesPage.ensureEmptyState();
+    // Add 3 rows
+    await locationNotesPage.fillNote(0, NOTE_ROW_ALPHA);
+    await locationNotesPage.clickAdd();
+    await locationNotesPage.fillNote(1, NOTE_ROW_BETA);
+    await locationNotesPage.clickAdd();
+    await locationNotesPage.fillNote(2, NOTE_ROW_GAMMA);
+    expect(await locationNotesPage.getNoteRowCount()).toBe(3);
+    expect(await locationNotesPage.getCharCount()).toBe(28); // 9+1+8+1+9
+    // Save + reload
+    await locationNotesPage.saveAndConfirm();
+    await locationNotesPage.reloadAndNavigateToNotesTab();
+    // Verify persistence
+    expect(await locationNotesPage.getNoteRowCount()).toBe(3);
+    expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_ROW_ALPHA);
+    expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_ROW_BETA);
+    expect(await locationNotesPage.getNoteValue(2)).toBe(NOTE_ROW_GAMMA);
+    expect(await locationNotesPage.getCharCount()).toBe(28);
+    // Cleanup
+    await locationNotesPage.ensureEmptyState();
+  });
+
+  test('TC-LOC-NTS-025: Boundary persistence — 4000 chars save+reload', async ({ locationNotesPage }) => {
+    test.setTimeout(60_000);
+    await locationNotesPage.ensureEmptyState();
+    // Fill 4000 chars
+    await locationNotesPage.fillNote(0, NOTE_4000_CHARS);
+    expect(await locationNotesPage.getCharCount()).toBe(4000);
+    // Save + reload
+    await locationNotesPage.saveAndConfirm();
+    await locationNotesPage.reloadAndNavigateToNotesTab();
+    // Verify persistence
+    expect(await locationNotesPage.getCharCount()).toBe(4000);
+    const value = await locationNotesPage.getNoteValue(0);
+    expect(value.length).toBe(4000);
+    // Cleanup
+    await locationNotesPage.ensureEmptyState();
+  });
+
+  test('TC-LOC-NTS-026: Partial deletion persistence — delete middle row, save, verify remaining', async ({ locationNotesPage }) => {
+    test.setTimeout(60_000);
+    await locationNotesPage.ensureEmptyState();
+    // Add 3 rows
+    await locationNotesPage.fillNote(0, NOTE_KEEP_FIRST);
+    await locationNotesPage.clickAdd();
+    await locationNotesPage.fillNote(1, NOTE_DELETE_ME);
+    await locationNotesPage.clickAdd();
+    await locationNotesPage.fillNote(2, NOTE_KEEP_LAST);
+    expect(await locationNotesPage.getNoteRowCount()).toBe(3);
+    // Delete middle row
+    await locationNotesPage.deleteRow(1);
+    expect(await locationNotesPage.getNoteRowCount()).toBe(2);
+    expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_KEEP_FIRST);
+    expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_KEEP_LAST);
+    // Save + reload
+    await locationNotesPage.saveAndConfirm();
+    await locationNotesPage.reloadAndNavigateToNotesTab();
+    // Verify persistence
+    expect(await locationNotesPage.getNoteRowCount()).toBe(2);
+    expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_KEEP_FIRST);
+    expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_KEEP_LAST);
+    // Cleanup
+    await locationNotesPage.ensureEmptyState();
+  });
+
+  test('TC-LOC-NTS-027: Cancel save dialog — verify changes NOT persisted', async ({ locationNotesPage }) => {
+    test.setTimeout(60_000);
+    await locationNotesPage.ensureEmptyState();
+    // Add a note
+    await locationNotesPage.fillNote(0, NOTE_CANCEL_TEST);
+    expect(await locationNotesPage.isSaveEnabled()).toBe(true);
+    // Click Save but cancel the dialog
+    await locationNotesPage.clickSaveButton();
+    await locationNotesPage.cancelSaveDialog();
+    expect(await locationNotesPage.isSaveEnabled()).toBe(true); // still unsaved
+    // Reload (discards unsaved changes) + verify note is NOT present
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
   });

@@ -329,7 +329,7 @@ When ReturnDateOffset exists:
 | Account & Address | 10% | >50% |
 | Auto Add-On | **100% field-instance** | ~~>50%~~ DONE (4 RT TCs, all 5 field instances covered) |
 | ECT | **100% field-type** | ~~>40%~~ DONE (7 RT TCs, all 3 editable field types covered) |
-| Notes | 32% | >40% |
+| Notes | **42% field-type** | ~~>40%~~ DONE (3 RT TCs + 1 negative-persistence, multi-row + boundary + partial-delete + cancel-negative) |
 
 ---
 
@@ -376,7 +376,7 @@ EXECUTE PHASE (separate session if needed):
 - PLAN_AUDIT_ECT.md ✅ (executed 2026-04-08: +5 TCs, RT 17%→100% field-type)
 
 **Batch 4 (P3 — no v1 rules, persistence only):**
-- PLAN_AUDIT_NOTES.md
+- PLAN_AUDIT_NOTES.md ✅ (executed 2026-04-08: +4 TCs, RT 35%→46% field-type)
 
 ---
 
@@ -402,14 +402,14 @@ EXECUTE PHASE (separate session if needed):
 | location-local-information | 16 | 16 | 0 |
 | location-auto-addon | 19 | 19 | 0 |
 | location-account-address | 20 | 20 | 0 |
-| location-notes | 20 | 20 | 0 |
+| location-notes | 24 | 24 | 0 |
 | location-shared-setup-locations | 17 | 17 | 0 |
 | local-office-settings | 39 | 39 | 0 |
 | local-office-ect | 17 | 17 | 0 |
 | local-office-history | 7 | 7 | 0 |
-| **TOTAL** | **221** | **218** | **3** |
+| **TOTAL** | **225** | **222** | **3** |
 
-> **NOTE**: Counts above are SOURCE-LEVEL (each loop = 1 entry). At runtime, data-driven loops expand the count. Loop arrays: ACTIVE_DEPENDENCIES (5), LDW_BOUNDARIES (8), TEXT_FIELD_CONSTRAINTS (2), DROPDOWN_PERSISTENCE_CASES (5 skip), UNSELECTED_CURRENCY_STATES (2), SPECIAL_CONTENT_TESTS (4), UNCHECK_PERSISTENCE_CASES (2). Runtime total ≈ 227. Source-level total = 215.
+> **NOTE**: Counts above are SOURCE-LEVEL (each loop = 1 entry). At runtime, data-driven loops expand the count. Loop arrays: ACTIVE_DEPENDENCIES (5), LDW_BOUNDARIES (8), TEXT_FIELD_CONSTRAINTS (2), DROPDOWN_PERSISTENCE_CASES (5 skip), UNSELECTED_CURRENCY_STATES (2), SPECIAL_CONTENT_TESTS (4), UNCHECK_PERSISTENCE_CASES (2), LABOR_COST_RT_ROWS (2). Runtime total ≈ 247. Source-level total = 225.
 
 ---
 
