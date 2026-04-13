@@ -60,6 +60,7 @@ For EACH link in the chain, ask:
 - Does the current code state match what was intended?
 - Are there inconsistencies between changed files?
 - Do the changes work together as a cohesive whole?
+- **App bug gate (LR-034)**: If audit evidence reveals application behavior that contradicts documented requirements, follow **LR-034 Bug Filing Protocol** — file to `reports/bugs/` before finalizing the audit verdict.
 
 ## Step 3: The Missing Audit (MOST IMPORTANT)
 
@@ -131,6 +132,36 @@ Produce a structured report:
 - Any patterns worth noting → relevant memory file
 - Any recurring issue (3+ times) → flag for `/compile-learnings`
 - Auto-call `/reflect` to persist learnings
+
+## Sonnet Audit (auto-activates when Sonnet Handoff block is present)
+
+When the user pastes content containing a `### Sonnet Handoff` block, OR the plan file contains one, activate this extra audit layer BEFORE the standard Step 1–4 chain. No explicit user instruction needed — the marker is the trigger.
+
+### How to detect
+Grep for `### Sonnet Handoff` in pasted content or the referenced plan file. If found → Sonnet Audit is ON.
+
+### Extra audit steps (run after Step 3, before Step 4 verdict)
+
+1. **Breadcrumb completeness** — grep for `[S]` in the plan file. Count entries. Cross-check against the Completed list in the handoff block. Any action in Completed with no breadcrumb = undocumented work = finding.
+2. **Citation validity** — for every `per:` value in breadcrumbs, verify the cited rule (LR-NNN) exists in CLAUDE.md, or the cited plan section exists in the plan. Fake/stale citations = trust violation.
+3. **Uncertainty review** — every `[?]` breadcrumb is Sonnet flagging its own doubt. Judge each one: is it acceptable uncertainty, or should it have been a HALT? List each with a verdict.
+4. **Risk review** — every `risk:high` breadcrumb must have been handled or explicitly deferred with justification. Unacknowledged high risks = finding.
+5. **Skipped list scrutiny** — was each skip a real blocker or a capability gap Sonnet avoided? Flag any skip that looks like avoidance.
+6. **Completed list verification** — read the ACTUAL files for items listed as Completed. Sonnet may declare done without real verification. Mismatch = critical finding.
+7. **Gate compliance** — did Sonnet run Pre-Write, Assertion, and Completion gates? Evidence: breadcrumbs should exist for every file written. If a file was changed with no `[S]` breadcrumb, the pre-write gate was skipped.
+
+### Add to verdict
+```
+### Sonnet Audit: [PASS / GAPS FOUND]
+- Breadcrumb completeness: [OK / N missing]
+- Citation validity: [OK / N invalid]
+- Uncertainties resolved: [N flagged, verdict per item]
+- High risks handled: [OK / N unacknowledged]
+- Completed list verified: [OK / N mismatches]
+- Gate compliance: [OK / gates skipped]
+```
+
+---
 
 ## Auto-Calls
 

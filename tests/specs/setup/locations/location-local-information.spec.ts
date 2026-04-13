@@ -113,21 +113,122 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
     });
   }
 
-  test('TC-LOC-LI-007: Threshold enabled only when AllowDPCD=false AND PromptForApproval=true', async ({ locationLocalInfoPage }) => {
+  // TC-074 supersedes TC-007: covers all 4 combos of the Threshold decision table + reset-to-0.
+  // Decision table: Threshold enabled ONLY when AllowDPCD=false AND PromptForApproval=true (Combo D).
+  test('TC-LOC-LI-074: Threshold decision table -- all 4 combos + reset-to-0 on disable', async ({ locationLocalInfoPage }) => {
+    // LR-010: cross-field validation is async -- use expect.poll for ALL cascade assertions.
+    // Combo A: DPCD=on, PFA=off (default baseline) -- Threshold disabled
     expect((await locationLocalInfoPage.getSpinState('spinThreshold')).disabled).toBe(true);
+    // Combo B: DPCD=on, PFA=on -- Threshold still disabled
     await locationLocalInfoPage.checkCheckbox('chkPromptForApproval');
-    // LR-010: cross-field dependency cascade is async — poll for spinThreshold disabled state.
     await expect.poll(
       () => locationLocalInfoPage.getSpinState('spinThreshold').then(s => s.disabled),
       { timeout: 5_000 },
     ).toBe(true);
+    // Combo D: DPCD=off, PFA=on -- Threshold ENABLED
     await locationLocalInfoPage.uncheckCheckbox('chkAllowDPCD');
     await expect.poll(
       () => locationLocalInfoPage.getSpinState('spinThreshold').then(s => s.disabled),
       { timeout: 5_000 },
     ).toBe(false);
-    await locationLocalInfoPage.checkCheckbox('chkAllowDPCD');
+    // Combo C: DPCD=off, PFA=off -- Threshold disabled again
     await locationLocalInfoPage.uncheckCheckbox('chkPromptForApproval');
+    await expect.poll(
+      () => locationLocalInfoPage.getSpinState('spinThreshold').then(s => s.disabled),
+      { timeout: 5_000 },
+    ).toBe(true);
+    // Return to Combo D to set a value, then verify reset-to-0 when Threshold becomes disabled
+    await locationLocalInfoPage.checkCheckbox('chkPromptForApproval');
+    await expect.poll(
+      () => locationLocalInfoPage.getSpinState('spinThreshold').then(s => s.disabled),
+      { timeout: 5_000 },
+    ).toBe(false);
+    await locationLocalInfoPage.setSpinValue('spinThreshold', '50.00');
+    // Re-enable DPCD (→ Combo B: DPCD=on, PFA=on) -- Threshold disables and resets to 0
+    await locationLocalInfoPage.checkCheckbox('chkAllowDPCD');
+    await expect.poll(
+      () => locationLocalInfoPage.getSpinState('spinThreshold').then(s => s.disabled),
+      { timeout: 5_000 },
+    ).toBe(true);
+    await expect.poll(
+      () => locationLocalInfoPage.getSpinState('spinThreshold').then(s => parseFloat(s.value)),
+      { timeout: 5_000 },
+    ).toBe(0);
+    // Restore baseline: DPCD=on, PFA=off (Combo A)
+    await locationLocalInfoPage.uncheckCheckbox('chkPromptForApproval');
+    await locationLocalInfoPage.clickSave();
+  });
+
+  // Timeout: 120s -- 2 save+reload cycles (~20-25s each). LR-026: handle dirty state after each save.
+  test('TC-LOC-LI-071: Enable Multiday Pricing toggles and persists after save+reload', async ({ locationLocalInfoPage }) => {
+    test.setTimeout(120_000);
+    // Default: unchecked (covered by UNCHECKED_DEFAULTS in TC-002). Toggle to checked.
+    await locationLocalInfoPage.checkCheckbox('chkEnableMultidayPricing');
+    expect(await locationLocalInfoPage.isSaveEnabled()).toBe(true);
+    await locationLocalInfoPage.clickSave();
+    await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
+    await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 15_000);
+    expect((await locationLocalInfoPage.getCheckboxState('chkEnableMultidayPricing')).checked).toBe(true);
+    // Restore to unchecked (LR-026: reload between persistence tests to reset form dirty state)
+    await locationLocalInfoPage.uncheckCheckbox('chkEnableMultidayPricing');
+    await locationLocalInfoPage.clickSave();
+  });
+
+  // MCP-09 2026-04-10: Uncheck CRT -> DisplayTax editable. Uncheck DT. Recheck CRT -> DT auto-sets true + disables.
+  test('TC-LOC-LI-073: DisplayTax auto-sets true when CompanyRemitTax re-checked', async ({ locationLocalInfoPage }) => {
+    await locationLocalInfoPage.uncheckCheckbox('chkCompanyRemitTax');
+    await expect.poll(() => locationLocalInfoPage.getCheckboxState('chkDisplayTax').then(s => s.disabled), { timeout: 5_000 }).toBe(false);
+    await locationLocalInfoPage.uncheckCheckbox('chkDisplayTax');
+    await locationLocalInfoPage.checkCheckbox('chkCompanyRemitTax');
+    await expect.poll(() => locationLocalInfoPage.getCheckboxState('chkDisplayTax').then(s => s.checked), { timeout: 5_000 }).toBe(true);
+    await expect.poll(() => locationLocalInfoPage.getCheckboxState('chkDisplayTax').then(s => s.disabled), { timeout: 5_000 }).toBe(true);
+    await locationLocalInfoPage.clickSave();
+  });
+
+  // MCP-03 2026-04-10: AllowETS=enabled for 1604. Check -> ETS%=23.00% (non-union default). Uncheck -> disabled + 0.
+  test('TC-LOC-LI-077: ETS% enables with non-union default when Allow ETS checked; resets to 0 on uncheck', async ({ locationLocalInfoPage }) => {
+    await locationLocalInfoPage.checkCheckbox('chkAllowETS');
+    await expect.poll(() => locationLocalInfoPage.getSpinState('spinETSPercentage').then(s => s.disabled), { timeout: 5_000 }).toBe(false);
+    // Non-union default: 23.00% (0.23 x 100). Value displayed as "23.00%".
+    const etsVal = await locationLocalInfoPage.getSpinState('spinETSPercentage');
+    expect(parseFloat(etsVal.value)).toBe(23);
+    await locationLocalInfoPage.uncheckCheckbox('chkAllowETS');
+    await expect.poll(() => locationLocalInfoPage.getSpinState('spinETSPercentage').then(s => s.disabled), { timeout: 5_000 }).toBe(true);
+    await expect.poll(() => locationLocalInfoPage.getSpinState('spinETSPercentage').then(s => parseFloat(s.value)), { timeout: 5_000 }).toBe(0);
+    await locationLocalInfoPage.clickSave();
+  });
+
+  // MCP-05 2026-04-10: C&C Fee=enabled for 1604. Check -> C&C% enables. Set value. Uncheck -> disabled + 0.
+  test('TC-LOC-LI-075: C&C% resets to 0 when Apply C&C Fee unchecked', async ({ locationLocalInfoPage }) => {
+    await locationLocalInfoPage.checkCheckbox('chkApplyCablesConsumablesFee');
+    await expect.poll(() => locationLocalInfoPage.getSpinState('spinCCPercentage').then(s => s.disabled), { timeout: 5_000 }).toBe(false);
+    await locationLocalInfoPage.setSpinValue('spinCCPercentage', '5.00');
+    await locationLocalInfoPage.uncheckCheckbox('chkApplyCablesConsumablesFee');
+    await expect.poll(() => locationLocalInfoPage.getSpinState('spinCCPercentage').then(s => s.disabled), { timeout: 5_000 }).toBe(true);
+    await expect.poll(() => locationLocalInfoPage.getSpinState('spinCCPercentage').then(s => parseFloat(s.value)), { timeout: 5_000 }).toBe(0);
+    await locationLocalInfoPage.clickSave();
+  });
+
+  // MCP-06 2026-04-10: AllowResortTax=enabled for 1604. Same pattern as TC-075.
+  test('TC-LOC-LI-076: ResortTax% resets to 0 when Allow Resort Tax unchecked', async ({ locationLocalInfoPage }) => {
+    await locationLocalInfoPage.checkCheckbox('chkAllowResortTax');
+    await expect.poll(() => locationLocalInfoPage.getSpinState('spinResortTaxPercentage').then(s => s.disabled), { timeout: 5_000 }).toBe(false);
+    await locationLocalInfoPage.setSpinValue('spinResortTaxPercentage', '3.00');
+    await locationLocalInfoPage.uncheckCheckbox('chkAllowResortTax');
+    await expect.poll(() => locationLocalInfoPage.getSpinState('spinResortTaxPercentage').then(s => s.disabled), { timeout: 5_000 }).toBe(true);
+    await expect.poll(() => locationLocalInfoPage.getSpinState('spinResortTaxPercentage').then(s => parseFloat(s.value)), { timeout: 5_000 }).toBe(0);
+    await locationLocalInfoPage.clickSave();
+  });
+
+  // MCP-08 2026-04-10: IDC Billing persists after save+reload. 2 save+reload cycles.
+  test('TC-LOC-LI-072: Enable IDC Billing persists after save+reload', async ({ locationLocalInfoPage }) => {
+    test.setTimeout(120_000);
+    await locationLocalInfoPage.checkCheckbox('chkEnableIDCBilling');
+    await locationLocalInfoPage.clickSave();
+    await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
+    await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 15_000);
+    expect((await locationLocalInfoPage.getCheckboxState('chkEnableIDCBilling')).checked).toBe(true);
+    await locationLocalInfoPage.uncheckCheckbox('chkEnableIDCBilling');
     await locationLocalInfoPage.clickSave();
   });
 
@@ -300,7 +401,10 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
 
 });
 
-// FIXME Cat-B: TC-037/035 (Angular disables Save on max violation -- invalid value never saved), LDW% sub-min 0.01-0.09 (server rejects silently), TC-007A (multi-trigger), TC-008A (Oracle required), TC-018 (Threshold step), TC-027 (Billing Cycle shows --Select-- not Weekly for 1604), TC-033 (batch isolation).
-// FIXME Cat-A (office 1604 -- fields disabled): TC-017 (CC%/ETS%/ResortTax%), TC-028 (ServiceCharge), TC-030/031 (C&C Fee), TC-036 (multi-invalid), TC-040 (eSignature), TC-061 (ResortTax), TC-066 (JobCosting), TC-008 (Skip Billing one-way lock).
+// FIXME Cat-B: TC-037/035 (Angular disables Save on max violation -- invalid value never saved), LDW% sub-min 0.01-0.09 (server rejects silently), TC-008A (Oracle required), TC-018 (Threshold step), TC-033 (batch isolation).
+// FIXME Cat-A (bug-blocked): TC-078 (BillingCycle required -- MCP-02 tested with valid value only, error condition NOT tested. Needs re-investigation with value="--Select--"). TC-079 (SkipBilling Oracle -- bug-blocked: BUG-LI-001. No aria-required rendered, Save silently no-ops on empty Oracle field. Angular [required] binding not rendering in DOM despite being in Functional Requirement v1.docx).
+// FIXME Cat-A (permanently blocked): TC-028 (ServiceCharge), TC-036 (multi-invalid), TC-040 (eSignature), TC-066 (JobCosting), TC-008 (Skip Billing one-way lock).
 // NOT-AUTOMATABLE: TC-060 (role), TC-022/023/024/024A/044/046/047/048/054/058/059 (Billing/Country/random-mutation -- require different office).
 // COVERED BY TC-002: TC-038/039 (CHECKED_DEFAULTS), TC-041/042/043 (UNCHECKED_DEFAULTS), TC-057 (DISABLED_CHECKBOXES), TC-062/063 (left-panel).
+// RESOLVED: TC-007A (multi-trigger Threshold) -- covered by TC-074 (all 4 combos + reset-to-0).
+// RESOLVED 2026-04-10: TC-017 (ETS% -> TC-077), TC-030/031 (C&C -> TC-075), TC-061 (ResortTax -> TC-076), TC-073 (DisplayTax auto-set), TC-072 (IDC Billing persist). Gap#12 MCP-11 confirmed.

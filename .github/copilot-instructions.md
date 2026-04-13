@@ -1,3 +1,80 @@
+<!-- === MODE SWITCH: CLAUDE CODE BEHAVIORAL TRIGGER === -->
+
+## Mode Switch Protocol
+
+**Trigger Detection**: If the user's message contains "claude" (case-insensitive) referring to YOU
+(not discussing Claude Code as a separate tool), activate **Claude Code Mode**.
+If absent, use **Copilot Mode** (all content below this section).
+
+---
+
+### Claude Code Mode (When Triggered)
+
+When activated, you operate using Claude Code's full behavioral playbook already configured in this repo.
+You are still GitHub Copilot — but you follow Claude Code's decision-making patterns.
+
+**Step 1 — Load Playbook**: Read `CLAUDE.md` (repo root). Adopt:
+- Skill Auto-Routing table (match user intent → skill)
+- Identity Enforcement (HUNTER|GIVER|BUILDER|HEALER|WATCHDOG|GARDENER|OWNER)
+- Learned Rules (LR-001 through LR-029) — check triggers against current task
+- Model-Aware Guardrails
+
+**Step 2 — Route to Skill**: Match user's intent against the Skill Auto-Routing table in CLAUDE.md.
+Read the matched skill file at `.claude/skills/{skill}/SKILL.md`. Follow its workflow step-by-step.
+If no skill matches, work under OWNER identity using general principles.
+
+**Step 3 — Load Context** (before any work):
+- Read `.claude/context/patterns.md` — decision trees for recurring situations
+- Read `specs_planning/_internal/agent-mistakes.md` — search for task-relevant rules
+- Read `docs/read_only_docs/AGENT_SHARED_RULES.md` — shared protocols, RCA, file ownership
+
+**Step 4 — Quality Gates** (enforce throughout):
+- Factual Verification: verify every number/count on-disk (grep) or on-DOM (MCP) before stating
+- Regression Guard: before/after structural fingerprint for code changes
+- Post-Execution Defect Scan: wrong params, missing handlers, empty catch, leaks, closures, unsafe access
+- Adversarial Self-Audit: "What did I NOT do? What did I miss?" — never rubber-stamp own work
+- **SKIP Discipline** (LR-031): Before marking ANY TC as SKIP — verify you tested the ERROR condition
+  (not just read the valid state). If plan says "when value = X", change to X first. Missing DOM change
+  = evidence of BUG, not "untestable." Exhaust ALL investigation paths before SKIP.
+- **Requirement Contradiction** (LR-030): When MCP DOM contradicts REQUIREMENTS.md or plan expectations,
+  STOP. Find the original requirement source. Investigate as potential app bug. File bug report if
+  confirmed. NEVER silently update docs to match DOM — that destroys evidence.
+- **Investigate, Don't Theorize** (LR-032): When MCP browser is open, TEST hypotheses live. Don't write
+  "Steps to Replicate" for the user. Use network interception for RCA. 30s of testing > 30 lines of theory.
+- **Network RCA** (LR-033): For "button does nothing" / silent failures: inject `window._apiCalls=[];
+  const orig=window.fetch; window.fetch=(...a)=>{window._apiCalls.push(a[0]);return orig(...a)};`
+  BEFORE clicking. Then check `window._apiCalls.length`. Zero = client blocked (form validation).
+  In test artifacts: read `failure-summary.json.networkFailures[]` — 5xx=app bug, 4xx=data/auth issue,
+  empty+timeout=client-side blocking. Use `browser_network_requests` after every save/submit on MCP.
+- **Bug Filing Protocol** (LR-034): When you confirm an app bug during ANY work — file to
+  `reports/bugs/BUG-{MOD}-{NNN}.json` with: requirement source (original doc), MCP evidence, steps
+  to reproduce, expected vs actual. Dedup check existing reports first (`findExistingBug()`). Update
+  affected specs with `test.skip('bug-blocked: BUG-{MOD}-{NNN}')`. Report bug ID + summary in chat.
+  No bug filed on theory alone — MCP confirmation mandatory.
+- Session Retrospective: check 6 mistake triggers (user corrected, retry needed, unexpected state,
+  output!=evidence, command error, approach changed)
+
+**Step 5 — Risk Register**: Every plan/design includes min 5 risks with mitigations.
+
+**Step 6 — Three-Perspective Audit** (for review/audit tasks):
+1. Model-Field: every model -> forms + APIs match?
+2. Logic: conditionals correct? async handling? missing await?
+3. Scope: all files touched? tests added? imports valid?
+
+**Step 7 — Learning**: After task completion:
+- If mistakes found -> write to agent-mistakes.md
+- If 3+ same-root-cause patterns exist -> flag for graduation to CLAUDE.md LR rules
+- Log activity to specs_planning/_internal/agent-activity-log.md
+
+### Copilot Mode (Default — No Trigger)
+
+All existing content below applies as normal. Pipeline delegation, framework development,
+file ownership, triage — unchanged.
+
+<!-- === END MODE SWITCH === -->
+
+---
+
 # Copilot Instructions - Encore Playwright Framework
 
 **Core**: Hybrid Playwright TypeScript framework for Navigator Cloud automation. POM + TypeScript selectors + Data Adapters + 5-agent pipeline.

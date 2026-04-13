@@ -24,7 +24,7 @@ Runs `/identity` Step 1.5 with caller=`/ultrathink`. No-op if compatible identit
 
 Before ANY other work, create TodoWrite items for all quality gates:
 
-1. `GATE: Adversarial plan audit (3 challenges)` — pending
+1. `GATE: Adversarial plan audit` — pending
 2. `GATE: Post-execution audit` — pending
 3. `GATE: /reflect + LR-028 session bookkeeping` — pending
 
@@ -43,24 +43,20 @@ Read the user's message AFTER "ultrathink" to determine what they want:
 
 ## Step 2: Delegate to /planning (if applicable)
 
-Invoke `/planning` normally. It runs its own 3 mechanical audit rounds (Step 3 of /planning).
+Invoke `/planning` normally. It runs its own validation pass checklist (Step 3 of /planning).
 After /planning completes, proceed to Step 3 (adversarial audit) BEFORE any execution.
 
 ## Step 3: Adversarial Plan Audit
 
 This is /ultrathink's core value-add — adversarial, not mechanical.
 
-Three challenges, each from a different angle:
+Single pass, three angles checked together:
 
-1. **Skeptic**: "This plan will fail because..." — attack the weakest assumption
-2. **Scope**: "This plan is missing/overscoping..." — find what was left out or bloated
-3. **User Intent**: "This isn't what the user wants because..." — re-read original request, find drift
+- [ ] **Skeptic**: "This plan will fail because..." — attack the weakest assumption
+- [ ] **Scope**: "This plan is missing/overscoping..." — find what was left out or bloated
+- [ ] **User Intent**: "This isn't what the user wants because..." — re-read original request, find drift
 
-**Rules**:
-- Each challenge MUST produce at least 1 concrete finding OR explicitly argue why the plan is sound
-- "Looks good" is NOT acceptable — that's rubber-stamping, not auditing
-- Fix all findings in the plan before proceeding to execution
-- Mark `GATE: Adversarial plan audit` as completed
+Each item MUST produce at least 1 concrete finding OR explicitly argue why the plan is sound. "Looks good" is NOT acceptable — that's rubber-stamping, not auditing. Fix all findings in the plan before proceeding to execution. Mark `GATE: Adversarial plan audit` as completed.
 
 ## Step 4: Delegate to /execute (if applicable)
 

@@ -1,6 +1,6 @@
 ---
 name: planning
-description: Create a rigorously audited implementation plan — explores codebase, drafts plan, runs 3 enemy audit rounds, reviews against original intent, then saves to plans/pending/. Use when user says "plan", "design", "how should we".
+description: Create a rigorously audited implementation plan — explores codebase, drafts plan, runs validation checklist, reviews against original intent, then saves to plans/pending/. Use when user says "plan", "design", "how should we".
 user-invocable: true
 auto-calls: research
 tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
@@ -46,18 +46,13 @@ Write an initial plan covering:
 - **NOT touched**: Files explicitly excluded and why
 - **Verification**: How to test the changes end-to-end
 
-## Step 3: Enemy Audit (3 rounds — mandatory)
+## Step 3: Validation Pass
 
-### Round 1 — Compare Against Reference Plan
-Open the most recent completed plan in `plans/done/` for the same category (audit, bugfix, feature, etc.). Compare section-by-section. Flag any section present in the reference that's missing in yours. If no reference exists, use the most complex completed plan as baseline.
+Complete this checklist in a single pass. Fix any issues found before proceeding to Step 4.
 
-### Round 2 — Verify Listed Rules Are Applied
-For each rule listed in your plan's "Active Rules" section (or equivalent), verify it's actually reflected in the plan body (implementation steps, code snippets, or explicit exclusion with reason). Rule listed but not applied in the plan = gap. Fix before proceeding.
-
-### Round 3 — Grep Target in agent-mistakes.md
-Grep for the target page/module name in `specs_planning/_internal/agent-mistakes.md`. Read every hit. Verify none of the documented mistakes are repeated in your plan. Also grep for any function names or patterns your plan proposes to use.
-
-After each round, FIX any issues found in the plan before proceeding to the next round.
+- [ ] **Reference check** — Open the most recent completed plan in `plans/done/` for the same category. Compare section-by-section. Flag any section present in the reference that's missing in yours. If no reference exists, use the most complex completed plan as baseline.
+- [ ] **Rules applied** — For each rule listed in your plan's "Active Rules" section (or equivalent), verify it's actually reflected in the plan body (implementation steps, code snippets, or explicit exclusion with reason). Rule listed but not applied = gap.
+- [ ] **Mistakes check** — Grep for the target page/module name in `specs_planning/_internal/agent-mistakes.md`. Read every hit. Verify none of the documented mistakes are repeated in your plan. Also grep for any function names or patterns your plan proposes to use.
 
 ## Step 4: Intent Review
 - Re-read the user's original request word by word
@@ -79,7 +74,7 @@ After each round, FIX any issues found in the plan before proceeding to the next
 - Concise summary presented to user (context, key changes, verification approach)
 
 ## Rules
-- NEVER skip the 3 audit rounds — they are mandatory
+- NEVER skip the validation pass checklist — all 3 items are mandatory
 - NEVER assume — verify by reading actual files
 - Internal variable names are NOT user-facing — don't change them unless explicitly needed
 - Keep the plan surgical — minimum changes for maximum effect

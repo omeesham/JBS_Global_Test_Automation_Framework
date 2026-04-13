@@ -29,8 +29,8 @@ export const SetupAccountAddressSelectors = {
   btnAccVenueAddress: '[data-testid="location-settings-sub-tab-content-account-and-address"] dt:has-text("Address") button',
   /** @where Setup > Location > Account and Address > Venue @el input @text "Phone 1" @keys phone1 contact required editable */
   txtAccPhone1: 'input[name="accountAndAddress.contactPhone1"]',
-  /** @where Setup > Location > Account and Address > Venue @el input @text "Phone 2" @keys phone2 contact optional editable */
-  txtAccPhone2: 'input[name="accountAndAddress.contactPhone2"]',
+  /** @where Setup > Location > Account and Address > Venue @el input @text "Phone 2" @keys phone2 contact optional editable @verified 2026-04-09 */
+  txtAccPhone2: '[data-testid="location-settings-input-contact-phone-2"]',
 
   // ---- Save Button (left-panel, same as other tabs) ----
   /** @where Setup > Location > Account and Address @el button @text "Save" @keys save submit left-panel */
@@ -43,26 +43,26 @@ export const SetupAccountAddressSelectors = {
   // ---- Account List Dialog ----
   /** @where Setup > Location > Account List Dialog @el dialog @text "Account List" @keys account list search dialog modal */
   dlgAccountList: '[role="dialog"]:has-text("Account List")',
-  /** @where Setup > Location > Account List Dialog @el input @text "Account Number" @keys filter account-number search */
-  txtAccListAccountNumber: '[role="dialog"]:has-text("Account List") input[placeholder="Account Number"]',
-  /** @where Setup > Location > Account List Dialog @el input @text "Account Name" @keys filter account-name search */
-  txtAccListAccountName: '[role="dialog"]:has-text("Account List") input[placeholder="Account Name"]',
-  /** @where Setup > Location > Account List Dialog @el input @text "Address" @keys filter address search */
-  txtAccListAddress: '[role="dialog"]:has-text("Account List") input[placeholder="Address"]',
-  /** @where Setup > Location > Account List Dialog @el input @text "City" @keys filter city search */
-  txtAccListCity: '[role="dialog"]:has-text("Account List") input[placeholder="City"]',
-  /** @where Setup > Location > Account List Dialog @el combobox @text "State" @keys filter state dropdown */
-  drpAccListState: '[role="dialog"]:has-text("Account List") [role="combobox"]:near(:text("State"))',
-  /** @where Setup > Location > Account List Dialog @el combobox @text "Country" @keys filter country dropdown */
-  drpAccListCountry: '[role="dialog"]:has-text("Account List") [role="combobox"]:near(:text("Country"))',
-  /** @where Setup > Location > Account List Dialog @el button @text "Search" @keys search submit filter */
-  btnAccListSearch: '[role="dialog"]:has-text("Account List") button:has-text("Search")',
-  /** @where Setup > Location > Account List Dialog @el button @text "Reset" @keys reset clear filters */
-  btnAccListReset: '[role="dialog"]:has-text("Account List") button:has-text("Reset")',
+  /** @where Setup > Location > Account List Dialog @el input @text "Account Number" @keys filter account-number search @verified 2026-04-09 */
+  txtAccListAccountNumber: '[data-testid="location-settings-input-account-number"]',
+  /** @where Setup > Location > Account List Dialog @el input @text "Account Name" @keys filter account-name search @verified 2026-04-09 */
+  txtAccListAccountName: '[data-testid="location-settings-input-account-name"]',
+  /** @where Setup > Location > Account List Dialog @el input @text "Address" @keys filter address search @verified 2026-04-09 */
+  txtAccListAddress: '[data-testid="location-settings-input-account-address"]',
+  /** @where Setup > Location > Account List Dialog @el input @text "City" @keys filter city search @verified 2026-04-09 */
+  txtAccListCity: '[data-testid="location-settings-input-account-city"]',
+  /** @where Setup > Location > Account List Dialog @el combobox @text "State" @keys filter state dropdown @verified 2026-04-09 */
+  drpAccListState: '[data-testid="location-settings-select-account-state"]',
+  /** @where Setup > Location > Account List Dialog @el combobox @text "Country" @keys filter country dropdown @verified 2026-04-09 */
+  drpAccListCountry: '[data-testid="location-settings-select-account-country"]',
+  /** @where Setup > Location > Account List Dialog @el button @text "Search" @keys search submit filter @verified 2026-04-09 */
+  btnAccListSearch: '[data-testid="location-settings-btn-search-account"]',
+  /** @where Setup > Location > Account List Dialog @el button @text "Reset" @keys reset clear filters @verified 2026-04-09 */
+  btnAccListReset: '[data-testid="location-settings-btn-reset-account-search"]',
   /** @where Setup > Location > Account List Dialog @el button @text "Select" @keys select confirm row choose */
   btnAccListSelect: '[data-testid="location-settings-btn-select-account"]',
-  /** @where Setup > Location > Account List Dialog @el button @text "Cancel" @keys cancel close dismiss */
-  btnAccListCancel: '[role="dialog"]:has-text("Account List") button:has-text("Cancel")',
+  /** @where Setup > Location > Account List Dialog @el button @text "Cancel" @keys cancel close dismiss @verified 2026-04-09 */
+  btnAccListCancel: '[data-testid="location-settings-btn-cancel-account-search"]',
   /** @where Setup > Location > Account List Dialog @el button @text "Close" @keys close x dismiss dialog */
   btnAccListClose: '[role="dialog"]:has-text("Account List") button:has-text("Close")',
   /** @where Setup > Location > Account List Dialog @el checkbox @text "Row Select" @keys row selection checkbox first */

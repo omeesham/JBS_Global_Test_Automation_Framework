@@ -6,13 +6,13 @@ export const SetupPricingSelectors = {
   // ---- Pricing Tab Fields ----
   // NOTE: Pricing tab uses div/span layout (NOT dt/dd like Local Information tab).
   //       Checkboxes are Radix button[role="checkbox"], dropdowns are button[role="combobox"].
-  //       MCP-verified 2026-03-02.
+  //       MCP-verified 2026-04-09.
   /** @where Setup > Location > Pricing tab @el checkbox @text "Corporate Pricing" @keys corporate pricing toggle */
-  chkCorporatePricing: 'div.flex:has(> span:text-is("Corporate Pricing")) button[role="checkbox"]',
+  chkCorporatePricing: '[data-testid="location-settings-checkbox-corporate-pricing"]',
   /** @where Setup > Location > Pricing tab @el checkbox @text "Include Service Fee in Price Guides" @keys price-guide inclusive service-fee toggle */
-  chkPriceGuideInclusive: 'div.flex:has(> span:text-is("Include Service Fee in Price Guides")) button[role="checkbox"]',
+  chkPriceGuideInclusive: '[data-testid="location-settings-checkbox-price-guide-inclusion"]',
   /** @where Setup > Location > Pricing tab @el dropdown @text "Currency" @keys currency filter combobox pricing */
-  drpCurrencyFilter: 'div.flex:has(> span:text-is("Currency")) [role="combobox"]',
+  drpCurrencyFilter: '[data-testid="location-settings-select-pricing-currency"]',
   /** @where Setup > Location > Pricing tab @el button @text "Save" @keys save submit pricing form */
   btnSavePricing: '[data-testid="location-settings-btn-save"]',
 

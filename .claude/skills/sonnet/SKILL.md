@@ -131,7 +131,7 @@ One line per action. Append to a `### Breadcrumbs` section at the BOTTOM of plan
 | What | Opus Default | Sonnet Override |
 |---|---|---|
 | Pre-research | Optional for familiar code | MANDATORY for all code |
-| Self-audit rounds | 3 (per /planning) | 5 (more self-checking) |
+| Self-audit rounds | 1 (per /planning) | 1 (same — extra guards come from pre-write gate + breadcrumbs) |
 | Claim verification | Trust judgment | Verify EVERY claim against actual file |
 | TodoWrite items | Descriptive | MUST include `per:` citation |
 | Context between plans | Compact normally | Compact + append breadcrumb summary |

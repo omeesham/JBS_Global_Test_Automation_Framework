@@ -90,6 +90,7 @@ Apply the SFDPOT heuristic framework systematically. For each category, actively
 For each potential bug found in Step 2:
 1. **Verify it's real** — read the actual code, don't speculate
 2. **Determine severity**:
+3. **App bug gate (LR-034)**: For bugs confirmed against live DOM that contradict documented requirements, follow **LR-034 Bug Filing Protocol** to formally file to `reports/bugs/`. Don't only list in report output — file the JSON too.
    - **Critical**: data loss, security vulnerability, complete feature failure
    - **High**: major feature broken for common use case
    - **Medium**: feature broken for edge case, or degraded experience
@@ -120,16 +121,17 @@ Every bug you find is a **pattern**, not just an instance. This step is the diff
 
 2. **Check memory for prior patterns** — recall `feedback_bug_pattern_learning` and any past bug hunt reports. Prior patterns are test cases for THIS scope.
 
-3. **Sweep the entire codebase for each pattern**:
-   - If you found pattern X in area A, check areas B, C, D, E...
+3. **Sweep the codebase for CRITICAL/HIGH severity patterns only**:
+   - If you found a CRITICAL or HIGH pattern in area A, check areas B, C, D, E...
    - If one test plan has stale refs, check ALL test plans
    - If one numbered list has a gap, check ALL numbered lists
    - If one file has a wrong import, check ALL files at the same depth
+   - LOW/MINOR severity: log the pattern but skip the sweep
 
 4. **MANDATORY GATE**: Before finalizing the bug count, ask yourself:
-   > "For each bug I found, did I sweep the codebase for the same pattern in different forms?"
+   > "For each CRITICAL/HIGH bug I found, did I sweep the codebase for the same pattern?"
 
-   If the answer is NO for any bug, **go back and sweep**. The report is incomplete.
+   If the answer is NO for any CRITICAL/HIGH bug, **go back and sweep**. LOW bugs need pattern logged but not swept.
 
 5. **Store new patterns** — add significant new patterns to `specs_planning/_internal/agent-mistakes.md` so future agents learn from them too.
 

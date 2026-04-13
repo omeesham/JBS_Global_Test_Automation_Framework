@@ -52,9 +52,32 @@ Extract ALL fields:
 | Category | Next Step |
 |----------|-----------|
 | AUTH | Check authChain → escalate-tooling (NOT a code fix) |
-| NETWORK | Check networkFailures → document API issue |
+| NETWORK | → Step 0.1b: Network RCA Procedure |
 | INFRASTRUCTURE | escalate-tooling |
 | SELECTOR/TIMING/ASSERTION/DATA/APPLICATION/BLOCKING | → Step 0.2 |
+
+### Step 0.1b: Network RCA Procedure (when category = NETWORK or networkFailures non-empty)
+
+**For each entry in `networkFailures[]`:**
+1. Read `status`, `url`, `statusText`, `body` (first 2KB captured)
+2. Classify:
+   - **5xx** (500, 502, 503, 504) → **APP BUG**. File `reports/bugs/BUG-{MOD}-{NNN}.json`. Do NOT fix test code. Document and escalate.
+   - **4xx on auth URL** (login.microsoftonline.com, b2clogin.com, oauth) → **AUTH issue**. Check `authChain[]` for redirect loop or token expiry. Escalate as infrastructure, not code fix.
+   - **4xx on business API** (navigator API endpoints) → Check `body` for validation error message. Could be: bad test data (fix data), missing prerequisite state (fix test setup), OR app validation bug (file bug report).
+   - **Empty `networkFailures[]` + test timed out** → **Client-side blocking**. The action never reached the API. Common cause: Angular form validation (`if (!form.valid) return;`). Check `error-context.md` for invalid fields, disabled buttons. On MCP: use fetch interception to prove zero API calls.
+
+**For "button does nothing" scenarios (zero network activity):**
+1. On MCP: inject fetch interceptor BEFORE clicking:
+   ```javascript
+   () => { window._apiCalls = []; const orig = window.fetch;
+     window.fetch = (...a) => { window._apiCalls.push(a[0]); return orig(...a); }; }
+   ```
+2. Click the button, wait 2s
+3. Read `window._apiCalls` — if length 0, client blocked the action
+4. Check `form.valid` state: `document.querySelector('form')?.checkValidity()` or Angular-specific: check for `aria-invalid="true"` fields
+5. This is likely a **UX bug** (button enabled but form invalid, zero feedback to user). File bug report.
+
+**HAR context window**: DiagnosticsCollector captures 5 requests before/after each failure via `captureHar()`. When multiple APIs failed, the FIRST failure in the HAR window is the root cause — later failures may be cascading.
 
 ### Step 0.2: Read error-context.md
 `reports/test-results/{test-slug}-{browser}/error-context.md`
@@ -200,6 +223,8 @@ npx playwright test --grep "TC-ID" --project=chrome --headed --repeat-each=3
 ---
 
 ## Phase 6: Evidence Summary & Fix Decision
+
+**App bug gate (LR-034)**: If root cause is APPLICATION or DATA (app defect, not test defect) — follow **LR-034 Bug Filing Protocol** to file to `reports/bugs/`. Do NOT fix test code for app bugs. Then proceed to Phase 7.
 
 Write a structured RCA summary before ANY code edit:
 

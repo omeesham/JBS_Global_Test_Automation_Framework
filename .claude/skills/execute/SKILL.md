@@ -115,6 +115,7 @@ Before writing a single line of code:
 2. Mark each todo as `in_progress` when starting it, then `completed` only when VERIFIED (not just written, but confirmed working)
 3. If you discover something unexpected mid-execution, STOP and assess before continuing. On 2nd failure at same fix type → you're guessing, not fixing. Switch to root-cause trace (read evidence, hypothesize, verify) before attempt #3.
 4. Keep a mental ledger of every decision: what you did, what you chose NOT to do, and why
+5. **App bug gate (LR-034)**: If you discover application behavior that contradicts documented requirements during execution, STOP and follow **LR-034 Bug Filing Protocol** before continuing.
 
 **Auto-call `/regression-guard` AFTER** — re-snapshot, diff, review. If SUSPICIOUS or SILENT BREAK items found, investigate before proceeding.
 

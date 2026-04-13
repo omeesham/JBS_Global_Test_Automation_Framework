@@ -19,9 +19,9 @@ When the user invokes `/questionnaire`, your job is to close ALL gaps, doubts, a
 4. Group topics loosely (e.g., "database", "auth", "naming", "scope", "deployment")
 5. Do NOT show the topic list to the user — just start asking
 
-### Step 2: Ask Questions in Batches
-- Ask **3-5 questions per batch** using the AskUserQuestion tool
-- After each batch, process answers, update your internal topic list, and ask the next batch
+### Step 2: Ask Questions
+- Ask **up to 10 questions in a single batch** using the AskUserQuestion tool when topics are independent
+- Only use multiple batches when answers from earlier questions materially change what you need to ask next
 - Continue until ALL topics are resolved
 
 ### Step 3: Summarize

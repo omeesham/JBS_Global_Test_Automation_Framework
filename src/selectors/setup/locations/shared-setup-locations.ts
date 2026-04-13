@@ -29,15 +29,15 @@ export const SetupSharedSetupLocationsSelectors = {
   tblSharedSetupLocations: '[data-testid="location-settings-table-shared-setup"]',
 
   // ---- Self-Row Selectors (first data row = current location) ----
-  /** @where Setup > Location > Shared Setup Locations tab > self-row @el checkbox @text "Primary Office" @keys primary office self checked disabled */
-  chkSelfPrimaryOffice: '[data-testid="location-settings-table-shared-setup"] tbody tr:first-child td:nth-child(3) [role="checkbox"]',
-  /** @where Setup > Location > Shared Setup Locations tab > self-row @el checkbox @text "Shares Inventory" @keys shares inventory self editable toggle */
-  chkSelfSharesInventory: '[data-testid="location-settings-table-shared-setup"] tbody tr:first-child td:nth-child(4) [role="checkbox"]',
-  /** @where Setup > Location > Shared Setup Locations tab > self-row @el button @text "Delete" @keys delete self disabled button */
-  btnSelfDelete: '[data-testid="location-settings-table-shared-setup"] tbody tr:first-child td:nth-child(5) button',
+  /** @where Setup > Location > Shared Setup Locations tab > self-row @el checkbox @text "Primary Office" @keys primary office self checked disabled @verified 2026-04-09 */
+  chkSelfPrimaryOffice: '[data-testid="location-settings-checkbox-shared-location-0-primary"]',
+  /** @where Setup > Location > Shared Setup Locations tab > self-row @el checkbox @text "Shares Inventory" @keys shares inventory self editable toggle @verified 2026-04-09 */
+  chkSelfSharesInventory: '[data-testid="location-settings-checkbox-shared-location-0-shares-inventory"]',
+  /** @where Setup > Location > Shared Setup Locations tab > self-row @el button @text "Delete" @keys delete self disabled button @verified 2026-04-09 */
+  btnSelfDelete: '[data-testid="location-settings-btn-delete-shared-location-0"]',
 
   // ---- Add Button ----
-  /** @where Setup > Location > Shared Setup Locations tab @el button @text "Add" @keys add shared location button */
+  /** @where Setup > Location > Shared Setup Locations tab @el button @text "Add" @keys add shared location button @verified 2026-04-09 (testid is row-index-based — changes when rows added/removed — positional required) */
   btnSharedAdd: '[data-testid="location-settings-table-shared-setup"] tbody tr:last-child button',
 
   // ---- Change Local Office Dialog ----

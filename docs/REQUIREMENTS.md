@@ -180,6 +180,7 @@ Local Information | Currency | Pricing | Account and Address | Legal | Notes | S
 | Apply Cables and Consumables Fee | checkbox | unchecked | independent |
 | C&C Percentage | spinbutton % | 0 | disabled when Apply C&C unchecked |
 | Calculate C&C on Net Amount | checkbox | — | disabled when Apply C&C unchecked |
+| Enable Multiday Pricing | checkbox | unchecked | independent (MCP 2026-04-10: new field, editable) |
 | Allow ETS | checkbox | unchecked | independent |
 | ETS Percentage | spinbutton % | 0 | disabled when Allow ETS unchecked |
 | Service Charge | checkbox | ✓ checked | independent |
@@ -210,7 +211,7 @@ Local Information | Currency | Pricing | Account and Address | Legal | Notes | S
 | Billing Type | radio (Master / Direct) | Master | independent |
 | Billing Way | radio (Event / Daily) | Event | independent |
 | Effective Date | date picker | May 11th, 2007 | disabled by default; enabled only when Billing Way changes (changeBillWayActive=true) |
-| Billing Cycle | dropdown | Weekly | disabled when billing has run (localBillingRan=true); info icon (?) always visible |
+| Billing Cycle | dropdown | Weekly | **INVESTIGATION NEEDED**: MCP-01 (2026-04-10) shows enabled for office 1604 (localBillingRan=false). Original requirement said "disabled after billing ran." Current state may be correct if billing hasn't run for 1604, or may be app bug. Needs dev team confirmation. Info icon (?) always visible |
 | Warehouse Billing | checkbox | unchecked | independent |
 | Oracle Product | text input | 0000 | required when Skip Billing is unchecked |
 | Oracle Department | text input | 900 | required when Skip Billing is unchecked |
@@ -273,7 +274,7 @@ Local Information | Currency | Pricing | Account and Address | Legal | Notes | S
 - **Visual Indicator**: Exclamation icon when value is 0 or has required error; question mark (ⓘ) info icon always visible
 - **Error Message**: `ERR_REQUIRED`
 - **Special Case**: Disabled when billing has already run (`localBillingRan=true`)
-- **Live verification**: field shows "Weekly" [disabled] for location 1604 — billing has already run
+- **Live verification**: field shows "Weekly" [enabled] for location 1604 (MCP-01 2026-04-10: localBillingRan=false)
 
 ### Legal Data Validations
 

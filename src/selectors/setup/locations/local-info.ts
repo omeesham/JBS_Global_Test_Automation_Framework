@@ -46,6 +46,8 @@ export const SetupLocalInfoSelectors = {
   chkApplyCablesConsumablesFee: '[data-testid="location-settings-checkbox-apply-cables-consumables"]',
   /** @where Setup > Location > Local Information tab @el checkbox @text "Calculate C&C on Net Amount" @keys cables consumables cc net-amount toggle */
   chkCalculateCConNetAmount: '[data-testid="location-settings-checkbox-calc-cac-on-net-amount"]',
+  /** @where Setup > Location > Local Information tab @el checkbox @text "Enable Multiday Pricing" @keys multiday pricing enable toggle */
+  chkEnableMultidayPricing: '[data-testid="location-settings-checkbox-enable-multiday-pricing"]',
   /** @where Setup > Location > Local Information tab @el checkbox @text "Allow ETS" @keys ets allow toggle */
   chkAllowETS: '[data-testid="location-settings-checkbox-allow-ets"]',
   /** @where Setup > Location > Local Information tab @el checkbox @text "Service Charge" @keys service-charge fee toggle */

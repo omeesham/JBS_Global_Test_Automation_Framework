@@ -56,6 +56,7 @@ export const UNCHECKED_DEFAULTS: SelectorKey[] = [
   'chkCanCreateExternalCustomerLink',
   'chkOffsiteEventLocation',
   'chkExhibitShowRate',
+  'chkEnableMultidayPricing',  // Gap #9: new checkbox, unchecked by default (SESSION_1_FINDINGS 2026-04-09)
 ];
 
 /** Checkboxes expected DISABLED by default */
@@ -63,7 +64,10 @@ export const DISABLED_CHECKBOXES: SelectorKey[] = [
   'chkSuppressDayRateDiscount',
   'chkCompassIntegration',
   'chkDisplayTax',
-  'chkEnableJobCosting', // disabled+checked for office 1604
+  'chkEnableJobCosting',      // disabled+checked for office 1604
+  'chkUseESignature',         // Gap #12: disabled+checked (MCP-11 2026-04-10)
+  'chkEnableProductGroup',    // Gap #12: disabled+unchecked (MCP-11 2026-04-10)
+  'chkEnableDiscountGuidance', // Gap #12: disabled+checked (MCP-11 2026-04-10)
 ];
 
 /** Disabled checkboxes: expected checked state */
@@ -72,6 +76,9 @@ export const DISABLED_CHECKBOX_STATES: Record<string, boolean> = {
   chkCompassIntegration: true,       // disabled for existing location, checked
   chkDisplayTax: true,               // disabled when Company Remit Tax checked
   chkEnableJobCosting: true,         // disabled+checked for office 1604
+  chkUseESignature: true,            // MCP-11 2026-04-10: disabled+checked for office 1604
+  chkEnableProductGroup: false,      // MCP-11 2026-04-10: disabled+unchecked for office 1604
+  chkEnableDiscountGuidance: true,   // MCP-11 2026-04-10: disabled+checked for office 1604
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -162,9 +169,9 @@ export const SIMPLE_DEPENDENCIES: DependencyCase[] = [
     restore: [{ key: 'chkApplyLDW', action: 'check' }],
     spinRestore: { key: 'spinLDWPercentage', value: '0.04' }, // uncheck resets spin to 0; restore to '0.04' (decimal = 4%) so subsequent saves don't leave LDW%=0
   },
-  // NOTE: chkApplyCablesConsumablesFee is disabled for office 1604 -- skip CC Percentage dependency
-  // NOTE: chkAllowETS is disabled for office 1604 -- skip ETS Percentage dependency
-  // chkAllowResortTax becomes disabled for office 1604 after save operations -- skip to avoid flaky timeout
+  // MCP-05 2026-04-10: chkApplyCablesConsumablesFee is ENABLED for 1604. Tested in TC-075 (standalone).
+  // MCP-03 2026-04-10: chkAllowETS is ENABLED for 1604. Tested in TC-077 (standalone).
+  // MCP-06 2026-04-10: chkAllowResortTax is ENABLED for 1604. Tested in TC-076 (standalone).
   {
     label: 'Skip Billing -> Oracle Product disabled',
     trigger: 'chkSkipBilling', triggerAction: 'check',
@@ -265,5 +272,6 @@ export const CHECKBOX_LABEL_CASES: CheckboxLabelCase[] = [
   { key: 'chkSkipBilling',       expected: 'Skip Billing' },
   { key: 'chkWarehouseBilling',  expected: 'Warehouse Billing' },
   { key: 'chkCommReceiver',      expected: 'Comm Receiver' },
-  { key: 'chkAllowDPCD',         expected: 'Allow DPCD' },
+  { key: 'chkAllowDPCD',             expected: 'Allow DPCD' },
+  { key: 'chkEnableMultidayPricing', expected: 'Enable Multiday Pricing' },  // Gap #9
 ];

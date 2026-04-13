@@ -109,13 +109,12 @@ Later wave headers stay `pending` until all plans in the PREVIOUS wave are `comp
 
 ### TodoWrite Handoff Protocol (Chain ↔ Execute)
 
-TodoWrite supports only ONE flat list. When Phase 4 hands off to `/execute`, the lists swap:
+TodoWrite supports only ONE flat list. When Phase 4 hands off to `/execute`:
 
-1. **Before handing off to /execute**: Mentally save the chain-level manifest (all wave headers + plan items + their current statuses)
-2. **During /execute**: `/execute`'s Phase 0.5 creates its own detail-level todo list (per-step items for the single plan). This OVERWRITES the chain manifest in TodoWrite.
-3. **After /execute completes**: IMMEDIATELY call TodoWrite again to RESTORE the chain-level manifest with the just-completed plan marked as `completed`
+1. **Before handing off to /execute**: Keep the chain-level manifest in TodoWrite. `/execute` ADDS its detail items under the current plan's entry (indented or prefixed) instead of overwriting.
+2. **After /execute completes**: Remove /execute's detail items and mark the plan item as `completed`.
 
-This save→overwrite→restore cycle happens for EVERY plan in the chain. Never skip the restore step.
+No save/overwrite/restore cycle needed. One unified list throughout.
 
 ---
 
@@ -171,16 +170,17 @@ Phase 1: Pre-Audit .......... [done — N issues found (X critical, Y important,
 
 ---
 
-### Phase 2: Refinement
+### Phase 2: Refinement (skip if Phase 1 found 0 issues)
 
 **Goal**: Fix the plan based on audit findings. Make it bulletproof before execution.
+**Fast-path**: If Phase 1 found zero critical or important issues, skip directly to Phase 3.
 
 1. **Apply `/planning` methodology** to refine:
    - Fix every critical and important issue from Phase 1
-   - Run the 3 enemy audit rounds on the REFINED plan:
-     - Round 1: Scope completeness — did the fixes introduce new gaps?
-     - Round 2: Design consistency — do changes align with codebase conventions?
-     - Round 3: Breaking changes — could the refined plan break anything?
+   - Run validation checklist on the REFINED plan:
+     - [ ] Scope completeness — did the fixes introduce new gaps?
+     - [ ] Design consistency — do changes align with codebase conventions?
+     - [ ] Breaking changes — could the refined plan break anything?
    - Intent review — does the refined plan still match the original goal?
 2. **Research online for unfamiliar territory** — if Phase 1 revealed knowledge gaps:
    - Search for implementation patterns others have used for similar problems
@@ -191,7 +191,7 @@ Phase 1: Pre-Audit .......... [done — N issues found (X critical, Y important,
 4. **Note what changed** — brief list of refinements made
 
 ```
-Phase 2: Refinement ......... [done — N changes made, 3 audit rounds passed]
+Phase 2: Refinement ......... [done — N changes made, validation checklist passed]
 ```
 
 ---
@@ -240,6 +240,7 @@ Phase 3: Questions .......... [skipped — plan is clear] or [done — asked N q
    - **Track decisions**: What you did, what you chose NOT to do, and why
 2. **AFTER snapshot**: Auto-call `/regression-guard` Phase 2. Review diff. Investigate any SUSPICIOUS or SILENT BREAK items.
 3. **Post-execution verification**: If a dev server is running, verify on live preview. Never declare done from code alone.
+4. **App bug gate (LR-034)**: If execution reveals application behavior that contradicts documented requirements, follow **LR-034 Bug Filing Protocol** before continuing to the next plan.
 
 ```
 Phase 4: Execution .......... [done — N files changed, M gaps found and addressed, regression guard: CLEAN/ISSUES]

@@ -398,3 +398,132 @@ test data, test cases, test plans, REQUIREMENTS.md):
 Activity log is the audit trail. Missing entry = invisible session = audit finding.
 **Trigger**: End of any session that touched pipeline files.
 **Graduated from**: WATCHDOG audit 2026-04-06 (F-001).
+
+### LR-029: Never audit selectors without live DOM verification
+When auditing data-testid coverage or generating missing-testid reports:
+NEVER audit selector files alone — always verify against the LIVE DOM via MCP.
+Selector files show what WE USE, not what EXISTS in the app.
+The app may have data-testids we never adopted, or testids may have been added since
+we wrote our selectors. Auditing files without DOM = false positives = embarrassment.
+Pattern: navigate to each page/tab, run `document.querySelectorAll('[data-testid]')`,
+cross-reference against our selector values.
+**Trigger**: Any task involving testid coverage analysis or bug reporting to external teams.
+**Graduated from**: Session 2026-04-09 — 17 false positives found in MISSING_TESTID_REPORT.md.
+
+### LR-030: Requirement contradiction = investigate as bug, never silently update docs
+When live DOM contradicts a documented requirement:
+1. Find the requirement's ORIGINAL SOURCE (Jira, spec docs, Functional Requirement .docx)
+2. If source confirms the requirement is intentional → the DOM behavior is a potential APP BUG
+3. TEST the discrepancy yourself via MCP (don't hand off "Steps to Replicate")
+4. File bug report with evidence if confirmed
+5. Only update docs AFTER completing investigation — and document the investigation trail
+NEVER silently overwrite docs to match DOM. That destroys evidence of expected behavior.
+ALL-024 says "DOM is truth" for conflict resolution, but it also says "STOP and report the
+discrepancy." Both halves of that rule must be followed — observe AND report.
+**Trigger**: Any MCP finding that contradicts REQUIREMENTS.md or plan expectations.
+**Graduated from**: Copilot session audit 2026-04-10 — BillingCycle "disabled" overwritten to "enabled"
+without investigating why the requirement existed. ALL-024 half-applied (DOM wins, but no report).
+
+### LR-031: SKIP requires exhaustive investigation — no lazy escapes
+Before marking ANY TC as SKIP or NOT-AUTOMATABLE:
+1. Verify you ACTUALLY tested the precondition (not just read the current state)
+2. If the plan says "when value = X" → change the value to X first, then test
+3. If expected DOM change is missing → that's evidence of a BUG, not evidence of "untestable"
+4. Clear the field / change state / click Save — test what happens when things go WRONG
+5. Monitor network activity during any "nothing happens" scenario (hook fetch, check API calls)
+6. File bug report if behavior contradicts documented requirements
+7. SKIP is ONLY for genuinely untestable conditions AFTER exhausting ALL investigation paths
+A TC skipped without trying the error condition = audit finding.
+**Trigger**: Any TC being marked as SKIP or NOT-AUTOMATABLE.
+**Graduated from**: Copilot session audit 2026-04-10 — TC-078 SKIP'd without changing BillingCycle
+to "--Select--" (plan explicitly said to). TC-079 SKIP'd without clearing Oracle Product to test
+save behavior. Both were lazy escapes that missed a confirmed UX/a11y bug (BUG-LI-001).
+
+### LR-032: MCP agents must investigate, not theorize
+When you have browser/MCP access:
+- TEST hypotheses live instead of writing "Steps to Replicate" for the user
+- Use network interception (`window.fetch` wrapper or `page.on('request')`) to distinguish
+  "client blocked" vs "server rejected" vs "API error"
+- 30 seconds of live testing > 30 lines of theory
+- If you write "Steps to Replicate" while the browser is open on the page = you failed
+**Trigger**: Any RCA or bug investigation while MCP browser is available.
+**Graduated from**: Copilot session audit 2026-04-10 — had MCP browser open on exact page,
+wrote theory document instead of clearing Oracle Product and clicking Save (30 seconds).
+Rutvik had to test it manually and discover the silent no-op bug himself.
+
+### LR-033: Network RCA checklist — always check API activity during debugging
+When debugging ANY "nothing happens" or unexpected behavior:
+1. **In test artifacts**: Read `failure-summary.json` → `networkFailures[]` array FIRST.
+   - 5xx = APP BUG (file report, don't fix test code)
+   - 4xx on auth URL = AUTH issue (escalate, not code fix)
+   - 4xx on business API = bad test data OR app validation bug
+   - Empty array + timeout = client-side blocking (form validation, JS error)
+2. **In MCP live debugging**: Use `browser_network_requests` after every save/submit/navigation.
+   Zero requests after button click = client blocked the action (Angular `if (!form.valid) return;`).
+3. **Fetch interception** (for silent no-ops):
+   ```javascript
+   // Before the action:
+   () => { window._apiCalls = []; const orig = window.fetch;
+     window.fetch = (...a) => { window._apiCalls.push(a[0]); return orig(...a); }; }
+   // After the action:
+   () => window._apiCalls  // length 0 = no API fired
+   ```
+4. **HAR context**: DiagnosticsCollector captures 5 requests before/after each failure.
+   When multiple APIs failed, the FIRST failure in the HAR window is the root cause.
+5. **Auth chain**: `failure-summary.json.authChain[]` shows OAuth redirect sequence.
+   Loop or 401 from auth provider = session expired, not test bug.
+The framework captures ALL of this automatically via DiagnosticsCollector. USE IT.
+**Trigger**: Any test failure, any "button does nothing" scenario, any save/submit investigation.
+**Graduated from**: Copilot session audit 2026-04-10 — agent had MCP access but never checked
+network activity during Oracle/Save investigation. Tooling existed (Grade A) but knowledge
+transfer was Grade C — agents knew tools existed but had no procedural RCA path.
+
+### LR-034: Bug Filing Protocol — how to confirm and file an app bug
+When you suspect an application bug (not a test defect) during ANY work, follow these steps:
+
+**Step 1 — Verify requirement exists**: Find the original source (REQUIREMENTS.md, Functional
+Requirement .docx, Jira, spec docs). If no documented requirement, behavior may be intentional — ask user before filing.
+
+**Step 2 — MCP-confirm the bug**: Reproduce on live DOM. Use `browser_network_requests` or fetch
+interception to prove client-side vs server-side. Screenshot the evidence. MANDATORY — no bug filed on theory alone.
+
+**Step 3 — Dedup check**: Scan `reports/bugs/BUG-*.json` for existing report on same module + same
+symptom. If found, add new evidence to existing report instead of filing duplicate.
+
+**Step 4 — Generate ID**: `BUG-{MODULE}-{NNN}` where MODULE = 2-3 letter code (e.g., LI=LocalInformation,
+PRC=Pricing, SSL=SharedSetupLocations), NNN = next sequential number for that module.
+
+**Step 5 — Write JSON** to `reports/bugs/BUG-{MODULE}-{NNN}.json`:
+```json
+{
+  "id": "BUG-{MODULE}-{NNN}",
+  "title": "one-line summary",
+  "module": "MODULE_NAME",
+  "severity": "critical|high|medium|low",
+  "status": "open",
+  "discoveredDate": "YYYY-MM-DD",
+  "requirementSource": "doc name + specific binding/rule",
+  "stepsToReproduce": ["step 1", "step 2"],
+  "expectedBehavior": "what requirement says should happen",
+  "actualBehavior": "what actually happens (with MCP evidence)",
+  "mcpEvidence": { "sessionDate": "YYYY-MM-DD", "findings": "what MCP showed" },
+  "affectedTests": ["TC-IDs — optional"],
+  "networkEvidence": "API calls or lack thereof — optional"
+}
+```
+Required: id, title, module, severity, status, discoveredDate, requirementSource,
+stepsToReproduce, expectedBehavior, actualBehavior, mcpEvidence.
+
+**Step 6 — Update affected specs**: Any TC blocked by this bug gets
+`test.skip('bug-blocked: BUG-{MODULE}-{NNN}')`. Update FIXME comments to reference bug ID.
+
+**Step 7 — Report to user**: Output bug summary in chat — bug ID, title, severity, requirement
+source, MCP evidence summary.
+
+**Trigger**: Any of the following during ANY agent work:
+- DOM contradicts documented requirement (LR-030 fires first, LR-034 for the actual filing)
+- "Nothing happens" on button click (LR-033 network check, LR-034 if confirmed app bug)
+- Expected DOM change missing after action (LR-031 investigation, LR-034 if confirmed)
+- Test failure classified as APPLICATION or DATA by failure-summary.json
+**Graduated from**: Copilot session audit 2026-04-10 — LR-030/031/032/033 told agents to
+investigate and file bugs but gave no procedural HOW. This fills the gap.
