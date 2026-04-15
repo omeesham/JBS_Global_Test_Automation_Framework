@@ -241,5 +241,37 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     expect(await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(originalBM);
   });
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // SP4: History Integration — verify all ECT saves produced history rows
+  // ─────────────────────────────────────────────────────────────────────────
+
+  test('TC-LOS-ECT-HIST: Verify all ECT saves produced correct history rows', async ({ localOfficeSettingsPage }) => {
+    test.setTimeout(120_000);
+    // Reload to reset Angular form dirty state from prior tests (LR-026)
+    await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
+    await localOfficeSettingsPage.navigateToHistoryTab();
+    await localOfficeSettingsPage.sortHistoryByModifiedOnDesc();
+
+    // Build today's date prefix for matching Modified On (SP1 format: MM/DD/YYYY HH:MM:SS AM/PM)
+    const now = new Date();
+    const todayPrefix = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}/${now.getFullYear()}`;
+
+    // SP1 §8: ECT fields (BenefitsMultiplier, HistoricalSubrental, LaborCost) are NOT tracked
+    // in the 42-column history. Saves produce rows but ECT field values have no corresponding
+    // columns. Only verify row existence and metadata.
+    const EXPECTED_MIN_SAVES = 10; // 13 total, some conditional (ECT-001 baseline)
+    const ROW_SCAN_COUNT = 13;
+    let todayRowCount = 0;
+
+    for (let row = 0; row < ROW_SCAN_COUNT; row++) {
+      const values = await localOfficeSettingsPage.getHistoryRowValues(row, ['Modified By', 'Modified On']);
+      expect.soft(values['Modified By'], `Row ${row}: Modified By should be non-empty`).toBeTruthy();
+      expect.soft(values['Modified On'], `Row ${row}: Modified On should be non-empty`).toBeTruthy();
+      if (values['Modified On']?.startsWith(todayPrefix)) todayRowCount++;
+    }
+
+    expect.soft(todayRowCount, `Expected >= ${EXPECTED_MIN_SAVES} history rows from today`).toBeGreaterThanOrEqual(EXPECTED_MIN_SAVES);
+  });
+
 });
 

@@ -827,4 +827,51 @@ test.describe.serial('Local Office Settings — Basic Information @locations @lo
   //   Plan assumed Validate() paths 1-6 relied on these cross-validators. Only NM-1264 (Delivery >= Prep)
   //   is wired in the Angular implementation. Paths 3/5/6/7/8 from the plan are INVALIDATED (not "deferred").
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // SP4: History Integration — verify all saves produced correct history rows
+  // ─────────────────────────────────────────────────────────────────────────
+
+  test('TC-LOS-BAS-HIST: Verify all saves produced correct history rows', async ({ localOfficeSettingsPage }) => {
+    test.setTimeout(120_000);
+    // Reload to reset Angular form dirty state from prior tests (LR-026)
+    await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
+    await localOfficeSettingsPage.navigateToHistoryTab();
+    await localOfficeSettingsPage.sortHistoryByModifiedOnDesc();
+
+    // Build today's date prefix for matching Modified On (SP1 format: MM/DD/YYYY HH:MM:SS AM/PM)
+    const now = new Date();
+    const todayPrefix = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}/${now.getFullYear()}`;
+
+    // SP1 §3: Each save = 1 history row (snapshot model). This serial block has 31 completed saves.
+    // SP1 §6: default page size is 20 rows and the test does not raise rows-per-page, so only the
+    // top 20 rows are in the DOM. Sort is desc on Modified On, so the top 20 are today's most recent.
+    // RCA 2026-04-15: cap scan window at 20 (was 31 → TimeoutError on tr:nth(20)).
+    const EXPECTED_MIN_SAVES = 20;
+    const ROW_SCAN_COUNT = 20;
+    let todayRowCount = 0;
+
+    // Phase 1: Verify metadata (Modified By / Modified On) on all scanned rows
+    for (let row = 0; row < ROW_SCAN_COUNT; row++) {
+      const values = await localOfficeSettingsPage.getHistoryRowValues(row, ['Modified By', 'Modified On']);
+      expect.soft(values['Modified By'], `Row ${row}: Modified By should be non-empty`).toBeTruthy();
+      expect.soft(values['Modified On'], `Row ${row}: Modified On should be non-empty`).toBeTruthy();
+      if (values['Modified On']?.startsWith(todayPrefix)) todayRowCount++;
+    }
+
+    expect.soft(todayRowCount, `Expected >= ${EXPECTED_MIN_SAVES} history rows from today`).toBeGreaterThanOrEqual(EXPECTED_MIN_SAVES);
+
+    // Phase 2: Spot-check row 0 — most recent save is BAS-067 cleanup restoring all 6 defaults.
+    // Column names from SP1 §2; values from NULL_OFFSET_FIELDS.defaultValue.
+    const latestRow = await localOfficeSettingsPage.getHistoryRowValues(0, [
+      'Prep Date Offset', 'Return Date Offset', 'Set Date Offset',
+      'Strike Date Offset', 'Pickup Date Offset', 'Delivery Date Offset',
+    ]);
+    expect.soft(latestRow['Prep Date Offset'], 'Row 0: Prep Date Offset').toBe('-1');
+    expect.soft(latestRow['Return Date Offset'], 'Row 0: Return Date Offset').toBe('1');
+    expect.soft(latestRow['Set Date Offset'], 'Row 0: Set Date Offset').toBe('-1');
+    expect.soft(latestRow['Strike Date Offset'], 'Row 0: Strike Date Offset').toBe('1');
+    expect.soft(latestRow['Pickup Date Offset'], 'Row 0: Pickup Date Offset').toBe('0');
+    expect.soft(latestRow['Delivery Date Offset'], 'Row 0: Delivery Date Offset').toBe('0');
+  });
+
 });

@@ -23,6 +23,7 @@ import { LocationLegalPage } from '../../src/pages/setup/locations/location-lega
 import { LocationSharedSetupLocationsPage } from '../../src/pages/setup/locations/location-shared-setup-locations.page';
 import { LocalOfficeSettingsPage } from '../../src/pages/setup/local-office/local-office-settings.page';
 import { LocationAutoAddonPage } from '../../src/pages/setup/locations/location-auto-addon.page';
+import { LocationManagementHistoryPage } from '../../src/pages/setup/locations/location-management-history.page';
 import { CommonMethods } from '../../src/utils/common-methods';
 import { Log, Logger } from '../../src/utils/logger';
 import { IConfig } from '../../src/framework-contracts';
@@ -52,6 +53,7 @@ type TestFixtures = {
   locationSharedSetupLocationsPage: LocationSharedSetupLocationsPage;
   localOfficeSettingsPage: LocalOfficeSettingsPage;
   locationAutoAddonPage: LocationAutoAddonPage;
+  locationManagementHistoryPage: LocationManagementHistoryPage;
 };
 
 /**
@@ -331,6 +333,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   locationAutoAddonPage: async ({ authenticatedSession, config }, use) => {
     const locationAutoAddonPage = new LocationAutoAddonPage(authenticatedSession.page, config);
     await use(locationAutoAddonPage);
+  },
+
+  locationManagementHistoryPage: async ({ authenticatedSession, config }, use) => {
+    const locationManagementHistoryPage = new LocationManagementHistoryPage(authenticatedSession.page, config);
+    await use(locationManagementHistoryPage);
   },
 
 });

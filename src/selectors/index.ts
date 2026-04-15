@@ -28,6 +28,7 @@ import { SetupSharedSetupLocationsSelectors } from './setup/locations/shared-set
 import { SetupNotesSelectors } from './setup/locations/notes';
 import { SetupLegalSelectors } from './setup/locations/legal';
 import { SetupAutoAddonSelectors } from './setup/locations/auto-addon';
+import { SetupHistorySelectors } from './setup/locations/history';
 import { LocalOfficeSettingsSelectors } from './setup/local-office/local-office-settings';
 
 // ==================== RE-EXPORTS ====================
@@ -43,6 +44,7 @@ export { SetupSharedSetupLocationsSelectors } from './setup/locations/shared-set
 export { SetupNotesSelectors } from './setup/locations/notes';
 export { SetupLegalSelectors } from './setup/locations/legal';
 export { SetupAutoAddonSelectors } from './setup/locations/auto-addon';
+export { SetupHistorySelectors } from './setup/locations/history';
 export { LocalOfficeSettingsSelectors } from './setup/local-office/local-office-settings';
 
 // ==================== MERGED PAGE OBJECTS ====================
@@ -59,6 +61,7 @@ export const LocationSettingsSelectors = {
   ...SetupNotesSelectors,
   ...SetupLegalSelectors,
   ...SetupAutoAddonSelectors,
+  ...SetupHistorySelectors,
 } as const;
 
 // ==================== COLLISION DETECTION + LOOKUP ====================
@@ -92,6 +95,7 @@ export const ALL_SELECTORS = buildAllSelectors(
   SetupNotesSelectors,
   SetupLegalSelectors,
   SetupAutoAddonSelectors,
+  SetupHistorySelectors,
 );
 
 // Validate LOS selectors don't collide with non-Location modules.

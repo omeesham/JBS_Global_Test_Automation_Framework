@@ -41,12 +41,18 @@ export class LocalOfficeSettingsPage extends BasePage {
     await this.navigateToSubTab('tabBasicInformation', 'frmBasicInfo', officeNo, 'local-office');
   }
 
+  /**
+   * Navigate to History tab. Handles unsaved dialog if dirty form persists (LR-026, SP1 §11).
+   * After save -> tab switch: wait for Save disabled, then switch.
+   * If alertdialog appears, click "Discard" to proceed.
+   */
   async navigateToHistoryTab(): Promise<void> {
     const tab = this.getElement('tabHistory');
     const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
     if (isSelected !== 'true') {
       await tab.click();
       await this.waitForAngularStable();
+      await this.dismissAlertDialogIfVisible();
     }
     await this.getElement('tblHistory').waitFor({ state: 'visible', timeout: 15_000 });
   }
@@ -104,21 +110,6 @@ export class LocalOfficeSettingsPage extends BasePage {
       await this.waitForAngularStable();
       await this.dismissAlertDialogIfVisible();
     }
-  }
-
-  /** Dismiss Angular/Radix "Unsaved changes" alertdialog if visible. Returns true if dismissed. */
-  async dismissAlertDialogIfVisible(): Promise<boolean> {
-    const dialog = this.page.locator('[role="alertdialog"]');
-    if (await dialog.isVisible().catch(() => false)) {
-      const discardBtn = dialog.locator('button:has-text("Discard")');
-      if (await discardBtn.isVisible().catch(() => false)) {
-        await discardBtn.click();
-        await dialog.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
-        Log.info('Dismissed "Unsaved changes" alertdialog');
-        return true;
-      }
-    }
-    return false;
   }
 
   /** Reload page and navigate back to Basic Info tab.
@@ -529,6 +520,74 @@ export class LocalOfficeSettingsPage extends BasePage {
 
   async getHistorySortButtonCount(): Promise<number> {
     return this.getElement('tblHistory').locator('th button').count();
+  }
+
+  /**
+   * Get all column header texts from the history table.
+   * Scoped to [data-testid="local-office-settings-history-table"] (SP1 §5: 3 tables in DOM).
+   */
+  async getHistoryColumnHeaders(): Promise<string[]> {
+    const table = this.getElement('tblHistory');
+    return (await table.locator('th').allTextContents()).map(t => t.trim());
+  }
+
+  /**
+   * Get cell value by row index (0-based) and header text.
+   * CRITICAL (SP1 §2): Local Office History uses SVG lucide-check icons for booleans.
+   * textContent returns "" for both TRUE and FALSE. Must check innerHTML for lucide-check.
+   */
+  async getHistoryColumnByHeader(rowIndex: number, headerText: string): Promise<string> {
+    const headers = await this.getHistoryColumnHeaders();
+    const colIndex = headers.indexOf(headerText);
+    if (colIndex === -1) throw new Error(`Column "${headerText}" not found in Local Office history table`);
+
+    const cell = this.getElement('tblHistory').locator('tbody tr').nth(rowIndex).locator('td').nth(colIndex);
+    const text = (await cell.textContent() || '').trim();
+
+    // SP1 §2: Boolean detection via innerHTML for SVG lucide-check icons
+    if (text === '') {
+      const html = await cell.innerHTML();
+      if (html.includes('lucide-check')) return '\u2714'; // Return ✔ for TRUE
+    }
+    return text;
+  }
+
+  /**
+   * Read multiple column values from a specific row.
+   * @param rowIndex - 0-based row index
+   * @param headerTexts - Array of column header names to read
+   * @returns Record mapping header name -> cell text
+   */
+  async getHistoryRowValues(rowIndex: number, headerTexts: string[]): Promise<Record<string, string>> {
+    const result: Record<string, string> = {};
+    for (const header of headerTexts) {
+      result[header] = await this.getHistoryColumnByHeader(rowIndex, header);
+    }
+    return result;
+  }
+
+  /**
+   * Sort history table by Modified On descending.
+   * Checks current sort state before clicking (SP1 §11).
+   */
+  async sortHistoryByModifiedOnDesc(): Promise<void> {
+    const headers = await this.getHistoryColumnHeaders();
+    const colIndex = headers.indexOf('Modified On');
+    if (colIndex === -1) throw new Error('Column "Modified On" not found in Local Office history table');
+
+    const th = this.getElement('tblHistory').locator('th').nth(colIndex);
+    const sortBtn = th.locator('button');
+    if (await sortBtn.count() === 0) throw new Error('"Modified On" column has no sort button');
+
+    const ariaSort = await th.getAttribute('aria-sort').catch(() => null);
+    if (ariaSort === 'descending') return;
+    // Sort button opens a menu with "Sort ascending" / "Sort descending" items (verified 2026-04-15).
+    // Matches the MGH page's clickSortColumn pattern.
+    await sortBtn.click();
+    const menu = this.page.locator('[role="menu"]');
+    await menu.waitFor({ state: 'visible', timeout: 5_000 });
+    await menu.locator('[role="menuitem"]:has-text("Sort descending")').click();
+    await this.waitForAngularStable();
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
