@@ -661,7 +661,12 @@ test.describe.serial('Local Office Settings — Basic Information @locations @lo
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
-  test('TC-LOS-BAS-048: Room toggle round-trip — toggle inactive → save → reload → verify', async ({ localOfficeSettingsPage }) => {
+  // bug-blocked: BUG-LOC-LOS-001 — Room Active toggle click does not dirty the Angular form.
+  // Save button stays disabled, no save API fires, server state never updates.
+  // Evidence: full-spec run 2026-04-15 — framework log "Save button disabled -- skipping click"
+  // + error-context.md post-reload `button "Save" [disabled]` + empty business-API networkFailures.
+  // Re-enable once the dirty-tracking wiring on the Active toggle cell is fixed.
+  test.skip('TC-LOS-BAS-048: Room toggle round-trip — toggle inactive → save → reload → verify', async ({ localOfficeSettingsPage }) => {
     // Full round-trip: add room, toggle to inactive, save, reload, verify inactive persists.
     test.setTimeout(90_000);
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);

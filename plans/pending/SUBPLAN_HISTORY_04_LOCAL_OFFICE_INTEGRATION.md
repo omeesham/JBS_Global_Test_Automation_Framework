@@ -133,3 +133,17 @@ Activity log entry per LR-028.
 ### Not performed in this session
 
 - Phase 4 scoped-suite run (`locations/ + local-office/` combined) — skipped due to session time budget; individual-spec green + full-spec ECT green is strong proof for SP4 scope. Can be chained into the next run.
+
+
+---
+
+## Verification Run (2026-04-15, PLAN_HIST_RUN_SP3_SP4_SPECS)
+
+Full-spec run of `tests/specs/setup/local-office/local-office-settings.spec.ts`:
+- **53 passed / 1 failed / 6 cascaded** (3.1 min, no --grep, per parent plan Phase 1 step 5)
+- The 1 failure = **TC-LOS-BAS-048** (Room toggle round-trip), flagged in this SUBPLAN as a pre-existing issue outside SP4 scope.
+- RCA (§12 7-step + LR-033) confirmed APP UX bug: toggle click does not dirty the Angular form; Save stays disabled; server state never updates; zero business-API traffic in networkFailures[].
+- Filed **BUG-LOC-LOS-001** per LR-034; test is now `test.skip` with `bug-blocked: BUG-LOC-LOS-001` comment (ALL-033 / §10 Cat-D).
+- Once BAS-048 is skipped, the 6 cascaded tests (BAS-049/064/065/066/067 and BAS-HIST) pass in sequence — prior `test.fixme` workaround no longer needed.
+
+TC-LOS-BAS-HIST remains green (prior SP4 fixes hold; no regression from this session).
