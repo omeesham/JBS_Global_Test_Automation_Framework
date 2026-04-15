@@ -427,7 +427,7 @@ This plan requires coordinated work across all pipeline agents. Each phase speci
 
 > **STATUS**: Phase 0 Sub-Plan 1 (MCP Discovery) COMPLETE — executed 2026-04-13, audited 2026-04-13.
 > All 10 MCP verification items confirmed. All contingency branches resolved.
-> Findings documented in [SP1_MCP_FINDINGS.md](SP1_MCP_FINDINGS.md).
+> Findings documented in [SUBPLAN_HISTORY_01_MCP_FINDINGS.md](SUBPLAN_HISTORY_01_MCP_FINDINGS.md).
 > Phase 0 gate PASSED — Phase 1 may proceed.
 
 > Phase 0 is the MOST IMPORTANT phase. Everything after it is conditional on what MCP reveals.

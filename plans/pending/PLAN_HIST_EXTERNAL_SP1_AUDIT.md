@@ -23,7 +23,7 @@ We need an **independent** WATCHDOG pass: different session, no investment in th
 ## Goal
 
 A second-pair-of-eyes audit of SP1 that:
-1. Verifies each of the 14 fuckup "RESOLVED/PATCHED" claims against the cited section in `SP1_MCP_FINDINGS.md`
+1. Verifies each of the 14 fuckup "RESOLVED/PATCHED" claims against the cited section in `SUBPLAN_HISTORY_01_MCP_FINDINGS.md`
 2. Verifies each "tag added to master plan" claim against `PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md`
 3. Adds at least 1 new finding NOT in Copilot's self-audit (per AUD-001: assume errors exist)
 4. Produces a verdict: SP1 is genuinely DONE, or needs further work
@@ -38,7 +38,7 @@ Output: append `## External Audit (2026-04-XX)` section to `SUBPLAN_HISTORY_01_M
 2. **Read in this order**:
    - `.github/agents/playwright-pipeline-audit.agent.md` (your own rules)
    - `plans/pending/SUBPLAN_HISTORY_01_MCP_DISCOVERY.md` (claims to audit)
-   - `plans/pending/SP1_MCP_FINDINGS.md` (the deliverable — full 429 lines)
+   - `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md` (the deliverable — full 429 lines)
    - `plans/pending/PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md` (where the 7 tags allegedly were added)
 3. **For each of the 14 fuckups (SP1 lines 149-164)**:
    - Read the "Resolution" column claim

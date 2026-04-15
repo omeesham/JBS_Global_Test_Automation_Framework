@@ -5,7 +5,7 @@
  * Last verified: 2026-04-13 (SP1 MCP session)
  * @office-dependent
  *
- * All column names from SP1_MCP_FINDINGS.md §1 (MCP-VERIFIED 2026-04-13).
+ * All column names from SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 (MCP-VERIFIED 2026-04-13).
  * Boolean format: Unicode "✔" (textContent readable).
  * Date format: MM/DD/YYYY. Timestamp: MM/DD/YYYY HH:MM:SS AM/PM.
  * Percentage: N.NN % (space before %).

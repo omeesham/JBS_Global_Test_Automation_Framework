@@ -13,7 +13,7 @@
 ## Context
 
 The audit found that **EVERY** history-integration file is uncommitted to git:
-- 14 untracked paths (`??`): all `SUBPLAN_HISTORY_*`, `PLAN_HISTORY_INTEGRATION_*`, `SP1_MCP_FINDINGS.md`, plus 5 source files (page object, selectors, spec, test data)
+- 14 untracked paths (`??`): all `SUBPLAN_HISTORY_*`, `PLAN_HISTORY_INTEGRATION_*`, `SUBPLAN_HISTORY_01_MCP_FINDINGS.md`, plus 5 source files (page object, selectors, spec, test data)
 - 3 modified paths (`M`): `local-office-settings.spec.ts`, `local-office-ect.spec.ts`, `local-office-settings.page.ts`
 
 Last commit `cb26fa1` (2026-04-13) does NOT touch any history files. Activity log claims "DONE" but reality is uncommitted = unshipped.
@@ -51,7 +51,7 @@ All history-integration work is in git history. A future `git clean -fd` cannot 
      ```
      git add plans/done/SUBPLAN_HISTORY_02_REQUIREMENTS_AND_TCS.md
      git add plans/pending/PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md
-     git add plans/pending/SP1_MCP_FINDINGS.md
+     git add plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md
      git add plans/pending/SUBPLAN_HISTORY_*.md
      ```
    - Group B — code (SP3 infra + SP4 integration tests):

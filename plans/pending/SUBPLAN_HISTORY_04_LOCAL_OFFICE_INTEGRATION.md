@@ -29,7 +29,7 @@ Every completed save in the Local Office specs must have its history row verifie
 ```
 
 **MANDATORY reads before ANY work:**
-1. `plans/pending/SP1_MCP_FINDINGS.md` — row granularity, formats, column headers
+1. `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md` — row granularity, formats, column headers
 2. `tests/specs/setup/local-office/local-office-settings.spec.ts` — read ENTIRE file
 3. `tests/specs/setup/local-office/local-office-ect.spec.ts` — read ENTIRE file
 4. `src/pages/setup/local-office/local-office-settings.page.ts` — history methods
@@ -66,7 +66,7 @@ test('TC-LOS-BAS-HIST: Verify all saves produced correct history rows', async ({
 - Timeout: `test.setTimeout(120_000)` — 24 rows is a lot of reads
 - Use `getHistoryRowValues(rowIndex, headerTexts[])` for each row
 - Row 0 = most recent save (last TC in serial block), row 23 = oldest (baseline)
-- Expected values and formats come ONLY from SP1_MCP_FINDINGS.md
+- Expected values and formats come ONLY from SUBPLAN_HISTORY_01_MCP_FINDINGS.md
 - ECT note: ECT uses `clickSaveFixedCosts()` and `clickSaveLaborCosts()` — these are specialized saves, not generic. If SP1 shows ECT saves DON'T produce Local Office History rows, document as NOT-TRACKED.
 
 ## Phase 2.2: local-office-ect Integration Test
@@ -77,7 +77,7 @@ Same pattern as 2.1 but:
 - 13 completed saves to verify
 - Fields: BenefitsMultiplier, HistoricalSubrental, LaborCost rows
 - **CONDITIONAL**: SP1 MCP findings determine if ECT fields appear in the 42-column history
-- If ECT fields have NO history columns → skip with `test.skip('ECT saves not tracked in Local Office History — see SP1_MCP_FINDINGS.md')`
+- If ECT fields have NO history columns → skip with `test.skip('ECT saves not tracked in Local Office History — see SUBPLAN_HISTORY_01_MCP_FINDINGS.md')`
 
 ---
 

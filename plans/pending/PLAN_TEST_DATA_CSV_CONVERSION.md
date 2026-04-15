@@ -1,5 +1,6 @@
 # PLAN: Test Data CSV Conversion
 
+**Status**: PENDING
 **Priority**: P2 — Execute AFTER PLAN_TEST_DATA_PERFECTION is complete
 **Depends on**: PLAN_TEST_DATA_PERFECTION (all TS data must be perfected first)
 **Blocks**: None

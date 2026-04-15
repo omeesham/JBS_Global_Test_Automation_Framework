@@ -30,7 +30,7 @@ Three core Location Management specs need history integration tests. Every compl
 ```
 
 **MANDATORY reads before ANY work:**
-1. `plans/pending/SP1_MCP_FINDINGS.md` — column headers, formats, granularity
+1. `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md` — column headers, formats, granularity
 2. Read ENTIRE spec file for each spec you're working on
 3. `src/pages/setup/locations/location-management-history.page.ts` — history page object from SP-3
 
@@ -89,7 +89,7 @@ test('TC-{MODULE}-HIST: Verify all saves produced correct history rows', async (
 - Every completed save = verified row. No shortcuts.
 - Canceled saves (dialog dismissed) = NO row. Don't look for them.
 - Column access by HEADER TEXT only — never indices
-- Formats from SP1_MCP_FINDINGS.md only — never assume
+- Formats from SUBPLAN_HISTORY_01_MCP_FINDINGS.md only — never assume
 - Run each spec individually after adding integration test
 - If a save has no matching history column → document as NOT-TRACKED finding, don't skip the row check entirely (other columns like Modified By/On should still be present)
 

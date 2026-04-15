@@ -3,7 +3,7 @@
 **Parent**: PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md
 **Agent**: Copilot (BUILDER + HEALER if failures)
 **Phase**: 3A
-**Status**: Pending
+**Status**: TEMPLATE-DRAFT — flesh out before execution
 **Depends on**: SUBPLAN_HISTORY_04 + 05 + 06 all complete
 
 ---

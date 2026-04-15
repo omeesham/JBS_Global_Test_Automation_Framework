@@ -1,6 +1,7 @@
 # SUBPLAN 8: Bug Reports — History Discrepancies
 
 **Parent**: PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md
+**Depends on**: SUBPLAN_HISTORY_07 complete
 **Agent**: OWNER
 **Phase**: 3B
 **Status**: GATED — Do NOT execute until user says "create the bug reports now"
@@ -20,7 +21,7 @@ This sub-plan compiles and files all bug reports. **ONLY when user authorizes.**
 
 ## Tasks (when authorized)
 
-1. Read `plans/pending/SP1_MCP_FINDINGS.md` for all NOT-TRACKED findings
+1. Read `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md` for all NOT-TRACKED findings
 2. Read integration test results for any assertion failures that indicate app bugs (not test bugs)
 3. File bug reports to `reports/bugs/BUG-HIS-{NNN}.json` per LR-034 protocol
 4. Update affected specs with `test.skip('bug-blocked: BUG-HIS-NNN')` where applicable

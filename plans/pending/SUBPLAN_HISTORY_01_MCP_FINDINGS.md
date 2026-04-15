@@ -1,5 +1,7 @@
 # SP1 MCP Discovery Findings — History Integration
 
+**Status**: DELIVERABLE (findings artifact — lives with SP1 until SP1 moves to done/)
+**Parent**: SUBPLAN_HISTORY_01_MCP_DISCOVERY.md
 **Session**: 2026-04-13 14:42–15:04 UTC
 **Agent**: OWNER (Copilot in Claude Code Mode)
 **Location**: Office 1604 (Parker Palm Springs)
@@ -264,6 +266,29 @@
 
 ### Cross-System Independence
 [MCP-VERIFIED: 2026-04-13 15:00] Saves on Local Office Settings (4 saves between 14:49-14:59) did NOT create rows in Location Management History (latest row still from 04/10/2026). The two history systems are **completely independent**.
+
+---
+
+## 3.5 ECT Causality (added 2026-04-15)
+
+[MCP-VERIFIED: 2026-04-15 09:36–09:41 UTC] **ECT editable-field saves do NOT create Local Office History rows.** Followup session per `plans/pending/PLAN_HIST_SP2_PER_TC_MCP_AUDIT.md` to close the open gap on TC-LOS-HISL-002.
+
+**Method**: Two-cycle BenefitsMultiplier save test with fetch-interception save proof and pre/post pagination delta.
+
+| Step | Action | Result |
+|---|---|---|
+| 1 | Capture History rowCountBefore | Page 1 / 64 pages; top row Modified On = 04/15/2026 08:43:18 AM (prior Basic Info save) |
+| 2 | ECT tab → BenefitsMultiplier 20.0% → 21 (Tab → normalized to 21.0%) | Save button (`ect-settings-btn-save-fixed-costs-btn`) becomes enabled |
+| 3 | Click Save | Save fires immediately — NO "Save Changes" confirmation dialog (differs from Basic Info Cancel/Save flow). Network: 1 POST `/navigator/api/location/ect-settings` at 09:39:03Z. Save button returns to disabled. |
+| 4 | Switch to History tab | Page 1 / 64 pages; top row Modified On = 04/15/2026 08:43:18 AM. **Pages unchanged. Top row unchanged.** |
+| 5 | Cleanup: ECT tab → BenefitsMultiplier 21.0% → 20 (restore) → Save | Save fires (button enables → click → disables). Restored to original. |
+| 6 | Switch to History tab | Page 1 / 64 pages; top row Modified On = 04/15/2026 08:43:18 AM. **Still unchanged after second ECT save.** |
+
+**Result**: 2 ECT saves = 0 new history rows. Confirms NOT-TRACKED status of ECT editable fields (BenefitsMultiplier — and by extension HistoricalSubrental and LaborCost rows, which share the same `/api/location/ect-settings` endpoint and same absence from the 42-column header list per §2).
+
+**ECT vs Basic Info save UX difference**: Basic Info uses Cancel/Save confirmation dialog (per §2 line 241). ECT panel saves immediately on Save click — no confirmation step. Tests must NOT wait for `dlgSaveChanges` after ECT saves.
+
+**Scope note**: Verified only for BenefitsMultiplier in this session. HistoricalSubrental and LaborCost row edits were NOT individually MCP-tested in this followup; their NOT-TRACKED status is inferred from §8 registry + shared API endpoint + this session's BenefitsMultiplier evidence. This inference is the basis for TC-LOS-HISL-002's coverage of all six ECT save TCs (ECT-005, 009, 013, 014, 015, 016).
 
 ---
 

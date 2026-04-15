@@ -2,7 +2,7 @@
  * Setup Module -- Location Management History Tab Selectors.
  * Covers: History tab navigation, history table, pagination, history type dropdown.
  * Page: Location Settings (/navigator/locations/{officeId}/settings/location)
- * SP1 Reference: plans/pending/SP1_MCP_FINDINGS.md (2026-04-13)
+ * SP1 Reference: plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md (2026-04-13)
  */
 export const SetupHistorySelectors = {
   // ---- Tab ----

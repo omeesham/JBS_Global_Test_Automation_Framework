@@ -44,7 +44,7 @@ With proper:
 ## Tasks
 
 1. **Read source patterns**:
-   - `plans/pending/SP1_MCP_FINDINGS.md` (full)
+   - `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md` (full)
    - `plans/pending/SUBPLAN_HISTORY_01_MCP_DISCOVERY.md` lines 130-138 (Plan Corrections)
    - `specs_planning/_internal/agent-mistakes.md` end-to-end (find next available IDs per prefix)
 2. **For each candidate pattern, decide**:

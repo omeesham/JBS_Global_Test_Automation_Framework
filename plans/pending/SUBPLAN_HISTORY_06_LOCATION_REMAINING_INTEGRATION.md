@@ -32,7 +32,7 @@ Five remaining Location Management specs need history integration tests. Same ru
 ```
 
 **MANDATORY reads before ANY work:**
-1. `plans/pending/SP1_MCP_FINDINGS.md`
+1. `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md`
 2. Read EACH spec file fully before writing its integration test
 3. `src/pages/setup/locations/location-management-history.page.ts`
 
@@ -60,7 +60,7 @@ Five remaining Location Management specs need history integration tests. Same ru
 - **LIKELY NOT-TRACKED**: Auto add-on checkboxes have NO mapped column in the 87-column spec
 - 3 canceled saves (AAO-006, AAO-007, AAO-019) — no rows
 - SP1 findings determine if auto-addon saves appear in history at all
-- If NOT-TRACKED → `test.skip('Auto add-on saves not tracked in Location Management History — see SP1_MCP_FINDINGS.md')`
+- If NOT-TRACKED → `test.skip('Auto add-on saves not tracked in Location Management History — see SUBPLAN_HISTORY_01_MCP_FINDINGS.md')`
 
 ---
 

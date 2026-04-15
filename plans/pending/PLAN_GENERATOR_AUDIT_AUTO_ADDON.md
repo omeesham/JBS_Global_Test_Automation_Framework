@@ -1,4 +1,4 @@
-> **⚠️ STALE**: Paths changed by PLAN_P0_LOCAL_OFFICE_DECONTAMINATION (2026-03-25). All `locations/` paths are now `setup/locations/` or `setup/local-office/`. `SetupSelectors` → `LocationSettingsSelectors`. Review before executing.
+> **⚠️ STALE PATHS, UNIQUE VALUE**: Paths changed by PLAN_P0_LOCAL_OFFICE_DECONTAMINATION (2026-03-25). All `locations/` paths are now `setup/locations/` or `setup/local-office/`. `SetupSelectors` → `LocationSettingsSelectors`. GARDENER-reviewed 2026-04-15: Finding 2 (beforeunload ↔ fixture race + ALL-057/058/059 rules) is UNIQUE to this plan and still applicable — update paths before executing, do not supersede.
 
 # REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3)
 

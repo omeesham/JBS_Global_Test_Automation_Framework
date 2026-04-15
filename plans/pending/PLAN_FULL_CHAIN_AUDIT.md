@@ -1,4 +1,4 @@
-> **⚠️ STALE**: Paths changed by PLAN_P0_LOCAL_OFFICE_DECONTAMINATION (2026-03-25). All `locations/` paths are now `setup/locations/` or `setup/local-office/`. `SetupSelectors` → `LocationSettingsSelectors`. Review before executing.
+> **⚠️ STALE PATHS, UNIQUE VALUE**: Paths changed by PLAN_P0_LOCAL_OFFICE_DECONTAMINATION (2026-03-25). All `locations/` paths are now `setup/locations/` or `setup/local-office/`. `SetupSelectors` → `LocationSettingsSelectors`. GARDENER-reviewed 2026-04-15: registry-integrity findings (A-01 through A-05) and B-01 MCP-gated fix remain valid and are NOT covered elsewhere — update paths before executing, do not supersede.
 
 # PLAN: Adversarial Full-Chain Audit — V3 (Post-External-Review)
 
