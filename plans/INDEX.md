@@ -3,7 +3,7 @@
 **Last updated**: 2026-04-15
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 27 pending · 120 done · 3 stale (>14d) · 1 DONE-in-pending
+**Totals**: 22 pending · 126 done · 3 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -19,9 +19,7 @@
 
 ### DONE-in-pending (should be moved to done/)
 
-| File | Executed | Title |
-|---|---|---|
-| [SUBPLAN_HISTORY_01_MCP_DISCOVERY.md](pending/SUBPLAN_HISTORY_01_MCP_DISCOVERY.md) | 2026-04-13 | SUBPLAN 1: MCP Discovery — History Integration |
+_None — pending/ is clean._
 
 ---
 
@@ -32,19 +30,14 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | File | Title | Priority | Status | Created |
 |---|---|---|---|---|
 | [PLAN_HIST_COMMIT_HISTORY_WORK.md](pending/PLAN_HIST_COMMIT_HISTORY_WORK.md) | PLAN_HIST_COMMIT_HISTORY_WORK | P0 (CRITICAL — work is one `git stash` from oblivion) | PENDING | 2026-04-15 |
-| [PLAN_HIST_EXTERNAL_SP1_AUDIT.md](pending/PLAN_HIST_EXTERNAL_SP1_AUDIT.md) | PLAN_HIST_EXTERNAL_SP1_AUDIT | P0 (CRITICAL — current SP1 audit is rubber-stamp / ALL-030 repeat offense) | PENDING | 2026-04-15 |
 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P0 (trust-building for test suite) | PENDING | 2026-04-03 |
 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PLAN: Chat UI Bugs — Website Pipeline Experience | P1 | PENDING | 2026-04-15 |
 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P1 (HIGH — INDEX is misleading future agents/sessions) | PENDING | 2026-04-15 |
 | [PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md](pending/PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md) | PLAN: History Integration Testing — Cross-Tab Save Verification | P1 (trust-building — verifies saves actually record audit trail) | PENDING | 2026-04-13 |
-| ↳ [SUBPLAN_HISTORY_01_MCP_DISCOVERY.md](pending/SUBPLAN_HISTORY_01_MCP_DISCOVERY.md) | SUBPLAN 1: MCP Discovery — History Integration | P0 — HARD GATE, nothing else starts until this completes | DONE | 2026-04-15 |
-| ↳ [SUBPLAN_HISTORY_04_LOCAL_OFFICE_INTEGRATION.md](pending/SUBPLAN_HISTORY_04_LOCAL_OFFICE_INTEGRATION.md) | SUBPLAN 4: Local Office History Integration Tests | — | PENDING | 2026-04-15 |
-| ↳ [SUBPLAN_HISTORY_05_LOCATION_CORE_INTEGRATION.md](pending/SUBPLAN_HISTORY_05_LOCATION_CORE_INTEGRATION.md) | SUBPLAN 5: Location Mgmt History Integration — Core Specs | — | PENDING | 2026-04-15 |
 | ↳ [SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md](pending/SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md) | SUBPLAN 6: Location Mgmt History Integration — Remaining Specs | — | PENDING | 2026-04-15 |
 | ↳ [SUBPLAN_HISTORY_07_VALIDATION.md](pending/SUBPLAN_HISTORY_07_VALIDATION.md) | SUBPLAN 7: Validation — Full Suite Run + Cleanup | — | TEMPLATE-DRAFT | 2026-04-15 |
 | ↳ [SUBPLAN_HISTORY_08_BUG_REPORTS.md](pending/SUBPLAN_HISTORY_08_BUG_REPORTS.md) | SUBPLAN 8: Bug Reports — History Discrepancies | — | GATED | 2026-04-15 |
 | [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | PLAN_ACTIVITY_LOG_TIMESTAMP_GATE | P2 (MEDIUM — without this, activity log can be backdated indefinitely) | PENDING | 2026-04-15 |
-| [PLAN_AGENT_MISTAKES_HIST_GRADUATION.md](pending/PLAN_AGENT_MISTAKES_HIST_GRADUATION.md) | PLAN_AGENT_MISTAKES_HIST_GRADUATION | P2 (MEDIUM — patterns will reoccur if not graduated) | PENDING | 2026-04-15 |
 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PLAN: Test Data CSV Conversion | P2 — Execute AFTER PLAN_TEST_DATA_PERFECTION is complete | PENDING | 2026-04-15 |
 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PLAN: Playwright CLI Gradual Adoption | P2 (no pipeline blockers — additive improvement) | PENDING | 2026-04-01 |
 | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | PLAN: Framework Maintainer Sweep — Selector Collision Architecture Fix | LOW (remaining items are P2 refactors — all P0/P1 collisions already fixed) | PARTIALLY-DONE | 2026-03-24 |
@@ -52,6 +45,7 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3) | — | REVISED | 2026-04-15 |
 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | — | PENDING | 2026-04-15 |
 | [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | FINAL AUDIT REPORT: Test Coverage Gap Analysis — Interaction vs Verification | — | PENDING | 2026-04-15 |
+| [SUBPLAN_HISTORY_01_MCP_FINDINGS.md](pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md) | SP1 MCP Discovery Findings — History Integration | — | DELIVERABLE | 2026-04-15 |
 | [PLAN_AUDIT_COPILOT.md](pending/PLAN_AUDIT_COPILOT.md) | PLAN: Audit Copilot | — | PENDING | 2026-04-10 |
 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — | 2026-04-01 |
 | [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | PLAN: Visual Debug Skill — Give All Agents Eyes | HIGH | PENDING | 2026-04-01 |
@@ -66,13 +60,19 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 
 | File | Title | Status | Completed |
 |---|---|---|---|
+| [PLAN_HIST_EXTERNAL_SP1_AUDIT.md](done/PLAN_HIST_EXTERNAL_SP1_AUDIT.md) | PLAN_HIST_EXTERNAL_SP1_AUDIT | DONE | 2026-04-15 by WATCHDOG (Claude Opus 4.6, see agent-activity-log.md 2026-04-15T09:15) |
+| [SUBPLAN_HISTORY_04_LOCAL_OFFICE_INTEGRATION.md](done/SUBPLAN_HISTORY_04_LOCAL_OFFICE_INTEGRATION.md) | SUBPLAN 4: Local Office History Integration Tests | DONE | 2026-04-15 (TCs implemented + verified per "Verification Run" sections below) |
+| [PLAN_AUD017_HARD_GATE.md](done/PLAN_AUD017_HARD_GATE.md) | PLAN — Graduate AUD-017 into Structural Hard Gate | DONE | 2026-04-15 (OWNER, Claude Opus 4.6) |
+| [PLAN_AGENT_MISTAKES_HIST_GRADUATION.md](done/PLAN_AGENT_MISTAKES_HIST_GRADUATION.md) | PLAN_AGENT_MISTAKES_HIST_GRADUATION | DONE | 2026-04-15 |
 | [PLAN_HIST_RUN_SP3_SP4_SPECS.md](done/PLAN_HIST_RUN_SP3_SP4_SPECS.md) | PLAN_HIST_RUN_SP3_SP4_SPECS | DONE | 2026-04-15 |
 | [PLAN_HIST_SP2_PER_TC_MCP_AUDIT.md](done/PLAN_HIST_SP2_PER_TC_MCP_AUDIT.md) | PLAN_HIST_SP2_PER_TC_MCP_AUDIT | DONE | 2026-04-15 |
 | [PLAN_HIST_SP3_MISSING_TCS.md](done/PLAN_HIST_SP3_MISSING_TCS.md) | PLAN_HIST_SP3_MISSING_TCS | DONE | 2026-04-15 |
 | [PLAN_HIST_SP3_STATUS_RECONCILE.md](done/PLAN_HIST_SP3_STATUS_RECONCILE.md) | PLAN_HIST_SP3_STATUS_RECONCILE | DONE | 2026-04-15 |
 | [PLAN_HIST_TC_LOS_HIS_003_FIX.md](done/PLAN_HIST_TC_LOS_HIS_003_FIX.md) | PLAN_HIST_TC_LOS_HIS_003_FIX | DONE | 2026-04-15 |
 | [PLAN_PLANS_GARDENER_SWEEP.md](done/PLAN_PLANS_GARDENER_SWEEP.md) | PLAN_PLANS_GARDENER_SWEEP | DONE | 2026-04-15 |
+| [SUBPLAN_HISTORY_05_LOCATION_CORE_INTEGRATION.md](done/SUBPLAN_HISTORY_05_LOCATION_CORE_INTEGRATION.md) | SUBPLAN 5: Location Mgmt History Integration — Core Specs | DONE | 2026-04-15 |
 | [SUBPLAN_HISTORY_03_INFRASTRUCTURE.md](done/SUBPLAN_HISTORY_03_INFRASTRUCTURE.md) | SUBPLAN 3: Infrastructure — Page Objects, Selectors, Fixtures | DONE | 2026-04-14 |
+| [SUBPLAN_HISTORY_01_MCP_DISCOVERY.md](done/SUBPLAN_HISTORY_01_MCP_DISCOVERY.md) | SUBPLAN 1: MCP Discovery — History Integration | DONE | 2026-04-13 by OWNER (Copilot in Claude Code Mode) |
 | [SUBPLAN_HISTORY_02_REQUIREMENTS_AND_TCS.md](done/SUBPLAN_HISTORY_02_REQUIREMENTS_AND_TCS.md) | SUBPLAN 2: Requirements Update + Integration Test Cases | DONE | 2026-04-13 |
 | [PLAN_AUDIT_LOCAL_INFORMATION.md](done/PLAN_AUDIT_LOCAL_INFORMATION.md) | PLAN: Audit + Execute LOCAL_INFORMATION Page | DONE | 2026-04-10 |
 | [PLAN_FIX_FALSE_POSITIVE_SELECTORS_AND_TESTID_CSV.md](done/PLAN_FIX_FALSE_POSITIVE_SELECTORS_AND_TESTID_CSV.md) | PLAN: Fix False Positive Selectors + Generate Clean Missing data-testid CSV | DONE | 2026-04-09 |
@@ -194,8 +194,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (27 files)
-  done/                 ← completed plans (120 files)
+  pending/              ← active plans (22 files)
+  done/                 ← completed plans (126 files)
 ```
 
 When completing a plan:
@@ -210,7 +210,6 @@ When completing a plan:
 | Date | Folder | File | Status |
 |---|---|---|---|
 | 2026-04-15 | pending | [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | PENDING |
-| 2026-04-15 | pending | [PLAN_AGENT_MISTAKES_HIST_GRADUATION.md](pending/PLAN_AGENT_MISTAKES_HIST_GRADUATION.md) | PENDING |
 | 2026-04-15 | pending | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PENDING |
 | 2026-04-15 | pending | [PLAN_CLIENT_REPO_DELIVERY.md](pending/PLAN_CLIENT_REPO_DELIVERY.md) | PENDING |
 | 2026-04-15 | pending | [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | PENDING |
@@ -218,25 +217,27 @@ When completing a plan:
 | 2026-04-15 | pending | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | PENDING |
 | 2026-04-15 | pending | [PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md](pending/PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md) | PENDING |
 | 2026-04-15 | pending | [PLAN_HIST_COMMIT_HISTORY_WORK.md](pending/PLAN_HIST_COMMIT_HISTORY_WORK.md) | PENDING |
-| 2026-04-15 | pending | [PLAN_HIST_EXTERNAL_SP1_AUDIT.md](pending/PLAN_HIST_EXTERNAL_SP1_AUDIT.md) | PENDING |
 | 2026-04-15 | pending | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PENDING |
 | 2026-04-15 | pending | [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | PENDING |
 | 2026-04-15 | pending | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PENDING |
-| 2026-04-15 | pending | [SUBPLAN_HISTORY_01_MCP_DISCOVERY.md](pending/SUBPLAN_HISTORY_01_MCP_DISCOVERY.md) | DONE |
 | 2026-04-15 | pending | [SUBPLAN_HISTORY_01_MCP_FINDINGS.md](pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md) | DELIVERABLE |
-| 2026-04-15 | pending | [SUBPLAN_HISTORY_04_LOCAL_OFFICE_INTEGRATION.md](pending/SUBPLAN_HISTORY_04_LOCAL_OFFICE_INTEGRATION.md) | PENDING |
-| 2026-04-15 | pending | [SUBPLAN_HISTORY_05_LOCATION_CORE_INTEGRATION.md](pending/SUBPLAN_HISTORY_05_LOCATION_CORE_INTEGRATION.md) | PENDING |
 | 2026-04-15 | pending | [SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md](pending/SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md) | PENDING |
 | 2026-04-15 | pending | [SUBPLAN_HISTORY_07_VALIDATION.md](pending/SUBPLAN_HISTORY_07_VALIDATION.md) | TEMPLATE-DRAFT |
 | 2026-04-15 | pending | [SUBPLAN_HISTORY_08_BUG_REPORTS.md](pending/SUBPLAN_HISTORY_08_BUG_REPORTS.md) | GATED |
+| 2026-04-15 | done | [PLAN_AGENT_MISTAKES_HIST_GRADUATION.md](done/PLAN_AGENT_MISTAKES_HIST_GRADUATION.md) | DONE |
+| 2026-04-15 | done | [PLAN_AUD017_HARD_GATE.md](done/PLAN_AUD017_HARD_GATE.md) | DONE |
+| 2026-04-15 | done | [PLAN_HIST_EXTERNAL_SP1_AUDIT.md](done/PLAN_HIST_EXTERNAL_SP1_AUDIT.md) | DONE |
 | 2026-04-15 | done | [PLAN_HIST_RUN_SP3_SP4_SPECS.md](done/PLAN_HIST_RUN_SP3_SP4_SPECS.md) | DONE |
 | 2026-04-15 | done | [PLAN_HIST_SP2_PER_TC_MCP_AUDIT.md](done/PLAN_HIST_SP2_PER_TC_MCP_AUDIT.md) | DONE |
 | 2026-04-15 | done | [PLAN_HIST_SP3_MISSING_TCS.md](done/PLAN_HIST_SP3_MISSING_TCS.md) | DONE |
 | 2026-04-15 | done | [PLAN_HIST_SP3_STATUS_RECONCILE.md](done/PLAN_HIST_SP3_STATUS_RECONCILE.md) | DONE |
 | 2026-04-15 | done | [PLAN_HIST_TC_LOS_HIS_003_FIX.md](done/PLAN_HIST_TC_LOS_HIS_003_FIX.md) | DONE |
 | 2026-04-15 | done | [PLAN_PLANS_GARDENER_SWEEP.md](done/PLAN_PLANS_GARDENER_SWEEP.md) | DONE |
+| 2026-04-15 | done | [SUBPLAN_HISTORY_01_MCP_DISCOVERY.md](done/SUBPLAN_HISTORY_01_MCP_DISCOVERY.md) | DONE |
 | 2026-04-15 | done | [SUBPLAN_HISTORY_02_REQUIREMENTS_AND_TCS.md](done/SUBPLAN_HISTORY_02_REQUIREMENTS_AND_TCS.md) | DONE |
 | 2026-04-15 | done | [SUBPLAN_HISTORY_03_INFRASTRUCTURE.md](done/SUBPLAN_HISTORY_03_INFRASTRUCTURE.md) | DONE |
+| 2026-04-15 | done | [SUBPLAN_HISTORY_04_LOCAL_OFFICE_INTEGRATION.md](done/SUBPLAN_HISTORY_04_LOCAL_OFFICE_INTEGRATION.md) | DONE |
+| 2026-04-15 | done | [SUBPLAN_HISTORY_05_LOCATION_CORE_INTEGRATION.md](done/SUBPLAN_HISTORY_05_LOCATION_CORE_INTEGRATION.md) | DONE |
 | 2026-04-10 | pending | [PLAN_AUDIT_COPILOT.md](pending/PLAN_AUDIT_COPILOT.md) | PENDING |
 | 2026-04-10 | done | [PLAN_AUDIT_LOCAL_INFORMATION.md](done/PLAN_AUDIT_LOCAL_INFORMATION.md) | DONE |
 | 2026-04-09 | done | [PLAN_FIX_FALSE_POSITIVE_SELECTORS_AND_TESTID_CSV.md](done/PLAN_FIX_FALSE_POSITIVE_SELECTORS_AND_TESTID_CSV.md) | DONE |
@@ -248,4 +249,3 @@ When completing a plan:
 | 2026-04-08 | done | [PLAN_AUDIT_ECT.md](done/PLAN_AUDIT_ECT.md) | DONE |
 | 2026-04-08 | done | [PLAN_AUDIT_NOTES.md](done/PLAN_AUDIT_NOTES.md) | DONE |
 | 2026-04-08 | done | [PLAN_AUDIT_SHARED_SETUP.md](done/PLAN_AUDIT_SHARED_SETUP.md) | — |
-| 2026-04-07 | done | [NEXT_SESSION_PROMPT.md](done/NEXT_SESSION_PROMPT.md) | — |

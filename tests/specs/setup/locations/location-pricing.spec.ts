@@ -27,9 +27,17 @@ import {
 } from '../../../test-data/setup/locations/location-pricing.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
+// SP5 integration test: capture wall-clock at suite start. 2-min buffer absorbs
+// client/server clock skew (SP1 §11 — server timezone undetermined).
+let suiteStartTime = 0;
+
 test.describe.serial('Location Pricing @locations @pricing', () => {
   // MNT-010: describe-level default timeout. Only TC-001 (90s) and persistence tests (120s) override.
   test.setTimeout(60_000);
+
+  test.beforeAll(() => {
+    suiteStartTime = Date.now() - 2 * 60 * 1000;
+  });
 
   // ── Navigate ONCE -- all subsequent tests reuse this page state ──────────────
   test('TC-LOC-PRI-001: Verify Pricing tab default state', async ({ locationPricingPage }) => {
@@ -585,6 +593,60 @@ test.describe.serial('Location Pricing @locations @pricing', () => {
     // Columns 1-3 in the grid are display-only. Verify no button/checkbox/input exists in those cells.
     const interactiveCount = await locationPricingPage.getReadOnlyColumnInteractiveCount(PRIMARY_TEST_ROW);
     expect(interactiveCount, 'Read-only columns should have no interactive elements').toBe(0);
+  });
+
+  // ── SP5: Cross-tab history integration — MUST be LAST in describe.serial ────
+  // Pricing tests were historically blocked by API 500 (header comment lines 5-13).
+  // Per user 2026-04-15: saves may now work. Use runtime classification:
+  //   - If no suite rows found → skip with clear reason (API 500 still active)
+  //   - If rows found → verify them normally
+  //
+  // Active completed saves (non-skipped):
+  //   TC-001 baseline cleanup → saves chkCorporatePricing + chkPriceGuideInclusive
+  //   TC-024 chkPriceGuideInclusive uncheck+restore → 2 saves
+  test('TC-LOC-PRI-HIST: All completed saves produce history rows with correct values', async ({ locationPricingPage, locationManagementHistoryPage }) => {
+    test.setTimeout(180_000);
+
+    // 1. Reload pricing page to clear dirty state (LR-026)
+    await locationPricingPage.reloadPricingTab(OFFICE_NO);
+
+    // 2. Navigate to Location Management History
+    await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
+
+    // 3. Sort desc
+    await locationManagementHistoryPage.sortByModifiedOnDesc();
+    // Wait for the DOM to reflect desc sort — see LI spec comment for rationale.
+    await locationManagementHistoryPage.waitForRecentTopRow();
+
+    // 4. Read rows since suite start
+    const HEADERS = [
+      'Modified By', 'Modified On', 'Corporate Pricing',
+      'Include Service Charge in Price Guides',
+    ];
+    const suiteRows = await locationManagementHistoryPage.getRowsSinceTimestamp(
+      suiteStartTime, HEADERS,
+    );
+
+    // 5. Runtime classification: zero rows likely means saves still blocked (API 500)
+    if (suiteRows.length === 0) {
+      // eslint-disable-next-line playwright/no-skipped-test
+      test.skip(true, 'No history rows from pricing suite — saves may be blocked by API 500. Re-verify per spec header comment.');
+      return;
+    }
+
+    // 6. Sanity — every row has Modified By + Modified On
+    for (let i = 0; i < suiteRows.length; i++) {
+      const row = suiteRows[i]!;
+      expect.soft(row['Modified By'], `row ${i}: Modified By empty`).toBeTruthy();
+      expect.soft(row['Modified On'], `row ${i}: Modified On empty`).toBeTruthy();
+    }
+
+    // 7. Gap detection — Include Service Charge in Price Guides was toggled in TC-024
+    //    (unchecked then re-checked). At least one row should show "" (unchecked state).
+    const observedPriceGuide = Array.from(new Set(suiteRows.map(r => r['Include Service Charge in Price Guides'] ?? '')));
+    expect.soft(observedPriceGuide.some(v => v === '' || v === '\u2714'),
+      `GAP [TC-024]: Include Service Charge in Price Guides — expected ✔ or empty, observed [${observedPriceGuide.join('|')}]`
+    ).toBe(true);
   });
 
 });

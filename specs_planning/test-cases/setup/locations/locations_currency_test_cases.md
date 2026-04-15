@@ -403,22 +403,30 @@
 
 # Integration: History Verification Test Cases
 
-## TC-LOC-HIST-003: Currency Saves — Location Management History Row Verification
+## TC-LOC-CUR-HIST: Currency Saves — Location Management History Row Verification
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
-| High | Manual | Integration | Yes |
+| High | ✅ Automated | Integration | Yes |
 
-**Completed saves to verify**: TC-LOC-CUR-021 (CAD Selected), TC-LOC-CUR-023 (CAD+default cascade), TC-LOC-CUR-024 (CAD+merchant), TC-LOC-CUR-027 (USD IsDefault uncheck)
+**Completed saves to verify**: TC-LOC-CUR-001 (baseline enforce), TC-LOC-CUR-021 (CAD Selected), TC-LOC-CUR-023 (CAD+default cascade), TC-LOC-CUR-024 (CAD+merchant), TC-LOC-CUR-027 (USD IsDefault uncheck). Canceled saves (no row): TC-014, TC-017, TC-025, TC-026.
 
 **Steps**:
 1. After CUR save TCs complete, navigate to Location Management History tab -> Tab loads
-2. Verify new rows exist: row count increased -> Count increased
-3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
-4. Verify col 6 Currency reflects latest saved state -> Value matches
-5. Verify col 64 Currency (2nd — pricing currency) if pricing currency changed -> Value check
-6. Note: TC-LOC-CUR-022/024 merchant changes are NOT-TRACKED (no column in 87) -> Confirm no merchant column
+2. Sort by Modified On descending (SP1 §11: default is ascending) -> Rows newest-first
+3. Read rows newer than suite start (2-min buffer) via `getRowsSinceTimestamp` -> Suite rows isolated
+4. Verify at least 1 suite row present -> Count > 0
+5. Verify every suite row has Modified By + Modified On non-empty -> User + timestamp present
+6. Gap-check: at least one suite row has non-empty Currency column (col 6 primary) -> Currency tracked
+7. NOT-TRACKED documented: TC-LOC-CUR-022/024 Merchant changes have no column in 87 — potential app bug per SP1 §8, file BUG-HIS-NNN per LR-034
 
-**Expected**: Currency selection saves produce history rows. Col 6/64 reflect currency state. Merchant dropdown changes NOT tracked in history.
-**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Expected**: Currency selection saves produce history rows with col 6 Currency populated. Col 64 (pricing currency) accessed via `getColumnByIndex(63)` if needed. Merchant dropdown changes NOT tracked in history = gap = candidate bug per user intent Q2.
+**Data**: location=1604 | Formats per SUBPLAN_HISTORY_01_MCP_FINDINGS.md section 1
+**Automation File**: tests/specs/setup/locations/location-currency.spec.ts (TC-LOC-CUR-HIST, last in describe.serial)
 **Automatable**: Yes
+
+**MCP_VERIFICATION_LOG**:
+- Expected: 1 save = 1 new row (snapshot model); col 6 "Currency" (primary location currency) and col 64 "Currency" (pricing currency — confirmed duplicate header) reflect saved state; TC-LOC-CUR-022/024 merchant changes are NOT-TRACKED (no merchant column in 87)
+- Source: SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 lines 17-107 (cols 6 and 64 both named "Currency"), §1 line 138 (duplicate col 64 "Currency" explicitly confirmed via `getColumnByIndex(63)` note), §3 lines 259-263 (LOC snapshot model), §8 line 340 (NOT-TRACKED registry: "Merchant currency selection — Not in 87-column history")
+- Session: 2026-04-13 14:42–15:04 UTC (Office 1604)
+- Verified: ✅

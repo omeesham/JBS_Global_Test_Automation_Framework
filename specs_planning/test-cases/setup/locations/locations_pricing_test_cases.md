@@ -494,21 +494,30 @@
 
 # Integration: History Verification Test Cases
 
-## TC-LOC-HIST-002: Pricing Saves — Location Management History Row Verification
+## TC-LOC-PRI-HIST: Pricing Saves — Location Management History Row Verification
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
-| High | Manual | Integration | Yes |
+| High | ✅ Automated | Integration | Yes |
 
-**Completed saves to verify**: TC-LOC-PRI-024 (PriceGuideInclusive). Blocked by API 500 errors: TC-LOC-PRI-020 (dates), TC-LOC-PRI-025 (CorporatePricing), TC-LOC-PRI-026 (LaborPricing), TC-LOC-PRI-027 (EquipPricing), TC-LOC-PRI-028 (InternalEquipPricing), TC-LOC-PRI-029 (ProdLaborPricing), TC-LOC-PRI-030 (ProdEquipPricing). Additional integration TCs deferred until API issues resolved.
+**Completed saves to verify**: TC-LOC-PRI-001 (baseline cleanup), TC-LOC-PRI-024 (PriceGuideInclusive round-trip). `test.skip` tests (TC-020, TC-025, dropdown loop) produce no saves — not in scope.
 
 **Steps**:
 1. After PRI save TCs complete, navigate to Location Management History tab -> Tab loads
-2. Verify new row exists: row count increased -> Count increased
-3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
-4. Verify col 62 Include Service Charge in Price Guides = Unicode checkmark or empty -> Value matches
+2. Sort by Modified On descending (SP1 §11: default is ascending) -> Rows newest-first
+3. Read rows newer than suite start (2-min buffer) via `getRowsSinceTimestamp` -> Suite rows isolated
+4. **Runtime classification**: if suite rows == 0, saves may still be blocked by API 500 → `test.skip` with reason (not failure)
+5. Verify every suite row has Modified By + Modified On non-empty -> User + timestamp present
+6. Gap-check: col 62 Include Service Charge in Price Guides shows ✔ or empty (TC-024 toggle) -> Tracked
 
-**Expected**: PRI-024 save produced 1 new history row. Col 62 reflects PriceGuideInclusive state.
-**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Expected**: PRI-024 save produces 1 history row with col 62 reflecting PriceGuideInclusive state. Unicode ✔ for TRUE, empty for FALSE. If API 500 still blocks, test skips with clear reason (not silent pass).
+**Data**: location=1604 | Formats per SUBPLAN_HISTORY_01_MCP_FINDINGS.md section 1
+**Automation File**: tests/specs/setup/locations/location-pricing.spec.ts (TC-LOC-PRI-HIST, last in describe.serial)
 **Automatable**: Yes
-**Notes**: Limited coverage due to API 500 errors blocking most pricing saves. Additional pricing integration TCs deferred until API issues resolved.
+**Notes**: Header comment in spec file historically said "ALL 27 active tests BLOCKED by API 500" — per user steering 2026-04-15, runtime classification replaces static skip. Per-save dropdown persistence tests (TC-020/025/026-030) remain `test.skip` per existing spec state.
+
+**MCP_VERIFICATION_LOG**:
+- Expected: 1 save = 1 new row (snapshot model); col 62 "Include Service Charge in Price Guides" shows Unicode "✔" / empty based on PriceGuideInclusive state
+- Source: SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 lines 17-107 (col 62 "Include Service Charge in Price Guides" present; plan had name mismatch — actual name verified at line 138), §1 lines 109-122 (Unicode "✔" boolean format), §3 lines 259-263 (LOC snapshot model via Union toggle — extrapolated to Pricing saves since both are Location Management)
+- Session: 2026-04-13 14:42–15:04 UTC (Office 1604)
+- Verified: ✅ (causality extrapolated from §3 Union snapshot test; Pricing saves not causally tested by SP1 — limited by pre-existing API 500 errors documented in test case)

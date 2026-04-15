@@ -165,11 +165,113 @@ export class LocationManagementHistoryPage extends BasePage {
     return this.getRowValues(0, headerTexts);
   }
 
+  /**
+   * Parse "MM/DD/YYYY HH:MM:SS AM/PM" Modified On cell value to epoch ms.
+   * Returns NaN for malformed input.
+   *
+   * TIMEZONE: Treats the displayed time as UTC (via Date.UTC). Evidence from
+   * trace.zip analysis 2026-04-15 showed that the server renders timestamps as
+   * UTC literal text (no TZ suffix, no client-side localization). Using
+   * `new Date(y,m,d,h,...)` would interpret as browser-local, causing off-by-
+   * offset-hours errors (e.g., -5.5h for IST clients) that make recent rows
+   * appear < suiteStartTime and incorrectly skip them.
+   *
+   * Edge case: if server ever switches to rendering in browser-local TZ, parsed
+   * values will be slightly future — still > sinceMs → still correctly included.
+   * For old rows (months ago), the offset error is negligible relative to the
+   * full gap to sinceMs, so stop-at-page logic still works.
+   */
+  static parseModifiedOnMs(val: string): number {
+    const parts = val.trim().split(' ');
+    const dateParts = (parts[0] || '').split('/');
+    const timeParts = (parts[1] || '').split(':').map(Number);
+    const ampm = parts[2] || '';
+    const m = Number(dateParts[0]);
+    const d = Number(dateParts[1]);
+    const y = Number(dateParts[2]);
+    let h = timeParts[0] || 0;
+    const min = timeParts[1] || 0;
+    const s = timeParts[2] || 0;
+    if (!Number.isFinite(m) || !Number.isFinite(d) || !Number.isFinite(y)) return NaN;
+    if (!Number.isFinite(h) || !Number.isFinite(min) || !Number.isFinite(s)) return NaN;
+    if (ampm === 'PM' && h !== 12) h += 12;
+    if (ampm === 'AM' && h === 12) h = 0;
+    return Date.UTC(y, m - 1, d, h, min, s);
+  }
+
+  /**
+   * Read rows on the current (first) page with Modified On >= sinceMs. Assumes desc
+   * sort (caller must call sortByModifiedOnDesc first). Stops at the first row whose
+   * Modified On is older than sinceMs.
+   *
+   * PAGE-1-ONLY: a test suite's saves always fit in 1 page (<20 rows) after desc sort.
+   * Earlier paginated version timed out at 180s on location 1604 because subsequent
+   * pages frequently returned rowCount=0 due to post-click DOM re-render lag,
+   * causing the loop to march through 100+ pages of unrelated history. See trace
+   * analysis 2026-04-15 cycle 5. If a future suite needs >20 rows, raise rowsPerPage
+   * via setRowsPerPage('50') before calling — don't re-introduce pagination without
+   * a rowCount>0 wait after each clickPaginationButton.
+   *
+   * Resolves each header to a column index ONCE, then reads all rows with those
+   * indices — avoids the O(n*cols) re-resolution in getColumnByHeader loops.
+   *
+   * @param sinceMs Lower-bound epoch ms. Rows strictly older are excluded.
+   * @param headerTexts Column headers to read (duplicate names return first match).
+   * @param maxRows Safety cap (default 40 — 2x typical rowsPerPage).
+   */
+  async getRowsSinceTimestamp(
+    sinceMs: number,
+    headerTexts: string[],
+    maxRows = 40,
+  ): Promise<Array<Record<string, string>>> {
+    const allHeaders = await this.getColumnHeaders();
+    const modifiedOnIdx = allHeaders.indexOf('Modified On');
+    if (modifiedOnIdx === -1) {
+      throw new Error('Modified On column not found in history table');
+    }
+    const headerToIdx: Record<string, number> = {};
+    for (const h of headerTexts) {
+      const idx = allHeaders.indexOf(h);
+      if (idx === -1) {
+        throw new Error(`Header "${h}" not found in history table`);
+      }
+      headerToIdx[h] = idx;
+    }
+
+    const table = this.getElement('tblMgmtHistory');
+    const collected: Array<Record<string, string>> = [];
+
+    // Navigate to first page so desc sort starts from newest row
+    const firstDisabled = await this.isPaginationButtonDisabled('first').catch(() => true);
+    if (!firstDisabled) {
+      await this.clickPaginationButton('first');
+    }
+
+    const rowCount = await table.locator('tbody tr').count();
+    for (let r = 0; r < rowCount && collected.length < maxRows; r++) {
+      const row = table.locator('tbody tr').nth(r);
+      const modifiedOnVal = ((await row.locator('td').nth(modifiedOnIdx).textContent()) || '').trim();
+      const modifiedOnMs = LocationManagementHistoryPage.parseModifiedOnMs(modifiedOnVal);
+      if (Number.isFinite(modifiedOnMs) && modifiedOnMs < sinceMs) {
+        break;
+      }
+      const rec: Record<string, string> = {};
+      for (const [header, idx] of Object.entries(headerToIdx)) {
+        rec[header] = ((await row.locator('td').nth(idx).textContent()) || '').trim();
+      }
+      collected.push(rec);
+    }
+
+    return collected;
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // SORTING
   // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Click sort dropdown and select a direction for a sortable column by header text. */
+  /** Click sort dropdown and select a direction for a sortable column by header text.
+   *  LR-025 Radix dropdown flakiness: menu occasionally fails to appear after button click.
+   *  Retry pattern: Escape to close any lingering state, re-click, max 3 attempts. */
   async clickSortColumn(headerText: string, direction: 'ascending' | 'descending' = 'ascending'): Promise<void> {
     const colIndex = await this.getColumnIndex(headerText);
     const th = this.getElement('tblMgmtHistory').locator('th').nth(colIndex);
@@ -177,11 +279,24 @@ export class LocationManagementHistoryPage extends BasePage {
     if (await sortBtn.count() === 0) {
       throw new Error(`Column "${headerText}" is not sortable (no button element)`);
     }
-    await sortBtn.click();
-    const menu = this.page.locator('[role="menu"]');
-    await menu.waitFor({ state: 'visible', timeout: 5_000 });
-    await menu.locator(`[role="menuitem"]:has-text("Sort ${direction}")`).click();
-    await this.waitForAngularStable();
+    const menu = this.page.locator('[role="menu"]').first();
+    let lastErr: unknown = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await sortBtn.click();
+        await menu.waitFor({ state: 'visible', timeout: 3_000 });
+        await menu.locator(`[role="menuitem"]:has-text("Sort ${direction}")`).click();
+        await menu.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* best effort */ });
+        await this.waitForAngularStable();
+        return;
+      } catch (e) {
+        lastErr = e;
+        // Escape to close any half-open menu; short settle before retry
+        await this.page.keyboard.press('Escape').catch(() => {});
+        await this.page.waitForTimeout(300);
+      }
+    }
+    throw new Error(`clickSortColumn("${headerText}", "${direction}") failed after 3 attempts: ${String(lastErr)}`);
   }
 
   /** Check if a column has a sort button (by header text). */
@@ -200,6 +315,34 @@ export class LocationManagementHistoryPage extends BasePage {
   /** Sort by Modified On descending via dropdown menu. */
   async sortByModifiedOnDesc(): Promise<void> {
     await this.clickSortColumn('Modified On', 'descending');
+  }
+
+  /**
+   * Wait until the first tbody row's Modified On is within `maxAgeMs` of now.
+   * Use after sortByModifiedOnDesc() to ensure the DOM has re-rendered with
+   * newest rows on top before reading (clickSortColumn + waitForAngularStable
+   * does NOT guarantee row re-render has landed).
+   *
+   * Location Management History has ~2900 rows; after switching from ASC to DESC
+   * the re-render can take 1-3s. Without this wait, top row may still show 2005
+   * timestamps while the desc view is still materializing.
+   */
+  async waitForRecentTopRow(maxAgeMs = 24 * 60 * 60 * 1000, timeoutMs = 15_000): Promise<void> {
+    const headers = await this.getColumnHeaders();
+    const modifiedOnIdx = headers.indexOf('Modified On');
+    if (modifiedOnIdx === -1) throw new Error('Modified On column not found');
+    const deadline = Date.now() + timeoutMs;
+    let lastVal = '';
+    while (Date.now() < deadline) {
+      const firstRow = this.getElement('tblMgmtHistory').locator('tbody tr').first();
+      if ((await firstRow.count()) > 0) {
+        lastVal = ((await firstRow.locator('td').nth(modifiedOnIdx).textContent()) || '').trim();
+        const ms = LocationManagementHistoryPage.parseModifiedOnMs(lastVal);
+        if (Number.isFinite(ms) && (Date.now() - ms) <= maxAgeMs) return;
+      }
+      await this.page.waitForTimeout(200);
+    }
+    throw new Error(`Top row Modified On "${lastVal}" not within ${maxAgeMs}ms of now after ${timeoutMs}ms wait — sort may not have applied`);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
