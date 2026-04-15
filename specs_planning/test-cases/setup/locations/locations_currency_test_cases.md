@@ -2,7 +2,7 @@
 
 | Module | Test Cases | Automated | Manual | Out of Scope | Updated |
 |--------|------------|-----------|--------|--------------|--------|
-| Locations | 27 | 27 (100%) | 0 (0%) | 0 (0%) | 2026-04-07 |
+| Locations | 28 | 27 (96%) | 1 (4%) | 0 (0%) | 2026-04-14 |
 
 ---
 
@@ -398,3 +398,27 @@
 **Status**: ✅ Automated
 **Automation File**: tests/specs/locations/location-currency.spec.ts
 **Cleanup**: Check USD **Is Default** -- click **Save** -- confirm dialog
+
+---
+
+# Integration: History Verification Test Cases
+
+## TC-LOC-HIST-003: Currency Saves — Location Management History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify**: TC-LOC-CUR-021 (CAD Selected), TC-LOC-CUR-023 (CAD+default cascade), TC-LOC-CUR-024 (CAD+merchant), TC-LOC-CUR-027 (USD IsDefault uncheck)
+
+**Steps**:
+1. After CUR save TCs complete, navigate to Location Management History tab -> Tab loads
+2. Verify new rows exist: row count increased -> Count increased
+3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
+4. Verify col 6 Currency reflects latest saved state -> Value matches
+5. Verify col 64 Currency (2nd — pricing currency) if pricing currency changed -> Value check
+6. Note: TC-LOC-CUR-022/024 merchant changes are NOT-TRACKED (no column in 87) -> Confirm no merchant column
+
+**Expected**: Currency selection saves produce history rows. Col 6/64 reflect currency state. Merchant dropdown changes NOT tracked in history.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Automatable**: Yes

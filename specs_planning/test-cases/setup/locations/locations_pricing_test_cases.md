@@ -1,5 +1,5 @@
 # Location Pricing Test Cases
-**Module**: locations | **Total**: 34 | **Status**: Manual | **Updated**: 2026-04-07
+**Module**: locations | **Total**: 35 | **Status**: Manual | **Updated**: 2026-04-14
 
 ---
 
@@ -491,3 +491,24 @@
 **Notes**: TC-LOC-PRI-034 intentionally does not exist (skipped ID)
 
 ---
+
+# Integration: History Verification Test Cases
+
+## TC-LOC-HIST-002: Pricing Saves — Location Management History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify**: TC-LOC-PRI-024 (PriceGuideInclusive). Blocked by API 500 errors: TC-LOC-PRI-020 (dates), TC-LOC-PRI-025 (CorporatePricing), TC-LOC-PRI-026 (LaborPricing), TC-LOC-PRI-027 (EquipPricing), TC-LOC-PRI-028 (InternalEquipPricing), TC-LOC-PRI-029 (ProdLaborPricing), TC-LOC-PRI-030 (ProdEquipPricing). Additional integration TCs deferred until API issues resolved.
+
+**Steps**:
+1. After PRI save TCs complete, navigate to Location Management History tab -> Tab loads
+2. Verify new row exists: row count increased -> Count increased
+3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
+4. Verify col 62 Include Service Charge in Price Guides = Unicode checkmark or empty -> Value matches
+
+**Expected**: PRI-024 save produced 1 new history row. Col 62 reflects PriceGuideInclusive state.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Automatable**: Yes
+**Notes**: Limited coverage due to API 500 errors blocking most pricing saves. Additional pricing integration TCs deferred until API issues resolved.

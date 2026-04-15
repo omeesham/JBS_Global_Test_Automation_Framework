@@ -1,4 +1,4 @@
-# Auto Add-On Test Cases — **Module**: locations | **Total**: 20 | **Status**: Manual
+# Auto Add-On Test Cases — **Module**: locations | **Total**: 21 | **Status**: Manual
 **Updated**: 2026-03-24 | **Page URL**: `https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location` (Setup > Location > Auto Add-On tab)
 
 ## MCP_VERIFICATION_LOG
@@ -466,3 +466,26 @@ N/A — Auto Add-On tab contains checkboxes only. No numeric, text, or date fiel
 **Data**: All 5 checkbox selectors from `AUTO_ADDON_DEFAULTS`
 
 **Cleanup**: Restore all 5 to defaults → **Save** → **Ok**.
+
+---
+
+# Integration: History Verification Test Cases
+
+## TC-LOC-HIST-008: Auto Add-On Saves — Location Management History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify**: TC-LOC-AAO-020 (bulk invert checkboxes), other AAO save TCs
+
+**Steps**:
+1. After AAO save TCs complete, navigate to Location Management History tab -> Tab loads
+2. Check if row count increased compared to before AAO saves -> Document result
+3. If new rows exist: verify Modified On timestamp is recent (+/-5 min) -> Timestamp check
+4. Note: Auto Add-On checkboxes have NO corresponding columns in 87-col history -> Confirm NOT-TRACKED
+
+**Expected**: Auto Add-On saves MAY or MAY NOT produce history rows. SP1 found AAO fields are NOT in the 87-column history. If no new rows appear, document as NOT-TRACKED confirmation. If rows do appear, document which columns captured the data.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Automatable**: Yes
+**Notes**: Exploratory TC — confirms or refutes NOT-TRACKED hypothesis for Auto Add-On fields.

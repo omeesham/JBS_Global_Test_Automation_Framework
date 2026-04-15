@@ -212,3 +212,13 @@ Precondition: Non-self location added
 5. poll getDialogRowCount=1 -- getFirstDialogRowText -- assert localOffice != captured
 6. clickDialogCancel
 7. **Cleanup**: deleteNonSelfRow(dynamic index) -- clickSave
+
+---
+
+## Integration: History Verification
+
+### TC-LOC-HIST-006 (SSL saves → Location Management History)
+1. After SSL save TCs complete, navigate to Location Management History tab
+2. Verify row count increased by number of completed saves
+3. Verify cols 59-61 (Action/ID/Name of Shared Setup Location) reflect latest save
+4. Expected: Each Shared Setup save = 1 history row with correct action/location data

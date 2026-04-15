@@ -2,7 +2,7 @@
 
 **Module**: locations | **Test Cases**: [test-cases/locations/locations_local_office_settings_test_cases.md](../../test-cases/locations/locations_local_office_settings_test_cases.md)
 **URL**: `/navigator/locations/{officeId}/settings/local-office`
-**Updated**: 2026-04-08 | **Status**: Manual | **Total TCs**: 63
+**Updated**: 2026-04-13 | **Status**: Manual | **Total TCs**: 85
 
 ---
 
@@ -25,6 +25,7 @@
 | ECT — Display & Structure | ECT-001 to ECT-004 | 4 | Currency selector, profit target table, fixed cost fields |
 | ECT — Editable Fields & Save | ECT-005 to ECT-009 | 5 | Benefits Multiplier decimal format, 2 independent Saves, labor costs |
 | ECT — Validation & Read-Only | ECT-010 to ECT-012 | 3 | Non-numeric revert, subrental matrix, no-dialog save |
+| Integration: History Verification | HIST-001 to HIST-002 | 2 | Verify BAS/ECT saves produce correct history rows, NOT-TRACKED field confirmation |
 
 ---
 
@@ -563,3 +564,26 @@
 4. Click Discard on the dialog
 5. Navigate back to ECT; assert BM unchanged (original value)
 6. Expected: Discarding unsaved changes prevents persistence
+
+---
+
+## Scenario Group 16: Integration — History Verification
+
+> Post-save verification: confirm BAS and ECT saves produce correct rows in Location Settings History (42-column table).
+> Data formats: SVG `lucide-check` for booleans, MM/DD/YYYY HH:MM:SS AM/PM timestamps, plain integers for date offsets.
+> Reference: SP1_MCP_FINDINGS.md sections 2-3.
+
+### TC-LOS-HISL-001 (BAS saves → History)
+1. After all BAS save TCs complete, capture History tab pagination total
+2. Navigate to History tab; verify row count increased
+3. Verify latest row Modified On within +/-5 min of test time
+4. Spot-check 3+ field values: Prep Date Offset, Use Fulfillment (SVG check), Default Order Type
+5. Confirm NOT-TRACKED: PO Number, PO Number Label, Room toggle have no columns
+6. Expected: Each BAS save = 1 new history row with correct field values
+
+### TC-LOS-HISL-002 (ECT saves → History)
+1. After all ECT save TCs complete, capture History tab pagination total
+2. Navigate to History tab; verify row count has NOT changed
+3. Note: BenefitsMultiplier, HistoricalSubrental, LaborCost are NOT in 42-col history (confirmed NOT-TRACKED)
+4. If row count unexpectedly increased, document which columns captured ECT data (cols 33-40 are read-only ECT fields)
+5. Expected: ECT editable field saves do NOT produce new history rows — confirms NOT-TRACKED status

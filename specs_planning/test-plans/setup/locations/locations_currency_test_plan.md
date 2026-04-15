@@ -245,3 +245,14 @@
 6. Step: Reload page and navigate to tab[Currency], expected: tab loads
 7. Step: Verify USD row checkbox[Is Default], expected: unchecked (no-default state persisted)
 8. Cleanup: Check USD Is Default → Save → confirm dialog
+
+---
+
+## Integration: History Verification
+
+### TC-LOC-HIST-003 (CUR saves → Location Management History)
+1. After CUR save TCs complete, navigate to Location Management History tab
+2. Verify row count increased
+3. Verify col 6 (Currency) reflects latest saved state; col 64 if pricing currency changed
+4. Confirm NOT-TRACKED: Merchant currency selections have no column in 87
+5. Expected: Currency selection saves = history rows. Merchant changes NOT tracked

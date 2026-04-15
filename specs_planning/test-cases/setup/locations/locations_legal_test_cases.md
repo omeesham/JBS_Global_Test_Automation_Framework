@@ -1,5 +1,5 @@
 # Location Legal Test Cases
-**Module**: locations | **Total**: 18 | **Status**: Manual | **Updated**: 2026-04-06
+**Module**: locations | **Total**: 19 | **Status**: Manual | **Updated**: 2026-04-14
 
 ---
 
@@ -440,3 +440,26 @@
 - NO dedicated Legal Save button exists (this was incorrect in the 2026-02-19 version)
 - Dirty-state: form does NOT track net-zero changes; reverting to original still shows as dirty
 -->
+
+---
+
+# Integration: History Verification Test Cases
+
+## TC-LOC-HIST-004: Legal Saves — Location Management History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify**: TC-LOC-LGL-011 (ServiceCharge), TC-LOC-LGL-012 (Terms), TC-LOC-LGL-018 (Both SC+T&C)
+
+**Steps**:
+1. After LGL save TCs complete, navigate to Location Management History tab -> Tab loads
+2. Verify new rows exist: row count increased by number of completed saves -> Count increased
+3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
+4. Verify col 34 Service Charge Name matches last saved value -> Value matches
+5. Verify col 38 Terms and Conditions matches last saved value -> Value matches
+
+**Expected**: Each Legal save produced 1 new history row. Cols 34 and 38 reflect saved dropdown selections.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Automatable**: Yes

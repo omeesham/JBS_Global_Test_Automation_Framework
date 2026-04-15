@@ -198,3 +198,11 @@
 11. Step: Cleanup: select "Resort Service Charge" + "LDW", save, confirm dialog
 
 ---
+
+## Integration: History Verification
+
+### TC-LOC-HIST-004 (LGL saves → Location Management History)
+1. After LGL save TCs complete, navigate to Location Management History tab
+2. Verify row count increased by number of completed saves
+3. Verify col 34 (Service Charge Name) and col 38 (Terms and Conditions) match saved values
+4. Expected: Each Legal save = 1 new history row with correct dropdown selections

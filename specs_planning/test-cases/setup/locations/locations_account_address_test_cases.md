@@ -1,5 +1,5 @@
 # Location Account and Address Test Cases
-**Module**: locations | **Total**: 26 | **Status**: Automated | **Updated**: 2026-04-07
+**Module**: locations | **Total**: 29 | **Status**: Automated | **Updated**: 2026-04-14
 
 ---
 
@@ -378,4 +378,27 @@
 **Expected**: Account selection applies, persists through save+reload
 **Data**: office=1604, ACCOUNT_SEARCH
 **Risk**: HIGH — changes venue fields. Wrapped in try/finally. Positioned LAST in serial block.
+**Automatable**: Yes
+
+---
+
+# Integration: History Verification Test Cases
+
+## TC-LOC-HIST-005: Account & Address Saves — Location Management History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify**: TC-LOC-ACC-019/020 (Phone2 persistence)
+
+**Steps**:
+1. After ACC save TCs complete, navigate to Location Management History tab -> Tab loads
+2. Verify new rows exist: row count increased -> Count increased
+3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
+4. Verify col 57 Venue/Branch Account Phone2 matches last saved value -> Value matches
+5. Verify col 55 Venue/Branch Account Name is populated -> Account name present
+
+**Expected**: Account & Address saves produced history rows. Phone2 value reflected in col 57.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
 **Automatable**: Yes

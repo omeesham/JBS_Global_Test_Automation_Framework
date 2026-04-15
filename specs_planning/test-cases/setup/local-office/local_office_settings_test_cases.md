@@ -1,9 +1,9 @@
-# Local Office Settings Test Cases — **Module**: locations | **Total**: 76 | **Status**: Automated
+# Local Office Settings Test Cases — **Module**: locations | **Total**: 85 | **Status**: Automated
 
 **URL**: `/navigator/locations/{officeId}/settings/local-office`
 **Location tested**: 1604 (Parker Palm Springs, USA)
-**Updated**: 2026-04-06
-**Scope**: All 3 tabs — Basic Information (59 TCs) | Location Settings History (7 TCs) | ECT Settings (17 TCs)
+**Updated**: 2026-04-13
+**Scope**: All 3 tabs — Basic Information (59 TCs) | Location Settings History (7 TCs) | ECT Settings (17 TCs) | Integration: History Verification (2 TCs)
 **Selector file**: `src/selectors/locations/local-office-settings.ts`
 
 ---
@@ -1694,3 +1694,59 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 
 **Expected**: Discarding unsaved changes prevents persistence; Angular dirty guard fires correctly on ECT tab
 **Automatable**: Yes
+
+---
+
+# Integration: History Verification Test Cases
+
+> **Purpose**: Verify that saves from other tabs produce correct rows in Location Settings History (42-column table).
+> **Data source**: SP1_MCP_FINDINGS.md — all expected formats verified via MCP 2026-04-13.
+> **Pre-requisite**: Saves from BAS and ECT tabs must have completed successfully before running these TCs.
+> **History detection**: Local Office History uses SVG `lucide-check` icons for booleans (check via `innerHTML.includes('lucide-check')`).
+
+---
+
+## TC-LOS-HISL-001: Basic Info Saves — History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify** (from BAS spec): TC-LOS-BAS-005 (PrepDateOffset), TC-LOS-BAS-013 (UseFulfillment), TC-LOS-BAS-014 (DefaultLaborToHourly), TC-LOS-BAS-017 (Phone1), TC-LOS-BAS-022 (DefaultOrderType), TC-LOS-BAS-023 (PoNumber), TC-LOS-BAS-024 (PoNumberLabel), TC-LOS-BAS-039 (PoNumber XSS), TC-LOS-BAS-048 (Room Toggle), TC-LOS-BAS-049 (Room Rename), TC-LOS-BAS-064 (PrepDateOffset cleared), TC-LOS-BAS-065 (ReturnDateOffset cleared), TC-LOS-BAS-067 (all 6 offsets cleared)
+
+**Steps**:
+1. After all BAS save TCs complete, capture current pagination total on History tab -> Record `rowCountBefore`
+2. Navigate to History tab -> Tab loads with table
+3. Verify new rows exist: pagination total > `rowCountBefore` -> Row count increased by number of completed saves
+4. Verify latest row (row 1) has Modified On timestamp within ±5 minutes of test run time -> Recent timestamp present
+5. Verify latest row Modified By matches test user -> User identity recorded
+6. Spot-check at least 3 field values from latest save against expected:
+   - Verify Prep Date Offset column value matches last saved value -> Value matches
+   - Verify Use Fulfillment column = SVG checkmark (if toggled ON) or empty (if OFF) -> Boolean format correct
+   - Verify Default Order Type column matches last saved value -> Value matches
+
+**Expected**: Each BAS save produced exactly 1 new history row. Field values match saved values. Boolean columns use SVG `lucide-check` icons. Timestamps are in MM/DD/YYYY HH:MM:SS AM/PM format.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md §2-§3
+**Automatable**: Yes
+**Notes**: NOT-TRACKED fields (PO Number, PO Number Label, Room toggle) are explicitly excluded — saves including those fields still produce a history row, but those columns don't exist in the 42-column table.
+
+---
+
+## TC-LOS-HISL-002: ECT Saves — History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify** (from ECT spec): TC-LOS-ECT-005 (BenefitsMultiplier), TC-LOS-ECT-009 (LaborCost row), TC-LOS-ECT-013 (HistoricalSubrental), TC-LOS-ECT-014 (LaborCost Middle Row), TC-LOS-ECT-015 (LaborCost Last Row), TC-LOS-ECT-016 (BenefitsMultiplier + HistoricalSubrental)
+
+**Steps**:
+1. After all ECT save TCs complete, capture current pagination total on History tab -> Record `rowCountBefore`
+2. Navigate to History tab -> Tab loads
+3. Verify pagination total has NOT changed compared to `rowCountBefore` -> Row count unchanged (ECT editable fields are NOT-TRACKED)
+4. If row count unexpectedly increased: verify Modified On timestamp and document which columns captured data -> Unexpected finding
+
+**Expected**: ECT editable field saves (BenefitsMultiplier, HistoricalSubrental, LaborCost) do NOT produce new history rows. These fields have no corresponding columns in the 42-column history table (confirmed NOT-TRACKED in REQUIREMENTS.md). History cols 33-40 are READ-ONLY ECT fields tracked globally, not the editable fields being saved.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md §2
+**Automatable**: Yes
+**Notes**: Confirmatory TC — validates the NOT-TRACKED status documented in REQUIREMENTS.md for ECT editable fields. If rows DO appear, this is a documentation error that needs correction.

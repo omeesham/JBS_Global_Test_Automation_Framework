@@ -841,47 +841,47 @@ Accessible via: Setup > Location > [Office Code] → "Location Management Histor
 
 | # | Column Header | Notes |
 |---|---|---|
-| 1 | Local Office ID | |
+| 1 | Local Office | [MCP-CORRECTED: was "Local Office ID"] |
 | 2 | Local Office Name | |
 | 3 | Active | |
 | 4 | Live Date | |
 | 5 | Country | |
 | 6 | Currency | |
-| 7 | Tax Mode Name | |
-| 8 | Region Name | |
+| 7 | Tax Mode | [MCP-CORRECTED: was "Tax Mode Name"] |
+| 8 | Region | [MCP-CORRECTED: was "Region Name"] |
 | 9 | Servicing Branch Office | |
-| 10 | Pay To | |
+| 10 | Pay To Address | [MCP-CORRECTED: was "Pay To"] |
 | 11 | Union | |
 | 12 | Corporate Pricing | |
 | 13 | Billing Type | |
 | 14 | Billing Cycle | |
 | 15 | Billing Way | |
-| 16 | Billing Way Active Date | |
+| 16 | Billing Way Active | [MCP-CORRECTED: was "Billing Way Active Date"] |
 | 17 | Labor Pricing | |
 | 18 | Equip. Pricing | |
 | 19 | Internal Equip. Pricing | |
-| 20 | Production Labour Pricing | |
+| 20 | Production Labor Pricing | [MCP-CORRECTED: was "Production Labour Pricing"] |
 | 21 | Production Equip. Pricing | |
 | 22 | Allow DPCD | |
 | 23 | Exclude Implied Discount | |
 | 24 | Prompt For Approval | |
 | 25 | Threshold | |
-| 26 | Apply LDW | |
+| 26 | Enable LDW | [MCP-CORRECTED: was "Apply LDW"] |
 | 27 | LDW Percentage | |
 | 28 | Calculate LDW on Net Amount | |
 | 29 | ETS | |
 | 30 | ETS Percent | |
-| 31 | Service Charge | |
+| 31 | Allow Service Charge | [MCP-CORRECTED: was "Service Charge"] |
 | 32 | Show Service Charge As Administrative Fee | |
 | 33 | Calculate Service Charge On Net Amount | |
 | 34 | Service Charge Name | |
 | 35 | Apply Cables and Consumables Fee | |
-| 36 | C&C Percentage | |
+| 36 | C&C Percent | [MCP-CORRECTED: was "C&C Percentage"] |
 | 37 | Calculate CAC on Net Amount | |
 | 38 | Terms and Conditions | |
 | 39 | Allow Ticker Calc | |
 | 40 | Set/Strike/Support Labor Billing Goal | |
-| 41 | Set/Strike/Support Labor Billing Goal | duplicate header name |
+| 41 | Enable Set/Strike Labor Minutes | [MCP-CORRECTED: was listed as duplicate of col 40 — NOT a duplicate. Distinct column.] |
 | 42 | Apply Set/Strike Labor Minutes | |
 | 43 | Credit Memo Approval Required | |
 | 44 | Display Tax | |
@@ -947,7 +947,7 @@ Accessible via: Setup > Location > [Office Code] → "Location Management Histor
 
 **Notable Differences from User Requirements vs Live DOM**:
 - User requirements listed ~80+ columns matching individual DB fields; live DOM shows 87 column headers
-- Column #41 is a duplicate header ("Set/Strike/Support Labor Billing Goal" appears twice)
+- ~~Column #41 is a duplicate header~~ [MCP-CORRECTED 2026-04-13]: Col 40 = "Set/Strike/Support Labor Billing Goal", Col 41 = "Enable Set/Strike Labor Minutes" — distinct columns, NOT a duplicate
 - Some user-listed columns mapped to different live labels:
   - `LaborCorporatePriceBookHistory` → "Labor Pricing"
   - `NonLaborCorporatePriceBookHistory` → "Equip. Pricing"
@@ -956,10 +956,83 @@ Accessible via: Setup > Location > [Office Code] → "Location Management Histor
   - `DefaultVenueName` → "Venue/Branch Account Name"
   - `ModUser` → "Modified By"
   - `ModDate` → "Modified On"
+- Col 6 and Col 64 are both named "Currency" — confirmed intentional duplicate (pricing vs primary)
+
+**History Tracking Rules** [MCP-VERIFIED 2026-04-13, Location 1604]:
+
+| Rule | Detail |
+|------|--------|
+| Snapshot model | 1 save = 1 new history row (full row snapshot, regardless of fields changed) |
+| Cross-system independence | Saves on Local Office Settings do NOT create rows in Location Management History and vice versa |
+| Table refresh | New row visible immediately on tab switch after save (no page reload needed) |
+| Default sort | Modified On descending (most recent first) |
+| Horizontal scroll | All 87 columns in DOM (no virtual scroll). scrollWidth=16065px, clientWidth=1141px |
+| Populated data | Location 1604: 147 pages (~2922 rows). NOT empty |
+
+**Data Formats** [MCP-VERIFIED 2026-04-13]:
+
+| Format | Representation | Example |
+|--------|---------------|---------|
+| Boolean TRUE | Unicode checkmark "✔" | Col 3 Active |
+| Boolean FALSE | Empty cell "" | Col 11 Union (when unchecked) |
+| Date | MM/DD/YYYY | "11/07/2005" |
+| Timestamp | MM/DD/YYYY HH:MM:SS AM/PM | "04/10/2026 03:42:00 PM" |
+| Percentage | N.NN % (space before %) | "4.00 %", "55.00 %" |
+| Empty/null | Empty string "" | No "null", "N/A", or "-" |
+| Number | Plain text | "0000", "900" |
+| Pricing | Multi-currency format | "USD: 2026-Zone 3 D; CAD: ; MXN:" |
+| Email | Plain text | "v-rutvik.khosariya@psav.com" |
+
+**Sortable Columns** (14 of 87): Live Date, Billing Way Active, Modified By, Modified On, Oracle Product Code, Oracle Department Code, Oracle Organization, Use eSignature, Separate Master Bill Commission Invoice, Enable Product Group, Enable Job Costing, Enable Discount Guidance, Internet Asset Reservation, Warehouse Billing
+
+**NOT-TRACKED Fields** — Fields saved by existing specs that have NO corresponding column in 87-col history:
+
+| Field | Spec | Notes |
+|-------|------|-------|
+| EnableMultidayPricing | TC-LOC-LI-071 | Not in 87 columns |
+| Merchant currency selection | TC-LOC-CUR-022, CUR-024 | Not in 87 columns |
+| Auto Add-On checkboxes | TC-LOC-AAO-003, AAO-004, AAO-017, AAO-018, AAO-020 | Not in 87 columns |
+
+**Save Dialog** [MCP-VERIFIED 2026-04-13]: Location Settings uses "Save Changes" dialog with **Cancel/Ok** buttons (different from Local Office Settings which uses Cancel/Save).
+
+### Plan vs DOM Column Name Comparison [MCP-VERIFIED 2026-04-13]
+
+Cross-reference of oral/plan requirements vs live DOM for both history systems. Source: SP1_MCP_FINDINGS.md.
+
+**Location Management History (87 columns)**:
+
+| Col# | Plan/Oral Name | Live DOM Actual | Correction Type |
+|------|---------------|-----------------|-----------------|
+| 1 | Local Office ID | Local Office | Name shortened |
+| 7 | Tax Mode Name | Tax Mode | Name shortened |
+| 8 | Region Name | Region | Name shortened |
+| 10 | Pay To | Pay To Address | Name expanded |
+| 16 | Billing Way Active Date | Billing Way Active | Name shortened |
+| 20 | Production Labour Pricing | Production Labor Pricing | Spelling (UK→US) |
+| 26 | Apply LDW | Enable LDW | Verb changed |
+| 28 | "BUG: renders i18n key" | Calculate LDW on Net Amount | Plan bug — renders correctly |
+| 31 | Service Charge | Allow Service Charge | Verb added |
+| 32 | Show SC As Admin Fee | Show Service Charge As Administrative Fee | Abbreviation expanded |
+| 33 | Calculate SC On Net Amount | Calculate Service Charge On Net Amount | Abbreviation expanded |
+| 35 | Apply C&C Fee | Apply Cables and Consumables Fee | Abbreviation expanded |
+| 36 | C&C Percentage | C&C Percent | Name shortened |
+| 41 | "Duplicate of col 40" | Enable Set/Strike Labor Minutes | NOT a duplicate — distinct column |
+| 62 | Include SC in Price Guides | Include Service Charge in Price Guides | Abbreviation expanded |
+
+**Local Office Settings History (42 columns)**:
+
+| Col# | Plan/Oral Name | Live DOM Actual | Correction Type |
+|------|---------------|-----------------|-----------------|
+| 10 | Use Equipment QC | Use Equip QC | Name abbreviated |
+| 26 | Default Job to 1 day Event | Default Job to 1 day for Event Orders | Name expanded |
+| 27 | Default Job to 1 day Outside | Default Job to 1 day for Outside Orders | Name expanded |
+| 28 | Default Job to 1 day Internal | Default Job to 1 day for Internal Orders | Name expanded |
+| 30 | Allow tentative+confirmed same priority | Allow tentative and confirmed Status to have the same priority | Full text |
+| 31 | Items Filled Return to Availability | Items Filled from Requests Return to Availability | Name expanded |
 
 ---
 
-*Last Updated: 2026-03-02 — Live UI verified via MCP Playwright (location 1604, all 8 right-panel tabs + left panel + Management History + Local Office Settings)*
+*Last Updated: 2026-04-13 — Live UI verified via MCP Playwright (location 1604, all 8 right-panel tabs + left panel + Management History + Local Office Settings)*
 
 ---
 
@@ -1105,9 +1178,9 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 **Purpose**: Read-only history of Local Office Settings changes for this location.
 
 **UI**:
-- Filter dropdown at top (default: "Location Settings History")
+- Filter dropdown at top (default: "Location Management History") [MCP-CORRECTED 2026-04-13: was "Location Settings History" — dropdown always shows "Location Management History" as default regardless of page. Tab name ≠ dropdown option name]
 - Read-only table — no add, edit, delete, or row selection
-- Empty state: "No results." (location 1604 has no history in system)
+- ~~Empty state: "No results." (location 1604 has no history in system)~~ [MCP-CORRECTED 2026-04-13: Location 1604 has 61 pages (~1204 rows) of history. NOT empty. TC-LOS-HIS-003 needs update]
 - Pagination: 20 rows/page (combobox), first/prev/next/last buttons, page indicator "{n}/{total}"
 
 **42 columns confirmed live** (sorted by sort button presence — "Local Office" column has no sort button; all others do):
@@ -1139,12 +1212,12 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 | 23 | Action |
 | 24 | Notes |
 | 25 | Marriott PMS Account Enabled |
-| 26 | Default Job to 1 day for Event Orders |
-| 27 | Default Job to 1 day for Outside Orders |
-| 28 | Default Job to 1 day for Internal Orders |
+| 26 | Default Job to 1 day for Event Orders | [MCP-CORRECTED: was "Default Job to 1 day Event"] |
+| 27 | Default Job to 1 day for Outside Orders | [MCP-CORRECTED: was "Default Job to 1 day Outside"] |
+| 28 | Default Job to 1 day for Internal Orders | [MCP-CORRECTED: was "Default Job to 1 day Internal"] |
 | 29 | Default Labor to Hourly |
-| 30 | Allow tentative and confirmed Status to have the same priority |
-| 31 | Items Filled from Requests Return to Availability |
+| 30 | Allow tentative and confirmed Status to have the same priority | [MCP-CORRECTED: was "Allow tentative+confirmed same priority"] |
+| 31 | Items Filled from Requests Return to Availability | [MCP-CORRECTED: was "Items Filled Return to Availability"] |
 | 32 | Default Order Type |
 | 33 | Regular Hours |
 | 34 | Regular Hours Multiplier |
@@ -1159,6 +1232,44 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 
 **Confirmed**: "Default Job to 1 day for Outside Orders" appears **once** (NM-1261 resolved).
 Columns 33–40 (labor-to-hourly) are present in history even for US locations; they are Canada-only fields on the Basic Information tab but tracked in history globally.
+
+**Sortable Columns** (38 of 42) [MCP-VERIFIED 2026-04-13]: All columns except Local Office, Section Name, Service Type - Exempt, and Notes (those have plain text, no sort button).
+
+**History Tracking Rules** [MCP-VERIFIED 2026-04-13, Location 1604]:
+
+| Rule | Detail |
+|------|--------|
+| Snapshot model | 1 save = 1 new history row (full row snapshot, regardless of fields changed) |
+| Cross-system independence | Saves on Local Office Settings do NOT appear in Location Management History |
+| Table refresh | New row visible immediately on tab switch after save (no page reload needed) |
+| Populated data | Location 1604: 61 pages (~1204 rows). NOT empty |
+
+**Data Formats** [MCP-VERIFIED 2026-04-13]:
+
+| Format | Representation | Example |
+|--------|---------------|---------|
+| Boolean TRUE | SVG checkmark icon (`<svg class="lucide lucide-check">`) | Col 8 Use Fulfillment |
+| Boolean FALSE | Empty cell (no content) | Col 8 when unchecked |
+| Date offset | Plain integer | "-1", "1", "0" |
+| Timestamp | MM/DD/YYYY HH:MM:SS AM/PM | "04/08/2026 08:31:45 AM" |
+| Section data | Pipe-separated key-value | "Projection - true \| Audio - true \| ..." |
+| Exemption | Pipe-separated key-value | "HSIA - Labor - true \| ..." |
+| ECT hours | Plain number | "24" |
+| ECT multipliers | Decimal | "1", "1.5", "2" |
+| Empty/null | Empty string "" | No "null" or "N/A" |
+
+**CRITICAL**: Local Office History uses SVG `lucide-check` icons for booleans (textContent returns "" for both true and false). Location Management History uses Unicode "✔". Detection requires `innerHTML.includes('lucide-check')`.
+
+**NOT-TRACKED Fields** — Fields saved by existing specs that have NO corresponding column in 42-col history:
+
+| Field | Spec | Notes |
+|-------|------|-------|
+| PO Number (txtPoNumber) | TC-LOS-BAS-023, BAS-039 | Not in 42 columns |
+| PO Number Label (txtPoNumberLabel) | TC-LOS-BAS-024 | Not in 42 columns |
+| Room toggle/rename | TC-LOS-BAS-048, BAS-049 | Not in 42 columns |
+| BenefitsMultiplier | TC-LOS-ECT-005, ECT-016 | ECT editable — not tracked |
+| HistoricalSubrental | TC-LOS-ECT-013, ECT-016 | ECT editable — not tracked |
+| LaborCost rows | TC-LOS-ECT-009, ECT-014, ECT-015 | ECT editable — not tracked |
 
 ---
 

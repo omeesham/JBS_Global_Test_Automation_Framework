@@ -759,3 +759,15 @@ test.describe('Setup > Location > Local Information', () => {
 **All selectors discovered**: YES (live DOM confirmed on 2026-02-18)  
 **Test cases created**: 63 granular scenarios (TC-LOC-LI-001 to TC-LOC-LI-066, TC-049/050/056 removed)  
 **Example test patterns referenced**: `tests/examples/*.spec.ts`
+---
+
+## Integration: History Verification
+
+### TC-LOC-HIST-001 (LI saves → Location Management History)
+1. After all LI save TCs complete, navigate to Location Management History tab
+2. Verify row count increased by number of completed saves
+3. Verify latest row Modified On within +/-5 min of test time; Modified By = test user
+4. Spot-check cols: 13 (Billing Type), 48 (Enable IDC Billing), 73 (Oracle Product Code)
+5. Confirm NOT-TRACKED: EnableMultidayPricing (no column in 87)
+6. Boolean TRUE = Unicode checkmark. Percentages = "N.NN %". Timestamps = MM/DD/YYYY HH:MM:SS AM/PM
+7. Expected: Each LI save = 1 new history row with correct field values

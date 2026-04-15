@@ -1,5 +1,5 @@
 # Location Notes Test Cases
-**Module**: locations | **Total**: 27 | **Status**: Manual | **Updated**: 2026-04-08
+**Module**: locations | **Total**: 28 | **Status**: Manual | **Updated**: 2026-04-14
 
 ---
 
@@ -385,3 +385,25 @@
 **Steps**: 1. Open **Notes** tab, ensure empty state 2. Fill row 0 "Cancel test note" (16 chars) ✓ Save enabled 3. Click **Save** button (opens dialog) 4. Click **Cancel** in dialog ✓ Dialog closes; Save still enabled 5. Reload page, click **Notes** tab ✓ Empty state ("No Notes Available") — note was NOT saved
 **Expected**: Cancelling save dialog prevents persistence; note is discarded on reload
 **Data**: office=1604 | text="Cancel test note" (16 chars)
+
+---
+
+# Integration: History Verification Test Cases
+
+## TC-LOC-HIST-007: Notes Saves — Location Management History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify**: TC-LOC-NTS-008 (Save notes via dialog), TC-LOC-NTS-009 (Notes persist after reload), TC-LOC-NTS-012 (Delete all + save empty), TC-LOC-NTS-013 (Special/HTML chars save), TC-LOC-NTS-018 (XSS payload save), TC-LOC-NTS-019 (SQL injection payload save), TC-LOC-NTS-020 (Emoji/unicode save), TC-LOC-NTS-023 (Full lifecycle save), TC-LOC-NTS-024 (Multi-row save), TC-LOC-NTS-025 (Boundary 4000 char save), TC-LOC-NTS-026 (Partial deletion save)
+
+**Steps**:
+1. After NTS save TCs complete, navigate to Location Management History tab -> Tab loads
+2. Verify new rows exist: row count increased -> Count increased
+3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
+4. Verify col 70 Notes contains the last saved note content -> Value matches
+
+**Expected**: Notes saves produce history rows. Col 70 reflects saved note content.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Automatable**: Yes

@@ -268,3 +268,13 @@
 1. Step: Ensure empty state, fill row 0 "Cancel test note", expected: Save enabled
 2. Step: Click Save button (opens dialog), click Cancel, expected: dialog closes; Save still enabled
 3. Step: Reload page + click Notes tab, expected: empty state ("No Notes Available") — note NOT saved
+
+---
+
+## Integration: History Verification
+
+### TC-LOC-HIST-007 (NTS saves → Location Management History)
+1. After NTS save TCs complete, navigate to Location Management History tab
+2. Verify row count increased
+3. Verify col 70 (Notes) contains last saved note content
+4. Expected: Notes saves = history rows with note content in col 70

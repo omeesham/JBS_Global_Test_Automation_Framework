@@ -2,7 +2,7 @@
 
 | Module | Test Cases | Automated | Manual | Out of Scope | Updated |
 |--------|------------|-----------|--------|--------------|---------|
-| Locations | 63 | 26 (41%) | 37 (59%) | 0 (0%) | 2026-02-25 |
+| Locations | 67 | 26 (39%) | 41 (61%) | 0 (0%) | 2026-04-14 |
 ---
 
 ## FIELD INVENTORY & DISCOVERY
@@ -993,3 +993,30 @@ Navigator is open. User has access to international offices (Canada, Mexico, or 
 - Legal tab UI fields (beyond ServiceChargeId/TermsConditionsId array validation)
 - Concurrency (multi-user edit conflicts, optimistic locking)
 - Performance (save with 1000+ Legal items, large data sets)
+
+---
+
+# Integration: History Verification Test Cases
+
+## TC-LOC-HIST-001: Local Information Saves — Location Management History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify**: TC-LOC-LI-025 (BillingType), TC-LOC-LI-021/029 (OracleProduct+CalcLDW), TC-LOC-LI-068 (OracleProduct special chars), TC-LOC-LI-069 (OracleDepartment), TC-LOC-LI-072 (EnableIDCBilling), TC-LOC-LI-073 (CompanyRemitTax+DisplayTax), TC-LOC-LI-075 (ApplyC&C+CCPct), TC-LOC-LI-076 (AllowResortTax+ResortTaxPct), TC-LOC-LI-077 (AllowETS+ETSPct)
+
+**Steps**:
+1. After all LI save TCs complete, navigate to Location Management History tab -> Tab loads
+2. Verify new rows exist: row count increased by number of completed saves -> Count increased
+3. Verify latest row Modified On timestamp within +/-5 min of test time -> Recent timestamp
+4. Verify latest row Modified By matches test user -> User identity recorded
+5. Spot-check 3+ field values from latest save:
+   - Verify col 13 Billing Type matches last saved value -> Value matches
+   - Verify col 48 Enable IDC Billing = Unicode checkmark or empty -> Boolean format correct
+   - Verify col 73 Oracle Product Code matches last saved value -> Value matches
+6. Verify NOT-TRACKED: TC-LOC-LI-071 (EnableMultidayPricing) has no column in 87 -> Confirm no column
+
+**Expected**: Each LI save produced 1 new history row. Boolean TRUE = Unicode "checkmark". Timestamps = MM/DD/YYYY HH:MM:SS AM/PM. Percentages = "N.NN %" (space before %). EnableMultidayPricing is NOT tracked.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md sections 1, 3
+**Automatable**: Yes

@@ -402,3 +402,14 @@
 2. Inspect columns 1-3 on primary test row: check for button, checkbox, input elements
 3. Verify interactive element count: expected 0 (display-only columns)
 Note: TC-LOC-PRI-034 intentionally does not exist (skipped ID)
+
+---
+
+## Integration: History Verification
+
+### TC-LOC-HIST-002 (PRI saves → Location Management History)
+1. After PRI save TCs complete, navigate to Location Management History tab
+2. Verify row count increased
+3. Verify col 62 (Include Service Charge in Price Guides) reflects PriceGuideInclusive state
+4. Limited coverage due to API 500 errors blocking most pricing saves
+5. Expected: PRI-024 save = 1 new history row

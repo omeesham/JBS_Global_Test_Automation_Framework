@@ -1,5 +1,5 @@
 # Location Shared Setup Locations Test Cases
-**Module**: locations | **Total**: 24 | **Status**: Automated | **Updated**: 2026-04-07
+**Module**: locations | **Total**: 25 | **Status**: Automated | **Updated**: 2026-04-14
 
 ---
 
@@ -544,3 +544,25 @@
 **Expected**: Dialog excludes locations already associated with this office
 **Data**: office=1604, search=dynamic (captured from table after add)
 **Cleanup**: Delete added row + Save
+
+---
+
+# Integration: History Verification Test Cases
+
+## TC-LOC-HIST-006: Shared Setup Saves — Location Management History Row Verification
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Integration | Yes |
+
+**Completed saves to verify**: TC-LOC-SSL-008 (self-row ON), TC-LOC-SSL-018 (add location), TC-LOC-SSL-019 (non-self OFF), TC-LOC-SSL-020 (delete row), TC-LOC-SSL-021 (combined)
+
+**Steps**:
+1. After SSL save TCs complete, navigate to Location Management History tab -> Tab loads
+2. Verify new rows exist: row count increased by number of completed saves -> Count increased
+3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
+4. Verify cols 59-61 (Action of Shared Setup Location, Shared Setup Location ID, Shared Setup Location Name) reflect latest save action -> Values match
+
+**Expected**: Each Shared Setup save produced 1 history row. Cols 59-61 reflect add/delete/modify actions.
+**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Automatable**: Yes

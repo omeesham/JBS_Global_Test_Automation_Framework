@@ -263,3 +263,14 @@ DROPPED: MCP-5 verification (2026-04-07) failed. Dirty form + tab switch did NOT
 6. Step: reloadAndNavigate(OFFICE_NO), expected: page reloads
 7. Step: expect.poll getVenueNameValue() == originalName, expected: persisted
 8. Step: finally: if name changed, restore original account via Account List
+
+---
+
+## Integration: History Verification
+
+### TC-LOC-HIST-005 (ACC saves → Location Management History)
+1. After ACC save TCs complete, navigate to Location Management History tab
+2. Verify row count increased
+3. Verify col 57 (Venue/Branch Account Phone2) matches last saved value
+4. Verify col 55 (Venue/Branch Account Name) is populated
+5. Expected: Account & Address saves = history rows with correct phone/account values
