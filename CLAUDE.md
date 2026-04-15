@@ -527,3 +527,12 @@ source, MCP evidence summary.
 - Test failure classified as APPLICATION or DATA by failure-summary.json
 **Graduated from**: Copilot session audit 2026-04-10 — LR-030/031/032/033 told agents to
 investigate and file bugs but gave no procedural HOW. This fills the gap.
+
+### LR-035: plans/INDEX.md is auto-generated — never hand-edit
+`plans/INDEX.md` is regenerated from filesystem state by `scripts/plans-reindex.mjs`.
+Any manual edits will be overwritten. To update the index:
+1. Edit the plan's own `**Status**`, `**Created**`, `**Executed**`, `**Priority**`, `**Parent**` fields
+2. Move files between `plans/pending/` and `plans/done/` as needed
+3. Run `npm run plans:reindex` (or install the pre-commit hook: `npm run plans:hooks:install`)
+CI/agents can gate on staleness with `npm run plans:reindex:check`.
+**Trigger**: Any work that adds, completes, or reorganizes plan files.

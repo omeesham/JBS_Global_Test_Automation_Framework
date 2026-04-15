@@ -81,7 +81,10 @@
     "server:start": "ts-node src/server/index.ts",
     "server:dev": "node --watch -r ts-node/register src/server/index.ts",
     "worker:start": "ts-node src/worker/index.ts",
-    "db:migrate": "ts-node -e \"require('./src/server/db/client').initializeSchema().then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); })\""
+    "db:migrate": "ts-node -e \"require('./src/server/db/client').initializeSchema().then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); })\"",
+    "plans:reindex": "node scripts/plans-reindex.mjs",
+    "plans:reindex:check": "node scripts/plans-reindex.mjs --check",
+    "plans:hooks:install": "git config core.hooksPath .githooks && echo hooks installed -> .githooks"
   },
   "keywords": [
     "playwright",

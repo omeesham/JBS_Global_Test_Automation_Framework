@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Auto-regenerate plans/INDEX.md before each commit so it stays in sync
+# with the actual filesystem state of plans/pending/ and plans/done/.
+#
+# Install with:  npm run plans:hooks:install
+# (Sets core.hooksPath to .githooks — per-clone setup, not automatic.)
+
+set -e
+
+# Skip if no plan files are staged or touched — avoid re-running on every commit.
+if git diff --cached --name-only | grep -qE '^plans/(pending|done)/.*\.md$'; then
+  echo "[pre-commit] plans changed — regenerating plans/INDEX.md"
+  node scripts/plans-reindex.mjs --quiet
+  git add plans/INDEX.md
+fi
+
+exit 0
