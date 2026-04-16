@@ -1,11 +1,34 @@
 # SUBPLAN 4: Local Office History Integration Tests
 
 **Parent**: PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md
-**Agent**: Copilot (BUILDER identity)
+**Agent**: Copilot (BUILDER identity) — verified by HEALER (Opus) per PLAN_HIST_RUN_SP3_SP4_SPECS
 **Phase**: 2.1, 2.2
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-04-15 (TCs implemented + verified per "Verification Run" sections below)
+**Closed**: 2026-04-15 — bookkeeping closure by WATCHDOG. Execution was complete on 2026-04-15T07:00 per agent-activity-log row but file was left in `pending/` with stale `Status: Pending` (LR-027 violation at original execution session).
 **Depends on**: SUBPLAN_HISTORY_01 + SUBPLAN_HISTORY_03 complete
 **History System**: Local Office Settings History (42 columns)
+
+---
+
+## Execution Summary (per LR-027)
+
+**TCs implemented (2)**:
+- `TC-LOS-BAS-HIST` — `tests/specs/setup/local-office/local-office-settings.spec.ts:839` — verifies all completed Basic Information saves produced correct history rows. Capped at 20-row scan window per SP1 §6 default page size.
+- `TC-LOS-ECT-HIST` — `tests/specs/setup/local-office/local-office-ect.spec.ts:248` — verifies all 13 ECT save scenarios produced correct history rows.
+
+**Page-object work**:
+- `src/pages/setup/local-office/local-office-settings.page.ts` — added HIST methods incl. `sortHistoryByModifiedOnDesc` (fixed 2026-04-15 to use Radix `[role=menu]` + `getByRole('menuitem', { name: 'Sort descending' })` pattern after double-click bug RCA — see SP1 §11 NF-001/NF-002 remediation).
+
+**MCP verification results**: see "Verification Run — 2026-04-15 (per PLAN_HIST_RUN_SP3_SP4_SPECS.md)" section below (lines ~108-131) and second "Verification Run (2026-04-15)" section (lines ~140-149). Both confirm:
+- TC-LOS-BAS-HIST: PASS (7.1s isolated; passes in full-spec run after BAS-048 skip)
+- TC-LOS-ECT-HIST: PASS (within full 18/18 spec run, 2.1 min)
+
+**TCs deferred / blocked**: none in SP4 scope. TC-LOS-BAS-048 (Room toggle round-trip) blocked by **BUG-LOC-LOS-001** (filed per LR-034) — independent of SP4 work; cascaded 6 tests now skip cleanly with that bug-block.
+
+**Documentation changes**: see PLAN_HIST_RUN_SP3_SP4_SPECS.md and bug report `reports/bugs/BUG-LOC-LOS-001.json`.
+
+**Test pass confirmation**: 2026-04-15 — `local-office-settings.spec.ts` 53 pass / 1 skip (bug-blocked) / 6 cascaded-pass; `local-office-ect.spec.ts` 18/18.
 
 ---
 

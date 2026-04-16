@@ -158,8 +158,8 @@ export class CsvConverter {
   private static parseSimpleFormat(content: string): SimpleTestCase[] {
     const testCases: SimpleTestCase[] = [];
     
-    // Split by ## TC-XXX: headers (supports TC-LOC-001 and TC-LOC-CUR-001 formats)
-    const sections = content.split(/^## (TC-[A-Z]+(?:-[A-Z]+)?-\d+[A-Z]?):/m);
+    // Split by ## TC-XXX: headers (supports TC-LOC-001, TC-LOC-CUR-001, TC-LOC-LGL-HIST, TC-LOC-LI-SKIP-BILLING)
+    const sections = content.split(/^## (TC-[A-Z]+(?:-[A-Z]+)?-(?:\d+[A-Z]?|[A-Z]+)(?:-[A-Z]+)*):/m);
     
     for (let i = 1; i < sections.length; i += 2) {
       const id = (sections[i] || '').trim();
@@ -194,10 +194,10 @@ export class CsvConverter {
       const stepsMatch = body.match(/\*\*Steps\*\*:\s*(.+?)(?=\*\*Expected\*\*|\*\*Steps \(Human\)\*\*|$)/s);
       let steps = stepsMatch && stepsMatch[1] ? stepsMatch[1].trim() : '';
       
-      const expectedMatch = body.match(/\*\*Expected\*\*:\s*(.+?)(?=\*\*Data\*\*|\*\*Notes\*\*|\*\*Cleanup\*\*|\*\*Expected Result \(Human\)\*\*|\n---|\n##|$)/s);
+      const expectedMatch = body.match(/\*\*Expected\*\*:\s*(.+?)(?=\*\*Data\*\*|\*\*Notes\*\*|\*\*Cleanup\*\*|\*\*Automatable\*\*|\*\*MCP_VERIFICATION_LOG\*\*|\*\*Automation File\*\*|\*\*Expected Result \(Human\)\*\*|\n---|\n##|$)/s);
       let expected = expectedMatch && expectedMatch[1] ? expectedMatch[1].trim() : '';
-      
-      const dataMatch = body.match(/\*\*Data\*\*:\s*(.+?)(?=\n---|\n##|\*\*Notes\*\*|$)/s);
+
+      const dataMatch = body.match(/\*\*Data\*\*:\s*(.+?)(?=\n---|\n##|\*\*Notes\*\*|\*\*Automatable\*\*|\*\*MCP_VERIFICATION_LOG\*\*|$)/s);
       let data = dataMatch && dataMatch[1] ? dataMatch[1].trim() : '';
       
       // HUMAN fields (new dual-format sections)
@@ -218,7 +218,7 @@ export class CsvConverter {
       
       // Notes must stop at agent **Steps**: section to avoid capturing agent fields
       // Match Notes content until we hit agent Steps, Data, separator, or new test case
-      const notesMatch = body.match(/\*\*Notes\*\*:\s*(.+?)(?=\n+\*\*Steps\*\*:|\n+\*\*Data\*\*|\n---|\n##|$)/s);
+      const notesMatch = body.match(/\*\*Notes\*\*:\s*(.+?)(?=\n+\*\*Steps\*\*:|\n+\*\*Data\*\*|\*\*Automatable\*\*|\*\*MCP_VERIFICATION_LOG\*\*|\*\*Automation File\*\*|\*\*Completed saves\*\*|\n---|\n##|$)/s);
       let notesHuman = notesMatch && notesMatch[1] ? notesMatch[1].trim() : '';
       
       // Convert Unicode to ASCII for clean export
@@ -265,7 +265,7 @@ export class CsvConverter {
         notesHuman = notesHuman ? `${notesHuman} | [WARN] Cleanup required after test` : '[WARN] Cleanup required after test';
       }      
       // Parse standalone **Cleanup**: sections (not inside numbered steps)
-      const cleanupSectionMatch = body.match(/\*\*Cleanup\*\*:\s*(.+?)(?=\n---|\n##|\*\*Data\*\*|\*\*Notes\*\*|$)/s);
+      const cleanupSectionMatch = body.match(/\*\*Cleanup\*\*:\s*(.+?)(?=\n---|\n##|\*\*Data\*\*|\*\*Notes\*\*|\*\*Automatable\*\*|\*\*MCP_VERIFICATION_LOG\*\*|$)/s);
       if (cleanupSectionMatch && cleanupSectionMatch[1]) {
         const cleanupText = this.sanitizeUnicode(cleanupSectionMatch[1].trim());
         if (cleanupText && !/CLEANUP/i.test(notesHuman)) {
@@ -274,6 +274,18 @@ export class CsvConverter {
             : `\u26A0\uFE0F CLEANUP: ${cleanupText}`;
         }
       }      
+      // Strip internal metadata tags that should never appear in client CSVs
+      const stripInternalTags = (text: string): string =>
+        text.replace(/\n?\*\*Automatable\*\*:.*$/gm, '')
+            .replace(/\n?\*\*MCP_VERIFICATION_LOG\*\*[\s\S]*?(?=\n---|\n##|$)/g, '')
+            .replace(/\n?\*\*Automation File\*\*:.*$/gm, '')
+            .replace(/\n?\*\*Completed saves to verify\*\*:.*$/gm, '')
+            .trim();
+      expected = stripInternalTags(expected);
+      expectedHuman = stripInternalTags(expectedHuman);
+      notesHuman = stripInternalTags(notesHuman);
+      data = stripInternalTags(data);
+
       // Extract module/submodule/specificField from TC ID and title
       const module = this.extractModule(id);
       const submodule = this.extractSubmodule(id, title);
@@ -392,6 +404,8 @@ export class CsvConverter {
     'HST': { submodule: 'history', tab: 'Location Settings History tab is active' },
     'HIS': { submodule: 'history', tab: 'Location Settings History tab is active' },
     'ECT': { submodule: 'ect_settings', tab: 'ECT Settings tab is active' },
+    'HIST': { submodule: 'history_integration', tab: 'Location Management History tab is active' },
+    'HISL': { submodule: 'history_integration', tab: 'Location Settings History tab is active' },
   };
 
   /**
@@ -404,7 +418,7 @@ export class CsvConverter {
     if (id.includes('TC-LOC')) {
       preconditions.push('Office 1604 is open in Navigator');
       // Extract submodule code from ID and look up tab from TAB_MAP
-      const subMatch = id.match(/TC-LOC-([A-Z]+)-\d+/);
+      const subMatch = id.match(/TC-LOC-([A-Z]+)-(?:\d+|[A-Z]+)/);
       const subCode = subMatch?.[1] ?? '';
       const tabEntry = subCode ? this.TAB_MAP[subCode] : undefined;
       preconditions.push(tabEntry ? tabEntry.tab : 'Basic Information tab is active');
@@ -412,7 +426,7 @@ export class CsvConverter {
 
     if (id.includes('TC-LOS')) {
       preconditions.push('Local Office Settings page is open (Office 1604)');
-      const subMatch = id.match(/TC-LOS-([A-Z]+)-\d+/);
+      const subMatch = id.match(/TC-LOS-([A-Z]+)-(?:\d+|[A-Z]+)/);
       const subCode = subMatch?.[1] ?? '';
       const tabEntry = subCode ? this.TAB_MAP[subCode] : undefined;
       preconditions.push(tabEntry ? tabEntry.tab : 'Basic Information tab is active');
@@ -572,8 +586,8 @@ export class CsvConverter {
    * TC-LOC-CUR-001 -> "currency", or parse from title
    */
   private static extractSubmodule(id: string, title: string): string {
-    // Check for compound ID (TC-LOC-CUR-001)
-    const compoundMatch = id.match(/TC-[A-Z]+-([A-Z]+)-\d+/);
+    // Check for compound ID (TC-LOC-CUR-001 or TC-LOC-LGL-HIST)
+    const compoundMatch = id.match(/TC-[A-Z]+-([A-Z]+)-(?:\d+|[A-Z]+)/);
     if (compoundMatch && compoundMatch[1]) {
       const subCode = compoundMatch[1];
       // Derive from TAB_MAP (single source of truth -- no duplicate map)

@@ -3,7 +3,7 @@ name: playwright-test-planner
 description: Use this agent to explore the website and create comprehensive test cases and test plans. This agent is the SOLE OWNER of test case files.
 tools:
   ['vscode', 'execute', 'read/readFile', 'agent', 'edit', 'search', 'playwright-browser/browser_click', 'playwright-browser/browser_console_messages', 'playwright-browser/browser_drag', 'playwright-browser/browser_evaluate', 'playwright-browser/browser_file_upload', 'playwright-browser/browser_handle_dialog', 'playwright-browser/browser_hover', 'playwright-browser/browser_navigate', 'playwright-browser/browser_navigate_back', 'playwright-browser/browser_network_requests', 'playwright-browser/browser_press_key', 'playwright-browser/browser_run_code', 'playwright-browser/browser_select_option', 'playwright-browser/browser_snapshot', 'playwright-browser/browser_type', 'playwright-browser/browser_wait_for', 'todo']
-model: Claude Sonnet 4.5
+model: Claude Sonnet 4.6
 mcp-servers:
   playwright-browser:
     type: stdio
@@ -36,15 +36,7 @@ handoffs:
 10. **POST-COMPLETE MANDATORY**: Before unlocking queue, run `npm run planner:post-complete [id]`. Verify: selfAuditPassed=true, CSV exported. Do NOT skip.
 11. **NO POWERSHELL FILE WRITES**: Use MCP tools or Node.js `fs` for ALL file operations. PowerShell `Set-Content` corrupts Unicode (ALL-019).
 12. **FRESH STATE FOR DEFAULTS**: Before documenting "default state" of ANY tab/page, navigate to a FRESH location (full URL reload, not tab switch). Your own save/delete/interaction actions change the state. Post-action state ≠ default state. Verify by: reload → observe → document. (ALL-049)
-13. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
-   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
-   - THEN call `browser_navigate` to `about:blank`
-   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
-   - THEN navigate to your target URL
-   - Wait 5 seconds for page load
-   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
-   NEVER call `browser_navigate` to the same URL as a reload — use about:blank → target pattern.
-   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
+13. **BEFOREUNLOAD TRAP (ALL-052)**: See §12 for full protocol. Key: call `browser_handle_dialog(accept:true)` BEFORE `browser_navigate` after field edits. Use about:blank → target pattern. NEVER reload same URL.
 14. **DEFAULTS FROM DOM ONLY (PLN-023)**: Default field values MUST come from a fresh page load DOM read, NEVER from REQUIREMENTS.md or memory. Navigate → read DOM → record exact text.
 15. **VERIFY SAVE BUTTON SCOPE (PLN-024)**: Before documenting save behavior, use `browser_evaluate` to find ALL Save buttons. Document: shared vs tab-specific, exact data-testid, disabled state.
 16. **TEST REVERT BEHAVIOR (PLN-025)**: Change field → revert → check Save button state. Document actual behavior. Encore forms stay dirty after revert.
@@ -54,7 +46,7 @@ handoffs:
 
 ---
 
-> **AUTONOMY (§14)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
+> **AUTONOMY (§16)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
 ---
 
 ## Auto-Invoke Protocol (ALL-021)
@@ -66,7 +58,7 @@ handoffs:
 
 ## RULES
 
-> Shared rules ALL-001–ALL-032 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-035 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule |
 |----|------|
@@ -87,7 +79,7 @@ handoffs:
 | PLN-015 | Cleanup and data hygiene: restore fields after exploration. Cleanup steps for data-mutating tests. Field count reconc... |
 | PLN-016 | Include TCs for different tabs in same pipeline |
 | PLN-017 | Update field count in header but miss individual TCs |
-| PLN-018 | Every editable field = its own save+reload+verify TC with specific value. "Persist" means: change → save → reload → assert value survived. Interacting with the field without save+reload does NOT satisfy this rule. No lumping 5 fields into 1 generic TC. Each TC mu... |
+| PLN-018 | Every editable field = its own save+persist TC with specific value. No lumping 5 fields into 1 generic TC. Each TC mu... |
 | PLN-019 | Document exact save dialog behavior from MCP. Before marking pending_generation: confirm whether Save button triggers... |
 | PLN-020 | All field data (column headers, dropdown options, row counts, checkbox labels) must be EXACT from DOM evaluation — no... |
 | PLN-021 | Before writing ANY selector: use browser_evaluate to check actual HTML tag structure. NEVER assume dt/dd or div/span ... |
@@ -98,77 +90,10 @@ handoffs:
 | PLN-026 | Dropdown features: verify search/filter exists by opening dropdown and checking for input/search element. Never assum... |
 | PLN-027 | Every CSS selector in *.ts selector files MUST be MCP-verified: run `browser_evaluate(() => !!document.querySelector(... |
 | PLN-028 | Selector files must match MCP_VERIFICATION_LOG documentation. If log says "Save is shared left-panel", selector file ... |
-
-### PLN-033: BUG DETECTION MANDATE
-During Phase 2 manual QA (live interaction on MCP):
-- If save/submit produces a 500 error (check `browser_network_requests` after every form submission) → file ESC-PLN to `agent-escalations.json`. Do NOT create TC for broken feature — mark as `[APP_BUG]` and skip.
-- If validation error message is wrong/misleading (message says "required" but field has a value) → document as `[APP_BUG]` in test case notes field.
-- If dropdown/select is empty when it should have options → `[APP_BUG]`.
-- If `data-testid` from Requirements inventory (`specs_planning/_internal/testid-inventory/testid-inventory-{page}.json`) is MISSING on live DOM → `[TESTID_MISSING_BUG]` in TC + file escalation.
-- ALL bugs found during QA use the BugHuntCategory classification: UNCHANGED_FAILURE for app bugs, TESTID_MISSING for missing testids.
-
-### PLN-034: MANDATORY SELECTOR HARD GATE
-**HARD GATE — blocks TC finalization if failed.**
-Every selector referenced in any TC MUST be validated on live DOM:
-`browser_evaluate(() => !!document.querySelector('[data-testid="X"]'))`
-Run this for EVERY data-testid selector in EVERY TC before finalizing the test plan.
-If verify fails for ANY selector:
-1. Do NOT include that selector in the finalized TC
-2. File escalation as `[TESTID_MISSING_BUG]`
-3. If a replacement selector is found via DOM exploration, document both old and new in the TC
-This gate uses the same validation approach as `src/utils/selector-registry-validator.ts` — ONE implementation, never two independent checks.
-
-### PLN-035: UPSTREAM VALIDATION
-Cross-check Requirements `[POSSIBLE_BUG]` and `[MISSING_TESTID]` tags from REQUIREMENTS.md:
-- For each `[POSSIBLE_BUG]` tag: verify on live DOM via MCP. If confirmed → file bug report via escalation with MCP evidence. If resolved (works now) → note as `[BUG_CLEARED]` in TC.
-- For each `[MISSING_TESTID]` tag: verify on live DOM. If still missing → `[TESTID_MISSING_BUG]` escalation. If now present → update testid inventory and proceed.
-
-### PLN-036: NOTIFICATION CHECK
-At session start, read `specs_planning/_internal/agent-notifications/` directory for files containing `"toAgent": "planner"`.
-If stale_artifact notifications exist from Healer or other agents:
-1. Read the `affectedFiles` and `changeSummary` from each notification
-2. Prioritize updating the affected TCs FIRST before processing new work
-3. Acknowledge each notification after updating (delete the notification file)
-
-### PLN-037: HARD STOP — SAVE DIALOG MCP VERIFICATION
-HARD STOP: Before writing ANY test case that involves a Save dialog: MCP-click Save on the live DOM, capture the EXACT dialog heading, body text, and button labels. Cross-reference against `src/selectors/locations/shared.ts` dialog selectors. NEVER create custom dialog selectors unless MCP proof shows a non-standard dialog. Default assumption: all Location Settings tabs use the shared 'Save Changes' dialog (`dlgSaveChanges` / `btnSaveChangesConfirm`).
-
-### PLN-038: HARD STOP — NUMERIC FIELD VALUE VERIFICATION
-HARD STOP: All numeric field test values MUST be MCP-verified before inclusion in test cases. For each test value: type it into the field on MCP → Tab → check `aria-invalid` → document result. Include a 'Validation Rules' table in test cases documenting: field name, type, valid range, invalid example, MCP verification date. NEVER assume positive values are valid for offset fields — always verify.
-
-### PLN-039: FIELD INVENTORY testid completeness (HARD GATE)
-Every row in FIELD INVENTORY MUST have a non-empty `data-testid` value in the testid column, OR explicitly state `(no testid — use aria-label "X" / text "Y")` with the exact fallback selector strategy. Blank testid cells are NOT allowed — generator cannot derive selectors from blanks. Enforced by planner-post-complete gate (HARD GATE — blocks advancement).
-
-### PLN-040: Async assertion markers [POLL] (MANDATORY — HARD GATE)
-For ANY TC step involving: cross-field validation (e.g., NM-1264 Delivery >= Prep), cascading enables/disables (e.g., Fulfillment → QC), or server-side validation (async response) — tag the step with `[POLL]` to signal generator to use `expect.poll()` instead of direct `expect()`. Omitting [POLL] on async checks causes flaky tests (LR-010). Enforced by planner-post-complete gate (HARD GATE — blocks advancement).
-
-### PLN-041: Save dialog documentation in MCP_VERIFICATION_LOG (MANDATORY — HARD GATE)
-For EVERY tab that has a Save button, add a row to MCP_VERIFICATION_LOG: `| Save dialog | {exact heading text} | {button labels} | {selectors or "shared dlgSaveChanges from shared.ts"} |`. If a tab has NO save dialog (direct save): `| Save dialog | No dialog — direct save | N/A | N/A |`. Generator needs exact dialog text/selectors to write clickSaveAndConfirm() correctly. Enforced by planner-post-complete gate (HARD GATE — blocks advancement).
-
-### PLN-042: RCA-FIRST for Rework Sessions
-When returning to a module for rework (re-exploration, corrections, re-planning): 1. READ the prior session's artifacts: test-cases file, MCP_VERIFICATION_LOG, agent-mistakes.md. 2. Identify WHAT failed and WHY before making changes. 3. Do NOT overwrite prior MCP_VERIFICATION_LOG entries — APPEND new verification results. 4. Document what changed since last session (new selectors, changed defaults, app updates). Rework without understanding prior failures = repeating the same mistakes.
-
-### PLN-043: Persistence Coverage Mandate (HARD GATE)
-Every editable field on the page MUST have at least one TC with the Round-Trip pattern: change value → save → reload → verify persisted value matches. Planner must output a PERSISTENCE MATRIX as part of the test-cases deliverable:
-```
-| Field | Persist TC | Status |
-|-------|-----------|--------|
-| Field Name | TC-XXX | Covered / Skipped (reason) |
-```
-If any saveable field has no TC and no skip-with-documented-reason, advance is BLOCKED. "Interact with field" does NOT satisfy this rule — the TC must include save + reload + assertion. Coverage metric: `round_trip_fields / total_saveable_fields` must be reported. Target: >50%.
-
-### PLN-044: Negative Test Ratio (HARD GATE)
-Minimum 20% of TCs must be tagged `[NEGATIVE]` — testing invalid inputs, boundary violations, error states, or rejection paths. Planner must report: `Positive: N, Negative: M, Ratio: M/(N+M)`. Below 20% = BLOCKED. Negative TCs include: invalid field values, boundary violations, empty-when-required, wrong types, cross-field constraint violations, and error recovery paths.
-
-### PLN-045: Grid/Table Coverage Mandate
-For any page with grid or table components, planner MUST: (a) assert total row count matches expected, (b) test first row, last row, AND at least one middle row, (c) include at least one multi-row combination test (e.g., check 2+ rows then save), (d) verify read-only columns are truly non-interactive (click/type has no effect). Grids with N editable columns × M rows do NOT require exhaustive testing — use representative rows but cover position boundaries.
-
-### PLN-046: Testing Technique Tags (HARD GATE)
-Every TC must be tagged with its primary testing technique: `[ROUND-TRIP]`, `[DECISION-TABLE]`, `[STATE-TRANSITION]`, `[BVA]`, `[EP]`, `[NEGATIVE]`, `[ERROR-GUESSING]`, `[EXPLORATORY]`, `[CHECKLIST]`, `[A11Y]`. Planner reports technique distribution summary. If ALL THREE of `[ROUND-TRIP]`, `[NEGATIVE]`, and `[STATE-TRANSITION]` have 0 TCs = BLOCKED. This ensures test design uses diverse techniques, not just positive happy-path interaction.
-
-### PLN-047: State-Transition Model (MANDATORY for pages with Save)
-For any page with Save functionality, planner MUST produce a state-transition model BEFORE writing TCs. Minimum states: `[Loading] [Clean] [Dirty] [Saving] [Save-OK] [Save-Failed] [Validation-Error]`. Optional states (include if applicable): `[Navigate-Away-Prompt] [Load-Failed]`. For each transition, map to a TC or document why it's skipped. Untested transitions = documented gaps, not invisible omissions.
-
+| PLN-048 | MCP-verify history/audit model assumptions BEFORE designing integration tests for any history, audit-log, or snapshot... |
+| PLN-039 | FIELD INVENTORY testid column must be complete. Every row MUST have a non-empty `data-testid` value or explicit fallb... |
+| PLN-040 | For ANY TC step involving cross-field validation, cascading enables/disables, or server-side validation: tag the step... |
+| PLN-041 | Default values, enabled/disabled states, and dropdown option lists MUST come from a DOM read on a dated MCP session. ... |
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
@@ -181,7 +106,8 @@ For any page with Save functionality, planner MUST produce a state-transition mo
 <!-- SYNC:CONTEXT_LOAD:START -->
 1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
 <!-- SYNC:CONTEXT_LOAD:END -->
-1b. **Pre-Flight**: Verify PF-01..06 + PF-P1..P3 (REQUIREMENTS.md exists, MCP browser available, SELECTOR_CATALOG exists). Log result: `action: "pre-flight" | checks: "PF-01..06,PF-P1..P3" | result: "pass/fail"`
+1b. **Pre-Flight**: Verify PF-01..05 + PF-P1..P3 (REQUIREMENTS.md exists, MCP browser available, SELECTOR_CATALOG exists). Log result: `action: "pre-flight" | checks: "PF-01..05,PF-P1..P3" | result: "pass/fail"`
+1c. **Module Mistake Lookup (ALL-072)**: Search `agent-mistakes.md` for ALL rule prefixes matching this module (not just PLN-*). Read GEN-*, HLR-*, MNT-* resolutions for the same module to learn from downstream failures before they repeat.
 2. **Startup**: Log activity
 3. **Find work**: `stage === "pending_planning" && lockedBy === null`, sort by priority
 4. **Read context**: Check `injectedContext` in queue item for your rules, critical reminders, recent defects to avoid, and module context
@@ -370,7 +296,7 @@ Rules: Bold UI labels (not code IDs); quoted error text not keys; no API in Step
 
 ## Test Case Rules
 
-- ONE FIELD = ONE TC minimum (default+validation+interactions); 15-25 TCs per form/page
+- ONE FIELD = ONE TC minimum (default+validation+interactions). No upper bound — complex forms routinely need 60+ TCs. Cover every field, every validation, every interaction.
 - DISABLED: verify disabled → enable → test → document trigger. Team-reviewable, executable without guessing
 
 ## Test Plan Format
@@ -413,5 +339,5 @@ Before creating ANY output file:
 6. Directory structure mirrors app navigation: {section}/{module}/
 
 ## Checklist
-- [ ] Explored every field + mapped disabled triggers + 15-25 TCs + test plan + selectors verified on DOM
+- [ ] Explored every field + mapped disabled triggers + all TCs needed (no artificial cap) + test plan + selectors verified on DOM
 - [ ] Queue unlocked, artifacts set, REQUIREMENTS.md NOT modified, self-audit passed (§8)

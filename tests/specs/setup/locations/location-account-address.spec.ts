@@ -8,7 +8,15 @@ import {
 } from '../../../test-data/setup/locations/location-account-address.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
+// SP5 integration test: capture wall-clock at suite start so TC-HIST can filter
+// history rows produced by this suite's saves. 2-min buffer absorbs clock skew.
+let suiteStartTime = 0;
+
 test.describe.serial('Location Account and Address @locations @account-address', () => {
+
+  test.beforeAll(() => {
+    suiteStartTime = Date.now() - 2 * 60 * 1000;
+  });
 
   test('TC-LOC-ACC-001: Navigate to Account and Address tab; two-card layout visible', async ({ locationAccountAddressPage }) => {
     test.setTimeout(60_000);
@@ -281,6 +289,63 @@ test.describe.serial('Location Account and Address @locations @account-address',
         await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
       }
     }
+  });
+
+  // ── SP5: Cross-tab history integration — MUST be LAST in describe.serial ────
+  // Verifies that completed saves during this spec produced corresponding rows
+  // on the Location Management History tab. Uses timestamp-window filtering
+  // rather than hardcoded counts (LR-022). All assertions use expect.soft().
+  //
+  // Saves tracked: TC-015 (1), TC-019 (1), TC-020 (1), TC-028 (1) = 4 guaranteed.
+  // TC-022 cancel = no row. TC-018/028 conditionals = 0-2 extra rows.
+  test('TC-LOC-ACC-HIST: All completed saves produce history rows with correct values', async ({ locationAccountAddressPage, locationManagementHistoryPage }) => {
+    test.setTimeout(180_000);
+
+    // 1. Navigate to Location Management History tab from any starting URL
+    //    (navigateToHistoryTab handles: page navigation if needed, unsaved dialog dismissal per LR-026)
+    await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
+
+    // 3. Sort by Modified On descending (SP1 §11: default sort is ASCENDING)
+    await locationManagementHistoryPage.sortByModifiedOnDesc();
+    await locationManagementHistoryPage.waitForRecentTopRow();
+
+    // 4. Read all rows newer than suiteStartTime
+    const HEADERS = [
+      'Modified By', 'Modified On',
+      'Venue/Branch Account Name',
+      'Venue/Branch Account Phone1', 'Venue/Branch Account Phone2',
+    ];
+    const suiteRows = await locationManagementHistoryPage.getRowsSinceTimestamp(
+      suiteStartTime, HEADERS,
+    );
+
+    // 5. Sanity — at least some saves were tracked
+    expect.soft(suiteRows.length,
+      'expected at least 1 Location Mgmt History row produced by this suite\'s saves').toBeGreaterThan(0);
+
+    // 6. Every suite row must carry Modified By and Modified On
+    for (let i = 0; i < suiteRows.length; i++) {
+      const row = suiteRows[i]!;
+      expect.soft(row['Modified By'], `row ${i}: Modified By empty`).toBeTruthy();
+      expect.soft(row['Modified On'], `row ${i}: Modified On empty`).toBeTruthy();
+    }
+
+    // 7. Gap detection — Phone2 toggled between value and empty across saves
+    const expectedChanges: Array<{ field: string; values: string[]; sourceTc: string }> = [
+      { field: 'Venue/Branch Account Phone2', values: [TEST_PHONE2_VALUE, ''], sourceTc: 'TC-019/020 Phone2 set + clear' },
+      { field: 'Venue/Branch Account Name', values: [VENUE_NAME], sourceTc: 'TC-028 account re-selection' },
+    ];
+
+    for (const { field, values, sourceTc } of expectedChanges) {
+      const observed = Array.from(new Set(suiteRows.map(r => r[field] ?? '')));
+      const found = values.some(v => observed.includes(v));
+      expect.soft(found,
+        `GAP [${sourceTc}]: ${field} — expected one of [${values.join('|')}] in history, observed [${observed.join('|')}]`
+      ).toBe(true);
+    }
+
+    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
+    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

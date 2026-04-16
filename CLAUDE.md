@@ -536,3 +536,50 @@ Any manual edits will be overwritten. To update the index:
 3. Run `npm run plans:reindex` (or install the pre-commit hook: `npm run plans:hooks:install`)
 CI/agents can gate on staleness with `npm run plans:reindex:check`.
 **Trigger**: Any work that adds, completes, or reorganizes plan files.
+
+### LR-036: Boolean render format differs per page — MCP-verify detection per table
+Tables/grids/lists in the same Angular app can render boolean values with DIFFERENT HTML.
+A helper that works on one table will silently return wrong values on another:
+- **Unicode checkmark "✔"**: readable via `textContent` — used by Location Management History
+  (col 3 Active, col 12 Corporate Pricing, etc.) and similar legacy tables
+- **SVG icon `<svg class="lucide lucide-check">`**: `textContent` returns EMPTY for BOTH TRUE and
+  FALSE cells — used by Local Office Settings History and other newer shadcn/lucide-based tables
+- **Empty cell**: represents FALSE in both cases
+
+Detection patterns:
+- Unicode tables: `cell.textContent?.includes('✔')` → TRUE
+- SVG tables (TRUE): `(await cell.innerHTML()).includes('lucide-check')` → TRUE
+- SVG tables (FALSE): `(await cell.innerHTML()).trim() === ''` → FALSE
+
+NEVER assume two tables in the same app use the same render format. MCP-verify per table before
+writing any `getColumnValue`, `getCheckboxState`, or helper that reads boolean-valued cells.
+`getColumnByHeader()` for boolean columns MUST branch on table type — `textContent` returns empty
+for both states on SVG tables, producing silently wrong assertions.
+**Trigger**: Any page object or spec that reads boolean values from a table, grid, or list cell.
+**Graduated from**: SP1 MCP discovery 2026-04-13 (SUBPLAN_HISTORY_01_MCP_FINDINGS §2) — Location
+Management History uses Unicode ✔, Local Office History uses SVG lucide-check. Original plan
+assumed same format for both; any `textContent`-based detection helper would have silently
+returned empty for every SVG row → every boolean assertion false regardless of actual state.
+
+### LR-037: Activity log timestamps must be ≥ referenced file mtimes — no backdating
+Every row appended to `specs_planning/_internal/agent-activity-log.md` must have a `When`
+timestamp that is at or after the latest mtime (and git commit time, if tracked) of every
+file listed in the `Files` column. Backdating a row — writing 09:00 at 14:32 for files
+created at 14:32 — poisons every downstream gate that anchors on activity-log timestamps
+(AUD-008 temporal anchoring, audit chain-of-custody).
+
+Validation:
+- `npm run validate:activity-log` — full report (noisy for historical rows; shared files
+  like CLAUDE.md get legitimately touched later and appear as false positives)
+- `npm run validate:activity-log:preflight` — `--latest-per-file --recent=5`, scoped to
+  current-session additions; fails hard if the most recent rows are backdated
+- Runs automatically as part of `npm run pipeline:preflight`
+- Flags: `--recent=N` (last N rows), `--latest-per-file` (per-file scoping),
+  `--baseline=YYYY-MM-DD`, `--json`
+
+Tolerance: 1 minute. When appending a row, use the current wall clock at the moment of
+the append, not the time work "started". If work was started earlier, say so in the notes.
+**Trigger**: Any agent appending to agent-activity-log.md. Preflight enforces automatically.
+**Graduated from**: Audit 2026-04-15 (expressive-booping-fountain F-003) — Copilot wrote
+an SP3 row claiming 2026-04-14T09:00 while the referenced files have mtimes 14:32-20:47
+(6-12 hour backdating). Baseline scan found 49 historical violations; new rows must validate clean.

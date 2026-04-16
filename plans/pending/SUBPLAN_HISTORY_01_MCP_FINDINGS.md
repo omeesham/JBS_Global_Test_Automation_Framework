@@ -409,11 +409,98 @@ Office 1604 history is ALWAYS populated (61+ pages for Local Office, 146+ for Lo
 
 ### Sort Click Behavior
 
-Sort button click was **NOT tested** during MCP discovery. Default sort appears to be Modified On descending (most recent row first — confirmed by timestamp ordering in causality tests). The `sortByModifiedOnDesc()` method should:
-1. Check current sort state (aria-sort attribute) before clicking
-2. If already desc → no-op
-3. If asc → click once to reverse
-4. If unsorted → click once (first click typically sorts ascending, second click descends — verify on implementation)
+[MCP-VERIFIED: 2026-04-15 10:58–11:02 UTC] Sort is triggered via a **Radix dropdown menu**,
+NOT a click-toggle. The `<th>`'s nested button is a
+`data-slot="dropdown-menu-trigger"` with `aria-haspopup="menu"` — it **opens a menu**
+rather than toggling sort direction. The headers carry **no sort-state attribute**, so any
+"read current direction, reverse it" design is unimplementable. The canonical flow below
+is derived from live-DOM verification on Office 1604 and matches the already-working
+implementation in
+[location-management-history.page.ts:172](src/pages/setup/locations/location-management-history.page.ts:172)
+(`clickSortColumn`) and
+[local-office-settings.page.ts:573](src/pages/setup/local-office/local-office-settings.page.ts:573)
+(`sortHistoryByModifiedOnDesc`).
+
+**Header DOM structure (sortable columns — both history systems identical):**
+```
+<th data-slot="table-head" class="..." style="width:Npx">
+  <div class="flex items-center space-x-2">
+    <button data-slot="dropdown-menu-trigger"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            data-state="closed"
+            id="radix-«...»">
+      <!-- header text -->
+      <svg class="lucide lucide-arrow-down size-4 shrink-0">...</svg>
+    </button>
+    ...
+  </div>
+</th>
+```
+- No native sort-state attribute on the `<th>` — there is nothing on the element that
+  reflects current sort direction. Do not probe for one. Drive sort only via menu clicks.
+- `lucide-arrow-down` SVG: static menu-trigger icon, **not** a sort-direction indicator.
+- `data-state` on button: `"closed"` → `"open"` when menu is showing (useful for waiting).
+
+**Radix dropdown menu (opens in document portal after click):**
+```
+<div role="menu"
+     data-slot="dropdown-menu-content"
+     data-state="open"
+     data-orientation="vertical"
+     data-side="bottom"
+     aria-labelledby="radix-«...»">
+  <div role="menuitem" data-slot="dropdown-menu-item">Sort ascending</div>
+  <div role="menuitem" data-slot="dropdown-menu-item">Sort descending</div>
+</div>
+```
+- Menu items: **exactly 2**, literal labels `"Sort ascending"` and `"Sort descending"`.
+- **No** `"Clear sort"` / `"Unsorted"` / `"Hide column"` / `"Reset"` option — verified both
+  pre-sort and post-sort. Item count stays at 2 after any sort action.
+- No `data-testid` on menu items — select by role + name.
+- Menu auto-closes after click; wait for `[role="menu"]` hidden before reading rows.
+
+**Canonical sort flow (for any sortable column on either history table):**
+1. Locate the column's header button:
+   `const btn = table.locator('th').nth(colIndex).locator('button[data-slot="dropdown-menu-trigger"]')`
+2. Click the button and wait for the Radix portal menu to appear:
+   `await btn.click(); await page.locator('[role="menu"]').first().waitFor({ state: 'visible', timeout: 5_000 });`
+3. Click the desired direction (exact label required):
+   `await page.getByRole('menuitem', { name: 'Sort descending' }).click();`
+   (or `'Sort ascending'` — no other options exist)
+4. Wait for menu to close and Angular to settle:
+   `await page.locator('[role="menu"]').first().waitFor({ state: 'hidden', timeout: 5_000 });`
+   `await waitForAngularStable();`
+5. Table is now re-sorted in place. No reload, no URL change.
+
+**Default sort direction — DO NOT rely on it.** Observed defaults differ per page and may
+reflect session persistence:
+- Location Management History: initial state observed as **ascending** (rows 1–3 Modified On
+  = `03/10/2026 04:40:30 PM → 04:40:34 PM → 04:40:38 PM`).
+- Local Office Settings History: initial state observed as **descending** (rows 1–3 Modified On
+  = `04/15/2026 08:43:18 AM → 08:43:14 AM → 08:42:45 AM`).
+
+Integration tests that need a known order MUST click `"Sort descending"` explicitly rather
+than assume current ordering. Idempotent re-click is safe — clicking `"Sort descending"`
+when already descending keeps rows in place.
+
+**Sortability detection (for BUILDER's `isSortButtonPresent()` / `clickSortColumn()` guard):**
+- **Sortable** `<th>`: contains `button[data-slot="dropdown-menu-trigger"]`.
+- **Non-sortable** `<th>`: contains `<div class="">HEADER TEXT</div>` directly — no button.
+- Local Office Settings History: **38 of 42 sortable**. Non-sortable columns (by index):
+  0 `Local Office`, 15 `Section Name`, 20 `Service Type - Exempt`, 23 `Notes`.
+- Location Management History: **14 of 87 sortable** (per SP1 §2; structural pattern
+  matches — button-presence check is the authoritative signal).
+- BUILDER's sort helpers must throw (or no-op with a clear log) when called on a
+  non-sortable column rather than silently clicking a non-button element.
+
+**Structural note — table testid wraps differently on each page:**
+- `[data-testid="location-settings-table-management-history"]` is a `<div>` wrapper;
+  traverse to `table th` inside.
+- `[data-testid="local-office-settings-history-table"]` **is itself the `<table>`**;
+  traverse to `th` directly (no intermediate `table` selector).
+  Page objects already encode this asymmetry — BUILDER should not add a generic
+  `.locator('table th')` traversal without checking the target page.
 
 ### No Async Write Delay Observed
 

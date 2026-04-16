@@ -51,13 +51,11 @@ const STALE_REFERENCE_DENY_LIST: StaleRefEntry[] = [
   { pattern: /\bR29\b/, replacement: 'ALL-003/ALL-004 (learning yield)', since: '2026-03-03' },
   { pattern: /\bR30\b/, replacement: 'S13 Pre-Flight Competency Gate', since: '2026-03-03' },
 
-  // 2026-03 consolidation: old section numbers merged into S8 Session Protocol
+  // 2026-03 consolidation: old sub-section numbers merged into S8 Session Protocol
   { pattern: /§9B\b/, replacement: 'S8 Session Protocol', since: '2026-03-03' },
   { pattern: /§9C\b/, replacement: 'S8 Session Protocol', since: '2026-03-03' },
-  { pattern: /§15\b/, replacement: 'S12 RCA Protocol', since: '2026-03-04' },
-  { pattern: /§16\b/, replacement: 'S8 Session Protocol', since: '2026-03-03' },
-  { pattern: /§17\b/, replacement: 'S8 Session Protocol', since: '2026-03-03' },
-  { pattern: /§18\b/, replacement: 'S13 Pre-Flight Gate', since: '2026-03-03' },
+  // NOTE: §15-§18 were reused for new sections after the 2026-03 consolidation.
+  // §15=Escalation Routing, §16=Autonomy, §17=Bug Hunting, §18=Module Boundary — all CURRENT.
 
   // 2026-03 consolidation: agent-learnings.md deprecated (merged into agent-mistakes.md Resolution)
   { pattern: /agent-learnings\.md/, replacement: 'agent-mistakes.md Resolution column', since: '2026-03-03' },

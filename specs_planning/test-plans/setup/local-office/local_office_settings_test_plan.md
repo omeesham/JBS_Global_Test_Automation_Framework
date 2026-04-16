@@ -383,10 +383,8 @@
 4. Expected: 42 column headers present in correct order
 
 ### TC-LOS-HIS-003
-1. On History tab, assert table body contains "No results." text
-2. Assert pagination "1 / 1"
-3. Assert all 4 nav buttons disabled (first, prev, next, last)
-4. Expected: Empty state for location 1604
+1. On History tab, assert `isHistoryTableEmpty()` returns `false`
+2. Expected: Table populated for office 1604 (SP1 MCP 2026-04-13: 61 pages of data). Rewritten 2026-04-15 — original "empty state" assertion was factually wrong.
 
 ### TC-LOS-HIS-004
 1. Click `[data-testid="local-office-settings-history-select-type"]` to open dropdown
@@ -571,7 +569,7 @@
 
 > Post-save verification: confirm BAS and ECT saves produce correct rows in Location Settings History (42-column table).
 > Data formats: SVG `lucide-check` for booleans, MM/DD/YYYY HH:MM:SS AM/PM timestamps, plain integers for date offsets.
-> Reference: SP1_MCP_FINDINGS.md sections 2-3.
+> Reference: SUBPLAN_HISTORY_01_MCP_FINDINGS.md sections 2-3.
 
 ### TC-LOS-HISL-001 (BAS saves → History)
 1. After all BAS save TCs complete, capture History tab pagination total

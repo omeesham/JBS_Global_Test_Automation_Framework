@@ -3,7 +3,7 @@ name: playwright-test-generator
 description: 'Use this agent when you need to create automated browser tests using Playwright Examples: <example>Context: User wants to generate a test for the test plan item. <test-suite><!-- Verbatim name of the test spec group w/o ordinal like "Multiplication tests" --></test-suite> <test-name><!-- Name of the test case without the ordinal like "should add two numbers" --></test-name> <test-file><!-- Name of the file to save the test into, like tests/multiplication/should-add-two-numbers.spec.ts --></test-file> <body><!-- Test case content including steps and expectations --></body></example>'
 tools:
   ['vscode', 'execute', 'read/readFile', 'agent', 'edit', 'search', 'web', 'playwright-browser/browser_click', 'playwright-browser/browser_drag', 'playwright-browser/browser_evaluate', 'playwright-browser/browser_file_upload', 'playwright-browser/browser_handle_dialog', 'playwright-browser/browser_hover', 'playwright-browser/browser_navigate', 'playwright-browser/browser_press_key', 'playwright-browser/browser_select_option', 'playwright-browser/browser_snapshot', 'playwright-browser/browser_type', 'playwright-browser/browser_wait_for', 'playwright-browser/browser_console_messages', 'playwright-browser/browser_network_requests', 'todo']
-model: Claude Sonnet 4.5
+model: Claude Sonnet 4.6
 mcp-servers:
   playwright-browser:
     type: stdio
@@ -31,15 +31,7 @@ handoffs:
 5. **NO FRAMEWORK EDITS**: Do not modify base-page.ts, src/common/*, src/utils/*, scripts/*.
 6. **FAILURE = ARTIFACTS FIRST**: When ANY test fails: STOP patching. Read `reports/failure-summary.json` + `reports/test-results/*/error-context.md`. Walk the RCA Decision Tree (§12 in AGENT_SHARED_RULES.md). Diagnose from data. MCP replication is LAST resort, not first. Never guess from error messages alone.
 7. **VERIFY PLANNER CLAIMS**: Before trusting ANY behavioral claim from Planner (default state, save behavior, validation rules), verify it on live MCP. Planner may have tested from a polluted state. File ESC-XXX if wrong. (ALL-028)
-8. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
-   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
-   - THEN call `browser_navigate` to `about:blank`
-   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
-   - THEN navigate to your target URL
-   - Wait 5 seconds for page load
-   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
-   NEVER call `browser_navigate` to the same URL as a reload — use about:blank -> target pattern.
-   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
+8. **BEFOREUNLOAD TRAP (ALL-052)**: See §12 for full protocol. Key: call `browser_handle_dialog(accept:true)` BEFORE `browser_navigate` after field edits. Use about:blank → target pattern. NEVER reload same URL.
 9. **ARTIFACTS BEFORE MCP (ALL-007/GEN-017)**: When a test fails, you MUST read `reports/failure-summary.json` and log the failureCategory, selector, and error BEFORE opening MCP browser. If you open MCP without citing artifact data first, your fix will be flagged as guess-patch-rerun.
 10. **EXACT COMBOBOX MATCH (GEN-025)**: BasePage `selectComboboxOption` uses `:has-text()` contains-match. For ambiguous options, use `getByRole('option', { name, exact: true })` in your page object. Never rely on contains-match for dropdowns with similar option names.
 
@@ -47,7 +39,7 @@ handoffs:
 
 ---
 
-> **AUTONOMY (§14)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
+> **AUTONOMY (§16)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
 ---
 
 ## Auto-Invoke Protocol (ALL-021)
@@ -61,7 +53,7 @@ handoffs:
 
 ## RULES
 
-> Shared rules ALL-001–ALL-032 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-035 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -72,7 +64,7 @@ handoffs:
 | GEN-005 | MCP browser: never open/close. Pre-flight selector validation (Phase 1) and last-resort RCA (Phase A... | — |
 | GEN-006 | No placeholder tests: no test.fixme(), no empty describes with only comments, no stubs. Omit unimple... | — |
 | GEN-007 | Targeted test runs: `--grep "TC-ID"` for single TC during fix loop. Full spec ONLY for final validat... | — |
-| GEN-008 | Angular form model: always el.press('Tab') after el.fill() to trigger blur/change. Verify inputValue... Cross-field validation is ALWAYS async. After fill+Tab on any field with cross-field validators (e.g., NM-1264 Delivery >= Prep), use `expect.poll(() => isFieldInvalid(key))` or the `expectInvalid()`/`expectValid()` polling helpers from the page object. NEVER use immediate `isFieldInvalid()` for fields that have dependencies on other fields. | LRN-013: fill() alone doesn't fire Angular change events. LRN-007: inputValue() returns "4.00%" not ... |
+| GEN-008 | Angular form model: always el.press('Tab') after el.fill() to trigger blur/change. Verify inputValue... | LRN-013: fill() alone doesn't fire Angular change events. LRN-007: inputValue() returns "4.00%" not ... |
 | GEN-009 | Boundary data verification: MCP-test each value before committing data files (type → blur → check). ... | LRN-012: Angular disables Save on boundary violation. LRN-010: Invalid test leaves dirty DB state fo... |
 | GEN-010 | Process cleanup: kill ONLY stale Playwright runners via `Get-CimInstance Win32_Process -Filter "Name... | LRN-014: Stop-Process -Name node kills MCP server |
 | GEN-011 | Escalation: AUTH/INFRASTRUCTURE → escalate immediately (don't fix). Web search unfamiliar errors. No... | — |
@@ -92,46 +84,15 @@ handoffs:
 | GEN-025 | Combobox selection: always use exact match. BasePage `selectComboboxOption` uses `:has-text()` (cont... | Legal TC-008 strict mode error: 4 elements matched "Administrative Fee" |
 | GEN-026 | Post-save state reset: reload before next test. After a save cycle, Angular dirty-state tracking doe... | Legal TC-012/013 failed: dirty state persisted from prior test's save cycle |
 | GEN-027 | Selector namespace: check shared.ts before creating new selector file. Grep for same data-testid acr... | Legal dlgSaveChanges existed in both legal.ts and shared.ts — caused collision |
-| GEN-028 | NEVER declare completion without running tests. Typecheck and --list are NOT test runs. Phase 3 (Fir... | Shared Setup Locations: generator created 4 files, marked 17 TCs Automated, said "Done" — never ran ... |
-
-### GEN-033: BUG DETECTION MANDATE
-During Phase 0.5 walkthrough, classify EVERY mismatch between TC expected values and live DOM.
-Use ALL-043 categories, then MAP to BugHuntCategory for consistent classification:
-
-| ALL-043 Category | Maps to BugHuntCategory | Action |
-|---|---|---|
-| `APP_BUG` | `UNCHANGED_FAILURE` | STOP. File bug report to `reports/bugs/BUG-{MOD}-{NNN}.json`. Check dedup via errorHash first (`src/utils/bug-hunt-classifier.ts::computeErrorHash()`). If existing bug found, UPDATE it with Generator evidence instead of creating duplicate. Mark TC as `bug-blocked`. Do NOT generate spec for bug-blocked TC. |
-| `PLANNER_GAP` | _(not a bug — escalation)_ | File ESC-GEN to `agent-escalations.json` targeting Planner with evidence. Continue with corrected values but flag in WALKTHROUGH_LOG. |
-| `TC_CORRECTION` | _(not a bug — inline fix)_ | Fix inline in spec, document correction in WALKTHROUGH_LOG. |
-| `SEQUENCE_SIDE_EFFECT` | _(not a bug — spec fix)_ | Document in WALKTHROUGH_LOG, add cleanup step to spec (e.g., navigate to fresh state after side-effect-causing action). |
-
-Bug report format MUST match Healer's `reports/bugs/` structure exactly (same BugReport interface from `src/framework-contracts/diagnostics.ts`). Include `sourceAgent: 'generator'` field.
-
-### GEN-034: TESTID VERIFICATION DURING WALKTHROUGH
-For every selector used in any TC, verify `data-testid` exists on live DOM during Phase 0.5 walkthrough:
-`browser_evaluate(() => !!document.querySelector('[data-testid="X"]'))`
-- If missing AND never in testid-inventory → classify as `TESTID_MISSING` (BugHuntCategory). File bug report.
-- If missing BUT was in testid-inventory from prior run → classify as `TESTID_MISSING` (testid disappeared). File bug report.
-- If present BUT different value from Planner's TC → classify as `TESTID_CHANGED`. Create triage item for user review (could be known change or bug).
-- On FIRST RUN (no prior testid-inventory): TESTID_CHANGED is impossible. Only PRESENT or MISSING can be detected.
-
-### GEN-035: NOTIFICATION CHECK
-At session start, read `specs_planning/_internal/agent-notifications/` directory for files containing `"toAgent": "generator"`.
-If stale_artifact notifications exist from Healer or other agents:
-1. Read the `affectedFiles` and `changeSummary` from each notification
-2. Prioritize updating the affected specs/artifacts FIRST before processing new work
-3. If notification says "Button label changed Save→Submit on /settings page" → update TC expected values in the spec accordingly
-4. Acknowledge each notification after updating (delete the notification file)
-
-### GEN-036: Recovery value must differ from server-saved default
-When testing error recovery (invalid->valid), use a value DIFFERENT from the original. Restoring to original triggers Angular 'no net change' -> Save stays disabled. Example: Delivery default=0, invalid=-5, recovery=**-1** (NOT 0).
-
-### GEN-037: Reload after non-numeric input corruption
-After typing invalid/non-numeric values (e.g. 'abc' into a numeric field), cleanup MUST include `reloadBasicInfo()` or full page reload. Angular model corruption from NaN is invisible — typing a valid value back does NOT reliably fix the internal model. A reload is the ONLY safe cleanup.
-
-### GEN-038: Test data in data files, not specs
-When creating test data, add file-level traceability header listing consumed specs. Shared constants (dialog text, office number) go in `common.data.ts`. Feature-specific data goes in the feature's `.data.ts` file. Never put helper functions in data files. See ALL-065.
-
+| GEN-028 | Accessibility tree element types do NOT match actual HTML tags. NEVER derive CSS selectors from acce... | LOS 2026-03-24: assumed `img` from accessibility tree, actual DOM had `<svg>`. Wrote wrong selector,... |
+| GEN-029 | When changing selectors to role-based (`[role="row"]`, `[role="cell"]`), MUST verify actual HTML fir... | LOS 2026-03-24: changed `tbody tr` to `[role="row"]` without verification. Table was native HTML. Co... |
+| GEN-030 | RCA-FIRST: complete IS/IS-NOT analysis (Kepner-Tregoe) before ANY fix attempt. When fix fails, do NO... | LOS 2026-03-24 ECT-009: 4 fix attempts (guarded save, waitForTimeout, reload ECT-006, reload ECT-007... |
+| GEN-031 | Pipeline gate proposals: NEVER propose HALT on first run for gates that validate artifacts the agent... | LOS 2026-03-24: proposed PF-G5 HALT on first run. Audit caught deadlock: pre-run halts → agent never... |
+| GEN-034 | NEVER declare completion without running tests. Typecheck and --list are NOT test runs. Phase 3 (Fir... | Shared Setup Locations: generator created 4 files, marked 17 TCs Automated, said "Done" — never ran ... |
+| GEN-032 | Radix UI Select with 50+ options: wrap open+click in retry loop (max 3). On option click failure (de... | 2026-04-02: Legal spec LGL-010/013 intermittent — "Administrative Fee" option found but "not stable"... |
+| GEN-033 | Angular save button disabled ≠ form pristine. After ECT save, button disables (save API done) but An... | 2026-04-02: ECT-012 "no unsaved dialog after save" — first fix (waitForSaveDisabled) didn't help bec... |
+| GEN-035 | MCP evaluate-based button clicks DO NOT reliably trigger Angular/React save API calls. `button.click... | 2026-04-07: MCP-3 delete+save of location 1099 used evaluate-based OK click. Dialog closed (apparent... |
+| GEN-042 | Duplicate column headers require index-based or adjacent-context access. Before writing any `getColu... | SP1 MCP discovery 2026-04-13 (SUBPLAN_HISTORY_01_MCP_FINDINGS §1 + §11): Location Management History... |
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
@@ -159,7 +120,8 @@ When in doubt about any convention, do what this spec does.
 <!-- SYNC:CONTEXT_LOAD:START -->
 1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
 <!-- SYNC:CONTEXT_LOAD:END -->
-1b. **Pre-Flight (§13)**: Run `npm run generator:pre-run <queue-item-id>` — validates PF-01..06 + PF-G1..G4 programmatically. If HALT → fix environment first.
+1b. **Pre-Flight (§13)**: Run `npm run generator:pre-run <queue-item-id>` — validates PF-01..05 + PF-G1..G4 programmatically. If HALT → fix environment first.
+1c. **Module Mistake Lookup (ALL-072)**: Search `agent-mistakes.md` for ALL rule prefixes matching this module. Read PLN-*, HLR-*, MNT-* resolutions for the same module — learn from upstream/downstream failures before repeating them.
 2. Log activity start
 3. **Find work**: `stage === "pending_generation" && lockedBy === null`
 4. Check `injectedContext` for NEVER DO rules, reminders, defects
@@ -308,22 +270,14 @@ When ANY test fails during Phase 3/4 execution:
 **NEVER**: Apply a fix based solely on error message text. **NEVER**: Retry the same approach hoping for different results. Session 2026-03-24: 4 fix attempts on ECT-009 without completing RCA = wasted 30+ minutes. IS/IS-NOT analysis would have identified the cause in 5 minutes.
 
 ### Phase A — Artifact-First RCA (on ANY test failure — GEN-017)
+Follow §12 RCA Protocol Steps 1-7 exactly. Cite evidence at each step. Steps 1-5 (artifacts) resolve 80%+ of failures in 30 seconds. MCP replication (Step 6) is LAST RESORT only.
 
-| Step | Action | Source |
-|------|--------|--------|
-| 1 | Read failure-summary.json (MANDATORY FIRST) | `reports/failure-summary.json` — failureCategory, selector, pageUrl, consoleErrors, networkFailures |
-| 2 | Read error-context.md for failing test | `reports/test-results/{test-dir}/error-context.md` — structured DOM analysis at failure (page state, blocking elements, selector checks, invalid fields) |
-| 3 | Check screenshot | `reports/test-results/{test-dir}/test-failed-1.png` — visual state at failure |
-| 4 | Identify failing line | fullError → exact file + line number, spec test step, page object method called |
-| 5 | Form hypothesis | Evidence from Steps 1-4: "The failure is [CATEGORY] because [evidence]". Cite file names + line numbers |
-| 6 | MCP replication (ONLY if Steps 1-5 don't give root cause) | Navigate to pageUrl, execute same spec steps, verify selector/element/overlay |
-| 7 | Fix with evidence | State root cause citing step evidence. Fix. Run `--grep "TC-ID"` only (GEN-018) |
-
-**NEVER**: Skip to MCP without reading artifacts (Steps 1-5) | Run full spec during debug | Declare fix without evidence from above steps | Go in circles retrying without understanding root cause
+**NEVER**: Skip to MCP without reading artifacts (Steps 1-5) | Run full spec during debug | Declare fix without evidence | Retry without understanding root cause
 
 ### Phase 4 — Completion (continued)
 
 11. **Self-Audit + Learning Yield Check (§8)**: Execute §8 Self-Audit Protocol. Then: count retries this session, count learning entries (GEN-*) with Resolution in agent-mistakes.md. If retries > 0 AND learnings = 0 → STOP, retrospectively log learnings for each retry. Gate 19 blocks post-complete if you don't. If wrote to `agent-mistakes.md` → run `npm run sync:mistakes && npm run build:context && npm run validate:sync`.
+11b. **Spec-Markdown TC Parity (ALL-071)**: Run `npm run check:tc-parity`. If ANY TCs exist in specs but not in markdown → ADD them to markdown NOW. Run `npm run check:tc-parity:fix` to reconcile CSVs. This is NOT optional — drift means client CSVs are incomplete.
 12. **Update**: Pass → `completed`. Fail → `fixme` (generator must make tests pass in its own loop). **Repeat** for all pending.
 
 ---
@@ -359,18 +313,7 @@ When ANY test fails during Phase 3/4 execution:
 
 ## Failure RCA Protocol (MANDATORY when ANY test fails in Phase 3/4)
 
-**NEVER patch code based on error messages alone. ALWAYS use artifacts first.**
-
-| Step | Action | Time |
-|------|--------|------|
-| 1. READ | `reports/failure-summary.json` — extract: error, failureCategory, lastActions, selector, consoleErrors, networkFailures, domSnippet. Also read `reports/test-results/*/error-context.md`. | 30s |
-| 2. CLASSIFY | Match error to §12 decision tree (ALL-045 in AGENT_SHARED_RULES.md): TimeoutError → Timeout tree. expect().toBe() → Assertion tree. dialog.accept → Dialog tree. net::ERR/4xx/5xx → Network tree. | 10s |
-| 3. TREE WALK | Walk the decision tree using artifact data at each node. Do NOT open MCP yet. At each node, cite the artifact field that answers the question. | 1-2m |
-| 4. DIAGNOSE | State root cause with evidence: `RCA \| TC-XXX \| category \| evidence: {artifact}.{field}={value} \| root cause: {explanation}` | 30s |
-| 5. FIX | Apply fix. Re-run ONLY the failing TC: `--grep "TC-XXX"`. | varies |
-| 6. MCP | ONLY if Step 3 was inconclusive. Replicate exact steps from lastActions on live MCP. | 3-5m |
-
-Steps 1-4 resolve 80%+ of failures WITHOUT MCP. Artifacts = 30 seconds. MCP = 3-5 minutes.
+**NEVER patch code based on error messages alone.** Follow §12 RCA Protocol: READ artifacts → CLASSIFY via decision tree (ALL-045) → TREE WALK with evidence → DIAGNOSE → FIX → MCP only if needed. Steps 1-4 resolve 80%+ WITHOUT MCP (30s vs 3-5m).
 
 ---
 
@@ -392,7 +335,7 @@ Before declaring done, verify your code against MNT rules:
 |------|------------|
 | `tests/specs/**/*.spec.ts` | CREATE |
 | `src/pages/**/*.page.ts`, `src/selectors/index.ts` | ADD methods/properties |
-| `specs_planning/test-cases/**` | UPDATE status |
+| `specs_planning/test-cases/**` | UPDATE (sync with spec TCs per ALL-071) |
 | `specs_planning/_internal/agent-mistakes.md` | APPEND (GEN- prefix) |
 | `specs_planning/_internal/agent-queue.json` | READ-WRITE |
 | `docs/REQUIREMENTS.md` | READ-ONLY |

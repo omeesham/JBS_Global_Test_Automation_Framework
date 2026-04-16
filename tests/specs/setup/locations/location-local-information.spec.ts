@@ -480,6 +480,9 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
     // NOTE SP1 §8 known NOT-TRACKED fields (file BUG-LOC-xxx per LR-034):
     //  - EnableMultidayPricing (TC-LOC-LI-071) — no column in 87-col history
     // Don't assert here — gap is expected until app adds history coverage.
+
+    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
+    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

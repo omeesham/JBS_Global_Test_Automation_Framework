@@ -384,21 +384,29 @@
 
 # Integration: History Verification Test Cases
 
-## TC-LOC-HIST-005: Account & Address Saves — Location Management History Row Verification
+## TC-LOC-ACC-HIST: Account & Address Saves — Location Management History Row Verification
 
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Integration | Yes |
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Integration | Yes | tests/specs/setup/locations/location-account-address.spec.ts:301 |
 
 **Completed saves to verify**: TC-LOC-ACC-019/020 (Phone2 persistence)
 
 **Steps**:
 1. After ACC save TCs complete, navigate to Location Management History tab -> Tab loads
-2. Verify new rows exist: row count increased -> Count increased
-3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
-4. Verify col 57 Venue/Branch Account Phone2 matches last saved value -> Value matches
-5. Verify col 55 Venue/Branch Account Name is populated -> Account name present
+2. Sort by Modified On descending (default is ascending) -> Rows newest-first
+3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer) -> Suite rows isolated
+4. Verify at least 1 suite row present -> Count > 0
+5. Verify every suite row has Modified By and Modified On non-empty -> User + timestamp present per row
+6. Gap-check: verify Venue/Branch Account Phone2 column contains expected state changes from save TCs (TC-019/020) -> Tracked field reflected
+7. Gap-check: verify Venue/Branch Account Name column is populated -> Account name present in history
 
-**Expected**: Account & Address saves produced history rows. Phone2 value reflected in col 57.
-**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Expected**: Account & Address saves produced history rows (snapshot model). Modified By and Modified On populated per row. Phone2 (col 57) and Account Name (col 55) reflect saved values. Soft assertions collect all mismatches.
+**Data**: location=1604 | Formats per SUBPLAN_HISTORY_01_MCP_FINDINGS.md section 1
 **Automatable**: Yes
+
+**MCP_VERIFICATION_LOG**:
+- Expected: 1 save = 1 new row (snapshot model); col 57 "Venue/Branch Account Phone2" matches saved value; col 55 "Venue/Branch Account Name" populated
+- Source: SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 lines 17-107 (col 55 "Venue/Branch Account Name" and col 57 "Venue/Branch Account Phone2" both present in 87-col header list), §3 lines 259-263 (LOC snapshot model — extrapolated to Account saves)
+- Session: 2026-04-13 14:42–15:04 UTC (Office 1604)
+- Verified: ✅ (causality extrapolated from §3 LOC snapshot; Account/Address saves not causally tested by SP1)

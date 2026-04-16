@@ -64,9 +64,25 @@ const AGENT_COMPACT_FORMAT: { [key: string]: boolean } = {
   'playwright-test-planner.agent.md': true,
 };
 
-function generateNeverDoSection(rules: MistakeRule[], condensed: boolean, compact: boolean, sharedCount: number): string {
+/** Compute the highest ALL-NNN ID across agent-mistakes.md shared rules AND AGENT_SHARED_RULES.md. */
+function computeHighestAllId(sharedRules: MistakeRule[]): string {
+  let maxNum = 0;
+  for (const rule of sharedRules) {
+    const m = rule.id.match(/^ALL-(\d{3})$/);
+    if (m) maxNum = Math.max(maxNum, parseInt(m[1]!, 10));
+  }
+  if (fs.existsSync(SHARED_RULES)) {
+    const content = fs.readFileSync(SHARED_RULES, 'utf-8');
+    for (const m of content.matchAll(/\bALL-(\d{3})\b/g)) {
+      maxNum = Math.max(maxNum, parseInt(m[1]!, 10));
+    }
+  }
+  return maxNum > 0 ? `ALL-${String(maxNum).padStart(3, '0')}` : 'ALL-012';
+}
+
+function generateNeverDoSection(rules: MistakeRule[], condensed: boolean, compact: boolean, sharedRules: MistakeRule[]): string {
   let output = '## RULES\n\n';
-  const lastAllId = sharedCount > 0 ? `ALL-${String(sharedCount).padStart(3, '0')}` : 'ALL-012';
+  const lastAllId = computeHighestAllId(sharedRules);
   output += `> Shared rules ALL-001\u2013${lastAllId} apply (see AGENT_SHARED_RULES.md)\n\n`;
 
   if (compact) {
@@ -295,16 +311,16 @@ function syncAllMarkers(dryRun: boolean): string[] {
   ];
 }
 
-function syncAgent(agentFile: string, rules: MistakeRule[], dryRun: boolean, sharedCount: number): string {
+function syncAgent(agentFile: string, rules: MistakeRule[], dryRun: boolean, sharedRules: MistakeRule[]): string {
   const filePath = path.join(AGENTS_DIR, agentFile);
-  
+
   if (!fs.existsSync(filePath)) {
     return `[WARN] ${agentFile}: File not found`;
   }
-  
+
   const condensed = AGENT_CONDENSED[agentFile] || false;
   const compact = AGENT_COMPACT_FORMAT[agentFile] || false;
-  const newSection = generateNeverDoSection(rules, condensed, compact, sharedCount);
+  const newSection = generateNeverDoSection(rules, condensed, compact, sharedRules);
   const { changed, diff } = injectIntoAgentFile(filePath, newSection);
   
   if (changed && !dryRun) {
@@ -354,7 +370,7 @@ function main() {
       continue;
     }
     
-    results.push(syncAgent(agentFile, agentRules, dryRun, sharedRules.length));
+    results.push(syncAgent(agentFile, agentRules, dryRun, sharedRules));
   }
   
   for (const result of results) {

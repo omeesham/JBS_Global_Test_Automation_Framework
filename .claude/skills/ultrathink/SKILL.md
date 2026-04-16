@@ -61,8 +61,10 @@ Each item MUST produce at least 1 concrete finding OR explicitly argue why the p
 ## Step 4: Delegate to /execute (if applicable)
 
 Invoke `/execute` normally. It runs its own post-execution audit (Phase 3 of /execute).
-After /execute completes, verify its Phase 3 actually ran.
-Mark `GATE: Post-execution audit` as completed.
+After /execute completes, verify its Phase 3 actually ran AND produced deliverable-level evidence:
+- Every plan deliverable must appear in the execution summary as DONE, SKIPPED (with user approval), or MODIFIED (with justification)
+- If any deliverable was self-justified as skipped without user approval → HALT and flag it
+Mark `GATE: Post-execution audit` as completed only when all deliverables are accounted for.
 
 ## Step 5: Gate Verification
 

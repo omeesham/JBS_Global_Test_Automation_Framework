@@ -943,6 +943,149 @@ Navigator is open. User has access to international offices (Canada, Mexico, or 
 
 ---
 
+## TC-LOC-LI-067: Checkbox Labels Display Correct Visible Text
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| Medium | Automated | UI Validation | Yes | tests/specs/setup/locations/location-local-information.spec.ts:338 |
+
+**Steps**: 1. For each checkbox on Local Information tab, read the visible label text -> Labels collected 2. Compare each label against expected text from CHECKBOX_LABEL_CASES test data -> All labels validated 3. Collect all mismatches and assert zero failures -> Pass/fail in one assertion
+**Expected**: All checkbox fields display their correct, human-readable labels matching the requirements specification.
+**Data**: CHECKBOX_LABEL_CASES array (key → expected label pairs)
+**Automatable**: Yes
+**Notes**: Bulk validation test — tests all checkbox labels in one pass. Added per requirements update.
+
+---
+
+## TC-LOC-LI-068: Oracle Product Accepts Special Characters; Value Persists
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Field Persistence | Yes | tests/specs/setup/locations/location-local-information.spec.ts:351 |
+
+**Steps**: 1. Read current Oracle Product value -> Original saved 2. Enter special characters test value into Oracle Product field -> Value set 3. Click Save -> Save completes 4. Reload page and navigate back to Local Info tab -> Page reloads 5. Verify Oracle Product contains the special characters value -> Persisted 6. Restore original value and Save -> Baseline restored
+**Expected**: Oracle Product text field accepts and persists special characters after save+reload cycle. Original value restored at cleanup.
+**Data**: `txtOracleProduct` | `specialChars` test value | `office=1604`
+**Automatable**: Yes
+**Notes**: Cat-B resolved 2026-03-31 — server now accepts persistent changes for office 1604.
+
+---
+
+## TC-LOC-LI-069: Oracle Department Alphanumeric Value Persists After Save
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Field Persistence | Yes | tests/specs/setup/locations/location-local-information.spec.ts:364 |
+
+**Steps**: 1. Read current Oracle Department value -> Original saved 2. Enter alphanumeric test value into Oracle Department field -> Value set 3. Click Save -> Save completes 4. Reload page and navigate back to Local Info tab -> Page reloads 5. Verify Oracle Department contains the test value -> Persisted 6. Restore original value and Save -> Baseline restored
+**Expected**: Oracle Department text field accepts and persists alphanumeric values after save+reload cycle. Original value restored at cleanup.
+**Data**: `txtOracleDepartment` | `oracleDeptTest` value | `office=1604`
+**Automatable**: Yes
+**Notes**: Cat-B resolved 2026-03-31 — server now accepts persistent changes for office 1604.
+
+---
+
+## TC-LOC-LI-SKIP-BILLING: Skip Billing Toggle Persists After Save+Reload
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Field Persistence | Yes | tests/specs/setup/locations/location-local-information.spec.ts:377 |
+
+**Steps**: 1. Wait for Angular form hydration on Skip Billing checkbox -> Form ready 2. Read initial checked/unchecked state of Skip Billing -> Initial state recorded 3. Toggle Skip Billing to opposite state -> Toggled 4. Click Save -> Save completes 5. Reload page and navigate back to Local Info tab -> Page reloads 6. Verify Skip Billing is in the toggled state -> Persisted after save+reload 7. Restore original state and Save -> Baseline restored (always-restore in finally block)
+**Expected**: Skip Billing checkbox toggle persists after save+reload cycle. Original state always restored regardless of test outcome. Skip Billing does NOT disable Oracle Product — it is a billing flag only.
+**Data**: `chkSkipBilling` | `office=1604`
+**Automatable**: Yes
+**Notes**: MCP-verified 2026-04-01 — Skip Billing does NOT disable Oracle Product (checkbox is billing flag only). Rewritten from original spec to test actual toggle+persist behavior.
+
+---
+
+## TC-LOC-LI-071: Enable Multiday Pricing — Toggle and Persist After Save+Reload
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Field State | Yes | tests/specs/setup/locations/location-local-information.spec.ts:172 |
+
+**Steps**: 1. Check **Enable Multiday Pricing** checkbox (default: unchecked) -> Save button enables 2. Click Save -> Save completes 3. Reload page and navigate back to Local Info tab -> Page reloads 4. Verify **Enable Multiday Pricing** is checked -> Persisted after save+reload 5. Uncheck **Enable Multiday Pricing** to restore baseline -> Unchecked 6. Click Save -> Baseline restored
+**Expected**: Enable Multiday Pricing checkbox toggles ON, persists after save+reload, and can be restored to baseline.
+**Data**: `chkEnableMultidayPricing=unchecked default` | `office=1604`
+**Automatable**: Yes
+**Notes**: Added per requirements update (Jira). MCP-verified 2026-04-10.
+
+---
+
+## TC-LOC-LI-072: Enable IDC Billing — Persist After Save+Reload
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Field State | Yes | tests/specs/setup/locations/location-local-information.spec.ts:233 |
+
+**Steps**: 1. Check **Enable IDC Billing** checkbox -> Checked 2. Click Save -> Save completes 3. Reload page and navigate back to Local Info tab -> Page reloads 4. Verify **Enable IDC Billing** is checked -> Persisted after save+reload 5. Uncheck **Enable IDC Billing** to restore baseline -> Unchecked 6. Click Save -> Baseline restored
+**Expected**: Enable IDC Billing checkbox persists as checked after save+reload cycle.
+**Data**: `chkEnableIDCBilling` | `office=1604`
+**Automatable**: Yes
+**Notes**: Added per requirements update (Jira). MCP-verified 2026-04-10.
+
+---
+
+## TC-LOC-LI-073: DisplayTax Auto-Sets True When CompanyRemitTax Re-Checked
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Dependency | Yes | tests/specs/setup/locations/location-local-information.spec.ts:187 |
+
+**Steps**: 1. Uncheck **Company Remit Tax** -> **Display Tax** becomes enabled (editable) 2. Uncheck **Display Tax** -> Unchecked 3. Re-check **Company Remit Tax** -> **Display Tax** auto-sets to checked AND becomes disabled 4. Click Save -> Cascade behavior persisted
+**Expected**: Unchecking Company Remit Tax releases Display Tax for editing. Re-checking Company Remit Tax auto-sets Display Tax to true and disables it (cascade dependency).
+**Data**: `chkCompanyRemitTax` | `chkDisplayTax` | `cascade=true`
+**Automatable**: Yes
+**Notes**: Cascade dependency. MCP ref: MCP-09 2026-04-10.
+
+---
+
+## TC-LOC-LI-074: Threshold Decision Table — All 4 Combos + Reset-to-0 on Disable
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Decision Table | Yes | tests/specs/setup/locations/location-local-information.spec.ts:127 |
+
+**Steps**: 1. **Combo A** (DPCD=on, PFA=off — baseline): Verify Threshold is disabled 2. **Combo B** (DPCD=on, PFA=on): Check Prompt For Approval -> Threshold stays disabled 3. **Combo D** (DPCD=off, PFA=on): Uncheck Allow DPCD -> Threshold becomes enabled 4. **Combo C** (DPCD=off, PFA=off): Uncheck Prompt For Approval -> Threshold disabled again 5. Return to Combo D: Re-check Prompt For Approval -> Threshold enabled 6. Set Threshold to 50.00 7. Re-check Allow DPCD (-> Combo B) -> Threshold disabled AND value resets to 0 8. Restore baseline (Combo A) and Save
+**Expected**: Threshold is ONLY enabled when Allow DPCD=false AND Prompt For Approval=true (Combo D). All other 3 combos disable it. When Threshold becomes disabled, its value resets to 0.
+**Data**: `chkAllowDPCD` | `chkPromptForApproval` | `spinThreshold` | `4-combo decision table`
+**Automatable**: Yes
+**Notes**: Dual dependency. Added per requirements update (Jira). Discovery #1 from exploration.
+
+---
+
+## TC-LOC-LI-075: C&C Percentage Resets to 0 When Apply C&C Fee Unchecked
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Dependency | Yes | tests/specs/setup/locations/location-local-information.spec.ts:211 |
+
+**Steps**: 1. Check **Apply Cables & Consumables Fee** -> C&C Percentage spinner becomes enabled 2. Set C&C Percentage to 5.00 -> Value set 3. Uncheck **Apply Cables & Consumables Fee** -> C&C Percentage disabled AND value resets to 0 4. Click Save -> Reset state persisted
+**Expected**: Checking Apply C&C Fee enables C&C% spinner. Unchecking disables it AND resets value to 0 (not just disable).
+**Data**: `chkApplyCablesConsumablesFee` | `spinCCPercentage` | `reset-on-disable=true`
+**Automatable**: Yes
+**Notes**: MCP ref: MCP-05 2026-04-10. Confirms Discovery #6 (unchecking dependency resets values).
+
+---
+
+## TC-LOC-LI-076: Resort Tax Percentage Resets to 0 When Allow Resort Tax Unchecked
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Dependency | Yes | tests/specs/setup/locations/location-local-information.spec.ts:222 |
+
+**Steps**: 1. Check **Allow Resort Tax** -> Resort Tax Percentage spinner becomes enabled 2. Set Resort Tax Percentage to 3.00 -> Value set 3. Uncheck **Allow Resort Tax** -> Resort Tax Percentage disabled AND value resets to 0 4. Click Save -> Reset state persisted
+**Expected**: Checking Allow Resort Tax enables Resort Tax% spinner. Unchecking disables it AND resets value to 0.
+**Data**: `chkAllowResortTax` | `spinResortTaxPercentage` | `reset-on-disable=true`
+**Automatable**: Yes
+**Notes**: MCP ref: MCP-06 2026-04-10. Same reset-on-disable pattern as C&C Fee.
+
+---
+
+## TC-LOC-LI-077: ETS Percentage Enables with Non-Union Default When Allow ETS Checked; Resets to 0 on Uncheck
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Dependency | Yes | tests/specs/setup/locations/location-local-information.spec.ts:198 |
+
+**Steps**: 1. Check **Allow ETS** -> ETS Percentage spinner becomes enabled AND pre-fills with 23.00% (non-union default for office 1604) 2. Verify ETS Percentage value is 23 -> Non-union default applied 3. Uncheck **Allow ETS** -> ETS Percentage disabled AND value resets to 0 4. Click Save -> Reset state persisted
+**Expected**: Checking Allow ETS enables ETS% and pre-fills it with the union/non-union default (23% for non-union office 1604). Unchecking disables and resets to 0.
+**Data**: `chkAllowETS` | `spinETSPercentage` | `nonUnionDefault=23` | `office=1604 (non-union)`
+**Automatable**: Yes
+**Notes**: MCP ref: MCP-03 2026-04-10. Office 1604 is non-union, so default is 23%. Union offices would default to 24%.
+
+---
+
 ## Execution Notes
 
 | Metric | Value |
@@ -1000,9 +1143,9 @@ Navigator is open. User has access to international offices (Canada, Mexico, or 
 
 ## TC-LOC-LI-HIST: Local Information Saves — Location Management History Row Verification
 
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | ✅ Automated | Integration | Yes |
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Integration | Yes | tests/specs/setup/locations/location-local-information.spec.ts:419 |
 
 **Completed saves to verify**: TC-LOC-LI-025 (BillingType), TC-LOC-LI-021/029 (OracleProduct+CalcLDW), TC-LOC-LI-068 (OracleProduct special chars), TC-LOC-LI-069 (OracleDepartment), TC-LOC-LI-072 (EnableIDCBilling), TC-LOC-LI-073 (CompanyRemitTax+DisplayTax), TC-LOC-LI-075 (ApplyC&C+CCPct), TC-LOC-LI-076 (AllowResortTax+ResortTaxPct), TC-LOC-LI-077 (AllowETS+ETSPct)
 

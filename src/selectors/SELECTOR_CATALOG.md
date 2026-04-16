@@ -8,7 +8,7 @@
 2. **DRILL** into the source file (File column) for full selector string + context
 3. **NOT FOUND?** -> discover via MCP browser, add selector WITH annotation, regenerate catalog
 
-## Static Selectors (280)
+## Static Selectors (292)
 
 | Key | Type | Where | Text | Keywords | File |
 |-----|------|-------|------|----------|------|
@@ -85,6 +85,9 @@
 | txtPoNumberLabel | input | Local Office Settings > Misc | PO Number Label | po label textbox | setup/local-office/local-office-settings.ts |
 | secRoomConfig | div | Local Office Settings > Room Config | room config wrapper | room-config | setup/local-office/local-office-settings.ts |
 | tblRoomConfig | div | Local Office Settings > Room Config | room table wrapper | room-table grid | setup/local-office/local-office-settings.ts |
+| btnSaveChangesCancel | button | Local Office Settings > Save Changes Dialog | Cancel | save cancel abort dialog | setup/local-office/local-office-settings.ts |
+| btnSaveChangesConfirm | button | Local Office Settings > Save Changes Dialog | Save | save confirm submit dialog | setup/local-office/local-office-settings.ts |
+| dlgSaveChanges | alertdialog | Local Office Settings > Save Changes Dialog | Save Changes | save dialog confirm | setup/local-office/local-office-settings.ts |
 | btnDefaultSection | button | Local Office Settings > Section | Default | section reset default | setup/local-office/local-office-settings.ts |
 | chkUseSection | button[role=checkbox] | Local Office Settings > Section | Use Section | section toggle enable | setup/local-office/local-office-settings.ts |
 | secSections | div | Local Office Settings > Section | section wrapper | section-config | setup/local-office/local-office-settings.ts |
@@ -112,22 +115,22 @@
 | btnAccName | button | Setup > Location > Account and Address > Venue | Name | venue name open account-list dialog | setup/locations/account-address.ts |
 | btnAccVenueAddress | button | Setup > Location > Account and Address > Venue | Address | venue address open select-address dialog first | setup/locations/account-address.ts |
 | txtAccPhone1 | input | Setup > Location > Account and Address > Venue | Phone 1 | phone1 contact required editable | setup/locations/account-address.ts |
-| txtAccPhone2 | input | Setup > Location > Account and Address > Venue | Phone 2 | phone2 contact optional editable | setup/locations/account-address.ts |
+| txtAccPhone2 | input | Setup > Location > Account and Address > Venue | Phone 2 | phone2 contact optional editable @verified 2026-04-09 | setup/locations/account-address.ts |
 | txtAccVenueName | input | Setup > Location > Account and Address > Venue | Venue Name | venue name disabled read-only | setup/locations/account-address.ts |
-| btnAccListCancel | button | Setup > Location > Account List Dialog | Cancel | cancel close dismiss | setup/locations/account-address.ts |
+| btnAccListCancel | button | Setup > Location > Account List Dialog | Cancel | cancel close dismiss @verified 2026-04-09 | setup/locations/account-address.ts |
 | btnAccListClose | button | Setup > Location > Account List Dialog | Close | close x dismiss dialog | setup/locations/account-address.ts |
-| btnAccListReset | button | Setup > Location > Account List Dialog | Reset | reset clear filters | setup/locations/account-address.ts |
-| btnAccListSearch | button | Setup > Location > Account List Dialog | Search | search submit filter | setup/locations/account-address.ts |
+| btnAccListReset | button | Setup > Location > Account List Dialog | Reset | reset clear filters @verified 2026-04-09 | setup/locations/account-address.ts |
+| btnAccListSearch | button | Setup > Location > Account List Dialog | Search | search submit filter @verified 2026-04-09 | setup/locations/account-address.ts |
 | btnAccListSelect | button | Setup > Location > Account List Dialog | Select | select confirm row choose | setup/locations/account-address.ts |
 | chkAccListRowSelect | checkbox | Setup > Location > Account List Dialog | Row Select | row selection checkbox first | setup/locations/account-address.ts |
 | dlgAccountList | dialog | Setup > Location > Account List Dialog | Account List | account list search dialog modal | setup/locations/account-address.ts |
-| drpAccListCountry | combobox | Setup > Location > Account List Dialog | Country | filter country dropdown | setup/locations/account-address.ts |
-| drpAccListState | combobox | Setup > Location > Account List Dialog | State | filter state dropdown | setup/locations/account-address.ts |
+| drpAccListCountry | combobox | Setup > Location > Account List Dialog | Country | filter country dropdown @verified 2026-04-09 | setup/locations/account-address.ts |
+| drpAccListState | combobox | Setup > Location > Account List Dialog | State | filter state dropdown @verified 2026-04-09 | setup/locations/account-address.ts |
 | tblAccListResults | table | Setup > Location > Account List Dialog | Results | results grid table rows | setup/locations/account-address.ts |
-| txtAccListAccountName | input | Setup > Location > Account List Dialog | Account Name | filter account-name search | setup/locations/account-address.ts |
-| txtAccListAccountNumber | input | Setup > Location > Account List Dialog | Account Number | filter account-number search | setup/locations/account-address.ts |
-| txtAccListAddress | input | Setup > Location > Account List Dialog | Address | filter address search | setup/locations/account-address.ts |
-| txtAccListCity | input | Setup > Location > Account List Dialog | City | filter city search | setup/locations/account-address.ts |
+| txtAccListAccountName | input | Setup > Location > Account List Dialog | Account Name | filter account-name search @verified 2026-04-09 | setup/locations/account-address.ts |
+| txtAccListAccountNumber | input | Setup > Location > Account List Dialog | Account Number | filter account-number search @verified 2026-04-09 | setup/locations/account-address.ts |
+| txtAccListAddress | input | Setup > Location > Account List Dialog | Address | filter address search @verified 2026-04-09 | setup/locations/account-address.ts |
+| txtAccListCity | input | Setup > Location > Account List Dialog | City | filter city search @verified 2026-04-09 | setup/locations/account-address.ts |
 | btnSaveChangesOk | button | Setup > Location > Auto Add-On > Save Changes dialog | Ok | dialog ok confirm save changes | setup/locations/auto-addon.ts |
 | btnUnsavedChangesDiscard | button | Setup > Location > Auto Add-On > Unsaved Changes dialog | Discard | dialog discard abandon changes leave | setup/locations/auto-addon.ts |
 | btnUnsavedChangesStay | button | Setup > Location > Auto Add-On > Unsaved Changes dialog | Stay | dialog stay remain on page | setup/locations/auto-addon.ts |
@@ -164,6 +167,13 @@
 | btnErrorOk | button | Setup > Location > Error Dialog | Ok | error ok dismiss close | setup/locations/shared.ts |
 | dlgErrorDialog | dialog | Setup > Location > Error Dialog | Error | error alert dialog api popup | setup/locations/shared.ts |
 | dlgErrorMessage | label | Setup > Location > Error Dialog | Error Message | error message body detail | setup/locations/shared.ts |
+| drpHistoryType | button[role=combobox] | Setup > Location > History | Location Management History | history type-selector combobox filter | setup/locations/history.ts |
+| tblMgmtHistory | table | Setup > Location > History | history audit log | history table read-only management | setup/locations/history.ts |
+| btnMgmtHistoryFirstPage | button | Setup > Location > History > Pagination | Go to first page | pagination first navigate | setup/locations/history.ts |
+| btnMgmtHistoryLastPage | button | Setup > Location > History > Pagination | Go to last page | pagination last end | setup/locations/history.ts |
+| btnMgmtHistoryNextPage | button | Setup > Location > History > Pagination | Go to next page | pagination next forward | setup/locations/history.ts |
+| btnMgmtHistoryPrevPage | button | Setup > Location > History > Pagination | Go to previous page | pagination previous back | setup/locations/history.ts |
+| drpMgmtHistoryRowsPerPage | button[role=combobox] | Setup > Location > History > Pagination | 20 | rows-per-page dropdown pagination | setup/locations/history.ts |
 | btnSave | button | Setup > Location > Left Panel | Save | save submit left-panel form | setup/locations/left-panel.ts |
 | btnSaveLegal | button | Setup > Location > Left Panel | Save | save submit form left-panel | setup/locations/legal.ts |
 | btnSaveNotes | button | Setup > Location > Left Panel | Save | save submit form left-panel | setup/locations/notes.ts |
@@ -199,6 +209,7 @@
 | chkEnableDiscountReason | checkbox | Setup > Location > Local Information tab | Enable Discount Reason | discount reason enable toggle | setup/locations/local-info.ts |
 | chkEnableIDCBilling | checkbox | Setup > Location > Local Information tab | Enable IDC Billing | idc billing enable toggle | setup/locations/local-info.ts |
 | chkEnableJobCosting | checkbox | Setup > Location > Local Information tab | Enable Job Costing | job-costing enable toggle | setup/locations/local-info.ts |
+| chkEnableMultidayPricing | checkbox | Setup > Location > Local Information tab | Enable Multiday Pricing | multiday pricing enable toggle | setup/locations/local-info.ts |
 | chkEnableProductGroup | checkbox | Setup > Location > Local Information tab | Enable Product Group | product-group enable toggle | setup/locations/local-info.ts |
 | chkEnableProposal | checkbox | Setup > Location > Local Information tab | Enable Proposal | proposal enable toggle | setup/locations/local-info.ts |
 | chkEnableSetStrikeLaborMinutes | checkbox | Setup > Location > Local Information tab | Enable Set/Strike Labor Minutes | set-strike labor minutes enable toggle | setup/locations/local-info.ts |
@@ -276,16 +287,17 @@
 | lblAddrTotal | generic | Setup > Location > Select Customer Address Dialog | Total Addresses: | footer count total | setup/locations/account-address.ts |
 | tblAddrResults | table | Setup > Location > Select Customer Address Dialog | Results | address grid table rows | setup/locations/account-address.ts |
 | txtAddrSearch | input | Setup > Location > Select Customer Address Dialog | Search... | search filter address client-side | setup/locations/account-address.ts |
-| btnSharedAdd | button | Setup > Location > Shared Setup Locations tab | Add | add shared location button | setup/locations/shared-setup-locations.ts |
+| btnSharedAdd | button | Setup > Location > Shared Setup Locations tab | Add | add shared location button @verified 2026-04-09 (testid is row-index-based — changes when rows added/removed — positional required) | setup/locations/shared-setup-locations.ts |
 | tblSharedSetupLocations | table | Setup > Location > Shared Setup Locations tab | Shared setup locations grid | table grid shared locations | setup/locations/shared-setup-locations.ts |
-| btnSelfDelete | button | Setup > Location > Shared Setup Locations tab > self-row | Delete | delete self disabled button | setup/locations/shared-setup-locations.ts |
-| chkSelfPrimaryOffice | checkbox | Setup > Location > Shared Setup Locations tab > self-row | Primary Office | primary office self checked disabled | setup/locations/shared-setup-locations.ts |
-| chkSelfSharesInventory | checkbox | Setup > Location > Shared Setup Locations tab > self-row | Shares Inventory | shares inventory self editable toggle | setup/locations/shared-setup-locations.ts |
+| btnSelfDelete | button | Setup > Location > Shared Setup Locations tab > self-row | Delete | delete self disabled button @verified 2026-04-09 | setup/locations/shared-setup-locations.ts |
+| chkSelfPrimaryOffice | checkbox | Setup > Location > Shared Setup Locations tab > self-row | Primary Office | primary office self checked disabled @verified 2026-04-09 | setup/locations/shared-setup-locations.ts |
+| chkSelfSharesInventory | checkbox | Setup > Location > Shared Setup Locations tab > self-row | Shares Inventory | shares inventory self editable toggle @verified 2026-04-09 | setup/locations/shared-setup-locations.ts |
 | tabAccountAndAddress | tab | Setup > Location > Tabs | Account and Address | tab account-address navigate | setup/locations/account-address.ts |
 | tabBasicInformation | tab | Setup > Location > Tabs | Basic Information | tab basic-info navigate | setup/locations/left-panel.ts |
 | tabCurrency | tab | Setup > Location > Tabs | Currency | tab currency navigate | setup/locations/left-panel.ts |
 | tabLegal | tab | Setup > Location > Tabs | Legal | tab legal navigate settings | setup/locations/legal.ts |
 | tabLocalInformation | tab | Setup > Location > Tabs | Local Information | tab local-info navigate settings | setup/locations/left-panel.ts |
+| tabLocationManagementHistory | tab | Setup > Location > Tabs | Location Management History | tab management-history navigate | setup/locations/history.ts |
 | tabNotes | tab | Setup > Location > Tabs | Notes | tab notes navigate settings | setup/locations/notes.ts |
 | tabPricing | tab | Setup > Location > Tabs | Pricing | tab pricing navigate | setup/locations/left-panel.ts |
 | tabSharedSetupLocations | tab | Setup > Location > Tabs | Shared Setup Locations | tab shared setup locations navigate | setup/locations/shared-setup-locations.ts |
@@ -313,4 +325,4 @@
 | lnkOfficeCode | link | Setup > Location Search > Results grid | {officeCode} | office-code location link navigate | officeCode -- office code (e.g., "1604") | dynamic.ts |
 
 ---
-*Generated: 2026-03-25T12:50:46.426Z | Total: 292 selectors (280 static + 12 dynamic)*
+*Generated: 2026-04-16T10:27:32.621Z | Total: 304 selectors (292 static + 12 dynamic)*

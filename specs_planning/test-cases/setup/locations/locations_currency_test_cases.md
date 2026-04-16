@@ -405,9 +405,9 @@
 
 ## TC-LOC-CUR-HIST: Currency Saves — Location Management History Row Verification
 
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | ✅ Automated | Integration | Yes |
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Integration | Yes | tests/specs/setup/locations/location-currency.spec.ts:325 |
 
 **Completed saves to verify**: TC-LOC-CUR-001 (baseline enforce), TC-LOC-CUR-021 (CAD Selected), TC-LOC-CUR-023 (CAD+default cascade), TC-LOC-CUR-024 (CAD+merchant), TC-LOC-CUR-027 (USD IsDefault uncheck). Canceled saves (no row): TC-014, TC-017, TC-025, TC-026.
 

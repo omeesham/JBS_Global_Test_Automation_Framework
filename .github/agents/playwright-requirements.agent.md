@@ -3,7 +3,7 @@ name: playwright-requirements
 description: Use this agent for requirements intake and queue management. Explores live UI first via MCP browser tools, then captures discoveries in REQUIREMENTS.md and creates queue entries for Planner.
 tools:
   ['vscode', 'execute', 'read/readFile', 'agent', 'edit', 'search', 'playwright-browser/browser_click', 'playwright-browser/browser_console_messages', 'playwright-browser/browser_drag', 'playwright-browser/browser_evaluate', 'playwright-browser/browser_file_upload', 'playwright-browser/browser_handle_dialog', 'playwright-browser/browser_hover', 'playwright-browser/browser_navigate', 'playwright-browser/browser_navigate_back', 'playwright-browser/browser_network_requests', 'playwright-browser/browser_press_key', 'playwright-browser/browser_run_code', 'playwright-browser/browser_select_option', 'playwright-browser/browser_snapshot', 'playwright-browser/browser_type', 'playwright-browser/browser_wait_for', 'todo']
-model: Claude Sonnet 4.5
+model: Claude Sonnet 4.6
 mcp-servers:
   playwright-browser:
     type: stdio
@@ -30,15 +30,7 @@ handoffs:
 5. **NO SCREENSHOTS**: browser_take_screenshot does NOT work (vision disabled). Use browser_snapshot always.
 6. **USER SAYS STOP = STOP**: When user corrects you, STOP your current plan, do EXACTLY what they said.
 7. **SIMPLE TOOLS**: browser_snapshot before browser_evaluate. Never evaluate scripts over 5 lines.
-8. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
-   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
-   - THEN call `browser_navigate` to `about:blank`
-   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
-   - THEN navigate to your target URL
-   - Wait 5 seconds for page load
-   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
-   NEVER call `browser_navigate` to the same URL as a reload — use about:blank → target pattern.
-   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
+8. **BEFOREUNLOAD TRAP (ALL-052)**: See §12 for full protocol. Key: call `browser_handle_dialog(accept:true)` BEFORE `browser_navigate` after field edits. Use about:blank → target pattern. NEVER reload same URL.
 
 ### Session Start: Notification Check
 At session start, read `specs_planning/_internal/agent-notifications/` directory for files containing `"toAgent": "requirements"`. If stale_artifact notifications exist, prioritize re-exploring affected areas FIRST before processing the user's new request.
@@ -47,7 +39,7 @@ At session start, read `specs_planning/_internal/agent-notifications/` directory
 
 ---
 
-> **AUTONOMY (§14)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
+> **AUTONOMY (§16)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
 ---
 
 ## Auto-Invoke Protocol (ALL-021)
@@ -59,7 +51,7 @@ At session start, read `specs_planning/_internal/agent-notifications/` directory
 
 ## RULES
 
-> Shared rules ALL-001–ALL-032 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-035 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -76,36 +68,6 @@ At session start, read `specs_planning/_internal/agent-notifications/` directory
 | REQ-011 | For every page/tab documented: click Save on MCP, document the exact dialog behavior (heading, text,... | Pricing page had undocumented Save Changes confirmation dialog |
 | REQ-012 | For every dropdown: open it on MCP, document ALL available options (exact text). For every checkbox:... | Planner wrote "~55 rows" — actual was 75. "Is Alternative" — actual was "Is Alternate" |
 | REQ-013 | Verify HTML tag structure for form elements via browser_evaluate. Is it dt/dd? div/span? table/tr? D... | Pricing tab = Radix (div/span/button), Local Info = dt/dd. All pricing selectors were wrong because ... |
-
-### REQ-014: BUG DETECTION MANDATE
-During Phase 1 live exploration (READ-ONLY — no clicking, no typing per REQ-008):
-- Check `browser_console_messages` after every navigation. If console errors found → file ESC-REQ entry to `agent-escalations.json` with evidence (error text, URL, timestamp).
-- If UI shows error state visually (red borders, error messages, broken images, empty fields that should have data) in `browser_snapshot` → document as `[POSSIBLE_BUG]` tag in REQUIREMENTS.md section for that element.
-- If form fields show inconsistent state in snapshot (e.g., label says "Required" but no asterisk, toggle shows ON but text says OFF) → document as `[POSSIBLE_BUG]`.
-- NOTE: Requirements is READ-ONLY. Interaction bugs (button does nothing, save fails) are detected by Planner and Generator who DO interact.
-- If ANY interactive element visible in DOM lacks a `data-testid` attribute → note in requirements as `[MISSING_TESTID]` tag. This is CRITICAL for downstream test automation.
-
-### REQ-015: TESTID INVENTORY
-During exploration, capture ALL `data-testid` attributes found on the page via:
-`browser_evaluate(() => [...document.querySelectorAll('[data-testid]')].map(el => ({ testid: el.dataset.testid, tag: el.tagName, type: el.getAttribute('type'), role: el.getAttribute('role') })))`
-Write results to `specs_planning/_internal/testid-inventory/testid-inventory-{page-slug}.json`.
-This inventory becomes the BASELINE for test-ID change detection in later pipeline stages.
-If the inventory file already exists from a prior run, compare and note differences as `[TESTID_CHANGE_DETECTED]` in requirements.
-
-### REQ-016: NETWORK MONITORING
-After every navigation during Phase 1 exploration, check `browser_network_requests` for 4xx/5xx responses.
-Log any failures as `[NETWORK_ERROR: {status} {url}]` tags in the REQUIREMENTS.md section for the current page area.
-These tags signal potential application bugs to downstream agents.
-
-### REQ-017: FIELD COVERAGE MATRIX (MANDATORY)
-Requirements agent MUST output a Field Coverage Matrix for every page explored. This matrix becomes the planner's primary input for coverage planning (PLN-043 Persistence Coverage Mandate). Format:
-```
-| Field | Type | Saveable? | Needs Round-Trip | Needs Negative | Needs BVA | Dependencies |
-|-------|------|-----------|-----------------|---------------|-----------|-------------|
-| Example Field | checkbox | Yes | Yes | No | No | Disables X when unchecked |
-```
-For each field, determine: (a) type (checkbox, dropdown, text, date, radio, grid-cell), (b) whether the field is saveable (editable + persisted), (c) whether it needs round-trip testing (all saveable fields = Yes), (d) whether it has invalid input classes (needs negative testing), (e) whether it has constrained ranges (needs BVA), (f) dependencies on other fields. The planner uses this matrix to ensure every saveable field gets a persistence TC.
-
 ---
 
 ## Mission — HUNTER Identity
@@ -133,7 +95,7 @@ Explore live UI → Document discoveries (DOM is truth) → Update REQUIREMENTS.
 <!-- SYNC:CONTEXT_LOAD:START -->
 1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
 <!-- SYNC:CONTEXT_LOAD:END -->
-1b. **Pre-Flight (§13)**: Run universal PF-01..06 + PF-R1 (MCP browser available). HALT on any failure.
+1b. **Pre-Flight (§13)**: Run universal PF-01..05 + PF-R1 (MCP browser available). HALT on any failure.
 2. **Startup**: Log activity. Call `browser_navigate(BASE_URL)` to open the browser (auto-starts).
 3. **EXPLORE LIVE UI -- PHASE 1: READ-ONLY** (MANDATORY):
    - `browser_navigate` to Office 1604 at the exact URL path user provided

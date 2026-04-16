@@ -4,8 +4,9 @@
 **Depends on**: NONE (Phase 0 — initial MCP discovery gate)
 **Agent**: OPUS ONLY (MCP browser work — Sonnet CANNOT do this)
 **Phase**: 0
-**Status**: DONE (pending PLAN_HIST_EXTERNAL_SP1_AUDIT confirmation before move)
-**Executed**: 2026-04-13
+**Status**: DONE
+**Executed**: 2026-04-13 by OWNER (Copilot in Claude Code Mode)
+**Closed**: 2026-04-15 — External audit confirmed by WATCHDOG (Claude Opus 4.6, see agent-activity-log.md 2026-04-15T09:15). NF-001/NF-002 remediation completed by OWNER 2026-04-15T16:40 (SP1 §11 re-authored). Phase 1 integration (SP4) UNBLOCKED.
 **Priority**: P0 — HARD GATE, nothing else starts until this completes
 
 ---
@@ -300,3 +301,52 @@ Self-audit's "7 tag updates" is directionally accurate — 7 discrete sections r
 3. **To WATCHDOG (process)**: Never allow a self-audit to close out its own discovery session. Mandatory cross-session auditor for any planner/discovery deliverable that downstream agents will rely on. Graduate into ALL-030 enforcement (see agent-mistakes.md entry below).
 
 **Signed**: WATCHDOG — Claude Opus 4.6, session 2026-04-15 09:07-09:15 UTC.
+
+### NF-001 / NF-002 Remediation (2026-04-15)
+
+**Remediated by**: OWNER (Claude Opus 4.6, MCP session 2026-04-15 10:58–11:02 UTC).
+**Scope**: SP1 §11 "Sort Click Behavior" in `SUBPLAN_HISTORY_01_MCP_FINDINGS.md`.
+
+- Replaced the `aria-sort` + click-to-toggle pseudocode with an MCP-verified Radix
+  dropdown-menu pattern. The entire prior subsection is gone — no `aria-sort` lookup
+  survives in §11.
+- **Live-DOM evidence captured** (Office 1604):
+  - Modified On `<th>` has **no** `aria-sort` attribute on either page.
+  - `<th>` nests `<button data-slot="dropdown-menu-trigger" aria-haspopup="menu" aria-expanded="false" data-state="closed">`.
+  - Button SVG is a static `lucide-arrow-down` trigger icon, not a sort-direction indicator.
+  - Clicking the button portals a `<div role="menu" data-slot="dropdown-menu-content">`
+    with exactly 2 items: `"Sort ascending"` and `"Sort descending"`.
+  - No `"Clear sort"` / `"Unsorted"` / `"Hide column"` option exists, before or after sorting.
+  - Menu item labels captured verbatim: `["Sort ascending", "Sort descending"]` on both pages.
+- **Sort actually works**: clicking `"Sort ascending"` then `"Sort descending"` changes
+  tbody row order as expected. Verified on Modified On:
+  - Loc Mgmt History: ascending first 3 rows = `03/10/2026 04:40:30 PM → 04:40:34 PM → 04:40:38 PM`;
+    descending first 3 rows = `04/15/2026 08:50:48 AM → 08:50:43 AM → 08:50:37 AM`.
+  - Local Office History: ascending first 3 rows = `03/23/2026 04:46:44 PM → 04:46:51 PM → 04:48:08 PM`;
+    descending first 3 rows = `04/15/2026 08:43:18 AM → 08:43:14 AM → 08:42:45 AM`.
+- **Default direction differs per page** (Loc Mgmt observed ascending, Local Office
+  observed descending) — integration tests MUST click `"Sort descending"` explicitly
+  rather than rely on default ordering. Documented in §11.
+- **Sortability detection** for BUILDER: `th button[data-slot="dropdown-menu-trigger"]`
+  present = sortable; absent = non-sortable. LO non-sortable columns confirmed:
+  idx 0 `Local Office`, idx 15 `Section Name`, idx 20 `Service Type - Exempt`,
+  idx 23 `Notes` (4 of 42 — matches SP1 §2's "38 of 42 sortable" count).
+- **Confirmed cross-page pattern is identical**: menu structure, item labels, trigger
+  button attributes, SVG trigger icon all match between Location Management History
+  and Local Office Settings History. No divergence found.
+- **Structural divergence documented in §11**: `[data-testid="location-settings-table-management-history"]`
+  is a `<div>` wrapper (`.locator('table th')`); `[data-testid="local-office-settings-history-table"]`
+  **is** the `<table>` (`.locator('th')` directly). BUILDER must not assume a shared
+  traversal.
+- Existing page-object implementations verified aligned with the new §11 pattern:
+  - [location-management-history.page.ts:172–203](src/pages/setup/locations/location-management-history.page.ts:172) — already uses `[role="menu"]` + `Sort ${direction}`.
+  - [local-office-settings.page.ts:573–591](src/pages/setup/local-office/local-office-settings.page.ts:573) — already uses `[role="menu"]` + `Sort descending`. The pre-existing `th.getAttribute('aria-sort')` early-return check on line 582 is a dead no-op (always null) and is safe to leave as a future cleanup; no harm because it never triggers.
+
+**NF-003 (LOW) remains outstanding** — minor §5 wording fix for tab-contextual table
+count is still queued to BUILDER/GARDENER (separate task; does not block Phase 1).
+
+**Phase 1 unblocked**: With §11 corrected, BUILDER can now generate history integration
+tests using the Radix dropdown-menu sort pattern without silently-failing
+`sortByModifiedOnDesc()` methods.
+
+**Signed**: OWNER — Claude Opus 4.6, MCP session 2026-04-15 10:58–11:02 UTC.

@@ -6,7 +6,7 @@
 **Status**: DONE
 **Executed**: 2026-04-14
 **Verified**: 2026-04-15 (PLAN_HIST_SP3_STATUS_RECONCILE)
-**Depends on**: SUBPLAN_HISTORY_01 complete (SP1_MCP_FINDINGS.md exists)
+**Depends on**: SUBPLAN_HISTORY_01 complete (SUBPLAN_HISTORY_01_MCP_FINDINGS.md exists)
 **Can run in parallel with**: SUBPLAN_HISTORY_02
 
 ---
@@ -34,7 +34,7 @@ Build the page objects, selectors, and test data needed for history integration 
 ```
 
 **MANDATORY reads before ANY work:**
-1. `plans/pending/SP1_MCP_FINDINGS.md` — for actual column headers, scroll behavior, format strings
+1. `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md` — for actual column headers, scroll behavior, format strings
 2. Master plan sections: "Existing History Artifacts Inventory" and "Phase 1"
 3. `src/pages/setup/local-office/local-office-settings.page.ts` — existing history methods (lines 44-642)
 4. `src/selectors/setup/local-office/local-office-settings.ts` — existing history selectors (lines 119-127)
@@ -99,7 +99,7 @@ Add to existing `src/pages/setup/local-office/local-office-settings.page.ts`:
 - Do NOT modify any existing spec files
 - Do NOT write integration tests — that's SP-4 through SP-7
 - Use HEADER TEXT for column access, NEVER hardcoded indices
-- All format strings (boolean, date, percentage) come from SP1_MCP_FINDINGS.md — do NOT assume
+- All format strings (boolean, date, percentage) come from SUBPLAN_HISTORY_01_MCP_FINDINGS.md — do NOT assume
 - The barrel file `src/selectors/setup/locations/index.ts` does NOT exist — you must CREATE it
 
 ---

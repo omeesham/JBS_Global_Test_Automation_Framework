@@ -496,9 +496,9 @@
 
 ## TC-LOC-PRI-HIST: Pricing Saves — Location Management History Row Verification
 
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | ✅ Automated | Integration | Yes |
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Integration | Yes | tests/specs/setup/locations/location-pricing.spec.ts:607 |
 
 **Completed saves to verify**: TC-LOC-PRI-001 (baseline cleanup), TC-LOC-PRI-024 (PriceGuideInclusive round-trip). `test.skip` tests (TC-020, TC-025, dropdown loop) produce no saves — not in scope.
 

@@ -79,6 +79,10 @@ Decompose the plan's "Changes" or "Key Files" sections into logical groups. One 
 - `[implement] Add modal overlay pattern — PipelineLaunchCard.tsx, ChatApprovalCard.tsx`
 - `[implement] Create pages + page_stage_status tables — schema.sql`
 
+### Cross-Reference Check (MANDATORY before leaving Phase 0.5)
+
+After building the todo list, walk through EVERY bullet/numbered item in the plan's Phase sections and verify each has a corresponding todo item. If a plan bullet has no todo → add it. If you believe a plan deliverable should be skipped → flag it to the user and get explicit approval before proceeding. Self-justification for skipping deliverables ("X is more maintainable") is NOT acceptable — the plan is the contract.
+
 ### Rules
 
 1. **Every /execute call creates this todo list** — no exceptions, even for small plans
@@ -86,6 +90,7 @@ Decompose the plan's "Changes" or "Key Files" sections into logical groups. One 
 3. **Mark `completed` only when VERIFIED** — not when code is written, but when it's confirmed working
 4. **If you discover new items mid-execution**, add them to the todo list before doing them
 5. **The todo list survives the entire /execute lifecycle** — from Phase 0.5 through Phase 3
+6. **Plan deliverables are non-negotiable** — you can ADD items the plan missed, but you cannot REMOVE or SUBSTITUTE items the plan specified without user approval
 
 ## Phase 1: Pre-Execution Research (MANDATORY)
 

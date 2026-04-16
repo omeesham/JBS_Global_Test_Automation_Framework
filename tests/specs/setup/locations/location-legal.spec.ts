@@ -9,7 +9,15 @@ import {
 } from '../../../test-data/setup/locations/location-legal.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
+// SP5 integration test: capture wall-clock at suite start so TC-HIST can filter
+// history rows produced by this suite's saves. 2-min buffer absorbs clock skew.
+let suiteStartTime = 0;
+
 test.describe.serial('Location Legal @locations @legal', () => {
+
+  test.beforeAll(() => {
+    suiteStartTime = Date.now() - 2 * 60 * 1000;
+  });
 
   test('TC-LOC-LGL-001: Navigate to Legal tab; 3 column headers, 1 data row', async ({ locationLegalPage }) => {
     test.setTimeout(60_000);
@@ -178,6 +186,62 @@ test.describe.serial('Location Legal @locations @legal', () => {
     await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
     const restore = await locationLegalPage.clickSave();
     expect(restore.success).toBe(true);
+  });
+
+  // ── SP5: Cross-tab history integration — MUST be LAST in describe.serial ────
+  // Verifies that completed saves during this spec produced corresponding rows
+  // on the Location Management History tab. Uses timestamp-window filtering
+  // rather than hardcoded counts (LR-022). All assertions use expect.soft().
+  //
+  // Saves tracked: TC-011 (2), TC-012 (2), TC-018 (2) = 6 guaranteed.
+  // TC-013 cancel = no row. TC-001 conditional baseline = 0-1 row.
+  test('TC-LOC-LGL-HIST: All completed saves produce history rows with correct values', async ({ locationLegalPage, locationManagementHistoryPage }) => {
+    test.setTimeout(180_000);
+
+    // 1. Navigate to Location Management History tab from any starting URL
+    //    (navigateToHistoryTab handles: page navigation if needed, unsaved dialog dismissal per LR-026)
+    await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
+
+    // 3. Sort by Modified On descending (SP1 §11: default sort is ASCENDING)
+    await locationManagementHistoryPage.sortByModifiedOnDesc();
+    await locationManagementHistoryPage.waitForRecentTopRow();
+
+    // 4. Read all rows newer than suiteStartTime
+    const HEADERS = [
+      'Modified By', 'Modified On',
+      'Service Charge Name', 'Terms and Conditions',
+    ];
+    const suiteRows = await locationManagementHistoryPage.getRowsSinceTimestamp(
+      suiteStartTime, HEADERS,
+    );
+
+    // 5. Sanity — at least some saves were tracked
+    expect.soft(suiteRows.length,
+      'expected at least 1 Location Mgmt History row produced by this suite\'s saves').toBeGreaterThan(0);
+
+    // 6. Every suite row must carry Modified By and Modified On
+    for (let i = 0; i < suiteRows.length; i++) {
+      const row = suiteRows[i]!;
+      expect.soft(row['Modified By'], `row ${i}: Modified By empty`).toBeTruthy();
+      expect.soft(row['Modified On'], `row ${i}: Modified On empty`).toBeTruthy();
+    }
+
+    // 7. Gap detection — each expected field-value pair must appear in at least one row
+    const expectedChanges: Array<{ field: string; values: string[]; sourceTc: string }> = [
+      { field: 'Service Charge Name', values: [`${LEGAL_DEFAULTS.languageName}: ${LEGAL_ALT_SC}`, `${LEGAL_DEFAULTS.languageName}: ${LEGAL_DEFAULTS.serviceChargeName}`], sourceTc: 'TC-011/018 SC change + restore' },
+      { field: 'Terms and Conditions', values: [`${LEGAL_DEFAULTS.languageName}: ${LEGAL_ALT_TC}`, `${LEGAL_DEFAULTS.languageName}: ${LEGAL_DEFAULTS.termsName}`], sourceTc: 'TC-012/018 T&C change + restore' },
+    ];
+
+    for (const { field, values, sourceTc } of expectedChanges) {
+      const observed = Array.from(new Set(suiteRows.map(r => r[field] ?? '')));
+      const found = values.some(v => observed.includes(v));
+      expect.soft(found,
+        `GAP [${sourceTc}]: ${field} — expected one of [${values.join('|')}] in history, observed [${observed.join('|')}]`
+      ).toBe(true);
+    }
+
+    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
+    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

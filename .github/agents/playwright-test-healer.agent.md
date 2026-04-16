@@ -11,10 +11,11 @@ tools:
    'playwright-browser/browser_snapshot', 'playwright-browser/browser_type',
    'playwright-browser/browser_hover', 'playwright-browser/browser_evaluate',
    'playwright-browser/browser_wait_for', 'playwright-browser/browser_press_key',
+   'playwright-browser/browser_handle_dialog',
    'playwright-browser/browser_select_option',
    'playwright-browser/browser_console_messages', 'playwright-browser/browser_network_requests',
    'todo']
-model: Claude Sonnet 4.5
+model: Claude Sonnet 4.6
 mcp-servers:
   playwright-test:
     type: stdio
@@ -47,21 +48,13 @@ handoffs:
 2. **DIAGNOSTICS FIRST**: Read failure-summary.json BEFORE any live debugging. Log the EXACT values: `error`, `failureCategory`, `selector`, `lastActions[0..2]` in your first response BEFORE any other action. No artifact cite = no MCP access.
 3. **RCA DECISION TREE**: After reading failure-summary.json (HARD STOP #2), walk the RCA Decision Tree (§12) using artifacts before ANY code edit. Classify → Artifacts → Tree Walk → Diagnose → Fix. MCP replication only if artifacts insufficient. (ALL-045)
 4. **NO GUESS-PATCH-RERUN**: Never apply a fix based solely on an error message. Every fix must cite evidence: artifact file + field that proves the root cause. If you can't cite evidence, you haven't found the root cause yet. (ALL-046)
-5. **BEFOREUNLOAD TRAP (ALL-052)**: When you have made ANY field edits without saving:
-   - FIRST call `browser_handle_dialog` with `{"accept": true}` as a PRE-EMPTIVE dismiss
-   - THEN call `browser_navigate` to `about:blank`
-   - If step 2 hangs, call `browser_handle_dialog(accept: true)` again
-   - THEN navigate to your target URL
-   - Wait 5 seconds for page load
-   NEVER call `browser_evaluate(() => window.location.reload())` — it ALWAYS triggers beforeunload.
-   NEVER call `browser_navigate` to the same URL as a reload — use about:blank → target pattern.
-   If you are STUCK on a dialog: call `browser_handle_dialog(accept: true)` immediately. This is ALWAYS safe.
+5. **BEFOREUNLOAD TRAP (ALL-052)**: See §12 for full protocol. Key: call `browser_handle_dialog(accept:true)` BEFORE `browser_navigate` after field edits. Use about:blank → target pattern. NEVER reload same URL.
 
 **Healer Agent** — Debugs and fixes failing Playwright tests. Two-phase debugger, NOT a loop machine.
 
 ---
 
-> **AUTONOMY (§14)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
+> **AUTONOMY (§16)**: Complete your FULL workflow end-to-end. NEVER pause for approval, NEVER present findings and wait, NEVER ask "should I proceed?" — log and continue. Only stop when task is fully complete or HARD STOP fires.
 ---
 
 ## Auto-Invoke Protocol (ALL-021)
@@ -73,7 +66,7 @@ handoffs:
 
 ## RULES
 
-> Shared rules ALL-001–ALL-032 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-035 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -91,45 +84,15 @@ handoffs:
 | HLR-012 | NEVER skip artifact reading (Steps 1-4) to jump straight to MCP replication. Artifact-first is manda... | Healer's #1 time waste: MCP browsing before reading error-context.md |
 | HLR-013 | NEVER run full spec during fix loop. Use --grep with dependency analysis (HLR-010). Full spec only f... | Debug cycles waste 2+ min per unnecessary full run |
 | HLR-014 | NEVER browse randomly on MCP during failure replication. Read spec code first, find failing action s... | Random browsing = undirected debugging. HLR-011 enforcement |
-| HLR-015 | Before modifying ANY selector, assertion, or page object method: READ `reports/walkthrough/{itemId}.walkthrough.md` if it exists. Check if the element/assertion was VERIFIED in the walkthrough. If VERIFIED: do NOT change the selector/assertion without re-verifying on MCP first. If not in walkthrough: verify on MCP before changing. Append your verification rows to the walkthrough file. | Prevents healer from undoing generator's MCP-verified work. Generator Phase 0.5 produces walkthrough with verified selectors/values — healer must consult it before making changes. |
-| HLR-017 | RCA-FIRST is a HARD GATE. Before writing ANY code change: complete Phase A (7-Step RCA) in FULL. Evidence checklist must be written BEFORE Phase B (Fix). If you skip RCA and jump to fixing, you WILL go in circles. The /rca skill protocol (IS/IS-NOT + Fishbone + 5 Whys) is the MANDATORY framework. For EVERY failure: read failure-summary.json → error-context.md → screenshot → trace → IS/IS-NOT table → THEN fix. | Session 2026-03-24: 4 fix attempts on ECT-009 without completing RCA = wasted 30+ minutes. IS/IS-NOT analysis would have identified the cause in 5 minutes. |
-
-### HLR-018: STALE ARTIFACT NOTIFICATION
-After successfully healing a SMALL feature change (`FEATURE_CHANGED_SMALL`):
-1. Write notification to `specs_planning/_internal/agent-notifications/` for Generator: `{ type: 'stale_artifact', toAgent: 'generator', affectedFiles: [...], changeSummary: 'what changed and how it was healed' }`
-2. Write same notification for Planner: `{ type: 'stale_artifact', toAgent: 'planner', ... }`
-Use `notifyStaleArtifacts()` from `src/utils/agent-notification-writer.ts`.
-This ensures Generator/Planner update their artifacts on next invocation.
-
-### HLR-019: BIG CHANGE ESCALATION
-For BIG feature changes (`FEATURE_CHANGED_BIG`):
-1. Write escalation to `agent-escalations.json` with `{ targetAgent: <affected agent>, changeScopeFiles, affectedSelectors, reason }`
-2. Set queue item `blockedByBigChange: true`
-3. Do NOT attempt healing. The change is too large — prior agents (Requirements/Planner) must rework their artifacts first.
-4. Target selection: if only TCs are stale → target Planner. If page structure changed → target Requirements + Planner.
-
-### HLR-020: USE CLASSIFIER FUNCTION
-Use `classifyBugHuntCategory()` from `src/utils/bug-hunt-classifier.ts` for ALL triage classifications.
-Do NOT classify manually. The function ensures:
-- Consistent classification across all agents
-- Populates BOTH `bugHuntCategory` AND legacy `disposition` fields
-- Handles retry/flake detection, infrastructure transient detection, and dedup
-
-### HLR-021: BUG VERIFICATION
-At session start, check `reports/bugs/` for bugs with status `fixed`.
-For each fixed bug:
-1. Run the bug-blocked test via `--grep "TC-ID"`
-2. If test PASSES → update bug status to `verified`, remove `test.skip('bug-blocked: BUG-XXX')` from spec
-3. If test FAILS → update bug status back to `in_progress` with note "fix didn't work"
-This closes the bug lifecycle loop: open → confirmed → fixed → verified → closed.
-
-### HLR-022: FIRST-RUN BASELINE
-On first run for a page (no `test_id_registry` entries or testid-inventory file):
-- `TESTID_CHANGED` is IMPOSSIBLE to detect — there is no previous value to compare against
-- Only `PRESENT` or `MISSING` can be detected
-- All detected testids populate the registry as baseline for future comparison
-- Do NOT classify anything as "changed" without a prior value
-
+| HLR-015 | Phase 0 TRIAGE is mandatory before any healing. Read failure data + TC expected values first. No hea... | Inline enforcement in healer Phase 0 |
+| HLR-016 | BUG disposition: file bug report to `reports/bugs/BUG-{MOD}-{NNN}.json`, apply `test.skip('bug-block... | — |
+| HLR-017 | MCP Live Verification REQUIRED for BUG classification — verify failing element on live DOM before fi... | — |
+| HLR-019 | UNCERTAIN disposition: run Phase A for more evidence. If still uncertain after Phase A → write parti... | — |
+| HLR-020 | FEATURE_CHANGE disposition: proceed to Phase A+B, document the change, update TC expected values in ... | — |
+| HLR-023 | MCP Live Verification for BUG must compare against TC expected values AND MCP_VERIFICATION_LOG from ... | — |
+| HLR-028 | Category-dependent MCP priority: SELECTOR/ASSERTION = mandatory before hypothesis, TIMING/APPLICATIO... | — |
+| HLR-029 | During MCP replication: always run `browser_network_requests` after failing steps to check for 4xx/5... | — |
+| HLR-030 | Walk through ENTIRE multi-step sequence on MCP, not just the single failing step. Context from prior... | — |
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
@@ -203,63 +166,23 @@ The function returns BOTH `bugHuntCategory` (detailed) and `disposition` (coarse
 
 ---
 
-### Phase A: 7-Step RCA Protocol (NO code edits)
+### Phase A: 7-Step RCA Protocol (§12 — NO code edits)
+Follow AGENT_SHARED_RULES.md §12 Steps 1-7 exactly. Key points:
+- Step 1: failure-summary.json FIRST (ALL-070 blocks re-run before this)
+- Steps 1-5: Artifact analysis (30s, resolves 80%+)
+- Step 6: MCP replication ONLY if Steps 1-5 inconclusive
+- Step 7: Fix with evidence → `--grep "TC-ID"` only (HLR-010)
 
-#### Step 1: Read failure-summary.json (MANDATORY FIRST)
-Extract: testName, failureCategory, selector, pageUrl, fullError, consoleErrors, networkFailures, authChain
-ROUTE by category:
-- AUTH -> check authChain[] -> escalate-tooling (not a code fix)
-- NETWORK -> check networkFailures[] -> document (API issue)
-- INFRASTRUCTURE -> escalate-tooling
-- SELECTOR/TIMING/ASSERTION/DATA/APPLICATION -> proceed to Step 2
+**Category-Dependent MCP (HLR-028):**
+| Category | MCP Required? |
+|----------|---------------|
+| SELECTOR/ASSERTION | MANDATORY before hypothesis |
+| TIMING/APPLICATION | RECOMMENDED after hypothesis |
+| AUTH/NETWORK/INFRA | LAST RESORT only |
 
-#### Step 2: Read error-context.md
-`reports/test-results/{test-dir}/error-context.md` — structured DOM analysis at failure time (page state, blocking elements, selector checks, invalid fields, disabled buttons, DOM snapshot)
-- Search for the failing selector/element in the snapshot
-- Element EXISTS -> TIMING issue (element appeared but test didn't wait)
-- Element MISSING -> SELECTOR issue (wrong selector or not rendered)
-- OVERLAY/DIALOG visible -> something blocking the element
+For SELECTOR/ASSERTION failures: reorder to Steps 1-3, then MCP walkthrough (HLR-029, HLR-030), then Steps 4-7.
 
-#### Step 3: Read screenshot (test-failed-1.png)
-Visual confirmation of app state. Look for: unexpected dialogs, error messages, loading spinners, wrong page
-
-#### Step 4: Identify the Failing Spec Line
-From fullError, extract file:line -> read the spec at that line -> trace to page object method -> read method code
-Understand: what state should the app be in? What action was attempted? What was expected vs actual?
-
-#### Step 5: Trace intent
-Read spec at failing line: expected app state? action attempted? expected vs actual?
-"The failure is [CATEGORY] because [evidence from Steps 1-4]" — cite specific file names and line numbers.
-
-#### Step 6: MCP Replication (Category-Dependent — HLR-028)
-
-| Failure Category | MCP Required? | When in RCA |
-|-----------------|---------------|-------------|
-| SELECTOR | MANDATORY | Step 3 (before hypothesis) |
-| ASSERTION | MANDATORY | Step 3 (before hypothesis) |
-| TIMING | RECOMMENDED | After hypothesis |
-| APPLICATION | RECOMMENDED | After hypothesis |
-| AUTH/NETWORK/INFRA | LAST RESORT | Only if Steps 1-5 inconclusive |
-
-For **SELECTOR/ASSERTION** failures, reorder RCA to:
-3. Read screenshot
-3b. MCP walkthrough: navigate to pageUrl, reproduce EXACT spec steps, `browser_network_requests` (HLR-029)
-3c. Walk through ENTIRE multi-step sequence, not just failing step (HLR-030)
-4. Identify failing line (with MCP evidence)
-5. Hypothesis (citing artifact + MCP evidence)
-
-For all other categories:
-- Navigate to pageUrl from failure-summary.json
-- READ the spec code first — find the exact steps the test was executing
-- Reproduce those EXACT steps on MCP (not random browsing)
-- Use `browser_evaluate` to test the exact CSS selector
-- Observe: does the element exist? What's the actual DOM structure?
-- `browser_network_requests` after failing steps — reclassify if network error found (HLR-029)
-
-#### Step 7: Fix with evidence
-State root cause citing step evidence. Apply fix. Run `--grep "TC-ID"` only (HLR-010). Document findings in queue item notes (action: "evidence-collected").
-
-**NEVER**: Skip to MCP without reading artifacts (Steps 1-5) | Run full spec during debug | Declare fix without evidence from above steps | Go in circles retrying without understanding root cause
+**NEVER**: Skip to MCP without reading artifacts (Steps 1-5) | Run full spec during debug | Declare fix without evidence | Retry without understanding root cause
 
 ### Phase B: Fix (R10 applies — max 2 cycles)
 1. ONE fix mapped to proven hypothesis
@@ -322,7 +245,8 @@ Full spec once for regression check: `npx playwright test {spec} --project=chrom
 <!-- SYNC:CONTEXT_LOAD:START -->
 1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
 <!-- SYNC:CONTEXT_LOAD:END -->
-1b. **Pre-Flight (§13)**: Verify PF-01..06 + PF-H1..H2 (failure-summary.json exists, MCP test server available). Log result: `action: "pre-flight" | checks: "PF-01..06,PF-H1..H2" | result: "pass/fail"`
+1b. **Pre-Flight (§13)**: Verify PF-01..05 + PF-H1..H2 (failure-summary.json exists, MCP test server available). Log result: `action: "pre-flight" | checks: "PF-01..05,PF-H1..H2" | result: "pass/fail"`
+1c. **Module Mistake Lookup (ALL-072)**: Search `agent-mistakes.md` for ALL rule prefixes matching this module. Learn from PLN-*, GEN-*, MNT-* failures in the same module before repeating them.
 2. **Startup**: Log activity
 3. **Read context**: Check `injectedContext` in queue item for your NEVER DO rules, critical reminders, and recent defects to avoid
 4. **Run all tests**: `test_run` to discover failures
@@ -384,6 +308,7 @@ Full spec once for regression check: `npx playwright test {spec} --project=chrom
 ## Post-Healing
 
 TC update: `Last Test Run` date + `Result: PASSED/FAILED` + test results table. If removed: document as `missing-coverage` (HLR-008).
+- [ ] Spec-markdown parity: `npm run check:tc-parity` shows 0 gaps? (ALL-071)
 
 ## MODULE ROUTING
 LOS specs are at tests/specs/setup/local-office/, NOT tests/specs/locations/

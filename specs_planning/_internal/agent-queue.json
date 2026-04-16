@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-03-24T08:31:47.526Z",
+  "lastUpdated": "2026-04-15T10:25:46.138Z",
   "config": {
     "maxRetries": 2,
     "autoHealOnFailure": true,
@@ -96,7 +96,7 @@
         "completedAt": "2026-03-02T12:31:00.000Z"
       },
       "injectedContext": {
-        "generatedAt": "2026-03-19T08:20:32.081Z",
+        "generatedAt": "2026-04-15T10:25:46.135Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -131,6 +131,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -157,9 +158,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (69 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -201,8 +210,7 @@
           "grid",
           "readonly",
           "validation"
-        ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_pricing_test_plan.md"
+        ]
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -238,6 +246,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -265,9 +274,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "injectedAt": "2026-03-19T08:20:32.081Z",
+        "injectedAt": "2026-04-15T10:25:46.135Z",
         "retryCount": 0
       }
     },
@@ -314,7 +331,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-19T08:20:32.083Z",
+        "generatedAt": "2026-04-15T10:25:46.136Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -349,6 +366,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -375,9 +393,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (69 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -421,8 +447,7 @@
           "readonly",
           "validation",
           "angular"
-        ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_left_panel_test_plan.md"
+        ]
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -458,6 +483,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -485,9 +511,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "injectedAt": "2026-03-19T08:20:32.083Z",
+        "injectedAt": "2026-04-15T10:25:46.136Z",
         "retryCount": 0
       }
     },
@@ -565,7 +599,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-19T08:20:32.083Z",
+        "generatedAt": "2026-04-15T10:25:46.136Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -600,6 +634,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -625,9 +660,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (69 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -671,11 +714,10 @@
           "validation",
           "angular"
         ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_legal_test_plan.md",
         "lastRunFailures": {
-          "timestamp": "2026-03-19T07:41:56.333Z",
+          "timestamp": "2026-04-15T08:52:33.178Z",
           "failures": [],
-          "passed": 17,
+          "passed": 16,
           "failed": 0,
           "fixme": 0
         }
@@ -714,6 +756,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -741,9 +784,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "injectedAt": "2026-03-19T08:20:32.083Z",
+        "injectedAt": "2026-04-15T10:25:46.136Z",
         "retryCount": 0
       }
     },
@@ -797,7 +848,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-19T08:20:32.084Z",
+        "generatedAt": "2026-04-15T10:25:46.137Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -832,6 +883,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -857,9 +909,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (69 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -901,8 +961,7 @@
           "save",
           "readonly",
           "validation"
-        ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_account_address_test_plan.md"
+        ]
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -938,6 +997,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -965,9 +1025,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "injectedAt": "2026-03-19T08:20:32.084Z",
+        "injectedAt": "2026-04-15T10:25:46.137Z",
         "retryCount": 0
       }
     },
@@ -1037,7 +1105,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-19T08:20:32.084Z",
+        "generatedAt": "2026-04-15T10:25:46.137Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1072,6 +1140,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1097,9 +1166,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (69 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1141,8 +1218,7 @@
           "dialog",
           "save",
           "validation"
-        ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_notes_test_plan.md"
+        ]
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -1178,6 +1254,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1205,9 +1282,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "injectedAt": "2026-03-19T08:20:32.084Z",
+        "injectedAt": "2026-04-15T10:25:46.137Z",
         "retryCount": 0
       },
       "selfAuditPassed": true,
@@ -1318,7 +1403,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-19T08:20:32.084Z",
+        "generatedAt": "2026-04-15T10:25:46.137Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1353,6 +1438,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1378,9 +1464,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (69 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1422,8 +1516,7 @@
           "dialog",
           "save",
           "readonly"
-        ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_shared_setup_locations_test_plan.md"
+        ]
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -1459,6 +1552,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1486,9 +1580,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "injectedAt": "2026-03-19T08:20:32.084Z",
+        "injectedAt": "2026-04-15T10:25:46.137Z",
         "retryCount": 0
       }
     },
@@ -1560,8 +1662,8 @@
         "notes": "Re-verified 2026-03-23. Shadow DOM eliminated. PLN-027 gate: 10/10 selectors PASS. Dialog buttons corrected: Save dialog = Cancel+Ok; Unsaved changes dialog = Stay+Discard. Smart form diff confirmed. Sub-tab switching confirmed NOT triggering Unsaved changes dialog. selfAuditPassed=true."
       },
       "injectedContext": {
-        "generatedAt": "2026-03-19T08:20:32.085Z",
-        "targetAgent": "Generator",
+        "generatedAt": "2026-04-15T10:25:46.138Z",
+        "targetAgent": "Planner",
         "mistakeIds": [
           "ALL-001",
           "ALL-002",
@@ -1595,34 +1697,35 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
-          "GEN-001",
-          "GEN-002",
-          "GEN-003",
-          "GEN-004",
-          "GEN-005",
-          "GEN-006",
-          "GEN-007",
-          "GEN-009",
-          "GEN-010",
-          "GEN-011",
-          "GEN-012",
-          "GEN-013",
-          "GEN-014",
-          "GEN-016",
-          "GEN-017",
-          "GEN-018",
-          "GEN-019",
-          "GEN-020",
-          "GEN-021",
-          "GEN-022",
-          "GEN-023",
-          "GEN-024",
-          "GEN-025",
-          "GEN-026",
-          "GEN-027",
-          "GEN-028"
+          "ALL-033",
+          "PLN-001",
+          "PLN-002",
+          "PLN-003",
+          "PLN-004",
+          "PLN-005",
+          "PLN-006",
+          "PLN-008",
+          "PLN-009",
+          "PLN-010",
+          "PLN-012",
+          "PLN-014",
+          "PLN-015",
+          "PLN-016",
+          "PLN-017",
+          "PLN-018",
+          "PLN-019",
+          "PLN-020",
+          "PLN-021",
+          "PLN-022",
+          "PLN-023",
+          "PLN-024",
+          "PLN-025",
+          "PLN-026",
+          "PLN-027",
+          "PLN-028",
+          "PLN-048"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (62 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1637,23 +1740,29 @@
         ],
         "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
-          "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
+          "PLN-029: Completed test planning without selector validation - 4 missing selectors (column headers, No Matches Found, save confirmation dialog)",
+          "PLN-030: AUDIT BLOCKED: 9 findings — self-certified uiTestingChecklist, TBD row-selection mechanism, zero TCs for non-self-row path, hedged expected results",
+          "PLN-PERF-001: TC-LOS-BAS-015 step 5 asserts all 13 sections Active. DOM (MCP 2026-03-02): 4 sections inactive (Power, Rigging, Staging, Whiteboard). Self-audit claimed L1:10→L2:10→L3:10 (perfect) but missed this data accuracy issue.",
+          "PLN-PERF-002: TC-LOS-BAS-027 '~55 service type rows (verified from DOM)' — actual DOM count = 75. REQUIREMENTS also wrong at ~50. 36% undercount despite live MCP session claimed.",
+          "PLN-PERF-003: Test plan HST IDs 3-6 out of phase with test case IDs 3-6 (shuffled order). PLN-017 now added to registry."
         ],
         "criticalReminders": [
-          "All selectors must come from src/selectors/index.ts",
-          "Run tests before marking complete - show actual output",
-          "Use existing MCP browser session - never open/close",
-          "Every .spec.ts needs // spec: and // seed: headers",
+          "Complete ALL uiTestingChecklist items before stage transition",
+          "Count fields in DOM, count TCs, reconcile any gaps with justification",
+          "Run npm run lint:testcases && npm run planner:post-complete",
+          "Use UI labels (**Field Name**), not code names (chkField)",
+          "NEVER edit TCs without fresh browser_snapshot from live site (PLN-001)",
           "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete",
           "Check specs_planning/_internal/agent-escalations.json for open issues assigned to you -- fix before proceeding with new work"
         ],
         "selfAuditQuestions": [
-          "GREP: Search my spec file for: page., ['page'], Log., hardcoded CSS selectors (# or . literals). Every hit is a violation — fix it.",
-          "RAN: Did I actually execute npx playwright test <my-spec> and see a PASS line in terminal? Paste the evidence.",
-          "PATTERN: Count tests that follow identical patterns (e.g., check/uncheck N checkboxes). If 3+, refactor to for...of with data array.",
-          "IMPORTS: Does my spec import ONLY from ../../setup/fixtures? No custom fixture files, no init-session, no direct @playwright/test.",
-          "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
-          "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
+          "COUNT: Fields visible in my latest browser_snapshot = ___. TCs in my file = ___. Do they match? If not, justify each gap.",
+          "SCAN: Search my TC file for: TBD, may be, if exists, or, to be confirmed, placeholder. Every hit must be resolved or removed.",
+          "CERTIFY: For each uiTestingChecklist boolean I marked true — name the specific TC ID that exercises it. If none exists, set false.",
+          "DIFF: Pick 3 random TC Steps. Open my Test Plan. Does the TC accurately summarize the plan, or did I introduce shortcuts/errors?",
+          "SELECTORS: For each TC that references a selector — does that exact selector key exist in src/selectors/index.ts?",
+          "SCOPE: Am I including any fields or tabs that belong to a different submodule? Check feature boundaries.",
+          "LIVE: Did I verify field behavior on the LIVE site via browser_snapshot, or did I just read REQUIREMENTS.md and assume?"
         ],
         "moduleContextRef": "docs/REQUIREMENTS.md ### Account and Address Tab",
         "featureTags": [
@@ -1663,8 +1772,7 @@
           "save",
           "readonly",
           "validation"
-        ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_auto_addon_test_plan.md"
+        ]
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -1700,36 +1808,38 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
-          "GEN-001",
-          "GEN-002",
-          "GEN-003",
-          "GEN-004",
-          "GEN-005",
-          "GEN-006",
-          "GEN-007",
-          "GEN-008",
-          "GEN-009",
-          "GEN-010",
-          "GEN-011",
-          "GEN-012",
-          "GEN-013",
-          "GEN-014",
-          "GEN-015",
-          "GEN-016",
-          "GEN-017",
-          "GEN-018",
-          "GEN-019",
-          "GEN-020",
-          "GEN-021",
-          "GEN-022",
-          "GEN-023",
-          "GEN-024",
-          "GEN-025",
-          "GEN-026",
-          "GEN-027",
-          "GEN-028"
+          "ALL-033",
+          "PLN-001",
+          "PLN-002",
+          "PLN-003",
+          "PLN-004",
+          "PLN-005",
+          "PLN-006",
+          "PLN-007",
+          "PLN-008",
+          "PLN-009",
+          "PLN-010",
+          "PLN-011",
+          "PLN-012",
+          "PLN-013",
+          "PLN-014",
+          "PLN-015",
+          "PLN-016",
+          "PLN-017",
+          "PLN-018",
+          "PLN-019",
+          "PLN-020",
+          "PLN-021",
+          "PLN-022",
+          "PLN-023",
+          "PLN-024",
+          "PLN-025",
+          "PLN-026",
+          "PLN-027",
+          "PLN-028",
+          "PLN-048"
         ],
-        "injectedAt": "2026-03-19T08:20:32.085Z",
+        "injectedAt": "2026-04-15T10:25:46.138Z",
         "retryCount": 0
       }
     },
@@ -1737,7 +1847,7 @@
       "id": "location-management-history",
       "feature": "Location - Management History",
       "module": "locations",
-      "stage": "pending_generation",
+      "stage": "generation",
       "priority": "medium",
       "lockedBy": null,
       "lockedAt": null,
@@ -1769,7 +1879,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-03-19T08:20:32.085Z",
+        "generatedAt": "2026-04-15T10:25:46.138Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1804,6 +1914,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1829,9 +1940,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (69 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1873,8 +1992,7 @@
           "dialog",
           "readonly",
           "angular"
-        ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_management_history_test_plan.md"
+        ]
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -1910,6 +2028,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1937,9 +2056,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "injectedAt": "2026-03-19T08:20:32.085Z",
+        "injectedAt": "2026-04-15T10:25:46.138Z",
         "retryCount": 0
       }
     },
@@ -2012,7 +2139,7 @@
         "completedAt": "2026-03-23T18:00:00.000Z"
       },
       "injectedContext": {
-        "generatedAt": "2026-03-19T08:20:32.085Z",
+        "generatedAt": "2026-04-15T10:25:46.138Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -2047,6 +2174,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -2074,9 +2202,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (69 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -2109,7 +2245,7 @@
           "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
           "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Local Information Tab",
+        "moduleContextRef": "docs/REQUIREMENTS.md ### Local Office Settings",
         "featureTags": [
           "form",
           "checkbox",
@@ -2125,7 +2261,7 @@
           "fix",
           "manual"
         ],
-        "testPlanRef": "specs_planning/test-plans/locations/locations_local_office_settings_test_plan.md"
+        "testPlanRef": "specs_planning/test-plans/setup/local-office/local_office_settings_test_plan.md"
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -2161,6 +2297,7 @@
           "ALL-030",
           "ALL-031",
           "ALL-032",
+          "ALL-033",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -2188,9 +2325,17 @@
           "GEN-025",
           "GEN-026",
           "GEN-027",
-          "GEN-028"
+          "GEN-028",
+          "GEN-029",
+          "GEN-030",
+          "GEN-031",
+          "GEN-034",
+          "GEN-032",
+          "GEN-033",
+          "GEN-035",
+          "GEN-042"
         ],
-        "injectedAt": "2026-03-19T08:20:32.085Z",
+        "injectedAt": "2026-04-15T10:25:46.138Z",
         "retryCount": 0
       }
     }
@@ -2266,6 +2411,7 @@
         "ALL-030",
         "ALL-031",
         "ALL-032",
+        "ALL-033",
         "GEN-001",
         "GEN-002",
         "GEN-003",
@@ -2293,9 +2439,17 @@
         "GEN-025",
         "GEN-026",
         "GEN-027",
-        "GEN-028"
+        "GEN-028",
+        "GEN-029",
+        "GEN-030",
+        "GEN-031",
+        "GEN-034",
+        "GEN-032",
+        "GEN-033",
+        "GEN-035",
+        "GEN-042"
       ],
-      "mistakesRef": "specs_planning/_internal/agent-mistakes.md (60 rules)",
+      "mistakesRef": "specs_planning/_internal/agent-mistakes.md (69 rules)",
       "learningsSummary": [
         "ALL-001: —",
         "ALL-002: —",
@@ -2329,9 +2483,121 @@
         "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
       ],
       "lastRunFailures": {
-        "timestamp": "2026-03-19T07:41:56.333Z",
+        "timestamp": "2026-04-15T08:52:33.178Z",
         "failures": [],
-        "passed": 17,
+        "passed": 16,
+        "failed": 0,
+        "fixme": 0
+      }
+    },
+    "Planner": {
+      "mistakeIds": [
+        "ALL-001",
+        "ALL-002",
+        "ALL-003",
+        "ALL-004",
+        "ALL-005",
+        "ALL-006",
+        "ALL-007",
+        "ALL-008",
+        "ALL-009",
+        "ALL-010",
+        "ALL-011",
+        "ALL-012",
+        "ALL-013",
+        "ALL-014",
+        "ALL-015",
+        "ALL-016",
+        "ALL-017",
+        "ALL-018",
+        "ALL-019",
+        "ALL-020",
+        "ALL-021",
+        "ALL-022",
+        "ALL-023",
+        "ALL-024",
+        "ALL-025",
+        "ALL-026",
+        "ALL-027",
+        "ALL-028",
+        "ALL-029",
+        "ALL-030",
+        "ALL-031",
+        "ALL-032",
+        "ALL-033",
+        "PLN-001",
+        "PLN-002",
+        "PLN-003",
+        "PLN-004",
+        "PLN-005",
+        "PLN-006",
+        "PLN-007",
+        "PLN-008",
+        "PLN-009",
+        "PLN-010",
+        "PLN-011",
+        "PLN-012",
+        "PLN-013",
+        "PLN-014",
+        "PLN-015",
+        "PLN-016",
+        "PLN-017",
+        "PLN-018",
+        "PLN-019",
+        "PLN-020",
+        "PLN-021",
+        "PLN-022",
+        "PLN-023",
+        "PLN-024",
+        "PLN-025",
+        "PLN-026",
+        "PLN-027",
+        "PLN-028",
+        "PLN-048"
+      ],
+      "mistakesRef": "specs_planning/_internal/agent-mistakes.md (62 rules)",
+      "learningsSummary": [
+        "ALL-001: —",
+        "ALL-002: —",
+        "ALL-003: LRN-014: Blanket node kill destroys MCP — use targeted process filter",
+        "ALL-004: —",
+        "ALL-005: —",
+        "ALL-006: LRN-015: Radix UI checkbox = `<button role=\"checkbox\">` not `<input>`. LRN-017: ...",
+        "ALL-007: LRN-005: White page = OAuth 400 — check networkFailures before blaming selectors",
+        "ALL-008: LRN-002: Snapshot too fast → stale DOM. LRN-014: Stop-Process -Name node kills M...",
+        "ALL-009: —",
+        "ALL-010: —"
+      ],
+      "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+      "recentDefects": [
+        "PLN-029: Completed test planning without selector validation - 4 missing selectors (column headers, No Matches Found, save confirmation dialog)",
+        "PLN-030: AUDIT BLOCKED: 9 findings — self-certified uiTestingChecklist, TBD row-selection mechanism, zero TCs for non-self-row path, hedged expected results",
+        "PLN-PERF-001: TC-LOS-BAS-015 step 5 asserts all 13 sections Active. DOM (MCP 2026-03-02): 4 sections inactive (Power, Rigging, Staging, Whiteboard). Self-audit claimed L1:10→L2:10→L3:10 (perfect) but missed this data accuracy issue.",
+        "PLN-PERF-002: TC-LOS-BAS-027 '~55 service type rows (verified from DOM)' — actual DOM count = 75. REQUIREMENTS also wrong at ~50. 36% undercount despite live MCP session claimed.",
+        "PLN-PERF-003: Test plan HST IDs 3-6 out of phase with test case IDs 3-6 (shuffled order). PLN-017 now added to registry."
+      ],
+      "criticalReminders": [
+        "Complete ALL uiTestingChecklist items before stage transition",
+        "Count fields in DOM, count TCs, reconcile any gaps with justification",
+        "Run npm run lint:testcases && npm run planner:post-complete",
+        "Use UI labels (**Field Name**), not code names (chkField)",
+        "NEVER edit TCs without fresh browser_snapshot from live site (PLN-001)",
+        "ALL-004: If you discover ANY novel anti-pattern during this session, capture it BEFORE marking complete",
+        "Check specs_planning/_internal/agent-escalations.json for open issues assigned to you -- fix before proceeding with new work"
+      ],
+      "selfAuditQuestions": [
+        "COUNT: Fields visible in my latest browser_snapshot = ___. TCs in my file = ___. Do they match? If not, justify each gap.",
+        "SCAN: Search my TC file for: TBD, may be, if exists, or, to be confirmed, placeholder. Every hit must be resolved or removed.",
+        "CERTIFY: For each uiTestingChecklist boolean I marked true — name the specific TC ID that exercises it. If none exists, set false.",
+        "DIFF: Pick 3 random TC Steps. Open my Test Plan. Does the TC accurately summarize the plan, or did I introduce shortcuts/errors?",
+        "SELECTORS: For each TC that references a selector — does that exact selector key exist in src/selectors/index.ts?",
+        "SCOPE: Am I including any fields or tabs that belong to a different submodule? Check feature boundaries.",
+        "LIVE: Did I verify field behavior on the LIVE site via browser_snapshot, or did I just read REQUIREMENTS.md and assume?"
+      ],
+      "lastRunFailures": {
+        "timestamp": "2026-04-15T08:52:33.178Z",
+        "failures": [],
+        "passed": 16,
         "failed": 0,
         "fixme": 0
       }

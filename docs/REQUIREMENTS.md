@@ -997,7 +997,7 @@ Accessible via: Setup > Location > [Office Code] → "Location Management Histor
 
 ### Plan vs DOM Column Name Comparison [MCP-VERIFIED 2026-04-13]
 
-Cross-reference of oral/plan requirements vs live DOM for both history systems. Source: SP1_MCP_FINDINGS.md.
+Cross-reference of oral/plan requirements vs live DOM for both history systems. Source: SUBPLAN_HISTORY_01_MCP_FINDINGS.md.
 
 **Location Management History (87 columns)**:
 
@@ -1180,7 +1180,7 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 **UI**:
 - Filter dropdown at top (default: "Location Management History") [MCP-CORRECTED 2026-04-13: was "Location Settings History" — dropdown always shows "Location Management History" as default regardless of page. Tab name ≠ dropdown option name]
 - Read-only table — no add, edit, delete, or row selection
-- ~~Empty state: "No results." (location 1604 has no history in system)~~ [MCP-CORRECTED 2026-04-13: Location 1604 has 61 pages (~1204 rows) of history. NOT empty. TC-LOS-HIS-003 needs update]
+- Empty state: "No results." shown when no history records exist. Office 1604 does NOT exercise this state (has 61 pages of data per SP1 MCP 2026-04-13). TC-LOS-HIS-003 rewritten 2026-04-15 to assert populated state on 1604 instead.
 - Pagination: 20 rows/page (combobox), first/prev/next/last buttons, page indicator "{n}/{total}"
 
 **42 columns confirmed live** (sorted by sort button presence — "Local Office" column has no sort button; all others do):

@@ -452,6 +452,21 @@ export class BasePage {
     Log.info(`[OK] Tab active: ${tabKey}`);
   }
 
+  /** Dismiss Angular/Radix "Unsaved changes" alertdialog if visible. Returns true if dismissed. */
+  protected async dismissAlertDialogIfVisible(): Promise<boolean> {
+    const dialog = this.page.locator('[role="alertdialog"]');
+    if (await dialog.isVisible().catch(() => false)) {
+      const discardBtn = dialog.locator('button:has-text("Discard")');
+      if (await discardBtn.isVisible().catch(() => false)) {
+        await discardBtn.click();
+        await dialog.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+        Log.info('Dismissed "Unsaved changes" alertdialog');
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Get the checked/disabled state of a Radix UI checkbox (button[role="checkbox"] using aria-checked).
    * Native HTML checkboxes use isChecked(); Radix uses aria-checked attribute — this handles Radix.

@@ -1,6 +1,8 @@
 # PLAN_HIST_EXTERNAL_SP1_AUDIT
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-04-15 by WATCHDOG (Claude Opus 4.6, see agent-activity-log.md 2026-04-15T09:15)
+**Closed**: 2026-04-15 — All 7 acceptance criteria met. 14/14 patches verified ✅/⚠️ with file:line evidence. 5 MCP re-verifications run (>3 minimum). 3 NEW findings logged (NF-001 HIGH aria-sort doesn't exist, NF-002 HIGH Radix dropdown-menu trigger, NF-003 LOW tab-contextual scoping). External Audit section appended to SUBPLAN_HISTORY_01_MCP_DISCOVERY.md (now in done/). AUD-017 + AUD-018 added to agent-mistakes.md. NF-001/NF-002 remediation completed by OWNER 2026-04-15T16:40.
 **Parent audit**: `C:\Users\rutvi\.claude\plans\expressive-booping-fountain.md` (Action CR-2, Findings F-002 + SP1-F4)
 **Priority**: P0 (CRITICAL — current SP1 audit is rubber-stamp / ALL-030 repeat offense)
 **Created**: 2026-04-15

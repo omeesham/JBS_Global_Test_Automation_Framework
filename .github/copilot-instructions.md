@@ -197,8 +197,6 @@ npm run generator:post-complete [id]    # Validate spec output (hard gate: no --
 npm run queue:archive                   # Archive completed items, prune old log
 npm run queue:compact                   # Also compact active item contexts
 npm run queue:validate                  # Cross-check queue, activity log, performance
-/identity                               # Set agent identity (interactive menu)
-/identity HUNTER                        # Adopt Requirements agent identity directly
 ```
 <!-- SYNC:COMMANDS:END -->
 
@@ -251,6 +249,7 @@ When the Healer triages a failure as **BUG** (real application bug, not test def
 | COP-006 | Check SELECTOR_CATALOG.md before declaring selector not found | — |
 | COP-007 | Fix root causes, not symptoms. Read agent-mistakes.md first | — |
 | COP-008 | Agent file edits: compare frontmatter side-by-side. No contradictions | — |
+| COP-009 | Spec-markdown TC parity: after ANY spec adds/modifies/removes TCs, update `specs_planning/test-cases/` markdown and run `npm run check:tc-parity:fix`. See ALL-071 | — |
 <!-- SYNC:NEVER_DO:END -->
 
 ---

@@ -49,7 +49,8 @@ export class LocationPricingPage extends BasePage {
    */
   async reloadPricingTab(officeNo: string = '1604'): Promise<void> {
     const base = this.config?.base_url || '';
-    await this.page.goto(`${base}locations`, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    // LR-026: After Save→Cancel, form stays dirty. safeNavigateTo handles beforeunload dialog.
+    await this.safeNavigateTo(`${base}locations`, { waitUntil: 'domcontentloaded' });
     await this.navigateToPricingTab(officeNo);
   }
 

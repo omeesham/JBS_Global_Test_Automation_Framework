@@ -292,6 +292,9 @@ test.describe.serial('Location Pricing @locations @pricing', () => {
   test('TC-LOC-PRI-019: End Date validates -- readOnly input prevents invalid date entry', async ({ locationPricingPage }) => {
     // TC intent: verify End Date field validates (cannot accept invalid input).
     // Adaptation: Radix date picker input is readOnly -- only calendar selection is allowed.
+    // RCA-fix: PRI-018's resetGridRow may leave Is Alternative checked if Radix state drifts.
+    // Ensure clean row state before enabling full cascade.
+    await locationPricingPage.resetGridRow(PRIMARY_TEST_ROW);
     await locationPricingPage.enableFullCascade(PRIMARY_TEST_ROW);
     const isReadOnly = await locationPricingPage.isEndDateReadOnly(PRIMARY_TEST_ROW);
     expect(isReadOnly, 'End Date input should be readOnly (prevents invalid manual entry)').toBe(true);
@@ -647,6 +650,9 @@ test.describe.serial('Location Pricing @locations @pricing', () => {
     expect.soft(observedPriceGuide.some(v => v === '' || v === '\u2714'),
       `GAP [TC-024]: Include Service Charge in Price Guides — expected ✔ or empty, observed [${observedPriceGuide.join('|')}]`
     ).toBe(true);
+
+    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
+    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

@@ -1,0 +1,174 @@
+﻿TC ID,Title,Module,Submodule,Specific Field,Preconditions,Steps,Expected Result,Notes
+"TC-LOC-PRI-001","Verify Pricing tab default state","locations","pricing","Pricing","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Setup > Location > 1604 -- **Pricing** tab ✓ Tab loads
+2. Verify **Corporate Pricing** checkbox ✓ Checked
+3. Verify **Price Guide Inclusive** checkbox ✓ Checked
+4. Verify **Currency** filter ✓ Shows ""All""","Pricing tab loads with Corporate Pricing and Price Guide Inclusive enabled, Currency filter set to ""All""",""
+"TC-LOC-PRI-002","Verify Primary Pricing fields default state","locations","pricing","Primary Pricing","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Setup > Location > 1604 -- **Pricing** tab ✓ Tab loads
+2. Verify Primary pricing section (USD) ✓ 5 dropdowns visible: **Primary Labor Pricing**, **Primary Equipment Pricing**, **Primary Internal Equipment Pricing**, **Primary Production Labor Pricing**, **Primary Production Equipment Pricing**
+3. Click **Primary Labor Pricing** dropdown ✓ Dropdown opens, options are selectable (editable combobox, not read-only text)
+4. Verify all 5 fields are enabled and accept user input when **Corporate Pricing** is checked ✓ Confirmed editable comboboxes","5 Primary pricing editable comboboxes (not read-only) are visible and accept selections when Corporate Pricing is checked","CORRECTION from prior docs: primary pricing fields are editable dropdowns, not read-only display fields."
+"TC-LOC-PRI-003","Verify Location Secondary Pricing grid structure","locations","pricing","Location Secondary Pricing","Office 1604 is open in Navigator. Pricing tab is active.","1. Open **Pricing** tab ✓ Tab loads
+2. Scroll to **Location Secondary Pricing** grid ✓ Grid visible
+3. Verify column headers ✓ 7 columns: Pricing Strategy, Pricebook, Currency, Is Alternative, Use Effective Date, Start Date, End Date
+4. Verify first row ✓ MEX BO GDL MXN 2025 row visible","Grid displays 7 columns with correct headers and price book rows",""
+"TC-LOC-PRI-004","Verify grid row default state (all unchecked)","locations","pricing","grid row","Office 1604 is open in Navigator. Pricing tab is active.","1. Open **Pricing** tab ✓ Tab loads
+2. Check first price book row (MEX BO GDL MXN 2025) ✓ **Is Alternative** unchecked, **Use Effective Date** disabled, **Start Date** disabled, **End Date** disabled
+3. Check second price book row (2021-Tier 3 Urban A) ✓ Same state: Is Alternative unchecked, other fields disabled","All price book rows start with Is Alternative unchecked and cascaded fields disabled",""
+"TC-LOC-PRI-005","Enable Use Effective Date by checking Is Alternative","locations","pricing","Enable Use Effective Date","Office 1604 is open in Navigator. Pricing tab is active.","1. Verify MEX BO GDL row **Use Effective Date** checkbox ✓ Disabled (not clickable)
+2. Check MEX BO GDL **Is Alternative** checkbox ✓ Checked, Save button enabled
+3. Verify **Use Effective Date** checkbox ✓ Enabled (clickable)","Checking Is Alternative enables Use Effective Date checkbox",""
+"TC-LOC-PRI-006","Is Alternative remains unchecked when Use Effective Date disabled","locations","pricing","Is Alternative","Office 1604 is open in Navigator. Pricing tab is active.","1. Verify 2021-Tier 3 Urban A row **Is Alternative** ✓ Unchecked
+2. Attempt to click **Use Effective Date** checkbox ✓ Disabled, no interaction
+3. Verify **Is Alternative** ✓ Still unchecked","Use Effective Date cannot be checked when Is Alternative is unchecked","Validates unidirectional cascade (parent controls child, not vice versa)"
+"TC-LOC-PRI-007","Enable Start/End Date fields by cascading checkboxes","locations","pricing","Enable Start/End Date fields","Office 1604 is open in Navigator. Pricing tab is active.","1. Verify MEX BO GDL row **Start Date** and **End Date** ✓ Both disabled, show ""MM/DD/YYYY"" placeholder
+2. Check **Is Alternative** ✓ Checked
+3. Check **Use Effective Date** ✓ Checked
+4. Verify **Start Date** and **End Date** ✓ Both enabled, date picker buttons clickable","Full cascade: Is Alternative checked -- Use Effective Date enabled -- Use Effective Date checked -- Start/End Date enabled",""
+"TC-LOC-PRI-008","Start/End Date remain disabled when Use Effective Date unchecked","locations","pricing","Start/End Date remain disabled","Office 1604 is open in Navigator. Pricing tab is active.","1. Check 2022-eCommerce row **Is Alternative** ✓ Checked, Use Effective Date enabled
+2. Verify **Use Effective Date** ✓ Unchecked
+3. Verify **Start Date** and **End Date** ✓ Both disabled","Date fields remain disabled until Use Effective Date is checked",""
+"TC-LOC-PRI-009","Uncheck Use Effective Date clears Start/End Date values","locations","pricing","Uncheck Use Effective Date","Office 1604 is open in Navigator. Pricing tab is active.","1. Enable dates via cascade (Is Alternative checked, Use Effective Date checked) ✓ Start/End Date enabled
+2. Enter **Start Date** = 03/01/2026, **End Date** = 03/31/2026 ✓ Dates entered
+3. Uncheck **Use Effective Date** ✓ Unchecked
+4. Re-check **Use Effective Date** ✓ Checked again
+5. Verify **Start Date** and **End Date** ✓ Values cleared (empty fields)","Unchecking Use Effective Date clears date values","Per REQUIREMENTS.md: ""On Uncheck: Clears StartDate value, Clears EndDate value"""
+"TC-LOC-PRI-010","Uncheck Is Alternative disables and clears all row fields","locations","pricing","Uncheck Is Alternative disables and clears all row","Office 1604 is open in Navigator. Pricing tab is active.","1. Configure MEX BO GDL row: **Is Alternative** checked, **Use Effective Date** checked, **Start Date** = 02/15/2026 ✓ All fields configured
+2. Uncheck **Is Alternative** ✓ Unchecked
+3. Verify **Use Effective Date** ✓ Disabled and unchecked
+4. Verify **Start Date** and **End Date** ✓ Disabled and values cleared","Unchecking Is Alternative disables Use Effective Date, clears dates, and sets IsDeleted=true flag","Per REQUIREMENTS.md: ""On Uncheck: Clears all validation errors, Sets IsDeleted=true, Sets UseDate=false, Clears StartDate and EndDate values"""
+"TC-LOC-PRI-011","Corporate Pricing master toggle disables Primary pricing fields","locations","pricing","Corporate Pricing master toggle disables Primary pricing","Office 1604 is open in Navigator. Pricing tab is active.","1. Verify **Primary Labor Pricing** dropdown ✓ Enabled (clickable)
+2. Uncheck **Corporate Pricing** checkbox ✓ Unchecked, Save button enabled
+3. Verify all 5 Primary pricing dropdowns ✓ All disabled (grayed out)","Unchecking Corporate Pricing disables all Primary pricing fields",""
+"TC-LOC-PRI-012","Corporate Pricing toggle does NOT disable grid fields","locations","pricing","Corporate Pricing toggle does NOT disable","Office 1604 is open in Navigator. Pricing tab is active.","1. Configure MEX BO GDL row: **Is Alternative** checked, **Use Effective Date** checked ✓ Fields enabled
+2. Uncheck **Corporate Pricing** checkbox ✓ Unchecked
+3. Verify MEX BO GDL **Is Alternative** checkbox ✓ Still enabled (clickable)
+4. Verify **Use Effective Date** checkbox ✓ Still enabled","Grid fields remain enabled (actual live behavior)","CONFIRMED BEHAVIOR (live verified 2026-02-18): Corporate Pricing unchecked -- Primary pricing dropdowns become disabled ONLY; secondary grid (Is Alternative, Use Effective Date, Start Date, End Date) remains fully editable. Prior REQUIREMENTS.md was incorrect; documentation has been updated to reflect actual live behavior."
+"TC-LOC-PRI-013","Re-enable fields by checking Corporate Pricing","locations","pricing","Re-enable fields","Office 1604 is open in Navigator. Pricing tab is active.","1. Uncheck **Corporate Pricing** ✓ Primary pricing fields disabled
+2. Check **Corporate Pricing** ✓ Checked
+3. Verify **Primary Labor Pricing** dropdown ✓ Re-enabled (clickable)","Checking Corporate Pricing re-enables Primary pricing fields",""
+"TC-LOC-PRI-014","Currency filter displays ""All"" by default","locations","pricing","Currency filter displays ""All""","Office 1604 is open in Navigator. Pricing tab is active.","1. Open **Pricing** tab ✓ Tab loads
+2. Check **Currency** filter dropdown ✓ Shows ""All""","Currency filter defaults to ""All"" showing all currencies",""
+"TC-LOC-PRI-015","Currency filter dropdown options","locations","pricing","Currency filter","Office 1604 is open in Navigator. Pricing tab is active.","1. Click **Currency** filter dropdown ✓ Dropdown opens
+2. Verify options ✓ Exactly 4 options: ""All"", ""USD"", ""MXN"", ""CAD""","Currency dropdown contains exactly ""All"", ""USD"", ""MXN"", ""CAD"" - no other options","Confirmed from Currency tab live verification (office 1604, 2026-02-19): 3 currencies configured -- 4 filter options: All + USD + MXN + CAD"
+"TC-LOC-PRI-016","Filter grid by selecting specific currency","locations","pricing","Filter","Office 1604 is open in Navigator. Pricing tab is active.","1. Click **Currency** filter ✓ Opens
+2. Select **USD** ✓ Filter applied
+3. Verify grid rows ✓ Only USD price books visible (MEX BO GDL MXN 2025 hidden)
+4. Select **All** ✓ Filter cleared
+5. Verify grid ✓ All currencies visible again","Currency filter updates grid to show only matching price books",""
+"TC-LOC-PRI-017","Primary pricing fields accept dropdown selections","locations","pricing","Primary pricing","Office 1604 is open in Navigator. Pricing tab is active.","1. Ensure **Corporate Pricing** checked ✓ Checked
+2. Click **Primary Labor Pricing** dropdown ✓ Dropdown opens (loading skeleton if API unavailable)
+3. Select any available price book option ✓ Option selected and shown in dropdown
+4. Verify dropdown ✓ Shows selected value
+5. Click **Save** ✓ Confirm dialog -- save completes; reload -- value persists","Primary pricing dropdowns accept selections and persist after save","Primary pricing dropdown options cannot be discovered in training environment - pricing APIs (production-pricebooks, corporate-pricebooks) return CORS errors. Verify specific option names with API access. TC verifies dropdown accepts selection and persists - testable when APIs are accessible."
+"TC-LOC-PRI-018","Start Date validates MM/DD/YYYY format","locations","pricing","Start Date validates MM/DD/YYYY","Office 1604 is open in Navigator. Pricing tab is active.","1. Enable date fields (Is Alternative checked, Use Effective Date checked) ✓ Dates enabled
+2. Click **Start Date** field, enter invalid date ""13/45/2026"" ✓ Entered
+3. Click outside field ✓ Validation triggers
+4. Verify error state ✓ Field shows error indicator (red border / error class on input)","Invalid date format triggers validation error via customDateValidator; field shows error state","Per REQUIREMENTS.md: customDateValidator validates via isValidDate() method. Exact error message text cannot be verified in training environment - pricing grid does not load (CORS-blocked API). Verify specific error text with API access."
+"TC-LOC-PRI-019","End Date validates MM/DD/YYYY format","locations","pricing","End Date validates MM/DD/YYYY","Office 1604 is open in Navigator. Pricing tab is active.","1. Enable date fields ✓ Dates enabled
+2. Click **End Date** field, enter invalid date ""99/99/9999"" ✓ Entered
+3. Click outside field ✓ Validation triggers
+4. Verify error state ✓ Error indicator displayed","Invalid date format triggers validation error via customDateValidator",""
+"TC-LOC-PRI-020","Valid dates persist after save","locations","pricing","Valid dates persist","Office 1604 is open in Navigator. Pricing tab is active.","1. Enable dates (Is Alternative checked, Use Effective Date checked) ✓ Dates enabled
+2. Enter **Start Date** = 04/01/2026, **End Date** = 04/30/2026 ✓ Valid dates entered
+3. Click **Save** ✓ Save completes
+4. Refresh page or navigate away and return ✓ Return to Pricing tab
+5. Verify MEX BO GDL row ✓ **Start Date** = 04/01/2026, **End Date** = 04/30/2026, **Is Alternative** and **Use Effective Date** both checked","Date values and checkbox states persist after save",""
+"TC-LOC-PRI-021","Multiple price books can have alternate pricing simultaneously","locations","pricing","Multiple price books","Office 1604 is open in Navigator. Pricing tab is active.","1. Check **Is Alternative** for MEX BO GDL MXN 2025 ✓ Checked
+2. Check **Is Alternative** for 2021-Tier 3 Urban A ✓ Checked
+3. Check **Is Alternative** for 2022-eCommerce ✓ Checked
+4. Verify all three rows ✓ All show Is Alternative checked simultaneously","Multiple price books can be marked as alternate pricing concurrently (no single-selection constraint)",""
+"TC-LOC-PRI-022","Grid validates all rows via validateCorporatePriceGrid","locations","pricing","Grid validates all rows via validateCorporatePrice","Office 1604 is open in Navigator. Pricing tab is active.","1. Configure MEX BO GDL: **Is Alternative** checked, **Use Effective Date** checked, **Start Date** = invalid ""99/99/9999"" ✓ Invalid entry
+2. Configure 2021-Tier 3: **Is Alternative** checked, **Use Effective Date** checked, **Start Date** = ""05/01/2026"" (valid) ✓ Valid entry
+3. Attempt **Save** ✓ Validation runs
+4. Verify error state ✓ Grid-level error: CorporatePrices control shows {invalid: true}","Grid validation aggregates errors from all rows, blocks save if any row has validation error","Per REQUIREMENTS.md: validateCorporatePriceGrid() iterates all rows, sets CorporatePrices form control error if any row fails validation"
+"TC-LOC-PRI-023","Verify Pricing tab has dedicated Save button (separate from left-panel Save)","locations","pricing","Pricing","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Setup > Location > 1604 -- **Pricing** tab ✓ Tab loads
+2. Verify a dedicated **Save** button is visible inside the Pricing tabpanel (purple button, top-right of pricing card) ✓ Save button present and always enabled
+3. Check **Is Alternative** for any price book row ✓ Row changes state
+4. Click the Pricing **Save** button ✓ Save completes (no confirmation dialog needed)
+5. Reload page and return to **Pricing** tab
+6. Verify the row's **Is Alternative** state persisted ✓ Confirmed","Pricing tab has its own dedicated Save button, separate from the main left-panel Save. It is always enabled when Pricing tab is open and successfully persists pricing changes.","The `btnSavePricing` selector targets the Pricing tabpanel Save specifically. Other right-panel tabs (Local Information, Currency) do NOT have a tab-specific Save - they use the main panel Save."
+"TC-LOC-PRI-024","Price Guide Inclusive - edit and persist","locations","pricing","Price Guide Inclusive -","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Setup > Location > 1604
+ [ok] **Pricing** tab [OK] Tab loads
+2. Verify **Price Guide Inclusive** checkbox [OK] Checked (default)
+3. Uncheck **Price Guide Inclusive** [OK] Unchecked
+4. Click **Save** (Pricing tab Save button) [OK] Save completes
+5. Reload page and return to **Pricing** tab [OK] Tab loads
+6. Verify **Price Guide Inclusive** [OK] Still unchecked (persisted)
+7. Re-check **Price Guide Inclusive** [OK] Checked
+8. Click **Save** [OK] Save completes
+9. Reload and verify **Price Guide Inclusive** [OK] Checked (restored to default)","Price Guide Inclusive toggle state persists after save and page reload","⚠️ CLEANUP: Step 9 restores default checked state"
+"TC-LOC-PRI-025","Corporate Pricing - toggle state persists after Save","locations","pricing","Corporate Pricing - toggle","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Pricing tab [OK] **Corporate Pricing** is checked (default)
+2. Uncheck **Corporate Pricing** [OK] Unchecked, Primary pricing dropdowns disabled
+3. Click **Save** [OK] Save completes
+4. Reload page and return to Pricing tab [OK] Tab loads
+5. Verify **Corporate Pricing** [OK] Still unchecked (persisted)
+6. Re-check **Corporate Pricing** [OK] Checked, Primary pricing dropdowns re-enabled
+7. Click **Save** [OK] Save completes
+8. Reload and verify **Corporate Pricing** [OK] Checked (restored to default)","Corporate Pricing checkbox state persists through save and reload","⚠️ CLEANUP: Step 8 restores default checked state"
+"TC-LOC-PRI-026","Primary Labor Pricing - select and persist specific value","locations","pricing","Primary Labor Pricing -","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled
+2. Click **Primary Labor Pricing** dropdown [OK] Dropdown opens
+3. Select **2026-Zone 3 D** [OK] Value selected
+4. Click **Save** [OK] Save completes
+5. Reload and return to Pricing tab [OK] Tab loads
+6. Verify **Primary Labor Pricing** [OK] Shows ""2026-Zone 3 D""","Primary Labor Pricing ""2026-Zone 3 D"" persists after save","⚠️ CLEANUP: Reset **Primary Labor Pricing** to original value after test"
+"TC-LOC-PRI-027","Primary Equipment Pricing - select and persist specific value","locations","pricing","Primary Equipment Pricing -","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled
+2. Click **Primary Equipment Pricing** dropdown [OK] Dropdown opens
+3. Select **2026-Tier 2 Resort B** [OK] Value selected
+4. Click **Save** [OK] Save completes
+5. Reload and return to Pricing tab [OK] Tab loads
+6. Verify **Primary Equipment Pricing** [OK] Shows ""2026-Tier 2 Resort B""","Primary Equipment Pricing ""2026-Tier 2 Resort B"" persists after save","⚠️ CLEANUP: Reset **Primary Equipment Pricing** to original value after test"
+"TC-LOC-PRI-028","Primary Internal Equipment Pricing - select and persist specific value","locations","pricing","Primary Internal Equipment Pricing","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled
+2. Click **Primary Internal Equipment Pricing** dropdown [OK] Dropdown opens
+3. Select **2023-Internal2** [OK] Value selected
+4. Click **Save** [OK] Save completes
+5. Reload and return to Pricing tab [OK] Tab loads
+6. Verify **Primary Internal Equipment Pricing** [OK] Shows ""2023-Internal2""","Primary Internal Equipment Pricing ""2023-Internal2"" persists after save","⚠️ CLEANUP: Reset **Primary Internal Equipment Pricing** to original value after test"
+"TC-LOC-PRI-029","Primary Production Labor Pricing - select and persist specific value","locations","pricing","Primary Production Labor Pricing","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled
+2. Click **Primary Production Labor Pricing** dropdown [OK] Dropdown opens
+3. Select **2026-NP LB3** [OK] Value selected
+4. Click **Save** [OK] Save completes
+5. Reload and return to Pricing tab [OK] Tab loads
+6. Verify **Primary Production Labor Pricing** [OK] Shows ""2026-NP LB3""","Primary Production Labor Pricing ""2026-NP LB3"" persists after save","⚠️ CLEANUP: Reset **Primary Production Labor Pricing** to original value after test"
+"TC-LOC-PRI-030","Primary Production Equipment Pricing - select and persist specific value","locations","pricing","Primary Production Equipment Pricing","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to Pricing tab, ensure **Corporate Pricing** checked [OK] Primary pricing enabled
+2. Click **Primary Production Equipment Pricing** dropdown [OK] Dropdown opens
+3. Select **2026-NP Tier 2** [OK] Value selected
+4. Click **Save** [OK] Save completes
+5. Reload and return to Pricing tab [OK] Tab loads
+6. Verify **Primary Production Equipment Pricing** [OK] Shows ""2026-NP Tier 2""","Primary Production Equipment Pricing ""2026-NP Tier 2"" persists after save","⚠️ CLEANUP: Reset **Primary Production Equipment Pricing** to original value after test"
+"TC-LOC-PRI-031","Save dialog Cancel — edit, Save, Cancel, form stays dirty, no data saved","locations","pricing","Save dialog Cancel —","Office 1604 is open in Navigator. Pricing tab is active.","1. Check **Is Alternative** on primary test row ✓ Checked
+2. Verify **Save** enabled ✓ Enabled
+3. Click **Save** ✓ Save Changes dialog appears
+4. Click **Cancel** ✓ Dialog dismissed
+5. Verify **Save** still enabled ✓ Enabled (form still dirty)
+6. Reload Pricing tab ✓ Tab loads
+7. Verify **Is Alternative** on primary test row ✓ Unchecked (data NOT persisted)","Cancelling the Save Changes dialog discards all pending changes; reload shows original state",""
+"TC-LOC-PRI-032","Unsaved changes dialog — edit, navigate away, Stay returns to form","locations","pricing","Unsaved changes dialog —","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to **Pricing** tab ✓ Tab loads
+2. Uncheck **Corporate Pricing** ✓ Unchecked (form dirty)
+3. Verify **Save** enabled ✓ Enabled
+4. Click sidebar Home link ✓ Unsaved changes dialog appears
+5. Click **Stay** ✓ Dialog dismissed, stays on Pricing tab
+6. Verify URL still contains locations path ✓ Correct page
+7. Verify **Save** still enabled ✓ Enabled (form still dirty)","Clicking Stay on unsaved changes dialog returns to form with dirty state preserved","⚠️ CLEANUP: Re-check **Corporate Pricing** -- reload Pricing tab to discard dirty state"
+"TC-LOC-PRI-033","Grid validation errors block Save — missing dates with cascade enabled","locations","pricing","Grid","Office 1604 is open in Navigator. Pricing tab is active.","1. Reload **Pricing** tab ✓ Tab loads (clean state, LR-026)
+2. Verify **Save** disabled ✓ Disabled (no pending changes)
+3. Check **Is Alternative** on primary test row ✓ Checked
+4. Wait for **Use Effective Date** enabled (LR-010 poll) ✓ Enabled
+5. Check **Use Effective Date** ✓ Checked
+6. Wait for date fields enabled (LR-010 poll) ✓ Enabled
+7. Verify **Save** state with empty dates ✓ Disabled (validation error: required dates missing)
+8. Enter valid Start Date and End Date ✓ Dates entered
+9. Verify **Save** enabled ✓ Enabled (dirty + no validation errors)","Grid validation blocks Save when required date fields are empty after enabling cascade; Save enables after valid dates entered","MCP-1 unverified due to API 500 issue - hypothesis assertion will fail informatively if wrong | ⚠️ CLEANUP: Reset grid row (uncheck Is Alternative) -- reload Pricing tab (LR-026)"
+"TC-LOC-PRI-035","Read-only columns (Pricing Strategy, Pricebook, Currency) have no interactive elements","locations","pricing","Read-only columns (Pricing Strategy,","Office 1604 is open in Navigator. Pricing tab is active.","1. Navigate to **Pricing** tab ✓ Tab loads
+2. Inspect columns 1-3 (Pricing Strategy, Pricebook, Currency) on primary test row ✓ No button, checkbox, or input elements found","Read-only columns contain only display text - no interactive elements","TC-LOC-PRI-034 intentionally does not exist (skipped ID)"
+"TC-LOC-PRI-HIST","Pricing Saves — Location Management History Row Verification","locations","pricing","Pricing Saves — Location","Office 1604 is open in Navigator. Pricing tab is active.","1. After PRI save TCs complete, navigate to Location Management History tab
+ [ok] Tab loads
+2. Sort by Modified On descending (SP1 §11: default is ascending)
+ [ok] Rows newest-first
+3. Read rows newer than suite start (2-min buffer) via `getRowsSinceTimestamp`
+ [ok] Suite rows isolated
+4. **Runtime classification**: if suite rows == 0, saves may still be blocked by API 500
+ [ok] `test.skip` with reason (not failure)
+5. Verify every suite row has Modified By + Modified On non-empty
+ [ok] User + timestamp present
+6. Gap-check: col 62 Include Service Charge in Price Guides shows ✔ or empty (TC-024 toggle)
+ [ok] Tracked","PRI-024 save produces 1 history row with col 62 reflecting PriceGuideInclusive state. Unicode ✔ for TRUE, empty for FALSE. If API 500 still blocks, test skips with clear reason (not silent pass).","Header comment in spec file historically said ""ALL 27 active tests BLOCKED by API 500"" - per user steering 2026-04-15, runtime classification replaces static skip. Per-save dropdown persistence tests (TC-020/025/026-030) remain `test.skip` per existing spec state."

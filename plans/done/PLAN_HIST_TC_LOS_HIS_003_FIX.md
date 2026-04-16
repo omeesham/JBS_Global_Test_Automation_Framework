@@ -1,12 +1,40 @@
 # PLAN_HIST_TC_LOS_HIS_003_FIX
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-04-15
 **Parent audit**: `C:\Users\rutvi\.claude\plans\expressive-booping-fountain.md` (Action H-4, Finding SP2-F2)
 **Priority**: P1 (HIGH — known-wrong assertion left in test catalog)
 **Created**: 2026-04-15
-**Identity**: GIVER (TC author) — must follow LR-031 (no lazy SKIPs) + LR-034 (bug filing if app bug)
+**Identity**: GIVER (TC author) — followed LR-031 (no lazy SKIPs) + LR-027 (resolution documented)
 **Estimated session**: SMALL (30-45 min)
 **Depends on**: PLAN_HIST_EXTERNAL_SP1_AUDIT (need verified SP1 truth)
+
+---
+
+## Execution Summary
+
+**Path chosen**: **A (FIX)** — update TC to assert populated state, matching live reality.
+
+**Rationale**: SP1 MCP session (2026-04-13, SUBPLAN_HISTORY_01_MCP_FINDINGS.md §2) definitively proved Office 1604 Local Office History has 61 pages (~1204 rows) — NOT empty. Investigation was exhausted (LR-031 satisfied). Path B (FILE BUG) was not appropriate: no documented product requirement that 1604 should be empty; the original TC was authored from a wrong assumption, not against a real product spec. Path C (DROP) was not appropriate: the test has value re-purposed as a populated-state assertion and the spec was already written that way.
+
+**MCP verification**: Relied on SP1's 2026-04-13 MCP session (authoritative, dated). No new MCP session required — evidence is fresh and uncontested.
+
+**TCs implemented**: 1 of 1
+- TC-LOS-HIS-003: rewritten from "Empty State for Location 1604" → "Table Populated for Office 1604"; steps + Expected + MCP_VERIFICATION_LOG updated.
+
+**TCs dropped**: None.
+
+**Documentation changes**:
+1. `specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` — TC-LOS-HIS-003 rewritten (title, steps, Expected, MCP_VERIFICATION_LOG added).
+2. `specs_planning/test-plans/setup/local-office/local_office_settings_test_plan.md` — TC-LOS-HIS-003 step block rewritten.
+3. `docs/REQUIREMENTS.md` line 1183 — strikethrough/correction note replaced with current fact.
+4. `plans/done/SUBPLAN_HISTORY_02_REQUIREMENTS_AND_TCS.md` — "Known issues carried forward" entry marked RESOLVED with link to this plan.
+
+**Spec status**: No spec edits needed. `tests/specs/setup/local-office/local-office-history.spec.ts:25-27` already asserts `isHistoryTableEmpty() === false` (committed 87f80cc). Documentation was the only drift.
+
+**Test pass confirmation**: Spec unchanged from previously-passing state; no regression risk from this plan. Full-suite re-run deferred (no code change).
+
+**Activity log**: row appended to `specs_planning/_internal/agent-activity-log.md` per LR-028.
 
 ---
 

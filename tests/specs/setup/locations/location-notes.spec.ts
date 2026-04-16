@@ -15,7 +15,15 @@ import {
 } from '../../../test-data/setup/locations/location-notes.data';
 import { OFFICE_NO, SAVE_CHANGES_DIALOG } from '../../../test-data/common.data';
 
+// SP5 integration test: capture wall-clock at suite start so TC-HIST can filter
+// history rows produced by this suite's saves. 2-min buffer absorbs clock skew.
+let suiteStartTime = 0;
+
 test.describe.serial('Location Notes @locations @notes', () => {
+
+  test.beforeAll(() => {
+    suiteStartTime = Date.now() - 2 * 60 * 1000;
+  });
 
   // ─── Group A: Navigation + Default State ─────────────────────────────────
   // MCP-verified: Default state = 1 empty textarea row (0/4000), NOT "No Notes Available"
@@ -350,6 +358,56 @@ test.describe.serial('Location Notes @locations @notes', () => {
     // Reload (discards unsaved changes) + verify note is NOT present
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
+  });
+
+  // ── SP5: Cross-tab history integration — MUST be LAST in describe.serial ────
+  // Verifies that completed saves during this spec produced corresponding rows
+  // on the Location Management History tab. Uses timestamp-window filtering
+  // rather than hardcoded counts (LR-022). All assertions use expect.soft().
+  //
+  // Saves tracked: TC-008 (1), TC-009 (1), TC-012 (1), TC-013/018/019/020 loop (4),
+  // TC-023 (1), TC-024 (1), TC-025 (1), TC-026 (1) = 11 explicit.
+  // ensureEmptyState() may add conditional saves. TC-027 cancel = no row.
+  test('TC-LOC-NTS-HIST: All completed saves produce history rows with correct values', async ({ locationNotesPage, locationManagementHistoryPage }) => {
+    test.setTimeout(180_000);
+
+    // 1. Navigate to Location Management History tab from any starting URL
+    //    (navigateToHistoryTab handles: page navigation if needed, unsaved dialog dismissal per LR-026)
+    await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
+
+    // 3. Sort by Modified On descending (SP1 §11: default sort is ASCENDING)
+    await locationManagementHistoryPage.sortByModifiedOnDesc();
+    await locationManagementHistoryPage.waitForRecentTopRow();
+
+    // 4. Read all rows newer than suiteStartTime
+    const HEADERS = ['Modified By', 'Modified On', 'Notes'];
+    const suiteRows = await locationManagementHistoryPage.getRowsSinceTimestamp(
+      suiteStartTime, HEADERS,
+    );
+
+    // 5. Sanity — at least some saves were tracked
+    expect.soft(suiteRows.length,
+      'expected at least 1 Location Mgmt History row produced by this suite\'s saves').toBeGreaterThan(0);
+
+    // 6. Every suite row must carry Modified By and Modified On
+    for (let i = 0; i < suiteRows.length; i++) {
+      const row = suiteRows[i]!;
+      expect.soft(row['Modified By'], `row ${i}: Modified By empty`).toBeTruthy();
+      expect.soft(row['Modified On'], `row ${i}: Modified On empty`).toBeTruthy();
+    }
+
+    // 7. Gap detection — Notes column should show various content across saves.
+    // Snapshot model: each row captures the full Notes state at save time.
+    // Some saves write text, some clear all notes (ensureEmptyState), so we expect
+    // both non-empty and empty Notes values across the suite rows.
+    const notesValues = Array.from(new Set(suiteRows.map(r => r['Notes'] ?? '')));
+    const hasNonEmptyNotes = notesValues.some(v => v !== '');
+    expect.soft(hasNonEmptyNotes,
+      `GAP [TC-008..026]: no non-empty Notes values in history rows — observed: [${notesValues.slice(0, 5).join('|')}${notesValues.length > 5 ? '|...' : ''}]`
+    ).toBe(true);
+
+    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
+    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

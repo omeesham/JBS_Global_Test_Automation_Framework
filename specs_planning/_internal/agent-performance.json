@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "lastUpdated": "2026-03-19T06:57:56.992Z",
+  "lastUpdated": "2026-04-14T08:57:57.237Z",
   "promotionRules": {
     "description": "Strict meritocracy - no self-promotion, external audit only, zero-defect required",
     "trustLevels": [
@@ -57,14 +57,6 @@
           "resolved": false
         },
         {
-          "date": "2026-02-18",
-          "id": "REQ-PERF-002",
-          "feature": "location-local-information",
-          "description": "Self-caught Legal Save button contradiction in REQUIREMENTS.md line 146",
-          "severity": "low",
-          "resolved": true
-        },
-        {
           "date": "2026-03-02",
           "id": "REQ-PERF-003",
           "feature": "location-local-office-settings",
@@ -107,7 +99,17 @@
         "defectRecurrenceRate": 0.5,
         "selfAuditAccuracy": 0,
         "maturityScore": 0
-      }
+      },
+      "archivedDefects": [
+        {
+          "date": "2026-02-18",
+          "id": "REQ-PERF-002",
+          "feature": "location-local-information",
+          "description": "Self-caught Legal Save button contradiction in REQUIREMENTS.md line 146",
+          "severity": "low",
+          "resolved": true
+        }
+      ]
     },
     "planner": {
       "trustLevel": "probation",
@@ -183,6 +185,27 @@
       "defects": [
         {
           "date": "2026-02-20",
+          "id": "GEN-PERF-001",
+          "feature": "location-local-information",
+          "description": "Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity",
+          "severity": "high",
+          "resolved": false
+        }
+      ],
+      "lastAuditedBy": "audit",
+      "lastAuditDate": "2026-02-27",
+      "notes": "Run 1 (02-20): catastrophic 672-line spec, never ran. Run 2 (02-23): clean restart, timeout undiagnosed. Run 3 (02-25): TC-026/045 added, 24/24 passing. Run 4 (02-25): remaining LI TCs completed. Run 5 (02-25): Currency spec completed 20/20. Run 6 (02-27): RCA+FIX 3 root causes, 19 passed/8 skipped. Run 7 (02-27): viewport fix + live DOM audit, headless 19/8/0. Post-overhaul quality good. 2 specs completed (LI 41% + Currency 100%).",
+      "learningsLogged": 7,
+      "learningYield": 1,
+      "learningDebt": 0,
+      "maturityIndicators": {
+        "defectRecurrenceRate": 0,
+        "selfAuditAccuracy": 0,
+        "maturityScore": 0
+      },
+      "archivedDefects": [
+        {
+          "date": "2026-02-20",
           "id": "GEN-006",
           "feature": "location-local-information",
           "description": "672-line spec — exceeded 200-line limit by 3.3x",
@@ -246,14 +269,6 @@
           "resolved": true
         },
         {
-          "date": "2026-02-20",
-          "id": "GEN-PERF-001",
-          "feature": "location-local-information",
-          "description": "Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity",
-          "severity": "high",
-          "resolved": false
-        },
-        {
           "date": "2026-02-24",
           "id": "GEN-PERF-002",
           "feature": "location-local-information",
@@ -261,18 +276,7 @@
           "severity": "critical",
           "resolved": true
         }
-      ],
-      "lastAuditedBy": "audit",
-      "lastAuditDate": "2026-02-27",
-      "notes": "Run 1 (02-20): catastrophic 672-line spec, never ran. Run 2 (02-23): clean restart, timeout undiagnosed. Run 3 (02-25): TC-026/045 added, 24/24 passing. Run 4 (02-25): remaining LI TCs completed. Run 5 (02-25): Currency spec completed 20/20. Run 6 (02-27): RCA+FIX 3 root causes, 19 passed/8 skipped. Run 7 (02-27): viewport fix + live DOM audit, headless 19/8/0. Post-overhaul quality good. 2 specs completed (LI 41% + Currency 100%).",
-      "learningsLogged": 7,
-      "learningYield": 1,
-      "learningDebt": 0,
-      "maturityIndicators": {
-        "defectRecurrenceRate": 0,
-        "selfAuditAccuracy": 0,
-        "maturityScore": 0
-      }
+      ]
     },
     "healer": {
       "trustLevel": "probation",
@@ -295,16 +299,7 @@
       "trustLevel": "probation",
       "cleanCycles": 0,
       "totalRuns": 13,
-      "defects": [
-        {
-          "date": "2026-02-19",
-          "id": "AUD-PERF-002",
-          "feature": "location-shared-setup",
-          "description": "Terminated without completing Mode 1 step 7 (registry update) — caught only after user challenge, not by self-audit",
-          "severity": "medium",
-          "resolved": true
-        }
-      ],
+      "defects": [],
       "lastAuditedBy": "human",
       "lastAuditDate": "2026-02-27",
       "notes": "13 audits across 11 days. Self-accuracy improved from 40% (02-17) to consistent findings. False positive on 02-27: F4 claimed firefox/webkit viewport:null when both have explicit 1920x1080 (COP-016 violation). Flag-and-forget pattern: findings not tracked to resolution. Performance.json abandoned 7 days (02-20 to 02-27).",
@@ -323,6 +318,14 @@
           "feature": "location-local-information",
           "description": "Initial block had 40% accuracy — 3 of 5 claims were false (selectors existed, DISCOVER_ not found). Required self-correction after re-audit.",
           "severity": "high",
+          "resolved": true
+        },
+        {
+          "date": "2026-02-19",
+          "id": "AUD-PERF-002",
+          "feature": "location-shared-setup",
+          "description": "Terminated without completing Mode 1 step 7 (registry update) — caught only after user challenge, not by self-audit",
+          "severity": "medium",
           "resolved": true
         }
       ]

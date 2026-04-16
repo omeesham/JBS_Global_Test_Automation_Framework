@@ -1,6 +1,29 @@
-# MEGA PLAN: Client Repo Delivery — Triple-Audited
+# MEGA PLAN: Client Repo Delivery — Triple-Audited — SUPERSEDED
 
-**Status**: PENDING
+**Status**: SUPERSEDED
+**Superseded**: 2026-04-17
+**Superseded by**: `PLAN_MULTI_TENANT_RESTRUCTURE.md`
+
+---
+
+## Execution Summary
+
+Never executed. Pivot 2026-04-16:
+
+- User directive: *"we ship to colleague, they will ship to client, we ship everything in
+  new structure, colleague decides what to give and what to not give… do not do work for
+  colleague, focus on our core goal only, not theirs."*
+- This plan is client-delivery packaging end-to-end: IP scrub, dist/ curation, fixtures
+  merge for a client-facing copy, dep trim, SharePoint/LICENSE/CI templates, smoke tests.
+- All of it is colleague's scope after the multi-tenant handoff (PLAN_MULTI_TENANT_RESTRUCTURE).
+  Our side ships the whole restructured repo; colleague decides what the end-client receives.
+- If colleague later asks us to help build packaging tooling, open a NEW explicit plan. Do not
+  resurrect this one.
+
+No code modified. No files produced. Kept here as historical context and as evidence of the
+pre-pivot design that prompted the pivot.
+
+---
 
 ## Context
 

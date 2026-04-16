@@ -171,6 +171,8 @@ export const KNOWN_SUB_CODES = [
   'HST',  // local_office_settings history
   'HIS',  // local_office_settings history (alias)
   'ECT',  // local_office_settings ect_settings
+  'HIST', // history integration (cross-tab save verification — LOC)
+  'HISL', // history integration (cross-tab save verification — LOS)
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];

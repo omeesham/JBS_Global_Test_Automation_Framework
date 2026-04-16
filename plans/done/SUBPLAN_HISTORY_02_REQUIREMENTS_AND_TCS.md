@@ -5,13 +5,13 @@
 **Phase**: 0.5 + 0.7
 **Status**: DONE
 **Executed**: 2026-04-13
-**Depends on**: SUBPLAN_HISTORY_01 complete (SP1_MCP_FINDINGS.md exists)
+**Depends on**: SUBPLAN_HISTORY_01 complete (SUBPLAN_HISTORY_01_MCP_FINDINGS.md exists)
 
 ---
 
 ## Context
 
-Phase 0 MCP findings are in `plans/pending/SP1_MCP_FINDINGS.md`. Now we update requirements docs and create integration test cases BEFORE any code is written. Two pipeline agents do this work: HUNTER (requirements) and GIVER (planner).
+Phase 0 MCP findings are in `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md`. Now we update requirements docs and create integration test cases BEFORE any code is written. Two pipeline agents do this work: HUNTER (requirements) and GIVER (planner).
 
 ---
 
@@ -23,10 +23,10 @@ Phase 0 MCP findings are in `plans/pending/SP1_MCP_FINDINGS.md`. Now we update r
 
 **MANDATORY reads before ANY work:**
 1. `plans/pending/PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md` (master plan)
-2. `plans/pending/SP1_MCP_FINDINGS.md` (MCP truth)
+2. `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md` (MCP truth)
 3. `docs/REQUIREMENTS.md` lines 826-960 (Location Mgmt History) and 1103-1161 (Local Office History)
 
-**STOP AND ASK** if SP1_MCP_FINDINGS.md does not exist or is incomplete. Do NOT proceed without MCP findings.
+**STOP AND ASK** if SUBPLAN_HISTORY_01_MCP_FINDINGS.md does not exist or is incomplete. Do NOT proceed without MCP findings.
 
 ---
 
@@ -85,7 +85,7 @@ Activity log entry per LR-028.
 
 - Do NOT write any spec code, page objects, or selectors in this session
 - Do NOT modify any existing test case — only APPEND new HIST TCs
-- Every integration TC must reference SP1_MCP_FINDINGS.md for expected formats
+- Every integration TC must reference SUBPLAN_HISTORY_01_MCP_FINDINGS.md for expected formats
 - If MCP findings contradict master plan assumptions, update the TC accordingly — MCP is truth
 
 ---
@@ -126,5 +126,48 @@ Activity log entry per LR-028.
 **TCs not implemented**: None — all planned deliverables completed.
 
 **Known issues carried forward**:
-- TC-LOS-HIS-003 "Empty State" assertion is factually wrong (history has 61 pages). Noted in REQUIREMENTS.md but NOT modified per guardrails. Needs GIVER update in a future session.
+- ~~TC-LOS-HIS-003 "Empty State" assertion is factually wrong~~ **RESOLVED 2026-04-15** via `PLAN_HIST_TC_LOS_HIS_003_FIX.md` — Path A (FIX). TC rewritten to "Table Populated for Office 1604", asserting `isHistoryTableEmpty() === false`. Spec was already corrected at commit 87f80cc; test-cases markdown + test plan + REQUIREMENTS.md now aligned. GIVER identity; LR-031 investigation exhaustion satisfied via SP1 MCP evidence (Office 1604 = 61 pages). No app bug filed — original TC was authored against wrong assumption, not a product defect.
 - 8 locations file headers not updated with new TC counts (conservative — count will be updated during comprehensive planner review)
+
+---
+
+### MCP Verification Log Update (2026-04-15)
+
+**Audit by**: Claude Opus (WATCHDOG identity, GIVER lens)
+**Plan**: `plans/pending/PLAN_HIST_SP2_PER_TC_MCP_AUDIT.md`
+**Trigger**: AUD-015 violation — SP2 created HIST TCs with only file-level SP1 reference, no per-TC MCP_VERIFICATION_LOG citations.
+
+**Inventory correction**: Plan said "9 HIST TCs"; actual count is **10 TCs** (TC-LOS-HISL-001, TC-LOS-HISL-002, TC-LOC-HIST-001..008). Naming note: Local Office TCs use suffix `HISL` (Integration-LO-History-Local) not `HIST` as the plan's parent text suggested.
+
+**Per-TC MCP_VERIFICATION_LOG blocks added** (10/10):
+
+| TC | File | Verification Status | SP1 Coverage |
+|---|---|---|---|
+| TC-LOS-HISL-001 | local_office_settings_test_cases.md | ✅ | §2 + §3 (LO causal) + §4 + §8 |
+| TC-LOS-HISL-002 | local_office_settings_test_cases.md | ✅ (resolved 2026-04-15) | §2 + §8 structural + §3.5 causal (added 2026-04-15 followup MCP) |
+| TC-LOC-HIST-001 | locations_local_information_test_cases.md | ✅ | §1 + §3 (LOC Union causal) + §8 |
+| TC-LOC-HIST-002 | locations_pricing_test_cases.md | ✅ (extrapolated) | §1 structural + §3 LOC snapshot extrapolated to Pricing |
+| TC-LOC-HIST-003 | locations_currency_test_cases.md | ✅ | §1 + §3 + §8 (Merchant NOT-TRACKED) |
+| TC-LOC-HIST-004 | locations_legal_test_cases.md | ✅ (extrapolated) | §1 structural + §3 LOC snapshot extrapolated to Legal |
+| TC-LOC-HIST-005 | locations_account_address_test_cases.md | ✅ (extrapolated) | §1 structural + §3 LOC snapshot extrapolated to Account |
+| TC-LOC-HIST-006 | locations_shared_setup_locations_test_cases.md | ✅ (extrapolated) | §1 structural + §3 LOC snapshot extrapolated to SSL |
+| TC-LOC-HIST-007 | locations_notes_test_cases.md | ✅ (extrapolated) | §1 structural + §3 LOC snapshot extrapolated to Notes |
+| TC-LOC-HIST-008 | locations_auto_addon_test_cases.md | ✅ (hypothesis) | §1 + §8 NOT-TRACKED — exploratory by design |
+
+**Open gap (1 TC) — RESOLVED 2026-04-15**: TC-LOS-HISL-002 causal claim was previously not tested by SP1 — §3 only causally tested Basic Info saves on Local Office and the Union toggle on Location Management. **Followup MCP session executed 2026-04-15 09:36–09:41 UTC** by Claude Opus (WATCHDOG identity) per `plans/pending/PLAN_HIST_SP2_PER_TC_MCP_AUDIT.md` Task 5.
+
+**Followup result — ECT save causality CONFIRMED no-tracking**:
+- Method: 2-cycle BenefitsMultiplier save test (20.0% → 21.0% → 20.0%) on Office 1604
+- Save proof: fetch interception captured POST `/navigator/api/location/ect-settings` at 09:39:03Z (1 API call per save click)
+- History delta: rowCountBefore=64 pages → rowCountAfter=64 pages after BOTH saves (top row Modified On unchanged at 04/15/2026 08:43:18 AM, which was the prior Basic Info save row)
+- Verdict: **2 ECT saves = 0 new history rows.** TC-LOS-HISL-002 expected behavior fully confirmed.
+- Documentation: new §3.5 "ECT Causality" added to SUBPLAN_HISTORY_01_MCP_FINDINGS.md with full method/evidence; TC-LOS-HISL-002 MCP_VERIFICATION_LOG flipped from [NEEDS-MCP-VERIFICATION] to ✅ with citation to §3.5.
+- Bonus finding: ECT panel saves IMMEDIATELY on Save-button click — no "Save Changes" confirmation dialog (differs from Basic Info Cancel/Save flow). Documented in §3.5; relevant for spec implementation.
+
+**Scope caveat (from §3.5)**: BenefitsMultiplier was the only ECT field individually MCP-tested. HistoricalSubrental and LaborCost row edits were NOT separately verified — their NOT-TRACKED status is inferred from §8 registry + shared `/api/location/ect-settings` endpoint + the BenefitsMultiplier evidence. TC-LOS-HISL-002 covers all six ECT save TCs (ECT-005, 009, 013, 014, 015, 016) on this inference basis.
+
+**No expected behavior modified** — per plan guardrail "Do NOT modify the TC's expected behavior — only ADD the MCP_VERIFICATION_LOG block".
+
+**No LR-030 finding filed** — no TC's expected behavior contradicts SP1 evidence. All structural claims (column positions, header names, data formats, NOT-TRACKED registry membership) are directly cited from SP1 §1/§2/§8. All causal claims are either directly cited from §3/§3.5 (TC-LOS-HISL-001, TC-LOS-HISL-002, TC-LOC-HIST-001) or marked as extrapolated/exploratory in the verification log.
+
+**AUD-015 status**: 10/10 TCs have complete MCP_VERIFICATION_LOG with ✅ source citations. Zero open [NEEDS-MCP-VERIFICATION] flags remain. AUD-015 fully satisfied.

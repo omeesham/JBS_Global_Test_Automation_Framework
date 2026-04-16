@@ -18,10 +18,12 @@ test.describe.serial('Location Currency @locations @currency', () => {
     test.setTimeout(60_000);
     await locationCurrencyPage.navigateToCurrencyTab(OFFICE_NO);
     expect(locationCurrencyPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
-    // Enforce known baseline: USD=selected+isDefault, CAD/MXN=unselected.
+    // Enforce known baseline: USD=selected+isDefault+correct merchant, CAD/MXN=unselected.
     // Guards against state corruption from previous test runs (idempotent -- no-ops if DB is already correct).
+    // LR-019: merchant must also be reset — prior runs may have changed it to ALTERNATE_USD_MERCHANT.
     await locationCurrencyPage.checkCheckbox('chkUSDSelected');
     await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
+    await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', MERCHANT_DATA.usd.display);
     await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
     await locationCurrencyPage.uncheckCheckbox('chkMXNSelected');
     await locationCurrencyPage.clickSave();
@@ -30,6 +32,10 @@ test.describe.serial('Location Currency @locations @currency', () => {
   });
 
   test('TC-LOC-CUR-002: USD default -- Selected, Is Default checked; merchant set', async ({ locationCurrencyPage }) => {
+    // RCA-fix: reload to read server-persisted state after CUR-001 save, not stale DOM.
+    // CUR-001's checkCheckbox may not have dirtied the form if USD was already checked,
+    // and Angular may not re-render checkbox state after save without a reload.
+    await locationCurrencyPage.navigateToCurrencyTab(OFFICE_NO);
     expect((await locationCurrencyPage.getCheckboxState('chkUSDSelected')).checked).toBe(true);
     expect((await locationCurrencyPage.getCheckboxState('chkUSDIsDefault')).checked).toBe(true);
     expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain(MERCHANT_DATA.usd.id);
@@ -365,6 +371,9 @@ test.describe.serial('Location Currency @locations @currency', () => {
     //  - USD Merchant change (TC-LOC-CUR-022, TC-LOC-CUR-024) — no Merchant column in 87-col history
     //    Per user Q2 answer: requirements say Basic Info saves should appear in history;
     //    untracked merchant saves = potential bug. File bug report separately.
+
+    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
+    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

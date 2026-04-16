@@ -445,21 +445,29 @@
 
 # Integration: History Verification Test Cases
 
-## TC-LOC-HIST-004: Legal Saves — Location Management History Row Verification
+## TC-LOC-LGL-HIST: Legal Saves — Location Management History Row Verification
 
-| Priority | Status | Type | Automatable |
-|----------|--------|------|-------------|
-| High | Manual | Integration | Yes |
+| Priority | Status | Type | Automatable | Automation File |
+|----------|--------|------|-------------|-----------------|
+| High | Automated | Integration | Yes | tests/specs/setup/locations/location-legal.spec.ts:198 |
 
 **Completed saves to verify**: TC-LOC-LGL-011 (ServiceCharge), TC-LOC-LGL-012 (Terms), TC-LOC-LGL-018 (Both SC+T&C)
 
 **Steps**:
 1. After LGL save TCs complete, navigate to Location Management History tab -> Tab loads
-2. Verify new rows exist: row count increased by number of completed saves -> Count increased
-3. Verify latest row Modified On timestamp is recent (+/-5 min) -> Timestamp check
-4. Verify col 34 Service Charge Name matches last saved value -> Value matches
-5. Verify col 38 Terms and Conditions matches last saved value -> Value matches
+2. Sort by Modified On descending (default is ascending) -> Rows newest-first
+3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer) -> Suite rows isolated
+4. Verify at least 1 suite row present -> Count > 0
+5. Verify every suite row has Modified By and Modified On non-empty -> User + timestamp present per row
+6. Gap-check: verify Service Charge Name column contains expected values from save TCs (TC-011, TC-012, TC-018) -> Tracked field changes reflected
+7. Gap-check: verify Terms and Conditions column contains expected values from save TCs -> Tracked field changes reflected
 
-**Expected**: Each Legal save produced 1 new history row. Cols 34 and 38 reflect saved dropdown selections.
-**Data**: location=1604 | Formats per SP1_MCP_FINDINGS.md section 1
+**Expected**: Each Legal save produced 1 new history row (snapshot model). Modified By and Modified On populated per row. Service Charge Name (col 34) and Terms and Conditions (col 38) reflect saved selections. Soft assertions collect all mismatches without early failure.
+**Data**: location=1604 | Formats per SUBPLAN_HISTORY_01_MCP_FINDINGS.md section 1
 **Automatable**: Yes
+
+**MCP_VERIFICATION_LOG**:
+- Expected: 1 save = 1 new row (snapshot model); col 34 "Service Charge Name" reflects ServiceCharge selection; col 38 "Terms and Conditions" reflects T&C selection
+- Source: SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 lines 17-107 (col 34 "Service Charge Name" and col 38 "Terms and Conditions" both present in 87-col header list), §3 lines 259-263 (LOC snapshot model — extrapolated to Legal saves)
+- Session: 2026-04-13 14:42–15:04 UTC (Office 1604)
+- Verified: ✅ (causality extrapolated from §3 LOC snapshot; Legal saves not causally tested by SP1)
