@@ -1,0 +1,70 @@
+﻿TC ID,Title,Module,Submodule,Specific Field,Preconditions,Steps,Expected Result,Notes
+"TC-LOC-MGH-001","Tab Renders and DataTable Loads","locations","management_history","Tab Renders and Data","Office 1604 is open in Navigator. Location Management History tab is active","1. Open location 1604 in Navigator
+2. Click the ""Location Management History"" tab
+3. Observe the DataTable","DataTable is visible with column headers. No spinner remains after load",""
+"TC-LOC-MGH-002","All 87 Column Headers Present","locations","management_history","All 87 Column Headers","Office 1604 is open in Navigator. Location Management History tab is active","1. With ""Location Management History"" tab active, inspect the table header row
+2. Verify first column header is ""Local Office""
+3. Verify last column header is ""Warehouse Billing""
+4. Verify column #28 renders an untranslated key","87 total column headers. Column #28 displays raw i18n key. All other headers display human-readable labels",""
+"TC-LOC-MGH-003","Default Rows Per Page Is 20","locations","management_history","Default Rows Per Page","Office 1604 is open in Navigator. Location Management History tab is active","1. With ""Location Management History"" tab active, locate the ""rows per page"" control at the bottom of the table
+2. Read the current value without opening the dropdown","Default rows per page = 20.
+""Note"": Requirements documented 10 as default - live confirmed 20. Requirements discrepancy captured",""
+"TC-LOC-MGH-004","Rows Per Page Dropdown Options","locations","management_history","Rows Per Page","Office 1604 is open in Navigator. Location Management History tab is active","1. With ""Location Management History"" tab active, click the ""rows per page"" dropdown
+2. Read all available options","Dropdown contains exactly 5 options: 10, 20, 30, 40, 50",""
+"TC-LOC-MGH-005","Change Rows Per Page Updates Table Display","locations","management_history","Change Rows Per Page Updates","Location with at least 11 history rows is open on ""Location Management History"" tab; rows per page is currently 20","1. Click the ""rows per page"" dropdown
+2. Select ""10"" from the list
+3. Observe the table body","Table limits display to 10 rows. Page indicator updates accordingly (e.g., ""1 / N"" where N > 1)","CLEANUP: After test, reset rows per page back to 20"
+"TC-LOC-MGH-006","Pagination Controls Disabled When Only One Page","locations","management_history","Pagination Controls Disabled","Location 1604 is open on ""Location Management History"" tab; result is 1 row (1 page)","1. Observe the ""Go to first page"" button
+2. Observe the ""Go to previous page"" button
+3. Observe the ""Go to next page"" button
+4. Observe the ""Go to last page"" button
+5. Observe the page indicator","All 4 pagination buttons are disabled when only 1 page of results exists",""
+"TC-LOC-MGH-007","Empty State Message for Location with No History","locations","management_history","Empty","A location with no management history change records is open on ""Location Management History"" tab","1. Open a location known to have no history records
+2. Click the ""Location Management History"" tab
+3. Observe the table body
+4. Read the empty state message","Empty state text ""No results."" appears in the table body. No data rows. Pagination shows ""0 / 0"" or ""1 / 0"".
+""Note"": Location 1604 had 1 row at time of live verification (2026-02-19). Use a different location with confirmed no history, or check a freshly created location",""
+"TC-LOC-MGH-008","Data Row Renders with Correct Values (Location 1604)","locations","management_history","Data Row Renders","Location 1604 open on ""Location Management History"" tab; at least 1 row exists","1. Inspect row 1 cell under ""Local Office""
+2. Inspect row 1 cell under ""Local Office Name""
+3. Inspect row 1 cell under ""Active""
+4. Inspect row 1 cell under ""Country""
+5. Inspect row 1 cell under ""Currency""
+6. Inspect row 1 cell under ""Modified By""
+7. Inspect row 1 cell under ""Oracle Product Code""","All verified cells match expected values. Checkmark columns show -> for active boolean fields",""
+"TC-LOC-MGH-009","Sort Ascending on Sortable Column","locations","management_history","Sort Ascending on Sor","Location with multiple history rows open on ""Location Management History"" tab","1. Locate the ""Modified On"" column header - confirm it has a sort button
+2. Click the ""Modified On"" column header
+3. Inspect first and last visible rows","Modified On column sorts ascending. Sort icon updates to indicate ascending order. Row order changes accordingly",""
+"TC-LOC-MGH-010","Sort Descending by Toggling Same Column","locations","management_history","Sort Descending","Table is sorted ascending on ""Modified On"" (from TC-LOC-MGH-009)","1. Click the ""Modified On"" column header a second time
+2. Inspect first and last visible rows","Clicking the active sort column again reverses to descending. Sort icon reflects descending state",""
+"TC-LOC-MGH-011","Sort by Live Date Column","locations","management_history","Sort","Location with multiple history rows open on ""Location Management History"" tab","1. Locate the ""Live Date"" column header - confirm sort button is present
+2. Click the ""Live Date"" column header
+3. Verify first row has earliest Live Date value","Table reorders rows by Live Date ascending. Sort button on Live Date shows active sort indicator",""
+"TC-LOC-MGH-012","Non-Sortable Columns Have No Sort Button","locations","management_history","Non-Sortable Columns Have","Office 1604 is open in Navigator. Location Management History tab is active","1. Locate the ""Active"" column header
+2. Locate the ""Corporate Pricing"" column header
+3. Locate the ""Allow DPCD"" column header
+4. Locate the ""Warehouse Billing"" column header (last column)","Non-sortable columns have static header text only - no sort button, no sort icon, no click affordance",""
+"TC-LOC-MGH-013","Untranslated i18n Key in Column 28 (Bug)","locations","management_history","Untranslated i18n Key","Office 1604 is open in Navigator. Location Management History tab is active. ""LDW Percentage"" field shows default value (0.04)","1. With ""Location Management History"" tab active, scroll right to locate column #28 (after ""LDW Percentage"")
+2. Read the column header text","Column #28 renders the untranslated i18n key locations.history.CalcDamageWaiverOnNetAmount - known bug. Human-readable header (""Calculate LDW on Net Amount"" or equivalent) should appear instead",""
+"TC-LOC-MGH-014","Duplicate ""Calculate CAC on Net Amount"" Column Headers (Bug)","locations","management_history","Duplicate ""Calculate CAC","Office 1604 is open in Navigator. Location Management History tab is active","1. Scroll the table to find columns ""#37"" and ""#38"" (after ""Apply Cables and Consumables Fee"" and ""C&C Percent"")
+2. Read both column header labels
+3. Verify sort availability","Columns #37 and #38 both display ""Calculate CAC on Net Amount"" as their header - known label defect. Column #37 has no sort button; column #38 has a sort button. Headers should be distinct",""
+"TC-LOC-MGH-015","Read-Only - No Add/Edit/Delete Controls Present","locations","management_history","Read-Only","Office 1604 is open in Navigator. Location Management History tab is active","1. With ""Location Management History"" tab active, inspect the area above/below the table
+2. Inspect each visible data row
+3. Inspect the tab panel","Zero Add, Edit, Delete, or Save controls are present in the Location Management History tabpanel. The tab is entirely read-only",""
+"TC-LOC-MGH-016","Read-Only - Table Cells Are Not Interactive","locations","management_history","Read-Only","Location 1604 open on ""Location Management History"" tab; at least 1 data row visible","1. Click on any cell value in the data row (e.g., ""Local Office Name"" cell)
+2. Attempt to double-click on the cell
+3. Observe the cursor and focus behaviour","Cells are non-interactive. Clicks do not trigger editing. No form controls appear",""
+"TC-LOC-MGH-017","Horizontal Scroll Works for Wide Table","locations","management_history","Horizontal Scroll Works for Wide","Office 1604 is open in Navigator. Location Management History tab is active","1. With ""Location Management History"" tab active, observe the initial table view
+2. Scroll right inside the table container
+3. Continue scrolling to the rightmost column","Table scrolls horizontally. All 87 columns are accessible via horizontal scroll. Column headers stay sticky (if applicable) or scroll with data",""
+"TC-LOC-MGH-018","API Endpoint Called on Tab Activation","locations","management_history","API Endpoint Called on","Office 1604 is open in Navigator. Location Management History tab is active","1. Open location 1604 on ""Basic Information"" tab
+2. Open browser DevTools Network panel and filter to history
+3. Click the ""Location Management History"" tab
+4. Inspect network requests","Exactly one API call to /api/location/{locationNo}/history?IsCorporate=true is triggered on tab activation. Response returns HTTP 200 with a data array",""
+"TC-LOC-MGH-019","Pagination Navigation Enables with Multiple Pages","locations","management_history","Pagination Navigation Enables","A location with more than 20 history rows is open on ""Location Management History"" tab; rows per page = 20","1. Observe the page indicator
+2. Observe the ""Go to first page"" and ""Go to previous page"" buttons
+3. Observe the ""Go to next page"" and ""Go to last page"" buttons
+4. Click ""Go to next page""
+5. Click ""Go to previous page""
+6. Click ""Go to last page""
+7. Click ""Go to first page""","Pagination navigation works correctly. Forward/back buttons enable/disable based on current page position. Page indicator always reflects current position accurately",""

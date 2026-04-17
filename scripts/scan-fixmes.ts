@@ -8,6 +8,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { SHARED_PATHS } from './shared-types';
 
 interface FixmeEntry {
   tcId: string;
@@ -24,8 +25,8 @@ interface FixmeEntry {
   queueItemId?: string;       // Queue item this belongs to
 }
 
-const SPECS_DIR = path.join(__dirname, '../tests/specs');
-const OUTPUT_FILE = path.join(__dirname, '../reports/fixme-registry.json');
+const SPECS_DIR = SHARED_PATHS.specs;
+const OUTPUT_FILE = path.join(SHARED_PATHS.reports, 'fixme-registry.json');
 
 /** TC ID pattern: full format TC-XXX-YY-NNN (used as fallback for surrounding-line lookup) */
 const TC_ID_FULL = /TC-[A-Z]+-[A-Z]+-\d+/;

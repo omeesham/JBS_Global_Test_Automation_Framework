@@ -14,6 +14,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { SHARED_PATHS } from './shared-types';
 
 interface Defect {
   id: string;
@@ -74,9 +75,9 @@ interface MetricsReport {
 }
 
 const PATHS = {
-  performance: path.join(__dirname, '../specs_planning/_internal/agent-performance.json'),
-  activityLog: path.join(__dirname, '../specs_planning/_internal/agent-activity-log.md'),
-  output: path.join(__dirname, '../specs_planning/_internal/agent-metrics-report.md'),
+  performance: SHARED_PATHS.performance,
+  activityLog: SHARED_PATHS.activityLog,
+  output: path.join(path.dirname(SHARED_PATHS.performance), 'agent-metrics-report.md'),
 };
 
 const TRUST_PROGRESSION = {
@@ -377,7 +378,7 @@ interface VelocityMetrics {
 }
 
 function getVelocityMetrics(): VelocityMetrics {
-  const queuePath = path.join(__dirname, '../specs_planning/_internal/agent-queue.json');
+  const queuePath = SHARED_PATHS.queue;
   if (!fs.existsSync(queuePath)) {
     return { completedSpecs: 0, pendingSpecs: 0, avgDaysToComplete: null, stalledItems: [], throughputPerWeek: 0 };
   }

@@ -36,15 +36,17 @@
 
 ## §1. Search-Before-Create
 
+Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
+
 | Need | Search | Not found → |
 |------|--------|-------------|
 | Utility | `src/utils/common-methods.ts` | Add to CommonMethods |
-| Page method | `src/pages/**/*.page.ts` | Add to page object |
-| Selector | `src/selectors/index.ts` | Add property |
-| Constant | `src/utils/app-constants.ts` | Add to AppConstants |
-| Matcher | `tests/setup/custom-matchers.ts` | Add + type declaration |
-| Fixture | `tests/setup/fixtures.ts` | Add fixture |
-| Test file | `tests/specs/{module}/` | Create in module folder |
+| Page method | `clients/${ACTIVE_CLIENT}/src/pages/**/*.page.ts` | Add to page object |
+| Selector | `clients/${ACTIVE_CLIENT}/src/selectors/index.ts` | Add property |
+| Constant | `clients/${ACTIVE_CLIENT}/src/utils/app-constants.ts` | Add to AppConstants |
+| Matcher | `clients/${ACTIVE_CLIENT}/tests/setup/custom-matchers.ts` | Add + type declaration |
+| Fixture | `clients/${ACTIVE_CLIENT}/tests/setup/fixtures.ts` | Add fixture |
+| Test file | `clients/${ACTIVE_CLIENT}/tests/specs/{module}/` | Create in module folder |
 
 ---
 
@@ -52,21 +54,22 @@
 
 **Agent Identities**: Requirements = HUNTER | Planner = GIVER | Generator = BUILDER (Most Important) | Healer = HEALER (Specialized RCA Debugger) | Audit = WATCHDOG (Comprehensive Watchdog) | Framework Maintainer = GARDENER | Framework Owner = OWNER (non-pipeline)
 
-**Agent-Maintained**:
+**Agent-Maintained** (client-scoped paths use `${ACTIVE_CLIENT}` placeholder — for Encore, `${ACTIVE_CLIENT}` = `encore`. See each client's `clients/{CLIENT}/docs/read_only_docs/AGENT_RULES_{CLIENT}.md` §E6 for concrete resolution):
+
 | Path | Req | Pln | Gen | Heal | Audit | Maint | Owner |
 |------|-----|-----|-----|------|-------|-------|-------|
-| `tests/specs/**/*.spec.ts` | — | — | CREATE | FIX | READ | REFACTOR | READ |
-| `tests/test-data/**` | — | — | CREATE | FIX | READ | READ | READ |
-| `src/pages/**/*.page.ts` | — | READ | ADD | FIX | READ | REFACTOR | READ |
-| `src/common/base-page.ts` | — | READ | — | — | READ | REFACTOR | READ |
-| `src/selectors/index.ts` | — | ADD | ADD | FIX | READ | READ | READ |
+| `clients/${ACTIVE_CLIENT}/tests/specs/**/*.spec.ts` | — | — | CREATE | FIX | READ | REFACTOR | READ |
+| `clients/${ACTIVE_CLIENT}/tests/test-data/**` | — | — | CREATE | FIX | READ | READ | READ |
+| `clients/${ACTIVE_CLIENT}/src/pages/**/*.page.ts` | — | READ | ADD | FIX | READ | REFACTOR | READ |
+| `clients/${ACTIVE_CLIENT}/src/common/base-page.ts` | — | READ | — | — | READ | REFACTOR | READ |
+| `clients/${ACTIVE_CLIENT}/src/selectors/index.ts` | — | ADD | ADD | FIX | READ | READ | READ |
 | `src/utils/common-methods.ts` | — | READ | ADD | FIX | READ | READ | READ |
-| `docs/REQUIREMENTS.md` | UPDATE | READ | READ | READ | READ | READ | READ |
-| `specs_planning/_internal/agent-queue.json` | CREATE | RW | RW | RW | RW | READ | READ |
-| `specs_planning/test-cases/**` | — | CREATE | UPDATE | UPDATE | READ | READ | UPDATE |
-| `specs_planning/test-plans/**` | — | CREATE | READ | READ | READ | READ | READ |
-| `specs_planning/_internal/agent-mistakes.md` | APPEND | APPEND | APPEND | APPEND | RW (quality gate) | APPEND | APPEND |
-| `specs_planning/_internal/agent-activity-log.md` | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND |
+| `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` | UPDATE | READ | READ | READ | READ | READ | READ |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json` | CREATE | RW | RW | RW | RW | READ | READ |
+| `clients/${ACTIVE_CLIENT}/specs_planning/test-cases/**` | — | CREATE | UPDATE | UPDATE | READ | READ | UPDATE |
+| `clients/${ACTIVE_CLIENT}/specs_planning/test-plans/**` | — | CREATE | READ | READ | READ | READ | READ |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | APPEND | APPEND | APPEND | APPEND | RW (quality gate) | APPEND | APPEND |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND |
 | `scripts/**` | — | — | — | — | — | — | RW |
 | `config/**` | — | — | — | — | — | — | RW |
 | `.claude/skills/**` | — | — | — | — | — | — | RW |
@@ -75,7 +78,7 @@
 
 **Audit Agent scope**: Can READ any file. WRITE limited to: agent-mistakes.md (RW — quality gate), audits/*.md, agent-performance.json, agent-queue.json (history/stage), agent-activity-log.md.
 
-**Framework Maintainer (GARDENER) scope**: READ-WRITE: `src/pages/`, `src/common/base-page.ts`, `tests/`. READ-ONLY: everything else. Runs on demand (not in pipeline). Structural refactoring only — never changes business logic or test assertions.
+**Framework Maintainer (GARDENER) scope**: READ-WRITE: `clients/${ACTIVE_CLIENT}/src/pages/`, `clients/${ACTIVE_CLIENT}/src/common/base-page.ts`, `tests/`. READ-ONLY: everything else. Runs on demand (not in pipeline). Structural refactoring only — never changes business logic or test assertions.
 
 **Human-Controlled (NEVER modify)**: `.env*`, `playwright.config.*`, `package.json`, `tsconfig.json`, `.ci/*`
 
@@ -85,8 +88,10 @@
 
 When operating in a Claude Code session (not pipeline orchestrator), the `/identity` skill
 enforces agent identity. The §2 ownership table applies identically. OWNER identity has
-RW access to: `scripts/`, `config/`, `.claude/skills/`, `plans/`, `docs/` (non-REQUIREMENTS),
-`website/`. READ-ONLY on all pipeline artifact paths.
+RW access to framework-level paths: `scripts/`, `config/`, `.claude/skills/`, `plans/`,
+`docs/` (non-REQUIREMENTS), and root `CLAUDE.md`. OWNER has READ access to client-scoped
+pipeline artifact paths (`clients/${ACTIVE_CLIENT}/src/**`, `clients/${ACTIVE_CLIENT}/tests/**`,
+`clients/${ACTIVE_CLIENT}/specs_planning/**`, `clients/${ACTIVE_CLIENT}/docs/**`).
 
 | ID | Rule | Violation = |
 |----|------|-------------|
@@ -161,7 +166,7 @@ Format: `{prefix}{PascalName}` — Examples: `btnLogin`, `txtUsername`, `lnkForg
 
 **Maturity Score**: `(cleanCycles * 10) + (learningYield * 30) + (selfAuditAccuracy * 20) + ((1 - defectRecurrenceRate) * 40)`. Range 0-100.
 
-**Tracking**: `specs_planning/_internal/agent-performance.json`
+**Tracking**: `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-performance.json`
 
 ---
 
@@ -172,7 +177,7 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 ### START (before any work)
 
 <!-- SYNC:CONTEXT_LOAD:START -->
-1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
+1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
 <!-- SYNC:CONTEXT_LOAD:END -->
 2. **Pre-flight (§13)**: Run pre-flight checks. HALT on failure.
 2b. **Inheritance Verification (ALL-028)**: If this task builds on another agent's output (test cases from Planner, spec from Generator, requirements from Requirements Agent):
@@ -199,7 +204,7 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
    Zero issues on non-trivial work (3+ steps) is suspicious -- justify explicitly.
 8. **Log end**: Activity log entry. Include: outcome, learning count, self-audit result.
 9. **Sync** (if rules written): Run sync pipeline. validate:sync must exit 0.
-10. **Escalation check (ALL-031)**: Read `specs_planning/_internal/agent-escalations.json`. If any entry has `pendingFor` matching your agent name AND `status: "open"` -> include those fixes in your current work. After fixing: update the entry's `status` to `"resolved"`, add `resolvedBy`, `resolvedAt`, `resolution`.
+10. **Escalation check (ALL-031)**: Read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-escalations.json`. If any entry has `pendingFor` matching your agent name AND `status: "open"` -> include those fixes in your current work. After fixing: update the entry's `status` to `"resolved"`, add `resolvedBy`, `resolvedAt`, `resolution`.
 
 ### Triage & Bug Detection Rules (ALL-032..034)
 
@@ -213,7 +218,7 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 
 | ID | Rule | Violation = |
 |----|------|-------------|
-| ALL-035 | MANDATORY ESCALATION: When finding upstream agent's mistake that is NOT in your file scope, you MUST create an escalation entry in `specs_planning/_internal/agent-escalations.json`. Skipping = collusion. | Agent coverup |
+| ALL-035 | MANDATORY ESCALATION: When finding upstream agent's mistake that is NOT in your file scope, you MUST create an escalation entry in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-escalations.json`. Skipping = collusion. | Agent coverup |
 | ALL-036 | RESOLVE FIRST: At session start, check pending escalations. Fix ALL open items assigned to you BEFORE new work. | Ignored feedback |
 | ALL-037 | ESCALATION EVIDENCE: Every escalation must include file:line or MCP evidence proving the issue. No hearsay. | False accusation |
 
@@ -232,7 +237,7 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 |----|------|-------------|
 | ALL-042 | Any agent using MCP MUST check `browser_network_requests` after API-triggering interactions. 4xx/5xx = potential APP_BUG. Never silently ignore. | Silent API error |
 | ALL-043 | When walkthrough reveals behavior contradicting MCP_VERIFICATION_LOG: classify (PLANNER_GAP / APP_BUG / TC_CORRECTION / SEQUENCE_SIDE_EFFECT) and escalate. Never silently proceed. | Unclassified mismatch |
-| ALL-044 | Bug detection is EVERY agent's responsibility. Planner finds 500 error → file it. Generator finds form mutation → file it. Healer finds broken API → file it. All go to `agent-escalations.json`. | Agent ignoring bugs outside their scope |
+| ALL-044 | Bug detection is EVERY agent's responsibility. Planner finds 500 error → file it. Generator finds form mutation → file it. Healer finds broken API → file it. All go to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-escalations.json`. | Agent ignoring bugs outside their scope |
 
 ### TC Lifecycle Rules (ALL-071)
 
@@ -532,7 +537,7 @@ When using MCP browser on pages with unsaved edits (dirty form state), the brows
 
 **If stuck on beforeunload:** Call `browser_handle_dialog(accept: true)` immediately, then re-navigate.
 
-This applies to ALL agents during MCP exploration. The Encore website fires beforeunload whenever form edits are made without clicking Save.
+This applies to ALL agents during MCP exploration. Any Angular app with dirty-form tracking fires `beforeunload` whenever form edits are made without clicking Save — see each client's `AGENT_RULES_{CLIENT}.md` for client-specific triggers.
 
 ---
 
@@ -576,14 +581,14 @@ Applies to ALL agents during exploration, code writing, selector discovery, or a
 | Stuck On | Search What | Where | When | Example Search |
 |----------|-------------|-------|------|----------------|
 | Unknown selector | SELECTOR_CATALOG.md → partition files | `src/selectors/SELECTOR_CATALOG.md` | Before writing ANY new selector | `grep -r "btnSave" src/selectors/` |
-| UI pattern unknown (Radix, date picker, combobox) | Existing page objects with same component | `src/pages/`, `src/common/base-page.ts` | Before creating new page object method | `grep -r "role=\"checkbox\"" src/pages/` |
-| Same failure repeating after fix | Resolution column in agent-mistakes.md | `specs_planning/_internal/agent-mistakes.md` | After first failed fix attempt | `grep "SELECTOR" specs_planning/_internal/agent-mistakes.md` |
+| UI pattern unknown (Radix, date picker, combobox) | Existing page objects with same component | `clients/${ACTIVE_CLIENT}/src/pages/`, `clients/${ACTIVE_CLIENT}/src/common/base-page.ts` | Before creating new page object method | `grep -r "role=\"checkbox\"" clients/${ACTIVE_CLIENT}/src/pages/` |
+| Same failure repeating after fix | Resolution column in agent-mistakes.md | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | After first failed fix attempt | `grep "SELECTOR" specs_planning/_internal/agent-mistakes.md` |
 | Auth/login issues | authChain + env files | `reports/failure-summary.json`, `config/environments/` | When tests fail with auth errors | `cat reports/failure-summary.json \| grep authChain` |
-| Don't know what methods exist | BasePage + existing page objects | `src/common/base-page.ts`, `docs/read_only_docs/ARCHITECTURE.md` | Before writing ANY new method | `grep "async.*(" src/common/base-page.ts` |
-| TC seems wrong vs live app | Truth hierarchy: MCP > all docs (GEN-021) | `docs/REQUIREMENTS.md` then MCP | When spec assertion fails but app looks correct | Navigate MCP to same URL, verify DOM |
+| Don't know what methods exist | BasePage + existing page objects | `clients/${ACTIVE_CLIENT}/src/common/base-page.ts`, `docs/read_only_docs/ARCHITECTURE.md` | Before writing ANY new method | `grep "async.*(" clients/${ACTIVE_CLIENT}/src/common/base-page.ts` |
+| TC seems wrong vs live app | Truth hierarchy: MCP > all docs (GEN-021) | `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` then MCP | When spec assertion fails but app looks correct | Navigate MCP to same URL, verify DOM |
 | Don't know fixture/helper exists | Fixture definitions + test setup | `tests/setup/fixtures.ts`, `src/index.ts` | Before creating test setup code | `grep "test.extend" tests/setup/fixtures.ts` |
-| Previous agent output incomplete | Queue item history + activity log | `specs_planning/_internal/agent-queue.json`, `specs_planning/_internal/agent-activity-log.md` | When inheriting work from previous stage | Read queue item's `history` array |
-| Spec-level pattern already exists | Existing specs for same setup/assertion | `tests/specs/**/*.spec.ts` | Before writing beforeEach or repeated assertions | `grep -r "navigateTo.*Tab" tests/specs/` |
+| Previous agent output incomplete | Queue item history + activity log | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json`, `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | When inheriting work from previous stage | Read queue item's `history` array |
+| Spec-level pattern already exists | Existing specs for same setup/assertion | `clients/${ACTIVE_CLIENT}/tests/specs/**/*.spec.ts` | Before writing beforeEach or repeated assertions | `grep -r "navigateTo.*Tab" clients/${ACTIVE_CLIENT}/tests/specs/` |
 
 **NOTE**: `agent-learnings.md` is an empty stub — all learnings merged into agent-mistakes.md Resolution column. Do NOT reference it as primary source.
 
@@ -643,7 +648,7 @@ If `learningDebt > 0` in your agent-performance.json entry, you MUST resolve it 
 
 ### Mistake Detection Triggers (ALL-056)
 
-Any time one of these 6 triggers fires, the agent MUST immediately log an entry to `specs_planning/_internal/agent-mistakes.md`. This is BLOCKING — stop current work, log, then resume.
+Any time one of these 6 triggers fires, the agent MUST immediately log an entry to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`. This is BLOCKING — stop current work, log, then resume.
 
 | # | Trigger | What to Log |
 |---|---------|-------------|
@@ -666,8 +671,8 @@ These rules apply to ALL pipeline agents. They implement the 4-Category Bug Hunt
 
 | ID | Rule | Applies To | What It Catches |
 |----|------|-----------|-----------------|
-| **ALL-053** | **NOTIFICATION CHECK AT SESSION START** — Every agent MUST read `specs_planning/_internal/agent-notifications/` directory for pending notifications addressed to them (files containing their agent name). Stale artifact notifications = priority work before user task. Acknowledge by deleting the file after processing. | All agents | Prevents working with stale data after another agent detected changes |
-| **ALL-054** | **ESCALATION FILING PROTOCOL** — When discovering upstream agent mistakes or app bugs beyond your scope, file escalation to `agent-escalations.json` with: evidence (file:line or MCP snapshot), target agent, severity, affected artifacts. Never silently correct another agent's output without filing. Uses existing `EscalationEntry` interface in `scripts/shared-types.ts`. | All agents | Prevents silent coverup of upstream issues |
+| **ALL-053** | **NOTIFICATION CHECK AT SESSION START** — Every agent MUST read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-notifications/` directory for pending notifications addressed to them (files containing their agent name). Stale artifact notifications = priority work before user task. Acknowledge by deleting the file after processing. | All agents | Prevents working with stale data after another agent detected changes |
+| **ALL-054** | **ESCALATION FILING PROTOCOL** — When discovering upstream agent mistakes or app bugs beyond your scope, file escalation to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-escalations.json` with: evidence (file:line or MCP snapshot), target agent, severity, affected artifacts. Never silently correct another agent's output without filing. Uses existing `EscalationEntry` interface in `scripts/shared-types.ts`. | All agents | Prevents silent coverup of upstream issues |
 | **ALL-055** | **BUG REPORT FORMAT** — All bug reports (from any agent) use identical format in `reports/bugs/BUG-{MOD}-{NNN}.json` matching the `BugReport` interface from `src/framework-contracts/diagnostics.ts`. Required fields: id, testCaseId, module, severity, title, description, failureCategory, sourceAgent, errorHash. Dedup via `computeErrorHash()` from `src/utils/bug-hunt-classifier.ts` before creating new report. | Generator, Healer, Audit | Prevents duplicate/inconsistent bug reports across agents |
 | **ALL-056** | **TESTID VERIFICATION** — Any agent that navigates to a page and reads DOM MUST check for `data-testid` presence on interactive elements (buttons, inputs, selects, links). Missing testids = `[MISSING_TESTID]` tag or escalation. This is the foundation of automation testing best practices. Use `browser_evaluate(() => !!document.querySelector('[data-testid="X"]'))` for individual checks. | Requirements, Planner, Generator | Missing testids propagate through entire pipeline as selector failures |
 | **ALL-057** | **BUGHUNT CATEGORY MAPPING** — When an agent classifies a failure or issue, it MUST use `BugHuntCategory` enum (UNCHANGED_FAILURE, FEATURE_CHANGED_SMALL, FEATURE_CHANGED_BIG, TESTID_MISSING, TESTID_CHANGED, FLAKE, INFRASTRUCTURE_TRANSIENT) AND set the legacy `disposition` field for backward compat. Use `classifyBugHuntCategory()` from `src/utils/bug-hunt-classifier.ts` which handles both. | Healer, Generator, Audit | Inconsistent classification across agents |
@@ -678,19 +683,19 @@ These rules apply to ALL pipeline agents. They implement the 4-Category Bug Hunt
 | **ALL-062** | **NO HARDCODED STRUCTURAL COUNT ASSERTIONS** — Tests must NOT assert exact counts of DOM elements (column headers, rows, options, buttons) unless the count itself IS the feature under test. Instead: (a) assert content/labels (`.toContain()`), (b) assert behavior (click → verify effect), (c) use `.toBeGreaterThan(0)` for existence checks. Hardcoded counts break on any UI addition/removal without catching real bugs. | Generator, Audit | Prevents brittle tests (10 filler tests found in 2026-03 audit) |
 | **ALL-063** | **VERIFY SERVER BEHAVIOR BEFORE ASSUMING BUGS** — Before skipping a test for "server rejects" or "API 500": run the operation live (MCP or probe test). Server bugs get fixed. What was broken last month may work today. Workflow: un-skip → run AS-IS → if passes, keep original assertions → if still fails, THEN rewrite to test actual behavior. | All agents | Prevents stale assumptions (7 Cat-B "server rejects" were actually fixed in 2026-03) |
 | **ALL-064** | **NO `networkidle` IN ANGULAR SPA TESTS** — Never use `waitForLoadState('networkidle')` or `waitUntil: 'networkidle'` in page objects or specs. Angular's zone.js fires micro-tasks continuously after route changes, making networkidle either never resolve or resolve too early (between route change and API response). Use `waitForAngularStable()` (calls `getAllAngularTestabilities().whenStable()`) + element visibility/state polling instead. For page reloads, use `waitUntil: 'domcontentloaded'` + `waitForAngularStable()`. For data-dependent assertions after save+reload, poll for a concrete data-loaded signal (e.g., dropdown populated, grid rows present). | Generator, Healer, Maintainer | Prevents flakiness (networkidle was root cause of 5 intermittent failures in 2026-04 audit) |
-| **ALL-065** | **ALL TEST DATA IN `tests/test-data/`** — All test data values (strings, numbers, objects used as inputs or expected values) MUST live in `tests/test-data/`. Specs MUST NOT contain hardcoded test data. Shared constants (dialog text, office number) go in `common.data.ts`. Feature-specific data goes in the feature's `.data.ts` file. Structural count assertions (column counts, row counts) are NOT test data — see LR-022. Computed arithmetic values (character count = string1.length + delimiter + string2.length) may remain inline with comments explaining the math. | All agents | Single source of truth for test data; enables future CSV conversion |
+| **ALL-065** | **ALL TEST DATA IN `clients/${ACTIVE_CLIENT}/tests/test-data/`** — All test data values (strings, numbers, objects used as inputs or expected values) MUST live in `clients/${ACTIVE_CLIENT}/tests/test-data/`. Specs MUST NOT contain hardcoded test data. Shared constants (dialog text, office number) go in `common.data.ts`. Feature-specific data goes in the feature's `.data.ts` file. Structural count assertions (column counts, row counts) are NOT test data — see LR-022. Computed arithmetic values (character count = string1.length + delimiter + string2.length) may remain inline with comments explaining the math. | All agents | Single source of truth for test data; enables future CSV conversion |
 
 ---
 
 ## §18. Module Boundary Enforcement
 
-1. Every page in Navigator4 belongs to exactly ONE module defined in `docs/MODULE_REGISTRY.md`
+1. Every page in the client's application belongs to exactly ONE module defined in `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md`
 2. Different URLs = different modules. No exceptions.
 3. Before creating ANY file, verify the correct module by checking the registry
 4. If a module directory doesn't exist, CREATE IT — don't force files into an existing module
 5. Tabs within a page are NOT separate modules. A tab shares its parent page's module
 6. Selector partitions MUST be kept separate per module. Never spread one module's selectors into another's merged object
-7. Collision detection in `src/selectors/index.ts` checks ALL partitions individually — if you add a new partition, add it to `buildAllSelectors()` call
+7. Collision detection in `clients/${ACTIVE_CLIENT}/src/selectors/index.ts` checks ALL partitions individually — if you add a new partition, add it to `buildAllSelectors()` call
 8. Violation of module boundaries is a P0 bug — same severity as broken tests
 9. Directory hierarchy mirrors app navigation: {section}/{module}/ (e.g., setup/locations/, actions/reports/)
 
@@ -719,7 +724,7 @@ Any of the following is BLOCKED and must HALT:
 Agents MUST halt when BOTH signals are true:
 
 - **Signal A (activity-log recency)**: A row in
-  `specs_planning/_internal/agent-activity-log.md` dated within the last 6
+  `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` dated within the last 6
   hours where `Agent` column matches current identity AND `Files` column
   lists the target file
 - **Signal B (self-authored content)**: Target file already contains a
@@ -748,7 +753,7 @@ Instead of writing the audit in-place:
 
 - `.github/agents/playwright-pipeline-audit.agent.md` HARD STOP 0a (agent-level block)
 - `.claude/skills/audit/SKILL.md` Step 0 (skill-level pre-flight detection)
-- `specs_planning/_internal/agent-mistakes.md` AUD-017 (rule registry)
+- `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` AUD-017 (rule registry)
 - This section §19 (cross-agent documentation hub)
 
 ### §19.5 User Override

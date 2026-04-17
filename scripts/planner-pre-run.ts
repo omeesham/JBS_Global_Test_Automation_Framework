@@ -66,7 +66,7 @@ function main(): void {
   }
 
   // PF-P1: REQUIREMENTS.md section exists for this module
-  const reqPath = path.join(__dirname, '../docs/REQUIREMENTS.md');
+  const reqPath = SHARED_PATHS.requirements;
   if (!fs.existsSync(reqPath)) {
     console.error('[HALT] PF-P1: REQUIREMENTS.md not found');
     failed = true;
@@ -100,7 +100,7 @@ function main(): void {
   }
 
   // ── PF-P3: SELECTOR_CATALOG.md reference check ──
-  const catalogPath = path.join(__dirname, '../src/selectors/SELECTOR_CATALOG.md');
+  const catalogPath = path.join(SHARED_PATHS.selectors, 'SELECTOR_CATALOG.md');
   if (!fs.existsSync(catalogPath)) {
     console.warn('[WARN] PF-P3: SELECTOR_CATALOG.md not found at src/selectors/SELECTOR_CATALOG.md');
     console.warn('   Planner needs the catalog to reference existing selectors and avoid duplicates.');
@@ -109,7 +109,7 @@ function main(): void {
   }
 
   // ── PF-P4: agent-performance.json planner entry ──
-  const perfPath = path.join(__dirname, '../specs_planning/_internal/agent-performance.json');
+  const perfPath = SHARED_PATHS.performance;
   if (fs.existsSync(perfPath)) {
     try {
       const perfData = JSON.parse(fs.readFileSync(perfPath, 'utf-8'));
@@ -129,7 +129,7 @@ function main(): void {
   for (const msg of escMessages) console.warn(msg);
 
   // ── Bug Hunt: Notification Check (PLN-036) ──
-  const notifDir = path.join(__dirname, '../specs_planning/_internal/agent-notifications');
+  const notifDir = SHARED_PATHS.notifications;
   if (fs.existsSync(notifDir)) {
     const notifFiles = fs.readdirSync(notifDir).filter(f => f.endsWith('.json'));
     const pendingForPlanner: any[] = [];

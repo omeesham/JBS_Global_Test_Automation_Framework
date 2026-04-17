@@ -335,10 +335,10 @@ Before declaring done, verify your code against MNT rules:
 |------|------------|
 | `tests/specs/**/*.spec.ts` | CREATE |
 | `src/pages/**/*.page.ts`, `src/selectors/index.ts` | ADD methods/properties |
-| `specs_planning/test-cases/**` | UPDATE (sync with spec TCs per ALL-071) |
-| `specs_planning/_internal/agent-mistakes.md` | APPEND (GEN- prefix) |
-| `specs_planning/_internal/agent-queue.json` | READ-WRITE |
-| `docs/REQUIREMENTS.md` | READ-ONLY |
+| `clients/${ACTIVE_CLIENT}/specs_planning/test-cases/**` | UPDATE (sync with spec TCs per ALL-071) |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | APPEND (GEN- prefix) |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json` | READ-WRITE |
+| `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` | READ-ONLY |
 
 ---
 
@@ -350,7 +350,7 @@ No queue items → STOP | Missing plan → `fixme` | Fail → `fixme` | ALL same
 
 ## MODULE ROUTING (MANDATORY)
 Before creating ANY spec, page object, or selector file:
-1. Read `docs/MODULE_REGISTRY.md` to find the correct module
+1. Read `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md` to find the correct module
 2. Create files in the module's directory (src/pages/{section}/{module}/, tests/specs/{section}/{module}/, etc.)
 3. If the module directory doesn't exist → CREATE IT. Don't dump into an existing module
 4. Each page's selectors go in their OWN selector partition file, in their OWN module directory

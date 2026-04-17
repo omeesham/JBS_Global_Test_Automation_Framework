@@ -1,8 +1,11 @@
 /**
  * Shared types for pipeline scripts.
  * Single source of truth -- all scripts import from here.
+ *
+ * SHARED_PATHS is re-exported from shared-paths.ts (SP-MT-04). Callers keep
+ * `import { SHARED_PATHS } from './shared-types'` unchanged; the paths now
+ * resolve against clients/${ACTIVE_CLIENT}/... instead of the flat layout.
  */
-import * as path from 'path';
 
 // ── Queue Types ──
 
@@ -242,21 +245,12 @@ export const AGENT_FILE_MAP: Record<string, string> = {
 /** Regex to detect RULES/NEVER DO section boundaries in agent files. */
 export const NEVER_DO_PATTERN = /## (?:NEVER DO|RULES)[\s\S]*?(?=\n---|\n## (?!(?:NEVER DO|RULES))|```\n---)/;
 
-/** Common file paths used across pipeline scripts. */
-export const SHARED_PATHS = {
-  queue: path.join(__dirname, '../specs_planning/_internal/agent-queue.json'),
-  mistakes: path.join(__dirname, '../specs_planning/_internal/agent-mistakes.md'),
-  learnings: path.join(__dirname, '../specs_planning/_internal/agent-mistakes.md'),
-  activityLog: path.join(__dirname, '../specs_planning/_internal/agent-activity-log.md'),
-  requirements: path.join(__dirname, '../docs/REQUIREMENTS.md'),
-  performance: path.join(__dirname, '../specs_planning/_internal/agent-performance.json'),
-  escalations: path.join(__dirname, '../specs_planning/_internal/agent-escalations.json'),
-  notifications: path.join(__dirname, '../specs_planning/_internal/agent-notifications'),
-  testIdInventory: path.join(__dirname, '../specs_planning/_internal/testid-inventory'),
-  agentsDir: path.join(__dirname, '../.github/agents'),
-  exports: path.join(__dirname, '../export_test_cases/exports'),
-  testCases: path.join(__dirname, '../specs_planning/test-cases'),
-};
+/**
+ * Common file paths used across pipeline scripts.
+ * Delegates to shared-paths.ts — single source of truth for client-aware paths.
+ * See scripts/shared-paths.ts for the full key list and the module-load-capture constraint.
+ */
+export { SHARED_PATHS } from './shared-paths';
 
 // ── Shared Parsing Utilities ──
 

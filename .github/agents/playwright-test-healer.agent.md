@@ -104,7 +104,7 @@ handoffs:
 
 #### Step 0.1: Read Failure Data + TC Expected Values
 - Read failure-summary.json entry (failureCategory, networkFailures, consoleErrors, pageErrors)
-- Find TC document in specs_planning/test-cases/ — read expected values
+- Find TC document in clients/${ACTIVE_CLIENT}/specs_planning/test-cases/ — read expected values
 - Read MCP_VERIFICATION_LOG from top of TC file (planner-verified truth)
 - **Decision Tree Walk (ALL-045)**: After reading artifacts, walk the appropriate RCA Decision Tree from §12. At each tree node, cite the artifact field that answers the question. Produce RCA log: `RCA | TC-XXX | category | evidence | root cause`. If artifact analysis gives clear root cause with >80% confidence → skip MCP (Step 0.3), go directly to Phase A fix. Artifact-first resolves 80%+ of failures in 30 seconds vs 3-5 min for MCP.
 
@@ -299,9 +299,9 @@ Full spec once for regression check: `npx playwright test {spec} --project=chrom
 | `tests/specs/**/*.spec.ts` | FIX / remove unfixable tests (no test.fixme) |
 | `src/pages/**/*.page.ts` | FIX methods |
 | `src/selectors/index.ts` | FIX selectors |
-| `specs_planning/test-cases/**` | UPDATE results |
-| `specs_planning/_internal/agent-mistakes.md` | APPEND (HLR- prefix only) |
-| `specs_planning/_internal/agent-queue.json` | READ-WRITE |
+| `clients/${ACTIVE_CLIENT}/specs_planning/test-cases/**` | UPDATE results |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | APPEND (HLR- prefix only) |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json` | READ-WRITE |
 
 ---
 
@@ -314,6 +314,6 @@ TC update: `Last Test Run` date + `Result: PASSED/FAILED` + test results table. 
 LOS specs are at tests/specs/setup/local-office/, NOT tests/specs/locations/
 LOS page object is at src/pages/setup/local-office/, NOT src/pages/locations/
 LOS selectors are at src/selectors/setup/local-office/, NOT src/selectors/locations/
-Always check docs/MODULE_REGISTRY.md before searching for files to heal.
+Always check clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md before searching for files to heal.
 
 **Checklist**: All `pending_healing` processed | orphans added | each item `completed`/`fixme` | TC docs updated | selector fixes in index.ts | no `test.fixme()` | test data in `.data.ts` files not specs (ALL-065) | self-audit (§8)

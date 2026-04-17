@@ -49,7 +49,7 @@ function main(): void {
   }
 
   // Gate 1: failure-summary.json was updated (tests were re-run)
-  const failureSummaryPath = path.join(__dirname, '../reports/failure-summary.json');
+  const failureSummaryPath = path.join(SHARED_PATHS.reports, 'failure-summary.json');
   if (!fs.existsSync(failureSummaryPath)) {
     errors.push('failure-summary.json not found -- tests were not re-run');
   } else {
@@ -163,7 +163,7 @@ function main(): void {
 
   // Gate: BUG VERIFICATION (HLR-021)
   // Check for bugs with status 'fixed' that need re-testing. Attempt re-test if possible.
-  const bugDir = path.join(__dirname, '../reports/bugs');
+  const bugDir = path.join(SHARED_PATHS.reports, 'bugs');
   if (fs.existsSync(bugDir)) {
     const bugFiles = fs.readdirSync(bugDir).filter(f => f.endsWith('.json'));
     const fixedBugs: { file: string; bug: any }[] = [];

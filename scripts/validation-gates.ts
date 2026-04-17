@@ -105,7 +105,7 @@ export function checkMidWorkCapture(
  * Returns formatted log messages. Non-blocking (soft warning) in pre-run.
  */
 export function checkPendingEscalations(agentName: string): string[] {
-  const escFile = path.join(__dirname, '../specs_planning/_internal/agent-escalations.json');
+  const escFile = SHARED_PATHS.escalations;
   if (!fs.existsSync(escFile)) return [];
 
   try {
@@ -132,7 +132,7 @@ export function checkPendingEscalations(agentName: string): string[] {
  * Returns warnings for unresolved escalations.
  */
 export function checkUnresolvedEscalations(agentName: string): string[] {
-  const escFile = path.join(__dirname, '../specs_planning/_internal/agent-escalations.json');
+  const escFile = SHARED_PATHS.escalations;
   if (!fs.existsSync(escFile)) return [];
 
   try {

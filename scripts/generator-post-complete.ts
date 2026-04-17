@@ -231,7 +231,7 @@ function validateTestPass(item: QueueItem): GateResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  const failureSummaryPath = path.join(__dirname, '../reports/failure-summary.json');
+  const failureSummaryPath = path.join(SHARED_PATHS.reports, 'failure-summary.json');
 
   if (!fs.existsSync(failureSummaryPath)) {
     errors.push('Gate 9 FAIL: reports/failure-summary.json not found -- run tests before completing');
@@ -296,7 +296,7 @@ function validateFixDiagnosis(item: QueueItem): GateResult {
     return { passed: true, errors, warnings };
   }
 
-  const reportsDir = path.join(__dirname, '../reports');
+  const reportsDir = SHARED_PATHS.reports;
   if (!fs.existsSync(reportsDir)) {
     errors.push('Gate 10 FAIL: reports/ directory not found.');
     return { passed: false, errors, warnings };
@@ -386,7 +386,7 @@ function validateTcRegistry(item: QueueItem): GateResult {
     return { passed: true, errors, warnings };
   }
 
-  const registryPath = path.join(__dirname, '../specs_planning/_internal/test-id-registry.json');
+  const registryPath = SHARED_PATHS.testIdRegistry;
   if (!fs.existsSync(registryPath)) {
     return { passed: true, errors, warnings };
   }
@@ -691,7 +691,7 @@ function runGate(item: QueueItem): void {
 
   // ── Time-to-first-test-run metric (Step 14) ──
   if (item.sessionStartedAt) {
-    const failureSummaryPath = path.join(__dirname, '../reports/failure-summary.json');
+    const failureSummaryPath = path.join(SHARED_PATHS.reports, 'failure-summary.json');
     if (fs.existsSync(failureSummaryPath)) {
       try {
         const failureData = JSON.parse(fs.readFileSync(failureSummaryPath, 'utf-8'));
@@ -734,7 +734,7 @@ function runGate(item: QueueItem): void {
 
     // Record clean cycle entry (all hard gates passed = clean, soft warnings don't count as defects)
     try {
-      const perfPath = path.join(__dirname, '..', 'specs_planning', 'agent-performance.json');
+      const perfPath = SHARED_PATHS.performance;
       const perf = JSON.parse(fs.readFileSync(perfPath, 'utf-8'));
       addCycleEntry(perf, 'generator', item.feature || item.id, [], 'post-complete-gate');
       perf.lastUpdated = new Date().toISOString();

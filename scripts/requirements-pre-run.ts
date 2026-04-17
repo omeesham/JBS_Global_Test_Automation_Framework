@@ -58,7 +58,7 @@ function main(): void {
   }
 
   // PF-04: BASE_URL check
-  const envDir = path.join(__dirname, '../config/environments');
+  const envDir = SHARED_PATHS.envDir;
   let baseUrlFound = false;
   if (fs.existsSync(envDir)) {
     const envFiles = fs.readdirSync(envDir).filter(f => f.startsWith('.env'));

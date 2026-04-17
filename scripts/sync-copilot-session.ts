@@ -9,8 +9,10 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { SHARED_PATHS } from './shared-types';
+import { frameworkRoot } from './shared-paths';
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = frameworkRoot();
 
 interface SyncReport {
   modules: string[];
@@ -30,7 +32,8 @@ function scanArtifacts(): SyncReport {
   };
 
   // Scan spec files
-  const specsRoot = path.join(ROOT, 'tests', 'specs');
+  const specsRoot = SHARED_PATHS.specs;
+  const specsRel = path.relative(ROOT, specsRoot).replace(/\\/g, '/');
   if (fs.existsSync(specsRoot)) {
     for (const mod of fs.readdirSync(specsRoot)) {
       const modDir = path.join(specsRoot, mod);
@@ -38,30 +41,32 @@ function scanArtifacts(): SyncReport {
       const specs = fs.readdirSync(modDir).filter(f => f.endsWith('.spec.ts'));
       if (specs.length > 0) {
         report.modules.push(mod);
-        report.specs.push(...specs.map(s => `tests/specs/${mod}/${s}`));
+        report.specs.push(...specs.map(s => `${specsRel}/${mod}/${s}`));
       }
     }
   }
 
   // Scan test cases
-  const tcRoot = path.join(ROOT, 'specs_planning', 'test-cases');
+  const tcRoot = SHARED_PATHS.testCases;
+  const tcRel = path.relative(ROOT, tcRoot).replace(/\\/g, '/');
   if (fs.existsSync(tcRoot)) {
     for (const mod of fs.readdirSync(tcRoot)) {
       const modDir = path.join(tcRoot, mod);
       if (!fs.statSync(modDir).isDirectory()) continue;
       const tcs = fs.readdirSync(modDir).filter(f => f.endsWith('.md'));
-      report.testCases.push(...tcs.map(t => `specs_planning/test-cases/${mod}/${t}`));
+      report.testCases.push(...tcs.map(t => `${tcRel}/${mod}/${t}`));
     }
   }
 
   // Scan selectors
-  const selRoot = path.join(ROOT, 'src', 'selectors');
+  const selRoot = SHARED_PATHS.selectors;
+  const selRel = path.relative(ROOT, selRoot).replace(/\\/g, '/');
   if (fs.existsSync(selRoot)) {
     for (const mod of fs.readdirSync(selRoot)) {
       const modDir = path.join(selRoot, mod);
       if (!fs.statSync(modDir).isDirectory()) continue;
       const sels = fs.readdirSync(modDir).filter(f => f.endsWith('.ts'));
-      report.selectors.push(...sels.map(s => `src/selectors/${mod}/${s}`));
+      report.selectors.push(...sels.map(s => `${selRel}/${mod}/${s}`));
     }
   }
 

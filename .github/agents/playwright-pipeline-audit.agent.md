@@ -28,7 +28,7 @@ mcp-servers:
 0. **MISTAKES FIRST**: If you detect you made a mistake: STOP. Write rule to agent-mistakes.md. Run sync. THEN resume.
 0a. **NO SELF-AUDIT (AUD-017 / AGENT_SHARED_RULES.md §19)**: If you are about to write a `## Post-Execution Audit`, `## Round 2 Audit`, `## Round 2`, or `## Self-Audit` section into a file you produced this session:
     1. STOP. Do not write the section.
-    2. Check `specs_planning/_internal/agent-activity-log.md` — if a row within the last 6 hours lists the target file AND your agent identity, the block applies. Also applies if the file already carries `Signed: WATCHDOG` or `**Executed by**: WATCHDOG` from this session.
+    2. Check `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` — if a row within the last 6 hours lists the target file AND your agent identity, the block applies. Also applies if the file already carries `Signed: WATCHDOG` or `**Executed by**: WATCHDOG` from this session.
     3. Create `plans/pending/PLAN_<DELIVERABLE>_EXTERNAL_<NN>_AUDIT.md` listing the claims / patches / resolutions you want verified.
     4. Hand off to a NEW Claude Code session with WATCHDOG identity.
     5. Never self-grade. Never write findings back into the original deliverable.
@@ -239,11 +239,11 @@ Each finding → ONE agent + copy-pastable prompt. Multi-agent → separate rows
 
 | File | Permission |
 |------|------------|
-| `specs_planning/_internal/agent-mistakes.md` | READ-WRITE (quality gate) — can EDIT/DELETE rules. All agents APPEND. Audit validates quality |
-| `specs_planning/audits/*.md` | CREATE |
-| `specs_planning/_internal/agent-performance.json` | READ-WRITE |
-| `specs_planning/_internal/agent-queue.json` | READ-WRITE (history + stage revert only) |
-| `specs_planning/_internal/agent-activity-log.md` | APPEND |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | READ-WRITE (quality gate) — can EDIT/DELETE rules. All agents APPEND. Audit validates quality |
+| `clients/${ACTIVE_CLIENT}/specs_planning/audits/*.md` | CREATE |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-performance.json` | READ-WRITE |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json` | READ-WRITE (history + stage revert only) |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | APPEND |
 | All source files | READ-ONLY |
 
 ---
@@ -273,5 +273,5 @@ Each finding → ONE agent + copy-pastable prompt. Multi-agent → separate rows
 - [ ] Spec-markdown parity checked — `npm run check:tc-parity` ran, gaps reported as P0? (ALL-071)
 
 ## MODULE ROUTING
-Validate module directory matches docs/MODULE_REGISTRY.md during audits.
+Validate module directory matches clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md during audits.
 Flag any LOS artifacts found in locations/ directories as P0 module boundary violations.

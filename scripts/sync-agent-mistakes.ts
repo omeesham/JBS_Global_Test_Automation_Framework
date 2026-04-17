@@ -16,6 +16,7 @@ import {
   MistakeRule, AGENT_FILE_MAP, NEVER_DO_PATTERN, SHARED_PATHS,
   parseMistakeRow,
 } from './shared-types';
+import { frameworkPath } from './shared-paths';
 
 interface AgentRules {
   [agentName: string]: MistakeRule[];
@@ -140,10 +141,12 @@ function injectIntoAgentFile(filePath: string, newSection: string): { changed: b
 
 // ── SYNC Marker Infrastructure ──
 
-const COPILOT_INSTRUCTIONS = path.resolve(__dirname, '..', '.github', 'copilot-instructions.md');
-const MCP_GUIDE = path.resolve(__dirname, '..', 'docs', 'read_only_docs', 'MCP_BROWSER_GUIDE.md');
-const PKG_JSON = path.resolve(__dirname, '..', 'package.json');
-const SHARED_RULES = path.resolve(__dirname, '..', 'docs', 'read_only_docs', 'AGENT_SHARED_RULES.md');
+const COPILOT_INSTRUCTIONS = frameworkPath(path.join('.github', 'copilot-instructions.md'));
+// docs/read_only_docs/*.md are framework-level (shared rules). SP-MT-03 moved only
+// client-specific requirement .docx files into clients/encore/docs/read_only_docs/.
+const MCP_GUIDE = frameworkPath(path.join('docs', 'read_only_docs', 'MCP_BROWSER_GUIDE.md'));
+const PKG_JSON = frameworkPath('package.json');
+const SHARED_RULES = frameworkPath(path.join('docs', 'read_only_docs', 'AGENT_SHARED_RULES.md'));
 
 /** Agent files that receive CONTEXT_LOAD sync (all 5 pipeline agents). */
 const CONTEXT_LOAD_TARGETS = [

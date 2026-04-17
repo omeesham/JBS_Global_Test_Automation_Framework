@@ -50,7 +50,7 @@ function main(): void {
 
   // Gate 1: Check for audit output
   // Audit creates findings in audits/ folder or in agent-mistakes.md
-  const auditsDir = path.join(__dirname, '../specs_planning/audits');
+  const auditsDir = SHARED_PATHS.audits;
   let auditOutputFound = false;
 
   if (fs.existsSync(auditsDir)) {

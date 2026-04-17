@@ -20,6 +20,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execSync, execFileSync, ExecSyncOptionsWithStringEncoding } from 'child_process';
 import { QueueFile, QueueItem, SHARED_PATHS } from './shared-types';
+import { frameworkPath } from './shared-paths';
 
 // ── Types ──
 
@@ -109,7 +110,7 @@ function routeAfterStage(stage: string, testsPassed: boolean, _retryCount: numbe
 // ── Helpers ──
 
 function loadPipelineConfig(): PipelineConfig {
-  const configPath = path.join(__dirname, '../config/pipeline-config.json');
+  const configPath = frameworkPath(path.join('config', 'pipeline-config.json'));
   if (!fs.existsSync(configPath)) {
     console.error('[ERR] config/pipeline-config.json not found');
     process.exit(1);
@@ -211,7 +212,7 @@ function buildAgentPrompt(stage: string, itemId: string): string {
   // Load agent.md from pipeline-definition.json
   let agentInstructions = '';
   try {
-    const defPath = path.join(__dirname, '../config/pipeline-definition.json');
+    const defPath = frameworkPath(path.join('config', 'pipeline-definition.json'));
     const definition = JSON.parse(fs.readFileSync(defPath, 'utf-8'));
     const stageDef = definition.stages.find((s: { id: string }) => s.id === stage);
     if (stageDef?.agentFile) {
@@ -241,7 +242,7 @@ function buildAgentPrompt(stage: string, itemId: string): string {
 }
 
 function checkTestResults(itemId: string): boolean {
-  const failureSummaryPath = path.join(__dirname, '../reports/failure-summary.json');
+  const failureSummaryPath = path.join(SHARED_PATHS.reports, 'failure-summary.json');
   if (!fs.existsSync(failureSummaryPath)) {
     console.log('[WARN] failure-summary.json not found -- assuming tests did not pass');
     return false;

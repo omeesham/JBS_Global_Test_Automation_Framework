@@ -164,6 +164,10 @@ No circular dependencies. `/identity` is always a leaf — it never auto-calls o
 
 _Graduated from PLAN_53 chain audit (2026-03-20). 25 bugs found, 6 patterns extracted._
 
+**Framework-level rules only.** Client-specific rules (naming client product surfaces, business validations, or client-specific URL patterns) live in `clients/${ACTIVE_CLIENT}/CLAUDE.md` — for Encore, that's `clients/encore/CLAUDE.md`.
+
+**Numbering convention**: existing `LR-NNN` numbers are grandfathered; new framework rules continue `LR-038`, `LR-039`, … ; new client-specific rules use `LR-ENC-NNN` (or `LR-{CLIENT}-NNN` for other clients) to prevent collision. When looking up any `LR-NNN` reference, check both this file and `clients/${ACTIVE_CLIENT}/CLAUDE.md`.
+
 ### LR-001: Verify function signatures before calling (3+ occurrences)
 Before calling ANY function from another module: read its actual signature (params, types, return).
 Never assume from the plan or memory. Wrong param = wrong data = silent corruption.
@@ -206,13 +210,6 @@ Never trust planner data without live verification. The planner is OFTEN wrong.
 Even Opus skipped this step and it caused 5 of 8 generator failures.
 **Trigger**: Every generator session start. Enforced by PF-G5 gate.
 
-### LR-008: Date offset validation — positivity constraints per field type
-"Relative to start" fields (Prep, Set, Delivery) must be <= 0.
-"Relative to end" fields (Return, Strike, Pickup) must be >= 0.
-Delivery has additional NM-1264 constraint: must be >= Prep.
-Test values must respect ALL constraints for the field being tested.
-**Trigger**: Any test involving date offset fields on Location Settings.
-
 ### LR-009: Angular form dirty tracking — never test recovery to original value
 When testing "error recovery" (invalid → valid), the recovery value must be
 DIFFERENT from the server-saved value. Restoring to the original value makes
@@ -221,7 +218,7 @@ Example: Delivery default=0, invalid=-5, recovery=-1 (NOT 0).
 **Trigger**: Any test that validates Save button enables after correcting an error.
 
 ### LR-010: Cross-field validation is ALWAYS async — use expect.poll
-Angular cross-field validators (NM-1264: Delivery >= Prep) fire asynchronously
+Angular cross-field validators (e.g., a field that must be >= another field) fire asynchronously
 after input events. Immediate getAttribute('aria-invalid') returns stale state.
 Always use expect.poll(() => isFieldInvalid(key)) or the expectInvalid()/expectValid()
 polling helpers from the page object. Same-field validation (e.g., "abc" in numeric) is synchronous.
@@ -232,12 +229,6 @@ Typing non-numeric values (e.g., "abc") into numeric Angular inputs corrupts the
 internal model to NaN. Typing a valid value back does NOT reliably fix the model.
 The ONLY safe cleanup is page reload (reloadBasicInfo or safeNavigateTo).
 **Trigger**: Any test that enters non-numeric text into a numeric field.
-
-### LR-012: Save dialogs are SHARED unless MCP-proven otherwise
-Default assumption: all Location Settings tabs use the shared "Save Changes" dialog
-(dlgSaveChanges / btnSaveChangesConfirm from shared.ts). Do NOT create custom dialog
-selectors unless MCP verification proves a custom dialog exists.
-**Trigger**: Any new page object for Location Settings tabs.
 
 ### LR-013: Generator Phase 0.5 is MANDATORY — walkthrough before code
 Generator MUST complete Phase 0.5 walkthrough as its FIRST action before writing
@@ -267,15 +258,6 @@ Always verify actual HTML tag via `browser_evaluate(() => el.tagName)` before wr
 selectors like `svg`, `img`, `tr`, `td`. The accessibility tree is for FINDING elements,
 not for understanding their DOM structure.
 **Trigger**: Any Phase 0.5 walkthrough or healer session examining DOM structure.
-
-### LR-017: Different pages MUST have separate selector namespaces and directories
-Pages at different URLs are DIFFERENT pages. Never merge selectors into a shared flat
-object or co-locate files in the same directory. Each page group gets its own selector
-partition, own directory, and own collision detection boundary.
-"Location Settings" (`/settings/location`) ≠ "Local Office Settings" (`/settings/local-office`).
-Check REQUIREMENTS.md and docs/MODULE_REGISTRY.md for page boundaries before creating any new page object.
-Directory structure mirrors the app navigation hierarchy: `{section}/{module}/`.
-**Trigger**: Any new page object or selector file creation.
 
 ### LR-018: Spec-fixing workflow — run-all is the only truth
 When fixing failing specs, follow this exact order:
@@ -357,18 +339,18 @@ Angular's form dirty state (`FormControl.dirty`) does NOT reliably reset after s
 Three known manifestations:
 1. **Save button disables but form stays dirty** — the app explicitly disables the button
    after save API completes, but doesn't call `markAsPristine()`. Navigating to another
-   tab triggers "Unsaved changes" alertdialog even though save succeeded (GEN-033).
+   tab triggers "Unsaved changes" alertdialog even though save succeeded.
 2. **Dirty state persists across test boundaries** — save cycle doesn't reset dirty tracking.
-   Must reload page between tests that modify and save data (GEN-026).
+   Must reload page between tests that modify and save data.
 3. **Net-zero changes not detected** — reverting to original value makes Angular detect
-   "no net change" → Save stays disabled. Recovery values must differ from server-saved (LR-009).
+   "no net change" → Save stays disabled. Recovery values must differ from server-saved (see LR-009).
 Fix patterns:
 - After save: wait for button disabled (confirms API done) BUT don't assume form pristine
 - Any tab navigation: check for `[role="alertdialog"]` and dismiss with "Discard" if visible
 - Between serial tests that save: reload page to reset form state
 - Recovery values must differ from the server-saved original
 **Trigger**: Any test that saves data then navigates, or any serial test after a save.
-**Graduated from**: LR-009, GEN-026, GEN-033, session 2026-04-02
+**Graduated from**: LR-009 + Angular dirty-state manifestations observed across multiple spec sessions.
 
 ### LR-027: Plan finalization — execution summary MANDATORY before move to done/
 When moving a plan from `plans/pending/` to `plans/done/`:
@@ -391,9 +373,9 @@ When moving a plan from `plans/pending/` to `plans/done/`:
 ### LR-028: Session bookkeeping — activity log entry at session end
 Before ending any session that modified pipeline artifacts (specs, page objects, selectors,
 test data, test cases, test plans, REQUIREMENTS.md):
-1. Append entry to `specs_planning/_internal/agent-activity-log.md`
+1. Append entry to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md`
    Format: `| YYYY-MM-DDThh:mm | agent | done | file1, file2, ... | DESCRIPTION |`
-2. If unexpected behaviors were discovered → write to `agent-mistakes.md`
+2. If unexpected behaviors were discovered → write to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`
 3. If MCP findings contradicted plan assumptions → update the plan's execution summary
 Activity log is the audit trail. Missing entry = invisible session = audit finding.
 **Trigger**: End of any session that touched pipeline files.
@@ -537,32 +519,8 @@ Any manual edits will be overwritten. To update the index:
 CI/agents can gate on staleness with `npm run plans:reindex:check`.
 **Trigger**: Any work that adds, completes, or reorganizes plan files.
 
-### LR-036: Boolean render format differs per page — MCP-verify detection per table
-Tables/grids/lists in the same Angular app can render boolean values with DIFFERENT HTML.
-A helper that works on one table will silently return wrong values on another:
-- **Unicode checkmark "✔"**: readable via `textContent` — used by Location Management History
-  (col 3 Active, col 12 Corporate Pricing, etc.) and similar legacy tables
-- **SVG icon `<svg class="lucide lucide-check">`**: `textContent` returns EMPTY for BOTH TRUE and
-  FALSE cells — used by Local Office Settings History and other newer shadcn/lucide-based tables
-- **Empty cell**: represents FALSE in both cases
-
-Detection patterns:
-- Unicode tables: `cell.textContent?.includes('✔')` → TRUE
-- SVG tables (TRUE): `(await cell.innerHTML()).includes('lucide-check')` → TRUE
-- SVG tables (FALSE): `(await cell.innerHTML()).trim() === ''` → FALSE
-
-NEVER assume two tables in the same app use the same render format. MCP-verify per table before
-writing any `getColumnValue`, `getCheckboxState`, or helper that reads boolean-valued cells.
-`getColumnByHeader()` for boolean columns MUST branch on table type — `textContent` returns empty
-for both states on SVG tables, producing silently wrong assertions.
-**Trigger**: Any page object or spec that reads boolean values from a table, grid, or list cell.
-**Graduated from**: SP1 MCP discovery 2026-04-13 (SUBPLAN_HISTORY_01_MCP_FINDINGS §2) — Location
-Management History uses Unicode ✔, Local Office History uses SVG lucide-check. Original plan
-assumed same format for both; any `textContent`-based detection helper would have silently
-returned empty for every SVG row → every boolean assertion false regardless of actual state.
-
 ### LR-037: Activity log timestamps must be ≥ referenced file mtimes — no backdating
-Every row appended to `specs_planning/_internal/agent-activity-log.md` must have a `When`
+Every row appended to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` must have a `When`
 timestamp that is at or after the latest mtime (and git commit time, if tracked) of every
 file listed in the `Files` column. Backdating a row — writing 09:00 at 14:32 for files
 created at 14:32 — poisons every downstream gate that anchors on activity-log timestamps

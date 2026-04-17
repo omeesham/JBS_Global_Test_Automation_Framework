@@ -1,0 +1,152 @@
+﻿TC ID,Title,Module,Submodule,Specific Field,Preconditions,Steps,Expected Result,Notes
+"TC-LOC-NTS-001","Verify Notes tab default empty state","locations","notes","Notes","Office 1604 is open in Navigator. Notes tab is active","1. Navigate to https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+2. Click ""Notes"" tab
+3. Verify table shows ""No Notes Available""
+4. Verify character counter
+5. Verify ""Add"" button visible
+6. Verify progress bar visible
+7. Verify NO ""Delete"" button","Empty table (""No Notes Available""), counter at 0/4000, Add button enabled, NO Delete button, NO column headers","CORRECTION from 2026-02-19: Table starts EMPTY (no default row). No <thead> exists in DOM"
+"TC-LOC-NTS-002","Type text in textarea and verify counter updates","locations","notes","Type text","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab
+2. Click ""Add"" button
+3. Type ""Test note for exploration""
+4. Verify character counter
+5. Verify ""Save"" button in left panel is enabled","Counter updates in real time to 25/4000; Save button enables on change","CLEANUP: Clear textarea or navigate away without saving"
+"TC-LOC-NTS-003","Add second note row and verify Delete button behavior","locations","notes","Add second note row and verify Delete","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Type ""First note"" in row 1
+3. Click ""Add"" button again
+4. Verify Delete on row 1
+5. Verify Delete on row 2
+6. Verify counter","Delete appears on typed rows and on ALL rows when 2+ exist; counter adds +1 delimiter per additional row","CORRECTION: Delete appears when row has content (not only 2+ rows). With 2+ rows, even empty rows get Delete.
+""Cleanup"": Delete rows and discard changes"
+"TC-LOC-NTS-004","Multi-row counter includes delimiter per row boundary","locations","notes","Multi-row counter includes delimiter","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Type ""Hello"" in row 1
+3. Click ""Add""
+4. Type ""World"" in row 2
+5. Click ""Add""
+6. Type ""End"" in row 3","Each additional row adds exactly 1 delimiter character to the total count","CLEANUP: Delete rows 3 and 2, clear row 1, discard changes"
+"TC-LOC-NTS-005","Delete a row and verify counter decreases","locations","notes","Delete","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""First note""
+2. Click ""Add"", type ""Second note"" in row 2
+3. Click ""Delete"" on row 2
+4. Verify Delete still visible on row 1
+5. Verify 1-row state","Counter decreases by deleted row text + delimiter; Delete stays on row 1 because it has content","CORRECTION: Delete stays on row 1 after deleting row 2 (because row 1 has content - not ""disappears when 1 row"").
+""Cleanup"": Clear row 1, discard changes"
+"TC-LOC-NTS-006","Progress bar updates proportionally with character usage","locations","notes","Progress bar updates proportionally","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab
+2. Click ""Add"", type 40-character string
+3. Change text to a 2000-character string
+4. Verify proportional fill","Progress bar fills proportionally to character usage against the 4000 limit","CLEANUP: Clear text, discard changes"
+"TC-LOC-NTS-007","Verify 4000 character limit (soft enforcement, no HTML maxlength)","locations","notes","4000 character limit (soft","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Fill textarea with exactly 4000 characters
+3. Attempt to type one additional character via keyboard
+4. Paste a 4001-char string into textarea
+5. Verify textarea has NO maxlength attribute","Keyboard input blocked at 4000; paste bypasses (soft limit); counter shows overage; no HTML maxlength","CORRECTION from 2026-02-19: Limit is SOFT. No maxlength on textarea. Paste can exceed 4000.
+""Cleanup"": Clear textarea, discard changes"
+"TC-LOC-NTS-008","Save notes via left-panel Save button (dialog confirmation)","locations","notes","Save notes via left-panel","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Saved note content""
+2. Click left-panel ""Save""
+3. Verify dialog heading
+4. Verify dialog body
+5. Click ""Save"" in dialog [role=""alertdialog""] button:has-text(""Save"")
+6. Verify left-panel ""Save"" button becomes disabled","Save dialog appears with confirmed heading/body; after confirmation, notes saved and Save button disables","CLEANUP: Delete note and save to restore empty state"
+"TC-LOC-NTS-009","Notes persist after page reload","locations","notes","Notes persist","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Persistent note""
+2. Save via left-panel ""Save"", confirm in dialog
+3. Reload page (navigate same URL)
+4. Click ""Notes"" tab
+5. Verify row value
+6. Verify counter","Saved notes persist after page reload with exact content and correct counter","CLEANUP: Delete note and save to restore empty state"
+"TC-LOC-NTS-010","Switching sub-tabs preserves unsaved note content","locations","notes","Switching sub-tabs preserves unsaved","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Temporary text""
+2. Click ""Currency"" tab
+3. Click ""Notes"" tab again
+4. Verify textarea still contains
+5. Verify counter","Switching between sub-tabs preserves unsaved note content in React state","CLEANUP: Clear textarea, discard changes"
+"TC-LOC-NTS-011","Navigation away with unsaved changes triggers browser dialog","locations","notes","Navigation away","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Unsaved text""
+2. Navigate away (e.g., browser_navigate to a different URL)
+3. Accept navigation","Navigating away with unsaved changes triggers browser's built-in beforeunload confirmation dialog","This is the BROWSER's beforeunload dialog, not the app's alertdialog ""Save Changes"""
+"TC-LOC-NTS-012","Delete all notes and save empty state","locations","notes","Delete all notes and save empty","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab with a saved note (or add + save one)
+2. Click ""Delete"" on the row
+3. Click left-panel ""Save"", confirm in dialog
+4. Reload page, click ""Notes"" tab","Deleting the last note and saving persists the empty ""No Notes Available"" state",""
+"TC-LOC-NTS-013","Special and HTML characters stored correctly","locations","notes","Special","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Type: ""test"", <div>, &amp;, é, ñ
+3. Verify counter counts each character accurately
+4. Save via left-panel ""Save"", confirm
+5. Reload and verify ""Notes"" tab","HTML entities, quotes, accented chars accepted, counted, saved, retrieved without corruption","CLEANUP: Delete note and save to restore empty state"
+"TC-LOC-NTS-014","Add multiple rows and verify sequential textarea positions","locations","notes","Add multiple rows","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Click ""Add"" again
+3. Click ""Add"" again
+4. Verify all 3 textboxes have placeholder
+5. Type distinct text in each","Three rows accessible via nth() indexing on textarea; all get Delete when 2+ rows","CORRECTION: DOM has NO visible row number column (#). Rows identified by textarea nth() position only.
+""Cleanup"": Delete rows 3 and 2, discard changes"
+"TC-LOC-NTS-015","Delete a middle row and verify remaining rows shift","locations","notes","Delete","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Row A"" in row 1 (nth=0)
+2. Click ""Add"", type ""Row B"" in row 2 (nth=1)
+3. Click ""Add"", type ""Row C"" in row 3 (nth=2)
+4. Click ""Delete"" on row 2
+5. Verify remaining rows
+6. Verify counter","Remaining rows shift; content preserved; counter decreases correctly","CORRECTION: No visible row numbers - rows identified by position. ""Row C"" shifts to nth=1 after deleting nth=1.
+""Cleanup"": Delete remaining extra row(s), discard changes"
+"TC-LOC-NTS-016","Empty row has no Delete button - Delete appears on first keystroke","locations","notes","Empty row has no Delete","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab
+2. Click ""Add""
+3. Verify counter
+4. Type a single character ""a"" in the textarea
+5. Verify Delete button NOW appears","Empty row has no Delete; Delete appears immediately when text is typed (even 1 char)","CLEANUP: Delete the row or clear text, discard changes"
+"TC-LOC-NTS-017","Delete last remaining row restores empty state","locations","notes","Delete last remaining row restores empty","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab with 1 note row (add one if empty)
+2. Click ""Delete""
+3. Verify Add button still visible
+4. Verify Save button enabled","Deleting the last note row returns to ""No Notes Available"" state immediately; table completely empty",""
+"TC-LOC-NTS-018","XSS payload stored as unsafe text (security)","locations","notes","XSS payload stored as","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Type <script>alert(1)</script> in textarea
+3. Verify no script executes
+4. Save via left-panel ""Save"", confirm
+5. Reload and open ""Notes"" tab","XSS payload stored and retrieved as plain text; never executed as HTML or JavaScript","CLEANUP: Delete note and save to restore empty state"
+"TC-LOC-NTS-019","SQL injection payload stored as text (security)","locations","notes","SQL injection payload stored","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Type '; DROP TABLE notes; -- in textarea
+3. Save via left-panel ""Save"", confirm
+4. Reload and open ""Notes"" tab","SQL injection payload stored and retrieved as plain text; no database side effects","CLEANUP: Delete note and save to restore empty state"
+"TC-LOC-NTS-020","Emoji and unicode characters preserved through save/reload","locations","notes","Emoji","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Type café résumé 😀 中文 in textarea
+3. Verify counter
+4. Save via left-panel ""Save"", confirm
+5. Reload and open ""Notes"" tab","Multi-byte unicode and emoji preserved without corruption through the full save+reload cycle","CLEANUP: Delete note and save to restore empty state"
+"TC-LOC-NTS-021","Paste exceeds 4000 char limit - counter shows overage (soft limit)","locations","notes","Paste exceeds 4000 char","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Paste a string of 4001 characters
+3. Verify counter
+4. Verify textarea accepted the content","Counter shows overage; no HTML maxlength attribute prevents paste; counter shows ""N/4000(0 Left)"" for any N>=4000","SOFT LIMIT confirmed. Server behavior on save with > 4000 chars should be separately documented.
+""Cleanup"": Clear textarea, discard changes"
+"TC-LOC-NTS-022","Accessibility - ARIA attributes and keyboard navigation","locations","notes","Accessibility","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+2. Tab through interactive elements
+3. Verify textarea
+4. Verify Add button
+5. Verify progressbar
+6. Verify keyboard save","All interactive elements keyboard-reachable; known gaps: textarea no aria-label, progressbar no aria-valuenow + no aria-label","Accessibility gaps: (1) textarea has no aria-label (placeholder only); (2) progressbar no aria-valuenow; (3) progressbar no aria-label"
+"TC-LOC-NTS-023","Sequential full lifecycle - add, save, reload, delete, save","locations","notes","Sequential full lifecycle","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab
+2. Click ""Add"", type ""Sequential test note"" (20 chars)
+3. Click left-panel ""Save"", confirm in dialog
+4. Reload page, click ""Notes"" tab
+5. Click ""Delete"" on the note
+6. Click left-panel ""Save"", confirm in dialog
+7. Reload page, click ""Notes"" tab","Full add -> save -> reload -> delete -> save -> reload lifecycle works correctly at every step",""
+"TC-LOC-NTS-024","Multi-row persistence - 3 rows save+reload+verify","locations","notes","Multi-row persistence","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
+2. Fill row 0 ""Row Alpha"" (9 chars), click ""Add"", fill row 1 ""Row Beta"" (8 chars), click ""Add"", fill row 2 ""Row Gamma"" (9 chars)
+3. Click ""Save"", confirm dialog
+4. Reload page, click ""Notes"" tab
+5. Clean up: delete all rows + save","All 3 rows persist after save+reload with correct content and order",""
+"TC-LOC-NTS-025","Boundary persistence - 4000 chars save+reload","locations","notes","Boundary persistence","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
+2. Fill row 0 with 4000 'A' chars
+3. Click ""Save"", confirm dialog
+4. Reload page, click ""Notes"" tab
+5. Clean up: delete + save","Full 4000-char content persists after save+reload without truncation",""
+"TC-LOC-NTS-026","Partial deletion persistence - delete middle row, save, verify remaining","locations","notes","Partial deletion persistence","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
+2. Fill row 0 ""Keep First"" (10), click ""Add"", fill row 1 ""Delete Me"" (9), click ""Add"", fill row 2 ""Keep Last"" (9)
+3. Delete row 1 (""Delete Me"")
+4. Click ""Save"", confirm dialog
+5. Reload page, click ""Notes"" tab
+6. Clean up: delete + save","After deleting middle row + save + reload, only remaining rows persist",""
+"TC-LOC-NTS-027","Cancel save dialog - verify changes NOT persisted","locations","notes","Cancel save dialog","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
+2. Fill row 0 ""Cancel test note"" (16 chars)
+3. Click ""Save"" button (opens dialog)
+4. Click ""Cancel"" in dialog
+5. Reload page, click ""Notes"" tab","Cancelling save dialog prevents persistence; note is discarded on reload",""
+"TC-LOC-NTS-HIST","Notes Saves - Location Management History Row Verification","locations","notes","Notes Saves","Office 1604 is open in Navigator. Notes tab is active","1. After NTS save TCs complete, navigate to Location Management History tab
+2. Sort by Modified On descending (default is ascending)
+3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer)
+4. Verify at least 1 suite row present
+5. Verify every suite row has Modified By and Modified On non-empty
+6. Gap-check: extract unique Notes values from all suite rows and verify at least one is non-empty","Notes saves produced history rows (snapshot model). Modified By and Modified On populated per row. Notes column (col 70) contains at least one non-empty value across saves, confirming the snapshot model captures Notes content. Soft assertions used throughout",""

@@ -42,7 +42,7 @@ model: Claude Sonnet 4.6
 | MOD-001 | Local Office Settings is NOT part of the Locations module. `/settings/local-office` and `/settings/l... | Planner, generator, all agents put LOS files in locations/ directories for months. 3 pending plans p... |
 | MOD-002 | After adding numbered sections to any document, verify ENTIRE sequence integrity — check for duplica... | Part B agent added §12 (Module Boundary Enforcement) to AGENT_SHARED_RULES.md without noticing §12 w... |
 | MOD-003 | After any bulk rename (e.g. SetupSelectors → LocationSettingsSelectors), sweep ALL files including n... | Part B agent updated all .ts files but left stale SetupSelectors references in locations_local_infor... |
-| MOD-004 | After adding TCs to any spec file during `/execute`, ALWAYS grep `specs_planning/test-cases/` and `s... | Currency (7 TCs) and Pricing (4 TCs) were added to specs during PLAN_AUDIT_CURRENCY + pricing audit ... |
+| MOD-004 | After adding TCs to any spec file during `/execute`, ALWAYS grep `clients/${ACTIVE_CLIENT}/specs_planning/test-cases/` and `s... | Currency (7 TCs) and Pricing (4 TCs) were added to specs during PLAN_AUDIT_CURRENCY + pricing audit ... |
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.
@@ -71,7 +71,7 @@ model: Claude Sonnet 4.6
 ## File Permissions
 
 - **READ-WRITE**: `src/pages/`, `src/common/base-page.ts`, `tests/`
-- **APPEND-ONLY**: `specs_planning/_internal/agent-mistakes.md` (MNT- prefix only)
+- **APPEND-ONLY**: `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` (MNT- prefix only)
 - **READ-ONLY**: everything else (selectors, scripts, agent prompts, package.json)
 
 ---
@@ -85,5 +85,5 @@ model: Claude Sonnet 4.6
 5. Does `npm run validate:sync` pass clean? (MNT-007)
 
 ## MODULE ROUTING
-When maintaining selectors or page objects, check docs/MODULE_REGISTRY.md for correct module.
+When maintaining selectors or page objects, check clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md for correct module.
 Each module has its own selector partition. Never merge selectors across modules.

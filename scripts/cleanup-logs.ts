@@ -2,6 +2,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { SHARED_PATHS } from './shared-types';
+import { frameworkRoot, frameworkPath } from './shared-paths';
 
 const RETENTION_DAYS = 30;
 const MAX_LOG_LINES = 10000; // ~30 days of test activity
@@ -12,7 +14,7 @@ const KEEP_LOG_LINES = 5000;  // Trim to this when exceeded
  * Handles both global log and per-spec subdirectory logs (Step 9).
  */
 function cleanupTestLogs(): void {
-  const logsDir = path.join(process.cwd(), 'logs');
+  const logsDir = frameworkPath('logs');
 
   // Clean global log
   const globalLog = path.join(logsDir, 'test-execution.log');
@@ -54,7 +56,7 @@ function trimLogFile(logPath: string): void {
  * Clean up agent activity log (time-based - 30 days)
  */
 function cleanupAgentLogs(): void {
-  const logPath = path.join(process.cwd(), 'specs_planning', '_internal', 'agent-activity-log.md');
+  const logPath = SHARED_PATHS.activityLog;
   
   if (!fs.existsSync(logPath)) {
     console.log('Agent activity log not found, skipping cleanup');
@@ -123,7 +125,7 @@ function cleanupAgentLogs(): void {
  * Prevents accumulation of li_run*.txt, restore_snap*.md, typecheck.txt, etc.
  */
 function cleanupAdHocLogFiles(): void {
-  const logsDir = path.join(process.cwd(), 'logs');
+  const logsDir = frameworkPath('logs');
   if (!fs.existsSync(logsDir)) return;
 
   const KEEP = new Set(['test-execution.log', 'README.md']);
@@ -148,7 +150,7 @@ function cleanupAdHocLogFiles(): void {
  * Archive old audit reports (30-day retention in active folder)
  */
 function archiveOldAuditReports(): void {
-  const auditsDir = path.join(process.cwd(), 'specs_planning', 'audits');
+  const auditsDir = SHARED_PATHS.audits;
   const archiveDir = path.join(auditsDir, 'archive');
   if (!fs.existsSync(auditsDir)) return;
 
@@ -182,10 +184,10 @@ interface ArtifactTarget {
 }
 
 const ARTIFACT_TARGETS: ArtifactTarget[] = [
-  { dir: 'reports/test-results', retentionDays: 3, recursive: true, description: 'Test results (traces, screenshots, video, error-context)' },
-  { dir: 'reports/allure-results', retentionDays: 7, recursive: false, description: 'Allure result files' },
-  { dir: '.playwright-mcp', retentionDays: 3, recursive: false, description: 'Playwright MCP snapshots' },
-  { dir: 'specs_planning/audits/archive', retentionDays: 90, recursive: false, description: 'Archived audit reports' },
+  { dir: path.join(SHARED_PATHS.reports, 'test-results'), retentionDays: 3, recursive: true, description: 'Test results (traces, screenshots, video, error-context)' },
+  { dir: path.join(SHARED_PATHS.reports, 'allure-results'), retentionDays: 7, recursive: false, description: 'Allure result files' },
+  { dir: frameworkPath('.playwright-mcp'), retentionDays: 3, recursive: false, description: 'Playwright MCP snapshots' },
+  { dir: path.join(SHARED_PATHS.audits, 'archive'), retentionDays: 90, recursive: false, description: 'Archived audit reports' },
 ];
 
 /**
@@ -197,7 +199,7 @@ function cleanupArtifacts(): void {
   let totalDeleted = 0;
 
   for (const target of ARTIFACT_TARGETS) {
-    const dirPath = path.join(process.cwd(), target.dir);
+    const dirPath = target.dir;
     if (!fs.existsSync(dirPath)) continue;
 
     const cutoff = Date.now() - target.retentionDays * 24 * 60 * 60 * 1000;

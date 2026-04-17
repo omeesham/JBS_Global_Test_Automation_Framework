@@ -16,6 +16,7 @@ import {
   AGENT_FILE_MAP, NEVER_DO_PATTERN, SHARED_PATHS,
   parseCompactMistakeRow,
 } from './shared-types';
+import { frameworkPath, frameworkRoot } from './shared-paths';
 
 interface ValidationResult {
   agent: string;
@@ -75,11 +76,12 @@ const STALE_SCAN_FILES: string[] = [
   '.github/copilot-instructions.md',
 ];
 
-// Paths to EXCLUDE from scan (historical records, plan documents)
+// Paths to EXCLUDE from scan (historical records, plan documents).
+// Stored as repo-root-relative strings (forward slashes) — matched against the same form in scan logic.
 const STALE_SCAN_EXCLUDES: string[] = [
   'plans',
-  'specs_planning/audits',
-  'specs_planning/_internal/agent-activity-log.md',
+  path.relative(frameworkRoot(), SHARED_PATHS.audits).replace(/\\/g, '/'),
+  path.relative(frameworkRoot(), SHARED_PATHS.activityLog).replace(/\\/g, '/'),
   'node_modules',
 ];
 
@@ -355,8 +357,10 @@ function validateStageFlow(): { status: 'ok' | 'drift'; details: string[] } {
   const rootDir = path.join(__dirname, '..');
   const details: string[] = [];
 
-  // Read canonical stages from schema
-  const schemaPath = path.join(rootDir, 'specs_planning/_internal/agent-queue.schema.json');
+  // Read canonical stages from schema (framework-level — same for every client).
+  // SP-MT-03 kept schema/template/example files at repo root; only live data (queue,
+  // performance, activity log, mistakes) moved into clients/${ACTIVE_CLIENT}/.
+  const schemaPath = frameworkPath(path.join('specs_planning', '_internal', 'agent-queue.schema.json'));
   if (!fs.existsSync(schemaPath)) {
     return { status: 'drift', details: ['Schema file not found'] };
   }
@@ -368,7 +372,7 @@ function validateStageFlow(): { status: 'ok' | 'drift'; details: string[] } {
   }
 
   // Check copilot-instructions stage flow line
-  const ciPath = path.join(rootDir, '.github/copilot-instructions.md');
+  const ciPath = frameworkPath(path.join('.github', 'copilot-instructions.md'));
   if (fs.existsSync(ciPath)) {
     const ciContent = fs.readFileSync(ciPath, 'utf-8');
     for (const stage of canonicalStages) {
@@ -379,7 +383,7 @@ function validateStageFlow(): { status: 'ok' | 'drift'; details: string[] } {
   }
 
   // Check AGENT_SHARED_RULES stage flow line
-  const asrPath = path.join(rootDir, 'docs/read_only_docs/AGENT_SHARED_RULES.md');
+  const asrPath = frameworkPath(path.join('docs', 'read_only_docs', 'AGENT_SHARED_RULES.md'));
   if (fs.existsSync(asrPath)) {
     const asrContent = fs.readFileSync(asrPath, 'utf-8');
     for (const stage of canonicalStages) {
@@ -398,7 +402,7 @@ function validateStageFlow(): { status: 'ok' | 'drift'; details: string[] } {
  * Returns array of warning strings for orphaned references.
  */
 function validatePromptsConfig(registryContent: string): string[] {
-  const promptsPath = path.join(__dirname, '..', 'config', 'context-builder-prompts.json');
+  const promptsPath = frameworkPath(path.join('config', 'context-builder-prompts.json'));
   if (!fs.existsSync(promptsPath)) return ['Prompts config not found'];
 
   const config = JSON.parse(fs.readFileSync(promptsPath, 'utf-8'));
@@ -413,7 +417,7 @@ function validatePromptsConfig(registryContent: string): string[] {
   }
 
   // Also collect R## codes from AGENT_SHARED_RULES
-  const asrPath = path.join(__dirname, '..', 'docs', 'read_only_docs', 'AGENT_SHARED_RULES.md');
+  const asrPath = frameworkPath(path.join('docs', 'read_only_docs', 'AGENT_SHARED_RULES.md'));
   if (fs.existsSync(asrPath)) {
     const asrContent = fs.readFileSync(asrPath, 'utf-8');
     const rMatches = asrContent.matchAll(/\bR(\d{1,2})\b/g);

@@ -120,8 +120,8 @@ handoffs:
    - Document save dialog behavior + create MCP_VERIFICATION_LOG
    - **Learning check**: If exploration/TC creation fails -> search `agent-mistakes.md` Resolution column by category before retrying.
 8. **Create**:
-   - Test cases: `specs_planning/test-cases/{module}/{module}_{submodule}_test_cases.md`
-   - Test plan: `specs_planning/test-plans/{module}/{module}_{submodule}_test_plan.md`
+   - Test cases: `clients/${ACTIVE_CLIENT}/specs_planning/test-cases/{module}/{module}_{submodule}_test_cases.md`
+   - Test plan: `clients/${ACTIVE_CLIENT}/specs_planning/test-plans/{module}/{module}_{submodule}_test_plan.md`
    - Selectors: Add to `src/selectors/index.ts`
    - **SELECTOR VERIFICATION (PLN-027)**: After creating/updating selector files, verify EVERY selector on live MCP: `browser_evaluate(() => !!document.querySelector('SELECTOR'))`. If any returns false, fix before proceeding. Never ship unverified selectors.
 9. **Self-Audit Gate**: Run self-audit. If `selfAuditPassed=true`, advance to `pending_generation` immediately. No user gate needed in pipeline mode.
@@ -305,7 +305,7 @@ Rules: Bold UI labels (not code IDs); quoted error text not keys; no API in Step
 Scenarios: `## TC-{MOD}-{SUBMOD}-001` → numbered steps: selector, action, expected
 
 ## File Permissions
-`test-cases/{mod}/*.md`: CREATE (owner) | `test-plans/{mod}/*.md`: CREATE | `selectors/index.ts`: ADD | `specs_planning/_internal/agent-queue.json`: RW | `REQUIREMENTS.md`: READ-ONLY | `specs_planning/_internal/agent-mistakes.md`: APPEND (PLN- prefix only)
+`test-cases/{mod}/*.md`: CREATE (owner) | `test-plans/{mod}/*.md`: CREATE | `selectors/index.ts`: ADD | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json`: RW | `REQUIREMENTS.md`: READ-ONLY | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`: APPEND (PLN- prefix only)
 
 ## Queue Update (Completion) — Generator-Ready Package (PLN-022)
 
@@ -331,7 +331,7 @@ Set: `stage: "pending_generation"`, `lockedBy: null`, artifacts: `testCaseFile` 
 
 ## MODULE ROUTING (MANDATORY)
 Before creating ANY output file:
-1. Read `docs/MODULE_REGISTRY.md` to find the correct module for this page
+1. Read `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md` to find the correct module for this page
 2. If the page is NOT in the registry → STOP. Add it to the registry FIRST
 3. Use the module ID for ALL file paths: test-cases/{section}/{module}/, test-plans/{section}/{module}/
 4. NEVER assume a page belongs to an existing module. Verify by URL.

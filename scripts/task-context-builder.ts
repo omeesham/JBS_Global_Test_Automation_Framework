@@ -23,8 +23,17 @@ import {
   EscalationQueue,
   SHARED_PATHS, parseMistakeRow, extractMarkdownSection,
 } from './shared-types';
+import { frameworkRoot, frameworkPath } from './shared-paths';
 
 const PATHS = SHARED_PATHS;
+
+/** Repo-root-relative display path (forward slashes) — stable across platforms, matches historical format. */
+function relForDisplay(absPath: string): string {
+  return path.relative(frameworkRoot(), absPath).replace(/\\/g, '/');
+}
+
+const MISTAKES_DISPLAY = relForDisplay(SHARED_PATHS.mistakes);
+const REQUIREMENTS_DISPLAY = relForDisplay(SHARED_PATHS.requirements);
 
 // Map module names to their actual REQUIREMENTS.md section headings
 const MODULE_SECTION_MAP: { [module: string]: string[] } = {
@@ -137,7 +146,7 @@ const STAGE_TO_AGENT: { [stage: string]: string } = {
 };
 
 // Critical reminders & self-audit questions -- loaded from config to separate prompt text from build logic
-const promptConfig = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'config', 'context-builder-prompts.json'), 'utf-8'));
+const promptConfig = JSON.parse(fs.readFileSync(frameworkPath(path.join('config', 'context-builder-prompts.json')), 'utf-8'));
 const CRITICAL_REMINDERS: { [agent: string]: string[] } = promptConfig.criticalReminders;
 const SELF_AUDIT_QUESTIONS: { [agent: string]: string[] } = promptConfig.selfAuditQuestions;
 
@@ -237,16 +246,16 @@ function buildSharedAgentContext(agent: string): SharedAgentContext {
 
   const shared: SharedAgentContext = {
     mistakeIds: allMistakes.map(r => r.id),
-    mistakesRef: `specs_planning/_internal/agent-mistakes.md (${allMistakes.length} rules)`,
+    mistakesRef: `${MISTAKES_DISPLAY} (${allMistakes.length} rules)`,
     learningsSummary: resolutions.slice(0, 10),
-    learningsRef: 'specs_planning/_internal/agent-mistakes.md (Resolution column)',
+    learningsRef: `${MISTAKES_DISPLAY} (Resolution column)`,
     recentDefects: getRecentDefects(agentLower),
     criticalReminders: CRITICAL_REMINDERS[agent] || [],
     selfAuditQuestions: SELF_AUDIT_QUESTIONS[agent] || [],
   };
 
   // Failure data
-  const failureSummaryPath = path.join(__dirname, '../reports/failure-summary.json');
+  const failureSummaryPath = path.join(SHARED_PATHS.reports, 'failure-summary.json');
   if (fs.existsSync(failureSummaryPath)) {
     try {
       const failureData = JSON.parse(fs.readFileSync(failureSummaryPath, 'utf-8'));
@@ -291,7 +300,7 @@ function buildContextForItem(item: QueueItem, shared: SharedAgentContext): Injec
   // Determine correct module context ref for THIS item (not copy-paste)
   const moduleLower = item.module.toLowerCase();
   const featureLower = (item.feature || '').toLowerCase();
-  let moduleRef = `docs/REQUIREMENTS.md ## ${item.module}`;
+  let moduleRef = `${REQUIREMENTS_DISPLAY} ## ${item.module}`;
   
   if (MODULE_SECTION_MAP[moduleLower]) {
     // Find the best matching section for this specific item's feature
@@ -308,8 +317,8 @@ function buildContextForItem(item: QueueItem, shared: SharedAgentContext): Injec
       return featureKeywords.some(kw => sectionLower.includes(kw));
     });
     moduleRef = matchedSection
-      ? `docs/REQUIREMENTS.md ### ${matchedSection}`
-      : `docs/REQUIREMENTS.md ### ${sections[0]}`;
+      ? `${REQUIREMENTS_DISPLAY} ### ${matchedSection}`
+      : `${REQUIREMENTS_DISPLAY} ### ${sections[0]}`;
   }
 
   // Inline agent-shared data into per-item context (no empty arrays with pointer strings)

@@ -27,10 +27,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { SHARED_PATHS, frameworkRoot } from './shared-paths.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = path.resolve(__dirname, '..');
-const LOG_PATH = path.join(REPO_ROOT, 'specs_planning', '_internal', 'agent-activity-log.md');
+const REPO_ROOT = frameworkRoot();
+const LOG_PATH = SHARED_PATHS.activityLog;
 const TOLERANCE_MIN = 1; // row can be up to 1 min earlier than actual file time
 const TOLERANCE_MS = TOLERANCE_MIN * 60 * 1000;
 

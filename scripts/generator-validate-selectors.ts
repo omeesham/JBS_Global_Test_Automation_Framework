@@ -11,8 +11,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { SHARED_PATHS } from './shared-types';
 
-const SELECTOR_DIR = path.join(__dirname, '../src/selectors');
+const SELECTOR_DIR = SHARED_PATHS.selectors;
 
 /** Known selector type prefixes. */
 const SELECTOR_PREFIXES = ['btn', 'txt', 'drp', 'chk', 'lnk', 'rdo', 'dlg', 'tbl', 'err', 'col', 'spin', 'tab', 'pnl', 'lbl', 'bar', 'cell', 'opt', 'row', 'dtp', 'nav', 'mod', 'ico', 'div'];

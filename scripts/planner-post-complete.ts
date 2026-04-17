@@ -20,6 +20,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { CsvConverter } from '../export_test_cases/to-csv';
 import { UITestingChecklist, QueueItem, QueueFile, SHARED_PATHS } from './shared-types';
+import { frameworkRoot } from './shared-paths';
 import {
   validateSelfAuditBase,
   runValidateSyncGate,
@@ -345,7 +346,7 @@ function exportToCsv(testCaseFile: string, queueItemId: string): string | null {
     // Use human format for QA-readable export
     CsvConverter.convertToFile(absolutePath, outputPath, 'human');
     console.log(`  [OK] Exported: ${outputFilename}`);
-    return `export_test_cases/exports/${outputFilename}`;
+    return path.relative(frameworkRoot(), outputPath).replace(/\\/g, '/');
   } catch (error) {
     console.error(`  [ERR] Export failed:`, error);
     return null;

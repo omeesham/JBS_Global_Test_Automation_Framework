@@ -6,8 +6,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
+import { SHARED_PATHS } from './shared-types';
 
-const MISTAKES_PATH = path.join(__dirname, '../specs_planning/_internal/agent-mistakes.md');
+const MISTAKES_PATH = SHARED_PATHS.mistakes;
 
 const SECTION_MAP: Record<string, string> = {
   ALL: 'Shared', REQ: 'Requirements', PLN: 'Planner',

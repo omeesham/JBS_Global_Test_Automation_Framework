@@ -68,7 +68,7 @@ function main(): void {
   }
 
   // PF-H1: failure-summary.json
-  const failureSummaryPath = path.join(__dirname, '../reports/failure-summary.json');
+  const failureSummaryPath = path.join(SHARED_PATHS.reports, 'failure-summary.json');
   if (!fs.existsSync(failureSummaryPath)) {
     console.warn('[WARN] PF-H1: failure-summary.json not found -- healer may lack diagnostics');
   } else {
@@ -128,7 +128,7 @@ function main(): void {
   // ── Bug Hunt: Check for resolved escalations ──
   // If this item was previously blocked by a big change, check if escalation is now resolved.
   if (item && (item as any).blockedByBigChange) {
-    const escalationsPath = path.join(__dirname, '../reports/escalations.json');
+    const escalationsPath = path.join(SHARED_PATHS.reports, 'escalations.json');
     if (fs.existsSync(escalationsPath)) {
       try {
         const data = JSON.parse(fs.readFileSync(escalationsPath, 'utf-8'));

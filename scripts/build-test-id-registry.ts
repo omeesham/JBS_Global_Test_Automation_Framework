@@ -8,6 +8,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { SHARED_PATHS } from './shared-types';
+import { frameworkRoot } from './shared-paths';
 
 interface RegistryEntry {
   tcId: string;
@@ -16,8 +18,8 @@ interface RegistryEntry {
   duplicateOf: string | null;
 }
 
-const SPECS_DIR = path.join(__dirname, '../tests/specs');
-const OUTPUT_FILE = path.join(__dirname, '../specs_planning/_internal/test-id-registry.json');
+const SPECS_DIR = SHARED_PATHS.specs;
+const OUTPUT_FILE = SHARED_PATHS.testIdRegistry;
 
 /** TC ID pattern: TC-XXX-YY-NNN */
 const TC_ID_REGEX = /TC-[A-Z]+-[A-Z]+-\d+/g;
@@ -124,7 +126,7 @@ function main(): void {
       console.log(`  [WARN] DUPLICATE: ${d.tcId} in ${d.file} (also in ${d.duplicateOf})`);
     }
   }
-  console.log(`Written to: specs_planning/_internal/test-id-registry.json`);
+  console.log(`Written to: ${path.relative(frameworkRoot(), OUTPUT_FILE).replace(/\\/g, '/')}`);
 }
 
 main();

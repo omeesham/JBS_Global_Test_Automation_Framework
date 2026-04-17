@@ -4,6 +4,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
+import { SHARED_PATHS } from './shared-types';
 
 interface SelectorEntry {
   key: string;
@@ -21,7 +22,7 @@ const ANNOTATION_RE = /\/\*\*\s+@where\s+(.+?)\s+@el\s+(\S+)\s+@text\s+(.+?)\s+@
 const PARTIAL_RE = /\/\*\*\s+@where\s/;
 const KEY_RE = /^\s*(\w+)\s*[:(]/;
 
-const SELECTORS_DIR = path.resolve(__dirname, '..', 'src', 'selectors');
+const SELECTORS_DIR = SHARED_PATHS.selectors;
 const OUTPUT_FILE = path.join(SELECTORS_DIR, 'SELECTOR_CATALOG.md');
 
 function getTypeScriptFiles(dir: string): string[] {

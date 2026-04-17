@@ -13,6 +13,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { SHARED_PATHS } from './shared-types';
+import { clientPath, frameworkPath } from './shared-paths';
 
 // ── Sentinel strings: known facts that should exist in 1-2 canonical files max ──
 const SENTINELS: { label: string; pattern: RegExp; maxAllowed: number }[] = [
@@ -23,10 +25,11 @@ const SENTINELS: { label: string; pattern: RegExp; maxAllowed: number }[] = [
 ];
 
 // ── Directories to scan ──
+// Absolute paths — client-scoped docs/specs_planning, framework-level .github.
 const SCAN_DIRS = [
-  'docs',
-  'specs_planning',
-  '.github',
+  clientPath('docs'),
+  clientPath('specs_planning'),
+  frameworkPath('.github'),
 ];
 const SCAN_ROOT_GLOBS = ['*.md']; // Also scan root .md files
 
@@ -186,10 +189,10 @@ function main() {
   console.log('Duplication Detector');
   console.log('='.repeat(60));
 
-  // Collect all .md files
+  // Collect all .md files (SCAN_DIRS entries are already absolute).
   const files: string[] = [];
   for (const dir of SCAN_DIRS) {
-    files.push(...findMdFiles(path.join(rootDir, dir)));
+    files.push(...findMdFiles(dir));
   }
   // Root .md files
   for (const entry of fs.readdirSync(rootDir)) {

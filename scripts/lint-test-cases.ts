@@ -18,6 +18,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { KNOWN_SUB_CODES } from '../export_test_cases/types';
+import { SHARED_PATHS } from './shared-types';
 
 interface Violation {
   rule: string;
@@ -378,7 +379,7 @@ function reconcileSelectors(filePath: string, content: string): Violation[] {
   const selectorPrefixes = ['btn', 'txt', 'drp', 'chk', 'lnk', 'rdo', 'dlg', 'tbl', 'err', 'col', 'spin'];
   
   // Build set of known selectors from all files under src/selectors/
-  const selectorDir = path.join(process.cwd(), 'src', 'selectors');
+  const selectorDir = SHARED_PATHS.selectors;
   if (!fs.existsSync(selectorDir)) return violations;
   
   const knownSelectors = new Set<string>();
@@ -431,7 +432,7 @@ function formatViolation(v: Violation): string {
 }
 
 function runLint(targetPath?: string): LintResult {
-  const searchPath = targetPath || path.join(process.cwd(), 'specs_planning', 'test-cases');
+  const searchPath = targetPath || SHARED_PATHS.testCases;
   const files = findMarkdownFiles(searchPath);
   
   if (files.length === 0) {

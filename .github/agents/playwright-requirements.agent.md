@@ -33,7 +33,7 @@ handoffs:
 8. **BEFOREUNLOAD TRAP (ALL-052)**: See §12 for full protocol. Key: call `browser_handle_dialog(accept:true)` BEFORE `browser_navigate` after field edits. Use about:blank → target pattern. NEVER reload same URL.
 
 ### Session Start: Notification Check
-At session start, read `specs_planning/_internal/agent-notifications/` directory for files containing `"toAgent": "requirements"`. If stale_artifact notifications exist, prioritize re-exploring affected areas FIRST before processing the user's new request.
+At session start, read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-notifications/` directory for files containing `"toAgent": "requirements"`. If stale_artifact notifications exist, prioritize re-exploring affected areas FIRST before processing the user's new request.
 
 **Requirements Agent** — Entry point for test intake. Explores live UI FIRST, then captures WHAT to test.
 
@@ -133,10 +133,10 @@ Explore live UI → Document discoveries (DOM is truth) → Update REQUIREMENTS.
 
 | File | Permission |
 |------|------------|
-| `docs/REQUIREMENTS.md` | UPDATE (with approval) |
-| `specs_planning/_internal/agent-queue.json` | CREATE entries |
-| `specs_planning/_internal/agent-mistakes.md` | APPEND (REQ- prefix only) |
-| `specs_planning/_internal/agent-activity-log.md` | APPEND |
+| `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` | UPDATE (with approval) |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json` | CREATE entries |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | APPEND (REQ- prefix only) |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | APPEND |
 | Everything else | NEVER |
 
 ---
@@ -186,7 +186,7 @@ Explore live UI → Document discoveries (DOM is truth) → Update REQUIREMENTS.
 
 ## MODULE ROUTING (MANDATORY)
 Before creating ANY output file:
-1. Read `docs/MODULE_REGISTRY.md` to find the correct module for this page
+1. Read `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md` to find the correct module for this page
 2. If the page is NOT in the registry → STOP. Add it to the registry FIRST
 3. Use the module ID for ALL file paths: test-cases/{section}/{module}/, test-plans/{section}/{module}/
 4. NEVER assume a page belongs to an existing module. Verify by URL.

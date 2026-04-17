@@ -15,6 +15,7 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import { SHARED_PATHS } from './shared-types';
 
 const TC_PATTERN = /TC-[A-Z]+-[A-Z]+-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g;
 
@@ -33,7 +34,7 @@ function getSpecTcIds(): Set<string> {
 
 function getMarkdownTcIds(): Set<string> {
   const ids = new Set<string>();
-  const testCasesDir = path.resolve('specs_planning/test-cases');
+  const testCasesDir = SHARED_PATHS.testCases;
   const files = findMarkdownFiles(testCasesDir);
   for (const file of files) {
     const content = fs.readFileSync(file, 'utf8');
@@ -48,7 +49,7 @@ function getMarkdownTcIds(): Set<string> {
 
 function getCsvTcIds(): Set<string> {
   const ids = new Set<string>();
-  const exportsDir = path.resolve('exports');
+  const exportsDir = SHARED_PATHS.exports;
   if (!fs.existsSync(exportsDir)) return ids;
   const csvFiles = fs.readdirSync(exportsDir).filter(f => f.endsWith('.csv'));
   for (const file of csvFiles) {
@@ -128,11 +129,10 @@ if (!hasIssues) {
 
 if (process.argv.includes('--fix-csv')) {
   console.log('\n--- Re-exporting all markdown to CSV ---');
-  const mdDir = 'specs_planning/test-cases';
-  const mdFiles = findMarkdownFiles(path.resolve(mdDir));
+  const mdFiles = findMarkdownFiles(SHARED_PATHS.testCases);
   for (const mdFile of mdFiles) {
     const basename = path.basename(mdFile, '.md');
-    const outPath = `exports/${basename}.csv`;
+    const outPath = path.join(SHARED_PATHS.exports, `${basename}.csv`);
     console.log(`  ${basename}...`);
     execSync(`npx ts-node export_test_cases/to-csv.ts "${mdFile}" "${outPath}" --type=human`, {
       stdio: 'inherit',

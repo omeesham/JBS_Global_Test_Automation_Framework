@@ -57,7 +57,7 @@ function main(): void {
   }
 
   // PF-03: agent-mistakes.md
-  const mistakesPath = path.join(__dirname, '../specs_planning/_internal/agent-mistakes.md');
+  const mistakesPath = SHARED_PATHS.mistakes;
   if (!fs.existsSync(mistakesPath)) {
     console.error('[HALT] PF-03: agent-mistakes.md not found. R5 compliance impossible.');
     preFlightFailed = true;
@@ -69,7 +69,7 @@ function main(): void {
   }
 
   // PF-05: BASE_URL in config
-  const envDir = path.join(__dirname, '../config/environments');
+  const envDir = SHARED_PATHS.envDir;
   if (fs.existsSync(envDir)) {
     const envFiles = fs.readdirSync(envDir).filter(f => f.startsWith('.env'));
     const hasBaseUrl = envFiles.some(f => {
@@ -86,21 +86,21 @@ function main(): void {
   }
 
   // PF-G2: fixtures.ts
-  const fixturesPath = path.join(__dirname, '../tests/setup/fixtures.ts');
+  const fixturesPath = SHARED_PATHS.fixtures;
   if (!fs.existsSync(fixturesPath)) {
     console.error('[HALT] PF-G2: tests/setup/fixtures.ts not found. All tests will fail.');
     preFlightFailed = true;
   }
 
   // PF-G3: selectors index
-  const selectorsPath = path.join(__dirname, '../src/selectors/index.ts');
+  const selectorsPath = path.join(SHARED_PATHS.selectors, 'index.ts');
   if (!fs.existsSync(selectorsPath)) {
     console.error('[HALT] PF-G3: src/selectors/index.ts not found. No selectors available.');
     preFlightFailed = true;
   }
 
   // PF-G4: test data dir
-  const testDataDir = path.join(__dirname, '../tests/test-data');
+  const testDataDir = SHARED_PATHS.testData;
   if (!fs.existsSync(testDataDir)) {
     console.warn('[WARN] PF-G4: tests/test-data/ directory not found. May need to create for data-driven tests.');
   }
@@ -124,7 +124,7 @@ function main(): void {
   }
 
   // PF-06: Own performance entry
-  const perfPath = path.join(__dirname, '../specs_planning/_internal/agent-performance.json');
+  const perfPath = SHARED_PATHS.performance;
   if (fs.existsSync(perfPath)) {
     try {
       const perfData = JSON.parse(fs.readFileSync(perfPath, 'utf-8'));
@@ -209,7 +209,7 @@ function main(): void {
   // before writing any spec code. This gate ensures no model (Haiku, Sonnet, Opus) can
   // skip the live DOM verification step. The walkthrough must verify at least 3 planner
   // claims on the live MCP browser before spec generation begins.
-  const walkthroughDir = path.resolve(__dirname, '../reports/walkthrough');
+  const walkthroughDir = path.join(SHARED_PATHS.reports, 'walkthrough');
   const walkthroughFile = path.resolve(walkthroughDir, `${itemId}.walkthrough.md`);
   if (!fs.existsSync(walkthroughFile)) {
     console.error('');
@@ -368,7 +368,7 @@ function main(): void {
   }
 
   // ── Failure data auto-population (Step 6) + B1: Enhanced RCA Summary ──
-  const failureSummaryPath = path.join(__dirname, '../reports/failure-summary.json');
+  const failureSummaryPath = path.join(SHARED_PATHS.reports, 'failure-summary.json');
   const specFiles = item.artifacts?.specFiles;
   const specExists = specFiles && Array.isArray(specFiles) && specFiles.length > 0 &&
     specFiles.some(f => fs.existsSync(path.isAbsolute(f) ? f : path.join(__dirname, '..', f)));
@@ -584,7 +584,7 @@ function main(): void {
       cwd: path.join(__dirname, '..'),
       stdio: 'pipe',
     });
-    const fixmeRegistryPath = path.join(__dirname, '../reports/fixme-registry.json');
+    const fixmeRegistryPath = path.join(SHARED_PATHS.reports, 'fixme-registry.json');
     if (fs.existsSync(fixmeRegistryPath)) {
       const fixmes = JSON.parse(fs.readFileSync(fixmeRegistryPath, 'utf-8'));
       if (Array.isArray(fixmes) && fixmes.length > 0) {
@@ -610,7 +610,7 @@ function main(): void {
       cwd: path.join(__dirname, '..'),
       stdio: 'pipe',
     });
-    const registryPath = path.join(__dirname, '../specs_planning/_internal/test-id-registry.json');
+    const registryPath = SHARED_PATHS.testIdRegistry;
     if (fs.existsSync(registryPath)) {
       const registry = JSON.parse(fs.readFileSync(registryPath, 'utf-8'));
       if (Array.isArray(registry)) {
@@ -626,7 +626,7 @@ function main(): void {
   }
 
   // ── Bug Hunt: Notification Check (GEN-035) ──
-  const notifDir = path.join(__dirname, '../specs_planning/_internal/agent-notifications');
+  const notifDir = SHARED_PATHS.notifications;
   if (fs.existsSync(notifDir)) {
     const notifFiles = fs.readdirSync(notifDir).filter(f => f.endsWith('.json'));
     const pendingForGenerator: any[] = [];
