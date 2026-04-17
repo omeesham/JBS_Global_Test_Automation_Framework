@@ -1,6 +1,7 @@
 # SUBPLAN MT-05: Split CLAUDE.md + AGENT_SHARED_RULES
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-04-17
 **Priority**: P1
 **Parent**: PLAN_MULTI_TENANT_RESTRUCTURE
 **Created**: 2026-04-16
@@ -157,10 +158,80 @@ npm test
 
 ## Session checklist
 
-- [ ] Draft the LR split, share with user for review BEFORE committing.
-- [ ] Decide numbering scheme (LR-ENC-NNN vs shared monotonic).
-- [ ] Extract and move rules one file at a time.
-- [ ] Validation steps 1–5 all green.
-- [ ] Activity log entry (LR-028, LR-037).
-- [ ] Status DONE, move to `plans/done/` (LR-027).
-- [ ] `npm run plans:reindex`.
+- [x] Draft the LR split, share with user for review BEFORE committing.
+- [x] Decide numbering scheme (LR-ENC-NNN vs shared monotonic).
+- [x] Extract and move rules one file at a time.
+- [x] Validation steps 1–5 all green.
+- [x] Activity log entry (LR-028, LR-037).
+- [x] Status DONE, move to `plans/done/` (LR-027).
+- [x] `npm run plans:reindex`.
+
+---
+
+## Execution Summary
+
+**Executed**: 2026-04-17 by OWNER (Claude Opus 4.7, session "parsed-fox")
+**Workflow**: `/identity owner → /questionnaire → /planning → /execute` (Plan-THEN-execute pattern per user directive — LR boundary flagged judgment-heavy, user review required)
+
+### Decisions applied (OWNER judgment after user guidance "best efficient solution — no rules pushed to client's repo on prod push")
+
+1. **D1 — Boundary rule**: stack-reusable patterns stay framework; only rules that name Encore product surfaces (pages, fields, Jira IDs, URLs, office numbers) moved to client. Tightened the client list from the original 12 → 4. Rationale: any Angular+Radix+Playwright client inherits all framework rules for free; future clients only need their own product-specific additions.
+2. **D2 — Numbering**: grandfathered existing LR numbers (zero reference churn across 775 references in 119 files). New framework rules → `LR-038+`; new client rules → `LR-ENC-NNN` (or `LR-{CLIENT}-NNN`). Convention documented at top of both CLAUDE.md files.
+3. **D3 — §12 split**: stripped Encore names from framework §12 (ALL-052 beforeunload), §18 (Navigator4 → "the client's application"), §14 Self-Unblocking Map paths. Framework §12 stays generic-Angular/Radix. Encore-specific additions live in new `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` §E4.
+4. **D4 — Ownership paths**: 39 client-scoped path references in framework `AGENT_SHARED_RULES.md` parameterized to `clients/${ACTIVE_CLIENT}/...`. Framework-only paths (`scripts/`, `config/`, `.claude/skills/`, `plans/`, `.github/agents/`, `src/utils/common-methods.ts`) stay root.
+
+### LRs moved to `clients/encore/CLAUDE.md` (4)
+
+| LR | Why client | 
+|---|---|
+| LR-008 | Names Prep/Set/Delivery/Return/Strike/Pickup fields + NM-1264 (Encore Location Settings + Encore Jira) |
+| LR-012 | Names Location Settings tabs / Save dialog |
+| LR-017 | Names Location Settings vs Local Office Settings (Encore nav) |
+| LR-036 | Names Location Management History vs Local Office History render formats (Encore tables) |
+
+### LRs kept at framework `CLAUDE.md` (33)
+
+LR-001..007, LR-009, LR-010, LR-011, LR-013, LR-014, LR-015, LR-016, LR-018, LR-019, LR-020, LR-021, LR-022, LR-023, LR-024, LR-025, LR-026, LR-027, LR-028, LR-029, LR-030, LR-031, LR-032, LR-033, LR-034, LR-035, LR-037.
+
+Content edits during migration:
+- LR-010: "NM-1264: Delivery >= Prep" → "e.g., a field that must be >= another field" (strip Encore Jira name, keep generic Angular cross-field pattern).
+- LR-026: stripped GEN-026 / GEN-033 Encore agent-mistake IDs from bullets; updated "Graduated from" line to be generic.
+- LR-028 / LR-037: path references updated to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` + `agent-mistakes.md`.
+
+### Files created (2)
+
+- `clients/encore/CLAUDE.md` — 4 client LRs + numbering convention + Encore product quick-reference (base URL, test office 1604, Jira prefix).
+- `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` — Encore module registry pointer, Jira/ID conventions, Office 1604 hardcode context, beforeunload addendum, Navigator URL patterns, §2 path resolution table.
+
+### Files edited
+
+- `CLAUDE.md` (root) — 4 LRs removed (LR-008/012/017/036), 37 → 33 rules. Added framework-level header + numbering convention. Stripped Encore examples from LR-010/026. Updated LR-028/037 path references.
+- `docs/read_only_docs/AGENT_SHARED_RULES.md` — §2 ownership table paths parameterized (15 rows), §1 Search-Before-Create paths parameterized, §2.1 OWNER scope updated, §12 ALL-052 beforeunload genericized, §14 Self-Unblocking Map paths parameterized, §15 mistake→owner paths, §18 Module Boundary Enforcement Navigator4 → generic. Total: 39 `${ACTIVE_CLIENT}` placeholders added.
+- 8 skill SKILL.md files (`/audit`, `/bugfix`, `/reflect`, `/execute`, `/compile-learnings`, `/find-bugs`, `/chain`, `/ultrathink`) — added LR-lookup note near H1 instructing agents to check both root and client CLAUDE.md, with LR-ENC-NNN prefix convention for client-specific rules.
+
+### Verification (all 5 structural checks passed)
+
+| # | Check | Result |
+|---|---|---|
+| 1 | LR disjoint: `comm -12` of LR IDs in both files | **EMPTY** (no duplicates) |
+| 2 | Every referenced `LR-NNN` across scripts/, .github/agents/, .claude/skills/, docs/, clients/encore/docs/ resolves to exactly one canonical home | **0 broken** |
+| 3 | Framework `AGENT_SHARED_RULES.md` grep for `1604\|Navigator4\|encoreglobal\|TC-LOC\|NM-[0-9]` | **0 matches** |
+| 4 | Client `AGENT_RULES_ENCORE.md` grep for `1604\|Navigator\|encoreglobal\|TC-LOC` | **8 matches** (expected >0) |
+| 5 | `clients/${ACTIVE_CLIENT}/` placeholder count in framework AGENT_SHARED_RULES.md | **39** (expected ≥5) |
+
+Additional checks:
+- `npm run plans:reindex:check` → **INDEX.md is up to date** (clean)
+- `npm run pipeline:validate` → 6 STALE references reported (R23, R30, §9B, §9C, agent-learnings.md ×2) — **all pre-existing drift**, not introduced by this session; scope-separate from SP-MT-05.
+
+### Out-of-scope confirmed
+
+- Parameterizing agent prompts — deferred to SP-MT-06.
+- Building client delivery packager — deferred to SP-MT-07.
+- Moving rule text into scripts.
+- Pre-existing pipeline:validate drift (R23/R30/§9B/§9C/agent-learnings.md) — separate cleanup plan required; not this subplan's scope.
+
+### Rules honored
+
+LR-020 (plan claims verified before commit), LR-027 (execution summary before move to done/), LR-028 (activity log row below), LR-035 (INDEX regenerated via `npm run plans:reindex`, not hand-edited), LR-037 (timestamp ≥ mtime of all edited files).
+
+Unblocks: SP-MT-06 (agent parameterization) can now reference the split rule files as the stable boundary.

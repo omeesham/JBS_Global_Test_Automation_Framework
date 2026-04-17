@@ -1,11 +1,54 @@
 # SUBPLAN MT-03: Move Docs, specs_planning, Exports, Client Config
 
-**Status**: PENDING
+**Status**: DONE
 **Priority**: P0
 **Parent**: PLAN_MULTI_TENANT_RESTRUCTURE
 **Created**: 2026-04-16
+**Executed**: 2026-04-17
 **Depends on**: SP-MT-02 (test content already moved; imports resolve)
 **Blocks**: SP-MT-04 (scripts must adopt client-aware paths before pipeline is usable)
+
+---
+
+## Execution Summary
+
+Executed 2026-04-17 by OWNER.
+
+**File relocations (git mv)**:
+- Docs: `docs/REQUIREMENTS.md`, `docs/MODULE_REGISTRY.md` → `clients/encore/docs/`
+- Read-only requirement docs: `Encore-Requirements-V2.docx`, `Functional Requirement -v1.docx`, `Requirements_Document PriceGuideInclusion and EnableMultiDayPricing` → `clients/encore/docs/read_only_docs/`. Plan listed only V2; added the other two encore-specific requirement docs for category consistency (plan goal: "relocate every remaining encore-specific content").
+- specs_planning/_internal: `agent-mistakes.md`, `agent-queue.json`, `agent-performance.json`, `agent-escalations.json`, `agent-learnings.md` (git mv — tracked); `agent-activity-log.md`, `test-id-registry.json`, `agent-metrics-report.md`, `daily-status-bank.json` (plain mv — gitignored)
+- specs_planning/: `test-cases/`, `test-plans/`, `audits/` → `clients/encore/specs_planning/`
+- test-case-template.md: COPIED to client; kept at root as framework template (per plan §Scope.1 "COPY (not move) — framework templates")
+- Exports: all 11 CSVs → `clients/encore/exports/`; empty root `exports/` directory removed
+- config/environments: `.env.example`, `.env.development`, `.env.server.example`, `.env.production`, `.env.staging` → `clients/encore/config/environments/`. Plan listed only first 3; added `.env.production` + `.env.staging` because leaving them at root would split dotenv-flow load order across two directories for the same NODE_ENV — all tracked env files must live together.
+- `.env.local`, `.env.server` remain at root (personal, gitignored)
+- config/allure/categories.json → `clients/encore/config/allure/`
+
+**Edits**:
+- `playwright.config.ts`: dotenv path and allure categories now use `${CLIENT_ROOT}`. Removed duplicate ACTIVE_CLIENT declaration (was already defined further down).
+- `playwright.config.ci.ts`: allure categories path updated to client-scoped
+- `.github/agents/*.agent.md` (6 files): bulk sed replaced bare `docs/REQUIREMENTS.md`, `docs/MODULE_REGISTRY.md`, `specs_planning/_internal/`, `specs_planning/test-cases/`, `specs_planning/test-plans/`, `specs_planning/audits/` with `clients/${ACTIVE_CLIENT}/...` placeholders
+- `.claude/skills/*/SKILL.md` (12 files: audit, identity, execute, planning, find-bugs, compile-learnings, chain, ultrathink, reflect, standup, bugfix, end-day): same bulk substitution
+- `.gitignore`: added per-client rules for `clients/*/config/environments/.env.local`, `.env.*.local`, `.env.server`, `daily-status-bank.json`, `audits/*.md`, `agent-activity-log.md`, `agent-performance.json`, `agent-metrics-report.md`, `test-id-registry.json` (mirrors old root-level rules at the new client path)
+
+**Verification outcomes**:
+1. Targeted paths present: all verification `ls` checks pass
+2. Playwright test discovery: 324 tests enumerated from `clients/encore/tests/**` (config load confirmed)
+3. `dotenv-flow` smoke: BASE_URL + NAVIGATOR_USERNAME resolve from `clients/encore/config/environments/`
+4. `npm run plans:reindex:check`: clean
+5. `npm run validate:activity-log:preflight`: FAILS as expected — "log file not found at specs_planning/_internal/agent-activity-log.md" (hardcoded path; SP-MT-04 will fix via shared-paths.ts)
+6. `npx tsc --noEmit`: pre-existing errors in `src/worker/progress-extractor.ts`, `tests/unit/agent-notification-writer.test.ts`, `website/backend/**` — none introduced by this subplan (unrelated to moved paths)
+
+**Pipeline breakage (expected, documented)**:
+- All agent hook scripts (generator-pre-run, healer-pre-run, audit-pre-run, etc.) continue to hardcode `specs_planning/_internal/*` and will fail until SP-MT-04 lands
+- Do NOT run pipeline tasks until SP-MT-04 completes
+- Colleague handoff must wait for SP-MT-04 green (per plan Risks §)
+
+**Out of scope (deferred to later SPs)**:
+- Script path refactor via shared-paths.ts → SP-MT-04
+- CLAUDE.md / AGENT_SHARED_RULES.md split → SP-MT-05
+- Agent hardcodes (Office 1604, Navigator URL) → SP-MT-06
 
 ---
 
