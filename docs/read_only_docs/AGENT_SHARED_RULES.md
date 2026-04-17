@@ -177,7 +177,14 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 ### START (before any work)
 
 <!-- SYNC:CONTEXT_LOAD:START -->
-1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
+1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config.
+2. **Client Context Bootstrap** (MANDATORY before any work — makes agents client-agnostic):
+   - `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` — product requirements, Auth Protocol, Authorized Test Data, Module Naming Conventions
+   - `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md` — page/module map (module routing ALWAYS resolves via this file, not a hardcoded convention)
+   - `clients/${ACTIVE_CLIENT}/CLAUDE.md` — client-specific learned rules (LR-ENC-* for encore, LR-{CLIENT}-* for others)
+   - `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md` if present — per-client agent-behavior rules that complement AGENT_SHARED_RULES.md (UI-library-specific patterns, form-framework quirks, product-specific examples)
+
+   Never assume product names, office numbers, auth providers, UI library, or form framework — those are data, sourced from the 4 files above. If a rule example names a specific client surface (e.g. "Angular form model", "Radix UI", "Office 1604"), treat it as illustrative — the authoritative behavior spec is in `AGENT_RULES_${CLIENT}.md`.
 <!-- SYNC:CONTEXT_LOAD:END -->
 2. **Pre-flight (§13)**: Run pre-flight checks. HALT on failure.
 2b. **Inheritance Verification (ALL-028)**: If this task builds on another agent's output (test cases from Planner, spec from Generator, requirements from Requirements Agent):

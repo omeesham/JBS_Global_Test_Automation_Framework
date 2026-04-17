@@ -1333,3 +1333,86 @@ Columns 33–40 (labor-to-hourly) are present in history even for US locations; 
 | $250,000.00 | $499,999.00 | 7.9% | USD |
 | $500,000.00 | $999,999.00 | 10.6% | USD |
 | $1,000,000.00 | $10,000,000.00 | 13.5% | USD |
+
+---
+
+## Auth Protocol
+
+Authoritative reference for auth flow parameters when agents need to know what auth Encore uses. Full narrative is in `## Authentication System` (L11) above — this is the named anchor agents reference from their Client Context Bootstrap.
+
+- **Provider**: Microsoft SSO (Azure AD / Entra ID)
+- **MFA**: TOTP (Time-based One-Time Password) — seed stored in `NAVIGATOR_MFA_SECRET` env var
+- **Session model**: `authenticatedSession` fixture at `clients/encore/tests/setup/fixtures.ts` — worker-scoped, fresh login per worker
+- **OAuth discovery URL**: `https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration` (see `clients/encore/tests/setup/global-setup.ts`)
+- **"Stay signed in?" prompt**: auto-accepted during login (see `loginPage.loginWithMicrosoft`)
+- **Redirect target after auth**: `https://cloudapps-e2e.encoreglobal.com/navigator/locations/<office>/home`
+
+Different clients will replace this section with their own auth provider + flow. Agents read this section rather than assuming "SSO = Microsoft" or "MFA = TOTP".
+
+---
+
+## Authorized Test Data
+
+Agents must use ONLY the values listed here. Other values = rejection by the app or out-of-scope exploration. This is the anchor referenced by ALL-013 and by the `Client Context Bootstrap` directive in `AGENT_SHARED_RULES.md` §8.
+
+### Authorized office / location IDs
+
+| ID | Label | Status | Notes |
+|---|---|---|---|
+| `1604` | Standard test location | **AUTHORIZED** | Used by 95%+ of existing specs. Default unless user names another. |
+| `1099` | Alternate (MCP discovery only) | USE-WITH-CAUTION | Referenced in MCP-3 Oracle delete test (BUG-LI-001). Do not use for persistent changes. |
+| any other | — | **PROHIBITED** | Never invent or guess locations. Ask user if 1604 is insufficient. |
+
+### Authorized user accounts
+
+Credentials live in `clients/encore/config/environments/.env.development` (committed to git by design):
+
+- `NAVIGATOR_USERNAME` — Microsoft SSO email (production test account)
+- `NAVIGATOR_PASSWORD` — SSO password
+- `NAVIGATOR_MFA_SECRET` — base32 TOTP seed
+
+Do NOT hardcode any of these values in specs, test data, page objects, or agent prompts. Always read from env.
+
+### Authorized client / entity IDs
+
+Populate as discovered during MCP sessions. If an agent encounters a client/entity ID not listed here, file a mistake entry (§Mistake Detection Triggers) and ask the user before adopting.
+
+---
+
+## Module Naming Conventions
+
+Used by all pipeline agents when generating files, test IDs, selectors, module references. Anchor for the `Module Naming Conventions` reference in agent prompts and the `Client Context Bootstrap` directive.
+
+### Test Case ID prefixes
+
+| Prefix | Scope | Example |
+|---|---|---|
+| `TC-LOC-LI-*` | Location Management — Local Information tab | `TC-LOC-LI-003` |
+| `TC-LOC-HIST-*` | Location Management — History tab | `TC-LOC-HIST-012` |
+| `TC-LOC-*` | Location Management — general (non-tab-specific) | `TC-LOC-001` |
+| `TC-ECT-*` | Local Office Settings — Event Cost Type | `TC-ECT-012` |
+| `TC-PRC-*` | Location Management — Pricing tab | `TC-PRC-018` |
+| `TC-LOS-*` | Local Office Settings (general) | `TC-LOS-005` |
+
+New modules: propose prefix via `clients/encore/docs/MODULE_REGISTRY.md` before creating any TC.
+
+### Selector data-testid conventions
+
+- Per ALL-056, every interactive element (button, input, select, link) should have a `data-testid`. The Encore app generates these server-side (see ALL-059 "Encore's AI generates data-testid for ALL elements").
+- Common prefix patterns:
+  - `location-settings-btn-*` — buttons on location settings tabs
+  - `location-settings-input-*` — input fields
+  - `location-settings-dlg-*` — dialogs
+  - `ect-*` — Event Cost Type form elements (Local Office Settings)
+  - `shared-*` — cross-page shared elements (Save Changes dialog, nav bar)
+- When a testid is missing: file via ALL-056 (`[MISSING_TESTID]` tag) — do NOT fabricate one.
+
+### File / directory naming
+
+- Spec files: `{module-kebab}.spec.ts` at `clients/encore/tests/specs/{section}/{module}/`
+- Page objects: `{module-kebab}.page.ts` at `clients/encore/src/pages/{section}/{module}/`
+- Selectors: `{module-kebab}.ts` at `clients/encore/src/selectors/{section}/{module}/`
+- Test data: `{module-kebab}.data.ts` at `clients/encore/tests/test-data/{section}/{module}/`
+- Shared constants / cross-module: `common.data.ts`, `shared.ts`
+
+See `clients/encore/docs/MODULE_REGISTRY.md` for the complete module→directory mapping.

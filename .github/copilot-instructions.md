@@ -77,7 +77,9 @@ file ownership, triage — unchanged.
 
 # Copilot Instructions - Encore Playwright Framework
 
-**Core**: Hybrid Playwright TypeScript framework for Navigator Cloud automation. POM + TypeScript selectors + Data Adapters + 5-agent pipeline.
+**Core**: Hybrid Playwright TypeScript framework for `${ACTIVE_CLIENT}` web-app automation (see `clients/${ACTIVE_CLIENT}/CLAUDE.md` for product context). POM + TypeScript selectors + Data Adapters + 5-agent pipeline.
+
+**Client Context Bootstrap**: Active client is determined by the `ACTIVE_CLIENT` env var (currently `encore`). Before any client-specific work, read: `clients/${ACTIVE_CLIENT}/CLAUDE.md`, `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` (Auth Protocol, Authorized Test Data, Module Naming Conventions), `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md`, and `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md` if present. Never assume product names, office numbers, auth providers, or UI library — source from those files.
 
 **Your Role**: Framework development (src/, tests/, config/, scripts/). NOT test intake or pipeline orchestration.
 

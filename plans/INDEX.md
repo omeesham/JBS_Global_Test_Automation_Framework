@@ -1,9 +1,9 @@
 # Plans Index
 
-**Last updated**: 2026-04-16
+**Last updated**: 2026-04-17
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 39 pending · 131 done · 6 stale (>14d) · 0 DONE-in-pending
+**Totals**: 33 pending · 137 done · 6 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -13,12 +13,12 @@
 
 | File | Age | Created | Priority |
 |---|---|---|---|
-| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 23d | 2026-03-24 | HIGH (14 verified findings across 4 categories) |
-| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 23d | 2026-03-24 | LOW (remaining items are P2 refactors — all P0/P1 collisions already fixed) |
-| [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | 21d | 2026-03-26 | HIGH |
-| [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | 15d | 2026-04-01 | — |
-| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 15d | 2026-04-01 | P2 (no pipeline blockers — additive improvement) |
-| [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | 15d | 2026-04-01 | HIGH |
+| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 24d | 2026-03-24 | HIGH (14 verified findings across 4 categories) |
+| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 24d | 2026-03-24 | LOW (remaining items are P2 refactors — all P0/P1 collisions already fixed) |
+| [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | 22d | 2026-03-26 | HIGH |
+| [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | 16d | 2026-04-01 | — |
+| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 16d | 2026-04-01 | P2 (no pipeline blockers — additive improvement) |
+| [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | 16d | 2026-04-01 | HIGH |
 
 ### DONE-in-pending (should be moved to done/)
 
@@ -34,14 +34,8 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 |---|---|---|---|---|
 | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | MASTER PLAN: Repo Unfucking & Client Delivery | P0 (CRITICAL) | PENDING | 2026-04-16 |
 | [PLAN_MULTI_TENANT_RESTRUCTURE.md](pending/PLAN_MULTI_TENANT_RESTRUCTURE.md) | MASTER PLAN: Multi-Tenant Repo Restructure | P0 (blocks colleague handoff until SP-MT-06 verifies green) | PENDING | 2026-04-16 |
-| [SUBPLAN_MT_01_SCAFFOLD_ALIASES.md](pending/SUBPLAN_MT_01_SCAFFOLD_ALIASES.md) | SUBPLAN MT-01: Scaffold + Aliases + Config Shim (No File Moves) | P0 | PENDING | 2026-04-16 |
-| [SUBPLAN_MT_02_MOVE_TEST_CONTENT.md](pending/SUBPLAN_MT_02_MOVE_TEST_CONTENT.md) | SUBPLAN MT-02: Move Encore Test Content | P0 | PENDING | 2026-04-16 |
-| [SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md](pending/SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md) | SUBPLAN MT-03: Move Docs, specs_planning, Exports, Client Config | P0 | PENDING | 2026-04-16 |
-| [SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md](pending/SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md) | SUBPLAN MT-04: Client-Aware Pipeline Scripts | P0 | PENDING | 2026-04-16 |
 | [PLAN_HIST_COMMIT_HISTORY_WORK.md](pending/PLAN_HIST_COMMIT_HISTORY_WORK.md) | PLAN_HIST_COMMIT_HISTORY_WORK | P0 (CRITICAL — work is one `git stash` from oblivion) | PENDING | 2026-04-15 |
 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P0 (trust-building for test suite) | PENDING | 2026-04-03 |
-| [SUBPLAN_MT_05_SPLIT_RULES.md](pending/SUBPLAN_MT_05_SPLIT_RULES.md) | SUBPLAN MT-05: Split CLAUDE.md + AGENT_SHARED_RULES | P1 | PENDING | 2026-04-16 |
-| [SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md](pending/SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md) | SUBPLAN MT-06: Parameterize Pipeline Agents | P1 | PENDING | 2026-04-16 |
 | [SUBPLAN_MT_07_DELIVERY_PACKAGER.md](pending/SUBPLAN_MT_07_DELIVERY_PACKAGER.md) | SUBPLAN MT-07: Handoff Readiness (NOT a Packager) | P1 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md](pending/SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md) | SUBPLAN: Claude/Copilot Consolidation | P1 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | SUBPLAN: Agent File Restructure | P1 | PENDING | 2026-04-16 |
@@ -80,6 +74,12 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 
 | File | Title | Status | Completed |
 |---|---|---|---|
+| [SUBPLAN_MT_01_SCAFFOLD_ALIASES.md](done/SUBPLAN_MT_01_SCAFFOLD_ALIASES.md) | SUBPLAN MT-01: Scaffold + Aliases + Config Shim (No File Moves) | DONE | 2026-04-17 |
+| [SUBPLAN_MT_02_MOVE_TEST_CONTENT.md](done/SUBPLAN_MT_02_MOVE_TEST_CONTENT.md) | SUBPLAN MT-02: Move Encore Test Content | DONE | 2026-04-17 |
+| [SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md](done/SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md) | SUBPLAN MT-03: Move Docs, specs_planning, Exports, Client Config | DONE | 2026-04-17 |
+| [SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md](done/SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md) | SUBPLAN MT-04: Client-Aware Pipeline Scripts | DONE | 2026-04-17 |
+| [SUBPLAN_MT_05_SPLIT_RULES.md](done/SUBPLAN_MT_05_SPLIT_RULES.md) | SUBPLAN MT-05: Split CLAUDE.md + AGENT_SHARED_RULES | DONE | 2026-04-17 |
+| [SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md](done/SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md) | SUBPLAN MT-06: Parameterize Pipeline Agents | DONE | 2026-04-17 |
 | [SUBPLAN_REPO_01_CLIENT_DELIVERY_QUICK.md](done/SUBPLAN_REPO_01_CLIENT_DELIVERY_QUICK.md) | SUBPLAN: Client Delivery Quick Build (V1) — SUPERSEDED | SUPERSEDED | 2026-04-16 (reverted before completion) |
 | [PLAN_CLIENT_REPO_DELIVERY.md](done/PLAN_CLIENT_REPO_DELIVERY.md) | MEGA PLAN: Client Repo Delivery — Triple-Audited — SUPERSEDED | SUPERSEDED | 2026-04-16 |
 | [SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md](done/SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md) | SUBPLAN 6: Location Mgmt History Integration — Remaining Specs | DONE | 2026-04-16 |
@@ -219,8 +219,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (39 files)
-  done/                 ← completed plans (131 files)
+  pending/              ← active plans (33 files)
+  done/                 ← completed plans (137 files)
 ```
 
 When completing a plan:
@@ -234,14 +234,13 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-04-17 | done | [SUBPLAN_MT_02_MOVE_TEST_CONTENT.md](done/SUBPLAN_MT_02_MOVE_TEST_CONTENT.md) | DONE |
+| 2026-04-17 | done | [SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md](done/SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md) | DONE |
+| 2026-04-17 | done | [SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md](done/SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md) | DONE |
+| 2026-04-17 | done | [SUBPLAN_MT_05_SPLIT_RULES.md](done/SUBPLAN_MT_05_SPLIT_RULES.md) | DONE |
+| 2026-04-17 | done | [SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md](done/SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md) | DONE |
 | 2026-04-16 | pending | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | PENDING |
 | 2026-04-16 | pending | [PLAN_MULTI_TENANT_RESTRUCTURE.md](pending/PLAN_MULTI_TENANT_RESTRUCTURE.md) | PENDING |
-| 2026-04-16 | pending | [SUBPLAN_MT_01_SCAFFOLD_ALIASES.md](pending/SUBPLAN_MT_01_SCAFFOLD_ALIASES.md) | PENDING |
-| 2026-04-16 | pending | [SUBPLAN_MT_02_MOVE_TEST_CONTENT.md](pending/SUBPLAN_MT_02_MOVE_TEST_CONTENT.md) | PENDING |
-| 2026-04-16 | pending | [SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md](pending/SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md) | PENDING |
-| 2026-04-16 | pending | [SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md](pending/SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md) | PENDING |
-| 2026-04-16 | pending | [SUBPLAN_MT_05_SPLIT_RULES.md](pending/SUBPLAN_MT_05_SPLIT_RULES.md) | PENDING |
-| 2026-04-16 | pending | [SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md](pending/SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md) | PENDING |
 | 2026-04-16 | pending | [SUBPLAN_MT_07_DELIVERY_PACKAGER.md](pending/SUBPLAN_MT_07_DELIVERY_PACKAGER.md) | PENDING |
 | 2026-04-16 | pending | [SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md](pending/SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md) | PENDING |
 | 2026-04-16 | pending | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | PENDING |
@@ -257,6 +256,7 @@ When completing a plan:
 | 2026-04-16 | done | [PLAN_CLIENT_REPO_DELIVERY.md](done/PLAN_CLIENT_REPO_DELIVERY.md) | SUPERSEDED |
 | 2026-04-16 | done | [SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md](done/SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md) | DONE |
 | 2026-04-16 | done | [SUBPLAN_HISTORY_07_VALIDATION.md](done/SUBPLAN_HISTORY_07_VALIDATION.md) | DONE |
+| 2026-04-16 | done | [SUBPLAN_MT_01_SCAFFOLD_ALIASES.md](done/SUBPLAN_MT_01_SCAFFOLD_ALIASES.md) | DONE |
 | 2026-04-16 | done | [SUBPLAN_REPO_01_CLIENT_DELIVERY_QUICK.md](done/SUBPLAN_REPO_01_CLIENT_DELIVERY_QUICK.md) | SUPERSEDED |
 | 2026-04-16 | done | [SUBPLAN_REPO_09_CLIENT_DELIVERY_POLISH.md](done/SUBPLAN_REPO_09_CLIENT_DELIVERY_POLISH.md) | SUPERSEDED |
 | 2026-04-15 | pending | [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | PENDING |

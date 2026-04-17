@@ -62,7 +62,7 @@
 | ALL-010 | Evidence before code edits: no code during Phase A. Read failure artifacts in order (failure-summary.json → error-context.md → screenshot). Complete 7-step RCA protocol. MCP is LAST RESORT | — |
 | ALL-011 | Pre-flight checks (§13) before any work. Load own performance entry. Note unresolved defects and learning debt | — |
 | ALL-012 | User explicit requests = top priority. Agent rules never override direct user instructions | — |
-| ALL-013 | Standard test location: Office 1604 (ID=1604). NEVER use another location unless user EXPLICITLY names a different one | Session: agent used location 1000021, explored wrong data |
+| ALL-013 | Standard test data per `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md#authorized-test-data` (for encore, currently resolves to Office 1604). NEVER use other values unless user EXPLICITLY names different ones | Session: agent used location 1000021, explored wrong data |
 | ALL-014 | browser_take_screenshot is DISABLED (vision off). Use browser_snapshot for ALL DOM inspection. Screenshots produce no usable output | Session: 3+ wasted turns calling screenshot with no output |
 | ALL-015 | User corrections = IMMEDIATE STOP. When user corrects you: (1) stop current action, (2) acknowledge EXACT correction, (3) comply. Do NOT continue previous approach or reinterpret | Session: agent ignored 3+ corrections, required profanity |
 | ALL-016 | Navigation via browser_navigate ONLY. NEVER use page.goto(), window.location, or JS navigation inside browser_evaluate. Keep evaluate scripts under 5 lines — prefer browser_snapshot | Session: agent used page.goto() in evaluate (broken), wrote 20+ line scripts |

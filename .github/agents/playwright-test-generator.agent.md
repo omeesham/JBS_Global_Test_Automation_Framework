@@ -53,7 +53,7 @@ handoffs:
 
 ## RULES
 
-> Shared rules ALL-001–ALL-035 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-072 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -64,14 +64,14 @@ handoffs:
 | GEN-005 | MCP browser: never open/close. Pre-flight selector validation (Phase 1) and last-resort RCA (Phase A... | — |
 | GEN-006 | No placeholder tests: no test.fixme(), no empty describes with only comments, no stubs. Omit unimple... | — |
 | GEN-007 | Targeted test runs: `--grep "TC-ID"` for single TC during fix loop. Full spec ONLY for final validat... | — |
-| GEN-008 | Angular form model: always el.press('Tab') after el.fill() to trigger blur/change. Verify inputValue... | LRN-013: fill() alone doesn't fire Angular change events. LRN-007: inputValue() returns "4.00%" not ... |
-| GEN-009 | Boundary data verification: MCP-test each value before committing data files (type → blur → check). ... | LRN-012: Angular disables Save on boundary violation. LRN-010: Invalid test leaves dirty DB state fo... |
+| GEN-008 | Fire framework change events after programmatic fill(): verify the framework's form model actually updated. Client-specific trigger patterns in `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-FORM-PATTERNS` (encore's Angular needs el.press('Tab') after el.fill()) | LRN-013: fill() alone doesn't fire Angular change events. LRN-007: inputValue() returns "4.00%" not "4.00" |
+| GEN-009 | Boundary data verification: MCP-test each value before committing data files (type → blur → check). Framework-level validators may disable Save immediately — see `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-FORM-PATTERNS` for client-specific validation behavior | LRN-012: Angular disables Save on boundary violation. LRN-010: Invalid test leaves dirty DB state for next run |
 | GEN-010 | Process cleanup: kill ONLY stale Playwright runners via `Get-CimInstance Win32_Process -Filter "Name... | LRN-014: Stop-Process -Name node kills MCP server |
 | GEN-011 | Escalation: AUTH/INFRASTRUCTURE → escalate immediately (don't fix). Web search unfamiliar errors. No... | — |
 | GEN-012 | Pre-classified skip: auto-skip fixme-registry/skippedTcIds TCs. Log missing-coverage. Move on | — |
 | GEN-013 | Review all Manual TCs before marking complete. Classify each: automatable (implement), Cat-A/B (FIXM... | — |
 | GEN-014 | No framework file edits: don't modify base-page.ts, src/common/*, src/utils/*, scripts/*. Log action... | — |
-| GEN-015 | RCA protocol: never declare "confirmed" mid-sequence. MCP replication required before code fix (§12 ... | LRN-019: Same-URL goto in Angular may reuse component — navigate away first |
+| GEN-015 | RCA protocol: never declare "confirmed" mid-sequence. MCP replication required before code fix (§12 ALL-052). Same-URL navigation may reuse component state in some SPA frameworks — see `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md` for client-specific navigation quirks | LRN-019: Same-URL goto in Angular may reuse component — navigate away first |
 | GEN-016 | Phase 0 mandatory: create execution plan before ANY code. Verify planner's MCP log. Map TCs to metho... | — |
 | GEN-017 | RCA reads artifacts in order: failure-summary.json → error-context.md → screenshot → failing line → ... | Generator did 6+ MCP sessions for issue visible in error-context.md |
 | GEN-018 | Debug runs = --grep "TC-ID" only. For serial blocks: READ the full spec first, trace which prior tes... | Generator ran full spec 8+ times during debug. Agents ran TC-23 in isolation without prior setup tests |
@@ -82,16 +82,16 @@ handoffs:
 | GEN-023 | Before creating a new interface/type in a page object, search: `grep -rn "interface" src/pages/ src/... | 4 duplicate CheckboxState definitions found across page objects + BasePage |
 | GEN-024 | Never hardcode raw CSS selectors in page object methods. Use `getElement(key)` or `getLocator(key)`.... | Pricing waitForSaveEnabled() hardcoded `button[data-testid="location-settings-btn-save"]` instead of... |
 | GEN-025 | Combobox selection: always use exact match. BasePage `selectComboboxOption` uses `:has-text()` (cont... | Legal TC-008 strict mode error: 4 elements matched "Administrative Fee" |
-| GEN-026 | Post-save state reset: reload before next test. After a save cycle, Angular dirty-state tracking doe... | Legal TC-012/013 failed: dirty state persisted from prior test's save cycle |
+| GEN-026 | Post-save state reset: reload before next test when the form framework has separate dirty-state tracking. Save-API-complete often ≠ form-pristine — see `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-FORM-BEHAVIOR` (encore's Angular dirty state does NOT reset after save cycle) | Legal TC-012/013 failed: dirty state persisted from prior test's save cycle |
 | GEN-027 | Selector namespace: check shared.ts before creating new selector file. Grep for same data-testid acr... | Legal dlgSaveChanges existed in both legal.ts and shared.ts — caused collision |
 | GEN-028 | Accessibility tree element types do NOT match actual HTML tags. NEVER derive CSS selectors from acce... | LOS 2026-03-24: assumed `img` from accessibility tree, actual DOM had `<svg>`. Wrote wrong selector,... |
 | GEN-029 | When changing selectors to role-based (`[role="row"]`, `[role="cell"]`), MUST verify actual HTML fir... | LOS 2026-03-24: changed `tbody tr` to `[role="row"]` without verification. Table was native HTML. Co... |
 | GEN-030 | RCA-FIRST: complete IS/IS-NOT analysis (Kepner-Tregoe) before ANY fix attempt. When fix fails, do NO... | LOS 2026-03-24 ECT-009: 4 fix attempts (guarded save, waitForTimeout, reload ECT-006, reload ECT-007... |
 | GEN-031 | Pipeline gate proposals: NEVER propose HALT on first run for gates that validate artifacts the agent... | LOS 2026-03-24: proposed PF-G5 HALT on first run. Audit caught deadlock: pre-run halts → agent never... |
 | GEN-034 | NEVER declare completion without running tests. Typecheck and --list are NOT test runs. Phase 3 (Fir... | Shared Setup Locations: generator created 4 files, marked 17 TCs Automated, said "Done" — never ran ... |
-| GEN-032 | Radix UI Select with 50+ options: wrap open+click in retry loop (max 3). On option click failure (de... | 2026-04-02: Legal spec LGL-010/013 intermittent — "Administrative Fee" option found but "not stable"... |
-| GEN-033 | Angular save button disabled ≠ form pristine. After ECT save, button disables (save API done) but An... | 2026-04-02: ECT-012 "no unsaved dialog after save" — first fix (waitForSaveDisabled) didn't help bec... |
-| GEN-035 | MCP evaluate-based button clicks DO NOT reliably trigger Angular/React save API calls. `button.click... | 2026-04-07: MCP-3 delete+save of location 1099 used evaluate-based OK click. Dialog closed (apparent... |
+| GEN-032 | Large-option combobox interactions may need retry loops (scroll animation / portal re-render causes option instability). Implementation pattern in `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-UI-LIBRARY` (encore uses Radix UI Select — 50+ option retry documented; graduated to framework-level LR-025) | See client rules §E-UI-001 for concrete retry code |
+| GEN-033 | Save-button-disabled ≠ form-pristine in frameworks with separate dirty-state tracking. After save, dirty can remain true → next navigation may trigger "unsaved changes" dialog. See `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-FORM-BEHAVIOR` for client-specific workarounds (encore's Angular FormControl described there) | See client rules §E-FB-001 |
+| GEN-035 | MCP `evaluate`-based button clicks may not trigger framework save flows (DOM click without trusted pointer event). Verify the expected API call actually fired. Client-specific details in `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-MCP-EVENT-TRIGGERING`. Use `browser_click` (trusted) not `browser_evaluate` for save buttons | 2026-04-07: MCP-3 delete+save used evaluate-based click. Dialog closed (apparent) but no API fired — hidden bug, see §E-MCP-001 |
 | GEN-042 | Duplicate column headers require index-based or adjacent-context access. Before writing any `getColu... | SP1 MCP discovery 2026-04-13 (SUBPLAN_HISTORY_01_MCP_FINDINGS §1 + §11): Location Management History... |
 ---
 
@@ -118,7 +118,14 @@ It demonstrates every framework convention you must follow:
 When in doubt about any convention, do what this spec does.
 
 <!-- SYNC:CONTEXT_LOAD:START -->
-1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
+1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config.
+2. **Client Context Bootstrap** (MANDATORY before any work — makes agents client-agnostic):
+   - `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` — product requirements, Auth Protocol, Authorized Test Data, Module Naming Conventions
+   - `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md` — page/module map (module routing ALWAYS resolves via this file, not a hardcoded convention)
+   - `clients/${ACTIVE_CLIENT}/CLAUDE.md` — client-specific learned rules (LR-ENC-* for encore, LR-{CLIENT}-* for others)
+   - `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md` if present — per-client agent-behavior rules that complement AGENT_SHARED_RULES.md (UI-library-specific patterns, form-framework quirks, product-specific examples)
+
+   Never assume product names, office numbers, auth providers, UI library, or form framework — those are data, sourced from the 4 files above. If a rule example names a specific client surface (e.g. "Angular form model", "Radix UI", "Office 1604"), treat it as illustrative — the authoritative behavior spec is in `AGENT_RULES_${CLIENT}.md`.
 <!-- SYNC:CONTEXT_LOAD:END -->
 1b. **Pre-Flight (§13)**: Run `npm run generator:pre-run <queue-item-id>` — validates PF-01..05 + PF-G1..G4 programmatically. If HALT → fix environment first.
 1c. **Module Mistake Lookup (ALL-072)**: Search `agent-mistakes.md` for ALL rule prefixes matching this module. Read PLN-*, HLR-*, MNT-* resolutions for the same module — learn from upstream/downstream failures before repeating them.

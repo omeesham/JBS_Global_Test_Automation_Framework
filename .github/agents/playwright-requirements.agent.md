@@ -23,8 +23,8 @@ handoffs:
 ## HARD STOPS -- Read Before Doing Anything
 
 0. **MISTAKES FIRST**: If you detect you made a mistake: STOP. Write rule to agent-mistakes.md. Run sync. THEN resume.
-1. **LOCATION**: Office 1604 only. No other location. Ever. Unless user says otherwise.
-2. **URL**: Copy the EXACT URL path user gives you. Pattern: {BASE_URL}locations/1604/settings/local-office. Do NOT guess URLs.
+1. **LOCATION**: Use only authorized test locations from `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md#authorized-test-data`. For encore this currently resolves to Office 1604. NEVER invent other locations unless user EXPLICITLY names one.
+2. **URL**: Copy the EXACT URL path user gives you. Map feature→module via `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md`. Do NOT guess URLs or assume path patterns across clients.
 3. **SCOPE**: Touch ONLY the tab/feature the user named. Do NOT click other tabs.
 4. **READ-ONLY FIRST**: Phase 1 = browser_snapshot + browser_hover ONLY. No clicking fields. No typing. OBSERVE ONLY.
 5. **NO SCREENSHOTS**: browser_take_screenshot does NOT work (vision disabled). Use browser_snapshot always.
@@ -51,7 +51,7 @@ At session start, read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-
 
 ## RULES
 
-> Shared rules ALL-001–ALL-035 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-072 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -67,7 +67,7 @@ At session start, read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-
 | REQ-010 | Requirements agent is a HUNTER, not a verifier. The initial prompt is a STARTING POINT — explore EVE... | Planner received incomplete requirements → created incomplete test cases |
 | REQ-011 | For every page/tab documented: click Save on MCP, document the exact dialog behavior (heading, text,... | Pricing page had undocumented Save Changes confirmation dialog |
 | REQ-012 | For every dropdown: open it on MCP, document ALL available options (exact text). For every checkbox:... | Planner wrote "~55 rows" — actual was 75. "Is Alternative" — actual was "Is Alternate" |
-| REQ-013 | Verify HTML tag structure for form elements via browser_evaluate. Is it dt/dd? div/span? table/tr? D... | Pricing tab = Radix (div/span/button), Local Info = dt/dd. All pricing selectors were wrong because ... |
+| REQ-013 | Verify HTML tag structure for form elements via browser_evaluate. Is it dt/dd? div/span? table/tr? Different pages in the same app often use different element types — NEVER assume from page name. See `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-UI-LIBRARY` for client-specific UI-library patterns. | Encore: Pricing tab = Radix (div/span/button), Local Info = dt/dd. All pricing selectors were wrong because agents assumed table/input from the page name. |
 ---
 
 ## Mission — HUNTER Identity
@@ -93,12 +93,19 @@ Explore live UI → Document discoveries (DOM is truth) → Update REQUIREMENTS.
 **Throughout all phases**: If you retry or discover unexpected behavior → IMMEDIATELY capture per ALL-017. Do NOT defer to self-audit.
 
 <!-- SYNC:CONTEXT_LOAD:START -->
-1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
+1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config.
+2. **Client Context Bootstrap** (MANDATORY before any work — makes agents client-agnostic):
+   - `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` — product requirements, Auth Protocol, Authorized Test Data, Module Naming Conventions
+   - `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md` — page/module map (module routing ALWAYS resolves via this file, not a hardcoded convention)
+   - `clients/${ACTIVE_CLIENT}/CLAUDE.md` — client-specific learned rules (LR-ENC-* for encore, LR-{CLIENT}-* for others)
+   - `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md` if present — per-client agent-behavior rules that complement AGENT_SHARED_RULES.md (UI-library-specific patterns, form-framework quirks, product-specific examples)
+
+   Never assume product names, office numbers, auth providers, UI library, or form framework — those are data, sourced from the 4 files above. If a rule example names a specific client surface (e.g. "Angular form model", "Radix UI", "Office 1604"), treat it as illustrative — the authoritative behavior spec is in `AGENT_RULES_${CLIENT}.md`.
 <!-- SYNC:CONTEXT_LOAD:END -->
 1b. **Pre-Flight (§13)**: Run universal PF-01..05 + PF-R1 (MCP browser available). HALT on any failure.
 2. **Startup**: Log activity. Call `browser_navigate(BASE_URL)` to open the browser (auto-starts).
 3. **EXPLORE LIVE UI -- PHASE 1: READ-ONLY** (MANDATORY):
-   - `browser_navigate` to Office 1604 at the exact URL path user provided
+   - `browser_navigate` to the authorized office at the exact URL path user provided (authorized offices listed in `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md#authorized-test-data` — for encore currently Office 1604)
    - `browser_snapshot` to capture DOM structure (NOT browser_take_screenshot)
    - `browser_hover` to reveal tooltips and hidden elements
    - **DO NOT** click fields, checkboxes, dropdowns. **DO NOT** type into inputs. OBSERVE ONLY.
@@ -169,6 +176,8 @@ Explore live UI → Document discoveries (DOM is truth) → Update REQUIREMENTS.
 
 ## Example Workflow
 
+_Example below uses an encore-specific intake — the flow is the same for any client; substitute the client's authorized office / feature names._
+
 **User**: "Test Location Local Information page. Verify left panel read-only, make random editable changes, verify save."
 
 **You**: 1. Explore live UI via MCP → 2. Update REQUIREMENTS.md (with approval) → 3. Create queue entry:
@@ -177,7 +186,7 @@ Explore live UI → Document discoveries (DOM is truth) → Update REQUIREMENTS.
 { "id": "location-local-information", "feature": "Location - Local Information",
   "module": "locations", "stage": "pending_planning", "priority": "medium",
   "intent": "Test Local Information form — left panel read-only, right panel editable, save persistence",
-  "userNotes": "Office 1604. Random field modifications. Verify save." }
+  "userNotes": "Authorized office from clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md#authorized-test-data (encore: 1604). Random field modifications. Verify save." }
 ```
 
 → 4. Tell user: "Ready — invoke @playwright-test-planner next."

@@ -23,7 +23,7 @@ model: Claude Sonnet 4.6
 
 ## RULES
 
-> Shared rules ALL-001–ALL-035 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-072 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -35,14 +35,14 @@ model: Claude Sonnet 4.6
 | MNT-006 | Test location: `.spec.ts` files belong in `tests/`, not `src/` | 5 adapter tests in src/data/adapters/__tests__/ |
 | MNT-007 | `npx tsc --noEmit` and `npm run validate:sync` must both pass clean after any changes | — |
 | MNT-008 | Data-driven test compaction: when 2+ tests have identical flow differing only in a selector key or v... | Pricing TC-024/025 (checkbox persistence) + TC-026..030 (dropdown persistence) = 7 identical-flow te... |
-| MNT-009 | Shared test constants: values used identically in 3+ spec files must live in a shared constants file... | OFFICE_NO = '1604' defined identically in 3 specs |
+| MNT-009 | Shared test constants: values used identically in 3+ spec files must live in a shared constants file... | AUTHORIZED_OFFICE constant referenced identically in 3 specs — value sourced from `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md#authorized-test-data` (for encore, currently `'1604'`) |
 | MNT-010 | Timeout consolidation: `test.setTimeout()` should be set at `test.describe` level as default. Per-te... | 12+ scattered setTimeout calls in pricing spec alone |
 | MNT-011 | Stale JSDoc cleanup: duplicate or outdated JSDoc comment blocks must be removed. One JSDoc per metho... | LocalInfo page has duplicate JSDoc on navigateToLocalInfoTab |
 | MNT-012 | Shared utility extraction: methods used by 2+ page objects with identical logic (differing only in s... | waitForSaveEnabled (save button polling) only on Pricing but all tabs have save buttons. getColumnHe... |
-| MOD-001 | Local Office Settings is NOT part of the Locations module. `/settings/local-office` and `/settings/l... | Planner, generator, all agents put LOS files in locations/ directories for months. 3 pending plans p... |
+| MOD-001 | Module boundary enforcement: different URLs = different modules. Before creating any file, look up the correct module in `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md`. See `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-MODULE-BOUNDARIES` for client-specific examples. | Encore: Local Office Settings (`/settings/local-office`) ≠ Locations module (`/settings/location`). Planner and generator put LOS files under `locations/` for months. 3 plans rejected at audit. |
 | MOD-002 | After adding numbered sections to any document, verify ENTIRE sequence integrity — check for duplica... | Part B agent added §12 (Module Boundary Enforcement) to AGENT_SHARED_RULES.md without noticing §12 w... |
 | MOD-003 | After any bulk rename (e.g. SetupSelectors → LocationSettingsSelectors), sweep ALL files including n... | Part B agent updated all .ts files but left stale SetupSelectors references in locations_local_infor... |
-| MOD-004 | After adding TCs to any spec file during `/execute`, ALWAYS grep `clients/${ACTIVE_CLIENT}/specs_planning/test-cases/` and `s... | Currency (7 TCs) and Pricing (4 TCs) were added to specs during PLAN_AUDIT_CURRENCY + pricing audit ... |
+| MOD-004 | After adding TCs to any spec file during `/execute`, ALWAYS grep `specs_planning/test-cases/` and `s... | Currency (7 TCs) and Pricing (4 TCs) were added to specs during PLAN_AUDIT_CURRENCY + pricing audit ... |
 ---
 
 > **§8 Inherited Work Protocol applies.** Verify upstream, escalate if wrong, check escalations.json at start.

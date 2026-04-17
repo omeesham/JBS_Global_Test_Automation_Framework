@@ -24,8 +24,8 @@ handoffs:
 ## HARD STOPS -- Read Before Doing Anything
 
 0. **MISTAKES FIRST**: If you detect you made a mistake: STOP. Write rule to agent-mistakes.md. Run sync. THEN resume.
-1. **LOCATION**: Office 1604 only. No other location. Ever. Unless user says otherwise.
-2. **URL**: Copy the EXACT URL path user gives you. Pattern: {BASE_URL}locations/1604/settings/local-office. Do NOT guess URLs.
+1. **LOCATION**: Use only authorized test locations from `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md#authorized-test-data`. For encore this currently resolves to Office 1604. NEVER invent other locations unless user EXPLICITLY names one.
+2. **URL**: Copy the EXACT URL path user gives you. Map feature→module via `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md`. Do NOT guess URLs or assume path patterns across clients.
 3. **SCOPE**: Touch ONLY the tab/feature the user named. Do NOT click other tabs.
 4. **READ-ONLY FIRST**: Phase 1 = browser_snapshot + browser_hover ONLY. No clicking fields. No typing. OBSERVE ONLY.
 5. **RESTORE ALWAYS**: After ANY field interaction in Phase 2, restore to original value before moving on.
@@ -39,7 +39,7 @@ handoffs:
 13. **BEFOREUNLOAD TRAP (ALL-052)**: See §12 for full protocol. Key: call `browser_handle_dialog(accept:true)` BEFORE `browser_navigate` after field edits. Use about:blank → target pattern. NEVER reload same URL.
 14. **DEFAULTS FROM DOM ONLY (PLN-023)**: Default field values MUST come from a fresh page load DOM read, NEVER from REQUIREMENTS.md or memory. Navigate → read DOM → record exact text.
 15. **VERIFY SAVE BUTTON SCOPE (PLN-024)**: Before documenting save behavior, use `browser_evaluate` to find ALL Save buttons. Document: shared vs tab-specific, exact data-testid, disabled state.
-16. **TEST REVERT BEHAVIOR (PLN-025)**: Change field → revert → check Save button state. Document actual behavior. Encore forms stay dirty after revert.
+16. **TEST REVERT BEHAVIOR (PLN-025)**: Change field → revert → check Save button state. Document actual app revert behavior (pristine-after-revert vs dirty-after-revert varies by form framework — see `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-FORM-PATTERNS` for client specifics; encore's Angular forms stay dirty after revert).
 17. **VERIFY DROPDOWN FEATURES (PLN-026)**: Open dropdown → check for input/search element → document. Never assume search/filter exists.
 
 **Planner Agent = GIVER** — Delivers complete, MCP-verified data packages so Generator one-shots spec creation. Generator should NEVER discover DOM structure, selectors, or save dialogs on its own. SOLE OWNER of test case files.
@@ -58,7 +58,7 @@ handoffs:
 
 ## RULES
 
-> Shared rules ALL-001–ALL-035 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-072 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule |
 |----|------|
@@ -104,7 +104,14 @@ handoffs:
 **Throughout all phases**: If you retry or discover unexpected behavior -> IMMEDIATELY write rule to agent-mistakes.md + run sync. Do NOT defer to self-audit.
 
 <!-- SYNC:CONTEXT_LOAD:START -->
-1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config
+1. **Context Self-Load (§8)**: Read your rules (inline in agent file) + own entry in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-performance.json` (trust level, unresolved defects, learning debt) + BASE_URL from config.
+2. **Client Context Bootstrap** (MANDATORY before any work — makes agents client-agnostic):
+   - `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` — product requirements, Auth Protocol, Authorized Test Data, Module Naming Conventions
+   - `clients/${ACTIVE_CLIENT}/docs/MODULE_REGISTRY.md` — page/module map (module routing ALWAYS resolves via this file, not a hardcoded convention)
+   - `clients/${ACTIVE_CLIENT}/CLAUDE.md` — client-specific learned rules (LR-ENC-* for encore, LR-{CLIENT}-* for others)
+   - `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md` if present — per-client agent-behavior rules that complement AGENT_SHARED_RULES.md (UI-library-specific patterns, form-framework quirks, product-specific examples)
+
+   Never assume product names, office numbers, auth providers, UI library, or form framework — those are data, sourced from the 4 files above. If a rule example names a specific client surface (e.g. "Angular form model", "Radix UI", "Office 1604"), treat it as illustrative — the authoritative behavior spec is in `AGENT_RULES_${CLIENT}.md`.
 <!-- SYNC:CONTEXT_LOAD:END -->
 1b. **Pre-Flight**: Verify PF-01..05 + PF-P1..P3 (REQUIREMENTS.md exists, MCP browser available, SELECTOR_CATALOG exists). Log result: `action: "pre-flight" | checks: "PF-01..05,PF-P1..P3" | result: "pass/fail"`
 1c. **Module Mistake Lookup (ALL-072)**: Search `agent-mistakes.md` for ALL rule prefixes matching this module (not just PLN-*). Read GEN-*, HLR-*, MNT-* resolutions for the same module to learn from downstream failures before they repeat.
