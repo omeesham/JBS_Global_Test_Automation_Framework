@@ -24,6 +24,16 @@ Runs `/identity` Step 1.5 with caller=`/research`. No-op if compatible identity 
 
 ## Steps
 
+## Step 0.5: Browser Tool Selection (if research involves live DOM)
+
+If this research session will interact with a live web app (exploration, locator discovery,
+live-DOM verification, catalog work):
+
+1. Consult **LR-038** (root CLAUDE.md) to pick Claude in Chrome vs Playwright MCP.
+2. Default for Claude Code: **Claude in Chrome**.
+3. Announce the choice in your first output and your activity-log row.
+4. Skip this step if research is purely web-search / docs-reading (no live app).
+
 ### Step 1: Frame the Research
 
 Break the topic into **2-5 specific research questions**. Vague research produces vague results.

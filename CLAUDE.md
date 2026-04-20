@@ -1,5 +1,18 @@
 # Encore Framework — Claude Code Configuration
 
+## 🧭 FIRST-STEP NAVIGATION (read BEFORE any exploration)
+
+**Universal rule for every agent, every session, every task**: before you `grep`, open MCP, or read more than 1 file to understand a problem, consult **[.claude/context/navigation.md](.claude/context/navigation.md)**.
+
+It answers:
+1. **Has this surface been explored?** (§C Exploration Registry) — if yes, read the findings file instead of re-exploring.
+2. **How do I solve common problem X?** (§B Routing Table) — proven helper / rule / file for every recurring task.
+3. **What do I do when stuck?** (§D Stuck Protocol) — 2+ failed attempts = stop, check, ask.
+
+At session end (via `/reflect`), update the registry if you explored new territory. Stale map = repeated mistakes.
+
+---
+
 ## First-Time Setup (New Collaborators)
 
 **On every session start**, TWO checks:
@@ -541,3 +554,55 @@ the append, not the time work "started". If work was started earlier, say so in 
 **Graduated from**: Audit 2026-04-15 (expressive-booping-fountain F-003) — Copilot wrote
 an SP3 row claiming 2026-04-14T09:00 while the referenced files have mtimes 14:32-20:47
 (6-12 hour backdating). Baseline scan found 49 historical violations; new rows must validate clean.
+
+### LR-038: Browser tool selection — Claude in Chrome vs Playwright MCP
+When any session needs to interact with a live website (exploration, locator discovery,
+MCP verification, bug investigation, catalog work, live DOM reads/clicks/saves), choose
+the browser tool **before** first browser call. Announce the choice + reason in the first
+output or activity-log row of the session.
+
+**Gate 1 — Agent type**
+- **Claude Code (Opus or Sonnet)** → continue to Gate 2. You can call `mcp__Claude_in_Chrome__*`.
+- **Copilot / Cursor / other non-Claude AI** → use Playwright MCP. STOP here. You do NOT
+  have Claude in Chrome tools. Do not pretend you do.
+- **Self-check for Claude Code**: if you can see any `mcp__Claude_in_Chrome__*` tool in
+  your tool list, Gate 1 passes.
+
+**Gate 2 — Task classification (Claude Code only)**
+
+Default: **Claude in Chrome** unless Playwright MCP criteria clearly apply.
+
+Use **Claude in Chrome** when any of these apply:
+- Exploratory / catalog / locator-discovery work (you are LEARNING the DOM, not running tests)
+- Auth-heavy app (Microsoft SSO + TOTP — Claude in Chrome inherits the user's live Chrome session; Playwright MCP's profile cache is fragile, autonomous re-auth is essentially infeasible)
+- You need `read_network_requests` to distinguish "client blocked" vs "server rejected" vs "API silently dropped" (per LR-033)
+- Context budget is tight (read_page returns compact accessibility summary; browser_snapshot burns ~4k tokens per call and needs a fresh snapshot after every DOM mutation)
+- Read-heavy DOM traversal (table extraction via javascript_tool, header enumeration, etc.)
+- Live bug investigation — "what happens when I click X on the real app, right now"
+- User is at the machine (can intervene if something unexpected happens; you can share the tab via tabs_create_mcp)
+
+Use **Playwright MCP** when any of these apply:
+- Long unattended CI-style run (no human nearby to intervene)
+- Framework spec execution or anything driven by our `authenticatedSession` fixture — that runs under `npm test`, not MCP (so this criterion mostly excludes itself — if you're running our specs, you're not calling MCP tools at all)
+- Determinism is critical (exact event timing, pixel-perfect reproducibility, no risk of user interference on shared tab)
+- Multi-tab isolation with guarantee of no user interference
+- Claude in Chrome is unavailable (extension not installed, tab closed, etc.) — fall-back mode
+
+**Default for Claude Code when uncertain**: **Claude in Chrome**. It is cheaper in tokens, faster in iteration, and rides the user's live auth session. Switch to Playwright MCP only when a specific criterion above applies.
+
+**Mandatory announcement** (accountability)
+First output or activity-log row of any browser-interacting session must declare the
+choice and the reason, e.g.:
+> "Browser tool: Claude in Chrome. Reason: exploratory catalog, ≤15 fields, auth-heavy, user at machine."
+> "Browser tool: Playwright MCP. Reason: unattended nightly run, no user available."
+
+**Mid-session switch**: allowed. Log the switch + reason in activity-log notes.
+
+**Trigger**: Every session whose plan or request involves any of:
+- `/research` with a live-DOM phase
+- `/rca` Phase 5 (MCP Replication)
+- `/find-bugs` with live app interaction
+- `/bugfix` when reproducing on live app
+- Any subplan whose Skills field includes `/research` + MCP, or whose Step-by-Step involves "live DOM", "MCP session", "catalog", "locator discovery", "live verification"
+
+**Graduated from**: Session 2026-04-20 — Claude Code agent executing SP-B-LO-1 defaulted to Playwright MCP, burned 4k-token `browser_snapshot`s per mutation, hit context pressure, and had to self-diagnose + switch mid-session. User directive: encode the selection logic at the framework layer so no future agent has to reactively decide.

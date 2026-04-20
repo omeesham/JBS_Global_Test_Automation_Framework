@@ -52,7 +52,7 @@ Complete this checklist in a single pass. Fix any issues found before proceeding
 
 - [ ] **Reference check** — Open the most recent completed plan in `plans/done/` for the same category. Compare section-by-section. Flag any section present in the reference that's missing in yours. If no reference exists, use the most complex completed plan as baseline.
 - [ ] **Rules applied** — For each rule listed in your plan's "Active Rules" section (or equivalent), verify it's actually reflected in the plan body (implementation steps, code snippets, or explicit exclusion with reason). Rule listed but not applied = gap.
-- [ ] **Mistakes check** — Grep for the target page/module name in `specs_planning/_internal/agent-mistakes.md`. Read every hit. Verify none of the documented mistakes are repeated in your plan. Also grep for any function names or patterns your plan proposes to use.
+- [ ] **Mistakes check** — Grep for the target page/module name in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`. Read every hit. Verify none of the documented mistakes are repeated in your plan. Also grep for any function names or patterns your plan proposes to use.
 
 ## Step 4: Intent Review
 - Re-read the user's original request word by word
@@ -63,6 +63,58 @@ Complete this checklist in a single pass. Fix any issues found before proceeding
 - Determine the next plan number by checking `plans/pending/` and `plans/done/` for the highest existing PLAN_XX number
 - Save the final plan to `plans/pending/PLAN_XX_<DESCRIPTIVE_NAME>.md`
 - Present a concise summary to the user
+
+## Step 6: MANDATORY — Embed SESSION BOOTSTRAP block at top of every subplan
+
+**User preference (absolute rule)**: every subplan file must be executable cold with ONLY `/execute <filename>` — zero additional prompting. The user should never have to tell a session "remember to load identity, check dependencies, do Phase 0 first, etc."
+
+For every subplan file you author, the FIRST content (before the `# SUBPLAN SP-XX: Title` heading) must be a SESSION BOOTSTRAP blockquote containing:
+
+1. Explicit statement: "To run: `/execute <this-filename>` — that is all."
+2. Numbered bootstrap sequence the agent follows on load:
+   - Load identity (per `**Identity**` frontmatter field)
+   - Load skills (per `**Skills**` frontmatter field, including auto-calls)
+   - Resolve model + thinking tier (from master plan's execution-order table, or inline in the subplan)
+   - Dependency gate — verify every `**Depends on**` item is DONE or N/A; HALT if blocked
+   - Read required context files (master plan sections, catalogs, etc.)
+   - Resolve browser tool (Claude in Chrome vs Playwright MCP) per LR-038 if subplan interacts with a live app
+   - Execute Phase 0 (if present) before any edits
+   - Execute remaining Step-by-Step phases
+   - Handoff: flip Status/Executed, append activity-log row, git mv, reindex
+3. HALT + ASK USER conditions (never silently proceed):
+   - Dependency blocker
+   - Scope ambiguity beyond KEEP list
+   - Phase 0 discovers >30% scope extension
+   - Regression-guard shows unrelated changes
+   - Activity-log LR-037 preflight would fail
+
+**CRITICAL PARSER NOTE**: Do NOT put the literal strings `**Status**: DONE` or `**Executed**: <date>` (with markdown bold + colon) inside the bootstrap block — the `plans-reindex.mjs` regex parses these as frontmatter fields and will incorrectly mark the subplan as DONE. Use paraphrased language: "flip the Status field to DONE", "add the Executed date", etc. Same for any other labels the reindex watches: Status, Priority, Created, Executed, Parent.
+
+**Template to adapt** (starting point — customize per subplan's specifics):
+
+```markdown
+> 🤖 **SESSION BOOTSTRAP — Just invoke with `/execute <this-filename>`. All context below.**
+>
+> The agent self-bootstraps using the frontmatter + sections in this file. On invocation, it follows this sequence **without any additional user prompting**:
+>
+> 1. **Identity**: load /identity per the Identity field below.
+> 2. **Skills**: load every skill in the Skills field below (leading skill auto-calls its chain).
+> 3. **Model + thinking tier**: look up this subplan's SP number in the master plan's execution-order table. If Phase 0 is present in Step-by-Step, bump thinking tier one notch.
+> 4. **Dependency gate**: verify every item in the Depends-on field is DONE in plans/done/ or N/A. HALT if blocker.
+> 5. **Context load**: read master plan §1-§3 + this subplan in full.
+> 5.5. **Browser tool selection (if this subplan browses a live app)**: select per LR-038. Announce choice + reason in first output.
+> 6. **Phase 0 FIRST (if present)**: execute Phase 0 date-forensic self-discovery before any edits.
+> 7. **Execute Phases 1+** per Step-by-Step.
+> 8. **Handoff**: flip Status field to DONE + add Executed date, append activity-log row (LR-028 + LR-037), git mv to plans/done/, npm run plans:reindex, commit.
+>
+> **HALT + ASK USER** if: dependency blocker / scope ambiguity / Phase 0 >30% scope extension / regression-guard unrelated changes / LR-037 timestamp drift.
+
+---
+
+# SUBPLAN SP-XX: ...
+```
+
+This is non-negotiable. Every subplan gets this. Every plan summary must cite this pattern. Missing bootstrap = defect.
 
 ## Auto-Calls
 

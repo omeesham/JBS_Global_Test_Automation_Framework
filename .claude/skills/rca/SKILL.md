@@ -204,6 +204,8 @@ npx playwright test --grep "TC-ID" --project=chrome --headed --repeat-each=3
 
 ## Phase 5: MCP Replication (Category-Dependent)
 
+**Browser tool selection**: before opening any live app, pick Claude in Chrome vs Playwright MCP per LR-038. For RCA on auth-heavy apps (Navigator4 SSO), Claude in Chrome is usually right.
+
 | Failure Category | MCP Required? | When |
 |-----------------|---------------|------|
 | SELECTOR | MANDATORY | Before hypothesis |
