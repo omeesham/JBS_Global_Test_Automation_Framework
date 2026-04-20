@@ -56,7 +56,7 @@ mcp-servers:
 
 ## RULES
 
-> Shared rules ALL-001–ALL-072 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-076 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|

@@ -181,3 +181,146 @@ End-of-session top row (2026-04-20 13:31:30) byte-matches pre-session baseline a
 - SP-B-LO-2: ECT tab → cols 32–39.
 - SP-B-LO-R: reconciliation across SP-B-LO-1, 1b, 2.
 - SP-C1: Basic Info per-column TC implementation (can start on the 15 parents mapped here).
+
+---
+
+## Residual Parents (SP-B-LO-1b session — 2026-04-20, partial)
+
+**Agent**: HUNTER (rutvik), Opus 4.7, Claude in Chrome
+**Session outcome**: partial-complete — 3 residual parents classified via DOM inventory (no save cycle possible); 9 save-cycle parents deferred to SP-B-LO-1b retry when backend is stable.
+**Backend status during session**: unreliable — 6 of ~8 save POSTs returned `503 Service Unavailable`; the other 2 produced history rows at 04:36:36 / 04:36:41 PM but recorded an unintended col 14 (`Use Sect.`) TRUE→FALSE→TRUE cycle from driver-era buggy toggles (net zero change — UseSect ended at TRUE = baseline).
+**Baseline preservation**: confirmed post-session — all 14 Basic Info checkboxes match SP-B-LO-1 end-of-session baseline on hard reload; save button disabled; combobox default values unchanged. Office 1604 safe to hand off.
+
+### DOM-only classifications (no save cycle required)
+
+| # | Parent field | Expected col | DOM finding | Classification | Bug candidate |
+|---|---|---|---|---|---|
+| P16 | Use Equipment QC | col 9 "Use Equipment QC" | testid is `local-office-settings-checkbox-use-equipments-qc` (**plural** "equipments" — parent session inferred singular); element has `disabled=true` / `aria-disabled=true` on office 1604 | **PARENT-DISABLED-ON-1604** — parent exists in DOM but is read-only; col 9 cannot be written via normal UI actions on this office | BUG-LO-001: parent checkbox is read-only but corresponding history column exists — need confirmation whether this is per-office role-based or global |
+| P17 | Marriott PMS Account | col 24 "Marriott PMS Account Enabled" | **no matching DOM element** — zero `[data-testid*="marriott"]`, zero `[data-testid*="pms"]`, zero "Marriott"/"PMS" text anywhere on Basic Info page for office 1604 | **PARENT-NOT-PRESENT-ON-1604** — history column exists but no writable UI source; untestable via catalog cycle | BUG-LO-002: history schema has col 24 but parent field is absent from Basic Info UI — either conditional render (Marriott-only offices) or orphan column |
+| P25 | Notes | col 23 "Notes" | **no matching DOM element** — zero `<textarea>` elements on Basic Info form, zero "notes" text content, zero `[data-testid*="notes"]` | **PARENT-NOT-PRESENT-ON-1604** — history column exists but no writable UI source | BUG-LO-003: history schema has col 23 but Notes field is absent from Basic Info UI — either conditional render or orphan column |
+
+### Save-cycle parents deferred to SP-B-LO-1b retry
+
+Pending backend stability. Driver pattern now known (see §Method notes addendum below) — future session can iterate without rediscovery. Residual save-cycle parents:
+
+| # | Parent field | Target col | Control type | Baseline | Testid |
+|---|---|---|---|---|---|
+| P18 | Default Job 1-day Event Orders | col 25 | checkbox | FALSE | `local-office-settings-checkbox-default-job-one-day-event` |
+| P19 | Default Job 1-day Outside Orders | col 26 | checkbox | FALSE | `local-office-settings-checkbox-default-job-one-day-outside` |
+| P20 | Default Job 1-day Internal Orders | col 27 | checkbox | FALSE | `local-office-settings-checkbox-default-job-one-day-internal` |
+| P21 | Default Labor to Hourly | col 28 | checkbox | FALSE | `local-office-settings-checkbox-default-labor-to-hourly` |
+| P22 | Same Priority | col 29 | checkbox | FALSE | `local-office-settings-checkbox-same-priority` |
+| P23 | Items Filled from Requests Return | col 30 | checkbox | FALSE | `local-office-settings-checkbox-request-items-return` |
+| P24 | Default Order Type | col 31 | combobox | "Event" | `local-office-settings-select-default-order-type` |
+| P26 | Company Logo | col 17 "Logo Name" | combobox | "Encore New Logo" | `local-office-settings-select-company-logo` |
+| P27 | Section sub-table row op | cols 15/16 | sub-table | 9 rows (Projection/Audio/Lighting/Flipcharts/Labor/Video/Scenic/Hybrid Meeting/Presenter Support) | (DOM scan pending) |
+| P28 | Service Type Exempt sub-table row op | cols 20/21 | sub-table | 4 rows (HSIA-Labor/HSIA-Subrental Equipment/Loss Damage Waiver/Operator Labor) | (DOM scan pending) |
+
+### Newly discovered Basic Info fields (not in 42-col history)
+
+These fields exist on the Basic Info form but have no corresponding column in the 42-col Local Office Settings History. Candidates for NOT-TRACKED bug filing (SP-E-LO) if a requirement states they should be tracked.
+
+| Field | Testid | Baseline | Notes |
+|---|---|---|---|
+| PO Number | `local-office-settings-input-po-number` | *(empty)* | Text input, no history column |
+| PO Number Label | `local-office-settings-input-po-number-label` | *(empty)* | Text input, no history column |
+| Room Configuration sub-table | (DOM scan pending; observed visually: rows "Ballroom A", "Room Edit Test", "Room Toggle Test" with Active checkmarks) | 3+ rows | Not in 42-col history — compare against REQUIREMENTS.md expected coverage |
+
+### Method notes addendum (2026-04-20 SP-B-LO-1b)
+
+1. **Radix Checkbox toggle pattern** — plain `el.click()` flips the Radix visual state but does **NOT** dispatch the Angular FormControl change event. The form registers as "dirty" for UNRELATED reasons (likely stale form-sync state), save submits the wrong field deltas. **Correct pattern** (same as Radix tabs from SP-B-LO-1, with the addition of `buttons:1`/`buttons:0` distinction):
+   ```js
+   const r = el.getBoundingClientRect();
+   const cx = Math.floor(r.left + r.width/2), cy = Math.floor(r.top + r.height/2);
+   const od = {bubbles:true, cancelable:true, composed:true, pointerType:'mouse', clientX:cx, clientY:cy, button:0, buttons:1};
+   const ou = {...od, buttons:0};
+   el.dispatchEvent(new PointerEvent('pointerdown', od));
+   el.dispatchEvent(new MouseEvent('mousedown', od));
+   el.dispatchEvent(new PointerEvent('pointerup', ou));
+   el.dispatchEvent(new MouseEvent('mouseup', ou));
+   el.dispatchEvent(new MouseEvent('click', ou));
+   ```
+   This pattern verified to flip `data-state` on `same-priority` AND enable the Save button (dirty form signal) in this session. Plain `.click()` does not enable save.
+
+2. **Save button UX bug (candidate)** — the Save button transitions to `disabled=true` after being clicked regardless of whether the server POST succeeded or failed with 503. There is no user-visible indication of save failure. This masks backend outages — a user (or agent) sees "button disabled = save complete" and assumes persistence, but the DB may be unchanged. This is consistent with prior observations in LR-026 (Angular form dirty-state quirks) but adds a specific HTTP-error dimension. Recommended: compare the form state after reload to confirm persistence, do not trust button-disabled alone.
+
+3. **History table caching** — after a successful save POST (200), the history table top row updates only after a tab cycle (basic → history with ~2–3s waits). Direct `readTopRow()` immediately after save returns stale data. This is consistent with parent SP-B-LO-1 method note #3.
+
+4. **Baseline-drift from failed saves** — in this session, 2 history rows at 04:36:36 PM and 04:36:41 PM were recorded (each ~5s apart) during early driver testing, both toggling col 14 UseSect (not the intended same-priority or default-job-event). The toggles went TRUE→FALSE→TRUE, so net effect on server state is zero, but the audit trail has 2 extra rows. **Lesson**: before attempting catalog cycles on a fresh backend, verify driver toggle pattern on a non-persistent dry run (e.g., toggle and reload WITHOUT save, confirm state resets).
+
+### Deferred section update
+
+The parent-session §Deferred section above correctly predicted the 13 residual parents. This session's outcome:
+- **3 classified via DOM inventory** (P16/P17/P25) without save cycles — folded into the new Residual Parents table.
+- **10 still deferred** to SP-B-LO-1b retry (save-cycle dependent; backend must be stable).
+- **3 newly discovered fields** (PO Number, PO Number Label, Room Configuration sub-table) documented as candidates for SP-B-LO-1c or NOT-TRACKED registry.
+
+### Boolean-encoding registry status
+
+| Col | Header | Prior status | This session |
+|---|---|---|---|
+| 9 | Use Equipment QC | inferred svg | **unconfirmed** — parent disabled, cannot drive a save to verify encoding; retry in SP-B-LO-1b when Equipment QC becomes writable |
+| 24 | Marriott PMS Account Enabled | inferred svg | **unconfirmed** — parent not present in DOM; retry on an office where Marriott field is visible, or file bug BUG-LO-002 |
+| 25–30 | Default Job trio / Default Labor / Same Priority / Items Filled | inferred svg | **unconfirmed** — parents are present and toggleable but save cycle blocked by backend 503; retry in SP-B-LO-1b |
+| 39 | Recalc Labor Hours | inferred svg | unchanged — ECT tab, SP-B-LO-2 scope |
+
+---
+
+## Residual Parents (SP-B-LO-1b retry session — 2026-04-20, partial)
+
+**Agent**: HUNTER (rutvik), Opus 4.7
+**Browser tool**: Claude in Chrome first (LR-038 default), then switched to Playwright MCP per user directive.
+**Session outcome**: partial — 2 additional parents confirmed TRACKED via user-assisted save cycles; 8 save-cycle parents deferred to retry #3. **Retry #2 RCA corrected** (2026-04-21): the prior write-up framed the remaining blocker as a framework-wide synthetic-event trust gate and wrote ALL-076 as a framework-risk rule. That was wrong. The actual cause is missed interaction with the Radix AlertDialog (`location-settings-modal-save-changes`) that the existing `clickSaveAndConfirm` helper (`clients/encore/src/pages/setup/local-office/local-office-settings.page.ts:138`, wrapping `base-page.ts:350` `clickSaveWithDialog`) already drives. LR-012 / navigation.md §B / 15+ spec calls in `local-office-settings.spec.ts` prove the pattern works unattended. ALL-076 rewritten as a symptom-differential rule; retry #3 uses the existing helper per-parent.
+**Backend status during session**: **working fine**. Prior (22:20) session's 503 "backend broken" diagnosis was also wrong — those 503s were Next.js RSC page-URL POSTs, not the business save XHR. The real save endpoint is a 200 XHR producing `Local office settings updated` toast after the AlertDialog is confirmed.
+**Baseline preservation**: **partial** — office 1604 has drift by 1 field: P18 `Default Job 1-day Event Orders` is currently TRUE on server (was FALSE in SP-B-LO-1 baseline). This drift is recorded in history row 05:18:29 PM. All other fields match baseline. Retry #3 restores P18 to FALSE as first action.
+
+### Newly confirmed TRACKED parents (save-cycle evidence)
+
+| # | Parent field | Testid | Target col (0-idx, header) | Status | Encoding | Evidence |
+|---|---|---|---|---|---|---|
+| P18 | Default Job 1-day Event Orders | `local-office-settings-checkbox-default-job-one-day-event` | col 25 "Default Job to 1 day for Event Orders" | **TRACKED** | svg `lucide-check` | user-assisted save 2026-04-20 05:18:29 PM: checkbox FALSE→TRUE → history row 05:18:29 PM diff vs 04:55:12 PM shows only col 25 "" → TRUE + Modified On. Clean 1-col diff. |
+| P22 | Allow tentative and confirmed Status to have the same priority | `local-office-settings-checkbox-same-priority` | col 29 "Allow tentative and confirmed Status to have the same priority" | **TRACKED** | svg `lucide-check` | user-manual test between 22:20 HALT and retry-session start: ghost rows at 04:54:18 PM (FALSE→TRUE) and 04:55:12 PM (TRUE→FALSE). Diff r1 vs r2 shows only col 29 "" → TRUE + Modified On. Clean 1-col diff, reversible. Net zero server state (toggle + restore). |
+
+### Boolean-encoding registry — CONFIRMED from this session
+
+| Col | Header | Previously | Now |
+|---|---|---|---|
+| 25 | Default Job to 1 day for Event Orders | inferred svg | **CONFIRMED svg `lucide-check`** (row 05:18:29 shows TRUE rendered via `<svg class="lucide lucide-check">`) |
+| 29 | Allow tentative and confirmed Status to have the same priority | inferred svg | **CONFIRMED svg `lucide-check`** (row 04:54:18 shows TRUE rendered via `<svg class="lucide lucide-check">`) |
+
+### Still deferred (save-cycle not yet cataloged this session)
+
+All blocked on the same root cause: agent missed the Save Changes AlertDialog pattern. Retry #3 uses `clickSaveAndConfirm` per-parent (see `local-office-settings.page.ts:138`).
+
+| # | Parent field | Target col | Pending |
+|---|---|---|---|
+| P19 | Default Job 1-day Outside Orders | col 26 | retry #3 — `clickSaveAndConfirm` |
+| P20 | Default Job 1-day Internal Orders | col 27 | retry #3 — `clickSaveAndConfirm` |
+| P21 | Default Labor to Hourly | col 28 | retry #3 — `clickSaveAndConfirm` |
+| P23 | Items Filled from Requests Return | col 30 | retry #3 — `clickSaveAndConfirm` |
+| P24 | Default Order Type (combobox) | col 31 | retry #3 — `clickSaveAndConfirm` (plus combobox Radix retry per LR-025 if option list large) |
+| P26 | Company Logo (combobox) | col 17 "Logo Name" | retry #3 — `clickSaveAndConfirm` |
+| P27 | Section sub-table row op | cols 15/16 | retry #3 — `clickSaveAndConfirm` + sub-table row-edit selection |
+| P28 | Service Type Exempt sub-table row op | cols 20/21 | retry #3 — `clickSaveAndConfirm` + sub-table row-toggle selection |
+
+### Sub-table DOM findings (from Playwright snapshot this session)
+
+- **Section sub-table** (`local-office-settings-table-sections`): 13 total rows (9 active baseline per SP-B-LO-1 + 4 inactive not counted in prior baseline = Power, Rigging, Staging, Whiteboard). The inactive rows have toggle cells without the `lucide-check` img. Baseline row count in parent catalog §Baseline row col 15 says `Projection - true | Audio - true | Lighting - true | Flipcharts - true | Labor - true | Video - true | Scenic - true | Hybrid Meeting - true | Presenter Support - true` (9 active). The 4 inactive rows (Power/Rigging/Staging/Whiteboard) are documented rows but with `active=false` and therefore are not listed in the "true-only" history col 15 value. Each row has an edit-name textbox (UUID-keyed) and a toggle cell.
+- **Room Configuration sub-table** (3 rows confirmed): Ballroom A, Room Edit Test, Room Toggle Test — all active (cell `toggle` has `img` child). Each row has an edit-name textbox (integer-keyed 1/2/3). Not tracked in 42-col history (confirmed — no "Room" column in headers).
+- **Service Type Exemption sub-table** (large, 74+ rows): columns are "Service Type" + "Exempt". Currently-exempt rows with checkmarks observed in snapshot: HSIA - Labor, HSIA - Subrental Equipment, Loss Damage Waiver, Operator Labor (matches parent baseline col 20 `HSIA - Labor - true | HSIA - Subrental Equipment - true | Loss Damage Waiver - true | Operator Labor - true`). Each row has a "toggle" cell.
+
+### Method notes addendum (2026-04-20 retry session)
+
+5. **Save flow is dialog-gated — use `clickSaveAndConfirm`** (RCA-corrected 2026-04-21). Main Save button click opens a Radix AlertDialog (`data-testid="location-settings-modal-save-changes"` — heading "Save Changes", body "Are you sure you want to save the changes?"); React Hook Form `handleSubmit` `await`s the dialog's inner Save button before firing the business-save XHR. The prior retry #2 write-up framed this as a synthetic-event trust gate after failing to click the dialog's inner Save — that framing was fiction. The existing helpers handle the full flow: `clickSaveAndConfirm()` at [`local-office-settings.page.ts:138`](../../src/pages/setup/local-office/local-office-settings.page.ts) wraps [`clickSaveWithDialog('btnSave','dlgSaveChanges','btnSaveChangesConfirm')`](../../src/common/base-page.ts) from `base-page.ts:350`. Shared selectors `dlgSaveChanges` / `btnSaveChangesConfirm` live in `clients/encore/src/selectors/setup/local-office/local-office-settings.ts`. `local-office-settings.spec.ts` has 15+ passing calls proving the pattern works unattended. Retry #3 drives every save via this helper.
+
+6. **No-op save produces a history row with only Modified On change**. Evidence: row 05:18:30 PM (just a `Modified On` bump, no other diff vs 05:18:29 PM) resulted from user clicking Save a second time within 1 second without any checkbox toggle in between. The form was NOT dirty (all data matched server) but the Save button was still active because Angular didn't fully reset dirty state between rapid clicks. **Implication for per-column TCs**: a history row with *only* Modified On change is a valid server event but does not signal parent-field change. Per-column TCs must filter for actual data diff, not just new row presence. This is consistent with LR-026 Angular dirty-state unreliability.
+
+7. **History table cache quirk re-confirmed**. After a successful save, tab cycle (Basic Info → History → Basic Info → History with ~2–3 s waits) is still required to force the history panel to re-render. The first switch-to-history after save shows stale top row. This is identical to SP-B-LO-1 method note #3 and parent-catalog addendum §3.
+
+8. **Playwright MCP is authenticated on this machine**. Playwright MCP's browser profile has a persisted Microsoft SSO session for Navigator Cloud (no login prompt required on navigation to 1604). Claude in Chrome inherits from the user's Chrome profile — same result (no SSO prompt). Either tool is suitable for save-cycle work on this surface — the save flow is dialog-gated (see method note #5), not trust-gated; `clickSaveAndConfirm` works unattended on both tools.
+
+### Deferred section update (after retry session)
+
+- **P18** moved from Deferred → **CONFIRMED TRACKED** (col 25)
+- **P22** moved from Deferred → **CONFIRMED TRACKED** (col 29)
+- 8 save-cycle parents (P19/P20/P21/P23/P24/P26/P27/P28) remain deferred to retry #3 — unattended-safe via `clickSaveAndConfirm` helper.

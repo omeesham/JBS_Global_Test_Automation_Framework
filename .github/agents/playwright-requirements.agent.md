@@ -51,7 +51,7 @@ At session start, read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-
 
 ## RULES
 
-> Shared rules ALL-001–ALL-072 apply (see AGENT_SHARED_RULES.md)
+> Shared rules ALL-001–ALL-076 apply (see AGENT_SHARED_RULES.md)
 
 | ID | Rule | Resolution |
 |----|------|------------|
@@ -67,7 +67,7 @@ At session start, read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-
 | REQ-010 | Requirements agent is a HUNTER, not a verifier. The initial prompt is a STARTING POINT — explore EVE... | Planner received incomplete requirements → created incomplete test cases |
 | REQ-011 | For every page/tab documented: click Save on MCP, document the exact dialog behavior (heading, text,... | Pricing page had undocumented Save Changes confirmation dialog |
 | REQ-012 | For every dropdown: open it on MCP, document ALL available options (exact text). For every checkbox:... | Planner wrote "~55 rows" — actual was 75. "Is Alternative" — actual was "Is Alternate" |
-| REQ-013 | Verify HTML tag structure for form elements via browser_evaluate. Is it dt/dd? div/span? table/tr? Different pages in the same app often use different element types — NEVER assume from page name. See `clients/${ACTIVE_CLIENT}/docs/read_only_docs/AGENT_RULES_${CLIENT}.md §E-UI-LIBRARY` for client-specific UI-library patterns. | Encore: Pricing tab = Radix (div/span/button), Local Info = dt/dd. All pricing selectors were wrong because agents assumed table/input from the page name. |
+| REQ-013 | Verify HTML tag structure for form elements via browser_evaluate. Is it dt/dd? div/span? table/tr? D... | Pricing tab = Radix (div/span/button), Local Info = dt/dd. All pricing selectors were wrong because ... |
 ---
 
 ## Mission — HUNTER Identity

@@ -8,6 +8,8 @@ tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
 
 # /execute — Disciplined Plan Execution
 
+> **LR lookup**: when citing or verifying `LR-NNN` rules, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Client-specific rules use `LR-ENC-NNN` (or `LR-{CLIENT}-NNN`) prefix; framework rules continue `LR-NNN`.
+
 When the user invokes `/execute`, follow this exact workflow. Do NOT skip steps. Do NOT implement blindly.
 
 ## When to Use
@@ -28,12 +30,13 @@ Runs `/identity` Step 1.5 with caller=`/execute`. No-op if compatible identity a
 
 Before reading the plan, before building todos, before writing a single line — load the repo's institutional memory. Agents that skip this step make the same mistakes documented in these files. Activity logs show 40+ instances of agents skipping context loading and repeating known mistakes.
 
-1. **Read `specs_planning/_internal/agent-mistakes.md`** — 134 categorized rules from past sessions. Search for your task type prefix: ALL-* (shared), GEN-* (generator), HLR-* (healer), AUD-* (audit), PLN-* (planner). Each rule has a Resolution column — follow it.
-2. **Read `.claude/context/patterns.md`** — Decision tree patterns for recurring situations (spec-fixing start, Radix UI dropdowns, Angular save→tab race, etc.). If your task matches a pattern, follow the tree.
-3. **Scan CLAUDE.md Learned Rules (LR-001 through LR-026)** — Each has a Trigger condition. If your current task matches ANY trigger, that rule is ACTIVE for this session. Key ones for test work: LR-007 (MCP-verify claims), LR-009 (Angular dirty state), LR-010 (cross-field async), LR-018 (run-all is truth), LR-019 (baseline enforcement), LR-023 (no networkidle), LR-024 (clean before RCA), LR-026 (Angular form dirty defensive).
-4. **If a master plan or parent plan is referenced in the task** — read it FIRST to understand broader context, gap statuses, and what's blocked vs actionable. Never work on a subplan without understanding the master.
+1. **Read `.claude/context/navigation.md`** FIRST (R00 universal rule). Check §A Decision Tree: is the surface my plan touches in §C Exploration Registry? If YES, open the listed findings file(s) — do NOT re-explore what's mapped. Check §B Routing Table for any "I need to..." patterns relevant to my plan (form interaction, save handling, history reading, etc.) and line up the proven helpers before writing code.
+2. **Read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`** — categorized rules from past sessions. Search for your task type prefix: ALL-* (shared), GEN-* (generator), HLR-* (healer), AUD-* (audit), PLN-* (planner). Each rule has a Resolution column — follow it.
+3. **Read `.claude/context/patterns.md`** — Decision tree patterns for recurring situations (spec-fixing start, Radix UI dropdowns, Angular save→tab race, etc.). If your task matches a pattern, follow the tree.
+4. **Scan CLAUDE.md Learned Rules (LR-001 through latest)** — Each has a Trigger condition. If your current task matches ANY trigger, that rule is ACTIVE for this session. Key ones for test work: LR-007 (MCP-verify claims), LR-009 (Angular dirty state), LR-010 (cross-field async), LR-018 (run-all is truth), LR-019 (baseline enforcement), LR-023 (no networkidle), LR-024 (clean before RCA), LR-026 (Angular form dirty defensive).
+5. **If a master plan or parent plan is referenced in the task** — read it FIRST to understand broader context, gap statuses, and what's blocked vs actionable. Never work on a subplan without understanding the master.
 
-**Checkpoint**: Before proceeding to Phase 0.5, you must be able to answer: "What are the 3 most relevant ALL-* rules and 3 most relevant LR-* rules for THIS specific task?" If you can't, re-read the files.
+**Checkpoint**: Before proceeding to Phase 0.5, you must be able to answer: "Is my target surface in the Exploration Registry? Which §B routing rows apply to my subtasks? What are the 3 most relevant ALL-* rules and 3 most relevant LR-* rules for THIS specific task?" If you can't, re-read the files.
 
 ---
 
@@ -119,8 +122,9 @@ Before writing a single line of code:
 1. Work through each item methodically — one at a time
 2. Mark each todo as `in_progress` when starting it, then `completed` only when VERIFIED (not just written, but confirmed working)
 3. If you discover something unexpected mid-execution, STOP and assess before continuing. On 2nd failure at same fix type → you're guessing, not fixing. Switch to root-cause trace (read evidence, hypothesize, verify) before attempt #3.
-4. Keep a mental ledger of every decision: what you did, what you chose NOT to do, and why
-5. **App bug gate (LR-034)**: If you discover application behavior that contradicts documented requirements during execution, STOP and follow **LR-034 Bug Filing Protocol** before continuing.
+4. **Symptom-triggered guardrail — save/submit flow**: if your fix involves clicking a Save/Submit button AND the first click produces "button disabled + no API call + no toast + form reverts on reload", STOP and run the [`patterns.md` §Save/Submit decision tree](../../context/patterns.md) BEFORE your 2nd attempt. Check the DOM for an `[role="alertdialog"]` / `[role="dialog"]` first, then validation state, then server-side failures, THEN — only then — consider event-trust hypotheses. Do NOT rehypothesize (click-trust, CDP events, Next.js server actions) until you've confirmed there's no open dialog, no invalid field, no server-side error, and no trust gate in the live onClick body. The existing `clickSaveAndConfirm` (`local-office-settings.page.ts:138`) / `clickSaveWithDialog` (`base-page.ts:350`) helpers handle the dialog-gated flow unattended — see navigation.md §C registry row and ALL-076.
+5. Keep a mental ledger of every decision: what you did, what you chose NOT to do, and why
+6. **App bug gate (LR-034)**: If you discover application behavior that contradicts documented requirements during execution, STOP and follow **LR-034 Bug Filing Protocol** before continuing.
 
 **Auto-call `/regression-guard` AFTER** — re-snapshot, diff, review. If SUSPICIOUS or SILENT BREAK items found, investigate before proceeding.
 
@@ -153,7 +157,7 @@ After ALL changes are made, do NOT declare done. Instead:
 ### Learning Completion Checklist (after post-audit)
 5. Would a senior engineer approve these changes without modifications?
 6. Auto-call `/reflect` — capture any learnings from this execution
-7. Any unexpected behavior? Write to `specs_planning/_internal/agent-mistakes.md`
+7. Any unexpected behavior? Write to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`
 8. New patterns discovered? Write to relevant memory file
 
 ## Phase 3.5: Plan Finalization (MANDATORY — enforced by LR-027/LR-028)
@@ -168,7 +172,7 @@ After post-execution audit, before declaring done:
 
 2. **Move plan**: `mv plans/pending/PLAN_XXX.md plans/done/PLAN_XXX.md`
 
-3. **Update activity log**: Append session entry to `specs_planning/_internal/agent-activity-log.md`
+3. **Update activity log**: Append session entry to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md`
    Format: `| YYYY-MM-DDThh:mm | {agent} | done | {files} | {description} |`
 
 4. **Update agent-mistakes.md**: If ANY unexpected behavior was found during execution

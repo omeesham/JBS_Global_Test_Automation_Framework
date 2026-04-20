@@ -24,9 +24,10 @@
 
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 2 (Discovery — batched per root-tab)
-**Status**: Pending
+**Status**: Pending (partial — 2 retry sessions completed, 8 save-cycle parents still blocked)
 **Priority**: P0
 **Created**: 2026-04-20
+**Last attempted**: 2026-04-20 (retry #2 — partial; 2 parents confirmed TRACKED, 8 deferred to retry #3 via `clickSaveAndConfirm`)
 **Depends on**: SP-B-LO-1 DONE (parent session completed 2026-04-20 — 15 of ~22 Basic Info parents mapped; this session catalogs the residual).
 **Identity**: HUNTER (MCP session operates on live DOM)
 **Skills**: `/research` (MCP exploration) + `/planning` (catalog extension) + `/identity`
@@ -175,3 +176,49 @@ Also update the §Deferred section to remove parents this session cataloged, and
 - SP-B-LO-2 (ECT) can run in parallel if a second MCP operator is available, but on a single-operator queue, 1b is the smaller, highly-primed task; do it first, then ECT, then R.
 
 **Master plan slot**: SP-B-LO-1b is inserted at order "05b" in the Execution Order table — between SP-B-LO-1 (05) and SP-B-LO-2 (06). Priority P0, Group 2. Same Opus + ultrathink profile as SP-B-LO-1.
+
+---
+
+## Execution Summary (retry #2 — 2026-04-20, partial; RCA-corrected 2026-04-21)
+
+**Outcome**: **partial** — 2 additional parents cataloged (P18, P22); 8 save-cycle parents deferred to retry #3. Session originally wrote up the remaining blocker as a synthetic-event trust gate and authored ALL-076 as a framework-risk rule. **That framing is wrong.** The actual root cause is that the agent never interacted with the Radix AlertDialog that gates Encore's save flow — the existing helper `clickSaveAndConfirm` (at [`local-office-settings.page.ts:138`](../../clients/encore/src/pages/setup/local-office/local-office-settings.page.ts), wrapping [`clickSaveWithDialog`](../../clients/encore/src/common/base-page.ts) from `base-page.ts:350`) already drives the full two-step flow and is proven by 15+ passing calls in `local-office-settings.spec.ts`. LR-012 documents the pattern. Retry #3 uses this helper per-parent; no framework risk exists.
+
+**TCs/Parents confirmed TRACKED this session** (unchanged — evidence is real):
+
+| # | Parent | Target col | Evidence |
+|---|---|---|---|
+| P18 | Default Job 1-day Event Orders | col 25 | user-assisted save 2026-04-20 05:18:29 PM — clean 1-col diff + Modified On |
+| P22 | Same Priority | col 29 | user-manual ghost rows 04:54:18 + 04:55:12 PM — clean 1-col diff pair, reversible |
+
+**DOM-only classifications carried from prior retry-session work** (P16 Equipment QC disabled on 1604, P17 Marriott PMS absent on 1604, P25 Notes absent on 1604) remain as prior-session findings in the catalog — all three route to SP-E-LO bug reports (BUG-LO-001/002/003) per LR-034; NOT filed in this plan.
+
+**Still deferred** (8 parents): P19, P20, P21, P23 (checkboxes), P24 (combobox), P26 (combobox), P27 (sub-table), P28 (sub-table). **Unblocker**: drive each save via `clickSaveAndConfirm` from `local-office-settings.page.ts:138` — no user-in-loop needed, no investigation needed.
+
+**Documentation changes this session** (post-correction):
+- `clients/encore/specs_planning/catalogs/hist-root-map-local-office-basic-info.md` extended with `## Residual Parents (SP-B-LO-1b retry session — 2026-04-20, partial)` section. RCA-corrected 2026-04-21: retry-#2 write-up re-framed from "synthetic-event trust gate" to "missed Save Changes AlertDialog"; method note #5 rewritten to point at `clickSaveAndConfirm`; "Automation limitation — framework-level note" paragraph removed; Still-deferred "Blocker" column replaced with neutral "Pending" column. Genuine findings preserved: P18→col 25, P22→col 29, boolean-encoding confirmed cols 25+29, Section 13 rows / Room Config 3 rows / ST Exempt 74+ rows, no-op save 05:18:30 PM observation.
+- `clients/encore/specs_planning/_internal/agent-mistakes.md`: **ALL-076 REWRITTEN** (same-day, before downstream sync propagated original text) — now a DOM-symptom-differential rule pointing at `clickSaveAndConfirm`, not a framework-risk fiction.
+- `.claude/context/navigation.md` §C Exploration Registry: new row for Save Changes AlertDialog pattern.
+- `.claude/context/patterns.md`: new decision tree "Save/Submit button disables but nothing persists".
+- `.claude/skills/execute/SKILL.md` Phase 2: symptom-triggered guardrail referencing the patterns.md decision tree.
+- This plan body: Execution Summary corrected.
+
+**Plan not moved to `plans/done/`** — stays in `plans/pending/` pending retry #3.
+
+**Baseline state for retry #3**:
+- **Office 1604 form**: all fields at SP-B-LO-1 baseline EXCEPT P18 `Default Job 1-day Event Orders` = TRUE (was FALSE).
+- **History**: 20 rows, top row 04/20/2026 05:18:30 PM. Use timestamps (not indices) to locate rows; SP-B-LO-1 baseline row is now deeper in the table.
+
+**Retry #3 direction**:
+1. First action: toggle P18 → uncheck + `clickSaveAndConfirm` — produces reverse col 25 TRUE→"" diff row AND restores baseline in one shot.
+2. Iterate P19, P20, P21, P23 (checkbox toggle + `clickSaveAndConfirm` + reverse-toggle + `clickSaveAndConfirm`).
+3. P24 (Default Order Type combobox — change to non-Event option, save, restore).
+4. P26 (Company Logo combobox — change, save, restore; apply LR-025 Radix retry if option list large).
+5. P27 (Section sub-table row op — rename or toggle Active on one row).
+6. P28 (Service Type Exempt sub-table row op — toggle any non-exempt row on, restore off).
+7. Extend catalog §Residual Parents with a new `retry #3 (YYYY-MM-DD, complete)` section; flip boolean-encoding registry entries for cols 26/27/28/30 from `inferred` to CONFIRMED; flip Status → DONE; `git mv` to `plans/done/`; `npm run plans:reindex`; single commit.
+
+**Rules honored this session**: LR-020 (plan claims verified against live DOM — P18 baseline FALSE, confirmed drifted), LR-028 (activity-log row per session), LR-032 (investigate not theorize — genuine findings came from live MCP drive), LR-033 (network RCA — fetch/XHR hooks captured evidence), LR-037 (wall-clock ≥ mtimes), LR-038 (browser tool selection announced).
+
+**Rules-written (post-correction)**: 1 (ALL-076 rewritten as DOM-symptom-differential rule). Original "framework-risk" framing retracted.
+
+outcome:partial, attempts:2, rules-written:1 (ALL-076 rewritten).
