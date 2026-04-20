@@ -995,6 +995,8 @@ Accessible via: Setup > Location > [Office Code] → "Location Management Histor
 
 **Save Dialog** [MCP-VERIFIED 2026-04-13]: Location Settings uses "Save Changes" dialog with **Cancel/Ok** buttons (different from Local Office Settings which uses Cancel/Save).
 
+**Test Architecture (2026-04-20 pivot)**: History coverage lives exclusively in dedicated hist specs (`tests/specs/setup/locations/history/*.spec.ts`). Each hist column has its own `describe()` block enumerating state-space per the root field's control type (per D1.a taxonomy). Basic-info specs carry NO history code. See [PLAN_HIST_COLUMN_FIRST_PIVOT.md](../../../plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) and the per-surface root-column catalogs (created by SP-B-LM-* sessions).
+
 ### Plan vs DOM Column Name Comparison [MCP-VERIFIED 2026-04-13]
 
 Cross-reference of oral/plan requirements vs live DOM for both history systems. Source: SUBPLAN_HISTORY_01_MCP_FINDINGS.md.
@@ -1270,6 +1272,8 @@ Columns 33–40 (labor-to-hourly) are present in history even for US locations; 
 | BenefitsMultiplier | TC-LOS-ECT-005, ECT-016 | ECT editable — not tracked |
 | HistoricalSubrental | TC-LOS-ECT-013, ECT-016 | ECT editable — not tracked |
 | LaborCost rows | TC-LOS-ECT-009, ECT-014, ECT-015 | ECT editable — not tracked |
+
+**Test Architecture (2026-04-20 pivot)**: History coverage lives exclusively in the dedicated hist spec (`tests/specs/setup/local-office/local-office-history.spec.ts`). Each hist column has its own `describe()` block enumerating state-space per the root field's control type (per D1.a taxonomy). Basic-info specs carry NO history code. See [PLAN_HIST_COLUMN_FIRST_PIVOT.md](../../../plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) and the per-surface root-column catalogs (created by SP-B-LO-* sessions).
 
 ---
 
