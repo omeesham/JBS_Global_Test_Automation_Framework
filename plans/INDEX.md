@@ -3,7 +3,7 @@
 **Last updated**: 2026-04-20
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 69 pending · 147 done · 7 stale (>14d) · 0 DONE-in-pending
+**Totals**: 70 pending · 147 done · 7 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -34,6 +34,7 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | File | Title | Priority | Status | Created |
 |---|---|---|---|---|
 | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | MASTER PLAN — HIST Column-First Pivot ("Column-First Pivot Plan") | P0 (client delivery — supersedes every in-flight HIST plan) | PENDING | 2026-04-20 |
+| ↳ [SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md](pending/SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md) | SUBPLAN SP-B-LO-1b: MCP Catalog — Local Office Basic Info Residual Parents → 42-col History Mapping | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | SUBPLAN SP-B-LO-2: MCP Catalog — Local Office ECT → 42-col History Mapping | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](pending/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | SUBPLAN SP-B-LO-R: Reconcile + Merge — Local Office Root-Column Catalog | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | SUBPLAN SP-B-LM-1: MCP Catalog — Currency Tab → 87-col Location Management History | P0 | PENDING | 2026-04-20 |
@@ -266,7 +267,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (69 files)
+  pending/              ← active plans (70 files)
   done/                 ← completed plans (147 files)
 ```
 
@@ -285,6 +286,7 @@ When completing a plan:
 | 2026-04-20 | pending | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | PENDING |
 | 2026-04-20 | pending | [PLAN_MT_AUDIT.md](pending/PLAN_MT_AUDIT.md) | PENDING |
 | 2026-04-20 | pending | [PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md](pending/PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md) | PENDING |
+| 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md](pending/SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](pending/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | PENDING |
@@ -320,4 +322,3 @@ When completing a plan:
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md](pending/SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md](pending/SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md](pending/SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md) | PENDING |
-| 2026-04-20 | done | [PLAN_BROWSER_TOOL_SELECTION.md](done/PLAN_BROWSER_TOOL_SELECTION.md) | DONE |
