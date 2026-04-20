@@ -84,16 +84,16 @@ _None._ All 42 column headers are unique in this reading (headers captured 2026-
 | 14 | Use Sect. | svg | `td.innerHTML.includes('lucide-check')` |
 | 18 | Use On Quote | svg | `td.innerHTML.includes('lucide-check')` |
 | 19 | Use On Rental | svg | `td.innerHTML.includes('lucide-check')` |
-| 24 | Marriott PMS Account Enabled | svg (inferred) | `td.innerHTML.includes('lucide-check')` |
-| 25 | Default Job to 1 day for Event Orders | svg (inferred) | `td.innerHTML.includes('lucide-check')` |
-| 26 | Default Job to 1 day for Outside Orders | svg (inferred) | `td.innerHTML.includes('lucide-check')` |
-| 27 | Default Job to 1 day for Internal Orders | svg (inferred) | `td.innerHTML.includes('lucide-check')` |
-| 28 | Default Labor to Hourly | svg (inferred) | `td.innerHTML.includes('lucide-check')` |
-| 29 | Allow tentative and confirmed Status to have the same priority | svg (inferred) | `td.innerHTML.includes('lucide-check')` |
-| 30 | Items Filled from Requests Return to Availability | svg (inferred) | `td.innerHTML.includes('lucide-check')` |
-| 39 | Recalc Labor Hours | svg (inferred) | `td.innerHTML.includes('lucide-check')` |
+| 24 | Marriott PMS Account Enabled | svg (inferred — **unconfirmed**, parent not present on office 1604; SP-E-LO BUG-LO-002) | `td.innerHTML.includes('lucide-check')` |
+| 25 | Default Job to 1 day for Event Orders | **svg CONFIRMED** (retry #2, row 05:18:29 PM; retry #3 reverse row 07:35:23 PM) | `td.innerHTML.includes('lucide-check')` |
+| 26 | Default Job to 1 day for Outside Orders | **svg CONFIRMED** (retry #3, row 07:39:11 PM) | `td.innerHTML.includes('lucide-check')` |
+| 27 | Default Job to 1 day for Internal Orders | **svg CONFIRMED** (retry #3, row 07:41:10 PM) | `td.innerHTML.includes('lucide-check')` |
+| 28 | Default Labor to Hourly | **svg CONFIRMED** (retry #3, row 07:42:01 PM) | `td.innerHTML.includes('lucide-check')` |
+| 29 | Allow tentative and confirmed Status to have the same priority | **svg CONFIRMED** (retry #2, row 04:54:18 PM) | `td.innerHTML.includes('lucide-check')` |
+| 30 | Items Filled from Requests Return to Availability | **svg CONFIRMED** (retry #3, row 07:43:05 PM) | `td.innerHTML.includes('lucide-check')` |
+| 39 | Recalc Labor Hours | svg (inferred — ECT scope, SP-B-LO-2) | `td.innerHTML.includes('lucide-check')` |
 
-`assertBooleanCell` should use `encoding: 'svg'` for every Local Office Basic Info boolean column. Rows 9, 24–30, 39 are inferred (not directly verified this session) — SP-B-LO-1b / SP-B-LO-2 must confirm before those columns get per-column TCs.
+`assertBooleanCell` should use `encoding: 'svg'` for every Local Office Basic Info boolean column. Post-SP-B-LO-1b retry #3: cols 25–30 **confirmed svg** via save-cycle evidence. Cols 9 + 24 remain **unconfirmed** (parents absent/disabled on office 1604 — bug candidates BUG-LO-001/002 per LR-034, deferred to SP-E-LO). Col 39 remains ECT scope (SP-B-LO-2).
 
 ## Sub-table Action columns (non-parent-driven)
 
@@ -324,3 +324,70 @@ All blocked on the same root cause: agent missed the Save Changes AlertDialog pa
 - **P18** moved from Deferred → **CONFIRMED TRACKED** (col 25)
 - **P22** moved from Deferred → **CONFIRMED TRACKED** (col 29)
 - 8 save-cycle parents (P19/P20/P21/P23/P24/P26/P27/P28) remain deferred to retry #3 — unattended-safe via `clickSaveAndConfirm` helper.
+
+---
+
+## Residual Parents (SP-B-LO-1b retry #3 — 2026-04-21, complete)
+
+**Agent**: HUNTER (rutvik), Opus 4.7
+**Browser tool**: Claude in Chrome (LR-038 default for Claude Code exploratory/catalog work; user directive confirmed).
+**Session outcome**: **COMPLETE** — all 8 residual save-cycle parents cataloged; P18 baseline restored as first cycle. Office 1604 form state verified back at SP-B-LO-1 baseline (P18-P23 all FALSE; P24 "Event"; P26 "Encore New Logo"; Save disabled).
+**Save pattern used**: `window.__cat.clickSaveAndConfirm()` driver (main Save `radixClick` → waits for `location-settings-modal-save-changes` `data-state="open"` → clicks dialog's inner Save via `radixClick` → polls for `navigator-settings` 200 XHR). Every save in this session fired a 200 PUT to `/navigator/api/location/navigator-settings` with the "Local office settings updated" toast.
+**Driver discovery**: Radix AlertDialog portal uses `data-state="open"|"closed"` — `offsetParent !== null` check returns false even when visible. Switch to `waitForState(selector, 'data-state', 'open')`. Radix combobox options required real-mouse click via Claude in Chrome `computer.left_click` with element `ref` (from `find` tool); PointerEvent-dispatched clicks on `[role="option"]` registered as outside-listbox dismiss, not selection. Checkboxes and sub-table toggle cells worked with dispatched PointerEvent+MouseEvent sequence.
+
+### Newly confirmed TRACKED parents (save-cycle evidence)
+
+| # | Parent field | Testid | Target col (0-idx, header) | Status | Encoding | Evidence (forward → restore) |
+|---|---|---|---|---|---|---|
+| P18 (restore) | Default Job 1-day Event Orders | `local-office-settings-checkbox-default-job-one-day-event` | col 25 | **TRACKED** (baseline restored) | svg `lucide-check` | save 2026-04-21 07:35:23 PM — col 25 ✔→"" clean 1-col diff + Modified On. Reverse of retry #2 evidence. |
+| P19 | Default Job 1-day Outside Orders | `local-office-settings-checkbox-default-job-one-day-outside` | col 26 | **TRACKED** | svg `lucide-check` | fwd 07:39:11 PM — col 26 ""→✔ • rev 07:39:34 PM — col 26 ✔→"" • both clean 1-col diffs + Modified On |
+| P20 | Default Job 1-day Internal Orders | `local-office-settings-checkbox-default-job-one-day-internal` | col 27 | **TRACKED** | svg `lucide-check` | fwd 07:41:10 PM — col 27 ""→✔ • rev 07:41:34 PM — col 27 ✔→"" |
+| P21 | Default Labor to Hourly | `local-office-settings-checkbox-default-labor-to-hourly` | col 28 | **TRACKED** | svg `lucide-check` | fwd 07:42:01 PM — col 28 ""→✔ • rev 07:42:35 PM — col 28 ✔→"" |
+| P23 | Items Filled from Requests Return | `local-office-settings-checkbox-request-items-return` | col 30 | **TRACKED** | svg `lucide-check` | fwd 07:43:05 PM — col 30 ""→✔ • rev 07:43:32 PM — col 30 ✔→"" |
+| P24 | Default Order Type | `local-office-settings-select-default-order-type` | col 31 "Default Order Type" | **TRACKED** | plain text | fwd 07:46:36 PM — col 31 "Event"→"Outside" • rev 07:49:16 PM — col 31 "Outside"→"Event" • 2 options total (no Radix retry needed) |
+| P26 | Company Logo | `local-office-settings-select-company-logo` | col 17 "Logo Name" | **TRACKED** | plain text | fwd 07:53:18 PM — col 17 "Encore New Logo"→"Header with Dust Ears and Text" • rev 07:54:40 PM — col 17 "Header..."→"Encore New Logo" • 12 options; used `find` + `computer.left_click ref` for option selection |
+| P27 | Section sub-table — toggle Power row Active (inactive→active→inactive) | `local-office-settings-table-sections` tbody tr[5] last-td | col 15 "Section Name" | **TRACKED** | pipe-joined `name - bool` string (alphabetized) | fwd 07:55:51 PM — col 15 added "Power - true" • rev 07:56:28 PM — col 15 removed "Power - true" • col 16 stayed literal "Update" (non-state signal per parent-catalog note) |
+| P28 | Service Type Exempt sub-table — toggle "APP Downloaded" Exempt (false→true→false) | `local-office-settings-table-discount-exemptions` tbody tr[0] last-td | col 20 "Service Type - Exempt" | **TRACKED** | pipe-joined `name - true` string (alphabetized, exempt-only) | fwd 07:57:58 PM — col 20 added "APP Downloaded - true" • rev 07:58:35 PM — col 20 removed "APP Downloaded - true" • col 21 stayed literal "Update" (non-state signal) |
+
+### Boolean-encoding registry — CONFIRMED from retry #3
+
+| Col | Header | Prior status | Now |
+|---|---|---|---|
+| 26 | Default Job to 1 day for Outside Orders | inferred svg | **CONFIRMED svg `lucide-check`** (row 07:39:11 r0 renders TRUE via `<svg class="lucide lucide-check">`) |
+| 27 | Default Job to 1 day for Internal Orders | inferred svg | **CONFIRMED svg `lucide-check`** (row 07:41:10) |
+| 28 | Default Labor to Hourly | inferred svg | **CONFIRMED svg `lucide-check`** (row 07:42:01) |
+| 30 | Items Filled from Requests Return to Availability | inferred svg | **CONFIRMED svg `lucide-check`** (row 07:43:05) |
+
+Cols 9 (Use Equipment QC) and 24 (Marriott PMS) remain `unconfirmed` — parents absent/disabled on office 1604 (DOM-only classification preserved; bugs BUG-LO-001/002 deferred to SP-E-LO per LR-034). Col 39 (Recalc Labor Hours) remains ECT scope (SP-B-LO-2).
+
+### Sub-table encoding observations (retry #3)
+
+- **Col 15 "Section Name" serialization**: active rows only (`active=true` → `{name} - true`), pipe-separated (` | ` with spaces), **alphabetical order**. Baseline (01:31:30 PM) captured a NON-alphabetical order (`Projection | Audio | Lighting | …`) — serialization evidently switched to alphabetical sometime during retry #2/#3 save activity. Current retry #3 baseline-restored value: `Audio - true | Flipcharts - true | Hybrid Meeting - true | Labor - true | Lighting - true | Presenter Support - true | Projection - true | Scenic - true | Video - true`. Per-column TCs for col 15 should assert on **set-membership** (e.g. contains "Power - true") rather than exact string match, because order varies.
+- **Col 20 "Service Type - Exempt" serialization**: exempt rows only (`exempt=true`), pipe-separated, **alphabetical order**. Retry #3 baseline: `HSIA - Labor - true | HSIA - Subrental Equipment - true | Loss Damage Waiver - true | Operator Labor - true`. Same set-membership guidance applies.
+- **Cols 16 (Sect. Action) and 21 (ST Action)** re-confirmed as literal `"Update"` across all 9 saves this session, regardless of sub-table content change. Per-column TCs must NOT treat these as state-change signals (already noted in parent catalog §Sub-table Action columns).
+
+### Method notes addendum (2026-04-21 retry #3)
+
+9. **Radix AlertDialog visibility check — use `data-state`, not `offsetParent`**. The save dialog `location-settings-modal-save-changes` lives in a Radix portal; `offsetParent` returns null (via some combination of position-absolute + transform). `waitFor` helpers that poll `el.offsetParent !== null` will return false even when the dialog is visually rendered. Correct poll target: `el.getAttribute('data-state') === 'open'`. Screenshot confirms the dialog at (756, 362) center while `offsetParent === null` in the DOM read.
+
+10. **Radix Combobox option selection via Claude in Chrome — use `find` + `computer.left_click(ref)`**. Synthetic PointerEvent+MouseEvent dispatch (the pattern that works for checkboxes, main Save button, tab switches, dialog Save button, and sub-table toggle cells) does NOT register on `[role="option"]` elements. The option click appears to succeed but the combobox value does not update. Observed 2× in this session: P24 first attempt (clicked option via dispatched events → listbox closed, combo stayed "Event"); P26 first attempt (same symptom → stayed "Encore New Logo"). **Working pattern**: `find('<option text>') → computer.left_click(ref)`. The `find` tool returns a stable ref that `computer.left_click` can target with viewport-coordinate-resolved real mouse events, which Radix Select's mousedown/pointerup handlers accept. This mirrors LR-025 spirit but for ALL Radix Select options, not just large lists.
+
+11. **CDP `Runtime.evaluate` 45s timeout cap**. Long-running async driver calls (toggle + save + tab switch + history read with ~8–15s internal waits) can exceed the 45s CDP command timeout. Split per-parent cycles into 3 shorter JS calls: (a) toggle + `clickSaveAndConfirm`, (b) switch to history + read diff, (c) toggle-restore + save. Each call ≤ 20s. The work still completes even if a call hits the timeout — the JS in the tab continues; subsequent `javascript_exec` calls see the post-state correctly. Pragmatic: don't panic on CDP timeout; verify state with a fresh small read.
+
+12. **History row eviction at 20-row cap**. Office 1604 history started retry #3 at 20 rows (same as retry #2 end). After 9 save + 9 restore cycles = 18 new saves (but P18 restore only adds 1 row since baseline was already dirty), final row count stays 20 — older rows eviction is FIFO. Per-column TCs reading "top N rows" should diff by timestamp (already advised in retry #2 note). Retry #3 explicit evidence: top-of-history at session end = 07:58:35 PM (P28 restore), SP-B-LO-1 baseline row 01:31:30 PM evicted out of top-20 window.
+
+### Deferred section update (after retry #3)
+
+- **P19/P20/P21/P23/P24/P26/P27/P28** all moved from Deferred → **CONFIRMED TRACKED**.
+- P16/P17/P25 remain DOM-only classified (bugs BUG-LO-001/002/003 deferred to SP-E-LO per LR-034).
+- PO Number, PO Number Label, Room Configuration sub-table remain as "NOT in 42-col history" findings (potential NOT-TRACKED registry entries — SP-B-LO-1c or SP-E-LO).
+
+### Completeness summary
+
+| Grouping | Count | Status |
+|---|---|---|
+| Parents with save-cycle evidence (P1–P15 parent session + P18/P22/P19/P20/P21/P23/P24/P26/P27/P28) | 23 | All **TRACKED** |
+| Parents with DOM-only classification (P16/P17/P25 — absent/disabled on 1604) | 3 | Bug candidates BUG-LO-001/002/003 (SP-E-LO) |
+| 42-col history cols cataloged to a parent | 40 of 42 | col 9 + col 24 unconfirmed (bug-blocked); cols 32–39 = ECT scope (SP-B-LO-2) |
+
+SP-B-LO-1 + SP-B-LO-1b together catalog **all non-ECT Local Office Settings Basic Info parents** mapping to the 42-col history. Unblocks SP-B-LO-R (reconciliation) and SP-C1 (per-column TC implementation).

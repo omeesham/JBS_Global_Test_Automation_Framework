@@ -24,10 +24,11 @@
 
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 2 (Discovery — batched per root-tab)
-**Status**: Pending (partial — 2 retry sessions completed, 8 save-cycle parents still blocked)
+**Status**: DONE
+**Executed**: 2026-04-21
 **Priority**: P0
 **Created**: 2026-04-20
-**Last attempted**: 2026-04-20 (retry #2 — partial; 2 parents confirmed TRACKED, 8 deferred to retry #3 via `clickSaveAndConfirm`)
+**Last attempted**: 2026-04-21 (retry #3 — complete; all 8 residual save-cycle parents CONFIRMED TRACKED + P18 baseline restored)
 **Depends on**: SP-B-LO-1 DONE (parent session completed 2026-04-20 — 15 of ~22 Basic Info parents mapped; this session catalogs the residual).
 **Identity**: HUNTER (MCP session operates on live DOM)
 **Skills**: `/research` (MCP exploration) + `/planning` (catalog extension) + `/identity`
@@ -222,3 +223,44 @@ Also update the §Deferred section to remove parents this session cataloged, and
 **Rules-written (post-correction)**: 1 (ALL-076 rewritten as DOM-symptom-differential rule). Original "framework-risk" framing retracted.
 
 outcome:partial, attempts:2, rules-written:1 (ALL-076 rewritten).
+
+---
+
+## Execution Summary (retry #3 — 2026-04-21, complete)
+
+**Outcome**: **COMPLETE** — all 8 residual save-cycle parents CONFIRMED TRACKED via live save cycles on office 1604; P18 baseline drift restored as first cycle. Office 1604 form state verified back at SP-B-LO-1 baseline (all 14 Basic Info checkboxes FALSE/TRUE per original; P24 "Event"; P26 "Encore New Logo"; Save button disabled).
+
+**Browser tool**: Claude in Chrome (`mcp__Claude_in_Chrome__*`). Reason (LR-038): Claude Code exploratory/catalog work, auth-heavy surface (inherits user's Chrome session), live DOM drive of 9 save cycles with user available.
+
+**TCs/Parents confirmed TRACKED this session** (9 cycles, 18 saves, all 200 PUT `/navigator/api/location/navigator-settings`):
+
+| # | Parent | Target col | Encoding | Forward save (UTC-8) | Restore save | Status |
+|---|---|---|---|---|---|---|
+| P18 | Default Job 1-day Event Orders | col 25 | svg lucide-check | n/a (was TRUE on server from retry #2) | 07:35:23 PM — col 25 ✔→"" | **TRACKED** (baseline restored) |
+| P19 | Default Job 1-day Outside Orders | col 26 | svg lucide-check | 07:39:11 PM — col 26 ""→✔ | 07:39:34 PM — col 26 ✔→"" | **TRACKED** |
+| P20 | Default Job 1-day Internal Orders | col 27 | svg lucide-check | 07:41:10 PM — col 27 ""→✔ | 07:41:34 PM — col 27 ✔→"" | **TRACKED** |
+| P21 | Default Labor to Hourly | col 28 | svg lucide-check | 07:42:01 PM — col 28 ""→✔ | 07:42:35 PM — col 28 ✔→"" | **TRACKED** |
+| P23 | Items Filled from Requests Return | col 30 | svg lucide-check | 07:43:05 PM — col 30 ""→✔ | 07:43:32 PM — col 30 ✔→"" | **TRACKED** |
+| P24 | Default Order Type (combobox) | col 31 | plain text | 07:46:36 PM — col 31 "Event"→"Outside" | 07:49:16 PM — col 31 "Outside"→"Event" | **TRACKED** |
+| P26 | Company Logo (combobox) | col 17 "Logo Name" | plain text | 07:53:18 PM — col 17 "Encore New Logo"→"Header with Dust Ears and Text" | 07:54:40 PM — col 17 "Header..."→"Encore New Logo" | **TRACKED** |
+| P27 | Section sub-table — toggle Power row Active | col 15 "Section Name" | pipe-joined `name - true` (alphabetized) | 07:55:51 PM — col 15 added "Power - true" | 07:56:28 PM — col 15 removed "Power - true" | **TRACKED** (col 15; col 16 literal "Update") |
+| P28 | Service Type Exempt sub-table — toggle "APP Downloaded" Exempt | col 20 "Service Type - Exempt" | pipe-joined `name - true` (alphabetized, exempt-only) | 07:57:58 PM — col 20 added "APP Downloaded - true" | 07:58:35 PM — col 20 removed "APP Downloaded - true" | **TRACKED** (col 20; col 21 literal "Update") |
+
+**Boolean-encoding registry** — flipped to CONFIRMED for cols 25 (from retry #2 + retry #3 reverse evidence), 26, 27, 28, 29 (from retry #2), 30. Cols 9 + 24 remain unconfirmed (parents absent/disabled — bugs BUG-LO-001/002 deferred to SP-E-LO).
+
+**TCs dropped**: 0. Every planned parent cataloged.
+
+**Unblocks**: SP-B-LO-R (Local Office reconciliation) + SP-C1 (Basic Info per-column TC implementation — now 40 of 42 cols have known parents; cols 9 + 24 bug-blocked pending SP-E-LO).
+
+**Documentation changes this session**:
+- `clients/encore/specs_planning/catalogs/hist-root-map-local-office-basic-info.md` — appended `## Residual Parents (SP-B-LO-1b retry #3 — 2026-04-21, complete)` section with 9 parent TRACKED rows + boolean-encoding registry flip (cols 26/27/28/30) + method notes addendum #9–12 (Radix AlertDialog visibility via data-state, Radix Select option selection via find+computer.left_click ref, CDP 45s timeout workaround, 20-row history FIFO eviction). Also updated top-of-file Boolean-encoding registry table (rows 25–30 flipped to CONFIRMED) and `assertBooleanCell` note.
+- This plan body: Execution Summary retry #3 section added; Status → DONE; Executed 2026-04-21.
+
+**Driver discovery (retry #3 novel)**:
+- Radix AlertDialog visibility check: `data-state="open"` (NOT `offsetParent !== null` — portal positioning returns null even when rendered).
+- Radix Select option click: `find('<option text>') → computer.left_click(ref)` via Claude in Chrome tool. Dispatched PointerEvent+MouseEvent sequence works for checkboxes, Save button, tab switches, dialog Save, and sub-table toggle cells but NOT for `[role="option"]` elements.
+- CDP `Runtime.evaluate` 45s timeout workaround: split per-parent cycles into 3 short JS calls (toggle+save, switch+read, restore+save). Work continues in tab even after CDP timeout — verify with a small follow-up read.
+
+**Rules honored this session**: LR-012 (Save dialogs are SHARED — `clickSaveAndConfirm` / `clickSaveWithDialog` pattern used throughout), LR-020 (plan claims verified against live DOM — P18 baseline state TRUE confirmed drifted), LR-025 (Radix retry — applied spirit to all `[role="option"]` selections, not just large lists), LR-026 (Angular dirty state — Save button disabled verified post-save before tab switch, dialog-gate prevents no-op saves), LR-028 (activity-log row appended), LR-034 (bug filing deferred to SP-E-LO for P16/P17/P25), LR-037 (activity-log timestamp ≥ mtime), LR-038 (Claude in Chrome announced as browser tool).
+
+outcome:complete, attempts:3, rules-written:0 (no new rules — retry #3 worked as predicted by retry #2 RCA correction).
