@@ -1,9 +1,9 @@
 # Plans Index
 
-**Last updated**: 2026-04-17
+**Last updated**: 2026-04-20
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 33 pending · 137 done · 6 stale (>14d) · 0 DONE-in-pending
+**Totals**: 36 pending · 138 done · 7 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -13,12 +13,13 @@
 
 | File | Age | Created | Priority |
 |---|---|---|---|
-| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 24d | 2026-03-24 | HIGH (14 verified findings across 4 categories) |
-| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 24d | 2026-03-24 | LOW (remaining items are P2 refactors — all P0/P1 collisions already fixed) |
-| [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | 22d | 2026-03-26 | HIGH |
-| [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | 16d | 2026-04-01 | — |
-| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 16d | 2026-04-01 | P2 (no pipeline blockers — additive improvement) |
-| [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | 16d | 2026-04-01 | HIGH |
+| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 27d | 2026-03-24 | HIGH (14 verified findings across 4 categories) |
+| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 27d | 2026-03-24 | LOW (remaining items are P2 refactors — all P0/P1 collisions already fixed) |
+| [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | 25d | 2026-03-26 | HIGH |
+| [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | 19d | 2026-04-01 | — |
+| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 19d | 2026-04-01 | P2 (no pipeline blockers — additive improvement) |
+| [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | 19d | 2026-04-01 | HIGH |
+| [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | 17d | 2026-04-03 | P0 (trust-building for test suite) |
 
 ### DONE-in-pending (should be moved to done/)
 
@@ -32,11 +33,12 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 
 | File | Title | Priority | Status | Created |
 |---|---|---|---|---|
+| [PLAN_HIST_INTEGRITY_HARDENING.md](pending/PLAN_HIST_INTEGRITY_HARDENING.md) | PLAN: History Integrity Hardening — Parent→Column Mapping & Per-Save Correspondence | P0 (client delivery blocker — current HIST tests are smoke-only, cannot detect real bugs) | PENDING | 2026-04-17 |
 | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | MASTER PLAN: Repo Unfucking & Client Delivery | P0 (CRITICAL) | PENDING | 2026-04-16 |
 | [PLAN_MULTI_TENANT_RESTRUCTURE.md](pending/PLAN_MULTI_TENANT_RESTRUCTURE.md) | MASTER PLAN: Multi-Tenant Repo Restructure | P0 (blocks colleague handoff until SP-MT-06 verifies green) | PENDING | 2026-04-16 |
 | [PLAN_HIST_COMMIT_HISTORY_WORK.md](pending/PLAN_HIST_COMMIT_HISTORY_WORK.md) | PLAN_HIST_COMMIT_HISTORY_WORK | P0 (CRITICAL — work is one `git stash` from oblivion) | PENDING | 2026-04-15 |
 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P0 (trust-building for test suite) | PENDING | 2026-04-03 |
-| [SUBPLAN_MT_07_DELIVERY_PACKAGER.md](pending/SUBPLAN_MT_07_DELIVERY_PACKAGER.md) | SUBPLAN MT-07: Handoff Readiness (NOT a Packager) | P1 | PENDING | 2026-04-16 |
+| [PLAN_BUNDLE_SMOKE_TEST.md](pending/PLAN_BUNDLE_SMOKE_TEST.md) | PLAN: Runnable Bundle Smoke Test (colleague validation) | P1 (second only to your current top-priority task; MT audit is parked behind this) | PENDING | 2026-04-20 |
 | [SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md](pending/SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md) | SUBPLAN: Claude/Copilot Consolidation | P1 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | SUBPLAN: Agent File Restructure | P1 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | SUBPLAN: Duplicate & Junk Purge | P1 | PENDING | 2026-04-16 |
@@ -45,6 +47,7 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P1 (HIGH — INDEX is misleading future agents/sessions) | PENDING | 2026-04-15 |
 | [PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md](pending/PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md) | PLAN: History Integration Testing — Cross-Tab Save Verification | P1 (trust-building — verifies saves actually record audit trail) | PENDING | 2026-04-13 |
 | ↳ [SUBPLAN_HISTORY_08_BUG_REPORTS.md](pending/SUBPLAN_HISTORY_08_BUG_REPORTS.md) | SUBPLAN 8: Bug Reports — History Discrepancies | — | GATED | 2026-04-15 |
+| [PLAN_MT_AUDIT.md](pending/PLAN_MT_AUDIT.md) | PLAN_MT_AUDIT — Evidence-Based Audit of SP-MT-01..07 (Report Only, No Fixes) | P2 (deprioritized 2026-04-20 — `PLAN_BUNDLE_SMOKE_TEST.md` runs first; its outcome decides whether this audit still adds value or is superseded) | PENDING | 2026-04-17 |
 | [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | SUBPLAN: Dead Code & Reusability | P2 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | SUBPLAN: Doc & MD Slop Audit | P2 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | SUBPLAN: Slop Prevention Guardrails | P2 | PENDING | 2026-04-16 |
@@ -55,6 +58,7 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PLAN: Test Data CSV Conversion | P2 — Execute AFTER PLAN_TEST_DATA_PERFECTION is complete | PENDING | 2026-04-15 |
 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PLAN: Playwright CLI Gradual Adoption | P2 (no pipeline blockers — additive improvement) | PENDING | 2026-04-01 |
 | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | PLAN: Framework Maintainer Sweep — Selector Collision Architecture Fix | LOW (remaining items are P2 refactors — all P0/P1 collisions already fixed) | PARTIALLY-DONE | 2026-03-24 |
+| [PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md](pending/PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md) | PLAN: Playwright CLI Full Switch — MCP Retirement | P3 (low — parked; other work takes precedence) | PENDING | 2026-04-20 |
 | [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | SUBPLAN: Rename jbs_framework | P3 | PENDING | 2026-04-16 |
 | [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3) | — | REVISED | 2026-04-15 |
 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | — | PENDING | 2026-04-15 |
@@ -80,6 +84,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | [SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md](done/SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md) | SUBPLAN MT-04: Client-Aware Pipeline Scripts | DONE | 2026-04-17 |
 | [SUBPLAN_MT_05_SPLIT_RULES.md](done/SUBPLAN_MT_05_SPLIT_RULES.md) | SUBPLAN MT-05: Split CLAUDE.md + AGENT_SHARED_RULES | DONE | 2026-04-17 |
 | [SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md](done/SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md) | SUBPLAN MT-06: Parameterize Pipeline Agents | DONE | 2026-04-17 |
+| [SUBPLAN_MT_07_DELIVERY_PACKAGER.md](done/SUBPLAN_MT_07_DELIVERY_PACKAGER.md) | SUBPLAN MT-07: Handoff Readiness (NOT a Packager) | DONE | 2026-04-17 |
 | [SUBPLAN_REPO_01_CLIENT_DELIVERY_QUICK.md](done/SUBPLAN_REPO_01_CLIENT_DELIVERY_QUICK.md) | SUBPLAN: Client Delivery Quick Build (V1) — SUPERSEDED | SUPERSEDED | 2026-04-16 (reverted before completion) |
 | [PLAN_CLIENT_REPO_DELIVERY.md](done/PLAN_CLIENT_REPO_DELIVERY.md) | MEGA PLAN: Client Repo Delivery — Triple-Audited — SUPERSEDED | SUPERSEDED | 2026-04-16 |
 | [SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md](done/SUBPLAN_HISTORY_06_LOCATION_REMAINING_INTEGRATION.md) | SUBPLAN 6: Location Mgmt History Integration — Remaining Specs | DONE | 2026-04-16 |
@@ -219,8 +224,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (33 files)
-  done/                 ← completed plans (137 files)
+  pending/              ← active plans (36 files)
+  done/                 ← completed plans (138 files)
 ```
 
 When completing a plan:
@@ -234,14 +239,18 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-04-20 | pending | [PLAN_BUNDLE_SMOKE_TEST.md](pending/PLAN_BUNDLE_SMOKE_TEST.md) | PENDING |
+| 2026-04-20 | pending | [PLAN_MT_AUDIT.md](pending/PLAN_MT_AUDIT.md) | PENDING |
+| 2026-04-20 | pending | [PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md](pending/PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md) | PENDING |
+| 2026-04-17 | pending | [PLAN_HIST_INTEGRITY_HARDENING.md](pending/PLAN_HIST_INTEGRITY_HARDENING.md) | PENDING |
 | 2026-04-17 | done | [SUBPLAN_MT_02_MOVE_TEST_CONTENT.md](done/SUBPLAN_MT_02_MOVE_TEST_CONTENT.md) | DONE |
 | 2026-04-17 | done | [SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md](done/SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md) | DONE |
 | 2026-04-17 | done | [SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md](done/SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md) | DONE |
 | 2026-04-17 | done | [SUBPLAN_MT_05_SPLIT_RULES.md](done/SUBPLAN_MT_05_SPLIT_RULES.md) | DONE |
 | 2026-04-17 | done | [SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md](done/SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md) | DONE |
+| 2026-04-17 | done | [SUBPLAN_MT_07_DELIVERY_PACKAGER.md](done/SUBPLAN_MT_07_DELIVERY_PACKAGER.md) | DONE |
 | 2026-04-16 | pending | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | PENDING |
 | 2026-04-16 | pending | [PLAN_MULTI_TENANT_RESTRUCTURE.md](pending/PLAN_MULTI_TENANT_RESTRUCTURE.md) | PENDING |
-| 2026-04-16 | pending | [SUBPLAN_MT_07_DELIVERY_PACKAGER.md](pending/SUBPLAN_MT_07_DELIVERY_PACKAGER.md) | PENDING |
 | 2026-04-16 | pending | [SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md](pending/SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md) | PENDING |
 | 2026-04-16 | pending | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | PENDING |
 | 2026-04-16 | pending | [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | PENDING |
@@ -270,7 +279,3 @@ When completing a plan:
 | 2026-04-15 | pending | [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | PENDING |
 | 2026-04-15 | pending | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PENDING |
 | 2026-04-15 | pending | [SUBPLAN_HISTORY_01_MCP_FINDINGS.md](pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md) | DELIVERABLE |
-| 2026-04-15 | pending | [SUBPLAN_HISTORY_08_BUG_REPORTS.md](pending/SUBPLAN_HISTORY_08_BUG_REPORTS.md) | GATED |
-| 2026-04-15 | done | [PLAN_AGENT_MISTAKES_HIST_GRADUATION.md](done/PLAN_AGENT_MISTAKES_HIST_GRADUATION.md) | DONE |
-| 2026-04-15 | done | [PLAN_AUD017_HARD_GATE.md](done/PLAN_AUD017_HARD_GATE.md) | DONE |
-| 2026-04-15 | done | [PLAN_HIST_EXTERNAL_SP1_AUDIT.md](done/PLAN_HIST_EXTERNAL_SP1_AUDIT.md) | DONE |
