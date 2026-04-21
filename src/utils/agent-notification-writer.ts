@@ -13,6 +13,9 @@ import * as path from 'path';
 import { AgentNotification } from '../framework-contracts/diagnostics';
 import { SHARED_PATHS } from '../../scripts/shared-types';
 
+// SP-MT-04: SHARED_PATHS.notifications resolves per-client
+// (clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-notifications).
+// Each client gets an isolated inbox — future multi-client deployments need this.
 const NOTIFICATIONS_DIR = SHARED_PATHS.notifications;
 
 /** Ensure the notifications directory exists. */

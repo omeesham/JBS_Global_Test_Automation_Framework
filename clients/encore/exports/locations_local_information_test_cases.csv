@@ -436,11 +436,3 @@
 2. Verify ETS Percentage value is 23
 3. Uncheck ""Allow ETS""
 4. Click Save","Checking Allow ETS enables ETS% and pre-fills it with the union/non-union default (23% for non-union office 1604). Unchecking disables and resets to 0","MCP ref: MCP-03 2026-04-10. Office 1604 is non-union, so default is 23%. Union offices would default to 24%"
-"TC-LOC-LI-HIST","Local Information Saves - Location Management History Row Verification","locations","local_information","Local Information Saves","Office 1604 is open in Navigator. Local Information tab is active","1. After all LI save TCs complete, navigate to Location Management History tab
-2. Sort by Modified On descending (SP1 §11: default is ascending on Location Mgmt)
-3. Read rows newer than suite start (2-min buffer for SP1 §11 timezone uncertainty) via getRowsSinceTimestamp
-4. Verify at least 1 suite row present
-5. Verify every suite row has Modified By + Modified On non-empty
-6. Gap-check (expect.soft, collect all mismatches) expected field-value pairs:
-- Billing Type includes Master or Direct (TC-025 round-trip)
-7. NOT-TRACKED documented (no column): TC-LOC-LI-071 EnableMultidayPricing - potential app bug per SP1 §8","Each tracked LI save produced 1 new history row. Boolean TRUE = Unicode ""checkmark"". Timestamps = MM/DD/YYYY HH:MM:SS AM/PM. Percentages = ""N.NN %"" (space before %). EnableMultidayPricing is NOT tracked -> file BUG-HIS-NNN per LR-034 if confirmed",""

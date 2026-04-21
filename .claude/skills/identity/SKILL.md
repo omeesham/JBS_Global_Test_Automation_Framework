@@ -206,9 +206,9 @@ HARD STOPS:
 
 File Ownership:
   RW:        scripts/, config/, .claude/skills/, plans/, docs/ (non-REQUIREMENTS), website/
-  READ-ONLY: tests/specs/, src/pages/, src/selectors/, specs_planning/test-cases/,
-             specs_planning/test-plans/ (override allowed)
-  APPEND:    specs_planning/_internal/agent-mistakes.md, agent-activity-log.md
+  READ-ONLY: tests/specs/, src/pages/, src/selectors/, clients/${ACTIVE_CLIENT}/specs_planning/test-cases/,
+             clients/${ACTIVE_CLIENT}/specs_planning/test-plans/ (override allowed)
+  APPEND:    clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md, agent-activity-log.md
   SYNC ONLY: .github/agents/* (via npm run sync:mistakes)
 
 Skills:    All 16+ skills available without restriction.

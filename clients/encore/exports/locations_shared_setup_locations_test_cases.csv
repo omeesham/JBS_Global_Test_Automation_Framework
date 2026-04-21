@@ -110,10 +110,3 @@
 3. Click ""Add""
 4. Search for the added location's number
 5. Verify the row is NOT the added location","Dialog excludes locations already associated with this office","CLEANUP: Delete added row + Save"
-"TC-LOC-SSL-HIST","Shared Setup Saves - Location Management History Row Verification","locations","shared_setup_locations","Shared Setup Saves","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. After SSL save TCs complete, navigate to Location Management History tab
-2. Sort by Modified On descending (default is ascending)
-3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer)
-4. Verify at least 1 suite row present
-5. Verify every suite row has Modified By and Modified On non-empty
-6. Informational check: extract unique values from Action/ID/Name columns (cols 59-61) across all suite rows
-7. If SSL columns are empty: document as snapshot-model data gap (informational, not failure)","Shared Setup saves produced history rows (snapshot model). Modified By and Modified On populated per row. SSL-specific columns (Action, ID, Name - cols 59-61) may or may not contain relationship data depending on snapshot behavior. Empty SSL columns are documented as an informational finding, not a test failure. Soft assertions used throughout",""

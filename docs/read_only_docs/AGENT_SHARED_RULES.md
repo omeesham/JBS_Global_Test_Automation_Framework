@@ -1,5 +1,5 @@
 # Agent Shared Rules
-<!-- Last updated: 2026-03 | Streamlined: 578 → ~350 lines. §8-§11,§16-§17 flattened into Session Protocol. -->
+<!-- Last updated: 2026-04-20 | Streamlined: 578 → ~350 lines. §8-§11,§16-§17 flattened into Session Protocol. §0 Navigation-first added 2026-04-20. -->
 
 ---
 
@@ -7,6 +7,7 @@
 
 | ID | Rule | Violation = |
 |----|------|-------------|
+| R00 | Consult `.claude/context/navigation.md` BEFORE exploration (§0) | Re-exploring mapped territory; wasted tokens |
 | R01 | Search before create (§1) | Duplicate code |
 | R02 | Respect file ownership (§2) | Unauthorized edit |
 | R03 | Lock/unlock queue items (§3) | Race condition |
@@ -30,7 +31,22 @@
 | R21 | User explicit requests = TOP PRIORITY | Insubordination |
 | R22 | All .md edits: tables > prose, single source of truth | Doc bloat |
 
-**RULES BINDING**: Before ANY task, agents emit: `RULES:[R01 R02 ...]` listing applicable rules.
+**RULES BINDING**: Before ANY task, agents emit: `RULES:[R00 R01 R02 ...]` listing applicable rules.
+
+---
+
+## §0. Navigation-First (universal, pre-exploration)
+
+Before any `grep`, MCP call, or reading >1 file to understand a problem, every agent consults **[.claude/context/navigation.md](../../.claude/context/navigation.md)**.
+
+It has three tables:
+- **§A First-Step Decision Tree** — "is this surface already explored?" If yes, read the findings file, skip rediscovery.
+- **§B Routing Table** — "I need to X" → proven helper / rule / file.
+- **§C Exploration Registry** — append-only log of mapped surfaces; every agent maintains it via `/reflect`.
+
+**Triggers**: every session start; every new task within a session; every `/execute` Phase 0; every time you're about to explore a new module or page.
+
+**Violation**: re-exploring what's already mapped. Symptoms — 2+ rounds of grep/MCP on a surface that's in §C; reinventing a form-interaction pattern that already has a page-object helper (ALL-073). If caught mid-task, stop, consult navigation.md, continue from documented knowledge.
 
 ---
 

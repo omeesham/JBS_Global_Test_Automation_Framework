@@ -8,6 +8,8 @@ tools: Read, Glob, Grep, Bash, Agent, TodoWrite
 
 # /audit — Full-Chain Execution Audit
 
+> **LR lookup**: when citing or verifying `LR-NNN` rules, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Client-specific rules use `LR-ENC-NNN` (or `LR-{CLIENT}-NNN`) prefix; framework rules continue `LR-NNN`.
+
 When the user invokes `/audit`, perform a rigorous QA audit of everything that happened. This is judge-level scrutiny. No mercy. No shortcuts.
 
 ## When to Use
@@ -43,7 +45,7 @@ For each target file, check BOTH:
 **Signal A — Activity-log recency**
 ```bash
 # Rows dated within last 6 hours mentioning target file AND current identity
-grep -iE "^\| 2026-04-15T(0[8-9]|1[0-9]|2[0-3]):" specs_planning/_internal/agent-activity-log.md \
+grep -iE "^\| 2026-04-15T(0[8-9]|1[0-9]|2[0-3]):" clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md \
   | grep -iF "<TARGET_FILE_BASENAME>" \
   | grep -iE "\| (owner|watchdog|giver|builder|hunter|healer|gardener|copilot) \|"
 ```
@@ -204,7 +206,7 @@ Produce a structured report:
 ```
 
 ### Learning Capture (after verdict)
-- Any mistakes discovered during audit → `specs_planning/_internal/agent-mistakes.md`
+- Any mistakes discovered during audit → `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`
 - Any patterns worth noting → relevant memory file
 - Any recurring issue (3+ times) → flag for `/compile-learnings`
 - Auto-call `/reflect` to persist learnings

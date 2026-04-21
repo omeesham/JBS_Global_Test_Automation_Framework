@@ -88,16 +88,16 @@ export class CsvConverter {
     for (const tc of collection.testCases) {
       const rowData: Record<string, string> = {
         id: tc.id,
-        title: tc.title,
+        title: this.humanizeAssertion(this.cleanMarkdown(tc.title)),
         priority: tc.priority,
         status: tc.automationStatus,
         type: tc.type,
-        // Human fields
-        preconditionsHuman: tc.preconditionsHuman?.join('; ') || this.convertPreconditionsToHuman(tc.preconditions),
-        stepsHuman: tc.stepsHuman || this.convertStepsToHuman(tc.steps),
-        expectedHuman: tc.expectedResultsHuman || this.convertExpectedToHuman(tc.expectedResults),
-        notesHuman: tc.notesHuman || '',
-        // Agent fields
+        // Human fields (cleanMarkdown + humanizeAssertion for client-facing readability)
+        preconditionsHuman: this.humanizeAssertion(this.cleanMarkdown(tc.preconditionsHuman?.join('; ') || this.convertPreconditionsToHuman(tc.preconditions))),
+        stepsHuman: this.humanizeAssertion(this.cleanMarkdown(tc.stepsHuman || this.convertStepsToHuman(tc.steps))),
+        expectedHuman: this.humanizeAssertion(this.cleanMarkdown(tc.expectedResultsHuman || this.convertExpectedToHuman(tc.expectedResults))),
+        notesHuman: this.humanizeAssertion(this.cleanMarkdown(tc.notesHuman || '')),
+        // Agent fields (kept technical — agents need element IDs and arrow syntax)
         steps: this.formatStepsAgent(tc.steps),
         expected: tc.expectedResults.join('; '),
         data: tc.testData.map(d => `${d.field}=${d.value}`).join(' | ')
@@ -168,7 +168,7 @@ export class CsvConverter {
       if (!id || !body) continue;
       
       const lines = body.trim().split('\n');
-      const title = lines[0] || '';
+      const title = this.humanizeAssertion(this.cleanMarkdown(lines[0] || ''));
       
       let priority = '';
       let status = '';
@@ -262,18 +262,19 @@ export class CsvConverter {
       
       // Check for CLEANUP REQUIRED in data and add to notes if missing
       if (/CLEANUP REQUIRED/i.test(data) && !/CLEANUP/i.test(notesHuman)) {
-        notesHuman = notesHuman ? `${notesHuman} | [WARN] Cleanup required after test` : '[WARN] Cleanup required after test';
-      }      
+        notesHuman = notesHuman ? `${notesHuman} | Cleanup required after test` : 'Cleanup required after test';
+      }
       // Parse standalone **Cleanup**: sections (not inside numbered steps)
       const cleanupSectionMatch = body.match(/\*\*Cleanup\*\*:\s*(.+?)(?=\n---|\n##|\*\*Data\*\*|\*\*Notes\*\*|\*\*Automatable\*\*|\*\*MCP_VERIFICATION_LOG\*\*|$)/s);
       if (cleanupSectionMatch && cleanupSectionMatch[1]) {
         const cleanupText = this.sanitizeUnicode(cleanupSectionMatch[1].trim());
         if (cleanupText && !/CLEANUP/i.test(notesHuman)) {
           notesHuman = notesHuman
-            ? `${notesHuman} | \u26A0\uFE0F CLEANUP: ${cleanupText}`
-            : `\u26A0\uFE0F CLEANUP: ${cleanupText}`;
+            ? `${notesHuman} | CLEANUP: ${cleanupText}`
+            : `CLEANUP: ${cleanupText}`;
         }
-      }      
+      }
+
       // Strip internal metadata tags that should never appear in client CSVs
       const stripInternalTags = (text: string): string =>
         text.replace(/\n?\*\*Automatable\*\*:.*$/gm, '')
@@ -285,6 +286,13 @@ export class CsvConverter {
       expectedHuman = stripInternalTags(expectedHuman);
       notesHuman = stripInternalTags(notesHuman);
       data = stripInternalTags(data);
+
+      // Final human-column normalization for client-facing CSV.
+      // cleanMarkdown strips chrome; humanizeAssertion translates DOM jargon to plain English.
+      stepsHuman = this.humanizeAssertion(this.cleanMarkdown(stepsHuman));
+      preconditionsHuman = this.humanizeAssertion(this.cleanMarkdown(preconditionsHuman));
+      notesHuman = this.humanizeAssertion(this.cleanMarkdown(notesHuman));
+      expectedHuman = this.humanizeAssertion(this.cleanMarkdown(this.convertElementIdsToLabels(expectedHuman)));
 
       // Extract module/submodule/specificField from TC ID and title
       const module = this.extractModule(id);
@@ -316,38 +324,29 @@ export class CsvConverter {
     
     const humanSteps = stepParts.map(part => {
       stepNumber++;
-      
+
       // Check for cleanup instruction
       if (/\*\*Cleanup\*\*|cleanup:|CLEANUP/i.test(part)) {
-        // Extract cleanup action, add to notes
         const cleanupText = part.replace(/^\d+\.\s*/, '').replace(/\*\*Cleanup\*\*:?\s*/i, '').trim();
         cleanupNotes.push(cleanupText);
-        return null; // Don't include in steps
+        return null;
       }
-      
-      // Split action from expected result
+
+      // Action-only Steps column: drop the per-step expected (-> half) entirely.
+      // The per-TC **Expected**: summary stays as the authoritative outcome in the Expected Result column.
+      // Order: convertElementIdsToLabels -> cleanMarkdown (action is imperative, not assertive).
       const arrowMatch = part.match(/^(\d+\.\s*)(.+?)\s*(?:->|->)\s*(.+)$/s);
-      if (arrowMatch && arrowMatch[2] && arrowMatch[3]) {
-        let action = arrowMatch[2].trim();
-        let expected = arrowMatch[3].trim();
-        
-        // Convert element IDs to UI labels
-        action = this.convertElementIdsToLabels(action);
-        expected = this.convertElementIdsToLabels(expected);
-        
-        // Return properly separated format
-        return `${stepNumber}. ${action}\n   [ok] ${expected}`;
-      }
-      
-      // No arrow, just convert IDs
-      const cleanPart = part.replace(/^\d+\.\s*/, '').trim();
-      return `${stepNumber}. ${this.convertElementIdsToLabels(cleanPart)}`;
+      const rawAction = arrowMatch && arrowMatch[2]
+        ? arrowMatch[2].trim()
+        : part.replace(/^\d+\.\s*/, '').trim();
+      const action = this.cleanMarkdown(this.convertElementIdsToLabels(rawAction));
+      return `${stepNumber}. ${action}`;
     }).filter(Boolean);
-    
-    // Build notes from extracted cleanup instructions
+
     let notes = '';
     if (cleanupNotes.length > 0) {
-      notes = `[WARN] CLEANUP REQUIRED: ${cleanupNotes.map(c => this.convertElementIdsToLabels(c)).join('; ')}`;
+      const cleanedNotes = cleanupNotes.map(c => this.cleanMarkdown(this.convertElementIdsToLabels(c)));
+      notes = `CLEANUP REQUIRED: ${cleanedNotes.join('; ')}`;
     }
     
     return {
@@ -357,17 +356,89 @@ export class CsvConverter {
   }
   
   /**
-   * Convert element IDs to human-readable UI labels.
+   * Strip markdown chrome (bold, code spans), drop emoji, normalize whitespace.
+   * Calls sanitizeUnicode first so smart-quotes/em-dashes/checkmarks are normalized
+   * BEFORE the chrome-strip and column population step.
+   * Safe for ALL human columns (Steps, Expected Result, Preconditions, Notes, Title).
+   * Bold becomes a quoted value to match the plain-English review style.
+   */
+  private static cleanMarkdown(text: string): string {
+    if (!text) return '';
+    return this.sanitizeUnicode(text)
+      .replace(/\*\*([^*]+)\*\*/g, '"$1"')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/[\u2705\u26A0\uFE0F\u274C\u2744]/gu, '')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/[ \t]*\n[ \t]*/g, '\n')
+      .trim();
+  }
+
+  /**
+   * Translate DOM-attribute and a11y-tree phrasings into plain English.
+   * Safe for Steps, Expected Result, Title, and Notes (preserves accessibility
+   * property names like aria-label/aria-valuenow that may be deliberately documented).
+   * Order: cleanMarkdown -> humanizeAssertion (so quote/backtick stripping happens first).
+   */
+  private static humanizeAssertion(text: string): string {
+    if (!text) return '';
+    return text
+      // ── Full-clause patterns (most specific first) ──
+      .replace(/Tab has\s+aria-selected(?:="?(?:true|false)"?)?/gi, 'tab is selected')
+      .replace(/Button with[^,;|\n]*data-testid\s*=\s*"[^"]+"/gi, 'button is shown')
+      .replace(/Poll until\s+aria-invalid\s*=\s*"?true"?/gi, 'wait until a validation error appears')
+      .replace(/Poll until\s+aria-invalid\s*=\s*"?false"?/gi, 'wait until the validation error clears')
+      .replace(/(\bfield\b|\bField\b|\binput\b|\bInput\b)\s+(?:gets|has|shows)\s+aria-invalid(?:\s*=\s*"?true"?)?/gi, '$1 shows a validation error')
+      .replace(/(\bfield\b|\bField\b|\binput\b|\bInput\b)\s+(?:no longer has|does(?:n['\u2019]t| not| NOT)\s+have)\s+aria-invalid/gi, '$1 is valid')
+      .replace(/no longer has\s+aria-invalid/gi, 'is valid again')
+      .replace(/does(?:n['\u2019]t| not| NOT)\s+have\s+aria-invalid/gi, 'is valid')
+      .replace(/(?:Triggers?|triggers?)\s+aria-invalid/gi, 'triggers a validation error')
+      .replace(/aria-invalid\s+set/gi, 'shows a validation error')
+      // ── Attribute=value patterns (quoted and bare) ──
+      .replace(/aria-selected\s*=\s*"?true"?/gi, 'is selected')
+      .replace(/aria-selected\s*=\s*"?false"?/gi, 'is not selected')
+      .replace(/aria-checked\s*=\s*"?true"?/gi, 'is checked')
+      .replace(/aria-checked\s*=\s*"?false"?/gi, 'is not checked')
+      .replace(/aria-invalid\s*=\s*"?true"?/gi, 'is invalid')
+      .replace(/aria-invalid\s*=\s*"?false"?/gi, 'is valid')
+      .replace(/aria-disabled\s*=\s*"?true"?/gi, 'is disabled')
+      .replace(/aria-disabled\s*=\s*"?false"?/gi, 'is enabled')
+      .replace(/disabled\s*=\s*"?true"?/gi, 'is disabled')
+      // Phrase forms first so "has/no disabled attribute" don't double up to "has is disabled".
+      .replace(/(?:has|with)\s+disabled\s+attribute/gi, 'is disabled')
+      .replace(/(?:no|without)\s+disabled\s+attribute/gi, 'is enabled')
+      .replace(/disabled\s+attribute/gi, 'is disabled')
+      // ── Bare attribute names (last-resort; safe ones only) ──
+      .replace(/\baria-invalid\b/gi, 'validation error')
+      // Note: aria-label, aria-valuenow, aria-expanded intentionally NOT touched
+      //       (accessibility property names that may be deliberately documented)
+      // ── Tab / heading / panel phrasings ──
+      .replace(/h\d\s+heading\s+visible/gi, 'heading is visible')
+      .replace(/(\d+)\s+tabs?\s+in\s+tablist/gi, '$1 tabs are visible')
+      .replace(/Tab\s+panel\s+visible/gi, 'tab content is visible')
+      // ── Value / title patterns ──
+      .replace(/Input\s+value\s*=\s*"([^"]+)"/gi, 'field shows "$1"')
+      .replace(/Page\s+title\s*=\s*"([^"]+)"/gi, 'page title is "$1"')
+      // ── data-testid stragglers (bracketed form first) ──
+      .replace(/\[\s*data-testid\s*=\s*"[^"]+"\s*\]/gi, '')
+      .replace(/\s*data-testid\s*=\s*"[^"]+"\s*/gi, ' ')
+      // ── Cleanup whitespace and dangling punctuation introduced by the strips ──
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\s+([,.;])/g, '$1')
+      .replace(/^[\s,.;|]+|[\s,.;|]+$/g, '')
+      .trim();
+  }
+
+  /**
+   * Convert element IDs to human-readable UI labels (quoted, not markdown bold).
    */
   private static convertElementIdsToLabels(text: string): string {
     return text
-      .replace(/chk([A-Z][a-zA-Z]+)/g, (_, name) => `**${this.camelToLabel(name)}** checkbox`)
-      .replace(/spin([A-Z][a-zA-Z]+)/g, (_, name) => `**${this.camelToLabel(name)}** field`)
-      .replace(/drp([A-Z][a-zA-Z]+)/g, (_, name) => `**${this.camelToLabel(name)}** dropdown`)
-      .replace(/btn([A-Z][a-zA-Z]+)/g, (_, name) => `**${this.camelToLabel(name)}** button`)
-      .replace(/txt([A-Z][a-zA-Z]+)/g, (_, name) => `**${this.camelToLabel(name)}** text field`)
-      .replace(/lbl([A-Z][a-zA-Z]+)/g, (_, name) => `**${this.camelToLabel(name)}** label`)
-      // Clean up value= patterns
+      .replace(/chk([A-Z][a-zA-Z]+)/g, (_, name) => `"${this.camelToLabel(name)}" checkbox`)
+      .replace(/spin([A-Z][a-zA-Z]+)/g, (_, name) => `"${this.camelToLabel(name)}" field`)
+      .replace(/drp([A-Z][a-zA-Z]+)/g, (_, name) => `"${this.camelToLabel(name)}" dropdown`)
+      .replace(/btn([A-Z][a-zA-Z]+)/g, (_, name) => `"${this.camelToLabel(name)}" button`)
+      .replace(/txt([A-Z][a-zA-Z]+)/g, (_, name) => `"${this.camelToLabel(name)}" text field`)
+      .replace(/lbl([A-Z][a-zA-Z]+)/g, (_, name) => `"${this.camelToLabel(name)}" label`)
       .replace(/value="([^"]+)"/gi, '"$1"')
       .replace(/Value="([^"]+)"/gi, '"$1"');
   }
@@ -455,15 +526,12 @@ export class CsvConverter {
   
   /**
    * Convert steps array to human-readable string (fallback).
+   * Action-only output; per-step expected drops out (Expected Result column carries it).
    */
   private static convertStepsToHuman(steps: TestStep[]): string {
     if (!steps || steps.length === 0) return '';
     return steps
-      .map(s => {
-        const action = this.convertElementIdsToLabels(s.action);
-        const expected = s.expectedResult ? `\n   [ok] ${this.convertElementIdsToLabels(s.expectedResult)}` : '';
-        return `${s.stepNumber}. ${action}${expected}`;
-      })
+      .map(s => `${s.stepNumber}. ${this.convertElementIdsToLabels(s.action)}`)
       .join('\n');
   }
   
@@ -486,10 +554,13 @@ export class CsvConverter {
   
   /**
    * Replace Unicode characters with ASCII equivalents.
+   * Note: ✓/✔ checkmarks are normalized to `->` so the action↔expected arrow-split
+   * works for files that use them as separators (e.g., management-history conventions).
    */
   private static sanitizeUnicode(value: string): string {
     return value
       .replace(/\u2192/g, '->')
+      .replace(/[\u2713\u2714]/g, '->')
       .replace(/\u00D7/g, 'x')
       .replace(/\u2014/g, '-')
       .replace(/\u2013/g, '-')
@@ -610,22 +681,25 @@ export class CsvConverter {
   /**
    * Extract specific field from title.
    * "Verify USD Merchant dropdown options" -> "USD Merchant"
+   * "Page Load — Title, URL, Tab Structure" -> "Page Load"
    */
   private static extractSpecificField(title: string): string {
-    // Remove common prefixes
     let field = title
       .replace(/^Verify\s+/i, '')
       .replace(/^Test\s+/i, '')
       .replace(/^Check\s+/i, '')
       .replace(/^Validate\s+/i, '');
-    
-    // Extract field name (usually before "checkbox", "dropdown", "button", "field", "state", etc.)
+
+    // Em-dash / en-dash / hyphen with surrounding spaces marks a clause boundary —
+    // keep only the lead clause so we don't dangle a comma from a multi-word tail.
+    const dashSplit = field.split(/\s+[\u2014\u2013-]\s+/);
+    if (dashSplit[0]) field = dashSplit[0];
+
+    const trim = (s: string) => this.cleanMarkdown(s.trim()).replace(/[,;.]+$/, '');
+
     const fieldMatch = field.match(/^([A-Za-z0-9\s]+?)\s*(?:checkbox|dropdown|button|field|state|options?|grid|tab|default|configuration|rule|dependency|validation)/i);
-    if (fieldMatch && fieldMatch[1]) {
-      return fieldMatch[1].trim();
-    }
-    
-    // If no pattern match, take words up to first common English stop-word (verb/conjunction)
+    if (fieldMatch && fieldMatch[1]) return trim(fieldMatch[1]);
+
     const stopWords = new Set(['is', 'are', 'has', 'was', 'will', 'be', 'been', 'to', 'the', 'a', 'an',
       'for', 'in', 'on', 'of', 'by', 'with', 'and', 'or', 'not', 'no', 'after', 'before',
       'when', 'upon', 'permanently', 'always', 'never', 'only', 'can', 'cannot', 'does',
@@ -637,7 +711,7 @@ export class CsvConverter {
       meaningful.push(w);
       if (meaningful.length >= 4) break;
     }
-    return (meaningful.length > 0 ? meaningful : words.slice(0, 2)).join(' ');
+    return trim((meaningful.length > 0 ? meaningful : words.slice(0, 2)).join(' '));
   }
 }
 
@@ -667,7 +741,7 @@ if (require.main === module) {
   
   // Derive output filename from input: locations_currency_test_cases.md -> locations_currency_test_cases.csv
   const inputBasename = path.basename(inputPath, '.md');
-  const defaultOutput = `./export_test_cases/exports/${inputBasename}.csv`;
+  const defaultOutput = `./clients/encore/exports/${inputBasename}.csv`;
   const outputPath = positionalArgs[1] || defaultOutput;
   
   console.log(`Export type: ${exportType}`);

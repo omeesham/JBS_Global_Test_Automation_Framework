@@ -1,0 +1,92 @@
+> 🤖 **SESSION BOOTSTRAP — Just invoke with `/execute <this-filename>`. All context below.**
+>
+> The agent self-bootstraps using the frontmatter + sections in this file. On invocation, it follows this sequence **without any additional user prompting**:
+>
+> 1. **Identity**: load `/identity` per the `**Identity**` field below.
+> 2. **Skills**: load every skill in `**Skills**` field below (the leading skill auto-calls its chain — e.g. `/cleanup` → `/regression-guard`).
+> 3. **Model + thinking tier**: look up this subplan's SP number in `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` → Execution Order table. Use the specified Opus/Sonnet + think / think hard / think harder / ultrathink. If Phase 0 is present in Step-by-Step, bump thinking tier one notch higher than the table (forensic analysis needs judgment).
+> 4. **Dependency gate**: verify every item in `**Depends on**` field is marked DONE in `plans/done/` or not-applicable. If any blocker → HALT + report to user. Do not proceed.
+> 5. **Context load**: read `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` §1–§3 (pivot rationale + scope + per-identity KEEP/DELETE inventory) + this subplan in full.
+> 6. **Phase 0 FIRST (if present in Step-by-Step)**: execute the "Phase 0 — Date-Forensic Self-Discovery" step before any code or doc edits. Document findings (with dispositions) in your activity-log row.
+> 7. **Execute Phases 1+** per Step-by-Step in order.
+> 8. **Handoff**: on success, apply the Handoff Signals block — set the file's Status field to DONE + Executed date in this file, append activity-log row (LR-028 + LR-037 wall-clock time ≥ mtime of every touched file), `git mv` this file to `plans/done/`, run `npm run plans:reindex`, commit (one commit per LR-027 boundary).
+>
+> **HALT + ASK USER** (do NOT silently proceed) if:
+> - Any `**Depends on**` item is not DONE.
+> - Phase 0 uncovers scope extension >30% beyond the listed starting point (user confirms before acting on unscoped items).
+> - Genuine ambiguity in scope beyond the master plan §3 KEEP list.
+> - `/regression-guard` diff shows changes unrelated to this subplan's stated scope.
+> - Activity-log preflight (`npm run validate:activity-log:preflight`) would fail for your row.
+
+---
+
+# SUBPLAN SP-D3a: Location Management HIST Per-Column Tests — Local Info Root-Tab (Part A)
+
+**Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
+**Group**: 3 (Implementation)
+**Status**: Pending
+**Priority**: P0
+**Created**: 2026-04-20
+**Depends on**: SP-B-LM-R + SP-D0 + SP-D1 (template)
+**Identity**: BUILDER
+**Skills**: `/execute` + `/regression-guard` + `/find-bugs` + `/identity`
+**Estimated**: one session (cap ~20 cols per file or split)
+
+---
+
+## Cause
+
+Local Info has the largest set of columns (~20+). Split into 3a/3b to keep sessions focused and file size manageable.
+
+---
+
+## Scope
+
+**File (NEW)**: `clients/encore/tests/specs/setup/locations/history/location-hist-local-info.spec.ts`
+**Source**: `hist-root-map-location-management.md`, filter `Tab == Local Information` (subset from SP-B-LM-3a catalog).
+
+**TCs**: per standard template (SP-D1). Key columns: Billing Type (col 12), Billing Cycle (col 14), Billing Way (col 15/16), Labor/Equip Pricing (cols 17-21), Allow DPCD (col 22), Exclude Implied Discount (col 23), Prompt For Approval (col 24), Threshold (col 25), Enable LDW (col 26), LDW Percentage (col 27), etc.
+
+---
+
+## KEEP list
+
+- Sibling spec files — untouched.
+- Production code — untouched.
+
+---
+
+## Step-by-Step Execution
+
+Mirror SP-D1. Write TCs for Part-A columns (those mapped in SP-B-LM-3a). Create file. Run. Triage. Commit.
+
+If file approaches 1500 LOC: close this subplan + spawn SP-D3b for remaining cols.
+
+---
+
+## Verification
+
+All TCs pass. File stays under 1500 LOC (or spawn 3b).
+
+---
+
+## Handoff Signals
+
+Activity log:
+```
+| YYYY-MM-DDThh:mm | builder | done | clients/encore/tests/specs/setup/locations/history/location-hist-local-info.spec.ts | SP-D3a — Local Info per-column tests Part A. N cols covered. |
+```
+
+---
+
+## Context for Cold-Start Session
+
+- Local Info has ~20+ cols — do not try to do them all in one session.
+- Template: SP-D1.
+- LR-009 reminder: recovery values must differ from server-saved to trigger Angular dirty detection.
+
+---
+
+## Dependencies
+
+SP-B-LM-R + SP-D0. Feeds SP-D3b + SP-E-LM-OTHER.

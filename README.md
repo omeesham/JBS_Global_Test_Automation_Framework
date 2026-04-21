@@ -18,6 +18,9 @@ npm test
 - [Requirements Tracker](docs/REQUIREMENTS.md)
 - [Commenting Standards](docs/read_only_docs/COMMENTING_STANDARDS.md)
 
+**Multi-tenant structure** — see [HANDOFF_TO_COLLEAGUE.md](HANDOFF_TO_COLLEAGUE.md) for the
+framework ↔ client boundary and the IP / client-consumable inventories.
+
 ---
 
 **Framework:** Playwright + TypeScript  

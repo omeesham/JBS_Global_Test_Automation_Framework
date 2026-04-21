@@ -8,6 +8,8 @@ tools: Read, Glob, Grep, Write, Edit
 
 # /reflect — Session Retrospective
 
+> **LR lookup**: when citing or verifying `LR-NNN` rules, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Client-specific rules use `LR-ENC-NNN` (or `LR-{CLIENT}-NNN`) prefix; framework rules continue `LR-NNN`.
+
 Captures what was learned during this session and persists it to memory so future sessions benefit. Belt-and-suspenders with blocking mistake capture — this catches what was missed in the moment.
 
 ## When to Use
@@ -49,18 +51,36 @@ Check each trigger against the session. If ANY fired, it's a learning to capture
 
 For each learning identified, classify as:
 
-- **Mistake** → goes to `specs_planning/_internal/agent-mistakes.md` (with proper ID: next sequential R-number)
+- **Mistake** → goes to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` (with proper ID: next sequential R-number)
 - **Pattern** → goes to relevant memory file (new pattern that worked well, worth repeating)
 - **Preference** → goes to feedback memory file (user style/approach correction)
 - **Reference** → goes to reference memory file (external resource or technique discovered)
 
 ### Step 4: Update Memory Files
 
-1. **Mistakes**: Append to `specs_planning/_internal/agent-mistakes.md` following existing format
+1. **Mistakes**: Append to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` following existing format
 2. **Patterns**: Write to appropriate memory file in `.claude/projects/.../memory/` — update existing file if topic matches, create new if novel
 3. **Preferences**: Write to `feedback_*.md` in memory directory
 4. **References**: Write to `reference_*.md` in memory directory
 5. **Update MEMORY.md index** if any new files were created
+
+### Step 4.4: Update Navigation Registry (mandatory if session explored new territory)
+
+Open `.claude/context/navigation.md` and check:
+
+1. **Did this session produce a new findings file, catalog, MCP-discovery artifact, or map a previously-unexplored surface?**
+   - YES → add a row to **§C Exploration Registry** with: `| {surface} | Complete/Partial/Deferred | {findings file paths} | {first-explored YYYY-MM-DD} | {last-updated YYYY-MM-DD} |`
+   - NO → skip to next check.
+
+2. **Did this session re-discover a helper / pattern / rule that exists but wasn't listed in §B Routing Table?**
+   - YES → add a row so the next agent doesn't repeat the re-discovery.
+   - NO → skip.
+
+3. **Did this session hit a "stuck" loop (2+ failed attempts on the same problem) that §D Stuck Protocol didn't cover?**
+   - YES → extend §D with the new lesson.
+   - NO → skip.
+
+Skipping this step when new territory was explored violates R00 for the NEXT agent who has to re-explore what you found. Stale map = repeated mistakes.
 
 ### Step 4.5: Upgrade Check (self-referential improvement)
 
@@ -76,7 +96,7 @@ This catches the "I just wrote a rule I'm violating" pattern. See `/upgrade` SKI
 
 ### Step 5: Check for Graduation Candidates
 
-Scan `specs_planning/_internal/agent-mistakes.md` for patterns with **3+ occurrences** (similar root cause or same rule violated repeatedly).
+Scan `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` for patterns with **3+ occurrences** (similar root cause or same rule violated repeatedly).
 
 If found, flag them:
 ```

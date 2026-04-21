@@ -159,9 +159,3 @@
 9. Verify ""Save"" enabled","Grid validation blocks Save when required date fields are empty after enabling cascade; Save enables after valid dates entered","MCP-1 unverified due to API 500 issue - hypothesis assertion will fail informatively if wrong | CLEANUP: Reset grid row (uncheck Is Alternative) -- reload Pricing tab (LR-026)"
 "TC-LOC-PRI-035","Read-only columns (Pricing Strategy, Pricebook, Currency) have no interactive elements","locations","pricing","Read-only columns (Pricing Strategy","Office 1604 is open in Navigator. Pricing tab is active","1. Navigate to ""Pricing"" tab
 2. Inspect columns 1-3 (Pricing Strategy, Pricebook, Currency) on primary test row","Read-only columns contain only display text - no interactive elements","TC-LOC-PRI-034 intentionally does not exist (skipped ID)"
-"TC-LOC-PRI-HIST","Pricing Saves - Location Management History Row Verification","locations","pricing","Pricing Saves","Office 1604 is open in Navigator. Pricing tab is active","1. After PRI save TCs complete, navigate to Location Management History tab
-2. Sort by Modified On descending (SP1 §11: default is ascending)
-3. Read rows newer than suite start (2-min buffer) via getRowsSinceTimestamp
-4. ""Runtime classification"": if suite rows == 0, saves may still be blocked by API 500
-5. Verify every suite row has Modified By + Modified On non-empty
-6. Gap-check: col 62 Include Service Charge in Price Guides shows","PRI-024 save produces 1 history row with col 62 reflecting PriceGuideInclusive state. Unicode -> for TRUE, empty for FALSE. If API 500 still blocks, test skips with clear reason (not silent pass)","Header comment in spec file historically said ""ALL 27 active tests BLOCKED by API 500"" - per user steering 2026-04-15, runtime classification replaces static skip. Per-save dropdown persistence tests (TC-020/025/026-030) remain test.skip per existing spec state"

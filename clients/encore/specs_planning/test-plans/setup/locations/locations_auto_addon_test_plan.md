@@ -229,11 +229,8 @@ NOTE: Status: Blocked (Cat-A: requires second location with different add-on con
 
 ---
 
-## Integration: History Verification
+## History Coverage
 
-### TC-LOC-HIST-008 (AAO saves → Location Management History)
-1. After AAO save TCs complete, navigate to Location Management History tab
-2. Check if row count increased
-3. Auto Add-On checkboxes have NO corresponding columns in 87-col history
-4. If no new rows: confirm NOT-TRACKED. If new rows: document which columns captured data
-5. Expected: Exploratory — confirm NOT-TRACKED hypothesis for Auto Add-On fields
+Per PLAN_HIST_COLUMN_FIRST_PIVOT (2026-04-20), Auto Add-On hist tracking is verified by the dedicated Location Management History per-column suite (see SP-D8).
+
+**NOT-TRACKED (confirmed exploratory):** Auto Add-On checkbox fields have no columns in the 87-col history table — bug-filing routed through SP-E-LM-OTHER.

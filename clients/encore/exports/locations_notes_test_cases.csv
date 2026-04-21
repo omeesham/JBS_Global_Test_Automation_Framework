@@ -144,9 +144,3 @@
 3. Click ""Save"" button (opens dialog)
 4. Click ""Cancel"" in dialog
 5. Reload page, click ""Notes"" tab","Cancelling save dialog prevents persistence; note is discarded on reload",""
-"TC-LOC-NTS-HIST","Notes Saves - Location Management History Row Verification","locations","notes","Notes Saves","Office 1604 is open in Navigator. Notes tab is active","1. After NTS save TCs complete, navigate to Location Management History tab
-2. Sort by Modified On descending (default is ascending)
-3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer)
-4. Verify at least 1 suite row present
-5. Verify every suite row has Modified By and Modified On non-empty
-6. Gap-check: extract unique Notes values from all suite rows and verify at least one is non-empty","Notes saves produced history rows (snapshot model). Modified By and Modified On populated per row. Notes column (col 70) contains at least one non-empty value across saves, confirming the snapshot model captures Notes content. Soft assertions used throughout",""

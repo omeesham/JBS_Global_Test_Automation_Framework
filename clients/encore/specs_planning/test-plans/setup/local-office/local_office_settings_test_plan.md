@@ -565,23 +565,15 @@
 
 ---
 
-## Scenario Group 16: Integration — History Verification
+## History Coverage (42-col)
 
-> Post-save verification: confirm BAS and ECT saves produce correct rows in Location Settings History (42-column table).
-> Data formats: SVG `lucide-check` for booleans, MM/DD/YYYY HH:MM:SS AM/PM timestamps, plain integers for date offsets.
-> Reference: SUBPLAN_HISTORY_01_MCP_FINDINGS.md sections 2-3.
+Per PLAN_HIST_COLUMN_FIRST_PIVOT (2026-04-20), Local Office Settings History (42-col) tracking is verified by the dedicated per-column hist suite (see SP-C1 for Basic Info, SP-C2 for ECT). Scenario Group 12 above covers Navigation & Structure of the History tab itself; this section records field-coverage expectations for the pivoted hist tests.
 
-### TC-LOS-HISL-001 (BAS saves → History)
-1. After all BAS save TCs complete, capture History tab pagination total
-2. Navigate to History tab; verify row count increased
-3. Verify latest row Modified On within +/-5 min of test time
-4. Spot-check 3+ field values: Prep Date Offset, Use Fulfillment (SVG check), Default Order Type
-5. Confirm NOT-TRACKED: PO Number, PO Number Label, Room toggle have no columns
-6. Expected: Each BAS save = 1 new history row with correct field values
+**Basic Info (BAS) field coverage in 42-col:**
+- Prep Date Offset, Use Fulfillment, Default Order Type (spot-check columns)
+- **NOT-TRACKED:** PO Number, PO Number Label, Room toggle — no columns in 42.
 
-### TC-LOS-HISL-002 (ECT saves → History)
-1. After all ECT save TCs complete, capture History tab pagination total
-2. Navigate to History tab; verify row count has NOT changed
-3. Note: BenefitsMultiplier, HistoricalSubrental, LaborCost are NOT in 42-col history (confirmed NOT-TRACKED)
-4. If row count unexpectedly increased, document which columns captured ECT data (cols 33-40 are read-only ECT fields)
-5. Expected: ECT editable field saves do NOT produce new history rows — confirms NOT-TRACKED status
+**ECT field coverage:**
+- BenefitsMultiplier, HistoricalSubrental, LaborCost are all confirmed NOT-TRACKED (cols 33-40 are read-only ECT globals, not editable-field columns).
+
+**Formats (per SUBPLAN_HISTORY_01_MCP_FINDINGS.md §§2-3 and CLAUDE.md LR-036):** SVG `lucide-check` icons for booleans; MM/DD/YYYY HH:MM:SS AM/PM timestamps; plain integers for date offsets.

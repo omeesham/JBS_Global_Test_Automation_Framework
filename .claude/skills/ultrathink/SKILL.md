@@ -8,6 +8,8 @@ tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
 
 # /ultrathink — Quality-Gated Task Wrapper
 
+> **LR lookup**: when citing or verifying `LR-NNN` rules, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Client-specific rules use `LR-ENC-NNN` (or `LR-{CLIENT}-NNN`) prefix; framework rules continue `LR-NNN`.
+
 When the user says "ultrathink", this skill auto-fires via priority 0.5 routing. It wraps whatever task the user wants done with mandatory quality gates.
 
 ## When to Use
@@ -75,7 +77,7 @@ After all sub-skills complete, sweep the TodoWrite list:
 ## Step 6: Session Bookkeeping
 
 - Auto-call `/reflect`
-- Add entry to `specs_planning/_internal/agent-activity-log.md` (LR-028)
+- Add entry to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` (LR-028)
 - Mark `GATE: /reflect + LR-028` as completed
 
 ## Rules

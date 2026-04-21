@@ -68,9 +68,9 @@ Thumbs.db
 coverage/
 .nyc_output/
 
-# Downloads (test artifacts)
-tests/test-data/downloads/
-!tests/test-data/downloads/.gitkeep
+# Downloads (test artifacts) — post-SP-MT-02 location
+clients/*/tests/test-data/downloads/
+!clients/*/tests/test-data/downloads/.gitkeep
 
 # Temporary
 temp/
@@ -125,6 +125,9 @@ website/.claude/settings.local.json
 .claude/plans/
 current_plan.md
 
+# Bundle smoke test sandbox (ephemeral — created outside repo, but guard against accidental in-repo recreation)
+encore_bundle_sandbox/
+
 # Server env — shared for team onboarding
 # config/environments/.env.server
 
@@ -145,3 +148,27 @@ website/frontend/dist/
 website/backend/dist/
 website/frontend/.env
 website/backend/.env
+
+# -----------------------------------------------------------------------------
+# Multi-tenant layout (SP-MT-01 — see PLAN_MULTI_TENANT_RESTRUCTURE)
+# -----------------------------------------------------------------------------
+# `clients/<id>/` is tracked — per-client source, specs, config, and docs live
+# here. Per-client generated artifacts mirror the root-level rules above.
+
+# Per-client personal env overrides (mirror of config/environments/.env.*.local)
+clients/*/config/environments/.env.local
+clients/*/config/environments/.env.*.local
+clients/*/config/environments/.env.server
+
+# Per-client private skills (mirror of specs_planning/_internal/daily-status-bank.json)
+clients/*/specs_planning/_internal/daily-status-bank.json
+
+# Per-client agent audit reports (mirror of specs_planning/audits/*.md)
+clients/*/specs_planning/audits/*.md
+!clients/*/specs_planning/audits/.gitkeep
+
+# Per-client agent runtime state (mirror of specs_planning/_internal/*)
+clients/*/specs_planning/_internal/agent-activity-log.md
+clients/*/specs_planning/_internal/agent-performance.json
+clients/*/specs_planning/_internal/agent-metrics-report.md
+clients/*/specs_planning/_internal/test-id-registry.json

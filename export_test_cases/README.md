@@ -43,9 +43,9 @@ npx ts-node export_test_cases/to-csv.ts ./input.md ./output.csv --type=full
 
 **Human columns (for QA):**
 - One action per numbered step, plain English
-- Bold UI element labels: **Apply LDW** checkbox, **Save** button
+- Quoted UI element labels: "Apply LDW" checkbox, "Save" button
 - No arrow syntax (`→`), no element IDs (`chkApplyLDW`)
-- Per-step expectations: "Step 2: Checkbox becomes unchecked"
+- The Steps column is action-only; per-step expectations live in the Expected Result column
 
 **Agent columns (for automation):**
 - Element IDs: `chkApplyLDW`, `spinLDWPercentage`, `btnSave`
@@ -60,6 +60,46 @@ npx ts-node export_test_cases/to-csv.ts ./input.md ./output.csv --type=full
 | `drpOracleOrg` | "Oracle Organization" dropdown |
 | `btnSave` | "Save" button |
 | `txtUsername` | "Username" text field |
+
+### What the human exporter strips and translates
+
+The CSV exporter routes every human-column value through two helpers in `to-csv.ts`:
+
+**`cleanMarkdown(text)`** — applied to all human columns (Title, Steps, Expected Result, Preconditions, Notes):
+- `**X**` → `"X"`  (markdown bold becomes a quoted value)
+- `` `X` `` → `X`  (backticks stripped)
+- Emoji `[\u2705 \u26A0\uFE0F \u274C \u2744]` dropped
+- Smart quotes / em-dashes / Unicode arrows / `\u2713 \u2714` checkmarks normalized to ASCII via `sanitizeUnicode`
+
+**`humanizeAssertion(text)`** — applied to all human columns to remove DOM/a11y jargon:
+- `aria-selected="true"` → `is selected` (and `="false"` variant)
+- `aria-checked="true"` → `is checked`
+- `aria-invalid="true"` → `is invalid`; bare `aria-invalid` → `validation error`
+- Phrase forms: `field gets/has aria-invalid` → `field shows a validation error`; `does not have aria-invalid` / `no longer has aria-invalid` → `is valid`
+- `Tab has aria-selected="true"` → `tab is selected`
+- `disabled="true"` / `has disabled attribute` → `is disabled`; `no disabled attribute` → `is enabled`
+- `Page title = "X"` → `page title is "X"`; `Input value = "X"` → `field shows "X"`
+- `data-testid="..."` and `[data-testid="..."]` clauses are dropped
+- `aria-label`, `aria-valuenow`, `aria-expanded` are intentionally PRESERVED (they may be deliberate accessibility documentation)
+
+**Format change in the Steps column:**
+- The pre-2026-04 `[ok]` per-step expected line has been removed — Steps is now action-only.
+- The Expected Result column carries the per-TC `**Expected**:` summary, humanized.
+
+### Re-exporting after editing source markdown
+
+```bash
+# Single file
+npx ts-node export_test_cases/to-csv.ts \
+  clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md \
+  clients/encore/exports/local_office_settings_test_cases.csv \
+  --type=human
+
+# All files (also runs spec/markdown/csv parity check)
+npm run check:tc-parity:fix
+```
+
+Output dir is **`clients/encore/exports/`** (canonical post-restructure). The `export_test_cases/exports/` dir is orphaned; do not write there.
 
 ### Example
 

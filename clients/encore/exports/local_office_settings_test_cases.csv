@@ -392,16 +392,3 @@
 4. Click Discard on the dialog
 5. Navigate back to ECT
 6. Verify BM is unchanged (original value)","Discarding unsaved changes prevents persistence; Angular dirty guard fires correctly on ECT tab",""
-"TC-LOS-BAS-HIST","Basic Info Saves - History Row Verification","local-office","basic_information","Basic Info Saves","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. After all BAS save TCs complete, capture current pagination total on History tab
-2. Navigate to History tab
-3. Verify new rows exist: pagination total > rowCountBefore
-4. Verify latest row (row 1) has Modified On timestamp within ±5 minutes of test run time
-5. Verify latest row Modified By matches test user
-6. Spot-check at least 3 field values from latest save against expected:
-- Verify Prep Date Offset column value matches last saved value","Each BAS save produced exactly 1 new history row. Field values match saved values. Boolean columns use SVG lucide-check icons. Timestamps are in MM/DD/YYYY HH:MM:SS AM/PM format","NOT-TRACKED fields (PO Number, PO Number Label, Room toggle) are explicitly excluded - saves including those fields still produce a history row, but those columns don't exist in the 42-column table"
-"TC-LOS-ECT-HIST","ECT Saves - History Row Verification","local-office","ect_settings","ECT Saves","Local Office Settings page is open (Office 1604). ECT Settings tab is active","1. After all ECT save TCs complete, reload page to reset Angular dirty state (LR-026)
-2. Navigate to History tab
-3. Sort by Modified On descending
-4. Scan top 13 rows: verify Modified By and Modified On are non-empty for each row
-5. Count rows with today's date prefix in Modified On
-6. Assert todayRowCount >= 10 (rows come from all save sources - BAS + ECT suite activity)","History rows from today's test suite exist. ECT editable field values (BenefitsMultiplier, HistoricalSubrental, LaborCost) have NO corresponding columns in the 42-column history table (NOT-TRACKED per SP1 §8). Test verifies row existence and metadata only - no ECT-specific field assertions","ECT saves confirmed NOT-TRACKED by MCP (SP1 §3.5). Test verifies metadata integrity across the suite's combined history output, not ECT-specific causality"

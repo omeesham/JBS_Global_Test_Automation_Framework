@@ -8,6 +8,8 @@ tools: Read, Glob, Grep, Write, Edit, Bash, Agent, WebSearch
 
 # /bugfix — General-Purpose Bug Fixing
 
+> **LR lookup**: when citing or verifying `LR-NNN` rules, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Client-specific rules use `LR-ENC-NNN` (or `LR-{CLIENT}-NNN`) prefix; framework rules continue `LR-NNN`.
+
 Systematic bug fixing with root cause analysis, regression protection, and learning capture. This is NOT the Healer agent (which is pipeline-only for test failures). `/bugfix` handles any bug in any part of the codebase.
 
 ## When to Use
@@ -71,7 +73,7 @@ Auto-call `/regression-guard` Phase 2:
 1. **Symptom**: What the user saw
 2. **Root cause**: What was actually wrong (code-level)
 3. **Fix**: What was changed and why
-4. **Pattern check**: Is this bug's pattern already in `specs_planning/_internal/agent-mistakes.md`?
+4. **Pattern check**: Is this bug's pattern already in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`?
    - If yes: note the existing ID — it's a repeat
    - If no: add a new entry with next sequential R-number
    - If 3+ occurrences now: flag for `/compile-learnings`

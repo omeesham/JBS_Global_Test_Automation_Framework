@@ -4,15 +4,7 @@ import { test, expect } from '../../../setup/fixtures';
 import { AUTO_ADDON_DEFAULTS, UNCHECK_PERSISTENCE_CASES } from '../../../test-data/setup/locations/location-auto-addon.data';
 import { OFFICE_NO, SAVE_CHANGES_DIALOG, UNSAVED_CHANGES_DIALOG } from '../../../test-data/common.data';
 
-// SP5 integration test: capture wall-clock at suite start so TC-HIST can filter
-// history rows produced by this suite's saves. 2-min buffer absorbs clock skew.
-let suiteStartTime = 0;
-
 test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
-
-  test.beforeAll(() => {
-    suiteStartTime = Date.now() - 2 * 60 * 1000;
-  });
 
   test('TC-LOC-AAO-001: Navigate to Auto Add-On Tab', async ({ locationAutoAddonPage }) => {
     test.setTimeout(90_000);
@@ -251,56 +243,6 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
       }
     }
     await locationAutoAddonPage.clickSave();
-  });
-
-  // ── SP5: Cross-tab history integration — MUST be LAST in describe.serial ────
-  // SP1 §8: Auto add-on checkboxes have NO mapped column in the 87-column
-  // Location Management History. This test verifies whether auto-addon saves
-  // create history rows AT ALL (snapshot model may still record Modified By/On).
-  //
-  // Saves tracked: TC-008 (2), TC-009 (2), TC-011 (2), TC-017 (2), TC-018 (2),
-  // TC-020 (2) = 12 guaranteed. TC-006/007/019 cancel = no row.
-  // TC-001 conditional baseline = 0-1 row.
-  test('TC-LOC-AAO-HIST: Auto-addon saves and history row presence', async ({ locationAutoAddonPage, locationManagementHistoryPage }) => {
-    test.setTimeout(180_000);
-
-    // 1. Navigate to Location Management History tab from any starting URL
-    //    (navigateToHistoryTab handles: page navigation if needed, unsaved dialog dismissal per LR-026)
-    await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
-
-    // 3. Sort by Modified On descending (SP1 §11: default sort is ASCENDING)
-    await locationManagementHistoryPage.sortByModifiedOnDesc();
-    await locationManagementHistoryPage.waitForRecentTopRow();
-
-    // 4. Read all rows newer than suiteStartTime — only Modified By/On since
-    //    auto-addon has no dedicated column in the 87-column schema (SP1 §8).
-    const HEADERS = ['Modified By', 'Modified On'];
-    const suiteRows = await locationManagementHistoryPage.getRowsSinceTimestamp(
-      suiteStartTime, HEADERS,
-    );
-
-    // 5. Informational: auto-addon saves may or may not create history rows.
-    //    If rows exist → saves create snapshot rows but addon values have no column.
-    //    If 0 rows → auto-addon saves are fully NOT-TRACKED at the save level.
-    //    The field absence IS the finding (SP6 guardrail).
-    if (suiteRows.length === 0) {
-      // NOT-TRACKED at save level: auto-addon endpoint does not create history rows.
-      // This is an expected SP1 §8 finding — not a test failure.
-      expect.soft(true,
-        'INFO: Auto-addon saves produced 0 history rows — NOT-TRACKED at save level (SP1 §8)').toBe(true);
-    } else {
-      // Saves DO create snapshot rows — verify Modified By/On are populated
-      expect.soft(suiteRows.length,
-        'auto-addon saves produced history rows — verifying Modified By/On').toBeGreaterThan(0);
-      for (let i = 0; i < suiteRows.length; i++) {
-        const row = suiteRows[i]!;
-        expect.soft(row['Modified By'], `row ${i}: Modified By empty`).toBeTruthy();
-        expect.soft(row['Modified On'], `row ${i}: Modified On empty`).toBeTruthy();
-      }
-    }
-
-    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
-    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

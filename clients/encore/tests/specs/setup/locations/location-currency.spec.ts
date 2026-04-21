@@ -4,15 +4,7 @@ import { test, expect } from '../../../setup/fixtures';
 import { CURRENCY_COLUMN_HEADERS, UNSELECTED_CURRENCY_STATES, MERCHANT_DATA, DEFAULT_CURRENCY, ALTERNATE_USD_MERCHANT } from '../../../test-data/setup/locations/location-currency.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
-// SP5 integration test: capture wall-clock at suite start. 2-min buffer absorbs
-// client/server clock skew (SP1 §11 — server timezone undetermined).
-let suiteStartTime = 0;
-
 test.describe.serial('Location Currency @locations @currency', () => {
-
-  test.beforeAll(() => {
-    suiteStartTime = Date.now() - 2 * 60 * 1000;
-  });
 
   test('TC-LOC-CUR-001: Navigate to Currency tab; 3 rows, 4 column headers visible', async ({ locationCurrencyPage }) => {
     test.setTimeout(60_000);
@@ -322,58 +314,6 @@ test.describe.serial('Location Currency @locations @currency', () => {
     // Cleanup: restore USD IsDefault → save
     await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
     await locationCurrencyPage.clickSave();
-  });
-
-  // ── SP5: Cross-tab history integration — MUST be LAST in describe.serial ────
-  // Currency saves that change:
-  //   - USD/CAD/MXN Selected + IsDefault → primary Currency column (col 6) TRACKED
-  //   - USD/CAD Merchant → **NO COLUMN** in 87-col history (SP1 §8 NOT-TRACKED → GAP)
-  test('TC-LOC-CUR-HIST: All completed saves produce history rows with correct values', async ({ locationCurrencyPage, locationManagementHistoryPage }) => {
-    test.setTimeout(180_000);
-
-    // 1. Reload currency page to clear dirty state (LR-026)
-    await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
-
-    // 2. Navigate to Location Management History
-    await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
-
-    // 3. Sort desc (SP1: default is ascending)
-    await locationManagementHistoryPage.sortByModifiedOnDesc();
-    // Wait for the DOM to reflect desc sort — see LI spec comment for rationale.
-    await locationManagementHistoryPage.waitForRecentTopRow();
-
-    // 4. Read rows since suite start
-    const HEADERS = ['Modified By', 'Modified On', 'Currency'];
-    const suiteRows = await locationManagementHistoryPage.getRowsSinceTimestamp(
-      suiteStartTime, HEADERS,
-    );
-
-    // 5. Sanity — at least some saves were tracked
-    expect.soft(suiteRows.length,
-      'expected at least 1 Location Mgmt History row from currency suite saves').toBeGreaterThan(0);
-
-    // 6. Each row must have Modified By + Modified On
-    for (let i = 0; i < suiteRows.length; i++) {
-      const row = suiteRows[i]!;
-      expect.soft(row['Modified By'], `row ${i}: Modified By empty`).toBeTruthy();
-      expect.soft(row['Modified On'], `row ${i}: Modified On empty`).toBeTruthy();
-    }
-
-    // 7. Gap detection — baseline enforcement (CUR-001) saves USD baseline
-    //    Note: getColumnByHeader returns col 6 (primary location Currency), not col 64 (pricing).
-    //    Observed Currency values should include DEFAULT_CURRENCY at minimum.
-    const observedCurrencies = Array.from(new Set(suiteRows.map(r => r['Currency'] ?? '')));
-    expect.soft(observedCurrencies.some(v => v && v.length > 0),
-      `GAP [CUR baseline]: Currency column empty in all ${suiteRows.length} suite rows. Observed: [${observedCurrencies.join('|')}]`
-    ).toBe(true);
-
-    // NOTE SP1 §8 known NOT-TRACKED fields (file BUG-LOC-xxx per LR-034):
-    //  - USD Merchant change (TC-LOC-CUR-022, TC-LOC-CUR-024) — no Merchant column in 87-col history
-    //    Per user Q2 answer: requirements say Basic Info saves should appear in history;
-    //    untracked merchant saves = potential bug. File bug report separately.
-
-    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
-    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

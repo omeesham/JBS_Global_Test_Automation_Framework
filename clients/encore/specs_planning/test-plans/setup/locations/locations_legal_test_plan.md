@@ -199,10 +199,9 @@
 
 ---
 
-## Integration: History Verification
+## History Coverage
 
-### TC-LOC-HIST-004 (LGL saves → Location Management History)
-1. After LGL save TCs complete, navigate to Location Management History tab
-2. Verify row count increased by number of completed saves
-3. Verify col 34 (Service Charge Name) and col 38 (Terms and Conditions) match saved values
-4. Expected: Each Legal save = 1 new history row with correct dropdown selections
+Per PLAN_HIST_COLUMN_FIRST_PIVOT (2026-04-20), Legal hist tracking is verified by the dedicated Location Management History per-column suite (see SP-D5). LGL-relevant columns in the 87-col history table:
+
+- col 34: Service Charge Name
+- col 38: Terms and Conditions

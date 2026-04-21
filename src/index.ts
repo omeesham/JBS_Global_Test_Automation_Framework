@@ -16,31 +16,17 @@ export type {
   IValidationFields,
 } from './framework-contracts';
 
-// ==================== PAGE OBJECTS ====================
-export { LoginPage } from './pages/login.page';
-export { HomePage } from './pages/home.page';
-
-// ==================== BASE CLASS ====================
-export { BasePage } from './common/base-page';
-
 // ==================== COMMON ====================
 export { CredentialLoader } from './common/credential-loader';
 export type { CredentialSource, Credentials } from './common/credential-loader';
+
 // ==================== UTILITIES ====================
+// SP-MT-02 note: LoginPage, HomePage, BasePage, AppConstants, and all selectors are
+// encore-specific and now live under clients/encore/ — consumers import them via the
+// `@client/*` alias, not from this framework barrel. Keeping this barrel framework-only
+// preserves tsconfig.build.json's `rootDir: src/` contract.
 export { Log, Logger } from './utils/logger';
 export { CommonMethods } from './utils/common-methods';
-export { AppConstants } from './utils/app-constants';
-export { FileUtils } from './utils/file-utils';
-
-// ==================== SELECTORS ====================
-export {
-  getTsSelector,
-  ALL_SELECTORS,
-  MicrosoftLoginSelectors,
-  LocationSettingsSelectors,
-  LocalOfficeSettingsSelectors,
-  DynamicSelectors,
-} from './selectors';
 
 // ==================== DATA ADAPTERS ====================
 export { AdapterFactory } from './data/adapters/adapterFactory';

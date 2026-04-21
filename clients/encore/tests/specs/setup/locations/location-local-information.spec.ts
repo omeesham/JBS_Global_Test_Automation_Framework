@@ -16,16 +16,7 @@ import {
 } from '../../../test-data/setup/locations/location-local-info.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
-// SP5 integration test: capture wall-clock at suite start so TC-HIST can filter
-// history rows produced by this suite's saves. 2-min buffer absorbs client/server
-// clock skew (SP1 §11 — server timezone undetermined).
-let suiteStartTime = 0;
-
 test.describe.serial('Location Local Info @locations @local-info', () => {
-
-  test.beforeAll(() => {
-    suiteStartTime = Date.now() - 2 * 60 * 1000;
-  });
 
   // ── Navigate ONCE -- all subsequent tests reuse this page state ──────────────
   // Timeout: 60s -- location settings navigation observed at ~18s on first load (auth + route + render).
@@ -406,83 +397,6 @@ test.describe.serial('Location Local Info @locations @local-info', () => {
         await locationLocalInfoPage.clickSave();
       }
     }
-  });
-
-  // ── SP5: Cross-tab history integration — MUST be LAST in describe.serial ────
-  // Verifies that completed saves during this spec produced corresponding rows
-  // on the Location Management History tab. Uses timestamp-window filtering
-  // (SP5 §Integration Test Pattern) rather than hardcoded counts — robust to
-  // .each() iterations and skipped tests.
-  //
-  // Gap detection: NOT-TRACKED fields per SP1 §8 (e.g., EnableMultidayPricing
-  // from TC-LOC-LI-071) will NOT appear in history. File BUG-LOC-xxx per LR-034.
-  test('TC-LOC-LI-HIST: All completed saves produce history rows with correct values', async ({ locationLocalInfoPage, locationManagementHistoryPage }) => {
-    test.setTimeout(180_000);
-
-    // 1. Reload basic-info page to clear any lingering dirty state (LR-026)
-    await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
-
-    // 2. Navigate to Location Management History tab (auto-dismisses unsaved dialog)
-    await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
-
-    // 3. Sort by Modified On descending (SP1 §11: default sort is ASCENDING)
-    await locationManagementHistoryPage.sortByModifiedOnDesc();
-    // Wait for the DOM to reflect desc sort — clickSortColumn + waitForAngularStable
-    // returns before the ~2900-row table finishes materializing newest-first.
-    // Without this wait, top row still shows 2005 timestamps -> stopAtThisPage fires -> 0 rows.
-    await locationManagementHistoryPage.waitForRecentTopRow();
-
-    // 4. Read all rows newer than suiteStartTime (paginates forward if needed)
-    const HEADERS = [
-      'Modified By', 'Modified On', 'Billing Type',
-      'Oracle Product Code', 'Oracle Department Code',
-      'Calculate LDW on Net Amount', 'Enable IDC Billing',
-      'Skip Billing', 'ETS', 'ETS Percent',
-      'Apply Cables and Consumables Fee', 'C&C Percent',
-      'Allow Resort Tax', 'Resort Tax Percentage',
-      'Show Service Charge As Administrative Fee',
-      'Calculate Service Charge On Net Amount',
-      'Prompt For Approval', 'Threshold',
-      'Company Remit Tax / GST/HST / VAT Tax', 'Display Tax',
-    ];
-    const suiteRows = await locationManagementHistoryPage.getRowsSinceTimestamp(
-      suiteStartTime, HEADERS,
-    );
-
-    // 5. Sanity — at least some saves were tracked
-    expect.soft(suiteRows.length,
-      'expected at least 1 Location Mgmt History row produced by this suite\'s saves').toBeGreaterThan(0);
-
-    // 6. Every suite row must carry Modified By and Modified On
-    for (let i = 0; i < suiteRows.length; i++) {
-      const row = suiteRows[i]!;
-      expect.soft(row['Modified By'], `row ${i}: Modified By empty`).toBeTruthy();
-      expect.soft(row['Modified On'], `row ${i}: Modified On empty`).toBeTruthy();
-    }
-
-    // 7. Gap detection — each expected field-value pair must appear in at least one row
-    const expectedChanges: Array<{ field: string; values: string[]; sourceTc: string }> = [
-      { field: 'Billing Type', values: [LOCAL_INFO_TEST_VALUES.billingType, LOCAL_INFO_TEST_VALUES.billingTypeDirect], sourceTc: 'TC-025 round-trip' },
-      { field: 'Oracle Product Code', values: [LOCAL_INFO_TEST_VALUES.oracleProductTest, LOCAL_INFO_TEST_VALUES.specialChars, LOCAL_INFO_TEST_VALUES.oracleProductDefault], sourceTc: 'TC-021/029/068' },
-      { field: 'Oracle Department Code', values: [LOCAL_INFO_TEST_VALUES.oracleDeptTest, LOCAL_INFO_TEST_VALUES.oracleDeptDefault], sourceTc: 'TC-069' },
-      { field: 'Calculate LDW on Net Amount', values: ['\u2714', ''], sourceTc: 'TC-021/029 toggle' },
-      { field: 'Enable IDC Billing', values: ['\u2714', ''], sourceTc: 'TC-072 toggle' },
-    ];
-
-    for (const { field, values, sourceTc } of expectedChanges) {
-      const observed = Array.from(new Set(suiteRows.map(r => r[field] ?? '')));
-      const found = values.some(v => observed.includes(v));
-      expect.soft(found,
-        `GAP [${sourceTc}]: ${field} — expected one of [${values.join('|')}] in history, observed [${observed.join('|')}]`
-      ).toBe(true);
-    }
-
-    // NOTE SP1 §8 known NOT-TRACKED fields (file BUG-LOC-xxx per LR-034):
-    //  - EnableMultidayPricing (TC-LOC-LI-071) — no column in 87-col history
-    // Don't assert here — gap is expected until app adds history coverage.
-
-    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
-    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

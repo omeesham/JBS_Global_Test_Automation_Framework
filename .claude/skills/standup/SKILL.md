@@ -48,7 +48,7 @@ git status --short
 ```
 
 Read:
-- `specs_planning/_internal/agent-activity-log.md` (window rows)
+- `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` (window rows)
 - `ls plans/pending/` (queued work → candidates for THEN/AND)
 - Current TodoWrite items if any
 

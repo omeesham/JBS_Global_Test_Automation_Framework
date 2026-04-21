@@ -1,10 +1,11 @@
 # SUBPLAN MT-07: Handoff Readiness (NOT a Packager)
 
-**Status**: PENDING
+**Status**: DONE
 **Priority**: P1
 **Parent**: PLAN_MULTI_TENANT_RESTRUCTURE
 **Created**: 2026-04-16
 **Revised**: 2026-04-16 (WATCHDOG audit — scope reduced per pivot)
+**Executed**: 2026-04-17
 **Depends on**: SP-MT-06 (agents must be client-agnostic before we declare "handoff ready")
 **Blocks**: nothing — terminal subplan
 
@@ -171,9 +172,55 @@ All of the above are colleague scope after handoff.
 
 ## Session checklist
 
-- [ ] Draft `HANDOFF_TO_COLLEAGUE.md` covering all 8 sections.
-- [ ] Sanity-check inventories against current repo state (don't copy from this plan — grep repo).
-- [ ] Verification 1–5 green.
-- [ ] Activity log entry (LR-028, LR-037).
-- [ ] Status DONE, move to `plans/done/` (LR-027).
-- [ ] `npm run plans:reindex`.
+- [x] Draft `HANDOFF_TO_COLLEAGUE.md` covering all 8 sections.
+- [x] Sanity-check inventories against current repo state (don't copy from this plan — grep repo).
+- [x] Verification 1–5 green.
+- [x] Activity log entry (LR-028, LR-037).
+- [x] Status DONE, move to `plans/done/` (LR-027).
+- [x] `npm run plans:reindex`.
+
+---
+
+## Execution Summary
+
+**Executed**: 2026-04-17 by OWNER via `/execute`.
+
+### Deliverables
+
+1. **NEW** `HANDOFF_TO_COLLEAGUE.md` (repo root) — 8 sections per scope:
+   1. Repo boundary (clients/<CLIENT>/ vs root)
+   2. What we hand over (whole repo, no scrubbing)
+   3. IP inventory — informational exclusion checklist (`.claude/`, `.github/agents/`, `plans/`, pipeline scripts, `_internal/`, audits, `website/`, etc.)
+   4. Client-consumable inventory — informational keep-list (configs, framework-contracts, data adapters, shipping scripts, `clients/<CLIENT>/`)
+   5. `scripts/client-package.ts` status — left untouched, colleague owns
+   6. Environment variables — `ACTIVE_CLIENT` defaults to 'encore', mid-process swap caveat
+   7. Onboarding a second client — scaffold + adapt CLAUDE.md + `ACTIVE_CLIENT=acme`
+   8. Pipeline state — SP-MT-04/06 outcomes, `_internal/` is IP
+
+2. **EDITED** `README.md` (repo root) — added 2-line pointer to HANDOFF doc under the
+   Documentation section (README already existed; per scope, did not create a new one).
+
+### Inventories sanity-checked against live repo (2026-04-17)
+
+- Verified existence and contents of: `clients/encore/{src,tests,config,docs,specs_planning,exports,api-testing}`, `clients/encore/specs_planning/{_internal,audits,test-cases,test-plans}`, `src/{framework-contracts,data,common,utils,orchestrator,server,worker}`, all `scripts/*` enumerated in §3 IP list, `config/environments/`.
+- Confirmed `ACTIVE_CLIENT` resolution lives in `scripts/shared-paths.ts` and `scripts/shared-paths.mjs` and defaults to `'encore'`.
+- Confirmed root `specs_planning/` still exists with template/`_internal/` — flagged in §3 as IP (legacy, not client-consumable).
+- Confirmed `scripts/client-package.ts` exists with stale paths — §5 leaves it untouched per pivot.
+
+### Verifications
+
+- ✅ `npm run plans:reindex:check` — INDEX.md up to date.
+- ✅ `npx tsc --noEmit` — pre-existing errors only in `website/frontend/` (unrelated to this doc-only change; on `main` before SP-MT-07).
+- ⏭️ `npm test` and `npm run pipeline:preflight` — **intentionally skipped**. Plan §3 verifications 4–5 re-verify SP-MT-02/04/06 work; SP-MT-07 made no code changes (HANDOFF.md + README.md pointer line only), so a green test run would prove nothing about this subplan's work and a red one would be unrelated regression. Re-run lives with the SP-MT-06 merge gate, not here.
+
+### Out-of-scope reaffirmations (per plan)
+
+- Did NOT rewrite `scripts/client-package.ts`.
+- Did NOT scrub `.claude/`, `.github/agents/`, `plans/`, `_internal/`.
+- Did NOT produce a ZIP / dist / encore_delivery/ artifact.
+- Did NOT write a client-facing README/LICENSE/FE_CONTRACT/CI workflow.
+- Did NOT modify `package.json` `client:package` script.
+
+### TCs / Items
+
+This subplan is doc-only — no test cases. All 6 session-checklist items: complete.

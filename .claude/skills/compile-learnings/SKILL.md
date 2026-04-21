@@ -8,6 +8,8 @@ tools: Read, Glob, Grep, Write, Edit
 
 # /compile-learnings — Pattern Graduation
 
+> **LR lookup / write**: when reading existing `LR-NNN` rules OR graduating a new rule, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Graduate Encore-product-specific patterns (naming Encore pages/Jira/URLs) to the client file using `LR-ENC-NNN` prefix; graduate stack-generic patterns (Angular/Radix/Playwright) to root CLAUDE.md as `LR-NNN`.
+
 Turns recurring mistakes into permanent rules. Without this, the same mistakes get logged over and over but never graduate into enforceable project-wide rules. This is the learning loop that makes the system compound.
 
 ## When to Use
@@ -25,7 +27,7 @@ Runs `/identity` Step 1.5 with caller=`/compile-learnings`. No-op if compatible 
 
 ### Step 1: Read the Mistake Registry
 
-Read `specs_planning/_internal/agent-mistakes.md` fully. Parse every entry — ID, rule, learning/resolution.
+Read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` fully. Parse every entry — ID, rule, learning/resolution.
 
 ### Step 2: Cluster by Similarity
 

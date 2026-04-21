@@ -1,0 +1,656 @@
+- generic [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e21]:
+      - list [ref=e23]:
+        - listitem [ref=e24]:
+          - button "1604 Parker Palm Springs" [ref=e377] [cursor=pointer]:
+            - generic [ref=e27]: "1604"
+            - generic [ref=e28]:
+              - generic [ref=e378]: Parker Palm Springs
+              - img [ref=e29]
+      - generic [ref=e35]:
+        - list [ref=e37]:
+          - listitem [ref=e38]:
+            - link "Home" [ref=e39] [cursor=pointer]:
+              - /url: /navigator/locations/1604/home
+              - img [ref=e40]
+              - generic [ref=e43]: Home
+          - listitem [ref=e44]:
+            - link "Inbox" [ref=e45] [cursor=pointer]:
+              - /url: /navigator/locations/1604/inbox
+              - img [ref=e46]
+              - generic [ref=e49]: Inbox
+          - listitem [ref=e50]:
+            - button "Actions" [ref=e51] [cursor=pointer]:
+              - img [ref=e52]
+              - generic [ref=e54]: Actions
+              - img [ref=e55]
+          - listitem [ref=e57]:
+            - button "Commissions" [ref=e58] [cursor=pointer]:
+              - img [ref=e59]
+              - generic [ref=e61]: Commissions
+              - img [ref=e62]
+          - listitem [ref=e64]:
+            - button "Tax" [ref=e65] [cursor=pointer]:
+              - img [ref=e66]
+              - generic [ref=e69]: Tax
+              - img [ref=e70]
+          - listitem [ref=e72]:
+            - button "Setup" [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+              - generic [ref=e77]: Setup
+              - img [ref=e78]
+          - listitem [ref=e80]:
+            - button "Studio" [ref=e81] [cursor=pointer]:
+              - img [ref=e82]
+              - generic [ref=e84]: Studio
+              - img [ref=e85]
+        - generic [ref=e87]:
+          - generic [ref=e88]: Search
+          - list [ref=e90]:
+            - listitem [ref=e91]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=e92]:
+              - link "Job Search" [ref=e93] [cursor=pointer]:
+                - /url: /navigator/locations/1604/fulfillments
+                - img [ref=e94]
+                - generic [ref=e97]: Job Search
+            - listitem [ref=e98]:
+              - link "Asset Search" [ref=e99] [cursor=pointer]:
+                - /url: /navigator/locations/1604/assets
+                - img [ref=e100]
+                - generic [ref=e103]: Asset Search
+            - listitem [ref=e104]:
+              - link "Customer Search" [ref=e105] [cursor=pointer]:
+                - /url: /navigator/locations/1604/customers
+                - img [ref=e106]
+                - generic [ref=e109]: Customer Search
+            - listitem [ref=e110]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e111]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e112]:
+              - link "Item Search" [ref=e113] [cursor=pointer]:
+                - /url: /navigator/locations/1604/products
+                - img [ref=e114]
+                - generic [ref=e124]: Item Search
+            - listitem [ref=e125]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e126]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e128]:
+          - listitem [ref=e129]:
+            - button "Navigator Assistant" [ref=e130] [cursor=pointer]:
+              - img [ref=e131]
+              - generic [ref=e133]: Navigator Assistant
+      - list [ref=e136]:
+        - listitem [ref=e137]:
+          - button "RK Rutvik Khosariya" [ref=e138] [cursor=pointer]:
+            - generic [ref=e140]: RK
+            - generic [ref=e142]: Rutvik Khosariya
+            - img [ref=e143]
+      - button "Click to restore sidebar" [ref=e147]
+    - main [ref=e148]:
+      - generic [ref=e151]:
+        - generic [ref=e153]:
+          - button "trigger-button" [ref=e154] [cursor=pointer]:
+            - img
+          - generic [ref=e156]:
+            - heading "Local Office Settings" [level=1] [ref=e158]
+            - button "More information" [ref=e159]:
+              - img [ref=e160]
+        - generic [ref=e163]:
+          - tablist [ref=e164]:
+            - tab "Basic Information" [active] [selected] [ref=e165] [cursor=pointer]:
+              - generic [ref=e166]:
+                - img [ref=e167]
+                - text: Basic Information
+            - tab "Location Settings History" [ref=e170] [cursor=pointer]:
+              - generic [ref=e171]:
+                - img [ref=e172]
+                - text: Location Settings History
+            - tab "ECT Settings" [ref=e176] [cursor=pointer]:
+              - generic [ref=e177]:
+                - img [ref=e178]
+                - text: ECT Settings
+          - tabpanel [ref=e181]:
+            - generic [ref=e15085]:
+              - generic [ref=e15086]:
+                - heading "1604 - Parker Palm Springs" [level=3] [ref=e15087]
+                - generic [ref=e15088]:
+                  - button "Save" [disabled]
+              - generic [ref=e15089]:
+                - generic [ref=e15090]:
+                  - generic [ref=e15092]:
+                    - generic [ref=e15094]: Default Date Offsets
+                    - generic [ref=e15096]:
+                      - generic [ref=e15098]:
+                        - term [ref=e15099]: Prep Date Offset (Relative to Start)
+                        - definition [ref=e15100]:
+                          - generic [ref=e15101]:
+                            - textbox [ref=e15102]: "-1"
+                            - generic [ref=e15103]: Hrs
+                      - generic [ref=e15105]:
+                        - term [ref=e15106]: Return Date Offset (Relative to End)
+                        - definition [ref=e15107]:
+                          - generic [ref=e15108]:
+                            - textbox [ref=e15109]: "1"
+                            - generic [ref=e15110]: Hrs
+                      - generic [ref=e15112]:
+                        - term [ref=e15113]: Set Date Offset (Relative to Start)
+                        - definition [ref=e15114]:
+                          - generic [ref=e15115]:
+                            - textbox [ref=e15116]: "-1"
+                            - generic [ref=e15117]: Hrs
+                      - generic [ref=e15119]:
+                        - term [ref=e15120]: Strike Date Offset (Relative to End)
+                        - definition [ref=e15121]:
+                          - generic [ref=e15122]:
+                            - textbox [ref=e15123]: "1"
+                            - generic [ref=e15124]: Hrs
+                      - generic [ref=e15126]:
+                        - term [ref=e15127]: Delivery Date Offset (Relative to Start)
+                        - definition [ref=e15128]:
+                          - generic [ref=e15129]:
+                            - textbox [ref=e15130]: "-1"
+                            - generic [ref=e15131]: Hrs
+                      - generic [ref=e15133]:
+                        - term [ref=e15134]: Pickup Date Offset (Relative to End)
+                        - definition [ref=e15135]:
+                          - generic [ref=e15136]:
+                            - textbox [ref=e15137]: "0"
+                            - generic [ref=e15138]: Hrs
+                  - generic [ref=e15140]:
+                    - generic [ref=e15142]: Misc Settings
+                    - generic [ref=e15144]:
+                      - generic [ref=e15145]:
+                        - term [ref=e15146]: Use Fulfillment
+                        - definition [ref=e15147]:
+                          - generic [ref=e15149]:
+                            - checkbox [ref=e15150] [cursor=pointer]
+                            - checkbox
+                      - generic [ref=e15151]:
+                        - term [ref=e15152]: Use Availability
+                        - definition [ref=e15153]:
+                          - generic [ref=e15155]:
+                            - checkbox [checked] [ref=e15156] [cursor=pointer]:
+                              - generic:
+                                - img
+                            - checkbox [checked]
+                      - generic [ref=e15157]:
+                        - term [ref=e15158]: Use Equipments QC
+                        - definition [ref=e15159]:
+                          - generic [ref=e15161]:
+                            - checkbox [disabled] [ref=e15162]
+                            - checkbox [disabled]
+                      - generic [ref=e15163]:
+                        - term [ref=e15164]: Items Filled from Requests Return to Availability
+                        - definition [ref=e15165]:
+                          - generic [ref=e15167]:
+                            - checkbox [ref=e15168] [cursor=pointer]
+                            - checkbox
+                      - generic [ref=e15169]:
+                        - term [ref=e15170]: Allow tentative and confirmed Status to have the same priority
+                        - definition [ref=e15171]:
+                          - generic [ref=e15173]:
+                            - checkbox [ref=e15174] [cursor=pointer]
+                            - checkbox
+                      - generic [ref=e15175]:
+                        - term [ref=e15176]: Print Description (Default)
+                        - definition [ref=e15177]:
+                          - generic [ref=e15179]:
+                            - checkbox [checked] [ref=e15180] [cursor=pointer]:
+                              - generic:
+                                - img
+                            - checkbox [checked]
+                      - generic [ref=e15181]:
+                        - term [ref=e15182]: Use ServiceType for Subrental Inventory Sources
+                        - definition [ref=e15183]:
+                          - generic [ref=e15185]:
+                            - checkbox [checked] [ref=e15186] [cursor=pointer]:
+                              - generic:
+                                - img
+                            - checkbox [checked]
+                      - generic [ref=e15187]:
+                        - term [ref=e15188]: Phone 1
+                        - definition [ref=e15189]:
+                          - textbox [ref=e15193]: 760-883-1957
+                      - generic [ref=e15194]:
+                        - term [ref=e15195]: Phone 2
+                        - definition [ref=e15196]:
+                          - textbox [ref=e15200]
+                      - generic [ref=e15201]:
+                        - term [ref=e15202]: Default new job to 1 day
+                        - definition [ref=e15203]:
+                          - generic [ref=e15205]:
+                            - generic [ref=e15207]:
+                              - checkbox [ref=e15208] [cursor=pointer]
+                              - checkbox
+                              - generic [ref=e15209]: Event
+                            - generic [ref=e15211]:
+                              - checkbox [ref=e15212] [cursor=pointer]
+                              - checkbox
+                              - generic [ref=e15213]: Outside
+                            - generic [ref=e15215]:
+                              - checkbox [ref=e15216] [cursor=pointer]
+                              - checkbox
+                              - generic [ref=e15217]: Internal
+                      - generic [ref=e15218]:
+                        - term [ref=e15219]: Default Labor to Hourly
+                        - definition [ref=e15220]:
+                          - generic [ref=e15222]:
+                            - checkbox [ref=e15223] [cursor=pointer]
+                            - checkbox
+                      - generic [ref=e15224]:
+                        - term [ref=e15225]: Default Order Type
+                        - definition [ref=e15226]:
+                          - generic [ref=e15228]:
+                            - combobox [ref=e15229] [cursor=pointer]:
+                              - generic: Event
+                              - img
+                            - combobox [ref=e15230]
+                      - generic [ref=e15231]:
+                        - term [ref=e15232]: PO Number
+                        - definition [ref=e15233]:
+                          - textbox [ref=e15236]
+                      - generic [ref=e15237]:
+                        - term [ref=e15238]: PO Number Label
+                        - definition [ref=e15239]:
+                          - textbox [ref=e15242]
+                - generic [ref=e15243]:
+                  - generic [ref=e15245]:
+                    - generic [ref=e15247]: Section
+                    - generic [ref=e15248]:
+                      - generic [ref=e15249]:
+                        - generic [ref=e15250]:
+                          - term [ref=e15251]: Use Section
+                          - definition [ref=e15252]:
+                            - generic [ref=e15254]:
+                              - checkbox [checked] [ref=e15255] [cursor=pointer]:
+                                - generic:
+                                  - img
+                              - checkbox [checked]
+                        - button "Default" [ref=e15256] [cursor=pointer]
+                      - region "local settings table" [ref=e15258]:
+                        - table [ref=e15259]:
+                          - rowgroup [ref=e15260]:
+                            - row "Section Name Active" [ref=e15261]:
+                              - columnheader "Section Name" [ref=e15262]
+                              - columnheader "Active" [ref=e15263]
+                          - rowgroup [ref=e15264]:
+                            - row "Audio toggle" [ref=e15265]:
+                              - cell "Audio" [ref=e15266]:
+                                - textbox "edit name 38bf8374-ee90-4ddc-19f0-08de9ebf33a2" [ref=e15267]: Audio
+                              - cell "toggle" [ref=e15268] [cursor=pointer]:
+                                - img [ref=e15269]
+                            - row "Flipcharts toggle" [ref=e15271]:
+                              - cell "Flipcharts" [ref=e15272]:
+                                - textbox "edit name 95bc51e0-bd62-48fd-19f4-08de9ebf33a2" [ref=e15273]: Flipcharts
+                              - cell "toggle" [ref=e15274] [cursor=pointer]:
+                                - img [ref=e15275]
+                            - row "Hybrid Meeting toggle" [ref=e15277]:
+                              - cell "Hybrid Meeting" [ref=e15278]:
+                                - textbox "edit name 2c246b53-92f0-49c6-19fa-08de9ebf33a2" [ref=e15279]: Hybrid Meeting
+                              - cell "toggle" [ref=e15280] [cursor=pointer]:
+                                - img [ref=e15281]
+                            - row "Labor toggle" [ref=e15283]:
+                              - cell "Labor" [ref=e15284]:
+                                - textbox "edit name 94323a59-fa98-4834-19f5-08de9ebf33a2" [ref=e15285]: Labor
+                              - cell "toggle" [ref=e15286] [cursor=pointer]:
+                                - img [ref=e15287]
+                            - row "Lighting toggle" [ref=e15289]:
+                              - cell "Lighting" [ref=e15290]:
+                                - textbox "edit name 5bbb045d-8cdd-4dbd-19f3-08de9ebf33a2" [ref=e15291]: Lighting
+                              - cell "toggle" [ref=e15292] [cursor=pointer]:
+                                - img [ref=e15293]
+                            - row "Power toggle" [ref=e15295]:
+                              - cell "Power" [ref=e15296]:
+                                - textbox "edit name fe7e1f3b-4170-46da-19f2-08de9ebf33a2" [ref=e15297]: Power
+                              - cell "toggle" [ref=e15298] [cursor=pointer]
+                            - row "Presenter Support toggle" [ref=e15299]:
+                              - cell "Presenter Support" [ref=e15300]:
+                                - textbox "edit name 0f535b5c-d854-4e30-19fb-08de9ebf33a2" [ref=e15301]: Presenter Support
+                              - cell "toggle" [ref=e15302] [cursor=pointer]:
+                                - img [ref=e15303]
+                            - row "Projection toggle" [ref=e15305]:
+                              - cell "Projection" [ref=e15306]:
+                                - textbox "edit name 90903cc4-2c2c-4c82-19ef-08de9ebf33a2" [ref=e15307]: Projection
+                              - cell "toggle" [ref=e15308] [cursor=pointer]:
+                                - img [ref=e15309]
+                            - row "Rigging toggle" [ref=e15311]:
+                              - cell "Rigging" [ref=e15312]:
+                                - textbox "edit name 4f9de481-f9fb-4673-19f7-08de9ebf33a2" [ref=e15313]: Rigging
+                              - cell "toggle" [ref=e15314] [cursor=pointer]
+                            - row "Scenic toggle" [ref=e15315]:
+                              - cell "Scenic" [ref=e15316]:
+                                - textbox "edit name d07f47b2-3a92-441c-19f8-08de9ebf33a2" [ref=e15317]: Scenic
+                              - cell "toggle" [ref=e15318] [cursor=pointer]:
+                                - img [ref=e15319]
+                            - row "Staging toggle" [ref=e15321]:
+                              - cell "Staging" [ref=e15322]:
+                                - textbox "edit name 2cb4d7ef-4d46-40d5-19f1-08de9ebf33a2" [ref=e15323]: Staging
+                              - cell "toggle" [ref=e15324] [cursor=pointer]
+                            - row "Video toggle" [ref=e15325]:
+                              - cell "Video" [ref=e15326]:
+                                - textbox "edit name 6e5e96d1-5795-463b-19f6-08de9ebf33a2" [ref=e15327]: Video
+                              - cell "toggle" [ref=e15328] [cursor=pointer]:
+                                - img [ref=e15329]
+                            - row "Whiteboard toggle" [ref=e15331]:
+                              - cell "Whiteboard" [ref=e15332]:
+                                - textbox "edit name 9e68167d-6ae3-446d-19f9-08de9ebf33a2" [ref=e15333]: Whiteboard
+                              - cell "toggle" [ref=e15334] [cursor=pointer]
+                            - row "add new row" [ref=e15335]:
+                              - cell [ref=e15336]:
+                                - textbox "new row name" [ref=e15337]:
+                                  - /placeholder: Add New...
+                              - cell [ref=e15338]
+                  - generic [ref=e15340]:
+                    - generic [ref=e15342]: Room Configuration
+                    - region "local settings table" [ref=e15345]:
+                      - table [ref=e15346]:
+                        - rowgroup [ref=e15347]:
+                          - row "Room Configuration Name Active" [ref=e15348]:
+                            - columnheader "Room Configuration Name" [ref=e15349]
+                            - columnheader "Active" [ref=e15350]
+                        - rowgroup [ref=e15351]:
+                          - row "Ballroom A toggle" [ref=e15352]:
+                            - cell "Ballroom A" [ref=e15353]:
+                              - textbox "edit name 1" [ref=e15354]: Ballroom A
+                            - cell "toggle" [ref=e15355] [cursor=pointer]:
+                              - img [ref=e15356]
+                          - row "Room Edit Test toggle" [ref=e15358]:
+                            - cell "Room Edit Test" [ref=e15359]:
+                              - textbox "edit name 3" [ref=e15360]: Room Edit Test
+                            - cell "toggle" [ref=e15361] [cursor=pointer]:
+                              - img [ref=e15362]
+                          - row "Room Toggle Test toggle" [ref=e15364]:
+                            - cell "Room Toggle Test" [ref=e15365]:
+                              - textbox "edit name 2" [ref=e15366]: Room Toggle Test
+                            - cell "toggle" [ref=e15367] [cursor=pointer]:
+                              - img [ref=e15368]
+                          - row "add new row" [ref=e15370]:
+                            - cell [ref=e15371]:
+                              - textbox "new row name" [ref=e15372]:
+                                - /placeholder: Add New...
+                            - cell [ref=e15373]
+                  - generic [ref=e15375]:
+                    - generic [ref=e15377]: Default Logo
+                    - generic [ref=e15378]:
+                      - generic [ref=e15380]:
+                        - generic [ref=e15381]:
+                          - generic [ref=e15382]: Quotes
+                          - generic [ref=e15383]:
+                            - checkbox [checked] [ref=e15384] [cursor=pointer]:
+                              - generic:
+                                - img
+                            - checkbox [checked]
+                        - generic [ref=e15385]:
+                          - generic [ref=e15386]: Rental Orders/DROs
+                          - generic [ref=e15387]:
+                            - checkbox [checked] [ref=e15388] [cursor=pointer]:
+                              - generic:
+                                - img
+                            - checkbox [checked]
+                      - generic [ref=e15389]:
+                        - generic [ref=e15390]:
+                          - term [ref=e15391]: Company Logo
+                          - definition [ref=e15392]:
+                            - generic [ref=e15394]:
+                              - combobox [ref=e15395] [cursor=pointer]:
+                                - generic: Encore New Logo
+                                - img
+                              - combobox [ref=e15396]
+                        - img "Encore New Logo" [ref=e15399]
+                - generic [ref=e15401]:
+                  - generic [ref=e15403]: Discount Exemptions
+                  - region "local settings table" [ref=e15406]:
+                    - table [ref=e15407]:
+                      - rowgroup [ref=e15408]:
+                        - row "Service Type Exempt" [ref=e15409]:
+                          - columnheader "Service Type" [ref=e15410]
+                          - columnheader "Exempt" [ref=e15411]
+                      - rowgroup [ref=e15412]:
+                        - row "APP Downloaded toggle" [ref=e15413]:
+                          - cell "APP Downloaded" [ref=e15414]
+                          - cell "toggle" [ref=e15415] [cursor=pointer]
+                        - row "App Quality Assurance toggle" [ref=e15416]:
+                          - cell "App Quality Assurance" [ref=e15417]
+                          - cell "toggle" [ref=e15418] [cursor=pointer]
+                        - row "App Quality Assurance – M toggle" [ref=e15419]:
+                          - cell "App Quality Assurance – M" [ref=e15420]
+                          - cell "toggle" [ref=e15421] [cursor=pointer]
+                        - row "App Remote Access toggle" [ref=e15422]:
+                          - cell "App Remote Access" [ref=e15423]
+                          - cell "toggle" [ref=e15424] [cursor=pointer]
+                        - row "Application Development toggle" [ref=e15425]:
+                          - cell "Application Development" [ref=e15426]
+                          - cell "toggle" [ref=e15427] [cursor=pointer]
+                        - row "Application Development – M toggle" [ref=e15428]:
+                          - cell "Application Development – M" [ref=e15429]
+                          - cell "toggle" [ref=e15430] [cursor=pointer]
+                        - row "Application Programming toggle" [ref=e15431]:
+                          - cell "Application Programming" [ref=e15432]
+                          - cell "toggle" [ref=e15433] [cursor=pointer]
+                        - row "Application Programming – M toggle" [ref=e15434]:
+                          - cell "Application Programming – M" [ref=e15435]
+                          - cell "toggle" [ref=e15436] [cursor=pointer]
+                        - row "Audio Conferencing toggle" [ref=e15437]:
+                          - cell "Audio Conferencing" [ref=e15438]
+                          - cell "toggle" [ref=e15439] [cursor=pointer]
+                        - row "Cancellation Fee toggle" [ref=e15440]:
+                          - cell "Cancellation Fee" [ref=e15441]
+                          - cell "toggle" [ref=e15442] [cursor=pointer]
+                        - row "Concise Equipment toggle" [ref=e15443]:
+                          - cell "Concise Equipment" [ref=e15444]
+                          - cell "toggle" [ref=e15445] [cursor=pointer]
+                        - row "Concise Labor - M toggle" [ref=e15446]:
+                          - cell "Concise Labor - M" [ref=e15447]
+                          - cell "toggle" [ref=e15448] [cursor=pointer]
+                        - row "Concise Support Labor toggle" [ref=e15449]:
+                          - cell "Concise Support Labor" [ref=e15450]
+                          - cell "toggle" [ref=e15451] [cursor=pointer]
+                        - row "Creative Content toggle" [ref=e15452]:
+                          - cell "Creative Content" [ref=e15453]
+                          - cell "toggle" [ref=e15454] [cursor=pointer]
+                        - row "Creative Services toggle" [ref=e15455]:
+                          - cell "Creative Services" [ref=e15456]
+                          - cell "toggle" [ref=e15457] [cursor=pointer]
+                        - row "Digital Services toggle" [ref=e15458]:
+                          - cell "Digital Services" [ref=e15459]
+                          - cell "toggle" [ref=e15460] [cursor=pointer]
+                        - row "Digital Services Equipment toggle" [ref=e15461]:
+                          - cell "Digital Services Equipment" [ref=e15462]
+                          - cell "toggle" [ref=e15463] [cursor=pointer]
+                        - row "Digital Services Labor toggle" [ref=e15464]:
+                          - cell "Digital Services Labor" [ref=e15465]
+                          - cell "toggle" [ref=e15466] [cursor=pointer]
+                        - row "Digital Services Subrental toggle" [ref=e15467]:
+                          - cell "Digital Services Subrental" [ref=e15468]
+                          - cell "toggle" [ref=e15469] [cursor=pointer]
+                        - row "Equipment Rental toggle" [ref=e15470]:
+                          - cell "Equipment Rental" [ref=e15471]
+                          - cell "toggle" [ref=e15472] [cursor=pointer]
+                        - row "Event Technology Support toggle" [ref=e15473]:
+                          - cell "Event Technology Support" [ref=e15474]
+                          - cell "toggle" [ref=e15475] [cursor=pointer]
+                        - row "Extended Venue Access Managed Services toggle" [ref=e15476]:
+                          - cell "Extended Venue Access Managed Services" [ref=e15477]
+                          - cell "toggle" [ref=e15478] [cursor=pointer]
+                        - row "Freight toggle" [ref=e15479]:
+                          - cell "Freight" [ref=e15480]
+                          - cell "toggle" [ref=e15481] [cursor=pointer]
+                        - row "HSIA - Equipment toggle" [ref=e15482]:
+                          - cell "HSIA - Equipment" [ref=e15483]
+                          - cell "toggle" [ref=e15484] [cursor=pointer]
+                        - row "HSIA - Labor toggle" [ref=e15485]:
+                          - cell "HSIA - Labor" [ref=e15486]
+                          - cell "toggle" [ref=e15487] [cursor=pointer]:
+                            - img [ref=e15488]
+                        - row "HSIA - Subrental Equipment toggle" [ref=e15490]:
+                          - cell "HSIA - Subrental Equipment" [ref=e15491]
+                          - cell "toggle" [ref=e15492] [cursor=pointer]:
+                            - img [ref=e15493]
+                        - row "HSIA - Wi-Fi Services toggle" [ref=e15495]:
+                          - cell "HSIA - Wi-Fi Services" [ref=e15496]
+                          - cell "toggle" [ref=e15497] [cursor=pointer]
+                        - row "HSIA Services toggle" [ref=e15498]:
+                          - cell "HSIA Services" [ref=e15499]
+                          - cell "toggle" [ref=e15500] [cursor=pointer]
+                        - row "Lighting toggle" [ref=e15501]:
+                          - cell "Lighting" [ref=e15502]
+                          - cell "toggle" [ref=e15503] [cursor=pointer]
+                        - row "Lighting Subrental toggle" [ref=e15504]:
+                          - cell "Lighting Subrental" [ref=e15505]
+                          - cell "toggle" [ref=e15506] [cursor=pointer]
+                        - row "Loss Damage Waiver toggle" [ref=e15507]:
+                          - cell "Loss Damage Waiver" [ref=e15508]
+                          - cell "toggle" [ref=e15509] [cursor=pointer]:
+                            - img [ref=e15510]
+                        - row "Mobile Apps toggle" [ref=e15512]:
+                          - cell "Mobile Apps" [ref=e15513]
+                          - cell "toggle" [ref=e15514] [cursor=pointer]
+                        - row "Music Access toggle" [ref=e15515]:
+                          - cell "Music Access" [ref=e15516]
+                          - cell "toggle" [ref=e15517] [cursor=pointer]
+                        - row "Operator Labor toggle" [ref=e15518]:
+                          - cell "Operator Labor" [ref=e15519]
+                          - cell "toggle" [ref=e15520] [cursor=pointer]:
+                            - img [ref=e15521]
+                        - row "Photographic Services toggle" [ref=e15523]:
+                          - cell "Photographic Services" [ref=e15524]
+                          - cell "toggle" [ref=e15525] [cursor=pointer]
+                        - row "Power Infrastructure toggle" [ref=e15526]:
+                          - cell "Power Infrastructure" [ref=e15527]
+                          - cell "toggle" [ref=e15528] [cursor=pointer]
+                        - row "Power Labor toggle" [ref=e15529]:
+                          - cell "Power Labor" [ref=e15530]
+                          - cell "toggle" [ref=e15531] [cursor=pointer]
+                        - row "Power Rental Equipment toggle" [ref=e15532]:
+                          - cell "Power Rental Equipment" [ref=e15533]
+                          - cell "toggle" [ref=e15534] [cursor=pointer]
+                        - row "Power Sub-rental Equipment toggle" [ref=e15535]:
+                          - cell "Power Sub-rental Equipment" [ref=e15536]
+                          - cell "toggle" [ref=e15537] [cursor=pointer]
+                        - row "Production Labor toggle" [ref=e15538]:
+                          - cell "Production Labor" [ref=e15539]
+                          - cell "toggle" [ref=e15540] [cursor=pointer]
+                        - row "Production Management toggle" [ref=e15541]:
+                          - cell "Production Management" [ref=e15542]
+                          - cell "toggle" [ref=e15543] [cursor=pointer]
+                        - row "Reimbursed Expense toggle" [ref=e15544]:
+                          - cell "Reimbursed Expense" [ref=e15545]
+                          - cell "toggle" [ref=e15546] [cursor=pointer]
+                        - row "Rigging Equipment - Subrental toggle" [ref=e15547]:
+                          - cell "Rigging Equipment - Subrental" [ref=e15548]
+                          - cell "toggle" [ref=e15549] [cursor=pointer]
+                        - row "Rigging Equipment Rental toggle" [ref=e15550]:
+                          - cell "Rigging Equipment Rental" [ref=e15551]
+                          - cell "toggle" [ref=e15552] [cursor=pointer]
+                        - row "Rigging Labor toggle" [ref=e15553]:
+                          - cell "Rigging Labor" [ref=e15554]
+                          - cell "toggle" [ref=e15555] [cursor=pointer]
+                        - row "Rigging Labor - External toggle" [ref=e15556]:
+                          - cell "Rigging Labor - External" [ref=e15557]
+                          - cell "toggle" [ref=e15558] [cursor=pointer]
+                        - row "Sales & Consumables toggle" [ref=e15559]:
+                          - cell "Sales & Consumables" [ref=e15560]
+                          - cell "toggle" [ref=e15561] [cursor=pointer]
+                        - row "Scenic Equipment Rental toggle" [ref=e15562]:
+                          - cell "Scenic Equipment Rental" [ref=e15563]
+                          - cell "toggle" [ref=e15564] [cursor=pointer]
+                        - row "Scenic Sub-Rental toggle" [ref=e15565]:
+                          - cell "Scenic Sub-Rental" [ref=e15566]
+                          - cell "toggle" [ref=e15567] [cursor=pointer]
+                        - row "Service Charge toggle" [ref=e15568]:
+                          - cell "Service Charge" [ref=e15569]
+                          - cell "toggle" [ref=e15570] [cursor=pointer]
+                        - row "Setup Charges toggle" [ref=e15571]:
+                          - cell "Setup Charges" [ref=e15572]
+                          - cell "toggle" [ref=e15573] [cursor=pointer]
+                        - row "Shipping Resale toggle" [ref=e15574]:
+                          - cell "Shipping Resale" [ref=e15575]
+                          - cell "toggle" [ref=e15576] [cursor=pointer]
+                        - row "Sub-Contracted Labor toggle" [ref=e15577]:
+                          - cell "Sub-Contracted Labor" [ref=e15578]
+                          - cell "toggle" [ref=e15579] [cursor=pointer]
+                        - row "Sub-Rental Equipment toggle" [ref=e15580]:
+                          - cell "Sub-Rental Equipment" [ref=e15581]
+                          - cell "toggle" [ref=e15582] [cursor=pointer]
+                        - row "Technical Design & Engineering toggle" [ref=e15583]:
+                          - cell "Technical Design & Engineering" [ref=e15584]
+                          - cell "toggle" [ref=e15585] [cursor=pointer]
+                        - row "Technician - Support Services toggle" [ref=e15586]:
+                          - cell "Technician - Support Services" [ref=e15587]
+                          - cell "toggle" [ref=e15588] [cursor=pointer]
+                        - row "Telecom Equipment toggle" [ref=e15589]:
+                          - cell "Telecom Equipment" [ref=e15590]
+                          - cell "toggle" [ref=e15591] [cursor=pointer]
+                        - row "Telecom Labor toggle" [ref=e15592]:
+                          - cell "Telecom Labor" [ref=e15593]
+                          - cell "toggle" [ref=e15594] [cursor=pointer]
+                        - row "Telecom Services toggle" [ref=e15595]:
+                          - cell "Telecom Services" [ref=e15596]
+                          - cell "toggle" [ref=e15597] [cursor=pointer]
+                        - row "Telecom Subrental toggle" [ref=e15598]:
+                          - cell "Telecom Subrental" [ref=e15599]
+                          - cell "toggle" [ref=e15600] [cursor=pointer]
+                        - row "TRA/AVT Royalty/Redevance toggle" [ref=e15601]:
+                          - cell "TRA/AVT Royalty/Redevance" [ref=e15602]
+                          - cell "toggle" [ref=e15603] [cursor=pointer]
+                        - row "Venue Equipment Rental toggle" [ref=e15604]:
+                          - cell "Venue Equipment Rental" [ref=e15605]
+                          - cell "toggle" [ref=e15606] [cursor=pointer]
+                        - row "Video Conferencing toggle" [ref=e15607]:
+                          - cell "Video Conferencing" [ref=e15608]
+                          - cell "toggle" [ref=e15609] [cursor=pointer]
+                        - row "Virtual Events Equipment toggle" [ref=e15610]:
+                          - cell "Virtual Events Equipment" [ref=e15611]
+                          - cell "toggle" [ref=e15612] [cursor=pointer]
+                        - row "Virtual Events Professional Service toggle" [ref=e15613]:
+                          - cell "Virtual Events Professional Service" [ref=e15614]
+                          - cell "toggle" [ref=e15615] [cursor=pointer]
+                        - row "Virtual Events Support Labor toggle" [ref=e15616]:
+                          - cell "Virtual Events Support Labor" [ref=e15617]
+                          - cell "toggle" [ref=e15618] [cursor=pointer]
+                        - row "Web Conferencing toggle" [ref=e15619]:
+                          - cell "Web Conferencing" [ref=e15620]
+                          - cell "toggle" [ref=e15621] [cursor=pointer]
+                        - row "Wedding Event Equipment Rental toggle" [ref=e15622]:
+                          - cell "Wedding Event Equipment Rental" [ref=e15623]
+                          - cell "toggle" [ref=e15624] [cursor=pointer]
+                        - row "Wedding Event Labor toggle" [ref=e15625]:
+                          - cell "Wedding Event Labor" [ref=e15626]
+                          - cell "toggle" [ref=e15627] [cursor=pointer]
+                        - row "Wedding Event Sales & Consumables toggle" [ref=e15628]:
+                          - cell "Wedding Event Sales & Consumables" [ref=e15629]
+                          - cell "toggle" [ref=e15630] [cursor=pointer]
+                        - row "xAdministrative Fee toggle" [ref=e15631]:
+                          - cell "xAdministrative Fee" [ref=e15632]
+                          - cell "toggle" [ref=e15633] [cursor=pointer]
+                        - row "xHSIA Reimbursed Expense toggle" [ref=e15634]:
+                          - cell "xHSIA Reimbursed Expense" [ref=e15635]
+                          - cell "toggle" [ref=e15636] [cursor=pointer]
+                        - row "xMiscellaneous Services toggle" [ref=e15637]:
+                          - cell "xMiscellaneous Services" [ref=e15638]
+                          - cell "toggle" [ref=e15639] [cursor=pointer]
+                        - row "ZSub Contractor Specialty Labor toggle" [ref=e15640]:
+                          - cell "ZSub Contractor Specialty Labor" [ref=e15641]
+                          - cell "toggle" [ref=e15642] [cursor=pointer]
+                        - row "ZSub Rental Specialty toggle" [ref=e15643]:
+                          - cell "ZSub Rental Specialty" [ref=e15644]
+                          - cell "toggle" [ref=e15645] [cursor=pointer]
+                        - row "add new row" [ref=e15646]:
+                          - cell [ref=e15647]
+                          - cell [ref=e15648]
+  - region "Notifications alt+T"

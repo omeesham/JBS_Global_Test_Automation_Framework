@@ -81,8 +81,3 @@
 3. Click ""Save""
 4. Navigate fresh
 5. Verify all 5 inverted: Encore Music=✗, Wireless Presenter=✗, ECDS=","All 5 checkbox inversions persist after save+reload. Covers 100% field-instance persistence","CLEANUP: Restore all 5 to defaults -> ""Save"" -> ""Ok"""
-"TC-LOC-AAO-HIST","Auto Add-On Saves - Location Management History Row Verification","locations","auto_addon","Auto Add-On Saves","Office 1604 is open in Navigator. Auto Add-On tab is active","1. After AAO save TCs complete, navigate to Location Management History tab
-2. Sort by Modified On descending (default is ascending)
-3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer)
-4. ""Conditional"": if 0 suite rows found
-5. ""Conditional"": if suite rows found","Auto Add-On saves MAY or MAY NOT produce history rows. AAO checkbox fields have NO corresponding columns in the 87-column history (confirmed NOT-TRACKED by SP1 §8). Test uses conditional branching: zero rows = NOT-TRACKED confirmation (informational); rows present = metadata integrity check. No column-level gap-checks possible. Soft assertions used throughout","Exploratory TC - confirms or refutes NOT-TRACKED hypothesis for Auto Add-On fields"

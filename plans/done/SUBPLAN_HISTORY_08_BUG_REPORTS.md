@@ -1,10 +1,12 @@
 # SUBPLAN 8: Bug Reports — History Discrepancies
 
-**Parent**: PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md
+**Parent**: PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md (SUPERSEDED)
 **Depends on**: SUBPLAN_HISTORY_07 complete
 **Agent**: OWNER
 **Phase**: 3B
-**Status**: GATED — Do NOT execute until user says "create the bug reports now"
+**Status**: SUPERSEDED
+**Superseded by**: [PLAN_HIST_COLUMN_FIRST_PIVOT.md](PLAN_HIST_COLUMN_FIRST_PIVOT.md) — folded into SP-E-LO, SP-E-LM-CUR, SP-E-LM-OTHER (2026-04-20)
+**Executed**: 2026-04-20 (folded — bug-filing work continues under the successor's gated SP-E-* subplans)
 
 ---
 

@@ -544,34 +544,3 @@
 **Expected**: Dialog excludes locations already associated with this office
 **Data**: office=1604, search=dynamic (captured from table after add)
 **Cleanup**: Delete added row + Save
-
----
-
-# Integration: History Verification Test Cases
-
-## TC-LOC-SSL-HIST: Shared Setup Saves — Location Management History Row Verification
-
-| Priority | Status | Type | Automatable | Automation File |
-|----------|--------|------|-------------|-----------------|
-| High | Automated | Integration | Yes | tests/specs/setup/locations/location-shared-setup-locations.spec.ts:390 |
-
-**Completed saves to verify**: TC-LOC-SSL-008 (self-row ON), TC-LOC-SSL-018 (add location), TC-LOC-SSL-019 (non-self OFF), TC-LOC-SSL-020 (delete row), TC-LOC-SSL-021 (combined)
-
-**Steps**:
-1. After SSL save TCs complete, navigate to Location Management History tab -> Tab loads
-2. Sort by Modified On descending (default is ascending) -> Rows newest-first
-3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer) -> Suite rows isolated
-4. Verify at least 1 suite row present -> Count > 0
-5. Verify every suite row has Modified By and Modified On non-empty -> User + timestamp present per row
-6. Informational check: extract unique values from Action/ID/Name columns (cols 59-61) across all suite rows -> Document SSL column state
-7. If SSL columns are empty: document as snapshot-model data gap (informational, not failure) -> Finding recorded
-
-**Expected**: Shared Setup saves produced history rows (snapshot model). Modified By and Modified On populated per row. SSL-specific columns (Action, ID, Name — cols 59-61) may or may not contain relationship data depending on snapshot behavior. Empty SSL columns are documented as an informational finding, not a test failure. Soft assertions used throughout.
-**Data**: location=1604 | Formats per SUBPLAN_HISTORY_01_MCP_FINDINGS.md section 1
-**Automatable**: Yes
-
-**MCP_VERIFICATION_LOG**:
-- Expected: 1 save = 1 new row (snapshot model); col 59 "Action of Shared Setup Location", col 60 "Shared Setup Location ID", col 61 "Shared Setup Location Name" reflect add/delete/modify actions
-- Source: SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 lines 17-107 (cols 59, 60, 61 all present in 87-col header list), §3 lines 259-263 (LOC snapshot model — extrapolated to SSL saves)
-- Session: 2026-04-13 14:42–15:04 UTC (Office 1604)
-- Verified: ✅ (causality extrapolated from §3 LOC snapshot; SSL saves not causally tested by SP1)

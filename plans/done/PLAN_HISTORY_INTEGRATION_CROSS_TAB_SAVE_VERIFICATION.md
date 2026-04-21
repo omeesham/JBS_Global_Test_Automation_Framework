@@ -1,7 +1,9 @@
 # PLAN: History Integration Testing — Cross-Tab Save Verification
 
 **Created**: 2026-04-13
-**Status**: Pending
+**Status**: SUPERSEDED
+**Superseded by**: [PLAN_HIST_COLUMN_FIRST_PIVOT.md](PLAN_HIST_COLUMN_FIRST_PIVOT.md) on 2026-04-20
+**Executed**: 2026-04-20 (Phase 0 + Phase 1 scaffold work landed; Phase 2 append-per-spec pattern retired under pivot. SP1-SP7 done artifacts remain valid. SUBPLAN_HISTORY_01_MCP_FINDINGS.md remains authoritative input.)
 **Priority**: P1 (trust-building — verifies saves actually record audit trail)
 **Depends on**: PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE (master plan)
 **Scope**: Both Location Management History (87 cols) AND Local Office Settings History (42 cols)

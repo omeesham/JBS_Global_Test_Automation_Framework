@@ -405,11 +405,10 @@ Note: TC-LOC-PRI-034 intentionally does not exist (skipped ID)
 
 ---
 
-## Integration: History Verification
+## History Coverage
 
-### TC-LOC-HIST-002 (PRI saves → Location Management History)
-1. After PRI save TCs complete, navigate to Location Management History tab
-2. Verify row count increased
-3. Verify col 62 (Include Service Charge in Price Guides) reflects PriceGuideInclusive state
-4. Limited coverage due to API 500 errors blocking most pricing saves
-5. Expected: PRI-024 save = 1 new history row
+Per PLAN_HIST_COLUMN_FIRST_PIVOT (2026-04-20), Pricing hist tracking is verified by the dedicated Location Management History per-column suite (see SP-B-LM-2 / SP-D2). PRI-relevant column in the 87-col history table:
+
+- col 62: Include Service Charge in Price Guides (reflects PriceGuideInclusive state)
+
+**Note:** Pricing coverage was limited by API 500 errors under the old integration-per-spec pattern; the new per-column suite drives root directly to bypass spec-scoped 500s.

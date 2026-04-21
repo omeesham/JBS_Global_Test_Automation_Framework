@@ -266,11 +266,9 @@ DROPPED: MCP-5 verification (2026-04-07) failed. Dirty form + tab switch did NOT
 
 ---
 
-## Integration: History Verification
+## History Coverage
 
-### TC-LOC-HIST-005 (ACC saves → Location Management History)
-1. After ACC save TCs complete, navigate to Location Management History tab
-2. Verify row count increased
-3. Verify col 57 (Venue/Branch Account Phone2) matches last saved value
-4. Verify col 55 (Venue/Branch Account Name) is populated
-5. Expected: Account & Address saves = history rows with correct phone/account values
+Per PLAN_HIST_COLUMN_FIRST_PIVOT (2026-04-20), Account & Address hist tracking is verified by the dedicated Location Management History per-column suite (see SP-D4). ACC-relevant columns in the 87-col history table:
+
+- col 55: Venue/Branch Account Name
+- col 57: Venue/Branch Account Phone2

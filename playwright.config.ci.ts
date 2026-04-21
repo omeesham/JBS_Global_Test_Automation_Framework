@@ -40,7 +40,7 @@ export default defineConfig({
         Node: process.version,
         Platform: process.platform,
       },
-      categories: require('./config/allure/categories.json'),
+      categories: require(`./clients/${process.env.ACTIVE_CLIENT?.trim() || 'encore'}/config/allure/categories.json`),
     }],
   ],
 

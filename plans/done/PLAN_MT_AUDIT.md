@@ -1,12 +1,32 @@
 # PLAN_MT_AUDIT — Evidence-Based Audit of SP-MT-01..07 (Report Only, No Fixes)
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-04-21
 **Priority**: P2 (deprioritized 2026-04-20 — `PLAN_BUNDLE_SMOKE_TEST.md` runs first; its outcome decides whether this audit still adds value or is superseded)
 **Created**: 2026-04-17
 **Patched**: 2026-04-20 (pre-exec audit by /ultrathink, OWNER session)
 **Deprioritized**: 2026-04-20 (bundle smoke test is a stronger correctness proof than static checks)
 **Parent**: PLAN_MULTI_TENANT_RESTRUCTURE (terminal — all 7 subplans executed)
 **Scope**: **1 plan, 1 session.** Not parallelized across subplans — cross-SP findings correlate and must live in one report.
+
+---
+
+### Execution Summary
+
+**Superseded by bundle smoke test — bundle outcome IS the correctness proof.**
+
+`PLAN_BUNDLE_SMOKE_TEST.md` ran 2026-04-21 and produced ground-truth runtime validation:
+- AC#1 npm install: ✅ exit 0 (683 packages)
+- AC#2 playwright install: ✅ exit 0
+- AC#3 tsc --noEmit: ✅ 0 TypeScript errors — all path aliases resolve (@framework/*, @client/*, @client-tests/*)
+- AC#4 spec discovery: ✅ 314 tests discovered
+- AC#5 seed spec: ✅ 1 passed (26.9s) — SSO + MFA + Navigator Cloud load in isolated sandbox
+- AC#6 real spec: ✅ covered by AC#5
+- AC#7 path leakage: ✅ zero escaped paths
+
+A working `npx playwright test` in an isolated folder with 0 TypeScript errors and 314 discovered tests is stronger evidence than any static analysis this plan would have produced. Static audit skipped per original plan decision (2026-04-20): *"its outcome decides whether this audit still adds value or is superseded."*
+
+Artifacts: `BUNDLE_MANIFEST.md` (repo root), `reports/bundle-smoke-2026-04-21.md`.
 
 ---
 

@@ -12,10 +12,14 @@ import { defineConfig } from '@playwright/test';
 import * as dotenvFlow from 'dotenv-flow';
 import * as path from 'path';
 
-// Load environment-specific variables using dotenv-flow
-// Loads from config/environments/ in order: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
+// Active client — SP-MT-03 scopes env/allure paths by client; SP-MT-06 will read from process.env.ACTIVE_CLIENT.
+const ACTIVE_CLIENT = process.env.ACTIVE_CLIENT?.trim() || 'encore';
+const CLIENT_ROOT = `clients/${ACTIVE_CLIENT}`;
+
+// Load environment-specific variables using dotenv-flow from the active client.
+// Loads in order: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
 dotenvFlow.config({
-  path: path.join(__dirname, 'config', 'environments'),
+  path: path.join(__dirname, CLIENT_ROOT, 'config', 'environments'),
   node_env: process.env.CI_ENV || process.env.NODE_ENV || 'development',
   silent: true
 });
@@ -42,8 +46,10 @@ export function getArtifactSetting(envVar: string, defaultValue: string): string
  */
 export default defineConfig({
   // ==================== TEST DISCOVERY ====================
-  // Scoped to tests/ and api-testing/ -- prevents stray root-level specs from running
-  testMatch: ['tests/**/*.spec.ts', 'api-testing/**/*.spec.ts'],
+  // Scoped to active client's tests/ and api-testing/ -- prevents stray root-level specs from running.
+  // Framework unit tests (tests/unit/, tests/examples/) and adapter tests (src/data/adapters/__tests__/)
+  // are excluded from the main suite.
+  testMatch: [`${CLIENT_ROOT}/tests/**/*.spec.ts`, `${CLIENT_ROOT}/api-testing/**/*.spec.ts`],
   testIgnore: ['**/examples/**'],
   
   // ==================== TIMEOUTS ====================
@@ -87,7 +93,7 @@ export default defineConfig({
         Node: process.version,
         Platform: process.platform,
       },
-      categories: require('./config/allure/categories.json'),
+      categories: require(`./${CLIENT_ROOT}/config/allure/categories.json`),
     }],
   ],
   
@@ -196,9 +202,9 @@ export default defineConfig({
   outputDir: 'reports/test-results/',
   snapshotDir: 'reports/test-results/snapshots',  // Visual regression baseline images
   
-  // ==================== GLOBAL HOOKS (Examples) ====================
-  globalSetup: require.resolve('./tests/setup/global-setup'),
-  globalTeardown: require.resolve('./tests/setup/global-teardown'),
+  // ==================== GLOBAL HOOKS ====================
+  globalSetup: require.resolve(`./${CLIENT_ROOT}/tests/setup/global-setup`),
+  globalTeardown: require.resolve(`./${CLIENT_ROOT}/tests/setup/global-teardown`),
   
   // ==================== DEV SERVER (Example) ====================
   // webServer: {

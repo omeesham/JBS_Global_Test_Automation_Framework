@@ -9,15 +9,7 @@ import {
 } from '../../../test-data/setup/locations/location-shared-setup-locations.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
-// SP5 integration test: capture wall-clock at suite start so TC-HIST can filter
-// history rows produced by this suite's saves. 2-min buffer absorbs clock skew.
-let suiteStartTime = 0;
-
 test.describe.serial('Location Shared Setup Locations @locations @shared-setup', () => {
-
-  test.beforeAll(() => {
-    suiteStartTime = Date.now() - 2 * 60 * 1000;
-  });
 
   test('TC-LOC-SSL-001: Tab loads with shared-setup table and Add button', async ({ locationSharedSetupLocationsPage: pg }) => {
     test.setTimeout(60_000);
@@ -379,68 +371,6 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
     await pg.deleteNonSelfRow(added!.index);
     const cleanup = await pg.clickSave();
     expect(cleanup.success).toBe(true);
-  });
-
-  // ── SP5: Cross-tab history integration — MUST be LAST in describe.serial ────
-  // Verifies that completed saves during this spec produced corresponding rows
-  // on the Location Management History tab. Uses timestamp-window filtering
-  // rather than hardcoded counts (LR-022). All assertions use expect.soft().
-  //
-  // Saves tracked: TC-008 (2), TC-017 (2), TC-018 (2), TC-019 (3), TC-020 (2),
-  // TC-021 (2), TC-024 (2) = 15 guaranteed. TC-022 cancel = no row.
-  // SSL saves involve add/delete of shared setup locations — history cols 59-61
-  // track Action, ID, Name of the shared setup relationship.
-  test('TC-LOC-SSL-HIST: All completed saves produce history rows with correct values', async ({ locationSharedSetupLocationsPage: pg, locationManagementHistoryPage }) => {
-    test.setTimeout(180_000);
-
-    // 1. Navigate to Location Management History tab from any starting URL
-    //    (navigateToHistoryTab handles: page navigation if needed, unsaved dialog dismissal per LR-026)
-    await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
-
-    // 3. Sort by Modified On descending (SP1 §11: default sort is ASCENDING)
-    await locationManagementHistoryPage.sortByModifiedOnDesc();
-    await locationManagementHistoryPage.waitForRecentTopRow();
-
-    // 4. Read all rows newer than suiteStartTime
-    const HEADERS = [
-      'Modified By', 'Modified On',
-      'Action of Shared Setup Location',
-      'Shared Setup Location ID', 'Shared Setup Location Name',
-    ];
-    const suiteRows = await locationManagementHistoryPage.getRowsSinceTimestamp(
-      suiteStartTime, HEADERS,
-    );
-
-    // 5. Sanity — at least some saves were tracked
-    expect.soft(suiteRows.length,
-      'expected at least 1 Location Mgmt History row produced by this suite\'s saves').toBeGreaterThan(0);
-
-    // 6. Every suite row must carry Modified By and Modified On
-    for (let i = 0; i < suiteRows.length; i++) {
-      const row = suiteRows[i]!;
-      expect.soft(row['Modified By'], `row ${i}: Modified By empty`).toBeTruthy();
-      expect.soft(row['Modified On'], `row ${i}: Modified On empty`).toBeTruthy();
-    }
-
-    // 7. Informational: check shared setup columns (59-61) for non-empty values.
-    // NOTE: Snapshot model may not populate Action/ID/Name columns for SSL saves —
-    // observed empty across all suite rows in first run (2026-04-16). The rows EXISTING
-    // with Modified By/On IS the verification. Empty SSL columns = finding, not failure.
-    const actionsObserved = Array.from(new Set(suiteRows.map(r => r['Action of Shared Setup Location'] ?? '')));
-    const idsObserved = Array.from(new Set(suiteRows.map(r => r['Shared Setup Location ID'] ?? '')));
-    const namesObserved = Array.from(new Set(suiteRows.map(r => r['Shared Setup Location Name'] ?? '')));
-    const hasSharedSetupData = actionsObserved.some(v => v !== '') ||
-      idsObserved.some(v => v !== '') || namesObserved.some(v => v !== '');
-    if (!hasSharedSetupData) {
-      // Document finding — SSL columns empty despite 15 saves with add/delete/toggle.
-      // This is a snapshot-model data gap, not a test defect.
-      expect.soft(true,
-        `INFO: SSL columns (Action/ID/Name) empty across all ${suiteRows.length} suite rows — snapshot model does not capture shared setup relationship data in these columns`
-      ).toBe(true);
-    }
-
-    // RC-1 cleanup: return to Basic Information so next spec's sub-tabs are visible
-    await locationManagementHistoryPage.returnToBasicInformation();
   });
 
 });

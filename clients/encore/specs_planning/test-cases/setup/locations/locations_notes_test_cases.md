@@ -385,33 +385,3 @@
 **Steps**: 1. Open **Notes** tab, ensure empty state 2. Fill row 0 "Cancel test note" (16 chars) ✓ Save enabled 3. Click **Save** button (opens dialog) 4. Click **Cancel** in dialog ✓ Dialog closes; Save still enabled 5. Reload page, click **Notes** tab ✓ Empty state ("No Notes Available") — note was NOT saved
 **Expected**: Cancelling save dialog prevents persistence; note is discarded on reload
 **Data**: office=1604 | text="Cancel test note" (16 chars)
-
----
-
-# Integration: History Verification Test Cases
-
-## TC-LOC-NTS-HIST: Notes Saves — Location Management History Row Verification
-
-| Priority | Status | Type | Automatable | Automation File |
-|----------|--------|------|-------------|-----------------|
-| High | Automated | Integration | Yes | tests/specs/setup/locations/location-notes.spec.ts:371 |
-
-**Completed saves to verify**: TC-LOC-NTS-008 (Save notes via dialog), TC-LOC-NTS-009 (Notes persist after reload), TC-LOC-NTS-012 (Delete all + save empty), TC-LOC-NTS-013 (Special/HTML chars save), TC-LOC-NTS-018 (XSS payload save), TC-LOC-NTS-019 (SQL injection payload save), TC-LOC-NTS-020 (Emoji/unicode save), TC-LOC-NTS-023 (Full lifecycle save), TC-LOC-NTS-024 (Multi-row save), TC-LOC-NTS-025 (Boundary 4000 char save), TC-LOC-NTS-026 (Partial deletion save)
-
-**Steps**:
-1. After NTS save TCs complete, navigate to Location Management History tab -> Tab loads
-2. Sort by Modified On descending (default is ascending) -> Rows newest-first
-3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer) -> Suite rows isolated
-4. Verify at least 1 suite row present -> Count > 0
-5. Verify every suite row has Modified By and Modified On non-empty -> User + timestamp present per row
-6. Gap-check: extract unique Notes values from all suite rows and verify at least one is non-empty -> Notes column captures saved content (snapshot model stores full Notes state)
-
-**Expected**: Notes saves produced history rows (snapshot model). Modified By and Modified On populated per row. Notes column (col 70) contains at least one non-empty value across saves, confirming the snapshot model captures Notes content. Soft assertions used throughout.
-**Data**: location=1604 | Formats per SUBPLAN_HISTORY_01_MCP_FINDINGS.md section 1
-**Automatable**: Yes
-
-**MCP_VERIFICATION_LOG**:
-- Expected: 1 save = 1 new row (snapshot model); col 70 "Notes" contains saved note content
-- Source: SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 lines 17-107 (col 70 "Notes" present in 87-col header list), §3 lines 259-263 (LOC snapshot model — extrapolated to Notes saves)
-- Session: 2026-04-13 14:42–15:04 UTC (Office 1604)
-- Verified: ✅ (causality extrapolated from §3 LOC snapshot; Notes saves not causally tested by SP1)

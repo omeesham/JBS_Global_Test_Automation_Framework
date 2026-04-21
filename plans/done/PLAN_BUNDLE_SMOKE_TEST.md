@@ -1,6 +1,7 @@
 # PLAN: Runnable Bundle Smoke Test (colleague validation)
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-04-21
 **Priority**: P1 (second only to your current top-priority task; MT audit is parked behind this)
 **Created**: 2026-04-20
 **Parent**: none (peer to `PLAN_MT_AUDIT.md`)

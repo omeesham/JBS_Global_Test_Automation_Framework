@@ -248,11 +248,11 @@
 
 ---
 
-## Integration: History Verification
+## History Coverage
 
-### TC-LOC-HIST-003 (CUR saves → Location Management History)
-1. After CUR save TCs complete, navigate to Location Management History tab
-2. Verify row count increased
-3. Verify col 6 (Currency) reflects latest saved state; col 64 if pricing currency changed
-4. Confirm NOT-TRACKED: Merchant currency selections have no column in 87
-5. Expected: Currency selection saves = history rows. Merchant changes NOT tracked
+Per PLAN_HIST_COLUMN_FIRST_PIVOT (2026-04-20), Currency hist tracking is verified by the dedicated Location Management History per-column suite (see SP-B-LM-1 / SP-D1). CUR-relevant columns in the 87-col history table:
+
+- col 6: Currency
+- col 64: pricing Currency
+
+**NOT-TRACKED:** Merchant currency selections — no column in 87.

@@ -3,7 +3,7 @@
 **Last updated**: 2026-04-21
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 68 pending · 150 done · 7 stale (>14d) · 0 DONE-in-pending
+**Totals**: 67 pending · 154 done · 7 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -34,6 +34,7 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | File | Title | Priority | Status | Created |
 |---|---|---|---|---|
 | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | MASTER PLAN — HIST Column-First Pivot ("Column-First Pivot Plan") | P0 (client delivery — supersedes every in-flight HIST plan) | PENDING | 2026-04-20 |
+| ↳ [SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md](pending/SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md) | SUBPLAN SP-B-LO-V: MCP Live Verification — Jira Claims vs Our Catalog | P0 (blocks SP-B-LO-R, SP-C1, SP-C2, SP-E-LO) | PENDING | 2026-04-21 |
 | ↳ [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](pending/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | SUBPLAN SP-B-LO-R: Reconcile + Merge — Local Office Root-Column Catalog | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | SUBPLAN SP-B-LM-1: MCP Catalog — Currency Tab → 87-col Location Management History | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | SUBPLAN SP-B-LM-2: MCP Catalog — Pricing Tab → 87-col Location Management History | P0 | PENDING | 2026-04-20 |
@@ -72,14 +73,12 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | [PLAN_MULTI_TENANT_RESTRUCTURE.md](pending/PLAN_MULTI_TENANT_RESTRUCTURE.md) | MASTER PLAN: Multi-Tenant Repo Restructure | P0 (blocks colleague handoff until SP-MT-06 verifies green) | PENDING | 2026-04-16 |
 | [PLAN_HIST_COMMIT_HISTORY_WORK.md](pending/PLAN_HIST_COMMIT_HISTORY_WORK.md) | PLAN_HIST_COMMIT_HISTORY_WORK | P0 (CRITICAL — work is one `git stash` from oblivion) | PENDING | 2026-04-15 |
 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P0 (trust-building for test suite) | PENDING | 2026-04-03 |
-| [PLAN_BUNDLE_SMOKE_TEST.md](pending/PLAN_BUNDLE_SMOKE_TEST.md) | PLAN: Runnable Bundle Smoke Test (colleague validation) | P1 (second only to your current top-priority task; MT audit is parked behind this) | PENDING | 2026-04-20 |
 | [SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md](pending/SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md) | SUBPLAN: Claude/Copilot Consolidation | P1 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | SUBPLAN: Agent File Restructure | P1 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | SUBPLAN: Duplicate & Junk Purge | P1 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md](pending/SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md) | SUBPLAN: Copilot Accountability Audit | P1 (before SP-02 consolidation — need blame clarity first) | PENDING | 2026-04-16 |
 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PLAN: Chat UI Bugs — Website Pipeline Experience | P1 | PENDING | 2026-04-15 |
 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P1 (HIGH — INDEX is misleading future agents/sessions) | PENDING | 2026-04-15 |
-| [PLAN_MT_AUDIT.md](pending/PLAN_MT_AUDIT.md) | PLAN_MT_AUDIT — Evidence-Based Audit of SP-MT-01..07 (Report Only, No Fixes) | P2 (deprioritized 2026-04-20 — `PLAN_BUNDLE_SMOKE_TEST.md` runs first; its outcome decides whether this audit still adds value or is superseded) | PENDING | 2026-04-17 |
 | [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | SUBPLAN: Dead Code & Reusability | P2 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | SUBPLAN: Doc & MD Slop Audit | P2 | PENDING | 2026-04-16 |
 | [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | SUBPLAN: Slop Prevention Guardrails | P2 | PENDING | 2026-04-16 |
@@ -110,6 +109,10 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 
 | File | Title | Status | Completed |
 |---|---|---|---|
+| [PLAN_BUNDLE_OPERATIONAL_HARDENING.md](done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md) | PLAN: Bundle Operational Hardening — Structural Fixes for Working Client Delivery | DONE | 2026-04-21 |
+| [PLAN_BUNDLE_SMOKE_TEST.md](done/PLAN_BUNDLE_SMOKE_TEST.md) | PLAN: Runnable Bundle Smoke Test (colleague validation) | DONE | 2026-04-21 |
+| [PLAN_CLIENT_HANDOFF_VALIDATION.md](done/PLAN_CLIENT_HANDOFF_VALIDATION.md) | PLAN: Client Handoff Validation — Minimum Package + Full Suite + Allure Quality | DONE | 2026-04-21 |
+| [PLAN_MT_AUDIT.md](done/PLAN_MT_AUDIT.md) | PLAN_MT_AUDIT — Evidence-Based Audit of SP-MT-01..07 (Report Only, No Fixes) | DONE | 2026-04-21 |
 | [SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md](done/SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md) | SUBPLAN SP-B-LO-1b: MCP Catalog — Local Office Basic Info Residual Parents → 42-col History Mapping | DONE | 2026-04-21 |
 | [SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md](done/SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md) | SUBPLAN SP-B-LO-2b: MCP Direct-Verify — Local Office ECT Residual Items → 42-col History Mapping | DONE | 2026-04-21 |
 | [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | SUBPLAN SP-B-LO-2: MCP Catalog — Local Office ECT → 42-col History Mapping | DONE | 2026-04-21 |
@@ -268,8 +271,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (68 files)
-  done/                 ← completed plans (150 files)
+  pending/              ← active plans (67 files)
+  done/                 ← completed plans (154 files)
 ```
 
 When completing a plan:
@@ -283,11 +286,14 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-04-21 | pending | [SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md](pending/SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md) | PENDING |
+| 2026-04-21 | done | [PLAN_BUNDLE_OPERATIONAL_HARDENING.md](done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md) | DONE |
+| 2026-04-21 | done | [PLAN_BUNDLE_SMOKE_TEST.md](done/PLAN_BUNDLE_SMOKE_TEST.md) | DONE |
+| 2026-04-21 | done | [PLAN_CLIENT_HANDOFF_VALIDATION.md](done/PLAN_CLIENT_HANDOFF_VALIDATION.md) | DONE |
+| 2026-04-21 | done | [PLAN_MT_AUDIT.md](done/PLAN_MT_AUDIT.md) | DONE |
 | 2026-04-21 | done | [SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md](done/SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md) | DONE |
 | 2026-04-21 | done | [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | DONE |
-| 2026-04-20 | pending | [PLAN_BUNDLE_SMOKE_TEST.md](pending/PLAN_BUNDLE_SMOKE_TEST.md) | PENDING |
 | 2026-04-20 | pending | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | PENDING |
-| 2026-04-20 | pending | [PLAN_MT_AUDIT.md](pending/PLAN_MT_AUDIT.md) | PENDING |
 | 2026-04-20 | pending | [PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md](pending/PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](pending/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | PENDING |
@@ -320,6 +326,3 @@ When completing a plan:
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_35_E_LO_BUGS.md](pending/SUBPLAN_HIST_PIVOT_35_E_LO_BUGS.md) | GATED |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_36_E_LM_CUR_BUGS.md](pending/SUBPLAN_HIST_PIVOT_36_E_LM_CUR_BUGS.md) | GATED |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_37_E_LM_OTHER_BUGS.md](pending/SUBPLAN_HIST_PIVOT_37_E_LM_OTHER_BUGS.md) | GATED |
-| 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md](pending/SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md) | PENDING |
-| 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md](pending/SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md) | PENDING |
-| 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md](pending/SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md) | PENDING |

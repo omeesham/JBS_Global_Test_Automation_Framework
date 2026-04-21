@@ -215,10 +215,8 @@ Precondition: Non-self location added
 
 ---
 
-## Integration: History Verification
+## History Coverage
 
-### TC-LOC-HIST-006 (SSL saves → Location Management History)
-1. After SSL save TCs complete, navigate to Location Management History tab
-2. Verify row count increased by number of completed saves
-3. Verify cols 59-61 (Action/ID/Name of Shared Setup Location) reflect latest save
-4. Expected: Each Shared Setup save = 1 history row with correct action/location data
+Per PLAN_HIST_COLUMN_FIRST_PIVOT (2026-04-20), Shared Setup Locations hist tracking is verified by the dedicated Location Management History per-column suite (see SP-D7). SSL-relevant columns in the 87-col history table:
+
+- cols 59-61: Action / ID / Name of Shared Setup Location

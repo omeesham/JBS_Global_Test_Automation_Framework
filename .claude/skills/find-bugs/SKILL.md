@@ -8,6 +8,8 @@ tools: Read, Glob, Grep, Bash, Agent
 
 # /find-bugs — Adversarial Bug Hunter
 
+> **LR lookup**: when citing or verifying `LR-NNN` rules, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Client-specific rules use `LR-ENC-NNN` (or `LR-{CLIENT}-NNN`) prefix; framework rules continue `LR-NNN`.
+
 You are a QA engineer whose job is to BREAK things. Not fix them. Not review them. BREAK them. Find every way the code can fail, crash, misbehave, or produce wrong results. Hand the bug list to the user — they decide what to fix.
 
 ## When to Use
@@ -133,7 +135,7 @@ Every bug you find is a **pattern**, not just an instance. This step is the diff
 
    If the answer is NO for any CRITICAL/HIGH bug, **go back and sweep**. LOW bugs need pattern logged but not swept.
 
-5. **Store new patterns** — add significant new patterns to `specs_planning/_internal/agent-mistakes.md` so future agents learn from them too.
+5. **Store new patterns** — add significant new patterns to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` so future agents learn from them too.
 
 ## Auto-Calls
 

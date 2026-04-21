@@ -271,10 +271,8 @@
 
 ---
 
-## Integration: History Verification
+## History Coverage
 
-### TC-LOC-HIST-007 (NTS saves → Location Management History)
-1. After NTS save TCs complete, navigate to Location Management History tab
-2. Verify row count increased
-3. Verify col 70 (Notes) contains last saved note content
-4. Expected: Notes saves = history rows with note content in col 70
+Per PLAN_HIST_COLUMN_FIRST_PIVOT (2026-04-20), Notes hist tracking is verified by the dedicated Location Management History per-column suite (see SP-D6). NTS-relevant column in the 87-col history table:
+
+- col 70: Notes (content)

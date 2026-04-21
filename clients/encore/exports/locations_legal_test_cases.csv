@@ -92,10 +92,3 @@
 8. Reload page and navigate to ""Legal"" tab
 9. Verify ""Service Charge Name""
 10. Verify ""Terms and Conditions Name""","Changing both dropdowns simultaneously and saving persists both values through reload; cleanup restores defaults","CLEANUP REQUIRED: Change ""Service Charge Name"" back to ""Resort Service Charge"" -> Change ""Terms and Conditions Name"" back to ""LDW"" -> Save -> Confirm dialog -> Verify both restored"
-"TC-LOC-LGL-HIST","Legal Saves - Location Management History Row Verification","locations","legal","Legal Saves","Office 1604 is open in Navigator. Legal tab is active","1. After LGL save TCs complete, navigate to Location Management History tab
-2. Sort by Modified On descending (default is ascending)
-3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer)
-4. Verify at least 1 suite row present
-5. Verify every suite row has Modified By and Modified On non-empty
-6. Gap-check: verify Service Charge Name column contains expected values from save TCs (TC-011, TC-012, TC-018)
-7. Gap-check: verify Terms and Conditions column contains expected values from save TCs","Each Legal save produced 1 new history row (snapshot model). Modified By and Modified On populated per row. Service Charge Name (col 34) and Terms and Conditions (col 38) reflect saved selections. Soft assertions collect all mismatches without early failure",""

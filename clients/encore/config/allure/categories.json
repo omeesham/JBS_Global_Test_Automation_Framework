@@ -1,9 +1,15 @@
 [
   {
-    "name": "Product Defects",
-    "description": "Assertion failures indicating potential application bugs",
-    "matchedStatuses": ["failed"],
-    "messageRegex": ".*expect\\(.*\\)\\.to.*|.*Expected.*Received.*|.*toBe|.*toEqual|.*toContain|.*toHaveText|.*toBeVisible|.*toHaveValue.*"
+    "name": "Authentication Failures",
+    "description": "SSO / Microsoft login / session / authenticated-session-creation failures",
+    "matchedStatuses": ["failed", "broken"],
+    "messageRegex": ".*Authenticated session creation failed.*|.*SSO.*|.*Microsoft.*|.*sign.in.*|.*session.*expired.*|.*login.*failed.*|.*MFA.*|.*TOTP.*"
+  },
+  {
+    "name": "Network Errors",
+    "description": "HTTP errors, connection failures, or API issues",
+    "matchedStatuses": ["failed", "broken"],
+    "messageRegex": ".*ERR_CONNECTION.*|.*net::.*|.*ECONNREFUSED.*|.*status.*[45]\\d{2}.*|.*fetch.*failed.*"
   },
   {
     "name": "Timeout Errors",
@@ -18,21 +24,15 @@
     "messageRegex": ".*locator\\..*|.*element.*not.*found.*|.*not.*visible.*|.*not.*attached.*|.*strict mode violation.*"
   },
   {
-    "name": "Authentication Failures",
-    "description": "SSO / Microsoft login / session failures",
-    "matchedStatuses": ["failed", "broken"],
-    "messageRegex": ".*SSO.*|.*login.*|.*auth.*|.*Microsoft.*|.*sign.in.*|.*session.*expired.*"
-  },
-  {
-    "name": "Network Errors",
-    "description": "HTTP errors, connection failures, or API issues",
-    "matchedStatuses": ["failed", "broken"],
-    "messageRegex": ".*ERR_CONNECTION.*|.*net::.*|.*ECONNREFUSED.*|.*status.*[45]\\d{2}.*|.*fetch.*failed.*"
-  },
-  {
     "name": "Test Infrastructure",
     "description": "Fixture setup failures, configuration issues, or framework errors",
     "matchedStatuses": ["failed", "broken"],
     "messageRegex": ".*fixture.*|.*setup.*failed.*|.*beforeAll.*|.*beforeEach.*|.*Worker.*"
+  },
+  {
+    "name": "Product Defects",
+    "description": "Assertion failures indicating potential application bugs (catch-all — matches after specific buckets above)",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*expect\\(.*\\)\\.to.*|.*Expected.*Received.*|.*toBe|.*toEqual|.*toContain|.*toHaveText|.*toBeVisible|.*toHaveValue.*"
   }
 ]

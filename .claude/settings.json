@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run validate:activity-log:preflight *)",
+      "Bash(npm run plans:reindex:check)",
+      "Bash(npm run validate:sync)",
+      "Bash(npm run typecheck)",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__Claude_in_Chrome__read_network_requests",
+      "mcp__Claude_in_Chrome__tabs_context_mcp"
+    ]
+  }
+}

@@ -8,6 +8,8 @@ tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite, AskUserQuestion, W
 
 # /chain — Autonomous Plan Chain Execution
 
+> **LR lookup**: when citing or verifying `LR-NNN` rules during plan execution, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Client-specific rules use `LR-ENC-NNN` (or `LR-{CLIENT}-NNN`) prefix; framework rules continue `LR-NNN`.
+
 When the user invokes `/chain`, you become an autonomous plan execution engine. You process every plan in `plans/pending/` through a rigorous multi-phase pipeline, using the right skill at every phase, compacting context between plans so each one gets a clean mental slate.
 
 ## When to Use
@@ -136,7 +138,7 @@ Priority: [P0/P1/P2] | Dependencies: [list or "none"]
 
 Before auditing the first plan, load the repo's institutional memory. This context persists across plans in the chain (it's universal, not plan-specific). Agents that skip this step repeat mistakes documented in these files — activity logs show 40+ occurrences.
 
-1. **Read `specs_planning/_internal/agent-mistakes.md`** — 134 rules. Focus on ALL-* (shared) and your task-type prefix.
+1. **Read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`** — 134 rules. Focus on ALL-* (shared) and your task-type prefix.
 2. **Read `.claude/context/patterns.md`** — Decision tree patterns for recurring situations.
 3. **Scan CLAUDE.md Learned Rules (LR-001 through LR-026)** — note which triggers are active for this chain's plans.
 

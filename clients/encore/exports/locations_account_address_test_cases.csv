@@ -96,10 +96,3 @@
 4. Save and confirm
 5. Reload
 6. try/finally: if name changed, restore original account","Account selection applies, persists through save+reload","CLEANUP REQUIRED: Read current venue name (store for cleanup)"
-"TC-LOC-ACC-HIST","Account & Address Saves - Location Management History Row Verification","locations","account_address","Account & Address Saves","Office 1604 is open in Navigator. Account and Address tab is active","1. After ACC save TCs complete, navigate to Location Management History tab
-2. Sort by Modified On descending (default is ascending)
-3. Read rows newer than suite start time via timestamp-window isolation (2-min buffer)
-4. Verify at least 1 suite row present
-5. Verify every suite row has Modified By and Modified On non-empty
-6. Gap-check: verify Venue/Branch Account Phone2 column contains expected state changes from save TCs (TC-019/020)
-7. Gap-check: verify Venue/Branch Account Name column is populated","Account & Address saves produced history rows (snapshot model). Modified By and Modified On populated per row. Phone2 (col 57) and Account Name (col 55) reflect saved values. Soft assertions collect all mismatches",""
