@@ -37,7 +37,7 @@ export abstract class LocationTestOrchestrators extends LocationFormHelpers {
       await this.getElement(spinKey).press('Tab');
       const hasError = await this.hasValidationError(errorContains);
       if (!hasError) {
-        // Cat-B: some borderline values disable Save silently without an inline error paragraph.
+        // Some borderline values disable Save silently without an inline error paragraph.
         const saveDisabled = !(await this.isSaveEnabled());
         if (!saveDisabled) {
           return { passed: false, detail: `Expected error containing "${errorContains}", none found; Save also enabled -- app accepted the value` };
@@ -45,7 +45,7 @@ export abstract class LocationTestOrchestrators extends LocationFormHelpers {
         await this.setSpinValue(spinKey, restoreValue);
         await this.clickSave();
         await this.waitForAngularStable();
-        return { passed: true, detail: `${value} -> silently invalid (save disabled, no inline error -- Cat-B) [ok]` };
+        return { passed: true, detail: `${value} -> silently invalid (save disabled, no inline error) [ok]` };
       }
       await this.setSpinValue(spinKey, restoreValue);
       await this.clickSave();

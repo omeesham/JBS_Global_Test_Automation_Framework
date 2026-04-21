@@ -1,13 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Base class that ALL page objects extend. Provides click, fill, wait, scroll methods with built-in retry logic.
- * OWNER: generator, healer
- * IMPACT: critical - changes break every single page object in the framework
- * DEPENDS-ON: selectors/index.ts (getTsSelector), logger.ts, playwright
- * USED-BY: every *.page.ts file (LoginPage, HomePage, all page objects)
- * RULES: Never remove methods - breaks all page objects. Add new helpers only. Keep retry logic working. All methods must use getTsSelector() for element lookup.
- */
-
 import { Page, Locator } from '@playwright/test';
 import { Log } from '@framework/utils/logger';
 import { getTsSelector } from '../selectors';
@@ -23,12 +13,12 @@ export class BasePage {
     this.config = config;
   }
 
-  /**
-   * Get Playwright selector string from TypeScript selector repository.
-   * @param elementName - Element name from selectors/index.ts (e.g., 'txtUsername', 'btnLogin')
-   * @returns CSS selector string
-   * @throws Error if selector not found in repository
-   */
+ /**
+ * Get Playwright selector string from TypeScript selector repository.
+ * @param elementName - Element name from selectors/index.ts (e.g., 'txtUsername', 'btnLogin')
+ * @returns CSS selector string
+ * @throws Error if selector not found in repository
+ */
   protected getLocator(elementName: string): string {
     const locator = getTsSelector(elementName);
     if (!locator) {
@@ -38,31 +28,31 @@ export class BasePage {
     return locator;
   }
 
-  /**
-   * Get selector from TypeScript repository without throwing error if not found.
-   * @param elementName - Element name from selectors/index.ts
-   * @returns CSS selector string or null if not found
-   */
+ /**
+ * Get selector from TypeScript repository without throwing error if not found.
+ * @param elementName - Element name from selectors/index.ts
+ * @returns CSS selector string or null if not found
+ */
   protected getSelectorFromTs(elementName: string): string | null {
     return getTsSelector(elementName);
   }
 
-  /**
-   * Get Playwright Locator object for element.
-   * @param elementName - Element name from selectors/index.ts
-   * @returns Playwright Locator ready for interactions
-   */
+ /**
+ * Get Playwright Locator object for element.
+ * @param elementName - Element name from selectors/index.ts
+ * @returns Playwright Locator ready for interactions
+ */
   protected getElement(elementName: string): Locator {
     const selector = this.getLocator(elementName);
     return this.page.locator(selector);
   }
 
-  /**
-   * Navigate safely when page may have unsaved form state (dirty Angular forms).
-   * Registers a temporary beforeunload dialog handler, navigates, then removes it.
-   * Use this instead of navigateTo() when the page might have unsaved edits.
-   * LR-011: Reload after non-numeric input requires safe navigation to avoid beforeunload trap.
-   */
+ /**
+ * Navigate safely when page may have unsaved form state (dirty Angular forms).
+ * Registers a temporary beforeunload dialog handler, navigates, then removes it.
+ * Use this instead of navigateTo when the page might have unsaved edits.
+ * Reload after non-numeric input requires safe navigation to avoid beforeunload trap.
+ */
   protected async safeNavigateTo(url: string, options?: { waitUntil?: 'load' | 'domcontentloaded' | 'networkidle'; timeout?: number }): Promise<void> {
     const handler = async (dialog: { type(): string; accept(): Promise<void> }) => {
       if (dialog.type() === 'beforeunload') {
@@ -70,7 +60,7 @@ export class BasePage {
           Log.info('[dialog] Auto-accepting beforeunload dialog during safe navigation');
           await dialog.accept();
         } catch {
-          // Dialog already accepted by global fixture handler — safe to ignore
+ // Dialog already accepted by global fixture handler — safe to ignore
           Log.info('[dialog] Beforeunload dialog already handled by another listener');
         }
       }
@@ -83,12 +73,12 @@ export class BasePage {
     }
   }
 
-  /**
-   * Navigate to URL with retry logic.
-   * @param url - Target URL
-   * @param options - Configuration (waitUntil: 'domcontentloaded', timeout: 30000ms, maxRetries: 2)
-   * @throws Error if navigation fails after all retry attempts
-   */
+ /**
+ * Navigate to URL with retry logic.
+ * @param url - Target URL
+ * @param options - Configuration (waitUntil: 'domcontentloaded', timeout: 30000ms, maxRetries: 2)
+ * @throws Error if navigation fails after all retry attempts
+ */
   async navigateTo(url: string, options?: { waitUntil?: 'load' | 'domcontentloaded' | 'networkidle'; timeout?: number; maxRetries?: number }): Promise<void> {
     const { waitUntil = 'domcontentloaded', timeout = 30000, maxRetries = 2 } = options || {};
     Log.info(`Navigating to: ${url}`);
@@ -109,12 +99,12 @@ export class BasePage {
     }
   }
 
-  /**
-   * Click element with retry logic on failure.
-   * @param elementName - Element name from selectors/index.ts
-   * @param options - Configuration (timeout: 10000ms, maxRetries: 3)
-   * @returns true if click successful
-   */
+ /**
+ * Click element with retry logic on failure.
+ * @param elementName - Element name from selectors/index.ts
+ * @param options - Configuration (timeout: 10000ms, maxRetries: 3)
+ * @returns true if click successful
+ */
   async clickWithRetry(elementName: string, options?: { timeout?: number; maxRetries?: number }): Promise<boolean> {
     const { timeout = 10000, maxRetries = 3 } = options || {};
     Log.info(`Clicking element: ${elementName}`);
@@ -134,18 +124,18 @@ export class BasePage {
         await this.page.waitForTimeout(500);
       }
     }
-    // Unreachable: loop always returns true or throws on final attempt
+ // Unreachable: loop always returns true or throws on final attempt
     throw new Error(`Click failed: ${elementName}`);
   }
 
-  /**
-   * Fill input field with value and optional verification.
-   * @param elementName - Element name from selectors/index.ts
-   * @param value - Text value to fill
-   * @param options - Configuration (timeout: 10000ms, verify: true, clear: true)
-   * @returns true if fill successful
-   * @throws Error if fill operation fails
-   */
+ /**
+ * Fill input field with value and optional verification.
+ * @param elementName - Element name from selectors/index.ts
+ * @param value - Text value to fill
+ * @param options - Configuration (timeout: 10000ms, verify: true, clear: true)
+ * @returns true if fill successful
+ * @throws Error if fill operation fails
+ */
   async fillWithValidation(elementName: string, value: string, options?: { timeout?: number; verify?: boolean; clear?: boolean }): Promise<boolean> {
     const { timeout = 10000, verify = true, clear = true } = options || {};
     Log.info(`Filling element: ${elementName} with value: ${value.substring(0, 20)}...`);
@@ -172,12 +162,12 @@ export class BasePage {
     }
   }
 
-  /**
-   * Wait for element to become visible.
-   * @param elementName - Element name from selectors/index.ts
-   * @param timeout - Maximum wait time in milliseconds (default: 10000)
-   * @throws Error if element does not become visible within timeout
-   */
+ /**
+ * Wait for element to become visible.
+ * @param elementName - Element name from selectors/index.ts
+ * @param timeout - Maximum wait time in milliseconds (default: 10000)
+ * @throws Error if element does not become visible within timeout
+ */
   async waitForElement(elementName: string, timeout: number = 10000): Promise<void> {
     Log.info(`Waiting for element: ${elementName}`);
     try {
@@ -190,10 +180,10 @@ export class BasePage {
     }
   }
 
-  /**
-   * Wait for page to fully load and spinners to disappear.
-   * @param options - Configuration (state: 'domcontentloaded', spinnerSelectors: ['.spinner', '.loading'], timeout: 30000)
-   */
+ /**
+ * Wait for page to fully load and spinners to disappear.
+ * @param options - Configuration (state: 'domcontentloaded', spinnerSelectors: ['.spinner', '.loading'], timeout: 30000)
+ */
   async waitForPageLoad(options?: { state?: 'load' | 'domcontentloaded' | 'networkidle'; spinnerSelectors?: string[]; timeout?: number }): Promise<void> {
     const { state = 'domcontentloaded', spinnerSelectors = ['.spinner', '.loading'], timeout = 30000 } = options || {};
     Log.info('Waiting for page load...');
@@ -210,20 +200,20 @@ export class BasePage {
     Log.info('[OK] Page loaded');
   }
 
-  /**
-   * Wait for Angular to finish all pending async operations (zone.js stability).
-   * Falls back silently if Angular testabilities are not available (non-Angular pages).
-   * Use this after navigation/reload instead of networkidle for Angular SPAs.
-   * RCA 2026-04-01: networkidle hangs on Angular SPAs because zone.js micro-tasks
-   * keep the network "active". This method uses Angular's own stability API instead.
-   */
+ /**
+ * Wait for Angular to finish all pending async operations (zone.js stability).
+ * Falls back silently if Angular testabilities are not available (non-Angular pages).
+ * Use this after navigation/reload instead of networkidle for Angular SPAs.
+ * RCA : networkidle hangs on Angular SPAs because zone.js micro-tasks
+ * keep the network "active". This method uses Angular's own stability API instead.
+ */
   protected async waitForAngularStable(timeout = 10_000): Promise<void> {
     try {
       await this.page.evaluate((t) => {
         return new Promise<void>((resolve) => {
           const maxWait = setTimeout(() => resolve(), t);
           try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const testabilities = (window as any).getAllAngularTestabilities?.();
             if (!testabilities || testabilities.length === 0) {
               clearTimeout(maxWait);
@@ -241,16 +231,16 @@ export class BasePage {
         });
       }, timeout);
     } catch {
-      // page.evaluate can throw if page navigated away — safe to ignore
+ // page.evaluate can throw if page navigated away — safe to ignore
     }
   }
 
-  /**
-   * Take screenshot and save to reports/test-results/screenshots/.
-   * @param name - Screenshot filename prefix
-   * @param fullPage - Capture full scrollable page (default: true)
-   * @returns Path to saved screenshot file
-   */
+ /**
+ * Take screenshot and save to reports/test-results/screenshots/.
+ * @param name - Screenshot filename prefix
+ * @param fullPage - Capture full scrollable page (default: true)
+ * @returns Path to saved screenshot file
+ */
   async takeScreenshot(name: string, fullPage: boolean = true): Promise<string> {
     const timestamp = new Date().toISOString().replace(/:/g, '-');
     const filename = `screenshot-${name}-${timestamp}.png`;
@@ -266,21 +256,21 @@ export class BasePage {
     }
   }
 
-  /**
-   * Get current page URL.
-   * @returns Current page URL as string
-   */
+ /**
+ * Get current page URL.
+ * @returns Current page URL as string
+ */
   getCurrentUrl(): string {
     return this.page.url();
   }
 
-  /**
-   * Navigate to URL only if not already there. Reusable across page objects.
-   * Checks if current URL contains the target path before calling page.goto().
-   * @param url - Full target URL
-   * @param pathCheck - Substring to check in current URL (e.g. 'locations/1604/settings')
-   * @returns true if navigation occurred, false if skipped
-   */
+ /**
+ * Navigate to URL only if not already there. Reusable across page objects.
+ * Checks if current URL contains the target path before calling page.goto.
+ * @param url - Full target URL
+ * @param pathCheck - Substring to check in current URL (e.g. 'locations/1604/settings')
+ * @returns true if navigation occurred, false if skipped
+ */
   async navigateIfNeeded(url: string, pathCheck: string): Promise<boolean> {
     if (this.page.url().includes(pathCheck)) {
       Log.info(`Already at ${pathCheck}, skipping navigation`);
@@ -290,20 +280,20 @@ export class BasePage {
     return true;
   }
 
-  /**
-   * Get page title.
-   * @returns Page title as string
-   */
+ /**
+ * Get page title.
+ * @returns Page title as string
+ */
   async getPageTitle(): Promise<string> {
     return await this.page.title();
   }
 
-  /**
-   * Get text content from element.
-   * @param elementName - Element name from selectors/index.ts
-   * @param options - Configuration (trim: true)
-   * @returns Element text content
-   */
+ /**
+ * Get text content from element.
+ * @param elementName - Element name from selectors/index.ts
+ * @param options - Configuration (trim: true)
+ * @returns Element text content
+ */
   async getTextContent(elementName: string, options?: { trim?: boolean }): Promise<string> {
     const { trim = true } = options || {};
     try {
@@ -318,12 +308,12 @@ export class BasePage {
     }
   }
 
-  /**
-   * Check if element is visible on page.
-   * @param elementName - Element name from selectors/index.ts
-   * @param timeout - Maximum wait time in milliseconds (default: 5000)
-   * @returns true if element is visible, false otherwise
-   */
+ /**
+ * Check if element is visible on page.
+ * @param elementName - Element name from selectors/index.ts
+ * @param timeout - Maximum wait time in milliseconds (default: 5000)
+ * @returns true if element is visible, false otherwise
+ */
   async isElementVisible(elementName: string, timeout: number = 5000): Promise<boolean> {
     try {
       const element = this.getElement(elementName);
@@ -334,19 +324,19 @@ export class BasePage {
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // SHARED PAGE OBJECT HELPERS (PLAN_04 — extracted from Currency/Pricing/LocalInfo)
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // SHARED PAGE OBJECT HELPERS (PLAN_04 — extracted from Currency/Pricing/LocalInfo)
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /**
-   * Click a save button and confirm the Save Changes dialog if it appears.
-   * Extracted from LocationCurrencyPage, LocationPricingPage, LocationLocalInfoPage (identical pattern).
-   * ALL-020: shared pattern used by 3+ page objects → belongs in BasePage.
-   * @param saveBtnKey - Selector key for the save button (e.g., 'btnSavePricing')
-   * @param dialogKey - Selector key for the confirmation dialog (default: 'dlgSaveChanges')
-   * @param confirmBtnKey - Selector key for the confirm button (default: 'btnSaveChangesConfirm')
-   * @param dialogTimeout - ms to wait for dialog to appear before assuming none (default: 5000)
-   */
+ /**
+ * Click a save button and confirm the Save Changes dialog if it appears.
+ * Extracted from LocationCurrencyPage, LocationPricingPage, LocationLocalInfoPage (identical pattern).
+ * shared pattern used by 3+ page objects → belongs in BasePage.
+ * @param saveBtnKey - Selector key for the save button (e.g., 'btnSavePricing')
+ * @param dialogKey - Selector key for the confirmation dialog (default: 'dlgSaveChanges')
+ * @param confirmBtnKey - Selector key for the confirm button (default: 'btnSaveChangesConfirm')
+ * @param dialogTimeout - ms to wait for dialog to appear before assuming none (default: 5000)
+ */
   protected async clickSaveWithDialog(
     saveBtnKey: string,
     dialogKey: string = 'dlgSaveChanges',
@@ -360,10 +350,10 @@ export class BasePage {
       return { success: true };
     }
 
-    // Capture network responses during save to detect silent API failures.
-    // Track in-flight requests so we wait for ALL concurrent responses before checking errors.
-    // Race condition fix: Angular may stabilize after a fast 200 while a slow 500 is still
-    // in-flight. Without draining, page.off() removed the listener before the 500 arrived.
+ // Capture network responses during save to detect silent API failures.
+ // Track in-flight requests so we wait for ALL concurrent responses before checking errors.
+ // Race condition fix: Angular may stabilize after a fast 200 while a slow 500 is still
+ // in-flight. Without draining, page.off removed the listener before the 500 arrived.
     const networkErrors: string[] = [];
     let inFlight = 0;
     const requestTracker = () => { inFlight++; };
@@ -389,11 +379,11 @@ export class BasePage {
         Log.warn(`Save dialog did not close within 10s`);
       });
     }
-    // Wait for Angular to process the save response (replaces unreliable networkidle)
+ // Wait for Angular to process the save response (replaces unreliable networkidle)
     await this.waitForAngularStable();
 
-    // Drain in-flight requests: wait until all concurrent save responses arrive (max 5s).
-    // Angular may stabilize after the fast 200 before a slow concurrent 500 arrives.
+ // Drain in-flight requests: wait until all concurrent save responses arrive (max 5s).
+ // Angular may stabilize after the fast 200 before a slow concurrent 500 arrives.
     const drainDeadline = Date.now() + 5_000;
     while (inFlight > 0 && Date.now() < drainDeadline) {
       await this.page.waitForTimeout(100);
@@ -402,13 +392,13 @@ export class BasePage {
       Log.warn(`[WARN] ${inFlight} request(s) still in-flight after 5s drain — proceeding`);
     }
 
-    // Remove all listeners
+ // Remove all listeners
     this.page.off('request', requestTracker);
     this.page.off('response', responseHandler);
     this.page.off('requestfinished', requestDoneTracker);
     this.page.off('requestfailed', requestDoneTracker);
 
-    // Check for API errors
+ // Check for API errors
     if (networkErrors.length > 0) {
       Log.error(`[FAIL] Save had API errors: ${networkErrors.join(', ')}`);
       return { success: false, networkError: networkErrors.join('; ') };
@@ -418,15 +408,15 @@ export class BasePage {
     return { success: true };
   }
 
-  /**
-   * Navigate to a settings sub-tab for a given office, clicking the tab only if not already active.
-   * Extracted from LocationCurrencyPage, LocationPricingPage, LocationLocalInfoPage (identical pattern).
-   * ALL-020: shared pattern used by 3+ page objects → belongs in BasePage.
-   * @param tabKey - Selector key for the tab element
-   * @param readinessElementKey - Selector key for an element confirming the tab content is loaded
-   * @param officeNo - Office number (default: '1604')
-   * @param settingsPath - The sub-path after /settings/ to navigate to (default: 'location')
-   */
+ /**
+ * Navigate to a settings sub-tab for a given office, clicking the tab only if not already active.
+ * Extracted from LocationCurrencyPage, LocationPricingPage, LocationLocalInfoPage (identical pattern).
+ * shared pattern used by 3+ page objects → belongs in BasePage.
+ * @param tabKey - Selector key for the tab element
+ * @param readinessElementKey - Selector key for an element confirming the tab content is loaded
+ * @param officeNo - Office number (default: '1604')
+ * @param settingsPath - The sub-path after /settings/ to navigate to (default: 'location')
+ */
   protected async navigateToSubTab(
     tabKey: string,
     readinessElementKey: string,
@@ -452,7 +442,7 @@ export class BasePage {
     Log.info(`[OK] Tab active: ${tabKey}`);
   }
 
-  /** Dismiss Angular/Radix "Unsaved changes" alertdialog if visible. Returns true if dismissed. */
+ /** Dismiss Angular/Radix "Unsaved changes" alertdialog if visible. Returns true if dismissed. */
   protected async dismissAlertDialogIfVisible(): Promise<boolean> {
     const dialog = this.page.locator('[role="alertdialog"]');
     if (await dialog.isVisible().catch(() => false)) {
@@ -467,12 +457,12 @@ export class BasePage {
     return false;
   }
 
-  /**
-   * Get the checked/disabled state of a Radix UI checkbox (button[role="checkbox"] using aria-checked).
-   * Native HTML checkboxes use isChecked(); Radix uses aria-checked attribute — this handles Radix.
-   * ALL-020: shared Radix pattern used by Pricing + future pages → belongs in BasePage.
-   * @param elementKey - Selector key for the Radix checkbox element
-   */
+ /**
+ * Get the checked/disabled state of a Radix UI checkbox (button[role="checkbox"] using aria-checked).
+ * Native HTML checkboxes use isChecked; Radix uses aria-checked attribute — this handles Radix.
+ * shared Radix pattern used by Pricing + future pages → belongs in BasePage.
+ * @param elementKey - Selector key for the Radix checkbox element
+ */
   protected async getRadixCheckboxState(elementKey: string): Promise<CheckboxState> {
     const el = this.getElement(elementKey);
     const ariaChecked = await el.getAttribute('aria-checked').catch(() => null);
@@ -480,29 +470,29 @@ export class BasePage {
     return { checked: ariaChecked === 'true', disabled };
   }
 
-  /**
-   * Set a Radix UI checkbox to a target checked state (clicks only if state differs).
-   * ALL-020: shared Radix pattern → BasePage.
-   * @param elementKey - Selector key for the Radix checkbox
-   * @param checked - Desired state: true = checked, false = unchecked
-   */
+ /**
+ * Set a Radix UI checkbox to a target checked state (clicks only if state differs).
+ * shared Radix pattern → BasePage.
+ * @param elementKey - Selector key for the Radix checkbox
+ * @param checked - Desired state: true = checked, false = unchecked
+ */
   protected async setRadixCheckbox(elementKey: string, checked: boolean): Promise<void> {
     const state = await this.getRadixCheckboxState(elementKey);
     if (state.checked !== checked) {
-      // Extended timeout: form inputs may be temporarily disabled during save API processing
+ // Extended timeout: form inputs may be temporarily disabled during save API processing
       await this.getElement(elementKey).click({ timeout: 30_000 });
       Log.info(`${checked ? 'Checked' : 'Unchecked'} Radix checkbox: ${elementKey}`);
     }
   }
 
-  /**
-   * Click a Radix combobox trigger and wait for [role="listbox"] to appear.
-   * Retries the click once if the dropdown doesn't open — Radix Select uses pointerdown
-   * to open and the subsequent pointerup/click events can intermittently interfere,
-   * leaving the dropdown closed despite a successful click.
-   * @param dropdownKey - Selector key for the combobox trigger element
-   * @returns The listbox Locator (visible and ready for interaction)
-   */
+ /**
+ * Click a Radix combobox trigger and wait for [role="listbox"] to appear.
+ * Retries the click once if the dropdown doesn't open — Radix Select uses pointerdown
+ * to open and the subsequent pointerup/click events can intermittently interfere,
+ * leaving the dropdown closed despite a successful click.
+ * @param dropdownKey - Selector key for the combobox trigger element
+ * @returns The listbox Locator (visible and ready for interaction)
+ */
   protected async openComboboxListbox(dropdownKey: string): Promise<import('@playwright/test').Locator> {
     const trigger = this.getElement(dropdownKey);
     const listbox = this.page.locator('[role="listbox"]');
@@ -518,13 +508,13 @@ export class BasePage {
     return listbox;
   }
 
-  /**
-   * Open a combobox/dropdown, read all [role="option"] text contents, close it, return the list.
-   * Handles Radix UI dropdowns that render a [role="listbox"] on click.
-   * ALL-020: shared pattern used by Currency + Pricing → BasePage.
-   * @param dropdownKey - Selector key for the combobox trigger element
-   * @returns Array of trimmed, non-empty option strings
-   */
+ /**
+ * Open a combobox/dropdown, read all [role="option"] text contents, close it, return the list.
+ * Handles Radix UI dropdowns that render a [role="listbox"] on click.
+ * shared pattern used by Currency + Pricing → BasePage.
+ * @param dropdownKey - Selector key for the combobox trigger element
+ * @returns Array of trimmed, non-empty option strings
+ */
   protected async getComboboxOptions(dropdownKey: string): Promise<string[]> {
     const listbox = await this.openComboboxListbox(dropdownKey);
     const options = await listbox.locator('[role="option"]').allTextContents();
@@ -533,24 +523,24 @@ export class BasePage {
     return options.map(o => o.trim()).filter(o => o.length > 0);
   }
 
-  /**
-   * Open a combobox/dropdown and click the option matching the given text.
-   * ALL-020: shared pattern -> BasePage.
-   * @param dropdownKey - Selector key for the combobox trigger element
-   * @param optionText - Exact display text of the option to select
-   */
+ /**
+ * Open a combobox/dropdown and click the option matching the given text.
+ * shared pattern -> BasePage.
+ * @param dropdownKey - Selector key for the combobox trigger element
+ * @param optionText - Exact display text of the option to select
+ */
   protected async selectComboboxOption(dropdownKey: string, optionText: string): Promise<void> {
     const listbox = await this.openComboboxListbox(dropdownKey);
     await listbox.locator(`[role="option"]:has-text("${optionText}")`).click();
     Log.info(`[OK] Selected combobox option "${optionText}" for ${dropdownKey}`);
   }
 
-  /**
-   * Get column header texts by iterating over an array of selector keys.
-   * MNT-012: shared pattern used by Currency (4 cols) + Pricing (7 cols) -> BasePage.
-   * @param keys - Array of selector keys for column header elements
-   * @returns Array of trimmed header texts in the same order as keys
-   */
+ /**
+ * Get column header texts by iterating over an array of selector keys.
+ * MNT-012: shared pattern used by Currency (4 cols) + Pricing (7 cols) -> BasePage.
+ * @param keys - Array of selector keys for column header elements
+ * @returns Array of trimmed header texts in the same order as keys
+ */
   protected async getColumnHeadersByKeys(keys: readonly string[]): Promise<string[]> {
     const headers: string[] = [];
     for (const key of keys) {
@@ -560,27 +550,27 @@ export class BasePage {
     return headers;
   }
 
-  /**
-   * Get displayed value of a form field (input or text element).
-   * Tries inputValue() first (for input elements), falls back to textContent().
-   * MNT-012: shared pattern used by Currency (getMerchantValue) + Pricing (getDropdownValue, getCurrencyFilterValue) -> BasePage.
-   * @param selectorKey - Selector key for the field element
-   * @returns Trimmed field display value
-   */
+ /**
+ * Get displayed value of a form field (input or text element).
+ * Tries inputValue first (for input elements), falls back to textContent.
+ * MNT-012: shared pattern used by Currency (getMerchantValue) + Pricing (getDropdownValue, getCurrencyFilterValue) -> BasePage.
+ * @param selectorKey - Selector key for the field element
+ * @returns Trimmed field display value
+ */
   protected async getFieldDisplayValue(selectorKey: string): Promise<string> {
     const el = this.getElement(selectorKey);
     const value = await el.inputValue().catch(() => '') || await el.textContent().catch(() => '');
     return (value || '').trim();
   }
 
-  /**
-   * Wait for a save button to become enabled (form dirty state propagation).
-   * Polls the button disabled state efficiently.
-   * MNT-012: extracted from LocationPricingPage -- all tabs have save buttons.
-   * @param saveBtnKey - Selector key for the save button
-   * @param timeout - Maximum wait time in ms (default: 5000)
-   * @returns true if save became enabled within timeout, false otherwise
-   */
+ /**
+ * Wait for a save button to become enabled (form dirty state propagation).
+ * Polls the button disabled state efficiently.
+ * MNT-012: extracted from LocationPricingPage -- all tabs have save buttons.
+ * @param saveBtnKey - Selector key for the save button
+ * @param timeout - Maximum wait time in ms (default: 5000)
+ * @returns true if save became enabled within timeout, false otherwise
+ */
   protected async waitForSaveEnabled(saveBtnKey: string, timeout = 5_000): Promise<boolean> {
     try {
       const btn = this.getElement(saveBtnKey);
@@ -600,13 +590,13 @@ export class BasePage {
     }
   }
 
-  /**
-   * Poll until a field's aria-invalid becomes "true" (async Angular cross-field validators).
-   * LR-010: Cross-field validation (e.g. NM-1264) fires asynchronously after input events.
-   * @param key - Selector key for the form field
-   * @param timeout - Maximum wait time in ms (default: 5000)
-   * @returns true if field became invalid within timeout, false otherwise
-   */
+ /**
+ * Poll until a field's aria-invalid becomes "true" (async Angular cross-field validators).
+ * Cross-field validation (e.g. NM-1264) fires asynchronously after input events.
+ * @param key - Selector key for the form field
+ * @param timeout - Maximum wait time in ms (default: 5000)
+ * @returns true if field became invalid within timeout, false otherwise
+ */
   protected async waitForFieldInvalid(key: string, timeout = 5_000): Promise<boolean> {
     const el = this.getElement(key);
     const deadline = Date.now() + timeout;
@@ -618,13 +608,13 @@ export class BasePage {
     return false;
   }
 
-  /**
-   * Poll until a field's aria-invalid becomes "false" or absent (async validator cleared).
-   * LR-010: Cross-field validators may take time to clear after correcting a value.
-   * @param key - Selector key for the form field
-   * @param timeout - Maximum wait time in ms (default: 5000)
-   * @returns true if field became valid within timeout, false otherwise
-   */
+ /**
+ * Poll until a field's aria-invalid becomes "false" or absent (async validator cleared).
+ * Cross-field validators may take time to clear after correcting a value.
+ * @param key - Selector key for the form field
+ * @param timeout - Maximum wait time in ms (default: 5000)
+ * @returns true if field became valid within timeout, false otherwise
+ */
   protected async waitForFieldValid(key: string, timeout = 5_000): Promise<boolean> {
     const el = this.getElement(key);
     const deadline = Date.now() + timeout;

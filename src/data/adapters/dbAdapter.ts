@@ -10,7 +10,7 @@ export class DbAdapter implements IAdapter {
   private client: Knex | null = null;
   private isStubMode: boolean = false;
 
-  /** Executes SQL query or returns stub data if credentials missing */
+ /** Executes SQL query or returns stub data if credentials missing */
   async load(params: { query: string; params?: any[]; database?: string }): Promise<AdapterResult> {
     const timestamp = new Date().toISOString();
     await this.initializeClient(params.database);
@@ -67,7 +67,7 @@ export class DbAdapter implements IAdapter {
       const warning = `Database query failed: ${error.message}`;
       this.logWarning(warning);
       
-      // Clean up connection on error
+ // Clean up connection on error
       if (this.client) {
         await this.client.destroy();
       }
@@ -84,7 +84,7 @@ export class DbAdapter implements IAdapter {
     }
   }
 
-  /** Creates Knex connection or sets stub mode if credentials missing */
+ /** Creates Knex connection or sets stub mode if credentials missing */
   private async initializeClient(database?: string): Promise<void> {
     if (!this.checkCredentials()) {
       this.isStubMode = true;
@@ -117,13 +117,13 @@ export class DbAdapter implements IAdapter {
     }
   }
 
-  /** Validates that required DB environment variables are present */
+ /** Validates that required DB environment variables are present */
   private checkCredentials(): boolean {
     const required = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
     return required.every(envVar => process.env[envVar]);
   }
 
-  /** Writes warning to artifacts/adapter-warnings.log */
+ /** Writes warning to artifacts/adapter-warnings.log */
   private logWarning(message: string): void {
     const logMessage = `[${new Date().toISOString()}] [DbAdapter] ${message}\n`;
     
@@ -136,7 +136,7 @@ export class DbAdapter implements IAdapter {
       const logPath = path.join(artifactsDir, 'adapter-warnings.log');
       fs.appendFileSync(logPath, logMessage, 'utf-8');
     } catch (err) {
-      // Silently fail if can't write to log
+ // Silently fail if can't write to log
     }
     
     console.warn(`[WARN]  ${message}`);

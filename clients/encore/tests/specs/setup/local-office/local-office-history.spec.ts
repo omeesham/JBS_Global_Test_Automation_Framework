@@ -1,4 +1,3 @@
-// spec: specs_planning/test-plans/locations/locations_local_office_settings_test_plan.md
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../../setup/fixtures';
 import { HISTORY_COMBOBOX } from '../../../test-data/setup/local-office/local-office-history.data';
@@ -21,7 +20,7 @@ test.describe.serial('Local Office Settings — History Tab @locations @local-of
     expect(columnCount).toBeGreaterThan(0);
   });
 
-  // HIS-003: Office 1604 always has history records — verify table has data (original empty-state test was unreproducible).
+ // HIS-003: Office 1604 always has history records — verify table has data (original empty-state test was unreproducible).
   test('TC-LOS-HIS-003: History table has data for office 1604', async ({ localOfficeSettingsPage }) => {
     expect(await localOfficeSettingsPage.isHistoryTableEmpty()).toBe(false);
   });

@@ -2,8 +2,7 @@
  * Test data for: Location Notes tab
  * Consumed by: tests/specs/setup/locations/location-notes.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last verified: 2026-04-01
- *
+ * Last 
  * Changing values here affects the listed spec.
  */
 

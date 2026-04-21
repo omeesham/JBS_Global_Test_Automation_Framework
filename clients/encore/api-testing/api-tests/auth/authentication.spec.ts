@@ -11,22 +11,21 @@ import { Log } from '@framework/utils/logger';
 test.describe('API - Authentication', () => {
   let authClient: AuthApiClient;
 
-  /**
-   * Test Setup (4 lines)
-   * Initialize API client before each test
-   */
+ /**
+ * Test Setup (4 lines)
+ * Initialize API client before each test
+ */
   test.beforeEach(async ({ config }) => {
     authClient = new AuthApiClient({
       baseURL: config.base_url || config.url
     });
   });
 
-  /**
-   * Test 1: Successful Login (7 lines)
-   * Verifies valid credentials return token and user data
-   * 
-   * NOTE: PLACEHOLDER - Needs real DevTools data from EspoCRM API
-   */
+ /**
+ * Test 1: Successful Login (7 lines)
+ * Verifies valid credentials return token and user data
+ * NOTE: PLACEHOLDER - Needs real DevTools data from EspoCRM API
+ */
   test.fixme('should authenticate successfully with valid credentials', async ({ config }) => {
     Log.info('TEST: API successful login');
     
@@ -41,12 +40,11 @@ test.describe('API - Authentication', () => {
     Log.info('[OK] API login successful');
   });
 
-  /**
-   * Test 2: Invalid Credentials (7 lines)
-   * Verifies system rejects invalid username/password
-   * 
-   * NOTE: PLACEHOLDER - needs real API endpoint data from DevTools
-   */
+ /**
+ * Test 2: Invalid Credentials (7 lines)
+ * Verifies system rejects invalid username/password
+ * NOTE: PLACEHOLDER - needs real API endpoint data from DevTools
+ */
   test.fixme('should reject invalid credentials', async () => {
     Log.info('TEST: API invalid credentials');
     
@@ -62,12 +60,11 @@ test.describe('API - Authentication', () => {
     }
   });
 
-  /**
-   * Test 3: Empty Credentials (7 lines)
-   * Verifies validation for missing required fields
-   * 
-   * NOTE: PLACEHOLDER - needs real API endpoint data from DevTools
-   */
+ /**
+ * Test 3: Empty Credentials (7 lines)
+ * Verifies validation for missing required fields
+ * NOTE: PLACEHOLDER - needs real API endpoint data from DevTools
+ */
   test.fixme('should reject empty credentials', async () => {
     Log.info('TEST: API empty credentials');
     
@@ -83,12 +80,11 @@ test.describe('API - Authentication', () => {
     }
   });
 
-  /**
-   * Test 4: Token Format Validation (8 lines)
-   * Verifies returned token has expected structure (JWT)
-   * 
-   * NOTE: PLACEHOLDER - needs real API endpoint data from DevTools
-   */
+ /**
+ * Test 4: Token Format Validation (8 lines)
+ * Verifies returned token has expected structure (JWT)
+ * NOTE: PLACEHOLDER - needs real API endpoint data from DevTools
+ */
   test.fixme('should return valid JWT token format', async ({ config }) => {
     Log.info('TEST: API token format validation');
     
@@ -102,12 +98,11 @@ test.describe('API - Authentication', () => {
     Log.info('[OK] Token has valid JWT format');
   });
 
-  /**
-   * Test 5: User Data Structure (9 lines)
-   * Verifies response includes expected user properties
-   * 
-   * NOTE: PLACEHOLDER - needs real API endpoint data from DevTools
-   */
+ /**
+ * Test 5: User Data Structure (9 lines)
+ * Verifies response includes expected user properties
+ * NOTE: PLACEHOLDER - needs real API endpoint data from DevTools
+ */
   test.fixme('should return complete user data on successful login', async ({ config }) => {
     Log.info('TEST: API user data structure');
     

@@ -2,10 +2,9 @@
  * Setup Module -- Account and Address Tab Selectors.
  * Covers: Venue/Branch Account card, Master Bill To Address card,
  * Account List dialog, Select Customer Address dialog, phone fields.
- *
- * DOM notes (planner-verified 2026-02-19):
+ * DOM notes (planner-verified ):
  * - All location detail content renders inside <next-location-settings> shadow root.
- *   Playwright pierces shadow DOM for all locators.
+ * Playwright pierces shadow DOM for all locators.
  * - Name/Address labels are <dt> elements containing clickable <button>.
  * - Address display fields (City, State, Zip, Country) are <dd> static text.
  * - Phone fields: input[name="accountAndAddress.contactPhone1|2"].
@@ -14,83 +13,83 @@
  * - Left-panel Save (shared btnSave in left-panel.ts) used for this tab.
  */
 export const SetupAccountAddressSelectors = {
-  // ---- Tab Navigation ----
-  /** @where Setup > Location > Tabs @el tab @text "Account and Address" @keys tab account-address navigate */
+ // ---- Tab Navigation ----
+ /** @where Setup > Location > Tabs @el tab @text "Account and Address" @keys tab account-address navigate */
   tabAccountAndAddress: '[data-testid="location-settings-sub-tab-account-and-address"]',
-  /** @where Setup > Location > Account and Address @el tabpanel @text "Account and Address content" @keys tabpanel content container */
+ /** @where Setup > Location > Account and Address @el tabpanel @text "Account and Address content" @keys tabpanel content container */
   pnlAccountAndAddress: '[data-testid="location-settings-sub-tab-content-account-and-address"]',
 
-  // ---- Venue/Branch Account Card ----
-  /** @where Setup > Location > Account and Address > Venue @el button @text "Name" @keys venue name open account-list dialog */
+ // ---- Venue/Branch Account Card ----
+ /** @where Setup > Location > Account and Address > Venue @el button @text "Name" @keys venue name open account-list dialog */
   btnAccName: '[data-testid="location-settings-btn-lookup-venue"]',
-  /** @where Setup > Location > Account and Address > Venue @el input @text "Venue Name" @keys venue name disabled read-only */
+ /** @where Setup > Location > Account and Address > Venue @el input @text "Venue Name" @keys venue name disabled read-only */
   txtAccVenueName: 'input[name="accountAndAddress.venueName"]',
-  /** @where Setup > Location > Account and Address > Venue @el button @text "Address" @keys venue address open select-address dialog first */
+ /** @where Setup > Location > Account and Address > Venue @el button @text "Address" @keys venue address open select-address dialog first */
   btnAccVenueAddress: '[data-testid="location-settings-sub-tab-content-account-and-address"] dt:has-text("Address") button',
-  /** @where Setup > Location > Account and Address > Venue @el input @text "Phone 1" @keys phone1 contact required editable */
+ /** @where Setup > Location > Account and Address > Venue @el input @text "Phone 1" @keys phone1 contact required editable */
   txtAccPhone1: 'input[name="accountAndAddress.contactPhone1"]',
-  /** @where Setup > Location > Account and Address > Venue @el input @text "Phone 2" @keys phone2 contact optional editable @verified 2026-04-09 */
+ /** @where Setup > Location > Account and Address > Venue @el input @text "Phone 2" @keys phone2 contact optional editable @verified */
   txtAccPhone2: '[data-testid="location-settings-input-contact-phone-2"]',
 
-  // ---- Save Button (left-panel, same as other tabs) ----
-  /** @where Setup > Location > Account and Address @el button @text "Save" @keys save submit left-panel */
+ // ---- Save Button (left-panel, same as other tabs) ----
+ /** @where Setup > Location > Account and Address @el button @text "Save" @keys save submit left-panel */
   btnSaveAccountAddress: '[data-testid="location-settings-btn-save"]',
 
-  // ---- Master Bill To Address Card ----
-  /** @where Setup > Location > Account and Address > Master @el button @text "Address" @keys master address open select-address dialog second */
+ // ---- Master Bill To Address Card ----
+ /** @where Setup > Location > Account and Address > Master @el button @text "Address" @keys master address open select-address dialog second */
   btnAccMasterAddress: 'SCOPED_IN_PAGE_OBJECT',
 
-  // ---- Account List Dialog ----
-  /** @where Setup > Location > Account List Dialog @el dialog @text "Account List" @keys account list search dialog modal */
+ // ---- Account List Dialog ----
+ /** @where Setup > Location > Account List Dialog @el dialog @text "Account List" @keys account list search dialog modal */
   dlgAccountList: '[role="dialog"]:has-text("Account List")',
-  /** @where Setup > Location > Account List Dialog @el input @text "Account Number" @keys filter account-number search @verified 2026-04-09 */
+ /** @where Setup > Location > Account List Dialog @el input @text "Account Number" @keys filter account-number search @verified */
   txtAccListAccountNumber: '[data-testid="location-settings-input-account-number"]',
-  /** @where Setup > Location > Account List Dialog @el input @text "Account Name" @keys filter account-name search @verified 2026-04-09 */
+ /** @where Setup > Location > Account List Dialog @el input @text "Account Name" @keys filter account-name search @verified */
   txtAccListAccountName: '[data-testid="location-settings-input-account-name"]',
-  /** @where Setup > Location > Account List Dialog @el input @text "Address" @keys filter address search @verified 2026-04-09 */
+ /** @where Setup > Location > Account List Dialog @el input @text "Address" @keys filter address search @verified */
   txtAccListAddress: '[data-testid="location-settings-input-account-address"]',
-  /** @where Setup > Location > Account List Dialog @el input @text "City" @keys filter city search @verified 2026-04-09 */
+ /** @where Setup > Location > Account List Dialog @el input @text "City" @keys filter city search @verified */
   txtAccListCity: '[data-testid="location-settings-input-account-city"]',
-  /** @where Setup > Location > Account List Dialog @el combobox @text "State" @keys filter state dropdown @verified 2026-04-09 */
+ /** @where Setup > Location > Account List Dialog @el combobox @text "State" @keys filter state dropdown @verified */
   drpAccListState: '[data-testid="location-settings-select-account-state"]',
-  /** @where Setup > Location > Account List Dialog @el combobox @text "Country" @keys filter country dropdown @verified 2026-04-09 */
+ /** @where Setup > Location > Account List Dialog @el combobox @text "Country" @keys filter country dropdown @verified */
   drpAccListCountry: '[data-testid="location-settings-select-account-country"]',
-  /** @where Setup > Location > Account List Dialog @el button @text "Search" @keys search submit filter @verified 2026-04-09 */
+ /** @where Setup > Location > Account List Dialog @el button @text "Search" @keys search submit filter @verified */
   btnAccListSearch: '[data-testid="location-settings-btn-search-account"]',
-  /** @where Setup > Location > Account List Dialog @el button @text "Reset" @keys reset clear filters @verified 2026-04-09 */
+ /** @where Setup > Location > Account List Dialog @el button @text "Reset" @keys reset clear filters @verified */
   btnAccListReset: '[data-testid="location-settings-btn-reset-account-search"]',
-  /** @where Setup > Location > Account List Dialog @el button @text "Select" @keys select confirm row choose */
+ /** @where Setup > Location > Account List Dialog @el button @text "Select" @keys select confirm row choose */
   btnAccListSelect: '[data-testid="location-settings-btn-select-account"]',
-  /** @where Setup > Location > Account List Dialog @el button @text "Cancel" @keys cancel close dismiss @verified 2026-04-09 */
+ /** @where Setup > Location > Account List Dialog @el button @text "Cancel" @keys cancel close dismiss @verified */
   btnAccListCancel: '[data-testid="location-settings-btn-cancel-account-search"]',
-  /** @where Setup > Location > Account List Dialog @el button @text "Close" @keys close x dismiss dialog */
+ /** @where Setup > Location > Account List Dialog @el button @text "Close" @keys close x dismiss dialog */
   btnAccListClose: '[role="dialog"]:has-text("Account List") button:has-text("Close")',
-  /** @where Setup > Location > Account List Dialog @el checkbox @text "Row Select" @keys row selection checkbox first */
+ /** @where Setup > Location > Account List Dialog @el checkbox @text "Row Select" @keys row selection checkbox first */
   chkAccListRowSelect: '[role="dialog"]:has-text("Account List") tbody tr:first-child td:first-child button[role="checkbox"]',
-  /** @where Setup > Location > Account List Dialog @el table @text "Results" @keys results grid table rows */
+ /** @where Setup > Location > Account List Dialog @el table @text "Results" @keys results grid table rows */
   tblAccListResults: '[role="dialog"]:has-text("Account List") table',
 
-  // ---- Select Customer Address Dialog ----
-  /** @where Setup > Location > Select Customer Address Dialog @el dialog @text "Select Customer Address" @keys address select dialog modal */
+ // ---- Select Customer Address Dialog ----
+ /** @where Setup > Location > Select Customer Address Dialog @el dialog @text "Select Customer Address" @keys address select dialog modal */
   dlgSelectAddress: '[role="dialog"]:has-text("Select Customer Address")',
-  /** @where Setup > Location > Select Customer Address Dialog @el input @text "Search..." @keys search filter address client-side */
+ /** @where Setup > Location > Select Customer Address Dialog @el input @text "Search..." @keys search filter address client-side */
   txtAddrSearch: '[role="dialog"]:has-text("Select Customer Address") input[placeholder="Search..."]',
-  /** @where Setup > Location > Select Customer Address Dialog @el button @text "Select" @keys select confirm address choose */
+ /** @where Setup > Location > Select Customer Address Dialog @el button @text "Select" @keys select confirm address choose */
   btnAddrSelect: '[role="dialog"]:has-text("Select Customer Address") button:has-text("Select")',
-  /** @where Setup > Location > Select Customer Address Dialog @el button @text "Cancel" @keys cancel close dismiss */
+ /** @where Setup > Location > Select Customer Address Dialog @el button @text "Cancel" @keys cancel close dismiss */
   btnAddrCancel: '[role="dialog"]:has-text("Select Customer Address") button:has-text("Cancel")',
-  /** @where Setup > Location > Select Customer Address Dialog @el button @text "Save" @keys save disabled always */
+ /** @where Setup > Location > Select Customer Address Dialog @el button @text "Save" @keys save disabled always */
   btnAddrSave: '[role="dialog"]:has-text("Select Customer Address") button:has-text("Save")',
-  /** @where Setup > Location > Select Customer Address Dialog @el button @text "Close" @keys close x dismiss dialog */
+ /** @where Setup > Location > Select Customer Address Dialog @el button @text "Close" @keys close x dismiss dialog */
   btnAddrClose: '[role="dialog"]:has-text("Select Customer Address") button:has-text("Close")',
-  /** @where Setup > Location > Select Customer Address Dialog @el checkbox @text "Row Select" @keys row selection checkbox first */
+ /** @where Setup > Location > Select Customer Address Dialog @el checkbox @text "Row Select" @keys row selection checkbox first */
   chkAddrRow: '[role="dialog"]:has-text("Select Customer Address") tbody tr:first-child td:first-child button[role="checkbox"]',
-  /** @where Setup > Location > Select Customer Address Dialog @el table @text "Results" @keys address grid table rows */
+ /** @where Setup > Location > Select Customer Address Dialog @el table @text "Results" @keys address grid table rows */
   tblAddrResults: '[role="dialog"]:has-text("Select Customer Address") table',
-  /** @where Setup > Location > Select Customer Address Dialog @el generic @text "Total Addresses:" @keys footer count total */
+ /** @where Setup > Location > Select Customer Address Dialog @el generic @text "Total Addresses:" @keys footer count total */
   lblAddrTotal: '[role="dialog"]:has-text("Select Customer Address") :text("Total Addresses")',
 
-  // ---- Save Changes Dialog (message text -- supplements shared.ts) ----
-  /** @where Setup > Location > Save Changes Dialog @el paragraph @text "Are you sure" @keys save confirmation message text */
+ // ---- Save Changes Dialog (message text -- supplements shared.ts) ----
+ /** @where Setup > Location > Save Changes Dialog @el paragraph @text "Are you sure" @keys save confirmation message text */
   txtSaveChangesMessage: '[role="alertdialog"]:has-text("Save Changes") p',
 } as const;

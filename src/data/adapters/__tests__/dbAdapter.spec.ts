@@ -2,14 +2,12 @@
  * FILE: src/data/adapters/__tests__/dbAdapter.spec.ts
  * PURPOSE: Unit tests for DbAdapter focusing on stub mode behavior
  * CONTENTS: Test cases for stub mode, credential validation, and basic functionality
- * DEPENDENCIES:
- *   - @playwright/test: Test framework and assertions
- *   - DbAdapter: System under test
+ * - @playwright/test: Test framework and assertions
+ * - DbAdapter: System under test
  * USED BY: npm run test:adapters
- * 
  * NOTE: These tests focus on stub mode behavior since full DB integration tests
- *       would require running database infrastructure. Integration tests with
- *       real DB should be in separate test suite.
+ * would require running database infrastructure. Integration tests with
+ * real DB should be in separate test suite.
  */
 
 import { test, expect } from '@playwright/test';
@@ -20,7 +18,6 @@ import * as path from 'path';
 /**
  * TEST SUITE: DbAdapter
  * PURPOSE: Validates database adapter with focus on stub mode
- * 
  * TEST STRATEGY:
  * 1. Test stub mode when credentials missing
  * 2. Test credential validation logic
@@ -31,20 +28,20 @@ test.describe('DbAdapter', () => {
   let adapter: DbAdapter;
   let originalEnv: NodeJS.ProcessEnv;
 
-  /**
-   * SETUP: Before all tests
-   * Saves original environment variables
-   */
+ /**
+ * SETUP: Before all tests
+ * Saves original environment variables
+ */
   test.beforeAll(() => {
     originalEnv = { ...process.env };
   });
 
-  /**
-   * SETUP: Before each test
-   * Clears DB env vars to ensure clean state
-   */
+ /**
+ * SETUP: Before each test
+ * Clears DB env vars to ensure clean state
+ */
   test.beforeEach(() => {
-    // Clear DB environment variables
+ // Clear DB environment variables
     delete process.env.DB_HOST;
     delete process.env.DB_USER;
     delete process.env.DB_PASSWORD;
@@ -55,25 +52,25 @@ test.describe('DbAdapter', () => {
     adapter = new DbAdapter();
   });
 
-  /**
-   * TEARDOWN: After all tests
-   * Restores original environment
-   */
+ /**
+ * TEARDOWN: After all tests
+ * Restores original environment
+ */
   test.afterAll(() => {
     process.env = originalEnv;
   });
 
-  /**
-   * TEST: Stub mode - all credentials missing
-   * VALIDATES: Returns empty records with warning when no DB credentials
-   */
+ /**
+ * TEST: Stub mode - all credentials missing
+ * VALIDATES: Returns empty records with warning when no DB credentials
+ */
   test('should enter stub mode when all credentials missing', async () => {
     const result = await adapter.load({ query: 'SELECT * FROM users' });
 
-    // Should return empty records
+ // Should return empty records
     expect(result.records.length).toBe(0);
 
-    // Should have warning
+ // Should have warning
     expect(result.metadata.source).toBe('db-stub');
     expect(result.metadata.warning).toContain('DB credentials missing');
     expect(result.metadata.warning).toContain('DB_HOST');
@@ -83,17 +80,17 @@ test.describe('DbAdapter', () => {
     expect(result.metadata.rowCount).toBe(0);
   });
 
-  /**
-   * TEST: Stub mode - partial credentials
-   * VALIDATES: Enters stub mode even when some credentials present
-   */
+ /**
+ * TEST: Stub mode - partial credentials
+ * VALIDATES: Enters stub mode even when some credentials present
+ */
   test('should enter stub mode when only some credentials present', async () => {
-    // Set only some credentials
+ // Set only some credentials
     process.env.DB_HOST = 'localhost';
     process.env.DB_USER = 'testuser';
-    // Missing DB_PASSWORD and DB_NAME
+ // Missing DB_PASSWORD and DB_NAME
 
-    // Need fresh adapter to pick up env changes
+ // Need fresh adapter to pick up env changes
     const partialAdapter = new DbAdapter();
     const result = await partialAdapter.load({ query: 'SELECT 1' });
 
@@ -102,21 +99,21 @@ test.describe('DbAdapter', () => {
     expect(result.metadata.warning).toContain('DB credentials missing');
   });
 
-  /**
-   * TEST: Warning logging
-   * VALIDATES: Stub mode warnings are logged to file
-   */
+ /**
+ * TEST: Warning logging
+ * VALIDATES: Stub mode warnings are logged to file
+ */
   test('should log stub mode warning to file', async () => {
     const logPath = path.join(process.cwd(), 'artifacts', 'adapter-warnings.log');
     
-    // Clear log if exists
+ // Clear log if exists
     if (fs.existsSync(logPath)) {
       fs.unlinkSync(logPath);
     }
 
     await adapter.load({ query: 'SELECT 1' });
 
-    // Check log created
+ // Check log created
     expect(fs.existsSync(logPath)).toBe(true);
     const logContent = fs.readFileSync(logPath, 'utf-8');
     expect(logContent).toContain('[DbAdapter]');
@@ -124,14 +121,14 @@ test.describe('DbAdapter', () => {
     expect(logContent).toContain('Required environment variables');
   });
 
-  /**
-   * TEST: Warning message is actionable
-   * VALIDATES: Warning includes exact env vars needed
-   */
+ /**
+ * TEST: Warning message is actionable
+ * VALIDATES: Warning includes exact env vars needed
+ */
   test('should provide actionable warning message', async () => {
     const result = await adapter.load({ query: 'SELECT 1' });
 
-    // Warning should list exact variables needed
+ // Warning should list exact variables needed
     const warning = result.metadata.warning!;
     expect(warning).toContain('DB_HOST');
     expect(warning).toContain('DB_USER');
@@ -139,14 +136,14 @@ test.describe('DbAdapter', () => {
     expect(warning).toContain('DB_NAME');
   });
 
-  /**
-   * TEST: Metadata structure
-   * VALIDATES: Stub mode returns proper AdapterResult structure
-   */
+ /**
+ * TEST: Metadata structure
+ * VALIDATES: Stub mode returns proper AdapterResult structure
+ */
   test('should return proper AdapterResult structure in stub mode', async () => {
     const result = await adapter.load({ query: 'SELECT 1' });
 
-    // Validate structure
+ // Validate structure
     expect(result).toHaveProperty('records');
     expect(result).toHaveProperty('metadata');
     expect(result.metadata).toHaveProperty('source');
@@ -154,32 +151,32 @@ test.describe('DbAdapter', () => {
     expect(result.metadata).toHaveProperty('warning');
     expect(result.metadata).toHaveProperty('rowCount');
 
-    // Validate types
+ // Validate types
     expect(Array.isArray(result.records)).toBe(true);
     expect(typeof result.metadata.source).toBe('string');
     expect(typeof result.metadata.loadedAt).toBe('string');
     expect(typeof result.metadata.rowCount).toBe('number');
   });
 
-  /**
-   * TEST: Query parameter acceptance
-   * VALIDATES: Adapter accepts query parameters in stub mode
-   */
+ /**
+ * TEST: Query parameter acceptance
+ * VALIDATES: Adapter accepts query parameters in stub mode
+ */
   test('should accept query with parameters in stub mode', async () => {
     const result = await adapter.load({ 
       query: 'SELECT * FROM users WHERE active = ?',
       params: [true]
     });
 
-    // Should still return empty in stub mode
+ // Should still return empty in stub mode
     expect(result.records.length).toBe(0);
     expect(result.metadata.source).toBe('db-stub');
   });
 
-  /**
-   * TEST: Database override parameter
-   * VALIDATES: Accepts database parameter even in stub mode
-   */
+ /**
+ * TEST: Database override parameter
+ * VALIDATES: Accepts database parameter even in stub mode
+ */
   test('should accept database parameter in stub mode', async () => {
     const result = await adapter.load({ 
       query: 'SELECT 1',
@@ -190,13 +187,13 @@ test.describe('DbAdapter', () => {
     expect(result.metadata.source).toBe('db-stub');
   });
 
-  /**
-   * INTEGRATION TEST (Skipped): Real database connection
-   * PURPOSE: Validates real DB operations when credentials available
-   * NOTE: Requires actual database running - skip in CI without DB
-   */
+ /**
+ * INTEGRATION TEST (Skipped): Real database connection
+ * PURPOSE: Validates real DB operations when credentials available
+ * NOTE: Requires actual database running - skip in CI without DB
+ */
   test.skip('should connect to real database when credentials present', async () => {
-    // This test would run only in environments with actual DB
+ // This test would run only in environments with actual DB
     process.env.DB_HOST = 'localhost';
     process.env.DB_USER = 'test_user';
     process.env.DB_PASSWORD = 'test_pass';
@@ -206,8 +203,8 @@ test.describe('DbAdapter', () => {
     const connectedAdapter = new DbAdapter();
     const result = await connectedAdapter.load({ query: 'SELECT 1 as test' });
 
-    // With real DB, should get results
+ // With real DB, should get results
     expect(result.metadata.source).not.toBe('db-stub');
-    // Actual assertions would depend on DB state
+ // Actual assertions would depend on DB state
   });
 });

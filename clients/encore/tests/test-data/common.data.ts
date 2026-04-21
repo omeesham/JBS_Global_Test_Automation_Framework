@@ -2,13 +2,12 @@
  * Test data for: Shared constants (cross-spec)
  * Consumed by: All specs in tests/specs/setup/
  * Office: 1604 (Parker Palm Springs)
- * Last verified: 2026-04-02
- *
+ * Last 
  * MNT-009: values used identically in 3+ specs belong here, not redefined per spec.
  * Changing values here affects ALL specs.
  */
 
-/** Standard test office — The Parker Palm Springs (ALL-013). */
+/** Standard test office — The Parker Palm Springs. */
 export const OFFICE_NO = '1604';
 
 /** Shared Save Changes dialog text (used by auto-addon, account-address, notes specs). */

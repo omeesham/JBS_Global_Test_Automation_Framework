@@ -1,10 +1,9 @@
 /**
  * Test data for: Local Office Settings — Basic Information tab
  * Consumed by: tests/specs/setup/local-office/local-office-settings.spec.ts,
- *              tests/specs/setup/local-office/local-office-ect.spec.ts (ECT_FIXED_COST_FIELDS only)
+ * tests/specs/setup/local-office/local-office-ect.spec.ts (ECT_FIXED_COST_FIELDS only)
  * Office: 1604 (Parker Palm Springs)
- * Last verified: 2026-03-23
- *
+ * Last 
  * Changing values here affects the listed specs.
  */
 
@@ -35,7 +34,7 @@ export const ONE_DAY_JOB_CHECKBOXES = [
   { key: 'chkDefaultJobOneDayInternal', label: 'Internal' },
 ] as const;
 
-/** Expected 13 section names for location 1604 (BAS-025). Live-verified 2026-03-24. */
+/** Expected 13 section names for location 1604 (BAS-025). Live-verified . */
 export const DEFAULT_SECTIONS = [
   'Audio', 'Flipcharts', 'Hybrid Meeting', 'Labor', 'Lighting',
   'Power', 'Presenter Support', 'Projection', 'Rigging',
@@ -49,7 +48,7 @@ export const DATE_OFFSET_TEST_VALUES = {
   deliveryInvalid: '-5',
   zero: '0',
   extremeNegative: '-10',
-  recovery: '-1',  // LR-009: must differ from default (0)
+  recovery: '-1',  //: must differ from default (0)
 } as const;
 
 /** Phone number test values. */
@@ -110,23 +109,23 @@ export const NON_NUMERIC_TEST_FIELDS = [
 ] as const;
 
 /** MaxLen boundary test values. BAS-061/062.
- *  Prep maxLen=3, Set maxLen=4 per v1 requirements. */
+ * Prep maxLen=3, Set maxLen=4 per v1 requirements. */
 export const MAXLEN_BOUNDARY = {
   threeChar: { key: 'txtPrepDateOffset', overLimit: '1234', defaultValue: '-1' },
   fourChar: { key: 'txtSetDateOffset', atLimit: '-999', defaultValue: '-1' },
 } as const;
 
 /** Multi-field error recovery: trigger cross-validation, correct with non-default value. BAS-063.
- *  LR-009: recoveryValue MUST differ from defaultValue to keep form dirty. */
+ * recoveryValue MUST differ from defaultValue to keep form dirty. */
 export const MULTI_FIELD_RECOVERY = {
   triggerField: 'txtDeliveryDateOffset',
   triggerValue: '-5',       // Delivery (-5) < Prep (-1) → NM-1264 cross-validation error
-  recoveryValue: '-1',      // LR-009: differs from default (0), satisfies Delivery >= Prep
+  recoveryValue: '-1',      //: differs from default (0), satisfies Delivery >= Prep
   defaultValue: '0',
 } as const;
 
 /** Null offset round-trip test fields. BAS-064/065/067.
- *  MCP-7 verified: clearing an offset → save → reload preserves empty (not "0"). */
+ * verified: clearing an offset → save → reload preserves empty (not "0"). */
 export const NULL_OFFSET_FIELDS = [
   { key: 'txtPrepDateOffset', label: 'Prep', defaultValue: '-1' },
   { key: 'txtReturnDateOffset', label: 'Return', defaultValue: '1' },

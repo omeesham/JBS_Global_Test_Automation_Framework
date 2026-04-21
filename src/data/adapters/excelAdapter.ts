@@ -8,7 +8,7 @@ import { IAdapter, AdapterResult, AdapterRecord, AdapterMetadata } from './IAdap
 /** Loads and normalizes data from Excel (.xlsx) and CSV (.csv) files */
 export class ExcelAdapter implements IAdapter {
 
-  /** Reads Excel/CSV file and converts to normalized AdapterResult */
+ /** Reads Excel/CSV file and converts to normalized AdapterResult */
   async load(params: { file: string; sheet?: string }): Promise<AdapterResult> {
     const timestamp = new Date().toISOString();
     const filePath = path.isAbsolute(params.file) 
@@ -77,7 +77,7 @@ export class ExcelAdapter implements IAdapter {
     }
   }
 
-  /** Writes warning to artifacts/adapter-warnings.log */
+ /** Writes warning to artifacts/adapter-warnings.log */
   private logWarning(message: string): void {
     const logMessage = `[${new Date().toISOString()}] [ExcelAdapter] ${message}\n`;
     
@@ -90,7 +90,7 @@ export class ExcelAdapter implements IAdapter {
       const logPath = path.join(artifactsDir, 'adapter-warnings.log');
       fs.appendFileSync(logPath, logMessage, 'utf-8');
     } catch (err) {
-      // Silently fail if can't write to log
+ // Silently fail if can't write to log
     }
     
     console.warn(`[WARN]  ${message}`);

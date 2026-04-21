@@ -8,7 +8,7 @@ import { IAdapter, AdapterResult, AdapterRecord, AdapterMetadata } from './IAdap
 /** Loads and normalizes data from local JSON files or remote URLs */
 export class JsonAdapter implements IAdapter {
 
-  /** Reads JSON from file or URL and converts to normalized AdapterResult */
+ /** Reads JSON from file or URL and converts to normalized AdapterResult */
   async load(params: { file?: string; url?: string; rootKey?: string }): Promise<AdapterResult> {
     const timestamp = new Date().toISOString();
 
@@ -65,7 +65,7 @@ export class JsonAdapter implements IAdapter {
     }
   }
 
-  /** Reads and parses a local JSON file */
+ /** Reads and parses a local JSON file */
   private async loadFromFile(file: string): Promise<any> {
     const filePath = path.isAbsolute(file) ? file : path.resolve(process.cwd(), file);
     
@@ -77,7 +77,7 @@ export class JsonAdapter implements IAdapter {
     return JSON.parse(content);
   }
 
-  /** Fetches and parses JSON from an HTTP endpoint (10s timeout) */
+ /** Fetches and parses JSON from an HTTP endpoint (10s timeout) */
   private async loadFromUrl(url: string): Promise<any> {
     const response = await axios.get(url, {
       timeout: 10000, // 10 second timeout
@@ -87,7 +87,7 @@ export class JsonAdapter implements IAdapter {
     return response.data;
   }
 
-  /** Converts JSON structures to AdapterRecord[]; supports rootKey with dot notation */
+ /** Converts JSON structures to AdapterRecord[]; supports rootKey with dot notation */
   private normalizeData(data: any, rootKey?: string): AdapterRecord[] {
     let target = data;
 
@@ -113,7 +113,7 @@ export class JsonAdapter implements IAdapter {
     });
   }
 
-  /** Writes warning to artifacts/adapter-warnings.log */
+ /** Writes warning to artifacts/adapter-warnings.log */
   private logWarning(message: string): void {
     const logMessage = `[${new Date().toISOString()}] [JsonAdapter] ${message}\n`;
     
@@ -126,7 +126,7 @@ export class JsonAdapter implements IAdapter {
       const logPath = path.join(artifactsDir, 'adapter-warnings.log');
       fs.appendFileSync(logPath, logMessage, 'utf-8');
     } catch (err) {
-      // Silently fail if can't write to log
+ // Silently fail if can't write to log
     }
     
     console.warn(`[WARN]  ${message}`);

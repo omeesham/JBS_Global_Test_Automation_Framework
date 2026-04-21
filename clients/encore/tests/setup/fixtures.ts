@@ -1,13 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Custom Playwright test fixtures for dependency injection of page objects. Provides loginPage, homePage, commonMethods, and config to all tests.
- * OWNER: generator
- * IMPACT: critical - All tests depend on fixtures. Breaking this breaks every test. Fixture initialization logic is critical.
- * DEPENDS-ON: custom-matchers.ts, all page objects, CommonMethods, CredentialLoader, framework-contracts/index.ts
- * USED-BY: All test files in tests/specs/ directory
- * RULES: Never delete existing fixtures (loginPage, homePage, config). Always test new fixtures thoroughly. Keep auto-use config fixture. Generator adds new fixtures as new page objects are created.
- */
-
 /** Custom Playwright test fixtures for dependency injection of page objects */
 
 import './custom-matchers';
@@ -61,17 +51,17 @@ type TestFixtures = {
  * Usage: import { test, expect } from './fixtures';
  */
 export const test = base.extend<TestFixtures, WorkerFixtures>({
-  /**
-   * Diagnostics handler fixture (auto-use)
-   * Reads from authenticatedSession.page (where collector is attached).
-   * Runs for EVERY test — ensures diagnostics are captured even when
-   * tests only use page object fixtures (locationPricingPage, etc.).
-   */
+ /**
+ * Diagnostics handler fixture (auto-use)
+ * Reads from authenticatedSession.page (where collector is attached).
+ * Runs for EVERY test — ensures diagnostics are captured even when
+ * tests only use page object fixtures (locationPricingPage, etc.).
+ */
   diagnosticsHandler: [async ({ authenticatedSession }, use, testInfo) => {
     const { page } = authenticatedSession;
     await use(undefined as unknown as void);
 
-    // Teardown — extract diagnostics from the CORRECT page (authenticatedSession.page)
+ // Teardown — extract diagnostics from the CORRECT page (authenticatedSession.page)
     const collector = (page as unknown as Record<string, unknown>).__diagnosticsCollector as DiagnosticsCollector | undefined;
     if (collector) {
       collector.recordUrl();
@@ -83,16 +73,16 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
           snapshot.domSnippet = domContent.slice(0, 50_000);
         } catch { /* page may be closed */ }
 
-        // Generate error-context.md for RCA Step 0.2
+ // Generate for RCA Step 0.2
         try {
-          // Extract failing selector from error (same prefixes as AgentReporter)
+ // Extract failing selector from error (same prefixes as AgentReporter)
           const selectorPrefixes = ['btn', 'txt', 'drp', 'chk', 'lnk', 'rdo', 'dlg', 'tbl', 'err', 'col', 'spin', 'tab', 'pnl'];
           const errorText = testInfo.errors.map(e => e.message || '').join(' ');
           const selectorMatch = errorText.match(
             new RegExp(`['"\`]((?:${selectorPrefixes.join('|')})[A-Z]\\w+)['"\`]`)
           );
           const errorContext = await collector.generateErrorContext(testInfo.title, selectorMatch?.[1] ?? null);
-          const ecPath = testInfo.outputPath('error-context.md');
+          const ecPath = testInfo.outputPath('');
           fs.writeFileSync(ecPath, errorContext, 'utf-8');
         } catch { /* best-effort — never block teardown */ }
       }
@@ -102,7 +92,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         body: Buffer.from(JSON.stringify(snapshot)),
       });
 
-      // Persist per-spec diagnostics file for agent drill-down
+ // Persist per-spec diagnostics file for agent drill-down
       if (testInfo.status !== 'passed') {
         const specName = path.basename(testInfo.file, '.spec.ts');
         const diagDir = path.join(process.cwd(), 'reports', 'diagnostics');
@@ -128,29 +118,29 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     }
   }, { auto: true }],
 
-  /**
-   * Configuration fixture (worker-scoped)
-   * Loads environment config once per worker process for efficiency
-   */
+ /**
+ * Configuration fixture (worker-scoped)
+ * Loads environment config once per worker process for efficiency
+ */
   config: [async ({}, use) => {
     const config = CommonMethods.initProp();
     await use(config);
   }, { scope: 'worker' }],
 
-  /**
-   * Authenticated session fixture (worker-scoped)
-   * Fresh login per worker -- authenticates via Microsoft SSO + MFA using env credentials.
-   * No session persistence. Reuses the authenticated page directly (no about:blank).
-   * Each spec file gets its own worker, so this = one login per spec file.
-   */
+ /**
+ * Authenticated session fixture (worker-scoped)
+ * Fresh login per worker -- authenticates via Microsoft SSO + MFA using env credentials.
+ * No session persistence. Reuses the authenticated page directly (no about:blank).
+ * Each spec file gets its own worker, so this = one login per spec file.
+ */
   authenticatedSession: [async ({ browser, config }, use) => {
-    // Create clean browser context -- no saved state, no storageState
+ // Create clean browser context -- no saved state, no storageState
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    // Global safety net: auto-accept native beforeunload dialogs to prevent test hangs.
-    // ALL-052 enforcement: Angular forms fire beforeunload when navigating with unsaved edits.
-    // Tests that need to control beforeunload dialogs can set page.__skipBeforeunloadAutoAccept = true.
+ // Global safety net: auto-accept native beforeunload dialogs to prevent test hangs.
+ // enforcement: Angular forms fire beforeunload when navigating with unsaved edits.
+ // Tests that need to control beforeunload dialogs can set page.__skipBeforeunloadAutoAccept = true.
     page.on('dialog', async (dialog) => {
       if (dialog.type() === 'beforeunload') {
         const skip = (page as unknown as Record<string, unknown>).__skipBeforeunloadAutoAccept;
@@ -163,13 +153,13 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       }
     });
 
-    // Attach runtime diagnostics collector (console, network, page errors, auth chain)
+ // Attach runtime diagnostics collector (console, network, page errors, auth chain)
     const collector = attachDiagnostics(page);
 
-    // Load credentials from environment variables
+ // Load credentials from environment variables
     const credentials = await CredentialLoader.loadCredentials({ type: 'env' });
 
-    // SSO login with retry -- OAuth callback can fail transiently (CSRF/state mismatch, B2C hiccup)
+ // SSO login with retry -- OAuth callback can fail transiently (CSRF/state mismatch, B2C hiccup)
     const MAX_LOGIN_ATTEMPTS = 3;
     let loginSuccess = false;
 
@@ -180,11 +170,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         await context.clearCookies();
       }
 
-      // Navigate to app -- triggers redirect to Navigator Cloud sign-in page
-      // 78s (1.3 min) timeout: allows SSO redirect chain to initiate; no waitUntil to avoid networkidle stall
+ // Navigate to app -- triggers redirect to Navigator Cloud sign-in page
+ // 78s (1.3 min) timeout: allows SSO redirect chain to initiate; no waitUntil to avoid networkidle stall
       await page.goto(config.base_url, { timeout: 78_000 });
 
-      // Full SSO + MFA login flow
+ // Full SSO + MFA login flow
       const loginPage = new LoginPage(page, config);
       loginSuccess = await loginPage.loginWithMicrosoft(
         credentials.username,
@@ -200,9 +190,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       throw new Error(`Authenticated session creation failed -- SSO login did not succeed after ${MAX_LOGIN_ATTEMPTS} attempts`);
     }
 
-    // Wait for the Dashboard heading to become visible -- signals the app has fully loaded
-    // after the post-SSO redirect chain. 60s timeout: Navigator Cloud loads fast (no Angular bundle).
-    // Landing page shows "Dashboard" h1 on the main home page.
+ // Wait for the Dashboard heading to become visible -- signals the app has fully loaded
+ // after the post-SSO redirect chain. 60s timeout: Navigator Cloud loads fast (no Angular bundle).
+ // Landing page shows "Dashboard" h1 on the main home page.
     Log.info('[wait] Waiting for Dashboard heading to be visible (app ready signal)...');
     const setupWaitStart = Date.now();
     try {
@@ -220,106 +210,106 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     }
     Log.info(`[OK] Fresh login complete -- Dashboard visible after ${Date.now() - setupWaitStart}ms`);
 
-    // Record URL after successful auth for diagnostics
+ // Record URL after successful auth for diagnostics
     collector.recordUrl();
 
-    // Hand the SAME page (now on Navigator Cloud) to tests -- no about:blank, no leaked page
+ // Hand the SAME page (now on Navigator Cloud) to tests -- no about:blank, no leaked page
     await use({ page, context });
 
-    // Teardown: close the entire context (page + cookies)
+ // Teardown: close the entire context (page + cookies)
     await context.close();
   }, { scope: 'worker', timeout: 300_000 }],
 
-  /**
-   * CommonMethods fixture
-   * Provides utility methods with page instance
-   */
+ /**
+ * CommonMethods fixture
+ * Provides utility methods with page instance
+ */
   commonMethods: async ({ page }, use, testInfo) => {
-    // R14 exception (intentional): Uses bare `page` not `authenticatedSession.page`.
-    // CommonMethods only provides static utilities (initProp, generateTotpCode) -- no page interaction.
-    // Diagnostics teardown is handled by auto-use `diagnosticsHandler` fixture (reads from authenticatedSession.page).
+ // R14 exception (intentional): Uses bare `page` not `authenticatedSession.page`.
+ // CommonMethods only provides static utilities (initProp, generateTotpCode) -- no page interaction.
+ // Diagnostics teardown is handled by auto-use `diagnosticsHandler` fixture (reads from authenticatedSession.page).
     Logger.setSpecContext(testInfo.file);
     const commonMethods = new CommonMethods(page);
     await use(commonMethods);
   },
 
-  /**
-   * LoginPage fixture
-   * Auto-initialized LoginPage instance with config
-   */
+ /**
+ * LoginPage fixture
+ * Auto-initialized LoginPage instance with config
+ */
   loginPage: async ({ page, config }, use) => {
     const loginPage = new LoginPage(page, config);
     await use(loginPage);
   },
 
-  /**
-   * HomePage fixture
-   * Auto-initialized HomePage instance with config
-   */
+ /**
+ * HomePage fixture
+ * Auto-initialized HomePage instance with config
+ */
   homePage: async ({ page, config }, use) => {
     const homePage = new HomePage(page, config);
     await use(homePage);
   },
 
-  /**
-   * LocationCurrencyPage fixture
-   * Uses authenticatedSession page so tests start pre-authenticated.
-   */
+ /**
+ * LocationCurrencyPage fixture
+ * Uses authenticatedSession page so tests start pre-authenticated.
+ */
   locationCurrencyPage: async ({ authenticatedSession, config }, use) => {
     const locationCurrencyPage = new LocationCurrencyPage(authenticatedSession.page, config);
     await use(locationCurrencyPage);
   },
 
-  /**
-   * LocationLocalInfoPage fixture
-   * Uses authenticatedSession page so tests start pre-authenticated (no login flow needed).
-   * R14 exception (intentional): Must use authenticatedSession.page to access Navigator Cloud.
-   */
+ /**
+ * LocationLocalInfoPage fixture
+ * Uses authenticatedSession page so tests start pre-authenticated (no login flow needed).
+ * R14 exception (intentional): Must use authenticatedSession.page to access Navigator Cloud.
+ */
   locationLocalInfoPage: async ({ authenticatedSession, config }, use) => {
     const locationLocalInfoPage = new LocationLocalInfoPage(authenticatedSession.page, config);
     await use(locationLocalInfoPage);
   },
 
-  /**
-   * LocationPricingPage fixture
-   * Uses authenticatedSession page so tests start pre-authenticated.
-   */
+ /**
+ * LocationPricingPage fixture
+ * Uses authenticatedSession page so tests start pre-authenticated.
+ */
   locationPricingPage: async ({ authenticatedSession, config }, use) => {
     const locationPricingPage = new LocationPricingPage(authenticatedSession.page, config);
     await use(locationPricingPage);
   },
 
-  /**
-   * LocationAccountAddressPage fixture
-   * Uses authenticatedSession page so tests start pre-authenticated.
-   */
+ /**
+ * LocationAccountAddressPage fixture
+ * Uses authenticatedSession page so tests start pre-authenticated.
+ */
   locationAccountAddressPage: async ({ authenticatedSession, config }, use) => {
     const locationAccountAddressPage = new LocationAccountAddressPage(authenticatedSession.page, config);
     await use(locationAccountAddressPage);
   },
 
-  /**
-   * LocationNotesPage fixture
-   * Uses authenticatedSession page so tests start pre-authenticated.
-   */
+ /**
+ * LocationNotesPage fixture
+ * Uses authenticatedSession page so tests start pre-authenticated.
+ */
   locationNotesPage: async ({ authenticatedSession, config }, use) => {
     const locationNotesPage = new LocationNotesPage(authenticatedSession.page, config);
     await use(locationNotesPage);
   },
 
-  /**
-   * LocationLegalPage fixture
-   * Uses authenticatedSession page so tests start pre-authenticated.
-   */
+ /**
+ * LocationLegalPage fixture
+ * Uses authenticatedSession page so tests start pre-authenticated.
+ */
   locationLegalPage: async ({ authenticatedSession, config }, use) => {
     const locationLegalPage = new LocationLegalPage(authenticatedSession.page, config);
     await use(locationLegalPage);
   },
 
-  /**
-   * LocationSharedSetupLocationsPage fixture
-   * Uses authenticatedSession page so tests start pre-authenticated.
-   */
+ /**
+ * LocationSharedSetupLocationsPage fixture
+ * Uses authenticatedSession page so tests start pre-authenticated.
+ */
   locationSharedSetupLocationsPage: async ({ authenticatedSession, config }, use) => {
     const locationSharedSetupLocationsPage = new LocationSharedSetupLocationsPage(authenticatedSession.page, config);
     await use(locationSharedSetupLocationsPage);

@@ -2,9 +2,8 @@
  * Test data for: Location Account and Address tab
  * Consumed by: tests/specs/setup/locations/location-account-address.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last verified: 2026-04-01
+ * Last 
  * @office-dependent — venue name, phone, address tied to office 1604
- *
  * Changing values here affects the listed spec.
  */
 
@@ -42,7 +41,7 @@ export const TEST_PHONE2_VALUE = '555-000-0001';
 /** Test phone number for save-enable/persistence tests (TC-018). */
 export const ACCOUNT_TEST_PHONE = '111-222-3333';
 
-/** Account List filter terms for TC-025/026. MCP-verified 2026-04-07: "Beverly" in Address returns 3 accounts. */
+/** Account List filter terms for TC-025/026. MCP-verified : "Beverly" in Address returns 3 accounts. */
 export const ACCOUNT_LIST_FILTERS = {
   address: 'Beverly',
   addressExpected: 'Beverly',  // Results contain "Beverly" in address column
@@ -50,14 +49,14 @@ export const ACCOUNT_LIST_FILTERS = {
   cityExpected: 'LOS ANGELES', // Results contain "LOS ANGELES" in city column
 } as const;
 
-/** Alternate address for TC-027: PALM SPRINGS address row (row 2 in dialog, MCP-3 verified). */
+/** Alternate address for TC-027: PALM SPRINGS address row (row 2 in dialog, verified). */
 export const ALT_ADDRESS = {
   city: 'PALM SPRINGS',
   zip: '92264',
   address1: '4200 E Palm Canyon Dr',
 } as const;
 
-/** Original venue address for TC-027 restore (MCP-1 verified). */
+/** Original venue address for TC-027 restore (verified). */
 export const ORIGINAL_ADDRESS = {
   city: 'WEST HOLLYWOOD',
   zip: '90048',

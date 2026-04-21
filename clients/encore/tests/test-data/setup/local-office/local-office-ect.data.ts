@@ -2,9 +2,8 @@
  * Test data for: Local Office ECT (Event Cost Template)
  * Consumed by: tests/specs/setup/local-office/local-office-ect.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last verified: 2026-04-02
+ * Last 
  * @office-dependent — values tied to office 1604 server data
- *
  * Changing values here affects the listed spec.
  */
 

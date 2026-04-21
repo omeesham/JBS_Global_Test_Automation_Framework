@@ -2,13 +2,12 @@
  * Test data for: Location Pricing tab
  * Consumed by: tests/specs/setup/locations/location-pricing.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last verified: 2026-04-01
+ * Last 
  * @office-dependent — price book rows and currency options tied to office 1604
- *
  * Changing values here affects the listed spec.
  */
 
-/** Expected column headers (left to right, 7 total). MCP-verified 2026-03-02 */
+/** Expected column headers (left to right, 7 total). MCP-verified */
 export const PRICING_COLUMN_HEADERS = [
   'Pricing Strategy',
   'Pricebook',
@@ -28,23 +27,23 @@ export const PRIMARY_PRICING_DROPDOWNS = [
   'drpPrimaryProductionEquipmentPricing',
 ] as const;
 
-/** Currency filter expected options. MCP-verified 2026-03-02: office 1604 has only USD rows -- 2 options only. */
+/** Currency filter expected options. MCP-verified : office 1604 has only USD rows -- 2 options only. */
 export const CURRENCY_FILTER_OPTIONS = ['All', 'USD'] as const;
 
-/** Price books for multi-row alternate pricing test (TC-021). MCP-verified 2026-03-02: all 3 exist and are USD. */
+/** Price books for multi-row alternate pricing test (TC-021). MCP-verified : all 3 exist and are USD. */
 export const MULTI_ALT_PRICEBOOKS = [
   '2021-Tier 3 Urban A',
   '2022-eCommerce',
   '2022-NP LB1',
 ] as const;
 
-/** Primary test row. MCP-verified 2026-03-02: first row in grid, always present, USD. */
+/** Primary test row. MCP-verified : first row in grid, always present, USD. */
 export const PRIMARY_TEST_ROW = '2021-Tier 3 Urban A';
 
-/** Secondary test row. MCP-verified 2026-03-02: second row, USD. */
+/** Secondary test row. MCP-verified : second row, USD. */
 export const SECONDARY_TEST_ROW = '2022-eCommerce';
 
-/** Tertiary test row for independent cascade tests. MCP-verified 2026-03-02: USD. */
+/** Tertiary test row for independent cascade tests. MCP-verified : USD. */
 export const ECOMMERCE_TEST_ROW = '2022-NP LB1';
 
 /** Default currency filter value. */
@@ -55,7 +54,7 @@ export const DEFAULT_CURRENCY_FILTER = 'All';
  * Each entry has `option` (target/DB value) and `alternateOption` (different value for bidirectional toggle).
  * The toggle pattern ensures tests ALWAYS change the dropdown — fixing the silent-pass bug where
  * selectPrimaryDropdownOption skips interaction when current DB value already matches `option`.
- * Alternate options MCP-verified 2026-04-02: all confirmed to exist in the live dropdown popover.
+ * Alternate options MCP-verified : all confirmed to exist in the live dropdown popover.
  */
 export const DROPDOWN_PERSISTENCE_CASES = [
   { tcId: 'TC-LOC-PRI-026', key: 'drpPrimaryLaborPricing', option: '2026-Zone 3 D', alternateOption: '2026-Zone 3 E', label: 'Primary Labor Pricing' },

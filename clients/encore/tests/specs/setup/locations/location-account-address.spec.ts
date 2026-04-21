@@ -1,4 +1,3 @@
-// spec: specs_planning/test-plans/locations/locations_account_address_test_plan.md
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../../setup/fixtures';
 import {
@@ -35,7 +34,7 @@ test.describe.serial('Location Account and Address @locations @account-address',
     test.setTimeout(60_000);
     await locationAccountAddressPage.openAccountListDialog();
     await locationAccountAddressPage.searchAccountByName(ACCOUNT_SEARCH.term);
-    // Server search API can be slow under load — poll for results
+ // Server search API can be slow under load — poll for results
     await expect.poll(
       () => locationAccountAddressPage.accountListResultsContain(ACCOUNT_SEARCH.expectedResult),
       { timeout: 20_000, message: 'Account List search results should contain expected text' }
@@ -67,8 +66,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     expect(await locationAccountAddressPage.getAccountNameFilterValue()).toBe('');
     expect(await locationAccountAddressPage.isAccountListEmpty()).toBe(true);
     await locationAccountAddressPage.cancelAccountListDialog();
-    // Reset clears the Angular form's accountId binding in addition to the filter UI.
-    // Reload to restore a clean form model from DB before any subsequent saves.
+ // Reset clears the Angular form's accountId binding in addition to the filter UI.
+ // Reload to restore a clean form model from DB before any subsequent saves.
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
   });
 
@@ -131,7 +130,7 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.clearPhone1AndBlur();
     expect(await locationAccountAddressPage.isPhone1Invalid()).toBe(true);
     expect(await locationAccountAddressPage.isPhone1ErrorIconVisible()).toBe(true);
-    // Restore baseline
+ // Restore baseline
     await locationAccountAddressPage.fillPhone1(PHONE1_BASELINE);
     await locationAccountAddressPage.clickSave();
   });
@@ -146,18 +145,18 @@ test.describe.serial('Location Account and Address @locations @account-address',
 
   test('TC-LOC-ACC-018: Save button enables on field change', async ({ locationAccountAddressPage }) => {
     test.setTimeout(60_000);
-    // Ensure Phone 2 baseline is clean (may be dirty from prior failed run)
+ // Ensure Phone 2 baseline is clean (may be dirty from prior failed run)
     const currentPhone2 = await locationAccountAddressPage.getPhone2Value();
     if (currentPhone2) {
       await locationAccountAddressPage.fillPhone2('');
       await locationAccountAddressPage.clickSave();
-      // Reload to ensure Angular form is fully re-initialized before testing fill → save behavior
+ // Reload to ensure Angular form is fully re-initialized before testing fill → save behavior
       await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
     }
     expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
     await locationAccountAddressPage.fillPhone2(ACCOUNT_TEST_PHONE);
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
-    // Discard changes
+ // Discard changes
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
   });
 
@@ -172,41 +171,41 @@ test.describe.serial('Location Account and Address @locations @account-address',
     test.setTimeout(60_000);
     expect(await locationAccountAddressPage.getPhone2Value()).toBe(TEST_PHONE2_VALUE);
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
-    // Poll: phone2 may still be empty at the moment phone1 readiness gate fires (mask init race)
+ // Poll: phone2 may still be empty at the moment phone1 readiness gate fires (mask init race)
     await expect.poll(() => locationAccountAddressPage.getPhone2Value(), { timeout: 5_000 }).toBe(TEST_PHONE2_VALUE);
     expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
-    // Cleanup: restore Phone 2 to empty baseline
+ // Cleanup: restore Phone 2 to empty baseline
     await locationAccountAddressPage.fillPhone2('');
     await locationAccountAddressPage.clickSave();
   });
 
-  // ─── New TCs (Session 2: PLAN_AUDIT_ACCOUNT_ADDRESS) ────────────────────────
-  // TC-021 DROPPED: MCP verification (2026-04-07) proved Phone 1 is account-linked.
-  // Save completes but value always reverts to account phone on reload. NOT-AUTOMATABLE.
+ // ─── New TCs (Session 2: PLAN_AUDIT_ACCOUNT_ADDRESS) ────────────────────────
+ // TC-021 DROPPED: MCP verification proved Phone 1 is account-linked.
+ // Save completes but value always reverts to account phone on reload. NOT-AUTOMATABLE.
 
   test('TC-LOC-ACC-022: Cancel Save dialog discards save without persisting', async ({ locationAccountAddressPage }) => {
     test.setTimeout(60_000);
     await locationAccountAddressPage.fillPhone2(ACCOUNT_TEST_PHONE);
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
-    // Click Save → Cancel in confirmation dialog
+ // Click Save → Cancel in confirmation dialog
     await locationAccountAddressPage.openSaveDialog();
     await locationAccountAddressPage.cancelSaveDialog();
-    // Verify: Save still enabled (changes not committed), value still present
+ // Verify: Save still enabled (changes not committed), value still present
     expect(await locationAccountAddressPage.isSaveEnabled()).toBe(true);
     expect(await locationAccountAddressPage.getPhone2Value()).toBe(ACCOUNT_TEST_PHONE);
-    // Discard changes via reload (LR-026)
+ // Discard changes via reload
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
   });
 
   test('TC-LOC-ACC-023: Phone 1 cleared shows invalid state and error icon', async ({ locationAccountAddressPage }) => {
-    // MCP-verified (2026-04-07): clearing Phone 1 shows aria-invalid=true but Save stays enabled.
-    // This TC verifies validation indicators; Save blocking is NOT app behavior.
+ // MCP-verified : clearing Phone 1 shows aria-invalid=true but Save stays enabled.
+ // This TC verifies validation indicators; Save blocking is NOT app behavior.
     await locationAccountAddressPage.clearPhone1AndBlur();
     expect(await locationAccountAddressPage.isPhone1Invalid()).toBe(true);
     expect(await locationAccountAddressPage.isPhone1ErrorIconVisible()).toBe(true);
-    // Save remains enabled even with invalid field (Angular doesn't block)
+ // Save remains enabled even with invalid field (Angular doesn't block)
     expect(await locationAccountAddressPage.isSaveEnabled()).toBe(true);
-    // Discard — reload to restore server-saved baseline (LR-026)
+ // Discard — reload to restore server-saved baseline
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
   });
 
@@ -234,18 +233,18 @@ test.describe.serial('Location Account and Address @locations @account-address',
 
   test('TC-LOC-ACC-027: Address selection changes venue display fields', async ({ locationAccountAddressPage }) => {
     test.setTimeout(60_000);
-    // MCP-verified (2026-04-07): address selection updates display but does NOT persist through save+reload.
-    // Angular form model doesn't serialize the new address. This TC tests E2E display change only.
-    // Verify starting state
+ // MCP-verified : address selection updates display but does NOT persist through save+reload.
+ // Angular form model doesn't serialize the new address. This TC tests E2E display change only.
+ // Verify starting state
     await expect.poll(() => locationAccountAddressPage.getVenueCityText(), { timeout: 5_000 }).toBe(ORIGINAL_ADDRESS.city);
-    // Select alternate address
+ // Select alternate address
     await locationAccountAddressPage.openVenueAddressDialog();
     await locationAccountAddressPage.selectAddressRow(ALT_ADDRESS.address1);
-    // Verify display changed
+ // Verify display changed
     await expect.poll(() => locationAccountAddressPage.getVenueCityText(), { timeout: 5_000 }).toBe(ALT_ADDRESS.city);
-    // Save enables (form dirty from selection)
+ // Save enables (form dirty from selection)
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
-    // Discard: reload restores original (LR-026)
+ // Discard: reload restores original
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
     await expect.poll(() => locationAccountAddressPage.getVenueCityText(), { timeout: 10_000 }).toBe(ORIGINAL_ADDRESS.city);
   });
@@ -254,7 +253,7 @@ test.describe.serial('Location Account and Address @locations @account-address',
     test.setTimeout(120_000);
     const originalName = await locationAccountAddressPage.getVenueNameValue();
     try {
-      // Open Account List → search for current account → select (re-selecting same triggers dirty)
+ // Open Account List → search for current account → select (re-selecting same triggers dirty)
       await locationAccountAddressPage.openAccountListDialog();
       await locationAccountAddressPage.searchAccountByName(ACCOUNT_SEARCH.term);
       await expect.poll(
@@ -262,16 +261,16 @@ test.describe.serial('Location Account and Address @locations @account-address',
         { timeout: 20_000 }
       ).toBe(true);
       await locationAccountAddressPage.selectAccountListFirstRow();
-      // Verify form dirty → Save enabled
+ // Verify form dirty → Save enabled
       await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
-      // Save and verify persistence
+ // Save and verify persistence
       await locationAccountAddressPage.clickSave();
       expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
       await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
-      // Venue name should still be the same (re-selected same account)
+ // Venue name should still be the same (re-selected same account)
       await expect.poll(() => locationAccountAddressPage.getVenueNameValue(), { timeout: 10_000 }).toBe(originalName);
     } finally {
-      // Ensure clean state — if we somehow changed the account, restore it
+ // Ensure clean state — if we somehow changed the account, restore it
       const currentName = await locationAccountAddressPage.getVenueNameValue();
       if (currentName !== originalName) {
         await locationAccountAddressPage.openAccountListDialog();

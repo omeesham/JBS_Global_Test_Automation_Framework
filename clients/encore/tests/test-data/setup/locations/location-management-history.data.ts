@@ -2,16 +2,15 @@
  * Test data for: Location Management History tab
  * Consumed by: tests/specs/setup/locations/location-management-history.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last verified: 2026-04-13 (SP1 MCP session)
+ * Last 
  * @office-dependent
- *
- * All column names from SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 (MCP-VERIFIED 2026-04-13).
+ * All column names from SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 (MCP-VERIFIED ).
  * Boolean format: Unicode "✔" (textContent readable).
  * Date format: MM/DD/YYYY. Timestamp: MM/DD/YYYY HH:MM:SS AM/PM.
  * Percentage: N.NN % (space before %).
  */
 
-/** Total column count (SP1 §1: 87 confirmed). */
+/** Total column count (1: 87 confirmed). */
 export const COLUMN_COUNT = 87;
 
 /** First column header. */
@@ -20,13 +19,13 @@ export const FIRST_COLUMN = 'Local Office';
 /** Last column header. */
 export const LAST_COLUMN = 'Warehouse Billing';
 
-/** Default rows per page (SP1 §6: 20 confirmed). */
+/** Default rows per page (6: 20 confirmed). */
 export const DEFAULT_ROWS_PER_PAGE = '20';
 
 /** Rows per page dropdown options. */
 export const ROWS_PER_PAGE_OPTIONS = ['10', '20', '30', '40', '50'] as const;
 
-/** Non-sortable columns for TC-LOC-MGH-012 (SP1 §1: 73 non-sortable). */
+/** Non-sortable columns for TC-LOC-MGH-012 (1: 73 non-sortable). */
 export const NON_SORTABLE_COLUMNS = [
   'Active',
   'Corporate Pricing',
@@ -34,8 +33,8 @@ export const NON_SORTABLE_COLUMNS = [
   'Allow Production Quote',
 ] as const;
 
-/** Row 1 expected stable values for office 1604 (from SP1 §1 latest row data).
- *  Dynamic fields (Modified By, Oracle Product Code) are asserted via toBeTruthy() in the spec. */
+/** Row 1 expected stable values for office 1604 (from latest row data).
+ * Dynamic fields (Modified By, Oracle Product Code) are asserted via toBeTruthy in the spec. */
 export const ROW_1_EXPECTED = {
   'Local Office': '1604',
   'Local Office Name': 'Parker Palm Springs',
@@ -45,7 +44,7 @@ export const ROW_1_EXPECTED = {
 } as const;
 
 /**
- * All 87 column headers in L-to-R order (SP1 §1, MCP-verified 2026-04-13).
+ * All 87 column headers in L-to-R order (1, MCP-verified ).
  * Use for full-header verification if needed by integration tests.
  */
 export const ALL_COLUMN_HEADERS = [

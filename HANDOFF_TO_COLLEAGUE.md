@@ -47,7 +47,7 @@ The whole repo, in the new multi-tenant layout, on `main` once SP-MT-06 has merg
 This is a starting checklist, not an exhaustive rule. Refresh when major work lands.
 
 - `.claude/` — Claude-side skills, identity, commands, context
-- `.github/agents/` — pipeline agent prompts (HUNTER/GIVER/BUILDER/HEALER/WATCHDOG/GARDENER)
+- `.github/agents/` — pipeline agent prompts (role-based)
 - `.github/copilot-instructions.md`
 - `.githooks/`
 - `plans/` — cross-client roadmap and execution history

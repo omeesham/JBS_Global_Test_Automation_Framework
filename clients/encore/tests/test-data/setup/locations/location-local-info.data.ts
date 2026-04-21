@@ -2,9 +2,8 @@
  * Test data for: Location Local Information tab
  * Consumed by: tests/specs/setup/locations/location-local-information.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last verified: 2026-04-01
+ * Last 
  * @office-dependent — checkbox defaults, field values tied to office 1604
- *
  * Changing values here affects the listed spec.
  */
 
@@ -35,8 +34,8 @@ export const CHECKED_DEFAULTS: SelectorKey[] = [
 
 /** Checkboxes expected UNCHECKED by default */
 export const UNCHECKED_DEFAULTS: SelectorKey[] = [
-  // chkCalculateLDWonNetAmount excluded -- managed exclusively by TC-021/029 (check+save+restore cycle)
-  // to avoid batch assertion failures when prior runs leave DB in dirty state.
+ // chkCalculateLDWonNetAmount excluded -- managed exclusively by TC-021/029 (check+save+restore cycle)
+ // to avoid batch assertion failures when prior runs leave DB in dirty state.
   'chkApplyCablesConsumablesFee',
   'chkAllowETS',
   'chkAllowResortTax',
@@ -56,7 +55,7 @@ export const UNCHECKED_DEFAULTS: SelectorKey[] = [
   'chkCanCreateExternalCustomerLink',
   'chkOffsiteEventLocation',
   'chkExhibitShowRate',
-  'chkEnableMultidayPricing',  // Gap #9: new checkbox, unchecked by default (SESSION_1_FINDINGS 2026-04-09)
+  'chkEnableMultidayPricing',  // Gap #9: new checkbox, unchecked by default (SESSION_1_FINDINGS )
 ];
 
 /** Checkboxes expected DISABLED by default */
@@ -65,9 +64,9 @@ export const DISABLED_CHECKBOXES: SelectorKey[] = [
   'chkCompassIntegration',
   'chkDisplayTax',
   'chkEnableJobCosting',      // disabled+checked for office 1604
-  'chkUseESignature',         // Gap #12: disabled+checked (MCP-11 2026-04-10)
-  'chkEnableProductGroup',    // Gap #12: disabled+unchecked (MCP-11 2026-04-10)
-  'chkEnableDiscountGuidance', // Gap #12: disabled+checked (MCP-11 2026-04-10)
+  'chkUseESignature',         // Gap #12: disabled+checked
+  'chkEnableProductGroup',    // Gap #12: disabled+unchecked
+  'chkEnableDiscountGuidance', // Gap #12: disabled+checked
 ];
 
 /** Disabled checkboxes: expected checked state */
@@ -76,9 +75,9 @@ export const DISABLED_CHECKBOX_STATES: Record<string, boolean> = {
   chkCompassIntegration: true,       // disabled for existing location, checked
   chkDisplayTax: true,               // disabled when Company Remit Tax checked
   chkEnableJobCosting: true,         // disabled+checked for office 1604
-  chkUseESignature: true,            // MCP-11 2026-04-10: disabled+checked for office 1604
-  chkEnableProductGroup: false,      // MCP-11 2026-04-10: disabled+unchecked for office 1604
-  chkEnableDiscountGuidance: true,   // MCP-11 2026-04-10: disabled+checked for office 1604
+  chkUseESignature: true,            // : disabled+checked for office 1604
+  chkEnableProductGroup: false,      // : disabled+unchecked for office 1604
+  chkEnableDiscountGuidance: true,   // : disabled+checked for office 1604
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -92,8 +91,8 @@ export interface SpinDefault {
 }
 
 export const SPIN_DEFAULTS: SpinDefault[] = [
-  // RC-2 FIX 2026-02-24: Visible input shows "4.00%" -> after % strip -> "4.00".
-  // The hidden form-binding input stored "0.04" but is never readable. Display value = "4.00".
+ // RC-2 FIX : Visible input shows "4.00%" -> after % strip -> "4.00".
+ // The hidden form-binding input stored "0.04" but is never readable. Display value = "4.00".
   { key: 'spinLDWPercentage', value: '4.00', disabled: false },
 ];
 
@@ -107,27 +106,27 @@ export interface BoundaryCase {
   valid: boolean;
   errorContains?: string;
   restoreValue: string;
-  /** If the app disables the spin after reload (e.g. LDW%=0 unchecks chkApplyLDW), re-check this key before restoring */
+ /** If the app disables the spin after reload (e.g. LDW%=0 unchecks chkApplyLDW), re-check this key before restoring */
   restoreEnableKey?: SelectorKey;
-  /** Mark entry as pending -- test will be fixme'd (blocked by app behavior for office 1604) */
+ /** Mark entry as pending -- test will be fixme'd (blocked by app behavior for office 1604) */
   pending?: string;
 }
 
 export const LDW_BOUNDARIES: BoundaryCase[] = [
-  // Valid decimal input range: 0.1-1.0 (= 10%-100%). Blur -> x100 -> displays "X.XX%".
-  // restoreValue '0.04' is grandfathered DB value; accepted by server as existing value.
-  // testBoundaryValue compares: parseFloat(value) x 100 === stripped display (e.g. 0.10x100=10.00).
-  // Cat-B resolved 2026-03-31: server now accepts LDW% changes for office 1604.
+ // Valid decimal input range: 0.1-1.0 (= 10%-100%). Blur -> x100 -> displays "X.XX%".
+ // restoreValue '0.04' is grandfathered DB value; accepted by server as existing value.
+ // testBoundaryValue compares: parseFloat(value) x 100 === stripped display (e.g. 0.10x100=10.00).
+ // server now accepts LDW% changes for office 1604.
   { label: 'valid min (10%)',           value: '0.10',  valid: true,  restoreValue: '0.04' },
   { label: 'valid mid (50%)',           value: '0.50',  valid: true,  restoreValue: '0.04' },
   { label: 'valid near max (99%)',      value: '0.99',  valid: true,  restoreValue: '0.04' },
   { label: 'valid max (100%)',          value: '1.00',  valid: true,  restoreValue: '0.04' },
-  // Invalid values -- CLIENT validates on blur (inline error shown); no DB mutation.
-  // errMinBoundary: "Number must be greater than or equal to 0" (< 0 values)
-  // errMaxBoundary: "Number must be less than or equal to 100" (> 1.0 values after x100 display)
-  // Both contain "Number must be" -- errorContains uses the common prefix.
-  // NOTE: '0' and values like 0.01-0.09 are omitted: client accepts them (>= 0) but server
-  // rejects silently. Cat-B FIXME: no detectable client-side signal for server-min violations.
+ // Invalid values -- CLIENT validates on blur (inline error shown); no DB mutation.
+ // errMinBoundary: "Number must be greater than or equal to 0" (< 0 values)
+ // errMaxBoundary: "Number must be less than or equal to 100" (> 1.0 values after x100 display)
+ // Both contain "Number must be" -- errorContains uses the common prefix.
+ // NOTE: '0' and values like 0.01-0.09 are omitted: client accepts them (>= 0) but server
+ // rejects silently. : no detectable client-side signal for server-min violations.
   { label: 'invalid negative (-0.01)',  value: '-0.01', valid: false, errorContains: 'Number must be', restoreValue: '0.04' },
   { label: 'invalid far below (-0.05)', value: '-0.05', valid: false, errorContains: 'Number must be', restoreValue: '0.04' },
   { label: 'invalid above max (1.01)', value: '1.01',  valid: false, errorContains: 'Number must be', restoreValue: '0.04' },
@@ -140,23 +139,23 @@ export const LDW_BOUNDARIES: BoundaryCase[] = [
 
 export interface DependencyCase {
   label: string;
-  /** Checkbox that controls the target */
+ /** Checkbox that controls the target */
   trigger: SelectorKey;
-  /** Action on trigger: 'check' enables target, 'uncheck' enables target */
+ /** Action on trigger: 'check' enables target, 'uncheck' enables target */
   triggerAction: 'check' | 'uncheck';
-  /** Target element affected */
+ /** Target element affected */
   target: SelectorKey;
-  /** Target type for assertion */
+ /** Target type for assertion */
   targetType: 'spin' | 'checkbox';
-  /** Expected target disabled state AFTER triggering */
+ /** Expected target disabled state AFTER triggering */
   expectedDisabled: boolean;
-  /** For checkboxes: expected checked state after trigger (if applicable) */
+ /** For checkboxes: expected checked state after trigger (if applicable) */
   expectedChecked?: boolean;
-  /** Restore actions: keys to restore original state */
+ /** Restore actions: keys to restore original state */
   restore: { key: SelectorKey; action: 'check' | 'uncheck' }[];
-  /** Optional spin restore: set spin value after checkbox restores (e.g. restore LDW%=0.04 after Apply LDW test) */
+ /** Optional spin restore: set spin value after checkbox restores (e.g. restore LDW%=0.04 after Apply LDW test) */
   spinRestore?: { key: SelectorKey; value: string };
-  /** Mark entry as pending -- test will be fixme'd (blocked by app behavior for office 1604) */
+ /** Mark entry as pending -- test will be fixme'd (blocked by app behavior for office 1604) */
   pending?: string;
 }
 
@@ -169,9 +168,9 @@ export const SIMPLE_DEPENDENCIES: DependencyCase[] = [
     restore: [{ key: 'chkApplyLDW', action: 'check' }],
     spinRestore: { key: 'spinLDWPercentage', value: '0.04' }, // uncheck resets spin to 0; restore to '0.04' (decimal = 4%) so subsequent saves don't leave LDW%=0
   },
-  // MCP-05 2026-04-10: chkApplyCablesConsumablesFee is ENABLED for 1604. Tested in TC-075 (standalone).
-  // MCP-03 2026-04-10: chkAllowETS is ENABLED for 1604. Tested in TC-077 (standalone).
-  // MCP-06 2026-04-10: chkAllowResortTax is ENABLED for 1604. Tested in TC-076 (standalone).
+ // : chkApplyCablesConsumablesFee is ENABLED for 1604. Tested in TC-075 (standalone).
+ // : chkAllowETS is ENABLED for 1604. Tested in TC-077 (standalone).
+ // : chkAllowResortTax is ENABLED for 1604. Tested in TC-076 (standalone).
   {
     label: 'Skip Billing -> Oracle Product disabled',
     trigger: 'chkSkipBilling', triggerAction: 'check',

@@ -1,4 +1,3 @@
-// spec: specs_planning/test-plans/locations/locations_legal_test_plan.md
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../../setup/fixtures';
 import {
@@ -14,7 +13,7 @@ test.describe.serial('Location Legal @locations @legal', () => {
   test('TC-LOC-LGL-001: Navigate to Legal tab; 3 column headers, 1 data row', async ({ locationLegalPage }) => {
     test.setTimeout(60_000);
     await locationLegalPage.navigateToLegalTab(OFFICE_NO);
-    // LR-019: Baseline enforcement — restore default SC/T&C if dirty from prior failed run.
+ // Baseline enforcement — restore default SC/T&C if dirty from prior failed run.
     let dirty = false;
     if (await locationLegalPage.getServiceChargeValue() !== LEGAL_DEFAULTS.serviceChargeName) {
       await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
@@ -68,7 +67,7 @@ test.describe.serial('Location Legal @locations @legal', () => {
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
-    // Cleanup: reload to discard
+ // Cleanup: reload to discard
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
 
@@ -76,34 +75,34 @@ test.describe.serial('Location Legal @locations @legal', () => {
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
-    // Cleanup: reload to discard
+ // Cleanup: reload to discard
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
 
   test('TC-LOC-LGL-010: Reverting dropdown to original does NOT re-disable Save', async ({ locationLegalPage }) => {
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
-    // Revert to original
+ // Revert to original
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
-    // Save stays enabled (dirty-state does not track net-zero)
+ // Save stays enabled (dirty-state does not track net-zero)
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
-    // Cleanup: reload to discard
+ // Cleanup: reload to discard
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
 
   test('TC-LOC-LGL-011: Save SC change persists after reload', async ({ locationLegalPage }) => {
     test.setTimeout(60_000);
-    // Change SC
+ // Change SC
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
-    // Save
+ // Save
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
-    // Reload and verify persistence
+ // Reload and verify persistence
     await locationLegalPage.reloadAndNavigateToLegalTab();
     expect(await locationLegalPage.getServiceChargeValue()).toBe(LEGAL_ALT_SC);
-    // Cleanup: restore original
+ // Cleanup: restore original
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
     const restore = await locationLegalPage.clickSave();
     expect(restore.success).toBe(true);
@@ -111,33 +110,33 @@ test.describe.serial('Location Legal @locations @legal', () => {
 
   test('TC-LOC-LGL-012: Save T&C change persists after reload', async ({ locationLegalPage }) => {
     test.setTimeout(60_000);
-    // Fresh state after TC-011's save cycle
+ // Fresh state after TC-011's save cycle
     await locationLegalPage.reloadAndNavigateToLegalTab();
-    // Change T&C
+ // Change T&C
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
-    // Save
+ // Save
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
-    // Reload and verify persistence
+ // Reload and verify persistence
     await locationLegalPage.reloadAndNavigateToLegalTab();
     expect(await locationLegalPage.getTermsValue()).toBe(LEGAL_ALT_TC);
-    // Cleanup: restore original
+ // Cleanup: restore original
     await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
     const restore = await locationLegalPage.clickSave();
     expect(restore.success).toBe(true);
   });
 
   test('TC-LOC-LGL-013: Cancel in Save dialog discards save', async ({ locationLegalPage }) => {
-    // Fresh state after TC-012's save cycle
+ // Fresh state after TC-012's save cycle
     await locationLegalPage.reloadAndNavigateToLegalTab();
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     const dialogType = await locationLegalPage.clickSaveAndGetDialog();
     expect(dialogType).toBe('save-changes');
     await locationLegalPage.cancelSaveDialog();
-    // Save still enabled (not saved)
+ // Save still enabled (not saved)
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
-    // Reload and verify original value
+ // Reload and verify original value
     await locationLegalPage.reloadAndNavigateToLegalTab();
     expect(await locationLegalPage.getServiceChargeValue()).toBe(LEGAL_DEFAULTS.serviceChargeName);
   });
@@ -146,34 +145,34 @@ test.describe.serial('Location Legal @locations @legal', () => {
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     const dialogFired = await locationLegalPage.triggerBeforeunloadAndStay();
     expect(dialogFired).toBe(true);
-    // Cleanup: reload (accept beforeunload) to discard
+ // Cleanup: reload (accept beforeunload) to discard
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
 
-  // TC-LOC-LGL-015 OMITTED: Country cascade test requires left-panel Country selector
-  // that does not exist in current selector inventory. Logged as missing-coverage.
+ // TC-LOC-LGL-015 OMITTED: Country cascade test requires left-panel Country selector
+ // that does not exist in current selector inventory. Logged as missing-coverage.
 
-  // TC-LOC-LGL-016/017 OMITTED: Sort order assertion — v1 requirement says "sorted alphabetically"
-  // but MCP-verified 2026-04-06: BOTH dropdowns are NOT sorted (generic names first, location-specific after).
-  // Logged as APP BUG in REQUIREMENTS.md and master plan. Tests would fail against live behavior.
+ // TC-LOC-LGL-016/017 OMITTED: Sort order assertion — v1 requirement says "sorted alphabetically"
+ // but MCP-verified : BOTH dropdowns are NOT sorted (generic names first, location-specific after).
+ // Logged as APP BUG in REQUIREMENTS.md and master plan. Tests would fail against live behavior.
 
   test('TC-LOC-LGL-018: Combined SC + T&C change saves and persists both', async ({ locationLegalPage }) => {
     test.setTimeout(60_000);
-    // LR-026: reload before save cycle to ensure clean form state
+ // reload before save cycle to ensure clean form state
     await locationLegalPage.reloadAndNavigateToLegalTab();
-    // Change BOTH fields
+ // Change BOTH fields
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
-    // Save
+ // Save
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
-    // Reload and verify both persisted
+ // Reload and verify both persisted
     await locationLegalPage.reloadAndNavigateToLegalTab();
     expect(await locationLegalPage.getServiceChargeValue()).toBe(LEGAL_ALT_SC);
     expect(await locationLegalPage.getTermsValue()).toBe(LEGAL_ALT_TC);
-    // Cleanup: restore BOTH to defaults
+ // Cleanup: restore BOTH to defaults
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
     await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
     const restore = await locationLegalPage.clickSave();

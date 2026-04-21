@@ -1,13 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Loads test credentials from env vars, inline, or config files. Reads NAVIGATOR_* env vars from .env files.
- * OWNER: generator, healer
- * IMPACT: high - broken = can't authenticate to Navigator Cloud
- * DEPENDS-ON: dotenv, adapterFactory.ts
- * USED-BY: fixtures.ts (authenticatedSession credential loading)
- * RULES: NEVER log credentials or secrets.
- */
-
 import { AdapterFactory } from '../data/adapters/adapterFactory';
 import { Log } from '../utils/logger';
 
@@ -30,10 +20,10 @@ export interface Credentials {
 }
 
 export class CredentialLoader {
-  /**
-   * Load credentials from specified source.
-   * @example await CredentialLoader.loadCredentials({ type: 'env' })
-   */
+ /**
+ * Load credentials from specified source.
+ * @example await CredentialLoader.loadCredentials({ type: 'env' })
+ */
   static async loadCredentials(source: CredentialSource): Promise<Credentials> {
     Log.info(`Loading credentials from ${source.type} source`);
     try {
@@ -52,12 +42,12 @@ export class CredentialLoader {
     }
   }
 
-  /** Load credentials by role (convenience wrapper). */
+ /** Load credentials by role (convenience wrapper). */
   static async loadCredentialsByRole(role: string, source: Omit<CredentialSource, 'role'>): Promise<Credentials> {
     return this.loadCredentials({ ...source, role });
   }
 
-  /** Load multiple credentials (data-driven testing). */
+ /** Load multiple credentials (data-driven testing). */
   static async loadAllCredentials(source: CredentialSource): Promise<Credentials[]> {
     Log.info(`Loading all credentials from ${source.type} source`);
     const { records } = await this._resolveSource(source);
@@ -66,7 +56,7 @@ export class CredentialLoader {
     return credentialsList;
   }
 
-  /** Validate credentials -- required fields present and non-trivial. */
+ /** Validate credentials -- required fields present and non-trivial. */
   static validateCredentials(credentials: Credentials): boolean {
     if (!credentials.username || !credentials.password) {
       throw new Error('Invalid credentials: username and password required');
@@ -76,9 +66,9 @@ export class CredentialLoader {
     return true;
   }
 
-  // ─── Private helpers ───────────────────────────────────────────────────────
+ // ─── Private helpers ───────────────────────────────────────────────────────
 
-  /** Centralized source resolution: env/inline/file-adapter -> raw records. */
+ /** Centralized source resolution: env/inline/file-adapter -> raw records. */
   private static async _resolveSource(source: CredentialSource): Promise<{ records: any[] }> {
     if (source.type === 'env') {
       return { records: [this._loadEnvRecord()] };
@@ -97,7 +87,7 @@ export class CredentialLoader {
     return { records: data.records };
   }
 
-  /** Map raw record fields to standardized Credentials (supports common field name variations). */
+ /** Map raw record fields to standardized Credentials (supports common field name variations). */
   private static _mapRecord(record: any, role?: string): Credentials {
     return {
       username: record.username || record.user || record.email,
@@ -108,7 +98,7 @@ export class CredentialLoader {
     };
   }
 
-  /** Load credentials from environment variables (.env files). */
+ /** Load credentials from environment variables (.env files). */
   private static _loadEnvRecord(): Record<string, any> {
     return {
       username: process.env.NAVIGATOR_USERNAME || process.env.USERNAME_AUTOMATION || 'admin',

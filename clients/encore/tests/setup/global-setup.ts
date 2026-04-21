@@ -1,13 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Global setup - runs once before all tests. Loads environment config, cleans up old logs, runs pre-flight health checks, and can pre-authenticate for session reuse.
- * OWNER: human-only
- * IMPACT: high - Environment setup, log cleanup, pre-flight checks, and session management depend on this. Breaking it can cause test environment issues.
- * DEPENDS-ON: @playwright/test, logger.ts, dotenv-flow, scripts/cleanup-logs.ts
- * USED-BY: Playwright test runner (referenced in playwright.config.ts)
- * RULES: Never remove env loading. Keep log cleanup working. Pre-flight checks write reports/preflight-check.json. Session pre-auth is optional but recommended for CI.
- */
-
 import { FullConfig } from '@playwright/test';
 import { Log } from '@framework/utils/logger';
 import * as dotenvFlow from 'dotenv-flow';
@@ -24,8 +14,8 @@ interface PreflightResult {
 const PREFLIGHT_OUTPUT = path.join(process.cwd(), 'reports', 'preflight-check.json');
 
 async function globalSetup(config: FullConfig) {
-  // Clean up old logs (30 day retention) - runs cleanup-logs.ts
-  // Relative path resolves from clients/encore/tests/setup/ to repo-root scripts/.
+ // Clean up old logs (30 day retention) - runs cleanup-logs.ts
+ // Relative path resolves from clients/encore/tests/setup/ to repo-root scripts/.
   try {
     const { cleanupLogs } = require('../../../../scripts/cleanup-logs');
     await cleanupLogs();
@@ -33,8 +23,8 @@ async function globalSetup(config: FullConfig) {
     console.log('Log cleanup skipped:', error instanceof Error ? error.message : String(error));
   }
 
-  // Load environment variables from config/environments/ (repo root — SP-MT-03 moves these to clients/encore/config/environments/)
-  // Cascade: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
+ // Load environment variables from config/environments/ (repo root — SP-MT-03 moves these to clients/encore/config/environments/)
+ // Cascade: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
   dotenvFlow.config({
     path: path.join(__dirname, '..', '..', '..', '..', 'config', 'environments'),
     node_env: process.env.CI_ENV || process.env.NODE_ENV || 'development',
@@ -45,10 +35,10 @@ async function globalSetup(config: FullConfig) {
   Log.info(`Workers: ${config.workers}`);
   Log.info(`Projects: ${config.projects?.length || 0}`);
 
-  // ---- Ensure report directories exist (defensive — survives npm run clean) ----
+ // ---- Ensure report directories exist (defensive — survives npm run clean) ----
   ensureReportDirectories();
 
-  // ---- Pre-flight Health Checks ----
+ // ---- Pre-flight Health Checks ----
   const results = await runPreflightChecks();
   writePreflightReport(results);
 
@@ -65,7 +55,7 @@ async function globalSetup(config: FullConfig) {
     Log.info(`[WARN] Pre-flight WARN: ${w.check} -- ${w.message}`);
   }
 
-  // Clean up old diagnostic files (7 day retention)
+ // Clean up old diagnostic files (7 day retention)
   cleanupDiagnosticFiles();
 
   Log.info('=== Global Test Setup Completed ===');
@@ -95,7 +85,7 @@ function ensureReportDirectories(): void {
 async function runPreflightChecks(): Promise<PreflightResult[]> {
   const results: PreflightResult[] = [];
 
-  // Check 1: Required env vars
+ // Check 1: Required env vars
   for (const envVar of ['BASE_URL', 'CI_ENV']) {
     const value = process.env[envVar];
     if (!value || value.trim() === '') {
@@ -105,10 +95,10 @@ async function runPreflightChecks(): Promise<PreflightResult[]> {
     }
   }
 
-  // Check 2: Base URL reachable
-  // Uses redirect: 'manual' because Navigator Cloud redirects unauthenticated requests
-  // to /auth/sign-in which may return non-2xx (SSR quirk). A 3xx redirect proves the
-  // server is up and routing correctly — that's all pre-flight needs to verify.
+ // Check 2: Base URL reachable
+ // Uses redirect: 'manual' because Navigator Cloud redirects unauthenticated requests
+ // to /auth/sign-in which may return non-2xx (SSR quirk). A 3xx redirect proves the
+ // server is up and routing correctly — that's all pre-flight needs to verify.
   const baseUrl = process.env.BASE_URL;
   if (baseUrl) {
     try {
@@ -123,7 +113,7 @@ async function runPreflightChecks(): Promise<PreflightResult[]> {
     }
   }
 
-  // Check 3: OAuth endpoint reachable (WARN only -- may be blocked by network policy)
+ // Check 3: OAuth endpoint reachable (WARN only -- may be blocked by network policy)
   try {
     const oauthUrl = 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration';
     const response = await fetch(oauthUrl, { method: 'GET', signal: AbortSignal.timeout(10_000) });
@@ -136,7 +126,7 @@ async function runPreflightChecks(): Promise<PreflightResult[]> {
     results.push({ check: 'oauth_endpoint', status: 'WARN', message: `OAuth endpoint unreachable -- ${error instanceof Error ? error.message : String(error)}` });
   }
 
-  // Check 4: Credential source loadable
+ // Check 4: Credential source loadable
   try {
     const { CredentialLoader } = require('../../../../src/common/credential-loader');
     await CredentialLoader.loadCredentials({ type: 'env' });

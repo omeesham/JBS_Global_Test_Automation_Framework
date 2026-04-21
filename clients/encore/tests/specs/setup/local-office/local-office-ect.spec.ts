@@ -1,4 +1,3 @@
-// spec: specs_planning/test-plans/locations/locations_local_office_settings_test_plan.md
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../../setup/fixtures';
 import { ECT_FIXED_COST_FIELDS } from '../../../test-data/setup/local-office/local-office-settings.data';
@@ -18,7 +17,7 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     test.setTimeout(60_000);
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
-    // LR-019: Baseline enforcement — reset Benefits Multiplier to 0.2 if dirty from prior run
+ // Baseline enforcement — reset Benefits Multiplier to 0.2 if dirty from prior run
     const currentBM = await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier');
     if (!currentBM.includes(BENEFITS_MULTIPLIER.defaultDisplay)) {
       await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.restoreValue);
@@ -55,11 +54,11 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.testInput);
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(true);
     await localOfficeSettingsPage.clickSaveFixedCosts();
-    // Navigate away and return to verify persistence
+ // Navigate away and return to verify persistence
     await localOfficeSettingsPage.clickTab('tabBasicInformation');
     await localOfficeSettingsPage.navigateToEctTab();
     expect(await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(BENEFITS_MULTIPLIER.expectedAfterSave);
-    // Cleanup
+ // Cleanup
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.restoreValue);
     await localOfficeSettingsPage.clickSaveFixedCosts();
   });
@@ -68,18 +67,18 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     test.setTimeout(60_000);
     await localOfficeSettingsPage.fillAndTab('txtHistoricalSubrental', HISTORICAL_SUBRENTAL.testValue);
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(true);
-    // Cleanup — full page reload discards unsaved changes and resets Angular dirty state.
-    // Cannot save-restore: filling original value (0) makes Save disabled while Angular
-    // still tracks intermediate 0.1 as dirty (LR-009). Tab click would trigger Radix
-    // "Unsaved changes" alertdialog that blocks all pointer events on subsequent tests.
-    // reloadBasicInfo does safeNavigateTo (handles native beforeunload) + fresh page load.
+ // Cleanup — full page reload discards unsaved changes and resets Angular dirty state.
+ // Cannot save-restore: filling original value (0) makes Save disabled while Angular
+ // still tracks intermediate 0.1 as dirty. Tab click would trigger Radix
+ // "Unsaved changes" alertdialog that blocks all pointer events on subsequent tests.
+ // reloadBasicInfo does safeNavigateTo (handles native beforeunload) + fresh page load.
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
   });
 
   test('TC-LOS-ECT-007: Two independent Save buttons', async ({ localOfficeSettingsPage }) => {
     test.setTimeout(60_000);
-    // Reload ECT tab to reset Angular dirty state from prior test
+ // Reload ECT tab to reset Angular dirty state from prior test
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(false);
@@ -87,9 +86,9 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.altTestValue);
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(true);
     expect(await localOfficeSettingsPage.isEctLaborCostsSaveEnabled()).toBe(false);
-    // Cleanup — reload to discard unsaved changes. Restoring original 0.2 would make Save
-    // disabled while Angular still tracks intermediate dirty state, causing "Unsaved changes"
-    // dialog on subsequent tab navigation (blocks ECT-009 pointer events).
+ // Cleanup — reload to discard unsaved changes. Restoring original 0.2 would make Save
+ // disabled while Angular still tracks intermediate dirty state, causing "Unsaved changes"
+ // dialog on subsequent tab navigation (blocks ECT-009 pointer events).
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
   });
@@ -104,21 +103,21 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
 
   test('TC-LOS-ECT-009: Labor cost — edit, save, persist', async ({ localOfficeSettingsPage }) => {
     test.setTimeout(90_000);
-    // Navigate via URL (not reload) to avoid "No currencies" API cache miss.
-    // ECT-008 is read-only so no dirty state to discard — clean navigation suffices.
+ // Navigate via URL (not reload) to avoid "No currencies" API cache miss.
+ // ECT-008 is read-only so no dirty state to discard — clean navigation suffices.
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
-    // Read current server value and pick a different test value to guarantee dirty state
+ // Read current server value and pick a different test value to guarantee dirty state
     const currentValue = await localOfficeSettingsPage.getLaborCostValue(0);
     const testValue = currentValue === LABOR_COST_TEST.currentValue ? LABOR_COST_TEST.testValue : LABOR_COST_TEST.altValue;
     await localOfficeSettingsPage.fillLaborCost(0, testValue);
     expect(await localOfficeSettingsPage.isEctLaborCostsSaveEnabled()).toBe(true);
     await localOfficeSettingsPage.clickSaveLaborCosts();
-    // Navigate away and return
+ // Navigate away and return
     await localOfficeSettingsPage.clickTab('tabBasicInformation');
     await localOfficeSettingsPage.navigateToEctTab();
     expect(await localOfficeSettingsPage.getLaborCostValue(0)).toBe(`${testValue}.00`);
-    // Cleanup — restore original
+ // Cleanup — restore original
     await localOfficeSettingsPage.fillLaborCost(0, currentValue.replace('.00', ''));
     await localOfficeSettingsPage.clickSaveLaborCosts();
   });
@@ -139,11 +138,11 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     test.setTimeout(60_000);
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.altTestValue);
     await localOfficeSettingsPage.clickSaveFixedCosts();
-    // Navigate to another tab — should NOT trigger unsaved changes dialog
+ // Navigate to another tab — should NOT trigger unsaved changes dialog
     await localOfficeSettingsPage.clickTab('tabBasicInformation');
     await localOfficeSettingsPage.waitForBasicInfoForm();
     expect(await localOfficeSettingsPage.isTabSelected('tabBasicInformation')).toBe(true);
-    // Cleanup: return to ECT and restore
+ // Cleanup: return to ECT and restore
     await localOfficeSettingsPage.navigateToEctTab();
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.restoreValue);
     await localOfficeSettingsPage.clickSaveFixedCosts();
@@ -151,18 +150,18 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
 
   test('TC-LOS-ECT-013: Historical Subrental % — edit, save, persist', async ({ localOfficeSettingsPage }) => {
     test.setTimeout(60_000);
-    // Defensive read — don't assume default (LR-019)
+ // Defensive read — don't assume default
     const currentHS = await localOfficeSettingsPage.getEctFieldValue('txtHistoricalSubrental');
     const testValue = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.testValue : HISTORICAL_SUBRENTAL.restoreValue;
     const expectedDisplay = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.expectedAfterSave : HISTORICAL_SUBRENTAL.defaultDisplay;
     await localOfficeSettingsPage.fillAndTab('txtHistoricalSubrental', testValue);
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(true);
     await localOfficeSettingsPage.clickSaveFixedCosts();
-    // Navigate away and return to verify persistence
+ // Navigate away and return to verify persistence
     await localOfficeSettingsPage.clickTab('tabBasicInformation');
     await localOfficeSettingsPage.navigateToEctTab();
     expect(await localOfficeSettingsPage.getEctFieldValue('txtHistoricalSubrental')).toContain(expectedDisplay);
-    // Restore original value
+ // Restore original value
     const restoreRaw = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.restoreValue : HISTORICAL_SUBRENTAL.testValue;
     await localOfficeSettingsPage.fillAndTab('txtHistoricalSubrental', restoreRaw);
     await localOfficeSettingsPage.clickSaveFixedCosts();
@@ -171,20 +170,20 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
   for (const { rowIndex, name } of LABOR_COST_RT_ROWS) {
     test(`TC-LOS-ECT-${rowIndex === 33 ? '014' : '015'}: Labor cost ${name} (index ${rowIndex}) — persistence`, async ({ localOfficeSettingsPage }) => {
       test.setTimeout(90_000);
-      // Navigate fresh to ECT for each row (avoid serial contamination)
+ // Navigate fresh to ECT for each row (avoid serial contamination)
       await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
       await localOfficeSettingsPage.navigateToEctTab();
-      // Defensive read (ECT-009 pattern)
+ // Defensive read (ECT-009 pattern)
       const currentValue = await localOfficeSettingsPage.getLaborCostValue(rowIndex);
       const testValue = currentValue === LABOR_COST_TEST.currentValue ? LABOR_COST_TEST.testValue : LABOR_COST_TEST.altValue;
       await localOfficeSettingsPage.fillLaborCost(rowIndex, testValue);
       expect(await localOfficeSettingsPage.isEctLaborCostsSaveEnabled()).toBe(true);
       await localOfficeSettingsPage.clickSaveLaborCosts();
-      // Navigate away and return
+ // Navigate away and return
       await localOfficeSettingsPage.clickTab('tabBasicInformation');
       await localOfficeSettingsPage.navigateToEctTab();
       expect(await localOfficeSettingsPage.getLaborCostValue(rowIndex)).toBe(`${testValue}.00`);
-      // Restore original
+ // Restore original
       await localOfficeSettingsPage.fillLaborCost(rowIndex, currentValue.replace('.00', ''));
       await localOfficeSettingsPage.clickSaveLaborCosts();
     });
@@ -194,26 +193,26 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     test.setTimeout(90_000);
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
-    // Read current values (defensive)
+ // Read current values (defensive)
     const currentBM = await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier');
     const currentHS = await localOfficeSettingsPage.getEctFieldValue('txtHistoricalSubrental');
-    // Pick test values different from current
+ // Pick test values different from current
     const bmTest = currentBM.includes(BENEFITS_MULTIPLIER.defaultDisplay) ? BENEFITS_MULTIPLIER.testInput : BENEFITS_MULTIPLIER.restoreValue;
     const hsTest = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.testValue : HISTORICAL_SUBRENTAL.restoreValue;
     const bmExpected = currentBM.includes(BENEFITS_MULTIPLIER.defaultDisplay) ? BENEFITS_MULTIPLIER.expectedAfterSave : BENEFITS_MULTIPLIER.defaultDisplay;
     const hsExpected = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.expectedAfterSave : HISTORICAL_SUBRENTAL.defaultDisplay;
-    // Edit both fields
+ // Edit both fields
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', bmTest);
     await localOfficeSettingsPage.fillAndTab('txtHistoricalSubrental', hsTest);
-    // Single save
+ // Single save
     await localOfficeSettingsPage.clickSaveFixedCosts();
-    // Full page reload — stronger than tab navigation (LR-026)
+ // Full page reload — stronger than tab navigation
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
-    // Verify both values persisted
+ // Verify both values persisted
     expect(await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(bmExpected);
     expect(await localOfficeSettingsPage.getEctFieldValue('txtHistoricalSubrental')).toContain(hsExpected);
-    // Restore both
+ // Restore both
     const bmRestore = currentBM.includes(BENEFITS_MULTIPLIER.defaultDisplay) ? BENEFITS_MULTIPLIER.restoreValue : BENEFITS_MULTIPLIER.testInput;
     const hsRestore = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.restoreValue : HISTORICAL_SUBRENTAL.testValue;
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', bmRestore);
@@ -225,18 +224,18 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     test.setTimeout(60_000);
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
-    // Read current BM value (baseline)
+ // Read current BM value (baseline)
     const originalBM = await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier');
-    // Dirty the form
+ // Dirty the form
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.altTestValue);
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(true);
-    // Navigate via direct tab click — triggers unsaved changes dialog
+ // Navigate via direct tab click — triggers unsaved changes dialog
     await localOfficeSettingsPage.clickTabDirect('tabBasicInformation');
-    // Verify dialog appears (explicit — proves Angular dirty guard fires on ECT tab)
+ // Verify dialog appears (explicit — proves Angular dirty guard fires on ECT tab)
     expect(await localOfficeSettingsPage.isElementVisible('dlgUnsavedLocalOffice')).toBe(true);
     await localOfficeSettingsPage.clickUnsavedDiscard();
     await localOfficeSettingsPage.waitForBasicInfoForm();
-    // Return to ECT and verify BM unchanged (edit was discarded)
+ // Return to ECT and verify BM unchanged (edit was discarded)
     await localOfficeSettingsPage.navigateToEctTab();
     expect(await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(originalBM);
   });

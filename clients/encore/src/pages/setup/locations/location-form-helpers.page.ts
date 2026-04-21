@@ -1,16 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Abstract base mixin providing shared field interaction and batch verification
- *          methods for Location tab page objects. Extracted from LocationLocalInfoPage (GEN-041 refactor).
- *          Test orchestrators (boundary, dependency, maxLength) live in LocationTestOrchestrators (FIX-A.4).
- * OWNER: generator
- * IMPACT: medium -- LocationLocalInfoPage extends this. Changes affect all derived pages.
- * DEPENDS-ON: BasePage, LocationSettingsSelectors, logger.ts
- * USED-BY: src/pages/setup/locations/location-test-orchestrators.page.ts, src/pages/setup/locations/location-local-info.page.ts
- * RULES: Abstract methods isSaveEnabled/clickSave/reloadAndNavigateToLocalInfo must be
- *        implemented by subclasses. Never add tab-specific selectors here.
- */
-
 import { BasePage } from '../../../common/base-page';
 import { Log } from '@framework/utils/logger';
 import { LocationSettingsSelectors } from '../../../selectors';
@@ -28,24 +15,24 @@ export interface SpinState {
 }
 
 export abstract class LocationFormHelpers extends BasePage {
-  // ─────────────────────────────────────────────────────────────────────────────
-  // ABSTRACT -- subclasses must implement
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // ABSTRACT -- subclasses must implement
+ // ─────────────────────────────────────────────────────────────────────────────
 
   abstract isSaveEnabled(): Promise<boolean>;
   abstract clickSave(): Promise<{ success: boolean; networkError?: string } | void>;
   abstract reloadAndNavigateToLocalInfo(officeNo: string): Promise<void>;
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // FORM READINESS
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // FORM READINESS
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /**
-   * Wait for a form element to become enabled (not disabled).
-   * New E2E environment briefly renders form fields as disabled during hydration.
-   * @param selectorKey - Key of the element to wait on
-   * @param timeout - Max wait time in ms (default 10s)
-   */
+ /**
+ * Wait for a form element to become enabled (not disabled).
+ * New E2E environment briefly renders form fields as disabled during hydration.
+ * @param selectorKey - Key of the element to wait on
+ * @param timeout - Max wait time in ms (default 10s)
+ */
   async waitForFormReady(selectorKey: keyof typeof LocationSettingsSelectors, timeout = 10_000): Promise<void> {
     const el = this.getElement(selectorKey);
     await el.waitFor({ state: 'visible', timeout });
@@ -60,9 +47,9 @@ export abstract class LocationFormHelpers extends BasePage {
     Log.info(`[OK] Form ready: ${selectorKey} is enabled`);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // CHECKBOX INTERACTIONS
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // CHECKBOX INTERACTIONS
+ // ─────────────────────────────────────────────────────────────────────────────
 
   async getCheckboxState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<CheckboxState> {
     const el = this.getElement(selectorKey);
@@ -91,12 +78,12 @@ export abstract class LocationFormHelpers extends BasePage {
     return isNowChecked;
   }
 
-  /**
-   * Reads the visible label text for a checkbox from the live DOM.
-   * Structure: dt (label) + dd > button[role="checkbox"] -- all Local Info checkboxes follow this pattern.
-   * Walks from the checkbox button up to its <dd> parent, then reads the preceding <dt> sibling text.
-   * MCP-verified 2026-02-26: term (dt) + definition (dd) confirmed in Local Information tab DOM.
-   */
+ /**
+ * Reads the visible label text for a checkbox from the live DOM.
+ * Structure: dt (label) + dd > button[role="checkbox"] -- all Local Info checkboxes follow this pattern.
+ * Walks from the checkbox button up to its <dd> parent, then reads the preceding <dt> sibling text.
+ * MCP-verified : term (dt) + definition (dd) confirmed in Local Information tab DOM.
+ */
   async getCheckboxLabel(selectorKey: string): Promise<string> {
     const el = this.getElement(selectorKey as keyof typeof LocationSettingsSelectors);
     const label = await el.evaluate((button: Element) => {
@@ -108,13 +95,13 @@ export abstract class LocationFormHelpers extends BasePage {
     return label;
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // SPINBUTTON INTERACTIONS
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // SPINBUTTON INTERACTIONS
+ // ─────────────────────────────────────────────────────────────────────────────
 
   async getSpinState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<SpinState> {
     const el = this.getElement(selectorKey);
-    // RC-2 FIX: Custom percentage components display "4.00%"; strip trailing % to get "4.00".
+ // RC-2 FIX: Custom percentage components display "4.00%"; strip trailing % to get "4.00".
     const raw = await el.inputValue().catch(() => '');
     const value = raw.replace(/%$/, '').trim();
     const disabled = await el.isDisabled().catch(() => true);
@@ -125,9 +112,9 @@ export abstract class LocationFormHelpers extends BasePage {
   async setSpinValue(selectorKey: keyof typeof LocationSettingsSelectors, value: string): Promise<void> {
     const el = this.getElement(selectorKey);
     await el.click();
-    // Ctrl+A is more reliable than triple-click for selecting all text (see RC-4 2026-02-24).
+ // Ctrl+A is more reliable than triple-click for selecting all text (see RC-4 ).
     await this.page.keyboard.press('Control+a');
-    // keyboard.type fires raw keydown/input/keyup events -- Radix UI field commit requires this.
+ // keyboard.type fires raw keydown/input/keyup events -- Radix UI field commit requires this.
     await this.page.keyboard.type(value);
     const preTab = await el.inputValue().catch(() => 'ERR');
     Log.info(`setSpinValue [${selectorKey}]: after type, before Tab -> "${preTab}"`);
@@ -136,9 +123,9 @@ export abstract class LocationFormHelpers extends BasePage {
     Log.info(`setSpinValue [${selectorKey}]: after Tab -> "${postTab}"`);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // TEXT FIELD INTERACTIONS
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // TEXT FIELD INTERACTIONS
+ // ─────────────────────────────────────────────────────────────────────────────
 
   async getTextValue(selectorKey: keyof typeof LocationSettingsSelectors): Promise<string> {
     return await this.getElement(selectorKey).inputValue().catch(() => '');
@@ -148,14 +135,14 @@ export abstract class LocationFormHelpers extends BasePage {
     const el = this.getElement(selectorKey);
     await el.click({ clickCount: 3 });
     await el.fill(value);
-    // Tab triggers blur -- required for Radix UI form model to commit the value before Save (GEN-043).
+ // Tab triggers blur -- required for Radix UI form model to commit the value before Save.
     await el.press('Tab');
     Log.info(`Filled [${selectorKey}] = "${value.substring(0, 30)}"`);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // VALIDATION STATE
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // VALIDATION STATE
+ // ─────────────────────────────────────────────────────────────────────────────
 
   async hasValidationError(errorText: string): Promise<boolean> {
     const visible = await this.getElement('errValidationMessage')
@@ -185,9 +172,9 @@ export abstract class LocationFormHelpers extends BasePage {
     Log.info('Error dialog dismissed');
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // FIELD ATTRIBUTE INSPECTION
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // FIELD ATTRIBUTE INSPECTION
+ // ─────────────────────────────────────────────────────────────────────────────
 
   async getAttribute(selectorKey: keyof typeof LocationSettingsSelectors, attribute: string): Promise<string | null> {
     return await this.getElement(selectorKey).getAttribute(attribute).catch(() => null);
@@ -202,9 +189,9 @@ export abstract class LocationFormHelpers extends BasePage {
     return await this.getElement(selectorKey).isDisabled().catch(() => true);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // BATCH VERIFICATION -- data-driven test support
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // BATCH VERIFICATION -- data-driven test support
+ // ─────────────────────────────────────────────────────────────────────────────
 
   async verifyCheckboxDefaults(expected: Record<string, boolean>): Promise<{ allPassed: boolean; failures: string[] }> {
     const failures: string[] = [];

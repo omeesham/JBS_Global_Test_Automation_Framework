@@ -31,7 +31,7 @@ export class LocationAutoAddonPage extends BasePage {
   }
 
   async toggleCheckbox(key: string): Promise<void> {
-    // Extended timeout: form inputs are temporarily disabled during save API processing
+ // Extended timeout: form inputs are temporarily disabled during save API processing
     await this.getElement(key).click({ timeout: 30_000 });
   }
 
@@ -47,7 +47,7 @@ export class LocationAutoAddonPage extends BasePage {
     return this.getElement('chkAutoAddonAll').count();
   }
 
-  /** Save button locator — uses getElement which resolves via ALL_SELECTORS (btnSave from left-panel.ts). */
+ /** Save button locator — uses getElement which resolves via ALL_SELECTORS (btnSave from left-panel.ts). */
   private get saveButton(): Locator {
     return this.getElement('btnSave');
   }
@@ -71,7 +71,7 @@ export class LocationAutoAddonPage extends BasePage {
       await dialog.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
     }
     await this.waitForAngularStable();
-    // Wait for form to re-enable after save API completes
+ // Wait for form to re-enable after save API completes
     const firstCheckbox = this.getElement('chkAutoAddonEncoreMusic');
     const deadline = Date.now() + 15_000;
     while (Date.now() < deadline) {
@@ -106,9 +106,9 @@ export class LocationAutoAddonPage extends BasePage {
   async clickSaveOk(): Promise<void> {
     await this.getElement('btnSaveChangesOk').click();
     await this.getElement('dlgSaveChanges').waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
-    // Wait for save API to complete — form inputs are disabled during save processing
+ // Wait for save API to complete — form inputs are disabled during save processing
     await this.waitForAngularStable();
-    // Wait for form to re-enable (first checkbox becomes interactive)
+ // Wait for form to re-enable (first checkbox becomes interactive)
     await this.getElement('chkAutoAddonEncoreMusic').waitFor({ state: 'visible', timeout: 15_000 }).catch(() => {});
   }
 
@@ -121,12 +121,12 @@ export class LocationAutoAddonPage extends BasePage {
   async clickSidebarHome(): Promise<void> {
     const homeLink = this.page.getByRole('link', { name: 'Home' });
     if (!await homeLink.isVisible().catch(() => false)) {
-      // Sidebar collapsed in narrow viewport (headless chrome viewport:null) — expand it
+ // Sidebar collapsed in narrow viewport (headless chrome viewport:null) — expand it
       await this.page.setViewportSize({ width: 1920, height: 1080 });
       await homeLink.waitFor({ state: 'visible', timeout: 5_000 });
     }
-    // Suppress the app's beforeunload handler to prevent the fixture from auto-accepting it.
-    // This lets the React routing guard show its in-app "Unsaved changes" alertdialog instead.
+ // Suppress the app's beforeunload handler to prevent the fixture from auto-accepting it.
+ // This lets the React routing guard show its in-app "Unsaved changes" alertdialog instead.
     await this.page.evaluate(() => {
       window.onbeforeunload = null;
       window.addEventListener('beforeunload', (e) => e.stopImmediatePropagation(), true);

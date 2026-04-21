@@ -8,23 +8,22 @@ import { Log } from '@framework/utils/logger';
  * @interface ApiClientOptions
  */
 export interface ApiClientOptions {
-  /** Base URL for API (e.g., https://demo.us.espocrm.com/api/v1) */
+ /** Base URL for API (e.g., https://demo.us.espocrm.com/api/v1) */
   baseURL: string;
   
-  /** Request timeout in milliseconds (default: 30000 = 30 seconds) */
+ /** Request timeout in milliseconds (default: 30000 = 30 seconds) */
   timeout?: number;
   
-  /** Additional HTTP headers to include in all requests */
+ /** Additional HTTP headers to include in all requests */
   headers?: Record<string, string>;
   
-  /** Authentication token (JWT) - auto-added to all requests */
+ /** Authentication token (JWT) - auto-added to all requests */
   authToken?: string;
 }
 
 /**
  * Base API Client
  * Parent class for all API helpers - provides HTTP methods and authentication
- * 
  * @class BaseApiClient
  * @example
  * const client = new BaseApiClient({ baseURL: process.env.BASE_URL });
@@ -46,7 +45,7 @@ export class BaseApiClient {
       }
     });
 
-    // Request interceptor - runs before every request
+ // Request interceptor - runs before every request
     this.client.interceptors.request.use(
       (config) => {
         if (this.authToken && config.headers) {
@@ -61,7 +60,7 @@ export class BaseApiClient {
       }
     );
 
-    // Response interceptor - runs after every response
+ // Response interceptor - runs after every response
     this.client.interceptors.response.use(
       (response) => {
         Log.info(`API Response: ${response.status} ${response.config.url}`);
@@ -74,10 +73,10 @@ export class BaseApiClient {
     );
   }
 
-  /**
-   * Generic request method
-   * @template T - Expected response data type
-   */
+ /**
+ * Generic request method
+ * @template T - Expected response data type
+ */
   async request<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     try {
       return await this.client.request<T>(config);
@@ -87,50 +86,50 @@ export class BaseApiClient {
     }
   }
 
-  /**
-   * GET request - retrieve data
-   * @template T - Expected response data type
-   */
+ /**
+ * GET request - retrieve data
+ * @template T - Expected response data type
+ */
   async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.request<T>({ ...config, method: 'GET', url });
   }
 
-  /**
-   * POST request - create new data
-   * @template T - Expected response data type
-   */
+ /**
+ * POST request - create new data
+ * @template T - Expected response data type
+ */
   async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.request<T>({ ...config, method: 'POST', url, data });
   }
 
-  /**
-   * PUT request - update existing data
-   * @template T - Expected response data type
-   */
+ /**
+ * PUT request - update existing data
+ * @template T - Expected response data type
+ */
   async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.request<T>({ ...config, method: 'PUT', url, data });
   }
 
-  /**
-   * DELETE request - remove data
-   * @template T - Expected response data type
-   */
+ /**
+ * DELETE request - remove data
+ * @template T - Expected response data type
+ */
   async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.request<T>({ ...config, method: 'DELETE', url });
   }
 
-  /**
-   * Set authentication token (stores JWT for future requests)
-   * @param {string} token - JWT token from login response
-   */
+ /**
+ * Set authentication token (stores JWT for future requests)
+ * @param {string} token - JWT token from login response
+ */
   setAuthToken(token: string): void {
     this.authToken = token;
     Log.info('Auth token updated');
   }
 
-  /**
-   * Clear authentication token (logout)
-   */
+ /**
+ * Clear authentication token (logout)
+ */
   clearAuthToken(): void {
     this.authToken = undefined;
     Log.info('Auth token cleared');

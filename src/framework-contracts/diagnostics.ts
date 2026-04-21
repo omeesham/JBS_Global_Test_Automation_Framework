@@ -1,13 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Diagnostic types for runtime failure capture -- console errors, network failures, auth chain, page errors.
- * OWNER: human-only
- * IMPACT: medium - Used by DiagnosticsCollector and AgentReporter for structured failure data.
- * DEPENDS-ON: none
- * USED-BY: src/utils/diagnostics-collector.ts, src/utils/agent-reporter.ts, tests/setup/fixtures.ts
- * RULES: Keep types aligned with AgentReporter FailureEntry fields. FailureCategory values must match AGENT_SHARED_RULES §12.
- */
-
 /** Failure classification categories -- used for agent routing in RCA protocol (§12). */
 export enum FailureCategory {
   AUTH = 'AUTH',
@@ -25,7 +15,7 @@ export interface NetworkFailure {
   url: string;
   status: number;
   statusText: string;
-  /** Response body, truncated to 2KB. */
+ /** Response body, truncated to 2KB. */
   body: string;
   timestamp: number;
 }
@@ -87,13 +77,13 @@ export interface TriageResult {
   actualValue: string | null;
   changeDescription: string | null;
   bugSeverity: BugSeverity | null;
-  /** Detailed classification from 4-category rulebook. When present, takes precedence over disposition. */
+ /** Detailed classification from 4-category rulebook. When present, takes precedence over disposition. */
   bugHuntCategory?: BugHuntCategory;
-  /** Feature change magnitude (only set when bugHuntCategory is FEATURE_CHANGED_*). */
+ /** Feature change magnitude (only set when bugHuntCategory is FEATURE_CHANGED_*). */
   changeSize?: ChangeSize;
-  /** Test-ID status (only set when bugHuntCategory is TESTID_*). */
+ /** Test-ID status (only set when bugHuntCategory is TESTID_*). */
   testIdStatus?: TestIdStatus;
-  /** Whether this was auto-decided or needs human review. */
+ /** Whether this was auto-decided or needs human review. */
   autonomyDecision?: AutonomyDecision;
 }
 
@@ -117,13 +107,13 @@ export interface BugReport {
   status: BugStatus;
   createdAt: string;
   queueItemId: string;
-  /** Which agent filed this bug (healer, generator, planner). */
+ /** Which agent filed this bug (healer, generator, planner). */
   sourceAgent?: string;
-  /** Hash for dedup: hash(testName + failureCategory + truncatedError). */
+ /** Hash for dedup: hash(testName + failureCategory + truncatedError). */
   errorHash?: string;
-  /** Detailed bug hunt classification. */
+ /** Detailed bug hunt classification. */
   bugHuntCategory?: BugHuntCategory;
-  /** Full RCA evidence JSONB for rich display. */
+ /** Full RCA evidence JSONB for rich display. */
   rcaEvidence?: {
     consoleErrors?: string[];
     networkFailures?: string[];
@@ -132,9 +122,9 @@ export interface BugReport {
     traceUrl?: string;
     harEntries?: string[];
   };
-  /** Pipeline run ID. */
+ /** Pipeline run ID. */
   runId?: string;
-  /** Confidence level (LOW when from force-continued runs). */
+ /** Confidence level (LOW when from force-continued runs). */
   confidence?: TriageConfidence;
   updatedAt?: string;
 }
@@ -149,11 +139,11 @@ export interface TriageItem {
   pageUrl: string;
   failureCategory: FailureCategory;
   triage: TriageResult;
-  /** Plain English: what happened (1-2 sentences a non-technical person can understand). */
+ /** Plain English: what happened (1-2 sentences a non-technical person can understand). */
   whatHappened: string;
-  /** Plain English: why it happened (root cause in plain language). */
+ /** Plain English: why it happened (root cause in plain language). */
   whyItHappened: string;
-  /** Plain English: recommended action for the user. */
+ /** Plain English: recommended action for the user. */
   whatToDo: string;
 }
 
@@ -189,11 +179,11 @@ export interface DiagnosticSnapshot {
   urlHistory: string[];
   urlBreadcrumbs: UrlBreadcrumb[];
   authChain: AuthChainEntry[];
-  /** DOM content at failure time, truncated to 50KB. Only populated on test failure. */
+ /** DOM content at failure time, truncated to 50KB. Only populated on test failure. */
   domSnippet?: string;
-  /** HAR entries: failed requests + surrounding context. Optional, controlled by HAR_MAX_SIZE env. */
+ /** HAR entries: failed requests + surrounding context. Optional, controlled by HAR_MAX_SIZE env. */
   harEntries?: HarEntry[];
-  /** Full DOM serialization at failure point. Optional. */
+ /** Full DOM serialization at failure point. Optional. */
   domState?: string;
 }
 
@@ -215,24 +205,24 @@ export interface HarEntry {
 /**
  * Detailed bug hunt classification — extends the coarse TriageDisposition.
  * Maps to disposition for backward compat:
- *   UNCHANGED_FAILURE, TESTID_MISSING → BUG
- *   TESTID_CHANGED, FEATURE_CHANGED_SMALL, FEATURE_CHANGED_BIG → FEATURE_CHANGE
- *   FLAKE, INFRASTRUCTURE_TRANSIENT → TEST_DEFECT
+ * UNCHANGED_FAILURE, TESTID_MISSING → BUG
+ * TESTID_CHANGED, FEATURE_CHANGED_SMALL, FEATURE_CHANGED_BIG → FEATURE_CHANGE
+ * FLAKE, INFRASTRUCTURE_TRANSIENT → TEST_DEFECT
  */
 export enum BugHuntCategory {
-  /** Feature intact, test fails (console/network/value errors) — this IS a bug. */
+ /** Feature intact, test fails (console/network/value errors) — this IS a bug. */
   UNCHANGED_FAILURE = 'UNCHANGED_FAILURE',
-  /** Feature change, small scope (≤ threshold) — heal autonomously. */
+ /** Feature change, small scope (≤ threshold) — heal autonomously. */
   FEATURE_CHANGED_SMALL = 'FEATURE_CHANGED_SMALL',
-  /** Feature change, big scope (> threshold) — deny, escalate to prior agents. */
+ /** Feature change, big scope (> threshold) — deny, escalate to prior agents. */
   FEATURE_CHANGED_BIG = 'FEATURE_CHANGED_BIG',
-  /** data-testid gone or never existed — report bug. */
+ /** data-testid gone or never existed — report bug. */
   TESTID_MISSING = 'TESTID_MISSING',
-  /** data-testid value changed — report + adapt, user reviews. */
+ /** data-testid value changed — report + adapt, user reviews. */
   TESTID_CHANGED = 'TESTID_CHANGED',
-  /** Transient failure, passes on retry — not a bug, track for flake patterns. */
+ /** Transient failure, passes on retry — not a bug, track for flake patterns. */
   FLAKE = 'FLAKE',
-  /** Network-only failure with no DOM evidence — retry once before classifying. */
+ /** Network-only failure with no DOM evidence — retry once before classifying. */
   INFRASTRUCTURE_TRANSIENT = 'INFRASTRUCTURE_TRANSIENT',
 }
 

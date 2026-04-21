@@ -16,7 +16,6 @@ api-testing/
 ├── REQUIREMENTS_API.md          ← List of API features and test plans
 │
 ├── api-contracts/               ← "Expected Response Formats"
-│   ├── common.api.ts                → Standard API response shapes
 │   └── auth.api.ts                  → Login/logout data formats
 │
 ├── api-helpers/                 ← "Connection Tools"
@@ -167,7 +166,6 @@ When user provides DevTools data, you MUST:
 - **For test plans**: See `REQUIREMENTS_API.md` (API-specific requirements)
 - **For UI testing**: See main `REQUIREMENTS.md` (UI/browser testing)
 - **For architecture**: See `docs/ARCHITECTURE.md` (technical deep-dive)
-- **For AI agents**: See `.github/copilot-instructions.md` (automation workflow)
 
 ---
 

@@ -10,7 +10,7 @@ export class S3Adapter implements IAdapter {
   private client: S3Client | null = null;
   private isStubMode: boolean = false;
 
-  /** Fetches S3 object and converts to normalized test data; returns stub if credentials missing */
+ /** Fetches S3 object and converts to normalized test data; returns stub if credentials missing */
   async load(params: { bucket: string; key: string; region?: string }): Promise<AdapterResult> {
     const timestamp = new Date().toISOString();
     await this.initializeClient(params.region);
@@ -74,7 +74,7 @@ export class S3Adapter implements IAdapter {
     }
   }
 
-  /** Creates S3 client or sets stub mode if credentials missing */
+ /** Creates S3 client or sets stub mode if credentials missing */
   private async initializeClient(region?: string): Promise<void> {
     if (!this.checkCredentials()) {
       this.isStubMode = true;
@@ -100,13 +100,13 @@ export class S3Adapter implements IAdapter {
     }
   }
 
-  /** Validates that required AWS environment variables are present */
+ /** Validates that required AWS environment variables are present */
   private checkCredentials(): boolean {
     const required = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'];
     return required.every(envVar => process.env[envVar]);
   }
 
-  /** Converts AWS SDK readable stream to string */
+ /** Converts AWS SDK readable stream to string */
   private async streamToString(stream: NodeJS.ReadableStream): Promise<string> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
@@ -116,7 +116,7 @@ export class S3Adapter implements IAdapter {
     });
   }
 
-  /** Parses JSON or CSV content string into AdapterRecord array */
+ /** Parses JSON or CSV content string into AdapterRecord array */
   private parseContent(content: string, contentType: string): AdapterRecord[] {
     try {
       if (contentType.includes('json') || content.trim().startsWith('{') || content.trim().startsWith('[')) {
@@ -124,7 +124,7 @@ export class S3Adapter implements IAdapter {
         return Array.isArray(data) ? data : [data];
       }
 
-      // CSV parsing
+ // CSV parsing
       if (contentType.includes('csv') || contentType.includes('text')) {
         const lines = content.trim().split('\n');
         if (lines.length === 0 || !lines[0]) return [];
@@ -146,7 +146,7 @@ export class S3Adapter implements IAdapter {
         return records;
       }
 
-      // Default: try JSON
+ // Default: try JSON
       return JSON.parse(content);
 
     } catch (error) {
@@ -155,7 +155,7 @@ export class S3Adapter implements IAdapter {
     }
   }
 
-  /** Writes warning to artifacts/adapter-warnings.log */
+ /** Writes warning to artifacts/adapter-warnings.log */
   private logWarning(message: string): void {
     const logMessage = `[${new Date().toISOString()}] [S3Adapter] ${message}\n`;
     
@@ -168,7 +168,7 @@ export class S3Adapter implements IAdapter {
       const logPath = path.join(artifactsDir, 'adapter-warnings.log');
       fs.appendFileSync(logPath, logMessage, 'utf-8');
     } catch (err) {
-      // Silently fail if can't write to log
+ // Silently fail if can't write to log
     }
     
     console.warn(`[WARN]  ${message}`);

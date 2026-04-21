@@ -1,13 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Central registry for creating data adapter instances at runtime. Factory pattern for Excel, JSON, Database, and S3 data sources.
- * OWNER: human-only
- * IMPACT: medium - Data-driven tests depend on this. Breaking it fails all data adapter tests. New data sources must register here.
- * DEPENDS-ON: IAdapter interface, ExcelAdapter, JsonAdapter, DbAdapter, S3Adapter
- * USED-BY: Data-driven tests, test data loading utilities
- * RULES: Keep AdapterType in sync with adapter implementations. Always validate adapter type before instantiation. New adapters must implement IAdapter interface.
- */
-
 /** Central registry for creating data adapter instances at runtime */
 
 import { IAdapter } from './IAdapter';
@@ -24,7 +14,7 @@ type AdapterConstructor = new () => IAdapter;
 
 /** Manages registration and creation of data adapter instances */
 export class AdapterFactory {
-  /** Registry mapping adapter types to their constructors */
+ /** Registry mapping adapter types to their constructors */
   private static adapters: Map<AdapterType, AdapterConstructor> = new Map([
     ['excel', ExcelAdapter],
     ['json', JsonAdapter],
@@ -32,7 +22,7 @@ export class AdapterFactory {
     ['s3', S3Adapter]
   ] as Array<[AdapterType, AdapterConstructor]>);
 
-  /** Creates new instance of requested adapter type; throws if type unknown */
+ /** Creates new instance of requested adapter type; throws if type unknown */
   static getAdapter(type: AdapterType): IAdapter {
     if (!this.adapters.has(type)) {
       const supportedTypes = Array.from(this.adapters.keys()).join(', ');
@@ -46,7 +36,7 @@ export class AdapterFactory {
     return new AdapterConstructor();
   }
 
-  /** Adds custom adapter type to registry; warns if overwriting existing type */
+ /** Adds custom adapter type to registry; warns if overwriting existing type */
   static registerAdapter(type: AdapterType, constructor: AdapterConstructor): void {
     if (this.adapters.has(type)) {
       console.warn(`[WARN]  AdapterFactory: Overwriting existing adapter type "${type}"`);
@@ -55,7 +45,7 @@ export class AdapterFactory {
     console.log(`[OK] AdapterFactory: Registered custom adapter type "${type}"`);
   }
 
-  /** Returns list of all registered adapter type identifiers */
+ /** Returns list of all registered adapter type identifiers */
   static getSupportedTypes(): AdapterType[] {
     return Array.from(this.adapters.keys());
   }

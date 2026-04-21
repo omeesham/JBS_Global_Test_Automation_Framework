@@ -17,8 +17,8 @@ export type AdapterResult = {
   metadata: AdapterMetadata;
 };
 
-/** Contract for all data adapters. load() must always resolve (never reject); use warning metadata for errors */
+/** Contract for all data adapters. load must always resolve (never reject); use warning metadata for errors */
 export interface IAdapter {
-  /** Loads data from adapter source, returns normalized AdapterResult (always resolves) */
+ /** Loads data from adapter source, returns normalized AdapterResult (always resolves) */
   load(params: any): Promise<AdapterResult>;
 }

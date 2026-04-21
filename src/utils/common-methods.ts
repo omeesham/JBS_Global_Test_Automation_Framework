@@ -1,13 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Config loading (initProp) and TOTP generation (generateTotpCode). Only 2 public methods.
- * OWNER: generator, healer
- * IMPACT: high - initProp called by fixtures.ts, generateTotpCode called by login.page.ts
- * DEPENDS-ON: logger.ts, otplib
- * USED-BY: fixtures.ts (initProp), login.page.ts (generateTotpCode)
- * RULES: Add new methods here ONLY if they are truly framework-wide utilities with confirmed callers.
- */
-
 import { Page } from '@playwright/test';
 import { authenticator } from 'otplib';
 import { Log } from './logger';
@@ -15,18 +5,18 @@ import { IConfig } from '../framework-contracts';
 
 /**
  * Common Methods -- config loading and TOTP generation.
- * Used by fixtures (initProp) and login page (generateTotpCode).
+ * Used by fixtures (initProp) and login page.
  */
 export class CommonMethods {
   constructor(_page: Page) {
     Log.info('CommonMethods constructor');
   }
 
-  /**
-   * Load configuration from environment variables.
-   * Reads .env files from config/environments/ using dotenv-flow cascade.
-   * @returns IConfig object with URLs and credentials
-   */
+ /**
+ * Load configuration from environment variables.
+ * Reads .env files from config/environments/ using dotenv-flow cascade.
+ * @returns IConfig object with URLs and credentials
+ */
   static initProp(): IConfig {
     const baseUrl = process.env.BASE_URL || '';
     const config: IConfig = {
@@ -42,11 +32,11 @@ export class CommonMethods {
     return config;
   }
 
-  /**
-   * Generate 6-digit TOTP code for multi-factor authentication.
-   * @param secret - Base32-encoded MFA secret from authenticator app
-   * @returns 6-digit TOTP code valid for 30 seconds
-   */
+ /**
+ * Generate 6-digit TOTP code for multi-factor authentication.
+ * @param secret - Base32-encoded MFA secret from authenticator app
+ * @returns 6-digit TOTP code valid for 30 seconds
+ */
   static generateTotpCode(secret: string): string {
     try {
       const code = authenticator.generate(secret);

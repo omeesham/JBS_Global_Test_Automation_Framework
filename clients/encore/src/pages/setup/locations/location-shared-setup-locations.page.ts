@@ -1,21 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Location Shared Setup Locations Tab Page Object -- shared-location table CRUD,
- *          Shares Inventory toggle, Add dialog search/select, and non-self row state
- *          verification (Setup > Location > [Office] > Shared Setup Locations tab).
- * OWNER: generator
- * IMPACT: medium -- Shared Setup Locations tab tests depend on this.
- * DEPENDS-ON: BasePage, LocationSettingsSelectors, logger.ts, framework-contracts/index.ts
- * USED-BY: tests/specs/setup/locations/location-shared-setup-locations.spec.ts, fixtures.ts
- * RULES: Never use raw page.* in specs. All named selectors from src/selectors/index.ts.
- *        Dynamic row selectors (non-self rows) are composed from the table base selector
- *        via getLocator() and extended with nth-child -- this is acceptable for dynamic rows.
- *        Reload-verify-persistence orchestration added for round-trip tests. All mutating tests MUST call clickSave() + cleanup before exiting.
- *        Live behavior (2026-03-19): Self-row Primary Office=checked+disabled, Delete=disabled.
- *        Non-self rows: Primary Office=unchecked+disabled, Shares Inventory=checked+editable.
- *        Delete is instant (no confirmation dialog).
- */
-
 import { Page } from '@playwright/test';
 import { BasePage } from '../../../common/base-page';
 import { Log } from '@framework/utils/logger';
@@ -28,16 +10,16 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     Log.info('LocationSharedSetupLocationsPage initialized');
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // NAVIGATION
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // NAVIGATION
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Navigate to Shared Setup Locations tab; clicks tab and waits for table readiness. */
+ /** Navigate to Shared Setup Locations tab; clicks tab and waits for table readiness. */
   async navigateToSharedSetupTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabSharedSetupLocations', 'tblSharedSetupLocations', officeNo);
   }
 
-  /** Reload page with beforeunload handler and return to SSL tab (LR-026). */
+ /** Reload page with beforeunload handler and return to SSL tab. */
   async reloadAndNavigateToSSLTab(officeNo: string = '1604'): Promise<void> {
     const handler = async (d: import('@playwright/test').Dialog) => {
       try { await d.accept(); } catch { /* already handled */ }
@@ -52,7 +34,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     await this.navigateToSharedSetupTab(officeNo);
   }
 
-  /** Trigger reload to test beforeunload. Dismisses dialog (stays on page). Returns true if fired. */
+ /** Trigger reload to test beforeunload. Dismisses dialog (stays on page). Returns true if fired. */
   async triggerBeforeunloadAndStay(): Promise<boolean> {
     let dialogFired = false;
     const handler = async (d: import('@playwright/test').Dialog) => {
@@ -68,10 +50,10 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     return dialogFired;
   }
 
-  /**
-   * Navigate to the office home page to discard unsaved changes, then return to the SSL tab.
-   * Used as cleanup when an unsaved dirty state must be abandoned.
-   */
+ /**
+ * Navigate to the office home page to discard unsaved changes, then return to the SSL tab.
+ * Used as cleanup when an unsaved dirty state must be abandoned.
+ */
   async discardAndReturn(officeNo: string = '1604'): Promise<void> {
     const homeUrl = `${this.config?.base_url ?? ''}navigator/locations/${officeNo}/home`;
     await this.navigateTo(homeUrl);
@@ -84,17 +66,17 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     await this.navigateToSharedSetupTab(officeNo);
   }
 
-  /**
-   * Defensive cleanup: delete extra rows and reset self SI to unchecked.
-   * Call at the start of each persistence test to guard against serial state
-   * contamination (LR-026). No-op if state is already clean.
-   */
+ /**
+ * Defensive cleanup: delete extra rows and reset self SI to unchecked.
+ * Call at the start of each persistence test to guard against serial state
+ * contamination. No-op if state is already clean.
+ */
   async ensureCleanSSLTable(officeNo: string = '1604'): Promise<void> {
     const si = await this.getSelfSharesInventoryState();
     let nsRow = await this.findNonSelfRow();
     if (nsRow || si.checked) {
       Log.info(`[CLEANUP] Dirty state: non-self=${!!nsRow}, SI=${si.checked} — cleaning`);
-      // Delete all non-self rows (re-scan after each delete since indexes shift)
+ // Delete all non-self rows (re-scan after each delete since indexes shift)
       while (nsRow) {
         await this.deleteNonSelfRow(nsRow.index);
         nsRow = await this.findNonSelfRow();
@@ -105,15 +87,15 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // TABLE INSPECTION
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // TABLE INSPECTION
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /**
-   * Count data rows in the shared-setup table (excludes the fixed Add-button row at the end).
-   * Before any additions: returns 1 (self-row only).
-   * After adding N locations: returns 1 + N.
-   */
+ /**
+ * Count data rows in the shared-setup table (excludes the fixed Add-button row at the end).
+ * Before any additions: returns 1 (self-row only).
+ * After adding N locations: returns 1 + N.
+ */
   async getDataRowCount(): Promise<number> {
     const table = this.getElement('tblSharedSetupLocations');
     await table.waitFor({ state: 'visible', timeout: 10_000 });
@@ -121,7 +103,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     return total - 1; // subtract fixed Add-button row
   }
 
-  /** Get the text of all column headers in order. Expected: ['Local Office', 'Local Office Name', 'Primary Office', 'Shares Inventory', '']. */
+ /** Get the text of all column headers in order. Expected: ['Local Office', 'Local Office Name', 'Primary Office', 'Shares Inventory', '']. */
   async getColumnHeaders(): Promise<string[]> {
     const table = this.getElement('tblSharedSetupLocations');
     await table.waitFor({ state: 'visible', timeout: 10_000 });
@@ -129,7 +111,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     return headers.map(h => h.trim());
   }
 
-  /** Find the first non-self row (office != 1604). Returns index + text, or null if none. */
+ /** Find the first non-self row (office != 1604). Returns index + text, or null if none. */
   async findNonSelfRow(): Promise<{ index: number; localOffice: string; localOfficeName: string } | null> {
     const count = await this.getDataRowCount();
     const tbl = this.getLocator('tblSharedSetupLocations');
@@ -143,7 +125,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     return null;
   }
 
-  /** Get Local Office number and Name text from the self-location row (row 1). */
+ /** Get Local Office number and Name text from the self-location row (row 1). */
   async getSelfRowText(): Promise<{ localOffice: string; localOfficeName: string }> {
     const tableSel = this.getLocator('tblSharedSetupLocations');
     const cells = await this.page.locator(`${tableSel} tbody tr:first-child td`).allTextContents();
@@ -153,74 +135,74 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     };
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // SELF-ROW CHECKBOX STATE
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // SELF-ROW CHECKBOX STATE
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Get checked/disabled state of the Primary Office Radix checkbox in the self-row. */
+ /** Get checked/disabled state of the Primary Office Radix checkbox in the self-row. */
   async getSelfPrimaryOfficeState(): Promise<CheckboxState> {
     return this.getRadixCheckboxState('chkSelfPrimaryOffice');
   }
 
-  /** Get checked/disabled state of the Shares Inventory Radix checkbox in the self-row. */
+ /** Get checked/disabled state of the Shares Inventory Radix checkbox in the self-row. */
   async getSelfSharesInventoryState(): Promise<CheckboxState> {
     return this.getRadixCheckboxState('chkSelfSharesInventory');
   }
 
-  /** Click the Shares Inventory checkbox in the self-row to toggle it. */
+ /** Click the Shares Inventory checkbox in the self-row to toggle it. */
   async toggleSelfSharesInventory(): Promise<void> {
     await this.getElement('chkSelfSharesInventory').click();
     Log.info('Toggled self Shares Inventory');
   }
 
-  /**
-   * Idempotently set Shares Inventory to the given checked state (clicks only if different).
-   * Uses BasePage.setRadixCheckbox (Radix-aware).
-   */
+ /**
+ * Idempotently set Shares Inventory to the given checked state (clicks only if different).
+ * Uses BasePage.setRadixCheckbox (Radix-aware).
+ */
   async setSelfSharesInventory(checked: boolean): Promise<void> {
     await this.setRadixCheckbox('chkSelfSharesInventory', checked);
   }
 
-  /** Return true if the Delete button in the self-row is disabled. */
+ /** Return true if the Delete button in the self-row is disabled. */
   async isSelfDeleteDisabled(): Promise<boolean> {
     return this.getElement('btnSelfDelete').isDisabled();
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // SAVE (LEFT-PANEL)
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // SAVE (LEFT-PANEL)
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Check if the left-panel Save button is enabled (form is dirty). */
+ /** Check if the left-panel Save button is enabled (form is dirty). */
   async isSaveEnabled(): Promise<boolean> {
     return !(await this.getElement('btnSave').isDisabled().catch(() => true));
   }
 
-  /** Click left-panel Save and wait for Save Changes dialog to appear. */
+ /** Click left-panel Save and wait for Save Changes dialog to appear. */
   async openSaveDialog(): Promise<void> {
     await this.clickWithRetry('btnSave');
     await this.waitForElement('dlgSaveChanges', 5_000);
     Log.info('[OK] Save Changes dialog opened (not confirmed)');
   }
 
-  /** Cancel the Save Changes dialog (for discard scenarios). */
+ /** Cancel the Save Changes dialog (for discard scenarios). */
   async cancelSaveDialog(): Promise<void> {
     await this.clickWithRetry('btnSaveChangesCancel');
     await this.getElement('dlgSaveChanges').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info('Cancelled Save Changes dialog');
   }
 
-  /** Click the left-panel Save and confirm the Save Changes dialog. Delegates to BasePage.clickSaveWithDialog. */
+ /** Click the left-panel Save and confirm the Save Changes dialog. Delegates to BasePage.clickSaveWithDialog. */
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSave');
   }
 
-  /**
-   * Return true if a Save button exists INSIDE the active tabpanel (as opposed to the shared left-panel).
-   * For the Shared Setup Locations tab: expected result is false (no dedicated in-tab Save).
-   * Uses evaluate to walk up from the SSL table to its closest [role="tabpanel"] ancestor
-   * (the inner SSL tabpanel only), preventing a false-positive match on the outer
-   * "Basic Information" tabpanel which contains the shared left-panel Save button.
-   */
+ /**
+ * Return true if a Save button exists INSIDE the active tabpanel (as opposed to the shared left-panel).
+ * For the Shared Setup Locations tab: expected result is false (no dedicated in-tab Save).
+ * Uses evaluate to walk up from the SSL table to its closest [role="tabpanel"] ancestor
+ * (the inner SSL tabpanel only), preventing a false-positive match on the outer
+ * "Basic Information" tabpanel which contains the shared left-panel Save button.
+ */
   async hasInTabSaveButton(): Promise<boolean> {
     const tableSel = this.getLocator('tblSharedSetupLocations');
     const count: number = await this.page.evaluate((sel: string) => {
@@ -236,43 +218,43 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     return count > 0;
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // ADD / CHANGE LOCAL OFFICE DIALOG
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // ADD / CHANGE LOCAL OFFICE DIALOG
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Click the Add button and wait for the Change Local Office dialog to open. */
+ /** Click the Add button and wait for the Change Local Office dialog to open. */
   async clickAdd(): Promise<void> {
     await this.getElement('btnSharedAdd').click();
     await this.getElement('dlgChangeLocalOffice').waitFor({ state: 'visible', timeout: 10_000 });
     Log.info('Change Local Office dialog opened');
   }
 
-  /** Return true if the Change Local Office dialog is currently visible. */
+ /** Return true if the Change Local Office dialog is currently visible. */
   async isAddDialogVisible(): Promise<boolean> {
     return this.isElementVisible('dlgChangeLocalOffice', 3_000);
   }
 
-  /** Get the heading text of the Change Local Office dialog. Expected: "Change Local Office". */
+ /** Get the heading text of the Change Local Office dialog. Expected: "Change Local Office". */
   async getDialogHeading(): Promise<string> {
     return ((await this.getElement('dlgChangeLocalOfficeHeading').textContent()) ?? '').trim();
   }
 
-  /** Return true if the dialog Select button is enabled (a row has been checked). */
+ /** Return true if the dialog Select button is enabled (a row has been checked). */
   async isDialogSelectEnabled(): Promise<boolean> {
     return !(await this.getElement('btnDlgSelect').isDisabled().catch(() => true));
   }
 
-  /**
-   * Count visible rows in the dialog results table.
-   * Unfiltered baseline is ~4614. After a specific number search it should be 1.
-   */
+ /**
+ * Count visible rows in the dialog results table.
+ * Unfiltered baseline is ~4614. After a specific number search it should be 1.
+ */
   async getDialogRowCount(): Promise<number> {
     const table = this.getElement('tblDlgResults');
     await table.waitFor({ state: 'visible', timeout: 10_000 });
     return table.locator('tbody tr').count();
   }
 
-  /** Type a search term into the dialog search input to filter results. */
+ /** Type a search term into the dialog search input to filter results. */
   async searchInDialog(term: string): Promise<void> {
     const input = this.getElement('txtDlgSearch');
     await input.clear();
@@ -280,10 +262,10 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     Log.info(`Dialog search: "${term}"`);
   }
 
-  /**
-   * Get Local Office number and Name from the first row currently visible in the dialog table.
-   * Dialog columns: [0]=checkbox cell, [1]=Local Office, [2]=Local Office Name.
-   */
+ /**
+ * Get Local Office number and Name from the first row currently visible in the dialog table.
+ * Dialog columns: [0]=checkbox cell, [1]=Local Office, [2]=Local Office Name.
+ */
   async getFirstDialogRowText(): Promise<{ localOffice: string; localOfficeName: string }> {
     const table = this.getElement('tblDlgResults');
     const cells = await table.locator('tbody tr:first-child td').allTextContents();
@@ -293,40 +275,40 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     };
   }
 
-  /** Click the row checkbox on the first visible row in the dialog results table. */
+ /** Click the row checkbox on the first visible row in the dialog results table. */
   async selectFirstDialogRow(): Promise<void> {
     const table = this.getElement('tblDlgResults');
     const checkbox = table.locator('tbody tr:first-child [role="checkbox"][aria-label="Select row"]');
     await checkbox.waitFor({ state: 'visible', timeout: 5_000 });
-    // Dialog table has sticky header (z-20) that intercepts pointer events on first row.
-    // Use dispatchEvent to programmatically click the checkbox, bypassing the overlay.
+ // Dialog table has sticky header (z-20) that intercepts pointer events on first row.
+ // Use dispatchEvent to programmatically click the checkbox, bypassing the overlay.
     await checkbox.dispatchEvent('click');
     Log.info('Selected first dialog row');
   }
 
-  /** Click the dialog Select button and wait for the dialog to close. */
+ /** Click the dialog Select button and wait for the dialog to close. */
   async clickDialogSelect(): Promise<void> {
     await this.getElement('btnDlgSelect').click();
     await this.getElement('dlgChangeLocalOffice').waitFor({ state: 'hidden', timeout: 5_000 });
     Log.info('Dialog Select confirmed, dialog closed');
   }
 
-  /** Click the dialog Cancel button and wait for the dialog to close. */
+ /** Click the dialog Cancel button and wait for the dialog to close. */
   async clickDialogCancel(): Promise<void> {
     await this.getElement('btnDlgCancel').click();
     await this.getElement('dlgChangeLocalOffice').waitFor({ state: 'hidden', timeout: 5_000 });
     Log.info('Dialog Cancel clicked, dialog closed');
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // NON-SELF ROW OPERATIONS (DYNAMIC ROW INDEX)
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // NON-SELF ROW OPERATIONS (DYNAMIC ROW INDEX)
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /**
-   * Inspect a data row by 1-based index (row 1 = self, row 2 = first added location, etc.).
-   * Returns Primary Office and Shares Inventory checkbox states plus whether Delete is enabled.
-   * Dynamic selectors are composed from the table base selector via getLocator().
-   */
+ /**
+ * Inspect a data row by 1-based index (row 1 = self, row 2 = first added location, etc.).
+ * Returns Primary Office and Shares Inventory checkbox states plus whether Delete is enabled.
+ * Dynamic selectors are composed from the table base selector via getLocator.
+ */
   async getNonSelfRowState(rowIndex: number): Promise<{
     primaryOffice: CheckboxState;
     sharesInventory: CheckboxState;
@@ -351,10 +333,10 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     };
   }
 
-  /**
-   * Click the Delete button for the given 1-based data row index.
-   * Deletion is instant with no confirmation dialog.
-   */
+ /**
+ * Click the Delete button for the given 1-based data row index.
+ * Deletion is instant with no confirmation dialog.
+ */
   async deleteNonSelfRow(rowIndex: number): Promise<void> {
     const tbl = this.getLocator('tblSharedSetupLocations');
     const deleteBtn = this.page.locator(`${tbl} tbody tr:nth-child(${rowIndex}) td:nth-child(5) button`);
@@ -362,7 +344,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     Log.info(`Deleted row at index ${rowIndex}`);
   }
 
-  /** Get Local Office number and Name from a non-self row by 1-based index. */
+ /** Get Local Office number and Name from a non-self row by 1-based index. */
   async getNonSelfRowText(rowIndex: number): Promise<{ localOffice: string; localOfficeName: string }> {
     const tbl = this.getLocator('tblSharedSetupLocations');
     const cells = await this.page.locator(`${tbl} tbody tr:nth-child(${rowIndex}) td`).allTextContents();
@@ -372,7 +354,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     };
   }
 
-  /** Click the Shares Inventory checkbox on a non-self row to toggle it. */
+ /** Click the Shares Inventory checkbox on a non-self row to toggle it. */
   async toggleNonSelfSharesInventory(rowIndex: number): Promise<void> {
     const tbl = this.getLocator('tblSharedSetupLocations');
     const checkbox = this.page.locator(`${tbl} tbody tr:nth-child(${rowIndex}) td:nth-child(4) [role="checkbox"]`);
@@ -380,7 +362,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     Log.info(`Toggled non-self Shares Inventory at row ${rowIndex}`);
   }
 
-  /** Idempotently set non-self Shares Inventory to target state. */
+ /** Idempotently set non-self Shares Inventory to target state. */
   async setNonSelfSharesInventory(rowIndex: number, checked: boolean): Promise<void> {
     const tbl = this.getLocator('tblSharedSetupLocations');
     const checkbox = this.page.locator(`${tbl} tbody tr:nth-child(${rowIndex}) td:nth-child(4) [role="checkbox"]`);

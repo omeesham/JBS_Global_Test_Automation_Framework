@@ -2,9 +2,8 @@
  * FILE: src/data/adapters/__tests__/jsonAdapter.spec.ts
  * PURPOSE: Unit tests for JsonAdapter to ensure reliable JSON data loading from files and URLs
  * CONTENTS: Test cases for file mode, URL mode, stub mode, and error scenarios
- * DEPENDENCIES:
- *   - @playwright/test: Test framework and assertions
- *   - JsonAdapter: System under test
+ * - @playwright/test: Test framework and assertions
+ * - JsonAdapter: System under test
  * USED BY: npm run test:adapters
  */
 
@@ -16,7 +15,6 @@ import * as path from 'path';
 /**
  * TEST SUITE: JsonAdapter
  * PURPOSE: Validates JSON loading from files and URLs with graceful error handling
- * 
  * TEST STRATEGY:
  * 1. Test file mode with valid JSON
  * 2. Test URL mode (requires network - may skip in offline environments)
@@ -30,18 +28,18 @@ test.describe('JsonAdapter', () => {
   let testJsonFile: string;
   let testNestedJsonFile: string;
 
-  /**
-   * SETUP: Before all tests
-   * Creates test fixtures directory and sample JSON files
-   */
+ /**
+ * SETUP: Before all tests
+ * Creates test fixtures directory and sample JSON files
+ */
   test.beforeAll(() => {
-    // Create test data directory
+ // Create test data directory
     testDataDir = path.join(process.cwd(), 'artifacts', 'test-data');
     if (!fs.existsSync(testDataDir)) {
       fs.mkdirSync(testDataDir, { recursive: true });
     }
 
-    // Create simple JSON file
+ // Create simple JSON file
     testJsonFile = path.join(testDataDir, 'users.json');
     const jsonContent = JSON.stringify([
       { id: 1, name: 'Alice', role: 'admin' },
@@ -50,7 +48,7 @@ test.describe('JsonAdapter', () => {
     ], null, 2);
     fs.writeFileSync(testJsonFile, jsonContent, 'utf-8');
 
-    // Create nested JSON file
+ // Create nested JSON file
     testNestedJsonFile = path.join(testDataDir, 'nested.json');
     const nestedContent = JSON.stringify({
       status: 'success',
@@ -64,16 +62,16 @@ test.describe('JsonAdapter', () => {
     fs.writeFileSync(testNestedJsonFile, nestedContent, 'utf-8');
   });
 
-  /**
-   * SETUP: Before each test
-   */
+ /**
+ * SETUP: Before each test
+ */
   test.beforeEach(() => {
     adapter = new JsonAdapter();
   });
 
-  /**
-   * TEARDOWN: After all tests
-   */
+ /**
+ * TEARDOWN: After all tests
+ */
   test.afterAll(() => {
     if (fs.existsSync(testJsonFile)) {
       fs.unlinkSync(testJsonFile);
@@ -83,10 +81,10 @@ test.describe('JsonAdapter', () => {
     }
   });
 
-  /**
-   * TEST: Load from local file
-   * VALIDATES: Adapter loads JSON arrays correctly
-   */
+ /**
+ * TEST: Load from local file
+ * VALIDATES: Adapter loads JSON arrays correctly
+ */
   test('should load JSON file and return records', async () => {
     const result = await adapter.load({ file: testJsonFile });
 
@@ -104,10 +102,10 @@ test.describe('JsonAdapter', () => {
     expect(result.metadata.warning).toBeUndefined();
   });
 
-  /**
-   * TEST: Stub mode - missing file
-   * VALIDATES: Returns empty records when file doesn't exist
-   */
+ /**
+ * TEST: Stub mode - missing file
+ * VALIDATES: Returns empty records when file doesn't exist
+ */
   test('should return empty records when file not found', async () => {
     const result = await adapter.load({ file: 'non-existent.json' });
 
@@ -116,10 +114,10 @@ test.describe('JsonAdapter', () => {
     expect(result.metadata.rowCount).toBe(0);
   });
 
-  /**
-   * TEST: Nested key extraction
-   * VALIDATES: rootKey parameter extracts nested data
-   */
+ /**
+ * TEST: Nested key extraction
+ * VALIDATES: rootKey parameter extracts nested data
+ */
   test('should extract nested data using rootKey', async () => {
     const result = await adapter.load({ 
       file: testNestedJsonFile,
@@ -136,10 +134,10 @@ test.describe('JsonAdapter', () => {
     expect(result.metadata.warning).toBeUndefined();
   });
 
-  /**
-   * TEST: Invalid rootKey
-   * VALIDATES: Returns empty when rootKey doesn't exist
-   */
+ /**
+ * TEST: Invalid rootKey
+ * VALIDATES: Returns empty when rootKey doesn't exist
+ */
   test('should return empty records when rootKey not found', async () => {
     const result = await adapter.load({ 
       file: testNestedJsonFile,
@@ -150,10 +148,10 @@ test.describe('JsonAdapter', () => {
     expect(result.metadata.rowCount).toBe(0);
   });
 
-  /**
-   * TEST: Normalize object to array
-   * VALIDATES: Single objects are converted to arrays
-   */
+ /**
+ * TEST: Normalize object to array
+ * VALIDATES: Single objects are converted to arrays
+ */
   test('should normalize single object to array', async () => {
     const singleObjectFile = path.join(testDataDir, 'single.json');
     const content = JSON.stringify({ id: 1, name: 'Test' });
@@ -171,10 +169,10 @@ test.describe('JsonAdapter', () => {
     fs.unlinkSync(singleObjectFile);
   });
 
-  /**
-   * TEST: Invalid JSON
-   * VALIDATES: Returns empty records with warning for malformed JSON
-   */
+ /**
+ * TEST: Invalid JSON
+ * VALIDATES: Returns empty records with warning for malformed JSON
+ */
   test('should handle invalid JSON gracefully', async () => {
     const invalidFile = path.join(testDataDir, 'invalid.json');
     fs.writeFileSync(invalidFile, '{ invalid json }', 'utf-8');
@@ -187,10 +185,10 @@ test.describe('JsonAdapter', () => {
     fs.unlinkSync(invalidFile);
   });
 
-  /**
-   * TEST: Empty JSON array
-   * VALIDATES: Handles empty arrays without errors
-   */
+ /**
+ * TEST: Empty JSON array
+ * VALIDATES: Handles empty arrays without errors
+ */
   test('should handle empty JSON array', async () => {
     const emptyFile = path.join(testDataDir, 'empty.json');
     fs.writeFileSync(emptyFile, '[]', 'utf-8');
@@ -204,13 +202,13 @@ test.describe('JsonAdapter', () => {
     fs.unlinkSync(emptyFile);
   });
 
-  /**
-   * TEST: URL loading (requires network)
-   * VALIDATES: Adapter can fetch JSON from remote URLs
-   * NOTE: Skipped by default to avoid network dependencies
-   */
+ /**
+ * TEST: URL loading (requires network)
+ * VALIDATES: Adapter can fetch JSON from remote URLs
+ * NOTE: Skipped by default to avoid network dependencies
+ */
   test.skip('should load JSON from URL', async () => {
-    // This test requires network access
+ // This test requires network access
     const result = await adapter.load({ 
       url: 'https://jsonplaceholder.typicode.com/users' 
     });
@@ -225,10 +223,10 @@ test.describe('JsonAdapter', () => {
     expect(result.metadata.source).toContain('jsonplaceholder.typicode.com');
   });
 
-  /**
-   * TEST: Invalid URL
-   * VALIDATES: Returns empty records when URL unreachable
-   */
+ /**
+ * TEST: Invalid URL
+ * VALIDATES: Returns empty records when URL unreachable
+ */
   test('should handle unreachable URL gracefully', async () => {
     const result = await adapter.load({
       url: 'https://invalid-domain-that-does-not-exist-12345.com/data.json'
@@ -238,10 +236,10 @@ test.describe('JsonAdapter', () => {
     expect(result.metadata.warning).toContain('Failed to load JSON');
   });
 
-  /**
-   * TEST: No file or URL parameter
-   * VALIDATES: Returns empty when neither file nor url provided
-   */
+ /**
+ * TEST: No file or URL parameter
+ * VALIDATES: Returns empty when neither file nor url provided
+ */
   test('should require either file or url parameter', async () => {
     const result = await adapter.load({} as any);
 
@@ -249,14 +247,14 @@ test.describe('JsonAdapter', () => {
     expect(result.metadata.warning).toContain('JsonAdapter requires either "file" or "url" parameter');
   });
 
-  /**
-   * TEST: Warning logging
-   * VALIDATES: Warnings are logged to artifacts/adapter-warnings.log
-   */
+ /**
+ * TEST: Warning logging
+ * VALIDATES: Warnings are logged to artifacts/adapter-warnings.log
+ */
   test('should log warnings to file', async () => {
     const logPath = path.join(process.cwd(), 'artifacts', 'adapter-warnings.log');
     
-    // Clear log if exists
+ // Clear log if exists
     if (fs.existsSync(logPath)) {
       fs.unlinkSync(logPath);
     }

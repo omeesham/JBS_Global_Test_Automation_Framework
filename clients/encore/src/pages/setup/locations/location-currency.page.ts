@@ -1,21 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: Location Currency Tab Page Object -- currency selection, Is Default rules, merchant dropdowns,
- *          save/validation, and grid state verification (Setup > Location > [Office] > Currency tab).
- * OWNER: generator
- * IMPACT: medium -- Currency tab tests depend on this; changes affect all currency specs.
- * DEPENDS-ON: BasePage, LocationSettingsSelectors, logger.ts, framework-contracts/index.ts
- * USED-BY: tests/specs/setup/locations/location-currency.spec.ts, fixtures.ts
- * RULES: Never use raw page.* in specs. All selectors from src/selectors/index.ts.
- *        All mutating tests MUST call clickSave() + cleanup before exiting.
- *        Live behavior (2026-02-18): USD default=selected+isDefault; CAD/MXN unselected.
- *        Merchant always accessible regardless of Selected state.
- * NOTE: Extends BasePage directly (not LocationFormHelpers) by design.
- *       Currency has no spinbutton boundaries; reload-verify-persistence orchestration added
- *       for round-trip tests. Uses dialog-based save flow unlike LI. ~13 lines of checkbox
- *       overlap is acceptable vs inheriting 200+ lines of unused LI-specific orchestrators.
- */
-
 import { Page } from '@playwright/test';
 import { BasePage } from '../../../common/base-page';
 import { Log } from '@framework/utils/logger';
@@ -32,19 +14,19 @@ export class LocationCurrencyPage extends BasePage {
     Log.info('LocationCurrencyPage initialized');
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // NAVIGATION
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // NAVIGATION
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /**
-   * Navigate to the Currency tab for the given office.
-   * Delegates to BasePage.navigateToSubTab (ALL-020: shared tab nav pattern).
-   */
+ /**
+ * Navigate to the Currency tab for the given office.
+ * Delegates to BasePage.navigateToSubTab (shared tab nav pattern).
+ */
   async navigateToCurrencyTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabCurrency', 'tblCurrencyGrid', officeNo);
   }
 
-  /** Reload page and return to Currency tab. Handles potential beforeunload dialog. */
+ /** Reload page and return to Currency tab. Handles potential beforeunload dialog. */
   async reloadAndNavigateToCurrencyTab(): Promise<void> {
     const handler = async (d: import('@playwright/test').Dialog) => {
       try { await d.accept(); } catch { /* dialog may already be handled */ }
@@ -61,11 +43,11 @@ export class LocationCurrencyPage extends BasePage {
     await this.waitForAngularStable();
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // GRID INSPECTION
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // GRID INSPECTION
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Count the number of currency rows in the grid (excludes header row). */
+ /** Count the number of currency rows in the grid (excludes header row). */
   async getGridRowCount(): Promise<number> {
     const grid = this.getElement('tblCurrencyGrid');
     await grid.waitFor({ state: 'visible', timeout: 5_000 });
@@ -74,12 +56,12 @@ export class LocationCurrencyPage extends BasePage {
     return rows;
   }
 
-  /** Get the visible text of all 4 column headers. MNT-012: delegates to BasePage.getColumnHeadersByKeys. */
+ /** Get the visible text of all 4 column headers. MNT-012: delegates to BasePage.getColumnHeadersByKeys. */
   async getColumnHeaders(): Promise<string[]> {
     return this.getColumnHeadersByKeys(['colHeaderCurrencyCode', 'colHeaderSelected', 'colHeaderIsDefault', 'colHeaderMerchant']);
   }
 
-  /** Check if the Currency Code cell for a given currency is read-only (not an input). */
+ /** Check if the Currency Code cell for a given currency is read-only (not an input). */
   async isCurrencyCodeReadOnly(currency: string): Promise<boolean> {
     const gridSel = this.getLocator('tblCurrencyGrid');
     const cell = this.page.locator(`${gridSel} tbody tr:has-text("${currency}") td:first-child`);
@@ -88,11 +70,11 @@ export class LocationCurrencyPage extends BasePage {
     return inputCount === 0;
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // CHECKBOX OPERATIONS
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // CHECKBOX OPERATIONS
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Get checked/disabled state of a currency checkbox (Selected or Is Default). */
+ /** Get checked/disabled state of a currency checkbox (Selected or Is Default). */
   async getCheckboxState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<CheckboxState> {
     const el = this.getElement(selectorKey);
     const checked = await el.isChecked().catch(() => false);
@@ -101,7 +83,7 @@ export class LocationCurrencyPage extends BasePage {
     return { checked, disabled };
   }
 
-  /** Ensure checkbox is checked (click only if unchecked). */
+ /** Ensure checkbox is checked (click only if unchecked). */
   async checkCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
     if (!(await el.isChecked())) {
@@ -110,7 +92,7 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Checked: ${selectorKey}`);
   }
 
-  /** Ensure checkbox is unchecked (click only if checked). */
+ /** Ensure checkbox is unchecked (click only if checked). */
   async uncheckCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
     if (await el.isChecked()) {
@@ -119,16 +101,16 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Unchecked: ${selectorKey}`);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // MERCHANT DROPDOWN OPERATIONS
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // MERCHANT DROPDOWN OPERATIONS
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Get the current displayed value of a merchant dropdown. MNT-012: delegates to BasePage.getFieldDisplayValue. */
+ /** Get the current displayed value of a merchant dropdown. MNT-012: delegates to BasePage.getFieldDisplayValue. */
   async getMerchantValue(dropdownKey: string): Promise<string> {
     return this.getFieldDisplayValue(dropdownKey);
   }
 
-  /** Open a merchant dropdown, collect option texts, close it, return the list. */
+ /** Open a merchant dropdown, collect option texts, close it, return the list. */
   async getMerchantOptions(dropdownKey: string): Promise<string[]> {
     await this.getElement(dropdownKey).click();
     await this.waitForAngularStable();
@@ -138,17 +120,17 @@ export class LocationCurrencyPage extends BasePage {
       return [];
     }
     const options = await listbox.locator('[role="option"]').allTextContents();
-    // Close dropdown
+ // Close dropdown
     await this.page.keyboard.press('Escape');
     await listbox.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => {});
     Log.info(`Merchant options for ${dropdownKey}: ${options.join(', ')}`);
     return options.map(o => o.trim()).filter(o => o.length > 0);
   }
 
-  /**
-   * Open the merchant dropdown and check if it is accessible (listbox appears).
-   * Also checks if "No Matches Found" is present. Closes the dropdown after.
-   */
+ /**
+ * Open the merchant dropdown and check if it is accessible (listbox appears).
+ * Also checks if "No Matches Found" is present. Closes the dropdown after.
+ */
   async isMerchantDropdownAccessible(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
     await this.waitForAngularStable();
@@ -160,10 +142,10 @@ export class LocationCurrencyPage extends BasePage {
     return visible;
   }
 
-  /**
-   * Open the merchant dropdown and check if "No Matches Found" text is displayed.
-   * Closes the dropdown after checking.
-   */
+ /**
+ * Open the merchant dropdown and check if "No Matches Found" text is displayed.
+ * Closes the dropdown after checking.
+ */
   async isMerchantNoMatchesFound(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
     await this.waitForAngularStable();
@@ -178,7 +160,7 @@ export class LocationCurrencyPage extends BasePage {
     return noMatches;
   }
 
-  /** Select a merchant option by its text label. */
+ /** Select a merchant option by its text label. */
   async selectMerchantOption(dropdownKey: string, optionText: string): Promise<void> {
     await this.getElement(dropdownKey).click();
     await this.waitForAngularStable();
@@ -188,11 +170,11 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Selected merchant option: ${optionText}`);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // SAVE / ERROR
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // SAVE / ERROR
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Check if the Currency Save button is enabled. */
+ /** Check if the Currency Save button is enabled. */
   async isSaveEnabled(): Promise<boolean> {
     const el = this.getElement('btnSaveCurrency');
     const disabled = await el.isDisabled().catch(() => true);
@@ -200,18 +182,18 @@ export class LocationCurrencyPage extends BasePage {
     return !disabled;
   }
 
-  /**
-   * Click the Currency Save button and confirm dialog if it appears.
-   * Delegates to BasePage.clickSaveWithDialog (ALL-020: shared save dialog pattern).
-   */
+ /**
+ * Click the Currency Save button and confirm dialog if it appears.
+ * Delegates to BasePage.clickSaveWithDialog (shared save dialog pattern).
+ */
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSaveCurrency');
   }
 
-  /**
-   * Click Save, then detect whether the result is a Save Changes dialog, an Error dialog,
-   * or neither. Caller must dismiss via cancelCurrentDialog() / confirmSaveDialog().
-   */
+ /**
+ * Click Save, then detect whether the result is a Save Changes dialog, an Error dialog,
+ * or neither. Caller must dismiss via cancelCurrentDialog / confirmSaveDialog.
+ */
   async clickSaveAndCaptureDialog(): Promise<SaveDialogType> {
     const el = this.getElement('btnSaveCurrency');
     await el.waitFor({ state: 'visible', timeout: 5_000 });
@@ -230,7 +212,7 @@ export class LocationCurrencyPage extends BasePage {
     return 'none';
   }
 
-  /** Cancel the currently visible Save Changes dialog (if any). */
+ /** Cancel the currently visible Save Changes dialog (if any). */
   async cancelCurrentDialog(): Promise<void> {
     const dialog = this.getElement('dlgSaveChanges');
     if (await dialog.isVisible().catch(() => false)) {
@@ -239,7 +221,7 @@ export class LocationCurrencyPage extends BasePage {
     }
   }
 
-  /** Confirm the currently visible Save Changes dialog and wait for network idle. */
+ /** Confirm the currently visible Save Changes dialog and wait for network idle. */
   async confirmSaveDialog(): Promise<void> {
     const dialog = this.getElement('dlgSaveChanges');
     if (await dialog.isVisible().catch(() => false)) {
@@ -249,10 +231,10 @@ export class LocationCurrencyPage extends BasePage {
     }
   }
 
-  /**
-   * Get the error message from the error dialog (if visible), then dismiss it.
-   * Returns empty string if no error dialog is present.
-   */
+ /**
+ * Get the error message from the error dialog (if visible), then dismiss it.
+ * Returns empty string if no error dialog is present.
+ */
   async getDialogErrorText(): Promise<string> {
     const el = this.getElement('dlgErrorMessage');
     const visible = await el.isVisible().catch(() => false);
@@ -264,14 +246,14 @@ export class LocationCurrencyPage extends BasePage {
     return text;
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // BEFOREUNLOAD
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // BEFOREUNLOAD
+ // ─────────────────────────────────────────────────────────────────────────────
 
-  /**
-   * Attempt page reload. Returns true if a beforeunload dialog fired (dismissed — stayed on page).
-   * Useful for TC-LOC-CUR-026 to verify dirty state triggers beforeunload.
-   */
+ /**
+ * Attempt page reload. Returns true if a beforeunload dialog fired (dismissed — stayed on page).
+ * Useful for TC-LOC-CUR-026 to verify dirty state triggers beforeunload.
+ */
   async triggerBeforeunloadAndStay(): Promise<boolean> {
     let dialogFired = false;
     const handler = async (d: import('@playwright/test').Dialog) => {

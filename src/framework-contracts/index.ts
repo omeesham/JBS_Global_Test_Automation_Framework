@@ -1,13 +1,3 @@
-/**
- * @agent-doc
- * PURPOSE: TypeScript Type Definitions - global types and interfaces for the framework. IConfig is single source of truth for environment config.
- * OWNER: human-only
- * IMPACT: critical - All TypeScript compilation depends on this. Breaking IConfig breaks every file using config. Custom matcher types must match implementations.
- * DEPENDS-ON: @playwright/test types
- * USED-BY: All TypeScript files (pages, tests, utils, setup)
- * RULES: Never delete IConfig properties without migrating usages. Keep custom matcher signatures in sync with custom-matchers.ts. Changes require full typecheck (npm run typecheck).
- */
-
 // Re-export diagnostic types
 export { FailureCategory, type NetworkFailure, type ConsoleEntry, type AuthChainEntry, type DiagnosticSnapshot } from './diagnostics';
 

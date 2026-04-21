@@ -1,4 +1,3 @@
-// spec: specs_planning/test-plans/setup/locations/locations_management_history_test_plan.md
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../../setup/fixtures';
 import {
@@ -60,7 +59,7 @@ test.describe.serial('Location Management History @locations @management-history
     await locationManagementHistoryPage.setRowsPerPage('10');
     const rows = await locationManagementHistoryPage.getDataRowCount();
     expect(rows).toBeLessThanOrEqual(10);
-    // Reset to default
+ // Reset to default
     await locationManagementHistoryPage.setRowsPerPage(DEFAULT_ROWS_PER_PAGE);
   });
 
@@ -69,9 +68,9 @@ test.describe.serial('Location Management History @locations @management-history
   });
 
   test('TC-LOC-MGH-007: Empty state message for location with no history', async ({ locationManagementHistoryPage }) => {
-    // TC requirement: a location with NO history. 1604 has history.
-    // This test documents the expected empty state behavior.
-    // Use a freshly created location or one known to have no records.
+ // TC requirement: a location with NO history. 1604 has history.
+ // This test documents the expected empty state behavior.
+ // Use a freshly created location or one known to have no records.
     test.skip(true, 'Requires a location with zero history rows -- 1604 has 2900+ rows');
   });
 
@@ -80,18 +79,18 @@ test.describe.serial('Location Management History @locations @management-history
       ...Object.keys(ROW_1_EXPECTED), 'Modified By', 'Oracle Product Code',
     ]);
     for (const [key, expected] of Object.entries(ROW_1_EXPECTED)) {
-      // LR-019/LR-022: Country is mutable via other specs' Save cycles. In a scoped suite
-      // where Basic Info edits ran earlier, row 0 (most recent history row) will reflect
-      // the current server value, not the baseline "United States". Assert non-empty instead
-      // of exact match — the structural presence of Country data is the feature under test,
-      // not the literal string value (which drifts with serial state).
+ ///: Country is mutable via other specs' Save cycles. In a scoped suite
+ // where Basic Info edits ran earlier, row 0 (most recent history row) will reflect
+ // the current server value, not the baseline "United States". Assert non-empty instead
+ // of exact match — the structural presence of Country data is the feature under test,
+ // not the literal string value (which drifts with serial state).
       if (key === 'Country') {
         expect(row[key], 'Country column should not be empty in latest history row').toBeTruthy();
       } else {
         expect(row[key]).toBe(expected);
       }
     }
-    // Dynamic fields — values change per save, just verify non-empty
+ // Dynamic fields — values change per save, just verify non-empty
     expect(row['Modified By']).toBeTruthy();
     expect(row['Oracle Product Code']).toBeTruthy();
   });
@@ -103,7 +102,7 @@ test.describe.serial('Location Management History @locations @management-history
       Math.min(19, await locationManagementHistoryPage.getDataRowCount() - 1), 'Modified On');
     expect(firstVal).toBeTruthy();
     expect(lastVal).toBeTruthy();
-    // Verify ascending order: first date <= last date
+ // Verify ascending order: first date <= last date
     const firstTs = parseDateVal(firstVal);
     const lastTs = parseDateVal(lastVal);
     expect(firstTs).not.toBeNaN();
@@ -118,7 +117,7 @@ test.describe.serial('Location Management History @locations @management-history
       Math.min(19, await locationManagementHistoryPage.getDataRowCount() - 1), 'Modified On');
     expect(firstVal).toBeTruthy();
     expect(lastVal).toBeTruthy();
-    // Verify descending order: first date >= last date
+ // Verify descending order: first date >= last date
     const firstTs = parseDateVal(firstVal);
     const lastTs = parseDateVal(lastVal);
     expect(firstTs).not.toBeNaN();
@@ -150,7 +149,7 @@ test.describe.serial('Location Management History @locations @management-history
     const col38 = headers[37]; // 0-indexed
     expect(col37).toBe('Calculate CAC on Net Amount');
     expect(col38).toBe('Terms and Conditions');
-    // Both columns are non-sortable (MCP-verified 2026-04-14)
+ // Both columns are non-sortable (MCP-verified )
     expect(await locationManagementHistoryPage.isSortButtonPresentByIndex(36)).toBe(false);
     expect(await locationManagementHistoryPage.isSortButtonPresentByIndex(37)).toBe(false);
   });
@@ -160,48 +159,48 @@ test.describe.serial('Location Management History @locations @management-history
   });
 
   test('TC-LOC-MGH-016: Read-only -- table cells are not interactive', async ({ locationManagementHistoryPage }) => {
-    // Click a cell and verify no input/editor appears
+ // Click a cell and verify no input/editor appears
     expect(await locationManagementHistoryPage.areCellsNonInteractive()).toBe(true);
   });
 
   test('TC-LOC-MGH-017: Horizontal scroll works for wide table', async ({ locationManagementHistoryPage }) => {
     expect(await locationManagementHistoryPage.hasHorizontalScroll()).toBe(true);
-    // Verify last column is accessible (col 87)
+ // Verify last column is accessible (col 87)
     const headers = await locationManagementHistoryPage.getColumnHeaders();
     expect(headers[headers.length - 1]).toBe(LAST_COLUMN);
   });
 
   test('TC-LOC-MGH-018: API endpoint called on tab activation', async ({ locationManagementHistoryPage }) => {
-    // Switch away from History tab, then re-enter — verify API fires
+ // Switch away from History tab, then re-enter — verify API fires
     const responses = await locationManagementHistoryPage.captureResponsesOnHistoryTabSwitch();
     expect(responses.length).toBeGreaterThan(0);
   });
 
-  // bug-blocked: BUG-LOC-MGH-001 — pagination bar collapses to 2-button mode after Next→Previous on page 1.
-  // Go to first/last buttons vanish from DOM; click times out at 15s. Re-enable when bug is fixed.
+ // pagination bar collapses to 2-button mode after Next→Previous on page 1.
+ // Go to first/last buttons vanish from DOM; click times out at 15s. Re-enable when bug is fixed.
   test.skip('TC-LOC-MGH-019: Pagination navigation enables with multiple pages', async ({ locationManagementHistoryPage }) => {
-    // Page 1: next/last enabled, first/prev disabled
+ // Page 1: next/last enabled, first/prev disabled
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('first')).toBe(true);
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('previous')).toBe(true);
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('next')).toBe(false);
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('last')).toBe(false);
 
-    // Go to next page
+ // Go to next page
     await locationManagementHistoryPage.clickPaginationButton('next');
     const paginationAfterNext = await locationManagementHistoryPage.getPaginationText();
     expect(paginationAfterNext).toContain('2');
 
-    // Go to previous page
+ // Go to previous page
     await locationManagementHistoryPage.clickPaginationButton('previous');
     const paginationAfterPrev = await locationManagementHistoryPage.getPaginationText();
     expect(paginationAfterPrev).toMatch(/^1\s*\/\s*\d+$/);
 
-    // Go to last page
+ // Go to last page
     await locationManagementHistoryPage.clickPaginationButton('last');
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('next')).toBe(true);
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('last')).toBe(true);
 
-    // Go to first page
+ // Go to first page
     await locationManagementHistoryPage.clickPaginationButton('first');
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('first')).toBe(true);
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('previous')).toBe(true);

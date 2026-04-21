@@ -1,14 +1,4 @@
-/**
- * @agent-doc
- * PURPOSE: Custom Playwright assertions via expect.extend() for common test validations (toBeLoggedIn, toHaveNotification, toHaveFileDownloaded).
- * OWNER: generator
- * IMPACT: medium - Test assertions depend on this. Breaking it fails assertion checks (tests still run but validations break).
- * DEPENDS-ON: @playwright/test, fs, path, AppConstants
- * USED-BY: fixtures.ts (auto-loaded), all tests using custom matchers
- * RULES: Never delete existing matchers. Always add TypeScript declarations to framework-contracts/index.ts for new matchers. Generator adds new matchers as needed.
- */
-
-/** Custom Playwright assertions via expect.extend() */
+/** Custom Playwright assertions via expect.extend */
 
 import { expect, Page } from '@playwright/test';
 import * as fs from 'fs';
@@ -16,10 +6,10 @@ import * as path from 'path';
 import { AppConstants } from '../../src/utils/app-constants';
 
 expect.extend({
-  /**
-   * Assert page is authenticated (URL contains hash fragment)
-   * Usage: await expect(page).toBeLoggedIn()
-   */
+ /**
+ * Assert page is authenticated (URL contains hash fragment)
+ * Usage: await expect(page).toBeLoggedIn
+ */
   async toBeLoggedIn(page: Page) {
     const url = page.url();
     const hasHash = url.includes('#');
@@ -34,10 +24,10 @@ expect.extend({
     };
   },
 
-  /**
-   * Assert a notification/alert is visible, optionally matching text
-   * Usage: await expect(page).toHaveNotification('Success')
-   */
+ /**
+ * Assert a notification/alert is visible, optionally matching text
+ * Usage: await expect(page).toHaveNotification('Success')
+ */
   async toHaveNotification(page: Page, text?: string) {
     const notificationSelectors = AppConstants.NOTIFICATION_SELECTORS;
 
@@ -65,10 +55,10 @@ expect.extend({
     };
   },
 
-  /**
-   * Assert a file was downloaded to directory
-   * Usage: expect(downloadsDir).toHaveFileDownloaded('report.xlsx')
-   */
+ /**
+ * Assert a file was downloaded to directory
+ * Usage: expect(downloadsDir).toHaveFileDownloaded('report.xlsx')
+ */
   toHaveFileDownloaded(dir: string, fileName?: string) {
     if (!fs.existsSync(dir)) {
       return {

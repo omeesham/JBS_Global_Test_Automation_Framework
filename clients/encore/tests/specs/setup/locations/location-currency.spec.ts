@@ -1,4 +1,3 @@
-// spec: specs_planning/test-plans/locations/locations_currency_test_plan.md
 // seed: tests/seed.spec.ts
 import { test, expect } from '../../../setup/fixtures';
 import { CURRENCY_COLUMN_HEADERS, UNSELECTED_CURRENCY_STATES, MERCHANT_DATA, DEFAULT_CURRENCY, ALTERNATE_USD_MERCHANT } from '../../../test-data/setup/locations/location-currency.data';
@@ -10,9 +9,9 @@ test.describe.serial('Location Currency @locations @currency', () => {
     test.setTimeout(60_000);
     await locationCurrencyPage.navigateToCurrencyTab(OFFICE_NO);
     expect(locationCurrencyPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
-    // Enforce known baseline: USD=selected+isDefault+correct merchant, CAD/MXN=unselected.
-    // Guards against state corruption from previous test runs (idempotent -- no-ops if DB is already correct).
-    // LR-019: merchant must also be reset — prior runs may have changed it to ALTERNATE_USD_MERCHANT.
+ // Enforce known baseline: USD=selected+isDefault+correct merchant, CAD/MXN=unselected.
+ // Guards against state corruption from previous test runs (idempotent -- no-ops if DB is already correct).
+ // merchant must also be reset — prior runs may have changed it to ALTERNATE_USD_MERCHANT.
     await locationCurrencyPage.checkCheckbox('chkUSDSelected');
     await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
     await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', MERCHANT_DATA.usd.display);
@@ -24,9 +23,9 @@ test.describe.serial('Location Currency @locations @currency', () => {
   });
 
   test('TC-LOC-CUR-002: USD default -- Selected, Is Default checked; merchant set', async ({ locationCurrencyPage }) => {
-    // RCA-fix: reload to read server-persisted state after CUR-001 save, not stale DOM.
-    // CUR-001's checkCheckbox may not have dirtied the form if USD was already checked,
-    // and Angular may not re-render checkbox state after save without a reload.
+ // RCA-fix: reload to read server-persisted state after CUR-001 save, not stale DOM.
+ // CUR-001's checkCheckbox may not have dirtied the form if USD was already checked,
+ // and Angular may not re-render checkbox state after save without a reload.
     await locationCurrencyPage.navigateToCurrencyTab(OFFICE_NO);
     expect((await locationCurrencyPage.getCheckboxState('chkUSDSelected')).checked).toBe(true);
     expect((await locationCurrencyPage.getCheckboxState('chkUSDIsDefault')).checked).toBe(true);
@@ -58,7 +57,7 @@ test.describe.serial('Location Currency @locations @currency', () => {
   test('TC-LOC-CUR-005: Selecting currency enables its Is Default checkbox', async ({ locationCurrencyPage }) => {
     expect((await locationCurrencyPage.getCheckboxState('chkCADIsDefault')).disabled).toBe(true);
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
-    // LR-010: selecting currency enables Is Default async — poll for disabled state.
+ // selecting currency enables Is Default async — poll for disabled state.
     await expect.poll(
       () => locationCurrencyPage.getCheckboxState('chkCADIsDefault').then(s => s.disabled),
       { timeout: 5_000 },
@@ -73,7 +72,7 @@ test.describe.serial('Location Currency @locations @currency', () => {
     const state = await locationCurrencyPage.getCheckboxState('chkCADIsDefault');
     expect(state.disabled).toBe(true);
     expect(state.checked).toBe(false);
-    // Restore: USD Is Default was auto-unchecked when CAD was set as default -- restore it
+ // Restore: USD Is Default was auto-unchecked when CAD was set as default -- restore it
     await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
     await locationCurrencyPage.clickSave();
   });
@@ -83,7 +82,7 @@ test.describe.serial('Location Currency @locations @currency', () => {
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
     await locationCurrencyPage.checkCheckbox('chkCADIsDefault');
     expect((await locationCurrencyPage.getCheckboxState('chkUSDIsDefault')).checked).toBe(false);
-    // Cleanup: uncheck CAD (disables+clears CAD IsDefault), restore USD IsDefault, save
+ // Cleanup: uncheck CAD (disables+clears CAD IsDefault), restore USD IsDefault, save
     await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
     await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
     await locationCurrencyPage.clickSave();
@@ -137,12 +136,12 @@ test.describe.serial('Location Currency @locations @currency', () => {
   });
 
   test('TC-LOC-CUR-013: Validation -- at least one currency must be selected', async ({ locationCurrencyPage }) => {
-    // Uncheck USD (the only selected currency) -- app disables Save to enforce minimum-1-currency constraint
-    // NOTE: unchecking USD also auto-unchecks USD IsDefault; both must be restored
+ // Uncheck USD (the only selected currency) -- app disables Save to enforce minimum-1-currency constraint
+ // NOTE: unchecking USD also auto-unchecks USD IsDefault; both must be restored
     await locationCurrencyPage.uncheckCheckbox('chkUSDSelected');
     expect((await locationCurrencyPage.getCheckboxState('chkUSDIsDefault')).disabled).toBe(true);
     const saveBlocked = !(await locationCurrencyPage.isSaveEnabled());
-    // Full restore: re-select USD AND re-apply IsDefault so TC-014+ start clean
+ // Full restore: re-select USD AND re-apply IsDefault so TC-014+ start clean
     await locationCurrencyPage.checkCheckbox('chkUSDSelected');
     await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
     await locationCurrencyPage.clickSave();
@@ -180,23 +179,23 @@ test.describe.serial('Location Currency @locations @currency', () => {
     await locationCurrencyPage.clickSave();
   });
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // ROUND-TRIP PERSISTENCE (P0)
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // ROUND-TRIP PERSISTENCE (P0)
+ // ─────────────────────────────────────────────────────────────────────────────
 
   test('TC-LOC-CUR-021: Selected currency persists after save and reload', async ({ locationCurrencyPage }) => {
     test.setTimeout(60_000);
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
-    // Select CAD
+ // Select CAD
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(true);
     const result = await locationCurrencyPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(false);
-    // Reload and verify persistence
+ // Reload and verify persistence
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
     expect((await locationCurrencyPage.getCheckboxState('chkCADSelected')).checked).toBe(true);
-    // Cleanup: uncheck CAD → save
+ // Cleanup: uncheck CAD → save
     await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
     await locationCurrencyPage.clickSave();
   });
@@ -204,17 +203,17 @@ test.describe.serial('Location Currency @locations @currency', () => {
   test('TC-LOC-CUR-022: Merchant change persists after save and reload', async ({ locationCurrencyPage }) => {
     test.setTimeout(60_000);
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
-    // Change USD merchant to Bahamas
+ // Change USD merchant to Bahamas
     await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', ALTERNATE_USD_MERCHANT.display);
     expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain(ALTERNATE_USD_MERCHANT.id);
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(true);
     const result = await locationCurrencyPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(false);
-    // Reload and verify persistence
+ // Reload and verify persistence
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
     expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain(ALTERNATE_USD_MERCHANT.id);
-    // Cleanup: restore original USD merchant → save
+ // Cleanup: restore original USD merchant → save
     await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', MERCHANT_DATA.usd.display);
     await locationCurrencyPage.clickSave();
   });
@@ -222,7 +221,7 @@ test.describe.serial('Location Currency @locations @currency', () => {
   test('TC-LOC-CUR-023: IsDefault change persists after save and reload (cascade)', async ({ locationCurrencyPage }) => {
     test.setTimeout(60_000);
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
-    // Select CAD + set as default (auto-unchecks USD IsDefault)
+ // Select CAD + set as default (auto-unchecks USD IsDefault)
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
     await locationCurrencyPage.checkCheckbox('chkCADIsDefault');
     expect((await locationCurrencyPage.getCheckboxState('chkUSDIsDefault')).checked).toBe(false);
@@ -230,11 +229,11 @@ test.describe.serial('Location Currency @locations @currency', () => {
     const result = await locationCurrencyPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(false);
-    // Reload and verify
+ // Reload and verify
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
     expect((await locationCurrencyPage.getCheckboxState('chkCADIsDefault')).checked).toBe(true);
     expect((await locationCurrencyPage.getCheckboxState('chkUSDIsDefault')).checked).toBe(false);
-    // Cleanup: uncheck CAD Selected (auto-disables CAD IsDefault) → restore USD IsDefault → save
+ // Cleanup: uncheck CAD Selected (auto-disables CAD IsDefault) → restore USD IsDefault → save
     await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
     await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
     await locationCurrencyPage.clickSave();
@@ -243,75 +242,75 @@ test.describe.serial('Location Currency @locations @currency', () => {
   test('TC-LOC-CUR-024: Combined changes persist after single save and reload', async ({ locationCurrencyPage }) => {
     test.setTimeout(60_000);
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
-    // Select CAD + change USD merchant — two changes in one save
+ // Select CAD + change USD merchant — two changes in one save
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
     await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', ALTERNATE_USD_MERCHANT.display);
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(true);
     const result = await locationCurrencyPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(false);
-    // Reload and verify both persisted
+ // Reload and verify both persisted
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
     expect((await locationCurrencyPage.getCheckboxState('chkCADSelected')).checked).toBe(true);
     expect(await locationCurrencyPage.getMerchantValue('drpUSDMerchant')).toContain(ALTERNATE_USD_MERCHANT.id);
-    // Cleanup: uncheck CAD + restore USD merchant → save
+ // Cleanup: uncheck CAD + restore USD merchant → save
     await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
     await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', MERCHANT_DATA.usd.display);
     await locationCurrencyPage.clickSave();
   });
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // STATE TRANSITION (P1-P2)
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // STATE TRANSITION (P1-P2)
+ // ─────────────────────────────────────────────────────────────────────────────
 
   test('TC-LOC-CUR-025: Cancel save discards changes — reload shows original state', async ({ locationCurrencyPage }) => {
     test.setTimeout(60_000);
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
-    // Make a change
+ // Make a change
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(true);
-    // Click save but cancel the dialog
+ // Click save but cancel the dialog
     const dialogType = await locationCurrencyPage.clickSaveAndCaptureDialog();
     expect(dialogType).toBe('save-changes');
     await locationCurrencyPage.cancelCurrentDialog();
-    // Reload — change should NOT have persisted (cancel = discard)
+ // Reload — change should NOT have persisted (cancel = discard)
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
     expect((await locationCurrencyPage.getCheckboxState('chkCADSelected')).checked).toBe(false);
-    // No cleanup needed — cancel means nothing was saved
+ // No cleanup needed — cancel means nothing was saved
   });
 
   test('TC-LOC-CUR-026: Beforeunload dialog fires when form is dirty', async ({ locationCurrencyPage }) => {
     test.setTimeout(60_000);
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
-    // Make a dirty change
+ // Make a dirty change
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(true);
-    // Trigger reload — beforeunload should fire and dismiss keeps us on page
+ // Trigger reload — beforeunload should fire and dismiss keeps us on page
     const dialogFired = await locationCurrencyPage.triggerBeforeunloadAndStay();
     expect(dialogFired).toBe(true);
-    // Cleanup: reload discards dirty state (nothing was saved)
+ // Cleanup: reload discards dirty state (nothing was saved)
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
   });
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // EDGE CASE (P2)
-  // ─────────────────────────────────────────────────────────────────────────────
+ // ─────────────────────────────────────────────────────────────────────────────
+ // EDGE CASE (P2)
+ // ─────────────────────────────────────────────────────────────────────────────
 
   test('TC-LOC-CUR-027: No-default state persists after save and reload', async ({ locationCurrencyPage }) => {
     test.setTimeout(60_000);
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
-    // Uncheck USD IsDefault — no currency is default
+ // Uncheck USD IsDefault — no currency is default
     await locationCurrencyPage.uncheckCheckbox('chkUSDIsDefault');
     expect((await locationCurrencyPage.getCheckboxState('chkUSDIsDefault')).checked).toBe(false);
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(true);
-    // Save (clickSave auto-confirms the "Save Changes" dialog)
+ // Save (clickSave auto-confirms the "Save Changes" dialog)
     const result = await locationCurrencyPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationCurrencyPage.isSaveEnabled()).toBe(false);
-    // Reload and verify no-default persisted
+ // Reload and verify no-default persisted
     await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
     expect((await locationCurrencyPage.getCheckboxState('chkUSDIsDefault')).checked).toBe(false);
-    // Cleanup: restore USD IsDefault → save
+ // Cleanup: restore USD IsDefault → save
     await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
     await locationCurrencyPage.clickSave();
   });
