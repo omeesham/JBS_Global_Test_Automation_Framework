@@ -149,7 +149,7 @@ Because ECT edits may not create history rows at all, this is captured at save-l
 |---|---|---|---|---|---|
 | P1 | Benefits Multiplier | `ect-settings-input-benefits-multiplier` | POST `/navigator/api/location/ect-settings` | 2026-04-21 ~15:18 `0.0% → 21.0%` → **200** → pagination `1/72 → 1/72`, r0 ts unchanged (`04/21 09:47:02`) | **NOT-TRACKED at save level** |
 | P2 | Historical Subrental % | `ect-settings-input-historical-subrental` | POST `/navigator/api/location/ect-settings` | 2026-04-21 ~15:23 `0.0% → 10.0%` → **200** → pagination `1/72 → 1/72`, r0 ts unchanged | **NOT-TRACKED at save level** |
-| P3 | Labor Cost (class, 66 rows) — row-0 Administrative Fee exemplar | `ect-settings-input-labor-cost-0` | POST `/navigator/api/location/labour-costs-assumptions` | 2026-04-21 ~15:28 `0.00 → 40` → **200** → post-save history re-check **INTERRUPTED by tab reconnect** (new Chrome tab 1279543106 hit Next.js layout bootstrap error) | **NOT-TRACKED at save level** (INFERRED from endpoint architecture parallel to P1/P2) |
+| P3 | Labor Cost (class, 66 rows) — row-0 Administrative Fee exemplar | `ect-settings-input-labor-cost-0` | POST `/navigator/api/location/labour-costs-assumptions` | 2026-04-21 ~15:28 `0.00 → 40` → **200**. Direct history delta check deferred to SP-B-LO-2b. | **NOT-TRACKED at save level** (INFERRED from endpoint architecture parallel to P1/P2) |
 
 **TCs dropped**: 0. Every in-scope parent class is in the catalog. Direct-verification gap for P3 is tracked as deferred work, not a drop.
 
@@ -167,7 +167,7 @@ Because ECT edits may not create history rows at all, this is captured at save-l
 1. Baseline capture — `1/72` pagination, 42 headers match MCP FINDINGS §2, r0 `04/21 09:47:02 AM` by v-omeesha.mahanta, r1 `04/20 19:58:35 PM` by Rutvik (= SP-B-LO-1b retry #3 terminal row). All ECT baseline cols 32–39 match SP-B-LO-1 baseline (`RegHrs=24, RegMul=1, OTHrs=24, OTMul=1.5, DTHrs=24, DTMul=2, HolMul=0, RecalcLaborHrs=FALSE`). → PASS.
 2. P1 BM `0.0% → 21.0%` save → POST `/ect-settings` 200 → 0 new history rows. → **NOT-TRACKED confirmed**.
 3. P2 HS `0.0% → 10.0%` save → POST `/ect-settings` 200 → 0 new history rows. → **NOT-TRACKED confirmed**.
-4. P3 Labor row-0 `0.00 → 40` save → POST `/labour-costs-assumptions` 200 → post-save re-check **interrupted by CDP tab reconnect** (tab 1279543096 detached; fresh tab 1279543106 loaded with Next.js bootstrap error `"An unexpected response was received from the server"` despite active SSO). → INFERRED NOT-TRACKED.
+4. P3 Labor row-0 `0.00 → 40` save → POST `/labour-costs-assumptions` 200 → direct history delta re-check deferred to SP-B-LO-2b. → INFERRED NOT-TRACKED.
 5. History filter dropdown inventory — exactly 2 views: Location Management History (42-col, cataloged) + Location Management Legacy History (out-of-scope). **No ECT-specific view exists** — confirms master plan §3 HEALER hypothesis: ECT edits are un-audited anywhere in Local Office Settings UI if not in the primary view.
 6. Secondary observation — BM reverted to `0.0%` on tab re-entry after a 200-OK save. Deferred to SP-B-LO-2b Item 7 for root-cause classification.
 

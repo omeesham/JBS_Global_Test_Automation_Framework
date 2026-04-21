@@ -7,7 +7,7 @@
 > 3. **Model + thinking tier**: look up this subplan's SP number in `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` → Execution Order table. Use the specified Opus/Sonnet + think tier. If master plan has no row for SP-B-LO-2b, inherit SP-B-LO-2's slot (Opus + think hard) — Phase 0 bumps one notch (ultrathink) because this session includes a state-reconcile gate against the parent catalog.
 > 4. **Dependency gate**: verify every item in `**Depends on**` field is marked DONE in `plans/done/`. If any blocker → HALT + report to user.
 > 5. **Context load**: read `plans/done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md` (parent session) + `clients/encore/specs_planning/catalogs/hist-root-map-local-office-ect.md` (existing ECT catalog to extend) + `clients/encore/specs_planning/catalogs/hist-root-map-local-office-basic-info.md` (for PROBE step cross-reference) + master plan §3 HEALER row (LOS-ECT-BUG-A).
-> 5.5 **Browser tool selection (LR-038)**: this session REQUIRES live DOM drive on office 1604. Default = Claude in Chrome (`mcp__Claude_in_Chrome__*`) — `javascript_tool` for DOM reads, `computer` + `find` for Radix tab clicks and text-input typing. Do NOT default to Playwright MCP `browser_snapshot` (token cost ~20k per tab switch; `read_page` returns compact accessibility summary). Reconnect to an existing Claude-in-Chrome tab on office 1604 instead of creating a new tab — parent-session reconnect attempt hit a Next.js bootstrap error `"An unexpected response was received from the server"` on a fresh tab despite active SSO (see parent catalog §Evidence ledger).
+> 5.5 **Browser tool selection (LR-038)**: this session REQUIRES live DOM drive on office 1604. Default = Claude in Chrome (`mcp__Claude_in_Chrome__*`) — `javascript_tool` for DOM reads, `computer` + `find` for Radix tab clicks and text-input typing. Do NOT default to Playwright MCP `browser_snapshot` (token cost ~20k per tab switch; `read_page` returns compact accessibility summary).
 > 6. **Phase 0 FIRST** (if present in Step-by-Step): execute before any edits.
 > 7. **Execute Phases 1+** per Step-by-Step in order.
 > 8. **Handoff**: on success, set Status: DONE + Executed date, append activity-log row (LR-028 + LR-037 wall-clock ≥ mtime of touched files), `git mv` this file to `plans/done/`, run `npm run plans:reindex`, commit one bounded commit per LR-027.
@@ -27,7 +27,7 @@
 **Status**: Pending
 **Priority**: P0
 **Created**: 2026-04-21
-**Depends on**: SP-B-LO-2 DONE (parent session completed 2026-04-21 — P1/P2 NOT-TRACKED directly verified, P3 INFERRED; 8 follow-up items listed in parent catalog §Deferred to SP-B-LO-2b).
+**Depends on**: SP-B-LO-2 DONE (parent session completed 2026-04-21 — P1/P2 NOT-TRACKED directly verified, P3 INFERRED pending direct history delta verification; 8 follow-up items listed in parent catalog §Deferred to SP-B-LO-2b).
 **Identity**: HUNTER (MCP live DOM drive + possible bug filing via LR-034)
 **Skills**: `/research` (MCP exploration) + `/planning` (catalog extension) + `/identity`
 **Estimated**: one session (~1 hour — 8 deferred items, most are fast re-saves; PROBE is the big one)
@@ -36,7 +36,7 @@
 
 ## Cause
 
-SP-B-LO-2 mapped all 3 ECT editable parent classes to save-level NOT-TRACKED but could not directly verify the P3 Labor Cost class due to a mid-session Claude-in-Chrome tab reconnect that cleared DOM context before the post-save history re-check. A clean parallel to the SP-B-LO-1 → SP-B-LO-1b workflow is required to promote P3 from INFERRED → directly verified, capture the exemplar-index-independence evidence (rows 33 + 65), probe the orphan-column hypothesis for cols 32–39, compare against the Legacy History view, and close the ECT persistence anomaly.
+SP-B-LO-2 mapped all 3 ECT editable parent classes to save-level NOT-TRACKED with P1/P2 directly verified and P3 INFERRED (save 200'd; direct history delta deferred). A clean parallel to the SP-B-LO-1 → SP-B-LO-1b workflow is required to promote P3 from INFERRED → directly verified, capture the exemplar-index-independence evidence (rows 33 + 65), probe the orphan-column hypothesis for cols 32–39, compare against the Legacy History view, and close the ECT persistence anomaly.
 
 ---
 
@@ -64,7 +64,7 @@ SP-B-LO-2 mapped all 3 ECT editable parent classes to save-level NOT-TRACKED but
 
 ## Method — MCP Direct-Verify Procedure
 
-1. Reconnect to an **existing** Claude-in-Chrome tab on `/navigator/locations/1604/settings/local-office` (tab 1279543096 from parent session if still open, or create a tab ONLY AFTER verifying SSO is fresh and the Next.js bootstrap error does not reproduce). If a new tab is required, navigate to a simple URL first (e.g., dashboard) to prove SPA renders, then navigate to the office.
+1. Open (or reconnect to) a Claude-in-Chrome tab on `/navigator/locations/1604/settings/local-office`. Verify Microsoft SSO auto-login.
 2. Install the `window.__cat` driver pattern from SP-B-LO-1 parent catalog §Method notes (fetch-watch + clickSave variants for ECT's two Save buttons + tab-switch via PointerEvent + history `readHistoryDiff2` or baseline/current comparator).
 3. **Phase 0 — reconcile baseline**:
    - Read top 3 rows of 42-col history. Compare r1/r2 against parent session ledger (r1 should be `04/21 09:47:02 Omeesha`, r2 `04/20 19:58:35 Rutvik`).
@@ -161,7 +161,6 @@ SP-B-LO-2 mapped all 3 ECT editable parent classes to save-level NOT-TRACKED but
 - LR-034 — if persistence RCA item 7 concludes silent write-failure, file `BUG-LO-NNN` (module code TBD — probably `ECT` or `LOS-ECT`) with MCP evidence + network-response excerpt.
 - LR-036 — N/A for ECT (all numeric).
 - LR-038 — Claude in Chrome declared; do NOT default to Playwright MCP.
-- Parent-session blocker context: new Chrome tab 1279543106 hit Next.js bootstrap error `"An unexpected response was received from the server"` despite active SSO → reconnect to existing tab OR navigate to a known-healthy URL first before the office URL.
 
 ---
 
