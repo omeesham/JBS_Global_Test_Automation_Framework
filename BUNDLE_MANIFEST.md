@@ -70,10 +70,10 @@ These four scripts are referenced by client-facing npm commands (`clean`, `clean
 | `clients/encore/config/environments/.env.development` | Credentials (username, password, MFA secret, BASE_URL, CI_ENV) — plain-text by design (see root CLAUDE.md §Security Rules) |
 | `clients/encore/config/environments/.env.example` | Template for new collaborators |
 | `clients/encore/config/allure/categories.json` | Required by `playwright.config.ts` allure reporter |
+| `clients/encore/README.md` | Client-facing runbook (daily run, reports, CI/CD integration, troubleshooting) — ships with the deliverable |
 
 **Excluded from `clients/encore/`**:
 - `clients/encore/CLAUDE.md` — agent-only instructions
-- `clients/encore/README.md` — internal documentation
 - `clients/encore/docs/**` — REQUIREMENTS.md, MODULE_REGISTRY.md, AGENT_RULES_ENCORE.md; no runtime imports (verified)
 - `clients/encore/specs_planning/**` — agent state: test-cases, test-plans, audits, activity logs
 - `clients/encore/exports/**` — CSV exports; non-runtime
