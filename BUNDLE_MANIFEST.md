@@ -23,6 +23,8 @@
 | `package-lock.json` | Reproducible install |
 | `.gitignore` | Prevents committing `node_modules/`, `.auth/`, `reports/`, etc. |
 
+> **Root `README.md` does NOT ship to the client.** It is a framework-level doc for maintainers + the colleague. The client-facing runbook is `clients/encore/README.md` (travels with the `clients/encore/` folder wholesale).
+
 ---
 
 ## KEEP — Operational scripts (small, self-contained, pure `fs`/`path`)
@@ -91,6 +93,7 @@ These four scripts are referenced by client-facing npm commands (`clean`, `clean
 | `website/**` | SaaS frontend/backend; completely separate codebase |
 | `scripts/**` (except the four operational scripts listed under KEEP) | Pipeline scripts, agent tooling, TS utilities; not needed at test runtime. `global-setup.ts` gracefully skips the missing `cleanup-logs` import. |
 | `HANDOFF_TO_COLLEAGUE.md` | Internal transition document |
+| `README.md` (root) | Framework-level README for maintainers + colleague; client gets `clients/encore/README.md` instead |
 | `CLAUDE.md` (root) | Agent instructions |
 | `AGENT_SHARED_RULES.md` (root) | Agent rules |
 | `.auth/**` | Saved auth state — regenerated on first `npx playwright test` run |
