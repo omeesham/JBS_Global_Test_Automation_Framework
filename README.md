@@ -1,174 +1,71 @@
-# Encore QA Automation
+# Encore Framework — Multi-Tenant Playwright Harness
 
-End-to-end Playwright test suite for Navigator Cloud (`cloudapps-e2e.encoreglobal.com`). Produces two reports per run (Playwright HTML + Allure) with per-run timestamped archives. Browser projects (`chromium`, `chrome`, `firefox`, `webkit`) and parallelism (worker count) are all configurable per run — defaults in `playwright.config.ts`, overridable via CLI flags or environment variables.
-
----
-
-## Requirements
-
-- Node.js ≥ 18
-- npm ≥ 9
-- ~1 GB disk for browsers + dependencies
-- Network access to `cloudapps-e2e.encoreglobal.com` and Microsoft login endpoints
+Framework-level README for maintainers and the colleague routing bundles to end-clients. **This is not the client-facing runbook** — that lives at [`clients/encore/README.md`](clients/encore/README.md) and travels with the bundle.
 
 ---
 
-## One-time setup
+## Audience
+
+- **Framework maintainers** (us) — everything in this repo, including `src/`, `scripts/`, `plans/`, `.claude/`, `.github/`, `docs/`.
+- **Colleague packaging bundles** — see [`HANDOFF_TO_COLLEAGUE.md`](HANDOFF_TO_COLLEAGUE.md) for the repo ↔ client seam, IP inventory, and what ships vs. what stays.
+- **End-client** (Encore) — does **not** read this file; they get the stripped bundle + [`clients/encore/README.md`](clients/encore/README.md).
+
+---
+
+## Quick start (framework-level)
 
 ```bash
 npm install
-npx playwright install chromium
+npx playwright install
+cp config/environments/.env.example config/environments/.env.local   # optional overrides
+npm test
 ```
 
-Credentials ship pre-wired in `clients/encore/config/environments/.env.development` (Microsoft SSO + TOTP). **Rotate these before any production use** — the shipped values are for the E2E environment only.
-
-Verify the setup with the auth smoke test (~30 seconds):
-
-```bash
-npx playwright test clients/encore/tests/seed.spec.ts --project=chromium
-```
-
-Green = credentials + SSO + fixtures all working.
+Credentials for Encore ship in `clients/encore/config/environments/.env.development`. No extra setup needed for the single-tenant case (Encore is the default client — `ACTIVE_CLIENT=encore`).
 
 ---
 
-## Running the suite
+## Repo structure
 
-### Recommended — single command, full chain
+- `src/` — framework runtime (adapters, credential loader, logger, diagnostics, reporter)
+- `clients/<id>/` — per-client surface (pages, selectors, tests, config, docs, planning)
+- `scripts/` — pipeline, validation, and operational scripts
+- `plans/` — cross-client planning artifacts (pending/done + auto-regenerated INDEX)
+- `.claude/` — Claude Code agent skills, context, identity, commands
+- `.github/` — pipeline agent prompts + Copilot instructions
+- `website/` — separate SaaS product surface (frontend + backend)
+- `docs/` — framework documentation
 
-```bash
-npm run test:daily
-```
-
-This is the intended daily command. It does, in order:
-
-1. Preserves Allure history (so the Trend widget accumulates day over day)
-2. Cleans stale report artifacts
-3. Runs the full chromium suite
-4. Generates the Allure report
-5. Archives both HTML + Allure reports to timestamped directories
-
-### Alternative — manual / granular control
-
-If your CI pipeline needs the steps separately (parallelization, artifact upload between steps, etc.), run them individually:
-
-```bash
-node scripts/preserve-allure-history.js    # seed trend history
-npm run clean:reports                      # clean stale outputs
-npx playwright test --project=chromium     # run the suite
-npm run allure:generate                    # build Allure report
-npm run reports:archive                    # archive both reports
-```
-
-### Other test commands
-
-| Command | What it does |
-|---|---|
-| `npx playwright test --project=chromium` | Run full suite, skip the daily chain |
-| `npx playwright test <path> --project=chromium` | Run a single spec or directory |
-| `npm run test:chrome` / `test:firefox` / `test:webkit` | Browser variants |
-| `npm test -- --list` | List every discoverable test without running |
-
-### Tuning parallelism
-
-Worker count (how many specs run in parallel) is set in `playwright.config.ts` but can be overridden per run:
-
-```bash
-npx playwright test --project=chromium --workers=4
-npx playwright test --project=chromium --workers=50%   # half of CPU cores
-```
-
-More workers = faster wall-clock but higher load on the app under test and on the runner. Start at 1–2 for SSO-heavy environments; scale up after validating stability. `fully-parallel` mode and `retries` are also configurable in `playwright.config.ts`.
+See [`BUNDLE_MANIFEST.md`](BUNDLE_MANIFEST.md) for the authoritative list of what ships to a client bundle vs. what stays internal.
 
 ---
 
-## Reports
+## Documentation
 
-After every run:
+- [Complete Framework Documentation](docs/README.md)
+- [Architecture Overview](docs/read_only_docs/ARCHITECTURE.md)
+- [Agent Shared Rules](docs/read_only_docs/AGENT_SHARED_RULES.md)
+- [Commenting Standards](docs/read_only_docs/COMMENTING_STANDARDS.md)
+- [MCP Browser Guide](docs/read_only_docs/MCP_BROWSER_GUIDE.md)
 
-| Path | Contents |
-|---|---|
-| `reports/html-report/` | Latest Playwright HTML report |
-| `reports/allure-report/` | Latest Allure report (with Environment, Categories, Trend) |
-| `reports/html-archive/<timestamp>/` | Every past HTML run (if using `test:daily` or `reports:archive`) |
-| `reports/allure-archive/<timestamp>/` | Every past Allure run |
-| `reports/failure-summary.json` | Machine-readable failure data (see **Failure categorization** below) |
-| `reports/junit-results.xml` | JUnit XML for CI dashboards |
-| `reports/test-results.json` | Raw Playwright results |
-
-### Viewing reports locally
-
-```bash
-npm run report            # opens the Playwright HTML report
-npm run allure:report     # generates + opens Allure in the browser
-```
-
-### Archive retention
-
-Archives are kept indefinitely by default. To auto-prune, set environment variables before running `test:daily` or `reports:archive`:
-
-```bash
-ALLURE_ARCHIVE_MAX_DAYS=30   # keep 30 days of Allure archives
-HTML_ARCHIVE_MAX_DAYS=30     # keep 30 days of HTML archives
-```
-
-Setting to `0` (default) means never prune.
+Client-specific: [`clients/encore/docs/`](clients/encore/docs/) (REQUIREMENTS.md, MODULE_REGISTRY.md, AGENT_RULES_ENCORE.md).
 
 ---
 
-## CI/CD integration
+## Multi-tenant
 
-The suite is CI-agnostic. Pick the pattern that fits your pipeline:
-
-**Simplest** — call the chain directly:
-```yaml
-- run: npm install
-- run: npx playwright install chromium
-- run: npm run test:daily
-- uses: actions/upload-artifact   # upload reports/ as your pipeline requires
-  with:
-    path: reports/
-```
-
-**Finer control** — split into stages, upload artifacts between them, set `continue-on-error` on the test step so reports still publish when tests fail.
-
-Scheduling, runner infrastructure, secret management, artifact distribution, and credential rotation are owned by your deployment team — not wired into this repo.
+- `ACTIVE_CLIENT` env var selects `clients/<id>/`. Defaults to `encore` via `scripts/shared-paths.ts` / `.mjs`.
+- All pipeline scripts resolve client paths through `SHARED_PATHS`. No hard-coded client strings remain in framework code.
+- Agent prompts (`.github/agents/*.agent.md`) read product context from the active client's `docs/REQUIREMENTS.md` and `MODULE_REGISTRY.md`.
+- To onboard a second client: see [`HANDOFF_TO_COLLEAGUE.md §7`](HANDOFF_TO_COLLEAGUE.md).
 
 ---
 
-## Failure categorization
+## Client deliverable
 
-Every failing run writes `reports/failure-summary.json`. Each failure carries a `failureCategory` classified into one of:
-
-| Category | Who to file with |
-|---|---|
-| `AUTHENTICATION` | Transient SSO / MFA flake — retry. Escalate if persistent. |
-| `NETWORK` | Usually upstream / environment. Re-run before triaging. |
-| `TIMEOUT` / `SELECTOR` / `INFRASTRUCTURE` | Framework-side — file with your automation vendor |
-| `APPLICATION` / `DATA` (a.k.a. "Product Defects") | App-side — file with Encore's product team |
-
-Allure's **Categories** panel groups failures into the same buckets visually.
+The `client_deliverable` branch is the shippable state. Colleague pulls that branch, gitignores everything NOT in [`BUNDLE_MANIFEST.md`](BUNDLE_MANIFEST.md), and hands the result to the client's deployment team. The client's runbook is [`clients/encore/README.md`](clients/encore/README.md) and travels with the `clients/encore/` folder wholesale.
 
 ---
 
-## Updating
-
-Pull the `client_deliverable` branch. Do **not** commit or edit files under `clients/encore/src/**`, `clients/encore/tests/**`, or `src/**` — those are framework-owned and will be overwritten on the next update. If you need a change in those paths, request it from your automation vendor.
-
-Safe-to-edit without conflicts: `clients/encore/config/environments/.env.*` (your credentials), anything under `reports/` (generated output), `node_modules/` (installed).
-
----
-
-## Troubleshooting
-
-1. **Nothing runs at all** — `npm install` exited non-zero, or `npx playwright install chromium` didn't complete. Re-run both; check node/npm versions meet the requirements above.
-2. **Every test fails with auth errors** — credentials expired or rotated. Update `clients/encore/config/environments/.env.development` (or override via `.env.local`).
-3. **Seed smoke fails but the app works in a browser** — Microsoft SSO is having a bad moment. Retry in 5 minutes before deeper triage.
-4. **Reports look empty / blank widgets** — run `npm run clean` and re-run `test:daily`. Some widgets (Trend) only populate after the second run.
-5. **Allure Trend never grows** — ensure `test:daily` is used, or that you call `node scripts/preserve-allure-history.js` before each run if invoking steps manually.
-
----
-
-## License & credentials
-
-Test credentials in `.env.development` are plain-text by design for the E2E environment. Rotate on day one if this repo leaves your controlled infrastructure.
+**Framework:** Playwright + TypeScript
+**Status:** Production — bundle operationally hardened 2026-04-21 (see `plans/done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md`, `reports/bundle-op-hardening-2026-04-21.md`)
