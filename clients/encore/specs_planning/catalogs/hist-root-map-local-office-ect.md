@@ -42,7 +42,10 @@ Labor Cost rows sampled: 1 directly (row-0 Administrative Fee) + 2 inferred (row
 |---|---|---|---|---|---|---|---|---|
 | P1 | Benefits Multiplier | `ect-settings-input-benefits-multiplier` | text (decimal-to-percent) | [0.0%, …] | — (no column written at ECT save) | **NOT-TRACKED at save level** | n/a | 2026-04-21 `0.0% → 21.0%` → POST `/ect-settings` 200 → pagination `1/72 → 1/72`, r0 timestamp unchanged (`04/21 09:47:02`) |
 | P2 | Historical Subrental % | `ect-settings-input-historical-subrental` | text (decimal-to-percent) | [0.0%, …] | — (no column written at ECT save) | **NOT-TRACKED at save level** | n/a | 2026-04-21 `0.0% → 10.0%` → POST `/ect-settings` 200 → pagination `1/72 → 1/72`, r0 timestamp unchanged (`04/21 09:47:02`) |
-| P3 | Labor Cost (row-0 Administrative Fee, exemplar) | `ect-settings-input-labor-cost-0` | text (decimal) | [0.00, …] | — (no column written at ECT save) | **NOT-TRACKED at save level** (inferred class result) | n/a | 2026-04-21 `0.00 → 40` → POST `/labour-costs-assumptions` 200; direct history delta verification deferred to SP-B-LO-2b. Class-level NOT-TRACKED inferred by endpoint distinctness (distinct endpoint from `/ect-settings`, but neither writes to the 42-col history for P1/P2) + MCP FINDINGS §3.5 prior claim. |
+| P3 | Labor Cost (row-0 Administrative Fee, exemplar) | `ect-settings-input-labor-cost-0` | text (decimal) | [0.00, …] | — (no column written at ECT save) | **NOT-TRACKED at save level** (CONFIRMED 2026-04-21 SP-B-LO-2b) | n/a | 2026-04-21 SP-B-LO-2 `0.00 → 40` → POST `/labour-costs-assumptions` 200. SP-B-LO-2b 2026-04-21T10:33:37Z direct re-check: `40 → 0.00` → POST 200, response `{success:true}`, post-save r0 timestamp 04/21 10:31:39 (Omeesha) PRE-DATES my save → zero rows added by my save → direct verification CONFIRMED. |
+| P3-r33 | Labor Cost row-33 (Labor Brokering, middle exemplar) | `ect-settings-input-labor-cost-33` | text (decimal) | [0.00, …] | — | **NOT-TRACKED at save level** (CONFIRMED 2026-04-21 SP-B-LO-2b) | n/a | 2026-04-21T10:34:57Z `0.00 → 12.50` → POST 200, post-save r0 timestamp 04/21 10:34:15 (Omeesha) PRE-DATES my save → zero rows added by my save. Confirms row-index-independence (same class result as row-0). |
+| P3-r65 | Labor Cost row-65 (zzzFinishing Service, last exemplar) | `ect-settings-input-labor-cost-65` | text (decimal) | [0.00, …] | — | **NOT-TRACKED at save level** (CONFIRMED 2026-04-21 SP-B-LO-2b) | n/a | 2026-04-21T10:36:10Z `0.00 → 7.25` → POST 200, post-save r0 timestamp 04/21 10:34:15 (Omeesha) PRE-DATES my save → zero rows added. Confirms class-wide row-index-independence (rows 0, 33, 65 all NOT-TRACKED at save level). |
+| P-BONUS | Multi-field single Fixed Costs save (BM 0.0%→11.0% + HS 0.0%→8.0% in one POST) | composite | composite | composite | — | **NOT-TRACKED at save level** (CONFIRMED 2026-04-21 SP-B-LO-2b) | n/a | 2026-04-21T10:37:54Z single POST `/ect-settings` body `{locationId:1604, currencyId:3, subrentalPercent:0.08, benefitMultiplier:0.11, internalLaborCost:0, externalLaborCost:0}` → 200 `{success:true}`. Post-save r0 timestamp 04/21 10:37:22 (Omeesha) PRE-DATES my save → zero rows added by my save. Multi-field composition does not change save-level result. |
 
 ---
 
@@ -52,9 +55,10 @@ Labor Cost rows sampled: 1 directly (row-0 Administrative Fee) + 2 inferred (row
 |---|---|---|
 | Benefits Multiplier | **NO** — POST 200 confirmed, pagination `1/72 → 1/72`, r0 timestamp unchanged | **LOS-ECT-BUG-A** candidate (save-level NOT-TRACKED) |
 | Historical Subrental % | **NO** — POST 200 confirmed, pagination `1/72 → 1/72`, r0 timestamp unchanged | **LOS-ECT-BUG-A** candidate (save-level NOT-TRACKED) |
-| Labor Cost (row-0 exemplar) | **NO (inferred)** — POST 200 confirmed on distinct endpoint `/labour-costs-assumptions`; direct history delta verification pending SP-B-LO-2b | **LOS-ECT-BUG-A** candidate (save-level NOT-TRACKED, expected by class parallel to P1/P2) |
+| Labor Cost (rows 0, 33, 65 — exemplar set) | **NO** — POST 200 confirmed on distinct endpoint `/labour-costs-assumptions` for all 3 sampled rows; direct history delta CONFIRMED 2026-04-21 SP-B-LO-2b (post-save r0 timestamp pre-dates my save in every case) | **LOS-ECT-BUG-A** candidate (save-level NOT-TRACKED, class-wide directly verified) |
+| BONUS — multi-field single Fixed Costs save (BM + HS in one POST) | **NO** — single POST `/ect-settings` 200 with both fields in body, zero rows added | **LOS-ECT-BUG-A** candidate (save-level NOT-TRACKED at save composition level) |
 
-**All three ECT parent classes fail save-level tracking. LOS-ECT-BUG-A is CONFIRMED at class level for the two `/ect-settings`-endpoint parents (P1, P2) and INFERRED for the `/labour-costs-assumptions`-endpoint parent (P3).**
+**All three ECT parent classes fail save-level tracking. LOS-ECT-BUG-A is CONFIRMED at class level for all 3 parents — `/ect-settings` endpoint (P1 BM, P2 HS) and `/labour-costs-assumptions` endpoint (P3 LC class, rows 0/33/65 directly verified). Multi-field composition does not change the result.**
 
 ---
 
@@ -73,7 +77,7 @@ Cols 32-39 in the 42-col Local Office Settings History hold ECT-derived values, 
 | 38 | Holiday Multiplier | 0 | ECT | Basic Info save writes a new row |
 | 39 | Recalc Labor Hours | FALSE (empty) | ECT checkbox | Basic Info save writes a new row |
 
-**Inference**: these 8 columns appear to be server-side JOINs onto the ect-settings row at the time of Local Office Settings (Basic Info) save. They are NOT independently tracked per-edit. Direct proof requires the PROBE step (edit ECT → no row; edit ECT again → edit Basic Info → save → verify the new r0 reflects the current ECT value). **PROBE deferred to SP-B-LO-2b** (see Deferred section).
+**Inference (now CONFIRMED — see SP-B-LO-2b PROBE below)**: these 8 columns appear to be server-side JOINs onto an ECT-related projection at the time of Local Office Settings (Basic Info) save. They are NOT independently tracked per-edit. The 3 editable ECT parent classes (BM, HS, LC) do NOT map to any of cols 32–39 — those columns reflect a different ECT-derived surface (likely the read-only Event Profit Target labor-hour assumptions). PROBE evidence: even with HS=8.0%, LC0=0.00, LC33=12.50, LC65=7.25 active in the form (i.e. server-persisted ECT class state mutated from baseline), a subsequent Basic Info save at 2026-04-21T10:47:11 produced a new r0 with cols 32-39 IDENTICAL to baseline `[24, 1, 24, 1.5, 24, 2, 0, ""]` — proving (a) Basic Info saves DO write a row that reflects the CURRENT ECT-derived projection, and (b) the editable ECT class state does NOT participate in that projection. The orphan-column inference is now CONFIRMED on the structural side; the JOIN target is a different ECT surface than the editable inventory.
 
 ---
 
@@ -161,7 +165,87 @@ _None._ All 42 column headers remain unique as confirmed in SP-B-LO-1.
 
 ## Summary for SP-E-LO
 
-- **ECT class-level NOT-TRACKED confirmed**: 2 of 3 parent classes directly verified (P1 Benefits Multiplier, P2 Historical Subrental %); 1 inferred from matching architecture (P3 Labor Cost class, 66 rows).
-- **Total ECT edit surface blind to history**: Benefits Multiplier (1 field) + Historical Subrental (1 field) + Labor Cost (66 fields) = **68 distinct editable ECT inputs**, none of which appear in the 42-col Local Office Settings History at save-level.
+- **ECT class-level NOT-TRACKED confirmed**: 3 of 3 parent classes directly verified (P1 Benefits Multiplier, P2 Historical Subrental %, P3 Labor Cost — exemplar rows 0/33/65 + BONUS multi-field composition). SP-B-LO-2b promoted P3 from INFERRED → CONFIRMED.
+- **Total ECT edit surface blind to history**: Benefits Multiplier (1 field) + Historical Subrental (1 field) + Labor Cost (66 fields) = **68 distinct editable ECT inputs**, none of which appear in the 42-col Local Office Settings History at save-level. Also confirmed absent from Location Management Legacy History (no headers for these fields and the table returns "No results." for office 1604).
 - **Business impact**: ECT cost assumptions drive labor rate calculations and event profit targets. A change that alters a labor cost from `$25/hr → $50/hr` has no audit trail in the primary Location Management History view.
-- **Ready for bug filing**: LOS-ECT-BUG-A at severity High.
+- **Ready for bug filing**: LOS-ECT-BUG-A at severity High (save-level NOT-TRACKED, class-wide). Plus a separately filed field-level bug **`BUG-LOC-ECT-001`** (silent write-failure for Benefits Multiplier — the API accepts the value, returns `{success:true}`, but never persists it; sibling `subrentalPercent` in the same request body DOES persist; per LR-034 filed 2026-04-21).
+
+---
+
+## Direct Verification Session (SP-B-LO-2b — 2026-04-21)
+
+**Session**: 2026-04-21
+**Agent**: HUNTER (rutvik)
+**Browser tool**: Claude in Chrome (LR-038 — same reasons as parent SP-B-LO-2 session: catalog/exploratory, auth-heavy, user at machine, token-efficient).
+**Driver**: re-installed `window.__cat` after each navigation; `fetchWatch` wrapper around `window.fetch` to capture request/response bodies (limitation: did NOT capture the Basic Info save during PROBE — that endpoint uses XMLHttpRequest, not `fetch`; verified via post-save history-row delta instead).
+**Outcome**: all 8 deferred items closed.
+
+### Items closed
+
+| # | Item | Result | Evidence anchor |
+|---|---|---|---|
+| 1 | P3 Labor Cost row-0 direct re-check (promote INFERRED → CONFIRMED) | NOT-TRACKED CONFIRMED | 2026-04-21T10:33:37Z `lc0:40 → 0.00` POST 200, post-save r0=04/21 10:31:39 (Omeesha) PRE-DATES my save |
+| 2 | Labor Cost row-33 (TC-LOS-ECT-014) middle exemplar | NOT-TRACKED CONFIRMED | 2026-04-21T10:34:57Z `lc33:0.00 → 12.50` POST 200, post-save r0=04/21 10:34:15 (Omeesha) PRE-DATES my save |
+| 3 | Labor Cost row-65 (TC-LOS-ECT-015) last exemplar | NOT-TRACKED CONFIRMED | 2026-04-21T10:36:10Z `lc65:0.00 → 7.25` POST 200, post-save r0=04/21 10:34:15 (Omeesha) PRE-DATES my save |
+| 4 | BONUS multi-field BM+HS in single Fixed Costs save (TC-LOS-ECT-016) | NOT-TRACKED CONFIRMED | 2026-04-21T10:37:54Z single POST `/ect-settings` body `{subrentalPercent:0.08, benefitMultiplier:0.11, …}` → 200 `{success:true}`, post-save r0=04/21 10:37:22 (Omeesha) PRE-DATES my save |
+| 5 | PROBE — ECT-derived cols 32–39 written at Basic-Info-save time | CONFIRMED — orphan-column inference holds | 2026-04-21T10:47:11Z Basic Info save (toggle P18 Default Job 1-day Event Orders FALSE→TRUE) wrote new r0 by my user `v-rutvik.khosariya@psav.com`. Col 25 (Event Orders) `lucide-check` = TRUE (toggle landed). Cols 32-39 = `[24, 1, 24, 1.5, 24, 2, 0, ""]` — IDENTICAL to baseline despite active server-persisted ECT class state (HS=8.0%, LC0=0.00, LC33=12.50, LC65=7.25) at moment of Basic Info save. The 3 editable ECT classes do NOT map to cols 32–39. Also captured: BM does not appear in any of the 42 columns at all. |
+| 6 | Legacy History view comparison | ECT NOT TRACKED in Legacy view either | Switched filter combobox `local-office-settings-history-select-type` to `Location Management Legacy History`. View has 44 headers (vs. 42 in primary). NO BM/HS/Labor Cost columns. Same Regular Hours / OT / DT / Holiday columns are present (44-col view's projection of the same JOIN target). For office 1604 the Legacy table returned `No results.` (zero rows) — definitive: ECT save tracking is absent across BOTH visible Location Management History views. |
+| 7 | ECT value persistence RCA (cache vs silent write-failure vs MXN currency override) | **Silent server-side write-failure for `benefitMultiplier` field specifically** — bug filed `BUG-LOC-ECT-001` per LR-034 | (a) NOT a client cache: hard reload (`/navigator/locations/1604/settings/local-office` full navigation) at ~2026-04-21T10:42 still shows BM=0.0%. (b) NOT a currency override: sibling `subrentalPercent:0.08` in the SAME request body DID persist as HS=8.0% across the same hard reload. (c) IS a silent write-failure: server returned 200 + `{success:true}` for `benefitMultiplier:0.11`, but the value was never durable. The other 5 fields in the payload (`subrentalPercent`, `currencyId`, `locationId`, `internalLaborCost`, `externalLaborCost`) all behaved correctly. Filed at `reports/bugs/BUG-LOC-ECT-001.json`, severity HIGH. |
+| 8 | Explicit baseline restore + post-reload verification | Restored & verified server-side | Restored sequence: Basic Info P18 toggle TRUE → FALSE → save (handles shared `Save Changes` dialog) → 200; ECT HS 8.0% → 0.0% via Fixed Costs save (POST `/ect-settings` 200, body `{…subrentalPercent:0, benefitMultiplier:0…}`); ECT LC33 12.50 → 0.00 + LC65 7.25 → 0.00 in single Labor Costs save (POST `/labour-costs-assumptions` 200). Hard reload at 2026-04-21T10:55 confirms server-side: BM=0.0%, HS=0.0%, LC0=0.00, LC33=0.00, LC65=0.00, both ECT Save buttons disabled, P18/Outside/Internal all unchecked, Basic Info Save disabled. Office 1604 byte-matches pre-session baseline (modulo the BM silent-write-failure which makes BM permanently un-mutable from this UI surface). |
+
+### ECT persistence RCA section
+
+**Classification**: silent server-side write-failure, scoped to `benefitMultiplier` field only.
+
+**Evidence chain**:
+1. Two independent saves attempted (SP-B-LO-2 parent BM 0.0%→21.0% AND SP-B-LO-2b BONUS BM 0.0%→11.0%). Both returned HTTP 200 + `{"success":true}` from POST `/navigator/api/location/ect-settings`. fetchWatch captured the request body in both cases — `benefitMultiplier:0.21` and `benefitMultiplier:0.11` respectively were definitely sent.
+2. Tab-switch revert (BM → 0.0%, HS → unchanged-from-edit) is reproducible. So is the post-hard-reload revert.
+3. The HS field rides the same POST request and DOES persist correctly through both tab switches and hard reloads. This rules out cache/network/currency theories (any of those would also affect HS).
+4. The Labor Cost edits go to a DIFFERENT endpoint (`/labour-costs-assumptions`) and persist correctly. So the bug is endpoint-and-field-scoped — only `benefitMultiplier` on `/ect-settings`.
+
+**Bug ticket**: `reports/bugs/BUG-LOC-ECT-001.json` — severity HIGH (financial field; cost assumptions drive billing). Distinct from class-level LOS-ECT-BUG-A (which is the absence of history rows).
+
+**Compounding effect**: because LOS-ECT-BUG-A means ECT saves write zero history rows, the BM silent-write-failure also has zero audit trail. A field-level fix would still leave it un-auditable until LOS-ECT-BUG-A is also addressed (history-row tracking added, or ECT moved to a tracked save endpoint).
+
+### Legacy History comparison section
+
+| View | Header count | BM column? | HS column? | Labor Cost columns? | Office 1604 row count |
+|---|---|---|---|---|---|
+| Location Management History (primary, 42-col) | 42 | NO | NO | NO | 1440+ rows (1/72 pages × 20/page); ECT saves contribute zero rows |
+| Location Management Legacy History (44-col) | 44 | NO | NO | NO | **0 (No results)** for office 1604 |
+
+Conclusion: ECT save-tracking is absent across BOTH history views. There is no fall-back audit surface in the Local Office Settings UI. Combined with the BM silent-write-failure (BUG-LOC-ECT-001), a financially-significant field can be silently edited, silently lost, and silently un-recorded — the worst possible audit posture.
+
+### Boolean-encoding registry update
+
+_Still N/A for the 3 editable ECT classes — they remain numeric._ However, the PROBE incidentally re-confirmed LR-036 boolean encoding for the Local Office Settings primary 42-col history table: col 25 (Default Job 1-day Event Orders) renders TRUE as inline `<svg class="lucide lucide-check">` (textContent empty), FALSE as fully empty cell (also textContent empty). Detection requires `(await cell.innerHTML()).includes('lucide-check')` per LR-036, NOT `textContent`-based reads.
+
+### Driver discovery (additions to parent session notes)
+
+- ECT numeric inputs require **`computer.triple_click` → `computer.type` → `computer.key('Tab')` sequence** for the Angular FormControl to mark dirty. JS-level `setter + input/change/blur` event dispatch (the `__cat.typeNumber` driver pattern) does NOT trigger Angular's dirty state on the BM/HS/Labor Cost inputs — Save button stays disabled. The `triple_click` selects the existing value, `type` overwrites + dispatches the input event Angular listens for, and `Tab` triggers blur which finalizes the format mask (e.g. `0.00` → `0.00`, `8.0%` → `8.0%`).
+- Tab switching on Radix tabs is **flaky** when the page is freshly reloaded — both `__cat.pointerClick` (full pointerdown/pointerup/click sequence on the tab element) and `computer.left_click` via element ref repeatedly failed to switch from Basic Info → ECT after a hard reload during this session. The reliable fallback was **`computer.left_click` at the visible screen coordinate** (e.g. (580, 65) for the ECT Settings tab on a 1568×710 viewport — note: the viewport-pixel coordinate is roughly 0.83× the DOM bounding-rect coordinate, suggesting devicePixelRatio≈1.2 or a viewport-scaling layer). When DOM-coord clicks fail post-reload, take a screenshot, eyeball the visible coordinate, and click that.
+- Basic Info save uses **XMLHttpRequest, not fetch** — `__cat.fetchWatch` does NOT capture it. To verify a Basic Info save fired, observe the Save button transitioning from enabled → disabled (no click handler swallow) AND check the History tab for a new r0 timestamped at the save moment by my user. ECT Fixed Costs and Labor Costs saves DO use `fetch` — fetchWatch captures them cleanly.
+- Save button disable after API 200 is reliable on Basic Info AND ECT — but Angular form pristine state is still NOT marked. LR-026 still applies: tab switches mid-session may surface an "Unsaved Changes" alertdialog. None did this session because saves were all completed before tab switches.
+
+### Updated Deferred list
+
+_Empty._ All 8 items closed. SP-B-LO-2b complete. SP-B-LO-R (Local Office reconciliation) and SP-C2 (ECT per-column TC implementation) are unblocked.
+
+### Updated evidence ledger (session events appended)
+
+| Event | Timestamp | URL / endpoint | Result |
+|---|---|---|---|
+| Driver re-install + ECT tab open + Phase 0 read | 2026-04-21 ~10:30 (UTC stamps in section above) | `/navigator/locations/1604/settings/local-office` ECT tab | OK; baseline reconcile: server-side BM=0.0%, HS=10.0% (parent SP-B-LO-2 HS save persisted), LC0=40 (parent persisted) |
+| Legacy History combobox switch + read | 2026-04-21 ~10:31 | History tab → filter `Location Management Legacy History` | 44 headers, no BM/HS/LC cols, **No results** for office 1604 |
+| P3 LC0 restore + direct verify (Item 1) | 2026-04-21T10:33:37Z | POST `/labour-costs-assumptions` | 200 `{success:true}`, post-save r0=04/21 10:31:39 Omeesha (PRE-DATES my save) → CONFIRMED NOT-TRACKED |
+| LC33 edit + verify (Item 2) | 2026-04-21T10:34:57Z | POST `/labour-costs-assumptions` | 200, post-save r0=10:34:15 Omeesha → CONFIRMED |
+| LC65 edit + verify (Item 3) | 2026-04-21T10:36:10Z | POST `/labour-costs-assumptions` | 200, post-save r0=10:34:15 Omeesha → CONFIRMED |
+| BONUS BM+HS single Fixed Costs save (Item 4) | 2026-04-21T10:37:54Z | POST `/ect-settings` body w/ both fields | 200 `{success:true}`, post-save r0=10:37:22 Omeesha → CONFIRMED multi-field NOT-TRACKED |
+| Tab-switch revert observation (Item 7 part A) | 2026-04-21 ~10:38 | History → ECT round-trip | BM reverted 11.0%→0.0%, HS persisted 8.0%, LC values persisted |
+| Hard reload (Item 7 part B) | 2026-04-21 ~10:42 | full URL navigation | Server-side: BM=0.0% (NOT 11.0%), HS=8.0% (PERSISTED), LC0/33/65 PERSISTED → silent BM write-failure CONFIRMED |
+| PROBE Basic Info P18 toggle + save (Item 5) | 2026-04-21T10:47:11Z | Basic Info save (XMLHttpRequest, not fetch) | NEW r0 by `v-rutvik.khosariya`, col 25 lucide-check TRUE, cols 32-39 IDENTICAL to baseline → ECT class state does NOT propagate into cols 32-39 |
+| Restore: P18 → FALSE save (Item 8a) | 2026-04-21 ~10:48 | Basic Info save | 200, P18 unchecked, save disabled |
+| Restore: HS → 0.0% save (Item 8b) | 2026-04-21 ~10:50 | POST `/ect-settings` `{…subrentalPercent:0, benefitMultiplier:0…}` | 200 |
+| Restore: LC33 + LC65 → 0.00 save (Item 8c) | 2026-04-21 ~10:52 | POST `/labour-costs-assumptions` | 200 |
+| Final hard reload baseline confirmation (Item 8d) | 2026-04-21 ~10:55 | full URL navigation | All ECT fields = 0.0% / 0.00, both saves disabled, Basic Info P18/Outside/Internal all unchecked → office 1604 fully restored to pre-session baseline |
+| Bug filed | 2026-04-21 | `reports/bugs/BUG-LOC-ECT-001.json` | severity HIGH, status open |

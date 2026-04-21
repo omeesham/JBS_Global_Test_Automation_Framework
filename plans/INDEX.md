@@ -3,7 +3,7 @@
 **Last updated**: 2026-04-21
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 69 pending · 149 done · 7 stale (>14d) · 0 DONE-in-pending
+**Totals**: 68 pending · 150 done · 7 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -34,7 +34,6 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | File | Title | Priority | Status | Created |
 |---|---|---|---|---|
 | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | MASTER PLAN — HIST Column-First Pivot ("Column-First Pivot Plan") | P0 (client delivery — supersedes every in-flight HIST plan) | PENDING | 2026-04-20 |
-| ↳ [SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md](pending/SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md) | SUBPLAN SP-B-LO-2b: MCP Direct-Verify — Local Office ECT Residual Items → 42-col History Mapping | P0 | PENDING | 2026-04-21 |
 | ↳ [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](pending/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | SUBPLAN SP-B-LO-R: Reconcile + Merge — Local Office Root-Column Catalog | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | SUBPLAN SP-B-LM-1: MCP Catalog — Currency Tab → 87-col Location Management History | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | SUBPLAN SP-B-LM-2: MCP Catalog — Pricing Tab → 87-col Location Management History | P0 | PENDING | 2026-04-20 |
@@ -112,6 +111,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | File | Title | Status | Completed |
 |---|---|---|---|
 | [SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md](done/SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md) | SUBPLAN SP-B-LO-1b: MCP Catalog — Local Office Basic Info Residual Parents → 42-col History Mapping | DONE | 2026-04-21 |
+| [SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md](done/SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md) | SUBPLAN SP-B-LO-2b: MCP Direct-Verify — Local Office ECT Residual Items → 42-col History Mapping | DONE | 2026-04-21 |
 | [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | SUBPLAN SP-B-LO-2: MCP Catalog — Local Office ECT → 42-col History Mapping | DONE | 2026-04-21 |
 | [PLAN_HIST_INTEGRITY_HARDENING.md](done/PLAN_HIST_INTEGRITY_HARDENING.md) | PLAN: History Integrity Hardening — Parent→Column Mapping & Per-Save Correspondence | SUPERSEDED | 2026-04-20 (superseded — did not execute; content absorbed into master pivot plan) |
 | [PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md](done/PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md) | PLAN: History Integration Testing — Cross-Tab Save Verification | SUPERSEDED | 2026-04-20 (Phase 0 + Phase 1 scaffold work landed; Phase 2 append-per-spec pattern retired under pivot. SP1-SP7 done artifacts remain valid. SUBPLAN_HISTORY_01_MCP_FINDINGS.md remains authoritative input.) |
@@ -268,8 +268,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (69 files)
-  done/                 ← completed plans (149 files)
+  pending/              ← active plans (68 files)
+  done/                 ← completed plans (150 files)
 ```
 
 When completing a plan:
@@ -283,7 +283,7 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
-| 2026-04-21 | pending | [SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md](pending/SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md) | PENDING |
+| 2026-04-21 | done | [SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md](done/SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md) | DONE |
 | 2026-04-21 | done | [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | DONE |
 | 2026-04-20 | pending | [PLAN_BUNDLE_SMOKE_TEST.md](pending/PLAN_BUNDLE_SMOKE_TEST.md) | PENDING |
 | 2026-04-20 | pending | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | PENDING |

@@ -24,7 +24,8 @@
 
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 2 (Discovery — batched per root-tab)
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-04-21
 **Priority**: P0
 **Created**: 2026-04-21
 **Depends on**: SP-B-LO-2 DONE (parent session completed 2026-04-21 — P1/P2 NOT-TRACKED directly verified, P3 INFERRED pending direct history delta verification; 8 follow-up items listed in parent catalog §Deferred to SP-B-LO-2b).
@@ -169,6 +170,60 @@ SP-B-LO-2 mapped all 3 ECT editable parent classes to save-level NOT-TRACKED wit
 - **Depends on**: SP-B-LO-2 DONE.
 - **Unblocks**: SP-B-LO-R (Local Office reconciliation — now has complete ECT evidence). SP-C2 (ECT per-column TC implementation — now has confirmed save-level NOT-TRACKED finding to encode as `test.skip('bug-blocked: LOS-ECT-BUG-A')` or as a negative assertion suite).
 - **Parallel-safe with**: SP-B-LM-* subplans (Location Management family — different URL, different surface, no contention on office 1604 ECT state).
+
+---
+
+## Execution Summary (2026-04-21)
+
+**Outcome**: complete — all 8 deferred items closed. Office 1604 fully restored to pre-session baseline (verified via hard reload, server-side state).
+
+**Browser tool**: Claude in Chrome (`mcp__Claude_in_Chrome__*`). Reason (LR-038): same as parent SP-B-LO-2 — Claude Code, exploratory catalog work, auth-heavy (MS SSO), token-efficient (avoided Playwright MCP `browser_snapshot` overhead), user at machine.
+
+**Items closed (1–8)**:
+
+| # | Item | Result |
+|---|---|---|
+| 1 | P3 Labor Cost row-0 direct re-check | NOT-TRACKED CONFIRMED (POST 200 at 10:33:37, post-save r0=10:31:39 Omeesha PRE-DATES my save) |
+| 2 | Labor Cost row-33 (TC-LOS-ECT-014) | NOT-TRACKED CONFIRMED (10:34:57 → 200, r0=10:34:15 Omeesha) |
+| 3 | Labor Cost row-65 (TC-LOS-ECT-015) | NOT-TRACKED CONFIRMED (10:36:10 → 200, r0=10:34:15 Omeesha) |
+| 4 | BONUS BM+HS multi-field single Fixed Costs save (TC-LOS-ECT-016) | NOT-TRACKED CONFIRMED (10:37:54 single POST `/ect-settings` body w/ both fields → 200, r0=10:37:22 Omeesha) |
+| 5 | PROBE — ECT-derived cols 32–39 written at Basic-Info-save | CONFIRMED — orphan-column inference holds. New r0 by my user at 10:47:11 with col 25 lucide-check TRUE (P18 toggle landed) but cols 32–39 IDENTICAL to baseline despite active server-persisted ECT class state (HS=8.0%, LC0=0.00, LC33=12.50, LC65=7.25). The 3 editable ECT classes do NOT map to cols 32–39. |
+| 6 | Legacy History view comparison | ECT NOT TRACKED in Legacy view either. Switched filter to `Location Management Legacy History` (44 headers, no BM/HS/LC cols, **No results** for office 1604). Both visible Location Management History views are blind to ECT saves. |
+| 7 | ECT value persistence RCA | **Silent server-side write-failure for `benefitMultiplier` field specifically**. Filed `BUG-LOC-ECT-001` at severity HIGH per LR-034. RCA: NOT cache (hard reload still wrong), NOT currency override (sibling `subrentalPercent:0.08` in same request body DID persist as 8.0% across hard reload), IS field-scoped silent write-failure (only `benefitMultiplier` discarded; the other 5 fields in payload all behaved correctly). |
+| 8 | Explicit baseline restore + post-reload verification | All ECT and Basic Info fields restored to baseline; verified via hard reload at ~10:55: BM=0.0%, HS=0.0%, LC0/33/65=0.00, both ECT saves disabled, P18/Outside/Internal all unchecked, Basic Info Save disabled. Office 1604 byte-matches pre-session baseline. |
+
+**TCs dropped**: 0. All 8 in-scope items addressed. Note: BM is *permanently un-mutable* from this UI surface until BUG-LOC-ECT-001 is fixed — but baseline IS the value the server holds, so restore is naturally satisfied.
+
+**MCP verification results**:
+1. Phase 0 — baseline reconcile: 42 headers match prior catalog, r0=`04/21 10:06:02 Omeesha` (new since SP-B-LO-2 terminal — Omeesha did extra saves in 16-min gap), r1=`04/21 09:47:02 Omeesha` (= parent terminal r0). ECT field state: BM=0.0% (= server, BM never persists per Item 7), HS=10.0% (parent SP-B-LO-2 save persisted), LC0=40 (parent persisted), LC33=0, LC65=0. Both ECT saves disabled. → PASS.
+2. Item 1 (P3 row-0): direct verify → CONFIRMED NOT-TRACKED.
+3. Item 2 (row-33): CONFIRMED NOT-TRACKED.
+4. Item 3 (row-65): CONFIRMED NOT-TRACKED.
+5. Item 4 (BONUS): CONFIRMED NOT-TRACKED at multi-field composition level.
+6. Item 5 (PROBE): orphan-column inference CONFIRMED. Editable ECT classes do not surface in any of the 42 cols at any save type. Cols 32-39 reflect a different (read-only) ECT projection.
+7. Item 6 (Legacy): ECT absent from Legacy view too. Office 1604 has zero Legacy rows.
+8. Item 7 (Persistence RCA): silent write-failure scoped to `benefitMultiplier`. Bug filed.
+9. Item 8 (Baseline restore): CONFIRMED via hard reload. Office 1604 matches pre-session baseline exactly.
+
+**Documentation changes this session**:
+- **Extended** `clients/encore/specs_planning/catalogs/hist-root-map-local-office-ect.md` per subplan §Output Format: P3 + new P3-r33/P3-r65/P-BONUS rows added to Parent → Column Map (all CONFIRMED NOT-TRACKED); Save-level tracking status table updated; Orphan columns section flipped from inference → CONFIRMED with PROBE evidence; new Direct Verification Session (SP-B-LO-2b — 2026-04-21) section added with closed-items table, ECT persistence RCA section, Legacy History comparison table, boolean-encoding note, driver discovery additions, updated Deferred list (empty), updated evidence ledger.
+- **Filed bug** `reports/bugs/BUG-LOC-ECT-001.json` per LR-034: severity HIGH, status open, full MCP evidence + network capture + 8-step reproduction.
+- **This subplan** — Status → DONE, Executed 2026-04-21, Execution Summary section added.
+
+**Rules honored this session**:
+- LR-020 (verify plan claims on live DOM) — every Item independently verified on the live app, not assumed from parent catalog inferences.
+- LR-026 (Angular dirty state defensive handling) — used triple_click → type → Tab pattern for ECT numeric inputs (the only reliable way to dirty Angular FormControls on ECT inputs); `__cat.typeNumber` JS-level setter pattern did NOT trigger dirty.
+- LR-027 (execution summary before move to `plans/done/`) — this section.
+- LR-028 + LR-037 (activity-log row, wall-clock ≥ mtime) — row appended; preflight to be validated.
+- LR-032 (MCP agents must investigate, not theorize) — every item closed by live MCP testing, including the multi-field composition test that produced the silent-write-failure proof. No theoretical hypotheses written; every claim has a captured request/response or DOM-state observation.
+- LR-033 (Network RCA checklist) — used the in-page `fetchWatch` wrapper to capture request body + response body for every ECT save; combined with hard-reload reads to distinguish client-cache from server-write-failure. The `subrentalPercent` vs `benefitMultiplier` differential within the SAME request body was the decisive RCA control.
+- LR-034 (Bug filing protocol) — full 7-step protocol followed for BUG-LOC-ECT-001: requirement source verified, MCP-confirmed via two independent saves + hard reload, dedup check (no existing bug for this field on this surface), ID generated `BUG-LOC-ECT-001` (matching `BUG-LOC-LOS-001` pattern), JSON written with all required fields, no affected specs to update yet (SP-C2 pending), reported in chat.
+- LR-036 (Boolean render format per page) — N/A for ECT (all numeric); incidentally re-confirmed for col 25 via PROBE (`lucide-check` SVG, not `textContent`).
+- LR-038 (Browser tool selection) — Claude in Chrome declared at session start + activity-log row.
+
+**Rules-written**: 0 (findings fit existing LR envelopes).
+
+outcome:complete, attempts:1, rules-written:0, bugs-filed:1 (BUG-LOC-ECT-001).
 
 ---
 
