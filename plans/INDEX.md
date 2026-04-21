@@ -3,7 +3,7 @@
 **Last updated**: 2026-04-21
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 67 pending · 154 done · 7 stale (>14d) · 0 DONE-in-pending
+**Totals**: 67 pending · 155 done · 7 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -109,6 +109,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 
 | File | Title | Status | Completed |
 |---|---|---|---|
+| [PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md](done/PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md) | PLAN: Client Deliverable — Remaining Work Before Colleague Handoff | DONE | 2026-04-21 |
 | [PLAN_BUNDLE_OPERATIONAL_HARDENING.md](done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md) | PLAN: Bundle Operational Hardening — Structural Fixes for Working Client Delivery | DONE | 2026-04-21 |
 | [PLAN_BUNDLE_SMOKE_TEST.md](done/PLAN_BUNDLE_SMOKE_TEST.md) | PLAN: Runnable Bundle Smoke Test (colleague validation) | DONE | 2026-04-21 |
 | [PLAN_CLIENT_HANDOFF_VALIDATION.md](done/PLAN_CLIENT_HANDOFF_VALIDATION.md) | PLAN: Client Handoff Validation — Minimum Package + Full Suite + Allure Quality | DONE | 2026-04-21 |
@@ -272,7 +273,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 plans/
   INDEX.md              ← this file (auto-generated)
   pending/              ← active plans (67 files)
-  done/                 ← completed plans (154 files)
+  done/                 ← completed plans (155 files)
 ```
 
 When completing a plan:
@@ -287,6 +288,7 @@ When completing a plan:
 | Date | Folder | File | Status |
 |---|---|---|---|
 | 2026-04-21 | pending | [SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md](pending/SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md) | PENDING |
+| 2026-04-21 | done | [PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md](done/PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md) | DONE |
 | 2026-04-21 | done | [PLAN_BUNDLE_OPERATIONAL_HARDENING.md](done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md) | DONE |
 | 2026-04-21 | done | [PLAN_BUNDLE_SMOKE_TEST.md](done/PLAN_BUNDLE_SMOKE_TEST.md) | DONE |
 | 2026-04-21 | done | [PLAN_CLIENT_HANDOFF_VALIDATION.md](done/PLAN_CLIENT_HANDOFF_VALIDATION.md) | DONE |
@@ -325,4 +327,3 @@ When completing a plan:
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_34_F2_AUTO_FILER.md](pending/SUBPLAN_HIST_PIVOT_34_F2_AUTO_FILER.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_35_E_LO_BUGS.md](pending/SUBPLAN_HIST_PIVOT_35_E_LO_BUGS.md) | GATED |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_36_E_LM_CUR_BUGS.md](pending/SUBPLAN_HIST_PIVOT_36_E_LM_CUR_BUGS.md) | GATED |
-| 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_37_E_LM_OTHER_BUGS.md](pending/SUBPLAN_HIST_PIVOT_37_E_LM_OTHER_BUGS.md) | GATED |

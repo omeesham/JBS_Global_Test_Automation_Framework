@@ -17,7 +17,7 @@ Framework-level README for maintainers and the colleague routing bundles to end-
 ```bash
 npm install
 npx playwright install
-cp config/environments/.env.example config/environments/.env.local   # optional overrides
+cp clients/encore/config/environments/.env.example config/environments/.env.local   # optional overrides
 npm test
 ```
 

@@ -1,6 +1,7 @@
 # PLAN: Client Deliverable — Remaining Work Before Colleague Handoff
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-04-21
 **Priority**: P0 (TOP — blocks colleague green-light)
 **Created**: 2026-04-21
 **Branch**: `client_deliverable` (not `main`)
@@ -252,6 +253,40 @@ If any item fails and can't be remediated in-session, DO NOT tell the colleague 
 1. Message colleague with: branch name + validation report path + one-line summary + callouts on anything she should smoke-test on her side (e.g., "run `npm run test:daily` once on your runner before shipping").
 2. Delete local sandbox if Item 8 confirmed clean.
 3. This session ends. Next session can pivot to hist subplans.
+
+---
+
+## Execution Summary (2026-04-21)
+
+**Outcome**: Green-light — every blocking AC PASS. Branch ready for colleague testing. One non-blocking hygiene call (Item 7) deferred to user.
+
+**Items implemented**: 8 of 8.
+
+**Items dropped / deferred**:
+- **AC-4.4 (stretch)** — unscoped full-suite `npm run test:daily`. Skipped per plan guidance ("Colleague will exercise the unscoped command during their due diligence anyway."). AC-4.1–4.3 chain proof delivered.
+- **Item 7 squash-merge** — PARTIAL. Subject lines on all 7 commits are client-safe. Bodies of `79955d6` and `84c52ab` retain internal jargon (`@agent-doc`, `LR-NNN`, `/execute`, `/audit`, role enum). Recommendation left in the validation report: leave unless client fetches full commit bodies; squash is destructive on shared branch and needs user sign-off.
+
+**Shipping regressions discovered and fixed** (all from commit `79955d6` over-scrubbing):
+1. `src/utils/agent-reporter.ts:68` — `OUTPUT_FILE` filename blanked → every run crashed reporter with EISDIR. Restored `'failure-summary.json'`.
+2. `src/utils/agent-reporter.ts:259` — console.log filename token lost (cosmetic; restored).
+3. `clients/encore/tests/setup/fixtures.ts:85` — `testInfo.outputPath('')` blanked from `'error-context.md'`. Restored.
+
+**Independent shipping chain bug (F6, Item 4)**:
+4. `package.json` `clean:results` — `keep` set missing `'history'`; `preserve-allure-history.js` copies `allure-report/history/` into `allure-results/` then `reports:clean` tried `unlinkSync` on the dir → EPERM on run 2+. Added `'history'` to the keep set; `test:daily` now succeeds repeatedly.
+
+**Documentation fixes**:
+5. `README.md` (root, line 20) — broken `cp .env.example` src path fixed.
+6. `BUNDLE_MANIFEST.md` — explicit EXCLUDE rows for `tests/unit/**` and `jest.config.ts` (AC-6.2 / 6.3).
+
+**Sandbox validation** (deleted after close):
+- Cold `npm install` + `npx playwright install chromium` exit 0
+- `tsc --noEmit` exit 0
+- `--list` → 1256 tests (≥ 300 threshold)
+- Seed spec: 1 passed / 29.7s / reports emitted cleanly
+- SSL spec (Item 3): 6 passed / 1 failed / 17 serial-aborted — acceptable per plan's 6-of-148 baseline; fixture, SSO, reports all green
+- `test:daily` chain × 2 (Item 4): both runs end-to-end green after package.json fix; `history-trend.json` has 2 data points; 2 timestamped html-archive + 2 allure-archive dirs
+
+**Report**: `reports/client-deliverable-ready-2026-04-21.md`.
 
 ---
 

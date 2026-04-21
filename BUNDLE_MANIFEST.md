@@ -92,6 +92,8 @@ These four scripts are referenced by client-facing npm commands (`clean`, `clean
 | `docs/**` (root) | Framework documentation; no runtime imports |
 | `website/**` | SaaS frontend/backend; completely separate codebase |
 | `scripts/**` (except the four operational scripts listed under KEEP) | Pipeline scripts, agent tooling, TS utilities; not needed at test runtime. `global-setup.ts` gracefully skips the missing `cleanup-logs` import. |
+| `tests/unit/**` | Framework-internal Jest unit tests (`agent-notification-writer.test.ts`); imports the excluded `src/utils/agent-notification-writer.ts` and has no client runtime value |
+| `jest.config.ts` (root) | Jest runner config paired with `tests/unit/**`; client stack is Playwright, no Jest runtime |
 | `HANDOFF_TO_COLLEAGUE.md` | Internal transition document |
 | `README.md` (root) | Framework-level README for maintainers + colleague; client gets `clients/encore/README.md` instead |
 | `CLAUDE.md` (root) | Agent instructions |

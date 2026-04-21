@@ -30,7 +30,7 @@
     "reports:archive": "npm run allure:archive && npm run html:archive",
     "reports:clean": "node scripts/ensure-report-dirs.js && npm run clean:results",
     "test:daily": "node scripts/preserve-allure-history.js && npm run reports:clean && playwright test --config=playwright.config.ts --project=chromium && npm run allure:generate && npm run reports:archive",
-    "clean:results": "node -e \"const fs=require('fs'),p='reports/allure-results',keep=new Set(['categories.json','environment.properties']);fs.readdirSync(p).filter(f=>!keep.has(f)).forEach(f=>fs.unlinkSync(p+'/'+f));console.log('[OK] allure-results cleaned (config preserved)')\"",
+    "clean:results": "node -e \"const fs=require('fs'),p='reports/allure-results',keep=new Set(['categories.json','environment.properties','history']);fs.readdirSync(p).filter(f=>!keep.has(f)).forEach(f=>fs.unlinkSync(p+'/'+f));console.log('[OK] allure-results cleaned (config + history preserved)')\"",
     "test:clean": "npm run clean:results && npm test",
     "audit:block": "ts-node scripts/audit-block.ts",
     "setup": "npm install && npx playwright install",

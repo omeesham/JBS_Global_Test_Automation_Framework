@@ -65,7 +65,7 @@ interface FailureSummary {
   bugReportFiles: string[];
 }
 
-const OUTPUT_FILE = path.join(process.cwd(), 'reports', '');
+const OUTPUT_FILE = path.join(process.cwd(), 'reports', 'failure-summary.json');
 const FAILURE_HISTORY_FILE = path.join(process.cwd(), 'reports', 'failure-history.json');
 
 /**
@@ -256,7 +256,7 @@ class AgentReporter implements Reporter {
  // Guard: skip write when no tests executed (e.g., grep matched nothing, aborted run).
  // Prevents clobbering last real failure data with empty {passed:0, failed:0} results.
     if (this.passedCount + this.failedCount + this.fixmeCount === 0) {
-      console.log('[AgentReporter] Skipping  write -- no tests executed');
+      console.log('[AgentReporter] Skipping failure-summary.json write -- no tests executed');
       return;
     }
 

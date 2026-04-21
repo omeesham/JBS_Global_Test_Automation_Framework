@@ -82,7 +82,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             new RegExp(`['"\`]((?:${selectorPrefixes.join('|')})[A-Z]\\w+)['"\`]`)
           );
           const errorContext = await collector.generateErrorContext(testInfo.title, selectorMatch?.[1] ?? null);
-          const ecPath = testInfo.outputPath('');
+          const ecPath = testInfo.outputPath('error-context.md');
           fs.writeFileSync(ecPath, errorContext, 'utf-8');
         } catch { /* best-effort — never block teardown */ }
       }
