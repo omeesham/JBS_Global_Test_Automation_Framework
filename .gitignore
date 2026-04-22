@@ -99,6 +99,7 @@ tmp/
 
 # Private skills (never commit)
 .claude/skills/end-day/
+.claude/skills/end-week/
 specs_planning/_internal/daily-status-bank.json
 
 # Agent audit reports (internal only - proprietary)
@@ -124,6 +125,15 @@ website/.claude/settings.local.json
 .claude/scheduled-tasks/
 .claude/plans/
 current_plan.md
+
+# Chain orchestration runtime state (see PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md; only .gitkeep tracked)
+.claude/state/*.json
+.claude/state/*.log
+.claude/state/*.lock
+.claude/state/chain.STOP
+.claude/state/chain-sessions/
+.claude/state/chain-archive/
+!.claude/state/.gitkeep
 
 # Bundle smoke test sandbox (ephemeral — created outside repo, but guard against accidental in-repo recreation)
 encore_bundle_sandbox/

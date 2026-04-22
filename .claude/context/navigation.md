@@ -49,6 +49,8 @@ Paths use `${ACTIVE_CLIENT}` placeholder. For Encore: `${ACTIVE_CLIENT}` = `enco
 | Look up an agent-mistake by type | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` — ALL-* shared, GEN-* generator, HLR-* healer, AUD-* audit, PLN-* planner, HUNTER, GIVER | ALL-072 |
 | See every spec for a module | `clients/${ACTIVE_CLIENT}/tests/specs/setup/{module}/` | — |
 | See the plan queue | `plans/pending/` (current) + `plans/done/` (history); `plans/INDEX.md` auto-regenerated | LR-035 |
+| Invoke/resume/stop autonomous chain execution | `/chain` (start), `/chain resume`, `/chain status`, `/chain stop`, `/chain skip`, `/chain reset`; state lives at `.claude/state/chain.json` | `.claude/skills/chain/SKILL.md`; LR-041 |
+| Pick Model + Thinking + PermissionMode for a new subplan | `PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md` §Model + Thinking Selection Rubric (D17) | LR-041 |
 | Find MCP catalog (root→column mappings) | `clients/${ACTIVE_CLIENT}/specs_planning/catalogs/hist-root-map-*.md` | — |
 | Get authenticated test session | `config/environments/.env.development` + `authenticatedSession` fixture in `clients/${ACTIVE_CLIENT}/tests/setup/fixtures.ts` | — |
 | MCP browser tool guide (when to use which) | `docs/read_only_docs/MCP_BROWSER_GUIDE.md` | — |
@@ -73,6 +75,7 @@ When "Status" column says **Complete** or **Partial**, an agent already burned t
 | Location Management → save dialog button variant (Cancel/Ok vs Cancel/Save) | Complete | MCP findings §1 §2; LR-012 | 2026-04-13 | 2026-04-13 |
 | Location Management → Shared Setup Locations spec (24/24 passing) | Complete | `location-shared-setup-locations.spec.ts`; `project_ssl_fix_handoff.md` | 2026-04-07 | 2026-04-07 |
 | Local Office Settings → Save Changes AlertDialog (`location-settings-modal-save-changes`) — behavior, selectors, helper | Complete | `clients/encore/src/common/base-page.ts:350` (`clickSaveWithDialog`), `clients/encore/src/pages/setup/local-office/local-office-settings.page.ts:138` (`clickSaveAndConfirm`), `clients/encore/tests/specs/setup/local-office/local-office-settings.spec.ts` (15+ usages), LR-012, ALL-076 | pre-2026-03 | 2026-04-21 |
+| Chain orchestration (per-subplan background sessions, Stop-hook /final-q gating, daily/resume caps) | Complete | [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](../../plans/pending/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) (authoritative design); `.claude/hooks/chain-orchestrator.sh`, `.claude/hooks/lib/chain-state.sh`, `.claude/hooks/lib/chain-guards.sh`; `.claude/skills/chain/SKILL.md` | 2026-04-23 | 2026-04-23 |
 | (add new surfaces below when first-explored) | | | | |
 
 **Schema for adding a row** (do this in `/reflect` at end of any session that explored new territory):

@@ -1,0 +1,9 @@
+Some earlier chat content.
+The task is complete.
+
+## /final-q audit
+
+- item 1: done
+- item 2: done
+
+**Verdict**: GREEN. Stop OK.

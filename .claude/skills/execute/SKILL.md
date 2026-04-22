@@ -170,12 +170,15 @@ After post-execution audit, before declaring done:
    - Add `### Execution Summary` section (see LR-027 for required fields)
    - Document EVERY planned TC: implemented, dropped (with reason), or deferred
 
-2. **Move plan**: `mv plans/pending/PLAN_XXX.md plans/done/PLAN_XXX.md`
+2. **Move plan**: `git mv plans/pending/PLAN_XXX.md plans/done/PLAN_XXX.md` (MUST use `git mv`, NOT plain `mv` — preserves git history and stages the rename atomically).
 
-3. **Update activity log**: Append session entry to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md`
+3. **Regenerate INDEX** (LR-035 — `plans/INDEX.md` is auto-generated, never hand-edit): `npm run plans:reindex`
+
+4. **Update activity log**: Append session entry to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md`
    Format: `| YYYY-MM-DDThh:mm | {agent} | done | {files} | {description} |`
+   LR-037 gate: the `When` timestamp MUST be ≥ the latest mtime of every file in `{files}`. Run `npm run validate:activity-log:preflight` if unsure.
 
-4. **Update agent-mistakes.md**: If ANY unexpected behavior was found during execution
+5. **Update agent-mistakes.md**: If ANY unexpected behavior was found during execution
    (MCP showed different behavior than plan assumed, selector didn't match, validation
    didn't fire as expected), add a new rule entry.
 

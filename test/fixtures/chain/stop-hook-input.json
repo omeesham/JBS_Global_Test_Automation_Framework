@@ -1,0 +1,6 @@
+{
+  "_note": "Canned Stop-hook stdin payload for unit-testing chain-orchestrator.sh. Point transcript_path at one of the transcript-*.txt fixtures.",
+  "session_id": "test-session",
+  "transcript_path": "test/fixtures/chain/transcript-green.txt",
+  "stop_hook_active": false
+}

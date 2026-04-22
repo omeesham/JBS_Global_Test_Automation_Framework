@@ -1,0 +1,3 @@
+The verdict is in: everything worked.
+**Verdict**: GREEN   (this is prose, not under an audit heading)
+Later text.

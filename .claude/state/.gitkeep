@@ -1,0 +1,2 @@
+# .claude/state/ — runtime state for chain orchestration (see PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md).
+# Only this .gitkeep is tracked. All *.json / *.log / *.lock files are gitignored.

@@ -1,0 +1,23 @@
+{
+  "_note": "Test-only queue for chain orchestration. Set CHAIN_QUEUE_OVERRIDE=test/fixtures/chain/queue.json before /chain to use this instead of plans/INDEX.md.",
+  "queue": [
+    {
+      "file": "test/fixtures/chain/SUBPLAN_CHAIN_TEST_001_GREEN.md",
+      "deps": [],
+      "wave": 1,
+      "model": "claude-sonnet-4-6",
+      "effort": "mid",
+      "permissionMode": "acceptEdits",
+      "status": "pending"
+    },
+    {
+      "file": "test/fixtures/chain/SUBPLAN_CHAIN_TEST_002_GREEN.md",
+      "deps": ["SUBPLAN_CHAIN_TEST_001_GREEN"],
+      "wave": 2,
+      "model": "claude-sonnet-4-6",
+      "effort": "mid",
+      "permissionMode": "acceptEdits",
+      "status": "pending"
+    }
+  ]
+}

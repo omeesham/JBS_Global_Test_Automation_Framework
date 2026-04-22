@@ -83,7 +83,7 @@ If multiple intents match, use the FIRST matching rule. If the user explicitly n
 | 7 | "research", "best practices", "how do others" | `/research` | Multi-source web research |
 | 8 | "audit", "find issues", "what's missing", "what broke" | `/audit` | Full-chain execution audit |
 | 9 | "plan", "design", "how should we", "approach" | `/planning` | Rigorous plan creation |
-| 10 | "run all plans", "execute pending", "chain", "autonomous" | `/chain` | Batch plan execution |
+| 10 | "run all plans", "execute pending", "chain", "autonomous", "chain status", "chain resume", "chain stop", "chain skip", "chain reset" | `/chain` | Per-session background chain orchestration (sub-commands dispatch) |
 | 11 | "execute", "implement", "build this", "do it" | `/execute` | Disciplined plan execution |
 | 12 | "reflect", "what did we learn", "session end" | `/reflect` | Session retrospective |
 | 13 | "compile learnings", "graduate patterns" | `/compile-learnings` | Pattern graduation |
@@ -151,7 +151,8 @@ Full guardrails (checklists, breadcrumbs, handoff format): see `/sonnet` SKILL.m
 /bugfix   ──auto-calls──> /identity, /regression-guard (before+after), /reflect
 /cleanup  ──auto-calls──> /identity, /regression-guard (before+after)
 /deploy   ──auto-calls──> /identity, /regression-guard, /review
-/chain    ──auto-calls──> /identity, /relevant (Phase 0.5, per plan), /regression-guard, /reflect, /research
+/chain    ──auto-calls──> /identity
+/chain    spawns per-subplan ──> `claude -p "/execute SP.md"` (background sessions; each runs /regression-guard, /reflect, /final-q per LR-041 frontmatter)
 /ultrathink ──auto-calls──> /identity, /planning, /execute, /audit, /reflect
 /audit    ──auto-calls──> /identity, /reflect
 /rca      ──auto-calls──> /identity
@@ -630,3 +631,27 @@ Labels like "TRACKED (by inference)" / "NOT-TRACKED (inferred)" / "scope-pushed"
 **Trigger**: every SP-B-*, SP-C-*, SP-D-*, and any future subplan whose Step-by-Step enumerates parents / columns / TCs.
 
 **Graduated from**: SP-B-LM-2 (2026-04-22) premature-DONE incident. Tracked in `plans/done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md`.
+
+### LR-041: Conservative model + thinking selection — every subplan declares Model + Thinking + PermissionMode
+Per [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](plans/pending/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) §Model + Thinking Selection Rubric (D17/D18/D19). Every NEW subplan MUST declare in frontmatter:
+
+- `**Model**: claude-opus-4-7` | `claude-sonnet-4-6`
+- `**Thinking**: mid | hi | xhi | max` (authoring scale; maps 1:1 to CLI `--effort medium|high|xhigh|max`)
+- `**PermissionMode**: auto | acceptEdits | bypassPermissions` (default `auto`)
+
+**Allowed combinations** (forbidden → promote):
+- **Sonnet**: `mid` (mechanical only — file moves, INDEX regen, tag rollouts; subplan body MUST justify) or `hi` (general default). FORBIDDEN: `lo` (under-thinks), `max` (silently clamps to `high` — authoring as `max` is wishful thinking).
+- **Opus**: `hi` (low-complexity Opus), `xhi` (default for most Opus work), or `max` (RCA / closure gates / multi-rule judgment). FORBIDDEN: `lo`/`mid` (if `mid` is enough, the task is Sonnet `hi`).
+
+**CLI version gate**: `xhigh` requires Claude Code v2.1.111+ (per `code.claude.com/docs/en/model-config`). On older CLI, chain-orchestrator clamps `xhi → high` at spawn with a log line. Run `claude update` to unlock Opus 4.7 `xhigh`. `bypassPermissions` requires `**RiskAcknowledged**: true` in frontmatter (orchestrator refuses otherwise per D26).
+
+**Why**: user directive 2026-04-22 — "always better to burn budget of tokens via better models and think than save it and have trouble later debugging." Eliminates under-thinking on judgment-heavy tasks.
+
+**How to apply** — at every `/planning` Step 3 validation:
+1. Grep each new subplan for `**Model**:` / `**Thinking**:` / `**PermissionMode**:`. All three required.
+2. Reject Sonnet `lo`/`max` and Opus `lo`/`mid` without a promote-to justification.
+3. Sonnet `mid` and Opus `max` require a one-sentence justification in the subplan body.
+
+**Trigger**: every new subplan authored via `/planning`. Enforced by `/planning` SKILL.md Step 3 checklist (D18).
+
+**Graduated from**: PLAN_CHAIN_PER_SESSION_ORCHESTRATION D17/D18/D19 — chain orchestrator needs per-subplan model/effort/permission-mode; rubric lives at authoring time so runtime has a self-documenting source of truth.

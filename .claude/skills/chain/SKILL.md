@@ -1,425 +1,218 @@
 ---
 name: chain
-description: Autonomously execute all pending plans in sequence — reads plans/pending/, orders by priority and dependencies, runs full skill pipeline per plan (audit → refine → questionnaire → execute → post-audit → fix), compacts context between plans to prevent pollution, and stops when all plans are done. Use this skill whenever the user wants to batch-execute plans, run the full pipeline autonomously, process the pending queue, or mentions "chain", "run all plans", "execute pending", or "autonomous pipeline". Also triggers when the user wants hands-off plan execution with quality gates.
+description: Autonomously execute pending subplans by spawning each one in its own background Claude session. Stop hook parses /final-q verdict and auto-advances on GREEN. Pauses on YELLOW/RED, daily/batch/weekly cap, branch drift, or STOP marker. Sub-commands — `/chain` (start), `/chain resume`, `/chain status`, `/chain stop`, `/chain skip`, `/chain reset`. `/chain N` overrides the batch cap (1..10). Use when the user says "chain", "run all plans", "execute pending", "resume chain", "chain status", or similar.
 user-invocable: true
-auto-calls: relevant, regression-guard, reflect, research
-tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite, AskUserQuestion, WebSearch, WebFetch
+auto-calls: identity
+tools: Read, Glob, Grep, Write, Edit, Bash, TodoWrite
 ---
 
-# /chain — Autonomous Plan Chain Execution
+# /chain — Per-Session Background Chain Orchestration
 
-> **LR lookup**: when citing or verifying `LR-NNN` rules during plan execution, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Client-specific rules use `LR-ENC-NNN` (or `LR-{CLIENT}-NNN`) prefix; framework rules continue `LR-NNN`.
+> **Design authority**: [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](../../../plans/pending/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) — 31 locked decisions (D1–D31). Do not re-litigate.
+>
+> **State lives at** `.claude/state/chain.json` (gitignored). One active chain per repo.
+>
+> **Model+thinking+permissionMode** come from subplan frontmatter per LR-041 (fallback defaults: Sonnet→`hi`, Opus→`xhi`, permissionMode=`auto`). `xhigh` needs Claude Code v2.1.111+ — older CLI clamps `xhi→high`.
 
-When the user invokes `/chain`, you become an autonomous plan execution engine. You process every plan in `plans/pending/` through a rigorous multi-phase pipeline, using the right skill at every phase, compacting context between plans so each one gets a clean mental slate.
+---
 
 ## When to Use
 
 **Identity**: OWNER. Auto-loaded via Identity Gate.
 
-- User says "run all plans", "execute pending", "chain", "autonomous pipeline", "batch execute"
-- User wants hands-off plan execution with quality gates
-- Multiple plans in `plans/pending/` need processing
+Triggered by any of:
+- User says "chain", "run all plans", "execute pending", "autonomous pipeline", "batch execute"
+- User says "chain status", "chain resume", "chain stop", "chain skip", "chain reset"
+- User says "run N plans" or asks for a trial run
 
-The reason context compaction matters: without it, implementation details from Plan A bleed into Plan B's execution, causing the agent to make assumptions, carry stale patterns, or repeat mistakes. Each plan deserves the same fresh-session quality a human would get by starting a new conversation. This skill simulates that.
+## Architecture (quick read)
+
+```
+/chain → writes chain.json → spawns first subplan as `nohup claude -p "/execute SP.md" &`
+                                                          │
+                                            subplan runs → /final-q → session stops
+                                                          │
+                                            Stop hook: final-q-gate.sh → chain-orchestrator.sh
+                                                          │
+                                   chain-orchestrator parses last "## /final-q audit" verdict
+                                                          │
+                                GREEN → advance, spawn next      YELLOW/RED → pause
+                                all guards pass? (STOP / branch / caps)
+```
+
+The hook is event-driven. No polling, no daemon. Your interactive conversation ends after printing the spawn status; the chain continues in background.
 
 ---
 
-## Identity Gate
-Runs `/identity` Step 1.5 with caller=`/chain`. No-op if compatible identity active.
+## Sub-command dispatch
 
-## Phase 0: Discovery & Ordering
+The skill dispatches on the first positional arg:
 
-Before touching any plan:
+| Invocation | Action |
+|---|---|
+| `/chain` | START a new chain, batchCap=dailyCap (10) |
+| `/chain N` (1..10) | START with trial batchCap=N |
+| `/chain resume` | RESUME paused chain, batchCap=resumeCap (5) |
+| `/chain resume N` (1..5) | RESUME with batchCap=N |
+| `/chain status` | Print state table; no mutations |
+| `/chain stop` | Abort chain (writes STOP marker) |
+| `/chain skip` | Mark current subplan skipped, advance index, stay paused |
+| `/chain reset` | Archive current chain.json, clear runtime state |
 
-1. **Read `plans/INDEX.md`** — this is the source of truth for execution order, not filenames
-2. **Read `plans/pending/`** — list every file present
-3. **Build the execution queue** by cross-referencing INDEX.md's "Execution Queue" table with what's actually in `pending/`
-4. **Resolve dependencies** — for each plan, read its `Depends On` field:
-   - If dependencies are all DONE → plan is ready
-   - If dependencies are in the pending queue → plan must wait until those complete
-   - If a master plan exists (e.g., PLAN_48) with sub-plans (48A-48M), read the master plan's execution order section for parallelization hints
-5. **Sort into waves** — group plans that can run in parallel vs. those that must be sequential:
-   - Wave 1: all dependency-free plans
-   - Wave 2: plans whose dependencies are all in Wave 1
-   - Wave 3+: cascade continues
-   - Within a wave, process plans by priority (P0 → P1 → P2), then by number (lower first)
-
-**Display the queue to the user:**
-```
-╔═══════════════════════════════════════════════════╗
-║  CHAIN: Execution Queue                          ║
-╠═══════════════════════════════════════════════════╣
-║  Wave 1 (parallel-safe):                         ║
-║    1. PLAN_48A — Diagnostics Pipeline Fix [P0]   ║
-║    2. PLAN_48B — Agent MCP Capability Fix [P0]   ║
-║    ...                                           ║
-║  Wave 2 (depends on Wave 1):                     ║
-║    7. PLAN_48D — Triage Bug Detection [P1]       ║
-║    ...                                           ║
-║  Total: [N] plans across [W] waves               ║
-╚═══════════════════════════════════════════════════╝
-```
-
-**Important**: Even though plans within a wave CAN run in parallel conceptually, execute them ONE AT A TIME sequentially. The parallelization hints tell you what's safe to run without waiting — but you still process each plan through the full 7-phase pipeline before starting the next. This ensures full audit quality and prevents context pollution.
+Env override ceilings (power users):
+- `CHAIN_DAILY_CAP` (default 10)
+- `CHAIN_RESUME_CAP` (default 5)
+- `CHAIN_WEEKLY_BUDGET` (default 50)
 
 ---
 
-## Phase 0.5: Build Execution Manifest (TodoWrite)
-
-After discovery and ordering, IMMEDIATELY call TodoWrite to create the execution manifest. This is the SINGLE source of progress tracking for the entire chain. **Not optional. Every chain run starts with this.**
-
-**Auto-call `/relevant`**: Before building the manifest, run `/relevant` against each plan to scan for skill coverage across subtasks. This ensures the manifest's skill tags are comprehensive, not just based on agent memory. Especially valuable for Sonnet sessions or plans spanning multiple domains.
-
-### Todo Item Format
-
-Each plan gets one todo item. The `content` field MUST embed:
-1. **Skill reference** in brackets — which skill will be invoked
-2. **Plan identifier** — filename and short title
-3. **Key files** — the 3-5 most critical files to be modified (from the plan's "Key Files" section)
-4. **Dependencies** — which plans must complete first
-5. **Wave** — execution wave number
-
-Format:
-```
-[/execute] PLAN_53A: Kill Chat-Blocking View States — ChatPage.tsx, PipelineLaunchCard.tsx, ChatApprovalCard.tsx, ChatTriageCard.tsx | deps: none | wave: 1
-```
-
-The `activeForm` mirrors this in present participle:
-```
-Executing PLAN_53A: Kill Chat-Blocking View States — ChatPage.tsx, PipelineLaunchCard.tsx
-```
-
-### Wave Separators
-
-Insert a completed "header" todo at the start of each wave for visual grouping:
-```
-content: "═══ WAVE 1 (no dependencies) ═══"
-activeForm: "Processing Wave 1"
-status: "completed"  (Wave 1 headers start completed; later wave headers start pending)
-```
-
-Later wave headers stay `pending` until all plans in the PREVIOUS wave are `completed`, then flip to `completed` when their wave begins processing.
-
-### Manifest Rules
-
-1. **The manifest IS the truth** — if it's not in the todo list, it doesn't get executed
-2. **Update in real-time** — mark `in_progress` when starting a plan's Phase 1, `completed` when Phase 7 finishes
-3. **Only ONE plan `in_progress` at a time** — matches TodoWrite's constraint
-4. **Wave headers** flip to `completed` when their wave begins (all prior waves done)
-5. **Blocked plans stay `pending`** — never start a plan whose dependencies aren't `completed`
-6. **The final state** should show all items as `completed` (or note blocked ones)
-
-### TodoWrite Handoff Protocol (Chain ↔ Execute)
-
-TodoWrite supports only ONE flat list. When Phase 4 hands off to `/execute`:
-
-1. **Before handing off to /execute**: Keep the chain-level manifest in TodoWrite. `/execute` ADDS its detail items under the current plan's entry (indented or prefixed) instead of overwriting.
-2. **After /execute completes**: Remove /execute's detail items and mark the plan item as `completed`.
-
-No save/overwrite/restore cycle needed. One unified list throughout.
-
----
-
-## Per-Plan Pipeline (7 Phases)
-
-For EACH plan in the queue, execute these phases in order. Never skip a phase. Never be lazy.
-
-### Display Header
-```
-═══════════════════════════════════════════════════
-CHAIN: Plan [N/total] — [plan filename]
-Priority: [P0/P1/P2] | Dependencies: [list or "none"]
-═══════════════════════════════════════════════════
-```
-
----
-
-### Phase 0.9: Context Loading (MANDATORY — once per chain, before Phase 1 of first plan)
-
-Before auditing the first plan, load the repo's institutional memory. This context persists across plans in the chain (it's universal, not plan-specific). Agents that skip this step repeat mistakes documented in these files — activity logs show 40+ occurrences.
-
-1. **Read `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`** — 134 rules. Focus on ALL-* (shared) and your task-type prefix.
-2. **Read `.claude/context/patterns.md`** — Decision tree patterns for recurring situations.
-3. **Scan CLAUDE.md Learned Rules (LR-001 through LR-026)** — note which triggers are active for this chain's plans.
-
-This is done ONCE at chain start, not per plan. The context carries forward (unlike plan-specific context which is compacted).
-
----
-
-### Phase 1: Pre-Audit
-
-**TodoWrite**: Mark the current plan's todo item as `in_progress` before doing anything else.
-
-**Goal**: Find gaps, bad assumptions, and missing pieces in the plan BEFORE refining or executing it.
-
-1. **Read the plan file** completely — every section, every code snippet, every file path
-2. **Apply the audit methodology directly** (inline — do not invoke /audit as a separate skill):
-   - Reconstruct: what problem does this plan solve? What's the intent?
-   - Verify every file path mentioned — do they exist? Are they current?
-   - Check every code snippet — does the surrounding code still look like what the plan assumes?
-   - Run the "Missing Audit": what files SHOULD be in scope but aren't? What edge cases aren't covered?
-   - Check for stale assumptions — plans may have been written days/weeks ago, codebase may have changed
-3. **Research online if needed** — if the plan involves technology, patterns, or approaches you're uncertain about:
-   - Use WebSearch to find best practices, common pitfalls, and prior art
-   - Look for "how to [specific technique]" from experienced practitioners
-   - Check for known issues with specific library versions or API changes
-   - This is especially important for first-time implementations where the agent has no prior experience
-4. **Record findings** — list every issue found with severity (critical/important/minor)
-
-```
-Phase 1: Pre-Audit .......... [done — N issues found (X critical, Y important, Z minor)]
-```
-
----
-
-### Phase 2: Refinement (skip if Phase 1 found 0 issues)
-
-**Goal**: Fix the plan based on audit findings. Make it bulletproof before execution.
-**Fast-path**: If Phase 1 found zero critical or important issues, skip directly to Phase 3.
-
-1. **Apply `/planning` methodology** to refine:
-   - Fix every critical and important issue from Phase 1
-   - Run validation checklist on the REFINED plan:
-     - [ ] Scope completeness — did the fixes introduce new gaps?
-     - [ ] Design consistency — do changes align with codebase conventions?
-     - [ ] Breaking changes — could the refined plan break anything?
-   - Intent review — does the refined plan still match the original goal?
-2. **Research online for unfamiliar territory** — if Phase 1 revealed knowledge gaps:
-   - Search for implementation patterns others have used for similar problems
-   - Look for documentation, tutorials, or Stack Overflow answers relevant to the specific technical challenge
-   - Check if any libraries or tools would make the implementation more robust
-   - Fold findings into the refined plan
-3. **Save the refined plan** back to the same file in `plans/pending/`
-4. **Note what changed** — brief list of refinements made
-
-```
-Phase 2: Refinement ......... [done — N changes made, validation checklist passed]
-```
-
----
-
-### Phase 3: Pre-Execution Questions (Conditional)
-
-**Goal**: Surface any blocking ambiguities that require human judgment. Skip if the plan is clear.
-
-1. **Evaluate internally**: are there genuine decision points that require the user's input?
-   - Ambiguous scope ("should this also cover X?")
-   - Design trade-offs with no clear winner
-   - Business logic that can't be inferred from code
-   - Risk decisions ("this will break Y temporarily, OK?")
-2. **If YES — blocking questions exist**:
-   - Apply `/questionnaire` methodology
-   - Use AskUserQuestion with dead-simple yes/no questions
-   - Process answers, update the plan if needed
-   - **This is the ONLY human-in-loop moment in the chain**
-3. **If NO — plan is clear enough**:
-   - Skip this phase
-   - Log why: "Plan is unambiguous — no steering questions needed"
-
-```
-Phase 3: Questions .......... [skipped — plan is clear] or [done — asked N questions, N decisions made]
-```
-
----
-
-### Phase 4: Execution
-
-**Goal**: Implement the plan with full discipline. No blind implementation.
-
-**TodoWrite Handoff**: Before starting execution, save the chain-level manifest mentally. `/execute`'s Phase 0.5 will overwrite TodoWrite with plan-level detail items. After `/execute` completes, RESTORE the chain manifest with this plan marked `completed`. See Phase 0.5's handoff protocol.
-
-1. **Apply `/execute` methodology** (including `/regression-guard` before + after):
-   - **Pre-research (MANDATORY)**: Read every file the plan mentions. Grep for every pattern being changed across the ENTIRE codebase. Find what the plan missed.
-   - **Signature verification (MANDATORY — LR-001)**: For every function the plan calls from another module, READ the actual function definition. Verify params match. Do NOT trust the plan's assumptions about function signatures.
-   - **BEFORE snapshot**: Auto-call `/regression-guard` Phase 1 on files being changed
-   - **Gap analysis**: Record new findings, add to execution scope if justified
-   - **Execute methodically**: One change at a time. Verify each before moving on.
-   - **Research online when stuck**: If you encounter an error, unfamiliar API, or unexpected behavior:
-     - Search for the specific error message or behavior
-     - Look for solutions from practitioners who've faced the same issue
-     - Check documentation for the specific version of tools/libraries in use
-     - Don't guess — find the answer
-   - **Track decisions**: What you did, what you chose NOT to do, and why
-2. **AFTER snapshot**: Auto-call `/regression-guard` Phase 2. Review diff. Investigate any SUSPICIOUS or SILENT BREAK items.
-3. **Post-execution verification**: If a dev server is running, verify on live preview. Never declare done from code alone.
-4. **App bug gate (LR-034)**: If execution reveals application behavior that contradicts documented requirements, follow **LR-034 Bug Filing Protocol** before continuing to the next plan.
-
-```
-Phase 4: Execution .......... [done — N files changed, M gaps found and addressed, regression guard: CLEAN/ISSUES]
-```
-
----
-
-### Phase 5: Post-Execution Audit
-
-**Goal**: Verify the execution actually fulfilled the plan. Focus on what was NOT done.
-
-1. **Apply `/audit` methodology** on the execution:
-   - Re-read the original plan
-   - Re-read every changed file
-   - Check: was every plan item executed?
-   - Check: do the changes work together as a cohesive whole?
-   - Run the "Missing Audit":
-     - Skipped files that should have been touched?
-     - Skipped scenarios (roles, states, error paths)?
-     - Skipped edge cases (null, boundaries, concurrency)?
-     - Skipped tests that should exist?
-     - Stale references to old behavior?
-   - **Implementation Defect Checklist** (graduated from PLAN_53 audit — LR-001 through LR-006):
-     a. **Function call audit (LR-001)**: for every cross-module function call in changed code, verify the actual function signature matches usage (param types, order, names). Read the function definition, don't trust the plan.
-     b. **Catalog parity (LR-002)**: for every entry added to a catalog/registry (ACTION_CATALOG, route table, event types), verify corresponding handler/implementation exists. Catalog without handler = broken feature.
-     c. **Error handling (LR-003)**: grep for `catch {` and `catch(() =>` in changed files — every catch must have real handling, not empty bodies. Silent swallowing = invisible failures.
-     d. **React cleanup (LR-004)**: for every timer/listener/subscription created, verify cleanup on unmount via useEffect return or useRef.
-     e. **Dependency arrays (LR-005)**: for every useCallback/useEffect, verify all referenced variables are in deps or accessed via refs. Stale closure = invisible bugs.
-     f. **Data validation (LR-006)**: for every external data access (API response, file read, JSONB column), verify structure is validated before nested property access.
-2. **Grade the execution**:
-   - Chain integrity: PASS or GAPS FOUND
-   - Missing items count + severity
-   - Risks identified
-
-```
-Phase 5: Post-Audit ......... [done — chain integrity: PASS/GAPS] or [done — N issues found]
-```
-
----
-
-### Phase 6: Fix
-
-**Goal**: Fix any issues found in the post-audit. Leave nothing undone.
-
-1. **If post-audit found issues**:
-   - Fix every critical and important issue
-   - For minor issues: fix if quick, otherwise note as follow-up
-   - Re-verify each fix
-2. **If post-audit was clean**:
-   - Skip this phase
-
-```
-Phase 6: Fixes .............. [done — N fixes applied] or [skipped — audit was clean]
-```
-
----
-
-### Phase 7: Completion & Compaction
-
-**Goal**: Close out this plan and prepare a clean slate for the next one.
-
-#### 7A: Close Out the Plan
-
-1. **Move the plan file** from `plans/pending/` to `plans/done/`
-2. **Update `plans/INDEX.md`**:
-   - Change the plan's status to DONE in the Execution Queue table
-   - Add the completion date
-   - Add a session log entry: `| [today's date] | PLAN_XX marked DONE via /chain: [1-line summary] |`
-3. **If this was the last sub-plan of a master plan** (e.g., 48M is the last of 48A-48M):
-   - Also move the master plan to `plans/done/`
-   - Update INDEX.md for the master plan too
-4. **Update the execution manifest** — call TodoWrite to restore the chain-level manifest with this plan's todo item marked as `completed`. If this was the last plan in a wave, also mark the NEXT wave's header as `completed` (signaling that wave is now unblocked).
-
-#### 7B: Context Compaction — 3-Layer Protocol (CRITICAL)
-
-This is what prevents context pollution between plans. Three layers, each targeting a different failure mode:
-
-##### Layer 1: Tool Discipline (during execution)
-- The Phase 0.5 execution manifest (TodoWrite) IS the external state tracker — update it at every phase boundary, not just at plan completion
-- Write intermediate results to files, not mental notes
-- When context grows large, prefer reading from files over recalling from context
-- Use dedicated tools (Read, Grep, Glob) instead of Bash for file operations — less context noise
-
-##### Layer 2: Write-Before-Compact (before clearing context)
-- Save ALL learnings to memory files BEFORE clearing context:
-  - New patterns discovered → save as project memory
-  - User feedback received → save as feedback memory
-  - New references found → save as reference memory
-- Write completion record to plans/done/ BEFORE clearing
-- Save any user preferences discovered to feedback memory BEFORE clearing
-- **Nothing unsaved should exist only in context** — if it's not written down, it's gone
-
-##### Layer 3: Task-Boundary Compaction (between plans)
-1. **Write a compact completion record** — a 3-5 line summary of what was accomplished:
+## `/chain [N]` — START
+
+1. **Identity gate** → OWNER.
+2. **Concurrency check** — refuse if `chain.json.status=running` with "Chain already active. Use `/chain status` / `/chain stop` first."
+3. **Parse trial limit N** — if first arg is an integer 1..10, set `batchCap=N`; else `batchCap = $CHAIN_DAILY_CAP` (default 10). Reject N>10 with "Trial limit cannot exceed dailyCap=10. Override with env `CHAIN_DAILY_CAP`."
+4. **Build queue**:
+   - Read `plans/INDEX.md` Execution Queue.
+   - For each row: read the subplan file, extract `**Depends on**`, `**Model**`, `**Thinking**`, `**PermissionMode**`, `**RiskAcknowledged**` (bypassPermissions only).
+   - Default-apply per LR-041 if missing: Sonnet → `hi`; Opus → `xhi`; PermissionMode `auto`.
+   - Topologically sort into waves.
+   - Filter to subplans whose dependencies are all DONE or themselves queue-ahead.
+   - Take first `batchCap` subplans.
+5. **Snapshot branch**: `git rev-parse --abbrev-ref HEAD`.
+6. **Write `chain.json`** via `node .claude/hooks/lib/chain-state.mjs init '<initial-state>'`:
+   - `status=running`, `currentIndex=0`
+   - `queue[i] = { file, deps, wave, model, effort, permissionMode, riskAcknowledged, status: "pending" }`
+   - `budget = { dailyCap, resumeCap, weeklyBudget, executedToday: 0, executedThisWeek: 0, executedThisBatch: 0, batchCap, lastInvocationKind: "start" }`
+7. **Spawn first subplan** via `nohup claude -p "/execute <first>" --model <m> --effort <cli-value> --permission-mode <p> > .claude/state/chain-sessions/<first>.log 2>&1 &`. Use `.claude/hooks/lib/chain-guards.sh::map_effort_for_cli` to clamp `xhi→high` if CLI < v2.1.111.
+8. **Print status** to user (this conversation):
    ```
-   PLAN_48A DONE: [what was accomplished]
-   Files changed: [count]
-   Key decisions: [1-2 most important]
-   Risks noted: [any, or "none"]
+   Chain started.
+   Queue: N subplans (batchCap=X, dailyCap=10, weeklyBudget=50)
+   First:  SUBPLAN_XXX.md (PID 12345, model=..., effort=..., permissionMode=...)
+   Log:    .claude/state/chain-sessions/SUBPLAN_XXX.log
+   Status: /chain status   (or: tail -f .claude/state/chain-sessions/*.log)
+   Stop:   touch .claude/state/chain.STOP   (or: /chain stop)
    ```
-2. **Auto-call `/reflect`** — capture session learnings before context reset
-3. **Mental context reset** — explicitly acknowledge:
-   - "Clearing implementation context from PLAN_XX"
-   - "Carrying forward ONLY: project context, user preferences, and memory system"
-   - "Next plan gets a fresh mental slate"
-4. **Do NOT carry forward**:
-   - Specific code patterns from this plan (read fresh from files if needed next time)
-   - Assumptions about file states (re-read files for the next plan)
-   - Debugging context or workarounds
-   - "Momentum" — don't rush the next plan because this one went smoothly
-
-```
-Phase 7: Compaction ......... [done — context cleared, [N] memories saved]
-```
+9. **Exit this conversation cleanly**. The chain continues in background via Stop hooks.
 
 ---
 
-## After All Plans Complete
+## `/chain resume [N]` — RESUME
 
-When `plans/pending/` is empty (or all remaining plans have unmet external dependencies):
+1. Identity gate → OWNER.
+2. Read `chain.json`. Refuse if `status ∈ {running, done}`.
+3. Parse optional N (1..5): `batchCap=N`; default `batchCap=$CHAIN_RESUME_CAP` (5). Reject N>5 with env-override hint.
+4. Reset `budget.lastInvocationKind="resume"`, `budget.executedThisBatch=0`, `budget.batchCap=<resolved N>`.
+5. Re-snapshot branch — HALT if drifted from recorded `.branch` (surfaces via `/chain status` + PAUSE_NOTICE).
+6. Set `status=running`. Spawn next subplan at `queue[currentIndex]`. Print + exit (same format as start).
 
-```
-╔═══════════════════════════════════════════════════╗
-║  CHAIN COMPLETE                                   ║
-╠═══════════════════════════════════════════════════╣
-║  Plans executed: [N]                              ║
-║  Total files changed: [count]                     ║
-║  Issues found & fixed: [count]                    ║
-║  Questions asked: [count]                         ║
-║                                                   ║
-║  Summary:                                         ║
-║  1. PLAN_XX — [what was accomplished]             ║
-║  2. PLAN_YY — [what was accomplished]             ║
-║  ...                                              ║
-║                                                   ║
-║  Remaining (blocked by external deps):            ║
-║  - [any plans that couldn't execute, if any]      ║
-╚═══════════════════════════════════════════════════╝
-```
+**YELLOW/RED restriction**: if last verdict was YELLOW or RED, resume WILL still fire the next spawn — the user's action to `/chain resume` is their acknowledgement. If they want to skip the offender instead, they run `/chain skip` first (which advances currentIndex without firing next).
 
 ---
 
-## Online Research Protocol
+## `/chain status` — READ-ONLY
 
-Throughout the chain, research online whenever:
-
-1. **First-time implementation** — the plan asks for something you haven't done before in this codebase. Someone out there has solved this problem. Find their approach before inventing your own.
-2. **Error encountered** — don't guess at fixes. Search for the exact error message. Check GitHub issues, Stack Overflow, and official docs.
-3. **Library/API uncertainty** — if using a specific library version, check its docs. APIs change between versions. What worked in v2 might not work in v5.
-4. **Architecture decisions** — when the plan involves a design pattern (multi-tenancy, SSE, worker queues, etc.), research best practices. A 2-minute search can prevent hours of rework.
-5. **"I think this is how it works" moments** — if you catch yourself assuming how something works rather than knowing, that's a research trigger. Look it up.
-
-Use WebSearch for broad discovery and WebFetch for reading specific pages. Fold findings into your work — don't just read and forget.
+1. Read `chain.json`.
+2. Render table:
+   ```
+   idx | file                             | status     | verdict | pid    | started                    | ended
+   ----+----------------------------------+------------+---------+--------+----------------------------+----------------------------
+    0  | SUBPLAN_XXX.md                   | completed  | GREEN   | 12345  | 2026-04-23T14:30:01-04:00  | 2026-04-23T14:38:22-04:00
+    1  | SUBPLAN_YYY.md                   | running    | -       | 13010  | 2026-04-23T14:38:22-04:00  | -
+    2  | SUBPLAN_ZZZ.md                   | pending    | -       | -      | -                          | -
+   ```
+3. Print budget summary: `executedThisBatch/batchCap`, `executedToday/dailyCap`, `executedThisWeek/weeklyBudget`, reset times.
+4. If `status=paused`, print `chain-sessions/PAUSE_NOTICE.md` content inline.
+5. If `status=done`, print `chain-sessions/COMPLETE_NOTICE.md` content inline.
+6. No mutations.
 
 ---
 
-## Rules
+## `/chain stop` — ABORT
 
-- **Never skip skill phases** — every plan gets the full 7-phase pipeline. The whole point is rigor.
-- **Never be lazy in audits** — ultrathink mode. Every line. Every claim. If it says "this does X" — verify it actually does X.
-- **Never carry context forward** — each plan gets a clean slate. Re-read files, re-check assumptions.
-- **Never assume** — if in doubt, read the file. If still in doubt, research online. If still in doubt, ask the user.
-- **Stop for blocking questions only** — the user wants autonomous execution. Only interrupt for genuine decisions that require human judgment (business logic, scope trade-offs, risk acceptance).
-- **Research before guessing** — online research is cheap. Bad assumptions are expensive. When doing something for the first time, someone with experience has written about it. Find that knowledge.
-- **Update INDEX.md faithfully** — it's the source of truth. Every completion, every status change, every date.
-- **Respect dependency order** — never execute a plan whose dependencies aren't DONE.
-- **If the chain hits an unrecoverable error** — stop, report what happened, what was completed, and what remains. Don't silently skip broken plans.
+1. Read `chain.json`.
+2. `touch .claude/state/chain.STOP` — the orchestrator picks this up on next hook fire and aborts.
+3. For any `status=running` subplan with a live PID, print `kill <pid>` as a copy-pasteable command (do NOT auto-kill; user decides).
+4. Set `chain.json.status=aborted` directly (don't wait for hook).
+
+---
+
+## `/chain skip` — MARK CURRENT SKIPPED, ADVANCE INDEX
+
+Only valid while `status=paused`.
+
+1. Refuse if status ≠ paused.
+2. `node chain-state.mjs set .queue.$(currentIndex).status '"skipped"'`
+3. Advance: `node chain-state.mjs inc .currentIndex` (or explicit `set`).
+4. Status stays `paused`. User must call `/chain resume` to fire the now-current subplan.
+5. Verify the skipped subplan stays in `plans/pending/` (not moved to done/).
+
+---
+
+## `/chain reset` — CLEAR STATE
+
+1. Refuse if `status=running` — must `/chain stop` first.
+2. `mv .claude/state/chain.json .claude/state/chain-archive/chain-$(chainId).json`.
+3. Clear `.claude/state/chain-sessions/` (preserve `.gitkeep` if present).
+4. Print "Chain state reset. `/chain` to start a new one."
+
+---
+
+## Cap + guard semantics
+
+| Guard | Trigger | Action |
+|---|---|---|
+| `batchCap` | N-th spawn attempt in this batch | pause `batch-cap-reached` |
+| `dailyCap` (10) | 11th spawn in same day | pause `daily-cap-reached` |
+| `weeklyBudget` (50) | 51st spawn in same Mon-Sun week | pause `weekly-budget-reached` |
+| `STOP marker` | user `touch .claude/state/chain.STOP` | abort; marker deleted |
+| `branch drift` | `git rev-parse --abbrev-ref HEAD` ≠ chain.json .branch | pause `branch-drift` |
+| `bypassPermissions` without RiskAcknowledged | subplan declares permissionMode=bypassPermissions but missing `**RiskAcknowledged**: true` | pause with explicit message |
+| Verdict ≠ GREEN | `/final-q` returned YELLOW/RED or no verdict found | pause `verdict-<X>` |
+| Concurrency | second `/chain` while one running | refuse with guidance |
+
+Counters reset:
+- `executedToday` resets at local midnight
+- `executedThisWeek` resets Monday 00:00 local
+- `executedThisBatch` resets on every `/chain` and `/chain resume`
+
+Counts are incremented at SPAWN time (D24), not completion — a subplan spawned at 23:59 counts toward that day's total even if it completes at 00:01.
+
+---
+
+## Test-only env overrides
+
+- `CHAIN_STATE_DIR` — override `.claude/state` (used by unit tests; don't ship set)
+- `CHAIN_SPAWN_CMD` — replaces `nohup claude -p` (e.g., `CHAIN_SPAWN_CMD="echo MOCK"` for dry-run)
+- `CHAIN_QUEUE_OVERRIDE` — path to a JSON queue file, bypasses `plans/INDEX.md` read (tests only)
+- `CHAIN_DAILY_CAP` / `CHAIN_RESUME_CAP` / `CHAIN_WEEKLY_BUDGET` — ceiling overrides
+
+---
+
+## What this skill does NOT do
+
+- Does NOT run `/execute` itself — each spawned session runs its own `/execute`.
+- Does NOT write to activity log — each `/execute` writes its own row per LR-028 + LR-037.
+- Does NOT regenerate `plans/INDEX.md` — each `/execute` runs `npm run plans:reindex` on its own close.
+- Does NOT auto-call `/regression-guard` at chain level — each `/execute` does it per-subplan.
+- Does NOT switch branches, create worktrees, or touch git refs beyond reading HEAD for the branch guard.
 
 ## Auto-Calls
 
-- `/regression-guard` — Phase 4 (before + after execution, per plan)
-- `/reflect` — Phase 7B Layer 3 (between plans) + after all plans complete
-- `/research` — Phase 1/2/4 (when knowledge gaps found)
+- `/identity` — first step. OWNER required.
+
+## Rules applied
+
+- **LR-027** (Execution Summary) — spawned `/execute` handles per-subplan.
+- **LR-035** (INDEX auto-generation) — spawned `/execute` runs `plans:reindex`.
+- **LR-037** (activity-log timestamp gate) — spawned `/execute` writes its own row.
+- **LR-038** (browser tool selection) — applies inside subplans, not at chain layer.
+- **LR-040** (closure completeness gate) — each subplan's `/execute` enforces at its own closure.
+- **LR-041** (Model + Thinking selection rubric) — queue build reads each subplan's frontmatter.
 
 ## Output
 
-The chain completion banner shown in "After All Plans Complete" above, plus:
-- Per-plan regression guard verdicts
-- Total learnings captured across all plans
-- Any graduation candidates flagged
+- State file `.claude/state/chain.json` (schema v1).
+- Per-subplan logs `.claude/state/chain-sessions/SUBPLAN_*.log`.
+- `PAUSE_NOTICE.md` / `COMPLETE_NOTICE.md` on pause/done.
+- Commits happen inside each spawned `/execute` session; chain orchestrator never commits.

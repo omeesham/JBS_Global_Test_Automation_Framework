@@ -53,6 +53,7 @@ Complete this checklist in a single pass. Fix any issues found before proceeding
 - [ ] **Reference check** — Open the most recent completed plan in `plans/done/` for the same category. Compare section-by-section. Flag any section present in the reference that's missing in yours. If no reference exists, use the most complex completed plan as baseline.
 - [ ] **Rules applied** — For each rule listed in your plan's "Active Rules" section (or equivalent), verify it's actually reflected in the plan body (implementation steps, code snippets, or explicit exclusion with reason). Rule listed but not applied = gap.
 - [ ] **Mistakes check** — Grep for the target page/module name in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`. Read every hit. Verify none of the documented mistakes are repeated in your plan. Also grep for any function names or patterns your plan proposes to use.
+- [ ] **Model + Thinking + PermissionMode declared** (LR-041 / D17 rubric) — every new subplan file has `**Model**:`, `**Thinking**:`, and `**PermissionMode**:` in frontmatter. FORBIDDEN: Sonnet `lo`/`max` (under-thinks / clamps); Opus `lo`/`mid` (promote to Sonnet `hi` instead). Sonnet `mid` and Opus `max` require a one-sentence justification in the subplan body. `bypassPermissions` requires `**RiskAcknowledged**: true` in frontmatter.
 
 ## Step 4: Intent Review
 - Re-read the user's original request word by word
@@ -99,7 +100,7 @@ For every subplan file you author, the FIRST content (before the `# SUBPLAN SP-X
 >
 > 1. **Identity**: load /identity per the Identity field below.
 > 2. **Skills**: load every skill in the Skills field below (leading skill auto-calls its chain).
-> 3. **Model + thinking tier**: look up this subplan's SP number in the master plan's execution-order table. If Phase 0 is present in Step-by-Step, bump thinking tier one notch.
+> 3. **Model + thinking + permission-mode**: read `**Model**:`, `**Thinking**:`, `**PermissionMode**:` from this subplan's frontmatter (all three required per LR-041). If absent (grandfathered file), defaults are Sonnet → `hi`, Opus → `xhi` (clamped to `high` on CLI < 2.1.111 — see chain-orchestrator header), permission-mode `auto`. If Phase 0 is present in Step-by-Step, bump thinking tier one notch.
 > 4. **Dependency gate**: verify every item in the Depends-on field is DONE in plans/done/ or N/A. HALT if blocker.
 > 5. **Context load**: read master plan §1-§3 + this subplan in full.
 > 5.5. **Browser tool selection (if this subplan browses a live app)**: select per LR-038. Announce choice + reason in first output.

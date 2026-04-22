@@ -1,0 +1,8 @@
+Earlier text.
+
+## /final-q audit
+
+- item 1: done
+- item 2: partial
+
+**Verdict**: YELLOW. One item partial.
