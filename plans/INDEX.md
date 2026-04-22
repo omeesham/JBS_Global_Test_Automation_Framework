@@ -3,7 +3,7 @@
 **Last updated**: 2026-04-22
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 64 pending · 158 done · 7 stale (>14d) · 0 DONE-in-pending
+**Totals**: 63 pending · 159 done · 7 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -34,7 +34,6 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | File | Title | Priority | Status | Created |
 |---|---|---|---|---|
 | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | MASTER PLAN — HIST Column-First Pivot ("Column-First Pivot Plan") | P0 (client delivery — supersedes every in-flight HIST plan) | PENDING | 2026-04-20 |
-| ↳ [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | SUBPLAN SP-B-LM-2: MCP Catalog — Pricing Tab → 87-col Location Management History | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md](pending/SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md) | SUBPLAN SP-B-LM-3a: MCP Catalog — Local Information Tab (Part A, ~20 parents) → 87-col LM History | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md](pending/SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md) | SUBPLAN SP-B-LM-3b: MCP Catalog — Local Information Tab (Part B, remaining parents) → 87-col LM History | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md) | SUBPLAN SP-B-LM-4: MCP Catalog — Account & Address Tab → 87-col LM History | P0 | PENDING | 2026-04-20 |
@@ -108,6 +107,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 |---|---|---|---|
 | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | SUBPLAN SP-B-LO-R: Reconcile + Merge — Local Office Root-Column Catalog | DONE | 2026-04-22 |
 | [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](done/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | SUBPLAN SP-B-LM-1: MCP Catalog — Currency Tab → 87-col Location Management History | DONE | 2026-04-22 |
+| [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](done/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | SUBPLAN SP-B-LM-2: MCP Catalog — Pricing Tab → 87-col Location Management History | DONE | 2026-04-22 |
 | [SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md](done/SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md) | SUBPLAN SP-B-LO-V: MCP Live Verification — Jira Claims vs Our Catalog | DONE | 2026-04-22 |
 | [PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md](done/PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md) | PLAN: Client Deliverable — Remaining Work Before Colleague Handoff | DONE | 2026-04-21 |
 | [PLAN_BUNDLE_OPERATIONAL_HARDENING.md](done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md) | PLAN: Bundle Operational Hardening — Structural Fixes for Working Client Delivery | DONE | 2026-04-21 |
@@ -272,8 +272,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (64 files)
-  done/                 ← completed plans (158 files)
+  pending/              ← active plans (63 files)
+  done/                 ← completed plans (159 files)
 ```
 
 When completing a plan:
@@ -297,6 +297,7 @@ When completing a plan:
 | 2026-04-22 | pending | [SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md](pending/SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md) | PENDING |
 | 2026-04-22 | done | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | DONE |
 | 2026-04-22 | done | [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](done/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | DONE |
+| 2026-04-22 | done | [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](done/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | DONE |
 | 2026-04-22 | done | [SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md](done/SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md) | DONE |
 | 2026-04-21 | done | [PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md](done/PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md) | DONE |
 | 2026-04-21 | done | [PLAN_BUNDLE_OPERATIONAL_HARDENING.md](done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md) | DONE |
@@ -306,7 +307,6 @@ When completing a plan:
 | 2026-04-21 | done | [SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md](done/SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md) | DONE |
 | 2026-04-21 | done | [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | DONE |
 | 2026-04-20 | pending | [PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md](pending/PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md) | PENDING |
-| 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md](pending/SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md](pending/SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md) | PENDING |
