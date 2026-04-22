@@ -613,3 +613,67 @@ Every subplan lists its primary skill(s). /cleanup + /regression-guard for purge
 - Identity while planning: OWNER. Execution subplans each auto-load correct identity via Identity Gate.
 - LR-028/LR-037: activity-log row appended at session end with current wall-clock time.
 - Naming: "PLAN_HIST_COLUMN_FIRST_PIVOT" picked for unmistakable index visibility. Open to rename at SP-G time.
+
+---
+
+## UPDATE (2026-04-22) — AUDIT RECOMMENDATION (append-only; original plan above is intact)
+
+> **Execution-chain directive** — every subplan that has received an `## UPDATE (2026-04-22)` block must be treated as having TWO candidate paths. Execution agents read the original plan AND the UPDATE, verify claims independently against the live codebase, and choose by evidence — not by recency. See the standard "Execution-agent directive" at the top of each amended subplan.
+
+**Audited by**: /ultrathink + /audit + /planning (Opus, 2026-04-22)
+**Audit plan**: `~/.claude/plans/3-shared-utils-temporal-kahan.md`
+
+### Finding
+Cross-pivot audit reviewed all 40 subplans against existing codebase artifacts + prior reusable utilities. Core architecture (column-first test pivot, anomaly pipeline, WATCHDOG final gate) is sound. Three packaging adjustments recommended — none change the 129-column test deliverable or the chain order.
+
+### Amendments (see each subplan's UPDATE block for evidence)
+
+| Subplan | Recommendation | Reason |
+|---|---|---|
+| [SP-19 D0 SHARED_UTILS](SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md) | Kill `hist-reader.ts`; replace with 15-LOC patch on `location-management-history.page.ts`. No new file, no helper unit tests. | Readers already exist on page objects. 3 of 5 proposed helpers duplicate existing methods. Unit tests on Playwright test helpers = meta-testing. |
+| [SP-14 B-LM-6 NOTES](SUBPLAN_HIST_PIVOT_14_B_LM_6_NOTES_CATALOG.md) + [SP-15 B-LM-7 SHARED_SETUP](SUBPLAN_HIST_PIVOT_15_B_LM_7_SHARED_SETUP_CATALOG.md) | Optional merge into single MCP session (≤4 parents combined). Second subplan becomes no-op. | Ceremony overhead ≥ work when parent count is ≤4. Retain bug-investigation isolation if SSL save produces zero rows. |
+| [SP-38 J FINAL_AUDIT](SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md) | Extend §Scope checklist from 22 to 24 items — absorb K1 + K2 as grep items #23 + #24. | Both K1 and K2 self-describe as "expected outcome: zero revisions needed." Greps belong inside J. |
+| [SP-39 K1](SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md) + [SP-40 K2](SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md) | Conditional-on-J-grep. Default: SKIP (mark DONE-conditional-skipped) if J's §23/§24 report zero hits. Execute full sweep only if J finds hits. | Standalone sessions to re-confirm precomputed null are ceremony. |
+
+### NOT changing (user steered green on keeping separate — 2026-04-22)
+- **D2..D10 per-column test subplans** — cold-start per subplan protects context budget (LR-018). Merging into one multi-phase subplan accumulates 6+ tabs of catalog + spec context, risks past 200k tokens and compaction.
+- **E-LO / E-LM-CUR / E-LM-OTHER bug-filing subplans** — same cold-start argument + already user-gated. Merging bloats context per batch.
+- **B-LM-5 Legal, B-LM-8 Auto Add-On, B-LM-9 Top-level catalog subplans** — kept separate despite 4-parent counts; cold-start discipline wins here too.
+
+### Floor revised
+- Original: 40 subplans.
+- Post-audit: **37 effective subplans** if all 3 recommendations taken (K1/K2 skipped, B-LM-6+7 merged).
+- Chain order, dependency graph, and 129-column test coverage UNCHANGED.
+
+### Execution protocol
+Each amended subplan has:
+1. A top-of-file "Execution-agent directive" requiring verification before choosing path (a) or (b).
+2. A dated Finding + Proposed alternative path + Evidence + Risk sections.
+3. Cross-references to this master plan's UPDATE and to `~/.claude/plans/3-shared-utils-temporal-kahan.md`.
+
+Agents must never silently adopt either path — always read both, spot-check claims, document the disposition in activity-log.
+
+---
+
+## UPDATE #2 (2026-04-22) — USER PRE-APPROVED EXECUTION DECISIONS
+
+Two execution-time decisions pre-approved by user (2026-04-22) — downstream agents do NOT re-deliberate:
+
+### 1. SP-D0 path = forced to (b)
+[SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md](SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md) has a second UPDATE block closing the path-choice. Agent executes the 15-LOC patch on `location-management-history.page.ts` directly; does NOT create `src/utils/hist-reader.ts` or helper unit tests. Still runs LR-020 grep to confirm the 4 function refs exist; HALTs if any have moved since 2026-04-22 (do not silently fall back to path a).
+
+### 2. SP-D1 template location = forced to `_internal/`
+[SUBPLAN_HIST_PIVOT_22_D1_LM_CURRENCY_TESTS.md](SUBPLAN_HIST_PIVOT_22_D1_LM_CURRENCY_TESTS.md) has a dated UPDATE block redirecting template creation from `clients/encore/docs/hist-spec-template.md` to `clients/encore/specs_planning/_internal/hist-spec-template.md`. Reason: `clients/encore/docs/` does not exist in this repo; creating it would orphan a top-level folder with no convention anchor. `_internal/` already houses agent-facing internal artifacts.
+
+### Downstream ripple
+- Any SP-D2..D10 subplan that references the template resolves it at the `_internal/` path.
+- [SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md](SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md) §Scope item 19 ("Template exists at `clients/encore/docs/hist-spec-template.md`") MUST be reinterpreted as `clients/encore/specs_planning/_internal/hist-spec-template.md` during the audit. If the grep/exists check is run against the old path, it will report a false fail.
+- All downstream import statements in per-column spec files stay unaffected — the template is a doc, not code; nothing imports from it.
+
+### Why these approvals are pushed into subplan UPDATE blocks (not here only)
+To save downstream execution-agent time. Forcing the decision at the subplan-level means Phase 0 skips deliberation. Audit evidence + user approval live with the decision, not in a separate channel.
+
+
+## UPDATE #3 (2026-04-22) — LR-040 graduation (append-only)
+
+SP-B-LM-2 premature-DONE incident graduated **LR-040** (root CLAUDE.md) — subplan closure completeness gate. Every remaining SP-B-*, SP-C-*, SP-D-* must classify gaps as (a) MCP-proven / (b) grep-verifiable recipient / (c) user-flagged discussion-item or bug-candidate. Full context: `plans/done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md`.

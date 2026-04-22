@@ -606,3 +606,27 @@ choice and the reason, e.g.:
 - Any subplan whose Skills field includes `/research` + MCP, or whose Step-by-Step involves "live DOM", "MCP session", "catalog", "locator discovery", "live verification"
 
 **Graduated from**: Session 2026-04-20 — Claude Code agent executing SP-B-LO-1 defaulted to Playwright MCP, burned 4k-token `browser_snapshot`s per mutation, hit context pressure, and had to self-diagnose + switch mid-session. User directive: encode the selection logic at the framework layer so no future agent has to reactively decide.
+
+### LR-040: Subplan closure completeness gate — every gap needs a concrete destination
+`Status: DONE` on any catalog / discovery / MCP-driven subplan requires, for **every** planned item (parent, column, TC — whatever the subplan enumerates), one of:
+
+(a) **Directly MCP-proven** — cited save-cycle timestamp + row diff in the Execution Summary.
+(b) **Inference-classified** with a **grep-verifiable line item** in a named downstream subplan file that currently exists in `plans/pending/` or `plans/done/`. The agent MUST grep the recipient file for the specific item text before closing. "Scope-pushed to SP-X" without a grep-verifiable line item in SP-X's file = **phantom hand-off = audit finding**.
+(c) **User-flagged** with a named bug-candidate ID (e.g., `PRC-BUG-C`) AND a "Pending decisions" entry in the gated SP-E-* subplan, OR marked as a **discussion-item** per `feedback_discussion_item_not_bug.md` (empty-everywhere + no-UI-path + no-Jira). Discussion-items do NOT need a bug ID — they need a named flag in the catalog + Execution Summary.
+
+Labels like "TRACKED (by inference)" / "NOT-TRACKED (inferred)" / "scope-pushed" on their own are NOT sufficient — they must be backed by (b) or (c).
+
+**HALT condition**: if ANY planned item cannot be classified into (a)/(b)/(c) at Status-flip time, HALT and ask the user. Do not flip Status on prose-only deferral. LR-027 guards the Execution Summary text; LR-040 guards the Status field itself.
+
+**Why**: SP-B-LM-2 (2026-04-22) closed DONE with 4 gaps — 2 lazy-deferred but agent-doable in-session (Use-Eff-Dates + BUG-HIS-001 re-verify); 1 scope-pushed to SP-B-LM-3a/3b whose files contained zero mention of the handed-off work (phantom hand-off); 1 structurally-blocked discussion-item without a named flag. LR-027 passed on prose; LR-040 would have HALTed.
+
+**How to apply** — at every catalog / discovery / MCP subplan's closure, BEFORE editing Status:
+1. List every planned item.
+2. For each, assign (a), (b), or (c).
+3. For (b): grep the recipient file. Missing → add the line item there first, then close.
+4. For (c): confirm the named flag / bug-ID / Pending-decision entry exists in the target file. Missing → add first.
+5. Any item not (a)/(b)/(c) → HALT + ask user.
+
+**Trigger**: every SP-B-*, SP-C-*, SP-D-*, and any future subplan whose Step-by-Step enumerates parents / columns / TCs.
+
+**Graduated from**: SP-B-LM-2 (2026-04-22) premature-DONE incident. Tracked in `plans/done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md`.

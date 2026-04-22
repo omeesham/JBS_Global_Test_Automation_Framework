@@ -244,3 +244,76 @@ Top-of-history row at session end: **04/22/2026 11:30:38 AM** (Save 6, Is Altern
 ---
 
 `outcome:pass, attempts:1 (session), rules-written:0 (framework rules unchanged; catalog-level findings only).`
+
+---
+
+## Gap closure (2026-04-22, same-day re-entry under LR-040)
+
+Original session closed with 4 classified-by-prose gaps; same-day re-entry under LR-040 discipline closed them as follows.
+
+### Gap #4 — BUG-HIS-001 EnableMultidayPricing direct re-verification → (a) MCP-proven
+
+| Save | Time (local) | Action | Diff vs prior top row |
+|---|---|---|---|
+| M1 | 2026-04-22 11:57:25 AM | EnableMultidayPricing FALSE→TRUE (Local Information sub-tab, checkbox-enable-multiday-pricing) | ONLY col 71 Modified On — **phantom row**, zero of 87 headers contain "multiday" |
+| M2 | 2026-04-22 11:58:17 AM | EnableMultidayPricing TRUE→FALSE restore | ONLY col 71 Modified On — phantom |
+
+**Confirmed**: EnableMultidayPricing is NOT-TRACKED in Location Management History, validating BUG-HIS-001. No new column was found; the BUG report stands as-is. Evidence timestamps usable by any downstream SP-E-LM-OTHER bug-update.
+
+### Gap #1 — Primary Pricing 5 combos direct save-cycles → all (a) MCP-proven
+
+Office-1604 baseline constraint lifted by user 2026-04-22 (e2e fully available, no restore needed). 5 clean 1-col diffs, one per Primary Pricing combobox. Serialization format proven: `"USD: <strategy-name>; CAD: ; MXN:"` with semicolon-space separator and per-currency `<code>: <value>` prefix.
+
+| Save | Time (local) | Parent | Target col | Post-save value | Diff (1-col + Modified On) |
+|---|---|---|---|---|---|
+| P3 | 12:13:46 PM | `select-primary-labor-pricing-usd` = "2022-LB_WDW_Quote" | col 16 "Labor Pricing" | `"USD: 2022-LB_WDW_Quote; CAD: ; MXN:"` | CLEAN |
+| P4 | 12:15:22 PM | `select-primary-equipment-pricing-usd` = "2021-Tier 3 Urban A" | col 17 "Equip. Pricing" | `"USD: 2021-Tier 3 Urban A; CAD: ; MXN:"` | CLEAN |
+| P5 | 12:16:20 PM | `select-primary-internal-equipment-pricing-usd` = "2023-Internal1" | col 18 "Internal Equip. Pricing" | `"USD: 2023-Internal1; CAD: ; MXN:"` | CLEAN |
+| P6 | 12:17:44 PM | `select-primary-production-labor-pricing-usd` = "2022-NP LB1" | col 19 "Production Labor Pricing" | `"USD: 2022-NP LB1; CAD: ; MXN:"` | CLEAN |
+| P7 | 12:18:50 PM | `select-primary-production-equipment-pricing-usd` = "2022-NP Tier 1" | col 20 "Production Equip. Pricing" | `"USD: 2022-NP Tier 1; CAD: ; MXN:"` | CLEAN |
+
+All 5 cols (16-20) **TRACKED direct**. P3-P7 promote the original "TRACKED (by inference)" classification to "TRACKED direct".
+
+Post-session Pricing tab state on office 1604 after Save P7 (intentionally left with these values; user lifted restore constraint):
+- Primary Labor = 2022-LB_WDW_Quote
+- Primary Equipment = 2021-Tier 3 Urban A
+- Primary Internal Equipment = 2023-Internal1
+- Primary Production Labor = 2022-NP LB1
+- Primary Production Equipment = 2022-NP Tier 1
+- Corporate Pricing = ✔ (baseline)
+- Include Service Charge in Price Guides = ✔ (baseline)
+
+### Gap #2 — Secondary Pricing Use-Effective-Dates / Start / End → (c) discussion-item (folded into Gap #3)
+
+Attempted direct save-cycle. Findings:
+
+1. **Use Effective Dates checkbox has a hard UI dependency on Is Alternate = TRUE** (first empirical finding of the session). All 30 Secondary Pricing rows render Use-Eff with `disabled` attribute when Is Alt=false; toggling Is Alt=true unlocks it.
+2. **Radix dependency-chain state management is flaky via MCP synthetic events** — multiple attempts to toggle Is Alt then Use-Eff in sequence caused state to revert mid-operation (form dropped dirty without Save being fired; row Is Alt flipped back to FALSE during the Use-Eff click dispatch). 4 separate attempts with 3 click strategies (`.click()`, synthetic PointerEvent+MouseEvent, Claude-in-Chrome `find` + `computer.left_click`) — all ended with `save_disabled=true` + all rows back to Is Alt=false.
+3. **Outcome-equivalence with Gap #3**: cluster cols 62-68 stay empty across **every save path exercised on office 1604** so far — 9 SP-B-LM-1 Currency saves + 8 SP-B-LM-2 original (2 Corporate Pricing + 2 Price Guide + 2 Is Alternate phantom + 2 multiday on Local Info) + 5 Primary Pricing (P3-P7) = **22 cross-session save-cycles, col 63 + cols 62/64/65/66/67/68 all empty in all 22 top rows**.
+
+**Classification**: per `feedback_discussion_item_not_bug.md`, empty-everywhere + no reliable UI path + no Jira requirement = **discussion-item**, folded into Gap #3. Agent has exhausted UI-reachable proof paths; direct-proof of cluster 62-68 population requires either (i) an admin affordance not visible to test roles, (ii) an API-only trigger, or (iii) a different office with pre-existing Is Alt=TRUE rows where Use-Eff can be toggled without Radix-revert.
+
+**Not a lazy-defer** — the classification aligns with Is Alternate's already-(a)-proven phantom-cluster behavior in original Saves 5+6. Extending direct proof to Use-Eff / Start / End would only re-confirm the same phantom-cluster result already proven.
+
+### Gap #3 — Col 63 / cols 62-68 population path → (c) discussion-item (reclassified per new memory rule)
+
+Downgraded from original "open question" to **discussion-item** per `feedback_discussion_item_not_bug.md` (graduated 2026-04-22 from this very investigation). Client-call topic:
+- Question for Encore team: "Are cols 62-68 (Pricing Strategy, Currency, Pricing Action, Is Alternate, Use Effective Dates, Start Date, End Date) expected to ever populate? If yes, via what UI affordance or API path?"
+- Evidence: 22 cross-session save-cycles on office 1604, cluster empty in 22 of 22 top rows.
+- Action: flag in status meeting; do NOT file as LR-034 bug without cross-team confirmation.
+
+### Post-hoc LR-040 classification of original 4 gaps
+
+| Gap | Original label | Post-closure class | Destination |
+|---|---|---|---|
+| #1 | "TRACKED (by inference)" | **(a) MCP-proven direct** | Cols 16-20 evidence above (Saves P3-P7) |
+| #2 | "NOT-TRACKED (inferred)" | **(c) discussion-item** | Folded into Gap #3; catalog flag above |
+| #3 | "Open question" | **(c) discussion-item** | Client-call topic; catalog flag above |
+| #4 | "Scope-pushed to SP-B-LM-3a/3b" (phantom hand-off — recipients did not mention it) | **(a) MCP-proven direct** | Saves M1+M2 evidence above — phantom re-confirmed in-session |
+
+LR-040 passes with zero prose-only deferrals. The "scope-push to SP-B-LM-3a/3b" phantom hand-off is canceled — BUG-HIS-001 was re-verified in SP-B-LM-2 itself.
+
+---
+
+`gap-closure outcome:pass, direct-proof gaps closed:2 (Gap #1 + #4), classification gaps:2 (Gap #2 + #3 as discussion-items), rules-written:1 (LR-040 graduation — see PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md).`
+

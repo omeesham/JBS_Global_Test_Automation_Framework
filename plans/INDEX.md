@@ -3,7 +3,7 @@
 **Last updated**: 2026-04-22
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 63 pending · 159 done · 7 stale (>14d) · 0 DONE-in-pending
+**Totals**: 63 pending · 160 done · 7 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -105,6 +105,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 
 | File | Title | Status | Completed |
 |---|---|---|---|
+| [PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md](done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md) | PLAN — SP-B-LM-2 Closure & Completeness Gate (LR-040) | DONE | 2026-04-22 |
 | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | SUBPLAN SP-B-LO-R: Reconcile + Merge — Local Office Root-Column Catalog | DONE | 2026-04-22 |
 | [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](done/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | SUBPLAN SP-B-LM-1: MCP Catalog — Currency Tab → 87-col Location Management History | DONE | 2026-04-22 |
 | [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](done/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | SUBPLAN SP-B-LM-2: MCP Catalog — Pricing Tab → 87-col Location Management History | DONE | 2026-04-22 |
@@ -273,7 +274,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 plans/
   INDEX.md              ← this file (auto-generated)
   pending/              ← active plans (63 files)
-  done/                 ← completed plans (159 files)
+  done/                 ← completed plans (160 files)
 ```
 
 When completing a plan:
@@ -295,6 +296,7 @@ When completing a plan:
 | 2026-04-22 | pending | [SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md](pending/SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md) | PENDING |
 | 2026-04-22 | pending | [SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md](pending/SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md) | PENDING |
 | 2026-04-22 | pending | [SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md](pending/SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md) | PENDING |
+| 2026-04-22 | done | [PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md](done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md) | DONE |
 | 2026-04-22 | done | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | DONE |
 | 2026-04-22 | done | [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](done/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | DONE |
 | 2026-04-22 | done | [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](done/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | DONE |
@@ -326,4 +328,3 @@ When completing a plan:
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_30_D8_LM_AUTO_ADDON_TESTS.md](pending/SUBPLAN_HIST_PIVOT_30_D8_LM_AUTO_ADDON_TESTS.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_31_D9_LM_TOP_LEVEL_TESTS.md](pending/SUBPLAN_HIST_PIVOT_31_D9_LM_TOP_LEVEL_TESTS.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_32_D10_LM_ORPHANS_TESTS.md](pending/SUBPLAN_HIST_PIVOT_32_D10_LM_ORPHANS_TESTS.md) | CONDITIONAL |
-| 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_33_F1_ANOMALY_WRITER.md](pending/SUBPLAN_HIST_PIVOT_33_F1_ANOMALY_WRITER.md) | PENDING |

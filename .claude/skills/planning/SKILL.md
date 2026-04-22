@@ -107,7 +107,7 @@ For every subplan file you author, the FIRST content (before the `# SUBPLAN SP-X
 > 7. **Execute Phases 1+** per Step-by-Step.
 > 8. **Handoff**: flip Status field to DONE + add Executed date, append activity-log row (LR-028 + LR-037), git mv to plans/done/, npm run plans:reindex, commit.
 >
-> **HALT + ASK USER** if: dependency blocker / scope ambiguity / Phase 0 >30% scope extension / regression-guard unrelated changes / LR-037 timestamp drift.
+> **HALT + ASK USER** if: dependency blocker / scope ambiguity / Phase 0 >30% scope extension / regression-guard unrelated changes / LR-037 timestamp drift / **LR-040 closure-completeness gate — any planned item not classifiable as (a) MCP-proven, (b) grep-verifiable line item in a named recipient subplan, or (c) user-flagged discussion-item / bug-candidate with Pending-decision entry. Phantom hand-offs = audit finding.**
 
 ---
 
