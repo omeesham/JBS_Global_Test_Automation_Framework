@@ -10,7 +10,9 @@ tools: Read, Glob, Grep, Write, Edit, Bash, TodoWrite
 
 > **Difference from /chain**: `/chain` spawns background sessions to EXECUTE pending plans. `/chain_audit` runs in YOUR current session to AUDIT already-executed plans, one at a time, on demand. You invoke once → one plan gets audited → next invocation picks up the next. No spawning, no background.
 >
-> **State**: `.claude/state/chain-audit.json` (gitignored — tracks which plans have been audited). Original plan files stay where they are. Transcripts stay in `~/.claude/projects/` as Claude Code stores them.
+> **State**: `.claude/state/chain-audit.json` (gitignored — tracks which plans have been audited). Plan files stay in `plans/done/`.
+>
+> **Transcript-archive-on-GREEN**: when an audit passes GREEN *and* the user explicitly approves during the session, the associated session transcript (the `.jsonl` in `~/.claude/projects/c--Users-rutvi-projects-encore-framework/`) is **moved** to `.claude/audit-trails-green/<uuid>.jsonl`. This keeps the source folder lean — every subsequent `/chain_audit` scans fewer transcripts when hunting for the one tied to a plan. YELLOW / RED transcripts stay at the source until the user fixes + re-audits.
 
 ---
 
@@ -57,18 +59,28 @@ Triggered by:
    - Compares against original intent (what was asked vs what landed).
    - Flags gaps with severity (CRITICAL / HIGH / MEDIUM / LOW / INFO).
    - Emits a Verdict line: GREEN | YELLOW | RED.
-7. **Record to state** — append to `audited[]`:
+7. **Record to state** — append to `audited[]` (includes transcript path if located):
    ```jsonc
    {
      "plan": "<picked>.md",
      "auditedAt": "<ISO timestamp>",
      "verdict": "GREEN|YELLOW|RED",
      "findingsSummary": "<one-line distillation of top gap(s), or 'clean' on GREEN>",
-     "gaps": [ /* structured findings from /audit, truncated to top 5 */ ]
+     "gaps": [ /* structured findings from /audit, truncated to top 5 */ ],
+     "transcriptSource": "~/.claude/projects/c--.../<uuid>.jsonl",   // pre-move (or null if not found)
+     "transcriptArchived": ".claude/audit-trails-green/<uuid>.jsonl" // post-move, only on GREEN + approval
    }
    ```
-8. **Next-candidate hint** — print the next pick so the user knows what `/chain_audit` again will pick.
-9. **User acts** on findings (file bugs, patch plans, defer) — outside this skill's scope.
+8. **Archive transcript on GREEN + user approval**:
+   - Only if verdict == GREEN → ask the user in chat: "Approve GREEN audit — archive transcript to `.claude/audit-trails-green/`? (yes/no)"
+   - On **yes**:
+     1. Find candidate transcripts: enumerate `~/.claude/projects/c--Users-rutvi-projects-encore-framework/*.jsonl`, read each line as JSON, scan for any content (`.message.content[].text` or `.content`) that mentions the plan's filename (e.g. `SUBPLAN_XXX.md`). Pick the newest match.
+     2. If a match is found: `mkdir -p .claude/audit-trails-green && mv <match> .claude/audit-trails-green/<uuid>.jsonl`. Also move any sibling `.sessionsnapshot`, `.thread`, or index files if Claude Code writes them in that directory.
+     3. Update the state entry with `transcriptArchived` path.
+   - On **no** or **transcript not found** → skip the move, record `transcriptArchived: null`. Not an error.
+   - YELLOW/RED → never prompt, never move.
+9. **Next-candidate hint** — print the next pick so the user knows what `/chain_audit` again will pick.
+10. **User acts** on findings (file bugs, patch plans, defer) — outside this skill's scope.
 
 ## `/chain_audit <plan-file>` — SPECIFIC PICK
 
@@ -97,6 +109,7 @@ Triggered by:
 1. Archive current state to `.claude/state/chain-audit-archive/chain-audit-<ISO>.json` (optional, for history).
 2. Delete `.claude/state/chain-audit.json`.
 3. Print "Audit queue cleared. Next `/chain_audit` will start from the oldest done plan."
+4. **Does NOT move archived transcripts back** — once in `.claude/audit-trails-green/`, they stay there. If the user wants to re-audit a plan, `/chain_audit <plan>` still works; it'll just not find a transcript at the source and run the audit from plan + code state alone.
 
 ---
 
@@ -163,7 +176,9 @@ Triggered by:
 ## What this skill does NOT do
 
 - Does NOT run `/execute`, never modifies plan files.
+- Does NOT move plan files (they stay in `plans/done/`).
 - Does NOT spawn background sessions (that's `/chain`, a different skill).
 - Does NOT commit, does NOT regenerate `plans/INDEX.md`.
 - Does NOT batch-audit multiple plans in one invocation — one call = one audit.
-- Does NOT move audited plans to a separate directory.
+- Does NOT move YELLOW/RED transcripts (they stay at source so the user can `claude --resume <uuid>` to re-examine).
+- Does NOT auto-move GREEN transcripts — always asks for user approval in the interactive session first.
