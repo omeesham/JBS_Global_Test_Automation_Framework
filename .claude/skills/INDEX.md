@@ -9,6 +9,7 @@ Maintained manually — update when creating or modifying skills.
 | /planning | plan, design, how should we, approach, create a plan | DIRECT |
 | /execute | execute, implement, build this, do it, run the plan | DIRECT |
 | /chain | run all plans, execute pending, chain, autonomous, batch execute, chain status, chain resume, chain stop, chain skip, chain reset | DIRECT |
+| /chain_audit | audit next done plan, walk through done plans, chain audit, chain_audit status, chain_audit reset, audit plan execution | DIRECT |
 | /audit | audit, find issues, what's missing, what broke, check everything | VERIFY |
 | /bugfix | fix, broken, not working, error, crash | DIRECT |
 | /rca | RCA, root cause, why is this failing, analyze failure | DIRECT |

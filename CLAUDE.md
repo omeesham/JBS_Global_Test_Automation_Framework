@@ -84,6 +84,7 @@ If multiple intents match, use the FIRST matching rule. If the user explicitly n
 | 8 | "audit", "find issues", "what's missing", "what broke" | `/audit` | Full-chain execution audit |
 | 9 | "plan", "design", "how should we", "approach" | `/planning` | Rigorous plan creation |
 | 10 | "run all plans", "execute pending", "chain", "autonomous", "chain status", "chain resume", "chain stop", "chain skip", "chain reset" | `/chain` | Per-session background chain orchestration (sub-commands dispatch) |
+| 10.5 | "chain audit", "audit next done plan", "walk through done plans", "chain_audit", "audit plan execution" | `/chain_audit` | Linear single-session audit walker through `plans/done/` (one plan per invocation) |
 | 11 | "execute", "implement", "build this", "do it" | `/execute` | Disciplined plan execution |
 | 12 | "reflect", "what did we learn", "session end" | `/reflect` | Session retrospective |
 | 13 | "compile learnings", "graduate patterns" | `/compile-learnings` | Pattern graduation |
@@ -153,6 +154,7 @@ Full guardrails (checklists, breadcrumbs, handoff format): see `/sonnet` SKILL.m
 /deploy   ──auto-calls──> /identity, /regression-guard, /review
 /chain    ──auto-calls──> /identity
 /chain    spawns per-subplan ──> `claude -p "/execute SP.md"` (background sessions; each runs /regression-guard, /reflect, /final-q per LR-041 frontmatter)
+/chain_audit ──auto-calls──> /identity, /audit (per invocation, scoped to one done plan)
 /ultrathink ──auto-calls──> /identity, /planning, /execute, /audit, /reflect
 /audit    ──auto-calls──> /identity, /reflect
 /rca      ──auto-calls──> /identity
