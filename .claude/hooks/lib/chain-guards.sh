@@ -20,23 +20,12 @@ source "$(dirname "${BASH_SOURCE[0]}")/chain-state.sh"
 
 # parse_verdict <transcript-path>
 # Finds the LAST "## /final-q audit" heading in the transcript and returns
-# GREEN|YELLOW|RED from the next 30 lines. NONE if no audit heading exists.
+# GREEN|YELLOW|RED from the next ~3000 chars. NONE if no audit heading exists.
+# Delegates to node — handles JSONL transcripts (Claude Code stores these) and plain-text fixtures.
+# Tolerant to both `**Verdict**: GREEN` and `**Verdict: GREEN**` formats.
 parse_verdict() {
   local transcript="$1"
-  [ -f "$transcript" ] || { echo NONE; return; }
-  local last_line
-  last_line=$(grep -nE '^## /final-q audit' "$transcript" | tail -n 1 | cut -d: -f1)
-  if [ -z "$last_line" ]; then
-    echo NONE
-    return
-  fi
-  local verdict
-  verdict=$(tail -n +"$last_line" "$transcript" \
-    | head -n 30 \
-    | grep -oE '^\*\*Verdict\*\*:[[:space:]]*(GREEN|YELLOW|RED)' \
-    | head -n 1 \
-    | awk '{print $NF}')
-  echo "${verdict:-NONE}"
+  node "$(dirname "${BASH_SOURCE[0]}")/parse-verdict.mjs" "$transcript"
 }
 
 check_branch() {
