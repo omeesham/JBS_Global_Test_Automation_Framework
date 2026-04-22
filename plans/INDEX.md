@@ -1,9 +1,9 @@
 # Plans Index
 
-**Last updated**: 2026-04-21
+**Last updated**: 2026-04-22
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 67 pending · 155 done · 7 stale (>14d) · 0 DONE-in-pending
+**Totals**: 65 pending · 157 done · 7 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -13,13 +13,13 @@
 
 | File | Age | Created | Priority |
 |---|---|---|---|
-| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 28d | 2026-03-24 | HIGH (14 verified findings across 4 categories) |
-| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 28d | 2026-03-24 | LOW (remaining items are P2 refactors — all P0/P1 collisions already fixed) |
-| [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | 26d | 2026-03-26 | HIGH |
-| [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | 20d | 2026-04-01 | — |
-| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 20d | 2026-04-01 | P2 (no pipeline blockers — additive improvement) |
-| [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | 20d | 2026-04-01 | HIGH |
-| [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | 18d | 2026-04-03 | P0 (trust-building for test suite) |
+| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 29d | 2026-03-24 | HIGH (14 verified findings across 4 categories) |
+| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 29d | 2026-03-24 | LOW (remaining items are P2 refactors — all P0/P1 collisions already fixed) |
+| [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | 27d | 2026-03-26 | HIGH |
+| [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | 21d | 2026-04-01 | — |
+| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 21d | 2026-04-01 | P2 (no pipeline blockers — additive improvement) |
+| [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | 21d | 2026-04-01 | HIGH |
+| [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | 19d | 2026-04-03 | P0 (trust-building for test suite) |
 
 ### DONE-in-pending (should be moved to done/)
 
@@ -34,8 +34,6 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | File | Title | Priority | Status | Created |
 |---|---|---|---|---|
 | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | MASTER PLAN — HIST Column-First Pivot ("Column-First Pivot Plan") | P0 (client delivery — supersedes every in-flight HIST plan) | PENDING | 2026-04-20 |
-| ↳ [SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md](pending/SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md) | SUBPLAN SP-B-LO-V: MCP Live Verification — Jira Claims vs Our Catalog | P0 (blocks SP-B-LO-R, SP-C1, SP-C2, SP-E-LO) | PENDING | 2026-04-21 |
-| ↳ [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](pending/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | SUBPLAN SP-B-LO-R: Reconcile + Merge — Local Office Root-Column Catalog | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | SUBPLAN SP-B-LM-1: MCP Catalog — Currency Tab → 87-col Location Management History | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | SUBPLAN SP-B-LM-2: MCP Catalog — Pricing Tab → 87-col Location Management History | P0 | PENDING | 2026-04-20 |
 | ↳ [SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md](pending/SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md) | SUBPLAN SP-B-LM-3a: MCP Catalog — Local Information Tab (Part A, ~20 parents) → 87-col LM History | P0 | PENDING | 2026-04-20 |
@@ -109,6 +107,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 
 | File | Title | Status | Completed |
 |---|---|---|---|
+| [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | SUBPLAN SP-B-LO-R: Reconcile + Merge — Local Office Root-Column Catalog | DONE | 2026-04-22 |
+| [SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md](done/SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md) | SUBPLAN SP-B-LO-V: MCP Live Verification — Jira Claims vs Our Catalog | DONE | 2026-04-22 |
 | [PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md](done/PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md) | PLAN: Client Deliverable — Remaining Work Before Colleague Handoff | DONE | 2026-04-21 |
 | [PLAN_BUNDLE_OPERATIONAL_HARDENING.md](done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md) | PLAN: Bundle Operational Hardening — Structural Fixes for Working Client Delivery | DONE | 2026-04-21 |
 | [PLAN_BUNDLE_SMOKE_TEST.md](done/PLAN_BUNDLE_SMOKE_TEST.md) | PLAN: Runnable Bundle Smoke Test (colleague validation) | DONE | 2026-04-21 |
@@ -272,8 +272,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (67 files)
-  done/                 ← completed plans (155 files)
+  pending/              ← active plans (65 files)
+  done/                 ← completed plans (157 files)
 ```
 
 When completing a plan:
@@ -287,7 +287,8 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
-| 2026-04-21 | pending | [SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md](pending/SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md) | PENDING |
+| 2026-04-22 | done | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | DONE |
+| 2026-04-22 | done | [SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md](done/SUBPLAN_HIST_PIVOT_41_B_LO_V_JIRA_VERIFY.md) | DONE |
 | 2026-04-21 | done | [PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md](done/PLAN_AAA_CLIENT_DELIVERABLE_REMAINING.md) | DONE |
 | 2026-04-21 | done | [PLAN_BUNDLE_OPERATIONAL_HARDENING.md](done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md) | DONE |
 | 2026-04-21 | done | [PLAN_BUNDLE_SMOKE_TEST.md](done/PLAN_BUNDLE_SMOKE_TEST.md) | DONE |
@@ -297,7 +298,6 @@ When completing a plan:
 | 2026-04-21 | done | [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | DONE |
 | 2026-04-20 | pending | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | PENDING |
 | 2026-04-20 | pending | [PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md](pending/PLAN_PLAYWRIGHT_CLI_FULL_SWITCH.md) | PENDING |
-| 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](pending/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](pending/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | PENDING |
 | 2026-04-20 | pending | [SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md](pending/SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md) | PENDING |

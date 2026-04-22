@@ -25,7 +25,8 @@
 
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 2 (Discovery — reconciliation)
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-04-22
 **Priority**: P0
 **Created**: 2026-04-20
 **Depends on**: SP-B-LO-1 + SP-B-LO-2 complete
@@ -163,3 +164,32 @@ Per-tab catalog sessions (SP-B-LO-1, SP-B-LO-2) may leave orphan columns ("no pa
 
 - Requires SP-B-LO-1 + SP-B-LO-2 complete.
 - Unblocks SP-C1 (Local Office Basic Info column tests) and SP-C2 (ECT column tests).
+
+---
+
+## Execution Summary (2026-04-22)
+
+**Browser tool**: NONE — desk work only (per LR-038 declaration in activity-log row).
+
+**Output produced** (1 new file):
+- [`clients/encore/specs_planning/catalogs/hist-root-map-local-office.md`](../../clients/encore/specs_planning/catalogs/hist-root-map-local-office.md) — authoritative 42-col reconciled root-map (1-indexed in output; source per-tab catalogs were 0-indexed; translation rule documented at top of output).
+
+**TCs**: none — this plan is a pure documentation merge / reconciliation. No spec or test artefacts touched.
+
+**MCP verification**: none required. All save-cycle / class-level evidence was settled by upstream catalog sessions:
+- SP-B-LO-1 (Basic Info parents P1–P15 — TRACKED via timestamped MCP evidence)
+- SP-B-LO-1b residual (P16/P17/P25 DOM-only classification → bug candidates)
+- SP-B-LO-1b retry #2 (P18/P22 TRACKED) + retry #3 (P19/P20/P21/P23/P24/P26/P27/P28 TRACKED)
+- SP-B-LO-2 (3 ECT classes class-level NOT-TRACKED at save level → LOS-ECT-BUG-A inferred for class)
+- SP-B-LO-2b direct verification (class-level CONFIRMED for all 3 ECT classes via row-0/33/65 Labor Cost exemplars + multi-field BONUS save + cols 33–40 PROBE; BUG-LOC-ECT-001 silent-write-failure for `benefitMultiplier` filed at `reports/bugs/BUG-LOC-ECT-001.json`).
+
+**Documentation changes**: 1 new catalog file (above). Source per-tab catalogs explicitly marked superseded-but-retained for evidence preservation.
+
+**Coverage**: 42/42 columns classified. Multi-writer conflicts: 0. Unresolved orphans: 0 (14 orphans all evidenced as DERIVED / SUB-TABLE-ACTION / RECORD-ACTION / SYSTEM-POPULATED-at-Basic-Info-save). NOT-TRACKED bug candidates carried to SP-E-LO: 5 (BUG-LO-001, BUG-LO-002, BUG-LO-003, LOS-ECT-BUG-A, BUG-LOC-ECT-001 cross-link). Newly discovered Basic Info fields without history columns (PO Number, PO Number Label, Room Configuration sub-table) deferred to SP-E-LO pending REQUIREMENTS cross-check.
+
+**Gate Check** (subplan §Output File Structure): all 4 boxes ticked in the output file with explicit evidence trail to source catalogs.
+
+**Pass confirmation**: 4/4 gate-check boxes legitimately ticked + LR-020 cross-reference verification pass (all 5 referenced files — reports/bugs/BUG-LOC-ECT-001.json, clients/encore/CLAUDE.md (LR-036), both per-tab catalogs, SUBPLAN_HISTORY_01_MCP_FINDINGS.md — verified to exist on disk).
+
+**Unblocks**: SP-C1 (Basic Info per-column TC implementation) + SP-C2 (ECT per-column TC implementation).
+
