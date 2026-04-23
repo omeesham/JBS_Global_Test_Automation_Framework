@@ -21,7 +21,7 @@ interface SimpleTestCase {
   title: string;
   module: string;
   submodule: string;
-  specificField: string;
+  tags: string;
   // Agent fields
   steps: string;
   expected: string;
@@ -44,7 +44,7 @@ const COLUMNS: ColumnConfig[] = [
   { key: 'title', label: 'Title', audience: 'both' },
   { key: 'module', label: 'Module', audience: 'both' },
   { key: 'submodule', label: 'Submodule', audience: 'both' },
-  { key: 'specificField', label: 'Specific Field', audience: 'both' },
+  { key: 'tags', label: 'Tags', audience: 'both' },
   
   // Human-readable columns (excluded from agent-only export)
   { key: 'preconditionsHuman', label: 'Preconditions', audience: 'human' },
@@ -131,7 +131,7 @@ export class CsvConverter {
         title: tc.title,
         module: tc.module,
         submodule: tc.submodule,
-        specificField: tc.specificField,
+        tags: tc.tags,
         // Human fields
         preconditionsHuman: tc.preconditionsHuman,
         stepsHuman: this.formatStepsWithLineBreaks(tc.stepsHuman),
@@ -173,18 +173,25 @@ export class CsvConverter {
       let priority = '';
       let status = '';
       let type = '';
-      
+      let tags = '';
+
       // Find the data row after the header row and separator row
       const bodyLines = body.split('\n');
       for (let j = 0; j < bodyLines.length; j++) {
         const line = (bodyLines[j] || '').trim();
         if (/^\|[\-\s|]+\|$/.test(line) && line.includes('--')) {
+          // Read header row (j-1) to find Tags column position by name
+          const headerRow = bodyLines[j - 1] || '';
+          const headerCols = headerRow.split('|').map(c => c.trim()).filter(c => c.length > 0);
+          const tagsColIndex = headerCols.findIndex(h => h.toLowerCase() === 'tags');
+
           const dataRow = bodyLines[j + 1] || '';
           const cols = dataRow.split('|').map(c => c.trim()).filter(c => c.length > 0);
           if (cols.length >= 3) {
             priority = cols[0] || '';
             status = cols[1] || '';
             type = cols[2] || '';
+            tags = tagsColIndex >= 0 ? (cols[tagsColIndex] || '') : '';
           }
           break;
         }
@@ -294,13 +301,12 @@ export class CsvConverter {
       notesHuman = this.humanizeAssertion(this.cleanMarkdown(notesHuman));
       expectedHuman = this.humanizeAssertion(this.cleanMarkdown(this.convertElementIdsToLabels(expectedHuman)));
 
-      // Extract module/submodule/specificField from TC ID and title
+      // Extract module/submodule from TC ID and title; tags come from metadata table
       const module = this.extractModule(id);
       const submodule = this.extractSubmodule(id, title);
-      const specificField = this.extractSpecificField(title);
-      
+
       testCases.push({
-        id, title, module, submodule, specificField,
+        id, title, module, submodule, tags,
         steps, expected, data,
         preconditionsHuman, stepsHuman, expectedHuman, notesHuman
       });
@@ -678,41 +684,6 @@ export class CsvConverter {
     return 'general';
   }
 
-  /**
-   * Extract specific field from title.
-   * "Verify USD Merchant dropdown options" -> "USD Merchant"
-   * "Page Load — Title, URL, Tab Structure" -> "Page Load"
-   */
-  private static extractSpecificField(title: string): string {
-    let field = title
-      .replace(/^Verify\s+/i, '')
-      .replace(/^Test\s+/i, '')
-      .replace(/^Check\s+/i, '')
-      .replace(/^Validate\s+/i, '');
-
-    // Em-dash / en-dash / hyphen with surrounding spaces marks a clause boundary —
-    // keep only the lead clause so we don't dangle a comma from a multi-word tail.
-    const dashSplit = field.split(/\s+[\u2014\u2013-]\s+/);
-    if (dashSplit[0]) field = dashSplit[0];
-
-    const trim = (s: string) => this.cleanMarkdown(s.trim()).replace(/[,;.]+$/, '');
-
-    const fieldMatch = field.match(/^([A-Za-z0-9\s]+?)\s*(?:checkbox|dropdown|button|field|state|options?|grid|tab|default|configuration|rule|dependency|validation)/i);
-    if (fieldMatch && fieldMatch[1]) return trim(fieldMatch[1]);
-
-    const stopWords = new Set(['is', 'are', 'has', 'was', 'will', 'be', 'been', 'to', 'the', 'a', 'an',
-      'for', 'in', 'on', 'of', 'by', 'with', 'and', 'or', 'not', 'no', 'after', 'before',
-      'when', 'upon', 'permanently', 'always', 'never', 'only', 'can', 'cannot', 'does',
-      'always', 'correctly', 'properly']);
-    const words = field.split(/\s+/);
-    const meaningful: string[] = [];
-    for (const w of words) {
-      if (stopWords.has(w.toLowerCase())) break;
-      meaningful.push(w);
-      if (meaningful.length >= 4) break;
-    }
-    return trim((meaningful.length > 0 ? meaningful : words.slice(0, 2)).join(' '));
-  }
 }
 
 // CLI support with export type flag
