@@ -247,13 +247,27 @@ internal model to NaN. Typing a valid value back does NOT reliably fix the model
 The ONLY safe cleanup is page reload (reloadBasicInfo or safeNavigateTo).
 **Trigger**: Any test that enters non-numeric text into a numeric field.
 
-### LR-013: Generator Phase 0.5 is MANDATORY — walkthrough before code
+### LR-013: Phase 0.5 is MANDATORY — walkthrough before code, artifact before complete
 Generator MUST complete Phase 0.5 walkthrough as its FIRST action before writing
 any spec code, page object, or test data. The pre-run gate (PF-G5) WILL halt on
 retry if walkthrough is missing or invalid. On first run the gate warns — but
 skipping Phase 0.5 guarantees failure. Even Opus skipped this and caused 47 spec
 issues on local-office-settings (2026-03-24).
-**Trigger**: Every generator session start. Enforced by PF-G5 gate.
+
+**Phase 0.5 completion gate (graduated from SP-AAE-03, 2026-04-23)**: the walkthrough
+is complete ONLY when a field-inventory artifact exists at
+`clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-<YYYY-MM-DD>.md`
+with all 8 mandatory frontmatter keys and 7 mandatory sections per
+[field-inventory-spec.md](clients/encore/specs_planning/_internal/field-inventory-spec.md).
+The `## Field Inventory` table MUST have a non-empty row (data-testid or LR-014
+fallback) for every interactive field. `MCP_Session_Date` must equal the filename
+date. Planner emits via PLN-049; generator + auditor consume the artifact (SP-AAE-04
+will refactor them to spot-check instead of re-walking). SP-AAE-02 pre-commit hook
+rejects TC-MD edits lacking a same-module artifact ≤14 days old. Static catalog-pivot
+sessions that never call `browser_navigate` are structurally exempt (Phase 1/2 not
+executed).
+**Trigger**: Every generator session start AND every planner Phase 1/2 Manual QA
+session that walks live DOM. Enforced by PF-G5 gate + SP-AAE-02 pre-commit hook.
 
 ### LR-014: FIELD INVENTORY testid column must be complete
 Every row in planner's FIELD INVENTORY must have a non-empty data-testid value
@@ -691,3 +705,47 @@ Two enforcement strands for headless chain execution. Both are structural (hooks
 - Any new Stop hook or pre-stop skill must preserve the `final-q-gate.sh` behavior.
 
 **Graduated from**: session 2026-04-23 — (1) SP-DQU-06 real-chain dry-run produced correct code but ended in prose (not `/final-q`), causing orchestrator to pause with verdict-NONE; (2) I manually `mv`'d `chain-sessions/` into `chain-archive/` during setup without any audit — classic "tidy up the queue" violation. Rule encodes both gaps so future sessions can't repeat either.
+
+### LR-043: Identity discipline — structural enforcement via hooks + skill mandates
+
+> **REMEDIATION NOTICE (2026-04-23, same-day)**: The hook built by this rule sabotaged its own author's next session on its first real-world use (plan-mode write to `C:/Users/rutvi/.claude/plans/*` → default-deny because harness paths were not in OWNER's §2 coverage). Resolution landed the same day: OWNER short-circuit in `canWrite()` (§A), `/final-q` cycle-reset + plan-mode path exemption + denied-edit filter, tolerant override-handshake regex, and `/identity` SKILL.md Purpose reframe from "access-control enforcement" to "system-prompt context-loading". §B (override-discipline Stop hook) was REMOVED from `.claude/settings.json` during the incident and is DEPRECATED — do not reintroduce; the primary write-gate is now OWNER-free so the companion audit has no basis. **No new LR rules for this remediation**: the framework already has rule-inflation fatigue; the fix is in code + skill prose, not a new rule. OWNER may judge-reject a bugged hook via the override handshake sparingly — discretion, not workflow.
+
+Four structural gates convert ALL-077 (subplan identity must match §2 ownership) and the mid-session identity-switch protocol (`feedback_identity_switch_protocol.md`) from advisory rules into bypassable hooks and mandated skill steps.
+
+**A. PreToolUse hook — write-time identity check** (`.claude/hooks/identity-switch-gate.sh` + `lib/check-identity-switch.mjs`, SP-IDS-01)
+
+> **SCOPED 2026-04-23**: OWNER is short-circuited in `canWrite()` to allow all writes; the §2 write-gate applies only to pipeline identities (HUNTER / GIVER / BUILDER / HEALER / WATCHDOG / GARDENER). Identity is a context-switching layer (load the right system prompt so Claude doesn't hallucinate a pipeline agent's scope), not an access-control layer for the non-pipeline owner. The OWNER catch-alls in `identity-ownership.mjs` remain for introspection (`ownershipFor()` / deny-message rendering) but no longer gate writes for OWNER. Original SP-AAE-01 need (preventing a pipeline agent from writing outside §2) stays satisfied by the pipeline-identity branch.
+
+- Ground-truth identity = last `/identity` Skill invocation in transcript. Banner text is UX-only.
+- Every Edit/Write/NotebookEdit/MultiEdit tool call is inspected: target path vs §2 ownership for the ground-truth identity (via `scripts/identity-ownership.mjs` — byte-exact mirror of §2, gated by `scripts/check-identity-ownership.mjs` parity test).
+- Mismatch → `permissionDecision: "deny"` with full §2 citation + 3 resolution options ((a) switch identity, (b) user-typed override authorization, (c) update §2).
+- Override allow-path: in last 3 assistant turns, `[OVERRIDE-REQUEST]` for same path + user authorization phrase (`override approved`/`override ok`/`approve override`/`authorized to override`) → one-shot allow.
+
+**B. Stop hook — session-end override audit** (`.claude/hooks/override-discipline-gate.sh` + `lib/check-override-discipline.mjs`, SP-IDS-02) — **DEPRECATED 2026-04-23**: removed from `.claude/settings.json` during the remediation incident. The companion `.mjs` + `.sh` files remain on disk (tolerant regex still patched for parity with `check-identity-switch.mjs`) but are not wired to any hook event. **Do not reintroduce**: with OWNER short-circuited in §A, overrides now only trigger when a pipeline identity hits a real §2 deny — rare enough that session-end audit is overhead not protection. Reconsider only if pipeline-identity override abuse actually appears in chain-session audits.
+- ~~Blocks session end if `[OVERRIDE]` used without preceding `[OVERRIDE-REQUEST]` handshake.~~
+- ~~Blocks if `[OVERRIDE]` log line missing required fields (identity, path, reason).~~
+- ~~Blocks if ≥2 overrides in one session without user-typed `[OVERRIDE-EXPLICIT-APPROVAL-BATCH]` tag.~~
+
+**C. Stop hook — banner drift + switch-without-extract detection** (second mode of SP-IDS-01's hook)
+- Blocks session end if banner text ≠ last `/identity` Skill invocation (agent relabeled without switching).
+- Blocks if `IDENTITY SWITCH:` log line appears in transcript without a matching `## [IDENTITY-ACTIVE: {NEW}] Constraint Extract` heading within 5 turns.
+
+**D. `/execute` Phase 0.1 cross-check HALT** (`.claude/skills/execute/SKILL.md` + `scripts/check-subplan-identity.mjs`, SP-IDS-04)
+- Every `/execute` invocation with a plan file runs `node scripts/check-subplan-identity.mjs <plan>` before TodoWrite.
+- Exit 1 → HALT; emit violations + 3 options; agent must pick (a)/(b)/(c) and act before proceeding.
+- No silent auto-switch — audit trail preservation (per Q4=a Rutvik directive 2026-04-23).
+
+**`/identity` SKILL.md mandates** (SP-IDS-03):
+- Step 2 item 6 + Step 6 item 5: emit Step 6.5 `## [IDENTITY-ACTIVE: {CODENAME}] Constraint Extract` block before any tool call under new identity (parsed by Stop hook).
+- Step 5: "Ground truth is the last `/identity` Skill invocation, not the banner text."
+- Step 7: request-authorize-log handshake replaces informal "user says override".
+
+**Trigger**:
+- Every Edit/Write/NotebookEdit/MultiEdit tool call (PreToolUse fires universally).
+- Every session end (Stop hooks fire universally).
+- Every `/execute` with a plan file (Phase 0.1 fires before TodoWrite).
+- Every `/identity` invocation (Step 6.5 emission mandate).
+
+**Implementing subplans**: `plans/pending/PLAN_IDENTITY_DISCIPLINE_STRUCTURAL.md` (parent) + `SUBPLAN_IDS_01..04_*.md`.
+
+**Graduated from**: SP-AAE-01 incident 2026-04-23 (ALL-077). Agent was disciplined enough to voluntarily run Phase 0 ownership check + switch cleanly; a less disciplined (or headless-chain) agent could have relabeled the banner and kept writing under wrong constraints. LR-043 makes the check structural — same pattern as LR-042 + `final-q-gate.sh` closing the "forgets /final-q" gap.

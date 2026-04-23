@@ -3,7 +3,7 @@
 **Last updated**: 2026-04-23
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
-**Totals**: 104 pending · 164 done · 7 stale (>14d) · 0 DONE-in-pending
+**Totals**: 101 pending · 172 done · 7 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -34,9 +34,6 @@ Sorted by priority (P0 → P3), then newest first. Subplans (with `Parent:` fiel
 | File | Title | Priority | Status | Model | Effort | Perm | Created |
 |---|---|---|---|---|---|---|---|
 | [PLAN_AGENT_AUTHORING_EFFICIENCY.md](pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) | PLAN: Agent Authoring Efficiency — One-Look DOM, Locked Catalog, Structural Gate | P0 (slots BEFORE SP-DQU-03 — system fix must land before any further module is touched) | PENDING | — | — | — | 2026-04-23 |
-| [SUBPLAN_AAE_01_ARTIFACT_SPEC.md](pending/SUBPLAN_AAE_01_ARTIFACT_SPEC.md) | SUBPLAN SP-AAE-01: Field-Inventory Artifact Spec — Format, Naming, Template | P0 | PENDING | Opus | xhi | auto | 2026-04-23 |
-| [SUBPLAN_AAE_02_PRECOMMIT_GATE.md](pending/SUBPLAN_AAE_02_PRECOMMIT_GATE.md) | SUBPLAN SP-AAE-02: Pre-Commit Gate — Reject TC MD Edits Without Fresh Field-Inventory | P0 | PENDING | Opus | xhi | auto | 2026-04-23 |
-| [SUBPLAN_AAE_03_PLANNER_EMIT_ARTIFACT.md](pending/SUBPLAN_AAE_03_PLANNER_EMIT_ARTIFACT.md) | SUBPLAN SP-AAE-03: Planner Workflow Refactor — Emit Field-Inventory as Phase 0.5 Output | P0 | PENDING | Opus | xhi | auto | 2026-04-23 |
 | [SUBPLAN_AAE_04_CONSUMERS_NO_REWALK.md](pending/SUBPLAN_AAE_04_CONSUMERS_NO_REWALK.md) | SUBPLAN SP-AAE-04: Generator + Auditor Refactor — Consume Artifact, Spot-Check Only | P0 | PENDING | Opus | xhi | auto | 2026-04-23 |
 | [SUBPLAN_AAE_05_HEURISTIC_STALENESS.md](pending/SUBPLAN_AAE_05_HEURISTIC_STALENESS.md) | SUBPLAN SP-AAE-05: Authoring-from-Spec Heuristic + Catalog Staleness Signal | P0 | PENDING | Opus | hi | auto | 2026-04-23 |
 | [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](pending/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) | PLAN: /chain Per-Session Orchestration with Stop-Hook /final-q Gating | P0 (framework infra — unblocks autonomous multi-subplan runs without context bloat) | PENDING | — | — | — | 2026-04-22 |
@@ -146,8 +143,16 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 
 | File | Title | Status | Completed |
 |---|---|---|---|
+| [PLAN_IDENTITY_DISCIPLINE_STRUCTURAL.md](done/PLAN_IDENTITY_DISCIPLINE_STRUCTURAL.md) | PLAN — Identity discipline: structural enforcement (hooks + skill mandates) | DONE | 2026-04-23 |
+| [SUBPLAN_AAE_01_ARTIFACT_SPEC.md](done/SUBPLAN_AAE_01_ARTIFACT_SPEC.md) | SUBPLAN SP-AAE-01: Field-Inventory Artifact Spec — Format, Naming, Template | DONE | 2026-04-23 |
+| [SUBPLAN_AAE_02_PRECOMMIT_GATE.md](done/SUBPLAN_AAE_02_PRECOMMIT_GATE.md) | SUBPLAN SP-AAE-02: Pre-Commit Gate — Reject TC MD Edits Without Fresh Field-Inventory | DONE | 2026-04-23 |
+| [SUBPLAN_AAE_03_PLANNER_EMIT_ARTIFACT.md](done/SUBPLAN_AAE_03_PLANNER_EMIT_ARTIFACT.md) | SUBPLAN SP-AAE-03: Planner Workflow Refactor — Emit Field-Inventory as Phase 0.5 Output | DONE | 2026-04-23 |
 | [SUBPLAN_DQU_02_B1_LOS_NEUTRAL_EYE_AUDIT.md](done/SUBPLAN_DQU_02_B1_LOS_NEUTRAL_EYE_AUDIT.md) | SUBPLAN: Neutral-Eye Audit — Local Office Settings (Chrome Claude) | DONE | 2026-04-23 |
 | [SUBPLAN_DQU_06_E1_CONVERTER_RENAME_TAGS.md](done/SUBPLAN_DQU_06_E1_CONVERTER_RENAME_TAGS.md) | SUBPLAN: Converter — Rename `Specific Field` → `Tags` Column | DONE | 2026-04-23 |
+| [SUBPLAN_IDS_01_PRETOOLUSE_IDENTITY_HOOK.md](done/SUBPLAN_IDS_01_PRETOOLUSE_IDENTITY_HOOK.md) | SUBPLAN SP-IDS-01 — PreToolUse + Stop hooks for identity-switch enforcement | DONE | 2026-04-23 |
+| [SUBPLAN_IDS_02_OVERRIDE_DISCIPLINE_HOOK.md](done/SUBPLAN_IDS_02_OVERRIDE_DISCIPLINE_HOOK.md) | SUBPLAN SP-IDS-02 — PreToolUse hook for override discipline (typed authorization) | DONE | 2026-04-23 |
+| [SUBPLAN_IDS_03_IDENTITY_SKILL_CONSTRAINT_ARTIFACT.md](done/SUBPLAN_IDS_03_IDENTITY_SKILL_CONSTRAINT_ARTIFACT.md) | SUBPLAN SP-IDS-03 — `/identity` SKILL.md Step 6.5 constraint extraction artifact | DONE | 2026-04-23 |
+| [SUBPLAN_IDS_04_EXECUTE_PHASE0_CROSSCHECK.md](done/SUBPLAN_IDS_04_EXECUTE_PHASE0_CROSSCHECK.md) | SUBPLAN SP-IDS-04 — `/execute` SKILL.md Phase 0 subplan-identity vs §2 cross-check HALT | DONE | 2026-04-23 |
 | [PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md](done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md) | PLAN — SP-B-LM-2 Closure & Completeness Gate (LR-040) | DONE | 2026-04-22 |
 | [SUBPLAN_DQU_01_A1_PREP_AND_INDEX_BLOCK.md](done/SUBPLAN_DQU_01_A1_PREP_AND_INDEX_BLOCK.md) | SUBPLAN: Prep — INDEX P0-EMERGENCY Block + Neutral-Eye-Audit Folder + Activity Log | DONE | 2026-04-22 |
 | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | SUBPLAN SP-B-LO-R: Reconcile + Merge — Local Office Root-Column Catalog | DONE | 2026-04-22 |
@@ -318,8 +323,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (104 files)
-  done/                 ← completed plans (164 files)
+  pending/              ← active plans (101 files)
+  done/                 ← completed plans (172 files)
 ```
 
 When completing a plan:
@@ -335,14 +340,19 @@ When completing a plan:
 |---|---|---|---|
 | 2026-04-23 | pending | [PLAN_AGENT_AUTHORING_EFFICIENCY.md](pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) | PENDING |
 | 2026-04-23 | pending | [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](pending/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) | PENDING |
-| 2026-04-23 | pending | [SUBPLAN_AAE_01_ARTIFACT_SPEC.md](pending/SUBPLAN_AAE_01_ARTIFACT_SPEC.md) | PENDING |
-| 2026-04-23 | pending | [SUBPLAN_AAE_02_PRECOMMIT_GATE.md](pending/SUBPLAN_AAE_02_PRECOMMIT_GATE.md) | PENDING |
-| 2026-04-23 | pending | [SUBPLAN_AAE_03_PLANNER_EMIT_ARTIFACT.md](pending/SUBPLAN_AAE_03_PLANNER_EMIT_ARTIFACT.md) | PENDING |
 | 2026-04-23 | pending | [SUBPLAN_AAE_04_CONSUMERS_NO_REWALK.md](pending/SUBPLAN_AAE_04_CONSUMERS_NO_REWALK.md) | PENDING |
 | 2026-04-23 | pending | [SUBPLAN_AAE_05_HEURISTIC_STALENESS.md](pending/SUBPLAN_AAE_05_HEURISTIC_STALENESS.md) | PENDING |
 | 2026-04-23 | pending | [SUBPLAN_AAE_06_PARALLEL_ROLLOUT.md](pending/SUBPLAN_AAE_06_PARALLEL_ROLLOUT.md) | PENDING |
+| 2026-04-23 | done | [PLAN_IDENTITY_DISCIPLINE_STRUCTURAL.md](done/PLAN_IDENTITY_DISCIPLINE_STRUCTURAL.md) | DONE |
+| 2026-04-23 | done | [SUBPLAN_AAE_01_ARTIFACT_SPEC.md](done/SUBPLAN_AAE_01_ARTIFACT_SPEC.md) | DONE |
+| 2026-04-23 | done | [SUBPLAN_AAE_02_PRECOMMIT_GATE.md](done/SUBPLAN_AAE_02_PRECOMMIT_GATE.md) | DONE |
+| 2026-04-23 | done | [SUBPLAN_AAE_03_PLANNER_EMIT_ARTIFACT.md](done/SUBPLAN_AAE_03_PLANNER_EMIT_ARTIFACT.md) | DONE |
 | 2026-04-23 | done | [SUBPLAN_DQU_02_B1_LOS_NEUTRAL_EYE_AUDIT.md](done/SUBPLAN_DQU_02_B1_LOS_NEUTRAL_EYE_AUDIT.md) | DONE |
 | 2026-04-23 | done | [SUBPLAN_DQU_06_E1_CONVERTER_RENAME_TAGS.md](done/SUBPLAN_DQU_06_E1_CONVERTER_RENAME_TAGS.md) | DONE |
+| 2026-04-23 | done | [SUBPLAN_IDS_01_PRETOOLUSE_IDENTITY_HOOK.md](done/SUBPLAN_IDS_01_PRETOOLUSE_IDENTITY_HOOK.md) | DONE |
+| 2026-04-23 | done | [SUBPLAN_IDS_02_OVERRIDE_DISCIPLINE_HOOK.md](done/SUBPLAN_IDS_02_OVERRIDE_DISCIPLINE_HOOK.md) | DONE |
+| 2026-04-23 | done | [SUBPLAN_IDS_03_IDENTITY_SKILL_CONSTRAINT_ARTIFACT.md](done/SUBPLAN_IDS_03_IDENTITY_SKILL_CONSTRAINT_ARTIFACT.md) | DONE |
+| 2026-04-23 | done | [SUBPLAN_IDS_04_EXECUTE_PHASE0_CROSSCHECK.md](done/SUBPLAN_IDS_04_EXECUTE_PHASE0_CROSSCHECK.md) | DONE |
 | 2026-04-22 | pending | [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | PENDING |
 | 2026-04-22 | pending | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | PENDING |
 | 2026-04-22 | pending | [SUBPLAN_DQU_03_C1_LOS_FIXES_AND_REEXPORT.md](pending/SUBPLAN_DQU_03_C1_LOS_FIXES_AND_REEXPORT.md) | PENDING |
@@ -368,8 +378,3 @@ When completing a plan:
 | 2026-04-22 | pending | [SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md](pending/SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md) | PENDING |
 | 2026-04-22 | pending | [SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md](pending/SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md) | PENDING |
 | 2026-04-22 | pending | [SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md](pending/SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md) | PENDING |
-| 2026-04-22 | pending | [SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md](pending/SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md) | PENDING |
-| 2026-04-22 | pending | [SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md](pending/SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md) | PENDING |
-| 2026-04-22 | pending | [SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md](pending/SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md) | PENDING |
-| 2026-04-22 | pending | [SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md](pending/SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md) | PENDING |
-| 2026-04-22 | pending | [SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md](pending/SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md) | PENDING |

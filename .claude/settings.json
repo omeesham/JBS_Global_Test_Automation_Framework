@@ -7,14 +7,30 @@
       "Bash(npm run validate:sync)",
       "Bash(npm run typecheck)",
       "Bash(bash .claude/hooks/final-q-gate.sh)",
+      "Bash(bash .claude/hooks/rubber-stamp-gate.sh)",
       "Bash(bash .claude/hooks/chain-orchestrator.sh)",
       "Bash(bash .claude/hooks/chain-pause-notice.sh)",
+      "Bash(bash .claude/hooks/identity-switch-gate.sh)",
+      "Bash(bash .claude/hooks/override-discipline-gate.sh)",
+      "Bash(node scripts/check-identity-ownership.mjs)",
+      "Bash(node scripts/check-subplan-identity.mjs *)",
       "mcp__plugin_playwright_playwright__browser_snapshot",
       "mcp__Claude_in_Chrome__read_network_requests",
       "mcp__Claude_in_Chrome__tabs_context_mcp"
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/identity-switch-gate.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
@@ -22,6 +38,14 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/final-q-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rubber-stamp-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/identity-switch-gate.sh"
           },
           {
             "type": "command",

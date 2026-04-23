@@ -1,15 +1,32 @@
 ---
 name: identity
-description: Set or switch pipeline agent identity — forces Claude to adopt a specific agent persona with enforced rules, file ownership, tool restrictions, and checklists. MUST be invoked before any pipeline-related work. Use at session start or say "/identity".
+description: Set or switch agent identity — loads a pipeline agent's system prompt into the conversation so Claude doesn't hallucinate that agent's scope when acting as it. Context-loading, NOT write-gating. OWNER = default unrestricted; pipeline identities follow their scoped §2. Use at session start or say "/identity".
 user-invocable: true
 auto-calls: none
 tools: Read, Glob, Grep
 ---
 
-# /identity — Agent Identity Enforcement
+# /identity — Agent System-Prompt Context-Switcher
 
-Forces Claude to adopt a specific pipeline agent persona with hard-enforced rules, file ownership,
-tool restrictions, and self-audit checklists. Without an active identity, pipeline-stage work is blocked.
+## Purpose (reframed 2026-04-23 — LR-043 remediation)
+
+Loads a pipeline agent's system prompt so Claude (default OWNER) does NOT hallucinate that
+agent's rules, scope, or mistakes when wearing its clothes. Identity is a **context-switching
+layer** — which prompt is loaded for this task? — NOT an access-control layer — which paths can
+I write? That conflation was the LR-043 §A sabotage pattern (hook blocked OWNER writes based on
+§2 ownership meant for pipeline scoping; fixed by OWNER short-circuit in `canWrite()`).
+
+Practical model:
+- **OWNER** (default, Claude-working-directly-for-user): unrestricted write access to every path.
+  §2 does not gate OWNER. OWNER may judge-reject a bugged hook sparingly via the override
+  handshake — not at whim; only when the hook is genuinely sabotaging legitimate work.
+- **Pipeline identities** (HUNTER, GIVER, BUILDER, HEALER, WATCHDOG, GARDENER): follow their
+  scoped §2 ownership because their prompts define role-bounded responsibilities. When OWNER
+  takes one of those hats on, the prompt load prevents role drift (OWNER hallucinating what
+  HUNTER is supposed to do without reading HUNTER's actual prompt). When it takes the hat off,
+  it returns to OWNER's unrestricted default.
+
+Without an active identity, Claude operates as OWNER.
 
 ## When to Use
 
@@ -96,12 +113,13 @@ After selection, load the identity:
 | GARDENER | `.github/agents/playwright-framework-maintainer.agent.md` | MNT-* + ALL-* + LR-* |
 | OWNER | (inline definition below — Step 8) | ALL-* + LR-* only |
 
-**On activation (MANDATORY — do all 5)**:
+**On activation (MANDATORY — do all 6)**:
 1. READ the agent file **in full** (skip for OWNER — use Step 8 inline definition)
 2. Extract: HARD STOPS, self-audit checklist, tools list
 3. Load file ownership from `AGENT_SHARED_RULES.md` §2 — YOUR column only
 4. Emit identity banner (Step 5)
 5. Rules NOT matching your prefix are **INVISIBLE** — do not apply them
+6. Emit Step 6.5 **Constraint Extract** block (required on first load + every switch; skipped only when Step 1.5 auto-detect determines the active identity is already the target — no actual switch)
 
 ---
 
@@ -165,7 +183,7 @@ Every response MUST start with the identity banner:
 
 Format: `[CODENAME | prefix-list] >`
 
-If the banner disappears from responses, identity context is lost. Re-invoke `/identity`.
+**Ground truth is the last `/identity` Skill invocation in the transcript, NOT the banner text.** The PreToolUse hook (`.claude/hooks/identity-switch-gate.sh`, SP-IDS-01) denies writes where the banner has drifted from the skill state. Relabeling the banner `[OWNER] → [GARDENER]` without invoking `/identity GARDENER` does NOT switch identity — it only misleads the human reader while the hook still enforces the old (OWNER) constraints. If the banner disappears from responses, identity context is lost. Re-invoke `/identity`.
 
 ---
 
@@ -177,16 +195,70 @@ When `/identity` is invoked while an identity is already active:
 2. Log: `IDENTITY SWITCH: [OLD] -> [NEW] | Self-audit: [pass/fail]`
 3. Clear old constraints
 4. Load new identity per Step 2
+5. Emit Step 6.5 **Constraint Extract** for the NEW identity — required before any tool call under the new identity. The Stop hook (SP-IDS-01) blocks session end if an `IDENTITY SWITCH:` log line appears in transcript without a matching `## [IDENTITY-ACTIVE: {NEW}]` heading within 5 turns.
 
 ---
 
-## Step 7: Override Mechanism
+## Step 6.5: Constraint Extract (MANDATORY on first load + every switch)
 
-User says "override" → single file ownership check bypassed for ONE action.
+Before any tool call under a new (or freshly-loaded) identity, emit this fixed-format block in chat. The heading is exact — the Stop hook parses `## [IDENTITY-ACTIVE: {CODENAME}]` verbatim to confirm the extract happened.
 
-Log in response: `[OVERRIDE] {CODENAME} writing to {path} -- user-authorized`
+````markdown
+## [IDENTITY-ACTIVE: {CODENAME}] Constraint Extract
 
-Override is NOT sticky — the next write to a blocked path re-checks ownership.
+**Hard stops**:
+- {hard stop 1}
+- {hard stop 2}
+- ...
+
+**File ownership** (§2 column for {CODENAME}):
+- RW: {paths}
+- READ: {paths}
+- APPEND: {paths}
+- SYNC ONLY: {paths if any}
+
+**Tools permitted**: {from agent file frontmatter, or "all except .github/agents/*.agent.md direct edits" for OWNER}
+
+**Self-audit items** (complete before switch or end):
+1. {item 1}
+2. {item 2}
+...
+````
+
+Rules:
+- Block must appear as the **first** assistant text after `/identity` invocation, BEFORE any tool call.
+- Emission required on: (a) first session load, (b) every identity switch, (c) explicit `/identity` re-invocation (re-assert).
+- Emission NOT required when Step 1.5 auto-detect determines the active identity is already the target (no actual change — "keep, return silently").
+- For OWNER, the extract is built from the Step 8 inline definition below — same format, same mandatory heading.
+- Keep the block compact (≤25 lines). It is not a full agent-file reprint; it is the *constraint summary* the agent uses to enforce itself for the rest of the session.
+
+---
+
+---
+
+## Step 7: Override Mechanism (request-authorize-log handshake — per SP-IDS-02)
+
+Override is a **one-shot break-glass** for an unexpected single blocked write. It is NOT a workflow. If a task consistently requires override, the subplan identity is wrong (ALL-077 path (a)) or §2 ownership is wrong (ALL-077 path (b)) — fix the root cause.
+
+**Structural handshake (all 3 steps required; the PreToolUse + Stop hooks enforce)**:
+
+1. Agent emits request BEFORE the write:
+   ```
+   [OVERRIDE-REQUEST] {identity} writing to {path} — reason: {reason}
+   ```
+2. User types one of the authorization phrases in chat (case-insensitive, whole words): `override approved`, `override ok`, `approve override`, `authorized to override`, `i authorize`, `you are authorized`.
+3. Agent performs the write, then emits the log line:
+   ```
+   [OVERRIDE] {identity} wrote to {path} — reason: {reason} — authorized by: {matched phrase}
+   ```
+
+All three fields (identity, path, reason) in the log line are REQUIRED. Missing any → override-discipline Stop hook blocks session end.
+
+**Second override in same session**: requires user to type `[OVERRIDE-EXPLICIT-APPROVAL-BATCH]` once in chat (pre-approves subsequent overrides in this session). Without the batch tag, a 2nd `[OVERRIDE]` blocks stop.
+
+**Scope**: override bypasses ONLY the §2 file-ownership check. HARD_STOP paths (`.env*`, `package.json`, `playwright.config.*`, `tsconfig.json`, `.ci/*`) are NEVER overridable — those are human-only.
+
+**Audit trail**: the PreToolUse hook's allow-reason reads `[OVERRIDE] {identity} authorized to write {path} — user-typed approval matched`. The Stop hook's `check-override-discipline.mjs` replays the handshake from the transcript and blocks any malformed or missing-field entry.
 
 ---
 
@@ -220,6 +292,8 @@ Self-Audit (5 items — complete before switching identity or ending session):
   4. Relevant docs updated?
   5. Pipeline agent contracts intact? (no breaking changes to shared interfaces)
 ```
+
+**OWNER Step 6.5 Constraint Extract** — when activating OWNER, the Step 6.5 block is built from this inline spec using the exact heading `## [IDENTITY-ACTIVE: OWNER] Constraint Extract`. Same 5-section format (Hard stops / File ownership / Tools / Self-audit). Do not skip — the Stop hook parses for the heading.
 
 ---
 
