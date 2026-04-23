@@ -57,7 +57,7 @@ The skill dispatches on the first positional arg:
 | `/chain status` | Print state table; no mutations |
 | `/chain stop` | Abort chain (writes STOP marker) |
 | `/chain skip` | Mark current subplan skipped, advance index, stay paused |
-| `/chain reset` | Archive current chain.json, clear runtime state |
+| `/chain reset` | Archive `chain.json` only. Does NOT touch `chain-sessions/` (LR-042 — those artifacts are the `/chain_audit` queue) |
 
 Env override ceilings (power users):
 - `CHAIN_DAILY_CAP` (default 10)
@@ -149,12 +149,12 @@ Only valid while `status=paused`.
 
 ---
 
-## `/chain reset` — CLEAR STATE
+## `/chain reset` — CLEAR STATE (chain.json only — LR-042)
 
 1. Refuse if `status=running` — must `/chain stop` first.
 2. `mv .claude/state/chain.json .claude/state/chain-archive/chain-$(chainId).json`.
-3. Clear `.claude/state/chain-sessions/` (preserve `.gitkeep` if present).
-4. Print "Chain state reset. `/chain` to start a new one."
+3. **Do NOT touch `.claude/state/chain-sessions/`.** Those `.log` + `.pid` files are the headless-run artifacts awaiting `/chain_audit`. Per LR-042 they may move ONLY via `/chain_audit` GREEN + explicit user approval (into `.claude/state/chain-sessions-green/`). Reset clears the live chain queue (`chain.json`); it does NOT destroy the audit queue.
+4. Print "Chain state reset. `/chain` to start a new one. (chain-sessions/ preserved — run /chain_audit to walk through un-audited headless runs.)"
 
 ---
 

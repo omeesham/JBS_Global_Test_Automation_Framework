@@ -657,3 +657,33 @@ Per [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](plans/pending/PLAN_CHAIN_PER_SESSI
 **Trigger**: every new subplan authored via `/planning`. Enforced by `/planning` SKILL.md Step 3 checklist (D18).
 
 **Graduated from**: PLAN_CHAIN_PER_SESSION_ORCHESTRATION D17/D18/D19 — chain orchestrator needs per-subplan model/effort/permission-mode; rubric lives at authoring time so runtime has a self-documenting source of truth.
+
+### LR-042: Chain artifact discipline — /final-q mandatory + chain-sessions/* move only via /chain_audit GREEN
+Two enforcement strands for headless chain execution. Both are structural (hooks / skill steps), not advisory.
+
+**A. `/final-q` is non-skippable before any session ends.**
+
+- `/execute` SKILL.md Phase 4 mandates `/final-q` as the final action — no prose summary, no "done" phrasing in place of it. The output MUST end with `## /final-q audit` heading + (within ~3000 chars) `**Verdict**: GREEN|YELLOW|RED`.
+- `.claude/hooks/final-q-gate.sh` enforces the above via `.claude/hooks/lib/check-finalq-required.mjs`: if ANY file-modifying tool_use (Edit / Write / NotebookEdit / MultiEdit) appeared in the transcript AND no `/final-q` invocation is present (Skill tool_use, `/final-q` slash command, or `## /final-q audit` heading), the Stop hook blocks with a reminder. Mechanism (tool_use count), not phrase-matching — phrase lists missed "SP-XXX complete.", "done.", "✅", etc.
+- Pure-chat sessions (zero mutations) are exempt. Trivial single-task sessions use `/final-q`'s own short-path, but still invoke `/final-q`.
+- For chain-spawned children: without a parseable verdict, the chain orchestrator pauses with `verdict-NONE`. LR-042 eliminates that class of pause by guaranteeing emission at the authoring + execution + stop-hook layers.
+
+**B. Chain-sessions artifacts move only via `/chain_audit` GREEN + explicit user approval.**
+
+- The LIVE queue of headless runs lives in `.claude/state/chain-sessions/<plan>.log` (+ `.pid`), and their JSONL transcripts in `~/.claude/projects/c--Users-rutvi-projects-encore-framework/<uuid>.jsonl`. These are the "chain-spawned, human never saw them live" artifacts.
+- The ONLY path that may move these files out is `/chain_audit` when it (a) verdicts GREEN AND (b) receives explicit user "yes" in the interactive chat. On that two-gate condition, the `.log`, the `.pid`, and the matching `~/.claude/projects` JSONL transcript all move to `.claude/state/chain-sessions-green/` (sibling of `chain-sessions/` and `chain-archive/`).
+- YELLOW / RED → nothing moves; artifacts stay in `chain-sessions/` so the user can fix and re-audit.
+- FORBIDDEN paths (no matter how tidy it looks):
+  - manual `mv`/`rm` of `chain-sessions/*.log` or `.pid` (violated 2026-04-23 in this session → triggered this rule)
+  - `/chain reset` touching `chain-sessions/` (reset archives `chain.json` only)
+  - agent cleanup passes, `/cleanup` skill, end-of-session tidy-up
+  - orchestrator hooks (`chain-orchestrator.sh` writes to chain-sessions, never moves out)
+
+**Why**: the chain-sessions folder IS the audit queue. Pre-emptive archival destroys the queue. Only human-gated `/chain_audit` may approve removal, because only a human can confirm the headless run was actually correct.
+
+**Trigger**:
+- Any code path that touches `.claude/state/chain-sessions/*` → must be `/chain_audit` GREEN-approval path OR blocked.
+- Any new `/execute` SKILL.md work must preserve Phase 4.
+- Any new Stop hook or pre-stop skill must preserve the `final-q-gate.sh` behavior.
+
+**Graduated from**: session 2026-04-23 — (1) SP-DQU-06 real-chain dry-run produced correct code but ended in prose (not `/final-q`), causing orchestrator to pause with verdict-NONE; (2) I manually `mv`'d `chain-sessions/` into `chain-archive/` during setup without any audit — classic "tidy up the queue" violation. Rule encodes both gaps so future sessions can't repeat either.

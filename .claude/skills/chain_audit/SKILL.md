@@ -1,18 +1,25 @@
 ---
 name: chain_audit
-description: Linear, single-session audit walker through `plans/done/`. Each invocation audits ONE plan (oldest un-audited by default, or user-specified), runs full `/audit` against it in the current interactive session, records verdict + findings to state file, advances the pointer. Sub-commands — `/chain_audit` (next), `/chain_audit <plan-file>` (specific), `/chain_audit status` (queue view), `/chain_audit reset` (clear state). Use when the user says "chain audit", "audit next done plan", "walk through done plans", or "audit plan execution".
+description: Linear, single-session audit walker for CHAIN-SPAWNED (headless) sessions only. Candidate set = plans in `plans/done/` that have a matching `.claude/state/chain-sessions/<plan>.log` (= evidence the plan was executed by `/chain`, not interactively). Each invocation audits ONE such plan (oldest un-audited by default, or user-specified), runs full `/audit` against it in the current interactive session, records verdict + findings to state file, advances the pointer. Sub-commands — `/chain_audit` (next), `/chain_audit <plan-file>` (specific), `/chain_audit status` (queue view), `/chain_audit reset` (clear state). Use when the user says "chain audit", "audit next chain-run plan", "walk through headless sessions", or "audit plan execution".
 user-invocable: true
 auto-calls: identity, audit
 tools: Read, Glob, Grep, Write, Edit, Bash, TodoWrite
 ---
 
-# /chain_audit — Linear Done-Plan Audit Walker
+# /chain_audit — Linear Chain-Session Audit Walker
 
-> **Difference from /chain**: `/chain` spawns background sessions to EXECUTE pending plans. `/chain_audit` runs in YOUR current session to AUDIT already-executed plans, one at a time, on demand. You invoke once → one plan gets audited → next invocation picks up the next. No spawning, no background.
+> **Scope (important)**: `/chain_audit` audits **only headless, chain-spawned sessions** — the runs a human never saw live because `/chain` launched them via `nohup claude -p`. The signal that a plan was chain-spawned is the presence of `.claude/state/chain-sessions/<plan>.log`. Plans executed interactively (no chain-sessions log) are NOT `/chain_audit` candidates — the user already saw them run. This is a queue iterator for headless work, not a universal done-plan auditor.
+>
+> **Difference from /chain**: `/chain` spawns background sessions to EXECUTE pending plans. `/chain_audit` runs in YOUR current session to AUDIT those completed headless runs, one at a time, on demand. You invoke once → one plan gets audited → next invocation picks up the next. No spawning, no background.
 >
 > **State**: `.claude/state/chain-audit.json` (gitignored — tracks which plans have been audited). Plan files stay in `plans/done/`.
 >
-> **Transcript-archive-on-GREEN**: when an audit passes GREEN *and* the user explicitly approves during the session, the associated session transcript (the `.jsonl` in `~/.claude/projects/c--Users-rutvi-projects-encore-framework/`) is **moved** to `.claude/audit-trails-green/<uuid>.jsonl`. This keeps the source folder lean — every subsequent `/chain_audit` scans fewer transcripts when hunting for the one tied to a plan. YELLOW / RED transcripts stay at the source until the user fixes + re-audits.
+> **Archive-on-GREEN (LR-042)**: when an audit passes GREEN *and* the user explicitly approves during the session, ALL the plan's headless-session artifacts are **moved** to `.claude/state/chain-sessions-green/` (sibling of `chain-sessions/` and `chain-archive/`). The move set:
+> - `.claude/state/chain-sessions/<plan>.log` → `.claude/state/chain-sessions-green/<plan>.log`
+> - `.claude/state/chain-sessions/<plan>.pid` → `.claude/state/chain-sessions-green/<plan>.pid`
+> - `~/.claude/projects/c--Users-rutvi-projects-encore-framework/<uuid>.jsonl` → `.claude/state/chain-sessions-green/<plan>.<uuid>.jsonl` (renamed to carry the plan name)
+>
+> YELLOW / RED → nothing moves. Artifacts stay in `chain-sessions/` until the user fixes and re-audits to GREEN. Per LR-042: no other path (manual cleanup, `/chain reset`, agent tidy-up) may touch `chain-sessions/*.log|*.pid` — only a GREEN `/chain_audit` approval may move them.
 
 ---
 
@@ -31,10 +38,10 @@ Triggered by:
 
 | Invocation | Action |
 |---|---|
-| `/chain_audit` | Audit the oldest un-audited plan in `plans/done/` |
-| `/chain_audit <plan-file>` | Audit the specified plan (e.g. `/chain_audit PLAN_XXX.md` or full path) |
-| `/chain_audit status` | Print queue view: audited count / remaining / next candidate |
-| `/chain_audit reset` | Clear `chain-audit.json`; next invocation starts from oldest again |
+| `/chain_audit` | Audit the oldest un-audited chain-spawned plan (`plans/done/<p>` with a matching `chain-sessions/<p>.log`) |
+| `/chain_audit <plan-file>` | Audit the specified plan (e.g. `/chain_audit PLAN_XXX.md` or full path). Refuses if no `chain-sessions/<p>.log` — that plan was not chain-spawned |
+| `/chain_audit status` | Print queue view: audited count / remaining chain-spawned / next candidate |
+| `/chain_audit reset` | Clear `chain-audit.json`; next invocation starts from oldest chain-spawned again. Does NOT touch `chain-sessions-green/` |
 
 ---
 
@@ -42,11 +49,13 @@ Triggered by:
 
 1. **Identity gate** → OWNER (auto-call `/identity`).
 2. **Load state** from `.claude/state/chain-audit.json`. If missing, treat as `{"schemaVersion": 1, "audited": []}`.
-3. **Build candidate list**:
+3. **Build candidate list** (chain-spawned only):
    - `ls plans/done/*.md` (all done plans and subplans).
-   - Get "addition date" for each via `git log --diff-filter=A --follow --format="%aI" -- <file> | tail -1` (oldest commit that added the file). Fall back to file mtime if git-untracked.
+   - **Chain-spawn filter** (MANDATORY): for each `<plan>.md`, keep only if `.claude/state/chain-sessions/<plan>.md.log` exists. Plans with no matching log were executed interactively and are OUT OF SCOPE for `/chain_audit`.
+   - Get "addition date" for each remaining plan via `git log --diff-filter=A --follow --format="%aI" -- <file> | tail -1` (oldest commit that added the file). Fall back to file mtime if git-untracked.
    - Sort ascending by date.
    - Filter out files already in `state.audited[].plan`.
+   - If empty after filtering → "No un-audited chain-spawned plans. Either /chain has not run, or all its outputs are audited." Exit.
 4. **Pick first candidate**. If list is empty → report "All done plans have been audited. Use `/chain_audit reset` to re-walk." and exit.
 5. **Announce pick** to user:
    ```
@@ -59,7 +68,7 @@ Triggered by:
    - Compares against original intent (what was asked vs what landed).
    - Flags gaps with severity (CRITICAL / HIGH / MEDIUM / LOW / INFO).
    - Emits a Verdict line: GREEN | YELLOW | RED.
-7. **Record to state** — append to `audited[]` (includes transcript path if located):
+7. **Record to state** — append to `audited[]` (includes artifact paths):
    ```jsonc
    {
      "plan": "<picked>.md",
@@ -67,18 +76,23 @@ Triggered by:
      "verdict": "GREEN|YELLOW|RED",
      "findingsSummary": "<one-line distillation of top gap(s), or 'clean' on GREEN>",
      "gaps": [ /* structured findings from /audit, truncated to top 5 */ ],
-     "transcriptSource": "~/.claude/projects/c--.../<uuid>.jsonl",   // pre-move (or null if not found)
-     "transcriptArchived": ".claude/audit-trails-green/<uuid>.jsonl" // post-move, only on GREEN + approval
+     "chainLogSource": ".claude/state/chain-sessions/<picked>.log",
+     "transcriptSource": "~/.claude/projects/c--.../<uuid>.jsonl",               // pre-move (or null if not found)
+     "archivedTo": ".claude/state/chain-sessions-green/"                         // set only on GREEN + approval
    }
    ```
-8. **Archive transcript on GREEN + user approval**:
-   - Only if verdict == GREEN → ask the user in chat: "Approve GREEN audit — archive transcript to `.claude/audit-trails-green/`? (yes/no)"
+8. **Archive artifacts on GREEN + user approval**:
+   - Only if verdict == GREEN → ask the user in chat: "Approve GREEN audit — archive chain-session artifacts (log + pid + ~/.claude/projects transcript) to `.claude/state/chain-sessions-green/`? (yes/no)"
    - On **yes**:
-     1. Find candidate transcripts: enumerate `~/.claude/projects/c--Users-rutvi-projects-encore-framework/*.jsonl`, read each line as JSON, scan for any content (`.message.content[].text` or `.content`) that mentions the plan's filename (e.g. `SUBPLAN_XXX.md`). Pick the newest match.
-     2. If a match is found: `mkdir -p .claude/audit-trails-green && mv <match> .claude/audit-trails-green/<uuid>.jsonl`. Also move any sibling `.sessionsnapshot`, `.thread`, or index files if Claude Code writes them in that directory.
-     3. Update the state entry with `transcriptArchived` path.
-   - On **no** or **transcript not found** → skip the move, record `transcriptArchived: null`. Not an error.
-   - YELLOW/RED → never prompt, never move.
+     1. `mkdir -p .claude/state/chain-sessions-green`
+     2. Move the headless-run log + pid (present by candidate filter):
+        - `mv .claude/state/chain-sessions/<picked>.log .claude/state/chain-sessions-green/<picked>.log`
+        - `mv .claude/state/chain-sessions/<picked>.pid .claude/state/chain-sessions-green/<picked>.pid` (if exists; skip silently otherwise)
+     3. Find the matching transcript: enumerate `~/.claude/projects/c--Users-rutvi-projects-encore-framework/*.jsonl`, read each line as JSON, scan content (`.message.content[].text` or `.content`) for the plan's filename. Pick the newest match.
+        - If match: `mv <match> .claude/state/chain-sessions-green/<picked>.<uuid>.jsonl` (rename to embed plan name for self-identification).
+     4. Update the state entry with `archivedTo` = the destination folder.
+   - On **no** or artifacts already moved → skip, record `archivedTo: null`. Not an error.
+   - YELLOW/RED → never prompt, never move. Artifacts stay in `chain-sessions/` for re-audit.
 9. **Next-candidate hint** — print the next pick so the user knows what `/chain_audit` again will pick.
 10. **User acts** on findings (file bugs, patch plans, defer) — outside this skill's scope.
 
@@ -90,26 +104,30 @@ Triggered by:
    - Else if `plans/done/<arg>` exists → use that.
    - Else if `plans/pending/<arg>` exists → refuse with "That plan is still pending. /chain_audit audits done/ only."
    - Else → refuse with "Plan not found."
-3. Warn if already in `audited[]` (still proceed — user may be re-auditing).
-4. Run `/audit` (same as default path steps 6–8).
+3. **Chain-spawn check**: confirm `.claude/state/chain-sessions/<basename>.log` OR `.claude/state/chain-sessions-green/<basename>.log` exists. If neither:
+   - Refuse with "That plan was not chain-spawned (no chain-sessions log). /chain_audit only covers headless runs. Use /audit directly for interactive-session reviews."
+4. Warn if already in `audited[]` (still proceed — user may be re-auditing).
+5. Run `/audit` (same as default path steps 6–8).
 
 ## `/chain_audit status`
 
 1. Read state.
 2. Count:
-   - `plans/done/*.md` total
-   - `audited[]` length
-   - Remaining = total − audited
+   - Chain-spawned total: count of `plans/done/*.md` where a matching `chain-sessions/<p>.log` OR `chain-sessions-green/<p>.log` exists.
+   - `audited[]` length.
+   - Remaining = chain-spawned total − audited.
 3. Print table: recent audits (last 10) with `plan | auditedAt | verdict | 1-line-finding`.
-4. Print next candidate (what `/chain_audit` would pick now).
-5. No mutations.
+4. Print next candidate (what `/chain_audit` would pick now — must have live `chain-sessions/<p>.log`).
+5. Print counts of GREEN-archived items in `chain-sessions-green/` for visibility.
+6. No mutations.
 
 ## `/chain_audit reset`
 
 1. Archive current state to `.claude/state/chain-audit-archive/chain-audit-<ISO>.json` (optional, for history).
 2. Delete `.claude/state/chain-audit.json`.
-3. Print "Audit queue cleared. Next `/chain_audit` will start from the oldest done plan."
-4. **Does NOT move archived transcripts back** — once in `.claude/audit-trails-green/`, they stay there. If the user wants to re-audit a plan, `/chain_audit <plan>` still works; it'll just not find a transcript at the source and run the audit from plan + code state alone.
+3. Print "Audit queue cleared. Next `/chain_audit` will start from the oldest chain-spawned plan."
+4. **Does NOT touch `chain-sessions-green/`** — once artifacts are moved there on GREEN approval, they stay. If the user wants to re-audit a plan whose artifacts already moved, `/chain_audit <plan>` still works against the same chain-sessions-green files; it'll just not find anything at the live chain-sessions source.
+5. **Does NOT touch `chain-sessions/`** either — un-audited headless artifacts stay in place for re-audit (LR-042).
 
 ---
 

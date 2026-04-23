@@ -1,0 +1,25 @@
+# .claude/state/chain-sessions-green/ — chain-spawned session artifacts that
+# passed /chain_audit with verdict GREEN and received explicit user approval
+# during the interactive audit.
+#
+# Sibling of:
+#   .claude/state/chain-sessions/     — LIVE queue of un-audited headless runs
+#   .claude/state/chain-archive/      — frozen chain.json snapshots from /chain reset
+#
+# On GREEN + approval, /chain_audit moves:
+#   - .claude/state/chain-sessions/<plan>.log
+#   - .claude/state/chain-sessions/<plan>.pid
+#   - ~/.claude/projects/c--Users-rutvi-projects-encore-framework/<uuid>.jsonl
+#     (the claude -p transcript that references <plan>)
+# INTO this folder. Filenames are preserved; the uuid transcript is renamed
+# to include the plan name for self-identification.
+#
+# YELLOW/RED audits do NOT move anything — artifacts stay in chain-sessions/
+# until the user fixes and re-audits to GREEN.
+#
+# NOTHING else (manual cleanup, /chain reset, agent tidy-up) may touch
+# chain-sessions/*.log. See LR-042.
+#
+# claude --resume <uuid> will NOT work on transcripts moved here — the desktop
+# app and --resume index only look at ~/.claude/projects/. That's intentional:
+# moved = "audited GREEN, no longer needs interactive replay."

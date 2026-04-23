@@ -2,7 +2,7 @@
 name: execute
 description: Execute an approved plan with pre-research, gap analysis, and post-execution audit — never implement blindly. Use when user says "execute", "implement", "build this", "do it".
 user-invocable: true
-auto-calls: relevant, regression-guard, reflect
+auto-calls: relevant, regression-guard, reflect, final-q
 tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
 ---
 
@@ -184,10 +184,25 @@ After post-execution audit, before declaring done:
 
 Skip Phase 3.5 ONLY if the plan was NOT in plans/pending/ (ad-hoc execution without plan).
 
+## Phase 4: `/final-q` — Mandatory Last Action (NON-NEGOTIABLE — LR-042)
+
+After Phase 3.5 (or after Phase 3 for ad-hoc /execute without a plan file), BEFORE emitting any natural-language wrap-up, BEFORE stopping the session, BEFORE any "complete" / "done" / "shipped" phrasing:
+
+1. **Invoke `/final-q` as your final action.** No prose summary first. No "here's what I did" recap. `/final-q` IS the wrap-up — it produces the verdict line the chain orchestrator parses AND reconstructs the todo ledger.
+
+2. **The `/final-q` output MUST end with the heading `## /final-q audit` followed (within ~3000 chars) by a `**Verdict**: GREEN|YELLOW|RED` line.** This is the contract that `chain-orchestrator.sh` + `parse-verdict.mjs` rely on. Prose summaries do NOT satisfy this — a chain-spawned `/execute` that ends with `"**SP-XXX complete.**"` and no /final-q block causes the orchestrator to pause with `verdict-NONE` (observed 2026-04-23 on SP-DQU-06).
+
+3. **Do NOT try to be efficient by skipping /final-q for "obviously green" runs.** The gate is structural, not advisory. `final-q-gate.sh` will block the stop if it detects file-modifying tool_use in the session without a /final-q invocation — you will be forced to re-run it anyway. Emit it the first time.
+
+4. **Trivial-session exception**: `/final-q` itself has a "trivial 1-task zero-skip" short-path. Use that short-path rather than skipping /final-q entirely.
+
+**Why this phase exists**: chain orchestration gates advance-vs-pause on the /final-q verdict. A missing verdict = chain pauses = user has to manually resume. More broadly: every ending must be auditable. Prose summaries aren't audit artifacts; verdicts are.
+
 ## Auto-Calls
 
 - `/regression-guard` — BEFORE execution (Phase 2 start) and AFTER execution (Phase 2 end)
 - `/reflect` — AFTER post-execution audit (Phase 3 end)
+- `/final-q` — MANDATORY final action (Phase 4). Non-skippable per LR-042.
 
 ## Output
 
@@ -199,5 +214,6 @@ Skip Phase 3.5 ONLY if the plan was NOT in plans/pending/ (ad-hoc execution with
 - NEVER trust the plan blindly — the plan is a starting point, not gospel
 - NEVER skip pre-research — "the plan already checked" is not an excuse
 - NEVER declare done without the post-execution audit
+- NEVER end a /execute session without invoking `/final-q` (LR-042 — chain orchestrator requires the verdict block; `final-q-gate.sh` blocks stops that skip it)
 - Focus on what's MISSING, not what's present — QA mindset
 - If the plan is wrong about something, fix it and note the correction

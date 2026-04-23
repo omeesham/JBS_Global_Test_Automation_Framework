@@ -133,7 +133,9 @@ current_plan.md
 .claude/state/chain.STOP
 .claude/state/chain-sessions/
 .claude/state/chain-archive/
+.claude/state/chain-sessions-green/*
 !.claude/state/.gitkeep
+!.claude/state/chain-sessions-green/.gitkeep
 
 # Bundle smoke test sandbox (ephemeral — created outside repo, but guard against accidental in-repo recreation)
 encore_bundle_sandbox/
