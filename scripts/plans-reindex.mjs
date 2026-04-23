@@ -12,12 +12,15 @@
  *   --quiet   Suppress stdout summary
  *
  * Parses from the first ~30 lines of each plan file:
- *   - Title:    first `# <text>` line
- *   - Status:   `**Status**: X`  OR  `Status: X`
- *   - Priority: `**Priority**: X`
- *   - Created:  `**Created**: YYYY-MM-DD`
- *   - Executed: `**Executed**: YYYY-MM-DD`
- *   - Parent:   `**Parent**: X` (marks this file as a subplan)
+ *   - Title:          first `# <text>` line
+ *   - Status:         `**Status**: X`  OR  `Status: X`
+ *   - Priority:       `**Priority**: X`
+ *   - Created:        `**Created**: YYYY-MM-DD`
+ *   - Executed:       `**Executed**: YYYY-MM-DD`
+ *   - Parent:         `**Parent**: X` (marks this file as a subplan)
+ *   - Model:          `**Model**: claude-opus-4-7 | claude-sonnet-4-6` (LR-041)
+ *   - Thinking:       `**Thinking**: mid | hi | xhi | max` (LR-041)
+ *   - PermissionMode: `**PermissionMode**: auto | acceptEdits | bypassPermissions` (LR-041)
  *
  * Missing fields fall back to file mtime / inference where reasonable.
  */
@@ -86,6 +89,9 @@ function parsePlanFile(filePath) {
   const created = parseField(header, 'Created');
   const executed = parseField(header, 'Executed') || parseField(header, 'Completed');
   const parent = parseField(header, 'Parent') || parseField(header, 'Parent audit') || parseField(header, 'Parent plan');
+  const model = parseField(header, 'Model');
+  const thinking = parseField(header, 'Thinking');
+  const permissionMode = parseField(header, 'PermissionMode');
 
   const mtime = stat.mtime.toISOString().slice(0, 10);
   return {
@@ -96,6 +102,9 @@ function parsePlanFile(filePath) {
     created,
     executed,
     parent,
+    model,
+    thinking,
+    permissionMode,
     mtime,
   };
 }
@@ -115,6 +124,23 @@ function fmtStatus(s) {
 
 function fmtPriority(p) {
   if (!p) return '—';
+  return p;
+}
+
+function fmtModel(m) {
+  if (!m) return '—';
+  if (m === 'claude-opus-4-7') return 'Opus';
+  if (m === 'claude-sonnet-4-6') return 'Sonnet';
+  return m;
+}
+
+function fmtThinking(t) {
+  return t || '—';
+}
+
+function fmtPerm(p) {
+  if (!p) return '—';
+  if (p === 'bypassPermissions') return 'bypass';
   return p;
 }
 
@@ -186,6 +212,9 @@ function buildPendingSection(pending) {
       p.title,
       fmtPriority(p.priority),
       fmtStatus(p.status) || 'PENDING',
+      fmtModel(p.model),
+      fmtThinking(p.thinking),
+      fmtPerm(p.permissionMode),
       p.created || p.mtime,
     ]);
     const kids = children.get(p.file) || [];
@@ -195,12 +224,18 @@ function buildPendingSection(pending) {
         c.title,
         fmtPriority(c.priority),
         fmtStatus(c.status) || 'PENDING',
+        fmtModel(c.model),
+        fmtThinking(c.thinking),
+        fmtPerm(c.permissionMode),
         c.created || c.mtime,
       ]);
     }
   }
 
-  return renderTable(['File', 'Title', 'Priority', 'Status', 'Created'], rows);
+  return renderTable(
+    ['File', 'Title', 'Priority', 'Status', 'Model', 'Effort', 'Perm', 'Created'],
+    rows,
+  );
 }
 
 function buildDoneSection(done) {
