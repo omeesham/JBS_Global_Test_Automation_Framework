@@ -74,7 +74,13 @@ Env override ceilings (power users):
 4. **Build queue**:
    - Read `plans/INDEX.md` Execution Queue.
    - For each row: read the subplan file, extract `**Depends on**`, `**Model**`, `**Thinking**`, `**PermissionMode**`, `**RiskAcknowledged**` (bypassPermissions only).
-   - Default-apply per LR-041 if missing: Sonnet → `hi`; Opus → `xhi`; PermissionMode `auto`.
+   - **[LR-041 PRESENT-value validator]** — for each subplan where BOTH `**Model**` and `**Thinking**` are present (not missing), validate the combo BEFORE applying any defaults:
+     - If `Model` matches `sonnet` AND `Thinking` ∈ {`lo`, `low`, `max`} → HALT queue build; emit `PAUSE_NOTICE: "LR-041 violation in <subplan>: Sonnet + <thinking> is forbidden (under-thinks / clamps silently). Fix the subplan frontmatter and /chain resume."` Do not write `chain.json`. Do not spawn.
+     - If `Model` matches `opus` AND `Thinking` ∈ {`lo`, `low`, `mid`, `medium`} → HALT queue build; emit `PAUSE_NOTICE: "LR-041 violation in <subplan>: Opus + <thinking> is forbidden. If <thinking> is enough, task is Sonnet hi."` Do not spawn.
+     - If `Model` matches `opus` AND `Thinking` == `max` AND no `**Justification**:` frontmatter line → HALT: `"LR-041: Opus max requires **Justification**: frontmatter line in <subplan>."`
+     - If `Model` matches `sonnet` AND `Thinking` ∈ {`mid`, `medium`} AND no `**Justification**:` frontmatter line → HALT: `"LR-041: Sonnet mid requires **Justification**: frontmatter line in <subplan>."`
+     - Tier vocabulary: accept both authoring form (`lo`/`mid`/`hi`/`xhi`/`max`) and CLI form (`low`/`medium`/`high`/`xhigh`/`max`) as the same tier.
+   - Default-apply per LR-041 if MISSING (not present-but-invalid): Sonnet → `hi`; Opus → `xhi`; PermissionMode `auto`. Grandfather-safe — pre-LR-041 subplans with no frontmatter fields still queue with conservative defaults.
    - Topologically sort into waves.
    - Filter to subplans whose dependencies are all DONE or themselves queue-ahead.
    - Take first `batchCap` subplans.

@@ -399,11 +399,13 @@ Authoring matrix — every new subplan picks ONE row:
 - Sonnet `max` — silently clamps to `high` per docs; use `high` and document intent.
 - Opus `low` / `medium` — wasteful model+effort mismatch; if `medium` is enough, the task is Sonnet `high`.
 
-**Validation gate (added to `/planning` SKILL.md Step 3 checklist):**
-- [ ] Every new subplan declares `**Model**:` and `**Thinking**:` in frontmatter.
-- [ ] No Sonnet `low` or `max`. No Opus `low` or `medium`.
-- [ ] Every Sonnet `medium` has a one-sentence justification in the subplan body (e.g., "Mechanical: applies a fixed regex to N files, no semantic decisions").
-- [ ] Every Opus `max` has a one-sentence justification (e.g., "RCA across 11 specs requires LR-018+024+033 chain reasoning").
+**Validation gate (dual-enforced: `/planning` Step 3 `[GATE]` + `/chain` queue-build PRESENT-value validator):**
+- Every new subplan declares `**Model**:`, `**Thinking**:`, `**PermissionMode**:` in frontmatter. Missing = HALT (authored) / default-apply conservative tier (grandfathered).
+- Forbidden PRESENT values HARD-REJECT: Sonnet `lo`/`low`/`max`, Opus `lo`/`low`/`mid`/`medium`. `/planning` HALTs before Step 4; `/chain` pauses queue-build.
+- Sonnet `mid`/`medium` requires structural `**Justification**:` frontmatter line (e.g., `**Justification**: Mechanical — applies fixed regex to N files, no semantic decisions.`).
+- Opus `max` requires structural `**Justification**:` frontmatter line (e.g., `**Justification**: RCA across 11 specs requires LR-018+024+033 chain reasoning.`).
+- `bypassPermissions` requires `**RiskAcknowledged**: true` frontmatter line (D26; orchestrator-enforced).
+- Tier vocabulary: authoring form (`lo`/`mid`/`hi`/`xhi`/`max`) and CLI form (`low`/`medium`/`high`/`xhigh`/`max`) are both parseable and treated as the same tier.
 
 **Worked example — DQU 35-subplan distribution (user-supplied 2026-04-23, treated as the canonical example for the rubric):**
 

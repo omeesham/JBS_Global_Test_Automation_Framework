@@ -53,7 +53,23 @@ Complete this checklist in a single pass. Fix any issues found before proceeding
 - [ ] **Reference check** — Open the most recent completed plan in `plans/done/` for the same category. Compare section-by-section. Flag any section present in the reference that's missing in yours. If no reference exists, use the most complex completed plan as baseline.
 - [ ] **Rules applied** — For each rule listed in your plan's "Active Rules" section (or equivalent), verify it's actually reflected in the plan body (implementation steps, code snippets, or explicit exclusion with reason). Rule listed but not applied = gap.
 - [ ] **Mistakes check** — Grep for the target page/module name in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`. Read every hit. Verify none of the documented mistakes are repeated in your plan. Also grep for any function names or patterns your plan proposes to use.
-- [ ] **Model + Thinking + PermissionMode declared** (LR-041 / D17 rubric) — every new subplan file has `**Model**:`, `**Thinking**:`, and `**PermissionMode**:` in frontmatter. FORBIDDEN: Sonnet `lo`/`max` (under-thinks / clamps); Opus `lo`/`mid` (promote to Sonnet `hi` instead). Sonnet `mid` and Opus `max` require a one-sentence justification in the subplan body. `bypassPermissions` requires `**RiskAcknowledged**: true` in frontmatter.
+- **[GATE] Model + Thinking + PermissionMode declared and valid** (LR-041 / D17 rubric) — **hard gate, NOT a checkbox**. Execute this validator on every new subplan file you just authored before proceeding to Step 4. HALT (do not proceed) if any step fails; report the violation to the user verbatim.
+
+  **Tier vocabulary** — accept both authoring form and CLI form as the same tier:
+  - Opus 4.7 (5 tiers): `lo`/`low`, `mid`/`medium`, `hi`/`high`, `xhi`/`xhigh`, `max`
+  - Sonnet 4.6 (3 effective tiers): `lo`/`low`, `mid`/`medium`, `hi`/`high` (`max` clamps silently to `hi` per D17 — FORBIDDEN)
+
+  **Validator** — run in order, HALT on first failure:
+  1. grep `^\*\*Model\*\*:\s*(\S+)` in the subplan → capture `MODEL`. If absent → HALT: "LR-041: missing `**Model**:` field in <file>."
+  2. grep `^\*\*Thinking\*\*:\s*(\S+)` → capture `THINKING`. If absent → HALT: "LR-041: missing `**Thinking**:` field in <file>."
+  3. grep `^\*\*PermissionMode\*\*:\s*(\S+)` → capture `PERM`. If absent → HALT: "LR-041: missing `**PermissionMode**:` field in <file>."
+  4. If `MODEL` matches `sonnet` AND `THINKING` ∈ {`lo`, `low`, `max`} → HALT: "LR-041 forbidden combo: Sonnet + `$THINKING` (under-thinks or clamps). Promote to Sonnet `hi`."
+  5. If `MODEL` matches `opus` AND `THINKING` ∈ {`lo`, `low`, `mid`, `medium`} → HALT: "LR-041 forbidden combo: Opus + `$THINKING`. If `mid` is enough, task is Sonnet `hi`."
+  6. If `MODEL` matches `opus` AND `THINKING` == `max` → require `^\*\*Justification\*\*:` line in the subplan frontmatter. If absent → HALT: "LR-041: Opus `max` requires `**Justification**:` frontmatter line explaining why (e.g. RCA / closure gate / multi-rule judgment)."
+  7. If `MODEL` matches `sonnet` AND `THINKING` ∈ {`mid`, `medium`} → require `^\*\*Justification\*\*:` line in the subplan frontmatter. If absent → HALT: "LR-041: Sonnet `mid` requires `**Justification**:` frontmatter line explaining why the task is purely mechanical."
+  8. If `PERM` == `bypassPermissions` → require `^\*\*RiskAcknowledged\*\*:\s*true` in the subplan frontmatter. If absent → HALT: "LR-041 / D26: `bypassPermissions` requires `**RiskAcknowledged**: true` frontmatter line. Orchestrator will refuse to spawn without this."
+
+  **Do not tick this step as "done" on vibes.** Run the greps. Report the captured values to the user. If all 8 steps pass, explicitly state: "LR-041 gate passed: MODEL=<x> / THINKING=<y> / PERM=<z>."
 
 ## Step 4: Intent Review
 - Re-read the user's original request word by word

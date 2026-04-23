@@ -95,6 +95,7 @@ If multiple intents match, use the FIRST matching rule. If the user explicitly n
 | 18 | Complex multi-step task, "what skills should I use", "check skills" | `/relevant` | Pre-task skill injection |
 | 19 | "does this apply", "upgrade check", "check current work" | `/upgrade` | Self-referential improvement check |
 | 20 | "use sonnet", "sonnet mode", "/sonnet" | `/sonnet` | Model-aware guardrails activation |
+| N/A | **EXPLICIT ONLY** — no intent pattern triggers this skill. Fires only when the user literally types `/report ...` as a slash command. | `/report` | External-audience artifact generator (client / JBS colleague). MUST NOT auto-route. Phrases like "make me a report", "write it up for the client", "summarize this for Tejal", "need a status update", etc. do NOT trigger `/report` — only the literal slash command does. Other skills MUST NOT auto-call `/report`. |
 
 ### Multi-Intent Resolution
 If the user's message spans multiple intents (e.g., "fix the bug then deploy"):
@@ -642,19 +643,22 @@ Per [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](plans/pending/PLAN_CHAIN_PER_SESSI
 - `**PermissionMode**: auto | acceptEdits | bypassPermissions` (default `auto`)
 
 **Allowed combinations** (forbidden → promote):
-- **Sonnet**: `mid` (mechanical only — file moves, INDEX regen, tag rollouts; subplan body MUST justify) or `hi` (general default). FORBIDDEN: `lo` (under-thinks), `max` (silently clamps to `high` — authoring as `max` is wishful thinking).
-- **Opus**: `hi` (low-complexity Opus), `xhi` (default for most Opus work), or `max` (RCA / closure gates / multi-rule judgment). FORBIDDEN: `lo`/`mid` (if `mid` is enough, the task is Sonnet `hi`).
+- **Sonnet** (3 effective tiers): `mid` (mechanical only — file moves, INDEX regen, tag rollouts; requires `**Justification**:` frontmatter line) or `hi` (general default). FORBIDDEN: `lo` (under-thinks), `max` (silently clamps to `high` — authoring as `max` is wishful thinking).
+- **Opus** (5 tiers): `hi` (low-complexity Opus), `xhi` (default for most Opus work), or `max` (RCA / closure gates / multi-rule judgment; requires `**Justification**:` frontmatter line). FORBIDDEN: `lo`/`mid` (if `mid` is enough, the task is Sonnet `hi`).
+
+**Tier vocabulary**: accept both authoring form (`lo`/`mid`/`hi`/`xhi`/`max`) and CLI form (`low`/`medium`/`high`/`xhigh`/`max`) — same tier, both parseable.
 
 **CLI version gate**: `xhigh` requires Claude Code v2.1.111+ (per `code.claude.com/docs/en/model-config`). On older CLI, chain-orchestrator clamps `xhi → high` at spawn with a log line. Run `claude update` to unlock Opus 4.7 `xhigh`. `bypassPermissions` requires `**RiskAcknowledged**: true` in frontmatter (orchestrator refuses otherwise per D26).
 
 **Why**: user directive 2026-04-22 — "always better to burn budget of tokens via better models and think than save it and have trouble later debugging." Eliminates under-thinking on judgment-heavy tasks.
 
-**How to apply** — at every `/planning` Step 3 validation:
+**How to apply** — at every `/planning` Step 3 validation AND at every `/chain` queue-build (dual gate; authored + runtime):
 1. Grep each new subplan for `**Model**:` / `**Thinking**:` / `**PermissionMode**:`. All three required.
-2. Reject Sonnet `lo`/`max` and Opus `lo`/`mid` without a promote-to justification.
-3. Sonnet `mid` and Opus `max` require a one-sentence justification in the subplan body.
+2. Reject Sonnet `lo`/`low`/`max` and Opus `lo`/`low`/`mid`/`medium` — forbidden combos are HARD-rejected (not a promote-to suggestion). `/planning` HALTs before Step 4; `/chain` pauses queue-build.
+3. Sonnet `mid`/`medium` and Opus `max` require a structural `**Justification**:` frontmatter line (not prose elsewhere — greppable, unambiguous). Missing = HALT.
+4. `bypassPermissions` requires `**RiskAcknowledged**: true` frontmatter line. Missing = orchestrator refuses to spawn (D26).
 
-**Trigger**: every new subplan authored via `/planning`. Enforced by `/planning` SKILL.md Step 3 checklist (D18).
+**Trigger**: every new subplan authored via `/planning`. Enforced by `/planning` SKILL.md Step 3 `[GATE]` (D18) AND by `/chain` SKILL.md queue-build PRESENT-value validator.
 
 **Graduated from**: PLAN_CHAIN_PER_SESSION_ORCHESTRATION D17/D18/D19 — chain orchestrator needs per-subplan model/effort/permission-mode; rubric lives at authoring time so runtime has a self-documenting source of truth.
 
