@@ -11,16 +11,25 @@
  *             (for CI / pre-commit gating)
  *   --quiet   Suppress stdout summary
  *
- * Parses from the first ~30 lines of each plan file:
+ * Parses from the first ~40 lines of each plan file:
  *   - Title:          first `# <text>` line
  *   - Status:         `**Status**: X`  OR  `Status: X`
  *   - Priority:       `**Priority**: X`
  *   - Created:        `**Created**: YYYY-MM-DD`
  *   - Executed:       `**Executed**: YYYY-MM-DD`
  *   - Parent:         `**Parent**: X` (marks this file as a subplan)
+ *   - Depends on:     `**Depends on**: SP-XXX, SP-YYY` (dependency chain)
  *   - Model:          `**Model**: claude-opus-4-7 | claude-sonnet-4-6` (LR-041)
  *   - Thinking:       `**Thinking**: mid | hi | xhi | max` (LR-041)
  *   - PermissionMode: `**PermissionMode**: auto | acceptEdits | bypassPermissions` (LR-041)
+ *   - BrowserTool:    `**BrowserTool**: cli | chrome | both | none` (LR-038 v2)
+ *
+ * Dependency resolution:
+ *   Each plan's `**Depends on**` field is parsed for SP-* identifiers and
+ *   .md filename refs. A reverse lookup is built (SP-id → file) from every
+ *   plan's title. Pending plans whose dependencies resolve to other pending
+ *   plans are separated into a "Blocked" section; only truly unblocked plans
+ *   appear in "Ready to Execute".
  *
  * Missing fields fall back to file mtime / inference where reasonable.
  */
@@ -68,6 +77,119 @@ function parseTitle(header) {
   return m ? cleanValue(m[1]) : '';
 }
 
+/** Extract the plan's own SP identifier from its title, e.g. "SUBPLAN SP-DQU-03: …" → "SP-DQU-03" */
+function extractSpId(title) {
+  const m = title.match(/\bSP-([\w-]+)/);
+  return m ? `SP-${m[1]}` : null;
+}
+
+/**
+ * Parse `**Depends on**` text into a deduplicated list of dependency identifiers.
+ * Handles: SP-* identifiers, range notation (SP-AAE-01..05), and bare .md filenames.
+ * Returns [] for "NONE", "nothing", or when no identifiers are found.
+ */
+function parseDependsOn(raw) {
+  if (!raw) return [];
+  const lower = raw.trim().toLowerCase();
+  // Fast-path: explicit none declarations
+  if (/^none\b/.test(lower) || /^nothing\b/.test(lower) || lower === 'can run anytime') return [];
+
+  const refs = new Set();
+
+  // Expand range notation: SP-AAE-01..05 → SP-AAE-01 … SP-AAE-05
+  for (const m of raw.matchAll(/SP-([\w-]*?)(\d+)\.\.(\d+)/g)) {
+    const prefix = m[1];
+    const start = parseInt(m[2], 10);
+    const end = parseInt(m[3], 10);
+    const width = m[2].length; // preserve zero-padding width
+    for (let i = start; i <= end; i++) {
+      refs.add(`SP-${prefix}${String(i).padStart(width, '0')}`);
+    }
+  }
+
+  // Remove already-handled ranges so we don't double-match
+  const withoutRanges = raw.replace(/SP-[\w-]*?\d+\.\.\d+/g, '');
+
+  // All remaining SP-* identifiers
+  for (const m of withoutRanges.matchAll(/\bSP-([\w-]+)/g)) {
+    refs.add(`SP-${m[1]}`);
+  }
+
+  // Explicit .md filename references
+  for (const m of raw.matchAll(/\b((?:SUBPLAN|PLAN)_\w+\.md)\b/gi)) {
+    refs.add(m[1]);
+  }
+
+  // Bare plan name references (no .md, all-caps identifier style)
+  for (const m of raw.matchAll(/\b(PLAN_[A-Z0-9_]+)\b/g)) {
+    refs.add(m[1]);
+  }
+
+  return [...refs];
+}
+
+/**
+ * Derive an SP identifier from a plan's filename as a fallback when the title
+ * doesn't contain one. Handles two patterns:
+ *   SUBPLAN_GROUP_NN_*   → SP-GROUP-NN    (e.g. SUBPLAN_DQU_03_* → SP-DQU-03)
+ *   SUBPLAN_GROUP_NNa_*  → SP-GROUP-NNa   (e.g. SUBPLAN_DQU_06a_* → SP-DQU-06a)
+ * Returns null if no pattern matches.
+ */
+function deriveSpIdFromFilename(filename) {
+  const stem = filename.replace(/\.md$/i, '');
+  const m = stem.match(/^SUBPLAN_([A-Z]+)_(\d+[a-z]?)_/i);
+  if (m) return `SP-${m[1].toUpperCase()}-${m[2]}`;
+  return null;
+}
+
+/**
+ * Build a reverse lookup: identifier → { file, inDone }.
+ * Keys (in priority order, first-writer wins):
+ *   1. SP-* extracted from title  (most explicit — e.g. HIST_PIVOT plans embed "SP-B-LM-3a:" in title)
+ *   2. SP-* derived from filename  (fallback — e.g. SUBPLAN_DQU_03_* → SP-DQU-03)
+ *   3. Exact filename
+ *   4. Filename stem (no .md, for bare plan-name refs)
+ */
+function buildPlanLookup(pending, done) {
+  const lookup = new Map();
+  const add = (key, file, inDone) => {
+    if (key && !lookup.has(key)) lookup.set(key, { file, inDone });
+  };
+
+  for (const [inDone, plans] of [[false, pending], [true, done]]) {
+    for (const p of plans) {
+      // 1. Title-based SP identifier (highest priority)
+      const spIdFromTitle = extractSpId(p.title);
+      if (spIdFromTitle) add(spIdFromTitle, p.file, inDone);
+
+      // 2. Filename-based SP identifier fallback
+      const spIdFromFile = deriveSpIdFromFilename(p.file);
+      if (spIdFromFile) add(spIdFromFile, p.file, inDone);
+
+      // 3 & 4. Filename and stem
+      add(p.file, p.file, inDone);
+      add(p.file.replace(/\.md$/i, ''), p.file, inDone);
+    }
+  }
+  return lookup;
+}
+
+/**
+ * Resolve a plan's dependency identifiers against the lookup.
+ * Returns the list of { ref, file } entries that are still in pending/.
+ */
+function resolveBlockers(depIds, lookup) {
+  const blockers = [];
+  for (const ref of depIds) {
+    const entry = lookup.get(ref);
+    if (entry && !entry.inDone) {
+      blockers.push({ ref, file: entry.file });
+    }
+    // Unresolvable refs are silently skipped (external/archived plan, no gate)
+  }
+  return blockers;
+}
+
 function daysBetween(dateStr, refStr = TODAY) {
   if (!dateStr) return null;
   const d1 = Date.parse(dateStr);
@@ -92,6 +214,9 @@ function parsePlanFile(filePath) {
   const model = parseField(header, 'Model');
   const thinking = parseField(header, 'Thinking');
   const permissionMode = parseField(header, 'PermissionMode');
+  const browserTool = parseField(header, 'BrowserTool');
+  const dependsOnRaw = parseField(header, 'Depends on');
+  const dependsOn = parseDependsOn(dependsOnRaw);
 
   const mtime = stat.mtime.toISOString().slice(0, 10);
   return {
@@ -102,9 +227,11 @@ function parsePlanFile(filePath) {
     created,
     executed,
     parent,
+    dependsOn,
     model,
     thinking,
     permissionMode,
+    browserTool,
     mtime,
   };
 }
@@ -142,6 +269,10 @@ function fmtPerm(p) {
   if (!p) return '—';
   if (p === 'bypassPermissions') return 'bypass';
   return p;
+}
+
+function fmtBrowserTool(b) {
+  return b || '—';
 }
 
 function escapeCell(v) {
@@ -201,40 +332,85 @@ function groupSubplans(plans) {
   return { roots, children };
 }
 
-function buildPendingSection(pending) {
+function buildPendingSection(pending, done) {
+  const lookup = buildPlanLookup(pending, done);
   const sorted = sortPending(pending);
   const { roots, children } = groupSubplans(sorted);
 
-  const rows = [];
-  for (const p of roots) {
-    rows.push([
-      `[${p.file}](pending/${p.file})`,
-      p.title,
-      fmtPriority(p.priority),
-      fmtStatus(p.status) || 'PENDING',
-      fmtModel(p.model),
-      fmtThinking(p.thinking),
-      fmtPerm(p.permissionMode),
-      p.created || p.mtime,
-    ]);
-    const kids = children.get(p.file) || [];
-    for (const c of kids) {
-      rows.push([
-        `↳ [${c.file}](pending/${c.file})`,
-        c.title,
-        fmtPriority(c.priority),
-        fmtStatus(c.status) || 'PENDING',
-        fmtModel(c.model),
-        fmtThinking(c.thinking),
-        fmtPerm(c.permissionMode),
-        c.created || c.mtime,
-      ]);
+  // Roots with pending children = parent containers (not directly executable)
+  const parentRoots = roots.filter((r) => children.has(r.file));
+  const executableRoots = roots.filter((r) => !children.has(r.file));
+
+  // All subplans across all parents
+  const allSubplans = [...children.values()].flat();
+
+  // Candidate executable plans = childless roots + all subplans
+  const candidates = sortPending([...executableRoots, ...allSubplans]);
+
+  // Split into ready (no pending blockers) and blocked (has pending blockers)
+  const ready = [];
+  const blocked = [];
+  for (const p of candidates) {
+    const blockers = resolveBlockers(p.dependsOn, lookup);
+    if (blockers.length === 0) {
+      ready.push(p);
+    } else {
+      blocked.push({ plan: p, blockers });
     }
   }
 
-  return renderTable(
-    ['File', 'Title', 'Priority', 'Status', 'Model', 'Effort', 'Perm', 'Created'],
-    rows,
+  // Section 1: Ready to Execute
+  const execRows = ready.map((p) => [
+    `[${p.file}](pending/${p.file})`,
+    p.title,
+    fmtPriority(p.priority),
+    fmtStatus(p.status) || 'PENDING',
+    fmtModel(p.model),
+    fmtThinking(p.thinking),
+    fmtPerm(p.permissionMode),
+    fmtBrowserTool(p.browserTool),
+    p.created || p.mtime,
+  ]);
+  const execTable = execRows.length > 0
+    ? renderTable(['File', 'Title', 'Priority', 'Status', 'Model', 'Effort', 'Perm', 'Tool', 'Created'], execRows)
+    : '_No executable plans pending._';
+
+  // Section 2: Blocked — has pending dependencies
+  const blockedRows = blocked.map(({ plan: p, blockers }) => [
+    `[${p.file}](pending/${p.file})`,
+    p.title,
+    fmtPriority(p.priority),
+    blockers.map((b) => `[${b.ref}](pending/${b.file})`).join(', '),
+  ]);
+  const blockedTable = blockedRows.length > 0
+    ? renderTable(['File', 'Title', 'Priority', 'Blocked by (pending)'], blockedRows)
+    : '_No blocked plans._';
+
+  // Section 3: Parent Plans — roots that own pending subplans
+  const parentRows = parentRoots.map((p) => [
+    `[${p.file}](pending/${p.file})`,
+    p.title,
+    fmtPriority(p.priority),
+    fmtStatus(p.status) || 'PENDING',
+    String(children.get(p.file).length),
+    p.created || p.mtime,
+  ]);
+  const parentTable = parentRows.length > 0
+    ? renderTable(['File', 'Title', 'Priority', 'Status', 'Pending Subplans', 'Created'], parentRows)
+    : '_No parent plans with pending subplans._';
+
+  return (
+    `### Ready to Execute\n` +
+    `Unblocked plans only — all declared dependencies are in \`done/\`. Pass directly to \`/execute\`.\n` +
+    `Sorted by priority (P0 → P3), then newest first.\n\n` +
+    `${execTable}\n\n` +
+    `### Blocked (pending dependencies)\n` +
+    `These plans have one or more \`**Depends on**\` references still in \`pending/\`.\n` +
+    `Do not execute until blockers are resolved. Blocker links are clickable.\n\n` +
+    `${blockedTable}\n\n` +
+    `### Parent Plans (Waiting on Subplans)\n` +
+    `These stay in \`pending/\` until their last subplan closes them (LR-027 parent-cascade). Do not execute directly.\n\n` +
+    `${parentTable}`
   );
 }
 
@@ -339,9 +515,7 @@ ${buildDoneInPendingWarnings(pending)}
 
 ## Execution Queue (pending/)
 
-Sorted by priority (P0 → P3), then newest first. Subplans (with \`Parent:\` field pointing to another pending plan) are nested under their parent.
-
-${buildPendingSection(pending)}
+${buildPendingSection(pending, done)}
 
 ---
 
