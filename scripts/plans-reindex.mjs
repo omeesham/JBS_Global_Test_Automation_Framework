@@ -332,61 +332,111 @@ function groupSubplans(plans) {
   return { roots, children };
 }
 
+/**
+ * Topologically sort plans by dependency depth (Kahn's algorithm variant).
+ * Tier 0 = no pending blockers. Tier N = all blockers in tiers 0..N-1.
+ * Within each tier, plans are ordered by priority then created-date desc.
+ *
+ * Returns { ordered: Plan[] (with pendingBlockers attached), cycle: Plan[] }.
+ * `cycle` contains any plans that couldn't be placed (indicates an authoring
+ * error — circular dependency). Renderer surfaces them in a separate section.
+ */
+function topoSortPlans(plans, lookup) {
+  // Annotate each plan with its current pending blockers.
+  const annotated = plans.map((p) => ({
+    plan: p,
+    blockers: resolveBlockers(p.dependsOn, lookup),
+  }));
+
+  // Set of files that have already been placed in some tier.
+  const placed = new Set();
+  const ordered = [];
+  const remaining = new Set(annotated.map((a) => a.plan.file));
+
+  // Repeatedly extract the next tier: plans whose blockers all point at
+  // plans already in `placed` (or at done/ — those resolve to no blocker
+  // already, so blockers list stays empty for them).
+  while (remaining.size > 0) {
+    const tierPlans = annotated
+      .filter((a) => remaining.has(a.plan.file))
+      .filter((a) => a.blockers.every((b) => placed.has(b.file)));
+
+    if (tierPlans.length === 0) break; // cycle detected — bail
+
+    // Sort within the tier by priority then created desc.
+    const tierSorted = sortPending(tierPlans.map((a) => a.plan));
+    for (const p of tierSorted) {
+      const a = annotated.find((x) => x.plan.file === p.file);
+      ordered.push(a);
+      placed.add(p.file);
+      remaining.delete(p.file);
+    }
+  }
+
+  // Anything left = part of a cycle.
+  const cycle = annotated.filter((a) => remaining.has(a.plan.file));
+  return { ordered, cycle };
+}
+
 function buildPendingSection(pending, done) {
   const lookup = buildPlanLookup(pending, done);
-  const sorted = sortPending(pending);
-  const { roots, children } = groupSubplans(sorted);
+  const { roots, children } = groupSubplans(pending);
 
   // Roots with pending children = parent containers (not directly executable)
   const parentRoots = roots.filter((r) => children.has(r.file));
   const executableRoots = roots.filter((r) => !children.has(r.file));
 
-  // All subplans across all parents
-  const allSubplans = [...children.values()].flat();
-
   // Candidate executable plans = childless roots + all subplans
-  const candidates = sortPending([...executableRoots, ...allSubplans]);
+  const allSubplans = [...children.values()].flat();
+  const candidates = [...executableRoots, ...allSubplans];
 
-  // Split into ready (no pending blockers) and blocked (has pending blockers)
-  const ready = [];
-  const blocked = [];
-  for (const p of candidates) {
-    const blockers = resolveBlockers(p.dependsOn, lookup);
-    if (blockers.length === 0) {
-      ready.push(p);
-    } else {
-      blocked.push({ plan: p, blockers });
-    }
-  }
+  // Topologically sort: dependency depth, then priority+date within tier.
+  const { ordered, cycle } = topoSortPlans(candidates, lookup);
 
-  // Section 1: Ready to Execute
-  const execRows = ready.map((p) => [
-    `[${p.file}](pending/${p.file})`,
-    p.title,
-    fmtPriority(p.priority),
-    fmtStatus(p.status) || 'PENDING',
-    fmtModel(p.model),
-    fmtThinking(p.thinking),
-    fmtPerm(p.permissionMode),
-    fmtBrowserTool(p.browserTool),
-    p.created || p.mtime,
-  ]);
+  // Single execution-order table.
+  const formatBlockers = (blockers) =>
+    blockers.length === 0
+      ? '— (ready)'
+      : blockers.map((b) => `[${b.ref}](pending/${b.file})`).join(', ');
+
+  const execRows = ordered.map((a, i) => {
+    const p = a.plan;
+    return [
+      String(i + 1),
+      `[${p.file}](pending/${p.file})`,
+      p.title,
+      fmtPriority(p.priority),
+      formatBlockers(a.blockers),
+      fmtStatus(p.status) || 'PENDING',
+      fmtModel(p.model),
+      fmtThinking(p.thinking),
+      fmtPerm(p.permissionMode),
+      fmtBrowserTool(p.browserTool),
+      p.created || p.mtime,
+    ];
+  });
   const execTable = execRows.length > 0
-    ? renderTable(['File', 'Title', 'Priority', 'Status', 'Model', 'Effort', 'Perm', 'Tool', 'Created'], execRows)
+    ? renderTable(
+        ['Pos', 'File', 'Title', 'Priority', 'Blocked by', 'Status', 'Model', 'Effort', 'Perm', 'Tool', 'Created'],
+        execRows,
+      )
     : '_No executable plans pending._';
 
-  // Section 2: Blocked — has pending dependencies
-  const blockedRows = blocked.map(({ plan: p, blockers }) => [
-    `[${p.file}](pending/${p.file})`,
-    p.title,
-    fmtPriority(p.priority),
-    blockers.map((b) => `[${b.ref}](pending/${b.file})`).join(', '),
-  ]);
-  const blockedTable = blockedRows.length > 0
-    ? renderTable(['File', 'Title', 'Priority', 'Blocked by (pending)'], blockedRows)
-    : '_No blocked plans._';
+  // Cycle warning (renders empty in normal state)
+  let cycleSection = '';
+  if (cycle.length > 0) {
+    const cycleRows = cycle.map((a) => [
+      `[${a.plan.file}](pending/${a.plan.file})`,
+      a.plan.title,
+      a.blockers.map((b) => `[${b.ref}](pending/${b.file})`).join(', '),
+    ]);
+    cycleSection =
+      `\n\n### ⚠️ Cycle Detected\n` +
+      `These plans form a circular dependency (authoring error). Resolve by editing \`**Depends on**\` fields.\n\n` +
+      renderTable(['File', 'Title', 'Blocked by'], cycleRows);
+  }
 
-  // Section 3: Parent Plans — roots that own pending subplans
+  // Parent Plans section — unchanged semantics.
   const parentRows = parentRoots.map((p) => [
     `[${p.file}](pending/${p.file})`,
     p.title,
@@ -400,15 +450,13 @@ function buildPendingSection(pending, done) {
     : '_No parent plans with pending subplans._';
 
   return (
-    `### Ready to Execute\n` +
-    `Unblocked plans only — all declared dependencies are in \`done/\`. Pass directly to \`/execute\`.\n` +
-    `Sorted by priority (P0 → P3), then newest first.\n\n` +
-    `${execTable}\n\n` +
-    `### Blocked (pending dependencies)\n` +
-    `These plans have one or more \`**Depends on**\` references still in \`pending/\`.\n` +
-    `Do not execute until blockers are resolved. Blocker links are clickable.\n\n` +
-    `${blockedTable}\n\n` +
-    `### Parent Plans (Waiting on Subplans)\n` +
+    `### Execution Order\n` +
+    `Single dependency-sorted list. Top of the table = run first.\n` +
+    `\`Blocked by\` shows pending dependencies (clickable). Empty = ready right now.\n` +
+    `Within each dependency tier, plans are sorted by priority (P0 → P3) then newest first.\n\n` +
+    `${execTable}` +
+    cycleSection +
+    `\n\n### Parent Plans (Waiting on Subplans)\n` +
     `These stay in \`pending/\` until their last subplan closes them (LR-027 parent-cascade). Do not execute directly.\n\n` +
     `${parentTable}`
   );
@@ -496,6 +544,8 @@ function render(pending, done) {
 
 **Last updated**: ${TODAY}
 **Auto-generated** by \`npm run plans:reindex\` — do not hand-edit. Edits will be overwritten.
+
+**Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves \`pending/\` → \`done/\`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual \`npm run plans:reindex\`, pre-commit hook (\`.githooks/pre-commit\` runs \`:check\` and fails the commit if INDEX is stale), and \`/execute\` Phase 3.5 step 3 (LR-035).
 
 **Totals**: ${pendingCount} pending · ${doneCount} done · ${staleCount} stale (>${STALE_DAYS}d) · ${doneInPendingCount} DONE-in-pending
 
