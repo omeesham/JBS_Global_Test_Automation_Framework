@@ -1,112 +1,110 @@
 # ##############################################################################
 # FILE: .github/workflows/playwright-tests.yml
-# PURPOSE: CI pipeline for running Playwright E2E tests across OS/browser matrix
-# WHY NECESSARY: Automates test execution on push, PR, nightly schedule, and manual trigger
-# USED BY: GitHub Actions (triggers on push to main/develop, PRs, nightly cron, manual dispatch)
+# PURPOSE: Manual-trigger CI scaffold for the Encore Playwright suite.
+#          Runs Ubuntu + Chromium only; module-parallel (2 workers, one per
+#          per-module project — encore-local-office + encore-locations).
+# WHY: Friday deliverable scaffold (parent plan PLAN_FRIDAY_DELIVERABLE_2026-04-29).
+#      Demonstrates the CI pattern handed to Encore — their production CI lives on
+#      their infra; this proves the wiring works end-to-end.
+# USED BY: GitHub Actions — `workflow_dispatch` only (Run workflow button or
+#          `gh workflow run playwright-tests.yml`). NO push / PR / cron triggers.
 #
-# HOW IT WORKS:
-# 1. Triggers on push, PR, nightly schedule (2 AM UTC), or manual dispatch
-# 2. Runs test matrix: [ubuntu, windows] x [chrome, firefox]
-# 3. Installs dependencies, Playwright browsers, runs tests
-# 4. Uploads test artifacts (reports, results) with 30-day retention
-# 5. Comments PR with pass/fail summary
+# AUTH CONTRACT (SP-EFD-02 target / TEMP_RUTVIK_EXPERIMENT current):
+#   - **Today (TEMP_RUTVIK_EXPERIMENT 2026-04-30)**: NAVIGATOR_MFA_SECRET IS set in the
+#     env block while the shared automation user is broken — temp account is Rutvik's
+#     personal MFA-enabled account. The setup project (auth.setup.ts) does ONE TOTP
+#     login per run, all workers reuse storageState. Search marker: TEMP_RUTVIK_EXPERIMENT.
+#   - **Target (post auto-user)**: drop NAVIGATOR_MFA_SECRET line + delete the GitHub
+#     secret. CI user has MFA disabled in M365 Admin per "CI User Provisioning Checklist"
+#     in clients/encore/CLAUDE.md. login.page.ts:215 silently skips MFA step when
+#     mfaSecret is undefined → straight to Dashboard. Removal procedure: see
+#     clients/encore/CLAUDE.md § "Temporary credentials".
+#
+# MODULE-PARALLEL CONTRACT (SP-EFD-01): playwright.config.ci.ts adds CI-only
+#   `encore-local-office` + `encore-locations` projects with fullyParallel:false.
+#   Local config (playwright.config.ts) does NOT contain these — local default runs
+#   match the pre-SP-EFD-01 baseline shape (4 browser projects, 1 worker, no
+#   concurrent SSO contention).
 # ##############################################################################
 
 name: Playwright Tests
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-  schedule:
-    - cron: '0 2 * * *'  # Nightly at 2 AM UTC
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment'
-        required: true
-        default: 'dev'
-        type: choice
-        options:
-          - dev
-          - staging
-          - production
 
 jobs:
   test:
-    name: Test on ${{ matrix.os }} - ${{ matrix.browser }}
-    runs-on: ${{ matrix.os }}
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        browser: [chrome, firefox]
-    
+    name: Playwright (Ubuntu, Chromium, 2-worker module-parallel)
+    runs-on: ubuntu-latest
+
+    env:
+      NAVIGATOR_USERNAME: ${{ secrets.NAVIGATOR_USERNAME }}
+      NAVIGATOR_PASSWORD: ${{ secrets.NAVIGATOR_PASSWORD }}
+      # TEMP_RUTVIK_EXPERIMENT (2026-04-30): NAVIGATOR_MFA_SECRET temporarily set so the
+      # setup project's auth.setup.ts can complete TOTP for Rutvik's personal MFA account
+      # while the shared automation user (s-prd-clickauto@psav.com) is broken. REMOVE this
+      # line + delete the GitHub secret when Encore IT provisions the MFA-less auto-user
+      # per the "CI User Provisioning Checklist" + "Temporary credentials" subsections in
+      # clients/encore/CLAUDE.md. SP-EFD-02 MFA-less contract is the post-removal target.
+      NAVIGATOR_MFA_SECRET: ${{ secrets.NAVIGATOR_MFA_SECRET }}
+      BASE_URL: ${{ secrets.BASE_URL }}
+      CI_ENV: ci
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      
-      - name: Run Playwright tests
-        env:
-          NODE_ENV: ${{ github.event.inputs.environment || 'dev' }}
-        run: npx playwright test --config=playwright.config.ci.ts --project=${{ matrix.browser }} --reporter=list,html,json,junit
-      
-      - name: Upload test results
+
+      - name: Install Playwright (Chromium only)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests (module-parallel, 2 workers)
+        run: npx playwright test --config=playwright.config.ci.ts --workers=2 --project=encore-local-office --project=encore-locations
+
+      - name: Generate Allure HTML report
+        if: always()
+        run: npm run allure:generate
+
+      - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results-${{ matrix.os }}-${{ matrix.browser }}
-          path: |
-            reports/
+          name: html-report
+          path: reports/html-report/
           retention-days: 30
           if-no-files-found: warn
 
-      - name: Upload HTML report
+      - name: Upload test results (JSON / JUnit / traces / videos)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: html-report-${{ matrix.os }}-${{ matrix.browser }}
-          path: reports/html-report
+          name: test-results
+          path: reports/test-results/
           retention-days: 30
           if-no-files-found: warn
-      
-      - name: Comment PR with results
-        if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v6
+
+      - name: Upload Allure raw results (re-generation source)
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          script: |
-            const fs = require('fs');
-            const resultsPath = 'reports/test-results.json';
-            if (!fs.existsSync(resultsPath)) {
-              core.warning('test-results.json not found -- skipping PR comment');
-              return;
-            }
-            const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
-            const body = `## Test Results - ${{ matrix.os }} - ${{ matrix.browser }}
+          name: allure-results
+          path: reports/allure-results/
+          retention-days: 30
+          if-no-files-found: warn
 
-            Passed: ${results.stats.expected}
-            Failed: ${results.stats.unexpected}
-            Skipped: ${results.stats.skipped}
-
-            [View full report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.name,
-              body: body
-            });
+      - name: Upload Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: reports/allure-report/
+          retention-days: 30
+          if-no-files-found: warn

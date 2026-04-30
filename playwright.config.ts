@@ -60,14 +60,19 @@ export default defineConfig({
   },
   
   // ==================== PARALLELIZATION ====================
-  fullyParallel: false,  // Disabled: tests may share state (login, data)
+  // EXP-AUTH-STATE-SHARED (TEMP_RUTVIK_EXPERIMENT 2026-04-30): bumped to fullyParallel + 2 workers
+  // for the shared-storage-state experiment. Revert to (false, 1) if experiment fails.
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,  // Prevent accidental test.only() in CI
-  
+
   // ==================== RETRY STRATEGY ====================
-  retries: process.env.CI ? 2 : 0,  // CI: 2 retries for flaky tests; Local: 0 for fast feedback
-  
+  // EXP-AUTH-STATE-SHARED: retries: 1 locally so a mid-spec auth-state expiry (D1 case)
+  // can be auto-recovered by Playwright re-running with refreshed state.
+  retries: process.env.CI ? 2 : 1,
+
   // ==================== WORKER PROCESSES ====================
-  workers: process.env.CI ? 1 : 1,  // 1 worker for predictable debugging (increase for high-spec machines)
+  // EXP-AUTH-STATE-SHARED: 2 workers prove parallel auth via shared storageState.
+  workers: process.env.CI ? 1 : 2,
   
   // ==================== REPORTERS ====================
   // Available: 'list', 'html', 'json', 'junit', 'allure-playwright', 'dot', 'github'
@@ -128,9 +133,18 @@ export default defineConfig({
   // ==================== BROWSER PROJECTS ====================
   // Usage: npx playwright test --project=chrome
   projects: [
+    // EXP-AUTH-STATE-SHARED setup project (TEMP_RUTVIK_EXPERIMENT 2026-04-30):
+    // Runs ONCE before any test project to acquire/refresh shared auth state at .auth/encore-state.json.
+    {
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/,
+      use: {
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
     {
       name: 'chrome',
-      use: { 
+      use: {
         channel: 'chrome',
         // viewport:null defers sizing to --start-maximized (headed-only).
         // Not suitable for headless runs -- use the chromium project for CI/headless.
@@ -153,8 +167,11 @@ export default defineConfig({
     
     {
       name: 'chromium',
-      use: { 
+      // EXP-AUTH-STATE-SHARED: depends on setup project; consumes saved storageState.
+      dependencies: ['setup'],
+      use: {
         viewport: { width: 1920, height: 1080 },  // explicit -- headless ignores null
+        storageState: '.auth/encore-state.json',
         launchOptions: {
           args: [
             '--disable-blink-features=AutomationControlled',

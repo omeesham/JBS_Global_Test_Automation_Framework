@@ -21,6 +21,12 @@ import { CredentialLoader } from '@framework/common/credential-loader';
 import { attachDiagnostics, DiagnosticsCollector } from '@framework/utils/diagnostics-collector';
 import * as fs from 'fs';
 import * as path from 'path';
+import {
+  STATE_PATH,
+  acquireLock,
+  validateState,
+  writeStateAtomic,
+} from './auth-storage';
 
 // Define worker-scoped fixtures (shared across tests in same worker)
 type WorkerFixtures = {
@@ -129,94 +135,111 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
  /**
  * Authenticated session fixture (worker-scoped)
- * Fresh login per worker -- authenticates via Microsoft SSO + MFA using env credentials.
- * No session persistence. Reuses the authenticated page directly (no about:blank).
- * Each spec file gets its own worker, so this = one login per spec file.
+ *
+ * EXP-AUTH-STATE-SHARED (TEMP_RUTVIK_EXPERIMENT 2026-04-30):
+ * Loads shared storageState from .auth/encore-state.json (created by the `setup` project).
+ * Pre-test guard: validates state; on stale, acquires file-lock and refreshes (single re-login
+ * across all workers). Falls back to fresh per-worker login only if state is missing entirely.
  */
   authenticatedSession: [async ({ browser, config }, use) => {
- // Create clean browser context -- no saved state, no storageState
-    const context = await browser.newContext();
-    const page = await context.newPage();
-
- // Global safety net: auto-accept native beforeunload dialogs to prevent test hangs.
- // enforcement: Angular forms fire beforeunload when navigating with unsaved edits.
- // Tests that need to control beforeunload dialogs can set page.__skipBeforeunloadAutoAccept = true.
-    page.on('dialog', async (dialog) => {
-      if (dialog.type() === 'beforeunload') {
-        const skip = (page as unknown as Record<string, unknown>).__skipBeforeunloadAutoAccept;
-        if (skip) {
-          Log.info('[fixture] beforeunload dialog deferred to test handler (skip flag set)');
-          return;
-        }
-        Log.info('[fixture] Auto-accepting beforeunload dialog');
-        await dialog.accept();
-      }
-    });
-
- // Attach runtime diagnostics collector (console, network, page errors, auth chain)
-    const collector = attachDiagnostics(page);
-
- // Load credentials from environment variables
     const credentials = await CredentialLoader.loadCredentials({ type: 'env' });
 
- // SSO login with retry -- OAuth callback can fail transiently (CSRF/state mismatch, B2C hiccup)
-    const MAX_LOGIN_ATTEMPTS = 3;
-    let loginSuccess = false;
+    const newSharedContext = async () => {
+      const ctx = fs.existsSync(STATE_PATH)
+        ? await browser.newContext({ storageState: STATE_PATH })
+        : await browser.newContext();
+      const pg = await ctx.newPage();
 
-    for (let attempt = 1; attempt <= MAX_LOGIN_ATTEMPTS; attempt++) {
-      if (attempt > 1) {
-        Log.info(`[retry] Login attempt ${attempt}/${MAX_LOGIN_ATTEMPTS} -- resetting page state and retrying`);
-        await page.goto('about:blank', { timeout: 5_000 }).catch(() => {});
-        await context.clearCookies();
+      pg.on('dialog', async (dialog) => {
+        if (dialog.type() === 'beforeunload') {
+          const skip = (pg as unknown as Record<string, unknown>).__skipBeforeunloadAutoAccept;
+          if (skip) {
+            Log.info('[fixture] beforeunload dialog deferred to test handler (skip flag set)');
+            return;
+          }
+          Log.info('[fixture] Auto-accepting beforeunload dialog');
+          await dialog.accept();
+        }
+      });
+
+      attachDiagnostics(pg);
+      return { ctx, pg };
+    };
+
+    const refreshSharedState = async (): Promise<void> => {
+      Log.info('[fixture] state stale -- acquiring lock to refresh');
+      const release = await acquireLock();
+      try {
+        // Re-check: a peer worker may have refreshed while we waited for the lock.
+        const probe = await browser.newContext(
+          fs.existsSync(STATE_PATH) ? { storageState: STATE_PATH } : undefined,
+        );
+        const probePage = await probe.newPage();
+        const stillStale = !(await validateState(probePage, config.base_url));
+        await probe.close();
+        if (!stillStale) {
+          Log.info('[fixture] peer worker refreshed state while we waited -- reusing');
+          return;
+        }
+
+        // Full SSO + MFA login (file-lock guarantees only this worker is here).
+        const loginCtx = await browser.newContext();
+        const loginPg = await loginCtx.newPage();
+        loginPg.on('dialog', async (dialog) => {
+          if (dialog.type() === 'beforeunload') await dialog.accept();
+        });
+        await loginPg.goto(config.base_url, { timeout: 78_000 });
+        const lp = new LoginPage(loginPg, config);
+        const ok = await lp.loginWithMicrosoft(
+          credentials.username,
+          credentials.password,
+          credentials.mfaSecret,
+        );
+        if (!ok) {
+          await loginCtx.close();
+          throw new Error('SSO + MFA login failed during state refresh');
+        }
+        await loginPg
+          .getByRole('heading', { name: 'Dashboard', level: 1 })
+          .waitFor({ state: 'visible', timeout: 60_000 });
+        await writeStateAtomic(loginCtx);
+        await loginCtx.close();
+        Log.info('[fixture] shared state refreshed and saved');
+      } finally {
+        await release();
       }
+    };
 
- // Navigate to app -- triggers redirect to Navigator Cloud sign-in page
- // 78s (1.3 min) timeout: allows SSO redirect chain to initiate; no waitUntil to avoid networkidle stall
+    let { ctx: context, pg: page } = await newSharedContext();
+
+    // EXP-AUTH-STATE-SHARED test hook: when EXP_FORCE_STALE_FIRST=1, simulate mid-run
+    // expiry on the first pre-test guard call per worker process. Forces both workers
+    // through refreshSharedState() simultaneously to verify the file-lock serialization.
+    const forceStaleFirst =
+      process.env.EXP_FORCE_STALE_FIRST === '1' &&
+      !(globalThis as unknown as { __expForceStaleConsumed?: boolean }).__expForceStaleConsumed;
+    if (forceStaleFirst) {
+      (globalThis as unknown as { __expForceStaleConsumed?: boolean }).__expForceStaleConsumed = true;
+      Log.info('[fixture] EXP_FORCE_STALE_FIRST=1 -- forcing stale path for mid-run sim');
+    }
+
+    // Pre-test guard
+    if (forceStaleFirst || !(await validateState(page, config.base_url))) {
+      await context.close();
+      await refreshSharedState();
+      ({ ctx: context, pg: page } = await newSharedContext());
+      // Reload-with-fresh-state: new context's page is blank -- navigate explicitly,
+      // then confirm Dashboard via final readiness gate.
       await page.goto(config.base_url, { timeout: 78_000 });
-
- // Full SSO + MFA login flow
-      const loginPage = new LoginPage(page, config);
-      loginSuccess = await loginPage.loginWithMicrosoft(
-        credentials.username,
-        credentials.password,
-        credentials.mfaSecret,
-      );
-
-      if (loginSuccess) break;
-      Log.error(`[ERR] Login attempt ${attempt}/${MAX_LOGIN_ATTEMPTS} failed`);
+      await page
+        .getByRole('heading', { name: 'Dashboard', level: 1 })
+        .waitFor({ state: 'visible', timeout: 60_000 });
     }
 
-    if (!loginSuccess) {
-      throw new Error(`Authenticated session creation failed -- SSO login did not succeed after ${MAX_LOGIN_ATTEMPTS} attempts`);
-    }
+    Log.info('[OK] Authenticated session ready via shared storageState');
 
- // Wait for the Dashboard heading to become visible -- signals the app has fully loaded
- // after the post-SSO redirect chain. 60s timeout: Navigator Cloud loads fast (no Angular bundle).
- // Landing page shows "Dashboard" h1 on the main home page.
-    Log.info('[wait] Waiting for Dashboard heading to be visible (app ready signal)...');
-    const setupWaitStart = Date.now();
-    try {
-      await page.getByRole('heading', { name: 'Dashboard', level: 1 }).waitFor({ state: 'visible', timeout: 60_000 });
-    } catch (setupError) {
-      const elapsed = Date.now() - setupWaitStart;
-      Log.error(`[TIMEOUT] Dashboard heading not visible after ${elapsed}ms. URL: ${page.url()}`);
-      const bodyText = await page.locator('body').textContent({ timeout: 5_000 }).catch(() => '');
-      if (!bodyText || bodyText.trim().length < 10) {
-        Log.error('[DIAGNOSIS] Page body is empty -- app likely did not load');
-      } else {
-        Log.error(`[DIAGNOSIS] Page body has content (${bodyText.trim().length} chars) -- app may have loaded but Dashboard heading not found`);
-      }
-      throw setupError;
-    }
-    Log.info(`[OK] Fresh login complete -- Dashboard visible after ${Date.now() - setupWaitStart}ms`);
-
- // Record URL after successful auth for diagnostics
-    collector.recordUrl();
-
- // Hand the SAME page (now on Navigator Cloud) to tests -- no about:blank, no leaked page
     await use({ page, context });
 
- // Teardown: close the entire context (page + cookies)
     await context.close();
   }, { scope: 'worker', timeout: 300_000 }],
 
