@@ -40,6 +40,34 @@ Break the user's request into discrete subtasks:
 - Each subtask = one sentence: `[verb] [what] [where]`
 - **Sonnet-specific**: MUST write subtasks to TodoWrite BEFORE matching (makes decomposition auditable)
 
+## Step 2.5: Agent-Mistakes Grep (advisory tags)
+
+For each subtask, grep `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` for keyword matches:
+
+```bash
+grep -niE "<subtask-keyword-1>|<keyword-2>" clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md
+```
+
+For each `MIS-XXX` / `ALL-XXX` / `GEN-XXX` / etc. hit, flag as **advisory** TodoWrite tag (not blocking). Format: `MIS-013(don't bypass save dialog)` — same parens-required syntax as `LR-NNN(reason)` so the hook regex accepts it.
+
+Why advisory: graduated mistakes BECOME `LR-NNN` per `/compile-learnings`. The parallel taxonomy is informational — once graduated, the LR rule is the binding form. Until graduation, the agent-mistakes hit is a strong hint, not a hard contract.
+
+## Step 2.6: LR-Rule Path-Glob Grep (binding tags)
+
+For each subtask, grep `.claude/rules/*.md` for `paths:` glob matches against the files the subtask will touch:
+
+```bash
+grep -lE "paths:" .claude/rules/*.md | xargs -I{} sh -c 'head -10 "{}" | grep -q "<file-path-pattern>" && echo "{}"'
+```
+
+For each LR-NNN found in a matching rule pack, tag the subtask `LR-NNN(reason)`. Multiple rules per subtask is fine. These are **binding** tags — `/final-q` Step 4.5 cross-checks LR-tagged todos to ensure the rule was actually followed (e.g., LR-028 tagged → activity-log row landed).
+
+Also scan cross-cutting rules in `docs/read_only_docs/LEARNED_RULES.md` for triggers that match the subtask description.
+
+## Step 2.7: Patterns.md Decision-Tree Match (advisory tags)
+
+If the subtask matches a decision tree in `.claude/context/patterns.md` (e.g., spec-fixing start, Radix UI dropdowns, Angular save→tab race), tag with `[manual](patterns.md §<section> applies)`. Pattern references are advisory — they document the recommended approach but don't have a binding obligation like LR rules do.
+
 ## Step 3: Match Subtasks to Skills
 
 For each subtask, check against INDEX.md triggers. Assign a match type:
@@ -54,16 +82,24 @@ For each subtask, check against INDEX.md triggers. Assign a match type:
 
 Multiple skills can match one subtask (e.g., INFORM + WRAP + VERIFY for a complex change).
 
-## Step 4: Inject into TodoWrite
+## Step 4: Inject as TRACKED Tags into TodoWrite (not binding)
 
-Tag each todo item with matched skills:
+Tag each todo item with matched skills + LR rules + agent-mistakes hits + patterns. Per SP02B (TodoWrite Tagging Contract in `.claude/rules/pipeline.md`), tags are **TRACKED, not binding** — `/relevant` injects them as suggestions; the agent decides whether to actually invoke each tagged skill.
+
+`/final-q` Step 6 reclassifies any todo whose `[/skill:direct]` tag was injected here but the named skill was never invoked → `screwed` row. So a `direct` match is a high-confidence claim — only inject `direct` when the subtask IS the skill's job.
+
+Required tag format (per `.claude/rules/pipeline.md` § "TodoWrite Tagging Contract" — closed 4-type taxonomy enforced by hook):
 
 ```
 [/research:inform] Understand Radix combobox API before implementing filter
 [/regression-guard:wrap] Modify page object — snapshot before+after
 [/audit:verify] Post-implementation check — verify all plan items executed
-[manual] Update REQUIREMENTS.md line 791
+[manual](docs edit) Update REQUIREMENTS.md line 791
+LR-007(verify before code) Pre-flight check — test data constants exist live
+MIS-013(don't bypass save dialog) Click Save then handle dialog — page object change
 ```
+
+Multi-tag per item allowed: `[/regression-guard:wrap] LR-009(angular dirty) [ceremony]` is valid when an Angular-form edit is wrapped by regression-guard, governed by LR-009, AND counts as a closure ceremony obligation.
 
 ## Step 5: Gap Report
 

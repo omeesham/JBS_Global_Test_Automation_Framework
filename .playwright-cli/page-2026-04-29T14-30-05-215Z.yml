@@ -1,0 +1,277 @@
+- generic [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e7]:
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - button "1604 Parker Palm Springs" [ref=e383] [cursor=pointer]:
+            - generic [ref=e13]: "1604"
+            - generic [ref=e14]:
+              - generic [ref=e384]: Parker Palm Springs
+              - img [ref=e15]
+      - generic [ref=e21]:
+        - list [ref=e23]:
+          - listitem [ref=e24]:
+            - link "Home" [ref=e25] [cursor=pointer]:
+              - /url: /navigator/locations/1604/home
+              - img [ref=e26]
+              - generic [ref=e29]: Home
+          - listitem [ref=e30]:
+            - link "Inbox" [ref=e31] [cursor=pointer]:
+              - /url: /navigator/locations/1604/inbox
+              - img [ref=e32]
+              - generic [ref=e35]: Inbox
+          - listitem [ref=e36]:
+            - button "Actions" [ref=e37] [cursor=pointer]:
+              - img [ref=e38]
+              - generic [ref=e40]: Actions
+              - img [ref=e41]
+          - listitem [ref=e43]:
+            - button "Commissions" [ref=e44] [cursor=pointer]:
+              - img [ref=e45]
+              - generic [ref=e47]: Commissions
+              - img [ref=e48]
+          - listitem [ref=e50]:
+            - button "Tax" [ref=e51] [cursor=pointer]:
+              - img [ref=e52]
+              - generic [ref=e55]: Tax
+              - img [ref=e56]
+          - listitem [ref=e58]:
+            - button "Setup" [ref=e59] [cursor=pointer]:
+              - img [ref=e60]
+              - generic [ref=e63]: Setup
+              - img [ref=e64]
+          - listitem [ref=e66]:
+            - button "Studio" [ref=e67] [cursor=pointer]:
+              - img [ref=e68]
+              - generic [ref=e70]: Studio
+              - img [ref=e71]
+        - generic [ref=e73]:
+          - generic [ref=e74]: Search
+          - list [ref=e76]:
+            - listitem [ref=e77]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=e78]:
+              - link "Job Search" [ref=e79] [cursor=pointer]:
+                - /url: /navigator/locations/1604/fulfillments
+                - img [ref=e80]
+                - generic [ref=e83]: Job Search
+            - listitem [ref=e84]:
+              - link "Asset Search" [ref=e85] [cursor=pointer]:
+                - /url: /navigator/locations/1604/assets
+                - img [ref=e86]
+                - generic [ref=e89]: Asset Search
+            - listitem [ref=e90]:
+              - link "Customer Search" [ref=e91] [cursor=pointer]:
+                - /url: /navigator/locations/1604/customers
+                - img [ref=e92]
+                - generic [ref=e95]: Customer Search
+            - listitem [ref=e96]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e97]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e98]:
+              - link "Item Search" [ref=e99] [cursor=pointer]:
+                - /url: /navigator/locations/1604/products
+                - img [ref=e100]
+                - generic [ref=e110]: Item Search
+            - listitem [ref=e111]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e112]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e114]:
+          - listitem [ref=e115]:
+            - button "Navigator Assistant" [ref=e116] [cursor=pointer]:
+              - img [ref=e117]
+              - generic [ref=e119]: Navigator Assistant
+      - list [ref=e122]:
+        - listitem [ref=e123]:
+          - button "RK Rutvik Khosariya" [ref=e124] [cursor=pointer]:
+            - generic [ref=e126]: RK
+            - generic [ref=e128]: Rutvik Khosariya
+            - img [ref=e129]
+      - button "Click to restore sidebar" [ref=e133]
+    - main [ref=e134]:
+      - generic [ref=e137]:
+        - generic [ref=e139]:
+          - button "trigger-button" [ref=e140] [cursor=pointer]:
+            - img
+          - generic [ref=e142]:
+            - heading "Location Settings" [level=1] [ref=e144]
+            - button "More information" [ref=e145]:
+              - img [ref=e146]
+        - generic [ref=e385]:
+          - tablist [ref=e386]:
+            - tab "Basic Information" [selected] [ref=e387] [cursor=pointer]:
+              - generic [ref=e388]:
+                - img [ref=e389]
+                - text: Basic Information
+            - tab "Location Management History" [ref=e392] [cursor=pointer]:
+              - generic [ref=e393]:
+                - img [ref=e394]
+                - text: Location Management History
+          - tabpanel "Basic Information" [ref=e398]:
+            - generic [ref=e399]:
+              - generic [ref=e407]:
+                - button "Save" [ref=e48414] [cursor=pointer]
+                - generic [ref=e409]:
+                  - generic [ref=e410]:
+                    - generic [ref=e411]: Office
+                    - textbox "Office" [disabled]:
+                      - /placeholder: No office available
+                      - text: "1604"
+                  - generic [ref=e412]:
+                    - generic [ref=e413]: Local Office
+                    - generic [ref=e414]:
+                      - textbox "Local Office" [disabled]: "1604"
+                  - generic [ref=e415]:
+                    - generic [ref=e416]: Local Office Name
+                    - textbox "Local Office Name" [ref=e418]: Parker Palm Springs
+                  - generic [ref=e419]:
+                    - generic [ref=e420]: Active
+                    - checkbox "Active" [checked] [ref=e421] [cursor=pointer]:
+                      - generic:
+                        - img
+                  - generic [ref=e422]:
+                    - generic [ref=e423]: Live Date
+                    - button "Open popover" [ref=e424] [cursor=pointer]:
+                      - img
+                      - text: November 4th, 2005
+                  - generic [ref=e425]:
+                    - generic [ref=e426]: Tax Mode
+                    - combobox [ref=e428] [cursor=pointer]:
+                      - generic: US
+                      - img
+                  - generic [ref=e429]:
+                    - generic [ref=e430]: Country
+                    - combobox [ref=e432] [cursor=pointer]:
+                      - generic: United States
+                      - img
+                  - generic [ref=e433]:
+                    - generic [ref=e434]: Region
+                    - combobox [ref=e436] [cursor=pointer]:
+                      - generic: Palm Springs
+                      - img
+                  - generic [ref=e437]:
+                    - generic [ref=e438]: Servicing Branch Office
+                    - combobox [ref=e439] [cursor=pointer]:
+                      - generic: Select Servicing Branch Office
+                      - img
+                  - generic [ref=e440]:
+                    - generic [ref=e441]: Line Of Business
+                    - combobox [disabled] [ref=e443]:
+                      - generic: Hotel Services Division
+                      - img
+                  - generic [ref=e444]:
+                    - generic [ref=e445] [cursor=pointer]: Pay To Address
+                    - generic [ref=e446]:
+                      - textbox "Pay To Address" [disabled]: Encore
+                  - generic [ref=e447]:
+                    - generic [ref=e448]: Union
+                    - checkbox "Union" [ref=e449] [cursor=pointer]
+                  - generic [ref=e450]:
+                    - generic [ref=e451]: eCommerce Active
+                    - checkbox "eCommerce Active" [checked] [disabled] [ref=e452]:
+                      - generic:
+                        - img
+                  - generic [ref=e453]:
+                    - generic [ref=e454]: Enable Productions Orders
+                    - checkbox "Enable Productions Orders" [checked] [disabled] [ref=e455]:
+                      - generic:
+                        - img
+              - generic [ref=e457]:
+                - tablist [ref=e458]:
+                  - tab "Local Information" [ref=e459] [cursor=pointer]:
+                    - generic [ref=e460]:
+                      - img [ref=e461]
+                      - text: Local Information
+                  - tab "Currency" [active] [selected] [ref=e464] [cursor=pointer]:
+                    - generic [ref=e465]:
+                      - img [ref=e466]
+                      - text: Currency
+                  - tab "Pricing" [ref=e469] [cursor=pointer]:
+                    - generic [ref=e470]:
+                      - img [ref=e471]
+                      - text: Pricing
+                  - tab "Account and Address" [ref=e475] [cursor=pointer]:
+                    - generic [ref=e476]:
+                      - img [ref=e477]
+                      - text: Account and Address
+                  - tab "Legal" [ref=e480] [cursor=pointer]:
+                    - generic [ref=e481]:
+                      - img [ref=e482]
+                      - text: Legal
+                  - tab "Notes" [ref=e486] [cursor=pointer]:
+                    - generic [ref=e487]:
+                      - img [ref=e488]
+                      - text: Notes
+                  - tab "Shared Setup Locations" [ref=e491] [cursor=pointer]:
+                    - generic [ref=e492]:
+                      - img [ref=e493]
+                      - text: Shared Setup Locations
+                  - tab "Auto Add-On" [ref=e496] [cursor=pointer]:
+                    - generic [ref=e497]:
+                      - img [ref=e498]
+                      - text: Auto Add-On
+                - tabpanel "Currency" [ref=e847]:
+                  - table [ref=e48432]:
+                    - rowgroup [ref=e48433]:
+                      - row "Currency Code Selected Is Default Merchant" [ref=e48434]:
+                        - columnheader "Currency Code" [ref=e48435]
+                        - columnheader "Selected" [ref=e48436]
+                        - columnheader "Is Default" [ref=e48437]
+                        - columnheader "Merchant" [ref=e48438]
+                    - rowgroup [ref=e48439]:
+                      - row "USD" [ref=e48440]:
+                        - cell "USD" [ref=e48441]
+                        - cell [ref=e48442]:
+                          - checkbox [checked] [ref=e48443] [cursor=pointer]:
+                            - generic:
+                              - img
+                          - checkbox [checked]
+                        - cell [ref=e48444]:
+                          - checkbox [checked] [ref=e48445] [cursor=pointer]:
+                            - generic:
+                              - img
+                          - checkbox [checked]
+                        - cell [ref=e48446]:
+                          - combobox [ref=e48447] [cursor=pointer]:
+                            - generic: 316370 - PSAV US/USD
+                            - img
+                          - combobox [ref=e48448]
+                      - row "CAD" [ref=e48449]:
+                        - cell "CAD" [ref=e48450]
+                        - cell [ref=e48451]:
+                          - checkbox [ref=e48452] [cursor=pointer]
+                          - checkbox
+                        - cell [ref=e48453]:
+                          - checkbox [disabled] [ref=e48454]
+                          - checkbox [disabled]
+                        - cell [ref=e48455]:
+                          - combobox [ref=e48456] [cursor=pointer]:
+                            - generic: 316446 - PSAV Canada/CAD
+                            - img
+                          - combobox [ref=e48457]
+                      - row "MXN" [ref=e48458]:
+                        - cell "MXN" [ref=e48459]
+                        - cell [ref=e48460]:
+                          - checkbox [ref=e48461] [cursor=pointer]
+                          - checkbox
+                        - cell [ref=e48462]:
+                          - checkbox [disabled] [ref=e48463]
+                          - checkbox [disabled]
+                        - cell [ref=e48464]:
+                          - combobox [ref=e48465] [cursor=pointer]:
+                            - img
+                          - combobox [ref=e48466]
+  - region "Notifications alt+T"

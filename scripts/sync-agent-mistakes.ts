@@ -1,11 +1,19 @@
 #!/usr/bin/env ts-node
 /**
  * Sync Agent Mistakes - Injects rules from registry into agent files.
- * Also syncs SYNC marker blocks: COMMANDS (from package.json), MCP_CRITICAL (from MCP_BROWSER_GUIDE.md).
- * 
- * Single source of truth: specs_planning/_internal/agent-mistakes.md (NEVER DO rules)
- * Targets: .github/agents/*.agent.md NEVER DO sections + copilot-instructions.md SYNC blocks
- * 
+ *
+ * Single source of truth: specs_planning/_internal/agent-mistakes.md (NEVER DO rules).
+ *
+ * NOTE (PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0, 2026-04-27): the original sync targets
+ * (`.github/agents/playwright-*.agent.md` + `.github/copilot-instructions.md`) were
+ * deleted as part of Copilot eviction. The new model-agnostic sub-agents at
+ * `.claude/agents/{REQUIREMENTS,PLANNER,GENERATOR,HEALER,AUDIT,MAINTAINER}.md` use
+ * `@`-references to agent-mistakes.md instead of injected NEVER DO blocks, so they do
+ * NOT need this sync. AGENT_CONDENSED + CONTEXT_LOAD_TARGETS are now empty; the
+ * MCP_CRITICAL + COMMANDS marker syncs short-circuit when the (deleted) target file
+ * is absent. A proper redesign for the new architecture is deferred to a follow-up
+ * subplan under PLAN_CC_ANTHROPIC_ALIGNMENT (Phase 3 skill rationalization).
+ *
  * Usage: npm run sync:mistakes [--dry-run]
  * Exit: 0 = success, 1 = error
  */
@@ -25,15 +33,10 @@ interface AgentRules {
 const REGISTRY_PATH = SHARED_PATHS.mistakes;
 const AGENTS_DIR = SHARED_PATHS.agentsDir;
 
-// Agent-specific condensed format (token-efficient)
-const AGENT_CONDENSED: { [key: string]: boolean } = {
-  'playwright-requirements.agent.md': true,
-  'playwright-test-planner.agent.md': true,
-  'playwright-test-generator.agent.md': true,
-  'playwright-test-healer.agent.md': true,
-  'playwright-pipeline-audit.agent.md': true,
-  'playwright-framework-maintainer.agent.md': true,
-};
+// Agent-specific condensed format (token-efficient).
+// Now empty after Copilot eviction; new .claude/agents/{ROLE}.md sub-agents @-reference
+// agent-mistakes.md directly (no injected NEVER DO blocks needed).
+const AGENT_CONDENSED: { [key: string]: boolean } = {};
 
 function parseRegistry(): AgentRules {
   const content = fs.readFileSync(REGISTRY_PATH, 'utf-8');
@@ -60,10 +63,8 @@ function parseRegistry(): AgentRules {
   return rules;
 }
 
-// Planner uses compact 2-column format (no "Correct" column)
-const AGENT_COMPACT_FORMAT: { [key: string]: boolean } = {
-  'playwright-test-planner.agent.md': true,
-};
+// Planner used compact 2-column format historically; empty after Copilot eviction.
+const AGENT_COMPACT_FORMAT: { [key: string]: boolean } = {};
 
 /** Compute the highest ALL-NNN ID across agent-mistakes.md shared rules AND AGENT_SHARED_RULES.md. */
 function computeHighestAllId(sharedRules: MistakeRule[]): string {
@@ -140,22 +141,17 @@ function injectIntoAgentFile(filePath: string, newSection: string): { changed: b
 }
 
 // ── SYNC Marker Infrastructure ──
+// The original PIPELINE_INSTRUCTIONS / playwright-*.agent.md targets were deleted in the
+// Copilot eviction (PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0, 2026-04-27). The constants below
+// remain so the sync functions can short-circuit cleanly when files are missing.
 
-const COPILOT_INSTRUCTIONS = frameworkPath(path.join('.github', 'copilot-instructions.md'));
-// docs/read_only_docs/*.md are framework-level (shared rules). SP-MT-03 moved only
-// client-specific requirement .docx files into clients/encore/docs/read_only_docs/.
+const PIPELINE_INSTRUCTIONS = frameworkPath(path.join('.github', 'copilot-instructions.md')); // deleted file; functions short-circuit if absent
 const MCP_GUIDE = frameworkPath(path.join('docs', 'read_only_docs', 'MCP_BROWSER_GUIDE.md'));
 const PKG_JSON = frameworkPath('package.json');
 const SHARED_RULES = frameworkPath(path.join('docs', 'read_only_docs', 'AGENT_SHARED_RULES.md'));
 
-/** Agent files that receive CONTEXT_LOAD sync (all 5 pipeline agents). */
-const CONTEXT_LOAD_TARGETS = [
-  'playwright-requirements.agent.md',
-  'playwright-test-planner.agent.md',
-  'playwright-test-generator.agent.md',
-  'playwright-test-healer.agent.md',
-  'playwright-pipeline-audit.agent.md',
-];
+/** Agent files that receive CONTEXT_LOAD sync (empty after Copilot eviction). */
+const CONTEXT_LOAD_TARGETS: string[] = [];
 
 /** Curated commands shown to agents. [displayCmd, scriptKey|null, description] */
 const FEATURED_COMMANDS: [string, string | null, string][] = [
@@ -216,16 +212,16 @@ function buildCommandsBlock(): string {
   return '\n' + lines.join('\n') + '\n';
 }
 
-/** Sync MCP_CRITICAL: canonical in MCP_BROWSER_GUIDE.md -> copilot-instructions.md */
+/** Sync MCP_CRITICAL: canonical in MCP_BROWSER_GUIDE.md -> .github/copilot-instructions.md (deleted; no-op). */
 function syncMcpCritical(dryRun: boolean): string {
   if (!fs.existsSync(MCP_GUIDE)) return '[WARN] MCP_CRITICAL: MCP_BROWSER_GUIDE.md not found';
-  if (!fs.existsSync(COPILOT_INSTRUCTIONS)) return '[WARN] MCP_CRITICAL: copilot-instructions.md not found';
+  if (!fs.existsSync(PIPELINE_INSTRUCTIONS)) return '[WARN] MCP_CRITICAL: copilot-instructions.md not found';
 
   const canonical = fs.readFileSync(MCP_GUIDE, 'utf-8');
   const srcBlock = extractSyncBlock(canonical, 'MCP_CRITICAL');
   if (!srcBlock) return '[WARN] MCP_CRITICAL: no SYNC markers in MCP_BROWSER_GUIDE.md';
 
-  let target = fs.readFileSync(COPILOT_INSTRUCTIONS, 'utf-8');
+  let target = fs.readFileSync(PIPELINE_INSTRUCTIONS, 'utf-8');
   const tgtBlock = extractSyncBlock(target, 'MCP_CRITICAL');
   if (tgtBlock === null) return '[WARN] MCP_CRITICAL: no SYNC markers in copilot-instructions.md';
 
@@ -233,17 +229,17 @@ function syncMcpCritical(dryRun: boolean): string {
 
   if (!dryRun) {
     target = replaceSyncBlock(target, 'MCP_CRITICAL', srcBlock);
-    fs.writeFileSync(COPILOT_INSTRUCTIONS, target, 'utf-8');
+    fs.writeFileSync(PIPELINE_INSTRUCTIONS, target, 'utf-8');
     return '[OK] MCP_CRITICAL: copilot-instructions.md synced from MCP_BROWSER_GUIDE.md';
   }
   return '[~] MCP_CRITICAL: drift detected (dry-run, would sync)';
 }
 
-/** Sync COMMANDS: generated from curated list -> copilot-instructions.md */
+/** Sync COMMANDS: generated from curated list -> .github/copilot-instructions.md (deleted; no-op). */
 function syncCommands(dryRun: boolean): string {
-  if (!fs.existsSync(COPILOT_INSTRUCTIONS)) return '[WARN] COMMANDS: copilot-instructions.md not found';
+  if (!fs.existsSync(PIPELINE_INSTRUCTIONS)) return '[WARN] COMMANDS: copilot-instructions.md not found';
 
-  let target = fs.readFileSync(COPILOT_INSTRUCTIONS, 'utf-8');
+  let target = fs.readFileSync(PIPELINE_INSTRUCTIONS, 'utf-8');
   const tgtBlock = extractSyncBlock(target, 'COMMANDS');
   if (tgtBlock === null) return '[WARN] COMMANDS: no SYNC markers in copilot-instructions.md';
 
@@ -252,7 +248,7 @@ function syncCommands(dryRun: boolean): string {
 
   if (!dryRun) {
     target = replaceSyncBlock(target, 'COMMANDS', newBlock);
-    fs.writeFileSync(COPILOT_INSTRUCTIONS, target, 'utf-8');
+    fs.writeFileSync(PIPELINE_INSTRUCTIONS, target, 'utf-8');
     return '[OK] COMMANDS: copilot-instructions.md synced from package.json';
   }
   return '[~] COMMANDS: drift detected (dry-run, would sync)';
@@ -309,7 +305,7 @@ function syncAllMarkers(dryRun: boolean): string[] {
   return [
     syncMcpCritical(dryRun),
     syncCommands(dryRun),
-    // PIPELINE: canonical IS copilot-instructions.md, no external targets — skip
+    // PIPELINE: canonical was .github/copilot-instructions.md (deleted) — no external targets, skip
     ...syncContextLoad(dryRun),
   ];
 }
@@ -364,7 +360,7 @@ function main() {
   }
   
   for (const [agentName, agentFile] of Object.entries(AGENT_FILE_MAP)) {
-    if (agentFile === 'SKIP' || agentFile === 'copilot' || agentFile === 'ALL') continue;
+    if (agentFile === 'SKIP' || agentFile === 'ALL') continue;
     
     const agentRules = rules[agentName] || [];
     // Agent-specific rules only -- shared rules are referenced via line above table

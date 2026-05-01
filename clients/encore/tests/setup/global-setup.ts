@@ -14,19 +14,10 @@ interface PreflightResult {
 const PREFLIGHT_OUTPUT = path.join(process.cwd(), 'reports', 'preflight-check.json');
 
 async function globalSetup(config: FullConfig) {
- // Clean up old logs (30 day retention) - runs cleanup-logs.ts
- // Relative path resolves from clients/encore/tests/setup/ to repo-root scripts/.
-  try {
-    const { cleanupLogs } = require('../../../../scripts/cleanup-logs');
-    await cleanupLogs();
-  } catch (error) {
-    console.log('Log cleanup skipped:', error instanceof Error ? error.message : String(error));
-  }
-
- // Load environment variables from config/environments/ (repo root — SP-MT-03 moves these to clients/encore/config/environments/)
+ // Load environment variables from clients/encore/config/environments/
  // Cascade: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
   dotenvFlow.config({
-    path: path.join(__dirname, '..', '..', '..', '..', 'config', 'environments'),
+    path: path.join(__dirname, '..', '..', 'config', 'environments'),
     node_env: process.env.CI_ENV || process.env.NODE_ENV || 'development',
     silent: true
   });

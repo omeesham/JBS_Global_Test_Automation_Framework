@@ -105,11 +105,15 @@ export const OWNERSHIP_ROWS = [
   },
   {
     pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-*.md",
-    grants: { HUNTER: "READ", GIVER: "CREATE", BUILDER: "READ", HEALER: "READ", WATCHDOG: "UPDATE", GARDENER: "READ", OWNER: "RW" },
+    grants: { HUNTER: "READ", GIVER: "CREATE", BUILDER: "READ", HEALER: "UPDATE", WATCHDOG: "UPDATE", GARDENER: "READ", OWNER: "RW" },
   },
   {
     pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventory-spec.md",
     grants: { HUNTER: "READ", GIVER: "READ", BUILDER: "READ", HEALER: "READ", WATCHDOG: "READ", GARDENER: "READ", OWNER: "RW" },
+  },
+  {
+    pattern: "reports/bugs/BUG-*.json",
+    grants: { HUNTER: "READ", GIVER: "READ", BUILDER: "CREATE", HEALER: "CREATE", WATCHDOG: "READ", GARDENER: "READ", OWNER: "RW" },
   },
   {
     pattern: "scripts/**",

@@ -3,10 +3,7 @@
 ## Context
 The vault system (AES-256-GCM encrypted credential storage) creates friction for collaborators who can't get it working. Rutvik wants anyone to be able to clone the repo and immediately run tests without vault setup. Security is not a concern for this project. Credentials will be committed to git in plain `.env` files.
 
-**Credentials:**
-- Username: `v-rutvik.khosariya@psav.com`
-- Password: `Qa@12345678!!`
-- MFA Secret: `CYFRPMNXGR75FQQF`
+**Credentials:** [ROTATED — see .env files]
 
 ---
 

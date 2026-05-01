@@ -4,6 +4,7 @@
 
 **Original**: PLAN_GENERATOR_AUDIT_AUTO_ADDON.md
 **Status**: REVISED — incorporates external adversarial audit + codebase verification
+**Priority**: P2-CYCLE-3
 **Date**: 2026-03-25
 **Audit trail**: V1 (original) → V2 (external audit found 6 errors, 2 unsupported claims, 4 rule ID collisions) → V3 (this version, all corrections applied)
 

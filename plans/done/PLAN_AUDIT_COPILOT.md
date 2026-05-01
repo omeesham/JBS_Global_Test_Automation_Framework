@@ -1,7 +1,17 @@
 # PLAN: Audit Copilot
 
-**Status**: PENDING  
-**Created**: 2026-04-10  
+**Status**: SUPERSEDED
+**Executed**: 2026-04-27
+**Superseded by**: PLAN_CC_ANTHROPIC_ALIGNMENT.md (Phase 0 — Copilot evict; verified DONE 2026-04-27; structural field added by 2026-04-28 supersession-integrity sweep)
+**Priority**: P2-CYCLE-3
+**Created**: 2026-04-10
+
+### Execution Summary
+
+Superseded by [PLAN_CC_ANTHROPIC_ALIGNMENT.md](../pending/PLAN_CC_ANTHROPIC_ALIGNMENT.md) Phase 0 (Copilot evict). The plan was a paste of a Copilot debugging session from 2026-04-10 used as source material for LR-030..LR-034 graduations and SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY (also superseded). The graduated rules remain in CLAUDE.md. With Copilot deleted from the pipeline (SP1 Phase 0.3), the accountability-audit premise is moot. No unique work remains.
+
+---
+
 
 ---
 

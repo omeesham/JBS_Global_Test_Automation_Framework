@@ -1,0 +1,29 @@
+=== AFTER SNAPSHOT (2026-04-29T17:51:15+05:30) ===
+--- baseline.md ---
+37 .claude/rules/baseline.md
+1d01c96e59da2a68527bbfd749a953cac58995073c94cdad0d23419db4614de3 *.claude/rules/baseline.md
+3:paths:
+4:  - "clients/*/specs_planning/**/*.md"
+5:  - "clients/*/docs/REQUIREMENTS.md"
+6:  - "clients/*/specs_planning/_internal/old-site-baseline/**/*.md"
+7:  - "reports/bugs/**/*.json"
+--- pipeline.md ---
+255 .claude/rules/pipeline.md
+0260fb30a8c509ab17369f6f5f0cca06433c40afd053e5c38415c0d51e37a802 *.claude/rules/pipeline.md
+12:## LR-020: Verify all plan claims against actual codebase before finalizing
+25:## LR-027: Plan finalization — execution summary MANDATORY before move to done/
+48:## LR-028: Session bookkeeping — activity log entry at session end
+61:## LR-040: Subplan closure completeness gate — every gap needs a concrete destination
+84:## LR-041: Conservative model + thinking selection — every subplan declares Model + Thinking + PermissionMode
+110:## LR-044: Bug Verification Protocol — read verbatim → follow exactly → minimize
+136:## LR-046: Strict plan lines beat general rules — HALT-and-ask before rescoping
+178:## TodoWrite Tagging Contract (SP02B — structural enforcement via hook pair)
+229:## LR-048: Subplan Structural Minimum
+--- plans/pending/_TEMPLATE_SUBPLAN.md (NEW) ---
+158 plans/pending/_TEMPLATE_SUBPLAN.md
+8505204806b699f0d12b94b101d54b21be9c371d0597a6bedadc28dd205ea6a1 *plans/pending/_TEMPLATE_SUBPLAN.md
+9
+--- LR-048 mentions across repo (expect 14 in plan + 1 heading + ~6 body refs in pipeline.md + ~1 in template) ---
+.claude/rules/pipeline.md
+plans/pending/PLAN_INJECTION_CHAIN_HARDENING.md
+plans/pending/_TEMPLATE_SUBPLAN.md

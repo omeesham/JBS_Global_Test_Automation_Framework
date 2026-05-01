@@ -20,8 +20,8 @@
 # Fail-open on any error — broken gate must never wedge the session.
 #
 # To disable: remove the matching entry from .claude/settings.json or rename
-# this file. Companion hooks: final-q-gate.sh, rubber-stamp-gate.sh,
-# override-discipline-gate.sh, chain-orchestrator.sh.
+# this file. Companion hook: chain-orchestrator.sh (final-q-gate.sh,
+# rubber-stamp-gate.sh, override-discipline-gate.sh removed 2026-04-23).
 
 set -u
 

@@ -24,7 +24,7 @@ export class LocationAccountAddressPage extends BasePage {
         const el = document.querySelector(selector) as HTMLInputElement;
         return el && el.value.trim().length > 0;
       },
-      'input[name="accountAndAddress.contactPhone1"]',
+      '[data-testid="location-settings-input-contact-phone-1"]',
       { timeout: 15_000 }
     );
   }
@@ -285,18 +285,16 @@ export class LocationAccountAddressPage extends BasePage {
  // SELECT CUSTOMER ADDRESS DIALOG
  // ─────────────────────────────────────────────────────────────────────────────
 
- /** Open Select Customer Address dialog from Venue Address button (first Address button). */
+ /** Open Select Customer Address dialog from Venue Address button. */
   async openVenueAddressDialog(): Promise<void> {
-    const panel = this.getElement('pnlAccountAndAddress');
-    await panel.locator('dt:has-text("Address") button').first().click();
+    await this.clickWithRetry('btnAccVenueAddress');
     await this.waitForElement('dlgSelectAddress', 10_000);
     Log.info('[OK] Select Customer Address dialog opened (venue)');
   }
 
- /** Open Select Customer Address dialog from Master Address button (second Address button). */
+ /** Open Select Customer Address dialog from Master Address button. */
   async openMasterAddressDialog(): Promise<void> {
-    const panel = this.getElement('pnlAccountAndAddress');
-    await panel.locator('dt:has-text("Address") button').nth(1).click();
+    await this.clickWithRetry('btnAccMasterAddress');
     await this.waitForElement('dlgSelectAddress', 10_000);
     Log.info('[OK] Select Customer Address dialog opened (master)');
   }

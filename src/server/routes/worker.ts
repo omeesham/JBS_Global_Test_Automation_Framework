@@ -80,7 +80,8 @@ export function registerWorkerRoutes(app: FastifyInstance) {
         timeoutSeconds: stageDef.timeoutSeconds,
         budgetCap: stageDef.budgetCap,
         agentFile: stageDef.agentFile,
-        mcpConfig: stageDef.mcpConfig || null,
+        browserTool: stageDef.browserTool ?? 'none',
+        cliConfig: stageDef.cliConfig ?? null,
       } : null,
     });
   });

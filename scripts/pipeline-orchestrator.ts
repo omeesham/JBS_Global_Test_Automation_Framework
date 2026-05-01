@@ -58,13 +58,15 @@ const STAGE_MAP: Record<string, { queueStage: string; nextStage: string }> = {
   audit: { queueStage: 'completed', nextStage: 'completed' },
 };
 
-/** Maps pipeline stages to their agent identifiers (for CLI invocation). */
+/** Maps pipeline stages to their agent identifiers (for CLI invocation).
+ *  Agent files live at `.claude/agents/<UPPER>.md` per PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0.1.
+ */
 const STAGE_AGENT_MAP: Record<string, string> = {
-  requirements: 'playwright-requirements',
-  planning: 'playwright-test-planner',
-  generation: 'playwright-test-generator',
-  healing: 'playwright-test-healer',
-  audit: 'playwright-pipeline-audit',
+  requirements: 'requirements',
+  planning: 'planner',
+  generation: 'generator',
+  healing: 'healer',
+  audit: 'audit',
 };
 
 /** Maps queue stage strings to pipeline stage names. */
@@ -95,7 +97,7 @@ function routeAfterStage(stage: string, testsPassed: boolean, _retryCount: numbe
     case 'planning':
       return { nextStage: 'pending_generation', reason: 'Planning complete -> generation' };
     case 'generation':
-      // Generator runs in copilot loop until tests pass. No routing to healer.
+      // Generator runs its own fix loop until tests pass. No routing to healer.
       return { nextStage: 'pending_audit', reason: 'Generation complete -> audit' };
     case 'audit':
       if (testsPassed) {

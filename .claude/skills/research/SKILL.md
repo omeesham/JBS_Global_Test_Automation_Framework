@@ -2,7 +2,7 @@
 name: research
 description: Multi-source web research — 2-10 searches, synthesize findings, map to our stack. Use before planning unfamiliar territory, or say "research", "best practices", "how do others do this".
 user-invocable: true
-auto-calls: none
+auto-calls: identity
 tools: WebSearch, WebFetch, Read, Glob, Grep
 ---
 
@@ -29,8 +29,8 @@ Runs `/identity` Step 1.5 with caller=`/research`. No-op if compatible identity 
 If this research session will interact with a live web app (exploration, locator discovery,
 live-DOM verification, catalog work):
 
-1. Consult **LR-038** (root CLAUDE.md) to pick Claude in Chrome vs Playwright MCP.
-2. Default for Claude Code: **Claude in Chrome**.
+1. Consult **LR-038 v2** (root CLAUDE.md) task-class matrix to pick Playwright CLI vs Claude in Chrome.
+2. Default for Claude Code on functional / catalog / unattended research: **Playwright CLI** (token-efficient, YAML-on-disk). Default for visual / auth-heavy / live-RCA research with user at machine: **Claude in Chrome**.
 3. Announce the choice in your first output and your activity-log row.
 4. Skip this step if research is purely web-search / docs-reading (no live app).
 
@@ -105,3 +105,15 @@ None — this is a leaf skill. Called BY `/planning` and `/chain`.
 - [URL 1] — [what was useful from this source]
 - [URL 2] — [what was useful]
 ```
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

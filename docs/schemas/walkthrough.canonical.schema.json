@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://encore-framework/schemas/walkthrough.canonical.schema.json",
+  "title": "Walkthrough Canonical",
+  "description": "Canonical JSON form of the generator Phase 0.5 walkthrough artifact. Emitted by scripts/generator-pre-run.ts (PF-G5 normalizer) from either .walkthrough.yaml (CLI agents) or .walkthrough.md (Chrome agents). Downstream consumers (PF-G5 gate, auditor spot-check per SP-AAE-04) read only this canonical form. See LR-038 v2 + SP-PWC2-05.",
+  "type": "object",
+  "required": ["item_id", "source_tool", "mcp_session_date", "verified_claims"],
+  "additionalProperties": true,
+  "properties": {
+    "item_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Queue item id (e.g. 'local-office-settings')."
+    },
+    "source_tool": {
+      "enum": ["cli", "chrome"],
+      "description": "Which browser tool authored the source artifact. 'cli' = .walkthrough.yaml, 'chrome' = .walkthrough.md."
+    },
+    "mcp_session_date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "ISO date (YYYY-MM-DD) of the live-DOM session that produced the evidence. Must match the source filename date per LR-013."
+    },
+    "fields": {
+      "type": "array",
+      "description": "Optional field inventory — per interactive element surfaced during walkthrough. Absent for spec-fix / non-catalog sessions.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": true,
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "testid": { "type": ["string", "null"] },
+          "aria_label": { "type": ["string", "null"] },
+          "default_value": { "type": ["string", "null"] },
+          "validation_state": { "type": ["string", "null"] },
+          "tab_index": { "type": ["integer", "null"] },
+          "selector_fallback": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "verified_claims": {
+      "type": "array",
+      "minItems": 3,
+      "description": "Claims the agent verified against live DOM. GEN-029 threshold: minimum 3. Each APP_BUG / PLANNER_GAP status requires a matching 'resolution' field per LR-034 / ALL-043.",
+      "items": {
+        "type": "object",
+        "required": ["claim", "status"],
+        "additionalProperties": true,
+        "properties": {
+          "claim": { "type": "string", "minLength": 1 },
+          "result": { "type": ["string", "null"] },
+          "status": {
+            "enum": ["VERIFIED", "PASS", "FAIL", "APP_BUG", "PLANNER_GAP", "TC_CORRECTION", "SEQUENCE_SIDE_EFFECT"]
+          },
+          "classification": { "type": ["string", "null"] },
+          "resolution": {
+            "type": ["string", "null"],
+            "description": "Required when status is APP_BUG (match ESC-/BUG-/filed/resolved) or PLANNER_GAP (match ESC-/escalat/corrected)."
+          },
+          "tc_id": { "type": ["string", "null"] },
+          "step": { "type": ["string", "null"] },
+          "expected": { "type": ["string", "null"] },
+          "actual": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

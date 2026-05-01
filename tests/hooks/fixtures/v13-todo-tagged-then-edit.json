@@ -1,0 +1,10 @@
+{
+  "session_id": "v13-fixture-session",
+  "transcript_path": "C:/Users/rutvi/projects/encore_framework/tests/hooks/fixtures/transcript-in-execute-with-todo.jsonl",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "C:/Users/rutvi/projects/encore_framework/some/file.ts",
+    "old_string": "foo",
+    "new_string": "bar"
+  }
+}

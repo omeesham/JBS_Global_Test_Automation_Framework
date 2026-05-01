@@ -16,35 +16,38 @@ export const SetupPricingSelectors = {
  /** @where Setup > Location > Pricing tab @el button @text "Save" @keys save submit pricing form */
   btnSavePricing: '[data-testid="location-settings-btn-save"]',
 
- // ---- Primary Pricing Fields ----
- /** @where Setup > Location > Pricing tab @el dropdown @text "Primary Labor Pricing" @keys primary labor pricing combobox */
-  drpPrimaryLaborPricing: 'div:has(> span:text-is("Primary Labor Pricing")) button[role="combobox"]',
- /** @where Setup > Location > Pricing tab @el dropdown @text "Primary Equipment Pricing" @keys primary equipment pricing combobox */
-  drpPrimaryEquipmentPricing: 'div:has(> span:text-is("Primary Equipment Pricing")) button[role="combobox"]',
- /** @where Setup > Location > Pricing tab @el dropdown @text "Primary Internal Equipment Pricing" @keys primary internal equipment pricing combobox */
-  drpPrimaryInternalEquipmentPricing: 'div:has(> span:text-is("Primary Internal Equipment Pricing")) button[role="combobox"]',
- /** @where Setup > Location > Pricing tab @el dropdown @text "Primary Production Labor Pricing" @keys primary production labor pricing combobox */
-  drpPrimaryProductionLaborPricing: 'div:has(> span:text-is("Primary Production Labor Pricing")) button[role="combobox"]',
- /** @where Setup > Location > Pricing tab @el dropdown @text "Primary Production Equip. Pricing" @keys primary production equipment pricing combobox */
-  drpPrimaryProductionEquipmentPricing: 'div:has(> span:text-is("Primary Production Equip. Pricing")) button[role="combobox"]',
+ // ---- Primary Pricing Fields (per-currency, matching currency.ts pattern) ----
+ // Office 1604 default currency is USD; only USD entries enumerated until live-DOM
+ // verification confirms whether CAD/MXN dropdowns render. Add per-ccy variants when
+ // a spec needs them and the testid is confirmed present.
+ /** @where Setup > Location > Pricing tab > USD @el dropdown @text "Primary Labor Pricing" @keys primary labor pricing combobox usd */
+  drpPrimaryLaborPricingUSD: '[data-testid="location-settings-select-primary-labor-pricing-usd"]',
+ /** @where Setup > Location > Pricing tab > USD @el dropdown @text "Primary Equipment Pricing" @keys primary equipment pricing combobox usd */
+  drpPrimaryEquipmentPricingUSD: '[data-testid="location-settings-select-primary-equipment-pricing-usd"]',
+ /** @where Setup > Location > Pricing tab > USD @el dropdown @text "Primary Internal Equipment Pricing" @keys primary internal equipment pricing combobox usd */
+  drpPrimaryInternalEquipmentPricingUSD: '[data-testid="location-settings-select-primary-internal-equipment-pricing-usd"]',
+ /** @where Setup > Location > Pricing tab > USD @el dropdown @text "Primary Production Labor Pricing" @keys primary production labor pricing combobox usd */
+  drpPrimaryProductionLaborPricingUSD: '[data-testid="location-settings-select-primary-production-labor-pricing-usd"]',
+ /** @where Setup > Location > Pricing tab > USD @el dropdown @text "Primary Production Equip. Pricing" @keys primary production equipment pricing combobox usd */
+  drpPrimaryProductionEquipmentPricingUSD: '[data-testid="location-settings-select-primary-production-equipment-pricing-usd"]',
 
  // ---- Secondary Pricing Grid ----
  /** @where Setup > Location > Pricing tab > Secondary @el table @text "Location Secondary Pricing" @keys secondary pricing grid table */
-  tblSecondaryPricingGrid: '[role="tabpanel"] table',
+  tblSecondaryPricingGrid: '[data-testid="location-settings-table-secondary-pricing"]',
 
  // ---- Column Headers ----
  /** @where Setup > Location > Pricing tab > Header @el label @text "Pricing Strategy" @keys column header pricing-strategy */
-  colHeaderPricingStrategy: 'th:has-text("Pricing Strategy")',
+  colHeaderPricingStrategy: '[data-testid="location-settings-table-pricing-col-pricing-strategy"]',
  /** @where Setup > Location > Pricing tab > Header @el label @text "Pricebook" @keys column header pricebook */
-  colHeaderPricebook: 'th:has-text("Pricebook")',
+  colHeaderPricebook: '[data-testid="location-settings-table-pricing-col-pricebook"]',
  /** @where Setup > Location > Pricing tab > Header @el label @text "Currency" @keys column header currency */
-  colHeaderCurrency: 'th:has-text("Currency")',
+  colHeaderCurrency: '[data-testid="location-settings-table-pricing-col-currency"]',
  /** @where Setup > Location > Pricing tab > Header @el label @text "Is Alternative" @keys column header alternative */
-  colHeaderIsAlternative: 'th:has-text("Is Alternate")',
+  colHeaderIsAlternative: '[data-testid="location-settings-table-pricing-col-is-alternate"]',
  /** @where Setup > Location > Pricing tab > Header @el label @text "Use Effective Dates" @keys column header effective-date */
-  colHeaderUseEffectiveDate: 'th:has-text("Use Effective Dates")',
+  colHeaderUseEffectiveDate: '[data-testid="location-settings-table-pricing-col-use-effective-dates"]',
  /** @where Setup > Location > Pricing tab > Header @el label @text "Start Date" @keys column header start-date */
-  colHeaderStartDate: 'th:has-text("Start Date")',
+  colHeaderStartDate: '[data-testid="location-settings-table-pricing-col-start-date"]',
  /** @where Setup > Location > Pricing tab > Header @el label @text "End Date" @keys column header end-date */
-  colHeaderEndDate: 'th:has-text("End Date")',
+  colHeaderEndDate: '[data-testid="location-settings-table-pricing-col-end-date"]',
 } as const;

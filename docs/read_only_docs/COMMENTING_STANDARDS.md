@@ -144,10 +144,10 @@ Use HTML comment markers to delimit content that is auto-synced from a canonical
 
 | Marker | Canonical Source | Synced To |
 |--------|----------------|-----------|
-| `SYNC:PIPELINE` | `.github/copilot-instructions.md` | (inline) |
-| `SYNC:COMMANDS` | `.github/copilot-instructions.md` | (inline) |
-| `SYNC:NEVER_DO` | `specs_planning/_internal/agent-mistakes.md` | `.github/copilot-instructions.md`, agent files |
-| `SYNC:MCP_CRITICAL` | `docs/read_only_docs/MCP_BROWSER_GUIDE.md` | `.github/copilot-instructions.md` |
+| `SYNC:NEVER_DO` | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | `.claude/agents/*.md` (via `npm run sync:mistakes`) |
+| `SYNC:MCP_CRITICAL` | `docs/read_only_docs/CLI_BROWSER_GUIDE.md` | `.claude/agents/*.md` |
+
+**Note (2026-04-27)**: `.github/copilot-instructions.md` was deleted as part of the Copilot eviction (PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0). The `SYNC:PIPELINE` and `SYNC:COMMANDS` markers, which used `.github/copilot-instructions.md` as canonical source, are retired. Pipeline + command information now lives in [CLAUDE.md](../../CLAUDE.md) and the model-agnostic sub-agents at `.claude/agents/`.
 
 **Rules**:
 - Always pair START/END markers — validator (`npm run validate:sync`) checks for both

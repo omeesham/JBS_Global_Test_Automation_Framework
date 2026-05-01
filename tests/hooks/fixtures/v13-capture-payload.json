@@ -1,0 +1,17 @@
+{
+  "session_id": "v13-fixture-session",
+  "transcript_path": "C:/Users/rutvi/projects/encore_framework/tests/hooks/fixtures/transcript-in-execute-with-todo.jsonl",
+  "tool_name": "TodoWrite",
+  "tool_input": {
+    "todos": [
+      {"content": "[/skill:wrap] regression-guard before snapshot", "activeForm": "Snapshotting"},
+      {"content": "[ceremony] Phase 0 context loading", "activeForm": "Reading context"},
+      {"content": "[implement] Build hook .sh trampoline LR-043(stdin pattern)", "activeForm": "Building trampoline"},
+      {"content": "[manual](commit message) draft commit body", "activeForm": "Drafting commit"},
+      {"content": "[/skill:verify] /audit post-execution", "activeForm": "Auditing"},
+      {"content": "[ceremony] activity-log row", "activeForm": "Appending activity log"},
+      {"content": "[/skill:direct] /final-q wrap", "activeForm": "Running final-q"},
+      {"content": "[ceremony] git mv to done/", "activeForm": "Moving plan to done"}
+    ]
+  }
+}

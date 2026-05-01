@@ -2,7 +2,7 @@
 name: review
 description: PR-style code review against standards — actionable feedback with fix plan. Different from /audit (which checks full execution chains). Use for reviewing specific code changes, say "review", "check this code", "code review".
 user-invocable: true
-auto-calls: none
+auto-calls: identity
 tools: Read, Glob, Grep, Bash
 ---
 
@@ -107,3 +107,15 @@ None — this is a standalone review skill.
 1. [ordered steps to address critical + important issues]
 2. ...
 ```
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

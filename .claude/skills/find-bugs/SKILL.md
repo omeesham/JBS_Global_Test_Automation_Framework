@@ -2,7 +2,7 @@
 name: find-bugs
 description: Adversarial QA — actively try to break the system using SFDPOT heuristics, boundary testing, and edge case hunting. Finds bugs without fixing them. Use when user says "find bugs", "QA", "break it", "stress test", "what could go wrong".
 user-invocable: true
-auto-calls: none
+auto-calls: identity
 tools: Read, Glob, Grep, Bash, Agent
 ---
 
@@ -179,3 +179,15 @@ None — this is a standalone skill. It finds bugs. Other skills fix them.
 - NEVER trust happy paths — focus on what happens when things go WRONG
 - NEVER declare "no bugs found" — if you found zero, you weren't looking hard enough
 - Severity must be honest — don't inflate to look thorough, don't deflate to look clean
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

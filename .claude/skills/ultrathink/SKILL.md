@@ -2,7 +2,7 @@
 name: ultrathink
 description: Quality-gated task wrapper — when user says "ultrathink", creates mandatory quality gates as TodoWrite items BEFORE any work, then wraps sub-skills with adversarial plan audits. Structural enforcement for SUPREME RULE quality requirements.
 user-invocable: true
-auto-calls: planning, execute, audit, reflect
+auto-calls: identity, planning, execute, audit, reflect
 tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
 ---
 
@@ -85,3 +85,15 @@ After all sub-skills complete, sweep the TodoWrite list:
 - NEVER rubber-stamp the adversarial audit — find real issues or argue convincingly why there are none
 - NEVER skip gate verification — Step 5 catches dropped gates
 - If context compression happens mid-session, the TodoWrite gates survive (external state)
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

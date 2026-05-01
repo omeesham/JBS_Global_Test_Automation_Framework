@@ -1,7 +1,7 @@
 # PLAN: Chat UI Bugs — Website Pipeline Experience
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P2-CYCLE-3
 **Found**: 2026-03-24 during website CLI planner testing
 **Sessions**: 2 (initial test + re-test after fixes)
 

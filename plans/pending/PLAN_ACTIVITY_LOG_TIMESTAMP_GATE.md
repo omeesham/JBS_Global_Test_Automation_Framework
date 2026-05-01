@@ -2,7 +2,7 @@
 
 **Status**: PENDING
 **Parent audit**: `C:\Users\rutvi\.claude\plans\expressive-booping-fountain.md` (Action M-5, Finding F-003)
-**Priority**: P2 (MEDIUM — without this, activity log can be backdated indefinitely)
+**Priority**: P2-CYCLE-3
 **Created**: 2026-04-15
 **Identity**: BUILDER (script + pipeline gate)
 **Estimated session**: MEDIUM (60-90 min)

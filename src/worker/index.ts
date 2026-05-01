@@ -32,7 +32,7 @@ dotenvFlow.config({ path: './config/environments' });
 import { execFileSync, spawn } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import type { PipelineDefinition } from '../orchestrator/types';
+import type { BrowserTool, CliStageConfig, PipelineDefinition } from '../orchestrator/types';
 import { callAnthropicAPI } from './sdk-executor';
 
 // ── Config ──
@@ -59,11 +59,35 @@ interface TaskResponse {
     timeoutSeconds: number;
     budgetCap: number;
     agentFile: string;
-    mcpConfig: string | null;
+    // LR-038 v2 / SP-PWC2-05: legacy `mcpConfig` removed. Browser surface is now
+    // driven by `browserTool` (cli | chrome | both | none) + optional per-stage
+    // `cliConfig` (session name + persistent profile for state-saved auth).
+    browserTool?: BrowserTool;
+    cliConfig?: CliStageConfig | null;
     allowedTools?: string[];
     effort?: 'low' | 'medium' | 'high' | 'max';
     postCompleteGate?: string;
   } | null;
+}
+
+/** Filter the stage's `allowedTools` list per LR-038 v2 server-side enforcement
+ *  (parity with the SP-PWC2-06 PreToolUse client-side hook): when `browserTool=cli`,
+ *  strip every `mcp__Claude_in_Chrome__*` entry so the spawned agent literally
+ *  cannot call Chrome extension tools. When `browserTool` is `chrome` or `both`,
+ *  ensure Chrome tools are present (add the wildcard if missing). `none` leaves
+ *  the list untouched — callers already opted out of browser access. */
+function applyBrowserToolGate(tools: string[], browserTool: BrowserTool): string[] {
+  const CHROME_PREFIX = 'mcp__Claude_in_Chrome__';
+  const CHROME_WILDCARD = `${CHROME_PREFIX}*`;
+  if (browserTool === 'cli') {
+    return tools.filter(t => !t.startsWith(CHROME_PREFIX) && t !== 'mcp__*');
+  }
+  if (browserTool === 'chrome' || browserTool === 'both') {
+    return tools.some(t => t.startsWith(CHROME_PREFIX) || t === 'mcp__*')
+      ? tools
+      : [...tools, CHROME_WILDCARD];
+  }
+  return tools;
 }
 
 // ── Load config from backend ──
@@ -368,9 +392,21 @@ async function executeClaudeCliStage(
     cliArgs.push('--model', stageConfig.model);
   }
 
-  // Auto-approve tools to prevent permission prompts from blocking
-  const allowedTools = stageConfig?.allowedTools || ['Bash', 'Read', 'Edit', 'Write', 'Glob', 'Grep', 'WebFetch', 'WebSearch', 'mcp__*'];
-  for (const tool of allowedTools) {
+  // Auto-approve tools to prevent permission prompts from blocking.
+  // Default set includes Bash (required for `playwright-cli`) and the Chrome MCP
+  // wildcard. The browserTool gate below narrows that list server-side so a
+  // `browserTool: cli` stage cannot silently fall through to Chrome extension calls
+  // (parity with the SP-PWC2-06 client-side PreToolUse hook).
+  const defaultAllowedTools = [
+    'Bash', 'Read', 'Edit', 'Write', 'Glob', 'Grep', 'WebFetch', 'WebSearch',
+    'mcp__Claude_in_Chrome__*',
+  ];
+  const stageBrowserTool: BrowserTool = stageConfig?.browserTool ?? 'none';
+  const rawTools = stageConfig?.allowedTools && stageConfig.allowedTools.length > 0
+    ? stageConfig.allowedTools
+    : defaultAllowedTools;
+  const gatedTools = applyBrowserToolGate(rawTools, stageBrowserTool);
+  for (const tool of gatedTools) {
     cliArgs.push('--allowedTools', tool);
   }
 
@@ -378,8 +414,12 @@ async function executeClaudeCliStage(
     cliArgs.push('--effort', stageConfig.effort);
   }
 
-  // Pre-install Playwright browser if MCP config requires it
-  if (stageConfig?.mcpConfig) {
+  // Pre-install Playwright browser when the stage will actually drive a headless
+  // browser via `playwright-cli` (browserTool=cli or both). Chrome-only stages
+  // reuse the user's live Chrome profile via the Claude-in-Chrome extension and
+  // need no Playwright install.
+  const needsPlaywrightBrowser = stageBrowserTool === 'cli' || stageBrowserTool === 'both';
+  if (needsPlaywrightBrowser) {
     try {
       console.log('[Worker] Ensuring Playwright browser is installed...');
       execFileSync('npx', ['playwright', 'install', 'chromium'], {
@@ -394,23 +434,8 @@ async function executeClaudeCliStage(
     }
   }
 
-  // Generate per-task MCP config if stage has mcpConfig
-  let tempMcpPath: string | null = null;
-  if (stageConfig?.mcpConfig) {
-    const templatePath = path.resolve(__dirname, `../../config/mcp/${stageConfig.mcpConfig}.json.template`);
-    if (fs.existsSync(templatePath)) {
-      let template = fs.readFileSync(templatePath, 'utf-8');
-      const targetUrl = (task.context as Record<string, unknown>)?.targetUrl as string || '';
-      template = template.replace(/\{\{BASE_URL\}\}/g, targetUrl);
-
-      const tmpDir = path.resolve(__dirname, '../../.tmp');
-      if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
-      tempMcpPath = path.resolve(tmpDir, `mcp-${task.taskId}.json`);
-      fs.writeFileSync(tempMcpPath, template);
-      cliArgs.push('--mcp-config', tempMcpPath);
-      console.log(`[Worker] MCP config generated: ${tempMcpPath}`);
-    }
-  }
+  // Legacy MCP per-task config generation removed per SP-PWC2-05.
+  // SP-PWC2-07 deletes config/mcp/*.json.template and .vscode/mcp.json.
 
   console.log(`[Worker] Executing: ${cliConfig.cliPath} -p - (stdin ${fullPrompt.length} chars)`);
 
@@ -456,10 +481,6 @@ async function executeClaudeCliStage(
 
     child.on('close', (code) => {
       clearTimeout(timer);
-
-      if (tempMcpPath && fs.existsSync(tempMcpPath)) {
-        try { fs.unlinkSync(tempMcpPath); } catch { /* best-effort */ }
-      }
 
       if (code !== 0 && !stdout.trim()) {
         console.error(`[Worker] CLI execution failed: exit code ${code}`);

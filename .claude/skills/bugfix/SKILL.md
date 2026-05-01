@@ -2,7 +2,7 @@
 name: bugfix
 description: General-purpose bug fixing — explore, trace root cause, plan fix, implement, verify, document. Auto-calls /regression-guard before+after. Use for any bug, error, "not working", "broken", or "crash".
 user-invocable: true
-auto-calls: regression-guard, reflect
+auto-calls: identity, regression-guard, reflect
 tools: Read, Glob, Grep, Write, Edit, Bash, Agent, WebSearch
 ---
 
@@ -106,3 +106,15 @@ Auto-call `/regression-guard` Phase 2:
 - Pattern logged: [yes — R-XX / no — new pattern]
 - Graduation candidate: [yes — 3+ occurrences / no]
 ```
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

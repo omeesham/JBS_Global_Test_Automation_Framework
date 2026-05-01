@@ -48,7 +48,7 @@ export class LocationPricingPage extends BasePage {
   async waitForPricingDataLoaded(): Promise<void> {
     await this.waitForAngularStable();
  // Signal 1: Primary Labor Pricing dropdown value populated by API
-    const dropdown = this.getElement('drpPrimaryLaborPricing');
+    const dropdown = this.getElement('drpPrimaryLaborPricingUSD');
     for (let i = 0; i < 40; i++) {
       const text = (await dropdown.textContent() ?? '').trim();
       if (text.length > 0 && text !== 'Select') break;
@@ -123,7 +123,7 @@ export class LocationPricingPage extends BasePage {
  * a search textbox (placeholder "Search pricebooks...") and option buttons.
  * IMPORTANT: clicking an already-selected option DESELECTS it (Radix toggle behavior).
  * This method skips interaction when the target value is already displayed.
- * @param selectorKey - selector key for the combobox (e.g., 'drpPrimaryLaborPricing')
+ * @param selectorKey - selector key for the combobox (e.g., 'drpPrimaryLaborPricingUSD')
  * @param optionText - exact pricebook name to select
  */
   async selectPrimaryDropdownOption(selectorKey: string, optionText: string): Promise<void> {
@@ -588,13 +588,13 @@ export class LocationPricingPage extends BasePage {
 
  /** Wait for the Unsaved Changes dialog and check visibility. */
   async isUnsavedDialogVisible(): Promise<boolean> {
-    const dlg = this.page.locator('[role="alertdialog"]:has(h2:text-is("Unsaved changes"))');
+    const dlg = this.page.locator('[data-testid="location-settings-modal-unsaved-changes"]');
     return dlg.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true).catch(() => false);
   }
 
  /** Click Stay on the Unsaved Changes dialog. */
   async clickUnsavedStay(): Promise<void> {
-    const dlg = this.page.locator('[role="alertdialog"]:has(h2:text-is("Unsaved changes"))');
+    const dlg = this.page.locator('[data-testid="location-settings-modal-unsaved-changes"]');
     await dlg.locator('button:has-text("Stay")').click();
     await dlg.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info('Clicked Stay on Unsaved Changes dialog');

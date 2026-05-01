@@ -4,7 +4,7 @@
 **Created**: 2026-03-24
 **Updated**: 2026-03-27 (post-audit — corrected for P0 Decontamination f721e15)
 **Status**: partially-done
-**Priority**: LOW (remaining items are P2 refactors — all P0/P1 collisions already fixed)
+**Priority**: P2-CYCLE-3
 
 ---
 

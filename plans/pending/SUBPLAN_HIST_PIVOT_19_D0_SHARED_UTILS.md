@@ -25,9 +25,12 @@
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 3 (Implementation — prep)
 **Status**: Pending
-**Priority**: P0 (blocks all SP-C*/SP-D* implementation)
+**Priority**: P1-CYCLE-2
 **Created**: 2026-04-20
 **Depends on**: SP-B-LO-R + SP-B-LM-R complete (catalogs authoritative)
+**Model**: claude-sonnet-4-6
+**Thinking**: hi
+**PermissionMode**: auto
 **Identity**: BUILDER
 **Skills**: `/execute` + auto-called `/regression-guard` + `/identity`
 **Estimated**: one session (2–3 hours)
@@ -137,3 +140,73 @@ Before writing 12+ spec files that each read hist rows, diff them, and assert co
 
 - Requires catalogs (SP-B-LO-R + SP-B-LM-R) finished so interface design reflects actual column/encoding reality.
 - Unblocks every implementation subplan (SP-C1, C2, D1..D10).
+
+---
+
+## UPDATE (2026-04-22) — AUDIT RECOMMENDATION (append-only; original plan above is intact)
+
+> **Execution-agent directive — read BEFORE Phase 0 runs.**
+> This subplan now has TWO candidate paths:
+> - **(a) Original plan** — everything above this section.
+> - **(b) Audit recommendation** — this section.
+> Do NOT default to either. Your first task in Phase 0 (bump thinking tier one notch):
+> 1. Read both paths in full.
+> 2. Verify the audit's claims yourself — open referenced files, grep referenced exports, spot-check 2-3 claims minimum.
+> 3. If the audit's evidence holds → execute path (b).
+> 4. If the audit is stale or wrong → execute path (a) and log the disposition in activity-log.
+> 5. If both paths are partially right → synthesize a third path, document in Phase 1 kickoff, log the synthesis reason.
+> Never pick the newer text just because it's newer. Evidence wins, not recency.
+
+**Audited by**: /ultrathink + /audit + /planning (Opus, 2026-04-22)
+**Audit plan**: `~/.claude/plans/3-shared-utils-temporal-kahan.md`
+
+### Finding
+Readers this subplan proposes to wrap ALREADY EXIST on existing page objects:
+- [location-management-history.page.ts:181](../../clients/encore/src/pages/setup/locations/location-management-history.page.ts) — `parseModifiedOnMs()` static timestamp parser
+- [location-management-history.page.ts:216](../../clients/encore/src/pages/setup/locations/location-management-history.page.ts) — `getRowsSinceTimestamp()` pagination-safe row reader (~45 LOC)
+- [location-management-history.page.ts:323](../../clients/encore/src/pages/setup/locations/location-management-history.page.ts) — `waitForRecentTopRow()`
+- [local-office-settings.page.ts:525](../../clients/encore/src/pages/setup/local-office/local-office-settings.page.ts) — `getHistoryColumnByHeader()` with LR-036 SVG/Unicode normalization already baked in
+
+D0's `readHistoryRowSince` is a thin wrapper = duplicate. `assertBooleanCell` duplicates the LR-036 branch already in `getHistoryColumnByHeader`. `diffRowsByCol` and `assertRowCountUnchanged` are 1-line expressions. Unit tests on test helpers in a Playwright E2E framework = meta-testing; integration tests (SP-C1..D10) are the actual unit tests.
+
+### Proposed alternative path — 15-LOC patch, zero new files
+1. Do NOT create `clients/encore/src/utils/hist-reader.ts`. Do NOT create `hist-reader.test.ts`.
+2. Add LR-036 boolean normalization to [location-management-history.page.ts](../../clients/encore/src/pages/setup/locations/location-management-history.page.ts) — mirror the SVG-vs-Unicode branch from `LocalOfficeSettingsPage.getHistoryColumnByHeader:525` onto this page object (currently only LO page has it; LM page is missing it). ~15 LOC addition.
+3. Downstream specs (SP-C1..D10) call `page.getHistoryColumnByHeader(...)` directly → compare normalized string with plain `expect().toBe()`. No `assertBooleanCell` helper needed.
+4. `assertNoTrackedFor` = 4-line inline loop in the 2-3 specs that actually use it. Not a shared helper.
+5. No helper unit tests. Integration test failure in C1 or D1 is the feedback loop.
+
+### Evidence the audit verified (2026-04-22)
+- `grep "parseModifiedOnMs|getRowsSinceTimestamp|waitForRecentTopRow|getHistoryColumnByHeader" clients/encore/src/pages/` confirmed all 4 functions exist at the cited line numbers.
+- CLAUDE.md: "Three similar lines is better than a premature abstraction" + "Don't design for hypothetical future requirements" directly apply.
+- SP-D0's own Phase 0 says "design based on what downstream specs will ACTUALLY need" — that's the entry point for choosing path (b).
+
+### Risk of blindly following path (a)
+- New file adds ~300 LOC of wrapper + test maintenance surface.
+- Creates two sources of truth for timestamp parsing, row reading, LR-036 encoding (page object + utils).
+- Unit test DOM fixtures drift as app changes → false failures in D0 while C1/D1..D10 pass (or vice versa).
+- Blocks 12 downstream subplans unnecessarily.
+
+### What execution agent must check before picking
+- `grep -n "parseModifiedOnMs\|getRowsSinceTimestamp\|getHistoryColumnByHeader" clients/encore/src/pages/setup/` — if all 4 still resolve, audit holds. If any renamed/removed since 2026-04-22, audit is stale → path (a).
+- If path (b) chosen: in Phase 1, patch `location-management-history.page.ts` only; do NOT touch `local-office-settings.page.ts` (it already has the normalization).
+
+---
+
+## UPDATE #2 (2026-04-22) — USER APPROVED PATH (b)
+
+**User pre-approval, 2026-04-22**: execute path (b) directly. Do NOT deliberate between path (a) and path (b). Do NOT write `clients/encore/src/utils/hist-reader.ts`. Do NOT write `hist-reader.test.ts`.
+
+**Execution-agent directive (override):**
+1. Skip the path-choice deliberation above — closed by user.
+2. Still run the LR-020 verification grep (`grep -n "parseModifiedOnMs\|getRowsSinceTimestamp\|waitForRecentTopRow\|getHistoryColumnByHeader" clients/encore/src/pages/setup/`) at Phase 0 start to confirm the 4 function refs still exist at the cited line numbers.
+   - If all 4 resolve → proceed with path (b).
+   - If ANY have been renamed/removed/moved since 2026-04-22 → HALT and report to user; do NOT silently fall back to path (a). The plan must be revised first.
+3. Phase 1 scope (path b ONLY):
+   - Add ~15 LOC to [location-management-history.page.ts](../../clients/encore/src/pages/setup/locations/location-management-history.page.ts) — mirror the SVG/Unicode normalization branch from `LocalOfficeSettingsPage.getHistoryColumnByHeader:525` onto `LocationManagementHistoryPage.getColumnByHeader` (or add a new `getHistoryColumnByHeader` method on LM page if cleaner). Encoding branch: `unicode` for LM surface per LR-036.
+   - NO new file creation. NO `src/utils/hist-reader.ts`. NO helper unit tests.
+   - `assertNoTrackedFor` = 4-line inline loop in the 2-3 specs that use it (SP-C1 / SP-D1 may each inline their own; 4 lines of duplication is cheaper than shared abstraction per CLAUDE.md).
+4. Dependency impact: downstream subplans (SP-C1, C2, D1..D10) import from the page object, not from `src/utils/`. Keep that import pattern when you reach those subplans.
+5. Commit message: `refactor(hist-pivot): SP-D0 — mirror LR-036 normalization onto LocationManagementHistoryPage (path b per audit 2026-04-22)`.
+
+**Rationale for forcing path (b)**: duplicating readers that already exist on page objects violates DRY + introduces two sources of truth for LR-036 encoding + bloats maintenance surface + blocks 12 downstream subplans for weeks of no-value wrapping. User explicitly closed this decision.

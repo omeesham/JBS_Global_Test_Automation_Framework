@@ -42,7 +42,7 @@ encore_framework/
 ├── specs_planning/         # Test plans (Markdown for Playwright Agents)
 ├── export_test_cases/      # CSV/JSON/Jira/TestMo converters
 ├── scripts/                # Build, packaging, pipeline tooling
-├── .github/                # GitHub automation (CI/CD, Copilot agents)
+├── .github/                # GitHub automation (CI/CD workflows)
 └── [config files]          # playwright.config.ts, tsconfig.json, etc.
 ```
 

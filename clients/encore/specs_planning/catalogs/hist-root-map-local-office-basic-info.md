@@ -173,7 +173,7 @@ End-of-session top row (2026-04-20 13:31:30) byte-matches pre-session baseline a
 | 37 DoubleTime Hours Multiplier | 2 |
 | 38 Holiday Multiplier | 0 |
 | 39 Recalc Labor Hours | FALSE |
-| 40 Modified By | v-rutvik.khosariya@psav.com |
+| 40 Modified By | [redacted] |
 
 ## Follow-on plans unblocked
 

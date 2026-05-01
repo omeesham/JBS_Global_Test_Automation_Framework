@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-04-16T19:11:33.602Z",
+  "lastUpdated": "2026-04-24T09:58:15.104Z",
   "config": {
     "maxRetries": 2,
     "autoHealOnFailure": true,
@@ -96,7 +96,7 @@
         "completedAt": "2026-03-02T12:31:00.000Z"
       },
       "injectedContext": {
-        "generatedAt": "2026-04-16T19:11:33.599Z",
+        "generatedAt": "2026-04-24T09:58:15.100Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -134,6 +134,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -170,7 +174,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (71 rules)",
+        "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (75 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -183,7 +187,7 @@
           "ALL-009: —",
           "ALL-010: —"
         ],
-        "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+        "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
           "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
         ],
@@ -203,7 +207,7 @@
           "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
           "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Pricing Tab",
+        "moduleContextRef": "clients/encore/docs/REQUIREMENTS.md ### Pricing Tab",
         "featureTags": [
           "form",
           "checkbox",
@@ -251,6 +255,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -288,7 +296,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "injectedAt": "2026-04-16T19:11:33.599Z",
+        "injectedAt": "2026-04-24T09:58:15.100Z",
         "retryCount": 0
       }
     },
@@ -335,7 +343,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-04-16T19:11:33.601Z",
+        "generatedAt": "2026-04-24T09:58:15.102Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -373,6 +381,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -409,7 +421,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (71 rules)",
+        "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (75 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -422,7 +434,7 @@
           "ALL-009: —",
           "ALL-010: —"
         ],
-        "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+        "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
           "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
         ],
@@ -442,7 +454,7 @@
           "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
           "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Local Information Tab",
+        "moduleContextRef": "clients/encore/docs/REQUIREMENTS.md ### Local Information Tab",
         "featureTags": [
           "form",
           "checkbox",
@@ -492,6 +504,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -529,7 +545,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "injectedAt": "2026-04-16T19:11:33.601Z",
+        "injectedAt": "2026-04-24T09:58:15.102Z",
         "retryCount": 0
       }
     },
@@ -607,7 +623,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-04-16T19:11:33.601Z",
+        "generatedAt": "2026-04-24T09:58:15.103Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -645,6 +661,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -680,7 +700,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (71 rules)",
+        "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (75 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -693,7 +713,7 @@
           "ALL-009: —",
           "ALL-010: —"
         ],
-        "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+        "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
           "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
         ],
@@ -713,7 +733,7 @@
           "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
           "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Legal Data Validations",
+        "moduleContextRef": "clients/encore/docs/REQUIREMENTS.md ### Legal Data Validations",
         "featureTags": [
           "form",
           "textbox",
@@ -725,27 +745,11 @@
           "angular"
         ],
         "lastRunFailures": {
-          "timestamp": "2026-04-16T13:24:10.704Z",
-          "failures": [
-            {
-              "testName": "TC-LOC-NTS-001: Verify Notes tab default empty state",
-              "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"location-settings-sub-tab-notes\"]') to be visible\u001b[22m\n",
-              "selector": null
-            },
-            {
-              "testName": "TC-LOC-PRI-001: Verify Pricing tab default state",
-              "error": "Error: worker process exited unexpectedly (code=3221225794, signal=null)",
-              "selector": null
-            },
-            {
-              "testName": "TC-LOC-SSL-001: Tab loads with shared-setup table and Add button",
-              "error": "Error: worker process exited unexpectedly (code=3221225794, signal=null)",
-              "selector": null
-            }
-          ],
-          "passed": 227,
-          "failed": 3,
-          "fixme": 5
+          "timestamp": "2026-04-17T12:00:13.008Z",
+          "failures": [],
+          "passed": 28,
+          "failed": 0,
+          "fixme": 0
         }
       },
       "outcomeTracking": {
@@ -785,6 +789,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -822,7 +830,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "injectedAt": "2026-04-16T19:11:33.601Z",
+        "injectedAt": "2026-04-24T09:58:15.103Z",
         "retryCount": 0
       }
     },
@@ -876,7 +884,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-04-16T19:11:33.601Z",
+        "generatedAt": "2026-04-24T09:58:15.103Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -914,6 +922,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -949,7 +961,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (71 rules)",
+        "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (75 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -962,7 +974,7 @@
           "ALL-009: —",
           "ALL-010: —"
         ],
-        "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+        "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
           "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
         ],
@@ -982,7 +994,7 @@
           "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
           "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Account and Address Tab",
+        "moduleContextRef": "clients/encore/docs/REQUIREMENTS.md ### Account and Address Tab",
         "featureTags": [
           "form",
           "textbox",
@@ -1030,6 +1042,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1067,7 +1083,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "injectedAt": "2026-04-16T19:11:33.601Z",
+        "injectedAt": "2026-04-24T09:58:15.103Z",
         "retryCount": 0
       }
     },
@@ -1137,7 +1153,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-04-16T19:11:33.602Z",
+        "generatedAt": "2026-04-24T09:58:15.103Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1175,6 +1191,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1210,7 +1230,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (71 rules)",
+        "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (75 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1223,7 +1243,7 @@
           "ALL-009: —",
           "ALL-010: —"
         ],
-        "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+        "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
           "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
         ],
@@ -1243,7 +1263,7 @@
           "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
           "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Notes Tab",
+        "moduleContextRef": "clients/encore/docs/REQUIREMENTS.md ### Notes Tab",
         "featureTags": [
           "form",
           "textbox",
@@ -1291,6 +1311,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1328,7 +1352,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "injectedAt": "2026-04-16T19:11:33.602Z",
+        "injectedAt": "2026-04-24T09:58:15.103Z",
         "retryCount": 0
       },
       "selfAuditPassed": true,
@@ -1439,7 +1463,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-04-16T19:11:33.602Z",
+        "generatedAt": "2026-04-24T09:58:15.103Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1477,6 +1501,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1512,7 +1540,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (71 rules)",
+        "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (75 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1525,7 +1553,7 @@
           "ALL-009: —",
           "ALL-010: —"
         ],
-        "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+        "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
           "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
         ],
@@ -1545,7 +1573,7 @@
           "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
           "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Setup Module",
+        "moduleContextRef": "clients/encore/docs/REQUIREMENTS.md ### Setup Module",
         "featureTags": [
           "form",
           "checkbox",
@@ -1593,6 +1621,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -1630,7 +1662,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "injectedAt": "2026-04-16T19:11:33.602Z",
+        "injectedAt": "2026-04-24T09:58:15.103Z",
         "retryCount": 0
       }
     },
@@ -1702,7 +1734,7 @@
         "notes": "Re-verified 2026-03-23. Shadow DOM eliminated. PLN-027 gate: 10/10 selectors PASS. Dialog buttons corrected: Save dialog = Cancel+Ok; Unsaved changes dialog = Stay+Discard. Smart form diff confirmed. Sub-tab switching confirmed NOT triggering Unsaved changes dialog. selfAuditPassed=true."
       },
       "injectedContext": {
-        "generatedAt": "2026-04-16T19:11:33.602Z",
+        "generatedAt": "2026-04-24T09:58:15.104Z",
         "targetAgent": "Planner",
         "mistakeIds": [
           "ALL-001",
@@ -1740,6 +1772,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "PLN-001",
           "PLN-002",
           "PLN-003",
@@ -1768,9 +1804,10 @@
           "PLN-048",
           "PLN-039",
           "PLN-040",
-          "PLN-041"
+          "PLN-041",
+          "PLN-049"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (67 rules)",
+        "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (72 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -1783,7 +1820,7 @@
           "ALL-009: —",
           "ALL-010: —"
         ],
-        "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+        "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
           "PLN-029: Completed test planning without selector validation - 4 missing selectors (column headers, No Matches Found, save confirmation dialog)",
           "PLN-030: AUDIT BLOCKED: 9 findings — self-certified uiTestingChecklist, TBD row-selection mechanism, zero TCs for non-self-row path, hedged expected results",
@@ -1809,7 +1846,7 @@
           "SCOPE: Am I including any fields or tabs that belong to a different submodule? Check feature boundaries.",
           "LIVE: Did I verify field behavior on the LIVE site via browser_snapshot, or did I just read REQUIREMENTS.md and assume?"
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Account and Address Tab",
+        "moduleContextRef": "clients/encore/docs/REQUIREMENTS.md ### Account and Address Tab",
         "featureTags": [
           "checkbox",
           "grid",
@@ -1856,6 +1893,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "PLN-001",
           "PLN-002",
           "PLN-003",
@@ -1887,9 +1928,10 @@
           "PLN-048",
           "PLN-039",
           "PLN-040",
-          "PLN-041"
+          "PLN-041",
+          "PLN-049"
         ],
-        "injectedAt": "2026-04-16T19:11:33.602Z",
+        "injectedAt": "2026-04-24T09:58:15.104Z",
         "retryCount": 0
       }
     },
@@ -1929,7 +1971,7 @@
         }
       ],
       "injectedContext": {
-        "generatedAt": "2026-04-16T19:11:33.602Z",
+        "generatedAt": "2026-04-24T09:58:15.104Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -1967,6 +2009,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -2002,7 +2048,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (71 rules)",
+        "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (75 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -2015,7 +2061,7 @@
           "ALL-009: —",
           "ALL-010: —"
         ],
-        "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+        "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
           "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
         ],
@@ -2035,7 +2081,7 @@
           "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
           "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Location Management History",
+        "moduleContextRef": "clients/encore/docs/REQUIREMENTS.md ### Location Management History",
         "featureTags": [
           "form",
           "textbox",
@@ -2083,6 +2129,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -2120,7 +2170,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "injectedAt": "2026-04-16T19:11:33.602Z",
+        "injectedAt": "2026-04-24T09:58:15.104Z",
         "retryCount": 0
       }
     },
@@ -2193,7 +2243,7 @@
         "completedAt": "2026-03-23T18:00:00.000Z"
       },
       "injectedContext": {
-        "generatedAt": "2026-04-16T19:11:33.602Z",
+        "generatedAt": "2026-04-24T09:58:15.104Z",
         "targetAgent": "Generator",
         "mistakeIds": [
           "ALL-001",
@@ -2231,6 +2281,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -2268,7 +2322,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "mistakesRef": "specs_planning/_internal/agent-mistakes.md (71 rules)",
+        "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (75 rules)",
         "learningsSummary": [
           "ALL-001: —",
           "ALL-002: —",
@@ -2281,7 +2335,7 @@
           "ALL-009: —",
           "ALL-010: —"
         ],
-        "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+        "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
         "recentDefects": [
           "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
         ],
@@ -2301,7 +2355,7 @@
           "SIZE: Is my spec under 200 lines? If over, extract test data to a constant or JSON file.",
           "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
         ],
-        "moduleContextRef": "docs/REQUIREMENTS.md ### Local Office Settings",
+        "moduleContextRef": "clients/encore/docs/REQUIREMENTS.md ### Local Office Settings",
         "featureTags": [
           "form",
           "checkbox",
@@ -2316,8 +2370,7 @@
           "angular",
           "fix",
           "manual"
-        ],
-        "testPlanRef": "specs_planning/test-plans/setup/local-office/local_office_settings_test_plan.md"
+        ]
       },
       "outcomeTracking": {
         "injectedRuleIds": [
@@ -2356,6 +2409,10 @@
           "ALL-033",
           "ALL-071",
           "ALL-072",
+          "ALL-073",
+          "ALL-074",
+          "ALL-075",
+          "ALL-076",
           "GEN-001",
           "GEN-002",
           "GEN-003",
@@ -2393,7 +2450,7 @@
           "GEN-035",
           "GEN-042"
         ],
-        "injectedAt": "2026-04-16T19:11:33.602Z",
+        "injectedAt": "2026-04-24T09:58:15.104Z",
         "retryCount": 0
       }
     }
@@ -2472,6 +2529,10 @@
         "ALL-033",
         "ALL-071",
         "ALL-072",
+        "ALL-073",
+        "ALL-074",
+        "ALL-075",
+        "ALL-076",
         "GEN-001",
         "GEN-002",
         "GEN-003",
@@ -2509,7 +2570,7 @@
         "GEN-035",
         "GEN-042"
       ],
-      "mistakesRef": "specs_planning/_internal/agent-mistakes.md (71 rules)",
+      "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (75 rules)",
       "learningsSummary": [
         "ALL-001: —",
         "ALL-002: —",
@@ -2522,7 +2583,7 @@
         "ALL-009: —",
         "ALL-010: —"
       ],
-      "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+      "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
       "recentDefects": [
         "GEN-PERF-001: Zero activity log entries, zero self-reported mistakes, zero learnings — complete reporting opacity"
       ],
@@ -2543,27 +2604,11 @@
         "HEADERS: Does my spec have // spec: and // seed: header comments? Verify exact format."
       ],
       "lastRunFailures": {
-        "timestamp": "2026-04-16T13:24:10.704Z",
-        "failures": [
-          {
-            "testName": "TC-LOC-NTS-001: Verify Notes tab default empty state",
-            "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"location-settings-sub-tab-notes\"]') to be visible\u001b[22m\n",
-            "selector": null
-          },
-          {
-            "testName": "TC-LOC-PRI-001: Verify Pricing tab default state",
-            "error": "Error: worker process exited unexpectedly (code=3221225794, signal=null)",
-            "selector": null
-          },
-          {
-            "testName": "TC-LOC-SSL-001: Tab loads with shared-setup table and Add button",
-            "error": "Error: worker process exited unexpectedly (code=3221225794, signal=null)",
-            "selector": null
-          }
-        ],
-        "passed": 227,
-        "failed": 3,
-        "fixme": 5
+        "timestamp": "2026-04-17T12:00:13.008Z",
+        "failures": [],
+        "passed": 28,
+        "failed": 0,
+        "fixme": 0
       }
     },
     "Planner": {
@@ -2603,6 +2648,10 @@
         "ALL-033",
         "ALL-071",
         "ALL-072",
+        "ALL-073",
+        "ALL-074",
+        "ALL-075",
+        "ALL-076",
         "PLN-001",
         "PLN-002",
         "PLN-003",
@@ -2634,9 +2683,10 @@
         "PLN-048",
         "PLN-039",
         "PLN-040",
-        "PLN-041"
+        "PLN-041",
+        "PLN-049"
       ],
-      "mistakesRef": "specs_planning/_internal/agent-mistakes.md (67 rules)",
+      "mistakesRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (72 rules)",
       "learningsSummary": [
         "ALL-001: —",
         "ALL-002: —",
@@ -2649,7 +2699,7 @@
         "ALL-009: —",
         "ALL-010: —"
       ],
-      "learningsRef": "specs_planning/_internal/agent-mistakes.md (Resolution column)",
+      "learningsRef": "clients/encore/specs_planning/_internal/agent-mistakes.md (Resolution column)",
       "recentDefects": [
         "PLN-029: Completed test planning without selector validation - 4 missing selectors (column headers, No Matches Found, save confirmation dialog)",
         "PLN-030: AUDIT BLOCKED: 9 findings — self-certified uiTestingChecklist, TBD row-selection mechanism, zero TCs for non-self-row path, hedged expected results",
@@ -2676,27 +2726,11 @@
         "LIVE: Did I verify field behavior on the LIVE site via browser_snapshot, or did I just read REQUIREMENTS.md and assume?"
       ],
       "lastRunFailures": {
-        "timestamp": "2026-04-16T13:24:10.704Z",
-        "failures": [
-          {
-            "testName": "TC-LOC-NTS-001: Verify Notes tab default empty state",
-            "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"location-settings-sub-tab-notes\"]') to be visible\u001b[22m\n",
-            "selector": null
-          },
-          {
-            "testName": "TC-LOC-PRI-001: Verify Pricing tab default state",
-            "error": "Error: worker process exited unexpectedly (code=3221225794, signal=null)",
-            "selector": null
-          },
-          {
-            "testName": "TC-LOC-SSL-001: Tab loads with shared-setup table and Add button",
-            "error": "Error: worker process exited unexpectedly (code=3221225794, signal=null)",
-            "selector": null
-          }
-        ],
-        "passed": 227,
-        "failed": 3,
-        "fixme": 5
+        "timestamp": "2026-04-17T12:00:13.008Z",
+        "failures": [],
+        "passed": 28,
+        "failed": 0,
+        "fixme": 0
       }
     }
   }

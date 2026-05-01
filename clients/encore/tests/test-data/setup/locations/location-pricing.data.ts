@@ -18,13 +18,18 @@ export const PRICING_COLUMN_HEADERS = [
   'End Date',
 ] as const;
 
-/** Primary pricing dropdown selector keys (5 editable comboboxes) */
+/**
+ * Primary pricing dropdown selector keys (5 editable comboboxes).
+ * @office-dependent — office 1604 default currency is USD; the per-currency variants
+ * (CAD/MXN) live in the selector index but office 1604 specs target USD only.
+ * Cross-currency tests should override this list with the matching `*CAD` / `*MXN` keys.
+ */
 export const PRIMARY_PRICING_DROPDOWNS = [
-  'drpPrimaryLaborPricing',
-  'drpPrimaryEquipmentPricing',
-  'drpPrimaryInternalEquipmentPricing',
-  'drpPrimaryProductionLaborPricing',
-  'drpPrimaryProductionEquipmentPricing',
+  'drpPrimaryLaborPricingUSD',
+  'drpPrimaryEquipmentPricingUSD',
+  'drpPrimaryInternalEquipmentPricingUSD',
+  'drpPrimaryProductionLaborPricingUSD',
+  'drpPrimaryProductionEquipmentPricingUSD',
 ] as const;
 
 /** Currency filter expected options. MCP-verified : office 1604 has only USD rows -- 2 options only. */
@@ -57,11 +62,11 @@ export const DEFAULT_CURRENCY_FILTER = 'All';
  * Alternate options MCP-verified : all confirmed to exist in the live dropdown popover.
  */
 export const DROPDOWN_PERSISTENCE_CASES = [
-  { tcId: 'TC-LOC-PRI-026', key: 'drpPrimaryLaborPricing', option: '2026-Zone 3 D', alternateOption: '2026-Zone 3 E', label: 'Primary Labor Pricing' },
-  { tcId: 'TC-LOC-PRI-027', key: 'drpPrimaryEquipmentPricing', option: '2026-Tier 2 Resort B', alternateOption: '2026-Tier 2 Resort A', label: 'Primary Equipment Pricing' },
-  { tcId: 'TC-LOC-PRI-028', key: 'drpPrimaryInternalEquipmentPricing', option: '2023-Internal2', alternateOption: '2023-Internal1', label: 'Primary Internal Equipment Pricing' },
-  { tcId: 'TC-LOC-PRI-029', key: 'drpPrimaryProductionLaborPricing', option: '2026-NP LB3', alternateOption: '2026-NP LB2', label: 'Primary Production Labor Pricing' },
-  { tcId: 'TC-LOC-PRI-030', key: 'drpPrimaryProductionEquipmentPricing', option: '2026-NP Tier 2', alternateOption: '2026-NP Tier 1', label: 'Primary Production Equipment Pricing' },
+  { tcId: 'TC-LOC-PRI-026', key: 'drpPrimaryLaborPricingUSD', option: '2026-Zone 3 D', alternateOption: '2026-Zone 3 E', label: 'Primary Labor Pricing' },
+  { tcId: 'TC-LOC-PRI-027', key: 'drpPrimaryEquipmentPricingUSD', option: '2026-Tier 2 Resort B', alternateOption: '2026-Tier 2 Resort A', label: 'Primary Equipment Pricing' },
+  { tcId: 'TC-LOC-PRI-028', key: 'drpPrimaryInternalEquipmentPricingUSD', option: '2023-Internal2', alternateOption: '2023-Internal1', label: 'Primary Internal Equipment Pricing' },
+  { tcId: 'TC-LOC-PRI-029', key: 'drpPrimaryProductionLaborPricingUSD', option: '2026-NP LB3', alternateOption: '2026-NP LB2', label: 'Primary Production Labor Pricing' },
+  { tcId: 'TC-LOC-PRI-030', key: 'drpPrimaryProductionEquipmentPricingUSD', option: '2026-NP Tier 2', alternateOption: '2026-NP Tier 1', label: 'Primary Production Equipment Pricing' },
 ] as const;
 
 /** Date test values (used in skipped TC-020). */

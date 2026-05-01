@@ -2,7 +2,7 @@
 
 **Status**: PENDING
 **Created**: 2026-04-16
-**Priority**: P0 (CRITICAL)
+**Priority**: P1-CYCLE-2
 **Parent**: none (master)
 
 ---

@@ -25,9 +25,10 @@
 
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 2 (Discovery)
-**Status**: Pending
+**Status**: DONE
 **Priority**: P0
 **Created**: 2026-04-20
+**Executed**: 2026-04-22
 **Depends on**: SP-A1 complete
 **Identity**: HUNTER or BUILDER with MCP
 **Skills**: `/research` + `/planning` + `/identity`
@@ -132,3 +133,54 @@ Standard catalog procedure from SP-B-LO-1 adapted for Currency. State-space matr
 
 - SP-A1 complete.
 - Unblocks SP-B-LM-R + SP-D1.
+
+---
+
+## Execution Summary (2026-04-22)
+
+**Catalog**: [clients/encore/specs_planning/catalogs/hist-root-map-location-management-currency.md](../../clients/encore/specs_planning/catalogs/hist-root-map-location-management-currency.md) — 9 parents cataloged via 9 save-cycles + 3 negative cases on office 1604 (Parker Palm Springs). Clean 1-col diffs on every Currency-tab save; zero col 63 cross-contamination; baseline restored 9/9 parents byte-match.
+
+**Parents cataloged (9 / 9)**
+
+| # | Parent | Target col | Status | Evidence |
+|---|---|---|---|---|
+| P1 | Currency Selected (combined USD/CAD/MXN) | col 5 "Currency" | TRACKED | 7-combo state matrix — Saves 1–7, 9 |
+| P2 | USD IsDefault | — | NOT-TRACKED (direct) | Saves 4, 9 — no col reflects Default swap |
+| P3 | CAD IsDefault | — | NOT-TRACKED (direct) | Saves 4, 6 |
+| P4 | MXN IsDefault | — | NOT-TRACKED (direct) | Saves 6, 7 |
+| P5 | USD Merchant | — | NOT-TRACKED (direct) | Save 8 — isolated Merchant change 316370→316426, phantom row (only Modified On diffed) |
+| P6 | CAD Merchant | — | NOT-TRACKED (inferred) | 1 option on office 1604 (no alternate) — classified by pattern |
+| P7 | MXN Merchant | — | NOT-TRACKED (inferred) | 0 options on office 1604 — classified by pattern |
+| P8–P10 | USD/CAD/MXN Selected (component parents) | col 5 via P1 | TRACKED via P1 | App persists the Selected SET, not per-currency bits |
+
+**State-space matrix (col 5 "Currency")**: all 7 non-empty subsets of {USD, CAD, MXN} MCP-verified. Serialization rule: comma-space-joined, **fixed code order USD, CAD, MXN** (not alphabetical, not insertion order). 0-subset prevented by app (Save disabled).
+
+**Col 63 cross-contamination guard**: col 63 stayed `""` for every one of the 9 Currency-tab saves → zero cross-contamination; col 63 is Pricing-tab-owned and orthogonal.
+
+**Negative cases**: 3 confirmed (N1 Cancel = dialog closes, no row added, form stays dirty; N2 No-op = Save button disabled when form pristine; N3 Validation-block = all 3 Selected=FALSE → Save button disabled silently, no aria-invalid). Also captured the shared "Unsaved changes / Stay|Discard" navigation guard as a side-effect during N1 teardown.
+
+**MCP verification timeline (2026-04-22, office 1604, Claude in Chrome + Playwright MCP mid-session fallback)**
+1. 09:42–09:51 UTC — Azure B2C `guest.encoreglobal.com/oauth2/authresp` ConnectionTimeOut on 3 attempts (correlation IDs `10fed2d9-b20a-4626-881e-de856c39f4fc`, `feeddca5-2b32-49dd-a3fb-3bf1fd33f605`, `611a442d-f5e5-4c30-b7bb-937059775812`). Session paused. Tenant recovered after user confirmation.
+2. 10:39 UTC — re-authenticated via Claude in Chrome (persisted Microsoft "Stay signed in" session), landed on office 1604 Location Settings.
+3. Phase 1 — 9 Currency parents baseline captured (USD only selected + default; USD Merchant `316370 - PSAV US/USD`; CAD Merchant `316446 - PSAV Canada/CAD`; MXN Merchant empty). 87-col history top row at 04/21/2026 02:59:07 PM (SP-B-LO-R's last save).
+4. Phase 2 Saves 1–7 (10:45:28 AM – 10:54:12 AM) — all 7 Selected subsets; col 5 serialization rule proven; IsDefault NOT-TRACKED proven via Saves 4 (USD+CAD default swap) and 6 (MXN default on).
+5. Phase 3 Save 8 (10:55:49 AM) — USD Merchant NOT-TRACKED proven via isolated phantom-row save.
+6. Phase 5 — Cancel negative case at ~10:57, No-op + Validation-block at ~10:58. Unsaved-changes Stay/Discard dialog captured as side-effect.
+7. Phase 6 Save 9 (10:59:43 AM) — baseline restored. 9/9 parents byte-match pre-session.
+
+**Plan-document updates**
+- Created [clients/encore/specs_planning/catalogs/hist-root-map-location-management-currency.md](../../clients/encore/specs_planning/catalogs/hist-root-map-location-management-currency.md) (new, ~260 lines).
+- This subplan: Status → DONE, Executed 2026-04-22, this Execution Summary added.
+- Activity log row appended per LR-028 / LR-037.
+
+**Test pass confirmation**: N/A for this session — no test code written. The catalog is an input artifact for SP-D1 (location-hist-currency.spec.ts) and SP-B-LM-R (reconciliation).
+
+**Rules honored**: LR-020 (every catalog claim backed by MCP evidence; prior 2026-04-17 findings re-verified not trusted), LR-025 (Radix option click pattern — synthetic dispatch failed on `[role="option"]`, fell back to `find` + `computer.left_click` for USD Merchant restoration), LR-026 (Angular dirty-state — Save-button-disabled ≠ form pristine; used explicit dirty-state reads before every save), LR-027 (this Execution Summary), LR-028 (activity-log row to follow), LR-032 (all findings from live MCP drives; zero theory), LR-033 (network activity implicitly used — save XHR `/navigator/api/location/navigator-settings` 200 PUT confirmed by top-row timestamp updates), LR-035 (plans:reindex to follow), LR-037 (activity-log wall-clock time ≥ mtime of touched files), LR-038 (browser tool choice announced + mid-session switch documented).
+
+**Deferred / follow-up items**
+- CAD Merchant + MXN Merchant direct save-cycle evidence — requires an office with ≥2 CAD or ≥1 MXN merchant options. Current inference (pattern match with directly-proven USD Merchant) is sound; retry on multi-merchant office for conclusive proof. Handed off to SP-E-LM-CUR.
+- SP-D1's Currency-tab save dialog selector: current framework `btnSaveChangesConfirm` resolves to "Save" button but Location Settings dialog uses **"Ok"**. SP-D1 implementation must override or parameterize.
+
+**Unblocks**: SP-B-LM-R (Location Management reconciliation — col 5 + col 63 mappings locked in), SP-D1 (location-hist-currency.spec.ts — 7-combo state matrix + 3 NOT-TRACKED guards + 3 negative cases all specified), SP-E-LM-CUR (6 bug candidates CUR-BUG-A trio + CUR-BUG-B trio ready for LR-034 filing once user approves).
+
+outcome:pass, attempts:1, rules-written:0.

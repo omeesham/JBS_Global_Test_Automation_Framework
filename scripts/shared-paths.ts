@@ -101,6 +101,9 @@ export const SHARED_PATHS = Object.freeze({
   envDir:           clientPath(path.join('config', 'environments')),
 
   // Framework-shared (not per-client)
-  agentsDir:        frameworkPath(path.join('.github', 'agents')),
+  // Repointed in PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0.1 (2026-04-27): model-agnostic
+  // sub-agents now live at `.claude/agents/{ROLE}.md`; the legacy `.github/agents/`
+  // directory was deleted in Phase 0.3.
+  agentsDir:        frameworkPath(path.join('.claude', 'agents')),
   reports:          frameworkPath('reports'),
 });

@@ -1,0 +1,227 @@
+- generic:
+  - alert
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: "1604"
+                    - generic:
+                      - generic: Parker Palm Springs
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - list:
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/home
+                            - img
+                            - generic: Home
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/inbox
+                            - img
+                            - generic: Inbox
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Actions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Commissions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Tax
+                            - img
+                        - listitem:
+                          - button [expanded]:
+                            - img
+                            - generic: Setup
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Studio
+                            - img
+                    - generic:
+                      - generic: Search
+                      - generic:
+                        - list:
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Order Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/fulfillments
+                              - img
+                              - generic: Job Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/assets
+                              - img
+                              - generic: Asset Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/customers
+                              - img
+                              - generic: Customer Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: DRO Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Payment Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/products
+                              - img
+                              - generic: Item Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: ECT Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Event Agendas
+                    - generic:
+                      - list:
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Navigator Assistant
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - button:
+                      - generic:
+                        - generic: RK
+                      - generic:
+                        - generic: Rutvik Khosariya
+                      - img
+            - button
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - button:
+                - img
+              - generic:
+                - generic:
+                  - generic:
+                    - heading [level=1]: Dashboard
+                  - button:
+                    - img
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+                          - text: Navigator Cloud
+                        - heading [level=1]: Welcome to Navigator Cloud
+                        - paragraph: The Navigator you know and trust — now in the cloud. Faster, smarter, and accessible from anywhere.
+                        - generic:
+                          - generic: Always On
+                          - generic: Real-Time Sync
+                          - generic: Secure & Scalable
+                          - generic: Access Anywhere
+                    - generic:
+                      - heading [level=2]: Get Started
+                      - generic:
+                        - link:
+                          - /url: /navigator/locations/1604/inbox
+                          - generic:
+                            - img
+                          - heading [level=3]: Inbox
+                          - paragraph: Notifications, alerts, and tasks synced in real time
+                        - link:
+                          - /url: /navigator/locations/1604/customers
+                          - generic:
+                            - img
+                          - heading [level=3]: Customers
+                          - paragraph: Manage customer accounts, contacts, and service history
+                        - link:
+                          - /url: /navigator/locations/1604/products
+                          - generic:
+                            - img
+                          - heading [level=3]: Products
+                          - paragraph: Browse and manage your product catalog
+                        - link:
+                          - /url: /navigator/locations/1604/assets
+                          - generic:
+                            - img
+                          - heading [level=3]: Assets
+                          - paragraph: Track equipment assets across all locations
+                        - link:
+                          - /url: /navigator/locations/1604/fulfillments
+                          - generic:
+                            - img
+                          - heading [level=3]: Warehouses
+                          - paragraph: Fulfillments, pick lists, staging, and shipping
+                        - link:
+                          - /url: /navigator/locations/1604/settings
+                          - generic:
+                            - img
+                          - heading [level=3]: Settings
+                          - paragraph: Location configuration and account preferences
+                    - generic:
+                      - generic:
+                        - img
+                      - heading [level=3]: Cloud Analytics Dashboard Coming Soon
+                      - paragraph: A powerful analytics dashboard is on the way — real-time metrics, insights, and reporting for your location, all in the cloud.
+  - region "Notifications alt+T"
+  - menu "Setup" [active] [ref=e241]:
+    - menuitem "Corporate Billing" [disabled]:
+      - generic: Corporate Billing
+    - link "Corporate Pricing" [ref=e242] [cursor=pointer]:
+      - /url: /navigator/locations/1604/settings/corporate-pricing
+      - menuitem "Corporate Pricing" [ref=e243]:
+        - generic [ref=e244]: Corporate Pricing
+    - link "Corporate PG Pricing Override" [ref=e245] [cursor=pointer]:
+      - /url: /navigator/locations/1604/settings/corporate-pricing/pg-override
+      - menuitem "Corporate PG Pricing Override" [ref=e246]:
+        - generic [ref=e247]: Corporate PG Pricing Override
+    - menuitem "Discount Optimization Settings" [disabled]:
+      - generic: Discount Optimization Settings
+    - menuitem "Discount Matrix" [disabled]:
+      - generic: Discount Matrix
+    - menuitem "ECT Settings" [disabled]:
+      - generic: ECT Settings
+    - menuitem "Users" [disabled]:
+      - generic: Users
+    - link "Local Office Settings" [ref=e248] [cursor=pointer]:
+      - /url: /navigator/locations/1604/settings/local-office
+      - menuitem "Local Office Settings" [ref=e249]:
+        - generic [ref=e250]: Local Office Settings
+    - link "Location" [ref=e251] [cursor=pointer]:
+      - /url: /navigator/locations/1604/settings/location
+      - menuitem "Location" [ref=e252]:
+        - generic [ref=e253]: Location
+    - menuitem "Bill Through Date" [disabled]:
+      - generic: Bill Through Date
+    - menuitem "Service Type" [disabled]:
+      - generic: Service Type
+    - menuitem "Service Type Name" [disabled]:
+      - generic: Service Type Name
+    - menuitem "Service Charge" [disabled]:
+      - generic: Service Charge

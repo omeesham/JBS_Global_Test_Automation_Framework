@@ -2,7 +2,7 @@
 
 **Status**: PENDING
 **Parent audit**: `C:\Users\rutvi\.claude\plans\expressive-booping-fountain.md` (Action H-6, Findings F-004 + GD-F1)
-**Priority**: P1 (HIGH — INDEX is misleading future agents/sessions)
+**Priority**: P2-CYCLE-3
 **Created**: 2026-04-15
 **Identity**: GARDENER (repo health) → BUILDER for the script
 **Estimated session**: MEDIUM (60-90 min)

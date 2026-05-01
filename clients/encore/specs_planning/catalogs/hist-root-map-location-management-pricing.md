@@ -295,6 +295,8 @@ Attempted direct save-cycle. Findings:
 
 **Not a lazy-defer** — the classification aligns with Is Alternate's already-(a)-proven phantom-cluster behavior in original Saves 5+6. Extending direct proof to Use-Eff / Start / End would only re-confirm the same phantom-cluster result already proven.
 
+**2026-04-22 re-verification attempt (post-handoff, LR-039 read-side)** — a handoff note proposed retrying Gap #2 under premise that office 1604 row "2022-eCommerce" had Is-Alt persisted TRUE from a prior session. Fresh-load pre-flight scan (Claude in Chrome, post-SSO, Pricing sub-tab) enumerated all 31 Secondary Pricing rows: `altTrueCount=0`. Row "2022-eCommerce" was at idx 1 with `aria-checked="false"`. All rows' Use-Eff checkboxes had `disabled` attribute present (Radix-disabled). No retry executed — user-gated on "persisted-TRUE row exists" precondition; precondition did not hold. Handoff premise was stale mid-session dirty state, not persisted server state — vindicates LR-039 (don't trust received handoff blocker claims; re-verify simplest path first). **Classification unchanged**: (c) discussion-item stands.
+
 ### Gap #3 — Col 63 / cols 62-68 population path → (c) discussion-item (reclassified per new memory rule)
 
 Downgraded from original "open question" to **discussion-item** per `feedback_discussion_item_not_bug.md` (graduated 2026-04-22 from this very investigation). Client-call topic:

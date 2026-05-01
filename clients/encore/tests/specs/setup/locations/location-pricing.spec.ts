@@ -259,7 +259,7 @@ test.describe.serial('Location Pricing @locations @pricing', () => {
   test('TC-LOC-PRI-017: Primary pricing dropdowns accept selections', async ({ locationPricingPage }) => {
     const corp = await locationPricingPage.getCheckboxState('chkCorporatePricing');
     expect(corp.checked).toBe(true);
-    const enabled = await locationPricingPage.isDropdownEnabled('drpPrimaryLaborPricing');
+    const enabled = await locationPricingPage.isDropdownEnabled('drpPrimaryLaborPricingUSD');
     expect(enabled, 'Primary Labor Pricing should be enabled').toBe(true);
  // Note: Specific option selection verified in TC-026. This test validates interactability.
   });

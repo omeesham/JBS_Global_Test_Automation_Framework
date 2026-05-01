@@ -42,6 +42,14 @@ Without an active identity, Claude operates as OWNER.
 ## Step 1: Identity Selection
 
 If invoked with an argument (e.g., `/identity HUNTER`), skip the menu and adopt immediately.
+
+**Argument parsing (LR-047)**: only the FIRST whitespace-delimited token is treated as the codename. Anything after is descriptive context for the human reader and is discarded by the gate. Examples:
+- `/identity GIVER` → identity = GIVER
+- `/identity GIVER (selector migration)` → identity = GIVER
+- `/identity BUILDER — testid migration` → identity = BUILDER
+
+The hook in `.claude/hooks/lib/check-identity-switch.mjs` enforces this split (single source of truth); the skill description is informative — the hook is authoritative.
+
 If invoked without arguments, present:
 
 ```
@@ -119,7 +127,7 @@ After selection, load the identity:
 3. Load file ownership from `AGENT_SHARED_RULES.md` §2 — YOUR column only
 4. Emit identity banner (Step 5)
 5. Rules NOT matching your prefix are **INVISIBLE** — do not apply them
-6. Emit Step 6.5 **Constraint Extract** block (required on first load + every switch; skipped only when Step 1.5 auto-detect determines the active identity is already the target — no actual switch)
+6. Emit per Step 6.1 mode classification — MODE A (first session load OR first activation of CODENAME) and MODE B (SWITCH-NEW) emit the full Step 6.5 Constraint Extract; MODE C (SWITCH-BACK to a CODENAME already activated this session) emits the one-line `[SWITCH-BACK: ...]` per Step 6.1 instead. Step 1.5 auto-detect "keep, return silently" carve-out is subsumed by MODE C.
 
 ---
 
@@ -183,7 +191,7 @@ Every response MUST start with the identity banner:
 
 Format: `[CODENAME | prefix-list] >`
 
-**Ground truth is the last `/identity` Skill invocation in the transcript, NOT the banner text.** The PreToolUse hook (`.claude/hooks/identity-switch-gate.sh`, SP-IDS-01) denies writes where the banner has drifted from the skill state. Relabeling the banner `[OWNER] → [GARDENER]` without invoking `/identity GARDENER` does NOT switch identity — it only misleads the human reader while the hook still enforces the old (OWNER) constraints. If the banner disappears from responses, identity context is lost. Re-invoke `/identity`.
+**Ground truth is the last `/identity` Skill invocation in the transcript, NOT the banner text.** The PreToolUse hook (`.claude/hooks/identity-switch-gate.sh`, SP-IDS-01) uses that ground-truth identity for the §2 write-gate — OWNER short-circuits (unrestricted), pipeline identities are held to their §2 column. Relabeling the banner `[OWNER] → [GARDENER]` without invoking `/identity GARDENER` does NOT switch identity — it only misleads the human reader; ground truth stays OWNER (unrestricted). If the banner disappears from responses, identity context is lost. Re-invoke `/identity`. The Stop-mode identity check (banner-drift audit + Step 6.5 emission check) was **removed 2026-04-23** — paperwork without enforcement value.
 
 ---
 
@@ -195,13 +203,44 @@ When `/identity` is invoked while an identity is already active:
 2. Log: `IDENTITY SWITCH: [OLD] -> [NEW] | Self-audit: [pass/fail]`
 3. Clear old constraints
 4. Load new identity per Step 2
-5. Emit Step 6.5 **Constraint Extract** for the NEW identity — required before any tool call under the new identity. The Stop hook (SP-IDS-01) blocks session end if an `IDENTITY SWITCH:` log line appears in transcript without a matching `## [IDENTITY-ACTIVE: {NEW}]` heading within 5 turns.
+5. Emit per Step 6.1 mode classification — MODE A/B emit the full Step 6.5 Constraint Extract; MODE C emits the one-line `[SWITCH-BACK: ...]`. Required before any tool call under the new identity. Discipline is self-enforced (no Stop hook since 2026-04-23): skipping the appropriate emission means the new sys-prompt wasn't actually internalized (or, for MODE C, the cached prompt isn't being honored), which defeats the purpose of switching.
+
+---
+
+## Step 6.1: SWITCH-BACK Fast-Path + Work-Gated Self-Audit (Plan B Fix 3, 2026-04-27)
+
+Three transition modes — replaces the blanket "every switch emits Step 6.5" rule. Token cost driver: SP-DQU-03's 5-switch session burned ~50k tokens on identity ceremony alone (Plan B § Defect B). MODE C + work-gating cuts that by ~45%.
+
+**MODE A — INITIAL_LOAD** (first `/identity` call this session, OR first activation of this CODENAME this session):
+- Full ceremony — Step 2 agent-file read + Step 6.5 Constraint Extract emission + register CODENAME as "active in this session" cache.
+
+**MODE B — SWITCH-NEW** (CODENAME never activated this session — distinct from MODE A only when MODE A was a different CODENAME):
+- Step 2 agent-file read + Step 6.5 emission. Same ceremony as MODE A.
+
+**MODE C — SWITCH-BACK** (CODENAME already activated earlier in this session — cached agent-file content + Constraint Extract still in scrollback):
+- **Skip** Step 2 agent-file re-read (cached from prior MODE A/B activation).
+- **Skip** Step 6.5 full emission. Emit ONE LINE instead:
+  `[SWITCH-BACK: {OLD} → {NEW} (last active <Nm ago); prior Constraint Extract still in effect]`
+- No agent-file re-read. No 25-line block. No re-extraction of HARD STOPS / tools / self-audit list — they are stable per-CODENAME and live in scrollback.
+
+**Self-audit gating** (applies to all 3 modes — Plan B Defect B3):
+
+The `Step 6` item-1 "self-audit checklist FIRST" requirement now gates on whether work actually happened under `{OLD}` since the last self-audit. Self-audit emission required ONLY if any of the following landed:
+- (a) any `Edit` / `Write` / `NotebookEdit` / `MultiEdit` tool call,
+- (b) any `Bash` command with side effects (`mv`, `rm`, `git commit`/`mv`/`reset`, `npm`, `mkdir`, file writes via heredoc),
+- (c) any test / regression-guard / build run.
+
+No work since last self-audit → emit one-line: `[Self-audit skipped: no work under {OLD} since last audit]`. Token waste with no enforcement value (per Plan B Defect B3 RCA).
+
+**Cache invalidation**: the per-CODENAME activation cache resets when (1) the session starts, (2) the agent file content on disk has been edited since cache (rare; check mtime if a `/identity` re-invocation explicitly says "reload"), or (3) the user explicitly says "reload identity" / `/identity X reload`. Without one of those triggers, MODE C is safe — the prompt the agent internalized in MODE A/B is still authoritative.
+
+**HALT condition**: if MODE C fires when MODE A *should* have fired (cache stale because a session-restore lost scrollback, or agent file was edited mid-session), the agent emits `[HALT: MODE C cache state suspect — re-running MODE A]` and falls back to full ceremony. Better one redundant emission than role-drift from a stale cache.
 
 ---
 
 ## Step 6.5: Constraint Extract (MANDATORY on first load + every switch)
 
-Before any tool call under a new (or freshly-loaded) identity, emit this fixed-format block in chat. The heading is exact — the Stop hook parses `## [IDENTITY-ACTIVE: {CODENAME}]` verbatim to confirm the extract happened.
+Before any tool call under a new (or freshly-loaded) identity, emit this fixed-format block in chat. The heading is exact (`## [IDENTITY-ACTIVE: {CODENAME}]`) — it's the self-contract that the sys-prompt was actually read and internalized, and it's the grep-target future auditors use when reviewing transcripts.
 
 ````markdown
 ## [IDENTITY-ACTIVE: {CODENAME}] Constraint Extract
@@ -227,8 +266,8 @@ Before any tool call under a new (or freshly-loaded) identity, emit this fixed-f
 
 Rules:
 - Block must appear as the **first** assistant text after `/identity` invocation, BEFORE any tool call.
-- Emission required on: (a) first session load, (b) every identity switch, (c) explicit `/identity` re-invocation (re-assert).
-- Emission NOT required when Step 1.5 auto-detect determines the active identity is already the target (no actual change — "keep, return silently").
+- **Emission deferred to Step 6.1 mode classification (2026-04-27, Plan B Fix 3)**: MODE A (first session load OR first activation of CODENAME) and MODE B (SWITCH-NEW) emit the full Constraint Extract block below. MODE C (SWITCH-BACK to a CODENAME already activated this session) **explicitly skips** full emission and emits the one-line `[SWITCH-BACK: ...]` per Step 6.1 instead — the cached prompt + cached extract remain authoritative.
+- Equivalent carve-out: Step 1.5 auto-detect determining the active identity is already the target ("keep, return silently") = no actual switch = no emission. Subsumed by MODE C's "no work to do" path.
 - For OWNER, the extract is built from the Step 8 inline definition below — same format, same mandatory heading.
 - Keep the block compact (≤25 lines). It is not a full agent-file reprint; it is the *constraint summary* the agent uses to enforce itself for the rest of the session.
 
@@ -240,7 +279,7 @@ Rules:
 
 Override is a **one-shot break-glass** for an unexpected single blocked write. It is NOT a workflow. If a task consistently requires override, the subplan identity is wrong (ALL-077 path (a)) or §2 ownership is wrong (ALL-077 path (b)) — fix the root cause.
 
-**Structural handshake (all 3 steps required; the PreToolUse + Stop hooks enforce)**:
+**Structural handshake (all 3 steps required; the PreToolUse hook enforces — Stop-side override audit was removed 2026-04-23)**:
 
 1. Agent emits request BEFORE the write:
    ```
@@ -252,13 +291,13 @@ Override is a **one-shot break-glass** for an unexpected single blocked write. I
    [OVERRIDE] {identity} wrote to {path} — reason: {reason} — authorized by: {matched phrase}
    ```
 
-All three fields (identity, path, reason) in the log line are REQUIRED. Missing any → override-discipline Stop hook blocks session end.
+All three fields (identity, path, reason) in the log line are REQUIRED — they're the audit trail future chain-session audits grep for.
 
-**Second override in same session**: requires user to type `[OVERRIDE-EXPLICIT-APPROVAL-BATCH]` once in chat (pre-approves subsequent overrides in this session). Without the batch tag, a 2nd `[OVERRIDE]` blocks stop.
+**Second override in same session**: user types `[OVERRIDE-EXPLICIT-APPROVAL-BATCH]` once in chat to pre-approve subsequent overrides. Without the batch tag, repeated overrides should trip the agent's own self-audit — "why am I fighting the sys prompt this many times?" is usually a signal that the identity or §2 is wrong.
 
 **Scope**: override bypasses ONLY the §2 file-ownership check. HARD_STOP paths (`.env*`, `package.json`, `playwright.config.*`, `tsconfig.json`, `.ci/*`) are NEVER overridable — those are human-only.
 
-**Audit trail**: the PreToolUse hook's allow-reason reads `[OVERRIDE] {identity} authorized to write {path} — user-typed approval matched`. The Stop hook's `check-override-discipline.mjs` replays the handshake from the transcript and blocks any malformed or missing-field entry.
+**Audit trail**: the PreToolUse hook's allow-reason reads `[OVERRIDE] {identity} authorized to write {path} — user-typed approval matched`. The Stop-side override-discipline audit was removed 2026-04-23 (same class of session-end paperwork as the identity-switch Stop mode).
 
 ---
 
@@ -293,7 +332,7 @@ Self-Audit (5 items — complete before switching identity or ending session):
   5. Pipeline agent contracts intact? (no breaking changes to shared interfaces)
 ```
 
-**OWNER Step 6.5 Constraint Extract** — when activating OWNER, the Step 6.5 block is built from this inline spec using the exact heading `## [IDENTITY-ACTIVE: OWNER] Constraint Extract`. Same 5-section format (Hard stops / File ownership / Tools / Self-audit). Do not skip — the Stop hook parses for the heading.
+**OWNER Step 6.5 Constraint Extract** — when activating OWNER, the Step 6.5 block is built from this inline spec using the exact heading `## [IDENTITY-ACTIVE: OWNER] Constraint Extract`. Same 5-section format (Hard stops / File ownership / Tools / Self-audit). Do not skip — it's the self-contract that you read the definition, not just named the identity.
 
 ---
 

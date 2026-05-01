@@ -1,0 +1,27 @@
+- generic [ref=e2]:
+  - generic [ref=e10]:
+    - img "Organization banner logo" [ref=e12]
+    - main [ref=e13]:
+      - generic [ref=e14]:
+        - generic "v-rutvik.khosariya@psav.com" [ref=e18]
+        - generic [ref=e20]:
+          - heading "Enter code" [level=1] [ref=e21]
+          - generic [ref=e23]: Enter the code displayed in the authenticator app on your mobile device
+          - generic [ref=e25]:
+            - alert
+            - textbox "Enter code" [active] [ref=e28]:
+              - /placeholder: Code
+          - link "More information about two step verification" [ref=e34] [cursor=pointer]:
+            - /url: https://go.microsoft.com/fwlink/p/?LinkId=708614
+            - text: More information
+          - generic [ref=e35]:
+            - button "Cancel" [ref=e37] [cursor=pointer]
+            - button "Verify" [ref=e39] [cursor=pointer]
+          - paragraph [ref=e41]: Welcome to Encore!
+  - contentinfo [ref=e42]:
+    - generic [ref=e43]:
+      - link "Terms of use" [ref=e44] [cursor=pointer]:
+        - /url: https://www.microsoft.com/en-US/servicesagreement/
+      - link "Privacy & cookies" [ref=e45] [cursor=pointer]:
+        - /url: https://privacy.microsoft.com/en-US/privacystatement
+      - button "Click here for troubleshooting information" [ref=e46] [cursor=pointer]: ...

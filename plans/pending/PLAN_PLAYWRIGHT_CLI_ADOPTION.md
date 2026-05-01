@@ -3,7 +3,7 @@
 **ID**: PLAN_PLAYWRIGHT_CLI_ADOPTION
 **Created**: 2026-04-01
 **Status**: pending
-**Priority**: P2 (no pipeline blockers — additive improvement)
+**Priority**: P2-CYCLE-3
 **Post-Audit**: 2026-04-01 — 5 issues found, all incorporated below
 
 ---

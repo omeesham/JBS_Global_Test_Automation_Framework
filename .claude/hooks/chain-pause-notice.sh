@@ -2,6 +2,16 @@
 # chain-pause-notice.sh — SessionStart hook.
 # On every interactive `claude` open, prints PAUSE_NOTICE.md when chain is paused.
 # Silent when no chain or status != paused. See PLAN_CHAIN_PER_SESSION_ORCHESTRATION D28.
+#
+# Fail-mode: FAIL-OPEN. Every error path exits 0 (silently). A SessionStart hook
+# that wedges or noises on every shell open would make the harness unusable —
+# the chain pause-notice is informational, not gating. Failure modes covered:
+#   - missing chain.json                    → exit 0 (not a chain user)
+#   - chain-state.mjs read error            → exit 0 (status unknown, stay quiet)
+#   - missing PAUSE_NOTICE.md               → exit 0 (paused but no notice yet)
+#   - node helper crash on context-emit     → exit 0 (no SessionStart payload)
+# To debug: run `bash .claude/hooks/chain-pause-notice.sh </dev/null` and check
+# stderr for the node block.
 
 set -u
 

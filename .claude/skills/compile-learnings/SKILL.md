@@ -2,13 +2,13 @@
 name: compile-learnings
 description: Scan agent-mistakes.md for patterns with 3+ occurrences, graduate recurring patterns into permanent CLAUDE.md rules and decision trees. Periodic skill — run weekly or when flagged by /reflect.
 user-invocable: true
-auto-calls: none
+auto-calls: identity
 tools: Read, Glob, Grep, Write, Edit
 ---
 
 # /compile-learnings — Pattern Graduation
 
-> **LR lookup / write**: when reading existing `LR-NNN` rules OR graduating a new rule, check BOTH root `CLAUDE.md` and `clients/${ACTIVE_CLIENT}/CLAUDE.md`. Graduate Encore-product-specific patterns (naming Encore pages/Jira/URLs) to the client file using `LR-ENC-NNN` prefix; graduate stack-generic patterns (Angular/Radix/Playwright) to root CLAUDE.md as `LR-NNN`.
+> **LR lookup / write**: when reading existing `LR-NNN` rules OR graduating a new rule, check the right home. Path-scoped framework rules live in `.claude/rules/<topic>.md` (angular, specs, hooks-identity, browser-tool, pipeline, baseline, data, inventory) — they auto-load on matching file edits. Cross-cutting framework rules live in `docs/read_only_docs/LEARNED_RULES.md`. Client-specific rules (e.g., Encore page/Jira/URL naming) live in `clients/${ACTIVE_CLIENT}/CLAUDE.md` with `LR-ENC-NNN` prefix. Stack-generic patterns (Angular/Radix/Playwright) graduate to the matching `.claude/rules/<topic>.md` file as `LR-NNN`; cross-cutting patterns (handoff discipline, networkidle ban, activity-log) graduate to `LEARNED_RULES.md`. Root `CLAUDE.md` is the orientation layer and does NOT host LR bodies anymore.
 
 Turns recurring mistakes into permanent rules. Without this, the same mistakes get logged over and over but never graduate into enforceable project-wide rules. This is the learning loop that makes the system compound.
 
@@ -49,14 +49,15 @@ For each candidate:
 
 For each graduated pattern:
 
-1. **Add to `CLAUDE.md`** (repo root) under a "Learned Rules" section:
-   ```
-   - [RULE]: [one-sentence rule] — graduated from [R-XX, R-YY, R-ZZ]
-   ```
+1. **Pick the right home**:
+   - Path-scoped pattern (Angular forms, spec discipline, hooks/identity, browser tool, pipeline closure, baseline-truth, coding hygiene, field-inventory) → `.claude/rules/<topic>.md` — append the rule body and (if needed) widen the `paths:` glob.
+   - Cross-cutting pattern (anything that applies across many file classes or to session-level discipline) → `docs/read_only_docs/LEARNED_RULES.md`.
+   - Client-specific pattern → `clients/${ACTIVE_CLIENT}/CLAUDE.md` with `LR-{CLIENT}-NNN` prefix.
+   Use the format: `### LR-NNN: [one-sentence headline]` followed by body + `**Trigger**:` + `**Graduated from**:` lines.
 
-2. **If agent-specific**, also add to the relevant `.github/agents/*.agent.md` file
+2. **If agent-specific**, also add to the relevant `.claude/agents/{ROLE}.md` Rule registry section.
 
-3. **Mark source entries** in agent-mistakes.md with `[GRADUATED → CLAUDE.md]` tag so they're not re-processed
+3. **Mark source entries** in agent-mistakes.md with `[GRADUATED → <target-file>]` tag so they're not re-processed.
 
 ### Step 5: Build Decision Trees
 
@@ -110,3 +111,15 @@ None — this is a standalone periodic utility.
 ### Files Modified
 - [list of files changed]
 ```
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

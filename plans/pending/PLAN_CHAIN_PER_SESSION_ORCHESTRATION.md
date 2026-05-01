@@ -1,13 +1,36 @@
 # PLAN: /chain Per-Session Orchestration with Stop-Hook /final-q Gating
 
 **Status**: Pending
-**Priority**: P0 (framework infra — unblocks autonomous multi-subplan runs without context bloat)
+**Priority**: P0-CYCLE-1
 **Created**: 2026-04-22
 **Parent**: (root — framework infra)
 **Depends on**: none
 **Blocks**: any future autonomous chain run (current `/chain` is single-session and burns context)
 **Skills**: `/planning` (authoring), `/review` (post-draft), `/execute` (implementation), `/final-q` (exit)
 **Identity**: OWNER
+
+---
+
+## 🛑 MANDATORY PHASE 0 — AUDIT EVERY WORD BEFORE EXECUTING
+
+**This plan is ~3+ days old. Reality may have drifted. Your FIRST action is NOT execution — it is audit.**
+
+Before touching any file described below, do this (max thinking, ultra-deep dive):
+
+1. **Read every word of this plan end-to-end.** No skimming.
+2. **For every claim in this plan, verify against current repo state**: grep for the files, functions, rules, hooks, scripts, paths, line numbers named here. If a line number is wrong, a file has moved, or a mechanism was already graduated — flag it BEFORE proceeding.
+3. **Check `.claude/hooks/`, `.claude/state/chain-sessions/`, `scripts/chain-*.sh`, `scripts/chain-*.mjs`** — parts of this plan may already be implemented. Do not re-do what exists.
+4. **Check sibling plans**: `PLAN_AGENT_AUTHORING_EFFICIENCY.md`, `PLAN_DELIVERABLE_QUALITY_UPGRADE.md`, `godsplan.md`, any SP-AAE-* / SP-DQU-* that touch the chain or /final-q or Stop hooks. If another plan is building the same orchestration logic, STOP and ask the user which to keep. We do NOT want two parallel chain orchestrators.
+5. **Check LR-041 (model/thinking/permission-mode frontmatter), LR-042 (chain artifact discipline), LR-043 (identity discipline via hooks)** — these already encode parts of what this plan wants. Do not re-author them here.
+6. **Slop-prevention gate**: before writing any new hook, grep `.claude/hooks/` for it. Before writing any new script, grep `scripts/` for it. Before adding any rule, grep `agent-mistakes.md` + `AGENT_SHARED_RULES.md` + root `CLAUDE.md` for the substance.
+
+**Output of Phase 0**: a short audit note (in chat, not a file) listing:
+- Claims verified ✓
+- Claims found stale / wrong / drifted
+- Overlaps with existing hooks / scripts / rules / other plans
+- Recommendation: proceed as written | proceed with deltas | halt and replan
+
+Only after the user acknowledges the audit note may you begin execution. No drift. No duplicate work. No two agents fixing one thing.
 
 ---
 

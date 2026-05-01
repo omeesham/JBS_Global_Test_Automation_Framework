@@ -6,7 +6,7 @@
 **Created**: 2026-03-24
 **Revised**: 2026-03-25 (V3 — post external adversarial review)
 **Status**: pending
-**Priority**: HIGH (14 verified findings across 4 categories)
+**Priority**: P2-CYCLE-3
 
 ## Context
 

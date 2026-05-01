@@ -66,8 +66,8 @@ export class MarkdownParser {
     const testCases: TestCase[] = [];
     
     // Split by test case headers (## or ### TC-MODULE-XXX:)
-    // Supports: TC-LOC-001, TC-LOC-CUR-001, TC-LOC-LI-007A, TC-LOC-LGL-HIST, TC-LOC-LI-SKIP-BILLING
-    const sections = content.split(/^#{2,3} (TC-[A-Z]+(?:-[A-Z]+)?-(?:\d+[A-Z]?|[A-Z]+)(?:-[A-Z]+)*):/m);
+    // Supports: TC-LOC-001, TC-LOC-CUR-001, TC-LOC-LI-007A, TC-LOC-LGL-HIST, TC-LOC-LI-SKIP-BILLING, TC-LOC-LI-NE-011
+    const sections = content.split(/^#{2,3} (TC-[A-Z]+(?:-[A-Z]+)*(?:-\d+[A-Z]?)?):/m);
     
     // Skip first element (content before first test case)
     for (let i = 1; i < sections.length; i += 2) {

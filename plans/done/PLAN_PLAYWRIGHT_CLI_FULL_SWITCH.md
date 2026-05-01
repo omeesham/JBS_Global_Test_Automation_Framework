@@ -2,9 +2,10 @@
 
 **ID**: PLAN_PLAYWRIGHT_CLI_FULL_SWITCH
 **Created**: 2026-04-20
-**Status**: PENDING
+**Status**: DONE (SUPERSEDED — archived 2026-04-24 by SP-PWC2-07)
 **Priority**: P3 (low — parked; other work takes precedence)
 **Supersedes**: [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](PLAN_PLAYWRIGHT_CLI_ADOPTION.md) (gradual-adoption plan is replaced by this full-switch plan)
+**SupersededBy**: [PLAN_PLAYWRIGHT_CLI_PRIMARY_CHROME_SPECIALIST.md](PLAN_PLAYWRIGHT_CLI_PRIMARY_CHROME_SPECIALIST.md) (thesis change 2026-04-24 — Chrome retained as specialist instead of full CLI-only retirement)
 **Healer decision**: Option A locked — full CLI via shell-out to `npx playwright test` + artifact reads. No MCP anywhere in the repo after Phase 6.
 
 ---
@@ -206,3 +207,9 @@ New Step 6 in CLAUDE.md onboarding: `npm run cli:install` + one-time SSO login t
 - Verification: 0.5 day
 
 **Total: ~5 working days of focused work.** Not counting discovery of edge cases during Phase 2 rewrite (budget +1 day buffer).
+
+---
+
+## SUPERSEDED 2026-04-24 by V2 (Chrome retained as specialist)
+
+V1 thesis: full CLI retirement — no MCP anywhere. V2 thesis (LR-038 v2, `PLAN_PLAYWRIGHT_CLI_PRIMARY_CHROME_SPECIALIST.md`): CLI primary + Chrome specialist for visual/auth-heavy/live-RCA tasks. This plan was archived by SP-PWC2-07 without execution. All deliverables superseded by SP-PWC2-00 through SP-PWC2-07.

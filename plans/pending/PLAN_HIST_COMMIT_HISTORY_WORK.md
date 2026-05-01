@@ -2,7 +2,7 @@
 
 **Status**: PENDING
 **Parent audit**: `C:\Users\rutvi\.claude\plans\expressive-booping-fountain.md` (Action CR-1, Finding F-001)
-**Priority**: P0 (CRITICAL — work is one `git stash` from oblivion)
+**Priority**: P0-CYCLE-1
 **Created**: 2026-04-15
 **Identity**: OWNER (commits) — no agent identity owns commits, this is human-driven
 **Estimated session**: SMALL (15-30 min)

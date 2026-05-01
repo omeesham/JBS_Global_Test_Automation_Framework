@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
-# Auto-regenerate plans/INDEX.md before each commit so it stays in sync
-# with the actual filesystem state of plans/pending/ and plans/done/.
-#
-# Install with:  npm run plans:hooks:install
+# Shared pre-commit gate. Register with:  npm run plans:hooks:install
 # (Sets core.hooksPath to .githooks — per-clone setup, not automatic.)
 
 set -e
 
-# Skip if no plan files are staged or touched — avoid re-running on every commit.
+# --- 1) Keep plans/INDEX.md in sync with plans/pending/ and plans/done/. --------
 if git diff --cached --name-only | grep -qE '^plans/(pending|done)/.*\.md$'; then
   echo "[pre-commit] plans changed — regenerating plans/INDEX.md"
   node scripts/plans-reindex.mjs --quiet
   git add plans/INDEX.md
+fi
+
+# --- 2) SP-AAE-02: block TC MD edits lacking a fresh field-inventory artifact. ---
+# Fires only when a clients/*/specs_planning/test-cases/**/*.md change touches
+# the behavioural content (Steps / Expected / Data / Preconditions). Metadata,
+# comments, and the MCP_VERIFICATION_LOG pass through.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/specs_planning/test-cases/.+\.md$'; then
+  echo "[pre-commit] test-case MD changed — checking paired field-inventory artifact"
+  node scripts/check-tc-has-fieldinventory.mjs
 fi
 
 exit 0

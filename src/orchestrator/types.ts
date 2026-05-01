@@ -6,6 +6,22 @@
 
 // ── Pipeline Definition Schema (mirrors config/pipeline-definition.json) ──
 
+// LR-038 v2 / SP-PWC2-05: per-stage browser tool surface. Replaces legacy `mcpConfig`.
+// 'cli'   = Bash + playwright-cli only (Chrome MCP tools denied server-side).
+// 'chrome'= Claude-in-Chrome extension tools only.
+// 'both'  = CLI primary + Chrome as specialist (requires justification at subplan layer).
+// 'none'  = no live browser interaction.
+export type BrowserTool = 'cli' | 'chrome' | 'both' | 'none';
+
+/** Per-stage CLI session config. Replaces legacy `mcpConfig` template reference.
+ *  `sessionName` is the `-s=<name>` handle used across `playwright-cli` calls so
+ *  state-saved auth persists between commands. `persistentProfile` points at a
+ *  headed-browser profile directory for one-time SSO + MFA login capture. */
+export interface CliStageConfig {
+  sessionName?: string;
+  persistentProfile?: string;
+}
+
 export interface StageDefinition {
   id: string;
   name: string;
@@ -22,7 +38,8 @@ export interface StageDefinition {
     condition: string;
     rules: Array<{ when: string; then: string }>;
   };
-  mcpConfig?: string;
+  browserTool?: BrowserTool;
+  cliConfig?: CliStageConfig;
   approvalMode?: 'auto' | 'manual';
   allowedTools?: string[];
   effort?: 'low' | 'medium' | 'high' | 'max';

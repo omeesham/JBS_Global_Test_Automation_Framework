@@ -163,11 +163,13 @@
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — confirmed Prep field rejects positive value `5` with aria-invalid=true; TC already uses valid value `-2` (prior sweep applied). Reviewer's `5` flag is stale, no further TC change needed.
+
 **Steps**:
 1. Navigate to Local Office Settings, Basic Information tab -> Save button disabled
-2. Clear **Prep Date Offset** field and type `-2` -> Field value changes to "-2"
-3. Verify Save button is now **enabled** (no `disabled` attribute) -> Button clickable
-4. **Cleanup**: Clear field and type `-1` to restore original value
+2. Clear "Prep Date Offset" field and type `-2` -> Field value changes to "-2"
+3. Verify Save button is now enabled (no disabled attribute) -> Button clickable
+4. Cleanup: clear field and type `-1` to restore original value
 
 **Expected**: Editing any date offset field enables the Save button
 **Automatable**: Yes
@@ -180,16 +182,19 @@
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — verified Save dialog text verbatim: title "Save Changes", body "Are you sure you want to save the changes?", buttons "Cancel" and "Save". After dialog confirm, the notifications region (aria-label "Notifications alt+T") shows the toast "Local office settings updated".
+
 **Steps**:
 1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
-2. Clear **Prep Date Offset** field and type `-2` -> Field shows "-2"
-3. Click **Save** -> Shared "Save Changes" dialog appears: "Are you sure you want to save the changes?" / Cancel + Save buttons
-4. Click **Save** in dialog -> Dialog closes, save completes
-5. Reload page -> Page reloads fresh
-6. Verify **Prep Date Offset** = `-2` -> Value persisted
-7. **Cleanup**: Change back to `-1` and save
+2. Clear "Prep Date Offset" field and type `-2` -> Field shows "-2"
+3. Click "Save" button -> Save Changes dialog appears with title "Save Changes" and body "Are you sure you want to save the changes?" and buttons "Cancel" and "Save"
+4. Click "Save" in the dialog -> Dialog closes and the save completes
+5. Verify the notifications region shows the toast text "Local office settings updated" -> Confirmation toast visible
+6. Reload the page -> Page reloads fresh
+7. Verify "Prep Date Offset" shows `-2` -> Value persisted
+8. Cleanup: change back to `-1` and save
 
-**Expected**: Date offset value persists after save and reload | **Data**: Prep from -1 to -2
+**Expected**: Date offset value persists after save and reload, the Save Changes dialog gates the save, and the notifications region shows the success toast "Local office settings updated" after the dialog confirms. | **Data**: Prep from -1 to -2
 **Automatable**: Yes
 
 ---
@@ -206,26 +211,28 @@
 3. Verify Save button is **disabled** -> Button has `disabled` attribute
 4. **Cleanup**: Clear and type `-1` to restore
 
-**Expected**: Non-numeric input triggers aria-invalid and disables Save
+**Expected**: Non-numeric input is shown as invalid and the Save button is disabled
 **Automatable**: Yes
 
 ---
 
-## TC-LOS-BAS-007: Date Offset — Delivery < Prep Cross-Field Validation (NM-1264)
+## TC-LOS-BAS-007: Date Offset — Delivery Must Be Greater Than Or Equal To Prep (NM-1264)
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Validation | Yes |
 
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — verified the NM-1264 cross-field rule: when Delivery Date Offset is set lower than Prep Date Offset (Delivery `-5`, Prep `-1`), the Delivery field is marked invalid and the Save button is disabled.
+
 **Steps**:
 1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
-2. Clear **Delivery Date Offset** and type `-5` -> Field shows "-5"
-3. Verify **Prep Date Offset** = `-1` (default) -> Delivery (-5) < Prep (-1)
-4. Verify **Delivery Date Offset** field gets `aria-invalid="true"` -> Validation error on Delivery
-5. Verify Save button is **disabled** -> Cannot save invalid state
-6. **Cleanup**: Clear Delivery and type `0` to restore
+2. Clear "Delivery Date Offset" and type `-5` -> Field shows "-5"
+3. Verify "Prep Date Offset" shows `-1` (default) -> Delivery is now lower than Prep
+4. Verify the "Delivery Date Offset" field is shown as invalid -> A validation error is shown on Delivery
+5. Verify the "Save" button is disabled -> The form cannot be saved while the rule is violated
+6. Cleanup: clear Delivery and type `0` to restore
 
-**Expected**: When Delivery offset < Prep offset, Delivery field shows aria-invalid and Save disabled
+**Expected**: NM-1264 rule: the Delivery Date Offset value must be greater than or equal to the Prep Date Offset value. When Delivery is lower than Prep, the Delivery field shows a validation error and the Save button is disabled until the user enters a Delivery value that is greater than or equal to Prep.
 **Automatable**: Yes
 
 ---
@@ -253,14 +260,36 @@
 |----------|--------|------|-------------|
 | Medium | Manual | Boundary | Yes |
 
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — confirmed the Set Date Offset field (Relative to Start) accepts negative value `-10` without a validation error. The reviewer flag suggesting this TC tested the Return field was a misread; this TC correctly tests the Set field. Companion coverage for Return-rejects-negative is added below as TC-LOS-BAS-068.
+
 **Steps**:
 1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
-2. Clear **Set Date Offset (Relative to Start)** and type `-10` -> Field shows "-10"
-3. Verify field does NOT have `aria-invalid` -> Negative value valid for "relative to start" fields
-4. Verify Save button is **enabled** -> Can save
-5. **Cleanup**: Clear and type `-1` to restore
+2. Clear "Set Date Offset (Relative to Start)" and type `-10` -> Field shows "-10"
+3. Verify the field is not shown as invalid -> Negative value is valid for fields that are Relative to Start
+4. Verify the "Save" button is enabled -> The form can be saved
+5. Cleanup: clear and type `-1` to restore
 
-**Expected**: Negative values are valid for "relative to start" date offset fields (Prep, Set, Delivery)
+**Expected**: Negative values are valid for date offset fields that are Relative to Start (Prep, Set, Delivery).
+**Automatable**: Yes
+
+---
+
+## TC-LOS-BAS-068: Date Offset — Return Rejects Negative Values (Relative to End)
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Boundary | Yes |
+
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — confirmed the Return Date Offset field (Relative to End) rejects negative value `-5` with a validation error and the Save button stays disabled. New TC added in SP-DQU-03 to close the coverage gap noted by the reviewer for TC-LOS-BAS-009.
+
+**Steps**:
+1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
+2. Clear "Return Date Offset (Relative to End)" and type `-5` -> Field shows "-5"
+3. Verify the field is shown as invalid -> Negative value is rejected for fields that are Relative to End
+4. Verify the "Save" button is disabled -> The form cannot be saved while the value is invalid
+5. Cleanup: clear and type `1` to restore
+
+**Expected**: Negative values are rejected for date offset fields that are Relative to End (Return, Strike, Pickup); the field is shown as invalid and the Save button stays disabled.
 **Automatable**: Yes
 
 ---
@@ -377,26 +406,32 @@
 5. Verify Save button is **disabled** -> Cannot save empty required field
 6. **Cleanup**: Type original phone value back
 
-**Expected**: Empty Phone 1 triggers aria-invalid and disables Save
+**Expected**: Empty Phone 1 is shown as invalid and the Save button is disabled
 **Automatable**: Yes
 
 ---
 
-## TC-LOS-BAS-016: Misc Settings — Phone 1 No Format Validation
+## TC-LOS-BAS-016: Misc Settings — Phone 1 Validates Phone Format
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
-| High | Manual | Validation | Yes |
+| High | Blocked | Validation | No |
+
+**Status**: Blocked by BUG-LOS-BAS-016
+
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — verified Phone 1 currently accepts non-phone text such as `abcdef` without any validation error and the Save button stays enabled. The expected behavior in this TC is the documented intent that the field validate phone format; the current app behavior contradicts that intent and is tracked separately.
 
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings visible
-2. Clear **Phone 1** and type `not-a-phone` -> Field shows text
-3. Tab out -> Field does NOT get `aria-invalid` -> No format validation, only required check
-4. Verify Save button is **enabled** -> Non-empty value accepted
-5. **Cleanup**: Restore original phone value
+1. Navigate to Local Office Settings, Basic Information tab -> Misc Settings section is visible
+2. Clear "Phone 1" and type non-phone text such as `abcdef` -> Field shows the typed text
+3. Tab out of the field -> Field is shown as invalid because the value is not a valid phone number
+4. Verify the "Save" button is disabled -> The form cannot be saved while the value is not a valid phone number
+5. Clear the field and type a valid phone number such as `555-000-1111` -> Field accepts the value and the validation error clears
+6. Verify the "Save" button is enabled -> The form can be saved with a valid phone number
+7. Cleanup: restore the original phone value
 
-**Expected**: Phone 1 has no format validation; any non-empty text is accepted | **Data**: input="not-a-phone"
-**Automatable**: Yes
+**Expected**: Phone 1 accepts only values that match the phone-number format. Non-phone text is shown as invalid and the Save button stays disabled until the user enters a valid phone number. | **Data**: invalid input "abcdef", valid input "555-000-1111"
+**Automatable**: No (blocked until the underlying issue is resolved)
 
 ---
 
@@ -551,20 +586,23 @@
 
 ---
 
-## TC-LOS-BAS-025: Section Configuration — Default Active Sections Count
+## TC-LOS-BAS-025: Section Configuration — Default Active Sections Structure
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — confirmed the prior section names hardcoded in this TC do not appear in the live Section Configuration table for office 1604. The live table contains a different and office-specific set of section rows. Per LR-015, section names are office-state-dependent and must come from the requirements document for the office under test, not hardcoded in this TC. Updated to a structural assertion only.
+
 **Steps**:
 1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
-2. Scroll to **Section Configuration** table -> Table visible
-3. Count total rows -> 13 rows present
-4. For each row, verify **Use Section** column has SVG checkmark (`lucide lucide-check text-primary`) -> All 13 active
-5. Verify section names: Audio Visual, Business Center, Decor, Electrical, Event Technology, Floral, Food & Beverage, Internet/Telecom, Lighting, Production & Staging, Rigging, Signage & Graphics, Specialty
+2. Scroll to the "Section Configuration" table -> Table is visible
+3. Verify the "Use Section" checkbox above the table is checked -> Section configuration is enabled
+4. Verify the table shows at least one section row -> The list is not empty
+5. For each row in the table, verify an inline name input is present (each row has an editable name field) -> Each row exposes its name as an editable input
+6. Verify the table layout matches the requirements document for the office under test (the set of section names, the active or inactive state of each row, and the total row count come from the requirements document for that office, not from this TC) -> Per-office state matches its requirements row
 
-**Expected**: 13 sections all active (checkmark present) | **Data**: location=1604
+**Expected**: The Section Configuration table is visible with at least one row and the Use Section checkbox is checked. Each row exposes its name as an editable input. The exact set of section names, the active or inactive state of each row, and the total row count are office-specific and are sourced from the requirements document for the office under test. | **Data**: location=1604 (per-office data sourced from `clients/encore/docs/REQUIREMENTS.md` Sections table for the office under test)
 **Automatable**: Yes
 
 ---
@@ -683,14 +721,16 @@
 |----------|--------|------|-------------|
 | Medium | Manual | Functional | Yes |
 
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — confirmed the live Default Logo section shows two checkboxes labeled "Quotes" (testid `local-office-settings-checkbox-use-quote-logo`) and "Rental Orders/DROs" (testid `local-office-settings-checkbox-use-rental-logo`), both checked by default for office 1604. The previous TC labels "Use Default Proposal Logo" and "Use Default Convention Services Logo" do not exist in the live DOM.
+
 **Steps**:
 1. Navigate to Local Office Settings, Basic Information tab -> Tab panel visible
-2. Scroll to **Default Logo** section -> Section visible
-3. Verify **Use Default Proposal Logo** checkbox -> Check current state (checked/unchecked)
-4. Verify **Use Default Convention Services Logo** checkbox -> Check current state
-5. Record both states as defaults for location 1604
+2. Scroll to the "Default Logo" section -> Section is visible
+3. Verify the "Quotes" checkbox is checked by default -> Checkbox is in the checked state for office 1604
+4. Verify the "Rental Orders/DROs" checkbox is checked by default -> Checkbox is in the checked state for office 1604
+5. Record both states as the documented defaults for office 1604
 
-**Expected**: Logo checkboxes have documented default states | **Data**: location=1604
+**Expected**: For office 1604, the Default Logo section shows two checkboxes labeled "Quotes" and "Rental Orders/DROs" and both are checked by default. | **Data**: location=1604
 **Automatable**: Yes
 
 ---
@@ -906,7 +946,7 @@
 
 ---
 
-## TC-LOS-BAS-048: Room Toggle Round-Trip — Toggle Inactive → Save → Reload → Verify
+## TC-LOS-BAS-048: Room Toggle Round-Trip — Toggle Inactive -> Save -> Reload -> Verify
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -924,7 +964,7 @@
 
 ---
 
-## TC-LOS-BAS-049: Room Edit Name Round-Trip — Rename → Save → Reload → Verify
+## TC-LOS-BAS-049: Room Edit Name Round-Trip — Rename -> Save -> Reload -> Verify
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -986,7 +1026,7 @@
    - Restore default value
 2. Reload after all fields tested
 
-**Expected**: Positive values in "relative to start" fields trigger aria-invalid | **LR-008**
+**Expected**: Positive values in "relative to start" fields are shown as invalid | **LR-008**
 
 ---
 
@@ -1003,7 +1043,7 @@
    - Restore default value
 2. Reload after all fields tested
 
-**Expected**: Negative values in "relative to end" fields trigger aria-invalid | **LR-008**
+**Expected**: Negative values in "relative to end" fields are shown as invalid | **LR-008**
 
 ---
 
@@ -1019,7 +1059,7 @@
 3. Verify Save disabled
 4. Reload to clear Angular model corruption (LR-011)
 
-**Expected**: Non-numeric input triggers aria-invalid on Return field
+**Expected**: Non-numeric input is shown as invalid on the Return field
 
 ---
 
@@ -1035,7 +1075,7 @@
 3. Verify Save disabled
 4. Reload to clear Angular model corruption (LR-011)
 
-**Expected**: Non-numeric input triggers aria-invalid on Delivery field
+**Expected**: Non-numeric input is shown as invalid on the Delivery field
 
 ---
 
@@ -1048,7 +1088,7 @@
 **Steps**:
 1. Type "1234" into Prep (maxLen=3)
 2. Verify stored length <= 3 (HTML maxlength truncates)
-3. Truncated "123" is positive for "relative to start" → aria-invalid
+3. Truncated "123" is positive for "relative to start" -> aria-invalid
 4. Cleanup: restore default, reload
 
 **Expected**: Input truncated to 3 chars; truncated positive value triggers validation
@@ -1175,10 +1215,10 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 
 | Path | Plan Claim | Actual Status |
 |------|-----------|---------------|
-| 1 | Covered by BAS-066 + BAS-057 | BAS-066 ✅, BAS-057 INVALIDATED (Set >= Delivery not enforced) |
-| 2 | Covered by BAS-007 + BAS-057 | BAS-007 ✅ (NM-1264 only), BAS-057 INVALIDATED |
+| 1 | Covered by BAS-066 + BAS-057 | BAS-066 [OK], BAS-057 INVALIDATED (Set >= Delivery not enforced) |
+| 2 | Covered by BAS-007 + BAS-057 | BAS-007 [OK] (NM-1264 only), BAS-057 INVALIDATED |
 | 3 | P2 DEFERRED | INVALIDATED — requires unimplemented Set >= Prep check |
-| 4 | Covered by BAS-007 | ✅ NM-1264 only live path |
+| 4 | Covered by BAS-007 | [OK] NM-1264 only live path |
 | 5 | Covered by BAS-060 | INVALIDATED — Pickup >= Strike not enforced |
 | 6 | Covered by BAS-058/059/060 | INVALIDATED — all 3 cross-validators missing |
 | 7 | P2 DEFERRED | INVALIDATED |
@@ -1219,7 +1259,7 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 3. Verify **History Type Selector** combobox is visible with default value "Location Management History" -> Combobox displayed
 4. Verify history table container is visible -> Table with column headers and data/empty state
 
-**Expected**: Clicking History tab shows history type selector and data table
+**Expected**: Clicking the History tab shows the history-type dropdown and the data table
 **Automatable**: Yes
 
 ---
@@ -1270,7 +1310,7 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 3. Verify exactly 2 options: **Location Management History** (selected), **Location Management Legacy History** -> Both present
 4. Close dropdown without selecting -> Original selection maintained
 
-**Expected**: History Type Selector has 2 options; default is "Location Management History"
+**Expected**: The history-type dropdown has 2 options; the default is "Location Management History"
 **Automatable**: Yes
 
 ---
@@ -1373,16 +1413,42 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
-| High | Manual | Functional | Yes |
+| High | Blocked | Functional | No |
+
+**Status**: Blocked by BUG-LOS-ECT-001
+
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — confirmed the ECT tab loads, shows the location heading, and shows the "Select Currency" combobox at "USD". The "Edit/View Commission structure" link is present, but its href points to a path on a different domain that does not match the current Encore domain (the link target appears broken). Click-through was not performed during the audit (external-URL safety policy). The expected click outcome assertion stays gated until the underlying issue is resolved; the asset-presence assertions remain in scope.
 
 **Steps**:
 1. Navigate to `/navigator/locations/1604/settings/local-office` -> Page loads
-2. Click **ECT Settings** tab -> Tab becomes selected (`aria-selected="true"`)
-3. Verify heading reads "1604 - Parker Palm Springs" (h6) -> Location name displayed
-4. Verify **Edit/View** label with **Commission structure** link -> Link present and clickable
-5. Verify **Select Currency** combobox shows "USD" -> Default currency
+2. Click the "ECT Settings" tab -> Tab becomes selected
+3. Verify the heading reads "1604 - Parker Palm Springs" -> Location name is displayed
+4. Verify the "Edit/View" label is shown with a "Commission structure" link -> Link element is present in the page
+5. Verify the "Select Currency" combobox shows "USD" -> Default currency is displayed
+6. Note: clicking the "Commission structure" link to verify the destination page is OUT OF SCOPE for this TC (gated by the metadata above) -> Click-outcome verification deferred
 
-**Expected**: ECT tab displays location name, commission link, and currency selector
+**Expected**: The ECT tab displays the location name, the Commission structure link element, and the currency dropdown. Clicking the Commission structure link to verify the destination page is gated by the metadata above and is not asserted by this TC.
+**Automatable**: No (link-click outcome blocked until the underlying issue is resolved)
+
+---
+
+## TC-LOS-ECT-018: ECT Tab — Sub-Section Headings Present
+
+| Priority | Status | Type | Automatable |
+|----------|--------|------|-------------|
+| High | Manual | Smoke | Yes |
+
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — confirmed the ECT Settings tab shows four sub-section headings verbatim: "Event Profit Target", "Fixed Costs", "Labor Cost Assumptions" (plural), and "SubRental Matrix". Added in SP-DQU-03 to cover the sub-section structure not asserted by other ECT TCs.
+
+**Steps**:
+1. Navigate to `/navigator/locations/1604/settings/local-office` -> Page loads
+2. Click the "ECT Settings" tab -> Tab becomes selected
+3. Verify the heading "Event Profit Target" is visible on the tab -> Heading present
+4. Verify the heading "Fixed Costs" is visible on the tab -> Heading present
+5. Verify the heading "Labor Cost Assumptions" is visible on the tab (plural form) -> Heading present
+6. Verify the heading "SubRental Matrix" is visible on the tab -> Heading present
+
+**Expected**: The ECT Settings tab shows the four sub-section headings verbatim: "Event Profit Target", "Fixed Costs", "Labor Cost Assumptions" (plural), and "SubRental Matrix".
 **Automatable**: Yes
 
 ---
@@ -1399,7 +1465,7 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 3. Verify exactly 1 option: **USD** -> Only USD available
 4. Close dropdown -> No change
 
-**Expected**: Currency selector has only USD option for location 1604
+**Expected**: The currency dropdown has only the "USD" option for location 1604
 **Automatable**: Yes
 
 ---
@@ -1494,14 +1560,16 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
-**Steps**:
-1. Navigate to ECT Settings tab -> Tab panel visible
-2. Verify **Save** button for Fixed Costs section exists and is **disabled** -> `data-testid="ect-settings-btn-save-fixed-costs-btn"`
-3. Verify **Save** button for Labor Costs section exists and is **disabled** -> `data-testid="ect-settings-btn-save-labor-costs-btn"`
-4. Edit **Benefits Multiplier** (Fixed Costs) -> Fixed Costs Save becomes **enabled**, Labor Costs Save stays **disabled**
-5. **Cleanup**: Restore original value
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — confirmed the ECT Settings tab shows two independent Save buttons (one for Fixed Costs, one for Labor Costs) and that editing a field in one section enables only that section's Save. The reviewer's flag for this TC referenced the four ECT sub-section heading labels, which are a separate concern covered by the new TC TC-LOS-ECT-018 above.
 
-**Expected**: Each section has its own Save button; editing one section only enables that section's Save
+**Steps**:
+1. Navigate to the ECT Settings tab -> Tab panel visible
+2. Verify the Save button for the Fixed Costs section exists and is disabled -> Save Fixed Costs button is present and not enabled
+3. Verify the Save button for the Labor Costs section exists and is disabled -> Save Labor Costs button is present and not enabled
+4. Edit the "Benefits Multiplier" field (in Fixed Costs) -> The Fixed Costs Save button becomes enabled; the Labor Costs Save button stays disabled
+5. Cleanup: restore the original value
+
+**Expected**: Each section on the ECT Settings tab has its own independent Save button; editing a field in one section only enables that section's Save button.
 **Automatable**: Yes
 
 ---
@@ -1512,16 +1580,20 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 |----------|--------|------|-------------|
 | High | Manual | Functional | Yes |
 
-**Steps**:
-1. Navigate to ECT Settings tab -> Scroll to **Labor Cost Assumptions** section
-2. Verify heading "Labor Cost Assumptions" (h4) -> Heading present
-3. Verify table has 2 columns: **Labor Class**, **Labor Cost** -> Headers match
-4. Verify table has 66 data rows -> Row count = 66
-5. Verify first row: "Administrative Fee" | "35.00" -> Data matches
-6. Verify last row: "zzzFinishing Service" | "37.10" -> Data matches
-7. Verify **Labor Class** column is read-only, **Labor Cost** column has editable textboxes -> Only costs editable
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — confirmed the Labor Cost Assumptions table is present with two columns (Labor Class, Labor Cost), the first row's Labor Class text reads "Administrative Fee", the last row's Labor Class text reads "zzzFinishing Service", and the Labor Cost cells are editable inputs. The numeric value of any specific Labor Cost cell is office-state-dependent (the audit observed the live Administrative Fee value as `0.00` for office 1604, which differs from the prior hardcoded `35.00`). Per LR-022, the TC is updated to assert structure rather than office-state-dependent numeric values.
 
-**Expected**: Labor Cost Assumptions table has 66 rows; Labor Class read-only, Labor Cost editable
+**Steps**:
+1. Navigate to the ECT Settings tab -> Scroll to the "Labor Cost Assumptions" section
+2. Verify the heading "Labor Cost Assumptions" is visible -> Heading present
+3. Verify the table has two columns: "Labor Class" and "Labor Cost" -> Headers match
+4. Verify the table has at least one data row -> Table is not empty
+5. Verify the first row's Labor Class cell shows "Administrative Fee" -> First-row label matches
+6. Verify the last row's Labor Class cell shows "zzzFinishing Service" -> Last-row label matches
+7. Verify the "Labor Class" column is read-only -> Labor Class cells are not editable
+8. Verify the "Labor Cost" cells are editable inputs -> Labor Cost column accepts user input
+9. Note: the numeric value displayed in any Labor Cost cell is office-state-dependent and is NOT asserted by this TC
+
+**Expected**: The Labor Cost Assumptions table is present with two columns ("Labor Class" and "Labor Cost"). The first row's Labor Class text is "Administrative Fee", the last row's Labor Class text is "zzzFinishing Service", the Labor Class column is read-only, and the Labor Cost column is editable. The numeric value of any specific Labor Cost cell is not asserted (office-state-dependent).
 **Automatable**: Yes
 
 ---
@@ -1548,21 +1620,28 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 
 ---
 
-## TC-LOS-ECT-010: ECT Tab — Labor Cost Non-Numeric Input Reverts
+## TC-LOS-ECT-010: ECT Tab — Labor Cost Non-Numeric Input After Clear
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
-| Medium | Manual | Validation | Yes |
+| Medium | Blocked | Validation | No |
+
+**Status**: Blocked by BUG-LOS-ECT-010
+
+**MCP_VERIFICATION_LOG**: 2026-04-23 (neutral-eye audit `local-office-settings-2026-04-22.md`) — verified two distinct sequences: (1) typing non-numeric text WITHOUT clearing first is rejected by the numeric mask and the field stays at its original value; (2) selecting all + Delete + typing non-numeric text + Tab out causes the field to silently change to `0.00` and the Save button to become enabled (no validation error shown). The expected behavior in this TC asserts the documented intent that non-numeric input should be rejected or shown as invalid, with the Save button staying disabled. The current app behavior contradicts that intent and is tracked separately.
 
 **Steps**:
-1. Navigate to ECT Settings tab -> Labor Cost Assumptions visible
-2. Click **Administrative Fee** labor cost cell -> Value "35" shown
-3. Clear and type `abc` -> Non-numeric text entered
-4. Tab out -> Field reverts to original "35.00" (no error message, no aria-invalid)
-5. Verify Save button state -> May or may not be enabled (field silently reverted)
+1. Navigate to the ECT Settings tab -> Labor Cost Assumptions section is visible
+2. Note the current value of the "Administrative Fee" Labor Cost cell -> Original value recorded
+3. Triple-click the "Administrative Fee" Labor Cost cell to select all text -> All text in the cell is selected
+4. Press Delete to clear the cell -> Cell is empty
+5. Type `abc` (non-numeric text) -> Cell shows the typed text
+6. Press Tab to leave the cell -> Field commits the entry
+7. Verify the field reverts to the original numeric value AND the field is shown as invalid OR the Save button is disabled -> Non-numeric input must NOT silently overwrite the original value with `0.00`
+8. Verify the Save button is disabled -> The form cannot be saved with a non-numeric Labor Cost
 
-**Expected**: Non-numeric input in labor cost field silently reverts to original value; no validation error displayed
-**Automatable**: Yes
+**Expected**: When the user clears a Labor Cost cell completely and then types non-numeric text, the field must either revert to its original value or be shown as invalid, and the Save button must stay disabled. The field must not silently change to `0.00` with the Save button enabled (which would allow the user to overwrite their original value with zero).
+**Automatable**: No (blocked until the underlying issue is resolved)
 
 ---
 
@@ -1612,11 +1691,11 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 
 **Steps**:
 1. Read current Historical Subrental value (defensive — don't assume default)
-2. Pick test value different from current (e.g., if 0.0% → fill 0.1; if already changed → fill 0)
-3. Save Fixed Costs → wait for save button disabled
-4. Navigate to Basic Info → return to ECT
+2. Pick test value different from current (e.g., if 0.0% -> fill 0.1; if already changed -> fill 0)
+3. Save Fixed Costs -> wait for save button disabled
+4. Navigate to Basic Info -> return to ECT
 5. Verify display shows expected percent
-6. Restore: fill original raw value → save → verify restored
+6. Restore: fill original raw value -> save -> verify restored
 
 **Expected**: Historical Subrental % persists across save-reload cycle
 **Automatable**: Yes
@@ -1633,7 +1712,7 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 1. Navigate to ECT tab
 2. Read current labor cost value at row index 33
 3. Pick different test value
-4. Fill → save Labor Costs → navigate away → return → verify persisted
+4. Fill -> save Labor Costs -> navigate away -> return -> verify persisted
 5. Restore original value
 
 **Expected**: Labor cost middle row (index 33) persists correctly; data-driven with TC-015
@@ -1651,7 +1730,7 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 1. Navigate to ECT tab
 2. Read current labor cost value at row index 65 (last row of 66-row table)
 3. Pick different test value
-4. Fill → save Labor Costs → navigate away → return → verify persisted
+4. Fill -> save Labor Costs -> navigate away -> return -> verify persisted
 5. Restore original value
 
 **Expected**: Labor cost last row (index 65) persists correctly; exercises scroll + BVA upper boundary
@@ -1669,9 +1748,9 @@ The audit plan defined 8 Validate() paths. MCP verification proved only **NM-126
 1. Read current BM and HS values
 2. Edit both Benefits Multiplier and Historical Subrental %
 3. Single save (Fixed Costs)
-4. Full page reload → navigate to ECT
+4. Full page reload -> navigate to ECT
 5. Verify both values persisted
-6. Restore both → single save → verify restored
+6. Restore both -> single save -> verify restored
 
 **Expected**: Editing both BM and HS then saving once persists BOTH values
 **Automatable**: Yes

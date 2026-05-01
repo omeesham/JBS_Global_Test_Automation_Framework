@@ -1,0 +1,67 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run validate:activity-log:preflight *)",
+      "Bash(npm run plans:reindex:check)",
+      "Bash(npm run plans:reindex)",
+      "Bash(npm run validate:sync)",
+      "Bash(npm run typecheck)",
+      "Bash(npm run check:browsertool-parity)",
+      "Bash(bash .claude/hooks/chain-orchestrator.sh)",
+      "Bash(bash .claude/hooks/chain-pause-notice.sh)",
+      "Bash(bash .claude/hooks/identity-switch-gate.sh)",
+      "Bash(bash .claude/hooks/browsertool-gate.sh)",
+      "Bash(node scripts/check-identity-ownership.mjs)",
+      "Bash(node scripts/check-browsertool-parity.mjs)",
+      "Bash(node scripts/check-subplan-identity.mjs *)",
+      "Bash(node .claude/hooks/lib/test-browsertool-fixtures.mjs)",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__Claude_in_Chrome__read_network_requests",
+      "mcp__Claude_in_Chrome__tabs_context_mcp"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/identity-switch-gate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|mcp__Claude_in_Chrome__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/browsertool-gate.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/chain-orchestrator.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/chain-pause-notice.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,9 +1,10 @@
 # MASTER PLAN: Multi-Tenant Repo Restructure
 
-**Status**: PENDING
+**Status**: DONE
 **Created**: 2026-04-16
 **Revised**: 2026-04-16 (WATCHDOG audit — scope boundary clarified per pivot)
-**Priority**: P0 (blocks colleague handoff until SP-MT-06 verifies green)
+**Executed**: 2026-04-17
+**Priority**: P1-CYCLE-2
 **Parent**: none (peer to PLAN_MASTER_REPO_CLEANUP)
 **Supersedes**: `SUBPLAN_REPO_01_CLIENT_DELIVERY_QUICK.md` (duplicate-carve approach abandoned)
 **Supersedes**: `SUBPLAN_REPO_09_CLIENT_DELIVERY_POLISH.md` + `PLAN_CLIENT_REPO_DELIVERY.md`
@@ -11,11 +12,29 @@
 
 ---
 
+## Execution Summary (LR-027 parent-cascade closure, 2026-04-28)
+
+All 7 subplans executed and landed 2026-04-17. The repo is multi-tenant: framework at root is encore-free, all encore-specific content lives under `clients/encore/`. Closing this parent now per LR-027 (last subplan moved to done/ on 2026-04-17; this parent should have closed same-day — caught by 2026-04-28 supersession audit).
+
+| Subplan | Status | Executed | Substance |
+|---|---|---|---|
+| `SUBPLAN_MT_01_SCAFFOLD_ALIASES.md` | DONE | 2026-04-17 | Scaffold + aliases + config shim (no file moves) |
+| `SUBPLAN_MT_02_MOVE_TEST_CONTENT.md` | DONE | 2026-04-17 | Encore test content moved under `clients/encore/` |
+| `SUBPLAN_MT_03_MOVE_DOCS_AND_PLANNING.md` | DONE | 2026-04-17 | Docs + specs_planning + exports + client config moved |
+| `SUBPLAN_MT_04_CLIENT_AWARE_SCRIPTS.md` | DONE | 2026-04-17 | Pipeline scripts client-aware (`${ACTIVE_CLIENT}`) |
+| `SUBPLAN_MT_05_SPLIT_RULES.md` | DONE | 2026-04-17 | CLAUDE.md + AGENT_SHARED_RULES split into framework + client layers |
+| `SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md` | DONE | 2026-04-17 | Pipeline agents parameterized off active client |
+| `SUBPLAN_MT_07_DELIVERY_PACKAGER.md` | DONE | 2026-04-17 | Handoff readiness gate (NOT a packager — colleague's scope) |
+
+**Supersession discharge**: the 3 plans this MASTER plan supersedes — `PLAN_CLIENT_REPO_DELIVERY.md`, `SUBPLAN_REPO_01_CLIENT_DELIVERY_QUICK.md`, `SUBPLAN_REPO_09_CLIENT_DELIVERY_POLISH.md` — all carry their substance through SP-MT-01..07. No residual work.
+
+**Closure audit ran**: 2026-04-28 supersession-integrity sweep flagged this parent as the only LR-027 cascade gap among 22 superseded plans. Cascade now satisfied.
+
+---
+
 ## NEXT ACTION FOR A FRESH SESSION
 
-> Run **SP-MT-01** next: `plans/pending/SUBPLAN_MT_01_SCAFFOLD_ALIASES.md`.
-> Strict order — do not start SP-MT-N+1 until SP-MT-N verifies green.
-> Do not skip to SP-MT-07; each subplan's verification gate must pass first.
+> ~~Run **SP-MT-01** next~~ — DONE 2026-04-17. All 7 subplans complete. Plan closed.
 
 ---
 

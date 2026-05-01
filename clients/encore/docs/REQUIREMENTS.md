@@ -183,9 +183,9 @@ Local Information | Currency | Pricing | Account and Address | Legal | Notes | S
 | Enable Multiday Pricing | checkbox | unchecked | independent (MCP 2026-04-10: new field, editable) |
 | Allow ETS | checkbox | unchecked | independent |
 | ETS Percentage | spinbutton % | 0 | disabled when Allow ETS unchecked |
-| Service Charge | checkbox | ✓ checked | independent |
-| Show Service Charge As Administrative Fee | checkbox | unchecked | independent |
-| Calculate Service Charge On Net Amount | checkbox | unchecked | independent |
+| Service Charge | checkbox | ✓ checked | independent (parent of `is-administrative-fee` and `calc-service-charge-on-net` per LI parent-children convention; on office 1604 SP-DQU-04 2026-04-27 observed parent unchecked — re-verify default on slate-cleared office) |
+| Show Service Charge As Administrative Fee | checkbox | unchecked | child of Service Charge — should be disabled when parent unchecked. **Currently broken on new site**: see BUG-LI-002. |
+| Calculate Service Charge On Net Amount | checkbox | unchecked | child of Service Charge — should be disabled when parent unchecked. **Currently broken on new site**: see BUG-LI-002. |
 | Allow Resort Tax | checkbox | unchecked | independent |
 | Resort Tax Percentage | spinbutton % | 0 | disabled when Allow Resort Tax unchecked |
 | Ticker Calc | checkbox | ✓ checked | independent |
@@ -199,8 +199,8 @@ Local Information | Currency | Pricing | Account and Address | Legal | Notes | S
 | Threshold | spinbutton % | 0 | disabled when Allow DPCD=true OR Prompt for Approval=false |
 | Credit Memo Approval Required | checkbox | ✓ checked | independent |
 | Enable Discount Reason | checkbox | ✓ checked | independent |
-| Use eSignature | checkbox | ✓ checked | independent |
-| Enable Product Group | checkbox | unchecked | independent |
+| Use eSignature | checkbox | ✓ checked | always disabled in current UI (SP-DQU-04 2026-04-27 — not in v1 disabled-list; treat as technical constraint) |
+| Enable Product Group | checkbox | unchecked | always disabled in current UI (SP-DQU-04 2026-04-27 — not in v1 disabled-list; treat as technical constraint) |
 | Allow Production Quote | checkbox | unchecked | independent |
 | Suppress Day/Rate Discount | checkbox | — | always disabled (technical constraint) |
 
@@ -230,13 +230,14 @@ Local Information | Currency | Pricing | Account and Address | Legal | Notes | S
 | Can Create External Customer Link | checkbox | unchecked | independent |
 | Offsite Event Location | checkbox | unchecked | independent |
 | Exhibit Show Rate | checkbox | unchecked | independent |
-| Enable Job Costing | checkbox | ✓ checked | independent |
-| Enable Discount Guidance | checkbox | ✓ checked | independent |
+| Enable Job Costing | checkbox | ✓ checked | always disabled in current UI (SP-DQU-04 2026-04-27 — historically listed as disabled; technical constraint) |
+| Enable Discount Guidance | checkbox | ✓ checked | always disabled in current UI (SP-DQU-04 2026-04-27 — not in v1 disabled-list; treat as technical constraint) |
 | Enable Proposal | checkbox | ✓ checked | independent |
 
 **Validation Requirements**:
 - Right panel edits must persist after save + reload
 - Left panel data must remain unchanged after right-panel save (baseline assertion)
+- **Save endpoint architecture (new site)**: page-level Save POSTs to the page URL itself (`POST /navigator/locations/{id}/settings/location`) using the Next.js + React Hook Form + Server Actions pattern, NOT a separate `/api/save` endpoint as the v1 Angular implementation used. Tests asserting save-cycle behavior must observe the page URL POST, not a dedicated save API. Per BUG-LI-001 verification 2026-04-27 — on server failure (e.g. 503) the new-site UI renders no error toast or dialog (silent failure mode); tests must assert that an error feedback surface (toast / dialog / inline message) is rendered on save failure as part of the user-feedback contract.
 
 ### Field Validation Rules (Component: location-detail-local-information.component.ts)
 
@@ -350,6 +351,11 @@ See [Legal Tab](#legal-tab) for full validation rules (ServiceChargeId, TermsCon
 #### Suppress Day/Rate Discount (SuppressDayRateDiscount)
 - **Always Disabled**: Regardless of all conditions
 - **Live verification**: Confirmed [disabled] ✓
+
+#### Service Charge (AllowServiceCharge) → Show Service Charge As Administrative Fee + Calculate Service Charge On Net Amount
+- **Children Should Be Disabled When**: Service Charge parent unchecked
+- **Reset on Disable**: Children should reset to unchecked when parent unchecked (per LI parent-children convention — same pattern as Apply LDW, Apply C&C, Allow ETS, Allow Resort Tax)
+- **Live verification 2026-04-27**: Currently BROKEN — children remain checked + enabled when parent unchecked. **Filed as BUG-LI-002.** Until fixed, automated tests (TC-LOC-LI-065) are blocked.
 
 ### Country-Based Rules
 
@@ -981,7 +987,7 @@ Accessible via: Setup > Location > [Office Code] → "Location Management Histor
 | Empty/null | Empty string "" | No "null", "N/A", or "-" |
 | Number | Plain text | "0000", "900" |
 | Pricing | Multi-currency format | "USD: 2026-Zone 3 D; CAD: ; MXN:" |
-| Email | Plain text | "v-rutvik.khosariya@psav.com" |
+| Email | Plain text | "s-prd-clickauto@psav.com" |
 
 **Sortable Columns** (14 of 87): Live Date, Billing Way Active, Modified By, Modified On, Oracle Product Code, Oracle Department Code, Oracle Organization, Use eSignature, Separate Master Bill Commission Invoice, Enable Product Group, Enable Job Costing, Enable Discount Guidance, Internet Asset Reservation, Warehouse Billing
 
@@ -1053,6 +1059,22 @@ Cross-reference of oral/plan requirements vs live DOM for both history systems. 
 
 Single **Save** button at top — disabled by default; enables when any field changes.
 
+##### Save dialog + post-save toast [MCP-VERIFIED 2026-04-23 — SP-DQU-02 neutral-eye audit + field-inventory artifact `local-office-settings-2026-04-27.md`]
+
+Clicking the Save button on the Basic Information tab opens the shared "Save Changes" Radix `alertdialog` (testid `location-settings-modal-save-changes`):
+
+- **Dialog title** (verbatim): `Save Changes`
+- **Dialog body** (verbatim): `Are you sure you want to save the changes?`
+- **Dialog buttons** (in order, verbatim): `Cancel`, `Save` (NOT `Cancel`/`Ok` — Local Office Settings differs from Location Settings on this point; see line ~996 for the Location Settings `Cancel`/`Ok` variant)
+
+After clicking `Save` in the dialog, the save commits and a toast notification is shown in the page-level notifications region:
+
+- **Notifications region locator**: `aria-label="Notifications alt+T"`
+- **Toast text** (verbatim): `Local office settings updated`
+- **Toast duration**: transient (auto-dismisses)
+
+Tab-switch with a dirty (unsaved) form opens a separate `Unsaved changes` alertdialog with body `Are you sure you want to leave this view? Any unsaved changes will be lost.` and buttons `Stay`, `Discard`.
+
 ##### Section: Default Date Offsets
 
 Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) by default.
@@ -1066,11 +1088,11 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 | Delivery Date Offset (Relative to Start) | `deliveryDateOffsetHours` | 0 |
 | Pickup Date Offset (Relative to End) | `pickupDateOffsetHours` | 0 |
 
-**Validation (live confirmed 2026-04-06, NM-1264 + MCP-5/6 findings)**:
+**Validation (live confirmed 2026-04-06, NM-1264 + MCP-5/6 findings; Return + Prep constraints re-verified 2026-04-23 SP-DQU-02 neutral-eye audit)**:
 
-*Positivity constraints (per field type):*
-- "Relative to Start" fields (Prep, Set, Delivery) must be **<= 0** (negative or zero). Positive value → `aria-invalid="true"`.
-- "Relative to End" fields (Return, Strike, Pickup) must be **>= 0** (positive or zero). Negative value → `aria-invalid="true"`.
+*Positivity constraints (per field type)*:
+- "Relative to Start" fields (Prep, Set, Delivery) accept **negative or zero** values. Positive value → `aria-invalid="true"` and Save disabled. Empty is also accepted (treated as null per NM-1453 below).
+- "Relative to End" fields (Return, Strike, Pickup) accept **zero, positive, or empty** values. Negative value → `aria-invalid="true"` and Save disabled. Empty is also accepted (treated as null per NM-1453 below).
 
 *Cross-field validation (NM-1264 — ONLY live rule):*
 - Delivery Date Offset must be >= Prep Date Offset (both Relative to Start)
@@ -1103,7 +1125,7 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 |---|---|---|---|
 | Use Fulfillment | checkbox | unchecked | enabled |
 | Use Availability | checkbox | checked | enabled |
-| Use Equipments QC | checkbox | unchecked | **disabled** (always) |
+| Use Equipments QC | checkbox | unchecked | **conditionally disabled** — disabled when Use Fulfillment is unchecked, enabled when Use Fulfillment is checked [MCP-VERIFIED 2026-04-23 SP-DQU-02 audit; corrects prior "always disabled" doc] |
 | Items Filled from Requests Return to Availability | checkbox | unchecked | enabled |
 | Allow tentative and confirmed Status to have the same priority | checkbox | unchecked | enabled |
 | Print Description (Default) | checkbox | checked | enabled |
@@ -1156,16 +1178,16 @@ Six numeric text inputs. Each has an "Hrs" suffix label. All enabled (editable) 
 - **No delete UI** — rooms cannot be removed from the grid (MCP-9, 2026-04-06)
 - Room toggle (active/inactive) persists through save+reload round-trip
 
-##### Section: Default Logo
+##### Section: Default Logo [MCP-VERIFIED 2026-04-23 — SP-DQU-02 neutral-eye audit + field-inventory artifact `local-office-settings-2026-04-27.md`]
 
-| Element | Type | Default (1604) | State |
-|---|---|---|---|
-| Quotes | checkbox | checked | enabled |
-| Rental Orders/DROs | checkbox | checked | enabled |
-| Company Logo | combobox | Encore New Logo | enabled |
-| Logo preview | image | Encore New Logo artwork | display only |
+| Element | Type | Default (1604) | State | testid |
+|---|---|---|---|---|
+| Quotes | checkbox | checked | enabled | `local-office-settings-checkbox-use-quote-logo` |
+| Rental Orders/DROs | checkbox | checked | enabled | `local-office-settings-checkbox-use-rental-logo` |
+| Company Logo | combobox | Encore New Logo | enabled (12 options) | `local-office-settings-select-company-logo` |
+| Logo preview | image | Encore New Logo artwork | display only | `local-office-settings-logo-preview` |
 
-> **Note**: This is a combobox for selecting a pre-uploaded logo (not a file upload input), plus two checkboxes controlling which document types display the logo.
+> **Note**: This is a combobox for selecting a pre-uploaded logo (not a file upload input), plus two checkboxes controlling which document types display the logo. The two checkbox labels in the live DOM are `Quotes` and `Rental Orders/DROs` verbatim — earlier prose elsewhere in the codebase referenced labels like "Use Default Proposal Logo" and "Use Default Convention Services Logo", which do NOT exist in the current DOM. For office 1604 both checkboxes default to checked.
 
 ##### Section: Discount Exemptions
 
@@ -1315,12 +1337,16 @@ Columns 33–40 (labor-to-hourly) are present in history even for US locations; 
 
 - **Fixed Costs Save button** (`btnSaveFixedCosts`) — disabled by default; enables when Benefits Multiplier or Historical Subrental % is edited
 
-##### Sub-section: Labor Cost Assumptions
+##### Sub-section: Labor Cost Assumptions [MCP-VERIFIED 2026-04-23 — SP-DQU-02 neutral-eye audit + field-inventory artifact `local-office-settings-2026-04-27.md`]
 
 - **Labor Costs Save button** (`btnSaveLaborCosts`) — disabled by default; enables when any Labor Cost cell is edited
 - Table: 2 columns (Labor Class, Labor Cost)
 - **66 rows** — all Labor Cost cells are editable textboxes (`data-testid="ect-settings-input-labor-cost-{0..65}"`)
+- First row Labor Class: `Administrative Fee` (testid `ect-settings-input-labor-cost-0`)
+- Last row Labor Class: `zzzFinishing Service`
 - Representative labor classes: Administrative Fee, Audio - Operate/Show, Audio - Set/Strike, Computer - Operator/Show, Driver, Electrical - Set/Strike, Event Management, General AV - Set/Strike, Lighting - Set/Strike, Production - Set/Strike, Projection - Set/Strike, Rigging, Union - Set/Strike, Video - Set/Strike, Virtual Events Labor (66 total)
+
+> **Default value note (Administrative Fee + other Labor Cost cells)**: numeric values for Labor Cost cells are office-state-dependent and persist across saves; per LR-015 the documented "default" must come from a fresh, slate-cleared office observed via MCP. Office 1604 has been heavily modified by prior test runs and is NOT a clean baseline. Reviewer feedback flagged a value of `42` for Administrative Fee; the SP-DQU-02 neutral-eye audit (2026-04-23) observed live `0.00` on office 1604; the prior TC text claimed `35.00`. None of these is a verified "true default". Until a fresh-location MCP walk establishes the true default, TC assertions on Labor Cost values are structural (field is editable, first-row label is `Administrative Fee`, last-row label is `zzzFinishing Service`) rather than numeric. See SP-DQU-03 TC-LOS-ECT-008 for the structural-assertion implementation, and Track G of `PLAN_DELIVERABLE_QUALITY_UPGRADE.md` for the planned slate-clear pattern.
 
 ##### Sub-section: SubRental Matrix
 

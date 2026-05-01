@@ -17,6 +17,203 @@ import { QueueFile, FixScope, SHARED_PATHS } from './shared-types';
 
 const MAX_RUNS_WITHOUT_JUSTIFICATION = 2;
 
+// ── PF-G5 Canonical Walkthrough normalizer (SP-PWC2-05) ──
+// Accepts either .walkthrough.yaml (CLI agents) or .walkthrough.md (Chrome agents);
+// emits .walkthrough.canonical.json validated against docs/schemas/walkthrough.canonical.schema.json.
+
+type CanonicalClaimStatus =
+  | 'VERIFIED' | 'PASS' | 'FAIL' | 'APP_BUG' | 'PLANNER_GAP' | 'TC_CORRECTION' | 'SEQUENCE_SIDE_EFFECT';
+
+interface CanonicalClaim {
+  claim: string;
+  status: CanonicalClaimStatus;
+  result?: string | null;
+  classification?: string | null;
+  resolution?: string | null;
+  tc_id?: string | null;
+  step?: string | null;
+  expected?: string | null;
+  actual?: string | null;
+}
+
+interface CanonicalWalkthrough {
+  item_id: string;
+  source_tool: 'cli' | 'chrome';
+  mcp_session_date: string;
+  fields?: Array<Record<string, unknown>>;
+  verified_claims: CanonicalClaim[];
+  notes?: string[];
+}
+
+const CLAIM_STATUS_SET: ReadonlySet<string> = new Set([
+  'VERIFIED', 'PASS', 'FAIL', 'APP_BUG', 'PLANNER_GAP', 'TC_CORRECTION', 'SEQUENCE_SIDE_EFFECT',
+]);
+
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** Parse the legacy Chrome-authored markdown walkthrough into canonical shape.
+ *  Expected table header: | TC | Step | Expected | Actual | Status | Classification |
+ *  Rows whose Status is not a known enum value are dropped with a note. */
+function parseMdWalkthrough(content: string, itemId: string): CanonicalWalkthrough {
+  const lines = content.split('\n');
+  const claims: CanonicalClaim[] = [];
+  const notes: string[] = [];
+
+  // Find header row
+  const headerIdx = lines.findIndex(l =>
+    /^\|[^|]*TC[^|]*\|[^|]*Step[^|]*\|[^|]*Expected[^|]*\|[^|]*Actual[^|]*\|[^|]*Status[^|]*\|/i.test(l)
+  );
+
+  if (headerIdx >= 0) {
+    // Skip header + separator (|---|---|...) rows
+    let rowStart = headerIdx + 1;
+    while (rowStart < lines.length && /^\|[\s\-:|]+\|?\s*$/.test(lines[rowStart]!)) rowStart++;
+
+    for (let i = rowStart; i < lines.length; i++) {
+      const line = lines[i]!;
+      if (!line.trimStart().startsWith('|')) continue;
+      const cells = line.split('|').map(c => c.trim());
+      // cells[0] is empty (leading |), last may be empty too
+      const nonEmpty = cells.filter((_, idx) => idx !== 0 && !(idx === cells.length - 1 && cells[idx] === ''));
+      if (nonEmpty.length < 5) continue;
+
+      const [tcId, step, expected, actual, statusRaw, classification] = nonEmpty;
+      const status = (statusRaw ?? '').toUpperCase();
+      if (!CLAIM_STATUS_SET.has(status)) {
+        notes.push(`dropped row with unrecognized status "${statusRaw}": ${tcId} / ${step}`);
+        continue;
+      }
+
+      const claim: CanonicalClaim = {
+        claim: [tcId, step].filter(Boolean).join(' / ') || step || tcId || '(unnamed)',
+        status: status as CanonicalClaimStatus,
+        tc_id: tcId || null,
+        step: step || null,
+        expected: expected || null,
+        actual: actual || null,
+        result: actual || null,
+        classification: classification || null,
+      };
+
+      // Resolution hint — scan the row for ESC-/BUG- refs (LR-034 / ALL-043).
+      const joined = line;
+      const refMatch = joined.match(/(ESC-[A-Z0-9-]+|BUG-[A-Z0-9-]+|filed|resolved|escalat\w*|corrected)/i);
+      if (refMatch) claim.resolution = refMatch[0];
+
+      claims.push(claim);
+    }
+  } else {
+    notes.push('no table header matching GEN-032 pattern found; verified_claims will be empty');
+  }
+
+  return {
+    item_id: itemId,
+    source_tool: 'chrome',
+    mcp_session_date: todayIso(),
+    verified_claims: claims,
+    notes: notes.length > 0 ? notes : undefined,
+  };
+}
+
+/** Parse agent-authored YAML walkthrough. Expects the top-level document to already
+ *  match (or be coercible to) the canonical shape — js-yaml handles JSON-compatible
+ *  YAML natively. Raw Playwright accessibility-tree snapshots are NOT walkthroughs;
+ *  agents must author a verification document with a `verified_claims` array. */
+function parseYamlWalkthrough(content: string, itemId: string): CanonicalWalkthrough {
+  let doc: Record<string, unknown>;
+  try {
+    // Prefer js-yaml when available (transitive dep); fall back to JSON.parse
+    // (agents may write JSON-compatible YAML, which is valid YAML).
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const yaml = require('js-yaml');
+    doc = yaml.load(content) as Record<string, unknown>;
+  } catch {
+    try {
+      doc = JSON.parse(content) as Record<string, unknown>;
+    } catch (e) {
+      throw new Error(`walkthrough.yaml could not be parsed as YAML or JSON: ${(e as Error).message}`);
+    }
+  }
+
+  if (!doc || typeof doc !== 'object') {
+    throw new Error('walkthrough.yaml root is not an object');
+  }
+
+  const rawClaims = Array.isArray(doc.verified_claims) ? doc.verified_claims : [];
+  const claims: CanonicalClaim[] = [];
+  for (const raw of rawClaims as Array<Record<string, unknown>>) {
+    if (!raw || typeof raw !== 'object') continue;
+    const status = String(raw.status ?? '').toUpperCase();
+    if (!CLAIM_STATUS_SET.has(status)) continue;
+    claims.push({
+      claim: String(raw.claim ?? raw.step ?? raw.tc_id ?? '(unnamed)'),
+      status: status as CanonicalClaimStatus,
+      result: (raw.result as string | null | undefined) ?? null,
+      classification: (raw.classification as string | null | undefined) ?? null,
+      resolution: (raw.resolution as string | null | undefined) ?? null,
+      tc_id: (raw.tc_id as string | null | undefined) ?? null,
+      step: (raw.step as string | null | undefined) ?? null,
+      expected: (raw.expected as string | null | undefined) ?? null,
+      actual: (raw.actual as string | null | undefined) ?? null,
+    });
+  }
+
+  return {
+    item_id: String(doc.item_id ?? itemId),
+    source_tool: 'cli',
+    mcp_session_date: String(doc.mcp_session_date ?? todayIso()),
+    fields: Array.isArray(doc.fields) ? (doc.fields as Array<Record<string, unknown>>) : undefined,
+    verified_claims: claims,
+    notes: Array.isArray(doc.notes) ? (doc.notes as string[]) : undefined,
+  };
+}
+
+/** Structural validator — mirrors docs/schemas/walkthrough.canonical.schema.json.
+ *  Kept hand-rolled (no ajv) so the gate has zero runtime dep surface. */
+function validateCanonical(doc: CanonicalWalkthrough): string[] {
+  const errors: string[] = [];
+
+  if (!doc.item_id || typeof doc.item_id !== 'string') errors.push('item_id: missing or not a string');
+  if (doc.source_tool !== 'cli' && doc.source_tool !== 'chrome') {
+    errors.push(`source_tool: must be 'cli' or 'chrome', got '${doc.source_tool}'`);
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(doc.mcp_session_date || '')) {
+    errors.push(`mcp_session_date: must be YYYY-MM-DD, got '${doc.mcp_session_date}'`);
+  }
+  if (!Array.isArray(doc.verified_claims)) {
+    errors.push('verified_claims: missing or not an array');
+    return errors;
+  }
+
+  const verifiedCount = doc.verified_claims.filter(c => c.status === 'VERIFIED' || c.status === 'PASS').length;
+  if (verifiedCount < 3) {
+    errors.push(`GEN-029: only ${verifiedCount} VERIFIED/PASS claims found (minimum 3)`);
+  }
+
+  for (const [i, c] of doc.verified_claims.entries()) {
+    if (!c || typeof c !== 'object') { errors.push(`verified_claims[${i}]: not an object`); continue; }
+    if (!c.claim || typeof c.claim !== 'string') errors.push(`verified_claims[${i}].claim: missing`);
+    if (!CLAIM_STATUS_SET.has(c.status)) errors.push(`verified_claims[${i}].status: invalid '${c.status}'`);
+
+    if (c.status === 'APP_BUG') {
+      const ref = c.resolution || '';
+      if (!/(ESC-|BUG-|filed|resolved)/i.test(ref)) {
+        errors.push(`GEN-033: verified_claims[${i}] APP_BUG without filed finding (ESC-/BUG- ref required in 'resolution')`);
+      }
+    }
+    if (c.status === 'PLANNER_GAP') {
+      const ref = c.resolution || '';
+      if (!/(ESC-|escalat|corrected)/i.test(ref)) {
+        errors.push(`GEN-033: verified_claims[${i}] PLANNER_GAP without escalation (ESC- ref required in 'resolution')`);
+      }
+    }
+  }
+
+  return errors;
+}
+
 /** Category-specific action directives for RCA summary. */
 const CATEGORY_DIRECTIVES: Record<string, string> = {
   AUTH: '[STOP] DO NOT touch selectors or test code. Escalate immediately.',
@@ -204,76 +401,90 @@ function main(): void {
     process.exit(1);
   }
 
-  // ── PF-G5: WALKTHROUGH_LOG existence — HARD STOP on ALL runs ──
-  // GEN-029 enforcement: generator MUST produce a walkthrough file during Phase 0.5
-  // before writing any spec code. This gate ensures no model (Haiku, Sonnet, Opus) can
-  // skip the live DOM verification step. The walkthrough must verify at least 3 planner
-  // claims on the live MCP browser before spec generation begins.
+  // ── PF-G5: WALKTHROUGH canonical normalizer + content validation (SP-PWC2-05) ──
+  // GEN-029 enforcement: generator MUST produce a walkthrough during Phase 0.5 before
+  // writing any spec code. Accepts either .walkthrough.yaml (CLI agents, LR-038 v2
+  // default) or .walkthrough.md (Chrome agents). Both are normalized to canonical JSON
+  // at .walkthrough.canonical.json and validated against
+  // docs/schemas/walkthrough.canonical.schema.json. Downstream consumers (auditor
+  // spot-check per SP-AAE-04, future tooling) read only the canonical form.
   const walkthroughDir = path.join(SHARED_PATHS.reports, 'walkthrough');
-  const walkthroughFile = path.resolve(walkthroughDir, `${itemId}.walkthrough.md`);
-  if (!fs.existsSync(walkthroughFile)) {
+  const yamlPath = path.resolve(walkthroughDir, `${itemId}.walkthrough.yaml`);
+  const mdPath = path.resolve(walkthroughDir, `${itemId}.walkthrough.md`);
+  const canonicalPath = path.resolve(walkthroughDir, `${itemId}.walkthrough.canonical.json`);
+  const yamlExists = fs.existsSync(yamlPath);
+  const mdExists = fs.existsSync(mdPath);
+
+  if (!yamlExists && !mdExists) {
     console.error('');
-    console.error(`[HALT] PF-G5: WALKTHROUGH_LOG missing: ${walkthroughFile}`);
-    console.error('   Generator MUST produce a walkthrough file during Phase 0.5 before writing spec code.');
-    console.error('   The walkthrough must verify at least 3 planner claims on the live DOM via MCP.');
-    console.error('   Create the file at: reports/walkthrough/' + itemId + '.walkthrough.md');
-    console.error('   Contents: For each verified claim, document: claim text, MCP result, PASS/FAIL.');
+    console.error(`[HALT] PF-G5: WALKTHROUGH missing — neither exists:`);
+    console.error(`   CLI-authored:    ${yamlPath}`);
+    console.error(`   Chrome-authored: ${mdPath}`);
+    console.error('   Generator MUST produce a walkthrough during Phase 0.5 before writing spec code.');
+    console.error('   The walkthrough must verify at least 3 planner claims on live DOM (LR-038 v2).');
+    console.error('   CLI path: `playwright-cli snapshot -s nav4 -o reports/walkthrough/' + itemId + '.walkthrough.yaml`');
+    console.error('             then author a verified_claims block in the YAML.');
+    console.error('   Chrome path: author reports/walkthrough/' + itemId + '.walkthrough.md with a table:');
+    console.error('                | TC | Step | Expected | Actual | Status | Classification |');
     console.error('');
-    // Don't process.exit here — inject into item context so the agent sees the requirement
-    // but can produce the walkthrough in the same session. Only HALT on retry (run > 0).
+    // Don't process.exit here — first-run HALT-on-retry behavior preserved so the
+    // agent can create the artifact in this same session.
     const currentRunForG5 = (item.generatorRunCount as number) ?? 0;
     if (currentRunForG5 > 0) {
-      console.error('   This is run #' + (currentRunForG5 + 1) + ' — WALKTHROUGH_LOG should have been created in run #1.');
-      console.error('   HALTING. Create the walkthrough file first, then re-run.');
+      console.error('   This is run #' + (currentRunForG5 + 1) + ' — walkthrough should have been created in run #1.');
+      console.error('   HALTING. Create the walkthrough first, then re-run.');
       process.exit(1);
     } else {
       console.warn('   [WARN] First run — generator MUST create this file before writing any spec code.');
       console.warn('   Phase 0.5 is MANDATORY. If you skip it, run #2 will HALT here.');
     }
   } else {
-    // ── PF-G5b: WALKTHROUGH_LOG content validation (GEN-029, GEN-032, GEN-033) ──
-    // File exists — validate content structure and minimum verification count.
-    const walkContent = fs.readFileSync(walkthroughFile, 'utf-8');
-    const walkthroughErrors: string[] = [];
+    // Prefer YAML (CLI-primary per LR-038 v2) if both exist.
+    const sourcePath = yamlExists ? yamlPath : mdPath;
+    const isYaml = yamlExists;
+    let canonical: CanonicalWalkthrough;
 
-    // GEN-032: Check table structure (| TC | Step | Expected | Actual | Status | Classification |)
-    const hasTableHeader = /^\|[^|]*TC[^|]*\|[^|]*Step[^|]*\|[^|]*Expected[^|]*\|[^|]*Actual[^|]*\|[^|]*Status[^|]*\|/m.test(walkContent);
-    if (!hasTableHeader) {
-      walkthroughErrors.push('GEN-032: Missing required table header: | TC | Step | Expected | Actual | Status | Classification |');
+    try {
+      const raw = fs.readFileSync(sourcePath, 'utf-8');
+      canonical = isYaml ? parseYamlWalkthrough(raw, itemId) : parseMdWalkthrough(raw, itemId);
+    } catch (parseErr) {
+      console.error('');
+      console.error(`[HALT] PF-G5: walkthrough source could not be parsed: ${sourcePath}`);
+      console.error(`   ${(parseErr as Error).message}`);
+      console.error('');
+      process.exit(1);
+      return;
     }
 
-    // GEN-029: Count VERIFIED/PASS entries — require ≥3
-    const verifiedEntries = (walkContent.match(/\|\s*(VERIFIED|PASS)\s*\|/gi) || []).length;
-    if (verifiedEntries < 3) {
-      walkthroughErrors.push(`GEN-029: Only ${verifiedEntries} verified claims found (minimum: 3). Verify more planner claims on live DOM.`);
+    // Write canonical JSON next to source — downstream consumers read this only.
+    try {
+      fs.writeFileSync(canonicalPath, JSON.stringify(canonical, null, 2) + '\n');
+    } catch (writeErr) {
+      console.error(`[HALT] PF-G5: could not write canonical JSON to ${canonicalPath}: ${(writeErr as Error).message}`);
+      process.exit(1);
+      return;
     }
 
-    // GEN-033: Check for unresolved APP_BUG (must reference ESC- or BUG- for resolution)
-    const appBugLines = walkContent.match(/^.*APP_BUG.*$/gm) || [];
-    const unresolvedBugs = appBugLines.filter(line => !/(ESC-|BUG-|filed|resolved)/i.test(line));
-    if (unresolvedBugs.length > 0) {
-      walkthroughErrors.push(`GEN-033: ${unresolvedBugs.length} APP_BUG(s) without filed finding. All APP_BUGs must have a bug report.`);
-    }
-
-    // GEN-033: Check for unresolved PLANNER_GAP (must reference ESC- for escalation)
-    const plannerGapLines = walkContent.match(/^.*PLANNER_GAP.*$/gm) || [];
-    const unresolvedGaps = plannerGapLines.filter(line => !/(ESC-|escalat|corrected)/i.test(line));
-    if (unresolvedGaps.length > 0) {
-      walkthroughErrors.push(`GEN-033: ${unresolvedGaps.length} PLANNER_GAP(s) without escalation. All PLANNER_GAPs must have an ESC- reference.`);
-    }
-
+    // Schema-level validation (hand-rolled — mirrors walkthrough.canonical.schema.json).
+    const walkthroughErrors = validateCanonical(canonical);
     if (walkthroughErrors.length > 0) {
       console.error('');
-      console.error('[HALT] PF-G5: WALKTHROUGH_LOG content validation FAILED:');
+      console.error(`[HALT] PF-G5: canonical walkthrough validation FAILED (source: ${path.basename(sourcePath)}):`);
       for (const err of walkthroughErrors) {
         console.error(`  [ERR] ${err}`);
       }
       console.error('');
-      console.error('   Fix the walkthrough file and re-run. Phase 0.5 verification must be complete before code generation.');
+      console.error('   Fix the walkthrough source and re-run. Canonical JSON written for inspection at:');
+      console.error(`     ${canonicalPath}`);
       process.exit(1);
     }
 
-    console.log(`[OK] PF-G5: WALKTHROUGH_LOG validated (${verifiedEntries} verified claims, table structure correct)`);
+    const verifiedCount = canonical.verified_claims.filter(
+      c => c.status === 'VERIFIED' || c.status === 'PASS'
+    ).length;
+    console.log(
+      `[OK] PF-G5: walkthrough validated (${verifiedCount} verified claims, source=${canonical.source_tool}, canonical=${path.basename(canonicalPath)})`
+    );
   }
 
   // ── RCA-FIRST reminder (GEN-037 — injected into agent context) ──

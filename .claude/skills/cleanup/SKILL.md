@@ -2,7 +2,7 @@
 name: cleanup
 description: Codebase hygiene — dead code removal, unused imports, orphaned files, stale references, duplicate consolidation. Use when codebase feels bloated or say "clean up", "dead code", "remove unused".
 user-invocable: true
-auto-calls: regression-guard
+auto-calls: identity, regression-guard
 tools: Read, Glob, Grep, Bash, Write, Edit, Agent
 ---
 
@@ -104,3 +104,15 @@ If build breaks, something was NOT actually dead — investigate and restore.
 ### Regression Guard: [CLEAN / issues found]
 ### Build Check: [PASS / FAIL]
 ```
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

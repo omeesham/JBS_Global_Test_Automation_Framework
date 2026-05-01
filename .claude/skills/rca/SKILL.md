@@ -2,7 +2,7 @@
 name: rca
 description: Professional Root Cause Analysis for test failures. Artifact-first, evidence-driven, no assumptions. Combines Kepner-Tregoe IS/IS-NOT, Fishbone categories, 5 Whys, and Playwright trace analysis. Use when tests fail and you need to understand WHY before fixing.
 user-invocable: true
-auto-calls: []
+auto-calls: identity
 tools: Read, Glob, Grep, Bash, Agent, WebSearch
 ---
 
@@ -202,12 +202,12 @@ npx playwright test --grep "TC-ID" --project=chrome --headed --repeat-each=3
 
 ---
 
-## Phase 5: MCP Replication (Category-Dependent)
+## Phase 5: Live Browser Replication (Category-Dependent)
 
-**Browser tool selection**: before opening any live app, pick Claude in Chrome vs Playwright MCP per LR-038. For RCA on auth-heavy apps (Navigator4 SSO), Claude in Chrome is usually right.
+**Browser tool selection**: before opening any live app, pick Playwright CLI vs Claude in Chrome per **LR-038 v2**. For RCA on auth-heavy apps (Navigator4 SSO) where the user is at the machine, Claude in Chrome is usually right (live session inherits SSO, pixel-aware for visual assertions). For unattended/headless RCA or when token budget is tight, CLI is right.
 
-| Failure Category | MCP Required? | When |
-|-----------------|---------------|------|
+| Failure Category | Live browser required? | When |
+|-----------------|------------------------|------|
 | SELECTOR | MANDATORY | Before hypothesis |
 | ASSERTION | MANDATORY | Before hypothesis |
 | BLOCKING | RECOMMENDED | After IS/IS-NOT analysis |
@@ -215,12 +215,12 @@ npx playwright test --grep "TC-ID" --project=chrome --headed --repeat-each=3
 | APPLICATION | RECOMMENDED | After hypothesis |
 | AUTH/NETWORK/INFRA | LAST RESORT | Only if Steps 0-4 inconclusive |
 
-**MCP replication rules:**
+**Replication rules:**
 1. READ the spec code FIRST — find the exact steps
-2. Reproduce those EXACT steps on MCP (not random browsing)
-3. Use `browser_evaluate` to test CSS selectors
-4. Use `browser_network_requests` after failing steps
-5. Document what MCP shows vs what the test sees (feeds back into IS/IS-NOT)
+2. Reproduce those EXACT steps live (not random browsing)
+3. Test CSS selectors — CLI `eval`, Chrome `javascript_tool`, or (legacy) `browser_evaluate`
+4. Inspect network after failing steps — CLI `network`, Chrome `read_network_requests`, or (legacy) `browser_network_requests`
+5. Document what the live app shows vs what the test sees (feeds back into IS/IS-NOT)
 
 ---
 
@@ -288,3 +288,15 @@ Write a structured RCA summary before ANY code edit:
 | NETWORK | API 4xx/5xx, net::ERR_ABORTED | Check API health, retry |
 | BLOCKING | Click intercepted by overlay/dialog/spinner | Dismiss blocker or wait for it to clear |
 | INFRASTRUCTURE | Browser crash, CI timeout, resource exhaustion | Escalate tooling |
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

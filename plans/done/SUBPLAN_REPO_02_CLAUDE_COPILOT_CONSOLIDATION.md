@@ -1,10 +1,16 @@
 # SUBPLAN: Claude/Copilot Consolidation
 
-**Status**: PENDING
-**Priority**: P1
+**Status**: SUPERSEDED
+**Executed**: 2026-04-27
+**Superseded by**: PLAN_CC_ANTHROPIC_ALIGNMENT.md (Phase 0 — Copilot evict, not consolidate; substance shipped via SP1's Phase 0.1–0.3; verified DONE 2026-04-27; structural field added by 2026-04-28 supersession-integrity sweep)
+**Priority**: P1-CYCLE-2
 **Parent**: MASTER_REPO_CLEANUP
 **Created**: 2026-04-16
 **Excludes**: website/, node_modules/ — out of scope per user directive.
+
+### Execution Summary
+
+Substance superseded by [PLAN_CC_ANTHROPIC_ALIGNMENT.md](PLAN_CC_ANTHROPIC_ALIGNMENT.md) Phase 0 (Copilot evict, not consolidate). The premise of this subplan ("make Claude single source of truth, Copilot reads Claude's files") is moot once Copilot is fully evicted via SP1's Phase 0.1–0.3. The 6 `.github/agents/playwright-*.agent.md` files were absorbed into model-agnostic `.claude/agents/{REQUIREMENTS,PLANNER,GENERATOR,HEALER,AUDIT,MAINTAINER}.md` and the Copilot directory is being deleted. No unique work remains.
 
 ---
 

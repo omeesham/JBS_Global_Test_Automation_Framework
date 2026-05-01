@@ -260,11 +260,11 @@
 | chkCorporatePricing | checkbox | Setup > Location > Pricing tab | Corporate Pricing | corporate pricing toggle | setup/locations/pricing.ts |
 | chkPriceGuideInclusive | checkbox | Setup > Location > Pricing tab | Include Service Fee in Price Guides | price-guide inclusive service-fee toggle | setup/locations/pricing.ts |
 | drpCurrencyFilter | dropdown | Setup > Location > Pricing tab | Currency | currency filter combobox pricing | setup/locations/pricing.ts |
-| drpPrimaryEquipmentPricing | dropdown | Setup > Location > Pricing tab | Primary Equipment Pricing | primary equipment pricing combobox | setup/locations/pricing.ts |
-| drpPrimaryInternalEquipmentPricing | dropdown | Setup > Location > Pricing tab | Primary Internal Equipment Pricing | primary internal equipment pricing combobox | setup/locations/pricing.ts |
-| drpPrimaryLaborPricing | dropdown | Setup > Location > Pricing tab | Primary Labor Pricing | primary labor pricing combobox | setup/locations/pricing.ts |
-| drpPrimaryProductionEquipmentPricing | dropdown | Setup > Location > Pricing tab | Primary Production Equip. Pricing | primary production equipment pricing combobox | setup/locations/pricing.ts |
-| drpPrimaryProductionLaborPricing | dropdown | Setup > Location > Pricing tab | Primary Production Labor Pricing | primary production labor pricing combobox | setup/locations/pricing.ts |
+| drpPrimaryLaborPricingUSD | dropdown | Setup > Location > Pricing tab > USD | Primary Labor Pricing | primary labor pricing combobox usd | setup/locations/pricing.ts |
+| drpPrimaryEquipmentPricingUSD | dropdown | Setup > Location > Pricing tab > USD | Primary Equipment Pricing | primary equipment pricing combobox usd | setup/locations/pricing.ts |
+| drpPrimaryInternalEquipmentPricingUSD | dropdown | Setup > Location > Pricing tab > USD | Primary Internal Equipment Pricing | primary internal equipment pricing combobox usd | setup/locations/pricing.ts |
+| drpPrimaryProductionLaborPricingUSD | dropdown | Setup > Location > Pricing tab > USD | Primary Production Labor Pricing | primary production labor pricing combobox usd | setup/locations/pricing.ts |
+| drpPrimaryProductionEquipmentPricingUSD | dropdown | Setup > Location > Pricing tab > USD | Primary Production Equip. Pricing | primary production equipment pricing combobox usd | setup/locations/pricing.ts |
 | colHeaderCurrency | label | Setup > Location > Pricing tab > Header | Currency | column header currency | setup/locations/pricing.ts |
 | colHeaderEndDate | label | Setup > Location > Pricing tab > Header | End Date | column header end-date | setup/locations/pricing.ts |
 | colHeaderIsAlternative | label | Setup > Location > Pricing tab > Header | Is Alternative | column header alternative | setup/locations/pricing.ts |

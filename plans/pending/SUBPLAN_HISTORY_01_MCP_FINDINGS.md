@@ -1,6 +1,7 @@
 # SP1 MCP Discovery Findings — History Integration
 
 **Status**: DELIVERABLE (findings artifact — lives with SP1 until SP1 moves to done/)
+**Priority**: P2-CYCLE-3
 **Parent**: SUBPLAN_HISTORY_01_MCP_DISCOVERY.md
 **Session**: 2026-04-13 14:42–15:04 UTC
 **Agent**: OWNER (Copilot in Claude Code Mode)
@@ -120,7 +121,7 @@
 | Empty/null | Empty string "" | No "null", "N/A", or "-" used |
 | Number | Plain text | "0000", "900", "3" |
 | Pricing | Multi-currency format | "USD: 2026-Zone 3 D; CAD: ; MXN:" |
-| Email | Plain text | "v-rutvik.khosariya@psav.com" |
+| Email | Plain text | "s-prd-clickauto@psav.com" |
 
 ### Plan vs Actual Column Name Differences
 

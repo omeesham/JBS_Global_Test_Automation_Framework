@@ -1,7 +1,7 @@
 # PLAN: Visual Debug Skill — Give All Agents Eyes
 
 **Status**: pending
-**Priority**: HIGH
+**Priority**: P2-CYCLE-3
 **Scope**: `.claude/skills/visual-debug/`, agent prompt updates, trace extraction utility, CLAUDE.md routing
 
 ---

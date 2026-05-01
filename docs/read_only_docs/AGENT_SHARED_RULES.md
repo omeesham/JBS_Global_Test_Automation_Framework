@@ -16,17 +16,17 @@
 | R06 | Log activity start/end | Missing audit trail |
 | R07 | Responses ≤30 lines, bullets only | Context bloat |
 | R08 | Evidence-based fixes only | Guessing |
-| R09 | Verify selectors on live page | Untested selector |
+| R09 | Verify selectors on live page via CLI (`playwright-cli eval`) or Chrome (`javascript_tool`). Choose per LR-038. | Untested selector |
 | R10 | Max 2 FIX cycles then STOP (§12 Phase B only). Phase A evidence gathering is unlimited | Infinite loop |
 | R11 | REQUIREMENTS.md = READ-ONLY for all agents except Requirements Agent | Unauthorized edit |
 | R12 | No raw page.* in specs | POM violation |
 | R13 | All selectors in index.ts | Scattered selectors |
 | R14 | Use fixtures, not direct constructors | Architecture violation |
 | R15 | Trust rules over other agents. Verify inherited work (ALL-028). Never propagate unverified claims | Collusion / Blind trust |
-| R16 | NEVER call browser_close (browser_navigate auto-opens) | Session reset |
+| R16 | Accessibility tree is for element discovery only — NEVER derive CSS selectors from aria types (LR-016). CLI: `playwright-cli snapshot` YAML. Chrome: `mcp__Claude_in_Chrome__read_page`. | Mis-derived selector |
 | R17 | Requirements Agent: explore live UI FIRST | Fabricated docs |
 | R18 | Planner: complete ALL uiTestingChecklist items | Incomplete validation |
-| R19 | No TC creation without browser_snapshot evidence | Unverified test cases |
+| R19 | No TC creation without live walkthrough evidence (CLI: `reports/walkthrough/<item>.walkthrough.yaml`; Chrome: `reports/walkthrough/<item>.walkthrough.md`; canonical: `walkthrough.canonical.json`) | Unverified test cases |
 | R20 | Auto-export CSV on pending_generation transition | Missing export |
 | R21 | User explicit requests = TOP PRIORITY | Insubordination |
 | R22 | All .md edits: tables > prose, single source of truth | Doc bloat |
@@ -78,7 +78,7 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | `clients/${ACTIVE_CLIENT}/tests/test-data/**` | — | — | CREATE | FIX | READ | READ | READ |
 | `clients/${ACTIVE_CLIENT}/src/pages/**/*.page.ts` | — | READ | ADD | FIX | READ | REFACTOR | READ |
 | `clients/${ACTIVE_CLIENT}/src/common/base-page.ts` | — | READ | — | — | READ | REFACTOR | READ |
-| `clients/${ACTIVE_CLIENT}/src/selectors/index.ts` | — | ADD | ADD | FIX | READ | READ | READ |
+| `clients/${ACTIVE_CLIENT}/src/selectors/**` | — | ADD | ADD | FIX | READ | READ | READ |
 | `src/utils/common-methods.ts` | — | READ | ADD | FIX | READ | READ | READ |
 | `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` | UPDATE | READ | READ | READ | READ | READ | READ |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json` | CREATE | RW | RW | RW | RW | READ | READ |
@@ -86,6 +86,10 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | `clients/${ACTIVE_CLIENT}/specs_planning/test-plans/**` | — | CREATE | READ | READ | READ | READ | READ |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | APPEND | APPEND | APPEND | APPEND | RW (quality gate) | APPEND | APPEND |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/_TEMPLATE.md` | READ | READ | READ | READ | READ | READ | RW |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-*.md` | READ | CREATE | READ | UPDATE | UPDATE | READ | RW |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventory-spec.md` | READ | READ | READ | READ | READ | READ | RW |
+| `reports/bugs/BUG-*.json` | READ | READ | CREATE | CREATE | READ | READ | RW |
 | `scripts/**` | — | — | — | — | — | — | RW |
 | `config/**` | — | — | — | — | — | — | RW |
 | `.claude/skills/**` | — | — | — | — | — | — | RW |
@@ -95,6 +99,10 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 **Audit Agent scope**: Can READ any file. WRITE limited to: agent-mistakes.md (RW — quality gate), audits/*.md, agent-performance.json, agent-queue.json (history/stage), agent-activity-log.md.
 
 **Framework Maintainer (GARDENER) scope**: READ-WRITE: `clients/${ACTIVE_CLIENT}/src/pages/`, `clients/${ACTIVE_CLIENT}/src/common/base-page.ts`, `tests/`. READ-ONLY: everything else. Runs on demand (not in pipeline). Structural refactoring only — never changes business logic or test assertions.
+
+**Field-Inventory Artifact ownership** (per [PLAN_AGENT_AUTHORING_EFFICIENCY.md](../../plans/pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) AAE-D9): the `_internal/field-inventories/` folder splits into two ownership classes. (1) **Format contract** (`_TEMPLATE.md` + sibling `field-inventory-spec.md`) is OWNER-only RW — these are framework governance artifacts; rare changes. (2) **Per-module artifacts** (`<module>-<YYYY-MM-DD>.md`) are GIVER-CREATE / WATCHDOG-UPDATE / HEALER-UPDATE / others-READ — primary author is the planner walking the live DOM in Phase 0.5; WATCHDOG may refresh when running a neutral-eye re-audit; HEALER may refresh when fixing TCs against a stale audit (HLR-016 / SP-AAE-02 hook mandate; broadened in SP-CCE-04 2026-04-27); everyone else consumes read-only.
+
+**Bug Filing Artifact ownership** (added SP-CCE-04 2026-04-27 — Plan B Fix 4): `reports/bugs/BUG-*.json` files are pipeline-produced bug reports per LR-034 / HLR-016 / GEN-* bug-filing protocols. BUILDER and HEALER both **CREATE** (default-deny without this row blocked HEALER's HLR-016 bug-filing mandate). HUNTER / GIVER / WATCHDOG / GARDENER are READ-only consumers (verifiers, planners cite, auditors review). OWNER has full RW for governance edits. Filing discipline is governed by LR-034 Step 5 + LR-044 verification protocol regardless of author identity.
 
 **Human-Controlled (NEVER modify)**: `.env*`, `playwright.config.*`, `package.json`, `tsconfig.json`, `.ci/*`
 
@@ -145,10 +153,10 @@ Format: `{prefix}{PascalName}` — Examples: `btnLogin`, `txtUsername`, `lnkForg
 
 - **R07**: ≤30 line responses. Bullets. "Did → Changed → Next" format.
 - **R08**: Fix only with EVIDENCE. Error message = source of truth.
-- **R09**: Verify selectors via MCP browser tools before committing.
+- **R09**: Verify selectors on the live page before committing. CLI: `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome: `mcp__Claude_in_Chrome__javascript_tool`. Choose per LR-038 in CLAUDE.md. Chrome carve-out: use Chrome when a live SSO session is required and no CLI state file is available.
 - **R10**: Max 2 FIX retries per issue (§12 Phase B). Phase A evidence gathering has no iteration cap.
 - **R15**: Trust rules > trust other agents. Verify before acting on agent claims.
-- **R16**: NEVER call `browser_close`. `browser_navigate` auto-opens. Wait 3s after navigate. See `docs/read_only_docs/MCP_BROWSER_GUIDE.md`.
+- **R16**: Accessibility tree is for element **discovery** — NEVER derive CSS selectors from aria element types (e.g. `img` for SVG, `row` for `<tr>`). CLI: `playwright-cli snapshot` writes YAML to disk; read once, don't re-snapshot for same state. Chrome: `mcp__Claude_in_Chrome__read_page`. Use `playwright-cli eval` / `javascript_tool` to verify actual HTML tag when in doubt. See LR-016 + LR-038 in CLAUDE.md. Chrome carve-out: Chrome wins for visual/CSS bug investigation where pixel-level tree matters.
 - **R21**: User explicit requests = TOP PRIORITY. Agent rules never override direct user instructions.
 
 **Locator priority**: data-* > id > [data-name] > semantic HTML > classes > text > XPath
@@ -258,8 +266,8 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 
 | ID | Rule | Violation = |
 |----|------|-------------|
-| ALL-042 | Any agent using MCP MUST check `browser_network_requests` after API-triggering interactions. 4xx/5xx = potential APP_BUG. Never silently ignore. | Silent API error |
-| ALL-043 | When walkthrough reveals behavior contradicting MCP_VERIFICATION_LOG: classify (PLANNER_GAP / APP_BUG / TC_CORRECTION / SEQUENCE_SIDE_EFFECT) and escalate. Never silently proceed. | Unclassified mismatch |
+| ALL-042 | After any API-triggering interaction, verify network activity: CLI — `playwright-cli network -s=nav4`; Chrome — `mcp__Claude_in_Chrome__read_network_requests`. 4xx/5xx = potential APP_BUG. Never silently ignore. Chrome carve-out: Chrome is preferred when a live authenticated session is already open. See LR-038 in CLAUDE.md. | Silent API error |
+| ALL-043 | When walkthrough reveals behavior contradicting the walkthrough artifact (CLI: `.walkthrough.yaml`; Chrome: `.walkthrough.md`; canonical: `walkthrough.canonical.json`): classify (PLANNER_GAP / APP_BUG / TC_CORRECTION / SEQUENCE_SIDE_EFFECT) and escalate. Never silently proceed. Chrome carve-out: Chrome walkthrough `.md` is equally valid as CLI `.yaml` — both resolve via PF-G5 normalizer. | Unclassified mismatch |
 | ALL-044 | Bug detection is EVERY agent's responsibility. Planner finds 500 error → file it. Generator finds form mutation → file it. Healer finds broken API → file it. All go to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-escalations.json`. | Agent ignoring bugs outside their scope |
 
 ### TC Lifecycle Rules (ALL-071)
@@ -268,7 +276,7 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 |----|------|-------------|
 | ALL-071 | **Spec-Markdown TC Parity** — After adding, removing, or modifying TCs in any spec file, ALWAYS update the corresponding markdown test-case file in `specs_planning/test-cases/`. If TC ID exists in markdown: update status to `Automated`. If NOT in markdown: ADD it (title, one-liner steps, status=Automated). Reconcile CSV export via `npm run check:tc-parity:fix`. Markdown is the client deliverable — drift = invisible tests. Before declaring done, run `npm run check:tc-parity` and verify 0 gaps. | Client CSVs incomplete — tests invisible to stakeholders |
 
-**Applies to**: Generator (primary), Healer (when modifying TCs), OWNER (via /execute), Copilot (via manual spec edits). Graduated from MOD-004 (maintainer-only → universal).
+**Applies to**: Generator (primary), Healer (when modifying TCs), OWNER (via /execute), and any frontier agent making manual spec edits. Graduated from MOD-004 (maintainer-only → universal).
 
 **Module-Specific Mistake Lookup (ALL-072)**: Before starting work on ANY module, search `agent-mistakes.md` for ALL rule prefixes (not just your own) filtered to that module's name. Learn from other agents' failures in the same module before repeating them. Example: Generator working on Currency should read PLN-020..028 (planner currency mistakes), not just GEN-* rules.
 
@@ -314,7 +322,7 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 8. Spec-markdown parity: `npm run check:tc-parity` ran, gaps reported as P0 findings? (ALL-071)
 
 **Requirements**:
-1. All fields verified via browser_snapshot?
+1. All fields verified via live walkthrough (CLI snapshot YAML or Chrome read_page)?
 2. Screenshots taken for new sections?
 3. Error messages triggered live?
 4. REQUIREMENTS.md updated with evidence?
@@ -353,15 +361,15 @@ Self-audit checklists catch formatting and process errors. They do NOT catch rea
 | Agent | Scope | Protocol |
 |-------|-------|----------|
 | Requirements | Full DOM exploration | Discovers all fields, documents in REQUIREMENTS.md |
-| Planner | Targeted selector validation | browser_snapshot to verify selectors. Does NOT re-discover all fields |
-| Generator | Phase 0.5 TC walkthrough + pre-flight selector validation | Walks through every TC step on MCP before writing code. Also validates selectors. |
-| Healer | SELECTOR/ASSERTION: mandatory MCP. Others: artifact-first | MCP diagnostic at Step 3 for selector/assertion failures. Last resort for others. |
+| Planner | Targeted selector validation | Verify selectors on live page (PLN-027). CLI: `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome carve-out: Chrome when live SSO session required. Does NOT re-discover all fields. |
+| Generator | Phase 0.5 TC walkthrough + pre-flight selector validation | Walks through every TC step on live page before writing code (GEN-029). CLI: walkthrough → `reports/walkthrough/<item>.walkthrough.yaml`. Chrome: `reports/walkthrough/<item>.walkthrough.md`. PF-G5 normalizes both to `walkthrough.canonical.json`. Also validates selectors. |
+| Healer | SELECTOR/ASSERTION: CLI for functional replay; Chrome for visual RCA. Others: artifact-first | CLI diagnostic at Step 3 for selector/assertion failures (HLR-015). Chrome carve-out: visual/CSS failures, interactive RCA. Last resort for all others. See LR-038 in CLAUDE.md. |
 
 ---
 
 ## §12. Root Cause Analysis Protocol
 
-**Mandatory for**: Generator (fix loop), Healer (all diagnosis), Copilot (framework debugging).
+**Mandatory for**: Generator (fix loop), Healer (all diagnosis), any frontier agent doing framework debugging.
 **Replaces**: Former 13-item checklist. Now 7-step mandatory sequence — no shortcuts.
 **Note**: Healer must run Phase 0 Triage (HLR-015) BEFORE this protocol. Triage classifies BUG/FEATURE_CHANGE/TEST_DEFECT/UNCERTAIN. Phase A RCA only runs for FEATURE_CHANGE, TEST_DEFECT, and UNCERTAIN cases.
 
@@ -398,10 +406,10 @@ From fullError → extract file:line → read spec → trace to page object meth
 Format: "The failure is [CATEGORY] because [evidence from Steps 1-4]"
 Cite specific file names and line numbers. Example: "SELECTOR failure: error-context.md line 42 shows alertdialog overlay blocking pointer events to checkbox."
 
-**Step 6: Replicate on MCP (ONLY if Steps 1-5 inconclusive)**
-Navigate to pageUrl → execute same spec steps → observe DOM → `browser_evaluate` to test CSS selector.
+**Step 6: Replicate via browser tool (ONLY if Steps 1-5 inconclusive)**
+Navigate to `pageUrl` → execute same spec steps → observe DOM. CLI: `playwright-cli snapshot -s=nav4 -o report.yaml` → read YAML; `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome: `mcp__Claude_in_Chrome__read_page` + `javascript_tool`. Choose per LR-038 in CLAUDE.md. Chrome carve-out: Chrome wins when live authenticated session is already open and MFA/SSO re-auth would be needed for a fresh CLI state.
 
-> **WARNING**: Do NOT have `npx playwright test` running concurrently with MCP browser. They share Playwright infrastructure — concurrent use causes exit code 4294967295. Run test FIRST → read artifacts → THEN MCP (not simultaneously).
+> **WARNING**: Do NOT run `npx playwright test` concurrently with `playwright-cli` — both drive Playwright infrastructure and can conflict (exit code 4294967295). Run tests first → read artifacts → THEN browser replication.
 
 **Step 7: Fix**
 Apply fix based on confirmed root cause → run ONLY failing test: `--grep "TC-ID" --project=chrome --headed`.
@@ -440,17 +448,22 @@ Pass → full spec regression. Fail (same) → one more attempt (max 2). Fail (d
 | Framework logs | `logs/{spec-name}/test-execution.log` | Page object actions + state changes |
 | Per-spec diagnostics | `reports/diagnostics/{spec-name}.diagnostics.json` | All tests in spec (serial failure analysis) |
 
-### Planner Selector Verification (RCA subset)
+### Planner Selector Verification (RCA subset) — PLN-027
 
-1. Navigate to page via MCP → `browser_evaluate` to test exact CSS selector
-2. null → wrong selector → inspect actual DOM structure
+**Tool selection** (LR-038): CLI is the default; Chrome carve-out when live SSO session is required.
+
+CLI: `playwright-cli eval -s=nav4 "document.querySelector('[data-testid=X]') ? 'found' : 'missing'"`.
+Chrome: `mcp__Claude_in_Chrome__javascript_tool`.
+
+1. Navigate to page → evaluate exact CSS selector
+2. `null` / `'missing'` → wrong selector → inspect actual DOM structure
 3. Find what DOES exist: `document.querySelectorAll('button[role="checkbox"]').length`
 4. Build selector from actual DOM — NEVER copy patterns from other tabs/pages
 
 ### Healer RCA Addendum
 
 Same 7-step sequence, plus after Step 4:
-- Selector change → verify new selector via `browser_evaluate` on MCP
+- Selector change → verify new selector on live page. CLI: `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome carve-out: `mcp__Claude_in_Chrome__javascript_tool` when live SSO session is already open. See LR-038.
 - Timing change → add explicit wait, not just timeout increase
 - Test logic change → verify against TC document (TC wrong or spec wrong?)
 
@@ -467,7 +480,7 @@ After reading artifacts (Steps 1-3), walk the appropriate tree. At each node, ci
 **Assertion failure tree:**
 1. Expected X got Y — is Y from a different test? → State leakage (check lastActions of prior test in serial block)
 2. Is the actual value close but not exact? → Timing (element still loading) or format difference
-3. Is the actual value completely wrong? → App behavior differs from Planner docs → verify on MCP → file escalation if Planner was wrong
+3. Is the actual value completely wrong? → App behavior differs from Planner docs → verify on live page (CLI or Chrome per LR-038) → file escalation if Planner was wrong
 
 **Dialog error tree ("Cannot accept dialog which is already handled"):**
 1. Check: is there a `page.once('dialog')` or `page.on('dialog')` handler registered?
@@ -496,15 +509,21 @@ Common misclassifications:
 - Timeout on page load → classified TIMING but actual issue is AUTH (redirect loop)
 - Selector not found → classified SELECTOR but actual issue is APPLICATION (element conditionally rendered)
 
-### MCP Replication — Last Resort (ALL-048)
+### Browser-Tool Replication — Last Resort (ALL-048)
 
-Use MCP browser replication ONLY when:
+Use live browser replication ONLY when:
 1. Artifacts are missing or insufficient (domSnippet empty, no trace)
 2. You need to verify a Planner behavioral claim that contradicts test results
 3. The failure classification is UNKNOWN after artifact analysis
 4. You need to test a specific interaction sequence not captured in artifacts
 
-When needed: navigate to exact pageUrl from urlBreadcrumbs → reproduce exact step sequence from lastActions → browser_snapshot at failure point → browser_evaluate to check element state → compare to artifacts → document finding.
+**Tool selection** (LR-038 in CLAUDE.md): CLI is the default for functional replay (token-efficient, unattended); Chrome is the specialist when the task is visual/CSS, requires a live SSO session, or user is present for interactive RCA.
+
+**CLI path**: `playwright-cli goto -s=nav4 <pageUrl>` → replay `lastActions` sequence → `playwright-cli snapshot -s=nav4 -o <file>` at failure point → `playwright-cli eval -s=nav4 "document.querySelector('[data-testid=X]')"` to check element state → compare to artifacts → document finding.
+
+**Chrome path**: `mcp__Claude_in_Chrome__navigate` to pageUrl → replay steps → `mcp__Claude_in_Chrome__read_page` at failure point → `mcp__Claude_in_Chrome__javascript_tool` to check element state → compare to artifacts → document finding.
+
+Chrome carve-out: Chrome wins for visual/CSS failures, interactive RCA with user present, and when fresh MFA/TOTP is needed (CLI cannot solve MFA). See LR-038 §Gate 2 matrix.
 
 ### State-Aware Testing (ALL-049)
 
@@ -548,19 +567,20 @@ Per-spec diagnostics in `reports/diagnostics/*.diagnostics.json`: full console l
 
 ### Beforeunload Dialog Defense (ALL-052)
 
-When using MCP browser on pages with unsaved edits (dirty form state), the browser fires a `beforeunload` dialog ("Leave site?") on navigation/reload. This blocks the agent.
+When navigating away from pages with unsaved edits (dirty form state), the browser fires a `beforeunload` dialog ("Leave site?") on navigation/reload. This blocks the agent.
 
-**NEVER** call `browser_evaluate(() => window.location.reload())` — it triggers beforeunload which the agent cannot dismiss inline.
+**CLI path** (safe navigation via `playwright-cli`):
+1. `playwright-cli run-code -s=nav4 "page.on('dialog', d => d.accept())"` — register dialog handler before navigating
+2. `playwright-cli goto -s=nav4 about:blank` — triggers beforeunload on dirty page; handler auto-accepts
+3. `playwright-cli goto -s=nav4 <targetUrl>` — clean fresh load
 
-**Safe navigation pattern (ALL-052):**
-1. `browser_navigate("about:blank")` — triggers beforeunload on the dirty page
-2. If beforeunload dialog fires → `browser_handle_dialog(accept: true)` to leave
-3. `browser_navigate(targetUrl)` — clean fresh load of the target page
-4. `browser_wait_for(time: 5)` — wait for page load
+**Chrome path** (`mcp__Claude_in_Chrome__*`):
+**NEVER** call `javascript_tool(() => window.location.reload())` — triggers beforeunload which Chrome cannot dismiss inline.
+1. `mcp__Claude_in_Chrome__navigate` to `about:blank` — triggers beforeunload on dirty page
+2. If beforeunload dialog fires → `mcp__Claude_in_Chrome__browser_handle_dialog(accept: true)` to leave (legacy MCP verb; Chrome equivalent: accept dialog prompt)
+3. `mcp__Claude_in_Chrome__navigate` to `<targetUrl>` — clean fresh load
 
-**If stuck on beforeunload:** Call `browser_handle_dialog(accept: true)` immediately, then re-navigate.
-
-This applies to ALL agents during MCP exploration. Any Angular app with dirty-form tracking fires `beforeunload` whenever form edits are made without clicking Save — see each client's `AGENT_RULES_{CLIENT}.md` for client-specific triggers.
+Chrome carve-out: Chrome wins when the page requires a live SSO session that cannot be replicated via CLI state file. Both paths handle the dialog; CLI is preferred for unattended runs (R-038 default). Any Angular app with dirty-form tracking fires `beforeunload` on unsaved edits — see each client's `AGENT_RULES_{CLIENT}.md` for client-specific triggers.
 
 ---
 
@@ -587,9 +607,9 @@ This applies to ALL agents during MCP exploration. Any Angular app with dirty-fo
 | Healer | PF-H1 | failure-summary.json exists | WARN |
 | Healer | PF-H2 | MCP test server available | HALT |
 | Planner | PF-P1 | REQUIREMENTS.md exists | HALT |
-| Planner | PF-P2 | MCP browser available | HALT |
+| Planner | PF-P2 | Browser tool available (CLI state saved OR Chrome connected, per LR-038) | HALT |
 | Planner | PF-P3 | SELECTOR_CATALOG.md exists | WARN |
-| Requirements | PF-R1 | MCP browser available | HALT |
+| Requirements | PF-R1 | Browser tool available (CLI state saved OR Chrome connected, per LR-038) | HALT |
 
 **Enforcement**: `probation`/`vetting` = ALL checks HARD. `trusted` = agent-specific SOFT. `autonomous` = skip.
 Generator pre-flight automated: `generator-pre-run.ts` validates PF-G1..G4 programmatically.
@@ -629,7 +649,7 @@ When finding a mistake in another agent's owned files, create an escalation entr
 | Selectors wrong in index.ts | planner (if new) or healer (if fix) | wrong-selector |
 | Spec file (.spec.ts) logic wrong | generator | logic-error |
 | Page object method wrong | generator (if new) or healer (if fix) | logic-error |
-| MCP_VERIFICATION_LOG outdated | planner | outdated-artifact |
+| Walkthrough artifact outdated (`*.walkthrough.yaml` / `.walkthrough.md` / `.canonical.json`) | planner | outdated-artifact |
 | Agent rules wrong | audit | logic-error |
 | Framework code (base-page, utils) | maintainer | logic-error |
 
@@ -641,7 +661,7 @@ Rule: ALWAYS escalate to the agent who OWNS the file, not the one who last touch
 
 ### Autonomy Mode (ALL-AGENTS)
 
-When running in pipeline mode (invoked by orchestrator, not manual Copilot chat):
+When running in pipeline mode (invoked by orchestrator, not manual chat):
 - Do NOT wait for user approval at any phase boundary
 - Do NOT present findings and pause — log them and continue
 - Do NOT ask "should I proceed?" — always proceed to next phase

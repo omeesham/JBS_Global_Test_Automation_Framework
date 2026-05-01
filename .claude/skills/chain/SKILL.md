@@ -2,6 +2,7 @@
 name: chain
 description: Autonomously execute pending subplans by spawning each one in its own background Claude session. Stop hook parses /final-q verdict and auto-advances on GREEN. Pauses on YELLOW/RED, daily/batch/weekly cap, branch drift, or STOP marker. Sub-commands — `/chain` (start), `/chain resume`, `/chain status`, `/chain stop`, `/chain skip`, `/chain reset`. `/chain N` overrides the batch cap (1..10). Use when the user says "chain", "run all plans", "execute pending", "resume chain", "chain status", or similar.
 user-invocable: true
+disable-model-invocation: true
 auto-calls: identity
 tools: Read, Glob, Grep, Write, Edit, Bash, TodoWrite
 ---
@@ -32,7 +33,7 @@ Triggered by any of:
                                                           │
                                             subplan runs → /final-q → session stops
                                                           │
-                                            Stop hook: final-q-gate.sh → chain-orchestrator.sh
+                                            Stop hook: chain-orchestrator.sh
                                                           │
                                    chain-orchestrator parses last "## /final-q audit" verdict
                                                           │
@@ -73,13 +74,19 @@ Env override ceilings (power users):
 3. **Parse trial limit N** — if first arg is an integer 1..10, set `batchCap=N`; else `batchCap = $CHAIN_DAILY_CAP` (default 10). Reject N>10 with "Trial limit cannot exceed dailyCap=10. Override with env `CHAIN_DAILY_CAP`."
 4. **Build queue**:
    - Read `plans/INDEX.md` Execution Queue.
-   - For each row: read the subplan file, extract `**Depends on**`, `**Model**`, `**Thinking**`, `**PermissionMode**`, `**RiskAcknowledged**` (bypassPermissions only).
+   - For each row: read the subplan file, extract `**Depends on**`, `**Model**`, `**Thinking**`, `**PermissionMode**`, `**RiskAcknowledged**` (bypassPermissions only), `**BrowserTool**`, `**BrowserToolJustification**` (both only), `**Created**` (LR-038 v2 grandfather check).
    - **[LR-041 PRESENT-value validator]** — for each subplan where BOTH `**Model**` and `**Thinking**` are present (not missing), validate the combo BEFORE applying any defaults:
      - If `Model` matches `sonnet` AND `Thinking` ∈ {`lo`, `low`, `max`} → HALT queue build; emit `PAUSE_NOTICE: "LR-041 violation in <subplan>: Sonnet + <thinking> is forbidden (under-thinks / clamps silently). Fix the subplan frontmatter and /chain resume."` Do not write `chain.json`. Do not spawn.
      - If `Model` matches `opus` AND `Thinking` ∈ {`lo`, `low`, `mid`, `medium`} → HALT queue build; emit `PAUSE_NOTICE: "LR-041 violation in <subplan>: Opus + <thinking> is forbidden. If <thinking> is enough, task is Sonnet hi."` Do not spawn.
      - If `Model` matches `opus` AND `Thinking` == `max` AND no `**Justification**:` frontmatter line → HALT: `"LR-041: Opus max requires **Justification**: frontmatter line in <subplan>."`
      - If `Model` matches `sonnet` AND `Thinking` ∈ {`mid`, `medium`} AND no `**Justification**:` frontmatter line → HALT: `"LR-041: Sonnet mid requires **Justification**: frontmatter line in <subplan>."`
      - Tier vocabulary: accept both authoring form (`lo`/`mid`/`hi`/`xhi`/`max`) and CLI form (`low`/`medium`/`high`/`xhigh`/`max`) as the same tier.
+   - **[LR-038 v2 PRESENT-value validator]** — for each subplan, validate `**BrowserTool**` field per Created-date grandfather rule:
+     - If `BrowserTool` is present AND value ∉ {`cli`, `chrome`, `both`, `none`} → HALT queue build; emit `PAUSE_NOTICE: "LR-038 v2 violation in <subplan>: invalid BrowserTool=<value>. Allowed: cli | chrome | both | none. Fix and /chain resume."` Do not write `chain.json`.
+     - If `BrowserTool` == `both` AND no `**BrowserToolJustification**:` frontmatter line → HALT: `"LR-038 v2: BrowserTool=both in <subplan> requires **BrowserToolJustification**: frontmatter line. Fix and /chain resume."`
+     - If `BrowserTool` is missing AND `**Created**` ≥ 2026-04-24 → HALT: `"LR-038 v2: missing **BrowserTool**: in <subplan> (Created post-2026-04-24). Allowed: cli | chrome | both | none. Fix and /chain resume."`
+     - If `BrowserTool` is missing AND (`**Created**` < 2026-04-24 OR Created missing) → grandfather; do not HALT (warning only, included in startup status line as `<n> grandfathered subplans (no BrowserTool, pre-2026-04-24)`).
+   - **[LR-038 v2 `both`-quota guard]** — count subplans in the *built* queue (post-filter, post-batchCap) where `BrowserTool` == `both`. If `bothCount / queueLength > 0.30` → HALT queue build; emit `PAUSE_NOTICE: "LR-038 v2: >30% of queued subplans flag BrowserTool=both (<n>/<N>). 'both' is an escape hatch, not a default — re-classify as cli/chrome or split subplans, then /chain resume."` Do not write `chain.json`.
    - Default-apply per LR-041 if MISSING (not present-but-invalid): Sonnet → `hi`; Opus → `xhi`; PermissionMode `auto`. Grandfather-safe — pre-LR-041 subplans with no frontmatter fields still queue with conservative defaults.
    - Topologically sort into waves.
    - Filter to subplans whose dependencies are all DONE or themselves queue-ahead.
@@ -174,6 +181,8 @@ Only valid while `status=paused`.
 | `STOP marker` | user `touch .claude/state/chain.STOP` | abort; marker deleted |
 | `branch drift` | `git rev-parse --abbrev-ref HEAD` ≠ chain.json .branch | pause `branch-drift` |
 | `bypassPermissions` without RiskAcknowledged | subplan declares permissionMode=bypassPermissions but missing `**RiskAcknowledged**: true` | pause with explicit message |
+| `BrowserTool` invalid / missing post-2026-04-24 / `both` without justification | LR-038 v2 PRESENT-value check fails at queue-build | pause `lr-038-violation` |
+| `BrowserTool` `both`-quota | >30% of built queue declares `BrowserTool: both` | pause `lr-038-both-quota` |
 | Verdict ≠ GREEN | `/final-q` returned YELLOW/RED or no verdict found | pause `verdict-<X>` |
 | Concurrency | second `/chain` while one running | refuse with guidance |
 
@@ -212,7 +221,7 @@ Counts are incremented at SPAWN time (D24), not completion — a subplan spawned
 - **LR-027** (Execution Summary) — spawned `/execute` handles per-subplan.
 - **LR-035** (INDEX auto-generation) — spawned `/execute` runs `plans:reindex`.
 - **LR-037** (activity-log timestamp gate) — spawned `/execute` writes its own row.
-- **LR-038** (browser tool selection) — applies inside subplans, not at chain layer.
+- **LR-038 v2** (browser tool selection) — queue-build PRESENT-value gate: rejects invalid `BrowserTool` values, enforces `both`→`BrowserToolJustification` pair, HALTs missing field on subplans `Created` ≥ 2026-04-24, grandfathers earlier subplans. 30% `both`-quota guard against lazy-`both` defaults.
 - **LR-040** (closure completeness gate) — each subplan's `/execute` enforces at its own closure.
 - **LR-041** (Model + Thinking selection rubric) — queue build reads each subplan's frontmatter.
 
@@ -222,3 +231,15 @@ Counts are incremented at SPAWN time (D24), not completion — a subplan spawned
 - Per-subplan logs `.claude/state/chain-sessions/SUBPLAN_*.log`.
 - `PAUSE_NOTICE.md` / `COMPLETE_NOTICE.md` on pause/done.
 - Commits happen inside each spawned `/execute` session; chain orchestrator never commits.
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

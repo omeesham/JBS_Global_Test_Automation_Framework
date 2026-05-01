@@ -25,7 +25,7 @@
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 5 (Bug filing — gated)
 **Status**: GATED
-**Priority**: P1
+**Priority**: P1-CYCLE-2
 **Created**: 2026-04-20
 **Depends on**: SP-B-LM-R + SP-D2 through SP-D10 complete (evidence for all non-Currency bugs)
 **Identity**: WATCHDOG or OWNER

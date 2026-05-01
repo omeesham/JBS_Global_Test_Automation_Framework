@@ -16,7 +16,7 @@ specs_planning/
 
 ## Agent Workflow
 
-See [copilot-instructions.md §3](../.github/copilot-instructions.md) for pipeline table and stage flow.
+See [CLAUDE.md](../CLAUDE.md) for the pipeline table and stage flow, and [.claude/agents/](../.claude/agents/) for each model-agnostic sub-agent definition (REQUIREMENTS, PLANNER, GENERATOR, HEALER, AUDIT, MAINTAINER).
 
 ## Agent Checklist
 
@@ -45,7 +45,7 @@ See [copilot-instructions.md §3](../.github/copilot-instructions.md) for pipeli
 
 ## How to Request Tests
 
-Delegate test requests to `@playwright-requirements`. See [copilot-instructions.md §1](../.github/copilot-instructions.md).
+Delegate test requests to the `requirements` sub-agent (`.claude/agents/REQUIREMENTS.md`). See [CLAUDE.md](../CLAUDE.md) for invocation patterns.
 
 ## Templates
 

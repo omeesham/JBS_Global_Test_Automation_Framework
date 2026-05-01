@@ -1,11 +1,17 @@
 # SUBPLAN: Copilot Accountability Audit
 
-**Status**: PENDING
-**Priority**: P1 (before SP-02 consolidation — need blame clarity first)
+**Status**: SUPERSEDED
+**Executed**: 2026-04-27
+**Superseded by**: PLAN_CC_ANTHROPIC_ALIGNMENT.md (Phase 0 — Copilot evict; rules LR-030..LR-034 + ALL-030 graduated; verified DONE 2026-04-27; structural field added by 2026-04-28 supersession-integrity sweep)
+**Priority**: P1-CYCLE-2
 **Parent**: MASTER_REPO_CLEANUP
 **Created**: 2026-04-16
 **Absorbs**: PLAN_AUDIT_COPILOT.md (Copilot session paste from 2026-04-10)
 **Excludes**: website/, node_modules/ — out of scope per user directive.
+
+### Execution Summary
+
+Substance superseded by [PLAN_CC_ANTHROPIC_ALIGNMENT.md](PLAN_CC_ANTHROPIC_ALIGNMENT.md) Phase 0. The audit-Copilot-accountability premise ("prove our rules covered the gaps so we can't be blamed when Copilot fails again") is moot once Copilot is no longer part of our pipeline (SP1 Phase 0.3 deletes `.github/copilot-instructions.md` and the 6 `playwright-*.agent.md` files). The graduated rules from the 2026-04-10 Copilot session (LR-030..LR-034 + ALL-030 repeat-offense logging) remain in CLAUDE.md and protect future Claude / frontier-agent runs unchanged. No unique work remains.
 
 ---
 

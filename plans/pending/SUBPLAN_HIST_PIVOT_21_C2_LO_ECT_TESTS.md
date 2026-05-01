@@ -6,7 +6,7 @@
 > 2. **Skills**: load every skill in `**Skills**` field below (the leading skill auto-calls its chain — e.g. `/cleanup` → `/regression-guard`).
 > 3. **Model + thinking tier**: look up this subplan's SP number in `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` → Execution Order table. Use the specified Opus/Sonnet + think / think hard / think harder / ultrathink. If Phase 0 is present in Step-by-Step, bump thinking tier one notch higher than the table (forensic analysis needs judgment).
 > 4. **Dependency gate**: verify every item in `**Depends on**` field is marked DONE in `plans/done/` or not-applicable. If any blocker → HALT + report to user. Do not proceed.
-> 5. **Context load**: read `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` §1–§3 (pivot rationale + scope + per-identity KEEP/DELETE inventory) + this subplan in full.
+> 5. **Context load**: read `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` §1–§3 (pivot rationale + scope + per-identity KEEP/DELETE inventory) + `clients/encore/specs_planning/_internal/tc-authoring-rules.md` (MANDATORY — 4 authoring rules, Phase 0 grep, sweep obligation; installed by SP-L1 at `plans/done/SUBPLAN_HIST_PIVOT_42_L1_TC_AUTHORING_RULES.md`) + this subplan in full.
 > 6. **Phase 0 FIRST (if present in Step-by-Step)**: execute the "Phase 0 — Date-Forensic Self-Discovery" step before any code or doc edits. Document findings (with dispositions) in your activity-log row.
 > 7. **Execute Phases 1+** per Step-by-Step in order.
 > 8. **Handoff**: on success, apply the Handoff Signals block — set the file's Status field to DONE + Executed date in this file, append activity-log row (LR-028 + LR-037 wall-clock time ≥ mtime of every touched file), `git mv` this file to `plans/done/`, run `npm run plans:reindex`, commit (one commit per LR-027 boundary).
@@ -17,6 +17,7 @@
 > - Genuine ambiguity in scope beyond the master plan §3 KEEP list.
 > - `/regression-guard` diff shows changes unrelated to this subplan's stated scope.
 > - Activity-log preflight (`npm run validate:activity-log:preflight`) would fail for your row.
+> - This subplan edits any `clients/encore/specs_planning/test-cases/**/*.md` file AND the Phase 0 grep from `tc-authoring-rules.md` returns ANY hit (symbols, markdown-bold around UI labels, jargon in Expected, bug-descriptor phrases). Rewrite to compliance before saving; file BUG-*.json per LR-034 if a real defect is discovered. See SP-L1 §Sweep obligation for known leaks.
 
 ---
 
@@ -25,9 +26,12 @@
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 3 (Implementation)
 **Status**: Pending
-**Priority**: P0
+**Priority**: P1-CYCLE-2
 **Created**: 2026-04-20
 **Depends on**: SP-B-LO-R + SP-D0 complete
+**Model**: claude-sonnet-4-6
+**Thinking**: hi
+**PermissionMode**: auto
 **Identity**: BUILDER
 **Skills**: `/execute` + `/regression-guard` + `/find-bugs` + `/identity`
 **Estimated**: one session
@@ -57,6 +61,8 @@ Write per-column tests for ECT-rooted columns in the 42-col Local Office Setting
 ---
 
 ## Step-by-Step Execution
+
+> **[Phase 0] Old-site baseline check (LR-ENC-001 / ALL-078 — from SP-OSB-03, 2026-04-24)**: this module is **baseline-ABSENT** — ECT Settings is a new-site-only feature (old site has no ECT tab and no `/settings/local-office` page per `OSB-ACCESS-VERIFY-2026-04-24.md` §3). Record `baselineScope: baseline-absent` on the queue entry, cite OSB §3 as evidence in the Execution Summary under "Old-site baseline: consulted N — feature absent, see OSB-ACCESS-VERIFY-2026-04-24 §3", and flag for `/encore-questions` escalation if any behavior uncertainty remains. Do NOT HALT — baseline-absent is a valid closure path (ALL-078).
 
 1. `/identity BUILDER`.
 2. `/regression-guard` BEFORE.

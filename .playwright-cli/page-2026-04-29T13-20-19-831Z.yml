@@ -1,0 +1,25 @@
+- generic [ref=e6]:
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - img "Organization banner logo" [ref=e15]
+      - main [ref=e16]:
+        - generic [ref=e19]:
+          - heading "Sign in" [level=1] [ref=e23]
+          - generic [ref=e24]:
+            - alert
+            - generic [ref=e26]:
+              - textbox "username@psav.com" [active] [ref=e27]
+              - textbox [ref=e28]
+          - link "Can’t access your account?" [ref=e34] [cursor=pointer]:
+            - /url: "#"
+          - button "Next" [ref=e37] [cursor=pointer]
+          - paragraph [ref=e39]: Welcome to Encore!
+    - button "Sign-in options undefined" [ref=e45] [cursor=pointer]:
+      - generic [ref=e49]: Sign-in options
+  - contentinfo [ref=e50]:
+    - generic [ref=e51]:
+      - link "Terms of use" [ref=e52] [cursor=pointer]:
+        - /url: https://www.microsoft.com/en-US/servicesagreement/
+      - link "Privacy & cookies" [ref=e53] [cursor=pointer]:
+        - /url: https://privacy.microsoft.com/en-US/privacystatement
+      - button "Click here for troubleshooting information" [ref=e54] [cursor=pointer]: ...

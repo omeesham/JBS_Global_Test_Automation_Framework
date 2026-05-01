@@ -71,10 +71,10 @@ const STALE_SCAN_DIRS: { dir: string; extensions: string[] }[] = [
   { dir: 'tests', extensions: ['.ts'] },
 ];
 
-// Individual files to scan
-const STALE_SCAN_FILES: string[] = [
-  '.github/copilot-instructions.md',
-];
+// Individual files to scan (empty after Copilot eviction — original target deleted in
+// PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0; new sub-agent files at `.claude/agents/` use
+// @-references rather than embedded rule blocks so STALE_SCAN over them is unnecessary).
+const STALE_SCAN_FILES: string[] = [];
 
 // Paths to EXCLUDE from scan (historical records, plan documents).
 // Stored as repo-root-relative strings (forward slashes) — matched against the same form in scan logic.
@@ -198,35 +198,16 @@ function extractSyncBlock(content: string, markerId: string): string | null {
   return match ? match[1]!.trim() : null;
 }
 
-/** Map of SYNC marker IDs to their canonical source files (relative to project root). */
-const SYNC_MARKER_SOURCES: Record<string, { canonical: string; targets: string[] }> = {
-  'PIPELINE': {
-    canonical: '.github/copilot-instructions.md',
-    targets: [],  // copilot-instructions IS the canonical; no external targets synced yet
-  },
-  'COMMANDS': {
-    canonical: '.github/copilot-instructions.md',
-    targets: [],
-  },
-  'MCP_CRITICAL': {
-    canonical: 'docs/read_only_docs/MCP_BROWSER_GUIDE.md',
-    targets: ['.github/copilot-instructions.md'],
-  },
-  'NEVER_DO': {
-    canonical: '.github/copilot-instructions.md',
-    targets: [],  // NEVER DO sync is handled separately by sync:mistakes
-  },
-  'CONTEXT_LOAD': {
-    canonical: 'docs/read_only_docs/AGENT_SHARED_RULES.md',
-    targets: [
-      '.github/agents/playwright-requirements.agent.md',
-      '.github/agents/playwright-test-planner.agent.md',
-      '.github/agents/playwright-test-generator.agent.md',
-      '.github/agents/playwright-test-healer.agent.md',
-      '.github/agents/playwright-pipeline-audit.agent.md',
-    ],
-  },
-};
+/** Map of SYNC marker IDs to their canonical source files (relative to project root).
+ *
+ *  NOTE (PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0, 2026-04-27): the original PIPELINE / COMMANDS /
+ *  NEVER_DO / MCP_CRITICAL targets pointed at `.github/copilot-instructions.md` (deleted) and
+ *  the playwright-*.agent.md files (deleted). The map is now empty; the only remaining marker
+ *  worth tracking (CONTEXT_LOAD) is canonical-only — the new `.claude/agents/{ROLE}.md` files
+ *  use `@`-references to AGENT_SHARED_RULES.md instead of injected blocks, so there is nothing
+ *  to keep in sync. Re-population is deferred to a follow-up subplan.
+ */
+const SYNC_MARKER_SOURCES: Record<string, { canonical: string; targets: string[] }> = {};
 
 interface MarkerValidationResult {
   markerId: string;
@@ -291,13 +272,14 @@ function parseRuleSubsets(registryContent: string): Map<string, string[]> {
   return subsets;
 }
 
-/** Map agent keys from AGENT_RULES to agent file names. */
+/** Map agent keys from AGENT_RULES to sub-agent file basenames at `.claude/agents/`.
+ *  Repointed in PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0.1 (model-agnostic sub-agents). */
 const AGENT_KEY_TO_FILE: Record<string, string> = {
-  'requirements': 'playwright-requirements.agent.md',
-  'planner': 'playwright-test-planner.agent.md',
-  'generator': 'playwright-test-generator.agent.md',
-  'healer': 'playwright-test-healer.agent.md',
-  'audit': 'playwright-pipeline-audit.agent.md',
+  'requirements': 'REQUIREMENTS.md',
+  'planner': 'PLANNER.md',
+  'generator': 'GENERATOR.md',
+  'healer': 'HEALER.md',
+  'audit': 'AUDIT.md',
 };
 
 interface RuleSubsetResult {
@@ -371,16 +353,9 @@ function validateStageFlow(): { status: 'ok' | 'drift'; details: string[] } {
     return { status: 'drift', details: ['Could not parse stages from schema'] };
   }
 
-  // Check copilot-instructions stage flow line
-  const ciPath = frameworkPath(path.join('.github', 'copilot-instructions.md'));
-  if (fs.existsSync(ciPath)) {
-    const ciContent = fs.readFileSync(ciPath, 'utf-8');
-    for (const stage of canonicalStages) {
-      if (!ciContent.includes(stage)) {
-        details.push(`copilot-instructions.md missing stage: ${stage}`);
-      }
-    }
-  }
+  // (Removed) check of `.github/copilot-instructions.md` stage flow — file deleted in
+  // PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0.3 (Copilot eviction). Pipeline stage definitions
+  // now live in `config/pipeline-definition.json` and `.claude/agents/{ROLE}.md`.
 
   // Check AGENT_SHARED_RULES stage flow line
   const asrPath = frameworkPath(path.join('docs', 'read_only_docs', 'AGENT_SHARED_RULES.md'));
@@ -547,7 +522,7 @@ function main() {
   const results: ValidationResult[] = [];
   
   for (const [sectionName, agentFile] of Object.entries(AGENT_FILE_MAP)) {
-    if (agentFile === 'SKIP' || agentFile === 'copilot' || agentFile === 'ALL') continue;
+    if (agentFile === 'SKIP' || agentFile === 'ALL') continue;
     results.push(validateAgent(registryContent, sectionName, agentFile, sharedRules));
   }
   

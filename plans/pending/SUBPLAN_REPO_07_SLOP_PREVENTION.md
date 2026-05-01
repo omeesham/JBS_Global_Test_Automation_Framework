@@ -1,7 +1,7 @@
 # SUBPLAN: Slop Prevention Guardrails
 
 **Status**: PENDING
-**Priority**: P2
+**Priority**: P1-CYCLE-2
 **Parent**: MASTER_REPO_CLEANUP
 **Created**: 2026-04-16
 **Excludes**: website/, node_modules/ — out of scope per user directive.

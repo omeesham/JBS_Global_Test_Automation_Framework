@@ -1,8 +1,14 @@
 # SP-MT-06 — Execution Plan
 
-**Status**: READY FOR EXECUTION
+> **STALE — DO NOT EXECUTE** (annotated 2026-04-27, V0 APPEND cleanup from PLAN_CC_ANTHROPIC_ALIGNMENT V0-V11 verification)
+>
+> Authored 2026-04-17 to parameterize `.github/agents/*.agent.md` and `.github/copilot-instructions.md` so the same agent prompts could serve any client. The Copilot eviction work shipped instead — `.github/agents/` and `.github/copilot-instructions.md` were deleted (see `git status` head and `plans/done/PLAN_AUDIT_COPILOT.md`). The parent SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md is in `plans/done/` — the goal (decoupling agent prompts from Encore-specific hardcodes) is satisfied via deletion + Claude Code-native agents at `.claude/agents/*.agent.md`, not via parameterization of GitHub agents.
+>
+> All internal references below to `.github/agents/*` and `.github/copilot-instructions.md` are pointers to deleted files. Do not consume this plan for execution. Kept on disk as historical context for the SP-MT track.
+
+**Status**: STALE (do not execute)
 **Created**: 2026-04-17
-**Parent**: `plans/pending/SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md`
+**Parent**: `plans/done/SUBPLAN_MT_06_PARAMETERIZE_AGENTS.md`
 **Skill-composition plan**: `C:\Users\rutvi\.claude\plans\sp-mt-06-plan-then-execute-composed-barto.md`
 **Session override active** (Path A): covers `.github/agents/*.agent.md` free-form edits + `clients/encore/docs/REQUIREMENTS.md` appends.
 

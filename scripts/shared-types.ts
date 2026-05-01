@@ -229,16 +229,21 @@ export interface EscalationQueue {
 
 // ── Shared Constants ──
 
-/** Maps agent-mistakes.md section headers -> agent file names. */
+/**
+ * Maps agent-mistakes.md section headers -> sub-agent file basenames.
+ * Files live at `.claude/agents/<basename>` (model-agnostic per PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0.1).
+ * The legacy `Copilot` section keeps a SKIP value so historical agent-mistakes rows still parse;
+ * no Copilot file exists to sync into.
+ */
 export const AGENT_FILE_MAP: Record<string, string> = {
   'Shared': 'ALL',
-  'Copilot': 'copilot',
-  'Requirements': 'playwright-requirements.agent.md',
-  'Planner': 'playwright-test-planner.agent.md',
-  'Generator': 'playwright-test-generator.agent.md',
-  'Healer': 'playwright-test-healer.agent.md',
-  'Audit': 'playwright-pipeline-audit.agent.md',
-  'Framework Maintainer': 'playwright-framework-maintainer.agent.md',
+  'Copilot': 'SKIP',
+  'Requirements': 'REQUIREMENTS.md',
+  'Planner': 'PLANNER.md',
+  'Generator': 'GENERATOR.md',
+  'Healer': 'HEALER.md',
+  'Audit': 'AUDIT.md',
+  'Framework Maintainer': 'MAINTAINER.md',
   'Copilot Planning Mode': 'SKIP',
 };
 

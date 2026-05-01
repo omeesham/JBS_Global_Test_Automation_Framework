@@ -1,7 +1,7 @@
 # SUBPLAN: Dead Code & Reusability
 
 **Status**: PENDING
-**Priority**: P2
+**Priority**: P1-CYCLE-2
 **Parent**: MASTER_REPO_CLEANUP
 **Created**: 2026-04-16
 **Absorbs**: PLAN_CODEBASE_CLEANUP, PLAN_MAINTAINER_SWEEP (3 remaining items), PLAN_FULL_CHAIN_AUDIT (code quality findings)

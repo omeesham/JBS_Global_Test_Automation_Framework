@@ -27,6 +27,14 @@ export const SetupLegalSelectors = {
  /** @where Setup > Location > Legal tab @el table @text "Legal grid" @keys legal table grid rows columns */
   tblLegal: '[data-testid="location-settings-table-legal"]',
 
+ // ---- Column Headers ---- (added 2026-04-29 from Encore engineer Jira reply)
+ /** @where Setup > Location > Legal tab > Header @el label @text "Language Name" @keys column header language */
+  colHeaderLanguageName: '[data-testid="location-settings-table-legal-col-language-name"]',
+ /** @where Setup > Location > Legal tab > Header @el label @text "Service Charge Name" @keys column header service-charge */
+  colHeaderServiceChargeName: '[data-testid="location-settings-table-legal-col-service-charge-name"]',
+ /** @where Setup > Location > Legal tab > Header @el label @text "Terms and Conditions Name" @keys column header terms-and-conditions */
+  colHeaderTermsAndConditionsName: '[data-testid="location-settings-table-legal-col-terms-and-conditions-name"]',
+
  // ---- Service Charge Combobox (Row 0) ----
  /** @where Setup > Location > Legal tab > Row 0 @el combobox @text "Service Charge Name" @keys service charge dropdown select legal row0 */
   drpLegalServiceCharge0: '[data-testid="location-settings-select-legal-0-service-charge"]',

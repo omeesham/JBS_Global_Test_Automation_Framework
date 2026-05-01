@@ -23,11 +23,11 @@ export const SetupAccountAddressSelectors = {
  /** @where Setup > Location > Account and Address > Venue @el button @text "Name" @keys venue name open account-list dialog */
   btnAccName: '[data-testid="location-settings-btn-lookup-venue"]',
  /** @where Setup > Location > Account and Address > Venue @el input @text "Venue Name" @keys venue name disabled read-only */
-  txtAccVenueName: 'input[name="accountAndAddress.venueName"]',
+  txtAccVenueName: '[data-testid="location-settings-input-venue-name"]',
  /** @where Setup > Location > Account and Address > Venue @el button @text "Address" @keys venue address open select-address dialog first */
-  btnAccVenueAddress: '[data-testid="location-settings-sub-tab-content-account-and-address"] dt:has-text("Address") button',
+  btnAccVenueAddress: '[data-testid="location-settings-btn-venue-address"]',
  /** @where Setup > Location > Account and Address > Venue @el input @text "Phone 1" @keys phone1 contact required editable */
-  txtAccPhone1: 'input[name="accountAndAddress.contactPhone1"]',
+  txtAccPhone1: '[data-testid="location-settings-input-contact-phone-1"]',
  /** @where Setup > Location > Account and Address > Venue @el input @text "Phone 2" @keys phone2 contact optional editable @verified */
   txtAccPhone2: '[data-testid="location-settings-input-contact-phone-2"]',
 
@@ -37,11 +37,11 @@ export const SetupAccountAddressSelectors = {
 
  // ---- Master Bill To Address Card ----
  /** @where Setup > Location > Account and Address > Master @el button @text "Address" @keys master address open select-address dialog second */
-  btnAccMasterAddress: 'SCOPED_IN_PAGE_OBJECT',
+  btnAccMasterAddress: '[data-testid="location-settings-btn-master-address"]',
 
  // ---- Account List Dialog ----
  /** @where Setup > Location > Account List Dialog @el dialog @text "Account List" @keys account list search dialog modal */
-  dlgAccountList: '[role="dialog"]:has-text("Account List")',
+  dlgAccountList: '[data-testid="location-settings-modal-account-list"]',
  /** @where Setup > Location > Account List Dialog @el input @text "Account Number" @keys filter account-number search @verified */
   txtAccListAccountNumber: '[data-testid="location-settings-input-account-number"]',
  /** @where Setup > Location > Account List Dialog @el input @text "Account Name" @keys filter account-name search @verified */
@@ -63,13 +63,18 @@ export const SetupAccountAddressSelectors = {
  /** @where Setup > Location > Account List Dialog @el button @text "Cancel" @keys cancel close dismiss @verified */
   btnAccListCancel: '[data-testid="location-settings-btn-cancel-account-search"]',
  /** @where Setup > Location > Account List Dialog @el button @text "Close" @keys close x dismiss dialog */
-  btnAccListClose: '[role="dialog"]:has-text("Account List") button:has-text("Close")',
+ // PARTIAL FIX (2026-04-29): engineer added modal container testid; inner Close btn still text-scoped — defensively scoped inside container.
+  btnAccListClose: '[data-testid="location-settings-modal-account-list"] button:has-text("Close")',
  /** @where Setup > Location > Account List Dialog @el checkbox @text "Row Select" @keys row selection checkbox first */
-  chkAccListRowSelect: '[role="dialog"]:has-text("Account List") tbody tr:first-child td:first-child button[role="checkbox"]',
+  chkAccListRowSelect: '[data-testid="location-settings-modal-account-list"] tbody tr:first-child td:first-child button[role="checkbox"]',
  /** @where Setup > Location > Account List Dialog @el table @text "Results" @keys results grid table rows */
-  tblAccListResults: '[role="dialog"]:has-text("Account List") table',
+  tblAccListResults: '[data-testid="location-settings-modal-account-list"] table',
 
  // ---- Select Customer Address Dialog ----
+ // FIXME (OWNER 2026-04-29 evening): engineer claimed 6 testids for this dialog in Jira reply, but
+ // OWNER live-DOM walk verified ALL 6 are MISSING (containerHasTestid: false, innerTestids: [], only
+ // Radix internals data-state/data-slot present). Evidence: reports/testid-verification/myown-dlg-customer-address-2026-04-29.json.
+ // Reverted to role-based + text-match scope until engineer ships the testids.
  /** @where Setup > Location > Select Customer Address Dialog @el dialog @text "Select Customer Address" @keys address select dialog modal */
   dlgSelectAddress: '[role="dialog"]:has-text("Select Customer Address")',
  /** @where Setup > Location > Select Customer Address Dialog @el input @text "Search..." @keys search filter address client-side */
@@ -91,5 +96,9 @@ export const SetupAccountAddressSelectors = {
 
  // ---- Save Changes Dialog (message text -- supplements shared.ts) ----
  /** @where Setup > Location > Save Changes Dialog @el paragraph @text "Are you sure" @keys save confirmation message text */
+ // FIXME (OWNER 2026-04-29 evening): engineer claimed location-settings-modal-save-changes container,
+ // but OWNER walk verified containerTestid: null (only Radix data-state/data-slot present).
+ // Evidence: reports/testid-verification/myown-dlg-save-changes-2026-04-29.json.
+ // Reverted to role-based scope until engineer ships the container testid.
   txtSaveChangesMessage: '[role="alertdialog"]:has-text("Save Changes") p',
 } as const;

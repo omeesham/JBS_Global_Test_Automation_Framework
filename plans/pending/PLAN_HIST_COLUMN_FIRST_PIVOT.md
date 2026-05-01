@@ -23,7 +23,7 @@
 **Location**: `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` (this file)
 **Created**: 2026-04-20
 **Status**: Pending
-**Priority**: P0 (client delivery — supersedes every in-flight HIST plan)
+**Priority**: P1-CYCLE-2
 
 ---
 
@@ -76,6 +76,7 @@ Subplans are numbered `SUBPLAN_HIST_PIVOT_01_*` → `SUBPLAN_HIST_PIVOT_40_*`. P
 | 38 | SP-J — Final cross-pivot audit | 5 | /audit | **Opus** | **ultrathink** |
 | 39 | SP-K1 — Framework rules sweep | 6 | /audit | Sonnet | think hard |
 | 40 | SP-K2 — Agent prompts sweep | 6 | /audit | Sonnet | think hard |
+| 42 | SP-L1 — TC Authoring Rules install & propagate (installed 2026-04-22, see plans/done/) | 0 (Prerequisite) | /execute | Opus | think hard |
 
 **Rule of thumb**:
 - **Opus + ultrathink**: MCP live-DOM catalog sessions + final adversarial audit (12 subplans — sessions 05–17, 38).
@@ -92,6 +93,7 @@ Subplans are numbered `SUBPLAN_HIST_PIVOT_01_*` → `SUBPLAN_HIST_PIVOT_40_*`. P
 - **Group 4 (33–34)** — Infrastructure: anomaly logging + auto-filer scaffold (dry-run). Closes the loop from spec failure → bug candidate.
 - **Group 5 (35–38)** — Bug filing + final audit: gated LR-034 filings + WATCHDOG acceptance gate.
 - **Group 6 (39–40)** — Sanity sweep: confirm no framework rules or agent prompts still endorse old pattern. Low priority, non-blocking.
+- **Group 0 (42)** — Prerequisite (installed 2026-04-22): SP-L1 TC Authoring Rules. Already DONE — patches baked into SP-C1/C2, SP-D1–D10, SP-J. Every Group-3 subplan's bootstrap now loads `clients/encore/specs_planning/_internal/tc-authoring-rules.md`; every Group-3 HALT block gates on Phase 0 grep cleanliness; SP-J checklist item #23 audits TC MDs for forbidden patterns.
 
 ---
 
@@ -677,3 +679,30 @@ To save downstream execution-agent time. Forcing the decision at the subplan-lev
 ## UPDATE #3 (2026-04-22) — LR-040 graduation (append-only)
 
 SP-B-LM-2 premature-DONE incident graduated **LR-040** (root CLAUDE.md) — subplan closure completeness gate. Every remaining SP-B-*, SP-C-*, SP-D-* must classify gaps as (a) MCP-proven / (b) grep-verifiable recipient / (c) user-flagged discussion-item or bug-candidate. Full context: `plans/done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md`.
+
+---
+
+## UPDATE #4 (2026-04-22) — TC Authoring Rules installed (SP-L1, append-only)
+
+Two reviewer-feedback incidents in two days landed TCs that leaked into client delivery:
+- **2026-04-21** — Formatting leaks: tick/check symbols (`✓`) as step-result separators, markdown bold around UI labels (`**Basic Information**`), jargon in Expected Results (`tabpanel renders`, `DataTable`).
+- **2026-04-22** — Bug-descriptor leaks: [TC-LOC-MGH-002](../../clients/encore/specs_planning/test-cases/setup/locations/locations_management_history_test_cases.md:118) Step 4 reads `(known bug — not translated)`; [TC-LOC-MGH-038](../../clients/encore/specs_planning/test-cases/setup/locations/locations_management_history_test_cases.md:305) is an entire TC authored to assert a buggy state (`bugBehavior=untranslated i18n key rendered`).
+
+Root cause: no existing subplan carried TC-authoring hygiene rules. Authoring agents emitted "agent voice" TC text instead of "reviewer voice."
+
+### What SP-L1 installed
+- **Canonical rules doc**: [clients/encore/specs_planning/_internal/tc-authoring-rules.md](../../clients/encore/specs_planning/_internal/tc-authoring-rules.md) — 4 rules (no symbols, no markdown bold around UI labels, simple descriptive English in Expected, no bug-descriptor language), Phase 0 grep inventory, sweep obligation, known-leak inventory, scope exclusions, graduation path to LR-041.
+- **Subplan record**: [plans/done/SUBPLAN_HIST_PIVOT_42_L1_TC_AUTHORING_RULES.md](../done/SUBPLAN_HIST_PIVOT_42_L1_TC_AUTHORING_RULES.md) — full Execution Summary per LR-027; DONE-in-done (direct install, no pending cycle).
+- **Bootstrap patches** to every TC-authoring subplan (SP-C1, SP-C2, SP-D1–D10): Context-load step 5 now loads `tc-authoring-rules.md`; HALT block now gates on Phase 0 grep returning zero hits.
+- **SP-D1 template-carry obligation**: the hist-spec-template the Currency subplan extracts now carries a `## TC Authoring Rules` section referencing the rules doc. SP-D2–D10 inherit by copy.
+- **SP-J audit gate**: new checklist item #23 ("TC authoring rules — client-visible text hygiene") runs the 4 grep patterns across `clients/encore/specs_planning/test-cases/**/*.md`. Any hit = audit failure.
+
+### Downstream effect on Group-3 execution
+- Every Group-3 subplan now HALTs if its produced TC MDs contain symbols, bold around UI labels, jargon in Expected, or bug-descriptor phrases.
+- Sweep obligation: if a Group-3 subplan touches an existing TC MD that already contains leaked language (e.g. `locations_management_history_test_cases.md` lines 38, 127, 129, 305–317), the subplan owns filing the missing BUG-*.json (BUG-HIS-CDWNA-001 currently unfiled for the CalcDamageWaiverOnNetAmount i18n gap) and rewriting the offending TC(s) before moving to DONE.
+
+### Why this is UPDATE-only (not a new Group in §6)
+The rules doc is authoritative; the patches are already baked into every downstream subplan's bootstrap. No per-subplan re-deliberation needed. This UPDATE block is the audit trail, not the enforcement mechanism — enforcement is embedded at the point of action in each subplan, per `feedback_embed_not_reference.md`.
+
+### Graduation path
+When the 4 rules have survived 3+ Group-3 subplan executions without new leak discoveries, SP-K1 graduates them to **LR-041** in root `CLAUDE.md` (framework-level TC authoring hygiene). Until then, `tc-authoring-rules.md` is the single source of truth.

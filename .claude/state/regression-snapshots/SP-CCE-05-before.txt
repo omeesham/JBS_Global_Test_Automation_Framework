@@ -1,0 +1,6 @@
+  158 .claude/hooks/chain-orchestrator.sh
+   45 .claude/hooks/chain-pause-notice.sh
+  162 .claude/hooks/lib/parse-verdict.mjs
+   84 .claude/settings.json
+  170 .claude/settings.local.json
+  619 total

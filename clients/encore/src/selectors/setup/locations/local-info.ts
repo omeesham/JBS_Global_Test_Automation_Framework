@@ -97,7 +97,7 @@ export const SetupLocalInfoSelectors = {
 
  // ---- Additional Fields ----
  /** @where Setup > Location > Local Information tab @el datepicker @text "Effective Date" @keys effective-date calendar popover */
-  btnEffectiveDate: 'dt:has-text("Effective Date") + dd button',
+  btnEffectiveDate: '[data-testid="location-settings-btn-effective-date"]',
  /** @where Setup > Location > Local Information tab @el dropdown @text "Billing Cycle" @keys billing-cycle combobox */
   drpBillingCycle: '[data-testid="location-settings-select-billing-cycle"]',
  /** @where Setup > Location > Local Information tab @el checkbox @text "Warehouse Billing" @keys warehouse billing toggle */

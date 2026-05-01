@@ -2,7 +2,8 @@
 name: deploy
 description: Deployment pipeline — type check, build, regression guard, code review, commit, push. Use when ready to ship, say "deploy", "push to prod", "ship it", "go live".
 user-invocable: true
-auto-calls: regression-guard, review
+disable-model-invocation: true
+auto-calls: identity, regression-guard, review
 tools: Read, Bash, Glob, Grep, Agent
 ---
 
@@ -107,3 +108,15 @@ Ask user to confirm the commit message before committing.
 ### Post-Deploy
 - CURRENT_STATE.md: [updated / skipped]
 ```
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

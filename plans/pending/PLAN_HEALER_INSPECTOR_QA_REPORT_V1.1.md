@@ -4,6 +4,7 @@
 > **Relationship:** Extends the bug hunting rulebook with healer-specific inspector logic, QA report generation, and confirmation workflow.
 
 **Status**: PENDING (READY FOR DEV)
+**Priority**: P2-CYCLE-3
 **Scope:** Healer agent only. Self-contained HTML report as CI/git artifact. No website deployment, no server required.
 **Delivery format:** `REPORT.html` (primary, self-contained) + `REPORT_SUMMARY.md` (text contexts) + `metadata.json` + filtered artifact copies.
 **Phase:** A (this document). B/D roadmap at end.

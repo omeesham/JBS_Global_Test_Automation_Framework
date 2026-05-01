@@ -93,6 +93,7 @@ Current selector analysis: 82% data-testid, 18% exceptions (SSO login external, 
 ### FIX-4: Compile-time safety for disposition mapping (already done!)
 
 **Status**: `BUG_HUNT_TO_DISPOSITION` is typed as `Record<BugHuntCategory, TriageDisposition>` — TypeScript already enforces that every enum value is mapped at compile time. Adding a new `BugHuntCategory` without updating the mapping = TS error.
+**Priority**: P2-CYCLE-3
 
 **No work needed.** MISS-3 from the audit was wrong about the mapping being incomplete.
 

@@ -1,0 +1,102 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e7]:
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - button [ref=e11] [cursor=pointer]:
+            - img [ref=e15]
+      - generic [ref=e21]:
+        - list [ref=e23]:
+          - listitem [ref=e24]:
+            - link "Home" [ref=e25] [cursor=pointer]:
+              - /url: /navigator/locations//home
+              - img [ref=e26]
+              - generic [ref=e29]: Home
+          - listitem [ref=e30]:
+            - link "Inbox" [ref=e31] [cursor=pointer]:
+              - /url: /navigator/locations//inbox
+              - img [ref=e32]
+              - generic [ref=e35]: Inbox
+          - listitem [ref=e36]:
+            - button "Actions" [ref=e37] [cursor=pointer]:
+              - img [ref=e38]
+              - generic [ref=e40]: Actions
+              - img [ref=e41]
+          - listitem [ref=e43]:
+            - button "Commissions" [ref=e44] [cursor=pointer]:
+              - img [ref=e45]
+              - generic [ref=e47]: Commissions
+              - img [ref=e48]
+          - listitem [ref=e50]:
+            - button "Tax" [ref=e51] [cursor=pointer]:
+              - img [ref=e52]
+              - generic [ref=e55]: Tax
+              - img [ref=e56]
+          - listitem [ref=e58]:
+            - button "Setup" [ref=e59] [cursor=pointer]:
+              - img [ref=e60]
+              - generic [ref=e63]: Setup
+              - img [ref=e64]
+          - listitem [ref=e66]:
+            - button "Studio" [ref=e67] [cursor=pointer]:
+              - img [ref=e68]
+              - generic [ref=e70]: Studio
+              - img [ref=e71]
+        - generic [ref=e73]:
+          - generic [ref=e74]: Search
+          - list [ref=e76]:
+            - listitem [ref=e77]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=e78]:
+              - link "Job Search" [ref=e79] [cursor=pointer]:
+                - /url: /navigator/locations//fulfillments
+                - img [ref=e80]
+                - generic [ref=e83]: Job Search
+            - listitem [ref=e84]:
+              - link "Asset Search" [ref=e85] [cursor=pointer]:
+                - /url: /navigator/locations//assets
+                - img [ref=e86]
+                - generic [ref=e89]: Asset Search
+            - listitem [ref=e90]:
+              - link "Customer Search" [ref=e91] [cursor=pointer]:
+                - /url: /navigator/locations//customers
+                - img [ref=e92]
+                - generic [ref=e95]: Customer Search
+            - listitem [ref=e96]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e97]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e98]:
+              - link "Item Search" [ref=e99] [cursor=pointer]:
+                - /url: /navigator/locations//products
+                - img [ref=e100]
+                - generic [ref=e110]: Item Search
+            - listitem [ref=e111]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e112]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e114]:
+          - listitem [ref=e115]:
+            - button "Navigator Assistant" [ref=e116] [cursor=pointer]:
+              - img [ref=e117]
+              - generic [ref=e119]: Navigator Assistant
+      - list [ref=e122]:
+        - listitem [ref=e123]:
+          - button "RK Rutvik Khosariya" [ref=e124] [cursor=pointer]:
+            - generic [ref=e126]: RK
+            - generic [ref=e128]: Rutvik Khosariya
+            - img [ref=e129]
+      - button "Click to restore sidebar" [ref=e133]
+    - main [ref=e134]
+  - region "Notifications alt+T"

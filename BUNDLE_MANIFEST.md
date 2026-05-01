@@ -87,7 +87,7 @@ These four scripts are referenced by client-facing npm commands (`clean`, `clean
 | Path | Why excluded |
 |------|-------------|
 | `.claude/**` | Claude Code agent configuration; not needed to run tests |
-| `.github/**` | GitHub Actions, Copilot instructions; not needed |
+| `.github/**` | GitHub Actions; not needed |
 | `plans/**` | Agent planning artifacts |
 | `docs/**` (root) | Framework documentation; no runtime imports |
 | `website/**` | SaaS frontend/backend; completely separate codebase |

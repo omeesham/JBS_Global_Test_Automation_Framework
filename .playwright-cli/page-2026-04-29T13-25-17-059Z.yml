@@ -1,0 +1,985 @@
+- generic [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e21]:
+      - list [ref=e23]:
+        - listitem [ref=e24]:
+          - button "1604 Parker Palm Springs" [ref=e25] [cursor=pointer]:
+            - generic [ref=e27]: "1604"
+            - generic [ref=e28]:
+              - generic [ref=e29]: Parker Palm Springs
+              - img [ref=e30]
+      - generic [ref=e36]:
+        - list [ref=e38]:
+          - listitem [ref=e39]:
+            - link "Home" [ref=e40] [cursor=pointer]:
+              - /url: /navigator/locations/1604/home
+              - img [ref=e41]
+              - generic [ref=e44]: Home
+          - listitem [ref=e45]:
+            - link "Inbox" [ref=e46] [cursor=pointer]:
+              - /url: /navigator/locations/1604/inbox
+              - img [ref=e47]
+              - generic [ref=e50]: Inbox
+          - listitem [ref=e51]:
+            - button "Actions" [ref=e52] [cursor=pointer]:
+              - img [ref=e53]
+              - generic [ref=e55]: Actions
+              - img [ref=e56]
+          - listitem [ref=e58]:
+            - button "Commissions" [ref=e59] [cursor=pointer]:
+              - img [ref=e60]
+              - generic [ref=e62]: Commissions
+              - img [ref=e63]
+          - listitem [ref=e65]:
+            - button "Tax" [ref=e66] [cursor=pointer]:
+              - img [ref=e67]
+              - generic [ref=e70]: Tax
+              - img [ref=e71]
+          - listitem [ref=e73]:
+            - button "Setup" [ref=e74] [cursor=pointer]:
+              - img [ref=e75]
+              - generic [ref=e78]: Setup
+              - img [ref=e79]
+          - listitem [ref=e81]:
+            - button "Studio" [ref=e82] [cursor=pointer]:
+              - img [ref=e83]
+              - generic [ref=e85]: Studio
+              - img [ref=e86]
+        - generic [ref=e88]:
+          - generic [ref=e89]: Search
+          - list [ref=e91]:
+            - listitem [ref=e92]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=e93]:
+              - link "Job Search" [ref=e94] [cursor=pointer]:
+                - /url: /navigator/locations/1604/fulfillments
+                - img [ref=e95]
+                - generic [ref=e98]: Job Search
+            - listitem [ref=e99]:
+              - link "Asset Search" [ref=e100] [cursor=pointer]:
+                - /url: /navigator/locations/1604/assets
+                - img [ref=e101]
+                - generic [ref=e104]: Asset Search
+            - listitem [ref=e105]:
+              - link "Customer Search" [ref=e106] [cursor=pointer]:
+                - /url: /navigator/locations/1604/customers
+                - img [ref=e107]
+                - generic [ref=e110]: Customer Search
+            - listitem [ref=e111]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e112]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e113]:
+              - link "Item Search" [ref=e114] [cursor=pointer]:
+                - /url: /navigator/locations/1604/products
+                - img [ref=e115]
+                - generic [ref=e125]: Item Search
+            - listitem [ref=e126]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e127]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e129]:
+          - listitem [ref=e130]:
+            - button "Navigator Assistant" [ref=e131] [cursor=pointer]:
+              - img [ref=e132]
+              - generic [ref=e134]: Navigator Assistant
+      - list [ref=e137]:
+        - listitem [ref=e138]:
+          - button "RK Rutvik Khosariya" [ref=e139] [cursor=pointer]:
+            - generic [ref=e141]: RK
+            - generic [ref=e143]: Rutvik Khosariya
+            - img [ref=e144]
+      - button "Click to restore sidebar" [ref=e148]
+    - main [ref=e149]:
+      - generic [ref=e152]:
+        - generic [ref=e154]:
+          - button "trigger-button" [ref=e155] [cursor=pointer]:
+            - img
+          - generic [ref=e157]:
+            - heading "Location Settings" [level=1] [ref=e159]
+            - button "More information" [ref=e160]:
+              - img [ref=e161]
+        - generic [ref=e165]:
+          - tablist [ref=e166]:
+            - tab "Basic Information" [selected] [ref=e167] [cursor=pointer]:
+              - generic [ref=e168]:
+                - img [ref=e169]
+                - text: Basic Information
+            - tab "Location Management History" [ref=e172] [cursor=pointer]:
+              - generic [ref=e173]:
+                - img [ref=e174]
+                - text: Location Management History
+          - tabpanel "Basic Information" [ref=e178]:
+            - generic [ref=e179]:
+              - generic [ref=e187]:
+                - generic [ref=e188]:
+                  - button "Save" [disabled]
+                - generic [ref=e189]:
+                  - generic [ref=e190]:
+                    - generic [ref=e191]: Office
+                    - textbox "Office" [disabled]:
+                      - /placeholder: No office available
+                      - text: "1604"
+                  - generic [ref=e192]:
+                    - generic [ref=e193]: Local Office
+                    - generic [ref=e194]:
+                      - textbox "Local Office" [disabled]: "1604"
+                  - generic [ref=e195]:
+                    - generic [ref=e196]: Local Office Name
+                    - textbox "Local Office Name" [ref=e198]: Parker Palm Springs
+                  - generic [ref=e199]:
+                    - generic [ref=e200]: Active
+                    - checkbox "Active" [checked] [ref=e201] [cursor=pointer]:
+                      - generic:
+                        - img
+                  - generic [ref=e202]:
+                    - generic [ref=e203]: Live Date
+                    - button "Open popover" [ref=e204] [cursor=pointer]:
+                      - img
+                      - text: November 4th, 2005
+                  - generic [ref=e205]:
+                    - generic [ref=e206]: Tax Mode
+                    - combobox [ref=e629] [cursor=pointer]:
+                      - generic: US
+                      - img
+                  - generic [ref=e209]:
+                    - generic [ref=e210]: Country
+                    - combobox [ref=e630] [cursor=pointer]:
+                      - generic: United States
+                      - img
+                  - generic [ref=e214]:
+                    - generic [ref=e215]: Region
+                    - combobox [ref=e631] [cursor=pointer]:
+                      - generic: Palm Springs
+                      - img
+                  - generic [ref=e219]:
+                    - generic [ref=e220]: Servicing Branch Office
+                    - combobox [ref=e221] [cursor=pointer]:
+                      - generic: Select Servicing Branch Office
+                      - img
+                  - generic [ref=e222]:
+                    - generic [ref=e223]: Line Of Business
+                    - combobox [disabled] [ref=e225]:
+                      - generic: Hotel Services Division
+                      - img
+                  - generic [ref=e226]:
+                    - generic [ref=e227] [cursor=pointer]: Pay To Address
+                    - generic [ref=e228]:
+                      - textbox "Pay To Address" [disabled]: Encore
+                  - generic [ref=e229]:
+                    - generic [ref=e230]: Union
+                    - checkbox "Union" [ref=e231] [cursor=pointer]
+                  - generic [ref=e232]:
+                    - generic [ref=e233]: eCommerce Active
+                    - checkbox "eCommerce Active" [checked] [disabled] [ref=e234]:
+                      - generic:
+                        - img
+                  - generic [ref=e235]:
+                    - generic [ref=e236]: Enable Productions Orders
+                    - checkbox "Enable Productions Orders" [checked] [disabled] [ref=e237]:
+                      - generic:
+                        - img
+              - generic [ref=e239]:
+                - tablist [ref=e240]:
+                  - tab "Local Information" [ref=e241] [cursor=pointer]:
+                    - generic [ref=e242]:
+                      - img [ref=e243]
+                      - text: Local Information
+                  - tab "Currency" [ref=e246] [cursor=pointer]:
+                    - generic [ref=e247]:
+                      - img [ref=e248]
+                      - text: Currency
+                  - tab "Pricing" [active] [selected] [ref=e251] [cursor=pointer]:
+                    - generic [ref=e252]:
+                      - img [ref=e253]
+                      - text: Pricing
+                  - tab "Account and Address" [ref=e257] [cursor=pointer]:
+                    - generic [ref=e258]:
+                      - img [ref=e259]
+                      - text: Account and Address
+                  - tab "Legal" [ref=e262] [cursor=pointer]:
+                    - generic [ref=e263]:
+                      - img [ref=e264]
+                      - text: Legal
+                  - tab "Notes" [ref=e268] [cursor=pointer]:
+                    - generic [ref=e269]:
+                      - img [ref=e270]
+                      - text: Notes
+                  - tab "Shared Setup Locations" [ref=e273] [cursor=pointer]:
+                    - generic [ref=e274]:
+                      - img [ref=e275]
+                      - text: Shared Setup Locations
+                  - tab "Auto Add-On" [ref=e278] [cursor=pointer]:
+                    - generic [ref=e279]:
+                      - img [ref=e280]
+                      - text: Auto Add-On
+                - tabpanel "Pricing" [ref=e673]:
+                  - generic [ref=e676]:
+                    - region "Pricing settings" [ref=e678]:
+                      - paragraph [ref=e680]: Corporate Pricing
+                      - generic [ref=e681]:
+                        - generic [ref=e682]:
+                          - generic [ref=e683]: Corporate Pricing
+                          - checkbox [checked] [ref=e686] [cursor=pointer]:
+                            - generic:
+                              - img
+                        - generic [ref=e687]:
+                          - generic [ref=e688]: Include Service Fee in Price Guides
+                          - checkbox [checked] [ref=e691] [cursor=pointer]:
+                            - generic:
+                              - img
+                        - generic [ref=e692]:
+                          - generic [ref=e693]: Currency
+                          - combobox [ref=e697] [cursor=pointer]:
+                            - generic: All
+                            - img
+                        - generic [ref=e699]:
+                          - generic [ref=e700]: USD
+                          - generic [ref=e701]:
+                            - generic [ref=e702]:
+                              - generic [ref=e703]: Primary Labor Pricing
+                              - combobox "Open popover" [ref=e707] [cursor=pointer]:
+                                - generic [ref=e708]: 2022-LB_WDW_Quote
+                                - img
+                            - generic [ref=e709]:
+                              - generic [ref=e710]: Primary Equipment Pricing
+                              - combobox "Open popover" [ref=e714] [cursor=pointer]:
+                                - generic [ref=e715]: 2021-Tier 3 Urban A
+                                - img
+                            - generic [ref=e716]:
+                              - generic [ref=e717]: Primary Internal Equipment Pricing
+                              - combobox "Open popover" [ref=e721] [cursor=pointer]:
+                                - generic [ref=e722]: 2023-Internal1
+                                - img
+                            - generic [ref=e723]:
+                              - generic [ref=e724]: Primary Production Labor Pricing
+                              - combobox "Open popover" [ref=e728] [cursor=pointer]:
+                                - generic [ref=e729]: 2022-NP LB1
+                                - img
+                            - generic [ref=e730]:
+                              - generic [ref=e731]: Primary Production Equip. Pricing
+                              - combobox "Open popover" [ref=e735] [cursor=pointer]:
+                                - generic [ref=e736]: 2022-NP Tier 1
+                                - img
+                    - button "Collapse pricing settings panel" [ref=e738] [cursor=pointer]:
+                      - img
+                    - generic [ref=e739]:
+                      - generic [ref=e740]:
+                        - paragraph [ref=e741]: Location Secondary Pricing
+                        - button "Column options" [ref=e743] [cursor=pointer]:
+                          - img
+                          - generic [ref=e744]: Column options
+                      - table [ref=e747]:
+                        - rowgroup [ref=e748]:
+                          - row "Pricing Strategy Pricebook Currency Is Alternate Use Effective Dates Start Date End Date" [ref=e749]:
+                            - columnheader "Pricing Strategy" [ref=e750]:
+                              - generic [ref=e753] [cursor=pointer]: Pricing Strategy
+                            - columnheader "Pricebook" [ref=e755]:
+                              - generic [ref=e758] [cursor=pointer]: Pricebook
+                            - columnheader "Currency" [ref=e760]:
+                              - generic [ref=e763] [cursor=pointer]: Currency
+                            - columnheader "Is Alternate" [ref=e765]:
+                              - generic [ref=e768] [cursor=pointer]: Is Alternate
+                            - columnheader "Use Effective Dates" [ref=e770]:
+                              - generic [ref=e773] [cursor=pointer]: Use Effective Dates
+                            - columnheader "Start Date" [ref=e775]:
+                              - generic [ref=e778] [cursor=pointer]: Start Date
+                            - columnheader "End Date" [ref=e780]:
+                              - generic [ref=e783] [cursor=pointer]: End Date
+                        - rowgroup [ref=e785]:
+                          - row "2021-Tier 3 Urban A 2021-PB6 USD Open popover Open popover" [ref=e786]:
+                            - cell "2021-Tier 3 Urban A" [ref=e787]:
+                              - generic "2021-Tier 3 Urban A" [ref=e788]
+                            - cell "2021-PB6" [ref=e789]:
+                              - generic "2021-PB6" [ref=e790]
+                            - cell "USD" [ref=e791]
+                            - cell [ref=e792]:
+                              - checkbox [ref=e793] [cursor=pointer]
+                            - cell [ref=e794]:
+                              - checkbox [disabled] [ref=e795]
+                            - cell "Open popover" [ref=e796]:
+                              - generic [ref=e798]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e799]:
+                              - generic [ref=e801]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-eCommerce 2022-PB8 USD Open popover Open popover" [ref=e802]:
+                            - cell "2022-eCommerce" [ref=e803]:
+                              - generic "2022-eCommerce" [ref=e804]
+                            - cell "2022-PB8" [ref=e805]:
+                              - generic "2022-PB8" [ref=e806]
+                            - cell "USD" [ref=e807]
+                            - cell [ref=e808]:
+                              - checkbox [ref=e809] [cursor=pointer]
+                            - cell [ref=e810]:
+                              - checkbox [disabled] [ref=e811]
+                            - cell "Open popover" [ref=e812]:
+                              - generic [ref=e814]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e815]:
+                              - generic [ref=e817]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-LB_WDW_Quote LB_WDW_Quote USD Open popover Open popover" [ref=e818]:
+                            - cell "2022-LB_WDW_Quote" [ref=e819]:
+                              - generic "2022-LB_WDW_Quote" [ref=e820]
+                            - cell "LB_WDW_Quote" [ref=e821]:
+                              - generic "LB_WDW_Quote" [ref=e822]
+                            - cell "USD" [ref=e823]
+                            - cell [ref=e824]:
+                              - checkbox [ref=e825] [cursor=pointer]
+                            - cell [ref=e826]:
+                              - checkbox [disabled] [ref=e827]
+                            - cell "Open popover" [ref=e828]:
+                              - generic [ref=e830]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e831]:
+                              - generic [ref=e833]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-NP LB1 2022-LB5 USD Open popover Open popover" [ref=e834]:
+                            - cell "2022-NP LB1" [ref=e835]:
+                              - generic "2022-NP LB1" [ref=e836]
+                            - cell "2022-LB5" [ref=e837]:
+                              - generic "2022-LB5" [ref=e838]
+                            - cell "USD" [ref=e839]
+                            - cell [ref=e840]:
+                              - checkbox [ref=e841] [cursor=pointer]
+                            - cell [ref=e842]:
+                              - checkbox [disabled] [ref=e843]
+                            - cell "Open popover" [ref=e844]:
+                              - generic [ref=e846]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e847]:
+                              - generic [ref=e849]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-NP LB2 2022-LB8 USD Open popover Open popover" [ref=e850]:
+                            - cell "2022-NP LB2" [ref=e851]:
+                              - generic "2022-NP LB2" [ref=e852]
+                            - cell "2022-LB8" [ref=e853]:
+                              - generic "2022-LB8" [ref=e854]
+                            - cell "USD" [ref=e855]
+                            - cell [ref=e856]:
+                              - checkbox [ref=e857] [cursor=pointer]
+                            - cell [ref=e858]:
+                              - checkbox [disabled] [ref=e859]
+                            - cell "Open popover" [ref=e860]:
+                              - generic [ref=e862]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e863]:
+                              - generic [ref=e865]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-NP LB3 2022-LB13 USD Open popover Open popover" [ref=e866]:
+                            - cell "2022-NP LB3" [ref=e867]:
+                              - generic "2022-NP LB3" [ref=e868]
+                            - cell "2022-LB13" [ref=e869]:
+                              - generic "2022-LB13" [ref=e870]
+                            - cell "USD" [ref=e871]
+                            - cell [ref=e872]:
+                              - checkbox [ref=e873] [cursor=pointer]
+                            - cell [ref=e874]:
+                              - checkbox [disabled] [ref=e875]
+                            - cell "Open popover" [ref=e876]:
+                              - generic [ref=e878]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e879]:
+                              - generic [ref=e881]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-NP Tier 1 2022-NP Tier 1 USD Open popover Open popover" [ref=e882]:
+                            - cell "2022-NP Tier 1" [ref=e883]:
+                              - generic "2022-NP Tier 1" [ref=e884]
+                            - cell "2022-NP Tier 1" [ref=e885]:
+                              - generic "2022-NP Tier 1" [ref=e886]
+                            - cell "USD" [ref=e887]
+                            - cell [ref=e888]:
+                              - checkbox [ref=e889] [cursor=pointer]
+                            - cell [ref=e890]:
+                              - checkbox [disabled] [ref=e891]
+                            - cell "Open popover" [ref=e892]:
+                              - generic [ref=e894]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e895]:
+                              - generic [ref=e897]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-NP Tier 2 2022-NP Tier 2 USD Open popover Open popover" [ref=e898]:
+                            - cell "2022-NP Tier 2" [ref=e899]:
+                              - generic "2022-NP Tier 2" [ref=e900]
+                            - cell "2022-NP Tier 2" [ref=e901]:
+                              - generic "2022-NP Tier 2" [ref=e902]
+                            - cell "USD" [ref=e903]
+                            - cell [ref=e904]:
+                              - checkbox [ref=e905] [cursor=pointer]
+                            - cell [ref=e906]:
+                              - checkbox [disabled] [ref=e907]
+                            - cell "Open popover" [ref=e908]:
+                              - generic [ref=e910]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e911]:
+                              - generic [ref=e913]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-NP Tier 3 2022-NP Tier 3 USD Open popover Open popover" [ref=e914]:
+                            - cell "2022-NP Tier 3" [ref=e915]:
+                              - generic "2022-NP Tier 3" [ref=e916]
+                            - cell "2022-NP Tier 3" [ref=e917]:
+                              - generic "2022-NP Tier 3" [ref=e918]
+                            - cell "USD" [ref=e919]
+                            - cell [ref=e920]:
+                              - checkbox [ref=e921] [cursor=pointer]
+                            - cell [ref=e922]:
+                              - checkbox [disabled] [ref=e923]
+                            - cell "Open popover" [ref=e924]:
+                              - generic [ref=e926]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e927]:
+                              - generic [ref=e929]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Stand-Alone Virtual LB_US 2022-LB12 USD Open popover Open popover" [ref=e930]:
+                            - cell "2022-Stand-Alone Virtual LB_US" [ref=e931]:
+                              - generic "2022-Stand-Alone Virtual LB_US" [ref=e932]
+                            - cell "2022-LB12" [ref=e933]:
+                              - generic "2022-LB12" [ref=e934]
+                            - cell "USD" [ref=e935]
+                            - cell [ref=e936]:
+                              - checkbox [ref=e937] [cursor=pointer]
+                            - cell [ref=e938]:
+                              - checkbox [disabled] [ref=e939]
+                            - cell "Open popover" [ref=e940]:
+                              - generic [ref=e942]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e943]:
+                              - generic [ref=e945]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Stand-Alone Virtual_US 2022-PB4 USD Open popover Open popover" [ref=e946]:
+                            - cell "2022-Stand-Alone Virtual_US" [ref=e947]:
+                              - generic "2022-Stand-Alone Virtual_US" [ref=e948]
+                            - cell "2022-PB4" [ref=e949]:
+                              - generic "2022-PB4" [ref=e950]
+                            - cell "USD" [ref=e951]
+                            - cell [ref=e952]:
+                              - checkbox [ref=e953] [cursor=pointer]
+                            - cell [ref=e954]:
+                              - checkbox [disabled] [ref=e955]
+                            - cell "Open popover" [ref=e956]:
+                              - generic [ref=e958]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e959]:
+                              - generic [ref=e961]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Airport A 2022-PB4 USD Open popover Open popover" [ref=e962]:
+                            - cell "2022-Tier 1 Airport A" [ref=e963]:
+                              - generic "2022-Tier 1 Airport A" [ref=e964]
+                            - cell "2022-PB4" [ref=e965]:
+                              - generic "2022-PB4" [ref=e966]
+                            - cell "USD" [ref=e967]
+                            - cell [ref=e968]:
+                              - checkbox [ref=e969] [cursor=pointer]
+                            - cell [ref=e970]:
+                              - checkbox [disabled] [ref=e971]
+                            - cell "Open popover" [ref=e972]:
+                              - generic [ref=e974]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e975]:
+                              - generic [ref=e977]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Airport B 2022-PB5 USD Open popover Open popover" [ref=e978]:
+                            - cell "2022-Tier 1 Airport B" [ref=e979]:
+                              - generic "2022-Tier 1 Airport B" [ref=e980]
+                            - cell "2022-PB5" [ref=e981]:
+                              - generic "2022-PB5" [ref=e982]
+                            - cell "USD" [ref=e983]
+                            - cell [ref=e984]:
+                              - checkbox [ref=e985] [cursor=pointer]
+                            - cell [ref=e986]:
+                              - checkbox [disabled] [ref=e987]
+                            - cell "Open popover" [ref=e988]:
+                              - generic [ref=e990]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e991]:
+                              - generic [ref=e993]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Branch 2022-PB4 USD Open popover Open popover" [ref=e994]:
+                            - cell "2022-Tier 1 Branch" [ref=e995]:
+                              - generic "2022-Tier 1 Branch" [ref=e996]
+                            - cell "2022-PB4" [ref=e997]:
+                              - generic "2022-PB4" [ref=e998]
+                            - cell "USD" [ref=e999]
+                            - cell [ref=e1000]:
+                              - checkbox [ref=e1001] [cursor=pointer]
+                            - cell [ref=e1002]:
+                              - checkbox [disabled] [ref=e1003]
+                            - cell "Open popover" [ref=e1004]:
+                              - generic [ref=e1006]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1007]:
+                              - generic [ref=e1009]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Convention Center 2022-PB5 USD Open popover Open popover" [ref=e1010]:
+                            - cell "2022-Tier 1 Convention Center" [ref=e1011]:
+                              - generic "2022-Tier 1 Convention Center" [ref=e1012]
+                            - cell "2022-PB5" [ref=e1013]:
+                              - generic "2022-PB5" [ref=e1014]
+                            - cell "USD" [ref=e1015]
+                            - cell [ref=e1016]:
+                              - checkbox [ref=e1017] [cursor=pointer]
+                            - cell [ref=e1018]:
+                              - checkbox [disabled] [ref=e1019]
+                            - cell "Open popover" [ref=e1020]:
+                              - generic [ref=e1022]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1023]:
+                              - generic [ref=e1025]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Luxury A 2022-PB1A USD Open popover Open popover" [ref=e1026]:
+                            - cell "2022-Tier 1 Luxury A" [ref=e1027]:
+                              - generic "2022-Tier 1 Luxury A" [ref=e1028]
+                            - cell "2022-PB1A" [ref=e1029]:
+                              - generic "2022-PB1A" [ref=e1030]
+                            - cell "USD" [ref=e1031]
+                            - cell [ref=e1032]:
+                              - checkbox [ref=e1033] [cursor=pointer]
+                            - cell [ref=e1034]:
+                              - checkbox [disabled] [ref=e1035]
+                            - cell "Open popover" [ref=e1036]:
+                              - generic [ref=e1038]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1039]:
+                              - generic [ref=e1041]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Luxury B 2022-PB1B USD Open popover Open popover" [ref=e1042]:
+                            - cell "2022-Tier 1 Luxury B" [ref=e1043]:
+                              - generic "2022-Tier 1 Luxury B" [ref=e1044]
+                            - cell "2022-PB1B" [ref=e1045]:
+                              - generic "2022-PB1B" [ref=e1046]
+                            - cell "USD" [ref=e1047]
+                            - cell [ref=e1048]:
+                              - checkbox [ref=e1049] [cursor=pointer]
+                            - cell [ref=e1050]:
+                              - checkbox [disabled] [ref=e1051]
+                            - cell "Open popover" [ref=e1052]:
+                              - generic [ref=e1054]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1055]:
+                              - generic [ref=e1057]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Luxury C 2022-PB2 USD Open popover Open popover" [ref=e1058]:
+                            - cell "2022-Tier 1 Luxury C" [ref=e1059]:
+                              - generic "2022-Tier 1 Luxury C" [ref=e1060]
+                            - cell "2022-PB2" [ref=e1061]:
+                              - generic "2022-PB2" [ref=e1062]
+                            - cell "USD" [ref=e1063]
+                            - cell [ref=e1064]:
+                              - checkbox [ref=e1065] [cursor=pointer]
+                            - cell [ref=e1066]:
+                              - checkbox [disabled] [ref=e1067]
+                            - cell "Open popover" [ref=e1068]:
+                              - generic [ref=e1070]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1071]:
+                              - generic [ref=e1073]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Offsite Events 2022-PB4 USD Open popover Open popover" [ref=e1074]:
+                            - cell "2022-Tier 1 Offsite Events" [ref=e1075]:
+                              - generic "2022-Tier 1 Offsite Events" [ref=e1076]
+                            - cell "2022-PB4" [ref=e1077]:
+                              - generic "2022-PB4" [ref=e1078]
+                            - cell "USD" [ref=e1079]
+                            - cell [ref=e1080]:
+                              - checkbox [ref=e1081] [cursor=pointer]
+                            - cell [ref=e1082]:
+                              - checkbox [disabled] [ref=e1083]
+                            - cell "Open popover" [ref=e1084]:
+                              - generic [ref=e1086]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1087]:
+                              - generic [ref=e1089]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Resort A 2022-PB3 USD Open popover Open popover" [ref=e1090]:
+                            - cell "2022-Tier 1 Resort A" [ref=e1091]:
+                              - generic "2022-Tier 1 Resort A" [ref=e1092]
+                            - cell "2022-PB3" [ref=e1093]:
+                              - generic "2022-PB3" [ref=e1094]
+                            - cell "USD" [ref=e1095]
+                            - cell [ref=e1096]:
+                              - checkbox [ref=e1097] [cursor=pointer]
+                            - cell [ref=e1098]:
+                              - checkbox [disabled] [ref=e1099]
+                            - cell "Open popover" [ref=e1100]:
+                              - generic [ref=e1102]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1103]:
+                              - generic [ref=e1105]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Resort B 2022-PB4 USD Open popover Open popover" [ref=e1106]:
+                            - cell "2022-Tier 1 Resort B" [ref=e1107]:
+                              - generic "2022-Tier 1 Resort B" [ref=e1108]
+                            - cell "2022-PB4" [ref=e1109]:
+                              - generic "2022-PB4" [ref=e1110]
+                            - cell "USD" [ref=e1111]
+                            - cell [ref=e1112]:
+                              - checkbox [ref=e1113] [cursor=pointer]
+                            - cell [ref=e1114]:
+                              - checkbox [disabled] [ref=e1115]
+                            - cell "Open popover" [ref=e1116]:
+                              - generic [ref=e1118]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1119]:
+                              - generic [ref=e1121]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Suburban A 2022-PB4 USD Open popover Open popover" [ref=e1122]:
+                            - cell "2022-Tier 1 Suburban A" [ref=e1123]:
+                              - generic "2022-Tier 1 Suburban A" [ref=e1124]
+                            - cell "2022-PB4" [ref=e1125]:
+                              - generic "2022-PB4" [ref=e1126]
+                            - cell "USD" [ref=e1127]
+                            - cell [ref=e1128]:
+                              - checkbox [ref=e1129] [cursor=pointer]
+                            - cell [ref=e1130]:
+                              - checkbox [disabled] [ref=e1131]
+                            - cell "Open popover" [ref=e1132]:
+                              - generic [ref=e1134]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1135]:
+                              - generic [ref=e1137]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Suburban B 2022-PB5 USD Open popover Open popover" [ref=e1138]:
+                            - cell "2022-Tier 1 Suburban B" [ref=e1139]:
+                              - generic "2022-Tier 1 Suburban B" [ref=e1140]
+                            - cell "2022-PB5" [ref=e1141]:
+                              - generic "2022-PB5" [ref=e1142]
+                            - cell "USD" [ref=e1143]
+                            - cell [ref=e1144]:
+                              - checkbox [ref=e1145] [cursor=pointer]
+                            - cell [ref=e1146]:
+                              - checkbox [disabled] [ref=e1147]
+                            - cell "Open popover" [ref=e1148]:
+                              - generic [ref=e1150]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1151]:
+                              - generic [ref=e1153]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Suburban C 2022-PB6 USD Open popover Open popover" [ref=e1154]:
+                            - cell "2022-Tier 1 Suburban C" [ref=e1155]:
+                              - generic "2022-Tier 1 Suburban C" [ref=e1156]
+                            - cell "2022-PB6" [ref=e1157]:
+                              - generic "2022-PB6" [ref=e1158]
+                            - cell "USD" [ref=e1159]
+                            - cell [ref=e1160]:
+                              - checkbox [ref=e1161] [cursor=pointer]
+                            - cell [ref=e1162]:
+                              - checkbox [disabled] [ref=e1163]
+                            - cell "Open popover" [ref=e1164]:
+                              - generic [ref=e1166]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1167]:
+                              - generic [ref=e1169]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Urban A 2022-PB2 USD Open popover Open popover" [ref=e1170]:
+                            - cell "2022-Tier 1 Urban A" [ref=e1171]:
+                              - generic "2022-Tier 1 Urban A" [ref=e1172]
+                            - cell "2022-PB2" [ref=e1173]:
+                              - generic "2022-PB2" [ref=e1174]
+                            - cell "USD" [ref=e1175]
+                            - cell [ref=e1176]:
+                              - checkbox [ref=e1177] [cursor=pointer]
+                            - cell [ref=e1178]:
+                              - checkbox [disabled] [ref=e1179]
+                            - cell "Open popover" [ref=e1180]:
+                              - generic [ref=e1182]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1183]:
+                              - generic [ref=e1185]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 1 Urban B 2022-PB3 USD Open popover Open popover" [ref=e1186]:
+                            - cell "2022-Tier 1 Urban B" [ref=e1187]:
+                              - generic "2022-Tier 1 Urban B" [ref=e1188]
+                            - cell "2022-PB3" [ref=e1189]:
+                              - generic "2022-PB3" [ref=e1190]
+                            - cell "USD" [ref=e1191]
+                            - cell [ref=e1192]:
+                              - checkbox [ref=e1193] [cursor=pointer]
+                            - cell [ref=e1194]:
+                              - checkbox [disabled] [ref=e1195]
+                            - cell "Open popover" [ref=e1196]:
+                              - generic [ref=e1198]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1199]:
+                              - generic [ref=e1201]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 2 Airport A 2022-PB6 USD Open popover Open popover" [ref=e1202]:
+                            - cell "2022-Tier 2 Airport A" [ref=e1203]:
+                              - generic "2022-Tier 2 Airport A" [ref=e1204]
+                            - cell "2022-PB6" [ref=e1205]:
+                              - generic "2022-PB6" [ref=e1206]
+                            - cell "USD" [ref=e1207]
+                            - cell [ref=e1208]:
+                              - checkbox [ref=e1209] [cursor=pointer]
+                            - cell [ref=e1210]:
+                              - checkbox [disabled] [ref=e1211]
+                            - cell "Open popover" [ref=e1212]:
+                              - generic [ref=e1214]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1215]:
+                              - generic [ref=e1217]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 2 Airport B 2022-PB7 USD Open popover Open popover" [ref=e1218]:
+                            - cell "2022-Tier 2 Airport B" [ref=e1219]:
+                              - generic "2022-Tier 2 Airport B" [ref=e1220]
+                            - cell "2022-PB7" [ref=e1221]:
+                              - generic "2022-PB7" [ref=e1222]
+                            - cell "USD" [ref=e1223]
+                            - cell [ref=e1224]:
+                              - checkbox [ref=e1225] [cursor=pointer]
+                            - cell [ref=e1226]:
+                              - checkbox [disabled] [ref=e1227]
+                            - cell "Open popover" [ref=e1228]:
+                              - generic [ref=e1230]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1231]:
+                              - generic [ref=e1233]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 2 Airport C 2022-PB8 USD Open popover Open popover" [ref=e1234]:
+                            - cell "2022-Tier 2 Airport C" [ref=e1235]:
+                              - generic "2022-Tier 2 Airport C" [ref=e1236]
+                            - cell "2022-PB8" [ref=e1237]:
+                              - generic "2022-PB8" [ref=e1238]
+                            - cell "USD" [ref=e1239]
+                            - cell [ref=e1240]:
+                              - checkbox [ref=e1241] [cursor=pointer]
+                            - cell [ref=e1242]:
+                              - checkbox [disabled] [ref=e1243]
+                            - cell "Open popover" [ref=e1244]:
+                              - generic [ref=e1246]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1247]:
+                              - generic [ref=e1249]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 2 Branch A 2022-PB5 USD Open popover Open popover" [ref=e1250]:
+                            - cell "2022-Tier 2 Branch A" [ref=e1251]:
+                              - generic "2022-Tier 2 Branch A" [ref=e1252]
+                            - cell "2022-PB5" [ref=e1253]:
+                              - generic "2022-PB5" [ref=e1254]
+                            - cell "USD" [ref=e1255]
+                            - cell [ref=e1256]:
+                              - checkbox [ref=e1257] [cursor=pointer]
+                            - cell [ref=e1258]:
+                              - checkbox [disabled] [ref=e1259]
+                            - cell "Open popover" [ref=e1260]:
+                              - generic [ref=e1262]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1263]:
+                              - generic [ref=e1265]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row "2022-Tier 2 Branch B 2022-PB7 USD Open popover Open popover" [ref=e1266]:
+                            - cell "2022-Tier 2 Branch B" [ref=e1267]:
+                              - generic "2022-Tier 2 Branch B" [ref=e1268]
+                            - cell "2022-PB7" [ref=e1269]:
+                              - generic "2022-PB7" [ref=e1270]
+                            - cell "USD" [ref=e1271]
+                            - cell [ref=e1272]:
+                              - checkbox [ref=e1273] [cursor=pointer]
+                            - cell [ref=e1274]:
+                              - checkbox [disabled] [ref=e1275]
+                            - cell "Open popover" [ref=e1276]:
+                              - generic [ref=e1278]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                            - cell "Open popover" [ref=e1279]:
+                              - generic [ref=e1281]:
+                                - button "Open popover" [disabled]:
+                                  - textbox "Select date" [disabled]:
+                                    - /placeholder: MM/DD/YYYY
+                                  - button "Open calendar" [disabled]
+                          - row [ref=e1282]:
+                            - cell [ref=e1283]
+  - region "Notifications alt+T"

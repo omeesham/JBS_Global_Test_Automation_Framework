@@ -1,7 +1,7 @@
 # SUBPLAN: Duplicate & Junk Purge
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P1-CYCLE-2
 **Parent**: MASTER_REPO_CLEANUP
 **Created**: 2026-04-16
 **Absorbs**: PLAN_PLANS_INDEX_AUTOREGEN

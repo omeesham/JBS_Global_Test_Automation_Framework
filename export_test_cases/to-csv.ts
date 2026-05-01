@@ -22,6 +22,9 @@ interface SimpleTestCase {
   module: string;
   submodule: string;
   tags: string;
+  // Bug-blocked metadata (from `**Status**: Blocked by BUG-<MOD>-<NNN>` line — Rule 4 / LR-034)
+  // Empty for non-blocked TCs. The MD metadata line is the single source of truth per Rule 4.
+  status: string;
   // Agent fields
   steps: string;
   expected: string;
@@ -45,7 +48,8 @@ const COLUMNS: ColumnConfig[] = [
   { key: 'module', label: 'Module', audience: 'both' },
   { key: 'submodule', label: 'Submodule', audience: 'both' },
   { key: 'tags', label: 'Tags', audience: 'both' },
-  
+  { key: 'status', label: 'Status', audience: 'both' },
+
   // Human-readable columns (excluded from agent-only export)
   { key: 'preconditionsHuman', label: 'Preconditions', audience: 'human' },
   { key: 'stepsHuman', label: 'Steps', audience: 'human' },
@@ -132,6 +136,7 @@ export class CsvConverter {
         module: tc.module,
         submodule: tc.submodule,
         tags: tc.tags,
+        status: tc.status,
         // Human fields
         preconditionsHuman: tc.preconditionsHuman,
         stepsHuman: this.formatStepsWithLineBreaks(tc.stepsHuman),
@@ -158,8 +163,8 @@ export class CsvConverter {
   private static parseSimpleFormat(content: string): SimpleTestCase[] {
     const testCases: SimpleTestCase[] = [];
     
-    // Split by ## TC-XXX: headers (supports TC-LOC-001, TC-LOC-CUR-001, TC-LOC-LGL-HIST, TC-LOC-LI-SKIP-BILLING)
-    const sections = content.split(/^## (TC-[A-Z]+(?:-[A-Z]+)?-(?:\d+[A-Z]?|[A-Z]+)(?:-[A-Z]+)*):/m);
+    // Split by ## TC-XXX: headers (supports TC-LOC-001, TC-LOC-CUR-001, TC-LOC-LGL-HIST, TC-LOC-LI-SKIP-BILLING, TC-LOC-LI-NE-011)
+    const sections = content.split(/^## (TC-[A-Z]+(?:-[A-Z]+)*(?:-\d+[A-Z]?)?):/m);
     
     for (let i = 1; i < sections.length; i += 2) {
       const id = (sections[i] || '').trim();
@@ -197,35 +202,42 @@ export class CsvConverter {
         }
       }
       
+      // BLOCKED-BY METADATA — captures the `**Status**: Blocked by BUG-<MOD>-<NNN>` line per
+      // tc-authoring-rules.md Rule 4 (single-source-of-truth metadata line for bug-blocked TCs).
+      // Anchored to a leading newline so we never match inside a step or sentence; terminates
+      // at the next bold field, separator, or new test case header.
+      const statusMetaMatch = body.match(/\n(?:\*\*)?Status(?:\*\*)?:\s*(.+?)(?=\n\n|\n\*\*|\n[A-Z][A-Za-z_ ]+:|\n---|\n##|$)/s);
+      let statusMeta = statusMetaMatch && statusMetaMatch[1] ? statusMetaMatch[1].trim() : '';
+
       // AGENT fields (existing format)
-      const stepsMatch = body.match(/\*\*Steps\*\*:\s*(.+?)(?=\*\*Expected\*\*|\*\*Steps \(Human\)\*\*|$)/s);
+      const stepsMatch = body.match(/(?:\*\*)?Steps(?:\*\*)?:\s*(.+?)(?=(?:\*\*)?Expected(?:\*\*)?|(?:\*\*)?Steps \(Human\)(?:\*\*)?|$)/s);
       let steps = stepsMatch && stepsMatch[1] ? stepsMatch[1].trim() : '';
       
-      const expectedMatch = body.match(/\*\*Expected\*\*:\s*(.+?)(?=\*\*Data\*\*|\*\*Notes\*\*|\*\*Cleanup\*\*|\*\*Automatable\*\*|\*\*MCP_VERIFICATION_LOG\*\*|\*\*Automation File\*\*|\*\*Expected Result \(Human\)\*\*|\n---|\n##|$)/s);
+      const expectedMatch = body.match(/(?:\*\*)?Expected(?:\*\*)?:\s*(.+?)(?=(?:\*\*)?Data(?:\*\*)?|(?:\*\*)?Notes(?:\*\*)?|(?:\*\*)?Cleanup(?:\*\*)?|(?:\*\*)?Automatable(?:\*\*)?|(?:\*\*)?MCP_VERIFICATION_LOG(?:\*\*)?|(?:\*\*)?Automation File(?:\*\*)?|(?:\*\*)?Expected Result \(Human\)(?:\*\*)?|\n---|\n##|$)/s);
       let expected = expectedMatch && expectedMatch[1] ? expectedMatch[1].trim() : '';
 
-      const dataMatch = body.match(/\*\*Data\*\*:\s*(.+?)(?=\n---|\n##|\*\*Notes\*\*|\*\*Automatable\*\*|\*\*MCP_VERIFICATION_LOG\*\*|$)/s);
+      const dataMatch = body.match(/(?:\*\*)?Data(?:\*\*)?:\s*(.+?)(?=\n---|\n##|(?:\*\*)?Notes(?:\*\*)?|(?:\*\*)?Automatable(?:\*\*)?|(?:\*\*)?MCP_VERIFICATION_LOG(?:\*\*)?|$)/s);
       let data = dataMatch && dataMatch[1] ? dataMatch[1].trim() : '';
       
       // HUMAN fields (new dual-format sections)
-      const precondHumanMatch = body.match(/\*\*Preconditions \(Human\)\*\*:\s*(.+?)(?=\*\*Steps|\n##|$)/s);
+      const precondHumanMatch = body.match(/(?:\*\*)?Preconditions \(Human\)(?:\*\*)?:\s*(.+?)(?=\*\*Steps|\n##|$)/s);
       let preconditionsHuman = precondHumanMatch && precondHumanMatch[1] ? precondHumanMatch[1].trim() : '';
       
       // Fallback: also match plain **Preconditions**: (without "(Human)" suffix)
       if (!preconditionsHuman) {
-        const precondPlainMatch = body.match(/\*\*Preconditions\*\*:\s*(.+?)(?=\*\*Steps|\n##|$)/s);
+        const precondPlainMatch = body.match(/(?:\*\*)?Preconditions(?:\*\*)?:\s*(.+?)(?=\*\*Steps|\n##|$)/s);
         preconditionsHuman = precondPlainMatch && precondPlainMatch[1] ? precondPlainMatch[1].trim() : '';
       }
       
-      const stepsHumanMatch = body.match(/\*\*Steps \(Human\)\*\*:\s*(.+?)(?=\*\*Expected Result \(Human\)\*\*|\*\*Expected\*\*|\n##|$)/s);
+      const stepsHumanMatch = body.match(/(?:\*\*)?Steps \(Human\)(?:\*\*)?:\s*(.+?)(?=(?:\*\*)?Expected Result \(Human\)(?:\*\*)?|(?:\*\*)?Expected(?:\*\*)?|\n##|$)/s);
       let stepsHuman = stepsHumanMatch && stepsHumanMatch[1] ? stepsHumanMatch[1].trim() : '';
       
-      const expectedHumanMatch = body.match(/\*\*Expected Result \(Human\)\*\*:\s*(.+?)(?=\*\*Notes\*\*|\*\*Data\*\*|\n##|$)/s);
+      const expectedHumanMatch = body.match(/(?:\*\*)?Expected Result \(Human\)(?:\*\*)?:\s*(.+?)(?=(?:\*\*)?Notes(?:\*\*)?|(?:\*\*)?Data(?:\*\*)?|\n##|$)/s);
       let expectedHuman = expectedHumanMatch && expectedHumanMatch[1] ? expectedHumanMatch[1].trim() : '';
       
       // Notes must stop at agent **Steps**: section to avoid capturing agent fields
       // Match Notes content until we hit agent Steps, Data, separator, or new test case
-      const notesMatch = body.match(/\*\*Notes\*\*:\s*(.+?)(?=\n+\*\*Steps\*\*:|\n+\*\*Data\*\*|\*\*Automatable\*\*|\*\*MCP_VERIFICATION_LOG\*\*|\*\*Automation File\*\*|\*\*Completed saves\*\*|\n---|\n##|$)/s);
+      const notesMatch = body.match(/(?:\*\*)?Notes(?:\*\*)?:\s*(.+?)(?=\n+(?:\*\*)?Steps(?:\*\*)?:|\n+(?:\*\*)?Data(?:\*\*)?|(?:\*\*)?Automatable(?:\*\*)?|(?:\*\*)?MCP_VERIFICATION_LOG(?:\*\*)?|(?:\*\*)?Automation File(?:\*\*)?|(?:\*\*)?Completed saves(?:\*\*)?|\n---|\n##|$)/s);
       let notesHuman = notesMatch && notesMatch[1] ? notesMatch[1].trim() : '';
       
       // Convert Unicode to ASCII for clean export
@@ -272,7 +284,7 @@ export class CsvConverter {
         notesHuman = notesHuman ? `${notesHuman} | Cleanup required after test` : 'Cleanup required after test';
       }
       // Parse standalone **Cleanup**: sections (not inside numbered steps)
-      const cleanupSectionMatch = body.match(/\*\*Cleanup\*\*:\s*(.+?)(?=\n---|\n##|\*\*Data\*\*|\*\*Notes\*\*|\*\*Automatable\*\*|\*\*MCP_VERIFICATION_LOG\*\*|$)/s);
+      const cleanupSectionMatch = body.match(/(?:\*\*)?Cleanup(?:\*\*)?:\s*(.+?)(?=\n---|\n##|(?:\*\*)?Data(?:\*\*)?|(?:\*\*)?Notes(?:\*\*)?|(?:\*\*)?Automatable(?:\*\*)?|(?:\*\*)?MCP_VERIFICATION_LOG(?:\*\*)?|$)/s);
       if (cleanupSectionMatch && cleanupSectionMatch[1]) {
         const cleanupText = this.sanitizeUnicode(cleanupSectionMatch[1].trim());
         if (cleanupText && !/CLEANUP/i.test(notesHuman)) {
@@ -284,10 +296,10 @@ export class CsvConverter {
 
       // Strip internal metadata tags that should never appear in client CSVs
       const stripInternalTags = (text: string): string =>
-        text.replace(/\n?\*\*Automatable\*\*:.*$/gm, '')
-            .replace(/\n?\*\*MCP_VERIFICATION_LOG\*\*[\s\S]*?(?=\n---|\n##|$)/g, '')
-            .replace(/\n?\*\*Automation File\*\*:.*$/gm, '')
-            .replace(/\n?\*\*Completed saves to verify\*\*:.*$/gm, '')
+        text.replace(/\n?(?:\*\*)?Automatable(?:\*\*)?:.*$/gm, '')
+            .replace(/\n?(?:\*\*)?MCP_VERIFICATION_LOG(?:\*\*)?[\s\S]*?(?=\n---|\n##|$)/g, '')
+            .replace(/\n?(?:\*\*)?Automation File(?:\*\*)?:.*$/gm, '')
+            .replace(/\n?(?:\*\*)?Completed saves to verify(?:\*\*)?:.*$/gm, '')
             .trim();
       expected = stripInternalTags(expected);
       expectedHuman = stripInternalTags(expectedHuman);
@@ -307,6 +319,7 @@ export class CsvConverter {
 
       testCases.push({
         id, title, module, submodule, tags,
+        status: this.sanitizeUnicode(statusMeta),
         steps, expected, data,
         preconditionsHuman, stepsHuman, expectedHuman, notesHuman
       });
@@ -332,8 +345,8 @@ export class CsvConverter {
       stepNumber++;
 
       // Check for cleanup instruction
-      if (/\*\*Cleanup\*\*|cleanup:|CLEANUP/i.test(part)) {
-        const cleanupText = part.replace(/^\d+\.\s*/, '').replace(/\*\*Cleanup\*\*:?\s*/i, '').trim();
+      if (/(?:\*\*)?Cleanup(?:\*\*)?|cleanup:|CLEANUP/i.test(part)) {
+        const cleanupText = part.replace(/^\d+\.\s*/, '').replace(/(?:\*\*)?Cleanup(?:\*\*)?:?\s*/i, '').trim();
         cleanupNotes.push(cleanupText);
         return null;
       }

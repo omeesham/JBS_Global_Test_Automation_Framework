@@ -25,7 +25,7 @@
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 6 (Sanity sweep — low priority, non-blocking)
 **Status**: Pending
-**Priority**: P2
+**Priority**: P1-CYCLE-2
 **Created**: 2026-04-20
 **Depends on**: none (can run anytime after SP-H)
 **Identity**: WATCHDOG or OWNER
@@ -144,3 +144,54 @@ Rules confirmed keepers:
 
 - None (parallel with everything else).
 - Non-blocking for Group 1–5.
+
+---
+
+## UPDATE (2026-04-22) — AUDIT RECOMMENDATION (append-only; original plan above is intact)
+
+> **Execution-agent directive — read BEFORE Phase 0 runs.**
+> This subplan now has TWO candidate paths:
+> - **(a) Original plan** — full ~45 min sweep session above.
+> - **(b) Audit recommendation** — conditional execution based on SP-J's grep result.
+> Do NOT default to either:
+> 1. Read both paths in full.
+> 2. Check: has SP-J run and produced `plans/done/PLAN_HIST_PIVOT_FINAL_AUDIT.md`?
+>    - If NO → J hasn't measured yet; the precondition for path (b) doesn't exist. Execute path (a) as a standalone sweep.
+>    - If YES → read J's §23 (Framework rules clean) result:
+>      - PASS (zero grep hits) → execute path (b): skip sweep, mark DONE-conditional-skipped.
+>      - FAIL (grep hits found) → execute path (a) to remediate each hit; use J's report as input.
+> 3. Log disposition in activity-log.
+> Evidence wins, not recency.
+
+**Audited by**: /ultrathink + /audit + /planning (Opus, 2026-04-22)
+**Audit plan**: `~/.claude/plans/3-shared-utils-temporal-kahan.md`
+
+### Finding
+K1's entire Verification section is one grep command. K1's Cause section says "expected outcome: No revisions needed." Master plan §8 Q7 says the same. Running K1 as a standalone session to confirm a precomputed null is ceremony.
+
+SP-J (see its UPDATE block) can absorb K1 as checklist item #23 — adds ~1 minute to J, saves ~45 min of K1 session.
+
+### Proposed alternative path — conditional-on-J-grep
+Default state: **SKIP this subplan**. Execute only if J's item #23 reports grep hits.
+
+Execution flow:
+1. Read `plans/done/PLAN_HIST_PIVOT_FINAL_AUDIT.md` (J's output). Locate §23 "Framework rules clean".
+2. If §23 = PASS (zero hits):
+   - Append activity-log row: `| YYYY-MM-DDThh:mm | watchdog | done | (none) | SP-K1 — absorbed into SP-J §23, zero grep hits, no sweep needed |`
+   - `git mv` this file to done/ with Status set to `DONE-conditional-skipped` (or `DONE` with note in file). No sweep work performed.
+3. If §23 = FAIL (hits found):
+   - J's report will list the specific hits. Use that as input.
+   - Execute the original Phase 1 Sweep steps above to remediate each hit.
+   - Write the standard `plans/done/SP-K1-RULES-SWEEP-REPORT.md`.
+
+### Evidence
+- K1 Cause direct quote: "Current inventory says ZERO rules endorse the old integration-per-spec pattern... Expected outcome: 'No revisions needed.'"
+- K1 Verification is a grep identical to what J can run.
+
+### Risk of blindly following path (a)
+- ~45 min session to confirm a null outcome J can measure in seconds.
+
+### What execution agent must check before picking
+- `ls plans/done/PLAN_HIST_PIVOT_FINAL_AUDIT.md` — does J's output exist yet?
+- If J hasn't run, path (b) is not yet applicable. Default to path (a) in that case.
+- If J ran but §23 is unclear/missing, fall back to path (a) for safety.

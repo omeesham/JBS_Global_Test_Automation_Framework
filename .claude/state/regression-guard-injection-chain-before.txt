@@ -1,0 +1,37 @@
+=== BEFORE SNAPSHOT (2026-04-29T17:25:44+05:30) ===
+--- baseline.md ---
+36 .claude/rules/baseline.md
+e00736186208c931524b63cd83eea4ed53d2025463ba72f2c5e94c0772ebcb8b *.claude/rules/baseline.md
+3:paths:
+4:  - "clients/*/specs_planning/**/*.md"
+5:  - "clients/*/docs/REQUIREMENTS.md"
+6:  - "clients/*/specs_planning/_internal/old-site-baseline/**/*.md"
+--- pipeline.md ---
+227 .claude/rules/pipeline.md
+cc7f9178e232db168dc72fac8f70b2abda4e868f293198e965fac20c5693f963 *.claude/rules/pipeline.md
+12:## LR-020: Verify all plan claims against actual codebase before finalizing
+25:## LR-027: Plan finalization — execution summary MANDATORY before move to done/
+48:## LR-028: Session bookkeeping — activity log entry at session end
+61:## LR-040: Subplan closure completeness gate — every gap needs a concrete destination
+84:## LR-041: Conservative model + thinking selection — every subplan declares Model + Thinking + PermissionMode
+110:## LR-044: Bug Verification Protocol — read verbatim → follow exactly → minimize
+136:## LR-046: Strict plan lines beat general rules — HALT-and-ask before rescoping
+178:## TodoWrite Tagging Contract (SP02B — structural enforcement via hook pair)
+--- references to baseline.md and pipeline.md across repo ---
+.claude/agents/MAINTAINER.md
+.claude/agents/PLANNER.md
+.claude/skills/execute/SKILL.md
+.claude/skills/relevant/SKILL.md
+clients/encore/specs_planning/_internal/agent-activity-log.md
+plans/done/PLAN_BUG_ARCHETYPE_CATALOG.md
+plans/done/SUBPLAN_CCE_02B_TODO_INJECTION_ENFORCEMENT.md
+plans/done/SUBPLAN_CCE_02_CLAUDEMD_RIGHTSIZE.md
+plans/done/SUBPLAN_DQU_05B_STRICT_PLAN_LINE_REMEDIATION.md
+plans/pending/PLAN_INJECTION_CHAIN_HARDENING.md
+plans/pending/SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md
+plans/pending/SUBPLAN_DQU_05E_LOS_LI_DEEP_COVERAGE_AUDIT.md
+--- referencing _TEMPLATE_SUBPLAN.md (expect 0 — new file) ---
+clients/encore/specs_planning/_internal/agent-activity-log.md
+plans/pending/PLAN_INJECTION_CHAIN_HARDENING.md
+--- LR-048 mentions across repo (expect 14, all in this plan file) ---
+plans/pending/PLAN_INJECTION_CHAIN_HARDENING.md

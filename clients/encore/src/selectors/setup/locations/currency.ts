@@ -42,13 +42,13 @@ export const SetupCurrencySelectors = {
 
  // ---- Column Headers ----
  /** @where Setup > Location > Currency tab > Header @el label @text "Currency Code" @keys column header currency-code */
-  colHeaderCurrencyCode: '[data-testid="location-settings-table-currency"] th:has-text("Currency Code")',
+  colHeaderCurrencyCode: '[data-testid="location-settings-table-currency-col-code"]',
  /** @where Setup > Location > Currency tab > Header @el label @text "Selected" @keys column header selected */
-  colHeaderSelected: '[data-testid="location-settings-table-currency"] th:has-text("Selected"):not(:has-text("Is Default"))',
+  colHeaderSelected: '[data-testid="location-settings-table-currency-col-selected"]',
  /** @where Setup > Location > Currency tab > Header @el label @text "Is Default" @keys column header default */
-  colHeaderIsDefault: '[data-testid="location-settings-table-currency"] th:has-text("Is Default")',
+  colHeaderIsDefault: '[data-testid="location-settings-table-currency-col-is-default"]',
  /** @where Setup > Location > Currency tab > Header @el label @text "Merchant" @keys column header merchant */
-  colHeaderMerchant: '[data-testid="location-settings-table-currency"] th:has-text("Merchant")',
+  colHeaderMerchant: '[data-testid="location-settings-table-currency-col-merchant"]',
 
  // ---- Empty State ----
  /** @where Setup > Location > Currency tab @el label @text "No Matches Found" @keys empty no-results listbox */

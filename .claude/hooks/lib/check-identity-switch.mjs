@@ -83,7 +83,12 @@ for (let i = messages.length - 1; i >= 0; i--) {
   let found = false;
   for (const c of content) {
     if (c?.type === "tool_use" && c.name === "Skill" && c.input?.skill === "identity") {
-      const arg = (c.input.args || "").trim().toUpperCase();
+      // Single-token extraction: take only the first whitespace-delimited token as the
+      // codename. Anything after is descriptive context for the human reader (e.g.
+      // `/identity GIVER (selector migration)` → identity = GIVER). Without this split,
+      // free-form descriptions corrupt the identity comparison and cause "unknown identity"
+      // false-denials. See LR-047 + .claude/skills/identity/SKILL.md Step 1.
+      const arg = (c.input.args || "").trim().split(/\s+/)[0].toUpperCase();
       if (arg) currentIdentity = arg;
       found = true;
       break;

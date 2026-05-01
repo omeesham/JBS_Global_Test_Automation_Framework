@@ -28,7 +28,7 @@ export const SetupNotesSelectors = {
 
  // ---- Notes Table ----
  /** @where Setup > Location > Notes tab @el table @text "Notes table" @keys notes table rows grid */
-  tblNotes: '[data-testid="location-settings-section-notes"] table',
+  tblNotes: '[data-testid="location-settings-table-notes"]',
  /** @where Setup > Location > Notes tab > Empty state @el cell @text "No Notes Available" @keys empty no-notes available */
   lblNoNotesAvailable: '[data-testid="location-settings-section-notes"] td:has-text("No Notes Available")',
 
@@ -44,15 +44,15 @@ export const SetupNotesSelectors = {
 
  // ---- Action Buttons ----
  /** @where Setup > Location > Notes tab @el button @text "Add" @keys add note row button */
-  btnNotesAdd: '[data-testid="location-settings-section-notes"] button:has-text("Add")',
+  btnNotesAdd: '[data-testid="location-settings-btn-add-note"]',
  /** @where Setup > Location > Notes tab > Row @el button @text "Delete" @keys delete note row button */
   btnNotesDelete: '[data-testid="location-settings-section-notes"] button:has-text("Delete")',
 
  // ---- Character Counter & Progress Bar ----
  /** @where Setup > Location > Notes tab @el text @text "N/4000" @keys character counter count chars remaining */
-  lblNotesCharCounter: '[data-testid="location-settings-section-notes"] div.text-\\[11px\\]',
+  lblNotesCharCounter: '[data-testid="location-settings-label-note-character-counter"]',
  /** @where Setup > Location > Notes tab @el progressbar @text "character usage" @keys progress bar char usage visual */
-  barNotesProgress: '[data-testid="location-settings-section-notes"] [role="progressbar"]',
+  barNotesProgress: '[data-testid="location-settings-label-note-character-progress"]',
 
  // ---- Left Panel Save Button (shared across tabs) ----
  /** @where Setup > Location > Left Panel @el button @text "Save" @keys save submit form left-panel */

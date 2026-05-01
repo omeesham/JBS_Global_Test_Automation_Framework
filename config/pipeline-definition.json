@@ -34,8 +34,8 @@
     {
       "id": "requirements",
       "name": "Requirements Intake",
-      "agent": "playwright-requirements",
-      "agentFile": ".github/agents/playwright-requirements.agent.md",
+      "agent": "requirements",
+      "agentFile": ".claude/agents/REQUIREMENTS.md",
       "model": "sonnet",
       "effort": "high",
       "enabled": true,
@@ -46,7 +46,10 @@
       "next": {
         "success": "planning"
       },
-      "mcpConfig": "browser-only",
+      "browserTool": "cli",
+      "cliConfig": {
+        "sessionName": "nav4"
+      },
       "approvalMode": "auto",
       "preRunGate": "requirements-pre-run.ts",
       "postCompleteGate": "requirements-post-complete.ts",
@@ -55,8 +58,8 @@
     {
       "id": "planning",
       "name": "Test Case Planning",
-      "agent": "playwright-test-planner",
-      "agentFile": ".github/agents/playwright-test-planner.agent.md",
+      "agent": "planner",
+      "agentFile": ".claude/agents/PLANNER.md",
       "model": "sonnet",
       "effort": "high",
       "enabled": true,
@@ -67,7 +70,10 @@
       "next": {
         "success": "generation"
       },
-      "mcpConfig": "browser-only",
+      "browserTool": "cli",
+      "cliConfig": {
+        "sessionName": "nav4"
+      },
       "approvalMode": "auto",
       "preRunGate": "planner-pre-run.ts",
       "postCompleteGate": "planner-post-complete.ts",
@@ -76,8 +82,8 @@
     {
       "id": "generation",
       "name": "Spec Generation",
-      "agent": "playwright-test-generator",
-      "agentFile": ".github/agents/playwright-test-generator.agent.md",
+      "agent": "generator",
+      "agentFile": ".claude/agents/GENERATOR.md",
       "model": "sonnet",
       "effort": "high",
       "enabled": true,
@@ -100,9 +106,12 @@
             "then": "planning"
           }
         ],
-        "note": "Generator runs in copilot loop until tests pass. No routing to healer. Selector issues go back to planner."
+        "note": "Generator runs its fix loop until tests pass. No routing to healer. Selector issues go back to planner."
       },
-      "mcpConfig": "browser-and-test",
+      "browserTool": "cli",
+      "cliConfig": {
+        "sessionName": "nav4"
+      },
       "approvalMode": "auto",
       "preRunGate": "generator-pre-run.ts",
       "postCompleteGate": "generator-post-complete.ts",
@@ -111,8 +120,8 @@
     {
       "id": "healing",
       "name": "Test Healing",
-      "agent": "playwright-test-healer",
-      "agentFile": ".github/agents/playwright-test-healer.agent.md",
+      "agent": "healer",
+      "agentFile": ".claude/agents/HEALER.md",
       "model": "sonnet",
       "effort": "high",
       "enabled": true,
@@ -123,7 +132,10 @@
       "retries": 0,
       "timeoutSeconds": 0,
       "next": {},
-      "mcpConfig": "browser-and-test",
+      "browserTool": "both",
+      "cliConfig": {
+        "sessionName": "nav4"
+      },
       "approvalMode": "auto",
       "preRunGate": "healer-pre-run.ts",
       "postCompleteGate": "healer-post-complete.ts",
@@ -132,8 +144,8 @@
     {
       "id": "audit",
       "name": "Quality Audit",
-      "agent": "playwright-pipeline-audit",
-      "agentFile": ".github/agents/playwright-pipeline-audit.agent.md",
+      "agent": "audit",
+      "agentFile": ".claude/agents/AUDIT.md",
       "model": "sonnet",
       "effort": "high",
       "enabled": true,
@@ -145,7 +157,10 @@
         "pass": "completed",
         "critical": "fixme"
       },
-      "mcpConfig": null,
+      "browserTool": "cli",
+      "cliConfig": {
+        "sessionName": "nav4"
+      },
       "approvalMode": "auto",
       "preRunGate": "audit-pre-run.ts",
       "postCompleteGate": "audit-post-complete.ts",

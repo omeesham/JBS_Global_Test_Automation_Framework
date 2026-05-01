@@ -1,0 +1,26 @@
+- generic [ref=e6]:
+  - generic [ref=e12]:
+    - img "Organization banner logo" [ref=e44]
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e57]:
+          - button "Back" [ref=e58] [cursor=pointer]
+          - generic "v-rutvik.khosariya@psav.com" [ref=e59]
+        - generic [ref=e60]:
+          - textbox [ref=e61]: v-rutvik.khosariya@psav.com
+          - heading "Enter password" [level=1] [ref=e63]
+          - generic [ref=e65]:
+            - alert
+            - textbox "Enter the password for v-rutvik.khosariya@psav.com" [active] [ref=e67]:
+              - /placeholder: Password
+          - link "Forgot my password" [ref=e74] [cursor=pointer]:
+            - /url: https://passwordreset.microsoftonline.com/?ru=https%3a%2f%2flogin.microsoftonline.com%2f5401e4bc-dd14-49e9-83f0-6149a597b98a%2freprocess%3fctx%3drQQIARAArZI7b9NQAIXtps-otGlYKqZKdEAUN9eOncSRMoQ4SZ360SROrEZIle1cx3acXNd2miYTY8XEzAgDogMgBoQYUAemThUTVELqiJAQFVPZUAo_geUM59Ons5y7EWoTZNehTjEsqUPCoHWKoE0dEjpJGUQqSWX0tmFqGmX68WisZM2mHtx282-__Pj99ZNYPcYrVhh6QTaR6AxgEG7CvoF82HGRrrmbBuol_hXXEPV7tuGjAJnhNUPaILSoxCR9GHjvcPwMx7_h-PHUKuccVEirKg3NA2F_4AEzTZW2h7nc-dSynJ9Yk0C-PYa_phZM5Pf2PBSETyKf8XqohXDHRx70QxsGOTiqKPVG1ZbtCi2o5FhQpaGmgtDoiSlx3LQlpeVKHB_uOlVKqgMgqyVXULojUWmEElcFIlcEYo-ndhUD8PbQbhbdIu8gW-TyQFYbw5bCh7JSs-Q6AKJSsQWlS4oUH4pc25F6RVpUJEtyas5fl63UCnyK7zVt0WlaomIAQWl1ZW6y1Um2CqTVKotDQeFBS20wssIfiuOmI44q7JvIOkMDEtK6QbTbJE3QLGSJTNIERIqkWY1h0zqb0U4jS8iDfbu95vnItF14No1_n14Ekez8fDSGrWJr2NU0_nQmHo0lvY-dufGl_Eq99fJOewM7nUkUuNQ22N4QdvlicL-aZhizK1cZkB5t7efbqYLdgUlG80Y1KxnkyCz5eBa_nMWP5rD3C__xB-eLN6PRgb3nIkNzYRCfgX2iUT-5gV0tPXz26OT5hxc_t74v38ubiUNJtYoty0JGuV4qe40AGvLh0NjRfHYH8eWtDOLStl4Lcq9j2EUMu1jBrlZiR3HsDw2&mkt=en-US&hosted=0&device_platform=Windows+10
+          - button "Sign in" [ref=e77] [cursor=pointer]
+          - paragraph [ref=e79]: Welcome to Encore!
+  - contentinfo [ref=e39]:
+    - generic [ref=e40]:
+      - link "Terms of use" [ref=e41] [cursor=pointer]:
+        - /url: https://www.microsoft.com/en-US/servicesagreement/
+      - link "Privacy & cookies" [ref=e42] [cursor=pointer]:
+        - /url: https://privacy.microsoft.com/en-US/privacystatement
+      - button "Click here for troubleshooting information" [ref=e43] [cursor=pointer]: ...

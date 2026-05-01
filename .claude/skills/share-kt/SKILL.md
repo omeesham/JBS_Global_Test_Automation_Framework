@@ -2,7 +2,7 @@
 name: share-kt
 description: Cross-repo knowledge transfer session — explore another repo, extract features/patterns/learnings, compare against ours, identify gaps, update KT log. Use when user says "KT", "knowledge transfer", "share learnings", "what can we learn from".
 user-invocable: true
-auto-calls: none
+auto-calls: identity
 tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
 ---
 
@@ -59,3 +59,15 @@ A concise summary of:
 - What gaps we identified
 - Recommended sub-plans for replication
 - What we can share back
+
+
+## Verification Artifact (D23)
+
+Before declaring this skill done, emit one runnable / readable check the user (or next session) can re-run to confirm the output:
+
+- File path + expected content (e.g., `plans/pending/X.md exists with **Status**: Pending`)
+- Bash command + expected output (e.g., `git diff --stat ...` shows N files)
+- Test command (e.g., `npm run typecheck`, `npx tsc --noEmit`)
+- Or a structured expected-output template (≤10 lines)
+
+Verification artifact ≠ prose summary. It is a runnable / readable check that confirms the skill's output. Without it, the work is unaudítable. Anthropic cupcake §786-793 — single highest-leverage tactic for AI-built artifacts.

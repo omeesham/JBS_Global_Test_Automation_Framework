@@ -25,7 +25,7 @@
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 5 (Bug filing — gated on user approval)
 **Status**: GATED (do NOT execute until user explicitly approves batch)
-**Priority**: P1
+**Priority**: P1-CYCLE-2
 **Created**: 2026-04-20
 **Depends on**: SP-B-LO-R (catalog) + SP-C1 + SP-C2 (test evidence)
 **Identity**: WATCHDOG or OWNER

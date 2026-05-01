@@ -12,7 +12,7 @@
 
 - **Human**: <YOUR_NAME> (replace during onboarding)
 - **Agent name**: <YOUR_NAME>_AGENT (replace during onboarding)
-- **Tool**: Claude Code (CLI) or GitHub Copilot
+- **Tool**: Claude Code (CLI) or any frontier coding agent (Codex / Cursor / etc.)
 - **Primary workspace**: `website/` (frontend + backend)
 
 ---

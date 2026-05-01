@@ -124,6 +124,7 @@ website/.claude/settings.local.json
 .claude/worktrees/
 .claude/scheduled-tasks/
 .claude/plans/
+.claude/private/
 current_plan.md
 
 # Chain orchestration runtime state (see PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md; only .gitkeep tracked)

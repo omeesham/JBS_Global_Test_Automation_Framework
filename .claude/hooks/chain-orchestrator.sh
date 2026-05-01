@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # chain-orchestrator.sh — Stop hook that advances chain after /final-q verdict.
-# Runs AFTER final-q-gate.sh (which guarantees /final-q was invoked before stop).
 # Emits no JSON decision (doesn't block stop); side-effects only (state + spawn).
+# Note: the companion final-q-gate.sh (which previously blocked stops lacking a
+# /final-q invocation) was removed 2026-04-23 — /execute Phase 4 skill-mandate
+# is now the only enforcement, and this hook pauses with verdict-NONE when the
+# emission is missing.
 #
 # Design refs (see PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md):
 #   D1  — spawn via `nohup claude -p ... &`
@@ -18,6 +21,58 @@
 #         re-verified here via queue entry schema)
 #   D29 — env inheritance: nohup passes parent env (ENCORE_*, PATH, etc.)
 #
+# Idempotency (SP-CCE-05 P5.1, 2026-04-27):
+#   `node parse-verdict.mjs --prep-spawn` writes a per-spawn marker file at
+#   `.claude/state/chain-sessions/.spawn.<idx>.<file>.marker`. If the marker
+#   already exists when this hook fires (Stop event re-fired), the budget
+#   counters are NOT re-incremented and `nohup claude -p ...` is NOT re-spawned.
+#   Default mode = enforce. Soft-rollout mode (`CHAIN_IDEMPOTENCY_MODE=soft`)
+#   logs would-have-skipped events to chain-sessions/idempotency-soft-log.txt
+#   while still incrementing — used to observe one chain cycle before flipping
+#   to enforce. V3 retry test in SUBPLAN_CCE_05 acceptance criteria validates
+#   single-increment under simulated double-fire.
+#
+# Idempotency (V3.1, 2026-04-27 — post-advance double-fire):
+#   The P5.1 marker protects same-slot re-fires (idx-after-advance hasn't been
+#   reached yet). It does NOT protect post-advance re-fires: Stop event A fires
+#   with idx=0, --record-outcome 0 GREEN advances state, currentIndex=1, B is
+#   spawned; Stop event A fires AGAIN (transcript-flush race / undetached child)
+#   so this hook reads idx=1 and would call --record-outcome 1 GREEN B.md against
+#   a freshly-spawned "running" slot — corrupting B by marking it completed/GREEN
+#   before it ran. V3.1 closes this: chain-orchestrator now passes the transcript
+#   path as a 5th arg, --record-outcome SHA-256-hashes it, and rejects the call
+#   with "duplicate" if the hash matches any sibling slot's endedAtTranscriptHash.
+#   This hook handles "duplicate" as a silent exit (mirroring the "duplicate"
+#   case from --prep-spawn).
+#
+# Migration (SP-CCE-05 P5.5, 2026-04-27):
+#   Verdict-recording (case statement, lines 67-83 of pre-refactor) and budget-
+#   incrementing (5× cs_inc + cs_set, lines 137-143 of pre-refactor) now run as
+#   single atomic Node calls via `node parse-verdict.mjs --record-outcome` and
+#   `node parse-verdict.mjs --prep-spawn`. Eliminates 9 lock-acquire/release
+#   round-trips per Stop event, removes manually-escaped JSON construction in
+#   shell (the `cs_history_append "{\"subplan\":\"$current_file\",...}"` line was
+#   the canonical fragile-shell-quoting case), and consolidates the
+#   double-counting bug fix (P5.1) with the lock-fragility fix (P5.5) on one
+#   surface.
+#
+# Fail-mode (SP-CCE-05 P5.3, 2026-04-27): FAIL-CLOSED on lock acquisition error
+#   and on any Node helper non-zero exit. The orchestrator's job is to advance
+#   the chain — silently double-spawning or double-counting under concurrency
+#   would corrupt state and exhaust the daily/weekly cap. Failure modes:
+#     - chain.json missing                  → exit 0 silently (no chain)
+#     - status != running                   → exit 0 silently (chain not active)
+#     - transcript_path missing/unreadable  → pause_chain "transcript-not-found"; exit 0
+#     - parse-verdict.mjs crash             → pause_chain "verdict-parse-error"; exit 0
+#     - --record-outcome non-zero exit      → pause_chain "record-outcome-failed"; exit 0
+#     - --prep-spawn non-zero exit          → pause_chain "prep-spawn-failed"; exit 0
+#     - --prep-spawn returns "duplicate"    → exit 0 silently (idempotency hit; no spawn)
+#     - branch drift                        → pause_chain "branch-drift"; exit 0
+#     - cap reached                         → pause_chain "{kind}-cap-reached"; exit 0
+#   Always exit 0 from the hook itself (Stop hooks must not block stop). The
+#   chain enters paused state on every fault path, which surfaces via the
+#   chain-pause-notice SessionStart hook on the next interactive open.
+#
 # CLI-version clamp: if local `claude --version` < 2.1.111, authoring-tag `xhi`
 # (authoring-scale "extra-high") is clamped to CLI `--effort high` via
 # map_effort_for_cli. Upgrade with `claude update` to unlock Opus 4.7 xhigh.
@@ -33,6 +88,8 @@ cd "$REPO_ROOT" || exit 0
 
 # shellcheck disable=SC1091
 source "$REPO_ROOT/.claude/hooks/lib/chain-guards.sh"
+
+PARSE_VERDICT_MJS="$REPO_ROOT/.claude/hooks/lib/parse-verdict.mjs"
 
 input=$(cat 2>/dev/null || true)
 
@@ -55,29 +112,37 @@ fi
 
 # 4. Parse verdict
 verdict=$(parse_verdict "$transcript")
+if [ -z "$verdict" ]; then
+  pause_chain "verdict-parse-error"
+  exit 0
+fi
 
 # 5. Identify current subplan
 idx=$(cs_get .currentIndex)
 current_file=$(cs_get ".queue.$idx.file" 2>/dev/null || echo 'unknown')
-now=$(date -Iseconds)
 
-# 6. Record outcome for current subplan
-case "$verdict" in
-  GREEN)
-    cs_set ".queue.$idx.status" '"completed"'
-    cs_set ".queue.$idx.verdict" '"GREEN"'
-    cs_set ".queue.$idx.endedAt" "\"$now\""
-    cs_history_append "{\"subplan\":\"$current_file\",\"verdict\":\"GREEN\",\"endedAt\":\"$now\"}"
-    ;;
-  YELLOW|RED|NONE)
-    cs_set ".queue.$idx.status" '"failed"'
-    cs_set ".queue.$idx.verdict" "\"$verdict\""
-    cs_set ".queue.$idx.endedAt" "\"$now\""
-    cs_history_append "{\"subplan\":\"$current_file\",\"verdict\":\"$verdict\",\"endedAt\":\"$now\"}"
-    pause_chain "verdict-$verdict: $current_file"
-    exit 0
-    ;;
-esac
+# 6. Record outcome atomically (P5.5 — replaces case statement + 4 cs_set + cs_history_append)
+# Pass transcript path as 5th arg so --record-outcome can SHA-256-hash it for V3.1
+# post-advance double-fire detection (cross-slot transcript-hash match → "duplicate").
+outcome=$(node "$PARSE_VERDICT_MJS" --record-outcome "$CHAIN_STATE_FILE" "$idx" "$verdict" "$current_file" "$transcript" 2>/dev/null || echo '')
+if [ -z "$outcome" ]; then
+  pause_chain "record-outcome-failed: idx=$idx verdict=$verdict"
+  exit 0
+fi
+if [ "$outcome" = "duplicate" ]; then
+  # V3.1 (2026-04-27): Stop event re-fired AFTER currentIndex advanced. The transcript
+  # hash matches a sibling slot's endedAtTranscriptHash, so this is the same Stop event
+  # we already processed. Refuse to re-record (would corrupt the freshly-spawned next
+  # subplan as completed/GREEN before it actually runs) and refuse to advance/spawn
+  # again (the prep-spawn marker would also catch it, but defense in depth). Silent exit.
+  exit 0
+fi
+if [ "$outcome" = "pause" ]; then
+  # record-outcome already set state.status=paused for non-GREEN; just write the notice.
+  write_pause_notice "verdict-$verdict: $current_file"
+  exit 0
+fi
+# outcome == "advance" → GREEN, continue to spawn next.
 
 # 7. Guard cascade — fail fast; pause with specific reason
 check_stop_marker || { rm -f "$CHAIN_STATE_DIR/chain.STOP"; cs_set .status '"aborted"'; write_pause_notice "STOP-marker (aborted)"; exit 0; }
@@ -89,7 +154,7 @@ queue_len=$(cs_get '.queue' | node -e "const a=JSON.parse(require('fs').readFile
 if [ "$new_index" -ge "$queue_len" ]; then
   cs_set .status '"done"'
   {
-    echo "# Chain COMPLETE — $now"
+    echo "# Chain COMPLETE — $(date -Iseconds)"
     echo ""
     echo "All $queue_len subplans finished."
     echo ""
@@ -131,15 +196,25 @@ mkdir -p "$CHAIN_STATE_DIR/chain-sessions"
 next_log="$CHAIN_STATE_DIR/chain-sessions/${next_file}.log"
 next_pidfile="$CHAIN_STATE_DIR/chain-sessions/${next_file}.pid"
 
-# D24 — increment counters at SPAWN
-cs_inc .budget.executedToday
-cs_inc .budget.executedThisWeek
-cs_inc .budget.executedThisBatch
+# 9. Idempotent prep-spawn (P5.1+P5.5 — replaces 3× cs_inc + 2× cs_set + adds marker)
+# Mode default = enforce; CHAIN_IDEMPOTENCY_MODE=soft for one-cycle observation rollout.
+prep_out=$(node "$PARSE_VERDICT_MJS" --prep-spawn "$CHAIN_STATE_FILE" "$new_index" "$next_file" 2>/dev/null || echo '')
+case "$prep_out" in
+  "duplicate")
+    # Marker already existed (Stop hook fired twice for same advance event).
+    # In enforce mode, refuse to re-spawn or re-increment. Silent exit.
+    exit 0
+    ;;
+  "first"|"soft-skip")
+    : # Proceed to spawn.
+    ;;
+  *)
+    pause_chain "prep-spawn-failed: idx=$new_index file=$next_file out='$prep_out'"
+    exit 0
+    ;;
+esac
 
-cs_set ".queue.$new_index.status" '"running"'
-cs_set ".queue.$new_index.startedAt" "\"$(date -Iseconds)\""
-
-# 9. Spawn — default is `nohup claude -p ...`; overridable via CHAIN_SPAWN_CMD for tests.
+# 10. Spawn — default is `nohup claude -p ...`; overridable via CHAIN_SPAWN_CMD for tests.
 SPAWN_CMD="${CHAIN_SPAWN_CMD:-nohup claude -p}"
 
 # shellcheck disable=SC2086

@@ -1,0 +1,500 @@
+- generic:
+  - alert
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: "1604"
+                    - generic:
+                      - generic: Parker Palm Springs
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - list:
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/home
+                            - img
+                            - generic: Home
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/inbox
+                            - img
+                            - generic: Inbox
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Actions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Commissions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Tax
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Setup
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Studio
+                            - img
+                    - generic:
+                      - generic: Search
+                      - generic:
+                        - list:
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Order Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/fulfillments
+                              - img
+                              - generic: Job Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/assets
+                              - img
+                              - generic: Asset Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/customers
+                              - img
+                              - generic: Customer Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: DRO Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Payment Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/products
+                              - img
+                              - generic: Item Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: ECT Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Event Agendas
+                    - generic:
+                      - list:
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Navigator Assistant
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - button:
+                      - generic:
+                        - generic: RK
+                      - generic:
+                        - generic: Rutvik Khosariya
+                      - img
+            - button
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - button:
+                    - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=1]: Location Settings
+                      - button:
+                        - img
+              - generic:
+                - generic:
+                  - generic:
+                    - tablist:
+                      - tab [selected]:
+                        - generic:
+                          - img
+                          - text: Basic Information
+                      - tab:
+                        - generic:
+                          - img
+                          - text: Location Management History
+                    - tabpanel:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - button [disabled]: Save
+                                        - generic:
+                                          - generic:
+                                            - generic: Office
+                                            - textbox [disabled]:
+                                              - /placeholder: No office available
+                                              - text: "1604"
+                                          - generic:
+                                            - generic: Local Office
+                                            - generic:
+                                              - textbox [disabled]:
+                                                - /placeholder: Local Office
+                                                - text: "1604"
+                                          - generic:
+                                            - generic: Local Office Name
+                                            - generic:
+                                              - textbox: Parker Palm Springs
+                                          - generic:
+                                            - generic: Active
+                                            - checkbox [checked]:
+                                              - generic:
+                                                - img
+                                          - generic:
+                                            - generic: Live Date
+                                            - button:
+                                              - img
+                                              - text: November 4th, 2005
+                                          - generic:
+                                            - generic: Tax Mode
+                                            - generic:
+                                              - combobox:
+                                                - generic: US
+                                                - img
+                                          - generic:
+                                            - generic: Country
+                                            - generic:
+                                              - combobox:
+                                                - generic: United States
+                                                - img
+                                          - generic:
+                                            - generic: Region
+                                            - generic:
+                                              - combobox:
+                                                - generic: Palm Springs
+                                                - img
+                                          - generic:
+                                            - generic: Servicing Branch Office
+                                            - combobox:
+                                              - generic: Select Servicing Branch Office
+                                              - img
+                                          - generic:
+                                            - generic: Line Of Business
+                                            - generic:
+                                              - combobox [disabled]:
+                                                - generic: Hotel Services Division
+                                                - img
+                                          - generic:
+                                            - generic: Pay To Address
+                                            - generic:
+                                              - textbox [disabled]: Encore
+                                          - generic:
+                                            - generic: Union
+                                            - checkbox
+                                          - generic:
+                                            - generic: eCommerce Active
+                                            - checkbox [checked] [disabled]:
+                                              - generic:
+                                                - img
+                                          - generic:
+                                            - generic: Enable Productions Orders
+                                            - checkbox [checked] [disabled]:
+                                              - generic:
+                                                - img
+                        - generic:
+                          - generic:
+                            - tablist:
+                              - tab:
+                                - generic:
+                                  - img
+                                  - text: Local Information
+                              - tab:
+                                - generic:
+                                  - img
+                                  - text: Currency
+                              - tab:
+                                - generic:
+                                  - img
+                                  - text: Pricing
+                              - tab [selected]:
+                                - generic:
+                                  - img
+                                  - text: Account and Address
+                              - tab:
+                                - generic:
+                                  - img
+                                  - text: Legal
+                              - tab:
+                                - generic:
+                                  - img
+                                  - text: Notes
+                              - tab:
+                                - generic:
+                                  - img
+                                  - text: Shared Setup Locations
+                              - tab:
+                                - generic:
+                                  - img
+                                  - text: Auto Add-On
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - tabpanel:
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic:
+                                              - generic: Venue/Branch Account
+                                            - generic:
+                                              - generic:
+                                                - generic:
+                                                  - term:
+                                                    - generic:
+                                                      - button: Name
+                                                  - definition:
+                                                    - generic:
+                                                      - generic:
+                                                        - generic:
+                                                          - generic:
+                                                            - textbox [disabled]: Parker Palm Springs
+                                                - generic:
+                                                  - term:
+                                                    - generic:
+                                                      - button: Address
+                                                  - definition: 8899 Beverly Blvd Ste 412
+                                                - generic:
+                                                  - definition: WEST HOLLYWOOD
+                                                - generic:
+                                                  - definition: CA
+                                                - generic:
+                                                  - definition: "90048"
+                                                - generic:
+                                                  - definition: United States
+                                                - generic:
+                                                  - term: Phone 1
+                                                  - definition:
+                                                    - generic:
+                                                      - generic:
+                                                        - generic:
+                                                          - textbox: 760-883-1957
+                                                - generic:
+                                                  - term: Phone 2
+                                                  - definition:
+                                                    - generic:
+                                                      - generic:
+                                                        - textbox
+                                          - generic:
+                                            - generic:
+                                              - generic: Master Bill To Address
+                                            - generic:
+                                              - generic:
+                                                - generic:
+                                                  - term:
+                                                    - generic:
+                                                      - button: Address
+                                                  - definition:
+                                                    - generic:
+                                                      - generic:
+                                                        - generic:
+                                                          - generic: 8899 Beverly Blvd Ste 412
+                                                - generic:
+                                                  - definition: WEST HOLLYWOOD
+                                                - generic:
+                                                  - definition: CA
+                                                - generic:
+                                                  - definition: "90048"
+                                                - generic:
+                                                  - definition: United States
+  - region "Notifications alt+T"
+  - dialog "Select Customer Address" [ref=e2290]:
+    - generic [ref=e2291]:
+      - heading "Select Customer Address" [level=2] [ref=e2292]
+      - paragraph [ref=e2293]
+    - generic [ref=e2294]:
+      - generic [ref=e2297]:
+        - img [ref=e2299]
+        - textbox "Search..." [active] [ref=e2302]
+      - generic [ref=e2303]:
+        - table [ref=e2306]:
+          - rowgroup [ref=e2307]:
+            - row "Address 1 Address 2 Address 3 City State Zip Code Country" [ref=e2308]:
+              - columnheader [ref=e2309]
+              - columnheader "Address 1" [ref=e2310]:
+                - button "Address 1" [ref=e2312] [cursor=pointer]:
+                  - generic [ref=e2313]: Address 1
+                  - img
+              - columnheader "Address 2" [ref=e2314]:
+                - button "Address 2" [ref=e2316] [cursor=pointer]:
+                  - generic [ref=e2317]: Address 2
+                  - img
+              - columnheader "Address 3" [ref=e2318]:
+                - button "Address 3" [ref=e2320] [cursor=pointer]:
+                  - generic [ref=e2321]: Address 3
+                  - img
+              - columnheader "City" [ref=e2322]:
+                - button "City" [ref=e2324] [cursor=pointer]:
+                  - generic [ref=e2325]: City
+                  - img
+              - columnheader "State" [ref=e2326]:
+                - button "State" [ref=e2328] [cursor=pointer]:
+                  - generic [ref=e2329]: State
+                  - img
+              - columnheader "Zip Code" [ref=e2330]:
+                - button "Zip Code" [ref=e2332] [cursor=pointer]:
+                  - generic [ref=e2333]: Zip Code
+                  - img
+              - columnheader "Country" [ref=e2334]:
+                - button "Country" [ref=e2336] [cursor=pointer]:
+                  - generic [ref=e2337]: Country
+                  - img
+          - rowgroup [ref=e2338]:
+            - row "Select row 8899 Beverly Blvd Ste 412 WEST HOLLYWOOD CA 90048 United States" [ref=e2339] [cursor=pointer]:
+              - cell "Select row" [ref=e2340]:
+                - checkbox "Select row" [ref=e2341]
+              - cell "8899 Beverly Blvd Ste 412" [ref=e2342]:
+                - generic [ref=e2345]: 8899 Beverly Blvd Ste 412
+              - cell [ref=e2346]
+              - cell [ref=e2349]
+              - cell "WEST HOLLYWOOD" [ref=e2352]:
+                - generic [ref=e2355]: WEST HOLLYWOOD
+              - cell "CA" [ref=e2356]:
+                - generic [ref=e2359]: CA
+              - cell "90048" [ref=e2360]:
+                - generic [ref=e2363]: "90048"
+              - cell "United States" [ref=e2364]:
+                - generic [ref=e2367]: United States
+            - row "Select row 4200 E Palm Canyon Dr PALM SPRINGS CA 92264 United States" [ref=e2368] [cursor=pointer]:
+              - cell "Select row" [ref=e2369]:
+                - checkbox "Select row" [ref=e2370]
+              - cell "4200 E Palm Canyon Dr" [ref=e2371]:
+                - generic [ref=e2374]: 4200 E Palm Canyon Dr
+              - cell [ref=e2375]
+              - cell [ref=e2378]
+              - cell "PALM SPRINGS" [ref=e2381]:
+                - generic [ref=e2384]: PALM SPRINGS
+              - cell "CA" [ref=e2385]:
+                - generic [ref=e2388]: CA
+              - cell "92264" [ref=e2389]:
+                - generic [ref=e2392]: "92264"
+              - cell "United States" [ref=e2393]:
+                - generic [ref=e2396]: United States
+            - row "Select row 4200 E PALM CANYON DR PALM SPRINGS CA 92264 United States" [ref=e2397] [cursor=pointer]:
+              - cell "Select row" [ref=e2398]:
+                - checkbox "Select row" [ref=e2399]
+              - cell "4200 E PALM CANYON DR" [ref=e2400]:
+                - generic [ref=e2403]: 4200 E PALM CANYON DR
+              - cell [ref=e2404]
+              - cell [ref=e2407]
+              - cell "PALM SPRINGS" [ref=e2410]:
+                - generic [ref=e2413]: PALM SPRINGS
+              - cell "CA" [ref=e2414]:
+                - generic [ref=e2417]: CA
+              - cell "92264" [ref=e2418]:
+                - generic [ref=e2421]: "92264"
+              - cell "United States" [ref=e2422]:
+                - generic [ref=e2425]: United States
+            - row "Select row 4200 E PALM CANYON DR PALM SPRINGS CA 92264 United States" [ref=e2426] [cursor=pointer]:
+              - cell "Select row" [ref=e2427]:
+                - checkbox "Select row" [ref=e2428]
+              - cell "4200 E PALM CANYON DR" [ref=e2429]:
+                - generic [ref=e2432]: 4200 E PALM CANYON DR
+              - cell [ref=e2433]
+              - cell [ref=e2436]
+              - cell "PALM SPRINGS" [ref=e2439]:
+                - generic [ref=e2442]: PALM SPRINGS
+              - cell "CA" [ref=e2443]:
+                - generic [ref=e2446]: CA
+              - cell "92264" [ref=e2447]:
+                - generic [ref=e2450]: "92264"
+              - cell "United States" [ref=e2451]:
+                - generic [ref=e2454]: United States
+            - row "Select row 4200 E PALM CANYON DR PALM SPRINGS CA 92264 United States" [ref=e2455] [cursor=pointer]:
+              - cell "Select row" [ref=e2456]:
+                - checkbox "Select row" [ref=e2457]
+              - cell "4200 E PALM CANYON DR" [ref=e2458]:
+                - generic [ref=e2461]: 4200 E PALM CANYON DR
+              - cell [ref=e2462]
+              - cell [ref=e2465]
+              - cell "PALM SPRINGS" [ref=e2468]:
+                - generic [ref=e2471]: PALM SPRINGS
+              - cell "CA" [ref=e2472]:
+                - generic [ref=e2475]: CA
+              - cell "92264" [ref=e2476]:
+                - generic [ref=e2479]: "92264"
+              - cell "United States" [ref=e2480]:
+                - generic [ref=e2483]: United States
+            - row "Select row 4200 E PALM CANYON DR PALM SPRINGS CA 92264 United States" [ref=e2484] [cursor=pointer]:
+              - cell "Select row" [ref=e2485]:
+                - checkbox "Select row" [ref=e2486]
+              - cell "4200 E PALM CANYON DR" [ref=e2487]:
+                - generic [ref=e2490]: 4200 E PALM CANYON DR
+              - cell [ref=e2491]
+              - cell [ref=e2494]
+              - cell "PALM SPRINGS" [ref=e2497]:
+                - generic [ref=e2500]: PALM SPRINGS
+              - cell "CA" [ref=e2501]:
+                - generic [ref=e2504]: CA
+              - cell "92264" [ref=e2505]:
+                - generic [ref=e2508]: "92264"
+              - cell "United States" [ref=e2509]:
+                - generic [ref=e2512]: United States
+            - row "Select row 4200 E PALM CANYON DR PALM SPRINGS CA 92264 United States" [ref=e2513] [cursor=pointer]:
+              - cell "Select row" [ref=e2514]:
+                - checkbox "Select row" [ref=e2515]
+              - cell "4200 E PALM CANYON DR" [ref=e2516]:
+                - generic [ref=e2519]: 4200 E PALM CANYON DR
+              - cell [ref=e2520]
+              - cell [ref=e2523]
+              - cell "PALM SPRINGS" [ref=e2526]:
+                - generic [ref=e2529]: PALM SPRINGS
+              - cell "CA" [ref=e2530]:
+                - generic [ref=e2533]: CA
+              - cell "92264" [ref=e2534]:
+                - generic [ref=e2537]: "92264"
+              - cell "United States" [ref=e2538]:
+                - generic [ref=e2541]: United States
+            - row "Select row Country" [ref=e2542] [cursor=pointer]:
+              - cell "Select row" [ref=e2543]:
+                - checkbox "Select row" [ref=e2544]
+              - cell [ref=e2545]
+              - cell [ref=e2548]
+              - cell [ref=e2551]
+              - cell [ref=e2554]
+              - cell [ref=e2557]
+              - cell [ref=e2560]
+              - cell "Country" [ref=e2563]:
+                - generic [ref=e2566]: Country
+        - generic [ref=e2569]: "Total Addresses: 7"
+    - generic [ref=e2571]:
+      - button "Save" [disabled]
+      - button "Select" [disabled]
+      - button "Cancel" [ref=e2572] [cursor=pointer]
+    - button "Close" [ref=e2573] [cursor=pointer]:
+      - img
+      - generic [ref=e2574]: Close

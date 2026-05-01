@@ -2,7 +2,7 @@
 
 **Created**: 2026-04-03
 **Status**: Pending (strategic plan — subplans per page created in separate sessions)
-**Priority**: P0 (trust-building for test suite)
+**Priority**: P5-PARKED
 **Depends on**: Nothing — this is additive
 **Does NOT modify**: `PLAN_V2_REQUIREMENTS_GAPS.md` (that plan is approved and ready; its SP items are REFERENCED here, not duplicated)
 

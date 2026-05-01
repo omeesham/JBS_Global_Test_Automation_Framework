@@ -6,7 +6,7 @@
 > 2. **Skills**: load every skill in `**Skills**` field below (the leading skill auto-calls its chain — e.g. `/cleanup` → `/regression-guard`).
 > 3. **Model + thinking tier**: look up this subplan's SP number in `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` → Execution Order table. Use the specified Opus/Sonnet + think / think hard / think harder / ultrathink. If Phase 0 is present in Step-by-Step, bump thinking tier one notch higher than the table (forensic analysis needs judgment).
 > 4. **Dependency gate**: verify every item in `**Depends on**` field is marked DONE in `plans/done/` or not-applicable. If any blocker → HALT + report to user. Do not proceed.
-> 5. **Context load**: read `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` §1–§3 (pivot rationale + scope + per-identity KEEP/DELETE inventory) + this subplan in full.
+> 5. **Context load**: read `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` §1–§3 (pivot rationale + scope + per-identity KEEP/DELETE inventory) + `clients/encore/specs_planning/_internal/tc-authoring-rules.md` (MANDATORY — 4 authoring rules, Phase 0 grep, sweep obligation; installed by SP-L1 at `plans/done/SUBPLAN_HIST_PIVOT_42_L1_TC_AUTHORING_RULES.md`) + this subplan in full.
 > 6. **Phase 0 FIRST (if present in Step-by-Step)**: execute the "Phase 0 — Date-Forensic Self-Discovery" step before any code or doc edits. Document findings (with dispositions) in your activity-log row.
 > 7. **Execute Phases 1+** per Step-by-Step in order.
 > 8. **Handoff**: on success, apply the Handoff Signals block — set the file's Status field to DONE + Executed date in this file, append activity-log row (LR-028 + LR-037 wall-clock time ≥ mtime of every touched file), `git mv` this file to `plans/done/`, run `npm run plans:reindex`, commit (one commit per LR-027 boundary).
@@ -17,6 +17,7 @@
 > - Genuine ambiguity in scope beyond the master plan §3 KEEP list.
 > - `/regression-guard` diff shows changes unrelated to this subplan's stated scope.
 > - Activity-log preflight (`npm run validate:activity-log:preflight`) would fail for your row.
+> - This subplan edits any `clients/encore/specs_planning/test-cases/**/*.md` file AND the Phase 0 grep from `tc-authoring-rules.md` returns ANY hit (symbols, markdown-bold around UI labels, jargon in Expected, bug-descriptor phrases). Rewrite to compliance before saving; file BUG-*.json per LR-034 if a real defect is discovered. See SP-L1 §Sweep obligation for known leaks.
 
 ---
 
@@ -25,9 +26,12 @@
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 3 (Implementation)
 **Status**: Pending
-**Priority**: P0
+**Priority**: P1-CYCLE-2
 **Created**: 2026-04-20
 **Depends on**: SP-B-LM-R + SP-D0 complete
+**Model**: claude-opus-4-7
+**Thinking**: xhi
+**PermissionMode**: auto
 **Identity**: BUILDER
 **Skills**: `/execute` + `/regression-guard` + `/find-bugs` + `/identity`
 **Estimated**: one session
@@ -84,6 +88,8 @@ Per-column tests for every 87-col Location Management History column whose root 
 
 ## Step-by-Step Execution
 
+> **[Phase 0] Old-site baseline check (LR-ENC-001 / ALL-078 — from SP-OSB-03, 2026-04-24)**: before authoring any TC, visit https://navigator2.training.psav.com/#/setup/locationdetail/1604 (old UI — tabs embedded in ONE URL, NOT a 1:1 path match with new site; observation-only, zero selector parity — old site uses `name=`/`id=`, not `data-testid`). Record baseline observations in `clients/encore/specs_planning/_internal/old-site-baseline/<module>-<YYYY-MM-DD>.md`. Reference the artifact path + date in the Execution Summary under "Old-site baseline: consulted Y/N + evidence". Merchant Currency column is **baseline-absent** (old-site LM History has no Merchant Currency column per `OSB-ACCESS-VERIFY-2026-04-24.md` §4 / §5) → record `baselineScope: baseline-absent` for Merchant Currency TCs specifically; Currency tab itself IS present on baseline, so the location-currency column (col 6) IS observable. For baseline-absent columns, flag for `/encore-questions` escalation — do NOT HALT.
+
 1. `/identity BUILDER`.
 2. `/regression-guard` BEFORE.
 3. Read catalog file — confirm 9 Currency parents + expected col 5 / col 63 mapping.
@@ -97,7 +103,8 @@ Per-column tests for every 87-col Location Management History column whose root 
 8. Run spec: `npx playwright test clients/encore/tests/specs/setup/locations/history/location-hist-currency.spec.ts --project=chrome`.
 9. Triage failures (APP BUG vs TEST BUG). Known: MER + DEF phantom-row TCs should PASS (the phantom-row assertion is the expected behavior of a NOT-TRACKED bug — test validates it).
 10. `/regression-guard` AFTER.
-11. **Template extraction**: create `clients/encore/docs/hist-spec-template.md` with annotated sections from the Currency spec. Include: "Replace `<TAB>` with the root-tab name", "Replace `<COLUMN_N>` with column index + header", "state-space block = one test per equivalence class per D1.a taxonomy", etc. Don't paste Currency-specific values — paste the structure.
+11. **Template extraction**: create `clients/encore/docs/hist-spec-template.md` (SEE UPDATE BLOCK BELOW — actual path is `clients/encore/specs_planning/_internal/hist-spec-template.md`) with annotated sections from the Currency spec. Include: "Replace `<TAB>` with the root-tab name", "Replace `<COLUMN_N>` with column index + header", "state-space block = one test per equivalence class per D1.a taxonomy", etc. Don't paste Currency-specific values — paste the structure.
+   - **TC-AUTHORING-RULES CARRY (MANDATORY)**: the extracted template MUST include a top-level section titled `## TC Authoring Rules` that references `clients/encore/specs_planning/_internal/tc-authoring-rules.md` verbatim as the single source of truth for all 4 authoring rules (symbols, bold-UI-labels, Expected-English, bug-descriptor language). Every SP-D2..D10 session that copies from this template inherits the rules reference. Do NOT paste the rules body into the template — reference the rules doc path so updates propagate automatically.
 12. Commit: `feat(hist-pivot): SP-D1 — Location Mgmt HIST Currency per-column tests (22 TCs) + template`.
 
 ---
@@ -137,3 +144,22 @@ Per-column tests for every 87-col Location Management History column whose root 
 - SP-B-LM-R + SP-D0.
 - Template for SP-D2..D10.
 - Feeds SP-E-LM-CUR (bug filing for CUR-BUG-A/B/C).
+
+---
+
+## UPDATE (2026-04-22) — TEMPLATE LOCATION CORRECTION (user-approved)
+
+**User pre-approval, 2026-04-22**: redirect the reusable spec template from `clients/encore/docs/hist-spec-template.md` to `clients/encore/specs_planning/_internal/hist-spec-template.md`.
+
+### Why
+The path `clients/encore/docs/` does NOT exist in this repo. Writing to it would create a new top-level directory with no convention anchor — other `clients/encore/` artifacts live under `src/`, `tests/`, `specs_planning/`, `config/`, `exports/`, `api-testing/`. Docs either live at repo root `docs/` (framework-wide) or inside `specs_planning/` (client-specific planning docs). The `_internal/` subdirectory already houses agent-facing internal artifacts (agent-activity-log, agent-mistakes). Reusable test-spec templates belong with other internal planning artifacts, not in a new orphan folder.
+
+### Execution-agent directive (override)
+1. In Step-by-Step item 11: create `clients/encore/specs_planning/_internal/hist-spec-template.md` — NOT `clients/encore/docs/hist-spec-template.md`.
+2. In §Verification item 5: update the EXISTS check to the corrected path.
+3. In Handoff Signals activity-log template: update the second file path to the corrected path.
+4. Any downstream subplan referencing the template (SP-D2..D10, SP-J item #19) — resolve the template at the corrected path. If SP-J's original "item 19: Template exists at `clients/encore/docs/hist-spec-template.md`" is referenced during audit, use `clients/encore/specs_planning/_internal/hist-spec-template.md` instead. SP-J's own UPDATE block should note this redirect.
+5. Do NOT create `clients/encore/docs/` directory at all.
+
+### No content change
+Template CONTENT is unchanged — still annotated structure from the Currency spec with `<TAB>` / `<COLUMN_N>` / state-space / metadata / fidelity / NOT-TRACKED phantom-row blocks. Only the filesystem location changes.

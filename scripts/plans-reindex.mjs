@@ -77,10 +77,22 @@ function parseTitle(header) {
   return m ? cleanValue(m[1]) : '';
 }
 
-/** Extract the plan's own SP identifier from its title, e.g. "SUBPLAN SP-DQU-03: …" → "SP-DQU-03" */
+/**
+ * Extract the plan's own SP identifier from its title, e.g.
+ *   "SUBPLAN SP-DQU-03: …"   → "SP-DQU-03"
+ *   "SUBPLAN SP-B-LM-3a: …"  → "SP-B-LM-3a"
+ *
+ * Anchored: only matches when the SP-id is the title's leading identifier
+ * (with optional SUBPLAN/PLAN/REVISED PLAN/MASTER PLAN prefix) and is
+ * followed by a delimiter (`:`, `—`, or `-`). Prevents descriptive titles
+ * like 'PLAN: /find-bugs … — closes SP-DQU-04 gap' from hijacking another
+ * plan's SP-id (root cause of the false "Cycle Detected" section).
+ */
 function extractSpId(title) {
-  const m = title.match(/\bSP-([\w-]+)/);
-  return m ? `SP-${m[1]}` : null;
+  const m = title.match(
+    /^(?:(?:REVISED\s+|MASTER\s+)?(?:SUBPLAN|PLAN)\s+)?(SP-[\w-]+?)\s*[:—-]/i,
+  );
+  return m ? m[1] : null;
 }
 
 /**
@@ -156,15 +168,22 @@ function buildPlanLookup(pending, done) {
     if (key && !lookup.has(key)) lookup.set(key, { file, inDone });
   };
 
-  for (const [inDone, plans] of [[false, pending], [true, done]]) {
+  // Done first: a done plan's canonical SP-id wins over a pending plan that
+  // happens to mention the same SP-id in its title (e.g. "closes SP-DQU-04 gap").
+  // Combined with the anchored extractSpId, this is belt-and-suspenders against
+  // the title-hijack bug that produced the false "Cycle Detected" section.
+  for (const [inDone, plans] of [[true, done], [false, pending]]) {
     for (const p of plans) {
-      // 1. Title-based SP identifier (highest priority)
-      const spIdFromTitle = extractSpId(p.title);
-      if (spIdFromTitle) add(spIdFromTitle, p.file, inDone);
-
-      // 2. Filename-based SP identifier fallback
+      // 1. Filename-based SP identifier — canonical, deterministic, one file
+      //    per id by construction (SUBPLAN_DQU_04_* → SP-DQU-04).
       const spIdFromFile = deriveSpIdFromFilename(p.file);
       if (spIdFromFile) add(spIdFromFile, p.file, inDone);
+
+      // 2. Title-based SP identifier — fallback for plans whose filename does
+      //    not follow the SUBPLAN_<COHORT>_<NUM>_* pattern (e.g. HIST_PIVOT
+      //    files whose canonical id lives only in the title: "SP-B-LM-3a").
+      const spIdFromTitle = extractSpId(p.title);
+      if (spIdFromTitle) add(spIdFromTitle, p.file, inDone);
 
       // 3 & 4. Filename and stem
       add(p.file, p.file, inDone);
@@ -180,12 +199,16 @@ function buildPlanLookup(pending, done) {
  */
 function resolveBlockers(depIds, lookup) {
   const blockers = [];
+  const seenFiles = new Set();
   for (const ref of depIds) {
     const entry = lookup.get(ref);
-    if (entry && !entry.inDone) {
+    if (entry && !entry.inDone && !seenFiles.has(entry.file)) {
       blockers.push({ ref, file: entry.file });
+      seenFiles.add(entry.file);
     }
-    // Unresolvable refs are silently skipped (external/archived plan, no gate)
+    // Unresolvable refs are silently skipped (external/archived plan, no gate).
+    // Multiple refs that resolve to the SAME file (e.g. both `FOO.md` and bare
+    // `FOO` are listed in Depends on) are deduped — one blocker per file.
   }
   return blockers;
 }
@@ -196,6 +219,43 @@ function daysBetween(dateStr, refStr = TODAY) {
   const d2 = Date.parse(refStr);
   if (Number.isNaN(d1) || Number.isNaN(d2)) return null;
   return Math.round((d2 - d1) / 86_400_000);
+}
+
+/**
+ * Normalize a `**Parent**` / `**Parent audit**` / `**Parent plan**` value for
+ * SORT-KEY purposes. Some plans carry junk in the parent field — Windows
+ * absolute paths to external files (`C:\Users\…\some-external-plan.md`),
+ * paren-prose like `(root — framework infra)`, backtick-wrapped names, or
+ * raw `none`. Those strings are useful for HUMAN reading but not for grouping
+ * sibling subplans; using them as a sort key would let `(root` alphabetize
+ * before "PLAN_…" and so on.
+ *
+ * Returns the original string when it looks like a plain `PLAN_*.md` /
+ * `SUBPLAN_*.md` reference (the only case where parent grouping actually
+ * matters for the index). Otherwise returns null — caller falls back to the
+ * plan's own filename for sort-key purposes (so root plans sort against
+ * themselves).
+ *
+ * The original raw parent is still preserved in `plan.parent` for any
+ * downstream display / `groupSubplans` logic that knows how to handle it.
+ */
+function normalizeParentForSort(rawParent) {
+  if (!rawParent) return null;
+  const s = String(rawParent).trim();
+  // Reject Windows absolute paths (`C:\…` or `c:\…`) and POSIX absolute paths.
+  if (/^[A-Za-z]:[\\/]/.test(s) || s.startsWith('/')) return null;
+  // Reject paren-prose like "(root — framework infra)" or "(root)".
+  if (s.startsWith('(')) return null;
+  // Reject explicit nones.
+  if (/^(none|nothing|n\/a|—)\b/i.test(s)) return null;
+  // Strip backticks/markdown link decoration, take first whitespace-separated token.
+  const cleaned = s.replace(/[`\\]/g, '').split(/\s+/)[0];
+  // Only accept if it looks like a plan filename token.
+  if (/^(?:SUBPLAN|PLAN|MASTER)_[\w-]+/i.test(cleaned)) {
+    // Ensure .md suffix for stable matching with `plan.file`.
+    return /\.md$/i.test(cleaned) ? cleaned : `${cleaned}.md`;
+  }
+  return null;
 }
 
 function parsePlanFile(filePath) {
@@ -210,7 +270,9 @@ function parsePlanFile(filePath) {
   const priority = parseField(header, 'Priority');
   const created = parseField(header, 'Created');
   const executed = parseField(header, 'Executed') || parseField(header, 'Completed');
-  const parent = parseField(header, 'Parent') || parseField(header, 'Parent audit') || parseField(header, 'Parent plan');
+  const parentRaw = parseField(header, 'Parent') || parseField(header, 'Parent audit') || parseField(header, 'Parent plan');
+  const parent = parentRaw; // raw value preserved for display / groupSubplans
+  const parentSortKey = normalizeParentForSort(parentRaw); // null when junk / external / root
   const model = parseField(header, 'Model');
   const thinking = parseField(header, 'Thinking');
   const permissionMode = parseField(header, 'PermissionMode');
@@ -227,6 +289,7 @@ function parsePlanFile(filePath) {
     created,
     executed,
     parent,
+    parentSortKey,
     dependsOn,
     model,
     thinking,
@@ -301,6 +364,64 @@ function sortPending(plans) {
   });
 }
 
+/**
+ * Cohort sort order — explicit user-chosen track ordering (2026-04-28, final).
+ *   0 = AAE  (highest-leverage right now: SP-AAE-06 unblocks 10 superseded DQU subplans)
+ *   1 = DQU  (Deliverable Quality Upgrade — active client-deliverable track)
+ *   2 = other (REPO cleanup, skill dev, audits — real ongoing work, not deprioritized)
+ *   3 = HIST  (Column-First Pivot — explicitly bottom per user "FUCK hist")
+ *
+ * Detection: filename token first (canonical for SUBPLAN_<COHORT>_*), then parent
+ * file fallback so plans like PLAN_BUG_ARCHETYPE_CATALOG (whose filename has no
+ * cohort token but Parent = PLAN_DELIVERABLE_QUALITY_UPGRADE.md) surface in DQU
+ * group instead of "other".
+ *
+ * History: order was DQU > AAE > HIST > other early in conversation, then AAE > DQU >
+ * HIST > other so AAE-06 lands top, then user flagged that REPO subplans (P1 cleanup
+ * work, parent=MASTER_REPO_CLEANUP) sit BELOW HIST_PIVOT subplans. Since user said
+ * "FUCK hist" repeatedly, HIST is now the LOWEST cohort, with all "other" work
+ * (including REPO cluster) above it.
+ */
+function cohortRank(plan) {
+  const f = plan.file || '';
+  const t = plan.title || '';
+  const parent = plan.parent || '';
+
+  if (/_AAE_/.test(f) || /AGENT_AUTHORING_EFFICIENCY/i.test(parent)) return 0;
+  if (/_DQU_/.test(f) || /DELIVERABLE_QUALITY_UPGRADE/i.test(parent)) return 1;
+  if (/_HIST_|HIST_PIVOT|HISTORY|^PLAN_HIST_/.test(f)
+    || /HIST_COLUMN_FIRST_PIVOT|HISTORY/i.test(parent)
+    || /\bHIST\b|History/.test(t)) return 3;
+  return 2;
+}
+
+/**
+ * Priority rank — cycle-aware (2026-04-28).
+ * Lower = more urgent. Two-decimal layout: P-digit * 100 + sub-rank.
+ *
+ *   P0-EMERGENCY → 0   (truly urgent — overrides P0-CYCLE-1)
+ *   P0-CYCLE-1   → 1
+ *   P0-CYCLE-2   → 2
+ *   P1-CYCLE-1   → 101
+ *   P1-CYCLE-2   → 102
+ *   P2-CYCLE-3   → 203
+ *   P5-PARKED    → 590  (least urgent within P5)
+ *   "—" / unknown → 950 (default — sorts after PARKED)
+ *
+ * Old behavior was "extract first digit, ignore the rest" — flattening
+ * EMERGENCY/CYCLE-N/PARKED into a tie. Now they're explicitly ordered.
+ */
+function priorityRank(priority) {
+  const s = String(priority || '');
+  const pMatch = s.match(/P(\d)/i);
+  const p = pMatch ? Number(pMatch[1]) : 9;
+  if (/EMERGENCY/i.test(s)) return p * 100 + 0;
+  const cMatch = s.match(/CYCLE-(\d+)/i);
+  if (cMatch) return p * 100 + Number(cMatch[1]);
+  if (/PARKED/i.test(s)) return p * 100 + 90;
+  return p * 100 + 50;
+}
+
 function sortDone(plans) {
   // Sort by executed date desc (fallback to mtime)
   return [...plans].sort((a, b) => {
@@ -333,48 +454,113 @@ function groupSubplans(plans) {
 }
 
 /**
+ * Effective sort-parent key for a plan — `parentSortKey` (set when the parent
+ * field was a clean PLAN_*.md / SUBPLAN_*.md token) OR the plan's own filename
+ * (root plans group with themselves, junk-parent plans use their own filename
+ * so they don't leak alphabetical artifacts of an external path string).
+ */
+function effectiveParent(plan) {
+  return (plan.parentSortKey || plan.file).toLowerCase();
+}
+
+/**
+ * Build parent-priority map: parent-sort-key → min priorityRank across all plans
+ * that share that parent. Used so a parent group whose lowest-priority member is
+ * P0 outranks a parent group whose lowest-priority member is P2 — without that,
+ * sort would devolve to alphabetical between groups, which produces correct
+ * ordering only by accident.
+ *
+ * Built once per script invocation from all pending plans (not done — done plans
+ * don't appear in the execution queue, so their priority can't influence
+ * ordering).
+ */
+function buildParentPriorityMap(plans) {
+  const map = new Map();
+  for (const p of plans) {
+    const key = effectiveParent(p);
+    const r = priorityRank(p.priority);
+    if (!map.has(key) || r < map.get(key)) map.set(key, r);
+  }
+  return map;
+}
+
+/**
  * Topologically sort plans by dependency depth (Kahn's algorithm variant).
  * Tier 0 = no pending blockers. Tier N = all blockers in tiers 0..N-1.
- * Within each tier, plans are ordered by priority then created-date desc.
+ * Within each tier, plans are ordered by:
+ *   (cohort, parent_group_priority, parent_name, individual_priority, date)
  *
  * Returns { ordered: Plan[] (with pendingBlockers attached), cycle: Plan[] }.
  * `cycle` contains any plans that couldn't be placed (indicates an authoring
  * error — circular dependency). Renderer surfaces them in a separate section.
  */
-function topoSortPlans(plans, lookup) {
-  // Annotate each plan with its current pending blockers.
+function topoSortPlans(plans, lookup, parentPriorityMap) {
   const annotated = plans.map((p) => ({
     plan: p,
     blockers: resolveBlockers(p.dependsOn, lookup),
   }));
 
-  // Set of files that have already been placed in some tier.
   const placed = new Set();
   const ordered = [];
-  const remaining = new Set(annotated.map((a) => a.plan.file));
+  const remaining = new Map(annotated.map((a) => [a.plan.file, a]));
 
-  // Repeatedly extract the next tier: plans whose blockers all point at
-  // plans already in `placed` (or at done/ — those resolve to no blocker
-  // already, so blockers list stays empty for them).
+  const rank = (a) => priorityRank(a.plan.priority);
+  const groupRank = (a) => {
+    const key = effectiveParent(a.plan);
+    return parentPriorityMap.has(key) ? parentPriorityMap.get(key) : 999;
+  };
+
+  // Priority-aware Kahn's: each iteration picks the single highest-priority
+  // ready plan. Sort precedence (2026-04-28 amended):
+  //   0. P0-EMERGENCY overrides cohort — priority literally says
+  //      "overrides P0-CYCLE-1" (priorityRank line 402). Without this short-circuit,
+  //      EMERGENCY in 'other' cohort sinks below all DQU work, contradicting the
+  //      stated semantics. Two EMERGENCY plans fall through to the regular
+  //      comparator (cohort/group/parent/date) so they sort among themselves
+  //      predictably.
+  //   1. Cohort (AAE → DQU → other → HIST)
+  //   2. Parent-GROUP priority — most-urgent group surfaces first within cohort
+  //   3. Parent name — alphabetic tiebreak among same-priority groups
+  //   4. Individual cycle-aware priority within parent
+  //   5. Newer creation date wins among same-priority siblings
+  //
+  // Why parent-group priority before parent-name: without it, a P0 plan whose
+  // parent string starts with "z" would sink below a P2 group whose parent name
+  // starts with "a". Audit found `PLAN_BUG_HUNTING_RULEBOOK_V2.md` (no priority,
+  // rank 950 = lowest) was landing at Pos 70 instead of bottom-of-cohort because
+  // its filename alphabetized above many P2 plans' parent strings.
   while (remaining.size > 0) {
-    const tierPlans = annotated
-      .filter((a) => remaining.has(a.plan.file))
-      .filter((a) => a.blockers.every((b) => placed.has(b.file)));
+    const ready = [...remaining.values()].filter(
+      (a) => a.blockers.every((b) => placed.has(b.file)),
+    );
+    if (ready.length === 0) break; // cycle detected — bail
 
-    if (tierPlans.length === 0) break; // cycle detected — bail
+    ready.sort((a, b) => {
+      const aIsEmergency = rank(a) === 0;
+      const bIsEmergency = rank(b) === 0;
+      if (aIsEmergency !== bIsEmergency) return aIsEmergency ? -1 : 1;
+      const c = cohortRank(a.plan) - cohortRank(b.plan);
+      if (c !== 0) return c;
+      const gp = groupRank(a) - groupRank(b);
+      if (gp !== 0) return gp;
+      const pa = effectiveParent(a.plan);
+      const pb = effectiveParent(b.plan);
+      const pCompare = pa.localeCompare(pb);
+      if (pCompare !== 0) return pCompare;
+      const d = rank(a) - rank(b);
+      if (d !== 0) return d;
+      const ac = a.plan.created || a.plan.mtime;
+      const bc = b.plan.created || b.plan.mtime;
+      return bc.localeCompare(ac);
+    });
 
-    // Sort within the tier by priority then created desc.
-    const tierSorted = sortPending(tierPlans.map((a) => a.plan));
-    for (const p of tierSorted) {
-      const a = annotated.find((x) => x.plan.file === p.file);
-      ordered.push(a);
-      placed.add(p.file);
-      remaining.delete(p.file);
-    }
+    const best = ready[0];
+    ordered.push(best);
+    placed.add(best.plan.file);
+    remaining.delete(best.plan.file);
   }
 
-  // Anything left = part of a cycle.
-  const cycle = annotated.filter((a) => remaining.has(a.plan.file));
+  const cycle = [...remaining.values()];
   return { ordered, cycle };
 }
 
@@ -390,8 +576,14 @@ function buildPendingSection(pending, done) {
   const allSubplans = [...children.values()].flat();
   const candidates = [...executableRoots, ...allSubplans];
 
-  // Topologically sort: dependency depth, then priority+date within tier.
-  const { ordered, cycle } = topoSortPlans(candidates, lookup);
+  // Pre-compute per-parent priority map across CANDIDATES (executable plans only)
+  // so a P0 plan's parent group surfaces above a P2 plan's parent group within
+  // the same cohort, regardless of alphabetical ordering of parent names.
+  const parentPriorityMap = buildParentPriorityMap(candidates);
+
+  // Topologically sort: dependency depth, then (cohort, group-priority,
+  // parent-name, individual-priority, date) within tier.
+  const { ordered, cycle } = topoSortPlans(candidates, lookup, parentPriorityMap);
 
   // Single execution-order table.
   const formatBlockers = (blockers) =>

@@ -25,9 +25,12 @@
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 4 (Infrastructure — can run parallel to Group 3)
 **Status**: Pending
-**Priority**: P1
+**Priority**: P1-CYCLE-2
 **Created**: 2026-04-20
 **Depends on**: SP-D0 (hist-reader.ts) present
+**Model**: claude-sonnet-4-6
+**Thinking**: hi
+**PermissionMode**: auto
 **Identity**: BUILDER
 **Skills**: `/execute` + `/regression-guard` + `/identity`
 **Estimated**: one session

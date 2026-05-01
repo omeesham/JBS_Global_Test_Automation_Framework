@@ -1,7 +1,7 @@
 # SUBPLAN: Rename jbs_framework
 
 **Status**: PENDING
-**Priority**: P3
+**Priority**: P2-CYCLE-3
 **Parent**: MASTER_REPO_CLEANUP
 **Created**: 2026-04-16
 **Excludes**: website/, node_modules/ — out of scope per user directive.
