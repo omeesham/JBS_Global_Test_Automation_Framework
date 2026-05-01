@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Pre-push hook — Path A ship-discipline enforcement.
+# Register with: npm run plans:hooks:install (sets core.hooksPath = .githooks)
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+# 1. If staged changes touch any clients/<id>/dist/framework/, verify vendor-fresh.
+for client_dir in clients/*/; do
+  [ -d "$client_dir" ] || continue
+  client_id="${client_dir%/}"; client_id="${client_id##*/}"
+  if git diff --cached --name-only HEAD 2>/dev/null | grep -qE "^clients/$client_id/dist/framework/"; then
+    node scripts/verify-vendor-fresh.mjs --client="$client_id"
+  fi
+done
+
+# 2. If staged changes touch src/, ALL clients/*/dist/framework/ must be re-vendored.
+if git diff --cached --name-only HEAD 2>/dev/null | grep -qE "^src/"; then
+  for client_dir in clients/*/; do
+    [ -d "$client_dir" ] || continue
+    client_id="${client_dir%/}"; client_id="${client_id##*/}"
+    if ! node scripts/verify-vendor-fresh.mjs --client="$client_id"; then
+      echo "[pre-push] src/ changed but clients/$client_id/dist/framework/ is stale. Run: npm run vendor:build:all" >&2
+      exit 1
+    fi
+  done
+fi
+
+# 3. Per-file deny-list grep against staged paths.
+git diff --cached --name-only HEAD 2>/dev/null | while read -r staged_file; do
+  [ -z "$staged_file" ] && continue
+  node scripts/verify-no-forbidden.mjs --staged="$staged_file" || exit 1
+done
+
+exit 0
