@@ -1,6 +1,7 @@
 # PLAN: Client Deliverable Rebuild — Path A (Vendored Framework + git-archive Ship)
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-05-01
 **Priority**: P0-EMERGENCY
 **Created**: 2026-04-30
 **Last revised**: 2026-04-30 (post-audit; pivoted to Path A; every cross-reference enumerated)
@@ -1083,3 +1084,49 @@ Post-execution, agents (Claude or otherwise) operating in this repo see the new 
 ---
 
 **End of plan. ~600 lines. Every claim verified, every cross-reference enumerated, every rule honored, every gate spec'd. Ready for `/execute` on user authorization.**
+
+---
+
+## Execution Summary (2026-05-01)
+
+Plan `/execute`d under OWNER identity, then re-audited (audit-of-audit RED verdict surfaced 15 acceptance-gate misses + 3 NEW structural findings F16/F17/F18 over the original audit's F1–F15). R1 fix-pass applied 11 inline corrections; R3 commit-chain landed in 9 commits (167ed4d baseline → 503882a final). Total deviations logged: 37 rows in `clients/encore/specs_planning/_internal/PLAN_CLIENT_DELIVERABLE_REBUILD-deviations.md` (gitignored — agent-only audit trail; not in deliverable).
+
+### Acceptance criteria status (against §A–G of plan body)
+
+| Section | Outcome |
+|---|---|
+| **A** Per-client meta-files | DONE — 5 files (package.json, playwright.config.{ts,ci.ts}, tsconfig.json, .gitignore) at `clients/encore/`. Plus A2.1 added (NEW): `git rm --cached` step for legacy-tracked artifacts (F16). |
+| **B** Pipeline structural rebuild | DONE — `src/{orchestrator,server,worker,utils/agent-notification-writer}/` → `pipeline/{...}/`; `tsconfig.server.json` → `pipeline/tsconfig.json`. ts-node mode PASS. tsc compilation has 5 remaining errors (4 rootDir + 1 pre-existing) → SUBPLAN_PIPELINE_TSC_HARDEN.md. |
+| **C** Cross-references | DONE — strict grep (line 839, post-Q1=A 5-carve-out amendment) returns 0 hits. Plus 3 mechanical post-move imports fixed in R3.A (`pipeline/scripts/healer-post-complete.ts:20-21`, `pipeline/utils/agent-notification-writer.ts:13`). |
+| **D** EXP-AUTH-STATE-SHARED rename | DONE — strict grep (line 843) returns 0 hits for `TEMP_RUTVIK_EXPERIMENT` in code. Marker context relocated to `clients/encore/specs_planning/_internal/active-experiments.md` (gitignored). |
+| **E** Ship discipline (3-layer defense) | DONE — Layer 1: per-client `.gitignore` + `git rm --cached` for 82 legacy-tracked files (F16). Layer 2: 6 scripts (`vendor:build:all`, `client:ship.{sh,ps1}`, `verify-{vendor-fresh,no-forbidden}.mjs`, `build-framework-vendor-all.mjs`). Layer 3: `.githooks/{pre-push,pre-commit}` ACTIVE (`core.hooksPath=.githooks`). CI: `.github/workflows/ship-smoke.yml` (Ubuntu+Windows matrix). |
+| **F** Mock-repo rebuild + force-push + local-folder delete | **NOT EXECUTED — STOP-GATE held per Auto Mode rule 5 + R3-Q5 disposition.** Destructive on shared remote (`RutviK-JBS/encore_deliverables_test:main`) + local data (`rm -rf C:/Users/rutvi/projects/encore_deliverables_test/`). Held until user authorizes. Recommended sequence: clone deliverable, tag `pre-rebuild-2026-04-30` at SHA `febff02` first, push tag, THEN force-push rebuilt main, THEN delete local clone. |
+| **G** Docs + rules | DONE — `CLAUDE.md` G1 Repo-Structure section; `BUNDLE_MANIFEST.md` G3 full rewrite (Path A + 3-layer table); `LR-049` in `.claude/rules/pipeline.md` (ship-via-git-archive only); plan body amended with A2.1 + Q1=A line 839 carve-outs + audit-fix metadata rows; `SUBPLAN_PIPELINE_TSC_HARDEN.md` authored. |
+| **H1** Standalone install | PASS — `cp -r` + `npm install` resolves all deps post-F17 (knex + @aws-sdk/client-s3 + proper-lockfile added); `npx playwright test --list` resolves **1310 test entries** post-F18 (testDir + glob fix). |
+| **H2** Server/worker bootstrap | PASS — both `npm run server:start` and `npm run worker:start` load modules cleanly under ts-node; runtime checks (DB, Claude CLI auth) fail as expected in dev env. **Note**: `npm run build:server` (tsc compile mode) blocked on rootDir architecture → SUBPLAN_PIPELINE_TSC_HARDEN. |
+| **H3** Idempotency | PASS — `diff -r --exclude='reports' --exclude='node_modules' --exclude='.auth' --exclude='package-lock.json' /tmp/encore-d1 /tmp/encore-d2` returns exit 0 (byte-identical shipped output across consecutive `npm run client:ship` runs). |
+| **H4** Deny-list defense | PASS — caught in flight at first commit (build-claim-vs-actual-diff.mjs personal identifier, deviation #33), at second commit (verifier self-reference, deviation #34). All 3 layers exercised live. |
+| **H5** CI smoke | NOT YET TRIGGERED (no PR open) — `.github/workflows/ship-smoke.yml` will fire on next PR touching `src/`/`pipeline/`/`clients/`/`scripts/`/`package.json`/`tsconfig*`. |
+
+### Commit chain (9 commits)
+
+1. `167ed4d` — pre-execute baseline snapshot
+2. `bbed318` — chore: anchor root /dist/ + scrub personal identifier in moved diff script (also absorbed all staged moves + F16 untracks)
+3. `52e8466` — feat: per-client encore meta + post-move imports + build-server schema copy
+4. `3c1e3c5` — refactor: rename TEMP_RUTVIK_EXPERIMENT marker → EXP-AUTH-STATE-SHARED
+5. `a14d5c5` — feat: vendor-build + ship-client + verify scripts + hooks + CI smoke
+6. `0456f61` — docs+rule: CLAUDE.md repo-structure, BUNDLE_MANIFEST rewrite, LR-049, plan amendments
+7. `dae441f` — build: vendor encore framework (19 files) — initial population
+8. `183d1c4` — fix: add knex + @aws-sdk/client-s3 to encore per-client deps (F17)
+9. `74bd4fb` — fix: add proper-lockfile (F17 cont.)
+10. `503882a` — fix: add explicit testDir + drop ./ prefix from testMatch glob (F18)
+
+### Deferred to follow-up
+
+- **Workstream F** (force-push + local rm): held pending user authorization (R3-Q5).
+- **Pipeline tsc compilation**: `SUBPLAN_PIPELINE_TSC_HARDEN.md` (in `plans/pending/`) handles the rootDir architecture decision (3 candidate paths B/C/D with criteria). Pre-existing `pipeline/worker/progress-extractor.ts:85 'never'` error included in subplan Phase 2.5.
+- **CI smoke first run**: will trigger automatically on next PR matching path-filter.
+
+### Calibration notes
+
+`feedback_halt_discipline.md` (NEW memory entry, 2026-05-01) — calibrated by Rutvik mid-flow: HALT for scope/ambiguity, NOT for 1-line obvious fixes; checkpoint at end of work block, not at every typecheck error. Applied throughout R3: 7 inline 1-line/few-line fixes (Fix B, R3.A imports ×3, R3.B hook quote, F17×2, F18, R3 commit-1 scrub, R3 commit-4 self-exclusion) all logged as deviation rows rather than mid-flow halts. 3 genuine HALTs surfaced as proper findings (F16, F17, F18) at coherent breakpoints.
