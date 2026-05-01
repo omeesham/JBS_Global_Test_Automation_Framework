@@ -149,7 +149,7 @@ for (const [area, id] of claimed) {
 const lines = [];
 lines.push('# Engineer Claim vs Live DOM — Diff Matrix (CLI-verified 2026-04-29)');
 lines.push('');
-lines.push('**Source**: live DOM exploration via `playwright-cli` on `cloudapps-e2e.encoreglobal.com`, office 1604, user `v-rutvik.khosariya@psav.com`.');
+lines.push('**Source**: live DOM exploration via `playwright-cli` on `cloudapps-e2e.encoreglobal.com`, office 1604.');
 lines.push('**Per-tab/dialog dumps**: `reports/testid-verification/cli-<surface>-2026-04-29.json` (13 files).');
 lines.push('');
 lines.push('## Summary');
@@ -185,7 +185,7 @@ lines.push('## Caveats / open questions');
 lines.push('');
 lines.push('- Pricing tab earlier failed via the test runner (15s readiness timeout on `corporate-pricing` checkbox). Live CLI exploration shows the testid IS present; the page-object readiness wait simply needed more time. Suggests the page object should bump the Pricing readiness timeout, but that decision is not in scope for this exploration.');
 lines.push('- The Local Info tab capture happened on the freshly-loaded page where 89 testids were present. The earlier `location-testid-verify.spec.ts` run reported 0/5 PRESENT for Local Info + Currency probes — that result was wrong (the spec ran before the DOM finished hydrating, OR ran in the wrong frame context). The live CLI dump is authoritative.');
-lines.push('- Verification was performed on user `v-rutvik.khosariya@psav.com`, office 1604. RBAC may render differently for other users.');
+lines.push('- Verification was performed on a single test user, office 1604. RBAC may render differently for other users.');
 lines.push('');
 
 const out = path.join(DIR, `diff-claimed-vs-actual-${DATE}.md`);
