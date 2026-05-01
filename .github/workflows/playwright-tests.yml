@@ -9,16 +9,9 @@
 # USED BY: GitHub Actions — `workflow_dispatch` only (Run workflow button or
 #          `gh workflow run playwright-tests.yml`). NO push / PR / cron triggers.
 #
-# AUTH CONTRACT (SP-EFD-02 target / TEMP_RUTVIK_EXPERIMENT current):
-#   - **Today (TEMP_RUTVIK_EXPERIMENT 2026-04-30)**: NAVIGATOR_MFA_SECRET IS set in the
-#     env block while the shared automation user is broken — temp account is Rutvik's
-#     personal MFA-enabled account. The setup project (auth.setup.ts) does ONE TOTP
-#     login per run, all workers reuse storageState. Search marker: TEMP_RUTVIK_EXPERIMENT.
-#   - **Target (post auto-user)**: drop NAVIGATOR_MFA_SECRET line + delete the GitHub
-#     secret. CI user has MFA disabled in M365 Admin per "CI User Provisioning Checklist"
-#     in clients/encore/CLAUDE.md. login.page.ts:215 silently skips MFA step when
-#     mfaSecret is undefined → straight to Dashboard. Removal procedure: see
-#     clients/encore/CLAUDE.md § "Temporary credentials".
+# AUTH CONTRACT: EXP-AUTH-STATE-SHARED active (see clients/encore/specs_planning/_internal/active-experiments.md).
+#   Target (post auto-user): drop NAVIGATOR_MFA_SECRET; CI user has MFA disabled per
+#   "CI User Provisioning Checklist" in clients/encore/CLAUDE.md.
 #
 # MODULE-PARALLEL CONTRACT (SP-EFD-01): playwright.config.ci.ts adds CI-only
 #   `encore-local-office` + `encore-locations` projects with fullyParallel:false.
@@ -40,12 +33,9 @@ jobs:
     env:
       NAVIGATOR_USERNAME: ${{ secrets.NAVIGATOR_USERNAME }}
       NAVIGATOR_PASSWORD: ${{ secrets.NAVIGATOR_PASSWORD }}
-      # TEMP_RUTVIK_EXPERIMENT (2026-04-30): NAVIGATOR_MFA_SECRET temporarily set so the
-      # setup project's auth.setup.ts can complete TOTP for Rutvik's personal MFA account
-      # while the shared automation user (s-prd-clickauto@psav.com) is broken. REMOVE this
-      # line + delete the GitHub secret when Encore IT provisions the MFA-less auto-user
-      # per the "CI User Provisioning Checklist" + "Temporary credentials" subsections in
-      # clients/encore/CLAUDE.md. SP-EFD-02 MFA-less contract is the post-removal target.
+      # EXP-AUTH-STATE-SHARED: NAVIGATOR_MFA_SECRET temporarily set while shared automation
+      # user is broken. REMOVE when MFA-less auto-user is provisioned (SP-EFD-02 target).
+      # See clients/encore/specs_planning/_internal/active-experiments.md for owner + removal trigger.
       NAVIGATOR_MFA_SECRET: ${{ secrets.NAVIGATOR_MFA_SECRET }}
       BASE_URL: ${{ secrets.BASE_URL }}
       CI_ENV: ci

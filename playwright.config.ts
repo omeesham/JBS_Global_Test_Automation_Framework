@@ -60,7 +60,7 @@ export default defineConfig({
   },
   
   // ==================== PARALLELIZATION ====================
-  // EXP-AUTH-STATE-SHARED (TEMP_RUTVIK_EXPERIMENT 2026-04-30): bumped to fullyParallel + 2 workers
+  // EXP-AUTH-STATE-SHARED (2026-04-30): bumped to fullyParallel + 2 workers
   // for the shared-storage-state experiment. Revert to (false, 1) if experiment fails.
   fullyParallel: true,
   forbidOnly: !!process.env.CI,  // Prevent accidental test.only() in CI
@@ -133,7 +133,7 @@ export default defineConfig({
   // ==================== BROWSER PROJECTS ====================
   // Usage: npx playwright test --project=chrome
   projects: [
-    // EXP-AUTH-STATE-SHARED setup project (TEMP_RUTVIK_EXPERIMENT 2026-04-30):
+    // EXP-AUTH-STATE-SHARED setup project (2026-04-30):
     // Runs ONCE before any test project to acquire/refresh shared auth state at .auth/encore-state.json.
     {
       name: 'setup',

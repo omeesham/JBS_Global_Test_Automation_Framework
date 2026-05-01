@@ -1,5 +1,5 @@
 /**
- * @experiment EXP-AUTH-STATE-SHARED throwaway verification spec (TEMP_RUTVIK_EXPERIMENT 2026-04-30).
+ * @experiment EXP-AUTH-STATE-SHARED throwaway verification spec (2026-04-30).
  *
  * Goal: prove that 2 parallel workers can both reach Dashboard via shared storageState,
  * with no Microsoft login UI in either trace, and the session remains stable across a

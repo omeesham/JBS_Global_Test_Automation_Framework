@@ -5,7 +5,7 @@
  * serializes via dependencies: ['setup']). Produces .auth/encore-state.json which all
  * downstream workers consume read-only via use.storageState.
  *
- * Search marker: TEMP_RUTVIK_EXPERIMENT
+ * Search marker: EXP-AUTH-STATE-SHARED
  */
 
 import { test as setup, expect } from '@playwright/test';

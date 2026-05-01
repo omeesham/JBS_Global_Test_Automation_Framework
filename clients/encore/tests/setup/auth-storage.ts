@@ -3,7 +3,7 @@
  *
  * Shared-storage-state helpers for parallel-worker auth without MFA conflicts.
  * Cleanup target: deleted on experiment failure or auto-user provisioning.
- * Search marker: TEMP_RUTVIK_EXPERIMENT
+ * Search marker: EXP-AUTH-STATE-SHARED
  */
 
 import * as fs from 'fs';

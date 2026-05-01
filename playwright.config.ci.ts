@@ -79,7 +79,7 @@ export default defineConfig({
   // module (HIST-safe: history specs read row 0 while sibling specs write rows — same
   // worker → sequential).
   projects: [
-    // EXP-AUTH-STATE-SHARED (TEMP_RUTVIK_EXPERIMENT 2026-04-30): module projects depend on
+    // EXP-AUTH-STATE-SHARED (2026-04-30): module projects depend on
     // the setup project (defined in playwright.config.ts) so auth.setup.ts fires ONCE in CI
     // and writes .auth/encore-state.json, which both module workers consume read-only via
     // storageState. Without these two lines, --project=encore-local-office --project=encore-locations
