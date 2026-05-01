@@ -10,7 +10,7 @@ import {
   ackNotification,
   ackAllNotifications,
   notifyStaleArtifacts,
-} from '../../src/utils/agent-notification-writer';
+} from '../../utils/agent-notification-writer';
 
 const TEST_DIR = path.join(__dirname, '../../specs_planning/_internal/agent-notifications');
 

@@ -253,3 +253,29 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
 - GARDENER sweeps periodically per `PLAN_PLANS_GARDENER_SWEEP.md`.
 
 **Graduated from**: 2026-04-29 — repo-wide auto-injection audit found 9 SP-DQU-12..20 subplans inconsistent in their Phase 0.5b structure (some had it, some didn't, until amended in the same audit). LR-048 prevents recurrence by codifying the minimum. Co-landed with `reports/bugs/**/*.json` glob added to `.claude/rules/baseline.md` paths frontmatter (closes the bug-filing auto-load gap so any agent editing a `BUG-*.json` sees `baselineComparison` per LR-034).
+
+## LR-049: Ship-via-git-archive only — never `cp -r` for client delivery
+
+Client deliverables ship through one and only one path: `npm run client:ship -- --client=<id> --out=<path>`.
+
+The script wraps `git archive HEAD clients/<id>/`, which:
+
+- Includes only files tracked in git (gitignored content is structurally excluded).
+- Refuses if vendored framework is stale or if any forbidden pattern is staged.
+- Runs a `npx playwright test --list` smoke against the output.
+
+`cp -r clients/<id> /target/` is FORBIDDEN as a delivery mechanism. It copies the entire working tree including gitignored agent artifacts (CLAUDE.md, specs_planning/, .auth/, etc.) and bypasses the vendor-fresh check. Doing this leaks framework IP.
+
+**Defense in depth (3 layers)**:
+
+1. Per-client `.gitignore` (e.g., `clients/encore/.gitignore`) — structural fence; agent artifacts are absent from `git archive` output.
+2. This rule (LR-049) — agent-layer guidance; `cp -r` triggers HALT.
+3. Pre-push hook `.githooks/pre-push` + `scripts/verify-no-forbidden.mjs` — runtime enforcement; refuses pushes that would leak forbidden patterns.
+
+If any one layer fails, the others catch.
+
+**Trigger**: any chat mention of "ship", "deliver", "package", "send to client", "give them", "make a deliverable", "zip the encore folder", "copy clients/encore to". Agent must verify the operator is invoking the ship script, not `cp` / `tar` / `zip` directly.
+
+**Override**: requires explicit user authorization phrase per the LR-043 break-glass pattern: `override approved` / `override ok` / `i authorize`. One-shot, per-delivery.
+
+**Graduated from**: 2026-04-30 incident — manual `git init && git add . && git push` shipped 195 files including the entire pipeline runtime (orchestrator + backend server + agent worker), agent-only `CLAUDE.md`, and internal `specs_planning/` to a private repo, bypassing the colleague-as-packager assumption (SP-MT-07). PLAN_CLIENT_DELIVERABLE_REBUILD restructured to Path A (vendored framework + git-archive ship) and codified this rule as the agent layer.

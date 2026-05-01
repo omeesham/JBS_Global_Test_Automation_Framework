@@ -122,3 +122,14 @@ Existing `LR-NNN` numbers are grandfathered. New framework rules continue after 
 ## Identity Codenames
 
 `HUNTER` (Requirements) · `GIVER` (Planner) · `BUILDER` (Generator) · `HEALER` (Healer) · `WATCHDOG` (Audit) · `GARDENER` (Maintainer) · `OWNER` (default — non-pipeline).
+
+---
+
+## Repo Structure (post-2026-04-30 client-deliverable rebuild)
+
+- `src/` — **publishable framework**. Whatever lives here ships to clients via vendoring (`clients/<id>/dist/framework/`). Adding code here = client-shippable by default.
+- `pipeline/` — **internal runtime**. Orchestrator, server, worker, agent-notification-writer, hook tests. NEVER ships. Adding code here = agent-only by default.
+- `clients/<id>/` — **per-client surface**. Page objects, selectors, specs, test data, config. Self-contained: own `package.json`, `playwright.config.ts`, `tsconfig.json`, `.gitignore`. Ships via `npm run client:ship -- --client=<id> --out=<path>` (which uses `git archive HEAD clients/<id>/`).
+  - Tracked: `src/`, `tests/`, `config/`, `api-testing/`, `dist/framework/` (vendored), `package.json`, `playwright.config.ts`, `tsconfig.json`, `.gitignore`, `README.md`, `docs/REQUIREMENTS.md`, `docs/MODULE_REGISTRY.md`.
+  - Gitignored at per-client level: `CLAUDE.md`, `specs_planning/`, `readable_externals/`, `docs/read_only_docs/`, `exports/`, `.auth/`, `.env.*.local`, `.env.server`.
+- Ship discipline: NEVER `cp -r clients/<id>` for delivery. Always `npm run client:ship`. Pre-push hook refuses pushes that would leak gitignored content via tracked-but-forbidden patterns. Rule: LR-049 in `.claude/rules/pipeline.md`.

@@ -2,7 +2,7 @@
  * Anthropic API Client — direct fetch-based calls to Claude API.
  * Used by chatbot service for dual-mode (API) execution.
  *
- * Mirrors src/worker/sdk-executor.ts logic — keep MODEL_MAP and cost rates in sync.
+ * Mirrors website/backend/src/worker/sdk-executor.ts logic — keep MODEL_MAP and cost rates in sync.
  * Separate file because Express backend and Encore server have different tsconfigs.
  */
 

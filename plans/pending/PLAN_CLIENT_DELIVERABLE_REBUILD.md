@@ -162,6 +162,28 @@ test-results/
 
 The `!dist/framework/` allowlist is the inverse of the root repo's `dist/` ignore — at the client level, vendored framework IS tracked. Root-level `.gitignore` has `dist/` ignored, so a coordinating rule update is needed (Workstream G2).
 
+### A2.1. Untrack legacy artifacts (REQUIRED post-`.gitignore`-creation — added 2026-05-01)
+
+`.gitignore` only governs files NOT YET tracked by git. Any file already tracked when the per-client `.gitignore` is added KEEPS being tracked, even if it now matches a deny pattern. Without an explicit `git rm --cached` step, Layer 1 of the 3-layer defense (per-client `.gitignore`) is decorative for those files; only Layer 2 (`scripts/verify-no-forbidden.mjs` deny-list grep) catches them at ship time.
+
+For Encore, the pre-existing tracked content matching the new deny patterns is ~82 files (CLAUDE.md, docs/read_only_docs/*, exports/*.csv, specs_planning/, readable_externals/, .auth/). Run **once per client** immediately after authoring `clients/<client>/.gitignore`:
+
+```bash
+cd clients/<client>
+# Untrack pre-existing files matching new deny patterns. Files stay on disk; git just stops tracking them.
+git rm --cached -r CLAUDE.md docs/read_only_docs/ exports/ specs_planning/ readable_externals/ .auth/ 2>/dev/null || true
+# Verify: should return zero
+git ls-files | grep -E '^(CLAUDE.md|docs/read_only_docs/|exports/|specs_planning/|readable_externals/|\.auth/)' | wc -l
+```
+
+The trailing `|| true` is intentional: `git rm --cached` errors on paths that don't currently exist OR aren't tracked, but for the verification we only care about the AFTER state (the grep returning 0). Skip patterns that don't apply to the client (e.g., a client without a populated `exports/` won't have anything to untrack there — that's fine).
+
+The `git rm --cached` changes get committed in the SAME commit as the `clients/<client>/.gitignore` itself, so the structural fence becomes effective atomically.
+
+**Trigger** (future per-client setups): every new `clients/<id>/.gitignore` authoring. Skipping this step = Layer 1 decorative for legacy content = audit finding.
+
+**Graduated from**: F16 (audit-of-audit blindspot 2026-05-01) — original plan A2 specified the `.gitignore` content but missed this step. Discovered when ship pipeline aborted at deny-list Layer 2 with 82 forbidden tracked files.
+
 ### A3. Vendor-build script: `scripts/build-framework-vendor.ts`
 
 Compiles framework `src/` (minus pipeline-only files, see B3) into each `clients/<client>/dist/framework/`. Specification:
@@ -299,6 +321,7 @@ Each row is a **mandatory edit**, with the file + line + old → new. Failure to
 | `.claude/launch.json` | 21 | `"runtimeArgs": [..., "src/server/index.ts"]` → `"pipeline/server/index.ts"` |
 | `.claude/agents/RUTVIK.agent.md` | 19 | Pipeline Backend row: `src/server/`, `src/orchestrator/`, `src/worker/` → `pipeline/server/`, `pipeline/orchestrator/`, `pipeline/worker/` |
 | `clients/encore/config/environments/.env.server.example` | 25 | Comment `# Worker config (for src/worker/index.ts)` → `# Worker config (for pipeline/worker/index.ts)` |
+| `website/backend/src/utils/anthropic-client.ts` | 5 | Comment `Mirrors src/worker/sdk-executor.ts logic — keep MODEL_MAP and cost rates in sync.` → `Mirrors website/backend/src/worker/sdk-executor.ts logic — keep MODEL_MAP and cost rates in sync.` (path-explicit so the C5/H1 strict-grep gate doesn't false-positive on this comment; the file actually being referenced is `website/backend/src/worker/sdk-executor.ts`, which exists and is internal to the website subproject — NOT the framework `src/worker/` being moved). |
 
 ### C4. Documentation / handoff (LOW — historical accuracy)
 
@@ -345,6 +368,7 @@ For each file, replace `TEMP_RUTVIK_EXPERIMENT` with `EXP-AUTH-STATE-SHARED` and
 | `clients/encore/tests/setup/auth.setup.ts` | 8 | Rename "Search marker: TEMP_RUTVIK_EXPERIMENT" → "Search marker: EXP-AUTH-STATE-SHARED". |
 | `clients/encore/tests/setup/auth-storage.ts` | 6 | Same. |
 | `clients/encore/tests/setup/fixtures.ts` | 139 | Same. |
+| `clients/encore/tests/specs/_verification/auth-experiment.spec.ts` | 2 | Rename JSDoc `(TEMP_RUTVIK_EXPERIMENT 2026-04-30)` → `(EXP-AUTH-STATE-SHARED 2026-04-30)`. (Throwaway verification spec — DEVIATION-added during /execute Phase 1 gap analysis; plan originally enumerated 7 prod files but D4 strict grep target=zero requires all 8 hits cleared.) |
 | `.github/workflows/playwright-tests.yml` | 12, 13, 16, 43 | **Special**: this file documents that `NAVIGATOR_MFA_SECRET` is set "while the shared automation user is broken — temp account is Rutvik's personal MFA-enabled account." That's a real human-name reference that should be moved to internal docs, not committed CI. Replace the multi-paragraph TEMP_RUTVIK_EXPERIMENT block with a 1-line `EXP-AUTH-STATE-SHARED` reference, and move the "Rutvik's personal MFA-enabled account" detail to `clients/encore/specs_planning/_internal/active-experiments.md` (gitignored). |
 | `clients/encore/CLAUDE.md` | (whole file is gitignored under per-client rules — no rename needed; agent-only) | No-op. |
 
@@ -646,10 +670,9 @@ Add a section reconciling the per-client `dist/framework/` allowlist with the ro
 
 ```
 # Vendored framework per-client (Path A — see PLAN_CLIENT_DELIVERABLE_REBUILD)
-# Root dist/ stays ignored, but clients/<id>/dist/framework/ is explicitly tracked.
-clients/*/dist/framework/.vendor-meta.json   # tracked
-!clients/*/dist/framework/
-clients/*/dist/!framework/                   # other dist/ subdirs (if any) stay ignored
+# Root /dist/ is anchored (root only) so it does NOT touch clients/*/dist/.
+# Per-client allowlist for dist/framework/ lives in clients/<id>/.gitignore.
+# This block exists as documentation only — no rule active at root level.
 ```
 
 ### G3. Rewrite `BUNDLE_MANIFEST.md` for Path A
@@ -835,7 +858,8 @@ Every box must be checked before `Status: DONE` is set. Strict, grep-verifiable.
 - [ ] `.claude/agents/RUTVIK.agent.md:19` reflects new paths.
 - [ ] `clients/encore/config/environments/.env.server.example:25` comment updated.
 - [ ] `BUNDLE_MANIFEST.md` rewritten for Path A.
-- [ ] **Strict — must equal zero**: `grep -rn 'src/orchestrator\|src/server\|src/worker\|src/utils/agent-notification-writer' --include="*.ts" --include="*.js" --include="*.mjs" --include="*.json" --include="*.yml" --include="*.yaml" --include="*.md" --include="*.sh" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=.tmp --exclude-dir=encore_deliverables_test --exclude-dir=plans/done --exclude-dir=.playwright-cli .` returns ZERO hits.
+- [ ] **Strict — must equal zero**: `grep -rn 'src/orchestrator\|src/server\|src/worker\|src/utils/agent-notification-writer' --include="*.ts" --include="*.js" --include="*.mjs" --include="*.json" --include="*.yml" --include="*.yaml" --include="*.md" --include="*.sh" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=.tmp --exclude-dir=encore_deliverables_test --exclude-dir=plans/done --exclude-dir=.playwright-cli --exclude-dir=readable_externals --exclude-dir=specs_planning --exclude-dir=reports --exclude=tsconfig.build.json --exclude=anthropic-client.ts .` returns ZERO hits.
+  - Carve-out provenance (each exclusion tied to a plan section that MANDATES the literal — Q1=A 2026-05-01 amendment per LR-046): `--exclude-dir=readable_externals` (plan C4: footnote-only on dated handoff), `--exclude-dir=specs_planning` (LR-028: don't rewrite history; deviations log + activity log live here), `--exclude-dir=reports` (historical reports — `bundle-op-hardening-2026-04-21.md` etc.), `--exclude=tsconfig.build.json` (plan C2 line 19: defensive exclude REQUIRED to keep this literal), `--exclude=anthropic-client.ts` (plan Fix #3: path-explicit comment in `website/backend/` deliberately preserves drift detection).
 
 ### C. Marker rename (Workstream D)
 

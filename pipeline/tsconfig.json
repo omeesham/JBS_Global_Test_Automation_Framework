@@ -3,8 +3,8 @@
     "target": "ES2022",
     "module": "commonjs",
     "lib": ["ES2022"],
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "outDir": "../dist-pipeline",
+    "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -16,20 +16,15 @@
     "moduleResolution": "node"
   },
   "include": [
-    "src/server/**/*.ts",
-    "src/orchestrator/**/*.ts",
-    "src/worker/**/*.ts"
+    "./server/**/*.ts",
+    "./orchestrator/**/*.ts",
+    "./worker/**/*.ts",
+    "./utils/**/*.ts",
+    "./scripts/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "tests",
-    "src/pages",
-    "src/selectors",
-    "src/common",
-    "src/utils",
-    "src/data",
-    "src/security",
-    "src/framework-contracts"
+    "tests"
   ]
 }
