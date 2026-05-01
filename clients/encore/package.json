@@ -1,0 +1,45 @@
+{
+  "name": "@encore/playwright",
+  "version": "1.0.0",
+  "description": "Encore Playwright test suite — self-contained client deliverable",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "playwright test --config=playwright.config.ts",
+    "test:headed": "playwright test --config=playwright.config.ts --headed",
+    "test:chrome": "playwright test --config=playwright.config.ts --project=chrome",
+    "test:debug": "playwright test --config=playwright.config.ts --debug",
+    "test:ui": "playwright test --config=playwright.config.ts --ui",
+    "test:failed": "playwright test --config=playwright.config.ts --last-failed",
+    "test:grep": "playwright test --config=playwright.config.ts --grep",
+    "report": "playwright show-report reports/html-report",
+    "allure:generate": "npx allure generate reports/allure-results --clean -o reports/allure-report",
+    "allure:open": "npx allure open reports/allure-report",
+    "allure:report": "npm run allure:generate && npm run allure:open",
+    "setup": "npm install && npx playwright install",
+    "setup:browsers": "npx playwright install chromium firefox webkit",
+    "clean": "rimraf reports/allure-results reports/allure-report reports/diagnostics reports/walkthrough reports/html-report reports/test-results reports/test-results.json reports/failure-summary.json reports/junit-results.xml logs/test-execution.log",
+    "typecheck": "tsc --noEmit",
+    "build:framework": "node -e \"console.error('ERROR: vendored framework is pre-built; do not run from deliverable. To rebuild, run from source repo: npm run vendor:build -- --client=encore'); process.exit(1)\""
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^20.10.0",
+    "allure-commandline": "^2.38.1",
+    "allure-playwright": "^3.7.0",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "axios": "^1.13.4",
+    "dotenv-flow": "^4.1.0",
+    "exceljs": "^4.4.0",
+    "otplib": "^12.0.1",
+    "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

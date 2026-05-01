@@ -16,7 +16,7 @@ process.on('unhandledRejection', (reason) => {
  * Production upgrade: Switch agentRunner to "sdk" + add ANTHROPIC_API_KEY.
  *
  * Usage:
- *   npx ts-node src/worker/index.ts
+ *   npx ts-node pipeline/worker/index.ts
  *   # or via npm script:
  *   npm run worker:start
  *

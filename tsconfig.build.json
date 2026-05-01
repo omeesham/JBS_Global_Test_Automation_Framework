@@ -15,6 +15,7 @@
     "src/**/*.ts"
   ],
   "exclude": [
-    "src/data/adapters/__tests__/**"
+    "src/data/adapters/__tests__/**",
+    "src/utils/agent-notification-writer.ts"
   ]
 }

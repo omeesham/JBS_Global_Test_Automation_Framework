@@ -3,14 +3,14 @@
  * PURPOSE: Inter-agent notification system using per-file atomic pattern (no race conditions).
  * OWNER: human-only
  * IMPACT: medium - Enables agents to notify each other about stale artifacts, selector changes, and escalations.
- * DEPENDS-ON: src/framework-contracts/diagnostics.ts
- * USED-BY: scripts/healer-post-complete.ts, scripts/generator-pre-run.ts, scripts/planner-pre-run.ts
+ * DEPENDS-ON: ../../src/framework-contracts/diagnostics.ts
+ * USED-BY: ../../scripts/{healer-post-complete,generator-pre-run,planner-pre-run}.ts (path-explicit per Q1=A carve-out)
  * RULES: Each notification is a separate file. Readers glob + filter. Ack = delete file.
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { AgentNotification } from '../framework-contracts/diagnostics';
+import { AgentNotification } from '../../src/framework-contracts/diagnostics';
 import { SHARED_PATHS } from '../../scripts/shared-types';
 
 // SP-MT-04: SHARED_PATHS.notifications resolves per-client

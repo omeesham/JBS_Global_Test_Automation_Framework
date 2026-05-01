@@ -17,8 +17,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { QueueFile, QueueItem, SHARED_PATHS } from './shared-types';
-import { validateSelfAuditBase, runValidateSyncGate } from './validation-gates';
+import { QueueFile, QueueItem, SHARED_PATHS } from '../../scripts/shared-types';
+import { validateSelfAuditBase, runValidateSyncGate } from '../../scripts/validation-gates';
 
 function main(): void {
   const itemId = process.argv[2];
@@ -151,7 +151,7 @@ function main(): void {
   // If bugHuntCategory is FEATURE_CHANGED_SMALL, write stale_artifact notifications to generator + planner.
   if ((item as any).bugHuntCategory === 'FEATURE_CHANGED_SMALL') {
     try {
-      const { notifyStaleArtifacts } = require('../src/utils/agent-notification-writer');
+      const { notifyStaleArtifacts } = require('../utils/agent-notification-writer');
       const affectedFiles = (item as any).affectedFiles || [];
       const changeSummary = (item as any).changeSummary || `Small feature change healed for item ${item.id}`;
       const notifIds = notifyStaleArtifacts('healer', affectedFiles, changeSummary);

@@ -13,8 +13,8 @@
  * - Graceful shutdown
  *
  * Usage:
- *   npx ts-node src/worker/worker-manager.ts
- *   # or: node dist/worker/worker-manager.js
+ *   npx ts-node pipeline/worker/worker-manager.ts
+ *   # or: node ../dist-pipeline/worker/worker-manager.js
  *
  * Environment:
  *   WEBSITE_BACKEND_URL  — Website backend URL (default: http://localhost:3001)

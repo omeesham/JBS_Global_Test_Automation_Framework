@@ -16,7 +16,7 @@
 | Area | What |
 |------|------|
 | Playwright framework | `src/pages/`, `src/selectors/`, `tests/` |
-| Pipeline backend | `src/server/`, `src/orchestrator/`, `src/worker/` |
+| Pipeline backend | `pipeline/server/`, `pipeline/orchestrator/`, `pipeline/worker/` |
 | Pipeline agents | `.github/agents/` (6 Playwright agents) |
 | Scripts & tooling | `scripts/`, `config/` |
 | Plans & docs | `plans/`, `docs/` |

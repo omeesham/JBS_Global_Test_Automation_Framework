@@ -4,7 +4,7 @@
  * OWNER: human-only
  * IMPACT: high - Determines whether failures route to Healer vs back to Planner.
  * DEPENDS-ON: none (pure function, no DB)
- * USED-BY: src/server/routes/worker.ts (complete-task handler)
+ * USED-BY: pipeline/server/routes/worker.ts (complete-task handler)
  * RULES: Patterns are priority-ordered. First match wins. Unknown = safe fallback.
  */
 

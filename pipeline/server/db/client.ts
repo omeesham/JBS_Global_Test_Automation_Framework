@@ -47,15 +47,12 @@ export async function initializeSchema(): Promise<void> {
   const fs = await import('fs');
   const path = await import('path');
 
-  // ts-node: __dirname = src/server/db/ (schema.sql is co-located)
-  // tsc build: __dirname = dist/server/db/ (schema.sql not copied by tsc)
-  // Fallback resolves from dist/ back to src/ for compiled builds
-  let schemaPath = path.join(__dirname, 'schema.sql');
+  // schema.sql is co-located in pipeline/server/db/.
+  // ts-node: __dirname = pipeline/server/db/ → resolves directly.
+  // tsc build: package.json `build:server` copies schema.sql to dist-pipeline/server/db/ post-tsc.
+  const schemaPath = path.join(__dirname, 'schema.sql');
   if (!fs.existsSync(schemaPath)) {
-    schemaPath = path.join(__dirname, '../../../src/server/db/schema.sql');
-  }
-  if (!fs.existsSync(schemaPath)) {
-    throw new Error(`schema.sql not found at ${path.join(__dirname, 'schema.sql')} or ${schemaPath}`);
+    throw new Error(`schema.sql not found at ${schemaPath}`);
   }
 
   const schema = fs.readFileSync(schemaPath, 'utf-8');
