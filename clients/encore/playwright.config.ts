@@ -25,7 +25,8 @@ export function getArtifactSetting(envVar: string, defaultValue: string): string
 }
 
 export default defineConfig({
-  testMatch: ['./tests/**/*.spec.ts', './api-testing/**/*.spec.ts'],
+  testDir: __dirname,
+  testMatch: ['tests/**/*.spec.ts', 'api-testing/**/*.spec.ts'],
   testIgnore: ['**/examples/**'],
 
   timeout: 30 * 1000,
