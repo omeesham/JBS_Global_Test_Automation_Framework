@@ -1,5 +1,6 @@
 import { FullConfig } from '@playwright/test';
 import { Log } from '@framework/utils/logger';
+import { CredentialLoader } from '@framework/common/credential-loader';
 import * as dotenvFlow from 'dotenv-flow';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -119,7 +120,6 @@ async function runPreflightChecks(): Promise<PreflightResult[]> {
 
  // Check 4: Credential source loadable
   try {
-    const { CredentialLoader } = require('../../../../src/common/credential-loader');
     await CredentialLoader.loadCredentials({ type: 'env' });
     results.push({ check: 'credentials', status: 'PASS', message: 'Credentials loaded from environment' });
   } catch (error) {

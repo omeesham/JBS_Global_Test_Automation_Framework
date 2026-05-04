@@ -3,7 +3,7 @@ description: Field-inventory artifact + walkthrough + DOM-verify discipline
 paths:
   - "clients/*/specs_planning/_internal/**/*.md"
   - "clients/*/specs_planning/_internal/field-inventories/**/*.md"
-  - "src/selectors/**/*.ts"
+  - "clients/*/src/selectors/**/*.ts"
 ---
 
 # Field Inventory & Walkthrough Discipline

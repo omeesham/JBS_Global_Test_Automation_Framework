@@ -73,7 +73,9 @@ export class BasePage {
 
 ### `src/pages/` — Page Object Model
 
-All page objects extend `BasePage`. No direct `page.click()` / `page.fill()` — selector resolution via `BasePage.getLocator()` → `src/selectors/index.ts`.
+> **Path note (post-2026-04-30 rebuild)**: Root `src/{common,utils,data,framework-contracts}/` is the framework source-of-truth and ships to clients via vendoring. Per-client page objects, selectors, and tests live at `clients/<id>/src/{pages,selectors}/` and `clients/<id>/tests/`. The vendored framework runtime is mirrored to `clients/<id>/dist/framework/` at delivery time. Snippets below show the *pattern*; actual files live under the active client (e.g. `clients/encore/src/pages/...`).
+
+All page objects extend `BasePage`. No direct `page.click()` / `page.fill()` — selector resolution via `BasePage.getLocator()` → `clients/<id>/src/selectors/index.ts`.
 
 ```typescript
 export class LoginPage extends BasePage {

@@ -15,12 +15,13 @@
 
 | Area | What |
 |------|------|
-| Playwright framework | `src/pages/`, `src/selectors/`, `tests/` |
-| Pipeline backend | `pipeline/server/`, `pipeline/orchestrator/`, `pipeline/worker/` |
-| Pipeline agents | `.github/agents/` (6 Playwright agents) |
-| Scripts & tooling | `scripts/`, `config/` |
+| Framework source (vendored to clients) | `src/{common,utils,data,framework-contracts}/` (root — ships to `clients/<id>/dist/framework/`) |
+| Per-client surface (Encore) | `clients/encore/src/{pages,selectors}/`, `clients/encore/tests/`, `clients/encore/api-testing/`, `clients/encore/config/` |
+| Pipeline backend (internal-only) | `pipeline/{orchestrator,server,worker,utils,tests}/` |
+| Pipeline agents | `.claude/agents/` (Generator, Healer, Audit, Maintainer, Planner, Requirements) |
+| Scripts & tooling | `scripts/`, root `config/` |
 | Plans & docs | `plans/`, `docs/` |
-| Integration glue | `website/frontend/src/services/encoreApi.ts`, Vite proxy config |
+| Integration glue | Vite/proxy configs, root `playwright.config*.ts`, per-client `clients/<id>/playwright.config.ts` |
 
 ---
 

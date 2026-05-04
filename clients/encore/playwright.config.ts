@@ -32,7 +32,7 @@ export default defineConfig({
   timeout: 30 * 1000,
   expect: { timeout: 5000 },
 
-  // EXP-AUTH-STATE-SHARED: fullyParallel + 2 workers via shared storageState.
+  // AUTH-STATE-SHARED: fullyParallel + 2 workers via shared storageState.
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
 
@@ -82,7 +82,7 @@ export default defineConfig({
   },
 
   projects: [
-    // EXP-AUTH-STATE-SHARED setup project: runs ONCE before any test project to acquire/refresh
+    // AUTH-STATE-SHARED setup project: runs ONCE before any test project to acquire/refresh
     // shared auth state at .auth/encore-state.json.
     {
       name: 'setup',

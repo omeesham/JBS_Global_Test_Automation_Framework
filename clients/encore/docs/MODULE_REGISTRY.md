@@ -52,6 +52,8 @@ Directory convention for these sections follows the same `{section}/{module}/` p
 
 ## Directory Convention (six parallel trees)
 
+> **Path note**: All paths below are relative to the client root (`clients/encore/`).
+
 For any module `{section}/{mod}`:
 - Selectors: `src/selectors/{section}/{mod}/`
 - Page objects: `src/pages/{section}/{mod}/`

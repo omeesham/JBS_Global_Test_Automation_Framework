@@ -9,9 +9,10 @@
 # USED BY: GitHub Actions — `workflow_dispatch` only (Run workflow button or
 #          `gh workflow run playwright-tests.yml`). NO push / PR / cron triggers.
 #
-# AUTH CONTRACT: EXP-AUTH-STATE-SHARED active (see clients/encore/specs_planning/_internal/active-experiments.md).
-#   Target (post auto-user): drop NAVIGATOR_MFA_SECRET; CI user has MFA disabled per
-#   "CI User Provisioning Checklist" in clients/encore/CLAUDE.md.
+# AUTH CONTRACT: AUTH-STATE-SHARED — ONE setup project logs in once and writes
+#   .auth/encore-state.json; both module workers consume read-only via storageState.
+#   Runs as MFA-less automation user (s-prd-clickauto@psav.com). NAVIGATOR_MFA_SECRET
+#   intentionally absent — see "CI User Provisioning Checklist" in clients/encore/CLAUDE.md.
 #
 # MODULE-PARALLEL CONTRACT (SP-EFD-01): playwright.config.ci.ts adds CI-only
 #   `encore-local-office` + `encore-locations` projects with fullyParallel:false.
@@ -33,10 +34,6 @@ jobs:
     env:
       NAVIGATOR_USERNAME: ${{ secrets.NAVIGATOR_USERNAME }}
       NAVIGATOR_PASSWORD: ${{ secrets.NAVIGATOR_PASSWORD }}
-      # EXP-AUTH-STATE-SHARED: NAVIGATOR_MFA_SECRET temporarily set while shared automation
-      # user is broken. REMOVE when MFA-less auto-user is provisioned (SP-EFD-02 target).
-      # See clients/encore/specs_planning/_internal/active-experiments.md for owner + removal trigger.
-      NAVIGATOR_MFA_SECRET: ${{ secrets.NAVIGATOR_MFA_SECRET }}
       BASE_URL: ${{ secrets.BASE_URL }}
       CI_ENV: ci
 

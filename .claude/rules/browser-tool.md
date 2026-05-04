@@ -2,8 +2,8 @@
 description: Playwright CLI vs Claude in Chrome selection matrix (LR-038 v2)
 paths:
   - "plans/**/*.md"
-  - "src/pages/**/*.ts"
-  - "tests/**/*.spec.ts"
+  - "clients/*/src/pages/**/*.ts"
+  - "clients/*/tests/specs/**/*.spec.ts"
   - "clients/**/specs_planning/**/*.md"
 ---
 

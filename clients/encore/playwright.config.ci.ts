@@ -51,7 +51,7 @@ export default defineConfig({
   //   npx playwright test --config=playwright.config.ci.ts --workers=2
   //     --project=encore-local-office --project=encore-locations
   projects: [
-    // EXP-AUTH-STATE-SHARED: module projects depend on setup (defined in base playwright.config.ts)
+    // AUTH-STATE-SHARED: module projects depend on setup (defined in base playwright.config.ts)
     // so auth.setup.ts fires ONCE in CI and writes .auth/encore-state.json, which both module
     // workers consume read-only via storageState.
     {

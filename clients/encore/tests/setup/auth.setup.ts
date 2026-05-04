@@ -1,11 +1,12 @@
 /**
- * @experiment EXP-AUTH-STATE-SHARED (2026-04-30)
+ * AUTH-STATE-SHARED — Playwright "setup project" entrypoint.
  *
- * Playwright "setup project" entrypoint. Runs ONCE before any test project (Playwright
- * serializes via dependencies: ['setup']). Produces .auth/encore-state.json which all
- * downstream workers consume read-only via use.storageState.
+ * Runs ONCE before any test project (Playwright serializes via dependencies: ['setup']).
+ * Produces .auth/encore-state.json which all downstream workers consume read-only via
+ * use.storageState. Lock-and-share pattern: file-lock around fresh login prevents
+ * simultaneous-MFA collisions across parallel workers.
  *
- * Search marker: EXP-AUTH-STATE-SHARED
+ * Search marker: AUTH-STATE-SHARED
  */
 
 import { test as setup, expect } from '@playwright/test';

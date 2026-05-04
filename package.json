@@ -10,7 +10,6 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:clean": "rimraf dist && tsc -p tsconfig.build.json",
-    "client:package": "ts-node scripts/client-package.ts",
     "test": "playwright test --config=playwright.config.ts",
     "test:headed": "playwright test --config=playwright.config.ts --headed",
     "test:chrome": "playwright test --config=playwright.config.ts --project=chrome",

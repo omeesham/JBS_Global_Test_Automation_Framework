@@ -97,7 +97,7 @@ Key routes:
 - Module-specific selectors as test scenarios are defined
 
 **All discoveries should be recorded in:**
-- `src/selectors/index.ts` (TypeScript selectors)
+- `clients/encore/src/selectors/index.ts` (TypeScript selectors)
 - `specs_planning/test-cases/*.md` (test case documentation)
 - `specs_planning/test-plans/*.md` (technical automation plans)
 
@@ -126,7 +126,7 @@ Credentials are loaded at runtime by `CredentialLoader` from environment variabl
 **Discovery Process**:
 1. Planner agent explores the application after successful login
 2. Interactive elements, navigation patterns, and user flows are documented
-3. Element selectors are stored in `src/selectors/index.ts`
+3. Element selectors are stored in `clients/encore/src/selectors/index.ts`
 4. Test cases are documented in `specs_planning/test-cases/*.md`
 5. This file remains READ-ONLY for agents — discoveries go to test case files
 

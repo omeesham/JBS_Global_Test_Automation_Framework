@@ -1,8 +1,8 @@
 ---
 description: Spec authoring + spec-fixing workflow discipline
 paths:
-  - "tests/**/*.spec.ts"
-  - "src/pages/**/*.ts"
+  - "clients/*/tests/specs/**/*.spec.ts"
+  - "clients/*/src/pages/**/*.ts"
 ---
 
 # Spec Authoring & Spec-Fixing Discipline

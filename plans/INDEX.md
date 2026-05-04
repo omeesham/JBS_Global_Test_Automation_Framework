@@ -1,11 +1,11 @@
 # Plans Index
 
-**Last updated**: 2026-05-01
+**Last updated**: 2026-05-04
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 94 pending · 221 done · 17 stale (>14d) · 0 DONE-in-pending
+**Totals**: 94 pending · 222 done · 17 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -15,23 +15,23 @@
 
 | File | Age | Created | Priority |
 |---|---|---|---|
-| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 38d | 2026-03-24 | P2-CYCLE-3 |
-| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 38d | 2026-03-24 | P2-CYCLE-3 |
-| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 30d | 2026-04-01 | P2-CYCLE-3 |
-| [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | 28d | 2026-04-03 | P5-PARKED |
-| [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | 16d | 2026-04-15 | P2-CYCLE-3 |
-| [PLAN_HIST_COMMIT_HISTORY_WORK.md](pending/PLAN_HIST_COMMIT_HISTORY_WORK.md) | 16d | 2026-04-15 | P0-CYCLE-1 |
-| [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | 16d | 2026-04-15 | P2-CYCLE-3 |
-| [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | 15d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | 15d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | 15d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | 15d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | 15d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | 15d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | 15d | 2026-04-16 | P2-CYCLE-3 |
-| [SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md](pending/SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md) | 15d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md](pending/SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md) | 15d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md](pending/SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md) | 15d | 2026-04-16 | P1-CYCLE-2 |
+| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 41d | 2026-03-24 | P2-CYCLE-3 |
+| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 41d | 2026-03-24 | P2-CYCLE-3 |
+| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 33d | 2026-04-01 | P2-CYCLE-3 |
+| [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | 31d | 2026-04-03 | P5-PARKED |
+| [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | 19d | 2026-04-15 | P2-CYCLE-3 |
+| [PLAN_HIST_COMMIT_HISTORY_WORK.md](pending/PLAN_HIST_COMMIT_HISTORY_WORK.md) | 19d | 2026-04-15 | P0-CYCLE-1 |
+| [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | 19d | 2026-04-15 | P2-CYCLE-3 |
+| [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | 18d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | 18d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | 18d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | 18d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | 18d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | 18d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | 18d | 2026-04-16 | P2-CYCLE-3 |
+| [SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md](pending/SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md) | 18d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md](pending/SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md) | 18d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md](pending/SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md) | 18d | 2026-04-16 | P1-CYCLE-2 |
 
 ### DONE-in-pending (should be moved to done/)
 
@@ -158,6 +158,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | File | Title | Status | Completed |
 |---|---|---|---|
 | [SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md](done/SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md) | SUBPLAN: LI Test-Case MD — Phase 0 Lint Sweep | SUPERSEDED | never (folded scope) |
+| [PLAN_CLIENT_DELIVERABLE_REBUILD_REMEDIATION.md](done/PLAN_CLIENT_DELIVERABLE_REBUILD_REMEDIATION.md) | PLAN: Client Deliverable Rebuild — Remediation (Audit-of-Audit) | DONE | 2026-05-04 |
 | [PLAN_CLIENT_DELIVERABLE_REBUILD.md](done/PLAN_CLIENT_DELIVERABLE_REBUILD.md) | PLAN: Client Deliverable Rebuild — Path A (Vendored Framework + git-archive Ship) | DONE | 2026-05-01 |
 | [PLAN_FRIDAY_DELIVERABLE_2026-04-29.md](done/PLAN_FRIDAY_DELIVERABLE_2026-04-29.md) | PLAN: Friday Deliverable 2026-04-29 — CI Scaffold + Module-Parallel + MFA-less User | DONE | 2026-04-30 |
 | [SUBPLAN_EFD_04_DEFERRED_VERIFICATION.md](done/SUBPLAN_EFD_04_DEFERRED_VERIFICATION.md) | SUBPLAN SP-EFD-04 — Deferred Verification (Run When Ready) | DONE | 2026-04-30 |
@@ -387,7 +388,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 plans/
   INDEX.md              ← this file (auto-generated)
   pending/              ← active plans (94 files)
-  done/                 ← completed plans (221 files)
+  done/                 ← completed plans (222 files)
 ```
 
 When completing a plan:
@@ -401,6 +402,7 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-05-04 | done | [PLAN_CLIENT_DELIVERABLE_REBUILD_REMEDIATION.md](done/PLAN_CLIENT_DELIVERABLE_REBUILD_REMEDIATION.md) | DONE |
 | 2026-05-01 | pending | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | PENDING |
 | 2026-05-01 | done | [PLAN_CLIENT_DELIVERABLE_REBUILD.md](done/PLAN_CLIENT_DELIVERABLE_REBUILD.md) | DONE |
 | 2026-04-30 | done | [PLAN_FRIDAY_DELIVERABLE_2026-04-29.md](done/PLAN_FRIDAY_DELIVERABLE_2026-04-29.md) | DONE |
@@ -440,4 +442,3 @@ When completing a plan:
 | 2026-04-27 | done | [SUBPLAN_CCE_01_FOUNDATION_CLEANUP.md](done/SUBPLAN_CCE_01_FOUNDATION_CLEANUP.md) | DONE |
 | 2026-04-27 | done | [SUBPLAN_CCE_02B_TODO_INJECTION_ENFORCEMENT.md](done/SUBPLAN_CCE_02B_TODO_INJECTION_ENFORCEMENT.md) | DONE |
 | 2026-04-27 | done | [SUBPLAN_CCE_02_CLAUDEMD_RIGHTSIZE.md](done/SUBPLAN_CCE_02_CLAUDEMD_RIGHTSIZE.md) | DONE |
-| 2026-04-27 | done | [SUBPLAN_CCE_03_SKILL_RATIONALIZATION.md](done/SUBPLAN_CCE_03_SKILL_RATIONALIZATION.md) | DONE |

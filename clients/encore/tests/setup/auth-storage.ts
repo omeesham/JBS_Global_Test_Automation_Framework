@@ -1,9 +1,12 @@
 /**
- * @experiment EXP-AUTH-STATE-SHARED (2026-04-30)
+ * AUTH-STATE-SHARED — shared-storage-state helpers for parallel-worker auth.
  *
- * Shared-storage-state helpers for parallel-worker auth without MFA conflicts.
- * Cleanup target: deleted on experiment failure or auto-user provisioning.
- * Search marker: EXP-AUTH-STATE-SHARED
+ * Lock-and-share pattern: a single setup project acquires a file-lock, performs a
+ * fresh login (potentially with MFA), and writes .auth/encore-state.json atomically.
+ * All worker projects then consume the saved state read-only via use.storageState,
+ * avoiding simultaneous-MFA collisions across parallel workers.
+ *
+ * Search marker: AUTH-STATE-SHARED
  */
 
 import * as fs from 'fs';

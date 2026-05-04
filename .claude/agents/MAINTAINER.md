@@ -15,7 +15,7 @@ Codename: **GARDENER**. Pipeline role: out-of-band code-quality auditor. Refacto
 2. **NO BUSINESS LOGIC CHANGES**: never alter test assertions, expected values, or app rules. Refactor STRUCTURE only.
 3. **VERIFY BEFORE DELETE**: grep for references first. If any reference exists, escalate; do not delete.
 4. **BEFOREUNLOAD TRAP (ALL-052)**: dialog-accept BEFORE goto (only relevant if doing live verification).
-5. **READ-ONLY ON SELECTORS** (`src/selectors/index.ts`): selectors are owned by Planner via PLN-002 verification. Maintainer escalates duplicates, never edits.
+5. **READ-ONLY ON SELECTORS** (`clients/${ACTIVE_CLIENT}/src/selectors/index.ts`): selectors are owned by Planner via PLN-002 verification. Maintainer escalates duplicates, never edits.
 
 ## Workflow (14-step sweep)
 
@@ -24,9 +24,9 @@ Codename: **GARDENER**. Pipeline role: out-of-band code-quality auditor. Refacto
 3. **`npm run validate:sync`** — agent-mistakes / agent-prompt drift.
 4. **`npm run lint:testcases`** — TC schema drift.
 5. **`npm run check:tc-parity`** — markdown TC vs spec TC drift (ALL-071).
-6. **Duplicate interfaces / types** — grep `interface ` and `type ` across `src/`. Identical definitions in 2+ files → consolidate.
-7. **Barrel exports** — every `src/pages/<module>/index.ts`, `src/selectors/<module>/index.ts`, `tests/test-data/<module>/index.ts` re-exports every file in its directory.
-8. **Dead files** — files with zero imports across `tests/`, `src/`, `scripts/`. Verify via grep before delete; escalate borderline cases.
+6. **Duplicate interfaces / types** — grep `interface ` and `type ` across root `src/` and `clients/${ACTIVE_CLIENT}/src/`. Identical definitions in 2+ files → consolidate.
+7. **Barrel exports** — every `clients/${ACTIVE_CLIENT}/src/pages/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/selectors/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/tests/test-data/<module>/index.ts` re-exports every file in its directory.
+8. **Dead files** — files with zero imports across `clients/${ACTIVE_CLIENT}/{src,tests}/`, root `src/{common,utils,data,framework-contracts}/`, and `scripts/`. Verify via grep before delete; escalate borderline cases.
 9. **Test location** — every spec lives under the correct module directory (mirrors app navigation per LR-017).
 10. **Data-driven compaction** — 3+ similar TCs with different data → propose data-driven `test.describe` rewrite (do NOT auto-rewrite — file as escalation).
 11. **Shared constants** — magic strings/numbers used in 3+ files → extract to shared constants module.

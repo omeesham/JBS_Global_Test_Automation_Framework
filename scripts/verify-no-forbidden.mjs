@@ -44,7 +44,7 @@ const DENY_GLOBS = [
   /\.env\.local$/,
   /\.env\..+\.local$/,
   /\.env\.server$/,
-  /^pipeline\//,
+  /^\/pipeline\//,
 ];
 
 const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /v-rutvik/, /khosariya/, /NAVIGATOR_MFA_SECRET=[A-Z0-9]/];

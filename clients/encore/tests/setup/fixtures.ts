@@ -136,7 +136,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
  /**
  * Authenticated session fixture (worker-scoped)
  *
- * EXP-AUTH-STATE-SHARED (2026-04-30):
+ * AUTH-STATE-SHARED (2026-04-30):
  * Loads shared storageState from .auth/encore-state.json (created by the `setup` project).
  * Pre-test guard: validates state; on stale, acquires file-lock and refreshes (single re-login
  * across all workers). Falls back to fresh per-worker login only if state is missing entirely.
@@ -212,7 +212,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
     let { ctx: context, pg: page } = await newSharedContext();
 
-    // EXP-AUTH-STATE-SHARED test hook: when EXP_FORCE_STALE_FIRST=1, simulate mid-run
+    // AUTH-STATE-SHARED test hook: when EXP_FORCE_STALE_FIRST=1, simulate mid-run
     // expiry on the first pre-test guard call per worker process. Forces both workers
     // through refreshSharedState() simultaneously to verify the file-lock serialization.
     const forceStaleFirst =

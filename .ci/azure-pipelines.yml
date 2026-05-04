@@ -6,8 +6,9 @@ trigger:
   paths:
     include:
       - 'src/**'
-      - 'tests/**'
-      - 'playwright.config.ts'
+      - 'pipeline/**'
+      - 'clients/**'
+      - 'playwright.config*.ts'
 
 pr:
   branches:

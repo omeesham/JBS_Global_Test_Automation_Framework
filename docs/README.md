@@ -15,12 +15,15 @@ npm run test:debug          # Debug mode
 npm run report              # HTML report
 ```
 
-## Adding Page Objects
+## Adding Page Objects (per-client — see `clients/<id>/README.md`)
 
-1. Add selectors to `src/selectors/index.ts`
-2. Create `src/pages/{name}.page.ts` extending `BasePage`
-3. Add fixture to `tests/setup/fixtures.ts`
-4. Export from `src/pages/index.ts`
+Per the post-rebuild layout, page objects, selectors, fixtures, and barrel exports
+all live under the active client (e.g. `clients/encore/`):
+
+1. Add selectors to `clients/<id>/src/selectors/index.ts`
+2. Create `clients/<id>/src/pages/{name}.page.ts` extending `BasePage`
+3. Add fixture to `clients/<id>/tests/setup/fixtures.ts`
+4. Export from `clients/<id>/src/pages/index.ts`
 
 ## References
 

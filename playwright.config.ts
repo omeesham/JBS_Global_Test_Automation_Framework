@@ -47,8 +47,8 @@ export function getArtifactSetting(envVar: string, defaultValue: string): string
 export default defineConfig({
   // ==================== TEST DISCOVERY ====================
   // Scoped to active client's tests/ and api-testing/ -- prevents stray root-level specs from running.
-  // Framework unit tests (tests/unit/, tests/examples/) and adapter tests (src/data/adapters/__tests__/)
-  // are excluded from the main suite.
+  // Framework unit tests live at pipeline/tests/{unit,examples} (Jest); adapter tests at
+  // src/data/adapters/__tests__/. These are excluded from the Playwright suite.
   testMatch: [`${CLIENT_ROOT}/tests/**/*.spec.ts`, `${CLIENT_ROOT}/api-testing/**/*.spec.ts`],
   testIgnore: ['**/examples/**'],
   
@@ -60,18 +60,18 @@ export default defineConfig({
   },
   
   // ==================== PARALLELIZATION ====================
-  // EXP-AUTH-STATE-SHARED (2026-04-30): bumped to fullyParallel + 2 workers
+  // AUTH-STATE-SHARED (2026-04-30): bumped to fullyParallel + 2 workers
   // for the shared-storage-state experiment. Revert to (false, 1) if experiment fails.
   fullyParallel: true,
   forbidOnly: !!process.env.CI,  // Prevent accidental test.only() in CI
 
   // ==================== RETRY STRATEGY ====================
-  // EXP-AUTH-STATE-SHARED: retries: 1 locally so a mid-spec auth-state expiry (D1 case)
+  // AUTH-STATE-SHARED: retries: 1 locally so a mid-spec auth-state expiry (D1 case)
   // can be auto-recovered by Playwright re-running with refreshed state.
   retries: process.env.CI ? 2 : 1,
 
   // ==================== WORKER PROCESSES ====================
-  // EXP-AUTH-STATE-SHARED: 2 workers prove parallel auth via shared storageState.
+  // AUTH-STATE-SHARED: 2 workers prove parallel auth via shared storageState.
   workers: process.env.CI ? 1 : 2,
   
   // ==================== REPORTERS ====================
@@ -133,7 +133,7 @@ export default defineConfig({
   // ==================== BROWSER PROJECTS ====================
   // Usage: npx playwright test --project=chrome
   projects: [
-    // EXP-AUTH-STATE-SHARED setup project (2026-04-30):
+    // AUTH-STATE-SHARED setup project (2026-04-30):
     // Runs ONCE before any test project to acquire/refresh shared auth state at .auth/encore-state.json.
     {
       name: 'setup',
@@ -167,7 +167,7 @@ export default defineConfig({
     
     {
       name: 'chromium',
-      // EXP-AUTH-STATE-SHARED: depends on setup project; consumes saved storageState.
+      // AUTH-STATE-SHARED: depends on setup project; consumes saved storageState.
       dependencies: ['setup'],
       use: {
         viewport: { width: 1920, height: 1080 },  // explicit -- headless ignores null
