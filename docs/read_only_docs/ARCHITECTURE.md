@@ -269,7 +269,7 @@ test('should login successfully', async ({ loginPage, config }) => {
 | New base class | `src/common/` | `base-api-page.ts` |
 | New test | `tests/specs/` | `contact-crud.spec.ts` |
 | New element selectors | `src/selectors/index.ts` | Add to appropriate selector group |
-| New environment config | `.env.{environment}` | `.env.staging` |
+| New environment config | `.env.{environment}` | `.env.e2e` |
 
 ---
 

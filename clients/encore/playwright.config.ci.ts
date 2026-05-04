@@ -25,7 +25,7 @@ export default defineConfig({
       suiteTitle: true,
       environmentInfo: {
         Framework: 'Encore Playwright',
-        Environment: process.env.CI_ENV || 'ci',
+        Environment: process.env.CI_ENV || 'e2e',
         'Base URL': process.env.BASE_URL || 'https://cloudapps-e2e.encoreglobal.com/navigator/',
         Node: process.version,
         Platform: process.platform,

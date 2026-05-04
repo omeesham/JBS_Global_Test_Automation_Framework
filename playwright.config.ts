@@ -20,7 +20,7 @@ const CLIENT_ROOT = `clients/${ACTIVE_CLIENT}`;
 // Loads in order: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
 dotenvFlow.config({
   path: path.join(__dirname, CLIENT_ROOT, 'config', 'environments'),
-  node_env: process.env.CI_ENV || process.env.NODE_ENV || 'development',
+  node_env: process.env.CI_ENV || process.env.NODE_ENV || 'e2e',
   silent: true
 });
 
@@ -93,7 +93,7 @@ export default defineConfig({
       suiteTitle: true,
       environmentInfo: {
         Framework: 'Encore Playwright',
-        Environment: process.env.CI_ENV || 'development',
+        Environment: process.env.CI_ENV || 'e2e',
         'Base URL': process.env.BASE_URL || 'https://cloudapps-e2e.encoreglobal.com/navigator/',
         Node: process.version,
         Platform: process.platform,

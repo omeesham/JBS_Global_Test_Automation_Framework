@@ -17,11 +17,11 @@ Framework-level README for maintainers and the colleague routing bundles to end-
 ```bash
 npm install
 npx playwright install
-cp clients/encore/config/environments/.env.example config/environments/.env.local   # optional overrides
+cp clients/encore/config/environments/.env.e2e config/environments/.env.local   # optional overrides
 npm test
 ```
 
-Credentials for Encore ship in `clients/encore/config/environments/.env.development`. No extra setup needed for the single-tenant case (Encore is the default client — `ACTIVE_CLIENT=encore`).
+Credentials for Encore ship in `clients/encore/config/environments/.env.e2e`. No extra setup needed for the single-tenant case (Encore is the default client — `ACTIVE_CLIENT=encore`).
 
 ---
 

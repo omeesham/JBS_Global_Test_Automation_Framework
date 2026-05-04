@@ -19,7 +19,7 @@ async function globalSetup(config: FullConfig) {
  // Cascade: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
   dotenvFlow.config({
     path: path.join(__dirname, '..', '..', 'config', 'environments'),
-    node_env: process.env.CI_ENV || process.env.NODE_ENV || 'development',
+    node_env: process.env.CI_ENV || process.env.NODE_ENV || 'e2e',
     silent: true
   });
 

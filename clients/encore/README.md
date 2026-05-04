@@ -20,7 +20,7 @@ npm install
 npx playwright install chromium
 ```
 
-Credentials ship pre-wired in `clients/encore/config/environments/.env.development` (Microsoft SSO + TOTP). **Rotate these before any production use** — the shipped values are for the E2E environment only.
+Credentials ship pre-wired in `clients/encore/config/environments/.env.e2e` (Microsoft SSO + TOTP). **Rotate these before any production use** — the shipped values are for the E2E environment only.
 
 Verify the setup with the auth smoke test (~30 seconds):
 
@@ -162,7 +162,7 @@ Safe-to-edit without conflicts: `clients/encore/config/environments/.env.*` (you
 ## Troubleshooting
 
 1. **Nothing runs at all** — `npm install` exited non-zero, or `npx playwright install chromium` didn't complete. Re-run both; check node/npm versions meet the requirements above.
-2. **Every test fails with auth errors** — credentials expired or rotated. Update `clients/encore/config/environments/.env.development` (or override via `.env.local`).
+2. **Every test fails with auth errors** — credentials expired or rotated. Update `clients/encore/config/environments/.env.e2e` (or override via `.env.local`).
 3. **Seed smoke fails but the app works in a browser** — Microsoft SSO is having a bad moment. Retry in 5 minutes before deeper triage.
 4. **Reports look empty / blank widgets** — run `npm run clean` and re-run `test:daily`. Some widgets (Trend) only populate after the second run.
 5. **Allure Trend never grows** — ensure `test:daily` is used, or that you call `node scripts/preserve-allure-history.js` before each run if invoking steps manually.
@@ -171,4 +171,4 @@ Safe-to-edit without conflicts: `clients/encore/config/environments/.env.*` (you
 
 ## License & credentials
 
-Test credentials in `.env.development` are plain-text by design for the E2E environment. Rotate on day one if this repo leaves your controlled infrastructure.
+Test credentials in `.env.e2e` are plain-text by design for the E2E environment. Rotate on day one if this repo leaves your controlled infrastructure.

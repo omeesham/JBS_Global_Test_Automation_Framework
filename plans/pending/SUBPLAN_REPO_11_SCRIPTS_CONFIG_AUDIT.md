@@ -23,7 +23,7 @@ Audit every script, config file, and root-level file for dead code, stale refere
 
 ### config/
 - `config/allure/` — allure categories config
-- `config/environments/` — .env files (.env.development, .env.example, .env.server.example)
+- `config/environments/` — .env files (.env.e2e, .env.server.example)
 - **Check**: are all config files still relevant? Stale environment vars?
 
 ### Root config files

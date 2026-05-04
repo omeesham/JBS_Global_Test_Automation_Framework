@@ -105,7 +105,7 @@ Key routes:
 
 ## Test Data Strategy
 
-Test credentials are stored in `.env` files (`config/environments/.env.development`):
+Test credentials are stored in `.env` files (`config/environments/.env.e2e`):
 - `NAVIGATOR_USERNAME` - Microsoft SSO email
 - `NAVIGATOR_PASSWORD` - Microsoft SSO password
 - `NAVIGATOR_MFA_SECRET` - Base32 TOTP seed for 2FA
@@ -1395,7 +1395,7 @@ Agents must use ONLY the values listed here. Other values = rejection by the app
 
 ### Authorized user accounts
 
-Credentials live in `clients/encore/config/environments/.env.development` (committed to git by design):
+Credentials live in `clients/encore/config/environments/.env.e2e` (committed to git by design):
 
 - `NAVIGATOR_USERNAME` — Microsoft SSO email (production test account)
 - `NAVIGATOR_PASSWORD` — SSO password

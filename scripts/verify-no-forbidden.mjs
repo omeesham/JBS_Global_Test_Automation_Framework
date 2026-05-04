@@ -45,9 +45,31 @@ const DENY_GLOBS = [
   /\.env\..+\.local$/,
   /\.env\.server$/,
   /^\/pipeline\//,
+  // Per-client throwaway dev tools — see clients/<id>/scripts/ in working tree.
+  // Customer deliverables never need scripts/ — npm scripts in package.json cover demo CI.
+  /\/clients\/[^/]+\/scripts\//,
+  /^\/scripts\//,
+  // Stale env files that no code path loads — Encore runs only the e2e env.
+  /\.env\.production$/,
+  /\.env\.staging$/,
+  /\.env\.example$/,
 ];
 
 const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /v-rutvik/, /khosariya/, /NAVIGATOR_MFA_SECRET=[A-Z0-9]/];
+
+// Strings that must NOT appear in the shipped per-client .gitignore — they leak
+// JBS-internal terminology to the customer (plan IDs, ship-pipeline mechanics,
+// internal directory names). The JBS-context patterns live at root .gitignore
+// instead, so the per-client .gitignore stays customer-neutral.
+const GITIGNORE_LEAK_MARKERS = [
+  /PLAN_/,
+  /pipeline/i,
+  /git archive/i,
+  /specs_planning/,
+  /readable_externals/,
+  /read_only_docs/,
+  /\bexports\//,
+];
 
 function arg(name) {
   const flag = process.argv.find((a) => a.startsWith(`--${name}=`));
@@ -131,6 +153,21 @@ function checkTarget(target) {
     );
     process.exit(1);
   }
+
+  // Per-client .gitignore content check: shipped .gitignore must not leak
+  // JBS-internal terminology. Patterns ride at root .gitignore instead.
+  const gitignorePath = path.join(root, '.gitignore');
+  if (fs.existsSync(gitignorePath)) {
+    const gitignoreText = fs.readFileSync(gitignorePath, 'utf-8');
+    const leaks = GITIGNORE_LEAK_MARKERS.filter((re) => re.test(gitignoreText));
+    if (leaks.length > 0) {
+      console.error(
+        `[verify-no-forbidden] target=${target} .gitignore leaks JBS terminology: ${leaks.map((re) => re.toString()).join(', ')}`
+      );
+      process.exit(1);
+    }
+  }
+
   console.log(`[verify-no-forbidden] OK target=${target} files=${files.length}`);
 }
 

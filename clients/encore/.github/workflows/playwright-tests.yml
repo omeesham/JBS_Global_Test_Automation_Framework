@@ -35,7 +35,7 @@ jobs:
       NAVIGATOR_USERNAME: ${{ secrets.NAVIGATOR_USERNAME }}
       NAVIGATOR_PASSWORD: ${{ secrets.NAVIGATOR_PASSWORD }}
       BASE_URL: ${{ secrets.BASE_URL }}
-      CI_ENV: ci
+      CI_ENV: e2e
 
     steps:
       - name: Checkout code

@@ -15,14 +15,14 @@ Ask: "What's your name?" Copy `.claude/agents/COLLEAGUE.agent.md` → `.claude/a
 
 ## Step 2 — Credentials are pre-configured
 
-Credentials are stored directly in `config/environments/.env.development` (committed to git). No vault setup needed — clone and run.
+Credentials are stored directly in `clients/encore/config/environments/.env.e2e` (committed to git). No vault setup needed — clone and run.
 
 ## Step 3 — (Optional) Create `.env.local` for overrides
 
 Only needed if you want to override defaults (e.g., different browser, timeouts).
 
 ```bash
-cp config/environments/.env.example config/environments/.env.local
+cp clients/encore/config/environments/.env.e2e config/environments/.env.local
 ```
 
 ## Step 4 — Install Claude CLI
