@@ -44,6 +44,12 @@ git archive HEAD "clients/$CLIENT/" | tar -x -C "$OUT" --strip-components=2
 # Post-ship: deny-list grep against the actual output (defense in depth).
 node scripts/verify-no-forbidden.mjs --target="$OUT"
 
+# Post-ship: deliverable must include at least one CI workflow. Without this the
+# mock-repo GA tab is empty — silent failure mode observed 2026-05-04 when the
+# workflow lived at root .github/ outside the per-client ship scope.
+shopt -s nullglob; WF=( "$OUT"/.github/workflows/*.yml "$OUT"/.github/workflows/*.yaml ); shopt -u nullglob
+[[ ${#WF[@]} -eq 0 ]] && { echo "ERR: $OUT has no .github/workflows/*.yml -- deliverable will have no CI. Fix: add clients/$CLIENT/.github/workflows/<name>.yml in source." >&2; exit 5; }
+
 # Post-ship: smoke (npx playwright test --list, no browser launch).
 ( cd "$OUT" && npm install --silent && npx playwright test --list >/dev/null )
 
