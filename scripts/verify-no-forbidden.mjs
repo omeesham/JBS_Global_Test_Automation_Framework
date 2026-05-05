@@ -50,9 +50,10 @@ const DENY_GLOBS = [
   /^\/pipeline\//,
   // Date-stamped throwaway tools under clients/<id>/scripts/ — denies one-off
   // dated helpers (e.g., foo-2026-04-29.mjs) while allowing permanent ones
-  // (preserve-allure-history.js, archive-allure.js, etc.).
+  // (preserve-allure-history.js, archive-allure.js, etc.). Root scripts/ is
+  // structurally outside `git archive HEAD clients/<id>/`, so no extra rule
+  // is needed for it here.
   /\/clients\/[^/]+\/scripts\/.*-\d{4}-\d{2}-\d{2}\.(mjs|js|ts)$/,
-  /^\/scripts\//,
   // Stale env files that no code path loads — Encore runs only the e2e env.
   /\.env\.production$/,
   /\.env\.staging$/,

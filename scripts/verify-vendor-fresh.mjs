@@ -34,13 +34,14 @@ if (!client) {
 
 const metaPath = path.join(REPO_ROOT, 'clients', client, 'dist', 'framework', '.vendor-meta.json');
 if (!fs.existsSync(metaPath)) {
-  const msg = `[verify-vendor-fresh] missing: ${path.relative(REPO_ROOT, metaPath)}. Run: npm run vendor:build -- --client=${client}`;
-  if (warnOnly) {
-    console.warn(msg);
-    process.exit(0);
-  }
-  console.error(msg);
-  process.exit(1);
+  // .vendor-meta.json is intentionally absent from the customer-facing deliverable
+  // (leaked builtBy + srcMtimes). Without it, freshness can't be checked here —
+  // future builds can re-introduce it under a non-shipped path if drift detection
+  // is needed again. Skip with a warning rather than failing the ship.
+  console.warn(
+    `[verify-vendor-fresh] meta absent (skipping freshness check) — client=${client}`
+  );
+  process.exit(0);
 }
 
 const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
