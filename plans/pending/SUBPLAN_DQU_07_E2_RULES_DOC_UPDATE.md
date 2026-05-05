@@ -22,7 +22,7 @@
 **Context files**:
 - `clients/encore/specs_planning/_internal/tc-authoring-rules.md` (existing 4 rules)
 - `plans/done/SUBPLAN_HIST_PIVOT_42_L1_TC_AUTHORING_RULES.md` (original rules doc installation)
-- `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` (sample metadata table)
+- `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` (sample metadata table — Basic Information tab; sibling files for HIS + ECT post-2026-05-05 split)
 **Phase 0 directive**: read current rules doc fully before editing. Preserve Rules 1-4 verbatim. Append-only revision log.
 **HALT conditions**:
 - Graduation-to-LR-041 trigger hit (3+ subplans without new leaks) — separately path: flag, do not remove from rules doc yet.

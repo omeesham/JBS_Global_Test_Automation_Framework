@@ -21,7 +21,7 @@
 **Dependency gate**: SP-DQU-01 `Status: DONE`
 **Context files**:
 - `clients/encore/specs_planning/_internal/tc-authoring-rules.md`
-- `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` (sample artifact to benchmark)
+- `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` (sample artifact to benchmark — Basic Information tab; sibling files for HIS + ECT post-2026-05-05 split)
 - `clients/encore/exports/local_office_settings_test_cases.csv` (sample CSV)
 - `.claude/skills/research/SKILL.md` (skill definition for /research)
 **Phase 0 directive**: no browser required (research is web-based via /research skill). Announce in chat.

@@ -22,7 +22,7 @@
 **Dependency gate**: SP-03 + SP-05 + SP-06 + SP-07 all `Status: DONE`
 **Context files**:
 - `clients/encore/specs_planning/_internal/tc-authoring-rules.md` (Rule 5 tag definitions)
-- `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` + `local_office_history_test_cases.md` + `local_office_ect_test_cases.md` (LOS split into 3 sibling files on 2026-05-05)
 - `clients/encore/specs_planning/test-cases/setup/locations/locations_local_information_test_cases.md`
 - Neutral-eye findings for both modules
 **Phase 0 directive**: regression fingerprint; read Rule 5 verbatim; build tag decision table upfront before applying.
@@ -49,8 +49,10 @@ Add the `Tags` column to every TC's metadata table in LOS + LI MDs. Populate per
    - Add 4th column data cell with the assigned tag(s), comma-separated.
 4. Repeat for LI MD.
 5. Run all 6 Phase 0 greps on both MDs. Zero hits on Tags-empty-cell pattern.
-6. Re-export both CSVs:
+6. Re-export CSVs (LOS now ships as 3 siblings post-2026-05-05 split):
    - `npx ts-node export_test_cases/to-csv.ts ... local_office_settings_test_cases.csv`
+   - `npx ts-node export_test_cases/to-csv.ts ... local_office_history_test_cases.csv`
+   - `npx ts-node export_test_cases/to-csv.ts ... local_office_ect_test_cases.csv`
    - `npx ts-node export_test_cases/to-csv.ts ... locations_local_information_test_cases.csv`
 7. Open both CSVs in verification:
    - Column 5 header reads `Tags`.

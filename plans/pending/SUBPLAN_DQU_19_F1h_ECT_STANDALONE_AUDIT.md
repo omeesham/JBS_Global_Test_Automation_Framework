@@ -38,7 +38,7 @@ Original module-specific intent (preserved from pre-supersession plan body):
   - `clients/encore/CLAUDE.md` (LR-ENC-001 — ECT scope claim)
   - `clients/encore/docs/MODULE_REGISTRY.md` (line 31: `setup/ect-settings | /settings/ect`)
   - `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` (line 56: stale "ECT tab on Locations Settings" claim — verify against live UI)
-  - `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` (existing TC-LOS-ECT-001..018)
+  - `clients/encore/specs_planning/test-cases/setup/local-office/local_office_ect_test_cases.md` (existing TC-LOS-ECT-001..018; split out of combined LOS test-cases on 2026-05-05)
   - `plans/done/SUBPLAN_DQU_02_B1_LOS_NEUTRAL_EYE_AUDIT.md` + `SUBPLAN_DQU_03_C1_LOS_FIXES_AND_REEXPORT.md` (LOS audits — already covered LOS-ECT tab)
   - `clients/encore/specs_planning/_internal/field-inventory-spec.md`
   - `clients/encore/specs_planning/_internal/field-inventories/_TEMPLATE.md`
@@ -49,7 +49,7 @@ Original module-specific intent (preserved from pre-supersession plan body):
 **Codebase claims (verified 2026-04-28 by /plan session — NOT pre-assumed)**:
 - `clients/encore/CLAUDE.md` LR-ENC-001: ECT Settings is a tab inside Local Office Settings (`/settings/local-office`).
 - `MODULE_REGISTRY.md:31` lists `setup/ect-settings | /settings/ect` but no code or tests live at that path (`Glob` returned zero files in `setup/ect-settings/`).
-- `local_office_settings_test_cases.md` already covers ECT Settings tab (TC-LOS-ECT-001..018, 17 TCs in CSV rows 293+).
+- `local_office_ect_test_cases.md` (post-2026-05-05 split) covers the ECT Settings tab in full (TC-LOS-ECT-001..018, 18 TCs).
 - `clients/encore/tests/specs/setup/local-office/local-office-ect.spec.ts` exists; no `setup/locations/...ect*` file exists.
 
 **Live CLI verification** (mandatory — do NOT pre-assume):
@@ -78,7 +78,7 @@ Phase 1 + Phase 2 are **NO-OP**. Close subplan with full evidence emission:
 4. Update Status: `**Status**: DONE`. Add `**Executed**: <today>`. Append `## Execution Summary` per LR-027:
    - Outcome: NO-OP (scope-check confirmed coverage).
    - CLI verification: 3 navigations, results.
-   - Existing coverage: `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` §ECT Settings Test Cases (TC-LOS-ECT-001..018).
+   - Existing coverage: `clients/encore/specs_planning/test-cases/setup/local-office/local_office_ect_test_cases.md` (TC-LOS-ECT-001..018; split out of combined LOS file on 2026-05-05).
    - Vision-preservation: original Why-line "Scope check may short-circuit to 'covered by SP-02'" was the predicted outcome and is realized.
 5. `mv plans/pending/SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md plans/done/`.
 6. `npm run plans:reindex`.

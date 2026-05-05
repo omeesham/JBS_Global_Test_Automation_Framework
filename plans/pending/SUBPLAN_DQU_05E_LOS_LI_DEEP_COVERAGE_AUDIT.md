@@ -33,7 +33,7 @@ HIST pivot will build column-first specs on top of these TCs. Gaps now → gaps 
 - **Skills auto-called**: `/identity`, `/find-bugs` (Phase 1+2), `/bugfix` + `/regression-guard` (Phase 3+4), `/final-q` (close)
 - **Context files**:
   - `clients/encore/specs_planning/_internal/neutral-eye-audits/_TEMPLATE.md` (depth-grid rubric — D12)
-  - `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` (85 TCs)
+  - `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` (60 BAS TCs) + `local_office_history_test_cases.md` (7 HIS) + `local_office_ect_test_cases.md` (18 ECT) — split into 3 sibling files on 2026-05-05; 85 TCs total
   - `clients/encore/specs_planning/test-cases/setup/locations/locations_local_information_test_cases.md` (77 TCs)
   - `clients/encore/specs_planning/_internal/old-site-baseline/OSB-ACCESS-VERIFY-2026-04-24.md` (access-verify oracle)
   - `clients/encore/CLAUDE.md` (LR-ENC-001), `.claude/rules/baseline.md` (LR-045)
@@ -123,8 +123,10 @@ Switch identity: `/identity HEALER`.
    - Update `clients/encore/docs/REQUIREMENTS.md` with the change rationale + cross-link to NM-* / Jira if available.
    - HUNTER identity required for REQUIREMENTS.md edits per R11 — switch identity if needed.
 
-4. Re-export both CSVs:
+4. Re-export CSVs (LOS now ships as 3 sibling files post-2026-05-05 split):
    - `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md clients/encore/exports/local_office_settings_test_cases.csv`
+   - `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/local-office/local_office_history_test_cases.md clients/encore/exports/local_office_history_test_cases.csv`
+   - `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/local-office/local_office_ect_test_cases.md clients/encore/exports/local_office_ect_test_cases.csv`
    - `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/locations/locations_local_information_test_cases.md clients/encore/exports/locations_local_information_test_cases.csv`
 
 5. Run Phase 0 greps (4 from `tc-authoring-rules.md`) on both edited MDs. Zero hits required on edited TCs.
