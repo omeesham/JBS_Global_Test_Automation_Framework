@@ -63,7 +63,7 @@ export const SetupAccountAddressSelectors = {
  /** @where Setup > Location > Account List Dialog @el button @text "Cancel" @keys cancel close dismiss @verified */
   btnAccListCancel: '[data-testid="location-settings-btn-cancel-account-search"]',
  /** @where Setup > Location > Account List Dialog @el button @text "Close" @keys close x dismiss dialog */
- // PARTIAL FIX (2026-04-29): engineer added modal container testid; inner Close btn still text-scoped — defensively scoped inside container.
+ // Modal container testid present; inner Close btn still text-scoped — defensively scoped inside container.
   btnAccListClose: '[data-testid="location-settings-modal-account-list"] button:has-text("Close")',
  /** @where Setup > Location > Account List Dialog @el checkbox @text "Row Select" @keys row selection checkbox first */
   chkAccListRowSelect: '[data-testid="location-settings-modal-account-list"] tbody tr:first-child td:first-child button[role="checkbox"]',
@@ -71,10 +71,9 @@ export const SetupAccountAddressSelectors = {
   tblAccListResults: '[data-testid="location-settings-modal-account-list"] table',
 
  // ---- Select Customer Address Dialog ----
- // FIXME (OWNER 2026-04-29 evening): engineer claimed 6 testids for this dialog in Jira reply, but
- // OWNER live-DOM walk verified ALL 6 are MISSING (containerHasTestid: false, innerTestids: [], only
- // Radix internals data-state/data-slot present). Evidence: reports/testid-verification/myown-dlg-customer-address-2026-04-29.json.
- // Reverted to role-based + text-match scope until engineer ships the testids.
+ // FIXME (2026-04-29): all 6 dialog testids MISSING in live DOM (containerHasTestid: false,
+ // innerTestids: [], only Radix internals data-state/data-slot present). Reverted to
+ // role-based + text-match scope until the testids land.
  /** @where Setup > Location > Select Customer Address Dialog @el dialog @text "Select Customer Address" @keys address select dialog modal */
   dlgSelectAddress: '[role="dialog"]:has-text("Select Customer Address")',
  /** @where Setup > Location > Select Customer Address Dialog @el input @text "Search..." @keys search filter address client-side */
@@ -96,9 +95,7 @@ export const SetupAccountAddressSelectors = {
 
  // ---- Save Changes Dialog (message text -- supplements shared.ts) ----
  /** @where Setup > Location > Save Changes Dialog @el paragraph @text "Are you sure" @keys save confirmation message text */
- // FIXME (OWNER 2026-04-29 evening): engineer claimed location-settings-modal-save-changes container,
- // but OWNER walk verified containerTestid: null (only Radix data-state/data-slot present).
- // Evidence: reports/testid-verification/myown-dlg-save-changes-2026-04-29.json.
- // Reverted to role-based scope until engineer ships the container testid.
+ // FIXME (2026-04-29): containerTestid: null in live DOM (only Radix data-state/data-slot
+ // present). Reverted to role-based scope until the container testid lands.
   txtSaveChangesMessage: '[role="alertdialog"]:has-text("Save Changes") p',
 } as const;

@@ -1,4 +1,4 @@
-/** Encore CI Playwright configuration — extends per-client base; no parent-tree dependencies. */
+/** Encore CI Playwright configuration — extends the local config for CI runs. */
 
 import { defineConfig } from '@playwright/test';
 import baseConfig, { getArtifactSetting } from './playwright.config';
@@ -47,13 +47,13 @@ export default defineConfig({
   retries: 2,
   workers: 1,
 
-  // CI-only module projects (SP-EFD-01) — opt-in via:
+  // CI-only module projects — opt-in via:
   //   npx playwright test --config=playwright.config.ci.ts --workers=2
   //     --project=encore-local-office --project=encore-locations
   projects: [
-    // AUTH-STATE-SHARED: module projects depend on setup (defined in base playwright.config.ts)
-    // so auth.setup.ts fires ONCE in CI and writes .auth/encore-state.json, which both module
-    // workers consume read-only via storageState.
+    // Module projects depend on setup (defined in the base config) so auth.setup.ts
+    // fires ONCE in CI and writes .auth/encore-state.json, which both module workers
+    // consume read-only via storageState.
     {
       name: 'encore-local-office',
       testDir: './tests/specs/setup/local-office',

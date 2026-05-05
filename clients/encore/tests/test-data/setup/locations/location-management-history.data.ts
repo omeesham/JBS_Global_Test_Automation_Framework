@@ -4,7 +4,7 @@
  * Office: 1604 (Parker Palm Springs)
  * Last 
  * @office-dependent
- * All column names from SUBPLAN_HISTORY_01_MCP_FINDINGS.md §1 (MCP-VERIFIED ).
+ * Column names verified against the live DOM.
  * Boolean format: Unicode "✔" (textContent readable).
  * Date format: MM/DD/YYYY. Timestamp: MM/DD/YYYY HH:MM:SS AM/PM.
  * Percentage: N.NN % (space before %).

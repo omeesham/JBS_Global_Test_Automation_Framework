@@ -20,12 +20,12 @@ npm install
 npx playwright install chromium
 ```
 
-Credentials ship pre-wired in `clients/encore/config/environments/.env.e2e` (Microsoft SSO + TOTP). **Rotate these before any production use** — the shipped values are for the E2E environment only.
+Credentials ship pre-wired in `config/environments/.env.e2e` (Microsoft SSO with an MFA-less automation user). **Rotate these before any production use** — the shipped values are for the E2E environment only.
 
 Verify the setup with the auth smoke test (~30 seconds):
 
 ```bash
-npx playwright test clients/encore/tests/seed.spec.ts --project=chromium
+npx playwright test tests/seed.spec.ts --project=chromium
 ```
 
 Green = credentials + SSO + fixtures all working.
@@ -144,7 +144,7 @@ Every failing run writes `reports/failure-summary.json`. Each failure carries a 
 |---|---|
 | `AUTHENTICATION` | Transient SSO / MFA flake — retry. Escalate if persistent. |
 | `NETWORK` | Usually upstream / environment. Re-run before triaging. |
-| `TIMEOUT` / `SELECTOR` / `INFRASTRUCTURE` | Framework-side — file with your automation vendor |
+| `TIMEOUT` / `SELECTOR` / `INFRASTRUCTURE` | Framework-side — file with the QA automation team |
 | `APPLICATION` / `DATA` (a.k.a. "Product Defects") | App-side — file with Encore's product team |
 
 Allure's **Categories** panel groups failures into the same buckets visually.
@@ -153,16 +153,16 @@ Allure's **Categories** panel groups failures into the same buckets visually.
 
 ## Updating
 
-Pull the `client_deliverable` branch. Do **not** commit or edit files under `clients/encore/src/**`, `clients/encore/tests/**`, or `src/**` — those are framework-owned and will be overwritten on the next update. If you need a change in those paths, request it from your automation vendor.
+Receive the latest version from the QA automation team. Do **not** commit or edit files under `src/**` or `tests/**` — those are framework-owned and will be overwritten on the next update. If you need a change in those paths, request it from the QA automation team.
 
-Safe-to-edit without conflicts: `clients/encore/config/environments/.env.*` (your credentials), anything under `reports/` (generated output), `node_modules/` (installed).
+Safe-to-edit without conflicts: `config/environments/.env.*` (your credentials), anything under `reports/` (generated output), `node_modules/` (installed).
 
 ---
 
 ## Troubleshooting
 
 1. **Nothing runs at all** — `npm install` exited non-zero, or `npx playwright install chromium` didn't complete. Re-run both; check node/npm versions meet the requirements above.
-2. **Every test fails with auth errors** — credentials expired or rotated. Update `clients/encore/config/environments/.env.e2e` (or override via `.env.local`).
+2. **Every test fails with auth errors** — credentials expired or rotated. Update `config/environments/.env.e2e` (or override via `.env.local`).
 3. **Seed smoke fails but the app works in a browser** — Microsoft SSO is having a bad moment. Retry in 5 minutes before deeper triage.
 4. **Reports look empty / blank widgets** — run `npm run clean` and re-run `test:daily`. Some widgets (Trend) only populate after the second run.
 5. **Allure Trend never grows** — ensure `test:daily` is used, or that you call `node scripts/preserve-allure-history.js` before each run if invoking steps manually.

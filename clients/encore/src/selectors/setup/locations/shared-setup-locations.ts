@@ -27,7 +27,7 @@ export const SetupSharedSetupLocationsSelectors = {
  /** @where Setup > Location > Shared Setup Locations tab @el table @text "Shared setup locations grid" @keys table grid shared locations */
   tblSharedSetupLocations: '[data-testid="location-settings-table-shared-setup"]',
 
- // ---- Column Headers ---- (added 2026-04-29 from Encore engineer Jira reply)
+ // ---- Column Headers ---- (added 2026-04-29)
  /** @where Setup > Location > Shared Setup Locations > Header @el label @text "Local Office" @keys column header local-office */
   colHeaderLocalOffice: '[data-testid="location-settings-table-shared-setup-col-local-office"]',
  /** @where Setup > Location > Shared Setup Locations > Header @el label @text "Local Office Name" @keys column header local-office-name */
@@ -55,18 +55,18 @@ export const SetupSharedSetupLocationsSelectors = {
  /** @where Setup > Location > Change Local Office dialog @el dialog @text "Change Local Office" @keys dialog add location picker */
   dlgChangeLocalOffice: '[data-testid="location-settings-modal-change-local-office"]',
  /** @where Setup > Location > Change Local Office dialog @el heading @text "Change Local Office" @keys dialog heading title */
- // PARTIAL FIX (2026-04-29): engineer didn't add heading testid; defensively scoped inside container.
+ // No heading testid available; defensively scoped inside container (2026-04-29).
   dlgChangeLocalOfficeHeading: '[data-testid="location-settings-modal-change-local-office"] h2',
  /** @where Setup > Location > Change Local Office dialog @el input @text "Search by Location Name, Number" @keys search input filter */
   txtDlgSearch: '[data-testid="location-settings-modal-change-local-office-input-search"]',
  /** @where Setup > Location > Change Local Office dialog @el table @text "Location results table" @keys dialog table results list */
- // PARTIAL FIX (2026-04-29): engineer didn't add results-table testid; defensively scoped inside container.
+ // No results-table testid available; defensively scoped inside container (2026-04-29).
   tblDlgResults: '[data-testid="location-settings-modal-change-local-office"] table',
  /** @where Setup > Location > Change Local Office dialog @el button @text "Select" @keys dialog select confirm add */
   btnDlgSelect: '[data-testid="location-settings-modal-change-local-office-btn-select"]',
  /** @where Setup > Location > Change Local Office dialog @el button @text "Cancel" @keys dialog cancel abort close */
   btnDlgCancel: '[data-testid="location-settings-modal-change-local-office-btn-cancel"]',
  /** @where Setup > Location > Change Local Office dialog @el button @text "Close" @keys dialog close x dismiss */
- // PARTIAL FIX (2026-04-29): engineer didn't add Close btn testid; defensively scoped to last button inside container.
+ // No Close btn testid available; defensively scoped to last button inside container (2026-04-29).
   btnDlgClose: '[data-testid="location-settings-modal-change-local-office"] button:last-of-type',
 } as const;

@@ -98,7 +98,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         body: Buffer.from(JSON.stringify(snapshot)),
       });
 
- // Persist per-spec diagnostics file for agent drill-down
+ // Persist per-spec diagnostics file for failure analysis
       if (testInfo.status !== 'passed') {
         const specName = path.basename(testInfo.file, '.spec.ts');
         const diagDir = path.join(process.cwd(), 'reports', 'diagnostics');

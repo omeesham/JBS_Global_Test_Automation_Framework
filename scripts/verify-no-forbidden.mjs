@@ -27,6 +27,9 @@ const DENY_GLOBS = [
   /\/specs_planning\//,
   /\/readable_externals\//,
   /\/docs\/read_only_docs\//,
+  /\/docs\/REQUIREMENTS\.md$/,
+  /\/docs\/MODULE_REGISTRY\.md$/,
+  /\/api-testing\/REQUIREMENTS_API\.md$/,
   /\/exports\//,
   /\/\.auth\//,
   /^\.git\//,
@@ -45,9 +48,10 @@ const DENY_GLOBS = [
   /\.env\..+\.local$/,
   /\.env\.server$/,
   /^\/pipeline\//,
-  // Per-client throwaway dev tools — see clients/<id>/scripts/ in working tree.
-  // Customer deliverables never need scripts/ — npm scripts in package.json cover demo CI.
-  /\/clients\/[^/]+\/scripts\//,
+  // Date-stamped throwaway tools under clients/<id>/scripts/ — denies one-off
+  // dated helpers (e.g., foo-2026-04-29.mjs) while allowing permanent ones
+  // (preserve-allure-history.js, archive-allure.js, etc.).
+  /\/clients\/[^/]+\/scripts\/.*-\d{4}-\d{2}-\d{2}\.(mjs|js|ts)$/,
   /^\/scripts\//,
   // Stale env files that no code path loads — Encore runs only the e2e env.
   /\.env\.production$/,
@@ -55,7 +59,43 @@ const DENY_GLOBS = [
   /\.env\.example$/,
 ];
 
+// Patterns scanned across every staged or shipped file (sentinels that should
+// never appear anywhere in the repo).
 const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /v-rutvik/, /khosariya/, /NAVIGATOR_MFA_SECRET=[A-Z0-9]/];
+
+// Patterns scanned ONLY in client-shipping files (target output, or a staged
+// path under clients/<id>/ that would survive the DENY_GLOB filter). Framework-
+// internal files (rules, docs, hooks, root CLAUDE.md) legitimately reference
+// these terms, so applying them repo-wide would wedge normal commits.
+const MARKER_GREP_CLIENT_ONLY = [
+  // Plan / ticket IDs
+  /\bPLAN_[A-Z0-9_]+\b/,
+  /\bSUBPLAN_[A-Z0-9_]+\b/,
+  /\bSP-[A-Z]{2,}-\d+\b/,
+  // Pipeline identity codenames
+  /\b(HUNTER|GIVER|BUILDER|HEALER|WATCHDOG|GARDENER)\b/,
+  /\bOWNER\b(?!_)/,
+  // Internal artifact paths
+  /\bagent-(mistakes|activity-log|performance|queue|escalations|learnings)\b/,
+  /\bspecs_planning\b/,
+  /\breadable_externals\b/,
+  /\bread_only_docs\b/,
+  // Build-process leaks
+  /\bvendor:build\b/,
+  /\bvendor-meta\b/,
+  /\bPath [AB]\b/,
+  // Vendor identity
+  /\bJBS\b/,
+  /\bIntelliQE\b/i,
+  /\bRutviK[-_]?JBS\b/,
+  /\bencore_deliverables_test\b/,
+  // Tooling identity
+  /\.claude\//,
+  /@agent-doc\b/,
+  // Internal date-stamped report paths
+  /reports\/testid-verification\//,
+  /JIRA_VERIFICATION_\d{4}-\d{2}-\d{2}/,
+];
 
 // Strings that must NOT appear in the shipped per-client .gitignore — they leak
 // JBS-internal terminology to the customer (plan IDs, ship-pipeline mechanics,
@@ -79,6 +119,14 @@ const hasFlag = (name) => process.argv.includes(`--${name}`);
 
 function matchesDeny(rel) {
   return DENY_GLOBS.some((re) => re.test(rel));
+}
+
+// True when a staged repo path would survive the DENY_GLOB filter and ship
+// inside clients/<id>/. Used to scope MARKER_GREP_CLIENT_ONLY in pre-commit.
+function isClientShipping(rel) {
+  const m = rel.match(/^clients\/[^/]+\/(.+)$/);
+  if (!m) return false;
+  return !matchesDeny('/' + m[1]);
 }
 
 function walkDir(root, prefix = '') {
@@ -129,7 +177,9 @@ function checkTarget(target) {
     process.exit(1);
   }
 
-  // Marker grep — scan all text-ish files for forbidden literals.
+  // Marker grep — scan all text-ish files for forbidden literals. Target is
+  // the actual shipped output, so client-only patterns apply to every file.
+  const targetPatterns = [...MARKER_GREP, ...MARKER_GREP_CLIENT_ONLY];
   const offenders = [];
   for (const rel of walkDir(root)) {
     if (/\.(png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|pdf|zip|tar|gz|7z)$/i.test(rel)) continue;
@@ -139,7 +189,7 @@ function checkTarget(target) {
     } catch {
       continue;
     }
-    for (const re of MARKER_GREP) {
+    for (const re of targetPatterns) {
       if (re.test(buf)) {
         offenders.push(`${rel} :: ${re}`);
         break;
@@ -193,7 +243,12 @@ function checkStagedDiff() {
     } catch {
       continue;
     }
-    for (const re of MARKER_GREP) {
+    // Repo-wide markers always apply. Client-only markers apply only when
+    // the staged path would actually ship inside clients/<id>/.
+    const patterns = isClientShipping(rel)
+      ? [...MARKER_GREP, ...MARKER_GREP_CLIENT_ONLY]
+      : MARKER_GREP;
+    for (const re of patterns) {
       if (re.test(buf)) {
         offenders.push(`${rel} :: ${re}`);
         break;

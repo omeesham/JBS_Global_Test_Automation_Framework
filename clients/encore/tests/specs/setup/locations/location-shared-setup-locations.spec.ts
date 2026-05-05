@@ -160,7 +160,7 @@ test.describe.serial('Location Shared Setup Locations @locations @shared-setup',
  // navigateToSharedSetupTab re-navigation doesn't recover — clickAdd opens wrong dialog
  // ("Change Local Office" instead of SSL Add). "Miami" search returns 0 results in
  // this dialog. Root cause: serial state after discardAndReturn, not a HIST defect.
- // Filed for separate HEALER session — does not block HIST verification.
+ // Tracked separately — does not block HIST verification.
     test.fixme(true, 'discardAndReturn() serial state breaks clickAdd — opens wrong dialog');
   });
 

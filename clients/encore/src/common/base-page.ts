@@ -325,7 +325,7 @@ export class BasePage {
   }
 
  // ─────────────────────────────────────────────────────────────────────────────
- // SHARED PAGE OBJECT HELPERS (PLAN_04 — extracted from Currency/Pricing/LocalInfo)
+ // SHARED PAGE OBJECT HELPERS — extracted from Currency / Pricing / Local Info
  // ─────────────────────────────────────────────────────────────────────────────
 
  /**

@@ -1,25 +1,11 @@
-# ##############################################################################
-# FILE: .github/workflows/playwright-tests.yml
-# PURPOSE: Manual-trigger CI scaffold for the Encore Playwright suite.
-#          Runs Ubuntu + Chromium only; module-parallel (2 workers, one per
-#          per-module project — encore-local-office + encore-locations).
-# WHY: Friday deliverable scaffold (parent plan PLAN_FRIDAY_DELIVERABLE_2026-04-29).
-#      Demonstrates the CI pattern handed to Encore — their production CI lives on
-#      their infra; this proves the wiring works end-to-end.
-# USED BY: GitHub Actions — `workflow_dispatch` only (Run workflow button or
-#          `gh workflow run playwright-tests.yml`). NO push / PR / cron triggers.
-#
-# AUTH CONTRACT: AUTH-STATE-SHARED — ONE setup project logs in once and writes
-#   .auth/encore-state.json; both module workers consume read-only via storageState.
-#   Runs as MFA-less automation user (s-prd-clickauto@psav.com). NAVIGATOR_MFA_SECRET
-#   intentionally absent — see "CI User Provisioning Checklist" in clients/encore/CLAUDE.md.
-#
-# MODULE-PARALLEL CONTRACT (SP-EFD-01): playwright.config.ci.ts adds CI-only
-#   `encore-local-office` + `encore-locations` projects with fullyParallel:false.
-#   Local config (playwright.config.ts) does NOT contain these — local default runs
-#   match the pre-SP-EFD-01 baseline shape (4 browser projects, 1 worker, no
-#   concurrent SSO contention).
-# ##############################################################################
+# Manual-trigger CI for the Encore Playwright suite.
+# Runs Ubuntu + Chromium, module-parallel (2 workers — encore-local-office +
+# encore-locations). Trigger: workflow_dispatch (Run workflow button or
+#   gh workflow run playwright-tests.yml).
+# Required GitHub secrets: NAVIGATOR_USERNAME, NAVIGATOR_PASSWORD, BASE_URL.
+# Auth: ONE setup project logs in and writes .auth/encore-state.json; both
+# module workers consume it read-only via storageState. Uses an MFA-less
+# automation user — NAVIGATOR_MFA_SECRET is intentionally absent.
 
 name: Playwright Tests
 

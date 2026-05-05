@@ -1,13 +1,11 @@
 /**
- * @agent-doc
- * PURPOSE: Abstract intermediate class providing test orchestration methods (boundary, dependency,
- *          max-length) for Location tab page objects. Extracted from LocationFormHelpers (FIX-A.4).
- * OWNER: generator
- * IMPACT: medium -- LocationLocalInfoPage extends this. Changes affect boundary/dependency/maxLength tests.
- * DEPENDS-ON: LocationFormHelpers, LocationSettingsSelectors, logger.ts
- * USED-BY: src/pages/setup/locations/location-local-info.page.ts
- * RULES: Never add field-level interactions here -- those belong in LocationFormHelpers.
- *        Never add tab-specific selectors here.
+ * Abstract intermediate class providing test orchestration methods (boundary, dependency,
+ * max-length) for Location tab page objects. Extracted from LocationFormHelpers.
+ *
+ * Depends on: LocationFormHelpers, LocationSettingsSelectors, logger.ts
+ * Used by: src/pages/setup/locations/location-local-info.page.ts
+ * Note: Never add field-level interactions here — those belong in LocationFormHelpers.
+ *       Never add tab-specific selectors here.
  */
 
 import { LocationFormHelpers } from './location-form-helpers.page';

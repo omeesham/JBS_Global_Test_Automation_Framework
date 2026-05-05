@@ -10,7 +10,6 @@ playwright/.cache/
 # Local env overrides (never commit real env files)
 config/environments/.env.local
 config/environments/.env.*.local
-config/environments/.env.server
 
 # OS / IDE
 .DS_Store

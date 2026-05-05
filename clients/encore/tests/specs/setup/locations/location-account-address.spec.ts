@@ -179,8 +179,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.clickSave();
   });
 
- // ─── New TCs (Session 2: PLAN_AUDIT_ACCOUNT_ADDRESS) ────────────────────────
- // TC-021 DROPPED: MCP verification proved Phone 1 is account-linked.
+ // ─── Account & Address audit additions ─────────────────────────────────────
+ // TC-021 DROPPED: live verification proved Phone 1 is account-linked.
  // Save completes but value always reverts to account phone on reload. NOT-AUTOMATABLE.
 
   test('TC-LOC-ACC-022: Cancel Save dialog discards save without persisting', async ({ locationAccountAddressPage }) => {

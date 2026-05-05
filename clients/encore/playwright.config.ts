@@ -1,11 +1,4 @@
-/**
- * Encore Playwright configuration — standalone, per-client (Path A deliverable).
- *
- * Paths are __dirname-relative so this config works after `cp -r clients/encore /tmp/x`
- * (no parent-tree dependencies). Reporter and globalSetup point at `./dist/framework/`,
- * which is the vendored framework — produced by `npm run vendor:build -- --client=encore`
- * from the source repo and tracked in git per Path A.
- */
+/** Encore Playwright configuration. Paths are __dirname-relative. */
 
 import { defineConfig } from '@playwright/test';
 import * as dotenvFlow from 'dotenv-flow';

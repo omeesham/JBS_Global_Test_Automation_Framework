@@ -1,5 +1,4 @@
 // seed: tests/seed.spec.ts
-// plan: plans/pending/PLAN_AUDIT_PRICING.md
 // STATUS : active tests BLOCKED by API 500 on getLocationDetail?localOfficeId=1604.
 // The Pricing tab renders empty — TC-001 times out waiting for chkCorporatePricing.
 // Not a code defect — server-side issue. When API recovers:
@@ -471,8 +470,8 @@ test.describe.serial('Location Pricing @locations @pricing', () => {
  // DiagnosticsCollector DOES capture the 500 in networkFailures[].
  // Old tests silently passed because selectPrimaryDropdownOption skipped when DB = test value.
  // Bidirectional toggle exposed this by forcing actual changes → revealed 500.
- // HEALER: Do NOT attempt to fix these tests. The 500 is a server-side bug. The race
- // condition in clickSaveWithDialog needs its own plan (affects ALL page objects).
+ // Do NOT attempt to fix these tests. The 500 is a server-side bug. The race condition
+ // in clickSaveWithDialog needs its own follow-up (affects ALL page objects).
   for (const { tcId, key, option, alternateOption, label } of DROPDOWN_PERSISTENCE_CASES) {
     test.skip(`${tcId}: ${label} -- bidirectional persist (toggle pattern)`, async ({ locationPricingPage }) => {
       test.setTimeout(120_000);
