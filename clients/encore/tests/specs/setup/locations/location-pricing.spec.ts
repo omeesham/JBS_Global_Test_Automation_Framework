@@ -36,7 +36,7 @@ test.describe('Location Pricing @locations @pricing', () => {
     // same `settings/location` URL — after a sibling spec like Notes, URL match returns
     // true even though Pricing tab is not active, causing waitForPricingDataLoaded to
     // time out on a Pricing-only locator. DOM presence is the reliable signal).
-    const onPricingTab = await locationPricingPage.getElement('chkCorporatePricing').count() > 0;
+    const onPricingTab = await locationPricingPage.isOnPricingTab();
     if (!onPricingTab) {
       await locationPricingPage.navigateToPricingTab(OFFICE_NO);
     }
