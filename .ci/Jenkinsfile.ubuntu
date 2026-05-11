@@ -64,7 +64,7 @@ pipeline {
                     // Uses playwright.config.ci.ts (no allure-playwright, avoids git timeout)
                     sh """
                         export NODE_ENV=${params.ENVIRONMENT}
-                        npx playwright test --config=playwright.config.ci.ts ${browser}
+                        npx playwright test --config=clients/encore/playwright.config.ci.ts ${browser}
                     """
                 }
             }

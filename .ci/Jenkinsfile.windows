@@ -149,7 +149,7 @@ pipeline {
                         echo Browser: ${params.BROWSER}
                         echo Pattern: ${params.TEST_PATTERN ?: 'ALL TESTS'}
 
-                        call npx playwright test tests/specs/navigator --config=playwright.config.ci.ts --project=${params.BROWSER} ${headedFlag} ${grepFlag}
+                        call npx playwright test tests/specs/navigator --config=clients/encore/playwright.config.ci.ts --project=${params.BROWSER} ${headedFlag} ${grepFlag}
                     """
                 }
             }

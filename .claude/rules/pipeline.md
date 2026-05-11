@@ -175,6 +175,26 @@ Every `/execute` invocation; every `/final-q` Step 3 audit (cross-check todos ag
 
 SP-DQU-05 (2026-04-27) — Step 5 "zero hits required" closed with 470 pre-existing hits via SP-DQU-05A APPEND without user authorization. Same pattern as the prior session's `[/find-bugs:direct]` skip — different layer, same shape (strict contract → tidy out → post-hoc rationalization). SP-DQU-05B (2026-04-28) authored this rule + cleaned the 470 hits + filed SP-DQU-05C for hook enforcement.
 
+## LR-050: Restructure plans must enumerate stale-slop cleanup IN-SCOPE — never defer to "discover later"
+
+Any plan whose body restructures architecture (file moves, vendoring, client-split, multi-tenant pivot, deliverable rebuild, ship-pipeline change, framework promotion) MUST enumerate, as in-scope tasks within the SAME plan body:
+
+1. **What becomes stale** — files, configs, scripts, `package.json` entries, env files, doc references, CI workflow steps the prior layout assumed.
+2. **What gets removed/migrated/merged** — concrete delete/move/dedupe tasks at file:line level.
+3. **Verification** — grep / `find` / `ls -la` per class of stale artifact in acceptance criteria.
+
+Deferring to "follow-up subplan" / "discover-later sweep" / "TODO clean up someday" is FORBIDDEN. Plan author has perfect knowledge at authoring time of the prior layout; encode it as cleanup tasks before the plan flips PENDING. Once the restructure lands, "obvious leftover" becomes "discover by accident later."
+
+### Trigger + enforcement
+
+Fires on every plan under `plans/pending/PLAN_*.md` whose title, frontmatter, or first 100 lines contain any of: `restructure`, `rebuild`, `migrate`, `vendoring`, `client-split`, `multi-tenant`, `deliverable`, `promote`, `consolidate`, `move-to-`, `flatten`, `unify`, `dedupe`, `cleanup`. Also: plans introducing a new top-level directory or changing a `package.json` boundary. `/planning` Step 3 HALTs if such a plan lacks an explicit "Stale-cleanup" / "What becomes stale" / "Removal tasks" section.
+
+### Graduated from
+
+2026-05-06 — root `playwright.config.ts:66` still at `fullyParallel: true` 6 days after `clients/encore/playwright.config.ts:33` was set to `false` as a dependencyGate hard rule. `PLAN_CLIENT_DELIVERABLE_REBUILD` (2026-04-30) restructured the repo to client-architecture without enumerating "delete leftover root duplicates" — 8 file classes drifted; `PLAN_ROOT_CLIENT_DEDUPE.md` cleans up retroactively. Repeat-offense pattern: `SUBPLAN_REPO_04/05/06/07` (2026-04-16, all stale 19+ days) are retroactive evidence of the same lazy-restructure shape.
+
+Cross-refs: pairs with `feedback_restructure_plans_include_cleanup.md`; LR-027, LR-040, LR-046.
+
 ## TodoWrite Tagging Contract (SP02B — structural enforcement via hook pair)
 
 Every TodoWrite entry created during a `/execute` invocation MUST carry at least one tag from the closed taxonomy below. The tag travels with the entry — context is on the task, not in a separate mental model. Enforced structurally by `.claude/hooks/todo-injection-gate.sh` + `.claude/hooks/lib/check-todo-injection.mjs` (PostToolUse on `TodoWrite` captures state, PreToolUse on `Edit|Write|NotebookEdit|MultiEdit` denies when state shows untagged or zero todos and the session is currently inside `/execute`).

@@ -128,7 +128,7 @@ For every subplan file you author, the FIRST content (before the `# SUBPLAN SP-X
 > 5.5. **Browser tool selection (REQUIRED in frontmatter for subplans Created ≥ 2026-04-24)**: classify per **LR-038 v2** task-class matrix, then announce. **Default = `cli`** unless the task cleanly matches a named Chrome row. Decision tree (run in order — first match wins):
 >     - Does this subplan browse a live app at all? **No** → `BrowserTool: none`. STOP.
 >     - Visual / CSS / layout / pixel-level assertion? → `BrowserTool: chrome`.
->     - Fresh MFA / OTP / passkey flow that no `state-save` can solve? → `BrowserTool: chrome` (mandatory).
+>     - Fresh passkey flow that no `state-save` can solve? → `BrowserTool: chrome` (mandatory).
 >     - Subplan body contains an explicit `pause:` / `await user input` step that fires DURING execution (not a verdict gate, not a YELLOW/RED handoff between phases)? → `BrowserTool: chrome` (live RCA / human-in-loop).
 >     - Anything else (functional / catalog / unattended / >10 fields / Phase 0.5 / network-evidence / silent no-op bug)? → `BrowserTool: cli`. This is the default — ~4× token savings.
 >     - Genuinely mixed within one subplan (one Chrome-only assertion inside otherwise CLI work)? → `BrowserTool: both` + `BrowserToolJustification: <one-sentence reason>` (escape hatch — overuse = LR-038 v2 design smell).

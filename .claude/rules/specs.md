@@ -23,9 +23,9 @@ When fixing failing specs, follow this exact order:
 
 **Trigger**: Any spec-fixing session. Enforced by healer/maintainer agents.
 
-## LR-019: First test in describe.serial MUST enforce baseline state
+## LR-019: First test in any spec MUST enforce baseline state
 
-The first test (TC-001) in any serial block must:
+Whether the spec uses `test.describe()` or legacy `test.describe.serial()`, the first test (TC-001) must:
 
 1. Navigate to the page fresh
 2. Read current state from DOM (not assume defaults)
@@ -33,8 +33,8 @@ The first test (TC-001) in any serial block must:
 4. Save if needed to persist clean baseline
 5. Re-navigate to ensure clean state
 
-Never hardcode expected initial values without baseline enforcement.
-**Trigger**: Every new spec with `describe.serial`. Generator must implement.
+Required because subsequent tests assume a known starting state. Never hardcode expected initial values without baseline enforcement.
+**Trigger**: Every new spec. Generator must implement.
 
 ## LR-021: Un-skip before rewrite — always try original logic first
 
@@ -68,6 +68,10 @@ the SAME Radix issue. The stale diagnostics were 100% wrong about the root cause
 **Corollary**: Run the failing spec TWICE before RCA to confirm the failure is consistent
 and identify whether it's deterministic or intermittent (same test vs different test each time).
 **Trigger**: Any spec-fixing session. Complements LR-018 workflow.
+
+## Annotation: dependencyGate is annotation-only (2026-05-08)
+
+`dependencyGate(['TC-...'])` is annotation-only as of 2026-05-08 (PLAN_DEPENDENCY_GATE_REMOVAL); never gates execution. Tests surface their own failures via per-test `test.beforeEach` nav guards in each spec (mirrors local-office-settings.spec.ts:33). Dep declarations remain visible in Allure as `dependsOn` annotations; the prior `depGateSkipped` cascade is gone.
 
 ## LR-025: Radix UI large-option dropdowns need retry on option selection
 

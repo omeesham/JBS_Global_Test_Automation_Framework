@@ -17,6 +17,9 @@
       "Bash(node .claude/hooks/lib/test-browsertool-fixtures.mjs)",
       "Bash(bash .claude/hooks/todo-injection-gate.sh *)",
       "Bash(node .claude/hooks/lib/check-todo-injection.mjs *)",
+      "Bash(bash .claude/hooks/relevant-injection.sh *)",
+      "Bash(node .claude/hooks/lib/relevant-injection.mjs *)",
+      "Bash(node scripts/run-relevant-scan.mjs *)",
       "mcp__plugin_playwright_playwright__browser_snapshot",
       "mcp__Claude_in_Chrome__read_network_requests",
       "mcp__Claude_in_Chrome__tabs_context_mcp"
@@ -76,6 +79,17 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/chain-pause-notice.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/relevant-injection.sh"
           }
         ]
       }

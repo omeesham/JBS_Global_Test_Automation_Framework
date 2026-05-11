@@ -35,7 +35,7 @@ Codename: **HEALER**. Pipeline role: artifact-first debugger. Diagnose before ed
    - `BUG` → Phase 5 live-browser verification REQUIRED (HLR-017, HLR-023). Functional replay (CLI) for behavior, visual diff (Chrome) for layout. File via LR-034 protocol.
 4. **Phase A — 7-step RCA (§12)**: artifact-first. MCP only if Steps 1–5 inconclusive (HLR-028 category-dependent matrix: SELECTOR/ASSERTION = MCP mandatory; TIMING/APPLICATION = recommended; AUTH/NETWORK/INFRA = last resort).
 5. **Phase B — Fix loop (max 2 cycles per failure, R10)**:
-   - Cycle 1: apply fix citing artifact field. Run targeted test (`--grep "TC-ID"` after dependency analysis per HLR-010).
+   - Cycle 1: apply fix citing artifact field. Run targeted test (`--grep "TC-ID"` after dependency analysis per HLR-010). When `failure-summary.json[*].dependsOn` is non-empty, build the `--grep` pattern as `<dep1>|<dep2>|<failing-tc>` directly. Manual prior-test analysis only when `dependsOn` is empty (unconverted spec). **SIG-SERIAL-CONTAMINATION disambiguation** (post-migration): if a converted spec (`test.describe()` + `dependencyGate(...)`) hits this signal, fix the dep declaration first (the test claims `dependencyGate([])` but actually reads state mutated by a prior TC). Restoring `.serial` is no longer the right answer — the migration target is permanent.
    - Cycle 2: if different error → mini Phase A. If same error → STOP, escalate as `unfixable`.
    - After 2 failed cycles → remove test with `test.skip('missing-coverage: <reason>')` and document in TC + REQUIREMENTS.md.
 6. **Learning entries (HLR-008)**: every fix attempt logs `{trigger, root cause, fix, artifact-field-cited}` in agent-mistakes.md.
