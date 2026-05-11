@@ -1,3 +1,5 @@
+> NEEDS TO BE CHECKED FOR LEFTOVER SLOP (LR-050 — restructure plans must enumerate stale-slop cleanup IN-SCOPE).
+
 # MASTER PLAN: Repo Unfucking & Client Delivery
 
 **Status**: PENDING

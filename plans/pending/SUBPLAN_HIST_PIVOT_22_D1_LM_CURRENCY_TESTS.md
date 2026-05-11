@@ -98,7 +98,7 @@ Per-column tests for every 87-col Location Management History column whose root 
    - Playwright `test` from fixtures
    - `LocationCurrencyPage`, `LocationManagementHistoryPage`
    - Helpers from `hist-reader.ts`: `readHistoryRowSince`, `diffRowsByCol`, `assertNoTrackedFor`, `assertBooleanCell`, `assertRowCountUnchanged`
-6. Write `describe.serial('Location Mgmt History — Currency root-tab', () => {...})`.
+6. Write `test.describe('Location Mgmt History — Currency root-tab', () => {...})` and call `dependencyGate([...])` as the first line of every test. Do **NOT** restore `.serial` — post-2026-05-05 dependency-aware migration (parent: PLAN_DEPENDENCY_AWARE_FAILURE.md, BATCH closure) made `.serial` forbidden in `tests/specs/`. Use `dependencyGate(['TC-baseline'])` for state-dependent tests; `dependencyGate([])` for independents.
 7. Add 22 TCs per scope.
 8. Run spec: `npx playwright test clients/encore/tests/specs/setup/locations/history/location-hist-currency.spec.ts --project=chrome`.
 9. Triage failures (APP BUG vs TEST BUG). Known: MER + DEF phantom-row TCs should PASS (the phantom-row assertion is the expected behavior of a NOT-TRACKED bug — test validates it).

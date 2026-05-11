@@ -10,7 +10,7 @@
 **PermissionMode**: auto
 **RiskAcknowledged**: n/a
 **BrowserTool**: cli
-**BrowserToolJustification**: Catalog walkthrough per LR-038 v2 — CLI primary with grep-over-disk discipline. Phase 0 is a live-CLI scope-check (judgment-required); mid-subplan switch to Chrome allowed only on fresh MFA/TOTP refresh per `.claude/rules/browser-tool.md` switch protocol.
+**BrowserToolJustification**: Catalog walkthrough per LR-038 v2 — CLI primary with grep-over-disk discipline. Phase 0 is a live-CLI scope-check (judgment-required); mid-subplan switch to Chrome allowed only on Entra FedAuth refresh per `.claude/rules/browser-tool.md` Gate 3 protocol.
 
 ---
 
