@@ -11,9 +11,22 @@ import {
 } from '../../../test-data/setup/local-office/local-office-ect.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
-test.describe.serial('Local Office Settings — ECT Settings @locations @local-office-ect', () => {
+test.describe('Local Office Settings — ECT Settings @locations @local-office-ect', () => {
 
-  test('TC-LOS-ECT-001: ECT tab — location name, commission link, currency selector', async ({ localOfficeSettingsPage }) => {
+  // Per-test navigation guard (dependency-gate removal Phase 1.5).
+  // When Playwright retries recycle the worker, the fixture's unconditional goto lands
+  // on Dashboard/home. Without this guard, the failing test re-runs against /home and
+  // every subsequent test in the spec produces a /home cascade. Mirrors BAS spec :33.
+  test.beforeEach(async ({ localOfficeSettingsPage }) => {
+    const url = localOfficeSettingsPage.getCurrentUrl();
+    if (!url.includes('settings/local-office')) {
+      await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
+      await localOfficeSettingsPage.navigateToEctTab();
+    }
+  });
+
+  test('TC-LOS-ECT-001: ECT tab — location name, commission link, currency selector', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate([]);
     test.setTimeout(60_000);
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
@@ -31,24 +44,28 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     expect(await localOfficeSettingsPage.getComboboxValue('drpCurrency')).toContain(ECT_PAGE.currency);
   });
 
-  test('TC-LOS-ECT-002: Currency selector — contains USD', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-002: Currency selector — contains USD', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     const options = await localOfficeSettingsPage.getComboboxOptionsList('drpCurrency');
     expect(options.some(o => o.includes(ECT_PAGE.currency))).toBe(true);
   });
 
-  test('TC-LOS-ECT-003: Event Profit Target — label visible, read-only', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-003: Event Profit Target — label visible, read-only', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     expect(await localOfficeSettingsPage.getTextContent('lblEventProfitTarget')).toBe(ECT_SECTIONS.eventProfitTarget);
     expect(await localOfficeSettingsPage.isEventProfitTargetReadOnly()).toBe(true);
   });
 
-  test('TC-LOS-ECT-004: Fixed cost display fields — 7 correct values', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-004: Fixed cost display fields — 7 correct values', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     for (const { key, label, expected } of ECT_FIXED_COST_FIELDS) {
       const actual = await localOfficeSettingsPage.getEctFieldValue(key);
       expect(actual, label).toContain(expected);
     }
   });
 
-  test('TC-LOS-ECT-005: Benefits Multiplier — edit, save, persist', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-005: Benefits Multiplier — edit, save, persist', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     test.setTimeout(60_000);
     expect(await localOfficeSettingsPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(BENEFITS_MULTIPLIER.defaultDisplay);
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.testInput);
@@ -63,7 +80,8 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     await localOfficeSettingsPage.clickSaveFixedCosts();
   });
 
-  test('TC-LOS-ECT-006: Historical Subrental % — editable', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-006: Historical Subrental % — editable', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     test.setTimeout(60_000);
     await localOfficeSettingsPage.fillAndTab('txtHistoricalSubrental', HISTORICAL_SUBRENTAL.testValue);
     expect(await localOfficeSettingsPage.isEctFixedCostsSaveEnabled()).toBe(true);
@@ -76,7 +94,8 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     await localOfficeSettingsPage.navigateToEctTab();
   });
 
-  test('TC-LOS-ECT-007: Two independent Save buttons', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-007: Two independent Save buttons', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     test.setTimeout(60_000);
  // Reload ECT tab to reset Angular dirty state from prior test
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
@@ -93,7 +112,8 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     await localOfficeSettingsPage.navigateToEctTab();
   });
 
-  test('TC-LOS-ECT-008: Labor Cost Assumptions — class read-only, cost editable', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-008: Labor Cost Assumptions — class read-only, cost editable', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     expect(await localOfficeSettingsPage.getTextContent('lblLaborCostAssumptions')).toBe(ECT_SECTIONS.laborCostAssumptions);
     expect(await localOfficeSettingsPage.getFirstLaborClassName()).toBe(LABOR_COST_TEST.firstClass);
     expect(await localOfficeSettingsPage.getLastLaborClassName()).toBe(LABOR_COST_TEST.lastClass);
@@ -101,7 +121,8 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     expect(await localOfficeSettingsPage.isLaborCostEditable()).toBe(true);
   });
 
-  test('TC-LOS-ECT-009: Labor cost — edit, save, persist', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-009: Labor cost — edit, save, persist', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     test.setTimeout(90_000);
  // Navigate via URL (not reload) to avoid "No currencies" API cache miss.
  // ECT-008 is read-only so no dirty state to discard — clean navigation suffices.
@@ -122,19 +143,22 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     await localOfficeSettingsPage.clickSaveLaborCosts();
   });
 
-  test('TC-LOS-ECT-010: Labor cost — non-numeric reverts silently', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-010: Labor cost — non-numeric reverts silently', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     const original = await localOfficeSettingsPage.getLaborCostValue(0);
     await localOfficeSettingsPage.fillLaborCost(0, LABOR_COST_TEST.invalidInput);
     const afterBlur = await localOfficeSettingsPage.getLaborCostValue(0);
     expect(afterBlur).toBe(original);
   });
 
-  test('TC-LOS-ECT-011: SubRental Matrix — label visible, read-only', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-011: SubRental Matrix — label visible, read-only', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     expect(await localOfficeSettingsPage.getTextContent('lblSubRentalMatrix')).toBe(ECT_SECTIONS.subRentalMatrix);
     expect(await localOfficeSettingsPage.isSubRentalReadOnly()).toBe(true);
   });
 
-  test('TC-LOS-ECT-012: ECT Save — no confirmation dialog, no unsaved dialog after', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-012: ECT Save — no confirmation dialog, no unsaved dialog after', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     test.setTimeout(60_000);
     await localOfficeSettingsPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.altTestValue);
     await localOfficeSettingsPage.clickSaveFixedCosts();
@@ -148,7 +172,8 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     await localOfficeSettingsPage.clickSaveFixedCosts();
   });
 
-  test('TC-LOS-ECT-013: Historical Subrental % — edit, save, persist', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-013: Historical Subrental % — edit, save, persist', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     test.setTimeout(60_000);
  // Defensive read — don't assume default
     const currentHS = await localOfficeSettingsPage.getEctFieldValue('txtHistoricalSubrental');
@@ -168,7 +193,8 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
   });
 
   for (const { rowIndex, name } of LABOR_COST_RT_ROWS) {
-    test(`TC-LOS-ECT-${rowIndex === 33 ? '014' : '015'}: Labor cost ${name} (index ${rowIndex}) — persistence`, async ({ localOfficeSettingsPage }) => {
+    test(`TC-LOS-ECT-${rowIndex === 33 ? '014' : '015'}: Labor cost ${name} (index ${rowIndex}) — persistence`, async ({ localOfficeSettingsPage, dependencyGate }) => {
+      dependencyGate(['TC-LOS-ECT-001']);
       test.setTimeout(90_000);
  // Navigate fresh to ECT for each row (avoid serial contamination)
       await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
@@ -189,7 +215,8 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     });
   }
 
-  test('TC-LOS-ECT-016: Multi-field Fixed Costs — single save persists both BM and HS', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-016: Multi-field Fixed Costs — single save persists both BM and HS', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     test.setTimeout(90_000);
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();
@@ -220,7 +247,8 @@ test.describe.serial('Local Office Settings — ECT Settings @locations @local-o
     await localOfficeSettingsPage.clickSaveFixedCosts();
   });
 
-  test('TC-LOS-ECT-017: Discard unsaved changes — no persistence', async ({ localOfficeSettingsPage }) => {
+  test('TC-LOS-ECT-017: Discard unsaved changes — no persistence', async ({ localOfficeSettingsPage, dependencyGate }) => {
+    dependencyGate(['TC-LOS-ECT-001']);
     test.setTimeout(60_000);
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeSettingsPage.navigateToEctTab();

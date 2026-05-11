@@ -157,9 +157,16 @@ export class LocationPricingPage extends BasePage {
   }
 
  /** Open currency filter dropdown and get all option texts.
- * Delegates to BasePage.getComboboxOptions (shared Radix listbox pattern). */
+ * Delegates to BasePage.getComboboxOptions (shared Radix listbox pattern).
+ * B5' (PRI stabilization): outer try/finally fires Escape on the failure path
+ * if the upstream open throws before BasePage's internal Escape runs. Defensive only;
+ * Escape on already-closed popover is a safe no-op in Radix. */
   async getCurrencyFilterOptions(): Promise<string[]> {
-    return this.getComboboxOptions('drpCurrencyFilter');
+    try {
+      return await this.getComboboxOptions('drpCurrencyFilter');
+    } finally {
+      await this.page.keyboard.press('Escape').catch(() => {});
+    }
   }
 
  /** Select a currency filter option by its display text. */

@@ -1,0 +1,30 @@
+{
+  "srcCommit": "84f7f7138ee371e9e0ceecb9251245e4c34c2a43",
+  "srcMtimes": {
+    "common/credential-loader.ts": 1778143569091,
+    "data/adapters/__tests__/adapterFactory.spec.ts": 1776780964857,
+    "data/adapters/__tests__/dbAdapter.spec.ts": 1776780964858,
+    "data/adapters/__tests__/excelAdapter.spec.ts": 1776780964859,
+    "data/adapters/__tests__/jsonAdapter.spec.ts": 1776780964860,
+    "data/adapters/__tests__/s3Adapter.spec.ts": 1776780964861,
+    "data/adapters/adapterFactory.ts": 1776780964853,
+    "data/adapters/dbAdapter.ts": 1776780964854,
+    "data/adapters/excelAdapter.ts": 1776780964854,
+    "data/adapters/IAdapter.ts": 1776780964855,
+    "data/adapters/jsonAdapter.ts": 1776780964855,
+    "data/adapters/s3Adapter.ts": 1776780964856,
+    "framework-contracts/diagnostics.ts": 1776780964862,
+    "framework-contracts/index.ts": 1778143571249,
+    "index.ts": 1776780840769,
+    "utils/agent-reporter.ts": 1778138241617,
+    "utils/common-methods.ts": 1778143560943,
+    "utils/diagnostics-collector.ts": 1776780964864,
+    "utils/logger.ts": 1776780964864,
+    "utils/retry-telemetry.ts": 1778138193139
+  },
+  "builtAt": "2026-05-11T08:39:26.124Z",
+  "builtBy": "rutvi",
+  "excludedPaths": [
+    "src/data/adapters/__tests__/**"
+  ]
+}

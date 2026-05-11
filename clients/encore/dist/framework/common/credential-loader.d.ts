@@ -10,7 +10,6 @@ export interface CredentialSource {
 export interface Credentials {
     username: string;
     password: string;
-    mfaSecret?: string;
     role?: string;
     metadata?: Record<string, any>;
 }

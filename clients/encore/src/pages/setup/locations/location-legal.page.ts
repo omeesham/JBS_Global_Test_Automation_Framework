@@ -102,40 +102,12 @@ export class LocationLegalPage extends BasePage {
 
  /** Select a Service Charge option by exact text. */
   async selectServiceCharge(optionText: string): Promise<void> {
-    await this.selectComboboxOptionExact('drpLegalServiceCharge0', optionText);
+    await this.selectComboboxOption('drpLegalServiceCharge0', optionText, { exact: true });
   }
 
  /** Select a Terms and Conditions option by exact text. */
   async selectTerms(optionText: string): Promise<void> {
-    await this.selectComboboxOptionExact('drpLegalTerms0', optionText);
-  }
-
- /**
- * Exact-match combobox option selection with retry.
- * BasePage.selectComboboxOption uses :has-text (contains match) which fails when
- * multiple options share substrings (e.g. "Administrative Fee" matches 4 options).
- * This uses getByRole with exact:true for unambiguous selection.
- * RCA LGL-010/013: Radix UI Select with 114 options auto-scrolls to the checked item
- * on open, causing options above the scroll position to be "not stable" then "detached
- * from DOM" as the portal re-renders. Retry loop handles this by re-opening the listbox.
- */
-  private async selectComboboxOptionExact(dropdownKey: string, optionText: string): Promise<void> {
-    const maxRetries = 3;
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        await this.openComboboxListbox(dropdownKey);
-        const option = this.page.getByRole('option', { name: optionText, exact: true });
-        await option.scrollIntoViewIfNeeded({ timeout: 3_000 });
-        await option.click({ timeout: 5_000 });
-        Log.info(`[OK] Selected exact option "${optionText}" for ${dropdownKey}`);
-        return;
-      } catch (err) {
-        if (attempt === maxRetries) throw err;
-        Log.warn(`[RETRY ${attempt}/${maxRetries}] Option click failed for "${optionText}" — re-opening listbox`);
-        await this.page.keyboard.press('Escape');
-        await this.page.locator('[role="listbox"]').waitFor({ state: 'hidden', timeout: 2_000 }).catch(() => {});
-      }
-    }
+    await this.selectComboboxOption('drpLegalTerms0', optionText, { exact: true });
   }
 
  /**

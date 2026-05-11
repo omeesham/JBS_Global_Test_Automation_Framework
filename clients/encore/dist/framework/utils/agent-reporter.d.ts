@@ -26,6 +26,7 @@ export interface FailureEntry {
     testIdStatus: string | null;
     changeSize: string | null;
     failureCount: number;
+    dependsOn: string[];
 }
 declare class AgentReporter implements Reporter {
     private failures;
@@ -33,6 +34,12 @@ declare class AgentReporter implements Reporter {
     private failedCount;
     private fixmeCount;
     private totalDuration;
+    private perTestFirstTryPassed;
+    private perTestFailedFirstTry;
+    private perTestPassedOnRetry;
+    private perTestFailedOnRetry;
+    private perTestDurationByAttempt;
+    onBegin(): void;
     onTestEnd(test: TestCase, result: TestResult): void;
     private classifyFailure;
     onEnd(_result: FullResult): void;

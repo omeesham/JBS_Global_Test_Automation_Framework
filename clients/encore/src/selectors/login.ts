@@ -11,10 +11,6 @@ export const MicrosoftLoginSelectors = {
   txtPassword: 'input[type="password"][name="passwd"]',
  /** @where Microsoft Login @el button @text "Sign in" @keys sign-in submit login authenticate */
   btnSignIn: 'input[type="submit"][value="Sign in"]',
- /** @where Microsoft Login > MFA @el input @text "OTP Code" @keys totp mfa otp code verify */
-  txtOtpCode: 'input[name="otc"]',
- /** @where Microsoft Login > MFA @el button @text "Verify" @keys verify mfa submit totp */
-  btnVerify: 'input[type="submit"][value="Verify"]',
  /** @where Microsoft Login > Stay Signed In @el button @text "Yes" @keys stay-signed-in remember yes */
   btnYesStaySignedIn: 'input[type="submit"][value="Yes"]',
  /** @where Microsoft Login > Stay Signed In @el button @text "No" @keys stay-signed-in decline no */

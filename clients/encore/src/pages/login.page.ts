@@ -1,12 +1,11 @@
 /**
- * Login page object for Navigator Cloud with Microsoft SSO and MFA support.
- * Handles Microsoft authentication flow: Continue Now -> email -> password -> TOTP 2FA -> redirect back to app.
+ * Login page object for Navigator Cloud with Microsoft SSO.
+ * Handles Microsoft authentication flow: Continue Now -> email -> password -> redirect back to app.
  */
 
 import { Page } from '@playwright/test';
 import { BasePage } from '../common/base-page';
 import { Log } from '@framework/utils/logger';
-import { CommonMethods } from '@framework/utils/common-methods';
 import { AppConstants } from '../utils/app-constants';
 import { IConfig } from '@framework/framework-contracts';
 import { MicrosoftLoginSelectors } from '../selectors';
@@ -34,14 +33,13 @@ export class LoginPage extends BasePage {
   }
 
  /**
- * Full Microsoft SSO login flow with MFA support
- * Handles: email -> password -> TOTP code -> "Stay signed in?" -> redirect
+ * Full Microsoft SSO login flow
+ * Handles: email -> password -> "Stay signed in?" -> redirect
  * @param username - Microsoft email/username
  * @param password - Microsoft password
- * @param mfaSecret - Base32 TOTP seed (optional, required if MFA enabled)
  * @returns True if login successful and redirected to Navigator Cloud
  */
-  async loginWithMicrosoft(username: string, password: string, mfaSecret?: string): Promise<boolean> {
+  async loginWithMicrosoft(username: string, password: string): Promise<boolean> {
     const collector = (this.page as unknown as Record<string, unknown>).__diagnosticsCollector as DiagnosticsCollector | undefined;
 
     try {
@@ -78,15 +76,7 @@ export class LoginPage extends BasePage {
       await this.page.fill(MicrosoftLoginSelectors.txtPassword, password);
       await this.page.click(MicrosoftLoginSelectors.btnSignIn);
 
- // Step 5: Handle MFA if required
-      if (mfaSecret) {
-        const mfaRequired = await this.handleMFA(mfaSecret);
-        if (!mfaRequired) {
-          Log.info('MFA not required or already completed');
-        }
-      }
-
- // Step 6: Handle "Stay signed in?" prompt (optional)
+ // Step 5: Handle "Stay signed in?" prompt (optional)
       await this.handleStaySignedIn();
 
  // Step 7: Wait for redirect back to Navigator Cloud
@@ -173,48 +163,6 @@ export class LoginPage extends BasePage {
     });
     
     Log.info('[OK] Microsoft login page loaded');
-  }
-
- /**
- * Handle MFA/TOTP challenge if present
- * @param mfaSecret - Base32 TOTP seed
- * @returns True if MFA was required and handled
- */
-  private async handleMFA(mfaSecret: string): Promise<boolean> {
-    try {
- // Wait for TOTP input field (may not appear if MFA not required)
-      await this.page.waitForSelector(MicrosoftLoginSelectors.txtOtpCode, { 
-        state: 'visible', 
-        timeout: 5000 
-      });
-
-      Log.info('MFA challenge detected, generating TOTP code...');
-
- // Generate TOTP code
-      const totpCode = CommonMethods.generateTotpCode(mfaSecret);
-      Log.info(`Generated TOTP: ${totpCode}`);
-
- // Enter code
-      await this.page.fill(MicrosoftLoginSelectors.txtOtpCode, totpCode);
-      await this.page.click(MicrosoftLoginSelectors.btnVerify);
-
- // Wait for TOTP field to disappear (verification accepted)
-      try {
-        await this.page.waitForSelector(MicrosoftLoginSelectors.txtOtpCode, { state: 'hidden', timeout: 15_000 });
-      } catch {
-        throw new Error('MFA timeout -- TOTP page did not respond within 15s');
-      }
-
-      Log.info('[OK] MFA code submitted');
-      return true;
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('MFA timeout')) {
-        throw error; // re-throw differentiated error
-      }
- // MFA field didn't appear - not required
-      Log.info('MFA not required (TOTP field not found)');
-      return false;
-    }
   }
 
  /**

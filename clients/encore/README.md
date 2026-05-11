@@ -20,7 +20,7 @@ npm install
 npx playwright install chromium
 ```
 
-Credentials ship pre-wired in `config/environments/.env.e2e` (Microsoft SSO with an MFA-less automation user). **Rotate these before any production use** — the shipped values are for the E2E environment only.
+Credentials ship pre-wired in `config/environments/.env.e2e` (Microsoft SSO with an automation user). **Rotate these before any production use** — the shipped values are for the E2E environment only.
 
 Verify the setup with the auth smoke test (~30 seconds):
 
@@ -71,14 +71,15 @@ npm run reports:archive                    # archive both reports
 
 ### Tuning parallelism
 
-Worker count (how many specs run in parallel) is set in `playwright.config.ts` but can be overridden per run:
+Worker count is set by an inline expression in `playwright.config.ts` (CI default 4, local 2). Override per run with the `MAX_WORKERS` env var:
 
 ```bash
-npx playwright test --project=chromium --workers=4
-npx playwright test --project=chromium --workers=50%   # half of CPU cores
+MAX_WORKERS=4 npm test          # match CI default explicitly
+MAX_WORKERS=8 npm test          # try higher locally
+MAX_WORKERS=1 npm test          # force serial
 ```
 
-More workers = faster wall-clock but higher load on the app under test and on the runner. Start at 1–2 for SSO-heavy environments; scale up after validating stability. `fully-parallel` mode and `retries` are also configurable in `playwright.config.ts`.
+More workers = faster wall-clock but higher load on the app under test. CI module projects keep `fullyParallel: false` so each spec file stays in one worker (required for `dependencyGate` ordering); different spec files still run in parallel across workers. If 4 introduces state races on shared office=1604, drop the CI default to 2 in the config.
 
 ---
 
@@ -142,7 +143,7 @@ Every failing run writes `reports/failure-summary.json`. Each failure carries a 
 
 | Category | Who to file with |
 |---|---|
-| `AUTHENTICATION` | Transient SSO / MFA flake — retry. Escalate if persistent. |
+| `AUTHENTICATION` | Transient SSO flake — retry. Escalate if persistent. |
 | `NETWORK` | Usually upstream / environment. Re-run before triaging. |
 | `TIMEOUT` / `SELECTOR` / `INFRASTRUCTURE` | Framework-side — file with the QA automation team |
 | `APPLICATION` / `DATA` (a.k.a. "Product Defects") | App-side — file with Encore's product team |

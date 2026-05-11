@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { Log } from '@framework/utils/logger';
+import { recordCall as recordRetryCall, type AttemptRecord } from '@framework/utils/retry-telemetry';
 import { getTsSelector } from '../selectors';
 import { IConfig } from '@framework/framework-contracts';
 import { CheckboxState } from '../pages/setup/locations/location-form-helpers.page';
@@ -108,16 +109,22 @@ export class BasePage {
   async clickWithRetry(elementName: string, options?: { timeout?: number; maxRetries?: number }): Promise<boolean> {
     const { timeout = 10000, maxRetries = 3 } = options || {};
     Log.info(`Clicking element: ${elementName}`);
+    const callRecord: AttemptRecord[] = [];
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      const startMs = Date.now();
       try {
         const element = this.getElement(elementName);
         await element.click({ timeout });
+        callRecord.push({ attemptN: attempt, durationMs: Date.now() - startMs, outcome: 'pass' });
+        recordRetryCall('click', callRecord);
         Log.info(`[OK] Click successful: ${elementName}`);
         return true;
       } catch (error) {
+        callRecord.push({ attemptN: attempt, durationMs: Date.now() - startMs, outcome: 'fail' });
         Log.warn(`[WARN] Click attempt ${attempt}/${maxRetries} failed: ${elementName}`);
         if (attempt === maxRetries) {
+          recordRetryCall('click', callRecord);
           Log.error(`[ERR] Click failed after ${maxRetries} attempts: ${elementName}`);
           throw error;
         }
@@ -438,7 +445,9 @@ export class BasePage {
       await tab.click();
       await this.waitForAngularStable();
     }
-    await this.getElement(readinessElementKey).waitFor({ state: 'visible', timeout: 15_000 });
+    // 30s readiness timeout (was 15s): live-verified cold-load p95 ~9s isolated, but 4-worker
+    // contention regularly pushes form-visible past 15s — was the BAS-001 SELECTOR timeout.
+    await this.getElement(readinessElementKey).waitFor({ state: 'visible', timeout: 30_000 });
     Log.info(`[OK] Tab active: ${tabKey}`);
   }
 
@@ -525,14 +534,49 @@ export class BasePage {
 
  /**
  * Open a combobox/dropdown and click the option matching the given text.
- * shared pattern -> BasePage.
+ * LR-025: Radix UI large-option dropdowns need retry on option selection.
+ * Wraps option-click in a 3-retry loop; on failure presses Escape, waits for
+ * listbox hidden, reopens via openComboboxListbox, scrollIntoViewIfNeeded(3s),
+ * then click(5s). Per-attempt timeout ~5s keeps total budget ~15s.
+ * Layer 5 ('radix') retry telemetry: every terminal pass + every terminal fail
+ * flushes `attempts` via recordCall('radix', attempts) — mirrors Layer 1
+ * (clickWithRetry) shape.
  * @param dropdownKey - Selector key for the combobox trigger element
- * @param optionText - Exact display text of the option to select
+ * @param optionText - Display text of the option to select
+ * @param opts.exact - When true, exact-match via page.getByRole('option', {name, exact}).
+ *   When false (default), substring match via [role="option"]:has-text("X").
  */
-  protected async selectComboboxOption(dropdownKey: string, optionText: string): Promise<void> {
-    const listbox = await this.openComboboxListbox(dropdownKey);
-    await listbox.locator(`[role="option"]:has-text("${optionText}")`).click();
-    Log.info(`[OK] Selected combobox option "${optionText}" for ${dropdownKey}`);
+  protected async selectComboboxOption(
+    dropdownKey: string,
+    optionText: string,
+    opts: { exact?: boolean } = {}
+  ): Promise<void> {
+    const attempts: AttemptRecord[] = [];
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      const startMs = Date.now();
+      try {
+        const listbox = await this.openComboboxListbox(dropdownKey);
+        const option = opts.exact
+          ? this.page.getByRole('option', { name: optionText, exact: true })
+          : listbox.locator(`[role="option"]:has-text("${optionText}")`);
+        await option.scrollIntoViewIfNeeded({ timeout: 3_000 });
+        await option.click({ timeout: 5_000 });
+        attempts.push({ attemptN: attempt, durationMs: Date.now() - startMs, outcome: 'pass' });
+        recordRetryCall('radix', attempts);
+        Log.info(`[OK] Selected combobox option "${optionText}" for ${dropdownKey}`);
+        return;
+      } catch (err) {
+        attempts.push({ attemptN: attempt, durationMs: Date.now() - startMs, outcome: 'fail' });
+        if (attempt === maxRetries) {
+          recordRetryCall('radix', attempts);
+          throw err;
+        }
+        Log.warn(`[RETRY ${attempt}/${maxRetries}] Option click failed for "${optionText}" on ${dropdownKey} — Escape and reopen`);
+        await this.page.keyboard.press('Escape').catch(() => {});
+        await this.page.locator('[role="listbox"]').waitFor({ state: 'hidden', timeout: 2_000 }).catch(() => {});
+      }
+    }
   }
 
  /**
@@ -571,7 +615,9 @@ export class BasePage {
  * @param timeout - Maximum wait time in ms (default: 5000)
  * @returns true if save became enabled within timeout, false otherwise
  */
-  protected async waitForSaveEnabled(saveBtnKey: string, timeout = 5_000): Promise<boolean> {
+  // Default 10s (was 5s): Angular dirty-state propagation after section-grid
+  // edits can occasionally exceed 5s under contention — was the BAS-027 flake.
+  protected async waitForSaveEnabled(saveBtnKey: string, timeout = 10_000): Promise<boolean> {
     try {
       const btn = this.getElement(saveBtnKey);
       const deadline = Date.now() + timeout;

@@ -25,12 +25,20 @@ export default defineConfig({
   timeout: 30 * 1000,
   expect: { timeout: 5000 },
 
-  // AUTH-STATE-SHARED: fullyParallel + 2 workers via shared storageState.
-  fullyParallel: true,
+  // HARD RULE: 1 spec = 1 worker, always (no within-file split). Required so each
+  // spec's TC-001 baseline-reset (per LR-019) runs first in source order before
+  // dependent tests. Within-file parallel would race TC-002+ against the baseline
+  // state TC-001 establishes. Workers still run DIFFERENT specs in parallel via
+  // AUTH-STATE-SHARED (storageState shared via .auth/encore-state.json).
+  // Do not flip back to true.
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
 
   retries: process.env.CI ? 2 : 1,
-  workers: process.env.CI ? 1 : 2,
+  // Dynamic workers: CI default 4; local 2; override via `MAX_WORKERS=N` env.
+  workers: process.env.MAX_WORKERS
+    ? Math.max(1, parseInt(process.env.MAX_WORKERS, 10))
+    : (process.env.CI ? 4 : 2),
 
   preserveOutput: 'always',
 

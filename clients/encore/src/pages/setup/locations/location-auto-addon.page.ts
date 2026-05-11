@@ -162,8 +162,4 @@ export class LocationAutoAddonPage extends BasePage {
     await this.getElement('tabLocalInformation').click();
     await this.waitForAngularStable();
   }
-
-  getCurrentUrl(): string {
-    return this.page.url();
-  }
 }

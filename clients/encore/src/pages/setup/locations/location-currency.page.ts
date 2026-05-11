@@ -110,26 +110,17 @@ export class LocationCurrencyPage extends BasePage {
     return this.getFieldDisplayValue(dropdownKey);
   }
 
- /** Open a merchant dropdown, collect option texts, close it, return the list. */
+ /** Open a merchant dropdown, collect option texts, close it, return the list (delegates to BasePage.getComboboxOptions — trims + filters empties). */
   async getMerchantOptions(dropdownKey: string): Promise<string[]> {
-    await this.getElement(dropdownKey).click();
-    await this.waitForAngularStable();
-    const listbox = this.page.locator('[role="listbox"]');
-    const isVisible = await listbox.isVisible().catch(() => false);
-    if (!isVisible) {
-      return [];
-    }
-    const options = await listbox.locator('[role="option"]').allTextContents();
- // Close dropdown
-    await this.page.keyboard.press('Escape');
-    await listbox.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => {});
+    const options = await this.getComboboxOptions(dropdownKey);
     Log.info(`Merchant options for ${dropdownKey}: ${options.join(', ')}`);
-    return options.map(o => o.trim()).filter(o => o.length > 0);
+    return options;
   }
 
  /**
  * Open the merchant dropdown and check if it is accessible (listbox appears).
  * Also checks if "No Matches Found" is present. Closes the dropdown after.
+ * LR-025-CARVE-OUT: visibility probe, not option-select. Helper signature is select-only; probe semantics differ.
  */
   async isMerchantDropdownAccessible(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
@@ -145,6 +136,7 @@ export class LocationCurrencyPage extends BasePage {
  /**
  * Open the merchant dropdown and check if "No Matches Found" text is displayed.
  * Closes the dropdown after checking.
+ * LR-025-CARVE-OUT: text-substring probe, not option-select. Helper signature is select-only; probe semantics differ.
  */
   async isMerchantNoMatchesFound(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();

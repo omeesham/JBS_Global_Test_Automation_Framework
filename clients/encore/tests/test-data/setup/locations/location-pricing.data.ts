@@ -32,7 +32,11 @@ export const PRIMARY_PRICING_DROPDOWNS = [
   'drpPrimaryProductionEquipmentPricingUSD',
 ] as const;
 
-/** Currency filter expected options. MCP-verified : office 1604 has only USD rows -- 2 options only. */
+/** Currency filter expected options. Live-verified 2026-05-08: clean office 1604 has only USD
+ * price-book rows -> dropdown shows ['All', 'USD'] (2 options). The dropdown is computed from
+ * grid rows, so cross-spec pollution from location-currency.spec.ts (selecting CAD/MXN currencies
+ * adds price-book rows) can transiently bump it to 4. The May 8 failure log captured a polluted
+ * state; the underlying assertion of 2 options for clean state is correct. */
 export const CURRENCY_FILTER_OPTIONS = ['All', 'USD'] as const;
 
 /** Price books for multi-row alternate pricing test (TC-021). MCP-verified : all 3 exist and are USD. */

@@ -45,7 +45,10 @@ export default defineConfig({
   },
 
   retries: 2,
-  workers: 1,
+  // Dynamic workers: CI default 4; local 2; override via `MAX_WORKERS=N` env.
+  workers: process.env.MAX_WORKERS
+    ? Math.max(1, parseInt(process.env.MAX_WORKERS, 10))
+    : (process.env.CI ? 4 : 2),
 
   // CI-only module projects — opt-in via:
   //   npx playwright test --config=playwright.config.ci.ts --workers=2

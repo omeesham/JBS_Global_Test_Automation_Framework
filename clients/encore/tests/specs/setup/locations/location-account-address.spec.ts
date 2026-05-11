@@ -7,21 +7,32 @@ import {
 } from '../../../test-data/setup/locations/location-account-address.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 
-test.describe.serial('Location Account and Address @locations @account-address', () => {
+test.describe('Location Account and Address @locations @account-address', () => {
 
-  test('TC-LOC-ACC-001: Navigate to Account and Address tab; two-card layout visible', async ({ locationAccountAddressPage }) => {
+  // Per-test navigation guard (dependency-gate removal Phase 1.5). See BAS spec :33.
+  test.beforeEach(async ({ locationAccountAddressPage }) => {
+    const url = locationAccountAddressPage.getCurrentUrl();
+    if (!url.includes('settings/location')) {
+      await locationAccountAddressPage.navigateToAccountAndAddressTab(OFFICE_NO);
+    }
+  });
+
+  test('TC-LOC-ACC-001: Navigate to Account and Address tab; two-card layout visible', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate([]);
     test.setTimeout(60_000);
     await locationAccountAddressPage.navigateToAccountAndAddressTab(OFFICE_NO);
     expect(await locationAccountAddressPage.isVenueCardVisible()).toBe(true);
     expect(await locationAccountAddressPage.isMasterCardVisible()).toBe(true);
   });
 
-  test('TC-LOC-ACC-002: Venue Name field is disabled with correct value', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-002: Venue Name field is disabled with correct value', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     expect(await locationAccountAddressPage.isVenueNameDisabled()).toBe(true);
     expect(await locationAccountAddressPage.getVenueNameValue()).toBe(VENUE_NAME);
   });
 
-  test('TC-LOC-ACC-003: Name button opens Account List dialog', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-003: Name button opens Account List dialog', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.openAccountListDialog();
     expect(await locationAccountAddressPage.isAccountListDialogVisible()).toBe(true);
     expect(await locationAccountAddressPage.hasAccountListFilters()).toBe(true);
@@ -30,7 +41,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.cancelAccountListDialog();
   });
 
-  test('TC-LOC-ACC-004: Account List search returns results', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-004: Account List search returns results', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(60_000);
     await locationAccountAddressPage.openAccountListDialog();
     await locationAccountAddressPage.searchAccountByName(ACCOUNT_SEARCH.term);
@@ -42,7 +54,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.cancelAccountListDialog();
   });
 
-  test('TC-LOC-ACC-005: Account List Select button disabled until row checked', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-005: Account List Select button disabled until row checked', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.openAccountListDialog();
     await locationAccountAddressPage.searchAccountByName(ACCOUNT_SEARCH.term);
     expect(await locationAccountAddressPage.isAccountListSelectDisabled()).toBe(true);
@@ -51,7 +64,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.cancelAccountListDialog();
   });
 
-  test('TC-LOC-ACC-006: Account List Cancel closes without changes', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-006: Account List Cancel closes without changes', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.openAccountListDialog();
     await locationAccountAddressPage.searchAccountByName(ACCOUNT_SEARCH.term);
     await locationAccountAddressPage.checkAccountListFirstRow();
@@ -59,7 +73,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     expect(await locationAccountAddressPage.getVenueNameValue()).toBe(VENUE_NAME);
   });
 
-  test('TC-LOC-ACC-007: Account List Reset clears search fields', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-007: Account List Reset clears search fields', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.openAccountListDialog();
     await locationAccountAddressPage.searchAccountByName(ACCOUNT_SEARCH.term);
     await locationAccountAddressPage.resetAccountListSearch();
@@ -71,7 +86,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
   });
 
-  test('TC-LOC-ACC-008: Venue Address button opens Select Customer Address dialog', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-008: Venue Address button opens Select Customer Address dialog', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.openVenueAddressDialog();
     expect(await locationAccountAddressPage.isAddressDialogVisible()).toBe(true);
     expect(await locationAccountAddressPage.isAddressSearchVisible()).toBe(true);
@@ -79,7 +95,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.cancelAddressDialog();
   });
 
-  test('TC-LOC-ACC-009: Address dialog Select button disabled until row checked', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-009: Address dialog Select button disabled until row checked', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.openVenueAddressDialog();
     expect(await locationAccountAddressPage.isAddressSelectDisabled()).toBe(true);
     await locationAccountAddressPage.checkAddressFirstRow();
@@ -87,7 +104,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.cancelAddressDialog();
   });
 
-  test('TC-LOC-ACC-010: Address dialog search bar filters results client-side', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-010: Address dialog search bar filters results client-side', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.openVenueAddressDialog();
     const initialRows = await locationAccountAddressPage.getAddressRowCount();
     await locationAccountAddressPage.searchAddress(ADDRESS_SEARCH.filterTerm);
@@ -97,7 +115,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.cancelAddressDialog();
   });
 
-  test('TC-LOC-ACC-011: Address dialog Save button always disabled', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-011: Address dialog Save button always disabled', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.openVenueAddressDialog();
     expect(await locationAccountAddressPage.isAddressSaveDisabled()).toBe(true);
     await locationAccountAddressPage.checkAddressFirstRow();
@@ -105,28 +124,32 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.cancelAddressDialog();
   });
 
-  test('TC-LOC-ACC-012: Master Address button opens same Select Customer Address dialog', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-012: Master Address button opens same Select Customer Address dialog', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.openMasterAddressDialog();
     expect(await locationAccountAddressPage.isAddressDialogVisible()).toBe(true);
     expect(await locationAccountAddressPage.getAddressRowCount()).toBe(ADDRESS_SEARCH.totalRows);
     await locationAccountAddressPage.cancelAddressDialog();
   });
 
-  test('TC-LOC-ACC-013: Venue address display fields are read-only', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-013: Venue address display fields are read-only', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     for (const field of VENUE_DISPLAY_FIELDS) {
       expect(await locationAccountAddressPage.isDisplayFieldReadOnly('Venue/Branch Account', field.expected),
         `${field.label} should be read-only`).toBe(true);
     }
   });
 
-  test('TC-LOC-ACC-014: Master address display fields are read-only', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-014: Master address display fields are read-only', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     for (const field of MASTER_DISPLAY_FIELDS) {
       expect(await locationAccountAddressPage.isDisplayFieldReadOnly('Master Bill To Address', field.expected),
         `${field.label} should be read-only`).toBe(true);
     }
   });
 
-  test('TC-LOC-ACC-015: Phone 1 required field shows inline error when cleared', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-015: Phone 1 required field shows inline error when cleared', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.clearPhone1AndBlur();
     expect(await locationAccountAddressPage.isPhone1Invalid()).toBe(true);
     expect(await locationAccountAddressPage.isPhone1ErrorIconVisible()).toBe(true);
@@ -135,15 +158,18 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.clickSave();
   });
 
-  test('TC-LOC-ACC-016: Phone 2 optional, no validation error when empty', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-016: Phone 2 optional, no validation error when empty', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     expect(await locationAccountAddressPage.isPhone2Invalid()).toBe(false);
   });
 
-  test('TC-LOC-ACC-017: Save button disabled when no pending changes', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-017: Save button disabled when no pending changes', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
   });
 
-  test('TC-LOC-ACC-018: Save button enables on field change', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-018: Save button enables on field change', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(60_000);
  // Ensure Phone 2 baseline is clean (may be dirty from prior failed run)
     const currentPhone2 = await locationAccountAddressPage.getPhone2Value();
@@ -160,14 +186,16 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
   });
 
-  test('TC-LOC-ACC-019: Save flow -- confirmation dialog then success', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-019: Save flow -- confirmation dialog then success', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     await locationAccountAddressPage.fillPhone2(TEST_PHONE2_VALUE);
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
     await locationAccountAddressPage.clickSave();
     expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
   });
 
-  test('TC-LOC-ACC-020: Save changes persist after page reload', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-020: Save changes persist after page reload', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(60_000);
     expect(await locationAccountAddressPage.getPhone2Value()).toBe(TEST_PHONE2_VALUE);
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
@@ -183,7 +211,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
  // TC-021 DROPPED: live verification proved Phone 1 is account-linked.
  // Save completes but value always reverts to account phone on reload. NOT-AUTOMATABLE.
 
-  test('TC-LOC-ACC-022: Cancel Save dialog discards save without persisting', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-022: Cancel Save dialog discards save without persisting', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(60_000);
     await locationAccountAddressPage.fillPhone2(ACCOUNT_TEST_PHONE);
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
@@ -197,7 +226,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
   });
 
-  test('TC-LOC-ACC-023: Phone 1 cleared shows invalid state and error icon', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-023: Phone 1 cleared shows invalid state and error icon', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
  // MCP-verified : clearing Phone 1 shows aria-invalid=true but Save stays enabled.
  // This TC verifies validation indicators; Save blocking is NOT app behavior.
     await locationAccountAddressPage.clearPhone1AndBlur();
@@ -209,7 +239,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
   });
 
-  test('TC-LOC-ACC-025: Account List Address filter returns matching results', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-025: Account List Address filter returns matching results', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(60_000);
     await locationAccountAddressPage.openAccountListDialog();
     await locationAccountAddressPage.searchAccountByAddress(ACCOUNT_LIST_FILTERS.address);
@@ -220,7 +251,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.cancelAccountListDialog();
   });
 
-  test('TC-LOC-ACC-026: Account List City filter returns matching results', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-026: Account List City filter returns matching results', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(60_000);
     await locationAccountAddressPage.openAccountListDialog();
     await locationAccountAddressPage.searchAccountByCity(ACCOUNT_LIST_FILTERS.city);
@@ -231,7 +263,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await locationAccountAddressPage.cancelAccountListDialog();
   });
 
-  test('TC-LOC-ACC-027: Address selection changes venue display fields', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-027: Address selection changes venue display fields', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(60_000);
  // MCP-verified : address selection updates display but does NOT persist through save+reload.
  // Angular form model doesn't serialize the new address. This TC tests E2E display change only.
@@ -249,7 +282,8 @@ test.describe.serial('Location Account and Address @locations @account-address',
     await expect.poll(() => locationAccountAddressPage.getVenueCityText(), { timeout: 10_000 }).toBe(ORIGINAL_ADDRESS.city);
   });
 
-  test('TC-LOC-ACC-028: Account selection changes venue name and persists', async ({ locationAccountAddressPage }) => {
+  test('TC-LOC-ACC-028: Account selection changes venue name and persists', async ({ locationAccountAddressPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(120_000);
     const originalName = await locationAccountAddressPage.getVenueNameValue();
     try {

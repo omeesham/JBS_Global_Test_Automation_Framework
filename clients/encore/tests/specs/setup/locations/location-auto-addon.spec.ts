@@ -3,9 +3,18 @@ import { test, expect } from '../../../setup/fixtures';
 import { AUTO_ADDON_DEFAULTS, UNCHECK_PERSISTENCE_CASES } from '../../../test-data/setup/locations/location-auto-addon.data';
 import { OFFICE_NO, SAVE_CHANGES_DIALOG, UNSAVED_CHANGES_DIALOG } from '../../../test-data/common.data';
 
-test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
+test.describe('Location Auto Add-On @locations @auto-addon', () => {
 
-  test('TC-LOC-AAO-001: Navigate to Auto Add-On Tab', async ({ locationAutoAddonPage }) => {
+  // Per-test navigation guard (dependency-gate removal Phase 1.5). See BAS spec :33.
+  test.beforeEach(async ({ locationAutoAddonPage }) => {
+    const url = locationAutoAddonPage.getCurrentUrl();
+    if (!url.includes('settings/location')) {
+      await locationAutoAddonPage.navigateToAutoAddonTab(OFFICE_NO);
+    }
+  });
+
+  test('TC-LOC-AAO-001: Navigate to Auto Add-On Tab', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate([]);
     test.setTimeout(90_000);
     await locationAutoAddonPage.navigateToAutoAddonTab(OFFICE_NO);
     expect(locationAutoAddonPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
@@ -27,7 +36,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     }
   });
 
-  test('TC-LOC-AAO-002: Default State of Checkbox Items (location 1604)', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-002: Default State of Checkbox Items (location 1604)', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     for (const item of AUTO_ADDON_DEFAULTS) {
       expect(await locationAutoAddonPage.isCheckboxChecked(item.key),
         `${item.name} should be ${item.checked ? 'checked' : 'unchecked'}`).toBe(item.checked);
@@ -35,7 +45,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(false);
   });
 
-  test('TC-LOC-AAO-003: Toggle Checked Item to Unchecked -- Save Enables', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-003: Toggle Checked Item to Unchecked -- Save Enables', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonEncoreMusic');
  // Radix checkbox toggle fires async state update — poll for checked state.
     await expect.poll(() => locationAutoAddonPage.isCheckboxChecked('chkAutoAddonEncoreMusic'), { timeout: 5_000 }).toBe(false);
@@ -44,7 +55,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonEncoreMusic');
   });
 
-  test('TC-LOC-AAO-004: Toggle Unchecked Item to Checked -- Save Enables', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-004: Toggle Unchecked Item to Checked -- Save Enables', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
  // Radix checkbox toggle fires async state update — poll for checked state.
     await expect.poll(() => locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession'), { timeout: 5_000 }).toBe(true);
@@ -53,7 +65,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
-  test('TC-LOC-AAO-005: Revert Toggle Re-Disables Save (Smart Form Diff)', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-005: Revert Toggle Re-Disables Save (Smart Form Diff)', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
  // Radix checkbox toggle fires async state update — poll for Save state.
     await expect.poll(() => locationAutoAddonPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
@@ -61,7 +74,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await expect.poll(() => locationAutoAddonPage.isSaveEnabled(), { timeout: 5_000 }).toBe(false);
   });
 
-  test('TC-LOC-AAO-006: Save Dialog Appears on Save Click', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-006: Save Dialog Appears on Save Click', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.clickSaveButton();
     expect(await locationAutoAddonPage.isSaveDialogVisible()).toBe(true);
@@ -72,7 +86,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
-  test('TC-LOC-AAO-007: Save Dialog Cancel -- Dismisses Without Saving', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-007: Save Dialog Cancel -- Dismisses Without Saving', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.clickSaveButton();
     await locationAutoAddonPage.clickSaveCancel();
@@ -82,7 +97,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
-  test('TC-LOC-AAO-008: Save Dialog Ok -- Saves Successfully with Toast', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-008: Save Dialog Ok -- Saves Successfully with Toast', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.clickSaveButton();
     await locationAutoAddonPage.clickSaveOk();
@@ -93,7 +109,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.clickSave();
   });
 
-  test('TC-LOC-AAO-009: Toggle Persists After Page Reload', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-009: Toggle Persists After Page Reload', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     test.setTimeout(60_000);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.clickSave();
@@ -104,12 +121,14 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.clickSave();
   });
 
-  test('TC-LOC-AAO-010: Save Button Disabled on Fresh Load (No Changes)', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-010: Save Button Disabled on Fresh Load (No Changes)', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(false);
   });
 
-  test('TC-LOC-AAO-011: Multiple Toggles Saved Together', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-011: Multiple Toggles Saved Together', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     test.setTimeout(60_000);
  // Navigate fresh to normalize server state (prior cleanup saves may fail silently)
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
@@ -126,7 +145,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.clickSave();
   });
 
-  test('TC-LOC-AAO-012: Sub-Tab Switch with Unsaved Changes -- No Dialog', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-012: Sub-Tab Switch with Unsaved Changes -- No Dialog', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
     await locationAutoAddonPage.clickLocalInformationTab();
@@ -137,7 +157,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
-  test('TC-LOC-AAO-013: Unsaved Changes Dialog Appears on Page Navigation Away', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-013: Unsaved Changes Dialog Appears on Page Navigation Away', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
  // Fresh navigation to ensure form + routing guard are in clean state (TC-012 tab switching can corrupt dirty tracking)
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
@@ -151,7 +172,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
-  test('TC-LOC-AAO-014: Unsaved Changes -- Stay Button Keeps User on Page', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-014: Unsaved Changes -- Stay Button Keeps User on Page', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
@@ -164,7 +186,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
-  test('TC-LOC-AAO-015: Unsaved Changes -- Discard Button Navigates Away', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-015: Unsaved Changes -- Discard Button Navigates Away', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
@@ -179,7 +202,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
 
  // --- Round-Trip Persistence: Data-Driven (TC-017/018, MNT-008) ---
   for (const item of UNCHECK_PERSISTENCE_CASES) {
-    test(`${item.tc}: ${item.name} Uncheck Persists After Save+Reload`, async ({ locationAutoAddonPage }) => {
+    test(`${item.tc}: ${item.name} Uncheck Persists After Save+Reload`, async ({ locationAutoAddonPage, dependencyGate }) => {
+      dependencyGate(['TC-LOC-AAO-001']);
       test.setTimeout(60_000);
       await locationAutoAddonPage.navigateFresh(OFFICE_NO);
  // Verify checkbox starts checked (default for Wordly and Labor)
@@ -197,7 +221,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
     });
   }
 
-  test('TC-LOC-AAO-019: Cancel Does Not Persist Toggle', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-019: Cancel Does Not Persist Toggle', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
  // ECDS defaults to unchecked — toggle it to checked
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
@@ -211,7 +236,8 @@ test.describe.serial('Location Auto Add-On @locations @auto-addon', () => {
       'ECDS should remain unchecked after cancel').toBe(false);
   });
 
-  test('TC-LOC-AAO-020: Bulk Invert All Checkboxes Persists After Save+Reload', async ({ locationAutoAddonPage }) => {
+  test('TC-LOC-AAO-020: Bulk Invert All Checkboxes Persists After Save+Reload', async ({ locationAutoAddonPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-AAO-001']);
     test.setTimeout(60_000);
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
  // Invert all 5 checkboxes

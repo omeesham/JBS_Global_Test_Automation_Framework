@@ -104,8 +104,6 @@
 | divError | label | Microsoft Login | Error | error username-error password-error validation | login.ts |
 | txtEmail | input | Microsoft Login | Email | email username sign-in sso | login.ts |
 | txtPassword | input | Microsoft Login | Password | password credential secret | login.ts |
-| btnVerify | button | Microsoft Login > MFA | Verify | verify mfa submit totp | login.ts |
-| txtOtpCode | input | Microsoft Login > MFA | OTP Code | totp mfa otp code verify | login.ts |
 | btnNoStaySignedIn | button | Microsoft Login > Stay Signed In | No | stay-signed-in decline no | login.ts |
 | btnYesStaySignedIn | button | Microsoft Login > Stay Signed In | Yes | stay-signed-in remember yes | login.ts |
 | btnContinueNow | button | Navigator Cloud Sign-In | Continue Now | continue-now pre-sso sign-in navigator-cloud | login.ts |

@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const diagnostics_1 = require("../framework-contracts/diagnostics");
+const retry_telemetry_1 = require("./retry-telemetry");
 const OUTPUT_FILE = path.join(process.cwd(), 'reports', 'failure-summary.json');
 const FAILURE_HISTORY_FILE = path.join(process.cwd(), 'reports', 'failure-history.json');
 function getFailureCount(testName) {
@@ -59,8 +60,34 @@ class AgentReporter {
     failedCount = 0;
     fixmeCount = 0;
     totalDuration = 0;
+    perTestFirstTryPassed = 0;
+    perTestFailedFirstTry = 0;
+    perTestPassedOnRetry = new Map();
+    perTestFailedOnRetry = new Map();
+    perTestDurationByAttempt = new Map();
+    onBegin() {
+        (0, retry_telemetry_1.reset)();
+    }
     onTestEnd(test, result) {
         this.totalDuration += result.duration;
+        const retryN = result.retry;
+        this.perTestDurationByAttempt.set(retryN, (this.perTestDurationByAttempt.get(retryN) || 0) + result.duration);
+        if (result.status === 'passed') {
+            if (retryN === 0) {
+                this.perTestFirstTryPassed += 1;
+            }
+            else {
+                this.perTestPassedOnRetry.set(retryN, (this.perTestPassedOnRetry.get(retryN) || 0) + 1);
+            }
+        }
+        else if (result.status === 'failed' || result.status === 'timedOut') {
+            if (retryN === 0) {
+                this.perTestFailedFirstTry += 1;
+            }
+            else {
+                this.perTestFailedOnRetry.set(retryN, (this.perTestFailedOnRetry.get(retryN) || 0) + 1);
+            }
+        }
         if (result.status === 'skipped') {
             const annotations = test.annotations || [];
             const isFixme = annotations.some(a => a.type === 'fixme');
@@ -98,6 +125,10 @@ class AgentReporter {
                     lastActions.push(step.title);
                 }
             }
+            const dependsOn = (test.annotations || [])
+                .filter(a => a.type === 'dependsOn')
+                .map(a => a.description ?? '')
+                .filter(s => s.length > 0);
             this.failures.push({
                 testName: test.title,
                 file: test.location.file ? path.relative(process.cwd(), test.location.file) : 'unknown',
@@ -114,7 +145,7 @@ class AgentReporter {
                 lastActions,
                 failureCategory,
                 pageUrl: diagnostics?.urlHistory.at(-1) ?? '',
-                workerIndex: test.parent?.project()?.metadata?.workerIndex ?? 0,
+                workerIndex: result.workerIndex,
                 retryAttempt: result.retry,
                 consoleErrors: diagnostics?.consoleErrors ?? [],
                 networkFailures: diagnostics?.networkFailures ?? [],
@@ -128,6 +159,7 @@ class AgentReporter {
                 testIdStatus: null,
                 changeSize: null,
                 failureCount: getFailureCount(test.title),
+                dependsOn,
             });
         }
     }
@@ -171,6 +203,35 @@ class AgentReporter {
             console.log('[AgentReporter] Skipping failure-summary.json write -- no tests executed');
             return;
         }
+        const perTestRecovered = {};
+        let perTestRecoveredTotal = 0;
+        for (const [retryN, count] of this.perTestPassedOnRetry.entries()) {
+            perTestRecovered[retryN + 1] = count;
+            perTestRecoveredTotal += count;
+        }
+        let perTestWastedAttempts = 0;
+        let perTestWastedMs = 0;
+        for (const [retryN, count] of this.perTestFailedOnRetry.entries()) {
+            perTestWastedAttempts += count;
+            const totalMsAtRetry = this.perTestDurationByAttempt.get(retryN) || 0;
+            const eventsAtRetry = (this.perTestPassedOnRetry.get(retryN) || 0) + (this.perTestFailedOnRetry.get(retryN) || 0);
+            const avgMs = eventsAtRetry > 0 ? totalMsAtRetry / eventsAtRetry : 0;
+            perTestWastedMs += avgMs * count;
+        }
+        const perTestStats = {
+            callCount: this.perTestFirstTryPassed + this.perTestFailedFirstTry,
+            totalAttempts: this.perTestFirstTryPassed +
+                this.perTestFailedFirstTry +
+                Array.from(this.perTestPassedOnRetry.values()).reduce((a, b) => a + b, 0) +
+                Array.from(this.perTestFailedOnRetry.values()).reduce((a, b) => a + b, 0),
+            recoveredAtAttempt: perTestRecovered,
+            wastedAttempts: perTestWastedAttempts,
+            wastedMs: Math.round(perTestWastedMs),
+            succeededOnFirstAttempt: this.perTestFirstTryPassed,
+            failedAfterAllAttempts: Math.max(0, this.perTestFailedFirstTry - perTestRecoveredTotal),
+        };
+        const fileStats = (0, retry_telemetry_1.readAndAggregate)();
+        const retryStats = { ...fileStats, perTest: perTestStats };
         const summary = {
             timestamp: new Date().toISOString(),
             failures: this.failures,
@@ -180,6 +241,7 @@ class AgentReporter {
             totalDuration: this.totalDuration,
             triageStats: null,
             bugReportFiles: [],
+            retryStats,
         };
         const reportsDir = path.dirname(OUTPUT_FILE);
         if (!fs.existsSync(reportsDir)) {

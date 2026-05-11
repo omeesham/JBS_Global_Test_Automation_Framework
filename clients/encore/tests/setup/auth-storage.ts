@@ -2,9 +2,9 @@
  * AUTH-STATE-SHARED — shared-storage-state helpers for parallel-worker auth.
  *
  * Lock-and-share pattern: a single setup project acquires a file-lock, performs a
- * fresh login (potentially with MFA), and writes .auth/encore-state.json atomically.
+ * fresh SSO login, and writes .auth/encore-state.json atomically.
  * All worker projects then consume the saved state read-only via use.storageState,
- * avoiding simultaneous-MFA collisions across parallel workers.
+ * avoiding simultaneous fresh-login collisions across parallel workers.
  *
  * Search marker: AUTH-STATE-SHARED
  */
@@ -13,6 +13,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as lockfile from 'proper-lockfile';
 import { Page, BrowserContext } from '@playwright/test';
+import { recordCall as recordRetryCall, type AttemptRecord } from '@framework/utils/retry-telemetry';
 
 export const AUTH_DIR = path.resolve(process.cwd(), '.auth');
 export const STATE_PATH = path.join(AUTH_DIR, 'encore-state.json');
@@ -55,11 +56,15 @@ export async function writeStateAtomic(context: BrowserContext): Promise<void> {
 
 export async function validateState(page: Page, baseUrl: string): Promise<boolean> {
   const MAX_TRIES = 3;
+  const callRecord: AttemptRecord[] = [];
   for (let attempt = 1; attempt <= MAX_TRIES; attempt++) {
+    const t0 = Date.now();
     try {
       await page.goto(baseUrl, { timeout: 90_000, waitUntil: 'domcontentloaded' });
 
       if (page.url().toLowerCase().includes('login.microsoftonline.com')) {
+        callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'fail' });
+        recordRetryCall('validateState', callRecord);
         return false;
       }
 
@@ -67,19 +72,31 @@ export async function validateState(page: Page, baseUrl: string): Promise<boolea
         await page
           .getByRole('heading', { name: 'Dashboard', level: 1 })
           .waitFor({ state: 'visible', timeout: 30_000 });
+        callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'pass' });
+        recordRetryCall('validateState', callRecord);
         return true;
       } catch {
-        if (page.url().toLowerCase().includes('login.microsoftonline.com')) return false;
-        if (attempt === MAX_TRIES) return false;
+        callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'fail' });
+        if (page.url().toLowerCase().includes('login.microsoftonline.com')) {
+          recordRetryCall('validateState', callRecord);
+          return false;
+        }
+        if (attempt === MAX_TRIES) {
+          recordRetryCall('validateState', callRecord);
+          return false;
+        }
       }
     } catch (err) {
+      callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'fail' });
       if (attempt === MAX_TRIES) {
         const msg = err instanceof Error ? err.message : String(err);
         console.warn(`[auth-storage] validateState attempt ${attempt} threw, giving up: ${msg}`);
+        recordRetryCall('validateState', callRecord);
         return false;
       }
     }
   }
+  recordRetryCall('validateState', callRecord);
   return false;
 }
 

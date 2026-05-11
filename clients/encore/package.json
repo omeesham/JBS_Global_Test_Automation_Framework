@@ -14,7 +14,7 @@
     "test:ui": "playwright test --config=playwright.config.ts --ui",
     "test:failed": "playwright test --config=playwright.config.ts --last-failed",
     "test:grep": "playwright test --config=playwright.config.ts --grep",
-    "test:daily": "node scripts/preserve-allure-history.js && npm run clean:reports && playwright test --config=playwright.config.ts --project=chromium && npm run allure:generate && npm run reports:archive",
+    "test:daily": "node scripts/preserve-allure-history.js && node scripts/preserve-failure-summary.js && npm run clean:reports && playwright test --config=playwright.config.ts --project=chromium && npm run allure:generate && npm run reports:archive",
     "report": "playwright show-report reports/html-report",
     "allure:generate": "npx allure generate reports/allure-results --clean -o reports/allure-report",
     "allure:open": "npx allure open reports/allure-report",
@@ -44,7 +44,6 @@
     "dotenv-flow": "^4.1.0",
     "exceljs": "^4.4.0",
     "knex": "^3.1.0",
-    "otplib": "^12.0.1",
     "proper-lockfile": "^4.1.2",
     "xlsx": "^0.18.5"
   },

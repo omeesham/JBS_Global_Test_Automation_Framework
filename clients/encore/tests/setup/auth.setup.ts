@@ -4,7 +4,7 @@
  * Runs ONCE before any test project (Playwright serializes via dependencies: ['setup']).
  * Produces .auth/encore-state.json which all downstream workers consume read-only via
  * use.storageState. Lock-and-share pattern: file-lock around fresh login prevents
- * simultaneous-MFA collisions across parallel workers.
+ * simultaneous fresh-login collisions across parallel workers.
  *
  * Search marker: AUTH-STATE-SHARED
  */
@@ -13,6 +13,7 @@ import { test as setup, expect } from '@playwright/test';
 import { LoginPage } from '@client/pages/login.page';
 import { CommonMethods } from '@framework/utils/common-methods';
 import { CredentialLoader } from '@framework/common/credential-loader';
+import { recordCall as recordRetryCall, type AttemptRecord } from '@framework/utils/retry-telemetry';
 import {
   STATE_PATH,
   acquireLock,
@@ -55,7 +56,7 @@ setup('acquire shared auth state', async ({ browser }) => {
       }
     }
 
-    // Perform full SSO + MFA login -- internal 3-attempt retry loop covers MS transient
+    // Perform full SSO login -- internal 3-attempt retry loop covers MS transient
     // bursts ("Sorry, but we're having trouble signing you in" / ConnectionTimeOut).
     // Runs INSIDE the file lock, so peer workers wait on the lock, not on a half-success.
     const credentials = await CredentialLoader.loadCredentials({ type: 'env' });
@@ -64,8 +65,10 @@ setup('acquire shared auth state', async ({ browser }) => {
     const MAX_ATTEMPTS = 3;
     let savedCtx: import('@playwright/test').BrowserContext | null = null;
     let lastErr: unknown = null;
+    const callRecord: AttemptRecord[] = [];
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const t0 = Date.now();
       const ctx = await browser.newContext();
       const page = await ctx.newPage();
       page.on('dialog', async (dialog) => {
@@ -78,7 +81,6 @@ setup('acquire shared auth state', async ({ browser }) => {
         const success = await loginPage.loginWithMicrosoft(
           credentials.username,
           credentials.password,
-          credentials.mfaSecret,
         );
         if (!success) throw new Error('loginWithMicrosoft returned false');
 
@@ -87,10 +89,12 @@ setup('acquire shared auth state', async ({ browser }) => {
           .waitFor({ state: 'visible', timeout: 60_000 });
 
         savedCtx = ctx;
+        callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'pass' });
         console.log(`[auth.setup] login succeeded on attempt ${attempt}/${MAX_ATTEMPTS}`);
         break;
       } catch (err) {
         lastErr = err;
+        callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'fail' });
         const msg = err instanceof Error ? err.message : String(err);
         console.warn(`[auth.setup] attempt ${attempt}/${MAX_ATTEMPTS} failed: ${msg}`);
         await ctx.close();
@@ -101,9 +105,11 @@ setup('acquire shared auth state', async ({ browser }) => {
       }
     }
 
+    recordRetryCall('login', callRecord);
+
     if (!savedCtx) {
       throw new Error(
-        `[auth.setup] SSO + MFA login failed after ${MAX_ATTEMPTS} attempts: ${
+        `[auth.setup] SSO login failed after ${MAX_ATTEMPTS} attempts: ${
           lastErr instanceof Error ? lastErr.message : String(lastErr)
         }`,
       );

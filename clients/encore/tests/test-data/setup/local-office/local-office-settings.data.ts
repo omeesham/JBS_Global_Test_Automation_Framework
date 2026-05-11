@@ -34,9 +34,15 @@ export const ONE_DAY_JOB_CHECKBOXES = [
   { key: 'chkDefaultJobOneDayInternal', label: 'Internal' },
 ] as const;
 
-/** Expected 13 section names for location 1604 (BAS-025). Live-verified . */
+/** Expected 13 canonical section names for location 1604 (BAS-025).
+ * Live-verified 2026-05-08 against /locations/1604/settings/local-office
+ * (see reports/live-verification-2026-05-08.md). Index 0 is 'AV Services',
+ * NOT 'Audio' as previously assumed — the app default was renamed.
+ * Live grid currently also contains a stray 'Test Section' row from prior
+ * test-run leakage; BAS-025's assertion filters that out.
+ */
 export const DEFAULT_SECTIONS = [
-  'Audio', 'Flipcharts', 'Hybrid Meeting', 'Labor', 'Lighting',
+  'AV Services', 'Flipcharts', 'Hybrid Meeting', 'Labor', 'Lighting',
   'Power', 'Presenter Support', 'Projection', 'Rigging',
   'Scenic', 'Staging', 'Video', 'Whiteboard',
 ] as const;
@@ -58,11 +64,18 @@ export const PHONE_TEST_VALUES = {
   recovery: '555-000-1111',
 } as const;
 
-/** Section editing test values. */
+/** Section editing test values.
+ * Updated 2026-05-08 per live verification:
+ *  - originalName must match DEFAULT_SECTIONS[0] (live = 'AV Services').
+ *  - editValue MUST DIFFER from originalName per LR-009 / LR-026 — net-zero edit
+ *    leaves Angular form pristine and Save disabled (was the BAS-027 failure).
+ *  - newSection is 'Test Section Z' to avoid collision with the existing
+ *    'Test Section' leak in the live grid (was the BAS-028 failure).
+ */
 export const SECTION_TEST_VALUES = {
-  editValue: 'AV Services',       // value typed into rename field
-  originalName: 'Audio',           // DA-01 fix: pre-edit section name at index 0 (matches DEFAULT_SECTIONS[0])
-  newSection: 'Test Section',
+  editValue: 'AV Test',             // value typed into rename field — must differ from live index-0 name
+  originalName: 'AV Services',      // pre-edit section name at index 0 (matches DEFAULT_SECTIONS[0])
+  newSection: 'Test Section Z',     // unique add-name; avoid 'Test Section' which is already leaked into live
 } as const;
 
 /** Room test values. */

@@ -3,7 +3,7 @@
     "name": "Authentication Failures",
     "description": "SSO / Microsoft login / session / authenticated-session-creation failures",
     "matchedStatuses": ["failed", "broken"],
-    "messageRegex": ".*Authenticated session creation failed.*|.*SSO.*|.*Microsoft.*|.*sign.in.*|.*session.*expired.*|.*login.*failed.*|.*MFA.*|.*TOTP.*"
+    "messageRegex": ".*Authenticated session creation failed.*|.*SSO.*|.*Microsoft.*|.*sign.in.*|.*session.*expired.*|.*login.*failed.*"
   },
   {
     "name": "Network Errors",

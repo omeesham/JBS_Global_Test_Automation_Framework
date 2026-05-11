@@ -63,7 +63,6 @@ class CredentialLoader {
         return {
             username: record.username || record.user || record.email,
             password: record.password || record.pass,
-            mfaSecret: record.mfaSecret || record.mfa_secret || record.totp_secret,
             role: record.role || role,
             metadata: record,
         };
@@ -72,7 +71,6 @@ class CredentialLoader {
         return {
             username: process.env.NAVIGATOR_USERNAME || process.env.USERNAME_AUTOMATION || 'admin',
             password: process.env.NAVIGATOR_PASSWORD || process.env.PASSWORD_AUTOMATION || 'admin',
-            mfaSecret: process.env.NAVIGATOR_MFA_SECRET || process.env.MFA_SECRET,
             role: 'env',
             _source: 'environment variables',
         };

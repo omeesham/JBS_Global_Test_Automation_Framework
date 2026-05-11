@@ -27,6 +27,7 @@ import {
   validateState,
   writeStateAtomic,
 } from './auth-storage';
+import { dependencyGateExt } from './dependency-gate';
 
 // Define worker-scoped fixtures (shared across tests in same worker)
 type WorkerFixtures = {
@@ -50,13 +51,14 @@ type TestFixtures = {
   localOfficeSettingsPage: LocalOfficeSettingsPage;
   locationAutoAddonPage: LocationAutoAddonPage;
   locationManagementHistoryPage: LocationManagementHistoryPage;
+  dependencyGate: (deps: string[]) => void;
 };
 
 /**
  * Extended test with custom fixtures
  * Usage: import { test, expect } from './fixtures';
  */
-export const test = base.extend<TestFixtures, WorkerFixtures>({
+export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  /**
  * Diagnostics handler fixture (auto-use)
  * Reads from authenticatedSession.page (where collector is attached).
@@ -182,7 +184,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
           return;
         }
 
-        // Full SSO + MFA login (file-lock guarantees only this worker is here).
+        // Full SSO login (file-lock guarantees only this worker is here).
         const loginCtx = await browser.newContext();
         const loginPg = await loginCtx.newPage();
         loginPg.on('dialog', async (dialog) => {
@@ -193,11 +195,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         const ok = await lp.loginWithMicrosoft(
           credentials.username,
           credentials.password,
-          credentials.mfaSecret,
         );
         if (!ok) {
           await loginCtx.close();
-          throw new Error('SSO + MFA login failed during state refresh');
+          throw new Error('SSO login failed during state refresh');
         }
         await loginPg
           .getByRole('heading', { name: 'Dashboard', level: 1 })
@@ -223,18 +224,30 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       Log.info('[fixture] EXP_FORCE_STALE_FIRST=1 -- forcing stale path for mid-run sim');
     }
 
-    // Pre-test guard
-    if (forceStaleFirst || !(await validateState(page, config.base_url))) {
+    // Pre-test guard — validateState in a throwaway probe context so the worker's
+    // primary `page` URL is never mutated by the auth-storage helper's `page.goto(baseUrl)`
+    // side-effect. Mirrors the probe pattern at refreshSharedState (lines 176-181).
+    const guardProbe = await browser.newContext(
+      fs.existsSync(STATE_PATH) ? { storageState: STATE_PATH } : undefined,
+    );
+    const guardProbePage = await guardProbe.newPage();
+    const guardStale = !(await validateState(guardProbePage, config.base_url));
+    await guardProbe.close();
+    if (forceStaleFirst || guardStale) {
       await context.close();
       await refreshSharedState();
       ({ ctx: context, pg: page } = await newSharedContext());
-      // Reload-with-fresh-state: new context's page is blank -- navigate explicitly,
-      // then confirm Dashboard via final readiness gate.
-      await page.goto(config.base_url, { timeout: 78_000 });
-      await page
-        .getByRole('heading', { name: 'Dashboard', level: 1 })
-        .waitFor({ state: 'visible', timeout: 60_000 });
     }
+    // Navigate primary page to base_url and confirm Dashboard.
+    // BOTH fresh-after-refresh AND pre-existing-valid-state contexts start on about:blank
+    // (probe-context wrap moved validateState off the primary page; primary page from
+    // newSharedContext() is a brand-new blank page). Closes Phase A warm-up regression
+    // (parent plan post-depgate framework fixes deferred item) -- without this
+    // navigation, tests on the not-stale path start on about:blank -> SELECTOR failures.
+    await page.goto(config.base_url, { timeout: 78_000 });
+    await page
+      .getByRole('heading', { name: 'Dashboard', level: 1 })
+      .waitFor({ state: 'visible', timeout: 60_000 });
 
     Log.info('[OK] Authenticated session ready via shared storageState');
 
@@ -249,7 +262,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
  */
   commonMethods: async ({ page }, use, testInfo) => {
  // R14 exception (intentional): Uses bare `page` not `authenticatedSession.page`.
- // CommonMethods only provides static utilities (initProp, generateTotpCode) -- no page interaction.
+ // CommonMethods only provides static utilities (initProp) -- no page interaction.
  // Diagnostics teardown is handled by auto-use `diagnosticsHandler` fixture (reads from authenticatedSession.page).
     Logger.setSpecContext(testInfo.file);
     const commonMethods = new CommonMethods(page);

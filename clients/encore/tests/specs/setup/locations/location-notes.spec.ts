@@ -14,12 +14,21 @@ import {
 } from '../../../test-data/setup/locations/location-notes.data';
 import { OFFICE_NO, SAVE_CHANGES_DIALOG } from '../../../test-data/common.data';
 
-test.describe.serial('Location Notes @locations @notes', () => {
+test.describe('Location Notes @locations @notes', () => {
+
+  // Per-test navigation guard (dependency-gate removal Phase 1.5). See BAS spec :33.
+  test.beforeEach(async ({ locationNotesPage }) => {
+    const url = locationNotesPage.getCurrentUrl();
+    if (!url.includes('settings/location')) {
+      await locationNotesPage.navigateToNotesTab(OFFICE_NO);
+    }
+  });
 
  // ─── Group A: Navigation + Default State ─────────────────────────────────
  // MCP-verified: Default state = 1 empty textarea row (0/4000), NOT "No Notes Available"
 
-  test('TC-LOC-NTS-001: Verify Notes tab default empty state', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-001: Verify Notes tab default empty state', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
     test.setTimeout(60_000);
     await locationNotesPage.navigateToNotesTab(OFFICE_NO);
     await locationNotesPage.ensureEmptyState();
@@ -34,7 +43,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
  // ─── Group B: Counter & Row Behavior (no save, discard via reload) ──────
  // After discard, state = 1 empty row at index 0. Use row 0 directly.
 
-  test('TC-LOC-NTS-002: Type text in textarea and verify counter updates', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-002: Type text in textarea and verify counter updates', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
  // Row 0 already exists from default state
     await locationNotesPage.fillNote(0, NOTE_TEXT_SHORT);
     expect(await locationNotesPage.getCharCount()).toBe(25);
@@ -43,7 +53,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-003: Add second note row and verify Delete button behavior', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-003: Add second note row and verify Delete button behavior', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
  // Row 0 exists. Fill it, then Add row 1.
     await locationNotesPage.fillNote(0, NOTE_ROW1);
     expect(await locationNotesPage.getDeleteButtonCount()).toBeGreaterThan(0);
@@ -54,7 +65,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-004: Multi-row counter includes delimiter per row boundary', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-004: Multi-row counter includes delimiter per row boundary', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
  // Row 0 exists already
     await locationNotesPage.fillNote(0, NOTE_HELLO);
     expect(await locationNotesPage.getCharCount()).toBe(5);
@@ -69,7 +81,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-005: Delete a row and verify counter decreases', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-005: Delete a row and verify counter decreases', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.fillNote(0, NOTE_ROW1);
     await locationNotesPage.clickAdd();
     await locationNotesPage.fillNote(1, NOTE_ROW2);
@@ -80,7 +93,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-006: Progress bar updates proportionally with character usage', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-006: Progress bar updates proportionally with character usage', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     expect(await locationNotesPage.isProgressBarVisible()).toBe(true);
     await locationNotesPage.fillNote(0, NOTE_40_CHARS);
     expect(await locationNotesPage.isProgressBarVisible()).toBe(true);
@@ -89,7 +103,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-007: Verify 4000 character limit (soft enforcement)', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-007: Verify 4000 character limit (soft enforcement)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.fillNote(0, NOTE_4000_CHARS);
     expect(await locationNotesPage.getCharCount()).toBe(4000);
     expect(await locationNotesPage.getCharCounterText()).toContain(NOTE_COUNTER_FULL);
@@ -103,7 +118,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
 
  // ─── Group C: Save & Persistence ────────────────────────────────────────
 
-  test('TC-LOC-NTS-008: Save notes via left-panel Save button', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-008: Save notes via left-panel Save button', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.fillNote(0, NOTE_SAVED);
     expect(await locationNotesPage.getCharCount()).toBe(18);
     await locationNotesPage.clickSaveButton();
@@ -115,7 +131,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
-  test('TC-LOC-NTS-009: Notes persist after page reload', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-009: Notes persist after page reload', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.fillNote(0, NOTE_PERSISTENT);
     await locationNotesPage.saveAndConfirm();
@@ -127,7 +144,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
 
  // ─── Group D: State Preservation ────────────────────────────────────────
 
-  test('TC-LOC-NTS-010: Tab switch preserves unsaved notes', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-010: Tab switch preserves unsaved notes', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.fillNote(0, NOTE_TEMPORARY);
     expect(await locationNotesPage.getCharCount()).toBe(14);
     await locationNotesPage.switchToTab('tabCurrency');
@@ -137,7 +155,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-011: Navigation away triggers browser beforeunload dialog', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-011: Navigation away triggers browser beforeunload dialog', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.fillNote(0, NOTE_UNSAVED);
     expect(await locationNotesPage.isSaveEnabled()).toBe(true);
     const dialogAppeared = await locationNotesPage.navigateAwayWithUnsavedChanges('/');
@@ -146,7 +165,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-012: Delete all notes and save empty state', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-012: Delete all notes and save empty state', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.fillNote(0, NOTE_ROW1);
     await locationNotesPage.saveAndConfirm();
  // Delete saved note + save empty
@@ -159,7 +179,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
  // ─── Group E: Special Content Save+Reload (data-driven, 4 TCs) ─────────
 
   for (const tc of SPECIAL_CONTENT_TESTS) {
-    test(`TC-LOC-NTS-${tc.tcId}: ${tc.name}`, async ({ locationNotesPage }) => {
+    test(`TC-LOC-NTS-${tc.tcId}: ${tc.name}`, async ({ locationNotesPage, dependencyGate }) => {
+      dependencyGate(['TC-LOC-NTS-001']);
       test.setTimeout(60_000);
  // Ensure clean state before each iteration — prior test's cleanup may have
  // left saved notes in DB (e.g. if saveAndConfirm succeeded but ensureEmptyState failed).
@@ -174,7 +195,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
 
  // ─── Group F: Row Manipulation ──────────────────────────────────────────
 
-  test('TC-LOC-NTS-014: Add multiple rows and verify sequential positions', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-014: Add multiple rows and verify sequential positions', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
  // Ensure row 0 exists, then add 2 more = 3 total
     await locationNotesPage.prepareEmptyRow();
     await locationNotesPage.clickAdd();
@@ -189,7 +211,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-015: Delete middle row and verify remaining rows shift', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-015: Delete middle row and verify remaining rows shift', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.fillNote(0, NOTE_ROW_A);
     await locationNotesPage.clickAdd();
     await locationNotesPage.fillNote(1, NOTE_ROW_B);
@@ -204,7 +227,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-016: Row created via Add has Delete visible; typing keeps it', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-016: Row created via Add has Delete visible; typing keeps it', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
  // After save-empty cycles, state is "No Notes Available". prepareEmptyRow clicks Add
  // which creates a row WITH Delete visible (only auto-created first-load rows lack Delete).
     await locationNotesPage.prepareEmptyRow();
@@ -215,7 +239,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
-  test('TC-LOC-NTS-017: Delete last remaining row restores No Notes Available', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-017: Delete last remaining row restores No Notes Available', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
  // Type in row 0 to get Delete button, then delete it
     await locationNotesPage.fillNote(0, NOTE_ROW1);
     expect(await locationNotesPage.getDeleteButtonCount()).toBeGreaterThan(0);
@@ -229,7 +254,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
 
  // ─── Group G: Paste Boundary ────────────────────────────────────────────
 
-  test('TC-LOC-NTS-021: Paste exceeds 4000 char limit — counter shows overage', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-021: Paste exceeds 4000 char limit — counter shows overage', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.pasteIntoNote(0, NOTE_4001_CHARS);
     expect(await locationNotesPage.getCharCount()).toBe(4001);
     expect(await locationNotesPage.getCharCounterText()).toContain('4001/4000');
@@ -238,7 +264,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
 
  // ─── Group H: Keyboard Accessibility ────────────────────────────────────
 
-  test('TC-LOC-NTS-022: Accessibility — keyboard navigation', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-022: Accessibility — keyboard navigation', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.prepareEmptyRow();
     const textarea = locationNotesPage['getElement']('txtNoteInputAll').nth(0);
     await textarea.focus();
@@ -250,7 +277,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
 
  // ─── Group I: Full Lifecycle ────────────────────────────────────────────
 
-  test('TC-LOC-NTS-023: Full lifecycle — add, save, reload, delete, save', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-023: Full lifecycle — add, save, reload, delete, save', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
  // Add + save
     await locationNotesPage.fillNote(0, NOTE_LIFECYCLE);
@@ -269,7 +297,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
 
  // ─── Group J: Persistence Gap-Fill (TC-024..027) ────────────────────────
 
-  test('TC-LOC-NTS-024: Multi-row persistence — 3 rows save+reload+verify', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-024: Multi-row persistence — 3 rows save+reload+verify', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
  // Add 3 rows
@@ -293,7 +322,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
-  test('TC-LOC-NTS-025: Boundary persistence — 4000 chars save+reload', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-025: Boundary persistence — 4000 chars save+reload', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
  // Fill 4000 chars
@@ -310,7 +340,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
-  test('TC-LOC-NTS-026: Partial deletion persistence — delete middle row, save, verify remaining', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-026: Partial deletion persistence — delete middle row, save, verify remaining', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
  // Add 3 rows
@@ -336,7 +367,8 @@ test.describe.serial('Location Notes @locations @notes', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
-  test('TC-LOC-NTS-027: Cancel save dialog — verify changes NOT persisted', async ({ locationNotesPage }) => {
+  test('TC-LOC-NTS-027: Cancel save dialog — verify changes NOT persisted', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
  // Add a note

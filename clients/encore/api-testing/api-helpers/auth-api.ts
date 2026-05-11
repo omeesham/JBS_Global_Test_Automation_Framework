@@ -32,19 +32,15 @@ import { Log } from '@framework/utils/logger';
  * @example
  * const creds: LoginRequest = {
  * username: 'john@example.com',
- * password: 'SecurePass123!',
- * mfaCode: '123456' // Optional - only if user has 2FA enabled
+ * password: 'SecurePass123!'
  * };
  */
 export interface LoginRequest {
  /** User's email or username (required) */
   username: string;
-  
+
  /** Account password (required, sent encrypted over HTTPS, never logged) */
   password: string;
-  
- /** 6-digit MFA code from authenticator app (optional - "?" means can be omitted) */
-  mfaCode?: string;
 }
 
 /**
@@ -101,14 +97,12 @@ export class AuthApiClient extends BaseApiClient {
  * Login via API - authenticates user, stores JWT token for future requests
  * Promise = "pager at restaurant" (buzzes when data ready, can do other things while waiting)
  * async/await = "pause and wait" for server response before continuing
- * @param {LoginRequest} credentials - { username, password, mfaCode? }
+ * @param {LoginRequest} credentials - { username, password }
  * @returns {Promise<LoginResponse>} Server response with token and user info
  * @throws {Error} Network error, invalid credentials, or server error
  * @example Basic login
  * const response = await client.login({ username: 'user@example.com', password: 'SecurePass123!' });
  * if (response.success) console.log('Logged in as:', response.user.username);
- * @example Login with MFA
- * const response = await client.login({ username: 'user@example.com', password: 'pass', mfaCode: '123456' });
  * @see {@link LoginRequest} - Credentials format
  * @see {@link LoginResponse} - Response format
  * @see {@link BaseApiClient.post} - Underlying HTTP POST method

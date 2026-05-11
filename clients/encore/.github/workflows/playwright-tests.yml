@@ -1,11 +1,13 @@
 # Manual-trigger CI for the Encore Playwright suite.
-# Runs Ubuntu + Chromium, module-parallel (2 workers — encore-local-office +
-# encore-locations). Trigger: workflow_dispatch (Run workflow button or
-#   gh workflow run playwright-tests.yml).
+# Runs Ubuntu + Chromium, module-parallel (CI default 4 workers; override with
+# MAX_WORKERS=N env). Worker count is honored via the inline expression in
+# playwright.config.ci.ts; module projects keep `fullyParallel: false` so
+# dependencyGate ordering holds within each spec file. Trigger: workflow_dispatch
+# (Run workflow button or `gh workflow run playwright-tests.yml`).
 # Required GitHub secrets: NAVIGATOR_USERNAME, NAVIGATOR_PASSWORD, BASE_URL.
 # Auth: ONE setup project logs in and writes .auth/encore-state.json; both
-# module workers consume it read-only via storageState. Uses an MFA-less
-# automation user — NAVIGATOR_MFA_SECRET is intentionally absent.
+# module workers consume it read-only via storageState. Uses an automation
+# user with no second-factor.
 
 name: Playwright Tests
 
@@ -14,7 +16,7 @@ on:
 
 jobs:
   test:
-    name: Playwright (Ubuntu, Chromium, 2-worker module-parallel)
+    name: Playwright (Ubuntu, Chromium, module-parallel)
     runs-on: ubuntu-latest
 
     env:
@@ -39,8 +41,8 @@ jobs:
       - name: Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests (module-parallel, 2 workers)
-        run: npx playwright test --config=playwright.config.ci.ts --workers=2 --project=encore-local-office --project=encore-locations
+      - name: Run Playwright tests (module-parallel)
+        run: npx playwright test --config=playwright.config.ci.ts --project=encore-local-office --project=encore-locations
 
       - name: Generate Allure HTML report
         if: always()

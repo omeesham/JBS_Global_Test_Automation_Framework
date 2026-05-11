@@ -100,12 +100,15 @@ export class LocalOfficeSettingsPage extends BasePage {
   }
 
  /** Reload page and navigate back to Basic Info tab.
- * Uses safeNavigateTo to handle beforeunload dialog when form has unsaved edits. */
+ * Uses safeNavigateTo to handle beforeunload dialog when form has unsaved edits.
+ * 30s form-visibility timeout: live-verified cold-load p95 ~9s isolated, but under
+ * 4-worker contention loads regularly exceed 15s (was the BAS-001 timeout failure).
+ * See reports/live-verification-2026-05-08.md. */
   async reloadBasicInfo(officeNo = '1604'): Promise<void> {
     const baseUrl = this.config?.base_url || '';
     await this.safeNavigateTo(`${baseUrl}locations/${officeNo}/settings/local-office`);
     await this.waitForAngularStable();
-    await this.getElement('frmBasicInfo').waitFor({ state: 'visible', timeout: 15_000 });
+    await this.getElement('frmBasicInfo').waitFor({ state: 'visible', timeout: 30_000 });
   }
 
  // ─────────────────────────────────────────────────────────────────────────────
@@ -116,14 +119,19 @@ export class LocalOfficeSettingsPage extends BasePage {
     return !(await this.getElement('btnSave').isDisabled());
   }
 
- /** Poll until Save button becomes enabled (Angular dirty-state propagation). */
-  async waitForSaveToEnable(timeout = 5_000): Promise<boolean> {
+ /** Poll until Save button becomes enabled (Angular dirty-state propagation).
+  * Default 10s — Angular dirty propagation can lag after section-grid edits. */
+  async waitForSaveToEnable(timeout = 10_000): Promise<boolean> {
     return this.waitForSaveEnabled('btnSave', timeout);
   }
 
- /** Click Save and confirm via shared "Save Changes" dialog. Falls through if no dialog appears. */
-  async clickSaveAndConfirm(): Promise<void> {
-    await this.clickSaveWithDialog('btnSave', 'dlgSaveChanges', 'btnSaveChangesConfirm');
+ /** Click Save and confirm via shared "Save Changes" dialog. Falls through if no dialog appears.
+ * Returns {success, networkError?} from the underlying save — callers that care about
+ * silent 500s can assert on `.success`. Existing callers that discard the return value
+ * still compile (TS allows ignoring a Promise<T>).
+ */
+  async clickSaveAndConfirm(): Promise<{ success: boolean; networkError?: string }> {
+    return this.clickSaveWithDialog('btnSave', 'dlgSaveChanges', 'btnSaveChangesConfirm');
   }
 
  /** Click Save then click Cancel to dismiss. Returns false if no dialog appears. */
@@ -262,12 +270,9 @@ export class LocalOfficeSettingsPage extends BasePage {
     return this.getComboboxOptions(key);
   }
 
- /** Select exact combobox option (uses getByRole for exact match —). */
+ /** Select exact combobox option (delegates to BasePage.selectComboboxOption with exact:true; LR-025-compliant retry + telemetry). */
   async selectComboboxExact(key: string, optionName: string): Promise<void> {
-    await this.getElement(key).click();
-    const listbox = this.page.locator('[role="listbox"]');
-    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
-    await this.page.getByRole('option', { name: optionName, exact: true }).click();
+    await this.selectComboboxOption(key, optionName, { exact: true });
   }
 
  // ─────────────────────────────────────────────────────────────────────────────

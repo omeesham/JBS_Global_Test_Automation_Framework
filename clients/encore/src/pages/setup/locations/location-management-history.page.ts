@@ -265,7 +265,9 @@ export class LocationManagementHistoryPage extends BasePage {
 
  /** Click sort dropdown and select a direction for a sortable column by header text.
  * Radix dropdown flakiness: menu occasionally fails to appear after button click.
- * Retry pattern: Escape to close any lingering state, re-click, max 3 attempts. */
+ * Retry pattern: Escape to close any lingering state, re-click, max 3 attempts.
+ * LR-025-CARVE-OUT: Radix Dropdown Menu surface ([role="menu"]/[role="menuitem"]), NOT Select listbox.
+ * Different retry abstraction; selectComboboxOption helper does not apply. */
   async clickSortColumn(headerText: string, direction: 'ascending' | 'descending' = 'ascending'): Promise<void> {
     const colIndex = await this.getColumnIndex(headerText);
     const th = this.getElement('tblMgmtHistory').locator('th').nth(colIndex);
@@ -347,15 +349,9 @@ export class LocationManagementHistoryPage extends BasePage {
     return (await this.getElement('drpMgmtHistoryRowsPerPage').textContent() || '').trim();
   }
 
- /** Get rows-per-page dropdown options. */
+ /** Get rows-per-page dropdown options (delegates to BasePage.getComboboxOptions — trims + filters empties). */
   async getRowsPerPageOptions(): Promise<string[]> {
-    await this.getElement('drpMgmtHistoryRowsPerPage').click();
-    const listbox = this.page.locator('[role="listbox"]');
-    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
-    const options = await listbox.locator('[role="option"]').allTextContents();
-    await this.page.keyboard.press('Escape');
-    await listbox.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => {});
-    return options.map(o => o.trim());
+    return this.getComboboxOptions('drpMgmtHistoryRowsPerPage');
   }
 
  /** Select a rows-per-page option. */
