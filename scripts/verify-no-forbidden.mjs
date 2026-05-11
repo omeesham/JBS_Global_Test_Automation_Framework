@@ -62,7 +62,7 @@ const DENY_GLOBS = [
 
 // Patterns scanned across every staged or shipped file (sentinels that should
 // never appear anywhere in the repo).
-const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /v-rutvik/, /khosariya/, /NAVIGATOR_MFA_SECRET=[A-Z0-9]/];
+const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /v-rutvik/, /khosariya/];
 
 // Patterns scanned ONLY in client-shipping files (target output, or a staged
 // path under clients/<id>/ that would survive the DENY_GLOB filter). Framework-

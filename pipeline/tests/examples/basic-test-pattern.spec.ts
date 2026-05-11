@@ -26,10 +26,10 @@ test.describe('Example: Login Flow @example', () => {
     // Navigate -- loginPage.goto() handles URL from config
     await loginPage.goto();
 
-    // Login -- page object handles entire SSO + MFA flow
+    // Login -- page object handles entire SSO flow
     const { CredentialLoader } = await import('../../src/common/credential-loader');
     const creds = await CredentialLoader.loadCredentials({ type: 'env' });
-    const success = await loginPage.loginWithMicrosoft(creds.username, creds.password, creds.mfaSecret);
+    const success = await loginPage.loginWithMicrosoft(creds.username, creds.password);
     expect(success, 'Login should succeed').toBe(true);
 
     // Verify authenticated state

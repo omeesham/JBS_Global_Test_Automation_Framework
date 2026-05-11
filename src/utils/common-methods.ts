@@ -1,10 +1,9 @@
 import { Page } from '@playwright/test';
-import { authenticator } from 'otplib';
 import { Log } from './logger';
 import { IConfig } from '../framework-contracts';
 
 /**
- * Common Methods -- config loading and TOTP generation.
+ * Common Methods -- config loading.
  * Used by fixtures (initProp) and login page.
  */
 export class CommonMethods {
@@ -26,25 +25,8 @@ export class CommonMethods {
       home_url: process.env.HOME_URL || '',
       username_automation: process.env.NAVIGATOR_USERNAME || process.env.USERNAME_AUTOMATION || 'test_user',
       password_automation: process.env.NAVIGATOR_PASSWORD || process.env.PASSWORD_AUTOMATION || 'test_password',
-      mfa_secret: process.env.NAVIGATOR_MFA_SECRET || process.env.MFA_SECRET,
     };
 
     return config;
-  }
-
- /**
- * Generate 6-digit TOTP code for multi-factor authentication.
- * @param secret - Base32-encoded MFA secret from authenticator app
- * @returns 6-digit TOTP code valid for 30 seconds
- */
-  static generateTotpCode(secret: string): string {
-    try {
-      const code = authenticator.generate(secret);
-      Log.info(`Generated TOTP code: ${code}`);
-      return code;
-    } catch (error) {
-      Log.error(`Error generating TOTP code: ${error}`);
-      throw error;
-    }
   }
 }

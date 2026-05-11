@@ -89,7 +89,7 @@ export class LoginPage extends BasePage {
 
 | File | Purpose |
 |------|---------|
-| `login.page.ts` | Login interactions (Microsoft SSO + MFA) |
+| `login.page.ts` | Login interactions (Microsoft SSO) |
 | `home.page.ts` | Home/dashboard page |
 
 ### `src/data/` — Data Source Adapters
@@ -118,7 +118,7 @@ const result = await adapter.load();
 | File | Purpose |
 |------|---------|
 | `logger.ts` | Centralized logging (console + file) |
-| `common-methods.ts` | Config loading (`initProp`), MFA TOTP (`generateTotpCode`) |
+| `common-methods.ts` | Config loading (`initProp`) |
 | `app-constants.ts` | Timeouts, feature flags |
 
 #### Key Method Signatures
@@ -134,7 +134,6 @@ export class Log {
 // common-methods.ts
 export class CommonMethods {
   static initProp(configPath?: string): IConfig
-  static generateTotpCode(secret: string): string
 }
 ```
 

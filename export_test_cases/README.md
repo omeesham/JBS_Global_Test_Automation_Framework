@@ -222,7 +222,7 @@ npm run export:jira
   "testCases": [
     {
       "id": "TC-001",
-      "title": "Login with valid credentials and MFA",
+      "title": "Login with valid credentials",
       "type": "User-Requested",
       "priority": "Critical",
       "automationStatus": "Automated",
@@ -233,7 +233,7 @@ npm run export:jira
       "expectedResults": [...],
       "automationDetails": {
         "file": "tests/specs/auth/login.spec.ts",
-        "testName": "should login with valid credentials and MFA",
+        "testName": "should login with valid credentials",
         "lineRange": "15-30"
       }
     }
@@ -267,7 +267,7 @@ Test Case Key,Test Summary,Test Priority,Test Type,Test Description,...
   "suite_id": "suite-123",
   "tests": [
     {
-      "name": "Login with valid credentials and MFA",
+      "name": "Login with valid credentials",
       "external_id": "TC-001",
       "priority": 1,
       "status": "ready",

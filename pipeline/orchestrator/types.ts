@@ -16,7 +16,7 @@ export type BrowserTool = 'cli' | 'chrome' | 'both' | 'none';
 /** Per-stage CLI session config. Replaces legacy `mcpConfig` template reference.
  *  `sessionName` is the `-s=<name>` handle used across `playwright-cli` calls so
  *  state-saved auth persists between commands. `persistentProfile` points at a
- *  headed-browser profile directory for one-time SSO + MFA login capture. */
+ *  headed-browser profile directory for one-time SSO login capture. */
 export interface CliStageConfig {
   sessionName?: string;
   persistentProfile?: string;

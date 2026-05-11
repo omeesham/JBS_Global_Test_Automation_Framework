@@ -407,7 +407,7 @@ Format: "The failure is [CATEGORY] because [evidence from Steps 1-4]"
 Cite specific file names and line numbers. Example: "SELECTOR failure: error-context.md line 42 shows alertdialog overlay blocking pointer events to checkbox."
 
 **Step 6: Replicate via browser tool (ONLY if Steps 1-5 inconclusive)**
-Navigate to `pageUrl` → execute same spec steps → observe DOM. CLI: `playwright-cli snapshot -s=nav4 -o report.yaml` → read YAML; `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome: `mcp__Claude_in_Chrome__read_page` + `javascript_tool`. Choose per LR-038 in CLAUDE.md. Chrome carve-out: Chrome wins when live authenticated session is already open and MFA/SSO re-auth would be needed for a fresh CLI state.
+Navigate to `pageUrl` → execute same spec steps → observe DOM. CLI: `playwright-cli snapshot -s=nav4 -o report.yaml` → read YAML; `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome: `mcp__Claude_in_Chrome__read_page` + `javascript_tool`. Choose per LR-038 in CLAUDE.md. Chrome carve-out: Chrome wins when live authenticated session is already open and SSO re-auth would be needed for a fresh CLI state.
 
 > **WARNING**: Do NOT run `npx playwright test` concurrently with `playwright-cli` — both drive Playwright infrastructure and can conflict (exit code 4294967295). Run tests first → read artifacts → THEN browser replication.
 
@@ -523,7 +523,7 @@ Use live browser replication ONLY when:
 
 **Chrome path**: `mcp__Claude_in_Chrome__navigate` to pageUrl → replay steps → `mcp__Claude_in_Chrome__read_page` at failure point → `mcp__Claude_in_Chrome__javascript_tool` to check element state → compare to artifacts → document finding.
 
-Chrome carve-out: Chrome wins for visual/CSS failures, interactive RCA with user present, and when fresh MFA/TOTP is needed (CLI cannot solve MFA). See LR-038 §Gate 2 matrix.
+Chrome carve-out: Chrome wins for visual/CSS failures and interactive RCA with user present. See LR-038 §Gate 2 matrix.
 
 ### State-Aware Testing (ALL-049)
 

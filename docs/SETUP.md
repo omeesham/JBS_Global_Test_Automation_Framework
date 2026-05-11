@@ -59,6 +59,18 @@ docker compose up -d && npm run server:start
 
 ---
 
+## After every pull (post-2026-05-07)
+
+Run once after each `git pull` that touches `src/`:
+
+```bash
+npm run vendor:build:all
+```
+
+This rebuilds the vendored framework at `dist/framework/`. The client's `clients/encore/playwright.config.ts` consumes this build via its reporter path; without it `npm test` from repo root (delegated to `clients/encore` post-2026-05-07) fails with `Cannot find module './dist/framework/utils/agent-reporter.js'`.
+
+---
+
 ## Security Rules
 
 - `.env.local` and `.env.server` are gitignored (for personal overrides)

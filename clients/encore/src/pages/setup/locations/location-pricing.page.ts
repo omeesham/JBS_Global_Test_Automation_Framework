@@ -26,6 +26,15 @@ export class LocationPricingPage extends BasePage {
   }
 
  /**
+ * Detect whether the Pricing tab is currently rendered (DOM presence of chkCorporatePricing).
+ * Encore sub-tabs share `settings/location` URL — URL-based detection is unreliable after a
+ * sibling spec like Notes; DOM presence is the reliable signal.
+ */
+  async isOnPricingTab(): Promise<boolean> {
+    return (await this.getElement('chkCorporatePricing').count()) > 0;
+  }
+
+ /**
  * Force-reload the current page and re-select the Pricing tab.
  * MNT-003: delegates to navigate-away + navigateToSubTab instead of reimplementing.
  */
