@@ -2,7 +2,7 @@
  * Test data for: Location Notes tab
  * Consumed by: tests/specs/setup/locations/location-notes.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last 
+ * Last updated: 2026-05-15 (Group K TC-033..037 added)
  * Changing values here affects the listed spec.
  */
 
@@ -68,3 +68,10 @@ export const NOTE_KEEP_FIRST = 'Keep First';         // 10 chars
 export const NOTE_DELETE_ME = 'Delete Me';           // 9 chars
 export const NOTE_KEEP_LAST = 'Keep Last';           // 9 chars
 export const NOTE_CANCEL_TEST = 'Cancel test note';  // 16 chars
+
+// ---- Coverage Gap-Fill (TC-033..037) ----
+export const NOTE_SEQ_A = 'Sequential A';            // 12 chars
+export const NOTE_SEQ_B = 'Sequential B';            // 12 chars
+export const NOTE_ORIGINAL = 'Original text';        // 13 chars
+export const NOTE_EDITED = 'Edited text';            // 11 chars
+export const NOTE_DELETE_CHECK = 'Delete check';     // 12 chars

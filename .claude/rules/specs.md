@@ -85,3 +85,39 @@ the listbox, wait for hidden, re-open, `scrollIntoViewIfNeeded()`, then click.
 Reduce per-attempt timeout (5s) so retries stay within total budget.
 
 **Trigger**: Any combobox/select interaction with 50+ options in Radix UI.
+
+## LR-051: No `.toBe(true)` on boolean OR-expressions — failure diagnostics are opaque
+
+Forbidden: `expect(a === x || a === y).toBe(true)` — on failure the report reads
+`expected false to be true` with no signal of what `a` actually was.
+
+Permitted: a branching assertion that forces a structured diff
+(`if (a !== x && a !== y) { expect(a).toBe(x); }`), or `expect([x, y]).toContain(a)`
+where `.toContain` is allowed by the spec's catalog rule.
+
+**Reason**: opaque diagnostics in CI cost more debugging time than the assertion costs to write.
+**Trigger**: any assertion against a tested value with 2+ valid forms (encoding variants,
+race-condition valid states, documented placeholder/auto-empty behaviors).
+
+## LR-052: No fixed `waitForTimeout` inside count/state polling loops
+
+Forbidden: `while (count > 0) { ...; await page.waitForTimeout(N); count = await ...; }`
+
+Permitted: `await page.waitForFunction(...)` that polls for the actual transition
+(e.g., `document.querySelectorAll(sel).length < previousCount`).
+
+**Reason**: fixed sleeps compound linearly across N iterations, flake on slow CI, and
+never confirm the transition actually happened.
+**Trigger**: any while/for loop containing a Playwright action followed by a count or
+state recheck.
+
+## LR-053: No strict row-count assertions when an auto-empty-row bug is documented
+
+When the test cases doc warns about an auto-empty placeholder row (BUG-LOC-NTS-003 class),
+do NOT use `getRowCount() === N` after save+reload. Assert per-row content for rows
+`0..N-1` instead.
+
+**Reason**: the test cases doc warning is canonical; ignoring it produces flake when the
+underlying bug fires.
+**Trigger**: any post-save/reload assertion on Angular form-array tabs with a documented
+placeholder behavior.

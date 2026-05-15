@@ -199,3 +199,17 @@ clients/*/specs_planning/_internal/agent-activity-log.md
 clients/*/specs_planning/_internal/agent-performance.json
 clients/*/specs_planning/_internal/agent-metrics-report.md
 clients/*/specs_planning/_internal/test-id-registry.json
+
+# Scratch / probe scripts under per-client scripts/ — underscore-prefix convention.
+# Live-probe / live-verify experiments stay out of the shipped tree and out of commits.
+clients/*/scripts/_*.mjs
+clients/*/scripts/_*.js
+clients/*/scripts/_*.ts
+
+# Playwright CLI session debug output
+.playwright-cli/page-*.yml
+.playwright-cli/console-*.log
+
+# Regression snapshot debug files
+.claude/state/regression-snapshots/*.txt
+.claude/state/regression-snapshots/*.json

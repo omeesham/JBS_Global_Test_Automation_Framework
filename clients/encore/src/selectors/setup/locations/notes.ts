@@ -13,7 +13,7 @@
  * - Progress bar: [role="progressbar"] — NO data-testid; aria-valuenow is NOT set (accessibility gap).
  * - Save dialog: [role="alertdialog"] — NO data-testid; heading/body text are text-based.
  * - Save button: [data-testid="location-settings-btn-save"] (shared with all tabs).
- * - All selector counts confirmed unique via querySelectorAll on .
+ * - All selector counts confirmed unique via querySelectorAll on Office 1604 (Parker Palm Springs).
  */
 export const SetupNotesSelectors = {
  // ---- Notes Tab Navigation ----
@@ -23,12 +23,10 @@ export const SetupNotesSelectors = {
  // ---- Notes Section Wrappers ----
  /** @where Setup > Location > Notes tab @el region @text "Notes section" @keys notes section wrapper container */
   sectionNotes: '[data-testid="location-settings-section-notes"]',
- /** @where Setup > Location > Notes tab @el region @text "Notes content" @keys notes tab content panel wrapper */
-  contentNotes: '[data-testid="location-settings-sub-tab-content-notes"]',
 
  // ---- Notes Table ----
- /** @where Setup > Location > Notes tab @el table @text "Notes table" @keys notes table rows grid */
-  tblNotes: '[data-testid="location-settings-table-notes"]',
+ // No table-level data-testid is exposed by the app (see DOM notes header). Empty-state
+ // cell is the only stable cell-level anchor and is selected via section + text below.
  /** @where Setup > Location > Notes tab > Empty state @el cell @text "No Notes Available" @keys empty no-notes available */
   lblNoNotesAvailable: '[data-testid="location-settings-section-notes"] td:has-text("No Notes Available")',
 

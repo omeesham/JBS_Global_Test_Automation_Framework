@@ -116,8 +116,13 @@ export class LocationNotesPage extends BasePage {
   async deleteAllRows(): Promise<void> {
     let count = await this.getElement('btnNotesDelete').count();
     while (count > 0) {
+      const prev = count;
       await this.getElement('btnNotesDelete').first().click();
-      await this.page.waitForTimeout(200);
+      await this.page.waitForFunction(
+        ({ sel, p }) => document.querySelectorAll(sel).length < p,
+        { sel: this.getLocator('btnNotesDelete'), p: prev },
+        { timeout: 5_000 },
+      );
       count = await this.getElement('btnNotesDelete').count();
     }
     Log.info('[OK] All note rows deleted');
@@ -196,7 +201,9 @@ export class LocationNotesPage extends BasePage {
  */
   async saveAndConfirm(): Promise<void> {
     await this.getElement('btnSaveNotes').waitFor({ state: 'visible', timeout: 5_000 });
- // Wait for Angular to enable Save (may take a tick after fill+Tab)
+ // Wait for Angular to enable Save (may take a tick after fill+Tab).
+ // Propagate timeout — if Save never enables, the subsequent click would fail anyway
+ // and the original timeout gives a clearer signal than a downstream click error.
     await this.page.waitForFunction(
       (sel: string) => {
         const btn = document.querySelector(sel);
@@ -204,9 +211,7 @@ export class LocationNotesPage extends BasePage {
       },
       this.getLocator('btnSaveNotes'),
       { timeout: 5_000 }
-    ).catch(() => {
-      Log.warn('[WARN] Save button did not enable within 5s');
-    });
+    );
     const result = await this.clickSaveWithDialog('btnSaveNotes');
     if (!result.success) {
       Log.error(`[ERR] Save failed: ${result.networkError}`);
@@ -214,6 +219,8 @@ export class LocationNotesPage extends BasePage {
  // Wait for Save button to become disabled — confirms save API response was received
  // and the form is pristine. Without this, immediate page.reload can race with the
  // server processing the save, causing reload to fetch pre-save (stale) data.
+ // Timeout propagates so callers fail loudly on stale-read race instead of passing
+ // with stale data after a swallowed warning.
     await this.page.waitForFunction(
       (sel: string) => {
         const btn = document.querySelector(sel);
@@ -221,9 +228,7 @@ export class LocationNotesPage extends BasePage {
       },
       this.getLocator('btnSaveNotes'),
       { timeout: 10_000 },
-    ).catch(() => {
-      Log.warn('[WARN] Save button did not disable within 10s after save');
-    });
+    );
   }
 
  /** Click Save button only (does NOT auto-confirm dialog). For TC-008 dialog verification. */
