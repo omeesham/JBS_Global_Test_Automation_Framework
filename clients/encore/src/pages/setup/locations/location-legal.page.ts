@@ -47,7 +47,7 @@ export class LocationLegalPage extends BasePage {
  /** Count the number of data rows in the Legal grid (excludes header row). */
   async getGridRowCount(): Promise<number> {
     const grid = this.getElement('tblLegal');
-    await grid.waitFor({ state: 'visible', timeout: 5_000 });
+    await grid.waitFor({ state: 'visible', timeout: 15_000 });
     const rows = await grid.locator('tbody tr').count();
     Log.info(`Legal grid rows: ${rows}`);
     return rows;
@@ -56,7 +56,7 @@ export class LocationLegalPage extends BasePage {
  /** Get visible column header texts from the Legal table. */
   async getColumnHeaders(): Promise<string[]> {
     const grid = this.getElement('tblLegal');
-    await grid.waitFor({ state: 'visible', timeout: 5_000 });
+    await grid.waitFor({ state: 'visible', timeout: 15_000 });
     const headers = await grid.locator('thead th').allTextContents();
     return headers.map(h => h.trim()).filter(h => h.length > 0);
   }

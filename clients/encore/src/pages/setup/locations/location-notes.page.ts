@@ -61,6 +61,10 @@ export class LocationNotesPage extends BasePage {
     }
     const textarea = this.getElement('txtNoteInputAll').nth(row);
     await textarea.waitFor({ state: 'visible', timeout: 5_000 });
+    if (text.includes('\n')) {
+      await this.pasteIntoNote(row, text);
+      return;
+    }
     await textarea.fill(text);
     await textarea.press('Tab');
     Log.info(`[OK] Filled note row ${row} with ${text.length} chars`);
@@ -172,6 +176,11 @@ export class LocationNotesPage extends BasePage {
     return this.getElement('btnSaveNotes').isEnabled();
   }
 
+ /** Return the Locator for a specific textarea row. For direct interaction in specs (e.g., focus/type). */
+  getNoteTextarea(row: number): import('@playwright/test').Locator {
+    return this.getElement('txtNoteInputAll').nth(row);
+  }
+
  /** Check if a textarea at row index has a maxlength attribute. Returns the value or null. */
   async getTextareaMaxlength(row: number): Promise<string | null> {
     return this.getElement('txtNoteInputAll').nth(row).getAttribute('maxlength');
@@ -256,7 +265,19 @@ export class LocationNotesPage extends BasePage {
     const deleteCount = await this.getElement('btnNotesDelete').count();
     if (deleteCount > 0) {
       await this.deleteAllRows();
-      await this.page.waitForTimeout(500);
+ // LR-026: poll for Save-enable instead of fixed 500ms sleep — races Angular's dirty flag
+ // when deletion completes before change detection runs. .catch falls through to the
+ // reload fallback below if Angular doesn't update (post-markAsPristine session).
+      await this.page.waitForFunction(
+        (sel: string) => {
+          const btn = document.querySelector(sel);
+          return btn && !(btn as HTMLButtonElement).disabled;
+        },
+        this.getLocator('btnSaveNotes'),
+        { timeout: 2_000 },
+      ).catch(() => {
+        Log.info('[INFO] Save did not enable within 2s after delete — will reload for fresh form state');
+      });
 
  // Angular app behavior: after save marks form pristine, deleting notes in the SAME
  // session does NOT re-enable Save (dirty flag not set). Reload to get fresh form state

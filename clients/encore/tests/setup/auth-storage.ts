@@ -62,7 +62,8 @@ export async function validateState(page: Page, baseUrl: string): Promise<boolea
     try {
       await page.goto(baseUrl, { timeout: 90_000, waitUntil: 'domcontentloaded' });
 
-      if (page.url().toLowerCase().includes('login.microsoftonline.com')) {
+      const currentUrl = page.url().toLowerCase();
+      if (currentUrl.includes('login.microsoftonline.com') || currentUrl.includes('/auth/sign-in')) {
         callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'fail' });
         recordRetryCall('validateState', callRecord);
         return false;
@@ -77,7 +78,7 @@ export async function validateState(page: Page, baseUrl: string): Promise<boolea
         return true;
       } catch {
         callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'fail' });
-        if (page.url().toLowerCase().includes('login.microsoftonline.com')) {
+        if (page.url().toLowerCase().includes('login.microsoftonline.com') || page.url().toLowerCase().includes('/auth/sign-in')) {
           recordRetryCall('validateState', callRecord);
           return false;
         }

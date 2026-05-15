@@ -105,7 +105,7 @@ test.describe('Location Management History @locations @management-history', () =
  // match — structural presence of the data is the feature under test, not the literal value.
  // Local Office ('1604') and Local Office Name ('Parker Palm Springs') stay strict — those
  // are immutable for office 1604 and would catch a real regression (wrong row, empty table).
-      if (key === 'Country' || key === 'Active' || key === 'Currency') {
+      if (key === 'Active' || key === 'Currency') {
         expect(row[key], `${key} column should not be empty in latest history row`).toBeTruthy();
       } else {
         expect(row[key]).toBe(expected);

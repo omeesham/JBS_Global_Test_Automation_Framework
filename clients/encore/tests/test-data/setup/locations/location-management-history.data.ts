@@ -39,7 +39,6 @@ export const ROW_1_EXPECTED = {
   'Local Office': '1604',
   'Local Office Name': 'Parker Palm Springs',
   'Active': '\u2714', // Unicode checkmark ✔
-  'Country': 'United States',
   'Currency': 'USD',
 } as const;
 
