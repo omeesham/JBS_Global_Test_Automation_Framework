@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { BasePage } from '../../../common/base-page';
 import { Log } from '@framework/utils/logger';
 import { IConfig } from '@framework/framework-contracts';
@@ -118,11 +118,10 @@ export class LocationNotesPage extends BasePage {
     while (count > 0) {
       const prev = count;
       await this.getElement('btnNotesDelete').first().click();
-      await this.page.waitForFunction(
-        ({ sel, p }) => document.querySelectorAll(sel).length < p,
-        { sel: this.getLocator('btnNotesDelete'), p: prev },
+      await expect.poll(
+        () => this.getElement('btnNotesDelete').count(),
         { timeout: 5_000 },
-      );
+      ).toBeLessThan(prev);
       count = await this.getElement('btnNotesDelete').count();
     }
     Log.info('[OK] All note rows deleted');
@@ -299,19 +298,6 @@ export class LocationNotesPage extends BasePage {
     }
     if (await this.isSaveEnabled()) {
       await this.saveAndConfirm();
- // Wait for Save to become disabled — confirms save API response received and form is pristine.
- // Without this, page.reload can race with save completion on the server,
- // causing reload to fetch stale data (pre-save notes still in DB).
-      await this.page.waitForFunction(
-        (sel: string) => {
-          const btn = document.querySelector(sel);
-          return btn && (btn as HTMLButtonElement).disabled;
-        },
-        this.getLocator('btnSaveNotes'),
-        { timeout: 10_000 },
-      ).catch(() => {
-        Log.warn('[WARN] Save did not disable within 10s after saving empty notes');
-      });
     }
  // Always reload after cleanup to reset Angular form controller
     await this.reloadAndNavigateToNotesTab();
