@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 70 pending · 296 done · 55 stale (>14d) · 0 DONE-in-pending
+**Totals**: 70 pending · 297 done · 55 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -86,7 +86,7 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 
 | Pos | File | Title | Priority | Blocked by | Status | Model | Effort | Perm | Tool | Created |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | [PLAN_DQU_V6_PILOT_SHARED_SETUP.md](pending/PLAN_DQU_V6_PILOT_SHARED_SETUP.md) | PLAN_DQU_V6_PILOT_SHARED_SETUP — Execution Plan | P0-EMERGENCY | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-05-12 |
+| 1 | [PLAN_DQU_V6_PILOT_SHARED_SETUP.md](pending/PLAN_DQU_V6_PILOT_SHARED_SETUP.md) | PLAN_DQU_V6_PILOT_SHARED_SETUP — Execution Plan (v5 — Cleanup of v4; Nav4 Walk Dropped; TC-Inventory-First; Zero Fixme Assumption Inheritance) | P0-EMERGENCY | — (ready) | PENDING | Opus | max | auto | cli | 2026-05-12 |
 | 2 | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS | P0-EMERGENCY | — (ready) | PENDING | — | — | — | — | 2026-05-11 |
 | 3 | [PLAN_SHIP_TO_ENCORE_DELIVERABLES_TEST.md](pending/PLAN_SHIP_TO_ENCORE_DELIVERABLES_TEST.md) | PLAN_SHIP_TO_ENCORE_DELIVERABLES_TEST — Verify CI green via dry-run ship to encore_deliverables_test | P0-EMERGENCY | — (ready) | PENDING | Opus | hi | acceptEdits | none | 2026-05-08 |
 | 4 | [PLAN_VERTICAL_RESTRUCTURE_PENDING.md](pending/PLAN_VERTICAL_RESTRUCTURE_PENDING.md) | PLAN: Vertical Restructure of `plans/pending/` — Submodule-First Bundling | P0-EMERGENCY | — (ready) | PENDING | Opus | xhi | plan | none | 2026-05-06 |
@@ -172,6 +172,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | File | Title | Status | Completed |
 |---|---|---|---|
 | [SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md](done/SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md) | SUBPLAN: LI Test-Case MD — Phase 0 Lint Sweep | SUPERSEDED | never (folded scope) |
+| [PLAN_NOTES_DEFERRAL_CLOSURE_2026_05_15.md](done/PLAN_NOTES_DEFERRAL_CLOSURE_2026_05_15.md) | PLAN: Close the deferrals from prior /execute (smoke + dead-code) | DONE | 2026-05-15 |
 | [PLAN_P0_EXPORT_REFRESH_2026_05_14.md](done/PLAN_P0_EXPORT_REFRESH_2026_05_14.md) | PLAN_P0_EXPORT_REFRESH_2026_05_14 | DONE | 2026-05-14 |
 | [PLAN_DQU_COVERAGE_REMEDIATION.md](done/PLAN_DQU_COVERAGE_REMEDIATION.md) | PLAN: Coverage Remediation -- Per-Module DQU + Centralized History (Pivot v5) | SUPERSEDED | 2026-05-12 |
 | [PLAN_DQU_V6_PILOT_NOTES.md](done/PLAN_DQU_V6_PILOT_NOTES.md) | PLAN_DQU_V6_PILOT_NOTES — Execution Plan | DONE | 2026-05-12 |
@@ -476,7 +477,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 plans/
   INDEX.md              ← this file (auto-generated)
   pending/              ← active plans (70 files)
-  done/                 ← completed plans (296 files)
+  done/                 ← completed plans (297 files)
 ```
 
 When completing a plan:
@@ -490,13 +491,14 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-05-15 | pending | [PLAN_DQU_V6_PILOT_SHARED_SETUP.md](pending/PLAN_DQU_V6_PILOT_SHARED_SETUP.md) | PENDING |
 | 2026-05-15 | pending | [PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md](pending/PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md) | PENDING |
+| 2026-05-15 | pending | [PLAN_LM_HISTORY_COVERAGE.md](pending/PLAN_LM_HISTORY_COVERAGE.md) | GATED |
+| 2026-05-15 | done | [PLAN_NOTES_DEFERRAL_CLOSURE_2026_05_15.md](done/PLAN_NOTES_DEFERRAL_CLOSURE_2026_05_15.md) | DONE |
 | 2026-05-14 | pending | [PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md](pending/PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md) | PENDING |
-| 2026-05-14 | pending | [PLAN_LM_HISTORY_COVERAGE.md](pending/PLAN_LM_HISTORY_COVERAGE.md) | GATED |
 | 2026-05-14 | pending | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PENDING |
 | 2026-05-14 | done | [PLAN_P0_EXPORT_REFRESH_2026_05_14.md](done/PLAN_P0_EXPORT_REFRESH_2026_05_14.md) | DONE |
 | 2026-05-12 | pending | [PLAN_DQU_V6.md](pending/PLAN_DQU_V6.md) | PENDING |
-| 2026-05-12 | pending | [PLAN_DQU_V6_PILOT_SHARED_SETUP.md](pending/PLAN_DQU_V6_PILOT_SHARED_SETUP.md) | PENDING |
 | 2026-05-12 | done | [PLAN_DQU_COVERAGE_REMEDIATION.md](done/PLAN_DQU_COVERAGE_REMEDIATION.md) | SUPERSEDED |
 | 2026-05-12 | done | [PLAN_DQU_V6_PILOT_NOTES.md](done/PLAN_DQU_V6_PILOT_NOTES.md) | DONE |
 | 2026-05-12 | done | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](done/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | ARCHIVED-REFERENCE |
@@ -529,4 +531,3 @@ When completing a plan:
 | 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md](done/SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md) | FOLDED |
 | 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_20_C1_LO_BASIC_INFO_TESTS.md](done/SUBPLAN_HIST_PIVOT_20_C1_LO_BASIC_INFO_TESTS.md) | FOLDED |
 | 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_21_C2_LO_ECT_TESTS.md](done/SUBPLAN_HIST_PIVOT_21_C2_LO_ECT_TESTS.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_22_D1_LM_CURRENCY_TESTS.md](done/SUBPLAN_HIST_PIVOT_22_D1_LM_CURRENCY_TESTS.md) | SUPERSEDED |
