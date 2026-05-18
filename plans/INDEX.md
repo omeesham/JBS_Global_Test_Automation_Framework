@@ -1,11 +1,11 @@
 # Plans Index
 
-**Last updated**: 2026-05-15
+**Last updated**: 2026-05-18
 **Auto-generated** by `npm run plans:reindex` — do not hand-edit. Edits will be overwritten.
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 70 pending · 297 done · 55 stale (>14d) · 0 DONE-in-pending
+**Totals**: 75 pending · 299 done · 56 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -15,61 +15,62 @@
 
 | File | Age | Created | Priority |
 |---|---|---|---|
-| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 52d | 2026-03-24 | P2-CYCLE-3 |
-| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 52d | 2026-03-24 | P2-CYCLE-3 |
-| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 44d | 2026-04-01 | P2-CYCLE-3 |
-| [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | 42d | 2026-04-03 | P5-PARKED |
-| [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | 30d | 2026-04-15 | P2-CYCLE-3 |
-| [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | 30d | 2026-04-15 | P2-CYCLE-3 |
-| [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | 29d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | 29d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | 29d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | 29d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | 29d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | 29d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | 29d | 2026-04-16 | P2-CYCLE-3 |
-| [SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md](pending/SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md) | 29d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md](pending/SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md) | 29d | 2026-04-16 | P1-CYCLE-2 |
-| [SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md](pending/SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md) | 29d | 2026-04-16 | P1-CYCLE-2 |
-| [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](pending/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md](pending/SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md](pending/SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md](pending/SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_10_E_QA_BEST_PRACTICES_BENCHMARK.md](pending/SUBPLAN_DQU_10_E_QA_BEST_PRACTICES_BENCHMARK.md) | 23d | 2026-04-22 | P2-CYCLE-3 |
-| [SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md](pending/SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md](pending/SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md](pending/SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md](pending/SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md](pending/SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md](pending/SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md](pending/SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md) | 23d | 2026-04-22 | P1-CYCLE-2 |
-| [SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md](pending/SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md) | 23d | 2026-04-22 | P1-CYCLE-2 |
-| [SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md](pending/SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md) | 23d | 2026-04-22 | P1-CYCLE-2 |
-| [SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md](pending/SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md) | 23d | 2026-04-22 | P1-CYCLE-2 |
-| [SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md](pending/SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md) | 23d | 2026-04-22 | P1-CYCLE-2 |
-| [SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md](pending/SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md) | 23d | 2026-04-22 | P1-CYCLE-2 |
-| [SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md](pending/SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md) | 23d | 2026-04-22 | P1-CYCLE-2 |
-| [SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md](pending/SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md) | 23d | 2026-04-22 | P1-CYCLE-2 |
-| [SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md](pending/SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md) | 23d | 2026-04-22 | P1-CYCLE-2 |
-| [SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md](pending/SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md](pending/SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_32_K1_TODAY_SKILL.md](pending/SUBPLAN_DQU_32_K1_TODAY_SKILL.md) | 23d | 2026-04-22 | P2-CYCLE-3 |
-| [SUBPLAN_DQU_33_K2_NEXTWEEK_SKILL.md](pending/SUBPLAN_DQU_33_K2_NEXTWEEK_SKILL.md) | 23d | 2026-04-22 | P5-PARKED |
-| [SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md](pending/SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [SUBPLAN_DQU_35_L2_EXIT_AUDIT.md](pending/SUBPLAN_DQU_35_L2_EXIT_AUDIT.md) | 23d | 2026-04-22 | P0-CYCLE-1 |
-| [godsplan.md](pending/godsplan.md) | 22d | 2026-04-23 | P2-CYCLE-3 |
-| [PLAN_AGENT_AUTHORING_EFFICIENCY.md](pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) | 22d | 2026-04-23 | P0-CYCLE-1 |
-| [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | 21d | 2026-04-24 | — |
-| [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | 21d | 2026-04-24 | P2-CYCLE-3 |
-| [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | 21d | 2026-04-24 | P2-CYCLE-3 |
-| [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | 21d | 2026-04-24 | P2-CYCLE-3 |
-| [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | 21d | 2026-04-24 | P2-CYCLE-3 |
-| [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | 21d | 2026-04-24 | P2-CYCLE-3 |
-| [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | 21d | 2026-04-24 | P2-CYCLE-3 |
-| [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | 21d | 2026-04-24 | P2-CYCLE-3 |
-| [SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md](pending/SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md) | 17d | 2026-04-28 | P1-CYCLE-1 |
-| [SUBPLAN_DQU_05E_LOS_LI_DEEP_COVERAGE_AUDIT.md](pending/SUBPLAN_DQU_05E_LOS_LI_DEEP_COVERAGE_AUDIT.md) | 16d | 2026-04-29 | P0-CYCLE-1 |
+| [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | 55d | 2026-03-24 | P2-CYCLE-3 |
+| [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 55d | 2026-03-24 | P2-CYCLE-3 |
+| [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 47d | 2026-04-01 | P2-CYCLE-3 |
+| [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | 45d | 2026-04-03 | P5-PARKED |
+| [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | 33d | 2026-04-15 | P2-CYCLE-3 |
+| [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | 33d | 2026-04-15 | P2-CYCLE-3 |
+| [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | 32d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | 32d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | 32d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | 32d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | 32d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | 32d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | 32d | 2026-04-16 | P2-CYCLE-3 |
+| [SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md](pending/SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md) | 32d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md](pending/SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md) | 32d | 2026-04-16 | P1-CYCLE-2 |
+| [SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md](pending/SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md) | 32d | 2026-04-16 | P1-CYCLE-2 |
+| [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](pending/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md](pending/SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md](pending/SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md](pending/SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_10_E_QA_BEST_PRACTICES_BENCHMARK.md](pending/SUBPLAN_DQU_10_E_QA_BEST_PRACTICES_BENCHMARK.md) | 26d | 2026-04-22 | P2-CYCLE-3 |
+| [SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md](pending/SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md](pending/SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md](pending/SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md](pending/SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md](pending/SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md](pending/SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md](pending/SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md) | 26d | 2026-04-22 | P1-CYCLE-2 |
+| [SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md](pending/SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md) | 26d | 2026-04-22 | P1-CYCLE-2 |
+| [SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md](pending/SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md) | 26d | 2026-04-22 | P1-CYCLE-2 |
+| [SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md](pending/SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md) | 26d | 2026-04-22 | P1-CYCLE-2 |
+| [SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md](pending/SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md) | 26d | 2026-04-22 | P1-CYCLE-2 |
+| [SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md](pending/SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md) | 26d | 2026-04-22 | P1-CYCLE-2 |
+| [SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md](pending/SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md) | 26d | 2026-04-22 | P1-CYCLE-2 |
+| [SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md](pending/SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md) | 26d | 2026-04-22 | P1-CYCLE-2 |
+| [SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md](pending/SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md) | 26d | 2026-04-22 | P1-CYCLE-2 |
+| [SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md](pending/SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md](pending/SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_32_K1_TODAY_SKILL.md](pending/SUBPLAN_DQU_32_K1_TODAY_SKILL.md) | 26d | 2026-04-22 | P2-CYCLE-3 |
+| [SUBPLAN_DQU_33_K2_NEXTWEEK_SKILL.md](pending/SUBPLAN_DQU_33_K2_NEXTWEEK_SKILL.md) | 26d | 2026-04-22 | P5-PARKED |
+| [SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md](pending/SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [SUBPLAN_DQU_35_L2_EXIT_AUDIT.md](pending/SUBPLAN_DQU_35_L2_EXIT_AUDIT.md) | 26d | 2026-04-22 | P0-CYCLE-1 |
+| [godsplan.md](pending/godsplan.md) | 25d | 2026-04-23 | P2-CYCLE-3 |
+| [PLAN_AGENT_AUTHORING_EFFICIENCY.md](pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) | 25d | 2026-04-23 | P0-CYCLE-1 |
+| [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | 24d | 2026-04-24 | — |
+| [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | 24d | 2026-04-24 | P2-CYCLE-3 |
+| [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | 24d | 2026-04-24 | P2-CYCLE-3 |
+| [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | 24d | 2026-04-24 | P2-CYCLE-3 |
+| [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | 24d | 2026-04-24 | P2-CYCLE-3 |
+| [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | 24d | 2026-04-24 | P2-CYCLE-3 |
+| [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | 24d | 2026-04-24 | P2-CYCLE-3 |
+| [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | 24d | 2026-04-24 | P2-CYCLE-3 |
+| [SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md](pending/SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md) | 20d | 2026-04-28 | P1-CYCLE-1 |
+| [SUBPLAN_DQU_05E_LOS_LI_DEEP_COVERAGE_AUDIT.md](pending/SUBPLAN_DQU_05E_LOS_LI_DEEP_COVERAGE_AUDIT.md) | 19d | 2026-04-29 | P0-CYCLE-1 |
+| [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | 17d | 2026-05-01 | P2-NORMAL |
 
 ### DONE-in-pending (should be moved to done/)
 
@@ -86,73 +87,77 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 
 | Pos | File | Title | Priority | Blocked by | Status | Model | Effort | Perm | Tool | Created |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | [PLAN_DQU_V6_PILOT_SHARED_SETUP.md](pending/PLAN_DQU_V6_PILOT_SHARED_SETUP.md) | PLAN_DQU_V6_PILOT_SHARED_SETUP — Execution Plan (v5 — Cleanup of v4; Nav4 Walk Dropped; TC-Inventory-First; Zero Fixme Assumption Inheritance) | P0-EMERGENCY | — (ready) | PENDING | Opus | max | auto | cli | 2026-05-12 |
-| 2 | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS | P0-EMERGENCY | — (ready) | PENDING | — | — | — | — | 2026-05-11 |
-| 3 | [PLAN_SHIP_TO_ENCORE_DELIVERABLES_TEST.md](pending/PLAN_SHIP_TO_ENCORE_DELIVERABLES_TEST.md) | PLAN_SHIP_TO_ENCORE_DELIVERABLES_TEST — Verify CI green via dry-run ship to encore_deliverables_test | P0-EMERGENCY | — (ready) | PENDING | Opus | hi | acceptEdits | none | 2026-05-08 |
-| 4 | [PLAN_VERTICAL_RESTRUCTURE_PENDING.md](pending/PLAN_VERTICAL_RESTRUCTURE_PENDING.md) | PLAN: Vertical Restructure of `plans/pending/` — Submodule-First Bundling | P0-EMERGENCY | — (ready) | PENDING | Opus | xhi | plan | none | 2026-05-06 |
-| 5 | [PLAN_VERTICAL_DELIVERY_SOX.md](pending/PLAN_VERTICAL_DELIVERY_SOX.md) | PLAN: Vertical Submodule Delivery + SOX Compliance Adoption | P0-EMERGENCY (queue position: #2 — see banner below) | [PLAN_VERTICAL_RESTRUCTURE_PENDING.md](pending/PLAN_VERTICAL_RESTRUCTURE_PENDING.md) | PENDING | Opus | xhi | plan | none | 2026-05-04 |
-| 6 | [PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md](pending/PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md) | PLAN: EMERGENCY #1 — History Test Architecture + Bug Class Guards | P0 — EMERGENCY #1 | — (ready) | PENDING | Sonnet | hi | auto | none | 2026-05-15 |
-| 7 | [PLAN_LM_HISTORY_COVERAGE.md](pending/PLAN_LM_HISTORY_COVERAGE.md) | PLAN: Location Management History — Centralized Coverage (87 columns) | P0-EMERGENCY | — (ready) | GATED | Opus | xhi | auto | cli | 2026-05-12 |
-| 8 | [SUBPLAN_DQU_05E_LOS_LI_DEEP_COVERAGE_AUDIT.md](pending/SUBPLAN_DQU_05E_LOS_LI_DEEP_COVERAGE_AUDIT.md) | SUBPLAN: LOS + LI Deep Coverage Retro-Audit (baseline-first + ISTQB depth-grid) | P0-CYCLE-1 | — (ready) | PENDING | Opus | xhi | auto | both | 2026-04-29 |
-| 9 | [SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md](pending/SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md) | SUBPLAN: Rules Doc v2 — Add Rule 5 (Tags) + Rule 6 (Live-DOM-First) | P0-CYCLE-1 | — (ready) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
-| 10 | [SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md](pending/SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md) | SUBPLAN: Tag Rollout — LOS + LI MD Files + Re-Export CSVs | P0-CYCLE-1 | [SP-DQU-07](pending/SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md) | PENDING | Sonnet | mid | auto | — | 2026-04-22 |
-| 11 | [SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md](pending/SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md) | SUBPLAN: REQUIREMENTS.md — Sampling-Verification Loop (Probabilistic Clean) | P0-CYCLE-1 | — (ready) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
-| 12 | [SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md](pending/SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Pricing | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
-| 13 | [SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md](pending/SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Legal | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
-| 14 | [SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md](pending/SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Currency | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
-| 15 | [SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md](pending/SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Account & Address | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
-| 16 | [SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md](pending/SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Auto Add-on | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
-| 17 | [SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md](pending/SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — ECT (Standalone Scope-Check) | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
-| 18 | [SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md](pending/SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md) | SUBPLAN: Bug Reports — Consolidation + Client-Ready Packaging (Deliverable #4) | P0-CYCLE-1 | [SP-DQU-12](pending/SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md), [SP-DQU-13](pending/SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md), [SP-DQU-14](pending/SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md), [SP-DQU-16](pending/SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md), [SP-DQU-18](pending/SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md), [SP-DQU-19](pending/SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
-| 19 | [SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md](pending/SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md) | SUBPLAN SP-DQU-05C — Structural enforcement hook for LR-046 (strict plan lines) | P1-CYCLE-1 | — (ready) | PENDING | Opus | xhi | auto | — | 2026-04-28 |
-| 20 | [SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md](pending/SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md) | SUBPLAN: Leftover-State Audit — Enumerate Mutable-State Touchpoints Per Spec | P1-CYCLE-2 | — (ready) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
-| 21 | [SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md](pending/SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md) | SUBPLAN: Pre-Test Slate-Clear — Pattern Design + Shared Utility | P1-CYCLE-2 | [SP-DQU-21](pending/SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
-| 22 | [SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md](pending/SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md) | SUBPLAN: Post-Test Slate-Clear — Pattern Design + Shared Utility | P1-CYCLE-2 | [SP-DQU-22](pending/SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
-| 23 | [SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md](pending/SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md) | SUBPLAN: Slate-Clear — Rollout to All 11 Specs | P1-CYCLE-2 | [SP-DQU-22](pending/SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md), [SP-DQU-23](pending/SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
-| 24 | [SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md](pending/SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md) | SUBPLAN: Full-Suite Clean Run + RCA Any Random Failures | P1-CYCLE-2 | [SP-DQU-24](pending/SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md) | PENDING | Opus | max | auto | — | 2026-04-22 |
-| 25 | [SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md](pending/SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md) | SUBPLAN: Allure Report — Client Deliverable #3 | P0-CYCLE-1 | [SP-DQU-25](pending/SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md) | PENDING | Sonnet | mid | auto | — | 2026-04-22 |
-| 26 | [SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md](pending/SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md) | SUBPLAN: Scope Definition — Whitelist Encore Deliverable + Runtime Code | P1-CYCLE-2 | — (ready) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
-| 27 | [SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md](pending/SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md) | SUBPLAN: /simplify Sweep — On Whitelist Only | P1-CYCLE-2 | [SP-DQU-26](pending/SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
-| 28 | [SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md](pending/SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md) | SUBPLAN: /cleanup Sweep — Dead Code, Duplicates, Orphaned Files | P1-CYCLE-2 | [SP-DQU-27](pending/SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
-| 29 | [SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md](pending/SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md) | SUBPLAN: Identity Ripple Sync — Re-Sync All 7 Agents' Owned Artifacts | P1-CYCLE-2 | [SP-DQU-08](pending/SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md), [SP-DQU-25](pending/SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md), [SP-DQU-09](pending/SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
-| 30 | [SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md](pending/SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md) | SUBPLAN: Client Handoff Package — CSVs + Allure + Bug Reports + README | P0-CYCLE-1 | [SP-DQU-08](pending/SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md), [SP-DQU-30](pending/SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md), [SP-DQU-31](pending/SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md), [SP-DQU-29](pending/SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
-| 31 | [SUBPLAN_DQU_35_L2_EXIT_AUDIT.md](pending/SUBPLAN_DQU_35_L2_EXIT_AUDIT.md) | SUBPLAN: Exit Audit — /audit Full-Chain + /final-q + Diff vs 8 Asks + LR-040 Closure Gate | P0-CYCLE-1 | [SP-DQU-34](pending/SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md) | PENDING | Opus | max | auto | — | 2026-04-22 |
-| 32 | [SUBPLAN_DQU_10_E_QA_BEST_PRACTICES_BENCHMARK.md](pending/SUBPLAN_DQU_10_E_QA_BEST_PRACTICES_BENCHMARK.md) | SUBPLAN: QA Best-Practices Research + Benchmark vs Our Work | P2-CYCLE-3 | — (ready) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
-| 33 | [SUBPLAN_DQU_32_K1_TODAY_SKILL.md](pending/SUBPLAN_DQU_32_K1_TODAY_SKILL.md) | SUBPLAN: Create `/today` Skill — Prospective Daily Priority Summary | P2-CYCLE-3 | — (ready) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
-| 34 | [SUBPLAN_DQU_33_K2_NEXTWEEK_SKILL.md](pending/SUBPLAN_DQU_33_K2_NEXTWEEK_SKILL.md) | SUBPLAN: Create `/nextweek` Skill — Prospective Weekly Outlook | P5-PARKED | — (ready) | SUPERSEDED | Sonnet | hi | auto | — | 2026-04-22 |
-| 35 | [PLAN_AGENT_AUTHORING_EFFICIENCY.md](pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) | PLAN: Agent Authoring Efficiency — One-Look DOM, Locked Catalog, Structural Gate | P0-CYCLE-1 | — (ready) | PENDING | — | — | — | — | 2026-04-23 |
-| 36 | [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](pending/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) | PLAN: /chain Per-Session Orchestration with Stop-Hook /final-q Gating | P0-CYCLE-1 | — (ready) | PENDING | — | — | — | — | 2026-04-22 |
-| 37 | [_TEMPLATE_SUBPLAN.md](pending/_TEMPLATE_SUBPLAN.md) | SUBPLAN_<INITIATIVE>_<NN>_<PHASE> — <one-line goal> | P0 | — (ready) | TEMPLATE-DRAFT | Opus | mid | auto | cli | <YYYY-MM-DD> |
-| 38 | [PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md](pending/PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md) | PLAN: Full Suite Run — Clean HTML + Allure Reports | P0-IMMEDIATE | — (ready) | PENDING | Sonnet | hi | auto | none | 2026-05-14 |
-| 39 | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | SUBPLAN: Agent File Restructure | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 40 | [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | SUBPLAN: Duplicate & Junk Purge | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 41 | [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | SUBPLAN: Dead Code & Reusability | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 42 | [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | SUBPLAN: Doc & MD Slop Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 43 | [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | SUBPLAN: Slop Prevention Guardrails | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 44 | [SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md](pending/SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md) | SUBPLAN: Source Code Quality Sweep | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 45 | [SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md](pending/SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md) | SUBPLAN: Scripts, Config & Root Files Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 46 | [SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md](pending/SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md) | SUBPLAN: Test Infrastructure Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 47 | [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | SUBPLAN: Rename jbs_framework | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 48 | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | MASTER PLAN: Repo Unfucking & Client Delivery | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 49 | [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](pending/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) | SUBPLAN_RCD_B_DEDUPE_SCRIPTS — dedupe root scripts/ archive helpers + strip dead allure scripts from root package.json | P1 | — (ready) | PENDING | Opus | hi | acceptEdits | none | 2026-05-07 |
-| 50 | [SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md](pending/SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md) | SUBPLAN_RCD_C_ENV_REPORTS_CRUFT — demote root tsconfig to framework-only + relocate root reports/ to client + sweep env + cruft | P1 | [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](pending/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) | PENDING | Opus | max | acceptEdits | none | 2026-05-07 |
-| 51 | [godsplan.md](pending/godsplan.md) | PLAN: Claude Code Baseline Research + Gene-Marriage Upgrade | P2-CYCLE-3 | — (ready) | PENDING | Opus | max | plan | — | 2026-04-23 |
-| 52 | [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | PLAN_ACTIVITY_LOG_TIMESTAMP_GATE | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
-| 53 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PLAN: Chat UI Bugs — Website Pipeline Experience | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 54 | [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | PLAN: Codebase Cleanup — Audit-Corrected Version | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 55 | [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | PLAN: Adversarial Full-Chain Audit — V3 (Post-External-Review) | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-03-24 |
-| 56 | [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3) | P2-CYCLE-3 | — (ready) | REVISED | — | — | — | — | 2026-04-24 |
-| 57 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 58 | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | PLAN: Framework Maintainer Sweep — Selector Collision Architecture Fix | P2-CYCLE-3 | — (ready) | PARTIALLY-DONE | — | — | — | — | 2026-03-24 |
-| 59 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
-| 60 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PLAN: Playwright CLI Gradual Adoption | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-01 |
-| 61 | [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | FINAL AUDIT REPORT: Test Coverage Gap Analysis — Interaction vs Verification | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 62 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PLAN: Test Data CSV Conversion | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 63 | [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | PLAN: Visual Debug Skill — Give All Agents Eyes | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 64 | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | SUBPLAN: Pipeline tsc Compilation — Harden Build Mode | P2-NORMAL | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-05-01 |
-| 65 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P5-PARKED | — (ready) | PENDING | — | — | — | — | 2026-04-03 |
-| 66 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | — | — | — | — | — | 2026-04-24 |
-| 67 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-05-10 |
+| 1 | [SUBPLAN_DQU_V6_PILOT_SSL_B.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_B.md) | SUBPLAN_DQU_V6_PILOT_SSL_B — HIST Root-Map Catalog (e2e nav2) | P0-EMERGENCY | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-05-15 |
+| 2 | [SUBPLAN_DQU_V6_PILOT_SSL_C.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_C.md) | SUBPLAN_DQU_V6_PILOT_SSL_C — Gap Consolidation + TC Authoring | P0-EMERGENCY | — (ready) | PENDING | Opus | xhi | auto | none | 2026-05-15 |
+| 3 | [SUBPLAN_DQU_V6_PILOT_SSL_D.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_D.md) | SUBPLAN_DQU_V6_PILOT_SSL_D — Unlock 6 Fixme'd TCs + Test Runs (Strict LR-046) | P0-EMERGENCY | [SUBPLAN_DQU_V6_PILOT_SSL_C.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_C.md) | PENDING | Opus | max | auto | cli | 2026-05-15 |
+| 4 | [SUBPLAN_DQU_V6_PILOT_SSL_E.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_E.md) | SUBPLAN_DQU_V6_PILOT_SSL_E — Adjacent-Sweep + Closure Ceremonies | P0-EMERGENCY | [SUBPLAN_DQU_V6_PILOT_SSL_D.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_D.md) | PENDING | Sonnet | hi | auto | none | 2026-05-15 |
+| 5 | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS | P0-EMERGENCY | — (ready) | PENDING | — | — | — | — | 2026-05-11 |
+| 6 | [PLAN_SHIP_TO_ENCORE_DELIVERABLES_TEST.md](pending/PLAN_SHIP_TO_ENCORE_DELIVERABLES_TEST.md) | PLAN_SHIP_TO_ENCORE_DELIVERABLES_TEST — Verify CI green via dry-run ship to encore_deliverables_test | P0-EMERGENCY | — (ready) | PENDING | Opus | hi | acceptEdits | none | 2026-05-08 |
+| 7 | [PLAN_VERTICAL_RESTRUCTURE_PENDING.md](pending/PLAN_VERTICAL_RESTRUCTURE_PENDING.md) | PLAN: Vertical Restructure of `plans/pending/` — Submodule-First Bundling | P0-EMERGENCY | — (ready) | PENDING | Opus | xhi | plan | none | 2026-05-06 |
+| 8 | [PLAN_VERTICAL_DELIVERY_SOX.md](pending/PLAN_VERTICAL_DELIVERY_SOX.md) | PLAN: Vertical Submodule Delivery + SOX Compliance Adoption | P0-EMERGENCY (queue position: #2 — see banner below) | [PLAN_VERTICAL_RESTRUCTURE_PENDING.md](pending/PLAN_VERTICAL_RESTRUCTURE_PENDING.md) | PENDING | Opus | xhi | plan | none | 2026-05-04 |
+| 9 | [PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md](pending/PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md) | PLAN: EMERGENCY #1 — History Test Architecture + Bug Class Guards | P0 — EMERGENCY #1 | — (ready) | PENDING | Sonnet | hi | auto | none | 2026-05-15 |
+| 10 | [PLAN_LM_HISTORY_COVERAGE.md](pending/PLAN_LM_HISTORY_COVERAGE.md) | PLAN: Location Management History — Centralized Coverage (87 columns) | P0-EMERGENCY | — (ready) | GATED | Opus | xhi | auto | cli | 2026-05-12 |
+| 11 | [SUBPLAN_DQU_05E_LOS_LI_DEEP_COVERAGE_AUDIT.md](pending/SUBPLAN_DQU_05E_LOS_LI_DEEP_COVERAGE_AUDIT.md) | SUBPLAN: LOS + LI Deep Coverage Retro-Audit (baseline-first + ISTQB depth-grid) | P0-CYCLE-1 | — (ready) | PENDING | Opus | xhi | auto | both | 2026-04-29 |
+| 12 | [SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md](pending/SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md) | SUBPLAN: Rules Doc v2 — Add Rule 5 (Tags) + Rule 6 (Live-DOM-First) | P0-CYCLE-1 | — (ready) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
+| 13 | [SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md](pending/SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md) | SUBPLAN: Tag Rollout — LOS + LI MD Files + Re-Export CSVs | P0-CYCLE-1 | [SP-DQU-07](pending/SUBPLAN_DQU_07_E2_RULES_DOC_UPDATE.md) | PENDING | Sonnet | mid | auto | — | 2026-04-22 |
+| 14 | [SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md](pending/SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md) | SUBPLAN: REQUIREMENTS.md — Sampling-Verification Loop (Probabilistic Clean) | P0-CYCLE-1 | — (ready) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
+| 15 | [SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md](pending/SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Pricing | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
+| 16 | [SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md](pending/SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Legal | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
+| 17 | [SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md](pending/SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Currency | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
+| 18 | [SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md](pending/SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Account & Address | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
+| 19 | [SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md](pending/SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Auto Add-on | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
+| 20 | [SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md](pending/SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — ECT (Standalone Scope-Check) | P0-CYCLE-1 | — (ready) | PENDING | Opus | hi | auto | cli | 2026-04-22 |
+| 21 | [SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md](pending/SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md) | SUBPLAN: Bug Reports — Consolidation + Client-Ready Packaging (Deliverable #4) | P0-CYCLE-1 | [SP-DQU-12](pending/SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md), [SP-DQU-13](pending/SUBPLAN_DQU_13_F1b_LEGAL_AUDIT.md), [SP-DQU-14](pending/SUBPLAN_DQU_14_F1c_CURRENCY_AUDIT.md), [SP-DQU-16](pending/SUBPLAN_DQU_16_F1e_ACCOUNT_ADDRESS_AUDIT.md), [SP-DQU-18](pending/SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md), [SP-DQU-19](pending/SUBPLAN_DQU_19_F1h_ECT_STANDALONE_AUDIT.md) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
+| 22 | [SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md](pending/SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md) | SUBPLAN SP-DQU-05C — Structural enforcement hook for LR-046 (strict plan lines) | P1-CYCLE-1 | — (ready) | PENDING | Opus | xhi | auto | — | 2026-04-28 |
+| 23 | [SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md](pending/SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md) | SUBPLAN: Leftover-State Audit — Enumerate Mutable-State Touchpoints Per Spec | P1-CYCLE-2 | — (ready) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
+| 24 | [SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md](pending/SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md) | SUBPLAN: Pre-Test Slate-Clear — Pattern Design + Shared Utility | P1-CYCLE-2 | [SP-DQU-21](pending/SUBPLAN_DQU_21_G1_LEFTOVER_STATE_AUDIT.md) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
+| 25 | [SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md](pending/SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md) | SUBPLAN: Post-Test Slate-Clear — Pattern Design + Shared Utility | P1-CYCLE-2 | [SP-DQU-22](pending/SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
+| 26 | [SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md](pending/SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md) | SUBPLAN: Slate-Clear — Rollout to All 11 Specs | P1-CYCLE-2 | [SP-DQU-22](pending/SUBPLAN_DQU_22_G2_PRE_TEST_SLATE_CLEAR.md), [SP-DQU-23](pending/SUBPLAN_DQU_23_G3_POST_TEST_SLATE_CLEAR.md) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
+| 27 | [SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md](pending/SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md) | SUBPLAN: Full-Suite Clean Run + RCA Any Random Failures | P1-CYCLE-2 | [SP-DQU-24](pending/SUBPLAN_DQU_24_G4_SLATE_CLEAR_ROLLOUT.md) | PENDING | Opus | max | auto | — | 2026-04-22 |
+| 28 | [SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md](pending/SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md) | SUBPLAN: Allure Report — Client Deliverable #3 | P0-CYCLE-1 | [SP-DQU-25](pending/SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md) | PENDING | Sonnet | mid | auto | — | 2026-04-22 |
+| 29 | [SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md](pending/SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md) | SUBPLAN: Scope Definition — Whitelist Encore Deliverable + Runtime Code | P1-CYCLE-2 | — (ready) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
+| 30 | [SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md](pending/SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md) | SUBPLAN: /simplify Sweep — On Whitelist Only | P1-CYCLE-2 | [SP-DQU-26](pending/SUBPLAN_DQU_26_H1_SCOPE_DEFINITION.md) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
+| 31 | [SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md](pending/SUBPLAN_DQU_28_H3_CLEANUP_SWEEP.md) | SUBPLAN: /cleanup Sweep — Dead Code, Duplicates, Orphaned Files | P1-CYCLE-2 | [SP-DQU-27](pending/SUBPLAN_DQU_27_H2_SIMPLIFY_SWEEP.md) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
+| 32 | [SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md](pending/SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md) | SUBPLAN: Identity Ripple Sync — Re-Sync All 7 Agents' Owned Artifacts | P1-CYCLE-2 | [SP-DQU-08](pending/SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md), [SP-DQU-25](pending/SUBPLAN_DQU_25_G5_FULL_SUITE_RCA.md), [SP-DQU-09](pending/SUBPLAN_DQU_09_D1_REQS_SAMPLING_VERIFICATION.md) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
+| 33 | [SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md](pending/SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md) | SUBPLAN: Client Handoff Package — CSVs + Allure + Bug Reports + README | P0-CYCLE-1 | [SP-DQU-08](pending/SUBPLAN_DQU_08_E3_TAG_ROLLOUT_LOS_LI.md), [SP-DQU-30](pending/SUBPLAN_DQU_30_J1_ALLURE_DELIVERABLE.md), [SP-DQU-31](pending/SUBPLAN_DQU_31_J2_BUG_REPORTS_PACKAGING.md), [SP-DQU-29](pending/SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
+| 34 | [SUBPLAN_DQU_35_L2_EXIT_AUDIT.md](pending/SUBPLAN_DQU_35_L2_EXIT_AUDIT.md) | SUBPLAN: Exit Audit — /audit Full-Chain + /final-q + Diff vs 8 Asks + LR-040 Closure Gate | P0-CYCLE-1 | [SP-DQU-34](pending/SUBPLAN_DQU_34_L1_CLIENT_HANDOFF_PACKAGE.md) | PENDING | Opus | max | auto | — | 2026-04-22 |
+| 35 | [SUBPLAN_DQU_10_E_QA_BEST_PRACTICES_BENCHMARK.md](pending/SUBPLAN_DQU_10_E_QA_BEST_PRACTICES_BENCHMARK.md) | SUBPLAN: QA Best-Practices Research + Benchmark vs Our Work | P2-CYCLE-3 | — (ready) | PENDING | Opus | xhi | auto | — | 2026-04-22 |
+| 36 | [SUBPLAN_DQU_32_K1_TODAY_SKILL.md](pending/SUBPLAN_DQU_32_K1_TODAY_SKILL.md) | SUBPLAN: Create `/today` Skill — Prospective Daily Priority Summary | P2-CYCLE-3 | — (ready) | PENDING | Sonnet | hi | auto | — | 2026-04-22 |
+| 37 | [SUBPLAN_DQU_33_K2_NEXTWEEK_SKILL.md](pending/SUBPLAN_DQU_33_K2_NEXTWEEK_SKILL.md) | SUBPLAN: Create `/nextweek` Skill — Prospective Weekly Outlook | P5-PARKED | — (ready) | SUPERSEDED | Sonnet | hi | auto | — | 2026-04-22 |
+| 38 | [PLAN_AGENT_AUTHORING_EFFICIENCY.md](pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) | PLAN: Agent Authoring Efficiency — One-Look DOM, Locked Catalog, Structural Gate | P0-CYCLE-1 | — (ready) | PENDING | — | — | — | — | 2026-04-23 |
+| 39 | [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](pending/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) | PLAN: /chain Per-Session Orchestration with Stop-Hook /final-q Gating | P0-CYCLE-1 | — (ready) | PENDING | — | — | — | — | 2026-04-22 |
+| 40 | [_TEMPLATE_SUBPLAN.md](pending/_TEMPLATE_SUBPLAN.md) | SUBPLAN_<INITIATIVE>_<NN>_<PHASE> — <one-line goal> | P0 | — (ready) | TEMPLATE-DRAFT | Opus | mid | auto | cli | <YYYY-MM-DD> |
+| 41 | [PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md](pending/PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md) | PLAN: Full Suite Run — Clean HTML + Allure Reports | P0-IMMEDIATE | — (ready) | PENDING | Sonnet | hi | auto | none | 2026-05-14 |
+| 42 | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | SUBPLAN: Agent File Restructure | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 43 | [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | SUBPLAN: Duplicate & Junk Purge | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 44 | [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | SUBPLAN: Dead Code & Reusability | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 45 | [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | SUBPLAN: Doc & MD Slop Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 46 | [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | SUBPLAN: Slop Prevention Guardrails | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 47 | [SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md](pending/SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md) | SUBPLAN: Source Code Quality Sweep | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 48 | [SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md](pending/SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md) | SUBPLAN: Scripts, Config & Root Files Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 49 | [SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md](pending/SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md) | SUBPLAN: Test Infrastructure Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 50 | [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | SUBPLAN: Rename jbs_framework | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 51 | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | MASTER PLAN: Repo Unfucking & Client Delivery | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 52 | [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](pending/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) | SUBPLAN_RCD_B_DEDUPE_SCRIPTS — dedupe root scripts/ archive helpers + strip dead allure scripts from root package.json | P1 | — (ready) | PENDING | Opus | hi | acceptEdits | none | 2026-05-07 |
+| 53 | [SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md](pending/SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md) | SUBPLAN_RCD_C_ENV_REPORTS_CRUFT — demote root tsconfig to framework-only + relocate root reports/ to client + sweep env + cruft | P1 | [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](pending/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) | PENDING | Opus | max | acceptEdits | none | 2026-05-07 |
+| 54 | [godsplan.md](pending/godsplan.md) | PLAN: Claude Code Baseline Research + Gene-Marriage Upgrade | P2-CYCLE-3 | — (ready) | PENDING | Opus | max | plan | — | 2026-04-23 |
+| 55 | [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | PLAN_ACTIVITY_LOG_TIMESTAMP_GATE | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
+| 56 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PLAN: Chat UI Bugs — Website Pipeline Experience | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 57 | [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | PLAN: Codebase Cleanup — Audit-Corrected Version | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 58 | [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | PLAN: Adversarial Full-Chain Audit — V3 (Post-External-Review) | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-03-24 |
+| 59 | [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3) | P2-CYCLE-3 | — (ready) | REVISED | — | — | — | — | 2026-04-24 |
+| 60 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 61 | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | PLAN: Framework Maintainer Sweep — Selector Collision Architecture Fix | P2-CYCLE-3 | — (ready) | PARTIALLY-DONE | — | — | — | — | 2026-03-24 |
+| 62 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
+| 63 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PLAN: Playwright CLI Gradual Adoption | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-01 |
+| 64 | [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | FINAL AUDIT REPORT: Test Coverage Gap Analysis — Interaction vs Verification | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 65 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PLAN: Test Data CSV Conversion | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 66 | [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | PLAN: Visual Debug Skill — Give All Agents Eyes | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 67 | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | SUBPLAN: Pipeline tsc Compilation — Harden Build Mode | P2-NORMAL | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-05-01 |
+| 68 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P5-PARKED | — (ready) | PENDING | — | — | — | — | 2026-04-03 |
+| 69 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | — | — | — | — | — | 2026-04-24 |
+| 70 | [PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md](pending/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md) | PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT | high | — (ready) | PENDING-DRAFT | Opus | max | auto | none | 2026-05-18 |
+| 71 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-05-10 |
 
 ### Parent Plans (Waiting on Subplans)
 These stay in `pending/` until their last subplan closes them (LR-027 parent-cascade). Do not execute directly.
@@ -162,6 +167,7 @@ These stay in `pending/` until their last subplan closes them (LR-027 parent-cas
 | [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | PLAN: Deliverable Quality Upgrade — CSV, Specs, Cleanup, Reporting | P0-CYCLE-1 | PENDING | 27 | 2026-04-22 |
 | [PLAN_DQU_V6.md](pending/PLAN_DQU_V6.md) | PLAN_DQU_V6 — Single-Session DQU Methodology | P0-EMERGENCY | PENDING | 1 | 2026-05-12 |
 | [PLAN_ROOT_CLIENT_DEDUPE.md](pending/PLAN_ROOT_CLIENT_DEDUPE.md) | PLAN: Root-vs-Client Slop Dedupe — kill leftover encore-only-era duplicates at repo root | P0-EMERGENCY | PENDING | 2 | 2026-05-06 |
+| [PLAN_DQU_V6_PILOT_SHARED_SETUP.md](pending/PLAN_DQU_V6_PILOT_SHARED_SETUP.md) | PLAN_DQU_V6_PILOT_SHARED_SETUP — Execution Plan (v5 — Cleanup of v4; Nav4 Walk Dropped; TC-Inventory-First; Zero Fixme Assumption Inheritance) | P0-EMERGENCY | PENDING | 4 | 2026-05-12 |
 
 ---
 
@@ -172,49 +178,51 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | File | Title | Status | Completed |
 |---|---|---|---|
 | [SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md](done/SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md) | SUBPLAN: LI Test-Case MD — Phase 0 Lint Sweep | SUPERSEDED | never (folded scope) |
+| [PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md](done/PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md) | Plan — Prevent weaponized-professionalism pattern from recurring (PRIMARY), then unblock SP-A (DOWNSTREAM) | DONE | 2026-05-18 |
+| [SUBPLAN_DQU_V6_PILOT_SSL_A.md](done/SUBPLAN_DQU_V6_PILOT_SSL_A.md) | SUBPLAN_DQU_V6_PILOT_SSL_A — Discovery + Fixme Reverification + BUG-001 Verify | DONE | 2026-05-18 |
+| [PLAN_DQU_COVERAGE_REMEDIATION.md](done/PLAN_DQU_COVERAGE_REMEDIATION.md) | PLAN: Coverage Remediation -- Per-Module DQU + Centralized History (Pivot v5) | SUPERSEDED | 2026-05-15 |
+| [PLAN_HIST_COLUMN_FIRST_PIVOT.md](done/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | MASTER PLAN — HIST Column-First Pivot ("Column-First Pivot Plan") | ARCHIVED-REFERENCE | 2026-05-15 |
+| [PLAN_HIST_COMMIT_HISTORY_WORK.md](done/PLAN_HIST_COMMIT_HISTORY_WORK.md) | PLAN_HIST_COMMIT_HISTORY_WORK | ARCHIVED-REFERENCE | 2026-05-15 |
 | [PLAN_NOTES_DEFERRAL_CLOSURE_2026_05_15.md](done/PLAN_NOTES_DEFERRAL_CLOSURE_2026_05_15.md) | PLAN: Close the deferrals from prior /execute (smoke + dead-code) | DONE | 2026-05-15 |
+| [PLAN_PILOT_SHARED_DISCOVERY.md](done/PLAN_PILOT_SHARED_DISCOVERY.md) | PLAN_PILOT_SHARED_DISCOVERY — Vertical Pilot — Shared Location Setup (Jira 1713) — Discovery + Audit | SUPERSEDED | 2026-05-15 |
+| [PLAN_PILOT_SHARED_TESTS.md](done/PLAN_PILOT_SHARED_TESTS.md) | PLAN_PILOT_SHARED_TESTS — Vertical Pilot — Shared Location Setup (Jira 1713) — HIST per-column tests | SUPERSEDED | 2026-05-15 |
+| [PLAN_SHARED_SETUP_DQU.md](done/PLAN_SHARED_SETUP_DQU.md) | PLAN: Shared Setup DQU — Track A Pilot #1 (3-Agent Routed) [SUPERSEDED] | SUPERSEDED | 2026-05-15 |
+| [PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md](done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md) | PLAN — SP-B-LM-2 Closure & Completeness Gate (LR-040) | DONE | 2026-05-15 |
+| [SUBPLAN_DQU_20_F1i_MGMT_HISTORY_AUDIT.md](done/SUBPLAN_DQU_20_F1i_MGMT_HISTORY_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Location Management History | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HISTORY_01_MCP_FINDINGS.md](done/SUBPLAN_HISTORY_01_MCP_FINDINGS.md) | SP1 MCP Discovery Findings — History Integration | ARCHIVED-REFERENCE | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md](done/SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md) | SUBPLAN SP-B-LM-3a: MCP Catalog — Local Information Tab (Part A, ~20 parents) → 87-col LM History | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md](done/SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md) | SUBPLAN SP-B-LM-3b: MCP Catalog — Local Information Tab (Part B, remaining parents) → 87-col LM History | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md](done/SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md) | SUBPLAN SP-B-LM-4: MCP Catalog — Account & Address Tab → 87-col LM History | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_13_B_LM_5_LEGAL_CATALOG.md](done/SUBPLAN_HIST_PIVOT_13_B_LM_5_LEGAL_CATALOG.md) | SUBPLAN SP-B-LM-5: MCP Catalog — Legal Tab → 87-col LM History | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_16_B_LM_8_AUTO_ADDON_CATALOG.md](done/SUBPLAN_HIST_PIVOT_16_B_LM_8_AUTO_ADDON_CATALOG.md) | SUBPLAN SP-B-LM-8: MCP Catalog — Auto Add-On Tab → 87-col LM History | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_17_B_LM_9_TOP_LEVEL_CATALOG.md](done/SUBPLAN_HIST_PIVOT_17_B_LM_9_TOP_LEVEL_CATALOG.md) | SUBPLAN SP-B-LM-9: MCP Catalog — Top-level Basic Info Fields → 87-col LM History | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_18_B_LM_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_18_B_LM_R_RECONCILE.md) | SUBPLAN SP-B-LM-R: Reconcile + Merge — Location Management Root-Column Catalog | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md](done/SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md) | SUBPLAN SP-D0: Shared hist-test Utilities (hist-reader.ts + helpers) | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_20_C1_LO_BASIC_INFO_TESTS.md](done/SUBPLAN_HIST_PIVOT_20_C1_LO_BASIC_INFO_TESTS.md) | SUBPLAN SP-C1: Local Office HIST Column Tests — Basic Info Columns | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_21_C2_LO_ECT_TESTS.md](done/SUBPLAN_HIST_PIVOT_21_C2_LO_ECT_TESTS.md) | SUBPLAN SP-C2: Local Office HIST Column Tests — ECT Columns | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_22_D1_LM_CURRENCY_TESTS.md](done/SUBPLAN_HIST_PIVOT_22_D1_LM_CURRENCY_TESTS.md) | SUBPLAN SP-D1: Location Management HIST Per-Column Tests — Currency Root-Tab | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_23_D2_LM_PRICING_TESTS.md](done/SUBPLAN_HIST_PIVOT_23_D2_LM_PRICING_TESTS.md) | SUBPLAN SP-D2: Location Management HIST Per-Column Tests — Pricing Root-Tab | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_24_D3a_LM_LOCAL_INFO_PART_A_TESTS.md](done/SUBPLAN_HIST_PIVOT_24_D3a_LM_LOCAL_INFO_PART_A_TESTS.md) | SUBPLAN SP-D3a: Location Management HIST Per-Column Tests — Local Info Root-Tab (Part A) | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_25_D3b_LM_LOCAL_INFO_PART_B_TESTS.md](done/SUBPLAN_HIST_PIVOT_25_D3b_LM_LOCAL_INFO_PART_B_TESTS.md) | SUBPLAN SP-D3b: Location Management HIST Per-Column Tests — Local Info Root-Tab (Part B) | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_26_D4_LM_ACCOUNT_ADDRESS_TESTS.md](done/SUBPLAN_HIST_PIVOT_26_D4_LM_ACCOUNT_ADDRESS_TESTS.md) | SUBPLAN SP-D4: Location Management HIST Per-Column Tests — Account & Address Root-Tab | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_27_D5_LM_LEGAL_TESTS.md](done/SUBPLAN_HIST_PIVOT_27_D5_LM_LEGAL_TESTS.md) | SUBPLAN SP-D5: Location Management HIST Per-Column Tests — Legal Root-Tab | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_30_D8_LM_AUTO_ADDON_TESTS.md](done/SUBPLAN_HIST_PIVOT_30_D8_LM_AUTO_ADDON_TESTS.md) | SUBPLAN SP-D8: Location Management HIST Per-Column Tests — Auto Add-On Root-Tab | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_31_D9_LM_TOP_LEVEL_TESTS.md](done/SUBPLAN_HIST_PIVOT_31_D9_LM_TOP_LEVEL_TESTS.md) | SUBPLAN SP-D9: Location Management HIST Per-Column Tests — Top-level Basic Info Fields | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_32_D10_LM_ORPHANS_TESTS.md](done/SUBPLAN_HIST_PIVOT_32_D10_LM_ORPHANS_TESTS.md) | SUBPLAN SP-D10: Location Management HIST Per-Column Tests — Orphan Columns | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_33_F1_ANOMALY_WRITER.md](done/SUBPLAN_HIST_PIVOT_33_F1_ANOMALY_WRITER.md) | SUBPLAN SP-F1: Anomaly Writer Utility + JSON Schema + afterEach Wiring | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_34_F2_AUTO_FILER.md](done/SUBPLAN_HIST_PIVOT_34_F2_AUTO_FILER.md) | SUBPLAN SP-F2: Auto-Bug-Filer Script + Dedup + Dry-run Digest | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_35_E_LO_BUGS.md](done/SUBPLAN_HIST_PIVOT_35_E_LO_BUGS.md) | SUBPLAN SP-E-LO: Bug Filings — Local Office NOT-TRACKED Fields (Batch) | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_36_E_LM_CUR_BUGS.md](done/SUBPLAN_HIST_PIVOT_36_E_LM_CUR_BUGS.md) | SUBPLAN SP-E-LM-CUR: Bug Filings — Location Mgmt Currency NOT-TRACKED (CUR-BUG-A/B/C) | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_37_E_LM_OTHER_BUGS.md](done/SUBPLAN_HIST_PIVOT_37_E_LM_OTHER_BUGS.md) | SUBPLAN SP-E-LM-OTHER: Bug Filings — Remaining Location Management NOT-TRACKED (Batch) | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md](done/SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md) | SUBPLAN SP-J: WATCHDOG Final Cross-Pivot Audit | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md](done/SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md) | SUBPLAN SP-K1: Framework Rules Sweep — Confirm No Old-Pattern Language | FOLDED | 2026-05-15 |
+| [SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md](done/SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md) | SUBPLAN SP-K2: Agent Prompts Sweep — Confirm No Old-Pattern Instructions | FOLDED | 2026-05-15 |
+| [SUBPLAN_SHARED_SETUP_DQU_BUILDER.md](done/SUBPLAN_SHARED_SETUP_DQU_BUILDER.md) | SUBPLAN_SHARED_SETUP_DQU_BUILDER — Shared Setup DQU pilot, § BUILDER (gap-fill TCs + fixes + page-objects + bug-regressions + determinism) | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_SHARED_SETUP_DQU_GIVER.md](done/SUBPLAN_SHARED_SETUP_DQU_GIVER.md) | SUBPLAN_SHARED_SETUP_DQU_GIVER — Shared Setup DQU pilot, § GIVER (archetype probe + ARCH-013/014 inline + Matrices A/B/C/D) | SUPERSEDED | 2026-05-15 |
+| [SUBPLAN_SHARED_SETUP_DQU_HUNTER.md](done/SUBPLAN_SHARED_SETUP_DQU_HUNTER.md) | SUBPLAN_SHARED_SETUP_DQU_HUNTER — Shared Setup DQU pilot, § HUNTER (Exploration: nav2 baseline + e2e walk + diff) | SUPERSEDED | 2026-05-15 |
 | [PLAN_P0_EXPORT_REFRESH_2026_05_14.md](done/PLAN_P0_EXPORT_REFRESH_2026_05_14.md) | PLAN_P0_EXPORT_REFRESH_2026_05_14 | DONE | 2026-05-14 |
-| [PLAN_DQU_COVERAGE_REMEDIATION.md](done/PLAN_DQU_COVERAGE_REMEDIATION.md) | PLAN: Coverage Remediation -- Per-Module DQU + Centralized History (Pivot v5) | SUPERSEDED | 2026-05-12 |
 | [PLAN_DQU_V6_PILOT_NOTES.md](done/PLAN_DQU_V6_PILOT_NOTES.md) | PLAN_DQU_V6_PILOT_NOTES — Execution Plan | DONE | 2026-05-12 |
-| [PLAN_HIST_COLUMN_FIRST_PIVOT.md](done/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | MASTER PLAN — HIST Column-First Pivot ("Column-First Pivot Plan") | ARCHIVED-REFERENCE | 2026-05-12 |
-| [PLAN_HIST_COMMIT_HISTORY_WORK.md](done/PLAN_HIST_COMMIT_HISTORY_WORK.md) | PLAN_HIST_COMMIT_HISTORY_WORK | ARCHIVED-REFERENCE | 2026-05-12 |
-| [PLAN_PILOT_SHARED_DISCOVERY.md](done/PLAN_PILOT_SHARED_DISCOVERY.md) | PLAN_PILOT_SHARED_DISCOVERY — Vertical Pilot — Shared Location Setup (Jira 1713) — Discovery + Audit | SUPERSEDED | 2026-05-12 |
-| [PLAN_PILOT_SHARED_TESTS.md](done/PLAN_PILOT_SHARED_TESTS.md) | PLAN_PILOT_SHARED_TESTS — Vertical Pilot — Shared Location Setup (Jira 1713) — HIST per-column tests | SUPERSEDED | 2026-05-12 |
-| [PLAN_SHARED_SETUP_DQU.md](done/PLAN_SHARED_SETUP_DQU.md) | PLAN: Shared Setup DQU — Track A Pilot #1 (3-Agent Routed) [SUPERSEDED] | SUPERSEDED | 2026-05-12 |
-| [PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md](done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md) | PLAN — SP-B-LM-2 Closure & Completeness Gate (LR-040) | DONE | 2026-05-12 |
-| [SUBPLAN_DQU_20_F1i_MGMT_HISTORY_AUDIT.md](done/SUBPLAN_DQU_20_F1i_MGMT_HISTORY_AUDIT.md) | SUBPLAN: Neutral-Eye Audit + Fix — Location Management History | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HISTORY_01_MCP_FINDINGS.md](done/SUBPLAN_HISTORY_01_MCP_FINDINGS.md) | SP1 MCP Discovery Findings — History Integration | ARCHIVED-REFERENCE | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md](done/SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md) | SUBPLAN SP-B-LM-3a: MCP Catalog — Local Information Tab (Part A, ~20 parents) → 87-col LM History | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md](done/SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md) | SUBPLAN SP-B-LM-3b: MCP Catalog — Local Information Tab (Part B, remaining parents) → 87-col LM History | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md](done/SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md) | SUBPLAN SP-B-LM-4: MCP Catalog — Account & Address Tab → 87-col LM History | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_13_B_LM_5_LEGAL_CATALOG.md](done/SUBPLAN_HIST_PIVOT_13_B_LM_5_LEGAL_CATALOG.md) | SUBPLAN SP-B-LM-5: MCP Catalog — Legal Tab → 87-col LM History | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_16_B_LM_8_AUTO_ADDON_CATALOG.md](done/SUBPLAN_HIST_PIVOT_16_B_LM_8_AUTO_ADDON_CATALOG.md) | SUBPLAN SP-B-LM-8: MCP Catalog — Auto Add-On Tab → 87-col LM History | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_17_B_LM_9_TOP_LEVEL_CATALOG.md](done/SUBPLAN_HIST_PIVOT_17_B_LM_9_TOP_LEVEL_CATALOG.md) | SUBPLAN SP-B-LM-9: MCP Catalog — Top-level Basic Info Fields → 87-col LM History | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_18_B_LM_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_18_B_LM_R_RECONCILE.md) | SUBPLAN SP-B-LM-R: Reconcile + Merge — Location Management Root-Column Catalog | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md](done/SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md) | SUBPLAN SP-D0: Shared hist-test Utilities (hist-reader.ts + helpers) | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_20_C1_LO_BASIC_INFO_TESTS.md](done/SUBPLAN_HIST_PIVOT_20_C1_LO_BASIC_INFO_TESTS.md) | SUBPLAN SP-C1: Local Office HIST Column Tests — Basic Info Columns | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_21_C2_LO_ECT_TESTS.md](done/SUBPLAN_HIST_PIVOT_21_C2_LO_ECT_TESTS.md) | SUBPLAN SP-C2: Local Office HIST Column Tests — ECT Columns | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_22_D1_LM_CURRENCY_TESTS.md](done/SUBPLAN_HIST_PIVOT_22_D1_LM_CURRENCY_TESTS.md) | SUBPLAN SP-D1: Location Management HIST Per-Column Tests — Currency Root-Tab | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_23_D2_LM_PRICING_TESTS.md](done/SUBPLAN_HIST_PIVOT_23_D2_LM_PRICING_TESTS.md) | SUBPLAN SP-D2: Location Management HIST Per-Column Tests — Pricing Root-Tab | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_24_D3a_LM_LOCAL_INFO_PART_A_TESTS.md](done/SUBPLAN_HIST_PIVOT_24_D3a_LM_LOCAL_INFO_PART_A_TESTS.md) | SUBPLAN SP-D3a: Location Management HIST Per-Column Tests — Local Info Root-Tab (Part A) | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_25_D3b_LM_LOCAL_INFO_PART_B_TESTS.md](done/SUBPLAN_HIST_PIVOT_25_D3b_LM_LOCAL_INFO_PART_B_TESTS.md) | SUBPLAN SP-D3b: Location Management HIST Per-Column Tests — Local Info Root-Tab (Part B) | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_26_D4_LM_ACCOUNT_ADDRESS_TESTS.md](done/SUBPLAN_HIST_PIVOT_26_D4_LM_ACCOUNT_ADDRESS_TESTS.md) | SUBPLAN SP-D4: Location Management HIST Per-Column Tests — Account & Address Root-Tab | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_27_D5_LM_LEGAL_TESTS.md](done/SUBPLAN_HIST_PIVOT_27_D5_LM_LEGAL_TESTS.md) | SUBPLAN SP-D5: Location Management HIST Per-Column Tests — Legal Root-Tab | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_30_D8_LM_AUTO_ADDON_TESTS.md](done/SUBPLAN_HIST_PIVOT_30_D8_LM_AUTO_ADDON_TESTS.md) | SUBPLAN SP-D8: Location Management HIST Per-Column Tests — Auto Add-On Root-Tab | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_31_D9_LM_TOP_LEVEL_TESTS.md](done/SUBPLAN_HIST_PIVOT_31_D9_LM_TOP_LEVEL_TESTS.md) | SUBPLAN SP-D9: Location Management HIST Per-Column Tests — Top-level Basic Info Fields | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_32_D10_LM_ORPHANS_TESTS.md](done/SUBPLAN_HIST_PIVOT_32_D10_LM_ORPHANS_TESTS.md) | SUBPLAN SP-D10: Location Management HIST Per-Column Tests — Orphan Columns | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_33_F1_ANOMALY_WRITER.md](done/SUBPLAN_HIST_PIVOT_33_F1_ANOMALY_WRITER.md) | SUBPLAN SP-F1: Anomaly Writer Utility + JSON Schema + afterEach Wiring | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_34_F2_AUTO_FILER.md](done/SUBPLAN_HIST_PIVOT_34_F2_AUTO_FILER.md) | SUBPLAN SP-F2: Auto-Bug-Filer Script + Dedup + Dry-run Digest | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_35_E_LO_BUGS.md](done/SUBPLAN_HIST_PIVOT_35_E_LO_BUGS.md) | SUBPLAN SP-E-LO: Bug Filings — Local Office NOT-TRACKED Fields (Batch) | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_36_E_LM_CUR_BUGS.md](done/SUBPLAN_HIST_PIVOT_36_E_LM_CUR_BUGS.md) | SUBPLAN SP-E-LM-CUR: Bug Filings — Location Mgmt Currency NOT-TRACKED (CUR-BUG-A/B/C) | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_37_E_LM_OTHER_BUGS.md](done/SUBPLAN_HIST_PIVOT_37_E_LM_OTHER_BUGS.md) | SUBPLAN SP-E-LM-OTHER: Bug Filings — Remaining Location Management NOT-TRACKED (Batch) | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md](done/SUBPLAN_HIST_PIVOT_38_J_FINAL_AUDIT.md) | SUBPLAN SP-J: WATCHDOG Final Cross-Pivot Audit | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md](done/SUBPLAN_HIST_PIVOT_39_K1_RULES_SWEEP.md) | SUBPLAN SP-K1: Framework Rules Sweep — Confirm No Old-Pattern Language | FOLDED | 2026-05-12 |
-| [SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md](done/SUBPLAN_HIST_PIVOT_40_K2_PROMPTS_SWEEP.md) | SUBPLAN SP-K2: Agent Prompts Sweep — Confirm No Old-Pattern Instructions | FOLDED | 2026-05-12 |
 | [SUBPLAN_P0_2PCT_RCA.md](done/SUBPLAN_P0_2PCT_RCA.md) | SUBPLAN_P0_2PCT_RCA — RCA the 2026-05-11 full-suite failures, fold into Encore bug report | DONE | 2026-05-12 |
-| [SUBPLAN_SHARED_SETUP_DQU_BUILDER.md](done/SUBPLAN_SHARED_SETUP_DQU_BUILDER.md) | SUBPLAN_SHARED_SETUP_DQU_BUILDER — Shared Setup DQU pilot, § BUILDER (gap-fill TCs + fixes + page-objects + bug-regressions + determinism) | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_SHARED_SETUP_DQU_GIVER.md](done/SUBPLAN_SHARED_SETUP_DQU_GIVER.md) | SUBPLAN_SHARED_SETUP_DQU_GIVER — Shared Setup DQU pilot, § GIVER (archetype probe + ARCH-013/014 inline + Matrices A/B/C/D) | SUPERSEDED | 2026-05-12 |
-| [SUBPLAN_SHARED_SETUP_DQU_HUNTER.md](done/SUBPLAN_SHARED_SETUP_DQU_HUNTER.md) | SUBPLAN_SHARED_SETUP_DQU_HUNTER — Shared Setup DQU pilot, § HUNTER (Exploration: nav2 baseline + e2e walk + diff) | SUPERSEDED | 2026-05-12 |
 | [PLAN_54_LOCAL_FULL_CHROMIUM_RUN_4W.md](done/PLAN_54_LOCAL_FULL_CHROMIUM_RUN_4W.md) | PLAN_54_LOCAL_FULL_CHROMIUM_RUN_4W | DONE | 2026-05-11 |
 | [PLAN_PILOT_NOTES_DISCOVERY.md](done/PLAN_PILOT_NOTES_DISCOVERY.md) | PLAN_PILOT_NOTES_DISCOVERY — Vertical Pilot — Notes (Jira 1712) — Discovery + Audit | DONE | 2026-05-11 |
 | [PLAN_PILOT_NOTES_TESTS.md](done/PLAN_PILOT_NOTES_TESTS.md) | PLAN_PILOT_NOTES_TESTS — Vertical Pilot — Notes (Jira 1712) — HIST per-column tests | DONE | 2026-05-11 |
@@ -476,8 +484,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (70 files)
-  done/                 ← completed plans (297 files)
+  pending/              ← active plans (75 files)
+  done/                 ← completed plans (299 files)
 ```
 
 When completing a plan:
@@ -491,43 +499,43 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-05-18 | pending | [PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md](pending/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md) | PENDING-DRAFT |
+| 2026-05-18 | done | [SUBPLAN_DQU_V6_PILOT_SSL_A.md](done/SUBPLAN_DQU_V6_PILOT_SSL_A.md) | DONE |
+| 2026-05-17 | done | [PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md](done/PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md) | DONE |
+| 2026-05-15 | pending | [PLAN_DQU_V6.md](pending/PLAN_DQU_V6.md) | PENDING |
 | 2026-05-15 | pending | [PLAN_DQU_V6_PILOT_SHARED_SETUP.md](pending/PLAN_DQU_V6_PILOT_SHARED_SETUP.md) | PENDING |
 | 2026-05-15 | pending | [PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md](pending/PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md) | PENDING |
+| 2026-05-15 | pending | [PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md](pending/PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md) | PENDING |
 | 2026-05-15 | pending | [PLAN_LM_HISTORY_COVERAGE.md](pending/PLAN_LM_HISTORY_COVERAGE.md) | GATED |
+| 2026-05-15 | pending | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PENDING |
+| 2026-05-15 | pending | [SUBPLAN_DQU_V6_PILOT_SSL_B.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_B.md) | PENDING |
+| 2026-05-15 | pending | [SUBPLAN_DQU_V6_PILOT_SSL_C.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_C.md) | PENDING |
+| 2026-05-15 | pending | [SUBPLAN_DQU_V6_PILOT_SSL_D.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_D.md) | PENDING |
+| 2026-05-15 | pending | [SUBPLAN_DQU_V6_PILOT_SSL_E.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_E.md) | PENDING |
+| 2026-05-15 | done | [PLAN_54_LOCAL_FULL_CHROMIUM_RUN_4W.md](done/PLAN_54_LOCAL_FULL_CHROMIUM_RUN_4W.md) | DONE |
+| 2026-05-15 | done | [PLAN_DQU_COVERAGE_REMEDIATION.md](done/PLAN_DQU_COVERAGE_REMEDIATION.md) | SUPERSEDED |
+| 2026-05-15 | done | [PLAN_DQU_V6_PILOT_NOTES.md](done/PLAN_DQU_V6_PILOT_NOTES.md) | DONE |
+| 2026-05-15 | done | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](done/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | ARCHIVED-REFERENCE |
+| 2026-05-15 | done | [PLAN_HIST_COMMIT_HISTORY_WORK.md](done/PLAN_HIST_COMMIT_HISTORY_WORK.md) | ARCHIVED-REFERENCE |
 | 2026-05-15 | done | [PLAN_NOTES_DEFERRAL_CLOSURE_2026_05_15.md](done/PLAN_NOTES_DEFERRAL_CLOSURE_2026_05_15.md) | DONE |
-| 2026-05-14 | pending | [PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md](pending/PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md) | PENDING |
-| 2026-05-14 | pending | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PENDING |
-| 2026-05-14 | done | [PLAN_P0_EXPORT_REFRESH_2026_05_14.md](done/PLAN_P0_EXPORT_REFRESH_2026_05_14.md) | DONE |
-| 2026-05-12 | pending | [PLAN_DQU_V6.md](pending/PLAN_DQU_V6.md) | PENDING |
-| 2026-05-12 | done | [PLAN_DQU_COVERAGE_REMEDIATION.md](done/PLAN_DQU_COVERAGE_REMEDIATION.md) | SUPERSEDED |
-| 2026-05-12 | done | [PLAN_DQU_V6_PILOT_NOTES.md](done/PLAN_DQU_V6_PILOT_NOTES.md) | DONE |
-| 2026-05-12 | done | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](done/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | ARCHIVED-REFERENCE |
-| 2026-05-12 | done | [PLAN_HIST_COMMIT_HISTORY_WORK.md](done/PLAN_HIST_COMMIT_HISTORY_WORK.md) | ARCHIVED-REFERENCE |
-| 2026-05-12 | done | [PLAN_PILOT_SHARED_DISCOVERY.md](done/PLAN_PILOT_SHARED_DISCOVERY.md) | SUPERSEDED |
-| 2026-05-12 | done | [PLAN_PILOT_SHARED_TESTS.md](done/PLAN_PILOT_SHARED_TESTS.md) | SUPERSEDED |
-| 2026-05-12 | done | [PLAN_SHARED_SETUP_DQU.md](done/PLAN_SHARED_SETUP_DQU.md) | SUPERSEDED |
-| 2026-05-12 | done | [PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md](done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_DQU_20_F1i_MGMT_HISTORY_AUDIT.md](done/SUBPLAN_DQU_20_F1i_MGMT_HISTORY_AUDIT.md) | SUPERSEDED |
-| 2026-05-12 | done | [SUBPLAN_HISTORY_01_MCP_FINDINGS.md](done/SUBPLAN_HISTORY_01_MCP_FINDINGS.md) | ARCHIVED-REFERENCE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_02_A2_PURGE_LO_SPECS.md](done/SUBPLAN_HIST_PIVOT_02_A2_PURGE_LO_SPECS.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_03_A3_PURGE_MDS_CSVS.md](done/SUBPLAN_HIST_PIVOT_03_A3_PURGE_MDS_CSVS.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_04_H_DOCS_LANG.md](done/SUBPLAN_HIST_PIVOT_04_H_DOCS_LANG.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md](done/SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_05_B_LO_1_BASIC_INFO_CATALOG.md](done/SUBPLAN_HIST_PIVOT_05_B_LO_1_BASIC_INFO_CATALOG.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md](done/SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](done/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](done/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | DONE |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md](done/SUBPLAN_HIST_PIVOT_10_B_LM_3a_LOCAL_INFO_PART_A.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md](done/SUBPLAN_HIST_PIVOT_11_B_LM_3b_LOCAL_INFO_PART_B.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md](done/SUBPLAN_HIST_PIVOT_12_B_LM_4_ACCOUNT_ADDRESS_CATALOG.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_13_B_LM_5_LEGAL_CATALOG.md](done/SUBPLAN_HIST_PIVOT_13_B_LM_5_LEGAL_CATALOG.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_14_B_LM_6_NOTES_CATALOG.md](done/SUBPLAN_HIST_PIVOT_14_B_LM_6_NOTES_CATALOG.md) | SUPERSEDED-2026-05-11 |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_15_B_LM_7_SHARED_SETUP_CATALOG.md](done/SUBPLAN_HIST_PIVOT_15_B_LM_7_SHARED_SETUP_CATALOG.md) | SUPERSEDED-2026-05-11 |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_16_B_LM_8_AUTO_ADDON_CATALOG.md](done/SUBPLAN_HIST_PIVOT_16_B_LM_8_AUTO_ADDON_CATALOG.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_17_B_LM_9_TOP_LEVEL_CATALOG.md](done/SUBPLAN_HIST_PIVOT_17_B_LM_9_TOP_LEVEL_CATALOG.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_18_B_LM_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_18_B_LM_R_RECONCILE.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md](done/SUBPLAN_HIST_PIVOT_19_D0_SHARED_UTILS.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_20_C1_LO_BASIC_INFO_TESTS.md](done/SUBPLAN_HIST_PIVOT_20_C1_LO_BASIC_INFO_TESTS.md) | FOLDED |
-| 2026-05-12 | done | [SUBPLAN_HIST_PIVOT_21_C2_LO_ECT_TESTS.md](done/SUBPLAN_HIST_PIVOT_21_C2_LO_ECT_TESTS.md) | FOLDED |
+| 2026-05-15 | done | [PLAN_PILOT_NOTES_DISCOVERY.md](done/PLAN_PILOT_NOTES_DISCOVERY.md) | DONE |
+| 2026-05-15 | done | [PLAN_PILOT_NOTES_TESTS.md](done/PLAN_PILOT_NOTES_TESTS.md) | DONE |
+| 2026-05-15 | done | [PLAN_PILOT_SHARED_DISCOVERY.md](done/PLAN_PILOT_SHARED_DISCOVERY.md) | SUPERSEDED |
+| 2026-05-15 | done | [PLAN_PILOT_SHARED_TESTS.md](done/PLAN_PILOT_SHARED_TESTS.md) | SUPERSEDED |
+| 2026-05-15 | done | [PLAN_RADIX_RETRY_HARMONIZATION.md](done/PLAN_RADIX_RETRY_HARMONIZATION.md) | DONE |
+| 2026-05-15 | done | [PLAN_SHARED_SETUP_DQU.md](done/PLAN_SHARED_SETUP_DQU.md) | SUPERSEDED |
+| 2026-05-15 | done | [PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md](done/PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_DQU_15_F1d_NOTES_AUDIT.md](done/SUBPLAN_DQU_15_F1d_NOTES_AUDIT.md) | SUPERSEDED-2026-05-11 |
+| 2026-05-15 | done | [SUBPLAN_DQU_17_F1f_SHARED_SETUP_AUDIT.md](done/SUBPLAN_DQU_17_F1f_SHARED_SETUP_AUDIT.md) | SUPERSEDED-2026-05-11 |
+| 2026-05-15 | done | [SUBPLAN_DQU_20_F1i_MGMT_HISTORY_AUDIT.md](done/SUBPLAN_DQU_20_F1i_MGMT_HISTORY_AUDIT.md) | SUPERSEDED |
+| 2026-05-15 | done | [SUBPLAN_HISTORY_01_MCP_FINDINGS.md](done/SUBPLAN_HISTORY_01_MCP_FINDINGS.md) | ARCHIVED-REFERENCE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_02_A2_PURGE_LO_SPECS.md](done/SUBPLAN_HIST_PIVOT_02_A2_PURGE_LO_SPECS.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_03_A3_PURGE_MDS_CSVS.md](done/SUBPLAN_HIST_PIVOT_03_A3_PURGE_MDS_CSVS.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_04_H_DOCS_LANG.md](done/SUBPLAN_HIST_PIVOT_04_H_DOCS_LANG.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md](done/SUBPLAN_HIST_PIVOT_05b_B_LO_1b_BASIC_INFO_RESIDUAL.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_05_B_LO_1_BASIC_INFO_CATALOG.md](done/SUBPLAN_HIST_PIVOT_05_B_LO_1_BASIC_INFO_CATALOG.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md](done/SUBPLAN_HIST_PIVOT_06B_B_LO_2b_ECT_DIRECT_VERIFY.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md](done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md](done/SUBPLAN_HIST_PIVOT_07_B_LO_R_RECONCILE.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md](done/SUBPLAN_HIST_PIVOT_08_B_LM_1_CURRENCY_CATALOG.md) | DONE |
+| 2026-05-15 | done | [SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md](done/SUBPLAN_HIST_PIVOT_09_B_LM_2_PRICING_CATALOG.md) | DONE |

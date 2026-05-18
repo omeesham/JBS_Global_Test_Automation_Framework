@@ -123,6 +123,16 @@ Format rules (mandatory — no exceptions):
 
 **Backward compat**: `parse-verdict.mjs` accepts both v1 and v2 formats so historical `chain-sessions-green/` transcripts still parse. New `/final-q` invocations from 2026-04-27 onward MUST emit v2.
 
+### Step 4.5: Plan Closure Gate (LR-055)
+
+Per active plan that was touched in this session:
+
+1. Run `node scripts/validate-plan-closure.mjs --plan <file> --enforce --json` — READ-ONLY validation, no manifest written.
+   Emit: `ran 'node scripts/validate-plan-closure.mjs --plan <file> --enforce --json' → output: 'status: PASS|FAIL'`
+2. Read all `.claude/state/closure-attempts/<plan>-<YYYY-MM-DD>.json` within 6h of session. Any blocked attempts → note in cross-checks.
+3. Read `.claude/state/closure-fail-closed-counter-<plan-basename>.json` (V5). Non-zero count → RED floor (any fail-closed event is RED; no grace).
+4. Run `node scripts/validate-plan-layout.mjs --check`. Non-zero exit → RED floor.
+
 ### Step 5: Estimate Context Budget
 
 Check the session's context usage. You do NOT have a direct API for the token count; estimate from:

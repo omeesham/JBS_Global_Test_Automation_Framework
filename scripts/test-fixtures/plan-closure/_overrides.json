@@ -1,0 +1,15 @@
+{
+  "$schema": "../../.claude/closure-overrides.schema.json",
+  "version": 1,
+  "overrides": [
+    {
+      "plan": "bad-c1-with-override-fixture.md",
+      "tokens": ["NOT-WALKED"],
+      "path_match": "exact",
+      "expires_at": "2099-12-31T00:00:00.000Z",
+      "reason": "Test fixture override — permanently authorized for self-test validation of override lookup flow",
+      "granted_at": "2026-05-18T00:00:00.000Z"
+    }
+  ],
+  "meta_plans": []
+}

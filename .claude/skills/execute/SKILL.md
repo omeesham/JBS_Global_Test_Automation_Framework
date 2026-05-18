@@ -262,15 +262,17 @@ After post-execution audit, before declaring done:
    - Add `### Execution Summary` section (see LR-027 for required fields)
    - Document EVERY planned TC: implemented, dropped (with reason), or deferred
 
-2. **Move plan**: `git mv plans/pending/PLAN_XXX.md plans/done/PLAN_XXX.md` (MUST use `git mv`, NOT plain `mv` — preserves git history and stages the rename atomically).
+2. **Closure validation precondition (LR-055, V6)**: Run `node scripts/validate-plan-closure.mjs --plan <file> --enforce --write-manifest`. PASS required before `git mv`. `--write-manifest` is the manifest-emission gate — used ONLY here. C2/C3/C4/C5 fail → remediate, NOT override. The Status flip + manifest write + `git mv` happen in one commit per M4.
 
-3. **Regenerate INDEX** (LR-035 — `plans/INDEX.md` is auto-generated, never hand-edit): `npm run plans:reindex`
+3. **Move plan**: `git mv plans/pending/PLAN_XXX.md plans/done/PLAN_XXX.md` (MUST use `git mv`, NOT plain `mv` — preserves git history and stages the rename atomically).
 
-4. **Update activity log**: Append session entry to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md`
+4. **Regenerate INDEX** (LR-035 — `plans/INDEX.md` is auto-generated, never hand-edit): `npm run plans:reindex`
+
+5. **Update activity log**: Append session entry to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md`
    Format: `| YYYY-MM-DDThh:mm | {agent} | done | {files} | {description} |`
    LR-037 gate: the `When` timestamp MUST be ≥ the latest mtime of every file in `{files}`. Run `npm run validate:activity-log:preflight` if unsure.
 
-5. **Update agent-mistakes.md**: If ANY unexpected behavior was found during execution
+6. **Update agent-mistakes.md**: If ANY unexpected behavior was found during execution
    (MCP showed different behavior than plan assumed, selector didn't match, validation
    didn't fire as expected), add a new rule entry.
 

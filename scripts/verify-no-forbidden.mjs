@@ -98,6 +98,40 @@ const MARKER_GREP_CLIENT_ONLY = [
   /JIRA_VERIFICATION_\d{4}-\d{2}-\d{2}/,
 ];
 
+// LR-054 / ALL-077 — manufactured-blocker banned-phrase regexes. Scanned ONLY
+// in path-scoped target artifacts (walk-evidence / neutral-eye-audits /
+// field-inventories) where the pattern shipped on 2026-05-18. Plan files
+// (plans/pending/, plans/done/) and rule/skill/memory files legitimately
+// reference these phrases when defining or quarantining them — they are NOT
+// scanned. This array is intentionally separate from MARKER_GREP (repo-wide,
+// would false-positive on legitimate engineering vocabulary) — same scoping
+// approach as MARKER_GREP_CLIENT_ONLY (gated by isClientShipping above).
+const BANNED_PHRASES = [
+  /Section 0 — Live-Walk Blocker/i,
+  /Section 0 — .{0,40}Blocker\b/i,
+  /UNFILLED-BLOCKED-SECTION/,
+  /\bstructural blocker\b/i,
+  /\bprovisioning invariant\b/i,
+  /\bunattended execution risks?\b/i,
+  /\bindefinite if .{1,80} fires\b/i,
+  /\bPath \d+ \(NOT taken in this session\)/i,
+  /\bcannot complete .{0,80}strict.{0,40}line.{0,80}in this single session\b/i,
+];
+
+// Target paths for BANNED_PHRASES scan (pre-commit/pre-push). Returns true
+// only for the three artifact path classes where the pattern shipped.
+function isBannedPhraseTarget(rel) {
+  if (!rel) return false;
+  const norm = String(rel).replace(/\\/g, '/');
+  if (!/^clients\/[^/]+\/specs_planning\/_internal\//.test(norm)) return false;
+  if (/\/walk-evidence-[^/]+\.md$/.test(norm)) return true;
+  if (/\/neutral-eye-audits\/.+\.md$/.test(norm)) return true;
+  if (/\/field-inventories\/.+\.md$/.test(norm)) return true;
+  // agent-mistakes.md is excluded by default — it legitimately discusses the
+  // pattern in the ALL-077 row.
+  return false;
+}
+
 // Strings that must NOT appear in the shipped per-client .gitignore — they leak
 // JBS-internal terminology to the customer (plan IDs, ship-pipeline mechanics,
 // internal directory names). The JBS-context patterns live at root .gitignore
@@ -222,6 +256,15 @@ function checkTarget(target) {
   console.log(`[verify-no-forbidden] OK target=${target} files=${files.length}`);
 }
 
+function hasStatusDoneAnyForm(content) {
+  const header = content.slice(0, 2000);
+  const re = /(?:^|\n)\s*(?:\*\*)?Status(?:\*\*)?\s*:\s*([^\n]+)/i;
+  const m = header.match(re);
+  if (!m) return false;
+  const val = m[1].replace(/^\*+|\*+$/g, '').replace(/^`|`$/g, '').split('|')[0].trim();
+  return val.toUpperCase() === 'DONE';
+}
+
 function checkStagedDiff() {
   let listing;
   try {
@@ -234,10 +277,26 @@ function checkStagedDiff() {
   }
   const staged = listing.split(/\r?\n/).filter(Boolean);
   const offenders = [];
+  // LR-054 / ALL-077 banned-phrase exemption list — files that legitimately
+  // discuss the pattern when defining or quarantining it.
+  const BANNED_EXEMPT_PATHS = new Set([
+    '.claude/rules/browser-tool.md',
+    'clients/encore/specs_planning/_internal/agent-mistakes.md',
+  ]);
+  const bannedOffenders = [];
   for (const rel of staged) {
     if (rel.startsWith('plans/done/')) continue; // historical artifacts
-    if (rel.startsWith('plans/pending/')) continue; // plan author may legitimately reference markers
+    // NB3 fix: closure-gate-aware pending skip — if staged plan has Status: DONE, run markers regardless
+    if (rel.startsWith('plans/pending/')) {
+      let planBuf;
+      try {
+        planBuf = execSync(`git show :${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+      } catch { continue; }
+      if (!hasStatusDoneAnyForm(planBuf)) continue;
+    }
     if (rel === 'scripts/verify-no-forbidden.mjs') continue; // self-reference: this script's own MARKER_GREP literals
+    if (rel === '.claude/hooks/lib/check-todo-injection.mjs') continue; // self-reference: hook's own BANNED_PHRASES + self-test literals
+    if (rel === '.claude/hooks/lib/check-plan-closure.mjs') continue; // self-reference: hook's own regex literals
     let buf;
     try {
       buf = execSync(`git show :${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
@@ -255,11 +314,32 @@ function checkStagedDiff() {
         break;
       }
     }
+    // LR-054 / ALL-077 banned-phrase scan — path-scoped to artifact files
+    // (walk-evidence / neutral-eye-audits / field-inventories) only.
+    if (isBannedPhraseTarget(rel) && !BANNED_EXEMPT_PATHS.has(rel.replace(/\\/g, '/'))) {
+      for (const re of BANNED_PHRASES) {
+        const m = buf.match(re);
+        if (m) {
+          bannedOffenders.push(`${rel} :: ${JSON.stringify(m[0])}`);
+          break;
+        }
+      }
+    }
   }
   if (offenders.length > 0) {
     console.error(
       `[verify-no-forbidden] staged-diff: ${offenders.length} marker-hit file(s):\n` +
         offenders.slice(0, 20).map((p) => `  ${p}`).join('\n')
+    );
+    process.exit(1);
+  }
+  if (bannedOffenders.length > 0) {
+    console.error(
+      `[verify-no-forbidden] staged-diff: ${bannedOffenders.length} manufactured-blocker phrase(s) ` +
+        `denied by LR-039 + LR-054 + ALL-077 (default auth-refresh path = LoginPage.loginWithMicrosoft; ` +
+        `see .claude/rules/browser-tool.md LR-054 + docs/read_only_docs/CLI_BROWSER_GUIDE.md Table 2 + ` +
+        `clients/encore/specs_planning/_internal/agent-mistakes.md ALL-077):\n` +
+        bannedOffenders.slice(0, 20).map((p) => `  ${p}`).join('\n')
     );
     process.exit(1);
   }

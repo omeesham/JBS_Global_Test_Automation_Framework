@@ -182,6 +182,71 @@ Output one line per cross-checked claim:
 
 Any `mismatch` row downgrades the audit verdict (cannot be GREEN).
 
+## Step 2.7: Manufactured-Blocker Scan (LR-054 / ALL-077 — MANDATORY)
+
+**Defense-in-depth Layer 5.** The PreToolUse hook + pre-push hook gate FUTURE writes; this step catches manufactured-blocker prose that already shipped (pre-hook files, fail-open exceptions, override-approved writes).
+
+### Scope
+
+Grep these target paths only:
+
+```
+clients/*/specs_planning/_internal/walk-evidence-*.md
+clients/*/specs_planning/_internal/neutral-eye-audits/**/*.md
+clients/*/specs_planning/_internal/field-inventories/**/*.md
+```
+
+(Plans under `plans/pending/**` and `plans/done/**` are NOT in scope here — plan authors legitimately reference these patterns when defining or quarantining them.)
+
+### Banned-phrase regex set (case-insensitive)
+
+```
+Section 0 — Live-Walk Blocker
+Section 0 — .*Blocker
+UNFILLED-BLOCKED-SECTION
+structural blocker
+provisioning invariant
+unattended execution risks?
+indefinite if .* fires
+Path \d+ \(NOT taken in this session\)
+cannot complete .* strict.*line.* in this single session
+```
+
+Quick scan command:
+
+```bash
+grep -rEn "Section 0 — .{0,40}Blocker|UNFILLED-BLOCKED-SECTION|structural blocker|provisioning invariant|unattended execution risk|indefinite if .{1,80} fires|Path [0-9]+ \(NOT taken in this session\)|cannot complete .{0,80}strict.{0,40}line.{0,80}in this single session" \
+  clients/*/specs_planning/_internal/walk-evidence-*.md \
+  clients/*/specs_planning/_internal/neutral-eye-audits/ \
+  clients/*/specs_planning/_internal/field-inventories/ 2>/dev/null
+```
+
+### Per-match classification
+
+For each match in the target paths:
+
+| Class | Definition | Verdict impact |
+|---|---|---|
+| (a) **discussion-of-pattern** | Match appears in a file that LEGITIMATELY references the pattern: `.claude/rules/browser-tool.md` (LR-054 body), `clients/encore/specs_planning/_internal/agent-mistakes.md` (ALL-077 row), `plans/**/PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md`, auto-memory `feedback_browser_tool_selection.md` | EXEMPT — no finding |
+| (b) **manufactured-blocker** | Match appears in walk-evidence / neutral-eye-audit / field-inventory authoring a real HALT-prose section (not quoting/discussing) | **RED finding** — must be deleted/refactored before audit passes |
+| (c) **ambiguous** | Match appears in a non-target path OR target path quoting a banned phrase for reference (e.g., audit-report citing the pattern) | YELLOW finding — needs reviewer judgment |
+
+### Verdict floor
+
+Any (b) classification without prior user override = **automatic RED** verdict, regardless of other audit findings. Mirrors LR-046's strict-line verdict floor. Override path: same LR-043 §A handshake — auditor emits `[OVERRIDE-REQUEST] <path>`, user types `override approved` within 3 turns, override is one-shot per match.
+
+### Why this scan exists
+
+2026-05-18 SP-A session: agent shipped 153 lines of "Section 0 — Live-Walk Blocker" prose to `clients/encore/specs_planning/_internal/walk-evidence-shared-setup-2026-05-15.md:13-165` contradicting `clients/encore/CLAUDE.md:134` and the subplan's own line 94-96. The PreToolUse hook (Layer 4) blocks future writes; this scan catches the pre-hook artifact and any that slip through fail-open.
+
+Output one line per match:
+
+> Scan: [file:line] → [matched phrase] → [class a/b/c] → [verdict impact]
+
+### Plan Closure Validation (LR-055 extension)
+
+For any plans in scope, also run `node scripts/validate-plan-closure.mjs --enforce --plan <file> --json` (READ-ONLY, no side effects). Auto-RED on any FAIL. This catches CLOSURE_FORBIDDEN_C1 tokens (NOT-WALKED, PROBABLE-FAIL-*, BLOCKED-BY-FIXME-DESIGN, surface-exists: divergent, YAML evidence placeholders) AND C2-C5 violations on plans that claim Status: DONE.
+
 ## Step 3: The Missing Audit (MOST IMPORTANT)
 
 This is the core of /audit review mode. Focus ENTIRELY on what was NOT done.
@@ -390,6 +455,12 @@ Before any DROP finalizes, grep the repo for the item's distinctive token (mode 
 - ≥1 hit in sibling files but no documented parity → **UNCERTAIN** — surface to user, do NOT drop unilaterally.
 
 Scope: ~1 Grep per DROP candidate. Cheap. Blocks the no-lies-class regression where a locally-dead toggle is part of a documented cross-skill family.
+
+### Step 4.6 — Manufactured-blocker scan (LR-054 / ALL-077)
+
+When the slop target is an artifact file (walk-evidence, neutral-eye-audit, or field-inventory), grep the same banned-phrase regex set documented in §REVIEW Step 2.7. Any match in the target file that authors HALT-prose (not quotes/discusses) → **auto-DROP** the entire prose block as `MANUFACTURED-BLOCKER` (paired DROP reason class). This overrides the standard remove-test — manufactured prose blocks fail the remove-test by definition: removing them does not break the core goal (because the core goal was achievable via documented tools the prose claimed didn't exist).
+
+Skip when target is not an artifact file (e.g., a skill, a plan, a hook, a memory file) — the structural defense in those paths is the path-scoped hooks (Layer 4 + Layer 6), not this scan.
 
 ### Step 5 — Best-practice research (scoped, optional)
 Run ONLY if the artifact implements a named pattern: hook, middleware, gate, validator, orchestrator, pipeline, reducer, catalog, registry, adapter.
