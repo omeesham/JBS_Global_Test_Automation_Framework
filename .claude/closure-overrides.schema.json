@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Plan Closure Overrides",
+  "description": "Per-plan token-class exceptions for the closure gate (C1 only). User-edited, tracked.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "overrides", "meta_plans"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["plan", "tokens", "path_match", "expires_at", "reason", "granted_at"],
+        "properties": {
+          "plan": {
+            "type": "string",
+            "pattern": "^[A-Z0-9_-]+\\.md$",
+            "description": "Plan basename (no path, no wildcards)"
+          },
+          "tokens": {
+            "type": "array",
+            "maxItems": 2,
+            "items": {
+              "type": "string",
+              "enum": [
+                "NOT-WALKED",
+                "NOT WALKED",
+                "PROBABLE-FAIL-APP",
+                "PROBABLE-FAIL-FRAMEWORK",
+                "PROBABLE-FAIL-TEST",
+                "PROBABLE-PASS-APP",
+                "PROBABLE-PASS-FRAMEWORK",
+                "PROBABLE-PASS-TEST",
+                "PROBABLE-SKIP-APP",
+                "PROBABLE-SKIP-FRAMEWORK",
+                "PROBABLE-SKIP-TEST",
+                "BLOCKED-BY-FIXME-DESIGN",
+                "surface-exists: divergent",
+                "not captured",
+                "not exercised"
+              ]
+            }
+          },
+          "path_match": {
+            "type": "string",
+            "const": "exact"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 40
+          },
+          "granted_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "meta_plans": {
+      "type": "array",
+      "description": "Plan basenames with closure_meta: true that are exempt from C1 (double-keyed: marker + listing)",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z0-9_-]+\\.md$"
+      }
+    }
+  }
+}

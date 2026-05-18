@@ -1,0 +1,8 @@
+{
+  "$schema": "./closure-overrides.schema.json",
+  "version": 1,
+  "overrides": [],
+  "meta_plans": [
+    "PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md"
+  ]
+}
