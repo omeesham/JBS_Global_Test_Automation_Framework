@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 75 pending · 299 done · 56 stale (>14d) · 0 DONE-in-pending
+**Totals**: 74 pending · 300 done · 56 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -156,8 +156,7 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 67 | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | SUBPLAN: Pipeline tsc Compilation — Harden Build Mode | P2-NORMAL | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-05-01 |
 | 68 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P5-PARKED | — (ready) | PENDING | — | — | — | — | 2026-04-03 |
 | 69 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | — | — | — | — | — | 2026-04-24 |
-| 70 | [PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md](pending/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md) | PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT | high | — (ready) | PENDING-DRAFT | Opus | max | auto | none | 2026-05-18 |
-| 71 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-05-10 |
+| 70 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-05-10 |
 
 ### Parent Plans (Waiting on Subplans)
 These stay in `pending/` until their last subplan closes them (LR-027 parent-cascade). Do not execute directly.
@@ -178,6 +177,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | File | Title | Status | Completed |
 |---|---|---|---|
 | [SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md](done/SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md) | SUBPLAN: LI Test-Case MD — Phase 0 Lint Sweep | SUPERSEDED | never (folded scope) |
+| [PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md](done/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md) | PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT | DONE | 2026-05-18 |
 | [PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md](done/PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md) | Plan — Prevent weaponized-professionalism pattern from recurring (PRIMARY), then unblock SP-A (DOWNSTREAM) | DONE | 2026-05-18 |
 | [SUBPLAN_DQU_V6_PILOT_SSL_A.md](done/SUBPLAN_DQU_V6_PILOT_SSL_A.md) | SUBPLAN_DQU_V6_PILOT_SSL_A — Discovery + Fixme Reverification + BUG-001 Verify | DONE | 2026-05-18 |
 | [PLAN_DQU_COVERAGE_REMEDIATION.md](done/PLAN_DQU_COVERAGE_REMEDIATION.md) | PLAN: Coverage Remediation -- Per-Module DQU + Centralized History (Pivot v5) | SUPERSEDED | 2026-05-15 |
@@ -484,8 +484,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (75 files)
-  done/                 ← completed plans (299 files)
+  pending/              ← active plans (74 files)
+  done/                 ← completed plans (300 files)
 ```
 
 When completing a plan:
@@ -499,7 +499,7 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
-| 2026-05-18 | pending | [PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md](pending/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md) | PENDING-DRAFT |
+| 2026-05-18 | done | [PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md](done/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md) | DONE |
 | 2026-05-18 | done | [SUBPLAN_DQU_V6_PILOT_SSL_A.md](done/SUBPLAN_DQU_V6_PILOT_SSL_A.md) | DONE |
 | 2026-05-17 | done | [PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md](done/PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md) | DONE |
 | 2026-05-15 | pending | [PLAN_DQU_V6.md](pending/PLAN_DQU_V6.md) | PENDING |

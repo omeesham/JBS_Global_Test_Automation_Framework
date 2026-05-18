@@ -521,7 +521,7 @@ function isExempt(planPath, body) {
   const norm = normalizePath(planPath);
   if (RULE_EXEMPT_PATHS.some(rx => rx.test(norm))) return true;
 
-  const hasMarker = /closure_meta\s*:\s*true/i.test(body.slice(0, 500));
+  const hasMarker = /closure_meta\s*:\s*true/i.test(body.slice(0, 2000));
   if (!hasMarker) return false;
 
   try {

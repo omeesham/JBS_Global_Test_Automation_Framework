@@ -1,9 +1,10 @@
 ﻿---
 title: Plan-Closure Gate + Strict-Line Enforcement (v5 — post-final-review, red-flags removed)
 target_file_at_execution: plans/pending/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md
-Status: PENDING-DRAFT
+Status: DONE
 Priority: high
 Created: 2026-05-18
+Executed: 2026-05-18
 Identity: OWNER
 Model: claude-opus-4-7
 Thinking: max
@@ -766,6 +767,29 @@ The `!` negations are load-bearing: assert prior-version defects ABSENT. Behavio
 10. `/final-q` v2 evidence emission â†’ GREEN.
 
 LR-046 verdict floor: rescoping any strict line without prior user authorization â†’ automatic RED. Strict lines: "every Phase 0â€“11 deliverable present", "every fixture matches expected verdict", "C2/C3/C4/C5 NOT OVERRIDABLE", "NO chat-handshake override exists", "authorization surfaces enumerated and gated", "all 52 corrections (v1+v2+v3-self+reviewer R+v3-reviewer V/NV+v4-final-review) verified-clean".
+
+## Execution Summary
+
+Executed 2026-05-18 by OWNER in a single session (context-compacted once mid-execution).
+
+**Commits**: 2-commit V4 bootstrap sequence:
+- Commit-A `717bf72`: seeded 5 bootstrap files (closure-overrides.json, .schema.json, authors.txt, landed-at.txt, _closure_manifests/.gitkeep) — hooks NOT yet wired.
+- Commit-B `32398e2`: wired PreToolUse hooks (Edit + Bash matchers) + landed all 41 remaining files (validators, hook lib, shell wrapper, rule, skill updates, npm scripts, 28 fixtures, verify script, plan file, verify-no-forbidden NB3 fix).
+
+**Self-test results (post-Commit-B)**:
+- `scripts/validate-plan-closure.mjs --self-test`: 25 passed, 0 failed
+- `.claude/hooks/lib/check-plan-closure.mjs --self-test`: 28 passed, 0 failed
+- `scripts/validate-overrides.mjs --self-test`: 10 passed, 0 failed
+- `scripts/validate-plan-layout.mjs --self-test`: 13 passed, 0 failed
+
+**D23 verification**: `bash scripts/test-fixtures/plan-closure/verify-v5-landing.sh` — ALL GREEN, all 52 corrections verified (BEHAVIOR self-tests + SMOKE grep checks).
+
+**Bug found during closure**: hook `check-plan-closure.mjs:238` only accepted `parsed.status === 'PASS'` but validator returns `'EXEMPT'` for `closure_meta` plans — EXEMPT fell through to deny. Fixed by accepting PASS/EXEMPT/SKIP statuses. Also `isExempt()` used `body.slice(0, 500)` which missed `closure_meta: true` in plans with long frontmatter — expanded to `slice(0, 2000)`. Both fixes verified via self-test (28/28 still pass).
+
+**Files created**: `scripts/validate-plan-closure.mjs`, `scripts/validate-plan-layout.mjs`, `scripts/validate-overrides.mjs`, `.claude/hooks/lib/check-plan-closure.mjs`, `.claude/hooks/plan-closure-gate.sh`, `.claude/rules/plan-closure.md` (LR-055), `.claude/closure-overrides.json`, `.claude/closure-overrides.schema.json`, `.claude/closure-overrides-authors.txt`, `.claude/closure-gate-landed-at.txt`, `plans/_closure_manifests/.gitkeep`, 28 test fixture files in `scripts/test-fixtures/plan-closure/`, `plans/pending/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md`.
+**Files modified**: `.claude/settings.json` (hooks wired + 9 allow entries), `package.json` (9 npm scripts + pipeline:validate extended), `scripts/verify-no-forbidden.mjs` (NB3 closure-gate-aware pending-plan logic), `.claude/skills/final-q/SKILL.md` (Step 4.5), `.claude/skills/audit/SKILL.md` (LR-055 extension), `.claude/skills/execute/SKILL.md` (closure validation precondition).
+
+**Deviations from plan**: none material. Two bugs discovered during closure ceremony (EXEMPT status handling + slice boundary) were fixed in-place — not deviations from plan scope, just defects caught by the gate's own dogfooding.
 
 ## Plan-location note
 

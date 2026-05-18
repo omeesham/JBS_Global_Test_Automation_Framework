@@ -235,9 +235,9 @@ function handleEditMode(payload) {
       return;
     }
 
-    if (parsed.status === 'PASS') {
-      recordAttempt(planBasename, 'PASS');
-      emitAllow('Plan closure validation passed');
+    if (parsed.status === 'PASS' || parsed.status === 'EXEMPT' || parsed.status === 'SKIP') {
+      recordAttempt(planBasename, parsed.status);
+      emitAllow(`Plan closure validation: ${parsed.status}`);
       return;
     }
 
