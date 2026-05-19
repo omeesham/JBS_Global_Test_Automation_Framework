@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 81 pending · 302 done · 55 stale (>14d) · 0 DONE-in-pending
+**Totals**: 81 pending · 304 done · 55 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -184,6 +184,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 |---|---|---|---|
 | [SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md](done/SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md) | SUBPLAN: LI Test-Case MD — Phase 0 Lint Sweep | SUPERSEDED | never (folded scope) |
 | [PLAN_55_NAV4_PURGE_AND_BUG001_REVERIFY.md](done/PLAN_55_NAV4_PURGE_AND_BUG001_REVERIFY.md) | PLAN_55: Purge "nav4" Label + Re-verify BUG-LOC-SHR-001 on Actual E2E Env | DONE | 2026-05-19 |
+| [PLAN_UNIFIED_MATSUMOTO_2026_05_19.md](done/PLAN_UNIFIED_MATSUMOTO_2026_05_19.md) | PLAN — Execute `c-users-rutvi-unified-matsumoto.md` + close 6 audit gaps | — | 2026-05-19 |
+| [PLAN_UNIFIED_MATSUMOTO_AUDITED_SOURCE_2026_05_19.md](done/PLAN_UNIFIED_MATSUMOTO_AUDITED_SOURCE_2026_05_19.md) | PLAN — Trim `clients/encore/` to lean shape + clean notes reference (revised post-audit) | — | 2026-05-19 |
 | [SUBPLAN_DQU_V6_PILOT_SSL_B.md](done/SUBPLAN_DQU_V6_PILOT_SSL_B.md) | SUBPLAN_DQU_V6_PILOT_SSL_B — HIST Root-Map Catalog (e2e) | DONE | 2026-05-19 |
 | [SUBPLAN_DQU_V6_PILOT_SSL_A.md](done/SUBPLAN_DQU_V6_PILOT_SSL_A.md) | SUBPLAN_DQU_V6_PILOT_SSL_A — Discovery + Fixme Reverification + BUG-001 Verify | DONE | 2026-05-18 (re-close after remediation — see Execution Summary at end of file) |
 | [PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md](done/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md) | PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT | DONE | 2026-05-18 |
@@ -493,7 +495,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 plans/
   INDEX.md              ← this file (auto-generated)
   pending/              ← active plans (81 files)
-  done/                 ← completed plans (302 files)
+  done/                 ← completed plans (304 files)
 ```
 
 When completing a plan:
@@ -527,6 +529,8 @@ When completing a plan:
 | 2026-05-19 | pending | [SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md](pending/SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md) | PENDING |
 | 2026-05-19 | pending | [SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md](pending/SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md) | PENDING |
 | 2026-05-19 | done | [PLAN_55_NAV4_PURGE_AND_BUG001_REVERIFY.md](done/PLAN_55_NAV4_PURGE_AND_BUG001_REVERIFY.md) | DONE |
+| 2026-05-19 | done | [PLAN_UNIFIED_MATSUMOTO_2026_05_19.md](done/PLAN_UNIFIED_MATSUMOTO_2026_05_19.md) | — |
+| 2026-05-19 | done | [PLAN_UNIFIED_MATSUMOTO_AUDITED_SOURCE_2026_05_19.md](done/PLAN_UNIFIED_MATSUMOTO_AUDITED_SOURCE_2026_05_19.md) | — |
 | 2026-05-19 | done | [SUBPLAN_DQU_V6_PILOT_SSL_A.md](done/SUBPLAN_DQU_V6_PILOT_SSL_A.md) | DONE |
 | 2026-05-19 | done | [SUBPLAN_DQU_V6_PILOT_SSL_B.md](done/SUBPLAN_DQU_V6_PILOT_SSL_B.md) | DONE |
 | 2026-05-18 | pending | [PLAN_CLOSURE_GATE_V6_PARENT.md](pending/PLAN_CLOSURE_GATE_V6_PARENT.md) | PENDING-DRAFT-V6 |
@@ -545,5 +549,3 @@ When completing a plan:
 | 2026-05-15 | pending | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PENDING |
 | 2026-05-15 | pending | [SUBPLAN_DQU_V6_PILOT_SSL_D.md](pending/SUBPLAN_DQU_V6_PILOT_SSL_D.md) | PENDING |
 | 2026-05-15 | done | [PLAN_54_LOCAL_FULL_CHROMIUM_RUN_4W.md](done/PLAN_54_LOCAL_FULL_CHROMIUM_RUN_4W.md) | DONE |
-| 2026-05-15 | done | [PLAN_DQU_COVERAGE_REMEDIATION.md](done/PLAN_DQU_COVERAGE_REMEDIATION.md) | SUPERSEDED |
-| 2026-05-15 | done | [PLAN_DQU_V6_PILOT_NOTES.md](done/PLAN_DQU_V6_PILOT_NOTES.md) | DONE |
