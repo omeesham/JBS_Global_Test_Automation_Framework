@@ -10,10 +10,10 @@
  */
 
 import { test as setup, expect } from '@playwright/test';
-import { LoginPage } from '@client/pages/login.page';
-import { CommonMethods } from '@framework/utils/common-methods';
-import { CredentialLoader } from '@framework/common/credential-loader';
-import { recordCall as recordRetryCall, type AttemptRecord } from '@framework/utils/retry-telemetry';
+import { LoginPage } from '../../src/pages/auth/login.page';
+import { CommonMethods } from '../../src/utils/common-methods';
+import { CredentialLoader } from '../../src/utils/credential-loader';
+import { recordCall as recordRetryCall, type AttemptRecord } from '../../src/utils/retry-telemetry';
 import {
   STATE_PATH,
   acquireLock,

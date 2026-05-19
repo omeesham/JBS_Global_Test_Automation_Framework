@@ -4,12 +4,12 @@
  */
 
 import { Page } from '@playwright/test';
-import { BasePage } from '../common/base-page';
-import { Log } from '@framework/utils/logger';
-import { AppConstants } from '../utils/app-constants';
-import { IConfig } from '@framework/framework-contracts';
-import { MicrosoftLoginSelectors } from '../selectors';
-import type { DiagnosticsCollector } from '@framework/utils/diagnostics-collector';
+import { BasePage } from '../../core/base-page';
+import { Log } from '../../utils/logger';
+import { AppConstants } from '../../core/app-constants';
+import { IConfig } from '../../types';
+import { MicrosoftLoginSelectors } from '../../selectors';
+import type { DiagnosticsCollector } from '../../utils/diagnostics-collector';
 
 export class LoginPage extends BasePage {
   constructor(page: Page, config?: IConfig) {

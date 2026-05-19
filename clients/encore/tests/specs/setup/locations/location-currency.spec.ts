@@ -1,5 +1,5 @@
-// seed: tests/seed.spec.ts
-import { test, expect } from '../../../setup/fixtures';
+// seed: tests/specs/smoke/seed.spec.ts
+import { test, expect } from '../../../infra/fixtures';
 import { CURRENCY_COLUMN_HEADERS, UNSELECTED_CURRENCY_STATES, MERCHANT_DATA, DEFAULT_CURRENCY, ALTERNATE_USD_MERCHANT } from '../../../test-data/setup/locations/location-currency.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 

@@ -3,7 +3,7 @@
 import { expect, Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
-import { AppConstants } from '../../src/utils/app-constants';
+import { AppConstants } from '../../src/core/app-constants';
 
 expect.extend({
  /**

@@ -1,6 +1,6 @@
 import { FullConfig } from '@playwright/test';
-import { Log } from '@framework/utils/logger';
-import { CredentialLoader } from '@framework/common/credential-loader';
+import { Log } from '../../src/utils/logger';
+import { CredentialLoader } from '../../src/utils/credential-loader';
 import * as dotenvFlow from 'dotenv-flow';
 import * as path from 'path';
 import * as fs from 'fs';

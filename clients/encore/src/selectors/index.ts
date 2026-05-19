@@ -1,5 +1,5 @@
 // ==================== IMPORTS ====================
-import { MicrosoftLoginSelectors } from './login';
+import { MicrosoftLoginSelectors } from './auth/login';
 import { SetupLeftPanelSelectors } from './setup/locations/left-panel';
 import { SetupLocalInfoSelectors } from './setup/locations/local-info';
 import { SetupCurrencySelectors } from './setup/locations/currency';
@@ -14,8 +14,8 @@ import { SetupHistorySelectors } from './setup/locations/history';
 import { LocalOfficeSettingsSelectors } from './setup/local-office/local-office-settings';
 
 // ==================== RE-EXPORTS ====================
-export { MicrosoftLoginSelectors } from './login';
-export { DynamicSelectors } from './dynamic';
+export { MicrosoftLoginSelectors } from './auth/login';
+export { DynamicSelectors } from './auth/dynamic';
 export { SetupLeftPanelSelectors } from './setup/locations/left-panel';
 export { SetupLocalInfoSelectors } from './setup/locations/local-info';
 export { SetupCurrencySelectors } from './setup/locations/currency';

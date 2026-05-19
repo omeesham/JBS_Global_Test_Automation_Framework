@@ -1,5 +1,5 @@
-import { BasePage } from '../../../common/base-page';
-import { Log } from '@framework/utils/logger';
+import { BasePage } from '../../../core/base-page';
+import { Log } from '../../../utils/logger';
 import { LocationSettingsSelectors } from '../../../selectors';
 
 /** Checkbox state snapshot */

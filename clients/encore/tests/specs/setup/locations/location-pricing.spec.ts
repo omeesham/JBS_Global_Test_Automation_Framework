@@ -1,11 +1,11 @@
-// seed: tests/seed.spec.ts
+// seed: tests/specs/smoke/seed.spec.ts
 // STATUS (2026-05-08): GET getLocationDetail?localOfficeId=1604 has recovered.
 // 28 of 33 active TCs pass at 1w retries=0 after PRI stabilization fixes.
 // 7 TCs remain hard-skipped per inline justifications (TC-020 + TC-025..030):
 //   * TC-020: dates don't round-trip after save (Encore-side, see test-skip).
 //   * TC-025..030: POST update-location-pricing returns 500 (Encore-side, see TC-026 SKIP RCA block below).
 // Re-running spec at 2w may surface env-saturation flakes; document if observed.
-import { test, expect } from '../../../setup/fixtures';
+import { test, expect } from '../../../infra/fixtures';
 import {
   PRICING_COLUMN_HEADERS,
   PRIMARY_PRICING_DROPDOWNS,

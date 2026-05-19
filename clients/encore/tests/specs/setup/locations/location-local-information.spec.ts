@@ -1,6 +1,6 @@
-// seed: tests/seed.spec.ts
+// seed: tests/specs/smoke/seed.spec.ts
 
-import { test, expect } from '../../../setup/fixtures';
+import { test, expect } from '../../../infra/fixtures';
 import {
   CHECKED_DEFAULTS,
   UNCHECKED_DEFAULTS,

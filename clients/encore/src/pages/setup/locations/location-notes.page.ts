@@ -1,7 +1,7 @@
 import { Page, expect } from '@playwright/test';
-import { BasePage } from '../../../common/base-page';
-import { Log } from '@framework/utils/logger';
-import { IConfig } from '@framework/framework-contracts';
+import { BasePage } from '../../../core/base-page';
+import { Log } from '../../../utils/logger';
+import { IConfig } from '../../../types';
 
 export class LocationNotesPage extends BasePage {
   constructor(page: Page, config?: IConfig) {

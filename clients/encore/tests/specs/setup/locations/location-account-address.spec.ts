@@ -1,5 +1,5 @@
-// seed: tests/seed.spec.ts
-import { test, expect } from '../../../setup/fixtures';
+// seed: tests/specs/smoke/seed.spec.ts
+import { test, expect } from '../../../infra/fixtures';
 import {
   VENUE_NAME, PHONE1_BASELINE, ACCOUNT_SEARCH, ADDRESS_SEARCH,
   TEST_PHONE2_VALUE, ACCOUNT_TEST_PHONE, VENUE_DISPLAY_FIELDS, MASTER_DISPLAY_FIELDS,

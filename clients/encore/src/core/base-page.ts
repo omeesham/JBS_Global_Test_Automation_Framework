@@ -1,8 +1,8 @@
 import { Page, Locator } from '@playwright/test';
-import { Log } from '@framework/utils/logger';
-import { recordCall as recordRetryCall, type AttemptRecord } from '@framework/utils/retry-telemetry';
+import { Log } from '../utils/logger';
+import { recordCall as recordRetryCall, type AttemptRecord } from '../utils/retry-telemetry';
 import { getTsSelector } from '../selectors';
-import { IConfig } from '@framework/framework-contracts';
+import { IConfig } from '../types';
 import { CheckboxState } from '../pages/setup/locations/location-form-helpers.page';
 
 export class BasePage {

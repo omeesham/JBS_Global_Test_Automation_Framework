@@ -1,5 +1,5 @@
-// seed: tests/seed.spec.ts
-import { test, expect } from '../../../setup/fixtures';
+// seed: tests/specs/smoke/seed.spec.ts
+import { test, expect } from '../../../infra/fixtures';
 import {
   LEGAL_COLUMN_HEADERS,
   LEGAL_DEFAULTS,

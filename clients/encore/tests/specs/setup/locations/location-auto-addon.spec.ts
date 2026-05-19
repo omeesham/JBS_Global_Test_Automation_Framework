@@ -1,5 +1,5 @@
-// seed: tests/seed.spec.ts
-import { test, expect } from '../../../setup/fixtures';
+// seed: tests/specs/smoke/seed.spec.ts
+import { test, expect } from '../../../infra/fixtures';
 import { AUTO_ADDON_DEFAULTS, UNCHECK_PERSISTENCE_CASES } from '../../../test-data/setup/locations/location-auto-addon.data';
 import { OFFICE_NO, SAVE_CHANGES_DIALOG, UNSAVED_CHANGES_DIALOG } from '../../../test-data/common.data';
 

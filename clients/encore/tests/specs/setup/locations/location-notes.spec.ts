@@ -1,5 +1,5 @@
-// seed: tests/seed.spec.ts
-import { test, expect } from '../../../setup/fixtures';
+// seed: tests/specs/smoke/seed.spec.ts
+import { test, expect } from '../../../infra/fixtures';
 import {
   NOTE_TEXT_SHORT, NOTE_ROW1, NOTE_ROW2,
   NOTE_HELLO, NOTE_WORLD, NOTE_END,

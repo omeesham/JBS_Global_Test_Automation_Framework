@@ -1,8 +1,8 @@
 ﻿import { Page } from '@playwright/test';
 import { LocationTestOrchestrators } from './location-test-orchestrators.page';
 import { CheckboxState, SpinState } from './location-form-helpers.page';
-import { Log } from '@framework/utils/logger';
-import { IConfig } from '@framework/framework-contracts';
+import { Log } from '../../../utils/logger';
+import { IConfig } from '../../../types';
 
 // Re-export for backward compatibility
 export type { CheckboxState, SpinState };

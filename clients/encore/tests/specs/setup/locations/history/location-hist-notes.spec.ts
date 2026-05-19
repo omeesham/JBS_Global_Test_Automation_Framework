@@ -29,12 +29,12 @@
 //     content+placeholder forms; content-anchored lookup is agnostic to which fired.
 //
 // Cleanup contract:
-//   `locationNotesPage` is a test-scoped fixture (per `tests/setup/fixtures.ts`), so
+//   `locationNotesPage` is a test-scoped fixture (per `tests/infra/fixtures.ts`), so
 //   `test.afterAll` cannot use it directly. The end-state cleanup is instead wrapped
 //   in `try/finally` inside the last test (TC-032) — this runs even if the assertion
 //   throws, giving the same robustness contract as `afterAll` for this fixture model.
 
-import { test, expect } from '../../../../setup/fixtures';
+import { test, expect } from '../../../../infra/fixtures';
 import { OFFICE_NO } from '../../../../test-data/common.data';
 
 /** Format today as MM/DD/YYYY with leading-zero preservation (catalog rule). */

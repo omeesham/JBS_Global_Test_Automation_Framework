@@ -1,5 +1,5 @@
-// seed: tests/seed.spec.ts
-import { test, expect } from '../../../setup/fixtures';
+// seed: tests/specs/smoke/seed.spec.ts
+import { test, expect } from '../../../infra/fixtures';
 import { HISTORY_COMBOBOX } from '../../../test-data/setup/local-office/local-office-history.data';
 import { OFFICE_NO } from '../../../test-data/common.data';
 

@@ -13,7 +13,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as lockfile from 'proper-lockfile';
 import { Page, BrowserContext } from '@playwright/test';
-import { recordCall as recordRetryCall, type AttemptRecord } from '@framework/utils/retry-telemetry';
+import { recordCall as recordRetryCall, type AttemptRecord } from '../../src/utils/retry-telemetry';
 
 export const AUTH_DIR = path.resolve(process.cwd(), '.auth');
 export const STATE_PATH = path.join(AUTH_DIR, 'encore-state.json');

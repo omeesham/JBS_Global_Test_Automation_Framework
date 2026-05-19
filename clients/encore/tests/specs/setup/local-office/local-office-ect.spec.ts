@@ -1,5 +1,5 @@
-// seed: tests/seed.spec.ts
-import { test, expect } from '../../../setup/fixtures';
+// seed: tests/specs/smoke/seed.spec.ts
+import { test, expect } from '../../../infra/fixtures';
 import { ECT_FIXED_COST_FIELDS } from '../../../test-data/setup/local-office/local-office-settings.data';
 import {
   ECT_PAGE,

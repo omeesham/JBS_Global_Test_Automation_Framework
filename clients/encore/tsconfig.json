@@ -6,11 +6,6 @@
     "moduleResolution": "node",
 
     "baseUrl": "./",
-    "paths": {
-      "@client/*": ["./src/*"],
-      "@framework/*": ["./dist/framework/*"],
-      "@client-tests/*": ["./tests/*"]
-    },
 
     "outDir": "./.build",
     "rootDir": "./",
@@ -47,9 +42,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "tests/**/*.ts",
-    "api-testing/**/*.ts",
-    "dist/framework/**/*.d.ts"
+    "tests/**/*.ts"
   ],
   "exclude": [
     "node_modules",

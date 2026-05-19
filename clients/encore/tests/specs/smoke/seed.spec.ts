@@ -4,7 +4,7 @@
  */
 // spec: Auth smoke test for test runner
 // seed: true -- run this to verify SSO login works before other specs
-import { test, expect } from './setup/fixtures';
+import { test, expect } from '../../infra/fixtures';
 
 test.describe('Seed: Auth Smoke Test @seed', () => {
   test.describe.configure({ timeout: 120_000 });
