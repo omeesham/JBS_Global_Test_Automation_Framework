@@ -97,7 +97,7 @@ export const SHARED_PATHS = Object.freeze({
   selectors:        clientPath(path.join('src', 'selectors')),
   fixtures:         clientPath(path.join('tests', 'setup', 'fixtures.ts')),
   testData:         clientPath(path.join('tests', 'test-data')),
-  exports:          clientPath('exports'),
+  exports:          clientPath('test_cases_csv'),
   envDir:           clientPath(path.join('config', 'environments')),
 
   // Framework-shared (not per-client)

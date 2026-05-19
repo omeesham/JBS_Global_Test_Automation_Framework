@@ -27,13 +27,7 @@ Credentials for Encore ship in `clients/encore/config/environments/.env.e2e`. No
 
 ## Running tests
 
-`npm test` from repo root delegates to `clients/encore` (post-2026-05-07 client-architecture restructure). The client's playwright config requires the vendored framework build at `dist/framework/`. After each `git pull` that touches `src/`, run once:
-
-```bash
-npm run vendor:build:all
-```
-
-Then `npm test` works as expected.
+`npm test` from repo root delegates to `clients/encore` (post-2026-05-07 client-architecture restructure). The client is self-contained at `clients/encore/src/` — Playwright loads sources directly (built-in TypeScript support), no pre-build step.
 
 ---
 

@@ -1,17 +1,17 @@
-# Bundle Manifest — Path A (vendored framework + git-archive ship)
+# Bundle Manifest — git-archive ship
 
-**Generated**: 2026-04-30 (post-PLAN_CLIENT_DELIVERABLE_REBUILD)
+**Generated**: 2026-05-19 (post-PLAN_DIST_REGRESSION_AND_N_FIXES — vendoring removed; clients/<id>/src/ ships directly)
 
 The deliverable for any client is `git archive HEAD clients/<client>/` — full stop. There is no curation, no per-file include/exclude decision at ship time. The manifest is the per-client `.gitignore`.
 
 ## What ships
 
 - Everything tracked in `clients/<client>/`. Verifiable via `git ls-files clients/<client>/`.
-- This includes `dist/framework/` (vendored compiled framework, ~1.3 MB).
+- The client is self-contained: `clients/<client>/src/{core,pages,selectors,types,utils}/`, `tests/`, `config/`, `playwright.config.ts`, etc. No pre-built artifacts.
 
 ## What does not ship
 
-- Anything matching the per-client `.gitignore` patterns (CLAUDE.md, specs_planning/, readable_externals/, docs/read_only_docs/, exports/, .auth/, .env.*.local, .env.server).
+- Anything matching the per-client `.gitignore` patterns (CLAUDE.md, specs_planning/, readable_externals/, docs/read_only_docs/, .auth/, .env.*.local, .env.server).
 - The entire `pipeline/` directory at repo root (never reachable from `clients/<client>/`).
 - Anything else outside `clients/<client>/` (root tsconfig.json, root playwright.config*.ts, root scripts/, etc. — irrelevant to client).
 
@@ -19,13 +19,14 @@ The deliverable for any client is `git archive HEAD clients/<client>/` — full 
 
 - `npm run client:ship -- --client=<id> --out=<path>`
 - Wraps `git archive HEAD clients/<id>/ | tar -x -C <path> --strip-components=2`.
-- Pre-flight: vendor-fresh check + deny-list grep.
+- Pre-flight: deny-list grep (vendor-fresh check is vestigial post-2026-05-19 — meta-absent path always taken).
 - Post-flight: deny-list grep + `npx playwright test --list` smoke.
 
 ## New client onboarding
 
-- `cp -r clients/encore clients/<new>` then update `package.json`'s `name` field, regenerate vendor (`npm run vendor:build -- --client=<new>`).
+- `cp -r clients/encore clients/<new>` then update `package.json`'s `name` field.
 - Follow the per-client `.gitignore` template at `clients/encore/.gitignore`.
+- The client is self-contained — no separate vendor build required.
 
 ## Layer model (3-layer defense)
 

@@ -94,7 +94,7 @@ Before Phase 1's e2e walk, visit nav2 baseline first and emit `clients/encore/sp
 2. Diff Phase 1 artifact against `locations_auto_addon_test_cases.md`.
 3. Apply fixes with `**MCP_VERIFICATION_LOG**: auto-addon-<date>.md §<section> "<field>" — <evidence>` citations.
 4. File `BUG-AAO-NNN.json` per LR-034.
-5. Re-export CSV: `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/locations/locations_auto_addon_test_cases.md clients/encore/exports/locations_auto_addon_test_cases.csv`. Verify Tags column.
+5. Re-export CSV: `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/locations/locations_auto_addon_test_cases.md clients/encore/test_cases_csv/locations_auto_addon_test_cases.csv`. Verify Tags column.
 6. Regression fingerprint via `/regression-guard`.
 
 ## Acceptance criteria (LR-040 closure gate)

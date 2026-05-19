@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_DIST_REGRESSION_AND_N_FIXES.md",
+  "plan_basename": "PLAN_DIST_REGRESSION_AND_N_FIXES.md",
+  "plan_sha256": "e53a9cfea615aae9c41362eea4f287bcb164c83de19240894c86ef6dd1f4e969",
+  "passed_at": "2026-05-19T12:46:52.961Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "68a42be0980f4bc400e6f2ce100fd4e27fbb2718f0fecd3628a6656a46323b8a",
+  "validator_invocation_id": "1779194812960-fabc5046ec03d1ae1b8e962aae9b5f9c-e53a9cfea615aae9",
+  "artifacts": [],
+  "provisional": false
+}

@@ -725,7 +725,7 @@ if (require.main === module) {
   
   // Derive output filename from input: locations_currency_test_cases.md -> locations_currency_test_cases.csv
   const inputBasename = path.basename(inputPath, '.md');
-  const defaultOutput = `./clients/encore/exports/${inputBasename}.csv`;
+  const defaultOutput = `./clients/encore/test_cases_csv/${inputBasename}.csv`;
   const outputPath = positionalArgs[1] || defaultOutput;
   
   console.log(`Export type: ${exportType}`);

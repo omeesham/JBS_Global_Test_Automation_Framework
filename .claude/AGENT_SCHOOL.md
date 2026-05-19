@@ -6,7 +6,7 @@
 
 ## What This Project Builds
 
-Encore Framework is a Playwright TypeScript test automation system with a 5-stage AI pipeline (requirements, planning, generation, healing, audit) backed by a Fastify server, PostgreSQL, and a local worker. It generates, runs, and self-heals E2E tests for Navigator4, a Microsoft SSO enterprise web application.
+Encore Framework is a Playwright TypeScript test automation system with a 5-stage AI pipeline (requirements, planning, generation, healing, audit) backed by a Fastify server, PostgreSQL, and a local worker. It generates, runs, and self-heals E2E tests for Navigator Cloud (`cloudapps-e2e.encoreglobal.com`), a Microsoft SSO enterprise web application.
 
 IntelliQE (website/) is a React+Express QA platform built by a colleague. It provides the chat-based UI, JIRA integration, test case generation via keyword-matching templates, and all frontend chrome. The two systems merge into one monorepo: IntelliQE drives the UI, Encore drives the automation pipeline behind "Generate Automation Scripts."
 

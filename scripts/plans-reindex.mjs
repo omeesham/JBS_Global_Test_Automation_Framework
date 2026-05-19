@@ -568,13 +568,21 @@ function buildPendingSection(pending, done) {
   const lookup = buildPlanLookup(pending, done);
   const { roots, children } = groupSubplans(pending);
 
-  // Roots with pending children = parent containers (not directly executable)
+  // Any plan (root OR subplan) that itself has pending children = orchestration
+  // shell, not directly executable. Previous logic only filtered root parents,
+  // leaking 2nd-level orchestration shells (e.g., a subplan-of-a-plan that has
+  // its own grandchildren subplans) into the execution queue.
   const parentRoots = roots.filter((r) => children.has(r.file));
   const executableRoots = roots.filter((r) => !children.has(r.file));
 
-  // Candidate executable plans = childless roots + all subplans
+  // Candidate executable plans = childless roots + leaf subplans (i.e., subplans
+  // that themselves have no pending children). Subplans-with-children are
+  // orchestration shells and appear in the Parent Plans section instead.
   const allSubplans = [...children.values()].flat();
-  const candidates = [...executableRoots, ...allSubplans];
+  const parentSubplans = allSubplans.filter((p) => children.has(p.file));
+  const leafSubplans = allSubplans.filter((p) => !children.has(p.file));
+  const candidates = [...executableRoots, ...leafSubplans];
+  const parentContainers = [...parentRoots, ...parentSubplans];
 
   // Pre-compute per-parent priority map across CANDIDATES (executable plans only)
   // so a P0 plan's parent group surfaces above a P2 plan's parent group within
@@ -628,8 +636,9 @@ function buildPendingSection(pending, done) {
       renderTable(['File', 'Title', 'Blocked by'], cycleRows);
   }
 
-  // Parent Plans section — unchanged semantics.
-  const parentRows = parentRoots.map((p) => [
+  // Parent Plans section — includes ROOT parents AND subplan-parents (any plan
+  // with pending children, regardless of whether it's a root or itself a child).
+  const parentRows = parentContainers.map((p) => [
     `[${p.file}](pending/${p.file})`,
     p.title,
     fmtPriority(p.priority),

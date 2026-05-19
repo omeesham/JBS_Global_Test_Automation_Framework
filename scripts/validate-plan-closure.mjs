@@ -45,8 +45,10 @@ function cleanValue(raw) {
 }
 
 function parseField(header, label) {
+  // (?:>\s*)? — accept optional blockquote prefix (e.g. "> **Status**: DONE").
+  // Added 2026-05-19 by PLAN_DIST_REGRESSION_AND_N_FIXES (N4) to close LR-055 bypass gap.
   const re = new RegExp(
-    `(?:^|\\n)\\s*(?:\\*\\*)?${label}(?:\\*\\*)?\\s*:\\s*([^\\n]+)`,
+    `(?:^|\\n)\\s*(?:>\\s*)?(?:\\*\\*)?${label}(?:\\*\\*)?\\s*:\\s*([^\\n]+)`,
     'i',
   );
   const m = header.match(re);

@@ -1,0 +1,524 @@
+- main [ref=e3]:
+  - generic [ref=e14]:
+    - navigation [ref=e16]:
+      - img "logo" [ref=e19] [cursor=pointer]
+      - generic "Pendo" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - img "TEST environment" [ref=e363]
+      - generic [ref=e24] [cursor=pointer]: 
+      - generic [ref=e26]:
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - button "" [ref=e29] [cursor=pointer]:
+              - generic [ref=e30]: 
+          - listitem [ref=e31]:
+            - button "Save" [disabled]
+          - listitem [ref=e32]:
+            - button "Print" [ref=e33] [cursor=pointer]
+        - list [ref=e34]:
+          - listitem [ref=e35]:
+            - generic [ref=e36] [cursor=pointer]: Basic Information
+          - listitem [ref=e37]:
+            - generic [ref=e38] [cursor=pointer]: Location Management History
+    - generic [ref=e39]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e45]: Office
+            - textbox [disabled] [ref=e47]: "1604"
+          - generic [ref=e48]:
+            - generic [ref=e50]: Local Office
+            - textbox [disabled] [ref=e52]: "1604"
+          - generic [ref=e54]:
+            - generic [ref=e56]: Local Office Name
+            - textbox [ref=e58]: The Parker Palm Springs
+          - generic [ref=e60]:
+            - generic [ref=e63] [cursor=pointer]:
+              - checkbox "Active" [checked] [ref=e64]
+              - text: Active
+            - generic [ref=e65]:
+              - generic [ref=e66]: Live Date
+              - textbox [ref=e67]: 05/12/2007
+          - generic [ref=e68]:
+            - generic [ref=e70]: Tax Mode
+            - combobox [ref=e72]:
+              - option
+              - option [selected]
+          - generic [ref=e74]:
+            - generic [ref=e76]: GL Service Divisions
+            - combobox [ref=e78]:
+              - option
+              - option
+              - option [selected]
+              - option
+              - option
+              - option
+              - option
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - generic [ref=e83]: Country
+            - combobox [ref=e85]:
+              - option
+              - option
+              - option
+              - option [selected]
+          - generic [ref=e86]:
+            - generic [ref=e88]: Region
+            - combobox [ref=e90]:
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option [selected]
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+          - generic [ref=e91]:
+            - generic [ref=e93]: Servicing Branch Office
+            - combobox [ref=e95]:
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+          - generic [ref=e96]:
+            - generic [ref=e98]: Line Of Business
+            - combobox [disabled] [ref=e100]:
+              - option
+              - option
+              - option
+              - option [selected]
+          - generic [ref=e102]:
+            - generic [ref=e106] [cursor=pointer]: Pay To Address
+            - textbox [disabled] [ref=e108]: Encore
+          - generic [ref=e110]:
+            - generic [ref=e113] [cursor=pointer]:
+              - checkbox "Union" [ref=e114]
+              - text: Union
+            - generic [ref=e115]:
+              - generic [ref=e117] [cursor=pointer]:
+                - checkbox "eCommerce Active" [checked] [disabled] [ref=e118]
+                - text: eCommerce Active
+              - generic [ref=e120] [cursor=pointer]:
+                - checkbox "Enable Productions Orders" [checked] [disabled] [ref=e121]
+                - text: Enable Productions Orders
+      - generic [ref=e124]:
+        - tablist "Tabs" [ref=e125]:
+          - listitem [ref=e126]:
+            - tab "Local Information" [ref=e364] [cursor=pointer]
+          - listitem [ref=e129]:
+            - tab "Currency" [ref=e365] [cursor=pointer]
+          - listitem [ref=e132]:
+            - tab "Pricing" [ref=e133] [cursor=pointer]
+          - listitem [ref=e134]:
+            - tab "Account And Address" [ref=e366] [cursor=pointer]
+          - listitem [ref=e137]:
+            - tab "Legal" [ref=e138] [cursor=pointer]
+          - listitem [ref=e139]:
+            - tab "Notes" [ref=e140] [cursor=pointer]
+          - listitem [ref=e141]:
+            - tab "Shared Setup Locations" [active] [selected] [ref=e142]
+          - listitem [ref=e367]:
+            - tab "Auto Add-On" [ref=e368] [cursor=pointer]
+        - tabpanel [ref=e369]:
+          - generic [ref=e372]:
+            - heading "Shared Setup Locations" [level=3] [ref=e374]
+            - grid [ref=e379]:
+              - generic [ref=e382]:
+                - columnheader "Local Office" [ref=e383]:
+                  - generic [ref=e384]: Local Office
+                  - separator [ref=e385]
+                - columnheader "Local Office Name" [ref=e386]:
+                  - generic [ref=e387]: Local Office Name
+                  - separator [ref=e388]
+                - columnheader "Primary Office" [ref=e389]:
+                  - generic [ref=e390]: Primary Office
+                  - separator [ref=e391]
+                - columnheader "Shares Inventory" [ref=e392]:
+                  - generic [ref=e393]: Shares Inventory
+                  - separator [ref=e394]
+              - generic [ref=e397]:
+                - row "1604 The Parker Palm Springs" [ref=e398]:
+                  - gridcell "1604" [ref=e399]
+                  - gridcell [ref=e400]:
+                    - checkbox [disabled] [ref=e401]
+                  - gridcell [ref=e402]:
+                    - checkbox [checked] [disabled] [ref=e403]
+                  - gridcell "The Parker Palm Springs" [ref=e404]
+                - row [ref=e410]:
+                  - gridcell [ref=e411]
+                  - gridcell [ref=e412]
+                  - gridcell [ref=e413]
+                  - gridcell [ref=e414]

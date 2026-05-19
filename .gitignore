@@ -13,6 +13,10 @@ pnpm-lock.yaml
 .build/
 /dist/
 /dist-pipeline/
+# Per-client build artifacts (parallel to /dist/ and /dist-pipeline/).
+# Post-2026-05-19: clients don't ship pre-built artifacts — `src/` lives inside
+# clients/<id>/ and Playwright loads .ts reporters directly.
+clients/*/dist/
 client-delivery/
 *.tsbuildinfo
 *.js.map
@@ -184,7 +188,6 @@ clients/*/docs/read_only_docs/
 clients/*/docs/REQUIREMENTS.md
 clients/*/docs/MODULE_REGISTRY.md
 clients/*/api-testing/REQUIREMENTS_API.md
-clients/*/exports/
 clients/*/.auth/
 
 # Per-client private skills (mirror of specs_planning/_internal/daily-status-bank.json)

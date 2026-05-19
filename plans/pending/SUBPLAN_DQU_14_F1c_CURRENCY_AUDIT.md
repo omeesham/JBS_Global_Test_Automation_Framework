@@ -95,7 +95,7 @@ Before Phase 1's e2e walk, visit nav2 baseline first and emit `clients/encore/sp
 2. Diff Phase 1 artifact against `clients/encore/specs_planning/test-cases/setup/locations/locations_currency_test_cases.md`.
 3. For each diff: apply fix with `**MCP_VERIFICATION_LOG**: currency-<date>.md §<section> "<field>" — <evidence>` citation.
 4. File `BUG-CUR-NNN.json` per LR-034 for any APP-layer defect.
-5. Re-export CSV: `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/locations/locations_currency_test_cases.md clients/encore/exports/locations_currency_test_cases.csv`. Verify Tags column.
+5. Re-export CSV: `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/locations/locations_currency_test_cases.md clients/encore/test_cases_csv/locations_currency_test_cases.csv`. Verify Tags column.
 6. Regression fingerprint via `/regression-guard`.
 
 ## Acceptance criteria (LR-040 closure gate)

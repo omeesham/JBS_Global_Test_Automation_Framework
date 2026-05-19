@@ -204,7 +204,7 @@ npx playwright test --grep "TC-ID" --project=chrome --headed --repeat-each=3
 
 ## Phase 5: Live Browser Replication (Category-Dependent)
 
-**Browser tool selection**: before opening any live app, pick Playwright CLI vs Claude in Chrome per **LR-038 v2**. For RCA on auth-heavy apps (Navigator4 SSO) where the user is at the machine, Claude in Chrome is usually right (live session inherits SSO, pixel-aware for visual assertions). For unattended/headless RCA or when token budget is tight, CLI is right.
+**Browser tool selection**: before opening any live app, pick Playwright CLI vs Claude in Chrome per **LR-038 v2**. For RCA on auth-heavy apps (Navigator Cloud SSO) where the user is at the machine, Claude in Chrome is usually right (live session inherits SSO, pixel-aware for visual assertions). For unattended/headless RCA or when token budget is tight, CLI is right.
 
 | Failure Category | Live browser required? | When |
 |-----------------|------------------------|------|

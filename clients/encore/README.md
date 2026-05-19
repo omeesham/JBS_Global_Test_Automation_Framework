@@ -88,6 +88,10 @@ npm run report            # opens the Playwright HTML report
 npm run allure:report     # generates + opens Allure in the browser
 ```
 
+### When a test fails
+
+Run `npm run share-for-debugging` after the suite (it's also run automatically in CI). The script writes `reports/share-for-debugging-<timestamp>.zip` containing the diagnostic JSON, traces, screenshots, videos, and logs. Send that one file to the QA automation team — that's all they need.
+
 ---
 
 ## CI/CD integration

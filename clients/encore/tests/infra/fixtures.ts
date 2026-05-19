@@ -224,16 +224,15 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
       Log.info('[fixture] EXP_FORCE_STALE_FIRST=1 -- forcing stale path for mid-run sim');
     }
 
-    // Pre-test guard — validateState in a throwaway probe context so the worker's
-    // primary `page` URL is never mutated by the auth-storage helper's `page.goto(baseUrl)`
-    // side-effect. Mirrors the probe pattern at refreshSharedState (lines 176-181).
-    const guardProbe = await browser.newContext(
-      fs.existsSync(STATE_PATH) ? { storageState: STATE_PATH } : undefined,
-    );
-    const guardProbePage = await guardProbe.newPage();
-    const guardStale = !(await validateState(guardProbePage, config.base_url));
-    await guardProbe.close();
-    if (forceStaleFirst || guardStale) {
+    // Pre-test guard — validateState in a throwaway probe context. The fresh-context
+    // browser render check (heading visibility) is unreliable for this app because
+    // Playwright's storageState does not capture sessionStorage / in-memory MSAL state,
+    // so cookie-only restoration leaves the SPA in a skeleton-loading state in a context
+    // that did not go through SSO. We rely on auth.setup's file-based validation; here
+    // we only force a refresh when the EXP_FORCE_STALE_FIRST hook is set or the state
+    // file is missing entirely.
+    const stateMissing = !fs.existsSync(STATE_PATH);
+    if (forceStaleFirst || stateMissing) {
       await context.close();
       await refreshSharedState();
       ({ ctx: context, pg: page } = await newSharedContext());

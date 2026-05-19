@@ -146,7 +146,7 @@
 **Auth flow for Playwright CLI walks (outside fixture — interactive)**:
 1. Launch: `npx playwright open --load-storage=clients/encore/.auth/encore-state.json --save-storage=clients/encore/.auth/encore-state.json --save-trace=test-results/walk-trace-<site>-<date>.zip <URL>`
 2. If page lands on the app → continue probes.
-3. If page redirects to `login.microsoftonline.com` → state is stale. Run one-shot refresh script (Node-only, ~10 lines) that imports `@client/pages/login.page` and calls `lp.loginWithMicrosoft(process.env.NAVIGATOR_USERNAME!, process.env.NAVIGATOR_PASSWORD!)` against the target base URL; state auto-persists via `--save-storage`.
+3. If page redirects to `login.microsoftonline.com` → state is stale. Run one-shot refresh script (Node-only, ~10 lines) that imports `clients/encore/src/pages/auth/login.page` and calls `lp.loginWithMicrosoft(process.env.NAVIGATOR_USERNAME!, process.env.NAVIGATOR_PASSWORD!)` against the target base URL; state auto-persists via `--save-storage`.
 4. No MFA prompt expected (automation user has no second factor). If a 2FA challenge appears at runtime, HALT and surface to user — provisioning may have changed.
 5. Log `[BROWSER-SWITCH] reason=auth-state-stale-refresh artifact=clients/encore/.auth/encore-state.json` per LR-028 if step 3 fired.
 
@@ -350,7 +350,7 @@ npx playwright open --load-storage=clients/encore/.auth/encore-state.json --save
 **Auth (no MFA dance — automation user)**:
 - Credentials in `clients/encore/config/environments/.env.e2e:42-43` — `s-prd-clickauto@psav.com` has no second-factor authentication per CLAUDE.md provisioning checklist.
 - If launch above lands on the app → continue probes.
-- If redirected to `login.microsoftonline.com` → state stale. Run one-shot Node refresh script: import `@client/pages/login.page` + call `lp.loginWithMicrosoft(process.env.NAVIGATOR_USERNAME!, process.env.NAVIGATOR_PASSWORD!)` against `https://navigator2.training.psav.com/`; state auto-persists. Re-launch the command above.
+- If redirected to `login.microsoftonline.com` → state stale. Run one-shot Node refresh script: import `clients/encore/src/pages/auth/login.page` + call `lp.loginWithMicrosoft(process.env.NAVIGATOR_USERNAME!, process.env.NAVIGATOR_PASSWORD!)` against `https://navigator2.training.psav.com/`; state auto-persists. Re-launch the command above.
 - If a 2FA challenge appears at runtime → HALT, surface to user (provisioning regressed; CLAUDE.md provisioning checklist step 2 violated).
 - Log `[BROWSER-SWITCH] reason=auth-state-stale-refresh artifact=clients/encore/.auth/encore-state.json` per LR-028 if refresh ran.
 

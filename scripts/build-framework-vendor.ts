@@ -1,5 +1,10 @@
 #!/usr/bin/env ts-node
 /**
+ * DEPRECATED 2026-05-19 — vendoring removed in PLAN_DIST_REGRESSION_AND_N_FIXES.
+ * Clients now ship clients/<id>/src/ directly via git archive — no compiled output.
+ * Output dir clients/<id>/dist/ is gitignored (.gitignore: clients/*/dist/).
+ * Cleanup tracked by PLAN_ROOT_CLIENT_DEDUPE.md. Do not invoke; do not extend.
+ *
  * scripts/build-framework-vendor.ts
  *
  * Vendor-build the framework (src/) into clients/<id>/dist/framework/.

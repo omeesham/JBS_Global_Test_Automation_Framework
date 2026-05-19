@@ -48,7 +48,7 @@
       },
       "browserTool": "cli",
       "cliConfig": {
-        "sessionName": "nav4"
+        "sessionName": "e2e"
       },
       "approvalMode": "auto",
       "preRunGate": "requirements-pre-run.ts",
@@ -72,7 +72,7 @@
       },
       "browserTool": "cli",
       "cliConfig": {
-        "sessionName": "nav4"
+        "sessionName": "e2e"
       },
       "approvalMode": "auto",
       "preRunGate": "planner-pre-run.ts",
@@ -110,7 +110,7 @@
       },
       "browserTool": "cli",
       "cliConfig": {
-        "sessionName": "nav4"
+        "sessionName": "e2e"
       },
       "approvalMode": "auto",
       "preRunGate": "generator-pre-run.ts",
@@ -134,7 +134,7 @@
       "next": {},
       "browserTool": "both",
       "cliConfig": {
-        "sessionName": "nav4"
+        "sessionName": "e2e"
       },
       "approvalMode": "auto",
       "preRunGate": "healer-pre-run.ts",
@@ -159,7 +159,7 @@
       },
       "browserTool": "cli",
       "cliConfig": {
-        "sessionName": "nav4"
+        "sessionName": "e2e"
       },
       "approvalMode": "auto",
       "preRunGate": "audit-pre-run.ts",

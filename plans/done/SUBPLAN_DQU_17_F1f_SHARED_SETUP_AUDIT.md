@@ -1,6 +1,20 @@
 # SUBPLAN: Neutral-Eye Audit + Fix — Shared Setup Locations
 
-**Status**: Pending
+**Status**: SUPERSEDED-2026-05-11
+**Superseded-by**: PLAN_PILOT_SHARED_DISCOVERY.md
+**Executed**: 2026-05-11
+
+### Execution Summary (2026-05-11 supersession)
+
+SUPERSEDED-2026-05-11 by `PLAN_PILOT_SHARED_DISCOVERY.md` (vertical-pilot derivative). Merges this plan's 2-phase DQU audit (largest RT gap among 9 modules, 6%→>50% target) with `SUBPLAN_HIST_PIVOT_15_B_LM_7_SHARED_SETUP_CATALOG.md` (HIST catalog with save-level probe) into one Opus/max session — single nav2 baseline + single auth + single live-DOM walk emits HIST catalog AND DQU baseline AND DQU field-inventory before HEALER Phase 2.
+
+- **TCs implemented**: 0.
+- **MCP verification**: not performed.
+- **Documentation changes**: none — body preserved per `feedback_dont_destroy_user_data.md`.
+- **Test pass confirmation**: n/a.
+- **Provenance preserved**: originally created 2026-04-22, marked SUPERSEDED 2026-04-25 by SP-AAE-06, revived 2026-04-28. The 2026-05-11 supersession is the second one — same consolidation rationale, different mechanism (vertical-pilot, not parallel-chain).
+
+(Original plan body follows below.)
 **Priority**: P0-CYCLE-1
 **Created**: 2026-04-22
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md

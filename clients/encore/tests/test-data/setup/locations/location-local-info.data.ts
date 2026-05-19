@@ -29,7 +29,7 @@ export const CHECKED_DEFAULTS: SelectorKey[] = [
   'chkEnableDiscountReason',
   'chkEnableProposal',
   'chkEnableJobCosting',
-  'chkServiceCharge',   // enabled+checked on Navigator Cloud (was disabled+unchecked on Navigator4)
+  'chkServiceCharge',   // enabled+checked on Navigator Cloud (was disabled+unchecked on legacy navigator2.training.psav.com baseline)
 ];
 
 /** Checkboxes expected UNCHECKED by default */

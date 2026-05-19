@@ -30,7 +30,6 @@ const DENY_GLOBS = [
   /\/docs\/REQUIREMENTS\.md$/,
   /\/docs\/MODULE_REGISTRY\.md$/,
   /\/api-testing\/REQUIREMENTS_API\.md$/,
-  /\/exports\//,
   /\/\.auth\//,
   /^\.git\//,
   /^\.github\//,
@@ -143,7 +142,6 @@ const GITIGNORE_LEAK_MARKERS = [
   /specs_planning/,
   /readable_externals/,
   /read_only_docs/,
-  /\bexports\//,
 ];
 
 function arg(name) {

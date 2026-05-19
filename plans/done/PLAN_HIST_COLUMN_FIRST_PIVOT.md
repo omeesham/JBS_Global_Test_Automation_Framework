@@ -1,28 +1,11 @@
 # MASTER PLAN — HIST Column-First Pivot ("Column-First Pivot Plan")
-
-> **⚠️ DO NOT EXECUTE THIS FILE. Reference only.**
-> This is a plan-of-plans. The actual work lives in **40 subplans** named `SUBPLAN_HIST_PIVOT_01_*` through `SUBPLAN_HIST_PIVOT_40_*` in this same `plans/pending/` directory.
->
-> **🎯 INVOCATION PATTERN (zero-prompt execution)**: Every subplan carries a **SESSION BOOTSTRAP** block at its very top. To execute any subplan, the user just needs to say `/execute <subplan-filename>` — nothing else. The bootstrap block tells the agent exactly what identity to load, which skills to chain, what model + thinking tier to use, how to gate on dependencies, and when to halt-and-ask. No prompting from the user is required beyond picking the filename.
->
-> **⚠️ ADDENDUM (2026-04-20 post-SP-01)**: Every cleanup and audit subplan now carries a **Phase 0 — Date-Forensic Self-Discovery** directive at the top of its Step-by-Step section. Don't skip it. The principle:
-> > *Scope in this subplan is a STARTING POINT, not an exhaustive recipe. Run `git log --since=2026-04-13 --until=2026-04-18` in your sphere, find every file touched during HIST integration, use your own brain to classify DELETE / KEEP / REVISE. Document findings + dispositions in your activity-log row. Don't blindly follow the written scope — that's how the old pattern got built in the first place.*
->
-> SP-02 ALSO picks up SP-01's sweep-up responsibility (SP-01 was executed before this directive existed). Subsequent subplans each own their own sphere's forensic sweep.
->
-> **Cold-start session instructions**:
-> 1. Do NOT treat this master as an executable task.
-> 2. Pick the **lowest-numbered** `SUBPLAN_HIST_PIVOT_NN_*.md` file still in `plans/pending/`. That is your task.
-> 3. Read that subplan's `**Dependencies**` section. If a prerequisite isn't DONE yet, work the prerequisite first.
-> 4. Use the model + thinking tier from the execution-order table below.
-> 5. Only read THIS master file for context (§1–§3 for pivot rationale, §3 for KEEP list, §5 for subplan details).
->
-> **Total scope**: 40 subplans, organized into 6 groups. Start at SP-01 (SP-A1 purge). Do NOT skip ahead.
+> **ARCHIVED — DO NOT EXECUTE.** Archived for: Sections 1-3 rationale + KEEP list (consumer: PLAN_DQU_COVERAGE_REMEDIATION v5); 40-subplan execution table no longer authoritative
 
 **Working ID**: PLAN_HIST_COLUMN_FIRST_PIVOT
 **Location**: `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` (this file)
 **Created**: 2026-04-20
-**Status**: Pending
+**Status**: ARCHIVED-REFERENCE
+**Archived for**: Sections 1-3 rationale + KEEP list (consumer: PLAN_DQU_COVERAGE_REMEDIATION v5); 40-subplan execution table no longer authoritative
 **Priority**: P1-CYCLE-2
 
 ---

@@ -37,7 +37,7 @@ Per D9: scope of /simplify + /cleanup sweeps is Encore deliverables + Encore-spe
    - `src/selectors/**/*.ts` (selectors)
    - `tests/test-data/**/*.ts` (test data)
    - `clients/encore/specs_planning/test-cases/**/*.md` (test case MDs)
-   - `clients/encore/exports/**/*.csv` (exports — but read-only, no code simplification needed)
+   - `clients/encore/test_cases_csv/**/*.csv` (CSV exports — but read-only, no code simplification needed)
    - `export_test_cases/**/*.ts` (export script — converter)
    - `src/utils/**/*.ts` (shared utilities IF used only by Encore specs; check import graph)
 2. Build explicit EXCLUDE list:

@@ -1,3 +1,11 @@
+// DEPRECATED 2026-05-19 — moved to clients/encore/src/utils/agent-reporter.ts.
+// Kept temporarily as a no-op orphan; nothing in the live framework imports this file.
+// Final deletion tracked by PLAN_ROOT_CLIENT_DEDUPE.md (root src/ ↔ clients/<id>/src/ dedupe sweep).
+//
+// Why this file still exists: deleting it requires confirming zero consumers across
+// pipeline/, scripts/, .github/, and tests — out of scope for PLAN_DIST_REGRESSION_AND_N_FIXES
+// per §2 OUT-OF-SCOPE line (strict per LR-046).
+
 import * as fs from 'fs';
 import * as path from 'path';
 import type {

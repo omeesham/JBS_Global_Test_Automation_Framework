@@ -1,6 +1,7 @@
 # PLAN_HIST_COMMIT_HISTORY_WORK
 
-**Status**: PENDING
+**Status**: ARCHIVED-REFERENCE
+**Archived for**: Stale WIP/admin; historical context only; no active consumer
 **Parent audit**: `C:\Users\rutvi\.claude\plans\expressive-booping-fountain.md` (Action CR-1, Finding F-001)
 **Priority**: P0-CYCLE-1
 **Created**: 2026-04-15

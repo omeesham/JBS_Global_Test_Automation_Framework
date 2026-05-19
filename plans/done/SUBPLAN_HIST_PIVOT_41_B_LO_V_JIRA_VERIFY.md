@@ -1,21 +1,4 @@
-> 🤖 **SESSION BOOTSTRAP — Just invoke with `/execute <this-filename>`. All context below.**
->
-> The agent self-bootstraps using the frontmatter + sections in this file. On invocation, it follows this sequence **without any additional user prompting**:
->
-> 1. **Identity**: load `/identity` per the `**Identity**` field below.
-> 2. **Skills**: load every skill in `**Skills**` field below (the leading skill auto-calls its chain).
-> 3. **Model + thinking tier**: Opus + think hard. This session is pure live DOM verification — five independent probes, no catalog mutations until findings are in. Bump to ultrathink only for Probe 3 (ECT NOT-TRACKED reproduction) since the finding changes downstream bug severity.
-> 4. **Dependency gate**: SP-B-LO-1, SP-B-LO-1b, SP-B-LO-2, SP-B-LO-2b must all be DONE in `plans/done/`. If any is pending → HALT + report to user.
-> 5. **Context load**: read `C:/Users/rutvi/.claude/plans/this-jira-desc-for-noble-map.md` (Jira findings doc — source of the 5 probes) + `clients/encore/specs_planning/catalogs/hist-root-map-local-office-basic-info.md` (42-col baseline to diff against) + `reports/bugs/BUG-LOC-ECT-001.json` (existing bug to possibly strengthen).
-> 5.5 **Browser tool selection (LR-038)**: Claude in Chrome, mandatory. Reason: exploratory verification on two fresh locations (1145, 1186), auth-heavy SSO, need `read_network_requests` to capture POST payloads + endpoint names, and user is at the machine. Do NOT use Playwright MCP `browser_snapshot` (token cost kills 5-probe iteration).
-> 6. **Phase 0 FIRST**: announce browser tool choice per LR-038 before first browser call. Then execute probes in order.
-> 7. **Execute Phases 1–5** (one phase per probe) per Step-by-Step in order. Each probe is independent — if one fails or is inconclusive, record it and move on; do NOT block downstream probes.
-> 8. **Handoff**: on completion, write a findings section at the bottom of this file (not a separate doc — chat output for the summary per `feedback_handoff_in_chat_only.md`). Set Status: DONE + Executed date. Append activity-log row (LR-028 + LR-037 wall-clock ≥ mtime). `git mv` to `plans/done/`. Run `npm run plans:reindex`. One bounded commit per LR-027.
->
-> **HALT + ASK USER** if:
-> - Any dependency (SP-B-LO-1/1b/2/2b) is not DONE.
-> - Loc 1145 or 1186 cannot be opened (permission, data error, 403/404) — this is itself a finding; do NOT fabricate data on 1604 as a substitute.
-> - Any probe produces a result that overturns an existing catalog finding — the catalog is frozen; write it up and escalate, do NOT edit catalogs in this subplan.
+> **ARCHIVED — DO NOT EXECUTE.** Completed work, historical reference only.
 
 ---
 

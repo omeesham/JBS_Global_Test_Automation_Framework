@@ -1,22 +1,4 @@
-> 🤖 **SESSION BOOTSTRAP — Just invoke with `/execute <this-filename>`. All context below.**
->
-> The agent self-bootstraps using the frontmatter + sections in this file. On invocation, it follows this sequence **without any additional user prompting**:
->
-> 1. **Identity**: load `/identity` per the `**Identity**` field below.
-> 2. **Skills**: load every skill in `**Skills**` field below (the leading skill auto-calls its chain).
-> 3. **Model + thinking tier**: look up this subplan's SP number in `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` → Execution Order table. Use the specified Opus/Sonnet + think tier.
-> 4. **Dependency gate**: verify every item in `**Depends on**` field is marked DONE in `plans/done/`. If any blocker → HALT + report to user.
-> 5. **Context load**: read `plans/done/SUBPLAN_HIST_PIVOT_05_B_LO_1_BASIC_INFO_CATALOG.md` (parent session) + `clients/encore/specs_planning/catalogs/hist-root-map-local-office-basic-info.md` (existing catalog to extend) + master plan §5 SP-B section.
-> 5.5 **Browser tool selection (LR-038)**: this session REQUIRES live DOM drive on office 1604. Default = Claude in Chrome (`mcp__Claude_in_Chrome__*`) — `javascript_tool` for DOM reads, `computer` + `find` for native Radix tab clicks and text-input typing. Do NOT use Playwright MCP `browser_snapshot` (token cost ~20k per tab switch). Pattern proven in parent SP-B-LO-1 session — see its catalog §Method notes for the Radix PointerEvent sequence + Angular triple_click→type→Tab pattern.
-> 6. **Phase 0 FIRST** (if present in Step-by-Step): execute before any edits.
-> 7. **Execute Phases 1+** per Step-by-Step in order.
-> 8. **Handoff**: on success, set Status: DONE + Executed date, append activity-log row (LR-028 + LR-037 wall-clock ≥ mtime of touched files), `git mv` this file to `plans/done/`, run `npm run plans:reindex`, commit one bounded commit per LR-027.
->
-> **HALT + ASK USER** if:
-> - SP-B-LO-1 (parent) is not DONE in `plans/done/`.
-> - Office 1604 baseline does not match end-of-SP-B-LO-1 baseline at session start (means another agent edited 1604 between sessions — investigate before cataloging).
-> - Any residual parent below fails to produce a clean 1-col diff (likely NOT-TRACKED — file as bug candidate via LR-034 instead of force-coercing a mapping).
-> - `/regression-guard` diff shows changes unrelated to this subplan's scope.
+> **ARCHIVED — DO NOT EXECUTE.** Completed work, historical reference only.
 
 ---
 

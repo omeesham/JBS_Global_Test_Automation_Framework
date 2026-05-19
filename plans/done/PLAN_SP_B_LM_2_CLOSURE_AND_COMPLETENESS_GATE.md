@@ -1,10 +1,4 @@
-> 🤖 **SESSION BOOTSTRAP — `/execute PLAN_SP_B_LM_2_CLOSURE_AND_COMPLETENESS_GATE.md`**
->
-> 1. **Identity**: OWNER. Pure doc edits, no browser.
-> 2. **Skills**: `/execute`.
-> 3. **Model**: Opus + think hard (rule wording judgment).
-> 4. **Context**: this plan + root `CLAUDE.md` §Learned Rules + 3 target files in §Scope.
-> 5. **HALT + ASK USER** if: next LR# is not 040 (grep-verify before write) OR regression-guard diff shows changes outside §Scope files.
+> **ARCHIVED — DO NOT EXECUTE.** Completed work, historical reference only.
 
 ---
 

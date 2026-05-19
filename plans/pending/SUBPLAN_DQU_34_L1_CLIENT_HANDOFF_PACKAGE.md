@@ -20,7 +20,7 @@
 **Model + thinking**: Opus + high (final-shipping judgment)
 **Dependency gate**: SP-DQU-08 + SP-DQU-30 + SP-DQU-31 + SP-DQU-29 all `Status: DONE`
 **Context files**:
-- `clients/encore/exports/*.csv` (all 11 modules)
+- `clients/encore/test_cases_csv/*.csv` (all 11 modules)
 - `reports/allure-report/` (Allure output)
 - `reports/bugs/CLIENT_PACKAGE-*.md` (bug reports)
 - `reports/bugs/INDEX-*.md`
@@ -33,7 +33,7 @@ Assemble the 4 client deliverables in priority order: **CSVs (1) > specs clean (
 
 1. Create `deliverables/2026-04-22/` directory (or use existing convention if project has one).
 2. Copy (or link) into deliverables folder:
-   - `test-cases/` → all 11 CSVs from `clients/encore/exports/`.
+   - `test-cases/` → all 11 CSVs from `clients/encore/test_cases_csv/`.
    - `allure-report/` → full allure output.
    - `bugs/` → `CLIENT_PACKAGE-*.md` + `INDEX-*.md`.
 3. Write `deliverables/2026-04-22/README.md`:

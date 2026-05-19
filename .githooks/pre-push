@@ -16,13 +16,16 @@ for client_dir in clients/*/; do
   fi
 done
 
+# DEPRECATED 2026-05-19 — vendoring removed in PLAN_DIST_REGRESSION_AND_N_FIXES.
+# verify-vendor-fresh now always succeeds (meta absent → exit 0) so this block is a no-op loop.
+# Cleanup tracked by PLAN_ROOT_CLIENT_DEDUPE.md.
 # 2. If staged changes touch src/, ALL clients/*/dist/framework/ must be re-vendored.
 if git diff --cached --name-only HEAD 2>/dev/null | grep -qE "^src/"; then
   for client_dir in clients/*/; do
     [ -d "$client_dir" ] || continue
     client_id="${client_dir%/}"; client_id="${client_id##*/}"
     if ! node scripts/verify-vendor-fresh.mjs --client="$client_id"; then
-      echo "[pre-push] src/ changed but clients/$client_id/dist/framework/ is stale. Run: npm run vendor:build:all" >&2
+      echo "[pre-push] src/ changed but clients/$client_id/dist/framework/ is stale. (DEPRECATED — no-op since 2026-05-19; see PLAN_ROOT_CLIENT_DEDUPE.md)" >&2
       exit 1
     fi
   done

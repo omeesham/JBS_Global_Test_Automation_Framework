@@ -1,0 +1,672 @@
+- main [ref=e3]:
+  - generic [ref=e14]:
+    - navigation [ref=e16]:
+      - img "logo" [ref=e19] [cursor=pointer]
+      - generic "Pendo" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - img "TEST environment" [ref=e363]
+      - generic [ref=e24] [cursor=pointer]: 
+      - generic [ref=e26]:
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - button "" [ref=e29] [cursor=pointer]:
+              - generic [ref=e30]: 
+          - listitem [ref=e31]:
+            - button "Save" [disabled]
+          - listitem [ref=e32]:
+            - button "Print" [ref=e33] [cursor=pointer]
+        - list [ref=e34]:
+          - listitem [ref=e35]:
+            - generic [ref=e36] [cursor=pointer]: Basic Information
+          - listitem [ref=e37]:
+            - generic [ref=e38] [cursor=pointer]: Location Management History
+    - generic [ref=e39]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e45]: Office
+            - textbox [disabled] [ref=e47]: "1604"
+          - generic [ref=e48]:
+            - generic [ref=e50]: Local Office
+            - textbox [disabled] [ref=e52]: "1604"
+          - generic [ref=e54]:
+            - generic [ref=e56]: Local Office Name
+            - textbox [ref=e58]: The Parker Palm Springs
+          - generic [ref=e60]:
+            - generic [ref=e63] [cursor=pointer]:
+              - checkbox "Active" [checked] [ref=e64]
+              - text: Active
+            - generic [ref=e65]:
+              - generic [ref=e66]: Live Date
+              - textbox [ref=e67]: 05/12/2007
+          - generic [ref=e68]:
+            - generic [ref=e70]: Tax Mode
+            - combobox [ref=e72]:
+              - option
+              - option [selected]
+          - generic [ref=e74]:
+            - generic [ref=e76]: GL Service Divisions
+            - combobox [ref=e78]:
+              - option
+              - option
+              - option [selected]
+              - option
+              - option
+              - option
+              - option
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - generic [ref=e83]: Country
+            - combobox [ref=e85]:
+              - option
+              - option
+              - option
+              - option [selected]
+          - generic [ref=e86]:
+            - generic [ref=e88]: Region
+            - combobox [ref=e90]:
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option [selected]
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+          - generic [ref=e91]:
+            - generic [ref=e93]: Servicing Branch Office
+            - combobox [ref=e95]:
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+              - option
+          - generic [ref=e96]:
+            - generic [ref=e98]: Line Of Business
+            - combobox [disabled] [ref=e100]:
+              - option
+              - option
+              - option
+              - option [selected]
+          - generic [ref=e102]:
+            - generic [ref=e106] [cursor=pointer]: Pay To Address
+            - textbox [disabled] [ref=e108]: Encore
+          - generic [ref=e110]:
+            - generic [ref=e113] [cursor=pointer]:
+              - checkbox "Union" [ref=e114]
+              - text: Union
+            - generic [ref=e115]:
+              - generic [ref=e117] [cursor=pointer]:
+                - checkbox "eCommerce Active" [checked] [disabled] [ref=e118]
+                - text: eCommerce Active
+              - generic [ref=e120] [cursor=pointer]:
+                - checkbox "Enable Productions Orders" [checked] [disabled] [ref=e121]
+                - text: Enable Productions Orders
+      - generic [ref=e124]:
+        - tablist "Tabs" [ref=e125]:
+          - listitem [ref=e126]:
+            - tab "Local Information" [selected] [ref=e364]
+          - listitem [ref=e129]:
+            - tab "Currency" [ref=e365] [cursor=pointer]
+          - listitem [ref=e132]:
+            - tab "Pricing" [ref=e133] [cursor=pointer]
+          - listitem [ref=e134]:
+            - tab "Account And Address" [ref=e366] [cursor=pointer]
+          - listitem [ref=e137]:
+            - tab "Legal" [ref=e138] [cursor=pointer]
+          - listitem [ref=e139]:
+            - tab "Notes" [ref=e140] [cursor=pointer]
+          - listitem [ref=e141]:
+            - tab "Shared Setup Locations" [ref=e142] [cursor=pointer]
+          - listitem [ref=e367]:
+            - tab "Auto Add-On" [ref=e368] [cursor=pointer]
+        - tabpanel [ref=e144]:
+          - generic [ref=e147]:
+            - generic [ref=e151]:
+              - checkbox "Apply LDW / LDW Percentage" [checked] [ref=e152]
+              - generic [ref=e153] [cursor=pointer]: Apply LDW /
+              - generic [ref=e154] [cursor=pointer]: LDW Percentage
+              - textbox [ref=e155]: 4.00%
+              - generic [ref=e157]:
+                - checkbox "Calculate LDW on Net Amount" [ref=e158]
+                - generic [ref=e159] [cursor=pointer]: Calculate LDW on Net Amount
+              - generic [ref=e162]:
+                - checkbox "Apply Cables and Consumables Fee / C&C Percentage" [ref=e163]
+                - generic [ref=e164] [cursor=pointer]: Apply Cables and Consumables Fee /
+                - generic [ref=e165] [cursor=pointer]: C&C Percentage
+                - textbox [disabled] [ref=e166]: 0.00%
+              - generic [ref=e168]:
+                - checkbox "Calculate CAC on Net Amount" [ref=e169]
+                - generic [ref=e170] [cursor=pointer]: Calculate CAC on Net Amount
+              - generic [ref=e173]:
+                - checkbox "Allow ETS / ETS Percent" [ref=e174]
+                - generic [ref=e175] [cursor=pointer]: Allow ETS /
+                - generic [ref=e176] [cursor=pointer]: ETS Percent
+                - textbox [disabled] [ref=e177]: 0.00%
+              - generic [ref=e179]:
+                - checkbox "Service Charge" [checked] [ref=e180]
+                - generic [ref=e181] [cursor=pointer]: Service Charge
+              - generic [ref=e183]:
+                - checkbox "Show Service Charge As Administrative Fee" [ref=e184]
+                - generic [ref=e185] [cursor=pointer]: Show Service Charge As Administrative Fee
+              - generic [ref=e187]:
+                - checkbox "Calculate Service Charge On Net Amount" [ref=e188]
+                - generic [ref=e189] [cursor=pointer]: Calculate Service Charge On Net Amount
+              - generic [ref=e191]:
+                - checkbox "Allow Resort Tax / Resort Tax Percentage" [ref=e192]
+                - generic [ref=e193] [cursor=pointer]: Allow Resort Tax /
+                - generic [ref=e194] [cursor=pointer]: Resort Tax Percentage
+                - textbox [disabled] [ref=e195]: 0.00%
+              - generic [ref=e198]:
+                - checkbox "Ticker Calc" [checked] [ref=e199]
+                - generic [ref=e200] [cursor=pointer]: Ticker Calc
+                - generic [ref=e201]: Set/Strike/Support Labor Billing Goal
+                - textbox [ref=e202]: 33.00%
+              - generic [ref=e204]:
+                - checkbox "Enable Set/Strike Labor Minutes" [checked] [ref=e205]
+                - generic [ref=e206] [cursor=pointer]: Enable Set/Strike Labor Minutes
+                - checkbox "Apply Set/Strike Labor Minutes" [checked] [ref=e207]
+                - generic [ref=e208] [cursor=pointer]: Apply Set/Strike Labor Minutes
+              - generic [ref=e211]:
+                - checkbox "Internet Asset Reservation" [ref=e212]
+                - generic [ref=e213] [cursor=pointer]: Internet Asset Reservation
+              - generic [ref=e215]:
+                - checkbox "Allow DPCD" [checked] [ref=e216]
+                - generic [ref=e217] [cursor=pointer]: Allow DPCD
+              - generic [ref=e219]:
+                - checkbox "Exclude Implied Discount" [ref=e220]
+                - generic [ref=e221] [cursor=pointer]: Exclude Implied Discount
+              - generic [ref=e223]:
+                - checkbox "Prompt for Approval Threshold" [ref=e224]
+                - generic [ref=e225] [cursor=pointer]: Prompt for Approval
+                - generic [ref=e226] [cursor=pointer]: Threshold
+                - textbox [disabled] [ref=e227]: 0.00%
+              - generic [ref=e230]:
+                - checkbox "Credit Memo Approval Required" [checked] [ref=e231]
+                - generic [ref=e232] [cursor=pointer]: Credit Memo Approval Required
+              - generic [ref=e234]:
+                - checkbox "Enable Discount Reason" [checked] [ref=e235]
+                - generic [ref=e236] [cursor=pointer]: Enable Discount Reason
+              - generic [ref=e238]:
+                - checkbox "Use eSignature" [checked] [disabled] [ref=e239]
+                - generic [ref=e240] [cursor=pointer]: Use eSignature
+              - generic [ref=e242]:
+                - checkbox "Enable Product Group" [disabled] [ref=e243]
+                - generic [ref=e244] [cursor=pointer]: Enable Product Group
+              - generic [ref=e246]:
+                - checkbox "Allow Production Quote" [ref=e247]
+                - generic [ref=e248] [cursor=pointer]: Allow Production Quote
+              - generic [ref=e250]:
+                - checkbox "Suppress Day/Rate Discount" [disabled] [ref=e251]
+                - generic [ref=e252] [cursor=pointer]: Suppress Day/Rate Discount
+            - generic [ref=e253]:
+              - generic [ref=e255]:
+                - generic [ref=e257]:
+                  - generic [ref=e259]: Billing Type
+                  - generic [ref=e260]:
+                    - radio "Master" [checked] [ref=e261]
+                    - generic [ref=e262] [cursor=pointer]: Master
+                    - radio "Direct" [ref=e263]
+                    - generic [ref=e264] [cursor=pointer]: Direct
+                - generic [ref=e266]:
+                  - generic [ref=e268]: Billing Way
+                  - generic [ref=e269]:
+                    - generic [ref=e270]:
+                      - radio "Event" [checked] [ref=e271]
+                      - generic [ref=e272] [cursor=pointer]: Event
+                      - radio "Daily" [ref=e273]
+                      - generic [ref=e274] [cursor=pointer]: Daily
+                    - generic [ref=e275]:
+                      - generic [ref=e276]: Effective Date
+                      - textbox [disabled] [ref=e277]: 05/12/2007
+                  - generic [ref=e278]: Billing Cycle
+                  - combobox [ref=e280]:
+                    - option "Weekly" [selected]
+                    - option "Bi-Monthly"
+                    - option "Monthly"
+                  - generic [ref=e281]:
+                    - checkbox "Warehouse Billing" [ref=e282]
+                    - generic [ref=e283] [cursor=pointer]: Warehouse Billing
+              - generic [ref=e285]:
+                - generic [ref=e287]:
+                  - generic [ref=e288]: Oracle Product Code
+                  - textbox [ref=e290]: "0000"
+                - generic [ref=e293]:
+                  - generic [ref=e294]: Oracle Department Code
+                  - textbox [ref=e296]: "900"
+                - generic [ref=e299]:
+                  - generic [ref=e300]: Oracle Organization
+                  - combobox [ref=e302]:
+                    - option "Encore US BU" [selected]
+                    - option "Encore CA BU"
+                    - option "Encore BH BU"
+                    - option "Encore Bahamas"
+                    - option "Encore MX BU"
+                    - option "PSR Mexico"
+                    - option "Encore Mexico"
+                    - option "None"
+              - generic [ref=e304]:
+                - checkbox "Compass Integration" [checked] [disabled] [ref=e305]
+                - generic [ref=e306] [cursor=pointer]: Compass Integration
+              - generic [ref=e307]:
+                - checkbox "Company Remit Tax / GST/HST / VAT Tax" [checked] [ref=e308]
+                - generic [ref=e309] [cursor=pointer]: Company Remit Tax / GST/HST / VAT Tax
+                - checkbox "Remit PST Tax" [ref=e310]
+                - generic [ref=e311] [cursor=pointer]: Remit PST Tax
+              - generic [ref=e312]:
+                - checkbox "Display Tax" [checked] [disabled] [ref=e313]
+                - generic [ref=e314] [cursor=pointer]: Display Tax
+              - generic [ref=e315]:
+                - checkbox "Comm Receiver" [checked] [ref=e316]
+                - generic [ref=e317] [cursor=pointer]: Comm Receiver
+              - generic [ref=e318]:
+                - checkbox "Enable IDC Billing" [checked] [ref=e319]
+                - generic [ref=e320] [cursor=pointer]: Enable IDC Billing
+              - generic [ref=e321]:
+                - checkbox "Skip Billing" [ref=e322]
+                - generic [ref=e323] [cursor=pointer]: Skip Billing
+              - generic [ref=e324]:
+                - checkbox "Separate Master Bill Commission Invoice" [ref=e325]
+                - generic [ref=e326] [cursor=pointer]: Separate Master Bill Commission Invoice
+              - generic [ref=e327]:
+                - checkbox "Show SubRental" [ref=e328]
+                - generic [ref=e329] [cursor=pointer]: Show SubRental
+              - generic [ref=e330]:
+                - checkbox "Inventory Only" [ref=e331]
+                - generic [ref=e332] [cursor=pointer]: Inventory Only
+              - generic [ref=e333]:
+                - checkbox "Intercompany" [checked] [ref=e334]
+                - generic [ref=e335] [cursor=pointer]: Intercompany
+              - generic [ref=e336]:
+                - checkbox "Calculate Commission Tax" [ref=e337]
+                - generic [ref=e338] [cursor=pointer]: Calculate Commission Tax
+              - generic [ref=e339]:
+                - checkbox "Can Create External Customer Link" [ref=e340]
+                - generic [ref=e341] [cursor=pointer]: Can Create External Customer Link
+              - generic [ref=e342]:
+                - checkbox "Offsite Event Location" [ref=e343]
+                - generic [ref=e344] [cursor=pointer]: Offsite Event Location
+              - generic [ref=e345]:
+                - checkbox "Exhibit Show Rate" [disabled] [ref=e346]
+                - generic [ref=e347] [cursor=pointer]: Exhibit Show Rate
+              - generic [ref=e348]:
+                - checkbox "Enable Job Costing" [checked] [disabled] [ref=e349]
+                - generic [ref=e350] [cursor=pointer]: Enable Job Costing
+              - generic [ref=e351]:
+                - checkbox "Enable Discount Guidance" [checked] [disabled] [ref=e352]
+                - generic [ref=e353] [cursor=pointer]: Enable Discount Guidance
+              - generic [ref=e354]:
+                - checkbox [checked] [ref=e355]
+                - generic [ref=e356] [cursor=pointer]: Enable Proposal

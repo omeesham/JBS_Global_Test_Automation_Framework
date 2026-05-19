@@ -92,14 +92,14 @@ The CSV exporter routes every human-column value through two helpers in `to-csv.
 # Single file
 npx ts-node export_test_cases/to-csv.ts \
   clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md \
-  clients/encore/exports/local_office_settings_test_cases.csv \
+  clients/encore/test_cases_csv/local_office_settings_test_cases.csv \
   --type=human
 
 # All files (also runs spec/markdown/csv parity check)
 npm run check:tc-parity:fix
 ```
 
-Output dir is **`clients/encore/exports/`** (canonical post-restructure). The `export_test_cases/exports/` dir is orphaned; do not write there.
+Output dir is **`clients/encore/test_cases_csv/`** (canonical post-rename — was `clients/encore/exports/` until 2026-05-19, renamed for customer clarity). The `export_test_cases/exports/` dir is orphaned; do not write there.
 
 ### Example
 
@@ -145,16 +145,16 @@ import { TestmoConverter } from './export_test_cases/to-testmo';
 const testCasesDir = './specs_planning/test-cases';
 
 // JSON export
-JsonConverter.convertToFile(testCasesDir, './exports/test-cases.json');
+JsonConverter.convertToFile(testCasesDir, './test_cases_csv/test-cases.json');
 
 // CSV export
-CsvConverter.convertToFile(testCasesDir, './exports/test-cases.csv');
+CsvConverter.convertToFile(testCasesDir, './test_cases_csv/test-cases.csv');
 
 // Jira export
-JiraConverter.convertToFile(testCasesDir, './exports/jira-import.csv', 'MYPROJ');
+JiraConverter.convertToFile(testCasesDir, './test_cases_csv/jira-import.csv', 'MYPROJ');
 
 // TestMo export
-TestmoConverter.convertToFile(testCasesDir, './exports/testmo-import.json', 'suite-123');
+TestmoConverter.convertToFile(testCasesDir, './test_cases_csv/testmo-import.json', 'suite-123');
 ```
 
 ### Command Line Usage
@@ -164,16 +164,16 @@ TestmoConverter.convertToFile(testCasesDir, './exports/testmo-import.json', 'sui
 **Method 1: ts-node (Works Immediately)**
 ```bash
 # JSON
-npx ts-node -e "require('./export_test_cases/to-json').JsonConverter.convertToFile('./specs_planning/test-cases', './exports/test-cases.json')"
+npx ts-node -e "require('./export_test_cases/to-json').JsonConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/test-cases.json')"
 
 # CSV
-npx ts-node -e "require('./export_test_cases/to-csv').CsvConverter.convertToFile('./specs_planning/test-cases', './exports/test-cases.csv')"
+npx ts-node -e "require('./export_test_cases/to-csv').CsvConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/test-cases.csv')"
 
 # Jira (with project key)
-npx ts-node -e "require('./export_test_cases/to-jira').JiraConverter.convertToFile('./specs_planning/test-cases', './exports/jira.csv', 'PROJ')"
+npx ts-node -e "require('./export_test_cases/to-jira').JiraConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/jira.csv', 'PROJ')"
 
 # TestMo (with suite ID)
-npx ts-node -e "require('./export_test_cases/to-testmo').TestmoConverter.convertToFile('./specs_planning/test-cases', './exports/testmo.json', 'suite-456')"
+npx ts-node -e "require('./export_test_cases/to-testmo').TestmoConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/testmo.json', 'suite-456')"
 ```
 
 **Method 2: npm Scripts (Cleanest - Recommended)**
@@ -194,8 +194,8 @@ For cleaner commands, add to `package.json`:
   "scripts": {
     "export:json": "ts-node export_test_cases/to-json.ts",
     "export:csv": "ts-node export_test_cases/to-csv.ts",
-    "export:jira": "ts-node -e \"require('./export_test_cases/to-jira').JiraConverter.convertToFile('./specs_planning/test-cases', './exports/jira.csv', 'PROJ')\"",
-    "export:testmo": "ts-node -e \"require('./export_test_cases/to-testmo').TestmoConverter.convertToFile('./specs_planning/test-cases', './exports/testmo.json', 'suite-123')\""
+    "export:jira": "ts-node -e \"require('./export_test_cases/to-jira').JiraConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/jira.csv', 'PROJ')\"",
+    "export:testmo": "ts-node -e \"require('./export_test_cases/to-testmo').TestmoConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/testmo.json', 'suite-123')\""
   }
 }
 ```

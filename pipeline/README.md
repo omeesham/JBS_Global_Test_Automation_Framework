@@ -13,23 +13,20 @@ client deliverable.
 | `orchestrator/` | 5-agent dependency-aware queue runner (gate-runner, dependency-engine, failure-classifier, artifact-validator). |
 | `server/` | Fastify backend + Postgres queries + REST routes that serve the agent UI. |
 | `worker/` | Agent worker runtime — SDK executor, progress extractor, worker manager. |
-| `utils/` | Pipeline-only helpers. Currently just `agent-notification-writer.ts`. Agent-public reporters stay at `src/utils/agent-reporter.ts`. |
+| `utils/` | Pipeline-only helpers. Currently just `agent-notification-writer.ts`. Agent-public reporters live per-client at `clients/<id>/src/utils/agent-reporter.ts`. |
 | `scripts/` | Pipeline scripts — healer-post-complete, etc. |
 | `tests/` | Pipeline unit tests + hook fixtures + framework example specs. |
 | `tsconfig.json` | Pipeline-only tsconfig (was repo-root `tsconfig.server.json`). |
 
 ## Why it's NOT in `src/`
 
-Path A contract (`PLAN_CLIENT_DELIVERABLE_REBUILD`):
+Pipeline ↔ client separation (post-2026-05-19 notes-structure mirror):
 
-- **`src/`** is "publishable by default" — every file in `src/` ends up in
-  `clients/<id>/dist/framework/` via `scripts/build-framework-vendor.ts`.
-- **`pipeline/`** is "internal by default" — never gets vendored, never ships,
-  never appears in `git archive HEAD clients/<id>/`.
+- **`pipeline/`** is "internal by default" — orchestrator, server, worker, agent-notification-writer. Never ships, never appears in `git archive HEAD clients/<id>/`.
+- **`clients/<id>/src/`** is "shippable by default" — each client's framework code lives self-contained inside its own directory.
+- **Root `src/`** is shared infrastructure used by `pipeline/` (and historically vendored to clients pre-2026-05-19). No longer vendored — `PLAN_ROOT_CLIENT_DEDUPE.md` tracks orphan-cleanup.
 
-Putting pipeline runtime under `pipeline/` rather than `src/` means
-`scripts/build-framework-vendor.ts` doesn't have to maintain an exclude list.
-The directory boundary is the rule.
+The directory boundary is the rule — anything under `pipeline/` is excluded from client deliverables by `git archive HEAD clients/<id>/` mechanically.
 
 ## Running pipeline pieces
 

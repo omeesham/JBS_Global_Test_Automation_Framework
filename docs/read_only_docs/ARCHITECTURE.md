@@ -73,7 +73,7 @@ export class BasePage {
 
 ### `src/pages/` — Page Object Model
 
-> **Path note (post-2026-04-30 rebuild)**: Root `src/{common,utils,data,framework-contracts}/` is the framework source-of-truth and ships to clients via vendoring. Per-client page objects, selectors, and tests live at `clients/<id>/src/{pages,selectors}/` and `clients/<id>/tests/`. The vendored framework runtime is mirrored to `clients/<id>/dist/framework/` at delivery time. Snippets below show the *pattern*; actual files live under the active client (e.g. `clients/encore/src/pages/...`).
+> **Path note (post-2026-05-19 notes-structure mirror)**: Each client is self-contained under `clients/<id>/src/{core,pages,selectors,types,utils}/` + `clients/<id>/tests/`. Root `src/{utils,framework-contracts}/` is framework-internal (used by `pipeline/`) and is NOT vendored to clients. Snippets below show the *pattern*; actual files live under the active client (e.g. `clients/encore/src/pages/...`).
 
 All page objects extend `BasePage`. No direct `page.click()` / `page.fill()` — selector resolution via `BasePage.getLocator()` → `clients/<id>/src/selectors/index.ts`.
 

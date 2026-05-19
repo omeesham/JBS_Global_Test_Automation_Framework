@@ -60,6 +60,91 @@ const EXECUTE_LOOKBACK = 80;
 
 const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit", "MultiEdit"]);
 
+// ---------------------------------------------------------------------------
+// LR-054 / ALL-077 — manufactured-blocker banned-phrase scanner.
+//
+// Scope (intentionally narrow):
+//   - Inspects ONLY tool_input.new_string (Edit) / tool_input.content (Write) /
+//     tool_input.new_source (NotebookEdit) / tool_input.edits[].new_string
+//     (MultiEdit). NEVER inspects old_string / old_source — that would block
+//     DELETION of banned content, which is the opposite of intent (e.g.
+//     quarantining a manufactured Section 0 prose block).
+//   - Fires only on a path matching BANNED_PATH_TARGETS (walk-evidence,
+//     neutral-eye-audits, field-inventories, plans). Other paths exempt.
+//   - Skips BANNED_PATH_EXEMPT (LR-054 body, ALL-077 row, the plan that
+//     authored this rule, the feedback memory file) — they legitimately
+//     discuss the pattern.
+//
+// Override path: same handshake convention as the rest of this gate — assistant
+// emits `[OVERRIDE-REQUEST] <path>`, user types an authorization phrase within
+// 3 assistant turns, the next write to that path is allowed (one-shot).
+// ---------------------------------------------------------------------------
+
+const BANNED_PHRASES = [
+  /Section 0 — Live-Walk Blocker/i,
+  /Section 0 — .{0,40}Blocker\b/i,
+  /UNFILLED-BLOCKED-SECTION/,
+  /\bstructural blocker\b/i,
+  /\bprovisioning invariant\b/i,
+  /\bunattended execution risks?\b/i,
+  /\bindefinite if .{1,80} fires\b/i,
+  /\bPath \d+ \(NOT taken in this session\)/i,
+  /\bcannot complete .{0,80}strict.{0,40}line.{0,80}in this single session\b/i,
+];
+
+const BANNED_PATH_TARGETS = [
+  /clients\/[^/]+\/specs_planning\/_internal\/walk-evidence-[^/]+\.md$/,
+  /clients\/[^/]+\/specs_planning\/_internal\/neutral-eye-audits\/.+\.md$/,
+  /clients\/[^/]+\/specs_planning\/_internal\/field-inventories\/.+\.md$/,
+  /(^|[\\\/])plans[\\\/](pending|done)[\\\/].+\.md$/,
+];
+
+const BANNED_PATH_EXEMPT = [
+  /\.claude[\\\/]rules[\\\/]browser-tool\.md$/,
+  /clients\/[^/]+\/specs_planning\/_internal\/agent-mistakes\.md$/,
+  /plans[\\\/](pending|done)[\\\/]PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER\.md$/,
+  /feedback_browser_tool_selection\.md$/,
+];
+
+function isBannedPhraseTarget(targetPath) {
+  if (!targetPath) return false;
+  const norm = String(targetPath).replace(/\\/g, "/");
+  if (BANNED_PATH_EXEMPT.some((re) => re.test(norm) || re.test(targetPath))) return false;
+  return BANNED_PATH_TARGETS.some((re) => re.test(norm) || re.test(targetPath));
+}
+
+function extractWriteContent(toolName, toolInput) {
+  // Returns the NEW content fragments to scan. Old content fragments are
+  // intentionally excluded so deletions are never blocked.
+  const out = [];
+  if (!toolInput || typeof toolInput !== "object") return out;
+  if (toolName === "Edit") {
+    if (typeof toolInput.new_string === "string") out.push(toolInput.new_string);
+  } else if (toolName === "Write") {
+    if (typeof toolInput.content === "string") out.push(toolInput.content);
+  } else if (toolName === "NotebookEdit") {
+    if (typeof toolInput.new_source === "string") out.push(toolInput.new_source);
+    else if (typeof toolInput.content === "string") out.push(toolInput.content);
+  } else if (toolName === "MultiEdit") {
+    if (Array.isArray(toolInput.edits)) {
+      for (const e of toolInput.edits) {
+        if (e && typeof e.new_string === "string") out.push(e.new_string);
+      }
+    }
+  }
+  return out;
+}
+
+function scanBannedPhrases(content) {
+  if (!content) return [];
+  const hits = [];
+  for (const re of BANNED_PHRASES) {
+    const m = content.match(re);
+    if (m) hits.push(m[0]);
+  }
+  return hits;
+}
+
 const mode = process.argv[2] || "";
 
 if (mode === "--self-test") {
@@ -160,6 +245,43 @@ function handleValidate(payload, sessionId, transcriptPath) {
   // Transcript-driven /execute detection (option D — no agent-side marker).
   const messages = safeLoadTranscript(transcriptPath);
   const inExecute = isInExecute(messages);
+
+  // -------------------------------------------------------------------------
+  // LR-054 / ALL-077 banned-phrase gate — fires regardless of /execute state.
+  // Path-scoped to artifact files where the manufactured-blocker pattern ships
+  // (walk-evidence / neutral-eye-audits / field-inventories / plans). Scans
+  // ONLY the new content fragments (never old_string) so deletions are
+  // never blocked. Override handshake = same LR-043 §A protocol.
+  // -------------------------------------------------------------------------
+  if (isBannedPhraseTarget(targetPath)) {
+    const fragments = extractWriteContent(toolName, toolInput);
+    for (const frag of fragments) {
+      const hits = scanBannedPhrases(frag);
+      if (hits.length > 0) {
+        if (hasOverrideAuthorization(messages, targetPath)) {
+          emitAllow(
+            `[OVERRIDE] banned-phrase gate bypassed for ${shortPath(targetPath)} ` +
+              `(matched: ${hits.slice(0, 2).join(" | ")})`
+          );
+          return;
+        }
+        const sample = hits.slice(0, 3).map((h) => JSON.stringify(h)).join(", ");
+        emitDeny(
+          `Manufactured-blocker prose denied by LR-039 + LR-054 + ALL-077 banned-phrase gate ` +
+            `(${shortPath(targetPath)}). Matched: ${sample}. ` +
+            "Default auth-refresh path = LoginPage.loginWithMicrosoft (config-driven, e2e). " +
+            "HALT prose is forbidden unless ALL THREE LR-039 preconditions hold: (a) creds missing " +
+            "from clients/encore/config/environments/.env.e2e, (b) MFA documented active in " +
+            "clients/encore/CLAUDE.md, (c) `playwright-cli open --persistent` unavailable. " +
+            "See .claude/rules/browser-tool.md LR-054 + Gate 3, docs/read_only_docs/CLI_BROWSER_GUIDE.md " +
+            "Table 2, clients/encore/specs_planning/_internal/agent-mistakes.md ALL-077. " +
+            "Override path (one-shot, LR-043 §A): emit `[OVERRIDE-REQUEST] " +
+            shortPath(targetPath) + "` and have the user type 'override approved'."
+        );
+        return;
+      }
+    }
+  }
 
   if (!inExecute) {
     emitAllow();
@@ -476,6 +598,125 @@ function runSelfTest() {
   cases.push([
     "extractTags zero",
     () => extractTags("plain prose with no tags").length === 0,
+  ]);
+
+  // 9. isBannedPhraseTarget — positive cases.
+  cases.push([
+    "banned-target walk-evidence",
+    () => isBannedPhraseTarget("clients/encore/specs_planning/_internal/walk-evidence-shared-setup-2026-05-15.md"),
+  ]);
+  cases.push([
+    "banned-target neutral-eye-audits nested",
+    () => isBannedPhraseTarget("clients/encore/specs_planning/_internal/neutral-eye-audits/module-x/audit.md"),
+  ]);
+  cases.push([
+    "banned-target field-inventories nested",
+    () => isBannedPhraseTarget("clients/encore/specs_planning/_internal/field-inventories/foo-2026-05-15.md"),
+  ]);
+  cases.push([
+    "banned-target plans/pending",
+    () => isBannedPhraseTarget("plans/pending/SUBPLAN_DQU_V6_PILOT_SSL_A.md"),
+  ]);
+  cases.push([
+    "banned-target plans backslash (Windows)",
+    () => isBannedPhraseTarget("plans\\pending\\SUBPLAN_FOO.md"),
+  ]);
+
+  // 10. isBannedPhraseTarget — exemptions.
+  cases.push([
+    "banned-target EXEMPT browser-tool rule",
+    () => !isBannedPhraseTarget(".claude/rules/browser-tool.md"),
+  ]);
+  cases.push([
+    "banned-target EXEMPT agent-mistakes",
+    () => !isBannedPhraseTarget("clients/encore/specs_planning/_internal/agent-mistakes.md"),
+  ]);
+  cases.push([
+    "banned-target EXEMPT this plan",
+    () => !isBannedPhraseTarget("plans/done/PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER.md"),
+  ]);
+  cases.push([
+    "banned-target EXEMPT feedback memory",
+    () => !isBannedPhraseTarget("/home/rutvik/.claude/projects/foo/memory/feedback_browser_tool_selection.md"),
+  ]);
+
+  // 11. isBannedPhraseTarget — non-target paths.
+  cases.push([
+    "banned-target negative src/",
+    () => !isBannedPhraseTarget("src/components/foo.ts"),
+  ]);
+  cases.push([
+    "banned-target negative clients/encore/tests/",
+    () => !isBannedPhraseTarget("clients/encore/tests/specs/foo.spec.ts"),
+  ]);
+
+  // 12. scanBannedPhrases — positive matches.
+  cases.push([
+    "scan matches Section 0 Live-Walk Blocker",
+    () => scanBannedPhrases("## Section 0 — Live-Walk Blocker\nstuff").length > 0,
+  ]);
+  cases.push([
+    "scan matches UNFILLED-BLOCKED-SECTION",
+    () => scanBannedPhrases("here is UNFILLED-BLOCKED-SECTION placeholder").length > 0,
+  ]);
+  cases.push([
+    "scan matches structural blocker",
+    () => scanBannedPhrases("This is a structural blocker for the run").length > 0,
+  ]);
+  cases.push([
+    "scan matches provisioning invariant",
+    () => scanBannedPhrases("violates the provisioning invariant").length > 0,
+  ]);
+  cases.push([
+    "scan matches Path N NOT taken phrase",
+    () => scanBannedPhrases("Two paths: Path 1 (NOT taken in this session)").length > 0,
+  ]);
+  cases.push([
+    "scan matches cannot complete strict line single session",
+    () => scanBannedPhrases("subplan cannot complete its strict-line acceptance criteria in this single session").length > 0,
+  ]);
+
+  // 13. scanBannedPhrases — clean content.
+  cases.push([
+    "scan clean prose passes",
+    () => scanBannedPhrases("Normal documentation about CLI commands.").length === 0,
+  ]);
+
+  // 14. extractWriteContent — Edit reads new_string only.
+  cases.push([
+    "extractWriteContent Edit returns new_string",
+    () => {
+      const r = extractWriteContent("Edit", { old_string: "banned: Section 0 — Live-Walk Blocker", new_string: "clean replacement" });
+      return r.length === 1 && r[0] === "clean replacement";
+    },
+  ]);
+  cases.push([
+    "extractWriteContent Edit ignores old_string",
+    () => {
+      // Deletion case: new_string is empty, old_string has banned content.
+      // Scan should NOT trip — gates deletions in.
+      const r = extractWriteContent("Edit", { old_string: "Section 0 — Live-Walk Blocker text", new_string: "" });
+      return r.length === 1 && scanBannedPhrases(r[0]).length === 0;
+    },
+  ]);
+  cases.push([
+    "extractWriteContent Write returns content",
+    () => {
+      const r = extractWriteContent("Write", { content: "the file body" });
+      return r.length === 1 && r[0] === "the file body";
+    },
+  ]);
+  cases.push([
+    "extractWriteContent MultiEdit returns each new_string",
+    () => {
+      const r = extractWriteContent("MultiEdit", {
+        edits: [
+          { old_string: "a", new_string: "b" },
+          { old_string: "structural blocker", new_string: "c" },
+        ],
+      });
+      return r.length === 2 && r[0] === "b" && r[1] === "c";
+    },
   ]);
 
   let passed = 0;

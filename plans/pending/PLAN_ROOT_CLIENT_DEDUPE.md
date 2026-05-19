@@ -3,7 +3,8 @@
 **Status**: PENDING (subplans authored 2026-05-07 — awaiting subplan execution)
 **Priority**: P0-EMERGENCY
 **Created**: 2026-05-06
-**Subplans authored**: 2026-05-07 (A/B/C)
+**Subplans authored**: 2026-05-07 (A/B/C). **NOTE 2026-05-19**: SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md is phantom (file does not exist in `plans/pending/`) — discovered during PLAN_DIST_REGRESSION_AND_N_FIXES post-execution audit. Only RCD_B + RCD_C exist. Author RCD_A or fold its scope into RCD_B/C before executing this plan.
+**Update 2026-05-19**: `.github/workflows/ship-smoke.yml` was DELETED (not just deprecated) during PLAN_DIST_REGRESSION_AND_N_FIXES post-audit remediation — Finding A (CI break: workflow's `test -d _ship-test/dist/framework` assertion would fail on every PR post-dist-deletion). Scope line below referencing "ship-smoke.yml trigger update" is now MOOT (file gone). The 3-layer defense (per-client `.gitignore` + LR-049 agent rule + pre-push `verify-no-forbidden.mjs`) remains intact.
 **Identity**: OWNER
 **Depends on**: none
 **Blocks**: none

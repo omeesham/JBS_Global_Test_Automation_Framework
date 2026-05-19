@@ -48,6 +48,21 @@ jobs:
         if: always()
         run: npm run allure:generate
 
+      - name: Bundle debugging artifacts
+        # One zip containing failure-summary.json + traces + screenshots + videos + logs.
+        # Highest-density input for RCA — supplements the four human-browseable uploads below.
+        if: always()
+        run: npm run share-for-debugging
+
+      - name: Upload debugging bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: share-for-debugging
+          path: reports/share-for-debugging-*.zip
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,0 +1,100 @@
+[
+  {
+    "timestamp": "2026-05-18T11:07:09.910Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "FAIL"
+      },
+      {
+        "check": "C2",
+        "status": "FAIL"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "FAIL"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-18T11:07:09.918Z",
+    "result": "FAIL",
+    "source": "hook"
+  },
+  {
+    "timestamp": "2026-05-18T11:10:06.826Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "FAIL"
+      },
+      {
+        "check": "C2",
+        "status": "FAIL"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "FAIL"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-18T11:10:06.836Z",
+    "result": "FAIL",
+    "source": "hook"
+  },
+  {
+    "timestamp": "2026-05-18T11:10:32.135Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "FAIL"
+      },
+      {
+        "check": "C2",
+        "status": "FAIL"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "FAIL"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-18T11:11:22.485Z",
+    "result": "EXEMPT",
+    "source": "hook"
+  },
+  {
+    "timestamp": "2026-05-18T11:11:43.810Z",
+    "result": "EXEMPT",
+    "source": "hook"
+  }
+]

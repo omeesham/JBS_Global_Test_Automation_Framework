@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 /**
+ * DEPRECATED 2026-05-19 — vendoring removed in PLAN_DIST_REGRESSION_AND_N_FIXES.
+ * No vendor meta is written anymore; this script's "meta absent → exit 0" path
+ * is the only branch ever taken. ship-client.sh + .githooks/pre-push call it
+ * but its result is structurally a no-op now. Cleanup tracked by PLAN_ROOT_CLIENT_DEDUPE.md.
+ *
  * scripts/verify-vendor-fresh.mjs
  *
  * Reads clients/<id>/dist/framework/.vendor-meta.json (written by

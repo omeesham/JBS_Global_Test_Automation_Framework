@@ -20,7 +20,6 @@ function getArtifactSetting(envVar: string, defaultValue: string): string {
 export default defineConfig({
   testDir: __dirname,
   testMatch: ['tests/**/*.spec.ts'],
-  testIgnore: process.env.CI ? ['**/examples/**', '**/api-testing/**'] : ['**/examples/**'],
 
   timeout: process.env.CI ? 60 * 1000 : 30 * 1000,
   expect: { timeout: 5000 },
@@ -44,6 +43,11 @@ export default defineConfig({
 
   reporter: [
     ['list'],
+    // AgentReporter writes reports/failure-summary.json on every failing run — primary /rca input.
+    // Bundled by `npm run share-for-debugging` and shipped to CI artifact `share-for-debugging-*.zip`.
+    // Relocated 2026-05-19 from dist/framework/ to clients/encore/src/utils/ so the reporter
+    // ships with the deliverable (git archive --strip-components=2 excludes anything above clients/encore/).
+    ['./src/utils/agent-reporter.ts'],
     ['html', { outputFolder: 'reports/html-report', open: 'never' }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['junit', { outputFile: 'reports/junit-results.xml' }],

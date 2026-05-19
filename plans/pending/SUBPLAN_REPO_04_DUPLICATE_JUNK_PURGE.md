@@ -16,7 +16,7 @@ Kill duplicate folders, consolidate scattered files, clean accumulated junk. One
 ## What's Fucked
 
 - **3 allure locations**: `allure-report/` (root, 5.2M), `allure-results/` (root, 354K), `reports/allure-results/` (46M) — all gitignored but locally messy
-- **2 export folders**: `export_test_cases/` (scripts + stale CSVs) and `exports/` (active CSVs) — scripts are tools, output is exports
+- **2 export folders**: `export_test_cases/` (scripts + stale CSVs) and `test_cases_csv/` (active CSVs, renamed from `exports/` 2026-05-19) — scripts are tools, output is the renamed CSVs dir
 - **Reports bloat**: 124M with backup files (`.pre-*`), accumulated logs (`sp5-*.log`), 29M test-results.json
 - **Root trash**: `cli and mcp in our repo.md` (random doc), `.tmp/` (empty dir)
 - **MCP cache**: `.playwright-mcp/` 15M, 213 files, never cleaned
@@ -26,7 +26,7 @@ Kill duplicate folders, consolidate scattered files, clean accumulated junk. One
 ## Direction
 
 1. Consolidate allure config to point to `reports/allure-results/` only. Verify `npm run allure:report` reads from canonical location.
-2. Rename `export_test_cases/` to `tools/export-test-cases/` (it's a tool, not test cases). Verify `to-csv.ts` outputs to `exports/`. Update package.json scripts.
+2. Rename `export_test_cases/` to `tools/export-test-cases/` (it's a tool, not test cases). Verify `to-csv.ts` outputs to `test_cases_csv/`. Update package.json scripts.
 3. Extend `npm run clean` to purge: `.pre-*` backups, `sp*-*.log` files, root allure dirs, `.playwright-mcp/`, `.tmp/`
 4. Delete root trash: `cli and mcp in our repo.md`, `.tmp/`
 5. Verify `.gitignore` coverage for all junk locations

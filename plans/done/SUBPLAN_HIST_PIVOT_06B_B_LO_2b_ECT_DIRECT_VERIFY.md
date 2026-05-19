@@ -1,22 +1,4 @@
-> 🤖 **SESSION BOOTSTRAP — Just invoke with `/execute <this-filename>`. All context below.**
->
-> The agent self-bootstraps using the frontmatter + sections in this file. On invocation, it follows this sequence **without any additional user prompting**:
->
-> 1. **Identity**: load `/identity` per the `**Identity**` field below.
-> 2. **Skills**: load every skill in `**Skills**` field below (the leading skill auto-calls its chain).
-> 3. **Model + thinking tier**: look up this subplan's SP number in `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` → Execution Order table. Use the specified Opus/Sonnet + think tier. If master plan has no row for SP-B-LO-2b, inherit SP-B-LO-2's slot (Opus + think hard) — Phase 0 bumps one notch (ultrathink) because this session includes a state-reconcile gate against the parent catalog.
-> 4. **Dependency gate**: verify every item in `**Depends on**` field is marked DONE in `plans/done/`. If any blocker → HALT + report to user.
-> 5. **Context load**: read `plans/done/SUBPLAN_HIST_PIVOT_06_B_LO_2_ECT_CATALOG.md` (parent session) + `clients/encore/specs_planning/catalogs/hist-root-map-local-office-ect.md` (existing ECT catalog to extend) + `clients/encore/specs_planning/catalogs/hist-root-map-local-office-basic-info.md` (for PROBE step cross-reference) + master plan §3 HEALER row (LOS-ECT-BUG-A).
-> 5.5 **Browser tool selection (LR-038)**: this session REQUIRES live DOM drive on office 1604. Default = Claude in Chrome (`mcp__Claude_in_Chrome__*`) — `javascript_tool` for DOM reads, `computer` + `find` for Radix tab clicks and text-input typing. Do NOT default to Playwright MCP `browser_snapshot` (token cost ~20k per tab switch; `read_page` returns compact accessibility summary).
-> 6. **Phase 0 FIRST** (if present in Step-by-Step): execute before any edits.
-> 7. **Execute Phases 1+** per Step-by-Step in order.
-> 8. **Handoff**: on success, set Status: DONE + Executed date, append activity-log row (LR-028 + LR-037 wall-clock ≥ mtime of touched files), `git mv` this file to `plans/done/`, run `npm run plans:reindex`, commit one bounded commit per LR-027.
->
-> **HALT + ASK USER** if:
-> - SP-B-LO-2 (parent) is not DONE in `plans/done/`.
-> - Office 1604 ECT form state at session start does not match parent-session terminal state OR cannot be cleanly baseline-restored (see Phase 0).
-> - The ECT value-persistence observation (BM `0.0% → 21.0% → tab switch → 0.0%`) cannot be reproduced and also cannot be ruled out — this means the write path is non-deterministic and the session can't reliably measure save-to-history tracking.
-> - `/regression-guard` diff shows changes unrelated to this subplan's scope.
+> **ARCHIVED — DO NOT EXECUTE.** Completed work, historical reference only.
 
 ---
 

@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 /**
+ * DEPRECATED 2026-05-19 — vendoring removed in PLAN_DIST_REGRESSION_AND_N_FIXES.
+ * Wrapper for the deprecated build-framework-vendor.ts loop. Output gitignored.
+ * Cleanup tracked by PLAN_ROOT_CLIENT_DEDUPE.md. Do not invoke; do not extend.
+ *
  * scripts/build-framework-vendor-all.mjs
  *
  * Loops over every clients/<id>/ and runs the vendor-build for each.

@@ -1,6 +1,7 @@
 # SP1 MCP Discovery Findings — History Integration
 
-**Status**: DELIVERABLE (findings artifact — lives with SP1 until SP1 moves to done/)
+**Status**: ARCHIVED-REFERENCE
+**Archived for**: LR-036 boolean-render evidence (Unicode vs SVG); consumer: PLAN_LM_HISTORY_COVERAGE + PLAN_LO_HISTORY_COVERAGE Phase 5 page-object work
 **Priority**: P2-CYCLE-3
 **Parent**: SUBPLAN_HISTORY_01_MCP_DISCOVERY.md
 **Session**: 2026-04-13 14:42–15:04 UTC

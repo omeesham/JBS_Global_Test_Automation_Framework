@@ -1,0 +1,112 @@
+﻿TC ID,Title,Module,Submodule,Specific Field,Preconditions,Steps,Expected Result,Notes
+"TC-LOC-SSL-001","Verify tab loads with table and Add button","locations","shared_setup_locations","tab loads with","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to Setup > Location > 1604 > click ""Shared Setup Locations"" tab
+2. Verify a table with is visible
+3. Verify ""Add"" button is visible in last table row","Tab renders table with 5-column layout and Add button at bottom",""
+"TC-LOC-SSL-002","Verify column headers","locations","shared_setup_locations","column headers","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Inspect column headers left-to-right","5 columns with headers ""Local Office"", ""Local Office Name"", ""Primary Office"", ""Shares Inventory"", and one empty header",""
+"TC-LOC-SSL-003","Verify self-location row default state","locations","shared_setup_locations","self-location row default state","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Locate first data row
+3. Verify ""Primary Office"" checkbox is checked and disabled (is checked, disabled)
+4. Verify ""Shares Inventory"" checkbox is unchecked and editable (is not checked, not disabled)
+5. Verify ""Delete"" button is disabled","Self-location (1604) row: Primary Office locked-checked, Shares Inventory editable-unchecked, Delete disabled",""
+"TC-LOC-SSL-004","Primary Office is read-only for self-location","locations","shared_setup_locations","Primary Office","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Attempt to click ""Primary Office"" checkbox in row 1604
+3. Verify checkbox state unchanged","Primary Office cannot be unchecked for self-location; clicking is a no-op because element is disabled",""
+"TC-LOC-SSL-005","Delete button disabled for self-location","locations","shared_setup_locations","Delete","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Inspect ""Delete"" button for row 1604
+3. Attempt to click Delete","Delete button is disabled for self-location; self-row cannot be removed",""
+"TC-LOC-SSL-006","Shares Inventory toggle ON enables Save","locations","shared_setup_locations","Shares Inventory toggle","Shares Inventory is unchecked for 1604","1. Navigate to ""Shared Setup Locations"" tab
+2. Click ""Shares Inventory"" checkbox in row 1604
+3. Observe left-panel Save button state","Toggling Shares Inventory marks form as dirty, enables left-panel Save","CLEANUP: Uncheck ""Shares Inventory"" to revert. If Save still enabled, navigate away and accept unsaved changes dialog or reload page"
+"TC-LOC-SSL-007","Reverting Shares Inventory disables Save","locations","shared_setup_locations","Reverting Shares Inventory disables","Shares Inventory is unchecked for 1604","1. Navigate to ""Shared Setup Locations"" tab
+2. Click ""Shares Inventory"" checkbox
+3. Click ""Shares Inventory"" again
+4. Observe Save button state","Reverting to original state removes dirty flag, Save disables",""
+"TC-LOC-SSL-008","Shares Inventory save and persist","locations","shared_setup_locations","Shares Inventory save","Shares Inventory is unchecked for 1604","1. Navigate to ""Shared Setup Locations"" tab
+2. Click ""Shares Inventory"" checkbox
+3. Click left-panel ""Save""
+4. Click ""Save"" in dialog
+5. Reload page, navigate back to ""Shared Setup Locations"" tab
+6. Verify ""Shares Inventory"" for row 1604","Checked state persists after save + reload","CLEANUP: Uncheck Shares Inventory -> Save -> confirm dialog -> verify unchecked after reload"
+"TC-LOC-SSL-009","Add button opens Change Local Office dialog","locations","shared_setup_locations","Add","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Click ""Add"" button in last table row
+3. Verify dialog heading is ""Change Local Office"" (h2)
+4. Verify search input with placeholder ""Search by Location Name, Number""
+5. Verify results table with 3 columns (checkbox, Local Office, Local Office Name)
+6. Verify ""Select"" button is disabled (no row selected)
+7. Verify ""Cancel"" button is enabled
+8. Click ""Cancel""","Add opens ""Change Local Office"" dialog with search, results table, Select/Cancel buttons. Cancel closes without changes",""
+"TC-LOC-SSL-010","Dialog search filters by location name","locations","shared_setup_locations","Dialog search filters","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Type ""Miami"" in search input
+3. Verify filtered rows show matching names (e.g., ""Miami Marriott Biscayne Bay"")
+4. Click ""Cancel"" to close","Search input filters results table by location name substring match",""
+"TC-LOC-SSL-011","Dialog search filters by location number","locations","shared_setup_locations","Dialog search filters","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Type ""990002"" in search input
+3. Verify exact match shown
+4. Click ""Cancel"" to close","Search input filters results table by location number match",""
+"TC-LOC-SSL-012","Dialog row selection enables Select button","locations","shared_setup_locations","Dialog row selection enables Select","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Verify ""Select"" button is disabled
+3. Search for ""1099""
+4. Click the row checkbox (role=""checkbox"" aria-label=""Select row"")
+5. Verify ""Select"" button is now enabled","Selecting a row checkbox enables the Select button","CLEANUP: Click Cancel to close dialog"
+"TC-LOC-SSL-013","Add location via dialog Select button","locations","shared_setup_locations","Add location via dialog Select","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Click ""Add""
+3. Search for a location (e.g., ""1099"")
+4. Check the row checkbox
+5. Click ""Select""
+6. Verify new row shows correct Local Office number and Local Office Name
+7. Verify left-panel Save button is enabled","Selecting a location and clicking Select adds it to the table and marks form dirty","CLEANUP: Click Delete on added row -> navigate away and discard changes or reload"
+"TC-LOC-SSL-014","Non-self row state verification","locations","shared_setup_locations","Non-self row state verification","A non-self location has been added via TC-LOC-SSL-013","1. Inspect the added (non-self) row in the table
+2. Verify ""Primary Office"" checkbox is unchecked and ""disabled"" (is not checked, is disabled present)
+3. Verify ""Shares Inventory"" checkbox is checked and ""editable"" (is checked, not disabled)
+4. Verify ""Delete"" button is ""enabled"" (not disabled)","Non-self rows: Primary Office disabled+unchecked, Shares Inventory checked+editable, Delete enabled","CLEANUP: Delete added row, discard changes"
+"TC-LOC-SSL-015","Delete non-self row (instant, no confirmation)","locations","shared_setup_locations","Delete non-self row (instant","A non-self location has been added (e.g., via TC-LOC-SSL-013)","1. Verify table has 2+ data rows (self + added)
+2. Click ""Delete"" on the added (non-self) row
+3. Verify table returns to only self-row (1604) + Add row
+4. Verify left-panel Save button state","Delete immediately removes the non-self row without any confirmation dialog","CLEANUP: Navigate away and discard unsaved changes, or Save"
+"TC-LOC-SSL-016","Cancel dialog does not modify table","locations","shared_setup_locations","Cancel dialog does not modify","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Click ""Add""
+3. Search for ""Miami""
+4. Check a row checkbox (e.g., ""1233 - Miami Marriott Biscayne Bay"")
+5. Click ""Cancel"" instead of Select
+6. Verify main table still has only self-row (1604)
+7. Verify left-panel Save button is disabled","Cancelling dialog after selecting a row makes no changes to the table",""
+"TC-LOC-SSL-017","Tab uses left-panel Save (no dedicated Save)","locations","shared_setup_locations","Tab uses left-panel Save","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Navigate to ""Shared Setup Locations"" tab
+2. Inspect the Shared Setup Locations tabpanel for a local Save button
+3. Toggle ""Shares Inventory""
+4. Click left-panel ""Save""
+5. Click ""Save"" in dialog","No dedicated Save inside this tab; save uses left-panel Save with ""Save Changes"" confirmation dialog","CLEANUP: Revert Shares Inventory -> Save"
+"TC-LOC-SSL-018","Add location via dialog -> save -> reload -> row persists","locations","shared_setup_locations","Add location via dialog","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Reload and navigate to ""Shared Setup Locations"" tab
+2. Click ""Add""
+3. Verify table now has 2 rows
+4. Click ""Save""
+5. Reload page and navigate back to SSL tab
+6. Verify table still has 2 rows and added location data matches","Added location persists after save + reload round-trip","CLEANUP: Delete added row + Save"
+"TC-LOC-SSL-019","Non-self Shares Inventory toggle -> save -> reload -> persisted","locations","shared_setup_locations","Non-self Shares Inventory toggle","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Setup: add first available location via name search + save + reload
+2. Verify non-self row has SI=checked (default)
+3. Toggle ""Shares Inventory"" OFF on non-self row
+4. Click ""Save""
+5. Reload and navigate back","Non-self Shares Inventory toggle persists after save + reload","CLEANUP: Delete added row + Save"
+"TC-LOC-SSL-020","Delete location -> save -> reload -> row removed","locations","shared_setup_locations","Delete location -> save","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Setup: add first available location + save + reload
+2. Delete non-self row
+3. Click ""Save""
+4. Reload and navigate back","Deleted location stays removed after save + reload",""
+"TC-LOC-SSL-021","Combined self SI + add location -> save -> reload -> both persisted","locations","shared_setup_locations","Combined self SI +","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Reload to clean state
+2. Toggle self ""Shares Inventory"" ON
+3. Add location via name search dialog
+4. Click ""Save""
+5. Reload","Multiple changes (self SI toggle + add location) persist together","CLEANUP: Reset SI to unchecked + delete added row + Save (try/finally for LR-026)"
+"TC-LOC-SSL-022","Cancel Save dialog -> changes not persisted after reload","locations","shared_setup_locations","Cancel Save dialog ->","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Reload to clean state
+2. Toggle self ""Shares Inventory"" ON
+3. Click ""Save""
+4. Click ""Cancel"" in dialog
+5. Reload without saving","Cancelling the Save dialog does NOT persist changes",""
+"TC-LOC-SSL-023","Beforeunload fires when SSL form is dirty","locations","shared_setup_locations","Beforeunload fires","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Reload to clean state
+2. Toggle self ""Shares Inventory""
+3. Trigger page reload
+4. Dismiss dialog (stay on page)","Dirty form triggers beforeunload dialog on navigation/reload","CLEANUP: Navigate away to discard"
+"TC-LOC-SSL-024","Already-added location absent from Change Local Office dialog","locations","shared_setup_locations","Already-added location absent from","Office 1604 is open in Navigator. Shared Setup Locations tab is active","1. Setup: add first available location + save
+2. Read the added location's number from the table
+3. Click ""Add""
+4. Search for the added location's number
+5. Verify the row is NOT the added location","Dialog excludes locations already associated with this office","CLEANUP: Delete added row + Save"

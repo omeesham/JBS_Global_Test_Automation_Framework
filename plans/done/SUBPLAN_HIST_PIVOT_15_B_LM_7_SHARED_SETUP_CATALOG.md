@@ -1,23 +1,4 @@
-> 🤖 **SESSION BOOTSTRAP — Just invoke with `/execute <this-filename>`. All context below.**
->
-> The agent self-bootstraps using the frontmatter + sections in this file. On invocation, it follows this sequence **without any additional user prompting**:
->
-> 1. **Identity**: load `/identity` per the `**Identity**` field below.
-> 2. **Skills**: load every skill in `**Skills**` field below (the leading skill auto-calls its chain — e.g. `/cleanup` → `/regression-guard`).
-> 3. **Model + thinking tier**: look up this subplan's SP number in `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` → Execution Order table. Use the specified Opus/Sonnet + think / think hard / think harder / ultrathink. If Phase 0 is present in Step-by-Step, bump thinking tier one notch higher than the table (forensic analysis needs judgment).
-> 4. **Dependency gate**: verify every item in `**Depends on**` field is marked DONE in `plans/done/` or not-applicable. If any blocker → HALT + report to user. Do not proceed.
-> 5. **Context load**: read `plans/pending/PLAN_HIST_COLUMN_FIRST_PIVOT.md` §1–§3 (pivot rationale + scope + per-identity KEEP/DELETE inventory) + this subplan in full.
-> 5.5. **Browser tool selection**: this subplan interacts with the live app. Select Playwright CLI vs Claude in Chrome per **LR-038 v2** task-class matrix (root CLAUDE.md). For deep catalog walkthroughs (>10 fields, repeated snapshots) the default is **Playwright CLI** (YAML-on-disk, ~4× token savings); for auth-heavy / live-RCA / visual assertions the default is **Claude in Chrome**. Announce choice + reason in your first output and activity-log row.
-> 6. **Phase 0 FIRST (if present in Step-by-Step)**: execute the "Phase 0 — Date-Forensic Self-Discovery" step before any code or doc edits. Document findings (with dispositions) in your activity-log row.
-> 7. **Execute Phases 1+** per Step-by-Step in order.
-> 8. **Handoff**: on success, apply the Handoff Signals block — set the file's Status field to DONE + Executed date in this file, append activity-log row (LR-028 + LR-037 wall-clock time ≥ mtime of every touched file), `git mv` this file to `plans/done/`, run `npm run plans:reindex`, commit (one commit per LR-027 boundary).
->
-> **HALT + ASK USER** (do NOT silently proceed) if:
-> - Any `**Depends on**` item is not DONE.
-> - Phase 0 uncovers scope extension >30% beyond the listed starting point (user confirms before acting on unscoped items).
-> - Genuine ambiguity in scope beyond the master plan §3 KEEP list.
-> - `/regression-guard` diff shows changes unrelated to this subplan's stated scope.
-> - Activity-log preflight (`npm run validate:activity-log:preflight`) would fail for your row.
+> **ARCHIVED — DO NOT EXECUTE.** Completed work, historical reference only.
 
 ---
 
@@ -25,7 +6,21 @@
 
 **Parent**: PLAN_HIST_COLUMN_FIRST_PIVOT.md
 **Group**: 2 (Discovery)
-**Status**: Pending
+**Status**: SUPERSEDED-2026-05-11
+**Superseded-by**: PLAN_PILOT_SHARED_DISCOVERY.md
+**Executed**: 2026-05-11
+
+### Execution Summary (2026-05-11 supersession)
+
+SUPERSEDED-2026-05-11 by `PLAN_PILOT_SHARED_DISCOVERY.md` (vertical-pilot derivative). Merges this plan's HIST catalog work (with save-level NOT-TRACKED probe / SSL-SAVE-BUG-A risk) with `SUBPLAN_DQU_17_F1f_SHARED_SETUP_AUDIT.md` (DQU 2-phase audit) into one Opus/max session. The save-level probe is preserved verbatim in the successor's Phase 1a as a critical gate that branches Plan 4 (TESTS).
+
+- **TCs implemented**: 0 (no `/execute` invocation).
+- **MCP verification**: not performed.
+- **Documentation changes**: none — file body preserved per `feedback_dont_destroy_user_data.md`.
+- **Test pass confirmation**: n/a.
+- **Note on 2026-04-22 sibling-pair audit-rec**: the in-body recommendation to merge with `SUBPLAN_HIST_PIVOT_14_B_LM_6_NOTES_CATALOG.md` is also superseded — on a **different axis** (per-submodule vertical, not sibling-pair catalog).
+
+(Original plan body follows below.)
 **Priority**: P1-CYCLE-2
 **Created**: 2026-04-20
 **Depends on**: SP-A1 complete

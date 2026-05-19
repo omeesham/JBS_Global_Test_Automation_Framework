@@ -2,6 +2,7 @@
   "name": "playwright-typescript-framework",
   "version": "1.0.0",
   "description": "Playwright TypeScript automation framework with Page Object Model",
+  "_vendor_deprecation_note": "DEPRECATED 2026-05-19 — vendor:build / vendor:build:all entries below are dead code per PLAN_DIST_REGRESSION_AND_N_FIXES. Clients ship clients/<id>/src/ directly via git archive — no compiled output. Final removal tracked by PLAN_ROOT_CLIENT_DEDUPE.md.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

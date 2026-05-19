@@ -11,7 +11,7 @@ export class JiraConverter {
    * Convert test cases to Jira Xray CSV format.
    * Creates CSV with Jira-specific columns (Test Case Key, Test Summary, etc.).
    * @param testCasesDir - Path to test case directory
-   * @param projectKey - Jira project key (e.g., "NAV4", "PROJ")
+   * @param projectKey - Jira project key (e.g., "NM", "PROJ")
    * @returns CSV string compatible with Jira Xray CSV import
    */
   static convert(testCasesDir: string, projectKey: string = 'PROJ'): string {

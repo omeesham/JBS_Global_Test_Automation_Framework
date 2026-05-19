@@ -1,6 +1,7 @@
 # SUBPLAN: Neutral-Eye Audit + Fix — Location Management History
 
-**Status**: Pending
+**Status**: SUPERSEDED
+**Superseded by**: PLAN_LM_HISTORY_COVERAGE Phase 5b/7 (LM History neutral-eye audit)
 **Priority**: P0-CYCLE-1
 **Created**: 2026-04-22
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md

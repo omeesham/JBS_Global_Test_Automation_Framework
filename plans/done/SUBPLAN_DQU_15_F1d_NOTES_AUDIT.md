@@ -1,6 +1,20 @@
 # SUBPLAN: Neutral-Eye Audit + Fix — Notes
 
-**Status**: Pending
+**Status**: SUPERSEDED-2026-05-11
+**Superseded-by**: PLAN_PILOT_NOTES_DISCOVERY.md
+**Executed**: 2026-05-11
+
+### Execution Summary (2026-05-11 supersession)
+
+SUPERSEDED-2026-05-11 by `PLAN_PILOT_NOTES_DISCOVERY.md` (vertical-pilot derivative). Merges this plan's 2-phase DQU audit (Phase 0.5b baseline + Phase 1 WATCHDOG field-inventory + Phase 2 HEALER diff/bug/CSV) with `SUBPLAN_HIST_PIVOT_14_B_LM_6_NOTES_CATALOG.md` (HIST catalog) into one Opus/max session — same live-DOM walk emits both artifacts before HEALER takes over file-only Phase 2.
+
+- **TCs implemented**: 0 (no `/execute` invocation against this plan).
+- **MCP verification**: not performed.
+- **Documentation changes**: none — file body preserved per `feedback_dont_destroy_user_data.md`.
+- **Test pass confirmation**: n/a.
+- **Provenance preserved**: this plan was originally created 2026-04-22, marked SUPERSEDED 2026-04-25 by SP-AAE-06, revived 2026-04-28 after SP-AAE-06 cancellation. The 2026-05-11 supersession is the second one — same rationale (consolidation for efficiency), different mechanism (vertical-pilot, not parallel-chain).
+
+(Original plan body follows below.)
 **Priority**: P0-CYCLE-1
 **Created**: 2026-04-22
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md

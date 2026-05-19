@@ -36,7 +36,7 @@ Pick per the task class. There is no "default when uncertain" — if the task do
 
 ## Gate 3 — CLI auth fallback (try-it-and-see, no freshness gate)
 
-Try the `playwright-cli` call as-is (headless, using `.auth/nav4-state.json`). If it lands on the app → continue. If it redirects to `login.microsoftonline.com` or any Entra page → STOP, do NOT retry headless. Switch to headed via `playwright-cli open --persistent --profile=.auth\nav4-profile`, surface a one-line "auth refresh needed — please complete sign-in in the headed window" message to the user (LR-039 obstacle row), wait for sign-in, then `state-save -s=nav4` to refresh `.auth/nav4-state.json`. Resume the original headless flow on refreshed state. Log the switch as `[BROWSER-SWITCH] from=cli-headless to=cli-headed reason=auth-refresh artifact=.auth/nav4-state.json` per the mid-subplan switch protocol below. Trigger is the Entra redirect, not file age — no proactive mtime check.
+Try the `playwright-cli` call as-is (headless, using `.auth/e2e-state.json`). If it lands on the app → continue. If it redirects to `login.microsoftonline.com` or any Entra page → STOP, do NOT retry headless. Switch to headed via `playwright-cli open --persistent --profile=.auth\e2e-profile`, surface a one-line "auth refresh needed — please complete sign-in in the headed window" message to the user (LR-039 obstacle row), wait for sign-in, then `state-save -s=e2e` to refresh `.auth/e2e-state.json`. Resume the original headless flow on refreshed state. Log the switch as `[BROWSER-SWITCH] from=cli-headless to=cli-headed reason=auth-refresh artifact=.auth/e2e-state.json` per the mid-subplan switch protocol below. Trigger is the Entra redirect, not file age — no proactive mtime check.
 
 ## Mandatory announcement (accountability)
 
@@ -69,6 +69,58 @@ Chrome's service worker can go idle on long unattended runs; the extension may a
 2. Failure to switch (silent halt, indefinite retry on Chrome) = `/audit` **RED**.
 3. Drop event MUST be recorded as a JSON file under `reports/browser-drops/<YYYY-MM-DDTHH-MM>.json` with `{subplan, from, to, trigger, recovery_action}`.
 4. If the subplan declared `BrowserTool: chrome` (not `both`), the agent HALTs and surfaces the drop to the user instead of silently degrading — Chrome was chosen for a reason.
+
+## LR-054: `playwright-cli` ≠ `npx playwright` — consult Table 2 before claiming CLI limits
+
+`playwright-cli` (Microsoft's agent-CLI, binary `@playwright/cli`, v0.1.8+) and `npx playwright` (the `@playwright/test` runner) are **DIFFERENT BINARIES**. They share a name root but their command surfaces do not overlap. Conflating them produces authoritative-sounding hallucinations that block legitimate execution.
+
+**Binary distinction (canonical subcommand list — sourced from `docs/read_only_docs/CLI_BROWSER_GUIDE.md` §2 Table 2)**:
+
+| Capability | `playwright-cli` (agent-CLI) | `npx playwright` (test runner) |
+|---|---|---|
+| Open / navigate live page | `playwright-cli open <url>` / `goto <url>` | n/a (only `test`, `codegen`, `install`, `show-report`, `show-trace`) |
+| Click / fill / type | `click <ref>` / `fill <ref> <val>` / `type <ref> <val>` | n/a |
+| Snapshot (AX tree YAML to disk) | `snapshot` → `.playwright-cli/page-*.yml` | n/a |
+| Eval / run-code | `eval <expr>` (function form `() => expr`) / `run-code <block>` | n/a |
+| Network / console capture | `network` / `console` | n/a (captured inside test runs only) |
+| Storage / sessions | `state-save -s=<name>` / `state-load` / `-s=<name>` top-level flag / `open --persistent --profile=<dir>` | n/a |
+| Screenshot | `screenshot -o <file>` | n/a (captured inside test runs only) |
+| Test execution | n/a | `npx playwright test` / `--grep` / `--retries=0` / `--list` |
+| Codegen | n/a | `npx playwright codegen` |
+
+The `--raw` flag on `playwright-cli` (e.g., `playwright-cli --raw -s=<name> eval "() => window.location.href"`) strips status framing from stdout, returning a clean string suitable for `grep`/`printf` in bash polling loops.
+
+**Mandate**: any session asked yes/no on CLI capability, any `BrowserTool: cli` justification claiming a limit, any HALT prose citing CLI inadequacy MUST grep `docs/read_only_docs/CLI_BROWSER_GUIDE.md` Table 2 BEFORE answering. If a row exists for the capability, the answer is YES (cite the row). If no row exists, the answer is NO — but cite the absence verbatim, don't manufacture a reason.
+
+**Forbidden answers** (each is a documented hallucination class from 2026-05-18):
+
+- "playwright CLI can't drive live interaction" — FALSE: `click` / `fill` / `type` / `snapshot` are all in Table 2.
+- "playwright CLI can't refresh auth" — FALSE: `open --persistent --profile=<dir>` covers headed SSO + `state-save -s=<name>` persists session.
+- "CLI lacks the [X] subcommand" without quoting Table 2's absence of that row.
+- "manual sign-in is impossible from CLI" — FALSE: Gate 3 of this rule covers it: `open --persistent` opens headed window, user signs in, `state-save` captures state.
+- "MFA might fire" as a HALT reason when `clients/${ACTIVE_CLIENT}/CLAUDE.md` documents the automation user has no second-factor configured.
+
+**Companion structural defenses** (defense in depth — each catches a different escape route):
+
+1. Auto-memory `feedback_browser_tool_selection.md` `## playwright-cli ≠ npx playwright` section (active context).
+2. This rule (LR-054, path-scoped on plan/spec/page-object/specs_planning edits).
+3. `clients/encore/specs_planning/_internal/agent-mistakes.md` ALL-077 (prompt-injection advisory).
+4. PreToolUse `.claude/hooks/todo-injection-gate.sh --validate` banned-phrase scan on `tool_input.new_string` / `tool_input.content` for `Edit|Write|NotebookEdit|MultiEdit` writing to walk-evidence / neutral-eye-audits / field-inventories / plans paths.
+5. `/audit` skill (Mode review + Mode slop) grep-scan for banned-phrase regex set.
+6. Pre-commit / pre-push `scripts/verify-no-forbidden.mjs` path-scoped `isBannedPhraseTarget()` array.
+7. ⚠ callout above `docs/read_only_docs/CLI_BROWSER_GUIDE.md` Table 2.
+
+**Why this rule exists** (graduated from 2026-05-18 same-session double-hallucination):
+
+- **Instance 1** (SP-A agent, 2026-05-18): manufactured 153-line "Section 0 — Live-Walk Blocker" at `clients/encore/specs_planning/_internal/walk-evidence-shared-setup-2026-05-15.md:13-165`. Cited hypothetical MFA scenario contradicted by `clients/encore/CLAUDE.md:134` ("no second-factor authentication configured") AND the subplan's own line 94-96. Verdict: MANUFACTURED (Audit Sweep 3).
+- **Instance 2** (OWNER session, same day): said "playwright CLI ≠ live Claude interaction" without consulting Table 2 — conflated `npx playwright` (test runner) with `playwright-cli` (agent-CLI).
+- **Instance 3** (repo-wide pattern, Audit Sweep 2): 6 scripts in `scripts/` (~1781 lines) all import `chromium` directly + skip `LoginPage`. Institutional escape route, not one-off.
+
+All three had the same shape: authoritative answer about tool capability without consulting the canonical doc first. Removing the manufactured artifacts (Arm B + Arm C of `PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER`) is the immediate fix; this rule + the six companion defenses are the structural prevention.
+
+**Trigger**: any session asked yes/no on CLI capability; any `BrowserTool: cli` justification claiming a limit; any HALT row citing CLI inadequacy; any subplan authoring/edit involving SSO/auth-refresh prose; every `/execute` Phase 0 browser-tool announcement; every `/audit` review/slop pass on artifact files under `clients/*/specs_planning/_internal/`.
+
+**Graduated from**: 2026-05-18 same-session double-hallucination — SP-A agent + OWNER session, plus repo-wide raw-chromium-script pattern. `PLAN_FIX_CLI_HALLUCINATION_AND_SSL_A_BLOCKER` landed this rule + ALL-077 + hook + audit-skill scan + pre-push scan + CLI guide callout simultaneously.
 
 ## Legacy context (footnote)
 

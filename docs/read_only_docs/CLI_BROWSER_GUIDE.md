@@ -12,11 +12,13 @@ The Encore pipeline now has two first-class browser transports plus one retiring
 - **Claude in Chrome** (Anthropic official extension) — the specialist for visual/CSS work, auth-heavy flows (SSO), and live RCA where the user is at the machine. Inherits the user's live browser session, so no headless mode, no separate state-save, and no re-auth loops.
 - **Playwright MCP** (`playwright-browser`, `playwright-test`) — **retiring**. Keep a fallback path until SP-PWC2-07 archives this doc's predecessor and deletes `.vscode/mcp.json`. Do not start new work on MCP.
 
-**One-paragraph task-class rule** (seed for LR-038 v2 in SP-PWC2-01). **Default = CLI.** Use **CLI** when the task is functional (API failures, silent no-ops, broken links, 500s), unattended (chain runs, nightly CI), or repetitive across >10 steps where YAML-on-disk beats inline snapshots — and reach for it any time you can't justify Chrome from a named row. Use **Chrome** only when the task is visual (z-index, layout, truncation, pixels), auth-heavy in a way `state-save` can't solve (Entra FedAuth renewal — note that already-authenticated repeat sessions do NOT qualify; CLI's `state-save -s=nav4` reuses the session), or contains an explicit `pause:` / `await user input` step that fires DURING execution (true human-in-loop — "what happens when I click X right now, with the user watching"). **Verdict gates at end-of-subplan, YELLOW/RED handoffs, and "user will read the report later" are NOT human-in-loop** and do not justify Chrome (tightened 2026-04-27 after the SUBPLAN_DQU_04_B2_LI_NEUTRAL_EYE_AUDIT over-cautious-Chrome incident — agent cited "human-in-loop" for a plan with zero pause steps). Use **neither** when it's `@playwright/test` runner work — that's `npm test`, not a browser-tool choice.
+**One-paragraph task-class rule** (seed for LR-038 v2 in SP-PWC2-01). **Default = CLI.** Use **CLI** when the task is functional (API failures, silent no-ops, broken links, 500s), unattended (chain runs, nightly CI), or repetitive across >10 steps where YAML-on-disk beats inline snapshots — and reach for it any time you can't justify Chrome from a named row. Use **Chrome** only when the task is visual (z-index, layout, truncation, pixels), auth-heavy in a way `state-save` can't solve (Entra FedAuth renewal — note that already-authenticated repeat sessions do NOT qualify; CLI's `state-save -s=e2e` reuses the session), or contains an explicit `pause:` / `await user input` step that fires DURING execution (true human-in-loop — "what happens when I click X right now, with the user watching"). **Verdict gates at end-of-subplan, YELLOW/RED handoffs, and "user will read the report later" are NOT human-in-loop** and do not justify Chrome (tightened 2026-04-27 after the SUBPLAN_DQU_04_B2_LI_NEUTRAL_EYE_AUDIT over-cautious-Chrome incident — agent cited "human-in-loop" for a plan with zero pause steps). Use **neither** when it's `@playwright/test` runner work — that's `npm test`, not a browser-tool choice.
 
 ---
 
 ## 2. Command surface reference
+
+> ⚠ **`playwright-cli` ≠ `npx playwright`.** The two are DIFFERENT binaries. This document refers throughout to `playwright-cli` (Microsoft's agent-CLI, `@playwright/cli` v0.1.8+), NOT `npx playwright` (the `@playwright/test` runner). `npx playwright` only exposes `test` / `codegen` / `install` / `show-report` / `show-trace` — it has none of the live-interaction subcommands below (`open` / `goto` / `snapshot` / `click` / `fill` / `type` / `eval` / `network` / `console` / `state-save` / `screenshot`). Before answering any "can CLI do X" question or writing any HALT row citing a CLI limit, grep this table for the row. See `.claude/rules/browser-tool.md` LR-054 + `clients/encore/specs_planning/_internal/agent-mistakes.md` ALL-077 for the structural prevention. Graduated from 2026-05-18 same-session double-hallucination (manufactured Section 0 blocker + agent conflation of the two binaries).
 
 Side-by-side mapping — every MCP primitive we currently use, its CLI equivalent, and its Chrome equivalent. This is the core of the V2 cutover: if a row says "n/a" for CLI or Chrome, the other wins by default.
 
@@ -50,12 +52,12 @@ Side-by-side mapping — every MCP primitive we currently use, its CLI equivalen
 
 ### 3.1 CLI — one-time state-save + persistent profile
 
-CLI has no inherent session. Each command is stateless unless a named session (`-s=<name>`) points at a saved `storageState`. For Nav4's MSFT SSO + Entra FedAuth:
+CLI has no inherent session. Each command is stateless unless a named session (`-s=<name>`) points at a saved `storageState`. For e2e's MSFT SSO + Entra FedAuth:
 
-1. One-time headed login: `playwright-cli open --persistent --profile=.auth/nav4-profile <NAV4_URL>`.
+1. One-time headed login: `playwright-cli open --persistent --profile=.auth/e2e-profile <E2E_URL>`.
 2. Complete SSO manually in the browser window.
-3. `playwright-cli state-save -s=nav4` — captures cookies + origins to disk.
-4. Every subsequent CLI call: `playwright-cli <cmd> -s=nav4`.
+3. `playwright-cli state-save -s=e2e` — captures cookies + origins to disk.
+4. Every subsequent CLI call: `playwright-cli <cmd> -s=e2e`.
 5. Refresh cycle: Entra FedAuth cookie = 7 days → document a `refresh-auth` npm script (SP-PWC2-07 pilot; stub here).
 
 **Leak risk**: `storageState` and `.playwright-cli/sessions/` contain session cookies + bearer tokens. Must be in `.gitignore`. Pre-commit hook should reject commits with auth files. See V1 plan §Self-audit Q7.
@@ -99,7 +101,7 @@ Every claim the researcher landed in the V2 plan was re-fetched from primary sou
 
 - **Pixel-blind.** YAML AX tree cannot see z-index collisions, overlap, truncation, rendered font sizes, or visual regressions. Use Chrome for any visual/CSS bug.
 - **Wall-clock cost.** Outpost's 2-3× slower wall-clock (NH9 CONFIRMED) means a 90s MCP exploration becomes 180-350s with CLI, occasionally 600s+. Token savings are real; wall-clock is the trade. Mitigation: agents should read snapshot YAML from disk once rather than re-snapshotting for the same state; batch interactions in a `run-code` block when safe.
-- **Stateless by default.** Every CLI call is stateless unless a named session is specified. Forgetting `-s=nav4` silently opens a fresh unauth browser → session cookies leak expectation, test fails at auth redirect, agent confused. SP-PWC2-05 normalizer enforces session presence.
+- **Stateless by default.** Every CLI call is stateless unless a named session is specified. Forgetting `-s=e2e` silently opens a fresh unauth browser → session cookies leak expectation, test fails at auth redirect, agent confused. SP-PWC2-05 normalizer enforces session presence.
 - **Fresh passkey is infeasible.** Use Chrome when a passkey prompt is part of the flow.
 
 ### 5.2 Chrome limitations
@@ -121,7 +123,7 @@ MCP remains valid until SP-PWC2-07 archives `MCP_BROWSER_GUIDE.md`. Known degrad
 ### 6.1 CLI — authentication refresh
 
 - `refresh-auth` npm script (stub — authored in SP-PWC2-07 pilot) should detect FedAuth cookie expiry and re-prompt for headed login.
-- Session age check in pre-run gates: if `.playwright-cli/sessions/nav4.json` is older than 6 days, warn; older than 7 days, HALT.
+- Session age check in pre-run gates: if `.playwright-cli/sessions/e2e.json` is older than 6 days, warn; older than 7 days, HALT.
 
 ### 6.2 Chrome — connection drop protocol
 
