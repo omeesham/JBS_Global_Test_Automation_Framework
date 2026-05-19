@@ -43,10 +43,10 @@ User clicks sidebar Home with unsaved form changes
 ```
 
 ### Verified References (line numbers grep-confirmed 2026-03-25)
-- **Fixture handler**: `tests/setup/fixtures.ts:138` — `page.on('dialog', async (dialog) => { if (dialog.type() === 'beforeunload') { await dialog.accept(); } })`
+- **Fixture handler**: `tests/infra/fixtures.ts:138` — `page.on('dialog', async (dialog) => { if (dialog.type() === 'beforeunload') { await dialog.accept(); } })`
 - **Existing solution A**: `src/pages/locations/location-legal.page.ts:214` — `triggerBeforeunloadAndStay()` (reload-based, dismiss to stay)
 - **Existing solution B**: `src/pages/locations/location-notes.page.ts:306` — `navigateAwayWithUnsavedChanges()` (navigate-based, dismiss to stay)
-- **Existing solution C**: `src/common/base-page.ts:66` — `safeNavigateTo()` (wraps navigation with beforeunload accept handler)
+- **Existing solution C**: `src/core/base-page.ts:66` — `safeNavigateTo()` (wraps navigation with beforeunload accept handler)
 - **Auto-addon's solution**: `src/pages/locations/location-auto-addon.page.ts:117-122` — window-level `onbeforeunload = null` + `stopImmediatePropagation` suppression
 
 ### Why No Gate Caught This

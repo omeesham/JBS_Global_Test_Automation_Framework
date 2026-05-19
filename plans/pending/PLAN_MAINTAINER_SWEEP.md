@@ -35,8 +35,8 @@ Originally targeted 7 silent selector collisions + 4 refactoring tasks. P0 Decon
 
 | File | Count | Timeout Values | Lines |
 |------|-------|----------------|-------|
-| `src/common/base-page.ts` | 3 | 15k, 15k, 10k | 348, 386, 393 |
-| `src/common/ui-common.ts` | 1 | none (Playwright default 30s) | 112 |
+| `src/core/base-page.ts` | 3 | 15k, 15k, 10k | 348, 386, 393 |
+| `src/core/ui-common.ts` | 1 | none (Playwright default 30s) | 112 |
 | `src/pages/setup/local-office/local-office-settings.page.ts` | 6 | 10k×2, 15k×4 | 49, 59, 71, 81, 131, 136 |
 | `src/pages/setup/locations/location-auto-addon.page.ts` | 3 | 15k×2, 10k×1 | 20, 72, 150 |
 | `src/pages/setup/locations/location-test-orchestrators.page.ts` | 4 | 15k×4 (note: `15000` not `15_000`) | 47, 52, 57, 76 |
@@ -47,7 +47,7 @@ Originally targeted 7 silent selector collisions + 4 refactoring tasks. P0 Decon
 
 ### Implementation
 
-**Add to `src/common/base-page.ts`** (after `navigateToSubTab`, ~line 397):
+**Add to `src/core/base-page.ts`** (after `navigateToSubTab`, ~line 397):
 ```typescript
 /**
  * Wait for network to reach idle state with a timeout.
@@ -66,7 +66,7 @@ protected async waitForNetworkIdle(timeout = 15_000): Promise<void> {
 - Calls with 10_000 → `await this.waitForNetworkIdle(10_000);`
 - Calls with 5_000 → `await this.waitForNetworkIdle(5_000);`
 
-**SKIP `src/common/ui-common.ts:112`** — `UICommon` is a static utility class, not a BasePage subclass. Its no-timeout call uses Playwright's default 30s. Leave as-is.
+**SKIP `src/core/ui-common.ts:112`** — `UICommon` is a static utility class, not a BasePage subclass. Its no-timeout call uses Playwright's default 30s. Leave as-is.
 
 ### Verification
 ```bash
@@ -82,13 +82,13 @@ npx tsc --noEmit
 ## Remaining Item 2: SP-06 — CheckboxState → framework-contracts (P2)
 
 ### Problem
-Circular import: `src/common/base-page.ts:15` imports `CheckboxState` from `../pages/setup/locations/location-form-helpers.page` — a page object that extends BasePage via its own inheritance chain. Works only because TypeScript resolves at type level, but architecturally wrong and fragile.
+Circular import: `src/core/base-page.ts:15` imports `CheckboxState` from `../pages/setup/locations/location-form-helpers.page` — a page object that extends BasePage via its own inheritance chain. Works only because TypeScript resolves at type level, but architecturally wrong and fragile.
 
 ### Files Importing CheckboxState Today
 
 | File | Current Import Path |
 |------|-------------------|
-| `src/common/base-page.ts:15` | `../pages/setup/locations/location-form-helpers.page` **(CIRCULAR)** |
+| `src/core/base-page.ts:15` | `../pages/setup/locations/location-form-helpers.page` **(CIRCULAR)** |
 | `src/pages/setup/locations/location-auto-addon.page.ts:5` | `./location-form-helpers.page` |
 | `src/pages/setup/locations/location-currency.page.ts:24` | `./location-form-helpers.page` |
 | `src/pages/setup/locations/location-local-info.page.ts:21` | `./location-form-helpers.page` (also SpinState) |
@@ -118,7 +118,7 @@ export interface SpinState {
 export { CheckboxState, SpinState } from './types';
 ```
 
-**3. Update `src/common/base-page.ts:15`:**
+**3. Update `src/core/base-page.ts:15`:**
 ```typescript
 // FROM: import { CheckboxState } from '../pages/setup/locations/location-form-helpers.page';
 // TO:
@@ -142,7 +142,7 @@ import { CheckboxState } from '../../../framework-contracts';
 ### Verification
 ```bash
 npx tsc --noEmit
-grep -rn "from.*location-form-helpers" src/common/  # → 0 matches (circular import gone)
+grep -rn "from.*location-form-helpers" src/core/  # → 0 matches (circular import gone)
 ```
 
 **Risk**: LOW — TypeScript catches all import breakage. Re-export preserves downstream compatibility.
@@ -194,7 +194,7 @@ grep -rn "waitForLoadState.*networkidle" src/
 # Expected: ONLY ui-common.ts:112 + base-page.ts method def
 
 # 3. Circular import eliminated
-grep -rn "from.*location-form-helpers" src/common/
+grep -rn "from.*location-form-helpers" src/core/
 # Expected: 0 matches
 
 # 4. Collision detection still works
@@ -209,7 +209,7 @@ node -e "require('./src/selectors')"
 | Other Plan | Overlap | Status |
 |-----------|---------|--------|
 | PLAN_CODEBASE_CLEANUP B4 (CheckboxState) | `src/framework-contracts/`, `base-page.ts` | SP-06 is **prerequisite** for B4. Run SP-06 first. |
-| PLAN_CODEBASE_CLEANUP A2.10 (`getSelectorFromTs`) | `src/common/base-page.ts` | No overlap — different methods. |
+| PLAN_CODEBASE_CLEANUP A2.10 (`getSelectorFromTs`) | `src/core/base-page.ts` | No overlap — different methods. |
 | PLAN_CODEBASE_CLEANUP B3 (SELECTOR_PREFIXES) | No overlap | Safe. |
 
 ---

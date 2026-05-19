@@ -18,7 +18,7 @@ Fresh sweep of all `src/` code for AI slop — duplicated patterns, dead code, v
 |-----------|-------------|-----------|
 | `src/pages/` | Page objects for each module (login, home, setup/locations/*, setup/local-office/*) | Duplicated dialog handling, tab navigation, save patterns across POs |
 | `src/utils/` | logger, common-methods, diagnostics-collector, app-constants, agent-reporter | Utility bloat, dead functions, overlap between utils |
-| `src/common/` | base-page.ts, credential-loader.ts, ui-common | Base class methods that might be dead or duplicated in child POs |
+| `src/core/` | base-page.ts, credential-loader.ts, ui-common | Base class methods that might be dead or duplicated in child POs |
 | `src/selectors/` | All selector files (static + dynamic + per-module) | Unused selectors, naming inconsistencies, stale references |
 | `src/framework-contracts/` | IConfig, diagnostics types | Dead types, over-engineered interfaces |
 | `src/data/` | Adapters (Excel, JSON, DB, S3) | Which adapters are actually used vs dead weight? |

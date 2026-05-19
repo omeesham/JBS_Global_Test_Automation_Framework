@@ -3,13 +3,13 @@
  * Shows: imports, fixtures, page objects, logging, custom matchers, hooks.
  *
  * RULES:
- * - Import from '@client-tests/setup/fixtures', NEVER from '@playwright/test'
+ * - Import from '@client-tests/infra/fixtures', NEVER from '@playwright/test'
  * - Use page object methods, NEVER direct page.click()/page.fill()
  * - Log at every key step with Log.info()
  * - Use test IDs: TC-{APP}-{NNN}: Description
  */
 
-import { test, expect } from '@client-tests/setup/fixtures';
+import { test, expect } from '@client-tests/infra/fixtures';
 import { Log } from '../../src/utils/logger';
 
 test.describe('Example: Login Flow @example', () => {
@@ -27,7 +27,7 @@ test.describe('Example: Login Flow @example', () => {
     await loginPage.goto();
 
     // Login -- page object handles entire SSO flow
-    const { CredentialLoader } = await import('../../src/common/credential-loader');
+    const { CredentialLoader } = await import('../../src/core/credential-loader');
     const creds = await CredentialLoader.loadCredentials({ type: 'env' });
     const success = await loginPage.loginWithMicrosoft(creds.username, creds.password);
     expect(success, 'Login should succeed').toBe(true);

@@ -35,8 +35,8 @@ Months of vibe coding accumulated orphaned files, dead exports, and unused compo
 
 | # | File | What to remove | Evidence |
 |---|------|----------------|----------|
-| 9 | `src/common/ui-common.ts` | Gut all 4 methods, keep deprecated class shell (barrel export at `src/index.ts:29` still references it) | grep `UiCommon` → exported but 0 actual call sites in entire repo |
-| 10 | `src/common/base-page.ts` | Remove `getSelectorFromTs()` method only | **Zero callers** across entire codebase. Note: NOT a duplicate of `getLocator()` (different error contracts — getLocator throws, getSelectorFromTs returns null), but it has zero consumers so safe to remove regardless |
+| 9 | `src/core/ui-common.ts` | Gut all 4 methods, keep deprecated class shell (barrel export at `src/index.ts:29` still references it) | grep `UiCommon` → exported but 0 actual call sites in entire repo |
+| 10 | `src/core/base-page.ts` | Remove `getSelectorFromTs()` method only | **Zero callers** across entire codebase. Note: NOT a duplicate of `getLocator()` (different error contracts — getLocator throws, getSelectorFromTs returns null), but it has zero consumers so safe to remove regardless |
 | 11 | `src/utils/agent-notification-writer.ts` | Remove 4 dead functions: `writeNotification`, `readPendingNotifications`, `ackNotification`, `ackAllNotifications`. **KEEP `notifyStaleArtifacts`** | Only `notifyStaleArtifacts()` is alive via `healer-post-complete.ts` |
 | 12 | `tests/unit/agent-notification-writer.test.ts` | Remove test `describe` blocks for the 4 deleted functions (lines 30-118). **KEEP the `notifyStaleArtifacts` describe block (lines 120-135)** and file-level setup (lines 1-28) | Tests for dead functions = dead tests. The notifyStaleArtifacts tests must stay — they cover a live production function |
 | 13 | `src/selectors/setup/locations/account-address.ts` | Remove `btnAccMasterAddress: 'SCOPED_IN_PAGE_OBJECT'` (line 41) | Literal placeholder string; page object constructs selector inline. Zero consumers of this key |
@@ -93,7 +93,7 @@ Update consumers:
 > **Context**: `base-page.ts:15` imports `CheckboxState` from `location-form-helpers.page.ts`, which extends `BasePage`. This compiles fine (interface is erased at compile time) but is a **code smell** — a base class shouldn't import from a subclass. NOT a runtime circular dependency.
 
 Move `CheckboxState` + `SpinState` interfaces to `src/framework-contracts/index.ts`. Update imports in:
-- `src/common/base-page.ts` line 15 — change import source
+- `src/core/base-page.ts` line 15 — change import source
 - `src/pages/setup/locations/location-form-helpers.page.ts` — remove definitions, add re-export for backward compat
 - 5 other page objects that import CheckboxState
 

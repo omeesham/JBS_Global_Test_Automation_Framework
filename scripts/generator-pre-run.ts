@@ -285,7 +285,7 @@ function main(): void {
   // PF-G2: fixtures.ts
   const fixturesPath = SHARED_PATHS.fixtures;
   if (!fs.existsSync(fixturesPath)) {
-    console.error('[HALT] PF-G2: tests/setup/fixtures.ts not found. All tests will fail.');
+    console.error('[HALT] PF-G2: tests/infra/fixtures.ts not found. All tests will fail.');
     preFlightFailed = true;
   }
 
@@ -422,7 +422,7 @@ function main(): void {
     console.error(`   Chrome-authored: ${mdPath}`);
     console.error('   Generator MUST produce a walkthrough during Phase 0.5 before writing spec code.');
     console.error('   The walkthrough must verify at least 3 planner claims on live DOM (LR-038 v2).');
-    console.error('   CLI path: `playwright-cli snapshot -s nav4 -o reports/walkthrough/' + itemId + '.walkthrough.yaml`');
+    console.error('   CLI path: `playwright-cli snapshot -s e2e -o reports/walkthrough/' + itemId + '.walkthrough.yaml`');
     console.error('             then author a verified_claims block in the YAML.');
     console.error('   Chrome path: author reports/walkthrough/' + itemId + '.walkthrough.md with a table:');
     console.error('                | TC | Step | Expected | Actual | Status | Classification |');

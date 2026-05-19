@@ -52,7 +52,7 @@ encore_framework/
 
 ## Component Breakdown
 
-### `src/common/` — Base Classes
+### `src/core/` — Base Classes
 
 | File | Purpose | Extended By |
 |------|---------|-------------|
@@ -168,14 +168,14 @@ export class AuthApiClient extends BaseApiClient {
 ### UI Layer
 
 ```
-BasePage (src/common/base-page.ts)
+BasePage (src/core/base-page.ts)
 ├── clickWithRetry(elementName)
 ├── fillWithValidation(elementName, value)
 ├── waitForElement(elementName)
 └── getLocator(elementName) → src/selectors/index.ts
     ↑ extends
-    ├── LoginPage (src/pages/login.page.ts)
-    ├── HomePage (src/pages/home.page.ts)
+    ├── LoginPage (src/pages/auth/login.page.ts)
+    ├── HomePage (src/pages/auth/home.page.ts)
     └── LocationFormHelpers (src/pages/locations/location-form-helpers.page.ts) [abstract]
         ↑ extends
         ├── LocationLocalInfoPage (src/pages/locations/location-local-info.page.ts)
@@ -239,7 +239,7 @@ Compilation pipeline: `tsconfig.build.json` → `tsc` → `src/` compiled to `di
 
 Agents modify selectively: `src/selectors/index.ts` (Planner adds), `src/pages/**/*.page.ts` (Generator adds methods), `tests/specs/*.spec.ts` (Generator creates, Healer fixes).
 
-Agents never modify: `src/common/`, `src/utils/`, `src/security/`, `config/`.
+Agents never modify: `src/core/`, `src/utils/`, `src/security/`, `config/`.
 
 #### Test Fixture Pattern
 
@@ -265,7 +265,7 @@ test('should login successfully', async ({ loginPage, config }) => {
 | New API response type | `api-testing/api-contracts/` | `contact-response.ts` |
 | New data adapter | `src/data/adapters/` | `graphqlAdapter.ts` |
 | New utility function | `src/utils/` | `crypto-utils.ts` |
-| New base class | `src/common/` | `base-api-page.ts` |
+| New base class | `src/core/` | `base-api-page.ts` |
 | New test | `tests/specs/` | `contact-crud.spec.ts` |
 | New element selectors | `src/selectors/index.ts` | Add to appropriate selector group |
 | New environment config | `.env.{environment}` | `.env.e2e` |

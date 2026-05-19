@@ -100,7 +100,7 @@ A 325-test suite run produced 4 hard failures. A skeptical adversarial audit by 
 
 - `clients/encore/src/pages/setup/locations/location-legal.page.ts:50, 59` — these correctly bumped 2 of the 6 timeouts; Fix 2 finishes the file
 - `clients/encore/src/pages/setup/locations/location-notes.page.ts:55-67` — the `\n` branch in `fillNote` works; Fix 3 generalizes it (branch becomes redundant once `fillTextareaSafe` is universal)
-- `clients/encore/tests/setup/auth-storage.ts:65, 80` — `/auth/sign-in` URL check; user said *"leave it"* (cheap, inert today, may catch a related future scenario)
+- `clients/encore/tests/infra/auth-storage.ts:65, 80` — `/auth/sign-in` URL check; user said *"leave it"* (cheap, inert today, may catch a related future scenario)
 
 ## What gets reverted
 
@@ -195,7 +195,7 @@ Three alternatives:
 
 **Defense statement**: 79 scattered numbers is technical debt that has already produced one production failure (TC-LGL-001). Named buckets convert magic numbers into intent. The CI guard prevents the debt from accumulating again.
 
-### New file: `clients/encore/src/common/timeouts.ts`
+### New file: `clients/encore/src/core/timeouts.ts`
 
 ```typescript
 export const TIMEOUTS = {
@@ -289,7 +289,7 @@ If/when GitHub Actions CI is wired, add the same `npm run check:anti-patterns` s
 
 ## Files Created
 
-- `clients/encore/src/common/timeouts.ts`
+- `clients/encore/src/core/timeouts.ts`
 - `clients/encore/scripts/check-history-spec-contract.js`
 - `clients/encore/scripts/check-hardcoded-timeouts.js`
 - `clients/encore/scripts/check-textarea-fill.js`
@@ -305,7 +305,7 @@ If/when GitHub Actions CI is wired, add the same `npm run check:anti-patterns` s
 **Fix 2 (timeouts)**: all 12 page-object files in `clients/encore/src/pages/**` with hardcoded literals (79 replacements total)
 
 **Fix 3 (textarea)**:
-- `clients/encore/src/common/base-page.ts` — add `fillTextareaSafe`
+- `clients/encore/src/core/base-page.ts` — add `fillTextareaSafe`
 - `clients/encore/src/pages/setup/locations/location-notes.page.ts` — simplify `fillNote`, alias `pasteIntoNote`
 - `clients/encore/src/pages/setup/locations/location-form-helpers.page.ts` — textarea branch
 
@@ -317,10 +317,10 @@ If/when GitHub Actions CI is wired, add the same `npm run check:anti-patterns` s
 
 ## Files NOT Touched (explicit out-of-scope)
 
-- `clients/encore/tests/setup/auth-storage.ts` — keep `/auth/sign-in` URL check (Q3 deferred)
-- `clients/encore/tests/setup/auth.setup.ts` — unchanged
-- `clients/encore/tests/setup/fixtures.ts` — unchanged (no heartbeat fixture)
-- `clients/encore/tests/setup/global-setup.ts` — unchanged
+- `clients/encore/tests/infra/auth-storage.ts` — keep `/auth/sign-in` URL check (Q3 deferred)
+- `clients/encore/tests/infra/auth.setup.ts` — unchanged
+- `clients/encore/tests/infra/fixtures.ts` — unchanged (no heartbeat fixture)
+- `clients/encore/tests/infra/global-setup.ts` — unchanged
 - All non-history specs — only touched if they contain a hardcoded timeout migrated under Fix 2; their test logic stays the same
 - TC-LOS-ECT-014 — deferred app-side issue
 

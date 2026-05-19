@@ -21,7 +21,7 @@ Audit the test infrastructure — specs, setup, test-data, fixtures — for cons
 - **Check**: any orphaned spec files not referenced by playwright.config?
 - **Check**: consistent patterns across specs (imports, fixture usage, timeout handling)
 
-### tests/setup/
+### tests/infra/
 - `fixtures.ts` — the main fixture file with authenticatedSession
 - `global-setup.ts`, `global-teardown.ts` — lifecycle hooks
 - `custom-matchers.ts` — custom Playwright matchers

@@ -60,8 +60,8 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | Page method | `clients/${ACTIVE_CLIENT}/src/pages/**/*.page.ts` | Add to page object |
 | Selector | `clients/${ACTIVE_CLIENT}/src/selectors/index.ts` | Add property |
 | Constant | `clients/${ACTIVE_CLIENT}/src/utils/app-constants.ts` | Add to AppConstants |
-| Matcher | `clients/${ACTIVE_CLIENT}/tests/setup/custom-matchers.ts` | Add + type declaration |
-| Fixture | `clients/${ACTIVE_CLIENT}/tests/setup/fixtures.ts` | Add fixture |
+| Matcher | `clients/${ACTIVE_CLIENT}/tests/infra/custom-matchers.ts` | Add + type declaration |
+| Fixture | `clients/${ACTIVE_CLIENT}/tests/infra/fixtures.ts` | Add fixture |
 | Test file | `clients/${ACTIVE_CLIENT}/tests/specs/{module}/` | Create in module folder |
 
 ---
@@ -77,7 +77,7 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | `clients/${ACTIVE_CLIENT}/tests/specs/**/*.spec.ts` | — | — | CREATE | FIX | READ | REFACTOR | READ |
 | `clients/${ACTIVE_CLIENT}/tests/test-data/**` | — | — | CREATE | FIX | READ | READ | READ |
 | `clients/${ACTIVE_CLIENT}/src/pages/**/*.page.ts` | — | READ | ADD | FIX | READ | REFACTOR | READ |
-| `clients/${ACTIVE_CLIENT}/src/common/base-page.ts` | — | READ | — | — | READ | REFACTOR | READ |
+| `clients/${ACTIVE_CLIENT}/src/core/base-page.ts` | — | READ | — | — | READ | REFACTOR | READ |
 | `clients/${ACTIVE_CLIENT}/src/selectors/**` | — | ADD | ADD | FIX | READ | READ | READ |
 | `src/utils/common-methods.ts` | — | READ | ADD | FIX | READ | READ | READ |
 | `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` | UPDATE | READ | READ | READ | READ | READ | READ |
@@ -86,6 +86,8 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | `clients/${ACTIVE_CLIENT}/specs_planning/test-plans/**` | — | CREATE | READ | READ | READ | READ | READ |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | APPEND | APPEND | APPEND | APPEND | RW (quality gate) | APPEND | APPEND |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/intake/<module>-<agent>-*.md` | CREATE | CREATE | CREATE | CREATE | CREATE | READ | RW |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/bug-archetypes.md` | APPEND | APPEND | READ | APPEND | APPEND | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/_TEMPLATE.md` | READ | READ | READ | READ | READ | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-*.md` | READ | CREATE | READ | UPDATE | UPDATE | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventory-spec.md` | READ | READ | READ | READ | READ | READ | RW |
@@ -98,7 +100,7 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 
 **Audit Agent scope**: Can READ any file. WRITE limited to: agent-mistakes.md (RW — quality gate), audits/*.md, agent-performance.json, agent-queue.json (history/stage), agent-activity-log.md.
 
-**Framework Maintainer (GARDENER) scope**: READ-WRITE: `clients/${ACTIVE_CLIENT}/src/pages/`, `clients/${ACTIVE_CLIENT}/src/common/base-page.ts`, `tests/`. READ-ONLY: everything else. Runs on demand (not in pipeline). Structural refactoring only — never changes business logic or test assertions.
+**Framework Maintainer (GARDENER) scope**: READ-WRITE: `clients/${ACTIVE_CLIENT}/src/pages/`, `clients/${ACTIVE_CLIENT}/src/core/base-page.ts`, `tests/`. READ-ONLY: everything else. Runs on demand (not in pipeline). Structural refactoring only — never changes business logic or test assertions.
 
 **Field-Inventory Artifact ownership** (per [PLAN_AGENT_AUTHORING_EFFICIENCY.md](../../plans/pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) AAE-D9): the `_internal/field-inventories/` folder splits into two ownership classes. (1) **Format contract** (`_TEMPLATE.md` + sibling `field-inventory-spec.md`) is OWNER-only RW — these are framework governance artifacts; rare changes. (2) **Per-module artifacts** (`<module>-<YYYY-MM-DD>.md`) are GIVER-CREATE / WATCHDOG-UPDATE / HEALER-UPDATE / others-READ — primary author is the planner walking the live DOM in Phase 0.5; WATCHDOG may refresh when running a neutral-eye re-audit; HEALER may refresh when fixing TCs against a stale audit (HLR-016 / SP-AAE-02 hook mandate; broadened in SP-CCE-04 2026-04-27); everyone else consumes read-only.
 
@@ -153,7 +155,7 @@ Format: `{prefix}{PascalName}` — Examples: `btnLogin`, `txtUsername`, `lnkForg
 
 - **R07**: ≤30 line responses. Bullets. "Did → Changed → Next" format.
 - **R08**: Fix only with EVIDENCE. Error message = source of truth.
-- **R09**: Verify selectors on the live page before committing. CLI: `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome: `mcp__Claude_in_Chrome__javascript_tool`. Choose per LR-038 in CLAUDE.md. Chrome carve-out: use Chrome when a live SSO session is required and no CLI state file is available.
+- **R09**: Verify selectors on the live page before committing. CLI: `playwright-cli eval -s=e2e "!!document.querySelector('[data-testid=X]')"`. Chrome: `mcp__Claude_in_Chrome__javascript_tool`. Choose per LR-038 in CLAUDE.md. Chrome carve-out: use Chrome when a live SSO session is required and no CLI state file is available.
 - **R10**: Max 2 FIX retries per issue (§12 Phase B). Phase A evidence gathering has no iteration cap.
 - **R15**: Trust rules > trust other agents. Verify before acting on agent claims.
 - **R16**: Accessibility tree is for element **discovery** — NEVER derive CSS selectors from aria element types (e.g. `img` for SVG, `row` for `<tr>`). CLI: `playwright-cli snapshot` writes YAML to disk; read once, don't re-snapshot for same state. Chrome: `mcp__Claude_in_Chrome__read_page`. Use `playwright-cli eval` / `javascript_tool` to verify actual HTML tag when in doubt. See LR-016 + LR-038 in CLAUDE.md. Chrome carve-out: Chrome wins for visual/CSS bug investigation where pixel-level tree matters.
@@ -266,7 +268,7 @@ Replaces former §8 (3-layer self-audit), §9 (learning protocol), §10 (context
 
 | ID | Rule | Violation = |
 |----|------|-------------|
-| ALL-042 | After any API-triggering interaction, verify network activity: CLI — `playwright-cli network -s=nav4`; Chrome — `mcp__Claude_in_Chrome__read_network_requests`. 4xx/5xx = potential APP_BUG. Never silently ignore. Chrome carve-out: Chrome is preferred when a live authenticated session is already open. See LR-038 in CLAUDE.md. | Silent API error |
+| ALL-042 | After any API-triggering interaction, verify network activity: CLI — `playwright-cli network -s=e2e`; Chrome — `mcp__Claude_in_Chrome__read_network_requests`. 4xx/5xx = potential APP_BUG. Never silently ignore. Chrome carve-out: Chrome is preferred when a live authenticated session is already open. See LR-038 in CLAUDE.md. | Silent API error |
 | ALL-043 | When walkthrough reveals behavior contradicting the walkthrough artifact (CLI: `.walkthrough.yaml`; Chrome: `.walkthrough.md`; canonical: `walkthrough.canonical.json`): classify (PLANNER_GAP / APP_BUG / TC_CORRECTION / SEQUENCE_SIDE_EFFECT) and escalate. Never silently proceed. Chrome carve-out: Chrome walkthrough `.md` is equally valid as CLI `.yaml` — both resolve via PF-G5 normalizer. | Unclassified mismatch |
 | ALL-044 | Bug detection is EVERY agent's responsibility. Planner finds 500 error → file it. Generator finds form mutation → file it. Healer finds broken API → file it. All go to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-escalations.json`. | Agent ignoring bugs outside their scope |
 
@@ -361,7 +363,7 @@ Self-audit checklists catch formatting and process errors. They do NOT catch rea
 | Agent | Scope | Protocol |
 |-------|-------|----------|
 | Requirements | Full DOM exploration | Discovers all fields, documents in REQUIREMENTS.md |
-| Planner | Targeted selector validation | Verify selectors on live page (PLN-027). CLI: `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome carve-out: Chrome when live SSO session required. Does NOT re-discover all fields. |
+| Planner | Targeted selector validation | Verify selectors on live page (PLN-027). CLI: `playwright-cli eval -s=e2e "!!document.querySelector('[data-testid=X]')"`. Chrome carve-out: Chrome when live SSO session required. Does NOT re-discover all fields. |
 | Generator | Phase 0.5 TC walkthrough + pre-flight selector validation | Walks through every TC step on live page before writing code (GEN-029). CLI: walkthrough → `reports/walkthrough/<item>.walkthrough.yaml`. Chrome: `reports/walkthrough/<item>.walkthrough.md`. PF-G5 normalizes both to `walkthrough.canonical.json`. Also validates selectors. |
 | Healer | SELECTOR/ASSERTION: CLI for functional replay; Chrome for visual RCA. Others: artifact-first | CLI diagnostic at Step 3 for selector/assertion failures (HLR-015). Chrome carve-out: visual/CSS failures, interactive RCA. Last resort for all others. See LR-038 in CLAUDE.md. |
 
@@ -407,7 +409,7 @@ Format: "The failure is [CATEGORY] because [evidence from Steps 1-4]"
 Cite specific file names and line numbers. Example: "SELECTOR failure: error-context.md line 42 shows alertdialog overlay blocking pointer events to checkbox."
 
 **Step 6: Replicate via browser tool (ONLY if Steps 1-5 inconclusive)**
-Navigate to `pageUrl` → execute same spec steps → observe DOM. CLI: `playwright-cli snapshot -s=nav4 -o report.yaml` → read YAML; `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome: `mcp__Claude_in_Chrome__read_page` + `javascript_tool`. Choose per LR-038 in CLAUDE.md. Chrome carve-out: Chrome wins when live authenticated session is already open and SSO re-auth would be needed for a fresh CLI state.
+Navigate to `pageUrl` → execute same spec steps → observe DOM. CLI: `playwright-cli snapshot -s=e2e -o report.yaml` → read YAML; `playwright-cli eval -s=e2e "!!document.querySelector('[data-testid=X]')"`. Chrome: `mcp__Claude_in_Chrome__read_page` + `javascript_tool`. Choose per LR-038 in CLAUDE.md. Chrome carve-out: Chrome wins when live authenticated session is already open and SSO re-auth would be needed for a fresh CLI state.
 
 > **WARNING**: Do NOT run `npx playwright test` concurrently with `playwright-cli` — both drive Playwright infrastructure and can conflict (exit code 4294967295). Run tests first → read artifacts → THEN browser replication.
 
@@ -452,7 +454,7 @@ Pass → full spec regression. Fail (same) → one more attempt (max 2). Fail (d
 
 **Tool selection** (LR-038): CLI is the default; Chrome carve-out when live SSO session is required.
 
-CLI: `playwright-cli eval -s=nav4 "document.querySelector('[data-testid=X]') ? 'found' : 'missing'"`.
+CLI: `playwright-cli eval -s=e2e "document.querySelector('[data-testid=X]') ? 'found' : 'missing'"`.
 Chrome: `mcp__Claude_in_Chrome__javascript_tool`.
 
 1. Navigate to page → evaluate exact CSS selector
@@ -463,7 +465,7 @@ Chrome: `mcp__Claude_in_Chrome__javascript_tool`.
 ### Healer RCA Addendum
 
 Same 7-step sequence, plus after Step 4:
-- Selector change → verify new selector on live page. CLI: `playwright-cli eval -s=nav4 "!!document.querySelector('[data-testid=X]')"`. Chrome carve-out: `mcp__Claude_in_Chrome__javascript_tool` when live SSO session is already open. See LR-038.
+- Selector change → verify new selector on live page. CLI: `playwright-cli eval -s=e2e "!!document.querySelector('[data-testid=X]')"`. Chrome carve-out: `mcp__Claude_in_Chrome__javascript_tool` when live SSO session is already open. See LR-038.
 - Timing change → add explicit wait, not just timeout increase
 - Test logic change → verify against TC document (TC wrong or spec wrong?)
 
@@ -519,7 +521,7 @@ Use live browser replication ONLY when:
 
 **Tool selection** (LR-038 in CLAUDE.md): CLI is the default for functional replay (token-efficient, unattended); Chrome is the specialist when the task is visual/CSS, requires a live SSO session, or user is present for interactive RCA.
 
-**CLI path**: `playwright-cli goto -s=nav4 <pageUrl>` → replay `lastActions` sequence → `playwright-cli snapshot -s=nav4 -o <file>` at failure point → `playwright-cli eval -s=nav4 "document.querySelector('[data-testid=X]')"` to check element state → compare to artifacts → document finding.
+**CLI path**: `playwright-cli goto -s=e2e <pageUrl>` → replay `lastActions` sequence → `playwright-cli snapshot -s=e2e -o <file>` at failure point → `playwright-cli eval -s=e2e "document.querySelector('[data-testid=X]')"` to check element state → compare to artifacts → document finding.
 
 **Chrome path**: `mcp__Claude_in_Chrome__navigate` to pageUrl → replay steps → `mcp__Claude_in_Chrome__read_page` at failure point → `mcp__Claude_in_Chrome__javascript_tool` to check element state → compare to artifacts → document finding.
 
@@ -570,9 +572,9 @@ Per-spec diagnostics in `reports/diagnostics/*.diagnostics.json`: full console l
 When navigating away from pages with unsaved edits (dirty form state), the browser fires a `beforeunload` dialog ("Leave site?") on navigation/reload. This blocks the agent.
 
 **CLI path** (safe navigation via `playwright-cli`):
-1. `playwright-cli run-code -s=nav4 "page.on('dialog', d => d.accept())"` — register dialog handler before navigating
-2. `playwright-cli goto -s=nav4 about:blank` — triggers beforeunload on dirty page; handler auto-accepts
-3. `playwright-cli goto -s=nav4 <targetUrl>` — clean fresh load
+1. `playwright-cli run-code -s=e2e "page.on('dialog', d => d.accept())"` — register dialog handler before navigating
+2. `playwright-cli goto -s=e2e about:blank` — triggers beforeunload on dirty page; handler auto-accepts
+3. `playwright-cli goto -s=e2e <targetUrl>` — clean fresh load
 
 **Chrome path** (`mcp__Claude_in_Chrome__*`):
 **NEVER** call `javascript_tool(() => window.location.reload())` — triggers beforeunload which Chrome cannot dismiss inline.
@@ -624,12 +626,12 @@ Applies to ALL agents during exploration, code writing, selector discovery, or a
 | Stuck On | Search What | Where | When | Example Search |
 |----------|-------------|-------|------|----------------|
 | Unknown selector | SELECTOR_CATALOG.md → partition files | `src/selectors/SELECTOR_CATALOG.md` | Before writing ANY new selector | `grep -r "btnSave" src/selectors/` |
-| UI pattern unknown (Radix, date picker, combobox) | Existing page objects with same component | `clients/${ACTIVE_CLIENT}/src/pages/`, `clients/${ACTIVE_CLIENT}/src/common/base-page.ts` | Before creating new page object method | `grep -r "role=\"checkbox\"" clients/${ACTIVE_CLIENT}/src/pages/` |
+| UI pattern unknown (Radix, date picker, combobox) | Existing page objects with same component | `clients/${ACTIVE_CLIENT}/src/pages/`, `clients/${ACTIVE_CLIENT}/src/core/base-page.ts` | Before creating new page object method | `grep -r "role=\"checkbox\"" clients/${ACTIVE_CLIENT}/src/pages/` |
 | Same failure repeating after fix | Resolution column in agent-mistakes.md | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | After first failed fix attempt | `grep "SELECTOR" specs_planning/_internal/agent-mistakes.md` |
 | Auth/login issues | authChain + env files | `reports/failure-summary.json`, `config/environments/` | When tests fail with auth errors | `cat reports/failure-summary.json \| grep authChain` |
-| Don't know what methods exist | BasePage + existing page objects | `clients/${ACTIVE_CLIENT}/src/common/base-page.ts`, `docs/read_only_docs/ARCHITECTURE.md` | Before writing ANY new method | `grep "async.*(" clients/${ACTIVE_CLIENT}/src/common/base-page.ts` |
+| Don't know what methods exist | BasePage + existing page objects | `clients/${ACTIVE_CLIENT}/src/core/base-page.ts`, `docs/read_only_docs/ARCHITECTURE.md` | Before writing ANY new method | `grep "async.*(" clients/${ACTIVE_CLIENT}/src/core/base-page.ts` |
 | TC seems wrong vs live app | Truth hierarchy: MCP > all docs (GEN-021) | `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` then MCP | When spec assertion fails but app looks correct | Navigate MCP to same URL, verify DOM |
-| Don't know fixture/helper exists | Fixture definitions + test setup | `tests/setup/fixtures.ts`, `src/index.ts` | Before creating test setup code | `grep "test.extend" tests/setup/fixtures.ts` |
+| Don't know fixture/helper exists | Fixture definitions + test setup | `tests/infra/fixtures.ts`, `src/index.ts` | Before creating test setup code | `grep "test.extend" tests/infra/fixtures.ts` |
 | Previous agent output incomplete | Queue item history + activity log | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json`, `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | When inheriting work from previous stage | Read queue item's `history` array |
 | Spec-level pattern already exists | Existing specs for same setup/assertion | `clients/${ACTIVE_CLIENT}/tests/specs/**/*.spec.ts` | Before writing beforeEach or repeated assertions | `grep -r "navigateTo.*Tab" clients/${ACTIVE_CLIENT}/tests/specs/` |
 

@@ -9,7 +9,7 @@
 
 | Location | Template | Example |
 |----------|----------|---------|
-| Module header | `@agent-doc` block with PURPOSE, OWNER, IMPACT, DEPENDS-ON, USED-BY, RULES | See `src/common/base-page.ts` |
+| Module header | `@agent-doc` block with PURPOSE, OWNER, IMPACT, DEPENDS-ON, USED-BY, RULES | See `src/core/base-page.ts` |
 | File header | `/** Purpose in 1-2 sentences */` | `/** Home POM - handles home/dashboard page interactions */` |
 | Import | `// What it provides - file path` | `// Import logger (writes to logs/app.log) - src/utils/logger.ts` |
 | Interface | JSDoc: description + `@example` | `/** Login credentials - required/optional fields for auth */` |

@@ -22,7 +22,7 @@
 **Context files**:
 - `clients/encore/specs_planning/_internal/spec-state-matrix-2026-04-22.md`
 - Existing `src/pages/` base utilities (e.g., `base-page.ts`) for extension points
-- `tests/setup/fixtures.ts` for worker-scoped session fixture
+- `tests/infra/fixtures.ts` for worker-scoped session fixture
 - LR-026 (Angular dirty-state unreliability)
 
 ## Purpose

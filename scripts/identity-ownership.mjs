@@ -64,7 +64,7 @@ export const OWNERSHIP_ROWS = [
     grants: { HUNTER: "—", GIVER: "READ", BUILDER: "ADD", HEALER: "FIX", WATCHDOG: "READ", GARDENER: "REFACTOR", OWNER: "READ" },
   },
   {
-    pattern: "clients/${ACTIVE_CLIENT}/src/common/base-page.ts",
+    pattern: "clients/${ACTIVE_CLIENT}/src/core/base-page.ts",
     grants: { HUNTER: "—", GIVER: "READ", BUILDER: "—", HEALER: "—", WATCHDOG: "READ", GARDENER: "REFACTOR", OWNER: "READ" },
   },
   {
@@ -98,6 +98,14 @@ export const OWNERSHIP_ROWS = [
   {
     pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md",
     grants: { HUNTER: "APPEND", GIVER: "APPEND", BUILDER: "APPEND", HEALER: "APPEND", WATCHDOG: "APPEND", GARDENER: "APPEND", OWNER: "APPEND" },
+  },
+  {
+    pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/intake/<module>-<agent>-*.md",
+    grants: { HUNTER: "CREATE", GIVER: "CREATE", BUILDER: "CREATE", HEALER: "CREATE", WATCHDOG: "CREATE", GARDENER: "READ", OWNER: "RW" },
+  },
+  {
+    pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/bug-archetypes.md",
+    grants: { HUNTER: "APPEND", GIVER: "APPEND", BUILDER: "READ", HEALER: "APPEND", WATCHDOG: "APPEND", GARDENER: "READ", OWNER: "RW" },
   },
   {
     pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/_TEMPLATE.md",
