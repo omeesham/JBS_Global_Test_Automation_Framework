@@ -19,7 +19,7 @@ function getArtifactSetting(envVar: string, defaultValue: string): string {
 
 export default defineConfig({
   testDir: __dirname,
-  testMatch: ['tests/**/*.spec.ts'],
+  testMatch: ['specs/**/*.spec.ts'],
 
   timeout: process.env.CI ? 60 * 1000 : 30 * 1000,
   expect: { timeout: 5000 },
@@ -151,14 +151,14 @@ export default defineConfig({
     // .auth/encore-state.json, which both module workers consume read-only.
     {
       name: 'encore-local-office',
-      testDir: './tests/specs/setup/local-office',
+      testDir: './specs/local-office',
       fullyParallel: false,
       dependencies: ['setup'],
       use: { storageState: '.auth/encore-state.json' },
     },
     {
       name: 'encore-locations',
-      testDir: './tests/specs/setup/locations',
+      testDir: './specs/locations',
       fullyParallel: false,
       dependencies: ['setup'],
       use: { storageState: '.auth/encore-state.json' },
@@ -168,6 +168,6 @@ export default defineConfig({
   outputDir: 'reports/test-results/',
   snapshotDir: 'reports/test-results/snapshots',
 
-  globalSetup: require.resolve('./tests/infra/global-setup'),
-  globalTeardown: require.resolve('./tests/infra/global-teardown'),
+  globalSetup: require.resolve('./src/infra/global-setup'),
+  globalTeardown: require.resolve('./src/infra/global-teardown'),
 });

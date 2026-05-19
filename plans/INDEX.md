@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 84 pending · 306 done · 55 stale (>14d) · 0 DONE-in-pending
+**Totals**: 85 pending · 306 done · 55 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -163,7 +163,8 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 75 | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | SUBPLAN: Pipeline tsc Compilation — Harden Build Mode | P2-NORMAL | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-05-01 |
 | 76 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P5-PARKED | — (ready) | PENDING | — | — | — | — | 2026-04-03 |
 | 77 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | — | — | — | — | — | 2026-04-24 |
-| 78 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-05-19 |
+| 78 | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | Plan — clients/encore restructure: kill `setup/` + `tests/` wrappers + move test-data + infra to src/ + delete seed spec → ship to encore_deliverables_test:notes-latest | — | — (ready) | — | — | — | acceptEdits | none | 2026-05-19 |
+| 79 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-05-19 |
 
 ### Parent Plans (Waiting on Subplans)
 These stay in `pending/` until their last subplan closes them (LR-027 parent-cascade). Do not execute directly.
@@ -499,7 +500,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (84 files)
+  pending/              ← active plans (85 files)
   done/                 ← completed plans (306 files)
 ```
 
@@ -517,6 +518,7 @@ When completing a plan:
 | 2026-05-19 | pending | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PENDING |
 | 2026-05-19 | pending | [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | PENDING |
 | 2026-05-19 | pending | [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | PENDING |
+| 2026-05-19 | pending | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | — |
 | 2026-05-19 | pending | [PLAN_DQU_V6_PILOT_SHARED_SETUP.md](pending/PLAN_DQU_V6_PILOT_SHARED_SETUP.md) | PENDING |
 | 2026-05-19 | pending | [PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md](pending/PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md) | PENDING |
 | 2026-05-19 | pending | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | — |
@@ -553,4 +555,3 @@ When completing a plan:
 | 2026-05-19 | done | [PLAN_UNIFIED_MATSUMOTO_AUDITED_SOURCE_2026_05_19.md](done/PLAN_UNIFIED_MATSUMOTO_AUDITED_SOURCE_2026_05_19.md) | — |
 | 2026-05-19 | done | [SUBPLAN_DQU_V6_PILOT_SSL_A.md](done/SUBPLAN_DQU_V6_PILOT_SSL_A.md) | DONE |
 | 2026-05-19 | done | [SUBPLAN_DQU_V6_PILOT_SSL_B.md](done/SUBPLAN_DQU_V6_PILOT_SSL_B.md) | DONE |
-| 2026-05-18 | pending | [PLAN_CLOSURE_GATE_V6_PARENT.md](pending/PLAN_CLOSURE_GATE_V6_PARENT.md) | PENDING-DRAFT-V6 |

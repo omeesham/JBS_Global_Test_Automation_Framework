@@ -39,6 +39,6 @@ export const DynamicSelectors = {
   optCurrencyFilter: (currency: string) => `[role="listbox"] [role="option"]:has-text("${currency}")`,
 
  // ---- Auto Add-On Tab ----
- // NOTE: Shadow DOM (next-location-settings >>) was eliminated. Use static selectors in src/selectors/setup/locations/auto-addon.ts instead.
+ // NOTE: Shadow DOM (next-location-settings >>) was eliminated. Use static selectors in src/selectors/locations/auto-addon.ts instead.
  // These dynamic selectors are DEPRECATED — kept only for reference. Use the data-testid-based selectors.
 } as const;

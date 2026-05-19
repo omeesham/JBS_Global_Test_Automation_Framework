@@ -1,33 +1,33 @@
 // ==================== IMPORTS ====================
 import { MicrosoftLoginSelectors } from './auth/login';
-import { SetupLeftPanelSelectors } from './setup/locations/left-panel';
-import { SetupLocalInfoSelectors } from './setup/locations/local-info';
-import { SetupCurrencySelectors } from './setup/locations/currency';
-import { SetupPricingSelectors } from './setup/locations/pricing';
-import { SetupAccountAddressSelectors } from './setup/locations/account-address';
-import { SetupSharedSelectors } from './setup/locations/shared';
-import { SetupSharedSetupLocationsSelectors } from './setup/locations/shared-setup-locations';
-import { SetupNotesSelectors } from './setup/locations/notes';
-import { SetupLegalSelectors } from './setup/locations/legal';
-import { SetupAutoAddonSelectors } from './setup/locations/auto-addon';
-import { SetupHistorySelectors } from './setup/locations/history';
-import { LocalOfficeSettingsSelectors } from './setup/local-office/local-office-settings';
+import { SetupLeftPanelSelectors } from './locations/left-panel';
+import { SetupLocalInfoSelectors } from './locations/local-info';
+import { SetupCurrencySelectors } from './locations/currency';
+import { SetupPricingSelectors } from './locations/pricing';
+import { SetupAccountAddressSelectors } from './locations/account-address';
+import { SetupSharedSelectors } from './locations/shared';
+import { SetupSharedSetupLocationsSelectors } from './locations/shared-setup-locations';
+import { SetupNotesSelectors } from './locations/notes';
+import { SetupLegalSelectors } from './locations/legal';
+import { SetupAutoAddonSelectors } from './locations/auto-addon';
+import { SetupHistorySelectors } from './locations/history';
+import { LocalOfficeSettingsSelectors } from './local-office/local-office-settings';
 
 // ==================== RE-EXPORTS ====================
 export { MicrosoftLoginSelectors } from './auth/login';
 export { DynamicSelectors } from './auth/dynamic';
-export { SetupLeftPanelSelectors } from './setup/locations/left-panel';
-export { SetupLocalInfoSelectors } from './setup/locations/local-info';
-export { SetupCurrencySelectors } from './setup/locations/currency';
-export { SetupPricingSelectors } from './setup/locations/pricing';
-export { SetupAccountAddressSelectors } from './setup/locations/account-address';
-export { SetupSharedSelectors } from './setup/locations/shared';
-export { SetupSharedSetupLocationsSelectors } from './setup/locations/shared-setup-locations';
-export { SetupNotesSelectors } from './setup/locations/notes';
-export { SetupLegalSelectors } from './setup/locations/legal';
-export { SetupAutoAddonSelectors } from './setup/locations/auto-addon';
-export { SetupHistorySelectors } from './setup/locations/history';
-export { LocalOfficeSettingsSelectors } from './setup/local-office/local-office-settings';
+export { SetupLeftPanelSelectors } from './locations/left-panel';
+export { SetupLocalInfoSelectors } from './locations/local-info';
+export { SetupCurrencySelectors } from './locations/currency';
+export { SetupPricingSelectors } from './locations/pricing';
+export { SetupAccountAddressSelectors } from './locations/account-address';
+export { SetupSharedSelectors } from './locations/shared';
+export { SetupSharedSetupLocationsSelectors } from './locations/shared-setup-locations';
+export { SetupNotesSelectors } from './locations/notes';
+export { SetupLegalSelectors } from './locations/legal';
+export { SetupAutoAddonSelectors } from './locations/auto-addon';
+export { SetupHistorySelectors } from './locations/history';
+export { LocalOfficeSettingsSelectors } from './local-office/local-office-settings';
 
 // ==================== MERGED PAGE OBJECTS ====================
 

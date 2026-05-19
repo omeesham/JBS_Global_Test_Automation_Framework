@@ -4,9 +4,9 @@
 **Priority**: P0-EMERGENCY
 **Created**: 2026-05-19
 **Identity**: OWNER (multi-identity execution — each phase tagged)
-**Parent**: PLAN_MASTER_FCC_PARADIGM.md
+**Parent**: PLAN_BIG_PIVOT_FCC_MASTER.md
 **Depends on**: none
-**Blocks**: every future per-module FCC subplan named in PLAN_MASTER_FCC_PARADIGM.md §Roadmap (paradigm install lands here, then other modules reuse)
+**Blocks**: every future per-module FCC subplan named in PLAN_BIG_PIVOT_FCC_MASTER.md §Roadmap (paradigm install lands here, then other modules reuse)
 **Model**: claude-opus-4-7
 **Thinking**: xhi
 **PermissionMode**: auto
@@ -20,7 +20,7 @@
 
 ## Context
 
-Per [PLAN_MASTER_FCC_PARADIGM.md](PLAN_MASTER_FCC_PARADIGM.md), Notes is the pilot module for the framework-wide Field-Case Coverage (FCC) paradigm. This subplan is the **first executable** in the master's roadmap and carries TWO bundled responsibilities:
+Per [PLAN_BIG_PIVOT_FCC_MASTER.md](PLAN_BIG_PIVOT_FCC_MASTER.md), Notes is the pilot module for the framework-wide Field-Case Coverage (FCC) paradigm. This subplan is the **first executable** in the master's roadmap and carries TWO bundled responsibilities:
 
 1. **Paradigm install** (Phase 1, one-time framework-wide): create the runner, the taxonomy doc, the catalog directory; update CLAUDE.md @-refs + AGENT_SHARED_RULES.md §2 + all 6 pipeline agent prompts. Every future module FCC subplan reuses this work without reinstalling.
 2. **Notes pilot** (Phases 2–7, module-specific): comprehensive granular per-field-case coverage for Notes — 32 net-new FCC tests under the per-case `baseline → act → save → reload → verify → cleanup` lifecycle. Existing 37 main-spec TCs and 5 HIST-spec TCs remain untouched.
@@ -45,7 +45,7 @@ SSL is **explicitly out of scope** — user-owned, separate session.
 - `/reflect` (post-closure — capture learnings)
 
 **Context files** (mandatory reads before Phase 1):
-- `PLAN_MASTER_FCC_PARADIGM.md` (this subplan's parent)
+- `PLAN_BIG_PIVOT_FCC_MASTER.md` (this subplan's parent)
 - `CLAUDE.md` (project root)
 - `clients/encore/CLAUDE.md`
 - `docs/read_only_docs/LEARNED_RULES.md`
@@ -57,12 +57,12 @@ SSL is **explicitly out of scope** — user-owned, separate session.
 - `clients/encore/specs_planning/_internal/old-site-baseline/notes-2026-05-11.md`
 - `clients/encore/specs_planning/_internal/walk-evidence-location-settings-2026-05-14.md`
 - `clients/encore/specs_planning/test-cases/setup/locations/locations_notes_test_cases.md`
-- `clients/encore/tests/specs/setup/locations/location-notes.spec.ts`
-- `clients/encore/tests/specs/setup/locations/history/location-hist-notes.spec.ts`
-- `clients/encore/src/pages/setup/locations/location-notes.page.ts`
-- `clients/encore/src/selectors/setup/locations/notes.ts`
-- `clients/encore/src/selectors/setup/locations/shared.ts`
-- `clients/encore/tests/test-data/setup/locations/location-notes.data.ts`
+- `clients/encore/specs/locations/location-notes.spec.ts`
+- `clients/encore/specs/locations/history/location-hist-notes.spec.ts`
+- `clients/encore/src/pages/locations/location-notes.page.ts`
+- `clients/encore/src/selectors/locations/notes.ts`
+- `clients/encore/src/selectors/locations/shared.ts`
+- `clients/encore/src/data/testdata/locations/location-notes.data.ts`
 - `clients/encore/src/core/base-page.ts`
 - `reports/bugs/BUG-LOC-NTS-00{1,2,3}.json`
 
@@ -72,7 +72,7 @@ SSL is **explicitly out of scope** — user-owned, separate session.
 
 **[IDENTITY: OWNER]**
 
-1. Parent dependency: confirm `PLAN_MASTER_FCC_PARADIGM.md` exists in `plans/pending/` (it does — created same day; this subplan does NOT block on master closure since master is a long-running tracker).
+1. Parent dependency: confirm `PLAN_BIG_PIVOT_FCC_MASTER.md` exists in `plans/pending/` (it does — created same day; this subplan does NOT block on master closure since master is a long-running tracker).
 2. `/execute` Phase 0.1 — runs `node scripts/check-subplan-identity.mjs plans/pending/SUBPLAN_NOTES_FCC_PILOT.md`. Multi-identity plans need each phase's `[IDENTITY: X]` tag verified against §2 ownership.
 3. `/relevant` Phase 0.5 — auto-inject skill + LR + agent-mistakes + patterns context.
 4. Browser tool announcement: **none** (field-inventory 2026-05-11 is 8 days fresh per LR-013; walk-evidence 2026-05-14 confirms dialog conventions; no live UI work needed).
@@ -136,7 +136,7 @@ Content (copy verbatim):
 - LR rules: LR-008 (date positivity), LR-009 (revert-to-original Save state), LR-010 (async cross-field validation poll), LR-011 (NaN reload), LR-022 (no hardcoded counts), LR-025 (Radix large-dropdown retry), LR-026 (dirty-state defensive reload), LR-051 (no OR-expression asserts), LR-052 (no fixed waitForTimeout in poll), LR-053 (no strict row count w/ placeholder bug)
 - Authoring hygiene: tc-authoring-rules.md Rules 1–5
 - Runner: clients/encore/src/core/field-case-runner.ts
-- Source: external QA framework guide (digested 2026-05-19 — see PLAN_MASTER_FCC_PARADIGM and SUBPLAN_NOTES_FCC_PILOT)
+- Source: external QA framework guide (digested 2026-05-19 — see PLAN_BIG_PIVOT_FCC_MASTER and SUBPLAN_NOTES_FCC_PILOT)
 
 ## §4 — Promotion criteria
 - When a second client lands → promote this doc to `docs/read_only_docs/FIELD_CASE_GENERATION.md` (framework level).
@@ -175,7 +175,7 @@ When emitting a baseline artifact, include a `## FCC-lens divergences` subsectio
 classifies any field-type behaviors needing FCC coverage on the new site (per `field-case-generation.md` §2).
 For modules already baseline-walked, no re-walk required if the artifact is ≤14 days fresh (LR-013) —
 add the FCC subsection as an in-place edit citing the existing dated artifact.
-Cross-ref: `field-case-generation.md`, master plan PLAN_MASTER_FCC_PARADIGM.
+Cross-ref: `field-case-generation.md`, master plan PLAN_BIG_PIVOT_FCC_MASTER.
 ```
 
 **`.claude/agents/PLANNER.md`** (GIVER):
@@ -193,7 +193,7 @@ Each FCC TC follows the same template as a standard TC.
 
 Selector + page-object hygiene MUST verify the runner's expected helpers exist (saveAndConfirm,
 reloadAndNavigateTo*, ensureEmptyState equivalents). File a GENERATOR escalation if missing.
-Cross-ref: `field-case-generation.md`, master plan PLAN_MASTER_FCC_PARADIGM.
+Cross-ref: `field-case-generation.md`, master plan PLAN_BIG_PIVOT_FCC_MASTER.
 ```
 
 **`.claude/agents/GENERATOR.md`** (BUILDER):
@@ -208,7 +208,7 @@ For every spec generation under FCC paradigm:
 4. Existing TCs at BOTTOM remain untouched (preserve prior coverage).
 5. Per-field-type test data lives in the module's data file; reuse constants where possible.
 Cross-ref: `field-case-generation.md`, runner at `src/core/field-case-runner.ts`,
-master plan PLAN_MASTER_FCC_PARADIGM.
+master plan PLAN_BIG_PIVOT_FCC_MASTER.
 ```
 
 **`.claude/agents/AUDIT.md`** (WATCHDOG): add a new mode + workflow note.
@@ -224,7 +224,7 @@ New audit mode: **FCC Completeness** (trigger: "audit FCC", "/audit fcc <module>
   placeholder bugs documented (LR-053), no fixed `waitForTimeout` in polling loops (LR-052).
 - Probe ARCH-010 / ARCH-013 / ARCH-014 from `bug-archetypes.md` against the new spec for
   archetype coverage.
-Cross-ref: `field-case-generation.md`, master plan PLAN_MASTER_FCC_PARADIGM.
+Cross-ref: `field-case-generation.md`, master plan PLAN_BIG_PIVOT_FCC_MASTER.
 ```
 
 **`.claude/agents/MAINTAINER.md`** (GARDENER):
@@ -239,7 +239,7 @@ Periodic sweep additions:
   (grep selectors files for types).
 - JSDoc discipline (ALL-006) extends to `field-case-runner.ts` and all per-module page-object
   helpers introduced by FCC (appendTo*, prependTo*, replaceSliceIn*, clear* patterns).
-Cross-ref: `field-case-generation.md`, master plan PLAN_MASTER_FCC_PARADIGM.
+Cross-ref: `field-case-generation.md`, master plan PLAN_BIG_PIVOT_FCC_MASTER.
 ```
 
 **`.claude/agents/HEALER.md`** (HEALER):
@@ -256,7 +256,7 @@ FCC tests are designed for per-case failure isolation. When debugging:
 - Per-FCC-case cleanup failures (cleanup leaves DB dirty) cascade into the NEXT FCC test's
   baseline failure. If you see two adjacent FCC failures, suspect cleanup-cascade first.
 Cross-ref: `field-case-generation.md`, runner at `src/core/field-case-runner.ts`,
-master plan PLAN_MASTER_FCC_PARADIGM.
+master plan PLAN_BIG_PIVOT_FCC_MASTER.
 ```
 
 ### Step 1.5 — Sync agent prompts
@@ -288,7 +288,7 @@ Read `clients/encore/specs_planning/_internal/old-site-baseline/notes-2026-05-11
 As of subplan authoring (2026-05-19) the artifact is 8 days old — FRESH.
 
 ### Step 2.2 — Field-inventory drift check
-Read `clients/encore/specs_planning/_internal/field-inventories/notes-2026-05-11.md` §Field Inventory table. **Known drift** discovered during plan authoring: the inventory comment claims `btnNotesAdd` has "no data-testid" but `clients/encore/src/selectors/setup/locations/notes.ts:45` shows `btnNotesAdd: '[data-testid="location-settings-btn-add-note"]'`. Same applies to `lblNotesCharCounter` (`location-settings-label-note-character-counter`) and `barNotesProgress` (`location-settings-label-note-character-progress`). Flag for GIVER refresh in Phase 3.3.
+Read `clients/encore/specs_planning/_internal/field-inventories/notes-2026-05-11.md` §Field Inventory table. **Known drift** discovered during plan authoring: the inventory comment claims `btnNotesAdd` has "no data-testid" but `clients/encore/src/selectors/locations/notes.ts:45` shows `btnNotesAdd: '[data-testid="location-settings-btn-add-note"]'`. Same applies to `lblNotesCharCounter` (`location-settings-label-note-character-counter`) and `barNotesProgress` (`location-settings-label-note-character-progress`). Flag for GIVER refresh in Phase 3.3.
 
 ### Step 2.3 — Emit FCC-lens addendum (in-place edit)
 Append a `## FCC-lens divergences` subsection to the existing baseline artifact (in-place edit, do NOT emit a new dated artifact since fields haven't changed). Content:
@@ -405,7 +405,7 @@ Body sections:
 4. MCP_VERIFICATION_LOG row "Strict mode risks" — confirm selectors file uses `txtNoteInputAll` already (it does — `'[data-testid="location-settings-section-notes"] textarea'`). No edit needed.
 5. CRITICAL CORRECTIONS table — corrections still valid. No edit.
 
-**§ Save dialog convention (per BUG-LOC-NTS-002 verification 2026-05-14)** — all `/settings/location` sub-tabs (8 tabs including Notes) use **"Ok"** as the dialog confirm button. Local Office Settings tabs use "Save". This is a page-scoped convention. The shared selector `btnSaveChangesConfirm` in `clients/encore/src/selectors/setup/locations/shared.ts` is the load-bearing identifier — verify (Phase 3.4) it correctly handles "Ok" for this page; if it currently targets `has-text("Save")`, escalate to BUILDER.
+**§ Save dialog convention (per BUG-LOC-NTS-002 verification 2026-05-14)** — all `/settings/location` sub-tabs (8 tabs including Notes) use **"Ok"** as the dialog confirm button. Local Office Settings tabs use "Save". This is a page-scoped convention. The shared selector `btnSaveChangesConfirm` in `clients/encore/src/selectors/locations/shared.ts` is the load-bearing identifier — verify (Phase 3.4) it correctly handles "Ok" for this page; if it currently targets `has-text("Save")`, escalate to BUILDER.
 
 ### Step 3.2 — Append FCC TC block to test-cases markdown
 **Edit**: `clients/encore/specs_planning/test-cases/setup/locations/locations_notes_test_cases.md`.
@@ -450,7 +450,7 @@ Each TC follows tc-authoring-rules.md (no bold for UI labels — quote with `"�
 This is a metadata fix (no behavioural content change) — no new MCP walk required per LR-013 amendment.
 
 ### Step 3.4 — Verify save dialog convention vs shared selector
-**Read**: `clients/encore/src/selectors/setup/locations/shared.ts` (the `btnSaveChangesConfirm` selector). 
+**Read**: `clients/encore/src/selectors/locations/shared.ts` (the `btnSaveChangesConfirm` selector). 
 
 - If it correctly handles "Ok" for `/settings/location` (e.g., text-match disjunction or page-scoped variant): record in catalog §Save-dialog-convention; skip escalation.
 - If it targets `has-text("Save")` only: file a GENERATOR escalation in `clients/encore/specs_planning/_internal/agent-escalations.json`:
@@ -503,7 +503,7 @@ Content (final, no placeholders):
  *
  * See:
  *  - clients/encore/specs_planning/_internal/field-case-generation.md — taxonomy
- *  - PLAN_MASTER_FCC_PARADIGM + SUBPLAN_NOTES_FCC_PILOT — paradigm origin
+ *  - PLAN_BIG_PIVOT_FCC_MASTER + SUBPLAN_NOTES_FCC_PILOT — paradigm origin
  */
 
 export interface FieldCase {
@@ -564,7 +564,7 @@ export async function saveAndVerifyCase(c: FieldCase): Promise<void> {
 ```
 
 ### Step 4.2 — Extend page object with edit helpers
-**Edit**: `clients/encore/src/pages/setup/locations/location-notes.page.ts`. Add 4 methods AFTER the existing `pasteIntoNote` (~line 100). Reuse the same Angular-friendly input-event pattern.
+**Edit**: `clients/encore/src/pages/locations/location-notes.page.ts`. Add 4 methods AFTER the existing `pasteIntoNote` (~line 100). Reuse the same Angular-friendly input-event pattern.
 
 ```typescript
 /** Append text to row N's existing value via Angular-friendly input event. */
@@ -622,7 +622,7 @@ async clearNote(row: number): Promise<void> {
 ```
 
 ### Step 4.3 — Extend test data with FCC constants
-**Edit**: `clients/encore/tests/test-data/setup/locations/location-notes.data.ts`. Append at end:
+**Edit**: `clients/encore/src/data/testdata/locations/location-notes.data.ts`. Append at end:
 
 ```typescript
 // ---- FCC (Field-Case Coverage) constants — SUBPLAN_NOTES_FCC_PILOT ----
@@ -654,7 +654,7 @@ export const NOTE_DELETE_WORKAROUND_BASE = 'Delete with clear';
 ```
 
 ### Step 4.4 — Add FCC describe block at TOP of spec
-**Edit**: `clients/encore/tests/specs/setup/locations/location-notes.spec.ts`. Insert a NEW `test.describe` block ABOVE the existing `test.describe('Location Notes @locations @notes', ...)` block.
+**Edit**: `clients/encore/specs/locations/location-notes.spec.ts`. Insert a NEW `test.describe` block ABOVE the existing `test.describe('Location Notes @locations @notes', ...)` block.
 
 Imports to add at top of file:
 ```typescript
@@ -834,7 +834,7 @@ npm run plans:reindex
 ```
 
 ### Step 7.3 — Parent-cascade check
-Grep `plans/pending/SUBPLAN_*` for any with `Parent: PLAN_MASTER_FCC_PARADIGM.md`. If zero (this is the last child to close): note in chat — but per master's §Roadmap, future module subplans + SSL are still pending, so master stays open. Do NOT close master from this subplan; master closes only when ALL module FCC subplans are in done/ AND SSL is delivered AND DQU is triaged.
+Grep `plans/pending/SUBPLAN_*` for any with `Parent: PLAN_BIG_PIVOT_FCC_MASTER.md`. If zero (this is the last child to close): note in chat — but per master's §Roadmap, future module subplans + SSL are still pending, so master stays open. Do NOT close master from this subplan; master closes only when ALL module FCC subplans are in done/ AND SSL is delivered AND DQU is triaged.
 
 ### Step 7.4 — Activity log final row
 Per LR-028.
@@ -874,7 +874,7 @@ Every enumerated deliverable classified (a) MCP/grep-proven, (b) inference-class
 - [a] **32 FCC TCs appended to locations_notes_test_cases.md** — `grep -c "TC-LOC-NTS-FCC-" clients/encore/specs_planning/test-cases/setup/locations/locations_notes_test_cases.md` returns ≥32.
 - [a] **Field-inventory drift corrected** — `grep -F "2026-05-19" clients/encore/specs_planning/_internal/field-inventories/notes-2026-05-11.md` matches CORRECTIONS row.
 - [a] **src/core/field-case-runner.ts exists** — `grep -n "export async function saveAndVerifyCase" clients/encore/src/core/field-case-runner.ts` returns 1.
-- [a] **4 new methods on LocationNotesPage** — `grep -cE "appendToNote|prependToNote|replaceSliceInNote|clearNote" clients/encore/src/pages/setup/locations/location-notes.page.ts` returns ≥4.
+- [a] **4 new methods on LocationNotesPage** — `grep -cE "appendToNote|prependToNote|replaceSliceInNote|clearNote" clients/encore/src/pages/locations/location-notes.page.ts` returns ≥4.
 - [a] **FCC describe block at TOP of spec** — `awk '/Location Notes — FCC/{print NR; exit}'` line number < `awk '/Location Notes @locations @notes/{print NR; exit}'` line number.
 - [a] **Existing 37 TCs unchanged** — `git diff` shows zero changes within the existing describe block's body.
 - [a] **Run-all pass** — 32 FCC + 37 existing green. Allure/Playwright report path cited in Step 7.1 Execution Summary.
@@ -907,7 +907,7 @@ ls clients/encore/specs_planning/_internal/field-case-catalogs/notes-2026-05-19.
 grep -c "TC-LOC-NTS-FCC-" clients/encore/specs_planning/test-cases/setup/locations/locations_notes_test_cases.md  # expect ≥32
 
 # FCC describe block at TOP of spec
-grep -n "Location Notes — FCC" clients/encore/tests/specs/setup/locations/location-notes.spec.ts
+grep -n "Location Notes — FCC" clients/encore/specs/locations/location-notes.spec.ts
 
 # Run-all pass
 npx playwright test location-notes.spec.ts --project=chrome --reporter=line  # expect 69 passed, 0 failed
@@ -917,4 +917,4 @@ npx playwright test location-notes.spec.ts --project=chrome --reporter=line  # e
 
 ## Handoff (chat-only per feedback_handoff_in_chat_only.md)
 
-This subplan installs the FCC paradigm framework-wide (one-time) and ships the Notes pilot with 32 net-new granular per-field-case tests. After closure: every other module's FCC subplan reuses the runner, taxonomy, agent prompts, and §2 ownership rows installed here. SSL is delivered by the user in a separate session. DQU stays paused per master directive. Master plan (PLAN_MASTER_FCC_PARADIGM) remains open until all module FCC subplans close.
+This subplan installs the FCC paradigm framework-wide (one-time) and ships the Notes pilot with 32 net-new granular per-field-case tests. After closure: every other module's FCC subplan reuses the runner, taxonomy, agent prompts, and §2 ownership rows installed here. SSL is delivered by the user in a separate session. DQU stays paused per master directive. Master plan (PLAN_BIG_PIVOT_FCC_MASTER) remains open until all module FCC subplans close.

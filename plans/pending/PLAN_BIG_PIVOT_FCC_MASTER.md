@@ -1,4 +1,4 @@
-# PLAN: Master Field-Case Coverage (FCC) Paradigm — All-Modules Strategic Tracker
+# PLAN: Big Pivot — Master Field-Case Coverage (FCC) Paradigm — All-Modules Strategic Tracker
 
 **Status**: PENDING
 **Priority**: P0-EMERGENCY
@@ -145,7 +145,7 @@ grep -n "field-case-generation.md" CLAUDE.md  # expect: 1+ hits
 ls clients/encore/specs_planning/_internal/field-case-catalogs/  # expect: notes-2026-05-19.md (plus future modules)
 
 # Confirm Notes spec has the FCC describe block at TOP
-grep -n "Location Notes — FCC" clients/encore/tests/specs/setup/locations/location-notes.spec.ts  # expect: line number < existing 'Location Notes @locations @notes' line
+grep -n "Location Notes — FCC" clients/encore/specs/locations/location-notes.spec.ts  # expect: line number < existing 'Location Notes @locations @notes' line
 ```
 
 ---

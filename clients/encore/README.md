@@ -13,6 +13,18 @@ End-to-end Playwright test suite for Navigator Cloud (`cloudapps-e2e.encoregloba
 
 ---
 
+## Quickstart — one-line setup + run + reports
+
+From inside the unzipped folder:
+
+```bash
+npm install && npx playwright install chromium && npm run test:cli
+```
+
+This installs dependencies + Chromium, then runs the full suite via `test:cli` (which preserves Allure history across runs). After it finishes, view reports with `npm run report` (Playwright HTML) or `npm run allure:open` (Allure).
+
+---
+
 ## One-time setup
 
 ```bash
@@ -22,10 +34,10 @@ npx playwright install chromium
 
 Credentials ship pre-wired in `config/environments/.env.e2e` (Microsoft SSO with an automation user). **Rotate these before any production use** — the shipped values are for the E2E environment only.
 
-Verify the setup with the auth smoke test (~30 seconds):
+Verify the setup with a single short spec (~60 seconds — exercises auth + a real module flow):
 
 ```bash
-npx playwright test tests/specs/smoke/seed.spec.ts --project=chromium
+npm run test:grep -- "TC-LOC-CUR-001" --project=encore-locations
 ```
 
 Green = credentials + SSO + fixtures all working.
@@ -131,7 +143,7 @@ Allure's **Categories** panel groups failures into the same buckets visually.
 
 ## Updating
 
-Receive the latest version from the QA automation team. Do **not** commit or edit files under `src/**` or `tests/**` — those are framework-owned and will be overwritten on the next update. If you need a change in those paths, request it from the QA automation team.
+Receive the latest version from the QA automation team. Do **not** commit or edit files under `src/**` or `specs/**` — those are framework-owned and will be overwritten on the next update. If you need a change in those paths, request it from the QA automation team.
 
 Safe-to-edit without conflicts: `config/environments/.env.*` (your credentials), anything under `reports/` (generated output), `node_modules/` (installed).
 
