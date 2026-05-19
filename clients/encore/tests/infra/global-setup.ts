@@ -47,7 +47,8 @@ async function globalSetup(config: FullConfig) {
     Log.info(`[WARN] Pre-flight WARN: ${w.check} -- ${w.message}`);
   }
 
- // Clean up old diagnostic files (7 day retention)
+  // Age out diagnostic snapshots older than 7 days. Without this, the
+  // reports/diagnostics/ folder grows unbounded on long-lived CI agents.
   cleanupDiagnosticFiles();
 
   Log.info('=== Global Test Setup Completed ===');

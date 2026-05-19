@@ -1,6 +1,6 @@
 # Encore QA Automation
 
-End-to-end Playwright test suite for Navigator Cloud (`cloudapps-e2e.encoreglobal.com`). Produces two reports per run (Playwright HTML + Allure) with per-run timestamped archives. Browser projects (`chromium`, `chrome`, `firefox`, `webkit`) and parallelism (worker count) are all configurable per run — defaults in `playwright.config.ts`, overridable via CLI flags or environment variables.
+End-to-end Playwright test suite for Navigator Cloud (`cloudapps-e2e.encoreglobal.com`). Produces two reports per run (Playwright HTML + Allure). Browser projects (`chromium`, `chrome`, `firefox`, `webkit`) and parallelism (worker count) are all configurable per run — defaults in `playwright.config.ts`, overridable via CLI flags or environment variables.
 
 ---
 
@@ -25,7 +25,7 @@ Credentials ship pre-wired in `config/environments/.env.e2e` (Microsoft SSO with
 Verify the setup with the auth smoke test (~30 seconds):
 
 ```bash
-npx playwright test tests/seed.spec.ts --project=chromium
+npx playwright test tests/specs/smoke/seed.spec.ts --project=chromium
 ```
 
 Green = credentials + SSO + fixtures all working.
@@ -34,40 +34,26 @@ Green = credentials + SSO + fixtures all working.
 
 ## Running the suite
 
-### Recommended — single command, full chain
+### Recommended — single command, Allure history preserved
 
 ```bash
-npm run test:daily
+npm run test:cli
 ```
 
-This is the intended daily command. It does, in order:
-
-1. Preserves Allure history (so the Trend widget accumulates day over day)
-2. Cleans stale report artifacts
-3. Runs the full chromium suite
-4. Generates the Allure report
-5. Archives both HTML + Allure reports to timestamped directories
-
-### Alternative — manual / granular control
-
-If your CI pipeline needs the steps separately (parallelization, artifact upload between steps, etc.), run them individually:
-
-```bash
-node scripts/preserve-allure-history.js    # seed trend history
-npm run clean:reports                      # clean stale outputs
-npx playwright test --project=chromium     # run the suite
-npm run allure:generate                    # build Allure report
-npm run reports:archive                    # archive both reports
-```
+This stashes Allure history, cleans, restores history, runs the suite, and regenerates the Allure report. The Trend widget accumulates day over day across runs.
 
 ### Other test commands
 
 | Command | What it does |
 |---|---|
-| `npx playwright test --project=chromium` | Run full suite, skip the daily chain |
+| `npm test` | Run full suite, no history-preservation chain |
+| `npx playwright test --project=chromium` | Run via the chromium project |
 | `npx playwright test <path> --project=chromium` | Run a single spec or directory |
-| `npm run test:chrome` / `test:firefox` / `test:webkit` | Browser variants |
-| `npm test -- --list` | List every discoverable test without running |
+| `npm run test:chrome` | Run via the `chrome` project (real Chrome channel) |
+| `npm run test:debug` / `test:ui` / `test:headed` | Debug, Playwright UI, or headed-browser modes |
+| `npm run test:failed` | Re-run only previously-failed tests |
+| `npm run test:grep -- "@notes"` | Filter by tag/grep |
+| `npx playwright test --list` | List every discoverable test without running |
 
 ### Tuning parallelism
 
@@ -79,7 +65,7 @@ MAX_WORKERS=8 npm test          # try higher locally
 MAX_WORKERS=1 npm test          # force serial
 ```
 
-More workers = faster wall-clock but higher load on the app under test. CI module projects keep `fullyParallel: false` so each spec file stays in one worker (required for `dependencyGate` ordering); different spec files still run in parallel across workers. If 4 introduces state races on shared office=1604, drop the CI default to 2 in the config.
+More workers = faster wall-clock but higher load on the app under test. Module projects keep `fullyParallel: false` so each spec file stays in one worker (required for the LR-019 baseline-reset ordering); different spec files still run in parallel across workers. If 4 introduces state races on shared office=1604, drop the CI default to 2 in the config.
 
 ---
 
@@ -91,8 +77,6 @@ After every run:
 |---|---|
 | `reports/html-report/` | Latest Playwright HTML report |
 | `reports/allure-report/` | Latest Allure report (with Environment, Categories, Trend) |
-| `reports/html-archive/<timestamp>/` | Every past HTML run (if using `test:daily` or `reports:archive`) |
-| `reports/allure-archive/<timestamp>/` | Every past Allure run |
 | `reports/failure-summary.json` | Machine-readable failure data (see **Failure categorization** below) |
 | `reports/junit-results.xml` | JUnit XML for CI dashboards |
 | `reports/test-results.json` | Raw Playwright results |
@@ -104,17 +88,6 @@ npm run report            # opens the Playwright HTML report
 npm run allure:report     # generates + opens Allure in the browser
 ```
 
-### Archive retention
-
-Archives are kept indefinitely by default. To auto-prune, set environment variables before running `test:daily` or `reports:archive`:
-
-```bash
-ALLURE_ARCHIVE_MAX_DAYS=30   # keep 30 days of Allure archives
-HTML_ARCHIVE_MAX_DAYS=30     # keep 30 days of HTML archives
-```
-
-Setting to `0` (default) means never prune.
-
 ---
 
 ## CI/CD integration
@@ -125,8 +98,8 @@ The suite is CI-agnostic. Pick the pattern that fits your pipeline:
 ```yaml
 - run: npm install
 - run: npx playwright install chromium
-- run: npm run test:daily
-- uses: actions/upload-artifact   # upload reports/ as your pipeline requires
+- run: npm run test:cli
+- uses: actions/upload-artifact
   with:
     path: reports/
 ```
@@ -165,8 +138,8 @@ Safe-to-edit without conflicts: `config/environments/.env.*` (your credentials),
 1. **Nothing runs at all** — `npm install` exited non-zero, or `npx playwright install chromium` didn't complete. Re-run both; check node/npm versions meet the requirements above.
 2. **Every test fails with auth errors** — credentials expired or rotated. Update `config/environments/.env.e2e` (or override via `.env.local`).
 3. **Seed smoke fails but the app works in a browser** — Microsoft SSO is having a bad moment. Retry in 5 minutes before deeper triage.
-4. **Reports look empty / blank widgets** — run `npm run clean` and re-run `test:daily`. Some widgets (Trend) only populate after the second run.
-5. **Allure Trend never grows** — ensure `test:daily` is used, or that you call `node scripts/preserve-allure-history.js` before each run if invoking steps manually.
+4. **Reports look empty / blank widgets** — run `npm run clean` and re-run `test:cli`. Some widgets (Trend) only populate after the second run.
+5. **Allure Trend never grows** — ensure `test:cli` is used. `npm test` alone runs the suite without the stash/restore chain, so history doesn't accumulate.
 
 ---
 
