@@ -233,7 +233,7 @@ No file edits at the time this plan is saved. All work above is dormant until th
 - Encore Branching & Pull Requests (Kevin Carroll) — Gitflow https://nvie.com/posts/a-successful-git-branching-model/
 - Encore Story Point Estimation (Kevin Carroll).
 - `clients/encore/CLAUDE.md` (existing LR-ENC-001).
-- `clients/encore/docs/MODULE_REGISTRY.md`.
+- `clients/encore/CLAUDE.md (was MODULE_REGISTRY.md, removed 2026-05-19 per unified-matsumoto plan)`.
 - `clients/encore/docs/read_only_docs/SHIP_TO_ENCORE.md`.
 - Existing plans: `plans/pending/PLAN_DELIVERABLE_LEAK_AUDIT.md`, `plans/pending/PLAN_DYNAMIC_WORKERS.md`, `plans/pending/PLAN_DEPENDENCY_AWARE_FAILURE.md` + 5 dep-aware subplans.
 - Memory: `project_encore_deliverable_channel.md` (now stale post-D1; update only when execution begins, not at save-time).

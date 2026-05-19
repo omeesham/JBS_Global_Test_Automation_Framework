@@ -120,7 +120,7 @@ Switch identity: `/identity HEALER`.
    - Rewrite affected TCs against documented expected behavior (Rule 4).
 
 3. For every intentional-UX-change:
-   - Update `clients/encore/docs/REQUIREMENTS.md` with the change rationale + cross-link to NM-* / Jira if available.
+   - Update `clients/encore/CLAUDE.md (was REQUIREMENTS.md, removed 2026-05-19 per unified-matsumoto plan)` with the change rationale + cross-link to NM-* / Jira if available.
    - HUNTER identity required for REQUIREMENTS.md edits per R11 — switch identity if needed.
 
 4. Re-export CSVs (LOS now ships as 3 sibling files post-2026-05-05 split):

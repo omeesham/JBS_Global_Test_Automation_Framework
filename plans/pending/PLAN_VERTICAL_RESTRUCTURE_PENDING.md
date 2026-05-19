@@ -55,7 +55,7 @@ This plan restructures the pending queue to that shape. The output is a per-subm
   - `.claude/rules/baseline.md` (referenced by per-submodule audit subplans, not by this plan directly)
   - `.claude/rules/specs.md` (referenced by per-submodule test subplans)
   - `clients/encore/CLAUDE.md` (LR-ENC-001 baseline truth source — referenced by audits, not edited here)
-  - `clients/encore/docs/MODULE_REGISTRY.md` (page/module boundaries)
+  - `clients/encore/CLAUDE.md (was MODULE_REGISTRY.md, removed 2026-05-19 per unified-matsumoto plan)` (page/module boundaries)
   - `PLAN_DELIVERABLE_QUALITY_UPGRADE.md` (DQU mega — to be amended in Phase 1)
   - `PLAN_HIST_COLUMN_FIRST_PIVOT.md` (HIST mega — to be amended in Phase 1)
   - `PLAN_VERTICAL_DELIVERY_SOX.md` (Plan B sibling — L2-frozen; this plan blocks its push cycle)

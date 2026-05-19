@@ -276,7 +276,7 @@ SP-30 (Allure) and SP-34 (handoff package) can ship immediately after SP-08 even
 ## Reference files (read-only dependencies)
 
 - `clients/encore/specs_planning/_internal/tc-authoring-rules.md` — 4 rules + Phase 0 greps + known-leaks.
-- `clients/encore/docs/REQUIREMENTS.md` — authoritative functional specs.
+- `clients/encore/CLAUDE.md (was REQUIREMENTS.md, removed 2026-05-19 per unified-matsumoto plan)` — authoritative functional specs.
 - `clients/encore/docs/read_only_docs/Functional Requirement -v1.docx` — binary source for v1 rules.
 - `clients/encore/docs/read_only_docs/Encore-Requirements-V2.docx` — v2 additions.
 - `export_test_cases/to-csv.ts` — converter (modified in SP-06).

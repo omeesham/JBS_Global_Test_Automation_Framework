@@ -20,8 +20,8 @@
 **Model + thinking**: Opus + high (needs judgment on defect classification)
 **Dependency gate**: SP-DQU-01 `Status: DONE`
 **Context files**:
-- `clients/encore/docs/REQUIREMENTS.md`
-- `clients/encore/docs/MODULE_REGISTRY.md`
+- `clients/encore/CLAUDE.md (was REQUIREMENTS.md, removed 2026-05-19 per unified-matsumoto plan)`
+- `clients/encore/CLAUDE.md (was MODULE_REGISTRY.md, removed 2026-05-19 per unified-matsumoto plan)`
 - `clients/encore/docs/read_only_docs/Functional Requirement -v1.docx`
 - `clients/encore/docs/read_only_docs/Encore-Requirements-V2.docx`
 **Phase 0 directive**: announce browser tool — Chrome Claude (LR-038: exploratory, auth-heavy, sampling-verification needs live DOM).

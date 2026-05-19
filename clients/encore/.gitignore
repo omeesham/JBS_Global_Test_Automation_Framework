@@ -3,9 +3,14 @@ node_modules/
 reports/
 logs/
 test-results/
+test-results-*/
 playwright-report/
 playwright/.cache/
 *.tsbuildinfo
+
+# Agent-internal artifacts kept on disk but never shipped
+scripts/walks/
+src/selectors/SELECTOR_CATALOG.md
 
 # Local env overrides (never commit real env files)
 config/environments/.env.local

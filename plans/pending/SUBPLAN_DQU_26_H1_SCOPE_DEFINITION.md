@@ -22,7 +22,7 @@
 **Context files**:
 - Repo root tree
 - Mega plan D9 (scope decision)
-- `clients/encore/docs/MODULE_REGISTRY.md`
+- `clients/encore/CLAUDE.md (was MODULE_REGISTRY.md, removed 2026-05-19 per unified-matsumoto plan)`
 **Phase 0 directive**: no browser needed.
 
 ## Purpose

@@ -36,7 +36,7 @@ Original module-specific intent (preserved from pre-supersession plan body):
 - **Skills auto-called**: `/identity`, `/find-bugs` (Phase 1 if reached), `/bugfix` + `/regression-guard` (Phase 2 if reached), `/final-q` (close — always)
 - **Context files**:
   - `clients/encore/CLAUDE.md` (LR-ENC-001 — ECT scope claim)
-  - `clients/encore/docs/MODULE_REGISTRY.md` (line 31: `setup/ect-settings | /settings/ect`)
+  - `clients/encore/CLAUDE.md (was MODULE_REGISTRY.md, removed 2026-05-19 per unified-matsumoto plan)` (line 31: `setup/ect-settings | /settings/ect`)
   - `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` (line 56: stale "ECT tab on Locations Settings" claim — verify against live UI)
   - `clients/encore/specs_planning/test-cases/setup/local-office/local_office_ect_test_cases.md` (existing TC-LOS-ECT-001..018; split out of combined LOS test-cases on 2026-05-05)
   - `plans/done/SUBPLAN_DQU_02_B1_LOS_NEUTRAL_EYE_AUDIT.md` + `SUBPLAN_DQU_03_C1_LOS_FIXES_AND_REEXPORT.md` (LOS audits — already covered LOS-ECT tab)

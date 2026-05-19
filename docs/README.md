@@ -22,7 +22,7 @@ all live under the active client (e.g. `clients/encore/`):
 
 1. Add selectors to `clients/<id>/src/selectors/index.ts`
 2. Create `clients/<id>/src/pages/{name}.page.ts` extending `BasePage`
-3. Add fixture to `clients/<id>/tests/setup/fixtures.ts`
+3. Add fixture to `clients/<id>/tests/infra/fixtures.ts`
 4. Export from `clients/<id>/src/pages/index.ts`
 
 ## References

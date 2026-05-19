@@ -1,3 +1,9 @@
+# AI Council Oversight
+
+All work in this repository (plans, test implementations, and code commits) is subject to unannounced, adversarial audits by a blind AI Council comprised of gpt, claude, gemini and many more frontier models. 
+
+Assume every decision you make will be aggressively scrutinized by the Council for execution quality, maintainability, and factual accuracy. No assumptions, lying, guessing, using loopholes, skipping tasks given, being lazy, trying shortcuts, etc would be tolerated. 0 tolerance for AI slop, tech debt, bugs, half baked work, etc. Trying to save compute for anthropic would only result in overwork == more compute and lower quality output. 
+
 # Encore Framework — Claude Code Configuration
 
 Concise framework configuration. Most context lives in `@`-referenced files; this file is the orientation layer.
@@ -130,6 +136,6 @@ Existing `LR-NNN` numbers are grandfathered. New framework rules continue after 
 - `src/` — **publishable framework**. Whatever lives here ships to clients via vendoring (`clients/<id>/dist/framework/`). Adding code here = client-shippable by default.
 - `pipeline/` — **internal runtime**. Orchestrator, server, worker, agent-notification-writer, hook tests. NEVER ships. Adding code here = agent-only by default.
 - `clients/<id>/` — **per-client surface**. Page objects, selectors, specs, test data, config. Self-contained: own `package.json`, `playwright.config.ts`, `tsconfig.json`, `.gitignore`. Ships via `npm run client:ship -- --client=<id> --out=<path>` (which uses `git archive HEAD clients/<id>/`).
-  - Tracked: `src/`, `tests/`, `config/`, `api-testing/`, `dist/framework/` (vendored), `package.json`, `playwright.config.ts`, `tsconfig.json`, `.gitignore`, `README.md`, `docs/REQUIREMENTS.md`, `docs/MODULE_REGISTRY.md`.
+  - Tracked: `src/`, `tests/`, `config/`, `package.json`, `playwright.config.ts`, `tsconfig.json`, `.gitignore`, `README.md`.
   - Gitignored at per-client level: `CLAUDE.md`, `specs_planning/`, `readable_externals/`, `docs/read_only_docs/`, `exports/`, `.auth/`, `.env.*.local`, `.env.server`.
 - Ship discipline: NEVER `cp -r clients/<id>` for delivery. Always `npm run client:ship`. Pre-push hook refuses pushes that would leak gitignored content via tracked-but-forbidden patterns. Rule: LR-049 in `.claude/rules/pipeline.md`.
