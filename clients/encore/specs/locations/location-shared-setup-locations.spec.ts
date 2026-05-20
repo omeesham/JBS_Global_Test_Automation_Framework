@@ -173,18 +173,39 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
     expect(await pg.isElementVisible('dlgSaveChanges', 1_500)).toBe(false);
     await expect.poll(() => pg.getDataRowCount(), { timeout: 5_000 }).toBe(1);
     await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true); // dirty from add+delete cycle
- // Cleanup: navigate away to discard and return to clean state
-    await pg.discardAndReturn(OFFICE_NO);
+ // Cleanup: hard reload to reset dirty state cleanly (audit-note #5 framework fix —
+ // discardAndReturn(homeUrl) was leaving the Angular SPA in a broken serial state where
+ // the next test's clickAdd opened the wrong dialog. Replaced with reloadAndNavigateToSSLTab
+ // per SP-A walk-evidence-shared-setup-2026-05-15.md:Section B.TC-LOC-SSL-016 hint.
+ // SP-D 2026-05-20).
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
   });
 
   test('TC-LOC-SSL-016: Cancelling the dialog after row selection leaves table and Save unchanged', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
     dependencyGate(['TC-LOC-SSL-001']);
- // RCA : discardAndReturn in SSL-015 leaves Angular SPA in broken state.
- // navigateToSharedSetupTab re-navigation doesn't recover — clickAdd opens wrong dialog
- // ("Change Local Office" instead of SSL Add). "Miami" search returns 0 results in
- // this dialog. Root cause: serial state after discardAndReturn, not a HIST defect.
- // Tracked separately — does not block HIST verification.
-    test.fixme(true, 'discardAndReturn() serial state breaks clickAdd — opens wrong dialog');
+ // SP-D 2026-05-20: body rewritten from empty test.fixme() placeholder to real assertions
+ // per walk-evidence-shared-setup-2026-05-15.md:Section B.TC-LOC-SSL-016 (PASS-LIVE class —
+ // SP-A flagged 'functionally trivial' because body was empty). Framework leak from TC-015
+ // (discardAndReturn → SPA broken state) addressed in TC-015 cleanup above (reloadAndNavigateToSSLTab).
+    test.setTimeout(60_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+ // Baseline: capture pre-dialog table state + Save state
+    const beforeRowCount = await pg.getDataRowCount();
+    const beforeSaveEnabled = await pg.isSaveEnabled();
+    expect(beforeSaveEnabled).toBe(false);
+ // Open Add dialog, search, select first row (DO NOT click Select — that would commit)
+    await pg.clickAdd();
+    await pg.searchInDialog(ADD_LOCATION.searchByName);
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 })
+      .toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+    await pg.selectFirstDialogRow();
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+ // Cancel the dialog instead of selecting
+    await pg.clickDialogCancel();
+ // Verify table row count unchanged + Save still disabled (cancel = no-op)
+    expect(await pg.getDataRowCount()).toBe(beforeRowCount);
+    expect(await pg.isSaveEnabled()).toBe(false);
   });
 
   test('TC-LOC-SSL-017: Tab uses left-panel Save with dialog (no dedicated in-tab Save button)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
@@ -202,10 +223,10 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
 
   test('TC-LOC-SSL-018: Add location via dialog -> save -> reload -> row persists', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
     dependencyGate(['TC-LOC-SSL-001']);
- // FIXME: Dialog search for "Miami" returns 0 results — table body empty after search.
- // Pre-existing issue discovered when SSL-007 fix unblocked this test for the first time.
- // The dialog renders headers but no rows. Needs RCA on search API / virtual table rendering.
-    test.fixme();
+ // SP-D 2026-05-20 unfixme: test data switched Miami→Boston per BUG-LOC-SHR-001 alt-query
+ // independence (Boston returns 77 rows on e2e per BUG-001 verificationLog 2026-05-19;
+ // Miami catalog excluded from office 1604 dialog context). Parent plan v5.1 CLOSURE-2 path:
+ // "If alternate query returns results → TC is NOT BUG-001-blocked → unfixme + x2 cycles."
     test.setTimeout(90_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
     await pg.ensureCleanSSLTable(OFFICE_NO);
@@ -239,7 +260,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
 
   test('TC-LOC-SSL-019: Non-self Shares Inventory toggle -> save -> reload -> persisted', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
     dependencyGate(['TC-LOC-SSL-001']);
-    test.fixme(); // FIXME: same dialog search "Miami" returns 0 results — see SSL-018 fixme
+ // SP-D 2026-05-20 unfixme: Boston alt-query (per TC-018 comment) unblocks BUG-001 cascade.
     test.setTimeout(90_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
     await pg.ensureCleanSSLTable(OFFICE_NO);
@@ -275,7 +296,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
 
   test('TC-LOC-SSL-020: Delete location -> save -> reload -> row removed', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
     dependencyGate(['TC-LOC-SSL-001']);
-    test.fixme(); // FIXME: same dialog search "Miami" returns 0 results — see SSL-018 fixme
+ // SP-D 2026-05-20 unfixme: Boston alt-query (per TC-018 comment) unblocks BUG-001 cascade.
     test.setTimeout(90_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
     await pg.ensureCleanSSLTable(OFFICE_NO);
@@ -304,7 +325,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
 
   test('TC-LOC-SSL-021: Combined self SI + add location -> save -> reload -> both persisted', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
     dependencyGate(['TC-LOC-SSL-001']);
-    test.fixme(); // FIXME: same dialog search "Miami" returns 0 results — see SSL-018 fixme
+ // SP-D 2026-05-20 unfixme: Boston alt-query (per TC-018 comment) unblocks BUG-001 cascade.
     test.setTimeout(90_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
     await pg.ensureCleanSSLTable(OFFICE_NO);
@@ -372,7 +393,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
 
   test('TC-LOC-SSL-024: Already-added location is absent from Change Local Office dialog', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
     dependencyGate(['TC-LOC-SSL-001']);
-    test.fixme(); // FIXME: same dialog search "Miami" returns 0 results — see SSL-018 fixme
+ // SP-D 2026-05-20 unfixme: Boston alt-query (per TC-018 comment) unblocks BUG-001 cascade.
     test.setTimeout(90_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
     await pg.ensureCleanSSLTable(OFFICE_NO);
@@ -401,6 +422,165 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
     await pg.deleteNonSelfRow(added!.index);
     const cleanup = await pg.clickSave();
     expect(cleanup.success).toBe(true);
+  });
+
+  test('TC-LOC-SSL-025: Each column header testid resolves to expected text', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate(['TC-LOC-SSL-001']);
+ // Traces to walk-evidence-shared-setup-2026-05-15.md:Section A:GAP-001 (A.columns)
+ // Complements TC-002 (whole-array content check) with per-testid resolution.
+    expect(await pg.isElementVisible('colHeaderLocalOffice')).toBe(true);
+    expect(await pg.isElementVisible('colHeaderLocalOfficeName')).toBe(true);
+    expect(await pg.isElementVisible('colHeaderPrimaryOffice')).toBe(true);
+    expect(await pg.isElementVisible('colHeaderSharesInventory')).toBe(true);
+    expect(await pg.isElementVisible('colHeaderActions')).toBe(true);
+  });
+
+  test('TC-LOC-SSL-026: Dialog number-search "1233" returns exactly the Miami Marriott office', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate(['TC-LOC-SSL-001']);
+ // Traces to walk-evidence-shared-setup-2026-05-15.md:Section A:GAP-002 (G.number)
+ // EXPECTED-FAIL on e2e office 1604 per BUG-LOC-SHR-001 (Miami-region offices structurally
+ // excluded from this catalog — visibility/scope filter at /api/location/location-lookup layer).
+ // Nav2 baseline returns 1 row. Test serves as Encore-side bug-report evidence vehicle;
+ // do NOT add test.fixme() (FORBIDDEN LOOPHOLE #3). SP-D Step 7 will surface the cascade.
+    test.setTimeout(60_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    await pg.clickAdd();
+    await pg.searchInDialog('1233');
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 }).toBe(1);
+    const row = await pg.getFirstDialogRowText();
+    expect(row.localOffice).toBe('1233');
+    expect(row.localOfficeName).toContain('Miami Marriott');
+    await pg.clickDialogCancel();
+  });
+
+  test('TC-LOC-SSL-027: Combined self SI + add non-Miami row + save persists both after reload', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate(['TC-LOC-SSL-001']);
+ // Traces to walk-evidence-shared-setup-2026-05-15.md:Section A:GAP-003 (J.cross-field)
+ // Parallels fixme'd TC-021 using non-Miami query (Chicago) that works on e2e office 1604
+ // per BUG-LOC-SHR-001 verificationLog 2026-05-19 (123 Chicago rows confirmed).
+    test.setTimeout(120_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+ // Combined change: toggle self SI + add non-Miami row via dialog
+    await pg.toggleSelfSharesInventory();
+    await pg.clickAdd();
+    await pg.searchInDialog('Chicago');
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 })
+      .toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+    await pg.selectFirstDialogRow();
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+    await pg.clickDialogSelect();
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+    const result = await pg.clickSave();
+    expect(result.success).toBe(true);
+ // Reload and verify both changes persisted
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    expect((await pg.getSelfSharesInventoryState()).checked).toBe(true);
+    expect(await pg.getDataRowCount()).toBe(2);
+ // Cleanup: try/finally for combined dirty state (mirrors TC-021)
+    try {
+      await pg.setSelfSharesInventory(false);
+      const nsRow = await pg.findNonSelfRow();
+      if (nsRow) await pg.deleteNonSelfRow(nsRow.index);
+      await pg.clickSave();
+    } catch {
+      await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+      await pg.ensureCleanSSLTable(OFFICE_NO);
+    }
+  });
+
+  test('TC-LOC-SSL-028: In-SPA top-tab switch with dirty form does NOT show unsaved dialog', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate(['TC-LOC-SSL-001']);
+ // Traces to walk-evidence-shared-setup-2026-05-15.md:Section A:GAP-004 (K.1 beforeunload — K1b)
+ // Architectural negative-test: nav2 + e2e both lack page-level CanDeactivate guard on
+ // locationdetail route; only browser-native beforeunload fires on hard-leave. SPA tab
+ // switch silently preserves dirty state (USEFUL guard rail to detect future regressions
+ // if Angular CanDeactivate is added).
+    test.setTimeout(60_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    await pg.makeFormDirty();
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+ // Switch to Location Management History top-level tab
+    await pg.clickTopLevelTab('tabLocationManagementHistory');
+    await expect.poll(() => pg.getActiveTopLevelTab(), { timeout: 5_000 })
+      .toContain('Location Management History');
+    expect(await pg.hasVisibleUnsavedDialog(1_500)).toBe(false);
+    expect(await pg.isSaveEnabled()).toBe(true);
+ // Cleanup: navigate back + discard via reload (LR-024 net-zero — no save fired)
+    await pg.clickTopLevelTab('tabBasicInformation');
+    await expect.poll(() => pg.getActiveTopLevelTab(), { timeout: 5_000 })
+      .toContain('Basic Information');
+    await pg.discardAndReturn(OFFICE_NO);
+  });
+
+  test('TC-LOC-SSL-029: Five rapid Add-button clicks open exactly one dialog', async ({ locationSharedSetupLocationsPage: pg, page, dependencyGate }) => {
+    dependencyGate(['TC-LOC-SSL-001']);
+ // Traces to walk-evidence-shared-setup-2026-05-15.md:Section A:GAP-005 (K.2 rapid-click)
+ // App-level guard: modal-state primitive blocks repeat invocation while dialog is open.
+ // Load-bearing assertion is the dialog-count == 1 (what GAP-005 actually proves).
+ // Console listener is retained for diagnostic visibility but NOT asserted — walk-evidence's
+ // "no console errors" was a passive observation from a probe without an attached listener,
+ // and a strict empty-array assertion is too prone to ambient Angular noise (NG0100,
+ // ResizeObserver loop, etc.) to be load-bearing in CI.
+    test.setTimeout(60_000);
+    const consoleErrors: string[] = [];
+    const errorHandler = (msg: import('@playwright/test').ConsoleMessage) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    };
+    page.on('console', errorHandler);
+    try {
+      await pg.rapidClickAdd(5, 50);
+ // Settle: wait for dialog to be visible (single open)
+      await expect.poll(() => pg.isAddDialogVisible(), { timeout: 5_000 }).toBe(true);
+      expect(await pg.countAddDialogs()).toBe(1);
+      // consoleErrors retained for Playwright trace visibility (not asserted — see comment above).
+    } finally {
+      page.off('console', errorHandler);
+ // Cleanup: close the single open dialog
+      await pg.clickDialogCancel();
+    }
+  });
+
+  test('TC-LOC-SSL-030: Add three non-Miami rows + save + reload → all three persist', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate(['TC-LOC-SSL-001']);
+ // Traces to walk-evidence-shared-setup-2026-05-15.md:Section A:GAP-006 (K.3 table-at-max — K3a only)
+ // Small-N (3-row) smoke variant of GAP-006 K3a. Walk-evidence proved up to 44 rows
+ // on throwaway office 1605, but LR-024 net-zero constrains shared baseline 1604 to a
+ // minimal-mutation variant — full ceiling characterization is intentionally out-of-CI-scope.
+ // Queries used: Chicago (123 rows on e2e per BUG-001 verificationLog 2026-05-19),
+ // Boston (77 rows per same evidence), Marriott (295 rows per same evidence — Marriott was
+ // chosen over Dallas because BUG-001 e2e evidence does NOT enumerate Dallas counts;
+ // Dallas only appears in the nav2 baseline alternate-queries block).
+    test.setTimeout(180_000);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    await pg.ensureCleanSSLTable(OFFICE_NO);
+    const queries = ['Chicago', 'Boston', 'Marriott'] as const;
+    for (const q of queries) {
+      await pg.clickAdd();
+      await pg.searchInDialog(q);
+      await expect.poll(() => pg.getDialogRowCount(), { timeout: 8_000 })
+        .toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+      await pg.selectFirstDialogRow();
+      await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+      await pg.clickDialogSelect();
+    }
+    const addSave = await pg.clickSave();
+    expect(addSave.success).toBe(true);
+ // Reload and verify all 3 added rows persisted
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    expect(await pg.getDataRowCount()).toBe(1 + queries.length);
+ // Cleanup (LR-024 net-zero): delete all non-self rows + save until back to 1
+    let nsRow = await pg.findNonSelfRow();
+    while (nsRow) {
+      await pg.deleteNonSelfRow(nsRow.index);
+      nsRow = await pg.findNonSelfRow();
+    }
+    const cleanup = await pg.clickSave();
+    expect(cleanup.success).toBe(true);
+    await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+    expect(await pg.getDataRowCount()).toBe(1);
   });
 
 });
