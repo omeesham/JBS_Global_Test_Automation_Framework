@@ -20,18 +20,15 @@ export const SELF_ROW = {
 } as const;
 
 export const ADD_LOCATION = {
- /** Search term that returns 77 filtered rows on e2e (name match) — per BUG-LOC-SHR-001 verificationLog 2026-05-19.
-  *  Switched from 'Miami' → 'Boston' by SP-D 2026-05-20 because BUG-LOC-SHR-001 proved the
-  *  catalog STRUCTURALLY EXCLUDES every Miami-region office from office 1604's dialog context
-  *  (returns 0 rows on e2e). Boston is the lowest-row-count e2e-proven alternate (77 < Chicago 123).
-  *  Alt-query independence test per parent plan v5.1 CLOSURE-2; unblocks TC-018/019/020/021/024. */
+ /** Default name-search query (TC-010, TC-016, TC-019) — Boston returns 77 rows on e2e office 1604
+  *  per BUG-LOC-SHR-001 verificationLog 2026-05-19. TC-018/020/021/024 use distinct per-TC literals
+  *  (Chicago/Dallas/Denver/Atlanta) for alt-query independence — see spec inline literals. */
   searchByName: 'Boston',
- /** Max expected results after name search -- guards against full 4541-row catalog returning.
-  *  Raised 100 → 400 by SP-D 2026-05-20 to accommodate Chicago(123) + Marriott(295) inline
-  *  queries in TC-027/TC-030 (both broken-by-data with maxResults=100; e2e row counts from
-  *  BUG-LOC-SHR-001 verificationLog 2026-05-19). 400 still gives 11x guardband vs the
-  *  4541-row full catalog. */
-  searchByNameMaxResults: 400,
+ /** Max expected results after name search. Guards against full 4541-row catalog leakage.
+  *  Raised 400 → 600 to accommodate Dallas/Denver/Atlanta whose e2e counts were unmeasured at
+  *  T7a-refactor time; 600 retains 7x headroom vs the 4541-row full catalog. Known counts:
+  *  Boston=77, Chicago=123, Marriott=295. */
+  searchByNameMaxResults: 600,
  /** Search term that returns exactly 1 row (dialog number search). Used by TC-011/TC-012/TC-013 only — never saved. */
   searchByNumber: '990002',
  /** Location name matching searchByNumber. */
