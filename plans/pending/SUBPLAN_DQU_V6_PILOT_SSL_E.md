@@ -26,6 +26,9 @@ After SP-E closes, the parent plan PLAN_DQU_V6_PILOT_SHARED_SETUP.md auto-closes
 
 - **HARD GATE 1**: SP-D `Status: DONE` AND Run 1 + Run 2 both green AND zero flakes AND all 6 fixme'd TCs in unlocked-or-properly-annotated state.
 - **HARD GATE 2**: SP-B `Status: DONE` (HIST catalog at `clients/encore/specs_planning/catalogs/hist-root-map-location-management-shared-setup.md`).
+- **HARD GATE 3 (audit-remediation inheritance, 2026-05-20)**: Inherit findings from `~/.claude/plans/hard-the-ssl-floating-moon.md` (SP-D audit 2026-05-20). T2/T3/T4/T5/T6/T7 outcomes from that plan must be on disk and committed before SP-E Step 9 closure ceremonies fire.
+- **HARD GATE 4 (audit-remediation regression-check)**: If T2/T3 re-run evidence contradicts SP-D's claimed unfixme outcomes (any of TC-016/018/019/020/021/024 fails the re-run), HALT SP-E and surface to user — SP-D's GREEN handoff to SP-E becomes RED.
+- **HIST grep deferral note**: HIST grep `expect 0` will satisfy when `plans/pending/PLAN_LM_HISTORY_COVERAGE.md` executes (Step 5 owns the `git rm` of `clients/encore/specs/locations/history/location-hist-notes.spec.ts`). SP-E does NOT need to remediate this; just cite the dependency.
 - If any gate fails → HALT, ask user.
 
 ---
