@@ -10,13 +10,13 @@
  */
 
 import { test as setup, expect } from '@playwright/test';
-import { LoginPage } from '../pages/auth/login.page';
 import { CommonMethods } from '../utils/common-methods';
 import { CredentialLoader } from '../utils/credential-loader';
 import { recordCall as recordRetryCall, type AttemptRecord } from '../utils/retry-telemetry';
 import {
   STATE_PATH,
   acquireLock,
+  performSsoLogin,
   readStateOrNull,
   validateState,
   writeStateAtomic,
@@ -67,27 +67,13 @@ setup('acquire shared auth state', async ({ browser }) => {
     let lastErr: unknown = null;
     const callRecord: AttemptRecord[] = [];
 
+    // Group A-2 (lifecycle refactor 2026-05-21): SSO step extracted to
+    // performSsoLogin (auth-storage). The 3-attempt retry + telemetry + per-attempt logging
+    // stay here; SSO core (newContext + goto + loginWithMicrosoft + Dashboard wait) is shared.
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       const t0 = Date.now();
-      const ctx = await browser.newContext();
-      const page = await ctx.newPage();
-      page.on('dialog', async (dialog) => {
-        if (dialog.type() === 'beforeunload') await dialog.accept();
-      });
-
       try {
-        await page.goto(baseUrl, { timeout: 78_000 });
-        const loginPage = new LoginPage(page, config);
-        const success = await loginPage.loginWithMicrosoft(
-          credentials.username,
-          credentials.password,
-        );
-        if (!success) throw new Error('loginWithMicrosoft returned false');
-
-        await page
-          .getByRole('heading', { name: 'Dashboard', level: 1 })
-          .waitFor({ state: 'visible', timeout: 60_000 });
-
+        const { ctx } = await performSsoLogin(browser, baseUrl, config, credentials);
         savedCtx = ctx;
         callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'pass' });
         console.log(`[auth.setup] login succeeded on attempt ${attempt}/${MAX_ATTEMPTS}`);
@@ -97,7 +83,7 @@ setup('acquire shared auth state', async ({ browser }) => {
         callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'fail' });
         const msg = err instanceof Error ? err.message : String(err);
         console.warn(`[auth.setup] attempt ${attempt}/${MAX_ATTEMPTS} failed: ${msg}`);
-        await ctx.close();
+        // performSsoLogin closes its own context on throw — no manual close needed here.
         if (attempt < MAX_ATTEMPTS) {
           // Brief wait between attempts to let MS-side transient settle
           await new Promise((resolve) => setTimeout(resolve, 5_000));

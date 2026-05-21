@@ -13,13 +13,656 @@ import {
   NOTE_SEQ_A, NOTE_SEQ_B, NOTE_ORIGINAL, NOTE_EDITED, NOTE_DELETE_CHECK,
 } from '../../src/data/testdata/locations/location-notes.data';
 import { OFFICE_NO, SAVE_CHANGES_DIALOG } from '../../src/data/testdata/common.data';
+import { saveAndVerifyCase } from '../../src/core/field-case-runner';
+import {
+  NOTE_1_CHAR, NOTE_3999_CHARS, NOTE_WHITESPACE_ONLY, NOTE_LEADING_WS, NOTE_TRAILING_WS,
+  NOTE_TAB_CHAR, NOTE_NEWLINE_MULTI,
+  NOTE_APPEND_BASE, NOTE_APPEND_SUFFIX, NOTE_PREPEND_PREFIX,
+  NOTE_REPLACE_BASE, NOTE_REPLACE_SLICE,
+  NOTE_2ROW_A, NOTE_2ROW_B, NOTE_5ROW, NOTE_MIXED_SHORT, NOTE_MIXED_LONG,
+  NOTE_CANCEL_RESAVE_INITIAL, NOTE_CANCEL_RESAVE_FINAL, NOTE_ESCAPE_DIALOG,
+  NOTE_IDEMPOTENT, NOTE_SEQUENTIAL_HIST_A, NOTE_SEQUENTIAL_HIST_B,
+} from '../../src/data/testdata/locations/location-notes.data';
+
+// ─── Field-Case Coverage (FCC) — Notes FCC pilot 2026-05-19 ────────
+// 26 net-new tests + 1 DEFERRED (FCC-005). Numbering gaps preserved at FCC-003/004/011/030/031
+// (dropped as duplicates per catalog). Each FCC test is independent: own baseline, own cleanup.
+// Runner: clients/encore/src/core/field-case-runner.ts saveAndVerifyCase().
+test.describe('Location Notes — FCC @locations @notes @fcc', () => {
+
+  // D-2 lifecycle refactor 2026-05-21: DOM-presence beats url.includes
+  // (shared `settings/location` URL across sub-tabs).
+  test.beforeEach(async ({ locationNotesPage }) => {
+    if (!(await locationNotesPage.isOnNotesTab())) {
+      await locationNotesPage.navigateToNotesTab(OFFICE_NO);
+    }
+  });
+
+  // ─── Group α — Content BVA + length ──────────────────────────────────────
+  test('TC-LOC-NTS-FCC-001: 1-char persist (BVA min)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-001',
+      label: 'Notes row 0 — 1-char persist (BVA min)',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: () => locationNotesPage.fillNote(0, NOTE_1_CHAR),
+      expectBeforeSave: async () => {
+        expect(await locationNotesPage.getCharCount()).toBe(1);
+        expect(await locationNotesPage.isSaveEnabled()).toBe(true);
+      },
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_1_CHAR);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-002: 3999-char persist (BVA -1)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-002',
+      label: 'Notes row 0 — 3999-char persist (BVA -1)',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: () => locationNotesPage.pasteIntoNote(0, NOTE_3999_CHARS),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_3999_CHARS);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  // ─── Group β — Whitespace / special characters ────────────────────────────
+  test('TC-LOC-NTS-FCC-006: Whitespace-only "   " persist', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-006',
+      label: 'Whitespace-only persist',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: () => locationNotesPage.fillNote(0, NOTE_WHITESPACE_ONLY),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_WHITESPACE_ONLY);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-007: Leading whitespace "  hello" persist (not trimmed)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-007',
+      label: 'Leading whitespace persist',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: () => locationNotesPage.fillNote(0, NOTE_LEADING_WS),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_LEADING_WS);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-008: Trailing whitespace "hello  " persist (not trimmed)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-008',
+      label: 'Trailing whitespace persist',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: () => locationNotesPage.fillNote(0, NOTE_TRAILING_WS),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_TRAILING_WS);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-009: Tab character "a\\tb" persist', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-009',
+      label: 'Tab character persist',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: () => locationNotesPage.pasteIntoNote(0, NOTE_TAB_CHAR),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_TAB_CHAR);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-010: Newline "line1\\nline2\\nline3" persist (MAIN spec)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-010',
+      label: 'Newline multi-line persist',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: () => locationNotesPage.pasteIntoNote(0, NOTE_NEWLINE_MULTI),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_NEWLINE_MULTI);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  // ─── Group γ — Edit operations (append / prepend / replace / clear) ───────
+  test('TC-LOC-NTS-FCC-012: Edit append', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-012',
+      label: 'Edit append after baseline save',
+      baseline: async () => {
+        await locationNotesPage.ensureEmptyState();
+        await locationNotesPage.fillNote(0, NOTE_APPEND_BASE);
+        await locationNotesPage.saveAndConfirm();
+        await locationNotesPage.reloadAndNavigateToNotesTab();
+      },
+      act: () => locationNotesPage.appendToNote(0, NOTE_APPEND_SUFFIX),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_APPEND_BASE + NOTE_APPEND_SUFFIX);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-013: Edit prepend', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-013',
+      label: 'Edit prepend after baseline save',
+      baseline: async () => {
+        await locationNotesPage.ensureEmptyState();
+        await locationNotesPage.fillNote(0, NOTE_APPEND_BASE);
+        await locationNotesPage.saveAndConfirm();
+        await locationNotesPage.reloadAndNavigateToNotesTab();
+      },
+      act: () => locationNotesPage.prependToNote(0, NOTE_PREPEND_PREFIX),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_PREPEND_PREFIX + NOTE_APPEND_BASE);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-014: Edit partial-replace (slice middle)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    const expected =
+      NOTE_REPLACE_BASE.slice(0, NOTE_REPLACE_SLICE.start) +
+      NOTE_REPLACE_SLICE.replacement +
+      NOTE_REPLACE_BASE.slice(NOTE_REPLACE_SLICE.end);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-014',
+      label: 'Edit partial-replace slice',
+      baseline: async () => {
+        await locationNotesPage.ensureEmptyState();
+        await locationNotesPage.fillNote(0, NOTE_REPLACE_BASE);
+        await locationNotesPage.saveAndConfirm();
+        await locationNotesPage.reloadAndNavigateToNotesTab();
+      },
+      act: () => locationNotesPage.replaceSliceInNote(
+        0, NOTE_REPLACE_SLICE.start, NOTE_REPLACE_SLICE.end, NOTE_REPLACE_SLICE.replacement,
+      ),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(expected);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-015: Edit clear-to-empty (row stays with empty value)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-015',
+      label: 'Edit clear-to-empty after baseline save',
+      baseline: async () => {
+        await locationNotesPage.ensureEmptyState();
+        await locationNotesPage.fillNote(0, NOTE_APPEND_BASE);
+        await locationNotesPage.saveAndConfirm();
+        await locationNotesPage.reloadAndNavigateToNotesTab();
+      },
+      act: () => locationNotesPage.clearNote(0),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        // After clear+save+reload, two acceptable states per BUG-LOC-NTS-003 placeholder behavior:
+        // (a) row 0 exists with empty textarea value, OR (b) default empty state (no rows).
+        // Branch on isDefaultEmptyState — no catch-swallow (LR-051 spirit, LR-053 no row-count).
+        if (await locationNotesPage.isDefaultEmptyState()) {
+          expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
+        } else {
+          expect(await locationNotesPage.getNoteValue(0)).toBe('');
+        }
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  // ─── Group δ — Multi-row positive cases ──────────────────────────────────
+  test('TC-LOC-NTS-FCC-016: 2-row positive (smallest multi-row save+reload)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-016',
+      label: '2-row positive',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: async () => {
+        await locationNotesPage.fillNote(0, NOTE_2ROW_A);
+        await locationNotesPage.clickAdd();
+        await locationNotesPage.fillNote(1, NOTE_2ROW_B);
+      },
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_2ROW_A);
+        expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_2ROW_B);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-017: 5-row positive (smoke at moderate count)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-017',
+      label: '5-row positive',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: async () => {
+        for (let i = 0; i < NOTE_5ROW.length; i++) {
+          if (i > 0) await locationNotesPage.clickAdd();
+          await locationNotesPage.fillNote(i, NOTE_5ROW[i]!);
+        }
+      },
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        for (let i = 0; i < NOTE_5ROW.length; i++) {
+          expect(await locationNotesPage.getNoteValue(i)).toBe(NOTE_5ROW[i]!);
+        }
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-018: Mixed-content (row 0 = 1-char, row 1 = 4000-char) save+reload', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-018',
+      label: 'Mixed short+long rows',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: async () => {
+        await locationNotesPage.fillNote(0, NOTE_MIXED_SHORT);
+        await locationNotesPage.clickAdd();
+        await locationNotesPage.pasteIntoNote(1, NOTE_MIXED_LONG);
+      },
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_MIXED_SHORT);
+        expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_MIXED_LONG);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-019: Edit row 1 of 2 — row 0 unchanged after save+reload', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    const editSuffix = ' — edited';
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-019',
+      label: 'Edit row 1 leaves row 0 intact',
+      baseline: async () => {
+        await locationNotesPage.ensureEmptyState();
+        await locationNotesPage.fillNote(0, NOTE_2ROW_A);
+        await locationNotesPage.clickAdd();
+        await locationNotesPage.fillNote(1, NOTE_2ROW_B);
+        await locationNotesPage.saveAndConfirm();
+        await locationNotesPage.reloadAndNavigateToNotesTab();
+      },
+      act: () => locationNotesPage.appendToNote(1, editSuffix),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_2ROW_A);
+        expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_2ROW_B + editSuffix);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  // ─── Group ε — Delete operations (clearNote-then-deleteRow per LR-026 + BUG-001 workaround) ──
+  test('TC-LOC-NTS-FCC-020: Delete first of 2 rows — row 1 becomes sole remaining row', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-020',
+      label: 'Delete row 0 of 2',
+      baseline: async () => {
+        await locationNotesPage.ensureEmptyState();
+        await locationNotesPage.fillNote(0, NOTE_2ROW_A);
+        await locationNotesPage.clickAdd();
+        await locationNotesPage.fillNote(1, NOTE_2ROW_B);
+        await locationNotesPage.saveAndConfirm();
+        await locationNotesPage.reloadAndNavigateToNotesTab();
+      },
+      act: async () => {
+        await locationNotesPage.clearNote(0);
+        await locationNotesPage.deleteRow(0);
+      },
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_2ROW_B);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  test('TC-LOC-NTS-FCC-021: Delete last of 3 rows — rows 0+1 remain', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    const r0 = 'r1', r1 = 'r2', r2 = 'r3';
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-021',
+      label: 'Delete row 2 of 3',
+      baseline: async () => {
+        await locationNotesPage.ensureEmptyState();
+        await locationNotesPage.fillNote(0, r0);
+        await locationNotesPage.clickAdd();
+        await locationNotesPage.fillNote(1, r1);
+        await locationNotesPage.clickAdd();
+        await locationNotesPage.fillNote(2, r2);
+        await locationNotesPage.saveAndConfirm();
+        await locationNotesPage.reloadAndNavigateToNotesTab();
+      },
+      act: async () => {
+        await locationNotesPage.clearNote(2);
+        await locationNotesPage.deleteRow(2);
+      },
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        // Content assertion only — placeholder row from BUG-LOC-NTS-003 may inflate count (LR-053)
+        expect(await locationNotesPage.getNoteValue(0)).toBe(r0);
+        expect(await locationNotesPage.getNoteValue(1)).toBe(r1);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  // BUG-LOC-NTS-004: Delete button vanishes on single-row form-array after clear() — TC cannot
+  // reach the Delete step. Filed 2026-05-21 (lifecycle refactor Group D-4).
+  test.fixme('TC-LOC-NTS-FCC-022: Delete one of one (single row) — empty state persists', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-022',
+      label: 'Delete the only row',
+      baseline: async () => {
+        await locationNotesPage.ensureEmptyState();
+        await locationNotesPage.fillNote(0, NOTE_1_CHAR);
+        await locationNotesPage.saveAndConfirm();
+        await locationNotesPage.reloadAndNavigateToNotesTab();
+      },
+      act: async () => {
+        await locationNotesPage.clearNote(0);
+        await locationNotesPage.deleteRow(0);
+      },
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        // Either default empty state or a single placeholder empty textarea (BUG-LOC-NTS-003).
+        // Branch on isDefaultEmptyState — no catch-swallow (LR-051 spirit, LR-053 no row-count).
+        if (await locationNotesPage.isDefaultEmptyState()) {
+          expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
+        } else {
+          expect(await locationNotesPage.getNoteValue(0)).toBe('');
+        }
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+  // ─── Group ζ — Save-dialog edge cases (plain test blocks; do not fit save+verify lifecycle) ──
+  test('TC-LOC-NTS-FCC-023: Save → Cancel → edit → Save → Ok → final value persists', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    await locationNotesPage.ensureEmptyState();
+    await locationNotesPage.fillNote(0, NOTE_CANCEL_RESAVE_INITIAL);
+    await locationNotesPage.clickSaveButton();
+    await locationNotesPage.cancelSaveDialog();
+    expect(await locationNotesPage.isSaveEnabled()).toBe(true);
+    expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_CANCEL_RESAVE_INITIAL);
+    await locationNotesPage.clearNote(0);
+    await locationNotesPage.fillNote(0, NOTE_CANCEL_RESAVE_FINAL);
+    await locationNotesPage.saveAndConfirm();
+    await locationNotesPage.reloadAndNavigateToNotesTab();
+    expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_CANCEL_RESAVE_FINAL);
+    await locationNotesPage.ensureEmptyState();
+  });
+
+  test('TC-LOC-NTS-FCC-024: Save → dialog opens → reload page mid-dialog → no persist, no error', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    // Group A-1 (lifecycle refactor 2026-05-21): bare `page` destructure
+    // removed — operations now run on the page-object's real page (locationNotesPage.page).
+    const realPage = locationNotesPage.page;
+    await locationNotesPage.ensureEmptyState();
+    await locationNotesPage.fillNote(0, NOTE_IDEMPOTENT);
+    await locationNotesPage.clickSaveButton();
+    // Dialog open — now reload mid-dialog. Dialog-on-unload may auto-handle; scope handler
+    // via named ref + try/finally + page.off to prevent leak into subsequent tests.
+    const dialogHandler = (d: import('@playwright/test').Dialog) => { void d.accept().catch(() => {}); };
+    realPage.on('dialog', dialogHandler);
+    try {
+      await realPage.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
+      await locationNotesPage.navigateToNotesTab(OFFICE_NO);
+      expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
+      await locationNotesPage.ensureEmptyState();
+    } finally {
+      realPage.off('dialog', dialogHandler);
+    }
+  });
+
+  test('TC-LOC-NTS-FCC-025: Save → Escape on dialog → dialog closes, dirty preserved, no persist', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
+    const realPage = locationNotesPage.page;
+    await locationNotesPage.ensureEmptyState();
+    await locationNotesPage.fillNote(0, NOTE_ESCAPE_DIALOG);
+    await locationNotesPage.clickSaveButton();
+    await realPage.keyboard.press('Escape');
+    // Dialog should close; form remains dirty in-memory.
+    expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_ESCAPE_DIALOG);
+    expect(await locationNotesPage.isSaveEnabled()).toBe(true);
+    // Reload discards unsaved changes — scope beforeunload handler via try/finally + page.off.
+    const dialogHandler = (d: import('@playwright/test').Dialog) => { void d.accept().catch(() => {}); };
+    realPage.on('dialog', dialogHandler);
+    try {
+      await locationNotesPage.reloadAndNavigateToNotesTab();
+      expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
+    } finally {
+      realPage.off('dialog', dialogHandler);
+    }
+  });
+
+  test('TC-LOC-NTS-FCC-026: Save → click outside dialog → observe behavior (verify whether dialog dismisses or stays)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
+    const realPage = locationNotesPage.page;
+    await locationNotesPage.ensureEmptyState();
+    await locationNotesPage.fillNote(0, NOTE_ESCAPE_DIALOG);
+    await locationNotesPage.clickSaveButton();
+    // Click in top-left corner of viewport (outside any modal dialog content).
+    await realPage.mouse.click(2, 2);
+    // Title-aligned probe: observe whether the alertdialog dismissed or stayed (catalog § Cases
+    // EXPLICITLY DEFERRED line 418 — UX classification pending). Branch — no opaque OR-assertion.
+    const dialogStillOpen = await realPage.locator('[role="alertdialog"]').isVisible().catch(() => false);
+    if (dialogStillOpen) {
+      // Behavior: click-outside does NOT dismiss the Save dialog — dismiss with Escape to move on.
+      await realPage.keyboard.press('Escape').catch(() => {});
+      await expect(realPage.locator('[role="alertdialog"]')).toBeHidden({ timeout: 5_000 });
+    }
+    // Whichever click-outside behavior, reload must discard unsaved changes — nothing persists.
+    const dialogHandler = (d: import('@playwright/test').Dialog) => { void d.accept().catch(() => {}); };
+    realPage.on('dialog', dialogHandler);
+    try {
+      await locationNotesPage.reloadAndNavigateToNotesTab();
+      expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
+    } finally {
+      realPage.off('dialog', dialogHandler);
+    }
+  });
+
+  test('TC-LOC-NTS-FCC-027: Idempotent save — pristine form Save stays disabled, second-save fires no API call', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    // lifecycle refactor closure (2026-05-22) — /rca mama-led orchestration.
+    // Subagent B (HEADED CLI live walk) identified Encore's real data-save endpoint as
+    // `PUT /navigator/api/location/update-properties`. POSTs to `/locations/.../settings/location`
+    // are Next.js 15 App-Router RSC server-component renders (framework hydration POSTs that
+    // cascade for 0-8s after any page.reload — including FCC-026's prior reloadAndNavigateToNotesTab).
+    // Subagent A (trace timeline) confirmed the prior captured POST was HAR 218 with body=[] firing
+    // 27ms after HAR 214's response-end, AFTER listener attach. The original `/settings/location`
+    // filter was over-broad and matched framework noise. Filter narrowed to `/navigator/api/` so
+    // the listener captures only real Encore API calls (save endpoint, etc.).
+    // force:true is preserved — Subagent B's V4 (synthetic MouseEvent on disabled button) proved
+    // Angular gates the save inside the click handler (form.dirty/valid check) and aborts before
+    // any HTTP request. The test now correctly verifies the defense-in-depth contract.
+    const realPage = locationNotesPage.page;
+    await locationNotesPage.ensureEmptyState();
+    await locationNotesPage.fillNote(0, NOTE_IDEMPOTENT);
+    await locationNotesPage.saveAndConfirm();
+    // After save, button should disable (form pristine per LR-026 reload-on-tab pattern).
+    expect(await locationNotesPage.isSaveEnabled()).toBe(false);
+    // Idempotent attempt: force-click the disabled Save button to bypass Playwright's
+    // actionability check. The click event is delivered to the Angular handler, which
+    // gates on form.dirty/valid and aborts before issuing any save HTTP request.
+    const networkRequests: string[] = [];
+    const reqHandler = (req: import('@playwright/test').Request) => {
+      const method = req.method();
+      if ((method === 'POST' || method === 'PUT' || method === 'PATCH') && req.url().includes('/navigator/api/')) {
+        networkRequests.push(`${method} ${req.url()}`);
+      }
+    };
+    realPage.on('request', reqHandler);
+    try {
+      // force:true bypasses Playwright's actionability check (button is disabled by design).
+      // catch swallows the click rejection since "did the click attempt fire" is the test, not
+      // "did the click succeed". The side-effect assertions below are the real check.
+      await realPage.locator('[data-testid="location-settings-btn-save"]').click({ force: true, timeout: 2_000 }).catch(() => {});
+      // Settle window for any race-condition request. LR-052 permits this as a one-shot probe,
+      // not inside a polling loop.
+      await realPage.waitForTimeout(1_000);
+      expect(await locationNotesPage.isSaveEnabled()).toBe(false);
+      expect(networkRequests).toHaveLength(0);
+    } finally {
+      realPage.off('request', reqHandler);
+    }
+    await locationNotesPage.ensureEmptyState();
+  });
+
+  // ─── Group η — Cross-state cases (HIST sequence, cross-tab isolation) ────
+  test('TC-LOC-NTS-FCC-028: Sequential save persists most recent value (HIST row verification deferred to HIST spec)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(120_000);
+    await locationNotesPage.ensureEmptyState();
+    // Save 1
+    await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_HIST_A);
+    await locationNotesPage.saveAndConfirm();
+    await locationNotesPage.reloadAndNavigateToNotesTab();
+    // Save 2 (different content)
+    await locationNotesPage.clearNote(0);
+    await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_HIST_B);
+    await locationNotesPage.saveAndConfirm();
+    await locationNotesPage.reloadAndNavigateToNotesTab();
+    // Verify the final value persisted (content-only — HIST top-2 row verification deferred to HIST spec).
+    expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_SEQUENTIAL_HIST_B);
+    await locationNotesPage.ensureEmptyState();
+  });
+
+  test('TC-LOC-NTS-FCC-029: Save Notes → switch to Currency tab — Currency NOT dirty (cross-tab isolation)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(90_000);
+    // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
+    const realPage = locationNotesPage.page;
+    await locationNotesPage.ensureEmptyState();
+    await locationNotesPage.fillNote(0, NOTE_1_CHAR);
+    await locationNotesPage.saveAndConfirm();
+    // Cross-tab isolation proof: switching to Currency must NOT trigger the "Unsaved Changes"
+    // alertdialog. (The shared Save button being disabled only proves Notes is pristine — not
+    // that Currency was untouched, because the Save button is page-scoped per notes.ts:57.)
+    const currencyTab = realPage.locator('[data-testid="location-settings-sub-tab-currency"]');
+    await currencyTab.click();
+    // If Currency had been dirtied as a side-effect of Notes save, navigating away would open
+    // the Unsaved-Changes dialog. Asserting count === 0 proves the form was clean before switch.
+    await expect(realPage.locator('[data-testid="location-settings-modal-unsaved-changes"]')).toHaveCount(0);
+    // Round-trip back to Notes — verify the saved value is still present (Currency tab switch
+    // did not corrupt or revert Notes state).
+    await locationNotesPage.navigateToNotesTab(OFFICE_NO);
+    expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_1_CHAR);
+    await locationNotesPage.ensureEmptyState();
+  });
+
+  // ─── Group θ — BUG regression watch (BUG-LOC-NTS-003 placeholder content check) ────
+  test('TC-LOC-NTS-FCC-032: Post-save row content check (assert content, not count per LR-053)', async ({ locationNotesPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-NTS-FCC-032',
+      label: 'Placeholder-aware content check',
+      baseline: () => locationNotesPage.ensureEmptyState(),
+      act: () => locationNotesPage.fillNote(0, NOTE_IDEMPOTENT),
+      saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
+      reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
+      expectAfterReload: async () => {
+        // Content-only assertion per LR-053 — auto-empty placeholder row inflates count.
+        expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_IDEMPOTENT);
+      },
+      cleanup: () => locationNotesPage.ensureEmptyState(),
+    });
+  });
+
+});
 
 test.describe('Location Notes @locations @notes', () => {
 
-  // Per-test navigation guard (dependency-gate removal Phase 1.5). See BAS spec :33.
+  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
+  // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
   test.beforeEach(async ({ locationNotesPage }) => {
-    const url = locationNotesPage.getCurrentUrl();
-    if (!url.includes('settings/location')) {
+    if (!(await locationNotesPage.isOnNotesTab())) {
       await locationNotesPage.navigateToNotesTab(OFFICE_NO);
     }
   });
@@ -229,6 +872,11 @@ test.describe('Location Notes @locations @notes', () => {
 
   test('TC-LOC-NTS-016: Row created via Add has Delete visible; typing keeps it', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
+ // lifecycle refactor closure (2026-05-22): LR-019 defensive baseline
+ // reset. Prior-session DB pollution (e.g., from a preceding test that errored before its
+ // own ensureEmptyState cleanup ran) leaves saved rows whose Delete buttons inflate the
+ // count assertion below. Resetting here guarantees an empty DB regardless of upstream state.
+    await locationNotesPage.ensureEmptyState();
  // After save-empty cycles, state is "No Notes Available". prepareEmptyRow clicks Add.
  // Empty single row = no Delete button (appears only with content or 2+ rows).
     await locationNotesPage.prepareEmptyRow();

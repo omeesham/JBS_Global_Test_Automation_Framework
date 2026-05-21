@@ -6,7 +6,12 @@ import { IConfig } from '../types';
 import { CheckboxState } from '../pages/locations/location-form-helpers.page';
 
 export class BasePage {
-  protected page: Page;
+  // Group A-1 (lifecycle refactor 2026-05-21):
+  // `page` is public readonly so specs can use `<pageObjectFixture>.page` for direct page
+  // operations (reload, keyboard, mouse, dialog handlers) WITHOUT destructuring the bare
+  // `page` fixture alongside, which would cause BUG-1 (Playwright DI creates a second
+  // about:blank context for the bare `page`). `readonly` keeps consumers from rebinding.
+  public readonly page: Page;
   protected config?: IConfig;
 
   constructor(page: Page, config?: IConfig) {

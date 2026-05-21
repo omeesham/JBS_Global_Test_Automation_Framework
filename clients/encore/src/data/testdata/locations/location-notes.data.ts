@@ -75,3 +75,30 @@ export const NOTE_SEQ_B = 'Sequential B';            // 12 chars
 export const NOTE_ORIGINAL = 'Original text';        // 13 chars
 export const NOTE_EDITED = 'Edited text';            // 11 chars
 export const NOTE_DELETE_CHECK = 'Delete check';     // 12 chars
+
+// ---- FCC (Field-Case Coverage) constants — Notes FCC pilot ----
+export const NOTE_1_CHAR = 'a';
+export const NOTE_3999_CHARS = 'A'.repeat(3999);
+export const NOTE_WHITESPACE_ONLY = '   ';
+export const NOTE_LEADING_WS = '  hello';
+export const NOTE_TRAILING_WS = 'hello  ';
+export const NOTE_TAB_CHAR = 'a\tb';
+export const NOTE_NEWLINE_MULTI = 'line1\nline2\nline3';
+// NOTE_HTML_ENTITY removed — FCC-011 dropped as duplicate of TC-013 (SPECIAL_CONTENT_TESTS already covers `&amp;`).
+export const NOTE_APPEND_BASE = 'Base text';
+export const NOTE_APPEND_SUFFIX = ' — appended';
+export const NOTE_PREPEND_PREFIX = 'Prepended — ';
+export const NOTE_REPLACE_BASE = 'Hello world there';
+export const NOTE_REPLACE_SLICE = { start: 6, end: 11, replacement: 'EARTH' };
+export const NOTE_2ROW_A = 'Row Alpha-2row';
+export const NOTE_2ROW_B = 'Row Beta-2row';
+export const NOTE_5ROW = ['r1', 'r2', 'r3', 'r4', 'r5'];
+export const NOTE_MIXED_SHORT = 'a';
+export const NOTE_MIXED_LONG = 'B'.repeat(4000);
+export const NOTE_CANCEL_RESAVE_INITIAL = 'Initial draft';
+export const NOTE_CANCEL_RESAVE_FINAL = 'Final saved';
+export const NOTE_ESCAPE_DIALOG = 'Escape test';
+export const NOTE_IDEMPOTENT = 'Idempotent test';
+export const NOTE_SEQUENTIAL_HIST_A = 'HIST seq A';
+export const NOTE_SEQUENTIAL_HIST_B = 'HIST seq B';
+// NOTE_DELETE_WORKAROUND_BASE removed 2026-05-20 — only used by FCC-030 which was DROPPED as duplicate of TC-012 + TC-026 step 3.

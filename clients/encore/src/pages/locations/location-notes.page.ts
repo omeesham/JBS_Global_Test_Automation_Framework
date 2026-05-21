@@ -18,10 +18,25 @@ export class LocationNotesPage extends BasePage {
     await this.navigateToSubTab('tabNotes', 'sectionNotes', officeNo);
   }
 
+ /**
+ * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
+ * beforeEach can avoid re-navigating when already on the tab.
+ */
+  async isOnNotesTab(): Promise<boolean> {
+    return (await this.getElement('sectionNotes').count()) > 0;
+  }
+
  /** Click Notes tab only (assumes already on location settings page). */
   async clickNotesTab(): Promise<void> {
     await this.clickWithRetry('tabNotes');
     await this.getElement('sectionNotes').waitFor({ state: 'visible', timeout: 15_000 });
+    // D-1 (lifecycle refactor 2026-05-21): race content vs empty-state
+    // so we don't return on the wrapper alone while the inner Notes data is still hydrating.
+    // Log.warn (NOT silent .catch) per adversarial-audit amend so race-lost timeouts are diagnosable.
+    await Promise.race([
+      this.getElement('txtNoteInputAll').first().waitFor({ state: 'visible', timeout: 15_000 }),
+      this.getElement('lblNoNotesAvailable').waitFor({ state: 'visible', timeout: 15_000 }),
+    ]).catch((e: Error) => Log.warn(`[tab-hydration] Notes race lost: ${e?.message}`));
   }
 
  /** Reload page and return to Notes tab. Handles potential beforeunload dialog. */
@@ -95,6 +110,59 @@ export class LocationNotesPage extends BasePage {
     }, text);
     await textarea.press('Tab');
     Log.info(`[OK] Pasted ${text.length} chars into note row ${row}`);
+  }
+
+ /** Append text to row N's existing value via Angular-friendly input event. FCC γ (edit) helper. */
+  async appendToNote(row: number, suffix: string): Promise<void> {
+    const textarea = this.getElement('txtNoteInputAll').nth(row);
+    await textarea.focus();
+    await textarea.evaluate((el: HTMLTextAreaElement, s: string) => {
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(el, el.value + s);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }, suffix);
+    await textarea.press('Tab');
+  }
+
+ /** Prepend text to row N's existing value via Angular-friendly input event. FCC γ (edit) helper. */
+  async prependToNote(row: number, prefix: string): Promise<void> {
+    const textarea = this.getElement('txtNoteInputAll').nth(row);
+    await textarea.focus();
+    await textarea.evaluate((el: HTMLTextAreaElement, p: string) => {
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(el, p + el.value);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }, prefix);
+    await textarea.press('Tab');
+  }
+
+ /** Replace [start, end) of row N's value with newText via Angular-friendly input event. FCC γ (edit) helper. */
+  async replaceSliceInNote(row: number, start: number, end: number, newText: string): Promise<void> {
+    const textarea = this.getElement('txtNoteInputAll').nth(row);
+    await textarea.focus();
+    await textarea.evaluate((el: HTMLTextAreaElement, args: { s: number; e: number; n: string }) => {
+      const v = el.value;
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(el, v.slice(0, args.s) + args.n + v.slice(args.e));
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }, { s: start, e: end, n: newText });
+    await textarea.press('Tab');
+  }
+
+ /** Clear row N's textarea via Angular-friendly input event (LR-026 + BUG-LOC-NTS-001 workaround pattern). FCC ε (delete) prerequisite. */
+  async clearNote(row: number): Promise<void> {
+    const textarea = this.getElement('txtNoteInputAll').nth(row);
+    await textarea.focus();
+    await textarea.evaluate((el: HTMLTextAreaElement) => {
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(el, '');
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    await textarea.press('Tab');
   }
 
  /** Ensure at least 1 empty textarea row exists. Clicks Add if in "No Notes Available" state. */

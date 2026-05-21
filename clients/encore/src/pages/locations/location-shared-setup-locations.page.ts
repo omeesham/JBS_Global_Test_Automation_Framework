@@ -19,6 +19,14 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     await this.navigateToSubTab('tabSharedSetupLocations', 'tblSharedSetupLocations', officeNo);
   }
 
+ /**
+ * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
+ * beforeEach can avoid re-navigating when already on the tab.
+ */
+  async isOnSharedSetupTab(): Promise<boolean> {
+    return (await this.getElement('tblSharedSetupLocations').count()) > 0;
+  }
+
  /** Reload page with beforeunload handler and return to SSL tab. */
   async reloadAndNavigateToSSLTab(officeNo: string = '1604'): Promise<void> {
     const handler = async (d: import('@playwright/test').Dialog) => {
@@ -371,5 +379,86 @@ export class LocationSharedSetupLocationsPage extends BasePage {
       await checkbox.click();
       Log.info(`Set non-self SI row ${rowIndex} to ${checked}`);
     }
+  }
+
+ // ─────────────────────────────────────────────────────────────────────────────
+ // TOP-LEVEL TAB NAVIGATION + DIRTY-STATE HELPERS (TC-028 K1b in-SPA tab switch)
+ // ─────────────────────────────────────────────────────────────────────────────
+
+ /** Toggle self SI to make the SSL form dirty (semantic wrapper used by TC-028). */
+  async makeFormDirty(): Promise<void> {
+    await this.toggleSelfSharesInventory();
+  }
+
+ /** Click a top-level tab by selector key (e.g. 'tabBasicInformation', 'tabLocationManagementHistory'). */
+  async clickTopLevelTab(tabKey: 'tabBasicInformation' | 'tabLocationManagementHistory'): Promise<void> {
+    await this.getElement(tabKey).click();
+    Log.info(`Clicked top-level tab: ${tabKey}`);
+  }
+
+ /**
+ * Return the label of the currently active top-level tab.
+ * Group D-3 (lifecycle refactor 2026-05-21): scope to the two
+ * known top-level testids instead of `[role="tab"][aria-selected="true"]`.first(),
+ * which also matches sub-tabs (Currency / Notes / etc.) and was order-dependent.
+ */
+  async getActiveTopLevelTab(): Promise<string> {
+    const candidates: Array<'tabBasicInformation' | 'tabLocationManagementHistory'> = [
+      'tabBasicInformation',
+      'tabLocationManagementHistory',
+    ];
+    for (const key of candidates) {
+      const el = this.getElement(key);
+      const aria = await el.getAttribute('aria-selected').catch(() => null);
+      if (aria === 'true') {
+        return ((await el.textContent()) ?? '').trim();
+      }
+    }
+    return '';
+  }
+
+ /** Return true if the Unsaved Changes alertdialog is visible within timeoutMs. */
+  async hasVisibleUnsavedDialog(timeoutMs: number = 1_500): Promise<boolean> {
+    return this.isElementVisible('dlgUnsavedChanges', timeoutMs);
+  }
+
+ /** Click the "Stay" button on the Unsaved Changes alertdialog (keeps user on current view). */
+  async clickUnsavedDialogStay(timeoutMs: number = 5_000): Promise<void> {
+    const dlg = this.getElement('dlgUnsavedChanges');
+    await dlg.waitFor({ state: 'visible', timeout: timeoutMs });
+    await this.getElement('btnUnsavedChangesCancel').click();
+    await dlg.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+  }
+
+ // ─────────────────────────────────────────────────────────────────────────────
+ // RAPID-CLICK HELPER (TC-029 K2 dialog stacking guard)
+ // ─────────────────────────────────────────────────────────────────────────────
+
+ /**
+ * Fire `count` click events on the Add button back-to-back with `intervalMs` between each,
+ * WITHOUT awaiting dialog visibility between clicks. After the burst, wait for at most one
+ * dialog to settle. Used by TC-029 to assert single-dialog behavior under rapid clicks.
+ */
+  async rapidClickAdd(count: number = 5, intervalMs: number = 50): Promise<void> {
+    const addBtn = this.getElement('btnSharedAdd');
+    for (let i = 0; i < count; i++) {
+      await addBtn.click({ force: true, noWaitAfter: true }).catch((err: Error) => {
+        // Only swallow overlay-intercept-class errors (expected for late clicks while dialog is open).
+        // Anything else (element not found, detached, target closed) must propagate so TC-029 fails with the real cause.
+        if (!/intercepts pointer events|element is not visible|outside of the viewport|Target page, context or browser has been closed/i.test(err.message)) {
+          throw err;
+        }
+      });
+      if (i < count - 1 && intervalMs > 0) {
+        await new Promise(r => setTimeout(r, intervalMs));
+      }
+    }
+    Log.info(`rapidClickAdd: fired ${count} clicks at ${intervalMs}ms intervals`);
+  }
+
+ /** Count the number of Change Local Office dialogs currently in the DOM (used by TC-029). */
+  async countAddDialogs(): Promise<number> {
+    const c = await this.getElement('dlgChangeLocalOffice').count();
+    return c;
   }
 }

@@ -4,10 +4,10 @@ import { OFFICE_NO, SAVE_CHANGES_DIALOG, UNSAVED_CHANGES_DIALOG } from '../../sr
 
 test.describe('Location Auto Add-On @locations @auto-addon', () => {
 
-  // Per-test navigation guard (dependency-gate removal Phase 1.5). See BAS spec :33.
+  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
+  // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
   test.beforeEach(async ({ locationAutoAddonPage }) => {
-    const url = locationAutoAddonPage.getCurrentUrl();
-    if (!url.includes('settings/location')) {
+    if (!(await locationAutoAddonPage.isOnAutoAddonTab())) {
       await locationAutoAddonPage.navigateToAutoAddonTab(OFFICE_NO);
     }
   });

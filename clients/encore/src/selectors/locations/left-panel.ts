@@ -19,6 +19,7 @@ export const SetupLeftPanelSelectors = {
  // ---- Tab Navigation ----
  /** @where Setup > Location > Tabs @el tab @text "Basic Information" @keys tab basic-info navigate */
   tabBasicInformation: '[data-testid="location-settings-tab-basic-information"]',
+ // NOTE: tabLocationManagementHistory lives in selectors/locations/history.ts to avoid duplication.
  /** @where Setup > Location > Tabs @el tab @text "Local Information" @keys tab local-info navigate settings */
   tabLocalInformation: '[data-testid="location-settings-sub-tab-local-information"]',
  /** @where Setup > Location > Tabs @el tab @text "Currency" @keys tab currency navigate */

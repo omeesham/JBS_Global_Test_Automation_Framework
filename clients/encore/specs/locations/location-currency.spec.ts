@@ -4,10 +4,10 @@ import { OFFICE_NO } from '../../src/data/testdata/common.data';
 
 test.describe('Location Currency @locations @currency', () => {
 
-  // Per-test navigation guard (dependency-gate removal Phase 1.5). See BAS spec :33.
+  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
+  // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
   test.beforeEach(async ({ locationCurrencyPage }) => {
-    const url = locationCurrencyPage.getCurrentUrl();
-    if (!url.includes('settings/location')) {
+    if (!(await locationCurrencyPage.isOnCurrencyTab())) {
       await locationCurrencyPage.navigateToCurrencyTab(OFFICE_NO);
     }
   });

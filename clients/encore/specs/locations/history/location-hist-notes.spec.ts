@@ -36,6 +36,10 @@
 
 import { test, expect } from '../../../src/infra/fixtures';
 import { OFFICE_NO } from '../../../src/data/testdata/common.data';
+import {
+  NOTE_SEQUENTIAL_HIST_A,
+  NOTE_SEQUENTIAL_HIST_B,
+} from '../../../src/data/testdata/locations/location-notes.data';
 
 /** Format today as MM/DD/YYYY with leading-zero preservation (catalog rule). */
 function todayMMDDYYYY(): string {
@@ -200,6 +204,99 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
       await locationNotesPage.clickNotesTab();
       await locationNotesPage.ensureEmptyState();
     }
+  });
+
+  /**
+   * TC-LOC-NTS-038 — HIST col 69 sequential-save 2-row distinctness.
+   *
+   * Spawned from FCC notes completion 2026-05-21 Phase 1.6 (FCC-028
+   * Notes-side rename; HIST counterpart). The Notes-spec FCC-028 was realigned
+   * 2026-05-21 — its title now reads "Sequential save persists most recent value
+   * (HIST row verification deferred to HIST spec)", and this is the deferred-to spec.
+   *
+   * Assertion the renamed FCC-028 no longer makes: that sequential saves produce
+   * TWO distinct HIST rows (one per save), not one merged row.
+   *
+   * Strategy: content-anchored lookup per `feedback_history_content_anchored_lookup.md`.
+   * Office 1604 sees interleaved saves from the shared save handler, so we cannot
+   * assume row[0] / row[1] are our saves — find each by content match independently,
+   * then assert the temporal ordering on their `Modified On` timestamps.
+   */
+  test('TC-LOC-NTS-038: HIST col 69 — sequential save (A then B) produces 2 distinct history rows', async ({
+    locationNotesPage, locationManagementHistoryPage, dependencyGate,
+  }) => {
+    dependencyGate(['TC-LOC-NTS-028']);
+    test.setTimeout(120_000);
+
+    const D = todayMMDDYYYY();
+    const [formA1, formA2] = expectedCol69Forms(NOTE_SEQUENTIAL_HIST_A, D);
+    const [formB1, formB2] = expectedCol69Forms(NOTE_SEQUENTIAL_HIST_B, D);
+
+    // 5s back-buffer covers client-server clock skew on Modified On rendering.
+    // Captured BEFORE Save A so the read-window includes both Save A and Save B.
+    const sinceMs = Date.now() - 5_000;
+
+    // ── Save A: empty → NOTE_SEQUENTIAL_HIST_A ─────────────────────────────
+    await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_HIST_A);
+    await locationNotesPage.saveAndConfirm();
+    await locationNotesPage.reloadAndNavigateToNotesTab();
+
+    // ── Save B: clear → NOTE_SEQUENTIAL_HIST_B ─────────────────────────────
+    // clearNote sets textarea.value="" via Angular-friendly input event so the
+    // form re-dirties and Save re-enables. Different content from A guarantees
+    // a new HIST row rather than a no-op save.
+    await locationNotesPage.clearNote(0);
+    await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_HIST_B);
+    await locationNotesPage.saveAndConfirm();
+
+    // ── HIST verification ──────────────────────────────────────────────────
+    await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
+    await locationManagementHistoryPage.sortByModifiedOnDesc();
+    await locationManagementHistoryPage.waitForRecentTopRow();
+
+    const rows = await locationManagementHistoryPage.getRowsSinceTimestamp(
+      sinceMs,
+      ['Notes', 'Modified On'],
+    );
+
+    // Find Save A's row + Save B's row by content match. Either FormArray form
+    // is valid (BUG-LOC-NTS-003 placeholder may or may not be present at save time).
+    const isMatchA = (notes: string): boolean => notes === formA1 || notes === formA2;
+    const isMatchB = (notes: string): boolean => notes === formB1 || notes === formB2;
+    const rowA = rows.find((r: Record<string, string>) => isMatchA(r.Notes ?? ''));
+    const rowB = rows.find((r: Record<string, string>) => isMatchB(r.Notes ?? ''));
+
+    if (!rowA || !rowB) {
+      const preview = rows.map((r: Record<string, string>) => ({
+        modifiedOn: r['Modified On'] ?? '',
+        notesLen: (r.Notes ?? '').length,
+        notesHead: (r.Notes ?? '').slice(0, 80),
+      }));
+      // eslint-disable-next-line no-console
+      console.log(`[seq-no-match] sinceMs=${sinceMs} expectedA=${JSON.stringify([formA1, formA2])} expectedB=${JSON.stringify([formB1, formB2])} rows=${JSON.stringify(preview)}`);
+      // Rich-diff failure: assert against the preferred (single-row) form so the
+      // report shows actual vs expected for whichever side is missing.
+      if (!rowA) expect(rows[0]?.Notes ?? '<no rows since sinceMs>').toBe(formA1);
+      if (!rowB) expect(rows[0]?.Notes ?? '<no rows since sinceMs>').toBe(formB1);
+      return; // unreachable when both rows matched
+    }
+
+    // Both saves produced distinct HIST rows. Now prove they are NOT the same row
+    // (single merged save) by verifying their Modified On timestamps differ AND
+    // that B is more recent than A.
+    expect(rowA['Modified On']).not.toBe(rowB['Modified On']);
+    // Modified On format per catalog: `MM/DD/YYYY HH:MM:SS AM/PM` (12-hour clock).
+    // Date.parse handles this format on V8; if it ever returns NaN, the toBeGreaterThan
+    // below would fail loudly with NaN > NaN === false.
+    const tA = Date.parse(rowA['Modified On'] ?? '');
+    const tB = Date.parse(rowB['Modified On'] ?? '');
+    expect(tB).toBeGreaterThan(tA);
+
+    await locationManagementHistoryPage.returnToBasicInformation();
+
+    // Cleanup — restore Office 1604 to catalog baseline (col 69 = "").
+    await locationNotesPage.clickNotesTab();
+    await locationNotesPage.ensureEmptyState();
   });
 
 });

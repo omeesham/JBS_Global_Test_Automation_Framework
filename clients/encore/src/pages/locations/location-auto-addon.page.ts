@@ -13,6 +13,14 @@ export class LocationAutoAddonPage extends BasePage {
     await this.navigateToSubTab('tabAutoAddon', 'chkAutoAddonEncoreMusic', officeNo);
   }
 
+ /**
+ * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
+ * beforeEach can avoid re-navigating when already on the tab.
+ */
+  async isOnAutoAddonTab(): Promise<boolean> {
+    return (await this.getElement('chkAutoAddonEncoreMusic').count()) > 0;
+  }
+
   async navigateFresh(officeNo: string = '1604'): Promise<void> {
     const baseUrl = this.config?.base_url || '';
     await this.safeNavigateTo('about:blank');

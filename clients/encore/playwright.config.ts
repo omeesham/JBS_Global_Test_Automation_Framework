@@ -51,7 +51,13 @@ export default defineConfig({
     ['html', { outputFolder: 'reports/html-report', open: 'never' }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['junit', { outputFile: 'reports/junit-results.xml' }],
-    ['allure-playwright', {
+    // Group F (lifecycle refactor 2026-05-21, v3 corrected):
+    // Skip Allure on CI — GitCommitInfo plugin times out on shallow-clone runners
+    // (M365 build agents have no full git history). Replaces the deleted
+    // playwright.config.ci.ts which was a thin override deleted intentionally per
+    // colleague's one-config-to-ship decision. This inline guard folds its only
+    // behavior back into the surviving single config.
+    ...(process.env.CI ? [] : [['allure-playwright', {
       resultsDir: 'reports/allure-results',
       detail: true,
       suiteTitle: true,
@@ -63,7 +69,7 @@ export default defineConfig({
         Platform: process.platform,
       },
       categories: require('./config/allure/categories.json'),
-    }],
+    }]] as const),
   ],
 
   use: {
@@ -93,8 +99,14 @@ export default defineConfig({
       testMatch: /auth\.setup\.ts/,
       use: { viewport: { width: 1920, height: 1080 } },
     },
+    // Group B-1 (lifecycle refactor 2026-05-21):
+    // chrome/firefox/webkit are kept invokable for manual `--project=<name>` debugging,
+    // but removed from the default suite because they have no `dependencies: ['setup']`
+    // and no storageState — they always run unauthenticated and produce false-greens
+    // by hitting login pages instead of the app.
     {
       name: 'chrome',
+      testMatch: [],
       use: {
         channel: 'chrome',
         viewport: null,
@@ -113,9 +125,14 @@ export default defineConfig({
         },
       },
     },
+    // Group B-2 (lifecycle refactor 2026-05-21):
+    // chromium becomes the generic catch-all for non-module-scoped specs. The
+    // `testIgnore` keeps it from double-running module specs that are already owned
+    // by the `encore-locations` and `encore-local-office` projects below.
     {
       name: 'chromium',
       dependencies: ['setup'],
+      testIgnore: ['specs/locations/**', 'specs/local-office/**'],
       use: {
         viewport: { width: 1920, height: 1080 },
         storageState: '.auth/encore-state.json',
@@ -139,10 +156,12 @@ export default defineConfig({
     },
     {
       name: 'firefox',
+      testMatch: [],
       use: { viewport: { width: 1920, height: 1080 } },
     },
     {
       name: 'webkit',
+      testMatch: [],
       use: { viewport: { width: 1920, height: 1080 } },
     },
     // CI-only module projects — opt-in via:

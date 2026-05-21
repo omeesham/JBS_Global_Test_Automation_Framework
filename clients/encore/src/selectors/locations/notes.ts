@@ -7,10 +7,10 @@
  * - Table: <table data-slot="table"> inside the section — NO data-testid on the table itself.
  * - Table has ONLY <tbody> — there is NO <thead>; "No Notes Available" shows as a colspan row.
  * - Textarea: name="notes.notes.{i}.note" (i=0,1,2,...); NO maxlength attribute (limit is JS-enforced).
- * - Add button: <button>Add</button> — NO data-testid.
- * - Delete button: appears when (a) a row has text content, OR (b) 2+ rows exist. NO data-testid.
- * - Character counter: <div class="text-[11px]"> with format "{used}/4000" + <span>(N Left)</span>.
- * - Progress bar: [role="progressbar"] — NO data-testid; aria-valuenow is NOT set (accessibility gap).
+ * - Add button: <button>Add</button> with data-testid="location-settings-btn-add-note" (drift corrected 2026-05-21 per Notes FCC pilot Phase 3.3).
+ * - Delete button: appears when (a) a row has text content, OR (b) 2+ rows exist. NO data-testid (uses text-match scoped to section).
+ * - Character counter: <div class="text-[11px]"> with data-testid="location-settings-label-note-character-counter" + format "{used}/4000" + <span>(N Left)</span>.
+ * - Progress bar: [role="progressbar"] with data-testid="location-settings-label-note-character-progress"; aria-valuenow is NOT set (accessibility gap remains).
  * - Save dialog: [role="alertdialog"] — NO data-testid; heading/body text are text-based.
  * - Save button: [data-testid="location-settings-btn-save"] (shared with all tabs).
  * - All selector counts confirmed unique via querySelectorAll on Office 1604 (Parker Palm Springs).

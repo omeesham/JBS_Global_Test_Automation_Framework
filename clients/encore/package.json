@@ -7,7 +7,6 @@
   "scripts": {
     "test": "playwright test --config=playwright.config.ts",
     "test:headed": "playwright test --config=playwright.config.ts --headed",
-    "test:chrome": "playwright test --config=playwright.config.ts --project=chrome",
     "test:debug": "playwright test --config=playwright.config.ts --debug",
     "test:ui": "playwright test --config=playwright.config.ts --ui",
     "test:failed": "playwright test --config=playwright.config.ts --last-failed",

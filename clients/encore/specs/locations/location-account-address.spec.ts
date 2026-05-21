@@ -8,10 +8,12 @@ import { OFFICE_NO } from '../../src/data/testdata/common.data';
 
 test.describe('Location Account and Address @locations @account-address', () => {
 
-  // Per-test navigation guard (dependency-gate removal Phase 1.5). See BAS spec :33.
+  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
+  // DOM-presence beats url.includes — Encore sub-tabs share `settings/location` URL,
+  // so the URL match returns true after a sibling spec like Notes even when this tab
+  // is not active. Mirrors location-pricing.spec.ts isOnPricingTab() pattern.
   test.beforeEach(async ({ locationAccountAddressPage }) => {
-    const url = locationAccountAddressPage.getCurrentUrl();
-    if (!url.includes('settings/location')) {
+    if (!(await locationAccountAddressPage.isOnAccountAndAddressTab())) {
       await locationAccountAddressPage.navigateToAccountAndAddressTab(OFFICE_NO);
     }
   });

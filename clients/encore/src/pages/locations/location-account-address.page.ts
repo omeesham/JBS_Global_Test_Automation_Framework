@@ -13,6 +13,15 @@ export class LocationAccountAddressPage extends BasePage {
  // NAVIGATION
  // ─────────────────────────────────────────────────────────────────────────────
 
+ /**
+ * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
+ * beforeEach can avoid re-navigating when already on the tab. URL `settings/location` is
+ * shared across all sub-tabs and is an unreliable signal after a sibling spec.
+ */
+  async isOnAccountAndAddressTab(): Promise<boolean> {
+    return (await this.getElement('pnlAccountAndAddress').count()) > 0;
+  }
+
  /** Navigate to Account and Address tab for the given office. Waits for API to load content. */
   async navigateToAccountAndAddressTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabAccountAndAddress', 'pnlAccountAndAddress', officeNo);

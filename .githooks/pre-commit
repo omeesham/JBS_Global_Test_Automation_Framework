@@ -35,4 +35,19 @@ fi
 # Deny-list: refuse to commit a forbidden pattern marker (any cred-bearing literal).
 node scripts/verify-no-forbidden.mjs --staged-diff
 
+# --- 4) Group E (PLAN_FRAMEWORK_LIFECYCLE_NOTES_PILOT_V2 2026-05-21): BUG-1 page-fixture
+# collision guard. Fails the commit if any spec destructures the built-in `page` fixture
+# alongside a `*Page` page-object fixture. Playwright DI creates a second about:blank
+# context for the bare `page`, leading to false-greens / false-fails as documented in
+# Phase 0.4 baseline + A-1 fix.
+if matches=$(grep -rnE "test\([^)]*async\s*\(\s*\{[^}]*[a-z][a-zA-Z]*Page[^}]*,\s*page\b" clients/encore/specs/ 2>/dev/null); then
+  if [ -n "$matches" ]; then
+    echo "[pre-commit] BUG-1 page-fixture collision detected — spec destructures bare 'page' alongside a *Page fixture:" >&2
+    echo "$matches" >&2
+    echo "Fix: drop 'page' from the destructure; use '<pageObjectFixture>.page' for direct page operations." >&2
+    echo "See: plans/pending/PLAN_FRAMEWORK_LIFECYCLE_NOTES_PILOT_V2.md (A-1)" >&2
+    exit 1
+  fi
+fi
+
 exit 0

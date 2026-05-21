@@ -71,7 +71,7 @@ stages:
           
           - script: |
               set NODE_ENV=${{ parameters.environment }}
-              npx playwright test --config=clients/encore/playwright.config.ci.ts --project=$(browserName) --reporter=list,html,json,junit
+              npx playwright test --config=clients/encore/playwright.config.ts --project=$(browserName) --reporter=list,html,json,junit
             displayName: 'Run tests'
           
           - task: PublishTestResults@2
@@ -119,7 +119,7 @@ stages:
           
           - script: |
               export NODE_ENV=${{ parameters.environment }}
-              npx playwright test --config=clients/encore/playwright.config.ci.ts --project=$(browserName) --reporter=list,html,json,junit
+              npx playwright test --config=clients/encore/playwright.config.ts --project=$(browserName) --reporter=list,html,json,junit
             displayName: 'Run tests'
           
           - task: PublishTestResults@2

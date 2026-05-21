@@ -18,10 +18,24 @@ export class LocationLegalPage extends BasePage {
     await this.navigateToSubTab('tabLegal', 'contentLegal', officeNo);
   }
 
+ /**
+ * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
+ * beforeEach can avoid re-navigating when already on the tab.
+ */
+  async isOnLegalTab(): Promise<boolean> {
+    return (await this.getElement('contentLegal').count()) > 0;
+  }
+
  /** Click Legal tab only (assumes already on location settings page). */
   async clickLegalTab(): Promise<void> {
     await this.clickWithRetry('tabLegal');
     await this.getElement('contentLegal').waitFor({ state: 'visible', timeout: 15_000 });
+    // D-1 (lifecycle refactor 2026-05-21): wait for row-0 service-charge
+    // dropdown (content-level anchor) so we don't return on the wrapper alone while the Legal
+    // table is still hydrating. Log.warn-on-timeout so a silent miss is diagnosable.
+    await this.getElement('drpLegalServiceCharge0')
+      .waitFor({ state: 'visible', timeout: 15_000 })
+      .catch((e: Error) => Log.warn(`[tab-hydration] Legal row-0 dropdown wait lost: ${e?.message}`));
     await this.waitForAngularStable();
   }
 

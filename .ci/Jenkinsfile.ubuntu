@@ -61,17 +61,19 @@ pipeline {
                 script {
                     def browser = params.BROWSER == 'all' ? '' : "--project=${params.BROWSER}"
 
-                    // Uses playwright.config.ci.ts (no allure-playwright, avoids git timeout)
+                    // Single config — Allure is auto-skipped under CI=true (process.env.CI guard
+                    // in playwright.config.ts reporter array) to avoid the GitCommitInfo plugin
+                    // timing out on shallow-clone runners.
                     sh """
                         export NODE_ENV=${params.ENVIRONMENT}
-                        npx playwright test --config=clients/encore/playwright.config.ci.ts ${browser}
+                        npx playwright test --config=clients/encore/playwright.config.ts ${browser}
                     """
                 }
             }
         }
 
         // ==================== ALLURE REPORT DISABLED (Git Timeout Fix) ====================
-        // allure-playwright removed from CI config (playwright.config.ci.ts) to fix GitCommitInfo timeout
+        // allure-playwright skipped under CI=true (inline guard in playwright.config.ts) to fix GitCommitInfo timeout
         // Uncomment this stage if you re-enable allure-playwright with ALLURE_RESULTS_WITHOUT_GIT=true
         //
         // stage('Generate Allure Report') {

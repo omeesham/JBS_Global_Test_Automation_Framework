@@ -26,6 +26,14 @@ export class LocationCurrencyPage extends BasePage {
     await this.navigateToSubTab('tabCurrency', 'tblCurrencyGrid', officeNo);
   }
 
+ /**
+ * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
+ * beforeEach can avoid re-navigating when already on the tab.
+ */
+  async isOnCurrencyTab(): Promise<boolean> {
+    return (await this.getElement('tblCurrencyGrid').count()) > 0;
+  }
+
  /** Reload page and return to Currency tab. Handles potential beforeunload dialog. */
   async reloadAndNavigateToCurrencyTab(): Promise<void> {
     const handler = async (d: import('@playwright/test').Dialog) => {

@@ -12,8 +12,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as lockfile from 'proper-lockfile';
-import { Page, BrowserContext } from '@playwright/test';
+import { Page, BrowserContext, Browser } from '@playwright/test';
 import { recordCall as recordRetryCall, type AttemptRecord } from '../utils/retry-telemetry';
+import { LoginPage } from '../pages/auth/login.page';
+import type { IConfig } from '../types';
 
 export const AUTH_DIR = path.resolve(process.cwd(), '.auth');
 export const STATE_PATH = path.join(AUTH_DIR, 'encore-state.json');
@@ -106,5 +108,54 @@ export function deleteState(): void {
     if (fs.existsSync(STATE_PATH)) fs.unlinkSync(STATE_PATH);
   } catch {
     /* best effort */
+  }
+}
+
+/**
+ * Group A-2 (lifecycle refactor 2026-05-21): single source of truth
+ * for SSO login. Both `auth.setup.ts` and `fixtures.ts:refreshSharedState` consume this.
+ *
+ * Each caller keeps its own retry policy + caller-specific logging — this helper covers
+ * only the core SSO step (context + goto + loginWithMicrosoft + Dashboard wait). Callers
+ * own writeStateAtomic + close + retry budgeting.
+ *
+ * On loginWithMicrosoft returning false, the helper closes the context and throws. On
+ * any other failure (goto / Dashboard wait), the context is left open and the error
+ * propagates — callers are expected to close in their own catch/finally.
+ */
+export async function performSsoLogin(
+  browser: Browser,
+  baseUrl: string,
+  config: IConfig,
+  credentials: { username: string; password: string },
+): Promise<{ ctx: BrowserContext; page: Page }> {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  page.on('dialog', async (dialog) => {
+    if (dialog.type() === 'beforeunload') {
+      try { await dialog.accept(); } catch { /* already handled */ }
+    }
+  });
+  try {
+    await page.goto(baseUrl, { timeout: 78_000 });
+    const loginPage = new LoginPage(page, config);
+    const success = await loginPage.loginWithMicrosoft(
+      credentials.username,
+      credentials.password,
+    );
+    if (!success) {
+      await ctx.close();
+      throw new Error('loginWithMicrosoft returned false');
+    }
+    await page
+      .getByRole('heading', { name: 'Dashboard', level: 1 })
+      .waitFor({ state: 'visible', timeout: 60_000 });
+    return { ctx, page };
+  } catch (err) {
+    // On any throw past newContext, propagate but DON'T leak the context — callers vary
+    // (auth.setup retries with a fresh ctx, fixtures.ts treats it as terminal). Best-effort
+    // close here; if the context is already closed, ignore.
+    try { await ctx.close(); } catch { /* ignore */ }
+    throw err;
   }
 }

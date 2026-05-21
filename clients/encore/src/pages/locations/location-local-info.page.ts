@@ -36,6 +36,15 @@ export class LocationLocalInfoPage extends LocationTestOrchestrators {
   }
 
  /**
+ * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
+ * beforeEach can avoid re-navigating when already on the tab. Uses chkApplyLDW (tab-specific),
+ * NOT btnSaveLocalInfo (shared across all Location Settings sub-tabs).
+ */
+  async isOnLocalInfoTab(): Promise<boolean> {
+    return (await this.getElement('chkApplyLDW').count()) > 0;
+  }
+
+ /**
  * Navigate away and back to trigger a page reload, then re-open Local Information tab.
  * Used after Save to verify persistence.
  * @param officeNo - Office number (default 1604)

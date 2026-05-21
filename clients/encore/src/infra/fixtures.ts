@@ -2,8 +2,6 @@
 
 import './custom-matchers';
 import { test as base, Page, BrowserContext } from '@playwright/test';
-import { LoginPage } from '../pages/auth/login.page';
-import { HomePage } from '../pages/auth/home.page';
 import { LocationCurrencyPage } from '../pages/locations/location-currency.page';
 import { LocationLocalInfoPage } from '../pages/locations/location-local-info.page';
 import { LocationPricingPage } from '../pages/locations/location-pricing.page';
@@ -15,7 +13,7 @@ import { LocalOfficeSettingsPage } from '../pages/local-office/local-office-sett
 import { LocationAutoAddonPage } from '../pages/locations/location-auto-addon.page';
 import { LocationManagementHistoryPage } from '../pages/locations/location-management-history.page';
 import { CommonMethods } from '../utils/common-methods';
-import { Log, Logger } from '../utils/logger';
+import { Log } from '../utils/logger';
 import { IConfig } from '../types';
 import { CredentialLoader } from '../utils/credential-loader';
 import { attachDiagnostics, DiagnosticsCollector } from '../utils/diagnostics-collector';
@@ -24,6 +22,7 @@ import * as path from 'path';
 import {
   STATE_PATH,
   acquireLock,
+  performSsoLogin,
   validateState,
   writeStateAtomic,
 } from './auth-storage';
@@ -38,9 +37,6 @@ type WorkerFixtures = {
 // Define test-scoped fixtures (fresh instance per test)
 type TestFixtures = {
   diagnosticsHandler: void;
-  commonMethods: CommonMethods;
-  loginPage: LoginPage;
-  homePage: HomePage;
   locationCurrencyPage: LocationCurrencyPage;
   locationLocalInfoPage: LocationLocalInfoPage;
   locationPricingPage: LocationPricingPage;
@@ -67,7 +63,33 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  */
   diagnosticsHandler: [async ({ authenticatedSession }, use, testInfo) => {
     const { page } = authenticatedSession;
+
     await use(undefined as unknown as void);
+
+    // Group C-1 (lifecycle refactor 2026-05-21):
+    // Best-effort page-topology check at fixture post-use. Detects context leaks that survive
+    // teardown. Worker-scoped browser → contexts() is scoped to this worker.
+    //
+    // Known limitation (Phase 0 verification 2026-05-21): the BUG-1 "bare page + page-object"
+    // destructure collision pattern does NOT trigger this check, because Playwright tears down
+    // the bare-page test-scoped context BEFORE this auto-use fixture's post-use code runs. The
+    // structural defense for BUG-1 is the Group E lint guard at pre-commit / pre-push.
+    // This check IS still useful for: (a) contexts created by test code via explicit
+    // browser.newContext() that aren't cleaned up; (b) future page-object code that
+    // creates side-contexts; (c) any case where >1 context survives test teardown.
+    {
+      const browser = authenticatedSession.context.browser();
+      const ctxList = browser ? browser.contexts() : [];
+      if (ctxList.length > 1) {
+        Log.warn(`[diag] multi-context detected count=${ctxList.length} test="${testInfo.title}"`);
+        for (const ctx of ctxList) {
+          const tag = ctx === authenticatedSession.context ? 'auth' : 'other';
+          for (const pg of ctx.pages()) {
+            Log.warn(`[diag]   ctx=${tag} url=${pg.url()}`);
+          }
+        }
+      }
+    }
 
  // Teardown — extract diagnostics from the CORRECT page (authenticatedSession.page)
     const collector = (page as unknown as Record<string, unknown>).__diagnosticsCollector as DiagnosticsCollector | undefined;
@@ -173,36 +195,36 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
       const release = await acquireLock();
       try {
         // Re-check: a peer worker may have refreshed while we waited for the lock.
+        // Group A-5 (lifecycle refactor 2026-05-21): probe context
+        // closed under try/finally so a validateState throw doesn't leak the probe context.
         const probe = await browser.newContext(
           fs.existsSync(STATE_PATH) ? { storageState: STATE_PATH } : undefined,
         );
-        const probePage = await probe.newPage();
-        const stillStale = !(await validateState(probePage, config.base_url));
-        await probe.close();
+        let stillStale: boolean;
+        try {
+          const probePage = await probe.newPage();
+          stillStale = !(await validateState(probePage, config.base_url));
+        } finally {
+          await probe.close();
+        }
         if (!stillStale) {
           Log.info('[fixture] peer worker refreshed state while we waited -- reusing');
           return;
         }
 
         // Full SSO login (file-lock guarantees only this worker is here).
-        const loginCtx = await browser.newContext();
-        const loginPg = await loginCtx.newPage();
-        loginPg.on('dialog', async (dialog) => {
-          if (dialog.type() === 'beforeunload') await dialog.accept();
-        });
-        await loginPg.goto(config.base_url, { timeout: 78_000 });
-        const lp = new LoginPage(loginPg, config);
-        const ok = await lp.loginWithMicrosoft(
-          credentials.username,
-          credentials.password,
-        );
-        if (!ok) {
-          await loginCtx.close();
-          throw new Error('SSO login failed during state refresh');
+        // Group A-2 (lifecycle refactor 2026-05-21): SSO step extracted to
+        // performSsoLogin (auth-storage). On throw, the helper has already closed the context;
+        // the surrounding catch is no longer needed for cleanup. Caller-specific error wrapping
+        // preserved so the prior error message ("SSO login failed during state refresh") still
+        // identifies the call path in logs.
+        let loginCtx: import('@playwright/test').BrowserContext;
+        try {
+          ({ ctx: loginCtx } = await performSsoLogin(browser, config.base_url, config, credentials));
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          throw new Error(`SSO login failed during state refresh: ${msg}`);
         }
-        await loginPg
-          .getByRole('heading', { name: 'Dashboard', level: 1 })
-          .waitFor({ state: 'visible', timeout: 60_000 });
         await writeStateAtomic(loginCtx);
         await loginCtx.close();
         Log.info('[fixture] shared state refreshed and saved');
@@ -211,11 +233,20 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
       }
     };
 
-    let { ctx: context, pg: page } = await newSharedContext();
+    // Group A-3 (lifecycle refactor 2026-05-21): hoist the stateMissing
+    // check ABOVE newSharedContext(). The old order created a context, closed it on stale, then
+    // recreated — wasted one context per cold-start worker. With the hoist, refresh runs first
+    // when needed and newSharedContext() runs exactly once.
 
     // AUTH-STATE-SHARED test hook: when EXP_FORCE_STALE_FIRST=1, simulate mid-run
     // expiry on the first pre-test guard call per worker process. Forces both workers
     // through refreshSharedState() simultaneously to verify the file-lock serialization.
+    // Pre-test guard rationale: the fresh-context browser render check (heading visibility) is
+    // unreliable for this app because Playwright's storageState does not capture sessionStorage
+    // / in-memory MSAL state, so cookie-only restoration leaves the SPA in a skeleton-loading
+    // state in a context that did not go through SSO. We rely on auth.setup's file-based
+    // validation; here we only force a refresh when EXP_FORCE_STALE_FIRST is set or the state
+    // file is missing entirely.
     const forceStaleFirst =
       process.env.EXP_FORCE_STALE_FIRST === '1' &&
       !(globalThis as unknown as { __expForceStaleConsumed?: boolean }).__expForceStaleConsumed;
@@ -223,20 +254,12 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
       (globalThis as unknown as { __expForceStaleConsumed?: boolean }).__expForceStaleConsumed = true;
       Log.info('[fixture] EXP_FORCE_STALE_FIRST=1 -- forcing stale path for mid-run sim');
     }
-
-    // Pre-test guard — validateState in a throwaway probe context. The fresh-context
-    // browser render check (heading visibility) is unreliable for this app because
-    // Playwright's storageState does not capture sessionStorage / in-memory MSAL state,
-    // so cookie-only restoration leaves the SPA in a skeleton-loading state in a context
-    // that did not go through SSO. We rely on auth.setup's file-based validation; here
-    // we only force a refresh when the EXP_FORCE_STALE_FIRST hook is set or the state
-    // file is missing entirely.
     const stateMissing = !fs.existsSync(STATE_PATH);
     if (forceStaleFirst || stateMissing) {
-      await context.close();
       await refreshSharedState();
-      ({ ctx: context, pg: page } = await newSharedContext());
     }
+
+    const { ctx: context, pg: page } = await newSharedContext();
     // Navigate primary page to base_url and confirm Dashboard.
     // BOTH fresh-after-refresh AND pre-existing-valid-state contexts start on about:blank
     // (probe-context wrap moved validateState off the primary page; primary page from
@@ -254,37 +277,6 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
 
     await context.close();
   }, { scope: 'worker', timeout: 300_000 }],
-
- /**
- * CommonMethods fixture
- * Provides utility methods with page instance
- */
-  commonMethods: async ({ page }, use, testInfo) => {
- // R14 exception (intentional): Uses bare `page` not `authenticatedSession.page`.
- // CommonMethods only provides static utilities (initProp) -- no page interaction.
- // Diagnostics teardown is handled by auto-use `diagnosticsHandler` fixture (reads from authenticatedSession.page).
-    Logger.setSpecContext(testInfo.file);
-    const commonMethods = new CommonMethods(page);
-    await use(commonMethods);
-  },
-
- /**
- * LoginPage fixture
- * Auto-initialized LoginPage instance with config
- */
-  loginPage: async ({ page, config }, use) => {
-    const loginPage = new LoginPage(page, config);
-    await use(loginPage);
-  },
-
- /**
- * HomePage fixture
- * Auto-initialized HomePage instance with config
- */
-  homePage: async ({ page, config }, use) => {
-    const homePage = new HomePage(page, config);
-    await use(homePage);
-  },
 
  /**
  * LocationCurrencyPage fixture
