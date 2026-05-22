@@ -2,7 +2,6 @@
  * Test data for: Location Currency tab
  * Consumed by: specs/locations/location-currency.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last 
  * @office-dependent — merchant IDs and currency rows tied to office 1604
  * Changing values here affects the listed spec.
  */

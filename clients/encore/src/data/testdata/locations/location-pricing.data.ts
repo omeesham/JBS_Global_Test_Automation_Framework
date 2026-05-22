@@ -2,7 +2,6 @@
  * Test data for: Location Pricing tab
  * Consumed by: specs/locations/location-pricing.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last 
  * @office-dependent — price book rows and currency options tied to office 1604
  * Changing values here affects the listed spec.
  */

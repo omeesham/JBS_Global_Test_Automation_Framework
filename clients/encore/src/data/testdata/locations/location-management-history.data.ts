@@ -2,7 +2,6 @@
  * Test data for: Location Management History tab
  * Consumed by: specs/locations/location-management-history.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last 
  * @office-dependent
  * Column names verified against the live DOM.
  * Boolean format: Unicode "✔" (textContent readable).

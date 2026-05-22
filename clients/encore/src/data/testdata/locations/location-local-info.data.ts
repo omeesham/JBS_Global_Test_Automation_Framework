@@ -2,7 +2,6 @@
  * Test data for: Location Local Information tab
  * Consumed by: specs/locations/location-local-information.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last 
  * @office-dependent — checkbox defaults, field values tied to office 1604
  * Changing values here affects the listed spec.
  */

@@ -2,7 +2,6 @@
  * Test data for: Location Account and Address tab
  * Consumed by: specs/locations/location-account-address.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last 
  * @office-dependent — venue name, phone, address tied to office 1604
  * Changing values here affects the listed spec.
  */

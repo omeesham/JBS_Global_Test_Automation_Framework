@@ -2,7 +2,6 @@
  * Test data for: Location Auto Add-On tab
  * Consumed by: specs/locations/location-auto-addon.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last 
  * @office-dependent — checkbox defaults tied to office 1604
  * Changing values here affects the listed spec.
  */

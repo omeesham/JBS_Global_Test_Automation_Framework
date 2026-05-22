@@ -58,8 +58,8 @@ export async function saveAndVerifyCase(c: FieldCase): Promise<void> {
       try {
         await c.cleanup();
       } catch (cleanupErr) {
+        // eslint-disable-next-line no-unsafe-finally -- conditional throw only fires when primaryError is null, so there is no in-flight throw to override; otherwise the cleanup error is intentionally suppressed in favor of the primary assertion error.
         if (!primaryError) throw cleanupErr;
-        // Suppress cleanup error in favor of primary assertion error.
       }
     }
   }

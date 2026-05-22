@@ -3,7 +3,6 @@
  * Consumed by: specs/local-office/local-office-settings.spec.ts,
  * specs/local-office/local-office-ect.spec.ts (ECT_FIXED_COST_FIELDS only)
  * Office: 1604 (Parker Palm Springs)
- * Last 
  * Changing values here affects the listed specs.
  */
 

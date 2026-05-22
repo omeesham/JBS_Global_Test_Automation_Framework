@@ -2,7 +2,6 @@
  * Test data for: Location Legal tab
  * Consumed by: specs/locations/location-legal.spec.ts
  * Office: 1604 (Parker Palm Springs)
- * Last 
  * @office-dependent — legal defaults tied to office 1604
  * Changing values here affects the listed spec.
  */

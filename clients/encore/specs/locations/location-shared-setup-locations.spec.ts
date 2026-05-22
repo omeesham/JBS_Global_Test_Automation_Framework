@@ -73,6 +73,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-007: Reverting Shares Inventory to original state disables Save', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    // 2026-05-22 LR-021 corollary verify — user-authorized fixme+comment trust rule; companion to TC-030 user-confirmed bug; umbrella cite BUG-LOC-SHR-001 (SSL false-green/regression set).
     test.fixme(true, 'Blocked by app bug: Shares Inventory net-zero revert on added rows leaves FormControl.dirty set; Save stays enabled despite zero net change. Companion to the random-Delete-non-clickable bug. Pending Encore fix.');
     dependencyGate(['TC-LOC-SSL-001']);
  // SSL-006 toggle-back leaves Angular dirty state. Reload for clean baseline.
@@ -417,7 +418,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-026: Dialog number-search "1233" returns exactly the Miami Marriott office', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    test.fixme(true, 'Blocked by app bug: Miami-region offices excluded from /api/location/location-lookup visibility filter; search "1233" returns phantom row with empty localOffice cell. Pending Encore fix.');
+    test.fixme(true, 'Blocked by app bug: Miami-region offices excluded from /api/location/location-lookup visibility filter; search "1233" returns phantom row with empty localOffice cell. Pending Encore fix. Verified-still-blocked 2026-05-22 by user manual probe; see BUG-LOC-SHR-001 + baseline divergence SHR-DIV-006.');
     dependencyGate(['TC-LOC-SSL-001']);
     test.setTimeout(60_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
@@ -511,6 +512,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-030: Add three non-Miami rows + save + reload → all three persist', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    // 2026-05-22 LR-021 corollary verify — user manual probe confirmed bug PRESENT; companion to TC-007 fixme line 76; umbrella cite BUG-LOC-SHR-001 (SSL false-green/regression set).
     test.fixme(true, 'Blocked by app bug: random per-row Delete button becomes non-clickable after add+save+reload; cleanup loop spins forever clicking the dead button. Pending Encore fix.');
     dependencyGate(['TC-LOC-SSL-001']);
  // Small-N (3-row) smoke variant: adds Chicago + Boston + Marriott rows, saves,
