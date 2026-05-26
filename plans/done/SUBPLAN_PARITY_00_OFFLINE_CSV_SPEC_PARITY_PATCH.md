@@ -2,7 +2,8 @@
 
 **Parent**: `plans/pending/PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md`
 **Phase**: 0 of parent (PRECEDES all other subplans; runs FIRST; offline-safe)
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-05-26
 **Priority**: P0 (client review of CSVs imminent; e2e down blocks SP01..SP08)
 **PermissionMode**: acceptEdits
 **Justification**: Permanent commit to working branch + push to remote (`encore_deliverables_test/csv-spec-demo-2026-05-25`). Per-step user-confirmation gates inside (Phase 2 review + Phase 4 push). LR-041 acceptEdits chosen over auto to preserve human-in-loop at the two risky moments (permanent CSV mutation + remote push).
@@ -572,9 +573,47 @@ Anti-duplicate scan: >70% similarity to existing entry → rollback to structura
 - LR-028 activity log entry citing pushed branch URL
 - LR-049 compliance noted (`client:ship --force`, not `cp -r`)
 - LR-055 closure: `node scripts/validate-plan-closure.mjs --enforce --plan plans/done/SUBPLAN_PARITY_00_OFFLINE_CSV_SPEC_PARITY_PATCH.md --json` PASS, OR `.claude/closure-overrides.json` entry
-- LR-027 parent-cascade: SP00 is NOT last subplan; parent PLAN closure waits for SP08
+- LR-027 parent-cascade: SP00 is NOT last subplan; parent PLAN closure waits for W2-09 (the last in the restructured Wave 0/1/2 chain)
 - `git mv` to `plans/done/`; `npm run plans:reindex`; closure manifest at `plans/_closure_manifests/SUBPLAN_PARITY_00_OFFLINE_CSV_SPEC_PARITY_PATCH.md.manifest.json`
 - **Informational closure note** (M7): 3 new cols mirror what `to-jira.ts:23-36` Jira export already exposes for the same TCs — colleague's Excel ask aligns with existing Jira convention
+
+---
+
+## Execution Summary
+
+**Executed**: 2026-05-26 (user-attested complete; metadata reconciliation via `~/.claude/plans/path-distributed-tarjan.md` restructure run)
+
+### Scope additions absorbed during execution
+
+Four user-authorized scope expansions landed during multi-session execution (per Change Log entries 2026-05-25 / 2026-05-26):
+
+1. **Notes CSV restored** — `locations_notes_test_cases.csv` recovered from git blob `c1b0bdcf3998d0fd23777b4a0cebd1811567c2e3`; CSV count 10 → 11. Schema preserved (12-col deliverable schema).
+2. **Content cleanse pass** — 21 MCP markers, 56 CLEANUP REQUIRED markers, 27 framework jargon hits, 32 BUG-IDs, 3 planner-vs-actual notes stripped across 11 CSVs / 423 rows. 13 NM-NNNN Jira refs intentionally preserved.
+3. **Augment v1 → v2 rewrite** — switched from Playwright JSON `--list` (which reports `expectedStatus: passed` for inline runtime fixmes) to source-file regex parsing for `test.fixme(true, '<reason>')` text. Detected 17 fixme'd TCs (vs 9 with v1). Orphan-row injection added 5 spec-fixme TCs not previously in CSVs (NTS-035, SSL-031, SSL-032, SSL-026, SSL-030).
+4. **FCC TC ID rename completion** — 68 replacements across 3 spec files (23 NTS FCC → NTS-039..061, 12 SSL FCC → SSL-033..044, 3 HIST comment refs). 35 new CSV rows authored with real Steps + Expected Result (no placeholders). Final state: 463 CSV rows, 335 unique TCs, 0 unmapped fixmes.
+
+### Final artifacts on disk
+
+- **11 CSV files** at `clients/encore/test_cases_csv/`: 463 rows total, 12-col schema (`TC ID, Title, Module, Submodule, Specific Field, Preconditions, Steps, Expected Result, Notes, Automated, Automation Execution, If Failed Reason of Failure`)
+- **17 Fail entries** across all CSVs (local_office_settings: 1 BAS-048; locations_management_history: 3 MGH-006/007/019; locations_notes: 1 NTS-035; locations_pricing: 7 PRI-020/025/026-030; locations_shared_setup_locations: 5 SSL-007/031/032/026/030)
+- **318 active automated TCs** + **17 fixme'd TCs** = 335 unique spec TCs; 463 CSV TCs total (includes orphan-injected rows)
+- **Commits**: `99226fa` (SP00 CSV sanitization — 11 CSVs audited, 55 cell fixes, 46 rows injected, FCC rename), `75230c4` (strip 3 remaining MCP markers from local_information CSV), `3c723ca` (per-TC reasons + cell sanitization across 11 CSVs), `4f5a230` (pre-ship updates)
+- **Bundle pushed** to orphan branch `csv-spec-demo-2026-05-25` on `RutviK-JBS/encore_deliverables_test` (per `project_encore_deliverable_channel.md` — dry-run mock; real ship to Encore goes via JBS colleagues outside git)
+
+### TC justifications (LR-027 — every planned TC accounted for)
+
+- **Implemented + automated (Yes/Pass)**: 318 active TCs across 11 modules
+- **Implemented + bug-blocked (Yes/Fail with NM-NNNN reason)**: 17 TCs (per Fail entries above)
+- **Orphan-injected (5 TCs)**: NTS-035, SSL-031, SSL-032, SSL-026, SSL-030 — spec has fixme tests; CSV row authored with real content from spec body
+- **No NOT-AUTOMATABLE / DEFERRED / APP-BUG-without-Jira left** — every Fail row carries either NM-NNNN Jira ID or BUG-LOC-XXX-NNN internal ID with scrubbed reason text
+
+### Restructure handoff (2026-05-26)
+
+SP00's permanent CSV state becomes the baseline for the Wave 0/1/2 restructure of SP01–SP08 (see `~/.claude/plans/path-distributed-tarjan.md`). New subplans `SUBPLAN_PARITY_W1_01..W1_05` + `SUBPLAN_PARITY_W2_06..W2_09` consume the 12-col schema + populated automation columns. SP00 changes are NOT re-executed by the restructure; W1-02 includes a baseline verification gate (GP-1) confirming `grep -rc "FCC-" *.csv = 0` + `*.spec.ts = 0` + 12-col header per CSV.
+
+### Activity log
+
+Entry will be appended per LR-028 on next commit (after Status flip lands).
 
 ---
 
@@ -589,3 +628,7 @@ Rutvik will:
 6. Out-of-band: share `https://github.com/RutviK-JBS/encore_deliverables_test/tree/csv-spec-demo-2026-05-25` with Encore colleague
 
 If any HALT fires → Claude pauses, Rutvik decides next step in chat.
+
+## Post-Closure Note (added 2026-05-26 by SUBPLAN_XLSX_PREP_01)
+
+The TC IDs referenced in this historical execution log using the now-deprecated `-FCC-` segment in their identifier have been retroactively renamed to canonical submodule-only form per the 2026-05-26 naming-policy directive (Rutvik). Canonical mapping lives in `clients/encore/specs_planning/_internal/content-dedupe-audit-2026-05-26.md` §6. This historical record stays as-is (per LR-027 audit-trail principle) — do not rewrite body text.
