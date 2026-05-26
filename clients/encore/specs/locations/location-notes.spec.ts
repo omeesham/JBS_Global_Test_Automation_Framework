@@ -129,11 +129,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-033: Tab character "a\\tb" persist', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-063: Tab character "a\\tb" persist', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-033',
+      id: 'TC-LOC-NTS-063',
       label: 'Tab character persist',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: () => locationNotesPage.pasteIntoNote(0, NOTE_TAB_CHAR),
@@ -164,11 +164,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // ─── Group γ — Edit operations (append / prepend / replace / clear) ───────
-  test('TC-LOC-NTS-034: Edit append', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-064: Edit append', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-034',
+      id: 'TC-LOC-NTS-064',
       label: 'Edit append after baseline save',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
@@ -422,11 +422,12 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
 
   // BUG-LOC-NTS-004: Delete button vanishes on single-row form-array after clear() — TC cannot
   // reach the Delete step. Filed 2026-05-21 (lifecycle refactor Group D-4).
-  test.fixme('TC-LOC-NTS-035: Delete one of one (single row) — empty state persists', async ({ locationNotesPage, dependencyGate }) => {
+  // BUG-LOC-NTS-004
+  test.fixme('TC-LOC-NTS-062: Delete one of one (single row) — empty state persists', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-035',
+      id: 'TC-LOC-NTS-062',
       label: 'Delete the only row',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
