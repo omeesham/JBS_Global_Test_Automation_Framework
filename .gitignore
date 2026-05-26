@@ -212,6 +212,12 @@ clients/*/scripts/_*.ts
 # Playwright CLI session debug output
 .playwright-cli/page-*.yml
 .playwright-cli/console-*.log
+# 2026-05-26 (SUBPLAN_XLSX_PREP_01 Phase 2e): tighten patterns — prior gaps
+# accumulated 4 PNG screenshots + 1 storage-state JSON as tracked-then-staged-D.
+# storage-state JSON carries live Microsoft Entra session cookies; treat as
+# shipping-safety, not cosmetic.
+.playwright-cli/page-*.png
+.playwright-cli/storage-state-*.json
 
 # Regression snapshot debug files
 .claude/state/regression-snapshots/*.txt
