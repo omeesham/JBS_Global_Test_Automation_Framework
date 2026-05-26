@@ -6,7 +6,7 @@
 #     — captures TodoWrite state to .claude/state/todo-state-${session_id}.json
 #       (atomic write). Records {count, tagged_count, untagged_indices,
 #        tags_per_item} from the todo array's content+activeForm strings.
-#   PreToolUse (matcher: "Edit|Write|NotebookEdit|MultiEdit")
+#   PreToolUse (matcher: "Edit|Write|NotebookEdit")
 #     — denies the mutating tool call when the session is currently inside
 #       /execute AND the captured todo state is missing/empty/untagged.
 #

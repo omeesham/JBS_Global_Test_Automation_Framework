@@ -3,7 +3,7 @@ name: chain_audit
 description: Linear, single-session audit walker for CHAIN-SPAWNED (headless) sessions only. Candidate set = plans in `plans/done/` that have a matching `.claude/state/chain-sessions/<plan>.log` (= evidence the plan was executed by `/chain`, not interactively). Each invocation audits ONE such plan (oldest un-audited by default, or user-specified), runs full `/audit` against it in the current interactive session, records verdict + findings to state file, advances the pointer. Sub-commands — `/chain_audit` (next), `/chain_audit <plan-file>` (specific), `/chain_audit status` (queue view), `/chain_audit reset` (clear state). Use when the user says "chain audit", "audit next chain-run plan", "walk through headless sessions", or "audit plan execution".
 user-invocable: true
 auto-calls: identity, audit
-tools: Read, Glob, Grep, Write, Edit, Bash, TodoWrite
+tools: Read, Glob, Grep, Write, Edit, Bash, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # /chain_audit — Linear Chain-Session Audit Walker

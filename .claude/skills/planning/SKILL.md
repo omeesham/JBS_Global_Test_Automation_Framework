@@ -3,7 +3,7 @@ name: planning
 description: Create a rigorously audited implementation plan — explores codebase, drafts plan, runs validation checklist, reviews against original intent, then saves to plans/pending/. Use when user says "plan", "design", "how should we".
 user-invocable: true
 auto-calls: identity, research
-tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
+tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # /planning — Rigorous Plan Creation Workflow

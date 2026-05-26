@@ -121,7 +121,7 @@ npx playwright test --config=playwright.config.ts --project=chromium --workers=1
 
 **What this runs**:
 - `setup` project first (auth — acquires/refreshes `.auth/encore-state.json`)
-- Then all 13 specs under `tests/specs/setup/` via `chromium` project
+- Then all 13 specs under `specs/` via `chromium` project
 - 1 worker — specs run sequentially
 - Reporters write to: `reports/html-report/`, `reports/allure-results/`, `reports/test-results/`, `reports/test-results.json`, `reports/junit-results.xml`
 
@@ -171,7 +171,7 @@ Both commands launch a local server. They can be run simultaneously in separate 
 
 ## Specs covered (13 total)
 
-All under `clients/encore/tests/specs/setup/`:
+All under `clients/encore/specs/`:
 
 **Locations (10)**
 - `locations/location-account-address.spec.ts`

@@ -3,7 +3,7 @@ name: share-kt
 description: Cross-repo knowledge transfer session — explore another repo, extract features/patterns/learnings, compare against ours, identify gaps, update KT log. Use when user says "KT", "knowledge transfer", "share learnings", "what can we learn from".
 user-invocable: true
 auto-calls: identity
-tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
+tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # /share-kt — Cross-Repo Knowledge Transfer Session

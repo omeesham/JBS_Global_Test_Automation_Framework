@@ -236,7 +236,7 @@ CLI can auto-generate Playwright test code from browser sessions. This is direct
 |-----------|--------|
 | `@playwright/mcp` stays installed | Healer needs `playwright-test` MCP server; MCP is fallback for debugging |
 | `playwright.config.ts` | Test execution is `npx playwright test`, not CLI |
-| `tests/infra/fixtures.ts` | `authenticatedSession` fixture is test-runner-level, not CLI |
+| `src/infra/fixtures.ts` | `authenticatedSession` fixture is test-runner-level, not CLI |
 | Existing hard gates (PLN-034, PF-G5, LR-007) | Rules stay — just the tool names in agent files change |
 | Test execution in CI/pipeline | `npm test` stays unchanged |
 | Framework Maintainer agent | Low interaction count (3 MCP refs) — not worth converting |

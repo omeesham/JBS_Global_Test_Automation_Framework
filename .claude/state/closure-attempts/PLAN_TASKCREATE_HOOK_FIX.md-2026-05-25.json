@@ -1,0 +1,69 @@
+[
+  {
+    "timestamp": "2026-05-25T18:30:35.686Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "PASS"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-25T18:30:35.697Z",
+    "result": "FAIL",
+    "source": "hook"
+  },
+  {
+    "timestamp": "2026-05-25T18:30:42.825Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "PASS"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-25T18:32:32.877Z",
+    "result": "PASS",
+    "source": "hook"
+  },
+  {
+    "invocation_id": "1779733957938-942c8ca3d0c7dd3eadd0720d57fccff1-91b3fb68a75830b6",
+    "timestamp": "2026-05-25T18:32:37.942Z",
+    "result": "PASS"
+  }
+]

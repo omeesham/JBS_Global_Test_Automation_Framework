@@ -37,13 +37,13 @@ Originally targeted 7 silent selector collisions + 4 refactoring tasks. P0 Decon
 |------|-------|----------------|-------|
 | `src/core/base-page.ts` | 3 | 15k, 15k, 10k | 348, 386, 393 |
 | `src/core/ui-common.ts` | 1 | none (Playwright default 30s) | 112 |
-| `src/pages/setup/local-office/local-office-settings.page.ts` | 6 | 10k×2, 15k×4 | 49, 59, 71, 81, 131, 136 |
-| `src/pages/setup/locations/location-auto-addon.page.ts` | 3 | 15k×2, 10k×1 | 20, 72, 150 |
-| `src/pages/setup/locations/location-test-orchestrators.page.ts` | 4 | 15k×4 (note: `15000` not `15_000`) | 47, 52, 57, 76 |
-| `src/pages/setup/locations/location-currency.page.ts` | 5 | 5k×4, 15k×1 | 117, 137, 152, 167, 231 |
-| `src/pages/setup/locations/location-notes.page.ts` | 1 | 10k | 333 |
-| `src/pages/setup/locations/location-shared-setup-locations.page.ts` | 1 | 15k | 43 |
-| `src/pages/setup/locations/location-pricing.page.ts` | 1 | 10k | 61 |
+| `src/pages/local-office/local-office-settings.page.ts` | 6 | 10k×2, 15k×4 | 49, 59, 71, 81, 131, 136 |
+| `src/pages/locations/location-auto-addon.page.ts` | 3 | 15k×2, 10k×1 | 20, 72, 150 |
+| `src/pages/locations/location-test-orchestrators.page.ts` | 4 | 15k×4 (note: `15000` not `15_000`) | 47, 52, 57, 76 |
+| `src/pages/locations/location-currency.page.ts` | 5 | 5k×4, 15k×1 | 117, 137, 152, 167, 231 |
+| `src/pages/locations/location-notes.page.ts` | 1 | 10k | 333 |
+| `src/pages/locations/location-shared-setup-locations.page.ts` | 1 | 15k | 43 |
+| `src/pages/locations/location-pricing.page.ts` | 1 | 10k | 61 |
 
 ### Implementation
 
@@ -89,12 +89,12 @@ Circular import: `src/core/base-page.ts:15` imports `CheckboxState` from `../pag
 | File | Current Import Path |
 |------|-------------------|
 | `src/core/base-page.ts:15` | `../pages/setup/locations/location-form-helpers.page` **(CIRCULAR)** |
-| `src/pages/setup/locations/location-auto-addon.page.ts:5` | `./location-form-helpers.page` |
-| `src/pages/setup/locations/location-currency.page.ts:24` | `./location-form-helpers.page` |
-| `src/pages/setup/locations/location-local-info.page.ts:21` | `./location-form-helpers.page` (also SpinState) |
-| `src/pages/setup/locations/location-pricing.page.ts:24` | `./location-form-helpers.page` |
-| `src/pages/setup/locations/location-shared-setup-locations.page.ts:23` | `./location-form-helpers.page` |
-| `src/pages/setup/local-office/local-office-settings.page.ts:17` | `../locations/location-form-helpers.page` |
+| `src/pages/locations/location-auto-addon.page.ts:5` | `./location-form-helpers.page` |
+| `src/pages/locations/location-currency.page.ts:24` | `./location-form-helpers.page` |
+| `src/pages/locations/location-local-info.page.ts:21` | `./location-form-helpers.page` (also SpinState) |
+| `src/pages/locations/location-pricing.page.ts:24` | `./location-form-helpers.page` |
+| `src/pages/locations/location-shared-setup-locations.page.ts:23` | `./location-form-helpers.page` |
+| `src/pages/local-office/local-office-settings.page.ts:17` | `../locations/location-form-helpers.page` |
 
 ### Implementation
 
@@ -125,14 +125,14 @@ export { CheckboxState, SpinState } from './types';
 import { CheckboxState } from '../framework-contracts';
 ```
 
-**4. Update `src/pages/setup/locations/location-form-helpers.page.ts`** — remove local interface definitions (lines 18-28), add import + re-export:
+**4. Update `src/pages/locations/location-form-helpers.page.ts`** — remove local interface definitions (lines 18-28), add import + re-export:
 ```typescript
 import { CheckboxState, SpinState } from '../../../framework-contracts';
 // Keep re-export so downstream files don't break:
 export type { CheckboxState, SpinState };
 ```
 
-**5. Update `src/pages/setup/local-office/local-office-settings.page.ts:17`:**
+**5. Update `src/pages/local-office/local-office-settings.page.ts:17`:**
 ```typescript
 // FROM: import { CheckboxState } from '../locations/location-form-helpers.page';
 // TO:
@@ -221,3 +221,31 @@ node -e "require('./src/selectors')"
 | SP-05 | LOW | Mechanical find-replace. 3 distinct timeout values (5k, 10k, 15k) preserved per-call. TypeScript catches type errors. |
 | SP-06 | LOW | TypeScript catches import breakage. Re-export preserves downstream compatibility. |
 | SP-09 | NONE | Documentation only. |
+
+---
+
+## Appended 2026-05-25 — FCC structural cure follow-ups (Phase 2.5 Adjacent-Sweep from PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE)
+
+These two items were declared out-of-scope by `plans/pending/PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.md` §9 and are appended here as **named-recipient line items per LR-040 §b** so the parent plan's closure passes the phantom-handoff check.
+
+### SP-MNT-FCC-01: Patch or formally decommission `scripts/sync-agent-mistakes.ts`
+
+**Trigger**: post-2026-04-27 Copilot eviction, `sync-agent-mistakes.ts` is no-op for `.claude/agents/*` (AGENT_CONDENSED + AGENT_COMPACT_FORMAT envelopes are empty for these paths). PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE (2026-05-25) dropped the SYNC-ONLY framing from SKILL.md / AGENT_SHARED_RULES.md prose to acknowledge this reality; the script itself remains on disk untouched.
+
+**Two paths**:
+- **(a)** Patch the script to write to `.claude/agents/*.md` (preserve auto-graduation workflow but redirect to new paths). Requires re-introducing the AGENT_CONDENSED + AGENT_COMPACT_FORMAT envelope builders for the new path scheme.
+- **(b)** Formally decommission the script (mark deprecated, remove from any pipeline triggers, document the manual OWNER graduation path as canonical).
+
+**Decision criterion**: do agents ever need automated rule-graduation from `agent-mistakes.md` rows to the agent file's HARD STOPS / scope clauses, or is manual OWNER editing sufficient? If never automated → (b). If yes/occasionally → (a).
+
+**Verification**: `grep -rn "sync:mistakes\|sync-agent-mistakes" .claude/ docs/ scripts/ package.json` → either zero hits (decommissioned) or hits only in patched-paths context (no `.github/agents/` references).
+
+### SP-MNT-FCC-02: Add `--module=<module>` flag to `scripts/check-tc-parity.ts`
+
+**Trigger**: pre-commit Gate A (added 2026-05-25 via PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE, enforces ALL-071) currently runs full-repo `check:tc-parity` whenever any spec is staged. Runtime ~10-30s — acceptable but could be ~2-5s with module-scoped check.
+
+**Implementation**: add `--module=<id>` arg parsing; restrict scan to `clients/${ACTIVE_CLIENT}/specs/<module>/`, `test-cases/<module>_test_cases.md`, `test-plans/<module>.md`, `test_cases_csv/<module>_test_cases.csv`. Default (no flag) preserves full-repo behavior.
+
+**Pre-commit gate enhancement (downstream)**: once `--module` exists, pre-commit Gate A could parse staged spec paths via `git diff --cached --name-only`, derive the module from `clients/<client>/specs/<module>/`, and pass `--module=<derived>` for faster CI. Optional follow-up after this SP lands.
+
+**Verification**: `npm run check:tc-parity -- --module=notes` returns same-or-narrower findings vs full-repo run; `npm run check:tc-parity` (no flag) preserves current behavior.

@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md",
+  "plan_basename": "SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md",
+  "plan_sha256": "fac9e3f4052e5815d97dfa199f09382e047f230f3efac48e5de4b92d895ad3a6",
+  "passed_at": "2026-05-26T17:07:45.874Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "5bf1a54961e8f4ea7543093c2248dc49ff11281609fd8e984016fd8ed976e9f1",
+  "validator_invocation_id": "1779815265874-f6a8ee1fa67a28a28cd4a4652e02c596-fac9e3f4052e5815",
+  "artifacts": [],
+  "provisional": false
+}

@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_NOTES_FCC_PILOT.md",
+  "plan_basename": "SUBPLAN_NOTES_FCC_PILOT.md",
+  "plan_sha256": "392824b69a50fed8d16e12900592b3c3aceb9d5a8fb92d63c417d07ee9b28d92",
+  "passed_at": "2026-05-22T07:49:21.410Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "68a42be0980f4bc400e6f2ce100fd4e27fbb2718f0fecd3628a6656a46323b8a",
+  "validator_invocation_id": "1779436161408-8573ccb1461f9863e3a7264b90ba8e46-392824b69a50fed8",
+  "artifacts": [],
+  "provisional": false
+}

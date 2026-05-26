@@ -23,20 +23,28 @@ export class LocationNotesPage extends BasePage {
  * beforeEach can avoid re-navigating when already on the tab.
  */
   async isOnNotesTab(): Promise<boolean> {
-    return (await this.getElement('sectionNotes').count()) > 0;
+    // Fix #4a (radix-tab-dom 2026-05-22):
+    // Use the tab trigger's aria-selected (mirrors base-page.ts:448) instead of count()>0
+    // on a child anchor. Radix mounts inactive panels for some tabs (forceMount-equivalent);
+    // the trigger's aria-selected is the only reliable cross-tab signal.
+    const tab = this.getElement('tabNotes');
+    if ((await tab.count()) === 0) return false;
+    return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
  /** Click Notes tab only (assumes already on location settings page). */
   async clickNotesTab(): Promise<void> {
     await this.clickWithRetry('tabNotes');
     await this.getElement('sectionNotes').waitFor({ state: 'visible', timeout: 15_000 });
-    // D-1 (lifecycle refactor 2026-05-21): race content vs empty-state
-    // so we don't return on the wrapper alone while the inner Notes data is still hydrating.
-    // Log.warn (NOT silent .catch) per adversarial-audit amend so race-lost timeouts are diagnosable.
+    // D-1 (lifecycle refactor 2026-05-21): race content vs empty-state so we don't return on
+    // the wrapper alone while the inner Notes data is still hydrating.
+    // Fix #4c: dropped trailing .catch(Log.warn) so race-lost
+    // timeouts fail loudly at the click step (where the symptom is) instead of being swallowed
+    // and surfacing later as misattributed assertion failures.
     await Promise.race([
       this.getElement('txtNoteInputAll').first().waitFor({ state: 'visible', timeout: 15_000 }),
       this.getElement('lblNoNotesAvailable').waitFor({ state: 'visible', timeout: 15_000 }),
-    ]).catch((e: Error) => Log.warn(`[tab-hydration] Notes race lost: ${e?.message}`));
+    ]);
   }
 
  /** Reload page and return to Notes tab. Handles potential beforeunload dialog. */

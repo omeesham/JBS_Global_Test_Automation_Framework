@@ -19,7 +19,13 @@ export class LocationAccountAddressPage extends BasePage {
  * shared across all sub-tabs and is an unreliable signal after a sibling spec.
  */
   async isOnAccountAndAddressTab(): Promise<boolean> {
-    return (await this.getElement('pnlAccountAndAddress').count()) > 0;
+    // Fix #4a (radix-tab-dom 2026-05-22):
+    // pnlAccountAndAddress is a panel-wrapper testid that Radix keeps mounted across
+    // all tab states (count() > 0 returns TRUE even when this tab is inactive). The
+    // tab trigger's aria-selected is the only reliable signal — mirrors base-page.ts:448.
+    const tab = this.getElement('tabAccountAndAddress');
+    if ((await tab.count()) === 0) return false;
+    return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
  /** Navigate to Account and Address tab for the given office. Waits for API to load content. */
@@ -428,11 +434,26 @@ export class LocationAccountAddressPage extends BasePage {
  // RELOAD / NAVIGATE
  // ─────────────────────────────────────────────────────────────────────────────
 
- /** Reload the page and re-navigate to Account and Address tab. */
+ /**
+  * Reload the page and re-navigate to Account and Address tab.
+  *
+  * Registers a listener for `GET /navigator-legacy/getLocationDetail` BEFORE the reload, then
+  * awaits it after navigation. Phone2 (and other location-level fields) binds to `data.Phone2`
+  * from this endpoint, observed at ~5-6s on contended runs. Without this wait, callers polling
+  * phone2 immediately after this method returns race against an in-flight hydration response
+  * (TC-LOC-ACC-020 root cause — the existing navigateToAccountAndAddressTab gates only on
+  * phone1, which hydrates from a faster account-API). Listener is tolerant via `.catch` so
+  * cached/early-return cases don't block.
+  */
   async reloadAndNavigate(officeNo: string = '1604'): Promise<void> {
+    const hydrationPromise = this.page.waitForResponse(
+      (r) => r.url().includes('/navigator-legacy/getLocationDetail') && r.status() === 200,
+      { timeout: 30_000 },
+    ).catch(() => null);
     await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
     await this.waitForAngularStable();
     await this.navigateToAccountAndAddressTab(officeNo);
+    await hydrationPromise;
     Log.info('[OK] Reloaded and navigated to Account and Address tab');
   }
 }

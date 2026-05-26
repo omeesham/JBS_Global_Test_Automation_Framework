@@ -31,7 +31,7 @@ Each identity owns specific artifacts. After this plan's changes (CSV renames, M
 
 - HUNTER (bugs) — owns `reports/bugs/*.json`. Verify new BUG-*.json files follow LR-034 schema; index or log updated.
 - GIVER (TBD — verify which artifacts this identity owns from agent file).
-- BUILDER (specs + page objects + selectors + test data) — owns `src/pages/`, `src/selectors/`, `tests/specs/`, `tests/test-data/`. Verify: new slate-clear utility wired; tags applied in CSVs it produces; no dangling references.
+- BUILDER (specs + page objects + selectors + test data) — owns `src/pages/`, `src/selectors/`, `specs/`, `src/data/testdata/`. Verify: new slate-clear utility wired; tags applied in CSVs it produces; no dangling references.
 - HEALER (spec fixes, test failures) — owns test-failure RCA. Verify: RCA log up to date; no unresolved failures.
 - WATCHDOG (audits) — owns audit reports. Verify: neutral-eye audit files indexed; qa-benchmark doc present; LR-040 gate log.
 - GARDENER (cleanup, rule graduation) — owns `tc-authoring-rules.md`, agent-mistakes.md. Verify: Rules 5+6 present; known-leaks table current.

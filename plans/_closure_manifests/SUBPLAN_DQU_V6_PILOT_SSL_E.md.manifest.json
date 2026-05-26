@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_DQU_V6_PILOT_SSL_E.md",
+  "plan_basename": "SUBPLAN_DQU_V6_PILOT_SSL_E.md",
+  "plan_sha256": "30b860f343b4800d45d723e0024196351eba19f519d6dac1e3bd237ce4c27ce0",
+  "passed_at": "2026-05-20T17:31:35.628Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "68a42be0980f4bc400e6f2ce100fd4e27fbb2718f0fecd3628a6656a46323b8a",
+  "validator_invocation_id": "1779298295628-115aa7dbdac5d57326e9bd65699c7e48-30b860f343b4800d",
+  "artifacts": [],
+  "provisional": false
+}

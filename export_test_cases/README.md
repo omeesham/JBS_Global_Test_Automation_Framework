@@ -243,10 +243,14 @@ npm run export:jira
 
 ### CSV Format
 
+Current schema (post-SP00 v13 augment, 12 columns):
+
 ```csv
-Test Case ID,Title,Type,Priority,Automation Status,Description,...
-"TC-001","Login with valid credentials","User-Requested","Critical","Automated","Verify login flow",...
+TC ID,Title,Module,Submodule,Specific Field,Preconditions,Steps,Expected Result,Notes,Automated,Automation Execution,If Failed Reason of Failure
+"TC-LOC-CUR-001","Verify Currency grid default state","locations","currency","Currency","Office 1604 is open ...","1. Navigate ...","Grid displays 3 currencies",...,"Yes","Pass",""
 ```
+
+The last 3 columns are populated by `SUBPLAN_PARITY_00` augment script (reads Playwright `--list --reporter=json` for TC set/mode + source-file regex for `test.fixme(true, '<reason>')` text). On MD → CSV re-export via `npm run check:tc-parity:fix`, these 3 cols are emitted as empty cells (MD source doesn't carry the data); SP00 re-runs to refill.
 
 ### Jira CSV Format
 

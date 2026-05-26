@@ -237,7 +237,7 @@ Compilation pipeline: `tsconfig.build.json` → `tsc` → `src/` compiled to `di
 
 ### Agent Integration
 
-Agents modify selectively: `src/selectors/index.ts` (Planner adds), `src/pages/**/*.page.ts` (Generator adds methods), `tests/specs/*.spec.ts` (Generator creates, Healer fixes).
+Agents modify selectively: `src/selectors/index.ts` (Planner adds), `src/pages/**/*.page.ts` (Generator adds methods), `specs/*.spec.ts` (Generator creates, Healer fixes).
 
 Agents never modify: `src/core/`, `src/utils/`, `src/security/`, `config/`.
 
@@ -266,7 +266,7 @@ test('should login successfully', async ({ loginPage, config }) => {
 | New data adapter | `src/data/adapters/` | `graphqlAdapter.ts` |
 | New utility function | `src/utils/` | `crypto-utils.ts` |
 | New base class | `src/core/` | `base-api-page.ts` |
-| New test | `tests/specs/` | `contact-crud.spec.ts` |
+| New test | `specs/` | `contact-crud.spec.ts` |
 | New element selectors | `src/selectors/index.ts` | Add to appropriate selector group |
 | New environment config | `.env.{environment}` | `.env.e2e` |
 

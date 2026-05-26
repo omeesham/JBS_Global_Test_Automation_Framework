@@ -50,6 +50,7 @@ Codenames: HUNTER | GIVER | BUILDER | HEALER | WATCHDOG | GARDENER | OWNER. Acti
 | Active client (Encore-specific surfaces, business rules, baseline URL) | `@clients/encore/CLAUDE.md` |
 | Path-scoped framework rules — auto-load on matching file edits via `paths:` frontmatter | `.claude/rules/*.md` (angular, specs, hooks-identity, browser-tool, pipeline, baseline, data, inventory) |
 | Field-inventory artifact spec (frontmatter keys, sections, staleness) | `@clients/encore/specs_planning/_internal/field-inventory-spec.md` |
+| Per-field-type case generation taxonomy (FCC reference) | `@clients/encore/specs_planning/_internal/field-case-generation.md` |
 | Browser tool selection (CLI vs Chrome matrix, mid-subplan switch protocol) | `@docs/read_only_docs/CLI_BROWSER_GUIDE.md` (full guide) + `.claude/rules/browser-tool.md` (rule body) |
 
 ---

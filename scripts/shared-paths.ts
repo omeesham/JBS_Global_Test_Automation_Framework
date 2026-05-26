@@ -92,11 +92,13 @@ export const SHARED_PATHS = Object.freeze({
   moduleRegistry:   clientPath(path.join('docs', 'MODULE_REGISTRY.md')),
 
   // Client code (scanned by catalog/lint scripts)
-  specs:            clientPath(path.join('tests', 'specs')),
+  // Path layout post-2026-05-19 restructure: specs at clients/<id>/specs/,
+  // fixtures at clients/<id>/src/infra/fixtures.ts, test data at clients/<id>/src/data/testdata/.
+  specs:            clientPath('specs'),
   pages:            clientPath(path.join('src', 'pages')),
   selectors:        clientPath(path.join('src', 'selectors')),
-  fixtures:         clientPath(path.join('tests', 'setup', 'fixtures.ts')),
-  testData:         clientPath(path.join('tests', 'test-data')),
+  fixtures:         clientPath(path.join('src', 'infra', 'fixtures.ts')),
+  testData:         clientPath(path.join('src', 'data', 'testdata')),
   exports:          clientPath('test_cases_csv'),
   envDir:           clientPath(path.join('config', 'environments')),
 

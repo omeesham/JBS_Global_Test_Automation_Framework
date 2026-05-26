@@ -67,7 +67,7 @@ The earlier "RC-A env saturation" framing was wrong. `net::ERR_ABORTED` is clien
 | Layer | Role | Status | Where to verify |
 |---|---|---|---|
 | Server 500 on save under concurrent multi-worker load | TRIGGER (proven for ACC-019, inferred for the other 4w-only failures) | Proven for one test, unproven for the other ~9 4w-only failures | 4w JSON `consoleErrors[].text` for ACC-020..028, BAS-022, LI-025, NTS-001 |
-| `clickSaveAndConfirm` swallows the failure result | AMPLIFIER #1 — silent save | **PROVEN 2026-05-08**. `local-office-settings.page.ts:125` declares `Promise<void>` and discards the `{success, networkError}` returned by `base-page.ts:347 clickSaveWithDialog`. Other pages propagate (e.g. `location-account-address.page.ts:395 clickSave` returns the result correctly), so the inconsistency itself is the bug. Fix: bring all `clickSaveAndConfirm` wrappers into line with the propagate-or-throw pattern. | `clients/encore/src/core/base-page.ts:347` (correct) and `clients/encore/src/pages/setup/local-office/local-office-settings.page.ts:125` (broken) |
+| `clickSaveAndConfirm` swallows the failure result | AMPLIFIER #1 — silent save | **PROVEN 2026-05-08**. `local-office-settings.page.ts:125` declares `Promise<void>` and discards the `{success, networkError}` returned by `base-page.ts:347 clickSaveWithDialog`. Other pages propagate (e.g. `location-account-address.page.ts:395 clickSave` returns the result correctly), so the inconsistency itself is the bug. Fix: bring all `clickSaveAndConfirm` wrappers into line with the propagate-or-throw pattern. | `clients/encore/src/core/base-page.ts:347` (correct) and `clients/encore/src/pages/local-office/local-office-settings.page.ts:125` (broken) |
 | Some tests have cleanup OUTSIDE `try/finally` (e.g. BAS-023, BAS-024, BAS-027) | AMPLIFIER #2 — dirty state cascades | Proven by source read (`local-office-settings.spec.ts:325-340`, `:342-355`, `:378-384`) | Spec source itself |
 
 Three failure populations emerge from this model:
@@ -150,11 +150,11 @@ User direction was: read results, analyze, then STOP. Standing by for user input
 - Skills auto-called: `/regression-guard` wraps every code edit; `/reflect` + `/final-q` close the session.
 - Context files (read or already in working memory):
   - `~/.claude/plans/the-problem-ci-runs-clever-parnas.md` — the handoff
-  - `clients/encore/tests/specs/setup/local-office/local-office-settings.spec.ts` — BAS spec
-  - `clients/encore/tests/specs/setup/locations/location-local-information.spec.ts` — LI spec
+  - `clients/encore/specs/local-office/local-office-settings.spec.ts` — BAS spec
+  - `clients/encore/specs/locations/location-local-information.spec.ts` — LI spec
   - `clients/encore/.github/workflows/playwright-tests.yml` — CI yml
   - `clients/encore/playwright.config.ci.ts` — workers logic (line 49-51, MAX_WORKERS env)
-  - `clients/encore/tests/infra/fixtures.ts:241-250` — fixture goto (probably-revert)
+  - `clients/encore/src/infra/fixtures.ts:241-250` — fixture goto (probably-revert)
   - `.claude/rules/specs.md` — LR-018 (run-all is truth), LR-019 (baseline reset), LR-024 (clean before RCA)
   - `.claude/rules/angular.md` — LR-009 (restore-to-different-value), LR-026 (Angular dirty state unreliable)
   - `.claude/rules/pipeline.md` — LR-028 (activity-log row), LR-046 (strict plan lines)
@@ -166,12 +166,12 @@ User direction was: read results, analyze, then STOP. Standing by for user input
 
 1. Confirm PATCH 1+2 are present:
    ```
-   git -C clients/encore diff --stat tests/specs/setup/local-office/local-office-settings.spec.ts tests/specs/setup/locations/location-local-information.spec.ts
+   git -C clients/encore diff --stat specs/local-office/local-office-settings.spec.ts specs/locations/location-local-information.spec.ts
    ```
    Expected: both files modified (working tree, NOT committed).
-2. Confirm `clients/encore/tests/infra/fixtures.ts` worker-startup change is present:
+2. Confirm `clients/encore/src/infra/fixtures.ts` worker-startup change is present:
    ```
-   git -C clients/encore diff tests/infra/fixtures.ts | grep -c "await page.goto(config.base_url"
+   git -C clients/encore diff src/infra/fixtures.ts | grep -c "await page.goto(config.base_url"
    ```
    Expected: ≥1 match. **NOTE — the in-file comment block at the new goto line states it fixes a real "not-stale path starts on about:blank → SELECTOR failures" regression. Phase 6 evaluates whether the fix is still load-bearing; do NOT revert in Phase 0.**
 3. Clean stale artifacts before Phase 1 RCA per LR-024:
@@ -190,9 +190,9 @@ User direction was: read results, analyze, then STOP. Standing by for user input
 
 LR-018 step 2: run failing specs INDIVIDUALLY before any fix. The 3 failing specs from the 1w run:
 
-- `tests/specs/setup/local-office/local-office-settings.spec.ts` (BAS — 19 fails in run-all)
-- `tests/specs/setup/locations/location-management-history.spec.ts` (MGH — 9 fails in run-all)
-- `tests/specs/setup/locations/location-pricing.spec.ts` (PRI — 7 fails in run-all)
+- `specs/local-office/local-office-settings.spec.ts` (BAS — 19 fails in run-all)
+- `specs/locations/location-management-history.spec.ts` (MGH — 9 fails in run-all)
+- `specs/locations/location-pricing.spec.ts` (PRI — 7 fails in run-all)
 
 Run each spec as its own process at `--workers=1`, in parallel (3 background bashes), each with `--no-deps` after a single shared setup run. Outputs to `clients/encore/reports/_bas-only-2026-05-08.txt` etc. Build the reproduction matrix:
 
@@ -322,7 +322,7 @@ Only proceed if Phase 4 surfaces LI-021/029, 026, 045, 067, 068, 069, or SKIP-BI
 The change moves a `page.goto(base_url) + Dashboard wait` from inside an `if (stale)` branch to unconditional, with an inline comment explaining it fixes a "not-stale path starts on about:blank → SELECTOR failures" regression. Verify whether this is still needed AFTER Phases 2-4 land:
 
 1. Snapshot current 2w fail set from Phase 4.
-2. Stash just the fixtures.ts hunk: `git -C clients/encore stash push tests/infra/fixtures.ts -m "phase6-fixtures-stash"`.
+2. Stash just the fixtures.ts hunk: `git -C clients/encore stash push src/infra/fixtures.ts -m "phase6-fixtures-stash"`.
 3. Re-run the same 2w command (clean reports first per LR-024). Compare fail count + which tests failed.
 4. Two outcomes:
    - **Same or fewer fails** → the unconditional goto is no-op tax for current state; keep stash dropped (don't pop). Update the inline comment in the original codepath if needed.
@@ -337,7 +337,7 @@ The change moves a `page.goto(base_url) + Dashboard wait` from inside an `if (st
 
 1. Append activity-log row to `clients/encore/specs_planning/_internal/agent-activity-log.md`:
    ```
-   | 2026-05-07Thh:mm | OWNER | done | clients/encore/.github/workflows/playwright-tests.yml, clients/encore/tests/specs/setup/local-office/local-office-settings.spec.ts, clients/encore/tests/infra/fixtures.ts (per Phase 6 outcome) | PLAN_ENCORE_CI_2W_GREEN: pinned MAX_WORKERS=2; added try/finally to N BAS contaminators; 2w verified at ≤5 fails. |
+   | 2026-05-07Thh:mm | OWNER | done | clients/encore/.github/workflows/playwright-tests.yml, clients/encore/specs/local-office/local-office-settings.spec.ts, clients/encore/src/infra/fixtures.ts (per Phase 6 outcome) | PLAN_ENCORE_CI_2W_GREEN: pinned MAX_WORKERS=2; added try/finally to N BAS contaminators; 2w verified at ≤5 fails. |
    ```
 2. Update plan: flip Status field to DONE, add Executed YYYY-MM-DD, write Execution Summary section (per LR-027).
 3. `git mv plans/pending/PLAN_ENCORE_CI_2W_GREEN.md plans/done/`.

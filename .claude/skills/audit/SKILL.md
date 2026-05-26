@@ -3,7 +3,7 @@ name: audit
 description: Three-mode critique skill — DEFAULT/review (full-chain audit: prompt→intent→plan→execution→outcome, focuses on what was NOT done), --mode=slop (anti-over-engineering DROP/KEEP audit, binary verdicts only), --mode=upgrade (self-referential check: does this newly created rule/skill apply to current session work?). Use review for "audit", "find issues", "what's missing", "what broke", "check everything". Use slop for "slop", "sloppy", "over-engineered", "reduce surface", "minimize edits", "inflated". Use upgrade for "upgrade", "does this apply", "just wrote a rule". Default = review when no --mode given.
 user-invocable: true
 auto-calls: identity, reflect
-tools: Read, Glob, Grep, Bash, WebSearch, Agent, TodoWrite
+tools: Read, Glob, Grep, Bash, WebSearch, Agent, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # /audit — Three-Mode Critique Skill (review · slop · upgrade)
@@ -246,6 +246,17 @@ Output one line per match:
 ### Plan Closure Validation (LR-055 extension)
 
 For any plans in scope, also run `node scripts/validate-plan-closure.mjs --enforce --plan <file> --json` (READ-ONLY, no side effects). Auto-RED on any FAIL. This catches CLOSURE_FORBIDDEN_C1 tokens (NOT-WALKED, PROBABLE-FAIL-*, BLOCKED-BY-FIXME-DESIGN, surface-exists: divergent, YAML evidence placeholders) AND C2-C5 violations on plans that claim Status: DONE.
+
+## Step 2.8: RCA Verdict-Without-Spawn Scan (P1+P4 backstop — MANDATORY)
+
+For sessions where `/rca` was invoked, read `.claude/state/rca-warnings-${session_id}.json`. Each entry = a Stop-event where the agent shipped verdict tokens without spawning subagents.
+
+Per-warning treatment:
+- **1+ warnings present** → **automatic RED verdict**, regardless of other findings. The structural backstop fired because the agent bypassed mama-led orchestration. No "round up" to YELLOW.
+- **0 warnings + `/rca` was invoked** → confirm via grep that Agent tool_use entries exist in the transcript (positive evidence that mama did orchestrate).
+- **0 warnings + `/rca` NOT invoked** → N/A; skip.
+
+Output one line per warning: `RCA verdict-without-spawn: [timestamp] → [N verdict tokens] → [0 Agent calls] → automatic RED`.
 
 ## Step 3: The Missing Audit (MOST IMPORTANT)
 

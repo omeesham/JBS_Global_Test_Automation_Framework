@@ -4,7 +4,7 @@
 // MODES (dispatched by presence of argv[3]):
 //
 //   PreToolUse mode: argv[2]=transcript, argv[3]=tool_input JSON (from hook
-//     stdin). Decide whether the pending Edit/Write/NotebookEdit/MultiEdit
+//     stdin). Decide whether the pending Edit/Write/NotebookEdit
 //     is permitted under the ground-truth identity. Emits JSON with
 //     hookSpecificOutput.permissionDecision.
 //
@@ -35,7 +35,7 @@ import { ownershipFor, canWrite } from "../../../scripts/identity-ownership.mjs"
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit", "MultiEdit"]);
+const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit"]);
 const OVERRIDE_AUTH_RX = /\b(override approved|override ok|approve override|authorized to override|i authorize|you are authorized)\b/i;
 // Line-anchored to avoid matching prose mentions like "the [OVERRIDE-REQUEST]
 // convention" (mid-sentence; must start a line). Tolerates common markdown

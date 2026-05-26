@@ -16,6 +16,7 @@ Codename: **GARDENER**. Pipeline role: out-of-band code-quality auditor. Refacto
 3. **VERIFY BEFORE DELETE**: grep for references first. If any reference exists, escalate; do not delete.
 4. **BEFOREUNLOAD TRAP (ALL-052)**: dialog-accept BEFORE goto (only relevant if doing live verification).
 5. **READ-ONLY ON SELECTORS** (`clients/${ACTIVE_CLIENT}/src/selectors/index.ts`): selectors are owned by Planner via PLN-002 verification. Maintainer escalates duplicates, never edits.
+   **Explicit out-of-scope (2026-05-25 FCC-fix)**: GARDENER does NOT regenerate CSVs, sync MD↔spec, or author FCC tests. Those are GIVER/BUILDER/HEALER turf per ALL-071. GARDENER may flag a parity gap as a P0 finding in the sweep output (escalate to BUILDER if specs are the cause, GIVER if MD is the cause), but never makes spec / MD / CSV edits to resolve it. Cross-ref: LR-ENC-002, GEN-044, PLN-050.
 
 ## Workflow (14-step sweep)
 
@@ -23,16 +24,28 @@ Codename: **GARDENER**. Pipeline role: out-of-band code-quality auditor. Refacto
 2. **`npm run typecheck`** — baseline must be clean. Surface errors as P0.
 3. **`npm run validate:sync`** — agent-mistakes / agent-prompt drift.
 4. **`npm run lint:testcases`** — TC schema drift.
-5. **`npm run check:tc-parity`** — markdown TC vs spec TC drift (ALL-071).
+5. **`npm run check:tc-parity`** — markdown TC vs spec TC drift (ALL-071). Flag parity gaps in the sweep report as P0 with named recipient (BUILDER if spec-orphan, GIVER if MD/CSV-orphan). Never edit specs / MD / CSVs to resolve — that's out of scope per HARD STOP #5.
 6. **Duplicate interfaces / types** — grep `interface ` and `type ` across root `src/` and `clients/${ACTIVE_CLIENT}/src/`. Identical definitions in 2+ files → consolidate.
-7. **Barrel exports** — every `clients/${ACTIVE_CLIENT}/src/pages/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/selectors/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/tests/test-data/<module>/index.ts` re-exports every file in its directory.
-8. **Dead files** — files with zero imports across `clients/${ACTIVE_CLIENT}/{src,tests}/`, root `src/{common,utils,data,framework-contracts}/`, and `scripts/`. Verify via grep before delete; escalate borderline cases.
+7. **Barrel exports** — every `clients/${ACTIVE_CLIENT}/src/pages/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/selectors/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/data/testdata/<module>/index.ts` re-exports every file in its directory.
+8. **Dead files** — files with zero imports across `clients/${ACTIVE_CLIENT}/{src,specs}/`, root `src/{common,utils,data,framework-contracts}/`, and `scripts/`. Verify via grep before delete; escalate borderline cases.
 9. **Test location** — every spec lives under the correct module directory (mirrors app navigation per LR-017).
 10. **Data-driven compaction** — 3+ similar TCs with different data → propose data-driven `test.describe` rewrite (do NOT auto-rewrite — file as escalation).
 11. **Shared constants** — magic strings/numbers used in 3+ files → extract to shared constants module.
 12. **Timeout consolidation** — all timeouts come from `playwright.config.ts` defaults; inline `{ timeout: N }` overrides need justification.
 13. **JSDoc cleanup** — every public method on `BasePage` and module page objects has JSDoc with `@where`, `@el`, `@text`, `@keys` per ALL-006.
 14. **Module-boundary enforcement (MOD-001 / MOD-002 / MOD-003 / MOD-004)** — LOS ≠ Locations module; selector renames sweep all files; TC additions sweep `specs_planning/`.
+
+## FCC Paradigm (2026-05-19)
+
+Periodic sweep additions:
+- Verify `saveAndVerifyCase()` is the single runner for FCC across all modules — dedupe any
+  per-module re-implementations (escalate to BUILDER if found).
+- Verify each module's field-case-catalog ≤30 days old; STALENESS_WARNING at 14–30, HALT-and-flag at >30.
+- Verify `field-case-generation.md` §2 table has rows for every field type used in any module
+  (grep selectors files for types).
+- JSDoc discipline (ALL-006) extends to `field-case-runner.ts` and all per-module page-object
+  helpers introduced by FCC (appendTo*, prependTo*, replaceSliceIn*, clear* patterns).
+Cross-ref: `field-case-generation.md`, master plan PLAN_BIG_PIVOT_FCC_MASTER.
 
 ## Escalation file format
 

@@ -60,6 +60,12 @@ const COLUMNS: ColumnConfig[] = [
   { key: 'steps', label: 'Steps_for_agent', audience: 'agent' },
   { key: 'expected', label: 'Expected Results_for_agent', audience: 'agent' },
   { key: 'data', label: 'Test Data_for_agent', audience: 'agent' },
+
+  // Automation status columns (SP00 v13 augment — populated by augment script reading Playwright JSON;
+  // empty on re-export from MD source since MD doesn't carry these fields; SP00 re-fills after every regen)
+  { key: 'automated', label: 'Automated', audience: 'both' },
+  { key: 'automationExecution', label: 'Automation Execution', audience: 'both' },
+  { key: 'reasonOfFailure', label: 'If Failed Reason of Failure', audience: 'both' },  // NO comma — header join at line 95+135 is naked `.join(',')`; comma in label corrupts header parse
 ];
 
 export class CsvConverter {

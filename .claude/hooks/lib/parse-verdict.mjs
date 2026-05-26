@@ -422,7 +422,7 @@ while (attempt < 5) {
 }
 
 // Guard: /final-q must have been invoked at least once in this transcript
-// (as a heading, skill tool_use, or TodoWrite activeForm mentioning it).
+// (as a heading, skill tool_use, or TodoWrite/TaskList activeForm/subject mentioning it).
 // Otherwise a casual prose mention of a verdict elsewhere must not count.
 if (!/final-q/i.test(text)) {
   process.stdout.write("NONE");
@@ -453,7 +453,7 @@ if (lastAuditIdx >= 0) {
 }
 
 // Fallback: if no audit heading present but /final-q was invoked (skill tool_use or
-// TodoWrite activeForm "Running final-q audit"), take the LAST Verdict mention in the
+// TodoWrite/TaskList activeForm/subject "Running final-q audit"), take the LAST Verdict mention in the
 // full transcript. Covers sessions where the model summarizes the verdict in prose
 // instead of emitting the exact "## /final-q audit" heading.
 if (!verdict) {

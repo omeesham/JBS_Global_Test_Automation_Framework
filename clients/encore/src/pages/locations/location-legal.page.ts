@@ -23,19 +23,26 @@ export class LocationLegalPage extends BasePage {
  * beforeEach can avoid re-navigating when already on the tab.
  */
   async isOnLegalTab(): Promise<boolean> {
-    return (await this.getElement('contentLegal').count()) > 0;
+    // Fix #4a (radix-tab-dom 2026-05-22):
+    // contentLegal is a panel-wrapper testid that Radix keeps mounted across all tab
+    // states (count() > 0 returns TRUE even when Legal is inactive). The tab trigger's
+    // aria-selected is the only reliable signal — mirrors base-page.ts:448.
+    const tab = this.getElement('tabLegal');
+    if ((await tab.count()) === 0) return false;
+    return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
  /** Click Legal tab only (assumes already on location settings page). */
   async clickLegalTab(): Promise<void> {
     await this.clickWithRetry('tabLegal');
     await this.getElement('contentLegal').waitFor({ state: 'visible', timeout: 15_000 });
-    // D-1 (lifecycle refactor 2026-05-21): wait for row-0 service-charge
-    // dropdown (content-level anchor) so we don't return on the wrapper alone while the Legal
-    // table is still hydrating. Log.warn-on-timeout so a silent miss is diagnosable.
+    // D-1 (lifecycle refactor 2026-05-21): wait for row-0 service-charge dropdown
+    // (content-level anchor) so we don't return on the wrapper alone while the Legal
+    // table is still hydrating.
+    // Fix #4c: dropped trailing .catch(Log.warn) so a missed
+    // wait fails loudly at the click step (where the symptom is) instead of being swallowed.
     await this.getElement('drpLegalServiceCharge0')
-      .waitFor({ state: 'visible', timeout: 15_000 })
-      .catch((e: Error) => Log.warn(`[tab-hydration] Legal row-0 dropdown wait lost: ${e?.message}`));
+      .waitFor({ state: 'visible', timeout: 15_000 });
     await this.waitForAngularStable();
   }
 

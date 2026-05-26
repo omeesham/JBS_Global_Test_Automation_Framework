@@ -21,6 +21,10 @@ config/environments/.env.server
 CLAUDE.md
 .auth/
 
+# Playwright debug session artifacts (may contain live session cookies — never ship, never commit)
+.playwright-cli/
+.playwright-mcp/
+
 # OS / IDE
 .DS_Store
 Thumbs.db

@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_PARITY_00_OFFLINE_CSV_SPEC_PARITY_PATCH.md",
+  "plan_basename": "SUBPLAN_PARITY_00_OFFLINE_CSV_SPEC_PARITY_PATCH.md",
+  "plan_sha256": "f1582479701ac636fcc4478645713e67343934f570009a06aee1065fb8312c2a",
+  "passed_at": "2026-05-26T10:17:27.879Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "5bf1a54961e8f4ea7543093c2248dc49ff11281609fd8e984016fd8ed976e9f1",
+  "validator_invocation_id": "1779790647878-0a3410b724ce3f258e82a035a2cf6f3d-f1582479701ac636",
+  "artifacts": [],
+  "provisional": false
+}

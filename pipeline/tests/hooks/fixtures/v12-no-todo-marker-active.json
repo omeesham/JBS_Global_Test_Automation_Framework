@@ -1,6 +1,6 @@
 {
   "session_id": "v12-fixture-session",
-  "transcript_path": "C:/Users/rutvi/projects/encore_framework/tests/hooks/fixtures/transcript-in-execute.jsonl",
+  "transcript_path": "C:/Users/rutvi/projects/encore_framework/pipeline/tests/hooks/fixtures/transcript-in-execute.jsonl",
   "tool_name": "Edit",
   "tool_input": {
     "file_path": "C:/Users/rutvi/projects/encore_framework/some/file.ts",

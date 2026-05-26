@@ -108,12 +108,12 @@ Full body will enumerate:
 
 ### Context (one-paragraph re-state)
 
-HIST_PIVOT (Apr 2026) authored 5 Notes HIST tests (TC-LOC-NTS-028..032) as a per-module pilot via `SUBPLAN_HIST_PIVOT_28_D6_LM_NOTES_TESTS.md`, landing them at `clients/encore/tests/specs/setup/locations/history/location-hist-notes.spec.ts`. That pilot was tagged for consolidation into this plan's Phase 5e — which sat gated behind parent rollout step 8 while the violation lived in the codebase. Live state today: 3 HIST specs (LO-history + LM-history + the pilot). RCA evidence at `clients/encore/specs_planning/_internal/intake/notes-audit-2026-05-14.md` also surfaced a HIST replication race (firefox/webkit flaky on TC-030, race window < 10 ms) — applying an `expect.poll` wrap fixes the race in the same edit as the move.
+HIST_PIVOT (Apr 2026) authored 5 Notes HIST tests (TC-LOC-NTS-028..032) as a per-module pilot via `SUBPLAN_HIST_PIVOT_28_D6_LM_NOTES_TESTS.md`, landing them at `clients/encore/specs/locations/history/location-hist-notes.spec.ts`. That pilot was tagged for consolidation into this plan's Phase 5e — which sat gated behind parent rollout step 8 while the violation lived in the codebase. Live state today: 3 HIST specs (LO-history + LM-history + the pilot). RCA evidence at `clients/encore/specs_planning/_internal/intake/notes-audit-2026-05-14.md` also surfaced a HIST replication race (firefox/webkit flaky on TC-030, race window < 10 ms) — applying an `expect.poll` wrap fixes the race in the same edit as the move.
 
 ### Executable-now scope
 
-1. **Source**: `clients/encore/tests/specs/setup/locations/history/location-hist-notes.spec.ts` (206 lines: 5 tests + 4 helpers + 3-retry beforeEach).
-2. **Target**: `clients/encore/tests/specs/setup/locations/location-management-history.spec.ts` (240 lines, single `test.describe` at lines 31–238).
+1. **Source**: `clients/encore/specs/locations/history/location-hist-notes.spec.ts` (206 lines: 5 tests + 4 helpers + 3-retry beforeEach).
+2. **Target**: `clients/encore/specs/locations/location-management-history.spec.ts` (240 lines, single `test.describe` at lines 31–238).
 3. **Action**: append a 2nd `test.describe('Location Management HIST — Notes col 69 @locations @management-history @notes-hist', …)` block AFTER line 238, containing the 4 helpers + the 3-retry `beforeEach` + the 5 `test()` blocks verbatim. Imports check: `OFFICE_NO` already at target line 12; `test`/`expect` already at line 2; fixtures resolve via the same `setup/fixtures` path.
 4. **Race fix (one-shot, inside the moved `runCol69Assertion` helper)**: replace the original lines 124–145 block (`getRowsSinceTimestamp` call → rich-diff fallback) with:
 
@@ -130,7 +130,7 @@ HIST_PIVOT (Apr 2026) authored 5 Notes HIST tests (TC-LOC-NTS-028..032) as a per
    ```
 
    Justification: trace evidence (intake/notes-audit-2026-05-14.md §3.4) measured chrome-vs-firefox race window at < 10 ms. Polling at 250/500/1000/1500 ms with a 5s ceiling is comfortable margin without slowing happy-path runs.
-5. **Delete**: `git rm clients/encore/tests/specs/setup/locations/history/location-hist-notes.spec.ts` + `git rm -r clients/encore/tests/specs/setup/locations/history/` (empty parent dir).
+5. **Delete**: `git rm clients/encore/specs/locations/history/location-hist-notes.spec.ts` + `git rm -r clients/encore/specs/locations/history/` (empty parent dir).
 
 ### Verification (Phase 5e exit criteria)
 
@@ -138,15 +138,15 @@ HIST_PIVOT (Apr 2026) authored 5 Notes HIST tests (TC-LOC-NTS-028..032) as a per
 2. **Per-TC smoke (chrome)**: TC-LOC-NTS-028 passes in ~30s with `--workers=1 --retries=0`.
 3. **Race-fix proof (firefox)**: TC-LOC-NTS-030 passes first-attempt with `--workers=1 --retries=0`.
 4. **TypeScript**: `npx tsc --noEmit --project clients/encore/tsconfig.json` clean.
-5. **HIST inventory recount** (satisfies the strict line in Acceptance Criteria below): `find clients/encore/tests/specs -path '*history*' -name '*.spec.ts'` → exactly 2 files.
+5. **HIST inventory recount** (satisfies the strict line in Acceptance Criteria below): `find clients/encore/specs -path '*history*' -name '*.spec.ts'` → exactly 2 files.
 6. **Run-all parity (LR-018)**: `npx playwright test --config=clients/encore/playwright.config.ts --grep "@notes-hist|@management-history" --project=chrome` → 23 tests pass (18 existing MGH + 5 moved NTS).
 
 ### Stale-slop cleanup (LR-050 enumeration)
 
 | Stale artifact | Removal verification |
 |---|---|
-| `clients/encore/tests/specs/setup/locations/history/location-hist-notes.spec.ts` | `ls <path>` → "No such file" |
-| `clients/encore/tests/specs/setup/locations/history/` (parent dir) | `ls <path>` → "No such file" |
+| `clients/encore/specs/locations/history/location-hist-notes.spec.ts` | `ls <path>` → "No such file" |
+| `clients/encore/specs/locations/history/` (parent dir) | `ls <path>` → "No such file" |
 | Markdown TC catalogs (if any) at `clients/encore/specs_planning/test-cases/*hist-notes*.md` or `*notes-hist*.md` | `find ... -iname '*hist-notes*' -o -iname '*notes-hist*'` → 0 hits OR migrated into the LM-History catalog |
 | Cross-references to the old spec path in plans / docs / activity-log rows | `grep -r 'locations/history/location-hist-notes' clients/encore/ plans/ docs/ .claude/ --include='*.md' --include='*.ts'` → only allowed: `plans/done/SUBPLAN_HIST_PIVOT_28_D6_LM_NOTES_TESTS.md` (historical record), `clients/encore/specs_planning/_internal/intake/notes-audit-2026-05-14.md` (RCA evidence), and this plan. Any other hits = fix. |
 
@@ -177,7 +177,7 @@ Stub-level (active now):
 Full-body level (deferred to parent step 8 — items recorded here for forward visibility):
 - [ ] Every one of 87 LM-History columns classified per (a) MCP-proven save→read pair / (b) NOT-AUTOMATABLE with reason / (c) BLOCKED-BY-BUG with filed BUG-ID per LR-040.
 - [ ] Per-column scenario depth covers every applicable archetype (parent §6 no-laziness list); non-applicable archetypes recorded with reason.
-- [ ] Single spec file: `clients/encore/tests/specs/setup/locations/location-management-history.spec.ts`. Zero per-source-module HIST spec files (parent §5e + step-2.5 grep-verify line: `find clients/encore/tests/specs -name "*hist-*.spec.ts"` returns zero).
+- [ ] Single spec file: `clients/encore/specs/locations/location-management-history.spec.ts`. Zero per-source-module HIST spec files (parent §5e + step-2.5 grep-verify line: `find clients/encore/specs -name "*hist-*.spec.ts"` returns zero).
 - [ ] CSV regenerated once after Phase 5d. Path cited in Execution Summary.
 - [ ] 3 consecutive fresh runs `npx playwright test --grep "@lm-history" --retries=0` — runnable subset green; `test.fail` cases continue to fail; `test.fixme` stay skipped.
 - [ ] `/regression-guard` snapshot before/after = no silent breakage on touched files.

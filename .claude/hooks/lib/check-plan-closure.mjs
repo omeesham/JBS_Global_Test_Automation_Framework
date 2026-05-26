@@ -3,7 +3,7 @@
 //
 // MODES (dispatched by argv[2]):
 //
-//   --edit-mode   PreToolUse on Edit|Write|NotebookEdit|MultiEdit.
+//   --edit-mode   PreToolUse on Edit|Write|NotebookEdit.
 //                 1. Lock-path check FIRST (B1) — DENY if target is lock path.
 //                 2. Plan-path filter — only plans/{pending,done}/*.md.
 //                 3. Project post-edit body.
@@ -40,7 +40,7 @@ const READ_ONLY_PREFIX_RX = /^\s*(cat\s|type\s|Get-Content\s|git\s+show\s|git\s+
 
 const WRITE_OP_RX = /(>\s|>>\s|\|\s*tee\b|Tee-Object|Set-Content|Add-Content|Out-File|New-Item|Move-Item|Copy-Item|mv\s|cp\s|sed\s+.*-i\b|cat\s+>|cat\s+>>|\[(?:IO|System\.IO)\.File\]::Write|fs\.writeFile|fs\.appendFile|require\(.fs.\)\.write)/i;
 
-const MUTATION_TOOLS = new Set(['Edit', 'Write', 'NotebookEdit', 'MultiEdit']);
+const MUTATION_TOOLS = new Set(['Edit', 'Write', 'NotebookEdit']);
 
 // === Reused from plans-reindex.mjs:55-73 (byte-exact) ===
 function cleanValue(raw) {
@@ -144,23 +144,6 @@ function projectBody(toolName, toolInput, targetPath) {
     const idx = existing.indexOf(oldStr);
     if (idx === -1) return existing;
     return existing.slice(0, idx) + newStr + existing.slice(idx + oldStr.length);
-  }
-
-  if (toolName === 'MultiEdit') {
-    let body = existing;
-    if (Array.isArray(toolInput.edits)) {
-      for (const e of toolInput.edits) {
-        const oldStr = e.old_string || '';
-        const newStr = e.new_string || '';
-        if (e.replace_all) {
-          body = body.split(oldStr).join(newStr);
-        } else {
-          const idx = body.indexOf(oldStr);
-          if (idx !== -1) body = body.slice(0, idx) + newStr + body.slice(idx + oldStr.length);
-        }
-      }
-    }
-    return body;
   }
 
   return existing;

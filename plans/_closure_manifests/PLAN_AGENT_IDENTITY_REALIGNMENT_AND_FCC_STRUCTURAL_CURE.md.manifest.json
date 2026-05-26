@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.md",
+  "plan_basename": "PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.md",
+  "plan_sha256": "9bad9f474fccd383511ff9713692ad28d7d90b900524b1974a19244ff6376b13",
+  "passed_at": "2026-05-25T17:49:54.542Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "68a42be0980f4bc400e6f2ce100fd4e27fbb2718f0fecd3628a6656a46323b8a",
+  "validator_invocation_id": "1779731394541-06a94f59d8aca0f121fd6761db0188ea-9bad9f474fccd383",
+  "artifacts": [],
+  "provisional": false
+}

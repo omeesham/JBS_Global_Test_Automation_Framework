@@ -1,0 +1,28 @@
+[
+  {
+    "timestamp": "2026-05-26T10:15:03.959Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "PASS"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  }
+]

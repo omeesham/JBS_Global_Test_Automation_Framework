@@ -75,8 +75,8 @@ A 325-test suite run produced 4 hard failures. A skeptical adversarial audit by 
 
 **Blast radius** (per Explore agent inventory):
 - 2 textarea callsites currently use `.fill(` directly:
-  - `clients/encore/src/pages/setup/locations/location-notes.page.ts:64` (vulnerable, multiline payload bug already proven)
-  - `clients/encore/src/pages/setup/locations/location-form-helpers.page.ts:137` (generic — may be a textarea)
+  - `clients/encore/src/pages/locations/location-notes.page.ts:64` (vulnerable, multiline payload bug already proven)
+  - `clients/encore/src/pages/locations/location-form-helpers.page.ts:137` (generic — may be a textarea)
 - No framework-wide safe textarea helper exists.
 
 ### Class D (DEFERRED): Auth/session crash on retry
@@ -98,14 +98,14 @@ A 325-test suite run produced 4 hard failures. A skeptical adversarial audit by 
 
 ## What stays as-is (already correct, do NOT revert)
 
-- `clients/encore/src/pages/setup/locations/location-legal.page.ts:50, 59` — these correctly bumped 2 of the 6 timeouts; Fix 2 finishes the file
-- `clients/encore/src/pages/setup/locations/location-notes.page.ts:55-67` — the `\n` branch in `fillNote` works; Fix 3 generalizes it (branch becomes redundant once `fillTextareaSafe` is universal)
-- `clients/encore/tests/infra/auth-storage.ts:65, 80` — `/auth/sign-in` URL check; user said *"leave it"* (cheap, inert today, may catch a related future scenario)
+- `clients/encore/src/pages/locations/location-legal.page.ts:50, 59` — these correctly bumped 2 of the 6 timeouts; Fix 2 finishes the file
+- `clients/encore/src/pages/locations/location-notes.page.ts:55-67` — the `\n` branch in `fillNote` works; Fix 3 generalizes it (branch becomes redundant once `fillTextareaSafe` is universal)
+- `clients/encore/src/infra/auth-storage.ts:65, 80` — `/auth/sign-in` URL check; user said *"leave it"* (cheap, inert today, may catch a related future scenario)
 
 ## What gets reverted
 
-- `clients/encore/tests/specs/setup/locations/location-management-history.spec.ts:108` — restore `'Country' ||` in the `toBeTruthy` guard temporarily, then remove the entire guard once TC-008 is split into per-field self-contained TCs.
-- `clients/encore/tests/test-data/setup/locations/location-management-history.data.ts` — restore `'Country': 'United States'` in `ROW_1_EXPECTED`. Will be redesigned per Fix 1 as a per-field map.
+- `clients/encore/specs/locations/location-management-history.spec.ts:108` — restore `'Country' ||` in the `toBeTruthy` guard temporarily, then remove the entire guard once TC-008 is split into per-field self-contained TCs.
+- `clients/encore/src/data/testdata/locations/location-management-history.data.ts` — restore `'Country': 'United States'` in `ROW_1_EXPECTED`. Will be redesigned per Fix 1 as a per-field map.
 
 ---
 
@@ -142,7 +142,7 @@ Three alternatives were evaluated:
 
 ### Existing reusable infrastructure (do not reinvent)
 
-- **`getRowsSinceTimestamp(sinceMs, headers, maxRows)`** exists at `clients/encore/src/pages/setup/locations/location-management-history.page.ts:216-260`. Currently unused by the MGH spec. Already proven by `location-hist-notes.spec.ts:124` as the canonical pattern. No new code needed for MGH — just adopt it.
+- **`getRowsSinceTimestamp(sinceMs, headers, maxRows)`** exists at `clients/encore/src/pages/locations/location-management-history.page.ts:216-260`. Currently unused by the MGH spec. Already proven by `location-hist-notes.spec.ts:124` as the canonical pattern. No new code needed for MGH — just adopt it.
 - **`sortByModifiedOnDesc()`** — same page object, used by hist-notes spec.
 
 ### Concrete restructure: TC-LOC-MGH-008
@@ -169,7 +169,7 @@ Refactor: assert **relative ordering** across the visible rows. For ascending so
 
 ### CI guard — `scripts/check-history-spec-contract.js`
 
-Scans `clients/encore/tests/specs/**/*history*.spec.ts` AND `**/*hist*.spec.ts`. For each `test(...)` block:
+Scans `clients/encore/specs/**/*history*.spec.ts` AND `**/*hist*.spec.ts`. For each `test(...)` block:
 
 1. **Reject** if body matches `getRowValues\(0`, `getColumnByHeader\(0,`, or `getColumnByIndex\(0,`. Exit code 1 with file:line.
 2. **Reject** if the test contains cell-value assertions (`expect(row[...]).` patterns) AND does NOT call `getRowsSinceTimestamp` or `findRowSince`.
@@ -297,17 +297,17 @@ If/when GitHub Actions CI is wired, add the same `npm run check:anti-patterns` s
 ## Files Modified
 
 **Fix 1 (history)**:
-- `clients/encore/tests/specs/setup/locations/location-management-history.spec.ts` — TC-008 split into 008a/b/c; TC-009/010/011 refactored to relative ordering
-- `clients/encore/tests/test-data/setup/locations/location-management-history.data.ts` — restore Country; redesign `ROW_1_EXPECTED` as per-field map
-- `clients/encore/src/pages/setup/local-office/local-office-settings.page.ts` — add `getHistoryRowsSinceTimestamp` (mirror of MGH version)
-- `clients/encore/tests/specs/setup/local-office/local-office-history.spec.ts` — audit + restructure any TCs that violate the contract
+- `clients/encore/specs/locations/location-management-history.spec.ts` — TC-008 split into 008a/b/c; TC-009/010/011 refactored to relative ordering
+- `clients/encore/src/data/testdata/locations/location-management-history.data.ts` — restore Country; redesign `ROW_1_EXPECTED` as per-field map
+- `clients/encore/src/pages/local-office/local-office-settings.page.ts` — add `getHistoryRowsSinceTimestamp` (mirror of MGH version)
+- `clients/encore/specs/local-office/local-office-history.spec.ts` — audit + restructure any TCs that violate the contract
 
 **Fix 2 (timeouts)**: all 12 page-object files in `clients/encore/src/pages/**` with hardcoded literals (79 replacements total)
 
 **Fix 3 (textarea)**:
 - `clients/encore/src/core/base-page.ts` — add `fillTextareaSafe`
-- `clients/encore/src/pages/setup/locations/location-notes.page.ts` — simplify `fillNote`, alias `pasteIntoNote`
-- `clients/encore/src/pages/setup/locations/location-form-helpers.page.ts` — textarea branch
+- `clients/encore/src/pages/locations/location-notes.page.ts` — simplify `fillNote`, alias `pasteIntoNote`
+- `clients/encore/src/pages/locations/location-form-helpers.page.ts` — textarea branch
 
 **Fix 4 (CI)**:
 - `clients/encore/package.json` — `check:anti-patterns` script + `pretest` hook
@@ -317,10 +317,10 @@ If/when GitHub Actions CI is wired, add the same `npm run check:anti-patterns` s
 
 ## Files NOT Touched (explicit out-of-scope)
 
-- `clients/encore/tests/infra/auth-storage.ts` — keep `/auth/sign-in` URL check (Q3 deferred)
-- `clients/encore/tests/infra/auth.setup.ts` — unchanged
-- `clients/encore/tests/infra/fixtures.ts` — unchanged (no heartbeat fixture)
-- `clients/encore/tests/infra/global-setup.ts` — unchanged
+- `clients/encore/src/infra/auth-storage.ts` — keep `/auth/sign-in` URL check (Q3 deferred)
+- `clients/encore/src/infra/auth.setup.ts` — unchanged
+- `clients/encore/src/infra/fixtures.ts` — unchanged (no heartbeat fixture)
+- `clients/encore/src/infra/global-setup.ts` — unchanged
 - All non-history specs — only touched if they contain a hardcoded timeout migrated under Fix 2; their test logic stays the same
 - TC-LOS-ECT-014 — deferred app-side issue
 

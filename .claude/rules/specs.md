@@ -1,7 +1,7 @@
 ---
 description: Spec authoring + spec-fixing workflow discipline
 paths:
-  - "clients/*/tests/specs/**/*.spec.ts"
+  - "clients/*/specs/**/*.spec.ts"
   - "clients/*/src/pages/**/*.ts"
 ---
 
@@ -121,3 +121,41 @@ do NOT use `getRowCount() === N` after save+reload. Assert per-row content for r
 underlying bug fires.
 **Trigger**: any post-save/reload assertion on Angular form-array tabs with a documented
 placeholder behavior.
+
+## LR-056: Network listener URL filters target the backend save endpoint — never substring-match the page URL
+
+`page.on('request', ...)`, `page.waitForRequest(...)`, and `page.waitForResponse(...)`
+listeners that observe save behavior MUST filter on the actual backend API endpoint, not
+on a substring that overlaps with the page URL.
+
+**Forbidden**: `req.url().includes('/settings/location')` on Encore (or any equivalent
+substring that matches the page path). Modern frameworks (Next.js App Router, RSC) fire
+POSTs to the page URL for server-component renders and hydration cascades — these run
+0-8s after any `page.reload()` and are NOT data saves. A page-URL-substring filter
+captures them as false positives, indistinguishable from real saves.
+
+**Required**: filter on the backend API path (e.g., `req.url().includes('/navigator/api/')`)
+or the exact endpoint (`'/navigator/api/location/update-properties'`). Real saves go
+through the backend API; framework hydration POSTs do not.
+
+**Discovery procedure** (before authoring any network listener):
+1. Inspect a known-passing save test's network log via `playwright-cli network` after a
+   real save, OR
+2. HEADED CLI walk: fill form → click Save → confirm → observe `window.fetch` interception
+   to capture the actual save request URL, OR
+3. Read the existing page-object's save method or its `clickSaveWithDialog` invocation
+   to find the documented endpoint.
+
+**Reason**: graduated from PLAN_FRAMEWORK_LIFECYCLE_NOTES_PILOT_V2 Session 4 closure
+(2026-05-22). FCC-027 used `req.url().includes('/settings/location')` and captured
+Next.js 15 App-Router RSC framework POSTs as save POSTs. Three sessions investigated
+before mama-led /rca (Subagent A timeline + Subagent B HEADED CLI 9-variation walk)
+identified the real save endpoint as `PUT /navigator/api/location/update-properties`.
+A page-URL-overlap filter is undetectable from the test's perspective — it always
+looks correct in isolation, then fails in run-all when prior tests trigger reload
+cascades.
+
+**Trigger**: any spec authoring or modification that attaches `page.on('request', ...)`,
+`page.waitForRequest(...)`, `page.waitForResponse(...)`, or `page.route(...)` for the
+purpose of asserting save behavior. Also fires on `find-bugs` / `bugfix` sessions that
+add request observers to a spec.

@@ -3,7 +3,7 @@ description: Playwright CLI vs Claude in Chrome selection matrix (LR-038 v2)
 paths:
   - "plans/**/*.md"
   - "clients/*/src/pages/**/*.ts"
-  - "clients/*/tests/specs/**/*.spec.ts"
+  - "clients/*/specs/**/*.spec.ts"
   - "clients/**/specs_planning/**/*.md"
 ---
 
@@ -31,6 +31,7 @@ Pick per the task class. There is no "default when uncertain" — if the task do
 | Catalog walkthrough / locator discovery (>10 fields) | **CLI** | CLI wins when the agent uses **grep-over-disk discipline** — keep the saved YAML snapshot on disk, `grep` specific labels (~50 tokens per field query). `Read`ing the whole YAML file erases the advantage |
 | Spec generation Phase 0.5 walkthrough (PF-G5 evidence) | **CLI** | Emit walkthrough.yaml to disk for auditability + canonical-JSON normalization. Generator MUST use grep-over-disk for field-level queries |
 | Batch regression (unattended, >5 pages) | **CLI** | Headless + multi-browser; Chrome extension has no headless |
+| **RCA context (any `/rca` invocation — skill-driven systematic root-cause-analysis)** | **CLI (HEADED, no exception)** | Subagent B in the mama-led `/rca` orchestration (`.claude/skills/rca/SKILL.md`) must walk live with `playwright-cli open --persistent` (or equivalent headed mode). Even chain-spawned overnight RCAs run headed — "at least there's a chance a human catches a glimpse of the bug." Override = LR-043 §A handshake in chat (assistant emits `[OVERRIDE-REQUEST] /rca-headed-cli`, user types `override approved`, one-shot). Distinct from the "Live RCA" row below — that one is for non-skill human-in-loop Chrome use. |
 | Live RCA (user at machine, "what happens when I click") | **Chrome** | **Valid only when the subplan body contains an explicit `pause:` / `await user input` step that fires DURING execution.** Verdict gates at end-of-subplan, YELLOW/RED handoffs between phases, and "user will read the report later" are NOT human-in-loop — those are post-execution review and do not justify Chrome. (Tightened 2026-04-27 after the SUBPLAN_DQU_04_B2_LI_NEUTRAL_EYE_AUDIT over-cautious-Chrome incident.) |
 | Spec execution (`npm test`) | Neither — `@playwright/test` runner | Not a browser-tool choice |
 
@@ -105,7 +106,7 @@ The `--raw` flag on `playwright-cli` (e.g., `playwright-cli --raw -s=<name> eval
 1. Auto-memory `feedback_browser_tool_selection.md` `## playwright-cli ≠ npx playwright` section (active context).
 2. This rule (LR-054, path-scoped on plan/spec/page-object/specs_planning edits).
 3. `clients/encore/specs_planning/_internal/agent-mistakes.md` ALL-077 (prompt-injection advisory).
-4. PreToolUse `.claude/hooks/todo-injection-gate.sh --validate` banned-phrase scan on `tool_input.new_string` / `tool_input.content` for `Edit|Write|NotebookEdit|MultiEdit` writing to walk-evidence / neutral-eye-audits / field-inventories / plans paths.
+4. PreToolUse `.claude/hooks/todo-injection-gate.sh --validate` banned-phrase scan on `tool_input.new_string` / `tool_input.content` for `Edit|Write|NotebookEdit` writing to walk-evidence / neutral-eye-audits / field-inventories / plans paths.
 5. `/audit` skill (Mode review + Mode slop) grep-scan for banned-phrase regex set.
 6. Pre-commit / pre-push `scripts/verify-no-forbidden.mjs` path-scoped `isBannedPhraseTarget()` array.
 7. ⚠ callout above `docs/read_only_docs/CLI_BROWSER_GUIDE.md` Table 2.

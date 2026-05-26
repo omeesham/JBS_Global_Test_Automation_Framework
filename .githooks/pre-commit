@@ -40,12 +40,51 @@ node scripts/verify-no-forbidden.mjs --staged-diff
 # alongside a `*Page` page-object fixture. Playwright DI creates a second about:blank
 # context for the bare `page`, leading to false-greens / false-fails as documented in
 # Phase 0.4 baseline + A-1 fix.
-if matches=$(grep -rnE "test\([^)]*async\s*\(\s*\{[^}]*[a-z][a-zA-Z]*Page[^}]*,\s*page\b" clients/encore/specs/ 2>/dev/null); then
+if matches=$(grep -rnE "test\([^)]*async\s*\(\s*\{[^}]*(([a-z][a-zA-Z]*Page[^}]*,\s*page\b)|(\bpage\s*,[^}]*[a-z][a-zA-Z]*Page\b))" clients/encore/specs/ 2>/dev/null); then
   if [ -n "$matches" ]; then
     echo "[pre-commit] BUG-1 page-fixture collision detected — spec destructures bare 'page' alongside a *Page fixture:" >&2
     echo "$matches" >&2
     echo "Fix: drop 'page' from the destructure; use '<pageObjectFixture>.page' for direct page operations." >&2
-    echo "See: plans/pending/PLAN_FRAMEWORK_LIFECYCLE_NOTES_PILOT_V2.md (A-1)" >&2
+    echo "See: plans/pending/PLAN_FRAMEWORK_DEFENSES_V2.md (Fix #1a — catches both {page, somePage} and {somePage, page} orderings)" >&2
+    exit 1
+  fi
+fi
+
+# --- 5) ALL-071: spec ↔ MD ↔ CSV parity (FCC fuckup prevention, 2026-05-25). ----
+# Fires whenever a clients/*/specs/**/*.spec.ts is staged. Runs full-repo parity
+# (script does not support --module filter; ~10-30s when specs are staged).
+# Graduated from PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/specs/.*\.spec\.ts$'; then
+  echo "[pre-commit] spec file staged → running check:tc-parity (ALL-071)..." >&2
+  if ! npm run --silent check:tc-parity; then
+    echo "[pre-commit] HALT: ALL-071 parity gap. Fix MD/test-plan/CSV before commit." >&2
+    echo "         Inspect: npm run check:tc-parity" >&2
+    echo "         Auto-fix CSVs only: npm run check:tc-parity:fix (still requires MD updates manually)" >&2
+    exit 1
+  fi
+fi
+
+# --- 6) LR-028 + LR-037: activity-log timestamp validation. ----------------------
+# Fires whenever agent-activity-log.md is staged. Guards against backdated rows
+# (timestamp < latest mtime of any referenced file).
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE 'agent-activity-log\.md$'; then
+  echo "[pre-commit] activity-log staged → validating LR-037 timestamps..." >&2
+  if ! node scripts/validate-activity-log.mjs --latest-per-file --recent=5 --quiet; then
+    echo "[pre-commit] HALT: activity-log row backdated relative to referenced file mtimes (LR-037)." >&2
+    echo "         Inspect: npm run validate:activity-log:preflight" >&2
+    exit 1
+  fi
+fi
+
+# --- 7) LR-027 + LR-040: plan-finalization closure check. -----------------------
+# Uses --staged (pre-commit blob mode) so the validator sees the about-to-be-committed
+# content, not the working-tree content. Only fires when a plan file is staged.
+# Defense-in-depth alongside PreToolUse plan-closure-gate.sh (catches git CLI / external editor commits).
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^plans/(pending|done)/.*\.md$'; then
+  echo "[pre-commit] plan file staged → running validate-plan-closure (LR-027 + LR-040)..." >&2
+  if ! node scripts/validate-plan-closure.mjs --staged --enforce; then
+    echo "[pre-commit] HALT: plan Status flip without Execution Summary OR closure-gate (a/b/c) gap." >&2
     exit 1
   fi
 fi

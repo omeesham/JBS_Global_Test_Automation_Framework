@@ -226,5 +226,5 @@ The `/identity` skill accepts a free-form `args` string but the **PreToolUse hoo
 - **Callers**: codename goes first. Optional descriptive context after is fine — the hook ignores it. `/identity OWNER (testid migration)` → identity = OWNER.
 - **Hook maintainers**: never remove the `.split(/\s+/)[0]` step. If you see `[IDENTITY-GATE] <CODENAME plus prose>` in a deny message, this rule has regressed — restore it.
 
-**Trigger**: Every `/identity` invocation; every PreToolUse Edit/Write/NotebookEdit/MultiEdit call. Companion mandate in `.claude/skills/identity/SKILL.md` Step 1.
+**Trigger**: Every `/identity` invocation; every PreToolUse Edit/Write/NotebookEdit call. Companion mandate in `.claude/skills/identity/SKILL.md` Step 1.
 **Graduated from**: 2026-04-29 — testid migration session, first `/identity GIVER — selector authoring + page object updates` invocation made the hook treat the entire prose string as the codename. Single same-day fix in the hook + this rule.

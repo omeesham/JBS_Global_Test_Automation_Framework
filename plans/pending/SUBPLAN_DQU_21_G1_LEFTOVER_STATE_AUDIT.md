@@ -20,7 +20,7 @@
 **Model + thinking**: Opus + high (state analysis needs reasoning)
 **Dependency gate**: SP-DQU-01 `Status: DONE`
 **Context files**:
-- All spec files under `tests/specs/setup/locations/` + `tests/specs/setup/local-office/` (11 specs)
+- All spec files under `specs/locations/` + `specs/local-office/` (11 specs)
 - Existing cleanup patterns in specs (`CLEANUP REQUIRED` notes in MDs, afterEach hooks in specs)
 - LR-026 (Angular dirty state) + LR-018 (spec-fixing workflow)
 **Phase 0 directive**: no browser needed — static analysis of spec code.

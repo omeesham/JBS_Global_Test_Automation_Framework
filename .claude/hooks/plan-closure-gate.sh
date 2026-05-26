@@ -2,7 +2,7 @@
 # plan-closure-gate.sh — PreToolUse hook for plan-closure enforcement.
 #
 # Fires on:
-#   PreToolUse (matcher: "Edit|Write|NotebookEdit|MultiEdit")
+#   PreToolUse (matcher: "Edit|Write|NotebookEdit")
 #     --edit-mode: lock-path check + plan-path closure validation.
 #   PreToolUse (matcher: "Bash|mcp__Claude_in_Chrome__.*")
 #     --bash-mode: lock-path hard-deny on Bash commands mentioning lock paths.

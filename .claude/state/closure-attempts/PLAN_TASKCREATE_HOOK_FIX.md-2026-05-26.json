@@ -1,0 +1,43 @@
+[
+  {
+    "timestamp": "2026-05-26T14:25:58.647Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "PASS"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-26T14:25:58.657Z",
+    "result": "FAIL",
+    "source": "hook"
+  },
+  {
+    "timestamp": "2026-05-26T14:34:32.514Z",
+    "result": "PASS",
+    "source": "hook"
+  },
+  {
+    "invocation_id": "1779806084376-0d55519d3f620ef3e3c3216a2a41d2db-c77fc392cc72eade",
+    "timestamp": "2026-05-26T14:34:44.378Z",
+    "result": "PASS"
+  }
+]

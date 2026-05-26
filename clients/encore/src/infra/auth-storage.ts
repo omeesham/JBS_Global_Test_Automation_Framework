@@ -49,6 +49,41 @@ export function readStateOrNull(): StorageStateFile | null {
   }
 }
 
+/**
+ * Fix #3: cheap cookie-expiry pre-check.
+ *
+ * Returns the EARLIEST positive `expires` epoch (seconds) across all
+ * `next-auth.session-token*` cookies in the stored state, or `null` when:
+ *   (a) state file is missing or unreadable, OR
+ *   (b) no session-token cookies are present, OR
+ *   (c) all session-token cookies are session-cookies (`expires === -1`
+ *       or `undefined`) — treat as "no real expiry, behaves fresh".
+ *
+ * Tri-state semantics mirror auth.setup.ts:121
+ * (`!!sessionToken && (expires === undefined || expires < 0 || expires > now)`).
+ * In all `null` cases the caller's `stateMissing` / downstream behavior already
+ * handles the path — no new branch needed.
+ */
+export function readEarliestSessionExpiry(): number | null {
+  try {
+    const state = readStateOrNull() as
+      | { cookies?: Array<{ name: string; expires?: number }> }
+      | null;
+    if (!state?.cookies) return null;
+    const sessionTokens = state.cookies.filter((c) =>
+      c.name.includes('next-auth.session-token'),
+    );
+    if (sessionTokens.length === 0) return null;
+    const expiries = sessionTokens
+      .map((c) => c.expires)
+      .filter((e): e is number => typeof e === 'number' && e > 0);
+    if (expiries.length === 0) return null;
+    return Math.min(...expiries);
+  } catch {
+    return null;
+  }
+}
+
 export async function writeStateAtomic(context: BrowserContext): Promise<void> {
   ensureAuthDir();
   const tmp = `${STATE_PATH}.tmp`;

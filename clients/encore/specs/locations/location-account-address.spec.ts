@@ -12,7 +12,13 @@ test.describe('Location Account and Address @locations @account-address', () => 
   // DOM-presence beats url.includes — Encore sub-tabs share `settings/location` URL,
   // so the URL match returns true after a sibling spec like Notes even when this tab
   // is not active. Mirrors location-pricing.spec.ts isOnPricingTab() pattern.
+  //
+  // Hook timeout = 60s (default config = 30s). Cold-start nav (SSO handoff + Angular load
+  // + tab activate + phone1 hydrate) can exceed 30s under M365/Encore backend contention
+  // (TC-LOC-ACC-001 root cause). The test body already grants 60s via test.setTimeout;
+  // this matches that budget for the hook.
   test.beforeEach(async ({ locationAccountAddressPage }) => {
+    test.setTimeout(60_000);
     if (!(await locationAccountAddressPage.isOnAccountAndAddressTab())) {
       await locationAccountAddressPage.navigateToAccountAndAddressTab(OFFICE_NO);
     }
@@ -200,7 +206,8 @@ test.describe('Location Account and Address @locations @account-address', () => 
     test.setTimeout(60_000);
     expect(await locationAccountAddressPage.getPhone2Value()).toBe(TEST_PHONE2_VALUE);
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
- // Poll: phone2 may still be empty at the moment phone1 readiness gate fires (mask init race)
+ // Defensive poll: reloadAndNavigate now awaits getLocationDetail hydration (where phone2
+ // binds), so phone2 should be populated by the time we read. Poll retained as safety net.
     await expect.poll(() => locationAccountAddressPage.getPhone2Value(), { timeout: 5_000 }).toBe(TEST_PHONE2_VALUE);
     expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
  // Cleanup: restore Phone 2 to empty baseline

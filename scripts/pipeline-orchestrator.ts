@@ -236,7 +236,7 @@ function buildAgentPrompt(stage: string, itemId: string): string {
     requirements: `PIPELINE CONTEXT:\nProcess requirements for queue item ${itemId}. Follow the Requirements Agent protocol. Update REQUIREMENTS.md and create/update the queue entry.`,
     planning: `PIPELINE CONTEXT:\nCreate test cases and test plan for queue item ${itemId}. Follow the Planner Agent protocol. Run planner:post-complete when done.`,
     generation: `PIPELINE CONTEXT:\nGenerate spec file for queue item ${itemId}. Follow the Generator Agent protocol. Run generator:pre-run first, then generate and test the spec. Run generator:post-complete when done.`,
-    healing: `PIPELINE CONTEXT:\nDebug and fix failing tests for queue item ${itemId}. Follow the Healer Agent protocol. Read failure-summary.json first. Apply 7-step RCA.`,
+    healing: `PIPELINE CONTEXT:\nDebug and fix failing tests for queue item ${itemId}. Follow the Healer Agent protocol. Read failure-summary.json first. Apply /rca skill protocol (mama-led — see .claude/skills/rca/SKILL.md).`,
     audit: `PIPELINE CONTEXT:\nAudit the completed work for queue item ${itemId}. Follow the Audit Agent protocol. Check all agent outputs for compliance.`,
   };
 

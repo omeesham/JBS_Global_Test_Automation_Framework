@@ -3,7 +3,7 @@ name: ultrathink
 description: Quality-gated task wrapper — when user says "ultrathink", creates mandatory quality gates as TodoWrite items BEFORE any work, then wraps sub-skills with adversarial plan audits. Structural enforcement for SUPREME RULE quality requirements.
 user-invocable: true
 auto-calls: identity, planning, execute, audit, reflect
-tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
+tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # /ultrathink — Quality-Gated Task Wrapper

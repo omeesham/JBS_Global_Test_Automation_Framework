@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_SSL_FALSE_GREEN_SWEEP.md",
+  "plan_basename": "SUBPLAN_SSL_FALSE_GREEN_SWEEP.md",
+  "plan_sha256": "f791d4f6f68c48b9f22ca117fe744f84a920c757372ab8bf6ffab43b2c23493e",
+  "passed_at": "2026-05-22T07:58:14.481Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "68a42be0980f4bc400e6f2ce100fd4e27fbb2718f0fecd3628a6656a46323b8a",
+  "validator_invocation_id": "1779436694480-74fb4fee900664aa06d8d2eed027d90d-f791d4f6f68c48b9",
+  "artifacts": [],
+  "provisional": false
+}

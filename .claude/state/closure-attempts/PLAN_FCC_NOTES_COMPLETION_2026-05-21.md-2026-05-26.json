@@ -1,0 +1,59 @@
+[
+  {
+    "timestamp": "2026-05-26T16:50:53.305Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "PASS"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-26T16:51:33.176Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "PASS"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-26T16:51:42.975Z",
+    "result": "PASS",
+    "source": "hook"
+  }
+]

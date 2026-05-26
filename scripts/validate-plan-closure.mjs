@@ -255,6 +255,26 @@ function checkC3(body, planPath) {
     if (!norm.includes('/')) continue;
     if (/^node_modules\/|^dist\/|^build\/|^coverage\//.test(norm)) continue;
     if (/<|>|\{|\}/.test(norm)) continue;
+    // Template-variable directory prefixes — e.g. `REPORTS_DIR/foo.json`, `BUNDLE_DIR/x.csv`.
+    // First segment is ALL_CAPS_WITH_UNDERSCORES and ends in `_DIR` / `_PATH` / `_ROOT`.
+    if (/^[A-Z][A-Z0-9_]*_(?:DIR|PATH|ROOT)\//.test(norm)) continue;
+    // Placeholder filenames — `foo.csv`, `bar.md`, `baz.json`, `example.yml`, `placeholder.txt`.
+    // Final segment is exactly one of these stub names. Treated as documentation, not a concrete claim.
+    if (/(?:^|\/)(?:foo|bar|baz|qux|example|placeholder|sample)\.[a-z]+$/i.test(norm)) continue;
+    // External user/scratch paths — `Users/<name>/.claude/...`, `~/.claude/...`, `home/<name>/.claude/...`.
+    // These reference machine-local artifacts that legitimately don't live in the repo.
+    if (/^(?:Users|home)\/[^/]+\/\.claude\//i.test(norm)) continue;
+    if (/^~\//.test(rawP) || /^~\//.test(norm)) continue;
+    // `.claude/plans/...` is a user-home subdir (Claude scratch plans). The repo's `.claude/`
+    // has skills/agents/hooks/rules/context/settings/state but never `plans/`.
+    // Path-regex strips the `~/` prefix, so we catch the bare `.claude/plans/` form here.
+    if (/^\.claude\/plans\//.test(norm)) continue;
+    // ALL-087: closure-time self-reference. A plan being validated may cite its OWN eventual
+    // `done/` location and its OWN manifest path (both don't exist yet during pre-flip validation).
+    // Skip these — they're forward-references that resolve at commit time.
+    if (norm === `plans/done/${planBasename}`) continue;
+    if (norm === `plans/pending/${planBasename}`) continue;
+    if (norm === `plans/_closure_manifests/${planBasename}.manifest.json`) continue;
 
     let resolved = norm;
     if (/^[A-Z]:[\/]/.test(rawP) || rawP.startsWith('/')) {

@@ -42,7 +42,7 @@ npm install && npx playwright install
 ## Step 6 — Verify
 
 ```bash
-npm test -- --project=chrome tests/seed.spec.ts
+cd clients/encore && npm run test:grep -- "TC-LOC-CUR-001" --project=encore-locations
 ```
 
 Passes = Navigator Cloud credentials are working.

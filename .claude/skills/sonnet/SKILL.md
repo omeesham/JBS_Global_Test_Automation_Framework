@@ -3,7 +3,7 @@ name: sonnet
 description: Model-aware guardrails for Sonnet — converts Opus intuition into explicit checklists, forces structured breadcrumb trail for auditor traceability. Activates when user says "/sonnet" or "sonnet mode".
 user-invocable: true
 auto-calls: none
-tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
+tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # /sonnet — Model-Aware Guardrails + Breadcrumb Protocol

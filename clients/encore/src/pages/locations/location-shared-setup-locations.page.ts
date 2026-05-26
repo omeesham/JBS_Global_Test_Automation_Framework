@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { BasePage } from '../../core/base-page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
@@ -24,7 +24,11 @@ export class LocationSharedSetupLocationsPage extends BasePage {
  * beforeEach can avoid re-navigating when already on the tab.
  */
   async isOnSharedSetupTab(): Promise<boolean> {
-    return (await this.getElement('tblSharedSetupLocations').count()) > 0;
+    // Fix #4a: use tab trigger aria-selected, not
+    // child-anchor count(). Mirrors base-page.ts:448.
+    const tab = this.getElement('tabSharedSetupLocations');
+    if ((await tab.count()) === 0) return false;
+    return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
  /** Reload page with beforeunload handler and return to SSL tab. */
@@ -202,6 +206,18 @@ export class LocationSharedSetupLocationsPage extends BasePage {
  /** Click the left-panel Save and confirm the Save Changes dialog. Delegates to BasePage.clickSaveWithDialog. */
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSave');
+  }
+
+ /**
+ * FCC paradigm save callback. Mirrors location-notes.page.ts:269 — delegate to BasePage.clickSaveWithDialog,
+ * throw on failure so saveAndVerifyCase()'s try/catch surfaces it. Use this from FCC test cases.
+ */
+  async saveAndConfirm(): Promise<void> {
+    const result = await this.clickSaveWithDialog('btnSave');
+    if (!result.success) {
+      Log.error(`[ERR] SSL save failed: ${result.networkError}`);
+      throw new Error(`SSL save failed: ${result.networkError}`);
+    }
   }
 
  /**
@@ -392,7 +408,13 @@ export class LocationSharedSetupLocationsPage extends BasePage {
 
  /** Click a top-level tab by selector key (e.g. 'tabBasicInformation', 'tabLocationManagementHistory'). */
   async clickTopLevelTab(tabKey: 'tabBasicInformation' | 'tabLocationManagementHistory'): Promise<void> {
-    await this.getElement(tabKey).click();
+    const tab = this.getElement(tabKey);
+    await tab.click();
+    // Fix #4b: wait for Radix to transition aria-selected
+    // BEFORE returning. Pre-fix, clickTopLevelTab returned immediately after click() —
+    // callers raced against the panel-switch animation + content hydration.
+    await expect(tab).toHaveAttribute('aria-selected', 'true', { timeout: 10_000 });
+    await this.waitForAngularStable();
     Log.info(`Clicked top-level tab: ${tabKey}`);
   }
 

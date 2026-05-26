@@ -3,7 +3,7 @@ name: relevant
 description: Pre-task skill scanner — reads task, maps subtasks to available skills, injects skill tags into TodoWrite items. Use at session start or before complex multi-step work. Say "/relevant" or "check skills".
 user-invocable: true
 auto-calls: none
-tools: Read, Glob, Grep, TodoWrite
+tools: Read, Glob, Grep, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # /relevant — Pre-Task Skill Injection

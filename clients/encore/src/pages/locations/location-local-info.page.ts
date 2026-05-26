@@ -41,7 +41,11 @@ export class LocationLocalInfoPage extends LocationTestOrchestrators {
  * NOT btnSaveLocalInfo (shared across all Location Settings sub-tabs).
  */
   async isOnLocalInfoTab(): Promise<boolean> {
-    return (await this.getElement('chkApplyLDW').count()) > 0;
+    // Fix #4a: use tab trigger aria-selected, not
+    // child-anchor count(). Mirrors base-page.ts:448.
+    const tab = this.getElement('tabLocalInformation');
+    if ((await tab.count()) === 0) return false;
+    return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
  /**

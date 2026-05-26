@@ -32,10 +32,10 @@ Per D9: scope of /simplify + /cleanup sweeps is Encore deliverables + Encore-spe
 ## Step-by-step
 
 1. Build whitelist:
-   - `tests/specs/**/*.spec.ts` (spec files)
+   - `specs/**/*.spec.ts` (spec files)
    - `src/pages/**/*.ts` (page objects)
    - `src/selectors/**/*.ts` (selectors)
-   - `tests/test-data/**/*.ts` (test data)
+   - `src/data/testdata/**/*.ts` (test data)
    - `clients/encore/specs_planning/test-cases/**/*.md` (test case MDs)
    - `clients/encore/test_cases_csv/**/*.csv` (CSV exports — but read-only, no code simplification needed)
    - `export_test_cases/**/*.ts` (export script — converter)

@@ -1,0 +1,95 @@
+[
+  {
+    "timestamp": "2026-05-21T18:14:45.174Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "FAIL"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-21T18:14:45.193Z",
+    "result": "FAIL",
+    "source": "hook"
+  },
+  {
+    "timestamp": "2026-05-21T18:15:37.797Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "FAIL"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-21T18:16:25.223Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "PASS"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-21T18:17:21.584Z",
+    "result": "PASS",
+    "source": "hook"
+  },
+  {
+    "invocation_id": "1779387443263-60b50e63196fe98b2d2b1a5e540e5b62-aa4529cd72b24bcb",
+    "timestamp": "2026-05-21T18:17:23.266Z",
+    "result": "PASS"
+  }
+]

@@ -2,7 +2,7 @@
 # identity-switch-gate.sh — dual-mode hook for identity enforcement.
 #
 # Fires on:
-#   PreToolUse (matcher: "Edit|Write|NotebookEdit|MultiEdit")
+#   PreToolUse (matcher: "Edit|Write|NotebookEdit")
 #     — denies writes where the target path is outside the ground-truth
 #       identity's §2 ownership, unless a valid override is in transcript.
 #   Stop

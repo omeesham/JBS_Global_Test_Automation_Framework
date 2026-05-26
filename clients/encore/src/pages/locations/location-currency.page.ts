@@ -31,7 +31,11 @@ export class LocationCurrencyPage extends BasePage {
  * beforeEach can avoid re-navigating when already on the tab.
  */
   async isOnCurrencyTab(): Promise<boolean> {
-    return (await this.getElement('tblCurrencyGrid').count()) > 0;
+    // Fix #4a: use tab trigger aria-selected, not
+    // child-anchor count(). Mirrors base-page.ts:448.
+    const tab = this.getElement('tabCurrency');
+    if ((await tab.count()) === 0) return false;
+    return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
  /** Reload page and return to Currency tab. Handles potential beforeunload dialog. */

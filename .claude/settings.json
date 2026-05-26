@@ -17,6 +17,8 @@
       "Bash(node .claude/hooks/lib/test-browsertool-fixtures.mjs)",
       "Bash(bash .claude/hooks/todo-injection-gate.sh *)",
       "Bash(node .claude/hooks/lib/check-todo-injection.mjs *)",
+      "Bash(bash .claude/hooks/rca-verdict-gate.sh *)",
+      "Bash(node .claude/hooks/lib/check-rca-verdict.mjs *)",
       "Bash(bash .claude/hooks/relevant-injection.sh *)",
       "Bash(node .claude/hooks/lib/relevant-injection.mjs *)",
       "Bash(node scripts/run-relevant-scan.mjs *)",
@@ -37,7 +39,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write|NotebookEdit|MultiEdit",
+        "matcher": "Edit|Write|NotebookEdit",
         "hooks": [
           {
             "type": "command",
@@ -69,7 +71,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "TodoWrite",
+        "matcher": "TodoWrite|TaskList",
         "hooks": [
           {
             "type": "command",
@@ -85,6 +87,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/chain-orchestrator.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rca-verdict-gate.sh --validate"
           }
         ]
       }

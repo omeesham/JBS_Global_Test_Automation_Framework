@@ -422,9 +422,9 @@ EXECUTE PHASE (separate session if needed):
 | PriceGuide/Multiday | `docs/read_only_docs/Requirements_Document PriceGuideInclusion and EnableMultiDayPricing/` |
 | V2 Gaps Plan (protected) | `plans/done/PLAN_V2_REQUIREMENTS_GAPS.md` |
 | Coverage Audit Plan (protected) | `plans/done/PLAN_ALL_PAGES_TEST_COVERAGE_AUDIT_AND_FIX.md` |
-| Location specs | `tests/specs/setup/locations/*.spec.ts` |
-| Local-office specs | `tests/specs/setup/local-office/*.spec.ts` |
-| Page objects | `src/pages/setup/locations/`, `src/pages/setup/local-office/` |
-| Selectors | `src/selectors/setup/locations/`, `src/selectors/setup/local-office/` |
-| Test data | `tests/test-data/setup/locations/`, `tests/test-data/setup/local-office/` |
+| Location specs | `specs/locations/*.spec.ts` |
+| Local-office specs | `specs/local-office/*.spec.ts` |
+| Page objects | `src/pages/locations/`, `src/pages/local-office/` |
+| Selectors | `src/selectors/locations/`, `src/selectors/local-office/` |
+| Test data | `src/data/testdata/locations/`, `src/data/testdata/local-office/` |
 | REQUIREMENTS.md | `docs/REQUIREMENTS.md` |

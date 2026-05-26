@@ -3,7 +3,7 @@ name: final-q
 description: Final-question audit before any "done" claim. Reconstruct the original todo list, tag every item with a one-word status (done/partial/skipped/deferred/failed/ignored), flag gaps honestly, and gate on context-budget thresholds (400k soft / 500k hard). Use before ending a session, when wrapping up, or when the user says "final-q", "are you really done", "audit todos".
 user-invocable: true
 auto-calls: none
-tools: TodoWrite, Read, Bash
+tools: TodoWrite, TaskCreate, TaskUpdate, TaskList, Read, Bash
 ---
 
 # /final-q — Final Question: Are You Really Done?

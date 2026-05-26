@@ -23,6 +23,7 @@ import {
   STATE_PATH,
   acquireLock,
   performSsoLogin,
+  readEarliestSessionExpiry,
   validateState,
   writeStateAtomic,
 } from './auth-storage';
@@ -255,7 +256,17 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
       Log.info('[fixture] EXP_FORCE_STALE_FIRST=1 -- forcing stale path for mid-run sim');
     }
     const stateMissing = !fs.existsSync(STATE_PATH);
-    if (forceStaleFirst || stateMissing) {
+    // Fix #3: cheap cookie-expiry pre-check.
+    // Refreshes shared state when the earliest `next-auth.session-token*`
+    // expiry is past (with 60s grace). Catches "cookies expired per their own
+    // expires field" before the 60s Dashboard timeout fires. Tri-state per
+    // auth.setup.ts:121 — `null` from readEarliestSessionExpiry() means missing
+    // or all-session-cookies, both already handled by `stateMissing` + existing
+    // fail-eventual safety net at validateState's Dashboard wait.
+    const earliestExpiry = stateMissing ? null : readEarliestSessionExpiry();
+    const stateExpired =
+      earliestExpiry !== null && earliestExpiry * 1000 < Date.now() + 60_000;
+    if (forceStaleFirst || stateMissing || stateExpired) {
       await refreshSharedState();
     }
 
@@ -277,6 +288,39 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
 
     await context.close();
   }, { scope: 'worker', timeout: 300_000 }],
+
+ /**
+ * Fix #2: runtime guard for BUG-1 page-fixture collision.
+ *
+ * Background: when a spec destructures `{ page, locationXxxPage }`, Playwright resolves
+ * BOTH fixtures. The page-object fixtures use `authenticatedSession.page` (the legitimate
+ * authenticated context), but the default `page` fixture is a separate fixture that calls
+ * `browser.newContext({ storageState })` — producing a second about:blank context that
+ * diagnostics cannot see. This override intercepts the destructure point itself and throws
+ * loudly so the bug is unmissable at the test boundary.
+ *
+ * Why throw (Option A) rather than redirect to `authenticatedSession.page` (Option B):
+ * redirecting changes test semantics silently AND loses Playwright's built-in trace/video/
+ * screenshot capture (those bind to the page returned by THIS `page` fixture). Throwing
+ * fails loudly with a [diag:BUG-1] pointer.
+ *
+ * Layered with .githooks/pre-commit grep guard (Fix #1a) + CI lint step (Fix #1b). If a
+ * spec escapes both static checks (e.g. `--no-verify` push, fresh clone without hooks),
+ * this runtime override is the final net.
+ *
+ * P0-7 gate: pre-land, the `_p0-7-smoke.spec.ts` no-op spec confirmed trace+video still
+ * attach via `authenticatedSession.context` for tests that route through page-object
+ * fixtures (never destructure bare {page}). No regression to debugging artifacts.
+ */
+  page: async ({}, _use, testInfo) => {
+    const msg =
+      `[diag:BUG-1] test "${testInfo.titlePath.join(' > ')}" requested bare {page} from ` +
+      `fixture destructure. This causes Playwright to create a separate about:blank context ` +
+      `(diagnostics blind to it). Fix: drop 'page' from the destructure; use a *Page fixture ` +
+      `(e.g. {locationNotesPage}) or authenticatedSession.page for direct page operations.`;
+    Log.error(msg);
+    throw new Error(msg);
+  },
 
  /**
  * LocationCurrencyPage fixture

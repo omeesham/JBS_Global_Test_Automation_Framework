@@ -39,7 +39,7 @@ Months of vibe coding accumulated orphaned files, dead exports, and unused compo
 | 10 | `src/core/base-page.ts` | Remove `getSelectorFromTs()` method only | **Zero callers** across entire codebase. Note: NOT a duplicate of `getLocator()` (different error contracts — getLocator throws, getSelectorFromTs returns null), but it has zero consumers so safe to remove regardless |
 | 11 | `src/utils/agent-notification-writer.ts` | Remove 4 dead functions: `writeNotification`, `readPendingNotifications`, `ackNotification`, `ackAllNotifications`. **KEEP `notifyStaleArtifacts`** | Only `notifyStaleArtifacts()` is alive via `healer-post-complete.ts` |
 | 12 | `tests/unit/agent-notification-writer.test.ts` | Remove test `describe` blocks for the 4 deleted functions (lines 30-118). **KEEP the `notifyStaleArtifacts` describe block (lines 120-135)** and file-level setup (lines 1-28) | Tests for dead functions = dead tests. The notifyStaleArtifacts tests must stay — they cover a live production function |
-| 13 | `src/selectors/setup/locations/account-address.ts` | Remove `btnAccMasterAddress: 'SCOPED_IN_PAGE_OBJECT'` (line 41) | Literal placeholder string; page object constructs selector inline. Zero consumers of this key |
+| 13 | `src/selectors/locations/account-address.ts` | Remove `btnAccMasterAddress: 'SCOPED_IN_PAGE_OBJECT'` (line 41) | Literal placeholder string; page object constructs selector inline. Zero consumers of this key |
 
 ---
 
@@ -94,7 +94,7 @@ Update consumers:
 
 Move `CheckboxState` + `SpinState` interfaces to `src/framework-contracts/index.ts`. Update imports in:
 - `src/core/base-page.ts` line 15 — change import source
-- `src/pages/setup/locations/location-form-helpers.page.ts` — remove definitions, add re-export for backward compat
+- `src/pages/locations/location-form-helpers.page.ts` — remove definitions, add re-export for backward compat
 - 5 other page objects that import CheckboxState
 
 ### B5 — Extract `safeLoadJson` utility (22 files, 53 calls use raw JSON.parse)
@@ -109,7 +109,7 @@ Create `scripts/utils/safe-load-json.ts` with `safeLoadJson<T>()` + `loadQueueIt
 
 | # | File | What | Evidence |
 |---|------|------|----------|
-| C1 | `src/selectors/dynamic.ts` lines 41-43 | Remove deprecated Shadow DOM / Auto Add-On comment block (3 lines before closing `} as const;`) | File itself says "DEPRECATED — kept only for reference". The actual auto-addon selectors live in `src/selectors/setup/locations/auto-addon.ts` |
+| C1 | `src/selectors/dynamic.ts` lines 41-43 | Remove deprecated Shadow DOM / Auto Add-On comment block (3 lines before closing `} as const;`) | File itself says "DEPRECATED — kept only for reference". The actual auto-addon selectors live in `src/selectors/locations/auto-addon.ts` |
 | C2 | `src/pages/components/` | Delete empty directory | Orphaned from restructuring |
 | C3 | `src/selectors/shared/` | Delete empty directory | Orphaned from restructuring |
 

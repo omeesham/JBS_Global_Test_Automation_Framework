@@ -3,7 +3,7 @@ name: execute
 description: Execute an approved plan with pre-research, gap analysis, and post-execution audit — never implement blindly. Use when user says "execute", "implement", "build this", "do it".
 user-invocable: true
 auto-calls: identity, relevant, regression-guard, reflect, final-q
-tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite
+tools: Read, Glob, Grep, Write, Edit, Bash, Agent, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # /execute — Disciplined Plan Execution
@@ -28,9 +28,9 @@ Runs `/identity` Step 1.5 with caller=`/execute`. No-op if compatible identity a
 
 ## Phase 0.0: TodoWrite Tagging Contract is now in force (SP02B — option D)
 
-The hook pair `.claude/hooks/todo-injection-gate.sh` (PostToolUse on `TodoWrite` + PreToolUse on `Edit|Write|NotebookEdit|MultiEdit`) is registered in `.claude/settings.json`. It detects "are we in `/execute`?" by parsing the transcript for a `Skill` tool_use of `execute` with no subsequent `Skill` of `final-q` (option D — no marker file written by the agent; the transcript IS the marker, per the `CLAUDE_SESSION_ID`-not-in-env discovery 2026-04-27 and the `identity-switch-gate.sh` precedent for transcript-driven detection).
+The hook pair `.claude/hooks/todo-injection-gate.sh` (PostToolUse on `TodoWrite|TaskList` + PreToolUse on `Edit|Write|NotebookEdit`) is registered in `.claude/settings.json`. It detects "are we in `/execute`?" by parsing the transcript for a `Skill` tool_use of `execute` with no subsequent `Skill` of `final-q` (option D — no marker file written by the agent; the transcript IS the marker, per the `CLAUDE_SESSION_ID`-not-in-env discovery 2026-04-27 and the `identity-switch-gate.sh` precedent for transcript-driven detection).
 
-While inside `/execute`, every Edit/Write/NotebookEdit/MultiEdit is gated:
+While inside `/execute`, every Edit/Write/NotebookEdit is gated:
 - TodoWrite must have been called at least once (PostToolUse captures state to `.claude/state/todo-state-${session_id}.json`).
 - Every todo entry must carry at least one tag from the 4-type taxonomy (see `.claude/rules/pipeline.md` § "TodoWrite Tagging Contract"):
   - `[/skill:direct|wrap|inform|verify]` — skill match per `/relevant` Step 3
@@ -82,6 +82,24 @@ Before reading the plan, before building todos, before writing a single line —
 ## Phase 0.5: Build Execution Todo List (TodoWrite)
 
 Before any research or code, create a TodoWrite todo list for THIS plan's internal steps. This makes execution trackable and embeds skill references for each sub-task. **Not optional. Every /execute call starts with this.**
+
+### Post-rename harness: `TaskCreate × N` then `TaskList` once (capture trigger)
+
+Anthropic renamed `TodoWrite` → the `TaskCreate` / `TaskUpdate` / `TaskList` triplet. The PostToolUse capture hook matcher is `TodoWrite|TaskList`:
+
+- **`TaskCreate`** carries a single just-created task per call — useless as a capture trigger (it would overwrite state with a 1-item snapshot every call). Calling `TaskCreate` does **not** fire the SP02B capture.
+- **`TaskList`** returns the FULL task list in `tool_response`. The hook reads `tool_response` (an array of `{id, subject, status, owner, blockedBy}`) and writes the SP02B state file.
+
+**Mandatory sequence**:
+
+1. Build the task list with `TaskCreate × N` (one call per task; the tag — `[/skill:matchtype]`, `LR-NNN(reason)`, `[manual](reason)`, or `[ceremony]` — MUST be in the `subject` field because `TaskList`'s response has no `activeForm`).
+2. Immediately after the last `TaskCreate`, call `TaskList` **once with no arguments**. This is the capture trigger.
+3. The PostToolUse hook reads `tool_response`, scans every `subject` for tags, and writes `.claude/state/todo-state-${session_id}.json` with `{count, tagged_count, untagged_indices, tags_per_item}`.
+4. The next Edit/Write/NotebookEdit's PreToolUse validator reads that state file. Without the `TaskList` trigger, the file does not exist and the Edit is denied with "Build TodoWrite first per /execute Phase 0.5".
+
+**Legacy `TodoWrite` callers**: still supported. The PostToolUse hook dispatches on `tool_name` and reads `tool_input.todos[]` for TodoWrite (probe = `content + " " + activeForm`). Skip the extra `TaskList` call — TodoWrite's payload already carries the full list.
+
+**Failure mode** (ALL-084 pre-supersede pattern): if `TaskList` is never called and TodoWrite is unavailable, the state file never exists → every Edit is denied. Bash bridge (`cat > .claude/state/todo-state-${session_id}.json << 'EOF' { ... } EOF`) remains as emergency override path, but it is no longer the routine workflow.
 
 ### Auto-call `/relevant` (skill + LR + agent-mistakes + patterns injection)
 

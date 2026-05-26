@@ -14,14 +14,14 @@ Audit the test infrastructure — specs, setup, test-data, fixtures — for cons
 
 ## Scope
 
-### tests/specs/
-- `tests/specs/setup/locations/*.spec.ts` — location module specs
-- `tests/specs/setup/local-office/*.spec.ts` — local office specs
+### specs/
+- `specs/locations/*.spec.ts` — location module specs
+- `specs/local-office/*.spec.ts` — local office specs
 - **Check**: are all spec files properly organized by module?
 - **Check**: any orphaned spec files not referenced by playwright.config?
 - **Check**: consistent patterns across specs (imports, fixture usage, timeout handling)
 
-### tests/infra/
+### src/infra/
 - `fixtures.ts` — the main fixture file with authenticatedSession
 - `global-setup.ts`, `global-teardown.ts` — lifecycle hooks
 - `custom-matchers.ts` — custom Playwright matchers
@@ -29,7 +29,7 @@ Audit the test infrastructure — specs, setup, test-data, fixtures — for cons
 - **Check**: dead fixtures that no spec imports?
 - **Check**: global setup/teardown — is everything there still needed?
 
-### tests/test-data/
+### src/data/testdata/
 - Per-module `.data.ts` files with test constants
 - **Check**: unused test data constants (defined but never referenced in any spec)
 - **Check**: hardcoded values that should be dynamic or configurable

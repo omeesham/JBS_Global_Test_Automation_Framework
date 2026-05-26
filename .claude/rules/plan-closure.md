@@ -22,7 +22,7 @@ C2/C3/C4/C5 NOT OVERRIDABLE — remediate.
 Supreme principle: An override cannot convert missing evidence
 into evidence (feedback_override_cannot_convert_missing_to_evidence.md).
 
-Trigger: every Edit/Write/NotebookEdit/MultiEdit/Bash whose
+Trigger: every Edit/Write/NotebookEdit/Bash whose
 projected post-state writes to a plan file OR to override/schema/
 authors files. Enforced by .claude/hooks/plan-closure-gate.sh
 (Edit + Bash matchers) + scripts/verify-no-forbidden.mjs

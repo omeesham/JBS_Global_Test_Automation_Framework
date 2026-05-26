@@ -37,3 +37,33 @@ export const ADD_LOCATION = {
 
 /** Dialog heading when clicking Add. */
 export const SSL_DIALOG_HEADING = 'Change Local Office';
+
+// ─── FCC Granular Cases — test data (2026-05-22) ────────────────────────────────────
+// 14 net-new tests catalogued in locations_shared_setup_locations_test_cases.md §FCC.
+
+/** α — Search BVA group inputs */
+export const SEARCH_BVA_1_CHAR = 'A';
+export const SEARCH_BVA_LONG_200 = 'X'.repeat(200);
+export const SEARCH_BVA_EMPTY = '';
+
+/** β — Search special / whitespace group inputs */
+export const SEARCH_NEG_SPECIAL = `&"'<>`;
+export const SEARCH_NEG_WHITESPACE = '   ';
+export const SEARCH_NEG_LEADING_TRAILING_ATLANTA = '  Atlanta  ';
+
+/** γ — Search edit-cycle group inputs (paired with α-003 clear behavior) */
+export const SEARCH_EDIT_QUERY_1 = 'Atlanta';
+export const SEARCH_EDIT_QUERY_2 = 'Boston';
+
+/** δ — Multi-row delete variants (non-Miami per BUG-LOC-SHR-001 workaround) */
+export const FCC_DELETE_MIDDLE_QUERIES = ['Chicago', 'Dallas', 'Denver'] as const;
+export const FCC_DELETE_ALL_QUERIES = ['Atlanta', 'Boston'] as const;
+
+/** ε — Multi-row N-boundary push (5-row) */
+export const FCC_FIVE_ROW_QUERIES = ['Chicago', 'Boston', 'Dallas', 'Denver', 'Atlanta'] as const;
+
+/** ε / ζ — Single non-Miami query for cross-row independence tests */
+export const FCC_CROSS_ROW_QUERY = 'Atlanta';
+
+/** α/β/γ search row-count lower bound — `searchByNameMaxResults` (600) is upper bound; this is lower */
+export const FCC_SEARCH_BULK_LOWER_BOUND = 3000;

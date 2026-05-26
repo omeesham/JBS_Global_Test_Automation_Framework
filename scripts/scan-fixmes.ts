@@ -60,7 +60,7 @@ function findSpecFiles(dir: string): string[] {
   return results;
 }
 
-/** Detect module prefix from spec file path (e.g. tests/specs/locations/ -> LOC) */
+/** Detect module prefix from spec file path (e.g. specs/locations/ -> LOC) */
 const MODULE_PREFIX_MAP: Record<string, string> = {
   locations: 'LOC', setup: 'SET', users: 'USR', clients: 'CLT',
   dashboard: 'DSH', reports: 'RPT', billing: 'BIL', admin: 'ADM',

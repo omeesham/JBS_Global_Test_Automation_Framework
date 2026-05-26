@@ -197,7 +197,9 @@ Cross-refs: pairs with `feedback_restructure_plans_include_cleanup.md`; LR-027, 
 
 ## TodoWrite Tagging Contract (SP02B — structural enforcement via hook pair)
 
-Every TodoWrite entry created during a `/execute` invocation MUST carry at least one tag from the closed taxonomy below. The tag travels with the entry — context is on the task, not in a separate mental model. Enforced structurally by `.claude/hooks/todo-injection-gate.sh` + `.claude/hooks/lib/check-todo-injection.mjs` (PostToolUse on `TodoWrite` captures state, PreToolUse on `Edit|Write|NotebookEdit|MultiEdit` denies when state shows untagged or zero todos and the session is currently inside `/execute`).
+> **Post-rename harness (2026-05-25)**: applies to `TaskCreate` / `TaskUpdate` / `TaskList` too — capture fires on `TaskList` PostToolUse (its `tool_response` carries the full task list; `TaskCreate` carries a single just-created task and is not a capture trigger). Rule name stays "TodoWrite" as the institutional identifier; "SP02B" remains the rule ID. Legacy `TodoWrite` callers continue to work — the hook dispatches on `tool_name`.
+
+Every TodoWrite entry created during a `/execute` invocation MUST carry at least one tag from the closed taxonomy below. The tag travels with the entry — context is on the task, not in a separate mental model. Enforced structurally by `.claude/hooks/todo-injection-gate.sh` + `.claude/hooks/lib/check-todo-injection.mjs` (PostToolUse on `TodoWrite|TaskList` captures state, PreToolUse on `Edit|Write|NotebookEdit` denies when state shows untagged or zero todos and the session is currently inside `/execute`).
 
 ### Tag taxonomy (4 types — closed list)
 
@@ -224,8 +226,8 @@ These are the structural closure obligations. `/execute` Phase 0.5 enumerates ea
 
 ### Hook enforcement behavior
 
-- **PostToolUse on `TodoWrite`** — `.claude/hooks/todo-injection-gate.sh --capture` parses `tool_input.todos`; for each entry runs the tag regex against `content + " " + activeForm`; persists `{count, tagged_count, untagged_indices, tags_per_item}` to `.claude/state/todo-state-${session_id}.json` (atomic write via tmp+rename). Always exits 0; observational only.
-- **PreToolUse on `Edit|Write|NotebookEdit|MultiEdit`** — `.claude/hooks/todo-injection-gate.sh --validate`:
+- **PostToolUse on `TodoWrite|TaskList`** (post-rename harness) — `.claude/hooks/todo-injection-gate.sh --capture` dispatches on `tool_name`. **TodoWrite**: parses `tool_input.todos`; probe = `content + " " + activeForm`. **TaskList**: parses `tool_response` (array of `{id, subject, status, owner, blockedBy}`); probe = `subject` only (no `activeForm` in TaskList response). For each entry runs the tag regex against the probe; persists `{count, tagged_count, untagged_indices, tags_per_item}` to `.claude/state/todo-state-${session_id}.json` (atomic write via tmp+rename). Non-array `tool_response` for TaskList → fail-open (preserves prior state). Always exits 0; observational only.
+- **PreToolUse on `Edit|Write|NotebookEdit`** — `.claude/hooks/todo-injection-gate.sh --validate`:
   1. Reads `transcript_path` from stdin JSON; walks back ≤80 messages for a `Skill` tool_use of `execute` with no subsequent `Skill` of `final-q`. If not in `/execute` → emit allow.
   2. If in `/execute` → reads `.claude/state/todo-state-${session_id}.json`. Missing OR `count == 0` → deny ("Build TodoWrite first per /execute Phase 0.5"). `untagged_indices.length > 0` → deny ("entry #N missing required tag"). Otherwise → allow.
 - **Fail-OPEN policy** — any uncaught exception logged to `.claude/state/hook-failures.log`; hook returns allow. A broken gate must never wedge the session. `/final-q` Step 4.5 cross-checks the log per session and floors the verdict to YELLOW if non-empty (silent hook bug detected).
@@ -236,7 +238,7 @@ When the gate would deny but the agent has a legitimate reason to bypass (rare �
 
 1. Agent emits `[OVERRIDE-REQUEST] <target-path>` (line-anchored — must start a line, optionally with markdown wrappers like `>` or `*`) referencing the EXACT file path the next Edit will mutate.
 2. User types one of the authorization phrases verbatim in chat: `override approved` / `override ok` / `approve override` / `authorized to override` / `i authorize` / `you are authorized`.
-3. Within 3 assistant turns, the next Edit/Write/NotebookEdit/MultiEdit on that path is allowed (one-shot — every override consumes the handshake; subsequent edits need a new request).
+3. Within 3 assistant turns, the next Edit/Write/NotebookEdit on that path is allowed (one-shot — every override consumes the handshake; subsequent edits need a new request).
 
 Override is **discretionary, not workflow** (per LR-043 remediation note). If the same path needs override repeatedly, the right fix is fixing the todo list (call TodoWrite with proper tags), not repeated handshakes.
 
@@ -244,7 +246,7 @@ Override is **discretionary, not workflow** (per LR-043 remediation note). If th
 
 Both SP1 and SP0 just demonstrated the closure-ceremony-not-in-todos failure mode. SP1 built todos from its 14 plan steps → finished them → handed off ceremony items it never todo'd. SP0 built todos from its 11 plan steps → finished them → admitted post-`/final-q` that Phase 3.5 was "missing from the todo list entirely." Same failure twice in a row. Until the universal ceremony is structurally injected into TodoWrite at `/execute` startup (not relying on the plan author to remember to list it), every subplan keeps shipping with the closure half forgotten. This contract converts the closure obligations from skill prose + LR rules into hook-enforced TodoWrite tags.
 
-**Trigger**: every TodoWrite invocation during a `/execute` session (capture); every Edit/Write/NotebookEdit/MultiEdit call (validate). Path-scoped — `paths:` frontmatter already covers `plans/**` and `.claude/skills/**/SKILL.md`, so this rule auto-loads when authoring plans or modifying skills.
+**Trigger**: every TodoWrite invocation during a `/execute` session (capture); every Edit/Write/NotebookEdit call (validate). Path-scoped — `paths:` frontmatter already covers `plans/**` and `.claude/skills/**/SKILL.md`, so this rule auto-loads when authoring plans or modifying skills.
 
 ## LR-048: Subplan Structural Minimum
 
@@ -262,6 +264,31 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
 
    Phase 0.5b emits or consumes `clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-<YYYY-MM-DD>.md` per LR-045 row 4. `baselineScope: baseline-absent` is allowed (NOT a HALT) when the feature is net-new on the active site.
 6. **Phase 1+** — actual work, identity-scoped.
+6.5. **Per-Identity Satisfaction Matrix** (LR-048 v2, added 2026-05-25 — FCC fuckup prevention) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, CSV exports under `test_cases_csv/`, `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
+
+   The subplan body MUST contain a section `## Per-Identity Satisfaction` with this table:
+
+   | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
+   |---|---|---|---|
+   | HUNTER | old-site-baseline / REQUIREMENTS.md (if new behavior) | dated baseline artifact OR explicit `(none)` | grep artifact freshness |
+   | GIVER | test-cases.md, test-plans.md, CSV via planner:post-complete | FCC block + Scenarios + post-complete run | `npm run check:tc-parity` exit 0 |
+   | BUILDER | specs/<module>/*.spec.ts | FCC describe block at top + first-run pass | `npx playwright test --list` resolves all FCC TC IDs |
+   | HEALER | per-fix MD update (if RCA-driven) | MD row Status sync | `npm run check:tc-parity` exit 0 |
+   | WATCHDOG | findings table (if audit-driven) | mode-specific output; no spec/MD/CSV edits | per-mode acceptance |
+   | GARDENER | refactor citation (if refactor-driven) | structural change only; no spec logic | `npm run typecheck` clean |
+
+   **Rules for the matrix**:
+   - Any cell marked `(none)` is acceptable AND must be EXPLICITLY MARKED. Silence ≠ "no work for that identity" — silence = LR-048 violation.
+   - Each non-`(none)` cell's Acceptance command MUST appear in the subplan's Phase 3.5 closure step (per LR-027) with evidence-emission format (`ran '<cmd>' → output: '<snippet>'` per LR-042).
+   - At Status flip to DONE, every non-`(none)` cell is classified (a)/(b)/(c) per LR-040 — if (b) "downstream subplan", that recipient must already exist in `plans/pending/` with grep-verifiable line items per LR-040 §b.
+
+   **Why this exists**: SUBPLAN_NOTES_FCC_PILOT (2026-05-21) added 26 Notes FCC TCs to specs but did not enumerate the GIVER's deliverables (MD FCC block, test-plan Scenarios, CSV re-export). Same gap on SUBPLAN_SSL_FCC_PILOT (14 SSL FCC TCs). Without a structural matrix, those items silently became "future cleanup" — exactly what PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT is now retroactively unfucking. The matrix is the structural prevention.
+
+   **Cross-refs**: LR-040 (closure-gate completeness); LR-050 (restructure plans enumerate stale-slop cleanup); LR-027 (execution summary mandatory); ALL-071 (spec-MD parity); LR-ENC-002 (Encore client-level summary); BUILDER HARD STOP #11 (per-agent enforcement).
+
+   **Trigger**: every NEW subplan under `plans/pending/SUBPLAN_*.md` or `plans/pending/PLAN_*.md` whose body / downstream effects touch any of the listed artifact paths. Enforced by `/planning` Step 3 validation + `/audit` Identity-Drift mode + LR-040 closure gate at Status flip.
+
+   **Graduated from**: PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE (2026-05-25) — Layer 4. Co-landed with BUILDER HARD STOP #11, pre-commit Gate A (check:tc-parity), and LR-ENC-002.
 7. **Acceptance criteria** — checkboxes; for catalog/MCP-driven subplans (LR-040 trigger: `SP-B-*`, `SP-C-*`, `SP-D-*`, or any subplan whose Step-by-Step enumerates parents / columns / TCs), classify every enumerated item as (a)/(b)/(c) per LR-040. Non-catalog subplans use ordinary checkbox acceptance criteria.
 8. **Handoff** — chat-only per `feedback_handoff_in_chat_only.md`; describes outcomes per LR-039 (no obstacle claims).
 

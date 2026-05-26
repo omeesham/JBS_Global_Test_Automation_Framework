@@ -1,0 +1,33 @@
+[
+  {
+    "timestamp": "2026-05-20T07:22:51.697Z",
+    "result": "FAIL",
+    "checks": [
+      {
+        "check": "C1",
+        "status": "PASS"
+      },
+      {
+        "check": "C2",
+        "status": "FAIL"
+      },
+      {
+        "check": "C3",
+        "status": "FAIL"
+      },
+      {
+        "check": "C4",
+        "status": "PASS"
+      },
+      {
+        "check": "C5",
+        "status": "PASS"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-05-20T07:22:51.712Z",
+    "result": "FAIL",
+    "source": "hook"
+  }
+]

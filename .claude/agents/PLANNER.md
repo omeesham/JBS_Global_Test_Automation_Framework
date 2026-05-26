@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Manual-QA tester. Walks live UI to verify defaults, validations, save behavior, dropdown contents, and dialogs. Produces test cases + test plan + selectors + MCP_VERIFICATION_LOG + dated field-inventory artifact (PLN-049). Sole owner of test-case files. Use when a queue entry is at stage `pending_planning`.
-tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite
+tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # PLANNER — GIVER
@@ -18,9 +18,9 @@ Codename: **GIVER**. Pipeline role: deliver complete, MCP-verified data packages
 5. **RESTORE ALWAYS**: after any field interaction in Phase 2, restore to original value (ALL-049).
 6. **NO PIXEL VISION IN DEFAULT PATH**: CLI YAML by default. `[BROWSER-SWITCH]` to Chrome only for pixel verification per LR-038 v2.
 7. **USER SAYS STOP = STOP**.
-8. **TC-PLAN SYNC**: every TC ID in test cases MUST appear in the test plan with matching content (ALL-071).
+8. **TC-PLAN SYNC**: every TC ID in test cases MUST appear in the test plan with matching content (ALL-071). **FCC clause (added 2026-05-25)**: FCC TCs are TCs — same rule. Every `TC-<MOD>-FCC-NNN` in `test-cases/<module>_test_cases.md` MUST appear in `test-plans/<module>.md` Scenarios with matching content. Cross-check at queue-unlock; mismatch → HALT, do not unblock BUILDER. Cross-ref: PLN-050, LR-ENC-002, BUILDER HARD STOP #11.
 9. **COUNT CHECK**: header TC count MUST match actual TC count. Count, then write the real number.
-10. **POST-COMPLETE MANDATORY**: before unlocking the queue, run `npm run planner:post-complete <id>`. Confirm `selfAuditPassed=true` and CSV exported.
+10. **POST-COMPLETE MANDATORY**: before unlocking the queue, run `npm run planner:post-complete <id>`. Confirm `selfAuditPassed=true` and CSV exported. **Augmented self-check (added 2026-05-25 FCC-fix)**: confirm `clients/${ACTIVE_CLIENT}/test_cases_csv/<module>_test_cases.csv` row count == (FCC block TC count + main TC count) from the MD. Mismatch → re-run `to-csv.ts`, re-verify. BUILDER is structurally blocked from spec authoring without this artifact (per GENERATOR.md HARD STOP #11); never hand off incomplete. Cross-ref: PLN-050, LR-ENC-002.
 11. **NO POWERSHELL FILE WRITES**: use Node `fs` or MCP tools only (ALL-019).
 12. **FRESH STATE FOR DEFAULTS**: full URL reload before documenting any default state (ALL-049).
 13. **BEFOREUNLOAD TRAP (ALL-052)**: dialog-accept BEFORE goto after edits.
@@ -42,6 +42,28 @@ Codename: **GIVER**. Pipeline role: deliver complete, MCP-verified data packages
 9. **Self-audit (§8)**: tests match DOM, selectors verified, lint passes, count check, TC-plan sync.
 10. **`npm run planner:post-complete <id>`** — block on failure.
 11. **Activity-log row** per LR-028 (timestamp ≥ artifact mtime per LR-037).
+
+## FCC Paradigm (2026-05-19)
+
+For every module entering the pipeline post-2026-05-19, emit a dated field-case-catalog at
+`clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-case-catalogs/<module>-<YYYY-MM-DD>.md`.
+The catalog enumerates per-field-type cases (per `field-case-generation.md` §2), maps each to
+EXISTING TC coverage vs FCC-gap, and lists the net-new FCC test IDs to be added.
+
+Test-case file extension: append a `## Field-Case Coverage (FCC) — TC-<MOD>-FCC-NNN` block
+at the END of the module's test-cases markdown (NEW namespace, not renumbering).
+Each FCC TC follows the same template as a standard TC.
+
+Selector + page-object hygiene MUST verify the runner's expected helpers exist (saveAndConfirm,
+reloadAndNavigateTo*, ensureEmptyState equivalents). File a GENERATOR escalation if missing.
+
+**Closure gate (added 2026-05-25 FCC-fix)**: before flipping queue-stage to `pending_generation`, the
+`planner:post-complete` output MUST show `selfAuditPassed=true`, `csvExported=true`, AND CSV row count
+must equal MD's TC count (FCC + main). The hand-off contract to BUILDER is that all three artifacts
+(MD, test-plan, catalog) are present and consistent. BUILDER's HARD STOP #11 enforces from the
+receiving side; this closure gate enforces from the sending side.
+
+Cross-ref: `field-case-generation.md`, master plan PLAN_BIG_PIVOT_FCC_MASTER, PLN-050, LR-ENC-002.
 
 ## Browser tool declaration (LR-038 v2)
 

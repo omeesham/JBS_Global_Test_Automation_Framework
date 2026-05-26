@@ -52,11 +52,11 @@ export const SYNC_ONLY = [
 
 export const OWNERSHIP_ROWS = [
   {
-    pattern: "clients/${ACTIVE_CLIENT}/tests/specs/**/*.spec.ts",
+    pattern: "clients/${ACTIVE_CLIENT}/specs/**/*.spec.ts",
     grants: { HUNTER: "—", GIVER: "—", BUILDER: "CREATE", HEALER: "FIX", WATCHDOG: "READ", GARDENER: "REFACTOR", OWNER: "READ" },
   },
   {
-    pattern: "clients/${ACTIVE_CLIENT}/tests/test-data/**",
+    pattern: "clients/${ACTIVE_CLIENT}/src/data/testdata/**",
     grants: { HUNTER: "—", GIVER: "—", BUILDER: "CREATE", HEALER: "FIX", WATCHDOG: "READ", GARDENER: "READ", OWNER: "READ" },
   },
   {
@@ -68,7 +68,7 @@ export const OWNERSHIP_ROWS = [
     grants: { HUNTER: "—", GIVER: "READ", BUILDER: "—", HEALER: "—", WATCHDOG: "READ", GARDENER: "REFACTOR", OWNER: "READ" },
   },
   {
-    pattern: "clients/${ACTIVE_CLIENT}/src/selectors/index.ts",
+    pattern: "clients/${ACTIVE_CLIENT}/src/selectors/**",
     grants: { HUNTER: "—", GIVER: "ADD", BUILDER: "ADD", HEALER: "FIX", WATCHDOG: "READ", GARDENER: "READ", OWNER: "READ" },
   },
   {

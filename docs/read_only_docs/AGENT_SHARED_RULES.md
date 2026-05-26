@@ -60,9 +60,9 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | Page method | `clients/${ACTIVE_CLIENT}/src/pages/**/*.page.ts` | Add to page object |
 | Selector | `clients/${ACTIVE_CLIENT}/src/selectors/index.ts` | Add property |
 | Constant | `clients/${ACTIVE_CLIENT}/src/utils/app-constants.ts` | Add to AppConstants |
-| Matcher | `clients/${ACTIVE_CLIENT}/tests/infra/custom-matchers.ts` | Add + type declaration |
-| Fixture | `clients/${ACTIVE_CLIENT}/tests/infra/fixtures.ts` | Add fixture |
-| Test file | `clients/${ACTIVE_CLIENT}/tests/specs/{module}/` | Create in module folder |
+| Matcher | `clients/${ACTIVE_CLIENT}/src/infra/custom-matchers.ts` | Add + type declaration |
+| Fixture | `clients/${ACTIVE_CLIENT}/src/infra/fixtures.ts` | Add fixture |
+| Test file | `clients/${ACTIVE_CLIENT}/specs/{module}/` | Create in module folder |
 
 ---
 
@@ -74,8 +74,8 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 
 | Path | Req | Pln | Gen | Heal | Audit | Maint | Owner |
 |------|-----|-----|-----|------|-------|-------|-------|
-| `clients/${ACTIVE_CLIENT}/tests/specs/**/*.spec.ts` | — | — | CREATE | FIX | READ | REFACTOR | READ |
-| `clients/${ACTIVE_CLIENT}/tests/test-data/**` | — | — | CREATE | FIX | READ | READ | READ |
+| `clients/${ACTIVE_CLIENT}/specs/**/*.spec.ts` | — | — | CREATE | FIX | READ | REFACTOR | READ |
+| `clients/${ACTIVE_CLIENT}/src/data/testdata/**` | — | — | CREATE | FIX | READ | READ | READ |
 | `clients/${ACTIVE_CLIENT}/src/pages/**/*.page.ts` | — | READ | ADD | FIX | READ | REFACTOR | READ |
 | `clients/${ACTIVE_CLIENT}/src/core/base-page.ts` | — | READ | — | — | READ | REFACTOR | READ |
 | `clients/${ACTIVE_CLIENT}/src/selectors/**` | — | ADD | ADD | FIX | READ | READ | READ |
@@ -91,16 +91,18 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/_TEMPLATE.md` | READ | READ | READ | READ | READ | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-*.md` | READ | CREATE | READ | UPDATE | UPDATE | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventory-spec.md` | READ | READ | READ | READ | READ | READ | RW |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-case-generation.md` | READ | RW | READ | READ | READ | READ | RW |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-case-catalogs/<module>-*.md` | READ | RW | READ | READ | READ | READ | RW |
 | `reports/bugs/BUG-*.json` | READ | READ | CREATE | CREATE | READ | READ | RW |
 | `scripts/**` | — | — | — | — | — | — | RW |
 | `config/**` | — | — | — | — | — | — | RW |
 | `.claude/skills/**` | — | — | — | — | — | — | RW |
 | `plans/**` | — | — | — | — | — | — | RW |
-| `.github/agents/**` | — | — | — | — | — | — | SYNC ONLY |
+| `.claude/agents/**` | — | — | — | — | — | — | RW (governance — direct edits; no SYNC-ONLY post-2026-04-27 Copilot eviction) |
 
 **Audit Agent scope**: Can READ any file. WRITE limited to: agent-mistakes.md (RW — quality gate), audits/*.md, agent-performance.json, agent-queue.json (history/stage), agent-activity-log.md.
 
-**Framework Maintainer (GARDENER) scope**: READ-WRITE: `clients/${ACTIVE_CLIENT}/src/pages/`, `clients/${ACTIVE_CLIENT}/src/core/base-page.ts`, `tests/`. READ-ONLY: everything else. Runs on demand (not in pipeline). Structural refactoring only — never changes business logic or test assertions.
+**Framework Maintainer (GARDENER) scope**: READ-WRITE: `clients/${ACTIVE_CLIENT}/src/pages/`, `clients/${ACTIVE_CLIENT}/src/core/base-page.ts`, `clients/${ACTIVE_CLIENT}/src/utils/`. READ-ONLY: everything else. Runs on demand (not in pipeline). Structural refactoring only — never changes business logic or test assertions. The pre-2026-04-30 root-level `tests/` directory was retired in the client-deliverable rebuild — never edit anything matching `^tests/`; that path no longer exists.
 
 **Field-Inventory Artifact ownership** (per [PLAN_AGENT_AUTHORING_EFFICIENCY.md](../../plans/pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) AAE-D9): the `_internal/field-inventories/` folder splits into two ownership classes. (1) **Format contract** (`_TEMPLATE.md` + sibling `field-inventory-spec.md`) is OWNER-only RW — these are framework governance artifacts; rare changes. (2) **Per-module artifacts** (`<module>-<YYYY-MM-DD>.md`) are GIVER-CREATE / WATCHDOG-UPDATE / HEALER-UPDATE / others-READ — primary author is the planner walking the live DOM in Phase 0.5; WATCHDOG may refresh when running a neutral-eye re-audit; HEALER may refresh when fixing TCs against a stale audit (HLR-016 / SP-AAE-02 hook mandate; broadened in SP-CCE-04 2026-04-27); everyone else consumes read-only.
 
@@ -108,7 +110,7 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 
 **Human-Controlled (NEVER modify)**: `.env*`, `playwright.config.*`, `package.json`, `tsconfig.json`, `.ci/*`
 
-**Script-Controlled**: `.github/agents/*` — modify ONLY via `npm run sync:mistakes`. NEVER edit agent files directly.
+**Governance-owned (direct OWNER edits)**: `.claude/agents/*.md` files receive HARD STOPS / scope-clause / Modes additions via direct edits authorized under OWNER identity. There is no SYNC-ONLY enforcement — `npm run sync:mistakes` is a no-op for `.claude/agents/` post-2026-04-27 Copilot eviction (the underlying `scripts/sync-agent-mistakes.ts` retained pending separate decommission decision; AGENT_CONDENSED + AGENT_COMPACT_FORMAT envelopes are empty for these paths). Mistake graduation from `agent-mistakes.md` to agent rules is a manual OWNER process per ALL-077.
 
 ### §2.1 Identity Enforcement in Claude Code Sessions
 
@@ -116,7 +118,7 @@ When operating in a Claude Code session (not pipeline orchestrator), the `/ident
 enforces agent identity. The §2 ownership table applies identically. OWNER identity has
 RW access to framework-level paths: `scripts/`, `config/`, `.claude/skills/`, `plans/`,
 `docs/` (non-REQUIREMENTS), and root `CLAUDE.md`. OWNER has READ access to client-scoped
-pipeline artifact paths (`clients/${ACTIVE_CLIENT}/src/**`, `clients/${ACTIVE_CLIENT}/tests/**`,
+pipeline artifact paths (`clients/${ACTIVE_CLIENT}/src/**`, `clients/${ACTIVE_CLIENT}/specs/**`,
 `clients/${ACTIVE_CLIENT}/specs_planning/**`, `clients/${ACTIVE_CLIENT}/docs/**`).
 
 | ID | Rule | Violation = |
@@ -631,9 +633,9 @@ Applies to ALL agents during exploration, code writing, selector discovery, or a
 | Auth/login issues | authChain + env files | `reports/failure-summary.json`, `config/environments/` | When tests fail with auth errors | `cat reports/failure-summary.json \| grep authChain` |
 | Don't know what methods exist | BasePage + existing page objects | `clients/${ACTIVE_CLIENT}/src/core/base-page.ts`, `docs/read_only_docs/ARCHITECTURE.md` | Before writing ANY new method | `grep "async.*(" clients/${ACTIVE_CLIENT}/src/core/base-page.ts` |
 | TC seems wrong vs live app | Truth hierarchy: MCP > all docs (GEN-021) | `clients/${ACTIVE_CLIENT}/docs/REQUIREMENTS.md` then MCP | When spec assertion fails but app looks correct | Navigate MCP to same URL, verify DOM |
-| Don't know fixture/helper exists | Fixture definitions + test setup | `tests/infra/fixtures.ts`, `src/index.ts` | Before creating test setup code | `grep "test.extend" tests/infra/fixtures.ts` |
+| Don't know fixture/helper exists | Fixture definitions + test setup | `src/infra/fixtures.ts`, `src/index.ts` | Before creating test setup code | `grep "test.extend" src/infra/fixtures.ts` |
 | Previous agent output incomplete | Queue item history + activity log | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json`, `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | When inheriting work from previous stage | Read queue item's `history` array |
-| Spec-level pattern already exists | Existing specs for same setup/assertion | `clients/${ACTIVE_CLIENT}/tests/specs/**/*.spec.ts` | Before writing beforeEach or repeated assertions | `grep -r "navigateTo.*Tab" clients/${ACTIVE_CLIENT}/tests/specs/` |
+| Spec-level pattern already exists | Existing specs for same setup/assertion | `clients/${ACTIVE_CLIENT}/specs/**/*.spec.ts` | Before writing beforeEach or repeated assertions | `grep -r "navigateTo.*Tab" clients/${ACTIVE_CLIENT}/specs/` |
 
 **NOTE**: `agent-learnings.md` is an empty stub — all learnings merged into agent-mistakes.md Resolution column. Do NOT reference it as primary source.
 
@@ -728,7 +730,7 @@ These rules apply to ALL pipeline agents. They implement the 4-Category Bug Hunt
 | **ALL-062** | **NO HARDCODED STRUCTURAL COUNT ASSERTIONS** — Tests must NOT assert exact counts of DOM elements (column headers, rows, options, buttons) unless the count itself IS the feature under test. Instead: (a) assert content/labels (`.toContain()`), (b) assert behavior (click → verify effect), (c) use `.toBeGreaterThan(0)` for existence checks. Hardcoded counts break on any UI addition/removal without catching real bugs. | Generator, Audit | Prevents brittle tests (10 filler tests found in 2026-03 audit) |
 | **ALL-063** | **VERIFY SERVER BEHAVIOR BEFORE ASSUMING BUGS** — Before skipping a test for "server rejects" or "API 500": run the operation live (MCP or probe test). Server bugs get fixed. What was broken last month may work today. Workflow: un-skip → run AS-IS → if passes, keep original assertions → if still fails, THEN rewrite to test actual behavior. | All agents | Prevents stale assumptions (7 Cat-B "server rejects" were actually fixed in 2026-03) |
 | **ALL-064** | **NO `networkidle` IN ANGULAR SPA TESTS** — Never use `waitForLoadState('networkidle')` or `waitUntil: 'networkidle'` in page objects or specs. Angular's zone.js fires micro-tasks continuously after route changes, making networkidle either never resolve or resolve too early (between route change and API response). Use `waitForAngularStable()` (calls `getAllAngularTestabilities().whenStable()`) + element visibility/state polling instead. For page reloads, use `waitUntil: 'domcontentloaded'` + `waitForAngularStable()`. For data-dependent assertions after save+reload, poll for a concrete data-loaded signal (e.g., dropdown populated, grid rows present). | Generator, Healer, Maintainer | Prevents flakiness (networkidle was root cause of 5 intermittent failures in 2026-04 audit) |
-| **ALL-065** | **ALL TEST DATA IN `clients/${ACTIVE_CLIENT}/tests/test-data/`** — All test data values (strings, numbers, objects used as inputs or expected values) MUST live in `clients/${ACTIVE_CLIENT}/tests/test-data/`. Specs MUST NOT contain hardcoded test data. Shared constants (dialog text, office number) go in `common.data.ts`. Feature-specific data goes in the feature's `.data.ts` file. Structural count assertions (column counts, row counts) are NOT test data — see LR-022. Computed arithmetic values (character count = string1.length + delimiter + string2.length) may remain inline with comments explaining the math. | All agents | Single source of truth for test data; enables future CSV conversion |
+| **ALL-065** | **ALL TEST DATA IN `clients/${ACTIVE_CLIENT}/src/data/testdata/`** — All test data values (strings, numbers, objects used as inputs or expected values) MUST live in `clients/${ACTIVE_CLIENT}/src/data/testdata/`. Specs MUST NOT contain hardcoded test data. Shared constants (dialog text, office number) go in `common.data.ts`. Feature-specific data goes in the feature's `.data.ts` file. Structural count assertions (column counts, row counts) are NOT test data — see LR-022. Computed arithmetic values (character count = string1.length + delimiter + string2.length) may remain inline with comments explaining the math. | All agents | Single source of truth for test data; enables future CSV conversion |
 
 ---
 
@@ -796,7 +798,7 @@ Instead of writing the audit in-place:
 
 ### §19.4 Enforcement Locations
 
-- `.github/agents/playwright-pipeline-audit.agent.md` HARD STOP 0a (agent-level block)
+- `.claude/agents/AUDIT.md` HARD STOP 0a (agent-level block)
 - `.claude/skills/audit/SKILL.md` Step 0 (skill-level pre-flight detection)
 - `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` AUD-017 (rule registry)
 - This section §19 (cross-agent documentation hub)

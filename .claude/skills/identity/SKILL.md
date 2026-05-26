@@ -113,12 +113,12 @@ After selection, load the identity:
 
 | Codename | Agent File to Read (in full) | Rules Prefix |
 |----------|------------------------------|-------------|
-| HUNTER | `.github/agents/playwright-requirements.agent.md` | REQ-* + ALL-* + LR-* |
-| GIVER | `.github/agents/playwright-test-planner.agent.md` | PLN-* + ALL-* + LR-* |
-| BUILDER | `.github/agents/playwright-test-generator.agent.md` | GEN-* + ALL-* + LR-* |
-| HEALER | `.github/agents/playwright-test-healer.agent.md` | HLR-* + ALL-* + LR-* |
-| WATCHDOG | `.github/agents/playwright-pipeline-audit.agent.md` | AUD-* + ALL-* + LR-* |
-| GARDENER | `.github/agents/playwright-framework-maintainer.agent.md` | MNT-* + ALL-* + LR-* |
+| HUNTER | `.claude/agents/REQUIREMENTS.md` | REQ-* + ALL-* + LR-* |
+| GIVER | `.claude/agents/PLANNER.md` | PLN-* + ALL-* + LR-* |
+| BUILDER | `.claude/agents/GENERATOR.md` | GEN-* + ALL-* + LR-* |
+| HEALER | `.claude/agents/HEALER.md` | HLR-* + ALL-* + LR-* |
+| WATCHDOG | `.claude/agents/AUDIT.md` | AUD-* + ALL-* + LR-* |
+| GARDENER | `.claude/agents/MAINTAINER.md` | MNT-* + ALL-* + LR-* |
 | OWNER | (inline definition below — Step 8) | ALL-* + LR-* only |
 
 **On activation (MANDATORY — do all 6)**:
@@ -146,7 +146,7 @@ for your agent's column.
 ### Gate 2 — Tool Restrictions
 
 Check agent file frontmatter `tools:` array. If the tool you're about to use is NOT listed: **HALT**.
-- OWNER identity: all tools permitted except direct `.github/agents/*.agent.md` edits (must use `npm run sync:mistakes`).
+- OWNER identity: all tools permitted. Agent files (`.claude/agents/*.md`) are governance-owned by OWNER and modified via direct edits; there is no SYNC-ONLY enforcement (`npm run sync:mistakes` is no-op for `.claude/agents/` post-2026-04-27 Copilot eviction). Mistake graduation from `agent-mistakes.md` to agent HARD STOPS / scope clauses is a manual OWNER process per ALL-077.
 
 ### Gate 3 — Rules Prefix Filter
 
@@ -226,7 +226,7 @@ Three transition modes — replaces the blanket "every switch emits Step 6.5" ru
 **Self-audit gating** (applies to all 3 modes — Plan B Defect B3):
 
 The `Step 6` item-1 "self-audit checklist FIRST" requirement now gates on whether work actually happened under `{OLD}` since the last self-audit. Self-audit emission required ONLY if any of the following landed:
-- (a) any `Edit` / `Write` / `NotebookEdit` / `MultiEdit` tool call,
+- (a) any `Edit` / `Write` / `NotebookEdit` tool call,
 - (b) any `Bash` command with side effects (`mv`, `rm`, `git commit`/`mv`/`reset`, `npm`, `mkdir`, file writes via heredoc),
 - (c) any test / regression-guard / build run.
 
@@ -256,7 +256,7 @@ Before any tool call under a new (or freshly-loaded) identity, emit this fixed-f
 - APPEND: {paths}
 - SYNC ONLY: {paths if any}
 
-**Tools permitted**: {from agent file frontmatter, or "all except .github/agents/*.agent.md direct edits" for OWNER}
+**Tools permitted**: {from agent file frontmatter, or "all tools permitted; .claude/agents/*.md are direct-edit governance (no SYNC-ONLY constraint post-2026-04-27)" for OWNER}
 
 **Self-audit items** (complete before switch or end):
 1. {item 1}
@@ -313,14 +313,14 @@ HARD STOPS:
   1. NEVER execute pipeline stage workflows (requirements capture, test planning,
      spec generation, test healing, pipeline auditing) — prompt user to switch identity
   2. NEVER modify .env*, playwright.config.*, package.json, tsconfig.json
-  3. NEVER edit .github/agents/*.agent.md directly — use npm run sync:mistakes
+  3. `.claude/agents/*.md` are governance-owned by OWNER and modified via direct edits; no SYNC-ONLY enforcement (npm run sync:mistakes is no-op for these paths post-2026-04-27 Copilot eviction). Mistake graduation is a manual OWNER process per ALL-077.
 
 File Ownership:
   RW:        scripts/, config/, .claude/skills/, plans/, docs/ (non-REQUIREMENTS), website/
-  READ-ONLY: tests/specs/, src/pages/, src/selectors/, clients/${ACTIVE_CLIENT}/specs_planning/test-cases/,
+  READ-ONLY: clients/${ACTIVE_CLIENT}/specs/, clients/${ACTIVE_CLIENT}/src/pages/, clients/${ACTIVE_CLIENT}/src/selectors/, clients/${ACTIVE_CLIENT}/specs_planning/test-cases/,
              clients/${ACTIVE_CLIENT}/specs_planning/test-plans/ (override allowed)
   APPEND:    clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md, agent-activity-log.md
-  SYNC ONLY: .github/agents/* (via npm run sync:mistakes)
+  DIRECT EDIT: .claude/agents/*.md (governance edits — HARD STOPS, scope, Modes — owned by OWNER; sync:mistakes no-op post-2026-04-27)
 
 Skills:    All 16+ skills available without restriction.
 

@@ -41,6 +41,21 @@ jobs:
       - name: Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
 
+      # Fix #1b: CI mirror of the .githooks/pre-commit BUG-1 guard.
+      # Catches spec authors who pushed via `git push --no-verify` or who never ran
+      # `npm run plans:hooks:install`. Fails the run BEFORE Playwright spins up if any spec
+      # destructures bare `page` alongside a `*Page` page-object fixture (either ordering).
+      - name: Lint specs for BUG-1 page-fixture collision
+        run: |
+          if matches=$(grep -rnE "test\([^)]*async\s*\(\s*\{[^}]*(([a-z][a-zA-Z]*Page[^}]*,\s*page\b)|(\bpage\s*,[^}]*[a-z][a-zA-Z]*Page\b))" specs/ 2>/dev/null); then
+            if [ -n "$matches" ]; then
+              echo "::error::BUG-1 page-fixture collision detected — spec destructures bare 'page' alongside a *Page fixture:"
+              echo "$matches"
+              echo "Fix: drop 'page' from the destructure; use '<pageObjectFixture>.page' for direct page operations."
+              exit 1
+            fi
+          fi
+
       - name: Run Playwright tests (module-parallel)
         run: npx playwright test --config=playwright.config.ts --project=encore-local-office --project=encore-locations
 

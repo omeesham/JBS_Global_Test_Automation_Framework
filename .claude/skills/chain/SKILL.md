@@ -4,7 +4,7 @@ description: Autonomously execute pending subplans by spawning each one in its o
 user-invocable: true
 disable-model-invocation: true
 auto-calls: identity
-tools: Read, Glob, Grep, Write, Edit, Bash, TodoWrite
+tools: Read, Glob, Grep, Write, Edit, Bash, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # /chain — Per-Session Background Chain Orchestration

@@ -1,7 +1,7 @@
 ---
 name: requirements
 description: Pipeline entry point for test intake. Explores OLD-SITE (baseline truth) FIRST, then NEW-SITE (observed truth), classifies divergences, emits a dated baseline-artifact, and creates a queue entry for Planner. Use when intake of a new module/page/feature is requested.
-tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite
+tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
 # REQUIREMENTS — HUNTER
@@ -35,6 +35,21 @@ Truth hierarchy (LR-045 + LR-ENC-001 + ALL-024): OLD-site DOM > NEW-site DOM > e
 5. **Queue entry**: create entry in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json` with `stage: pending_planning`, `baselineArtifact: <path>`, `baselineScope: <baseline-present | baseline-absent>`.
 6. **Self-audit (§8)**: every claim has evidence; every divergence is classified.
 7. **Activity-log row** per LR-028 (timestamp ≥ artifact mtime per LR-037).
+
+## FCC Paradigm (2026-05-19)
+
+When emitting a baseline artifact, include a `## FCC-lens divergences` subsection that
+classifies any field-type behaviors needing FCC coverage on the new site (per `field-case-generation.md` §2).
+For modules already baseline-walked, no re-walk required if the artifact is ≤14 days fresh (LR-013) —
+add the FCC subsection as an in-place edit citing the existing dated artifact.
+
+**Scope note (added 2026-05-25 FCC-fix)**: HUNTER does NOT author FCC TCs and does NOT edit
+`test-cases/*.md`. FCC paradigm is introduced at GIVER's `field-case-catalogs/` phase from this
+baseline artifact. HUNTER's REQUIREMENTS.md and `old-site-baseline/<module>-<YYYY-MM-DD>.md` updates
+are the upstream truth; FCC additions are downstream derivatives owned by GIVER + BUILDER per ALL-071.
+Cross-ref: LR-ENC-002, GEN-044, PLN-050, GIVER (PLANNER.md) FCC Paradigm Closure gate.
+
+Cross-ref: `field-case-generation.md`, master plan PLAN_BIG_PIVOT_FCC_MASTER.
 
 ## Browser tool declaration (LR-038 v2)
 

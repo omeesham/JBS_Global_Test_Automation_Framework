@@ -54,7 +54,7 @@ Four structural gates convert ALL-077 (subplan identity must match §2 ownership
 > **SCOPED 2026-04-23**: OWNER is short-circuited in `canWrite()` to allow all writes; the §2 write-gate applies only to pipeline identities (HUNTER / GIVER / BUILDER / HEALER / WATCHDOG / GARDENER). Identity is a context-switching layer (load the right system prompt so Claude doesn't hallucinate a pipeline agent's scope), not an access-control layer for the non-pipeline owner. The OWNER catch-alls in `identity-ownership.mjs` remain for introspection (`ownershipFor()` / deny-message rendering) but no longer gate writes for OWNER. Original SP-AAE-01 need (preventing a pipeline agent from writing outside §2) stays satisfied by the pipeline-identity branch.
 
 - Ground-truth identity = last `/identity` Skill invocation in transcript. Banner text is UX-only.
-- Every Edit/Write/NotebookEdit/MultiEdit tool call is inspected: target path vs §2 ownership for the ground-truth identity (via `scripts/identity-ownership.mjs` — byte-exact mirror of §2, gated by `scripts/check-identity-ownership.mjs` parity test).
+- Every Edit/Write/NotebookEdit tool call is inspected: target path vs §2 ownership for the ground-truth identity (via `scripts/identity-ownership.mjs` — byte-exact mirror of §2, gated by `scripts/check-identity-ownership.mjs` parity test).
 - Mismatch → `permissionDecision: "deny"` with full §2 citation + 3 resolution options ((a) switch identity, (b) user-typed override authorization, (c) update §2).
 - Override allow-path: in last 3 assistant turns, `[OVERRIDE-REQUEST]` for same path + user authorization phrase (`override approved`/`override ok`/`approve override`/`authorized to override`) → one-shot allow.
 
@@ -81,7 +81,7 @@ Four structural gates convert ALL-077 (subplan identity must match §2 ownership
 
 **Trigger**:
 
-- Every Edit/Write/NotebookEdit/MultiEdit tool call (PreToolUse fires universally).
+- Every Edit/Write/NotebookEdit tool call (PreToolUse fires universally).
 - Every session end (Stop hooks fire universally).
 - Every `/execute` with a plan file (Phase 0.1 fires before TodoWrite).
 - Every `/identity` invocation (Step 6.5 emission mandate).

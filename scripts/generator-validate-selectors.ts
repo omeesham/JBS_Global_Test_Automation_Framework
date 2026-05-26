@@ -98,7 +98,7 @@ function main(): void {
   const specPath = process.argv[2];
   if (!specPath) {
     console.error('Usage: npm run generator:validate-selectors <spec-file>');
-    console.error('Example: npm run generator:validate-selectors tests/specs/setup/locations/location-local-information.spec.ts');
+    console.error('Example: npm run generator:validate-selectors clients/encore/specs/locations/location-local-information.spec.ts');
     process.exit(1);
   }
 

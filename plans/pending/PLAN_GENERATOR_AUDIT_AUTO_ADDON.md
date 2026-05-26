@@ -43,7 +43,7 @@ User clicks sidebar Home with unsaved form changes
 ```
 
 ### Verified References (line numbers grep-confirmed 2026-03-25)
-- **Fixture handler**: `tests/infra/fixtures.ts:138` — `page.on('dialog', async (dialog) => { if (dialog.type() === 'beforeunload') { await dialog.accept(); } })`
+- **Fixture handler**: `src/infra/fixtures.ts:138` — `page.on('dialog', async (dialog) => { if (dialog.type() === 'beforeunload') { await dialog.accept(); } })`
 - **Existing solution A**: `src/pages/locations/location-legal.page.ts:214` — `triggerBeforeunloadAndStay()` (reload-based, dismiss to stay)
 - **Existing solution B**: `src/pages/locations/location-notes.page.ts:306` — `navigateAwayWithUnsavedChanges()` (navigate-based, dismiss to stay)
 - **Existing solution C**: `src/core/base-page.ts:66` — `safeNavigateTo()` (wraps navigation with beforeunload accept handler)
@@ -191,7 +191,7 @@ A simple `grep -r "beforeunload\|navigateAway\|UnsavedChanges" src/pages/` would
 
 ## Verification Plan
 
-1. **After removing blind toggleCheckbox**: Run `npx playwright test --project=chrome tests/specs/locations/location-auto-addon.spec.ts` — verify all TC cleanup code still works via inherited smart toggle
+1. **After removing blind toggleCheckbox**: Run `npx playwright test --project=chrome specs/locations/location-auto-addon.spec.ts` — verify all TC cleanup code still works via inherited smart toggle
 2. **After adding ALL-057**: Verify rule is referenced in planner + generator agent files
 3. **After GEN-042-045**: Dry-run generator on a different module — verify no false positives from new rules
 4. **Finding 4 hypothesis**: Perform MCP verification steps listed above before any serial isolation fix

@@ -1,0 +1,13 @@
+{
+  "session_id": "v14-tasklist-fixture-session",
+  "transcript_path": "C:/Users/rutvi/projects/encore_framework/pipeline/tests/hooks/fixtures/transcript-in-execute-with-todo.jsonl",
+  "tool_name": "TaskList",
+  "tool_input": {},
+  "tool_response": {
+    "tasks": [
+      {"id": "1", "subject": "[ceremony] Phase 0 context loading", "status": "completed", "blockedBy": []},
+      {"id": "2", "subject": "[manual](Phase 1) settings.json matcher fix", "status": "completed", "blockedBy": []},
+      {"id": "3", "subject": "plain prose with no tag", "status": "pending", "blockedBy": []}
+    ]
+  }
+}

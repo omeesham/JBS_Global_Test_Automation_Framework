@@ -18,7 +18,11 @@ export class LocationAutoAddonPage extends BasePage {
  * beforeEach can avoid re-navigating when already on the tab.
  */
   async isOnAutoAddonTab(): Promise<boolean> {
-    return (await this.getElement('chkAutoAddonEncoreMusic').count()) > 0;
+    // Fix #4a: use tab trigger aria-selected, not
+    // child-anchor count(). Mirrors base-page.ts:448.
+    const tab = this.getElement('tabAutoAddon');
+    if ((await tab.count()) === 0) return false;
+    return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
   async navigateFresh(officeNo: string = '1604'): Promise<void> {
