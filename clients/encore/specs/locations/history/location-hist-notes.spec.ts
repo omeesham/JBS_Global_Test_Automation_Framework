@@ -209,12 +209,12 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
   /**
    * TC-LOC-NTS-038 — HIST col 69 sequential-save 2-row distinctness.
    *
-   * Spawned from FCC notes completion 2026-05-21 Phase 1.6 (FCC-028
-   * Notes-side rename; HIST counterpart). The Notes-spec FCC-028 was realigned
+   * Spawned from FCC notes completion 2026-05-21 Phase 1.6 (NTS-059
+   * Notes-side rename; HIST counterpart). The Notes-spec NTS-059 was realigned
    * 2026-05-21 — its title now reads "Sequential save persists most recent value
    * (HIST row verification deferred to HIST spec)", and this is the deferred-to spec.
    *
-   * Assertion the renamed FCC-028 no longer makes: that sequential saves produce
+   * Assertion the renamed NTS-059 no longer makes: that sequential saves produce
    * TWO distinct HIST rows (one per save), not one merged row.
    *
    * Strategy: content-anchored lookup per `feedback_history_content_anchored_lookup.md`.

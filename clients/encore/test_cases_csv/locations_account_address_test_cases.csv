@@ -1,98 +1,29 @@
-﻿TC ID,Title,Module,Submodule,Specific Field,Preconditions,Steps,Expected Result,Notes
-"TC-LOC-ACC-001","Verify tab two-card layout","locations","account_address","tab two-card layout","Office 1604 is open in Navigator. Account and Address tab is active","1. Navigate to Setup > Location > 1604 -- ""Account and Address"" tab
-2. Verify two side-by-side cards","Two distinct cards visible with correct section headers",""
-"TC-LOC-ACC-002","Verify Venue Name field is disabled","locations","account_address","Venue Name","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Locate ""Name"" row in Venue/Branch Account
-3. Verify textbox state","Name textbox is always disabled; cannot be typed in directly",""
-"TC-LOC-ACC-003","Name button opens Account List dialog","locations","account_address","Name","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Click ""Name"" button (in Venue/Branch Account term)
-3. Verify dialog","Account List dialog opens with search filters and result table",""
-"TC-LOC-ACC-004","Account List - search returns results","locations","account_address","Account List","Office 1604 is open in Navigator. Account and Address tab is active","1. Click ""Name"" button -- Account List dialog opens
-2. Type ""Parker"" in ""Account Name"" field
-3. Click ""Search""
-4. Verify result","Searching by account name returns matching account records",""
-"TC-LOC-ACC-005","Account List - Select button disabled until row checked","locations","account_address","Account List","Office 1604 is open in Navigator. Account and Address tab is active","1. Open Account List dialog, search for ""Parker"", click ""Search""
-2. Verify ""Select"" button
-3. Click row checkbox (first cell button[role=""checkbox""])
-4. Verify ""Select"" button","Select button only enables after a row is checked via row checkbox",""
-"TC-LOC-ACC-006","Account List - Cancel closes without changes","locations","account_address","Account List","Office 1604 is open in Navigator. Account and Address tab is active","1. Open Account List dialog, search for results
-2. Check a row
-3. Click ""Cancel""
-4. Verify Name textbox","Cancel dismisses dialog without updating the Name field",""
-"TC-LOC-ACC-007","Account List - Reset clears search fields","locations","account_address","Account List","Office 1604 is open in Navigator. Account and Address tab is active","1. Open Account List dialog
-2. Enter ""Parker"" in ""Account Name"", click ""Search""
-3. Click ""Reset""
-4. Verify search fields","Reset clears all filter inputs and results table",""
-"TC-LOC-ACC-008","Venue Address button opens Select Customer Address dialog","locations","account_address","Venue Address","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Click ""Address"" button (first one, in Venue/Branch Account term)
-3. Verify dialog","Select Customer Address dialog opens with 7 address records (Total Addresses: 7 in footer)",""
-"TC-LOC-ACC-009","Address dialog - Select button disabled until row checked","locations","account_address","Address dialog","Office 1604 is open in Navigator. Account and Address tab is active","1. Open Select Customer Address dialog
-2. Verify ""Select"" button
-3. Click row checkbox (first cell button[role=""checkbox""])
-4. Verify ""Select"" button","Select button only enables when a row checkbox is checked",""
-"TC-LOC-ACC-010","Address dialog - Search bar filters results client-side","locations","account_address","Address dialog","Office 1604 is open in Navigator. Account and Address tab is active","1. Open Select Customer Address dialog
-2. Type ""Beverly"" in search bar
-3. Verify rows","Search bar filters rows in real-time without server call; ""Beverly"" matches 1 of 7 addresses",""
-"TC-LOC-ACC-011","Address dialog - Save button always disabled","locations","account_address","Address dialog","Office 1604 is open in Navigator. Account and Address tab is active","1. Open Select Customer Address dialog
-2. Verify ""Save"" button
-3. Click row checkbox to select a row
-4. Verify ""Save"" button","Save button remains disabled regardless of row selection (no create-address function)",""
-"TC-LOC-ACC-012","Master Address button opens Select Customer Address dialog","locations","account_address","Master Address","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Click ""Address"" button in ""Master Bill To Address"" card (second Address button)
-3. Verify dialog","Both Venue and Master Address buttons open the same Select Customer Address dialog",""
-"TC-LOC-ACC-013","Venue address display fields are read-only","locations","account_address","Venue address display","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Verify fields below Address in Venue card","City, State, Zip, Country in Venue section are display-only; no edit controls",""
-"TC-LOC-ACC-014","Master address display fields are read-only","locations","account_address","Master address display","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Verify fields below Address in Master card","City, State, Zip, Country in Master Bill To Address are display-only",""
-"TC-LOC-ACC-015","Phone 1 - required field shows inline error when cleared","locations","account_address","Phone 1","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Clear ""Phone 1"" field
-3. Click away (blur)
-4. Verify ""Phone 1""","Phone 1 shows ""Required"" error inline on blur when empty; shows a validation error","CLEANUP: Restore Phone 1 to ""760-883-1957"", save"
-"TC-LOC-ACC-016","Phone 2 - optional, no validation error when empty","locations","account_address","Phone 2","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Click into ""Phone 2"", clear it (already empty), blur
-3. Verify ""Phone 2""","Phone 2 has no required validation; empty is valid",""
-"TC-LOC-ACC-017","Save button disabled when no pending changes","locations","account_address","Save","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Verify left-panel ""Save"" button","Save button starts disabled (no unsaved changes)",""
-"TC-LOC-ACC-018","Save button enables on field change","locations","account_address","Save","Office 1604 is open in Navigator. Account and Address tab is active","1. Open ""Account and Address"" tab
-2. Edit ""Phone 2"" field (type any value)
-3. Verify ""Save"" button","Editing any field triggers unsaved-change state and enables Save","CLEANUP: Click Save -- Cancel in Save Changes dialog to discard"
-"TC-LOC-ACC-019","Save flow - confirmation dialog then success","locations","account_address","Save flow","Office 1604 is open in Navigator. Account and Address tab is active","1. Edit ""Phone 2"" to ""555-000-0001""
-2. Click ""Save""
-3. Click ""Save"" in dialog
-4. Verify Save button","Save requires confirmation -- confirmed save disables Save button","CLEANUP: Restore Phone 2 to empty, save again to restore baseline"
-"TC-LOC-ACC-020","Save changes persist after page reload","locations","account_address","Save changes persist","Office 1604 is open in Navigator. Account and Address tab is active","1. Edit ""Phone 2"", save and confirm
-2. Reload page
-3. Navigate to ""Account and Address"" tab
-4. Verify ""Phone 2""","Saved data persists after full page reload","CLEANUP: Restore Phone 2 to empty baseline after verification"
-"TC-LOC-ACC-021","DROPPED - Phone 1 round-trip persistence","locations","account_address","DROPPED","Office 1604 is open in Navigator. Account and Address tab is active","","",""
-"TC-LOC-ACC-022","Cancel Save dialog discards save without persisting","locations","account_address","Cancel Save dialog discards","Office 1604 is open in Navigator. Account and Address tab is active","1. Edit Phone 2 with test value
-2. Click Save
-3. Click Cancel in dialog
-4. Verify: Save still enabled, Phone 2 still has value (changes not committed)
-5. Reload to discard (LR-026)","Cancel in Save Changes dialog dismisses without persisting; form stays dirty",""
-"TC-LOC-ACC-023","Phone 1 cleared shows invalid state and error icon","locations","account_address","Phone 1 cleared shows invalid","Office 1604 is open in Navigator. Account and Address tab is active","1. Clear Phone 1, blur
-2. Verify is invalid and error icon visible
-3. Verify Save remains enabled (Angular does NOT block save on invalid Phone 1 - MCP-verified 2026-04-07)
-4. Reload to restore baseline (LR-026)","Clearing Phone 1 shows validation indicators but does NOT disable Save",""
-"TC-LOC-ACC-024","DROPPED - Unsaved Changes dialog on tab switch","locations","account_address","DROPPED","Office 1604 is open in Navigator. Account and Address tab is active","","",""
-"TC-LOC-ACC-025","Account List Address filter returns matching results","locations","account_address","Account List Address filter","Office 1604 is open in Navigator. Account and Address tab is active","1. Open Account List dialog
-2. Fill Address filter with ""Beverly""
-3. Click Search
-4. Verify results contain ""Beverly""
-5. Cancel dialog","Address filter returns accounts with matching address",""
-"TC-LOC-ACC-026","Account List City filter returns matching results","locations","account_address","Account List City filter","Office 1604 is open in Navigator. Account and Address tab is active","1. Open Account List dialog
-2. Fill City filter with ""LOS ANGELES""
-3. Click Search
-4. Verify results contain ""LOS ANGELES""
-5. Cancel dialog","City filter returns accounts with matching city",""
-"TC-LOC-ACC-027","Address selection changes venue display fields","locations","account_address","Address selection changes venue display","Office 1604 is open in Navigator. Account and Address tab is active","1. Verify starting city is ""WEST HOLLYWOOD""
-2. Open Venue Address dialog
-3. Select alternate address row (4200 E Palm Canyon Dr)
-4. Verify city changed to ""PALM SPRINGS""
-5. Verify Save enables (form dirty)
-6. Reload to discard - verify city restored to ""WEST HOLLYWOOD""","Address selection updates display fields but changes are discarded on reload (Angular form model does NOT serialize address changes into save payload - MCP-verified 2026-04-07)",""
-"TC-LOC-ACC-028","Account selection changes venue name and persists","locations","account_address","Account selection changes venue","Office 1604 is open in Navigator. Account and Address tab is active","2. Open Account List
-3. Verify Save enables
-4. Save and confirm
-5. Reload
-6. try/finally: if name changed, restore original account","Account selection applies, persists through save+reload","CLEANUP REQUIRED: Read current venue name (store for cleanup)"
+﻿TC ID,Title,Module,Submodule,Specific Field,Preconditions,Steps,Expected Result,Notes,Automated,Automation Execution,If Failed Reason of Failure
+TC-LOC-ACC-001,Verify tab two-card layout,locations,account_address,tab two-card layout,Office 1604 is open in Navigator. Account and Address tab is active,"1. Navigate to Setup > Location > 1604 -- ""Account and Address"" tab 2. Verify two side-by-side cards",Two distinct cards visible with correct section headers,,Yes,Pass,
+TC-LOC-ACC-002,Verify Venue Name field is disabled,locations,account_address,Venue Name,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Locate ""Name"" row in Venue/Branch Account 3. Verify textbox state",Name textbox is always disabled; cannot be typed in directly,,Yes,Pass,
+TC-LOC-ACC-003,Name button opens Account List dialog,locations,account_address,Name,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Click ""Name"" button (in Venue/Branch Account term) 3. Verify dialog",Account List dialog opens with search filters and result table,,Yes,Pass,
+TC-LOC-ACC-004,Account List - search returns results,locations,account_address,Account List,Office 1604 is open in Navigator. Account and Address tab is active,"1. Click ""Name"" button -- Account List dialog opens 2. Type ""Parker"" in ""Account Name"" field 3. Click ""Search"" 4. Verify result",Searching by account name returns matching account records,,Yes,Pass,
+TC-LOC-ACC-005,Account List - Select button disabled until row checked,locations,account_address,Account List,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open Account List dialog, search for ""Parker"", click ""Search"" 2. Verify ""Select"" button 3. Click row checkbox (first cell button[role=""checkbox""]) 4. Verify ""Select"" button",Select button only enables after a row is checked via row checkbox,,Yes,Pass,
+TC-LOC-ACC-006,Account List - Cancel closes without changes,locations,account_address,Account List,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open Account List dialog, search for results 2. Check a row 3. Click ""Cancel"" 4. Verify Name textbox",Cancel dismisses dialog without updating the Name field,,Yes,Pass,
+TC-LOC-ACC-007,Account List - Reset clears search fields,locations,account_address,Account List,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open Account List dialog 2. Enter ""Parker"" in ""Account Name"", click ""Search"" 3. Click ""Reset"" 4. Verify search fields",Reset clears all filter inputs and results table,,Yes,Pass,
+TC-LOC-ACC-008,Venue Address button opens Select Customer Address dialog,locations,account_address,Venue Address,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Click ""Address"" button (first one, in Venue/Branch Account term) 3. Verify dialog",Select Customer Address dialog opens with 7 address records (Total Addresses: 7 in footer),,Yes,Pass,
+TC-LOC-ACC-009,Address dialog - Select button disabled until row checked,locations,account_address,Address dialog,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open Select Customer Address dialog 2. Verify ""Select"" button 3. Click row checkbox (first cell button[role=""checkbox""]) 4. Verify ""Select"" button",Select button only enables when a row checkbox is checked,,Yes,Pass,
+TC-LOC-ACC-010,Address dialog - Search bar filters results client-side,locations,account_address,Address dialog,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open Select Customer Address dialog 2. Type ""Beverly"" in search bar 3. Verify rows","Search bar filters rows in real-time without server call; ""Beverly"" matches 1 of 7 addresses",,Yes,Pass,
+TC-LOC-ACC-011,Address dialog - Save button always disabled,locations,account_address,Address dialog,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open Select Customer Address dialog 2. Verify ""Save"" button 3. Click row checkbox to select a row 4. Verify ""Save"" button",Save button remains disabled regardless of row selection (no create-address function),,Yes,Pass,
+TC-LOC-ACC-012,Master Address button opens Select Customer Address dialog,locations,account_address,Master Address,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Click ""Address"" button in ""Master Bill To Address"" card (second Address button) 3. Verify dialog",Both Venue and Master Address buttons open the same Select Customer Address dialog,,Yes,Pass,
+TC-LOC-ACC-013,Venue address display fields are read-only,locations,account_address,Venue address display,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Verify fields below Address in Venue card","City, State, Zip, Country in Venue section are display-only; no edit controls",,Yes,Pass,
+TC-LOC-ACC-014,Master address display fields are read-only,locations,account_address,Master address display,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Verify fields below Address in Master card","City, State, Zip, Country in Master Bill To Address are display-only",,Yes,Pass,
+TC-LOC-ACC-015,Phone 1 - required field shows inline error when cleared,locations,account_address,Phone 1,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Clear ""Phone 1"" field 3. Click away (blur) 4. Verify ""Phone 1""","Phone 1 shows ""Required"" error inline on blur when empty; shows a validation error",,Yes,Pass,
+TC-LOC-ACC-016,"Phone 2 - optional, no validation error when empty",locations,account_address,Phone 2,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Click into ""Phone 2"", clear it (already empty), blur 3. Verify ""Phone 2""",Phone 2 has no required validation; empty is valid,,Yes,Pass,
+TC-LOC-ACC-017,Save button disabled when no pending changes,locations,account_address,Save,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Verify left-panel ""Save"" button",Save button starts disabled (no unsaved changes),,Yes,Pass,
+TC-LOC-ACC-018,Save button enables on field change,locations,account_address,Save,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open ""Account and Address"" tab 2. Edit ""Phone 2"" field (type any value) 3. Verify ""Save"" button",Editing any field triggers unsaved-change state and enables Save,,Yes,Pass,
+TC-LOC-ACC-019,Save flow - confirmation dialog then success,locations,account_address,Save flow,Office 1604 is open in Navigator. Account and Address tab is active,"1. Edit ""Phone 2"" to ""555-000-0001"" 2. Click ""Save"" 3. Click ""Save"" in dialog 4. Verify Save button",Save requires confirmation -- confirmed save disables Save button,,Yes,Pass,
+TC-LOC-ACC-020,Save changes persist after page reload,locations,account_address,Save changes persist,Office 1604 is open in Navigator. Account and Address tab is active,"1. Edit ""Phone 2"", save and confirm 2. Reload page 3. Navigate to ""Account and Address"" tab 4. Verify ""Phone 2""",Saved data persists after full page reload,,Yes,Pass,
+TC-LOC-ACC-021,DROPPED - Phone 1 round-trip persistence,locations,account_address,DROPPED,Office 1604 is open in Navigator. Account and Address tab is active,,,,No,,
+TC-LOC-ACC-022,Cancel Save dialog discards save without persisting,locations,account_address,Cancel Save dialog discards,Office 1604 is open in Navigator. Account and Address tab is active,"1. Edit Phone 2 with test value 2. Click Save 3. Click Cancel in dialog 4. Verify: Save still enabled, Phone 2 still has value (changes not committed) 5. Reload to discard",Cancel in Save Changes dialog dismisses without persisting; form stays dirty,,Yes,Pass,
+TC-LOC-ACC-023,Phone 1 cleared shows invalid state and error icon,locations,account_address,Phone 1 cleared shows invalid,Office 1604 is open in Navigator. Account and Address tab is active,"1. Clear Phone 1, blur 2. Verify is invalid and error icon visible 3. Verify Save remains enabled (Angular does NOT block save on invalid Phone 1 - ) 4. Reload to restore baseline",Clearing Phone 1 shows validation indicators but does NOT disable Save,,Yes,Pass,
+TC-LOC-ACC-024,DROPPED - Unsaved Changes dialog on tab switch,locations,account_address,DROPPED,Office 1604 is open in Navigator. Account and Address tab is active,,,,No,,
+TC-LOC-ACC-025,Account List Address filter returns matching results,locations,account_address,Account List Address filter,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open Account List dialog 2. Fill Address filter with ""Beverly"" 3. Click Search 4. Verify results contain ""Beverly"" 5. Cancel dialog",Address filter returns accounts with matching address,,Yes,Pass,
+TC-LOC-ACC-026,Account List City filter returns matching results,locations,account_address,Account List City filter,Office 1604 is open in Navigator. Account and Address tab is active,"1. Open Account List dialog 2. Fill City filter with ""LOS ANGELES"" 3. Click Search 4. Verify results contain ""LOS ANGELES"" 5. Cancel dialog",City filter returns accounts with matching city,,Yes,Pass,
+TC-LOC-ACC-027,Address selection changes venue display fields,locations,account_address,Address selection changes venue display,Office 1604 is open in Navigator. Account and Address tab is active,"1. Verify starting city is ""WEST HOLLYWOOD"" 2. Open Venue Address dialog 3. Select alternate address row (4200 E Palm Canyon Dr) 4. Verify city changed to ""PALM SPRINGS"" 5. Verify Save enables (form dirty) 6. Reload to discard - verify city restored to ""WEST HOLLYWOOD""",Address selection updates display fields but changes are discarded on reload (Angular form model does NOT serialize address changes into save payload - ),,Yes,Pass,
+TC-LOC-ACC-028,Account selection changes venue name and persists,locations,account_address,Account selection changes venue,Office 1604 is open in Navigator. Account and Address tab is active,"2. Open Account List 3. Verify Save enables 4. Save and confirm 5. Reload 6. try/finally: if name changed, restore original account","Account selection applies, persists through save+reload",,Yes,Pass,

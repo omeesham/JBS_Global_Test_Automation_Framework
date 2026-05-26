@@ -25,8 +25,8 @@ import {
 } from '../../src/data/testdata/locations/location-notes.data';
 
 // ─── Field-Case Coverage (FCC) — Notes FCC pilot 2026-05-19 ────────
-// 26 net-new tests + 1 DEFERRED (FCC-005). Numbering gaps preserved at FCC-003/004/011/030/031
-// (dropped as duplicates per catalog). Each FCC test is independent: own baseline, own cleanup.
+// 26 net-new tests + 1 DEFERRED (4000-char exact-limit persist — not implemented). Each test is
+// independent: own baseline, own cleanup.
 // Runner: clients/encore/src/core/field-case-runner.ts saveAndVerifyCase().
 test.describe('Location Notes — FCC @locations @notes @fcc', () => {
 
@@ -39,11 +39,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // ─── Group α — Content BVA + length ──────────────────────────────────────
-  test('TC-LOC-NTS-FCC-001: 1-char persist (BVA min)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-039: 1-char persist (BVA min)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-001',
+      id: 'TC-LOC-NTS-039',
       label: 'Notes row 0 — 1-char persist (BVA min)',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: () => locationNotesPage.fillNote(0, NOTE_1_CHAR),
@@ -60,11 +60,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-002: 3999-char persist (BVA -1)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-040: 3999-char persist (BVA -1)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-002',
+      id: 'TC-LOC-NTS-040',
       label: 'Notes row 0 — 3999-char persist (BVA -1)',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: () => locationNotesPage.pasteIntoNote(0, NOTE_3999_CHARS),
@@ -78,11 +78,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // ─── Group β — Whitespace / special characters ────────────────────────────
-  test('TC-LOC-NTS-FCC-006: Whitespace-only "   " persist', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-041: Whitespace-only "   " persist', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-006',
+      id: 'TC-LOC-NTS-041',
       label: 'Whitespace-only persist',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: () => locationNotesPage.fillNote(0, NOTE_WHITESPACE_ONLY),
@@ -95,11 +95,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-007: Leading whitespace "  hello" persist (not trimmed)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-042: Leading whitespace "  hello" persist (not trimmed)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-007',
+      id: 'TC-LOC-NTS-042',
       label: 'Leading whitespace persist',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: () => locationNotesPage.fillNote(0, NOTE_LEADING_WS),
@@ -112,11 +112,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-008: Trailing whitespace "hello  " persist (not trimmed)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-043: Trailing whitespace "hello  " persist (not trimmed)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-008',
+      id: 'TC-LOC-NTS-043',
       label: 'Trailing whitespace persist',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: () => locationNotesPage.fillNote(0, NOTE_TRAILING_WS),
@@ -129,11 +129,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-009: Tab character "a\\tb" persist', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-033: Tab character "a\\tb" persist', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-009',
+      id: 'TC-LOC-NTS-033',
       label: 'Tab character persist',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: () => locationNotesPage.pasteIntoNote(0, NOTE_TAB_CHAR),
@@ -146,11 +146,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-010: Newline "line1\\nline2\\nline3" persist (MAIN spec)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-044: Newline "line1\\nline2\\nline3" persist (MAIN spec)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-010',
+      id: 'TC-LOC-NTS-044',
       label: 'Newline multi-line persist',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: () => locationNotesPage.pasteIntoNote(0, NOTE_NEWLINE_MULTI),
@@ -164,11 +164,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // ─── Group γ — Edit operations (append / prepend / replace / clear) ───────
-  test('TC-LOC-NTS-FCC-012: Edit append', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-034: Edit append', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-012',
+      id: 'TC-LOC-NTS-034',
       label: 'Edit append after baseline save',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
@@ -186,11 +186,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-013: Edit prepend', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-045: Edit prepend', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-013',
+      id: 'TC-LOC-NTS-045',
       label: 'Edit prepend after baseline save',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
@@ -208,7 +208,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-014: Edit partial-replace (slice middle)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-046: Edit partial-replace (slice middle)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     const expected =
@@ -216,7 +216,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       NOTE_REPLACE_SLICE.replacement +
       NOTE_REPLACE_BASE.slice(NOTE_REPLACE_SLICE.end);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-014',
+      id: 'TC-LOC-NTS-046',
       label: 'Edit partial-replace slice',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
@@ -236,11 +236,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-015: Edit clear-to-empty (row stays with empty value)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-047: Edit clear-to-empty (row stays with empty value)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-015',
+      id: 'TC-LOC-NTS-047',
       label: 'Edit clear-to-empty after baseline save',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
@@ -266,11 +266,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // ─── Group δ — Multi-row positive cases ──────────────────────────────────
-  test('TC-LOC-NTS-FCC-016: 2-row positive (smallest multi-row save+reload)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-048: 2-row positive (smallest multi-row save+reload)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-016',
+      id: 'TC-LOC-NTS-048',
       label: '2-row positive',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: async () => {
@@ -288,11 +288,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-017: 5-row positive (smoke at moderate count)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-049: 5-row positive (smoke at moderate count)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-017',
+      id: 'TC-LOC-NTS-049',
       label: '5-row positive',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: async () => {
@@ -312,11 +312,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-018: Mixed-content (row 0 = 1-char, row 1 = 4000-char) save+reload', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-050: Mixed-content (row 0 = 1-char, row 1 = 4000-char) save+reload', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-018',
+      id: 'TC-LOC-NTS-050',
       label: 'Mixed short+long rows',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: async () => {
@@ -334,12 +334,12 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-019: Edit row 1 of 2 — row 0 unchanged after save+reload', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-051: Edit row 1 of 2 — row 0 unchanged after save+reload', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     const editSuffix = ' — edited';
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-019',
+      id: 'TC-LOC-NTS-051',
       label: 'Edit row 1 leaves row 0 intact',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
@@ -361,11 +361,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // ─── Group ε — Delete operations (clearNote-then-deleteRow per LR-026 + BUG-001 workaround) ──
-  test('TC-LOC-NTS-FCC-020: Delete first of 2 rows — row 1 becomes sole remaining row', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-052: Delete first of 2 rows — row 1 becomes sole remaining row', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-020',
+      id: 'TC-LOC-NTS-052',
       label: 'Delete row 0 of 2',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
@@ -388,12 +388,12 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  test('TC-LOC-NTS-FCC-021: Delete last of 3 rows — rows 0+1 remain', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-053: Delete last of 3 rows — rows 0+1 remain', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     const r0 = 'r1', r1 = 'r2', r2 = 'r3';
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-021',
+      id: 'TC-LOC-NTS-053',
       label: 'Delete row 2 of 3',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
@@ -422,11 +422,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
 
   // BUG-LOC-NTS-004: Delete button vanishes on single-row form-array after clear() — TC cannot
   // reach the Delete step. Filed 2026-05-21 (lifecycle refactor Group D-4).
-  test.fixme('TC-LOC-NTS-FCC-022: Delete one of one (single row) — empty state persists', async ({ locationNotesPage, dependencyGate }) => {
+  test.fixme('TC-LOC-NTS-035: Delete one of one (single row) — empty state persists', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-022',
+      id: 'TC-LOC-NTS-035',
       label: 'Delete the only row',
       baseline: async () => {
         await locationNotesPage.ensureEmptyState();
@@ -454,7 +454,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // ─── Group ζ — Save-dialog edge cases (plain test blocks; do not fit save+verify lifecycle) ──
-  test('TC-LOC-NTS-FCC-023: Save → Cancel → edit → Save → Ok → final value persists', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-054: Save → Cancel → edit → Save → Ok → final value persists', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await locationNotesPage.ensureEmptyState();
@@ -471,7 +471,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
-  test('TC-LOC-NTS-FCC-024: Save → dialog opens → reload page mid-dialog → no persist, no error', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-055: Save → dialog opens → reload page mid-dialog → no persist, no error', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     // Group A-1 (lifecycle refactor 2026-05-21): bare `page` destructure
@@ -494,7 +494,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     }
   });
 
-  test('TC-LOC-NTS-FCC-025: Save → Escape on dialog → dialog closes, dirty preserved, no persist', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-056: Save → Escape on dialog → dialog closes, dirty preserved, no persist', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
@@ -517,7 +517,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     }
   });
 
-  test('TC-LOC-NTS-FCC-026: Save → click outside dialog → observe behavior (verify whether dialog dismisses or stays)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-057: Save → click outside dialog → observe behavior (verify whether dialog dismisses or stays)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
@@ -546,14 +546,14 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     }
   });
 
-  test('TC-LOC-NTS-FCC-027: Idempotent save — pristine form Save stays disabled, second-save fires no API call', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-058: Idempotent save — pristine form Save stays disabled, second-save fires no API call', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     // lifecycle refactor closure (2026-05-22) — /rca mama-led orchestration.
     // Subagent B (HEADED CLI live walk) identified Encore's real data-save endpoint as
     // `PUT /navigator/api/location/update-properties`. POSTs to `/locations/.../settings/location`
     // are Next.js 15 App-Router RSC server-component renders (framework hydration POSTs that
-    // cascade for 0-8s after any page.reload — including FCC-026's prior reloadAndNavigateToNotesTab).
+    // cascade for 0-8s after any page.reload — including NTS-057's prior reloadAndNavigateToNotesTab).
     // Subagent A (trace timeline) confirmed the prior captured POST was HAR 218 with body=[] firing
     // 27ms after HAR 214's response-end, AFTER listener attach. The original `/settings/location`
     // filter was over-broad and matched framework noise. Filter narrowed to `/navigator/api/` so
@@ -595,7 +595,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // ─── Group η — Cross-state cases (HIST sequence, cross-tab isolation) ────
-  test('TC-LOC-NTS-FCC-028: Sequential save persists most recent value (HIST row verification deferred to HIST spec)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-059: Sequential save persists most recent value (HIST row verification deferred to HIST spec)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(120_000);
     await locationNotesPage.ensureEmptyState();
@@ -613,7 +613,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
-  test('TC-LOC-NTS-FCC-029: Save Notes → switch to Currency tab — Currency NOT dirty (cross-tab isolation)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-060: Save Notes → switch to Currency tab — Currency NOT dirty (cross-tab isolation)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
     // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
@@ -637,11 +637,11 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // ─── Group θ — BUG regression watch (BUG-LOC-NTS-003 placeholder content check) ────
-  test('TC-LOC-NTS-FCC-032: Post-save row content check (assert content, not count per LR-053)', async ({ locationNotesPage, dependencyGate }) => {
+  test('TC-LOC-NTS-061: Post-save row content check (assert content, not count per LR-053)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-NTS-FCC-032',
+      id: 'TC-LOC-NTS-061',
       label: 'Placeholder-aware content check',
       baseline: () => locationNotesPage.ensureEmptyState(),
       act: () => locationNotesPage.fillNote(0, NOTE_IDEMPOTENT),

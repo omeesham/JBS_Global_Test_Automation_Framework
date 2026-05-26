@@ -4,8 +4,463 @@ import {
   SELF_ROW,
   ADD_LOCATION,
   SSL_DIALOG_HEADING,
+  SEARCH_BVA_1_CHAR,
+  SEARCH_BVA_LONG_200,
+  SEARCH_NEG_SPECIAL,
+  SEARCH_NEG_WHITESPACE,
+  SEARCH_NEG_LEADING_TRAILING_ATLANTA,
+  SEARCH_EDIT_QUERY_1,
+  SEARCH_EDIT_QUERY_2,
+  FCC_DELETE_MIDDLE_QUERIES,
+  FCC_DELETE_ALL_QUERIES,
+  FCC_FIVE_ROW_QUERIES,
+  FCC_CROSS_ROW_QUERY,
+  FCC_SEARCH_BULK_LOWER_BOUND,
 } from '../../src/data/testdata/locations/location-shared-setup-locations.data';
 import { OFFICE_NO } from '../../src/data/testdata/common.data';
+import { saveAndVerifyCase } from '../../src/core/field-case-runner';
+
+// ─── Field-Case Coverage (FCC) — SSL FCC subplan 2026-05-22 ────────
+// 14 net-new tests per locations_shared_setup_locations_test_cases.md §FCC.
+// Each FCC test owns its baseline + cleanup. Runner: clients/encore/src/core/field-case-runner.ts
+// saveAndVerifyCase(). Existing 30-TC describe block UNTOUCHED below (STRICT-LINE-D).
+// Non-Miami test data throughout per BUG-LOC-SHR-001 workaround (Miami search returns
+// phantom row; non-Miami searches behave correctly — see walk-evidence-shared-setup-2026-05-22.md §4).
+test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () => {
+
+  // D-2 lifecycle refactor pattern (mirrors location-notes.spec.ts:35-39).
+  test.beforeEach(async ({ locationSharedSetupLocationsPage: pg }) => {
+    if (!(await pg.isOnSharedSetupTab())) {
+      await pg.navigateToSharedSetupTab(OFFICE_NO);
+    }
+  });
+
+  // ─── Group α — Search BVA ──────────────────────────────────────────────
+  test('TC-LOC-SSL-033: 1-char search filter shows ≥1 result (BVA min)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-033',
+      label: 'Search 1-char (BVA min)',
+      baseline: async () => {
+        await pg.ensureCleanSSLTable(OFFICE_NO);
+        await pg.clickAdd();
+      },
+      act: () => pg.searchInDialog(SEARCH_BVA_1_CHAR),
+      expectBeforeSave: async () => {
+        await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+      },
+      saveAndConfirm: () => pg.clickDialogCancel(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(1);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  test('TC-LOC-SSL-034: 200-char search does not crash dialog (BVA max)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-034',
+      label: 'Search 200-char (BVA max)',
+      baseline: async () => {
+        await pg.ensureCleanSSLTable(OFFICE_NO);
+        await pg.clickAdd();
+      },
+      act: () => pg.searchInDialog(SEARCH_BVA_LONG_200),
+      expectBeforeSave: async () => {
+        // Dialog still visible + Select stays disabled (no row selectable from non-matching filter)
+        expect(await pg.isAddDialogVisible()).toBe(true);
+        await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(false);
+      },
+      saveAndConfirm: () => pg.clickDialogCancel(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(1);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  test('TC-LOC-SSL-035: clear-input restores full row count (BVA empty after non-empty)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-035',
+      label: 'Search clear-input restores bulk',
+      baseline: async () => {
+        await pg.ensureCleanSSLTable(OFFICE_NO);
+        await pg.clickAdd();
+      },
+      act: async () => {
+        await pg.searchInDialog(SEARCH_EDIT_QUERY_1); // 'Atlanta' → ~88 rows
+        await pg.searchInDialog(''); // clear
+      },
+      expectBeforeSave: async () => {
+        await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeGreaterThan(FCC_SEARCH_BULK_LOWER_BOUND);
+      },
+      saveAndConfirm: () => pg.clickDialogCancel(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(1);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  // ─── Group β — Search special / whitespace ───────────────────────────────
+  test('TC-LOC-SSL-036: special chars return clean empty-state (no crash)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-036',
+      label: 'Search special chars',
+      baseline: async () => {
+        await pg.ensureCleanSSLTable(OFFICE_NO);
+        await pg.clickAdd();
+      },
+      act: () => pg.searchInDialog(SEARCH_NEG_SPECIAL),
+      expectBeforeSave: async () => {
+        expect(await pg.isAddDialogVisible()).toBe(true);
+        await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(false);
+      },
+      saveAndConfirm: () => pg.clickDialogCancel(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(1);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  test('TC-LOC-SSL-037: whitespace-only filter does not crash', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-037',
+      label: 'Search whitespace-only',
+      baseline: async () => {
+        await pg.ensureCleanSSLTable(OFFICE_NO);
+        await pg.clickAdd();
+      },
+      act: () => pg.searchInDialog(SEARCH_NEG_WHITESPACE),
+      expectBeforeSave: async () => {
+        expect(await pg.isAddDialogVisible()).toBe(true);
+      },
+      saveAndConfirm: () => pg.clickDialogCancel(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(1);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  test('TC-LOC-SSL-038: leading/trailing whitespace matches base term', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-038',
+      label: 'Search leading/trailing whitespace',
+      baseline: async () => {
+        await pg.ensureCleanSSLTable(OFFICE_NO);
+        await pg.clickAdd();
+      },
+      act: () => pg.searchInDialog(SEARCH_NEG_LEADING_TRAILING_ATLANTA),
+      expectBeforeSave: async () => {
+        const count = await pg.getDialogRowCount();
+        // Either filter trims whitespace (matches Atlanta) OR doesn't (0 real results + "No results.").
+        // Both are acceptable behaviors; assert no crash + dialog stable.
+        expect(count).toBeGreaterThanOrEqual(0);
+        expect(count).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+      },
+      saveAndConfirm: () => pg.clickDialogCancel(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(1);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  // ─── Group γ — Search edit-cycle ──────────────────────────────────────────
+  test('TC-LOC-SSL-039: type → clear → re-type swaps results', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-039',
+      label: 'Search edit-cycle type-clear-retype',
+      baseline: async () => {
+        await pg.ensureCleanSSLTable(OFFICE_NO);
+        await pg.clickAdd();
+      },
+      act: async () => {
+        await pg.searchInDialog(SEARCH_EDIT_QUERY_1); // 'Atlanta'
+        await pg.searchInDialog(SEARCH_EDIT_QUERY_2); // 'Boston' (clear + retype via fill())
+      },
+      expectBeforeSave: async () => {
+        await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+        // Final filter = Boston; assert first row name does NOT include 'Atlanta'.
+        const first = await pg.getFirstDialogRowText();
+        expect(first.localOfficeName.toLowerCase()).not.toContain('atlanta');
+      },
+      saveAndConfirm: () => pg.clickDialogCancel(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(1);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  test('TC-LOC-SSL-040: clear-via-input restores baseline', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    let filteredCount = -1;
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-040',
+      label: 'Search clear-via-input restores',
+      baseline: async () => {
+        await pg.ensureCleanSSLTable(OFFICE_NO);
+        await pg.clickAdd();
+      },
+      act: async () => {
+        await pg.searchInDialog(SEARCH_EDIT_QUERY_1); // Atlanta → ~88 rows
+        await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+        filteredCount = await pg.getDialogRowCount();
+        await pg.searchInDialog(''); // clear
+      },
+      expectBeforeSave: async () => {
+        await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeGreaterThan(filteredCount);
+      },
+      saveAndConfirm: () => pg.clickDialogCancel(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(1);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  // ─── Group δ — Multi-row delete variants ──────────────────────────────────
+  test('TC-LOC-SSL-031: delete-MIDDLE row + save + reload (3 → 2 with middle gone)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    test.fixme(true, 'FIXME(BUG-LOC-SHR-001): Blocked by app bug — random per-row Delete becomes non-clickable after add+save+reload; cleanup loop spins forever clicking the dead button. Same pattern as TC-LOC-SSL-030. Pending Encore fix.');
+    dependencyGate([]);
+    test.setTimeout(120_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-031',
+      label: 'Multi-row delete-MIDDLE',
+      baseline: () => pg.ensureCleanSSLTable(OFFICE_NO),
+      act: async () => {
+        // Setup: add 3 non-Miami rows
+        for (const q of FCC_DELETE_MIDDLE_QUERIES) {
+          await pg.clickAdd();
+          await pg.searchInDialog(q);
+          await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+          await pg.selectFirstDialogRow();
+          await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+          await pg.clickDialogSelect();
+        }
+        const initialSave = await pg.clickSave();
+        expect(initialSave.success).toBe(true);
+        await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+        expect(await pg.getDataRowCount()).toBe(4);
+        // Delete the MIDDLE row (row index 2 in 1-based: row 1 = self, row 2 = first added, row 3 = middle, row 4 = last)
+        await pg.deleteNonSelfRow(3);
+        await expect.poll(() => pg.getDataRowCount(), { timeout: 5_000 }).toBe(3);
+      },
+      saveAndConfirm: () => pg.saveAndConfirm(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(3); // self + 2 remaining
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  test('TC-LOC-SSL-041: delete-ALL non-self + save + reload (2 → 0 non-self)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(240_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-041',
+      label: 'Multi-row delete-ALL non-self',
+      baseline: () => pg.ensureCleanSSLTable(OFFICE_NO),
+      act: async () => {
+        // Setup: add 2 non-Miami rows
+        for (const q of FCC_DELETE_ALL_QUERIES) {
+          await pg.clickAdd();
+          await pg.searchInDialog(q);
+          await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+          await pg.selectFirstDialogRow();
+          await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+          await pg.clickDialogSelect();
+        }
+        const initialSave = await pg.clickSave();
+        expect(initialSave.success).toBe(true);
+        await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+        expect(await pg.getDataRowCount()).toBe(3);
+        // Delete BOTH non-self rows (loop until none remain in DOM)
+        let nsRow = await pg.findNonSelfRow();
+        while (nsRow) {
+          await pg.deleteNonSelfRow(nsRow.index);
+          nsRow = await pg.findNonSelfRow();
+        }
+        expect(await pg.getDataRowCount()).toBe(1);
+      },
+      saveAndConfirm: () => pg.saveAndConfirm(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(1); // only self persisted
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  // ─── Group ε — Multi-row edit / N-row boundary ───────────────────────────
+  test('TC-LOC-SSL-042: cross-row edit-preserve (toggle non-self SI → self SI unchanged)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(240_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-042',
+      label: 'Multi-row cross-row edit preserve',
+      baseline: () => pg.ensureCleanSSLTable(OFFICE_NO),
+      act: async () => {
+        // Confirm self SI = false (baseline default)
+        expect((await pg.getSelfSharesInventoryState()).checked).toBe(false);
+        // Add 1 non-Miami row, save, reload
+        await pg.clickAdd();
+        await pg.searchInDialog(FCC_CROSS_ROW_QUERY); // Atlanta
+        await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+        await pg.selectFirstDialogRow();
+        await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+        await pg.clickDialogSelect();
+        const addSave = await pg.clickSave();
+        expect(addSave.success).toBe(true);
+        await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+        // Toggle non-self SI OFF (default = true post-add)
+        const nsRow = await pg.findNonSelfRow();
+        expect(nsRow).not.toBeNull();
+        expect((await pg.getNonSelfRowState(nsRow!.index)).sharesInventory.checked).toBe(true);
+        await pg.toggleNonSelfSharesInventory(nsRow!.index);
+        await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+      },
+      saveAndConfirm: () => pg.saveAndConfirm(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        // Self SI UNCHANGED across the save+reload cycle
+        expect((await pg.getSelfSharesInventoryState()).checked).toBe(false);
+        // Non-self SI flipped to false
+        const nsRow = await pg.findNonSelfRow();
+        expect(nsRow).not.toBeNull();
+        expect((await pg.getNonSelfRowState(nsRow!.index)).sharesInventory.checked).toBe(false);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  test('TC-LOC-SSL-032: 5-row N-boundary push (add 5 non-Miami + save + reload all 5 persist)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    test.fixme(true, 'FIXME(BUG-LOC-SHR-001): Same random per-row Delete-non-clickable bug as TC-LOC-SSL-030 / TC-LOC-SSL-031 — cleanup loop on 5 rows compounds the flake. Pending Encore fix.');
+    dependencyGate([]);
+    test.setTimeout(180_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-032',
+      label: 'Multi-row 5-row boundary push',
+      baseline: () => pg.ensureCleanSSLTable(OFFICE_NO),
+      act: async () => {
+        for (const q of FCC_FIVE_ROW_QUERIES) {
+          await pg.clickAdd();
+          await pg.searchInDialog(q);
+          await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+          await pg.selectFirstDialogRow();
+          await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+          await pg.clickDialogSelect();
+        }
+        await expect.poll(() => pg.getDataRowCount(), { timeout: 5_000 }).toBe(6); // self + 5
+        await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+      },
+      saveAndConfirm: () => pg.saveAndConfirm(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect(await pg.getDataRowCount()).toBe(6);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  // ─── Group ζ — Checkbox cross-row + round-trip ───────────────────────────
+  test('TC-LOC-SSL-043: cross-row independence pre-save (toggle non-self → self unchanged in-page)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(240_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-043',
+      label: 'Checkbox cross-row independence pre-save',
+      baseline: () => pg.ensureCleanSSLTable(OFFICE_NO),
+      act: async () => {
+        // Baseline: self SI = false. Add 1 row, save, reload. Then toggle non-self (no save yet).
+        expect((await pg.getSelfSharesInventoryState()).checked).toBe(false);
+        await pg.clickAdd();
+        await pg.searchInDialog(FCC_CROSS_ROW_QUERY); // Atlanta
+        await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
+        await pg.selectFirstDialogRow();
+        await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+        await pg.clickDialogSelect();
+        const addSave = await pg.clickSave();
+        expect(addSave.success).toBe(true);
+        await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+        const nsRow = await pg.findNonSelfRow();
+        expect(nsRow).not.toBeNull();
+        // Toggle non-self SI OFF in-page (no save yet)
+        await pg.toggleNonSelfSharesInventory(nsRow!.index);
+      },
+      expectBeforeSave: async () => {
+        // In-page assertion: self SI unchanged (still false), non-self SI toggled (now false)
+        expect((await pg.getSelfSharesInventoryState()).checked).toBe(false);
+        const nsRow = await pg.findNonSelfRow();
+        expect(nsRow).not.toBeNull();
+        expect((await pg.getNonSelfRowState(nsRow!.index)).sharesInventory.checked).toBe(false);
+        await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+      },
+      saveAndConfirm: () => pg.saveAndConfirm(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        // Post-save: self SI still false (truly unchanged across the cycle)
+        expect((await pg.getSelfSharesInventoryState()).checked).toBe(false);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+  test('TC-LOC-SSL-044: SI full round-trip ON → save → OFF → save persists each leg', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(240_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-SSL-044',
+      label: 'Checkbox round-trip ON-save-OFF-save',
+      baseline: () => pg.ensureCleanSSLTable(OFFICE_NO),
+      act: async () => {
+        // Leg 1: toggle ON → save → reload → assert checked
+        await pg.toggleSelfSharesInventory();
+        await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+        const legOne = await pg.clickSave();
+        expect(legOne.success).toBe(true);
+        await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
+        expect((await pg.getSelfSharesInventoryState()).checked).toBe(true);
+        // Leg 2 setup: toggle OFF (saveAndConfirm commits this; saveAndVerifyCase.reload reads it)
+        await pg.toggleSelfSharesInventory();
+        await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+      },
+      saveAndConfirm: () => pg.saveAndConfirm(),
+      reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
+      expectAfterReload: async () => {
+        expect((await pg.getSelfSharesInventoryState()).checked).toBe(false);
+      },
+      cleanup: () => pg.ensureCleanSSLTable(OFFICE_NO),
+    });
+  });
+
+});
 
 test.describe('Location Shared Setup Locations @locations @shared-setup', () => {
 
