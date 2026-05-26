@@ -19,11 +19,38 @@ import { SHARED_PATHS } from './shared-types';
 
 const TC_PATTERN = /TC-[A-Z]+-[A-Z]+-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g;
 
+// LR-020 regression guard: regex MUST match all 1- to 3-segment-prefix TC ID shapes.
+// 2026-05-26 forensic finding (csv-md-delta-investigation-2026-05-26.md): the prior
+// (?:-[A-Z]+)? singular-optional clause silently dropped TC-LOC-LI-NE-NNN (3-segment
+// prefix) and the like, inflating the apparent MD/CSV delta. New form: 1-to-3
+// dash-segments between TC-<first> and the trailing number/letters group.
+const MD_HEADER_TC_PATTERN = /^#{2,3}\s+(TC-[A-Z]+(?:-[A-Z]+){1,3}-(?:\d+[A-Z]?|[A-Z]+)(?:-[A-Z]+)*):/gm;
+
+function assertHeaderRegexCovers3SegmentPrefixes(): void {
+  const fixtures = ['TC-LOC-CUR-001', 'TC-LOC-LI-NE-011', 'TC-LOC-SHR-DIV-099'];
+  for (const id of fixtures) {
+    const probe = `## ${id}: title`;
+    const singleHit = new RegExp(MD_HEADER_TC_PATTERN.source);
+    const m = probe.match(singleHit);
+    if (!m || m[1] !== id) {
+      throw new Error(
+        `check-tc-parity MD_HEADER_TC_PATTERN self-test FAILED for ${id} — matched ${m ? m[1] : '(null)'}`
+      );
+    }
+  }
+}
+assertHeaderRegexCovers3SegmentPrefixes();
+
 function getSpecTcIds(): Set<string> {
+  // LR-020 regression guard: from repo root, `npx playwright test --list` has no
+  // config to find — returns 0 tests, masking the true Spec count as 0. The per-
+  // client Playwright project lives at SHARED_PATHS.clientRoot, so anchor execSync
+  // there. (2026-05-26 forensic finding.)
   const output = execSync('npx playwright test --list', {
     encoding: 'utf8',
     maxBuffer: 10 * 1024 * 1024,
     stdio: ['pipe', 'pipe', 'pipe'],
+    cwd: SHARED_PATHS.clientRoot,
   });
   const ids = new Set<string>();
   for (const match of output.matchAll(TC_PATTERN)) {
@@ -38,7 +65,7 @@ function getMarkdownTcIds(): Set<string> {
   const files = findMarkdownFiles(testCasesDir);
   for (const file of files) {
     const content = fs.readFileSync(file, 'utf8');
-    const headerPattern = /^#{2,3}\s+(TC-[A-Z]+(?:-[A-Z]+)?-(?:\d+[A-Z]?|[A-Z]+)(?:-[A-Z]+)*):/gm;
+    const headerPattern = new RegExp(MD_HEADER_TC_PATTERN.source, MD_HEADER_TC_PATTERN.flags);
     let match;
     while ((match = headerPattern.exec(content)) !== null) {
       ids.add(match[1]!);
