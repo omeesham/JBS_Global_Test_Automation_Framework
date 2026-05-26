@@ -375,6 +375,44 @@ Per auditor finding 5: Phase A.5 is a separate landing for the N1 framework sema
 - Remove `export_test_cases/exports/` line from `.gitignore`
 - **VERIFY**: full pipeline end-to-end; 6 HARD STOPs reject CSV wording; dry-run ship → mock repo workflow green; `Grep csv clients/encore/test_cases_csv/` returns ENOENT
 
+### Phase 3.5 — Plan closure (LR-027 + LR-055) — **added 2026-05-26 per user authorization**
+
+After Phase D commits, close THIS plan with the same closure discipline every other plan follows. Added as an explicit section because the original locked plan referenced Phase 3.5 only in passing ("[ceremony] tag") — the actual closure step deserves its own enumerated phase given the size of this migration.
+
+**Closure steps (sequential)**:
+
+1. **Edit frontmatter**: flip plan's frontmatter to include `**Status**: DONE` and `**Executed**: 2026-MM-DD` (the actual completion date).
+2. **Write `### Execution Summary` section** at the bottom of the plan body per LR-027. Required content (cite real file paths so LR-055 C3 passes):
+   - Per-phase outcomes (Phase 0/A/A.5/B/C/D — what was done, what was skipped-with-justification)
+   - Files created (count + 2-3 representative paths): `export_test_cases/to-xlsx.ts`, `export_test_cases/sp00-augment-logic.ts`, `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`, etc.
+   - Files deleted (CSVs + dead code paths)
+   - Plans triaged in Phase C (count by REWRITE/DROP/PRESERVE/REVIEW)
+   - Deviation log (every choice that differed from the locked plan body — per `feedback_plan_deviations_log.md`)
+   - MCP/verification findings (xlsx-vs-csv-parity exit codes; cross-tool open verdicts)
+   - Hours actual
+3. **Run `validate-plan-closure`** standalone before staging:
+   ```
+   node scripts/validate-plan-closure.mjs --plan plans/pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md --enforce
+   ```
+   Expected: `[PASS]`. If any check fails:
+   - **C1 (OVERRIDABLE)**: add an entry to `.claude/closure-overrides.json` `overrides[]` array with this plan's filename + one-line justification (FILE-ONLY override per LR-055). User edits the JSON; agent does not.
+   - **C2/C3/C4/C5 (NOT OVERRIDABLE)**: remediate the underlying issue:
+     - C2 (Execution Summary heading + ≥10 content lines): expand the summary text.
+     - C3 (cited paths must exist on disk): use real, current paths — every file mentioned in the summary must exist at HEAD (or be enumerated in this plan's DELETE list for paths deleted in Phase D).
+     - C4 (Depends-on phantom hand-off): every `Depends on:` / `Blocks:` reference must resolve to an existing plan file with required tokens.
+     - C5 (no structural drift): subplan list / phase boundaries unchanged from authoring.
+4. **`git mv` plan to `plans/done/`**: `git mv plans/pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md plans/done/`.
+5. **`npm run plans:reindex`** — regenerate `plans/INDEX.md` (LR-035 — never hand-edit). Migration-date header injected via script template (already part of Phase C).
+6. **Parent-cascade check (LR-027)** — grep `plans/pending/` for any `SUBPLAN_*.md` with `**Parent**: PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md` or that lists this plan as their parent in body. This plan has no subplans (its work was inlined as Phase 0/A/A.5/B/C/D — no child subplans were spawned), so the cascade is a no-op.
+7. **LR-028 activity log row**: append a row to `clients/encore/specs_planning/_internal/agent-activity-log.md` per LR-028 + LR-037 (timestamp ≥ all touched-file mtimes). Names every file touched + the parity / ship outcomes.
+8. **Commit closure**: single closure commit containing the plan body edits (Status DONE + Execution Summary) + INDEX regen + activity-log row + closure manifest. Pre-commit Gate C runs `validate-plan-closure --staged --enforce`; this commit MUST PASS that gate.
+
+**Stop conditions for the closure step itself**:
+
+- Validator fails C2/C3/C4/C5 and the remediation would expand scope beyond the migration's body → HALT, ask user.
+- C1 fails and user has not edited `.claude/closure-overrides.json` → HALT, surface; do not commit closure.
+- Parent-cascade reveals an unexpected child subplan → HALT, audit; do not close blindly.
+
 ---
 
 ## Files inventory — full CRUD (post-audit additions in **bold**)
