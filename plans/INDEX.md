@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 92 pending · 330 done · 60 stale (>14d) · 0 DONE-in-pending
+**Totals**: 91 pending · 331 done · 60 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -137,52 +137,46 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 44 | [SUBPLAN_SSL_FCC.md](pending/SUBPLAN_SSL_FCC.md) | SUBPLAN_SSL_FCC | P0 | — (ready) | PENDING | Opus | xhi | acceptEdits | cli | 2026-05-22 |
 | 45 | [PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md](pending/PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md) | PLAN: Full Suite Run — Clean HTML + Allure Reports | P0-IMMEDIATE | — (ready) | PENDING | Sonnet | hi | auto | none | 2026-05-14 |
 | 46 | [SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md](pending/SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md) | SUBPLAN_PARITY_W2_09 — Full-Suite Run + CI Wire + Final Parity Report | P0 | — (ready) | GATED | Opus | hi | auto | cli | 2026-05-26 |
-| 47 | [SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md](pending/SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md) | Subplan — TC ID Normalization + Parity Fix + Stale File Cleanup | P0 | — (ready) | PENDING | Opus | max | bypass | none | 2026-05-26 |
-| 48 | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | SUBPLAN: Agent File Restructure | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 49 | [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | SUBPLAN: Duplicate & Junk Purge | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 50 | [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | SUBPLAN: Dead Code & Reusability | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 51 | [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | SUBPLAN: Doc & MD Slop Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 52 | [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | SUBPLAN: Slop Prevention Guardrails | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 53 | [SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md](pending/SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md) | SUBPLAN: Source Code Quality Sweep | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 54 | [SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md](pending/SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md) | SUBPLAN: Scripts, Config & Root Files Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 55 | [SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md](pending/SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md) | SUBPLAN: Test Infrastructure Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 56 | [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | SUBPLAN: Rename jbs_framework | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 57 | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | MASTER PLAN: Repo Unfucking & Client Delivery | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
-| 58 | [PLAN_PUSH_NOTES_LATEST_TO_DELIVERABLES_TEST.md](pending/PLAN_PUSH_NOTES_LATEST_TO_DELIVERABLES_TEST.md) | PLAN — Push Encore deliverable to `notes-latest` branch on `RutviK-JBS/encore_deliverables_test | P1 | — (ready) | PENDING | opus | xhi | acceptEdits | none | 2026-05-19 |
-| 59 | [PLAN_RCA_NOTES_SPEC_2026-05-21.md](pending/PLAN_RCA_NOTES_SPEC_2026-05-21.md) | PLAN: /rca on the failing Notes spec(s) — 2026-05-21 | P1 (user-flagged failing spec) | — (ready) | PENDING | Opus | xhi | auto | cli (HEADED — per `.claude/rules/browser-tool.md` Gate 2 "RCA context" row; no override) | 2026-05-21 |
-| 60 | [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](pending/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) | SUBPLAN_RCD_B_DEDUPE_SCRIPTS — dedupe root scripts/ archive helpers + strip dead allure scripts from root package.json | P1 | — (ready) | PENDING | Opus | hi | acceptEdits | none | 2026-05-07 |
-| 61 | [SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md](pending/SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md) | SUBPLAN_RCD_C_ENV_REPORTS_CRUFT — demote root tsconfig to framework-only + relocate root reports/ to client + sweep env + cruft | P1 | [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](pending/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) | PENDING | Opus | max | acceptEdits | none | 2026-05-07 |
-| 62 | [godsplan.md](pending/godsplan.md) | PLAN: Claude Code Baseline Research + Gene-Marriage Upgrade | P2-CYCLE-3 | — (ready) | PENDING | Opus | max | plan | — | 2026-04-23 |
-| 63 | [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | PLAN_ACTIVITY_LOG_TIMESTAMP_GATE | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
-| 64 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PLAN: Chat UI Bugs — Website Pipeline Experience | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 65 | [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | PLAN: Codebase Cleanup — Audit-Corrected Version | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-05-20 |
-| 66 | [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | PLAN: Adversarial Full-Chain Audit — V3 (Post-External-Review) | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-03-24 |
-| 67 | [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3) | P2-CYCLE-3 | — (ready) | REVISED | — | — | — | — | 2026-05-20 |
-| 68 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 69 | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | PLAN: Framework Maintainer Sweep — Selector Collision Architecture Fix | P2-CYCLE-3 | — (ready) | PARTIALLY-DONE | — | — | — | — | 2026-03-24 |
-| 70 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
-| 71 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PLAN: Playwright CLI Gradual Adoption | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-01 |
-| 72 | [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | FINAL AUDIT REPORT: Test Coverage Gap Analysis — Interaction vs Verification | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 73 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PLAN: Test Data CSV Conversion | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-05-20 |
-| 74 | [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | PLAN: Visual Debug Skill — Give All Agents Eyes | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
-| 75 | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | SUBPLAN: Pipeline tsc Compilation — Harden Build Mode | P2-NORMAL | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-05-01 |
-| 76 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P5-PARKED | — (ready) | PENDING | — | — | — | — | 2026-04-03 |
-| 77 | [_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md](pending/_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md) | Parity Restructure Traceability — SP01-SP08 → W1-01..W2-09 + Wave 0 (XLSX migration) | — | — (ready) | TRACEABILITY-ARTIFACT | — | — | — | — | 2026-05-26 |
-| 78 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | — | — | — | — | — | 2026-04-24 |
-| 79 | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | Plan — clients/encore restructure: kill `setup/` + `tests/` wrappers + move test-data + infra to src/ + delete seed spec → ship to encore_deliverables_test:notes-latest | — | — (ready) | — | — | — | acceptEdits | none | 2026-05-19 |
-| 80 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-05-20 |
-
-### ⚠️ Cycle Detected
-These plans form a circular dependency (authoring error). Resolve by editing `**Depends on**` fields.
-
-| File | Title | Blocked by |
-|---|---|---|
-| [SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md](pending/SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md) | SUBPLAN_PARITY_W1_03 — Local-Office Code-Side Split (page objects + selectors + fixtures + spec imports) | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) |
-| [SUBPLAN_PARITY_W1_04_SPEC_FIXES_VERDICT_INDEPENDENT.md](pending/SUBPLAN_PARITY_W1_04_SPEC_FIXES_VERDICT_INDEPENDENT.md) | SUBPLAN_PARITY_W1_04 — Spec Fixes (Verdict-Independent, File-Only) | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md), [SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md](pending/SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md) |
-| [SUBPLAN_PARITY_W1_05_CI_LOCAL_VALIDATORS.md](pending/SUBPLAN_PARITY_W1_05_CI_LOCAL_VALIDATORS.md) | SUBPLAN_PARITY_W1_05 — CI Local Validators (file-only, no CI wiring) | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) |
-| [SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md](pending/SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md) | SUBPLAN_PARITY_W2_06 — Shady-Pass Live Audit + Verdicts (E2E-dependent) | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) |
-| [SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md](pending/SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md) | SUBPLAN_PARITY_W2_07 — HIS + ECT Field Inventories + Neutral-Eye Audits (E2E-dependent) | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) |
-| [SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md](pending/SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md) | SUBPLAN_PARITY_W2_08 — Spec Fixes (Verdict-Dependent + Test Runs) | [SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md](pending/SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md), [SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md](pending/SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md) |
+| 47 | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | SUBPLAN: Agent File Restructure | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 48 | [SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md](pending/SUBPLAN_REPO_04_DUPLICATE_JUNK_PURGE.md) | SUBPLAN: Duplicate & Junk Purge | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 49 | [SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md](pending/SUBPLAN_REPO_05_DEAD_CODE_REUSABILITY.md) | SUBPLAN: Dead Code & Reusability | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 50 | [SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md](pending/SUBPLAN_REPO_06_DOC_MD_SLOP_AUDIT.md) | SUBPLAN: Doc & MD Slop Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 51 | [SUBPLAN_REPO_07_SLOP_PREVENTION.md](pending/SUBPLAN_REPO_07_SLOP_PREVENTION.md) | SUBPLAN: Slop Prevention Guardrails | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 52 | [SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md](pending/SUBPLAN_REPO_10_SOURCE_CODE_QUALITY.md) | SUBPLAN: Source Code Quality Sweep | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 53 | [SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md](pending/SUBPLAN_REPO_11_SCRIPTS_CONFIG_AUDIT.md) | SUBPLAN: Scripts, Config & Root Files Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 54 | [SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md](pending/SUBPLAN_REPO_12_TEST_INFRASTRUCTURE_AUDIT.md) | SUBPLAN: Test Infrastructure Audit | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 55 | [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | SUBPLAN: Rename jbs_framework | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 56 | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | MASTER PLAN: Repo Unfucking & Client Delivery | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
+| 57 | [PLAN_PUSH_NOTES_LATEST_TO_DELIVERABLES_TEST.md](pending/PLAN_PUSH_NOTES_LATEST_TO_DELIVERABLES_TEST.md) | PLAN — Push Encore deliverable to `notes-latest` branch on `RutviK-JBS/encore_deliverables_test | P1 | — (ready) | PENDING | opus | xhi | acceptEdits | none | 2026-05-19 |
+| 58 | [PLAN_RCA_NOTES_SPEC_2026-05-21.md](pending/PLAN_RCA_NOTES_SPEC_2026-05-21.md) | PLAN: /rca on the failing Notes spec(s) — 2026-05-21 | P1 (user-flagged failing spec) | — (ready) | PENDING | Opus | xhi | auto | cli (HEADED — per `.claude/rules/browser-tool.md` Gate 2 "RCA context" row; no override) | 2026-05-21 |
+| 59 | [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](pending/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) | SUBPLAN_RCD_B_DEDUPE_SCRIPTS — dedupe root scripts/ archive helpers + strip dead allure scripts from root package.json | P1 | — (ready) | PENDING | Opus | hi | acceptEdits | none | 2026-05-07 |
+| 60 | [SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md](pending/SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md) | SUBPLAN_RCD_C_ENV_REPORTS_CRUFT — demote root tsconfig to framework-only + relocate root reports/ to client + sweep env + cruft | P1 | [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](pending/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) | PENDING | Opus | max | acceptEdits | none | 2026-05-07 |
+| 61 | [godsplan.md](pending/godsplan.md) | PLAN: Claude Code Baseline Research + Gene-Marriage Upgrade | P2-CYCLE-3 | — (ready) | PENDING | Opus | max | plan | — | 2026-04-23 |
+| 62 | [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | PLAN_ACTIVITY_LOG_TIMESTAMP_GATE | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
+| 63 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PLAN: Chat UI Bugs — Website Pipeline Experience | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 64 | [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | PLAN: Codebase Cleanup — Audit-Corrected Version | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-05-20 |
+| 65 | [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | PLAN: Adversarial Full-Chain Audit — V3 (Post-External-Review) | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-03-24 |
+| 66 | [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3) | P2-CYCLE-3 | — (ready) | REVISED | — | — | — | — | 2026-05-20 |
+| 67 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 68 | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | PLAN: Framework Maintainer Sweep — Selector Collision Architecture Fix | P2-CYCLE-3 | — (ready) | PARTIALLY-DONE | — | — | — | — | 2026-03-24 |
+| 69 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
+| 70 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PLAN: Playwright CLI Gradual Adoption | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-01 |
+| 71 | [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | FINAL AUDIT REPORT: Test Coverage Gap Analysis — Interaction vs Verification | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 72 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PLAN: Test Data CSV Conversion | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-05-20 |
+| 73 | [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | PLAN: Visual Debug Skill — Give All Agents Eyes | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-24 |
+| 74 | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | SUBPLAN: Pipeline tsc Compilation — Harden Build Mode | P2-NORMAL | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-05-01 |
+| 75 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P5-PARKED | — (ready) | PENDING | — | — | — | — | 2026-04-03 |
+| 76 | [_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md](pending/_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md) | Parity Restructure Traceability — SP01-SP08 → W1-01..W2-09 + Wave 0 (XLSX migration) | — | — (ready) | TRACEABILITY-ARTIFACT | — | — | — | — | 2026-05-26 |
+| 77 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | — | — | — | — | — | 2026-04-24 |
+| 78 | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) | Plan — Replace 11 per-module CSVs with one multi-sheet XLSX workbook (`encore_test_cases.xlsx`) | — | — (ready) | — | opus | max | bypass | — | 2026-05-26 |
+| 79 | [SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md](pending/SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md) | SUBPLAN_PARITY_W2_06 — Shady-Pass Live Audit + Verdicts (E2E-dependent) | P0 | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) | GATED | Opus | hi | review | cli | 2026-05-26 |
+| 80 | [SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md](pending/SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md) | SUBPLAN_PARITY_W1_03 — Local-Office Code-Side Split (page objects + selectors + fixtures + spec imports) | P1 | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) | PENDING | Sonnet | hi | auto | none | 2026-05-26 |
+| 81 | [SUBPLAN_PARITY_W1_04_SPEC_FIXES_VERDICT_INDEPENDENT.md](pending/SUBPLAN_PARITY_W1_04_SPEC_FIXES_VERDICT_INDEPENDENT.md) | SUBPLAN_PARITY_W1_04 — Spec Fixes (Verdict-Independent, File-Only) | P0 | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md), [SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md](pending/SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md) | PENDING | Opus | hi | auto | none | 2026-05-26 |
+| 82 | [SUBPLAN_PARITY_W1_05_CI_LOCAL_VALIDATORS.md](pending/SUBPLAN_PARITY_W1_05_CI_LOCAL_VALIDATORS.md) | SUBPLAN_PARITY_W1_05 — CI Local Validators (file-only, no CI wiring) | P1 | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) | PENDING | Sonnet | hi | auto | none | 2026-05-26 |
+| 83 | [SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md](pending/SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md) | SUBPLAN_PARITY_W2_07 — HIS + ECT Field Inventories + Neutral-Eye Audits (E2E-dependent) | P1 | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) | GATED | Opus | hi | review | cli | 2026-05-26 |
+| 84 | [SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md](pending/SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md) | SUBPLAN_PARITY_W2_08 — Spec Fixes (Verdict-Dependent + Test Runs) | P0 | [SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md](pending/SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md), [SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md](pending/SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md) | GATED | Opus | xhi | auto | cli | 2026-05-26 |
+| 85 | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | Plan — clients/encore restructure: kill `setup/` + `tests/` wrappers + move test-data + infra to src/ + delete seed spec → ship to encore_deliverables_test:notes-latest | — | — (ready) | — | — | — | acceptEdits | none | 2026-05-19 |
+| 86 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-05-20 |
 
 ### Parent Plans (Waiting on Subplans)
 These stay in `pending/` until their last subplan closes them (LR-027 parent-cascade). Do not execute directly.
@@ -191,7 +185,6 @@ These stay in `pending/` until their last subplan closes them (LR-027 parent-cas
 |---|---|---|---|---|---|
 | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PLAN: Big Pivot — Master Field-Case Coverage (FCC) Paradigm — All-Modules Strategic Tracker | P0-EMERGENCY | PENDING | 1 | 2026-05-19 |
 | [PLAN_CLOSURE_GATE_V6_PARENT.md](pending/PLAN_CLOSURE_GATE_V6_PARENT.md) | PLAN_CLOSURE_GATE_V6_PARENT | P0-EMERGENCY | PENDING-DRAFT-V6 | 7 | 2026-05-18 |
-| [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) | Plan — Replace 11 per-module CSVs with one multi-sheet XLSX workbook (`encore_test_cases.xlsx`) | — | — | 1 | 2026-05-26 |
 | [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | PLAN: Deliverable Quality Upgrade — CSV, Specs, Cleanup, Reporting | P0-CYCLE-1 | PENDING | 27 | 2026-04-22 |
 | [PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md](pending/PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md) | Parity Fix Plan — MD ↔ CSV ↔ Spec for Encore Test Cases | — | — | 7 | 2026-05-20 |
 | [PLAN_ROOT_CLIENT_DEDUPE.md](pending/PLAN_ROOT_CLIENT_DEDUPE.md) | PLAN: Root-vs-Client Slop Dedupe — kill leftover encore-only-era duplicates at repo root | P0-EMERGENCY | PENDING | 2 | 2026-05-06 |
@@ -217,6 +210,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | [SUBPLAN_PARITY_08_CI_GUARDRAILS_AND_VERIFICATION.md](done/SUBPLAN_PARITY_08_CI_GUARDRAILS_AND_VERIFICATION.md) | SUBPLAN_PARITY_08 — CI Guardrails + Full-Suite Verification [SUPERSEDED] | SUPERSEDED | 2026-05-26 |
 | [SUBPLAN_PARITY_W1_01_DECISIONS_AND_DRIFT_PRETRIAGE.md](done/SUBPLAN_PARITY_W1_01_DECISIONS_AND_DRIFT_PRETRIAGE.md) | SUBPLAN_PARITY_W1_01 — Decisions (E1–E7) + File-Only Drift Pre-Triage | DONE | 2026-05-26 |
 | [SUBPLAN_PARITY_W1_02_TOOLING_MD_CSV_REEXPORT_AND_LO_SPLIT.md](done/SUBPLAN_PARITY_W1_02_TOOLING_MD_CSV_REEXPORT_AND_LO_SPLIT.md) | SUBPLAN_PARITY_W1_02 — Tooling + MD Edits + CSV Re-Export + Local-Office CSV Split | DONE-SUPERSEDED | 2026-05-26 |
+| [SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md](done/SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md) | Subplan — TC ID Normalization + Parity Fix + Stale File Cleanup | DONE | 2026-05-26 |
 | [PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.md](done/PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.md) | PLAN — Comprehensive Agent-Identity Standards Realignment + Structural Cure for FCC-Pattern Fuckups | DONE | 2026-05-25 |
 | [PLAN_TASKCREATE_HOOK_FIX.md](done/PLAN_TASKCREATE_HOOK_FIX.md) | PLAN — TaskCreate hook fix + MultiEdit dead-code sweep | DONE | 2026-05-25 |
 | [PLAN_FRAMEWORK_DEFENSES_V2.md](done/PLAN_FRAMEWORK_DEFENSES_V2.md) | Framework Defenses — Final Plan (audit-corrected v2.1, LR-048 compliant) | DONE | 2026-05-22 |
@@ -542,8 +536,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (92 files)
-  done/                 ← completed plans (330 files)
+  pending/              ← active plans (91 files)
+  done/                 ← completed plans (331 files)
 ```
 
 When completing a plan:
@@ -570,7 +564,6 @@ When completing a plan:
 | 2026-05-26 | pending | [SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md](pending/SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md) | GATED |
 | 2026-05-26 | pending | [SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md](pending/SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md) | GATED |
 | 2026-05-26 | pending | [SUBPLAN_SSL_FCC.md](pending/SUBPLAN_SSL_FCC.md) | PENDING |
-| 2026-05-26 | pending | [SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md](pending/SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md) | PENDING |
 | 2026-05-26 | pending | [_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md](pending/_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md) | TRACEABILITY-ARTIFACT |
 | 2026-05-26 | done | [PLAN_FCC_NOTES_COMPLETION_2026-05-21.md](done/PLAN_FCC_NOTES_COMPLETION_2026-05-21.md) | DONE |
 | 2026-05-26 | done | [PLAN_TASKCREATE_HOOK_FIX.md](done/PLAN_TASKCREATE_HOOK_FIX.md) | DONE |
@@ -587,6 +580,7 @@ When completing a plan:
 | 2026-05-26 | done | [SUBPLAN_PARITY_08_CI_GUARDRAILS_AND_VERIFICATION.md](done/SUBPLAN_PARITY_08_CI_GUARDRAILS_AND_VERIFICATION.md) | SUPERSEDED |
 | 2026-05-26 | done | [SUBPLAN_PARITY_W1_01_DECISIONS_AND_DRIFT_PRETRIAGE.md](done/SUBPLAN_PARITY_W1_01_DECISIONS_AND_DRIFT_PRETRIAGE.md) | DONE |
 | 2026-05-26 | done | [SUBPLAN_PARITY_W1_02_TOOLING_MD_CSV_REEXPORT_AND_LO_SPLIT.md](done/SUBPLAN_PARITY_W1_02_TOOLING_MD_CSV_REEXPORT_AND_LO_SPLIT.md) | DONE-SUPERSEDED |
+| 2026-05-26 | done | [SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md](done/SUBPLAN_XLSX_PREP_01_TC_ID_NORMALIZATION_AND_PARITY_FIX.md) | DONE |
 | 2026-05-25 | pending | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | PARTIALLY-DONE |
 | 2026-05-25 | done | [PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.md](done/PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.md) | DONE |
 | 2026-05-25 | done | [PLAN_FRAMEWORK_DEFENSES_V2.md](done/PLAN_FRAMEWORK_DEFENSES_V2.md) | DONE |
