@@ -53,6 +53,7 @@ import {
   AugmentMode,
   applyBlockedOverlay,
 } from './sp00-augment-logic';
+import { humanize } from './humanize';
 
 // ────────────────────────── Paths ──────────────────────────
 
@@ -208,11 +209,21 @@ function parseMd(filePath: string): ParsedTc[] {
     const specificField = ''; // Filled from CSV later
     const tags = extractTags(body);
 
-    const steps = extractStrippedField(body, 'Steps');
-    const expected = extractStrippedField(body, 'Expected') || extractStrippedField(body, 'Expected Result');
-    const notes = extractStrippedField(body, 'Notes');
-    const preconditionsRaw = extractStrippedField(body, 'Preconditions') || extractStrippedField(body, 'Preconditions \\(Human\\)');
-    const preconditions = preconditionsRaw || derivePreconditions(id);
+    // Phase A.5 (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION): apply the shared
+    // humanize() pipeline so list-only / with-run output matches the legacy
+    // CSV deliverable byte-for-byte (passes xlsx-vs-csv-parity without
+    // --from-csv bootstrap). `humanize` = cleanMarkdown → humanizeAssertion →
+    // convertElementIdsToLabels (shared module at export_test_cases/humanize.ts,
+    // extracted from to-csv.ts:383-597).
+    const steps = humanize(extractStrippedField(body, 'Steps'));
+    const expected = humanize(
+      extractStrippedField(body, 'Expected') || extractStrippedField(body, 'Expected Result'),
+    );
+    const notes = humanize(extractStrippedField(body, 'Notes'));
+    const preconditionsRaw =
+      extractStrippedField(body, 'Preconditions') ||
+      extractStrippedField(body, 'Preconditions \\(Human\\)');
+    const preconditions = humanize(preconditionsRaw) || derivePreconditions(id);
 
     tcs.push({
       id,
@@ -486,7 +497,11 @@ function buildFromCsvSource(): Map<string, ParsedTc[]> {
   return tcsBySheet;
 }
 
-/** Phase A.5+ / future: MD-primary parsing path (humanization must be inlined here in Phase D). */
+/**
+ * Phase A.5+ MD-primary parsing path. Humanization is applied inside
+ * `parseMd()` via the shared `humanize()` helper from `./humanize`, so
+ * `--list-only` and `--with-run` produce CSV-equivalent cells.
+ */
 function buildFromMdSource(): Map<string, ParsedTc[]> {
   const mdFiles = walkMd(MD_ROOT);
   if (mdFiles.length === 0) throw new Error(`[xlsx:build] No MD files found under ${MD_ROOT}`);

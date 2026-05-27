@@ -95,7 +95,7 @@ export interface TestCase {
   title: string;                       // Test case title
   type: 'User-Requested' | 'Agent-Discovered';
   priority: 'Critical' | 'High' | 'Medium' | 'Low';
-  automationStatus: 'Automated' | 'Manual' | 'In Progress';
+  automationStatus: 'Automated' | 'Pending Automation' | 'In Progress';
   description: string;
   
   // AGENT fields (technical, parser-optimized)
@@ -134,7 +134,8 @@ export interface TestCase {
  * @property metadata.generatedAt - ISO timestamp of export
  * @property metadata.totalCases - Total test cases in collection
  * @property metadata.automated - Count of automated test cases
- * @property metadata.manual - Count of manual test cases
+ * @property metadata.pendingAutomation - Count of TCs awaiting automation (renamed
+ *           from `manual` per N1 in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION).
  * @property metadata.source - Source directory path
  * @property testCases - Array of parsed test cases
  */
@@ -143,7 +144,7 @@ export interface TestCaseCollection {
     generatedAt: string;
     totalCases: number;
     automated: number;
-    manual: number;
+    pendingAutomation: number;
     source: string;
   };
   testCases: TestCase[];

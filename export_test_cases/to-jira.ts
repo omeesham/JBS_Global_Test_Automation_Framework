@@ -41,13 +41,13 @@ export class JiraConverter {
         this.escape(`${projectKey}-${tc.id.replace('TC-', '')}`),  // PROJ-001
         this.escape(tc.title),
         this.escape(this.mapPriority(tc.priority)),
-        this.escape(tc.automationStatus === 'Automated' ? 'Automated' : 'Manual'),
+        this.escape(this.toJiraTestType(tc.automationStatus)),
         this.escape(tc.description),
         this.escape(this.formatPreconditions(tc.preconditions)),
         this.escape(this.formatStepsForJira(tc.steps)),
         this.escape(this.formatTestData(tc.testData)),
         this.escape(tc.expectedResults.join('\n')),
-        this.escape(tc.automationStatus),
+        this.escape(this.toJiraAutomationStatus(tc.automationStatus)),
         this.escape(this.extractLabels(tc)),
         this.escape(this.extractComponent(tc)),
         this.escape(tc.automationDetails?.file || '')
@@ -92,7 +92,7 @@ export class JiraConverter {
         priority: { name: this.mapPriority(tc.priority) },
         description: this.formatJiraDescription(tc),
         labels: this.extractLabels(tc).split(','),
-        customfield_testtype: tc.automationStatus === 'Automated' ? 'Automated' : 'Manual',
+        customfield_testtype: this.toJiraTestType(tc.automationStatus),
         customfield_preconditions: this.formatPreconditions(tc.preconditions),
         customfield_steps: this.formatStepsForJiraApi(tc.steps),
         customfield_automation_file: tc.automationDetails?.file || null
@@ -114,6 +114,28 @@ export class JiraConverter {
       'Low': 'Low'
     };
     return mapping[priority] || 'Medium';
+  }
+
+  /**
+   * N1 boundary mapping (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase A.5):
+   * internal automationStatus uses 'Pending Automation', but Jira CSV's
+   * `Test Type` column + Xray `customfield_testtype` field still expect the
+   * external token 'Manual' for non-Automated TCs. This mapping preserves the
+   * external Jira vocabulary while letting the framework speak the new
+   * internal name everywhere else.
+   */
+  private static toJiraTestType(internal: 'Automated' | 'Pending Automation' | 'In Progress'): string {
+    return internal === 'Automated' ? 'Automated' : 'Manual';
+  }
+
+  /**
+   * N1 boundary mapping for `Automation Status` column: same rationale as
+   * `toJiraTestType` — Jira CSVs ingested by downstream Xray tooling expect
+   * the legacy 'Manual' token, so we emit it for 'Pending Automation' input.
+   */
+  private static toJiraAutomationStatus(internal: 'Automated' | 'Pending Automation' | 'In Progress'): string {
+    if (internal === 'Pending Automation') return 'Manual';
+    return internal;
   }
 
   /**

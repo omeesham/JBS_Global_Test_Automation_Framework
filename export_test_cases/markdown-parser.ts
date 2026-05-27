@@ -26,7 +26,7 @@ export class MarkdownParser {
         generatedAt: new Date().toISOString(),
         totalCases: testCases.length,
         automated,
-        manual: testCases.length - automated,
+        pendingAutomation: testCases.length - automated,
         source: dirPath
       },
       testCases
@@ -377,10 +377,16 @@ export class MarkdownParser {
   /**
    * Validate and sanitize automation status.
    * @param value - Raw status value from markdown
-   * @returns Valid status (Automated/Manual/In Progress), defaults to Manual
+   * @returns Valid status (Automated/Pending Automation/In Progress), defaults to Pending Automation.
+   *          N1 (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION): the legacy 'Manual' literal in MD
+   *          input maps to 'Pending Automation'. Verified: zero MD files under
+   *          clients/encore/specs_planning/test-cases/ carry `Automation Status: Manual`,
+   *          so this rename is parser-default-only; no MD migration required.
    */
-  private static validateAutomationStatus(value: string | undefined): 'Automated' | 'Manual' | 'In Progress' {
-    const validValues: Array<'Automated' | 'Manual' | 'In Progress'> = ['Automated', 'Manual', 'In Progress'];
-    return validValues.includes(value as any) ? (value as any) : 'Manual';
+  private static validateAutomationStatus(value: string | undefined): 'Automated' | 'Pending Automation' | 'In Progress' {
+    const validValues: Array<'Automated' | 'Pending Automation' | 'In Progress'> = ['Automated', 'Pending Automation', 'In Progress'];
+    if (validValues.includes(value as any)) return value as any;
+    if (value === 'Manual') return 'Pending Automation';
+    return 'Pending Automation';
   }
 }
