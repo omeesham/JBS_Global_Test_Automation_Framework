@@ -3,6 +3,9 @@
 **Status**: GATED (blocked until W2-08 closes — last subplan in the parity restructure)
 **Priority**: P0
 **Created**: 2026-05-26
+
+> **XLSX-migration disposition (Phase C, 2026-05-27): REWRITE.** CI wiring retargets the XLSX deliverable. Final parity report cites **XLSX-orphans** (not CSV-orphans). `npm run check:tc-parity` already reads the workbook post-Phase-B of `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md`; CI workflows that invoke it inherit the new vocabulary. The ship-pipeline (`scripts/ship-client.sh`) now asserts the XLSX deliverable is present in the archive. See [triage ledger](../../clients/encore/specs_planning/_internal/plan-triage-ledger-2026-05-27.md).
+
 **Identity**: GARDENER
 **Parent**: PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md
 **Depends on**: ALL previous — W1-01..05 + W2-06, W2-07, W2-08

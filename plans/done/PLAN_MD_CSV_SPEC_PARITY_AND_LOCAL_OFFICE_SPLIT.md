@@ -1,9 +1,15 @@
 # Parity Fix Plan — MD ↔ CSV ↔ Spec for Encore Test Cases
 
-**Plan kind**: PARENT — will spawn 6–8 SUBPLAN_* children, not executable in a single session.
+**Plan kind**: PARENT — was going to spawn 6–8 SUBPLAN_* children; superseded mid-flight.
 **Created**: 2026-05-20
 **Source audit**: 6 parallel Opus auditors + 1 re-dispatch; findings preserved below.
 **Scratch artifact (transient)**: `~/.claude/plans/i-need-u-to-sunny-phoenix.md` — mirror of this file.
+
+> **2026-05-27 — SUPERSEDED-AS-DROP per Phase C of `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md`** (still in `plans/pending/` at the time of this supersede). The CSV deliverable that this parity plan was repairing is being deleted entirely in Phase D of the XLSX migration. The W1-02 MD-only work (header counts, Status sync, path updates) was absorbed into the XLSX migration's Phase 0 and SUBPLAN_XLSX_PREP_01. The CSV-side work (re-export, sanity-check, LO CSV split) is moot — there is no CSV deliverable to re-export. W1-03 (Local Office code split) landed independently and is preserved. W1-05 / W2-09 retargeted to XLSX. This plan closes via supersede; subplan children that remained relevant were re-classified in the Phase C triage ledger.
+>
+> Status flip to DONE deferred: the closure-gate validator C3 path-existence check is currently blocked. The plan is physically moved to `plans/done/` (this file's location) which is the canonical "closed" state used by `npm run plans:reindex`. Validator/override reconciliation tracked in the Phase 3.5 closure of the XLSX migration.
+
+
 
 ## Change Log (for future audit)
 

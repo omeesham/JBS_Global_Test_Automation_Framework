@@ -3,6 +3,9 @@
 **Status**: PENDING
 **Priority**: P1
 **Created**: 2026-05-26
+
+> **XLSX-migration disposition (Phase C, 2026-05-27): REWRITE.** The `check-csv-sanity.mjs` validator referenced in this subplan body becomes `check-xlsx-sanity.mjs` (or is folded into the existing `scripts/sp00-audit-v5.mjs` which post-Phase-B reads the XLSX workbook). MD↔XLSX parity remains the contract; the CSV-parity wrapper retires when `clients/encore/test_cases_csv/` is deleted in Phase D of `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md`. See [triage ledger](../../clients/encore/specs_planning/_internal/plan-triage-ledger-2026-05-27.md).
+
 **Identity**: GARDENER
 **Parent**: PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md
 **Depends on**: PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md (Phase D — full XLSX cutover complete, CSVs deleted)

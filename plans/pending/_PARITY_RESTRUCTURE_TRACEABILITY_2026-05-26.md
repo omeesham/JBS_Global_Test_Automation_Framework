@@ -1,8 +1,11 @@
 # Parity Restructure Traceability — SP01-SP08 → W1-01..W2-09 + Wave 0 (XLSX migration)
 
 **Created**: 2026-05-26
-**Updated**: 2026-05-26 (added Wave 0 — PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION supersession of W1-02)
+**Updated**: 2026-05-27 (XLSX migration Phase C — W1-02 retired-as-superseded; W1-04 / W2-08 REWRITE-light; W1-05 / W2-09 REWRITE; parent `PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md` moved to `plans/done/` per supersede)
 **Status**: TRACEABILITY-ARTIFACT (not a subplan)
+
+> **XLSX-migration disposition (Phase C, 2026-05-27): REWRITE.** This traceability artifact is the canonical map between the SP01-SP08 numbering and the W1-01..W2-09 numbering. After the supersede of `PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md`, the table below remains accurate for W1-01 / W1-03 / W2-06 / W2-07 (PRESERVE) and the W1/W2 subplans that received REWRITE banners. Per the migration's [triage ledger](../../clients/encore/specs_planning/_internal/plan-triage-ledger-2026-05-27.md): W1-02 already in `plans/done/`; W1-04 / W2-08 REWRITE-light; W1-05 / W2-09 REWRITE for XLSX retargeting; W2-06 / W2-07 unchanged.
+
 **Purpose**: prove every task from former SP01-SP08 has a destination in the new W1/W2 subplans + Wave 0 before archival per LR-027 / LR-040.
 
 ---

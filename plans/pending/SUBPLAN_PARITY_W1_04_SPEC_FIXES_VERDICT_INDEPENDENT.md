@@ -3,6 +3,9 @@
 **Status**: PENDING
 **Priority**: P0
 **Created**: 2026-05-26
+
+> **XLSX-migration disposition (Phase C, 2026-05-27): REWRITE-light.** Spec fixes are format-agnostic and preserved as-is. Any body reference to "targeted CSV refresh" or `to-csv.ts` re-export flips to **"targeted XLSX rebuild via `npm run xlsx:build`"** (or `xlsx:build:with-run` after a fresh suite run). Source-of-truth deliverable is now `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`; legacy `clients/encore/test_cases_csv/` is deleted in Phase D of `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md`. See [triage ledger](../../clients/encore/specs_planning/_internal/plan-triage-ledger-2026-05-27.md).
+
 **Identity**: BUILDER
 **Parent**: PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md
 **Depends on**: PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md (Phase 0 + Phases A+B complete — MD prereqs + workbook reader cutover), SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md, SUBPLAN_PARITY_W1_01_DECISIONS_AND_DRIFT_PRETRIAGE.md

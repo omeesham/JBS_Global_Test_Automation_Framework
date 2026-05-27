@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 90 pending · 333 done · 61 stale (>14d) · 0 DONE-in-pending
+**Totals**: 89 pending · 334 done · 61 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -186,7 +186,6 @@ These stay in `pending/` until their last subplan closes them (LR-027 parent-cas
 | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PLAN: Big Pivot — Master Field-Case Coverage (FCC) Paradigm — All-Modules Strategic Tracker | P0-EMERGENCY | PENDING | 1 | 2026-05-19 |
 | [PLAN_CLOSURE_GATE_V6_PARENT.md](pending/PLAN_CLOSURE_GATE_V6_PARENT.md) | PLAN_CLOSURE_GATE_V6_PARENT | P0-EMERGENCY | PENDING-DRAFT-V6 | 7 | 2026-05-18 |
 | [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | PLAN: Deliverable Quality Upgrade — CSV, Specs, Cleanup, Reporting | P0-CYCLE-1 | PENDING | 27 | 2026-04-22 |
-| [PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md](pending/PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md) | Parity Fix Plan — MD ↔ CSV ↔ Spec for Encore Test Cases | — | — | 6 | 2026-05-20 |
 | [PLAN_ROOT_CLIENT_DEDUPE.md](pending/PLAN_ROOT_CLIENT_DEDUPE.md) | PLAN: Root-vs-Client Slop Dedupe — kill leftover encore-only-era duplicates at repo root | P0-EMERGENCY | PENDING | 2 | 2026-05-06 |
 
 ---
@@ -198,6 +197,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | File | Title | Status | Completed |
 |---|---|---|---|
 | [SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md](done/SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md) | SUBPLAN: LI Test-Case MD — Phase 0 Lint Sweep | SUPERSEDED | never (folded scope) |
+| [PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md](done/PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md) | Parity Fix Plan — MD ↔ CSV ↔ Spec for Encore Test Cases | — | 2026-05-27 |
 | [PLAN_XLSX_BLOCKED_OVERLAY_BUGFIX.md](done/PLAN_XLSX_BLOCKED_OVERLAY_BUGFIX.md) | PLAN — Restore "Blocked" Status in XLSX Workbook + Opus Audit Gate | DONE | 2026-05-27 |
 | [SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md](done/SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md) | SUBPLAN_PARITY_W1_03 — Local-Office Code-Side Split (page objects + selectors + fixtures + spec imports) | DONE | 2026-05-27 |
 | [PLAN_TASKLIST_SHAPE_FIX.md](done/PLAN_TASKLIST_SHAPE_FIX.md) | PLAN — TaskList `tool_response` shape correction (follow-up to PLAN_TASKCREATE_HOOK_FIX) | DONE | 2026-05-26 |
@@ -538,8 +538,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (90 files)
-  done/                 ← completed plans (333 files)
+  pending/              ← active plans (89 files)
+  done/                 ← completed plans (334 files)
 ```
 
 When completing a plan:
@@ -554,20 +554,20 @@ When completing a plan:
 | Date | Folder | File | Status |
 |---|---|---|---|
 | 2026-05-27 | pending | [PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md](pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md) | — |
+| 2026-05-27 | pending | [SUBPLAN_PARITY_W1_04_SPEC_FIXES_VERDICT_INDEPENDENT.md](pending/SUBPLAN_PARITY_W1_04_SPEC_FIXES_VERDICT_INDEPENDENT.md) | PENDING |
+| 2026-05-27 | pending | [SUBPLAN_PARITY_W1_05_CI_LOCAL_VALIDATORS.md](pending/SUBPLAN_PARITY_W1_05_CI_LOCAL_VALIDATORS.md) | PENDING |
+| 2026-05-27 | pending | [SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md](pending/SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md) | GATED |
+| 2026-05-27 | pending | [SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md](pending/SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md) | GATED |
+| 2026-05-27 | pending | [_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md](pending/_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md) | TRACEABILITY-ARTIFACT |
+| 2026-05-27 | done | [PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md](done/PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md) | — |
 | 2026-05-27 | done | [PLAN_XLSX_BLOCKED_OVERLAY_BUGFIX.md](done/PLAN_XLSX_BLOCKED_OVERLAY_BUGFIX.md) | DONE |
 | 2026-05-27 | done | [SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md](done/SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md) | DONE |
 | 2026-05-26 | pending | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PENDING |
-| 2026-05-26 | pending | [PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md](pending/PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md) | — |
 | 2026-05-26 | pending | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PENDING |
 | 2026-05-26 | pending | [PLAN_RCA_NOTES_SPEC_2026-05-21.md](pending/PLAN_RCA_NOTES_SPEC_2026-05-21.md) | PENDING |
-| 2026-05-26 | pending | [SUBPLAN_PARITY_W1_04_SPEC_FIXES_VERDICT_INDEPENDENT.md](pending/SUBPLAN_PARITY_W1_04_SPEC_FIXES_VERDICT_INDEPENDENT.md) | PENDING |
-| 2026-05-26 | pending | [SUBPLAN_PARITY_W1_05_CI_LOCAL_VALIDATORS.md](pending/SUBPLAN_PARITY_W1_05_CI_LOCAL_VALIDATORS.md) | PENDING |
 | 2026-05-26 | pending | [SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md](pending/SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md) | GATED |
 | 2026-05-26 | pending | [SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md](pending/SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md) | GATED |
-| 2026-05-26 | pending | [SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md](pending/SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md) | GATED |
-| 2026-05-26 | pending | [SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md](pending/SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md) | GATED |
 | 2026-05-26 | pending | [SUBPLAN_SSL_FCC.md](pending/SUBPLAN_SSL_FCC.md) | PENDING |
-| 2026-05-26 | pending | [_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md](pending/_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md) | TRACEABILITY-ARTIFACT |
 | 2026-05-26 | done | [PLAN_FCC_NOTES_COMPLETION_2026-05-21.md](done/PLAN_FCC_NOTES_COMPLETION_2026-05-21.md) | DONE |
 | 2026-05-26 | done | [PLAN_TASKCREATE_HOOK_FIX.md](done/PLAN_TASKCREATE_HOOK_FIX.md) | DONE |
 | 2026-05-26 | done | [PLAN_TASKLIST_SHAPE_FIX.md](done/PLAN_TASKLIST_SHAPE_FIX.md) | DONE |

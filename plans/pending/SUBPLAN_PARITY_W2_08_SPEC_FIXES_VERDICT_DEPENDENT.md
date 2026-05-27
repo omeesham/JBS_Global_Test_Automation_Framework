@@ -3,6 +3,9 @@
 **Status**: GATED (blocked until W2-06 + W2-07 close)
 **Priority**: P0
 **Created**: 2026-05-26
+
+> **XLSX-migration disposition (Phase C, 2026-05-27): REWRITE-light.** E2e spec fixes are format-agnostic and preserved as-is. Any post-fix "regenerate CSV" / "CSV re-export" reference in the body flips to **"regenerate XLSX via `npm run xlsx:build`"** (or `:with-run` after fresh suite runs). The XLSX workbook is the canonical deliverable post-Phase-B of `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md`; legacy `clients/encore/test_cases_csv/` retires in Phase D. See [triage ledger](../../clients/encore/specs_planning/_internal/plan-triage-ledger-2026-05-27.md).
+
 **Identity**: BUILDER + HEALER
 **Parent**: PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md
 **Depends on**: SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md, SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md
