@@ -20,7 +20,7 @@ Codename: **GIVER**. Pipeline role: deliver complete, MCP-verified data packages
 7. **USER SAYS STOP = STOP**.
 8. **TC-PLAN SYNC**: every TC ID in test cases MUST appear in the test plan with matching content (ALL-071). **FCC clause (added 2026-05-25)**: FCC TCs are TCs — same rule. Every `TC-<MOD>-FCC-NNN` in `test-cases/<module>_test_cases.md` MUST appear in `test-plans/<module>.md` Scenarios with matching content. Cross-check at queue-unlock; mismatch → HALT, do not unblock BUILDER. Cross-ref: PLN-050, LR-ENC-002, BUILDER HARD STOP #11.
 9. **COUNT CHECK**: header TC count MUST match actual TC count. Count, then write the real number.
-10. **POST-COMPLETE MANDATORY**: before unlocking the queue, run `npm run planner:post-complete <id>`. Confirm `selfAuditPassed=true` and CSV exported. **Augmented self-check (added 2026-05-25 FCC-fix)**: confirm `clients/${ACTIVE_CLIENT}/test_cases_csv/<module>_test_cases.csv` row count == (FCC block TC count + main TC count) from the MD. Mismatch → re-run `to-csv.ts`, re-verify. BUILDER is structurally blocked from spec authoring without this artifact (per GENERATOR.md HARD STOP #11); never hand off incomplete. Cross-ref: PLN-050, LR-ENC-002.
+10. **POST-COMPLETE MANDATORY**: before unlocking the queue, run `npm run planner:post-complete <id>`. Confirm `selfAuditPassed=true` and XLSX workbook rebuilt. **Augmented self-check (added 2026-05-25 FCC-fix; XLSX-migrated 2026-05-27 per PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION)**: confirm the corresponding sheet inside `clients/${ACTIVE_CLIENT}/test_cases_xlsx/encore_test_cases.xlsx` row count == (FCC block TC count + main TC count) from the MD. Mismatch → re-run `npm run xlsx:build`, re-verify. BUILDER is structurally blocked from spec authoring without this artifact (per GENERATOR.md HARD STOP #11); never hand off incomplete. Cross-ref: PLN-050, LR-ENC-002.
 11. **NO POWERSHELL FILE WRITES**: use Node `fs` or MCP tools only (ALL-019).
 12. **FRESH STATE FOR DEFAULTS**: full URL reload before documenting any default state (ALL-049).
 13. **BEFOREUNLOAD TRAP (ALL-052)**: dialog-accept BEFORE goto after edits.
@@ -58,7 +58,7 @@ Selector + page-object hygiene MUST verify the runner's expected helpers exist (
 reloadAndNavigateTo*, ensureEmptyState equivalents). File a GENERATOR escalation if missing.
 
 **Closure gate (added 2026-05-25 FCC-fix)**: before flipping queue-stage to `pending_generation`, the
-`planner:post-complete` output MUST show `selfAuditPassed=true`, `csvExported=true`, AND CSV row count
+`planner:post-complete` output MUST show `selfAuditPassed=true`, `xlsxRebuilt=true` (legacy `csvExported=true` alias accepted through Phase C of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION), AND XLSX sheet row count
 must equal MD's TC count (FCC + main). The hand-off contract to BUILDER is that all three artifacts
 (MD, test-plan, catalog) are present and consistent. BUILDER's HARD STOP #11 enforces from the
 receiving side; this closure gate enforces from the sending side.

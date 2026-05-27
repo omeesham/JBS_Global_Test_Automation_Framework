@@ -50,7 +50,8 @@ if matches=$(grep -rnE "test\([^)]*async\s*\(\s*\{[^}]*(([a-z][a-zA-Z]*Page[^}]*
   fi
 fi
 
-# --- 5) ALL-071: spec ↔ MD ↔ CSV parity (FCC fuckup prevention, 2026-05-25). ----
+# --- 5) ALL-071: spec ↔ MD ↔ XLSX parity (FCC fuckup prevention, 2026-05-25;
+# CSV→XLSX migration 2026-05-27, Phase B of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION).
 # Fires whenever a clients/*/specs/**/*.spec.ts is staged. Runs full-repo parity
 # (script does not support --module filter; ~10-30s when specs are staged).
 # Graduated from PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.
@@ -58,10 +59,31 @@ if git diff --cached --name-only --diff-filter=ACMR \
      | grep -qE '^clients/[^/]+/specs/.*\.spec\.ts$'; then
   echo "[pre-commit] spec file staged → running check:tc-parity (ALL-071)..." >&2
   if ! npm run --silent check:tc-parity; then
-    echo "[pre-commit] HALT: ALL-071 parity gap. Fix MD/test-plan/CSV before commit." >&2
+    echo "[pre-commit] HALT: ALL-071 parity gap. Fix MD/test-plan/XLSX before commit." >&2
     echo "         Inspect: npm run check:tc-parity" >&2
-    echo "         Auto-fix CSVs only: npm run check:tc-parity:fix (still requires MD updates manually)" >&2
+    echo "         Auto-rebuild XLSX: npm run xlsx:build (regenerates the deliverable from MD)" >&2
     exit 1
+  fi
+fi
+
+# --- 5a) PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase B Gate A: MD↔XLSX freshness.
+# Fires when a test-case MD source is staged but the XLSX workbook is not also
+# staged AND has an mtime older than the staged MD. Forces the planner to either
+# restage a fresh xlsx:build output or run xlsx:freshness before commit.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/specs_planning/test-cases/.+\.md$'; then
+  WORKBOOK_PATH="clients/encore/test_cases_xlsx/encore_test_cases.xlsx"
+  WORKBOOK_STAGED=0
+  if git diff --cached --name-only --diff-filter=ACMR | grep -qF "$WORKBOOK_PATH"; then
+    WORKBOOK_STAGED=1
+  fi
+  if [ "$WORKBOOK_STAGED" -ne 1 ]; then
+    if ! npm run --silent xlsx:freshness 2>/dev/null; then
+      echo "[pre-commit] HALT: test-case MD staged but XLSX workbook is stale and not restaged." >&2
+      echo "         Fix: npm run xlsx:build && git add $WORKBOOK_PATH && git commit --amend --no-edit" >&2
+      echo "         (Phase B Gate A of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION)" >&2
+      exit 1
+    fi
   fi
 fi
 

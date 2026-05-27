@@ -20,6 +20,9 @@ export interface QueueItemArtifacts {
   testCaseFile?: string | null;
   testPlanFile?: string | null;
   specFiles?: string[];
+  /** Canonical deliverable path post-Phase-B of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION. */
+  xlsxArtifact?: string | null;
+  /** @deprecated Use `xlsxArtifact`. Kept as one-phase alias; removed in Phase D. */
   csvExport?: string | null;
   [key: string]: unknown;
 }

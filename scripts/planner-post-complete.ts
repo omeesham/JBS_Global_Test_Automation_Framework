@@ -1,16 +1,22 @@
 #!/usr/bin/env ts-node
 /**
- * Planner Post-Complete Hook - Auto-exports test cases to CSV.
- * 
+ * Planner Post-Complete Hook — Auto-rebuilds the XLSX workbook.
+ *
  * Triggered when Planner marks stage as pending_generation.
- * Reads testCaseFile from queue item artifacts and exports to CSV.
- * 
+ * Rebuilds clients/<id>/test_cases_xlsx/encore_test_cases.xlsx via the
+ * shared `npm run xlsx:build` script (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION
+ * Phase B). The legacy per-item CSV export path is preserved as a one-phase
+ * alias (`csvExport` artifact + `csv_export` history action) so older queue
+ * entries and consumers continue to resolve; both aliases are removed in
+ * Phase D.
+ *
  * Features:
  * - Auto-detects newly completed planning tasks
- * - Exports to human-readable CSV format
- * - Updates queue item with csvExport artifact path
- * - Validates uiTestingChecklist is complete before export
- * 
+ * - Rebuilds the single multi-sheet XLSX workbook on first call per run
+ *   (idempotent — subsequent items skip the rebuild)
+ * - Updates queue item with `xlsxArtifact` artifact path
+ * - Validates uiTestingChecklist is complete before rebuild
+ *
  * Usage: npm run planner:post-complete [--queue-item-id]
  *        npm run planner:post-complete --all (process all pending)
  * Exit: 0 = success, 1 = error
@@ -18,7 +24,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { CsvConverter } from '../export_test_cases/to-csv';
+import { execSync } from 'child_process';
 import { UITestingChecklist, QueueItem, QueueFile, SHARED_PATHS } from './shared-types';
 import { frameworkRoot } from './shared-paths';
 import {
@@ -324,33 +330,30 @@ function validateAutomatableField(item: QueueItem): { passed: boolean; errors: s
 }
 
 /**
- * Export test case file to CSV format.
+ * Rebuild the XLSX workbook for the active client. Idempotent: caches the
+ * `npm run xlsx:build` invocation so multiple per-item calls in the same
+ * run only trigger one full rebuild.
+ *
+ * Returns the repo-relative workbook path on success, or null on failure.
  */
-function exportToCsv(testCaseFile: string, queueItemId: string): string | null {
-  // Resolve relative path from specs_planning
-  const absolutePath = path.isAbsolute(testCaseFile) 
-    ? testCaseFile 
-    : path.join(__dirname, '../', testCaseFile);
-  
-  if (!fs.existsSync(absolutePath)) {
-    console.error(`  [ERR] Test case file not found: ${absolutePath}`);
+let xlsxRebuiltThisRun = false;
+function rebuildXlsx(): string | null {
+  const workbookPath = SHARED_PATHS.workbook;
+  if (!xlsxRebuiltThisRun) {
+    try {
+      execSync('npm run xlsx:build', { stdio: 'inherit', cwd: frameworkRoot() });
+      xlsxRebuiltThisRun = true;
+    } catch (error) {
+      console.error(`  [ERR] xlsx:build failed:`, error);
+      return null;
+    }
+  }
+  if (!fs.existsSync(workbookPath)) {
+    console.error(`  [ERR] Workbook not produced at ${workbookPath}`);
     return null;
   }
-  
-  // Generate output filename: {module}_{submodule}_test_cases.csv
-  const inputBasename = path.basename(absolutePath, '.md');
-  const outputFilename = `${inputBasename}.csv`;
-  const outputPath = path.join(PATHS.exports, outputFilename);
-  
-  try {
-    // Use human format for QA-readable export
-    CsvConverter.convertToFile(absolutePath, outputPath, 'human');
-    console.log(`  [OK] Exported: ${outputFilename}`);
-    return path.relative(frameworkRoot(), outputPath).replace(/\\/g, '/');
-  } catch (error) {
-    console.error(`  [ERR] Export failed:`, error);
-    return null;
-  }
+  console.log(`  [OK] XLSX workbook fresh: ${path.relative(frameworkRoot(), workbookPath).replace(/\\/g, '/')}`);
+  return path.relative(frameworkRoot(), workbookPath).replace(/\\/g, '/');
 }
 
 /**
@@ -511,30 +514,35 @@ function processQueueItem(item: QueueItem, queue: QueueFile): boolean {
     return false;
   }
   
-  // Check if already exported
-  if (item.artifacts.csvExport) {
-    console.log(`  [skip]  Already exported: ${item.artifacts.csvExport}`);
+  // Check if already rebuilt for this queue entry (xlsxArtifact = post-Phase-B,
+  // csvExport = legacy one-phase alias, both refresh together below)
+  if (item.artifacts.xlsxArtifact || item.artifacts.csvExport) {
+    const already = item.artifacts.xlsxArtifact || item.artifacts.csvExport;
+    console.log(`  [skip]  Already rebuilt: ${already}`);
     return false;
   }
-  
-  // Export to CSV
-  const csvPath = exportToCsv(item.artifacts.testCaseFile, item.id);
-  if (!csvPath) {
+
+  // Rebuild XLSX workbook
+  const workbookPath = rebuildXlsx();
+  if (!workbookPath) {
     return false;
   }
-  
-  // Update queue item with export path
-  item.artifacts.csvExport = csvPath;
-  
-  // Add history entry
+
+  // Update queue item with workbook path (xlsxArtifact + legacy csvExport alias,
+  // both removed in Phase D of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION)
+  item.artifacts.xlsxArtifact = workbookPath;
+  item.artifacts.csvExport = workbookPath; // one-phase alias for legacy consumers
+
+  // Add history entry — xlsx_rebuild is the new action token; csv_export
+  // alias preserved one phase for downstream validators.
   if (!item.history) {
     item.history = [];
   }
   item.history.push({
     timestamp: new Date().toISOString(),
     agent: 'planner-post-complete',
-    action: 'csv_export',
-    notes: `Auto-exported to ${csvPath}`,
+    action: 'xlsx_rebuild',
+    notes: `Auto-rebuilt workbook: ${workbookPath}`,
   });
   
   // Mark checklist as complete if all items passed
@@ -575,21 +583,22 @@ function main(): void {
     }
     itemsToProcess = [item];
   } else if (processAll) {
-    // Process all pending_generation items without csvExport
+    // Process all pending_generation items without an xlsxArtifact (legacy
+    // csvExport alias accepted for items planned before Phase B)
     itemsToProcess = queue.queue.filter(
-      q => q.stage === 'pending_generation' && !q.artifacts?.csvExport
+      q => q.stage === 'pending_generation' && !q.artifacts?.xlsxArtifact && !q.artifacts?.csvExport
     );
   } else {
     // Default: process items that just changed to pending_generation (stage check)
     itemsToProcess = queue.queue.filter(
-      q => q.stage === 'pending_generation' && 
-           q.artifacts?.testCaseFile && 
-           !q.artifacts?.csvExport
+      q => q.stage === 'pending_generation' &&
+           q.artifacts?.testCaseFile &&
+           !q.artifacts?.xlsxArtifact && !q.artifacts?.csvExport
     );
   }
-  
+
   if (itemsToProcess.length === 0) {
-    console.log('[info]  No items pending CSV export');
+    console.log('[info]  No items pending XLSX rebuild');
     return;
   }
   

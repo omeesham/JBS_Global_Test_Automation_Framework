@@ -99,7 +99,9 @@ export const SHARED_PATHS = Object.freeze({
   selectors:        clientPath(path.join('src', 'selectors')),
   fixtures:         clientPath(path.join('src', 'infra', 'fixtures.ts')),
   testData:         clientPath(path.join('src', 'data', 'testdata')),
-  exports:          clientPath('test_cases_csv'),
+  exports:          clientPath('test_cases_csv'),                                  // DEPRECATED — Phase D of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION deletes this dir
+  workbook:         clientPath(path.join('test_cases_xlsx', 'encore_test_cases.xlsx')), // Multi-sheet XLSX deliverable (Phase B+)
+  workbookDir:      clientPath('test_cases_xlsx'),                                  // Parent dir of the workbook
   envDir:           clientPath(path.join('config', 'environments')),
 
   // Framework-shared (not per-client)

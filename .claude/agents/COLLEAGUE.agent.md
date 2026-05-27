@@ -24,7 +24,7 @@
 | React frontend | `website/frontend/` (all components, pages, routing, styling) |
 | Express backend | `website/backend/` (routes, agents, DB, JIRA integration) |
 | Template agents | `website/backend/src/agents/` (8 keyword-matching template agents) |
-| Chat UI | Tessa chatbot flow, test case table, CSV export |
+| Chat UI | Tessa chatbot flow, test case table, XLSX/CSV export |
 
 ---
 

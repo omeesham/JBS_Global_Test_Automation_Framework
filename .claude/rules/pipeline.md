@@ -264,17 +264,17 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
 
    Phase 0.5b emits or consumes `clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-<YYYY-MM-DD>.md` per LR-045 row 4. `baselineScope: baseline-absent` is allowed (NOT a HALT) when the feature is net-new on the active site.
 6. **Phase 1+** — actual work, identity-scoped.
-6.5. **Per-Identity Satisfaction Matrix** (LR-048 v2, added 2026-05-25 — FCC fuckup prevention) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, CSV exports under `test_cases_csv/`, `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
+6.5. **Per-Identity Satisfaction Matrix** (LR-048 v2, added 2026-05-25 — FCC fuckup prevention) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, the XLSX deliverable at `test_cases_xlsx/encore_test_cases.xlsx` (post-2026-05-27 — legacy CSV exports under `test_cases_csv/` are retired in Phase D of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION), `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
 
    The subplan body MUST contain a section `## Per-Identity Satisfaction` with this table:
 
    | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
    |---|---|---|---|
    | HUNTER | old-site-baseline / REQUIREMENTS.md (if new behavior) | dated baseline artifact OR explicit `(none)` | grep artifact freshness |
-   | GIVER | test-cases.md, test-plans.md, CSV via planner:post-complete | FCC block + Scenarios + post-complete run | `npm run check:tc-parity` exit 0 |
+   | GIVER | test-cases.md, test-plans.md, XLSX workbook via planner:post-complete (rebuilds clients/${ACTIVE_CLIENT}/test_cases_xlsx/encore_test_cases.xlsx) | FCC block + Scenarios + post-complete run | `npm run check:tc-parity` exit 0 |
    | BUILDER | specs/<module>/*.spec.ts | FCC describe block at top + first-run pass | `npx playwright test --list` resolves all FCC TC IDs |
    | HEALER | per-fix MD update (if RCA-driven) | MD row Status sync | `npm run check:tc-parity` exit 0 |
-   | WATCHDOG | findings table (if audit-driven) | mode-specific output; no spec/MD/CSV edits | per-mode acceptance |
+   | WATCHDOG | findings table (if audit-driven) | mode-specific output; no spec/MD/XLSX edits | per-mode acceptance |
    | GARDENER | refactor citation (if refactor-driven) | structural change only; no spec logic | `npm run typecheck` clean |
 
    **Rules for the matrix**:
@@ -282,7 +282,7 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
    - Each non-`(none)` cell's Acceptance command MUST appear in the subplan's Phase 3.5 closure step (per LR-027) with evidence-emission format (`ran '<cmd>' → output: '<snippet>'` per LR-042).
    - At Status flip to DONE, every non-`(none)` cell is classified (a)/(b)/(c) per LR-040 — if (b) "downstream subplan", that recipient must already exist in `plans/pending/` with grep-verifiable line items per LR-040 §b.
 
-   **Why this exists**: SUBPLAN_NOTES_FCC_PILOT (2026-05-21) added 26 Notes FCC TCs to specs but did not enumerate the GIVER's deliverables (MD FCC block, test-plan Scenarios, CSV re-export). Same gap on SUBPLAN_SSL_FCC_PILOT (14 SSL FCC TCs). Without a structural matrix, those items silently became "future cleanup" — exactly what PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT is now retroactively unfucking. The matrix is the structural prevention.
+   **Why this exists**: SUBPLAN_NOTES_FCC_PILOT (2026-05-21) added 26 Notes FCC TCs to specs but did not enumerate the GIVER's deliverables (MD FCC block, test-plan Scenarios, deliverable rebuild — originally CSV re-export, post-2026-05-27 `npm run xlsx:build`). Same gap on SUBPLAN_SSL_FCC_PILOT (14 SSL FCC TCs). Without a structural matrix, those items silently became "future cleanup" — exactly what PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT retroactively unfucks. The matrix is the structural prevention.
 
    **Cross-refs**: LR-040 (closure-gate completeness); LR-050 (restructure plans enumerate stale-slop cleanup); LR-027 (execution summary mandatory); ALL-071 (spec-MD parity); LR-ENC-002 (Encore client-level summary); BUILDER HARD STOP #11 (per-agent enforcement).
 

@@ -40,7 +40,7 @@ encore_framework/
 ├── config/                 # Environment configuration
 ├── docs/                   # Documentation
 ├── specs_planning/         # Test plans (Markdown for Playwright Agents)
-├── export_test_cases/      # CSV/JSON/Jira/TestMo converters
+├── export_test_cases/      # XLSX (primary deliverable) / JSON / Jira / TestMo converters
 ├── scripts/                # Build, packaging, pipeline tooling
 ├── .github/                # GitHub automation (CI/CD workflows)
 └── [config files]          # playwright.config.ts, tsconfig.json, etc.
@@ -108,7 +108,7 @@ const result = await adapter.load();
 |------|---------|
 | `IAdapter.ts` | Interface contract (`load()` method) |
 | `adapterFactory.ts` | Factory for creating adapters |
-| `excelAdapter.ts` | Excel/CSV file loading |
+| `excelAdapter.ts` | Excel / CSV test-data loading (boundary: separate concern from `test_cases_xlsx/encore_test_cases.xlsx` workbook, which is the client deliverable) |
 | `jsonAdapter.ts` | JSON file/URL loading |
 | `dbAdapter.ts` | Database query execution |
 | `s3Adapter.ts` | AWS S3 object loading |

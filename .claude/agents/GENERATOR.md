@@ -34,7 +34,7 @@ Codename: **BUILDER**. Pipeline role: turn planner's verified package into execu
 5. **Phase 2 — Fill assertions**: every TC gets a `test()` with the planner's expected values. Cross-field validations use `expectInvalid` / `expectValid` polling (LR-010). Save flows use `clickSaveAndConfirm` (LR-012). No `networkidle` (LR-023).
 6. **Phase 3 — First run + RCA**: run the spec. If pass → activity log + handoff to Audit. If fail → enter ARTIFACTS-FIRST RCA loop (max 2 fix cycles per failure, 6 cycles total per spec). On 3+ same error → escalate to Healer.
 7. **Test-execution discipline (GEN-018)**: when running `--grep "TC-ID"`, first read the full spec to identify dependencies (login, navigation, state setup); build the minimum required grep pattern. Never run a mid-spec test in isolation.
-8. **Self-audit (§8)**: every TC has a passing `test()`; every assertion cites a planner-verified value; no SKIP without LR-031 evidence; no networkidle; no broken cross-references; lint clean; **`npm run check:tc-parity` returns exit 0** (0 spec-orphan, 0 MD-orphan, 0 CSV-orphan — full-repo run); **activity-log row names the FCC TC IDs added + parity-check output snippet** (`ran 'npm run check:tc-parity' → output: '<snippet>'` per LR-042 evidence-emission).
+8. **Self-audit (§8)**: every TC has a passing `test()`; every assertion cites a planner-verified value; no SKIP without LR-031 evidence; no networkidle; no broken cross-references; lint clean; **`npm run check:tc-parity` returns exit 0** (0 spec-orphan, 0 MD-orphan, 0 XLSX-orphan — full-repo run); **activity-log row names the FCC TC IDs added + parity-check output snippet** (`ran 'npm run check:tc-parity' → output: '<snippet>'` per LR-042 evidence-emission).
 9. **Activity-log row** per LR-028 (timestamp ≥ all spec-file mtimes per LR-037).
 
 ## FCC Paradigm (2026-05-19)
@@ -46,7 +46,7 @@ For every spec generation under FCC paradigm:
    no shared state. `dependencyGate([])` for FCC tests.
 4. Existing TCs at BOTTOM remain untouched (preserve prior coverage).
 5. Per-field-type test data lives in the module's data file; reuse constants where possible.
-6. **Post-write parity gate** (FCC fuckup prevention, 2026-05-25): after the spec is written and `npx playwright test --list` confirms TC IDs resolve, run `npm run check:tc-parity`. Exit 0 → continue to Phase 3 (First Run). Exit 1 → HALT, escalate to PLANNER for MD/test-plan/CSV reconciliation. NEVER declare done with parity gaps. The pre-commit hook also enforces this — bypassing via `--no-verify` is a §16 (autonomy) violation. Cross-ref: HARD STOP #11, GEN-044, LR-ENC-002.
+6. **Post-write parity gate** (FCC fuckup prevention, 2026-05-25): after the spec is written and `npx playwright test --list` confirms TC IDs resolve, run `npm run check:tc-parity`. Exit 0 → continue to Phase 3 (First Run). Exit 1 → HALT, escalate to PLANNER for MD/test-plan/XLSX reconciliation. NEVER declare done with parity gaps. The pre-commit hook also enforces this — bypassing via `--no-verify` is a §16 (autonomy) violation. Cross-ref: HARD STOP #11, GEN-044, LR-ENC-002.
 Cross-ref: `field-case-generation.md`, runner at `src/core/field-case-runner.ts`,
 master plan PLAN_BIG_PIVOT_FCC_MASTER.
 

@@ -40,7 +40,7 @@ Codename: **HEALER**. Pipeline role: artifact-first debugger. Diagnose before ed
    - Cycle 2: if different error → mini Phase A. If same error → STOP, escalate as `unfixable`.
    - After 2 failed cycles → remove test with `test.skip('missing-coverage: <reason>')` and document in TC + REQUIREMENTS.md.
 6. **Learning entries (HLR-008)**: every fix attempt logs `{trigger, root cause, fix, artifact-field-cited}` in agent-mistakes.md.
-7. **Self-audit (§8)**: every fix cited artifact evidence; no MCP-first investigations; no guess-patch cycles; un-skip tried before rewrite (LR-021); **`npm run check:tc-parity` returns exit 0 after the fix** (added 2026-05-25); **if TC was removed via `test.skip('missing-coverage')`, MD row's Status is set to `Manual (missing-coverage)` with the same reason text** (added 2026-05-25).
+7. **Self-audit (§8)**: every fix cited artifact evidence; no MCP-first investigations; no guess-patch cycles; un-skip tried before rewrite (LR-021); **`npm run check:tc-parity` returns exit 0 after the fix** (added 2026-05-25); **if TC was removed via `test.skip('missing-coverage')`, MD row's Status is set to `Pending Automation (missing-coverage)` with the same reason text** (added 2026-05-25; N1-renamed 2026-05-27 per PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION — was `Manual (missing-coverage)`).
 8. **Activity-log row** per LR-028 (timestamp ≥ spec-file mtimes per LR-037).
 
 ## FCC Paradigm (2026-05-19)

@@ -83,8 +83,11 @@ function checkStageHistory(queue: QueueFile): Finding[] {
         const hasRecompletion = item.history.slice(i + 1).some(
           e => e.action === 'completed' || e.action === 'done' || e.action === 'corrected' || e.action === 'fixed'
         );
+        // Phase B of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION: accept both the
+        // legacy 'csv_export' action token and the new 'xlsx_rebuild' as
+        // benign post-block entries. The legacy alias is removed in Phase D.
         const onlyExportsAfter = item.history.slice(i + 1).every(
-          e => e.action === 'csv_export'
+          e => e.action === 'xlsx_rebuild' || e.action === 'csv_export'
         );
 
         if (!hasRecompletion && onlyExportsAfter && item.stage !== 'planning' && item.stage !== 'pending_planning') {
@@ -92,7 +95,7 @@ function checkStageHistory(queue: QueueFile): Finding[] {
             severity: 'high',
             item: item.id,
             check: 'stage-history',
-            message: `Audit blocked at history[${i}] but no re-completion entry exists after block -- only csv_export. Stage "${item.stage}" may be incorrect.`,
+            message: `Audit blocked at history[${i}] but no re-completion entry exists after block -- only xlsx_rebuild/csv_export. Stage "${item.stage}" may be incorrect.`,
           });
         }
       }

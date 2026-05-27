@@ -27,7 +27,7 @@
 | R17 | Requirements Agent: explore live UI FIRST | Fabricated docs |
 | R18 | Planner: complete ALL uiTestingChecklist items | Incomplete validation |
 | R19 | No TC creation without live walkthrough evidence (CLI: `reports/walkthrough/<item>.walkthrough.yaml`; Chrome: `reports/walkthrough/<item>.walkthrough.md`; canonical: `walkthrough.canonical.json`) | Unverified test cases |
-| R20 | Auto-export CSV on pending_generation transition | Missing export |
+| R20 | Auto-rebuild XLSX workbook on pending_generation transition (legacy CSV-export wording preserved as one-phase alias through Phase C of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION) | Missing rebuild |
 | R21 | User explicit requests = TOP PRIORITY | Insubordination |
 | R22 | All .md edits: tables > prose, single source of truth | Doc bloat |
 

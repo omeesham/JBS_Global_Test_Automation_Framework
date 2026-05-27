@@ -62,7 +62,7 @@ function validateSelfAudit(item: QueueItem): GateResult {
         const artifactCount = (item.artifacts?.specFiles?.length ?? 0)
           + (item.artifacts?.testCaseFile ? 1 : 0)
           + (item.artifacts?.testPlanFile ? 1 : 0)
-          + (item.artifacts?.csvExport ? 1 : 0);
+          + (item.artifacts?.xlsxArtifact || item.artifacts?.csvExport ? 1 : 0);
         if (artifactCount >= 3) {
           errors.push(
             `Self-audit logged L1:0->L2:0->L3:0 on a task with ${artifactCount} artifacts -- ` +

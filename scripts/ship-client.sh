@@ -36,6 +36,21 @@ node scripts/verify-vendor-fresh.mjs --client="$CLIENT"
 # Pre-flight: deny-list grep against tracked files for this client.
 node scripts/verify-no-forbidden.mjs --client="$CLIENT"
 
+# Pre-flight: XLSX deliverable must exist and be fresh vs MD sources
+# (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase B). Encore-only check until a
+# second client onboards a workbook. Non-encore clients skip silently.
+if [[ "$CLIENT" == "encore" ]]; then
+  WORKBOOK_PATH="clients/encore/test_cases_xlsx/encore_test_cases.xlsx"
+  if [[ ! -f "$WORKBOOK_PATH" ]]; then
+    echo "ERR: $WORKBOOK_PATH missing. Run: npm run xlsx:build" >&2
+    exit 6
+  fi
+  if ! npm run --silent xlsx:freshness 2>/dev/null; then
+    echo "ERR: XLSX workbook is stale vs MD sources. Run: npm run xlsx:build" >&2
+    exit 7
+  fi
+fi
+
 # Ship via git archive. --strip-components=2 removes the leading "clients/<id>/".
 [[ -d "$OUT" ]] && rm -rf "$OUT"
 mkdir -p "$OUT"
@@ -52,5 +67,14 @@ shopt -s nullglob; WF=( "$OUT"/.github/workflows/*.yml "$OUT"/.github/workflows/
 
 # Post-ship: smoke (npx playwright test --list, no browser launch).
 ( cd "$OUT" && npm install --silent && npx playwright test --list >/dev/null )
+
+# Post-ship: XLSX deliverable must be present in the archive
+# (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase B). Encore-only check.
+if [[ "$CLIENT" == "encore" ]]; then
+  if [[ ! -f "$OUT/test_cases_xlsx/encore_test_cases.xlsx" ]]; then
+    echo "ERR: $OUT/test_cases_xlsx/encore_test_cases.xlsx missing in shipped archive" >&2
+    exit 8
+  fi
+fi
 
 echo "[OK] Shipped clients/$CLIENT/ -> $OUT via git archive"

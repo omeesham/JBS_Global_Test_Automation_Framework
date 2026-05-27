@@ -47,7 +47,7 @@
 ## What Colleague's Agent Should Know
 
 - Encore framework has strict `noUnusedLocals: true` — unused imports = compile error
-- All selectors are TypeScript-only in `src/selectors/index.ts` — no CSV
+- All selectors are TypeScript-only in `src/selectors/index.ts` — no spreadsheet
 - Import convention in website/frontend uses `@/` alias (maps to `src/*`)
 - The pipeline has 5 stages, not 6 — requirements, planning, generation, healing, audit
 - `handleScriptGeneration` in ChatPage.tsx is already async — don't wrap it again

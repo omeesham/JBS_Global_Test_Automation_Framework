@@ -1,23 +1,34 @@
 #!/usr/bin/env node
 /**
- * sp00-audit-v5.mjs — Comprehensive CSV deliverable audit
+ * sp00-audit-v5.mjs — Comprehensive XLSX deliverable audit (post-Phase-B
+ * of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION; CSV fallback while both
+ * formats coexist).
  *
- * Scans all 12 columns of every CSV in clients/encore/test_cases_csv/ for:
+ * Scans all 13 columns of every module sheet in
+ * clients/encore/test_cases_xlsx/encore_test_cases.xlsx for:
  *   1. Empty required cells
  *   2. Jargon / framework leakage
  *   3. Slop phrases in reason column
  *   4. Malformed TC IDs
- *   5. Contradictory data (Automated vs Execution)
+ *   5. Contradictory data (Coverage Status vs Automation Execution)
  *   6. Specific Field duplicating Title
  *   7. HALT-FOR-USER sentinels (exposed, not counted as defects)
  *
  * Exit 0 = clean, exit 1 = defects found.
+ *
+ * Source-of-truth migration: this script used to read 11 CSV files from
+ * clients/encore/test_cases_csv/. After Phase B it reads the single
+ * 14-sheet workbook (Overview + 13 module sheets). CSV fallback kicks in
+ * only when the workbook is absent (e.g., fresh checkout pre-`xlsx:build`).
+ * Phase D removes the CSV fallback entirely.
  */
 
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join, basename } from 'path';
+import XLSX from 'xlsx';
 
 const CSV_DIR = join(process.cwd(), 'clients', 'encore', 'test_cases_csv');
+const XLSX_PATH = join(process.cwd(), 'clients', 'encore', 'test_cases_xlsx', 'encore_test_cases.xlsx');
 const COLUMNS = [
   'TC ID', 'Title', 'Module', 'Submodule', 'Specific Field',
   'Preconditions', 'Steps', 'Expected Result', 'Notes',
@@ -174,30 +185,76 @@ function isJargon(text, colName, rowContext = '') {
   return null;
 }
 
-function audit() {
+/**
+ * Load sheet sources as `{ file, rows }` pairs where `rows[0]` is the header.
+ * Prefers the XLSX workbook (post-Phase-B); falls back to CSVs when the
+ * workbook is absent. Header row + cell shape is normalised to match the
+ * legacy CSV layout so the downstream audit logic stays unchanged.
+ */
+function loadSheets() {
+  if (existsSync(XLSX_PATH)) {
+    const wb = XLSX.readFile(XLSX_PATH, { cellDates: false, cellNF: false });
+    const sources = [];
+    for (const sheetName of wb.SheetNames) {
+      if (sheetName === 'Overview') continue;
+      const ws = wb.Sheets[sheetName];
+      if (!ws) continue;
+      // sheet_to_json with header:1 returns array-of-arrays so row[0] is header.
+      const arr = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      // Drop the trailing blank+SUMMARY rows that the workbook emits per sheet.
+      const filtered = arr.filter(r => {
+        const first = String(r[0] ?? '').trim();
+        if (!first) return false;
+        if (first === 'SUMMARY') return false;
+        return true;
+      });
+      if (filtered.length === 0) continue;
+      sources.push({ file: `${sheetName} (xlsx sheet)`, rows: filtered });
+    }
+    return { sources, format: 'xlsx' };
+  }
+  // CSV fallback (pre-Phase-B / migration-window state)
   const csvFiles = readdirSync(CSV_DIR).filter(f => f.endsWith('.csv')).sort();
+  const sources = csvFiles.map(file => ({
+    file,
+    rows: parseCSV(readFileSync(join(CSV_DIR, file), 'utf8')),
+  }));
+  return { sources, format: 'csv' };
+}
+
+function audit() {
+  const { sources, format } = loadSheets();
   const defects = [];
   const halts = [];
   let totalRows = 0;
 
-  for (const file of csvFiles) {
-    const content = readFileSync(join(CSV_DIR, file), 'utf8');
-    const rows = parseCSV(content);
-
+  for (const { file, rows } of sources) {
     if (rows.length < 2) {
-      defects.push({ file, row: 0, col: '-', issue: 'CSV has no data rows' });
+      defects.push({ file, row: 0, col: '-', issue: `${format.toUpperCase()} has no data rows` });
       continue;
     }
 
     const header = rows[0];
     const headerMap = {};
-    header.forEach((h, i) => { headerMap[h.replace(/^﻿/, '')] = i; });
+    header.forEach((h, i) => { headerMap[String(h).replace(/^﻿/, '')] = i; });
+    // XLSX uses `Coverage Status` (Automated/Pending Automation) where CSV
+    // used `Automated` (Yes/No). Normalize to the legacy 'automated' boolean-ish
+    // string so the existing contradictory/required checks below keep their
+    // semantics. CSV path: 'Yes' / 'No'. XLSX path: 'Automated' → 'Yes',
+    // 'Pending Automation' → 'No', anything else → '' (unknown).
+    const coverageIdx = headerMap['Coverage Status'];
+    const legacyAutomatedIdx = headerMap['Automated'];
 
     for (let r = 1; r < rows.length; r++) {
       const row = rows[r];
       totalRows++;
       const tcId = (row[headerMap['TC ID']] || '').trim();
-      const automated = (row[headerMap['Automated']] || '').trim();
+      let automated = (row[legacyAutomatedIdx] || '').trim();
+      if (!automated && coverageIdx !== undefined) {
+        const cov = String(row[coverageIdx] || '').trim();
+        if (cov === 'Automated') automated = 'Yes';
+        else if (cov === 'Pending Automation') automated = 'No';
+      }
       const execution = (row[headerMap['Automation Execution']] || '').trim();
       const reason = (row[headerMap['If Failed Reason of Failure']] || '').trim();
       const title = (row[headerMap['Title']] || '').trim();
@@ -279,8 +336,8 @@ function audit() {
   }
 
   // Report
-  console.log('═══ SP00 Audit v5 — Comprehensive CSV Deliverable Audit ═══\n');
-  console.log(`Files scanned: ${csvFiles.length}`);
+  console.log(`═══ SP00 Audit v5 — Comprehensive ${format.toUpperCase()} Deliverable Audit ═══\n`);
+  console.log(`Sheets/files scanned: ${sources.length}`);
   console.log(`Total data rows: ${totalRows}`);
   console.log(`Defects found: ${defects.length}`);
   console.log(`HALT-FOR-USER sentinels: ${halts.length}\n`);

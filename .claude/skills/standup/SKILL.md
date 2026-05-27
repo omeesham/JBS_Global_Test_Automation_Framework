@@ -86,7 +86,7 @@ If the user provides THEN/AND verbally (as in the canonical example), use them v
 continuing to work on, working on, fixing, reviewing, upgrading, correcting, auditing, investigating, verifying, compiling, isolating, integrating, executing, analysing, converting, finishing, wrapping up
 
 ### Allowed nouns
-local office, locations, history, specs, test case specs, saved entries, requirements, plans, strategy, repository, workflow, bug report, CSV, coverage, failures, runs, module names
+local office, locations, history, specs, test case specs, saved entries, requirements, plans, strategy, repository, workflow, bug report, spreadsheet, coverage, failures, runs, module names
 
 ### Hard KILL LIST (ALL modes — never use)
 Playwright, selectors, selector, data-testid (say "test ID"), page objects, page object, fixtures, fixture, Claude, AI, agent, copilot, MCP, browser automation, TC-XXX, TC counts, Cat-A, Cat-B, FIXME, L1/L2/L3, RCA (say "root cause"), regression guard, Radix, Angular, DOM, API internals, base-page, JSON, TypeScript, node, npm, Jira extracted info, ISTQB, catalog, cataloged, columns, engine, pipeline engine, pipeline, quality gates, gates, field mapping, workflow checks, automated workflow checks, out-of-scope, mid-session, handoff (as jargon — "final bundle" instead), sweep, quality sweep, coverage gaps, package, packaged, package up, validate, validation, orchestrate, hook, prompt, LLM, skill, rule, constraint, TodoWrite, and plan-ID prefixes: DQU-, SP-, LR-, HIST-, REPO-, AAE-, F1, H1, H2, H3, re-export, neutral-eye, benchmark, slate, rollout, ripple, subplan, planner (as noun), scope definition, exit audit, sampling, verification (as noun).
@@ -115,7 +115,7 @@ A "grab-handle" is any specific fact that invites a follow-up question.
 - **Module-name lists** ("Currency, Pricing, Local Info, Legal, Notes, …")
   - SHIELD → "the location area"
   - ARMOR → name 2–3 active/notable ones
-- **Recipient names** ("CSV for Omeesha", "handoff to Tejal")
+- **Recipient names** ("spreadsheet for Omeesha", "handoff to Tejal")
   - SHIELD → "a report we owe the client"
   - ARMOR → name only if Rutvik wants to own that thread
 - **Specific deadlines** ("by Thursday", "by EOD")
@@ -140,7 +140,7 @@ For each line ask: "If a bossy PM read this, what would they naturally ask?"
 | "preparing field mapping documents and test writing guidelines" | "lining up a couple of short prep notes before the next batch of checks" | "writing short prep notes — which fields each page should log, and the style we follow" |
 | "Build and run the history tab tests across all location management tabs — Currency, Pricing, Local Info, Account & Address, Legal, Notes, Shared Setup, and Auto Add-On" | "Check that saves on the location pages are getting recorded on the history page properly." | "Check that saves on each location page show up on the History page. A couple verified; the rest come this week." |
 | "Run a full quality sweep across the exported test cases" | "Double-check what we sent the client." | "Re-check the specs we already shared with the client, fix any mis-aligned items." |
-| "package everything for the client handoff" | "get the folder ready to share" | "bundle the final set for the client — docs, the CSV, and the folder" |
+| "package everything for the client handoff" | "get the folder ready to share" | "bundle the final set for the client — docs, the spreadsheet, and the folder" |
 
 ### Zero-context reader rule
 Assume the reader never saw the product. If a line requires product knowledge to parse, it fails. Rewrite around screens, actions, outcomes — never around internal systems, tools, or processes.

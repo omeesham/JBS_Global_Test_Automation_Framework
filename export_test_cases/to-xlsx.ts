@@ -53,7 +53,13 @@ import {
   AugmentMode,
   applyBlockedOverlay,
 } from './sp00-augment-logic';
-import { humanize } from './humanize';
+import {
+  cleanMarkdown,
+  humanizeAssertion,
+  convertElementIdsToLabels,
+  sanitizeUnicode,
+  generatePreconditions,
+} from './humanize';
 
 // ────────────────────────── Paths ──────────────────────────
 
@@ -173,7 +179,19 @@ export function toSheetName(basenameSlug: string): string {
   return lookupKey;
 }
 
-// ────────────────────────── Local MD parser fork ──────────────────────────
+// ────────────────────────── MD parser (inline format) ──────────────────────────
+//
+// Encore MDs use the inline format `**Steps**: 1. action ✓ expected 2. action ✓ expected`,
+// not the table format that `markdown-parser.ts:extractSteps` expects. This parser ports
+// the relevant subset of `to-csv.ts:parseSimpleFormat` (lines 169-335) and routes every
+// text-transform through the shared `humanize.ts` helpers so list-only / with-run output
+// matches the legacy CSV deliverable byte-for-byte (passes xlsx-vs-csv-parity without
+// --from-csv bootstrap). Phase A.5 part 2 — unblocks Phase D CSV deletion.
+//
+// to-csv.ts stays the parity oracle (Phase D will delete it). We deliberately do not
+// extend markdown-parser.ts: its existing extractSteps/extractList expect table /
+// bullet-list formats and other consumers (to-jira, to-json, to-testmo) rely on those
+// semantics unchanged.
 
 interface ParsedTc {
   id: string;
@@ -192,11 +210,124 @@ interface ParsedTc {
   ifFailedReason: string;
 }
 
-/** Parse a single MD file into an array of TC records (local fork — does not import markdown-parser.ts). */
+/** Strip the internal-only tags (Automatable / MCP_VERIFICATION_LOG / Automation File /
+ *  Completed saves) that should never appear in client-facing cells. Mirrors
+ *  to-csv.ts:parseSimpleFormat lines 304-309. */
+function stripInternalTags(text: string): string {
+  return text
+    .replace(/\n?(?:\*\*)?Automatable(?:\*\*)?:.*$/gm, '')
+    .replace(/\n?(?:\*\*)?MCP_VERIFICATION_LOG(?:\*\*)?[\s\S]*?(?=\n---|\n##|$)/g, '')
+    .replace(/\n?(?:\*\*)?Automation File(?:\*\*)?:.*$/gm, '')
+    .replace(/\n?(?:\*\*)?Completed saves to verify(?:\*\*)?:.*$/gm, '')
+    .trim();
+}
+
+/** Final humanization pass — cleanMarkdown then humanizeAssertion (order matters: quote
+ *  / backtick stripping happens before DOM-jargon translation). Mirrors to-csv.ts:319. */
+function humanizeCell(text: string): string {
+  return humanizeAssertion(cleanMarkdown(text));
+}
+
+/**
+ * Convert inline `1. action ✓ expected 2. action ✓ expected` steps into the
+ * CSV-equivalent single-cell string. Splits on numbered-step boundaries
+ * (negative lookbehind protects double-digit step numbers), drops the per-step
+ * `-> expected` half, applies element-id labelling + markdown cleanup per step,
+ * then joins with a single space (CSVs are space-separated post-sanitization;
+ * the original convertAgentStepsToHumanWithNotes uses \n, but the static CSV
+ * deliverable has spaces, so we collapse here for parity). Cleanup lines like
+ * `4. Cleanup: ...` get collected separately and surfaced via the returned
+ * `notes` so callers can append to the Notes cell.
+ * Mirrors to-csv.ts:convertAgentStepsToHumanWithNotes (lines 342-381).
+ */
+function inlineStepsToHuman(rawSteps: string): { steps: string; notes: string } {
+  if (!rawSteps) return { steps: '', notes: '' };
+  const unicoded = sanitizeUnicode(rawSteps);
+  const cleanupNotes: string[] = [];
+  const stepParts = unicoded.split(/(?<!\d)(?=\d+\.\s)/).filter(s => s.trim().length > 0);
+  let stepNumber = 0;
+
+  const humanSteps = stepParts.map(part => {
+    stepNumber += 1;
+
+    if (/(?:\*\*)?Cleanup(?:\*\*)?|cleanup:|CLEANUP/i.test(part)) {
+      const cleanupText = part
+        .replace(/^\d+\.\s*/, '')
+        .replace(/(?:\*\*)?Cleanup(?:\*\*)?:?\s*/i, '')
+        .trim();
+      cleanupNotes.push(cleanupText);
+      return null;
+    }
+
+    const arrowMatch = part.match(/^(\d+\.\s*)(.+?)\s*(?:->|->)\s*(.+)$/s);
+    const rawAction = arrowMatch && arrowMatch[2]
+      ? arrowMatch[2].trim()
+      : part.replace(/^\d+\.\s*/, '').trim();
+    const action = cleanMarkdown(convertElementIdsToLabels(rawAction));
+    return `${stepNumber}. ${action}`;
+  }).filter((s): s is string => s !== null);
+
+  let notes = '';
+  if (cleanupNotes.length > 0) {
+    const cleaned = cleanupNotes.map(c => cleanMarkdown(convertElementIdsToLabels(c)));
+    notes = `CLEANUP REQUIRED: ${cleaned.join('; ')}`;
+  }
+
+  // Join with single space (NOT \n) — the static CSV deliverable has
+  // post-sanitization space-separated steps; xlsx-vs-csv-parity.mjs:norm
+  // preserves \n, so newline-join would fail parity.
+  return { steps: humanSteps.join(' '), notes };
+}
+
+/** Pull a `**Field**: value` block out of the TC body. Stops at the next bold-prefixed
+ *  label, separator (`---`), or new TC header. Used for inline single-string fields
+ *  (Expected, Notes, Preconditions). The returned text is RAW — caller is responsible
+ *  for sanitize / humanize. */
+function extractInlineField(body: string, field: string, extraStops: string[] = []): string {
+  const stops = ['\\n\\*\\*', '\\n---', '\\n##', ...extraStops];
+  const stopRe = `(?=${stops.join('|')}|$)`;
+  const re = new RegExp(
+    `(?:\\*\\*)?${field}(?:\\*\\*)?:\\s*([\\s\\S]+?)${stopRe}`,
+    'i'
+  );
+  const m = body.match(re);
+  if (!m || !m[1]) return '';
+  return m[1].trim();
+}
+
+/** Parse the Tags value out of the metadata table immediately following the TC header.
+ *  Returns '' when no Tags column exists or the table is malformed. */
+function extractTags(body: string): string {
+  const tableMatch = body.match(/\|([^\n]*?)\|\s*\n\|[\-\s|]+\|\s*\n\|([^\n]+)\|/);
+  if (!tableMatch) return '';
+  const headerCells = tableMatch[1]!.split('|').map(s => s.trim()).filter(s => s.length > 0);
+  const valueCells = tableMatch[2]!.split('|').map(s => s.trim()).filter(s => s.length > 0);
+  const tagsIdx = headerCells.findIndex(h => h.toLowerCase() === 'tags');
+  if (tagsIdx < 0 || tagsIdx >= valueCells.length) return '';
+  return valueCells[tagsIdx] ?? '';
+}
+
+/** Parse the Type value out of the metadata table (used by generatePreconditions). */
+function extractType(body: string): string {
+  const tableMatch = body.match(/\|([^\n]*?)\|\s*\n\|[\-\s|]+\|\s*\n\|([^\n]+)\|/);
+  if (!tableMatch) return '';
+  const headerCells = tableMatch[1]!.split('|').map(s => s.trim()).filter(s => s.length > 0);
+  const valueCells = tableMatch[2]!.split('|').map(s => s.trim()).filter(s => s.length > 0);
+  const typeIdx = headerCells.findIndex(h => h.toLowerCase() === 'type');
+  if (typeIdx < 0 || typeIdx >= valueCells.length) return '';
+  return valueCells[typeIdx] ?? '';
+}
+
+/**
+ * Parse a single MD file into an array of TC records. Ports to-csv.ts:parseSimpleFormat
+ * (Phase A.5 part 2). Uses humanize.ts helpers throughout so output matches the legacy
+ * CSV deliverable byte-for-byte.
+ */
 function parseMd(filePath: string): ParsedTc[] {
   const content = fs.readFileSync(filePath, 'utf-8');
   const tcs: ParsedTc[] = [];
-  // Header: ## TC-XXX-YY-ZZZ: title  (also ### form)
+  // Header: ## TC-XXX-YY-ZZZ: title  (also ### form). Permissive ID grammar to match
+  // both numeric tails (TC-LOC-CUR-001) and alpha tails (TC-LOC-LGL-HIST).
   const sections = content.split(/^#{2,3}\s+(TC-[A-Z]+(?:-[A-Z]+)*(?:-[A-Za-z0-9]+)?):\s*/m);
   for (let i = 1; i < sections.length; i += 2) {
     const id = (sections[i] ?? '').trim();
@@ -204,26 +335,83 @@ function parseMd(filePath: string): ParsedTc[] {
     if (!id || !body) continue;
 
     const lines = body.trim().split('\n');
-    const title = stripMarkup((lines[0] ?? '').trim());
+    const titleRaw = (lines[0] ?? '').trim();
+    const title = humanizeCell(titleRaw);
     const { module, submodule } = deriveModuleSubmodule(id);
-    const specificField = ''; // Filled from CSV later
+    const specificField = ''; // Filled from CSV later (Phase A bootstrap; Phase D follow-up needs MD-side schema)
     const tags = extractTags(body);
+    const type = extractType(body);
 
-    // Phase A.5 (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION): apply the shared
-    // humanize() pipeline so list-only / with-run output matches the legacy
-    // CSV deliverable byte-for-byte (passes xlsx-vs-csv-parity without
-    // --from-csv bootstrap). `humanize` = cleanMarkdown → humanizeAssertion →
-    // convertElementIdsToLabels (shared module at export_test_cases/humanize.ts,
-    // extracted from to-csv.ts:383-597).
-    const steps = humanize(extractStrippedField(body, 'Steps'));
-    const expected = humanize(
-      extractStrippedField(body, 'Expected') || extractStrippedField(body, 'Expected Result'),
-    );
-    const notes = humanize(extractStrippedField(body, 'Notes'));
-    const preconditionsRaw =
-      extractStrippedField(body, 'Preconditions') ||
-      extractStrippedField(body, 'Preconditions \\(Human\\)');
-    const preconditions = humanize(preconditionsRaw) || derivePreconditions(id);
+    // ── Steps ──────────────────────────────────────────────────────────────
+    // Prefer `**Steps (Human)**:` when present; otherwise process the inline
+    // agent-format `**Steps**: 1. action ✓ expected ...` through the splitter.
+    const stepsHumanRaw = extractInlineField(body, 'Steps \\(Human\\)');
+    const stepsRaw = extractInlineField(body, 'Steps');
+    let stepsCellRaw: string;
+    let extractedStepsCleanup = '';
+    if (stepsHumanRaw) {
+      stepsCellRaw = stepsHumanRaw;
+    } else {
+      const { steps: humanSteps, notes: cleanupNotes } = inlineStepsToHuman(stepsRaw);
+      stepsCellRaw = humanSteps;
+      extractedStepsCleanup = cleanupNotes;
+    }
+    const steps = humanizeCell(stepsCellRaw);
+
+    // ── Expected ───────────────────────────────────────────────────────────
+    // Prefer `**Expected Result (Human)**:`, fall back to `**Expected**:` (agent),
+    // applying convertElementIdsToLabels before the final humanizeCell pass so
+    // element IDs in expected text become quoted UI labels.
+    const expectedHumanRaw = extractInlineField(body, 'Expected Result \\(Human\\)');
+    const expectedAgentRaw = extractInlineField(body, 'Expected');
+    let expectedCellRaw = expectedHumanRaw || expectedAgentRaw;
+    expectedCellRaw = stripInternalTags(expectedCellRaw);
+    const expected = humanizeCell(convertElementIdsToLabels(sanitizeUnicode(expectedCellRaw)));
+
+    // ── Notes ──────────────────────────────────────────────────────────────
+    // Inline `**Notes**: ...` with stop conditions for agent fields that may
+    // follow it (Steps, Data, Automatable, MCP_VERIFICATION_LOG, ...). Then
+    // strip internal-only tags and apply the humanize pass. Append the
+    // CLEANUP REQUIRED note synthesized from cleanup-marked steps, if any.
+    const notesStopExtra = [
+      '\\n+(?:\\*\\*)?Steps(?:\\*\\*)?:',
+      '\\n+(?:\\*\\*)?Data(?:\\*\\*)?',
+      '(?:\\*\\*)?Automatable(?:\\*\\*)?',
+      '(?:\\*\\*)?MCP_VERIFICATION_LOG(?:\\*\\*)?',
+      '(?:\\*\\*)?Automation File(?:\\*\\*)?',
+      '(?:\\*\\*)?Completed saves(?:\\*\\*)?',
+    ];
+    let notesRaw = extractInlineField(body, 'Notes', notesStopExtra);
+    notesRaw = stripInternalTags(notesRaw);
+    if (extractedStepsCleanup) {
+      notesRaw = notesRaw ? `${notesRaw} | ${extractedStepsCleanup}` : extractedStepsCleanup;
+    }
+    // Also look for a standalone `**Cleanup**:` block and fold it into notes.
+    const cleanupStopExtra = [
+      '(?:\\*\\*)?Data(?:\\*\\*)?',
+      '(?:\\*\\*)?Notes(?:\\*\\*)?',
+      '(?:\\*\\*)?Automatable(?:\\*\\*)?',
+      '(?:\\*\\*)?MCP_VERIFICATION_LOG(?:\\*\\*)?',
+    ];
+    const cleanupBlock = extractInlineField(body, 'Cleanup', cleanupStopExtra);
+    if (cleanupBlock) {
+      const sanitized = sanitizeUnicode(cleanupBlock);
+      if (!/CLEANUP/i.test(notesRaw)) {
+        notesRaw = notesRaw
+          ? `${notesRaw} | CLEANUP: ${sanitized}`
+          : `CLEANUP: ${sanitized}`;
+      }
+    }
+    const notes = humanizeCell(notesRaw);
+
+    // ── Preconditions ──────────────────────────────────────────────────────
+    // Prefer the explicit `**Preconditions (Human)**:` / `**Preconditions**:` block;
+    // fall back to the auto-derived TC-ID + TAB_MAP form via humanize.generatePreconditions.
+    const preHumanRaw = extractInlineField(body, 'Preconditions \\(Human\\)');
+    const preRaw = preHumanRaw || extractInlineField(body, 'Preconditions');
+    const preconditions = preRaw
+      ? humanizeCell(preRaw)
+      : humanizeCell(generatePreconditions(id, type, stepsRaw));
 
     tcs.push({
       id,
@@ -242,44 +430,6 @@ function parseMd(filePath: string): ParsedTc[] {
     });
   }
   return tcs;
-}
-
-/** Pull a bold-labelled field value: `**Field**: value` until next bold field / separator / new TC. */
-function extractStrippedField(body: string, field: string): string {
-  const re = new RegExp(
-    `(?:\\*\\*)?${field}(?:\\*\\*)?:\\s*([\\s\\S]+?)(?=\\n\\s*(?:\\*\\*)?[A-Z][A-Za-z _()]*?(?:\\*\\*)?:|\\n---|\\n##|$)`,
-    'i'
-  );
-  const m = body.match(re);
-  if (!m || !m[1]) return '';
-  return stripMarkup(m[1].trim());
-}
-
-function extractTags(body: string): string {
-  // Some modules carry a Tags column in the 3-col metadata table. We look only at the
-  // top metadata table (the one right after the TC header). If absent → empty.
-  const tableMatch = body.match(/\|([^\n]*?)\|\s*\n\|[\-\s|]+\|\s*\n\|([^\n]+)\|/);
-  if (!tableMatch) return '';
-  const headerCells = tableMatch[1]!.split('|').map(s => s.trim()).filter(s => s.length > 0);
-  const valueCells = tableMatch[2]!.split('|').map(s => s.trim()).filter(s => s.length > 0);
-  const tagsIdx = headerCells.findIndex(h => h.toLowerCase() === 'tags');
-  if (tagsIdx < 0 || tagsIdx >= valueCells.length) return '';
-  return valueCells[tagsIdx] ?? '';
-}
-
-function stripMarkup(text: string): string {
-  if (!text) return '';
-  return text
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/[✅✔✓⚠️❌]/gu, '')
-    .replace(/→/g, '->')
-    .replace(/[—–]/g, '-')
-    .replace(/[‘’]/g, "'")
-    .replace(/[“”]/g, '"')
-    .replace(/[ \t]+/g, ' ')
-    .replace(/[ \t]*\n[ \t]*/g, '\n')
-    .trim();
 }
 
 function deriveModuleSubmodule(id: string): { module: string; submodule: string } {
@@ -316,12 +466,6 @@ function deriveModuleSubmodule(id: string): { module: string; submodule: string 
     module: moduleMap[moduleCode] ?? moduleCode.toLowerCase(),
     submodule: subMap[subCode] ?? subCode.toLowerCase(),
   };
-}
-
-function derivePreconditions(id: string): string {
-  if (id.startsWith('TC-LOC')) return 'Office 1604 is open in Navigator.';
-  if (id.startsWith('TC-LOS')) return 'Local Office Settings page is open (Office 1604).';
-  return '';
 }
 
 // ────────────────────────── CSV supplementary lookup ──────────────────────────

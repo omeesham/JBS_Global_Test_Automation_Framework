@@ -20,7 +20,7 @@ const TOOL_PATTERNS: Array<[RegExp, string]> = [
 const ACTIVITY_PATTERNS: Array<[RegExp, string]> = [
   [/TC-[A-Z]+-[A-Z]+-\d{3}/, (m: string) => `Working on ${m}`],
   [/Creating\s+(\S+\.(ts|md|json))/, 'Creating $1'],
-  [/Writing\s+(\S+\.(ts|md|json|csv))/, 'Writing $1'],
+  [/Writing\s+(\S+\.(ts|md|json|csv|xlsx))/, 'Writing $1'],
   [/Saving\s+(\S+)/, 'Saving $1'],
   [/selector[s]?\s+(added|created|verified|updated)/i, 'Selectors $1'],
   [/test\s*case[s]?\s+(created|updated|written)/i, 'Test cases $1'],

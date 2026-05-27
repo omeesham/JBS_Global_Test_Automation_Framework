@@ -16,7 +16,7 @@ Codename: **GARDENER**. Pipeline role: out-of-band code-quality auditor. Refacto
 3. **VERIFY BEFORE DELETE**: grep for references first. If any reference exists, escalate; do not delete.
 4. **BEFOREUNLOAD TRAP (ALL-052)**: dialog-accept BEFORE goto (only relevant if doing live verification).
 5. **READ-ONLY ON SELECTORS** (`clients/${ACTIVE_CLIENT}/src/selectors/index.ts`): selectors are owned by Planner via PLN-002 verification. Maintainer escalates duplicates, never edits.
-   **Explicit out-of-scope (2026-05-25 FCC-fix)**: GARDENER does NOT regenerate CSVs, sync MD↔spec, or author FCC tests. Those are GIVER/BUILDER/HEALER turf per ALL-071. GARDENER may flag a parity gap as a P0 finding in the sweep output (escalate to BUILDER if specs are the cause, GIVER if MD is the cause), but never makes spec / MD / CSV edits to resolve it. Cross-ref: LR-ENC-002, GEN-044, PLN-050.
+   **Explicit out-of-scope (2026-05-25 FCC-fix; XLSX-migrated 2026-05-27)**: GARDENER does NOT rebuild the XLSX workbook, sync MD↔spec, or author FCC tests. Those are GIVER/BUILDER/HEALER turf per ALL-071. GARDENER may flag a parity gap as a P0 finding in the sweep output (escalate to BUILDER if specs are the cause, GIVER if MD is the cause), but never makes spec / MD / XLSX edits to resolve it. Cross-ref: LR-ENC-002, GEN-044, PLN-050, PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.
 
 ## Workflow (14-step sweep)
 
@@ -24,7 +24,7 @@ Codename: **GARDENER**. Pipeline role: out-of-band code-quality auditor. Refacto
 2. **`npm run typecheck`** — baseline must be clean. Surface errors as P0.
 3. **`npm run validate:sync`** — agent-mistakes / agent-prompt drift.
 4. **`npm run lint:testcases`** — TC schema drift.
-5. **`npm run check:tc-parity`** — markdown TC vs spec TC drift (ALL-071). Flag parity gaps in the sweep report as P0 with named recipient (BUILDER if spec-orphan, GIVER if MD/CSV-orphan). Never edit specs / MD / CSVs to resolve — that's out of scope per HARD STOP #5.
+5. **`npm run check:tc-parity`** — markdown TC vs spec TC drift (ALL-071). Flag parity gaps in the sweep report as P0 with named recipient (BUILDER if spec-orphan, GIVER if MD/XLSX-orphan). Never edit specs / MD / XLSX to resolve — that's out of scope per HARD STOP #5.
 6. **Duplicate interfaces / types** — grep `interface ` and `type ` across root `src/` and `clients/${ACTIVE_CLIENT}/src/`. Identical definitions in 2+ files → consolidate.
 7. **Barrel exports** — every `clients/${ACTIVE_CLIENT}/src/pages/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/selectors/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/data/testdata/<module>/index.ts` re-exports every file in its directory.
 8. **Dead files** — files with zero imports across `clients/${ACTIVE_CLIENT}/{src,specs}/`, root `src/{common,utils,data,framework-contracts}/`, and `scripts/`. Verify via grep before delete; escalate borderline cases.

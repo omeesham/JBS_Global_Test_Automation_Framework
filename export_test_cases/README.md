@@ -2,13 +2,16 @@
 
 **Purpose**: Convert markdown test cases (`specs_planning/test-cases/*.md`) into various formats for import into test management tools.
 
+> **2026-05-27 migration**: the client deliverable flipped from per-module CSVs (`clients/encore/test_cases_csv/*.csv`) to a single multi-sheet workbook at `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` per `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION`. Build with `npm run xlsx:build` (default — uses the canonical CSVs as inherited augment source during Phase A/B/C; `--list-only` / `--with-run` switch to MD-primary parsing once the parser-switch spawn-task lands). The CSV emitter (`to-csv.ts`) and `test_cases_csv/` directory are slated for deletion in Phase D.
+
 ## 📋 Overview
 
 This folder contains converters that transform test case markdown files into formats required by different test management systems:
 
+- **XLSX** (primary deliverable) - Single multi-sheet workbook (Overview + 13 module sheets) for the client
 - **JSON** - Generic format for programmatic consumption
-- **CSV** - Excel/spreadsheet compatible, generic test tools
-- **Jira** - Jira Xray/Zephyr test case import
+- **CSV** - Legacy per-module exports (deleted in Phase D of the XLSX migration)
+- **Jira** - Jira Xray/Zephyr test case import (boundary-mapped `Pending Automation` ↔ external `Manual`)
 - **TestMo** - TestMo API import format
 
 ## 🔄 Dual-Format System (Human + Agent)

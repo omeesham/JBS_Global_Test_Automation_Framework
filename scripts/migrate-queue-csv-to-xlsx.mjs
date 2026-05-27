@@ -49,21 +49,51 @@ function main() {
   let csvExportRewrites = 0;
   let actionRewrites = 0;
 
-  // 1. Active queue entries — every csvExport → xlsxArtifact
-  const entries = Array.isArray(queue) ? queue : (queue.entries ?? queue.items ?? []);
+  // The Encore queue shape is { queue: [{ artifacts: { csvExport, ... }, history: [{ action, ... }] }, ...] }.
+  // Accept also flat-array / { entries } / { items } shapes for future clients.
+  const entries = Array.isArray(queue)
+    ? queue
+    : (queue.queue ?? queue.entries ?? queue.items ?? []);
+
   for (const entry of entries) {
-    if (entry && typeof entry === 'object') {
-      if ('csvExport' in entry && !('xlsxArtifact' in entry)) {
-        delete entry.csvExport;
-        entry.xlsxArtifact = XLSX_RELATIVE;
-        csvExportRewrites++;
+    if (!entry || typeof entry !== 'object') continue;
+
+    // 1. Active queue items — artifacts.csvExport → artifacts.xlsxArtifact.
+    // Set xlsxArtifact when missing; always delete csvExport when present
+    // (residual key from prior partial migration is a Phase B cleanup target).
+    if (entry.artifacts && typeof entry.artifacts === 'object') {
+      let mutated = false;
+      if (!('xlsxArtifact' in entry.artifacts) && 'csvExport' in entry.artifacts) {
+        entry.artifacts.xlsxArtifact = XLSX_RELATIVE;
+        mutated = true;
+      }
+      if ('csvExport' in entry.artifacts) {
+        delete entry.artifacts.csvExport;
+        mutated = true;
+      }
+      if (mutated) csvExportRewrites++;
+    }
+    // Tolerate the top-level shape too (forward-compat / non-Encore clients)
+    if ('csvExport' in entry) {
+      if (!('xlsxArtifact' in entry)) entry.xlsxArtifact = XLSX_RELATIVE;
+      delete entry.csvExport;
+      csvExportRewrites++;
+    }
+
+    // 2. Per-item history rows — action 'csv_export' → 'xlsx_rebuild'
+    if (Array.isArray(entry.history)) {
+      for (const row of entry.history) {
+        if (row && typeof row === 'object' && row.action === 'csv_export') {
+          row.action = 'xlsx_rebuild';
+          actionRewrites++;
+        }
       }
     }
   }
 
-  // 2. History rows — action 'csv_export' → 'xlsx_rebuild'
-  const history = (queue && typeof queue === 'object') ? (queue.history ?? []) : [];
-  for (const row of history) {
+  // 3. Top-level history (legacy shape) — same rewrite
+  const topHistory = (queue && typeof queue === 'object') ? (queue.history ?? []) : [];
+  for (const row of topHistory) {
     if (row && typeof row === 'object' && row.action === 'csv_export') {
       row.action = 'xlsx_rebuild';
       actionRewrites++;
