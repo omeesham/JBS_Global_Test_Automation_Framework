@@ -5,7 +5,7 @@
 4. Verify character counter
 5. Verify ""Add"" button visible
 6. Verify progress bar visible
-7. Verify NO ""Delete"" button","Empty table (""No","CORRECTION from 2026-02-19: Table starts EMPTY (no default row). No <thead> exists in DOM","","",""
+7. Verify NO ""Delete"" button","Empty table (""No","No header row exists in DOM","","",""
 "TC-LOC-NTS-002","Type text in textarea and verify counter updates","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab
 2. Click ""Add"" button
 3. Type ""Test note for exploration""
@@ -38,20 +38,20 @@
 2. Fill textarea with exactly 4000 characters
 3. Attempt to type one additional character via keyboard
 4. Paste a 4001-char string into textarea
-5. Verify textarea has NO maxlength attribute","Keyboard input blocked at 4000; paste bypasses (soft limit); counter shows overage; no HTML maxlength","CORRECTION from 2026-02-19: Limit is SOFT. No maxlength on textarea. Paste can exceed 4000.
+5. Verify textarea has NO maxlength attribute","Keyboard input blocked at 4000; paste bypasses (soft limit); counter shows overage; no HTML maxlength","No maxlength on textarea. Paste can exceed 4000.
 ""Cleanup"": Clear textarea, discard changes","","",""
 "TC-LOC-NTS-008","Save notes via left-panel Save button (dialog confirmation)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Saved note content""
 2. Click left-panel ""Save""
 3. Verify dialog heading
 4. Verify dialog body
-5. Click ""Ok"" in dialog [role=""alertdialog""] button:has-text(""Ok"")
-6. Verify left-panel ""Save"" button becomes disabled","Save dialog appears with confirmed heading/body; after confirmation, notes saved and Save button disables","CLEANUP: Delete note and save to restore empty state - use BUG-LOC-NTS-001 workaround (clear textarea.value before Delete click)","","",""
-"TC-LOC-NTS-009","Notes persist after page reload","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Persistent note""
+5. Click ""Ok"" in dialog [role=""alertdialog""] button:has-
+6. Verify left-panel ""Save"" button becomes disabled","Save dialog appears with confirmed heading/body; after confirmation, notes saved and Save button disables","CLEANUP: Delete note and save to restore empty state - use workaround (clear textarea.value before Delete click)","","",""
+"TC-LOC-NTS-009","Notes persist after page Reload the page","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Persistent note""
 2. Save via left-panel ""Save"", confirm in dialog
 3. Reload page (navigate same URL)
 4. Click ""Notes"" tab
 5. Verify row value
-6. Verify counter","Saved notes persist after page reload with exact content and correct counter","CLEANUP: Delete note and save to restore empty state","","",""
+6. Verify counter","Saved notes persist after page Reload the page with exact content and correct counter","CLEANUP: Delete note and save to restore empty state","","",""
 "TC-LOC-NTS-010","Switching sub-tabs preserves unsaved note content","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Temporary text""
 2. Click ""Currency"" tab
 3. Click ""Notes"" tab again
@@ -61,8 +61,8 @@
 2. Navigate away (e.g., browser_navigate to a different URL)
 3. Accept navigation","Navigating away with unsaved changes triggers browser's built-in beforeunload confirmation dialog","This is the BROWSER's beforeunload dialog, not the app's alertdialog ""Save Changes""","","",""
 "TC-LOC-NTS-012","Delete all notes and save empty state","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab with a saved note (or add + save one)
-2. ""For each row to delete"" (LR-026 + BUG-LOC-NTS-001 workaround): (a) Clear the row's textarea.value to empty string via input event (Playwright.fill("""")) - wait for form-dirty propagation, (b) Click ""Delete"" on the row
-3. Click left-panel ""Save"", confirm in dialog (button is ""Ok"" per BUG-LOC-NTS-002)
+2. ""For each row to delete"" ( + workaround): (a) Clear the row's textarea.value to empty string via input event (Playwright.) - wait for form-dirty propagation, (b) Click ""Delete"" on the row
+3. Click left-panel ""Save"", confirm in dialog (button is ""Ok"" per )
 4. Reload page, click ""Notes"" tab","Deleting the last note and saving persists the empty ""No","","","",""
 "TC-LOC-NTS-013","Special and HTML characters stored correctly","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
 2. Type: ""test"", <div>, &amp;, é, ñ
@@ -73,7 +73,7 @@
 2. Click ""Add"" again
 3. Click ""Add"" again
 4. Verify all 3 textboxes have placeholder
-5. Type distinct text in each","Three rows accessible via nth() indexing on textarea; all get Delete when 2+ rows","CORRECTION: DOM has NO visible row number column (#). Rows identified by textarea nth() position only.
+5. Type distinct text in each","Three rows accessible via indexing on textarea; all get Delete when 2+ rows","CORRECTION: DOM has NO visible row number column (#). Rows identified by textarea position only.
 ""Cleanup"": Delete rows 3 and 2, discard changes","","",""
 "TC-LOC-NTS-015","Delete a middle row and verify remaining rows shift","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add"", type ""Row A"" in row 1 (nth=0)
 2. Click ""Add"", type ""Row B"" in row 2 (nth=1)
@@ -81,20 +81,20 @@
 4. Click ""Delete"" on row 2
 5. Verify remaining rows
 6. Verify counter","Remaining rows shift; content preserved; counter decreases correctly","CORRECTION: No visible row numbers - rows identified by position. ""Row C"" shifts to nth=1 after deleting nth=1.
-""Cleanup"": Delete remaining extra row(s), discard changes","","",""
+""Cleanup"": Delete remaining extra, discard changes","","",""
 "TC-LOC-NTS-016","Empty row has no Delete button - Delete appears on first keystroke","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab
 2. Click ""Add""
 3. Verify counter
 4. Type a single character ""a"" in the textarea
 5. Verify Delete button NOW appears","Empty row has no Delete; Delete appears immediately when text is typed (even 1 char)","CLEANUP: Delete the row or clear text, discard changes","","",""
 "TC-LOC-NTS-017","Delete last remaining row restores empty state","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab with 1 note row (add one if empty)
-2. ""Clear the textarea.value to empty string via input event"" (LR-026 + BUG-LOC-NTS-001 workaround)
+2. ""Clear the textarea.value to empty string via input event"" ( + workaround)
 3. Click ""Delete""
 4. Verify Add button still visible
 5. Verify Save button enabled
-6. (If asserting persistence) Click ""Save"", confirm dialog (button is ""Ok"" per BUG-LOC-NTS-002)","Deleting the last note row returns to ""No","","","",""
+6. (If asserting persistence) Click ""Save"", confirm dialog (button is ""Ok"" per )","Deleting the last note row returns to ""No","","","",""
 "TC-LOC-NTS-018","XSS payload stored as unsafe text (security)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
-2. Type <script>alert(1)</script> in textarea
+2. Type <script></script> in textarea
 3. Verify no script executes
 4. Save via left-panel ""Save"", confirm
 5. Reload and open ""Notes"" tab","XSS payload stored and retrieved as plain text; never executed as HTML or JavaScript","CLEANUP: Delete note and save to restore empty state","","",""
@@ -102,11 +102,11 @@
 2. Type '; DROP TABLE notes; -- in textarea
 3. Save via left-panel ""Save"", confirm
 4. Reload and open ""Notes"" tab","SQL injection payload stored and retrieved as plain text; no database side effects","CLEANUP: Delete note and save to restore empty state","","",""
-"TC-LOC-NTS-020","Emoji and unicode characters preserved through save/reload","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
+"TC-LOC-NTS-020","Emoji and unicode characters preserved through save/Reload the page","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
 2. Type café résumé 😀 中文 in textarea
 3. Verify counter
 4. Save via left-panel ""Save"", confirm
-5. Reload and open ""Notes"" tab","Multi-byte unicode and emoji preserved without corruption through the full save+reload cycle","CLEANUP: Delete note and save to restore empty state","","",""
+5. Reload and open ""Notes"" tab","Multi-byte unicode and emoji preserved without corruption through the full save+Reload the page cycle","CLEANUP: Delete note and save to restore empty state","","",""
 "TC-LOC-NTS-021","Paste exceeds 4000 char limit - counter shows overage (soft limit)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, click ""Add""
 2. Paste a string of 4001 characters
 3. Verify counter
@@ -118,54 +118,54 @@
 4. Verify Add button
 5. Verify progressbar
 6. Verify keyboard save","All interactive elements keyboard-reachable; known gaps: textarea no aria-label, progressbar no aria-valuenow + no aria-label","Accessibility gaps: (1) textarea has no aria-label (placeholder only); (2) progressbar no aria-valuenow; (3) progressbar no aria-label","","",""
-"TC-LOC-NTS-023","Sequential full lifecycle - add, save, reload, delete, save","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab
+"TC-LOC-NTS-023","Sequential full lifecycle - add, save, Reload the page, delete, save","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab
 2. Click ""Add"", type ""Sequential test note"" (20 chars)
 3. Click left-panel ""Save"", confirm in dialog
 4. Reload page, click ""Notes"" tab
 5. Click ""Delete"" on the note
 6. Click left-panel ""Save"", confirm in dialog
-7. Reload page, click ""Notes"" tab","Full add -> save -> reload -> delete -> save -> reload lifecycle works correctly at every step","","","",""
-"TC-LOC-NTS-024","Multi-row persistence - 3 rows save+reload+verify","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
+7. Reload page, click ""Notes"" tab","Full add -> save -> Reload the page -> delete -> save -> Reload the page lifecycle works correctly at every step","","","",""
+"TC-LOC-NTS-024","Multi-row persistence - 3 rows save+Reload the page+verify","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
 2. Fill row 0 ""Row Alpha"" (9 chars), click ""Add"", fill row 1 ""Row Beta"" (8 chars), click ""Add"", fill row 2 ""Row Gamma"" (9 chars)
-3. Click ""Save"", confirm dialog (button is ""Ok"" per BUG-LOC-NTS-002)
+3. Click ""Save"", confirm dialog (button is ""Ok"" per )
 4. Reload page, click ""Notes"" tab
 5. Verify content (NOT count): row 0/1/2 contain the typed strings; row 3 is empty
-6. Clean up: clear all textarea.values + delete all rows + save (LR-026 + BUG-LOC-NTS-001 workaround)","All 3 user-content rows persist after save+reload with correct content and order. ""NOTE (BUG-LOC-NTS-003)"": post-save state has N+1 textareas (N user-content + 1 auto-empty); assert on content of rows 0..N-1, not on total textarea count","","","",""
-"TC-LOC-NTS-025","Boundary persistence - 4000 chars save+reload","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
+6. Clean up: clear all textarea.values + delete all rows + save ( + workaround)","All 3 user-content rows persist after save+Reload the page with correct content and order. ""NOTE ()"": post-save state has N+1 textareas (N user-content + 1 auto-empty); assert on content of rows 0..N-1, not on total textarea count","","","",""
+"TC-LOC-NTS-025","Boundary persistence - 4000 chars save+Reload the page","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
 2. Fill row 0 with 4000 'A' chars
 3. Click ""Save"", confirm dialog
 4. Reload page, click ""Notes"" tab
-5. Clean up: delete + save","Full 4000-char content persists after save+reload without truncation","","","",""
+5. Clean up: delete + save","Full 4000-char content persists after save+Reload the page without truncation","","","",""
 "TC-LOC-NTS-026","Partial deletion persistence - delete middle row, save, verify remaining","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
 2. Fill row 0 ""Keep First"" (10), click ""Add"", fill row 1 ""Delete Me"" (9), click ""Add"", fill row 2 ""Keep Last"" (9)
-3. ""BUG-LOC-NTS-001 workaround"": clear row 1's textarea.value to empty string via input event
+3. "" workaround"": clear row 1's textarea.value to empty string via input event
 4. Click ""Delete"" on row 1 (""Delete Me"" - now empty after step 3)
-5. Click ""Save"", confirm dialog (button is ""Ok"" per BUG-LOC-NTS-002)
+5. Click ""Save"", confirm dialog (button is ""Ok"" per )
 6. Reload page, click ""Notes"" tab
-7. Clean up: clear all textarea.values + delete all rows + save","After deleting middle row + save + reload, the two non-deleted rows persist (content-based assertion). ""WARNING (BUG-LOC-NTS-001)"": skipping step 3 (the value-clear) and going directly from step 2 -> 4 -> 5 will NOT persist the middle-row deletion - the save will dispatch all 3 rows","","","",""
+7. Clean up: clear all textarea.values + delete all rows + save","After deleting middle row + save + Reload the page, the two non-deleted rows persist (content-based assertion). ""WARNING ()"": skipping step 3 (the value-clear) and going directly from step 2 -> 4 -> 5 will NOT persist the middle-row deletion - the save will dispatch all 3 rows","","","",""
 "TC-LOC-NTS-027","Cancel save dialog - verify changes NOT persisted","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
 2. Fill row 0 ""Cancel test note"" (16 chars)
 3. Click ""Save"" button (opens dialog)
 4. Click ""Cancel"" in dialog
-5. Reload page, click ""Notes"" tab","Cancelling save dialog prevents persistence; note is discarded on reload","","","",""
+5. Reload page, click ""Notes"" tab","Cancelling save dialog prevents persistence; note is discarded on Reload the page","","","",""
 "TC-LOC-NTS-033","Sequential save - add second note in same session, both persist","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
 2. Fill row 0 with ""Sequential A"" (12 chars)
 3. Click ""Save"", confirm dialog
-4. Reload page, click ""Notes"" tab (Angular dirty state does not re-enable Save after add+fill post-save - reload required)
+4. Reload page, click ""Notes"" tab (Angular dirty state does not re-enable Save after add+fill post-save - Reload the page required)
 5. Verify row 0 = ""Sequential A""
 6. Click ""Add"", fill row 1 with ""Sequential B"" (12 chars)
 7. Click ""Save"", confirm dialog
 8. Reload page, click ""Notes"" tab
-9. Verify row 0 = ""Sequential A"", row 1 = ""Sequential B"", row count = 2","Both notes persist after two sequential saves with reload between saves (Angular dirty state requires reload - RCA 2026-05-12: Save does not re-enable after add+fill in post-save session, 4/4 runs)","CLEANUP: Delete all rows and save to restore empty state","","",""
+9. Verify row 0 = ""Sequential A"", row 1 = ""Sequential B"", row count = 2","Both notes persist after two sequential saves with Reload the page between saves (Angular dirty state requires Reload the page 4/4 runs)","CLEANUP: Delete all rows and save to restore empty state","","",""
 "TC-LOC-NTS-034","Edit existing saved note - overwritten text persists","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
 2. Fill row 0 with ""Original text"" (13 chars)
 3. Click ""Save"", confirm dialog
-4. Reload page, click ""Notes"" tab (Angular dirty state does not re-enable Save after fill post-save - reload required)
+4. Reload page, click ""Notes"" tab (Angular dirty state does not re-enable Save after fill post-save - Reload the page required)
 5. Verify row 0 = ""Original text""
 6. Overwrite row 0 with ""Edited text"" (11 chars)
 7. Click ""Save"", confirm dialog
 8. Reload page, click ""Notes"" tab
-9. Verify row 0 = ""Edited text""","In-place edit of saved note persists after second save + reload (Angular dirty state requires reload between saves - RCA 2026-05-12: Save does not re-enable after fill in post-save session, 6/6 runs)","CLEANUP: Delete row and save to restore empty state","","",""
+9. Verify row 0 = ""Edited text""","In-place edit of saved note persists after second save + Reload the page (Angular dirty state requires Reload the page between saves 6/6 runs)","CLEANUP: Delete row and save to restore empty state","","",""
 "TC-LOC-NTS-035","Save empty row - persists as empty textarea, not No Notes Available","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
 2. Click ""Add"" to create empty row (don't type anything)
 3. Verify Save enables (form dirty from Add)
@@ -173,7 +173,7 @@
 5. Reload page, click ""Notes"" tab
 6. Verify 1 empty textarea row exists (NOT ""No Notes Available"")
 7. Verify counter = 0, empty-state message NOT visible","An empty row saved deliberately persists as an empty textarea, distinct from the ""No","CLEANUP: Delete row and save to restore empty state","","",""
-"TC-LOC-NTS-036","Overage content persists - 4001 chars save+reload without truncation","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
+"TC-LOC-NTS-036","Overage content persists - 4001 chars save+Reload the page without truncation","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open ""Notes"" tab, ensure empty state
 2. Paste 4001 characters into row 0 (bypasses soft keyboard limit)
 3. Verify counter shows 4001 and ""(0 Left)""
 4. Click ""Save"", confirm dialog
@@ -187,7 +187,7 @@
 6. Verify empty state (""No Notes Available"") visible
 7. Click ""Save"", confirm dialog
 8. Reload page, click ""Notes"" tab
-9. Verify default empty state persists","Delete row + save persists the deletion without needing to clear textarea first (regression check for BUG-LOC-NTS-001)","BUG-LOC-NTS-001 reported that delete-without-clear didn't persist. 2026-05-12 walk found NOT reproducible - this TC confirms the fix holds","","",""
+9. Verify default empty state persists","Delete row + save persists the deletion without needing to clear textarea first (regression check for )","reported that delete-without-clear didn't persist. 2026-05-12 walk found NOT reproducible - this TC confirms the fix holds","","",""
 "TC-LOC-NTS-028","HIST col 69 - empty to ""hello"" save round-trip","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open the ""Notes"" sub-tab on Location Settings for office
 2. The page loads and the Notes area is visible.
 3. Make sure no rows are saved (clear any existing rows and save back to empty using the clear-textarea-then-delete-then-save sequence).
@@ -210,7 +210,7 @@
 "TC-LOC-NTS-030","HIST col 69 - special characters preserved verbatim","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open the ""Notes"" sub-tab on Location Settings for office
 2. 3. Make sure no rows are saved.
 4. Click ""Add"" to create a new row.
-5. Fill the new note row with the literal string containing angle-bracket tags, an ampersand, double quotes, an apostrophe, and backticks. The exact payload is: angle-script-tag, plain text ""alert(1)"", closing angle-script-tag, space, ampersand, space, quoted ""quotes"", space, apostrophed ""apos"", space, backticked ""tick"", space, then angle-div-tag.
+5. Fill the new note row with the literal string containing angle-bracket tags, an ampersand, double quotes, an apostrophe, and backticks. The exact payload is: angle-script-tag, plain text """", closing angle-script-tag, space, ampersand, space, quoted ""quotes"", space, apostrophed ""apos"", space, backticked ""tick"", space, then angle-div-tag.
 6. Click ""Save"" on the left panel. The confirmation dialog appears.
 7. Click ""Ok"" on the dialog to confirm the save.
 8. Click the ""Location Management History"" tab.
@@ -233,7 +233,7 @@
 7. Click ""Ok"" on the dialog to confirm the save.
 8. Click the ""Location Management History"" tab.
 9. Sort by ""Modified On"" descending.
-10. Read the ""Notes"" column on the newest top row","The ""","CLEANUP: Clear all notes and save back to empty before the next test. This is the last HIST per-column test, so leave Office 1604 at the catalog baseline empty state","","",""
+10. Read the ""Notes"" column on the newest top row","The ""","CLEANUP: Clear all notes and save back to empty before the next test. This is the last HIST per-column test, so leave Office 1604 at the catalog Capture baseline state empty state","","",""
 "TC-LOC-NTS-038","HIST col 69 - sequential save (A then B) produces 2 distinct history rows","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Open the ""Notes"" sub-tab on Location Settings for office
 2. 3. Make sure no rows are saved (clear any existing rows and save back to empty using the clear-textarea-then-delete-then-save sequence).
 4. Click ""Add"" to create a new empty note row.
@@ -246,154 +246,130 @@
 11. Click ""Ok"" on the dialog to confirm Save B is persisted.
 12. Click the ""Location Management History"" tab at the top of the page.
 13. Sort the history table by ""Modified On"" in descending order.
-14. Read the ""Notes"" column on every row whose ""Modified On"" timestamp is after the start of step 3 (the read window)","Two distinct history rows are present in the read window - one whose ""","CLEANUP: Clear all notes and save back to empty so Office 1604 is restored to the catalog baseline empty state","","",""
-"TC-LOC-NTS-039","1-char persist (BVA min)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""a"")
-3. saveAndConfirm
-4. reloadAndNavigateToNotesTab
-5. getNoteValue(0) returns ""a""","After reload, row 0 holds exactly the one character ""a""","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-040","3999-char persist (BVA -1)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, NOTE_3999_CHARS)
-3. saveAndConfirm
-4. reloadAndNavigateToNotesTab
-5. getNoteValue(0) returns the 3999-char string","After reload, row 0 holds the 3999-char content verbatim","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-041","Whitespace-only "" "" persist","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, "" "")
-3. saveAndConfirm
-4. reloadAndNavigateToNotesTab
-5. getNoteValue(0) returns "" ""","After reload, row 0 holds the three space characters with no trimming","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-042","Leading whitespace "" hello"" persist (not trimmed)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, "" hello"")
-3. saveAndConfirm
-4. reloadAndNavigateToNotesTab
-5. getNoteValue(0) returns "" hello""","After reload, row 0 holds the two leading spaces and the word hello with no trimming","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-043","Trailing whitespace ""hello "" persist (not trimmed)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""hello "")
-3. saveAndConfirm
-4. reloadAndNavigateToNotesTab
-5. getNoteValue(0) returns ""hello ""","After reload, row 0 holds the word hello followed by two trailing spaces with no trimming","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-063","Tab character ""a\tb"" persist","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""a"" + tab + ""b"") via pasteIntoNote
-3. saveAndConfirm
-4. reloadAndNavigateToNotesTab
-5. getNoteValue(0) returns the literal tab between a and b","After reload, row 0 holds a single tab character between a and b, not a space or two spaces","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-044","Newline ""line1\nline2\nline3"" persist (main spec; HIST col 69 already covered)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. pasteIntoNote(0, ""line1\nline2\nline3"")
-3. saveAndConfirm
-4. reloadAndNavigateToNotesTab
-5. getNoteValue(0) returns the same three-line value with embedded newlines preserved","After reload, row 0 holds the three lines separated by literal newline characters in the textarea value","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-064","Edit append","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Base text"") then saveAndConfirm and reloadAndNavigateToNotesTab to land an initial saved row
-3. appendToNote(0, "" - appended"")
-4. saveAndConfirm
-5. reloadAndNavigateToNotesTab
-6. getNoteValue(0) returns ""Base text - appended""","After reload, row 0 holds the original text plus the appended suffix concatenated as one value","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-045","Edit prepend","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Base text"") then save and reload
-3. prependToNote(0, ""Prepended - "")
-4. saveAndConfirm
-5. reloadAndNavigateToNotesTab
-6. getNoteValue(0) returns ""Prepended - Base text""","After reload, row 0 holds the prepended prefix concatenated in front of the original text","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-046","Edit partial-replace (slice middle)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Hello world there"") then save and reload
-3. replaceSliceInNote(0, 6, 11, ""EARTH"")
-4. saveAndConfirm
-5. reloadAndNavigateToNotesTab
-6. getNoteValue(0) returns ""Hello EARTH there""","After reload, the substring from index 6 to index 11 inside row 0 has been replaced with the new word EARTH; surrounding text is unchanged","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-047","Edit clear-to-empty (fill empty - row stays with empty value)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Base text"") then save and reload
-3. clearNote(0)
-4. saveAndConfirm
-5. reloadAndNavigateToNotesTab
-6. getNoteValue(0) returns the empty string","After reload, row 0 exists with an empty textarea value (consistent with TC-035 behavior; placeholder row in the FormArray, not ""No","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-048","2-row positive (smallest multi-row save+reload)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Row Alpha-2row"")
-3. clickAdd
-4. fillNote(1, ""Row Beta-2row"")
-5. saveAndConfirm
-6. reloadAndNavigateToNotesTab
-7. getNoteValue(0) returns the first value AND getNoteValue(1) returns the second value","After reload, two rows persist with the original values in order","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-049","5-row positive (smoke at moderate count)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. For i in 0..4: clickAdd if i>0; fillNote(i, NOTE_5ROW[i])
-3. saveAndConfirm
-4. reloadAndNavigateToNotesTab
-5. For i in 0..4: getNoteValue(i) returns NOTE_5ROW[i]","After reload, five rows persist with the original values in order","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-050","Mixed-content (row 0 = 1-char, row 1 = 4000-char) save+reload","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""a"")
-3. clickAdd
-4. pasteIntoNote(1, ""B"".repeat(4000))
-5. saveAndConfirm
-6. reloadAndNavigateToNotesTab
-7. getNoteValue(0) returns ""a"" AND getNoteValue(1) returns the 4000-char string","After reload, the short row 0 and long row 1 each persist their own content; lengths confirmed independently","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-051","Edit row 1 of 2 - row 0 value unchanged after save+reload","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, NOTE_2ROW_A); clickAdd; fillNote(1, NOTE_2ROW_B); saveAndConfirm; reloadAndNavigateToNotesTab
-3. appendToNote(1, "" - edited""); saveAndConfirm; reloadAndNavigateToNotesTab
-4. getNoteValue(0) returns NOTE_2ROW_A unchanged AND getNoteValue(1) ends with "" - edited""","After the second save+reload, row 0 is byte-for-byte identical to the original; row 1 holds the edited content","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-052","Delete first of 2 rows -> row 1 becomes sole remaining row","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, NOTE_2ROW_A); clickAdd; fillNote(1, NOTE_2ROW_B); saveAndConfirm; reloadAndNavigateToNotesTab
-3. clearNote(0); deleteRow(0) (BUG-LOC-NTS-001 workaround per LR-026)
-4. saveAndConfirm
-5. reloadAndNavigateToNotesTab
-6. getNoteValue(0) returns NOTE_2ROW_B (originally row 1)","After reload, the sole remaining row holds the original row 1 content; row 0 from the initial state is gone","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-053","Delete last of 3 rows -> rows 0 and 1 remain","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""r1""); clickAdd; fillNote(1, ""r2""); clickAdd; fillNote(2, ""r3""); saveAndConfirm; reloadAndNavigateToNotesTab
-3. clearNote(2); deleteRow(2)
-4. saveAndConfirm
-5. reloadAndNavigateToNotesTab
-6. getNoteValue(0)==""r1"" AND getNoteValue(1)==""r2""; row 2 is absent or is the placeholder empty row per BUG-LOC-NTS-003","After reload, rows 0 and 1 persist unchanged; the third row is removed from the saved set (placeholder behavior per BUG-LOC-NTS-003 acknowledged via content assertion not count)","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-062","Delete one of one (single row) -> empty state persists","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, NOTE_1_CHAR); saveAndConfirm; reloadAndNavigateToNotesTab
-3. clearNote(0); deleteRow(0)
-4. saveAndConfirm
-5. reloadAndNavigateToNotesTab
-6. isDefaultEmptyState() returns true OR row 0 holds an empty value (placeholder per BUG-LOC-NTS-003)","After reload, the","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-054","Save -> Cancel -> edit -> Save -> Ok -> final value persists (re-save flow)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Initial draft"")
-3. click Save; on the dialog click Cancel; verify form stays dirty and value still ""Initial draft""
-4. clearNote(0); fillNote(0, ""Final saved"")
-5. saveAndConfirm
-6. reloadAndNavigateToNotesTab
-7. getNoteValue(0) returns ""Final saved""","After reload, row 0 holds the final value only; the initial draft was never persisted","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-055","Save -> dialog opens -> reload page mid-dialog -> no persist, no error","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Idempotent test"")
-3. click Save so the dialog appears
-4. while the dialog is visible, navigate via page.reload()
-5. After reload, navigate to Notes tab
-6. isDefaultEmptyState() returns true and no error toast is visible","After reload mid-dialog, no draft data is persisted; the","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-056","Save -> Escape key on dialog -> dialog closes, dirty preserved, no persist","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Escape test"")
-3. click Save so the dialog appears
+14. Read the ""Notes"" column on every row whose ""Modified On"" timestamp is after the start of step 3 (the read window)","Two distinct history rows are present in the read window - one whose ""","CLEANUP: Clear all notes and save back to empty so Office 1604 is restored to the catalog Capture baseline state empty state","","",""
+"TC-LOC-NTS-039","1-char persist (BVA min)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. Click Save and confirm the dialog
+4. Reload the page and navigate to the Notes tab
+5. returns ""a""","After Reload the page, row 0 holds exactly the one character ""a""","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-040","3999-char persist (BVA -1)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. Click Save and confirm the dialog
+4. Reload the page and navigate to the Notes tab
+5. returns the 3999-char string","After Reload the page, row 0 holds the 3999-char content verbatim","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-041","Whitespace-only "" "" persist","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. Click Save and confirm the dialog
+4. Reload the page and navigate to the Notes tab
+5. returns "" ""","After Reload the page, row 0 holds the three space characters with no trimming","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-042","Leading whitespace "" hello"" persist (not trimmed)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. Click Save and confirm the dialog
+4. Reload the page and navigate to the Notes tab
+5. returns "" hello""","After Reload the page, row 0 holds the two leading spaces and the word hello with no trimming","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-043","Trailing whitespace ""hello "" persist (not trimmed)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. Click Save and confirm the dialog
+4. Reload the page and navigate to the Notes tab
+5. returns ""hello ""","After Reload the page, row 0 holds the word hello followed by two trailing spaces with no trimming","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-063","Tab character ""a\tb"" persist","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. via pasteIntoNote
+3. Click Save and confirm the dialog
+4. Reload the page and navigate to the Notes tab
+5. returns the literal tab between a and b","After Reload the page, row 0 holds a single tab character between a and b, not a space or two spaces","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-044","Newline ""line1\nline2\nline3"" persist (main spec; HIST col 69 already covered)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. Click Save and confirm the dialog
+4. Reload the page and navigate to the Notes tab
+5. returns the same three-line value with embedded newlines preserved","After Reload the page, row 0 holds the three lines separated by literal newline characters in the textarea value","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-064","Edit append","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. then Click Save and confirm the dialog and Reload the page and navigate to the Notes tab to land an initial saved row
+3. 4. Click Save and confirm the dialog
+5. Reload the page and navigate to the Notes tab
+6. returns ""Base text - appended""","After Reload the page, row 0 holds the original text plus the appended suffix concatenated as one value","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-045","Edit prepend","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. then save and Reload the page
+3. 4. Click Save and confirm the dialog
+5. Reload the page and navigate to the Notes tab
+6. returns ""Prepended - Base text""","After Reload the page, row 0 holds the prepended prefix concatenated in front of the original text","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-046","Edit partial-replace (slice middle)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. then save and Reload the page
+3. 4. Click Save and confirm the dialog
+5. Reload the page and navigate to the Notes tab
+6. returns ""Hello EARTH there""","After Reload the page, the substring from index 6 to index 11 inside row 0 has been replaced with the new word EARTH; surrounding text is unchanged","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-047","Edit clear-to-empty (fill empty - row stays with empty value)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. then save and Reload the page
+3. 4. Click Save and confirm the dialog
+5. Reload the page and navigate to the Notes tab
+6. returns the empty string","After Reload the page, row 0 exists with an empty textarea value (consistent with TC-035 behavior; placeholder row in the internal list state, not ""No","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-048","2-row positive (smallest multi-row save+Reload the page)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. clickAdd
+4. 5. Click Save and confirm the dialog
+6. Reload the page and navigate to the Notes tab
+7. returns the first value AND returns the second value","After Reload the page, two rows persist with the original values in order","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-049","5-row positive (smoke at moderate count)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. For i in 0..4: clickAdd if i>0; 3. Click Save and confirm the dialog
+4. Reload the page and navigate to the Notes tab
+5. For i in 0..4: returns NOTE_5ROW[i]","After Reload the page, five rows persist with the original values in order","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-050","Mixed-content (row 0 = 1-char, row 1 = 4000-char) save+Reload the page","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. clickAdd
+4. )
+5. Click Save and confirm the dialog
+6. Reload the page and navigate to the Notes tab
+7. returns ""a"" AND returns the 4000-char string","After Reload the page, the short row 0 and long row 1 each persist their own content; lengths confirmed independently","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-051","Edit row 1 of 2 - row 0 value unchanged after save+Reload the page","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2.; clickAdd;; Click Save and confirm the dialog; Reload the page and navigate to the Notes tab
+3.; Click Save and confirm the dialog; Reload the page and navigate to the Notes tab
+4. returns NOTE_2ROW_A unchanged AND ends with "" - edited""","After the second save+Reload the page, row 0 is byte-for-byte identical to the original; row 1 holds the edited content","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-052","Delete first of 2 rows -> row 1 becomes sole remaining row","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2.; clickAdd;; Click Save and confirm the dialog; Reload the page and navigate to the Notes tab
+3.; ( workaround per )
+4. Click Save and confirm the dialog
+5. Reload the page and navigate to the Notes tab
+6. returns NOTE_2ROW_B (originally row 1)","After Reload the page, the sole remaining row holds the original row 1 content; row 0 from the initial state is gone","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-053","Delete last of 3 rows -> rows 0 and 1 remain","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2.; clickAdd;; clickAdd;; Click Save and confirm the dialog; Reload the page and navigate to the Notes tab
+3.; 4. Click Save and confirm the dialog
+5. Reload the page and navigate to the Notes tab
+6. ==""r1"" AND ==""r2""; row 2 is absent or is the placeholder empty row per","After Reload the page, rows 0 and 1 persist unchanged; the third row is removed from the saved set (placeholder behavior per acknowledged via content assertion not count)","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-062","Delete one of one (single row) -> empty state persists","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2.; Click Save and confirm the dialog; Reload the page and navigate to the Notes tab
+3.; 4. Click Save and confirm the dialog
+5. Reload the page and navigate to the Notes tab
+6. returns true OR row 0 holds an empty value (placeholder per )","After Reload the page, the","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-054","Save -> Cancel -> edit -> Save -> Ok -> final value persists (re-save flow)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. click Save; on the dialog click Cancel; verify form stays dirty and value still ""Initial draft""
+4.; 5. Click Save and confirm the dialog
+6. Reload the page and navigate to the Notes tab
+7. returns ""Final saved""","After Reload the page, row 0 holds the final value only; the initial draft was never persisted","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-055","Save -> dialog opens -> reload page mid-dialog -> no persist, no error","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. click Save so the dialog appears
+4. while the dialog is visible, navigate via page.
+5. After Reload the page, navigate to Notes tab
+6. returns true and no error toast is visible","After Reload the page mid-dialog, no draft data is persisted; the","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-056","Save -> Escape key on dialog -> dialog closes, dirty preserved, no persist","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. click Save so the dialog appears
 4. press the Escape key
 5. dialog closes; row 0 still holds ""Escape test""; Save button is still enabled (form remains dirty)
-6. reloadAndNavigateToNotesTab
-7. isDefaultEmptyState() returns true","Escape dismisses the dialog without saving; the form remains dirty in-memory; nothing is persisted after reload","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-057","Save -> click outside dialog -> observe whether dialog dismisses or stays","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Escape test"")
-3. click Save so the dialog appears
+6. Reload the page and navigate to the Notes tab
+7. returns true","Escape dismisses the dialog without saving; the form remains dirty in-memory; nothing is persisted after Reload the page","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-057","Save -> click outside dialog -> observe whether dialog dismisses or stays","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. click Save so the dialog appears
 4. click on the page background outside the dialog bounds
 5. Observe: either the dialog stays open (modal blocks outside clicks) OR the dialog dismisses with no save. Record the observed behavior.
 6. If still open: click Cancel; if dismissed: confirm row 0 still dirty
-7. reloadAndNavigateToNotesTab
-8. isDefaultEmptyState() returns true","The dialog's reaction to an outside click is documented; no draft data persists across reload regardless of branch","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-058","Idempotent save (save -> state pristine -> save attempt -> button stays disabled)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Idempotent test"")
-3. saveAndConfirm
+7. Reload the page and navigate to the Notes tab
+8. returns true","The dialog's reaction to an outside click is documented; no draft data persists across Reload the page regardless of branch","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-058","Idempotent save (save -> state pristine -> save attempt -> button stays disabled)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. Click Save and confirm the dialog
 4. waitForSaveDisabled
 5. attempt to click the Save button without changing anything
-6. assert no dialog appears AND no save API call fires","A second save attempt on a pristine form is a no-op; the Save button remains disabled; no network save request is dispatched","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-059","Sequential save persists most recent value (HIST verification deferred to NTS-038)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, NOTE_SEQUENTIAL_HIST_A); saveAndConfirm
-3. reloadAndNavigateToNotesTab
-4. clearNote(0); fillNote(0, NOTE_SEQUENTIAL_HIST_B); saveAndConfirm
-5. reloadAndNavigateToNotesTab
-6. getNoteValue(0) returns NOTE_SEQUENTIAL_HIST_B","After two sequential saves of different values, row 0 holds the most recent value (B); the first value (A) is no longer present on the","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-060","Save Notes -> switch to Currency tab -> verify Currency NOT dirty (cross-tab isolation)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, NOTE_1_CHAR)
-3. saveAndConfirm (Notes is pristine after save)
+6. assert no dialog appears AND no save API call fires","A second save attempt on a pristine form is a no-op; the Save button remains disabled; no network save request is dispatched","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-059","Sequential save persists most recent value (HIST verification deferred to NTS-038)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2.; Click Save and confirm the dialog
+3. Reload the page and navigate to the Notes tab
+4.;; Click Save and confirm the dialog
+5. Reload the page and navigate to the Notes tab
+6. returns NOTE_SEQUENTIAL_HIST_B","After two sequential saves of different values, row 0 holds the most recent value (B); the first value (A) is no longer present on the","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-060","Save Notes -> switch to Currency tab -> verify Currency NOT dirty (cross-tab isolation)","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. Click Save and confirm the dialog (Notes is pristine after save)
 4. click the Currency sub-tab
-5. on the Currency sub-tab, observe the Save button state and the unsaved-changes dialog state","After saving","CLEANUP: ensureEmptyState","","",""
-"TC-LOC-NTS-061","Post-save row count = N+1 placeholder check - assert content of rows 0..N-1 NOT total count","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. ensureEmptyState
-2. fillNote(0, ""Idempotent test"")
-3. saveAndConfirm
-4. reloadAndNavigateToNotesTab
-5. getNoteValue(0) returns ""Idempotent test"" (content-based assertion per LR-053; do not assert row count because BUG-LOC-NTS-003 auto-adds a placeholder empty row at index N)","After reload, the content of row 0 is verified; total row count is intentionally NOT asserted because the app auto-creates a trailing empty placeholder row","CLEANUP: ensureEmptyState","","",""
+5. on the Currency sub-tab, observe the Save button state and the unsaved-changes dialog state","After saving","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""
+"TC-LOC-NTS-061","Post-save row count = N+1 placeholder check - assert content of rows 0..N-1 NOT total count","locations","notes","","","Office 1604 is open in Navigator. Notes tab is active","1. Ensure the table is in its empty state (delete any existing rows and save)
+2. 3. Click Save and confirm the dialog
+4. Reload the page and navigate to the Notes tab
+5. returns ""Idempotent test"" (content-based assertion per; do not assert row count because auto-adds a placeholder empty row at index N)","After Reload the page, the content of row 0 is verified; total row count is intentionally NOT asserted because the app auto-creates a trailing empty placeholder row","CLEANUP: Ensure the table is in its empty state (delete any existing rows and save)","","",""

@@ -59,21 +59,21 @@
 "TC-LOC-ACC-019","Save flow - confirmation dialog then success","locations","account_address","","","Office 1604 is open in Navigator. Account and Address tab is active","1. Edit ""Phone 2"" to ""555-000-0001""
 2. Click ""Save""
 3. Click ""Save"" in dialog
-4. Verify Save button","Save requires confirmation -- confirmed save disables Save button","CLEANUP: Restore Phone 2 to empty, save again to restore baseline","","",""
-"TC-LOC-ACC-020","Save changes persist after page reload","locations","account_address","","","Office 1604 is open in Navigator. Account and Address tab is active","1. Edit ""Phone 2"", save and confirm
+4. Verify Save button","Save requires confirmation -- confirmed save disables Save button","CLEANUP: Restore Phone 2 to empty, save again to restore Capture baseline state","","",""
+"TC-LOC-ACC-020","Save changes persist after page Reload the page","locations","account_address","","","Office 1604 is open in Navigator. Account and Address tab is active","1. Edit ""Phone 2"", save and confirm
 2. Reload page
 3. Navigate to ""Account and Address"" tab
-4. Verify ""Phone 2""","Saved data persists after full page reload","CLEANUP: Restore Phone 2 to empty baseline after verification","","",""
+4. Verify ""Phone 2""","Saved data persists after full page Reload the page","CLEANUP: Restore Phone 2 to empty Capture baseline state after verification","","",""
 "TC-LOC-ACC-021","DROPPED - Phone 1 round-trip persistence","locations","account_address","","","Office 1604 is open in Navigator. Account and Address tab is active","","","","","",""
 "TC-LOC-ACC-022","Cancel Save dialog discards save without persisting","locations","account_address","","","Office 1604 is open in Navigator. Account and Address tab is active","1. Edit Phone 2 with test value
 2. Click Save
 3. Click Cancel in dialog
 4. Verify: Save still enabled, Phone 2 still has value (changes not committed)
-5. Reload to discard (LR-026)","Cancel in Save Changes dialog dismisses without persisting; form stays dirty","","","",""
+5. Reload to discard ()","Cancel in Save Changes dialog dismisses without persisting; form stays dirty","","","",""
 "TC-LOC-ACC-023","Phone 1 cleared shows invalid state and error icon","locations","account_address","","","Office 1604 is open in Navigator. Account and Address tab is active","1. Clear Phone 1, blur
 2. Verify is invalid and error icon visible
-3. Verify Save remains enabled (Angular does NOT block save on invalid Phone 1 - MCP-verified 2026-04-07)
-4. Reload to restore baseline (LR-026)","Clearing Phone 1 shows validation indicators but does NOT disable Save","","","",""
+3. Verify Save remains enabled (Angular does NOT block save on invalid Phone 1 - 2026-04-07)
+4. Reload to restore Capture baseline state ()","Clearing Phone 1 shows validation indicators but does NOT disable Save","","","",""
 "TC-LOC-ACC-024","DROPPED - Unsaved Changes dialog on tab switch","locations","account_address","","","Office 1604 is open in Navigator. Account and Address tab is active","","","","","",""
 "TC-LOC-ACC-025","Account List Address filter returns matching results","locations","account_address","","","Office 1604 is open in Navigator. Account and Address tab is active","1. Open Account List dialog
 2. Fill Address filter with ""Beverly""
@@ -90,9 +90,9 @@
 3. Select alternate address row (4200 E Palm Canyon Dr)
 4. Verify city changed to ""PALM SPRINGS""
 5. Verify Save enables (form dirty)
-6. Reload to discard - verify city restored to ""WEST HOLLYWOOD""","Address selection updates display fields but changes are discarded on reload (Angular form model does NOT serialize address changes into save payload - MCP-verified 2026-04-07)","","","",""
+6. Reload to discard - verify city restored to ""WEST HOLLYWOOD""","Address selection updates display fields but changes are discarded on Reload the page (Angular form model does NOT serialize address changes into save payload - 2026-04-07)","","","",""
 "TC-LOC-ACC-028","Account selection changes venue name and persists","locations","account_address","","","Office 1604 is open in Navigator. Account and Address tab is active","2. Open Account List
 3. Verify Save enables
 4. Save and confirm
 5. Reload
-6. try/finally: if name changed, restore original account","Account selection applies, persists through save+reload","CLEANUP REQUIRED: Read current venue name (store for )","","",""
+6. try/finally: if name changed, restore original account","Account selection applies, persists through save+Reload the page","CLEANUP REQUIRED: Read current venue name (store for )","","",""

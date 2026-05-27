@@ -7,8 +7,7 @@
 3. Verify last column header is ""Warehouse Billing""
 4. Verify column #28 renders an untranslated key","87 total column headers. Column #28 displays raw i18n key. All other headers display human-readable labels","","","",""
 "TC-LOC-MGH-003","Default Rows Per Page Is 20","locations","management_history","","","Office 1604 is open in Navigator. Location Management History tab is active","1. With ""Location Management History"" tab active, locate the ""rows per page"" control at the bottom of the table
-2. Read the current value without opening the dropdown","Default rows per page = 20.
-""Note"": Requirements documented 10 as default - live confirmed 20. Requirements discrepancy captured","","","",""
+2. Read the current value without opening the dropdown","Default rows per page = 20. ""Note"": Requirements documented 10 as default - live confirmed 20. Requirements discrepancy captured","","","",""
 "TC-LOC-MGH-004","Rows Per Page Dropdown Options","locations","management_history","","","Office 1604 is open in Navigator. Location Management History tab is active","1. With ""Location Management History"" tab active, click the ""rows per page"" dropdown
 2. Read all available options","Dropdown contains exactly 5 options: 10, 20, 30, 40, 50","","","",""
 "TC-LOC-MGH-005","Change Rows Per Page Updates Table Display","locations","management_history","","","Location with at least 11 history rows is open on ""Location Management History"" tab; rows per page is currently 20","1. Click the ""rows per page"" dropdown
@@ -22,8 +21,7 @@
 "TC-LOC-MGH-007","Empty State Message for Location with No History","locations","management_history","","","A location with no management history change records is open on ""Location Management History"" tab","1. Open a location known to have no history records
 2. Click the ""Location Management History"" tab
 3. Observe the table body
-4. Read the empty state message","Empty state text ""No results."" appears in the table body. No data rows. Pagination shows ""0 / 0"" or ""1 / 0"".
-""Note"": Location 1604 had 1 row at time of live verification (2026-02-19). Use a different location with confirmed no history, or check a freshly created location","","","",""
+4. Read the empty state message","Empty state text ""No results."" appears in the table body. No data rows. Pagination shows ""0 / 0"" or ""1 / 0"". ""Note"": Location 1604 had 1 row at time of live verification (2026-02-19). Use a different location with confirmed no history, or check a freshly created location","","","",""
 "TC-LOC-MGH-008","Data Row Renders with Correct Values (Location 1604)","locations","management_history","","","Location 1604 open on ""Location Management History"" tab; at least 1 row exists","1. Inspect row 1 cell under ""Local Office""
 2. Inspect row 1 cell under ""Local Office Name""
 3. Inspect row 1 cell under ""Active""
@@ -60,7 +58,7 @@
 "TC-LOC-MGH-018","API Endpoint Called on Tab Activation","locations","management_history","","","Office 1604 is open in Navigator. Location Management History tab is active","1. Open location 1604 on ""Basic Information"" tab
 2. Open browser DevTools Network panel and filter to history
 3. Click the ""Location Management History"" tab
-4. Inspect network requests","Exactly one API call to /api/location/{locationNo}/history?IsCorporate=true is triggered on tab activation. Response returns HTTP 200 with a data array","","","",""
+4. Inspect network requests","Exactly one API call to the API{locationNo}/history?IsCorporate=true is triggered on tab activation. Response returns HTTP 200 with a data array","","","",""
 "TC-LOC-MGH-019","Pagination Navigation Enables with Multiple Pages","locations","management_history","","","A location with more than 20 history rows is open on ""Location Management History"" tab; rows per page = 20","1. Observe the page indicator
 2. Observe the ""Go to first page"" and ""Go to previous page"" buttons
 3. Observe the ""Go to next page"" and ""Go to last page"" buttons

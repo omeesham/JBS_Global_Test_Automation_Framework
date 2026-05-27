@@ -30,15 +30,15 @@
 3. Verify it remains checked throughout session","Enable Productions Orders is permanently checked and non-interactive","","","",""
 "TC-LOC-LP-007","Verify Save Button Disabled on Fresh Page Load","locations","left_panel","","","Navigate fresh to locations/1604/settings (no prior changes)","1. Page loads completely -- left panel visible
 2. Verify ""Save"" button is disabled (grayed out, not clickable)
-3. Verify no form changes have been made (pristine state)","Save button is disabled on fresh load because form.pristine = true","Save disabled condition: form.pristine = true","","",""
+3. Verify no form changes have been made (pristine state)","Save button is disabled on fresh load because the form = true","Save disabled condition: the form = true","","",""
 "TC-LOC-LP-008","Verify Save Button Enables After Any Form Change","locations","left_panel","","","Fresh page load - Save is disabled","1. Verify ""Save"" is disabled
 2. Toggle ""Union"" checkbox (check it) -- Save becomes enabled
-3. Toggle ""Union"" back to unchecked -- Save remains enabled (form still dirty) ->","Save button enables as soon as any field is changed; does not return to disabled even if field is reset to original value","Once dirty, form stays dirty until page reload","","",""
+3. Toggle ""Union"" back to unchecked -- Save remains enabled (form still dirty) ->","Save button enables as soon as any field is changed; does not return to disabled even if field is reset to original value","Once dirty, form stays dirty until page Reload the page","","",""
 "TC-LOC-LP-009","Verify Local Office Name Required Validation","locations","left_panel","","","On Basic Information page, form in pristine state","1. Click ""Local Office Name"" field -- focus
 2. Select all text (Ctrl+A) and delete -- field becomes empty
 3. Press Tab to blur -- exclamation icon () appears next to the field
 4. Observe ""Save"" button state -- Save becomes enabled (form is dirty)
-5. Verify exclamation icon is visible indicating required error","Clearing Local Office Name shows exclamation validation icon; Save enables due to dirty form (live behaviour - note: Save does not become disabled despite empty required field)","Live-verified: clearing LocalOfficeName shows error icon BUT Save enables (form.pristine = false overrides). Differs from documented form.invalid disables Save condition. This discrepancy should be noted as a live finding","","",""
+5. Verify exclamation icon is visible indicating required error","Clearing Local Office Name shows exclamation validation icon; Save enables due to dirty form (live behaviour - note: Save does not become disabled despite empty required field)","Live-verified: clearing LocalOfficeName shows error icon BUT Save enables (the form = false overrides). Differs from documented the form disables Save condition. This discrepancy should be noted as a live finding","","",""
 "TC-LOC-LP-010","Verify Local Office Name Max 50 Characters","locations","left_panel","","","On Basic Information page for location 1604","1. Click ""Local Office Name"" field -- clear existing text
 2. Type exactly 50 characters -- value accepted
 3. Attempt to type 51st character -- character should not be entered (max length enforced)
@@ -49,14 +49,14 @@
 4. Reload page -- Active shows unchecked
 5. Click ""Active"" -- re-check
 6. Click ""Save"" -- save succeeds
-7. Reload page -- Active shows checked ->","Active checkbox state persists through save-reload cycle in both checked and unchecked states","CLEANUP: Restore Active to checked and save","","",""
+7. Reload page -- Active shows checked ->","Active checkbox state persists through save-Reload the page cycle in both checked and unchecked states","CLEANUP: Restore Active to checked and save","","",""
 "TC-LOC-LP-012","Verify Union Checkbox Toggle","locations","left_panel","","","Union is unchecked (default for location 1604)","1. Verify ""Union"" checkbox is unchecked
 2. Click ""Union"" -- check it
 3. Click ""Save"" -- save succeeds
 4. Reload page -- Union shows checked
 5. Navigate to ""Local Information"" tab -- verify ""ETS Percentage"" default value with Union=checked and document the observed value (Union flag affects ETS default)
 6. Return to ""Basic Information"" tab
-7. Uncheck ""Union"" -- Save -- reload -- Union shows unchecked ->","Union checkbox toggles and persists. ETS Percentage default value is documented for Union=checked vs Union=unchecked","CLEANUP: Restore Union to unchecked and save","","",""
+7. Uncheck ""Union"" -- Save -- Reload the page -- Union shows unchecked ->","Union checkbox toggles and persists. ETS Percentage default value is documented for Union=checked vs Union=unchecked","CLEANUP: Restore Union to unchecked and save","","",""
 "TC-LOC-LP-013","Verify Tax Mode Dropdown Options","locations","left_panel","","","On Basic Information page for location 1604","1. Click ""Tax Mode"" dropdown -- dropdown opens
 2. Verify exactly 2 options: ""US"" and ""International""
 3. Verify current selection is ""US""
@@ -77,7 +77,7 @@
 "TC-LOC-LP-017","Verify Servicing Branch Office Dropdown and Required State","locations","left_panel","","","On Basic Information page for location 1604","1. Click ""Servicing Branch Office"" dropdown -- opens
 2. Verify 215 options (first: ""0220 -- Test Location 0220"")
 3. Verify current UI shows ""Select Servicing Branch Office"" (no selection for 1604)
-4. Select any option -- field updates, Save enables ->","Servicing Branch Office has 215 options; GLServicingDivisionValue must be ≥1 (selecting a value satisfies validation)","GLServicingDivisionValue corresponds to this field. Validator: Validators.min(1) - having no selection means value=0 which fails validation. Whether this prevents Save is consistent with form.invalid condition. Last option not asserted (sorted list may vary by environment)","","",""
+4. Select any option -- field updates, Save enables ->","Servicing Branch Office has 215 options; GLServicingDivisionValue must be ≥1 (selecting a value satisfies validation)","GLServicingDivisionValue corresponds to this field. Validator: Validators. - having no selection means value=0 which fails validation. Whether this prevents Save is consistent with the form condition. Last option not asserted (sorted list may vary by environment)","","",""
 "TC-LOC-LP-018","Verify Country Change Clears Tax Mode and Region","locations","left_panel","","","On Basic Information page, Country = United States, Tax Mode = US, Region = Palm Springs","1. Verify Tax Mode = ""US"", Region = ""Palm Springs""
 2. Click ""Country"" -- select ""Canada""
 3. Observe ""Tax Mode"" dropdown is now empty (cleared) with exclamation icon
@@ -111,4 +111,4 @@
 3. Return to ""Basic Information"" tab (left panel)
 4. Toggle ""Union"" checkbox -- Save enables
 5. Click ""Save"" -- observe whether save succeeds or is blocked by Legal validation
-6. Document exact behavior: save blocked (expected per !isValidLegalData()) OR save succeeds with Legal error persisting","Per requirements `!isValidLegal","Legal tab validation cross-tab interaction. The Legal pipeline covers dedicated Legal testing. This TC verifies only the cross-tab Save button behavior","","",""
+6. Document exact behavior: save blocked (expected per !) OR save succeeds with Legal error persisting","Per requirements `!isValidLegal","Legal tab validation cross-tab interaction. The Legal pipeline covers dedicated Legal testing. This TC verifies only the cross-tab Save button behavior","","",""

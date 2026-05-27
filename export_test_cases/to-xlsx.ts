@@ -54,6 +54,7 @@ import {
   applyBlockedOverlay,
 } from './sp00-augment-logic';
 import { CsvConverter } from './to-csv';
+import { scrubInternalVocab } from './humanize';
 
 // ────────────────────────── Paths ──────────────────────────
 
@@ -244,17 +245,21 @@ function parseMd(filePath: string): ParsedTc[] {
     const r = rows[i]!;
     const id = (r[idCol] ?? '').trim();
     if (!id) continue;
+    // scrubInternalVocab on every customer-facing cell — strips Phase D
+    // pre-audit's flagged tokens (BUG-IDs, LR-NNN, MCP-verified, SP-XXX-NN,
+    // RCA dates, internal HTML TODO comments, spec-helper function calls,
+    // /api/ paths, form.* idioms) per humanize.ts.
     tcs.push({
       id,
-      title: titleCol >= 0 ? (r[titleCol] ?? '') : '',
+      title: scrubInternalVocab(titleCol >= 0 ? (r[titleCol] ?? '') : ''),
       module: moduleCol >= 0 ? (r[moduleCol] ?? '') : '',
       submodule: submoduleCol >= 0 ? (r[submoduleCol] ?? '') : '',
       specificField: '', // backfilled from CSV supplementary lookup
       tags: tagsCol >= 0 ? (r[tagsCol] ?? '') : '',
-      preconditions: preCol >= 0 ? (r[preCol] ?? '') : '',
-      steps: stepsCol >= 0 ? (r[stepsCol] ?? '') : '',
-      expected: expectedCol >= 0 ? (r[expectedCol] ?? '') : '',
-      notes: notesCol >= 0 ? (r[notesCol] ?? '') : '',
+      preconditions: scrubInternalVocab(preCol >= 0 ? (r[preCol] ?? '') : ''),
+      steps: scrubInternalVocab(stepsCol >= 0 ? (r[stepsCol] ?? '') : ''),
+      expected: scrubInternalVocab(expectedCol >= 0 ? (r[expectedCol] ?? '') : ''),
+      notes: scrubInternalVocab(notesCol >= 0 ? (r[notesCol] ?? '') : ''),
       coverageStatus: '',
       automationExecution: '',
       ifFailedReason: '',
@@ -593,7 +598,11 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
         tc.notes,
         tc.coverageStatus,
         tc.automationExecution,
-        tc.ifFailedReason,
+        // ifFailedReason flows from sp00-augment-logic / fixme-registry / CSV
+        // inherit — none of which pass through humanize. Scrub at emit-time
+        // so internal vocab (FIXME(BUG-XXX): wrappers, BUG-IDs, RCA dates)
+        // never reaches a customer cell.
+        scrubInternalVocab(tc.ifFailedReason || ''),
       ]);
     }
 

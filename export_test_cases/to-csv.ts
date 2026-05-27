@@ -10,6 +10,7 @@
  */
 import { MarkdownParser } from './markdown-parser';
 import { TestCase, TestStep, ColumnConfig, Audience } from './types';
+import { scrubInternalVocab } from './humanize';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -98,15 +99,20 @@ export class CsvConverter {
     for (const tc of collection.testCases) {
       const rowData: Record<string, string> = {
         id: tc.id,
-        title: this.humanizeAssertion(this.cleanMarkdown(tc.title)),
+        // scrubInternalVocab (Phase D-prep, 2026-05-27 PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION):
+        // strip BUG-IDs / LR-NNN / MCP-verified / RCA dates / FormControl / spec helper
+        // names / HTML TODO comments from customer-facing columns. Same scrubber the
+        // XLSX emitter applies — keeps both deliverables consistent during the
+        // migration window. After Phase D deletes CSVs, only the XLSX path scrubs.
+        title: scrubInternalVocab(this.humanizeAssertion(this.cleanMarkdown(tc.title))),
         priority: tc.priority,
         status: tc.automationStatus,
         type: tc.type,
-        // Human fields (cleanMarkdown + humanizeAssertion for client-facing readability)
-        preconditionsHuman: this.humanizeAssertion(this.cleanMarkdown(tc.preconditionsHuman?.join('; ') || this.convertPreconditionsToHuman(tc.preconditions))),
-        stepsHuman: this.humanizeAssertion(this.cleanMarkdown(tc.stepsHuman || this.convertStepsToHuman(tc.steps))),
-        expectedHuman: this.humanizeAssertion(this.cleanMarkdown(tc.expectedResultsHuman || this.convertExpectedToHuman(tc.expectedResults))),
-        notesHuman: this.humanizeAssertion(this.cleanMarkdown(tc.notesHuman || '')),
+        // Human fields (cleanMarkdown + humanizeAssertion + scrubInternalVocab for client-facing readability)
+        preconditionsHuman: scrubInternalVocab(this.humanizeAssertion(this.cleanMarkdown(tc.preconditionsHuman?.join('; ') || this.convertPreconditionsToHuman(tc.preconditions)))),
+        stepsHuman: scrubInternalVocab(this.humanizeAssertion(this.cleanMarkdown(tc.stepsHuman || this.convertStepsToHuman(tc.steps)))),
+        expectedHuman: scrubInternalVocab(this.humanizeAssertion(this.cleanMarkdown(tc.expectedResultsHuman || this.convertExpectedToHuman(tc.expectedResults)))),
+        notesHuman: scrubInternalVocab(this.humanizeAssertion(this.cleanMarkdown(tc.notesHuman || ''))),
         // Agent fields (kept technical — agents need element IDs and arrow syntax)
         steps: this.formatStepsAgent(tc.steps),
         expected: tc.expectedResults.join('; '),
@@ -138,16 +144,20 @@ export class CsvConverter {
     for (const tc of testCases) {
       const rowData: Record<string, string> = {
         id: tc.id,
-        title: tc.title,
+        // scrubInternalVocab (Phase D-prep, 2026-05-27 PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION):
+        // strip BUG-IDs / LR-NNN / MCP-verified / RCA dates / FormControl / spec
+        // helper names / HTML TODO comments from customer-facing simple-format CSVs
+        // (Encore MD path). Same scrubber the XLSX emitter applies.
+        title: scrubInternalVocab(tc.title),
         module: tc.module,
         submodule: tc.submodule,
         tags: tc.tags,
-        status: tc.status,
+        status: scrubInternalVocab(tc.status),
         // Human fields
-        preconditionsHuman: tc.preconditionsHuman,
-        stepsHuman: this.formatStepsWithLineBreaks(tc.stepsHuman),
-        expectedHuman: tc.expectedHuman,
-        notesHuman: tc.notesHuman,
+        preconditionsHuman: scrubInternalVocab(tc.preconditionsHuman),
+        stepsHuman: scrubInternalVocab(this.formatStepsWithLineBreaks(tc.stepsHuman)),
+        expectedHuman: scrubInternalVocab(tc.expectedHuman),
+        notesHuman: scrubInternalVocab(tc.notesHuman),
         // Agent fields
         steps: this.formatStepsWithLineBreaks(tc.steps),
         expected: tc.expected,

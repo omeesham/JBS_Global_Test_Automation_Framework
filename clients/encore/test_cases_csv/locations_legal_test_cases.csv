@@ -2,7 +2,7 @@
 "TC-LOC-LGL-001","Verify Legal grid default structure","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Navigate to Setup > Location > 1604 > ""Basic Information"" tab
 2. Click ""Legal"" sub-tab
 3. Verify table has 3 column headers: ""Language Name"", ""Service Charge Name"", ""Terms and Conditions Name""
-4. Count rows in <tbody>","Table with 3 columns and 1 row (US English) visible in Legal tabpanel","","","",""
+4. Count rows in table body","Table with 3 columns and 1 row (US English) visible in Legal tabpanel","","","",""
 "TC-LOC-LGL-002","Verify Legal grid default field values","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Navigate to ""Legal"" tab
 2. Verify US English row cell 1
 3. Verify US English row cell 2
@@ -43,30 +43,30 @@
 2. Change ""Service Charge Name"" from ""Resort Service Charge"" to ""Administrative Fee""
 3. Change ""Service Charge Name"" back to ""Resort Service Charge""
 4. Verify left-panel ""Save"" button","Reverting a dropdown to its original value does NOT re-disable the Save button. The form dirty-state tracking does not detect net-zero changes. The beforeunload dialog will also trigger on navigation attempts","CLEANUP: Reload page without saving to discard change","","",""
-"TC-LOC-LGL-011","Save Service Charge change persists after save and reload","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Navigate to ""Legal"" tab (fresh page load)
+"TC-LOC-LGL-011","Save Service Charge change persists after save and Reload the page","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Navigate to ""Legal"" tab (fresh page load)
 2. Click ""Service Charge Name"" combobox
 3. Verify left-panel ""Save"" button
 4. Click left-panel ""Save"" button
 5. Click ""Ok"" button in dialog
 6. Verify left-panel ""Save"" button
 7. Reload page
-8. Click ""Legal"" tab","Legal data change persists through Save and page reload; Save button re-disables after successful save","CLEANUP REQUIRED: Change ""Service Charge Name"" back to ""Resort Service Charge"" -> Click Save -> Confirm dialog -> Verify restored","","",""
-"TC-LOC-LGL-012","Save Terms and Conditions change persists after save and reload","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Navigate to ""Legal"" tab (fresh page load)
+8. Click ""Legal"" tab","Legal data change persists through Save and page Reload the page; Save button re-disables after successful save","CLEANUP REQUIRED: Change ""Service Charge Name"" back to ""Resort Service Charge"" -> Click Save -> Confirm dialog -> Verify restored","","",""
+"TC-LOC-LGL-012","Save Terms and Conditions change persists after save and Reload the page","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Navigate to ""Legal"" tab (fresh page load)
 2. Click ""Terms and Conditions Name"" combobox
 3. Click left-panel ""Save"" button
 4. Click ""Ok"" in dialog
 5. Reload page
-6. Click ""Legal"" tab","T&C change persists through save and reload","CLEANUP REQUIRED: Change T&C back to ""LDW"" -> Save -> Confirm -> Verify restored","","",""
+6. Click ""Legal"" tab","T&C change persists through save and Reload the page","CLEANUP REQUIRED: Change T&C back to ""LDW"" -> Save -> Confirm -> Verify restored","","",""
 "TC-LOC-LGL-013","Cancel in Save Changes dialog discards save","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Navigate to ""Legal"" tab (fresh page load)
 2. Change ""Service Charge Name"" to ""Administrative Fee""
 3. Click left-panel ""Save"" button
 4. Click ""Cancel"" button in dialog
 5. Verify left-panel ""Save"" button
 6. Reload page (accept beforeunload)
-7. Click ""Legal"" tab","Clicking Cancel in Save Changes dialog dismisses dialog without saving; original values persist after reload","","","",""
+7. Click ""Legal"" tab","Clicking Cancel in Save Changes dialog dismisses dialog without saving; original values persist after Reload the page","","","",""
 "TC-LOC-LGL-014","Beforeunload dialog triggers when navigating with unsaved Legal changes","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Navigate to ""Legal"" tab (fresh page load)
 2. Change ""Terms and Conditions Name"" to ""Blank""
-3. Attempt to reload or navigate away
+3. Attempt to Reload the page or navigate away
 4. Dismiss dialog (stay on page)
 5. Accept dialog (leave page)","Unsaved Legal changes trigger the browser's beforeunload confirmation dialog on navigation attempts","","","",""
 "TC-LOC-LGL-015","Country change resets both Legal dropdowns","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Navigate to ""Legal"" tab
@@ -82,7 +82,7 @@
 2. Click ""Terms and Conditions Name"" combobox
 3. Read all option texts
 4. Compare to case-insensitive alphabetical sort","Options sorted alphabetically per v1 requirement","","","",""
-"TC-LOC-LGL-018","Combined SC + T&C change saves and persists both","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Reload page and navigate to ""Legal"" tab (LR-026: clean form state before save cycle)
+"TC-LOC-LGL-018","Combined SC + T&C change saves and persists both","locations","legal","","","Office 1604 is open in Navigator. Legal tab is active","1. Reload page and navigate to ""Legal"" tab (: clean form state before save cycle)
 2. Change ""Service Charge Name"" to ""Administrative Fee""
 3. Change ""Terms and Conditions Name"" to ""Encore Terms and Conditions""
 4. Verify left-panel ""Save"" button
@@ -91,12 +91,7 @@
 7. Verify left-panel ""Save"" button
 8. Reload page and navigate to ""Legal"" tab
 9. Verify ""Service Charge Name""
-10. Verify ""Terms and Conditions Name""","Changing both dropdowns simultaneously and saving persists both values through reload; cleanup restores defaults","- Legal tab: 
-- Legal content: 
-- Table: 
-- SC combobox row 0: 
-- T&C combobox row 0: 
-- Save button: (shared left-panel)
+10. Verify ""Terms and Conditions Name""","Changing both dropdowns simultaneously and saving persists both values through Reload the page; cleanup restores defaults","- Legal tab: - Legal content: - Table: - SC combobox row 0: - T&C combobox row 0: - Save button: (shared left-panel)
 - Save dialog: [role=""alertdialog""] with Cancel + Ok buttons (no data-testid)
 - canEditProp=true confirmed for office 1604
 - TC-011, TC-012: destructive -- always revert after test (annotated with Cleanup steps)

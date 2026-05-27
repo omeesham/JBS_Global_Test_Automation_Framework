@@ -22,7 +22,7 @@
 4. Click ""Save"" in the dialog
 5. Verify the notifications region shows the toast text ""Local office settings updated""
 6. Reload the page
-7. Verify ""Prep Date Offset"" shows -2","Date offset value persists after save and reload, the Save Changes dialog gates the save, and the notifications region shows the success toast ""Local office settings updated"" after the dialog confirms","CLEANUP REQUIRED: change back to -1 and save","","",""
+7. Verify ""Prep Date Offset"" shows -2","Date offset value persists after save and Reload the page, the Save Changes dialog gates the save, and the notifications region shows the success toast ""Local office settings updated"" after the dialog confirms","CLEANUP REQUIRED: change back to -1 and save","","",""
 "TC-LOS-BAS-006","Date Offset - Non-Numeric Input Rejected","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
 2. Clear ""Prep Date Offset"" field and type abc
 3. Verify Save button is ""disabled""","Non-numeric input is shown as invalid and the Save button is disabled","CLEANUP REQUIRED: Clear and type -1 to restore","","",""
@@ -64,20 +64,20 @@
 4. Click ""Save"" in dialog
 5. Reload page
 6. Verify ""Use Fulfillment"" is ""checked""
-7. Verify ""Use Equipments QC"" is ""enabled""","Use Fulfillment checked state persists; Use Equipments QC enabled on reload","CLEANUP REQUIRED: Uncheck Use Fulfillment, save, confirm","","",""
+7. Verify ""Use Equipments QC"" is ""enabled""","Use Fulfillment checked state persists; Use Equipments QC enabled on Reload the page","CLEANUP REQUIRED: Uncheck Use Fulfillment, save, confirm","","",""
 "TC-LOS-BAS-014","Misc Settings - Default Labor to Hourly Toggle, Save, Persist","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
 2. Verify ""Default Labor to Hourly"" is ""unchecked""
 3. Click ""Default Labor to Hourly""
 4. Click ""Save""
 5. Click ""Save"" in dialog
 6. Reload page
-7. Verify ""Default Labor to Hourly"" is ""checked""","Default Labor to Hourly toggle persists after save and reload","CLEANUP REQUIRED: Uncheck, save, confirm","","",""
+7. Verify ""Default Labor to Hourly"" is ""checked""","Default Labor to Hourly toggle persists after save and Reload the page","CLEANUP REQUIRED: Uncheck, save, confirm","","",""
 "TC-LOS-BAS-015","Misc Settings - Phone 1 Required: Empty Triggers Validation","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
 2. Note current ""Phone 1"" value (non-empty by default for 1604)
 3. Clear ""Phone 1"" field completely
 4. Tab out of field
 5. Verify Save button is ""disabled""","Empty Phone 1 is shown as invalid and the Save button is disabled","CLEANUP REQUIRED: Type original phone value back","","",""
-"TC-LOS-BAS-016","Misc Settings - Phone 1 Validates Phone Format","local-office","basic_information","","Blocked by BUG-LOS-BAS-016","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
+"TC-LOS-BAS-016","Misc Settings - Phone 1 Validates Phone Format","local-office","basic_information","","Blocked by","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
 2. Clear ""Phone 1"" and type non-phone text such as abcdef
 3. Tab out of the field
 4. Verify the ""Save"" button is disabled
@@ -88,7 +88,7 @@
 3. Clear ""Phone 1"" and type 555-123-4567
 4. Click ""Save""
 5. Click ""Save"" in dialog
-6. Reload page","Valid phone number persists after save and reload","CLEANUP REQUIRED: Restore original value and save","","",""
+6. Reload page","Valid phone number persists after save and Reload the page","CLEANUP REQUIRED: Restore original value and save","","",""
 "TC-LOS-BAS-018","Misc Settings - Phone 1 Error Recovery","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Clear ""Phone 1""
 2. Type valid phone number 555-000-1111
 3. Verify Save button is ""enabled""","Entering valid phone after error clears validation and re-enables Save","","","",""
@@ -111,19 +111,19 @@
 2. Change ""Default Order Type"" from ""Event"" to ""Outside""
 3. Click ""Save""
 4. Click ""Save"" in dialog
-5. Reload page","Default Order Type selection persists after save and reload","CLEANUP REQUIRED: Change back to ""Event"" and save","","",""
+5. Reload page","Default Order Type selection persists after save and Reload the page","CLEANUP REQUIRED: Change back to ""Event"" and save","","",""
 "TC-LOS-BAS-023","Misc Settings - PO Number Field Edit, Save, Persist","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
 2. Note current ""PO Number"" value (default empty for 1604)
 3. Clear and type PO-TEST-123
 4. Click ""Save""
 5. Click ""Save"" in dialog
-6. Reload page","PO Number text persists after save and reload","CLEANUP REQUIRED: Restore original value and save","","",""
+6. Reload page","PO Number text persists after save and Reload the page","CLEANUP REQUIRED: Restore original value and save","","",""
 "TC-LOS-BAS-024","Misc Settings - PO Number Label Field Edit, Save, Persist","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
 2. Note current ""PO Number Label"" value (default empty for 1604)
 3. Clear and type Purchase Order #
 4. Click ""Save""
 5. Click ""Save"" in dialog
-6. Reload page","PO Number Label text persists after save and reload","CLEANUP REQUIRED: Restore original value and save","","",""
+6. Reload page","PO Number Label text persists after save and Reload the page","CLEANUP REQUIRED: Restore original value and save","","",""
 "TC-LOS-BAS-025","Section Configuration - Default Active Sections Structure","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
 2. Scroll to the ""Section Configuration"" table
 3. Verify the ""Use Section"" checkbox above the table is checked
@@ -141,7 +141,7 @@
 2. Click ""Add"" button below the table
 3. Type section name Test Section in new row
 4. Verify new row has Use Section checkmark by default
-5. Verify Save button is ""enabled""","Add button creates new editable row; new sections are active by default","CLEANUP REQUIRED: Remove the new row or reload without saving","","",""
+5. Verify Save button is ""enabled""","Add button creates new editable row; new sections are active by default","CLEANUP REQUIRED: Remove the new row or Reload the page without saving","","",""
 "TC-LOS-BAS-029","Section Configuration - Default Button Resets","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
 2. Toggle a section inactive and rename another
 3. Click ""Default"" button
@@ -193,83 +193,83 @@
 4. Click ""Basic Information"" tab
 5. Verify field has original value (edit was discarded)","Discard button navigates away and discards all unsaved changes","","","",""
 "TC-LOS-BAS-039","Boundary - XSS Input in Text Fields","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Navigate to Local Office Settings, Basic Information tab
-2. Clear ""PO Number"" and type <script>alert(1)</script>
+2. Clear ""PO Number"" and type <script></script>
 3. Tab out
-4. If Save is enabled, save and reload","XSS payload stored as plain text or rejected; never executed","CLEANUP REQUIRED: Clear PO Number and restore original value","","",""
+4. If Save is enabled, save and Reload the page","XSS payload stored as plain text or rejected; never executed","CLEANUP REQUIRED: Clear PO Number and restore original value","","",""
 "TC-LOS-BAS-040","Empty Section Name - Reverts to Previous Value on Blur","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Reload Basic Info for clean state
 2. Get section[0] name (expect ""Audio"")
 3. Edit section[0] to empty string, press Tab
-4. Verify name reverted to original ""Audio""","Empty section name reverts to previous value | ""MCP-1 verified 2026-04-06""","","","",""
+4. Verify name reverted to original ""Audio""","Empty section name reverts to previous value | "" verified 2026-04-06""","","","",""
 "TC-LOS-BAS-041","Whitespace-Only Section Name - Accepted as New Content","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Get section[0] name
 2. Edit section[0] to "" "" (whitespace), press Tab
-3. Verify name is either whitespace (accepted) or reverted (rejected)","Whitespace may be accepted (MCP-3 showed whitespace accepted via Add New) | ""MCP-3 verified 2026-04-06""","CLEANUP REQUIRED: restore original name if accepted, reload","","",""
+3. Verify name is either whitespace (accepted) or reverted (rejected)","Whitespace may be accepted | "" verified 2026-04-06""","CLEANUP REQUIRED: restore original name if accepted, Reload the page","","",""
 "TC-LOS-BAS-044","Add New Section with Empty Name - Rejected","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Count section rows before
 2. Add section with empty name via Add New input, press Tab
-3. Count section rows after - expect unchanged","Empty section name via Add New is rejected | ""MCP-3 verified 2026-04-06""","","","",""
+3. Count section rows after - expect unchanged","Empty section name via Add New is rejected | "" verified 2026-04-06""","","","",""
 "TC-LOS-BAS-045","Add New Section with Duplicate Name - Silently Rejected","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Count section rows before
 2. Add section with name ""Audio"" (already exists) via Add New, press Tab
 3. Count section rows after - expect unchanged
-4. Verify Save is disabled (no change was made)","Duplicate section via Add New is silently rejected, no error icon | ""MCP-2 verified 2026-04-06""","","","",""
+4. Verify Save is disabled (no change was made)","Duplicate section via Add New is silently rejected, no error icon | "" verified 2026-04-06""","","","",""
 "TC-LOS-BAS-047","Section Edit - Escape Does NOT Revert","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Reload for clean state, get section[0] name (""Audio"")
 2. Type ""TEMP CANCEL TEST"" into section[0], press Escape
-3. Verify name is ""TEMP CANCEL TEST"" (Escape does NOT revert)","Escape key does not cancel editing - no custom Escape handler on section inputs | ""MCP verified 2026-04-06""","CLEANUP REQUIRED: restore original name, reload","","",""
+3. Verify name is ""TEMP CANCEL TEST"" (Escape does NOT revert)","Escape key does not cancel editing - no custom Escape handler on section inputs | "" 2026-04-06""","CLEANUP REQUIRED: restore original name, Reload the page","","",""
 "TC-LOS-BAS-048","Room Toggle Round-Trip - Toggle Inactive -> Save -> Reload -> Verify","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Reload, ensure room ""Room Toggle Test"" exists (add if needed, save)
 2. Ensure room starts active (toggle + save if inactive from prior run)
 3. Toggle room to inactive
-4. Save + reload
-5. Find room, verify still inactive after reload","Room active/inactive toggle persists through save+reload round-trip | ""Gap #19""","CLEANUP REQUIRED: toggle back to active + save","","",""
+4. Save + Reload the page
+5. Find room, verify still inactive after Reload the page","Room active/inactive toggle persists through save+Reload the page round-trip | ""Gap #19""","CLEANUP REQUIRED: toggle back to active + save","","",""
 "TC-LOS-BAS-049","Room Edit Name Round-Trip - Rename -> Save -> Reload -> Verify","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Reload, ensure room ""Room Edit Test"" exists (handle prior-run rename to ""Room Edit Renamed"")
 2. Rename room to ""Room Edit Renamed""
-3. Save + reload
-4. Verify ""Room Edit Renamed"" in room names, ""Room Edit Test"" absent","Room name edit persists through save+reload round-trip | ""Gap #19""","CLEANUP REQUIRED: rename back to original + save","","",""
+3. Save + Reload the page
+4. Verify ""Room Edit Renamed"" in room names, ""Room Edit Test"" absent","Room name edit persists through save+Reload the page round-trip | ""Gap #19""","CLEANUP REQUIRED: rename back to original + save","","",""
 "TC-LOS-BAS-050","Empty Room Name - Revert Behavior","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Reload, count rooms before
 2. Add ""Conference Room Z"" via Add New
 3. Edit last room to empty string, press Tab
-4. Verify room count unchanged (name reverted or row preserved)","Empty room name reverts like sections | ""MCP-8 verified 2026-04-06""","CLEANUP REQUIRED: reload to discard","","",""
+4. Verify room count unchanged (name reverted or row preserved)","Empty room name reverts like sections | "" verified 2026-04-06""","CLEANUP REQUIRED: Reload the page to discard","","",""
 "TC-LOS-BAS-051","Duplicate Room Name via Add New - Silently Rejected","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Add ""Conference Room Z"" via Add New, record count
 2. Add ""Conference Room Z"" again via Add New
-3. Verify count unchanged","Duplicate room name via Add New is silently rejected | ""MCP-4 verified 2026-04-06""","","","",""
+3. Verify count unchanged","Duplicate room name via Add New is silently rejected | "" verified 2026-04-06""","","","",""
 "TC-LOS-BAS-053","Positive Value in ""Relative to Start"" Fields - validation error","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Reload, for each of Prep/Set/Delivery:
 - Type positive value (5, 3, 2)
 - wait until a validation error appears
 - Restore default value
-2. Reload after all fields tested","Positive values in ""relative to start"" fields are shown as invalid | ""LR-008""","","","",""
+2. Reload after all fields tested","Positive values in ""relative to start"" fields are shown as invalid | """"","","","",""
 "TC-LOS-BAS-054","Negative Value in ""Relative to End"" Fields - validation error","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. For each of Return/Strike/Pickup:
 - Type negative value (-3, -2, -1)
 - wait until a validation error appears
 - Restore default value
-2. Reload after all fields tested","Negative values in ""relative to end"" fields are shown as invalid | ""LR-008""","","","",""
+2. Reload after all fields tested","Negative values in ""relative to end"" fields are shown as invalid | """"","","","",""
 "TC-LOS-BAS-055","Non-Numeric Input on Return Field - validation error","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Type ""abc"" into Return Date Offset, Tab
 2. wait until a validation error appears
 3. Verify Save disabled
-4. Reload to clear Angular model corruption (LR-011)","Non-numeric input is shown as invalid on the Return field","","","",""
+4. Reload to clear Angular model corruption ()","Non-numeric input is shown as invalid on the Return field","","","",""
 "TC-LOS-BAS-056","Non-Numeric Input on Delivery Field - validation error","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Type ""abc"" into Delivery Date Offset, Tab
 2. wait until a validation error appears
 3. Verify Save disabled
-4. Reload to clear Angular model corruption (LR-011)","Non-numeric input is shown as invalid on the Delivery field","","","",""
+4. Reload to clear Angular model corruption ()","Non-numeric input is shown as invalid on the Delivery field","","","",""
 "TC-LOS-BAS-061","MaxLen Boundary - 3-Char Field Rejects 4+ Chars","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Type ""1234"" into Prep (maxLen=3)
 2. Verify stored length <= 3 (HTML maxlength truncates)
-3. Truncated ""123"" is positive for ""relative to start""","Input truncated to 3 chars; truncated positive value triggers validation","CLEANUP REQUIRED: restore default, reload","","",""
+3. Truncated ""123"" is positive for ""relative to start""","Input truncated to 3 chars; truncated positive value triggers validation","CLEANUP REQUIRED: restore default, Reload the page","","",""
 "TC-LOS-BAS-062","MaxLen Boundary - 4-Char Field Accepts Value at Limit","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Type ""-999"" into Set (maxLen=4)
 2. Verify stored value = ""-999""
 3. Verify is valid (negative is valid for ""relative to start"")
-4. Verify Save enabled","4-char value at limit accepted; negative value valid for ""relative to start"" field","CLEANUP REQUIRED: restore default, reload","","",""
+4. Verify Save enabled","4-char value at limit accepted; negative value valid for ""relative to start"" field","CLEANUP REQUIRED: restore default, Reload the page","","",""
 "TC-LOS-BAS-063","Multi-Field Error Recovery - Cross-Validation Clears After Correction","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Set Delivery = -5 (violates NM-1264: Delivery < Prep(-1))
 2. Poll until Delivery is invalid
 3. Verify Save disabled
-4. Set Delivery = -1 (LR-009: differs from default 0)
+4. Set Delivery = -1 (: differs from default 0)
 5. Poll until Delivery is valid
-6. Verify Save enabled","Cross-validation error clears after correction | ""NM-1264, LR-009, LR-010""","CLEANUP REQUIRED: restore default, reload","","",""
+6. Verify Save enabled","Cross-validation error clears after correction | ""NM-1264,, ""","CLEANUP REQUIRED: restore default, Reload the page","","",""
 "TC-LOS-BAS-064","Clear Prep Offset - Save, Reload, Verify Empty (NM-1453)","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Clear Prep Date Offset, Tab
 2. Save + confirm
-3. Reload, verify Prep value = """" (not ""0"")","Null offset preserved as empty string, not ""0"" | ""MCP-7 verified 2026-04-06, NM-1453""","CLEANUP REQUIRED: restore to -1, save","","",""
+3. Reload, verify Prep value = """" (not ""0"")","Null offset preserved as empty string, not ""0"" | "" verified 2026-04-06, NM-1453""","CLEANUP REQUIRED: restore to -1, save","","",""
 "TC-LOS-BAS-065","Clear Return Offset - Save, Reload, Verify Empty (NM-1453)","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Clear Return Date Offset, Tab
 2. Save + confirm
 3. Reload, verify Return value = """" (not ""0"")","Null offset preserved as empty string | ""NM-1453""","CLEANUP REQUIRED: restore to 1, save","","",""
 "TC-LOS-BAS-066","Clear Prep But Keep Delivery - No Cross-Validation Error","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Reload, clear Prep (default -1)
 2. Leave Delivery at default (0)
 3. Poll: Delivery should NOT be validation error (NM-1264 skipped when Prep is null)
-4. Verify Save enabled (Prep was changed)","NM-1264 not triggered when Prep is null | ""MCP-7 verified""","CLEANUP REQUIRED: reload to discard","","",""
+4. Verify Save enabled (Prep was changed)","NM-1264 not triggered when Prep is null | "" verified""","CLEANUP REQUIRED: Reload the page to discard","","",""
 "TC-LOS-BAS-067","Clear All 6 Offsets - Save, Reload, All Empty (NM-1453)","local-office","basic_information","","","Local Office Settings page is open (Office 1604). Basic Information tab is active","1. Reload, clear all 6 date offsets
 2. Save + confirm
 3. Reload, verify all 6 values = """" (not ""0"")","All null offsets preserved as empty after bulk clear | ""NM-1453""","CLEANUP REQUIRED: restore all defaults, save","","",""
@@ -282,7 +282,7 @@
 3. Verify first columns: ""Local Office"", ""Prep Date Offset"", ""Return Date Offset"", ""Set Date Offset"", ""Strike Date Offset""
 4. Verify last columns: ""Holiday Multiplier"", ""Recalc Labor Hours"", ""Modified By"", ""Modified On""","History table shows all 42 expected column headers","","","",""
 "TC-LOS-HIS-003","History Tab - Table Populated for Office 1604","local-office","history","","","Local Office Settings page is open (Office 1604). Location Settings History tab is active","1. Navigate to History tab
-2. Verify table body contains at least one data row (not ""No results."")","Office 1604 has history records; isHistoryTableEmpty() returns false","","","",""
+2. Verify table body contains at least one data row (not ""No results."")","Office 1604 has history records; returns false","","","",""
 "TC-LOS-HIS-004","History Tab - History Type Selector Options","local-office","history","","","Local Office Settings page is open (Office 1604). Location Settings History tab is active","1. Navigate to History tab
 2. Click ""History Type Selector"" combobox to open dropdown
 3. Verify exactly 2 options: ""Location Management History"" (selected), ""Location Management Legacy History""
@@ -298,7 +298,7 @@
 2. Verify sortable columns have sort buttons (e.g., ""Prep Date Offset"", ""Modified By"", ""Modified On"")
 3. Verify non-sortable columns (""Local Office"", ""Section Name"", ""Service Type - Exempt"", ""Notes"") have plain text, no sort button
 4. Click a sort button (e.g., ""Modified On"")","38 columns have sort buttons; 4 columns are plain text (not sortable)","","","",""
-"TC-LOS-ECT-001","ECT Tab - Navigation and Header Display","local-office","ect_settings","","Blocked by BUG-LOS-ECT-001","Local Office Settings page is open (Office 1604). ECT Settings tab is active","1. Navigate to /navigator/locations/1604/settings/local-office
+"TC-LOS-ECT-001","ECT Tab - Navigation and Header Display","local-office","ect_settings","","Blocked by","Local Office Settings page is open (Office 1604). ECT Settings tab is active","1. Navigate to /navigator/locations/1604/settings/local-office
 2. Click the ""ECT Settings"" tab
 3. Verify the heading reads ""1604 - Parker Palm Springs""
 4. Verify the ""Edit/View"" label is shown with a ""Commission structure"" link
@@ -365,7 +365,7 @@
 6. Click ""Save""
 7. Navigate away and return
 8. Verify ""Administrative Fee"" labor cost = ""40.00""","Labor cost values editable and persist after save","CLEANUP REQUIRED: Change back to 35 and save","","",""
-"TC-LOS-ECT-010","ECT Tab - Labor Cost Non-Numeric Input After Clear","local-office","ect_settings","","Blocked by BUG-LOS-ECT-010","Local Office Settings page is open (Office 1604). ECT Settings tab is active","1. Navigate to the ECT Settings tab
+"TC-LOS-ECT-010","ECT Tab - Labor Cost Non-Numeric Input After Clear","local-office","ect_settings","","Blocked by","Local Office Settings page is open (Office 1604). ECT Settings tab is active","1. Navigate to the ECT Settings tab
 2. Note the current value of the ""Administrative Fee"" Labor Cost cell
 3. Triple-click the ""Administrative Fee"" Labor Cost cell to select all text
 4. Press Delete to clear the cell
@@ -389,7 +389,7 @@
 3. Save Fixed Costs
 4. Navigate to Basic Info
 5. Verify display shows expected percent
-6. Restore: fill original raw value","Historical Subrental % persists across save-reload cycle","","","",""
+6. Restore: fill original raw value","Historical Subrental % persists across save-Reload the page cycle","","","",""
 "TC-LOS-ECT-014","Labor Cost Middle Row (Index 33) - Persistence (RT)","local-office","ect_settings","","","Local Office Settings page is open (Office 1604). ECT Settings tab is active","1. Navigate to ECT tab
 2. Read current labor cost value at row index 33
 3. Pick different test value
@@ -403,10 +403,10 @@
 "TC-LOS-ECT-016","Multi-field Fixed Costs - Single Save Persists Both (RT)","local-office","ect_settings","","","Local Office Settings page is open (Office 1604). ECT Settings tab is active","1. Read current BM and HS values
 2. Edit both Benefits Multiplier and Historical Subrental %
 3. Single save (Fixed Costs)
-4. Full page reload
+4. Full page Reload the page
 5. Verify both values persisted
 6. Restore both","Editing both BM and HS then saving once persists BOTH values","","","",""
-"TC-LOS-ECT-017","Discard Unsaved Changes - No Persistence (State Transition)","local-office","ect_settings","","","Local Office Settings page is open (Office 1604). ECT Settings tab is active","1. Read current BM value (baseline)
+"TC-LOS-ECT-017","Discard Unsaved Changes - No Persistence (State Transition)","local-office","ect_settings","","","Local Office Settings page is open (Office 1604). ECT Settings tab is active","1. Read current BM value (Capture baseline state)
 2. Fill BM with different value (dirty the form)
 3. Click Basic Info tab directly (triggers unsaved changes dialog)
 4. Click Discard on the dialog

@@ -246,6 +246,16 @@ function compareCsv(csvBasename, csvRows, xlsxIndex, issues) {
         // because the spec now wraps these tests in test.fixme(). Registry-driven.
         if (field === 'Automation Execution' && xVal === 'Blocked') continue;
         if (field === 'If Failed Reason of Failure' && xlsxExec === 'Blocked') continue;
+        // Allowed modulo (Phase D-prep, 2026-05-27): the regenerated CSVs are
+        // emitted by `to-csv.ts` which has no playwright integration, so the
+        // augment columns (`Automation Execution`, `If Failed Reason of
+        // Failure`, `Automated`) are empty. The XLSX path runs SP00 augment
+        // (`augmentByTcId`) which populates these from `playwright --list`.
+        // Empty-CSV vs populated-XLSX is therefore "CSV missing augment data,
+        // XLSX richer" — not a content disagreement. After Phase D removes
+        // CSVs, this modulo retires with the parity script itself.
+        if (field === 'Automation Execution' && csvVal === '' && xVal !== '') continue;
+        if (field === 'If Failed Reason of Failure' && csvVal === '' && xVal !== '') continue;
         rowMatch = false;
         localIssues.push(
           `row ${i} (${id}) field '${field}' differs:\n` +
@@ -259,7 +269,12 @@ function compareCsv(csvBasename, csvRows, xlsxIndex, issues) {
     if (csvAutomatedCol >= 0) {
       const csvAutomated = norm(csvRow[csvAutomatedCol]);
       const xlsxCoverage = xCol('Coverage Status');
-      if (!coverageEquivalent(csvAutomated, xlsxCoverage)) {
+      // Phase D-prep modulo (see Automation Execution above): CSV Automated col
+      // empty because `to-csv.ts` has no playwright integration; XLSX picks up
+      // the augment value. Empty CSV vs populated XLSX is allowed.
+      if (csvAutomated === '' && xlsxCoverage !== '') {
+        // no-op: allowed modulo
+      } else if (!coverageEquivalent(csvAutomated, xlsxCoverage)) {
         rowMatch = false;
         localIssues.push(
           `row ${i} (${id}) Coverage Status mismatch:\n` +

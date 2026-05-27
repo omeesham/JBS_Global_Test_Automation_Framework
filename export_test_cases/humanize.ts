@@ -219,8 +219,131 @@ export function convertExpectedToHuman(expectedResults: string[]): string {
   return expectedResults.map(r => convertElementIdsToLabels(r)).join('; ');
 }
 
-/** Composite: cleanMarkdown → humanizeAssertion → convertElementIdsToLabels. */
+// ──────────────────────────────────────────────────────────────────────────
+// Internal-vocabulary scrubbing (Phase D-prep, 2026-05-27)
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * Strip internal vocabulary that leaked into customer-facing cells per the
+ * Phase D pre-audit (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION). All 5 audit
+ * subagents independently surfaced these patterns in Title / Steps /
+ * Expected Result / Notes columns:
+ *
+ *   - Bug / plan / rule IDs: `BUG-LI-002`, `BUG-LOC-NTS-001`, `SP-DQU-04`,
+ *     `LR-026`, `LR-ENC-002`, `PLN-049`
+ *   - Agent stamps: `MCP-verified`, `MCP_VERIFICATION_LOG: ...`, `MCP-1`,
+ *     `(MCP-4)`, `RCA 2026-05-12`, `observed 2026-04-27`
+ *   - Audit prose: `per SP-DQU-04`, `per BUG-LI-001`, `Filed as ...`,
+ *     `(filed)`, `CORRECTION from 2026-02-19`, `PRIMARY_SYMPTOM_RESOLVED`
+ *   - Internal-team author addressees: `<!-- TODO 2026-05-20 (Rutvik): ...-->`
+ *   - Spec-internal API names + Angular control names (`form.pristine`,
+ *     `form.invalid`, `isHistoryTableEmpty()`)
+ *   - Internal API paths: `/api/location/check-unbilled`
+ *
+ * Aggressive on token classes; conservative on prose around them (so the
+ * surrounding sentence still reads). Run AFTER humanizeAssertion +
+ * convertElementIdsToLabels so DOM markers are already translated.
+ */
+export function scrubInternalVocab(text: string): string {
+  if (!text) return '';
+  let s = text;
+
+  // HTML comments addressed to internal users (covers the 412-char "Rutvik"
+  // TODO + any future <!-- TODO ... --> / <!-- NOTE ... --> blocks).
+  s = s.replace(/<!--[\s\S]*?-->/g, '');
+
+  // MCP_VERIFICATION_LOG section: from the marker through end of line.
+  s = s.replace(/MCP_VERIFICATION_LOG\s*:[^\n]*/gi, '');
+
+  // Audit-trail parentheticals: "(per SP-DQU-04 ...)", "(per BUG-LI-001 ...)",
+  // "(filed as ...)", "(observed YYYY-MM-DD)", "(rewritten per ... — ...)",
+  // "(form-validity gate per ...)", "(PRIMARY_SYMPTOM_RESOLVED 2026-04-28)".
+  s = s.replace(/\(\s*(?:per|filed as|observed|rewritten per|form-validity gate per|MCP[- ]\d+|MCP[- ]verified|PRIMARY_SYMPTOM_RESOLVED)\b[^)]*\)/gi, '');
+
+  // Standalone "Filed as BUG-...." / "CORRECTION from YYYY-MM-DD" sentences
+  // (drop the whole sentence — they don't add customer value).
+  s = s.replace(/(?:^|[.;\n])\s*Filed as[^.\n]*\.?/g, '');
+  s = s.replace(/(?:^|[.;\n])\s*CORRECTION from \d{4}-\d{2}-\d{2}[^.\n]*\.?/g, '');
+  // RCA YYYY-MM-DD references — drop wherever they appear (mid-sentence
+  // parentheticals are common: "(Angular dirty state — RCA 2026-05-12: ...)").
+  // Strip from "RCA" through end-of-clause (next `)` / `,` / `;` / `.`).
+  s = s.replace(/[\s,—-]*RCA \d{4}-\d{2}-\d{2}[^)\n.;,]*[)\n.;,]?/g, '');
+  // FIXME(BUG-…) prefix on If Failed Reason cells: drop the wrapper, keep
+  // the human-readable reason text that follows the colon.
+  s = s.replace(/\bFIXME\s*\(\s*BUG-[A-Z]+(?:-[A-Z]+)*-\d+\s*\)\s*:\s*/g, '');
+  // Plain "FIXME(...)" wrappers around any other bug-id-looking content.
+  s = s.replace(/\bFIXME\s*\(\s*[^)]{1,60}\s*\)\s*:?\s*/g, '');
+
+  // Bare-token strips (work everywhere in prose). Order matters — longest first.
+  const BARE_TOKENS: RegExp[] = [
+    /\bBUG-[A-Z]+(?:-[A-Z]+)*-\d+\b/g,             // BUG-LI-002, BUG-LOC-NTS-001
+    /\bSP-[A-Z]+(?:-[A-Z0-9]+)*-\d+[a-zA-Z]?\b/g,  // SP-DQU-04, SP-AAE-02
+    /\bSUBPLAN_[A-Z0-9_]+\b/g,                     // SUBPLAN_XLSX_PREP_01
+    /\bPLAN_[A-Z0-9_]+\b/g,                        // PLAN_CSV_TO_XLSX_...
+    /\bLR-(?:ENC-)?\d+\b/g,                         // LR-026, LR-ENC-002
+    /\b(?:PLN|GEN|HLR|AUD|ALL|COP|REQ|MOD|SHR|MCP)-\d+[A-Z]?\b/g, // PLN-049, ALL-077
+    /\bMCP[- ]verified\b/gi,                        // "MCP-verified", "MCP verified"
+    /\bMCP[- ]\d+\b/g,                              // MCP-1, MCP-4
+    /\bPRIMARY_SYMPTOM_RESOLVED\b/g,
+    /\bMCP_VERIFICATION_LOG\b/gi,                   // residual after the section strip above
+  ];
+  for (const re of BARE_TOKENS) s = s.replace(re, '');
+
+  // Internal API paths and Angular control idioms when they appear bare in
+  // customer-facing prose. Conservative scope — only flag the specific tokens
+  // surfaced by Phase D pre-audit subagents 3 + 4.
+  s = s.replace(/\bform\.(pristine|invalid|dirty|valid|touched|pending)\b/g, 'the form');
+  s = s.replace(/\/api\/[a-z0-9/_-]+/gi, 'the API');
+  // Spec-internal helper function calls (e.g., isHistoryTableEmpty(),
+  // fillNote(0, "a"), saveAndConfirm(), validateBillWayDate()). Strip the
+  // `Name(...)` form; leave bare function-name strings alone (those may be
+  // legitimate API references the colleague needs to see).
+  s = s.replace(/\b[a-z][a-zA-Z0-9_]+\([^)]*\)/g, '');
+  // Bare spec-helper identifiers in Steps cells (Phase D pre-audit Subagent 4
+  // RED: NTS-039..064 carry harness step names like "baseline / act /
+  // expectBeforeSave / saveAndConfirm / reload / expectAfterReload" instead
+  // of tester-friendly prose). Translate the well-known ones; leave others.
+  const SPEC_HELPER_TRANSLATIONS: Array<[RegExp, string]> = [
+    [/\bensureEmptyState\b/g, 'Ensure the table is in its empty state (delete any existing rows and save)'],
+    [/\bsaveAndConfirm\b/g, 'Click Save and confirm the dialog'],
+    [/\breloadAndNavigateToNotesTab\b/g, 'Reload the page and navigate to the Notes tab'],
+    [/\breloadAndNavigateTo[A-Z][a-zA-Z]*Tab\b/g, 'Reload the page and navigate back to the same tab'],
+    [/\bexpectBeforeSave\b/g, 'Verify the expected state before saving'],
+    [/\bexpectAfterSave\b/g, 'Verify the expected state after saving'],
+    [/\bexpectAfterReload\b/g, 'Verify the expected state after reload'],
+    [/\bbaseline\b(?!\s*(?:state|values|truth|artifact|directory|URL|workflow|first))/g, 'Capture baseline state'],
+    [/(?<![a-zA-Z])\bact\b(?![a-zA-Z])(?!\s*(?:on|as|like|upon))/g, 'Perform the action'],
+    [/\breload\b(?!\s*(?:the|page|after|and|button))/g, 'Reload the page'],
+  ];
+  for (const [re, replacement] of SPEC_HELPER_TRANSLATIONS) s = s.replace(re, replacement);
+
+  // Angular / DOM-specific tokens that surfaced in customer-facing cells per
+  // Phase D pre-audit. Replace with plain-English equivalents.
+  const DOM_ANGULAR_TRANSLATIONS: Array<[RegExp, string]> = [
+    [/<thead>/g, 'header row'],
+    [/<tbody>/g, 'table body'],
+    [/\bFormArray\b/g, 'internal list state'],
+    [/\bFormControl\.(dirty|invalid|valid|touched|pristine|pending)\b/g, 'the form'],
+    [/\bFormControl\b/g, 'form field'],
+    [/\bFormGroup\b/g, 'form'],
+  ];
+  for (const [re, replacement] of DOM_ANGULAR_TRANSLATIONS) s = s.replace(re, replacement);
+
+  // Cleanup: collapse whitespace + dangling punctuation introduced by the
+  // strips above (matches humanizeAssertion's trailing cleanup).
+  s = s.replace(/\s{2,}/g, ' ')
+       .replace(/\s+([,.;:])/g, '$1')
+       .replace(/[ \t]+\n/g, '\n')
+       .replace(/^[\s,.;|]+|[\s,.;|]+$/g, '')
+       .trim();
+
+  return s;
+}
+
+/** Composite: cleanMarkdown → humanizeAssertion → convertElementIdsToLabels → scrubInternalVocab. */
 export function humanize(text: string): string {
   if (!text) return '';
-  return convertElementIdsToLabels(humanizeAssertion(cleanMarkdown(text)));
+  return scrubInternalVocab(
+    convertElementIdsToLabels(humanizeAssertion(cleanMarkdown(text))),
+  );
 }

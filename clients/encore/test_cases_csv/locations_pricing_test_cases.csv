@@ -63,7 +63,7 @@
 "TC-LOC-PRI-018","Start Date validates MM/DD/YYYY format","locations","pricing","","","Office 1604 is open in Navigator. Pricing tab is active","1. Enable date fields (Is Alternative checked, Use Effective Date checked)
 2. Click ""Start Date"" field, enter invalid date ""13/45/2026""
 3. Click outside field
-4. Verify error state","Invalid date format triggers validation error via customDateValidator; field shows error state","Per REQUIREMENTS.md: customDateValidator validates via isValidDate() method. Exact error message text cannot be verified in training environment - pricing grid does not load (CORS-blocked API). Verify specific error text with API access","","",""
+4. Verify error state","Invalid date format triggers validation error via customDateValidator; field shows error state","Per REQUIREMENTS.md: customDateValidator validates via method. Exact error message text cannot be verified in training environment - pricing grid does not load (CORS-blocked API). Verify specific error text with API access","","",""
 "TC-LOC-PRI-019","End Date validates MM/DD/YYYY format","locations","pricing","","","Office 1604 is open in Navigator. Pricing tab is active","1. Enable date fields
 2. Click ""End Date"" field, enter invalid date ""99/99/9999""
 3. Click outside field
@@ -80,7 +80,7 @@
 "TC-LOC-PRI-022","Grid validates all rows via validateCorporatePriceGrid","locations","pricing","","","Office 1604 is open in Navigator. Pricing tab is active","1. Configure MEX BO GDL: ""Is Alternative"" checked, ""Use Effective Date"" checked, ""Start Date"" = invalid ""99/99/9999""
 2. Configure 2021-Tier 3: ""Is Alternative"" checked, ""Use Effective Date"" checked, ""Start Date"" = ""05/01/2026"" (valid)
 3. Attempt ""Save""
-4. Verify error state","Grid validation aggregates errors from all rows, blocks save if any row has validation error","Per REQUIREMENTS.md: validateCorporatePriceGrid() iterates all rows, sets CorporatePrices form control error if any row fails validation","","",""
+4. Verify error state","Grid validation aggregates errors from all rows, blocks save if any row has validation error","Per REQUIREMENTS.md: iterates all rows, sets CorporatePrices form control error if any row fails validation","","",""
 "TC-LOC-PRI-023","Verify Pricing tab has dedicated Save button (separate from left-panel Save)","locations","pricing","","","Office 1604 is open in Navigator. Pricing tab is active","1. Navigate to Setup > Location > 1604 -- ""Pricing"" tab
 2. Verify a dedicated ""Save"" button is visible inside the Pricing tabpanel (purple button, top-right of pricing card)
 3. Check ""Is Alternative"" for any price book row
@@ -95,7 +95,7 @@
 6. Verify ""Price Guide Inclusive"" [OK] Still unchecked (persisted)
 7. Re-check ""Price Guide Inclusive"" [OK] Checked
 8. Click ""Save"" [OK] Save completes
-9. Reload and verify ""Price Guide Inclusive"" [OK] Checked (restored to default)","Price Guide Inclusive toggle state persists after save and page reload","CLEANUP: Step 9 restores default checked state","","",""
+9. Reload and verify ""Price Guide Inclusive"" [OK] Checked (restored to default)","Price Guide Inclusive toggle state persists after save and page Reload the page","CLEANUP: Step 9 restores default checked state","","",""
 "TC-LOC-PRI-025","Corporate Pricing - toggle state persists after Save","locations","pricing","","","Office 1604 is open in Navigator. Pricing tab is active","1. Navigate to Pricing tab [OK] ""Corporate Pricing"" is checked (default)
 2. Uncheck ""Corporate Pricing"" [OK] Unchecked, Primary pricing dropdowns disabled
 3. Click ""Save"" [OK] Save completes
@@ -103,7 +103,7 @@
 5. Verify ""Corporate Pricing"" [OK] Still unchecked (persisted)
 6. Re-check ""Corporate Pricing"" [OK] Checked, Primary pricing dropdowns re-enabled
 7. Click ""Save"" [OK] Save completes
-8. Reload and verify ""Corporate Pricing"" [OK] Checked (restored to default)","Corporate Pricing checkbox state persists through save and reload","CLEANUP: Step 8 restores default checked state","","",""
+8. Reload and verify ""Corporate Pricing"" [OK] Checked (restored to default)","Corporate Pricing checkbox state persists through save and Reload the page","CLEANUP: Step 8 restores default checked state","","",""
 "TC-LOC-PRI-026","Primary Labor Pricing - select and persist specific value","locations","pricing","","","Office 1604 is open in Navigator. Pricing tab is active","1. Navigate to Pricing tab, ensure ""Corporate Pricing"" checked [OK] Primary pricing enabled
 2. Click ""Primary Labor Pricing"" dropdown [OK] Dropdown opens
 3. Select ""2026-Zone 3 D"" [OK] Value selected
@@ -140,22 +140,22 @@
 4. Click ""Cancel""
 5. Verify ""Save"" still enabled
 6. Reload Pricing tab
-7. Verify ""Is Alternative"" on primary test row","Cancelling the Save Changes dialog discards all pending changes; reload shows original state","","","",""
+7. Verify ""Is Alternative"" on primary test row","Cancelling the Save Changes dialog discards all pending changes; Reload the page shows original state","","","",""
 "TC-LOC-PRI-032","Unsaved changes dialog - edit, navigate away, Stay returns to form","locations","pricing","","✅ Automated","Office 1604 is open in Navigator. Pricing tab is active","1. Navigate to ""Pricing"" tab
 2. Uncheck ""Corporate Pricing""
 3. Verify ""Save"" enabled
 4. Click sidebar Home link
 5. Click ""Stay""
 6. Verify URL still contains locations path
-7. Verify ""Save"" still enabled","Clicking Stay on unsaved changes dialog returns to form with dirty state preserved","CLEANUP: Re-check ""Corporate Pricing"" -- reload Pricing tab to discard dirty state","","",""
+7. Verify ""Save"" still enabled","Clicking Stay on unsaved changes dialog returns to form with dirty state preserved","CLEANUP: Re-check ""Corporate Pricing"" -- Reload the page Pricing tab to discard dirty state","","",""
 "TC-LOC-PRI-033","Grid validation errors block Save - missing dates with cascade enabled","locations","pricing","","✅ Automated","Office 1604 is open in Navigator. Pricing tab is active","1. Reload ""Pricing"" tab
 2. Verify ""Save"" disabled
 3. Check ""Is Alternative"" on primary test row
-4. Wait for ""Use Effective Date"" enabled (LR-010 poll)
+4. Wait for ""Use Effective Date"" enabled ( poll)
 5. Check ""Use Effective Date""
-6. Wait for date fields enabled (LR-010 poll)
+6. Wait for date fields enabled ( poll)
 7. Verify ""Save"" state with empty dates
 8. Enter valid Start Date and End Date
-9. Verify ""Save"" enabled","Grid validation blocks Save when required date fields are empty after enabling cascade; Save enables after valid dates entered","MCP-1 unverified due to API 500 issue - hypothesis assertion will fail informatively if wrong | CLEANUP: Reset grid row (uncheck Is Alternative) -- reload Pricing tab (LR-026)","","",""
+9. Verify ""Save"" enabled","Grid validation blocks Save when required date fields are empty after enabling cascade; Save enables after valid dates entered","unverified due to API 500 issue - hypothesis assertion will fail informatively if wrong | CLEANUP: Reset grid row (uncheck Is Alternative) -- Reload the page Pricing tab ()","","",""
 "TC-LOC-PRI-035","Read-only columns (Pricing Strategy, Pricebook, Currency) have no interactive elements","locations","pricing","","✅ Automated","Office 1604 is open in Navigator. Pricing tab is active","1. Navigate to ""Pricing"" tab
 2. Inspect columns 1-3 (Pricing Strategy, Pricebook, Currency) on primary test row","Read-only columns contain only display text - no interactive elements","TC-LOC-PRI-034 intentionally does not exist (skipped ID)","","",""

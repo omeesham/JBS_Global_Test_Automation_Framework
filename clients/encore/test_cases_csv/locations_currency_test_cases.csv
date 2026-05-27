@@ -60,22 +60,22 @@
 2. Select CAD ""Selected""
 3. Select MXN ""Selected""
 4. Verify all checkboxes","All three currencies can be selected at the same time","","","",""
-"TC-LOC-CUR-021","Selected currency persists after save and reload","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
+"TC-LOC-CUR-021","Selected currency persists after save and Reload the page","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
 2. Check CAD ""Selected"" checkbox
 3. Verify ""Save"" button enabled
 4. Click ""Save""
 5. Verify ""Save"" button disabled
 6. Reload and navigate to ""Currency"" tab
-7. Verify CAD ""Selected""","Selecting a currency and saving persists the selection through page reload","CLEANUP: Uncheck CAD ""Selected"" -- click ""Save"" -- confirm dialog","","",""
-"TC-LOC-CUR-022","Merchant change persists after save and reload","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
+7. Verify CAD ""Selected""","Selecting a currency and saving persists the selection through page Reload the page","CLEANUP: Uncheck CAD ""Selected"" -- click ""Save"" -- confirm dialog","","",""
+"TC-LOC-CUR-022","Merchant change persists after save and Reload the page","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
 2. Open USD ""Merchant"" dropdown, select ""316426 - Encore Bahamas/USD""
 3. Verify USD ""Merchant"" field
 4. Verify ""Save"" enabled
 5. Click ""Save""
 6. Verify ""Save"" disabled
 7. Reload and navigate to ""Currency"" tab
-8. Verify USD ""Merchant""","Changing merchant and saving persists the selection through page reload","CLEANUP: Select USD ""Merchant"" ""316370 - PSAV US/USD"" (original) -- click ""Save"" -- confirm dialog","","",""
-"TC-LOC-CUR-023","IsDefault change persists after save and reload (cascade)","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
+8. Verify USD ""Merchant""","Changing merchant and saving persists the selection through page Reload the page","CLEANUP: Select USD ""Merchant"" ""316370 - PSAV US/USD"" (original) -- click ""Save"" -- confirm dialog","","",""
+"TC-LOC-CUR-023","IsDefault change persists after save and Reload the page (cascade)","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
 2. Check CAD ""Selected"" checkbox
 3. Check CAD ""Is Default"" checkbox
 4. Verify USD ""Is Default"" auto-unchecked
@@ -84,8 +84,8 @@
 7. Verify ""Save"" disabled
 8. Reload and navigate to ""Currency"" tab
 9. Verify CAD ""Is Default""
-10. Verify USD ""Is Default""","Changing default currency and saving persists the cascade through page reload","CLEANUP: Uncheck CAD ""Selected"" (auto-disables CAD Is Default) -- check USD ""Is Default"" -- click ""Save"" -- confirm dialog","","",""
-"TC-LOC-CUR-024","Combined changes persist after single save and reload","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
+10. Verify USD ""Is Default""","Changing default currency and saving persists the cascade through page Reload the page","CLEANUP: Uncheck CAD ""Selected"" (auto-disables CAD Is Default) -- check USD ""Is Default"" -- click ""Save"" -- confirm dialog","","",""
+"TC-LOC-CUR-024","Combined changes persist after single save and Reload the page","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
 2. Check CAD ""Selected"" checkbox
 3. Change USD ""Merchant"" to ""316426 - Encore Bahamas/USD""
 4. Verify ""Save"" enabled
@@ -93,8 +93,8 @@
 6. Verify ""Save"" disabled
 7. Reload and navigate to ""Currency"" tab
 8. Verify CAD ""Selected""
-9. Verify USD ""Merchant""","Multiple changes in a single save cycle all persist through page reload","CLEANUP: Uncheck CAD ""Selected"" -- select USD ""Merchant"" ""316370 - PSAV US/USD"" -- click ""Save"" -- confirm dialog","","",""
-"TC-LOC-CUR-025","Cancel save discards changes - reload shows original state","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
+9. Verify USD ""Merchant""","Multiple changes in a single save cycle all persist through page Reload the page","CLEANUP: Uncheck CAD ""Selected"" -- select USD ""Merchant"" ""316370 - PSAV US/USD"" -- click ""Save"" -- confirm dialog","","",""
+"TC-LOC-CUR-025","Cancel save discards changes - Reload the page shows original state","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
 2. Check CAD ""Selected"" checkbox
 3. Verify ""Save"" enabled
 4. Click ""Save"" button
@@ -104,12 +104,12 @@
 "TC-LOC-CUR-026","Beforeunload dialog fires when form is dirty","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
 2. Check CAD ""Selected"" checkbox
 3. Verify ""Save"" enabled
-4. Attempt page reload
-5. Dismiss dialog (stay on page)","Browser beforeunload dialog fires when attempting to navigate away from a dirty form","MCP-verified 2026-04-06 (MCP-4) | CLEANUP: Reload and navigate to ""Currency"" tab to discard dirty state","","",""
-"TC-LOC-CUR-027","No-default state persists after save and reload","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
+4. Attempt page Reload the page
+5. Dismiss dialog (stay on page)","Browser beforeunload dialog fires when attempting to navigate away from a dirty form","2026-04-06 | CLEANUP: Reload and navigate to ""Currency"" tab to discard dirty state","","",""
+"TC-LOC-CUR-027","No-default state persists after save and Reload the page","locations","currency","","✅ Automated","Office 1604 is open in Navigator. Currency tab is active","1. Reload and navigate to ""Currency"" tab
 2. Uncheck USD ""Is Default"" checkbox
 3. Verify ""Save"" enabled
 4. Click ""Save""
 5. Verify ""Save"" disabled
 6. Reload and navigate to ""Currency"" tab
-7. Verify USD ""Is Default""","Saving with no default currency set persists that state through page reload","CLEANUP: Check USD ""Is Default"" -- click ""Save"" -- confirm dialog","","",""
+7. Verify USD ""Is Default""","Saving with no default currency set persists that state through page Reload the page","CLEANUP: Check USD ""Is Default"" -- click ""Save"" -- confirm dialog","","",""

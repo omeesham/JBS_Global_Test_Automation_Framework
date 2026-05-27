@@ -118,11 +118,18 @@ interface ListedTest {
 }
 
 function listPlaywrightTests(clientRoot: string): ListedTest[] {
-  const out = execFileSync('npx', ['playwright', 'test', '--list', '--reporter=json'], {
+  // Windows: `npx` is not directly findable by execFileSync — Node looks for
+  // an exact `npx` filename, but Windows ships `npx.cmd`. shell:true gets the
+  // shell to resolve PATHEXT. Linux/mac honor `npx` directly. (PLAN_CSV_TO_XLSX_
+  // DELIVERABLE_MIGRATION Phase D-prep — was silently falling back to
+  // CSV-inherit and emitting Coverage Status=0 workbook-wide.)
+  const isWin = process.platform === 'win32';
+  const out = execFileSync(isWin ? 'npx.cmd' : 'npx', ['playwright', 'test', '--list', '--reporter=json'], {
     cwd: clientRoot,
     encoding: 'utf-8',
     maxBuffer: 64 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'pipe'],
+    shell: isWin,
   });
   // Reporter output may be preceded by an "Listing tests:" banner line on some platforms.
   // Strip everything before the first '{' to be safe.
