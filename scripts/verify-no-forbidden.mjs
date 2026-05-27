@@ -295,6 +295,11 @@ function checkStagedDiff() {
     if (rel === 'scripts/verify-no-forbidden.mjs') continue; // self-reference: this script's own MARKER_GREP literals
     if (rel === '.claude/hooks/lib/check-todo-injection.mjs') continue; // self-reference: hook's own BANNED_PHRASES + self-test literals
     if (rel === '.claude/hooks/lib/check-plan-closure.mjs') continue; // self-reference: hook's own regex literals
+    // Binary file extensions — text-pattern MARKER_GREP/BANNED_PHRASES regex on
+    // compressed/binary bytes produces false positives (e.g., zip-compressed
+    // XLSX bytes randomly matching 3-letter tokens like /\bJBS\b/). Binary
+    // deliverables are content-checked separately (e.g., xlsx:dump for XLSX).
+    if (/\.(xlsx|xlsm|xls|png|jpg|jpeg|gif|pdf|ico|zip|tar|gz|woff2?|ttf|eot|otf|mp4|webm|wav|mp3)$/i.test(rel)) continue;
     let buf;
     try {
       buf = execSync(`git show :${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8' });

@@ -30,75 +30,6 @@ export class LocalOfficeSettingsPage extends BasePage {
     await this.navigateToSubTab('tabBasicInformation', 'frmBasicInfo', officeNo, 'local-office');
   }
 
- /**
- * Navigate to History tab. Handles unsaved dialog if dirty form persists .
- * After save -> tab switch: wait for Save disabled, then switch.
- * If alertdialog appears, click "Discard" to proceed.
- */
-  async navigateToHistoryTab(): Promise<void> {
-    const tab = this.getElement('tabHistory');
-    const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
-    if (isSelected !== 'true') {
-      await tab.click();
-      await this.waitForAngularStable();
-      await this.dismissAlertDialogIfVisible();
-    }
-    await this.getElement('tblHistory').waitFor({ state: 'visible', timeout: 15_000 });
-  }
-
- /**
- * Navigate to ECT Settings tab with robust retry for intermittent API failures.
- * RCA ECT-009/012: The ECT API intermittently returns "No currencies" or "No data available"
- * under load. Original retry loop had a bug: after the 3rd retry it didn't re-check whether
- * data loaded before falling through to lblEctLocationName.waitFor → 30s timeout.
- * Fix: unified retry loop that always checks AFTER each reload, with delay between retries
- * to give the API breathing room.
- */
-  async navigateToEctTab(): Promise<void> {
-    const maxRetries = 4;
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
- // Click the ECT tab if not already selected
-      const tab = this.getElement('tabEctSettings');
-      const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
-      if (isSelected !== 'true') {
-        await this.dismissAlertDialogIfVisible();
-        await tab.click();
-        await this.waitForAngularStable();
-      }
-
- // Check for API failure states
-      const panelContent = await this.page.locator('[role="tabpanel"]').textContent().catch(() => '');
-      const noCurrencies = panelContent?.includes('No currencies for selected location');
-      const noData = panelContent?.includes('No data available');
-
-      if (!noCurrencies && !noData) {
- // Check that location name label is visible (content loaded)
-        const lblVisible = await this.getElement('lblEctLocationName')
-          .waitFor({ state: 'visible', timeout: 5_000 })
-          .then(() => true).catch(() => false);
-        if (lblVisible) {
- // Verify table data actually loaded
-          const table = this.getElement('tblLaborCostAssumptions');
-          const hasData = await table.locator('tbody tr').count() > 1
-            || !(await table.textContent() || '').includes('No data available');
-          if (hasData) return; // Success — ECT tab fully loaded
-        }
-      }
-
- // If we've exhausted all retries, throw with context
-      if (attempt === maxRetries) {
-        throw new Error(`ECT tab failed to load after ${maxRetries} retries. Last state: ${noCurrencies ? '"No currencies"' : noData ? '"No data available"' : 'label not visible'}`);
-      }
-
-      Log.warn(`ECT tab not loaded (attempt ${attempt + 1}/${maxRetries + 1}) — retry via page reload`);
-      await this.page.waitForTimeout(1_000); // Give API breathing room
-      await this.dismissAlertDialogIfVisible();
-      await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 });
-      await this.waitForAngularStable();
-      await this.dismissAlertDialogIfVisible();
-    }
-  }
-
  /** Reload page and navigate back to Basic Info tab.
  * Uses safeNavigateTo to handle beforeunload dialog when form has unsaved edits.
  * 30s form-visibility timeout: live-verified cold-load p95 ~9s isolated, but under
@@ -146,55 +77,6 @@ export class LocalOfficeSettingsPage extends BasePage {
       return true;
     }
     return false;
-  }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // SAVE — ECT (no dialog — direct save)
- // ─────────────────────────────────────────────────────────────────────────────
-
-  async isEctFixedCostsSaveEnabled(): Promise<boolean> {
-    return !(await this.getElement('btnSaveFixedCosts').isDisabled());
-  }
-
-  async isEctLaborCostsSaveEnabled(): Promise<boolean> {
-    return !(await this.getElement('btnSaveLaborCosts').isDisabled());
-  }
-
- /**
- * Click Fixed Costs Save and wait for save to complete.
- * RCA ECT-012: waitForAngularStable resolves before the save HTTP response arrives.
- * Navigating immediately triggers "Unsaved changes" dialog (Angular dirty form).
- * Fix: poll until Save button disables — concrete signal that save completed and
- * form was marked pristine. Prevents race between save response and navigation.
- */
-  async clickSaveFixedCosts(): Promise<void> {
-    await this.getElement('btnSaveFixedCosts').click();
-    await this.waitForAngularStable();
-    await this.waitForSaveDisabled('btnSaveFixedCosts');
-  }
-
- /**
- * Click Labor Costs Save and wait for save to complete.
- * Same race condition fix as clickSaveFixedCosts — see RCA ECT-012.
- */
-  async clickSaveLaborCosts(): Promise<void> {
-    await this.getElement('btnSaveLaborCosts').click();
-    await this.waitForAngularStable();
-    await this.waitForSaveDisabled('btnSaveLaborCosts');
-  }
-
- /** Poll until a save button becomes disabled (form marked pristine after save). */
-  private async waitForSaveDisabled(btnKey: string, timeout = 10_000): Promise<void> {
-    const btn = this.getElement(btnKey);
-    const deadline = Date.now() + timeout;
-    while (Date.now() < deadline) {
-      if (await btn.isDisabled().catch(() => false)) {
-        Log.info(`[OK] Save button disabled (${btnKey}) — save complete, form pristine`);
-        return;
-      }
-      await this.page.waitForTimeout(200);
-    }
-    Log.warn(`[WARN] Save button (${btnKey}) did not disable within ${timeout}ms — proceeding anyway`);
   }
 
  // ─────────────────────────────────────────────────────────────────────────────

@@ -278,6 +278,7 @@ Per auditor finding 5: Phase A.5 is a separate landing for the N1 framework sema
 - **MODIFY** `export_test_cases/to-jira.ts:26,32,44,50,95` — add internal→external mapping layer. Internal type is `Pending Automation` but Jira CSV column + API field `customfield_testtype` still emit `'Manual'` for external consumers. Mapping rule: `tc.automationStatus === 'Pending Automation' ? 'Manual' : tc.automationStatus`. Comment cites N1 rationale.
 - **MODIFY** `export_test_cases/to-testmo.ts:68` — internal value reference update only. Existing `mapStatus()` already translates to TestMo vocab (ready/in_progress/draft).
 - **MODIFY** `export_test_cases/to-xlsx.ts` — switch from local parser fork to shared `markdown-parser.ts` now that types are aligned
+- **MODIFY** `export_test_cases/to-xlsx.ts` — **port humanization layer from `to-csv.ts`** (cleanMarkdown + humanizeAssertion + convertElementIdsToLabels + sanitizeUnicode + step humanization, currently `to-csv.ts:383-597`) into `to-xlsx.ts` (or a new shared `export_test_cases/humanize.ts`) so the `list-only` / `with-run` modes produce the same humanized output the existing CSVs carry. Without this port, `xlsx-vs-csv-parity` will fail when run on a `list-only` build (Phase A landed using `--from-csv` to side-step the missing port — adjacent-sweep finding logged in Phase A execution summary). Acceptance: `npm run xlsx:build` (default mode = list-only after this edit) followed by `npm run xlsx:vs-csv-parity` exits 0; previous `--from-csv` flag becomes optional / deprecated.
 - **N1 SCOPE GUARD (auditor finding 2)**: this rename touches ONLY classification/metric framing. The word "manual" in ordinary TC prose (e.g., "manually re-selected", "user manually clicked"), variable/function names not matching classification context, historical doc text — all UNTOUCHED. Pre-rename grep produces an exclusion-allowlist.
 - **VERIFY**:
   1. `npm run export:json` produces valid output; metadata key is `pendingAutomation`
@@ -359,6 +360,15 @@ Per auditor finding 5: Phase A.5 is a separate landing for the N1 framework sema
 
 ### Phase D — Delete CSVs + dead code (gated on final fresh row-parity check)
 
+**D-PRE-AUDIT (HARD GATE — Opus-class subagents per user mandate 2026-05-27)** [added by `wild-hopping-crown.md` Blocked-overlay bugfix plan]: Before any CSV file deletion, spin off **5 parallel audit subagents** (`model=opus`, `subagent_type=general-purpose`) per the partition below. Each compares XLSX sheet content vs corresponding source CSV(s) cell-by-cell, intelligently classifying drift. Every drift must be either (a) explained by approved modulo (Coverage Status rename Yes↔Automated/No↔Pending Automation, Blocked overlay from fixme-registry, Tags/Specific Field cross-cells, sheet rename `..._locations` → `..._location` for Excel 31-char limit), or (b) HALT-and-ask. Auditor outputs → `reports/xlsx-vs-csv-audit-<sheet>-<YYYY-MM-DD>.md`. Aggregate verdict must be unanimous GREEN across all 5 reports before Phase D may delete any CSV. Failing subagents block deletion until root-caused.
+
+Auditor partition (rebalance if row counts shift >20%):
+- Agent 1: local_office_settings + local_office_history + local_office_ect (~85 rows)
+- Agent 2: locations_account_address + locations_auto_addon + locations_currency (~75 rows)
+- Agent 3: locations_left_panel + locations_legal + locations_local_information (~156 rows; FCC-Cat-A overlay focus)
+- Agent 4: locations_management_history + locations_notes (~83 rows)
+- Agent 5: locations_pricing + locations_shared_setup_location + Overview (~78 rows + Overview consistency check)
+
 **Pre-delete hard gate (auditor finding 3)**: `npm run xlsx:vs-csv-parity` must exit 0 on a FRESH build (clean `npm run xlsx:build` immediately before). Any unexplained row diff = HALT. Do not delete CSVs while the workbook drifts from them.
 
 - `npm run xlsx:build && npm run xlsx:vs-csv-parity` — must exit 0
@@ -371,6 +381,7 @@ Per auditor finding 5: Phase A.5 is a separate landing for the N1 framework sema
 - Remove `csvExport` typedef from `scripts/shared-types.ts`
 - Remove `csvExported=true` alias from `scripts/planner-post-complete.ts`
 - Remove CSV fallback branches AND `--fix-csv` flag entirely from `check-tc-parity.ts` (auditor finding #1) + remove CSV fallback from `sp00-audit-v5.mjs`
+- Remove `--from-csv` mode from `export_test_cases/to-xlsx.ts` + the `xlsx:build:from-csv` package.json script + the `from-csv` value from `AugmentMode` in `sp00-augment-logic.ts`. Phase D pre-flight asserts humanization port from Phase A.5 has landed (`grep -E "humanize|cleanMarkdown" export_test_cases/to-xlsx.ts` returns ≥1 hit) — without that hit, deletion HALTs.
 - Remove `'csv_export'` alias from `validate-queue-integrity.ts`
 - Remove `export_test_cases/exports/` line from `.gitignore`
 - **VERIFY**: full pipeline end-to-end; 6 HARD STOPs reject CSV wording; dry-run ship → mock repo workflow green; `Grep csv clients/encore/test_cases_csv/` returns ENOENT
