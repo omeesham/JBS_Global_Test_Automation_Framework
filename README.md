@@ -17,11 +17,11 @@ Framework-level README for maintainers and the colleague routing bundles to end-
 ```bash
 npm install
 npx playwright install
-cp clients/encore/config/environments/.env.e2e config/environments/.env.local   # optional overrides
+# create clients/encore/config/environments/.env.local with your SSO creds — see docs/SETUP.md Step 2
 npm test
 ```
 
-Credentials for Encore ship in `clients/encore/config/environments/.env.e2e`. No extra setup needed for the single-tenant case (Encore is the default client — `ACTIVE_CLIENT=encore`).
+Credentials are not committed — create `.env.local` (see [docs/SETUP.md](docs/SETUP.md) Step 2) and fill in the Microsoft SSO automation user. (Encore is the default client — `ACTIVE_CLIENT=encore`.)
 
 ---
 

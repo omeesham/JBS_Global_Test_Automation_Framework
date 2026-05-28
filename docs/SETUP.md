@@ -13,17 +13,23 @@ For new collaborators only. Existing collaborators skip this.
 
 Ask: "What's your name?" Copy `.claude/agents/COLLEAGUE.agent.md` → `.claude/agents/<NAME>.agent.md`, replace all `<YOUR_NAME>` placeholders, commit + push.
 
-## Step 2 — Credentials are pre-configured
+## Step 2 — Create your local credentials file
 
-Credentials are stored directly in `clients/encore/config/environments/.env.e2e` (committed to git). No vault setup needed — clone and run.
+Local runs (ours only — Encore runs via CI) load `.env.local`, which is gitignored. Create `clients/encore/config/environments/.env.local` with:
 
-## Step 3 — (Optional) Create `.env.local` for overrides
-
-Only needed if you want to override defaults (e.g., different browser, timeouts).
-
-```bash
-cp clients/encore/config/environments/.env.e2e config/environments/.env.local
+```ini
+CI_ENV=local
+BASE_URL=https://cloudapps-e2e.encoreglobal.com/navigator/
+HOME_URL=https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/home
+NAVIGATOR_USERNAME=<microsoft-sso-automation-user>
+NAVIGATOR_PASSWORD=<password>
 ```
+
+Get the SSO automation-user credentials from the team. (CI uses `.env.e2e` + GitHub Secrets — no creds in the repo.)
+
+## Step 3 — (Optional) Tune your local run
+
+`.env.local` can also set `MAX_WORKERS`, `LOG_LEVEL`, `DEFAULT_BROWSER`. Defaults are fine for most work.
 
 ## Step 4 — Install Claude CLI
 
@@ -61,5 +67,5 @@ docker compose up -d && npm run server:start
 
 ## Security Rules
 
-- `.env.local` and `.env.server` are gitignored (for personal overrides)
-- Credentials are stored in plain text in `.env` files by design (clone-and-run)
+- `.env.local` and `.env.server` are gitignored — your credentials live there and are never committed.
+- `.env.e2e` is the CI config and holds NO credentials; GitHub Actions injects them from repo Secrets.

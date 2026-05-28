@@ -19,7 +19,7 @@
     "share-for-debugging": "node scripts/share-for-debugging.js",
     "setup": "npm install && npx playwright install",
     "setup:browsers": "npx playwright install chromium firefox webkit",
-    "clean": "rimraf reports/allure-results reports/allure-report reports/diagnostics reports/walkthrough reports/html-report reports/test-results reports/test-results.json reports/failure-summary.json reports/junit-results.xml reports/share-for-debugging-*.zip logs/test-execution.log",
+    "clean": "rimraf --glob reports/allure-results reports/allure-report reports/diagnostics reports/walkthrough reports/html-report reports/test-results reports/test-results.json reports/failure-summary.json reports/junit-results.xml reports/share-for-debugging-*.zip logs/test-execution.log",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -1,12 +1,13 @@
-/** Encore Playwright configuration. Paths are __dirname-relative. */
+/** Encore Playwright configuration. */
 
 import { defineConfig } from '@playwright/test';
 import * as dotenvFlow from 'dotenv-flow';
 import * as path from 'path';
 
+// Local-first: bare `npm test` loads .env.local; CI sets CI_ENV=e2e to load .env.e2e.
 dotenvFlow.config({
   path: path.join(__dirname, 'config', 'environments'),
-  node_env: process.env.CI_ENV || process.env.NODE_ENV || 'e2e',
+  node_env: process.env.CI_ENV || process.env.NODE_ENV || 'local',
   silent: true,
 });
 
@@ -63,7 +64,7 @@ export default defineConfig({
       suiteTitle: true,
       environmentInfo: {
         Framework: 'Encore Playwright',
-        Environment: process.env.CI_ENV || 'e2e',
+        Environment: process.env.CI_ENV || 'local',
         'Base URL': process.env.BASE_URL || 'https://cloudapps-e2e.encoreglobal.com/navigator/',
         Node: process.version,
         Platform: process.platform,

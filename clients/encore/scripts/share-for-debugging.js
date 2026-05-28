@@ -26,7 +26,7 @@ const ts = new Date().toISOString().replace(/[:.]/g, '-').replace(/Z$/, '');
 const outFile = path.join(REPORTS_DIR, `share-for-debugging-${ts}.zip`);
 
 // CRIT-2 fix: logs/ lives at REPO_ROOT (sibling of reports/), NOT under reports/logs/.
-// Sources: clients/encore/package.json:22 clean script, .env.e2e:61 LOG_FILE, src/utils/logger.ts.
+// Source of the logs/ path: src/utils/logger.ts (hardcoded to <repo>/logs/).
 const candidates = [
   { src: path.join(REPORTS_DIR, 'failure-summary.json'), dst: 'failure-summary.json' },
   { src: path.join(REPORTS_DIR, 'test-results'),         dst: 'test-results' },

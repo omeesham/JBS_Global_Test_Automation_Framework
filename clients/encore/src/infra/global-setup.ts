@@ -15,13 +15,21 @@ interface PreflightResult {
 const PREFLIGHT_OUTPUT = path.join(process.cwd(), 'reports', 'preflight-check.json');
 
 async function globalSetup(config: FullConfig) {
- // Load environment variables from clients/encore/config/environments/
- // Cascade: .env -> .env.local -> .env.{environment} -> .env.{environment}.local
+  // Local-first: bare `npm test` loads .env.local; CI sets CI_ENV=e2e to load .env.e2e.
   dotenvFlow.config({
     path: path.join(__dirname, '..', '..', 'config', 'environments'),
-    node_env: process.env.CI_ENV || process.env.NODE_ENV || 'e2e',
-    silent: true
+    node_env: process.env.CI_ENV || process.env.NODE_ENV || 'local',
+    silent: true,
   });
+
+  // The .env.e2e file is GitHub-Actions-only; block any non-CI run that loaded it.
+  if (process.env.CI_ENV === 'e2e' && !process.env.CI) {
+    throw new Error(
+      "[env-guard] '.env.e2e' is the GitHub Actions CI config and must not be used locally.\n" +
+      "Local runs use '.env.local' (same target server, different config).\n" +
+      "Fix: run `npm test` without CI_ENV (it loads .env.local). See docs/SETUP.md Step 2 to create .env.local.",
+    );
+  }
 
   Log.info('=== Global Test Setup Started ===');
   Log.info(`Workers: ${config.workers}`);
