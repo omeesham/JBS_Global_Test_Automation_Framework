@@ -38,32 +38,32 @@ export const ADD_LOCATION = {
 /** Dialog heading when clicking Add. */
 export const SSL_DIALOG_HEADING = 'Change Local Office';
 
-// ─── FCC Granular Cases — test data (2026-05-22) ────────────────────────────────────
-// 14 net-new tests catalogued in locations_shared_setup_locations_test_cases.md §FCC.
+// Granular search/multi-row test data — TC-LOC-SSL-031..044 (2026-05-22).
+// Non-Miami queries throughout per BUG-LOC-SHR-001 workaround.
 
-/** α — Search BVA group inputs */
+/** Search BVA group inputs (min / max / empty) */
 export const SEARCH_BVA_1_CHAR = 'A';
 export const SEARCH_BVA_LONG_200 = 'X'.repeat(200);
 export const SEARCH_BVA_EMPTY = '';
 
-/** β — Search special / whitespace group inputs */
+/** Search special-chars / whitespace inputs */
 export const SEARCH_NEG_SPECIAL = `&"'<>`;
 export const SEARCH_NEG_WHITESPACE = '   ';
 export const SEARCH_NEG_LEADING_TRAILING_ATLANTA = '  Atlanta  ';
 
-/** γ — Search edit-cycle group inputs (paired with α-003 clear behavior) */
+/** Search edit-cycle inputs (type / clear / re-type) */
 export const SEARCH_EDIT_QUERY_1 = 'Atlanta';
 export const SEARCH_EDIT_QUERY_2 = 'Boston';
 
-/** δ — Multi-row delete variants (non-Miami per BUG-LOC-SHR-001 workaround) */
-export const FCC_DELETE_MIDDLE_QUERIES = ['Chicago', 'Dallas', 'Denver'] as const;
-export const FCC_DELETE_ALL_QUERIES = ['Atlanta', 'Boston'] as const;
+/** Multi-row delete query sets (non-Miami per BUG-LOC-SHR-001 workaround) */
+export const SEARCH_DELETE_MIDDLE_QUERIES = ['Chicago', 'Dallas', 'Denver'] as const;
+export const SEARCH_DELETE_ALL_QUERIES = ['Atlanta', 'Boston'] as const;
 
-/** ε — Multi-row N-boundary push (5-row) */
-export const FCC_FIVE_ROW_QUERIES = ['Chicago', 'Boston', 'Dallas', 'Denver', 'Atlanta'] as const;
+/** Multi-row N-boundary push (5-row) */
+export const SEARCH_FIVE_ROW_QUERIES = ['Chicago', 'Boston', 'Dallas', 'Denver', 'Atlanta'] as const;
 
-/** ε / ζ — Single non-Miami query for cross-row independence tests */
-export const FCC_CROSS_ROW_QUERY = 'Atlanta';
+/** Single non-Miami query for cross-row independence tests */
+export const SEARCH_CROSS_ROW_QUERY = 'Atlanta';
 
-/** α/β/γ search row-count lower bound — `searchByNameMaxResults` (600) is upper bound; this is lower */
-export const FCC_SEARCH_BULK_LOWER_BOUND = 3000;
+/** Search row-count lower bound — `searchByNameMaxResults` (600) is upper bound; this is lower */
+export const SEARCH_BULK_LOWER_BOUND = 3000;

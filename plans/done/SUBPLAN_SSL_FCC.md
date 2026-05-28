@@ -1,6 +1,7 @@
 # SUBPLAN_SSL_FCC
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-05-27
 **Priority**: P0
 **Created**: 2026-05-22
 **Identity**: OWNER (multi-identity within phases — HUNTER → GIVER → BUILDER → WATCHDOG)
@@ -283,3 +284,89 @@ If any STRICT-LINE-A/B/C/D/E fires HALT → Claude pauses, Rutvik decides next s
 - Bug fixes for BUG-LOC-SHR-001 / LR-026 / SSL-030 app issues — app-team domain, not framework
 - Cross-module FCC catalog (other tabs in Location Settings) — separate per-module subplans per `PLAN_BIG_PIVOT_FCC_MASTER.md` §Roadmap
 - Renumbering existing `TC-LOC-SSL-001..030` — explicitly forbidden by STRICT-LINE-D
+
+---
+
+## Execution Summary
+
+_2026-05-27 — LR-027 closure_
+
+### Deliverables produced
+
+| Artifact | Path | Change |
+|---|---|---|
+| 14 net-new TCs added | `clients/encore/specs/locations/location-shared-setup-locations.spec.ts` | TC-LOC-SSL-031..044 inserted at top of existing describe block. 8 search-only tests pass live (TC-033..040); 6 fixme'd with BUG-LOC-SHR-001 cite (TC-031/032/041/042/043/044) covering the helper's spin-on-dirty failure mode. All 14 use `saveAndVerifyCase()` from `clients/encore/src/core/field-case-runner.ts`. |
+| TC-028 helper fix | `clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:410-432` | Refactored `clickTopLevelTab()` to poll for EITHER `aria-selected='true'` OR `dlgUnsavedChanges` visibility. Pre-fix the helper timed out (10s) on the dirty-form branch, killing TC-028 before it could assert the Unsaved Changes dialog. Out-of-scope from original FCC plan; user-authorized 2026-05-27 as part of closure. |
+| `saveAndConfirm()` already present | `clients/encore/src/pages/locations/location-shared-setup-locations.page.ts` | Pre-existing method (`clickSaveWithDialog` wrapper) — Phase 3 helper-add was unnecessary, verified during BUILDER walk. |
+| Test data constants | `clients/encore/src/data/testdata/locations/location-shared-setup-locations.data.ts` | 12 new constants: `SEARCH_BVA_1_CHAR`, `SEARCH_BVA_LONG_200`, `SEARCH_BVA_EMPTY`, `SEARCH_NEG_SPECIAL`, `SEARCH_NEG_WHITESPACE`, `SEARCH_NEG_LEADING_TRAILING_ATLANTA`, `SEARCH_EDIT_QUERY_1`, `SEARCH_EDIT_QUERY_2`, `SEARCH_DELETE_MIDDLE_QUERIES`, `SEARCH_DELETE_ALL_QUERIES`, `SEARCH_FIVE_ROW_QUERIES`, `SEARCH_CROSS_ROW_QUERY`, `SEARCH_BULK_LOWER_BOUND`. Non-Miami queries per BUG-LOC-SHR-001 workaround. |
+| Catalog MD — 14 TC entries + gap matrix | `clients/encore/specs_planning/test-cases/setup/locations/locations_shared_setup_locations_test_cases.md` | `## Granular Cases` section appended at bottom (post lines 710). Gap-analysis matrix G01-G43 classifies every taxonomy case per LR-040 (a)/(b)/(c). 14 net-new TCs catalogued with α/β/γ/δ/ε/ζ group labels (FCC-prefix dropped per user directive 2026-05-27). |
+| Walk-evidence artifact | `clients/encore/specs_planning/_internal/walk-evidence-shared-setup-2026-05-22.md` | HUNTER Phase 1 CLI DOM walk (BrowserTool: cli per LR-038 v2). |
+| Catalog MD — FCC reference cleanup | (same file as above, ~35 places) | User directive 2026-05-27: "make sure u do not use anywhere FCC, only proper naming". Section headers (`## FCC Granular Cases` → `## Granular Cases`, `### FCC catalog summary` → `### Group catalog summary`), Type-column labels (`Functional / FCC-α` → `Functional / α`), group labels (`**FCC group**:` → `**Group**:`), and inline body text all cleaned. Only `SUBPLAN_SSL_FCC.md` / `SUBPLAN_NOTES_FCC_PILOT` filename references remain (user-authorized — "subplans/plan as FCC" only). |
+
+### Acceptance criteria status (13 items)
+
+- [x] Phase 0 dep+browser gate passed (4 sub-checks)
+- [x] Phase 1 `walk-evidence-shared-setup-2026-05-22.md` written
+- [x] Phase 2 gap table + 14 net-new TCs catalogued
+- [x] Phase 2 STRICT-LINE-A — every taxonomy case G01-G43 classified (a)/(b)/(c) per LR-040
+- [x] Phase 2 STRICT-LINE-B — zero duplicates; each (a) TC tests a distinct (field-type × case) cell not in existing 30
+- [🟡] Phase 3 new describe block — MODIFIED: per user directive ("specs keep their own naming convention"), 14 new tests merged INTO the existing `'Location Shared Setup Locations @locations @shared-setup'` describe at the top (rather than a separate `'Location Shared Setup — FCC @fcc'` describe above it). Net effect identical (new tests precede existing 30) without polluting spec with FCC tag.
+- [x] Phase 3 every new test uses `saveAndVerifyCase()` with own baseline + cleanup, `dependencyGate([])`
+- [x] Phase 3 STRICT-LINE-D — existing 30-TC content untouched. `git diff --unified=0` lines mentioning `test('TC-LOC-SSL-0[0-2]\d\|030'` = 0.
+- [🟡] Phase 4 individual `--grep "@fcc"` run — MODIFIED: `@fcc` tag dropped per user directive (no FCC in spec text). Replaced with `--grep "TC-LOC-SSL-0[3-4]"` individual run pattern; 8 search tests passed, 6 fixme'd per BUG-LOC-SHR-001 cite.
+- [x] Phase 4 full spec run green — `36 passed / 9 skipped / 0 failed` in 4.8m (`reports/test-results/`). TC-028 (pre-existing helper regression) now passes after dirty-form branch fix.
+- [x] Phase 5 LR-027 execution summary authored (this section)
+- [x] Phase 5 closure manifest at `plans/_closure_manifests/SUBPLAN_SSL_FCC.md.manifest.json` (generated by `validate-plan-closure.mjs --enforce`)
+- [x] Phase 5 STRICT-LINE-A/B/C/D/E ✓ with evidence cite
+
+### LR-040 per-TC classification (14 net-new TCs)
+
+All 14 TCs are (a) net-new authored in this session. Per-TC bug-block disposition:
+
+| TC | Classification | Status | Cite |
+|---|---|---|---|
+| TC-LOC-SSL-031 (delete-middle row) | (a) net-new | fixme'd | BUG-LOC-SHR-001 (Delete spin on dirty form) |
+| TC-LOC-SSL-032 (5-row N-boundary) | (a) net-new | fixme'd | BUG-LOC-SHR-001 |
+| TC-LOC-SSL-033 (1-char BVA min) | (a) net-new | PASSING | n/a |
+| TC-LOC-SSL-034 (200-char BVA max) | (a) net-new | PASSING | n/a |
+| TC-LOC-SSL-035 (clear-input restores) | (a) net-new | PASSING | n/a |
+| TC-LOC-SSL-036 (special chars) | (a) net-new | PASSING | n/a |
+| TC-LOC-SSL-037 (whitespace-only) | (a) net-new | PASSING | n/a |
+| TC-LOC-SSL-038 (leading/trailing whitespace) | (a) net-new | PASSING | n/a |
+| TC-LOC-SSL-039 (edit-cycle type→clear→retype) | (a) net-new | PASSING | n/a |
+| TC-LOC-SSL-040 (clear-via-input restores) | (a) net-new | PASSING | n/a |
+| TC-LOC-SSL-041 (delete-ALL non-self) | (a) net-new | fixme'd | BUG-LOC-SHR-001 |
+| TC-LOC-SSL-042 (cross-row edit-preserve) | (a) net-new | fixme'd | BUG-LOC-SHR-001 |
+| TC-LOC-SSL-043 (cross-row independence pre-save) | (a) net-new | fixme'd | BUG-LOC-SHR-001 |
+| TC-LOC-SSL-044 (SI full round-trip) | (a) net-new | fixme'd | BUG-LOC-SHR-001 |
+
+29 gap-matrix taxonomy cases classified as (b) covered-by-existing with grep-verifiable TC-NNN cites; 6 classified as (c) deferred / N/A (G13 too-synthetic, G37 missing testid, G32-34 structurally-N/A FormArray int IDs, G10 special-chars umbrella).
+
+### STRICT-LINE audit
+
+| Line | Requirement | Evidence | Status |
+|---|---|---|---|
+| A | Every FCC taxonomy case (G01-G43) classified (a)/(b)/(c) | Gap matrix lines 723-767 of catalog MD; 14 (a) + 23 (b) + 6 (c) = 43 | ✓ |
+| B | Zero duplications between new and existing | Each (b) entry cites distinct TC-NNN with line number; manually verified no taxonomy cell collision | ✓ |
+| C | 12-14 net-new tests (≤15% deviation) | `grep -c "  test('" spec` = 44; 44 − 30 existing = 14 net-new | ✓ |
+| D | Existing 30-TC content untouched | `git diff --unified=0 spec \| grep -E "^[+-].*test\\('TC-LOC-SSL-0[0-2]\d\|030"` returns 0 lines | ✓ |
+| E | All above + manifest + LR-055 PASS | Validated below | ✓ |
+
+### Out-of-scope work executed (user-authorized 2026-05-27)
+
+1. **TC-028 helper fix** — `clickTopLevelTab()` at `page.ts:410-432`. Pre-existing test was failing in the full suite (35/9/1 before this session); user authorized inline fix instead of separate bugfix task. Adversarial audit verified: single consumer (TC-028 line 934), `dlgUnsavedChanges` is registered selector (`shared.ts:49`, `data-testid="location-settings-modal-unsaved-changes"`), no false-positive risk vs Add dialog (`role="dialog"`). Result: 36/9/0 (TC-028 now passes).
+2. **FCC reference cleanup** — user directive 2026-05-27 "make sure u do not use anywhere FCC, only proper naming". Cleaned ~35 places in catalog MD + the spec/page/data triplet (constants `FCC_*` → `SEARCH_*`; describe tag `@fcc` removed; jsdoc rewrite). Subplan/plan filename mentions preserved per user authorization.
+
+### Parent-cascade decision (LR-027)
+
+`PLAN_BIG_PIVOT_FCC_MASTER.md` remains PENDING — many other modules un-shipped per its §Roadmap. This subplan does NOT trigger parent-cascade. Per LR-027 parent-cascade clause: greppable check via `grep -l "Parent: PLAN_BIG_PIVOT_FCC_MASTER" plans/pending/` → multiple pending subplans remain (SUBPLAN_LEGAL_FCC.md etc.), so the current subplan is NOT last-at-state.
+
+### Verification commands (LR-042 v2 evidence-emission)
+
+- `npx tsc --noEmit -p clients/encore/tsconfig.json` → silent exit 0
+- `npx playwright test specs/locations/location-shared-setup-locations.spec.ts --project=encore-locations --grep "TC-LOC-SSL-028" --workers=1` → `2 passed (1.3m)` (setup + TC-028)
+- `npx playwright test specs/locations/location-shared-setup-locations.spec.ts --project=encore-locations` → `36 passed, 9 skipped (4.8m)`
+- `grep -c "  test('" spec.ts` → `44`
+- `grep -c "test.fixme" spec.ts` → `9` (3 pre-existing + 6 new BUG-LOC-SHR-001-blocked)
+- `grep "FCC" clients/encore/{specs,src}/**/{location-shared-setup-locations*}` → 0 matches
+- `grep "FCC" catalog.md | grep -v "SUBPLAN_SSL_FCC\|SUBPLAN_NOTES_FCC_PILOT"` → 0 matches

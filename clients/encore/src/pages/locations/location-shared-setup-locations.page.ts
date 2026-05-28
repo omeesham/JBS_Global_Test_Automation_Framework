@@ -209,8 +209,8 @@ export class LocationSharedSetupLocationsPage extends BasePage {
   }
 
  /**
- * FCC paradigm save callback. Mirrors location-notes.page.ts:269 — delegate to BasePage.clickSaveWithDialog,
- * throw on failure so saveAndVerifyCase()'s try/catch surfaces it. Use this from FCC test cases.
+ * Save callback for saveAndVerifyCase() lifecycle. Mirrors location-notes.page.ts:269 — delegates to
+ * BasePage.clickSaveWithDialog and throws on failure so the runner's try/catch surfaces it.
  */
   async saveAndConfirm(): Promise<void> {
     const result = await this.clickSaveWithDialog('btnSave');
@@ -410,10 +410,23 @@ export class LocationSharedSetupLocationsPage extends BasePage {
   async clickTopLevelTab(tabKey: 'tabBasicInformation' | 'tabLocationManagementHistory'): Promise<void> {
     const tab = this.getElement(tabKey);
     await tab.click();
-    // Fix #4b: wait for Radix to transition aria-selected
-    // BEFORE returning. Pre-fix, clickTopLevelTab returned immediately after click() —
-    // callers raced against the panel-switch animation + content hydration.
-    await expect(tab).toHaveAttribute('aria-selected', 'true', { timeout: 10_000 });
+    // Two valid post-click outcomes (lifecycle refactor 2026-05-27, TC-028 fix):
+    //   (a) Clean form: Radix transitions aria-selected="true" (router navigates).
+    //   (b) Dirty form: Angular CanDeactivate guard blocks navigation; the Unsaved Changes
+    //       alertdialog appears and aria-selected stays "false". TC-028 exercises this path
+    //       and asserts the dialog via hasVisibleUnsavedDialog downstream.
+    // Pre-fix, this poll only accepted (a) and timed out on (b), failing TC-028 inside
+    // the helper before reaching the dialog assertion. Polling for "either outcome" keeps
+    // the clean-form contract intact (a still resolves first) while letting the dirty-form
+    // path proceed without a 10s timeout. Uses the specific dlgUnsavedChanges testid (not
+    // generic role="alertdialog") so the Add dialog (role="dialog") cannot false-positive.
+    const dlgUnsaved = this.getElement('dlgUnsavedChanges');
+    await expect.poll(
+      async () =>
+        (await tab.getAttribute('aria-selected').catch(() => null)) === 'true' ||
+        (await dlgUnsaved.isVisible().catch(() => false)),
+      { timeout: 10_000 }
+    ).toBe(true);
     await this.waitForAngularStable();
     Log.info(`Clicked top-level tab: ${tabKey}`);
   }

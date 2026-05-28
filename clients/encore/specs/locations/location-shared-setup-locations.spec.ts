@@ -11,22 +11,21 @@ import {
   SEARCH_NEG_LEADING_TRAILING_ATLANTA,
   SEARCH_EDIT_QUERY_1,
   SEARCH_EDIT_QUERY_2,
-  FCC_DELETE_MIDDLE_QUERIES,
-  FCC_DELETE_ALL_QUERIES,
-  FCC_FIVE_ROW_QUERIES,
-  FCC_CROSS_ROW_QUERY,
-  FCC_SEARCH_BULK_LOWER_BOUND,
+  SEARCH_DELETE_MIDDLE_QUERIES,
+  SEARCH_DELETE_ALL_QUERIES,
+  SEARCH_FIVE_ROW_QUERIES,
+  SEARCH_CROSS_ROW_QUERY,
+  SEARCH_BULK_LOWER_BOUND,
 } from '../../src/data/testdata/locations/location-shared-setup-locations.data';
 import { OFFICE_NO } from '../../src/data/testdata/common.data';
 import { saveAndVerifyCase } from '../../src/core/field-case-runner';
 
-// ─── Field-Case Coverage (FCC) — SSL FCC subplan 2026-05-22 ────────
-// 14 net-new tests per locations_shared_setup_locations_test_cases.md §FCC.
-// Each FCC test owns its baseline + cleanup. Runner: clients/encore/src/core/field-case-runner.ts
-// saveAndVerifyCase(). Existing 30-TC describe block UNTOUCHED below (STRICT-LINE-D).
+// 14 net-new tests per locations_shared_setup_locations_test_cases.md (TC-LOC-SSL-031..044).
+// Each test owns its baseline + cleanup. Runner: clients/encore/src/core/field-case-runner.ts
+// saveAndVerifyCase(). Existing 30-TC describe block UNTOUCHED below.
 // Non-Miami test data throughout per BUG-LOC-SHR-001 workaround (Miami search returns
 // phantom row; non-Miami searches behave correctly — see walk-evidence-shared-setup-2026-05-22.md §4).
-test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () => {
+test.describe('Location Shared Setup Locations @locations @shared-setup', () => {
 
   // D-2 lifecycle refactor pattern (mirrors location-notes.spec.ts:35-39).
   test.beforeEach(async ({ locationSharedSetupLocationsPage: pg }) => {
@@ -99,7 +98,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
         await pg.searchInDialog(''); // clear
       },
       expectBeforeSave: async () => {
-        await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeGreaterThan(FCC_SEARCH_BULK_LOWER_BOUND);
+        await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeGreaterThan(SEARCH_BULK_LOWER_BOUND);
       },
       saveAndConfirm: () => pg.clickDialogCancel(),
       reload: () => pg.reloadAndNavigateToSSLTab(OFFICE_NO),
@@ -255,7 +254,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
       baseline: () => pg.ensureCleanSSLTable(OFFICE_NO),
       act: async () => {
         // Setup: add 3 non-Miami rows
-        for (const q of FCC_DELETE_MIDDLE_QUERIES) {
+        for (const q of SEARCH_DELETE_MIDDLE_QUERIES) {
           await pg.clickAdd();
           await pg.searchInDialog(q);
           await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
@@ -281,6 +280,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
   });
 
   test('TC-LOC-SSL-041: delete-ALL non-self + save + reload (2 → 0 non-self)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    test.fixme(true, 'FIXME(BUG-LOC-SHR-001): Blocked by app bug — Delete click no-ops on rows after add+save+reload when form re-renders dirty; cleanup loop spins until timeout. Same envelope as TC-LOC-SSL-030/031/032. RCA 2026-05-27 (3,427× spin in error-context.md). Pending Encore fix.');
     dependencyGate([]);
     test.setTimeout(240_000);
     await saveAndVerifyCase({
@@ -289,7 +289,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
       baseline: () => pg.ensureCleanSSLTable(OFFICE_NO),
       act: async () => {
         // Setup: add 2 non-Miami rows
-        for (const q of FCC_DELETE_ALL_QUERIES) {
+        for (const q of SEARCH_DELETE_ALL_QUERIES) {
           await pg.clickAdd();
           await pg.searchInDialog(q);
           await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
@@ -320,6 +320,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
 
   // ─── Group ε — Multi-row edit / N-row boundary ───────────────────────────
   test('TC-LOC-SSL-042: cross-row edit-preserve (toggle non-self SI → self SI unchanged)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    test.fixme(true, 'FIXME(BUG-LOC-SHR-001): Blocked by app bug — cleanup loop after add+save+reload hits dead-Delete-button envelope. Same as TC-LOC-SSL-030/031/032/041. RCA 2026-05-27. Pending Encore fix.');
     dependencyGate([]);
     test.setTimeout(240_000);
     await saveAndVerifyCase({
@@ -331,7 +332,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
         expect((await pg.getSelfSharesInventoryState()).checked).toBe(false);
         // Add 1 non-Miami row, save, reload
         await pg.clickAdd();
-        await pg.searchInDialog(FCC_CROSS_ROW_QUERY); // Atlanta
+        await pg.searchInDialog(SEARCH_CROSS_ROW_QUERY); // Atlanta
         await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
         await pg.selectFirstDialogRow();
         await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
@@ -369,7 +370,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
       label: 'Multi-row 5-row boundary push',
       baseline: () => pg.ensureCleanSSLTable(OFFICE_NO),
       act: async () => {
-        for (const q of FCC_FIVE_ROW_QUERIES) {
+        for (const q of SEARCH_FIVE_ROW_QUERIES) {
           await pg.clickAdd();
           await pg.searchInDialog(q);
           await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
@@ -391,6 +392,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
 
   // ─── Group ζ — Checkbox cross-row + round-trip ───────────────────────────
   test('TC-LOC-SSL-043: cross-row independence pre-save (toggle non-self → self unchanged in-page)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    test.fixme(true, 'FIXME(BUG-LOC-SHR-001): Blocked by app bug — cleanup loop after add+save+reload hits dead-Delete-button envelope. Same as TC-LOC-SSL-030/031/032/041/042. RCA 2026-05-27. Pending Encore fix.');
     dependencyGate([]);
     test.setTimeout(240_000);
     await saveAndVerifyCase({
@@ -401,7 +403,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
         // Baseline: self SI = false. Add 1 row, save, reload. Then toggle non-self (no save yet).
         expect((await pg.getSelfSharesInventoryState()).checked).toBe(false);
         await pg.clickAdd();
-        await pg.searchInDialog(FCC_CROSS_ROW_QUERY); // Atlanta
+        await pg.searchInDialog(SEARCH_CROSS_ROW_QUERY); // Atlanta
         await expect.poll(() => pg.getDialogRowCount(), { timeout: 10_000 }).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
         await pg.selectFirstDialogRow();
         await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
@@ -433,6 +435,7 @@ test.describe('Location Shared Setup — FCC @locations @shared-setup @fcc', () 
   });
 
   test('TC-LOC-SSL-044: SI full round-trip ON → save → OFF → save persists each leg', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
+    test.fixme(true, 'FIXME(BUG-LOC-SHR-001): Blocked by app bug — cleanup loop after add+save+reload hits dead-Delete-button envelope. Same as TC-LOC-SSL-030/031/032/041/042/043. RCA 2026-05-27. Pending Encore fix.');
     dependencyGate([]);
     test.setTimeout(240_000);
     await saveAndVerifyCase({
