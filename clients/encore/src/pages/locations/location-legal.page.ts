@@ -157,6 +157,43 @@ export class LocationLegalPage extends BasePage {
   }
 
  // ---------------------------------------------------------------------------
+ // FCC RUNNER HOOKS (field-case-runner.ts)
+ // ---------------------------------------------------------------------------
+
+ /**
+ * FCC runner hook — saveAndConfirm shape required by `saveAndVerifyCase()`.
+ * Wraps clickSave() and throws on failure so the runner surfaces server errors
+ * as test failures (not silent `{success: false}` returns).
+ */
+  async saveAndConfirm(): Promise<void> {
+    const result = await this.clickSave();
+    if (!result.success) {
+      throw new Error(`Legal save failed: ${result.networkError ?? 'unknown error'}`);
+    }
+  }
+
+ /**
+ * FCC runner baseline hook — restore SC + T&C to defaults if dirty.
+ * Extracts the LR-019 baseline-enforcement logic from TC-001 so FCC cases can
+ * reuse it as their `baseline:` callback.
+ */
+  async ensureDefaultState(defaults: { serviceChargeName: string; termsName: string }): Promise<void> {
+    let dirty = false;
+    if (await this.getServiceChargeValue() !== defaults.serviceChargeName) {
+      await this.selectServiceCharge(defaults.serviceChargeName);
+      dirty = true;
+    }
+    if (await this.getTermsValue() !== defaults.termsName) {
+      await this.selectTerms(defaults.termsName);
+      dirty = true;
+    }
+    if (dirty) {
+      await this.clickSave();
+      await this.reloadAndNavigateToLegalTab();
+    }
+  }
+
+ // ---------------------------------------------------------------------------
  // SAVE OPERATIONS
  // ---------------------------------------------------------------------------
 
