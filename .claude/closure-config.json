@@ -1,0 +1,9 @@
+{
+  "c6_mode": "announce",
+  "_comment": "Rollout knob for closure-check C6 (Per-Identity Satisfaction Matrix delivery, LR-048 v3) + the C4 parent-cascade sub-check. Lives here, NOT in .claude/closure-overrides.json — that file is a closure-gate LOCK path the agent cannot edit, and c6_mode is a rollout-state knob, not a per-token evidence override (keeping them separate prevents laundering). off = not computed (legacy C1-C5); announce = computed + reported but verdict-neutral (warn-only); deny = folded into the verdict (blocks the Status flip). Read by scripts/validate-plan-closure.mjs resolveC6Mode(); --c6-mode=<x> CLI flag overrides this per-invocation.",
+  "_provenance": "PLAN_DONE_MEANS_DONE Phase 2.2b. GATE-RB0 (2026-05-28) chose announce: back-audit found 13/14 historical matrix-bearing plans would FAIL C6, but 100% are vague-prose-on-healthy-plans (blast radius), 0 true C6 false-positives. Hard-deny would block edits to 13 healthy plans; announce delivers prevention for NEW plans (via /planning gate + /final-q + warnings) without that disruption.",
+  "ramp_started": "2026-05-28",
+  "ramp_target": "deny",
+  "ramp_complete": false,
+  "ramp_note": "Flip to deny after 5 clean post-landing plan closures with no false positives (Phase 4). Record the flip in .claude/state/done-means-done-back-audit/ramp-complete.json."
+}

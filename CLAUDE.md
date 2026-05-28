@@ -36,6 +36,10 @@ Codenames: HUNTER | GIVER | BUILDER | HEALER | WATCHDOG | GARDENER | OWNER. Acti
 
 10 teachings from Rutvik that sit above skills/rules/tasks. Conflict with this → vision wins. Repo mirror at `.claude/private/guiding-vision.md`; auto-memory pointer at `user_vision.md`.
 
+### Subagent rules
+
+Spawn subagents ≤ current model class, max 5 without consent (ask for >5). Complexity: Low=Haiku, Mid=Sonnet, High=Opus. Use for any worthy task, including execution requiring subplans—spawn agents and audit their work, or ask user to create them.
+
 ---
 
 ## `@`-References (load these as needed)

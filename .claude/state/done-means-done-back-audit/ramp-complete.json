@@ -1,0 +1,9 @@
+{
+  "c6_mode": "announce",
+  "ramp_started": "2026-05-28",
+  "ramp_complete": false,
+  "reviewed_closures": [],
+  "target_closures": 5,
+  "flip_to_deny_after": "5 clean post-landing plan closures with no false positives",
+  "_note": "PLAN_DONE_MEANS_DONE Phase 4 rollout-state tracker. GATE-RB0 (2026-05-28) chose announce-only (back-audit: 13/14 historical matrix plans vague-prose, 0 true C6 false-positives). To finish the ramp: after 5 clean post-landing plan closures, flip c6_mode to 'deny' in .claude/closure-config.json, then set ramp_complete=true here with the 5 reviewed closure IDs + the flip timestamp."
+}

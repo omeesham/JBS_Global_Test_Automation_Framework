@@ -19,12 +19,21 @@
  *
  * Usage: npm run planner:post-complete [--queue-item-id]
  *        npm run planner:post-complete --all (process all pending)
+ *
+ * Ad-hoc mode (PLAN_DONE_MEANS_DONE Phase 2.6 — no queue entry required, no package.json
+ * alias because package.json is human-controlled NEVER-modify per §2; invoke ts-node directly):
+ *        npx ts-node scripts/planner-post-complete.ts --ad-hoc --module=<name>
+ *   Runs the Q-checks directly against a named module (Q1 file freshness, Q2 TC-plan sync,
+ *   Q3 header count, Q4 XLSX row count == MD TC count). Use after an ad-hoc OWNER /execute that
+ *   rebuilt the workbook outside the queue (the gap SUBPLAN_LEGAL_FCC Deviation D2 hit).
+ *
  * Exit: 0 = success, 1 = error
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
+import * as XLSX from 'xlsx';
 import { UITestingChecklist, QueueItem, QueueFile, SHARED_PATHS } from './shared-types';
 import { frameworkRoot } from './shared-paths';
 import {
@@ -553,10 +562,130 @@ function processQueueItem(item: QueueItem, queue: QueueFile): boolean {
   return true;
 }
 
+// ── Ad-hoc mode helpers (PLAN_DONE_MEANS_DONE Phase 2.6) ──
+
+// Mirror of check-tc-parity.ts MD_HEADER_TC_PATTERN (1-to-3 dash-segment prefixes).
+const AD_HOC_MD_TC_PATTERN = /^#{2,3}\s+(TC-[A-Z]+(?:-[A-Z]+){1,3}-(?:\d+[A-Z]?|[A-Z]+)(?:-[A-Z]+)*):/gm;
+
+function findFileMatching(dir: string, re: RegExp): string | null {
+  if (!fs.existsSync(dir)) return null;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith('_')) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const found = findFileMatching(full, re);
+      if (found) return found;
+    } else if (re.test(entry.name)) {
+      return full;
+    }
+  }
+  return null;
+}
+
+function countMdTcHeaders(content: string): number {
+  const re = new RegExp(AD_HOC_MD_TC_PATTERN.source, 'gm');
+  let n = 0;
+  while (re.exec(content) !== null) n++;
+  return n;
+}
+
+function countXlsxRowsForModule(moduleName: string): { count: number; sheet: string } | null {
+  const wbPath = SHARED_PATHS.workbook;
+  if (!fs.existsSync(wbPath)) return null;
+  const wb = XLSX.readFile(wbPath, { cellDates: false, cellNF: false });
+  const sheet = wb.SheetNames.find(
+    n => n !== 'Overview' && n.toLowerCase().includes(moduleName.toLowerCase()),
+  );
+  if (!sheet) return null;
+  const ws = wb.Sheets[sheet];
+  if (!ws) return null;
+  const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: '' });
+  let count = 0;
+  for (const row of rows) {
+    const id = row['TC ID'];
+    if (typeof id === 'string' && /^TC-/.test(id)) count++;
+  }
+  return { count, sheet };
+}
+
+/**
+ * Ad-hoc Q-checks for a named module, no queue entry required. Exits the process.
+ * Q1 file freshness · Q2 TC-plan sync · Q3 header count · Q4 XLSX rows == MD TC count.
+ */
+function runAdHoc(moduleName: string): never {
+  console.log(`[ad-hoc] planner-post-complete Q-checks for module="${moduleName}" (no queue entry)\n`);
+  let failed = false;
+
+  // Q1 — file freshness: a non-empty test-cases file for the module must exist.
+  const tcFile = findFileMatching(SHARED_PATHS.testCases, new RegExp(`${moduleName}.*test_cases\\.md$`, 'i'));
+  if (!tcFile || fs.statSync(tcFile).size === 0) {
+    console.error(`  [ERR] Q1 FAIL: no non-empty *${moduleName}*test_cases.md under ${SHARED_PATHS.testCases}`);
+    process.exit(1);
+  }
+  const tcContent = fs.readFileSync(tcFile, 'utf-8');
+  console.log(`  [OK] Q1 PASS: file freshness — ${path.relative(frameworkRoot(), tcFile)} (${fs.statSync(tcFile).size} bytes)`);
+
+  // Q2 — TC-plan sync: test-plan exists; plan Updated date >= test-cases Updated date.
+  const tpFile = findFileMatching(SHARED_PATHS.testPlans, new RegExp(`${moduleName}.*test_plan\\.md$`, 'i'));
+  if (!tpFile) {
+    console.warn(`  [WARN] Q2: no *${moduleName}*test_plan.md found — sync check skipped`);
+  } else {
+    const tpContent = fs.readFileSync(tpFile, 'utf-8');
+    const tcDate = tcContent.match(/\*\*Updated\*\*:\s*(\d{4}-\d{2}-\d{2})/)?.[1];
+    const tpDate = tpContent.match(/\*\*Updated\*\*:\s*(\d{4}-\d{2}-\d{2})/)?.[1];
+    if (tcDate && tpDate && tpDate < tcDate) {
+      console.error(`  [ERR] Q2 FAIL: test-plan Updated=${tpDate} is OLDER than test-cases Updated=${tcDate}`);
+      failed = true;
+    } else {
+      console.log(`  [OK] Q2 PASS: TC-plan sync — ${path.relative(frameworkRoot(), tpFile)}`);
+    }
+  }
+
+  // Q3 — header count: at least one ## TC- header in the test-cases file.
+  const mdCount = countMdTcHeaders(tcContent);
+  if (mdCount === 0) {
+    console.error(`  [ERR] Q3 FAIL: zero "## TC-" headers in ${path.basename(tcFile)}`);
+    failed = true;
+  } else {
+    console.log(`  [OK] Q3 PASS: header count — ${mdCount} TC headers in ${path.basename(tcFile)}`);
+  }
+
+  // Q4 — XLSX row count == MD TC count for the module's sheet.
+  const xlsx = countXlsxRowsForModule(moduleName);
+  if (xlsx === null) {
+    console.error(`  [ERR] Q4 FAIL: no XLSX sheet matching "${moduleName}" in ${path.relative(frameworkRoot(), SHARED_PATHS.workbook)} (run npm run xlsx:build)`);
+    failed = true;
+  } else if (xlsx.count !== mdCount) {
+    console.error(`  [ERR] Q4 FAIL: XLSX rows (${xlsx.count}, sheet "${xlsx.sheet}") != MD TC count (${mdCount}) for "${moduleName}"`);
+    failed = true;
+  } else {
+    console.log(`  [OK] Q4 PASS: XLSX row count == MD TC count (${xlsx.count} == ${mdCount}, sheet "${xlsx.sheet}") for "${moduleName}"`);
+  }
+
+  if (failed) {
+    console.error(`\n[ad-hoc] FAIL — one or more Q-checks failed for "${moduleName}".`);
+    process.exit(1);
+  }
+  console.log(`\n[ad-hoc] PASS — all Q-checks passed for "${moduleName}".`);
+  process.exit(0);
+}
+
 /**
  * Main execution: find and process pending_generation items.
  */
 function main(): void {
+  // Ad-hoc mode (PLAN_DONE_MEANS_DONE Phase 2.6) — short-circuits the queue path.
+  const cliArgs = process.argv.slice(2);
+  if (cliArgs.includes('--ad-hoc')) {
+    const moduleArg = cliArgs.find(a => a.startsWith('--module='));
+    const moduleName = moduleArg ? moduleArg.split('=')[1] : '';
+    if (!moduleName) {
+      console.error('[ERR] --ad-hoc requires --module=<name> (e.g., --ad-hoc --module=legal)');
+      process.exit(1);
+    }
+    runAdHoc(moduleName);
+  }
+
   console.log('[go] Planner Post-Complete Hook\n');
   
   // Load queue

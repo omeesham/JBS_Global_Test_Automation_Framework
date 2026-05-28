@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_SSL_FCC.md",
+  "plan_basename": "SUBPLAN_SSL_FCC.md",
+  "plan_sha256": "62b7bf7a14c0d2d5dc74c7b718e0617b5da50fccc73576b51676f01e744c2eea",
+  "passed_at": "2026-05-27T10:17:42.322Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "5bf1a54961e8f4ea7543093c2248dc49ff11281609fd8e984016fd8ed976e9f1",
+  "validator_invocation_id": "1779877062321-afbf1acc384218bd7ffae24d69ec3a35-62b7bf7a14c0d2d5",
+  "artifacts": [],
+  "provisional": false
+}

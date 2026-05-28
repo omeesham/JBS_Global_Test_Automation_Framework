@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_LEGAL_FCC.md",
+  "plan_basename": "SUBPLAN_LEGAL_FCC.md",
+  "plan_sha256": "dd6f57395f67563350b40d406a3932bd55e28f047734d33db7c184a51e1d3f2c",
+  "passed_at": "2026-05-27T11:20:03.896Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "5bf1a54961e8f4ea7543093c2248dc49ff11281609fd8e984016fd8ed976e9f1",
+  "validator_invocation_id": "1779880803895-f0641ffa2d706044537f5d96c8063cfe-dd6f57395f675633",
+  "artifacts": [],
+  "provisional": false
+}

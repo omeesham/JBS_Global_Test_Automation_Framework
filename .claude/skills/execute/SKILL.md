@@ -135,12 +135,12 @@ Legacy bare tags (`[research]`, `[gap-analysis]`, `[implement]`, `[fix]`, `[pre-
 
 ### Phase 0.5 Ceremony-Dedup Checklist (SP02B — runs BEFORE the cross-reference check)
 
-For each of the 7 ceremony obligations below:
+For each of the 8 ceremony obligations below:
 1. **Grep the plan file** for an existing step that covers it (e.g., `grep -i "activity.log\|LR-028" <plan>` for ceremony #6).
 2. **If covered** → add `[ceremony]` tag to the existing TodoWrite entry that maps to that plan step (multi-tag is fine — `[/skill:direct] [ceremony]` works).
 3. **If NOT covered** → add a new `[ceremony]` todo for it. Do NOT skip — these are structural closure obligations enforced by the hook + by `/final-q` Step 6.
 
-The 7 ceremony obligations:
+The 8 ceremony obligations:
 1. Phase 0 context loading (navigation.md / agent-mistakes.md / patterns.md / LR scan).
 2. Phase 0.1 subplan identity ↔ §2 cross-check (LR-043 §D / SP-IDS-04).
 3. Phase 0.5 todo build (this skill, this phase — `[ceremony]` tag on the TodoWrite call itself or on its `/relevant` step).
@@ -148,8 +148,9 @@ The 7 ceremony obligations:
 5. Phase 3.5 plan finalization (Status DONE + Execution Summary + `git mv` to `done/` + `npm run plans:reindex` + parent-cascade per LR-027).
 6. Activity-log row per LR-028 (LR-037 timestamp gate ≥ all touched-file mtimes).
 7. `/final-q` exit with v2 evidence-emission per LR-042 + SP00 Fix 2a/2b.
+8. **Per-Identity Matrix Closure Audit** (Phase 3.5 sub-step) — for each row in the plan's `## Per-Identity Satisfaction` matrix, verify the Concrete Deliverable resolves (file exists) OR is `(skipped: <reason ≥20 chars>)` OR `(none)`. Vague-prose cells → HALT. This is the audit-time mirror of closure-check C6 (`.claude/rules/plan-closure.md` LR-055). Tagged `[ceremony]`. (Added 2026-05-28, PLAN_DONE_MEANS_DONE Phase 2.4.)
 
-Failure to enumerate any of the 7 = the SP1 / SP0 closure-half-forgotten failure mode this gate was authored to prevent.
+Failure to enumerate any of the 8 = the SP1 / SP0 closure-half-forgotten failure mode this gate was authored to prevent.
 
 ### Context Injection Per Item
 

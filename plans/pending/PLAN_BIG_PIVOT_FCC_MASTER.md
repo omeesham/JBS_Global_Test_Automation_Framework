@@ -33,6 +33,8 @@ When Notes closes GREEN, the paradigm is installed for every subsequent module. 
 
 **2026-05-22 PM — SSL grandfather revoked via user override** — Rutvik authorized (3-question steering chat 2026-05-22): (a) retroactive false-green sweep against the 30 existing SSL TCs is authorized despite the prior grandfather exemption; (b) SSL false-green sweep precedes `SUBPLAN_LOCAL_INFORMATION_FCC.md` (sweep is retroactive WATCHDOG/HEALER work; Notes pilot remains queue position #1); (c) the override is recorded durably here + in §SSL grandfather revocation block below. Execution closed GREEN 2026-05-22 via [`SUBPLAN_SSL_FALSE_GREEN_SWEEP.md`](SUBPLAN_SSL_FALSE_GREEN_SWEEP.md) (sweep report: `clients/encore/specs_planning/_internal/false-green-sweeps/shared-setup-locations-2026-05-22.md`; Phase 0 verification: `clients/encore/specs_planning/_internal/phase-0-verification-shared-setup-locations-2026-05-22.md`). Three master-plan strict lines were overridden by this authorization — full audit trail in the subplan's `### Strict-line override audit trail (LR-046)` block.
 
+**2026-05-28 — closure-discipline meta-child DONE**: [PLAN_DONE_MEANS_DONE.md](../done/PLAN_DONE_MEANS_DONE.md) — **DONE 2026-05-28**. Spawned from the WATCHDOG audit of `SUBPLAN_LEGAL_FCC.md` (8 ghost-deliverable findings); added closure-check C6 (Per-Identity Satisfaction Matrix delivery, LR-048 v3) + a C4 parent-cascade sub-check in **announce-only** rollout, retroactively cleansed the SUBPLAN_LEGAL_FCC matrix, and appended ARCH-015. It declares this master as `**Parent**:`, so this is the LR-027 parent-cascade annotation (pending-parent). It does NOT auto-close this master — the §Cascade closure rules exemption stands; the 3 master acceptance gates are unaffected.
+
 ---
 
 ## Context
@@ -90,7 +92,7 @@ Authored AFTER Notes subplan closes GREEN. One subplan per module, each ~200–4
 - `SUBPLAN_CURRENCY_FCC.md`
 - `SUBPLAN_PRICING_FCC.md`
 - `SUBPLAN_ACCOUNT_ADDRESS_FCC.md`
-- `SUBPLAN_LEGAL_FCC.md`
+- [SUBPLAN_LEGAL_FCC.md](../done/SUBPLAN_LEGAL_FCC.md) — **DONE 2026-05-27**, 1 net-new FCC test (TC-LOC-LGL-019 negative listbox enumeration + save-cycle); 12 cases LR-040(b) deferred (same mechanic, different data, already covered by existing 15 TCs); 3 cases LR-040(c) not applicable (2 APP BUGs sort-order, 1 missing left-panel selector).
 - `SUBPLAN_AUTO_ADDON_FCC.md`
 - `SUBPLAN_LOCAL_OFFICE_BASIC_INFO_FCC.md`
 - `SUBPLAN_ECT_SETTINGS_FCC.md`

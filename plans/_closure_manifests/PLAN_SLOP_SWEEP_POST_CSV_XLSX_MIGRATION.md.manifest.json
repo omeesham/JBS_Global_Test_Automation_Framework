@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_SLOP_SWEEP_POST_CSV_XLSX_MIGRATION.md",
+  "plan_basename": "PLAN_SLOP_SWEEP_POST_CSV_XLSX_MIGRATION.md",
+  "plan_sha256": "81b71cbca2010b5ebc06412cfff323fe43b61f6320c64bf77e53ccea213d0507",
+  "passed_at": "2026-05-27T10:25:13.883Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "5bf1a54961e8f4ea7543093c2248dc49ff11281609fd8e984016fd8ed976e9f1",
+  "validator_invocation_id": "1779877513882-894868036fac68466287838983a9a06f-81b71cbca2010b5e",
+  "artifacts": [],
+  "provisional": false
+}

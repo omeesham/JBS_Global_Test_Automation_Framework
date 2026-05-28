@@ -45,6 +45,8 @@ When moving a plan from `plans/pending/` to `plans/done/`:
 
 **Parent-cascade clause** (added 2026-04-24): Immediately after moving a SUBPLAN to `done/`, grep `plans/pending/` for any other `SUBPLAN_*.md` whose `**Parent**:` field points at this subplan's parent PLAN. If zero matches, YOU are the last subplan — close the parent PLAN too (same Status/Executed/Execution Summary treatment, summary cites the subplan chain). If matches exist, do nothing — the current last-at-state will handle closure when its own turn comes. Responsibility moves as subplans are added; the filesystem grep resolves "who is last" correctly without explicit hand-off. Skipping the cascade when pending-subplan count is zero = LR-027 violation (repeat-offense pattern: parent plans rotting in `pending/` after all work is done).
 
+**Parent-cascade annotation extension** (added 2026-05-28, PLAN_DONE_MEANS_DONE Phase 2.7 — plugs finding #4 gap): distinct from the auto-close clause above, **every child closure MUST annotate its DONE line in the parent's body IFF the parent is still in `plans/pending/`** — regardless of how many sibling subplans remain pending. Format = `- [<child>.md](../done/<child>.md) — **DONE <YYYY-MM-DD>**, <one-line summary>`. The two cascades are different obligations: *annotation* = "mark this child DONE inside a pending parent's body"; *auto-close* = "flip the pending parent to DONE when zero siblings remain". A parent may carry an explicit auto-close EXEMPTION (e.g., `PLAN_BIG_PIVOT_FCC_MASTER.md` §Cascade closure rules, user-authorized 2026-05-21) and STILL require per-child annotation — the exemption suppresses only the flip, not the annotation. **Scope guardrail (P2)**: the annotation requirement does NOT fire when the parent is already in `plans/done/` — done-parents are inert (their Execution Summary froze reality at close time; back-patching annotations into them would thrash already-closed plans every time a stray late child closes). Enforcement: `scripts/validate-plan-closure.mjs` C4 parent-cascade sub-check — if the closing plan declares a `**Parent**:` resolving to a `plans/pending/` file and that parent's body does not mention the child filename with a `DONE` token within 7 lines → C4 sub-failure. Activation rides the C6 rollout knob (`c6_mode`): FAIL under `deny`, reported-WARN under `announce`/`--dry-run`, not computed under `off` — so the new check ramps in lockstep with C6 rather than retroactively blocking every existing done-plan-with-pending-parent on its next edit.
+
 ## LR-028: Session bookkeeping — activity log entry at session end
 
 Before ending any session that modified pipeline artifacts (specs, page objects, selectors, test data, test cases, test plans, REQUIREMENTS.md):
@@ -208,11 +210,11 @@ Every TodoWrite entry created during a `/execute` invocation MUST carry at least
 | **Skill** | `[/skill:matchtype]` where matchtype ∈ `direct` \| `wrap` \| `inform` \| `verify` | Per `/relevant` Step 3 — subtask matches a skill. `direct` = subtask IS the skill's job. `wrap` = skill runs before+after. `inform` = skill runs first for context. `verify` = skill runs after to check. |
 | **LR-rule** | `LR-NNN(reason)` — parens MANDATORY, reason non-empty | `/relevant` Step 2.6 (path-glob LR-rule match). Names the rule that informs HOW to do this todo (e.g., `LR-007(verify before code)`). |
 | **Manual** | `[manual](reason)` — parens MANDATORY, reason non-empty | No skill / no LR-rule applies (documentation edits, raw file mutations, one-off shell). Reason explains the work. |
-| **Ceremony** | `[ceremony]` — bare, no parens | One of the 7 closure obligations below. Tagged onto the existing TodoWrite entry that covers it (Phase 0.5 dedup checklist), or added as a new todo when the plan didn't enumerate it. |
+| **Ceremony** | `[ceremony]` — bare, no parens | One of the 8 closure obligations below. Tagged onto the existing TodoWrite entry that covers it (Phase 0.5 dedup checklist), or added as a new todo when the plan didn't enumerate it. |
 
 Multiple tags per entry allowed (e.g., `[/skill:wrap] LR-009(angular dirty)` when `/regression-guard` wraps an Angular-form edit governed by LR-009).
 
-### 7 mandatory ceremony obligations (every `/execute` invocation)
+### 8 mandatory ceremony obligations (every `/execute` invocation)
 
 These are the structural closure obligations. `/execute` Phase 0.5 enumerates each, greps the plan for existing coverage, tags covered steps `[ceremony]` in-place, adds new `[ceremony]` todos for uncovered ones. Failure to enumerate = failure to close = the SP1/SP0 closure-half-forgotten failure mode this rule was authored to prevent.
 
@@ -223,6 +225,7 @@ These are the structural closure obligations. `/execute` Phase 0.5 enumerates ea
 5. **Phase 3.5** — plan finalization (Status DONE + Execution Summary + `git mv` to `done/` + `npm run plans:reindex` + parent-cascade per LR-027).
 6. **Activity-log row** — per LR-028, with LR-037 timestamp ≥ all touched-file mtimes.
 7. **`/final-q` exit** — v2 evidence-emission format per LR-042 + SP00 Fix 2a/2b (every cross-check has `ran '<cmd>' → output: '<snippet>'`).
+8. **Per-Identity Matrix Closure Audit** (Phase 3.5 sub-step) — for each row in the plan's Per-Identity Satisfaction Matrix, verify the Concrete Deliverable resolves (file exists) OR is `(skipped: <reason ≥20 chars>)` OR `(none)`. Flag vague-prose rows as HALT. Tagged `[ceremony]` in TodoWrite. (Added 2026-05-28, PLAN_DONE_MEANS_DONE Phase 2.4 — the audit-time companion to closure-check C6.)
 
 ### Hook enforcement behavior
 
@@ -264,7 +267,7 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
 
    Phase 0.5b emits or consumes `clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-<YYYY-MM-DD>.md` per LR-045 row 4. `baselineScope: baseline-absent` is allowed (NOT a HALT) when the feature is net-new on the active site.
 6. **Phase 1+** — actual work, identity-scoped.
-6.5. **Per-Identity Satisfaction Matrix** (LR-048 v2, added 2026-05-25 — FCC fuckup prevention) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, the XLSX deliverable at `test_cases_xlsx/encore_test_cases.xlsx` (post-2026-05-27 — legacy CSV exports under `test_cases_csv/` are retired in Phase D of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION), `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
+6.5. **Per-Identity Satisfaction Matrix** (LR-048 v3 — added 2026-05-25 as v2, amended 2026-05-28 to v3 — FCC fuckup prevention) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, the XLSX deliverable at `test_cases_xlsx/encore_test_cases.xlsx` (post-2026-05-27 — legacy CSV exports under `test_cases_csv/` are retired in Phase D of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION), `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
 
    The subplan body MUST contain a section `## Per-Identity Satisfaction` with this table:
 
@@ -282,11 +285,25 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
    - Each non-`(none)` cell's Acceptance command MUST appear in the subplan's Phase 3.5 closure step (per LR-027) with evidence-emission format (`ran '<cmd>' → output: '<snippet>'` per LR-042).
    - At Status flip to DONE, every non-`(none)` cell is classified (a)/(b)/(c) per LR-040 — if (b) "downstream subplan", that recipient must already exist in `plans/pending/` with grep-verifiable line items per LR-040 §b.
 
+   **Concrete Deliverable cell format (v3 — added 2026-05-28, PLAN_DONE_MEANS_DONE Phase 2.1)**: every "Concrete deliverable" cell MUST be EXACTLY one of three explicit forms. Vague prose is rejected at authoring time (`/planning` Step 3 gate) AND at closure time (closure-check C6 — `.claude/rules/plan-closure.md` LR-055):
+
+   | Cell form | Example | Validator behavior |
+   |---|---|---|
+   | **File path (repo-relative or absolute)** | `clients/encore/specs_planning/_internal/walk-evidence-legal-2026-05-27.md` | Grep at closure; missing file → DENY |
+   | **`(skipped: <reason ≥20 chars>)`** | `(skipped: reused walk-evidence-location-settings-2026-05-14 per LR-013)` | Reason regex `\(skipped:\s*.{20,}\)` — non-empty reason ≥20 chars; trim allowed |
+   | **`(none)`** | `(none)` — explicitly no work for this identity | No check; the `(none)`-must-be-explicit rule above already governs |
+
+   **Forbidden** (this WAS the failure mode): vague prose like `spot-check log (3 fields)`, `typecheck + lint + parity outputs`, `inline claims`, `proof of work`, `verification logs`.
+
+   **Multi-line cells**: a single Concrete Deliverable cell MAY list multiple file paths separated by `<br>` (or newline). C6 splits and validates each line independently; the cell passes only if ALL lines pass. This lets an OWNER row that touches many files express its multi-deliverable nature without breaking the one-row-per-identity convention.
+
+   **Why v3**: SUBPLAN_LEGAL_FCC (2026-05-27) shipped a matrix whose 6-of-6 Concrete-deliverable cells were vague prose, and C1–C5 passed because vague prose is not a forbidden token. v3 + C6 close that hole — every cell now proves itself (file exists / honest skip with reason / explicit none).
+
    **Why this exists**: SUBPLAN_NOTES_FCC_PILOT (2026-05-21) added 26 Notes FCC TCs to specs but did not enumerate the GIVER's deliverables (MD FCC block, test-plan Scenarios, deliverable rebuild — originally CSV re-export, post-2026-05-27 `npm run xlsx:build`). Same gap on SUBPLAN_SSL_FCC_PILOT (14 SSL FCC TCs). Without a structural matrix, those items silently became "future cleanup" — exactly what PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT retroactively unfucks. The matrix is the structural prevention.
 
    **Cross-refs**: LR-040 (closure-gate completeness); LR-050 (restructure plans enumerate stale-slop cleanup); LR-027 (execution summary mandatory); ALL-071 (spec-MD parity); LR-ENC-002 (Encore client-level summary); BUILDER HARD STOP #11 (per-agent enforcement).
 
-   **Trigger**: every NEW subplan under `plans/pending/SUBPLAN_*.md` or `plans/pending/PLAN_*.md` whose body / downstream effects touch any of the listed artifact paths. Enforced by `/planning` Step 3 validation + `/audit` Identity-Drift mode + LR-040 closure gate at Status flip.
+   **Trigger**: every NEW subplan under `plans/pending/SUBPLAN_*.md` or `plans/pending/PLAN_*.md` whose body / downstream effects touch any of the listed artifact paths. Enforced by `/planning` Step 3 validation (vague-prose gate) + `/audit` §REVIEW Step 2.6 matrix-delivery cross-check + closure-check C6 (LR-055) + LR-040 closure gate at Status flip.
 
    **Graduated from**: PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE (2026-05-25) — Layer 4. Co-landed with BUILDER HARD STOP #11, pre-commit Gate A (check:tc-parity), and LR-ENC-002.
 7. **Acceptance criteria** — checkboxes; for catalog/MCP-driven subplans (LR-040 trigger: `SP-B-*`, `SP-C-*`, `SP-D-*`, or any subplan whose Step-by-Step enumerates parents / columns / TCs), classify every enumerated item as (a)/(b)/(c) per LR-040. Non-catalog subplans use ordinary checkbox acceptance criteria.

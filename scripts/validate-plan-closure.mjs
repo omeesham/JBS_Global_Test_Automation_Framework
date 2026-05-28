@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-// validate-plan-closure.mjs — Plan closure validation (C1-C5 checks).
+// validate-plan-closure.mjs — Plan closure validation (C1-C6 checks).
 //
 // Modes (V6 — --enforce is READ-ONLY; manifest writes need --write-manifest):
 //   --plan <path> --enforce              Single plan, exit 1 on FAIL. READ-ONLY.
+//   <path> --enforce                     Positional path form (same as --plan <path>).
 //   --plan <path> --enforce --write-manifest  Single + manifest. CLOSURE-CEREMONY ONLY.
 //   --plan <path> --report-only          Single, always exit 0.
 //   --changed --enforce                  Plans changed in current commit set.
@@ -12,6 +13,11 @@
 //   --json                               Structured findings to stdout.
 //   --self-test                          Synthetic fixture tests.
 //   --all --enforce --rewrite-manifests  Migration tool (user-invoked only).
+//
+// C6 (Per-Identity Satisfaction Matrix delivery — PLAN_DONE_MEANS_DONE Phase 2.2):
+//   --dry-run                            Measure C6 (+ C4 parent-cascade) without enforcing; exit 0.
+//   --c6-mode=<off|announce|deny>        Override closure-config.json c6_mode for this run.
+//   Default mode comes from .claude/closure-config.json (c6_mode); absent → 'off' (inert).
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync, renameSync } from 'node:fs';
 import { resolve, join, dirname, basename, relative, extname, sep } from 'node:path';
@@ -31,8 +37,31 @@ const ATTEMPTS_DIR = join(STATE_DIR, 'closure-attempts');
 const AUDITS_DIR = join(STATE_DIR, 'closure-audits');
 const FAIL_CLOSED_DIR = STATE_DIR;
 const FIXTURE_DIR = join(REPO_ROOT, 'scripts', 'test-fixtures', 'plan-closure');
+// C6 rollout-state config (PLAN_DONE_MEANS_DONE Phase 2.2). NOT a per-token override —
+// a rollout-mode knob for the C6 check class. Lives in closure-config.json (a SEPARATE,
+// agent-writable file), NOT closure-overrides.json (which is a lock-path the agent cannot edit).
+const CLOSURE_CONFIG_PATH = join(REPO_ROOT, '.claude', 'closure-config.json');
 
 const VALIDATOR_VERSION = '1.0';
+
+// === C6 activation mode (PLAN_DONE_MEANS_DONE Phase 2.2a/2.2b) ===
+// Precedence: explicit CLI --c6-mode=<off|announce|deny> > closure-config.json c6_mode > 'off'.
+// 'off'      → C6 + C4-parent-cascade are NOT computed at all (legacy C1-C5 behavior, byte-identical).
+// 'announce' → computed + reported in JSON, but do NOT fold into the pass/fail verdict (ramp warning only).
+// 'deny'     → computed + folded into the verdict (a C6 FAIL or parent-cascade FAIL fails the plan).
+// --dry-run forces measurement (like 'announce') regardless of mode AND forces process exit 0.
+function readC6ModeFromConfig() {
+  try {
+    const cfg = JSON.parse(readFileSync(CLOSURE_CONFIG_PATH, 'utf-8'));
+    if (cfg && typeof cfg.c6_mode === 'string') return cfg.c6_mode;
+  } catch { /* no config → off */ }
+  return 'off';
+}
+
+function resolveC6Mode(cliC6Mode) {
+  const m = (cliC6Mode || readC6ModeFromConfig() || 'off').toLowerCase();
+  return (m === 'announce' || m === 'deny') ? m : 'off';
+}
 
 // === Reused from plans-reindex.mjs:55-73 (byte-exact) ===
 function cleanValue(raw) {
@@ -355,7 +384,7 @@ const STRUCTURED_TOKEN_RX = /recipient-required-token:\s*(\S+)/g;
 const PROSE_HANDOFF_RX = /(?:deferred to|handed off to|see)\s+(SP-[A-Za-z0-9]+|SUBPLAN_[A-Z0-9_]+\.md|PLAN_[A-Z0-9_]+\.md)/gi;
 const MIGRATION_DEADLINE = new Date('2026-06-18');
 
-function checkC4(body, planPath) {
+function checkC4(body, planPath, parentCascadeMode = 'off') {
   const items = [];
   const planBasename = basename(planPath);
 
@@ -419,6 +448,49 @@ function checkC4(body, planPath) {
             items.push({ target, status: 'missing-token', severity: 'FAIL', reason: `Recipient missing required token: ${tokenMatch[1]}` });
           }
         } catch {}
+      }
+    }
+  }
+
+  // === Parent-cascade sub-check (LR-027 extension, PLAN_DONE_MEANS_DONE Phase 2.7) ===
+  // Every child closure MUST annotate its line in the parent's body IFF the parent is still
+  // in plans/pending/. Parents already in plans/done/ are inert — silently skipped (P2 scope
+  // guardrail). Gated by parentCascadeMode (same rollout activation as C6): 'off' → skip;
+  // 'measure' → WARN (reported, non-failing); 'deny' → FAIL (folds into C4 verdict).
+  if (parentCascadeMode !== 'off') {
+    const headerEndPC = body.indexOf('\n---', 4);
+    const headerPC = headerEndPC > 0 ? body.slice(0, headerEndPC + 4) : body.slice(0, 800);
+    // Extract the parent filename TOKEN — tolerate trailing prose in the field
+    // (e.g. "**Parent**: PLAN_X.md (also annotates the master)") which would otherwise
+    // fail a `\.md$` anchor and silently skip the cascade (false-negative).
+    const parentRaw = parseField(headerPC, 'Parent');
+    const parentMatch = parentRaw && parentRaw.match(/(?:SUBPLAN_|PLAN_)[A-Za-z0-9_]+\.md/);
+    const parentRef = parentMatch ? parentMatch[0] : '';
+    if (parentRef) {
+      const sev = parentCascadeMode === 'deny' ? 'FAIL' : 'WARN';
+      const pendingParent = join(REPO_ROOT, 'plans', 'pending', parentRef);
+      const doneParent = join(REPO_ROOT, 'plans', 'done', parentRef);
+      if (existsSync(pendingParent)) {
+        let annotated = false;
+        try {
+          const parentLines = readFileSync(pendingParent, 'utf-8').split('\n');
+          const childStem = planBasename.replace(/\.md$/, '');
+          for (let i = 0; i < parentLines.length; i++) {
+            if (parentLines[i].includes(childStem)) {
+              const windowText = parentLines.slice(i, i + 7).join('\n');
+              if (/\bDONE\b/.test(windowText)) { annotated = true; break; }
+            }
+          }
+        } catch { annotated = true; /* unreadable parent → don't block on cascade */ }
+        if (!annotated) {
+          items.push({ target: parentRef, status: 'parent-cascade-missing', severity: sev,
+            reason: `parent-cascade missing annotation (pending parent) — annotate "${planBasename}" DONE line in ${parentRef} body per LR-027` });
+        }
+      } else if (existsSync(doneParent)) {
+        /* done parent is inert — silently skip (P2) */
+      } else {
+        items.push({ target: parentRef, status: 'phantom-parent', severity: sev,
+          reason: `declared Parent "${parentRef}" does not exist in plans/{pending,done}/` });
       }
     }
   }
@@ -532,6 +604,124 @@ function checkC5(body) {
   };
 }
 
+// === C6: Per-Identity Satisfaction Matrix delivery (PLAN_DONE_MEANS_DONE Phase 2.2a) ===
+// Each matrix row's "Concrete deliverable" cell must resolve to one of three explicit forms
+// (LR-048 v3): a repo-relative file path that EXISTS, `(skipped: <reason ≥20 chars>)`, or `(none)`.
+// Vague prose ("spot-check log", "typecheck + lint + parity outputs", "inline claims") → FAIL.
+// NOT OVERRIDABLE (matches C2-C5). Remediation = emit the file / change to (skipped:...) / (none).
+
+function fileExistsRelativeToRepo(p) {
+  if (!p) return false;
+  // Absolute path (Windows drive or POSIX root) — check as-is.
+  if (/^[A-Za-z]:[\\/]/.test(p) || p.startsWith('/')) {
+    try { return existsSync(p); } catch { return false; }
+  }
+  const norm = p.replace(/\\/g, '/');
+  try { return existsSync(join(REPO_ROOT, norm)); } catch { return false; }
+}
+
+// Split a markdown table row into trimmed cells, preserving RAW cell content
+// (including <br> separators and backticks). Escaped pipes (\|) are kept literal.
+function splitTableRow(line) {
+  let s = line.trim();
+  if (s.startsWith('|')) s = s.slice(1);
+  if (s.endsWith('|')) s = s.slice(0, -1);
+  const PLACEHOLDER = ' ';
+  s = s.replace(/\\\|/g, PLACEHOLDER);
+  return s.split('|').map(c => c.replace(new RegExp(PLACEHOLDER, 'g'), '\\|').trim());
+}
+
+// Locate "## Per-Identity Satisfaction" (h2 or h3); return null if absent (C6 skip),
+// { malformed: true } if the table is broken, else { malformed:false, rows:[{identity,
+// concreteDeliverable, acceptanceCommand}] } with cell content preserved RAW.
+function parsePerIdentityMatrix(planBody) {
+  const headingRx = /^#{2,3}\s+Per-Identity Satisfaction[^\n]*$/im;
+  const hm = planBody.match(headingRx);
+  if (!hm) return null;
+
+  const rest = planBody.slice(hm.index + hm[0].length);
+  const lines = rest.split('\n');
+  const tableLines = [];
+  let started = false;
+  for (const line of lines) {
+    const isRow = /^\s*\|.*\|\s*$/.test(line);
+    if (isRow) { started = true; tableLines.push(line); continue; }
+    if (started) break;                       // table block ended
+    if (/^#{1,6}\s/.test(line)) break;        // hit next heading before any table
+  }
+  if (tableLines.length < 2) return { malformed: true, rows: [] };
+
+  const headerCells = splitTableRow(tableLines[0]);
+  const idIdx = headerCells.findIndex(c => /identity/i.test(c));
+  const delivIdx = headerCells.findIndex(c => /concrete deliverable/i.test(c));
+  const acceptIdx = headerCells.findIndex(c => /acceptance/i.test(c));
+  if (delivIdx === -1) return { malformed: true, rows: [] };
+
+  const rows = [];
+  for (let i = 2; i < tableLines.length; i++) {
+    if (/^\s*\|[-:\s|]+\|\s*$/.test(tableLines[i])) continue;   // stray separator
+    const cells = splitTableRow(tableLines[i]);
+    if (cells.length === 0 || cells.every(c => c === '')) continue;
+    rows.push({
+      identity: idIdx >= 0 && idIdx < cells.length ? cells[idIdx] : '',
+      concreteDeliverable: delivIdx < cells.length ? cells[delivIdx] : '',
+      acceptanceCommand: acceptIdx >= 0 && acceptIdx < cells.length ? cells[acceptIdx] : '',
+    });
+  }
+  if (rows.length < 2) return { malformed: true, rows };
+  return { malformed: false, rows };
+}
+
+function checkC6(body) {
+  const matrix = parsePerIdentityMatrix(body);
+  if (matrix === null) {
+    // No matrix section → conditional check does not apply. Silent PASS (skip).
+    return { check: 'C6', status: 'PASS', overridable: false, skipped: true, items: [] };
+  }
+  if (matrix.malformed) {
+    return { check: 'C6', status: 'FAIL', overridable: false, items: [
+      { reason: 'matrix table malformed (missing Concrete-deliverable column or fewer than 2 data rows)' },
+    ] };
+  }
+
+  const failures = [];
+  for (const row of matrix.rows) {
+    const cellRaw = row.concreteDeliverable;
+    // Multi-line cells: split on <br>/<br/>/<br /> and newlines; validate each line independently.
+    const cellNormalized = cellRaw.replace(/<br\s*\/?>/gi, '\n');
+    const cellLines = cellNormalized.split('\n').map(s => s.trim()).filter(Boolean);
+    if (cellLines.length === 0) {
+      failures.push({ check: 'C6', identity: row.identity, cell: cellRaw,
+        reason: 'empty cell — must be file path / (skipped: <reason ≥20 chars>) / (none)' });
+      continue;
+    }
+    const cellFailures = [];
+    for (const lineRaw of cellLines) {
+      const line = lineRaw.replace(/^`+|`+$/g, '').trim();   // strip surrounding code-ticks
+      if (line === '(none)') continue;
+      if (/^\(skipped:\s*.{20,}\)$/.test(line)) continue;
+      const looksLikePath = /^[A-Za-z0-9_./-]+\.\w{1,5}$/.test(line);
+      if (looksLikePath) {
+        if (!fileExistsRelativeToRepo(line)) {
+          cellFailures.push(`line "${line}" — file does not exist at repo path`);
+        }
+        continue;
+      }
+      cellFailures.push(`line "${line}" — vague prose; must be repo-relative file path / (skipped: <reason ≥20 chars>) / (none)`);
+    }
+    if (cellFailures.length > 0) {
+      failures.push({ check: 'C6', identity: row.identity, cell: cellRaw, reason: cellFailures.join('; ') });
+    }
+  }
+
+  return {
+    check: 'C6',
+    status: failures.length > 0 ? 'FAIL' : 'PASS',
+    overridable: false,
+    items: failures,
+  };
+}
+
 // === Path exemption (M3 + R3) ===
 const RULE_EXEMPT_PATHS = [
   /\.claude[\/\\]rules[\/\\]plan-closure\.md$/,
@@ -588,19 +778,39 @@ function validatePlan(body, planPath, opts = {}) {
     return { plan: bn, status: 'EXEMPT', reason: 'closure_meta + meta_plans exempt', checks: [] };
   }
 
+  // C6 family activation (PLAN_DONE_MEANS_DONE Phase 2.2). off | announce | deny.
+  // --dry-run forces measurement (verdict-neutral, like announce) so Phase 0.5 can measure
+  // false-positives without activating enforcement. C4's parent-cascade sub-check rides the
+  // same activation (off → skip; measure → WARN; deny → FAIL folded via C4's own status).
+  const c6Mode = resolveC6Mode(opts.c6Mode);
+  const c6Measured = !!opts.dryRun || c6Mode === 'announce' || c6Mode === 'deny';
+  const c6Enforced = !opts.dryRun && c6Mode === 'deny';
+  const parentCascadeMode = c6Enforced ? 'deny' : (c6Measured ? 'measure' : 'off');
+
   const overrides = loadOverrides(opts.overrideMode || 'enforce');
   const c1 = checkC1(body, bn, overrides);
   const c2 = checkC2(body);
   const c3 = checkC3(body, planPath);
-  const c4 = checkC4(body, planPath);
+  const c4 = checkC4(body, planPath, parentCascadeMode);
   const c5 = checkC5(body);
 
   const checks = [c1, c2, c3, c4, c5];
-  const anyFail = checks.some(c => c.status === 'FAIL');
+  let c6 = null;
+  if (c6Measured) {
+    c6 = checkC6(body);
+    checks.push(c6);
+  }
+
+  // C1-C5 always fold into the verdict (C4 already incorporates the parent-cascade item via its
+  // own severity). C6 folds in only when enforced (deny, and not a dry-run).
+  const baseFail = [c1, c2, c3, c4, c5].some(c => c.status === 'FAIL');
+  const c6Fail = c6Enforced && c6 && c6.status === 'FAIL';
+  const anyFail = baseFail || c6Fail;
 
   return {
     plan: bn,
     status: anyFail ? 'FAIL' : 'PASS',
+    c6_mode: c6Measured ? (opts.dryRun ? 'dry-run' : c6Mode) : 'off',
     checks,
   };
 }
@@ -669,7 +879,12 @@ function runSingle(planPath, opts) {
     body = readFileSync(absPath, 'utf-8');
   }
 
-  const result = validatePlan(body, absPath, { overrideMode: opts.overrideMode || 'enforce', forceCheck: opts.forceCheck });
+  const result = validatePlan(body, absPath, {
+    overrideMode: opts.overrideMode || 'enforce',
+    forceCheck: opts.forceCheck,
+    c6Mode: opts.c6Mode,
+    dryRun: opts.dryRun,
+  });
 
   if (opts.json) {
     process.stdout.write(JSON.stringify(result, null, 2) + '\n');
@@ -841,7 +1056,10 @@ function runSelfTest() {
     const expectedVerdict = parseField(header, 'expected_verdict') || '';
     const expectedChecks = parseField(header, 'expected_checks') || '';
 
-    const result = validatePlan(body, fixturePath, { overrideMode: 'enforce', forceCheck: true });
+    // Generic fixtures test C1-C5 semantics; C6 is exercised by dedicated synthetic fixtures
+    // (PLAN_DONE_MEANS_DONE Phase 2.2a self-tests, run via --dry-run). Force C6 off here so the
+    // legacy fixture verdicts stay stable regardless of closure-config.json's live c6_mode.
+    const result = validatePlan(body, fixturePath, { overrideMode: 'enforce', forceCheck: true, c6Mode: 'off' });
 
     let expectPass = false;
     if (expectedVerdict === 'PASS') expectPass = true;
@@ -877,7 +1095,12 @@ if (args.includes('--self-test')) {
   runSelfTest();
 } else {
   const planIdx = args.indexOf('--plan');
-  const planPath = planIdx >= 0 ? args[planIdx + 1] : null;
+  let planPath = planIdx >= 0 ? args[planIdx + 1] : null;
+  // Positional path support (PLAN_DONE_MEANS_DONE verification commands use the bare form,
+  // e.g. `validate-plan-closure.mjs plans/done/X.md --dry-run`).
+  if (!planPath) {
+    planPath = args.find(a => !a.startsWith('--') && /\.md$/i.test(a)) || null;
+  }
   const enforce = args.includes('--enforce');
   const reportOnly = args.includes('--report-only');
   const writeManifest = args.includes('--write-manifest');
@@ -887,6 +1110,11 @@ if (args.includes('--self-test')) {
   const contentFromStdin = args.includes('--content-from-stdin');
   const json = args.includes('--json');
   const rewriteManifests = args.includes('--rewrite-manifests');
+  // C6 (PLAN_DONE_MEANS_DONE Phase 2.2): --dry-run measures C6 without enforcing (always exit 0);
+  // --c6-mode=<off|announce|deny> overrides closure-config.json for this invocation.
+  const dryRun = args.includes('--dry-run');
+  const c6ModeArg = args.find(a => a.startsWith('--c6-mode='));
+  const c6Mode = c6ModeArg ? c6ModeArg.split('=')[1] : undefined;
 
   if (all) {
     const result = runAll({ json, reportOnly: reportOnly || !enforce, rewriteManifests });
@@ -905,10 +1133,14 @@ if (args.includes('--self-test')) {
       json,
       writeManifest,
       contentFromStdin,
+      dryRun,
+      c6Mode,
       overrideMode: staged ? 'staged' : contentFromStdin ? 'stdin' : 'enforce',
-      forceCheck: contentFromStdin,
+      forceCheck: contentFromStdin || dryRun,
     });
-    if (enforce && !reportOnly) {
+    if (dryRun) {
+      process.exit(0);                       // measurement mode never blocks
+    } else if (enforce && !reportOnly) {
       process.exit(result.status === 'FAIL' ? 1 : 0);
     }
   } else {

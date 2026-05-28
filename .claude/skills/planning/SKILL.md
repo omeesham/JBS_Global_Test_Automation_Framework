@@ -54,6 +54,7 @@ Complete this checklist in a single pass. Fix any issues found before proceeding
 - [ ] **Rules applied** — For each rule listed in your plan's "Active Rules" section (or equivalent), verify it's actually reflected in the plan body (implementation steps, code snippets, or explicit exclusion with reason). Rule listed but not applied = gap.
 - [ ] **Mistakes check** — Grep for the target page/module name in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`. Read every hit. Verify none of the documented mistakes are repeated in your plan. Also grep for any function names or patterns your plan proposes to use.
 - [ ] **Slop check (advisory)** — Run `/slop review` on the drafted plan file. Surface the findings alongside the plan before Step 4 so the user sees them. Advisory only: do NOT auto-edit the plan, do NOT HALT. User decides what to drop. Skip for trivial plans (≤3 items, all load-bearing — the skill itself will short-circuit and report TRIVIAL).
+- **[GATE] LR-048 v3 matrix delivery format** — if the plan contains a `## Per-Identity Satisfaction` matrix, every "Concrete deliverable" cell MUST be a repo-relative file path, `(skipped: <reason ≥20 chars>)`, or `(none)`. Reject any **vague-prose Concrete Deliverable** cell — forbidden phrase set (case-insensitive regex): `spot-check log`, `inline claims`, `typecheck.*outputs`, `verification logs`, `proof of work` — and, more generally, any cell that is neither a path that will exist at closure nor `(skipped:…)`/`(none)`. Multi-deliverable cells may list several paths separated by `<br>`. If a vague cell is detected → HALT; ask the author to convert it to a real file path or `(skipped: <reason>)`. Catching it here is cheaper than at DONE, where closure-check C6 (`.claude/rules/plan-closure.md` LR-055) enforces the same rule and blocks the Status flip.
 - **[GATE] Model + Thinking + PermissionMode declared and valid** (LR-041 / D17 rubric) — **hard gate, NOT a checkbox**. Execute this validator on every new subplan file you just authored before proceeding to Step 4. HALT (do not proceed) if any step fails; report the violation to the user verbatim.
 
   **Tier vocabulary** — accept both authoring form and CLI form as the same tier:
@@ -153,6 +154,10 @@ For every subplan file you author, the FIRST content (before the `# SUBPLAN SP-X
 ```
 
 This is non-negotiable. Every subplan gets this. Every plan summary must cite this pattern. Missing bootstrap = defect.
+
+## Plan Deviation taxonomy
+
+**Plan Deviation taxonomy**: reserve `D-N` rows (in the plan's Plan-Deviations log) for genuine scope/process surprises — queue gates, identity collisions, blocked dependencies, app-bug-discovered-during-execution. Do NOT log a D-row for "Path X designed → Path Y discovered live → in-line pivot" — that is the normal mode of test cases probing novel mechanics (FCC or otherwise). Pivots are recorded inline in the relevant Phase's narrative, not as deviations. (Graduated from PLAN_DONE_MEANS_DONE finding #6, 2026-05-28: SUBPLAN_LEGAL_FCC logged a legitimate live-engineering pivot as "Deviation D1", which is misleading framing — the pivot was the test doing its job, not a deviation from contract.)
 
 ## Auto-Calls
 

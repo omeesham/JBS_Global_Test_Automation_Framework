@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md",
+  "plan_basename": "PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md",
+  "plan_sha256": "27b70060ffbd27ccb38c11fe500e2eb9024d7635e885249d13bd7fe819c30cf4",
+  "passed_at": "2026-05-27T09:29:52.272Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "5bf1a54961e8f4ea7543093c2248dc49ff11281609fd8e984016fd8ed976e9f1",
+  "validator_invocation_id": "1779874192266-c86a07f0e63a79f3a5b4b68858a93616-27b70060ffbd27cc",
+  "artifacts": [],
+  "provisional": false
+}

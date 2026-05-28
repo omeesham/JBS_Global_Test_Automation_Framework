@@ -149,6 +149,31 @@ function projectBody(toolName, toolInput, targetPath) {
   return existing;
 }
 
+// === C6 announce-mode warning builder (PLAN_DONE_MEANS_DONE Phase 2.2b) ===
+// When the validator runs with c6_mode=announce it MEASURES C6 + the C4 parent-cascade
+// sub-check but leaves them OUT of the pass/fail verdict. This builds a non-blocking
+// stderr warning so ramp-period closures see what would block once c6_mode flips to deny.
+function buildC6AnnounceWarning(parsed, planBasename) {
+  const checks = parsed.checks || [];
+  const c6 = checks.find(c => c.check === 'C6');
+  const c4 = checks.find(c => c.check === 'C4');
+  const lines = [];
+  if (c6 && c6.status === 'FAIL') {
+    for (const it of (c6.items || [])) {
+      lines.push(`  C6 matrix-delivery [${it.identity || '?'}]: ${it.reason || ''}`);
+    }
+  }
+  if (c4) {
+    for (const it of (c4.items || [])) {
+      if (/cascade|phantom/i.test(it.status || '')) {
+        lines.push(`  C4 parent-cascade: ${it.reason || ''}`);
+      }
+    }
+  }
+  if (lines.length === 0) return '';
+  return `[PLAN-CLOSURE C6 ANNOUNCE] ${planBasename}: closure ALLOWED (c6_mode=announce) but the matrix/cascade check WOULD FAIL once c6_mode flips to deny. Fix before then:\n${lines.join('\n')}\n`;
+}
+
 // === --edit-mode ===
 function handleEditMode(payload) {
   const toolName = payload.tool_name || payload.toolName || '';
@@ -220,6 +245,12 @@ function handleEditMode(payload) {
 
     if (parsed.status === 'PASS' || parsed.status === 'EXEMPT' || parsed.status === 'SKIP') {
       recordAttempt(planBasename, parsed.status);
+      // C6 announce-mode (Phase 2.2b): non-blocking stderr warning if C6 / parent-cascade
+      // would fail under deny. Validator already kept them out of the verdict (status PASS).
+      if ((parsed.c6_mode || 'off') === 'announce') {
+        const announceMsg = buildC6AnnounceWarning(parsed, planBasename);
+        if (announceMsg) process.stderr.write(announceMsg);
+      }
       emitAllow(`Plan closure validation: ${parsed.status}`);
       return;
     }
@@ -228,9 +259,15 @@ function handleEditMode(payload) {
 
     const checks = parsed.checks || [];
     const failedChecks = checks.filter(c => c.status === 'FAIL');
-    const details = failedChecks.map(c => `${c.check}: ${(c.findings || []).map(f => f.msg || f).join('; ')}`).join('\n');
+    // Validator emits per-check `items` (not `findings`); render reason/token/path/target so
+    // the deny message carries actionable detail (fixes a pre-existing empty-detail bug).
+    const details = failedChecks.map(c =>
+      `${c.check}: ${(c.items || []).map(f =>
+        f.reason || f.token || f.path || f.target || (typeof f === 'string' ? f : JSON.stringify(f))
+      ).join('; ')}`
+    ).join('\n');
 
-    emitDeny(`[PLAN-CLOSURE FAIL] Status: DONE blocked by closure validation.\n\n${details}\n\nC1 is overridable via .claude/closure-overrides.json (user-only). C2/C3/C4/C5 are NOT overridable — remediate the plan body.`);
+    emitDeny(`[PLAN-CLOSURE FAIL] Status: DONE blocked by closure validation.\n\n${details}\n\nC1 is overridable via .claude/closure-overrides.json (user-only). C2/C3/C4/C5/C6 are NOT overridable — remediate the plan body.`);
   } catch (e) {
     failClosed(`Validator execution error: ${e.message}`, planBasename);
   }

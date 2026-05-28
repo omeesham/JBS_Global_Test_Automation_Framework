@@ -133,6 +133,19 @@ Per active plan that was touched in this session:
 3. Read `.claude/state/closure-fail-closed-counter-<plan-basename>.json` (V5). Non-zero count → RED floor (any fail-closed event is RED; no grace).
 4. Run `node scripts/validate-plan-layout.mjs --check`. Non-zero exit → RED floor.
 
+### Step 4.6: Per-identity matrix delivery audit (LR-048 v3 / C6)
+
+If this session touched a plan/subplan that has a `## Per-Identity Satisfaction` matrix, append a **Per-identity matrix delivery audit** sub-table to the Step 8 output — one row per identity, verifying each Concrete Deliverable cell resolves:
+
+| Identity | Concrete deliverable cell | Verification | Result |
+|---|---|---|---|
+| HUNTER | `(skipped: reused walk-evidence-location-settings-2026-05-14)` | regex `\(skipped:\s*.{20,}\)` | PASS — explicit skip with reason |
+| GIVER | `clients/encore/specs_planning/_internal/field-case-catalogs/legal-2026-05-27.md` | `Test-Path <path>` → `True` | PASS — file exists |
+| BUILDER | `clients/encore/specs/locations/location-legal.spec.ts` | `Test-Path <path>` → `True` | PASS — file exists |
+| ... | ... | ... | ... |
+
+Fastest source: `node scripts/validate-plan-closure.mjs <plan> --dry-run --json`, then read the `C6` check's items. Any FAIL row (vague prose or missing file) → `/final-q` verdict floor = **YELLOW** (not RED — closure is machine-gated by C6, so YELLOW signals "fix before the parent closes"). (Added 2026-05-28, PLAN_DONE_MEANS_DONE Phase 2.3.)
+
 ### Step 5: Estimate Context Budget
 
 Check the session's context usage. You do NOT have a direct API for the token count; estimate from:
