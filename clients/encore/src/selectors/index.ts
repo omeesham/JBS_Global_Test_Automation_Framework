@@ -12,6 +12,8 @@ import { SetupLegalSelectors } from './locations/legal';
 import { SetupAutoAddonSelectors } from './locations/auto-addon';
 import { SetupHistorySelectors } from './locations/history';
 import { LocalOfficeSettingsSelectors } from './local-office/local-office-settings';
+import { LocalOfficeHistorySelectors } from './local-office/local-office-history';
+import { LocalOfficeEctSelectors } from './local-office/local-office-ect';
 
 // ==================== RE-EXPORTS ====================
 export { MicrosoftLoginSelectors } from './auth/login';
@@ -28,6 +30,8 @@ export { SetupLegalSelectors } from './locations/legal';
 export { SetupAutoAddonSelectors } from './locations/auto-addon';
 export { SetupHistorySelectors } from './locations/history';
 export { LocalOfficeSettingsSelectors } from './local-office/local-office-settings';
+export { LocalOfficeHistorySelectors } from './local-office/local-office-history';
+export { LocalOfficeEctSelectors } from './local-office/local-office-ect';
 
 // ==================== MERGED PAGE OBJECTS ====================
 
@@ -82,9 +86,13 @@ export const ALL_SELECTORS = buildAllSelectors(
 
 // Validate LOS selectors don't collide with non-Location modules.
 // (LOS is allowed to "collide" with Location Settings — different pages, same button names)
+// HIS + ECT namespaces are namespace-prefixed (drpHistoryType, fldVenueFixedCosts, etc.)
+// and share zero keys with Settings — included here to verify same property.
 const _LOS_COLLISION_CHECK = buildAllSelectors(
   MicrosoftLoginSelectors,
   LocalOfficeSettingsSelectors,
+  LocalOfficeHistorySelectors,
+  LocalOfficeEctSelectors,
 );
 
 /**

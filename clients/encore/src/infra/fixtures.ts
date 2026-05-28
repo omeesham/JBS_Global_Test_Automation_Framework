@@ -10,6 +10,8 @@ import { LocationNotesPage } from '../pages/locations/location-notes.page';
 import { LocationLegalPage } from '../pages/locations/location-legal.page';
 import { LocationSharedSetupLocationsPage } from '../pages/locations/location-shared-setup-locations.page';
 import { LocalOfficeSettingsPage } from '../pages/local-office/local-office-settings.page';
+import { LocalOfficeHistoryPage } from '../pages/local-office/local-office-history.page';
+import { LocalOfficeEctPage } from '../pages/local-office/local-office-ect.page';
 import { LocationAutoAddonPage } from '../pages/locations/location-auto-addon.page';
 import { LocationManagementHistoryPage } from '../pages/locations/location-management-history.page';
 import { CommonMethods } from '../utils/common-methods';
@@ -46,6 +48,8 @@ type TestFixtures = {
   locationLegalPage: LocationLegalPage;
   locationSharedSetupLocationsPage: LocationSharedSetupLocationsPage;
   localOfficeSettingsPage: LocalOfficeSettingsPage;
+  localOfficeHistoryPage: LocalOfficeHistoryPage;
+  localOfficeEctPage: LocalOfficeEctPage;
   locationAutoAddonPage: LocationAutoAddonPage;
   locationManagementHistoryPage: LocationManagementHistoryPage;
   dependencyGate: (deps: string[]) => void;
@@ -389,6 +393,16 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
   localOfficeSettingsPage: async ({ authenticatedSession, config }, use) => {
     const localOfficeSettingsPage = new LocalOfficeSettingsPage(authenticatedSession.page, config);
     await use(localOfficeSettingsPage);
+  },
+
+  localOfficeHistoryPage: async ({ authenticatedSession, config }, use) => {
+    const localOfficeHistoryPage = new LocalOfficeHistoryPage(authenticatedSession.page, config);
+    await use(localOfficeHistoryPage);
+  },
+
+  localOfficeEctPage: async ({ authenticatedSession, config }, use) => {
+    const localOfficeEctPage = new LocalOfficeEctPage(authenticatedSession.page, config);
+    await use(localOfficeEctPage);
   },
 
   locationAutoAddonPage: async ({ authenticatedSession, config }, use) => {

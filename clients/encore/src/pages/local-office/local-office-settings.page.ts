@@ -1,6 +1,5 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from '../../core/base-page';
-import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
 import { LocalOfficeSettingsSelectors, getTsSelector } from '../../selectors';
 import { CheckboxState } from '../locations/location-form-helpers.page';
@@ -165,7 +164,12 @@ export class LocalOfficeSettingsPage extends BasePage {
     return (await this.getElement(tabKey).getAttribute('aria-selected')) === 'true';
   }
 
- /** Click a tab by selector key (public wrapper for spec-level tab switching). */
+ /** Click a tab WITHOUT auto-dismissing the unsaved changes dialog.
+ * Use this when the test needs to interact with the dialog itself (BAS-037/038). */
+  async clickTabDirect(tabKey: string): Promise<void> {
+    await this.getElement(tabKey).click();
+  }
+
  /**
  * Click a tab. Handles "Unsaved changes" alertdialog if it appears.
  * RCA ECT-012: Angular doesn't reliably call markAsPristine after ECT save.
@@ -173,12 +177,6 @@ export class LocalOfficeSettingsPage extends BasePage {
  * persists. Clicking another tab triggers the dirty guard → "Unsaved changes" dialog.
  * Dismiss with "Discard" to complete the navigation.
  */
- /** Click a tab WITHOUT auto-dismissing the unsaved changes dialog.
- * Use this when the test needs to interact with the dialog itself (BAS-037/038). */
-  async clickTabDirect(tabKey: string): Promise<void> {
-    await this.getElement(tabKey).click();
-  }
-
   async clickTab(tabKey: string): Promise<void> {
     await this.getElement(tabKey).click();
     await this.page.waitForTimeout(300); // Allow Angular to render dialog if dirty
@@ -376,199 +374,5 @@ export class LocalOfficeSettingsPage extends BasePage {
     await dlg.waitFor({ state: 'visible', timeout: 5_000 });
     await this.getElement('btnUnsavedDiscard').click();
     await dlg.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
-  }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // HISTORY TAB
- // ─────────────────────────────────────────────────────────────────────────────
-
-  async getHistoryColumnHeaderCount(): Promise<number> {
-    return this.getElement('tblHistory').locator('th').count();
-  }
-
-  async isHistoryTableEmpty(): Promise<boolean> {
-    const text = (await this.getElement('tblHistory').textContent() || '').trim();
-    return text.includes('No results.');
-  }
-
-  async getHistorySortButtonCount(): Promise<number> {
-    return this.getElement('tblHistory').locator('th button').count();
-  }
-
- /**
- * Get all column header texts from the history table.
- * Scoped to [data-testid="local-office-settings-history-table"] (5: 3 tables in DOM).
- */
-  async getHistoryColumnHeaders(): Promise<string[]> {
-    const table = this.getElement('tblHistory');
-    return (await table.locator('th').allTextContents()).map(t => t.trim());
-  }
-
- /**
- * Get cell value by row index (0-based) and header text.
- * CRITICAL (2): Local Office History uses SVG lucide-check icons for booleans.
- * textContent returns "" for both TRUE and FALSE. Must check innerHTML for lucide-check.
- */
-  async getHistoryColumnByHeader(rowIndex: number, headerText: string): Promise<string> {
-    const headers = await this.getHistoryColumnHeaders();
-    const colIndex = headers.indexOf(headerText);
-    if (colIndex === -1) throw new Error(`Column "${headerText}" not found in Local Office history table`);
-
-    const cell = this.getElement('tblHistory').locator('tbody tr').nth(rowIndex).locator('td').nth(colIndex);
-    const text = (await cell.textContent() || '').trim();
-
- // : Boolean detection via innerHTML for SVG lucide-check icons
-    if (text === '') {
-      const html = await cell.innerHTML();
-      if (html.includes('lucide-check')) return '\u2714'; // Return ✔ for TRUE
-    }
-    return text;
-  }
-
- /**
- * Read multiple column values from a specific row.
- * @param rowIndex - 0-based row index
- * @param headerTexts - Array of column header names to read
- * @returns Record mapping header name -> cell text
- */
-  async getHistoryRowValues(rowIndex: number, headerTexts: string[]): Promise<Record<string, string>> {
-    const result: Record<string, string> = {};
-    for (const header of headerTexts) {
-      result[header] = await this.getHistoryColumnByHeader(rowIndex, header);
-    }
-    return result;
-  }
-
- /**
- * Sort history table by Modified On descending.
- * Checks current sort state before clicking (11).
- */
-  async sortHistoryByModifiedOnDesc(): Promise<void> {
-    const headers = await this.getHistoryColumnHeaders();
-    const colIndex = headers.indexOf('Modified On');
-    if (colIndex === -1) throw new Error('Column "Modified On" not found in Local Office history table');
-
-    const th = this.getElement('tblHistory').locator('th').nth(colIndex);
-    const sortBtn = th.locator('button');
-    if (await sortBtn.count() === 0) throw new Error('"Modified On" column has no sort button');
-
-    const ariaSort = await th.getAttribute('aria-sort').catch(() => null);
-    if (ariaSort === 'descending') return;
- // Sort button opens a menu with "Sort ascending" / "Sort descending" items (verified ).
- // Matches the MGH page's clickSortColumn pattern.
-    await sortBtn.click();
-    const menu = this.page.locator('[role="menu"]');
-    await menu.waitFor({ state: 'visible', timeout: 5_000 });
-    await menu.locator('[role="menuitem"]:has-text("Sort descending")').click();
-    await this.waitForAngularStable();
-  }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // ECT TAB — FIELDS
- // ─────────────────────────────────────────────────────────────────────────────
-
-  async getEctFieldValue(key: string): Promise<string> {
-    return this.getFieldDisplayValue(key);
-  }
-
- /** Get event profit target table row count. */
-  async getEventProfitTargetRowCount(): Promise<number> {
-    return this.getElement('tblEventProfitTarget').locator('tbody tr').count();
-  }
-
- /** Check if event profit target table is read-only (no inputs). */
-  async isEventProfitTargetReadOnly(): Promise<boolean> {
-    return (await this.getElement('tblEventProfitTarget').locator('input, textarea').count()) === 0;
-  }
-
- /** Get subrental matrix table row count. */
-  async getSubRentalMatrixRowCount(): Promise<number> {
-    return this.getElement('tblSubRentalMatrix').locator('tbody tr').count();
-  }
-
- /** Check if subrental matrix is read-only (no inputs). */
-  async isSubRentalReadOnly(): Promise<boolean> {
-    return (await this.getElement('tblSubRentalMatrix').locator('input, textarea').count()) === 0;
-  }
-
- /** Get labor cost table row count. */
-  async getLaborCostRowCount(): Promise<number> {
-    return this.getElement('tblLaborCostAssumptions').locator('tbody tr').count();
-  }
-
- /** Get labor cost input value by row index (0-based). */
-  async getLaborCostValue(rowIndex: number): Promise<string> {
-    const input = this.page.locator(`[data-testid="ect-settings-input-labor-cost-${rowIndex}"]`);
-    return input.inputValue();
-  }
-
- /** Fill labor cost input by row index, press Tab ( + LRN-LOS-002).
- * RCA ECT-009: Angular can fire "Unsaved changes" alertdialog asynchronously after
- * tab load. If the click is intercepted, dismiss the dialog and retry. */
-  async fillLaborCost(rowIndex: number, value: string): Promise<void> {
-    const input = this.page.locator(`[data-testid="ect-settings-input-labor-cost-${rowIndex}"]`);
-    try {
-      await input.click({ timeout: 5_000 });
-    } catch {
- // Dialog may have appeared after tab load — dismiss and retry.
- // After dismissal, the app may revert to Basic Info tab. Re-navigate to ECT.
-      await this.dismissAlertDialogIfVisible();
-      await this.navigateToEctTab();
-      await input.click({ timeout: 10_000 });
-    }
-    await this.page.keyboard.press('Control+a');
-    await this.page.keyboard.type(value);
-    await input.press('Tab');
-  }
-
- /** Get first labor class name from the table. */
-  async getFirstLaborClassName(): Promise<string> {
-    const cell = this.getElement('tblLaborCostAssumptions').locator('tbody tr:first-child td:first-child');
-    return (await cell.textContent() || '').trim();
-  }
-
- /** Get last labor class name from the table. */
-  async getLastLaborClassName(): Promise<string> {
-    const cell = this.getElement('tblLaborCostAssumptions').locator('tbody tr:last-child td:first-child');
-    return (await cell.textContent() || '').trim();
-  }
-
- /** Check if labor class column is read-only (no inputs in first column). */
-  async isLaborClassReadOnly(): Promise<boolean> {
-    return (await this.getElement('tblLaborCostAssumptions')
-      .locator('tbody tr:first-child td:first-child input').count()) === 0;
-  }
-
- /** Check if labor cost column has input elements. */
-  async isLaborCostEditable(): Promise<boolean> {
-    return (await this.getElement('tblLaborCostAssumptions')
-      .locator('tbody tr:first-child td:last-child input').count()) > 0;
-  }
-
- /** Get the text of a table row cells for profit target or subrental tables. */
-  async getTableRowTexts(tableKey: string, rowSelector: string): Promise<string[]> {
-    const cells = this.getElement(tableKey).locator(`${rowSelector} td`);
-    return (await cells.allTextContents()).map(t => t.trim());
-  }
-
- /** Check if history tab has editable fields or save button. */
-  async isHistoryTabReadOnly(): Promise<boolean> {
-    const panel = this.getElement('tabContentHistory');
-    const inputs = await panel.locator('input:not([type="hidden"]), textarea').count();
-    const saveBtn = await panel.locator('button:has-text("Save")').count();
-    return inputs === 0 && saveBtn === 0;
-  }
-
- /** Get pagination text from history tab. */
-  async getHistoryPaginationText(): Promise<string> {
-    const panel = this.getElement('tabContentHistory');
-    const text = await panel.locator('text=/\\d+ \\/ \\d+/').textContent().catch(() => '');
-    return (text || '').trim();
-  }
-
- /** Get the count of pagination nav buttons in history tab. */
-  async getHistoryPaginationButtonCount(): Promise<number> {
-    const panel = this.getElement('tabContentHistory');
-    return panel.locator('button[aria-label*="page"], button[aria-label*="Page"]').count();
   }
 }

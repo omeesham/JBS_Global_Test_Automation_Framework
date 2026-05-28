@@ -6,60 +6,60 @@ test.describe('Local Office Settings — History Tab @locations @local-office-hi
 
   // Per-test navigation guard (dependency-gate removal Phase 1.5).
   // Mirrors BAS spec :33. Re-navigates only when retry-recycle landed on /home.
-  test.beforeEach(async ({ localOfficeSettingsPage }) => {
-    const url = localOfficeSettingsPage.getCurrentUrl();
+  test.beforeEach(async ({ localOfficeHistoryPage }) => {
+    const url = localOfficeHistoryPage.getCurrentUrl();
     if (!url.includes('settings/local-office')) {
-      await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
-      await localOfficeSettingsPage.navigateToHistoryTab();
+      await localOfficeHistoryPage.reloadBasicInfo(OFFICE_NO);
+      await localOfficeHistoryPage.navigateToHistoryTab();
     }
   });
 
-  test('TC-LOS-HIS-001: History tab — type selector and table visible', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-HIS-001: History tab — type selector and table visible', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
-    await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
-    await localOfficeSettingsPage.navigateToHistoryTab();
-    expect(await localOfficeSettingsPage.isTabSelected('tabHistory')).toBe(true);
-    expect(await localOfficeSettingsPage.isElementVisible('drpHistoryType')).toBe(true);
-    expect(await localOfficeSettingsPage.getComboboxValue('drpHistoryType')).toContain(HISTORY_COMBOBOX.default);
-    expect(await localOfficeSettingsPage.isElementVisible('tblHistory')).toBe(true);
+    await localOfficeHistoryPage.navigateToBasicInfoTab(OFFICE_NO);
+    await localOfficeHistoryPage.navigateToHistoryTab();
+    expect(await localOfficeHistoryPage.isTabSelected('tabHistory')).toBe(true);
+    expect(await localOfficeHistoryPage.isElementVisible('drpHistoryType')).toBe(true);
+    expect(await localOfficeHistoryPage.getComboboxValue('drpHistoryType')).toContain(HISTORY_COMBOBOX.default);
+    expect(await localOfficeHistoryPage.isElementVisible('tblHistory')).toBe(true);
   });
 
-  test('TC-LOS-HIS-002: History table has column headers', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-HIS-002: History table has column headers', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-HIS-001']);
-    const columnCount = await localOfficeSettingsPage.getHistoryColumnHeaderCount();
+    const columnCount = await localOfficeHistoryPage.getHistoryColumnHeaderCount();
     expect(columnCount).toBeGreaterThan(0);
   });
 
  // HIS-003: Office 1604 always has history records — verify table has data (original empty-state test was unreproducible).
-  test('TC-LOS-HIS-003: History table has data for office 1604', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-HIS-003: History table has data for office 1604', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-HIS-001']);
-    expect(await localOfficeSettingsPage.isHistoryTableEmpty()).toBe(false);
+    expect(await localOfficeHistoryPage.isHistoryTableEmpty()).toBe(false);
   });
 
-  test('TC-LOS-HIS-004: History type selector — 2 options', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-HIS-004: History type selector — 2 options', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-HIS-001']);
-    const options = await localOfficeSettingsPage.getComboboxOptionsList('drpHistoryType');
+    const options = await localOfficeHistoryPage.getComboboxOptionsList('drpHistoryType');
     expect(options).toHaveLength(2);
     expect(options).toEqual(
       expect.arrayContaining([...HISTORY_COMBOBOX.options]),
     );
   });
 
-  test('TC-LOS-HIS-005: Pagination controls present', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-HIS-005: Pagination controls present', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-HIS-001']);
-    const navBtnCount = await localOfficeSettingsPage.getHistoryPaginationButtonCount();
+    const navBtnCount = await localOfficeHistoryPage.getHistoryPaginationButtonCount();
     expect(navBtnCount).toBeGreaterThan(0);
   });
 
-  test('TC-LOS-HIS-006: History tab is read-only — no Save, no editable fields', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-HIS-006: History tab is read-only — no Save, no editable fields', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-HIS-001']);
-    expect(await localOfficeSettingsPage.isHistoryTabReadOnly()).toBe(true);
+    expect(await localOfficeHistoryPage.isHistoryTabReadOnly()).toBe(true);
   });
 
-  test('TC-LOS-HIS-007: Sort buttons present', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-HIS-007: Sort buttons present', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-HIS-001']);
-    const sortButtonCount = await localOfficeSettingsPage.getHistorySortButtonCount();
+    const sortButtonCount = await localOfficeHistoryPage.getHistorySortButtonCount();
     expect(sortButtonCount).toBeGreaterThan(0);
   });
 
