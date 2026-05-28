@@ -6,7 +6,6 @@
  * Used for:
  *   - PR review (binary XLSX diffs are unreadable; reviewers diff the dump)
  *   - parity / freshness sanity-checks
- *   - input to scripts/xlsx-vs-csv-parity.mjs
  *
  * Usage:
  *   ts-node scripts/xlsx-dump.ts                       # → stdout

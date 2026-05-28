@@ -22,19 +22,20 @@
  *   - Fallback `// FIXME: <reason>` line via `scripts/scan-fixmes.ts` registry
  *     (`reports/fixme-registry.json`).
  *
- * CSV-fallback mode (Phase A bootstrap):
- *   When playwright invocation fails or `--from-csv` flag is passed, the augment
- *   logic reads the existing `clients/encore/test_cases_csv/*.csv` files and
- *   inherits the SP00 columns already populated there. This lets Phase A produce
- *   a workbook even before playwright is wired up. CSV fallback is removed in
- *   Phase D when CSVs are deleted.
+ * Historical: a `from-csv` mode (Phase A bootstrap) read augment columns from
+ * `clients/encore/test_cases_csv/*.csv` when playwright was unavailable. Both
+ * the explicit `from-csv` branch and the playwright-failure fallback were
+ * removed on 2026-05-27 (post-audit cleanup) along with the `augmentFromCsv()`
+ * helper, the `csvDir` option, and the `'from-csv'` AugmentMode value — the
+ * underlying CSV directory was deleted in Phase D and the path is permanently
+ * dead.
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 
-export type AugmentMode = 'list-only' | 'with-run' | 'from-csv';
+export type AugmentMode = 'list-only' | 'with-run';
 
 export interface AugmentData {
   coverageStatus: 'Automated' | 'Pending Automation' | '';
@@ -46,8 +47,6 @@ export interface AugmentOptions {
   mode: AugmentMode;
   /** Path to clients/<id>/ — playwright config + specs live here. */
   clientRoot: string;
-  /** Path to clients/<id>/test_cases_csv/ — used in from-csv fallback. */
-  csvDir?: string;
   /** Path to reports/fixme-registry.json (optional fallback reason source). */
   fixmeRegistryPath?: string;
 }
@@ -64,15 +63,9 @@ export function augmentByTcId(
     result.set(id, { coverageStatus: '', automationExecution: '', ifFailedReason: '' });
   }
 
-  if (opts.mode === 'from-csv') {
-    return augmentFromCsv(tcIds, opts.csvDir!, result);
-  }
-
-  // Run playwright. On failure → fall back to CSV inheritance.
-  let playwrightOk = false;
+  // Run playwright (sole augment source post-2026-05-27 audit cleanup).
   try {
     const tests = listPlaywrightTests(opts.clientRoot);
-    playwrightOk = true;
     for (const t of tests) {
       const data = result.get(t.tcId);
       if (!data) continue;
@@ -89,10 +82,12 @@ export function augmentByTcId(
       if (!data.coverageStatus) data.coverageStatus = 'Pending Automation';
     }
   } catch (err) {
-    // Fall through to CSV fallback — surface to stderr so callers know
+    // Playwright invocation failed — surface to stderr so callers know augment
+    // columns will be empty. The previous CSV-inherit fallback was removed on
+    // 2026-05-27 (post-audit cleanup) along with the test_cases_csv directory.
     process.stderr.write(
       `[sp00-augment] playwright invocation failed (${(err as Error).message}); ` +
-      `falling back to CSV-inherit mode for Phase A bootstrap\n`
+      `augment columns will remain empty for this build\n`
     );
   }
 
@@ -101,11 +96,6 @@ export function augmentByTcId(
   for (const [id, reason] of reasonByTcId) {
     const data = result.get(id);
     if (data && !data.ifFailedReason) data.ifFailedReason = reason;
-  }
-
-  // Phase A bootstrap: if playwright didn't run AND CSVs exist, inherit augment cols from CSVs
-  if (!playwrightOk && opts.csvDir && fs.existsSync(opts.csvDir)) {
-    augmentFromCsv(tcIds, opts.csvDir, result);
   }
 
   return result;
@@ -223,82 +213,13 @@ function walkSpecs(dir: string): string[] {
   return acc;
 }
 
-/** CSV inheritance — read existing client CSVs, inherit Automated/Execution/Reason cols by TC ID. */
-function augmentFromCsv(
-  tcIds: string[],
-  csvDir: string,
-  result: Map<string, AugmentData>
-): Map<string, AugmentData> {
-  if (!fs.existsSync(csvDir)) return result;
-  const files = fs.readdirSync(csvDir).filter(f => f.endsWith('.csv'));
-  for (const f of files) {
-    const text = fs.readFileSync(path.join(csvDir, f), 'utf-8').replace(/^﻿/, '');
-    const rows = parseCsv(text);
-    if (rows.length === 0) continue;
-    const header = rows[0]!;
-    const idCol = header.indexOf('TC ID');
-    const automatedCol = header.indexOf('Automated');
-    const execCol = header.indexOf('Automation Execution');
-    const reasonCol = header.indexOf('If Failed Reason of Failure');
-    if (idCol < 0) continue;
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i]!;
-      const id = row[idCol];
-      if (!id) continue;
-      const existing = result.get(id);
-      if (!existing) continue;
-      if (automatedCol >= 0 && !existing.coverageStatus) {
-        const v = (row[automatedCol] ?? '').trim();
-        if (v === 'Yes') existing.coverageStatus = 'Automated';
-        else if (v === 'No') existing.coverageStatus = 'Pending Automation';
-      }
-      if (execCol >= 0 && !existing.automationExecution) {
-        const v = (row[execCol] ?? '').trim() as AugmentData['automationExecution'];
-        if (v === 'Pass' || v === 'Fail' || v === 'Skipped' || v === 'Blocked') {
-          existing.automationExecution = v;
-        }
-      }
-      if (reasonCol >= 0 && !existing.ifFailedReason) {
-        existing.ifFailedReason = (row[reasonCol] ?? '').trim();
-      }
-    }
-  }
-  return result;
-}
-
-/** Minimal CSV parser — handles quoted fields with internal commas + escaped quotes + newlines. */
-function parseCsv(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = '';
-  let inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i]!;
-    if (inQuotes) {
-      if (c === '"') {
-        if (text[i + 1] === '"') { cell += '"'; i++; }
-        else inQuotes = false;
-      } else cell += c;
-    } else {
-      if (c === '"') inQuotes = true;
-      else if (c === ',') { row.push(cell); cell = ''; }
-      else if (c === '\n') {
-        row.push(cell); rows.push(row); row = []; cell = '';
-      } else if (c === '\r') { /* skip */ }
-      else cell += c;
-    }
-  }
-  if (cell.length > 0 || row.length > 0) { row.push(cell); rows.push(row); }
-  // Drop trailing fully-empty rows
-  while (rows.length > 0 && rows[rows.length - 1]!.length === 1 && rows[rows.length - 1]![0] === '') rows.pop();
-  return rows;
-}
-
 // ────────────────────────── Blocked Overlay (post-A bugfix 2026-05-27) ──────────────────────────
 //
-// Phase A's --from-csv mode read CSVs directly and never invoked augmentByTcId(), so the XLSX had
-// an empty 'Automation Execution' column for every fixme'd / blocked TC. fixme-registry.json knows
-// about 28 distinct Blocked TCs across two classes:
+// Historical context: Phase A's `--from-csv` mode (removed 2026-05-27) read CSVs directly and
+// never invoked augmentByTcId(), so the XLSX had an empty 'Automation Execution' column for
+// every fixme'd / blocked TC. The Blocked Overlay survives as a registry-driven post-pass so
+// the same Blocked rows render correctly under the now-sole MD-primary path.
+// fixme-registry.json knows about 28 distinct Blocked TCs across two classes:
 //   - Cat-A / NOT-AUTOMATABLE: registered via `// FIXME TC-NNN (reason)` comments scanned by
 //     scripts/scan-fixmes.ts (location-local-information.spec.ts lines 473-476). These have
 //     specific reasons and SHORT-FORM TC IDs (TC-LOC-037) that need expansion to long-form
@@ -308,7 +229,7 @@ function parseCsv(text: string): string[][] {
 //     the scanner could not extract a TC ID. Real reason lives in the spec's `test.fixme(true, '...')`
 //     reason argument and must be read at the registered file:line.
 //
-// applyBlockedOverlay() is called by to-xlsx.ts:buildFromCsvSource() after CSV reads complete.
+// applyBlockedOverlay() is called by to-xlsx.ts:buildWorkbook() after MD-primary parsing completes.
 // Pure registry-driven (no playwright --list invocation). Side-effect: mutates tcsBySheet rows.
 
 /** Read the actual `test.fixme(true, '<reason>')` text at or near a given file:line. */
@@ -470,7 +391,7 @@ export function loadBlockedFromRegistry(
   return out;
 }
 
-/** Shape of a row produced by buildFromCsvSource()/buildFromMdSource() in to-xlsx.ts. */
+/** Shape of a row produced by buildFromMdSource() in to-xlsx.ts. */
 export interface BlockedOverlayRow {
   id: string;
   automationExecution: string;
@@ -522,10 +443,9 @@ if (require.main === module) {
   const args = process.argv.slice(2);
   const mode = (args.find(a => a.startsWith('--mode='))?.split('=')[1] ?? 'list-only') as AugmentMode;
   const clientRoot = path.join(REPO_ROOT, 'clients', 'encore');
-  const csvDir = path.join(clientRoot, 'test_cases_csv');
   // Demo: probe a few well-known TC IDs
   const demoIds = ['TC-LOC-CUR-001', 'TC-LOC-CUR-002', 'TC-LOS-BAS-001', 'TC-LOC-LP-001'];
-  const map = augmentByTcId(demoIds, { mode, clientRoot, csvDir });
+  const map = augmentByTcId(demoIds, { mode, clientRoot });
   for (const [id, data] of map) {
     console.log(`${id}\t${data.coverageStatus}\t${data.automationExecution}\t${data.ifFailedReason}`);
   }

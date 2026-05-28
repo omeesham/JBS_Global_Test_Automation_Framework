@@ -1,5 +1,7 @@
 ---
 title: Replace 11 per-module CSVs with one multi-sheet XLSX workbook (encore_test_cases.xlsx)
+status: DONE
+executed: 2026-05-27
 permissionMode: bypassPermissions
 model: opus
 thinking: max
@@ -9,10 +11,12 @@ scope: framework + clients/encore/
 phases: A, B, C, D (atomic-safe; do not collapse)
 author: Rutvik
 created: 2026-05-26
-target_repo_location: clients/encore + repo root + plans/pending/PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md
 ---
 
 # Plan — Replace 11 per-module CSVs with one multi-sheet XLSX workbook (`encore_test_cases.xlsx`)
+
+**Status**: DONE
+**Executed**: 2026-05-27
 
 > **Auditor pass-back state**: 3 audit passes folded in (covering 7+7+7 findings). Plan is locked, executable, with hard row-parity gates and explicit W1/W2 dependency handling.
 
@@ -37,7 +41,7 @@ target_repo_location: clients/encore + repo root + plans/pending/PLAN_CSV_TO_XLS
 
 ## Bootstrap (read FIRST in a new session — self-contained execution context)
 
-**Repo**: `C:\Users\rutvi\projects\encore_framework` (Windows; both PowerShell and Bash tools available)
+**Repo**: e.g., a Windows working directory cloned from this repo (both PowerShell and Bash tools available)
 **Active client**: encore (`clients/encore/`)
 **Active branch**: `client_deliverable` (verify with `git branch --show-current`)
 **Identity**: OWNER (cross-cutting framework change — touches agent prompts, rules, pipeline scripts, exporters, plans)
@@ -88,7 +92,7 @@ target_repo_location: clients/encore + repo root + plans/pending/PLAN_CSV_TO_XLS
 - Any phase: a file mutation that wasn't enumerated in the Files Inventory below — HALT, treat as missed surface, audit, and ASK before continuing
 
 **Repo-move on accept**:
-After ExitPlanMode approval, this file moves from `C:\Users\rutvi\.claude\plans\this-is-how-the-crystalline-flask.md` (scratch) to `C:\Users\rutvi\projects\encore_framework\plans\pending\PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md` (repo). `plans/INDEX.md` regenerated to list it. The scratch copy is deleted.
+After ExitPlanMode approval, this file moves from a scratch path (e.g., a hypothetical authoring location) to the canonical repo path under `plans/pending/`. `plans/INDEX.md` regenerated to list it. The scratch copy is deleted.
 
 ---
 
@@ -249,7 +253,7 @@ Workbook quality is bounded by source-MD quality. Before Phase A can produce a c
 - **GP-4 — Notes ID/FCC reconciliation**: **ABSORBED by SUBPLAN_XLSX_PREP_01 (2026-05-26)** — no-op confirmation. The 25 NTS rename + 14 SSL rename + 1 FCC-028 drop + 3 collision-resolution IDs (NTS-062/063/064) + 1 NTS-059 MD backfill all landed in the upstream subplan's Phase 3. This GP-4 line item is preserved here as audit trail; no work to do.
 - **Duplicate `TC-LOC-NTS-035` resolution**: spec lines 425 + 1085 both use this ID — rename one (default: line 425, since it's the older fixme; confirm with user before rename)
 - **GP-3 — CSV content cleansing** (light pass): scrub hardcoded e2e URL leaks (`cloudapps-e2e.encoreglobal.com`) from `Preconditions`/`Steps` cells in source MD (so XLSX inherits clean text)
-- **Local-office MD verification (NOT split — auditor finding 2)**: The 3 local-office MDs **already exist** (confirmed via `Glob`): `local_office_settings_test_cases.md`, `local_office_history_test_cases.md`, `local_office_ect_test_cases.md`. Phase 0 only verifies they are clean and scope-pure (BAS-only / HIS-only / ECT-only content). The MERGED file is on the CSV side — `clients/encore/test_cases_csv/local_office_settings_test_cases.csv` (85 rows = BAS + HIS + ECT mixed). The merged CSV disappears with the entire CSV directory in Phase D. No MD split work needed.
+- **Local-office MD verification (NOT split — auditor finding 2)**: The 3 local-office MDs **already exist** (confirmed via `Glob`): `local_office_settings_test_cases.md`, `local_office_history_test_cases.md`, `local_office_ect_test_cases.md`. Phase 0 only verifies they are clean and scope-pure (BAS-only / HIS-only / ECT-only content). The MERGED file is on the CSV side — e.g., the pre-deletion `local_office_settings_test_cases.csv` (85 rows = BAS + HIS + ECT mixed). The merged CSV disappears with the entire CSV directory in Phase D. No MD split work needed.
 
 After Phase 0: **13 source MDs** total (10 locations + 3 local-office), all clean, all properly counted. Workbook will have **14 tabs** (Overview + 13 module sheets).
 
@@ -572,6 +576,97 @@ Grep csv export_test_cases/              # zero (post-deletion)
 | Plan triage bulk-regex corrupts historical/technical CSV references (auditor finding 6) | Phase C uses `scripts/triage-plans-csv-references.mjs` to produce a per-plan action ledger; every plan classified REWRITE / DROP-AS-SUPERSEDED / PRESERVE / REVIEW manually. No automated mass-replace |
 | Agents execute obsolete CSV work after migration (auditor finding 7) | Phase C dependency-graph rewrite: every `Depends on:` / `Blocks:` / `Parent:` field pointing at a now-superseded plan gets rewritten; side-output `_internal/plan-dependency-graph-<date>.md` enumerates affected edges |
 | Phase A.5 breaks `to-jira.ts` for external Jira import | Mapping layer at boundary: internal type is `Pending Automation`, Jira CSV column + API `customfield_testtype` still emit `'Manual'`. Verified by Phase A.5 acceptance `npm run export:jira` smoke |
+
+---
+
+## Execution Summary
+
+**Executed**: 2026-05-27 (single multi-day session anchored on the 2026-05-26..27 strict-line grind through 5/5 RED audit verdicts).
+
+**Phases delivered (A→D, all in)**:
+
+- **Phase A** (build workbook): `export_test_cases/to-xlsx.ts` + `to-csv.ts` deliver 14 sheets (Overview + 13 module sheets) with 477 data rows. Workbook at `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`. `npm run xlsx:build` is the canonical builder; `xlsx:build:list-only` (default) and `xlsx:build:with-run` are the two augmentation modes.
+- **Phase A.5** (commit `9ec3f58` + `018bd70`): N1 semantic rename + list-only parser switch (`export_test_cases/humanize.ts` introduced, MD-primary parsing routed via `to-csv.ts`).
+- **Phase B** (commit `ab9b4a3`): readers + rules + agents + queue rewired to XLSX. `scripts/check-tc-parity.ts` reads XLSX as the primary source (CSV path is the deprecated fallback gated by `if (!fs.existsSync(exportsDir)) return ids`).
+- **Phase C** (commit `cc4955d`): plan triage + supersede parity parent. Per-plan REWRITE / DROP-AS-SUPERSEDED / PRESERVE / REVIEW classifications landed; `SUBPLAN_PARITY_W1_02` officially retired.
+- **Phase D-prep** (commit `9964956`): humanize.ts vocab scrubber + `npx` Windows fix + augment modulo.
+- **Phase D** (this session): 22 CSV files deleted — 11 tracked under `clients/encore/test_cases_csv/*.csv` (via `git rm`), 11 untracked under `export_test_cases/exports/*.csv` (via `rm`). Both directories now empty. `npm run check:tc-parity` PASS post-delete (Spec TCs: 350 / Markdown TCs: 477 / XLSX TCs: 477; CSV fallback line gone).
+
+**Strict line `Zero internal-vocab leaks` — met**:
+
+- `npm run xlsx:lint` (new script at `scripts/xlsx-vocab-lint.mjs`) PASS: 0 hits across 27 banned-pattern categories scanned over 490 rows × 13 columns.
+- Categories covered: `Angular`/`Playwright`/`data-testid`/`.spec.ts`/`getByTestId`/`MCP_VERIFICATION_LOG`/`BUG-LI-NNN`/`MCP-N verified`/`expectAfter*`/`expectBefore*`/`ensureEmpty*`/`saveAndConfirm`/`reloadAndNavigate*`/`waitForSave*`/`clickAdd`/`textarea.value`/`form.pristine`/`ERR_*`/`BILLING_*`/`hideRemitTax`/`CheckDiscount`/`updateControlStatus`/`ADD_LOCATION.*`/lowercase camelCase fn call/bare `YYYY-MM-DD`/`NM-NNN` ticket.
+- SUMMARY metadata rows (with `Last Updated: 2026-05-27`) are explicitly excluded from the scan; workbook build metadata is allowed.
+
+**Structural defense** (LR-050 stale-cleanup enumeration — done in-plan, not deferred):
+
+- `scripts/xlsx-vocab-lint.mjs` (new, 65 lines) — fires as `npm run xlsx:lint` and inside `.githooks/pre-commit` Gate 5b.
+- `.githooks/pre-commit` Gate 5b — fires when any test-case MD OR the workbook is staged; refuses commit on lint FAIL.
+- `package.json` — `xlsx:lint` script wired alongside `xlsx:vs-csv-parity`.
+
+**MD source cleanup** (LR-050 + auditor v3 findings):
+
+- 13 source test-case MDs scrubbed under `clients/encore/specs_planning/test-cases/setup/{local-office,locations}/*.md`.
+- 408 internal-vocab pattern replacements across 12 files (Notes module had the most: 232; LI: 67; SSL: 34).
+- 3 fixme-registry reasons cleaned in `reports/fixme-registry.json` (TC-LOC-037 / TC-LOC-035 / TC-LOC-079 lost `Angular` references).
+- 37 baseline-restoration entries added to `reports/fixme-registry.json` (31→68 entries) — restores blocked-overlay coverage for content lost in earlier rebuilds.
+
+**Parser fix** (regression discovered + resolved during v3 re-audit):
+
+- `export_test_cases/to-csv.ts:229-236` — stepsMatch / expectedMatch / dataMatch regex anchored to `\n\s*\*\*<Section>\*\*:` so inline `→ Expected:` text inside numbered steps no longer prematurely terminates the Steps section. Restores AAO-002 (and 13 sibling FCC TCs) to correct Steps/Expected split matching baseline CSV behavior.
+
+**Mechanical verifications run** (all PASS):
+
+- `npm run check:tc-parity` → exit 0, Spec/Markdown/XLSX 350/477/477 all aligned.
+- `npm run xlsx:build` → 14 sheets, 477 data rows, Blocked overlay applied to 57 rows from 57 registry TC IDs.
+- `npm run xlsx:lint` → 0 banned-vocab hits across 27 pattern categories.
+
+**Adversarial v3 re-audit** (5 Opus general-purpose subagents, parallel, post-rebuild):
+
+- `reports/xlsx-vs-csv-audit-LO-trio-2026-05-27-v3.md` — GREEN (0/0/0/0/0).
+- `reports/xlsx-vs-csv-audit-acct-addon-curr-2026-05-27-v3.md` — RED → resolved post-parser-fix.
+- `reports/xlsx-vs-csv-audit-left-legal-LI-2026-05-27-v3.md` — 24 leak cells → cleaned via 2 follow-up MD scrubber passes.
+- `reports/xlsx-vs-csv-audit-mgh-notes-2026-05-27-v3.md` — RED on charter-adjacent vocab → cleaned (CLEANUP:/CORRECTION:/RCA: prefixes + nth()/React state/etc).
+- `reports/xlsx-vs-csv-audit-pri-ssl-overview-2026-05-27-v3.md` — RED on SSL FCC template Steps + `test.fixme()` leak → cleaned via `to-csv.ts:386` rename (`CLEANUP REQUIRED:` → `Cleanup after test:`).
+
+**Stop conditions** (per plan §79-88):
+
+- Phase A workbook present + all module sheets non-empty → PASS.
+- Phase B `check:tc-parity` exit 0 → PASS.
+- Phase D dry-run ship: pending pre-push verification (not required by plan body).
+- Strict-line `zero internal-vocab leaks` → met (xlsx:lint PASS).
+
+**Out of scope deliberately left untouched** (per §578-591):
+
+- Multi-client XLSX, color coding, charts, real-time updates, MD migration of `Automation Status: Manual` (zero literal hits found), Jira/TestMo external vocab (Manual emit preserved via to-jira.ts mapping layer), src/data/adapters/excelAdapter.ts test-data loader, website chatbot CSV surfaces, W1-03/04/05 + W2-06/07/08 format-agnostic preservation.
+
+**Files mutated this session** (cited paths for C2/C3):
+
+- `scripts/xlsx-vocab-lint.mjs` (new)
+- `export_test_cases/to-csv.ts` (parser regex anchor fix + CLEANUP rename)
+- `.githooks/pre-commit` (Gate 5b wiring)
+- `package.json` (xlsx:lint script entry)
+- `reports/fixme-registry.json` (37 added + 3 cleaned reasons)
+- `clients/encore/specs_planning/test-cases/setup/local-office/local_office_ect_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/local-office/local_office_history_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_account_address_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_auto_addon_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_currency_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_left_panel_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_legal_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_local_information_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_management_history_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_notes_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_pricing_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/locations/locations_shared_setup_locations_test_cases.md`
+
+**Files deleted this session** (Phase D atomic delete):
+
+- 11 tracked CSVs under `clients/encore/test_cases_csv/*.csv`
+- 11 untracked CSVs under `export_test_cases/exports/*.csv`
+
+**TCs implemented / dropped / deferred** — no per-TC churn this plan (deliverable migration; spec → MD → XLSX coverage preserved end-to-end).
 
 ---
 

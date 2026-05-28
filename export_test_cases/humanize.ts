@@ -7,8 +7,7 @@
  *
  * Phase A.5 of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION lands this module so
  * `xlsx:build --list-only` and `--with-run` modes produce the same humanized
- * cells that `to-csv.ts` historically wrote, and `xlsx-vs-csv-parity.mjs`
- * exits 0 without the `--from-csv` bootstrap.
+ * cells that `to-csv.ts` writes for the CSV-format MD parsing intermediary.
  *
  * Scope: text transformation only — no markdown parsing, no I/O, no test-case
  * domain logic. Each function is a pure (text → text) helper.
@@ -296,13 +295,17 @@ export function scrubInternalVocab(text: string): string {
   s = s.replace(/\/api\/[a-z0-9/_-]+/gi, 'the API');
   // Spec-internal helper function calls (e.g., isHistoryTableEmpty(),
   // fillNote(0, "a"), saveAndConfirm(), validateBillWayDate()). Strip the
-  // `Name(...)` form; leave bare function-name strings alone (those may be
-  // legitimate API references the colleague needs to see).
-  s = s.replace(/\b[a-z][a-zA-Z0-9_]+\([^)]*\)/g, '');
-  // Bare spec-helper identifiers in Steps cells (Phase D pre-audit Subagent 4
-  // RED: NTS-039..064 carry harness step names like "baseline / act /
-  // expectBeforeSave / saveAndConfirm / reload / expectAfterReload" instead
-  // of tester-friendly prose). Translate the well-known ones; leave others.
+  // camelCase-form `Name(...)` only — requires lowercase-start + at least one
+  // CapitalizedWord (so prose like `column(content)` is NOT a false match).
+  // 2026-05-27 tightening per v2 audit truncation findings.
+  s = s.replace(/\b[a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]+\([^)]*\)/g, '');
+  // Bare spec-helper identifiers in Steps cells. Conservative set — only the
+  // well-known harness verbs that cannot be confused with prose.
+  // DROPPED 2026-05-27 per v2 audit: `baseline → Capture baseline state`,
+  // `act → Perform the action`, `reload → Reload the page` — all three caused
+  // grammar regressions in mid-clause prose ("treat as setup baseline" →
+  // "treat as setup Capture baseline state"; "after add+save+reload" →
+  // "after add+save+Reload the page"). Translation belongs in MD source.
   const SPEC_HELPER_TRANSLATIONS: Array<[RegExp, string]> = [
     [/\bensureEmptyState\b/g, 'Ensure the table is in its empty state (delete any existing rows and save)'],
     [/\bsaveAndConfirm\b/g, 'Click Save and confirm the dialog'],
@@ -311,9 +314,6 @@ export function scrubInternalVocab(text: string): string {
     [/\bexpectBeforeSave\b/g, 'Verify the expected state before saving'],
     [/\bexpectAfterSave\b/g, 'Verify the expected state after saving'],
     [/\bexpectAfterReload\b/g, 'Verify the expected state after reload'],
-    [/\bbaseline\b(?!\s*(?:state|values|truth|artifact|directory|URL|workflow|first))/g, 'Capture baseline state'],
-    [/(?<![a-zA-Z])\bact\b(?![a-zA-Z])(?!\s*(?:on|as|like|upon))/g, 'Perform the action'],
-    [/\breload\b(?!\s*(?:the|page|after|and|button))/g, 'Reload the page'],
   ];
   for (const [re, replacement] of SPEC_HELPER_TRANSLATIONS) s = s.replace(re, replacement);
 

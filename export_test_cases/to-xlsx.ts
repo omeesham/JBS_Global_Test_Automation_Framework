@@ -10,16 +10,12 @@
  *       locations_management_history, locations_notes, locations_pricing,
  *       locations_shared_setup_location  ← truncated from "..._locations" (32→31 chars; Excel limit)
  *
- * Sources (Phase A bootstrap — "local parser fork" per
- * PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION §256):
- *   PRIMARY  — `clients/encore/specs_planning/test-cases/setup/<module>/*.md`
- *              (TC ID, Title, Module, Submodule, Status, Steps, Expected, Notes)
- *   SUPPLEMENTARY  — `clients/encore/test_cases_csv/*.csv`
- *              (Specific Field, Tags — values that are not yet structured in MD;
- *               also Automated/Execution/Reason as CSV-fallback when playwright
- *               invocation fails). After Phase D deletes CSVs, sp00-augment-logic.ts
- *               must produce all augment columns; Specific Field becomes a manual
- *               column the team owns directly in XLSX (or extends MD format later).
+ * Sources (post-Phase-D + 2026-05-27 post-audit cleanup):
+ *   PRIMARY (sole) — `clients/encore/specs_planning/test-cases/setup/<module>/*.md`
+ *                    (TC ID, Title, Module, Submodule, Status, Steps, Expected, Notes)
+ *   Specific Field is a manual column owned directly in the XLSX (no CSV bootstrap
+ *   path; the CSV supplementary lookup + CSV_DIR const + loadCsvLookup() function
+ *   were dropped on 2026-05-27 once the test_cases_csv directory itself was deleted).
  *
  * Phase A constraint: this file MUST NOT modify
  *   types.ts / markdown-parser.ts / to-json.ts / to-jira.ts / to-testmo.ts / index.ts.
@@ -34,12 +30,9 @@
  *   - No conditional formatting, no charts, no pivots
  *
  * Build modes (selected via CLI flag):
- *   default                 — list-only SP00 augment (sub-second when playwright list works;
- *                             falls back to CSV-inherit when playwright fails)
+ *   default                 — list-only SP00 augment (sub-second; Pass column =
+ *                             assumed-pass for automated TCs that aren't skip/fixme)
  *   --with-run              — actual pass/fail via `npx playwright test` (slow)
- *   --from-csv              — Phase A bootstrap mode; ignores playwright entirely
- *                             and inherits augment columns from existing CSVs.
- *                             Removed in Phase D.
  *
  * CLI: `npm run xlsx:build` / `npm run xlsx:build:with-run`
  */
@@ -61,7 +54,6 @@ import { scrubInternalVocab } from './humanize';
 const REPO_ROOT = path.resolve(__dirname, '..');
 const CLIENT_ROOT = path.join(REPO_ROOT, 'clients', 'encore');
 const MD_ROOT = path.join(CLIENT_ROOT, 'specs_planning', 'test-cases', 'setup');
-const CSV_DIR = path.join(CLIENT_ROOT, 'test_cases_csv');
 const XLSX_DIR = path.join(CLIENT_ROOT, 'test_cases_xlsx');
 const XLSX_PATH = path.join(XLSX_DIR, 'encore_test_cases.xlsx');
 const FIXME_REGISTRY = path.join(REPO_ROOT, 'reports', 'fixme-registry.json');
@@ -220,9 +212,11 @@ interface ParsedTc {
  * Tags / Specific Field column swap on LO TCs; Coverage Status rename and
  * Yes→Automated / No→Pending Automation value remap; trailing SUMMARY rows).
  *
- * Specific Field is NOT in the human CSV — it's filled later by `loadCsvLookup`
- * out of the existing CSVs (Phase A bootstrap). Augment columns
- * (Coverage Status / Automation Execution / If Failed Reason) come from SP00 augment.
+ * Specific Field is left blank by the parser — it's a manual column owned
+ * directly in the XLSX post-Phase-D (the CSV supplementary lookup that used to
+ * back-fill it was removed on 2026-05-27 along with the test_cases_csv dir).
+ * Augment columns (Coverage Status / Automation Execution / If Failed Reason)
+ * come from SP00 augment.
  */
 function parseMd(filePath: string): ParsedTc[] {
   const csvText = CsvConverter.convertFile(filePath, 'human');
@@ -268,43 +262,12 @@ function parseMd(filePath: string): ParsedTc[] {
   return tcs;
 }
 
-// ────────────────────────── CSV supplementary lookup ──────────────────────────
-
-interface CsvLookup {
-  specificFieldByTcId: Map<string, string>;
-  tagsByTcId: Map<string, string>;
-  /** TC IDs encountered in CSVs but missing from MD — surfaces drift. */
-  orphanedInCsv: Set<string>;
-}
-
-function loadCsvLookup(): CsvLookup {
-  const specificFieldByTcId = new Map<string, string>();
-  const tagsByTcId = new Map<string, string>();
-  const allCsvIds = new Set<string>();
-  if (!fs.existsSync(CSV_DIR)) {
-    return { specificFieldByTcId, tagsByTcId, orphanedInCsv: new Set() };
-  }
-  for (const f of fs.readdirSync(CSV_DIR)) {
-    if (!f.endsWith('.csv')) continue;
-    const text = fs.readFileSync(path.join(CSV_DIR, f), 'utf-8').replace(/^﻿/, '');
-    const rows = parseCsv(text);
-    if (rows.length === 0) continue;
-    const header = rows[0]!;
-    const idCol = header.indexOf('TC ID');
-    const specificFieldCol = header.indexOf('Specific Field');
-    const tagsCol = header.indexOf('Tags');
-    if (idCol < 0) continue;
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i]!;
-      const id = row[idCol];
-      if (!id) continue;
-      allCsvIds.add(id);
-      if (specificFieldCol >= 0) specificFieldByTcId.set(id, (row[specificFieldCol] ?? '').trim());
-      if (tagsCol >= 0) tagsByTcId.set(id, (row[tagsCol] ?? '').trim());
-    }
-  }
-  return { specificFieldByTcId, tagsByTcId, orphanedInCsv: allCsvIds };
-}
+// ────────────────────────── CSV-text parser (used by parseMd) ──────────────────────────
+//
+// parseCsv() is shared infrastructure used by parseMd() to parse the in-memory
+// CSV text emitted by CsvConverter.convertFile() (the MD→CSV parity-oracle path).
+// The original loadCsvLookup() that read from disk-resident CSV files was removed
+// on 2026-05-27 (post-audit cleanup) once the test_cases_csv directory was deleted.
 
 function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
@@ -366,85 +329,10 @@ interface BuildOptions {
   mode: AugmentMode;
 }
 
-/** Phase A bootstrap: emit XLSX rows directly from existing CSVs (every cell from CSV). */
-function buildFromCsvSource(): Map<string, ParsedTc[]> {
-  const tcsBySheet = new Map<string, ParsedTc[]>();
-  if (!fs.existsSync(CSV_DIR)) {
-    throw new Error(
-      `[xlsx:build] from-csv mode requires CSVs to exist at ${CSV_DIR}. ` +
-        `Phase D removed them — switch mode to list-only or with-run.`
-    );
-  }
-  const csvFiles = fs.readdirSync(CSV_DIR).filter(f => f.endsWith('.csv'));
-  for (const f of csvFiles) {
-    const text = fs.readFileSync(path.join(CSV_DIR, f), 'utf-8').replace(/^﻿/, '');
-    const rows = parseCsv(text);
-    if (rows.length === 0) continue;
-    const header = rows[0]!;
-    const idCol = header.indexOf('TC ID');
-    const titleCol = header.indexOf('Title');
-    const moduleCol = header.indexOf('Module');
-    const submoduleCol = header.indexOf('Submodule');
-    const specificFieldCol = header.indexOf('Specific Field');
-    const tagsCol = header.indexOf('Tags');
-    const preCol = header.indexOf('Preconditions');
-    const stepsCol = header.indexOf('Steps');
-    const expectedCol = header.indexOf('Expected Result');
-    const notesCol = header.indexOf('Notes');
-    const automatedCol = header.indexOf('Automated');
-    const execCol = header.indexOf('Automation Execution');
-    const reasonCol = header.indexOf('If Failed Reason of Failure');
-    if (idCol < 0) continue;
-
-    const baseSlug = f.replace(/\.csv$/, '');
-    const isMergedLo = baseSlug === 'local_office_settings_test_cases';
-
-    for (let i = 1; i < rows.length; i++) {
-      const r = rows[i]!;
-      const id = (r[idCol] ?? '').trim();
-      if (!id) continue;
-      const automatedVal = automatedCol >= 0 ? (r[automatedCol] ?? '').trim() : '';
-      const coverageStatus: ParsedTc['coverageStatus'] =
-        automatedVal === 'Yes' ? 'Automated' : automatedVal === 'No' ? 'Pending Automation' : '';
-      const execRaw = execCol >= 0 ? (r[execCol] ?? '').trim() : '';
-      const automationExecution: ParsedTc['automationExecution'] =
-        execRaw === 'Pass' || execRaw === 'Fail' || execRaw === 'Skipped' || execRaw === 'Blocked' ? execRaw : '';
-      const tc: ParsedTc = {
-        id,
-        title: titleCol >= 0 ? (r[titleCol] ?? '') : '',
-        module: moduleCol >= 0 ? (r[moduleCol] ?? '') : '',
-        submodule: submoduleCol >= 0 ? (r[submoduleCol] ?? '') : '',
-        specificField: specificFieldCol >= 0 ? (r[specificFieldCol] ?? '') : '',
-        tags: tagsCol >= 0 ? (r[tagsCol] ?? '') : '',
-        preconditions: preCol >= 0 ? (r[preCol] ?? '') : '',
-        steps: stepsCol >= 0 ? (r[stepsCol] ?? '') : '',
-        expected: expectedCol >= 0 ? (r[expectedCol] ?? '') : '',
-        notes: notesCol >= 0 ? (r[notesCol] ?? '') : '',
-        coverageStatus,
-        automationExecution,
-        ifFailedReason: reasonCol >= 0 ? (r[reasonCol] ?? '') : '',
-      };
-
-      // Resolve which sheet this TC lands on
-      let sheetName: string;
-      if (isMergedLo) {
-        const m = id.match(/^TC-LOS-([A-Z]+)-/);
-        const prefix = m ? m[1]! : '';
-        sheetName = LO_PREFIX_TO_SHEET[prefix] ?? 'local_office_settings';
-      } else {
-        sheetName = toSheetName(baseSlug);
-      }
-      if (!tcsBySheet.has(sheetName)) tcsBySheet.set(sheetName, []);
-      tcsBySheet.get(sheetName)!.push(tc);
-    }
-  }
-  return tcsBySheet;
-}
-
 /**
- * Phase A.5+ MD-primary parsing path. Humanization is applied inside
- * `parseMd()` via the shared `humanize()` helper from `./humanize`, so
- * `--list-only` and `--with-run` produce CSV-equivalent cells.
+ * MD-primary parsing path (Phase A.5+; sole operative source post-Phase-D).
+ * Humanization is applied inside `parseMd()` via the shared `humanize()` helper
+ * from `./humanize`, so `--list-only` and `--with-run` produce CSV-equivalent cells.
  */
 function buildFromMdSource(): Map<string, ParsedTc[]> {
   const mdFiles = walkMd(MD_ROOT);
@@ -460,25 +348,9 @@ function buildFromMdSource(): Map<string, ParsedTc[]> {
     tcsBySheet.get(sheetName)!.push(...tcs);
   }
 
-  // CSV supplementary lookup (Specific Field + Tags) — until MD format extends to carry them
-  const csvLookup = loadCsvLookup();
-  for (const [, tcs] of tcsBySheet) {
-    for (const tc of tcs) {
-      const sf = csvLookup.specificFieldByTcId.get(tc.id);
-      if (sf) tc.specificField = sf;
-      const tagsCsv = csvLookup.tagsByTcId.get(tc.id);
-      if (tagsCsv && !tc.tags) tc.tags = tagsCsv;
-      csvLookup.orphanedInCsv.delete(tc.id);
-    }
-  }
-  if (csvLookup.orphanedInCsv.size > 0) {
-    process.stderr.write(
-      `[xlsx:build] WARN — ${csvLookup.orphanedInCsv.size} CSV TC IDs not found in MDs: ` +
-        `${Array.from(csvLookup.orphanedInCsv).slice(0, 5).join(', ')}` +
-        (csvLookup.orphanedInCsv.size > 5 ? `, ...` : '') +
-        `\n`
-    );
-  }
+  // Specific Field + Tags now flow exclusively from MD metadata; the CSV
+  // supplementary lookup that previously populated them was removed on
+  // 2026-05-27 (post-audit cleanup) once test_cases_csv was deleted.
   return tcsBySheet;
 }
 
@@ -486,69 +358,48 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
   const buildIsoDate = new Date().toISOString().slice(0, 10);
   const buildTimestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
 
-  let tcsBySheet: Map<string, ParsedTc[]>;
-  if (opts.mode === 'from-csv') {
-    // Phase A bootstrap: emit XLSX directly from CSVs.
-    // Rationale: the CSV is the canonical state of the deliverable today (post-SP00 humanization);
-    // the to-csv.ts emitter applied cleanMarkdown + humanizeAssertion transforms that turn raw MD
-    // into client-readable text. Re-parsing MDs here would lose that humanization and fail the
-    // xlsx-vs-csv-parity HARD GATE. Until Phase A.5/B port the humanization layer into to-xlsx.ts
-    // (or sp00-augment-logic.ts) directly, CSV-sourced builds are the safest path. Phase D removes
-    // CSVs; at that point the workflow must switch to MD-based parsing with humanization inlined.
-    tcsBySheet = buildFromCsvSource();
+  // MD-primary parsing path is the sole operative path post-Phase-D
+  // (2026-05-27 cleanup of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION removed
+  // `--from-csv` mode and `buildFromCsvSource()`). `list-only` and `with-run`
+  // are the only valid modes; programmatic callers passing `from-csv` fall
+  // through to MD-primary parsing.
+  const tcsBySheet = buildFromMdSource();
 
-    // Blocked overlay (post-Phase-A bugfix 2026-05-27) — CSV has no 'Blocked' column, but
-    // fixme-registry.json knows about 28 distinct TCs intentionally not running (12 Cat-A +
-    // 12 NOT-AUTOMATABLE in location-local-information, 4 FIXME-CALL in shared-setup-locations
-    // and notes). Overlay sets automationExecution='Blocked' + ifFailedReason from registry.
-    // Leaves all other CSV-sourced cells untouched. xlsx-vs-csv-parity allows this modulo.
-    const overlay = applyBlockedOverlay(tcsBySheet, { repoRoot: REPO_ROOT, registryPath: FIXME_REGISTRY });
-    process.stderr.write(`[xlsx:build] Blocked overlay applied to ${overlay.applied} row(s) from ${overlay.resolvedTcIds.length} registry TC(s)\n`);
-  } else {
-    // list-only / with-run: MD-primary parsing path (Phase A.5+).
-    tcsBySheet = buildFromMdSource();
-
-    // SP00 augment — populate Coverage Status / Automation Execution / Reason for every TC ID
-    const allTcIds: string[] = [];
-    for (const [, tcs] of tcsBySheet) for (const tc of tcs) allTcIds.push(tc.id);
-    const augment = augmentByTcId(allTcIds, {
-      mode: opts.mode,
-      clientRoot: CLIENT_ROOT,
-      csvDir: CSV_DIR,
-      fixmeRegistryPath: FIXME_REGISTRY,
-    });
-    for (const [, tcs] of tcsBySheet) {
-      for (const tc of tcs) {
-        const a = augment.get(tc.id);
-        if (!a) continue;
-        tc.coverageStatus = a.coverageStatus;
-        tc.automationExecution = a.automationExecution;
-        tc.ifFailedReason = a.ifFailedReason;
-      }
+  // SP00 augment — populate Coverage Status / Automation Execution / Reason for every TC ID
+  const allTcIds: string[] = [];
+  for (const [, tcs] of tcsBySheet) for (const tc of tcs) allTcIds.push(tc.id);
+  const augment = augmentByTcId(allTcIds, {
+    mode: opts.mode,
+    clientRoot: CLIENT_ROOT,
+    fixmeRegistryPath: FIXME_REGISTRY,
+  });
+  for (const [, tcs] of tcsBySheet) {
+    for (const tc of tcs) {
+      const a = augment.get(tc.id);
+      if (!a) continue;
+      tc.coverageStatus = a.coverageStatus;
+      tc.automationExecution = a.automationExecution;
+      tc.ifFailedReason = a.ifFailedReason;
     }
+  }
 
-    // Blocked overlay — same registry-driven correction the --from-csv path applies
-    // (post-Phase-A bugfix 2026-05-27). On Windows, list-only mode hits the
-    // `spawnSync npx ENOENT` fallback so playwright's `kind === 'fixme'` signal
-    // never reaches augment, leaving `Automation Execution` blank for blocked TCs.
-    // The overlay sets execution='Blocked' + ifFailedReason from the registry —
-    // matches --from-csv behaviour so xlsx-vs-csv-parity.mjs's Blocked-modulo
-    // (lines 247-248) lets the registry-driven cells pass.
-    const overlay = applyBlockedOverlay(tcsBySheet, { repoRoot: REPO_ROOT, registryPath: FIXME_REGISTRY });
-    process.stderr.write(`[xlsx:build] Blocked overlay applied to ${overlay.applied} row(s) from ${overlay.resolvedTcIds.length} registry TC(s)\n`);
+  // Blocked overlay (post-Phase-A bugfix 2026-05-27). On Windows, list-only mode
+  // hits the `spawnSync npx ENOENT` fallback so playwright's `kind === 'fixme'`
+  // signal never reaches augment, leaving `Automation Execution` blank for blocked
+  // TCs. The overlay sets execution='Blocked' + ifFailedReason from the registry.
+  const overlay = applyBlockedOverlay(tcsBySheet, { repoRoot: REPO_ROOT, registryPath: FIXME_REGISTRY });
+  process.stderr.write(`[xlsx:build] Blocked overlay applied to ${overlay.applied} row(s) from ${overlay.resolvedTcIds.length} registry TC(s)\n`);
 
-    // Consistency closeout: any TC that has an If-Failed reason but a blank
-    // Automation Execution is logically blocked (the reason came from a
-    // spec-file `test.fixme(true, '<reason>')` scan, which `scan-fixmes.ts`
-    // couldn't resolve a TC ID for — see UNKNOWN entries in fixme-registry.json,
-    // and the forward-walk in `scanFixmeReasons` that still resolves them via
-    // dependencyGate hits). Promoting them to Blocked here is the universal
-    // "reason ⇒ blocked" invariant, and lets xlsx-vs-csv-parity.mjs's
-    // `xlsxExec === 'Blocked'` modulo pass for them too.
-    for (const [, tcs] of tcsBySheet) {
-      for (const tc of tcs) {
-        if (tc.ifFailedReason && !tc.automationExecution) tc.automationExecution = 'Blocked';
-      }
+  // Consistency closeout: any TC that has an If-Failed reason but a blank
+  // Automation Execution is logically blocked (the reason came from a
+  // spec-file `test.fixme(true, '<reason>')` scan, which `scan-fixmes.ts`
+  // couldn't resolve a TC ID for — see UNKNOWN entries in fixme-registry.json,
+  // and the forward-walk in `scanFixmeReasons` that still resolves them via
+  // dependencyGate hits). Promoting them to Blocked here is the universal
+  // "reason ⇒ blocked" invariant.
+  for (const [, tcs] of tcsBySheet) {
+    for (const tc of tcs) {
+      if (tc.ifFailedReason && !tc.automationExecution) tc.automationExecution = 'Blocked';
     }
   }
 
@@ -719,7 +570,6 @@ if (require.main === module) {
   const args = process.argv.slice(2);
   let mode: AugmentMode = 'list-only';
   if (args.includes('--with-run')) mode = 'with-run';
-  else if (args.includes('--from-csv')) mode = 'from-csv';
   else if (args.includes('--list-only')) mode = 'list-only';
 
   // Echo augment-mode caveat per plan §192
@@ -727,11 +577,6 @@ if (require.main === module) {
     console.log(
       `[xlsx:build] mode=list-only — Pass column = assumed-pass for automated TCs that ` +
         `aren't skip/fixme. For authoritative Pass/Fail run \`npm run xlsx:build:with-run\`.`
-    );
-  } else if (mode === 'from-csv') {
-    console.log(
-      `[xlsx:build] mode=from-csv — augment columns inherited verbatim from current CSVs ` +
-        `(Phase A bootstrap). Switch to list-only / with-run once Phase D removes CSVs.`
     );
   }
 

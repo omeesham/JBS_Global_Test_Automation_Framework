@@ -1,18 +1,14 @@
 #!/usr/bin/env ts-node
 /**
- * TC Parity Check: Spec TCs vs Markdown TCs vs XLSX TCs (with CSV fallback)
+ * TC Parity Check: Spec TCs vs Markdown TCs vs XLSX TCs
  *
  * Compares Playwright spec test IDs against markdown test case files and the
- * XLSX deliverable (CSV fallback only while both formats coexist — Phase B
- * of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION). After Phase D removes CSVs,
- * the CSV-fallback path becomes a no-op and is removed along with --fix-csv.
+ * XLSX deliverable. Reports three classes of drift:
  *   1. TCs in specs but NOT in markdown (missing from client deliverable)
  *   2. TCs in specs but NOT in XLSX (export gap)
  *   3. TCs in markdown but NOT in XLSX (parser/export bug)
  *
- * Usage: npx ts-node scripts/check-tc-parity.ts [--fix-csv]
- *   --fix-csv: One-phase alias — rebuilds the XLSX workbook (legacy flag name
- *              kept through Phase C for hook compat; removed in Phase D).
+ * Usage: npx ts-node scripts/check-tc-parity.ts
  */
 
 import { execSync } from 'child_process';
@@ -96,21 +92,6 @@ function getXlsxTcIds(): Set<string> {
   return ids;
 }
 
-/** @deprecated CSV-fallback path removed in Phase D. Kept while CSVs coexist with XLSX. */
-function getCsvTcIds(): Set<string> {
-  const ids = new Set<string>();
-  const exportsDir = SHARED_PATHS.exports;
-  if (!fs.existsSync(exportsDir)) return ids;
-  const csvFiles = fs.readdirSync(exportsDir).filter(f => f.endsWith('.csv'));
-  for (const file of csvFiles) {
-    const content = fs.readFileSync(path.join(exportsDir, file), 'utf8');
-    for (const match of content.matchAll(TC_PATTERN)) {
-      ids.add(match[0]);
-    }
-  }
-  return ids;
-}
-
 function findMarkdownFiles(dir: string): string[] {
   const results: string[] = [];
   if (!fs.existsSync(dir)) return results;
@@ -134,7 +115,6 @@ function setDiff(a: Set<string>, b: Set<string>): string[] {
 const specIds = getSpecTcIds();
 const mdIds = getMarkdownTcIds();
 const xlsxIds = getXlsxTcIds();
-const csvIds = getCsvTcIds(); // legacy fallback — removed in Phase D
 
 const inSpecNotMd = setDiff(specIds, mdIds);
 const inSpecNotXlsx = setDiff(specIds, xlsxIds);
@@ -146,7 +126,7 @@ let hasIssues = false;
 console.log('=== TC Parity Report ===\n');
 console.log(`Spec TCs:     ${specIds.size}`);
 console.log(`Markdown TCs: ${mdIds.size}`);
-console.log(`XLSX TCs:     ${xlsxIds.size}${csvIds.size ? `   (CSV fallback: ${csvIds.size})` : ''}\n`);
+console.log(`XLSX TCs:     ${xlsxIds.size}\n`);
 
 if (inSpecNotMd.length > 0) {
   hasIssues = true;
@@ -176,16 +156,6 @@ if (!hasIssues) {
   console.log('PASS: All spec TCs are present in both markdown and XLSX deliverable.');
 } else {
   console.log('FAIL: Parity issues detected. Fix markdown gaps, then rebuild XLSX via `npm run xlsx:build`.');
-}
-
-if (process.argv.includes('--fix-csv')) {
-  // Legacy flag name kept for one phase (B+C) — actually rebuilds the XLSX
-  // workbook. Phase D removes the --fix-csv flag entirely along with the
-  // CSV fallback branch above. (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION
-  // Phase B / Phase D — auditor finding #1.)
-  console.log('\n--- Rebuilding XLSX workbook (legacy --fix-csv alias) ---');
-  execSync('npm run xlsx:build', { stdio: 'inherit' });
-  console.log('Done.');
 }
 
 process.exit(hasIssues ? 1 : 0);

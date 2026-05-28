@@ -87,6 +87,22 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
+# --- 5b) PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D: vocab-leak gate.
+# Fires when the XLSX workbook is staged OR when any test-case MD is staged.
+# Runs xlsx-vocab-lint against the deliverable workbook to refuse internal/agent
+# vocab (data-testid, BUG-LI-NNN, spec helpers, backend symbols, MCP-N verified
+# dates, NM-NNN tickets, bare YYYY-MM-DD audit markers) in the shipped TC content.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '(^clients/[^/]+/test_cases_xlsx/.+\.xlsx$|^clients/[^/]+/specs_planning/test-cases/.+\.md$)'; then
+  echo "[pre-commit] TC MD or XLSX staged → running xlsx vocab lint (Phase D gate)..." >&2
+  if ! node scripts/xlsx-vocab-lint.mjs; then
+    echo "[pre-commit] HALT: client-deliverable workbook contains internal/agent vocab." >&2
+    echo "         Fix: strip from source MDs under clients/encore/specs_planning/test-cases/setup/," >&2
+    echo "         then 'npm run xlsx:build' and restage the workbook." >&2
+    exit 1
+  fi
+fi
+
 # --- 6) LR-028 + LR-037: activity-log timestamp validation. ----------------------
 # Fires whenever agent-activity-log.md is staged. Guards against backdated rows
 # (timestamp < latest mtime of any referenced file).

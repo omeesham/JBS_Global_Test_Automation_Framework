@@ -226,13 +226,15 @@ export class CsvConverter {
       let statusMeta = statusMetaMatch && statusMetaMatch[1] ? statusMetaMatch[1].trim() : '';
 
       // AGENT fields (existing format)
-      const stepsMatch = body.match(/(?:\*\*)?Steps(?:\*\*)?:\s*(.+?)(?=(?:\*\*)?Expected(?:\*\*)?|(?:\*\*)?Steps \(Human\)(?:\*\*)?|$)/s);
+      // Anchor section-boundary lookaheads to `\n\s*\*\*<Name>\*\*:` so inline "→ Expected:" text
+      // inside numbered steps does NOT prematurely terminate the Steps section (Phase D regression fix).
+      const stepsMatch = body.match(/(?:\*\*)?Steps(?:\*\*)?:\s*(.+?)(?=\n\s*\*\*Expected\*\*:|\n\s*\*\*Steps \(Human\)\*\*:|\n\s*\*\*Data\*\*:|\n\s*\*\*Notes\*\*:|\n---|\n##|$)/s);
       let steps = stepsMatch && stepsMatch[1] ? stepsMatch[1].trim() : '';
-      
-      const expectedMatch = body.match(/(?:\*\*)?Expected(?:\*\*)?:\s*(.+?)(?=(?:\*\*)?Data(?:\*\*)?|(?:\*\*)?Notes(?:\*\*)?|(?:\*\*)?Cleanup(?:\*\*)?|(?:\*\*)?Automatable(?:\*\*)?|(?:\*\*)?MCP_VERIFICATION_LOG(?:\*\*)?|(?:\*\*)?Automation File(?:\*\*)?|(?:\*\*)?Expected Result \(Human\)(?:\*\*)?|\n---|\n##|$)/s);
+
+      const expectedMatch = body.match(/\n\s*\*\*Expected\*\*:\s*(.+?)(?=\n\s*\*\*Data\*\*:|\n\s*\*\*Notes\*\*:|\n\s*\*\*Cleanup\*\*:|\n\s*\*\*Automatable\*\*:|\n\s*\*\*MCP_VERIFICATION_LOG\*\*:|\n\s*\*\*Automation File\*\*:|\n\s*\*\*Expected Result \(Human\)\*\*:|\n---|\n##|$)/s);
       let expected = expectedMatch && expectedMatch[1] ? expectedMatch[1].trim() : '';
 
-      const dataMatch = body.match(/(?:\*\*)?Data(?:\*\*)?:\s*(.+?)(?=\n---|\n##|(?:\*\*)?Notes(?:\*\*)?|(?:\*\*)?Automatable(?:\*\*)?|(?:\*\*)?MCP_VERIFICATION_LOG(?:\*\*)?|$)/s);
+      const dataMatch = body.match(/\n\s*\*\*Data\*\*:\s*(.+?)(?=\n---|\n##|\n\s*\*\*Notes\*\*:|\n\s*\*\*Automatable\*\*:|\n\s*\*\*MCP_VERIFICATION_LOG\*\*:|$)/s);
       let data = dataMatch && dataMatch[1] ? dataMatch[1].trim() : '';
       
       // HUMAN fields (new dual-format sections)
@@ -305,8 +307,8 @@ export class CsvConverter {
         const cleanupText = this.sanitizeUnicode(cleanupSectionMatch[1].trim());
         if (cleanupText && !/CLEANUP/i.test(notesHuman)) {
           notesHuman = notesHuman
-            ? `${notesHuman} | CLEANUP: ${cleanupText}`
-            : `CLEANUP: ${cleanupText}`;
+            ? `${notesHuman} | Cleanup after test: ${cleanupText}`
+            : `Cleanup after test: ${cleanupText}`;
         }
       }
 
@@ -381,7 +383,7 @@ export class CsvConverter {
     let notes = '';
     if (cleanupNotes.length > 0) {
       const cleanedNotes = cleanupNotes.map(c => this.cleanMarkdown(this.convertElementIdsToLabels(c)));
-      notes = `CLEANUP REQUIRED: ${cleanedNotes.join('; ')}`;
+      notes = `Cleanup after test: ${cleanedNotes.join('; ')}`;
     }
     
     return {
