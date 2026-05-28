@@ -222,3 +222,16 @@ clients/*/scripts/_*.ts
 # Regression snapshot debug files
 .claude/state/regression-snapshots/*.txt
 .claude/state/regression-snapshots/*.json
+
+# Excel lock files (auto-created when workbook open)
+~$*.xlsx
+~$*.xls
+
+# Windows-path scratch artifacts from bash redirect mishaps
+/C:*
+
+# Runtime/session state — never shipped (2026-05-28; closes git check-ignore gaps:
+# .claude/state/*.json|*.lock match direct children only, not these subdir/sibling cases)
+.claude/scheduled_tasks.lock
+.claude/state/closure-attempts/
+.claude/state/regression-snapshot-*.txt
