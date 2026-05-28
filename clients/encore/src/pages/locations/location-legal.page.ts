@@ -143,19 +143,6 @@ export class LocationLegalPage extends BasePage {
     return searchCount > 0;
   }
 
- /**
- * Open a combobox, verify the checked option, close it. Returns the checked option text.
- * @deprecated Unused — candidate for cleanup. No test calls this method (verified ).
- */
-  async getCheckedOption(dropdownKey: string): Promise<string | null> {
-    const listbox = await this.openComboboxListbox(dropdownKey);
-    const checked = listbox.locator('[role="option"][data-state="checked"]');
-    const text = await checked.count() > 0 ? (await checked.textContent() || '').trim() : null;
-    await this.page.keyboard.press('Escape');
-    await listbox.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => {});
-    return text;
-  }
-
  // ---------------------------------------------------------------------------
  // FCC RUNNER HOOKS (field-case-runner.ts)
  // ---------------------------------------------------------------------------
@@ -173,24 +160,44 @@ export class LocationLegalPage extends BasePage {
   }
 
  /**
- * FCC runner baseline hook — restore SC + T&C to defaults if dirty.
- * Extracts the LR-019 baseline-enforcement logic from TC-001 so FCC cases can
- * reuse it as their `baseline:` callback.
+ * Baseline hook — restore SC + T&C to defaults if dirty. Used per-test by the
+ * non-FCC `beforeEach` (LR-019) and as the FCC runner `baseline:`/`cleanup:` callback.
+ *
+ * Bounded retry (max 3) wraps the WHOLE cycle — read → re-select → save → reload →
+ * re-verify — because the flaky step is the 114-option Radix SC select (LR-025): it can
+ * "click successfully" yet leave the Angular model unchanged. A silent no-op leaves Save
+ * disabled, and `clickSaveWithDialog` returns `{success:true}` when Save is disabled
+ * (base-page.ts:360-363) — so save-success never proves the restore landed. The
+ * post-reload re-read against the persisted DOM is the load-bearing check; if it still
+ * shows non-default, the loop re-selects. After 3 failed cycles it throws, converting a
+ * silent baseline failure into a loud one instead of letting the spec re-rot.
  */
   async ensureDefaultState(defaults: { serviceChargeName: string; termsName: string }): Promise<void> {
-    let dirty = false;
-    if (await this.getServiceChargeValue() !== defaults.serviceChargeName) {
-      await this.selectServiceCharge(defaults.serviceChargeName);
-      dirty = true;
-    }
-    if (await this.getTermsValue() !== defaults.termsName) {
-      await this.selectTerms(defaults.termsName);
-      dirty = true;
-    }
-    if (dirty) {
-      await this.clickSave();
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      let dirty = false;
+      if (await this.getServiceChargeValue() !== defaults.serviceChargeName) {
+        await this.selectServiceCharge(defaults.serviceChargeName);
+        dirty = true;
+      }
+      if (await this.getTermsValue() !== defaults.termsName) {
+        await this.selectTerms(defaults.termsName);
+        dirty = true;
+      }
+      if (!dirty) return; // already at defaults — nothing to restore
+      // saveAndConfirm() throws on a real 4xx/5xx (fail loud); a silent no-op (select
+      // didn't propagate → Save disabled) returns without throwing — the re-verify below
+      // catches that case and loops.
+      await this.saveAndConfirm();
       await this.reloadAndNavigateToLegalTab();
+      if (await this.getServiceChargeValue() === defaults.serviceChargeName
+        && await this.getTermsValue() === defaults.termsName) {
+        return;
+      }
     }
+    throw new Error(
+      `ensureDefaultState: Legal SC/Terms not at defaults after ${maxAttempts} attempts`,
+    );
   }
 
  // ---------------------------------------------------------------------------
@@ -214,7 +221,12 @@ export class LocationLegalPage extends BasePage {
   async clickSaveAndGetDialog(): Promise<'save-changes' | 'none'> {
     const el = this.getElement('btnSaveLegal');
     await el.waitFor({ state: 'visible', timeout: 5_000 });
-    if (await el.isDisabled()) return 'none';
+    // A disabled Save here means the preceding change never dirtied the form — the
+    // caller expected a save dialog, so fail loud rather than return an opaque 'none'
+    // that masks the real symptom (diagnostic-only; baseline reset prevents reaching here).
+    if (await el.isDisabled()) {
+      throw new Error('clickSaveAndGetDialog: Save button is disabled — no change to save (expected a dirty form)');
+    }
     await el.click();
     const dialog = this.getElement('dlgSaveChanges');
     const visible = await dialog.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true).catch(() => false);

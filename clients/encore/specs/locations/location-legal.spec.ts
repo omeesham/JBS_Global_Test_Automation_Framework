@@ -105,30 +105,20 @@ test.describe('Location Legal @locations @legal', () => {
 
   // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
   // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
+  // Per-test baseline reset (LR-019): every test starts from default SC/T&C so an
+  // "alt-value" selection is always a real net change — even when office 1604 starts a
+  // run dirty from a prior interrupted run (the net-zero-on-stale-state defect).
   test.beforeEach(async ({ locationLegalPage }) => {
     if (!(await locationLegalPage.isOnLegalTab())) {
       await locationLegalPage.navigateToLegalTab(OFFICE_NO);
     }
+    await locationLegalPage.ensureDefaultState(LEGAL_DEFAULTS);
   });
 
   test('TC-LOC-LGL-001: Navigate to Legal tab; 3 column headers, 1 data row', async ({ locationLegalPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
-    await locationLegalPage.navigateToLegalTab(OFFICE_NO);
- // Baseline enforcement — restore default SC/T&C if dirty from prior failed run.
-    let dirty = false;
-    if (await locationLegalPage.getServiceChargeValue() !== LEGAL_DEFAULTS.serviceChargeName) {
-      await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
-      dirty = true;
-    }
-    if (await locationLegalPage.getTermsValue() !== LEGAL_DEFAULTS.termsName) {
-      await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
-      dirty = true;
-    }
-    if (dirty) {
-      await locationLegalPage.clickSave();
-      await locationLegalPage.reloadAndNavigateToLegalTab();
-    }
+    // Baseline is enforced per-test in beforeEach (ensureDefaultState).
     expect(locationLegalPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
     expect(await locationLegalPage.getColumnHeaders()).toEqual([...LEGAL_COLUMN_HEADERS]);
     expect(await locationLegalPage.getGridRowCount()).toBe(1);
