@@ -31,6 +31,12 @@ export const PHONE1_BASELINE = '760-883-1957';
 /** Account List search term → expected result. */
 export const ACCOUNT_SEARCH = { term: 'Parker', expectedResult: 'Parker Palm Springs' };
 
+/**
+ * Account List Account-Number filter term → expected result (TC-LOC-ACC-030).
+ * Verified live 2026-05-29: AC000107 → exactly 1 row "Parker Palm Springs".
+ */
+export const ACCOUNT_NUMBER_SEARCH = { number: 'AC000107', expectedResult: 'Parker Palm Springs' };
+
 /** Address dialog search term → expected match and row count. */
 export const ADDRESS_SEARCH = { filterTerm: 'Beverly', expectedMatch: 'Beverly', totalRows: 7 };
 

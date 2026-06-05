@@ -23,18 +23,38 @@ When fixing failing specs, follow this exact order:
 
 **Trigger**: Any spec-fixing session. Enforced by healer/maintainer agents.
 
-## LR-019: First test in any spec MUST enforce baseline state
+## LR-019: Every test MUST start from an enforced baseline — PER-TEST, not first-test-only
 
-Whether the spec uses `test.describe()` or legacy `test.describe.serial()`, the first test (TC-001) must:
+A test that sets a **fixed-set** value (checkbox / combobox / radio) then asserts Save-enables or
+persistence-after-reload is **net-zero-vulnerable**: if the page starts dirty (a prior crashed run,
+OR a per-test retry that re-runs one test without TC-001), the "change" is a net-zero no-op → Save
+never enables → the assertion fails against correct app behavior. Baseline MUST therefore be reset
+**per-test in `beforeEach`** — a first-test-only (TC-001) baseline is **INSUFFICIENT**.
 
-1. Navigate to the page fresh
-2. Read current state from DOM (not assume defaults)
-3. Reset any dirty state from prior runs (toggle checkboxes, clear fields)
-4. Save if needed to persist clean baseline
-5. Re-navigate to ensure clean state
+Why first-test-only rots: serial blocks + `dependencyGate` were dropped 2026-05-08 (annotation-only
+since), so TC-001 no longer guarantees-runs-first; and `retries` re-run a single failed test **plus
+its `beforeEach` but NOT TC-001's body**. The 2026-05-27 Legal failures (TC-LGL-009/011/013…) are the
+graduating incident — TC-001 *had* a baseline, yet a retry of TC-009 alone skipped it.
 
-Required because subsequent tests assume a known starting state. Never hardcode expected initial values without baseline enforcement.
-**Trigger**: Every new spec. Generator must implement.
+How to satisfy it:
+
+1. **Preferred (compile-enforced):** author new CRUD/save tests via the FCC runner
+   (`saveAndVerifyCase`, `clients/encore/src/core/field-case-runner.ts`). Its `baseline` field is
+   **required at compile time** — a case literally cannot exist without one. This is the only
+   *structural* guarantee; prefer it for all new CRUD.
+2. **Non-FCC describe:** wire a hardened `ensureDefaultState(defaults)` into the describe's
+   `beforeEach` (after the nav-guard). Use the proven Legal pattern
+   (`clients/encore/src/pages/locations/location-legal.page.ts` `ensureDefaultState` — bounded retry
+   wrapping read → re-select → save → reload → re-verify; **throws** if still dirty after 3 cycles,
+   because `clickSaveWithDialog` returns `{success:true}` when Save is disabled, so save-success
+   alone never proves the reset landed).
+
+**Scope of work (no blanket backfill):** apply this to any spec you **ADD or do CRUD on** — wire the
+spec you're touching, cleanly, in the same change. Do **NOT** retro-fit untouched specs: a clean
+single-worker run (2026-05-29) showed **zero** current baseline failures, so this is *preventive*
+discipline for new work + CI's parallel/retry runs, not a repair of a broken suite.
+
+**Trigger**: Every new spec, AND every time you add/modify a CRUD/save test in an existing spec.
 
 ## LR-021: Un-skip before rewrite — always try original logic first
 

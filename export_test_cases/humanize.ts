@@ -21,12 +21,21 @@ import { TestStep } from './types';
 
 /**
  * Replace Unicode characters with ASCII equivalents.
- * Note: ✓/✔ checkmarks normalized to `->` so the action↔expected arrow-split
- * works for files that use them as separators.
+ * Note: ✓/✔ checkmarks are context-aware (LR-ENC-004 V3 closure, 2026-06-05).
+ * As CONTENT — backticked (`✔`), parenthesized ((✓)/(✗)), or a `=✓` value — they
+ * become words so they never corrupt a cell. As a bare space-delimited SEPARATOR
+ * (action ✔ expected) they stay `->` for the action↔expected step-split.
  */
 export function sanitizeUnicode(value: string): string {
   return value
     .replace(/→/g, '->')
+    // content checkmarks first (so a checkmark used as content is never read as
+    // the action↔expected separator); bare separator checkmark stays '->' below.
+    .replace(/`\s*[✓✔]\s*`/g, 'check mark')
+    .replace(/\(\s*[✓✔]\s*\)/g, '(checked)')
+    .replace(/\(\s*[✕✖✗✘]\s*\)/g, '(unchecked)')
+    .replace(/=\s*[✓✔]/g, '= checked')
+    .replace(/=\s*[✕✖✗✘]/g, '= unchecked')
     .replace(/[✓✔]/g, '->')
     .replace(/×/g, 'x')
     .replace(/—/g, '-')
@@ -62,9 +71,10 @@ export function cleanMarkdown(text: string): string {
 
 /**
  * Translate DOM-attribute and a11y-tree phrasings into plain English.
- * Safe for Steps, Expected Result, Title, and Notes. Preserves accessibility
- * property names like aria-label / aria-valuenow that may be deliberately
- * documented.
+ * Safe for Steps, Expected Result, Title, and Notes. Translates aria-checked /
+ * -selected / -invalid clauses here; the remaining raw ARIA property names
+ * (aria-label / aria-valuenow / role="…") are stripped downstream in
+ * scrubInternalVocab (LR-ENC-004 V2 — the deliverable carries zero ARIA markup).
  * Apply order: cleanMarkdown → humanizeAssertion (so quote/backtick stripping
  * happens first).
  */
@@ -165,6 +175,10 @@ export const TAB_MAP: Record<string, { submodule: string; tab: string }> = {
   ECT: { submodule: 'ect_settings', tab: 'ECT Settings tab is active' },
   HIST: { submodule: 'history_integration', tab: 'Location Management History tab is active' },
   HISL: { submodule: 'history_integration', tab: 'Location Settings History tab is active' },
+  // Corporate Pricing is a standalone page (not a Location Settings tab). Added
+  // 2026-06-05 (closure-audit D1) so CPR TCs without an explicit **Preconditions**
+  // block fall back to a CORRECT generic line, never the "Basic Information tab" default.
+  CPR: { submodule: 'corporate_pricing', tab: 'Corporate Pricing page is active' },
 };
 
 /** Generate preconditions from test case context when not provided. */
@@ -292,13 +306,19 @@ export function scrubInternalVocab(text: string): string {
   // customer-facing prose. Conservative scope — only flag the specific tokens
   // surfaced by Phase D pre-audit subagents 3 + 4.
   s = s.replace(/\bform\.(pristine|invalid|dirty|valid|touched|pending)\b/g, 'the form');
-  s = s.replace(/\/api\/[a-z0-9/_-]+/gi, 'the API');
+  // Host-relative API endpoints, optionally prefixed by an HTTP verb and a leading
+  // path segment (e.g. "GET /navigator/api/location/pricing/strategies"). Consume the
+  // verb + WHOLE path together so we never leave a mangled "/navigatorthe API"
+  // (closure-audit D2 scrub-bug fix, 2026-06-05 — the old /\/api\// rule started at
+  // "/api/" and stranded the "/navigator" prefix). Verb form first, then bare path.
+  s = s.replace(/\b(?:GET|POST|PUT|PATCH|DELETE)\s+(?:\/[a-z0-9_-]+)*\/api\/[a-z0-9/_-]+/gi, 'the API request');
+  s = s.replace(/(?:\/[a-z0-9_-]+)*\/api\/[a-z0-9/_-]+/gi, 'the API');
   // Spec-internal helper function calls (e.g., isHistoryTableEmpty(),
   // fillNote(0, "a"), saveAndConfirm(), validateBillWayDate()). Strip the
   // camelCase-form `Name(...)` only — requires lowercase-start + at least one
   // CapitalizedWord (so prose like `column(content)` is NOT a false match).
   // 2026-05-27 tightening per v2 audit truncation findings.
-  s = s.replace(/\b[a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]+\([^)]*\)/g, '');
+  s = s.replace(/\b[a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]+\s*\([^)]*\)/g, '');
   // Bare spec-helper identifiers in Steps cells. Conservative set — only the
   // well-known harness verbs that cannot be confused with prose.
   // DROPPED 2026-05-27 per v2 audit: `baseline → Capture baseline state`,
@@ -326,8 +346,84 @@ export function scrubInternalVocab(text: string): string {
     [/\bFormControl\.(dirty|invalid|valid|touched|pristine|pending)\b/g, 'the form'],
     [/\bFormControl\b/g, 'form field'],
     [/\bFormGroup\b/g, 'form'],
+    // ARIA role names → plain UI nouns (client deliverable should not read like an
+    // accessibility tree). Idempotent: 'dropdown'/'field'/'panel' contain no role tokens.
+    [/\bcombobox\b/gi, 'dropdown'],
+    [/\bspinbutton\b/gi, 'field'],
+    // Container roles + the Radix component-library name (LR-ENC-004 V2, 2026-06-05).
+    // Radix stripped BEFORE listbox so "Radix listbox" collapses to "dropdown".
+    [/\btabpanel\b/gi, 'panel'],
+    [/\bRadix\b\s*/g, ''],
+    [/\blistbox\b/gi, 'dropdown'],
+    // Angular "dirty"/"pristine" change-tracking jargon → plain English. Specific
+    // "dirty-state tracking" first so it reads as "change tracking", then the
+    // standalone forms collapse to "unsaved changes".
+    [/\bdirty[- ]?state tracking\b/gi, 'change tracking'],
+    [/\bdirty[- ]?(?:state|flag)\b/gi, 'unsaved changes'],
   ];
   for (const [re, replacement] of DOM_ANGULAR_TRANSLATIONS) s = s.replace(re, replacement);
+
+  // ── Client-deliverable hardening (LR-ENC-004 V2, 2026-06-05) ──
+  // Strip ARIA role/attribute markup, raw test-env hostnames, and internal
+  // authoring tags the token-lint denylist did not catch. Runs after the
+  // DOM_ANGULAR_TRANSLATIONS word-swaps and before the final id-label pass +
+  // whitespace cleanup, so any double-spaces introduced here collapse below.
+  // role="..." (+ any trailing aria-* attrs), with optional wrapping parens.
+  s = s.replace(/\s*\(?\s*role\s*=\s*"[^"]*"(?:\s+aria-[a-z]+\s*=\s*"[^"]*")*\s*\)?/gi, ' ');
+  // aria-NAME="value" attribute forms.
+  s = s.replace(/\s*aria-[a-z]+\s*=\s*"[^"]*"/gi, '');
+  // Bare ARIA property names → plain words (keeps a11y-test prose readable).
+  s = s.replace(/\baria-label\b/gi, 'accessible name')
+       .replace(/\baria-valuenow\b/gi, 'current value')
+       .replace(/\baria-[a-z]+\b/gi, '');
+  // Full app URL → relative route (drop test-env scheme+host, keep the path).
+  s = s.replace(/https?:\/\/[^/\s]*encoreglobal\.com/gi, '');
+  // Internal authoring tags: [FIXME], [WIP], [TODO], [BUG...], (FCC), (WIP), (TODO).
+  s = s.replace(/\s*\[(?:FIXME|WIP|TODO|BUG)[^\]]*\]/gi, '')
+       .replace(/\s*\((?:FCC|WIP|TODO)\)/gi, '');
+  // Double-"the" typo backstop (provably safe — "the the" is never valid English).
+  s = s.replace(/\bthe the\b/gi, 'the');
+  // Leading internal status tag at the START of a cell ("DROPPED — …", "WIP: …").
+  // Anchored to cell-start + a separator so a legit mid-sentence word ("dropped
+  // frames", "deferred to NTS-038") is never touched (LR-ENC-004 V3, 2026-06-05).
+  s = s.replace(/^\s*(?:DROPPED|NOT-AUTOMATABLE|DEFERRED|WIP|TODO)\s*[-–—:]\s*/i, '');
+
+  // Element-id selectors that slipped past convertElementIdsToLabels (e.g. the
+  // Notes-column path does not run it, so `btnSavePricing` leaked into client
+  // cells). Idempotent on already-translated text. Keeps the deliverable free of
+  // raw chk*/spin*/drp*/btn*/txt*/lbl* identifiers.
+  s = convertElementIdsToLabels(s);
+  // De-shout internal CONSTANT_NAME test-fixture references (e.g. NOTE_3999_CHARS,
+  // LEGAL_INVALID_SC_VALUE, LEGAL_ALT_SC) that appear in step text. Keep the words,
+  // drop the SCREAMING_SNAKE signature so client cells don't read like code
+  // identifiers. Only matches ALL-CAPS tokens with >=2 underscore-joined segments,
+  // so legit prose and acronyms (USD, LDW, ECT) are untouched.
+  s = s.replace(/\b[A-Z][A-Z0-9]*_[A-Z0-9_]{2,}\b/g, t => t.toLowerCase().replace(/_/g, ' '));
+
+  // ── Test-mechanic / QA-artifact leftovers (LR-ENC-004 V3 closure, 2026-06-05) ──
+  // Bare harness helpers that slip past the camelCase-call strip (no parens), the
+  // automation.<method>() driver calls, and the now-dangling connector word
+  // ("via"/"per"/"by"/"from") they leave in front of an arrow / punctuation / EOL.
+  s = s.replace(/\bensureDefaultState\b/g, '');
+  s = s.replace(/\bautomation\.[a-z][a-zA-Z0-9]*\([^)]*\)/gi, '');
+  s = s.replace(/\b(?:via|per|by|from|for|with|as)\s+(?=(?:->|→)|[)\].;,]|\s*$)/gi, '');
+  // Internal QA-artifact / change-tracking jargon → plain English.
+  s = s.replace(/\bwalk-evidence\b/gi, 'a live walk');
+  s = s.replace(/\bform-dirty\b/gi, 'unsaved-changes');
+  s = s.replace(/\bthis TC\b/g, 'this test case');
+  // Internal clarification-question IDs (e.g. CPR-DETAIL-Q1) → the plain-English
+  // phrase the other modules already use for raised product questions.
+  s = s.replace(/\braised as [A-Z]{2,}-[A-Z]+-Q\d+\b/g, 'raised as a clarification for the product team');
+  s = s.replace(/\b[A-Z]{2,}-[A-Z]+-Q\d+\b/g, 'a clarification for the product team');
+  // Trailing internal divergence-ledger code ("; D6)" / ", D2]") → drop the code.
+  s = s.replace(/[;,]\s*D\d+\s*(?=[)\].]|$)/g, '');
+
+  // Collapse parens left EMPTY or separator/connector-only by the strips above
+  // ("()", "( )", "( - )", "(LR-026)"→"()", "(... — MCP)"→"(... — )", "(X per )").
+  s = s.replace(/\s*[-–—,;:/]+\s*\)/g, ')')
+       .replace(/\(\s*[-–—,;:/+]+\s*/g, '(')
+       .replace(/\s+\)/g, ')')
+       .replace(/\s*\(\s*\)/g, '');
 
   // Cleanup: collapse whitespace + dangling punctuation introduced by the
   // strips above (matches humanizeAssertion's trailing cleanup).

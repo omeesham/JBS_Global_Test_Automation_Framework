@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_ACCOUNT_ADDRESS_FCC.md",
+  "plan_basename": "SUBPLAN_ACCOUNT_ADDRESS_FCC.md",
+  "plan_sha256": "d48718fec03cc815d3a68f5e56a58471176967829b67cb887526c1dd326625a5",
+  "passed_at": "2026-05-29T13:37:24.984Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1780061844983-4bed195e90e496eb2cb0ff2dbaa20907-d48718fec03cc815",
+  "artifacts": [],
+  "provisional": false
+}

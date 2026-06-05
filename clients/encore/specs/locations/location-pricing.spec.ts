@@ -626,7 +626,7 @@ test.describe('Location Pricing @locations @pricing', () => {
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
   });
 
-  test('TC-LOC-PRI-035: Read-only columns (Pricing Strategy, Pricebook, Currency) have no interactive elements', async ({ locationPricingPage, dependencyGate }) => {
+  test('TC-LOC-PRI-035: Verify read-only columns have no interactive elements', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
  // Columns 1-3 in the grid are display-only. Verify no button/checkbox/input exists in those cells.
     const interactiveCount = await locationPricingPage.getReadOnlyColumnInteractiveCount(PRIMARY_TEST_ROW);

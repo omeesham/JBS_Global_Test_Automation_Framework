@@ -47,7 +47,7 @@ The decision is **scope-versus-effort** — not a blocker. Surfacing in chat per
 
 ---
 > **Identity**: OWNER
-> **Model**: claude-opus-4-7
+> **Model**: claude-opus-4-8
 > **Thinking**: xhi
 > **PermissionMode**: auto
 > **BrowserTool**: none

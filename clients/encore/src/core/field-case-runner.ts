@@ -10,7 +10,7 @@
  */
 
 export interface FieldCase {
-  /** TC ID for traceability, e.g. "TC-LOC-NTS-039" (canonical submodule-only form per 2026-05-26 naming policy — no -FCC- segment). */
+  /** TC ID for traceability, e.g. "TC-LOC-NTS-033" (canonical submodule-only form per 2026-05-26 naming policy — no -FCC- segment). */
   id: string;
   /** Human-readable label for logs and Allure. */
   label: string;

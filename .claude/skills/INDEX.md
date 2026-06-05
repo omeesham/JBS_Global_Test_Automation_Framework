@@ -3,7 +3,7 @@
 One line per skill. Used by `/relevant` for sub-task skill matching.
 Maintained manually — update when creating or modifying skills.
 
-**Skill count**: 28 (was 30 pre-rationalization; `/slop` and `/upgrade` merged into `/audit` as `--mode={review|slop|upgrade}` per SUBPLAN_CCE_03; alias commands at `.claude/commands/{slop,upgrade}.md` preserve muscle memory).
+**Skill count**: 29 (was 30 pre-rationalization; `/slop` and `/upgrade` merged into `/audit` as `--mode={review|slop|upgrade}` per SUBPLAN_CCE_03; alias commands at `.claude/commands/{slop,upgrade}.md` preserve muscle memory).
 
 | Skill | Triggers | Match Types | Auto-Calls |
 |---|---|---|---|
@@ -30,6 +30,7 @@ Maintained manually — update when creating or modifying skills.
 | /sonnet | sonnet mode, use sonnet, model guardrails | WRAP | — |
 | /report | EXPLICIT ONLY — `/report <subject> for <encore\|jbs>` produces tier-appropriate artifact (agent-only md / human+agent md+light html / human-only visual html + optional --deck pptx) under clients/<client>/readable_externals/<audience>/. Never auto-routes. (DISABLE-MODEL-INVOCATION) | DIRECT | — |
 | /ultrathink | ultrathink, ultra think, ultrathink this — quality-gated wrapper that injects mandatory plan + audit gates before sub-skill execution | WRAP | identity, planning, execute, audit, reflect |
+| /ultra-agents | EXPLICIT ONLY — lifts subagent count/class/tier caps for the current core goal; fan out a large multi-class army to exhaustively catch deeply-hidden updates. Goal-scoped; re-invoke when the core goal changes. (DISABLE-MODEL-INVOCATION) | WRAP | — |
 | /encore-questions | EXPLICIT ONLY — generate live-Chrome-verified batch of questions for the Encore client-side QA contact. Sub-commands: `submitted`, `resolve`, `reset`. Private (not auto-routed) (DISABLE-MODEL-INVOCATION) | DIRECT | — |
 | /standup | EXPLICIT ONLY — mid-day scrum standup in DID / DOING / THEN / AND format, plain-English ~20s read. Private | DIRECT | — |
 | /end-day | EXPLICIT ONLY — daily client status update for timesheets, multi-source reconciled (plans done/, file mtimes, git, activity log, uncommitted). Private (DISABLE-MODEL-INVOCATION) | DIRECT | — |
@@ -42,3 +43,4 @@ Maintained manually — update when creating or modifying skills.
 
 **Side-effecting skills with `disable-model-invocation: true`** (auto-routing OFF — user must type the slash command):
 - `/chain`, `/deploy`, `/end-day`, `/end-week`, `/encore-questions`, `/report` — chosen because each writes/sends/commits side effects that should never be auto-triggered by ambient phrases.
+- `/ultra-agents` — because unlimited multi-class subagent spawning is cost-significant; must never auto-trigger on an ambient phrase.

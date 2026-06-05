@@ -8,7 +8,7 @@
 **Identity**: GIVER
 **Depends on**: none (no Encore confirmation needed; index/plan-shape changes only)
 **Blocks**: per-submodule execution cadence (cycles run via existing subplans once Plan A finalises the queue) and `PLAN_VERTICAL_DELIVERY_SOX.md`'s push cycle
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: plan
 **BrowserTool**: none

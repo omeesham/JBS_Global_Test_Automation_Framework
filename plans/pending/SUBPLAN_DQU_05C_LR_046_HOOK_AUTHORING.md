@@ -8,7 +8,7 @@
 **Depends on**: SP-DQU-05B `Status: DONE` (LR-046 prose must exist before hook fixtures can target it)
 **Blocks**: nothing (LR-046's skill-mandate enforcement in `/execute` Phase 4 + `/final-q` Step 3 already covers the prose layer; hook is the structural backstop for chain-spawned runs that bypass interactive review)
 **Identity**: OWNER (hook code lives in `.claude/hooks/`, `.claude/hooks/lib/`, `scripts/`, `.claude/settings.json` — all OWNER RW)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: auto
 **Skills**: /planning (Step 1 — adversarial audit per SUPREME RULE), /execute, /regression-guard, /final-q

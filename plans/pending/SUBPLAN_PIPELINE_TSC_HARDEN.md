@@ -7,7 +7,7 @@
 **Parent**: PLAN_CLIENT_DELIVERABLE_REBUILD.md
 **Depends on**: PLAN_CLIENT_DELIVERABLE_REBUILD must reach Status: DONE first (this subplan post-dates that closure)
 **Blocks**: production deployment of pipeline server/worker via compiled `dist-pipeline/` artifacts (ts-node mode unaffected)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: acceptEdits
 **BrowserTool**: none

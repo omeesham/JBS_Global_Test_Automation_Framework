@@ -3,11 +3,11 @@
 **Status**: PENDING
 **Priority**: P0-EMERGENCY
 **Created**: 2026-05-19
-**Updated**: 2026-05-21 PM (v3 — absorbed False-Green Sweep doctrine; nested-orbit v2 nomenclature; verified counts)
+**Updated**: 2026-05-29 (v4 — §Doctrine item 3 amended to blend-at-top/no-`@fcc`-tag; added item 8 outcome-based de-dup + coverage ledger) | 2026-05-21 PM (v3 — absorbed False-Green Sweep doctrine; nested-orbit v2 nomenclature; verified counts)
 **Identity**: OWNER
 **Depends on**: none
 **Blocks**: per-module FCC subplans (named in §Roadmap below)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: plan
 **BrowserTool**: none
@@ -53,7 +53,7 @@ This is a "restructure plan" per LR-050 (changes the testing paradigm framework-
 
 1. **Per-case independence**. Each FCC test = one independent `test()` block. Own baseline, own cleanup, no `dependencyGate(['TC-...'])` chain inside the FCC describe block.
 2. **Lifecycle**. Every FCC test runs the same shape: `baseline → act → expectBeforeSave? → save → expectAfterSave? → reload → expectAfterReload → cleanup`. Orchestrated by the single runner `clients/encore/src/core/field-case-runner.ts` `saveAndVerifyCase()`.
-3. **Block placement**. FCC `test.describe(...)` block goes at the **TOP** of each module's spec; the existing TCs stay **UNTOUCHED at the BOTTOM**. "Don't ruin already hard work" constraint.
+3. **Block placement (amended 2026-05-29 — blend-at-top, supersedes the separate-`@fcc`-describe shape)**. Net-new FCC tests blend into the module's **EXISTING** `test.describe(...)` block at the **TOP** (immediately after `beforeEach`, above the first existing TC), using the **same naming** (sequential `TC-<MOD>-NN` past the high-water mark) and **same tags** — **NO separate `@fcc` describe and NO `@fcc` tag** in spec text. Existing TC bodies stay **UNTOUCHED**; only the shared `beforeEach` may be hardened (per-test baseline, LR-019). The "FCC" name lives only in the subplan filename + field-case-catalog prose, never in spec text. "Don't ruin already hard work" constraint. (Rutvik 2026-05-29: "blend in while at top, keep naming/etc same" — SSL_FCC precedent; do not re-ask on future FCC subplans.)
 4. **Taxonomy-driven**. Every module's FCC catalog is derived from `clients/encore/specs_planning/_internal/field-case-generation.md` §2 per-field-type templates. New field types → append a row to the taxonomy doc + grow the catalog.
 5. **3-tier save verification** (per taxonomy §1):
    - Tier 1 (mandatory): UI reload + DOM read of persisted value (always done today).
@@ -74,6 +74,8 @@ This is a "restructure plan" per LR-050 (changes the testing paradigm framework-
    - LR-053: no strict row-count assertions where placeholder bugs are documented (e.g. BUG-LOC-NTS-003).
    - LR-022: no hardcoded structural counts as assertions.
 
+8. **De-dup by proven outcome, not literal action (added 2026-05-29)**. Before authoring net-new FCC cases, build a **coverage ledger**: for each existing test, list every `(field, assertion)` it proves — **including each field's persistence inside multi-field saves**. A taxonomy cell is already covered if its end-assertion appears in the ledger (a 2-field save that asserts field X persisted DISCHARGES the "field X save-persist" cell; a single-field-X save-persist test would re-prove the same end-assertion = duplicate). Author a net-new case ONLY if it proves an assertion no existing test proves. Trades strict single-field failure-isolation (PLN-018) for no-duplication. (Rutvik 2026-05-29.)
+
 ---
 
 ## Roadmap (children subplans)
@@ -91,13 +93,13 @@ Authored AFTER Notes subplan closes GREEN. One subplan per module, each ~200–4
 - `SUBPLAN_LOCAL_INFORMATION_FCC.md` — **NEXT after Notes** (sequencing note: SSL false-green sweep precedes LOCAL_INFORMATION_FCC per user override 2026-05-22; see [`SUBPLAN_SSL_FALSE_GREEN_SWEEP.md`](SUBPLAN_SSL_FALSE_GREEN_SWEEP.md). The override does NOT promote LOCAL_INFORMATION_FCC ahead of Notes — Notes pilot remains queue position #1; SSL sweep was authored as a retroactive WATCHDOG/HEALER half against the already-shipped SSL pilot.)
 - `SUBPLAN_CURRENCY_FCC.md`
 - `SUBPLAN_PRICING_FCC.md`
-- `SUBPLAN_ACCOUNT_ADDRESS_FCC.md`
+- [SUBPLAN_ACCOUNT_ADDRESS_FCC.md](../done/SUBPLAN_ACCOUNT_ADDRESS_FCC.md) — **DONE 2026-05-29**, 2 net-new filter TCs (TC-LOC-ACC-030 Account# filter, -031 address-search clear-restores) implemented + passing; TC-LOC-ACC-029 (Phone 2 clear-persist) deferred-with-bug as `test.fixme` citing BUG-LOC-ACC-001 (app does not persist an empty Phone 2). Full spec 29 passed / 1 skipped.
 - [SUBPLAN_LEGAL_FCC.md](../done/SUBPLAN_LEGAL_FCC.md) — **DONE 2026-05-27**, 1 net-new FCC test (TC-LOC-LGL-019 negative listbox enumeration + save-cycle); 12 cases LR-040(b) deferred (same mechanic, different data, already covered by existing 15 TCs); 3 cases LR-040(c) not applicable (2 APP BUGs sort-order, 1 missing left-panel selector).
 - `SUBPLAN_AUTO_ADDON_FCC.md`
 - `SUBPLAN_LOCAL_OFFICE_BASIC_INFO_FCC.md`
 - `SUBPLAN_ECT_SETTINGS_FCC.md`
 - `SUBPLAN_HIST_PER_COLUMN_FCC.md` (covers Location Management History spec restructure if needed)
-- `SUBPLAN_LEFT_PANEL_FCC.md` — 24 TCs planned (MD + CSV + test plan + selectors), 0% automated, dropped from parity restructure per user 2026-05-26 ("do not create it"). File NOT yet authored; this roadmap line preserves the work so it isn't lost. Routed here from `PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md` SP07. Note: LGL-015 (Country cascade) depends on left-panel Country selector — if W2-08's MCP discovery confirms no Country dropdown exists in the app left panel, LGL-015 is also deferred here.
+- [SUBPLAN_LEFT_PANEL_BASIC_INFORMATION_FCC.md](../done/SUBPLAN_LEFT_PANEL_BASIC_INFORMATION_FCC.md) — **DONE 2026-06-03**, 26 of 27 TCs automated (TC-LOC-LP-001..023 with 016 corrected to read-only + 3 net-new persistence 025/026/027; TC-024 deferred), full spec 27 passed ×2. Renamed from `SUBPLAN_LEFT_PANEL_FCC` (module `left_panel` → `left_panel_basic_information`). **W2-08 RESOLVED**: the Country dropdown DOES exist (4 opts, live-verified) → cascade automated; **LGL-015 NOT subsumed** by TC-LOC-LP-018..022 — those tests exercise the Country selector but only assert left-panel Tax Mode/Region + cross-tab Job Costing/Remit-PST, never opening the Legal tab; the Legal-tab Service Charge + Terms reset (LGL-015) is an open coverage gap, now automatable (post-audit correction 2026-06-03). Routed from `PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md` SP07; revived per user 2026-06-01.
 
 Each future subplan inherits the paradigm — no re-installing the runner, taxonomy, or agent prompt sections. Each does only: HUNTER baseline freshness → GIVER catalog + TCs → BUILDER spec FCC block + page-object helpers + data → WATCHDOG completeness audit → GARDENER sweep → OWNER closure. **Plus** the False-Green Sweep doctrine obligations below.
 
@@ -233,7 +235,7 @@ Out-of-scope (deferred to named follow-up plans, NOT this master's cascade):
 
 ## Acceptance criteria (master-level — closes when ALL true)
 
-- [ ] Notes subplan closed GREEN with all **26 net-new FCC tests implemented** + **1 DEFERRED (FCC-005)** = **27 planned** in catalog. Existing **32 main-spec TCs** (28 explicit `test()` blocks + 4-test `SPECIAL_CONTENT_TESTS` for-loop at line 181) unchanged + **6 HIST-spec TCs** (at `clients/encore/specs/locations/history/location-hist-notes.spec.ts`, verified count) unchanged. Total runtime in Notes spec post-Notes-pilot = 32 main + 26 FCC = 58 tests; HIST spec = 6 tests (separate file).
+- [ ] Notes subplan closed GREEN with all **26 net-new FCC tests implemented** + **1 DEFERRED (FCC-005)** = **27 planned** in catalog. Existing **32 main-spec TCs** (28 explicit `test()` blocks + 4-test `SPECIAL_CONTENT_TESTS` for-loop at line 181) unchanged + **6 HIST-spec TCs** (TC-LOC-NTS-028..032, 038 — consolidated 2026-06-05 into `location-management-history.spec.ts` `@notes-hist` describe per PLAN_NOTES_HIST_CONSOLIDATION; formerly a separate `history/location-hist-notes.spec.ts`) unchanged. Total runtime in Notes spec post-Notes-pilot = 32 main + 26 FCC = 58 tests; HIST = 6 tests (now in the LM-History spec).
 - [ ] SSL FCC coverage shipped (✓ — already done via DQU pilot chain, 30 SSL TCs grandfathered).
 - [ ] SSL false-green sweep subplan closed GREEN (✓ — completed 2026-05-22 per user override; sweep report at `clients/encore/specs_planning/_internal/false-green-sweeps/shared-setup-locations-2026-05-22.md`; see [`SUBPLAN_SSL_FALSE_GREEN_SWEEP.md`](SUBPLAN_SSL_FALSE_GREEN_SWEEP.md) Execution Summary).
 - [ ] Every module in §Roadmap "Future per-module subplans" has a subplan in `plans/done/`.

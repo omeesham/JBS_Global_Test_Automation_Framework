@@ -1,0 +1,516 @@
+### Page
+- Page URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+- Page Title: Location Settings | Navigator
+### Snapshot
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e18]
+  - generic [ref=e20]:
+    - generic [ref=e23]:
+      - list [ref=e25]:
+        - listitem [ref=e26]:
+          - button "1604 Parker Palm Springs" [ref=e27] [cursor=pointer]:
+            - generic [ref=e29]: "1604"
+            - generic [ref=e30]:
+              - generic [ref=e31]: Parker Palm Springs
+              - img [ref=e32]
+      - generic [ref=e38]:
+        - list [ref=e40]:
+          - listitem [ref=e41]:
+            - link "Home" [ref=e42] [cursor=pointer]:
+              - /url: /navigator/locations/1604/home
+              - img [ref=e43]
+              - generic [ref=e46]: Home
+          - listitem [ref=e47]:
+            - link "Inbox" [ref=e48] [cursor=pointer]:
+              - /url: /navigator/locations/1604/inbox
+              - img [ref=e49]
+              - generic [ref=e52]: Inbox
+          - listitem [ref=e53]:
+            - button "Actions" [ref=e54] [cursor=pointer]:
+              - img [ref=e55]
+              - generic [ref=e57]: Actions
+              - img [ref=e58]
+          - listitem [ref=e60]:
+            - button "Commissions" [ref=e61] [cursor=pointer]:
+              - img [ref=e62]
+              - generic [ref=e64]: Commissions
+              - img [ref=e65]
+          - listitem [ref=e67]:
+            - button "Tax" [ref=e68] [cursor=pointer]:
+              - img [ref=e69]
+              - generic [ref=e72]: Tax
+              - img [ref=e73]
+          - listitem [ref=e75]:
+            - button "Setup" [ref=e76] [cursor=pointer]:
+              - img [ref=e77]
+              - generic [ref=e80]: Setup
+              - img [ref=e81]
+          - listitem [ref=e83]:
+            - button "Studio" [ref=e84] [cursor=pointer]:
+              - img [ref=e85]
+              - generic [ref=e87]: Studio
+              - img [ref=e88]
+        - generic [ref=e90]:
+          - generic [ref=e91]: Search
+          - list [ref=e93]:
+            - listitem [ref=e94]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=e95]:
+              - link "Job Search" [ref=e96] [cursor=pointer]:
+                - /url: /navigator/locations/1604/fulfillments
+                - img [ref=e97]
+                - generic [ref=e100]: Job Search
+            - listitem [ref=e101]:
+              - link "Asset Search" [ref=e102] [cursor=pointer]:
+                - /url: /navigator/locations/1604/assets
+                - img [ref=e103]
+                - generic [ref=e106]: Asset Search
+            - listitem [ref=e107]:
+              - link "Customer Search" [ref=e108] [cursor=pointer]:
+                - /url: /navigator/locations/1604/customers
+                - img [ref=e109]
+                - generic [ref=e112]: Customer Search
+            - listitem [ref=e113]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e114]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e115]:
+              - link "Item Search" [ref=e116] [cursor=pointer]:
+                - /url: /navigator/locations/1604/products
+                - img [ref=e117]
+                - generic [ref=e127]: Item Search
+            - listitem [ref=e128]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e129]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e131]:
+          - listitem [ref=e132]:
+            - button "Navigator Assistant" [ref=e133] [cursor=pointer]:
+              - img [ref=e134]
+              - generic [ref=e136]: Navigator Assistant
+      - list [ref=e139]:
+        - listitem [ref=e140]:
+          - button "PC prd click auto" [ref=e141] [cursor=pointer]:
+            - generic [ref=e143]: PC
+            - generic [ref=e145]: prd click auto
+            - img [ref=e146]
+      - button "Click to restore sidebar" [ref=e150]
+    - main [ref=e151]:
+      - generic [ref=e154]:
+        - generic [ref=e156]:
+          - button "trigger-button" [ref=e157] [cursor=pointer]:
+            - img
+          - generic [ref=e159]:
+            - heading "Location Settings" [level=1] [ref=e161]
+            - button "More information" [ref=e162]:
+              - img [ref=e163]
+        - generic [ref=e167]:
+          - tablist [ref=e168]:
+            - tab "Basic Information" [selected] [ref=e169] [cursor=pointer]:
+              - generic [ref=e170]:
+                - img [ref=e171]
+                - text: Basic Information
+            - tab "Location Management History" [ref=e174] [cursor=pointer]:
+              - generic [ref=e175]:
+                - img [ref=e176]
+                - text: Location Management History
+          - tabpanel "Basic Information" [ref=e180]:
+            - generic [ref=e181]:
+              - generic [ref=e189]:
+                - generic [ref=e190]:
+                  - button "Save" [disabled]
+                - generic [ref=e191]:
+                  - generic [ref=e192]:
+                    - generic [ref=e193]: Office
+                    - textbox "Office" [disabled]:
+                      - /placeholder: No office available
+                      - text: "1604"
+                  - generic [ref=e194]:
+                    - generic [ref=e195]: Local Office
+                    - generic [ref=e196]:
+                      - textbox "Local Office" [disabled]: "1604"
+                  - generic [ref=e197]:
+                    - generic [ref=e198]: Local Office Name
+                    - textbox "Local Office Name" [ref=e200]: Parker Palm Springs
+                  - generic [ref=e201]:
+                    - generic [ref=e202]: Active
+                    - checkbox "Active" [checked] [ref=e203] [cursor=pointer]:
+                      - generic:
+                        - img
+                  - generic [ref=e204]:
+                    - generic [ref=e205]: Live Date
+                    - button "Open popover" [ref=e206] [cursor=pointer]:
+                      - img
+                      - text: February 25th, 1991
+                  - generic [ref=e207]:
+                    - generic [ref=e208]: Tax Mode
+                    - combobox [ref=e210] [cursor=pointer]:
+                      - generic: US
+                      - img
+                  - generic [ref=e211]:
+                    - generic [ref=e212]: Country
+                    - combobox [ref=e214] [cursor=pointer]:
+                      - generic: United States
+                      - img
+                  - generic [ref=e215]:
+                    - generic [ref=e216]: Region
+                    - combobox [ref=e218] [cursor=pointer]:
+                      - generic: Palm Springs
+                      - img
+                  - generic [ref=e219]:
+                    - generic [ref=e220]: Servicing Branch Office
+                    - combobox [ref=e221] [cursor=pointer]:
+                      - generic: Select Servicing Branch Office
+                      - img
+                  - generic [ref=e222]:
+                    - generic [ref=e223]: Line Of Business
+                    - combobox [disabled] [ref=e225]:
+                      - generic: Hotel Services Division
+                      - img
+                  - generic [ref=e226]:
+                    - generic [ref=e227] [cursor=pointer]: Pay To Address
+                    - generic [ref=e228]:
+                      - textbox "Pay To Address" [disabled]: Encore
+                  - generic [ref=e229]:
+                    - generic [ref=e230]: Union
+                    - checkbox "Union" [ref=e231] [cursor=pointer]
+                  - generic [ref=e232]:
+                    - generic [ref=e233]: eCommerce Active
+                    - checkbox "eCommerce Active" [checked] [disabled] [ref=e234]:
+                      - generic:
+                        - img
+                  - generic [ref=e235]:
+                    - generic [ref=e236]: Enable Productions Orders
+                    - checkbox "Enable Productions Orders" [checked] [disabled] [ref=e237]:
+                      - generic:
+                        - img
+              - generic [ref=e239]:
+                - tablist [ref=e240]:
+                  - tab "Local Information" [selected] [ref=e241] [cursor=pointer]:
+                    - generic [ref=e242]:
+                      - img [ref=e243]
+                      - text: Local Information
+                  - tab "Currency" [ref=e246] [cursor=pointer]:
+                    - generic [ref=e247]:
+                      - img [ref=e248]
+                      - text: Currency
+                  - tab "Pricing" [ref=e251] [cursor=pointer]:
+                    - generic [ref=e252]:
+                      - img [ref=e253]
+                      - text: Pricing
+                  - tab "Account and Address" [ref=e257] [cursor=pointer]:
+                    - generic [ref=e258]:
+                      - img [ref=e259]
+                      - text: Account and Address
+                  - tab "Legal" [ref=e262] [cursor=pointer]:
+                    - generic [ref=e263]:
+                      - img [ref=e264]
+                      - text: Legal
+                  - tab "Notes" [ref=e268] [cursor=pointer]:
+                    - generic [ref=e269]:
+                      - img [ref=e270]
+                      - text: Notes
+                  - tab "Shared Setup Locations" [ref=e273] [cursor=pointer]:
+                    - generic [ref=e274]:
+                      - img [ref=e275]
+                      - text: Shared Setup Locations
+                  - tab "Auto Add-On" [ref=e278] [cursor=pointer]:
+                    - generic [ref=e279]:
+                      - img [ref=e280]
+                      - text: Auto Add-On
+                - tabpanel "Local Information" [ref=e285]:
+                  - generic [ref=e288]:
+                    - generic [ref=e289]:
+                      - generic [ref=e290]:
+                        - term [ref=e291]: Apply LDW
+                        - definition [ref=e292]:
+                          - checkbox [checked] [ref=e295] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e296]:
+                        - term [ref=e297]: LDW Percentage
+                        - definition [ref=e298]:
+                          - textbox "0.00%" [ref=e301]: 4.00%
+                      - generic [ref=e302]:
+                        - term [ref=e303]: Calculate LDW on Net Amount
+                        - definition [ref=e304]:
+                          - checkbox [ref=e307] [cursor=pointer]
+                      - generic [ref=e308]:
+                        - term [ref=e309]: Apply Cables and Consumables Fee
+                        - definition [ref=e310]:
+                          - checkbox [ref=e313] [cursor=pointer]
+                      - generic [ref=e314]:
+                        - term [ref=e315]: C&C Percentage
+                        - definition [ref=e316]:
+                          - generic [ref=e318]:
+                            - textbox "0.00%" [disabled]
+                      - generic [ref=e319]:
+                        - term [ref=e320]: Calculate C&C on Net Amount
+                        - definition [ref=e321]:
+                          - checkbox [ref=e325] [cursor=pointer]
+                      - generic [ref=e326]:
+                        - term [ref=e327]: Enable Multiday Pricing
+                        - definition [ref=e328]:
+                          - checkbox [ref=e331] [cursor=pointer]
+                      - generic [ref=e332]:
+                        - term [ref=e333]: Allow ETS
+                        - definition [ref=e334]:
+                          - checkbox [ref=e337] [cursor=pointer]
+                      - generic [ref=e338]:
+                        - term [ref=e339]: ETS Percentage
+                        - definition [ref=e340]:
+                          - generic [ref=e342]:
+                            - textbox "0.00%" [disabled]
+                      - generic [ref=e343]:
+                        - term [ref=e344]: Service Charge
+                        - definition [ref=e345]:
+                          - checkbox [checked] [ref=e348] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e349]:
+                        - term [ref=e350]: Show Service Charge As Administrative Fee
+                        - definition [ref=e351]:
+                          - checkbox [ref=e354] [cursor=pointer]
+                      - generic [ref=e355]:
+                        - term [ref=e356]: Calculate Service Charge On Net Amount
+                        - definition [ref=e357]:
+                          - checkbox [ref=e360] [cursor=pointer]
+                      - generic [ref=e361]:
+                        - term [ref=e362]: Allow Resort Tax
+                        - definition [ref=e363]:
+                          - checkbox [ref=e366] [cursor=pointer]
+                      - generic [ref=e367]:
+                        - term [ref=e368]: Resort Tax Percentage
+                        - definition [ref=e369]:
+                          - generic [ref=e371]:
+                            - textbox "0.00%" [disabled]
+                      - generic [ref=e372]:
+                        - term [ref=e373]: Ticker Calc
+                        - definition [ref=e374]:
+                          - checkbox [checked] [ref=e377] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e378]:
+                        - term [ref=e379]: Set/Strike/Support Labor Billing Goal
+                        - definition [ref=e380]:
+                          - textbox "0.00%" [ref=e383]: 33.00%
+                      - generic [ref=e384]:
+                        - term [ref=e385]: Enable Set/Strike Labor Minutes
+                        - definition [ref=e386]:
+                          - checkbox [checked] [ref=e389] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e390]:
+                        - term [ref=e391]: Apply Set/Strike Labor Minutes
+                        - definition [ref=e392]:
+                          - checkbox [checked] [ref=e395] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e396]:
+                        - term [ref=e397]: Internet Asset Reservation
+                        - definition [ref=e398]:
+                          - checkbox [ref=e401] [cursor=pointer]
+                      - generic [ref=e402]:
+                        - term [ref=e403]: Allow DPCD
+                        - definition [ref=e404]:
+                          - checkbox [checked] [ref=e407] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e408]:
+                        - term [ref=e409]: Exclude Implied Discount
+                        - definition [ref=e410]:
+                          - checkbox [ref=e413] [cursor=pointer]
+                      - generic [ref=e414]:
+                        - term [ref=e415]: Prompt for Approval
+                        - definition [ref=e416]:
+                          - checkbox [ref=e419] [cursor=pointer]
+                      - generic [ref=e420]:
+                        - term [ref=e421]: Threshold
+                        - definition [ref=e422]:
+                          - generic [ref=e424]:
+                            - textbox "0.00%" [disabled]
+                      - generic [ref=e425]:
+                        - term [ref=e426]: Credit Memo Approval Required
+                        - definition [ref=e427]:
+                          - checkbox [checked] [ref=e430] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e431]:
+                        - term [ref=e432]: Enable Discount Reason
+                        - definition [ref=e433]:
+                          - checkbox [checked] [ref=e436] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e437]:
+                        - term [ref=e438]: Use eSignature
+                        - definition [ref=e439]:
+                          - checkbox [checked] [disabled] [ref=e442]:
+                            - generic:
+                              - img
+                      - generic [ref=e443]:
+                        - term [ref=e444]: Enable Product Group
+                        - definition [ref=e445]:
+                          - checkbox [disabled] [ref=e448]
+                      - generic [ref=e449]:
+                        - term [ref=e450]: Allow Production Quote
+                        - definition [ref=e451]:
+                          - checkbox [ref=e454] [cursor=pointer]
+                      - generic [ref=e455]:
+                        - term [ref=e456]: Suppress Day/Rate Discount
+                        - definition [ref=e457]:
+                          - checkbox [disabled] [ref=e460]
+                    - generic [ref=e461]:
+                      - generic [ref=e462]:
+                        - term [ref=e463]: Billing Type
+                        - definition [ref=e464]:
+                          - radiogroup [ref=e467]:
+                            - generic [ref=e468]:
+                              - radio "Master" [checked] [ref=e469]:
+                                - img [ref=e470]
+                              - generic [ref=e472]: Master
+                              - radio "Direct" [ref=e473]
+                              - generic [ref=e474]: Direct
+                      - generic [ref=e475]:
+                        - term [ref=e476]: Billing Way
+                        - definition [ref=e477]:
+                          - radiogroup [ref=e480]:
+                            - generic [ref=e481]:
+                              - radio "Event" [checked] [ref=e482]:
+                                - img [ref=e483]
+                              - generic [ref=e485]: Event
+                              - radio "Daily" [ref=e486]
+                              - generic [ref=e487]: Daily
+                      - generic [ref=e488]:
+                        - term [ref=e489]: Effective Date
+                        - definition [ref=e490]:
+                          - generic [ref=e492]:
+                            - button "Open popover" [disabled]:
+                              - img
+                              - text: March 15th, 2007
+                      - generic [ref=e493]:
+                        - term [ref=e494]: Billing Cycle
+                        - definition [ref=e495]:
+                          - combobox [ref=e499] [cursor=pointer]:
+                            - generic: Weekly
+                            - img
+                      - generic [ref=e500]:
+                        - term [ref=e501]: Warehouse Billing
+                        - definition [ref=e502]:
+                          - checkbox [ref=e505] [cursor=pointer]
+                      - generic [ref=e506]:
+                        - term [ref=e507]: Oracle Product
+                        - definition [ref=e508]:
+                          - textbox [ref=e512]: "0000"
+                      - generic [ref=e513]:
+                        - term [ref=e514]: Oracle Department
+                        - definition [ref=e515]:
+                          - textbox [ref=e519]: "900"
+                      - generic [ref=e520]:
+                        - term [ref=e521]: Oracle Organization
+                        - definition [ref=e522]:
+                          - combobox [ref=e526] [cursor=pointer]:
+                            - generic: Encore US BU
+                            - img
+                      - generic [ref=e527]:
+                        - term [ref=e528]: Compass Integration
+                        - definition [ref=e529]:
+                          - checkbox [checked] [disabled] [ref=e532]:
+                            - generic:
+                              - img
+                      - generic [ref=e533]:
+                        - term [ref=e534]: Company Remit Tax / GST/HST / VAT Tax
+                        - definition [ref=e535]:
+                          - checkbox [checked] [ref=e538] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e539]:
+                        - term [ref=e540]: Display Tax
+                        - definition [ref=e541]:
+                          - checkbox [checked] [disabled] [ref=e544]:
+                            - generic:
+                              - img
+                      - generic [ref=e545]:
+                        - term [ref=e546]: Comm Receiver
+                        - definition [ref=e547]:
+                          - checkbox [checked] [ref=e550] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e551]:
+                        - term [ref=e552]: Enable IDC Billing
+                        - definition [ref=e553]:
+                          - checkbox [ref=e556] [cursor=pointer]
+                      - generic [ref=e557]:
+                        - term [ref=e558]: Skip Billing
+                        - definition [ref=e559]:
+                          - checkbox [ref=e562] [cursor=pointer]
+                      - generic [ref=e563]:
+                        - term [ref=e564]: Separate Master Bill Commission Invoice
+                        - definition [ref=e565]:
+                          - checkbox [ref=e568] [cursor=pointer]
+                      - generic [ref=e569]:
+                        - term [ref=e570]: Show SubRental
+                        - definition [ref=e571]:
+                          - checkbox [ref=e574] [cursor=pointer]
+                      - generic [ref=e575]:
+                        - term [ref=e576]: Inventory Only
+                        - definition [ref=e577]:
+                          - checkbox [ref=e580] [cursor=pointer]
+                      - generic [ref=e581]:
+                        - term [ref=e582]: Intercompany
+                        - definition [ref=e583]:
+                          - checkbox [checked] [ref=e586] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e587]:
+                        - term [ref=e588]: Calculate Commission Tax
+                        - definition [ref=e589]:
+                          - checkbox [ref=e592] [cursor=pointer]
+                      - generic [ref=e593]:
+                        - term [ref=e594]: Can Create External Customer Link
+                        - definition [ref=e595]:
+                          - checkbox [ref=e598] [cursor=pointer]
+                      - generic [ref=e599]:
+                        - term [ref=e600]: Offsite Event Location
+                        - definition [ref=e601]:
+                          - checkbox [ref=e604] [cursor=pointer]
+                      - generic [ref=e605]:
+                        - term [ref=e606]: Exhibit Show Rate
+                        - definition [ref=e607]:
+                          - checkbox [ref=e610] [cursor=pointer]
+                      - generic [ref=e611]:
+                        - term [ref=e612]: Enable Job Costing
+                        - definition [ref=e613]:
+                          - checkbox [checked] [disabled] [ref=e616]:
+                            - generic:
+                              - img
+                      - generic [ref=e617]:
+                        - term [ref=e618]: Enable Discount Guidance
+                        - definition [ref=e619]:
+                          - checkbox [checked] [disabled] [ref=e622]:
+                            - generic:
+                              - img
+                      - generic [ref=e623]:
+                        - term [ref=e624]: Enable Proposal
+                        - definition [ref=e625]:
+                          - checkbox [checked] [ref=e628] [cursor=pointer]:
+                            - generic:
+                              - img
+                      - generic [ref=e629]:
+                        - term [ref=e630]: Product Organization
+                        - definition [ref=e631]:
+                          - combobox [ref=e634] [cursor=pointer]:
+                            - generic: United States
+                            - img
+  - region "Notifications alt+T"
+```

@@ -7,7 +7,7 @@
 **Identity**: OWNER
 **Depends on**: PLAN_ONE_GUIDE_SAID_THIS.md (DONE)
 **Blocks**: none
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: hi
 **Justification**: Procedural ship + CI verification + leak-guard checks — `hi` sufficient.
 **PermissionMode**: acceptEdits

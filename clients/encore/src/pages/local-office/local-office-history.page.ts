@@ -128,7 +128,13 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
  /** Check if history tab has editable fields or save button. */
   async isHistoryTabReadOnly(): Promise<boolean> {
     const panel = this.getElement('tabContentHistory');
-    const inputs = await panel.locator('input:not([type="hidden"]), textarea').count();
+    // Scope the editable-field check to the history data table. tblHistory IS the <table>, and the
+    // paginator "Current page number" <input> is a sibling OUTSIDE it (verified on the live app,
+    // 2026-06-02; structurally different
+    // from MGH, where the testid is a wrapper div). Panel-wide counting catches the paginator input →
+    // false negative. The data table is genuinely input-free; assert exactly 0 — no relaxation. Save
+    // button check stays panel-wide.
+    const inputs = await this.getElement('tblHistory').locator('input:not([type="hidden"]), textarea').count();
     const saveBtn = await panel.locator('button:has-text("Save")').count();
     return inputs === 0 && saveBtn === 0;
   }

@@ -13,7 +13,7 @@ tools: Read, Write, Edit, Glob, Grep, Bash, mcp__Claude_in_Chrome__javascript_to
 
 **Identity**: OWNER
 **Skills auto-called**: none
-**Model + thinking**: `claude-opus-4-7` + `xhi`
+**Model + thinking**: `claude-opus-4-8` + `xhi`
 **Justification** (per LR-041): Phase 5 requires adaptive judgment on whether a filed bug reproduces in isolation vs. was the prior agent's own interaction mistake — the exact failure mode that produced BUG-LOC-ECT-001 (stricken 2026-04-23). Deterministic rules alone miss "field saves fine alone, prior agent didn't isolate" — needs Opus to reason across DOM state + network + form-model interactions.
 **Browser tool**: Claude in Chrome (LR-038).
 

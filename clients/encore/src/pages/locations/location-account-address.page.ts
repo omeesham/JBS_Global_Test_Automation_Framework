@@ -2,6 +2,7 @@ import { Page } from '@playwright/test';
 import { BasePage } from '../../core/base-page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
+import { PHONE1_BASELINE } from '../../data/testdata/locations/location-account-address.data';
 
 export class LocationAccountAddressPage extends BasePage {
   constructor(page: Page, config?: IConfig) {
@@ -254,18 +255,35 @@ export class LocationAccountAddressPage extends BasePage {
     await this.searchAccountByFilter('txtAccListCity', city, 'city');
   }
 
+ /** Fill Account Number filter and click Search. Waits for results (TC-LOC-ACC-030). */
+  async searchAccountByNumber(num: string): Promise<void> {
+    await this.searchAccountByFilter('txtAccListAccountNumber', num, 'number');
+  }
+
  /** Shared search logic: fill a filter field, click Search, wait for results to render. */
   private async searchAccountByFilter(selectorKey: string, value: string, label: string): Promise<void> {
     await this.fillWithValidation(selectorKey, value);
     await this.clickWithRetry('btnAccListSearch');
     const table = this.getElement('tblAccListResults');
     const firstDataCell = table.locator('tbody tr:first-child td:nth-child(2)');
-    await firstDataCell.waitFor({ state: 'visible', timeout: 15_000 });
-    for (let i = 0; i < 30; i++) {
-      const text = (await firstDataCell.textContent() ?? '').trim();
-      if (text.length > 0) break;
-      await this.page.waitForTimeout(500);
-    }
+    // Evidence-based budget (45s). The Account List backend search is slow AND variable: a live-app
+    // measurement on 2026-06-02 timed the
+    // Account-Number filter (AC000107) at ~29s time-to-first-result — far beyond the prior 15s — while a
+    // later spec run of the same search returned in ~11s. 45s (~1.5× the slow sample) absorbs the slow
+    // case; fast searches (name/city/address) still resolve as soon as results land, so the raised
+    // ceiling never slows a fast run. Shared by ACC-004/025/026/028/030.
+    await firstDataCell.waitFor({ state: 'visible', timeout: 45_000 });
+    // LR-052: poll for the actual transition (first data cell's text becoming non-empty) via
+    // waitForFunction instead of a fixed-sleep loop. Budget matches the waitFor above (evidence-based 45s).
+    const firstDataCellSelector = `${this.getLocator('tblAccListResults')} tbody tr:first-child td:nth-child(2)`;
+    await this.page.waitForFunction(
+      (selector: string) => {
+        const el = document.querySelector(selector);
+        return !!el && (el.textContent ?? '').trim().length > 0;
+      },
+      firstDataCellSelector,
+      { timeout: 45_000 }
+    );
     Log.info(`Searched account by ${label}: ${value}`);
   }
 
@@ -428,6 +446,63 @@ export class LocationAccountAddressPage extends BasePage {
  /** Get text from Save Changes dialog message. */
   async getSaveChangesMessage(): Promise<string> {
     return this.getTextContent('txtSaveChangesMessage');
+  }
+
+ // ─────────────────────────────────────────────────────────────────────────────
+ // FCC RUNNER HOOKS (field-case-runner.ts)
+ // ─────────────────────────────────────────────────────────────────────────────
+
+ /**
+  * FCC runner hook — `saveAndConfirm` shape required by `saveAndVerifyCase()`.
+  * Wraps the result-returning `clickSave()` and THROWS on failure so the runner
+  * surfaces server errors as test failures (not a silent `{success:false}` return).
+  */
+  async saveAndConfirm(): Promise<void> {
+    const result = await this.clickSave();
+    if (!result.success) {
+      throw new Error(`Account & Address save failed: ${result.networkError ?? 'unknown error'}`);
+    }
+  }
+
+ /**
+  * HARDENED per-test baseline (LR-019 2026-05-29). Restores the deterministically-
+  * restorable editable fields (Phone 1, Phone 2) to baseline. Used by the describe's
+  * shared `beforeEach` (covers the existing 26 + new filter tests) AND as the FCC
+  * runner `baseline:`/`cleanup:` callback for save-cycle cases.
+  *
+  * Bounded retry (max 3) wraps the WHOLE cycle — read → re-fill → save → reload →
+  * re-verify — because `clickSaveWithDialog` returns `{success:true}` even when Save is
+  * DISABLED (base-page), so save-success alone never proves the reset landed. The
+  * post-reload re-read against the persisted DOM is the load-bearing check.
+  *
+  * Phone 1 is account-linked + server-authoritative: a reload restores it to the account
+  * phone (= PHONE1_BASELINE) regardless of whether the masked `fill` propagated, so the
+  * cycle self-heals Phone 1 via the reload. If already clean on the first read, returns
+  * immediately (cheap — no reload), so back-to-back beforeEach + case-baseline calls cost
+  * one read, not two reloads. Throws after 3 failed cycles to fail loud, not silently rot.
+  */
+  async ensureDefaultState(defaults?: { phone1?: string; phone2?: string }): Promise<void> {
+    const wantPhone1 = defaults?.phone1 ?? PHONE1_BASELINE;
+    const wantPhone2 = defaults?.phone2 ?? '';
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      let dirty = false;
+      if ((await this.getPhone2Value()) !== wantPhone2) {
+        await this.fillPhone2(wantPhone2);
+        dirty = true;
+      }
+      if ((await this.getPhone1Value()) !== wantPhone1) {
+        await this.fillPhone1(wantPhone1);
+        dirty = true;
+      }
+      if (!dirty) return; // already at baseline — cheap path, no reload
+      await this.saveAndConfirm();
+      await this.reloadAndNavigate();
+      if ((await this.getPhone2Value()) === wantPhone2 && (await this.getPhone1Value()) === wantPhone1) {
+        return;
+      }
+    }
+    throw new Error(`ensureDefaultState: A&A Phone1/Phone2 not at baseline after ${maxAttempts} attempts`);
   }
 
  // ─────────────────────────────────────────────────────────────────────────────

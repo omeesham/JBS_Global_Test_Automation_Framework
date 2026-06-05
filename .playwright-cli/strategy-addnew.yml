@@ -1,0 +1,251 @@
+- generic:
+  - alert
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: "1604"
+                    - generic:
+                      - generic: Parker Palm Springs
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - list:
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/home
+                            - img
+                            - generic: Home
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/inbox
+                            - img
+                            - generic: Inbox
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Actions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Commissions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Tax
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Setup
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Studio
+                            - img
+                    - generic:
+                      - generic: Search
+                      - generic:
+                        - list:
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Order Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/fulfillments
+                              - img
+                              - generic: Job Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/assets
+                              - img
+                              - generic: Asset Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/customers
+                              - img
+                              - generic: Customer Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: DRO Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Payment Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/products
+                              - img
+                              - generic: Item Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: ECT Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Event Agendas
+                    - generic:
+                      - list:
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Navigator Assistant
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - button:
+                      - generic:
+                        - generic: PC
+                      - generic:
+                        - generic: prd click auto
+                      - img
+            - button
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - button:
+                    - img
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /navigator/locations/1604/settings/corporate-pricing
+                        - text: Corporate Pricing
+                      - img
+                      - generic:
+                        - heading [level=1]: Corporate Pricing Details
+                      - button:
+                        - img
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - button:
+                        - img
+                        - text: Pricing Strategy
+                      - button:
+                        - img
+                        - text: Pricing Detail
+                    - generic:
+                      - button [disabled]: Save
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                      - heading [level=2]: 2022-NP Tier 1
+                    - generic:
+                      - generic:
+                        - paragraph: Labor/Equipment
+                        - paragraph: Equipment
+                      - generic:
+                        - paragraph: Year
+                        - paragraph: "2022"
+                      - generic:
+                        - paragraph: Currency
+                        - paragraph: USD
+                      - generic: Active
+                  - generic:
+                    - complementary:
+                      - generic:
+                        - generic:
+                          - img
+                          - generic: Price Strategies
+                        - button:
+                          - img
+                      - generic:
+                        - generic:
+                          - img
+                          - textbox:
+                            - /placeholder: Search strategies...
+                      - generic:
+                        - button:
+                          - generic: 2022-NP Tier 1
+                      - generic:
+                        - generic: "Total: 1"
+                    - main:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Pricing Strategy
+                            - textbox: 2022-NP Tier 1
+                          - generic:
+                            - generic:
+                              - checkbox [checked]:
+                                - generic:
+                                  - img
+                              - generic: Is Productions
+                            - generic:
+                              - checkbox [disabled]
+                              - generic: Is Internal
+                            - generic:
+                              - checkbox [disabled]
+                              - generic: Is GSO
+                            - generic:
+                              - checkbox [checked]:
+                                - generic:
+                                  - img
+                              - generic: Is Active
+                        - generic:
+                          - generic:
+                            - heading [level=4]: Locations Using Pricing As Default
+                          - generic:
+                            - generic:
+                              - table:
+                                - rowgroup:
+                                  - row:
+                                    - columnheader: Local Office
+                                    - columnheader: Local Office Name
+                                - rowgroup:
+                                  - row:
+                                    - cell: "1991"
+                                    - cell: Premier Global Events
+                                  - row:
+                                    - cell: "7011"
+                                    - cell: Production
+  - region "Notifications alt+T"
+  - dialog "New Pricing Strategy" [ref=e251]:
+    - heading "New Pricing Strategy" [level=2] [ref=e253]
+    - generic [ref=e254]:
+      - generic [ref=e255]:
+        - generic [ref=e256]: Strategy Name
+        - textbox "Strategy Name" [active] [ref=e257]:
+          - /placeholder: e.g. 2026-Tier 4 Urban A
+      - generic [ref=e258]:
+        - generic [ref=e259] [cursor=pointer]:
+          - checkbox "Is GSO" [ref=e260]
+          - generic [ref=e261]: Is GSO
+        - generic [ref=e262] [cursor=pointer]:
+          - checkbox "Is Active" [checked] [ref=e263]:
+            - generic:
+              - img
+          - generic [ref=e264]: Is Active
+        - generic [ref=e265] [cursor=pointer]:
+          - checkbox "Is Internal" [ref=e266]
+          - generic [ref=e267]: Is Internal
+        - generic [ref=e268] [cursor=pointer]:
+          - checkbox "Is Productions" [ref=e269]
+          - generic [ref=e270]: Is Productions
+    - generic [ref=e272]:
+      - button "Cancel" [ref=e273] [cursor=pointer]
+      - button "Add" [ref=e274] [cursor=pointer]
+    - button "Close" [ref=e275] [cursor=pointer]:
+      - img
+      - generic [ref=e276]: Close

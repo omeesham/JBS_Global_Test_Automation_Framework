@@ -169,11 +169,11 @@ Both commands launch a local server. They can be run simultaneously in separate 
 
 ---
 
-## Specs covered (13 total)
+## Specs covered (12 total)
 
 All under `clients/encore/specs/`:
 
-**Locations (10)**
+**Locations (9)**
 - `locations/location-account-address.spec.ts`
 - `locations/location-auto-addon.spec.ts`
 - `locations/location-currency.spec.ts`
@@ -183,7 +183,6 @@ All under `clients/encore/specs/`:
 - `locations/location-notes.spec.ts`
 - `locations/location-pricing.spec.ts`
 - `locations/location-shared-setup-locations.spec.ts`
-- `locations/history/location-hist-notes.spec.ts`
 
 **Local Office (3)**
 - `local-office/local-office-ect.spec.ts`

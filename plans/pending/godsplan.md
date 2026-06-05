@@ -4,7 +4,7 @@
 **Created**: 2026-04-23
 **Priority**: P2-CYCLE-3
 **Identity**: OWNER
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: max
 **PermissionMode**: plan
 **Justification**: multi-rule judgment across 30 skills + external research mapping + authoring new chunking standard; max thinking required.

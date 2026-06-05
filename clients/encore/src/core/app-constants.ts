@@ -1,23 +1,9 @@
 /**
  * Application-wide constants for testing configuration and expected values.
- * Includes timing constants, notification selectors, and feature-specific settings.
- * Used by page objects, custom matchers, and test specs to avoid hardcoded values.
+ * Includes timing constants used by page objects and test specs to avoid hardcoded values.
  */
 
 export class AppConstants {
- /**
- * Notification/alert selectors used by custom matchers to detect messages.
- * Ordered by priority - framework will check selectors in this order.
- */
-  static readonly NOTIFICATION_SELECTORS: string[] = [
-    '.alert',
-    '.notification',
-    '.Toastify__toast',
-    '[data-notify]',
-    '.toast',
-    '.message',
-  ];
-
  /**
  * Maximum time to wait for initial page load (includes SSO redirects).
  * Default: 60 seconds to handle Microsoft SSO authentication flow.

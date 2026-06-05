@@ -154,6 +154,26 @@ function matchesDeny(rel) {
   return DENY_GLOBS.some((re) => re.test(rel));
 }
 
+// XLSX deliverable vocab + integrity gate (LR-ENC-004). The DENY_GLOB / MARKER_GREP
+// scans above are text-based and cannot see inside the binary .xlsx, so lint every
+// workbook under <dir>/test_cases_xlsx/ with the SAME shared rules used at build and
+// commit time. Hard-fails the ship on any banned vocab or status/reason contradiction.
+async function lintXlsxDir(dir, label) {
+  if (!fs.existsSync(dir)) return;
+  const xlsxFiles = fs.readdirSync(dir).filter((f) => f.toLowerCase().endsWith('.xlsx'));
+  if (xlsxFiles.length === 0) return;
+  const { lintWorkbook, formatReport } = await import('./xlsx-lint-rules.mjs');
+  for (const f of xlsxFiles) {
+    const result = lintWorkbook(path.join(dir, f));
+    if (!result.ok) {
+      console.error(`[verify-no-forbidden] ${label} XLSX deliverable '${f}' failed the vocab/integrity lint (LR-ENC-004):`);
+      console.error(formatReport(result));
+      process.exit(1);
+    }
+    console.log(`[verify-no-forbidden] OK ${label} XLSX '${f}' clean (${result.rowsScanned} rows)`);
+  }
+}
+
 // True when a staged repo path would survive the DENY_GLOB filter and ship
 // inside clients/<id>/. Used to scope MARKER_GREP_CLIENT_ONLY in pre-commit.
 function isClientShipping(rel) {
@@ -172,7 +192,7 @@ function walkDir(root, prefix = '') {
   return out;
 }
 
-function checkClient(client) {
+async function checkClient(client) {
   let listing;
   try {
     listing = execSync(`git ls-files clients/${client}/`, { cwd: REPO_ROOT, encoding: 'utf-8' });
@@ -191,10 +211,11 @@ function checkClient(client) {
     );
     process.exit(1);
   }
+  await lintXlsxDir(path.join(REPO_ROOT, 'clients', client, 'test_cases_xlsx'), `client=${client}`);
   console.log(`[verify-no-forbidden] OK client=${client} tracked=${tracked.length}`);
 }
 
-function checkTarget(target) {
+async function checkTarget(target) {
   const root = path.resolve(target);
   if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) {
     console.error(`[verify-no-forbidden] target not a directory: ${target}`);
@@ -251,6 +272,7 @@ function checkTarget(target) {
     }
   }
 
+  await lintXlsxDir(path.join(root, 'test_cases_xlsx'), `target=${target}`);
   console.log(`[verify-no-forbidden] OK target=${target} files=${files.length}`);
 }
 
@@ -363,8 +385,8 @@ const client = arg('client');
 const target = arg('target');
 const staged = arg('staged');
 
-if (client) checkClient(client);
-else if (target) checkTarget(target);
+if (client) await checkClient(client);
+else if (target) await checkTarget(target);
 else if (hasFlag('staged-diff')) checkStagedDiff();
 else if (staged) checkStagedFile(staged);
 else {

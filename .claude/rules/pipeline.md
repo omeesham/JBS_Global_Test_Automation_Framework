@@ -87,7 +87,7 @@ Labels like "TRACKED (by inference)" / "NOT-TRACKED (inferred)" / "scope-pushed"
 
 Every NEW subplan MUST declare in frontmatter:
 
-- `**Model**: claude-opus-4-7` | `claude-sonnet-4-6`
+- `**Model**: claude-opus-4-8` | `claude-sonnet-4-6` (bumped 2026-06-05 from `claude-opus-4-7`, which remains valid for already-closed `plans/done/` history)
 - `**Thinking**: mid | hi | xhi | max` (authoring scale; maps 1:1 to CLI `--effort medium|high|xhigh|max`)
 - `**PermissionMode**: auto | plan | acceptEdits | bypassPermissions` (default `auto`). Planning-type plans (whose output is another plan file — typically `PLAN_*` that spawns subplans, or any plan with `Skills: /planning`) MUST use `plan`. Execution-type (produces code/config) uses `auto` / `acceptEdits` / `bypassPermissions` per need.
 
@@ -98,7 +98,7 @@ Every NEW subplan MUST declare in frontmatter:
 
 **Tier vocabulary**: accept both authoring form (`lo`/`mid`/`hi`/`xhi`/`max`) and CLI form (`low`/`medium`/`high`/`xhigh`/`max`) — same tier, both parseable.
 
-**CLI version gate**: `xhigh` requires Claude Code v2.1.111+. On older CLI, chain-orchestrator clamps `xhi → high` at spawn with a log line. Run `claude update` to unlock Opus 4.7 `xhigh`. `bypassPermissions` requires `**RiskAcknowledged**: true` in frontmatter (orchestrator refuses otherwise per D26).
+**CLI version gate**: `xhigh` requires Claude Code v2.1.111+. On older CLI, chain-orchestrator clamps `xhi → high` at spawn with a log line. Run `claude update` to unlock Opus 4.8 `xhigh`. `bypassPermissions` requires `**RiskAcknowledged**: true` in frontmatter (orchestrator refuses otherwise per D26).
 
 **How to apply** — at every `/planning` Step 3 validation AND at every `/chain` queue-build (dual gate; authored + runtime):
 
@@ -337,6 +337,10 @@ The script wraps `git archive HEAD clients/<id>/`, which:
 3. Pre-push hook `.githooks/pre-push` + `scripts/verify-no-forbidden.mjs` — runtime enforcement; refuses pushes that would leak forbidden patterns.
 
 If any one layer fails, the others catch.
+
+**Caveat — scratch-init pushes silently drop layer 3** (graduated from the 2026-06-02 leak): when you push from a fresh `git init` in a ship-output/scratch dir (the `SHIP_TO_ENCORE.md` Step 4 pattern, and every notes-only variant), the repo's `core.hooksPath` is NOT inherited, so `.githooks/pre-push` never runs — layer 3 is silently absent. Same exposure if you trim or edit the archive AFTER `client:ship`'s deny-list already ran. In those cases the manual check is the ONLY net, so two things are mandatory:
+- (a) Run `node scripts/verify-no-forbidden.mjs --target=<DIR>` against a CLEAN extract of the FINAL content — `git archive HEAD | tar -x` into a fresh temp dir, NOT the scratch dir itself (whose `node_modules/` + `.git/` produce false-positive `JBS` / `OWNER` / `.claude/` marker hits that mask the real result).
+- (b) The `git push` MUST be conditional on that exit code (`node …verify-no-forbidden… || exit 1`). Echo-and-continue once shipped internal `specs_planning/…` comment paths to the mock `notes` branch before it was caught.
 
 **Trigger**: any chat mention of "ship", "deliver", "package", "send to client", "give them", "make a deliverable", "zip the encore folder", "copy clients/encore to". Agent must verify the operator is invoking the ship script, not `cp` / `tar` / `zip` directly.
 

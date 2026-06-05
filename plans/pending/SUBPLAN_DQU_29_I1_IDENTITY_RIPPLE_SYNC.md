@@ -6,7 +6,7 @@
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md
 **Depends on**: SP-DQU-08 (CSVs tagged), SP-DQU-25 (specs clean), SP-DQU-09 (REQUIREMENTS.md trusted)
 **Blocks**: SP-DQU-34 (handoff package should reflect re-synced state)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: auto
 

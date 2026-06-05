@@ -7,7 +7,7 @@
 **Parent**: PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md
 **Depends on**: ALL OF WAVE 1 — SUBPLAN_PARITY_W1_01, W1_03, W1_04, W1_05 (W1-02 closed-as-superseded by PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION; Wave 0 XLSX migration must also be GREEN before live audit)
 **Blocks**: SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: hi
 **PermissionMode**: review
 **RiskAcknowledged**: n/a

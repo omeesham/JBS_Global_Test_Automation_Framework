@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_CORP_PRICING_99_AUDIT_CLOSURE.md",
+  "plan_basename": "SUBPLAN_CORP_PRICING_99_AUDIT_CLOSURE.md",
+  "plan_sha256": "2742b7556ec422bfe5b760c0d5cd49db666152960244c06f35b10232cbbc4f1f",
+  "passed_at": "2026-06-05T14:26:14.093Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1780669574092-10542eb5ba44b115c9d87ec7d7005537-2742b7556ec422bf",
+  "artifacts": [],
+  "provisional": false
+}

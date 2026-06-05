@@ -6,7 +6,7 @@
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md
 **Depends on**: SP-DQU-34 (handoff package ready)
 **Blocks**: HIST pivot resumption
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: max
 **PermissionMode**: auto
 **Justification**: Multi-chain audit + LR-040 closure gate (LR-041 Opus max criteria)

@@ -19,7 +19,7 @@
  *   - Executed:       `**Executed**: YYYY-MM-DD`
  *   - Parent:         `**Parent**: X` (marks this file as a subplan)
  *   - Depends on:     `**Depends on**: SP-XXX, SP-YYY` (dependency chain)
- *   - Model:          `**Model**: claude-opus-4-7 | claude-sonnet-4-6` (LR-041)
+ *   - Model:          `**Model**: claude-opus-4-8 | claude-sonnet-4-6` (LR-041)
  *   - Thinking:       `**Thinking**: mid | hi | xhi | max` (LR-041)
  *   - PermissionMode: `**PermissionMode**: auto | acceptEdits | bypassPermissions` (LR-041)
  *   - BrowserTool:    `**BrowserTool**: cli | chrome | both | none` (LR-038 v2)
@@ -319,7 +319,8 @@ function fmtPriority(p) {
 
 function fmtModel(m) {
   if (!m) return '—';
-  if (m === 'claude-opus-4-7') return 'Opus';
+  if (m === 'claude-opus-4-8') return 'Opus';
+  if (m === 'claude-opus-4-7') return 'Opus'; // legacy (grandfathered in plans/done/)
   if (m === 'claude-sonnet-4-6') return 'Sonnet';
   return m;
 }

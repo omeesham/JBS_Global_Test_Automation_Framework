@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_TESTRAIL_DEMO_EXCEL_AND_DELIVERABLE_RETITLE.md",
+  "plan_basename": "PLAN_TESTRAIL_DEMO_EXCEL_AND_DELIVERABLE_RETITLE.md",
+  "plan_sha256": "69477cd312a54fa11ddef25cf63005cce44cb1d88794f70f1838ebff6f1678e7",
+  "passed_at": "2026-06-05T15:59:03.801Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1780675143800-2c26dbcfc71d5fe9ff3bd91ecfff3757-69477cd312a54fa1",
+  "artifacts": [],
+  "provisional": false
+}

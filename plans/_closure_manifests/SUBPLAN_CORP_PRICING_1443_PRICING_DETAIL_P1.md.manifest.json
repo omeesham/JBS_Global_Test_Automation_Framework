@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_CORP_PRICING_1443_PRICING_DETAIL_P1.md",
+  "plan_basename": "SUBPLAN_CORP_PRICING_1443_PRICING_DETAIL_P1.md",
+  "plan_sha256": "5da2679881d139d3a12a04b05df5c9a318e62cf7fc865ccebf996e246070228b",
+  "passed_at": "2026-06-05T11:03:59.734Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1780657439733-fd8a7879ef0dbecd56ca6007a78f4a41-5da2679881d139d3",
+  "artifacts": [],
+  "provisional": false
+}

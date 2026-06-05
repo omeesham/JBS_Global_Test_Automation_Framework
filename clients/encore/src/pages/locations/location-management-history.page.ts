@@ -363,12 +363,21 @@ export class LocationManagementHistoryPage extends BasePage {
     await this.waitForAngularStable();
   }
 
- /** Get pagination text (e.g., "1/147"). Reads from the tab content container's pagination span. */
+ /**
+  * Get pagination text in canonical "<current> / <total>" form (e.g., "1 / 522").
+  * The indicator is NOT a single "N / M" span — it is an <input aria-label="Current page number">
+  * (current page) plus a separate <span> "/<total>" (verified on the live app,
+  * 2026-06-02). Read both and compose
+  * the "N / M" string the callers expect: TC-LOC-MGH-019's `.toContain`/`.toMatch` assertions and
+  * getApproximateTotalRowCount()'s `/\d+\s*\/\s*(\d+)/` regex.
+  */
   async getPaginationText(): Promise<string> {
     const tabContent = this.page.locator('[data-testid="location-settings-tab-content-management-history"]');
-    const paginationSpan = tabContent.locator('span').filter({ hasText: /^\d+\s*\/\s*\d+$/ });
-    const text = await paginationSpan.textContent().catch(() => '');
-    return (text || '').trim();
+    const current = (await tabContent.locator('input[aria-label="Current page number"]').inputValue().catch(() => '')).trim();
+    const totalRaw = ((await tabContent.locator('span').filter({ hasText: /^\/\s*\d+$/ }).first().textContent().catch(() => '')) || '').trim();
+    const total = totalRaw.replace(/\D/g, '');
+    if (!current || !total) return '';
+    return `${current} / ${total}`;
   }
 
  /** Check if a pagination button is disabled. */
@@ -405,7 +414,14 @@ export class LocationManagementHistoryPage extends BasePage {
     const editBtn = await panel.locator('button:has-text("Edit")').count();
     const deleteBtn = await panel.locator('button:has-text("Delete")').count();
     const saveBtn = await panel.locator('button:has-text("Save")').count();
-    const inputs = await panel.locator('input:not([type="hidden"]), textarea').count();
+    // Scope the editable-field check to the DATA TABLE region only. The tblMgmtHistory testid is a
+    // wrapper <div> that contains BOTH the nested data <table> AND the paginator "Current page number"
+    // <input> (verified on the live app, 2026-06-02). Counting panel-wide (or even wrapper-wide)
+    // catches the paginator input → false negative.
+    // The nested <table> is the data region and is genuinely input-free (sibling TC-016 proves cells are
+    // non-interactive). Assert exactly 0 — no relaxation, no constant subtraction.
+    const inputs = await this.getElement('tblMgmtHistory').locator('table')
+      .locator('input:not([type="hidden"]), textarea').count();
     return addBtn === 0 && editBtn === 0 && deleteBtn === 0 && saveBtn === 0 && inputs === 0;
   }
 

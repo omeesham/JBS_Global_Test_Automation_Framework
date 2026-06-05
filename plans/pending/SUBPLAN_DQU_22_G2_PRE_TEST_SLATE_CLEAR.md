@@ -6,7 +6,7 @@
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md
 **Depends on**: SP-DQU-21 (state matrix required)
 **Blocks**: SP-DQU-24 (rollout)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: auto
 

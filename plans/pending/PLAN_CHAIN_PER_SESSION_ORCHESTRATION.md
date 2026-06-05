@@ -45,7 +45,7 @@ User wants:
 3. **GREEN verdict → auto-spawn next subplan in fresh background session.** No human in the loop.
 4. **YELLOW/RED verdict OR HALT condition → pause chain.** Wait until user comes back, helps unblock, then resumes.
 5. **Branch stays constant.** No random Claude-managed branches; no worktrees. Chain runs on the branch the user kicked it from.
-6. **Per-session model + thinking + permission-mode are configurable.** Subplan can request `claude-opus-4-7 --thinking high --permission-mode acceptEdits`, etc.
+6. **Per-session model + thinking + permission-mode are configurable.** Subplan can request `claude-opus-4-8 --thinking high --permission-mode acceptEdits`, etc.
 7. **Daily/weekly caps** to prevent burning subscription limits or shipping a day's worth of work in one autonomous burst:
    - First `/chain` invocation per day: cap = **10 subplans**.
    - Each subsequent `/chain resume` (after user acknowledges day-cap or pause): cap = **5 subplans**.
@@ -413,9 +413,9 @@ Authoring matrix — every new subplan picks ONE row:
 |---|---|---|---|
 | **Sonnet mid** | claude-sonnet-4-6 | medium | Pure mechanical work: file moves, INDEX regeneration, tag rollouts across many rows, tmp cleanup, find-replace renames where pattern is unambiguous. Subplan body MUST justify why no judgment is required. |
 | **Sonnet hi** | claude-sonnet-4-6 | high | General Sonnet default. Spec writing from a clear plan, page-object scaffolding, deterministic MD edits with multiple sections, code refactors with tests as guardrail, schema fills (LR-034 bug JSONs), mechanical hook wiring. |
-| **Opus hi** | claude-opus-4-7 | high | Low-complexity Opus tasks: scope-check audits where most items are likely "covered by another SP", short audits with narrow surface, ordering/prioritization without exploration. |
-| **Opus xhi** | claude-opus-4-7 | xhigh | **Default for Opus work.** Chrome Claude / MCP / live-DOM exploration, neutral-eye audits, code-quality judgment (`/simplify`), cross-identity coordination, client-visible deliverables, requirements sampling-verification, design work. |
-| **Opus max** | claude-opus-4-7 | max | RCA, full-suite intermittents debugging, exit audits / closure gates / LR-040 enforcement across many subplans, pre/post slate-clear API design (LR-026 Angular dirty-state subtleties). Reserved for top-tier judgment. |
+| **Opus hi** | claude-opus-4-8 | high | Low-complexity Opus tasks: scope-check audits where most items are likely "covered by another SP", short audits with narrow surface, ordering/prioritization without exploration. |
+| **Opus xhi** | claude-opus-4-8 | xhigh | **Default for Opus work.** Chrome Claude / MCP / live-DOM exploration, neutral-eye audits, code-quality judgment (`/simplify`), cross-identity coordination, client-visible deliverables, requirements sampling-verification, design work. |
+| **Opus max** | claude-opus-4-8 | max | RCA, full-suite intermittents debugging, exit audits / closure gates / LR-040 enforcement across many subplans, pre/post slate-clear API design (LR-026 Angular dirty-state subtleties). Reserved for top-tier judgment. |
 
 **Forbidden combinations:**
 - Sonnet `low` — under-thinks; promote to `medium` or use `high`.
@@ -482,7 +482,7 @@ The DQU subplans themselves are NOT in scope of THIS plan — they're flagged he
 Subplans MUST declare (for new subplans authored after this plan lands):
 
 ```markdown
-**Model**: claude-opus-4-7        # claude-opus-4-7 | claude-sonnet-4-6 (Haiku not used for chain)
+**Model**: claude-opus-4-8        # claude-opus-4-8 | claude-sonnet-4-6 (Haiku not used for chain)
 **Thinking**: xhi                 # Sonnet: mid | hi   ;   Opus: hi | xhi | max
 **PermissionMode**: auto          # auto (default — classifier) | acceptEdits | bypassPermissions+RiskAcknowledged
 ```
@@ -490,7 +490,7 @@ Subplans MUST declare (for new subplans authored after this plan lands):
 If absent (grandfathered files only) → orchestrator applies defaults: Sonnet → `hi`; Opus → `xhi`; permission-mode `auto`. New subplans missing these fields fail `/planning` Step 3 validation (per D18).
 
 Mapping to CLI when spawning:
-- `--model claude-opus-4-7` (or `claude-sonnet-4-6`)
+- `--model claude-opus-4-8` (or `claude-sonnet-4-6`)
 - `--effort low|medium|high|xhigh|max` (mapped from authoring scale per D17 — `xhi → xhigh`)
 - `--permission-mode auto|acceptEdits|bypassPermissions`
 

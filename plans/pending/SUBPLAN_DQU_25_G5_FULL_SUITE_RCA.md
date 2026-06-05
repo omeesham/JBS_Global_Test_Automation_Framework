@@ -6,7 +6,7 @@
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md
 **Depends on**: SP-DQU-24
 **Blocks**: SP-DQU-30 (Allure deliverable needs clean run as input)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: max
 **PermissionMode**: auto
 **Justification**: RCA = judgment-heavy multi-rule analysis (LR-041 Opus max criteria)

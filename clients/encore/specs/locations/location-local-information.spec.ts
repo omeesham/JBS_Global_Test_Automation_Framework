@@ -240,7 +240,7 @@ test.describe('Location Local Info @locations @local-info', () => {
   });
 
  // : AllowETS=enabled for 1604. Check -> ETS%=23.00% (non-union default). Uncheck -> disabled + 0.
-  test('TC-LOC-LI-077: ETS% enables with non-union default when Allow ETS checked; resets to 0 on uncheck', async ({ locationLocalInfoPage, dependencyGate }) => {
+  test('TC-LOC-LI-077: Verify ETS Percentage enables when Allow ETS is checked and resets on uncheck', async ({ locationLocalInfoPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LI-001']);
     await locationLocalInfoPage.checkCheckbox('chkAllowETS');
     await expect.poll(() => locationLocalInfoPage.getSpinState('spinETSPercentage').then(s => s.disabled), { timeout: 5_000 }).toBe(false);
@@ -470,10 +470,10 @@ test.describe('Location Local Info @locations @local-info', () => {
 
 });
 
-// FIXME TC-037/035 (Angular disables Save on max violation -- invalid value never saved), LDW% sub-min 0.01-0.09 (server rejects silently), TC-008A (Oracle required), TC-018 (Threshold step), TC-033 (batch isolation).
-// FIXME TC-078 (BillingCycle required -- tested with valid value only, error condition NOT tested. Needs re-investigation with value="--Select--"). TC-079 (SkipBilling Oracle -- . No aria-required rendered, Save silently no-ops on empty Oracle field. Angular [required] binding not rendering in DOM despite being in documented requirement.docx).
+// FIXME TC-037/035 (the application disables Save on a maximum-value violation, so the invalid value is never saved), LDW% sub-min 0.01-0.09 (server rejects silently), TC-008A (Oracle required), TC-018 (Threshold step), TC-033 (batch isolation).
+// FIXME TC-078 (the Billing Cycle field is covered with a valid value only; the empty-value error path is not yet automated). TC-079 (the application shows no required-field indicator for the Oracle field and Save has no effect when it is left empty, so the empty-field validation cannot be asserted).
 // FIXME (permanently blocked): TC-028 (ServiceCharge), TC-036 (multi-invalid), TC-040 (eSignature), TC-066 (JobCosting), TC-008 (Skip Billing one-way lock).
-// NOT-AUTOMATABLE: TC-060 (role), TC-022/023/024/024A/044/046/047/048/054/058/059 (Billing/Country/random-mutation -- require different office).
+// NOT-AUTOMATABLE: TC-060 (requires a user account with a read-only Location role, which is not provisioned in the test environment), TC-022/023/024/024A/044/046/047/048/054/058/059 (require a different office whose billing and country configuration differs from the standard test office).
 // COVERED BY TC-002: TC-038/039 (CHECKED_DEFAULTS), TC-041/042/043 (UNCHECKED_DEFAULTS), TC-057 (DISABLED_CHECKBOXES), TC-062/063 (left-panel).
 // RESOLVED: TC-007A (multi-trigger Threshold) -- covered by TC-074 (all 4 combos + reset-to-0).
 // RESOLVED : TC-017 (ETS% -> TC-077), TC-030/031 (C&C -> TC-075), TC-061 (ResortTax -> TC-076), TC-073 (DisplayTax auto-set), TC-072 (IDC Billing persist). Gap#12 confirmed.

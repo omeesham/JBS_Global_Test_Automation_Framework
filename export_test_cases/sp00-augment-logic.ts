@@ -38,7 +38,7 @@ import { execFileSync } from 'child_process';
 export type AugmentMode = 'list-only' | 'with-run';
 
 export interface AugmentData {
-  coverageStatus: 'Automated' | 'Pending Automation' | '';
+  coverageStatus: 'Automated' | 'Pending Automation' | 'Manual' | '';
   automationExecution: 'Pass' | 'Fail' | 'Skipped' | 'Blocked' | '';
   ifFailedReason: string;
 }
@@ -98,7 +98,62 @@ export function augmentByTcId(
     if (data && !data.ifFailedReason) data.ifFailedReason = reason;
   }
 
+  // ROOT-FIX (2026-06-05, LR-ENC-004): a `test.fixme(true, '<reason>')` called
+  // INSIDE a test body is a RUNTIME skip — invisible to `playwright --list`
+  // (list-only mode), which reports the test as a plain `test`, so the loop above
+  // assumes 'Pass'. The reason string above still gets scraped, producing a
+  // Pass+reason contradiction (TC-LOC-SSL-001/041/042/043/044). Re-scan the specs,
+  // attribute each runtime fixme to its ENCLOSING `test('TC-...')` declaration
+  // (NOT a TC ID embedded in the reason text — scraping the reason was the join
+  // bug, since SSL reasons cross-reference sibling TC IDs), and force those rows
+  // to 'Blocked' + the real reason. The emit-layer throw in to-xlsx.ts guards any
+  // residual Pass+reason as a hard integrity failure.
+  const specFixmes = scanSpecRuntimeFixmes(opts.clientRoot);
+  for (const [id, reason] of specFixmes) {
+    const data = result.get(id);
+    if (!data) continue;
+    if (!data.ifFailedReason || data.ifFailedReason === 'test.fixme() call in spec') {
+      data.ifFailedReason = reason;
+    }
+    if (data.automationExecution === 'Pass' || data.automationExecution === '') {
+      data.automationExecution = 'Blocked';
+    }
+  }
+
   return result;
+}
+
+/**
+ * Scan specs for runtime `test.fixme(true, '<reason>')` calls and attribute each
+ * to the TC ID of its ENCLOSING `test(...)` declaration by walking BACKWARD to the
+ * nearest test-declaration line. Deliberately NOT the reason text: SSL reasons
+ * cross-reference sibling TC IDs (e.g. "Same pattern as TC-LOC-SSL-030"), so
+ * scraping the reason string mis-attributes the fixme to the cited sibling — that
+ * was the Pass+reason join bug. Returns Map<enclosingTcId, reasonString>.
+ */
+function scanSpecRuntimeFixmes(clientRoot: string): Map<string, string> {
+  const out = new Map<string, string>();
+  const specsDir = path.join(clientRoot, 'specs');
+  if (!fs.existsSync(specsDir)) return out;
+  // Matches `test('TC-...'`, `test.fixme('TC-...'`, `test.skip('TC-...'`, `test.only('TC-...'`.
+  const TEST_DECL = /\btest(?:\.(?:fixme|skip|only))?\s*\(\s*[`'"](TC-[A-Z]+-[A-Z]+-[A-Za-z0-9-]+)/;
+  for (const file of walkSpecs(specsDir)) {
+    const lines = fs.readFileSync(file, 'utf-8').split(/\r?\n/);
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i]!.match(/test\.fixme\(\s*true\s*,\s*([`'"])([^`'"]*)\1/);
+      if (!m) continue;
+      const reason = (m[2] ?? '').trim();
+      if (!reason) continue;
+      for (let j = i; j >= Math.max(0, i - 40); j--) {
+        const d = lines[j]!.match(TEST_DECL);
+        if (d && d[1]) {
+          if (!out.has(d[1])) out.set(d[1], reason);
+          break;
+        }
+      }
+    }
+  }
+  return out;
 }
 
 /** List playwright tests via --list --reporter=json. */
@@ -160,11 +215,16 @@ function extractTcIdFromTitle(title: string): string | null {
   return m && m[1] ? m[1] : null;
 }
 
-/** Source-file scan for `test.fixme(true, '<reason>')` per TC ID. */
+/**
+ * Curated registry reasons from `reports/fixme-registry.json` (scripts/scan-fixmes.ts
+ * output + baseline-restoration entries). Spec runtime `test.fixme(true,'...')` reasons
+ * are handled separately by `scanSpecRuntimeFixmes` with correct enclosing-test
+ * attribution — the former forward-walk here grabbed TC IDs from reason text AND from
+ * adjacent `dependencyGate([...])` calls, smearing a blocked sibling's reason onto a
+ * passing test (e.g. TC-LOC-SSL-001). Removed 2026-06-05 (LR-ENC-004).
+ */
 function scanFixmeReasons(clientRoot: string, registryPath?: string): Map<string, string> {
   const out = new Map<string, string>();
-
-  // 1. Load fixme-registry.json if available (scripts/scan-fixmes.ts output)
   if (registryPath && fs.existsSync(registryPath)) {
     try {
       const reg = JSON.parse(fs.readFileSync(registryPath, 'utf-8'));
@@ -174,30 +234,6 @@ function scanFixmeReasons(clientRoot: string, registryPath?: string): Map<string
       }
     } catch {
       // Bad registry — skip silently
-    }
-  }
-
-  // 2. Best-effort spec-file regex scan (covers TCs the registry missed)
-  const specsDir = path.join(clientRoot, 'specs');
-  if (!fs.existsSync(specsDir)) return out;
-  for (const file of walkSpecs(specsDir)) {
-    const text = fs.readFileSync(file, 'utf-8');
-    const lines = text.split(/\r?\n/);
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]!;
-      // Match test.fixme(true, '...') OR test.fixme(true, "...")
-      const fixmeMatch = line.match(/test\.fixme\(\s*true\s*,\s*(['"`])([^'"`]*)\1/);
-      if (!fixmeMatch) continue;
-      const reason = fixmeMatch[2]!;
-      // Walk forward up to 30 lines to find the TC ID in the test title
-      for (let j = i; j < Math.min(i + 30, lines.length); j++) {
-        const m = lines[j]!.match(TC_ID_IN_TITLE);
-        const tcId = m && m[1] ? m[1] : null;
-        if (tcId && !out.has(tcId)) {
-          out.set(tcId, reason);
-          break;
-        }
-      }
     }
   }
   return out;

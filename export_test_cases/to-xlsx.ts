@@ -3,7 +3,7 @@
  *
  * Output: `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`
  *   - Overview sheet (12 cols, per-module quantitative summary) — first tab
- *   - 13 module sheets (13 cols, canonical schema):
+ *   - 13 module sheets (11 cols, canonical schema):
  *       local_office_settings, local_office_history, local_office_ect,
  *       locations_account_address, locations_auto_addon, locations_currency,
  *       locations_left_panel, locations_legal, locations_local_information,
@@ -13,9 +13,9 @@
  * Sources (post-Phase-D + 2026-05-27 post-audit cleanup):
  *   PRIMARY (sole) — `clients/encore/specs_planning/test-cases/setup/<module>/*.md`
  *                    (TC ID, Title, Module, Submodule, Status, Steps, Expected, Notes)
- *   Specific Field is a manual column owned directly in the XLSX (no CSV bootstrap
- *   path; the CSV supplementary lookup + CSV_DIR const + loadCsvLookup() function
- *   were dropped on 2026-05-27 once the test_cases_csv directory itself was deleted).
+ *   The 'Specific Field' + 'Tags' columns were removed on 2026-06-05 (LR-ENC-004 V2):
+ *   both were 100% empty across all cases. The CSV supplementary lookup + CSV_DIR
+ *   const + loadCsvLookup() that once back-filled them were already dropped 2026-05-27.
  *
  * Phase A constraint: this file MUST NOT modify
  *   types.ts / markdown-parser.ts / to-json.ts / to-jira.ts / to-testmo.ts / index.ts.
@@ -39,6 +39,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { execFileSync } from 'child_process';
 import ExcelJS from 'exceljs';
 import {
   augmentByTcId,
@@ -60,13 +61,14 @@ const FIXME_REGISTRY = path.join(REPO_ROOT, 'reports', 'fixme-registry.json');
 
 // ────────────────────────── Schema ──────────────────────────
 
+// 'Specific Field' + 'Tags' columns removed 2026-06-05 (LR-ENC-004 V2): both were
+// 100% empty across all 484 cases (dead columns that read as unfinished to the
+// client). CHECKED_COLS in scripts/xlsx-lint-rules.mjs trimmed in lockstep.
 const MODULE_SHEET_HEADERS = [
   'TC ID',
   'Title',
   'Module',
   'Submodule',
-  'Specific Field',
-  'Tags',
   'Preconditions',
   'Steps',
   'Expected Result',
@@ -99,7 +101,9 @@ const SHEET_NAMES: Record<string, string> = {
   locations_account_address: 'locations_account_address',
   locations_auto_addon: 'locations_auto_addon',
   locations_currency: 'locations_currency',
-  locations_left_panel: 'locations_left_panel',
+  // Renamed 2026-06-03 (SUBPLAN_LEFT_PANEL_BASIC_INFORMATION_FCC): slug
+  // 'locations_left_panel_basic_information' = 38 chars > Excel's 31-char limit → capped at 31.
+  locations_left_panel_basic_information: 'locations_left_panel_basic_info',
   locations_legal: 'locations_legal',
   locations_local_information: 'locations_local_information',
   locations_management_history: 'locations_management_history',
@@ -118,7 +122,7 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   locations_account_address: 'Location — Account & Address',
   locations_auto_addon: 'Location — Auto Add-On',
   locations_currency: 'Location — Currency',
-  locations_left_panel: 'Location — Left Panel / Basic Information',
+  locations_left_panel_basic_information: 'Location — Left Panel / Basic Information',
   locations_legal: 'Location — Legal',
   locations_local_information: 'Location — Local Information',
   locations_management_history: 'Location — Management History',
@@ -191,8 +195,6 @@ interface ParsedTc {
   title: string;
   module: string;
   submodule: string;
-  specificField: string; // populated from CSV (Phase A bootstrap)
-  tags: string;          // populated from CSV / MD metadata table (Phase A bootstrap)
   preconditions: string;
   steps: string;
   expected: string;
@@ -209,12 +211,11 @@ interface ParsedTc {
  * (to-csv.ts:CsvConverter.convertFile). Producing the same CSV bytes from the
  * same MD source guarantees XLSX cells match the fresh-CSV cells byte-for-byte
  * (modulo schema-shape moduli already allowed by xlsx-vs-csv-parity.mjs:
- * Tags / Specific Field column swap on LO TCs; Coverage Status rename and
- * Yes→Automated / No→Pending Automation value remap; trailing SUMMARY rows).
+ * Coverage Status rename and Yes→Automated / No→Pending Automation value remap;
+ * trailing SUMMARY rows).
  *
- * Specific Field is left blank by the parser — it's a manual column owned
- * directly in the XLSX post-Phase-D (the CSV supplementary lookup that used to
- * back-fill it was removed on 2026-05-27 along with the test_cases_csv dir).
+ * (The 'Specific Field' + 'Tags' columns were removed from the deliverable on
+ * 2026-06-05 — LR-ENC-004 V2 — both were 100% empty across all cases.)
  * Augment columns (Coverage Status / Automation Execution / If Failed Reason)
  * come from SP00 augment.
  */
@@ -227,7 +228,6 @@ function parseMd(filePath: string): ParsedTc[] {
   const titleCol = header.indexOf('Title');
   const moduleCol = header.indexOf('Module');
   const submoduleCol = header.indexOf('Submodule');
-  const tagsCol = header.indexOf('Tags');
   const preCol = header.indexOf('Preconditions');
   const stepsCol = header.indexOf('Steps');
   const expectedCol = header.indexOf('Expected Result');
@@ -248,8 +248,6 @@ function parseMd(filePath: string): ParsedTc[] {
       title: scrubInternalVocab(titleCol >= 0 ? (r[titleCol] ?? '') : ''),
       module: moduleCol >= 0 ? (r[moduleCol] ?? '') : '',
       submodule: submoduleCol >= 0 ? (r[submoduleCol] ?? '') : '',
-      specificField: '', // backfilled from CSV supplementary lookup
-      tags: tagsCol >= 0 ? (r[tagsCol] ?? '') : '',
       preconditions: scrubInternalVocab(preCol >= 0 ? (r[preCol] ?? '') : ''),
       steps: scrubInternalVocab(stepsCol >= 0 ? (r[stepsCol] ?? '') : ''),
       expected: scrubInternalVocab(expectedCol >= 0 ? (r[expectedCol] ?? '') : ''),
@@ -348,9 +346,8 @@ function buildFromMdSource(): Map<string, ParsedTc[]> {
     tcsBySheet.get(sheetName)!.push(...tcs);
   }
 
-  // Specific Field + Tags now flow exclusively from MD metadata; the CSV
-  // supplementary lookup that previously populated them was removed on
-  // 2026-05-27 (post-audit cleanup) once test_cases_csv was deleted.
+  // The 'Specific Field' + 'Tags' columns were removed from the deliverable on
+  // 2026-06-05 (LR-ENC-004 V2) — both were 100% empty across all cases.
   return tcsBySheet;
 }
 
@@ -390,16 +387,43 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
   const overlay = applyBlockedOverlay(tcsBySheet, { repoRoot: REPO_ROOT, registryPath: FIXME_REGISTRY });
   process.stderr.write(`[xlsx:build] Blocked overlay applied to ${overlay.applied} row(s) from ${overlay.resolvedTcIds.length} registry TC(s)\n`);
 
-  // Consistency closeout: any TC that has an If-Failed reason but a blank
-  // Automation Execution is logically blocked (the reason came from a
-  // spec-file `test.fixme(true, '<reason>')` scan, which `scan-fixmes.ts`
-  // couldn't resolve a TC ID for — see UNKNOWN entries in fixme-registry.json,
-  // and the forward-walk in `scanFixmeReasons` that still resolves them via
-  // dependencyGate hits). Promoting them to Blocked here is the universal
-  // "reason ⇒ blocked" invariant.
+  // Curated client-facing reason / disposition overrides (LR-ENC-004). COMMITTED,
+  // gitignore-proof home for blocked / skipped / Manual reasons that have no other
+  // committed source — replaces the GC-prone fixme-registry baseline-restoration
+  // entries. Applied AFTER augment+overlay so it is authoritative; runs BEFORE the
+  // Pass+reason tripwire below. Implements the "Manual" disposition (Coverage
+  // Status = Manual, blank Execution + Reason) and durable blocked reasons.
+  const BLOCKED_REASONS_PATH = path.join(__dirname, 'blocked-reasons.json');
+  let blockedReasons: Record<string, { coverage?: string; execution?: string; reason?: string }> = {};
+  try {
+    blockedReasons = JSON.parse(fs.readFileSync(BLOCKED_REASONS_PATH, 'utf-8'));
+  } catch (err) {
+    process.stderr.write(`[xlsx:build] WARN — could not read blocked-reasons.json: ${(err as Error).message}\n`);
+  }
   for (const [, tcs] of tcsBySheet) {
     for (const tc of tcs) {
-      if (tc.ifFailedReason && !tc.automationExecution) tc.automationExecution = 'Blocked';
+      const o = blockedReasons[tc.id];
+      if (!o) continue;
+      if (o.coverage !== undefined) tc.coverageStatus = o.coverage as ParsedTc['coverageStatus'];
+      if (o.execution !== undefined) tc.automationExecution = o.execution as ParsedTc['automationExecution'];
+      if (o.reason !== undefined) tc.ifFailedReason = o.reason;
+    }
+  }
+
+  // INTEGRITY TRIPWIRE (LR-ENC-004 — replaces the former `reason ⇒ set Blocked`
+  // coercion at this point, per the throw-not-coerce decision). A row marked 'Pass'
+  // that still carries a failure reason is a Data Integrity Exception: the upstream
+  // join in sp00-augment-logic.ts mis-attributed a blocked sibling's reason to a
+  // passing test. NEVER coerce it silently — fail the build so the SOURCE is fixed.
+  for (const [, tcs] of tcsBySheet) {
+    for (const tc of tcs) {
+      if (tc.automationExecution === 'Pass' && (tc.ifFailedReason || '').trim() !== '') {
+        throw new Error(
+          `[Data Integrity Exception] TC ${tc.id} is marked PASS but carries a failure reason ` +
+          `("${tc.ifFailedReason.slice(0, 80)}"). Upstream join bug in sp00-augment-logic.ts — ` +
+          `fix the attribution at the source, do NOT coerce here.`
+        );
+      }
     }
   }
 
@@ -414,7 +438,7 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
 
   // Overview sheet first
   const overview = wb.addWorksheet('Overview', { views: [{ state: 'frozen', ySplit: 4 }] });
-  overview.addRow([`Encore Test Case Workbook — generated on ${buildTimestamp} (mode: ${opts.mode})`]);
+  overview.addRow([`Encore Test Case Workbook — generated on ${buildTimestamp}`]);
   overview.mergeCells(1, 1, 1, OVERVIEW_HEADERS.length);
   overview.getCell(1, 1).font = { bold: true, size: 14 };
   overview.addRow([`Workbook version: encore_test_cases.xlsx`]);
@@ -427,7 +451,16 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
 
   // Module sheets
   for (const sheetName of sortedSheetNames) {
+    // Sort rows by TC ID so the deliverable reads in ascending ID order regardless
+    // of MD source order. New cases are often spliced into the source next to a
+    // thematically-related older case while taking the next free global number,
+    // which leaves the source IDs out of numeric sequence (LR-ENC-004 V3). The
+    // comparator is numeric-aware: 024 < 024A < 025, the NE-* sub-series groups
+    // after the plain numeric block, and the non-numeric SKIP-BILLING sorts last.
+    // MUST stay identical to compareTcId() in scripts/xlsx-lint-rules.mjs — the C6
+    // guard re-asserts this exact order at build/commit/ship and fails on divergence.
     const tcs = tcsBySheet.get(sheetName)!;
+    tcs.sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
     const metrics = emptyMetrics();
     const ws = wb.addWorksheet(sheetName, { views: [{ state: 'frozen', ySplit: 1 }] });
     const headerRow = ws.addRow([...MODULE_SHEET_HEADERS]);
@@ -441,8 +474,6 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
         tc.title,
         tc.module,
         tc.submodule,
-        tc.specificField,
-        tc.tags,
         tc.preconditions,
         tc.steps,
         tc.expected,
@@ -464,7 +495,9 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
     const summary = ws.addRow([
       'SUMMARY',
       SHEET_DISPLAY_NAMES[mdSlugForSheet(sheetName)] ?? sheetName,
-      '', '', '', '', '', '', '', '',
+      // 6 empty cells: Module, Submodule, Preconditions, Steps, Expected, Notes
+      // (was 8 before the Specific Field + Tags columns were removed, 2026-06-05).
+      '', '', '', '', '', '',
       `Automated: ${metrics.automated} / Pending: ${metrics.pendingAutomation}`,
       `Pass:${metrics.pass} Fail:${metrics.fail} Skipped:${metrics.skipped} Blocked:${metrics.blocked}`,
       `Last Updated: ${buildIsoDate}`,
@@ -512,6 +545,23 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
   // 6. Write
   if (!fs.existsSync(XLSX_DIR)) fs.mkdirSync(XLSX_DIR, { recursive: true });
   await wb.xlsx.writeFile(XLSX_PATH);
+
+  // Build-time self-fail (LR-ENC-004): re-lint the workbook we just wrote with the
+  // SAME shared rules (scripts/xlsx-lint-rules.mjs) used at commit and ship time.
+  // `npm run xlsx:build` can therefore never silently emit a workbook with internal
+  // vocabulary or a status/reason contradiction. Run as a subprocess to cross the
+  // CJS (ts-node) → ESM (.mjs) boundary cleanly; the CLI re-reads XLSX_PATH from disk.
+  const lintScript = path.join(REPO_ROOT, 'scripts', 'xlsx-vocab-lint.mjs');
+  try {
+    execFileSync(process.execPath, [lintScript], { stdio: 'inherit' });
+  } catch {
+    throw new Error(
+      '[xlsx:build] self-check FAILED — the generated workbook contains banned vocabulary ' +
+      'or a status/reason contradiction (see the xlsx:lint output above). Fix the SOURCE ' +
+      '(MD test cases, spec test.fixme reasons, or export_test_cases/blocked-reasons.json) and rebuild.'
+    );
+  }
+
   return { outPath: XLSX_PATH, sheetsBuilt: ['Overview', ...sortedSheetNames], rowsPerSheet };
 }
 

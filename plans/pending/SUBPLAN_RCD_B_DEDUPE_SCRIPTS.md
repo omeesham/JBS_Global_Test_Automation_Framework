@@ -7,7 +7,7 @@
 **Parent**: PLAN_ROOT_CLIENT_DEDUPE.md
 **Depends on**: SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md
 **Blocks**: SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: hi
 **PermissionMode**: acceptEdits
 **RiskAcknowledged**: n/a

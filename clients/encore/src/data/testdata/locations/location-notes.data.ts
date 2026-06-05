@@ -99,6 +99,6 @@ export const NOTE_CANCEL_RESAVE_INITIAL = 'Initial draft';
 export const NOTE_CANCEL_RESAVE_FINAL = 'Final saved';
 export const NOTE_ESCAPE_DIALOG = 'Escape test';
 export const NOTE_IDEMPOTENT = 'Idempotent test';
-export const NOTE_SEQUENTIAL_HIST_A = 'HIST seq A';
-export const NOTE_SEQUENTIAL_HIST_B = 'HIST seq B';
+export const NOTE_SEQUENTIAL_A = 'Sequential A';
+export const NOTE_SEQUENTIAL_B = 'Sequential B';
 // NOTE_DELETE_WORKAROUND_BASE removed 2026-05-20 — only used by FCC-030 which was DROPPED as duplicate of TC-012 + TC-026 step 3.

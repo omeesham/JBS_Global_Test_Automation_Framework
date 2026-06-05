@@ -5,7 +5,7 @@
 **Created**: 2026-04-22
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md
 **Depends on**: SP-AAE-01, SP-AAE-02, SP-AAE-03, SP-AAE-04, SP-AAE-05, SP-DQU-03, SP-DQU-04, SP-DQU-05
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: hi
 **PermissionMode**: auto
 **RiskAcknowledged**: n/a

@@ -73,10 +73,6 @@ Thumbs.db
 coverage/
 .nyc_output/
 
-# Downloads (test artifacts) — post-SP-MT-02 location
-clients/*/tests/test-data/downloads/
-!clients/*/tests/test-data/downloads/.gitkeep
-
 # Temporary
 temp/
 tmp/

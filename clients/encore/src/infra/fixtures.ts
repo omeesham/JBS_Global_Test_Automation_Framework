@@ -1,6 +1,5 @@
 /** Custom Playwright test fixtures for dependency injection of page objects */
 
-import './custom-matchers';
 import { test as base, Page, BrowserContext } from '@playwright/test';
 import { LocationCurrencyPage } from '../pages/locations/location-currency.page';
 import { LocationLocalInfoPage } from '../pages/locations/location-local-info.page';
@@ -8,12 +7,17 @@ import { LocationPricingPage } from '../pages/locations/location-pricing.page';
 import { LocationAccountAddressPage } from '../pages/locations/location-account-address.page';
 import { LocationNotesPage } from '../pages/locations/location-notes.page';
 import { LocationLegalPage } from '../pages/locations/location-legal.page';
+import { LocationLeftPanelBasicInformationPage } from '../pages/locations/location-left-panel-basic-information.page';
 import { LocationSharedSetupLocationsPage } from '../pages/locations/location-shared-setup-locations.page';
 import { LocalOfficeSettingsPage } from '../pages/local-office/local-office-settings.page';
 import { LocalOfficeHistoryPage } from '../pages/local-office/local-office-history.page';
 import { LocalOfficeEctPage } from '../pages/local-office/local-office-ect.page';
 import { LocationAutoAddonPage } from '../pages/locations/location-auto-addon.page';
 import { LocationManagementHistoryPage } from '../pages/locations/location-management-history.page';
+import { CorporatePricingBasePage } from '../pages/corporate-pricing/corporate-pricing.page';
+import { CorporatePricingSearchPage } from '../pages/corporate-pricing/corporate-pricing-search.page';
+import { CorporatePricingStrategyPage } from '../pages/corporate-pricing/corporate-pricing-strategy.page';
+import { CorporatePricingDetailPage } from '../pages/corporate-pricing/corporate-pricing-detail.page';
 import { CommonMethods } from '../utils/common-methods';
 import { Log } from '../utils/logger';
 import { IConfig } from '../types';
@@ -46,12 +50,17 @@ type TestFixtures = {
   locationAccountAddressPage: LocationAccountAddressPage;
   locationNotesPage: LocationNotesPage;
   locationLegalPage: LocationLegalPage;
+  locationLeftPanelBasicInformationPage: LocationLeftPanelBasicInformationPage;
   locationSharedSetupLocationsPage: LocationSharedSetupLocationsPage;
   localOfficeSettingsPage: LocalOfficeSettingsPage;
   localOfficeHistoryPage: LocalOfficeHistoryPage;
   localOfficeEctPage: LocalOfficeEctPage;
   locationAutoAddonPage: LocationAutoAddonPage;
   locationManagementHistoryPage: LocationManagementHistoryPage;
+  corporatePricingBasePage: CorporatePricingBasePage;
+  corporatePricingSearchPage: CorporatePricingSearchPage;
+  corporatePricingStrategyPage: CorporatePricingStrategyPage;
+  corporatePricingDetailPage: CorporatePricingDetailPage;
   dependencyGate: (deps: string[]) => void;
 };
 
@@ -382,6 +391,15 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
   },
 
  /**
+ * LocationLeftPanelBasicInformationPage fixture
+ * Uses authenticatedSession page so tests start pre-authenticated.
+ */
+  locationLeftPanelBasicInformationPage: async ({ authenticatedSession, config }, use) => {
+    const locationLeftPanelBasicInformationPage = new LocationLeftPanelBasicInformationPage(authenticatedSession.page, config);
+    await use(locationLeftPanelBasicInformationPage);
+  },
+
+ /**
  * LocationSharedSetupLocationsPage fixture
  * Uses authenticatedSession page so tests start pre-authenticated.
  */
@@ -413,6 +431,42 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
   locationManagementHistoryPage: async ({ authenticatedSession, config }, use) => {
     const locationManagementHistoryPage = new LocationManagementHistoryPage(authenticatedSession.page, config);
     await use(locationManagementHistoryPage);
+  },
+
+  /**
+   * CorporatePricingBasePage fixture (S0 foundation — shared base).
+   * S1/S2/S3 add their own per-screen page-object fixtures extending CorporatePricingBasePage.
+   */
+  corporatePricingBasePage: async ({ authenticatedSession, config }, use) => {
+    const corporatePricingBasePage = new CorporatePricingBasePage(authenticatedSession.page, config);
+    await use(corporatePricingBasePage);
+  },
+
+  /**
+   * CorporatePricingSearchPage fixture (S1 — Search screen, NM-1445).
+   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
+   */
+  corporatePricingSearchPage: async ({ authenticatedSession, config }, use) => {
+    const corporatePricingSearchPage = new CorporatePricingSearchPage(authenticatedSession.page, config);
+    await use(corporatePricingSearchPage);
+  },
+
+  /**
+   * CorporatePricingStrategyPage fixture (S2 — Pricing Strategy tab, NM-1441).
+   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
+   */
+  corporatePricingStrategyPage: async ({ authenticatedSession, config }, use) => {
+    const corporatePricingStrategyPage = new CorporatePricingStrategyPage(authenticatedSession.page, config);
+    await use(corporatePricingStrategyPage);
+  },
+
+  /**
+   * CorporatePricingDetailPage fixture (S3 — Pricing Detail tab, NM-1443).
+   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
+   */
+  corporatePricingDetailPage: async ({ authenticatedSession, config }, use) => {
+    const corporatePricingDetailPage = new CorporatePricingDetailPage(authenticatedSession.page, config);
+    await use(corporatePricingDetailPage);
   },
 
 });

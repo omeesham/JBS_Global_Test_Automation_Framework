@@ -121,7 +121,7 @@ Three alternatives were evaluated:
 | **Add an "audit project" that runs serial after writes** | PARTIALLY DEFENDABLE — solves concurrency, but the bug also reproduces with `workers=1`. Doubles wall-clock time. Doesn't address the core defect: test doesn't own its data. |
 | **Self-contained tests (test writes its own row, reads its own row)** | **DEFENDABLE** — eliminates the dependency on any other spec's state. Works regardless of worker count. Test owns the data end-to-end. Failures are localized to the field under test. |
 
-**Defense statement**: The original MGH-008 violated the basic property of a unit test — that the test controls its own preconditions. It was reading state produced by an unrelated spec, which is by definition non-deterministic. The self-contained pattern restores test ownership of preconditions. It is the same pattern already in use by `location-hist-notes.spec.ts` (confirmed by Explore agent as canonically correct).
+**Defense statement**: The original MGH-008 violated the basic property of a unit test — that the test controls its own preconditions. It was reading state produced by an unrelated spec, which is by definition non-deterministic. The self-contained pattern restores test ownership of preconditions. It is the same pattern already in use by the Notes col-69 HIST tests (now in `location-management-history.spec.ts`, formerly `location-hist-notes.spec.ts`) (confirmed canonically correct).
 
 ### The contract — every history TC that asserts cell values
 
@@ -142,8 +142,8 @@ Three alternatives were evaluated:
 
 ### Existing reusable infrastructure (do not reinvent)
 
-- **`getRowsSinceTimestamp(sinceMs, headers, maxRows)`** exists at `clients/encore/src/pages/locations/location-management-history.page.ts:216-260`. Currently unused by the MGH spec. Already proven by `location-hist-notes.spec.ts:124` as the canonical pattern. No new code needed for MGH — just adopt it.
-- **`sortByModifiedOnDesc()`** — same page object, used by hist-notes spec.
+- **`getRowsSinceTimestamp(sinceMs, headers, maxRows)`** exists at `clients/encore/src/pages/locations/location-management-history.page.ts:216-260`. Currently unused by the MGH spec. Already proven by the Notes col-69 HIST tests (now in `location-management-history.spec.ts`) as the canonical pattern. No new code needed for MGH — just adopt it.
+- **`sortByModifiedOnDesc()`** — same page object, used by the Notes col-69 HIST tests.
 
 ### Concrete restructure: TC-LOC-MGH-008
 

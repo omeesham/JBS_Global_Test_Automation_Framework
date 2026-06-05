@@ -6,7 +6,7 @@
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md
 **Depends on**: SP-DQU-08 (CSVs tagged), SP-DQU-30 (Allure), SP-DQU-31 (bug reports package), SP-DQU-29 (identity ripple sync)
 **Blocks**: SP-DQU-35 (exit audit)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: auto
 

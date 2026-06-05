@@ -111,7 +111,7 @@ clients/encore/
 | Infra | 7 | `tests/infra/{auth-storage, auth.setup, custom-matchers, dependency-gate, fixtures, global-setup, global-teardown}.ts` | `src/infra/*` |
 | Specs (local-office) | 3 | `tests/specs/setup/local-office/*.spec.ts` | `specs/local-office/*` |
 | Specs (locations) | 9 | `tests/specs/setup/locations/*.spec.ts` | `specs/locations/*` |
-| Specs (history) | 1 | `tests/specs/setup/locations/history/location-hist-notes.spec.ts` | `specs/locations/history/location-hist-notes.spec.ts` |
+| Specs (history) | 1 | `tests/specs/setup/locations/history/location-hist-notes.spec.ts` | `specs/locations/history/location-hist-notes.spec.ts` _(later consolidated 2026-06-05 → location-management-history.spec.ts; file removed — PLAN_NOTES_HIST_CONSOLIDATION)_ |
 | Pages (local-office) | 1 | `src/pages/setup/local-office/*` | `src/pages/local-office/*` |
 | Pages (locations) | 10 | `src/pages/setup/locations/*` | `src/pages/locations/*` |
 | Selectors (local-office) | 1 | `src/selectors/setup/local-office/*` | `src/selectors/local-office/*` |

@@ -25,12 +25,12 @@ export default defineConfig({
   timeout: process.env.CI ? 60 * 1000 : 30 * 1000,
   expect: { timeout: 5000 },
 
-  // HARD RULE: 1 spec = 1 worker, always (no within-file split). Required so each
-  // spec's TC-001 baseline-reset (per LR-019) runs first in source order before
-  // dependent tests. Within-file parallel would race TC-002+ against the baseline
-  // state TC-001 establishes. Workers still run DIFFERENT specs in parallel via
-  // AUTH-STATE-SHARED (storageState shared via .auth/encore-state.json).
-  // Do not flip back to true.
+  // HARD RULE: 1 spec = 1 worker, always (no within-file split). Within-file parallel
+  // would race tests against each other's shared form/server state. Baseline isolation
+  // is enforced PER-TEST in each spec's beforeEach (per LR-019 — not first-test-only),
+  // so order within a file is not relied upon for clean state. Workers still run
+  // DIFFERENT specs in parallel via AUTH-STATE-SHARED (storageState shared via
+  // .auth/encore-state.json). Do not flip back to true.
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
 
@@ -189,5 +189,4 @@ export default defineConfig({
   snapshotDir: 'reports/test-results/snapshots',
 
   globalSetup: require.resolve('./src/infra/global-setup'),
-  globalTeardown: require.resolve('./src/infra/global-teardown'),
 });

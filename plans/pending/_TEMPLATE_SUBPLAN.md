@@ -26,7 +26,7 @@
 **Parent**: <PARENT_PLAN_FILENAME>.md  <!-- subplans only; delete for top-level PLAN_*.md -->
 **Depends on**: <predecessor subplan filename(s)>, or `none`
 **Blocks**: <subplan filename(s) that wait on this>, or `none`
-**Model**: claude-opus-4-7 | claude-sonnet-4-6
+**Model**: claude-opus-4-8 | claude-sonnet-4-6
 **Thinking**: mid | hi | xhi | max  <!-- LR-041: forbidden combos rejected -->
 **PermissionMode**: auto | plan | acceptEdits | bypassPermissions  <!-- bypassPermissions requires RiskAcknowledged: true -->
 **RiskAcknowledged**: <true | n/a>

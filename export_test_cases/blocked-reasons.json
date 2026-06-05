@@ -1,0 +1,52 @@
+{
+  "_README": "Curated, client-facing reason/disposition overrides for the Encore deliverable workbook. COMMITTED (durable) home for blocked/skipped/manual reasons that have no other committed source — replaces the gitignored, GC-prone fixme-registry.json baseline-restoration entries (LR-ENC-004, 2026-06-05). Applied by export_test_cases/to-xlsx.ts AFTER augment+overlay, BEFORE the Pass+reason integrity throw. Per entry: 'coverage' (optional, e.g. 'Manual'), 'execution' (''|'Skipped'|'Blocked'), 'reason' (client-safe professional text — NO slang, framework, BUG-IDs, or contradictions; passes scripts/xlsx-lint-rules.mjs). Do NOT add a reason to a Passing test (would trip C1).",
+
+  "TC-LOS-BAS-048": { "execution": "Skipped", "reason": "Skipped — toggling Room Active does not mark the form as changed, so Save stays disabled and the change cannot be saved. Pending an application fix." },
+
+  "TC-LOC-AAO-016": { "execution": "", "reason": "Requires a second location whose add-on configuration differs from the standard test office; cannot be exercised from the standard test office." },
+
+  "_README_DROPPED_NOT_AUTOMATABLE": "Disposition (LR-ENC-004 V3, 2026-06-05): ACC-021/024 were investigated and found not automatable because the underlying application behavior does not support the test. They stay in the catalog as 'Pending Automation' with an explanatory reason instead of a blank-body row; the internal DROPPED status remains in the MD source only. No fabrication — each reason is reworded from the documented MD Reason.",
+  "TC-LOC-ACC-021": { "execution": "", "reason": "Not automated — the Phone 1 field is account-linked; the server restores the account's phone number on reload, so a saved change to this field cannot persist." },
+  "TC-LOC-ACC-024": { "execution": "", "reason": "Not automated — switching tabs while there are unsaved changes does not trigger an Unsaved Changes prompt on this page, so there is no dialog behavior to verify." },
+
+  "TC-LOC-LGL-015": { "execution": "", "reason": "Not yet automated — pending coverage of the left-panel Country selector." },
+  "TC-LOC-LGL-016": { "execution": "Blocked", "reason": "Blocked — the Service Charge dropdown options are not sorted alphabetically, so the test would fail against current behavior. Pending an application fix." },
+  "TC-LOC-LGL-017": { "execution": "Blocked", "reason": "Blocked — the Terms and Conditions dropdown options are not sorted alphabetically. Pending an application fix." },
+
+  "TC-LOC-LI-003": { "execution": "Blocked", "reason": "Blocked — when the parent option is unchecked, the dependent Calculate-on-Net options remain enabled instead of being disabled. Pending an application fix." },
+  "TC-LOC-LI-004": { "execution": "Blocked", "reason": "Blocked — when the parent option is unchecked, the dependent Calculate-on-Net options remain enabled instead of being disabled. Pending an application fix." },
+  "TC-LOC-LI-057": { "execution": "", "reason": "Requires creating a new location, which is not available in the test environment." },
+
+  "_README_ENV_DEPENDENCY": "Disposition consistency (LR-ENC-004 V2, 2026-06-05): these rows depend on a DIFFERENT office/account/environment, not an application bug. 'Blocked' (which connotes app-bug-blocked) is therefore wrong — they read as 'Pending Automation' + blank execution + an environment reason, matching AAO-016 / LI-057.",
+  "TC-LOC-LI-022": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-023": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-024": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-024A": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-044": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-046": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-047": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-048": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-054": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-058": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-059": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
+  "TC-LOC-LI-060": { "execution": "", "reason": "Not yet automated — requires a user account with a read-only Location role, which is not provisioned in the test environment." },
+  "TC-LOC-LI-065": { "execution": "Blocked", "reason": "Blocked — when the Service Charge parent option is unchecked, the dependent options remain enabled instead of being disabled. Pending an application fix." },
+  "TC-LOC-LI-NE-011": { "execution": "Blocked", "reason": "Blocked — unchecking Apply LDW does not disable the dependent Calculate-on-Net option. Pending an application fix." },
+  "TC-LOC-LI-NE-012": { "execution": "Blocked", "reason": "Blocked — unchecking Apply C&C does not disable the dependent Calculate-on-Net option. Pending an application fix." },
+
+  "TC-LOC-PRI-020": { "execution": "Skipped", "reason": "Skipped — grid row date values do not persist after save and reload. Pending an application fix." },
+  "TC-LOC-PRI-025": { "execution": "Skipped", "reason": "Skipped — unchecking Corporate Pricing does not persist after save and reload. Pending an application fix." },
+  "TC-LOC-PRI-026": { "execution": "Skipped", "reason": "Skipped — saving a pricing dropdown change returns a server error, so the change does not persist. Pending an application fix." },
+  "TC-LOC-PRI-027": { "execution": "Skipped", "reason": "Skipped — saving a pricing dropdown change returns a server error, so the change does not persist. Pending an application fix." },
+  "TC-LOC-PRI-028": { "execution": "Skipped", "reason": "Skipped — saving a pricing dropdown change returns a server error, so the change does not persist. Pending an application fix." },
+  "TC-LOC-PRI-029": { "execution": "Skipped", "reason": "Skipped — saving a pricing dropdown change returns a server error, so the change does not persist. Pending an application fix." },
+  "TC-LOC-PRI-030": { "execution": "Skipped", "reason": "Skipped — saving a pricing dropdown change returns a server error, so the change does not persist. Pending an application fix." },
+
+  "TC-LOC-NTS-018": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-NTS-019": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-NTS-020": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-LI-NE-044": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-LI-NE-045": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-LI-NE-046": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-LI-NE-047": { "coverage": "Manual", "execution": "", "reason": "" }
+}

@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_LEGAL_BASELINE_FIX.md",
+  "plan_basename": "PLAN_LEGAL_BASELINE_FIX.md",
+  "plan_sha256": "5e968b40c2a7cdd2204b32951b43a19d16a3d7e09ee09605f811fd3745b09268",
+  "passed_at": "2026-05-28T11:47:54.688Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1779968874687-9c4307a2cf9a32a01f9e3b4eedfd4069-5e968b40c2a7cdd2",
+  "artifacts": [],
+  "provisional": false
+}

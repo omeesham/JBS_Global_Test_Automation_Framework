@@ -124,8 +124,8 @@ These were flagged by PLAN_FRAMEWORK_CLEANUP but verified as ALIVE or INCORRECT.
 | 5.3: `buildDryRunPrompt()` never defined (P0) | **FALSE** | Defined at orchestrator.ts:577, called at pipeline.ts:116 |
 | 5.4: Auth bypass via query param (P0) | **FALSE** | Requires BOTH `role=admin` AND `secret=WORKER_SECRET` (events.ts:52-58) |
 | 5.5: Convergence guards disabled (P0) | **FALSE** | Guards fully implemented at orchestrator.ts:177-250, enforced at L299 |
-| 2.3: Custom matchers dead (P2) | **FALSE** | Wired via `import './custom-matchers'` in fixtures.ts:13, declared in framework-contracts |
-| 2.4: global-teardown.ts dead (P3) | **FALSE** | Referenced in playwright.config.ts:201 |
+| 2.3: Custom matchers dead (P2) | **SUPERSEDED 2026-06-03** | Was "FALSE/alive" (wired via `import './custom-matchers'`), but deeper audit found all 3 matchers had ZERO callers → removed as no-op slop (deliverable slop audit) |
+| 2.4: global-teardown.ts dead (P3) | **SUPERSEDED 2026-06-03** | Was "FALSE/alive" (referenced in playwright.config), but body was a no-op stub → removed as slop (deliverable slop audit) |
 | 8.3: Silent catch blocks (P2) | **FALSE** | All have documented fallbacks or state assignments |
 | 3.1: Status union missing 'completed' (P1) | **FALSE** | `PipelineRunStatus` at types.ts:68 includes it. Casts are unnecessary, not type-unsafe |
 | 4.4: God object 700 lines (P1) | **FALSE** | Actually 455 lines, well-organized |

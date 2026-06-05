@@ -104,6 +104,14 @@ export const OWNERSHIP_ROWS = [
     grants: { HUNTER: "CREATE", GIVER: "CREATE", BUILDER: "CREATE", HEALER: "CREATE", WATCHDOG: "CREATE", GARDENER: "READ", OWNER: "RW" },
   },
   {
+    pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-*.md",
+    grants: { HUNTER: "CREATE", GIVER: "READ", BUILDER: "READ", HEALER: "UPDATE", WATCHDOG: "UPDATE", GARDENER: "READ", OWNER: "RW" },
+  },
+  {
+    pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/walk-evidence-*.md",
+    grants: { HUNTER: "CREATE", GIVER: "CREATE", BUILDER: "READ", HEALER: "UPDATE", WATCHDOG: "UPDATE", GARDENER: "READ", OWNER: "RW" },
+  },
+  {
     pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/bug-archetypes.md",
     grants: { HUNTER: "APPEND", GIVER: "APPEND", BUILDER: "READ", HEALER: "APPEND", WATCHDOG: "APPEND", GARDENER: "READ", OWNER: "RW" },
   },
@@ -118,6 +126,14 @@ export const OWNERSHIP_ROWS = [
   {
     pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventory-spec.md",
     grants: { HUNTER: "READ", GIVER: "READ", BUILDER: "READ", HEALER: "READ", WATCHDOG: "READ", GARDENER: "READ", OWNER: "RW" },
+  },
+  {
+    pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-case-generation.md",
+    grants: { HUNTER: "READ", GIVER: "RW", BUILDER: "READ", HEALER: "READ", WATCHDOG: "READ", GARDENER: "READ", OWNER: "RW" },
+  },
+  {
+    pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-case-catalogs/<module>-*.md",
+    grants: { HUNTER: "READ", GIVER: "RW", BUILDER: "READ", HEALER: "READ", WATCHDOG: "READ", GARDENER: "READ", OWNER: "RW" },
   },
   {
     pattern: "reports/bugs/BUG-*.json",
@@ -140,8 +156,11 @@ export const OWNERSHIP_ROWS = [
     grants: { HUNTER: "—", GIVER: "—", BUILDER: "—", HEALER: "—", WATCHDOG: "—", GARDENER: "—", OWNER: "RW" },
   },
   {
-    pattern: ".github/agents/**",
-    grants: { HUNTER: "—", GIVER: "—", BUILDER: "—", HEALER: "—", WATCHDOG: "—", GARDENER: "—", OWNER: "SYNC ONLY" },
+    // §2 post-2026-04-27 Copilot eviction: governance-owned, direct OWNER edits,
+    // no SYNC-ONLY. `.github/agents/*.agent.md` legacy SYNC behavior (if those
+    // files exist) is still covered by the SYNC_ONLY array above.
+    pattern: ".claude/agents/**",
+    grants: { HUNTER: "—", GIVER: "—", BUILDER: "—", HEALER: "—", WATCHDOG: "—", GARDENER: "—", OWNER: "RW" },
   },
 ];
 

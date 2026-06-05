@@ -7,7 +7,7 @@
 **Parent**: PLAN_ROOT_CLIENT_DEDUPE.md
 **Depends on**: SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md
 **Blocks**: none (last subplan in chain — closes parent on its DONE-flip per LR-027 parent-cascade)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: max
 **PermissionMode**: acceptEdits
 **RiskAcknowledged**: n/a

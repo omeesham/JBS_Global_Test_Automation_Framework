@@ -10,7 +10,7 @@
 **Parent**: PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md
 **Depends on**: PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.md (Phase 0 + Phases A+B complete — MD prereqs + workbook reader cutover), SUBPLAN_PARITY_W1_03_LOCAL_OFFICE_CODE_SPLIT.md, SUBPLAN_PARITY_W1_01_DECISIONS_AND_DRIFT_PRETRIAGE.md
 **Blocks**: SUBPLAN_PARITY_W2_08_SPEC_FIXES_VERDICT_DEPENDENT.md (consumes W1-04 state)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: hi
 **PermissionMode**: auto
 **RiskAcknowledged**: n/a

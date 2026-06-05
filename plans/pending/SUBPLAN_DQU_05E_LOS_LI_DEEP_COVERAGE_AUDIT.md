@@ -6,7 +6,7 @@
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md
 **Depends on**: SP-DQU-03 (LOS fixes DONE), SP-DQU-05 (LI fixes DONE), LR-045 row 4 amendment (DONE 2026-04-29)
 **Blocks**: HIST column-first pivot — any HIST subplan touching LOS or LI specs (SUBPLAN_HIST_PIVOT_20_C1_LO_BASIC_INFO_TESTS, SUBPLAN_HIST_PIVOT_24/25 LI tests, etc.)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: auto
 **RiskAcknowledged**: n/a

@@ -65,23 +65,6 @@ export const SEARCH_FIVE_ROW_QUERIES = ['Chicago', 'Boston', 'Dallas', 'Denver',
 /** Single non-Miami query for cross-row independence tests */
 export const SEARCH_CROSS_ROW_QUERY = 'Atlanta';
 
-/**
- * Lower bound for TC-LOC-SSL-035 (clear-search restores the bulk location list).
- * After clearing a filter, the Add-Location dialog reloads the large bulk list; the
- * assertion proves restoration happened (bulk >> the ~88 'Atlanta'-filtered rows).
- *
- * 2026-06-01: lowered 3000 -> 2000 (our-side test fix, NOT an Encore defect).
- *   - WHAT EXISTED BEFORE: bound was 3000. The dialog renders a STABLE ceiling of ~2653
- *     rows (identical 2653 in two clean workers=1 full runs 2026-06-01), so `> 3000` was
- *     unreachable in the 10s poll window and SSL-035 hard-failed deterministically
- *     ("Expected > 3000, Received 2653"). Raising the timeout would NOT help — 2653 is a
- *     stable cap, not a still-loading race.
- *   - WHY 2000: safely below the observed 2653 and far above the filtered ~88, so it still
- *     proves "bulk list restored" without betting on an exact total.
- *   - IF THIS FAILS AGAIN: the dialog's bulk render count changed — read the live count via
- *     getDialogRowCount() after clearing the search and re-baseline this bound, or switch to
- *     a relative assertion (cleared-count >> filtered-count). NOTE: this fix was NOT re-run
- *     to green (per request); it is a reasoned change from the 2653 evidence above.
- *   - `searchByNameMaxResults` (600) remains the UPPER bound for name-filtered searches.
- */
-export const SEARCH_BULK_LOWER_BOUND = 2000;
+// SEARCH_BULK_LOWER_BOUND removed 2026-06-02: TC-LOC-SSL-035 now uses a relative invariant
+// (cleared-count > Atlanta-filtered-count, mirroring TC-LOC-SSL-040) instead of a hardcoded
+// structural threshold (LR-022). The magic number was the sole consumer.

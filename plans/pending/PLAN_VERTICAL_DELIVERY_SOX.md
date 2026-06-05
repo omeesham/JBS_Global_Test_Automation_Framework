@@ -7,7 +7,7 @@
 **Created**: 2026-05-04
 **Depends on**: PLAN_VERTICAL_RESTRUCTURE_PENDING.md (Plan A — produces the per-submodule queue this plan ships from), PLUS 3 HIGH-priority Encore questions answered (H1 repo · H2 layout · H6 SOX scope — see companion audit `~/.claude/plans/plan-vertical-delivery-sox-check-all-kind-beaver.md`). All earlier strict deps (`SUBPLAN_DEPENDENCY_AWARE_MIGRATION_REMAINING`, `SUBPLAN_DYNAMIC_WORKERS_FRAMEWORK`, `PLAN_DELIVERABLE_LEAK_AUDIT`) closed 2026-05-05.
 **Blocks**: per-submodule NM-XXXX PR cycle (once execution begins post-Encore-call)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: plan
 **BrowserTool**: none

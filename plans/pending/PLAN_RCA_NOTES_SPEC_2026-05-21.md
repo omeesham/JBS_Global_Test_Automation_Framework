@@ -6,7 +6,7 @@
 **Identity**: OWNER (mama). Spawns Subagent A + Subagent B per `/rca` mama-led orchestration.
 **Depends on**: none
 **Blocks**: any further notes spec work until root cause is proven and fix proposed
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: auto
 **BrowserTool**: cli (HEADED — per `.claude/rules/browser-tool.md` Gate 2 "RCA context" row; no override)
@@ -20,7 +20,7 @@
 User request: "apply this skill on the notes spec, its failing" — `/rca` invocation with `/ultrathink` + `/planning` modifiers. No specific TC given; user says "the notes spec" singular but two specs exist:
 
 - `clients/encore/specs/locations/location-notes.spec.ts` — 53 tests total (28 FCC-paradigm tests at canonical IDs `TC-LOC-NTS-039..064` per SUBPLAN_XLSX_PREP_01 rename 2026-05-26 + 25 legacy `TC-LOC-NTS-001..037`). Describe tag: `@locations @notes @fcc` retained as paradigm marker; TC IDs no longer carry `-FCC-` segment.
-- `clients/encore/specs/locations/history/location-hist-notes.spec.ts` — 6 tests (`TC-LOC-NTS-028..038`, HIST col 69 validation). Describe tag: `@locations @management-history @notes-hist`.
+- `clients/encore/specs/locations/location-management-history.spec.ts` — the 6 Notes col-69 HIST tests (`TC-LOC-NTS-028..032, 038`) in the `@notes-hist` describe (consolidated 2026-06-05 from the former `history/location-hist-notes.spec.ts`). Describe tag: `@locations @management-history @notes-hist`.
 
 Per LR-018 ("run-all is the only truth"), run BOTH and let the failures self-identify which spec the user meant.
 
@@ -75,7 +75,7 @@ If RCA finds a NEW symptom that matches these, the bug is already filed — veri
 1. **Clean artifacts** — from `clients/encore/`: `npm run clean` (removes `reports/test-results`, `reports/diagnostics`, `reports/failure-summary.json`, etc.). Per LR-024: never diagnose from stale data.
 2. **Run notes specs fresh** — from `clients/encore/`:
    ```
-   npx playwright test specs/locations/location-notes.spec.ts specs/locations/history/location-hist-notes.spec.ts --project=encore-locations --workers=2
+   npx playwright test specs/locations/location-notes.spec.ts specs/locations/location-management-history.spec.ts --project=encore-locations --workers=2
    ```
    Per LR-018: run all together first to identify failures. `fullyParallel: false` per spec preserves LR-019 baseline order.
 3. **Capture exit code + failing TC IDs** from `reports/test-results.json` + `reports/failure-summary.json`.
@@ -257,7 +257,7 @@ Re-run this RCA against the same spec(s) at any time via:
 ```
 # from clients/encore/
 npm run clean
-npx playwright test specs/locations/location-notes.spec.ts specs/locations/history/location-hist-notes.spec.ts --project=encore-locations --workers=2
+npx playwright test specs/locations/location-notes.spec.ts specs/locations/location-management-history.spec.ts --project=encore-locations --workers=2
 # then read reports/failure-summary.json + reports/test-results/*/error-context.md
 ```
 

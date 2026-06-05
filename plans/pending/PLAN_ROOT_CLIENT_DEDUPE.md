@@ -8,7 +8,7 @@
 **Identity**: OWNER
 **Depends on**: none
 **Blocks**: none
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **Justification**: architectural judgment across 8 file classes (configs, scripts, envs, package.json, tsconfig, reports, logs, cruft); each demands a keep/delete/merge decision with cross-cutting impact on CI, ship pipeline, and local dev — not mechanical
 **PermissionMode**: plan

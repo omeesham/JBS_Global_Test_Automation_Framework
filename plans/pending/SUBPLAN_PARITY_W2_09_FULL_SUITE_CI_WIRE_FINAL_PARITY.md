@@ -10,7 +10,7 @@
 **Parent**: PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md
 **Depends on**: ALL previous — W1-01..05 + W2-06, W2-07, W2-08
 **Blocks**: none (last subplan — closes parent plan)
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: hi
 **PermissionMode**: auto
 **RiskAcknowledged**: n/a

@@ -4,7 +4,7 @@ Status: PENDING-DRAFT-v6
 Priority: P0-EMERGENCY
 Created: 2026-05-18
 Identity: OWNER
-Model: claude-opus-4-7
+Model: claude-opus-4-8
 Thinking: max
 PermissionMode: auto
 RiskAcknowledged: true

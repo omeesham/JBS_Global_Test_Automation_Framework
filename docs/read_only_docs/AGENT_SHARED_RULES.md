@@ -60,7 +60,6 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | Page method | `clients/${ACTIVE_CLIENT}/src/pages/**/*.page.ts` | Add to page object |
 | Selector | `clients/${ACTIVE_CLIENT}/src/selectors/index.ts` | Add property |
 | Constant | `clients/${ACTIVE_CLIENT}/src/utils/app-constants.ts` | Add to AppConstants |
-| Matcher | `clients/${ACTIVE_CLIENT}/src/infra/custom-matchers.ts` | Add + type declaration |
 | Fixture | `clients/${ACTIVE_CLIENT}/src/infra/fixtures.ts` | Add fixture |
 | Test file | `clients/${ACTIVE_CLIENT}/specs/{module}/` | Create in module folder |
 
@@ -87,6 +86,8 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | APPEND | APPEND | APPEND | APPEND | RW (quality gate) | APPEND | APPEND |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/intake/<module>-<agent>-*.md` | CREATE | CREATE | CREATE | CREATE | CREATE | READ | RW |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-*.md` | CREATE | READ | READ | UPDATE | UPDATE | READ | RW |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/walk-evidence-*.md` | CREATE | CREATE | READ | UPDATE | UPDATE | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/bug-archetypes.md` | APPEND | APPEND | READ | APPEND | APPEND | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/_TEMPLATE.md` | READ | READ | READ | READ | READ | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-*.md` | READ | CREATE | READ | UPDATE | UPDATE | READ | RW |

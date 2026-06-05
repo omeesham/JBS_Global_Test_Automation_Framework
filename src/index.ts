@@ -1,6 +1,4 @@
 // ==================== TYPES & CONTRACTS ====================
-// Side-effect import to activate declare module augmentation (custom matchers)
-import './framework-contracts';
 export type {
   IConfig,
   IValidationFields,

@@ -62,7 +62,7 @@ test.describe('Location Legal — FCC @locations @legal @fcc', () => {
   // Mechanic differs from TC-004 (positive enumeration: `toContain(default)`).
   // This is negative enumeration (`not.toContain(sentinel)`) + full save-cycle
   // via the FCC runner — combination NOT covered by any existing TC.
-  test('TC-LOC-LGL-019: No UI path to submit out-of-list SC value (negative enumeration + save-cycle)', async ({ locationLegalPage, dependencyGate }) => {
+  test('TC-LOC-LGL-019: Verify an out-of-list Service Charge value cannot be submitted', async ({ locationLegalPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
 
@@ -201,8 +201,10 @@ test.describe('Location Legal @locations @legal', () => {
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-A (revert) — let save PUT finish before reload (Mode A)
  // Reload and verify persistence
     await locationLegalPage.reloadAndNavigateToLegalTab();
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-B (revert) — let reload hydrate persisted value (Mode B)
     expect(await locationLegalPage.getServiceChargeValue()).toBe(LEGAL_ALT_SC);
  // Cleanup: restore original
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
@@ -221,8 +223,10 @@ test.describe('Location Legal @locations @legal', () => {
  // Save
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-A (revert) — let save PUT finish before reload (Mode A)
  // Reload and verify persistence
     await locationLegalPage.reloadAndNavigateToLegalTab();
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-B (revert) — let reload hydrate persisted value (Mode B)
     expect(await locationLegalPage.getTermsValue()).toBe(LEGAL_ALT_TC);
  // Cleanup: restore original
     await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
@@ -254,8 +258,13 @@ test.describe('Location Legal @locations @legal', () => {
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
 
- // TC-LOC-LGL-015 OMITTED: Country cascade test requires left-panel Country selector
- // that does not exist in current selector inventory. Logged as missing-coverage.
+ // TC-LOC-LGL-015 (Country change resets the Legal-tab Service Charge + Terms & Conditions):
+ // NOT automated here, and NOT subsumed by the left-panel spec. location-left-panel-basic-information.spec.ts
+ // TC-LOC-LP-018..022 exercise the SAME Country selector, but only assert left-panel Tax Mode/Region
+ // clearing + the cross-tab Local-Information Job Costing / Remit-PST effects — they never open the Legal
+ // tab, so the Legal-tab SC/T&C reset is left unverified. The Country selector now exists and is proven by
+ // TC-LOC-LP-018..022, so LGL-015 is now AUTOMATABLE — it remains an open coverage gap, a candidate for its
+ // own Legal-tab test (coverage gap noted during the left-panel basic-information review, 2026-06-03).
 
  // TC-LOC-LGL-016/017 OMITTED: Sort order assertion — v1 requirement says "sorted alphabetically"
  // but MCP-verified : BOTH dropdowns are NOT sorted (generic names first, location-specific after).
@@ -274,8 +283,10 @@ test.describe('Location Legal @locations @legal', () => {
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-A (revert) — let save PUT finish before reload (Mode A)
  // Reload and verify both persisted
     await locationLegalPage.reloadAndNavigateToLegalTab();
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-B (revert) — let reload hydrate persisted value (Mode B)
     expect(await locationLegalPage.getServiceChargeValue()).toBe(LEGAL_ALT_SC);
     expect(await locationLegalPage.getTermsValue()).toBe(LEGAL_ALT_TC);
  // Cleanup: restore BOTH to defaults

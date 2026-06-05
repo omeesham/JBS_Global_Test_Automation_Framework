@@ -514,6 +514,10 @@ export class CsvConverter {
     'ECT': { submodule: 'ect_settings', tab: 'ECT Settings tab is active' },
     'HIST': { submodule: 'history_integration', tab: 'Location Management History tab is active' },
     'HISL': { submodule: 'history_integration', tab: 'Location Settings History tab is active' },
+    // Corporate Pricing = standalone page, not a Location Settings tab. Closure-audit
+    // D1 fix (2026-06-05): silences the "Unknown submodule code CPR" warning AND makes
+    // the precondition fallback correct for any CPR TC lacking an explicit block.
+    'CPR': { submodule: 'corporate_pricing', tab: 'Corporate Pricing page is active' },
   };
 
   /**
@@ -597,6 +601,14 @@ export class CsvConverter {
   private static sanitizeUnicode(value: string): string {
     return value
       .replace(/\u2192/g, '->')
+      // Checkmarks: CONTENT forms (backticked / parenthesized / =value) -> words so a
+      // content checkmark is never read as the action-expected separator (which
+      // truncated steps like "show a `\u2714` marker"). Bare separator stays '->'.
+      .replace(/`\s*[\u2713\u2714]\s*`/g, 'check mark')
+      .replace(/\(\s*[\u2713\u2714]\s*\)/g, '(checked)')
+      .replace(/\(\s*[\u2715\u2716\u2717\u2718]\s*\)/g, '(unchecked)')
+      .replace(/=\s*[\u2713\u2714]/g, '= checked')
+      .replace(/=\s*[\u2715\u2716\u2717\u2718]/g, '= unchecked')
       .replace(/[\u2713\u2714]/g, '->')
       .replace(/\u00D7/g, 'x')
       .replace(/\u2014/g, '-')

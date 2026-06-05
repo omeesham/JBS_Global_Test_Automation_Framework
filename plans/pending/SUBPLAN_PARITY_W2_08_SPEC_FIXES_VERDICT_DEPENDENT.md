@@ -10,7 +10,7 @@
 **Parent**: PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md
 **Depends on**: SUBPLAN_PARITY_W2_06_SHADY_PASS_LIVE_AUDIT.md, SUBPLAN_PARITY_W2_07_FIELD_INVENTORIES_NEUTRAL_EYE.md
 **Blocks**: SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md
-**Model**: claude-opus-4-7
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: auto
 **RiskAcknowledged**: n/a

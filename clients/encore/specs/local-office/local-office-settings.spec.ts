@@ -558,7 +558,7 @@ test.describe('Local Office Settings — Basic Information @locations @local-off
  // Gap #20: Date Offset Cross-Validation (Validate method)
  // ─────────────────────────────────────────────────────────────────────────
 
-  test('TC-LOS-BAS-053: Positive value in "relative to start" fields → aria-invalid', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-BAS-053: Verify a positive value in Relative to Start fields is rejected', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
  // Prep, Set, Delivery must be <= 0. Positive values violate the pattern.
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
@@ -575,7 +575,7 @@ test.describe('Local Office Settings — Basic Information @locations @local-off
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
-  test('TC-LOS-BAS-054: Negative value in "relative to end" fields → aria-invalid', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-BAS-054: Verify a negative value in Relative to End fields is rejected', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
  // Return, Strike, Pickup must be >= 0. Negative values violate the pattern.
     for (const { key, label, invalidValue, defaultValue } of POSITIVITY_VIOLATIONS_END) {
@@ -589,7 +589,7 @@ test.describe('Local Office Settings — Basic Information @locations @local-off
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
-  test('TC-LOS-BAS-055: Non-numeric input on Return field triggers aria-invalid', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-BAS-055: Verify non-numeric input in the Return field is rejected', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
  // Extends BAS-006 pattern (Prep) to Return field
     const { key } = NON_NUMERIC_TEST_FIELDS[0]!;
@@ -603,7 +603,7 @@ test.describe('Local Office Settings — Basic Information @locations @local-off
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
-  test('TC-LOS-BAS-056: Non-numeric input on Delivery field triggers aria-invalid', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-BAS-056: Verify non-numeric input in the Delivery field is rejected', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
     const { key } = NON_NUMERIC_TEST_FIELDS[1]!;
     await localOfficeSettingsPage.fillAndTab(key, DATE_OFFSET_TEST_VALUES.invalid);
@@ -770,7 +770,9 @@ test.describe('Local Office Settings — Basic Information @locations @local-off
  // Save button stays disabled, no save API fires, server state never updates.
  // + post-reload `button "Save" [disabled]` + empty business-API networkFailures.
  // Re-enable once the dirty-tracking wiring on the Active toggle cell is fixed.
-  test.skip('TC-LOS-BAS-048: Room toggle round-trip — toggle inactive → save → reload → verify', async ({ localOfficeSettingsPage, dependencyGate }) => {
+ // [2026-06-02 RECHECK on 1604] Un-skipped + ran live: STILL FAILS — toggled the room inactive,
+ // saved, reloaded, and it came back ACTIVE (the inactive state does not persist). Stays skipped.
+  test.skip('TC-LOS-BAS-048: Verify a room Inactive toggle persists after save and reload', async ({ localOfficeSettingsPage, dependencyGate }) => {
  // Full round-trip: add room, toggle to inactive, save, reload, verify inactive persists.
     test.setTimeout(90_000);
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
@@ -809,7 +811,7 @@ test.describe('Local Office Settings — Basic Information @locations @local-off
     await localOfficeSettingsPage.clickSaveAndConfirm();
   });
 
-  test('TC-LOS-BAS-049: Room edit name round-trip — rename → save → reload → verify', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-BAS-049: Verify a room name change persists after save and reload', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
  // Full round-trip: rename room, save, reload, verify new name persists.
     test.setTimeout(90_000);

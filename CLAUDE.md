@@ -38,7 +38,9 @@ Codenames: HUNTER | GIVER | BUILDER | HEALER | WATCHDOG | GARDENER | OWNER. Acti
 
 ### Subagent rules
 
-Spawn subagents ≤ current model class, max 5 without consent (ask for >5). Complexity: Low=Haiku, Mid=Sonnet, High=Opus. Use for any worthy task, including execution requiring subplans—spawn agents and audit their work, or ask user to create them.
+Spawn subagents ≤ current model class, max 5 parallel without consent (ask for >5 parallel). Complexity: Low=Haiku, Mid=Sonnet, High=Opus. Use for any worthy task, including execution requiring subplans—spawn agents and audit their work, or ask user to create them.
+
+`/ultra-agents` lifts these caps (parallel count, ≤model-class, LR-041 tiers) for the current core goal — see `.claude/skills/ultra-agents/SKILL.md`. Goal-scoped; lapses on goal change.
 
 ---
 
