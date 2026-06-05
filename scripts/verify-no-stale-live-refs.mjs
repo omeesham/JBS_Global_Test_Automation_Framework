@@ -23,7 +23,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // (`src/data/<module>`, `specs_planning/`) are NOT matched.
 const TOKENS = [
   /src\/infra\/fixtures/,
-  /src\/data\/testdata/,
+  /\bdata\/testdata/, // bare — catches brace-shorthand like src/{pages,data/testdata}/
   /src\/core\/base-page/,
   /src\/core\/field-case-runner/,
   /clients\/encore\/specs\//,
