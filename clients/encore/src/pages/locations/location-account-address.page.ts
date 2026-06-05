@@ -1,8 +1,8 @@
 import { Page } from '@playwright/test';
-import { BasePage } from '../../core/base-page';
+import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
-import { PHONE1_BASELINE } from '../../data/testdata/locations/location-account-address.data';
+import { PHONE1_BASELINE } from '../../data/locations/location-account-address';
 
 export class LocationAccountAddressPage extends BasePage {
   constructor(page: Page, config?: IConfig) {

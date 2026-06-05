@@ -35,7 +35,7 @@ Originally targeted 7 silent selector collisions + 4 refactoring tasks. P0 Decon
 
 | File | Count | Timeout Values | Lines |
 |------|-------|----------------|-------|
-| `src/core/base-page.ts` | 3 | 15k, 15k, 10k | 348, 386, 393 |
+| `src/pages/base.page.ts` | 3 | 15k, 15k, 10k | 348, 386, 393 |
 | `src/core/ui-common.ts` | 1 | none (Playwright default 30s) | 112 |
 | `src/pages/local-office/local-office-settings.page.ts` | 6 | 10k×2, 15k×4 | 49, 59, 71, 81, 131, 136 |
 | `src/pages/locations/location-auto-addon.page.ts` | 3 | 15k×2, 10k×1 | 20, 72, 150 |
@@ -47,7 +47,7 @@ Originally targeted 7 silent selector collisions + 4 refactoring tasks. P0 Decon
 
 ### Implementation
 
-**Add to `src/core/base-page.ts`** (after `navigateToSubTab`, ~line 397):
+**Add to `src/pages/base.page.ts`** (after `navigateToSubTab`, ~line 397):
 ```typescript
 /**
  * Wait for network to reach idle state with a timeout.
@@ -82,13 +82,13 @@ npx tsc --noEmit
 ## Remaining Item 2: SP-06 — CheckboxState → framework-contracts (P2)
 
 ### Problem
-Circular import: `src/core/base-page.ts:15` imports `CheckboxState` from `../pages/setup/locations/location-form-helpers.page` — a page object that extends BasePage via its own inheritance chain. Works only because TypeScript resolves at type level, but architecturally wrong and fragile.
+Circular import: `src/pages/base.page.ts:15` imports `CheckboxState` from `../pages/setup/locations/location-form-helpers.page` — a page object that extends BasePage via its own inheritance chain. Works only because TypeScript resolves at type level, but architecturally wrong and fragile.
 
 ### Files Importing CheckboxState Today
 
 | File | Current Import Path |
 |------|-------------------|
-| `src/core/base-page.ts:15` | `../pages/setup/locations/location-form-helpers.page` **(CIRCULAR)** |
+| `src/pages/base.page.ts:15` | `../pages/setup/locations/location-form-helpers.page` **(CIRCULAR)** |
 | `src/pages/locations/location-auto-addon.page.ts:5` | `./location-form-helpers.page` |
 | `src/pages/locations/location-currency.page.ts:24` | `./location-form-helpers.page` |
 | `src/pages/locations/location-local-info.page.ts:21` | `./location-form-helpers.page` (also SpinState) |
@@ -118,7 +118,7 @@ export interface SpinState {
 export { CheckboxState, SpinState } from './types';
 ```
 
-**3. Update `src/core/base-page.ts:15`:**
+**3. Update `src/pages/base.page.ts:15`:**
 ```typescript
 // FROM: import { CheckboxState } from '../pages/setup/locations/location-form-helpers.page';
 // TO:
@@ -209,7 +209,7 @@ node -e "require('./src/selectors')"
 | Other Plan | Overlap | Status |
 |-----------|---------|--------|
 | PLAN_CODEBASE_CLEANUP B4 (CheckboxState) | `src/framework-contracts/`, `base-page.ts` | SP-06 is **prerequisite** for B4. Run SP-06 first. |
-| PLAN_CODEBASE_CLEANUP A2.10 (`getSelectorFromTs`) | `src/core/base-page.ts` | No overlap — different methods. |
+| PLAN_CODEBASE_CLEANUP A2.10 (`getSelectorFromTs`) | `src/pages/base.page.ts` | No overlap — different methods. |
 | PLAN_CODEBASE_CLEANUP B3 (SELECTOR_PREFIXES) | No overlap | Safe. |
 
 ---
@@ -244,7 +244,7 @@ These two items were declared out-of-scope by `plans/pending/PLAN_AGENT_IDENTITY
 
 **Trigger**: pre-commit Gate A (added 2026-05-25 via PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE, enforces ALL-071) currently runs full-repo `check:tc-parity` whenever any spec is staged. Runtime ~10-30s — acceptable but could be ~2-5s with module-scoped check.
 
-**Implementation**: add `--module=<id>` arg parsing; restrict scan to `clients/${ACTIVE_CLIENT}/specs/<module>/`, `test-cases/<module>_test_cases.md`, `test-plans/<module>.md`, `test_cases_csv/<module>_test_cases.csv`. Default (no flag) preserves full-repo behavior.
+**Implementation**: add `--module=<id>` arg parsing; restrict scan to `clients/${ACTIVE_CLIENT}/tests/<module>/`, `test-cases/<module>_test_cases.md`, `test-plans/<module>.md`, `test_cases_csv/<module>_test_cases.csv`. Default (no flag) preserves full-repo behavior.
 
 **Pre-commit gate enhancement (downstream)**: once `--module` exists, pre-commit Gate A could parse staged spec paths via `git diff --cached --name-only`, derive the module from `clients/<client>/specs/<module>/`, and pass `--module=<derived>` for faster CI. Optional follow-up after this SP lands.
 

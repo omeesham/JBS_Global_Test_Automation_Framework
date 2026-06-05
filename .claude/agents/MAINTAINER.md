@@ -26,7 +26,7 @@ Codename: **GARDENER**. Pipeline role: out-of-band code-quality auditor. Refacto
 4. **`npm run lint:testcases`** — TC schema drift.
 5. **`npm run check:tc-parity`** — markdown TC vs spec TC drift (ALL-071). Flag parity gaps in the sweep report as P0 with named recipient (BUILDER if spec-orphan, GIVER if MD/XLSX-orphan). Never edit specs / MD / XLSX to resolve — that's out of scope per HARD STOP #5.
 6. **Duplicate interfaces / types** — grep `interface ` and `type ` across root `src/` and `clients/${ACTIVE_CLIENT}/src/`. Identical definitions in 2+ files → consolidate.
-7. **Barrel exports** — every `clients/${ACTIVE_CLIENT}/src/pages/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/selectors/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/data/testdata/<module>/index.ts` re-exports every file in its directory.
+7. **Barrel exports** — every `clients/${ACTIVE_CLIENT}/src/pages/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/selectors/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/data/<module>/index.ts` re-exports every file in its directory.
 8. **Dead files** — files with zero imports across `clients/${ACTIVE_CLIENT}/{src,specs}/`, root `src/{common,utils,data,framework-contracts}/`, and `scripts/`. Verify via grep before delete; escalate borderline cases.
 9. **Test location** — every spec lives under the correct module directory (mirrors app navigation per LR-017).
 10. **Data-driven compaction** — 3+ similar TCs with different data → propose data-driven `test.describe` rewrite (do NOT auto-rewrite — file as escalation).

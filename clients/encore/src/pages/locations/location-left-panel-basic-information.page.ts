@@ -1,8 +1,8 @@
 import { Page } from '@playwright/test';
-import { BasePage } from '../../core/base-page';
+import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
-import { LP_BASELINE } from '../../data/testdata/locations/location-left-panel-basic-information.data';
+import { LP_BASELINE } from '../../data/locations/location-left-panel-basic-information';
 
 /**
  * Location Settings — Left Panel (Basic Information) page object.
@@ -13,7 +13,7 @@ import { LP_BASELINE } from '../../data/testdata/locations/location-left-panel-b
  * mirrors LocationLegalPage (LR-019) with Country-first ordering because a Country change
  * cascade-clears Tax Mode + Region.
  *
- * SUBPLAN_LEFT_PANEL_BASIC_INFORMATION_FCC, 2026-06-03. Field states live-verified that date.
+ * 2026-06-03. Field states live-verified that date.
  */
 export class LocationLeftPanelBasicInformationPage extends BasePage {
   constructor(page: Page, config?: IConfig) {

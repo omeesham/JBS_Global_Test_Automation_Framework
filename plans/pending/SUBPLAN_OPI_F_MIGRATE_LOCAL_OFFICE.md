@@ -66,7 +66,7 @@ Stray `'1604'` in touched files → DO-NOW. ECT section-parity gap → APPEND gr
 |---|---|---|---|
 | HUNTER | old-site-baseline | (none) — captured in OPI_B | (none) |
 | GIVER | test-cases / test-plans / XLSX | (skipped: data-sourcing refactor only, no TC semantics change; parity verifies clean) | `npm run check:tc-parity` exit 0 |
-| BUILDER | `specs/local-office/local-office-settings.spec.ts`, `specs/local-office/local-office-ect.spec.ts` (+ their data) | per-office maps + `office`-fixture specs; first-run pass | `cd clients/encore && npx playwright test specs/local-office/local-office-settings.spec.ts specs/local-office/local-office-ect.spec.ts --list` |
+| BUILDER | `tests/local-office/local-office-settings.spec.ts`, `tests/local-office/local-office-ect.spec.ts` (+ their data) | per-office maps + `office`-fixture specs; first-run pass | `cd clients/encore && npx playwright test tests/local-office/local-office-settings.spec.ts tests/local-office/local-office-ect.spec.ts --list` |
 | HEALER | per-fix MD | (none) | (none) |
 | WATCHDOG | findings | (none) | (none) |
 | GARDENER | refactor citation | (none) | (none) |
@@ -86,9 +86,9 @@ Stray `'1604'` in touched files → DO-NOW. ECT section-parity gap → APPEND gr
 ## Verification
 
 ```bash
-cd clients/encore && npx playwright test specs/local-office/local-office-settings.spec.ts --workers=2   # expect: green on distinct offices
-cd clients/encore && npx playwright test specs/local-office/local-office-ect.spec.ts --workers=2        # expect: green; ECT section-save resolves
-grep -rnE "import .*OFFICE_NO" clients/encore/specs/local-office/local-office-{settings,ect}.spec.ts     # expect: empty
+cd clients/encore && npx playwright test tests/local-office/local-office-settings.spec.ts --workers=2   # expect: green on distinct offices
+cd clients/encore && npx playwright test tests/local-office/local-office-ect.spec.ts --workers=2        # expect: green; ECT section-save resolves
+grep -rnE "import .*OFFICE_NO" clients/encore/tests/local-office/local-office-{settings,ect}.spec.ts     # expect: empty
 ```
 
 ---

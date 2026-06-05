@@ -30,7 +30,7 @@ Codename: **BUILDER**. Pipeline role: turn planner's verified package into execu
 3. **Phase 0.5 — Walkthrough (LR-013)**:
    - **Path 0.5a (preferred)**: artifact ≤14 days fresh → spot-check 3 random fields (testid resolves, default matches, enabled/disabled matches). Log table to `reports/walkthrough/<itemId>.walkthrough.yaml`. Drift on any spot-check → fall through to 0.5b.
    - **Path 0.5b (fallback)**: artifact missing / >30 days / spot-check failed → full per-TC walkthrough on live DOM, emit refreshed artifact at `_internal/field-inventories/<module>-<YYYY-MM-DD>.md`, log full table to walkthrough.yaml.
-4. **Phase 1 — Build shell**: golden reference is `clients/${ACTIVE_CLIENT}/specs/locations/location-currency.spec.ts` (copy PATTERN, not PATH). Use existing page-object helpers from navigation.md §B before inventing new ones (ALL-073, ALL-076). Use `test.describe(...)` (NOT `.serial`); call `dependencyGate(deps[])` once per test as the first line of the body. Empty array `[]` for independent tests; `['TC-X']` for tests reading state mutated by TC-X.
+4. **Phase 1 — Build shell**: golden reference is `clients/${ACTIVE_CLIENT}/tests/locations/location-currency.spec.ts` (copy PATTERN, not PATH). Use existing page-object helpers from navigation.md §B before inventing new ones (ALL-073, ALL-076). Use `test.describe(...)` (NOT `.serial`); call `dependencyGate(deps[])` once per test as the first line of the body. Empty array `[]` for independent tests; `['TC-X']` for tests reading state mutated by TC-X.
 5. **Phase 2 — Fill assertions**: every TC gets a `test()` with the planner's expected values. Cross-field validations use `expectInvalid` / `expectValid` polling (LR-010). Save flows use `clickSaveAndConfirm` (LR-012). No `networkidle` (LR-023).
 6. **Phase 3 — First run + RCA**: run the spec. If pass → activity log + handoff to Audit. If fail → enter ARTIFACTS-FIRST RCA loop (max 2 fix cycles per failure, 6 cycles total per spec). On 3+ same error → escalate to Healer.
 7. **Test-execution discipline (GEN-018)**: when running `--grep "TC-ID"`, first read the full spec to identify dependencies (login, navigation, state setup); build the minimum required grep pattern. Never run a mid-spec test in isolation.
@@ -40,14 +40,14 @@ Codename: **BUILDER**. Pipeline role: turn planner's verified package into execu
 ## FCC Paradigm (2026-05-19)
 
 For every spec generation under FCC paradigm:
-1. Use `clients/${ACTIVE_CLIENT}/src/core/field-case-runner.ts` `saveAndVerifyCase()` for ALL FCC tests.
+1. Use `clients/${ACTIVE_CLIENT}/src/utils/field-case-runner.ts` `saveAndVerifyCase()` for ALL FCC tests.
 2. Place the FCC `test.describe(...)` block at the TOP of the spec (above existing TC blocks).
 3. EVERY FCC test is independent — own `baseline()` (ensureEmptyState equivalent), own `cleanup()`,
    no shared state. `dependencyGate([])` for FCC tests.
 4. Existing TCs at BOTTOM remain untouched (preserve prior coverage).
 5. Per-field-type test data lives in the module's data file; reuse constants where possible.
 6. **Post-write parity gate** (FCC fuckup prevention, 2026-05-25): after the spec is written and `npx playwright test --list` confirms TC IDs resolve, run `npm run check:tc-parity`. Exit 0 → continue to Phase 3 (First Run). Exit 1 → HALT, escalate to PLANNER for MD/test-plan/XLSX reconciliation. NEVER declare done with parity gaps. The pre-commit hook also enforces this — bypassing via `--no-verify` is a §16 (autonomy) violation. Cross-ref: HARD STOP #11, GEN-044, LR-ENC-002.
-Cross-ref: `field-case-generation.md`, runner at `src/core/field-case-runner.ts`,
+Cross-ref: `field-case-generation.md`, runner at `src/utils/field-case-runner.ts`,
 master plan PLAN_BIG_PIVOT_FCC_MASTER.
 
 ## Browser tool declaration (LR-038 v2)

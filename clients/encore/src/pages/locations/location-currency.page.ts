@@ -1,9 +1,9 @@
 import { Page } from '@playwright/test';
-import { BasePage } from '../../core/base-page';
+import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
 import { LocationSettingsSelectors } from '../../selectors';
-import { CheckboxState } from './location-form-helpers.page';
+import { CheckboxState } from '../components/location-form-helpers.component';
 
 /** Type returned by clickSaveAndCaptureDialog */
 export type SaveDialogType = 'save-changes' | 'error' | 'none';

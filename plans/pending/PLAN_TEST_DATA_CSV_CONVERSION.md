@@ -9,7 +9,7 @@
 
 ## Context
 
-After PLAN_TEST_DATA_PERFECTION completes, all test data will be properly centralized in `src/data/testdata/` with full spec-traceability comments. This plan converts the storage format from TypeScript to CSV so non-technical team members can read and edit test data without touching code. The approach preserves the existing `import { X } from '...'` pattern in specs via thin TypeScript shim files that load CSV at module evaluation time.
+After PLAN_TEST_DATA_PERFECTION completes, all test data will be properly centralized in `src/data/` with full spec-traceability comments. This plan converts the storage format from TypeScript to CSV so non-technical team members can read and edit test data without touching code. The approach preserves the existing `import { X } from '...'` pattern in specs via thin TypeScript shim files that load CSV at module evaluation time.
 
 ---
 
@@ -38,7 +38,7 @@ spec files (ZERO changes — same imports as before)
 
 ### Comment Header (every CSV file)
 ```csv
-# SPEC: specs/locations/location-currency.spec.ts
+# SPEC: tests/locations/location-currency.spec.ts
 # DATASET: UNSELECTED_CURRENCY_STATES
 # TC: TC-LOC-CUR-003, TC-LOC-CUR-004
 # FIELDS: tcId, currency code, selector keys for Selected/IsDefault checkboxes
@@ -47,7 +47,7 @@ spec files (ZERO changes — same imports as before)
 
 ### Flat Array-of-Objects (most common)
 ```csv
-# SPEC: specs/local-office/local-office-settings.spec.ts
+# SPEC: tests/local-office/local-office-settings.spec.ts
 # DATASET: CHECKBOX_DEFAULTS
 # TC: BAS-011
 key,label,checked,disabled
@@ -57,7 +57,7 @@ chkUseEquipmentsQc,Use Equipments QC,false,true
 
 ### Key-Value Constants (simple scalars)
 ```csv
-# SPEC: specs/local-office/*.spec.ts, specs/locations/*.spec.ts
+# SPEC: tests/local-office/*.spec.ts, tests/locations/*.spec.ts
 # DATASET: COMMON_CONSTANTS
 name,value
 OFFICE_NO,1604
@@ -94,7 +94,7 @@ chkEnableSetStrikeLaborMinutes
 Each `.data.ts` becomes a directory with one CSV per dataset:
 
 ```
-src/data/testdata/
+src/data/
   common.data.csv
   csv-loader.ts                              ← NEW: synchronous CSV parser
   setup/local-office/
@@ -139,7 +139,7 @@ src/data/testdata/
 
 ## csv-loader.ts Design
 
-**File**: `src/data/testdata/csv-loader.ts`
+**File**: `src/data/csv-loader.ts`
 
 ### Core API
 ```typescript
@@ -176,7 +176,7 @@ validateSelectorKeys(keys: string[], selectors: Record<string, any>, csvFile: st
 Each `.data.ts` shim shrinks from data-heavy to loader calls:
 
 ```typescript
-// src/data/testdata/locations/location-currency.data.ts (AFTER conversion)
+// src/data/locations/location-currency.data.ts (AFTER conversion)
 import { loadCsv, loadCsvValue, loadCsvConstants } from '../../csv-loader';
 import * as path from 'path';
 
@@ -216,7 +216,7 @@ export const UNSELECTED_CURRENCY_STATES = loadCsv<{
 ## Migration Phases
 
 ### Phase 1: Infrastructure
-1. Create `src/data/testdata/csv-loader.ts`
+1. Create `src/data/csv-loader.ts`
 2. Write unit tests for csv-loader (comment stripping, boolean parsing, nesting, repeat)
 3. Verify tests pass
 
@@ -267,8 +267,8 @@ For each:
 ## Files Touched
 
 **New files**:
-- `src/data/testdata/csv-loader.ts`
-- `src/data/testdata/csv-loader.test.ts` (unit tests)
+- `src/data/csv-loader.ts`
+- `src/data/csv-loader.test.ts` (unit tests)
 - ~40 CSV files across feature directories
 
 **Modified files**:

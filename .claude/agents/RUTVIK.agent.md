@@ -16,7 +16,7 @@
 | Area | What |
 |------|------|
 | Framework source (publishable) | `src/{common,utils,data,framework-contracts}/` (root — ships to clients via `npm run client:ship`) |
-| Per-client surface (Encore) | `clients/encore/src/{pages,selectors}/`, `clients/encore/specs/`, `clients/encore/config/` |
+| Per-client surface (Encore) | `clients/encore/src/{pages,selectors}/`, `clients/encore/tests/`, `clients/encore/config/` |
 | Pipeline backend (internal-only) | `pipeline/{orchestrator,server,worker,utils,tests}/` |
 | Pipeline agents | `.claude/agents/` (Generator, Healer, Audit, Maintainer, Planner, Requirements) |
 | Scripts & tooling | `scripts/`, root `config/` |

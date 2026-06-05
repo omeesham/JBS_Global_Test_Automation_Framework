@@ -1,7 +1,7 @@
 ---
 description: Spec authoring + spec-fixing workflow discipline
 paths:
-  - "clients/*/specs/**/*.spec.ts"
+  - "clients/*/tests/**/*.spec.ts"
   - "clients/*/src/pages/**/*.ts"
 ---
 
@@ -39,7 +39,7 @@ graduating incident — TC-001 *had* a baseline, yet a retry of TC-009 alone ski
 How to satisfy it:
 
 1. **Preferred (compile-enforced):** author new CRUD/save tests via the FCC runner
-   (`saveAndVerifyCase`, `clients/encore/src/core/field-case-runner.ts`). Its `baseline` field is
+   (`saveAndVerifyCase`, `clients/encore/src/utils/field-case-runner.ts`). Its `baseline` field is
    **required at compile time** — a case literally cannot exist without one. This is the only
    *structural* guarantee; prefer it for all new CRUD.
 2. **Non-FCC describe:** wire a hardened `ensureDefaultState(defaults)` into the describe's

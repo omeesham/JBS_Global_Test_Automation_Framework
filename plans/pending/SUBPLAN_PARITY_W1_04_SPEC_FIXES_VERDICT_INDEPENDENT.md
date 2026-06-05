@@ -60,8 +60,8 @@ Provenance: restructured from `SUBPLAN_PARITY_04_SPEC_FIXES_EASY_MODULES.md` + `
 **Context files**:
 - `plans/pending/PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md` — §B per-module rows for the modules in scope
 - `clients/encore/specs_planning/_internal/W1-01-decisions-and-pretriage-<date>.md` — E5 smoke_seed decision, E6 BAS-068 confirmation
-- `clients/encore/specs/locations/location-notes.spec.ts` — Notes spec with duplicate TC-LOC-NTS-035
-- `clients/encore/specs/local-office/local-office-{basic-info,history,ect}.spec.ts` — post-W1-03 split specs
+- `clients/encore/tests/locations/location-notes.spec.ts` — Notes spec with duplicate TC-LOC-NTS-035
+- `clients/encore/tests/local-office/local-office-{basic-info,history,ect}.spec.ts` — post-W1-03 split specs
 - `.claude/rules/specs.md` (LR-019 baseline, LR-021 un-skip, LR-022 no hardcoded counts)
 - `.claude/rules/angular.md` (LR-009..011, LR-026 dirty-state)
 - `clients/encore/CLAUDE.md` (LR-036 boolean render formats)
@@ -125,12 +125,12 @@ No MD authoring needed (was originally in SP05 scope; superseded by audit).
 ### Phase 6 — BAS-068 (file-only addition, intent confirmed by W1-01 E6)
 
 1. Read BAS-068 section in `local_office_basic_info_test_cases.md` (already split — confirmed via Glob in XLSX plan Phase 0).
-2. Author `test('TC-LOS-BAS-068: ...', ...)` in `clients/encore/specs/local-office/local-office-basic-info.spec.ts` (post-W1-03 split) — mirror neighbor TC pattern.
+2. Author `test('TC-LOS-BAS-068: ...', ...)` in `clients/encore/tests/local-office/local-office-basic-info.spec.ts` (post-W1-03 split) — mirror neighbor TC pattern.
 3. Workbook row auto-emitted on next `npm run xlsx:build` from MD source of truth (no manual row authoring needed post-XLSX migration).
 
 ### Phase 7 — HIS-7 (deterministic enumeration)
 
-In `clients/encore/specs/local-office/local-office-history.spec.ts`, find TC-002 assertion:
+In `clients/encore/tests/local-office/local-office-history.spec.ts`, find TC-002 assertion:
 - Current: `expect(count).toBeGreaterThan(0)` for column header count
 - Replace with: `expect(columns).toEqual([<42 column names from MD>])`
 
@@ -140,12 +140,12 @@ Per LR-036: confirm boolean readers use the correct render format detection for 
 
 ### Phase 8 — ECT-018 (file-only addition)
 
-Read `local_office_ect_test_cases.md` TC-018 (sub-section-headings). Author `test('TC-LOS-ECT-018: ...', ...)` in `clients/encore/specs/local-office/local-office-ect.spec.ts` mirroring neighbor TC patterns.
+Read `local_office_ect_test_cases.md` TC-018 (sub-section-headings). Author `test('TC-LOS-ECT-018: ...', ...)` in `clients/encore/tests/local-office/local-office-ect.spec.ts` mirroring neighbor TC patterns.
 
 ### Phase 9 — smoke_seed (per W1-01 E5 decision)
 
 If E5 = "restore":
-1. Copy `seed.spec.ts` content from `.claude/worktrees/loving-allen-408532/clients/encore/tests/specs/smoke/seed.spec.ts` (or wherever the worktree mirror lives) to `clients/encore/specs/smoke/seed.spec.ts`
+1. Copy `seed.spec.ts` content from `.claude/worktrees/loving-allen-408532/clients/encore/tests/specs/smoke/seed.spec.ts` (or wherever the worktree mirror lives) to `clients/encore/tests/smoke/seed.spec.ts`
 2. Update imports for the new path structure (post-2026-05-19 restructure)
 
 If E5 = "delete":
@@ -213,17 +213,17 @@ For every adjacent fix noticed: DO-NOW / SPAWN / APPEND. Bare "out of scope" = H
 
 ```bash
 # No duplicate TC-LOC-NTS-035
-grep -c "TC-LOC-NTS-035" clients/encore/specs/locations/location-notes.spec.ts  # expect: 1
+grep -c "TC-LOC-NTS-035" clients/encore/tests/locations/location-notes.spec.ts  # expect: 1
 
 # BAS-068 and ECT-018 present
-grep -c "TC-LOS-BAS-068" clients/encore/specs/local-office/local-office-basic-info.spec.ts  # expect: >= 1
-grep -c "TC-LOS-ECT-018" clients/encore/specs/local-office/local-office-ect.spec.ts  # expect: >= 1
+grep -c "TC-LOS-BAS-068" clients/encore/tests/local-office/local-office-basic-info.spec.ts  # expect: >= 1
+grep -c "TC-LOS-ECT-018" clients/encore/tests/local-office/local-office-ect.spec.ts  # expect: >= 1
 
 # HIS-7 enumerates columns (no bare >0)
-grep -A 5 "TC-LOS-HIS-002" clients/encore/specs/local-office/local-office-history.spec.ts | grep -c "toBeGreaterThan(0)"  # expect: 0
+grep -A 5 "TC-LOS-HIS-002" clients/encore/tests/local-office/local-office-history.spec.ts | grep -c "toBeGreaterThan(0)"  # expect: 0
 
 # smoke_seed per decision
-[ -f clients/encore/specs/smoke/seed.spec.ts ] || git grep "seed.spec.ts" clients/encore/ | wc -l  # expect: file exists OR 0 refs
+[ -f clients/encore/tests/smoke/seed.spec.ts ] || git grep "seed.spec.ts" clients/encore/ | wc -l  # expect: file exists OR 0 refs
 
 # Parity check
 npm run check:tc-parity  # expect: exit 0

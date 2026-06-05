@@ -92,16 +92,16 @@ export const SHARED_PATHS = Object.freeze({
   moduleRegistry:   clientPath(path.join('docs', 'MODULE_REGISTRY.md')),
 
   // Client code (scanned by catalog/lint scripts)
-  // Path layout post-2026-05-19 restructure: specs at clients/<id>/specs/,
-  // fixtures at clients/<id>/src/infra/fixtures.ts, test data at clients/<id>/src/data/testdata/.
-  specs:            clientPath('specs'),
+  // Path layout post-2026-06-05 POM restructure: specs at clients/<id>/tests/,
+  // fixtures at clients/<id>/src/fixtures/pages.fixture.ts, test data at clients/<id>/src/data/, env files at clients/<id>/ root.
+  specs:            clientPath('tests'),
   pages:            clientPath(path.join('src', 'pages')),
   selectors:        clientPath(path.join('src', 'selectors')),
-  fixtures:         clientPath(path.join('src', 'infra', 'fixtures.ts')),
-  testData:         clientPath(path.join('src', 'data', 'testdata')),
+  fixtures:         clientPath(path.join('src', 'fixtures', 'pages.fixture.ts')),
+  testData:         clientPath(path.join('src', 'data')),
   workbook:         clientPath(path.join('test_cases_xlsx', 'encore_test_cases.xlsx')), // Multi-sheet XLSX deliverable (Phase B+; sole TC deliverable post-Phase-D 2026-05-27)
   workbookDir:      clientPath('test_cases_xlsx'),                                  // Parent dir of the workbook
-  envDir:           clientPath(path.join('config', 'environments')),
+  envDir:           clientRoot(),
 
   // Framework-shared (not per-client)
   // Repointed in PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0.1 (2026-04-27): model-agnostic

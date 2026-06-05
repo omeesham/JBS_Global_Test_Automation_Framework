@@ -72,7 +72,7 @@ Stray `'1604'` literal or boolean-render (LR-036) nit in touched files → DO-NO
 |---|---|---|---|
 | HUNTER | old-site-baseline | (none) — captured in OPI_B | (none) |
 | GIVER | test-cases / test-plans / XLSX | (skipped: data-sourcing refactor + assertion re-tighten; no NEW TCs — re-tightened assertions match captured per-office values, parity unchanged) | `npm run check:tc-parity` exit 0 |
-| BUILDER | `specs/locations/location-shared-setup-locations.spec.ts`, `specs/locations/location-management-history.spec.ts`, `specs/locations/history/location-hist-notes.spec.ts`, `specs/local-office/local-office-history.spec.ts` (+ their data + SSL page object) | self-row fix + per-office maps + re-tightened asserts; first-run pass | `cd clients/encore && npx playwright test specs/locations/location-shared-setup-locations.spec.ts specs/locations/location-management-history.spec.ts specs/locations/history/location-hist-notes.spec.ts specs/local-office/local-office-history.spec.ts --list` |
+| BUILDER | `tests/locations/location-shared-setup-locations.spec.ts`, `tests/locations/location-management-history.spec.ts`, `tests/locations/history/location-hist-notes.spec.ts`, `tests/local-office/local-office-history.spec.ts` (+ their data + SSL page object) | self-row fix + per-office maps + re-tightened asserts; first-run pass | `cd clients/encore && npx playwright test tests/locations/location-shared-setup-locations.spec.ts tests/locations/location-management-history.spec.ts tests/locations/history/location-hist-notes.spec.ts tests/local-office/local-office-history.spec.ts --list` |
 | HEALER | per-fix MD | (none) | (none) |
 | WATCHDOG | findings | (none) | (none) |
 | GARDENER | refactor citation | (none) | (none) |
@@ -95,8 +95,8 @@ Stray `'1604'` literal or boolean-render (LR-036) nit in touched files → DO-NO
 
 ```bash
 grep -n "'1604'" clients/encore/src/pages/locations/location-shared-setup-locations.page.ts   # expect: empty (all -> this.officeNo)
-cd clients/encore && npx playwright test specs/locations/location-shared-setup-locations.spec.ts --workers=2   # expect: green, no hang/timeout on non-1604 office
-cd clients/encore && npx playwright test specs/locations/location-management-history.spec.ts --workers=2       # expect: green, per-office row-0 identity
+cd clients/encore && npx playwright test tests/locations/location-shared-setup-locations.spec.ts --workers=2   # expect: green, no hang/timeout on non-1604 office
+cd clients/encore && npx playwright test tests/locations/location-management-history.spec.ts --workers=2       # expect: green, per-office row-0 identity
 grep -nE "navigator/navigator" clients/encore/src/pages/locations/location-shared-setup-locations.page.ts      # expect: empty (F8.2 fixed)
 ```
 

@@ -48,7 +48,7 @@ GitHub Actions workflows are located in `.github/workflows/` (separate from this
 ## Environment Variables
 
 All pipelines use `CI_ENV` (or `NODE_ENV`) to switch environments. Encore runs a single environment: e2e (default).
-- `e2e` - Uses `clients/encore/config/environments/.env.e2e`
+- `e2e` - Uses `clients/encore/.env.e2e`
 
 ## Reports
 

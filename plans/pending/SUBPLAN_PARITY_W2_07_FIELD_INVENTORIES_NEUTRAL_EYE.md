@@ -44,7 +44,7 @@ Provenance: restructured from `SUBPLAN_PARITY_02_LOCAL_OFFICE_SPLIT.md` (C4 + C5
 - `clients/encore/specs_planning/_internal/field-inventory-spec.md` — schema canon
 - `clients/encore/specs_planning/_internal/field-inventories/local-office-settings-2026-04-27.md` — pattern reference for HIS + ECT inventories
 - `clients/encore/specs_planning/_internal/neutral-eye-audits/local-office-settings-2026-04-22.md` — pattern reference for HIS + ECT audits
-- `clients/encore/specs/local-office/local-office-{history,ect}.spec.ts` — post-W1-03 split specs
+- `clients/encore/tests/local-office/local-office-{history,ect}.spec.ts` — post-W1-03 split specs
 - `.claude/rules/browser-tool.md` — LR-054
 - `clients/encore/CLAUDE.md` — LR-036 (HIS table uses Unicode ✔; LOS HIS uses SVG lucide-check — verify per-table)
 
@@ -165,7 +165,7 @@ ls clients/encore/specs_planning/_internal/neutral-eye-audits/local-office-histo
 ls clients/encore/specs_planning/_internal/neutral-eye-audits/local-office-ect-*.md  # expect: 1
 
 # No source edits
-git diff --stat clients/encore/specs/ clients/encore/src/  # expect: empty
+git diff --stat clients/encore/tests/ clients/encore/src/  # expect: empty
 ```
 
 ---

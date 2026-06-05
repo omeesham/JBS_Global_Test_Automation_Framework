@@ -3,7 +3,7 @@
  * URL: /navigator/locations/{office}/settings/corporate-pricing/details/{guid}
  *
  * Strategy: text/role anchored — Details page has ZERO data-testids (D8). Save mechanism
- * (shared "Save Changes" dialog vs direct) NOT mutation-probed in S0 (HUNTER read-only) —
+ * (shared "Save Changes" dialog vs direct) NOT mutation-probed during read-only exploration —
  * base page clickSave() is defensive (LR-012). S2/S3 confirm on first real mutation.
  * Live-verified 2026-06-05 — walk-evidence §2.
  */

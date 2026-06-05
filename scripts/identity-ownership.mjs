@@ -52,11 +52,11 @@ export const SYNC_ONLY = [
 
 export const OWNERSHIP_ROWS = [
   {
-    pattern: "clients/${ACTIVE_CLIENT}/specs/**/*.spec.ts",
+    pattern: "clients/${ACTIVE_CLIENT}/tests/**/*.spec.ts",
     grants: { HUNTER: "—", GIVER: "—", BUILDER: "CREATE", HEALER: "FIX", WATCHDOG: "READ", GARDENER: "REFACTOR", OWNER: "READ" },
   },
   {
-    pattern: "clients/${ACTIVE_CLIENT}/src/data/testdata/**",
+    pattern: "clients/${ACTIVE_CLIENT}/src/data/**",
     grants: { HUNTER: "—", GIVER: "—", BUILDER: "CREATE", HEALER: "FIX", WATCHDOG: "READ", GARDENER: "READ", OWNER: "READ" },
   },
   {
@@ -64,7 +64,7 @@ export const OWNERSHIP_ROWS = [
     grants: { HUNTER: "—", GIVER: "READ", BUILDER: "ADD", HEALER: "FIX", WATCHDOG: "READ", GARDENER: "REFACTOR", OWNER: "READ" },
   },
   {
-    pattern: "clients/${ACTIVE_CLIENT}/src/core/base-page.ts",
+    pattern: "clients/${ACTIVE_CLIENT}/src/pages/base.page.ts",
     grants: { HUNTER: "—", GIVER: "READ", BUILDER: "—", HEALER: "—", WATCHDOG: "READ", GARDENER: "REFACTOR", OWNER: "READ" },
   },
   {
@@ -72,7 +72,7 @@ export const OWNERSHIP_ROWS = [
     grants: { HUNTER: "—", GIVER: "ADD", BUILDER: "ADD", HEALER: "FIX", WATCHDOG: "READ", GARDENER: "READ", OWNER: "READ" },
   },
   {
-    pattern: "src/utils/common-methods.ts",
+    pattern: "src/utils/env-config.ts",
     grants: { HUNTER: "—", GIVER: "READ", BUILDER: "ADD", HEALER: "FIX", WATCHDOG: "READ", GARDENER: "READ", OWNER: "READ" },
   },
   {

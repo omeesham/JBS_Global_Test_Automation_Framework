@@ -1,8 +1,8 @@
 import { Page, Locator } from '@playwright/test';
-import { BasePage } from '../../core/base-page';
+import { BasePage } from '../base.page';
 import { IConfig } from '../../types';
 import { LocalOfficeSettingsSelectors, getTsSelector } from '../../selectors';
-import { CheckboxState } from '../locations/location-form-helpers.page';
+import { CheckboxState } from '../components/location-form-helpers.component';
 
 export class LocalOfficeSettingsPage extends BasePage {
   constructor(page: Page, config?: IConfig) {

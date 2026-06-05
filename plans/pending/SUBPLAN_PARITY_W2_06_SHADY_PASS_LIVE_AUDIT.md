@@ -158,7 +158,7 @@ ls clients/encore/specs_planning/_internal/shady-pass-verdicts-*.md  # expect: 1
 ls .playwright-cli/shady-*.yml | wc -l  # expect: >= NEEDS-LIVE-WALK row count
 
 # No source code edits
-git diff --stat clients/encore/specs/ clients/encore/src/ clients/encore/test_cases_csv/  # expect: empty
+git diff --stat clients/encore/tests/ clients/encore/src/ clients/encore/test_cases_csv/  # expect: empty
 ```
 
 ---

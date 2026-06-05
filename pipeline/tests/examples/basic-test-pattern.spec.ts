@@ -3,13 +3,13 @@
  * Shows: imports, fixtures, page objects, logging, custom matchers, hooks.
  *
  * RULES:
- * - Import from '@client-tests/infra/fixtures', NEVER from '@playwright/test'
+ * - Import from '@client/fixtures/pages.fixture', NEVER from '@playwright/test'
  * - Use page object methods, NEVER direct page.click()/page.fill()
  * - Log at every key step with Log.info()
  * - Use test IDs: TC-{APP}-{NNN}: Description
  */
 
-import { test, expect } from '@client-tests/infra/fixtures';
+import { test, expect } from '@client/fixtures/pages.fixture';
 import { Log } from '../../src/utils/logger';
 
 test.describe('Example: Login Flow @example', () => {

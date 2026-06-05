@@ -4,7 +4,7 @@ paths:
   - "clients/*/specs_planning/**/*.md"
   - "clients/*/docs/REQUIREMENTS.md"
   - "clients/*/specs_planning/_internal/old-site-baseline/**/*.md"
-  - "reports/bugs/**/*.json"
+  - "clients/*/reports/bugs/**/*.json"
 ---
 
 # Baseline-Truth Workflow (LR-045)

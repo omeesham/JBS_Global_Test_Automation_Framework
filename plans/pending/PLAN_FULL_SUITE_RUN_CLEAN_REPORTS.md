@@ -171,7 +171,7 @@ Both commands launch a local server. They can be run simultaneously in separate 
 
 ## Specs covered (12 total)
 
-All under `clients/encore/specs/`:
+All under `clients/encore/tests/`:
 
 **Locations (9)**
 - `locations/location-account-address.spec.ts`

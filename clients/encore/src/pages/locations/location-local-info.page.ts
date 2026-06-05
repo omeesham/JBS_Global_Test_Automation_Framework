@@ -1,5 +1,5 @@
 ﻿import { Page } from '@playwright/test';
-import { CheckboxState, LocationFormHelpers, SpinState } from './location-form-helpers.page';
+import { CheckboxState, LocationFormHelpers, SpinState } from '../components/location-form-helpers.component';
 import { LocationSettingsSelectors } from '../../selectors';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';

@@ -4,7 +4,7 @@
  * Covers the shared left-panel card on Location Settings (`/settings/location`, Basic Information):
  * 6 read-only + 8 editable fields, tab navigation, and the shared Save button.
  *
- * Renamed from `left-panel.ts` (SUBPLAN_LEFT_PANEL_BASIC_INFORMATION_FCC, 2026-06-03). Selector
+ * Renamed from `left-panel.ts` (2026-06-03). Selector
  * KEYS are unchanged (page objects resolve by key via ALL_SELECTORS); only the export name +
  * file name changed, plus the 9 net-new field selectors below.
  *

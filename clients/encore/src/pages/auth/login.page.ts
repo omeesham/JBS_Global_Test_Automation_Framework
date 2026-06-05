@@ -4,9 +4,9 @@
  */
 
 import { Page } from '@playwright/test';
-import { BasePage } from '../../core/base-page';
+import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
-import { AppConstants } from '../../core/app-constants';
+import { AppConstants } from '../../utils/constants';
 import { IConfig } from '../../types';
 import { MicrosoftLoginSelectors } from '../../selectors';
 import type { DiagnosticsCollector } from '../../utils/diagnostics-collector';

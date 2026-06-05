@@ -1,7 +1,7 @@
 /**
  * Captures DOM snippet, console messages, and network failures on test
  * failure. Attached to every page via the diagnosticsHandler fixture in
- * src/infra/fixtures.ts. Output aged out after 7 days by global-setup.ts.
+ * src/fixtures/pages.fixture.ts. Output aged out after 7 days by global-setup.ts.
  */
 
 import type { Page } from '@playwright/test';

@@ -52,7 +52,7 @@ This is a "restructure plan" per LR-050 (changes the testing paradigm framework-
 ## Doctrine (the FCC paradigm — applies to every module)
 
 1. **Per-case independence**. Each FCC test = one independent `test()` block. Own baseline, own cleanup, no `dependencyGate(['TC-...'])` chain inside the FCC describe block.
-2. **Lifecycle**. Every FCC test runs the same shape: `baseline → act → expectBeforeSave? → save → expectAfterSave? → reload → expectAfterReload → cleanup`. Orchestrated by the single runner `clients/encore/src/core/field-case-runner.ts` `saveAndVerifyCase()`.
+2. **Lifecycle**. Every FCC test runs the same shape: `baseline → act → expectBeforeSave? → save → expectAfterSave? → reload → expectAfterReload → cleanup`. Orchestrated by the single runner `clients/encore/src/utils/field-case-runner.ts` `saveAndVerifyCase()`.
 3. **Block placement (amended 2026-05-29 — blend-at-top, supersedes the separate-`@fcc`-describe shape)**. Net-new FCC tests blend into the module's **EXISTING** `test.describe(...)` block at the **TOP** (immediately after `beforeEach`, above the first existing TC), using the **same naming** (sequential `TC-<MOD>-NN` past the high-water mark) and **same tags** — **NO separate `@fcc` describe and NO `@fcc` tag** in spec text. Existing TC bodies stay **UNTOUCHED**; only the shared `beforeEach` may be hardened (per-test baseline, LR-019). The "FCC" name lives only in the subplan filename + field-case-catalog prose, never in spec text. "Don't ruin already hard work" constraint. (Rutvik 2026-05-29: "blend in while at top, keep naming/etc same" — SSL_FCC precedent; do not re-ask on future FCC subplans.)
 4. **Taxonomy-driven**. Every module's FCC catalog is derived from `clients/encore/specs_planning/_internal/field-case-generation.md` §2 per-field-type templates. New field types → append a row to the taxonomy doc + grow the catalog.
 5. **3-tier save verification** (per taxonomy §1):
@@ -219,7 +219,7 @@ Cleanup enumerated and **assigned to the Notes subplan** (executed there, not re
 2. **CLAUDE.md @-refs missing the taxonomy doc row** — assigned to Notes subplan Phase 1.2.
 3. **AGENT_SHARED_RULES.md §2 missing `field-case-catalogs/` ownership row** — assigned to Notes subplan Phase 1.3.
 4. **6 agent prompts (REQUIREMENTS / PLANNER / GENERATOR / HEALER / AUDIT / MAINTAINER) lack FCC Paradigm section** — assigned to Notes subplan Phase 1.4 + sync 1.5.
-5. **No `src/core/field-case-runner.ts`** — assigned to Notes subplan Phase 4.1.
+5. **No `src/utils/field-case-runner.ts`** — assigned to Notes subplan Phase 4.1.
 6. **No `field-case-catalogs/` directory** — created by Notes subplan Phase 3.1.
 7. **No FCC TC namespace in any test-cases markdown** — Notes adds the first instance Phase 3.2; other modules follow per their own subplans.
 8. **3-artifact testid drift universe for Notes** — `clients/encore/src/selectors/locations/notes.ts` JSDoc lines 10-13 claim "NO data-testid" for Add/Counter/Progress; selector definitions on lines 45/51/53 USE testids. Same staleness propagated into `clients/encore/specs_planning/_internal/field-inventories/notes-2026-05-11.md` rows AND `clients/encore/specs_planning/test-cases/setup/locations/locations_notes_test_cases.md` lines 69-76 (testid drift + line 76 dialog button label drift "Save" → "Ok"). Assigned to Notes subplan Phase 3.3 — fix all three artifacts together.
@@ -253,7 +253,7 @@ Out-of-scope (deferred to named follow-up plans, NOT this master's cascade):
 ls clients/encore/specs_planning/_internal/field-case-generation.md  # expect: file present
 
 # Confirm runner exists and has the saveAndVerifyCase export
-grep -n "export async function saveAndVerifyCase" clients/encore/src/core/field-case-runner.ts  # expect: 1 hit
+grep -n "export async function saveAndVerifyCase" clients/encore/src/utils/field-case-runner.ts  # expect: 1 hit
 
 # Confirm 6 agent prompts have the FCC Paradigm section
 grep -l "## FCC Paradigm" .claude/agents/{REQUIREMENTS,PLANNER,GENERATOR,HEALER,AUDIT,MAINTAINER}.md  # expect: 6 paths
@@ -265,21 +265,21 @@ grep -n "field-case-generation.md" CLAUDE.md  # expect: 1+ hits
 ls clients/encore/specs_planning/_internal/field-case-catalogs/  # expect: notes-2026-05-19.md (plus future modules)
 
 # Confirm Notes spec has the FCC describe block at TOP (currently at line 31)
-grep -n "Location Notes — FCC" clients/encore/specs/locations/location-notes.spec.ts
+grep -n "Location Notes — FCC" clients/encore/tests/locations/location-notes.spec.ts
 
 # Confirm 26 FCC-paradigm tests landed (post-Notes-pilot)
 # Note: TC IDs were renamed to canonical NTS-NN form by SUBPLAN_XLSX_PREP_01 (2026-05-26 naming policy — no -FCC- segment in IDs);
 # the @fcc describe tag survives as the FCC-paradigm marker.
-grep -cE "^  test\('TC-LOC-NTS-(039|040|041|042|043|044|045|046|047|048|049|050|051|052|053|054|055|056|057|058|060|061|062|063|064):" clients/encore/specs/locations/location-notes.spec.ts  # expect: 25 (FCC-028 dropped as HIST duplicate of NTS-038; NTS-059 backfill not in FCC describe block)
+grep -cE "^  test\('TC-LOC-NTS-(039|040|041|042|043|044|045|046|047|048|049|050|051|052|053|054|055|056|057|058|060|061|062|063|064):" clients/encore/tests/locations/location-notes.spec.ts  # expect: 25 (FCC-028 dropped as HIST duplicate of NTS-038; NTS-059 backfill not in FCC describe block)
 
 # Confirm SSL false-green sweep artifact exists (per user override 2026-05-22)
 ls clients/encore/specs_planning/_internal/false-green-sweeps/shared-setup-locations-2026-05-22.md  # expect: file present
 
 # Confirm SSL spec retains 3 Sweep-7 fixmes with 2026-05-22 verification comments
-grep -c "2026-05-22" clients/encore/specs/locations/location-shared-setup-locations.spec.ts  # expect: >= 3
+grep -c "2026-05-22" clients/encore/tests/locations/location-shared-setup-locations.spec.ts  # expect: >= 3
 
 # Confirm zero bare-`page` destructures alongside custom fixture (master line 143 strict zero gate)
-grep -cE "\{[^}]*,\s*page\s*[,}]" clients/encore/specs/locations/location-shared-setup-locations.spec.ts  # expect: 0
+grep -cE "\{[^}]*,\s*page\s*[,}]" clients/encore/tests/locations/location-shared-setup-locations.spec.ts  # expect: 0
 ```
 
 ---

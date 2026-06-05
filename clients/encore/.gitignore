@@ -12,10 +12,10 @@ playwright/.cache/
 scripts/walks/
 src/selectors/SELECTOR_CATALOG.md
 
-# Local env overrides (never commit real env files)
-config/environments/.env.local
-config/environments/.env.*.local
-config/environments/.env.server
+# Local env overrides (never commit real env files) — env files live at client root post-2026-06-05 POM restructure
+.env.local
+.env.*.local
+.env.server
 
 # Internal artifacts — never ship to client
 CLAUDE.md

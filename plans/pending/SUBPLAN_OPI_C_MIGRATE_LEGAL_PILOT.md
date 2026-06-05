@@ -49,8 +49,8 @@ Legal is the cleanest pilot: it already has a working bounded-retry `ensureDefau
 
 ## Phase 1+ — Actual work (THE RECIPE — D/E/F reuse verbatim)
 
-1. **Data → per-office maps** (`clients/encore/src/data/testdata/locations/location-legal.data.ts`): convert `LEGAL_DEFAULTS` → `LEGAL_EDITABLE_BY_OFFICE: ByOffice<{serviceChargeName; termsName}>`; convert fixed values (languageName, alt SC/Terms) → `LEGAL_FIXED_BY_OFFICE`. Add accessors `legalDefaultsFor(office)` / `legalFixedFor(office)` using `forOffice`. Live-read each pool office's Legal values at migration time (LR-015, the `LP_DEFAULTS` pattern), reconcile vs nav2 (F5.1), and paste into the maps with dated provenance — OPI_B does not pre-capture values. Keep dropdown CATALOGS + dialog text FLAT (office-independent).
-2. **Spec → office fixture** (`clients/encore/specs/locations/location-legal.spec.ts`): drop `import { OFFICE_NO }`; add `office` to each test/`beforeEach` signature; replace `navigateToLegalTab(OFFICE_NO)` → `navigateToLegalTab(office)`; replace `ensureDefaultState(LEGAL_DEFAULTS)` → `ensureDefaultState(legalDefaultsFor(office))`; replace any fixed-value assertion (language name, etc.) with `legalFixedFor(office).<field>`.
+1. **Data → per-office maps** (`clients/encore/src/data/locations/location-legal.data.ts`): convert `LEGAL_DEFAULTS` → `LEGAL_EDITABLE_BY_OFFICE: ByOffice<{serviceChargeName; termsName}>`; convert fixed values (languageName, alt SC/Terms) → `LEGAL_FIXED_BY_OFFICE`. Add accessors `legalDefaultsFor(office)` / `legalFixedFor(office)` using `forOffice`. Live-read each pool office's Legal values at migration time (LR-015, the `LP_DEFAULTS` pattern), reconcile vs nav2 (F5.1), and paste into the maps with dated provenance — OPI_B does not pre-capture values. Keep dropdown CATALOGS + dialog text FLAT (office-independent).
+2. **Spec → office fixture** (`clients/encore/tests/locations/location-legal.spec.ts`): drop `import { OFFICE_NO }`; add `office` to each test/`beforeEach` signature; replace `navigateToLegalTab(OFFICE_NO)` → `navigateToLegalTab(office)`; replace `ensureDefaultState(LEGAL_DEFAULTS)` → `ensureDefaultState(legalDefaultsFor(office))`; replace any fixed-value assertion (language name, etc.) with `legalFixedFor(office).<field>`.
 3. **F1.1 discipline**: resolve `legalDefaultsFor(office)`/`legalFixedFor(office)` INSIDE `beforeEach`/test body — never as a module-level const. (Grep the spec for any top-level `*For(` call → must be zero.)
 4. **F2.2**: ensure the save path asserts Save ENABLED before confirm (Legal's `ensureDefaultState` already loops on post-reload re-read; confirm the dirty-check guards a read-only office).
 5. **Page object** (`location-legal.page.ts`): no body change needed (already takes `defaults` + `officeNo`); confirm the fixture injects `office` into its constructor (from OPI_A wiring).
@@ -69,7 +69,7 @@ Stray `'1604'` in Legal files → DO-NOW. Cross-tab Legal mutation noticed from 
 |---|---|---|---|
 | HUNTER | old-site-baseline | (none) — offices confirmed in OPI_B; Legal values live-read here at migration (LR-015) | (none) |
 | GIVER | test-cases / test-plans / XLSX | (skipped: no TC semantics change — data-sourcing refactor only; parity must still verify clean) | `npm run check:tc-parity` exit 0 |
-| BUILDER | `clients/encore/specs/locations/location-legal.spec.ts` + `.../location-legal.data.ts` | per-office maps + `office`-fixture spec; first-run pass | `cd clients/encore && npx playwright test specs/locations/location-legal.spec.ts --list` |
+| BUILDER | `clients/encore/tests/locations/location-legal.spec.ts` + `.../location-legal.data.ts` | per-office maps + `office`-fixture spec; first-run pass | `cd clients/encore && npx playwright test tests/locations/location-legal.spec.ts --list` |
 | HEALER | per-fix MD | (none) | (none) |
 | WATCHDOG | findings | (none) | (none) |
 | GARDENER | refactor citation | (none) | (none) |
@@ -91,10 +91,10 @@ Stray `'1604'` in Legal files → DO-NOW. Cross-tab Legal mutation noticed from 
 ## Verification
 
 ```bash
-cd clients/encore && npx playwright test specs/locations/location-legal.spec.ts --workers=1   # expect: green == today
-cd clients/encore && npx playwright test specs/locations/location-legal.spec.ts --workers=2   # expect: green on distinct offices
-grep -nE "import .*OFFICE_NO" clients/encore/specs/locations/location-legal.spec.ts            # expect: empty
-grep -nE "^(export )?const .*=.*(legalDefaultsFor|legalFixedFor)\(" clients/encore/specs/locations/location-legal.spec.ts  # expect: empty (no module-level resolution)
+cd clients/encore && npx playwright test tests/locations/location-legal.spec.ts --workers=1   # expect: green == today
+cd clients/encore && npx playwright test tests/locations/location-legal.spec.ts --workers=2   # expect: green on distinct offices
+grep -nE "import .*OFFICE_NO" clients/encore/tests/locations/location-legal.spec.ts            # expect: empty
+grep -nE "^(export )?const .*=.*(legalDefaultsFor|legalFixedFor)\(" clients/encore/tests/locations/location-legal.spec.ts  # expect: empty (no module-level resolution)
 npm run check:tc-parity   # expect: exit 0
 ```
 

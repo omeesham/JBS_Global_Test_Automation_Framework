@@ -92,7 +92,7 @@ Run `npx playwright test --grep "TC-LOC-CUR-"` — must pass.
 **LGL-015** (Country cascade):
 1. Live MCP walk: navigate to Office 1604 → Location → check if a Country dropdown exists in the left panel.
 2. If YES (selector just not registered): add `drpCountry` selector to `clients/encore/src/selectors/locations/left-panel.ts`. Use testid if present, else CSS path.
-3. Implement `test('TC-LOC-LGL-015: ...', ...)` in `clients/encore/specs/locations/location-legal.spec.ts`. Remove the existing OMITTED comment at `location-legal.spec.ts:173`.
+3. Implement `test('TC-LOC-LGL-015: ...', ...)` in `clients/encore/tests/locations/location-legal.spec.ts`. Remove the existing OMITTED comment at `location-legal.spec.ts:173`.
 4. If NO Country selector in the app UI: escalate via `/encore-questions` + defer LGL-015 to FCC master `SUBPLAN_LEFT_PANEL_FCC` roadmap line.
 
 **LGL-016/017** (OMITTED-BUG):
@@ -154,7 +154,7 @@ For every spec touched: run `check-comment-sanity.mjs` (from W1-05). Manual scan
 ### Phase 11 — Per-spec run + multi-spec run
 
 For every module touched: `npx playwright test --grep "TC-LOC-{MOD}-"` — must pass.
-Then `npx playwright test clients/encore/specs/locations/ clients/encore/specs/local-office/` — must pass overall (or have only-justified-skip).
+Then `npx playwright test clients/encore/tests/locations/ clients/encore/tests/local-office/` — must pass overall (or have only-justified-skip).
 
 ---
 
@@ -164,7 +164,7 @@ Then `npx playwright test clients/encore/specs/locations/ clients/encore/specs/l
 |---|---|---|---|
 | HUNTER | old-site-baseline | (none) — baseline already captured in W2-06/W2-07 | n/a |
 | GIVER | test-cases.md, test-plans.md, XLSX workbook | MD Status updates (SSL Partial→honest count, MGH if bug-fixed); workbook auto-rebuilds via `npm run xlsx:build` (planner-post-complete hook) | `npm run check:tc-parity` exit 0 (now uses `getXlsxTcIds()` reader per PLAN_CSV_TO_XLSX Phase B) |
-| BUILDER | specs/<module>/*.spec.ts | LGL-015 implementation + selector add + verdict-driven rewrites + un-skip cycles for MGH/SSL/BAS-048 | `npx playwright test clients/encore/specs/locations/ clients/encore/specs/local-office/` 0 failed |
+| BUILDER | specs/<module>/*.spec.ts | LGL-015 implementation + selector add + verdict-driven rewrites + un-skip cycles for MGH/SSL/BAS-048 | `npx playwright test clients/encore/tests/locations/ clients/encore/tests/local-office/` 0 failed |
 | HEALER | per-fix MD update + Jira filings | Jira NM-NNNN tickets filed for confirmed bugs; MD Status synced | grep MD for current state + Jira ticket list |
 | WATCHDOG | findings table | (none) — verdicts consumed from W2-06 | n/a |
 | GARDENER | refactor citation | (none) — code logic + selector additions, no structural refactor | n/a |
@@ -191,7 +191,7 @@ For every adjacent fix noticed during un-skip cycles (e.g., dead helpers, missin
 - [ ] SSL TC-031/032/007/026/030: green OR carry Jira citation
 - [ ] BAS-048: green OR carries Jira citation
 - [ ] Zero `test.skip` / `test.fixme` without adjacent `// BLOCKED-BY: NM-NNNN` or `// OMITTED-BUG: NM-NNNN` comment
-- [ ] `npx playwright test clients/encore/specs/locations/ clients/encore/specs/local-office/` exits 0 (or only-justified-skip)
+- [ ] `npx playwright test clients/encore/tests/locations/ clients/encore/tests/local-office/` exits 0 (or only-justified-skip)
 - [ ] Comment sanity script exits 0 on all touched files
 - [ ] `/regression-guard` snapshot diff matches expectation
 - [ ] Activity-log row appended per LR-028 with LR-037 timestamp ≥ all touched-file mtimes
@@ -203,16 +203,16 @@ For every adjacent fix noticed during un-skip cycles (e.g., dead helpers, missin
 
 ```bash
 # Zero unjustified skips
-node clients/encore/scripts/ci/check-no-unjustified-skip.mjs clients/encore/specs/  # expect: exit 0
+node clients/encore/scripts/ci/check-no-unjustified-skip.mjs clients/encore/tests/  # expect: exit 0
 
 # LGL-015 implemented (or deferred with escalation)
-grep -c "test('TC-LOC-LGL-015" clients/encore/specs/locations/location-legal.spec.ts  # expect: >= 1 (or escalation evidence in /encore-questions log)
+grep -c "test('TC-LOC-LGL-015" clients/encore/tests/locations/location-legal.spec.ts  # expect: >= 1 (or escalation evidence in /encore-questions log)
 
 # Country selector added (if LGL-015 path taken)
 grep "drpCountry\|country" clients/encore/src/selectors/locations/left-panel.ts  # expect: at least 1 match if LGL-015 implemented
 
 # All target specs green
-npx playwright test clients/encore/specs/locations/ clients/encore/specs/local-office/ --reporter=line  # expect: 0 failed
+npx playwright test clients/encore/tests/locations/ clients/encore/tests/local-office/ --reporter=line  # expect: 0 failed
 ```
 
 ---

@@ -317,7 +317,7 @@ HARD STOPS:
 
 File Ownership:
   RW:        scripts/, config/, .claude/skills/, plans/, docs/ (non-REQUIREMENTS), website/
-  READ-ONLY: clients/${ACTIVE_CLIENT}/specs/, clients/${ACTIVE_CLIENT}/src/pages/, clients/${ACTIVE_CLIENT}/src/selectors/, clients/${ACTIVE_CLIENT}/specs_planning/test-cases/,
+  READ-ONLY: clients/${ACTIVE_CLIENT}/tests/, clients/${ACTIVE_CLIENT}/src/pages/, clients/${ACTIVE_CLIENT}/src/selectors/, clients/${ACTIVE_CLIENT}/specs_planning/test-cases/,
              clients/${ACTIVE_CLIENT}/specs_planning/test-plans/ (override allowed)
   APPEND:    clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md, agent-activity-log.md
   DIRECT EDIT: .claude/agents/*.md (governance edits — HARD STOPS, scope, Modes — owned by OWNER; sync:mistakes no-op post-2026-04-27)

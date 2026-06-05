@@ -4,7 +4,7 @@
  * `CorporatePricingBasePage extends BasePage` (F3 — the repo has NO `*.base.page.ts` convention;
  * per-module bases use ordinary `.page.ts` filenames, e.g. `local-office-settings.page.ts`).
  * S1 (Search) / S2 (Strategy) / S3 (Detail) create their per-screen page objects extending THIS
- * class and add their own fixtures — those are their owned BUILDER deliverables (per the master's
+ * class and add their own fixtures — those are their own page fixtures (per the master's
  * per-module delivery map). S0 ships only the shared navigation + grid/tab/save primitives.
  *
  * Selector strategy (Doctrine 4 / D8): text/role/grid-header/content-anchored. Corporate Pricing
@@ -13,10 +13,10 @@
  * `this.page.locator(...)`, NOT via BasePage's `getElement()` (which resolves through ALL_SELECTORS).
  */
 import type { Page, Locator } from '@playwright/test';
-import { BasePage } from '../../core/base-page';
+import { BasePage } from '../base.page';
 import type { IConfig } from '../../types';
 import { CorporatePricingSelectors as S } from '../../selectors/corporate-pricing';
-import { CORPORATE_PRICING_ROUTES, CORPORATE_PRICING_COMMON } from '../../data/testdata/corporate-pricing/common.data';
+import { CORPORATE_PRICING_ROUTES, CORPORATE_PRICING_COMMON } from '../../data/corporate-pricing/common';
 import { Log } from '../../utils/logger';
 
 export class CorporatePricingBasePage extends BasePage {
@@ -108,7 +108,7 @@ export class CorporatePricingBasePage extends BasePage {
 
   /**
    * Click the page-level Save (Details) — DEFENSIVE per LR-012: the confirm mechanism was NOT
-   * mutation-probed in S0 (HUNTER read-only). Clicks Save; if a "Save Changes" alertdialog
+   * mutation-probed during read-only exploration. Clicks Save; if a "Save Changes" alertdialog
    * appears, confirms it; otherwise proceeds (direct save). S2/S3 tighten via `saveAndConfirm`.
    */
   async clickSave(): Promise<void> {

@@ -60,7 +60,7 @@ function findSpecFiles(dir: string): string[] {
   return results;
 }
 
-/** Detect module prefix from spec file path (e.g. specs/locations/ -> LOC) */
+/** Detect module prefix from spec file path (e.g. tests/locations/ -> LOC) */
 const MODULE_PREFIX_MAP: Record<string, string> = {
   locations: 'LOC', setup: 'SET', users: 'USR', clients: 'CLT',
   dashboard: 'DSH', reports: 'RPT', billing: 'BIL', admin: 'ADM',
@@ -68,7 +68,7 @@ const MODULE_PREFIX_MAP: Record<string, string> = {
 
 function detectModulePrefix(filePath: string): string {
   const parts = filePath.replace(/\\/g, '/').split('/');
-  const specsIdx = parts.indexOf('specs');
+  const specsIdx = parts.indexOf('tests') >= 0 ? parts.indexOf('tests') : parts.indexOf('specs'); // tests/ (post-2026-06-05 POM); specs/ legacy fallback
   if (specsIdx >= 0 && parts[specsIdx + 1]) {
     const moduleName = parts[specsIdx + 1]!.toLowerCase();
     return MODULE_PREFIX_MAP[moduleName] || moduleName.toUpperCase().substring(0, 3);

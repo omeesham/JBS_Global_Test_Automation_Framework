@@ -1,7 +1,7 @@
 ---
 description: Angular form / dirty-state discipline for tests and page objects
 paths:
-  - "clients/*/specs/**/*.spec.ts"
+  - "clients/*/tests/**/*.spec.ts"
   - "clients/*/src/pages/**/*.ts"
   - "clients/*/src/selectors/**/*.ts"
 ---

@@ -141,7 +141,7 @@ If this session touched a plan/subplan that has a `## Per-Identity Satisfaction`
 |---|---|---|---|
 | HUNTER | `(skipped: reused walk-evidence-location-settings-2026-05-14)` | regex `\(skipped:\s*.{20,}\)` | PASS — explicit skip with reason |
 | GIVER | `clients/encore/specs_planning/_internal/field-case-catalogs/legal-2026-05-27.md` | `Test-Path <path>` → `True` | PASS — file exists |
-| BUILDER | `clients/encore/specs/locations/location-legal.spec.ts` | `Test-Path <path>` → `True` | PASS — file exists |
+| BUILDER | `clients/encore/tests/locations/location-legal.spec.ts` | `Test-Path <path>` → `True` | PASS — file exists |
 | ... | ... | ... | ... |
 
 Fastest source: `node scripts/validate-plan-closure.mjs <plan> --dry-run --json`, then read the `C6` check's items. Any FAIL row (vague prose or missing file) → `/final-q` verdict floor = **YELLOW** (not RED — closure is machine-gated by C6, so YELLOW signals "fix before the parent closes"). (Added 2026-05-28, PLAN_DONE_MEANS_DONE Phase 2.3.)

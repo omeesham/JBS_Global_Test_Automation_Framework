@@ -6,7 +6,7 @@ import * as path from 'path';
 
 // Local-first: bare `npm test` loads .env.local; CI sets CI_ENV=e2e to load .env.e2e.
 dotenvFlow.config({
-  path: path.join(__dirname, 'config', 'environments'),
+  path: __dirname,
   node_env: process.env.CI_ENV || process.env.NODE_ENV || 'local',
   silent: true,
 });
@@ -20,7 +20,7 @@ function getArtifactSetting(envVar: string, defaultValue: string): string {
 
 export default defineConfig({
   testDir: __dirname,
-  testMatch: ['specs/**/*.spec.ts'],
+  testMatch: ['tests/**/*.spec.ts'],
 
   timeout: process.env.CI ? 60 * 1000 : 30 * 1000,
   expect: { timeout: 5000 },
@@ -48,7 +48,7 @@ export default defineConfig({
     // Bundled by `npm run share-for-debugging` and shipped to CI artifact `share-for-debugging-*.zip`.
     // Relocated 2026-05-19 from dist/framework/ to clients/encore/src/utils/ so the reporter
     // ships with the deliverable (git archive --strip-components=2 excludes anything above clients/encore/).
-    ['./src/utils/agent-reporter.ts'],
+    ['./src/reporter/agent-reporter.ts'],
     ['html', { outputFolder: 'reports/html-report', open: 'never' }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['junit', { outputFile: 'reports/junit-results.xml' }],
@@ -133,7 +133,7 @@ export default defineConfig({
     {
       name: 'chromium',
       dependencies: ['setup'],
-      testIgnore: ['specs/locations/**', 'specs/local-office/**'],
+      testIgnore: ['tests/locations/**', 'tests/local-office/**'],
       use: {
         viewport: { width: 1920, height: 1080 },
         storageState: '.auth/encore-state.json',
@@ -171,14 +171,14 @@ export default defineConfig({
     // .auth/encore-state.json, which both module workers consume read-only.
     {
       name: 'encore-local-office',
-      testDir: './specs/local-office',
+      testDir: './tests/local-office',
       fullyParallel: false,
       dependencies: ['setup'],
       use: { storageState: '.auth/encore-state.json' },
     },
     {
       name: 'encore-locations',
-      testDir: './specs/locations',
+      testDir: './tests/locations',
       fullyParallel: false,
       dependencies: ['setup'],
       use: { storageState: '.auth/encore-state.json' },
@@ -188,5 +188,5 @@ export default defineConfig({
   outputDir: 'reports/test-results/',
   snapshotDir: 'reports/test-results/snapshots',
 
-  globalSetup: require.resolve('./src/infra/global-setup'),
+  globalSetup: require.resolve('./src/setup/global-setup'),
 });

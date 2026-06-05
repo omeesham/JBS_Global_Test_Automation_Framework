@@ -1,6 +1,6 @@
 /**
  * Corporate Pricing — Search screen (NM-1445) page object.
- * `CorporatePricingSearchPage extends CorporatePricingBasePage` (S1 BUILDER deliverable).
+ * `CorporatePricingSearchPage extends CorporatePricingBasePage` (Search page object).
  *
  * Live model (D2, verified 2026-06-05): filters STAGE on input (no network, no grid change);
  * the Search button submits all staged filters SERVER-SIDE as query params of
@@ -8,13 +8,13 @@
  * client-side. Read-only screen — no save. React/Next.js + shadcn DataTable; selectors are
  * text/role/placeholder/grid-<th>/content-anchored (near-zero data-testid — Doctrine 4).
  *
- * Field-inventory: specs_planning/_internal/field-inventories/corporate-pricing-search-2026-06-05.md
+ * Field-inventory: the Corporate Pricing Search field inventory
  */
 import type { Page, Locator } from '@playwright/test';
 import { CorporatePricingBasePage } from './corporate-pricing.page';
 import type { IConfig } from '../../types';
 import { CorporatePricingSearchSelectors as S } from '../../selectors/corporate-pricing/search';
-import { CORP_PRICING_SEARCH, CORP_PRICING_SEARCH_API } from '../../data/testdata/corporate-pricing/search.data';
+import { CORP_PRICING_SEARCH, CORP_PRICING_SEARCH_API } from '../../data/corporate-pricing/search';
 
 export type SearchCheckbox = 'isInternal' | 'isLabor' | 'activeOnly';
 

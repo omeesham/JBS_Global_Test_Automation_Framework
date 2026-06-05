@@ -12,7 +12,7 @@ import { type Locator, type Page } from '@playwright/test';
 import { CorporatePricingBasePage } from './corporate-pricing.page';
 import type { IConfig } from '../../types';
 import { CorporatePricingSelectors as S } from '../../selectors/corporate-pricing';
-import { STRATEGY } from '../../data/testdata/corporate-pricing/strategy.data';
+import { STRATEGY } from '../../data/corporate-pricing/strategy';
 
 type StrategyFlag = 'Is Productions' | 'Is Internal' | 'Is GSO' | 'Is Active';
 

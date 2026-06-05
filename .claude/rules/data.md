@@ -2,7 +2,6 @@
 description: General coding hygiene — function signatures, catalog parity, error handling, React lifecycle, external data
 paths:
   - "src/**/*.ts"
-  - "src/**/*.tsx"
   - "scripts/**/*.ts"
   - "scripts/**/*.mjs"
   - "website/**/*.ts"

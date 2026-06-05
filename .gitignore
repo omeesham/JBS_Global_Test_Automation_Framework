@@ -47,10 +47,8 @@ screenshots/
 .env
 .env.local
 .env.*.local
-config/environments/.env.*.local
 # Use .env.example / .env.server.example as templates — never commit real .env files
-config/environments/.env.local
-config/environments/.env.server
+.env.server
 
 # OS
 .DS_Store
@@ -169,10 +167,10 @@ website/backend/.env
 # `clients/<id>/` is tracked — per-client source, specs, config, and docs live
 # here. Per-client generated artifacts mirror the root-level rules above.
 
-# Per-client personal env overrides (mirror of config/environments/.env.*.local)
-clients/*/config/environments/.env.local
-clients/*/config/environments/.env.*.local
-clients/*/config/environments/.env.server
+# Per-client personal env overrides (env files at client root post-2026-06-05 POM restructure)
+clients/*/.env.local
+clients/*/.env.*.local
+clients/*/.env.server
 
 # Per-client agent / pipeline artifacts — never ship to clients via git archive.
 # These patterns live HERE (not in clients/<id>/.gitignore) so the per-client

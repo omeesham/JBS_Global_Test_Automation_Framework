@@ -15,8 +15,8 @@ Audit the test infrastructure — specs, setup, test-data, fixtures — for cons
 ## Scope
 
 ### specs/
-- `specs/locations/*.spec.ts` — location module specs
-- `specs/local-office/*.spec.ts` — local office specs
+- `tests/locations/*.spec.ts` — location module specs
+- `tests/local-office/*.spec.ts` — local office specs
 - **Check**: are all spec files properly organized by module?
 - **Check**: any orphaned spec files not referenced by playwright.config?
 - **Check**: consistent patterns across specs (imports, fixture usage, timeout handling)
@@ -29,7 +29,7 @@ Audit the test infrastructure — specs, setup, test-data, fixtures — for cons
 - **Check**: dead fixtures that no spec imports?
 - **Check**: global setup/teardown — is everything there still needed?
 
-### src/data/testdata/
+### src/data/
 - Per-module `.data.ts` files with test constants
 - **Check**: unused test data constants (defined but never referenced in any spec)
 - **Check**: hardcoded values that should be dynamic or configurable

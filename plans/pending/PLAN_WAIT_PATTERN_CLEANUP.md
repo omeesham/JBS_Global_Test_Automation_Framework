@@ -97,7 +97,7 @@ This plan modifies `.spec.ts` / page-object files (mechanical wait-pattern swaps
 | BUILDER | specs/**/*.spec.ts | (none) | (none) |
 | HEALER | per-fix MD update | (none) | (none) |
 | WATCHDOG | findings table | (none) | (none) |
-| GARDENER | framework src refactor | clients/encore/src/core/base-page.ts | `cd clients/encore && npm run typecheck` clean |
+| GARDENER | framework src refactor | clients/encore/src/pages/base.page.ts | `cd clients/encore && npm run typecheck` clean |
 
 > Matrix footnotes (why each `(none)`): HUNTER/GIVER/BUILDER — no requirement/TC added/removed/renamed; mechanical wait-pattern swaps only, parity unaffected. HEALER — proactive cleanup, not RCA-driven (if item 3 surfaces a real bug → file per LR-044). WATCHDOG — not audit-driven.
 
@@ -125,7 +125,7 @@ cd clients/encore
 npm run typecheck                       # expect: clean
 rg -c "clickWithRetry" .                # expect: 0 (or only an intentional comment)
 rg "waitForTimeout\(" .                 # expect: only documented exceptions
-rg "\.catch\(\(\) => \{\}\)" src/core/base-page.ts   # expect: the :582 listbox-hidden swallow is gone (typed catch)
+rg "\.catch\(\(\) => \{\}\)" src/pages/base.page.ts   # expect: the :582 listbox-hidden swallow is gone (typed catch)
 npm test                                 # expect: full suite green vs baseline
 ```
 

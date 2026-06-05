@@ -100,7 +100,7 @@ Author `check-md-spec-bijection.mjs`:
 ### Phase 5 — D7: Unjustified skip detector
 
 Author `check-no-unjustified-skip.mjs`:
-- Regex scan `clients/encore/specs/**/*.spec.ts` for `test\.(skip|fixme)\(`
+- Regex scan `clients/encore/tests/**/*.spec.ts` for `test\.(skip|fixme)\(`
 - For each hit: check the preceding 3 lines OR next 3 lines for `// BLOCKED-BY: NM-\d+` OR `// OMITTED-BUG: NM-\d+`
 - Exit 1 on any unjustified skip/fixme
 - Output: file:line of each violation
@@ -121,7 +121,7 @@ Author `check-no-no-op-asserts.mjs`:
 ### Phase 8 — D10: Assertionless test detector
 
 Author `check-test-has-assertion.mjs`:
-- For each `test\('TC-` block in `clients/encore/specs/**/*.spec.ts`, parse the body
+- For each `test\('TC-` block in `clients/encore/tests/**/*.spec.ts`, parse the body
 - Require ≥1 `expect(` OR `expect.poll(` OR `await expect(`
 - Exit 1 on assertionless tests
 
@@ -150,7 +150,7 @@ Author `check-md-sanity.mjs`:
 ### Phase 11 — D14: Comment sanity CI script (absorbed from defunct W1-02)
 
 Author `clients/encore/scripts/ci/check-comment-sanity.mjs` (fresh authoring; W1-02 supersession means this is no longer "already authored"):
-- Walks `clients/encore/specs/**/*.spec.ts`, `clients/encore/src/pages/**/*.page.ts`, `clients/encore/src/selectors/**/*.ts`, `clients/encore/src/data/testdata/**/*.ts`, and `clients/encore/scripts/**/*.mjs`
+- Walks `clients/encore/tests/**/*.spec.ts`, `clients/encore/src/pages/**/*.page.ts`, `clients/encore/src/selectors/**/*.ts`, `clients/encore/src/data/**/*.ts`, and `clients/encore/scripts/**/*.mjs`
 - Flags every comment against `spec-comment`-scoped entries from `red-flag-patterns.json` (stale CSV refs, TODO without ticket, FIXME without ticket, etc.)
 - Exit 1 on findings
 

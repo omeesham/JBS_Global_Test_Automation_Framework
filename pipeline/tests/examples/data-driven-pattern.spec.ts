@@ -19,7 +19,7 @@
  * - Import pattern: `import { CONSTANT } from '../../../test-data/<path>.data';`
  */
 
-import { test, expect } from '@client-tests/infra/fixtures';
+import { test, expect } from '@client/fixtures/pages.fixture';
 import { AdapterFactory } from '../../src/data/adapters/adapterFactory';
 import { Log } from '../../src/utils/logger';
 

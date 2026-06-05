@@ -17,7 +17,7 @@ import { CorporatePricingBasePage } from './corporate-pricing.page';
 import type { IConfig } from '../../types';
 import { CorporatePricingSelectors as S } from '../../selectors/corporate-pricing';
 import { DETAIL_GRID_COLS } from '../../selectors/corporate-pricing/pricing-detail';
-import { DETAIL } from '../../data/testdata/corporate-pricing/detail.data';
+import { DETAIL } from '../../data/corporate-pricing/detail';
 
 type DetailAnchor = { id: string; name: string; basePrice: string };
 

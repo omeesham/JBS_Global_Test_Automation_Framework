@@ -51,7 +51,7 @@ A worker-scoped `office` fixture resolves this once per worker; every spec consu
 
 ### Per-office data model (user ask #2 — reusable, editable vs fixed)
 
-Generalize the **already-existing** `LP_DEFAULTS` (fixed) / `LP_BASELINE` (editable) split in `clients/encore/src/data/testdata/locations/location-left-panel-basic-information.data.ts` to every office-dependent tab:
+Generalize the **already-existing** `LP_DEFAULTS` (fixed) / `LP_BASELINE` (editable) split in `clients/encore/src/data/locations/location-left-panel-basic-information.data.ts` to every office-dependent tab:
 
 - **Storage** — per-module keyed maps co-located with each tab's existing data file (preserves LR-017 locality; no central mega-registry that couples unrelated tabs):
   - `*_EDITABLE_BY_OFFICE: ByOffice<T>` — values a test mutates then resets (feeds `ensureDefaultState`).

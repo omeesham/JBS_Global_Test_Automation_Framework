@@ -59,19 +59,19 @@ Foundation layer for the per-worker office pool (see parent §Strategy). Lands t
    - `export type PoolOffice = typeof OFFICE_POOL[number];`
    - `export const POOL_SIZE = OFFICE_POOL.length;`
    - `export function officeForParallelIndex(parallelIndex: number): PoolOffice` — returns `OFFICE_POOL[parallelIndex]`; **throws loudly** if `undefined` (F1.2): message names `parallelIndex`, `POOL_SIZE`, and "clamp workers or grow OFFICE_POOL".
-2. **`clients/encore/src/data/testdata/office-data.types.ts`** (NEW):
+2. **`clients/encore/src/data/office-data.types.ts`** (NEW):
    - `export type ByOffice<T> = Record<PoolOffice, T>;`
    - `export function forOffice<T>(map: ByOffice<T>, office: PoolOffice, mapName: string): T` — throws if the office key is absent (F1.1 runtime net), message names `mapName`, `office`, and the available keys.
-3. **`clients/encore/src/infra/fixtures.ts`**:
+3. **`clients/encore/src/fixtures/pages.fixture.ts`**:
    - Add `office: PoolOffice` to `WorkerFixtures`.
    - Add worker-scoped fixture: `office: [async ({}, use, workerInfo) => { const o = officeForParallelIndex(workerInfo.parallelIndex); Log.info(\`[office] parallelIndex=\${workerInfo.parallelIndex} -> office \${o}\`); await use(o); }, { scope: 'worker' }]`.
    - Wire `office` into each page-object fixture's constructor call (3rd arg) — see step 4. Keep existing behavior identical when pool=['1604'].
-4. **`clients/encore/src/core/base-page.ts`**:
+4. **`clients/encore/src/pages/base.page.ts`**:
    - Constructor gains optional `officeNo: string = OFFICE_POOL[0]`; store `protected readonly officeNo`.
    - `navigateToSubTab(...)` default param becomes `officeNo: string = this.officeNo` (replaces literal `'1604'`).
    - Leave all subclass `navigateToXTab(officeNo = '1604')` defaults AS-IS for now (changed to required only in OPI_Z — F8.3); they still compile and resolve to 1604.
 5. **`clients/encore/playwright.config.ts`** — replace the `workers:` expression (lines ~39-41) with a `resolveWorkers()` that computes `requested` as today, then `min(requested, POOL_SIZE)`, `console.warn`-ing when clamped (F1.2). Add a one-line comment forbidding concurrent `--shard` against the shared e2e server unless the pool is globally partitioned (F1.3 doc).
-6. **`clients/encore/src/data/testdata/common.data.ts`** — re-source `export const OFFICE_NO = OFFICE_POOL[0];` with a `@deprecated Use the office worker fixture` JSDoc (F8.3 backward-compat for unmigrated specs).
+6. **`clients/encore/src/data/common.data.ts`** — re-source `export const OFFICE_NO = OFFICE_POOL[0];` with a `@deprecated Use the office worker fixture` JSDoc (F8.3 backward-compat for unmigrated specs).
 7. **`clients/encore/src/utils/agent-reporter.ts`** — capture `result.parallelIndex` AND the resolved office (read from the test's annotations, or recompute from `parallelIndex` via `officeForParallelIndex`) into the `FailureEntry` + `failure-summary.json` (F10.3 — per-office RCA visibility). Add `parallelIndex`/`office` to the `FailureEntry` interface.
 
 **Sonnet-safe vs Opus**: steps 1–6 are deterministic file edits ([SONNET-SAFE]); step 7 + the verification run + any flake RCA are [OPUS-ONLY].
@@ -105,7 +105,7 @@ npx tsc -p clients/encore --noEmit                       # expect: no errors
 cd clients/encore && MAX_WORKERS=1 npx playwright test    # expect: same pass set as today
 cd clients/encore && MAX_WORKERS=2 npx playwright test    # expect: no NEW failures vs documented 2-worker baseline
 grep -n "parallelIndex" clients/encore/src/utils/agent-reporter.ts  # expect: capture + interface field
-grep -n "OFFICE_POOL\[0\]" clients/encore/src/data/testdata/common.data.ts  # expect: OFFICE_NO re-sourced
+grep -n "OFFICE_POOL\[0\]" clients/encore/src/data/common.data.ts  # expect: OFFICE_NO re-sourced
 ```
 
 ---

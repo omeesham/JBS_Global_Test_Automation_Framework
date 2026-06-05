@@ -274,18 +274,18 @@ function main(): void {
       return content.includes('BASE_URL');
     });
     if (!hasBaseUrl) {
-      console.error('[HALT] PF-05: No BASE_URL found in any config/environments/.env.* file.');
+      console.error('[HALT] PF-05: No BASE_URL found in any .env.* file.');
       preFlightFailed = true;
     }
   } else {
-    console.error('[HALT] PF-05: config/environments/ directory not found.');
+    console.error('[HALT] PF-05: env directory (client root) not found.');
     preFlightFailed = true;
   }
 
   // PF-G2: fixtures.ts
   const fixturesPath = SHARED_PATHS.fixtures;
   if (!fs.existsSync(fixturesPath)) {
-    console.error('[HALT] PF-G2: src/infra/fixtures.ts not found. All tests will fail.');
+    console.error('[HALT] PF-G2: src/fixtures/pages.fixture.ts not found. All tests will fail.');
     preFlightFailed = true;
   }
 
@@ -299,7 +299,7 @@ function main(): void {
   // PF-G4: test data dir
   const testDataDir = SHARED_PATHS.testData;
   if (!fs.existsSync(testDataDir)) {
-    console.warn('[WARN] PF-G4: src/data/testdata/ directory not found. May need to create for data-driven tests.');
+    console.warn('[WARN] PF-G4: src/data/ directory not found. May need to create for data-driven tests.');
   }
 
   // PF-G1: TypeScript compiles (S18 -- HALT if compilation errors exist)

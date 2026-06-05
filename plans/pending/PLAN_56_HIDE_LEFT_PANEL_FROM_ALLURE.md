@@ -17,7 +17,7 @@ agent-mistakes `LR-024-COROLLARY-001`: never destroy allure-results evidence tha
 recreated by a full re-run).
 
 ## Verified facts (by inspection, no assumptions)
-- Spec: `clients/encore/specs/locations/location-left-panel-basic-information.spec.ts`
+- Spec: `clients/encore/tests/locations/location-left-panel-basic-information.spec.ts`
   - `test.describe` = `Location Left Panel — Basic Information @locations @left-panel-basic-information`
   - 26 automated tests (TC-LOC-LP-001..023, 025..027).
 - In `reports/allure-results/`: each test = a `<uuid>-result.json` carrying

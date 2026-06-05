@@ -14,6 +14,7 @@
  */
 
 import { execSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -112,6 +113,36 @@ assert(
   tsActivityLog === mjsActivityLogAcme,
   `ts=${tsActivityLog} mjs=${mjsActivityLogAcme}`,
 );
+
+// ── Scenario 5: every SHARED_PATHS structural value resolves on disk (encore) ──
+// Would have caught the test_cases_csv deletion (a SHARED_PATHS value pointing at a
+// removed dir). Runtime-only artifacts (queue/registry/notifications) are excluded —
+// they are created on demand and legitimately absent on a clean tree.
+console.log('\n[5] every SHARED_PATHS structural path exists on disk (ACTIVE_CLIENT=encore)');
+const spJson = evalTs(
+  "const m = require('./scripts/shared-paths'); console.log(JSON.stringify(m.SHARED_PATHS));",
+  { ACTIVE_CLIENT: 'encore' },
+);
+const SP = JSON.parse(spJson);
+const MUST_EXIST = [
+  'clientRoot', 'mistakes', 'activityLog', 'requirements', 'moduleRegistry',
+  'specs', 'pages', 'selectors', 'fixtures', 'testData', 'workbook', 'workbookDir',
+  'envDir', 'agentsDir', 'reports',
+];
+for (const k of MUST_EXIST) {
+  assert(`SHARED_PATHS.${k} resolves on disk`, !!SP[k] && fs.existsSync(SP[k]), SP[k]);
+}
+
+// ── Scenario 6: full .ts ↔ .mjs parity for EVERY key the .mjs exports ──
+console.log('\n[6] full .ts↔.mjs parity (every shared key, not just activityLog)');
+const mjsAllJson = execSync(
+  `node --input-type=module -e "import('./scripts/shared-paths.mjs').then(m => console.log(JSON.stringify(m.SHARED_PATHS)))"`,
+  { cwd: REPO_ROOT, env: { ...process.env, ACTIVE_CLIENT: 'encore' }, encoding: 'utf8' },
+).trim();
+const MJS = JSON.parse(mjsAllJson);
+for (const k of Object.keys(MJS)) {
+  assert(`.ts and .mjs agree on SHARED_PATHS.${k}`, SP[k] === MJS[k], `ts=${SP[k]} mjs=${MJS[k]}`);
+}
 
 // ── Result ──
 if (failed > 0) {

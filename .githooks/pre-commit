@@ -40,7 +40,7 @@ node scripts/verify-no-forbidden.mjs --staged-diff
 # alongside a `*Page` page-object fixture. Playwright DI creates a second about:blank
 # context for the bare `page`, leading to false-greens / false-fails as documented in
 # Phase 0.4 baseline + A-1 fix.
-if matches=$(grep -rnE "test\([^)]*async\s*\(\s*\{[^}]*(([a-z][a-zA-Z]*Page[^}]*,\s*page\b)|(\bpage\s*,[^}]*[a-z][a-zA-Z]*Page\b))" clients/encore/specs/ 2>/dev/null); then
+if matches=$(grep -rnE "test\([^)]*async\s*\(\s*\{[^}]*(([a-z][a-zA-Z]*Page[^}]*,\s*page\b)|(\bpage\s*,[^}]*[a-z][a-zA-Z]*Page\b))" clients/encore/tests/ 2>/dev/null); then
   if [ -n "$matches" ]; then
     echo "[pre-commit] BUG-1 page-fixture collision detected — spec destructures bare 'page' alongside a *Page fixture:" >&2
     echo "$matches" >&2
@@ -52,11 +52,11 @@ fi
 
 # --- 5) ALL-071: spec ↔ MD ↔ XLSX parity (FCC fuckup prevention, 2026-05-25;
 # CSV→XLSX migration 2026-05-27, Phase B of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION).
-# Fires whenever a clients/*/specs/**/*.spec.ts is staged. Runs full-repo parity
+# Fires whenever a clients/*/tests/**/*.spec.ts is staged. Runs full-repo parity
 # (script does not support --module filter; ~10-30s when specs are staged).
 # Graduated from PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/specs/.*\.spec\.ts$'; then
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
   echo "[pre-commit] spec file staged → running check:tc-parity (ALL-071)..." >&2
   if ! npm run --silent check:tc-parity; then
     echo "[pre-commit] HALT: ALL-071 parity gap. Fix MD/test-plan/XLSX before commit." >&2

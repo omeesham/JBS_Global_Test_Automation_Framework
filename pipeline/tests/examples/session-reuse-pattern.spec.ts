@@ -1,7 +1,7 @@
 // spec: example-session-reuse
 // seed: Demonstrates authenticatedSession fixture for worker-scoped SSO reuse
 
-import { test, expect } from '@client-tests/infra/fixtures';
+import { test, expect } from '@client/fixtures/pages.fixture';
 
 /**
  * Session Reuse Pattern Example

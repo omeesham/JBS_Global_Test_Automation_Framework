@@ -74,7 +74,7 @@ function main(): void {
     baseUrlFound = true;
   }
   if (!baseUrlFound) {
-    console.error('[HALT] PF-04: BASE_URL not found in config/environments/ or process.env');
+    console.error('[HALT] PF-04: BASE_URL not found in .env files or process.env');
     failed = true;
   } else {
     console.log('[OK] PF-04: BASE_URL configured');

@@ -56,7 +56,7 @@
     "metrics:update-trust": "ts-node scripts/agent-metrics.ts --update-trust",
     "planner:post-complete": "ts-node scripts/planner-post-complete.ts",
     "planner:export-all": "ts-node scripts/planner-post-complete.ts --all",
-    "pipeline:validate": "npm run validate:sync && npm run queue:validate && npm run lint:testcases && npm run detect:duplication && npm run plans:validate-overrides && npm run plans:validate-closure:changed && npm run plans:validate-layout",
+    "pipeline:validate": "npm run validate:sync && npm run queue:validate && npm run lint:testcases && npm run detect:duplication && npm run plans:validate-overrides && npm run plans:validate-closure:changed && npm run plans:validate-layout && npm run verify:rules-fire && npm run verify:protected-names && npm run test:shared-paths && npm run verify:no-stale-refs",
     "pipeline:preflight": "npm run validate:sync && npm run build:context && npm run lint:testcases && npm run validate:activity-log:preflight",
     "queue:archive": "ts-node scripts/archive-queue.ts",
     "queue:archive:dry": "ts-node scripts/archive-queue.ts --dry-run",
@@ -107,6 +107,9 @@
     "plans:validate-layout:cleanup-tmp": "node scripts/validate-plan-layout.mjs --cleanup-tmp-manifests",
     "plans:hooks:install": "git config core.hooksPath .githooks && echo \"hooks installed -> .githooks\"",
     "test:shared-paths": "node scripts/shared-paths.test.mjs",
+    "verify:rules-fire": "node scripts/verify-rules-fire.mjs",
+    "verify:protected-names": "node scripts/verify-protected-names.mjs",
+    "verify:no-stale-refs": "node scripts/verify-no-stale-live-refs.mjs",
     "check:browsertool-parity": "node scripts/check-browsertool-parity.mjs"
   },
   "keywords": [

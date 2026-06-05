@@ -54,7 +54,7 @@ FCC tests are designed for per-case failure isolation. When debugging:
   these anchors — cite the anchor in your first RCA response.
 - Per-FCC-case cleanup failures (cleanup leaves DB dirty) cascade into the NEXT FCC test's
   baseline failure. If you see two adjacent FCC failures, suspect cleanup-cascade first.
-Cross-ref: `field-case-generation.md`, runner at `src/core/field-case-runner.ts`,
+Cross-ref: `field-case-generation.md`, runner at `src/utils/field-case-runner.ts`,
 master plan PLAN_BIG_PIVOT_FCC_MASTER.
 
 ## Browser tool declaration (LR-038 v2)

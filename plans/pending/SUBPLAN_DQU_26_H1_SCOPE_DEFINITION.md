@@ -35,7 +35,7 @@ Per D9: scope of /simplify + /cleanup sweeps is Encore deliverables + Encore-spe
    - `specs/**/*.spec.ts` (spec files)
    - `src/pages/**/*.ts` (page objects)
    - `src/selectors/**/*.ts` (selectors)
-   - `src/data/testdata/**/*.ts` (test data)
+   - `src/data/**/*.ts` (test data)
    - `clients/encore/specs_planning/test-cases/**/*.md` (test case MDs)
    - `clients/encore/test_cases_csv/**/*.csv` (CSV exports — but read-only, no code simplification needed)
    - `export_test_cases/**/*.ts` (export script — converter)

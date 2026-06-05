@@ -71,7 +71,7 @@ Stray `'1604'` in a touched file → DO-NOW. Cross-tab mutation or shared-dialog
 |---|---|---|---|
 | HUNTER | old-site-baseline | (none) — captured in OPI_B | (none) |
 | GIVER | test-cases / test-plans / XLSX | (skipped: data-sourcing refactor only, no TC semantics change; parity must verify clean) | `npm run check:tc-parity` exit 0 |
-| BUILDER | `specs/locations/{location-account-address,location-left-panel-basic-information,location-local-information,location-auto-addon,location-currency,location-pricing}.spec.ts` + their `.data.ts` | per-office maps + `office`-fixture specs; each first-run pass | `cd clients/encore && npx playwright test specs/locations/location-account-address.spec.ts specs/locations/location-left-panel-basic-information.spec.ts specs/locations/location-local-information.spec.ts specs/locations/location-auto-addon.spec.ts specs/locations/location-currency.spec.ts specs/locations/location-pricing.spec.ts --list` |
+| BUILDER | `tests/locations/{location-account-address,location-left-panel-basic-information,location-local-information,location-auto-addon,location-currency,location-pricing}.spec.ts` + their `.data.ts` | per-office maps + `office`-fixture specs; each first-run pass | `cd clients/encore && npx playwright test tests/locations/location-account-address.spec.ts tests/locations/location-left-panel-basic-information.spec.ts tests/locations/location-local-information.spec.ts tests/locations/location-auto-addon.spec.ts tests/locations/location-currency.spec.ts tests/locations/location-pricing.spec.ts --list` |
 | HEALER | per-fix MD | (none) | (none) |
 | WATCHDOG | findings | (none) | (none) |
 | GARDENER | refactor citation | (none) | (none) |
@@ -93,9 +93,9 @@ Stray `'1604'` in a touched file → DO-NOW. Cross-tab mutation or shared-dialog
 ## Verification
 
 ```bash
-cd clients/encore && for s in account-address left-panel-basic-information local-information auto-addon currency pricing; do npx playwright test specs/locations/location-$s.spec.ts --workers=1 || echo "FAIL $s"; done   # expect: no FAIL
-cd clients/encore && for s in account-address left-panel-basic-information local-information auto-addon currency pricing; do npx playwright test specs/locations/location-$s.spec.ts --workers=2 || echo "FAIL2 $s"; done   # expect: no FAIL2
-grep -rnE "^(export )?const .*=.*For\(" clients/encore/specs/locations/location-{account-address,left-panel-basic-information,local-information,auto-addon,currency,pricing}.spec.ts  # expect: empty
+cd clients/encore && for s in account-address left-panel-basic-information local-information auto-addon currency pricing; do npx playwright test tests/locations/location-$s.spec.ts --workers=1 || echo "FAIL $s"; done   # expect: no FAIL
+cd clients/encore && for s in account-address left-panel-basic-information local-information auto-addon currency pricing; do npx playwright test tests/locations/location-$s.spec.ts --workers=2 || echo "FAIL2 $s"; done   # expect: no FAIL2
+grep -rnE "^(export )?const .*=.*For\(" clients/encore/tests/locations/location-{account-address,left-panel-basic-information,local-information,auto-addon,currency,pricing}.spec.ts  # expect: empty
 grep -n "PHONE1_BASELINE" clients/encore/src/pages/locations/location-account-address.page.ts  # expect: no '?? PHONE1_BASELINE' fallback
 ```
 

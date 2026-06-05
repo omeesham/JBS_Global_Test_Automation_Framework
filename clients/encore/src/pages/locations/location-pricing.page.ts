@@ -1,9 +1,9 @@
 import { Page } from '@playwright/test';
-import { BasePage } from '../../core/base-page';
+import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
 import { DynamicSelectors } from '../../selectors';
-import { CheckboxState } from './location-form-helpers.page';
+import { CheckboxState } from '../components/location-form-helpers.component';
 
 export class LocationPricingPage extends BasePage {
   constructor(page: Page, config?: IConfig) {

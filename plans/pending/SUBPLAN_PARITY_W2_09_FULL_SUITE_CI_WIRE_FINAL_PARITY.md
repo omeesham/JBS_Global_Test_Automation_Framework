@@ -15,7 +15,7 @@
 **PermissionMode**: auto
 **RiskAcknowledged**: n/a
 **BrowserTool**: cli
-**BrowserToolJustification**: Full-suite `npx playwright test clients/encore/specs/` final verification run. CLI sufficient (headless full run).
+**BrowserToolJustification**: Full-suite `npx playwright test clients/encore/tests/` final verification run. CLI sufficient (headless full run).
 
 ---
 
@@ -29,7 +29,7 @@ W2-09 closes the parity restructure. It wires the CI scripts authored in W1-05 i
 - **D16** catalog-growth tracking — CI check that `red-flag-patterns.json` is append-only; weekly review log
 - **D17** drift-back prevention sweep — run sanity scripts against ENTIRE deliverable (not just touched files)
 - **CI wiring** — `.husky/pre-commit` + GH Actions PR check; runs all W1-05 validators
-- **Phase 9** — `npx playwright test clients/encore/specs/` full-suite run
+- **Phase 9** — `npx playwright test clients/encore/tests/` full-suite run
 - **Final parity report** — `clients/encore/specs_planning/audits/parity-final-<YYYY-MM-DD>.md`
 - **Parent plan closure** — flip PARENT plan to Status: DONE; git mv to `done/`; reindex
 
@@ -73,7 +73,7 @@ Provenance: restructured from `SUBPLAN_PARITY_08_CI_GUARDRAILS_AND_VERIFICATION.
 
 1. Run `node clients/encore/scripts/ci/check-xlsx-sanity.mjs clients/encore/test_cases_xlsx/encore_test_cases.xlsx` — must exit 0 (CSV target retired per PLAN_CSV_TO_XLSX Phase D).
 2. Run `node clients/encore/scripts/ci/check-comment-sanity.mjs` against the ENTIRE `clients/encore/` deliverable (not just files touched in Wave 1/2) — must exit 0.
-3. Run every other W1-05 validator against `clients/encore/specs/` + `clients/encore/specs_planning/test-cases/` — all must exit 0.
+3. Run every other W1-05 validator against `clients/encore/tests/` + `clients/encore/specs_planning/test-cases/` — all must exit 0.
 4. If any residual red flag exists outside this plan's touched-files set: file a follow-up subplan to clean it; do NOT close W2-09 with phantom-handoff per LR-040.
 
 ### Phase 3 — D16: Catalog-growth tracking
@@ -106,7 +106,7 @@ Author `.github/workflows/parity-drift-weekly.yml`:
 ### Phase 7 — Phase 9: Full-suite Playwright run
 
 1. Clean prior artifacts: `npm run clean` (or equivalent).
-2. Run `npx playwright test clients/encore/specs/` — capture output.
+2. Run `npx playwright test clients/encore/tests/` — capture output.
 3. Confirm `0 failed` in summary line.
 4. Spot-check 5 random TCs across modules to confirm meaningful pass (not just `--list`).
 5. Re-run if intermittent failures appear (LR-024: clean before RCA).
@@ -168,7 +168,7 @@ For every adjacent fix noticed during D17 sweep: DO-NOW / SPAWN / APPEND.
 - [ ] `.github/PULL_REQUEST_TEMPLATE.md` has in-depth quality checklist
 - [ ] `check-catalog-append-only.mjs` authored; deleting a `red-flag-patterns.json` entry fails the check
 - [ ] D17 drift-back sweep clean (all scripts exit 0 on entire `clients/encore/`)
-- [ ] `npx playwright test clients/encore/specs/` reports `0 failed`
+- [ ] `npx playwright test clients/encore/tests/` reports `0 failed`
 - [ ] Final parity report exists at `clients/encore/specs_planning/audits/parity-final-<date>.md`
 - [ ] Parent plan flipped to Status: DONE + Executed date + Execution Summary
 - [ ] Parent plan moved to `plans/done/` via `git mv`
@@ -195,7 +195,7 @@ node clients/encore/scripts/ci/check-xlsx-sanity.mjs clients/encore/test_cases_x
 node clients/encore/scripts/ci/check-comment-sanity.mjs clients/encore/  # expect: exit 0
 
 # Full suite green
-npx playwright test clients/encore/specs/ --reporter=line | tail -3  # expect: "0 failed"
+npx playwright test clients/encore/tests/ --reporter=line | tail -3  # expect: "0 failed"
 
 # Final parity report exists
 ls clients/encore/specs_planning/audits/parity-final-*.md  # expect: 1 file

@@ -50,7 +50,7 @@ Original module-specific intent (preserved from pre-supersession plan body):
 - `clients/encore/CLAUDE.md` LR-ENC-001: ECT Settings is a tab inside Local Office Settings (`/settings/local-office`).
 - `MODULE_REGISTRY.md:31` lists `setup/ect-settings | /settings/ect` but no code or tests live at that path (`Glob` returned zero files in `setup/ect-settings/`).
 - `local_office_ect_test_cases.md` (post-2026-05-05 split) covers the ECT Settings tab in full (TC-LOS-ECT-001..018, 18 TCs).
-- `clients/encore/specs/local-office/local-office-ect.spec.ts` exists; no `setup/locations/...ect*` file exists.
+- `clients/encore/tests/local-office/local-office-ect.spec.ts` exists; no `setup/locations/...ect*` file exists.
 
 **Live CLI verification** (mandatory — do NOT pre-assume):
 
