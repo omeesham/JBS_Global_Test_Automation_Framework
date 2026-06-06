@@ -377,6 +377,19 @@ export class LocationNotesPage extends BasePage {
     }
  // Always reload after cleanup to reset Angular form controller
     await this.reloadAndNavigateToNotesTab();
+
+ // Final verification: never claim "DB clean" without confirming it. If the cleanup didn't
+ // land (LR-026 dirty-state race), retry the delete+save+reload once before returning.
+    if (!(await this.isDefaultEmptyState())) {
+      Log.warn('[WARN] Notes not empty after cleanup — retrying once (LR-026 dirty-state race)');
+      if ((await this.getElement('btnNotesDelete').count()) > 0) {
+        await this.deleteAllRows();
+      }
+      if (await this.isSaveEnabled()) {
+        await this.saveAndConfirm();
+      }
+      await this.reloadAndNavigateToNotesTab();
+    }
     Log.info('[OK] Notes ensured empty (DB clean)');
   }
 
