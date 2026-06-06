@@ -1,11 +1,15 @@
 #!/usr/bin/env ts-node
 /**
- * Validate Agent Sync - Ensures registry rules match agent file NEVER DO sections.
+ * Validate Agent Sync - Verifies each sub-agent file @-references its rule set.
  * Also validates SYNC marker consistency and R## rule subsets.
- * 
- * Compares specs_planning/_internal/agent-mistakes.md against .github/agents/*.agent.md
- * Reports any drift or missing rules.
- * 
+ *
+ * Post-Copilot-eviction (PLAN_CC_ANTHROPIC_ALIGNMENT Phase 0, 2026-04-27) the
+ * `.claude/agents/{ROLE}.md` sub-agents no longer embed NEVER DO rule tables; they
+ * @-reference `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md`
+ * by rule-ID prefix (REQ-*, PLN-*, GEN-*, HLR-*, AUD-*, MNT-*). This validator checks
+ * that linkage is intact rather than diffing embedded tables that no longer exist —
+ * which is also why `npm run sync:mistakes` is a no-op here (nothing left to inject).
+ *
  * Usage: npm run validate:sync
  * Exit: 0 = in sync, 1 = drift detected
  */
@@ -13,18 +17,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import {
-  AGENT_FILE_MAP, NEVER_DO_PATTERN, SHARED_PATHS,
+  AGENT_FILE_MAP, SHARED_PATHS,
   parseCompactMistakeRow,
 } from './shared-types';
 import { frameworkPath, frameworkRoot } from './shared-paths';
 
 interface ValidationResult {
   agent: string;
-  registryCount: number;
-  agentFileCount: number;
-  missing: string[];
-  extra: string[];
-  contentMismatch: string[];
+  registryCount: number;   // rules this agent owns in agent-mistakes.md (informational)
+  agentFileCount: number;  // @-references to those rules found in the agent file
+  missing: string[];       // missing linkage elements (mistakes-file ref, prefix ref)
   status: 'ok' | 'drift' | 'error';
 }
 
@@ -103,89 +105,60 @@ function parseRegistryRules(content: string, sectionName: string): Map<string, s
   return rules;
 }
 
-function parseAgentFileRules(filePath: string): Map<string, string> {
-  const rules = new Map<string, string>();
-  
-  if (!fs.existsSync(filePath)) return rules;
-  
-  const content = fs.readFileSync(filePath, 'utf-8');
-  const match = content.match(NEVER_DO_PATTERN);
-  
-  if (!match) return rules;
-  
-  const lines = match[0].split('\n');
-  for (const line of lines) {
-    const parsed = parseCompactMistakeRow(line);
-    if (parsed) {
-      rules.set(parsed[0], parsed[1]);
-    }
-  }
-  
-  return rules;
-}
+/** Section header in agent-mistakes.md -> the rule-ID prefix each sub-agent @-references. */
+const AGENT_RULE_PREFIX: Record<string, string> = {
+  'Requirements': 'REQ',
+  'Planner': 'PLN',
+  'Generator': 'GEN',
+  'Healer': 'HLR',
+  'Audit': 'AUD',
+  'Framework Maintainer': 'MNT',
+};
 
 function validateAgent(
   registryContent: string,
   sectionName: string,
   agentFile: string,
-  sharedRules: Map<string, string>
 ): ValidationResult {
   const result: ValidationResult = {
     agent: sectionName,
     registryCount: 0,
     agentFileCount: 0,
     missing: [],
-    extra: [],
-    contentMismatch: [],
     status: 'ok',
   };
-  
+
   const filePath = path.join(AGENTS_DIR, agentFile);
-  
+
   if (!fs.existsSync(filePath)) {
     result.status = 'error';
     return result;
   }
-  
-  const registryRules = parseRegistryRules(registryContent, sectionName);
-  const agentRules = parseAgentFileRules(filePath);
-  
-  // Expected = agent-specific rules only (shared rules are referenced via line, not duplicated)
-  const expectedRules = registryRules;
-  
-  result.registryCount = expectedRules.size;
-  result.agentFileCount = agentRules.size;
-  
-  // Find missing rules (in expected but not in agent file)
-  for (const [id] of expectedRules) {
-    if (!agentRules.has(id)) {
-      result.missing.push(id);
-    }
+
+  // How many rules this agent owns in the registry (informational only).
+  result.registryCount = parseRegistryRules(registryContent, sectionName).size;
+
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const prefix = AGENT_RULE_PREFIX[sectionName];
+
+  // Linkage contract (post-Copilot-eviction): the agent file must (a) point at
+  // agent-mistakes.md and (b) name its own rule-ID prefix, so the rule reference
+  // cannot silently rot. Embedded rule tables were removed by design.
+  if (!/agent-mistakes\.md/.test(content)) {
+    result.missing.push('agent-mistakes.md reference');
   }
-  
-  // Find extra rules (in agent file but not in expected)
-  for (const id of agentRules.keys()) {
-    if (!expectedRules.has(id)) {
-      result.extra.push(id);
+  if (prefix) {
+    const prefixRef = new RegExp(`\\b${prefix}-(?:\\*|\\d)`);
+    if (!prefixRef.test(content)) {
+      result.missing.push(`${prefix}-* prefix reference`);
     }
+    result.agentFileCount = (content.match(new RegExp(`\\b${prefix}-(?:\\*|\\d{3})`, 'g')) ?? []).length;
   }
 
-  // Find content mismatches (same ID, different text)
-  // Allow truncated matches: agent text ending in "..." is valid if registry starts with it
-  for (const [id, expectedText] of expectedRules) {
-    const agentText = agentRules.get(id);
-    if (agentText && agentText !== expectedText) {
-      const isTruncated = agentText.endsWith('...') && expectedText.startsWith(agentText.slice(0, -3));
-      if (!isTruncated) {
-        result.contentMismatch.push(`${id}: registry="${expectedText}" vs agent="${agentText}"`);
-      }
-    }
-  }
-  
-  if (result.missing.length > 0 || result.extra.length > 0 || result.contentMismatch.length > 0) {
+  if (result.missing.length > 0) {
     result.status = 'drift';
   }
-  
+
   return result;
 }
 
@@ -518,12 +491,11 @@ function main() {
   }
   
   const registryContent = fs.readFileSync(REGISTRY_PATH, 'utf-8');
-  const sharedRules = parseRegistryRules(registryContent, 'Shared');
   const results: ValidationResult[] = [];
-  
+
   for (const [sectionName, agentFile] of Object.entries(AGENT_FILE_MAP)) {
     if (agentFile === 'SKIP' || agentFile === 'ALL') continue;
-    results.push(validateAgent(registryContent, sectionName, agentFile, sharedRules));
+    results.push(validateAgent(registryContent, sectionName, agentFile));
   }
   
   let hasErrors = false;
@@ -532,26 +504,13 @@ function main() {
   
   for (const result of results) {
     const icon = result.status === 'ok' ? '[OK]' : result.status === 'drift' ? '[WARN]' : '[ERR]';
-    console.log(`${icon} ${result.agent} (${result.registryCount} registry / ${result.agentFileCount} in file)`);
-    
+    console.log(`${icon} ${result.agent} (owns ${result.registryCount} rules / ${result.agentFileCount} @-refs in file)`);
+
     if (result.missing.length > 0) {
-      console.log(`   Missing in agent file: ${result.missing.join(', ')}`);
+      console.log(`   Missing linkage: ${result.missing.join(', ')}`);
       hasErrors = true;
     }
-    
-    if (result.extra.length > 0) {
-      console.log(`   Extra in agent file (not in registry): ${result.extra.join(', ')}`);
-      hasErrors = true;
-    }
-    
-    if (result.contentMismatch.length > 0) {
-      console.log(`   Content mismatch:`);
-      for (const mismatch of result.contentMismatch) {
-        console.log(`     - ${mismatch}`);
-      }
-      hasErrors = true;
-    }
-    
+
     if (result.status === 'error') {
       console.log(`   [ERR] Agent file not found`);
       hasErrors = true;

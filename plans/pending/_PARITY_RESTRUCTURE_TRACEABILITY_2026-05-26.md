@@ -25,7 +25,7 @@
 - Duplicate TC-LOC-NTS-035 resolution → XLSX plan Phase 0
 
 **Wave 0 drops (CSV-side W1-02 work, no destination)**:
-- D1/D2 exporter fix — exporter rewrites wholesale to `to-xlsx.ts`; old `to-csv.ts` `git rm`'d in Phase D
+- D1/D2 exporter fix — exporter rewrites wholesale to `to-xlsx.ts`; the old `to-csv.ts` CLI removed in Phase D (the file itself retained as the in-memory MD→CSV parity oracle that `to-xlsx.ts` consumes)
 - A4/A5 CSV re-export — CSV deliverable retired
 - C3 local-office CSV split — XLSX has 3 separate native sheets; merged CSV dies with the dir in Phase D
 
@@ -69,7 +69,7 @@
 
 | SP03 task | Routed to | Notes |
 |---|---|---|
-| D1: exporter fix (one CSV per MD) | ~~W1-02~~ → **Wave 0** Phase A (rewrites to `to-xlsx.ts`) + Phase D (`git rm to-csv.ts`) | exporter format flips wholesale |
+| D1: exporter fix (one CSV per MD) | ~~W1-02~~ → **Wave 0** Phase A (rewrites to `to-xlsx.ts`) + Phase D (removes the `to-csv.ts` CLI; file retained as parity oracle) | exporter format flips wholesale |
 | D2: MD template path update | ~~W1-02~~ → **Wave 0** Phase 0 (MD prereqs) | MD-side absorbed |
 | A1: MD `Automation File:` path updates | ~~W1-02~~ → **Wave 0** Phase 0 | MD prereq for clean workbook |
 | A2: MD header count fixes (5 modules) | ~~W1-02~~ → **Wave 0** Phase 0 | MD prereq |

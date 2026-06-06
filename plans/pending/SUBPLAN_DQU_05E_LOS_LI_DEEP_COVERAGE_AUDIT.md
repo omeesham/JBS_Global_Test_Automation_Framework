@@ -123,11 +123,7 @@ Switch identity: `/identity HEALER`.
    - Update `clients/encore/CLAUDE.md (was REQUIREMENTS.md, removed 2026-05-19 per unified-matsumoto plan)` with the change rationale + cross-link to NM-* / Jira if available.
    - HUNTER identity required for REQUIREMENTS.md edits per R11 — switch identity if needed.
 
-4. Re-export CSVs (LOS now ships as 3 sibling files post-2026-05-05 split):
-   - `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md clients/encore/test_cases_csv/local_office_settings_test_cases.csv`
-   - `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/local-office/local_office_history_test_cases.md clients/encore/test_cases_csv/local_office_history_test_cases.csv`
-   - `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/local-office/local_office_ect_test_cases.md clients/encore/test_cases_csv/local_office_ect_test_cases.csv`
-   - `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/locations/locations_local_information_test_cases.md clients/encore/test_cases_csv/locations_local_information_test_cases.csv`
+4. Rebuild the XLSX deliverable: `npm run xlsx:build` — re-parses every edited MD (LOS settings/history/ect siblings post-2026-05-05 split + LI) through the in-memory parity oracle into the single `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` workbook (one sheet per module). The per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D.
 
 5. Run Phase 0 greps (4 from `tc-authoring-rules.md`) on both edited MDs. Zero hits required on edited TCs.
 

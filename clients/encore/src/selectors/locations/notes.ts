@@ -25,8 +25,11 @@ export const SetupNotesSelectors = {
   sectionNotes: '[data-testid="location-settings-section-notes"]',
 
  // ---- Notes Table ----
- // No table-level data-testid is exposed by the app (see DOM notes header). Empty-state
- // cell is the only stable cell-level anchor and is selected via section + text below.
+ // No table-level data-testid is exposed by the app (see DOM notes header); the table is
+ // anchored by scoping to the Notes section wrapper. Empty-state cell is the only stable
+ // cell-level anchor and is selected via section + text below.
+ /** @where Setup > Location > Notes tab @el table @text "Notes table" @keys notes table rows grid */
+  tblNotes: '[data-testid="location-settings-section-notes"] table',
  /** @where Setup > Location > Notes tab > Empty state @el cell @text "No Notes Available" @keys empty no-notes available */
   lblNoNotesAvailable: '[data-testid="location-settings-section-notes"] td:has-text("No Notes Available")',
 

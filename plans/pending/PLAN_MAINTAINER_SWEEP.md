@@ -244,7 +244,7 @@ These two items were declared out-of-scope by `plans/pending/PLAN_AGENT_IDENTITY
 
 **Trigger**: pre-commit Gate A (added 2026-05-25 via PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE, enforces ALL-071) currently runs full-repo `check:tc-parity` whenever any spec is staged. Runtime ~10-30s — acceptable but could be ~2-5s with module-scoped check.
 
-**Implementation**: add `--module=<id>` arg parsing; restrict scan to `clients/${ACTIVE_CLIENT}/tests/<module>/`, `test-cases/<module>_test_cases.md`, `test-plans/<module>.md`, `test_cases_csv/<module>_test_cases.csv`. Default (no flag) preserves full-repo behavior.
+**Implementation**: add `--module=<id>` arg parsing; restrict scan to `clients/${ACTIVE_CLIENT}/tests/<module>/`, `test-cases/<module>_test_cases.md`, `test-plans/<module>.md`, and the `<module>` sheet of `test_cases_xlsx/encore_test_cases.xlsx` (the per-module CSVs were retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D). Default (no flag) preserves full-repo behavior.
 
 **Pre-commit gate enhancement (downstream)**: once `--module` exists, pre-commit Gate A could parse staged spec paths via `git diff --cached --name-only`, derive the module from `clients/<client>/specs/<module>/`, and pass `--module=<derived>` for faster CI. Optional follow-up after this SP lands.
 

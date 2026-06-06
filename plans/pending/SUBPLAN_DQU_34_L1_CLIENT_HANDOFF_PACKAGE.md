@@ -20,25 +20,25 @@
 **Model + thinking**: Opus + high (final-shipping judgment)
 **Dependency gate**: SP-DQU-08 + SP-DQU-30 + SP-DQU-31 + SP-DQU-29 all `Status: DONE`
 **Context files**:
-- `clients/encore/test_cases_csv/*.csv` (all 11 modules)
+- `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` (single multi-sheet workbook — all modules)
 - `reports/allure-report/` (Allure output)
 - `reports/bugs/CLIENT_PACKAGE-*.md` (bug reports)
 - `reports/bugs/INDEX-*.md`
 
 ## Purpose
 
-Assemble the 4 client deliverables in priority order: **CSVs (1) > specs clean (2, documented via Allure) > Allure report (3) > bug reports (4)**. Produce a handoff folder with README that the colleague can open cold.
+Assemble the 4 client deliverables in priority order: **XLSX workbook (1) > specs clean (2, documented via Allure) > Allure report (3) > bug reports (4)**. Produce a handoff folder with README that the colleague can open cold.
 
 ## Step-by-step
 
 1. Create `deliverables/2026-04-22/` directory (or use existing convention if project has one).
 2. Copy (or link) into deliverables folder:
-   - `test-cases/` → all 11 CSVs from `clients/encore/test_cases_csv/`.
+   - `test-cases/` → the `encore_test_cases.xlsx` workbook from `clients/encore/test_cases_xlsx/` (one sheet per module).
    - `allure-report/` → full allure output.
    - `bugs/` → `CLIENT_PACKAGE-*.md` + `INDEX-*.md`.
 3. Write `deliverables/2026-04-22/README.md`:
    - What this package contains.
-   - How to read the CSVs (explain Tags column).
+   - How to read the workbook (one sheet per module; explain the Tags column).
    - How to open the Allure report (static HTML).
    - How to read the bug reports (grouped by module).
    - Known limitations (NOT-AUTOMATABLE items flagged).

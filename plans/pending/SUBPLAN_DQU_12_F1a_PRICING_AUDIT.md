@@ -105,7 +105,7 @@ Before Phase 1's e2e walk, visit nav2 baseline first and emit `clients/encore/sp
 2. Diff Phase 1 artifact against `clients/encore/specs_planning/test-cases/setup/locations/locations_pricing_test_cases.md`.
 3. For each diff: apply fix to TC MD with inline `**MCP_VERIFICATION_LOG**: pricing-<date>.md §Field Inventory row "<field>" — <evidence>` citation.
 4. File `BUG-PRI-NNN.json` per LR-034 schema for any APP-layer defect (silent no-op, broken cascade, missing testid, etc.). Append `**Status**: Blocked by BUG-PRI-NNN` to affected TCs.
-5. Re-export CSV: `npx ts-node export_test_cases/to-csv.ts clients/encore/specs_planning/test-cases/setup/locations/locations_pricing_test_cases.md clients/encore/test_cases_csv/locations_pricing_test_cases.csv`. Verify Tags column populated (SP-DQU-06 format).
+5. Rebuild the XLSX deliverable: `npm run xlsx:build` (re-parses the edited Pricing MD into `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`; the per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D). Verify the Tags column is populated in the pricing sheet (SP-DQU-06 format).
 6. Regression fingerprint snapshot before + after via `/regression-guard`.
 
 ## Acceptance criteria (LR-040 closure gate — every diffed item classified)

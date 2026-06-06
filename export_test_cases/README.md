@@ -2,7 +2,7 @@
 
 **Purpose**: Convert markdown test cases (`specs_planning/test-cases/*.md`) into various formats for import into test management tools.
 
-> **2026-05-27 migration**: the client deliverable flipped from per-module CSVs (`clients/encore/test_cases_csv/*.csv`) to a single multi-sheet workbook at `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` per `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION`. Build with `npm run xlsx:build` (default — uses the canonical CSVs as inherited augment source during Phase A/B/C; `--list-only` / `--with-run` switch to MD-primary parsing once the parser-switch spawn-task lands). The CSV emitter (`to-csv.ts`) and `test_cases_csv/` directory are slated for deletion in Phase D.
+> **2026-05-27 migration**: the client deliverable flipped from per-module CSVs (the former `clients/encore/test_cases_csv/` directory) to a single multi-sheet workbook at `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` per `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION`. Build with `npm run xlsx:build` (`--list-only` default, or `--with-run` for live pass/fail). Phase D removed the `test_cases_csv/` directory and the standalone CSV-to-disk CLI; `to-csv.ts` survives only as the in-memory MD→CSV parity oracle that `to-xlsx.ts` consumes to emit identical workbook bytes.
 
 ## 📋 Overview
 
@@ -31,15 +31,19 @@ Test cases support **two parallel formats** in the same markdown file:
 
 ### Export Types
 
-```bash
-# Human export (default) - for QA testers
-npx ts-node export_test_cases/to-csv.ts ./input.md ./output.csv
+The three audience filters are available programmatically via `CsvConverter`. (The
+standalone CSV-to-disk CLI was removed when the CSV deliverable was retired — the XLSX
+build calls `convertFile()` in-memory.)
 
-# Agent export - for automation tools
-npx ts-node export_test_cases/to-csv.ts ./input.md ./output.csv --type=agent
+```typescript
+import { CsvConverter } from './export_test_cases/to-csv';
 
-# Full export - both human and agent columns
-npx ts-node export_test_cases/to-csv.ts ./input.md ./output.csv --type=full
+// Human (default) - QA-facing columns only
+const human = CsvConverter.convertFile('./input.md', 'human');
+// Agent - element IDs and arrow syntax
+const agent = CsvConverter.convertFile('./input.md', 'agent');
+// Full - both human and agent columns
+const full = CsvConverter.convertFile('./input.md', 'full');
 ```
 
 ### Writing Guidelines
@@ -91,18 +95,15 @@ The CSV exporter routes every human-column value through two helpers in `to-csv.
 
 ### Re-exporting after editing source markdown
 
-```bash
-# Single file
-npx ts-node export_test_cases/to-csv.ts \
-  clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md \
-  clients/encore/test_cases_csv/local_office_settings_test_cases.csv \
-  --type=human
+The deliverable is the workbook, so a "re-export" is a workbook rebuild:
 
-# All files (also runs spec/markdown/csv parity check)
-npm run check:tc-parity:fix
+```bash
+npm run xlsx:build
 ```
 
-Output dir is **`clients/encore/test_cases_csv/`** (canonical post-rename — was `clients/encore/exports/` until 2026-05-19, renamed for customer clarity). The `export_test_cases/exports/` dir is orphaned; do not write there.
+`to-xlsx.ts` reparses the markdown through `CsvConverter.convertFile()` (the parity
+oracle) and rewrites `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`. There is
+no longer a per-module CSV output directory.
 
 ### Example
 
@@ -146,18 +147,19 @@ import { JiraConverter } from './export_test_cases/to-jira';
 import { TestmoConverter } from './export_test_cases/to-testmo';
 
 const testCasesDir = './specs_planning/test-cases';
+const outDir = './out'; // any writable path; the CSV deliverable dir was retired
 
 // JSON export
-JsonConverter.convertToFile(testCasesDir, './test_cases_csv/test-cases.json');
+JsonConverter.convertToFile(testCasesDir, `${outDir}/test-cases.json`);
 
-// CSV export
-CsvConverter.convertToFile(testCasesDir, './test_cases_csv/test-cases.csv');
+// CSV export (an in-memory string is also available via CsvConverter.convert())
+CsvConverter.convertToFile(testCasesDir, `${outDir}/test-cases.csv`);
 
 // Jira export
-JiraConverter.convertToFile(testCasesDir, './test_cases_csv/jira-import.csv', 'MYPROJ');
+JiraConverter.convertToFile(testCasesDir, `${outDir}/jira-import.csv`, 'MYPROJ');
 
 // TestMo export
-TestmoConverter.convertToFile(testCasesDir, './test_cases_csv/testmo-import.json', 'suite-123');
+TestmoConverter.convertToFile(testCasesDir, `${outDir}/testmo-import.json`, 'suite-123');
 ```
 
 ### Command Line Usage
@@ -167,16 +169,16 @@ TestmoConverter.convertToFile(testCasesDir, './test_cases_csv/testmo-import.json
 **Method 1: ts-node (Works Immediately)**
 ```bash
 # JSON
-npx ts-node -e "require('./export_test_cases/to-json').JsonConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/test-cases.json')"
+npx ts-node -e "require('./export_test_cases/to-json').JsonConverter.convertToFile('./specs_planning/test-cases', './out/test-cases.json')"
 
 # CSV
-npx ts-node -e "require('./export_test_cases/to-csv').CsvConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/test-cases.csv')"
+npx ts-node -e "require('./export_test_cases/to-csv').CsvConverter.convertToFile('./specs_planning/test-cases', './out/test-cases.csv')"
 
 # Jira (with project key)
-npx ts-node -e "require('./export_test_cases/to-jira').JiraConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/jira.csv', 'PROJ')"
+npx ts-node -e "require('./export_test_cases/to-jira').JiraConverter.convertToFile('./specs_planning/test-cases', './out/jira.csv', 'PROJ')"
 
 # TestMo (with suite ID)
-npx ts-node -e "require('./export_test_cases/to-testmo').TestmoConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/testmo.json', 'suite-456')"
+npx ts-node -e "require('./export_test_cases/to-testmo').TestmoConverter.convertToFile('./specs_planning/test-cases', './out/testmo.json', 'suite-456')"
 ```
 
 **Method 2: npm Scripts (Cleanest - Recommended)**
@@ -195,10 +197,10 @@ For cleaner commands, add to `package.json`:
 ```json
 {
   "scripts": {
-    "export:json": "ts-node export_test_cases/to-json.ts",
-    "export:csv": "ts-node export_test_cases/to-csv.ts",
-    "export:jira": "ts-node -e \"require('./export_test_cases/to-jira').JiraConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/jira.csv', 'PROJ')\"",
-    "export:testmo": "ts-node -e \"require('./export_test_cases/to-testmo').TestmoConverter.convertToFile('./specs_planning/test-cases', './test_cases_csv/testmo.json', 'suite-123')\""
+    "export:json": "ts-node -e \"require('./export_test_cases/to-json').JsonConverter.convertToFile('./specs_planning/test-cases', './out/test-cases.json')\"",
+    "export:csv": "ts-node -e \"require('./export_test_cases/to-csv').CsvConverter.convertToFile('./specs_planning/test-cases', './out/test-cases.csv')\"",
+    "export:jira": "ts-node -e \"require('./export_test_cases/to-jira').JiraConverter.convertToFile('./specs_planning/test-cases', './out/jira.csv', 'PROJ')\"",
+    "export:testmo": "ts-node -e \"require('./export_test_cases/to-testmo').TestmoConverter.convertToFile('./specs_planning/test-cases', './out/testmo.json', 'suite-123')\""
   }
 }
 ```

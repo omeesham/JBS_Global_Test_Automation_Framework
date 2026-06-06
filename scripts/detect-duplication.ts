@@ -148,8 +148,16 @@ function checkDuplicateTables(files: string[]): { file1: string; file2: string; 
   const duplicates: { file1: string; file2: string; headers: string; rowCount1: number; rowCount2: number }[] = [];
   const seen = new Set<string>();
 
-  // Known-synced table headers to skip (agent NEVER DO tables are synced from same source)
-  const SKIP_HEADERS = ['| id | rule |', '| id | never | do |'];
+  // Known-synced / generic-scaffolding table headers to skip.
+  //  - `| id | rule |`, `| id | never | do |`: agent NEVER DO tables synced from same source.
+  //  - `| field | value |`: standard per-TC Preconditions/field-inventory block — every
+  //    test-case MD carries one, so a header+first-row match across modules (e.g. the shared
+  //    Office-1604 setup row) is structural, not copy-pasted content.
+  //  - `| check | result |`: old-site-baseline access-verification block, repeated per session
+  //    by design (same access checks each visit).
+  // The header+first-row heuristic is too loose for these ultra-generic 2-column shapes; the
+  // detector's real value is catching duplicated SUBSTANTIVE tables, which these are not.
+  const SKIP_HEADERS = ['| id | rule |', '| id | never | do |', '| field | value |', '| check | result |'];
 
   // Compare tables across different files (same headers + similar first row)
   for (let i = 0; i < allTables.length; i++) {

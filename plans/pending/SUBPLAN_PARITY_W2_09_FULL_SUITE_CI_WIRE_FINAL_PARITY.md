@@ -118,7 +118,7 @@ Emit `clients/encore/specs_planning/audits/parity-final-<YYYY-MM-DD>.md`:
 - Every parent §B row → closed state (implemented / Jira-cited / MD-documented-honest)
 - Residual blockers (with Jira IDs, expected resolution)
 - W1 wave summary + W2 wave summary
-- Deliverable format migration: 11 per-module CSVs → 1 multi-sheet `encore_test_cases.xlsx` workbook (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION executed; W1-02 superseded; CSV dir + `to-csv.ts` + `--fix-csv` flag retired)
+- Deliverable format migration: 11 per-module CSVs → 1 multi-sheet `encore_test_cases.xlsx` workbook (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION executed; W1-02 superseded; CSV dir + the `to-csv.ts` CLI + `--fix-csv` flag retired — `to-csv.ts` retained as the in-memory parity oracle)
 - Workbook structure: 14 tabs total (Overview + 10 locations sheets + 3 local-office sheets); 13-column canonical per-module schema
 - LO split: 3 separate sheets natively in workbook + 3 page-objects + 3 selectors (CSV-side split obviated by XLSX structure)
 - N1 rename: framework `Manual` classification literal → `Pending Automation`; Jira/TestMo external vocab preserved via mapping layer

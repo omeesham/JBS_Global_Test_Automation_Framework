@@ -728,36 +728,3 @@ export class CsvConverter {
   }
 
 }
-
-// CLI support with export type flag
-if (require.main === module) {
-  const path = require('path');
-  const args = process.argv.slice(2);
-  
-  // Parse --type=human|agent|full flag
-  let exportType: ExportType = 'human';
-  const typeArg = args.find(a => a.startsWith('--type='));
-  if (typeArg) {
-    const typeValue = typeArg.split('=')[1];
-    if (typeValue === 'agent' || typeValue === 'full' || typeValue === 'human') {
-      exportType = typeValue;
-    }
-  }
-  
-  // Filter out flags from positional args
-  const positionalArgs = args.filter(a => !a.startsWith('--'));
-  const inputPath = positionalArgs[0];
-  
-  if (!inputPath) {
-    console.error('Usage: ts-node to-csv.ts <input.md> [output.csv] [--type=human|agent|full]');
-    process.exit(1);
-  }
-  
-  // Derive output filename from input: locations_currency_test_cases.md -> locations_currency_test_cases.csv
-  const inputBasename = path.basename(inputPath, '.md');
-  const defaultOutput = `./clients/encore/test_cases_csv/${inputBasename}.csv`;
-  const outputPath = positionalArgs[1] || defaultOutput;
-  
-  console.log(`Export type: ${exportType}`);
-  CsvConverter.convertToFile(inputPath, outputPath, exportType);
-}

@@ -5,7 +5,7 @@
 **Created**: 2026-05-11
 **Identity**: OWNER (no agent identity owns client-handoff messages or master triage trackers)
 **Estimated session**: MEDIUM-LARGE (CSV ships in 0 hrs — already written; ~4-5 hrs of RCA + filing work spread across cycles; Encore reply gates closure)
-**Depends on**: `clients/encore/test_cases_csv/bugs-for-encore-qa-2026-05-11.csv` (Cat 3 CSV — already written this session)
+**Depends on**: `reports/bugs/BUG-*.json` (source-of-truth). The Cat 3 shareable export `bugs-for-encore-qa-2026-05-11.csv` was shared with Encore QA on 2026-05-11 and retired with the `test_cases_csv/` directory on 2026-05-27.
 **Planning artifact**: `~/.claude/plans/from-all-types-of-dynamic-hollerith.md`
 
 ---
@@ -30,7 +30,7 @@ Inventory: **17 filed** bugs (`reports/bugs/BUG-*.json` + `clients/encore/report
 
 ## §1 — Cat 3 (10 bugs, shared via CSV)
 
-Confirmed from our end. Shared with Encore QA via `clients/encore/test_cases_csv/bugs-for-encore-qa-2026-05-11.csv`. Source-of-truth JSONs in `reports/bugs/`.
+Confirmed from our end. Shared with Encore QA via `bugs-for-encore-qa-2026-05-11.csv` (a one-off export, retired with the `test_cases_csv/` directory on 2026-05-27). Source-of-truth JSONs remain in `reports/bugs/`.
 
 | # | Bug ID | Surface | Severity | Status | Source JSON |
 |---|---|---|---|---|---|
@@ -410,7 +410,7 @@ Every "needs Encore disposition / product-intent confirmation" item across all s
 
 | Purpose | Path |
 |---|---|
-| Cat 3 externally-shareable CSV | `clients/encore/test_cases_csv/bugs-for-encore-qa-2026-05-11.csv` |
+| Cat 3 externally-shareable CSV (`bugs-for-encore-qa-2026-05-11.csv`, retired with the `test_cases_csv/` dir 2026-05-27 — SoT is the filed bugs below) | _(no longer on disk)_ |
 | Filed bugs (16) | `reports/bugs/BUG-*.json` |
 | Filed bug (1 in client dir) | `clients/encore/reports/bugs/BUG-MGH-001.json` |
 | LR-034 Bug Filing Protocol | `docs/read_only_docs/LEARNED_RULES.md` |

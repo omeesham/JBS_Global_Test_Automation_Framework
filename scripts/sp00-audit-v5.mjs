@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 /**
- * sp00-audit-v5.mjs — Comprehensive XLSX deliverable audit (post-Phase-B
- * of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION; CSV fallback while both
- * formats coexist).
+ * sp00-audit-v5.mjs — Comprehensive XLSX deliverable audit.
  *
  * Scans all 13 columns of every module sheet in
  * clients/encore/test_cases_xlsx/encore_test_cases.xlsx for:
@@ -16,18 +14,16 @@
  *
  * Exit 0 = clean, exit 1 = defects found.
  *
- * Source-of-truth migration: this script used to read 11 CSV files from
- * clients/encore/test_cases_csv/. After Phase B it reads the single
- * 14-sheet workbook (Overview + 13 module sheets). CSV fallback kicks in
- * only when the workbook is absent (e.g., fresh checkout pre-`xlsx:build`).
- * Phase D removes the CSV fallback entirely.
+ * Source: the single 14-sheet workbook (Overview + 13 module sheets). The
+ * legacy CSV fallback (clients/encore/test_cases_csv/) was removed once that
+ * directory was retired in favor of the workbook
+ * (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D).
  */
 
-import { readFileSync, readdirSync, existsSync } from 'fs';
-import { join, basename } from 'path';
+import { existsSync } from 'fs';
+import { join } from 'path';
 import XLSX from 'xlsx';
 
-const CSV_DIR = join(process.cwd(), 'clients', 'encore', 'test_cases_csv');
 const XLSX_PATH = join(process.cwd(), 'clients', 'encore', 'test_cases_xlsx', 'encore_test_cases.xlsx');
 const COLUMNS = [
   'TC ID', 'Title', 'Module', 'Submodule', 'Specific Field',
@@ -98,69 +94,6 @@ const SLOP_PHRASES = [
 
 const TC_ID_PATTERN = /^TC-(LOC|LOS)-[A-Z]+-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
 
-function parseCSV(content) {
-  const rows = [];
-  let current = '';
-  let inQuotes = false;
-  const lines = content.split('\n');
-
-  for (const line of lines) {
-    if (inQuotes) {
-      current += '\n' + line;
-    } else {
-      current = line;
-    }
-
-    const quoteCount = (current.match(/"/g) || []).length;
-    inQuotes = quoteCount % 2 !== 0;
-
-    if (!inQuotes) {
-      const trimmed = current.replace(/\r$/, '');
-      if (trimmed.length > 0) {
-        rows.push(parseCSVRow(trimmed));
-      }
-      current = '';
-    }
-  }
-  return rows;
-}
-
-function parseCSVRow(line) {
-  const cells = [];
-  let current = '';
-  let inQuotes = false;
-
-  // Strip BOM
-  if (line.charCodeAt(0) === 0xFEFF) line = line.slice(1);
-
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (inQuotes) {
-      if (ch === '"') {
-        if (i + 1 < line.length && line[i + 1] === '"') {
-          current += '"';
-          i++;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        current += ch;
-      }
-    } else {
-      if (ch === '"') {
-        inQuotes = true;
-      } else if (ch === ',') {
-        cells.push(current);
-        current = '';
-      } else {
-        current += ch;
-      }
-    }
-  }
-  cells.push(current);
-  return cells;
-}
-
 function isJargon(text, colName, rowContext = '') {
   // Accessibility-themed TCs may legitimately reference ARIA attributes
   const isAccessibilityTC = /accessibility|aria|keyboard navigation/i.test(rowContext);
@@ -186,51 +119,47 @@ function isJargon(text, colName, rowContext = '') {
 }
 
 /**
- * Load sheet sources as `{ file, rows }` pairs where `rows[0]` is the header.
- * Prefers the XLSX workbook (post-Phase-B); falls back to CSVs when the
- * workbook is absent. Header row + cell shape is normalised to match the
- * legacy CSV layout so the downstream audit logic stays unchanged.
+ * Load sheet sources as `{ file, rows }` pairs where `rows[0]` is the header,
+ * reading the XLSX workbook (the single deliverable post-CSV-retirement). The
+ * header row + cell shape mirrors the legacy CSV layout so the downstream
+ * audit logic stays unchanged.
  */
 function loadSheets() {
-  if (existsSync(XLSX_PATH)) {
-    const wb = XLSX.readFile(XLSX_PATH, { cellDates: false, cellNF: false });
-    const sources = [];
-    for (const sheetName of wb.SheetNames) {
-      if (sheetName === 'Overview') continue;
-      const ws = wb.Sheets[sheetName];
-      if (!ws) continue;
-      // sheet_to_json with header:1 returns array-of-arrays so row[0] is header.
-      const arr = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-      // Drop the trailing blank+SUMMARY rows that the workbook emits per sheet.
-      const filtered = arr.filter(r => {
-        const first = String(r[0] ?? '').trim();
-        if (!first) return false;
-        if (first === 'SUMMARY') return false;
-        return true;
-      });
-      if (filtered.length === 0) continue;
-      sources.push({ file: `${sheetName} (xlsx sheet)`, rows: filtered });
-    }
-    return { sources, format: 'xlsx' };
+  if (!existsSync(XLSX_PATH)) {
+    console.error(`✗ Workbook not found: ${XLSX_PATH}`);
+    console.error('  Run `npm run xlsx:build` to generate it first.');
+    process.exit(1);
   }
-  // CSV fallback (pre-Phase-B / migration-window state)
-  const csvFiles = readdirSync(CSV_DIR).filter(f => f.endsWith('.csv')).sort();
-  const sources = csvFiles.map(file => ({
-    file,
-    rows: parseCSV(readFileSync(join(CSV_DIR, file), 'utf8')),
-  }));
-  return { sources, format: 'csv' };
+  const wb = XLSX.readFile(XLSX_PATH, { cellDates: false, cellNF: false });
+  const sources = [];
+  for (const sheetName of wb.SheetNames) {
+    if (sheetName === 'Overview') continue;
+    const ws = wb.Sheets[sheetName];
+    if (!ws) continue;
+    // sheet_to_json with header:1 returns array-of-arrays so row[0] is header.
+    const arr = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    // Drop the trailing blank+SUMMARY rows that the workbook emits per sheet.
+    const filtered = arr.filter(r => {
+      const first = String(r[0] ?? '').trim();
+      if (!first) return false;
+      if (first === 'SUMMARY') return false;
+      return true;
+    });
+    if (filtered.length === 0) continue;
+    sources.push({ file: `${sheetName} (xlsx sheet)`, rows: filtered });
+  }
+  return sources;
 }
 
 function audit() {
-  const { sources, format } = loadSheets();
+  const sources = loadSheets();
   const defects = [];
   const halts = [];
   let totalRows = 0;
 
   for (const { file, rows } of sources) {
     if (rows.length < 2) {
-      defects.push({ file, row: 0, col: '-', issue: `${format.toUpperCase()} has no data rows` });
+      defects.push({ file, row: 0, col: '-', issue: 'XLSX sheet has no data rows' });
       continue;
     }
 
@@ -336,7 +265,7 @@ function audit() {
   }
 
   // Report
-  console.log(`═══ SP00 Audit v5 — Comprehensive ${format.toUpperCase()} Deliverable Audit ═══\n`);
+  console.log('═══ SP00 Audit v5 — Comprehensive XLSX Deliverable Audit ═══\n');
   console.log(`Sheets/files scanned: ${sources.length}`);
   console.log(`Total data rows: ${totalRows}`);
   console.log(`Defects found: ${defects.length}`);

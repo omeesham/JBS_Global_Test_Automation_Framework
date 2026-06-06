@@ -159,6 +159,7 @@ export const KNOWN_SUB_CODES = [
   'CUR',  // currency
   'PRI',  // pricing
   'PRC',  // pricing (legacy)
+  'CPR',  // corporate_pricing
   'LI',   // local_information
   'LCL',  // local_information (legacy)
   'ACC',  // account_address

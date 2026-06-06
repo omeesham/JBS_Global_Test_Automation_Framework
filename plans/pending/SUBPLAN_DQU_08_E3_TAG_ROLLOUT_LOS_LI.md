@@ -49,16 +49,12 @@ Add the `Tags` column to every TC's metadata table in LOS + LI MDs. Populate per
    - Add 4th column data cell with the assigned tag(s), comma-separated.
 4. Repeat for LI MD.
 5. Run all 6 Phase 0 greps on both MDs. Zero hits on Tags-empty-cell pattern.
-6. Re-export CSVs (LOS now ships as 3 siblings post-2026-05-05 split):
-   - `npx ts-node export_test_cases/to-csv.ts ... local_office_settings_test_cases.csv`
-   - `npx ts-node export_test_cases/to-csv.ts ... local_office_history_test_cases.csv`
-   - `npx ts-node export_test_cases/to-csv.ts ... local_office_ect_test_cases.csv`
-   - `npx ts-node export_test_cases/to-csv.ts ... locations_local_information_test_cases.csv`
-7. Open both CSVs in verification:
-   - Column 5 header reads `Tags`.
+6. Rebuild the XLSX deliverable: `npm run xlsx:build` — re-parses both edited MDs (LOS siblings post-2026-05-05 split + LI) into the single `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` workbook. The per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D.
+7. Open the rebuilt workbook sheets (LOS + LI) in verification:
+   - The `Tags` column is present.
    - Every row has a non-empty Tags cell.
    - Top ~10 TCs per module have `SMOKE` somewhere.
-8. Regression fingerprint after. Should show only 2 MD files + 2 CSV files changed.
+8. Regression fingerprint after. Should show only the 2 edited MD files + the rebuilt workbook changed.
 9. Activity-log row.
 
 ## Acceptance criteria
