@@ -2,18 +2,18 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { STRATEGY } from '../../src/data/corporate-pricing/strategy';
 
 /**
- * Corporate Pricing — Pricebook Management / Pricing Strategy tab (NM-1441), P1.
+ * Corporate Pricing — Pricebook Management / Pricing Strategy tab, P1.
  * TC-LOC-CPR-101..125. Live-grounded 2026-06-05.
  *
- * Mutation safety (LR-019): per-test `ensureDefaultState()` restores the strategyFixture
- * (2022-NP Tier 1) to baseline (1 strategy, original name). Save-cycle TCs mutate via a REVERSIBLE
- * existing-strategy name edit (the only UI-reversible save). Add/Remove TCs discard WITHOUT saving
- * (a saved new strategy becomes legacy and loses its Remove → not restorable). No fixed waits (LR-052);
- * Angular dirty/save handled defensively (LR-026).
+ * Mutation safety: per-test `ensureDefaultState()` restores the strategyFixture
+ * (2022-NP Tier 1) to baseline (1 strategy, original name). Save-cycle tests mutate via a REVERSIBLE
+ * existing-strategy name edit (the only UI-reversible save). Add/Remove tests discard WITHOUT saving
+ * (a saved new strategy becomes legacy and loses its Remove → not restorable). No fixed waits;
+ * Angular dirty/save handled defensively.
  */
 test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strategy', () => {
   test.beforeEach(async ({ corporatePricingStrategyPage: p }) => {
-    // Per-test baseline (LR-019): guarantees persisted state = 1 strategy named "2022-NP Tier 1",
+    // Per-test baseline: guarantees persisted state = 1 strategy named "2022-NP Tier 1",
     // and lands on the (default) Pricing Strategy tab with that strategy selected.
     await p.ensureDefaultState();
   });
@@ -68,9 +68,9 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     expect(await p.isStrategyTabActive()).toBe(false);
   });
 
-  test('TC-LOC-CPR-111: History tab is absent on the live site (NM-1444 not built)', async ({ corporatePricingStrategyPage: p }) => {
-    // DOCX NM-1441 §2 specifies a 3rd "History" tab; live shows only 2. Divergence raised as
-    // clarification CPR-STRAT-Q1; behavior gated to a future History coverage pass.
+  test('TC-LOC-CPR-111: History tab is absent on the live site', async ({ corporatePricingStrategyPage: p }) => {
+    // The requirements specify a 3rd "History" tab; live shows only 2. Divergence raised as a
+    // clarification; behavior gated to a future History coverage pass.
     expect(await p.hasHistoryTab()).toBe(false);
   });
 
@@ -88,7 +88,7 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     await p.selectStrategy(STRATEGY.fixtureStrategyName);
     const locations = await p.getStrategyLocations();
     expect(locations.length).toBeGreaterThan(0);
-    // Containment (not exact count — LR-022): the known offices are present.
+    // Containment (not exact count): the known offices are present.
     const offices = locations.map((l) => l.office);
     for (const exp of STRATEGY.expectedLocations) {
       expect(offices).toContain(exp.office);
@@ -183,8 +183,8 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
   test('TC-LOC-CPR-123: Save commits pending strategy edits in one batch', async ({ corporatePricingStrategyPage: p }) => {
     test.setTimeout(60_000); // live save-cycle
     // NOTE: a saved NEW strategy is not UI-removable, so the batch-commit is exercised via a
-    // reversible existing-strategy edit; full new-strategy persistence is deferred to the FCC-P2
-    // subplan with a disposable fixture (see test-cases Clarifications).
+    // reversible existing-strategy edit; full new-strategy persistence is deferred to a follow-up
+    // coverage pass with a disposable fixture.
     await p.selectFirstStrategy();
     await p.setStrategyName(STRATEGY.reversibleEdit.editedName);
     expect(await p.isSaveEnabled()).toBe(true);
@@ -202,7 +202,7 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     test.setTimeout(60_000); // live save-cycle
     await p.selectFirstStrategy();
     await p.setStrategyName(STRATEGY.reversibleEdit.editedName);
-    // The "Pricebook saved successfully" toast IS the confirmation feedback (DOCX §4) — captured
+    // The "Pricebook saved successfully" toast IS the confirmation feedback — captured
     // by saveAndConfirm at the moment it surfaces (the Notifications region is hidden when empty).
     const { toastSeen } = await p.saveAndConfirm();
     expect(toastSeen).toBe(true);

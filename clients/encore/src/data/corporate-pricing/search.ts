@@ -1,18 +1,17 @@
 /**
- * Corporate Pricing — Search screen (NM-1445) test data.
+ * Corporate Pricing — Search screen test data.
  * Consumed by `corporate-pricing-search.page.ts` + `corporate-pricing-search.spec.ts`.
  *
- * Source of truth: live walk 2026-06-05 (Playwright CLI, office 1604) —
- * `the Corporate Pricing Search field inventory`.
- * Per LR-015, only LIVE-VERIFIED values committed. Counts that are VOLATILE on the shared
- * office (item total) are asserted by PATTERN, not value (LR-022).
+ * Verified on the live app, 2026-06-05 (office 1604). Only live-verified values are
+ * committed. Counts that are volatile on the shared office (item total) are asserted by
+ * pattern, not value.
  */
 
-/** The backend list/search endpoint — filter network listeners on `/navigator/api/` (LR-056/ALL-086, NEVER the page URL). */
+/** The backend list/search endpoint — filter network listeners on `/navigator/api/`, never the page URL. */
 export const CORP_PRICING_SEARCH_API = '/navigator/api/location/pricing/strategies' as const;
 
 export const CORP_PRICING_SEARCH = {
-  /** Live grid headers, in DOM order (9 — D1: "Productions Currency" split into Is Productions + Currency). */
+  /** Live grid headers, in DOM order (9 — "Productions Currency" renders split into Is Productions + Currency). */
   liveColumns: [
     'Price Book',
     'Price Book Strategy',
@@ -25,7 +24,7 @@ export const CORP_PRICING_SEARCH = {
     'Currency',
   ] as const,
 
-  /** The 8 DOCX-named columns (NM-1445 §Columns) to verify ALL present (Doctrine 2 gospel-coverage). */
+  /** The 8 columns named in the requirements to verify ALL present. */
   docxColumns: [
     'Price Book',
     'Price Book Strategy',
@@ -37,7 +36,7 @@ export const CORP_PRICING_SEARCH = {
     'Productions Currency',
   ] as const,
 
-  /** Live header count (D1). Verifying count===9 + all 8 DOCX names present raises the 8↔9 divergence. */
+  /** Live header count. Verifying count===9 while all 8 named columns are present surfaces the 8-vs-9 difference. */
   liveColumnCount: 9,
 
   /** Internal sort/resize keys per column (from `aria-label="Resize column <key>"`), DOM order. */
@@ -53,9 +52,9 @@ export const CORP_PRICING_SEARCH = {
     'currencyAbbrv',
   ] as const,
 
-  /** The boolean columns (render Unicode ✔ / empty — LR-036). */
+  /** The boolean columns (render Unicode ✔ / empty). */
   booleanColumns: ['Is GSO', 'Is Internal', 'Is Labor', 'Is Active', 'Is Productions'] as const,
-  /** LR-036 render: TRUE = Unicode ✔ (readable via textContent); FALSE = empty cell. */
+  /** Render: TRUE = Unicode ✔ (readable via textContent); FALSE = empty cell. */
   booleanTrueMarker: '✔',
 
   /** Filter default states (live-verified). */
@@ -66,20 +65,20 @@ export const CORP_PRICING_SEARCH = {
     currency: 'All Currencies',
     isInternal: false,
     isLabor: false,
-    activeOnly: true, // DEFAULT CHECKED (resolves helper-003 [ASSUMPTION])
+    activeOnly: true, // default checked
   } as const,
 
-  /** Currency dropdown options (live-verified — replaces S0's unverified USD/CAD/MXN guess). */
+  /** Currency dropdown options (live-verified). */
   currencyOptions: ['All Currencies', 'USD', 'CAD', 'MXN'] as const,
 
-  /** Location dropdown: searchable popover, first entry "Clear selection"; >200 options (live 2652 — NOT asserted, LR-025). */
+  /** Location dropdown: searchable popover, first entry "Clear selection"; >200 options (live 2652 — not asserted). */
   locationDefault: 'All Locations',
   locationFirstEntry: 'Clear selection',
   // Location popover is virtualized/lazy (live 2652 options) — assert only that it POPULATES (> this),
-  // never a large structural count (LR-022/LR-025; the 2652 figure lives in the field-inventory).
+  // never a large structural count (the exact 2652 figure is volatile).
   locationOptionFloor: 2,
 
-  /** Item-count footer is VOLATILE on shared 1604 — assert this PATTERN, never the number (LR-022). */
+  /** Item-count footer is volatile on shared 1604 — assert this pattern, never the number. */
   itemCountPattern: /\d[\d,]*\s+items found/,
   itemCountReference: 591, // reference only, NOT asserted
 
@@ -100,7 +99,7 @@ export const CORP_PRICING_SEARCH = {
     'Grid Options',
   ] as const,
 
-  /** New split-button menu items + route-param destinations (DOCX R1445-4 "Must"). */
+  /** New split-button menu items + route-param destinations. */
   newMenu: {
     equipment: { item: 'Equipment Pricing', routeParam: 'type=equipment' },
     labor: { item: 'Labor Pricing', routeParam: 'type=labor' },

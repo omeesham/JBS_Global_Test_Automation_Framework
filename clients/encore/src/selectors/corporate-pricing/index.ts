@@ -1,17 +1,15 @@
 /**
- * Corporate Pricing — selector sub-barrel (LR-017 namespace isolation).
+ * Corporate Pricing — selector sub-barrel (per-module namespace isolation).
  *
- * NOTE (F11 — intentional NEW sub-pattern): existing modules import their partitions DIRECTLY
- * into the top-level `src/selectors/index.ts`. Corporate Pricing introduces a per-module
- * sub-barrel (this file) that merges its 4 screen partitions into one `CorporatePricingSelectors`
- * namespace. This is a deliberate new convention (not existing precedent) — chosen because this
- * module is multi-screen (Search / Details-shell / Strategy / Detail) and benefits from a single
- * import surface. The top-level barrel re-exports `CorporatePricingSelectors` and runs the
- * intra-module collision check (see `src/selectors/index.ts`).
+ * This module is multi-screen (Search / Details-shell / Strategy / Detail), so it uses a
+ * per-module sub-barrel (this file) that merges its 4 screen partitions into one
+ * `CorporatePricingSelectors` namespace for a single import surface. The top-level barrel
+ * re-exports `CorporatePricingSelectors` and runs the intra-module collision check
+ * (see `src/selectors/index.ts`).
  *
- * SELECTOR STRATEGY (Doctrine 4 / D8): text / role / grid-column-header / content-anchored.
- * Near-zero data-testid coverage (Search = 3 generic e2e-*; Details/Detail = 0). NO data-testid
- * assumptions; NO reuse of `selectors/locations/pricing.ts` (per-location Pricing tab, LR-017).
+ * Selector strategy: text / role / grid-column-header / content-anchored. Near-zero
+ * data-testid coverage (Search = 3 generic e2e-*; Details/Detail = 0). No data-testid
+ * assumptions; no reuse of `selectors/locations/pricing.ts` (the per-location Pricing tab).
  */
 import { CorporatePricingSearchSelectors } from './search';
 import { CorporatePricingDetailsSelectors } from './details';

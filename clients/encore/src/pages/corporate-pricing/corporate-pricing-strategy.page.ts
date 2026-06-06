@@ -1,12 +1,12 @@
 /**
- * Corporate Pricing — Pricing Strategy tab page object (NM-1441, S2).
+ * Corporate Pricing — Pricing Strategy tab page object.
  *
- * Extends CorporatePricingBasePage (route + tab nav + defensive save primitives). Page has ZERO
- * data-testids (D8) → uses text/role/content-anchored locators (CorporatePricingSelectors CSS
- * strings + getByRole for accessible-name elements). NOT BasePage.getElement() — Corporate Pricing
- * is excluded from ALL_SELECTORS (intra-module sub-barrel, F11).
+ * Extends CorporatePricingBasePage (route + tab nav + defensive save primitives). The page has ZERO
+ * data-testids → uses text/role/content-anchored locators (CorporatePricingSelectors CSS strings
+ * + getByRole for accessible-name elements). NOT BasePage.getElement() — Corporate Pricing is
+ * excluded from ALL_SELECTORS (intra-module sub-barrel).
  *
- * Live-grounded: field-inventories/corporate-pricing-strategy-2026-06-05.md.
+ * Verified on the live app, 2026-06-05.
  */
 import { type Locator, type Page } from '@playwright/test';
 import { CorporatePricingBasePage } from './corporate-pricing.page';
@@ -43,7 +43,7 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
   }
 
   // ---------------------------------------------------------------------------
-  // HEADER (reference-only — DOCX §1)
+  // HEADER (reference-only)
   // ---------------------------------------------------------------------------
 
   /** Read a header reference field. */
@@ -81,7 +81,7 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
   // TABS
   // ---------------------------------------------------------------------------
 
-  /** The tab labels actually rendered (live shows 2; History/NM-1444 is absent). */
+  /** The tab labels actually rendered (live shows 2; a History tab is absent). */
   async getTabs(): Promise<string[]> {
     const tabs: string[] = [];
     if ((await this.page.locator(S.tabPricingStrategy).count()) > 0) tabs.push('Pricing Strategy');
@@ -90,7 +90,7 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     return tabs;
   }
 
-  /** Is a "History" tab present? (Expected false — NM-1444 not built.) */
+  /** Is a "History" tab present? (Expected false — not present on the live app.) */
   async hasHistoryTab(): Promise<boolean> {
     return (await this.getTabs()).includes('History');
   }
@@ -228,15 +228,15 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
   private static readonly SAVE_TOAST = 'Pricebook saved successfully';
 
   /**
-   * Click Save (defensive per LR-012 — confirm an optional "Save Changes" alertdialog), then wait
-   * for the "Pricebook saved successfully" toast as the success/settle signal. THROWS if Save is
-   * disabled at call time (nothing to save) so a silent no-op surfaces as a test failure.
+   * Click Save (defensive — confirm an optional "Save Changes" alertdialog), then wait for the
+   * "Pricebook saved successfully" toast as the success/settle signal. THROWS if Save is disabled
+   * at call time (nothing to save) so a silent no-op surfaces as a test failure.
    *
    * Why the toast (not Save-button state): the Save button's TEXT flips "Save" → "Saving..." →
    * "Save" during commit (live-verified — the button is briefly `button "Saving..."`), so a
    * `text-is("Save")` disable-wait mismatches mid-save and stalls. The toast is the unambiguous
-   * success event. Returns whether the toast was observed (TC-124 asserts it). Persistence is still
-   * proven by the caller's reload + re-read (LR-026 — save-success ≠ pristine).
+   * success event. Returns whether the toast was observed. Persistence is still proven by the
+   * caller's reload + re-read (save-success ≠ pristine).
    */
   async saveAndConfirm(): Promise<{ toastSeen: boolean }> {
     await this.clickSaveButtonOrThrow('form not dirty');
@@ -252,14 +252,14 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
   }
 
   // ---------------------------------------------------------------------------
-  // BASELINE RESTORE (LR-019)
+  // BASELINE RESTORE
   // ---------------------------------------------------------------------------
 
   /**
    * Restore the fixture to its baseline: exactly 1 strategy named `defaults.name`. Bounded retry
    * (max 3) over the WHOLE cycle (reload → re-read → rename → save → reload → re-verify) because
-   * Angular dirty + the persisted DOM are the only reliable signals (LR-026; save-success alone
-   * doesn't prove the restore landed).
+   * Angular dirty + the persisted DOM are the only reliable signals (save-success alone doesn't
+   * prove the restore landed).
    *
    * If MORE than one strategy is present, a prior test persisted a NEW strategy — which is NOT
    * UI-removable (legacy strategies have no Remove). That is unrecoverable fixture drift → THROW

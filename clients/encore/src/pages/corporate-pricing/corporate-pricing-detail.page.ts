@@ -1,16 +1,16 @@
 /**
- * Corporate Pricing — Pricing Detail tab page object (NM-1443, S3).
+ * Corporate Pricing — Pricing Detail tab page object.
  *
  * Extends CorporatePricingBasePage (route + tab nav + defensive save primitives). The Detail tab is
- * a heavy shadcn/Radix HTML `<table>` (D7: ~2430 product-group rows, ~3707 draggable source items,
- * 0 data-testids) → content-anchored reads by Product Group Name (LR-053/LR-022), NEVER exact-count
- * assertions. Live-grounded: field-inventories/corporate-pricing-detail-2026-06-05.md.
+ * a heavy shadcn/Radix HTML `<table>` (~2430 product-group rows, ~3707 draggable source items,
+ * 0 data-testids) → content-anchored reads by Product Group Name, NEVER exact-count assertions.
+ * Verified on the live app, 2026-06-05.
  *
  * Override model (live): "New Price" is a staging override — on Save its value becomes the row's
  * "Price" column (base Price has NO input = read-only). "Max Discount" persists as "N.NN %".
  * Save is dialog-gated ("Save Changes" alertdialog) and commits ALL dirty rows in one batch.
  * Dirty lever: editing Max Discount reliably enables Save; a New-Price-only edit does NOT reliably
- * enable it (CPR-DETAIL-BUG-A) though the New-Price value still commits when the grid saves.
+ * enable it (a known app quirk) though the New-Price value still commits when the grid saves.
  */
 import { expect, type Locator, type Page } from '@playwright/test';
 import { CorporatePricingBasePage } from './corporate-pricing.page';
@@ -49,7 +49,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
   }
 
   // ---------------------------------------------------------------------------
-  // GRID — HEADERS + ROWS (content-anchored, LR-022/LR-053)
+  // GRID — HEADERS + ROWS (content-anchored)
   // ---------------------------------------------------------------------------
 
   /** The 5 grid column headers, in DOM order. */
@@ -94,7 +94,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
   }
 
   /**
-   * The Price (Base Price) cell is read-only when it contains NO `<input>` (DOCX §2 read-only ref).
+   * The Price (Base Price) cell is read-only when it contains NO `<input>`.
    * Live: the cell is plain `<td>` text.
    */
   async priceIsReadOnly(name: string): Promise<boolean> {
@@ -108,7 +108,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
   }
 
   // ---------------------------------------------------------------------------
-  // CELL EDITS (real keystrokes — ALL-089: fill() is unreliable for dirty-tracking)
+  // CELL EDITS (real keystrokes — fill() is unreliable for dirty-tracking)
   // ---------------------------------------------------------------------------
 
   /** Type a New Price override into an anchored row (real keystrokes). */
@@ -134,7 +134,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
   }
 
   // ---------------------------------------------------------------------------
-  // SOURCE LIST (Available Product Groups, left side — DOCX §1)
+  // SOURCE LIST (Available Product Groups, left side)
   // ---------------------------------------------------------------------------
 
   /** Count of draggable source-list product groups (behavioural `> 0`, not exact). */
@@ -178,13 +178,13 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
   }
 
   // ---------------------------------------------------------------------------
-  // DIRTY / SAVE (reuses the shared dialog-gated Save — LR-012)
+  // DIRTY / SAVE (reuses the shared dialog-gated Save)
   // ---------------------------------------------------------------------------
 
   /**
-   * Click Save (defensive per LR-012 — confirm the "Save Changes" alertdialog), then best-effort
-   * wait for Save to disable (commit signal). THROWS if Save is disabled at call time so a silent
-   * no-op surfaces as a failure (LR-026 — save-success ≠ pristine; reload + re-read is load-bearing).
+   * Click Save (defensive — confirm the "Save Changes" alertdialog), then best-effort wait for
+   * Save to disable (commit signal). THROWS if Save is disabled at call time so a silent no-op
+   * surfaces as a failure (save-success ≠ pristine; reload + re-read is load-bearing).
    */
   async saveAndConfirm(): Promise<void> {
     await this.clickSaveButtonOrThrow('grid not dirty');
@@ -196,7 +196,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
   }
 
   // ---------------------------------------------------------------------------
-  // BASELINE RESTORE (LR-019) — handles the sticky New-Price override
+  // BASELINE RESTORE — handles the sticky New-Price override
   // ---------------------------------------------------------------------------
 
   /**
@@ -204,7 +204,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
    * discount. The New-Price override is sticky (it becomes the Price), so reverting requires writing
    * New Price = basePrice; the form is dirtied reliably via the Max-Discount lever (= '0') in the
    * SAME batch save, which also commits the New-Price reverts. Bounded retry (max 3) over the whole
-   * cycle because save-success alone does not prove the restore landed (LR-026).
+   * cycle because save-success alone does not prove the restore landed.
    */
   async ensureDefaultState(
     anchors: DetailAnchor[] = [DETAIL.anchorA, DETAIL.anchorB],

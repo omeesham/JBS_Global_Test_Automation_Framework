@@ -2,10 +2,10 @@
  * Corporate Pricing — Pricebook Details shell selectors (header + tabs + page-level Save).
  * URL: /navigator/locations/{office}/settings/corporate-pricing/details/{guid}
  *
- * Strategy: text/role anchored — Details page has ZERO data-testids (D8). Save mechanism
- * (shared "Save Changes" dialog vs direct) NOT mutation-probed during read-only exploration —
- * base page clickSave() is defensive (LR-012). S2/S3 confirm on first real mutation.
- * Live-verified 2026-06-05 — walk-evidence §2.
+ * Strategy: text/role anchored — the Details page has ZERO data-testids. The save mechanism
+ * (shared "Save Changes" dialog vs direct) is not yet exercised by a mutation, so the base
+ * page clickSave() is defensive. The Strategy/Detail suites confirm it on first real mutation.
+ * Verified on the live app, 2026-06-05.
  */
 export const CorporatePricingDetailsSelectors = {
   /** @where Details @el heading @text "Corporate Pricing Details" @keys details page title */
@@ -20,13 +20,13 @@ export const CorporatePricingDetailsSelectors = {
   tabPricingDetail: 'button:has-text("Pricing Detail")',
 
   // ---- Page-level Save (shared across both tabs; disabled when clean) ----
-  /** @where Details @el button @text "Save" @keys save page-level disabled-when-clean (LR-012 defensive) */
+  /** @where Details @el button @text "Save" @keys save page-level disabled-when-clean (defensive) */
   btnSaveDetails: 'button:text-is("Save")',
 
-  // ---- Read-only header block (S2-HARDEN: label-proximity) ----
+  // ---- Read-only header block (HARDEN: label-proximity) ----
   /** @where Details > Header @el heading @text pricebook name @keys header pricebook name h2 */
   hdgPricebookName: 'h2',
-  /** @where Details > Header @el label @text "Labor/Equipment" value @keys header type (label-anchored) — live-verified 2026-06-05 (S2) */
+  /** @where Details > Header @el label @text "Labor/Equipment" value @keys header type (label-anchored) — live-verified 2026-06-05 */
   lblHeaderType: 'p:text-is("Labor/Equipment") + p, *:has(> *:text-is("Labor/Equipment"))',
   /** @where Details > Header @el label @text "Year" value @keys header year (label-anchored) */
   lblHeaderYear: 'p:text-is("Year") + p, *:has(> *:text-is("Year"))',

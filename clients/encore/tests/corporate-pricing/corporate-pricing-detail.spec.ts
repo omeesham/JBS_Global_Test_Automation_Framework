@@ -2,27 +2,27 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { DETAIL } from '../../src/data/corporate-pricing/detail';
 
 /**
- * Corporate Pricing — Pricebook Management / Pricing Detail tab (NM-1443), P1 (Management mode).
+ * Corporate Pricing — Pricebook Management / Pricing Detail tab, P1 (Management mode).
  * TC-LOC-CPR-201..220. Live-grounded 2026-06-05.
  *
  * Override model (live): "New Price" is a staging override → on Save it becomes the row's "Price";
  * Base Price (Price col) is read-only. Save is dialog-gated and commits ALL dirty rows in one batch.
  *
- * Mutation safety (LR-019): per-test `ensureDefaultState()` restores the detailFixture (2021-PB6)
+ * Mutation safety: per-test `ensureDefaultState()` restores the detailFixture (2021-PB6)
  * anchors to baseline (base Price, no discount). The dependable, reversible dirty lever is **Max
- * Discount**; a New-Price-only edit does not reliably enable Save (CPR-DETAIL-BUG-A), so the
- * New-Price persist TC commits the override through the proven grid-batch Save (Max-Discount lever
- * as fallback) and ensureDefaultState reverts the Price to base. No fixed waits (LR-052);
- * content-anchored reads, no exact counts (LR-022/LR-053); save dialog handled defensively (LR-012/LR-026).
+ * Discount**; a New-Price-only edit does not reliably enable Save (a known app quirk), so the
+ * New-Price persist test commits the override through the proven grid-batch Save (Max-Discount lever
+ * as fallback) and ensureDefaultState reverts the Price to base. No fixed waits;
+ * content-anchored reads, no exact counts; save dialog handled defensively.
  */
 test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail', () => {
   // The Detail grid is heavy (~3707 draggables / ~2430 rows); a page-open is ~15-25s and the
   // save-cycle + bounded-retry restore stack several. The default 30s/test is too tight → generous
-  // ceiling (this is a per-test timeout, not a fixed wait — LR-052 unaffected).
+  // ceiling (this is a per-test timeout, not a fixed wait).
   test.describe.configure({ timeout: 150_000 });
 
   test.beforeEach(async ({ corporatePricingDetailPage: p }) => {
-    // Per-test baseline (LR-019): restores detailFixture anchors to base Price / no discount and
+    // Per-test baseline: restores detailFixture anchors to base Price / no discount and
     // lands on the Pricing Detail tab.
     await p.ensureDefaultState();
   });
@@ -142,12 +142,12 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     await p.ensureDefaultState(); // restore both
   });
 
-  // ── New Price override (DOCX core) ───────────────────────────────────────────
+  // ── New Price override ───────────────────────────────────────────
 
   test('TC-LOC-CPR-218: Verify a saved New Price override becomes the row Price after reload', async ({ corporatePricingDetailPage: p }) => {
     const name = DETAIL.anchorB.name;
     await p.setNewPrice(name, DETAIL.newPriceEdit.value);
-    // CPR-DETAIL-BUG-A: a New-Price-only edit may not enable Save. The Max-Discount lever guarantees
+    // Known app quirk: a New-Price-only edit may not enable Save. The Max-Discount lever guarantees
     // the batch commits; the New-Price value is committed with the grid. ensureDefaultState reverts both.
     if (!(await p.isSaveEnabled())) await p.setMaxDiscount(name, '1');
     await p.saveAndConfirm();

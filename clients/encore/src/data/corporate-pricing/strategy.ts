@@ -1,20 +1,19 @@
 /**
- * Corporate Pricing — Pricing Strategy (NM-1441) test data.
- * Source of truth: live walk 2026-06-05 (field-inventories/corporate-pricing-strategy-2026-06-05.md).
- * Per LR-015, only LIVE-VERIFIED values are committed. Volatile values (locations, flags) are
- * asserted by CONTENT/containment, not exact counts (LR-022/LR-053).
+ * Corporate Pricing — Pricing Strategy test data.
+ * Verified on the live app, 2026-06-05. Only live-verified values are committed. Volatile
+ * values (locations, flags) are asserted by content/containment, not exact counts.
  *
- * Mutation safety (LR-019): save-cycle TCs mutate the `strategyFixture` and restore via
- * `ensureDefaultState()`. The ONLY UI-reversible save mutation is editing the EXISTING strategy's
+ * Mutation safety: save-cycle tests mutate the `strategyFixture` and restore via
+ * `ensureDefaultState()`. The only UI-reversible save mutation is editing the EXISTING strategy's
  * name (rename → save → rename back). Persisting a NEW strategy is NOT UI-reversible (a saved
- * strategy becomes legacy and loses its Remove control) — so add/remove TCs discard WITHOUT saving,
- * and full new-strategy persistence is deferred to a follow-up Strategy coverage pass.
+ * strategy becomes legacy and loses its Remove control) — so add/remove tests discard WITHOUT saving,
+ * and full new-strategy persistence is left to a follow-up Strategy coverage pass.
  */
 import { CORPORATE_PRICING_COMMON, CORPORATE_PRICING_FIXTURES } from './common';
 
 export const STRATEGY = {
   office: CORPORATE_PRICING_COMMON.office, // '1604'
-  /** strategyFixture pricebook (S2 only — distinct from detailFixture; F1). */
+  /** strategyFixture pricebook (Strategy suite only — distinct from detailFixture). */
   pricebookGuid: CORPORATE_PRICING_FIXTURES.strategyFixture.guid, // 5f2a4088-9268-b033-4925-a48146afb1cb
   pricebookName: CORPORATE_PRICING_FIXTURES.strategyFixture.name, // '2022-NP Tier 1'
 
@@ -38,7 +37,7 @@ export const STRATEGY = {
     isActive: { checked: true, disabled: false },
   },
 
-  /** Locations assigned to the fixture strategy (assert containment, not exact count — LR-022). */
+  /** Locations assigned to the fixture strategy (assert containment, not exact count). */
   expectedLocations: [
     { office: '1991', name: 'Premier Global Events' },
     { office: '7011', name: 'Production' },
@@ -55,7 +54,7 @@ export const STRATEGY = {
     name: 'ZZ-QA-TEMP-STRATEGY (discard)',
   },
 
-  /** Tabs: live shows 2; DOCX intent names 3 (History absent — NM-1444). */
+  /** Tabs: live shows 2; the requirements name 3 (History absent on the live app). */
   liveTabs: ['Pricing Strategy', 'Pricing Detail'] as const,
   docxTabs: ['Pricing Strategy', 'Pricing Detail', 'History'] as const,
   absentTab: 'History',

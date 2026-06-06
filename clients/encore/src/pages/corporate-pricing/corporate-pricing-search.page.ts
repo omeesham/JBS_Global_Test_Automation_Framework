@@ -1,14 +1,12 @@
 /**
- * Corporate Pricing — Search screen (NM-1445) page object.
+ * Corporate Pricing — Search screen page object.
  * `CorporatePricingSearchPage extends CorporatePricingBasePage` (Search page object).
  *
- * Live model (D2, verified 2026-06-05): filters STAGE on input (no network, no grid change);
+ * Live model (verified 2026-06-05): filters STAGE on input (no network, no grid change);
  * the Search button submits all staged filters SERVER-SIDE as query params of
  * `GET /navigator/api/location/pricing/strategies`. Reset restores defaults + the full list
  * client-side. Read-only screen — no save. React/Next.js + shadcn DataTable; selectors are
- * text/role/placeholder/grid-<th>/content-anchored (near-zero data-testid — Doctrine 4).
- *
- * Field-inventory: the Corporate Pricing Search field inventory
+ * text/role/placeholder/grid-<th>/content-anchored (near-zero data-testid).
  */
 import type { Page, Locator } from '@playwright/test';
 import { CorporatePricingBasePage } from './corporate-pricing.page';
@@ -37,7 +35,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * state that paints BEFORE the /pricing/strategies response lands (grid renders ~400ms later),
    * so waiting on the footer returns too early and every grid/column/option read races an empty grid.
    * Initial load always has rows (591); P1 search narrows never go to 0, so waiting for the first
-   * row is safe (LR-052-clean — Playwright auto-waits, no fixed sleep).
+   * row is safe (Playwright auto-waits, no fixed sleep).
    */
   async waitForGridLoaded(timeout = 30_000): Promise<void> {
     await this.page.locator(S.colHeaderAny).first().waitFor({ state: 'visible', timeout });
@@ -56,7 +54,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.page.locator(S.colHeaderAny).count();
   }
 
-  /** Count currently-rendered data rows (virtualized — ~50, NOT the 591 total; never assert the total, LR-022). */
+  /** Count currently-rendered data rows (virtualized — ~50, NOT the 591 total; never assert the total). */
   async getVisibleRowCount(): Promise<number> {
     return this.page.locator(S.rowGridAny).count();
   }
@@ -66,7 +64,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return (await this.page.locator(S.lblItemsFound).first().innerText()).replace(/\s+/g, ' ').trim();
   }
 
-  /** Parsed item-count number (e.g. 591). VOLATILE — use for relative narrowed/broadened comparisons, never assert a fixed value (LR-022). */
+  /** Parsed item-count number (e.g. 591). VOLATILE — use for relative narrowed/broadened comparisons, never assert a fixed value. */
   async getItemCountNumber(): Promise<number> {
     const t = await this.getItemCountText();
     return parseInt(t.replace(/[^\d]/g, ''), 10);
@@ -74,7 +72,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
 
   /**
    * Sample the boolean columns (Is GSO..Is Productions, 0-based indices 3-7) across the rendered rows.
-   * Returns whether any ✔ was seen and whether every boolean cell is ✔-or-empty (LR-036 contract).
+   * Returns whether any ✔ was seen and whether every boolean cell is ✔-or-empty.
    */
   async booleanCellsValid(maxRows = 15): Promise<{ hasTrue: boolean; allValid: boolean }> {
     const boolIdx = [3, 4, 5, 6, 7];
@@ -93,7 +91,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   }
 
   /**
-   * Read a boolean cell (LR-036 Unicode ✔): returns true when the cell shows ✔, false when empty.
+   * Read a boolean cell (Unicode ✔): returns true when the cell shows ✔, false when empty.
    * `colIndex` is the 0-based column position (see CORP_PRICING_SEARCH.liveColumns).
    */
   async readBooleanCell(row: Locator, colIndex: number): Promise<boolean> {
@@ -116,7 +114,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * `pressSequentially` keystrokes did NOT reliably commit React state for the Pricebook field
    * (likely a keystroke typeahead/debounce) → Search re-submitted an unchanged query → the app
    * deduped → no /pricing/strategies response → waitForResponse hung. NOT a Radix combobox, so the
-   * ALL-088 DOM-tamper-crash caveat does not apply (plain text input; verified non-crashing live).
+   * DOM-tamper-crash caveat does not apply (plain text input; verified non-crashing live).
    */
   private async setTextFilter(selector: string, value: string): Promise<void> {
     await this.page.locator(selector).first().evaluate((el, val) => {
@@ -157,8 +155,8 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * The 3 filter checkboxes are the only `[role="checkbox"]` on the Search screen, in DOM order
    * Is Internal(0) / Is Labor(1) / Active Only(2) — live-verified 2026-06-05. Indexed access is
    * the verified-stable locator (label-proximity `:has()` selectors are kept in search.ts as a
-   * documented fallback). `.check()/.uncheck()` auto-verify the ARIA state (ALL-089 — bare click
-   * can focus-without-toggle on Radix checkboxes).
+   * documented fallback). `.check()/.uncheck()` auto-verify the ARIA state (bare click can
+   * focus-without-toggle on Radix checkboxes).
    */
   private checkbox(which: SearchCheckbox): Locator {
     const idx = which === 'isInternal' ? 0 : which === 'isLabor' ? 1 : 2;
@@ -170,7 +168,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return (await this.checkbox(which).getAttribute('aria-checked')) === 'true';
   }
 
-  /** Check or uncheck a filter checkbox (auto-verifies the ARIA state — ALL-089). */
+  /** Check or uncheck a filter checkbox (auto-verifies the ARIA state). */
   async setCheckbox(which: SearchCheckbox, checked: boolean): Promise<void> {
     const cb = this.checkbox(which);
     if (checked) await cb.check();
@@ -179,7 +177,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
 
   // ---------- dropdown filters ----------
 
-  /** Open a combobox, return its option texts, then close (Escape). Safe (read-only) — never tamper (ALL-088). */
+  /** Open a combobox, return its option texts, then close (Escape). Safe (read-only) — never tamper. */
   private async readComboOptions(comboSelector: string): Promise<string[]> {
     await this.page.locator(comboSelector).first().click();
     await this.page.locator('[role="option"]').first().waitFor({ state: 'visible', timeout: 8_000 });
@@ -233,8 +231,8 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
 
   /**
    * Click Search and wait for the server list response to land + the grid to settle.
-   * Avoids fixed sleeps (LR-052) — waits on the `/navigator/api/...pricing/strategies` response.
-   * Returns the request URL (so callers can assert the query-param shape — D2).
+   * Avoids fixed sleeps — waits on the `/navigator/api/...pricing/strategies` response.
+   * Returns the request URL (so callers can assert the query-param shape).
    */
   async searchAndWaitForList(): Promise<string> {
     const respPromise = this.page.waitForResponse(
@@ -245,15 +243,15 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     const resp = await respPromise;
     // After Search, wait for grid STRUCTURE (headers), NOT a data row — a server filter can legitimately
     // return 0 results (e.g. Pricebook + Is Internal combo), so requiring a row would hang. The count
-    // poll in the spec handles the value-settle (LR-052-clean).
+    // poll in the spec handles the value-settle.
     await this.page.locator(S.colHeaderAny).first().waitFor({ state: 'visible', timeout: 30_000 });
     return resp.url();
   }
 
-  // ---------- network classification helpers (D2) ----------
+  // ---------- network classification helpers ----------
 
   /**
-   * Attach a counter for list-endpoint requests (filter `/navigator/api/...` per LR-056, NOT the page URL).
+   * Attach a counter for list-endpoint requests (filter `/navigator/api/...`, NOT the page URL).
    * Returns a live getter + a `dispose()` — the `authenticatedSession.page` is worker-scoped, so the
    * listener MUST be removed at test end or it stacks across tests in the same worker.
    */
@@ -284,7 +282,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   /**
    * Open the New split-button menu. Radix DropdownMenu can intermittently not open on the first click
    * under heavy-page timing, so re-click (Escape + retry) up to 3× until a menu item renders (the
-   * proven Radix large-interaction retry pattern, LR-025 / navigation.md Radix-tab note).
+   * proven Radix large-interaction retry pattern).
    */
   async openNewMenu(): Promise<void> {
     const item = this.page.locator(S.mnuNewEquipmentPricing).first();
@@ -318,7 +316,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   /**
    * Whether an action-bar button is PRESENT (attached in the DOM). "Present", not "visible" — at a
    * headless viewport the 7-button action bar overflows, so some buttons exist but report not-visible;
-   * presence is the right semantic for the DOCX "buttons present" requirement (the New affordance is
+   * presence is the right semantic for the "buttons present" requirement (the New affordance is
    * proven interactable separately via openNewMenu).
    */
   /**

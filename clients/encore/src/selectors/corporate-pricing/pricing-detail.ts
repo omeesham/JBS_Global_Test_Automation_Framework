@@ -1,13 +1,13 @@
 /**
- * Corporate Pricing — Pricing Detail tab selectors (NM-1443, S3).
- * Grid columns (D6, live-verified 2026-06-05): ID | Product Group Name | Price | New Price | Max Discount.
+ * Corporate Pricing — Pricing Detail tab selectors.
+ * Grid columns (live-verified 2026-06-05): ID | Product Group Name | Price | New Price | Max Discount.
  *
- * ⚠ HIGH COMPLEXITY (D7): live counts 2026-06-05 = ~3707 draggable source items, ~4861 inputs,
+ * ⚠ HIGH COMPLEXITY: live counts 2026-06-05 = ~3707 draggable source items, ~4861 inputs,
  * ~2430 grid data rows — heavy but fully rendered (NOT windowed). Use content-anchored reads
- * (LR-053) and NEVER full-snapshot. Grid is a shadcn/Radix HTML `<table>` (`data-slot="table-row"`/
- * `"table-cell"`), 0 data-testids → text/role/grid-header/content-anchor only (Doctrine 4 / D8).
- * Mutation fixture (S3 ONLY): detailFixture = "2021-PB6" (GUID 91acb5ca-20e2-ce8e-a9ab-8c370925fd65,
- * Inactive). Live-verified — field-inventories/corporate-pricing-detail-2026-06-05.md.
+ * and NEVER full-snapshot. Grid is a shadcn/Radix HTML `<table>` (`data-slot="table-row"`/
+ * `"table-cell"`), 0 data-testids → text/role/grid-header/content-anchor only.
+ * Mutation fixture (Detail suite only): detailFixture = "2021-PB6" (GUID 91acb5ca-20e2-ce8e-a9ab-8c370925fd65,
+ * Inactive). Verified on the live app, 2026-06-05.
  */
 export const CorporatePricingDetailGridSelectors = {
   // ---- Grid table (the management workspace, right side) ----
@@ -28,7 +28,7 @@ export const CorporatePricingDetailGridSelectors = {
   /** @where Detail > Grid @el columnheader @text "Max Discount" @keys detail grid max-discount editable */
   colDetailMaxDiscount: 'th:has-text("Max Discount")',
 
-  // ---- Source list (Available Product Groups, left side, DOCX §1) ----
+  // ---- Source list (Available Product Groups, left side) ----
   /** @where Detail > Source @el draggable @keys product-group source items (ID+Name; clickable + draggable) */
   itemDraggableAny: '[draggable="true"][role="button"]',
   /** @where Detail > Source @el input @text "Search ID or Name..." @keys source-list filter (verbatim placeholder) */

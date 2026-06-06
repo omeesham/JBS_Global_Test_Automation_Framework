@@ -1,19 +1,18 @@
 /**
- * Corporate Pricing — Search screen selectors (NM-1445).
+ * Corporate Pricing — Search screen selectors.
  * URL: /navigator/locations/{office}/settings/corporate-pricing
  *
- * SELECTOR STRATEGY (Doctrine 4 / D8 / LR-029): this module ships near-zero automation-grade
- * data-testids (live audit 2026-06-05: Search = 3 GENERIC values only — e2e-card-header,
- * e2e-card-title, e2e-checkbox — none field-specific; Details/Detail = 0). So selectors are
- * text / role / grid-column-header / content-anchored, NOT data-testid. Do NOT reuse
- * selectors/locations/pricing.ts (that is the per-location Pricing tab — different module, LR-017).
+ * Selector strategy: this screen ships near-zero automation-grade data-testids (live audit
+ * 2026-06-05: Search = 3 GENERIC values only — e2e-card-header, e2e-card-title, e2e-checkbox —
+ * none field-specific; Details/Detail = 0). So selectors are text / role / grid-column-header /
+ * content-anchored, NOT data-testid. Do NOT reuse selectors/locations/pricing.ts (that is the
+ * per-location Pricing tab — a different module).
  *
  * Stability tiers:
  *  - STABLE (walk-verified, unique anchor): placeholders, exact-text buttons, role+exact-text headers.
- *  - S1-HARDEN: label-proximity comboboxes / per-row grid cells — S1 (Search owner) verifies + hardens
- *    during its field-inventory walk (REQ-013/LR-014). Left as best-effort label anchors here.
+ *  - HARDEN: label-proximity comboboxes / per-row grid cells — left as best-effort label anchors here.
  *
- * Live-verified 2026-06-05 — walk-evidence-corporate-pricing-2026-06-05.md §1.
+ * Verified on the live app, 2026-06-05.
  */
 export const CorporatePricingSearchSelectors = {
   // ---- Page chrome ----
@@ -26,13 +25,13 @@ export const CorporatePricingSearchSelectors = {
   /** @where Search > Filters @el textbox @text "Pricing Strategy" @keys filter strategy */
   txtFilterStrategy: 'input[placeholder="Enter strategy"]',
 
-  // ---- Filter comboboxes (S1-HARDEN: label-proximity; default text shown) ----
-  /** @where Search > Filters @el combobox @text "Location" @keys filter location all-locations (S1 harden) */
+  // ---- Filter comboboxes (HARDEN: label-proximity; default text shown) ----
+  /** @where Search > Filters @el combobox @text "Location" @keys filter location all-locations */
   drpFilterLocation: 'button[role="combobox"]:has-text("All Locations")',
-  /** @where Search > Filters @el combobox @text "Currency" @keys filter currency all-currencies (S1 harden) */
+  /** @where Search > Filters @el combobox @text "Currency" @keys filter currency all-currencies */
   drpFilterCurrency: 'button[role="combobox"]:has-text("All Currencies")',
 
-  // ---- Filter checkboxes (S1-HARDEN: anchored by adjacent label text) ----
+  // ---- Filter checkboxes (HARDEN: anchored by adjacent label text) ----
   /** @where Search > Filters @el checkbox @text "Is Internal" @keys filter checkbox is-internal */
   chkFilterIsInternal: 'label:has-text("Is Internal") [role="checkbox"], div:has(> *:text-is("Is Internal")) [role="checkbox"]',
   /** @where Search > Filters @el checkbox @text "Is Labor" @keys filter checkbox is-labor */
@@ -66,10 +65,10 @@ export const CorporatePricingSearchSelectors = {
   /** @where Search > Action bar @el button @text "Grid Options" @keys grid options columns */
   btnGridOptions: 'button:text-is("Grid Options")',
 
-  // ---- Results grid (S1-HARDENED 2026-06-05: real HTML <table>, NOT ARIA grid roles) ----
+  // ---- Results grid (HARDENED 2026-06-05: real HTML <table>, NOT ARIA grid roles) ----
   // Live walk found ZERO role="grid"/"row"/"columnheader" — the grid is a shadcn/TanStack
   // DataTable rendering `<table><thead><th>` + `<tbody><tr><td>`. The prior role-based
-  // selectors resolved to nothing. Corrected to tag selectors. (field-inventory 2026-06-05 §Field Inventory)
+  // selectors resolved to nothing. Corrected to tag selectors. (verified live 2026-06-05)
   /** @where Search > Grid @el table @keys results grid table virtualized 591 */
   gridResults: 'table',
   /** @where Search > Grid @el row @keys data row tbody tr content-anchored (50 rendered, virtualized) */
@@ -80,7 +79,7 @@ export const CorporatePricingSearchSelectors = {
   colResizeHandleAny: 'button[aria-label^="Resize column "]',
   /** @where Search > Grid @el button @keys Price Book name cell → navigates to /details/<guid> (content-anchored) */
   rowNameButton: 'tbody tr td button.cursor-pointer',
-  /** @where Search > Grid @el span @text "✔" @keys boolean TRUE marker (LR-036 Unicode; FALSE = empty td) */
+  /** @where Search > Grid @el span @text "✔" @keys boolean TRUE marker (Unicode; FALSE = empty td) */
   cellBooleanTrue: 'td span.text-primary',
   /** @where Search > Grid footer @el text @text "N items found" @keys item count total (VOLATILE — assert pattern not value) */
   lblItemsFound: 'text=/\\d[\\d,]*\\s+items found/',

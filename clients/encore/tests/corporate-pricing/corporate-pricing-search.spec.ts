@@ -2,19 +2,18 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { CORP_PRICING_SEARCH } from '../../src/data/corporate-pricing/search';
 
 /**
- * Corporate Pricing — Search screen (NM-1445) — P1 DOCX-functional coverage.
+ * Corporate Pricing — Search screen — P1 functional coverage.
  *
- * 18 P1 cases (TC-LOC-CPR-001..018, Search band)
- * from the NM-1445 DOCX intent + 30 verified `TC-ENC-PRC-1445-*` helpers + a live walk
- * (field-inventories/corporate-pricing-search-2026-06-05.md). Read-only screen — no mutation.
+ * 18 P1 cases (TC-LOC-CPR-001..018, Search band) from the requirements + a live walk, 2026-06-05.
+ * Read-only screen — no mutation.
  *
- * TWO divergences asserted-as-live + RAISED via /encore-questions (Doctrine 2, never silently absorbed):
- *  - D1: DOCX names 8 columns; live renders 9 ("Productions Currency" → Is Productions + Currency).
- *  - D2: DOCX says filtering is client-side; live filters are SERVER-SIDE, on the Search button
+ * TWO divergences asserted-as-live + raised as clarifications (never silently absorbed):
+ *  - Columns: the requirements name 8 columns; live renders 9 ("Productions Currency" → Is Productions + Currency).
+ *  - Filtering: the requirements say filtering is client-side; live filters are SERVER-SIDE, on the Search button
  *        (GET /navigator/api/location/pricing/strategies?<staged params>). Typing/selecting only STAGES.
  *
- * React/Next.js + shadcn DataTable (NOT Angular). Network listeners filter `/navigator/api/` (LR-056).
- * Checkboxes via .check()/.uncheck() (ALL-089). No fixed waits (LR-052). No hardcoded 591 (LR-022).
+ * React/Next.js + shadcn DataTable (NOT Angular). Network listeners filter `/navigator/api/`.
+ * Checkboxes via .check()/.uncheck(). No fixed waits. No hardcoded 591.
  */
 test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
 
@@ -40,16 +39,16 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     }
   });
 
-  test('TC-LOC-CPR-002: Grid shows all 8 DOCX columns; live renders 9 (8↔9 split raised)', async ({ corporatePricingSearchPage: cp }) => {
+  test('TC-LOC-CPR-002: Grid shows all 8 named columns; live renders 9 (8↔9 split raised)', async ({ corporatePricingSearchPage: cp }) => {
     const headers = await cp.getColumnHeaders();
-    // all 7 directly-named DOCX columns present
+    // all 7 directly-named columns present
     for (const name of ['Price Book', 'Price Book Strategy', 'Price Year', 'Is GSO', 'Is Internal', 'Is Labor', 'Is Active']) {
       expect(headers).toContain(name);
     }
-    // the DOCX "Productions Currency" is covered by the live split → both must be present
+    // the requirements' "Productions Currency" is covered by the live split → both must be present
     expect(headers).toContain('Is Productions');
     expect(headers).toContain('Currency');
-    // live renders 9 (D1 — divergence raised in encore-questions draft, not silently absorbed)
+    // live renders 9 (divergence raised as a clarification, not silently absorbed)
     expect(await cp.getColumnCount()).toBe(CORP_PRICING_SEARCH.liveColumnCount);
   });
 
@@ -67,7 +66,7 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
   test('TC-LOC-CPR-004: Boolean columns render Unicode ✔ / empty', async ({ corporatePricingSearchPage: cp }) => {
     const { hasTrue, allValid } = await cp.booleanCellsValid();
     expect(hasTrue).toBe(true); // at least one ✔ among rendered rows
-    expect(allValid).toBe(true); // every boolean cell is ✔ or empty (LR-036)
+    expect(allValid).toBe(true); // every boolean cell is ✔ or empty
   });
 
   // ── Text filters (stage → Search server-side) ────────────────────────────────
@@ -82,7 +81,7 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
 
       const url = await cp.searchAndWaitForList();
       expect(url).toContain(`pricebookName=${CORP_PRICING_SEARCH.pricebookFilterSample.value}`);
-      // poll for the count to settle (server response → grid re-render has a brief lag; LR-052-clean)
+      // poll for the count to settle (server response → grid re-render has a brief lag)
       await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeLessThan(before);
       const row = await cp.findRowByName(CORP_PRICING_SEARCH.pricebookFilterSample.expectedName);
       expect(row).not.toBeNull();
@@ -90,7 +89,7 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
       // clearing + Search broadens again. NOTE: the broadened query reverts to the default
       // (isActive=true, no name) which equals the initial-load query → the app serves it from cache
       // and fires NO new request (verified via trace — only 2 strategies calls total). So do NOT wait
-      // for a response here; just click Search and assert the grid broadens (LR-052-clean poll).
+      // for a response here; just click Search and assert the grid broadens (no fixed sleep).
       await cp.clearPricebookFilter();
       await cp.clickSearch();
       await expect.poll(async () => cp.getItemCountNumber(), { timeout: 15_000 }).toBeGreaterThan(1);
@@ -133,7 +132,7 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
 
   test('TC-LOC-CPR-008: Location dropdown default + searchable options present', async ({ corporatePricingSearchPage: cp }) => {
     expect(await cp.getLocationDefaultText()).toContain('All Locations');
-    // Virtualized/lazy popover (live 2652) — poll until it populates; exact count NOT asserted (LR-022/LR-025).
+    // Virtualized/lazy popover (live 2652) — poll until it populates; exact count NOT asserted.
     await expect
       .poll(async () => (await cp.getLocationOptions()).length, { timeout: 15_000 })
       .toBeGreaterThan(CORP_PRICING_SEARCH.locationOptionFloor);
@@ -205,7 +204,7 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThan(narrowed);
   });
 
-  // ── D2 network classification ────────────────────────────────────────────────
+  // ── Network classification ────────────────────────────────────────────────
 
   test('TC-LOC-CPR-013: No network request fires while typing or selecting filters (client-side staging)', async ({ corporatePricingSearchPage: cp }) => {
     const counter = cp.attachListCallCounter();
@@ -213,7 +212,7 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
       await cp.fillPricebookFilter('abc');
       await cp.setCheckbox('isInternal', true);
       await cp.getCurrencyOptions(); // open + close dropdown
-      expect(counter.count()).toBe(0); // zero list calls during staging (D2 — staged client-side)
+      expect(counter.count()).toBe(0); // zero list calls during staging (staged client-side)
     } finally {
       counter.dispose();
     }
