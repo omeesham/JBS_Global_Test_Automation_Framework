@@ -1,4 +1,4 @@
-# SUBPLAN_CORP_PRICING_1440_NEW_PRICEBOOK — New Pricebook create-mode (GATED STUB)
+# SUBPLAN_CORP_PRICING_1440_NEW_PRICEBOOK — New Pricebook create-mode (NM-1440 — PRIORITY; page BUILT per S0/D3)
 
 **Status**: PENDING
 **Priority**: P1
@@ -18,9 +18,9 @@
 
 ## Context
 
-**GATED STUB (F18).** NM-1440 "UI: New Pricebook" is a full DOCX story (P1 by priority), but live recon (master D3) found the New Pricebook page **not built** ("New" click did not navigate). This file exists NOW so every deferral pointing at it — S1's New-Pricing route-param (F2c) and S3's New-Pricebook-mode drag/drop ADD — is **grep-verifiable per LR-040(b)**, not a phantom handoff. Full GIVER→BUILDER design is authored on **activation**, when a walk confirms the page shipped. Until then this stub holds scope + seed list only (authoring now would be assumption-laden, forbidden by Doctrine 1).
+**WAVE-1.5 PRIORITY (F-WV15) — the core "add" JIRA story.** NM-1440 "UI: New Pricebook" is a full DOCX story; **S0 corrected D3 to BUILT** (the New Pricebook page IS live, route-param `?type=equipment|labor`). This is **no longer a gated stub** — it runs in the Wave-1.5 priority wave (the "add" / create flow is the main thing needed first). It also absorbs S1's New-Pricing route-param (F2c) and S3's New-Pricebook-mode drag/drop ADD (LR-040(b)). Full GIVER→BUILDER design is authored from the **live walk** of the create page + its **two options** (Equipment Pricing / Labor Pricing) and the submodules inside each — NEVER assume field shape, walk it (Doctrine 1).
 
-**Activation trigger**: walk-evidence records 1440 build-status = BUILT with live evidence. Until BUILT, this subplan stays PENDING-gated and is NOT executed.
+**Activation trigger**: page is BUILT (S0/D3) → runs now. Phase-0 **re-confirms BUILT on the first walk** (NEVER-ASSUME) — HALT only if the page is genuinely absent.
 
 ---
 
@@ -34,7 +34,7 @@
 
 ## Phase 0 — Dependency + browser-tool + activation gate (MANDATORY)
 
-1. Confirm S0 DONE. 2. **Activation gate**: confirm walk-evidence records 1440 = BUILT; if NOT built → HALT (stay gated, do not author). 3. LR scan: LR-ENC-001, LR-017, LR-040, LR-029. 4. `BrowserTool=cli`, `-s=cpr-newpricebook` on `clients/encore/.auth/encore-state.json`.
+1. Confirm S0 DONE. 2. **Re-confirm BUILT** on the first walk (S0/D3 says BUILT — verify live; HALT only if genuinely absent — NEVER-ASSUME). 3. LR scan: LR-ENC-001, LR-017, LR-040, LR-029. 4. `BrowserTool=cli`, `-s=cpr-newpricebook` on `clients/encore/.auth/encore-state.json`. 5. **POM-shape gate**: assert `tests/corporate-pricing/` + `src/data/corporate-pricing/` + `src/fixtures/pages.fixture.ts` exist (restructure landed); HALT if the tree is half-moved.
 
 ---
 
@@ -53,7 +53,8 @@
 - R1440-6/7 multi-strategy add (Strategy Name + Type, appended to list + summary view).
 - R1440-8 Save commits header + strategies + selected product groups; R1440-9 Empty-Shell (Save handles empty product-group array gracefully).
 - **New-Pricebook-mode product-group ADD** (double-click + drag-drop) — the behavior S3 (1443) deferred here (DOCX R1443-2 / R1443-9).
-- **New-Pricing equipment/labor route-param destination** — the DOCX "Must" S1 (1445) deferred here (DOCX R1445-4, line 18).
+- **New-Pricing equipment/labor route-param destination** — the DOCX "Must" S1 (1445) deferred here (DOCX R1445-4, line 18). **Scope boundary (no dup):** the `+New ▾` toolbar affordance + its Equipment/Labor dropdown *presence* is already FULL P1 (TC-LOC-CPR-016/017) and re-touched by Wave-1.5's toolbar surface; THIS subplan owns only the create-flow **destination** page (header / strategies / Save / New-Pricebook-mode drag-drop ADD) — it does NOT re-cover the dropdown itself.
+- **FCC each create option separately**: the Equipment Pricing flow AND the Labor Pricing flow (the two `+New ▾` options), including the submodules inside each (header → multi-row strategies → product-group selection → Save) — walked + FCC'd independently.
 - TC band: `TC-LOC-CPR-3NN` (New Pricebook).
 
 Full field-inventory + test-cases + test-plan + specs authored on activation, same shape as S1/S2/S3 (mutation uses a dedicated create-mode fixture, NOT `strategyFixture`/`detailFixture`).

@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md",
+  "plan_basename": "PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md",
+  "plan_sha256": "099c6e62a80d24348d92f91fc11fde215c061c037c2f17967191271f5e214a84",
+  "passed_at": "2026-06-08T12:38:30.226Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1780922310225-ae7b440e53128d6fa11aac6bc2090460-099c6e62a80d2434",
+  "artifacts": [],
+  "provisional": false
+}

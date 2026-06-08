@@ -5,7 +5,7 @@
 **Created**: 2026-06-05
 **Identity**: GIVER
 **Parent**: PLAN_CORP_PRICING_MASTER.md
-**Depends on**: SUBPLAN_CORP_PRICING_99_AUDIT_CLOSURE.md
+**Depends on**: SUBPLAN_CORP_PRICING_W15_99_CLOSURE.md
 **Blocks**: none
 **Model**: claude-opus-4-8
 **Thinking**: xhi
@@ -20,7 +20,7 @@
 
 **WAVE-2 STUB (F18).** FCC field-matrix for the Pricing Detail grid (NM-1443), priority P2 per Doctrine 1. Exists NOW so S3's `(b)` deferrals (numeric BVA/non-numeric/each-cell) point at a grep-verifiable recipient (LR-040(b)). Full design is authored **after Wave-1 closes** — consumes S3's detail field-inventory; detailing now = assumptions (Doctrine 1).
 
-**Activation trigger**: Wave-1 closed P1-green; S3's detail field-inventory exists.
+**Activation trigger**: Wave-1 **and Wave-1.5 (W15_99 closure)** closed; POM shape present; S3's detail field-inventory exists.
 
 ---
 
@@ -34,7 +34,7 @@
 
 ## Phase 0 — Dependency + browser-tool gate (MANDATORY)
 
-1. Confirm S4 (Wave-1 closure) DONE + S3 field-inventory exists. 2. LR scan: LR-ENC-002, LR-009 (revert), LR-011 (NaN reload), LR-022 (no hardcoded counts vs virtualized grid — F8), LR-040. 3. `BrowserTool=cli`, `-s=cpr-detail-fcc`. Mutation uses the `detailFixture` (F1) with restore.
+1. Confirm Wave-1.5 closed (W15_99 DONE; transitively Wave-1) + S3 field-inventory exists + POM shape present. 2. LR scan: LR-ENC-002, LR-009 (revert), LR-011 (NaN reload), LR-022 (no hardcoded counts vs virtualized grid — F8), LR-040. 3. `BrowserTool=cli`, `-s=cpr-detail-fcc`. Mutation uses the `detailFixture` (F1) with restore.
 
 ---
 

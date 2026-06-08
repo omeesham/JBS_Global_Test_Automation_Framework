@@ -28,7 +28,7 @@
 
 **Identity**: GIVER → BUILDER → HEALER → WATCHDOG on activation. Clean re-load at each switch.
 **Skills auto-called**: `/identity`, `/regression-guard`, `/relevant`, `/find-bugs` (adversarial edge), `/rca` (if failures), `/final-q`.
-**Context files**: `PLAN_CORP_PRICING_MASTER.md`, the 3 Wave-2 FCC subplans, all 3 field-inventories, `field-case-generation.md`.
+**Context files**: `PLAN_CORP_PRICING_MASTER.md`, the 3 Wave-2 FCC subplans, the Wave-1.5 subplans (`SUBPLAN_CORP_PRICING_W15_A_OVERRIDE_FCC.md`, `SUBPLAN_CORP_PRICING_W15_B_TOOLBAR_IO_FCC.md` — this stub holds their deferred real-I/O round-trip), all 3 field-inventories + the Wave-1.5 inventories, `field-case-generation.md`.
 
 ---
 
@@ -52,7 +52,7 @@
 - **Drag-drop edge** (Detail New-Pricebook mode) — activates only when NM-1440 ships (cross-ref the 1440 stub).
 - **Cross-field**: strategy×detail interactions; currency consistency header↔grid.
 - **Accessibility**: keyboard nav, ARIA roles on grid/dialogs.
-- **Export / Import / Loc Pricing Export-Import / Grid Options** deep behavior (the extra nav buttons from D3 — presence covered in S1 P1, behavior here).
+- **Export / Import real file I/O round-trip** (deferred from Wave-1.5 WV1.5-B, which covers trigger+variant only): actual download round-trip (`waitForEvent('download')` + assert file/format per the 4 variants — All Equipment/Labor Pricing, All Equipment/Labor Max Discount) AND real import upload (fixture files → validation / error / success). Needs a download-dir + committed fixture files. (Trigger-level + Grid-Options behavior is already owned by WV1.5-B — NOT re-covered here; this is the heavy I/O slice only.)
 - **RBAC**: Revenue Management role gate (read-only vs edit) where applicable.
 - TC band: `TC-LOC-CPR-9NN` (edge).
 

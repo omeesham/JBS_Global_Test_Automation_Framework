@@ -50,7 +50,8 @@ This plan was authored after a **live read-only recon of the e2e site** (2026-06
 4. **Sparse-testid reality drives the selector strategy.** The live module has near-zero `data-testid` coverage (Search page: 5 `e2e-*` testids; Details/Strategy/Detail pages: 0). Selectors are text/role/structure/grid-column-header anchored, with content-anchored row lookup (per `feedback_history_content_anchored_lookup.md`), NOT `data-testid`. This is the single biggest difference from the Location Settings modules and is a first-class design task in S0. Any missing-testid gaps that block automation are reported to the Encore team per LR-029 (verify on live DOM, never from selector files alone).
 5. **Helpers, not gospel.** The 110 XLSX cases seed GIVER. GIVER verifies each against live DOM, corrects every `[ASSUMPTION]` flag, re-IDs to the repo convention (`TC-LOC-CPR-NNN` — a planning convention validated only by `check-tc-parity.ts` `TC_PATTERN` for set-membership; NOT defined by `tc-authoring-rules`, which is text-hygiene only — F9), and drops/adds cases as live reality dictates.
 6. **All identities, every screen.** HUNTER (intake/baseline-absent/requirements) → GIVER (field-inventory + test-cases + test-plan + catalog + XLSX) → BUILDER (selectors + page object + test data + specs) → HEALER (RCA + fix) → WATCHDOG (parity + audit) → GARDENER (dedup/structural). No identity skipped; FCC parity is structural per LR-ENC-002 (MD + test-plan + XLSX land in the SAME change as the spec — never "later").
-7. **Mutation safety.** e2e is the test environment (whole env is fair game), but real-looking data exists (591 pricebooks in office 1604). Read-only assertions run against existing data. Save-cycle / mutation tests run against a designated fixture and restore it with a bounded-retry `ensureDefaultState()`. **S0 designates TWO distinct fixtures (F1): `strategyFixture` (S2 only) + `detailFixture` (S3 only)** — different pricebook records, so the parallel `cpr-mgmt`/`cpr-detail` sessions AND the `workers:2` S4 suite run never mutate the same row. Never mutate arbitrary production-like books.
+7. **Mutation safety.** e2e is the test environment (whole env is fair game), but real-looking data exists (591 pricebooks in office 1604). Read-only assertions run against existing data. Save-cycle / mutation tests run against a designated fixture and restore it with a bounded-retry `ensureDefaultState()`. **S0 designates TWO distinct fixtures (F1): `strategyFixture` (S2 only) + `detailFixture` (S3 only)** — different pricebook records, so the parallel `cpr-mgmt`/`cpr-detail` sessions AND the `workers:2` S4 suite run never mutate the same row. Never mutate arbitrary production-like books. (Wave-1.5 pages each get their own dedicated fixture, same isolation rule.)
+8. **JIRA/DOCX is PARTIAL (user 2026-06-08).** The ticket describes only *some* of what's built; the **LIVE DOM is the complete oracle**. Verify each page's build-status on the live walk — "not in the ticket" ≠ "not built", and coverage is never limited to DOCX-named elements. (This is why **1440 is unblocked** — S0/D3 already confirmed it BUILT.)
 
 ---
 
@@ -66,6 +67,8 @@ This plan was authored after a **live read-only recon of the e2e site** (2026-06
 | D6 | Pricing Details grid: Override Price, Override Discount, Base Price; detail API returns base price, **staging price**, max allowed discount (R1441-13) | Live grid headers: `ID, Product Group Name, Price, New Price, Max Discount` (Base→`Price`, Override Price→`New Price`, Override Discount→`Max Discount`; DOCX "staging price" → `New Price` — F14) | Live wins. GIVER maps doc terms→live headers, incl. the staging-price→New-Price mapping. |
 | D7 | (implied normal page) | Pricing Detail tab has **~3707 draggables, ~4861 inputs**, virtualized — extremely heavy | S3 is HIGH complexity; virtualization + content-anchored reads mandatory (LR-053). |
 | D8 | Rich data-testids (assumed from other modules) | **5 testids on Search (`e2e-*`), 0 on Details/Strategy/Detail** | Selector strategy = text/role/grid-header/content-anchor (Doctrine 4). |
+| D9 | (not in DOCX) | **"Pricing Override" → "Product Group Override" screen is LIVE** (Equipment/Labor tabs, location + currency filters, Active-only, 9-col grid incl. `Override Price` / `Max Discount %`, Save/Export/Import). Wave-1 deferred its button as "URL: TBD" (D3) — **destination now BUILT** (recon-stale). | **Wave-1.5 (WV1.5-0/A)**: live = oracle, full FCC; RAISE **Q-WV15-1** (undocumented screen — story ID NM-1442? intended Override-Price/Max-Discount validation?). Re-confirm BUILT on walk. |
+| D10 | (not in DOCX) | **Export ▾ / Import ▾ each expose 4 variants** (`All Equipment Pricing`, `All Labor Pricing`, `All Equipment Max Discount`, `All Labor Max Discount`); `Loc Pricing Export/Import` + `Grid Options` present | **Wave-1.5 (WV1.5-B)**: trigger+variant FCC; RAISE **Q-WV15-2** (undocumented variant behavior/format); real file I/O round-trip → EDGE_P3. |
 
 ---
 
@@ -82,17 +85,27 @@ This plan was authored after a **live read-only recon of the e2e site** (2026-06
 ### Wave 1 closure
 - **[SUBPLAN_CORP_PRICING_99_AUDIT_CLOSURE.md](../done/SUBPLAN_CORP_PRICING_99_AUDIT_CLOSURE.md)** — **DONE 2026-06-05**, Wave-1 closure: DO-OR-DIE multi-agent audit (8 dimensions B1–B8, fresh-context adversarial skeptics ≥3/PASS) → VERIFIED-CLEAN after one full remediation round (10 defects fixed at MD-source / tooling / page-object / draft layers, re-audited fresh-context). 64 passed (63 `TC-LOC-CPR-*` + auth-setup), 0 fail/flaky/skip from this-run deduped summary; parity 63=63=63 + LR-ENC-004 workbook lint clean; GARDENER dedup → 5 shared primitives in `CorporatePricingBasePage` (typecheck clean); missing-testid report filed (LR-029). P1 milestone delivered — parent stays PENDING per F16.
 
-### Wave 2 — FCC field-coverage (lightweight PENDING **stubs authored now** for grep-verifiable deferral per LR-040(b)/F18; full test design AFTER Wave 1 closes — needs P1's live field-inventories, so detailing now would be assumptions)
+### POM restructure (between waves — DONE)
+- **[PLAN_ENCORE_POM_RESTRUCTURE.md](PLAN_ENCORE_POM_RESTRUCTURE.md)** — landed after Wave-1. `clients/encore/` moved to standard POM shape: `specs/`→`tests/`, `src/data/testdata/<mod>/*.data.ts`→`src/data/<mod>/*.ts`, `src/infra/fixtures.ts`→`src/fixtures/pages.fixture.ts`, `src/core/{base-page,field-case-runner}`→`src/pages/base.page.ts` / `src/utils/`. Wave-1 code rode the move (tsc-gated); **all Wave-1.5+ children author into POM shape** and carry a Phase-0 POM-shape gate (HALT if half-moved).
+
+### Wave 1.5 — full FCC for every built page (runs BEFORE Wave 2; F-WV15)
+The priority wave: each built page gets full per-field FCC, driven by the LIVE walk (Doctrine 8 — JIRA is partial), divergences RAISED (ledger D9/D10). TC bands `5NN` (Override) / `6NN` (toolbar I/O) / `3NN` (New Pricebook):
+- `SUBPLAN_CORP_PRICING_W15_0_RECON.md` — recon walk of the new live surfaces (Override, toolbar) + field-inventories + scaffold + raise Q-WV15-*. Blocks W15-A/B.
+- `SUBPLAN_CORP_PRICING_W15_A_OVERRIDE_FCC.md` — Product Group Override screen, full per-field FCC (Equipment + Labor tabs / location / currency / Active-only / 9-col grid / Override Price + Max Discount % numeric BVA / save-cycle / empty state); reuses the 1443 numeric pattern on a distinct screen/fixture (5NN).
+- `SUBPLAN_CORP_PRICING_1440_NEW_PRICEBOOK.md` — **core "add" JIRA story, de-gated → PRIORITY** (BUILT per S0/D3): New Pricebook create flow, FCC each option (Equipment / Labor) + inner submodules; seeds 25 XLSX helpers (3NN). Self-closes via its own Phase-4 audit.
+- `SUBPLAN_CORP_PRICING_W15_B_TOOLBAR_IO_FCC.md` — Export ▾ (4) / Import ▾ (4) / Loc Pricing Export-Import / Grid Options — **trigger+variant level only**; real file I/O round-trip deferred to EDGE_P3 (6NN).
+- `SUBPLAN_CORP_PRICING_W15_99_CLOSURE.md` — do-or-die multi-agent audit (mirrors S4) of the new-scaffold subplans (Override + toolbar); annotates this master "P1.5 milestone", does NOT flip (F16).
+
+### Wave 2 — FCC field-coverage (lightweight PENDING **stubs authored now** for grep-verifiable deferral per LR-040(b)/F18; full test design AFTER Wave 1 closes — needs P1's live field-inventories, so detailing now would be assumptions). **Now gated on Wave-1.5 closure (W15_99) — runs after Wave 1.5.**
 - `SUBPLAN_CORP_PRICING_1445_SEARCH_FCC_P2.md` — text (Pricebook filter), dropdown each-option (Strategy/Location/Currency), checkbox toggle+revert (Is Internal/Labor/Active Only), reset idempotency, client-side network assertions.
 - `SUBPLAN_CORP_PRICING_1441_STRATEGY_FCC_P2.md` — multi-row FormArray (strategies add/edit/remove/delete-all), save-cycle revert (LR-009), each strategy-type option.
 - `SUBPLAN_CORP_PRICING_1443_DETAIL_FCC_P2.md` — numeric BVA/negative/save-cycle for New Price + Max Discount (per `field-case-generation.md` numeric row), empty→Base-Price fallback, currency-format validation, read-only Base Price.
 
 ### Wave 3 — Edge (lightweight PENDING **stub authored now** per F18; full design AFTER Wave 2)
-- `SUBPLAN_CORP_PRICING_EDGE_P3.md` — compound multi-filter, 591-row virtualization stress + content-anchored integrity, drag-drop edge (when 1440 ships), cross-field, accessibility, Export/Import/Grid-Options deep behavior, RBAC (Revenue Management role gate).
+- `SUBPLAN_CORP_PRICING_EDGE_P3.md` — compound multi-filter, 591-row virtualization stress + content-anchored integrity, drag-drop edge (when 1440 ships), cross-field, accessibility, **Export/Import real file I/O round-trip (deferred from Wave-1.5 WV1.5-B; trigger+variant + Grid Options owned by Wave-1.5, NOT re-covered)**, RBAC (Revenue Management role gate).
 
-### Gated (lightweight PENDING **stubs authored now** per F18 so deferrals are grep-verifiable; activate full design when S0 confirms the app ships them)
-- `SUBPLAN_CORP_PRICING_1440_NEW_PRICEBOOK.md` — GATED on the New Pricebook page existing (D3). Header fields, multi-row strategies, Save + Empty-Shell, RBAC, New-Pricebook-mode drag/drop ADD (1443 deferral target), New-Pricing equipment/labor route-param destination (F2c). **Seed: 25 existing XLSX helpers `TC-ENC-PRC-1440-001…025`** (F14).
-- `SUBPLAN_CORP_PRICING_1444_HISTORY.md` — GATED on a History tab existing (D5).
+### Gated (lightweight PENDING stub; activate full design when its screen ships)
+- `SUBPLAN_CORP_PRICING_1444_HISTORY.md` — GATED on a History tab existing (D5). *(1440 de-gated → Wave-1.5 priority, BUILT per S0/D3.)*
 
 ---
 
@@ -128,7 +141,9 @@ This plan was authored after a **live read-only recon of the e2e site** (2026-06
 | 1445 Search | S0 inventory | S1 | S1 | S1 | S1 + S4 |
 | 1441 Mgmt/Strategy | S0 inventory | S2 | S2 | S2 | S2 + S4 |
 | 1443 Pricing Detail | S0 inventory | S3 | S3 | S3 | S3 + S4 |
-| Closure (parity/dedup) | (none) | S4 (parity) | (none) | (none) | S4 + GARDENER |
+| Product Group Override (Wave-1.5) | W15-0 inventory | W15-A | W15-A | W15-A | W15-A + W15-99 |
+| Toolbar I/O (Wave-1.5) | W15-0 inventory | W15-B | W15-B | W15-B | W15-B + W15-99 |
+| Closure (parity/dedup) | (none) | S4 (Wave-1) / W15-99 (Wave-1.5) | (none) | (none) | S4 + W15-99 + GARDENER |
 
 ---
 
@@ -160,7 +175,7 @@ This is additive (new module), not a restructure, so there is little to retire. 
 
 ## Closure & parent-cascade (LR-027)
 
-Auto-close exemption: **YES (F16 — user directive: P1 first, THEN FCC, THEN edge; the module is NOT "done" after only P1).** This parent stays PENDING until **Wave-2 (FCC) AND Wave-3 (edge) are authored AND closed** — not when only Wave-1 (P1) closes. (Precedent: `PLAN_BIG_PIVOT_FCC_MASTER` §Cascade closure rules — user-authorized auto-close suppression under LR-027.) When Wave-1 closes, S4 records a **"P1 milestone delivered"** annotation in this body but does **NOT** flip the parent to DONE; the FCC + edge stub subplans remain pending and gate closure. Each child annotates its DONE line in this body while this parent is still in `plans/pending/`. The parent flips to DONE only when the LAST pending `SUBPLAN_CORP_PRICING_*` across all three waves closes.
+Auto-close exemption: **YES (F16 — user directive: P1 first, THEN FCC, THEN edge; the module is NOT "done" after only P1).** This parent stays PENDING until **Wave-1.5 (newly-surfaced nodes) AND Wave-2 (FCC) AND Wave-3 (edge) are authored AND closed** — not when only Wave-1 (P1) closes. (Precedent: `PLAN_BIG_PIVOT_FCC_MASTER` §Cascade closure rules — user-authorized auto-close suppression under LR-027.) When Wave-1 closes, S4 records a **"P1 milestone delivered"** annotation in this body but does **NOT** flip the parent to DONE; the FCC + edge stub subplans remain pending and gate closure. Each child annotates its DONE line in this body while this parent is still in `plans/pending/`. The parent flips to DONE only when the LAST pending `SUBPLAN_CORP_PRICING_*` across all three waves closes.
 
 ### ✅ P1 milestone delivered (2026-06-05)
 
@@ -171,7 +186,7 @@ Wave-1 (DOCX-functional P1) is **complete, audited, and parity-clean** across al
 - **Structure**: GARDENER dedup extracted 5 shared primitives (`isSaveEnabled`, `clickSaveButtonOrThrow`, `confirmSaveDialogIfPresent`, `isVisibleSafe`, `readAllTexts`) + the init-log into `CorporatePricingBasePage` (ALL-026); `typecheck` clean; regression-guard 0 API removed.
 - **Closure audit**: S4 DO-OR-DIE multi-agent `Workflow` audit (8 dimensions, fresh-context, ≥3 adversarial skeptics per PASS) → **VERIFIED-CLEAN** after one remediation round.
 - **Divergences raised (not absorbed)**: D1 (8↔9 columns), D2 (server-side filtering), D5/CPR-STRAT-Q1 (History absent), CPR-DETAIL-Q3 (flat grid), CPR-DETAIL-Q4 (New-Price override) staged as `/encore-questions` drafts.
-- **Children in `plans/done/`**: S0/S1/S2/S3/S4. **Still gating closure (PENDING)**: Wave-2 FCC (`1445_SEARCH_FCC_P2`, `1441_STRATEGY_FCC_P2`, `1443_DETAIL_FCC_P2`), Wave-3 edge (`EDGE_P3`), gated stubs (`1440_NEW_PRICEBOOK`, `1444_HISTORY`).
+- **Children in `plans/done/`**: S0/S1/S2/S3/S4. **Still gating closure (PENDING)**: Wave-1.5 (`W15_0_RECON`, `W15_A_OVERRIDE_FCC`, `W15_B_TOOLBAR_IO_FCC`, `W15_99_CLOSURE`), Wave-2 FCC (`1445_SEARCH_FCC_P2`, `1441_STRATEGY_FCC_P2`, `1443_DETAIL_FCC_P2`), Wave-3 edge (`EDGE_P3`), gated stubs (`1440_NEW_PRICEBOOK`, `1444_HISTORY`).
 
 ---
 

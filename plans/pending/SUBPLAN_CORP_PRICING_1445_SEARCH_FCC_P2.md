@@ -5,7 +5,7 @@
 **Created**: 2026-06-05
 **Identity**: GIVER
 **Parent**: PLAN_CORP_PRICING_MASTER.md
-**Depends on**: SUBPLAN_CORP_PRICING_99_AUDIT_CLOSURE.md
+**Depends on**: SUBPLAN_CORP_PRICING_W15_99_CLOSURE.md
 **Blocks**: none
 **Model**: claude-opus-4-8
 **Thinking**: xhi
@@ -20,7 +20,7 @@
 
 **WAVE-2 STUB (F18).** FCC (Field-Case-Coverage) field-matrix for the Search page (NM-1445), priority P2 per Doctrine 1 (P1 first, FCC second). This file exists NOW so S1's `(b)` deferrals (BVA / each-option / compound) point at a grep-verifiable recipient (LR-040(b)). Full design is authored **after Wave-1 closes** — it consumes S1's live field-inventory (`field-inventories/corporate-pricing-search-*.md`), so detailing it now would be assumptions (forbidden by Doctrine 1).
 
-**Activation trigger**: Wave-1 (S1/S2/S3 + S4) closed P1-green; S1's search field-inventory exists.
+**Activation trigger**: Wave-1 (S1/S2/S3 + S4) **and Wave-1.5 (W15_99 closure)** closed; POM shape present; S1's search field-inventory exists.
 
 ---
 
@@ -34,7 +34,7 @@
 
 ## Phase 0 — Dependency + browser-tool gate (MANDATORY)
 
-1. Confirm S4 (Wave-1 closure) DONE + S1 field-inventory exists. 2. LR scan: LR-ENC-002 (FCC parity structural), LR-040, LR-051/052, LR-022. 3. `BrowserTool=cli`, `-s=cpr-search-fcc`.
+1. Confirm Wave-1.5 closed (W15_99 DONE; transitively Wave-1) + S1 field-inventory exists + POM shape present. 2. LR scan: LR-ENC-002 (FCC parity structural), LR-040, LR-051/052, LR-022. 3. `BrowserTool=cli`, `-s=cpr-search-fcc`.
 
 ---
 

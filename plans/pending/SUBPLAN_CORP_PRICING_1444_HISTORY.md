@@ -34,7 +34,7 @@
 
 ## Phase 0 — Dependency + browser-tool + activation gate (MANDATORY)
 
-1. Confirm S0 DONE. 2. **Activation gate**: confirm walk-evidence shows a live History tab AND an Encore-supplied spec; if either absent → HALT (stay gated). 3. LR scan: LR-ENC-001, LR-036, LR-040, LR-029. 4. `BrowserTool=cli`, `-s=cpr-history`.
+1. Confirm S0 DONE. 2. **Activation gate**: confirm walk-evidence shows a live History tab AND an Encore-supplied spec; if either absent → HALT (stay gated). 3. LR scan: LR-ENC-001, LR-036, LR-040, LR-029. 4. `BrowserTool=cli`, `-s=cpr-history`. 5. **POM-shape gate**: assert `tests/corporate-pricing/` + `src/data/corporate-pricing/` + `src/fixtures/pages.fixture.ts` exist (restructure landed); HALT if the tree is half-moved.
 
 ---
 
