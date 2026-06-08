@@ -17,7 +17,7 @@ Framework-level README for maintainers and the colleague routing bundles to end-
 ```bash
 npm install
 npx playwright install
-# create clients/encore/config/environments/.env.local with your SSO creds — see docs/SETUP.md Step 2
+# create clients/encore/.env.local with your SSO creds — see docs/SETUP.md Step 2
 npm test
 ```
 

@@ -4,7 +4,7 @@ For new collaborators only. Existing collaborators skip this.
 
 **On every session start**, two checks happen automatically:
 
-1. The framework checks if `config/environments/.env.local` exists → if missing, you're in onboarding.
+1. The framework checks if `clients/encore/.env.local` exists → if missing, you're in onboarding.
 2. **Identity check**: Auto-detected by skill Identity Gates. For non-skill pipeline work, `/identity` Step 1.6 detects from keywords. Manual `/identity` is still available. OWNER is the safe default.
 
 ---
@@ -15,7 +15,7 @@ Ask: "What's your name?" Copy `.claude/agents/COLLEAGUE.agent.md` → `.claude/a
 
 ## Step 2 — Create your local credentials file
 
-Local runs (ours only — Encore runs via CI) load `.env.local`, which is gitignored. Create `clients/encore/config/environments/.env.local` with:
+Local runs (ours only — Encore runs via CI) load `.env.local`, which is gitignored. Create `clients/encore/.env.local` (client root — `dotenv-flow` loads it from there, see `playwright.config.ts`) with:
 
 ```ini
 CI_ENV=local
@@ -43,7 +43,10 @@ Each person needs their own Claude subscription.
 
 ```bash
 npm install && npx playwright install
+npm install -g @playwright/cli   # agent-CLI used by plan walk/recon steps (BrowserTool: cli); NOT a package.json dep
 ```
+
+> `@playwright/cli` (binary `playwright-cli`) is the agent live-walk tool the plans use (e.g. the corp-pricing W15 recon walk). It is installed **globally**, separate from the project's `@playwright/test` runner. Without it, `BrowserTool: cli` plan steps can't open the live app.
 
 ## Step 6 — Verify
 

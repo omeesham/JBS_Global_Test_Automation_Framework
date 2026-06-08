@@ -27,9 +27,9 @@ If a rule applies to any Angular/Playwright client, it belongs in root `CLAUDE.m
 ## Product context (quick reference)
 
 - **App**: Navigator Cloud — Encore's rental/event management platform
-- **Base URL**: `cloudapps-e2e.encoreglobal.com` (E2E environment; see `config/environments/.env.local`)
+- **Base URL**: `cloudapps-e2e.encoreglobal.com` (E2E environment; see `clients/encore/.env.local`)
 - **Test office**: 1604 (hardcoded in many TCs)
-- **Auth**: Microsoft SSO; credentials in `config/environments/.env.local` (gitignored; CI uses GitHub Secrets)
+- **Auth**: Microsoft SSO; credentials in `clients/encore/.env.local` (gitignored; CI uses GitHub Secrets)
 - **Module registry**: `clients/encore/docs/MODULE_REGISTRY.md` (agent-only — gitignored per root `.gitignore:185`, never ships)
 - **Requirements**: `clients/encore/docs/REQUIREMENTS.md` (agent-only — gitignored per root `.gitignore:184`, never ships)
 - **Encore-specific agent rules** (ALL-* additions): `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md`
@@ -43,7 +43,7 @@ If a rule applies to any Angular/Playwright client, it belongs in root `CLAUDE.m
 
 **Encore baseline truth source**: `https://navigator2.training.psav.com/#/` (old Navigator UI, tabs embedded in one URL).
 **Encore observed app**: `https://cloudapps-e2e.encoreglobal.com/navigator/` (new Navigator Cloud).
-**Credentials**: shared — same Microsoft SSO per `config/environments/.env.local` (proven by SP-OSB-01 — CiC inherits the user's live Chrome session, no re-login needed).
+**Credentials**: shared — same Microsoft SSO per `clients/encore/.env.local` (proven by SP-OSB-01 — CiC inherits the user's live Chrome session, no re-login needed).
 **Baseline artifact directory**: `clients/encore/specs_planning/_internal/old-site-baseline/<module>-<YYYY-MM-DD>.md`.
 
 > Note: `nav4` is not an env in this framework. Any historical reference to "nav4" is a stale label that meant the e2e env (cloudapps-e2e.encoreglobal.com). PLAN_55 (2026-05-19) purged live references; historical references in done plans are audit trail.
@@ -71,7 +71,7 @@ Cross-refs: LR-045 (framework rule), ALL-024 (truth hierarchy), ALL-078 (HALT ga
 
 ### LR-ENC-002: FCC parity is structural — never lazy-defer MD/XLSX/test-plan updates
 
-When any subplan produces, modifies, or deletes a `clients/encore/specs/**/*.spec.ts` test case (FCC or non-FCC), the parity contract is structural — enforced by three defense layers:
+When any subplan produces, modifies, or deletes a `clients/encore/tests/**/*.spec.ts` test case (FCC or non-FCC), the parity contract is structural — enforced by three defense layers:
 
 1. **Per-agent HARD STOPS** — BUILDER HARD STOP #11 ("NO SPEC WITHOUT GIVER ARTIFACTS"), HEALER HARD STOP #6 ("NO SPEC EDIT WITHOUT MD SYNC"), AUDIT Workflow step 1.5 (parity pre-check before every audit), PLANNER HARD STOP #8 (FCC clause) + HARD STOP #10 (XLSX sheet count check). Agents HALT on missing MD/test-plan/XLSX.
 2. **Pre-commit hook gates A/B/C** in `.githooks/pre-commit` — commits HALT on parity gaps (Gate A: `check:tc-parity`), backdated activity-log rows (Gate B: `validate-activity-log.mjs`), or plan closure without Execution Summary (Gate C: `validate-plan-closure.mjs --staged --enforce`).
@@ -89,7 +89,7 @@ If you ever feel like "I'll do the MD/XLSX later in a follow-up subplan" — tha
 
 Both files target the same e2e server (`cloudapps-e2e.encoreglobal.com`) — the difference is the config file. `.env.local` (gitignored) carries credentials + dev tuning; `.env.e2e` (tracked) carries prod-CI tuning and **NO** credentials (CI injects `NAVIGATOR_*`/`BASE_URL` from GitHub Secrets).
 
-Env selection defaults to `local` (set inline in `playwright.config.ts` + `src/infra/global-setup.ts`); CI sets `CI_ENV=e2e`. A guard in `src/infra/global-setup.ts` THROWS if `CI_ENV=e2e` without `CI` — so a local run can never execute against the e2e config file.
+Env selection defaults to `local` (set inline in `playwright.config.ts` + `src/setup/global-setup.ts`); CI sets `CI_ENV=e2e`. A guard in `src/setup/global-setup.ts` THROWS if `CI_ENV=e2e` without `CI` — so a local run can never execute against the e2e config file.
 
 **Trigger**: any agent running specs locally — never set `CI_ENV=e2e` for a local run; just `npm test` (loads `.env.local`).
 
@@ -114,7 +114,7 @@ object or co-locate files in the same directory. Each page group gets its own se
 partition, own directory, and own collision detection boundary.
 "Location Settings" (`/settings/location`) ≠ "Local Office Settings" (`/settings/local-office`).
 Check `clients/encore/docs/REQUIREMENTS.md`, `clients/encore/docs/MODULE_REGISTRY.md`, and `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` for page boundaries before creating any new page object.
-Directory structure mirrors the app navigation hierarchy: `clients/encore/specs/{module}/` + `clients/encore/src/pages/{module}/` + `clients/encore/src/selectors/{module}/` + `clients/encore/src/data/testdata/{module}/` (modules: `locations`, `local-office`).
+Directory structure mirrors the app navigation hierarchy: `clients/encore/tests/{module}/` + `clients/encore/src/pages/{module}/` + `clients/encore/src/selectors/{module}/` + `clients/encore/src/data/{module}/` (modules: `locations`, `local-office`, `corporate-pricing`). (Post-2026-06-05 POM restructure: `specs/`→`tests/`, `src/data/testdata/`→`src/data/`.)
 **Trigger**: Any new page object or selector file creation.
 
 ### LR-036: Boolean render format differs per page — MCP-verify detection per table
@@ -167,4 +167,4 @@ When a new automation user is provisioned, run these steps in order:
 
 ## When encore needs fresh login session
 
-Always use this file to read the creds and login without hallucinating and waiting for user to log you in, this works on e2e and nav2 envs, C:\Users\rutvi\projects\encore_framework\clients\encore\config\environments\.env.local creds given in this file, read it.
+Always use this file to read the creds and login without hallucinating and waiting for user to log you in, this works on e2e and nav2 envs. Creds live in `clients/encore/.env.local` (client root, gitignored — each collaborator creates their own per docs/SETUP.md Step 2). Read it.
