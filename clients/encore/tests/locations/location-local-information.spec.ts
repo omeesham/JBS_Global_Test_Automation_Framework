@@ -211,6 +211,7 @@ test.describe('Location Local Info @locations @local-info', () => {
     await locationLocalInfoPage.clickSave();
   });
 
+ // FLAKY (2026-06-08, fix deferred): fails on dirty start (net-zero no-op, no per-test LR-019 baseline) and under 2-worker contention with location-currency.spec (concurrent PUT update-properties on office 1604 clobbers multiday) — NOT an app bug (persists in isolation).
  // Timeout: 120s -- 2 save+reload cycles (~20-25s each).: handle dirty state after each save.
   test('TC-LOC-LI-071: Enable Multiday Pricing toggles and persists after save+reload', async ({ locationLocalInfoPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LI-001']);
