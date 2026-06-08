@@ -20,6 +20,7 @@ import {
   type RetryStats,
   type PerLayerStats,
 } from '../utils/retry-telemetry';
+import { isAuthUrl, urlHostMatches, textMentionsAuthUrl } from '../utils/url-host';
 
 /** Triage placeholder — populated post-Healer Phase 0, always null at reporter time.
  *  The reporter never reads triage fields; just declares the shape for JSON serialization.
@@ -256,18 +257,17 @@ class AgentReporter implements Reporter {
 
  // P1: Auth
     if (
-      lower.includes('login.microsoftonline.com') ||
-      lower.includes('b2clogin.com') ||
+      textMentionsAuthUrl(errorMsg) ||
       lower.includes('oauth') ||
       lower.includes('401') ||
       lower.includes('403') ||
-      netFails.some(n => (n.url.includes('login.microsoftonline.com') || n.url.includes('b2clogin.com') || n.url.includes('oauth')) && n.status >= 400)
+      netFails.some(n => (isAuthUrl(n.url) || n.url.includes('oauth')) && n.status >= 400)
     ) {
       return FailureCategory.AUTH;
     }
 
  // P2: Network (non-auth)
-    if (netFails.some(n => n.status >= 400 && !n.url.includes('login.microsoftonline.com'))) {
+    if (netFails.some(n => n.status >= 400 && !urlHostMatches(n.url, 'login.microsoftonline.com'))) {
       return FailureCategory.NETWORK;
     }
 

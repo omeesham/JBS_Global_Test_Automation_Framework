@@ -52,7 +52,7 @@ async function globalSetup(config: FullConfig) {
 
   const warnings = results.filter(r => r.status === 'WARN');
   for (const w of warnings) {
-    Log.info(`[WARN] Pre-flight WARN: ${w.check} -- ${w.message}`);
+    Log.warn(`Pre-flight WARN: ${w.check} -- ${w.message}`);
   }
 
   // Age out diagnostic snapshots older than 7 days. Without this, the

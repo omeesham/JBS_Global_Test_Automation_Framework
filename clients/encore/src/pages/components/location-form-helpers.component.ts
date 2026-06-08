@@ -52,28 +52,26 @@ export abstract class LocationFormHelpers extends BasePage {
  // ─────────────────────────────────────────────────────────────────────────────
 
   async getCheckboxState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<CheckboxState> {
-    const el = this.getElement(selectorKey);
-    const checked = await el.isChecked().catch(() => false);
-    const disabled = await el.isDisabled().catch(() => true);
-    Log.info(`Checkbox [${selectorKey}] -> checked=${checked} disabled=${disabled}`);
-    return { checked, disabled };
+    const state = await this.getRadixCheckboxState(selectorKey);
+    Log.info(`Checkbox [${selectorKey}] -> checked=${state.checked} disabled=${state.disabled}`);
+    return state;
   }
 
   async checkCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
-    if (!(await el.isChecked())) { await el.check(); Log.info(`Checked: ${selectorKey}`); }
+    if (!(await this.getRadixCheckboxState(selectorKey)).checked) { await el.check(); Log.info(`Checked: ${selectorKey}`); }
   }
 
   async uncheckCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
-    if (await el.isChecked()) { await el.uncheck(); Log.info(`Unchecked: ${selectorKey}`); }
+    if ((await this.getRadixCheckboxState(selectorKey)).checked) { await el.uncheck(); Log.info(`Unchecked: ${selectorKey}`); }
   }
 
   async toggleCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<boolean> {
     const el = this.getElement(selectorKey);
-    const wasChecked = await el.isChecked();
+    const wasChecked = (await this.getRadixCheckboxState(selectorKey)).checked;
     if (wasChecked) { await el.uncheck(); } else { await el.check(); }
-    const isNowChecked = await el.isChecked();
+    const isNowChecked = (await this.getRadixCheckboxState(selectorKey)).checked;
     Log.info(`Toggled ${selectorKey}: ${wasChecked} -> ${isNowChecked}`);
     return isNowChecked;
   }

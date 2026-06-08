@@ -633,10 +633,10 @@ export class BasePage {
         }
         await this.page.waitForTimeout(200);
       }
-      Log.info('[WARN] Save button did not enable within timeout');
+      Log.warn('Save button did not enable within timeout');
       return false;
     } catch {
-      Log.info('[WARN] Save button did not enable within timeout');
+      Log.warn('Save button did not enable within timeout');
       return false;
     }
   }

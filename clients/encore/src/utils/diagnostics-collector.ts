@@ -13,6 +13,7 @@ import type {
   DiagnosticSnapshot,
   HarEntry,
 } from '../types/diagnostics';
+import { isAuthUrl } from './url-host';
 
 const MAX_BODY_LENGTH = 2048;
 
@@ -53,7 +54,7 @@ export class DiagnosticsCollector {
       try {
         const status = response.status();
         const url = response.url();
-        if (url.includes('login.microsoftonline.com') || url.includes('b2clogin.com') || url.includes('oauth')) {
+        if (isAuthUrl(url) || url.includes('oauth')) {
           this.authChain.push({
             url,
             status,
@@ -123,10 +124,6 @@ export class DiagnosticsCollector {
     return this.consoleEntries.filter(e => e.type === 'error' || e.type === 'warning');
   }
 
-  getConsoleLogs(): ConsoleEntry[] {
-    return this.consoleEntries.filter(e => e.type === 'error' || e.type === 'warning' || e.type === 'info');
-  }
-
   getUrlBreadcrumbs(): UrlBreadcrumb[] {
     return [...this.urlBreadcrumbs];
   }
@@ -181,7 +178,7 @@ export class DiagnosticsCollector {
 
   getSnapshot(): DiagnosticSnapshot {
     return {
-      consoleErrors: this.getConsoleLogs(),
+      consoleErrors: this.getConsoleErrors(),
       networkFailures: [...this.networkFailures],
       pageErrors: [...this.pageErrors],
       urlHistory: [...this.urlHistory],

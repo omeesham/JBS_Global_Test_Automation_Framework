@@ -76,8 +76,8 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     const officeVal = await this.getElement('txtOffice').inputValue().catch(() => '');
     const localOfficeVal = await this.getElement('txtLocalOffice').inputValue().catch(() => '');
     const payToVal = await this.getElement('txtPayToAddress').inputValue().catch(() => '');
-    const ecommerce = await this.getElement('chkECommerceActive').isChecked().catch(() => false);
-    const prodOrders = await this.getElement('chkEnableProductionsOrders').isChecked().catch(() => false);
+    const ecommerce = (await this.getRadixCheckboxState('chkECommerceActive')).checked;
+    const prodOrders = (await this.getRadixCheckboxState('chkEnableProductionsOrders')).checked;
     const baseline: LeftPanelBaseline = {
       office: officeVal,
       localOffice: localOfficeVal,
@@ -98,7 +98,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
  * @returns 'Master' | 'Direct'
  */
   async getBillingType(): Promise<'Master' | 'Direct'> {
-    const masterChecked = await this.getElement('rdoBillingTypeMaster').isChecked().catch(() => false);
+    const masterChecked = (await this.getElement('rdoBillingTypeMaster').getAttribute('aria-checked').catch(() => null)) === 'true';
     return masterChecked ? 'Master' : 'Direct';
   }
 
@@ -116,7 +116,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
  * @returns 'Event' | 'Daily'
  */
   async getBillingWay(): Promise<'Event' | 'Daily'> {
-    const eventChecked = await this.getElement('rdoBillingWayEvent').isChecked().catch(() => false);
+    const eventChecked = (await this.getElement('rdoBillingWayEvent').getAttribute('aria-checked').catch(() => null)) === 'true';
     return eventChecked ? 'Event' : 'Daily';
   }
 

@@ -88,17 +88,15 @@ export class LocationCurrencyPage extends BasePage {
 
  /** Get checked/disabled state of a currency checkbox (Selected or Is Default). */
   async getCheckboxState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<CheckboxState> {
-    const el = this.getElement(selectorKey);
-    const checked = await el.isChecked().catch(() => false);
-    const disabled = await el.isDisabled().catch(() => true);
-    Log.info(`${selectorKey}: checked=${checked}, disabled=${disabled}`);
-    return { checked, disabled };
+    const state = await this.getRadixCheckboxState(selectorKey);
+    Log.info(`${selectorKey}: checked=${state.checked}, disabled=${state.disabled}`);
+    return state;
   }
 
  /** Ensure checkbox is checked (click only if unchecked). */
   async checkCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
-    if (!(await el.isChecked())) {
+    if (!(await this.getRadixCheckboxState(selectorKey)).checked) {
       await el.click();
     }
     Log.info(`Checked: ${selectorKey}`);
@@ -107,7 +105,7 @@ export class LocationCurrencyPage extends BasePage {
  /** Ensure checkbox is unchecked (click only if checked). */
   async uncheckCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
-    if (await el.isChecked()) {
+    if ((await this.getRadixCheckboxState(selectorKey)).checked) {
       await el.click();
     }
     Log.info(`Unchecked: ${selectorKey}`);

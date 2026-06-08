@@ -14,6 +14,7 @@ import * as path from 'path';
 import * as lockfile from 'proper-lockfile';
 import { Page, BrowserContext, Browser } from '@playwright/test';
 import { recordCall as recordRetryCall, type AttemptRecord } from './retry-telemetry';
+import { urlHostMatches } from './url-host';
 import { LoginPage } from '../pages/auth/login.page';
 import type { IConfig } from '../types';
 
@@ -100,7 +101,7 @@ export async function validateState(page: Page, baseUrl: string): Promise<boolea
       await page.goto(baseUrl, { timeout: 90_000, waitUntil: 'domcontentloaded' });
 
       const currentUrl = page.url().toLowerCase();
-      if (currentUrl.includes('login.microsoftonline.com') || currentUrl.includes('/auth/sign-in')) {
+      if (urlHostMatches(currentUrl, 'login.microsoftonline.com') || currentUrl.includes('/auth/sign-in')) {
         callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'fail' });
         recordRetryCall('validateState', callRecord);
         return false;
@@ -115,7 +116,7 @@ export async function validateState(page: Page, baseUrl: string): Promise<boolea
         return true;
       } catch {
         callRecord.push({ attemptN: attempt, durationMs: Date.now() - t0, outcome: 'fail' });
-        if (page.url().toLowerCase().includes('login.microsoftonline.com') || page.url().toLowerCase().includes('/auth/sign-in')) {
+        if (urlHostMatches(page.url(), 'login.microsoftonline.com') || page.url().toLowerCase().includes('/auth/sign-in')) {
           recordRetryCall('validateState', callRecord);
           return false;
         }

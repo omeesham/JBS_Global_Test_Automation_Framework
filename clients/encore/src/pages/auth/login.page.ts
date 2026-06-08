@@ -10,6 +10,7 @@ import { AppConstants } from '../../utils/constants';
 import { IConfig } from '../../types';
 import { MicrosoftLoginSelectors } from '../../selectors';
 import type { DiagnosticsCollector } from '../../utils/diagnostics-collector';
+import { urlHostMatches } from '../../utils/url-host';
 
 export class LoginPage extends BasePage {
   constructor(page: Page, config?: IConfig) {
@@ -85,7 +86,7 @@ export class LoginPage extends BasePage {
 
       try {
         await this.page.waitForURL(
-          url => url.toString().includes(expectedHostname),
+          url => urlHostMatches(url.toString(), expectedHostname),
           { timeout: AppConstants.NAVIGATION_TIMEOUT_MS }
         );
       } catch (redirectError) {
@@ -97,7 +98,7 @@ export class LoginPage extends BasePage {
 
  // Check for OAuth 400/401 in network failures
         const oauthFail = netFails.find(n =>
-          (n.url.includes('login.microsoftonline.com') || n.url.includes('oauth')) && n.status >= 400
+          (urlHostMatches(n.url, 'login.microsoftonline.com') || n.url.includes('oauth')) && n.status >= 400
         );
         if (oauthFail) {
           throw new Error(`OAuth token request returned ${oauthFail.status}: ${oauthFail.body.substring(0, 500)}`);
@@ -110,7 +111,7 @@ export class LoginPage extends BasePage {
         }
 
  // Post-login app fail
-        if (!currentUrl.includes('login.microsoftonline.com') && !currentUrl.includes(expectedHostname)) {
+        if (!urlHostMatches(currentUrl, 'login.microsoftonline.com') && !urlHostMatches(currentUrl, expectedHostname)) {
           throw new Error(`Post-login app failed to load -- page URL: ${currentUrl}, expected: ${expectedHostname}`);
         }
 
@@ -152,7 +153,7 @@ export class LoginPage extends BasePage {
     
  // Step 1: Wait for URL redirect to Microsoft
     await this.page.waitForURL(
-      url => url.toString().includes('login.microsoftonline.com'),
+      url => urlHostMatches(url.toString(), 'login.microsoftonline.com'),
       { timeout: AppConstants.NAVIGATION_TIMEOUT_MS }
     );
     
@@ -194,13 +195,13 @@ export class LoginPage extends BasePage {
       const url = this.page.url();
 
  // Check if NOT on Microsoft login page
-      if (url.includes('login.microsoftonline.com')) {
+      if (urlHostMatches(url, 'login.microsoftonline.com')) {
         return false;
       }
 
  // Check if on Navigator Cloud domain
       const expectedHostname = new URL(this.config?.base_url || this.config?.url || '').hostname;
-      if (!url.includes(expectedHostname)) {
+      if (!urlHostMatches(url, expectedHostname)) {
         return false;
       }
 
@@ -218,7 +219,7 @@ export class LoginPage extends BasePage {
 
  // Re-read URL after potential redirect
       const currentUrl = this.page.url();
-      const isNavigatorLoaded = currentUrl.includes(expectedHostname) && !currentUrl.includes('/auth/sign-in');
+      const isNavigatorLoaded = urlHostMatches(currentUrl, expectedHostname) && !currentUrl.includes('/auth/sign-in');
 
       Log.info(`Authentication check: ${isNavigatorLoaded ? '[OK] Authenticated' : '[ERR] Not authenticated'} -- URL: ${currentUrl}`);
       return isNavigatorLoaded;
@@ -234,7 +235,7 @@ export class LoginPage extends BasePage {
  */
   async isOnMicrosoftLogin(): Promise<boolean> {
     const url = this.page.url();
-    return url.includes('login.microsoftonline.com');
+    return urlHostMatches(url, 'login.microsoftonline.com');
   }
 
  /**
