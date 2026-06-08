@@ -178,9 +178,7 @@ clients/*/.env.server
 clients/*/CLAUDE.md
 clients/*/specs_planning/
 clients/*/readable_externals/
-clients/*/docs/read_only_docs/
-clients/*/docs/REQUIREMENTS.md
-clients/*/docs/MODULE_REGISTRY.md
+clients/*/docs/
 clients/*/api-testing/REQUIREMENTS_API.md
 clients/*/.auth/
 

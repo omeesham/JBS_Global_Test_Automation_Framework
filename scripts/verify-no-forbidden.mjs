@@ -26,9 +26,11 @@ const DENY_GLOBS = [
   /\/CLAUDE\.md$/,
   /\/specs_planning\//,
   /\/readable_externals\//,
-  /\/docs\/read_only_docs\//,
-  /\/docs\/REQUIREMENTS\.md$/,
-  /\/docs\/MODULE_REGISTRY\.md$/,
+  // Entire per-client docs/ folder is internal — never ships (read-only guides,
+  // REQUIREMENTS.md, MODULE_REGISTRY.md, JIRA story/test docs). Broadened 2026-06-08
+  // from the three specific entries: docs/ no longer ships. Unanchored so it matches
+  // both the stripped client path (/docs/...) and the full path (/clients/<id>/docs/...).
+  /\/docs\//,
   /\/api-testing\/REQUIREMENTS_API\.md$/,
   /\/\.auth\//,
   /^\.git\//,
