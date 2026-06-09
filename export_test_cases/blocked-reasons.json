@@ -48,5 +48,14 @@
   "TC-LOC-LI-NE-044": { "coverage": "Manual", "execution": "", "reason": "" },
   "TC-LOC-LI-NE-045": { "coverage": "Manual", "execution": "", "reason": "" },
   "TC-LOC-LI-NE-046": { "coverage": "Manual", "execution": "", "reason": "" },
-  "TC-LOC-LI-NE-047": { "coverage": "Manual", "execution": "", "reason": "" }
+  "TC-LOC-LI-NE-047": { "coverage": "Manual", "execution": "", "reason": "" },
+
+  "_README_SSL_RUNTIME_FIXME": "Disposition (LR-ENC-004): these seven Shared Setup Locations rows are skipped at runtime by a documented application issue. Their client-facing reason has no committed source the workbook build can read on its own — the real reason lives inside the spec body, and the registry overlay that would have read it points at the pre-restructure 'specs/' directory (the specs now live under 'tests/'), so the build otherwise falls back to a generic placeholder. This committed entry is the durable home for the reason text (verbatim from the spec). execution='Blocked' matches the runtime skip; Coverage Status is left as the build sets it.",
+  "TC-LOC-SSL-024": { "execution": "Blocked", "reason": "Blocked — the Change Local Office dialog still lists a location that was already added to the office. Pending an application fix." },
+  "TC-LOC-SSL-031": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
+  "TC-LOC-SSL-032": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
+  "TC-LOC-SSL-041": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
+  "TC-LOC-SSL-042": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
+  "TC-LOC-SSL-043": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
+  "TC-LOC-SSL-044": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." }
 }
