@@ -131,10 +131,10 @@ export function augmentByTcId(
  * scraping the reason string mis-attributes the fixme to the cited sibling — that
  * was the Pass+reason join bug. Returns Map<enclosingTcId, reasonString>.
  */
-function scanSpecRuntimeFixmes(clientRoot: string): Map<string, string> {
+export function scanSpecRuntimeFixmes(clientRoot: string): Map<string, string> {
   const out = new Map<string, string>();
-  const specsDir = path.join(clientRoot, 'specs');
-  if (!fs.existsSync(specsDir)) return out;
+  const specsDir = resolveSpecsDir(clientRoot);
+  if (!specsDir) return out;
   // Matches `test('TC-...'`, `test.fixme('TC-...'`, `test.skip('TC-...'`, `test.only('TC-...'`.
   const TEST_DECL = /\btest(?:\.(?:fixme|skip|only))?\s*\(\s*[`'"](TC-[A-Z]+-[A-Z]+-[A-Za-z0-9-]+)/;
   for (const file of walkSpecs(specsDir)) {
@@ -239,6 +239,39 @@ function scanFixmeReasons(clientRoot: string, registryPath?: string): Map<string
   return out;
 }
 
+/**
+ * Resolve the active client's spec root. The 2026-06-05 POM restructure
+ * (PLAN_ENCORE_POM_RESTRUCTURE / LR-017) renamed `clients/<id>/specs/` ->
+ * `clients/<id>/tests/` (playwright `testMatch: 'tests/**'`). Prefer `tests/`,
+ * fall back to the legacy `specs/` for any not-yet-migrated client layout.
+ * Returns null when neither directory exists.
+ */
+export function resolveSpecsDir(clientRoot: string): string | null {
+  for (const d of ['tests', 'specs']) {
+    const candidate = path.join(clientRoot, d);
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
+/**
+ * Resolve a registry `file` path (which the gitignored reports/fixme-registry.json
+ * may still record under the pre-2026-06-05 `specs/` layout) to an existing absolute
+ * path. Try the path as recorded first; if it is missing, retry once with the legacy
+ * `/specs/` path SEGMENT swapped to `/tests/` (LR-017 specs/->tests/). This keeps the
+ * reason lookup working against a stale on-disk registry without forcing a re-scan —
+ * important because the registry is gitignored, so a fresh clone or an un-regenerated
+ * checkout would otherwise leak the generic "test.fixme() call in spec" placeholder.
+ * Returns null when neither path exists.
+ */
+export function resolveSpecPath(specFile: string, repoRoot: string): string | null {
+  const direct = path.isAbsolute(specFile) ? specFile : path.join(repoRoot, specFile);
+  if (fs.existsSync(direct)) return direct;
+  const swapped = direct.replace(/([\\/])specs([\\/])/, '$1tests$2');
+  if (swapped !== direct && fs.existsSync(swapped)) return swapped;
+  return null;
+}
+
 function walkSpecs(dir: string): string[] {
   const acc: string[] = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -270,8 +303,8 @@ function walkSpecs(dir: string): string[] {
 
 /** Read the actual `test.fixme(true, '<reason>')` text at or near a given file:line. */
 function readFixmeReasonAt(specFile: string, line: number, repoRoot: string): string | null {
-  const fullPath = path.isAbsolute(specFile) ? specFile : path.join(repoRoot, specFile);
-  if (!fs.existsSync(fullPath)) return null;
+  const fullPath = resolveSpecPath(specFile, repoRoot);
+  if (!fullPath) return null;
   const lines = fs.readFileSync(fullPath, 'utf-8').split(/\r?\n/);
   // Inspect line ± 3 (scan-fixmes occasionally reports off-by-one).
   for (let i = Math.max(0, line - 3); i < Math.min(lines.length, line + 3); i++) {
@@ -287,8 +320,8 @@ function readFixmeReasonAt(specFile: string, line: number, repoRoot: string): st
  * like TC-LOC-008 is ambiguous — there can be TC-LOC-ACC-008, TC-LOC-LI-008, etc. in CSV.
  */
 function inferSubmoduleCode(specFile: string, repoRoot: string, tcIdHead: string): string | null {
-  const fullPath = path.isAbsolute(specFile) ? specFile : path.join(repoRoot, specFile);
-  if (!fs.existsSync(fullPath)) return null;
+  const fullPath = resolveSpecPath(specFile, repoRoot);
+  if (!fullPath) return null;
   const content = fs.readFileSync(fullPath, 'utf-8');
   const escHead = tcIdHead.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const re = new RegExp(`test(?:\\.fixme)?\\(\\s*['"\`]${escHead}-([A-Z]+)-[A-Za-z0-9]+`);
@@ -327,8 +360,8 @@ function walkSpecForTcId(
   repoRoot: string,
   knownTcIds: Set<string>
 ): string | null {
-  const fullPath = path.isAbsolute(specFile) ? specFile : path.join(repoRoot, specFile);
-  if (!fs.existsSync(fullPath)) return null;
+  const fullPath = resolveSpecPath(specFile, repoRoot);
+  if (!fullPath) return null;
   const lines = fs.readFileSync(fullPath, 'utf-8').split(/\r?\n/);
   for (let radius = 0; radius <= 30; radius++) {
     for (const dir of [-1, 1]) {

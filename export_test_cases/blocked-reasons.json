@@ -57,5 +57,15 @@
   "TC-LOC-SSL-041": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
   "TC-LOC-SSL-042": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
   "TC-LOC-SSL-043": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
-  "TC-LOC-SSL-044": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." }
+  "TC-LOC-SSL-044": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
+
+  "_README_LI_TERSE_SUPPRESSED": "Temporary blank overrides (2026-06-09, user-directed). These 8 Local Information rows carry only a terse internal-shorthand reason in reports/fixme-registry.json (a `// FIXME TC-NNN (label)` comment in the spec, e.g. 'JobCosting', 'eSignature', 'Oracle required'). They are not-yet-automated/planned rows (Coverage = Pending Automation) and the lint's TERSE_REASON_ALLOWLIST exempts them from the client-sentence check. Until the spec-restructure fix (chip task_a8298e85) those labels never reached the workbook; the fix would now surface them in the client-facing 'If Failed Reason of Failure' column. Per user direction they ship BLANK (as they do today) rather than leak internal shorthand to the client — proper client-facing reasons are to be authored later. Setting reason='' (and execution='') here makes blocked-reasons.json, the build's last writer, blank the cell after the overlay applies the terse registry label.",
+  "TC-LOC-LI-008":  { "execution": "", "reason": "" },
+  "TC-LOC-LI-008A": { "execution": "", "reason": "" },
+  "TC-LOC-LI-018":  { "execution": "", "reason": "" },
+  "TC-LOC-LI-028":  { "execution": "", "reason": "" },
+  "TC-LOC-LI-033":  { "execution": "", "reason": "" },
+  "TC-LOC-LI-036":  { "execution": "", "reason": "" },
+  "TC-LOC-LI-040":  { "execution": "", "reason": "" },
+  "TC-LOC-LI-066":  { "execution": "", "reason": "" }
 }

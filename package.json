@@ -94,6 +94,7 @@
     "xlsx:dump": "ts-node scripts/xlsx-dump.ts",
     "xlsx:lint": "node scripts/xlsx-vocab-lint.mjs",
     "test:xlsx-sheet-name": "ts-node scripts/to-xlsx-sheet-name.test.ts",
+    "test:sp00-fixme-path": "ts-node scripts/sp00-fixme-path.test.ts",
     "plans:reindex": "node scripts/plans-reindex.mjs",
     "plans:reindex:check": "node scripts/plans-reindex.mjs --check",
     "plans:validate-closure": "node scripts/validate-plan-closure.mjs --enforce --plan",
