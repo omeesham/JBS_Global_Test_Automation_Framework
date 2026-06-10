@@ -66,6 +66,7 @@ Paths use `${ACTIVE_CLIENT}` placeholder. For Encore: `${ACTIVE_CLIENT}` = `enco
 | Browser tool guide — CLI vs Chrome selection matrix | `docs/read_only_docs/CLI_BROWSER_GUIDE.md` (V2 — LR-038 v2; MCP_BROWSER_GUIDE.md archived to `docs/read_only_docs/_archive/`) | LR-038 |
 | Shared rules for ALL agents | `docs/read_only_docs/AGENT_SHARED_RULES.md` | R01–R22 |
 | Client-specific agent rules (Encore) | `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` | — |
+| Know what must NEVER ship in client source, or why a commit/ship was blocked by the jargon gate | `scripts/verify-no-forbidden.mjs` — `MARKER_GREP_CLIENT_ONLY` (hard tokens: `PLAN_`/`SUBPLAN_`/`SP-`/identities/`agent-*`/`specs_planning`/`.claude/`) + `SOURCE_COMMENT_JARGON` (`LR-###`/`§`/`Doctrine`/`Wave-1.5`/`WV15`/`W15-`/`Q-WV`/`CPR-Q`/`EDGE_P`/`walk-evidence`/`field-inventor`/`rejection-affordance`); both scoped to client-shipping paths. **KEEP** (excluded): `NM-####`, `@fcc` tags + describe-title `FCC`, `field-case-runner.ts`, `oracle`/`recon`, `Path [C-Z]`, `F11`. Comment-scrub of all shipped source done 2026-06-10. | LR-049 |
 
 ---
 

@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 108 pending · 362 done · 76 stale (>14d) · 0 DONE-in-pending
+**Totals**: 108 pending · 363 done · 76 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -231,6 +231,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | File | Title | Status | Completed |
 |---|---|---|---|
 | [SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md](done/SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md) | SUBPLAN: LI Test-Case MD — Phase 0 Lint Sweep | SUPERSEDED | never (folded scope) |
+| [PLAN_DELIVERABLE_JARGON_SCRUB.md](done/PLAN_DELIVERABLE_JARGON_SCRUB.md) | PLAN — Permanently scrub internal references from the Encore deliverable source | DONE | 2026-06-10 |
 | [PLAN_EXCEL_REVERT_RECOVERY.md](done/PLAN_EXCEL_REVERT_RECOVERY.md) | PLAN — Recover latest-clean data per sheet in both Encore excels + sync TestRail | — | 2026-06-10 |
 | [SUBPLAN_CORP_PRICING_1445_SEARCH_FCC_P2.md](done/SUBPLAN_CORP_PRICING_1445_SEARCH_FCC_P2.md) | SUBPLAN_CORP_PRICING_1445_SEARCH_FCC_P2 — Search FCC field-coverage (Wave-2 STUB) | DONE | 2026-06-10 |
 | [SUBPLAN_CORP_PRICING_1440_NEW_PRICEBOOK.md](done/SUBPLAN_CORP_PRICING_1440_NEW_PRICEBOOK.md) | SUBPLAN_CORP_PRICING_1440_NEW_PRICEBOOK — New Pricebook create-mode (NM-1440 — PRIORITY; page BUILT per S0/D3) | DONE | 2026-06-09 |
@@ -601,7 +602,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 plans/
   INDEX.md              ← this file (auto-generated)
   pending/              ← active plans (108 files)
-  done/                 ← completed plans (362 files)
+  done/                 ← completed plans (363 files)
 ```
 
 When completing a plan:
@@ -616,6 +617,7 @@ When completing a plan:
 | Date | Folder | File | Status |
 |---|---|---|---|
 | 2026-06-10 | pending | [PLAN_CORP_PRICING_MASTER.md](pending/PLAN_CORP_PRICING_MASTER.md) | PENDING |
+| 2026-06-10 | done | [PLAN_DELIVERABLE_JARGON_SCRUB.md](done/PLAN_DELIVERABLE_JARGON_SCRUB.md) | DONE |
 | 2026-06-10 | done | [PLAN_EXCEL_REVERT_RECOVERY.md](done/PLAN_EXCEL_REVERT_RECOVERY.md) | — |
 | 2026-06-10 | done | [SUBPLAN_CORP_PRICING_1445_SEARCH_FCC_P2.md](done/SUBPLAN_CORP_PRICING_1445_SEARCH_FCC_P2.md) | DONE |
 | 2026-06-09 | pending | [PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT.md](pending/PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT.md) | — |
@@ -654,4 +656,3 @@ When completing a plan:
 | 2026-06-08 | pending | [PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md](pending/PLAN_PRICING_TEST_COVERAGE_AUDIT_AND_FIX.md) | PENDING |
 | 2026-06-08 | pending | [PLAN_PUSH_NOTES_LATEST_TO_DELIVERABLES_TEST.md](pending/PLAN_PUSH_NOTES_LATEST_TO_DELIVERABLES_TEST.md) | PENDING |
 | 2026-06-08 | pending | [PLAN_RCA_NOTES_SPEC_2026-05-21.md](pending/PLAN_RCA_NOTES_SPEC_2026-05-21.md) | PENDING |
-| 2026-06-08 | pending | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PENDING |
