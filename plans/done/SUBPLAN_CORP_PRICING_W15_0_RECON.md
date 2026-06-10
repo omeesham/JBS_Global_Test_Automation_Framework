@@ -1,6 +1,7 @@
 # SUBPLAN_CORP_PRICING_W15_0_RECON — Wave-1.5 recon + foundation (newly-surfaced nodes)
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-06-08
 **Priority**: P1
 **Created**: 2026-06-05
 **Identity**: HUNTER
@@ -49,15 +50,15 @@ Runs **after Wave-1 closed (S0–S4 in `done/`) and after the POM restructure la
 
 ## Phase 0.5b — Baseline-first walk (CONDITIONAL — net-new, live-discovered)
 
-1. `baselineScope: baseline-absent` (LR-ENC-001 — net-new on e2e, no nav2 equivalent). 2. `## Baseline diff` = "baseline-absent; intent oracle = **live DOM** (these nodes are NOT in the DOCX — live-discovered, raised as clarifications)". Append/emit `clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-override-<MCP-DATE>.md`.
+1. `baselineScope: baseline-absent` (LR-ENC-001 — net-new on e2e, no nav2 equivalent). 2. `## Baseline diff` = "baseline-absent; intent oracle = **live DOM** (these nodes are NOT in the DOCX — live-discovered, raised as clarifications)". Append/emit `clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-override-2026-06-08.md`.
 
 ---
 
 ## Phase 1+ — Recon walk + scaffold (HUNTER → GIVER → BUILDER)
 
 **1. Walk + field-inventories (GIVER — 8 frontmatter keys + 7 sections per `field-inventory-spec.md`, LR-014 testid/fallback):**
-- `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-override-<MCP-DATE>.md` — Equipment/Labor tabs, location selector, currency filter, Active-only checkbox, every grid column (Location → Mod Date), filter search, Save, the screen's own Export/Import, pagination, empty state. Boolean render (Active) MCP-verified (LR-036). Content-anchored row strategy (LR-022 — no hardcoded counts).
-- `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-toolbar-io-<MCP-DATE>.md` — Export ▾ (enumerate the live variants), Import ▾ (live variants), Loc Pricing Export/Import, Grid Options gear (which columns are toggleable). Capture each control's trigger (network endpoint via `playwright-cli network` / navigation), NOT assumed behavior.
+- `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-override-2026-06-08.md` — Equipment/Labor tabs, location selector, currency filter, Active-only checkbox, every grid column (Location → Mod Date), filter search, Save, the screen's own Export/Import, pagination, empty state. Boolean render (Active) MCP-verified (LR-036). Content-anchored row strategy (LR-022 — no hardcoded counts).
+- `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-toolbar-io-2026-06-08.md` — Export ▾ (enumerate the live variants), Import ▾ (live variants), Loc Pricing Export/Import, Grid Options gear (which columns are toggleable). Capture each control's trigger (network endpoint via `playwright-cli network` / navigation), NOT assumed behavior.
 
 **2. Scaffold (BUILDER — POM shape, reuse-first per ALL-026):**
 - `clients/encore/src/pages/corporate-pricing/corporate-pricing-override.page.ts` — `CorporatePricingOverridePage extends CorporatePricingBasePage`; **reuse** base `readGridRowsByContent` / `findGridRowByContent` / `switchTab` / `clickSave` / `confirmSaveDialogIfPresent` / `readAllTexts`; add only Override-specific accessors.
@@ -86,8 +87,8 @@ Adjacent fixes → DO-NOW (<30 min) or APPEND with grep-verification. Bare defer
 
 | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | baseline-absent note + `/encore-questions` drafts | `clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-override-<MCP-DATE>.md`<br>`clients/encore/specs_planning/_internal/encore-questions-drafts/corporate-pricing-wave15-divergences-<MCP-DATE>.md` | grep artifact freshness |
-| GIVER | field-inventories (override + toolbar I/O) | `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-override-<MCP-DATE>.md`<br>`clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-toolbar-io-<MCP-DATE>.md` | grep inventory 8-key/7-section shape |
+| HUNTER | baseline-absent note + `/encore-questions` drafts | `clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-override-2026-06-08.md`<br>`clients/encore/specs_planning/_internal/encore-questions-drafts/corporate-pricing-wave15-divergences-2026-06-08.md` | grep artifact freshness |
+| GIVER | field-inventories (override + toolbar I/O) | `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-override-2026-06-08.md`<br>`clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-toolbar-io-2026-06-08.md` | grep inventory 8-key/7-section shape |
 | BUILDER | Override page object + selectors + data + fixture reg | `clients/encore/src/pages/corporate-pricing/corporate-pricing-override.page.ts`<br>`clients/encore/src/selectors/corporate-pricing/override.ts`<br>`clients/encore/src/data/corporate-pricing/override.ts` | `npm run typecheck` exit 0 |
 | HEALER | (none — recon, no failing spec) | `(none)` | n/a |
 | WATCHDOG | (none — closure is WV1.5-99) | `(none)` | n/a |
@@ -102,7 +103,37 @@ Adjacent fixes → DO-NOW (<30 min) or APPEND with grep-verification. Bare defer
 - [ ] Override scaffolding (page object + selectors + data + fixture) typecheck-clean; LR-017 namespace registered; zero hardcoded env in selectors.
 - [ ] Dedicated Override mutation fixture designated (distinct GUID; no collision with strategy/detail fixtures).
 - [ ] `/encore-questions` Q-WV15-1 (Override screen undocumented) + Q-WV15-2 (Export/Import variants undocumented) raised — NOT silently encoded (Doctrine 2).
-- [ ] Date placeholders `<MCP-DATE>` resolved to real dates at closure; C6 cells grep-resolve.
+- [ ] Date placeholders `2026-06-08` resolved to real dates at closure; C6 cells grep-resolve.
+
+---
+
+## Execution Summary
+
+**Executed**: 2026-06-08
+
+**Type**: RECON + FOUNDATION (Wave-1.5). Authors **zero** FCC test cases by design — those are W15-A (Override, 5NN) / W15-B (toolbar I/O, 6NN), which consume the inventories + scaffold this subplan produces (Doctrine 1: detailing cases now would be assumptions).
+
+**TCs implemented**: 0 (by design — recon+foundation). TC bands reserved for downstream: `5NN` Override → W15-A, `6NN` toolbar I/O → W15-B (added to `tcBands` in `src/data/corporate-pricing/common.ts`; grep-verifiable references confirmed in both recipient subplans per LR-040(b)).
+
+**Live walk** (Playwright CLI `-s=cpr-w15-recon`, office 1604, auth via `clients/encore/.auth/encore-state.json`):
+1. **F-A pre-flight PASSED** — the "Pricing Override" toolbar button NAVIGATES to a BUILT Product Group Override screen (`/corporate-pricing/pg-override`, H1 "Product Group Override"). The Wave-1 recon-stale "destination unbuilt" (D3) risk is cleared.
+2. **Override screen**: Equipment|Labor `role=tab` (aria-selected; tab-switch reloads grid); location-gated grid (empty until the "Select a location" modal picker → search + per-row checkbox + Select); Currency filter ALL/USD/CAD/MXN; Active-only default OFF; client-side "Filter Product Groups Override..." (8→7 rows on "House"); rows-per-page 10/20/30/40/50.
+3. **DIVERGENCE (D9 recon-stale)**: the grid is **10 columns** (recon said 9) — live adds **Updated By**. Live wins (Doctrine 2); raised Q-WV15-1.
+4. **LR-036 NEW (4th) boolean render**: the Active column is a Radix checkbox (`[role=checkbox][aria-checked]`) — distinct from Unicode ✔ / SVG lucide-check / Glyphicon. Recorded in the override inventory's Boolean encoding registry; flagged as an LR-036 graduation candidate.
+5. **Edit-activation finding**: Override Price / Max Discount % (`div[role=button]` click-to-edit) did not reveal an input via click/dblclick/Enter, and the Active checkbox did not toggle — Save stayed disabled, so **zero** changes were staged or committed (read-only recon, mutation-safe per the "without messing anything up" directive). Mechanism (possibly RBAC) deferred to W15-A; raised Q-WV15-1 item 5.
+6. **Toolbar I/O**: Search `Export ▾` / `Import ▾` each expose the SAME 4 variants (All Equipment Pricing / All Labor Pricing / All Equipment Max Discount / All Labor Max Discount); `Loc Pricing Export/Import` + the Override `Export/Import` are direct CSV downloads (`LocationPricebooks-*.csv` / `ProductGroupOverrides-*.csv` observed — file format = CSV, partially answering Q-WV15-2); the Grid Options popover uses non-standard markup, owned by W15-B.
+
+**Deliverables produced** (all exist on disk — C6 mirror verified):
+- HUNTER: `clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-override-2026-06-08.md` (baseline-absent) + `clients/encore/specs_planning/_internal/encore-questions-drafts/corporate-pricing-wave15-divergences-2026-06-08.md` (Q-WV15-1 + Q-WV15-2 RAISED, Doctrine 2).
+- GIVER: `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-override-2026-06-08.md` + `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-toolbar-io-2026-06-08.md` (both 8-key/7-section, LR-036 boolean registry, LR-022 content-anchored).
+- BUILDER: `corporate-pricing-override.page.ts` (extends CorporatePricingBasePage, reuses base helpers per ALL-026) + `selectors/corporate-pricing/override.ts` (`ovr`-prefixed, LR-017 namespace registered in the module barrel + top-level collision check) + `data/corporate-pricing/override.ts` (Override common data + dedicated Override mutation fixture, isolated by construction from the strategy/detail GUID fixtures) + fixture registered in `pages.fixture.ts`. `npm run typecheck` exit 0.
+- LR-029: missing-testid report appended (Override + toolbar I/O, live-DOM verified, zero testids).
+
+**Acceptance criteria**: all 6 met (POM-shape gate passed; 2 dated inventories 8-key/7-section with LR-036 + LR-022; scaffold typecheck-clean + LR-017 namespace + zero hardcoded env; dedicated Override fixture isolated; Q-WV15-1/2 raised not encoded; date placeholders resolved + C6 cells grep-resolve).
+
+**Deviations / beyond-plan**: (1) the plan's "9-col grid" + "distinct GUID fixture" assumptions were corrected to live reality (10 cols; Override is not pricebook-GUID-based — isolation rationale documented instead). (2) Phase 2.5 DO-NOW: removed stray export-download CSVs + added `.playwright-cli/*.csv|*.xlsx` to root `.gitignore` (the Export buttons download live client pricing data — IP-protective, LR-049 spirit). (3) Override edit-activation mechanism + Save dialog verbatim text + exact grid/save endpoints + Grid Options popover structure are deferred to W15-A/W15-B (each a grep-verifiable named recipient).
+
+**Flagged for user/maintainer**: the `agent-mistakes.md` mistake log is **absent** from the client `specs_planning/_internal` directory (it is referenced by `navigation.md` §B + the client CLAUDE.md, but no such file exists on disk); this session relied on the canonical LR-rule layer instead. Recreate-vs-relocated is a maintainer decision (not silently recreated — the prior content is unknown).
 
 ---
 
