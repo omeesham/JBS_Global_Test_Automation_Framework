@@ -539,7 +539,7 @@ export class BasePage {
 
  /**
  * Open a combobox/dropdown and click the option matching the given text.
- * LR-025: Radix UI large-option dropdowns need retry on option selection.
+ * Radix UI large-option dropdowns need retry on option selection.
  * Wraps option-click in a 3-retry loop; on failure presses Escape, waits for
  * listbox hidden, reopens via openComboboxListbox, scrollIntoViewIfNeeded(3s),
  * then click(5s). Per-attempt timeout ~5s keeps total budget ~15s.

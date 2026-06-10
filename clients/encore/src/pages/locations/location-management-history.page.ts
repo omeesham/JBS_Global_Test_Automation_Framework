@@ -266,7 +266,7 @@ export class LocationManagementHistoryPage extends BasePage {
  /** Click sort dropdown and select a direction for a sortable column by header text.
  * Radix dropdown flakiness: menu occasionally fails to appear after button click.
  * Retry pattern: Escape to close any lingering state, re-click, max 3 attempts.
- * LR-025-CARVE-OUT: Radix Dropdown Menu surface ([role="menu"]/[role="menuitem"]), NOT Select listbox.
+ * Retry carve-out: Radix Dropdown Menu surface ([role="menu"]/[role="menuitem"]), NOT Select listbox.
  * Different retry abstraction; selectComboboxOption helper does not apply. */
   async clickSortColumn(headerText: string, direction: 'ascending' | 'descending' = 'ascending'): Promise<void> {
     const colIndex = await this.getColumnIndex(headerText);

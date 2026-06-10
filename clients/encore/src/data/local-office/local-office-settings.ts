@@ -66,7 +66,7 @@ export const PHONE_TEST_VALUES = {
 /** Section editing test values.
  * Updated 2026-05-08 per live verification:
  *  - originalName must match DEFAULT_SECTIONS[0] (live = 'AV Services').
- *  - editValue MUST DIFFER from originalName per LR-009 / LR-026 — net-zero edit
+ *  - editValue MUST DIFFER from originalName (Angular dirty-state) — net-zero edit
  *    leaves Angular form pristine and Save disabled (was the BAS-027 failure).
  *  - newSection is 'Test Section Z' to avoid collision with the existing
  *    'Test Section' leak in the live grid (was the BAS-028 failure).

@@ -49,7 +49,7 @@ export const CorporatePricingNewPricebookSelectors = {
   /** @where NewPricebook > Detail @el table @keys pricebook detail grid (ID/Product Group Name/Price/New Price/Max Discount) */
   npDetailGrid: 'table',
 
-  // ---- Save confirm dialog (LR-012 shared "Save Changes" alertdialog) ----
+  // ---- Save confirm dialog (shared "Save Changes" alertdialog) ----
   /** @where NewPricebook > SaveDialog @el alertdialog @text "Save Changes" @keys save confirm dialog (no-commit → Cancel) */
   npSaveDialog: '[role="alertdialog"]',
 } as const;

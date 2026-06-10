@@ -9,19 +9,19 @@ import {
 import { OFFICE_NO } from '../../src/data/common';
 import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 
-// ─── Field-Case Coverage (FCC) — Legal Server Validation 2026-05-27 ────────
+// ─── Field-coverage — Legal Server Validation 2026-05-27 ────────
 // 1 net-new test (TC-LOC-LGL-019) covering the genuinely uncovered mechanic:
 // invalid value via DOM tamper → server behavior. Existing 15 TCs already cover
-// the value-agnostic dropdown save mechanic (LR-040(b) — same mechanic, different
+// the value-agnostic dropdown save mechanic (same mechanic, different
 // data).
 // Runner: clients/encore/src/utils/field-case-runner.ts saveAndVerifyCase().
 //
 // Phase 3.0b probe outcome (2026-05-27): live CLI probe blocked at SSO redirect
 // (auth state not pre-loaded for ad-hoc CLI session). Engineering knowledge of
-// Radix UI + Angular form architecture predicts Path C (Radix React state
-// isolation prevents DOM-tamper propagation). The test below asserts Path C as
+// Radix UI + Angular form architecture predicts that Radix React state
+// isolation prevents DOM-tamper propagation. The test below asserts that as
 // a POSITIVE security property inside the runner's `act` step (DOM tamper +
-// Path-C assertion), then proceeds to perform a legitimate SC mid-list save via
+// state-isolation assertion), then proceeds to perform a legitimate SC mid-list save via
 // the same runner to exercise the saveAndConfirm hook + prove the post-tamper
 // value can still be changed legitimately. This 2-in-1 design satisfies (a) the
 // runner Hard Requirement, (b) STRICT-LINE-C single-test-block budget, and
@@ -45,7 +45,7 @@ test.describe('Location Legal — FCC @locations @legal @fcc', () => {
   // a client-side exception has occurred". The app aggressively rejects
   // external DOM mutation of the combobox node (defensive, but blocks safe
   // automation of textContent-tamper). This live finding is documented in the
-  // field-case-catalog (legal-2026-05-27.md §TC-019 disposition).
+  // field-coverage catalog (TC-019 disposition).
   //
   // Pivot: the genuinely-uncovered mechanic per the master plan is
   // "server-side validation of dropdown values" / "no UI path to submit invalid
@@ -54,14 +54,14 @@ test.describe('Location Legal — FCC @locations @legal @fcc', () => {
   //   (a) Open the SC listbox; verify the invalid sentinel is NOT among the
   //       114 options. This proves no UI affordance exposes an out-of-list
   //       value for the user to select. (No UI path → no submission vector.)
-  //   (b) Run the FCC saveAndVerifyCase lifecycle on a legitimate selection.
+  //   (b) Run the field-coverage saveAndVerifyCase lifecycle on a legitimate selection.
   //       Verify the persisted value at reload is the legit value and is NOT
   //       the invalid sentinel — closes the negative end-to-end proof at the
   //       server boundary.
   //
   // Mechanic differs from TC-004 (positive enumeration: `toContain(default)`).
   // This is negative enumeration (`not.toContain(sentinel)`) + full save-cycle
-  // via the FCC runner — combination NOT covered by any existing TC.
+  // via the field-coverage runner — combination NOT covered by any existing TC.
   test('TC-LOC-LGL-019: Verify an out-of-list Service Charge value cannot be submitted', async ({ locationLegalPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
@@ -105,7 +105,7 @@ test.describe('Location Legal @locations @legal', () => {
 
   // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
   // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
-  // Per-test baseline reset (LR-019): every test starts from default SC/T&C so an
+  // Per-test baseline reset: every test starts from default SC/T&C so an
   // "alt-value" selection is always a real net change — even when office 1604 starts a
   // run dirty from a prior interrupted run (the net-zero-on-stale-state defect).
   test.beforeEach(async ({ locationLegalPage }) => {

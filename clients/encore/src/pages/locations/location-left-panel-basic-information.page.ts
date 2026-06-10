@@ -10,7 +10,7 @@ import { LP_BASELINE } from '../../data/locations/location-left-panel-basic-info
  * Drives the shared left-panel card on `/settings/location` (office 1604): 6 read-only +
  * 8 editable fields + the shared Save button. Reuses BasePage Radix helpers (combobox/checkbox)
  * and the shared "Save Changes" dialog (confirms with "Ok"). The `ensureDefaultState` bounded-retry
- * mirrors LocationLegalPage (LR-019) with Country-first ordering because a Country change
+ * mirrors LocationLegalPage (per-test baseline) with Country-first ordering because a Country change
  * cascade-clears Tax Mode + Region.
  *
  * 2026-06-03. Field states live-verified that date.
@@ -106,7 +106,7 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     await el.press('Control+a');
     await el.press('Delete');
     // pressSequentially (real keystrokes) reliably fires Angular input events so the form dirties,
-    // AND respects the input's maxlength — Playwright fill() sets .value directly, bypassing both (LR-026).
+    // AND respects the input's maxlength — Playwright fill() sets .value directly, bypassing both (Angular dirty-state).
     await el.pressSequentially(value, { delay: 10 });
     await el.press('Tab');
   }
@@ -165,7 +165,7 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
   // CROSS-TAB READS (Country cascade effects on the Local Information sub-tab).
   // The left panel is shared/always-visible, so a Country change applied here is
   // reactive on whichever sub-tab is showing — these READ Local Information only
-  // (no Local Information mutation / no Local Information FCC spec needed).
+  // (no Local Information mutation / no Local Information field-coverage spec needed).
   // ---------------------------------------------------------------------------
 
   /** Activate the Local Information sub-tab (right panel). */
@@ -195,12 +195,12 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     return !(await this.getElement('btnSave').isDisabled().catch(() => true));
   }
 
-  /** Poll the shared Save button enabling (async Angular dirty propagation — LR-026/LR-010). */
+  /** Poll the shared Save button enabling (async Angular dirty propagation). */
   async waitForSaveButtonEnabled(timeout = 10_000): Promise<boolean> {
     return this.waitForSaveEnabled('btnSave', timeout);
   }
 
-  /** Poll the shared Save button DISABLING (e.g. net-zero revert or post-save pristine — LR-052 RAF poll). */
+  /** Poll the shared Save button DISABLING (e.g. net-zero revert or post-save pristine — RAF poll). */
   async waitForSaveButtonDisabled(timeout = 10_000): Promise<boolean> {
     return this.page.waitForFunction(() => {
       const deep = (root: Document | ShadowRoot, sel: string): Element | null => {
@@ -223,14 +223,14 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     return this.clickSaveWithDialog('btnSave', 'dlgSaveChanges', 'btnSaveChangesConfirm');
   }
 
-  /** FCC runner hook — throws on a real save failure so the runner surfaces it (not a silent pass). */
+  /** Field-coverage runner hook — throws on a real save failure so the runner surfaces it (not a silent pass). */
   async saveAndConfirm(): Promise<void> {
     const result = await this.clickSave();
     if (!result.success) {
       throw new Error(`Left-panel save failed: ${result.networkError ?? 'unknown error'}`);
     }
     // Confirm the save LANDED before any caller reload: the app disables the Save button once the
-    // save API completes + the form goes pristine. Guards the save-then-reload race (LR-026) — the
+    // save API completes + the form goes pristine. Guards the save-then-reload race (Angular dirty-state) — the
     // name save in particular is slower than checkbox/dropdown saves and otherwise reloads stale.
     await this.page.waitForFunction(() => {
       const deep = (root: Document | ShadowRoot, sel: string): Element | null => {
@@ -248,13 +248,13 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
   }
 
   // ---------------------------------------------------------------------------
-  // BASELINE (LR-019 per-test reset) — bounded whole-cycle retry, Country-first ordering
+  // BASELINE (per-test reset) — bounded whole-cycle retry, Country-first ordering
   // ---------------------------------------------------------------------------
 
   /**
    * Restore the mutable left-panel fields to office-1604 defaults if dirty. Bounded retry (max 3)
    * wraps the WHOLE cycle — read -> re-set -> save -> reload -> re-verify — because the flaky step is
-   * the Radix selects (LR-025): a "successful" click can leave the Angular model unchanged, and
+   * the Radix selects (retry-on-detach): a "successful" click can leave the Angular model unchanged, and
    * `clickSaveWithDialog` returns `{success:true}` when Save is disabled, so save-success alone never
    * proves the reset landed. The post-reload re-read is the load-bearing check; after 3 failed cycles
    * it THROWS, converting a silent baseline failure into a loud one.

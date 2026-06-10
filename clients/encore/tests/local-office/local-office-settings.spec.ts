@@ -395,7 +395,7 @@ test.describe('Local Office Settings — Basic Information @locations @local-off
     test.setTimeout(60_000);
     // Reload to guarantee clean form — prior tests in the spec leave residual Angular
     // dirty state that intermittently breaks the section-grid dirty propagation here
-    // (LR-026 manifestation). Matches the pattern in BAS-026/040/047.
+    // (Angular dirty-state manifestation). Matches the pattern in BAS-026/040/047.
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     await localOfficeSettingsPage.editSectionName(0, SECTION_TEST_VALUES.editValue);
     // 10s polling: Angular dirty propagation after section-grid edits is sometimes slow.

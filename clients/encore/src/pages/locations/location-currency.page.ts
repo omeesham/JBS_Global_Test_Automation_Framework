@@ -130,7 +130,7 @@ export class LocationCurrencyPage extends BasePage {
  /**
  * Open the merchant dropdown and check if it is accessible (listbox appears).
  * Also checks if "No Matches Found" is present. Closes the dropdown after.
- * LR-025-CARVE-OUT: visibility probe, not option-select. Helper signature is select-only; probe semantics differ.
+ * Retry carve-out: visibility probe, not option-select. Helper signature is select-only; probe semantics differ.
  */
   async isMerchantDropdownAccessible(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
@@ -146,7 +146,7 @@ export class LocationCurrencyPage extends BasePage {
  /**
  * Open the merchant dropdown and check if "No Matches Found" text is displayed.
  * Closes the dropdown after checking.
- * LR-025-CARVE-OUT: text-substring probe, not option-select. Helper signature is select-only; probe semantics differ.
+ * Retry carve-out: text-substring probe, not option-select. Helper signature is select-only; probe semantics differ.
  */
   async isMerchantNoMatchesFound(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();

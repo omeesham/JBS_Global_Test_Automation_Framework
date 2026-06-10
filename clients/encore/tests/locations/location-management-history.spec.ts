@@ -183,7 +183,7 @@ test.describe('Location Management History @locations @management-history', () =
 
   // Re-enabled 2026-06-02: isReadOnly() now scopes the editable-field count to the nested data
   // <table> (tblMgmtHistory wrapper contains the paginator input OUTSIDE that table — live walk
-  // walk-evidence-hist-ssl-acc-2026-06-02.md §0.5a). The data region is genuinely input-free.
+  // 2026-06-02). The data region is genuinely input-free.
   test('TC-LOC-MGH-015: Read-only -- no Add/Edit/Delete controls present', async ({ locationManagementHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-MGH-001']);
     expect(await locationManagementHistoryPage.isReadOnly()).toBe(true);
@@ -211,7 +211,7 @@ test.describe('Location Management History @locations @management-history', () =
   });
 
  // Re-enabled 2026-06-02: the prior "first/last buttons vanish after Next→Previous" claim was REFUTED by
- // a live walk (walk-evidence-hist-ssl-acc-2026-06-02.md §0.5b) — all four nav buttons stay in the DOM
+ // a live walk (2026-06-02) — all four nav buttons stay in the DOM
  // through the full Next→Prev→Last→First sequence. The real failure was our getPaginationText() reading a
  // <span> when the indicator is an <input> + a "/N" span; that selector is now fixed. Assertions unchanged.
   test('TC-LOC-MGH-019: Pagination navigation enables with multiple pages', async ({ locationManagementHistoryPage, dependencyGate }) => {
@@ -262,7 +262,7 @@ test.describe('Location Management History @locations @management-history', () =
 //
 // Bug workarounds embedded:
 //   - BUG-LOC-NTS-001 (delete-only no-persist): ensureEmptyState() codifies the
-//     clear+delete+save+reload sequence; invoked in beforeEach (LR-019) and TC-032's finally.
+//     clear+delete+save+reload sequence; invoked in beforeEach (per-test baseline) and TC-032's finally.
 //   - BUG-LOC-NTS-002 (dialog button = "Ok" not "Save"): handled by the shared
 //     btnSaveChangesConfirm path via clickSaveWithDialog in BasePage.
 //   - BUG-LOC-NTS-003 (auto-empty placeholder): expected accepts both single-row and
@@ -300,7 +300,7 @@ const COL69_PAYLOADS = {
 
 test.describe('Location Management HIST — Notes col 69 @locations @management-history @notes-hist', () => {
 
-  // Per-test setup: navigate to Notes tab + enforce baseline empty state (LR-019).
+  // Per-test setup: navigate to Notes tab + enforce baseline empty state per test.
   // `ensureEmptyState()` is intermittently unreliable per BUG-LOC-NTS-001 — the
   // first delete+save cycle sometimes doesn't persist when Angular's auto-row logic
   // races the Delete click. Retry up to 3 times; the second/third attempts work
@@ -368,8 +368,8 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
       return; // unreachable — expect above throws
     }
     // Strict equality on the matched row's Notes value.
-    // LR-046 strict-line: literal `.toBe` form (no `.toContain` matcher anywhere in spec).
-    // LR-051: avoid opaque `.toBe(true)` on OR expressions — branch so failure shows
+    // Strict-line: literal `.toBe` form (no `.toContain` matcher anywhere in spec).
+    // Avoid opaque `.toBe(true)` on OR expressions — branch so failure shows
     // actual vs expected (formA is preferred / single-row form; formB is the
     // placeholder-fallback form). This branch is unreachable when `.find` matched,
     // but lets the report surface the actual string if a regression weakens the match.

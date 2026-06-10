@@ -106,8 +106,8 @@ export const CORP_PRICING_SEARCH = {
   } as const,
 
   /**
-   * FCC P2 (Wave-2) — live-verified 2026-06-10 (`field-inventories/corporate-pricing-search-2026-06-10.md`).
-   * The complete server query-param contract + BVA/each-option samples. The P1 walk left `currencyId`/
+   * Field-coverage (P2) — live-verified 2026-06-10.
+   * The complete server query-param contract + BVA/each-option samples. The earlier pass left `currencyId`/
    * `locationNo` unverified and GUESSED `strategyName` — corrected here to the live `pricingStrategyName`.
    */
   fcc: {
@@ -126,7 +126,7 @@ export const CORP_PRICING_SEARCH = {
     /** Pricebook BVA / negative samples. */
     pricebookNoMatch: 'ZZZ-NOPE-NOMATCH-9999',
     pricebookOverflow: 'A'.repeat(250), // no maxlength — accepted in full, server returns 0
-    pricebookSpecial: `%_'"<>&#`, // accepted literally; URL-encoded; no crash; escapable (§2.1)
+    pricebookSpecial: `%_'"<>&#`, // accepted literally; URL-encoded; no crash; escapable
     pricebookSpecialEncoded: 'pricebookName=%25_%27%22%3C%3E%26%23',
     pricebookWhitespace: '   ', // server ignores whitespace → full list
     /** A broad substring matching many pricebooks (live: 583) — used to stage compound/reset cases. */

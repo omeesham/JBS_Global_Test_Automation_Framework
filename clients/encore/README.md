@@ -77,7 +77,7 @@ MAX_WORKERS=8 npm test          # try higher locally
 MAX_WORKERS=1 npm test          # force serial
 ```
 
-More workers = faster wall-clock but higher load on the app under test. Module projects keep `fullyParallel: false` so each spec file stays in one worker (required for the LR-019 baseline-reset ordering); different spec files still run in parallel across workers. If 4 introduces state races on shared office=1604, drop the CI default to 2 in the config.
+More workers = faster wall-clock but higher load on the app under test. Module projects keep `fullyParallel: false` so each spec file stays in one worker (required for the per-test baseline-reset ordering); different spec files still run in parallel across workers. If 4 introduces state races on shared office=1604, drop the CI default to 2 in the config.
 
 ---
 

@@ -151,7 +151,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     return this.getComboboxOptions(key);
   }
 
- /** Select exact combobox option (delegates to BasePage.selectComboboxOption with exact:true; LR-025-compliant retry + telemetry). */
+ /** Select exact combobox option (delegates to BasePage.selectComboboxOption with exact:true; retry-on-detach + telemetry). */
   async selectComboboxExact(key: string, optionName: string): Promise<void> {
     await this.selectComboboxOption(key, optionName, { exact: true });
   }

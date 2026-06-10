@@ -23,7 +23,7 @@ import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 // Each test owns its baseline + cleanup. Runner: clients/encore/src/utils/field-case-runner.ts
 // saveAndVerifyCase(). Existing 30-TC describe block UNTOUCHED below.
 // Non-Miami test data throughout per BUG-LOC-SHR-001 workaround (Miami search returns
-// phantom row; non-Miami searches behave correctly — see walk-evidence-shared-setup-2026-05-22.md §4).
+// phantom row; non-Miami searches behave correctly).
 test.describe('Location Shared Setup Locations @locations @shared-setup', () => {
 
   // D-2 lifecycle refactor pattern (mirrors location-notes.spec.ts:35-39).
@@ -85,7 +85,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   test('TC-LOC-SSL-035: Verify clearing the search restores the full row count', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
-    // Relative invariant (LR-022): capture the Atlanta-filtered count, then assert the cleared list
+    // Relative invariant (no exact-count assertion): capture the Atlanta-filtered count, then assert the cleared list
     // is strictly larger — proves "clear restores the bulk list" without betting on a structural magic
     // number. Mirrors the proven TC-LOC-SSL-040 pattern. (Replaces the prior `> SEARCH_BULK_LOWER_BOUND`
     // hardcoded threshold, which broke when the dialog's stable bulk ceiling (~2653) shifted.)
@@ -543,7 +543,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-007: Reverting Shares Inventory to original state disables Save', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    // 2026-05-22 LR-021 corollary verify — user-authorized fixme+comment trust rule; companion to TC-030 user-confirmed bug; umbrella cite BUG-LOC-SHR-001 (SSL false-green/regression set).
+    // 2026-05-22 un-skip-and-retry corollary verify — user-authorized fixme+comment trust rule; companion to TC-030 user-confirmed bug; umbrella cite BUG-LOC-SHR-001 (false-green/regression set).
     test.fixme(true, 'Blocked — reverting Shares Inventory on an added row to its original state leaves the form marked as changed, so Save stays enabled even though there is no net change. Pending an application fix.'); // BUG-LOC-SHR-001
     dependencyGate(['TC-LOC-SSL-001']);
  // SSL-006 toggle-back leaves Angular dirty state. Reload for clean baseline.
@@ -983,7 +983,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-030: Verify three added location rows persist after save and reload', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    // 2026-05-22 LR-021 corollary verify — user manual probe confirmed bug PRESENT; companion to TC-007 fixme line 76; umbrella cite BUG-LOC-SHR-001 (SSL false-green/regression set).
+    // 2026-05-22 un-skip-and-retry corollary verify — user manual probe confirmed bug PRESENT; companion to TC-007 fixme line 76; umbrella cite BUG-LOC-SHR-001 (false-green/regression set).
     test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SHR-001 (987)
     dependencyGate(['TC-LOC-SSL-001']);
  // Small-N (3-row) smoke variant: adds Chicago + Boston + Marriott rows, saves,
@@ -1008,7 +1008,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
  // Reload and verify all 3 added rows persisted
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
     expect(await pg.getDataRowCount()).toBe(1 + queries.length);
- // Cleanup (LR-024 net-zero): delete all non-self rows + save until back to 1
+ // Cleanup (net-zero): delete all non-self rows + save until back to 1
     let nsRow = await pg.findNonSelfRow();
     while (nsRow) {
       await pg.deleteNonSelfRow(nsRow.index);

@@ -24,7 +24,7 @@ import {
   NOTE_IDEMPOTENT, NOTE_SEQUENTIAL_A, NOTE_SEQUENTIAL_B,
 } from '../../src/data/locations/location-notes';
 
-// ─── Field-Case Coverage (FCC) — Notes FCC pilot 2026-05-19 ────────
+// ─── Field-coverage — Notes 2026-05-19 ────────
 // 26 net-new tests + 1 DEFERRED (4000-char exact-limit persist — not implemented). Each test is
 // independent: own baseline, own cleanup.
 // Runner: clients/encore/src/utils/field-case-runner.ts saveAndVerifyCase().
@@ -254,7 +254,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       expectAfterReload: async () => {
         // After clear+save+reload, two acceptable states per BUG-LOC-NTS-003 placeholder behavior:
         // (a) row 0 exists with empty textarea value, OR (b) default empty state (no rows).
-        // Branch on isDefaultEmptyState — no catch-swallow (LR-051 spirit, LR-053 no row-count).
+        // Branch on isDefaultEmptyState — no catch-swallow (clear diagnostics, content not row-count).
         if (await locationNotesPage.isDefaultEmptyState()) {
           expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
         } else {
@@ -360,7 +360,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  // ─── Group ε — Delete operations (clearNote-then-deleteRow per LR-026 + BUG-001 workaround) ──
+  // ─── Group ε — Delete operations (clearNote-then-deleteRow per Angular dirty-state + BUG-001 workaround) ──
   test('TC-LOC-NTS-046: Verify deleting the first of two note rows leaves the other', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
@@ -412,7 +412,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
       reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
       expectAfterReload: async () => {
-        // Content assertion only — placeholder row from BUG-LOC-NTS-003 may inflate count (LR-053)
+        // Content assertion only — placeholder row from BUG-LOC-NTS-003 may inflate count
         expect(await locationNotesPage.getNoteValue(0)).toBe(r0);
         expect(await locationNotesPage.getNoteValue(1)).toBe(r1);
       },
@@ -444,7 +444,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
       expectAfterReload: async () => {
         // Either default empty state or a single placeholder empty textarea (BUG-LOC-NTS-003).
-        // Branch on isDefaultEmptyState — no catch-swallow (LR-051 spirit, LR-053 no row-count).
+        // Branch on isDefaultEmptyState — no catch-swallow (clear diagnostics, content not row-count).
         if (await locationNotesPage.isDefaultEmptyState()) {
           expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
         } else {
@@ -529,8 +529,8 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.clickSaveButton();
     // Click in top-left corner of viewport (outside any modal dialog content).
     await realPage.mouse.click(2, 2);
-    // Title-aligned probe: observe whether the alertdialog dismissed or stayed (catalog § Cases
-    // EXPLICITLY DEFERRED line 418 — UX classification pending). Branch — no opaque OR-assertion.
+    // Title-aligned probe: observe whether the alertdialog dismissed or stayed (UX
+    // classification of this case is pending). Branch — no opaque OR-assertion.
     const dialogStillOpen = await realPage.locator('[role="alertdialog"]').isVisible().catch(() => false);
     if (dialogStillOpen) {
       // Behavior: click-outside does NOT dismiss the Save dialog — dismiss with Escape to move on.
@@ -567,7 +567,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.ensureEmptyState();
     await locationNotesPage.fillNote(0, NOTE_IDEMPOTENT);
     await locationNotesPage.saveAndConfirm();
-    // After save, button should disable (form pristine per LR-026 reload-on-tab pattern).
+    // After save, button should disable (form pristine per the reload-on-tab pattern).
     expect(await locationNotesPage.isSaveEnabled()).toBe(false);
     // Idempotent attempt: force-click the disabled Save button to bypass Playwright's
     // actionability check. The click event is delivered to the Angular handler, which
@@ -585,7 +585,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       // catch swallows the click rejection since "did the click attempt fire" is the test, not
       // "did the click succeed". The side-effect assertions below are the real check.
       await realPage.locator('[data-testid="location-settings-btn-save"]').click({ force: true, timeout: 2_000 }).catch(() => {});
-      // Settle window for any race-condition request. LR-052 permits this as a one-shot probe,
+      // Settle window for any race-condition request. This is allowed as a one-shot probe,
       // not inside a polling loop.
       await realPage.waitForTimeout(1_000);
       expect(await locationNotesPage.isSaveEnabled()).toBe(false);
@@ -650,7 +650,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
       reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
       expectAfterReload: async () => {
-        // Content-only assertion per LR-053 — auto-empty placeholder row inflates count.
+        // Content-only assertion — auto-empty placeholder row inflates count.
         expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_IDEMPOTENT);
       },
       cleanup: () => locationNotesPage.ensureEmptyState(),
@@ -874,7 +874,7 @@ test.describe('Location Notes @locations @notes', () => {
 
   test('TC-LOC-NTS-016: Row created via Add has Delete visible; typing keeps it', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
- // lifecycle refactor closure (2026-05-22): LR-019 defensive baseline
+ // lifecycle refactor closure (2026-05-22): defensive per-test baseline
  // reset. Prior-session DB pollution (e.g., from a preceding test that errored before its
  // own ensureEmptyState cleanup ran) leaves saved rows whose Delete buttons inflate the
  // count assertion below. Resetting here guarantees an empty DB regardless of upstream state.

@@ -12,13 +12,13 @@
 // - location-settings-modal-save-changes           ✗ MISSING (containerTestid: null in live DOM) — REVERTED below
 // - location-settings-modal-select-customer-address (and 5 inner)  ✗ ALL 6 MISSING — REVERTED in account-address.ts
 // - location-settings-modal-error                  ✗ MISSING — 4 save-error paths forced via
-//   playwright-cli route + offline (HTTP 500/400/422 + 200/isSuccess=false + network offline);
+//   Playwright route mocking + offline (HTTP 500/400/422 + 200/isSuccess=false + network offline);
 //   console confirmed each error fired; in every case form stayed dirty and dialog never
 //   rendered; 0 testids matching error/modal/alert/toast in DOM. REVERTED below.
 export const SetupSharedSelectors = {
  // ---- API Error Dialog ----
  // FIXME (2026-04-29): no container testid is rendered. 4 distinct save-error paths forced via
- // playwright-cli route mocking on **/api/location/update-properties (HTTP 500, HTTP 400,
+ // Playwright route mocking on **/api/location/update-properties (HTTP 500, HTTP 400,
  // HTTP 422 with structured payload, HTTP 200 with isSuccess=false body) PLUS full network-offline
  // mode. In every case the error fired (browser console confirmed) but no dialog rendered in DOM
  // and no testid matching error/modal/alert/toast was present. Reverted to role+text-match.

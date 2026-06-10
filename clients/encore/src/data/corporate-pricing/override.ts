@@ -1,10 +1,11 @@
 /**
- * Corporate Pricing — Product Group Override screen test data (Wave-1.5, live-discovered).
- * Consumed by `corporate-pricing-override.page.ts` + (Wave-1.5-A) `corporate-pricing-override.spec.ts`.
+ * Corporate Pricing — Product Group Override screen test data (live-discovered).
+ * Consumed by `corporate-pricing-override.page.ts` + `corporate-pricing-override.spec.ts`.
  *
- * Verified on the live app, 2026-06-08 (office 1604). DOCX-absent screen → live DOM is the oracle
- * (raised Q-WV15-1). Only live-verified values are committed; counts that are volatile on the shared
- * office (item total) are asserted by pattern, never value (LR-022). Route builder lives in
+ * Verified on the live app, 2026-06-08 (office 1604). No design doc for this screen → the live DOM
+ * is the source of truth. Only live-verified values are committed; counts that are volatile on the
+ * shared office (item total) are asserted by pattern, never value (assert content, not exact counts).
+ * Route builder lives in
  * `common.ts` (`CORPORATE_PRICING_ROUTES.overridePath`) — not duplicated here.
  */
 
@@ -14,8 +15,8 @@ export const CORP_PRICING_OVERRIDE = {
   defaultTab: 'Equipment' as const,
 
   /**
-   * Live grid headers, in DOM order — **10 columns**. The recon (master ledger D9) said 9
-   * (`Location…Mod Date`); live adds a 10th, `Updated By` (raised Q-WV15-1). Verify ALL present.
+   * Live grid headers, in DOM order — **10 columns**. Initial exploration noted 9
+   * (`Location…Mod Date`); live adds a 10th, `Updated By`. Verify ALL present.
    */
   gridColumns: [
     'Location',
@@ -60,7 +61,7 @@ export const CORP_PRICING_OVERRIDE = {
   activeOnlyDefault: false,
 
   /**
-   * `Active` column boolean render = **Radix checkbox** (LR-036 NEW/4th format). Read via
+   * `Active` column boolean render = **Radix checkbox** (a per-table boolean render format). Read via
    * `aria-checked` ('true'/'false'), NEVER `textContent` (empty) or `lucide-check` innerHTML.
    */
   activeBooleanRender: 'radix-checkbox-aria-checked' as const,
@@ -85,21 +86,20 @@ export const CORP_PRICING_OVERRIDE = {
 
   /**
    * Save = disabled on clean; dialog-gated (shared Corporate Pricing "Save Changes" alertdialog).
-   * Verbatim text + the success toast are W15-A live-verified (2026-06-09,
-   * `field-inventories/corporate-pricing-override-2026-06-09.md`).
+   * Verbatim text + the success toast are live-verified (2026-06-09).
    */
   saveDialogTitlePattern: /save changes/i,
   saveDialog: { title: 'Save Changes', body: 'Are you sure you want to save the changes?' },
   saveSuccessToast: 'Pricing overrides saved successfully.',
 
-  /** Backend save endpoint (LR-056 — filter network listeners on this, NEVER the page URL). */
+  /** Backend save endpoint — filter network listeners on this, NEVER the page URL. */
   saveApiPath: '/navigator/api/location/corporate-price-pg-override',
 } as const;
 
 /**
- * Numeric FCC values for the Override Price + Max Discount % cells (live-verified editable 2026-06-09).
- * Reuses the 1443 numeric-BVA shape on a distinct screen/fixture. `edited` differs from the fixture
- * default so it produces a net change (LR-009: a revert-to-original must use the default, not `edited`).
+ * Numeric field-coverage values for the Override Price + Max Discount % cells (live-verified editable 2026-06-09).
+ * Reuses the Pricing Detail numeric-BVA shape on a distinct screen/fixture. `edited` differs from the
+ * fixture default so it produces a net change (a revert-to-original must use the default, not `edited`).
  */
 export const OVERRIDE_NUMERIC_CASES = {
   overridePrice: {
@@ -127,20 +127,20 @@ export const OVERRIDE_NUMERIC_CASES = {
  * per-(location, tab) product-group override grid. There is therefore **ZERO row-collision** with
  * `strategyFixture` / `detailFixture` (`CORPORATE_PRICING_FIXTURES` in `common.ts`, which mutate
  * pricebook RECORDS on the `/details/<guid>` screens) — by construction, a different screen and a
- * different data model. Under `workers:2` the Override suite (W15-A) and the Strategy/Detail suites
+ * different data model. Under `workers:2` the Override suite and the Strategy/Detail suites
  * never touch the same row, so no cross-fixture collision is possible.
  *
- * The mutation-row anchor below is **PROVISIONAL** (live-observed 2026-06-08). W15-A finalizes it
- * AFTER resolving the Override grid's edit-activation mechanism — the click-to-edit cells did NOT
- * reveal an input via click/dblclick/Enter in this read-only recon (field-inventory Known gaps /
- * Q-WV15-1). Anchored by content (Product Group ID + Name), never index (LR-022).
+ * The mutation-row anchor below was **PROVISIONAL** when first live-observed (2026-06-08), then
+ * finalized AFTER resolving the Override grid's edit-activation mechanism — the click-to-edit cells
+ * did NOT reveal an input via click/dblclick/Enter during the initial read-only exploration.
+ * Anchored by content (Product Group ID + Name), never index (assert content, not position).
  */
 export const CORP_PRICING_OVERRIDE_FIXTURE = {
   office: '1604',
   tab: 'Equipment' as const,
   currency: 'ALL' as const,
   /**
-   * Mutation-row anchor — W15-A CONFIRMED reversible (2026-06-09: round-tripped Override Price
+   * Mutation-row anchor — CONFIRMED reversible (2026-06-09: round-tripped Override Price
    * 445.00 → 446.00 → 445.00 via the live save-cycle). `overridePriceDefault` / `activeDefault` are
    * the baseline `ensureDefaultState` restores to.
    */

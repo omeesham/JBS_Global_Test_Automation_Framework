@@ -125,7 +125,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   private async setTextFilter(selector: string, value: string): Promise<void> {
     // Delegates to the base React-controlled-input primitive (native value-setter + input/change
     // events). The native-setter block was de-duplicated into CorporatePricingBasePage.setReactInput
-    // per ALL-026; behavior is identical (first()-match on the selector).
+    // into a shared base primitive; behavior is identical (first()-match on the selector).
     await this.setReactInput(selector, value);
   }
 
@@ -223,9 +223,9 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   /**
    * Open the Location combobox and select the FIRST REAL location (option index 1 — index 0 is the
    * "Clear selection" entry). Returns the option's visible label (e.g. "1101 - Corporate Office …")
-   * so the caller can parse the office number and assert the `locationNo` query param. LR-025 retry:
-   * the 2652-option virtualized popover can detach an option mid-render. Used by the FCC representative
-   * each-option case — exhaustive enumeration of all 2652 is out of scope.
+   * so the caller can parse the office number and assert the `locationNo` query param. Retry-on-detach:
+   * the 2652-option virtualized popover can detach an option mid-render. Used by the field-coverage
+   * representative each-option case — exhaustive enumeration of all 2652 is out of scope.
    */
   async selectFirstRealLocation(): Promise<string> {
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -240,22 +240,22 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
         await this.page.keyboard.press('Escape').catch(() => { /* nothing open to dismiss */ });
       }
     }
-    throw new Error('selectFirstRealLocation: the Location option did not stabilize after 3 attempts (LR-025)');
+    throw new Error('selectFirstRealLocation: the Location option did not stabilize after 3 attempts');
   }
 
-  // ---------- FCC P2 boundary probe (§2.1 rejection-affordance oracle) ----------
+  // ---------- Field-coverage boundary probe (announced + escapable rejection check) ----------
 
   /**
    * Probe the Pricebook text filter (a plain React `<input>`) for a BVA / negative value, returning the
-   * §2.1 rejection-affordance oracle bundle WITHOUT clicking Search (the caller submits + asserts the
+   * rejection check bundle WITHOUT clicking Search (the caller submits + asserts the
    * server result). Records, in order:
    *  - `staged` / `stagedLen`: the committed input value (proves no maxlength truncation on overflow)
    *  - `ariaInvalid`: any rejection signal on the input — expected `null` (a search filter accepts any literal)
    *  - `escaped`: whether a NATURAL Tab moved focus OUT of the field, recorded BEFORE any cleanup key —
-   *    the helper NEVER presses Escape first, so a real focus-trap is not masked (§2.1 (b); graduated from
-   *    the 2026-06-10 TC-523 miss)
+   *    the helper NEVER presses Escape first, so a real focus-trap is not masked (escapability check;
+   *    graduated from the 2026-06-10 TC-523 miss)
    *  - `pageError`: count of "client-side exception" / "Application error" banners — expected 0 (the plain
-   *    input is crash-safe, unlike the Radix combobox which tears down the page on DOM-tamper, ALL-088)
+   *    input is crash-safe, unlike the Radix combobox which tears down the page on DOM-tamper)
    */
   async probePricebookBoundary(
     value: string,
@@ -400,9 +400,9 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   }
 
   // ===========================================================================
-  // Toolbar I/O (Wave-1.5-B) — Export ▾ / Import ▾ / Loc Pricing / Grid Options.
+  // Toolbar I/O — Export ▾ / Import ▾ / Loc Pricing / Grid Options.
   // Trigger + variant level ONLY: assert the menu opens, the variants are present, and the correct
-  // endpoint fires (Export) / dialog opens (Import). Real download/upload round-trip is EDGE_P3.
+  // endpoint fires (Export) / dialog opens (Import). Real download/upload round-trip is a later edge-case test phase.
   // ===========================================================================
 
   /**
@@ -456,9 +456,9 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
 
   /**
    * Open Export ▾, click a variant, and return the export request URL. The `waitForRequest` predicate
-   * is armed BEFORE the click and filters the backend export API path (LR-056 — never the page URL,
+   * is armed BEFORE the click and filters the backend export API path (never the page URL,
    * which Next.js App-Router also POSTs to for RSC renders). Trigger-level: the request firing is the
-   * assertion; the downloaded CSV's content is deferred to EDGE_P3 (no `waitForEvent('download')`).
+   * assertion; the downloaded CSV's content is deferred to a later edge-case test phase (no `waitForEvent('download')`).
    */
   async clickExportVariantAndCaptureUrl(variant: string): Promise<string> {
     await this.openExportMenu();
@@ -488,7 +488,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { text, buttons, hasFileInput };
   }
 
-  /** Close the import dialog (Close/Cancel button, else Escape). No file is uploaded (EDGE_P3). */
+  /** Close the import dialog (Close/Cancel button, else Escape). No file is uploaded (deferred to a later edge-case test phase). */
   async closeImportDialog(): Promise<void> {
     const dlg = this.importDialog();
     if ((await dlg.count()) === 0) return;
@@ -500,7 +500,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
 
   /**
    * Click "Loc Pricing Export" (direct, no menu) and return the location-export request URL.
-   * `waitForRequest` armed before the click, filtered on the backend API path (LR-056).
+   * `waitForRequest` armed before the click, filtered on the backend API path.
    */
   async clickLocPricingExportAndCaptureUrl(): Promise<string> {
     const reqPromise = this.page.waitForRequest((r) => r.url().includes(CORP_PRICING_LOC_EXPORT_API), { timeout: 15_000 });

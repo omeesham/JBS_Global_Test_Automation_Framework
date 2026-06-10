@@ -8,7 +8,7 @@
  * KEYS are unchanged (page objects resolve by key via ALL_SELECTORS); only the export name +
  * file name changed, plus the 9 net-new field selectors below.
  *
- * Live-verified 2026-06-03 — see field-inventories/left-panel-basic-information-2026-06-03.md.
+ * Live-verified 2026-06-03.
  * Tax Mode / Live Date / Line Of Business have NO data-testid → label-anchored selectors
  * (Playwright's CSS engine pierces open shadow roots AND supports `:has()` / `:text-is()`).
  */

@@ -120,7 +120,7 @@ export class LocationNotesPage extends BasePage {
     Log.info(`[OK] Pasted ${text.length} chars into note row ${row}`);
   }
 
- /** Append text to row N's existing value via Angular-friendly input event. FCC γ (edit) helper. */
+ /** Append text to row N's existing value via Angular-friendly input event. Field-coverage edit helper. */
   async appendToNote(row: number, suffix: string): Promise<void> {
     const textarea = this.getElement('txtNoteInputAll').nth(row);
     await textarea.focus();
@@ -133,7 +133,7 @@ export class LocationNotesPage extends BasePage {
     await textarea.press('Tab');
   }
 
- /** Prepend text to row N's existing value via Angular-friendly input event. FCC γ (edit) helper. */
+ /** Prepend text to row N's existing value via Angular-friendly input event. Field-coverage edit helper. */
   async prependToNote(row: number, prefix: string): Promise<void> {
     const textarea = this.getElement('txtNoteInputAll').nth(row);
     await textarea.focus();
@@ -146,7 +146,7 @@ export class LocationNotesPage extends BasePage {
     await textarea.press('Tab');
   }
 
- /** Replace [start, end) of row N's value with newText via Angular-friendly input event. FCC γ (edit) helper. */
+ /** Replace [start, end) of row N's value with newText via Angular-friendly input event. Field-coverage edit helper. */
   async replaceSliceInNote(row: number, start: number, end: number, newText: string): Promise<void> {
     const textarea = this.getElement('txtNoteInputAll').nth(row);
     await textarea.focus();
@@ -160,7 +160,7 @@ export class LocationNotesPage extends BasePage {
     await textarea.press('Tab');
   }
 
- /** Clear row N's textarea via Angular-friendly input event (LR-026 + BUG-LOC-NTS-001 workaround pattern). FCC ε (delete) prerequisite. */
+ /** Clear row N's textarea via Angular-friendly input event (Angular dirty-state + BUG-LOC-NTS-001 workaround pattern). Field-coverage delete prerequisite. */
   async clearNote(row: number): Promise<void> {
     const textarea = this.getElement('txtNoteInputAll').nth(row);
     await textarea.focus();
@@ -345,7 +345,7 @@ export class LocationNotesPage extends BasePage {
     const deleteCount = await this.getElement('btnNotesDelete').count();
     if (deleteCount > 0) {
       await this.deleteAllRows();
- // LR-026: poll for Save-enable instead of fixed 500ms sleep — races Angular's dirty flag
+ // Poll for Save-enable instead of fixed 500ms sleep — races Angular's dirty flag
  // when deletion completes before change detection runs. .catch falls through to the
  // reload fallback below if Angular doesn't update (post-markAsPristine session).
       await this.page.waitForFunction(
@@ -379,9 +379,9 @@ export class LocationNotesPage extends BasePage {
     await this.reloadAndNavigateToNotesTab();
 
  // Final verification: never claim "DB clean" without confirming it. If the cleanup didn't
- // land (LR-026 dirty-state race), retry the delete+save+reload once before returning.
+ // land (Angular dirty-state race), retry the delete+save+reload once before returning.
     if (!(await this.isDefaultEmptyState())) {
-      Log.warn('[WARN] Notes not empty after cleanup — retrying once (LR-026 dirty-state race)');
+      Log.warn('[WARN] Notes not empty after cleanup — retrying once (Angular dirty-state race)');
       if ((await this.getElement('btnNotesDelete').count()) > 0) {
         await this.deleteAllRows();
       }

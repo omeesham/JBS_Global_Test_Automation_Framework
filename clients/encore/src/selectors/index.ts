@@ -105,7 +105,7 @@ const _LOS_COLLISION_CHECK = buildAllSelectors(
   LocalOfficeEctSelectors,
 );
 
-// Corporate Pricing — distinct multi-screen module (LR-017). Like Local Office, DELIBERATELY
+// Corporate Pricing — distinct multi-screen module (own selector namespace). Like Local Office, DELIBERATELY
 // EXCLUDED from ALL_SELECTORS. Reason (comment corrected 2026-06-10 — the prior note wrongly named
 // `btnSearch`/`btnReset` as *currently colliding* Location-Settings keys; they are NOT in the Location
 // partitions at all, and a CP-keys ∩ Location/Local-Office-keys intersection is presently EMPTY because
@@ -115,8 +115,8 @@ const _LOS_COLLISION_CHECK = buildAllSelectors(
 // getTsSelector/ALL_SELECTORS, so merging CP in would add nothing. It also keeps CP's generic single-word
 // keys (btnSearch, btnReset, btnExport, btnImport, btnNew, btnGridOptions) permanently clear of the
 // Location partitions' own generic keys — which DO include a `btnSave` (5×) — as both modules grow.
-// This check verifies the 6 CP screen partitions don't collide with EACH OTHER (intra-module boundary,
-// F11): Override (Wave-1.5) uses `ovr`-prefixed keys and New Pricebook (NM-1440) uses `np`-prefixed keys,
+// This check verifies the 6 CP screen partitions don't collide with EACH OTHER (intra-module boundary):
+// Override uses `ovr`-prefixed keys and New Pricebook (NM-1440) uses `np`-prefixed keys,
 // so each shares zero keys with Search and with each other.
 const _CORPORATE_PRICING_COLLISION_CHECK = buildAllSelectors(
   CorporatePricingSearchSelectors,

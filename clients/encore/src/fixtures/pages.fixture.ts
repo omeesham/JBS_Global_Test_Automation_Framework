@@ -474,7 +474,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
   },
 
   /**
-   * CorporatePricingOverridePage fixture (Wave-1.5 — Product Group Override screen, /pg-override).
+   * CorporatePricingOverridePage fixture (Product Group Override screen, /pg-override).
    * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
    */
   corporatePricingOverridePage: async ({ authenticatedSession, config }, use) => {

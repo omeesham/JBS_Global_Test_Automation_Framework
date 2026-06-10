@@ -10,17 +10,16 @@ import {
  * Location Settings — Left Panel (Basic Information).
  *
  * Automates 23 of the 24 documented manual TCs (TC-LOC-LP-001..023) + 3 net-new save-persist TCs
- * (025 Local Office Name, 026 Tax Mode, 027 Region). Field states live-verified 2026-06-03
- * (field-inventories/left-panel-basic-information-2026-06-03.md).
+ * (025 Local Office Name, 026 Tax Mode, 027 Region). Field states live-verified 2026-06-03.
  *
  * Corrections vs the original MD (live DOM + old-site baseline both win): Line Of Business is
  * read-only in EDIT mode by design (Encore NM-831/NM-1140) → TC-016 asserts disabled; Servicing
  * Branch has 218 options (not 215); Live Date = "June 15th, 1990".
  *
  * TC-024 (cross-tab Legal-invalid Save gating) is documented (c) in the catalog/MD — see the note
- * below TC-023 — flagged for a design decision (no-leak mandate vs Legal Path D teardown).
+ * below TC-023 — flagged for a design decision (no-leak mandate vs the Legal screen's tamper-teardown finding).
  *
- * Per-test baseline reset via ensureDefaultState (LR-019). Mutating-and-persisting tests restore
+ * Per-test baseline reset via ensureDefaultState. Mutating-and-persisting tests restore
  * office-1604 defaults themselves so nothing leaks into sibling specs. No bare `page` destructure.
  */
 test.describe('Location Left Panel — Basic Information @locations @left-panel-basic-information', () => {
@@ -30,7 +29,7 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     if (!(await lp.isOnBasicInformation())) {
       await lp.navigateToBasicInformation(OFFICE_NO);
     }
-    // LR-019: enforce office-1604 baseline per-test (not first-test-only) so a prior crashed/retried
+    // Enforce office-1604 baseline per-test (not first-test-only) so a prior crashed/retried
     // run cannot poison defaults. No-op (cheap reads) when already clean.
     await lp.ensureDefaultState();
   });
@@ -43,7 +42,7 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     expect((await lp.getActiveState()).checked).toBe(true);
     // Live Date renders "Month Dayth, YYYY". Office 1604 is a SHARED office whose Live Date drifts
     // (CI bots write to it — observed June 15 1990 / Sep 6 1989 / Aug 28 1989 across runs), so assert
-    // the FORMAT, not a fixed value (LR-022 spirit).
+    // the FORMAT, not a fixed value (no exact-value assertion).
     expect(await lp.getLiveDateText()).toMatch(/^[A-Z][a-z]+ \d{1,2}(st|nd|rd|th), \d{4}$/);
     expect(await lp.getTaxMode()).toBe(LP_DEFAULTS.taxMode);
     expect(await lp.getCountry()).toBe(LP_DEFAULTS.country);
@@ -89,7 +88,7 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     await lp.setUnion(true);
     expect(await lp.waitForSaveButtonEnabled()).toBe(true); // change enables Save (async Angular dirty)
     // Reverting the toggle is a NET-ZERO change → Save returns to DISABLED (Angular net-zero
-    // detection, LR-009/LR-026). The original MD's "stays dirty after revert" does not reproduce live.
+    // detection, Angular dirty-state). The original spec doc's "stays dirty after revert" does not reproduce live.
     await lp.setUnion(false);
     expect(await lp.waitForSaveButtonDisabled()).toBe(true);
     await lp.reloadAndNavigate(OFFICE_NO); // clean
@@ -102,14 +101,14 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     expect(await lp.getLocalOfficeName()).toBe('');
     // Live (2026-06-03): clearing the required Local Office Name leaves Save DISABLED — the empty
     // required field gates Save. This MATCHES the requirement; the original MD's anomalous
-    // "Save enables on empty" observation no longer reproduces (corrected per LR-020).
+    // "Save enables on empty" observation no longer reproduces (corrected against live).
     expect(await lp.isSaveEnabled()).toBe(false);
     await lp.reloadAndNavigate(OFFICE_NO); // discard
   });
 
   test('TC-LOC-LP-010: Local Office Name maxlength (live=255)', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     // The input enforces maxlength=255 (browser-enforced on keystroke). The original MD claimed 50
-    // — corrected per LR-020 and flagged to Encore (is 255 intended, or should the limit be 50?).
+    // — corrected against live and flagged to Encore (is 255 intended, or should the limit be 50?).
     expect(await lp.getLocalOfficeNameMaxLength()).toBe(LP_TEST_VALUES.localOfficeNameMaxLength);
   });
 
@@ -157,7 +156,7 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
 
   test('TC-LOC-LP-015: Region dropdown options + non-persist on reload', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     const options = await lp.getRegionOptions();
-    expect(options.length).toBeGreaterThan(LP_DROPDOWN.regionLowerBound); // live: 59 (LR-022 — no exact assert)
+    expect(options.length).toBeGreaterThan(LP_DROPDOWN.regionLowerBound); // live: 59 (no exact assert)
     expect(options).toContain(LP_DROPDOWN.regionContains);
     expect(await lp.getRegion()).toBe(LP_DEFAULTS.region);
     await lp.selectRegion(LP_TEST_VALUES.regionAlt);
@@ -176,7 +175,7 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
 
   test('TC-LOC-LP-017: Servicing Branch Office dropdown + unselected default', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     const options = await lp.getServicingBranchOptions();
-    expect(options.length).toBeGreaterThan(LP_DROPDOWN.servicingBranchLowerBound); // live: 218 (LR-022)
+    expect(options.length).toBeGreaterThan(LP_DROPDOWN.servicingBranchLowerBound); // live: 218 (no exact assert)
     expect(await lp.getServicingBranch()).toContain('Select Servicing Branch Office');
     // selecting a value enables Save (validation satisfied); discard without saving (required field
     // has no "unselect" — saving would leak into 1604).
@@ -246,10 +245,10 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
 
   // TC-LOC-LP-024 (Cross-tab Save validation — Legal tab invalid): NOT automated here. Driving the
   // Legal tab into an INVALID state (clearing the required Service Charge) has no UI "clear"
-  // affordance on the Radix required select AND risks Legal state-leak per the Legal Path D teardown
+  // affordance on the Radix required select AND risks Legal state-leak per the Legal screen's tamper-teardown
   // finding (a DOM mutation of a Radix SC combobox tears down the Angular page). Save-gating on an
   // invalid Basic-Information state is already proven by TC-019 (TaxModeID=0). Documented (c) in the
-  // field-case catalog + flagged for a design decision (no-leak mandate vs Legal Path D) — see the
+  // field-coverage catalog + flagged for a design decision (no-leak mandate vs the Legal screen's tamper-teardown finding) — see the
   // subplan Execution Summary + chat handoff. NOT a bug → no BUG cite, no test.fixme stub.
 
   // ── Net-new: save+reload persistence per distinct editable field ───────────

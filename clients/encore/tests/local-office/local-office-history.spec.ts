@@ -54,7 +54,7 @@ test.describe('Local Office Settings — History Tab @locations @local-office-hi
 
   // Re-enabled 2026-06-02: isHistoryTabReadOnly() now scopes the editable-field count to tblHistory
   // (the data <table>); the paginator "Current page number" <input> lives OUTSIDE it (live walk
-  // walk-evidence-hist-ssl-acc-2026-06-02.md §0.5c). The data table is genuinely input-free.
+  // 2026-06-02). The data table is genuinely input-free.
   test('TC-LOS-HIS-006: History tab is read-only — no Save, no editable fields', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-HIS-001']);
     expect(await localOfficeHistoryPage.isHistoryTabReadOnly()).toBe(true);

@@ -1,9 +1,9 @@
 /**
- * DO NOT DELETE: LR-019 Baseline-Reset Gate (annotation form).
+ * DO NOT DELETE: per-test baseline-reset gate (annotation form).
  *
  * Several Encore specs follow a "TC-001 resets baseline -> TC-002+ tests
  * variations" pattern (Location Settings tabs, History views). Without
- * the LR-019 ordering discipline, Playwright's default parallel ordering
+ * this ordering discipline, Playwright's default parallel ordering
  * would run TC-002+ against whatever state the previous run left behind,
  * producing random intermittent failures that look like product bugs.
  *

@@ -1,22 +1,22 @@
 /**
- * Corporate Pricing — Product Group Override screen selectors (Wave-1.5, live-discovered).
+ * Corporate Pricing — Product Group Override screen selectors (live-discovered).
  * URL: /navigator/locations/{office}/settings/corporate-pricing/pg-override
  * Reached via the Search action-bar "Pricing Override" button (navigation confirmed BUILT 2026-06-08).
  *
  * Selector strategy: text / role / grid-column-header / content-anchored. This screen ships
  * **ZERO data-testids** (live audit 2026-06-08) — same sparse-testid reality as the other
- * Corporate Pricing screens (Doctrine 4). Do NOT reuse selectors/locations/pricing.ts.
+ * Corporate Pricing screens. Do NOT reuse selectors/locations/pricing.ts.
  *
  * Key-naming: every key is `ovr`-prefixed so this partition shares ZERO keys with the Search /
  * Details / Strategy / Detail partitions — required because `src/selectors/index.ts`
  * `_CORPORATE_PRICING_COLLISION_CHECK` runs `buildAllSelectors` across all partitions and THROWS
  * on a duplicate key (Search already owns generic `btnExport`/`btnImport`/`btnGridOptions`/`btnSave`,
- * pointing at the SEARCH page's controls, LR-017).
+ * pointing at the SEARCH page's controls).
  *
  * Per-row cell selectors (`ovrCell*`) are RELATIVE — chain them off a row Locator resolved by
- * content (Product Group name), never an index (LR-022 content-anchored).
+ * content (Product Group name), never an index (content-anchored).
  *
- * Verified on the live app, 2026-06-08 (`field-inventories/corporate-pricing-override-2026-06-08.md`).
+ * Verified on the live app, 2026-06-08.
  */
 export const CorporatePricingOverrideSelectors = {
   // ---- Page chrome ----
@@ -65,11 +65,11 @@ export const CorporatePricingOverrideSelectors = {
   ovrColHeaderAny: 'table:has(th:has-text("Override Price")) th',
 
   // ---- Per-row editable cells (RELATIVE — chain off a row Locator) ----
-  /** @where Override > Grid row @el button @keys Override Price click-to-edit cell (col 6; edit-reveal unresolved — W15-A) */
+  /** @where Override > Grid row @el button @keys Override Price click-to-edit cell (col 6) */
   ovrCellOverridePrice: 'td:nth-child(6) [role="button"]',
   /** @where Override > Grid row @el button @keys Max Discount % click-to-edit cell (col 7) */
   ovrCellMaxDiscount: 'td:nth-child(7) [role="button"]',
-  /** @where Override > Grid row @el checkbox @keys Active toggle (col 8; LR-036 Radix-checkbox boolean — read aria-checked) */
+  /** @where Override > Grid row @el checkbox @keys Active toggle (col 8; Radix-checkbox boolean — read aria-checked) */
   ovrCellActiveCheckbox: 'td:nth-child(8) [role="checkbox"]',
 
   // ---- Toolbar (the Override screen's OWN — direct actions, no variant menu) ----
@@ -84,7 +84,7 @@ export const CorporatePricingOverrideSelectors = {
    * Grid Options is an sr-only ICON button — its "Grid Options" label sits in a visually-hidden span
    * (NOT a visible text node like the sibling Export/Import buttons; confirmed on the live Override AX
    * tree), so `:text-is("Grid Options")` matches no VISIBLE text and never resolves. Anchor on the
-   * accessible name, mirroring the live-verified Search sibling (`search.ts` btnGridOptions). (LR-029.)
+   * accessible name, mirroring the live-verified Search sibling (`search.ts` btnGridOptions).
    */
   ovrBtnGridOptions: 'button[aria-label="Grid Options"]',
 
@@ -97,7 +97,7 @@ export const CorporatePricingOverrideSelectors = {
   ovrItemsFound: 'text=/\\d[\\d,]*\\s+items found/',
 
   // ---- Save confirmation dialog ----
-  // W15-A live finding (2026-06-09): the dialog is `<div role="alertdialog">` but Playwright's
+  // Live finding (2026-06-09): the dialog is `<div role="alertdialog">` but Playwright's
   // `getByRole('alertdialog')` does NOT match it (shadow/portal-nested → excluded from the a11y-role
   // engine), and its buttons carry no computed accessible NAME. Target via the CSS attribute selector
   // + button TEXT (NOT getByRole, NOT the base `confirmSaveDialogIfPresent` which is getByRole-based).

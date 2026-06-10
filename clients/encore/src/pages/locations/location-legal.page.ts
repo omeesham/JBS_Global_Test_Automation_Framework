@@ -144,11 +144,11 @@ export class LocationLegalPage extends BasePage {
   }
 
  // ---------------------------------------------------------------------------
- // FCC RUNNER HOOKS (field-case-runner.ts)
+ // FIELD-COVERAGE RUNNER HOOKS (field-case-runner.ts)
  // ---------------------------------------------------------------------------
 
  /**
- * FCC runner hook — saveAndConfirm shape required by `saveAndVerifyCase()`.
+ * Field-coverage runner hook — saveAndConfirm shape required by `saveAndVerifyCase()`.
  * Wraps clickSave() and throws on failure so the runner surfaces server errors
  * as test failures (not silent `{success: false}` returns).
  */
@@ -161,10 +161,10 @@ export class LocationLegalPage extends BasePage {
 
  /**
  * Baseline hook — restore SC + T&C to defaults if dirty. Used per-test by the
- * non-FCC `beforeEach` (LR-019) and as the FCC runner `baseline:`/`cleanup:` callback.
+ * non-field-coverage `beforeEach` (per-test baseline) and as the field-coverage runner `baseline:`/`cleanup:` callback.
  *
  * Bounded retry (max 3) wraps the WHOLE cycle — read → re-select → save → reload →
- * re-verify — because the flaky step is the 114-option Radix SC select (LR-025): it can
+ * re-verify — because the flaky step is the 114-option Radix SC select (retry-on-detach): it can
  * "click successfully" yet leave the Angular model unchanged. A silent no-op leaves Save
  * disabled, and `clickSaveWithDialog` returns `{success:true}` when Save is disabled
  * (base-page.ts:360-363) — so save-success never proves the restore landed. The

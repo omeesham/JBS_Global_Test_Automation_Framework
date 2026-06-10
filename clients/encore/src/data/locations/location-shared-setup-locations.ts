@@ -67,4 +67,4 @@ export const SEARCH_CROSS_ROW_QUERY = 'Atlanta';
 
 // SEARCH_BULK_LOWER_BOUND removed 2026-06-02: TC-LOC-SSL-035 now uses a relative invariant
 // (cleared-count > Atlanta-filtered-count, mirroring TC-LOC-SSL-040) instead of a hardcoded
-// structural threshold (LR-022). The magic number was the sole consumer.
+// structural threshold (no exact-count assertion). The magic number was the sole consumer.

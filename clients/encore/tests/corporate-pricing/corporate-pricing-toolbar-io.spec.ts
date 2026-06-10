@@ -2,20 +2,19 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { CORP_PRICING_TOOLBAR_IO } from '../../src/data/corporate-pricing/toolbar-io';
 
 /**
- * Corporate Pricing — Search toolbar I/O, trigger-level FCC (Wave-1.5-B, NM-1604/1625/1446).
- * TC-LOC-CPR-601..617. Live-grounded 2026-06-09 (office 1604, `playwright-cli -s=cpr-toolbar-fcc`;
- * findings in `test-cases/setup/corporate-pricing/corporate_pricing_toolbar_io_test_cases.md`).
+ * Corporate Pricing — Search toolbar I/O, trigger-level field-coverage (NM-1604/1625/1446).
+ * TC-LOC-CPR-601..617. Live-grounded 2026-06-09 (office 1604).
  *
  * SCOPE: trigger + variant enumeration ONLY — the dropdown opens, all 4 variants are present, each
  * fires the correct endpoint (Export ▾ / Loc Pricing Export) or opens the correct dialog (Import ▾ /
  * Loc Pricing Import), and Grid Options column toggle persists on reload. The real download/upload
  * round-trip (file content, import validation/error/success) is DEFERRED to a later edge-case test phase.
  *
- * Q-WV15-2 (live answer): Export ▾ fires `GET /navigator/api/location/pricing/pricing-export` with
+ * Live answer: Export ▾ fires `GET /navigator/api/location/pricing/pricing-export` with
  * `isLabor` + `isMaxDiscount` query params mapping 1:1 to the 4 variants, plus `locale=en-US` (NM-1604
  * "4 variants + locale" CONFIRMED-LIVE). Import ▾ opens a custom in-app upload dialog (NOT a native OS
  * file chooser) — no network fires on trigger. Endpoint assertions filter the backend API path, never
- * the page URL (LR-056). Read-only: exports download (auto-discarded), imports are cancelled uncommitted.
+ * the page URL. Read-only: exports download (auto-discarded), imports are cancelled uncommitted.
  */
 
 const VARIANTS = CORP_PRICING_TOOLBAR_IO.variants;
@@ -25,7 +24,7 @@ const IMP = CORP_PRICING_TOOLBAR_IO.importDialog;
 test.describe('Corporate Pricing — toolbar I/O: Export ▾ @corporate-pricing @toolbar-io', () => {
   test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
     test.setTimeout(60_000);
-    await p.open(); // LR-019 baseline: fresh search-grid load per test
+    await p.open(); // baseline: fresh search-grid load per test
   });
 
   test('TC-LOC-CPR-601: Export ▾ opens and lists all 4 export variants', async ({ corporatePricingSearchPage: p }) => {
@@ -88,7 +87,7 @@ test.describe('Corporate Pricing — toolbar I/O: Import ▾ @corporate-pricing 
     expect(info.text).toContain(`${IMP.titlePrefix}All Equipment Pricing`);
     expect(info.text).toContain(IMP.prompt);
     expect(info.buttons).toEqual(expect.arrayContaining(['Browse', 'Upload']));
-    expect(info.hasFileInput).toBe(true); // dialog carries a file input — upload itself is EDGE_P3
+    expect(info.hasFileInput).toBe(true); // dialog carries a file input — upload itself is a later edge-case test phase
     await p.closeImportDialog();
   });
 
@@ -147,7 +146,7 @@ test.describe('Corporate Pricing — toolbar I/O: Grid Options @corporate-pricin
 
   test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
     test.setTimeout(90_000);
-    await p.ensureAllGridColumnsVisible(); // LR-019 baseline: all columns visible (also self-navigates fresh)
+    await p.ensureAllGridColumnsVisible(); // baseline: all columns visible (also self-navigates fresh)
   });
 
   // Column visibility is a server-persisted user preference — always restore to all-visible.

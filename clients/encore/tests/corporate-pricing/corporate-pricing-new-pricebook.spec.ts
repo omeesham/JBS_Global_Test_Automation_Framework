@@ -2,21 +2,21 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { NEW_PRICEBOOK } from '../../src/data/corporate-pricing/new-pricebook';
 
 /**
- * Corporate Pricing — New Pricebook create flow, NM-1440 (Wave-1.5 priority).
+ * Corporate Pricing — New Pricebook create flow, NM-1440.
  * TC-LOC-CPR-301..330. Live-grounded 2026-06-09 (Equipment + Labor route options).
  *
- * MUTATION SAFETY: NO-COMMIT. A created pricebook is irreversible via the UI (no delete/deactivate —
- * CPR-1440-Q4), so save-cycle TCs assert Save *reachability* (Save enabled → "Save Changes" dialog →
- * Cancel) and never confirm. Baseline (LR-019) = a fresh, always-empty create page per test
+ * MUTATION SAFETY: NO-COMMIT. A created pricebook is irreversible via the UI (no delete/deactivate),
+ * so save-cycle TCs assert Save *reachability* (Save enabled → "Save Changes" dialog →
+ * Cancel) and never confirm. Baseline = a fresh, always-empty create page per test
  * (`open(type)` in `beforeEach`). React-controlled inputs filled via the page object's `setReactInput`
  * (native value-setter — `.fill()` does not commit React state). No fixed waits.
  *
- * Divergences raised (Doctrine 2): CPR-1440-Q1 (Type disabled), Q2 (no strategy Type field),
- * Q3 (decimal year accepted client-side), Q4 (no delete), Q5 (≥1 strategy required).
+ * Divergences raised: Type is disabled, the strategy dialog has no Type field, a decimal year is
+ * accepted client-side, there is no delete, and ≥1 strategy is required before Save.
  */
 test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricing @new-pricebook', () => {
   test.beforeEach(async ({ corporatePricingNewPricebookPage: p }) => {
-    await p.open('equipment'); // LR-019 baseline: fresh, empty create page
+    await p.open('equipment'); // baseline: fresh, empty create page
   });
 
   // ── Page + header presence / defaults ───────────────────────────────────────
@@ -33,7 +33,7 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
 
   test('TC-LOC-CPR-303: Price Book Type shows Equipment and is read-only (route-fixed)', async ({ corporatePricingNewPricebookPage: p }) => {
     expect(await p.getTypeValue()).toBe(NEW_PRICEBOOK.typeDisplay.equipment);
-    expect(await p.isTypeDisabled()).toBe(true); // CPR-1440-Q1
+    expect(await p.isTypeDisabled()).toBe(true); // Type is route-fixed (display-only)
   });
 
   test('TC-LOC-CPR-304: Price Year field is present and editable', async ({ corporatePricingNewPricebookPage: p }) => {
@@ -56,7 +56,7 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(tabs).toContain('Pricing Detail');
   });
 
-  // ── Name FCC ─────────────────────────────────────────────────────────────────
+  // ── Name field-coverage ─────────────────────────────────────────────────────────────────
 
   test('TC-LOC-CPR-308: Single-character Pricebook Name keeps the form savable', async ({ corporatePricingNewPricebookPage: p }) => {
     await p.setYear(NEW_PRICEBOOK.validYear);
@@ -95,7 +95,7 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(await p.isSaveEnabled()).toBe(false);
   });
 
-  // ── Year FCC ───────────────────────────────────────────────────────────────
+  // ── Year field-coverage ───────────────────────────────────────────────────────────────
 
   test('TC-LOC-CPR-313: Empty Price Year blocks Save', async ({ corporatePricingNewPricebookPage: p }) => {
     await p.setName(NEW_PRICEBOOK.validName);
@@ -115,7 +115,7 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     await p.addStrategy();
     await p.setYear(NEW_PRICEBOOK.validYear);
     expect(await p.isSaveEnabled()).toBe(true);
-    // Decimal: client does NOT reject (CPR-1440-Q3 — server validation unverified, no-commit).
+    // Decimal: client does NOT reject (server validation unverified, no-commit).
     await p.setYear(NEW_PRICEBOOK.decimalYear);
     expect(await p.getYear()).toBe(NEW_PRICEBOOK.decimalYear);
     expect(await p.isSaveEnabled()).toBe(true);
@@ -126,7 +126,7 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
   test('TC-LOC-CPR-316: New Pricing Strategy (+) opens the add dialog (Name + flags, no Type field)', async ({ corporatePricingNewPricebookPage: p }) => {
     await p.openAddStrategyDialog();
     expect(await p.isAddDialogOpen()).toBe(true);
-    // Dialog presents the Strategy Name field + flag checkboxes (no separate "Type" control — CPR-1440-Q2).
+    // Dialog presents the Strategy Name field + flag checkboxes (no separate "Type" control).
     await expect(p.page.locator('#new-strategy-name')).toBeVisible();
     await expect(p.page.getByRole('dialog').getByRole('checkbox', { name: 'Is Active' })).toBeVisible();
     await p.cancelAddDialog();
@@ -174,7 +174,7 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     await p.setYear(NEW_PRICEBOOK.validYear);
     // No strategy added.
     expect(await p.getStrategyTotal()).toBe(0);
-    expect(await p.isSaveEnabled()).toBe(false); // CPR-1440-Q5
+    expect(await p.isSaveEnabled()).toBe(false); // ≥1 strategy required before Save enables
   });
 
   test('TC-LOC-CPR-323: Save enables with Name + Year + one strategy and zero product groups (Empty-Shell)', async ({ corporatePricingNewPricebookPage: p }) => {
@@ -191,7 +191,7 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     const dialogText = await p.clickSaveExpectDialog();
     expect(dialogText).toContain(NEW_PRICEBOOK.saveDialog.title);
     expect(dialogText).toContain(NEW_PRICEBOOK.saveDialog.body);
-    // NO-COMMIT: Cancel (a created pricebook is irreversible via UI — CPR-1440-Q4).
+    // NO-COMMIT: Cancel (a created pricebook is irreversible via UI).
     await p.cancelSaveDialog();
     // Still on the create page (no redirect to /details).
     expect(await p.getHeading()).toBe('New Pricebook');
@@ -228,7 +228,7 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
 
 test.describe('Corporate Pricing — New Pricebook (Labor) @corporate-pricing @new-pricebook', () => {
   test.beforeEach(async ({ corporatePricingNewPricebookPage: p }) => {
-    await p.open('labor'); // LR-019 baseline: fresh, empty create page
+    await p.open('labor'); // baseline: fresh, empty create page
   });
 
   test('TC-LOC-CPR-328: Labor create page loads via the type route param; Type shows Labor (read-only)', async ({ corporatePricingNewPricebookPage: p }) => {

@@ -2,17 +2,16 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { CORP_PRICING_SEARCH } from '../../src/data/corporate-pricing/search';
 
 /**
- * Corporate Pricing — Search screen — P1 functional + P2 FCC field-coverage (two-describe shape, LR-ENC-002).
+ * Corporate Pricing — Search screen — functional + field-coverage (two-describe shape).
  *
- *  - FCC describe (top, 12 cases TC-LOC-CPR-019..030): BVA / special / each-option / compound / reset-idempotency,
- *    live-walked 2026-06-10 (`field-inventories/corporate-pricing-search-2026-06-10.md`,
- *    `field-case-catalogs/corporate-pricing-search-fcc-2026-06-10.md`). Read-only → Search-cycle (stage→Search→server→restore).
- *  - P1 describe (below, 18 cases TC-LOC-CPR-001..018): the requirements + a live walk, 2026-06-05.
+ *  - Field-coverage describe (top, 12 cases TC-LOC-CPR-019..030): BVA / special / each-option / compound / reset-idempotency,
+ *    live-walked 2026-06-10. Read-only → Search-cycle (stage→Search→server→restore).
+ *  - Functional describe (below, 18 cases TC-LOC-CPR-001..018): the requirements + a live walk, 2026-06-05.
  *
  * Read-only screen — no mutation. Query-param contract (verified): pricebookName / pricingStrategyName /
  * currencyId (USD=1,CAD=2,MXN=3) / locationNo / isInternal / isLabor / isActive (omitted when Active Only unchecked).
  *
- * TWO P1 divergences asserted-as-live + raised as clarifications (never silently absorbed):
+ * TWO functional divergences asserted-as-live + raised as clarifications (never silently absorbed):
  *  - Columns: the requirements name 8 columns; live renders 9 ("Productions Currency" → Is Productions + Currency).
  *  - Filtering: the requirements say filtering is client-side; live filters are SERVER-SIDE, on the Search button.
  *
@@ -23,11 +22,11 @@ test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & re
 
   test.beforeEach(async ({ corporatePricingSearchPage: cp }) => {
     test.setTimeout(120_000);
-    // Read-only screen → a fresh nav IS the per-test baseline (LR-019): it resets every staged filter.
+    // Read-only screen → a fresh nav IS the per-test baseline: it resets every staged filter.
     await cp.open();
   });
 
-  // ── Pricebook text filter — BVA / negative (each carries the §2.1 announced+escapable oracle) ──
+  // ── Pricebook text filter — BVA / negative (each carries the announced + escapable rejection check) ──
 
   test('TC-LOC-CPR-019: Pricebook no-match input returns zero results server-side', async ({ corporatePricingSearchPage: cp }) => {
     await cp.fillPricebookFilter(CORP_PRICING_SEARCH.fcc.pricebookNoMatch);
@@ -39,8 +38,8 @@ test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & re
   test('TC-LOC-CPR-020: Pricebook accepts a 250-char value with no truncation; server returns zero, no crash', async ({ corporatePricingSearchPage: cp }) => {
     const probe = await cp.probePricebookBoundary(CORP_PRICING_SEARCH.fcc.pricebookOverflow);
     expect(probe.stagedLen).toBe(250); // no maxlength truncation
-    expect(probe.ariaInvalid).toBeNull(); // §2.1 (a): no false rejection signal
-    expect(probe.escaped).toBe(true); // §2.1 (b): a natural Tab escapes — no focus-trap
+    expect(probe.ariaInvalid).toBeNull(); // (a): no false rejection signal
+    expect(probe.escaped).toBe(true); // (b): a natural Tab escapes — no focus-trap
     expect(probe.pageError).toBe(0); // no client-side exception
     const url = await cp.searchAndWaitForList();
     expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.pricebook}=`);
@@ -50,9 +49,9 @@ test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & re
   test('TC-LOC-CPR-021: Pricebook accepts special characters literally, URL-encodes them, no crash, escapable', async ({ corporatePricingSearchPage: cp }) => {
     const probe = await cp.probePricebookBoundary(CORP_PRICING_SEARCH.fcc.pricebookSpecial);
     expect(probe.staged).toBe(CORP_PRICING_SEARCH.fcc.pricebookSpecial); // accepted literally
-    expect(probe.ariaInvalid).toBeNull(); // §2.1 (a)
-    expect(probe.escaped).toBe(true); // §2.1 (b)
-    expect(probe.pageError).toBe(0); // crash-safe (unlike the Radix combobox / ALL-088)
+    expect(probe.ariaInvalid).toBeNull(); // (a)
+    expect(probe.escaped).toBe(true); // (b)
+    expect(probe.pageError).toBe(0); // crash-safe (unlike the Radix combobox)
     const url = await cp.searchAndWaitForList();
     expect(url).toContain(CORP_PRICING_SEARCH.fcc.pricebookSpecialEncoded); // URL-encoded in the query
     await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(0);
@@ -60,7 +59,7 @@ test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & re
 
   test('TC-LOC-CPR-022: Pricebook whitespace-only returns the full list (server ignores whitespace)', async ({ corporatePricingSearchPage: cp }) => {
     const probe = await cp.probePricebookBoundary(CORP_PRICING_SEARCH.fcc.pricebookWhitespace);
-    expect(probe.escaped).toBe(true); // §2.1 (b)
+    expect(probe.escaped).toBe(true); // (b)
     expect(probe.pageError).toBe(0);
     const url = await cp.searchAndWaitForList();
     expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.pricebook}=`);

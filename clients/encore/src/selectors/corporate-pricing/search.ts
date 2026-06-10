@@ -66,11 +66,11 @@ export const CorporatePricingSearchSelectors = {
    * @where Search > Action bar @el button @text "Grid Options" @keys grid options columns
    * Live correction (2026-06-09): Grid Options is a 32×32 ICON button — its "Grid Options" label is
    * sr-only, so `:text-is("Grid Options")` matches no VISIBLE text and never resolves. Anchor on the
-   * accessible name instead (`aria-label`, `aria-haspopup="menu"`). (LR-029 — live-verified, not invented.)
+   * accessible name instead (`aria-label`, `aria-haspopup="menu"`). Live-verified, not invented.
    */
   btnGridOptions: 'button[aria-label="Grid Options"]',
 
-  // ---- Toolbar I/O dropdowns + dialogs (Wave-1.5-B, live-verified 2026-06-09) ----
+  // ---- Toolbar I/O dropdowns + dialogs (live-verified 2026-06-09) ----
   /** @where Search > Export ▾ / Import ▾ @el menuitem @keys the 4 export/import variant items (menu must be open) */
   mnuToolbarVariant: '[role="menuitem"]',
   /** @where Search > Grid Options @el menuitemcheckbox @keys per-column show/hide toggles (menu must be open) */

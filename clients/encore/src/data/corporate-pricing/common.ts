@@ -16,7 +16,7 @@ export const CORPORATE_PRICING_ROUTES = {
   /** New Pricebook route — the `type` route param is required. */
   newPricebookPath: (office: string, type: 'equipment' | 'labor'): string =>
     `/locations/${office}/settings/corporate-pricing/add?type=${type}`,
-  /** Product Group Override route (Wave-1.5) — reached via the Search "Pricing Override" button (built 2026-06-08). */
+  /** Product Group Override route — reached via the Search "Pricing Override" button. */
   overridePath: (office = '1604'): string =>
     `/locations/${office}/settings/corporate-pricing/pg-override`,
 } as const;
@@ -100,9 +100,9 @@ export const CORPORATE_PRICING_COMMON = {
     strategy: [100, 199] as const,
     detail: [200, 299] as const,
     newPricebook: [300, 399] as const, // 3NN — New Pricebook create flow
-    // Wave-1.5 reservations (consumed downstream — grep-verifiable handoff per LR-040(b)):
-    override: [500, 599] as const, // 5NN — Product Group Override FCC
-    toolbarIo: [600, 699] as const, // 6NN — Export/Import/Grid Options toolbar I/O FCC
+    // Reserved numbering bands (consumed by the Override + toolbar I/O specs):
+    override: [500, 599] as const, // 5NN — Product Group Override field-coverage
+    toolbarIo: [600, 699] as const, // 6NN — Export/Import/Grid Options toolbar I/O field-coverage
   } as const,
 
   /**

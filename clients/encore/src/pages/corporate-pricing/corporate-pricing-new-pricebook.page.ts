@@ -6,7 +6,7 @@
  * `setReactInput` (native value-setter — `.fill()` does not commit React state). Page-level Save +
  * the two tabs are reused from the Details shell (`btnSaveDetails`, `switchTab`, `isSaveEnabled`).
  *
- * MUTATION SAFETY (Doctrine 7 / CPR-1440-Q4): a committed pricebook is IRREVERSIBLE via the UI (no
+ * MUTATION SAFETY: a committed pricebook is IRREVERSIBLE via the UI (no
  * delete/deactivate anywhere). This page object is therefore NO-COMMIT — `clickSaveExpectDialog()` +
  * `cancelSaveDialog()` prove Save reachability without persisting. There is no `confirmSave` here on
  * purpose. Verified live 2026-06-09.
@@ -26,7 +26,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
   }
 
   // ---------------------------------------------------------------------------
-  // NAVIGATION (LR-019 baseline = a fresh, always-empty create page per test)
+  // NAVIGATION (per-test baseline = a fresh, always-empty create page per test)
   // ---------------------------------------------------------------------------
 
   /** Open the create page for the given type and wait for the header to render. */
@@ -79,7 +79,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     return (await this.typeCombo().innerText()).replace(/\s+/g, ' ').trim();
   }
 
-  /** Whether the Type combobox is disabled (expected true — display-only, CPR-1440-Q1). */
+  /** Whether the Type combobox is disabled (expected true — display-only, route-fixed). */
   async isTypeDisabled(): Promise<boolean> {
     return this.typeCombo().isDisabled().catch(() => false);
   }
@@ -183,7 +183,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
   // PRICING DETAIL — product-group ADD (create mode)
   // ---------------------------------------------------------------------------
 
-  /** Count of rendered product-group source rows (assert > 0, never an exact count — LR-022). */
+  /** Count of rendered product-group source rows (assert > 0, never an exact count). */
   async getSourceGroupCount(): Promise<number> {
     return this.page.locator(S.npSourceRow).count();
   }
@@ -220,7 +220,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
   /**
    * Click the (enabled) page Save, then return the verbatim text of the "Save Changes" confirmation
    * dialog. Does NOT confirm — the caller MUST follow with `cancelSaveDialog()` to avoid an
-   * irreversible commit (CPR-1440-Q4). Throws (via base) if Save is disabled.
+   * irreversible commit. Throws (via base) if Save is disabled.
    */
   async clickSaveExpectDialog(): Promise<string> {
     await this.clickSaveButtonOrThrow('New Pricebook not savable');

@@ -1,26 +1,26 @@
 /**
- * Corporate Pricing — Product Group Override screen page object (Wave-1.5 scaffold).
+ * Corporate Pricing — Product Group Override screen page object.
  * `CorporatePricingOverridePage extends CorporatePricingBasePage`.
  *
  * URL: /navigator/locations/{office}/settings/corporate-pricing/pg-override
  * Reached via the Search action-bar "Pricing Override" button (navigation confirmed BUILT 2026-06-08).
  *
- * Live model (verified 2026-06-08, `field-inventories/corporate-pricing-override-2026-06-08.md`):
+ * Live model (verified 2026-06-08):
  *  - Equipment / Labor tabs (Radix `role=tab`, `aria-selected`); switching reloads the grid.
  *  - Grid is **location-gated**: empty ("No results.") until a location is picked via the
  *    "Select a location" card → modal table (search + checkbox row + "Select").
- *  - 10-column grid; `Active` renders as a **Radix checkbox** (read `aria-checked`, LR-036).
+ *  - 10-column grid; `Active` renders as a **Radix checkbox** (read `aria-checked`).
  *  - "Filter Product Groups Override..." filters the grid **client-side** (no Search button).
  *  - Save is disabled on clean; dialog-gated by the shared Corporate Pricing save pattern.
  *
  * Selector strategy: text/role/grid-header/content-anchored (ZERO data-testids). Reuses the base
  * `readGridRowsByContent` / `findGridRowByContent` / `readAllTexts` / `isVisibleSafe` /
- * `confirmSaveDialogIfPresent` (ALL-026). Does NOT reuse the base `switchTab` — that union is typed
+ * `confirmSaveDialogIfPresent` (shared base helpers). Does NOT reuse the base `switchTab` — that union is typed
  * for the Details tabs ('Pricing Strategy' | 'Pricing Detail'); the Override Equipment/Labor tabs get
  * their own switcher here.
  *
- * EDIT MECHANISM (Q-WV15-1 RESOLVED, W15-A 2026-06-09): the grid IS editable for the automation user
- * (the 2026-06-08 recon's "inert cells" was a false negative). Click an Override Price / Max Discount
+ * EDIT MECHANISM (RESOLVED 2026-06-09): the grid IS editable for the automation user
+ * (an earlier exploration's "inert cells" reading was a false negative). Click an Override Price / Max Discount
  * `div[role=button]` cell → an active `spinbutton` reveals → native value-setter (React-controlled;
  * `.fill()` does not commit) + `Enter` commits → Save enables. Active = Radix `checkbox` toggles +
  * dirties. Save → "Save Changes" dialog (matched via the CSS `[role="alertdialog"]` selector + TEXT
@@ -76,7 +76,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     const sel = tab === 'Equipment' ? OS.ovrTabEquipment : OS.ovrTabLabor;
     await this.page.locator(sel).first().click();
     // Wait for Radix to flip aria-selected. A Playwright locator pierces shadow DOM and auto-retries
-    // until the attribute lands — no fixed sleep (LR-052), no raw document.querySelector (shadow-blind).
+    // until the attribute lands — no fixed sleep, no raw document.querySelector (shadow-blind).
     await this.page
       .locator(`[role="tab"][aria-selected="true"]:has-text("${tab}")`)
       .first()
@@ -95,7 +95,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
 
   /**
    * Select a location to populate the grid: open the picker, search by name/number, check the
-   * matching row, confirm with "Select". Content-anchored (LR-022) — never an index.
+   * matching row, confirm with "Select". Content-anchored — never an index.
    */
   async selectLocation(nameOrNumber: string): Promise<void> {
     await this.openLocationPicker();
@@ -151,7 +151,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
    * Type into the client-side "Filter Product Groups Override..." input (narrows the rendered grid).
    * React-controlled + debounced: `.fill()` alone does not commit React state, and `waitForAngularStable`
    * is a no-op on this React app — so use `setReactInput` (native setter) + a one-shot settle for the
-   * filter's debounce/re-render to land before the caller reads the row count (NOT a polling loop → LR-052 ok).
+   * filter's debounce/re-render to land before the caller reads the row count (NOT a polling loop).
    */
   async filterProductGroups(text: string): Promise<void> {
     await this.setReactInput(OS.ovrFilterInput, text);
@@ -176,7 +176,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return this.page.locator(OS.ovrColHeaderAny).count();
   }
 
-  /** Count currently-rendered grid rows (never assert the total — LR-022). */
+  /** Count currently-rendered grid rows (never assert the total). */
   async getVisibleRowCount(): Promise<number> {
     return this.page.locator(OS.ovrGridRowAny).count();
   }
@@ -193,7 +193,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
   }
 
   /**
-   * Read the `Active` cell of a row as a boolean. LR-036: the Override grid renders Active as a
+   * Read the `Active` cell of a row as a boolean. The Override grid renders Active as a
    * Radix checkbox (`button[role=checkbox]`); read `aria-checked`, NOT `textContent`.
    */
   async readActiveState(row: Locator): Promise<boolean> {
@@ -234,14 +234,14 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
       .catch(() => { /* may be legitimately empty (Labor / no-match filter) */ });
   }
 
-  /** Reload the Override screen and re-select the location (the FCC `reload` step). */
+  /** Reload the Override screen and re-select the location (the field-coverage `reload` step). */
   async reloadAndReselect(needle: string, office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     await this.gotoOverride(office);
     await this.selectLocation(needle);
     await this.waitForGridRows();
   }
 
-  // ---------- per-cell edit (Q-WV15-1 RESOLVED 2026-06-09 — click → spinbutton → native-set → Enter) ----------
+  // ---------- per-cell edit (resolved 2026-06-09 — click → spinbutton → native-set → Enter) ----------
 
   /**
    * Open a click-to-edit numeric cell (`div[role=button]`) and return its revealed `spinbutton` editor.
@@ -308,7 +308,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
   /**
    * Open the Override Price editor, attempt to set `raw` via the native setter, return the value the
    * (type=number) input actually retains, then Escape (no commit). Used to prove non-numeric input is
-   * rejected (LR-011 — a `<input type=number>` coerces an invalid string to "").
+   * rejected (a `<input type=number>` coerces an invalid string to "").
    */
   async probeOverridePriceInput(row: Locator, raw: string): Promise<string> {
     const editor = await this.openCellEditor(row, OS.ovrCellOverridePrice);
@@ -341,13 +341,13 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
    * success toast. Live-verified flow (2026-06-09): Save → alertdialog (heading "Save Changes", body
    * "Are you sure you want to save the changes?", Cancel/Save) → `POST {saveApiPath}` → toast
    * "Pricing overrides saved successfully." The dialog can take a few seconds on this heavy page, so we
-   * wait for it explicitly (the base 2.5s probe was too short in recon).
+   * wait for it explicitly (the base 2.5s probe was too short during initial exploration).
    */
   async saveAndConfirm(): Promise<void> {
     await this.page.locator(OS.ovrBtnSave).first().click();
     // The dialog is `<div role="alertdialog">` — Playwright `getByRole('alertdialog')` does NOT match it
     // (shadow/portal a11y exclusion), so use the CSS selector + the TEXT-anchored Save button (the
-    // dialog buttons have no computed accessible name). W15-A live finding 2026-06-09.
+    // dialog buttons have no computed accessible name). Live finding 2026-06-09.
     const dlg = this.page.locator(OS.ovrSaveDialog).first();
     await dlg.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => { /* direct-save fallback */ });
     if (await dlg.isVisible().catch(() => false)) {
@@ -364,7 +364,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
 
   /**
    * Click Save and capture the verbatim "Save Changes" dialog text WITHOUT confirming, then Cancel
-   * (no commit). Used by the save-dialog FCC case (mirrors the new-pricebook NO-COMMIT dialog probe).
+   * (no commit). Used by the save-dialog field-coverage case (mirrors the new-pricebook NO-COMMIT dialog probe).
    */
   async clickSaveAndCancel(): Promise<string> {
     await this.page.locator(OS.ovrBtnSave).first().click();
@@ -376,7 +376,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return text;
   }
 
-  // ---------- fixture restore (LR-019 baseline; bounded-retry, throws if it can't restore) ----------
+  // ---------- fixture restore (per-test baseline; bounded-retry, throws if it can't restore) ----------
 
   /** Whitespace/decimal-tolerant numeric compare ("445.00" === "445"). */
   private static numEq(a: string, b: string): boolean {

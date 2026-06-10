@@ -273,7 +273,7 @@ export class LocationAccountAddressPage extends BasePage {
     // case; fast searches (name/city/address) still resolve as soon as results land, so the raised
     // ceiling never slows a fast run. Shared by ACC-004/025/026/028/030.
     await firstDataCell.waitFor({ state: 'visible', timeout: 45_000 });
-    // LR-052: poll for the actual transition (first data cell's text becoming non-empty) via
+    // Poll for the actual transition (first data cell's text becoming non-empty) via
     // waitForFunction instead of a fixed-sleep loop. Budget matches the waitFor above (evidence-based 45s).
     const firstDataCellSelector = `${this.getLocator('tblAccListResults')} tbody tr:first-child td:nth-child(2)`;
     await this.page.waitForFunction(
@@ -449,11 +449,11 @@ export class LocationAccountAddressPage extends BasePage {
   }
 
  // ─────────────────────────────────────────────────────────────────────────────
- // FCC RUNNER HOOKS (field-case-runner.ts)
+ // FIELD-COVERAGE RUNNER HOOKS (field-case-runner.ts)
  // ─────────────────────────────────────────────────────────────────────────────
 
  /**
-  * FCC runner hook — `saveAndConfirm` shape required by `saveAndVerifyCase()`.
+  * Field-coverage runner hook — `saveAndConfirm` shape required by `saveAndVerifyCase()`.
   * Wraps the result-returning `clickSave()` and THROWS on failure so the runner
   * surfaces server errors as test failures (not a silent `{success:false}` return).
   */
@@ -465,9 +465,9 @@ export class LocationAccountAddressPage extends BasePage {
   }
 
  /**
-  * HARDENED per-test baseline (LR-019 2026-05-29). Restores the deterministically-
+  * HARDENED per-test baseline (2026-05-29). Restores the deterministically-
   * restorable editable fields (Phone 1, Phone 2) to baseline. Used by the describe's
-  * shared `beforeEach` (covers the existing 26 + new filter tests) AND as the FCC
+  * shared `beforeEach` (covers the existing 26 + new filter tests) AND as the field-coverage
   * runner `baseline:`/`cleanup:` callback for save-cycle cases.
   *
   * Bounded retry (max 3) wraps the WHOLE cycle — read → re-fill → save → reload →

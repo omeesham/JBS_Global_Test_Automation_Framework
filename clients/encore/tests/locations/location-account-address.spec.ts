@@ -23,7 +23,7 @@ test.describe('Location Account and Address @locations @account-address', () => 
     if (!(await locationAccountAddressPage.isOnAccountAndAddressTab())) {
       await locationAccountAddressPage.navigateToAccountAndAddressTab(OFFICE_NO);
     }
-    // NOTE: no describe-wide Phone baseline reset here. LR-019's per-test baseline targets NEW
+    // NOTE: no describe-wide Phone baseline reset here. The per-test baseline targets NEW
     // CRUD tests, NOT a retrofit of the existing read/dialog tests (which run clean and carry
     // their own defensive handling). The only CRUD save-case (TC-029) is bug-blocked by
     // BUG-LOC-ACC-001 and is test.fixme'd below; an ensureDefaultState() that resets Phone 2 to
@@ -34,11 +34,11 @@ test.describe('Location Account and Address @locations @account-address', () => 
   // ─── NET-NEW granular field-coverage cases (TC-LOC-ACC-029..031) — blended at the TOP of the
   //     existing describe, same @locations @account-address tags, no separate fcc-tag (Rutvik
   //     2026-05-29 standing convention). De-dup by proven outcome (catalog account-address-2026-05-29).
-  //     Save-cycle case uses the FCC runner; filter cases use ordinary test() (no save). ───
+  //     Save-cycle case uses the field-coverage runner; filter cases use ordinary test() (no save). ───
 
   // BUG-BLOCKED: BUG-LOC-ACC-001 — clearing Phone 2 and saving does NOT persist empty; the prior
   // value reappears on reload. This case asserts the CORRECT (fixed) behavior, so it is fixme'd
-  // until the app bug is resolved (LR-034 Step 6). Un-fixme when BUG-LOC-ACC-001 closes.
+  // until the app bug is resolved (per the bug-filing protocol). Un-fixme when BUG-LOC-ACC-001 closes.
   // FIXME TC-LOC-ACC-029 (Blocked — clearing the Phone 2 field and saving does not persist the empty value; the previous value reappears after reload. Pending an application fix.)
   test.fixme('TC-LOC-ACC-029: Phone 2 cleared value persists empty after reload', async ({ locationAccountAddressPage: pg, dependencyGate }) => {
     dependencyGate([]);
@@ -74,8 +74,8 @@ test.describe('Location Account and Address @locations @account-address', () => 
     await pg.openAccountListDialog();
     await pg.searchAccountByNumber(ACCOUNT_NUMBER_SEARCH.number);
     // Poll budget (45s) ≥ the page object's inner search budget so the TEST owns the deadline. The
-    // Account-Number backend search is slow/variable (~29s measured live 2026-06-02 — walk-evidence
-    // §0.5d). searchAccountByNumber already blocks until the row renders, so this poll confirms the
+    // Account-Number backend search is slow/variable (~29s measured live 2026-06-02).
+    // searchAccountByNumber already blocks until the row renders, so this poll confirms the
     // expected account text (AC000107 → Parker Palm Springs, verified live) and resolves once present.
     await expect.poll(
       () => pg.accountListResultsContain(ACCOUNT_NUMBER_SEARCH.expectedResult),
@@ -278,17 +278,17 @@ test.describe('Location Account and Address @locations @account-address', () => 
   test('TC-LOC-ACC-020: Save changes persist after page reload', async ({ locationAccountAddressPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
- // LR-019 per-test baseline: arrange Phone 2 at the START of THIS test instead of depending on
+ // Per-test baseline: arrange Phone 2 at the START of THIS test instead of depending on
  // TC-019 having saved it in the same serial run (cross-test coupling that failed when run
  // isolated / retried / parallel). Pick a target that DIFFERS from the current value to guarantee a
- // real dirtying change (avoids the LR-009/LR-026 net-zero trap where Save never enables). Both
+ // real dirtying change (avoids the net-zero trap where Save never enables). Both
  // candidate values are non-empty, so BUG-LOC-ACC-001 (clearing Phone 2 will not persist) never bites.
     const current = await locationAccountAddressPage.getPhone2Value();
     const target = current === TEST_PHONE2_VALUE ? ACCOUNT_TEST_PHONE : TEST_PHONE2_VALUE;
     await locationAccountAddressPage.fillPhone2(target);
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
     await locationAccountAddressPage.clickSave();
- // Reload and confirm Phone 2 persisted. Live RCA 2026-06-02 (walk-evidence-hist-ssl-acc-2026-06-02.md):
+ // Reload and confirm Phone 2 persisted. Live RCA 2026-06-02:
  // Phone 2 DOES persist, but the save commits a beat AFTER clickSave() returns. If a single reload's
  // getLocationDetail fires before that commit lands, it serves the pre-save value and the loaded page
  // does not auto-refetch — a fresh re-navigation after the commit reads the persisted value immediately

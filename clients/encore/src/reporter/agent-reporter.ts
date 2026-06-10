@@ -247,7 +247,7 @@ class AgentReporter implements Reporter {
 
  /**
  * Classify failure into a FailureCategory using error message + diagnostic evidence.
- * Priority-ordered pattern matching per §12 RCA Protocol.
+ * Priority-ordered pattern matching per the RCA protocol.
  */
   private classifyFailure(errorMsg: string, diagnostics: DiagnosticSnapshot | null): FailureCategory {
     const lower = errorMsg.toLowerCase();

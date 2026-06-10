@@ -27,7 +27,7 @@ export default defineConfig({
 
   // HARD RULE: 1 spec = 1 worker, always (no within-file split). Within-file parallel
   // would race tests against each other's shared form/server state. Baseline isolation
-  // is enforced PER-TEST in each spec's beforeEach (per LR-019 — not first-test-only),
+  // is enforced PER-TEST in each spec's beforeEach (not first-test-only),
   // so order within a file is not relied upon for clean state. Workers still run
   // DIFFERENT specs in parallel via AUTH-STATE-SHARED (storageState shared via
   // .auth/encore-state.json). Do not flip back to true.

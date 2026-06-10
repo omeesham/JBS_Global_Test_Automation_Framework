@@ -7,16 +7,16 @@ import {
 import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 
 /**
- * Corporate Pricing — Product Group Override screen, full FCC (Wave-1.5-A, NM-1463).
- * TC-LOC-CPR-501..528. Live-grounded 2026-06-09 (`field-inventories/corporate-pricing-override-2026-06-09.md`).
+ * Corporate Pricing — Product Group Override screen, full field-coverage (NM-1463).
+ * TC-LOC-CPR-501..528. Live-grounded 2026-06-09.
  *
- * Q-WV15-1 RESOLVED: the grid IS editable for the automation user (the 2026-06-08 recon's "inert cells"
+ * RESOLVED: the grid IS editable for the automation user (an earlier exploration's "inert cells"
  * was a false negative). Edit = click the Override Price / Max Discount cell `div[role=button]` → an
  * active `spinbutton` reveals → native value-setter (React-controlled; `.fill()` does not commit) +
- * `Enter` commits → Save enables. Active = Radix `checkbox` (LR-036 4th render format) toggles + dirties.
- * Save → "Save Changes" alertdialog → `POST /navigator/api/location/corporate-price-pg-override` (LR-056,
- * never the page URL) → toast "Pricing overrides saved successfully." LR-009 net-zero verified
- * (revert-to-original disables Save). NM-1870 / NM-1889 not-reproduced (live verdicts in the field-inventory).
+ * `Enter` commits → Save enables. Active = Radix `checkbox` (a per-table boolean render format) toggles + dirties.
+ * Save → "Save Changes" alertdialog → `POST /navigator/api/location/corporate-price-pg-override` (filter the
+ * backend API path, never the page URL) → toast "Pricing overrides saved successfully." Net-zero verified
+ * (revert-to-original disables Save). NM-1870 / NM-1889 not-reproduced (live verdicts recorded).
  *
  * MUTATION SAFETY: only the save-cycle describe commits, on the dedicated Override fixture row 2605
  * (`House Video Monitor - Specialty`, default Override Price 445.00) — distinct screen/data-model from the
@@ -37,7 +37,7 @@ const DEFAULTS = {
 test.describe('Corporate Pricing — Product Group Override: read, structure & filters @corporate-pricing @override', () => {
   test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
-    await p.reloadAndReselect(LOC); // LR-019 baseline: fresh nav + location-select per test
+    await p.reloadAndReselect(LOC); // baseline: fresh nav + location-select per test
   });
 
   test('TC-LOC-CPR-501: Override screen loads with Equipment selected by default', async ({ corporatePricingOverridePage: p }) => {
@@ -77,7 +77,7 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     expect(current).toMatch(/\d/); // a value (e.g. "0.00"), not blank — Current Price IS displayed
   });
 
-  test('TC-LOC-CPR-507: Active column renders as a Radix checkbox with readable aria-checked (LR-036)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-LOC-CPR-507: Active column renders as a Radix checkbox with readable aria-checked', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     expect(row).not.toBeNull();
     const state = await p.readActiveState(row!);
@@ -153,7 +153,7 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
 test.describe('Corporate Pricing — Product Group Override: Override Price / Max Discount edit behavior @corporate-pricing @override', () => {
   test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
-    // LR-019: enforce the row's VALUE baseline per-test (not just reload). TC-519 reverts to the
+    // Per-test baseline: enforce the row's VALUE baseline per-test (not just reload). TC-519 reverts to the
     // hardcoded default and asserts Save disables (net-zero) — if a prior save-cycle hard-kill left
     // the row drifted off 445.00, a reload-only baseline would false-fail it against correct app
     // behavior. ensureDefaultState subsumes reloadAndReselect (it reload+reselects internally) and is
@@ -174,7 +174,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     expect(await p.isOverrideSaveEnabled()).toBe(true);
   });
 
-  // LR-009 net-zero: reverting to the saved value leaves no net change, so Save disables again.
+  // Net-zero: reverting to the saved value leaves no net change, so Save disables again.
   test('TC-LOC-CPR-519: Reverting the Override Price to its original value disables Save', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     await p.setOverridePrice(row!, OVERRIDE_NUMERIC_CASES.overridePrice.edited);
@@ -198,7 +198,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     expect(parseFloat(await p.readOverridePrice(row!))).toBe(parseFloat(OVERRIDE_NUMERIC_CASES.overridePrice.large));
   });
 
-  test('TC-LOC-CPR-522: Override Price input rejects non-numeric text (LR-011)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-LOC-CPR-522: Override Price input rejects non-numeric text', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     const retained = await p.probeOverridePriceInput(row!, OVERRIDE_NUMERIC_CASES.overridePrice.nonNumeric); // "abc"
     expect(/[a-z]/i.test(retained)).toBe(false); // type=number coerces non-numeric to "" — no alpha retained
@@ -206,7 +206,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
 
   // BUG-CPR-001 — Max Discount over 100 silently TRAPS focus (no error shown, no way to leave the field).
   // Parked as fixme: the OLD assertion below (">100 rejected" === PASS) MASKED this defect — a binary
-  // "did it commit?" oracle cannot see a silent focus-trap (no error node, no state change). Reproduced
+  // "did it commit?" check cannot see a silent focus-trap (no error node, no state change). Reproduced
   // live by hand on the Pricing Detail grid (2026-06-09, value 333 / pricebook 2022-PB10); the same >100
   // reject mechanic appears here on Override (editor will not commit) so the trap likely repeats, but is
   // NOT human-confirmed here. We do NOT know the correct behavior until Encore fixes the field and it is
@@ -239,7 +239,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
 test.describe('Corporate Pricing — Product Group Override: save-cycle (mutation, fixture-restored) @corporate-pricing @override @mutation', () => {
   test.afterEach(async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(150_000);
-    await p.ensureDefaultState(ANCHOR, DEFAULTS, LOC); // belt-and-suspenders restore (LR-019)
+    await p.ensureDefaultState(ANCHOR, DEFAULTS, LOC); // belt-and-suspenders restore (per-test baseline)
   });
 
   test('TC-LOC-CPR-525: Override Price save-cycle persists after reload and restores', async ({ corporatePricingOverridePage: p }) => {

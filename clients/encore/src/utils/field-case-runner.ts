@@ -1,16 +1,14 @@
 /**
- * Field-Case (FCC) lifecycle runner. Orchestrates the per-field-case discipline:
+ * Field-coverage lifecycle runner. Orchestrates the per-field-case discipline:
  *   baseline → act → expectBeforeSave? → save → expectAfterSave? → reload → expectAfterReload → cleanup
  *
- * Each FCC test calls saveAndVerifyCase() once with the case's spec. The runner is page-agnostic —
+ * Each field-coverage test calls saveAndVerifyCase() once with the case's spec. The runner is page-agnostic —
  * the spec passes the page-object's `saveAndConfirm` and `reload` callbacks, so SSL / other modules
  * reuse this same runner unchanged.
- *
- * See: field-case-generation taxonomy (agent-only) — FCC paradigm origin.
  */
 
 export interface FieldCase {
-  /** TC ID for traceability, e.g. "TC-LOC-NTS-033" (canonical submodule-only form per 2026-05-26 naming policy — no -FCC- segment). */
+  /** TC ID for traceability, e.g. "TC-LOC-NTS-033" (canonical submodule-only form — no extra segment). */
   id: string;
   /** Human-readable label for logs and Allure. */
   label: string;
@@ -33,7 +31,7 @@ export interface FieldCase {
 }
 
 /**
- * Execute one FCC case end-to-end. Throws on any step failure (Playwright assertions
+ * Execute one field-coverage case end-to-end. Throws on any step failure (Playwright assertions
  * propagate naturally — no catch/swallow). Each test() block calls this exactly once.
  *
  * Failure isolation: cleanup runs in a finally-equivalent — even if expectAfterReload
