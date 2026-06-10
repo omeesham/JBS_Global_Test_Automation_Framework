@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_CORP_PRICING_W15_A_OVERRIDE_FCC.md",
+  "plan_basename": "SUBPLAN_CORP_PRICING_W15_A_OVERRIDE_FCC.md",
+  "plan_sha256": "5f4c810bb7a5e6dacb7095fc57a582e15a5f5c0ff90e0f4047e3e2efb4e631e8",
+  "passed_at": "2026-06-09T08:12:01.022Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1780992721016-e37c58bb4cb672e0effae89b9b803174-5f4c810bb7a5e6da",
+  "artifacts": [],
+  "provisional": false
+}

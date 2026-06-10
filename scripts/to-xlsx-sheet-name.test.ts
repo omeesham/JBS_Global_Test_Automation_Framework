@@ -3,7 +3,7 @@
  * to-xlsx-sheet-name.test.ts — unit tests for the toSheetName() resolver.
  *
  * Per PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION §234 + Phase A HARD GATE 3:
- *   - all 13 current sheet names must resolve cleanly (Excel ≤31 chars)
+ *   - all current sheet names must resolve cleanly (Excel ≤31 chars)
  *   - the 3 local-office sheets (BAS/HIS/ECT) split correctly
  *   - a synthetic 32-char overflow case MUST throw via the HALT branch
  *
@@ -34,7 +34,6 @@ assert('local_office_ect', toSheetName('local_office_ect'), 'local_office_ect');
 assert('locations_account_address', toSheetName('locations_account_address'), 'locations_account_address');
 assert('locations_auto_addon', toSheetName('locations_auto_addon'), 'locations_auto_addon');
 assert('locations_currency', toSheetName('locations_currency'), 'locations_currency');
-assert('locations_left_panel', toSheetName('locations_left_panel'), 'locations_left_panel');
 assert('locations_legal', toSheetName('locations_legal'), 'locations_legal');
 assert('locations_local_information', toSheetName('locations_local_information'), 'locations_local_information');
 assert('locations_management_history', toSheetName('locations_management_history'), 'locations_management_history');

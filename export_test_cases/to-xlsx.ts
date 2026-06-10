@@ -3,12 +3,13 @@
  *
  * Output: `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`
  *   - Overview sheet (12 cols, per-module quantitative summary) — first tab
- *   - 13 module sheets (11 cols, canonical schema):
+ *   - module sheets (11 cols, canonical schema), one per source MD:
  *       local_office_settings, local_office_history, local_office_ect,
  *       locations_account_address, locations_auto_addon, locations_currency,
- *       locations_left_panel, locations_legal, locations_local_information,
+ *       locations_left_panel_basic_info, locations_legal, locations_local_information,
  *       locations_management_history, locations_notes, locations_pricing,
  *       locations_shared_setup_location  ← truncated from "..._locations" (32→31 chars; Excel limit)
+ *       + corporate_pricing_* sheets (search, strategy, detail, new_pricebook, override, toolbar_io)
  *
  * Sources (post-Phase-D + 2026-05-27 post-audit cleanup):
  *   PRIMARY (sole) — `clients/encore/specs_planning/test-cases/setup/<module>/*.md`

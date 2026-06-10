@@ -44,6 +44,12 @@ export class CorporatePricingBasePage extends BasePage {
     await this.waitForAngularStable();
   }
 
+  /** Navigate to the New Pricebook create screen for the given type (route-param `?type=`). */
+  async gotoNewPricebook(office: string, type: 'equipment' | 'labor'): Promise<void> {
+    await this.navigateTo(this.buildUrl(CORPORATE_PRICING_ROUTES.newPricebookPath(office, type)));
+    await this.waitForAngularStable();
+  }
+
   /**
    * Switch Details sub-tab. NOT `navigateToSubTab` (that is `/settings/location`-specific).
    * Tabs are plain buttons with text; aria-selected was not exposed on the live DOM, so this
@@ -162,5 +168,25 @@ export class CorporatePricingBasePage extends BasePage {
     const out: string[] = [];
     for (let i = 0; i < n; i++) out.push((await loc.nth(i).innerText()).replace(/\s+/g, ' ').trim());
     return out.filter(Boolean);
+  }
+
+  /**
+   * Set a React-controlled `<input>` via the native value-setter + input/change events — the
+   * canonical React-controlled-input update (what React Testing Library does). Playwright `.fill()`
+   * / `pressSequentially` set the visible value but do NOT commit React state on this module's
+   * controlled inputs (proven on both the Search filters and the New Pricebook header — Save stays
+   * disabled / the query never updates), so this is the load-bearing fill primitive for Corporate
+   * Pricing. The module renders in light DOM (create page) or pierceable shadow (others) — Playwright
+   * `locator.evaluate` resolves either. Pass the first match's selector or a pre-scoped Locator.
+   */
+  protected async setReactInput(target: string | Locator, value: string): Promise<void> {
+    const loc = typeof target === 'string' ? this.page.locator(target).first() : target.first();
+    await loc.evaluate((el, val) => {
+      const input = el as HTMLInputElement;
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(input, val as string);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }, value);
   }
 }

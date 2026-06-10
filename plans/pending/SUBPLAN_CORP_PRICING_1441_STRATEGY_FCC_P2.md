@@ -28,13 +28,15 @@
 
 **Identity**: GIVER → BUILDER → HEALER → WATCHDOG on activation. Clean re-load at each switch.
 **Skills auto-called**: `/identity`, `/regression-guard`, `/relevant`, `/rca` (if failures), `/final-q`.
+**Bug doctrine (master Doctrine 2 — applies while field-testing every case below)**: if any behavior looks suspicious or buggy (a control that won't react, a Save that silently no-ops, a field that accepts a negative/invalid value), follow the doctrine — record it as an `/encore-questions` clarification when the cause is unclear (permission-locked? interaction step missing?), or file per LR-034 once it reproduces in the runner (LR-044). Never silently absorb it; at minimum catch the bugs visible in these cases. (W15-0 modeled this — it raised Q-WV15-1 instead of false-filing.)
+**Jira defect cross-ref (UNVERIFIED leads — prove each on the live site before it becomes a test expectation OR a filing, LR-044)**: before raising/filing, check `clients/encore/specs_planning/_internal/jira-defect-crossref-2026-06-09.md` for an already-filed `NM-####` match on this screen (NM-2047 flag mutual-exclusion + IsLabor/Currency lock after create, NM-2059 duplicate strategy names allowed). It is an external AI's Jira-search output (mixed-env, statuses unreliable, some by-design) — reproduce live first, then cite the `NM-#` instead of re-discovering.
 **Context files**: `PLAN_CORP_PRICING_MASTER.md`, `SUBPLAN_CORP_PRICING_1441_MGMT_STRATEGY_P1.md`, `field-case-generation.md` (multi-row FormArray row), `.claude/rules/angular.md` (LR-009 save-cycle), the S2 strategy field-inventory.
 
 ---
 
 ## Phase 0 — Dependency + browser-tool gate (MANDATORY)
 
-1. Confirm Wave-1.5 closed (W15_99 DONE; transitively Wave-1) + S2 field-inventory exists + POM shape present. 2. LR scan: LR-ENC-002, LR-009 (revert-disables-Save), LR-026 (dirty), LR-040. 3. `BrowserTool=cli`, `-s=cpr-strategy-fcc`. Mutation uses the `strategyFixture` (F1) with restore.
+1. Confirm Wave-1.5 closed (W15_99 DONE; transitively Wave-1) + S2 field-inventory exists + POM shape present. 2. LR scan: LR-ENC-002, LR-009 (revert-disables-Save), LR-026 (dirty), LR-040, LR-034/LR-030/LR-044 (bug doctrine). 3. `BrowserTool=cli`, `-s=cpr-strategy-fcc`. Mutation uses the `strategyFixture` (F1) with restore.
 
 ---
 

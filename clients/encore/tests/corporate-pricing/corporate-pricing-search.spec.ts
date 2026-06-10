@@ -2,19 +2,178 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { CORP_PRICING_SEARCH } from '../../src/data/corporate-pricing/search';
 
 /**
- * Corporate Pricing — Search screen — P1 functional coverage.
+ * Corporate Pricing — Search screen — P1 functional + P2 FCC field-coverage (two-describe shape, LR-ENC-002).
  *
- * 18 P1 cases (TC-LOC-CPR-001..018, Search band) from the requirements + a live walk, 2026-06-05.
- * Read-only screen — no mutation.
+ *  - FCC describe (top, 12 cases TC-LOC-CPR-019..030): BVA / special / each-option / compound / reset-idempotency,
+ *    live-walked 2026-06-10 (`field-inventories/corporate-pricing-search-2026-06-10.md`,
+ *    `field-case-catalogs/corporate-pricing-search-fcc-2026-06-10.md`). Read-only → Search-cycle (stage→Search→server→restore).
+ *  - P1 describe (below, 18 cases TC-LOC-CPR-001..018): the requirements + a live walk, 2026-06-05.
  *
- * TWO divergences asserted-as-live + raised as clarifications (never silently absorbed):
+ * Read-only screen — no mutation. Query-param contract (verified): pricebookName / pricingStrategyName /
+ * currencyId (USD=1,CAD=2,MXN=3) / locationNo / isInternal / isLabor / isActive (omitted when Active Only unchecked).
+ *
+ * TWO P1 divergences asserted-as-live + raised as clarifications (never silently absorbed):
  *  - Columns: the requirements name 8 columns; live renders 9 ("Productions Currency" → Is Productions + Currency).
- *  - Filtering: the requirements say filtering is client-side; live filters are SERVER-SIDE, on the Search button
- *        (GET /navigator/api/location/pricing/strategies?<staged params>). Typing/selecting only STAGES.
+ *  - Filtering: the requirements say filtering is client-side; live filters are SERVER-SIDE, on the Search button.
  *
  * React/Next.js + shadcn DataTable (NOT Angular). Network listeners filter `/navigator/api/`.
  * Checkboxes via .check()/.uncheck(). No fixed waits. No hardcoded 591.
  */
+test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & reset @corporate-pricing @search', () => {
+
+  test.beforeEach(async ({ corporatePricingSearchPage: cp }) => {
+    test.setTimeout(120_000);
+    // Read-only screen → a fresh nav IS the per-test baseline (LR-019): it resets every staged filter.
+    await cp.open();
+  });
+
+  // ── Pricebook text filter — BVA / negative (each carries the §2.1 announced+escapable oracle) ──
+
+  test('TC-LOC-CPR-019: Pricebook no-match input returns zero results server-side', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.fillPricebookFilter(CORP_PRICING_SEARCH.fcc.pricebookNoMatch);
+    const url = await cp.searchAndWaitForList();
+    expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.pricebook}=${CORP_PRICING_SEARCH.fcc.pricebookNoMatch}`);
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(0);
+  });
+
+  test('TC-LOC-CPR-020: Pricebook accepts a 250-char value with no truncation; server returns zero, no crash', async ({ corporatePricingSearchPage: cp }) => {
+    const probe = await cp.probePricebookBoundary(CORP_PRICING_SEARCH.fcc.pricebookOverflow);
+    expect(probe.stagedLen).toBe(250); // no maxlength truncation
+    expect(probe.ariaInvalid).toBeNull(); // §2.1 (a): no false rejection signal
+    expect(probe.escaped).toBe(true); // §2.1 (b): a natural Tab escapes — no focus-trap
+    expect(probe.pageError).toBe(0); // no client-side exception
+    const url = await cp.searchAndWaitForList();
+    expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.pricebook}=`);
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(0);
+  });
+
+  test('TC-LOC-CPR-021: Pricebook accepts special characters literally, URL-encodes them, no crash, escapable', async ({ corporatePricingSearchPage: cp }) => {
+    const probe = await cp.probePricebookBoundary(CORP_PRICING_SEARCH.fcc.pricebookSpecial);
+    expect(probe.staged).toBe(CORP_PRICING_SEARCH.fcc.pricebookSpecial); // accepted literally
+    expect(probe.ariaInvalid).toBeNull(); // §2.1 (a)
+    expect(probe.escaped).toBe(true); // §2.1 (b)
+    expect(probe.pageError).toBe(0); // crash-safe (unlike the Radix combobox / ALL-088)
+    const url = await cp.searchAndWaitForList();
+    expect(url).toContain(CORP_PRICING_SEARCH.fcc.pricebookSpecialEncoded); // URL-encoded in the query
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(0);
+  });
+
+  test('TC-LOC-CPR-022: Pricebook whitespace-only returns the full list (server ignores whitespace)', async ({ corporatePricingSearchPage: cp }) => {
+    const probe = await cp.probePricebookBoundary(CORP_PRICING_SEARCH.fcc.pricebookWhitespace);
+    expect(probe.escaped).toBe(true); // §2.1 (b)
+    expect(probe.pageError).toBe(0);
+    const url = await cp.searchAndWaitForList();
+    expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.pricebook}=`);
+    // whitespace is NOT a 0-result — the server returns the full list
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThan(1);
+    expect(await cp.getItemCountText()).toMatch(CORP_PRICING_SEARCH.itemCountPattern);
+  });
+
+  test('TC-LOC-CPR-023: Pricing Strategy no-match filter (pricingStrategyName) returns zero results', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.fillStrategyFilter(CORP_PRICING_SEARCH.fcc.strategyNoMatch);
+    const url = await cp.searchAndWaitForList();
+    expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.strategy}=${CORP_PRICING_SEARCH.fcc.strategyNoMatch}`);
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(0);
+  });
+
+  // ── Dropdown each-option ──────────────────────────────────────────────────────
+
+  test('TC-LOC-CPR-024: Currency each-option (USD/CAD/MXN) submits the matching currencyId', async ({ corporatePricingSearchPage: cp }) => {
+    for (const [name, id] of Object.entries(CORP_PRICING_SEARCH.fcc.currencyId)) {
+      await cp.selectCurrency(name);
+      const url = await cp.searchAndWaitForList();
+      expect(url, `currency ${name} → ${CORP_PRICING_SEARCH.fcc.params.currency}=${id}`)
+        .toContain(`${CORP_PRICING_SEARCH.fcc.params.currency}=${id}`);
+      await cp.clickReset(); // restores the combobox to "All Currencies" for the next option
+    }
+  });
+
+  test('TC-LOC-CPR-025: Location filter submits locationNo and narrows the grid (representative)', async ({ corporatePricingSearchPage: cp }) => {
+    const baseline = await cp.getItemCountNumber();
+    const label = await cp.selectFirstRealLocation(); // e.g. "1101 - Corporate Office …"
+    const officeNo = (label.match(/^(\d+)/) ?? [])[1];
+    expect(officeNo, `office number parsed from "${label}"`).toBeTruthy();
+    const url = await cp.searchAndWaitForList();
+    expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.location}=${officeNo}`);
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeLessThanOrEqual(baseline);
+  });
+
+  // ── Checkbox toggle + revert symmetry ─────────────────────────────────────────
+
+  test('TC-LOC-CPR-026: Is Internal toggle + revert restores the baseline', async ({ corporatePricingSearchPage: cp }) => {
+    const base = await cp.getItemCountNumber();
+    await cp.setCheckbox('isInternal', true);
+    const url = await cp.searchAndWaitForList();
+    expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.isInternal}=true`);
+    await cp.setCheckbox('isInternal', false);
+    await cp.clickSearch(); // revert query equals the default load → served from cache (no response to await)
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 15_000 }).toBe(base);
+  });
+
+  test('TC-LOC-CPR-027: Is Labor toggle + revert restores the baseline (labor is a different set, not a narrow)', async ({ corporatePricingSearchPage: cp }) => {
+    const base = await cp.getItemCountNumber();
+    await cp.setCheckbox('isLabor', true);
+    const url = await cp.searchAndWaitForList();
+    expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.isLabor}=true`);
+    // do NOT assert on→narrow: the labor population can be LARGER than the non-labor default. Assert the revert.
+    await cp.setCheckbox('isLabor', false);
+    await cp.clickSearch();
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 15_000 }).toBe(base);
+  });
+
+  test('TC-LOC-CPR-028: Active Only uncheck omits isActive and reveals inactive rows; re-check restores', async ({ corporatePricingSearchPage: cp }) => {
+    const base = await cp.getItemCountNumber();
+    expect(await cp.getCheckboxState('activeOnly')).toBe(true); // default checked
+    await cp.setCheckbox('activeOnly', false);
+    const url = await cp.searchAndWaitForList();
+    expect(url).not.toContain(CORP_PRICING_SEARCH.fcc.params.isActive); // param OMITTED when unchecked
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThanOrEqual(base);
+    await cp.setCheckbox('activeOnly', true);
+    await cp.clickSearch(); // re-checked query equals the default load → cached
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 15_000 }).toBe(base);
+  });
+
+  // ── Reset idempotency + compound ──────────────────────────────────────────────
+
+  test('TC-LOC-CPR-029: Reset is idempotent and fires no server request', async ({ corporatePricingSearchPage: cp }) => {
+    const counter = cp.attachListCallCounter();
+    try {
+      await cp.fillPricebookFilter(CORP_PRICING_SEARCH.fcc.pricebookBroad);
+      await cp.setCheckbox('isInternal', true);
+      await cp.searchAndWaitForList();
+      const afterSearch = counter.count(); // 1
+      await cp.clickReset();
+      await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThan(1); // full list restored
+      expect(counter.count()).toBe(afterSearch); // Reset fired NO server call (client-side restore)
+      await cp.clickReset(); // double Reset on the already-clean state
+      expect(counter.count()).toBe(afterSearch); // still no call — no-op
+      expect(await cp.getPricebookFilterValue()).toBe(''); // inputs cleared
+      expect(await cp.getCheckboxState('isInternal')).toBe(false);
+    } finally {
+      counter.dispose();
+    }
+  });
+
+  test('TC-LOC-CPR-030: Combined multi-filter submits a single server query carrying every staged filter', async ({ corporatePricingSearchPage: cp }) => {
+    const counter = cp.attachListCallCounter();
+    try {
+      await cp.fillPricebookFilter(CORP_PRICING_SEARCH.fcc.pricebookBroad);
+      await cp.selectCurrency('USD');
+      await cp.setCheckbox('isInternal', true);
+      expect(counter.count()).toBe(0); // staged — no call while staging multiple filters
+      const url = await cp.searchAndWaitForList();
+      expect(counter.count()).toBe(1); // exactly one server query on Search
+      expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.pricebook}=${CORP_PRICING_SEARCH.fcc.pricebookBroad}`);
+      expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.currency}=${CORP_PRICING_SEARCH.fcc.currencyId.USD}`);
+      expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.isInternal}=true`);
+      await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThanOrEqual(0); // grid re-rendered (numeric count)
+    } finally {
+      counter.dispose();
+    }
+  });
+
+});
+
 test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
 
   test.beforeEach(async ({ corporatePricingSearchPage: cp }) => {

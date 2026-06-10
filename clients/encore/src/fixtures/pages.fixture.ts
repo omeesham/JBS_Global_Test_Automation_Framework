@@ -18,6 +18,8 @@ import { CorporatePricingBasePage } from '../pages/corporate-pricing/corporate-p
 import { CorporatePricingSearchPage } from '../pages/corporate-pricing/corporate-pricing-search.page';
 import { CorporatePricingStrategyPage } from '../pages/corporate-pricing/corporate-pricing-strategy.page';
 import { CorporatePricingDetailPage } from '../pages/corporate-pricing/corporate-pricing-detail.page';
+import { CorporatePricingOverridePage } from '../pages/corporate-pricing/corporate-pricing-override.page';
+import { CorporatePricingNewPricebookPage } from '../pages/corporate-pricing/corporate-pricing-new-pricebook.page';
 import { CommonMethods } from '../utils/env-config';
 import { Log } from '../utils/logger';
 import { IConfig } from '../types';
@@ -61,6 +63,8 @@ type TestFixtures = {
   corporatePricingSearchPage: CorporatePricingSearchPage;
   corporatePricingStrategyPage: CorporatePricingStrategyPage;
   corporatePricingDetailPage: CorporatePricingDetailPage;
+  corporatePricingOverridePage: CorporatePricingOverridePage;
+  corporatePricingNewPricebookPage: CorporatePricingNewPricebookPage;
   dependencyGate: (deps: string[]) => void;
 };
 
@@ -467,6 +471,24 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
   corporatePricingDetailPage: async ({ authenticatedSession, config }, use) => {
     const corporatePricingDetailPage = new CorporatePricingDetailPage(authenticatedSession.page, config);
     await use(corporatePricingDetailPage);
+  },
+
+  /**
+   * CorporatePricingOverridePage fixture (Wave-1.5 — Product Group Override screen, /pg-override).
+   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
+   */
+  corporatePricingOverridePage: async ({ authenticatedSession, config }, use) => {
+    const corporatePricingOverridePage = new CorporatePricingOverridePage(authenticatedSession.page, config);
+    await use(corporatePricingOverridePage);
+  },
+
+  /**
+   * CorporatePricingNewPricebookPage fixture (NM-1440 — New Pricebook create flow, /add?type=...).
+   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
+   */
+  corporatePricingNewPricebookPage: async ({ authenticatedSession, config }, use) => {
+    const corporatePricingNewPricebookPage = new CorporatePricingNewPricebookPage(authenticatedSession.page, config);
+    await use(corporatePricingNewPricebookPage);
   },
 
 });

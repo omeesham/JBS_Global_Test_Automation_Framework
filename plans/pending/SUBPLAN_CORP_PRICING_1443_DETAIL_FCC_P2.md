@@ -28,13 +28,15 @@
 
 **Identity**: GIVER → BUILDER → HEALER → WATCHDOG on activation. Clean re-load at each switch.
 **Skills auto-called**: `/identity`, `/regression-guard`, `/relevant`, `/rca` (if failures), `/final-q`.
+**Bug doctrine (master Doctrine 2 — applies while field-testing every case below)**: if any behavior looks suspicious or buggy (a control that won't react, a Save that silently no-ops, a field that accepts a negative/invalid value), follow the doctrine — record it as an `/encore-questions` clarification when the cause is unclear (permission-locked? interaction step missing?), or file per LR-034 once it reproduces in the runner (LR-044). Never silently absorb it; at minimum catch the bugs visible in these cases. **CPR-DETAIL-BUG-A (New-Price-only edit doesn't reliably enable Save) is the known item to confirm/file here** (LR-044 fresh-runner repro). (W15-0 modeled this — it raised Q-WV15-1 instead of false-filing.)
+**Jira defect cross-ref (UNVERIFIED leads — prove each on the live site before it becomes a test expectation OR a filing, LR-044)**: before raising/filing, check `clients/encore/specs_planning/_internal/jira-defect-crossref-2026-06-09.md` — §B is the oracle for CPR-DETAIL-BUG-A (NM-1874 Save-enable spec, NM-2094 "Not a bug" value-clears-by-design, NM-2095 cross-row price loss) plus NM-1967 (Max Discount focus 100→1%). External AI Jira-search output (mixed-env, unreliable status) — reproduce live first, cite the `NM-#`.
 **Context files**: `PLAN_CORP_PRICING_MASTER.md`, `SUBPLAN_CORP_PRICING_1443_PRICING_DETAIL_P1.md`, `field-case-generation.md` (numeric row), `.claude/rules/angular.md` (LR-009/011), the S3 detail field-inventory.
 
 ---
 
 ## Phase 0 — Dependency + browser-tool gate (MANDATORY)
 
-1. Confirm Wave-1.5 closed (W15_99 DONE; transitively Wave-1) + S3 field-inventory exists + POM shape present. 2. LR scan: LR-ENC-002, LR-009 (revert), LR-011 (NaN reload), LR-022 (no hardcoded counts vs virtualized grid — F8), LR-040. 3. `BrowserTool=cli`, `-s=cpr-detail-fcc`. Mutation uses the `detailFixture` (F1) with restore.
+1. Confirm Wave-1.5 closed (W15_99 DONE; transitively Wave-1) + S3 field-inventory exists + POM shape present. 2. LR scan: LR-ENC-002, LR-009 (revert), LR-011 (NaN reload), LR-022 (no hardcoded counts vs virtualized grid — F8), LR-040, LR-034/LR-030/LR-044 (bug doctrine). 3. `BrowserTool=cli`, `-s=cpr-detail-fcc`. Mutation uses the `detailFixture` (F1) with restore.
 
 ---
 

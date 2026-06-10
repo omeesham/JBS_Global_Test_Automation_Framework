@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_EXCEL_REVERT_RECOVERY.md",
+  "plan_basename": "PLAN_EXCEL_REVERT_RECOVERY.md",
+  "plan_sha256": "b3910727304e46498d1bcf9c07c2c6f6bf4dcce7b67002d87c4859d8cfc31440",
+  "passed_at": "2026-06-10T09:52:15.807Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1781085135806-40c24825db4ef14c62b8ddd50c72463d-b3910727304e4649",
+  "artifacts": [],
+  "provisional": false
+}

@@ -8,6 +8,7 @@
   "_README_DROPPED_NOT_AUTOMATABLE": "Disposition (LR-ENC-004 V3, 2026-06-05): ACC-021/024 were investigated and found not automatable because the underlying application behavior does not support the test. They stay in the catalog as 'Pending Automation' with an explanatory reason instead of a blank-body row; the internal DROPPED status remains in the MD source only. No fabrication — each reason is reworded from the documented MD Reason.",
   "TC-LOC-ACC-021": { "execution": "", "reason": "Not automated — the Phone 1 field is account-linked; the server restores the account's phone number on reload, so a saved change to this field cannot persist." },
   "TC-LOC-ACC-024": { "execution": "", "reason": "Not automated — switching tabs while there are unsaved changes does not trigger an Unsaved Changes prompt on this page, so there is no dialog behavior to verify." },
+  "TC-LOC-ACC-029": { "execution": "Blocked", "reason": "Blocked — clearing the Phone 2 field and saving does not persist the empty value; the previous value reappears after reload. Pending an application fix." },
 
   "TC-LOC-LGL-015": { "execution": "", "reason": "Not yet automated — pending coverage of the left-panel Country selector." },
   "TC-LOC-LGL-016": { "execution": "Blocked", "reason": "Blocked — the Service Charge dropdown options are not sorted alphabetically, so the test would fail against current behavior. Pending an application fix." },
@@ -45,6 +46,9 @@
   "TC-LOC-NTS-018": { "coverage": "Manual", "execution": "", "reason": "" },
   "TC-LOC-NTS-019": { "coverage": "Manual", "execution": "", "reason": "" },
   "TC-LOC-NTS-020": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-NTS-056": { "execution": "Blocked", "reason": "Blocked — the Delete control disappears on a single-row note list after the text is cleared, so the row cannot be deleted. Pending an application fix." },
+
+  "TC-LOC-CPR-523": { "execution": "Blocked", "reason": "Blocked — entering a Max Discount percentage above 100 is rejected silently (the cell editor does not commit the value and shows no error message), so the intended out-of-range behavior cannot be verified. Pending an application fix." },
   "TC-LOC-LI-NE-044": { "coverage": "Manual", "execution": "", "reason": "" },
   "TC-LOC-LI-NE-045": { "coverage": "Manual", "execution": "", "reason": "" },
   "TC-LOC-LI-NE-046": { "coverage": "Manual", "execution": "", "reason": "" },

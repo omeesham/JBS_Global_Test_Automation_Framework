@@ -194,6 +194,30 @@ export const BANNED = [
   { name: 'test fixture var', re: /\b(?:detail|strategy)Fixture\b/ },
   { name: 'automation driver call', re: /\bautomation\.[a-z]/i },
   { name: 'form-dirty jargon', re: /\bform-dirty\b/i },
+  // ── Wave-1.5 closure follow-up (W15-99 defect B1, 2026-06-09). The token class the
+  //    deny-list was SHAPE-BLIND to: the 'clarification question id' rule above
+  //    (/\b[A-Z]{2,}-[A-Z]+-Q\d+\b/) structurally cannot match `Q-WV15-1` (the `Q`
+  //    leads, there is no `-Q\d` tail) nor `CPR-WV15-Q3` (the digits inside `WV15`
+  //    break the `[A-Z]+` run); and there was no entry for the LR-036 render-format
+  //    debugging jargon. These shipped in the corporate_pricing_override sheet until
+  //    scrubbed this session. Confirmed 0 occurrences across all sheets after the
+  //    scrub — fail-green backstop so this class cannot regress. ──
+  { name: 'wave clarification id (Q-WVnn-n)', re: /\bQ-WV\d+-\d+/i },
+  { name: 'wave clarification id (PFX-WVnn-Qn)', re: /\b[A-Z]{2,}-WV\d+-Q\d+/i },
+  { name: 'render-format lucide-check', re: /\blucide-check\b/i },
+  { name: 'render-format Glyphicon', re: /\bGlyphicon\b/i },
+  { name: 'Nth render format jargon', re: /\b\d+(?:st|nd|rd|th)\s+render\s+format\b/i },
+  { name: 'recon (provenance jargon)', re: /\brecon\b/i },
+  { name: 'framework rule-id (LR-NNN)', re: /\bLR-(?:ENC-)?\d{3}\b/i },
+  // ── migration-context leak (task follow-up to PLAN_EXCEL_REVERT_RECOVERY, 2026-06-10).
+  //    "new site" / "old site" / nav2 hostnames reveal the old-vs-new-site migration to
+  //    the client. 6 Local Information cells were reworded to the neutral "the live site"
+  //    phrasing this session; confirmed 0 occurrences across all sheets at add-time —
+  //    fail-green backstop so the class cannot regress. ("on-site" / "Navigator" stay
+  //    legal: the word-boundary regexes match only the hyphen/space compound forms.) ──
+  { name: 'migration-context new site', re: /\bnew[ -]site\b/i },
+  { name: 'migration-context old site', re: /\bold[ -]site\b/i },
+  { name: 'migration-context nav2 host', re: /\bnav2\b|navigator2/i },
 ];
 
 /**

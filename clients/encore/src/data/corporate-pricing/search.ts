@@ -104,4 +104,34 @@ export const CORP_PRICING_SEARCH = {
     equipment: { item: 'Equipment Pricing', routeParam: 'type=equipment' },
     labor: { item: 'Labor Pricing', routeParam: 'type=labor' },
   } as const,
+
+  /**
+   * FCC P2 (Wave-2) — live-verified 2026-06-10 (`field-inventories/corporate-pricing-search-2026-06-10.md`).
+   * The complete server query-param contract + BVA/each-option samples. The P1 walk left `currencyId`/
+   * `locationNo` unverified and GUESSED `strategyName` — corrected here to the live `pricingStrategyName`.
+   */
+  fcc: {
+    /** Server query-param NAMES (each verified by capturing the Search request URL). */
+    params: {
+      pricebook: 'pricebookName',
+      strategy: 'pricingStrategyName',
+      currency: 'currencyId',
+      location: 'locationNo',
+      isInternal: 'isInternal',
+      isLabor: 'isLabor',
+      isActive: 'isActive',
+    },
+    /** Currency dropdown → server `currencyId` integer (USD=1, CAD=2, MXN=3). `All Currencies` = param absent. */
+    currencyId: { USD: 1, CAD: 2, MXN: 3 },
+    /** Pricebook BVA / negative samples. */
+    pricebookNoMatch: 'ZZZ-NOPE-NOMATCH-9999',
+    pricebookOverflow: 'A'.repeat(250), // no maxlength — accepted in full, server returns 0
+    pricebookSpecial: `%_'"<>&#`, // accepted literally; URL-encoded; no crash; escapable (§2.1)
+    pricebookSpecialEncoded: 'pricebookName=%25_%27%22%3C%3E%26%23',
+    pricebookWhitespace: '   ', // server ignores whitespace → full list
+    /** A broad substring matching many pricebooks (live: 583) — used to stage compound/reset cases. */
+    pricebookBroad: '2',
+    /** Pricing Strategy negative sample. */
+    strategyNoMatch: 'ZZZ-NOPE-STRAT',
+  },
 } as const;

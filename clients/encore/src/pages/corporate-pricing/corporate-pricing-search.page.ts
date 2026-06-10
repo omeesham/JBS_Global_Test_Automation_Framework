@@ -13,6 +13,12 @@ import { CorporatePricingBasePage } from './corporate-pricing.page';
 import type { IConfig } from '../../types';
 import { CorporatePricingSearchSelectors as S } from '../../selectors/corporate-pricing/search';
 import { CORP_PRICING_SEARCH, CORP_PRICING_SEARCH_API } from '../../data/corporate-pricing/search';
+import { CORPORATE_PRICING_COMMON } from '../../data/corporate-pricing/common';
+import {
+  CORP_PRICING_TOOLBAR_IO,
+  CORP_PRICING_EXPORT_API,
+  CORP_PRICING_LOC_EXPORT_API,
+} from '../../data/corporate-pricing/toolbar-io';
 
 export type SearchCheckbox = 'isInternal' | 'isLabor' | 'activeOnly';
 
@@ -24,7 +30,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   // ---------- navigation / readiness ----------
 
   /** Navigate to Search and wait for the grid to populate (item-count footer present). */
-  async open(office: string = '1604'): Promise<void> {
+  async open(office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     await this.gotoSearch(office);
     await this.waitForGridLoaded();
   }
@@ -117,13 +123,10 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * DOM-tamper-crash caveat does not apply (plain text input; verified non-crashing live).
    */
   private async setTextFilter(selector: string, value: string): Promise<void> {
-    await this.page.locator(selector).first().evaluate((el, val) => {
-      const input = el as HTMLInputElement;
-      const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
-      setter?.call(input, val as string);
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-    }, value);
+    // Delegates to the base React-controlled-input primitive (native value-setter + input/change
+    // events). The native-setter block was de-duplicated into CorporatePricingBasePage.setReactInput
+    // per ALL-026; behavior is identical (first()-match on the selector).
+    await this.setReactInput(selector, value);
   }
 
   /** Stage a value in the Pricebook filter (no network until Search). */
@@ -215,6 +218,60 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   async selectCurrency(value: string): Promise<void> {
     await this.page.locator(S.drpFilterCurrency).first().click();
     await this.page.locator('[role="option"]', { hasText: value }).first().click();
+  }
+
+  /**
+   * Open the Location combobox and select the FIRST REAL location (option index 1 — index 0 is the
+   * "Clear selection" entry). Returns the option's visible label (e.g. "1101 - Corporate Office …")
+   * so the caller can parse the office number and assert the `locationNo` query param. LR-025 retry:
+   * the 2652-option virtualized popover can detach an option mid-render. Used by the FCC representative
+   * each-option case — exhaustive enumeration of all 2652 is out of scope.
+   */
+  async selectFirstRealLocation(): Promise<string> {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await this.page.locator(S.drpFilterLocation).first().click();
+        const opt = this.page.locator('[role="option"]').nth(1);
+        await opt.waitFor({ state: 'visible', timeout: 8_000 });
+        const label = (await opt.innerText()).replace(/\s+/g, ' ').trim();
+        await opt.click();
+        return label;
+      } catch {
+        await this.page.keyboard.press('Escape').catch(() => { /* nothing open to dismiss */ });
+      }
+    }
+    throw new Error('selectFirstRealLocation: the Location option did not stabilize after 3 attempts (LR-025)');
+  }
+
+  // ---------- FCC P2 boundary probe (§2.1 rejection-affordance oracle) ----------
+
+  /**
+   * Probe the Pricebook text filter (a plain React `<input>`) for a BVA / negative value, returning the
+   * §2.1 rejection-affordance oracle bundle WITHOUT clicking Search (the caller submits + asserts the
+   * server result). Records, in order:
+   *  - `staged` / `stagedLen`: the committed input value (proves no maxlength truncation on overflow)
+   *  - `ariaInvalid`: any rejection signal on the input — expected `null` (a search filter accepts any literal)
+   *  - `escaped`: whether a NATURAL Tab moved focus OUT of the field, recorded BEFORE any cleanup key —
+   *    the helper NEVER presses Escape first, so a real focus-trap is not masked (§2.1 (b); graduated from
+   *    the 2026-06-10 TC-523 miss)
+   *  - `pageError`: count of "client-side exception" / "Application error" banners — expected 0 (the plain
+   *    input is crash-safe, unlike the Radix combobox which tears down the page on DOM-tamper, ALL-088)
+   */
+  async probePricebookBoundary(
+    value: string,
+  ): Promise<{ staged: string; stagedLen: number; ariaInvalid: string | null; escaped: boolean; pageError: number }> {
+    const input = this.page.locator(S.txtFilterPricebook).first();
+    await input.focus();
+    await this.setReactInput(S.txtFilterPricebook, value);
+    const staged = await input.inputValue();
+    const ariaInvalid = await input.getAttribute('aria-invalid');
+    // (b) escapable — focus the field, then a natural Tab; confirm focus LEFT it (before any Escape).
+    await input.focus();
+    const before = await this.page.evaluate(() => (document.activeElement as HTMLInputElement)?.placeholder ?? null);
+    await this.page.keyboard.press('Tab');
+    const after = await this.page.evaluate(() => (document.activeElement as HTMLInputElement)?.placeholder ?? null);
+    const pageError = await this.page.locator('text=/client-side exception|Application error/').count();
+    return { staged, stagedLen: staged.length, ariaInvalid, escaped: before !== after, pageError };
   }
 
   // ---------- actions ----------
@@ -340,5 +397,183 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
         .map((b) => (b.textContent || '').replace(/\s+/g, ' ').trim())
         .filter(Boolean);
     });
+  }
+
+  // ===========================================================================
+  // Toolbar I/O (Wave-1.5-B) — Export ▾ / Import ▾ / Loc Pricing / Grid Options.
+  // Trigger + variant level ONLY: assert the menu opens, the variants are present, and the correct
+  // endpoint fires (Export) / dialog opens (Import). Real download/upload round-trip is EDGE_P3.
+  // ===========================================================================
+
+  /**
+   * Open a toolbar `▾` dropdown (Export / Import). Mirrors `openNewMenu`'s Radix retry — the Radix
+   * DropdownMenu can intermittently not open on the first click under heavy-page timing.
+   */
+  private async openToolbarMenu(triggerSelector: string): Promise<void> {
+    const item = this.page.locator(S.mnuToolbarVariant).first();
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await this.page.locator(triggerSelector).first().click();
+      try {
+        await item.waitFor({ state: 'visible', timeout: 4_000 });
+        return;
+      } catch {
+        if (attempt < 2) await this.page.keyboard.press('Escape').catch(() => { /* nothing open */ });
+      }
+    }
+    await item.waitFor({ state: 'visible', timeout: 4_000 }); // final attempt — throws if still closed
+  }
+
+  /** Open the Export ▾ dropdown. */
+  async openExportMenu(): Promise<void> {
+    await this.openToolbarMenu(S.btnExport);
+  }
+
+  /** Open the Import ▾ dropdown. */
+  async openImportMenu(): Promise<void> {
+    await this.openToolbarMenu(S.btnImport);
+  }
+
+  /** The variant labels currently listed in the open Export/Import menu (whitespace-normalized). */
+  async getMenuVariants(): Promise<string[]> {
+    return (await this.page.locator(S.mnuToolbarVariant).allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  }
+
+  /**
+   * Dismiss the open toolbar menu by clicking outside it (on the page heading); true if it closed.
+   * Uses a COORDINATE mouse-click, not `locator(heading).click()`: while a Radix menu is open it renders
+   * a dismissable overlay over the page, so a locator click on an underlying element is "obscured" and
+   * never becomes actionable (times out). A coordinate `mouse.click` dispatches a real pointerdown the
+   * overlay catches to dismiss the menu (live-verified 2026-06-09). The heading sits top-left, well
+   * outside the top-right Export/Import menu panel, so the click lands genuinely outside it.
+   */
+  async dismissToolbarMenuWithOutsideClick(): Promise<boolean> {
+    const box = await this.page.locator(S.hdgCorporatePricing).first().boundingBox();
+    if (box) await this.page.mouse.click(box.x + Math.min(box.width / 2, 40), box.y + box.height / 2);
+    else await this.page.mouse.click(200, 200); // fallback: a safe outside-the-menu point
+    await this.page.locator(S.mnuToolbarVariant).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already gone */ });
+    return (await this.page.locator(S.mnuToolbarVariant).count()) === 0;
+  }
+
+  /**
+   * Open Export ▾, click a variant, and return the export request URL. The `waitForRequest` predicate
+   * is armed BEFORE the click and filters the backend export API path (LR-056 — never the page URL,
+   * which Next.js App-Router also POSTs to for RSC renders). Trigger-level: the request firing is the
+   * assertion; the downloaded CSV's content is deferred to EDGE_P3 (no `waitForEvent('download')`).
+   */
+  async clickExportVariantAndCaptureUrl(variant: string): Promise<string> {
+    await this.openExportMenu();
+    const reqPromise = this.page.waitForRequest((r) => r.url().includes(CORP_PRICING_EXPORT_API), { timeout: 15_000 });
+    await this.page.locator(S.mnuToolbarVariant, { hasText: variant }).first().click();
+    return (await reqPromise).url();
+  }
+
+  /** The custom "Import ..." upload dialog, scoped by its prompt text (role is `dialog` or `alertdialog`). */
+  private importDialog(): Locator {
+    return this.page.locator(S.dlgImport).filter({ hasText: CORP_PRICING_TOOLBAR_IO.importDialog.prompt }).first();
+  }
+
+  /** Open Import ▾ and click a variant — opens the "Import <variant>" dialog (NOT a native file chooser). */
+  async openImportVariantDialog(variant: string): Promise<void> {
+    await this.openImportMenu();
+    await this.page.locator(S.mnuToolbarVariant, { hasText: variant }).first().click();
+    await this.importDialog().waitFor({ state: 'visible', timeout: 6_000 });
+  }
+
+  /** Read the open import dialog: full text, button labels, and whether it carries a file input. */
+  async getImportDialogInfo(): Promise<{ text: string; buttons: string[]; hasFileInput: boolean }> {
+    const dlg = this.importDialog();
+    const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
+    const buttons = (await dlg.locator('button').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const hasFileInput = (await dlg.locator('input[type="file"]').count()) > 0;
+    return { text, buttons, hasFileInput };
+  }
+
+  /** Close the import dialog (Close/Cancel button, else Escape). No file is uploaded (EDGE_P3). */
+  async closeImportDialog(): Promise<void> {
+    const dlg = this.importDialog();
+    if ((await dlg.count()) === 0) return;
+    const closeBtn = dlg.locator('button', { hasText: /^(Close|Cancel)$/ }).first();
+    if ((await closeBtn.count()) > 0) await closeBtn.click().catch(() => { /* fall through to Escape */ });
+    else await this.page.keyboard.press('Escape').catch(() => { /* nothing */ });
+    await dlg.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
+  }
+
+  /**
+   * Click "Loc Pricing Export" (direct, no menu) and return the location-export request URL.
+   * `waitForRequest` armed before the click, filtered on the backend API path (LR-056).
+   */
+  async clickLocPricingExportAndCaptureUrl(): Promise<string> {
+    const reqPromise = this.page.waitForRequest((r) => r.url().includes(CORP_PRICING_LOC_EXPORT_API), { timeout: 15_000 });
+    await this.page.locator(S.btnLocPricingExport).first().click();
+    return (await reqPromise).url();
+  }
+
+  /** Click "Loc Pricing Import" (direct, no menu) — opens the "Import All Location Pricing" dialog. */
+  async openLocPricingImportDialog(): Promise<void> {
+    await this.page.locator(S.btnLocPricingImport).first().click();
+    await this.importDialog().waitFor({ state: 'visible', timeout: 6_000 });
+  }
+
+  // ---------- Grid Options (column show/hide popover) ----------
+
+  /** Open the Grid Options menu (the icon button anchored by aria-label). Radix retry, mirrors openNewMenu. */
+  async openGridOptions(): Promise<void> {
+    const item = this.page.locator(S.mnuGridColumn).first();
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await this.page.locator(S.btnGridOptions).first().click();
+      try {
+        await item.waitFor({ state: 'visible', timeout: 4_000 });
+        return;
+      } catch {
+        if (attempt < 2) await this.page.keyboard.press('Escape').catch(() => { /* nothing open */ });
+      }
+    }
+    await item.waitFor({ state: 'visible', timeout: 4_000 });
+  }
+
+  /** The Grid Options column toggles: `{ label, checked }` per `menuitemcheckbox` (menu must be open). */
+  async getGridOptionColumns(): Promise<{ label: string; checked: boolean }[]> {
+    const loc = this.page.locator(S.mnuGridColumn);
+    const n = await loc.count();
+    const out: { label: string; checked: boolean }[] = [];
+    for (let i = 0; i < n; i++) {
+      const el = loc.nth(i);
+      out.push({
+        label: (await el.innerText()).replace(/\s+/g, ' ').trim(),
+        checked: (await el.getAttribute('aria-checked')) === 'true',
+      });
+    }
+    return out;
+  }
+
+  /** Toggle one Grid Options column by its label (menu must be open). */
+  async toggleGridColumn(label: string): Promise<void> {
+    await this.page.locator(S.mnuGridColumn, { hasText: label }).first().click();
+  }
+
+  /** Close the Grid Options menu (Escape). */
+  async closeGridOptions(): Promise<void> {
+    await this.page.keyboard.press('Escape').catch(() => { /* nothing open */ });
+    await this.page.locator(S.mnuGridColumn).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
+  }
+
+  /** True if a grid column header with the given label is currently rendered. */
+  async isGridColumnVisible(label: string): Promise<boolean> {
+    return (await this.getColumnHeaders()).some((h) => h === label || h.includes(label));
+  }
+
+  /**
+   * Mutation-safety restore: re-check any unchecked Grid Options column so the grid returns to its
+   * all-columns-visible baseline. Self-navigates (fresh page) so it is robust as a beforeEach/afterEach
+   * regardless of the test's end state. The column-visibility preference is server-persisted per user.
+   */
+  async ensureAllGridColumnsVisible(): Promise<void> {
+    await this.open();
+    await this.openGridOptions();
+    const cols = await this.getGridOptionColumns();
+    for (const c of cols) {
+      if (!c.checked) await this.toggleGridColumn(c.label);
+    }
+    await this.closeGridOptions();
   }
 }

@@ -62,8 +62,25 @@ export const CorporatePricingSearchSelectors = {
   btnExport: 'button:text-is("Export")',
   /** @where Search > Action bar @el button @text "Import" @keys import grid */
   btnImport: 'button:text-is("Import")',
-  /** @where Search > Action bar @el button @text "Grid Options" @keys grid options columns */
-  btnGridOptions: 'button:text-is("Grid Options")',
+  /**
+   * @where Search > Action bar @el button @text "Grid Options" @keys grid options columns
+   * Live correction (2026-06-09): Grid Options is a 32×32 ICON button — its "Grid Options" label is
+   * sr-only, so `:text-is("Grid Options")` matches no VISIBLE text and never resolves. Anchor on the
+   * accessible name instead (`aria-label`, `aria-haspopup="menu"`). (LR-029 — live-verified, not invented.)
+   */
+  btnGridOptions: 'button[aria-label="Grid Options"]',
+
+  // ---- Toolbar I/O dropdowns + dialogs (Wave-1.5-B, live-verified 2026-06-09) ----
+  /** @where Search > Export ▾ / Import ▾ @el menuitem @keys the 4 export/import variant items (menu must be open) */
+  mnuToolbarVariant: '[role="menuitem"]',
+  /** @where Search > Grid Options @el menuitemcheckbox @keys per-column show/hide toggles (menu must be open) */
+  mnuGridColumn: '[role="menuitemcheckbox"]',
+  /**
+   * @where Search > Import ▾ / Loc Pricing Import @el dialog @keys the custom "Import ..." upload dialog
+   * Matches either ARIA role (the app's confirm/import dialogs are sometimes `alertdialog`, portal-nested);
+   * callers scope it further by the "Choose a file to import data" prompt text to disambiguate.
+   */
+  dlgImport: '[role="dialog"], [role="alertdialog"]',
 
   // ---- Results grid (HARDENED 2026-06-05: real HTML <table>, NOT ARIA grid roles) ----
   // Live walk found ZERO role="grid"/"row"/"columnheader" — the grid is a shadcn/TanStack
