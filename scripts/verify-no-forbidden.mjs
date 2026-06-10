@@ -99,6 +99,49 @@ const MARKER_GREP_CLIENT_ONLY = [
   /JIRA_VERIFICATION_\d{4}-\d{2}-\d{2}/,
 ];
 
+// Source-comment jargon — internal-process vocabulary that must never ship inside
+// client source comments/JSDoc. These are GATE-INVISIBLE to the hard MARKER_GREP_CLIENT_ONLY
+// set above (they don't break a build, only professionalism/readability), so this curated
+// array extends the same client-shipping scope to them. A one-time scrub is not enough — this
+// makes a reintroduction fail the ship/commit gate permanently.
+//
+// SCOPING: applied with the SAME reach as MARKER_GREP_CLIENT_ONLY — every file in `--target`
+// (the real shipped output) and every `isClientShipping()` file in `--staged-diff`.
+//
+// FAIL-GREEN DISCIPLINE: every pattern here was confirmed to have ZERO occurrences in the clean
+// post-scrub shipped tree before being added, so the gate wedges nothing legitimate. Patterns are
+// deliberately unambiguous internal IDs/artifacts. DELIBERATELY EXCLUDED (would false-positive on
+// legitimate code/vocab, or kept by product decision): `NM-####` (client's own Jira tickets — kept),
+// `oracle` (legit: OracleProductCode field / Oracle DB), `recon` (matches reconcile/reconnect),
+// `FCC` (used in functional `@fcc` tags + describe titles), `Path [C-Z]` (collides with Windows
+// drive paths like `Path D:\`), `F11` (a keyboard key), and the `field-case-runner.ts` filename
+// (a real shipped file legitimately referenced by name). This array is intentionally distinct from
+// `xlsx-lint-rules.mjs` `BANNED` — that one is tuned for plain-English workbook cells and is far
+// more aggressive than is safe for source (Angular, Playwright, data-testid, HTTP verbs, etc.).
+const SOURCE_COMMENT_JARGON = [
+  // Internal rule / requirement IDs
+  /\bLR-(?:ENC-)?\d{3}\b/,
+  /\b(?:ALL|AUD|PLN|GEN|HLR)-\d{2,3}\b/,
+  /\bREQ-\d{3}\b/,
+  // Internal doctrine / section references
+  /\bDoctrine\s+\d/,
+  /§/,
+  // Internal wave / phase / question IDs
+  /\bWave-1\.5\b/,
+  /\bWV15\b/,
+  /\bQ-WV\d/,
+  /\bCPR-WV/,
+  /\bCPR-\d+-Q\d/,
+  /\bW15-[0-9A-Za-z]/,
+  /\bEDGE_P\d/,
+  // Internal artifact names
+  /\bwalk-evidence\b/,
+  /\bfield-inventor/,
+  /\bneutral-eye\b/,
+  /\bencore-questions\b/,
+  /\brejection-affordance\b/,
+];
+
 // LR-054 / ALL-077 — manufactured-blocker banned-phrase regexes. Scanned ONLY
 // in path-scoped target artifacts (walk-evidence / neutral-eye-audits /
 // field-inventories) where the pattern shipped on 2026-05-18. Plan files
@@ -235,10 +278,13 @@ async function checkTarget(target) {
 
   // Marker grep — scan all text-ish files for forbidden literals. Target is
   // the actual shipped output, so client-only patterns apply to every file.
-  const targetPatterns = [...MARKER_GREP, ...MARKER_GREP_CLIENT_ONLY];
+  const targetPatterns = [...MARKER_GREP, ...MARKER_GREP_CLIENT_ONLY, ...SOURCE_COMMENT_JARGON];
   const offenders = [];
   for (const rel of walkDir(root)) {
-    if (/\.(png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|pdf|zip|tar|gz|7z)$/i.test(rel)) continue;
+    // Skip binary deliverables — a utf-8 text scan over compressed/binary bytes produces false
+    // positives (e.g. zip-packed XLSX bytes randomly matching a single-char marker like `§`).
+    // The workbook is content-checked properly by lintXlsxDir below; office/binary formats here.
+    if (/\.(png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|pdf|zip|tar|gz|7z|xlsx|xlsm|xls)$/i.test(rel)) continue;
     let buf;
     try {
       buf = fs.readFileSync(path.join(root, rel), 'utf-8');
@@ -330,10 +376,10 @@ function checkStagedDiff() {
     } catch {
       continue;
     }
-    // Repo-wide markers always apply. Client-only markers apply only when
-    // the staged path would actually ship inside clients/<id>/.
+    // Repo-wide markers always apply. Client-only markers + source-comment jargon
+    // apply only when the staged path would actually ship inside clients/<id>/.
     const patterns = isClientShipping(rel)
-      ? [...MARKER_GREP, ...MARKER_GREP_CLIENT_ONLY]
+      ? [...MARKER_GREP, ...MARKER_GREP_CLIENT_ONLY, ...SOURCE_COMMENT_JARGON]
       : MARKER_GREP;
     for (const re of patterns) {
       if (re.test(buf)) {
