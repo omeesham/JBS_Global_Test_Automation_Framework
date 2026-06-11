@@ -116,7 +116,7 @@ fi
 
 git -C "$SCRATCH" remote add "$REMOTE_NAME" "$REMOTE_URL"
 git -C "$SCRATCH" fetch -q "$REMOTE_NAME" "$BRANCH" || true
-LIVE_TIP="$(git -C "$SCRATCH" rev-parse "$REMOTE_NAME/$BRANCH" 2>/dev/null || echo '')"
+LIVE_TIP="$(git -C "$SCRATCH" rev-parse --verify --quiet "$REMOTE_NAME/$BRANCH" 2>/dev/null || true)"
 if [[ -n "$LIVE_TIP" ]]; then
   git -C "$SCRATCH" push --force-with-lease="refs/heads/$BRANCH:$LIVE_TIP" "$REMOTE_NAME" "HEAD:refs/heads/$BRANCH"
 else
