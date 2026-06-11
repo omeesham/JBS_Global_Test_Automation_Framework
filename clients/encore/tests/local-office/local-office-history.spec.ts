@@ -2,7 +2,7 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { HISTORY_COMBOBOX } from '../../src/data/local-office/local-office-history';
 import { OFFICE_NO } from '../../src/data/common';
 
-test.describe('Local Office Settings — History Tab @locations @local-office-history', () => {
+test.describe('Local Office Settings — History Tab @local-office-history', () => {
 
   // Per-test navigation guard (dependency-gate removal Phase 1.5).
   // Mirrors BAS spec :33. Re-navigates only when retry-recycle landed on /home.

@@ -11,11 +11,16 @@
  *       mode = skip → "Skipped". mode = fixme → "Blocked". absent → empty.
  *
  *   - with-run (for `npm run xlsx:build:with-run`):
- *       Runs `npx playwright test --reporter=json` and reads actual pass/fail.
+ *       Runs `npx playwright test --reporter=json` (an ACTUAL suite execution),
+ *       maps each spec's outcome to Automation Status Pass/Fail/Skipped/Blocked, and
+ *       stamps the real result per TC. Implemented by runAndMapOutcomes + mapRunOutcomes
+ *       below (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT, 2026-06-11 — the prior with-run
+ *       branch was a STUB that left Automation Status blank; no stub left behind).
  *
- * Caveat (must echo on every xlsx:build invocation): list-only Pass = "automated +
- * not skipped/fixme; last run results require a fresh `playwright test` to be
- * authoritative." with-run rebuilds with actual run results.
+ * Caveat (must echo on every xlsx:build invocation): the everyday default build is
+ * `--list-only`, where Pass = "automated + not skipped/fixme as of the last --list" —
+ * an ASSUMED pass, NOT a fresh run result. `--with-run` rebuilds with authoritative
+ * run results (and is the only mode that can stamp 'Fail').
  *
  * Failure-reason extraction (both modes):
  *   - Source-file regex `test.fixme(true, '<reason>')` per TC ID.
@@ -66,16 +71,34 @@ export function augmentByTcId(
   // Run playwright (sole augment source post-2026-05-27 audit cleanup).
   try {
     const tests = listPlaywrightTests(opts.clientRoot);
+    // with-run: ALSO execute the suite once and read the ACTUAL outcome per TC.
+    const runOutcomes = opts.mode === 'with-run' ? runAndMapOutcomes(opts.clientRoot) : null;
     for (const t of tests) {
       const data = result.get(t.tcId);
       if (!data) continue;
       data.coverageStatus = 'Automated';
       if (opts.mode === 'list-only') {
-        // mode=test → assumed Pass; skip → Skipped; fixme → Blocked
+        // list-only: NO test was executed, so execution is ASSUMED — mode=test →
+        // assumed Pass; skip → Skipped; fixme → Blocked. This "Pass" means "automated
+        // and not skipped/fixme as of the last --list", NOT a fresh run result. Run
+        // `npm run xlsx:build:with-run` for authoritative pass/fail. (See header caveat.)
         if (t.kind === 'fixme') data.automationExecution = 'Blocked';
         else if (t.kind === 'skip') data.automationExecution = 'Skipped';
         else data.automationExecution = 'Pass';
+      } else {
+        // with-run: stamp the REAL outcome from the run. A declared fixme keeps the
+        // stronger 'Blocked' signal (a runtime fixme surfaces only as 'skipped' in the
+        // report). Fall back to the --list kind if the run report lacks this TC.
+        if (t.kind === 'fixme') data.automationExecution = 'Blocked';
+        else if (runOutcomes && runOutcomes.has(t.tcId)) data.automationExecution = runOutcomes.get(t.tcId)!;
+        else if (t.kind === 'skip') data.automationExecution = 'Skipped';
+        // else leave '' — listed but absent from the run report (surfaced via stderr below)
       }
+    }
+    if (opts.mode === 'with-run' && runOutcomes) {
+      const listed = new Set(tests.map(t => t.tcId));
+      const missing = [...runOutcomes.keys()].filter(id => !listed.has(id));
+      if (missing.length) process.stderr.write(`[sp00-augment] with-run: ${missing.length} run outcome(s) had no --list match (title drift?)\n`);
     }
     // Pending Automation for TC IDs not in playwright list
     for (const [id, data] of result) {
@@ -213,6 +236,85 @@ const TC_ID_IN_TITLE = /\b(TC-[A-Z]+-[A-Z]+-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*)\b/;
 function extractTcIdFromTitle(title: string): string | null {
   const m = title.match(TC_ID_IN_TITLE);
   return m && m[1] ? m[1] : null;
+}
+
+// ────────────────────────── with-run actual outcomes ──────────────────────────
+
+export type RunOutcome = 'Pass' | 'Fail' | 'Skipped' | 'Blocked';
+
+/**
+ * Execute the suite once with the JSON reporter and map each spec's ACTUAL outcome
+ * to an Automation Status. `npx playwright test` exits NON-ZERO when any test fails,
+ * but still writes the JSON report to stdout — we capture it from the thrown error's
+ * `stdout` so a failing run yields real 'Fail' stamps (the whole point of with-run).
+ */
+export function runAndMapOutcomes(clientRoot: string): Map<string, RunOutcome> {
+  const isWin = process.platform === 'win32';
+  let out = '';
+  try {
+    out = execFileSync(isWin ? 'npx.cmd' : 'npx', ['playwright', 'test', '--reporter=json'], {
+      cwd: clientRoot,
+      encoding: 'utf-8',
+      maxBuffer: 256 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      shell: isWin,
+    });
+  } catch (err) {
+    // Non-zero exit = at least one failing test. The JSON report is still on stdout.
+    const stdout = (err as { stdout?: Buffer | string })?.stdout;
+    out = stdout ? String(stdout) : '';
+    if (!out) throw err; // genuinely failed to run (e.g. config error) — surface it
+  }
+  const firstBrace = out.indexOf('{');
+  if (firstBrace < 0) throw new Error('playwright run produced no JSON');
+  return mapRunOutcomes(JSON.parse(out.slice(firstBrace)));
+}
+
+/** Walk a parsed Playwright JSON report → Map<tcId, actual outcome>. Pure (exported for tests). */
+export function mapRunOutcomes(parsed: any): Map<string, RunOutcome> {
+  const out = new Map<string, RunOutcome>();
+  walkRunSuite(parsed, out);
+  return out;
+}
+
+function walkRunSuite(node: any, out: Map<string, RunOutcome>): void {
+  if (!node || typeof node !== 'object') return;
+  if (Array.isArray(node.suites)) for (const s of node.suites) walkRunSuite(s, out);
+  if (Array.isArray(node.specs)) {
+    for (const spec of node.specs) {
+      const tcId = extractTcIdFromTitle(spec.title || '');
+      if (!tcId) continue;
+      out.set(tcId, classifySpecOutcome(spec));
+    }
+  }
+}
+
+/**
+ * Classify a single Playwright spec's outcome. Decision order (most authoritative
+ * first): a declared `fixme` annotation → Blocked; else the per-test `status`
+ * (`unexpected`→Fail, `expected`/`flaky`→Pass, all-`skipped`→Skipped); else a
+ * fallback to per-attempt `results[].status`. Flaky (failed-then-passed-on-retry)
+ * maps to Pass — it is green in the suite. Exported for tests.
+ */
+export function classifySpecOutcome(spec: any): RunOutcome {
+  const tests: any[] = Array.isArray(spec?.tests) ? spec.tests : [];
+  const annotations = tests.flatMap(t => (Array.isArray(t?.annotations) ? t.annotations : []));
+  if (annotations.some(a => a?.type === 'fixme')) return 'Blocked';
+
+  const statuses = tests.map(t => t?.status).filter(Boolean);
+  if (statuses.includes('unexpected')) return 'Fail';
+  if (statuses.includes('expected') || statuses.includes('flaky')) return 'Pass';
+  if (statuses.length > 0 && statuses.every(s => s === 'skipped')) return 'Skipped';
+
+  // Fallback: older reporters / missing test.status — read per-attempt results.
+  const rstat = tests
+    .flatMap(t => (Array.isArray(t?.results) ? t.results : []))
+    .map(r => r?.status)
+    .filter(Boolean);
+  if (rstat.some(s => s === 'failed' || s === 'timedOut' || s === 'interrupted')) return 'Fail';
+  if (rstat.some(s => s === 'passed')) return 'Pass';
+  if (rstat.some(s => s === 'skipped')) return 'Skipped';
+  return 'Pass'; // listed + ran with no negative signal
 }
 
 /**

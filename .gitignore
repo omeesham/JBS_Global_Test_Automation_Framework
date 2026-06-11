@@ -216,6 +216,17 @@ clients/*/scripts/_*.ts
 .playwright-cli/*.csv
 .playwright-cli/*.xlsx
 
+# Playwright CLI scratch probe scripts + session yaml/json dumps (debug-only, never tracked)
+.playwright-cli/*.js
+.playwright-cli/eq-*.json
+.playwright-cli/regguard/
+# Root-level CLI walk/snapshot yaml dumps (scratch)
+/eq-*.yml
+/pg-*.yml
+/pgoverride-*.yml
+# Recovery / verification scratch dir
+.recover-scratch/
+
 # Regression snapshot debug files
 .claude/state/regression-snapshots/*.txt
 .claude/state/regression-snapshots/*.json

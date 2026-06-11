@@ -267,6 +267,190 @@ function assertContentMismatchDetectorWorks(): void {
 }
 assertContentMismatchDetectorWorks();
 
+// ── Guardrail 6: semantic ID ↔ module ↔ sheet congruence (registry-driven) ────
+// ── Guardrail 7: BUG-ID grammar over live artifacts ──────────────────────────
+// PLAN_ID_NAMING_AUDIT_AND_REMEDIATION (2026-06-11). Single source of truth:
+// export_test_cases/module-codes.json. The audit proved every prior check was
+// set-based — a TC-LOC-CPR-608 inside corporate-pricing artifacts (wrong module
+// segment) passed guardrails 1-5, C1-C7, and shipped Module="locations" to the
+// client workbook. Guardrail 6 makes the MEANING checkable.
+
+interface ModuleRegistry {
+  modules: Record<string, { name: string; display: string; dir: string }>;
+  submodules: Record<string, Record<string, { name: string; display: string; sheet: string; mdBasename: string }>>;
+  gapLedger: Record<string, { cause: string; evidence: string }>;
+  exceptions: Array<{ rule: string; subject: string; rationale?: string; date?: string }>;
+}
+
+function loadModuleRegistry(): ModuleRegistry {
+  const regPath = path.join(__dirname, '..', 'export_test_cases', 'module-codes.json');
+  const reg = JSON.parse(fs.readFileSync(regPath, 'utf8').replace(/^﻿/, '')) as ModuleRegistry;
+  if (!reg?.modules?.LOC?.dir || !reg?.submodules?.LOC?.CUR?.sheet) {
+    throw new Error('check-tc-parity: module-codes.json failed shape self-test (modules/submodules missing)');
+  }
+  // Drift gate: types.ts KNOWN_SUB_CODES must equal the registry's code set.
+  const regCodes = new Set(Object.values(reg.submodules).flatMap(m => Object.keys(m)));
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { KNOWN_SUB_CODES } = require('../export_test_cases/types') as { KNOWN_SUB_CODES: readonly string[] };
+  const tsCodes = new Set(KNOWN_SUB_CODES);
+  const onlyReg = [...regCodes].filter(c => !tsCodes.has(c));
+  const onlyTs = [...tsCodes].filter(c => !regCodes.has(c));
+  if (onlyReg.length || onlyTs.length) {
+    throw new Error(
+      `check-tc-parity: KNOWN_SUB_CODES (types.ts) drifted from module-codes.json — ` +
+      `registry-only: [${onlyReg.join(',')}] types-only: [${onlyTs.join(',')}]. Mint codes in the registry FIRST, mirror in types.ts.`
+    );
+  }
+  return reg;
+}
+
+function isExcepted(reg: ModuleRegistry, rule: string, subject: string): boolean {
+  const hit = reg.exceptions.find(e => e.rule === rule && (e.subject === subject || (e.subject.endsWith('*') && subject.startsWith(e.subject.slice(0, -1)))));
+  if (hit) console.log(`NOTE: ${subject} allowed by exception ${hit.rule} (${hit.date ?? '?'} — ${hit.rationale ?? 'no rationale recorded'})`);
+  return !!hit;
+}
+
+/** Parse TC-{MOD}-{SUB}-{tail}; returns null for non-conforming shapes. */
+function parseTcId(id: string): { mod: string; sub: string; tail: string; extraSegments: boolean } | null {
+  const m = id.match(/^TC-([A-Z]+)-([A-Z]+)-(.+)$/);
+  if (!m) return null;
+  const tail = m[3]!;
+  const extraSegments = /^[A-Z]+-/.test(tail); // a 3rd alpha segment before the number = out of grammar
+  return { mod: m[1]!, sub: m[2]!, tail, extraSegments };
+}
+
+function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<string>): { failures: string[]; warnings: string[] } {
+  const failures: string[] = [];
+  const warnings: string[] = [];
+  const testCasesDir = SHARED_PATHS.testCases;
+
+  // sheet -> {modCode, subCode, entry}
+  const sheetOwner = new Map<string, { mod: string; sub: string; name: string }>();
+  for (const [mod, subs] of Object.entries(reg.submodules)) {
+    for (const [sub, entry] of Object.entries(subs)) sheetOwner.set(entry.sheet, { mod, sub, name: entry.name });
+  }
+
+  // 6a/6b/6c — MD headers: module/submodule codes registered + match dir/basename
+  for (const file of findMarkdownFiles(testCasesDir)) {
+    const dirName = path.basename(path.dirname(file));
+    const baseName = path.basename(file, '.md');
+    const content = fs.readFileSync(file, 'utf8');
+    const headerPattern = new RegExp(MD_HEADER_TC_PATTERN.source, MD_HEADER_TC_PATTERN.flags);
+    let match;
+    while ((match = headerPattern.exec(content)) !== null) {
+      const id = match[1]!;
+      const parsed = parseTcId(id);
+      if (!parsed) { if (!isExcepted(reg, 'G6-SHAPE', id)) failures.push(`[G6] non-grammar TC ID shape: ${id} in ${baseName}.md`); continue; }
+      if (parsed.extraSegments) { if (!isExcepted(reg, 'G6-SHAPE', id)) failures.push(`[G6] extra ID segment (4+) in ${id} (${baseName}.md) — grammar is TC-{MOD}-{SUB}-{NNN[A]}`); continue; }
+      const mod = reg.modules[parsed.mod];
+      if (!mod) { if (!isExcepted(reg, 'G6a-MODULE', id)) failures.push(`[G6a] unregistered module code "${parsed.mod}" in ${id} (${baseName}.md)`); continue; }
+      if (mod.dir !== dirName && !isExcepted(reg, 'G6b-DIR', id)) {
+        failures.push(`[G6b] ${id} carries module ${parsed.mod} (dir "${mod.dir}") but lives in test-cases/setup/${dirName}/`);
+      }
+      const sub = reg.submodules[parsed.mod]?.[parsed.sub];
+      if (!sub) { if (!isExcepted(reg, 'G6c-SUB', id)) failures.push(`[G6c] unregistered submodule code "${parsed.mod}/${parsed.sub}" in ${id} (${baseName}.md)`); continue; }
+      if (sub.mdBasename !== baseName && !isExcepted(reg, 'G6c-SUB', id)) {
+        failures.push(`[G6c] ${id} (submodule ${parsed.sub} → ${sub.mdBasename}.md) found in ${baseName}.md`);
+      }
+    }
+  }
+
+  // 6b for specs — parse `--list` lines: "<file>:<line>:<col> › ... TC-..."
+  for (const line of getSpecListOutput().split('\n')) {
+    const fileMatch = line.match(/[›>]\s*([\w\\/.-]+\.spec\.ts):\d+:\d+/);
+    const idMatch = line.match(TC_PATTERN);
+    if (!fileMatch || !idMatch) continue;
+    const specDir = path.basename(path.dirname(fileMatch[1]!.replace(/\\/g, '/')));
+    const parsed = parseTcId(idMatch[0]);
+    if (!parsed) continue;
+    const mod = reg.modules[parsed.mod];
+    if (mod && mod.dir !== specDir && !isExcepted(reg, 'G6b-DIR', idMatch[0])) {
+      failures.push(`[G6b] spec ${fileMatch[1]} declares ${idMatch[0]} (module dir "${mod.dir}") under tests/${specDir}/`);
+    }
+  }
+
+  // 6d/6e — workbook: Module/Submodule cells + row-ID prefix must match the sheet's registry owner
+  const workbookPath = SHARED_PATHS.workbook;
+  if (fs.existsSync(workbookPath)) {
+    const wb = XLSX.readFile(workbookPath, { cellDates: false, cellNF: false });
+    for (const sheetName of wb.SheetNames) {
+      if (sheetName === 'Overview') continue;
+      const owner = sheetOwner.get(sheetName);
+      if (!owner) { failures.push(`[G6e] workbook sheet "${sheetName}" is not registered to any submodule in module-codes.json`); continue; }
+      const expectModuleCell = reg.modules[owner.mod]!.name;
+      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(wb.Sheets[sheetName]!, { defval: '' });
+      for (const row of rows) {
+        const id = String(row['TC ID'] ?? '');
+        if (!/^TC-/.test(id) || id === 'SUMMARY') continue;
+        const modCell = String(row['Module'] ?? '');
+        const subCell = String(row['Submodule'] ?? '');
+        if (modCell !== expectModuleCell) { failures.push(`[G6d] ${sheetName}/${id}: Module cell "${modCell}" ≠ registry "${expectModuleCell}"`); break; }
+        if (subCell !== owner.name) { failures.push(`[G6d] ${sheetName}/${id}: Submodule cell "${subCell}" ≠ registry "${owner.name}"`); break; }
+        const parsed = parseTcId(id);
+        if (parsed && (parsed.mod !== owner.mod || parsed.sub !== owner.sub) && !isExcepted(reg, 'G6e-SHEET', id)) {
+          failures.push(`[G6e] ${id} sits on sheet "${sheetName}" owned by ${owner.mod}/${owner.sub}`);
+        }
+      }
+    }
+  }
+
+  // 6f — cross-ref liveness: blocked-reasons keys + TERSE_REASON_ALLOWLIST ⊆ MD ID set
+  const blockedReasonsPath = path.join(__dirname, '..', 'export_test_cases', 'blocked-reasons.json');
+  if (fs.existsSync(blockedReasonsPath)) {
+    const keys = Object.keys(JSON.parse(fs.readFileSync(blockedReasonsPath, 'utf8').replace(/^﻿/, ''))).filter(k => k.startsWith('TC-'));
+    for (const k of keys) if (!mdIdsBySheetExpectation.has(k)) failures.push(`[G6f] blocked-reasons.json key ${k} resolves to no test-cases MD header (orphan)`);
+  }
+  const lintRulesSrc = fs.readFileSync(path.join(__dirname, 'xlsx-lint-rules.mjs'), 'utf8');
+  const allowlistBlock = lintRulesSrc.match(/TERSE_REASON_ALLOWLIST = new Set\(\[([\s\S]*?)\]\)/);
+  if (allowlistBlock) {
+    for (const m of allowlistBlock[1]!.matchAll(/'(TC-[A-Z0-9-]+)'/g)) {
+      if (!mdIdsBySheetExpectation.has(m[1]!)) failures.push(`[G6f] TERSE_REASON_ALLOWLIST entry ${m[1]} resolves to no test-cases MD header (stale)`);
+    }
+  }
+
+  // 6g — numbering gaps must be in the gapLedger (WARN — never renumber)
+  const byFamily = new Map<string, number[]>();
+  for (const id of mdIdsBySheetExpectation) {
+    const fam = moduleKey(id);
+    const n = numericSuffix(id);
+    if (n < 0) continue;
+    (byFamily.get(fam) ?? byFamily.set(fam, []).get(fam)!).push(n);
+  }
+  for (const [fam, nums] of byFamily) {
+    const present = new Set(nums);
+    const max = Math.max(...nums);
+    for (let i = 1; i <= max; i++) {
+      if (!present.has(i)) {
+        const gapId = `${fam}-${String(i).padStart(3, '0')}`;
+        if (!reg.gapLedger[gapId]) warnings.push(`[G6g] numbering gap ${gapId} not documented in module-codes.json gapLedger — document the cause or restore; NEVER renumber`);
+      }
+    }
+  }
+
+  // Guardrail 7 — BUG-ID grammar over live artifacts (MDs, test plans, specs)
+  const bugScanDirs = [testCasesDir, path.join(testCasesDir, '..', '..', 'test-plans'), path.join(SHARED_PATHS.clientRoot, 'tests')];
+  const BUG_RE = /\bBUG-[A-Z][A-Z0-9-]*-\d+\b/g;
+  for (const dir of bugScanDirs) {
+    if (!fs.existsSync(dir)) continue;
+    const files: string[] = [];
+    const walk = (d: string) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.(md|ts)$/.test(e.name)) files.push(f); } };
+    walk(dir);
+    for (const f of files) {
+      const content = fs.readFileSync(f, 'utf8');
+      for (const m of content.matchAll(BUG_RE)) {
+        const bugId = m[0];
+        const bm = bugId.match(/^BUG-([A-Z]+)-([A-Z]+)-\d{1,4}$/);
+        const valid = bm && reg.modules[bm[1]!] && reg.submodules[bm[1]!]?.[bm[2]!];
+        if (!valid && !isExcepted(reg, 'G7-BUG', bugId)) {
+          failures.push(`[G7] BUG ID "${bugId}" in ${path.relative(SHARED_PATHS.clientRoot, f)} violates BUG-{MOD}-{SUB}-{NNN} with registered codes (module-codes.json)`);
+        }
+      }
+    }
+  }
+
+  return { failures, warnings };
+}
+
 // --- Main ---
 const specIds = getSpecTcIds();
 const mdIds = getMarkdownTcIds();
@@ -325,6 +509,22 @@ if (contentReport.failures.length > 0) {
 if (contentReport.warnings.length > 0) {
   console.log(`FLAG (non-fatal): spec↔XLSX title divergence worth a look:`);
   contentReport.warnings.forEach(w => console.log(`  - ${w}`));
+  console.log('');
+}
+
+// Guardrails 6 + 7 — semantic ID↔module↔sheet congruence + BUG grammar (registry-driven)
+const moduleRegistry = loadModuleRegistry();
+const g67 = runGuardrail6and7(moduleRegistry, mdIds);
+if (g67.failures.length > 0) {
+  hasIssues = true;
+  console.log(`CRITICAL: ${g67.failures.length} semantic ID/grammar violation(s) (guardrails 6/7 — module-codes.json):`);
+  g67.failures.forEach(f => console.log(`  - ${f}`));
+  console.log('');
+}
+if (g67.warnings.length > 0) {
+  console.log(`FLAG (non-fatal): ${g67.warnings.length} guardrail-6 warning(s):`);
+  g67.warnings.slice(0, 20).forEach(w => console.log(`  - ${w}`));
+  if (g67.warnings.length > 20) console.log(`  ... +${g67.warnings.length - 20} more`);
   console.log('');
 }
 

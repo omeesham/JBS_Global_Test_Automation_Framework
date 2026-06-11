@@ -62,11 +62,16 @@ const COLUMNS: ColumnConfig[] = [
   { key: 'expected', label: 'Expected Results_for_agent', audience: 'agent' },
   { key: 'data', label: 'Test Data_for_agent', audience: 'agent' },
 
-  // Automation status columns (SP00 v13 augment — populated by augment script reading Playwright JSON;
-  // empty on re-export from MD source since MD doesn't carry these fields; SP00 re-fills after every regen)
+  // Automation status columns — INERT placeholders in this in-memory CSV oracle: the
+  // values are populated only on the XLSX side by the SP00 augment (Playwright JSON),
+  // not by convertFile(). Labels mirror the merged workbook vocabulary so no dead
+  // 'Automation Execution' / 'If Failed Reason of Failure' header survives the merge
+  // (LR-050; PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT renamed the workbook columns to
+  // 'Automation Status' + 'Notes / Reason'). NO comma in any label — the header join
+  // at the convert()/convertFile() rows is a naked `.join(',')`.
   { key: 'automated', label: 'Automated', audience: 'both' },
-  { key: 'automationExecution', label: 'Automation Execution', audience: 'both' },
-  { key: 'reasonOfFailure', label: 'If Failed Reason of Failure', audience: 'both' },  // NO comma — header join at line 95+135 is naked `.join(',')`; comma in label corrupts header parse
+  { key: 'automationExecution', label: 'Automation Status', audience: 'both' },
+  { key: 'reasonOfFailure', label: 'Notes / Reason', audience: 'both' },
 ];
 
 export class CsvConverter {
@@ -491,34 +496,53 @@ export class CsvConverter {
   }
   
   /**
-   * Canonical submodule-to-tab mapping. Single source of truth.
-   * Used by generatePreconditions() and extractSubmodule().
-   * When adding a new submodule code: add here ONCE, both functions derive from it.
+   * Submodule code → default-precondition tab phrase, used by
+   * generatePreconditions(). Submodule NAMES come from the module-codes.json
+   * registry (MODULE_REGISTRY below) — this map carries ONLY the human
+   * precondition strings. Dead legacy aliases (PRC/LCL/HST/HIST/HISL) and the
+   * retired CPR-as-submodule entry removed 2026-06-11
+   * (PLAN_ID_NAMING_AUDIT_AND_REMEDIATION).
    */
-  private static readonly TAB_MAP: Record<string, { submodule: string; tab: string }> = {
-    'CUR': { submodule: 'currency', tab: 'Currency tab is active' },
-    'PRI': { submodule: 'pricing', tab: 'Pricing tab is active' },
-    'PRC': { submodule: 'pricing', tab: 'Pricing tab is active' },
-    'LI':  { submodule: 'local_information', tab: 'Local Information tab is active' },
-    'LCL': { submodule: 'local_information', tab: 'Local Information tab is active' },
-    'LP':  { submodule: 'left_panel', tab: 'Basic Information tab is active' },
-    'LGL': { submodule: 'legal', tab: 'Legal tab is active' },
-    'ACC': { submodule: 'account_address', tab: 'Account and Address tab is active' },
-    'NTS': { submodule: 'notes', tab: 'Notes tab is active' },
-    'SSL': { submodule: 'shared_setup_locations', tab: 'Shared Setup Locations tab is active' },
-    'AAO': { submodule: 'auto_addon', tab: 'Auto Add-On tab is active' },
-    'MGH': { submodule: 'management_history', tab: 'Location Management History tab is active' },
-    'BAS': { submodule: 'basic_information', tab: 'Basic Information tab is active' },
-    'HST': { submodule: 'history', tab: 'Location Settings History tab is active' },
-    'HIS': { submodule: 'history', tab: 'Location Settings History tab is active' },
-    'ECT': { submodule: 'ect_settings', tab: 'ECT Settings tab is active' },
-    'HIST': { submodule: 'history_integration', tab: 'Location Management History tab is active' },
-    'HISL': { submodule: 'history_integration', tab: 'Location Settings History tab is active' },
-    // Corporate Pricing = standalone page, not a Location Settings tab. Closure-audit
-    // D1 fix (2026-06-05): silences the "Unknown submodule code CPR" warning AND makes
-    // the precondition fallback correct for any CPR TC lacking an explicit block.
-    'CPR': { submodule: 'corporate_pricing', tab: 'Corporate Pricing page is active' },
+  private static readonly TAB_MAP: Record<string, { tab: string }> = {
+    'CUR': { tab: 'Currency tab is active' },
+    'PRI': { tab: 'Pricing tab is active' },
+    'LI':  { tab: 'Local Information tab is active' },
+    'LP':  { tab: 'Basic Information tab is active' },
+    'LGL': { tab: 'Legal tab is active' },
+    'ACC': { tab: 'Account and Address tab is active' },
+    'NTS': { tab: 'Notes tab is active' },
+    'SSL': { tab: 'Shared Setup Locations tab is active' },
+    'AAO': { tab: 'Auto Add-On tab is active' },
+    'MGH': { tab: 'Location Management History tab is active' },
+    'BAS': { tab: 'Basic Information tab is active' },
+    'HIS': { tab: 'Location Settings History tab is active' },
+    'ECT': { tab: 'ECT Settings tab is active' },
+    'SRC': { tab: 'Corporate Pricing search page is active' },
+    'STR': { tab: 'Pricing Strategy tab is active' },
+    'DET': { tab: 'Pricing Detail tab is active' },
+    'NPB': { tab: 'New Pricebook page is active' },
+    'OVR': { tab: 'Product Group Override page is active' },
+    'TIO': { tab: 'Corporate Pricing search page is active' },
   };
+
+  /**
+   * ID-grammar registry (export_test_cases/module-codes.json) — single source
+   * of truth for module/submodule codes. Mint new codes THERE first. Loaded
+   * once with a shape assert so a malformed registry fails the build loudly
+   * rather than emitting wrong Module/Submodule cells.
+   */
+  private static readonly MODULE_REGISTRY: {
+    modules: Record<string, { name: string; display: string; dir: string }>;
+    submodules: Record<string, Record<string, { name: string; display: string; sheet: string; mdBasename: string }>>;
+  } = (() => {
+    const raw = JSON.parse(
+      fs.readFileSync(path.resolve(__dirname, 'module-codes.json'), 'utf8').replace(/^﻿/, '')
+    );
+    if (!raw?.modules?.LOC || !raw?.submodules?.LOC?.CUR) {
+      throw new Error('[to-csv] module-codes.json failed shape assert — modules/submodules missing');
+    }
+    return raw;
+  })();
 
   /**
    * Generate preconditions from test case context when not provided.
@@ -542,6 +566,14 @@ export class CsvConverter {
       const subCode = subMatch?.[1] ?? '';
       const tabEntry = subCode ? this.TAB_MAP[subCode] : undefined;
       preconditions.push(tabEntry ? tabEntry.tab : 'Basic Information tab is active');
+    }
+
+    if (id.includes('TC-CPR')) {
+      preconditions.push('Corporate Pricing is open in Navigator (Setup)');
+      const subMatch = id.match(/TC-CPR-([A-Z]+)-(?:\d+|[A-Z]+)/);
+      const subCode = subMatch?.[1] ?? '';
+      const tabEntry = subCode ? this.TAB_MAP[subCode] : undefined;
+      preconditions.push(tabEntry ? tabEntry.tab : 'Corporate Pricing search page is active');
     }
     
     // Add field state hints based on test content
@@ -688,17 +720,12 @@ export class CsvConverter {
   private static extractModule(id: string): string {
     const match = id.match(/TC-([A-Z]+)/);
     if (!match || !match[1]) return 'General';
-    const code = match[1];
-    const moduleMap: Record<string, string> = {
-      'LOC': 'locations',
-      'LOS': 'local-office',
-      'AUTH': 'authentication',
-      'ORD': 'orders',
-      'USR': 'users',
-      'RPT': 'reports',
-      'SET': 'setup'
-    };
-    return moduleMap[code] ?? code.toLowerCase();
+    const entry = this.MODULE_REGISTRY.modules[match[1]];
+    if (!entry) {
+      console.warn(`[CSV] Unknown module code "${match[1]}" in ${id} -- register in export_test_cases/module-codes.json`);
+      return match[1].toLowerCase();
+    }
+    return entry.name;
   }
 
   /**
@@ -706,16 +733,16 @@ export class CsvConverter {
    * TC-LOC-CUR-001 -> "currency", or parse from title
    */
   private static extractSubmodule(id: string, title: string): string {
-    // Check for compound ID (TC-LOC-CUR-001 or TC-LOC-LGL-HIST)
-    const compoundMatch = id.match(/TC-[A-Z]+-([A-Z]+)-(?:\d+|[A-Z]+)/);
-    if (compoundMatch && compoundMatch[1]) {
-      const subCode = compoundMatch[1];
-      // Derive from TAB_MAP (single source of truth -- no duplicate map)
-      const entry = this.TAB_MAP[subCode];
+    // Compound ID (TC-LOC-CUR-001): module + submodule codes resolve via the registry
+    const compoundMatch = id.match(/TC-([A-Z]+)-([A-Z]+)-(?:\d+|[A-Z]+)/);
+    if (compoundMatch && compoundMatch[1] && compoundMatch[2]) {
+      const modCode = compoundMatch[1];
+      const subCode = compoundMatch[2];
+      const entry = this.MODULE_REGISTRY.submodules[modCode]?.[subCode];
       if (!entry) {
-        console.warn(`[CSV] Unknown submodule code "${subCode}" in ${id} -- add to TAB_MAP in to-csv.ts`);
+        console.warn(`[CSV] Unknown module/submodule pair "${modCode}/${subCode}" in ${id} -- register in export_test_cases/module-codes.json`);
       }
-      return entry?.submodule ?? subCode.toLowerCase();
+      return entry?.name ?? subCode.toLowerCase();
     }
     // Infer from title keywords
     const titleLower = title.toLowerCase();

@@ -1,5 +1,7 @@
 # SUBPLAN_PARITY_W1_04 — Spec Fixes (Verdict-Independent, File-Only)
 
+> **REBASE NOTE (2026-06-11 · PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT):** this subplan's verification recipe cites `Automation Execution=Pass` and `If Failed Reason of Failure=<empty>` and recommends `xlsx:build:with-run`. All three changed: the column is now **`Automation Status`** (Pass/Fail/Skipped/Blocked), the reason lives in the merged **`Notes / Reason`** cell (a `Blocked — ` segment), and `--with-run` now performs a REAL `npx playwright test --reporter=json` run that can stamp `Fail`. Update the recipe to the merged column names + real with-run semantics before executing.
+
 **Status**: PENDING
 **Priority**: P0
 **Created**: 2026-05-26

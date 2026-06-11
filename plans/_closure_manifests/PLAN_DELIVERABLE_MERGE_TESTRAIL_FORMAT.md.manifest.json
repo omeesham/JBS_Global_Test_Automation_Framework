@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT.md",
+  "plan_basename": "PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT.md",
+  "plan_sha256": "5130f4ec7a5a8e3201d09889d3ea3fedc4f350a9944fa3ae88a2f99ce880974e",
+  "passed_at": "2026-06-11T09:48:59.221Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1781171339220-a660487a411a8665b39a5707c9eb0fc8-5130f4ec7a5a8e32",
+  "artifacts": [],
+  "provisional": false
+}

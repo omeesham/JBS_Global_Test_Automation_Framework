@@ -110,15 +110,15 @@ When you suspect an application bug (not a test defect) during ANY work, follow 
 
 **Step 2 — MCP-confirm the bug**: Reproduce on live DOM. Use `browser_network_requests` or fetch interception to prove client-side vs server-side. Screenshot the evidence. MANDATORY — no bug filed on theory alone.
 
-**Step 3 — Dedup check**: Scan `reports/bugs/BUG-*.json` for existing report on same module + same symptom. If found, add new evidence to existing report instead of filing duplicate.
+**Step 3 — Dedup check**: Scan `clients/${ACTIVE_CLIENT}/reports/bugs/BUG-*.json` for existing report on same module + same symptom. If found, add new evidence to existing report instead of filing duplicate. (Path corrected 2026-06-11 — the root-relative `reports/bugs/` named here previously does not exist; the artifact home is per-client.)
 
-**Step 4 — Generate ID**: `BUG-{MODULE}-{NNN}` where MODULE = 2-3 letter code (e.g., LI=LocalInformation, PRC=Pricing, SSL=SharedSetupLocations), NNN = next sequential number for that module.
+**Step 4 — Generate ID**: `BUG-{MODULE}-{SUBMODULE}-{NNN}` using the registered module + submodule codes from `export_test_cases/module-codes.json` — the SAME codes the TC grammar uses (e.g., `BUG-LOC-LI-001` = locations/local_information, `BUG-LOS-BAS-001` = local-office/basic_information, `BUG-CPR-OVR-001` = corporate-pricing/override). NNN = next sequential number for that module+submodule family. (Grammar upgraded from the legacy 2-segment `BUG-{MODULE}-{NNN}` form on 2026-06-11 — PLAN_ID_NAMING_AUDIT_AND_REMEDIATION; legacy IDs in historical artifacts resolve via the `bugGrammar.formerIds` map in module-codes.json. Guardrail 7 in `scripts/check-tc-parity.ts` enforces the 3-segment grammar on live artifacts.)
 
-**Step 5 — Write JSON** to `reports/bugs/BUG-{MODULE}-{NNN}.json`:
+**Step 5 — Write JSON** to `clients/${ACTIVE_CLIENT}/reports/bugs/BUG-{MODULE}-{SUBMODULE}-{NNN}.json`:
 
 ```json
 {
-  "id": "BUG-{MODULE}-{NNN}",
+  "id": "BUG-{MODULE}-{SUBMODULE}-{NNN}",
   "title": "one-line summary",
   "module": "MODULE_NAME",
   "severity": "critical|high|medium|low",
@@ -138,7 +138,7 @@ When you suspect an application bug (not a test defect) during ANY work, follow 
 
 Required: id, title, module, severity, status, discoveredDate, requirementSource, stepsToReproduce, expectedBehavior, actualBehavior, mcpEvidence, **baselineComparison** (per LR-045 row 4 / LR-ENC-001 — every bug filing classifies vs baseline; `not-checked` allowed only when no baseline workflow applies, e.g. non-multi-client framework).
 
-**Step 6 — Update affected specs**: Any TC blocked by this bug gets `test.skip('bug-blocked: BUG-{MODULE}-{NNN}')`. Update FIXME comments to reference bug ID.
+**Step 6 — Update affected specs**: Any TC blocked by this bug gets `test.skip('bug-blocked: BUG-{MODULE}-{SUBMODULE}-{NNN}')`. Update FIXME comments to reference bug ID.
 
 **Step 7 — Report to user**: Output bug summary in chat — bug ID, title, severity, requirement source, MCP evidence summary.
 

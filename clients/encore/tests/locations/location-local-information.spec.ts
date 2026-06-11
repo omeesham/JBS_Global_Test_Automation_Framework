@@ -434,7 +434,7 @@ test.describe('Location Local Info @locations @local-info', () => {
 
  // MCP-verified : Skip Billing does NOT disable Oracle Product (checkbox is a billing flag only).
  // Rewritten to test actual behavior: toggle persists after save+reload.
-  test('TC-LOC-LI-SKIP-BILLING: Skip Billing toggle persists after save+reload', async ({ locationLocalInfoPage, dependencyGate }) => {
+  test('TC-LOC-LI-070: Skip Billing toggle persists after save+reload', async ({ locationLocalInfoPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LI-001']);
     test.setTimeout(120_000);
  // Wait for Angular form hydration before ANY interaction

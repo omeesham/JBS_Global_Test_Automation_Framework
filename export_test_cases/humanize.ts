@@ -13,7 +13,6 @@
  * domain logic. Each function is a pure (text → text) helper.
  */
 
-import { TestStep } from './types';
 
 // ──────────────────────────────────────────────────────────────────────────
 // Unicode + markdown sanitization
@@ -152,85 +151,12 @@ export function convertElementIdsToLabels(text: string): string {
 // Submodule / preconditions
 // ──────────────────────────────────────────────────────────────────────────
 
-/**
- * Canonical submodule-to-tab mapping. Single source of truth.
- * When adding a new submodule code: add here ONCE, derivers read from here.
- */
-export const TAB_MAP: Record<string, { submodule: string; tab: string }> = {
-  CUR: { submodule: 'currency', tab: 'Currency tab is active' },
-  PRI: { submodule: 'pricing', tab: 'Pricing tab is active' },
-  PRC: { submodule: 'pricing', tab: 'Pricing tab is active' },
-  LI: { submodule: 'local_information', tab: 'Local Information tab is active' },
-  LCL: { submodule: 'local_information', tab: 'Local Information tab is active' },
-  LP: { submodule: 'left_panel', tab: 'Basic Information tab is active' },
-  LGL: { submodule: 'legal', tab: 'Legal tab is active' },
-  ACC: { submodule: 'account_address', tab: 'Account and Address tab is active' },
-  NTS: { submodule: 'notes', tab: 'Notes tab is active' },
-  SSL: { submodule: 'shared_setup_locations', tab: 'Shared Setup Locations tab is active' },
-  AAO: { submodule: 'auto_addon', tab: 'Auto Add-On tab is active' },
-  MGH: { submodule: 'management_history', tab: 'Location Management History tab is active' },
-  BAS: { submodule: 'basic_information', tab: 'Basic Information tab is active' },
-  HST: { submodule: 'history', tab: 'Location Settings History tab is active' },
-  HIS: { submodule: 'history', tab: 'Location Settings History tab is active' },
-  ECT: { submodule: 'ect_settings', tab: 'ECT Settings tab is active' },
-  HIST: { submodule: 'history_integration', tab: 'Location Management History tab is active' },
-  HISL: { submodule: 'history_integration', tab: 'Location Settings History tab is active' },
-  // Corporate Pricing is a standalone page (not a Location Settings tab). Added
-  // 2026-06-05 (closure-audit D1) so CPR TCs without an explicit **Preconditions**
-  // block fall back to a CORRECT generic line, never the "Basic Information tab" default.
-  CPR: { submodule: 'corporate_pricing', tab: 'Corporate Pricing page is active' },
-};
-
-/** Generate preconditions from test case context when not provided. */
-export function generatePreconditions(id: string, _type: string, steps: string): string {
-  const preconditions: string[] = [];
-
-  if (id.includes('TC-LOC')) {
-    preconditions.push('Office 1604 is open in Navigator');
-    const subMatch = id.match(/TC-LOC-([A-Z]+)-(?:\d+|[A-Z]+)/);
-    const subCode = subMatch?.[1] ?? '';
-    const tabEntry = subCode ? TAB_MAP[subCode] : undefined;
-    preconditions.push(tabEntry ? tabEntry.tab : 'Basic Information tab is active');
-  }
-
-  if (id.includes('TC-LOS')) {
-    preconditions.push('Local Office Settings page is open (Office 1604)');
-    const subMatch = id.match(/TC-LOS-([A-Z]+)-(?:\d+|[A-Z]+)/);
-    const subCode = subMatch?.[1] ?? '';
-    const tabEntry = subCode ? TAB_MAP[subCode] : undefined;
-    preconditions.push(tabEntry ? tabEntry.tab : 'Basic Information tab is active');
-  }
-
-  if (/Apply LDW|chkApplyLDW/i.test(steps)) {
-    preconditions.push('"Apply LDW" checkbox is in default state');
-  }
-  if (/LDW Percentage|spinLDWPercentage/i.test(steps)) {
-    preconditions.push('"LDW Percentage" field shows default value (0.04)');
-  }
-
-  return preconditions.join('. ') + (preconditions.length > 0 ? '.' : '');
-}
-
-/** Convert preconditions array to human-readable string (fallback). */
-export function convertPreconditionsToHuman(preconditions: string[]): string {
-  if (!preconditions || preconditions.length === 0) return '';
-  return preconditions.map(p => convertElementIdsToLabels(p)).join('; ');
-}
-
-/**
- * Convert steps array to human-readable string (fallback).
- * Action-only output; per-step expected drops out (Expected Result column carries it).
- */
-export function convertStepsToHuman(steps: TestStep[]): string {
-  if (!steps || steps.length === 0) return '';
-  return steps.map(s => `${s.stepNumber}. ${convertElementIdsToLabels(s.action)}`).join('\n');
-}
-
-/** Convert expected results array to human-readable string (fallback). */
-export function convertExpectedToHuman(expectedResults: string[]): string {
-  if (!expectedResults || expectedResults.length === 0) return '';
-  return expectedResults.map(r => convertElementIdsToLabels(r)).join('; ');
-}
+// NOTE (2026-06-11, PLAN_ID_NAMING_AUDIT_AND_REMEDIATION): the duplicated
+// TAB_MAP + generatePreconditions/convert*ToHuman surface that used to live here
+// was DEAD code (zero importers — to-csv.ts uses its own private copies) and a
+// drift hazard against the module-codes.json registry. Removed. Submodule
+// semantics live in export_test_cases/module-codes.json; precondition phrases
+// live in to-csv.ts TAB_MAP.
 
 // ──────────────────────────────────────────────────────────────────────────
 // Internal-vocabulary scrubbing (Phase D-prep, 2026-05-27)

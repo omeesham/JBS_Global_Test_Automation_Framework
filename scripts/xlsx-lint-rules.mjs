@@ -10,12 +10,14 @@
  *
  * Two leak classes are detected:
  *   1. VOCAB  — internal/agent/framework/slang/speculation tokens in any client cell.
- *   2. INTEGRITY — cross-column contradictions the token scan cannot see:
- *        C1  reason present  AND  Automation Execution == 'Pass'      → FAIL (join bug)
- *        C2  Coverage Status / Automation Execution outside the enum  → FAIL
- *        C3  Automation Execution == 'Blocked' AND reason empty       → WARN (kept-visible reason missing)
- *        C4  Coverage Status == 'Manual' AND (reason OR execution set) → FAIL (Manual must be blank)
- *        C5  reason present AND under 4 words (not allowlisted)        → FAIL (internal label, not a client sentence)
+ *   2. INTEGRITY — cross-column contradictions the token scan cannot see. The reason
+ *      now lives inside the merged 'Notes / Reason' cell as an optional "Blocked — "
+ *      segment (splitNotesReason); execution is the 'Automation Status' column:
+ *        C1  Automation Status == 'Pass' AND a "Blocked — " segment    → FAIL (join bug)
+ *        C2  Coverage Status / Automation Status outside the enum       → FAIL
+ *        C3  Automation Status == 'Blocked' AND no "Blocked — " segment → WARN (kept-visible reason missing)
+ *        C4  Coverage Status == 'Manual' AND (status set OR "Blocked — " segment) → FAIL (plain Notes OK)
+ *        C5  "Blocked — " segment under 4 words excl. marker (not allowlisted) → FAIL (internal label, not a sentence)
  *        C6  per-sheet TC IDs duplicated OR out of canonical order     → FAIL (LR-ENC-004 V3 — rows must read in ascending TC-ID order; renumbering is forbidden because IDs are spec keys, so the EMITTER sorts and C6 re-asserts it)
  *        C7  garbled output — empty/dangling parens, a separator stranded before
  *            ')', "(->)", an ATTRIBUTED HTML tag (`<span class="…">`; bare `<div>`
@@ -27,23 +29,88 @@
  * The Overview banner (title rows 1-2) is scanned for vocab; its metric rows are exempt.
  */
 import XLSX from 'xlsx';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
 /**
- * Client-facing columns scanned for banned vocabulary.
- * 'Specific Field' + 'Tags' removed 2026-06-05 (LR-ENC-004 V2) — both columns were
- * dropped from the deliverable (100% empty across all cases). Kept in lockstep with
+ * ID-grammar registry loader (export_test_cases/module-codes.json) — single
+ * source of truth for module/submodule codes and sheet ownership. Shared by C8
+ * below and any gate that needs code semantics. Shape-asserted: a malformed
+ * registry fails every gate loudly. (PLAN_ID_NAMING_AUDIT_AND_REMEDIATION 2026-06-11)
+ */
+export function loadModuleRegistry() {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const reg = JSON.parse(
+    readFileSync(path.join(here, '..', 'export_test_cases', 'module-codes.json'), 'utf8').replace(/^﻿/, '')
+  );
+  if (!reg?.modules?.LOC?.name || !reg?.submodules?.LOC?.CUR?.sheet) {
+    throw new Error('[xlsx-lint] module-codes.json failed shape assert — modules/submodules missing');
+  }
+  return reg;
+}
+
+/**
+ * Client-facing columns scanned for banned vocabulary. Kept in lockstep with
  * MODULE_SHEET_HEADERS in export_test_cases/to-xlsx.ts.
+ *
+ * Merged TestRail step-expanded schema (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT,
+ * 2026-06-11): 'Steps' + 'Expected Result' are the CANONICAL keys — readWorkbookRows
+ * maps the load-bearing 'Steps (Step)' / 'Steps (Expected Result)' aliases onto them,
+ * so listing the canonical names here scans every step cell EXACTLY ONCE (listing the
+ * alias names too would double-count). Retired in the merge (LR-050 dead keys): the
+ * separate 'Notes', 'Automation Execution', 'If Failed Reason of Failure' columns
+ * (folded into 'Notes / Reason' + renamed 'Automation Status') and 'Automation Type'
+ * (the retired _testrail.xlsx twin's column).
  */
 export const CHECKED_COLS = [
   'TC ID', 'Title', 'Module', 'Submodule',
-  'Preconditions', 'Steps', 'Expected Result', 'Notes',
-  'Coverage Status', 'Automation Execution', 'If Failed Reason of Failure',
+  'Test Data', 'Type', 'Priority',
+  'Coverage Status', 'Automation Status', 'Notes / Reason',
+  'Preconditions', 'Steps', 'Expected Result',
 ];
 
-/** Allowed enum values per status column (SUMMARY row exempt). '' = legitimately blank. */
+/**
+ * Step-expanded → canonical header aliases (normalized in readWorkbookRows). The
+ * merged single workbook keeps canonical 'TC ID' / 'Submodule' headers, so the former
+ * 'ID' / 'Sub-Module' TestRail aliases are retired (LR-050). The 'Steps (*)' aliases
+ * are now LOAD-BEARING — the only path the step columns reach the canonical keys.
+ */
+export const HEADER_ALIASES = {
+  'Steps (Step)': 'Steps',
+  'Steps (Expected Result)': 'Expected Result',
+};
+
+/**
+ * Allowed enum values per status column (SUMMARY row exempt). '' = legitimately blank.
+ * The '' member is ALSO the continuation-row contract (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT):
+ * step-expanded continuation rows carry blank status cells, and integrity checks C1–C5
+ * tolerate them only because both enums contain '' — by design, NOT slop. EXECUTION_ENUM
+ * now governs the 'Automation Status' column (renamed from 'Automation Execution' in the merge).
+ */
 export const COVERAGE_ENUM = new Set(['Automated', 'Pending Automation', 'Manual', '']);
 export const EXECUTION_ENUM = new Set(['Pass', 'Fail', 'Skipped', 'Blocked', '']);
+
+/**
+ * Notes / Reason segment extraction (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT). The merged
+ * 'Notes / Reason' column composes a reason segment (optionally marked "Blocked — ") with an
+ * appended "\n\nNotes: <notes>" tail. C1/C3/C4/C5 act on the BLOCKED reason segment only, so
+ * they re-derive it here. MUST stay byte-identical to composeNotesReason() in
+ * export_test_cases/to-xlsx.ts (BLOCKED_MARKER_RE + the "\n\nNotes: " separator) — any drift
+ * silently defeats the integrity checks.
+ */
+export const BLOCKED_MARKER_RE = /^Blocked\s*[—–-]\s*/i;
+const NOTES_SEP_RE = /\n\nNotes:\s/;
+export function splitNotesReason(cell) {
+  const s = String(cell ?? '');
+  const sepIdx = s.search(NOTES_SEP_RE);
+  const reasonPart = (sepIdx >= 0 ? s.slice(0, sepIdx) : s).trim();
+  const hasBlocked = BLOCKED_MARKER_RE.test(reasonPart);
+  // Reason text with the "Blocked — " marker stripped, for C5's client-sentence word-count
+  // (which must EXCLUDE the marker so "Blocked" + "—" do not pad a 2-word internal label to 4).
+  const blockedReason = hasBlocked ? reasonPart.replace(BLOCKED_MARKER_RE, '').trim() : '';
+  return { reasonPart, hasBlocked, blockedReason };
+}
 
 /**
  * Grandfathered terse reasons (C5 exemptions, 2026-06-05). These 8 Local Information
@@ -250,7 +317,20 @@ export function readWorkbookRows(xlsxPath) {
   for (const sheetName of wb.SheetNames) {
     if (sheetName === 'Overview') continue;
     const sheetRows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' });
-    for (const r of sheetRows) rows.push({ sheet: sheetName, ...r });
+    // ownerTcId carry-forward (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT): step-expanded
+    // continuation rows have a blank TC ID. Track the last non-blank TC ID per sheet so a
+    // vocab/C7 hit on a continuation row reports an actionable owning TC, not tcId=''.
+    let ownerTcId = '';
+    for (const r of sheetRows) {
+      // Normalize step-expanded headers onto canonical keys so every check
+      // (vocab, C6 id-order, C7 corruption, C8 congruence) sees the cells.
+      for (const [alias, canonical] of Object.entries(HEADER_ALIASES)) {
+        if (alias in r && !(canonical in r)) r[canonical] = r[alias];
+      }
+      const rid = String(r['TC ID'] ?? r['Test ID'] ?? '').trim();
+      if (rid && rid !== 'SUMMARY') ownerTcId = rid;
+      rows.push({ sheet: sheetName, ownerTcId, ...r });
+    }
   }
   return rows;
 }
@@ -291,8 +371,12 @@ export function lintWorkbook(xlsxPath) {
   for (const r of allRows) {
     const tcId = String(r['TC ID'] || r['Test ID'] || '');
     if (tcId === 'SUMMARY') continue; // roll-up footer row — exempt
+    // Attribute hits to the owning TC: continuation rows have a blank TC ID, so fall
+    // back to the carried-forward ownerTcId (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT).
+    const hitTcId = tcId || r.ownerTcId || '';
 
-    // ── vocab scan ──
+    // ── vocab scan (runs on ALL rows incl. continuation step-rows — step text is
+    //    client-visible and MUST stay scanned) ──
     for (const col of CHECKED_COLS) {
       const v = String(r[col] ?? '');
       if (!v) continue;
@@ -300,7 +384,7 @@ export function lintWorkbook(xlsxPath) {
         const m = v.match(b.re);
         if (m) {
           vocabHits.push({
-            sheet: r.sheet, tcId, col, pattern: b.name, match: m[0],
+            sheet: r.sheet, tcId: hitTcId, col, pattern: b.name, match: m[0],
             sample: v.length > 130 ? v.slice(0, 130) + '…' : v,
           });
         }
@@ -310,59 +394,64 @@ export function lintWorkbook(xlsxPath) {
     // ── corruption scan (C7) — garbled output the vocab denylist can't see:
     //    empty/dangling parens, arrow-in-parens, attributed HTML, a cell truncated
     //    to a trailing backtick. humanize.ts prevents each at source (LR-ENC-004 V3,
-    //    2026-06-05); this is the fail-green backstop. ──
+    //    2026-06-05); this is the fail-green backstop. Runs on continuation rows too. ──
     for (const col of CHECKED_COLS) {
       const v = String(r[col] ?? '');
       if (!v) continue;
       for (const c of CORRUPTION) {
         const m = v.match(c.re);
         if (m) integrityViolations.push({
-          code: 'C7', sheet: r.sheet, tcId,
+          code: 'C7', sheet: r.sheet, tcId: hitTcId,
           detail: `${c.name} in ${col}: "${m[0].trim()}" :: ${v.length > 80 ? v.slice(0, 80) + '…' : v}`,
         });
       }
     }
 
-    // ── integrity scan ──
+    // ── integrity scan (Automation Status = execution axis; reason lives inside the
+    //    merged 'Notes / Reason' cell as an optional "Blocked — " segment) ──
     const cov = String(r['Coverage Status'] ?? '').trim();
-    const exec = String(r['Automation Execution'] ?? '').trim();
-    const reason = String(r['If Failed Reason of Failure'] ?? '').trim();
+    const exec = String(r['Automation Status'] ?? '').trim();
+    const { hasBlocked, blockedReason } = splitNotesReason(r['Notes / Reason']);
 
-    // C1 — reason present but execution claims Pass (upstream join bug)
-    if (exec === 'Pass' && reason !== '') {
+    // C1 — Pass row carrying a "Blocked — " reason segment (upstream join bug). Plain
+    // Notes on a Pass row are legitimate, so only the marked segment trips C1.
+    if (exec === 'Pass' && hasBlocked) {
       integrityViolations.push({
-        code: 'C1', sheet: r.sheet, tcId,
-        detail: `Automation Execution='Pass' but carries a failure reason: "${reason.slice(0, 80)}…"`,
+        code: 'C1', sheet: r.sheet, tcId: hitTcId,
+        detail: `Automation Status='Pass' but Notes / Reason carries a "Blocked — " segment: "${blockedReason.slice(0, 80)}…"`,
       });
     }
     // C2 — status enum
     if (!COVERAGE_ENUM.has(cov)) {
-      integrityViolations.push({ code: 'C2', sheet: r.sheet, tcId, detail: `Coverage Status not in enum: "${cov}"` });
+      integrityViolations.push({ code: 'C2', sheet: r.sheet, tcId: hitTcId, detail: `Coverage Status not in enum: "${cov}"` });
     }
     if (!EXECUTION_ENUM.has(exec)) {
-      integrityViolations.push({ code: 'C2', sheet: r.sheet, tcId, detail: `Automation Execution not in enum: "${exec}"` });
+      integrityViolations.push({ code: 'C2', sheet: r.sheet, tcId: hitTcId, detail: `Automation Status not in enum: "${exec}"` });
     }
-    // C4 — Manual must be blank execution + blank reason
-    if (cov === 'Manual' && (reason !== '' || exec !== '')) {
+    // C4 — Manual must have a blank Automation Status AND no "Blocked — " reason
+    // segment (plain Notes are allowed on a Manual row).
+    if (cov === 'Manual' && (exec !== '' || hasBlocked)) {
       integrityViolations.push({
-        code: 'C4', sheet: r.sheet, tcId,
-        detail: `Coverage Status='Manual' must have blank Execution and Reason (got exec="${exec}", reason="${reason.slice(0, 60)}")`,
+        code: 'C4', sheet: r.sheet, tcId: hitTcId,
+        detail: `Coverage Status='Manual' must have blank Automation Status and no "Blocked — " reason (got status="${exec}", blockedReason="${blockedReason.slice(0, 60)}")`,
       });
     }
-    // C5 — reason must read as a client sentence, not an internal label. A non-empty
-    // reason under 4 words is almost always dev shorthand ("JobCosting", "Oracle
-    // required", "batch isolation"). Allowlisted rows (no documented cause, ship
-    // as-is per owner) are exempt; every other TC fails so future labels can't leak.
-    if (reason !== '' && !TERSE_REASON_ALLOWLIST.has(tcId)
-        && reason.split(/\s+/).filter(Boolean).length < 4) {
+    // C5 — the "Blocked — " reason segment must read as a client sentence, not an
+    // internal label. Word count EXCLUDES the marker (per §Notes/Reason merge), so a
+    // 2-word label ("Oracle required") still fails the >=4-word rule. Non-blocked
+    // reasons (Skipped/Pending keep their own status word) and plain Notes are not
+    // checked. Allowlisted rows (no documented cause, ship as-is per owner) are exempt.
+    if (hasBlocked && !TERSE_REASON_ALLOWLIST.has(hitTcId)
+        && blockedReason.split(/\s+/).filter(Boolean).length < 4) {
       integrityViolations.push({
-        code: 'C5', sheet: r.sheet, tcId,
-        detail: `If Failed Reason reads as an internal label, not a client sentence: "${reason}"`,
+        code: 'C5', sheet: r.sheet, tcId: hitTcId,
+        detail: `Blocked reason reads as an internal label, not a client sentence: "${blockedReason}"`,
       });
     }
-    // C3 (warn) — Blocked with no reason (Rutvik wants app-bug reasons kept visible)
-    if (exec === 'Blocked' && reason === '') {
-      warnings.push({ code: 'C3', sheet: r.sheet, tcId, detail: `Blocked but no reason text` });
+    // C3 (warn) — Blocked execution but no "Blocked — " reason segment (Rutvik wants
+    // app-bug reasons kept visible).
+    if (exec === 'Blocked' && !hasBlocked) {
+      warnings.push({ code: 'C3', sheet: r.sheet, tcId: hitTcId, detail: `Blocked but no reason text` });
     }
   }
 
@@ -393,6 +482,39 @@ export function lintWorkbook(xlsxPath) {
           detail: `TC IDs out of order at row ${i + 1}: found "${ids[i]}", expected "${sorted[i]}" (rows must be sorted by TC ID)`,
         });
         break;
+      }
+    }
+  }
+
+  // C8 — registry congruence (PLAN_ID_NAMING_AUDIT_AND_REMEDIATION 2026-06-11):
+  // every data row's Module/Submodule cells must equal the registry values for
+  // its sheet, and the row's TC-ID module+submodule codes must match the sheet's
+  // registered owner. This is the semantic check whose absence let 150 corporate
+  // pricing rows ship Module="locations". One violation per sheet×kind is enough signal.
+  {
+    const registry = loadModuleRegistry();
+    const sheetOwner = new Map();
+    for (const [mod, subs] of Object.entries(registry.submodules)) {
+      for (const [sub, e] of Object.entries(subs)) sheetOwner.set(e.sheet, { mod, sub, name: e.name, moduleName: registry.modules[mod].name });
+    }
+    // Strict mode (unregistered sheet = FAIL) applies to the canonical deliverable;
+    // other workbooks (TestRail format — display sheet names) get C8 only on
+    // registry-registered sheets, while vocab/C6/C7 cover them via HEADER_ALIASES.
+    const strictC8 = path.basename(xlsxPath) === 'encore_test_cases.xlsx';
+    const reported = new Set();
+    const once = (key, v) => { if (!reported.has(key)) { reported.add(key); integrityViolations.push(v); } };
+    for (const r of allRows) {
+      const tcId = String(r['TC ID'] || '');
+      if (!tcId.startsWith('TC-') || tcId === 'SUMMARY') continue;
+      const owner = sheetOwner.get(r.sheet);
+      if (!owner) { if (strictC8) once(`${r.sheet}:unreg`, { code: 'C8', sheet: r.sheet, tcId, detail: `sheet not registered to any submodule in module-codes.json` }); continue; }
+      const modCell = String(r['Module'] ?? '');
+      const subCell = String(r['Submodule'] ?? '');
+      if (modCell !== owner.moduleName) once(`${r.sheet}:mod`, { code: 'C8', sheet: r.sheet, tcId, detail: `Module cell "${modCell}" ≠ registry "${owner.moduleName}"` });
+      if (subCell !== owner.name) once(`${r.sheet}:sub`, { code: 'C8', sheet: r.sheet, tcId, detail: `Submodule cell "${subCell}" ≠ registry "${owner.name}"` });
+      const idm = tcId.match(/^TC-([A-Z]+)-([A-Z]+)-/);
+      if (idm && (idm[1] !== owner.mod || idm[2] !== owner.sub)) {
+        once(`${r.sheet}:id:${tcId}`, { code: 'C8', sheet: r.sheet, tcId, detail: `ID codes ${idm[1]}/${idm[2]} ≠ sheet owner ${owner.mod}/${owner.sub}` });
       }
     }
   }

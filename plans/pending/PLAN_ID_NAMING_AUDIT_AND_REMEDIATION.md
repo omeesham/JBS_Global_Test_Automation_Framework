@@ -1,5 +1,7 @@
 # PLAN_ID_NAMING_AUDIT_AND_REMEDIATION — repo-wide ID/naming consistency audit + gated remediation
 
+> **CROSS-REF (2026-06-11 · PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT):** this plan's Phase-6 open question — "`scripts/_gen-testrail.ts` 'THROWAWAY' header vs load-bearing reality — promote or keep?" — is **answered RETIRE**. PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT deleted `_gen-testrail.ts` + the `encore_test_cases_testrail.xlsx` twin and folded the TestRail step-expanded layout into the single `encore_test_cases.xlsx` (emitted by `to-xlsx.ts` via the shared `export_test_cases/testrail-format.ts`).
+
 > 🤖 **SESSION BOOTSTRAP — being executed interactively by OWNER in the session that authored it (user-approved via plan mode, 2026-06-10). Not chain-spawned.**
 >
 > **HALT + ASK** if: a gate ruling is ambiguous / a rename collides with an existing ID / parity or lint stays red after 2 evidence-based fix attempts / any strict line below cannot be satisfied as written (LR-046).

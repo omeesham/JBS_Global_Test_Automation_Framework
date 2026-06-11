@@ -32,8 +32,8 @@
   "TC-LOC-LI-059": { "execution": "", "reason": "Not yet automated — requires a different office whose billing and country configuration differs from the standard test office." },
   "TC-LOC-LI-060": { "execution": "", "reason": "Not yet automated — requires a user account with a read-only Location role, which is not provisioned in the test environment." },
   "TC-LOC-LI-065": { "execution": "Blocked", "reason": "Blocked — when the Service Charge parent option is unchecked, the dependent options remain enabled instead of being disabled. Pending an application fix." },
-  "TC-LOC-LI-NE-011": { "execution": "Blocked", "reason": "Blocked — unchecking Apply LDW does not disable the dependent Calculate-on-Net option. Pending an application fix." },
-  "TC-LOC-LI-NE-012": { "execution": "Blocked", "reason": "Blocked — unchecking Apply C&C does not disable the dependent Calculate-on-Net option. Pending an application fix." },
+  "TC-LOC-LI-078": { "execution": "Blocked", "reason": "Blocked — unchecking Apply LDW does not disable the dependent Calculate-on-Net option. Pending an application fix." },
+  "TC-LOC-LI-079": { "execution": "Blocked", "reason": "Blocked — unchecking Apply C&C does not disable the dependent Calculate-on-Net option. Pending an application fix." },
 
   "TC-LOC-PRI-020": { "execution": "Skipped", "reason": "Skipped — grid row date values do not persist after save and reload. Pending an application fix." },
   "TC-LOC-PRI-025": { "execution": "Skipped", "reason": "Skipped — unchecking Corporate Pricing does not persist after save and reload. Pending an application fix." },
@@ -48,11 +48,11 @@
   "TC-LOC-NTS-020": { "coverage": "Manual", "execution": "", "reason": "" },
   "TC-LOC-NTS-056": { "execution": "Blocked", "reason": "Blocked — the Delete control disappears on a single-row note list after the text is cleared, so the row cannot be deleted. Pending an application fix." },
 
-  "TC-LOC-CPR-523": { "execution": "Blocked", "reason": "Blocked — entering a Max Discount percentage above 100 is rejected silently (the cell editor does not commit the value and shows no error message), so the intended out-of-range behavior cannot be verified. Pending an application fix." },
-  "TC-LOC-LI-NE-044": { "coverage": "Manual", "execution": "", "reason": "" },
-  "TC-LOC-LI-NE-045": { "coverage": "Manual", "execution": "", "reason": "" },
-  "TC-LOC-LI-NE-046": { "coverage": "Manual", "execution": "", "reason": "" },
-  "TC-LOC-LI-NE-047": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-CPR-OVR-023": { "execution": "Blocked", "reason": "Blocked — entering a Max Discount percentage above 100 is rejected silently (the cell editor does not commit the value and shows no error message), so the intended out-of-range behavior cannot be verified. Pending an application fix." },
+  "TC-LOC-LI-111": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-LI-112": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-LI-113": { "coverage": "Manual", "execution": "", "reason": "" },
+  "TC-LOC-LI-114": { "coverage": "Manual", "execution": "", "reason": "" },
 
   "_README_SSL_RUNTIME_FIXME": "Disposition (LR-ENC-004): these seven Shared Setup Locations rows are skipped at runtime by a documented application issue. Their client-facing reason has no committed source the workbook build can read on its own — the real reason lives inside the spec body, and the registry overlay that would have read it points at the pre-restructure 'specs/' directory (the specs now live under 'tests/'), so the build otherwise falls back to a generic placeholder. This committed entry is the durable home for the reason text (verbatim from the spec). execution='Blocked' matches the runtime skip; Coverage Status is left as the build sets it.",
   "TC-LOC-SSL-024": { "execution": "Blocked", "reason": "Blocked — the Change Local Office dialog still lists a location that was already added to the office. Pending an application fix." },
@@ -63,7 +63,7 @@
   "TC-LOC-SSL-043": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
   "TC-LOC-SSL-044": { "execution": "Blocked", "reason": "Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix." },
 
-  "_README_LI_TERSE_SUPPRESSED": "Temporary blank overrides (2026-06-09, user-directed). These 8 Local Information rows carry only a terse internal-shorthand reason in reports/fixme-registry.json (a `// FIXME TC-NNN (label)` comment in the spec, e.g. 'JobCosting', 'eSignature', 'Oracle required'). They are not-yet-automated/planned rows (Coverage = Pending Automation) and the lint's TERSE_REASON_ALLOWLIST exempts them from the client-sentence check. Until the spec-restructure fix (chip task_a8298e85) those labels never reached the workbook; the fix would now surface them in the client-facing 'If Failed Reason of Failure' column. Per user direction they ship BLANK (as they do today) rather than leak internal shorthand to the client — proper client-facing reasons are to be authored later. Setting reason='' (and execution='') here makes blocked-reasons.json, the build's last writer, blank the cell after the overlay applies the terse registry label.",
+  "_README_LI_TERSE_SUPPRESSED": "Temporary blank overrides (2026-06-09, user-directed). These 8 Local Information rows carry only a terse internal-shorthand reason in reports/fixme-registry.json (a `// FIXME TC-NNN (label)` comment in the spec, e.g. 'JobCosting', 'eSignature', 'Oracle required'). They are not-yet-automated/planned rows (Coverage = Pending Automation) and the lint's TERSE_REASON_ALLOWLIST exempts them from the client-sentence check. Until the spec-restructure fix (chip task_a8298e85) those labels never reached the workbook; the fix would now surface them in the client-facing 'Notes / Reason' column. Per user direction they ship BLANK (as they do today) rather than leak internal shorthand to the client — proper client-facing reasons are to be authored later. Setting reason='' (and execution='') here makes blocked-reasons.json, the build's last writer, blank the cell after the overlay applies the terse registry label.",
   "TC-LOC-LI-008":  { "execution": "", "reason": "" },
   "TC-LOC-LI-008A": { "execution": "", "reason": "" },
   "TC-LOC-LI-018":  { "execution": "", "reason": "" },

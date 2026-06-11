@@ -10,7 +10,7 @@ import {
 } from '../../src/data/local-office/local-office-ect';
 import { OFFICE_NO } from '../../src/data/common';
 
-test.describe('Local Office Settings — ECT Settings @locations @local-office-ect', () => {
+test.describe('Local Office Settings — ECT Settings @local-office-ect', () => {
 
   // Per-test navigation guard (dependency-gate removal Phase 1.5).
   // When Playwright retries recycle the worker, the fixture's unconditional goto lands

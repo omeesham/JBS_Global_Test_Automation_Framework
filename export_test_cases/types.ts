@@ -152,16 +152,18 @@ export interface TestCaseCollection {
 
 /**
  * Canonical submodule codes for TC IDs.
- * Single source of truth -- imported by lint-test-cases.ts and to-csv.ts.
- * When adding a new code: add here, then run `npm run lint:testcases` to verify.
+ * MIRROR of export_test_cases/module-codes.json (the registry is the source of
+ * truth — mint new codes THERE first, then mirror here; check-tc-parity
+ * guardrail 6 asserts set-parity between this list and the registry, so drift
+ * fails the commit gate). Dead legacy aliases (PRC, LCL, HST, HIST, HISL) and
+ * the retired CPR-as-submodule entry removed 2026-06-11
+ * (PLAN_ID_NAMING_AUDIT_AND_REMEDIATION — corporate-pricing is a MODULE code).
  */
 export const KNOWN_SUB_CODES = [
+  // locations (LOC)
   'CUR',  // currency
   'PRI',  // pricing
-  'PRC',  // pricing (legacy)
-  'CPR',  // corporate_pricing
   'LI',   // local_information
-  'LCL',  // local_information (legacy)
   'ACC',  // account_address
   'LGL',  // legal
   'NTS',  // notes
@@ -169,12 +171,17 @@ export const KNOWN_SUB_CODES = [
   'SSL',  // shared_setup_locations
   'AAO',  // auto_addon
   'MGH',  // management_history
-  'BAS',  // local_office_settings basic_information
-  'HST',  // local_office_settings history
-  'HIS',  // local_office_settings history (alias)
-  'ECT',  // local_office_settings ect_settings
-  'HIST', // history integration (cross-tab save verification — LOC)
-  'HISL', // history integration (cross-tab save verification — LOS)
+  // local-office (LOS)
+  'BAS',  // basic_information
+  'HIS',  // history
+  'ECT',  // ect_settings
+  // corporate-pricing (CPR)
+  'SRC',  // search
+  'STR',  // strategy
+  'DET',  // detail
+  'NPB',  // new_pricebook
+  'OVR',  // override
+  'TIO',  // toolbar_io
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];

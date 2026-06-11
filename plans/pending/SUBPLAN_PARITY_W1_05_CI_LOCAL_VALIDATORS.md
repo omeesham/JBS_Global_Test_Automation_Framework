@@ -1,5 +1,7 @@
 # SUBPLAN_PARITY_W1_05 — CI Local Validators (file-only, no CI wiring)
 
+> **REBASE NOTE (2026-06-11 · PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT):** this subplan plans to fold validators into `scripts/sp00-audit-v5.mjs`. That workbook is now **TestRail step-expanded** — a case spans 1 first-row + N continuation step-rows (blank TC ID). `sp00-audit-v5.mjs` was updated to count distinct `/^TC-/` IDs (not raw rows) and read the merged columns (`Automation Status`, `Notes / Reason`, `Steps (Step)`/`Steps (Expected Result)`). Any new validator must key cases on `/^TC-/` and re-derive the reason segment via the `Blocked — ` marker (see `splitNotesReason` in `scripts/xlsx-lint-rules.mjs`).
+
 **Status**: PENDING
 **Priority**: P1
 **Created**: 2026-05-26

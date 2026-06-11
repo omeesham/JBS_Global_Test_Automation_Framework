@@ -3,7 +3,7 @@ import { CORP_PRICING_TOOLBAR_IO } from '../../src/data/corporate-pricing/toolba
 
 /**
  * Corporate Pricing — Search toolbar I/O, trigger-level field-coverage (NM-1604/1625/1446).
- * TC-LOC-CPR-601..617. Live-grounded 2026-06-09 (office 1604).
+ * TC-CPR-TIO-001..617. Live-grounded 2026-06-09 (office 1604).
  *
  * SCOPE: trigger + variant enumeration ONLY — the dropdown opens, all 4 variants are present, each
  * fires the correct endpoint (Export ▾ / Loc Pricing Export) or opens the correct dialog (Import ▾ /
@@ -27,41 +27,41 @@ test.describe('Corporate Pricing — toolbar I/O: Export ▾ @corporate-pricing 
     await p.open(); // baseline: fresh search-grid load per test
   });
 
-  test('TC-LOC-CPR-601: Export ▾ opens and lists all 4 export variants', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-001: Export ▾ opens and lists all 4 export variants', async ({ corporatePricingSearchPage: p }) => {
     await p.openExportMenu();
     const variants = await p.getMenuVariants();
     for (const v of VARIANTS) expect(variants).toContain(v.label);
   });
 
-  test('TC-LOC-CPR-602: Export "All Equipment Pricing" fires the equipment-pricing export endpoint', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-002: Export "All Equipment Pricing" fires the equipment-pricing export endpoint', async ({ corporatePricingSearchPage: p }) => {
     const url = await p.clickExportVariantAndCaptureUrl('All Equipment Pricing');
     expect(url).toContain('isLabor=false');
     expect(url).toContain('isMaxDiscount=false');
     expect(url).toContain(CORP_PRICING_TOOLBAR_IO.exportLocaleParam);
   });
 
-  test('TC-LOC-CPR-603: Export "All Labor Pricing" fires the labor-pricing export endpoint', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-003: Export "All Labor Pricing" fires the labor-pricing export endpoint', async ({ corporatePricingSearchPage: p }) => {
     const url = await p.clickExportVariantAndCaptureUrl('All Labor Pricing');
     expect(url).toContain('isLabor=true');
     expect(url).toContain('isMaxDiscount=false');
     expect(url).toContain(CORP_PRICING_TOOLBAR_IO.exportLocaleParam);
   });
 
-  test('TC-LOC-CPR-604: Export "All Equipment Max Discount" fires the equipment-max-discount export endpoint', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-004: Export "All Equipment Max Discount" fires the equipment-max-discount export endpoint', async ({ corporatePricingSearchPage: p }) => {
     const url = await p.clickExportVariantAndCaptureUrl('All Equipment Max Discount');
     expect(url).toContain('isLabor=false');
     expect(url).toContain('isMaxDiscount=true');
     expect(url).toContain(CORP_PRICING_TOOLBAR_IO.exportLocaleParam);
   });
 
-  test('TC-LOC-CPR-605: Export "All Labor Max Discount" fires the labor-max-discount export endpoint', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-005: Export "All Labor Max Discount" fires the labor-max-discount export endpoint', async ({ corporatePricingSearchPage: p }) => {
     const url = await p.clickExportVariantAndCaptureUrl('All Labor Max Discount');
     expect(url).toContain('isLabor=true');
     expect(url).toContain('isMaxDiscount=true');
     expect(url).toContain(CORP_PRICING_TOOLBAR_IO.exportLocaleParam);
   });
 
-  test('TC-LOC-CPR-606: Export ▾ menu dismisses on outside-click', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-006: Export ▾ menu dismisses on outside-click', async ({ corporatePricingSearchPage: p }) => {
     await p.openExportMenu();
     expect((await p.getMenuVariants()).length).toBeGreaterThan(0); // menu confirmed open
     expect(await p.dismissToolbarMenuWithOutsideClick()).toBe(true); // closes on outside-click
@@ -75,13 +75,13 @@ test.describe('Corporate Pricing — toolbar I/O: Import ▾ @corporate-pricing 
     await p.open();
   });
 
-  test('TC-LOC-CPR-607: Import ▾ opens and lists all 4 import variants', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-007: Import ▾ opens and lists all 4 import variants', async ({ corporatePricingSearchPage: p }) => {
     await p.openImportMenu();
     const variants = await p.getMenuVariants();
     for (const v of VARIANTS) expect(variants).toContain(v.label);
   });
 
-  test('TC-LOC-CPR-608: Import "All Equipment Pricing" opens its titled upload dialog (no native file chooser)', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-008: Import "All Equipment Pricing" opens its titled upload dialog (no native file chooser)', async ({ corporatePricingSearchPage: p }) => {
     await p.openImportVariantDialog('All Equipment Pricing');
     const info = await p.getImportDialogInfo();
     expect(info.text).toContain(`${IMP.titlePrefix}All Equipment Pricing`);
@@ -91,7 +91,7 @@ test.describe('Corporate Pricing — toolbar I/O: Import ▾ @corporate-pricing 
     await p.closeImportDialog();
   });
 
-  test('TC-LOC-CPR-609: Import "All Labor Pricing" opens its titled upload dialog', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-009: Import "All Labor Pricing" opens its titled upload dialog', async ({ corporatePricingSearchPage: p }) => {
     await p.openImportVariantDialog('All Labor Pricing');
     const info = await p.getImportDialogInfo();
     expect(info.text).toContain(`${IMP.titlePrefix}All Labor Pricing`);
@@ -99,7 +99,7 @@ test.describe('Corporate Pricing — toolbar I/O: Import ▾ @corporate-pricing 
     await p.closeImportDialog();
   });
 
-  test('TC-LOC-CPR-610: Import "All Equipment Max Discount" opens its titled upload dialog', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-010: Import "All Equipment Max Discount" opens its titled upload dialog', async ({ corporatePricingSearchPage: p }) => {
     await p.openImportVariantDialog('All Equipment Max Discount');
     const info = await p.getImportDialogInfo();
     expect(info.text).toContain(`${IMP.titlePrefix}All Equipment Max Discount`);
@@ -107,7 +107,7 @@ test.describe('Corporate Pricing — toolbar I/O: Import ▾ @corporate-pricing 
     await p.closeImportDialog();
   });
 
-  test('TC-LOC-CPR-611: Import "All Labor Max Discount" opens its titled upload dialog', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-011: Import "All Labor Max Discount" opens its titled upload dialog', async ({ corporatePricingSearchPage: p }) => {
     await p.openImportVariantDialog('All Labor Max Discount');
     const info = await p.getImportDialogInfo();
     expect(info.text).toContain(`${IMP.titlePrefix}All Labor Max Discount`);
@@ -124,13 +124,13 @@ test.describe('Corporate Pricing — toolbar I/O: Loc Pricing Export / Import @c
     await p.open();
   });
 
-  test('TC-LOC-CPR-612: Loc Pricing Export fires the location-export endpoint', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-012: Loc Pricing Export fires the location-export endpoint', async ({ corporatePricingSearchPage: p }) => {
     const url = await p.clickLocPricingExportAndCaptureUrl();
     expect(url).toContain('/navigator/api/location/pricing/location-export');
     expect(url).toContain(CORP_PRICING_TOOLBAR_IO.exportLocaleParam);
   });
 
-  test('TC-LOC-CPR-613: Loc Pricing Import opens the "Import All Location Pricing" dialog', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-013: Loc Pricing Import opens the "Import All Location Pricing" dialog', async ({ corporatePricingSearchPage: p }) => {
     await p.openLocPricingImportDialog();
     const info = await p.getImportDialogInfo();
     expect(info.text).toContain(CORP_PRICING_TOOLBAR_IO.locPricingImportDialogTitle);
@@ -155,7 +155,7 @@ test.describe('Corporate Pricing — toolbar I/O: Grid Options @corporate-pricin
     await p.ensureAllGridColumnsVisible();
   });
 
-  test('TC-LOC-CPR-614: Grid Options opens and lists every grid column, all enabled by default', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-014: Grid Options opens and lists every grid column, all enabled by default', async ({ corporatePricingSearchPage: p }) => {
     await p.openGridOptions();
     const cols = await p.getGridOptionColumns();
     const labels = cols.map((c) => c.label);
@@ -164,7 +164,7 @@ test.describe('Corporate Pricing — toolbar I/O: Grid Options @corporate-pricin
     await p.closeGridOptions();
   });
 
-  test('TC-LOC-CPR-615: Toggling a column OFF removes its header from the grid', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-015: Toggling a column OFF removes its header from the grid', async ({ corporatePricingSearchPage: p }) => {
     expect(await p.isGridColumnVisible(COL)).toBe(true); // present at baseline
     await p.openGridOptions();
     await p.toggleGridColumn(COL);
@@ -172,7 +172,7 @@ test.describe('Corporate Pricing — toolbar I/O: Grid Options @corporate-pricin
     expect(await p.isGridColumnVisible(COL)).toBe(false); // header removed
   });
 
-  test('TC-LOC-CPR-616: A hidden column stays hidden after a page reload (persists)', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-016: A hidden column stays hidden after a page reload (persists)', async ({ corporatePricingSearchPage: p }) => {
     await p.openGridOptions();
     await p.toggleGridColumn(COL);
     await p.closeGridOptions();
@@ -181,7 +181,7 @@ test.describe('Corporate Pricing — toolbar I/O: Grid Options @corporate-pricin
     expect(await p.isGridColumnVisible(COL)).toBe(false); // preference persisted server-side
   });
 
-  test('TC-LOC-CPR-617: Toggling a hidden column back ON restores its header', async ({ corporatePricingSearchPage: p }) => {
+  test('TC-CPR-TIO-017: Toggling a hidden column back ON restores its header', async ({ corporatePricingSearchPage: p }) => {
     await p.openGridOptions();
     await p.toggleGridColumn(COL); // hide
     await p.closeGridOptions();

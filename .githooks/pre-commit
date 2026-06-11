@@ -55,8 +55,11 @@ fi
 # Fires whenever a clients/*/tests/**/*.spec.ts is staged. Runs full-repo parity
 # (script does not support --module filter; ~10-30s when specs are staged).
 # Graduated from PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.
+# 2026-06-11 (PLAN_ID_NAMING_AUDIT_AND_REMEDIATION): also fires on the workbook
+# and on the ID-grammar registry / blocked-reasons — parity now carries the
+# semantic guardrails 6/7 which key on those files.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/test_cases_xlsx/.+\.xlsx$|^export_test_cases/(module-codes|blocked-reasons)\.json$'; then
   echo "[pre-commit] spec file staged → running check:tc-parity (ALL-071)..." >&2
   if ! npm run --silent check:tc-parity; then
     echo "[pre-commit] HALT: ALL-071 parity gap. Fix MD/test-plan/XLSX before commit." >&2

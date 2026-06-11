@@ -11,6 +11,8 @@
 **Skills**: /execute (orchestrator), /rca (auto-loads on any item that fails to go green within its 2-cycle fix budget)
 ---
 
+> **REBASE NOTE (2026-06-11 · PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT):** this plan cited `encore-qa-tracker.csv` (stale path variant) — the live hand-maintained QA tracker is `encore-qa-tracker.xlsx` (corrected inline below). That tracker is a SEPARATE artifact and STAYS; the test-cases deliverable `encore_test_cases.xlsx` was merged into a single TestRail step-expanded workbook (the `_testrail.xlsx` twin retired).
+
 > 🤖 **SESSION BOOTSTRAP — invoke with `/execute PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md`. All context below.**
 >
 > The session self-bootstraps from this file. On invocation, without further prompting:
@@ -126,7 +128,7 @@ If 0.5a or 0.5c shows the testid is the bare `<table>` with the paginator nested
 - Per LR-021: un-skip first. `clients/encore/tests/locations/location-management-history.spec.ts` line 216 — `test.skip('TC-LOC-MGH-019…'` → `test('TC-LOC-MGH-019…'`. Keep the body's assertions intact (first/last are the point of the test).
 - Branch on the 0.5b walk evidence:
   - **Buttons stay + pagination works (our bug):** fix `getPaginationText()` (`location-management-history.page.ts` lines 367-372) to read the real current-page indicator confirmed in 0.5b (e.g. the `input` value combined with the total) so it returns a string the test's `.toContain('2')` and `.toMatch(/^1\s*\/\s*\d+$/)` accept. **Also verify `getApproximateTotalRowCount()` (lines 439-446) still parses the new return** (it regexes `/\d+\s*\/\s*(\d+)/`) — keep both callers working. If the live format is genuinely `value="2"` + a separate "of N" label and cannot yield `"2 / N"` cleanly, adapt the test's assertions to the REAL working format (assert indicator value `=== '2'` + total present) — this is matching reality, not weakening intent. Remove the stale skip comment (lines 214-215). Run twice green.
-  - **First/last genuinely vanish after Next→Prev (app bug confirmed live):** REVERT line 216 to the exact original `test.skip('TC-LOC-MGH-019: …')` **verbatim** (grandfathered by the RCA Edit hook) + restore the original 2-line comment. Report the live evidence; ensure the bug is captured in the tracker/`encore-qa-tracker.csv`. Do NOT delete the first/last assertions to force green (§HALT-c).
+  - **First/last genuinely vanish after Next→Prev (app bug confirmed live):** REVERT line 216 to the exact original `test.skip('TC-LOC-MGH-019: …')` **verbatim** (grandfathered by the RCA Edit hook) + restore the original 2-line comment. Report the live evidence; ensure the bug is captured in the tracker/`encore-qa-tracker.xlsx`. Do NOT delete the first/last assertions to force green (§HALT-c).
 
 ### Phase 7 — Cross-file integrity (LR-018) `[OPUS-ONLY]`
 After all kept fixes are green individually ×2, run each affected spec **full-file** at `--workers=1 --retries=0` to catch serial contamination:
@@ -137,14 +139,14 @@ After all kept fixes are green individually ×2, run each affected spec **full-f
 | Identity | Owned artifact this plan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
 | HUNTER | (no new behavior; baseline already established by PLAN_LIVE_QA_VERIFICATION_2026_06_02) | `(none)` | (none) |
-| GIVER | per-TC status in the deliverable + the QA tracker | `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`<br>`clients/encore/test_cases_xlsx/encore-qa-tracker.csv` | `npm run check:tc-parity` exit 0 |
+| GIVER | per-TC status in the deliverable + the QA tracker | `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`<br>`clients/encore/test_cases_xlsx/encore-qa-tracker.xlsx` | `npm run check:tc-parity` exit 0 |
 | BUILDER | the 4 spec files + 2 page objects (re-enable + scope fixes) | `clients/encore/tests/locations/location-management-history.spec.ts`<br>`clients/encore/tests/local-office/local-office-history.spec.ts`<br>`clients/encore/tests/locations/location-shared-setup-locations.spec.ts`<br>`clients/encore/tests/locations/location-account-address.spec.ts`<br>`clients/encore/src/pages/locations/location-management-history.page.ts`<br>`clients/encore/src/pages/local-office/local-office-history.page.ts`<br>`clients/encore/src/pages/locations/location-account-address.page.ts`<br>`clients/encore/src/data/locations/location-shared-setup-locations.data.ts` | `npx playwright test --list` resolves all 6 TC IDs; each kept TC green ×2 |
 | HEALER | per-fix RCA evidence (ACC-030 / MGH-019 + any item that misses its 2-cycle budget) | `clients/encore/specs_planning/_internal/walk-evidence-hist-ssl-acc-2026-06-02.md` | walk-evidence file exists with per-item live findings |
 | WATCHDOG | `(none)` — no audit-findings table in this plan | `(none)` | (none) |
 | GARDENER | `(none)` — no structural refactor | `(none)` | (none) |
 
 ## §7 After (closure obligations)
-- **Deliverable + tracker sync** (GIVER): update the per-TC status for the re-enabled/repaired TCs in `encore_test_cases.xlsx` and the matching row in `encore-qa-tracker.csv` (the brief's "row INT3 — our-side fixes": record which items are now enabled-green vs reverted-with-bug-cite and why). Add/edit rows only — never remove. If the deliverable has no per-TC status column, mark this cell `(skipped: <reason ≥20 chars>)` in the matrix at closure. Run `npm run check:tc-parity` → exit 0.
+- **Deliverable + tracker sync** (GIVER): update the per-TC status for the re-enabled/repaired TCs in `encore_test_cases.xlsx` and the matching row in `encore-qa-tracker.xlsx` (the brief's "row INT3 — our-side fixes": record which items are now enabled-green vs reverted-with-bug-cite and why). Add/edit rows only — never remove. If the deliverable has no per-TC status column, mark this cell `(skipped: <reason ≥20 chars>)` in the matrix at closure. Run `npm run check:tc-parity` → exit 0.
 - **Activity log** (LR-028 + LR-037): append one row to `clients/encore/specs_planning/_internal/agent-activity-log.md`, timestamp ≥ every touched-file mtime.
 - **Plan closure** (LR-027 + LR-055): Status → DONE, add Executed date, write the Execution Summary (per-TC: green-and-kept | reverted-verbatim-and-why | data-fixed | app-bug-RED-with-cite), `git mv` to `plans/done/`, `npm run plans:reindex`.
 - **/final-q** exit (LR-042 evidence-emission).

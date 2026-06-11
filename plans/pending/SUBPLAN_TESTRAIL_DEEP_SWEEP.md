@@ -1,5 +1,7 @@
 # SUBPLAN_TESTRAIL_DEEP_SWEEP — other-module gap audit + non-deliverable Notes/MGH reference sweep
 
+> **REBASE NOTE (2026-06-11 · PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT):** the standalone TestRail demo workbook (`encore_test_cases_testrail.xlsx`) and its `scripts/_gen-testrail.ts` converter are **RETIRED** — the single `encore_test_cases.xlsx` now carries the TestRail step-expanded layout directly. Any reference here to the demo/twin workbook is historical; the live TestRail-format output is the merged single deliverable.
+
 **Status**: PENDING
 **Priority**: P2
 **Created**: 2026-06-05

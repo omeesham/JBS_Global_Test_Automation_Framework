@@ -1,9 +1,11 @@
 /**
  * to-xlsx.ts — Multi-sheet XLSX workbook emitter for the Encore test-case deliverable.
  *
- * Output: `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`
- *   - Overview sheet (12 cols, per-module quantitative summary) — first tab
- *   - module sheets (11 cols, canonical schema), one per source MD:
+ * Output: `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` (the SOLE
+ *   deliverable workbook — the former `_testrail.xlsx` twin + its `_gen-testrail.ts`
+ *   converter were retired by PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT, 2026-06-11)
+ *   - Overview sheet (13 cols, per-module quantitative summary) — first tab
+ *   - module sheets (13-col TestRail step-expanded schema), one per source MD:
  *       local_office_settings, local_office_history, local_office_ect,
  *       locations_account_address, locations_auto_addon, locations_currency,
  *       locations_left_panel_basic_info, locations_legal, locations_local_information,
@@ -25,7 +27,7 @@
  *
  * Sheet styling (per plan Decision #7 — minimal):
  *   - Header row bold + frozen
- *   - Data rows N..N+1 (one TC per row)
+ *   - One first-row per case (cols 1-11) + N continuation step-rows (cols 12-13)
  *   - Blank row (visual separator) + trailing summary row (bold + light-gray fill)
  *   - Column widths auto-sized
  *   - No conditional formatting, no charts, no pivots
@@ -50,6 +52,7 @@ import {
 } from './sp00-augment-logic';
 import { CsvConverter } from './to-csv';
 import { scrubInternalVocab } from './humanize';
+import { parseSteps, perStepExpected, deriveTestData, DEFAULT_TYPE, DEFAULT_PRIORITY } from './testrail-format';
 
 // ────────────────────────── Paths ──────────────────────────
 
@@ -62,21 +65,33 @@ const FIXME_REGISTRY = path.join(REPO_ROOT, 'reports', 'fixme-registry.json');
 
 // ────────────────────────── Schema ──────────────────────────
 
-// 'Specific Field' + 'Tags' columns removed 2026-06-05 (LR-ENC-004 V2): both were
-// 100% empty across all 484 cases (dead columns that read as unfinished to the
-// client). CHECKED_COLS in scripts/xlsx-lint-rules.mjs trimmed in lockstep.
+// Merged TestRail step-expanded schema (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT,
+// 2026-06-11). The single deliverable now carries TestRail step-expanded
+// rows/columns AND the real status columns. The FIRST row of each case carries
+// cols 1-11; continuation step-rows carry ONLY 'Steps (Step)' + 'Steps (Expected
+// Result)' (cols 12-13). 'Type'='Functional' / 'Priority'='Medium' are TestRail
+// constants. CHECKED_COLS in scripts/xlsx-lint-rules.mjs is kept in lockstep
+// (it maps the 'Steps (*)' aliases onto canonical 'Steps'/'Expected Result').
+//
+// COLUMN-NAME COLLISION NOTE (load-bearing — do NOT "fix" one to match the other):
+// the 'Automation Status' column HERE means *execution* (Pass/Fail/Skipped/Blocked).
+// The MD-grammar field also named 'Automation Status' (markdown-parser.ts:102,
+// enum types.ts:98, emitted by to-jira.ts) means *coverage* (Automated / Pending
+// Automation). Same words, different axis — kept user-locked on purpose.
 const MODULE_SHEET_HEADERS = [
   'TC ID',
   'Title',
   'Module',
   'Submodule',
-  'Preconditions',
-  'Steps',
-  'Expected Result',
-  'Notes',
+  'Test Data',
+  'Type',
+  'Priority',
   'Coverage Status',
-  'Automation Execution',
-  'If Failed Reason of Failure',
+  'Automation Status', // execution axis (Pass/Fail/Skipped/Blocked) — see collision note above
+  'Notes / Reason',
+  'Preconditions',
+  'Steps (Step)',
+  'Steps (Expected Result)',
 ] as const;
 
 const OVERVIEW_HEADERS = [
@@ -84,6 +99,7 @@ const OVERVIEW_HEADERS = [
   'Total',
   'Automated',
   'Pending Automation',
+  'Manual',
   'Pass',
   'Fail',
   'Skipped',
@@ -114,6 +130,15 @@ const SHEET_NAMES: Record<string, string> = {
   // exceeds Excel's 31-char sheet-name limit. Truncated trailing 's' → 31 chars.
   // (Plan §234 said "31 (cap)" but that count was off-by-one.)
   locations_shared_setup_locations: 'locations_shared_setup_location',
+  // Corporate Pricing sheets pinned explicitly 2026-06-11 (previously rode the
+  // silent toSheetName fallback). corporate_pricing_new_pricebook is exactly 31
+  // chars — at the Excel limit.
+  corporate_pricing_search: 'corporate_pricing_search',
+  corporate_pricing_strategy: 'corporate_pricing_strategy',
+  corporate_pricing_detail: 'corporate_pricing_detail',
+  corporate_pricing_new_pricebook: 'corporate_pricing_new_pricebook',
+  corporate_pricing_override: 'corporate_pricing_override',
+  corporate_pricing_toolbar_io: 'corporate_pricing_toolbar_io',
 };
 
 const SHEET_DISPLAY_NAMES: Record<string, string> = {
@@ -130,18 +155,75 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   locations_notes: 'Location — Notes',
   locations_pricing: 'Location — Pricing',
   locations_shared_setup_locations: 'Location — Shared Setup Locations',
-};
-
-/** TC ID prefix → which sheet the row belongs to (for splitting the merged LO CSV). */
-const LO_PREFIX_TO_SHEET: Record<string, string> = {
-  BAS: 'local_office_settings',
-  HIS: 'local_office_history',
-  HST: 'local_office_history',
-  HISL: 'local_office_history',
-  ECT: 'local_office_ect',
+  corporate_pricing_search: 'Corporate Pricing — Search',
+  corporate_pricing_strategy: 'Corporate Pricing — Pricing Strategy',
+  corporate_pricing_detail: 'Corporate Pricing — Pricing Detail',
+  corporate_pricing_new_pricebook: 'Corporate Pricing — New Pricebook',
+  corporate_pricing_override: 'Corporate Pricing — Product Group Override',
+  corporate_pricing_toolbar_io: 'Corporate Pricing — Toolbar Import/Export',
 };
 
 const EXCEL_SHEET_NAME_LIMIT = 31;
+
+// Sheet → human display submodule (e.g. 'local_information' → 'Local Information'),
+// sourced from the module-codes.json registry (single source of truth). Used ONLY
+// to feed perStepExpected() a clean, underscore-free submodule name for the
+// synthesised middle-step expecteds — the Submodule CELL value keeps coming from
+// to-csv.ts (machine name, C8-asserted), this map is display text only.
+const SHEET_TO_DISPLAY_SUB: Record<string, string> = (() => {
+  const raw = JSON.parse(
+    fs.readFileSync(path.join(__dirname, 'module-codes.json'), 'utf8').replace(/^﻿/, '')
+  ) as { submodules: Record<string, Record<string, { display: string; sheet: string }>> };
+  const out: Record<string, string> = {};
+  for (const subs of Object.values(raw.submodules)) {
+    for (const e of Object.values(subs)) out[e.sheet] = e.display;
+  }
+  return out;
+})();
+
+// ── Notes / Reason merge (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT §Notes/Reason) ──
+//
+// The merged 'Notes / Reason' column composes tc.notes + tc.ifFailedReason. The
+// "Blocked — " marker is the machine-detectable prefix that lint C1/C3/C5 key on;
+// the NOTES_SEPARATOR delimits the reason segment from appended Notes. BOTH the
+// marker regex and the separator MUST stay byte-identical to their twins in
+// scripts/xlsx-lint-rules.mjs (splitNotesReason) — the lint re-derives the reason
+// segment from the cell, so a drift here silently defeats C1/C3/C4/C5.
+const BLOCKED_MARKER_RE = /^Blocked\s*[—–-]\s*/i;
+const NOTES_SEPARATOR = '\n\nNotes: ';
+
+/**
+ * Compose the merged 'Notes / Reason' cell.
+ *   both    → `Blocked — <reason>` + blank line + `Notes: <notes>`  (Blocked rows)
+ *   reason  → `Blocked — <reason>`                                   (Blocked rows)
+ *   notes   → `<notes>`
+ *   neither → ``
+ *
+ * Two corrections over the plan's literal shorthand, both required for correctness:
+ *  (1) MARKER IDEMPOTENCY — strip an existing leading "Blocked — " from the reason
+ *      before re-applying it, or the 17 blocked-reasons.json entries that already
+ *      begin with the marker would ship "Blocked — Blocked — …".
+ *  (2) EXECUTION-GATED MARKER — apply "Blocked — " ONLY when the row's execution is
+ *      actually 'Blocked'. The same reason field also carries Skipped reasons
+ *      ("Skipped — …") and Pending-Automation env reasons ("Not yet automated — …");
+ *      blindly prefixing "Blocked — " would mislabel them AND make lint C1/C3 — which
+ *      tie the "Blocked — " segment to execution=Blocked — incoherent. (DEVIATION
+ *      from the plan's "reason only → Blocked — <reason>"; recorded in the Execution
+ *      Summary. The plan's own C1/C3 semantics demand this.)
+ */
+function composeNotesReason(notes: string, reason: string, execution: string): string {
+  const cleanNotes = (notes || '').trim();
+  // reason gets no upstream humanize pass — scrub here (matches the prior emit-time
+  // scrub of the standalone reason column) BEFORE the marker is (re-)applied.
+  let cleanReason = scrubInternalVocab(reason || '').trim().replace(BLOCKED_MARKER_RE, '').trim();
+  const markedReason = cleanReason
+    ? (execution === 'Blocked' ? `Blocked — ${cleanReason}` : cleanReason)
+    : '';
+  if (markedReason && cleanNotes) return `${markedReason}${NOTES_SEPARATOR}${cleanNotes}`;
+  if (markedReason) return markedReason;
+  if (cleanNotes) return cleanNotes;
+  return '';
+}
 
 /**
  * Resolve / validate a sheet name from a basename slug. HALTs on overflow.
@@ -299,6 +381,7 @@ interface SheetMetrics {
   total: number;
   automated: number;
   pendingAutomation: number;
+  manual: number;
   pass: number;
   fail: number;
   skipped: number;
@@ -306,13 +389,14 @@ interface SheetMetrics {
 }
 
 function emptyMetrics(): SheetMetrics {
-  return { total: 0, automated: 0, pendingAutomation: 0, pass: 0, fail: 0, skipped: 0, blocked: 0 };
+  return { total: 0, automated: 0, pendingAutomation: 0, manual: 0, pass: 0, fail: 0, skipped: 0, blocked: 0 };
 }
 
 function accumulate(m: SheetMetrics, tc: ParsedTc): void {
   m.total += 1;
   if (tc.coverageStatus === 'Automated') m.automated += 1;
   else if (tc.coverageStatus === 'Pending Automation') m.pendingAutomation += 1;
+  else if (tc.coverageStatus === 'Manual') m.manual += 1;
   if (tc.automationExecution === 'Pass') m.pass += 1;
   else if (tc.automationExecution === 'Fail') m.fail += 1;
   else if (tc.automationExecution === 'Skipped') m.skipped += 1;
@@ -468,40 +552,64 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
     headerRow.font = { bold: true };
     headerRow.alignment = { vertical: 'middle', horizontal: 'left' };
 
+    const displaySub = SHEET_TO_DISPLAY_SUB[sheetName] ?? sheetName;
     for (const tc of tcs) {
+      // accumulate ONCE per case — Overview/SUMMARY counts stay per-case even
+      // though the case now spans 1 first-row + N continuation step-rows.
       accumulate(metrics, tc);
-      ws.addRow([
-        tc.id,
-        tc.title,
-        tc.module,
-        tc.submodule,
-        tc.preconditions,
-        tc.steps,
-        tc.expected,
-        tc.notes,
-        tc.coverageStatus,
-        tc.automationExecution,
-        // ifFailedReason flows from sp00-augment-logic / fixme-registry / CSV
-        // inherit — none of which pass through humanize. Scrub at emit-time
-        // so internal vocab (FIXME(BUG-XXX): wrappers, BUG-IDs, RCA dates)
-        // never reaches a customer cell.
-        scrubInternalVocab(tc.ifFailedReason || ''),
-      ]);
+
+      // Test Data (client-safe, config-driven) + the merged Notes / Reason cell.
+      // tc.notes / tc.steps / tc.expected are already humanized+scrubbed in parseMd;
+      // composeNotesReason scrubs the reason and applies the Blocked marker.
+      const testData = deriveTestData(tc.steps);
+      const notesReason = composeNotesReason(tc.notes, tc.ifFailedReason, tc.automationExecution);
+
+      let steps = parseSteps(tc.steps);
+      if (steps.length === 0) steps = ['(no steps defined)'];
+
+      steps.forEach((step, i) => {
+        const isLast = i === steps.length - 1;
+        const expected = perStepExpected(step, tc.expected, isLast, displaySub);
+        const stepCell = `${i + 1}. ${step}`;
+        ws.addRow(
+          i === 0
+            ? [
+                tc.id,
+                tc.title,
+                tc.module,
+                tc.submodule,
+                testData,
+                DEFAULT_TYPE,
+                DEFAULT_PRIORITY,
+                tc.coverageStatus,
+                tc.automationExecution, // 'Automation Status' column = execution axis
+                notesReason,
+                tc.preconditions,
+                stepCell,
+                expected,
+              ]
+            // Continuation step-rows carry ONLY Steps (Step) + Steps (Expected Result).
+            : ['', '', '', '', '', '', '', '', '', '', '', stepCell, expected]
+        );
+      });
     }
 
     // Blank separator
     ws.addRow([]);
 
-    // Trailing summary row (bold + light-gray fill, same metrics as Overview entry)
+    // Trailing summary row (bold + light-gray fill, same metrics as Overview entry).
+    // 13-col merged schema: roll-up metrics land in the status columns; the SUMMARY
+    // row is exempt from every lint check (TC ID cell == 'SUMMARY').
     const summary = ws.addRow([
       'SUMMARY',
       SHEET_DISPLAY_NAMES[mdSlugForSheet(sheetName)] ?? sheetName,
-      // 6 empty cells: Module, Submodule, Preconditions, Steps, Expected, Notes
-      // (was 8 before the Specific Field + Tags columns were removed, 2026-06-05).
-      '', '', '', '', '', '',
-      `Automated: ${metrics.automated} / Pending: ${metrics.pendingAutomation}`,
-      `Pass:${metrics.pass} Fail:${metrics.fail} Skipped:${metrics.skipped} Blocked:${metrics.blocked}`,
-      `Last Updated: ${buildIsoDate}`,
+      // Module, Submodule, Test Data, Type, Priority — empty
+      '', '', '', '', '',
+      `Automated: ${metrics.automated} / Pending: ${metrics.pendingAutomation}`, // Coverage Status col
+      `Pass:${metrics.pass} Fail:${metrics.fail} Skipped:${metrics.skipped} Blocked:${metrics.blocked}`, // Automation Status col
+      `Last Updated: ${buildIsoDate}`, // Notes / Reason col
+      // Preconditions, Steps (Step), Steps (Expected Result) — empty
+      '', '', '',
     ]);
     summary.font = { bold: true };
     summary.eachCell(cell => {
@@ -527,6 +635,7 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
       metrics.total,
       metrics.automated,
       metrics.pendingAutomation,
+      metrics.manual,
       metrics.pass,
       metrics.fail,
       metrics.skipped,

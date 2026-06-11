@@ -1,5 +1,7 @@
 # PLAN: Deliverable Quality Upgrade — CSV, Specs, Cleanup, Reporting
 
+> **REBASE NOTE (2026-06-11 · PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT):** that plan executed FIRST (user ruling 2026-06-11) and edits the SAME emitters this one touches. The deliverable is now a single **TestRail step-expanded** `encore_test_cases.xlsx` (13-col first row + continuation step-rows), `Automation Execution`→**`Automation Status`**, `Notes`+reason merged into **`Notes / Reason`** (`Blocked — ` marker), `--with-run` does a REAL run, and `scripts/_gen-testrail.ts` + the `_testrail.xlsx` twin are retired. Re-baseline any column-name / emitter assumptions in this plan against `export_test_cases/{to-xlsx,testrail-format}.ts` + `scripts/xlsx-lint-rules.mjs` before executing.
+
 **Status**: Pending
 **Priority**: P0-CYCLE-1
 **Created**: 2026-04-22

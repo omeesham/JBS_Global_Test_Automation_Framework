@@ -22,7 +22,7 @@ import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 // 14 net-new tests per locations_shared_setup_locations_test_cases.md (TC-LOC-SSL-031..044).
 // Each test owns its baseline + cleanup. Runner: clients/encore/src/utils/field-case-runner.ts
 // saveAndVerifyCase(). Existing 30-TC describe block UNTOUCHED below.
-// Non-Miami test data throughout per BUG-LOC-SHR-001 workaround (Miami search returns
+// Non-Miami test data throughout per BUG-LOC-SSL-001 workaround (Miami search returns
 // phantom row; non-Miami searches behave correctly).
 test.describe('Location Shared Setup Locations @locations @shared-setup', () => {
 
@@ -255,9 +255,9 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   // REGRESSED into an OFF-BY-ONE: the FIRST delete in a page session works correctly; every delete
   // AFTER it removes the row ONE POSITION ABOVE the button clicked — and can even delete the protected
   // self-row (1604, whose own Delete is disabled) — silently, with zero console errors. A single
-  // delete-then-reload hides it; deleting two rows in one session exposes it. Still BUG-LOC-SHR-001.
+  // delete-then-reload hides it; deleting two rows in one session exposes it. Still BUG-LOC-SSL-001.
   test('TC-LOC-SSL-031: Verify deleting a middle row persists after save and reload', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SHR-001
+    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SSL-001
     dependencyGate([]);
     test.setTimeout(120_000);
     await saveAndVerifyCase({
@@ -292,7 +292,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-041: Verify deleting all non-self rows persists after save and reload', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SHR-001
+    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SSL-001
     dependencyGate([]);
     test.setTimeout(240_000);
     await saveAndVerifyCase({
@@ -332,7 +332,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
 
   // ─── Group ε — Multi-row edit / N-row boundary ───────────────────────────
   test('TC-LOC-SSL-042: Verify editing one row Shares Inventory does not change another on save', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SHR-001 (042)
+    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SSL-001 (042)
     dependencyGate([]);
     test.setTimeout(240_000);
     await saveAndVerifyCase({
@@ -374,7 +374,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-032: Verify adding five location rows persists after save and reload', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SHR-001 (377)
+    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SSL-001 (377)
     dependencyGate([]);
     test.setTimeout(180_000);
     await saveAndVerifyCase({
@@ -404,7 +404,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
 
   // ─── Group ζ — Checkbox cross-row + round-trip ───────────────────────────
   test('TC-LOC-SSL-043: Verify toggling one row Shares Inventory does not flip another pre-save', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SHR-001 (043)
+    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SSL-001 (043)
     dependencyGate([]);
     test.setTimeout(240_000);
     await saveAndVerifyCase({
@@ -447,7 +447,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-044: Verify a Shares Inventory checkbox persists across an on-off save cycle', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SHR-001 (044)
+    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SSL-001 (044)
     dependencyGate([]);
     test.setTimeout(240_000);
     await saveAndVerifyCase({
@@ -543,8 +543,8 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-007: Reverting Shares Inventory to original state disables Save', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    // 2026-05-22 un-skip-and-retry corollary verify — user-authorized fixme+comment trust rule; companion to TC-030 user-confirmed bug; umbrella cite BUG-LOC-SHR-001 (false-green/regression set).
-    test.fixme(true, 'Blocked — reverting Shares Inventory on an added row to its original state leaves the form marked as changed, so Save stays enabled even though there is no net change. Pending an application fix.'); // BUG-LOC-SHR-001
+    // 2026-05-22 un-skip-and-retry corollary verify — user-authorized fixme+comment trust rule; companion to TC-030 user-confirmed bug; umbrella cite BUG-LOC-SSL-001 (false-green/regression set).
+    test.fixme(true, 'Blocked — reverting Shares Inventory on an added row to its original state leaves the form marked as changed, so Save stays enabled even though there is no net change. Pending an application fix.'); // BUG-LOC-SSL-001
     dependencyGate(['TC-LOC-SSL-001']);
  // SSL-006 toggle-back leaves Angular dirty state. Reload for clean baseline.
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
@@ -847,7 +847,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-024: Already-added location is absent from Change Local Office dialog', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    test.fixme(true, 'Blocked — the Change Local Office dialog still lists a location that was already added to the office. Pending an application fix.'); // BUG-LOC-SHR-001
+    test.fixme(true, 'Blocked — the Change Local Office dialog still lists a location that was already added to the office. Pending an application fix.'); // BUG-LOC-SSL-001
     dependencyGate(['TC-LOC-SSL-001']);
     test.setTimeout(90_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
@@ -889,7 +889,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-026: Dialog number-search "1233" returns exactly the Miami Marriott office', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    // [2026-06-02] Re-enabled after live recheck on office 1604: dialog number-search "1233" now returns the Miami Marriott office; the BUG-LOC-SHR-001 Miami-region location-lookup filter facet is fixed (was skipped 2026-05-22).
+    // [2026-06-02] Re-enabled after live recheck on office 1604: dialog number-search "1233" now returns the Miami Marriott office; the BUG-LOC-SSL-001 Miami-region location-lookup filter facet is fixed (was skipped 2026-05-22).
     dependencyGate(['TC-LOC-SSL-001']);
     test.setTimeout(60_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
@@ -983,8 +983,8 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-030: Verify three added location rows persist after save and reload', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    // 2026-05-22 un-skip-and-retry corollary verify — user manual probe confirmed bug PRESENT; companion to TC-007 fixme line 76; umbrella cite BUG-LOC-SHR-001 (false-green/regression set).
-    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SHR-001 (987)
+    // 2026-05-22 un-skip-and-retry corollary verify — user manual probe confirmed bug PRESENT; companion to TC-007 fixme line 76; umbrella cite BUG-LOC-SSL-001 (false-green/regression set).
+    test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SSL-001 (987)
     dependencyGate(['TC-LOC-SSL-001']);
  // Small-N (3-row) smoke variant: adds Chicago + Boston + Marriott rows, saves,
  // reloads, verifies all 3 persist. Full ceiling characterization (proven up to 44

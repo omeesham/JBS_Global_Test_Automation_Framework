@@ -8,7 +8,7 @@ import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 
 /**
  * Corporate Pricing — Product Group Override screen, full field-coverage (NM-1463).
- * TC-LOC-CPR-501..528. Live-grounded 2026-06-09.
+ * TC-CPR-OVR-001..528. Live-grounded 2026-06-09.
  *
  * RESOLVED: the grid IS editable for the automation user (an earlier exploration's "inert cells"
  * was a false negative). Edit = click the Override Price / Max Discount cell `div[role=button]` → an
@@ -40,51 +40,51 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     await p.reloadAndReselect(LOC); // baseline: fresh nav + location-select per test
   });
 
-  test('TC-LOC-CPR-501: Override screen loads with Equipment selected by default', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-001: Override screen loads with Equipment selected by default', async ({ corporatePricingOverridePage: p }) => {
     expect(p.page.url()).toContain('/corporate-pricing/pg-override');
     expect(await p.getActiveTab()).toBe('Equipment');
   });
 
-  test('TC-LOC-CPR-502: Equipment + Labor tabs render and switching flips aria-selected', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-002: Equipment + Labor tabs render and switching flips aria-selected', async ({ corporatePricingOverridePage: p }) => {
     await p.switchOverrideTab('Labor');
     expect(await p.getActiveTab()).toBe('Labor');
     await p.switchOverrideTab('Equipment');
     expect(await p.getActiveTab()).toBe('Equipment');
   });
 
-  test('TC-LOC-CPR-503: Grid is location-gated — empty before a location is selected', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-003: Grid is location-gated — empty before a location is selected', async ({ corporatePricingOverridePage: p }) => {
     await p.open(); // fresh load, no location chosen
     expect(await p.isEmpty()).toBe(true); // "No results." visible
     expect(await p.getVisibleRowCount()).toBe(0); // no data rows until a location is picked
     await expect(p.page.getByText('Select a location').first()).toBeVisible();
   });
 
-  test('TC-LOC-CPR-504: Selecting a location populates the grid with the anchor row', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-004: Selecting a location populates the grid with the anchor row', async ({ corporatePricingOverridePage: p }) => {
     expect(await p.getVisibleRowCount()).toBeGreaterThan(0);
     expect(await p.findRowByProductGroup(ANCHOR)).not.toBeNull();
   });
 
-  test('TC-LOC-CPR-505: Grid renders all 10 column headers in order', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-005: Grid renders all 10 column headers in order', async ({ corporatePricingOverridePage: p }) => {
     const headers = (await p.getColumnHeaders()).join(' | ');
     for (const col of CORP_PRICING_OVERRIDE.gridColumns) expect(headers).toContain(col);
   });
 
   // NM-1870 ("Current Price not displayed") not-reproduced — Current Price renders a value here.
-  test('TC-LOC-CPR-506: Current Price column renders a value', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-006: Current Price column renders a value', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     expect(row).not.toBeNull();
     const current = (await row!.locator('td').nth(CORP_PRICING_OVERRIDE.columnIndex.currentPrice).innerText()).trim();
     expect(current).toMatch(/\d/); // a value (e.g. "0.00"), not blank — Current Price IS displayed
   });
 
-  test('TC-LOC-CPR-507: Active column renders as a Radix checkbox with readable aria-checked', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-007: Active column renders as a Radix checkbox with readable aria-checked', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     expect(row).not.toBeNull();
     const state = await p.readActiveState(row!);
     expect(typeof state).toBe('boolean'); // aria-checked resolves to a real boolean, not empty textContent
   });
 
-  test('TC-LOC-CPR-508: Labor tab shows the empty state for office 1604 with headers rendered', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-008: Labor tab shows the empty state for office 1604 with headers rendered', async ({ corporatePricingOverridePage: p }) => {
     await p.switchOverrideTab('Labor');
     expect(await p.getActiveTab()).toBe('Labor');
     expect(await p.getVisibleRowCount()).toBe(0); // 1604 has no Labor overrides
@@ -92,12 +92,12 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     expect(headers).toContain('Override Price'); // structure still renders
   });
 
-  test('TC-LOC-CPR-509: Currency filter offers ALL/USD/CAD/MXN', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-009: Currency filter offers ALL/USD/CAD/MXN', async ({ corporatePricingOverridePage: p }) => {
     const opts = await p.getCurrencyOptions();
     for (const c of CORP_PRICING_OVERRIDE.currencyOptions) expect(opts).toContain(c);
   });
 
-  test('TC-LOC-CPR-510: Active-only filter defaults OFF and toggles', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-010: Active-only filter defaults OFF and toggles', async ({ corporatePricingOverridePage: p }) => {
     expect(await p.getActiveOnlyState()).toBe(CORP_PRICING_OVERRIDE.activeOnlyDefault); // false
     await p.setActiveOnly(true);
     expect(await p.getActiveOnlyState()).toBe(true);
@@ -105,12 +105,12 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     expect(await p.getActiveOnlyState()).toBe(false);
   });
 
-  test('TC-LOC-CPR-511: Rows-per-page offers 10/20/30/40/50', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-011: Rows-per-page offers 10/20/30/40/50', async ({ corporatePricingOverridePage: p }) => {
     const opts = await p.getRowsPerPageOptions();
     for (const o of CORP_PRICING_OVERRIDE.rowsPerPageOptions) expect(opts).toContain(o);
   });
 
-  test('TC-LOC-CPR-512: Client filter by Product Group Name narrows the grid', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-012: Client filter by Product Group Name narrows the grid', async ({ corporatePricingOverridePage: p }) => {
     const before = await p.getVisibleRowCount();
     await p.filterProductGroups('House Video');
     const after = await p.getVisibleRowCount();
@@ -119,14 +119,14 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     expect(await p.findRowByProductGroup(ANCHOR)).not.toBeNull();
   });
 
-  test('TC-LOC-CPR-513: Client filter by Product Group ID narrows to the matching row', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-013: Client filter by Product Group ID narrows to the matching row', async ({ corporatePricingOverridePage: p }) => {
     await p.filterProductGroups(ANCHOR_ID);
     expect(await p.findRowByProductGroup(ANCHOR)).not.toBeNull();
     expect(await p.getVisibleRowCount()).toBeGreaterThan(0);
   });
 
   // NM-1889 ("search matches unintended columns") not-reproduced — the filter is scoped to ID + Name.
-  test('TC-LOC-CPR-514: Client filter is scoped to ID and Name only', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-014: Client filter is scoped to ID and Name only', async ({ corporatePricingOverridePage: p }) => {
     // A Currency value ("USD") appears in every row's Currency column but in no Product Group ID/Name.
     await p.filterProductGroups('USD');
     expect(await p.getVisibleRowCount()).toBe(0); // filter does NOT match the Currency column → no over-match
@@ -134,14 +134,14 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     expect(await p.getVisibleRowCount()).toBeGreaterThan(0);
   });
 
-  test('TC-LOC-CPR-515: No-match filter empties the grid; clearing restores rows', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-015: No-match filter empties the grid; clearing restores rows', async ({ corporatePricingOverridePage: p }) => {
     await p.filterProductGroups('zzz-no-such-group-zzz');
     expect(await p.getVisibleRowCount()).toBe(0);
     await p.clearFilter();
     expect(await p.getVisibleRowCount()).toBeGreaterThan(0);
   });
 
-  test('TC-LOC-CPR-516: Filter tolerates whitespace and special characters without crashing', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-016: Filter tolerates whitespace and special characters without crashing', async ({ corporatePricingOverridePage: p }) => {
     await p.filterProductGroups('   ');
     await p.filterProductGroups('@#$%^&*');
     await p.clearFilter();
@@ -161,21 +161,21 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     await p.ensureDefaultState(ANCHOR, DEFAULTS, LOC);
   });
 
-  test('TC-LOC-CPR-517: Clicking the Override Price cell reveals an editable numeric input', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-017: Clicking the Override Price cell reveals an editable numeric input', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     expect(row).not.toBeNull();
     const editorValue = await p.peekOverridePriceEditor(row!); // opens spinbutton, reads, Escapes (no change)
     expect(parseFloat(editorValue)).toBe(parseFloat(DEFAULTS.overridePrice)); // editor exposes the current value
   });
 
-  test('TC-LOC-CPR-518: Editing the Override Price enables Save (dirty)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-018: Editing the Override Price enables Save (dirty)', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     await p.setOverridePrice(row!, OVERRIDE_NUMERIC_CASES.overridePrice.edited);
     expect(await p.isOverrideSaveEnabled()).toBe(true);
   });
 
   // Net-zero: reverting to the saved value leaves no net change, so Save disables again.
-  test('TC-LOC-CPR-519: Reverting the Override Price to its original value disables Save', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-019: Reverting the Override Price to its original value disables Save', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     await p.setOverridePrice(row!, OVERRIDE_NUMERIC_CASES.overridePrice.edited);
     expect(await p.isOverrideSaveEnabled()).toBe(true);
@@ -183,14 +183,14 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     expect(await p.isOverrideSaveEnabled()).toBe(false); // net-zero detected, form clean
   });
 
-  test('TC-LOC-CPR-520: Override Price accepts a decimal value', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-020: Override Price accepts a decimal value', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     await p.setOverridePrice(row!, OVERRIDE_NUMERIC_CASES.overridePrice.decimal);
     expect(parseFloat(await p.readOverridePrice(row!))).toBe(parseFloat(OVERRIDE_NUMERIC_CASES.overridePrice.decimal));
     expect(await p.isOverrideSaveEnabled()).toBe(true);
   });
 
-  test('TC-LOC-CPR-521: Override Price accepts boundary values (0 and a large number)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-021: Override Price accepts boundary values (0 and a large number)', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     await p.setOverridePrice(row!, OVERRIDE_NUMERIC_CASES.overridePrice.zero);
     expect(parseFloat(await p.readOverridePrice(row!))).toBe(0);
@@ -198,13 +198,13 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     expect(parseFloat(await p.readOverridePrice(row!))).toBe(parseFloat(OVERRIDE_NUMERIC_CASES.overridePrice.large));
   });
 
-  test('TC-LOC-CPR-522: Override Price input rejects non-numeric text', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-022: Override Price input rejects non-numeric text', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     const retained = await p.probeOverridePriceInput(row!, OVERRIDE_NUMERIC_CASES.overridePrice.nonNumeric); // "abc"
     expect(/[a-z]/i.test(retained)).toBe(false); // type=number coerces non-numeric to "" — no alpha retained
   });
 
-  // BUG-CPR-001 — Max Discount over 100 silently TRAPS focus (no error shown, no way to leave the field).
+  // BUG-CPR-OVR-001 — Max Discount over 100 silently TRAPS focus (no error shown, no way to leave the field).
   // Parked as fixme: the OLD assertion below (">100 rejected" === PASS) MASKED this defect — a binary
   // "did it commit?" check cannot see a silent focus-trap (no error node, no state change). Reproduced
   // live by hand on the Pricing Detail grid (2026-06-09, value 333 / pricebook 2022-PB10); the same >100
@@ -214,7 +214,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
   // (c) be allowed, then un-fixme and re-assert against the intended behavior (an out-of-range entry
   // must surface a visible signal and must never trap focus). Do NOT re-green the old assertion: the
   // current ">100 silently rejected" result is the defect under report, not a pass.
-  test.fixme('TC-LOC-CPR-523: Max Discount % — out-of-range (>100) handling [blocked: BUG-CPR-001 silent focus-trap; intended behavior unknown until fixed & live]', async ({ corporatePricingOverridePage: p }) => {
+  test.fixme('TC-CPR-OVR-023: Max Discount % — out-of-range (>100) handling [blocked: BUG-CPR-OVR-001 silent focus-trap; intended behavior unknown until fixed & live]', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     // a normal percentage commits and dirties the form
     expect(await p.tryMaxDiscount(row!, OVERRIDE_NUMERIC_CASES.maxDiscount.edited)).toBe(true); // 10
@@ -222,11 +222,11 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     // a decimal percentage commits
     expect(await p.tryMaxDiscount(row!, OVERRIDE_NUMERIC_CASES.maxDiscount.decimal)).toBe(true); // 12.5
     // >100: the editor does not commit — the OLD assertion below treated that as correct, but it is the
-    // bug surface (BUG-CPR-001: silent trap, no error, no escape). Re-assert real behavior once fixed.
+    // bug surface (BUG-CPR-OVR-001: silent trap, no error, no escape). Re-assert real behavior once fixed.
     expect(await p.tryMaxDiscount(row!, OVERRIDE_NUMERIC_CASES.maxDiscount.overHundred)).toBe(false); // 150
   });
 
-  test('TC-LOC-CPR-524: Toggling the Active checkbox dirties the form (Save enables)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-024: Toggling the Active checkbox dirties the form (Save enables)', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     const before = await p.readActiveState(row!);
     await p.toggleActive(row!);
@@ -242,10 +242,10 @@ test.describe('Corporate Pricing — Product Group Override: save-cycle (mutatio
     await p.ensureDefaultState(ANCHOR, DEFAULTS, LOC); // belt-and-suspenders restore (per-test baseline)
   });
 
-  test('TC-LOC-CPR-525: Override Price save-cycle persists after reload and restores', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-025: Override Price save-cycle persists after reload and restores', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(150_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-CPR-525',
+      id: 'TC-CPR-OVR-025',
       label: 'Override Price save-cycle',
       baseline: () => p.ensureDefaultState(ANCHOR, DEFAULTS, LOC),
       act: async () => {
@@ -265,10 +265,10 @@ test.describe('Corporate Pricing — Product Group Override: save-cycle (mutatio
     });
   });
 
-  test('TC-LOC-CPR-526: Max Discount % save-cycle persists after reload and restores', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-026: Max Discount % save-cycle persists after reload and restores', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(150_000);
     await saveAndVerifyCase({
-      id: 'TC-LOC-CPR-526',
+      id: 'TC-CPR-OVR-026',
       label: 'Max Discount save-cycle',
       baseline: () => p.ensureDefaultState(ANCHOR, DEFAULTS, LOC),
       act: async () => {
@@ -290,11 +290,11 @@ test.describe('Corporate Pricing — Product Group Override: save-cycle (mutatio
     });
   });
 
-  test('TC-LOC-CPR-527: Active toggle save-cycle persists after reload and restores', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-027: Active toggle save-cycle persists after reload and restores', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(150_000);
     let original: boolean = DEFAULTS.active;
     await saveAndVerifyCase({
-      id: 'TC-LOC-CPR-527',
+      id: 'TC-CPR-OVR-027',
       label: 'Active toggle save-cycle',
       baseline: () => p.ensureDefaultState(ANCHOR, DEFAULTS, LOC),
       act: async () => {
@@ -315,7 +315,7 @@ test.describe('Corporate Pricing — Product Group Override: save-cycle (mutatio
     });
   });
 
-  test('TC-LOC-CPR-528: Save opens the "Save Changes" dialog; Cancel aborts without committing', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-028: Save opens the "Save Changes" dialog; Cancel aborts without committing', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(150_000);
     await p.ensureDefaultState(ANCHOR, DEFAULTS, LOC);
     const row = await p.findRowByProductGroup(ANCHOR);

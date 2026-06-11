@@ -2,22 +2,26 @@
 /**
  * sp00-audit-v5.mjs — Comprehensive XLSX deliverable audit.
  *
- * Scans all 13 columns of every module sheet in
+ * Scans every module sheet in
  * clients/encore/test_cases_xlsx/encore_test_cases.xlsx for:
  *   1. Empty required cells
  *   2. Jargon / framework leakage
- *   3. Slop phrases in reason column
+ *   3. Slop phrases in the Notes / Reason column
  *   4. Malformed TC IDs
- *   5. Contradictory data (Coverage Status vs Automation Execution)
- *   6. Specific Field duplicating Title
- *   7. HALT-FOR-USER sentinels (exposed, not counted as defects)
+ *   5. Contradictory data (Coverage Status vs Automation Status)
+ *   6. HALT-FOR-USER sentinels (exposed, not counted as defects)
  *
  * Exit 0 = clean, exit 1 = defects found.
  *
- * Source: the single 14-sheet workbook (Overview + 13 module sheets). The
- * legacy CSV fallback (clients/encore/test_cases_csv/) was removed once that
- * directory was retired in favor of the workbook
- * (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D).
+ * Source: the single workbook (Overview + module sheets). Manual-run-only tool —
+ * nothing in the pipeline invokes it. Updated for the merged TestRail step-expanded
+ * schema (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT, 2026-06-11): reads the merged
+ * status columns ('Automation Status', 'Notes / Reason') and the 'Steps (*)' columns;
+ * the prior 'Specific Field' / 'Automated' / 'Automation Execution' / 'If Failed
+ * Reason of Failure' / separate 'Notes' columns are retired. loadSheets keys case
+ * rows on /^TC-/ so step-expanded continuation rows (blank TC ID) are not counted as
+ * cases. NOTE: this TC-row-keyed audit only sees step 1 (later steps live on dropped
+ * continuation rows) — the live gate scripts/xlsx-lint-rules.mjs scans ALL rows.
  */
 
 import { existsSync } from 'fs';
@@ -26,13 +30,13 @@ import XLSX from 'xlsx';
 
 const XLSX_PATH = join(process.cwd(), 'clients', 'encore', 'test_cases_xlsx', 'encore_test_cases.xlsx');
 const COLUMNS = [
-  'TC ID', 'Title', 'Module', 'Submodule', 'Specific Field',
-  'Preconditions', 'Steps', 'Expected Result', 'Notes',
-  'Automated', 'Automation Execution', 'If Failed Reason of Failure'
+  'TC ID', 'Title', 'Module', 'Submodule', 'Test Data', 'Type', 'Priority',
+  'Coverage Status', 'Automation Status', 'Notes / Reason', 'Preconditions',
+  'Steps (Step)', 'Steps (Expected Result)'
 ];
 const REQUIRED_ALWAYS = new Set([
   'TC ID', 'Title', 'Module', 'Submodule', 'Preconditions',
-  'Steps', 'Expected Result'
+  'Steps (Step)', 'Steps (Expected Result)'
 ]);
 
 const JARGON_PATTERNS = [
@@ -92,14 +96,16 @@ const SLOP_PHRASES = [
   /^N\/A$/i,
 ];
 
-const TC_ID_PATTERN = /^TC-(LOC|LOS)-[A-Z]+-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
+// Shape check for the TC-{MODULE}-{SUBMODULE}-{NNN[A]} grammar — module-agnostic
+// (LOC/LOS/CPR/…) so it does not go stale when module-codes.json gains a module.
+const TC_ID_PATTERN = /^TC-[A-Z]+-[A-Z]+-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
 
 function isJargon(text, colName, rowContext = '') {
   // Accessibility-themed TCs may legitimately reference ARIA attributes
   const isAccessibilityTC = /accessibility|aria|keyboard navigation/i.test(rowContext);
 
-  // Notes column is more permissive — only flag the worst offenders
-  const patterns = colName === 'Notes'
+  // Notes / Reason column is more permissive — only flag the worst offenders
+  const patterns = colName === 'Notes / Reason'
     ? JARGON_PATTERNS.filter(p =>
         /PRIMARY_SYMPTOM|MCP_VERIFICATION_LOG|Internal:|page\.locator|page\.goto/.test(p.source))
     : JARGON_PATTERNS;
@@ -108,8 +114,8 @@ function isJargon(text, colName, rowContext = '') {
     if (pat.test(text)) {
       // Exempt ARIA mentions in accessibility-themed TCs
       if (isAccessibilityTC && /aria-/.test(pat.source)) continue;
-      // Check exemptions for Specific Field and Steps columns
-      if (['Specific Field', 'Steps', 'Expected Result', 'Preconditions'].includes(colName)) {
+      // Check exemptions for the step + test-data columns
+      if (['Test Data', 'Steps (Step)', 'Steps (Expected Result)', 'Preconditions'].includes(colName)) {
         if (/data-testid|data-state/.test(text) && /button\[role/.test(text)) continue;
       }
       return pat.source;
@@ -138,12 +144,13 @@ function loadSheets() {
     if (!ws) continue;
     // sheet_to_json with header:1 returns array-of-arrays so row[0] is header.
     const arr = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-    // Drop the trailing blank+SUMMARY rows that the workbook emits per sheet.
-    const filtered = arr.filter(r => {
-      const first = String(r[0] ?? '').trim();
-      if (!first) return false;
-      if (first === 'SUMMARY') return false;
-      return true;
+    // Keep the header (row 0) + one row per CASE. In the merged step-expanded layout a
+    // case spans 1 first-row (TC ID in col 0) + N continuation step-rows (blank col 0);
+    // key case rows on /^TC-/ so continuation rows AND the trailing blank/SUMMARY rows
+    // are dropped and the per-sheet count is distinct TC IDs, not raw rows.
+    const filtered = arr.filter((r, i) => {
+      if (i === 0) return true; // header
+      return /^TC-/.test(String(r[0] ?? '').trim());
     });
     if (filtered.length === 0) continue;
     sources.push({ file: `${sheetName} (xlsx sheet)`, rows: filtered });
@@ -166,28 +173,25 @@ function audit() {
     const header = rows[0];
     const headerMap = {};
     header.forEach((h, i) => { headerMap[String(h).replace(/^﻿/, '')] = i; });
-    // XLSX uses `Coverage Status` (Automated/Pending Automation) where CSV
-    // used `Automated` (Yes/No). Normalize to the legacy 'automated' boolean-ish
-    // string so the existing contradictory/required checks below keep their
-    // semantics. CSV path: 'Yes' / 'No'. XLSX path: 'Automated' → 'Yes',
-    // 'Pending Automation' → 'No', anything else → '' (unknown).
+    // Normalize `Coverage Status` (Automated/Pending Automation) to a boolean-ish
+    // 'Yes'/'No' so the contradictory/required checks below keep their semantics.
     const coverageIdx = headerMap['Coverage Status'];
-    const legacyAutomatedIdx = headerMap['Automated'];
 
     for (let r = 1; r < rows.length; r++) {
       const row = rows[r];
       totalRows++;
       const tcId = (row[headerMap['TC ID']] || '').trim();
-      let automated = (row[legacyAutomatedIdx] || '').trim();
-      if (!automated && coverageIdx !== undefined) {
+      let automated = '';
+      if (coverageIdx !== undefined) {
         const cov = String(row[coverageIdx] || '').trim();
         if (cov === 'Automated') automated = 'Yes';
         else if (cov === 'Pending Automation') automated = 'No';
       }
-      const execution = (row[headerMap['Automation Execution']] || '').trim();
-      const reason = (row[headerMap['If Failed Reason of Failure']] || '').trim();
+      const execution = (row[headerMap['Automation Status']] || '').trim();
+      // Reason now lives in the merged 'Notes / Reason' cell (reason segment + optional
+      // appended Notes). For this advisory audit, read the whole cell.
+      const reason = (row[headerMap['Notes / Reason']] || '').trim();
       const title = (row[headerMap['Title']] || '').trim();
-      const specificField = (row[headerMap['Specific Field']] || '').trim();
 
       // 1. TC ID format
       if (tcId && !TC_ID_PATTERN.test(tcId)) {
@@ -209,46 +213,40 @@ function audit() {
         }
       }
 
-      // Specific Field — required but can be empty if genuinely N/A
-      // Automation Execution — required when Automated=Yes
+      // Automation Status — required when Automated=Yes
       if (automated === 'Yes' && !execution) {
-        defects.push({ file, row: r + 1, col: 'Automation Execution', issue: 'Empty but Automated=Yes' });
+        defects.push({ file, row: r + 1, col: 'Automation Status', issue: 'Empty but Automated=Yes' });
       }
 
       // Reason — required when Automated=No or Execution=Fail
       if ((automated === 'No' || execution === 'Fail') && !reason) {
-        defects.push({ file, row: r + 1, col: 'If Failed Reason of Failure', issue: 'Empty but required (Automated=No or Execution=Fail)' });
+        defects.push({ file, row: r + 1, col: 'Notes / Reason', issue: 'Empty but required (Automated=No or Execution=Fail)' });
       }
 
       // 4. Contradictory data
       if (automated === 'No' && execution === 'Pass') {
-        defects.push({ file, row: r + 1, col: 'Automation Execution', issue: 'Contradictory: Automated=No but Execution=Pass' });
+        defects.push({ file, row: r + 1, col: 'Automation Status', issue: 'Contradictory: Automated=No but Execution=Pass' });
       }
 
-      // 5. Specific Field duplicates Title
-      if (specificField && title && specificField === title) {
-        defects.push({ file, row: r + 1, col: 'Specific Field', issue: 'Duplicates Title verbatim' });
-      }
-
-      // 6. Jargon scan (all columns except TC ID, Module, Submodule, Automated, Automation Execution)
-      const jargonCols = ['Title', 'Specific Field', 'Preconditions', 'Steps',
-        'Expected Result', 'Notes', 'If Failed Reason of Failure'];
+      // 5. Jargon scan (client-facing text columns; status/id columns excluded)
+      const jargonCols = ['Title', 'Test Data', 'Preconditions', 'Steps (Step)',
+        'Steps (Expected Result)', 'Notes / Reason'];
       for (const colName of jargonCols) {
         const idx = headerMap[colName];
         if (idx === undefined) continue;
         const val = (row[idx] || '').trim();
         if (!val) continue;
-        const match = isJargon(val, colName, title + ' ' + specificField);
+        const match = isJargon(val, colName, title);
         if (match) {
           defects.push({ file, row: r + 1, col: colName, issue: `Jargon: matched /${match}/` });
         }
       }
 
-      // 7. Slop phrases in reason column
+      // 6. Slop phrases in the Notes / Reason column
       if (reason) {
         for (const pat of SLOP_PHRASES) {
           if (pat.test(reason)) {
-            defects.push({ file, row: r + 1, col: 'If Failed Reason of Failure', issue: `Slop phrase: "${reason}"` });
+            defects.push({ file, row: r + 1, col: 'Notes / Reason', issue: `Slop phrase: "${reason}"` });
             break;
           }
         }

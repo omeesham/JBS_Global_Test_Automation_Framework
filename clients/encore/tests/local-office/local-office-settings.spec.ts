@@ -21,7 +21,7 @@ import {
 } from '../../src/data/local-office/local-office-settings';
 import { OFFICE_NO } from '../../src/data/common';
 
-test.describe('Local Office Settings — Basic Information @locations @local-office-settings', () => {
+test.describe('Local Office Settings — Basic Information @local-office-settings', () => {
 
   // Per-test navigation guard — makes every test retry-independent.
   // When Playwright retries recycle the worker, the fixture's unconditional goto
