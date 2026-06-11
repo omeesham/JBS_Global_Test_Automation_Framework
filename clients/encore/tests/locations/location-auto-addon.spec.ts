@@ -10,6 +10,11 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     if (!(await locationAutoAddonPage.isOnAutoAddonTab())) {
       await locationAutoAddonPage.navigateToAutoAddonTab(OFFICE_NO);
     }
+    // Per-test baseline: restore the 5 checkboxes to AUTO_ADDON_DEFAULTS so EVERY test
+    // (including a per-test retry that skips TC-001's body) starts from a known-clean state.
+    // No-op when already at defaults (the common path); self-heals a dirty start from a prior
+    // crashed run. This is the load-bearing fix for the net-zero-vulnerable assertions.
+    await locationAutoAddonPage.ensureDefaultState(AUTO_ADDON_DEFAULTS, OFFICE_NO);
   });
 
   test('TC-LOC-AAO-001: Navigate to Auto Add-On Tab', async ({ locationAutoAddonPage, dependencyGate }) => {
@@ -18,21 +23,8 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.navigateToAutoAddonTab(OFFICE_NO);
     expect(locationAutoAddonPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
     expect(await locationAutoAddonPage.getCheckboxCount()).toBe(5);
- // Restore defaults in case DB is polluted from prior failed test runs
-    let needsSave = false;
-    for (const item of AUTO_ADDON_DEFAULTS) {
-      const isChecked = await locationAutoAddonPage.isCheckboxChecked(item.key);
-      if (isChecked !== item.checked) {
-        await locationAutoAddonPage.toggleCheckbox(item.key);
-        needsSave = true;
-      }
-    }
-    if (needsSave) {
-      await locationAutoAddonPage.clickSaveButton();
-      await locationAutoAddonPage.clickSaveOk();
-      await locationAutoAddonPage.waitForToast();
-      await locationAutoAddonPage.navigateFresh(OFFICE_NO);
-    }
+ // Default-state restore moved to the describe-level beforeEach (ensureDefaultState) so
+ // it runs per-test, not only here — a per-test retry can no longer skip the baseline.
   });
 
   test('TC-LOC-AAO-002: Default State of Checkbox Items (location 1604)', async ({ locationAutoAddonPage, dependencyGate }) => {

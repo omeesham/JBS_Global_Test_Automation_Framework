@@ -47,6 +47,17 @@ export const LP_DROPDOWN = {
   servicingBranchLowerBound: 200,
 } as const;
 
+/**
+ * Pay To Address launcher constants (live 2026-06-11, office 1604).
+ * The Pay To Address field is a launcher → "Pay To List" dialog. Selection persists
+ * (`financial.payToId`). Restore is ID-anchored — the name "Encore" is AMBIGUOUS (IDs 1 & 4
+ * both display "Encore"), so the name can never be a safe restore anchor — never name-anchor a restore.
+ * Source: live field verification 2026-06-11 (launcher dialogs).
+ */
+export const PAY_TO_ORIGINAL = { id: 1, name: 'Encore' } as const;
+/** Uniquely-named alternate Pay To row (ID 7) — distinct name makes the persistence assertion unambiguous. */
+export const PAY_TO_ALTERNATE = { id: 7, name: 'Encore Bahamas' } as const;
+
 /** Values used by the editable-field tests (recovery/alt values differ from the saved value to force a net change). */
 export const LP_TEST_VALUES = {
   localOfficeNameMaxLength: 255, // LIVE input maxlength (the spec doc claimed 50 — corrected against live; flagged to Encore)

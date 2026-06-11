@@ -67,6 +67,18 @@ This stashes Allure history, cleans, restores history, runs the suite, and regen
 | `npm run test:grep -- "@notes"` | Filter by tag/grep |
 | `npx playwright test --list` | List every discoverable test without running |
 
+### Clean single-spec run — report holds only that one run
+
+When you want a report containing **exactly one spec, one run, zero stale data** (e.g. to screenshot a single module's result):
+
+```bash
+npm run clean:run -- tests/locations/location-auto-addon.spec.ts
+npm run report          # Playwright HTML
+npm run allure:open     # Allure
+```
+
+`clean:run` wipes both report systems (including the Allure history cache), runs only the spec you name, and regenerates Allure from scratch. Unlike `test:cli` — which runs the **whole suite** and **preserves** trend history — this is single-spec and history-free. Accepts any spec path or a `--grep "..."` filter.
+
 ### Tuning parallelism
 
 Worker count is set by an inline expression in `playwright.config.ts` (CI default 4, local 2). Override per run with the `MAX_WORKERS` env var:

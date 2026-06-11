@@ -4,6 +4,7 @@ import {
   VENUE_NAME, PHONE1_BASELINE, ACCOUNT_SEARCH, ADDRESS_SEARCH,
   TEST_PHONE2_VALUE, ACCOUNT_TEST_PHONE, VENUE_DISPLAY_FIELDS, MASTER_DISPLAY_FIELDS,
   ACCOUNT_LIST_FILTERS, ALT_ADDRESS, ORIGINAL_ADDRESS, ACCOUNT_NUMBER_SEARCH,
+  MASTER_BILL_TO_ORIGINAL,
 } from '../../src/data/locations/location-account-address';
 import { OFFICE_NO } from '../../src/data/common';
 
@@ -29,6 +30,78 @@ test.describe('Location Account and Address @locations @account-address', () => 
     // BUG-LOC-ACC-001 and is test.fixme'd below; an ensureDefaultState() that resets Phone 2 to
     // empty cannot succeed while that bug is open (the app will not persist an empty Phone 2), so
     // it must not gate every test.
+  });
+
+  // ─── NET-NEW Master Bill To launcher cases (TC-LOC-ACC-032..033) — blended at the TOP, same
+  //     @locations @account-address tags, no @fcc tag (per the tagging convention).
+  //     The Master launcher's select→Master-field-update→persist cycle had ZERO coverage (TC-012 only
+  //     proved the dialog OPENS from Master). Per-launcher coverage: a Venue TC can NOT
+  //     discharge a Master cell — the SAME dialog persists from Master but NOT from Venue (TC-027). ───
+
+  test('TC-LOC-ACC-032: Master Bill To selection updates Master display + leaves Venue unchanged + enables Save', async ({ locationAccountAddressPage: pg, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
+    test.setTimeout(90_000);
+    // Master starts at the original address
+    await expect.poll(() => pg.getMasterCityText(), { timeout: 10_000 }).toBe(MASTER_BILL_TO_ORIGINAL.city);
+    const venueBefore = await pg.getVenueCityText();
+    // Select an alternate address via the MASTER launcher
+    await pg.openMasterAddressDialog();
+    await pg.selectAddressRow(ALT_ADDRESS.address1);
+    // Master display updates to the selected address
+    await expect.poll(() => pg.getMasterCityText(), { timeout: 5_000 }).toBe(ALT_ADDRESS.city);
+    // Venue/Branch display is UNCHANGED — the Master selection is isolated from Venue
+    expect(await pg.getVenueCityText()).toBe(venueBefore);
+    // Save enables (form dirty — NOT display-only)
+    await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+    // Discard: reload restores the original Master display (no save)
+    await pg.reloadAndNavigate(OFFICE_NO);
+    await expect.poll(() => pg.getMasterCityText(), { timeout: 10_000 }).toBe(MASTER_BILL_TO_ORIGINAL.city);
+  });
+
+  test('TC-LOC-ACC-033: Master Bill To selection persists through save+reload (restore anchored original)', async ({ locationAccountAddressPage: pg, dependencyGate }) => {
+    dependencyGate(['TC-LOC-ACC-001']);
+    test.setTimeout(150_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-ACC-033',
+      label: 'Master Bill To select alt -> save -> persists -> restore anchored original',
+      // Anchor check: Master must start at the original (loud fail if a prior run leaked an alternate).
+      baseline: async () => {
+        await expect.poll(() => pg.getMasterCityText(), { timeout: 10_000 }).toBe(MASTER_BILL_TO_ORIGINAL.city);
+      },
+      act: async () => {
+        await pg.openMasterAddressDialog();
+        await pg.selectAddressRow(ALT_ADDRESS.address1);
+      },
+      expectBeforeSave: async () => {
+        await expect.poll(() => pg.getMasterCityText(), { timeout: 5_000 }).toBe(ALT_ADDRESS.city);
+        await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+      },
+      saveAndConfirm: () => pg.saveAndConfirm(),
+      reload: () => pg.reloadAndNavigate(OFFICE_NO),
+      expectAfterReload: async () => {
+        // Master Bill To selection PERSISTS through save+reload (diverges from the Venue selection, TC-027).
+        // Read-after-write window (ACC-020 pattern): the save commits a beat AFTER clickSave() returns; a
+        // single reload's getLocationDetail can fire before the commit lands and serve the pre-save value
+        // (the loaded page does not auto-refetch). Re-navigate each poll until the persisted value is read —
+        // this still proves persistence (Master == the saved alternate after a reload), without weakening intent.
+        await expect.poll(async () => {
+          await pg.reloadAndNavigate(OFFICE_NO);
+          return pg.getMasterCityText();
+        }, { timeout: 60_000, intervals: [1_000], message: 'Master Bill To should persist as the saved alternate after reload' }).toBe(ALT_ADDRESS.city);
+        expect(await pg.getMasterAddressBlock()).toContain(ALT_ADDRESS.address1);
+      },
+      // Restore office-1604 to the anchored original by re-selecting the unique "8899 Beverly Blvd Ste 412"
+      // row, then VERIFY the restore landed (re-navigate poll — same read-after-write window) so nothing leaks.
+      cleanup: async () => {
+        await pg.openMasterAddressDialog();
+        await pg.selectAddressRow(MASTER_BILL_TO_ORIGINAL.address1);
+        await pg.saveAndConfirm();
+        await expect.poll(async () => {
+          await pg.reloadAndNavigate(OFFICE_NO);
+          return pg.getMasterCityText();
+        }, { timeout: 60_000, intervals: [1_000], message: 'Master Bill To should restore to the anchored original' }).toBe(MASTER_BILL_TO_ORIGINAL.city);
+      },
+    });
   });
 
   // ─── NET-NEW granular field-coverage cases (TC-LOC-ACC-029..031) — blended at the TOP of the

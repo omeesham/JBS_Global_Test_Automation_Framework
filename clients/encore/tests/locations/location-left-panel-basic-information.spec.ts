@@ -1,9 +1,12 @@
 import { test, expect } from '../../src/fixtures/pages.fixture';
+import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 import { OFFICE_NO } from '../../src/data/common';
 import {
   LP_DEFAULTS,
   LP_DROPDOWN,
   LP_TEST_VALUES,
+  PAY_TO_ORIGINAL,
+  PAY_TO_ALTERNATE,
 } from '../../src/data/locations/location-left-panel-basic-information';
 
 /**
@@ -30,8 +33,119 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
       await lp.navigateToBasicInformation(OFFICE_NO);
     }
     // Enforce office-1604 baseline per-test (not first-test-only) so a prior crashed/retried
-    // run cannot poison defaults. No-op (cheap reads) when already clean.
+    // run cannot poison defaults. No-op (cheap reads) when already clean. Also verify-only-guards
+    // Pay To (throws if it drifted off "Encore"/ID 1 — no name-anchored auto-repair).
     await lp.ensureDefaultState();
+  });
+
+  // ── Pay To Address launcher → "Pay To List" dialog (net-new 2026-06-11, blended at top) ─────
+  //    Pay To Address is a LAUNCHER (the 2026-06-03 walk first classified it as a plain disabled
+  //    textbox; corrected after root-cause analysis 2026-06-11). The launcher lives on the <label>;
+  //    a plain click is blocked (disabled-input
+  //    association) so the page object dispatches the click. Selection PERSISTS (financial.payToId);
+  //    restore is ID-anchored (name "Encore" is ambiguous — IDs 1 & 4). Same @locations
+  //    @left-panel-basic-information tags, no @fcc tag (per the tagging convention).
+
+  test('TC-LOC-LP-028: Pay To Address launcher opens the "Pay To List" dialog', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    await lp.openPayToDialog();
+    expect(await lp.isPayToDialogVisible()).toBe(true);
+    expect(await lp.hasPayToFilters()).toBe(true);            // Pay To ID + Pay To Name filters
+    expect(await lp.hasPayToActionButtons()).toBe(true);      // Search + Reset
+    expect(await lp.hasPayToTableAndCancel()).toBe(true);     // results table + Cancel
+    await lp.cancelPayToDialog();
+  });
+
+  test('TC-LOC-LP-029: Pay To List Select disabled until a row is checked', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    await lp.openPayToDialog();
+    expect(await lp.isPayToSelectDisabled()).toBe(true);
+    await lp.checkPayToFirstRow();
+    expect(await lp.isPayToSelectDisabled()).toBe(false);
+    await lp.cancelPayToDialog();
+  });
+
+  test('TC-LOC-LP-030: Pay To List Cancel discards (no field change)', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    await lp.openPayToDialog();
+    await lp.checkPayToFirstRow();
+    await lp.cancelPayToDialog();
+    expect(await lp.isPayToDialogVisible()).toBe(false);
+    expect(await lp.getPayToAddress()).toBe(PAY_TO_ORIGINAL.name); // unchanged
+    expect(await lp.isSaveEnabled()).toBe(false);                  // form stayed pristine
+  });
+
+  test('TC-LOC-LP-031: Pay To List Close-X and Esc each discard', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    // Esc dismisses
+    await lp.openPayToDialog();
+    await lp.escPayToDialog();
+    expect(await lp.isPayToDialogVisible()).toBe(false);
+    expect(await lp.getPayToAddress()).toBe(PAY_TO_ORIGINAL.name);
+    expect(await lp.isSaveEnabled()).toBe(false);
+    // Close-X dismisses (independent cycle — asserted separately, not a combined OR-expression)
+    await lp.openPayToDialog();
+    await lp.closePayToDialog();
+    expect(await lp.isPayToDialogVisible()).toBe(false);
+    expect(await lp.getPayToAddress()).toBe(PAY_TO_ORIGINAL.name);
+    expect(await lp.isSaveEnabled()).toBe(false);
+  });
+
+  test('TC-LOC-LP-032: Pay To List ID filter returns the matching row', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    await lp.openPayToDialog();
+    await lp.searchPayToById(String(PAY_TO_ALTERNATE.id)); // "7"
+    expect(await lp.payToResultsContain(PAY_TO_ALTERNATE.name)).toBe(true); // "Encore Bahamas"
+    await lp.cancelPayToDialog();
+  });
+
+  test('TC-LOC-LP-033: Pay To List Name filter "Encore" returns multiple rows', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    await lp.openPayToDialog();
+    await lp.searchPayToByName(PAY_TO_ORIGINAL.name); // "Encore" — server-side contains
+    expect(await lp.payToResultsContain(PAY_TO_ORIGINAL.name)).toBe(true);
+    expect(await lp.getPayToDialogRowCount()).toBeGreaterThan(1); // ≥2 "Encore" rows (content check, not an exact count)
+    await lp.cancelPayToDialog();
+  });
+
+  test('TC-LOC-LP-034: Pay To List empty result shows "No results."', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    await lp.openPayToDialog();
+    await lp.searchPayToById('99999'); // no such Pay To
+    expect(await lp.isPayToDialogEmpty()).toBe(true);
+    await lp.cancelPayToDialog();
+  });
+
+  test('TC-LOC-LP-035: Pay To List Reset clears filters / restores full list', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    await lp.openPayToDialog();
+    await lp.searchPayToById(String(PAY_TO_ALTERNATE.id)); // narrow to 1
+    expect(await lp.getPayToDialogRowCount()).toBe(1);
+    await lp.resetPayToSearch();
+    expect(await lp.getPayToDialogRowCount()).toBeGreaterThan(1); // full list restored
+    await lp.cancelPayToDialog();
+  });
+
+  test('TC-LOC-LP-036: Pay To selection updates display + enables Save (no save)', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    await lp.selectPayToById(String(PAY_TO_ALTERNATE.id)); // ID 7 → display "Encore Bahamas"
+    expect(await lp.getPayToAddress()).toBe(PAY_TO_ALTERNATE.name);
+    expect(await lp.waitForSaveButtonEnabled()).toBe(true); // form dirty
+    await lp.reloadAndNavigate(OFFICE_NO);                  // discard (no save)
+    expect(await lp.getPayToAddress()).toBe(PAY_TO_ORIGINAL.name); // reverted
+  });
+
+  test('TC-LOC-LP-037: Pay To selection persists through save+reload (restore by ID)', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    test.setTimeout(150_000);
+    await saveAndVerifyCase({
+      id: 'TC-LOC-LP-037',
+      label: 'Pay To select ID 7 -> save -> persists -> restore ID 1',
+      baseline: () => lp.ensureDefaultState(),                      // verify-only Pay To = "Encore" (ID 1)
+      act: () => lp.selectPayToById(String(PAY_TO_ALTERNATE.id)),   // ID 7 "Encore Bahamas"
+      expectBeforeSave: async () => {
+        expect(await lp.getPayToAddress()).toBe(PAY_TO_ALTERNATE.name);
+        expect(await lp.waitForSaveButtonEnabled()).toBe(true);
+      },
+      saveAndConfirm: () => lp.saveAndConfirm(),
+      reload: () => lp.reloadAndNavigate(OFFICE_NO),
+      expectAfterReload: async () => {
+        // Pay To selection PERSISTS through save+reload (unlike the Venue address selection, ACC-027).
+        expect(await lp.getPayToAddress()).toBe(PAY_TO_ALTERNATE.name);
+      },
+      // Restore office-1604 to the ORIGINAL Pay To by ID (name "Encore" is ambiguous — IDs 1 & 4).
+      cleanup: () => lp.restorePayToOriginal(),
+    });
   });
 
   // ── Baseline + read-only field states ──────────────────────────────────────
@@ -64,7 +178,11 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     expect(await lp.getLocalOfficeValue()).toBe(LP_DEFAULTS.localOffice);
   });
 
-  test('TC-LOC-LP-004: Pay To Address field is always disabled', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+  test('TC-LOC-LP-004: Pay To Address display input is always disabled (launcher field)', async ({ locationLeftPanelBasicInformationPage: lp }) => {
+    // The DISPLAY INPUT is permanently disabled (asserted here, still TRUE). The field is a LAUNCHER,
+    // though — its <label> opens the "Pay To List" dialog (TC-028..037). The disabled display does NOT
+    // mean the field is non-interactive (the launcher-blindness this change fixed). Assertion
+    // unchanged from 2026-06-03; only the title/comment were corrected.
     expect(await lp.isFieldDisabled('txtPayToAddress')).toBe(true);
     expect(await lp.getPayToAddress()).toBe(LP_DEFAULTS.payToAddress);
   });

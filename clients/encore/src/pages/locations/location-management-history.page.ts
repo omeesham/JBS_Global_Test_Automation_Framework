@@ -37,7 +37,7 @@ export class LocationManagementHistoryPage extends BasePage {
  /**
  * Navigate back to Basic Information tab from History.
  * MUST be called at the end of every HIST integration test to prevent
- * cross-spec state contamination (RC-1 in sp6-full-suite-rca-findings.md).
+ * cross-spec state contamination (a full-suite run can otherwise leak tab state between specs).
  * When History tab is active, sub-tabs (Currency, Legal, etc.) are hidden.
  * If the next spec file inherits this worker, its TC-001 will fail.
  */

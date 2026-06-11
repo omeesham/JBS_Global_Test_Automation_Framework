@@ -140,6 +140,38 @@ export class LocationAccountAddressPage extends BasePage {
   }
 
  // ─────────────────────────────────────────────────────────────────────────────
+ // MASTER BILL TO ADDRESS DISPLAY READERS
+ //
+ // The Master Bill To Address card has 5 read-only <dd> values (Address, City, State, Zip, Country)
+ // and NO Name field (unlike Venue). Selecting a different address via the Master launcher updates
+ // these AND persists (per-launcher divergence from Venue, which does NOT persist — TC-027; each launcher needs its own coverage).
+ // Scope to the Master card the same way isDisplayFieldReadOnly() does (heading → climb 2 → card),
+ // via Playwright locators (which pierce the <next-location-settings> shadow root).
+ // ─────────────────────────────────────────────────────────────────────────────
+
+ /** Locator for the Master Bill To Address card (heading → grandparent), scoped inside the panel. */
+  private getMasterSection() {
+    return this.getPanel().locator(':text("Master Bill To Address")').locator('..').locator('..');
+  }
+
+ /**
+  * All Master <dd> display values joined into one string (Address | City | State | Zip | Country).
+  * Content-anchored — assert with `.toContain(value)` rather than positional index, so the check
+  * survives a dd-order change. The values are distinct enough (8899 Beverly / WEST HOLLYWOOD vs
+  * 4200 E Palm Canyon / PALM SPRINGS) to unambiguously prove which address is shown.
+  */
+  async getMasterAddressBlock(): Promise<string> {
+    const dds = await this.getMasterSection().locator('dd').allTextContents();
+    return dds.map((s) => s.trim()).filter(Boolean).join(' | ');
+  }
+
+ /** Master City text (the 2nd Master <dd>: Address, **City**, State, Zip, Country — no Name dd). */
+  async getMasterCityText(): Promise<string> {
+    const dds = await this.getMasterSection().locator('dd').allTextContents();
+    return (dds[1] ?? '').trim();
+  }
+
+ // ─────────────────────────────────────────────────────────────────────────────
  // CARD SECTION VISIBILITY
  // ─────────────────────────────────────────────────────────────────────────────
 

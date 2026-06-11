@@ -62,4 +62,39 @@ export const SetupLeftPanelBasicInformationSelectors = {
   // ---- Left Panel Save Button ----
   /** @where Setup > Location > Left Panel @el button @text "Save" @keys save submit left-panel form */
   btnSave: '[data-testid="location-settings-btn-save"]',
+
+  // ---- Pay To Address launcher + "Pay To List" dialog ----
+  // Live-verified 2026-06-11. Pay To Address is a LAUNCHER:
+  // the disabled display input (`txtPayToAddress` above) shows the current Pay To NAME, but the
+  // field's <label> opens the "Pay To List" search dialog. A plain Playwright .click() on the label
+  // is BLOCKED (the label's `for=` points at the disabled input → "element is not enabled") → the
+  // page object drives the launcher via dispatchEvent('click') / click({force:true}).
+  // No data-testid on the dialog (re-confirmed; mirrors the Select Customer Address dialog, account-address.ts:74)
+  // → role+text fallback. FIXME: replace with testids if the app adds them.
+  /**
+   * @where Setup > Location > Left Panel @el label @text "Pay To Address" @keys pay-to launcher dialog opener
+   * Launcher affordance lives on the LABEL (React onClick). Drive via dispatched/forced click — a
+   * standard click is blocked by the disabled-input `for=` association (`affordance: launcher → "Pay To List"`).
+   */
+  lblPayToAddress: 'label:has-text("Pay To Address")',
+  /** @where Setup > Location > Pay To List Dialog @el dialog @text "Pay To List" @keys pay-to list search dialog modal */
+  dlgPayToList: '[role="dialog"]:has-text("Pay To List")',
+  // The 5 filter inputs (Pay To ID / Pay To Name / Address / Phone / Fax) derive their ACCESSIBLE NAME
+  // from a sibling label element (no stable CSS attribute — confirmed via the live a11y tree 2026-06-11),
+  // so the page object locates them by accessible name: `dlgPayToList.getByRole('textbox', { name })`.
+  // Not expressible as a CSS-string selector key here (getByRole is the only robust handle).
+  /** @where Setup > Location > Pay To List Dialog @el button @text "Search" @keys search submit filter */
+  btnPTLSearch: '[role="dialog"]:has-text("Pay To List") button:has-text("Search")',
+  /** @where Setup > Location > Pay To List Dialog @el button @text "Reset" @keys reset clear filters */
+  btnPTLReset: '[role="dialog"]:has-text("Pay To List") button:has-text("Reset")',
+  /** @where Setup > Location > Pay To List Dialog @el button @text "Select" @keys select confirm row choose (disabled until row checked) */
+  btnPTLSelect: '[role="dialog"]:has-text("Pay To List") button:text-is("Select")',
+  /** @where Setup > Location > Pay To List Dialog @el button @text "Cancel" @keys cancel close dismiss */
+  btnPTLCancel: '[role="dialog"]:has-text("Pay To List") button:has-text("Cancel")',
+  /** @where Setup > Location > Pay To List Dialog @el button @text "Close" @keys close x dismiss dialog */
+  btnPTLClose: '[role="dialog"]:has-text("Pay To List") button:has-text("Close")',
+  /** @where Setup > Location > Pay To List Dialog @el table @text "Results" @keys results grid table rows pay-to */
+  tblPTLResults: '[role="dialog"]:has-text("Pay To List") table',
+  /** @where Setup > Location > Pay To List Dialog @el checkbox @text "Select row" @keys row selection checkbox first */
+  chkPTLRowFirst: '[role="dialog"]:has-text("Pay To List") tbody tr:first-child td:first-child button[role="checkbox"]',
 } as const;

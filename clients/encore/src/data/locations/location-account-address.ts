@@ -67,3 +67,18 @@ export const ORIGINAL_ADDRESS = {
   zip: '90048',
   address1: '8899 Beverly Blvd Ste 412',
 } as const;
+
+/**
+ * Master Bill To Address original (office 1604) — the restore anchor for the Master launcher
+ * persistence case (TC-LOC-ACC-033). Captured BEFORE any change.
+ * The Master launcher's selection PERSISTS (unlike the Venue launcher, TC-027), so a save-cycle
+ * test MUST restore by re-selecting this unique address row.
+ * Source: live verification 2026-06-11 (API id 8ad746d8-…).
+ */
+export const MASTER_BILL_TO_ORIGINAL = {
+  address1: '8899 Beverly Blvd Ste 412',
+  city: 'WEST HOLLYWOOD',
+  state: 'CA',
+  postalCode: '90048',
+  country: 'United States',
+} as const;
