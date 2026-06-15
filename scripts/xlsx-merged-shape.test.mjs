@@ -22,8 +22,8 @@ const XLSX_PATH = path.join(XLSX_DIR, 'encore_test_cases.xlsx');
 
 const MERGED_HEADERS = [
   'TC ID', 'Title', 'Module', 'Submodule', 'Test Data', 'Type', 'Priority',
-  'Coverage Status', 'Automation Status', 'Notes / Reason', 'Preconditions',
-  'Steps (Step)', 'Steps (Expected Result)',
+  'Coverage Status', 'Automation Status', 'Preconditions',
+  'Steps (Step)', 'Steps (Expected Result)', 'Notes / Reason',
 ];
 const FORBIDDEN_OLD_COLUMNS = [
   'Notes', 'Automation Execution', 'If Failed Reason of Failure',

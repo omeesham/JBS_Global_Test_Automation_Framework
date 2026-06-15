@@ -34,29 +34,42 @@ function check(label, cond) {
 }
 
 // Merged 13-col schema (identical order to MODULE_SHEET_HEADERS in to-xlsx.ts).
+// Notes / Reason moved to the LAST column (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER).
 const HEADERS = [
   'TC ID', 'Title', 'Module', 'Submodule', 'Test Data', 'Type', 'Priority',
-  'Coverage Status', 'Automation Status', 'Notes / Reason', 'Preconditions',
-  'Steps (Step)', 'Steps (Expected Result)',
+  'Coverage Status', 'Automation Status', 'Preconditions',
+  'Steps (Step)', 'Steps (Expected Result)', 'Notes / Reason',
 ];
-const cont = (step, exp) => ['', '', '', '', '', '', '', '', '', '', '', step, exp];
+// Continuation rows carry ONLY Steps (Step)+(Expected Result) at cols 11-12 (indices
+// 10-11); the trailing Notes / Reason (index 12) is blank by construction.
+const cont = (step, exp) => ['', '', '', '', '', '', '', '', '', '', step, exp, ''];
 
 // Sheet 'locations_currency' is registered (LOC/CUR → module 'locations',
 // submodule 'currency') so C8 can resolve the owner for the real rows.
 const aoa = [
   HEADERS,
   // Case 1 — first row + a continuation row carrying a C7 corruption ("(->)").
-  ['TC-LOC-CUR-001', 'Currency grid default', 'locations', 'currency', 'User: automation user', 'Functional', 'Medium', 'Automated', 'Pass', '', 'Office 1604 open', '1. Open the Currency tab', 'The tab renders.'],
+  // Pass row with an EMPTY Notes / Reason → must raise NO C9 (clean pass, C9 case iv).
+  ['TC-LOC-CUR-001', 'Currency grid default', 'locations', 'currency', 'User: automation user', 'Functional', 'Medium', 'Automated', 'Pass', 'Office 1604 open', '1. Open the Currency tab', 'The tab renders.', ''],
   cont('2. Click the button (->)', 'The grid updates.'),
   // Case 2 — first row Blocked + a continuation row carrying a vocab leak
   // ('data-testid'). The leak MUST attribute to TC-LOC-CUR-002 (ownerTcId), not ''.
-  ['TC-LOC-CUR-002', 'Currency add dialog', 'locations', 'currency', 'User: automation user', 'Functional', 'Medium', 'Automated', 'Blocked', 'Blocked — the dialog still lists an item that was already added so it cannot be re-added cleanly. Pending an application fix', 'Office 1604 open', '1. Open the add dialog', 'The dialog opens.'],
+  // Blocked row WITH a real reason → must raise NO C9 (C9 case iii).
+  ['TC-LOC-CUR-002', 'Currency add dialog', 'locations', 'currency', 'User: automation user', 'Functional', 'Medium', 'Automated', 'Blocked', 'Office 1604 open', '1. Open the add dialog', 'The dialog opens.', 'Blocked — the dialog still lists an item that was already added so it cannot be re-added cleanly. Pending an application fix'],
   cont('2. Read the data-testid of the row', 'The value is read.'),
   // Case 3 — a 2-word Blocked reason ("Blocked — Oracle required") must trip C5
   // despite the marker (word count excludes the marker).
-  ['TC-LOC-CUR-003', 'Currency terse', 'locations', 'currency', 'User: automation user', 'Functional', 'Medium', 'Automated', 'Blocked', 'Blocked — Oracle required', 'Office 1604 open', '1. Do the thing', 'It happens.'],
-  // SUMMARY footer (exempt everywhere)
-  ['SUMMARY', 'Location — Currency', '', '', '', 'Automated: 3 / Pending: 0', 'Pass:1 Fail:0 Skipped:0 Blocked:2', '', '', '', '', '', ''],
+  ['TC-LOC-CUR-003', 'Currency terse', 'locations', 'currency', 'User: automation user', 'Functional', 'Medium', 'Automated', 'Blocked', 'Office 1604 open', '1. Do the thing', 'It happens.', 'Blocked — Oracle required'],
+  // Case 4 — a Pass row whose Notes / Reason is NON-EMPTY → must raise C9a (a clean
+  // pass has nothing to explain; cleanup/commentary must not ship). Pass + plain note
+  // also stays clear of C1 (C1 only fires on a "Blocked — " segment).
+  ['TC-LOC-CUR-004', 'Currency commentary', 'locations', 'currency', 'User: automation user', 'Functional', 'Medium', 'Automated', 'Pass', 'Office 1604 open', '1. Open the grid', 'The grid renders.', 'The Pricing Strategy filter is a free-text box, not a dropdown.'],
+  // Case 5 — a Pass row whose cell starts "Cleanup after test:" → must raise C9b
+  // (cleanup breadcrumbs are test-maintenance, never client content).
+  ['TC-LOC-CUR-005', 'Currency cleanup breadcrumb', 'locations', 'currency', 'User: automation user', 'Functional', 'Medium', 'Automated', 'Pass', 'Office 1604 open', '1. Open the grid', 'The grid renders.', 'Cleanup after test: restore the original grid values.'],
+  // SUMMARY footer (exempt everywhere — cosmetic roll-up; positions mirror the emitter:
+  // Coverage at col 8, Automation Status at col 9, Last Updated in the trailing Notes / Reason).
+  ['SUMMARY', 'Location — Currency', '', '', '', '', '', 'Automated: 5 / Pending: 0', 'Pass:3 Fail:0 Skipped:0 Blocked:2', '', '', '', ''],
 ];
 
 const dir = mkdtempSync(path.join(tmpdir(), 'xlsx-cont-'));
@@ -100,6 +113,21 @@ try {
   // C1 must NOT fire on the Pass row (it carries no Blocked segment, only plain steps)
   const c1 = res.integrityViolations.filter(v => v.code === 'C1');
   check('no false C1 on the Pass case', c1.length === 0);
+
+  // ── C9 anti-pollution gate (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER §2.7) ──
+  const c9 = res.integrityViolations.filter(v => v.code === 'C9');
+  // C9a — a Pass row with a non-empty Notes / Reason is flagged (TC-LOC-CUR-004).
+  check('C9a flags a populated Notes / Reason on a Pass row',
+    c9.some(v => v.tcId === 'TC-LOC-CUR-004'));
+  // C9b — a "Cleanup after test:" breadcrumb is flagged (TC-LOC-CUR-005).
+  check('C9b flags a "Cleanup after test:" breadcrumb',
+    c9.some(v => /Cleanup after test/i.test(v.detail)));
+  // iii — a Blocked row with a real reason raises NO C9.
+  check('no C9 on the Blocked row with a real reason (TC-LOC-CUR-002)',
+    !c9.some(v => v.tcId === 'TC-LOC-CUR-002'));
+  // iv — a Pass row with an empty cell raises NO C9.
+  check('no C9 on the clean Pass row with an empty cell (TC-LOC-CUR-001)',
+    !c9.some(v => v.tcId === 'TC-LOC-CUR-001'));
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }

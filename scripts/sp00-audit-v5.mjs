@@ -29,10 +29,12 @@ import { join } from 'path';
 import XLSX from 'xlsx';
 
 const XLSX_PATH = join(process.cwd(), 'clients', 'encore', 'test_cases_xlsx', 'encore_test_cases.xlsx');
+// Column order tracks the sheet (Notes / Reason moved to the last column by
+// PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER) — used positionally for COLUMNS[c] labels.
 const COLUMNS = [
   'TC ID', 'Title', 'Module', 'Submodule', 'Test Data', 'Type', 'Priority',
-  'Coverage Status', 'Automation Status', 'Notes / Reason', 'Preconditions',
-  'Steps (Step)', 'Steps (Expected Result)'
+  'Coverage Status', 'Automation Status', 'Preconditions',
+  'Steps (Step)', 'Steps (Expected Result)', 'Notes / Reason'
 ];
 const REQUIRED_ALWAYS = new Set([
   'TC ID', 'Title', 'Module', 'Submodule', 'Preconditions',
@@ -218,9 +220,11 @@ function audit() {
         defects.push({ file, row: r + 1, col: 'Automation Status', issue: 'Empty but Automated=Yes' });
       }
 
-      // Reason — required when Automated=No or Execution=Fail
-      if ((automated === 'No' || execution === 'Fail') && !reason) {
-        defects.push({ file, row: r + 1, col: 'Notes / Reason', issue: 'Empty but required (Automated=No or Execution=Fail)' });
+      // Reason — required only when Execution=Fail. (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER
+      // R3: a Pending-Automation row [Automated=No] legitimately has no reason now that the
+      // column is reason-only; only a failing row without an explanation is a real gap.)
+      if (execution === 'Fail' && !reason) {
+        defects.push({ file, row: r + 1, col: 'Notes / Reason', issue: 'Empty but required (Execution=Fail)' });
       }
 
       // 4. Contradictory data

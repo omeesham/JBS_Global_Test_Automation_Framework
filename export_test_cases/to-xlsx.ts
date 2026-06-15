@@ -27,7 +27,8 @@
  *
  * Sheet styling (per plan Decision #7 — minimal):
  *   - Header row bold + frozen
- *   - One first-row per case (cols 1-11) + N continuation step-rows (cols 12-13)
+ *   - One first-row per case (cols 1-12 + reason at col 13) + N continuation
+ *     step-rows (Steps at cols 11-12; trailing Notes / Reason col 13 blank)
  *   - Blank row (visual separator) + trailing summary row (bold + light-gray fill)
  *   - Column widths auto-sized
  *   - No conditional formatting, no charts, no pivots
@@ -66,12 +67,15 @@ const FIXME_REGISTRY = path.join(REPO_ROOT, 'reports', 'fixme-registry.json');
 // ────────────────────────── Schema ──────────────────────────
 
 // Merged TestRail step-expanded schema (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT,
-// 2026-06-11). The single deliverable now carries TestRail step-expanded
-// rows/columns AND the real status columns. The FIRST row of each case carries
-// cols 1-11; continuation step-rows carry ONLY 'Steps (Step)' + 'Steps (Expected
-// Result)' (cols 12-13). 'Type'='Functional' / 'Priority'='Medium' are TestRail
-// constants. CHECKED_COLS in scripts/xlsx-lint-rules.mjs is kept in lockstep
-// (it maps the 'Steps (*)' aliases onto canonical 'Steps'/'Expected Result').
+// 2026-06-11; 'Notes / Reason' moved to the LAST column by
+// PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER, 2026-06-11). The single deliverable
+// carries TestRail step-expanded rows/columns AND the real status columns. The
+// FIRST row of each case carries cols 1-12 (including the reason at col 13);
+// continuation step-rows carry ONLY 'Steps (Step)' + 'Steps (Expected Result)'
+// (cols 11-12), with a blank trailing 'Notes / Reason' (col 13) by construction.
+// 'Type'='Functional' / 'Priority'='Medium' are TestRail constants. CHECKED_COLS in
+// scripts/xlsx-lint-rules.mjs is kept in lockstep (same column order; it maps the
+// 'Steps (*)' aliases onto canonical 'Steps'/'Expected Result').
 //
 // COLUMN-NAME COLLISION NOTE (load-bearing — do NOT "fix" one to match the other):
 // the 'Automation Status' column HERE means *execution* (Pass/Fail/Skipped/Blocked).
@@ -88,10 +92,10 @@ const MODULE_SHEET_HEADERS = [
   'Priority',
   'Coverage Status',
   'Automation Status', // execution axis (Pass/Fail/Skipped/Blocked) — see collision note above
-  'Notes / Reason',
   'Preconditions',
   'Steps (Step)',
   'Steps (Expected Result)',
+  'Notes / Reason', // execution-reason channel — reason-only, last column (declutter plan)
 ] as const;
 
 const OVERVIEW_HEADERS = [
@@ -181,48 +185,40 @@ const SHEET_TO_DISPLAY_SUB: Record<string, string> = (() => {
   return out;
 })();
 
-// ── Notes / Reason merge (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT §Notes/Reason) ──
+// ── Notes / Reason cell (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER) ──
 //
-// The merged 'Notes / Reason' column composes tc.notes + tc.ifFailedReason. The
-// "Blocked — " marker is the machine-detectable prefix that lint C1/C3/C5 key on;
-// the NOTES_SEPARATOR delimits the reason segment from appended Notes. BOTH the
-// marker regex and the separator MUST stay byte-identical to their twins in
+// Reason-ONLY. The column is reserved for the curated execution reason
+// (tc.ifFailedReason). tc.notes (MD Notes / Cleanup) is intentionally NOT surfaced —
+// it is cleanup/commentary, not client information, and was the sole content on
+// passing rows. The "Blocked — " marker is the machine-detectable prefix that lint
+// C1/C3/C4/C5 key on; it MUST stay byte-identical to BLOCKED_MARKER_RE in
 // scripts/xlsx-lint-rules.mjs (splitNotesReason) — the lint re-derives the reason
-// segment from the cell, so a drift here silently defeats C1/C3/C4/C5.
+// segment from the cell, so a drift here silently defeats the integrity checks. The
+// NOTES_SEPARATOR is gone: the column no longer composes tc.notes (declutter plan).
 const BLOCKED_MARKER_RE = /^Blocked\s*[—–-]\s*/i;
-const NOTES_SEPARATOR = '\n\nNotes: ';
 
 /**
- * Compose the merged 'Notes / Reason' cell.
- *   both    → `Blocked — <reason>` + blank line + `Notes: <notes>`  (Blocked rows)
- *   reason  → `Blocked — <reason>`                                   (Blocked rows)
- *   notes   → `<notes>`
- *   neither → ``
+ * Compose the 'Notes / Reason' cell. Reason-only: the column carries ONLY the curated
+ * execution reason (why a case is not a clean automated pass). The integrity tripwire
+ * below guarantees a Pass row never carries ifFailedReason, so Pass rows resolve to ''.
  *
- * Two corrections over the plan's literal shorthand, both required for correctness:
- *  (1) MARKER IDEMPOTENCY — strip an existing leading "Blocked — " from the reason
- *      before re-applying it, or the 17 blocked-reasons.json entries that already
- *      begin with the marker would ship "Blocked — Blocked — …".
- *  (2) EXECUTION-GATED MARKER — apply "Blocked — " ONLY when the row's execution is
- *      actually 'Blocked'. The same reason field also carries Skipped reasons
- *      ("Skipped — …") and Pending-Automation env reasons ("Not yet automated — …");
- *      blindly prefixing "Blocked — " would mislabel them AND make lint C1/C3 — which
- *      tie the "Blocked — " segment to execution=Blocked — incoherent. (DEVIATION
- *      from the plan's "reason only → Blocked — <reason>"; recorded in the Execution
- *      Summary. The plan's own C1/C3 semantics demand this.)
+ *  - MARKER IDEMPOTENCY — strip an existing leading "Blocked — " from the reason before
+ *    re-applying it, or the blocked-reasons.json entries that already begin with the
+ *    marker would ship "Blocked — Blocked — …".
+ *  - EXECUTION-GATED MARKER — apply "Blocked — " ONLY when the row's execution is
+ *    actually 'Blocked'. The same reason field also carries Skipped reasons
+ *    ("Skipped — …") and Pending-Automation env reasons ("Not yet automated — …");
+ *    blindly prefixing "Blocked — " would mislabel them AND make lint C1/C3 — which tie
+ *    the "Blocked — " segment to execution=Blocked — incoherent.
+ *
+ * Exported for the unit test (mirrors how toSheetName is exported for the sheet-name test).
  */
-function composeNotesReason(notes: string, reason: string, execution: string): string {
-  const cleanNotes = (notes || '').trim();
+export function composeReason(reason: string, execution: string): string {
   // reason gets no upstream humanize pass — scrub here (matches the prior emit-time
   // scrub of the standalone reason column) BEFORE the marker is (re-)applied.
-  let cleanReason = scrubInternalVocab(reason || '').trim().replace(BLOCKED_MARKER_RE, '').trim();
-  const markedReason = cleanReason
-    ? (execution === 'Blocked' ? `Blocked — ${cleanReason}` : cleanReason)
-    : '';
-  if (markedReason && cleanNotes) return `${markedReason}${NOTES_SEPARATOR}${cleanNotes}`;
-  if (markedReason) return markedReason;
-  if (cleanNotes) return cleanNotes;
-  return '';
+  const cleanReason = scrubInternalVocab(reason || '').trim().replace(BLOCKED_MARKER_RE, '').trim();
+  if (!cleanReason) return '';
+  return execution === 'Blocked' ? `Blocked — ${cleanReason}` : cleanReason;
 }
 
 /**
@@ -281,7 +277,9 @@ interface ParsedTc {
   preconditions: string;
   steps: string;
   expected: string;
-  notes: string;
+  // MD Notes (`**Notes**:` + folded `**Cleanup**:`) are intentionally NOT carried —
+  // PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER dropped tc.notes from the deliverable
+  // (cleanup/commentary, not client information). The notes stay in the MD source.
   // Augment cols filled later
   coverageStatus: AugmentData['coverageStatus'];
   automationExecution: AugmentData['automationExecution'];
@@ -314,7 +312,7 @@ function parseMd(filePath: string): ParsedTc[] {
   const preCol = header.indexOf('Preconditions');
   const stepsCol = header.indexOf('Steps');
   const expectedCol = header.indexOf('Expected Result');
-  const notesCol = header.indexOf('Notes');
+  // 'Notes' column intentionally not read — tc.notes is no longer surfaced (declutter plan).
   if (idCol < 0) return [];
 
   const tcs: ParsedTc[] = [];
@@ -334,7 +332,6 @@ function parseMd(filePath: string): ParsedTc[] {
       preconditions: scrubInternalVocab(preCol >= 0 ? (r[preCol] ?? '') : ''),
       steps: scrubInternalVocab(stepsCol >= 0 ? (r[stepsCol] ?? '') : ''),
       expected: scrubInternalVocab(expectedCol >= 0 ? (r[expectedCol] ?? '') : ''),
-      notes: scrubInternalVocab(notesCol >= 0 ? (r[notesCol] ?? '') : ''),
       coverageStatus: '',
       automationExecution: '',
       ifFailedReason: '',
@@ -558,11 +555,12 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
       // though the case now spans 1 first-row + N continuation step-rows.
       accumulate(metrics, tc);
 
-      // Test Data (client-safe, config-driven) + the merged Notes / Reason cell.
-      // tc.notes / tc.steps / tc.expected are already humanized+scrubbed in parseMd;
-      // composeNotesReason scrubs the reason and applies the Blocked marker.
+      // Test Data (client-safe, config-driven) + the reason-only Notes / Reason cell.
+      // tc.steps / tc.expected are already humanized+scrubbed in parseMd; composeReason
+      // scrubs the reason and applies the execution-gated Blocked marker (reason-only —
+      // tc.notes is no longer surfaced, per the declutter plan).
       const testData = deriveTestData(tc.steps);
-      const notesReason = composeNotesReason(tc.notes, tc.ifFailedReason, tc.automationExecution);
+      const notesReason = composeReason(tc.ifFailedReason, tc.automationExecution);
 
       let steps = parseSteps(tc.steps);
       if (steps.length === 0) steps = ['(no steps defined)'];
@@ -583,13 +581,14 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
                 DEFAULT_PRIORITY,
                 tc.coverageStatus,
                 tc.automationExecution, // 'Automation Status' column = execution axis
-                notesReason,
                 tc.preconditions,
                 stepCell,
                 expected,
+                notesReason, // last column (reason-only — declutter plan)
               ]
-            // Continuation step-rows carry ONLY Steps (Step) + Steps (Expected Result).
-            : ['', '', '', '', '', '', '', '', '', '', '', stepCell, expected]
+            // Continuation step-rows carry ONLY Steps (Step)+(Expected Result) at cols
+            // 11-12; the trailing Notes / Reason (col 13) is blank by construction.
+            : ['', '', '', '', '', '', '', '', '', '', stepCell, expected, '']
         );
       });
     }
@@ -607,9 +606,9 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
       '', '', '', '', '',
       `Automated: ${metrics.automated} / Pending: ${metrics.pendingAutomation}`, // Coverage Status col
       `Pass:${metrics.pass} Fail:${metrics.fail} Skipped:${metrics.skipped} Blocked:${metrics.blocked}`, // Automation Status col
-      `Last Updated: ${buildIsoDate}`, // Notes / Reason col
       // Preconditions, Steps (Step), Steps (Expected Result) — empty
       '', '', '',
+      `Last Updated: ${buildIsoDate}`, // Notes / Reason col (last)
     ]);
     summary.font = { bold: true };
     summary.eachCell(cell => {

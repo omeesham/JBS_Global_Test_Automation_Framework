@@ -10,14 +10,18 @@
  *
  * Two leak classes are detected:
  *   1. VOCAB  — internal/agent/framework/slang/speculation tokens in any client cell.
- *   2. INTEGRITY — cross-column contradictions the token scan cannot see. The reason
- *      now lives inside the merged 'Notes / Reason' cell as an optional "Blocked — "
- *      segment (splitNotesReason); execution is the 'Automation Status' column:
+ *   2. INTEGRITY — cross-column contradictions the token scan cannot see. The
+ *      'Notes / Reason' cell is now reason-ONLY (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER):
+ *      the whole cell IS the curated reason, optionally marked "Blocked — "
+ *      (splitNotesReason); execution is the 'Automation Status' column:
  *        C1  Automation Status == 'Pass' AND a "Blocked — " segment    → FAIL (join bug)
  *        C2  Coverage Status / Automation Status outside the enum       → FAIL
  *        C3  Automation Status == 'Blocked' AND no "Blocked — " segment → WARN (kept-visible reason missing)
- *        C4  Coverage Status == 'Manual' AND (status set OR "Blocked — " segment) → FAIL (plain Notes OK)
+ *        C4  Coverage Status == 'Manual' AND (status set OR "Blocked — " segment) → FAIL
  *        C5  "Blocked — " segment under 4 words excl. marker (not allowlisted) → FAIL (internal label, not a sentence)
+ *        C9  Notes / Reason anti-pollution gate (reason-only enforcement) → FAIL
+ *            (Pass row populated / "Cleanup after test…" breadcrumb / non-curated
+ *             blank-execution commentary). See lintWorkbook + §2.7 of the declutter plan.
  *        C6  per-sheet TC IDs duplicated OR out of canonical order     → FAIL (LR-ENC-004 V3 — rows must read in ascending TC-ID order; renumbering is forbidden because IDs are spec keys, so the EMITTER sorts and C6 re-asserts it)
  *        C7  garbled output — empty/dangling parens, a separator stranded before
  *            ')', "(->)", an ATTRIBUTED HTML tag (`<span class="…">`; bare `<div>`
@@ -66,8 +70,9 @@ export function loadModuleRegistry() {
 export const CHECKED_COLS = [
   'TC ID', 'Title', 'Module', 'Submodule',
   'Test Data', 'Type', 'Priority',
-  'Coverage Status', 'Automation Status', 'Notes / Reason',
+  'Coverage Status', 'Automation Status',
   'Preconditions', 'Steps', 'Expected Result',
+  'Notes / Reason', // reason-only, last column (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER)
 ];
 
 /**
@@ -92,19 +97,18 @@ export const COVERAGE_ENUM = new Set(['Automated', 'Pending Automation', 'Manual
 export const EXECUTION_ENUM = new Set(['Pass', 'Fail', 'Skipped', 'Blocked', '']);
 
 /**
- * Notes / Reason segment extraction (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT). The merged
- * 'Notes / Reason' column composes a reason segment (optionally marked "Blocked — ") with an
- * appended "\n\nNotes: <notes>" tail. C1/C3/C4/C5 act on the BLOCKED reason segment only, so
- * they re-derive it here. MUST stay byte-identical to composeNotesReason() in
- * export_test_cases/to-xlsx.ts (BLOCKED_MARKER_RE + the "\n\nNotes: " separator) — any drift
- * silently defeats the integrity checks.
+ * Notes / Reason segment extraction (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER). The
+ * 'Notes / Reason' column is now reason-ONLY — the whole cell IS the curated reason
+ * (optionally marked "Blocked — "); tc.notes is no longer appended, so there is no
+ * "\n\nNotes: " tail to slice off. C1/C3/C4/C5 act on the reason segment, so they read
+ * it here. The marker MUST stay byte-identical to composeReason() in
+ * export_test_cases/to-xlsx.ts (BLOCKED_MARKER_RE) — any drift silently defeats the
+ * integrity checks. The {reasonPart, hasBlocked, blockedReason} shape is preserved
+ * (C1/C3/C4/C5 + the continuation-row test consume it).
  */
 export const BLOCKED_MARKER_RE = /^Blocked\s*[—–-]\s*/i;
-const NOTES_SEP_RE = /\n\nNotes:\s/;
 export function splitNotesReason(cell) {
-  const s = String(cell ?? '');
-  const sepIdx = s.search(NOTES_SEP_RE);
-  const reasonPart = (sepIdx >= 0 ? s.slice(0, sepIdx) : s).trim();
+  const reasonPart = String(cell ?? '').trim();
   const hasBlocked = BLOCKED_MARKER_RE.test(reasonPart);
   // Reason text with the "Blocked — " marker stripped, for C5's client-sentence word-count
   // (which must EXCLUDE the marker so "Blocked" + "—" do not pad a 2-word internal label to 4).
@@ -285,6 +289,15 @@ export const BANNED = [
   { name: 'migration-context new site', re: /\bnew[ -]site\b/i },
   { name: 'migration-context old site', re: /\bold[ -]site\b/i },
   { name: 'migration-context nav2 host', re: /\bnav2\b|navigator2/i },
+  // ── deny-list shape-gap closure (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER §2.8,
+  //    2026-06-11). Belt-and-suspenders for any future HAND-WRITTEN curated reason:
+  //    dropping tc.notes already removed the leak VECTOR, but these whole-class tokens
+  //    (agent-mistakes 2026-06-09 B1: the deny-list was shape-blind to them) had slipped
+  //    past before. Confirmed 0 occurrences across all sheets of the rebuilt workbook at
+  //    add-time — fail-green backstop so the class cannot regress. ──
+  { name: 'MCP ref', re: /\bMCP\s+ref\b/i },
+  { name: 'per source code', re: /\bper\s+source\s+code\b/i },
+  { name: 'Jira tool ref', re: /\bJira\b/i },
 ];
 
 /**
@@ -345,6 +358,25 @@ export function lintWorkbook(xlsxPath) {
   const vocabHits = [];
   const integrityViolations = [];
   const warnings = [];
+
+  // C9c curated-reason registry (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER §2.7). The
+  // set of TC IDs that legitimately carry a curated reason on a non-fail/skip/blocked
+  // row (e.g. the ~21 "Not yet automated …" / "Kept as a manual check …" reasons in
+  // export_test_cases/blocked-reasons.json). FAIL-OPEN: null ⇒ registry unavailable
+  // (the shipped --target archive extract has no export_test_cases/) ⇒ C9c is skipped,
+  // never false-failing a ship. C9a/C9b are workbook-only and always hold.
+  let curatedReasonIds = null;
+  try {
+    const brPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'export_test_cases', 'blocked-reasons.json');
+    if (existsSync(brPath)) {
+      const br = JSON.parse(readFileSync(brPath, 'utf8').replace(/^﻿/, ''));
+      curatedReasonIds = new Set(
+        Object.entries(br)
+          .filter(([k, v]) => k.startsWith('TC-') && v && String(v.reason || '').trim() !== '')
+          .map(([k]) => k)
+      );
+    }
+  } catch { curatedReasonIds = null; } // unreadable ⇒ degrade to C9a/C9b only (never false-fail a ship)
 
   // Overview banner scan (LR-ENC-004 V2): readWorkbookRows skips the Overview sheet,
   // so scan its client-facing title rows (1-2) explicitly for internal vocab such as
@@ -407,14 +439,16 @@ export function lintWorkbook(xlsxPath) {
       }
     }
 
-    // ── integrity scan (Automation Status = execution axis; reason lives inside the
-    //    merged 'Notes / Reason' cell as an optional "Blocked — " segment) ──
+    // ── integrity scan (Automation Status = execution axis; the reason-only
+    //    'Notes / Reason' cell is the curated reason, optionally "Blocked — " marked) ──
     const cov = String(r['Coverage Status'] ?? '').trim();
     const exec = String(r['Automation Status'] ?? '').trim();
+    const nr = String(r['Notes / Reason'] ?? '').trim();
     const { hasBlocked, blockedReason } = splitNotesReason(r['Notes / Reason']);
 
-    // C1 — Pass row carrying a "Blocked — " reason segment (upstream join bug). Plain
-    // Notes on a Pass row are legitimate, so only the marked segment trips C1.
+    // C1 — Pass row carrying a "Blocked — " reason segment (upstream join bug). The
+    // broader "any populated Pass cell" case is caught by C9a below; C1 stays the
+    // narrow marked-segment signal that pinpoints a join bug specifically.
     if (exec === 'Pass' && hasBlocked) {
       integrityViolations.push({
         code: 'C1', sheet: r.sheet, tcId: hitTcId,
@@ -429,7 +463,9 @@ export function lintWorkbook(xlsxPath) {
       integrityViolations.push({ code: 'C2', sheet: r.sheet, tcId: hitTcId, detail: `Automation Status not in enum: "${exec}"` });
     }
     // C4 — Manual must have a blank Automation Status AND no "Blocked — " reason
-    // segment (plain Notes are allowed on a Manual row).
+    // segment. (A Manual row may legitimately carry a curated plain reason, e.g.
+    // "Kept as a manual check …" — that is allowed; only a status or a "Blocked — "
+    // marker trips C4.)
     if (cov === 'Manual' && (exec !== '' || hasBlocked)) {
       integrityViolations.push({
         code: 'C4', sheet: r.sheet, tcId: hitTcId,
@@ -452,6 +488,34 @@ export function lintWorkbook(xlsxPath) {
     // app-bug reasons kept visible).
     if (exec === 'Blocked' && !hasBlocked) {
       warnings.push({ code: 'C3', sheet: r.sheet, tcId: hitTcId, detail: `Blocked but no reason text` });
+    }
+
+    // ── C9 — Notes / Reason anti-pollution gate (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER
+    //    §2.7; the permanent lock). The column is the curated execution-reason channel
+    //    ONLY; cleanup/commentary must never ship. Fires on first-rows (TC ID present);
+    //    continuation rows have a blank TC ID and a blank Notes / Reason by construction.
+    //    C9a + C9b are workbook-only (zero external-file dependency) so they hold at ship
+    //    --target where the archive extract has no export_test_cases/; C9c is conditional
+    //    on the curated-reason registry (fail-open → skipped when the registry is absent). ──
+    if (tcId) {
+      // C9a — a clean automated pass has nothing to explain → cell must be empty.
+      if (exec === 'Pass' && nr) {
+        integrityViolations.push({ code: 'C9', sheet: r.sheet, tcId: hitTcId,
+          detail: `Notes / Reason populated on a Pass row — a clean pass needs no note (cleanup/commentary must not ship): "${nr.slice(0, 80)}"` });
+      }
+      // C9b — cleanup breadcrumbs are test-maintenance, never client content.
+      if (/^Cleanup after test\b/i.test(nr)) {
+        integrityViolations.push({ code: 'C9', sheet: r.sheet, tcId: hitTcId,
+          detail: `Notes / Reason carries a "Cleanup after test…" breadcrumb — must not ship: "${nr.slice(0, 80)}"` });
+      }
+      // C9c (CONDITIONAL — only when blocked-reasons.json is present; silently skipped in
+      // the shipped extract). A blank-execution row may carry a reason ONLY if it is a
+      // curated reason in blocked-reasons.json. Any other populated blank-exec cell is
+      // commentary that slipped in.
+      if (curatedReasonIds && exec === '' && nr && !curatedReasonIds.has(hitTcId)) {
+        integrityViolations.push({ code: 'C9', sheet: r.sheet, tcId: hitTcId,
+          detail: `Notes / Reason populated on a non-fail/skip/blocked row with no curated reason in blocked-reasons.json — commentary leak: "${nr.slice(0, 80)}"` });
+      }
     }
   }
 
