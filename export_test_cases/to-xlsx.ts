@@ -407,6 +407,13 @@ function fmtPct(num: number, denom: number): string {
 
 interface BuildOptions {
   mode: AugmentMode;
+  /** When set, write the workbook here instead of the canonical XLSX_PATH. Used by the
+   *  freshness gate (scripts/xlsx-freshness.ts) to build a throwaway copy to a temp file
+   *  for comparison WITHOUT clobbering the committed deliverable. */
+  outPath?: string;
+  /** Run the post-write self-lint subprocess (default true). Auto-skipped when outPath is
+   *  set — the subprocess re-reads the canonical XLSX_PATH from disk, not the temp file. */
+  selfCheck?: boolean;
 }
 
 /**
@@ -433,7 +440,7 @@ function buildFromMdSource(): Map<string, ParsedTc[]> {
   return tcsBySheet;
 }
 
-async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; sheetsBuilt: string[]; rowsPerSheet: Record<string, number> }> {
+export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; sheetsBuilt: string[]; rowsPerSheet: Record<string, number> }> {
   const buildIsoDate = new Date().toISOString().slice(0, 10);
   const buildTimestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
 
@@ -651,27 +658,33 @@ async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; she
   }
   autoSize(overview, OVERVIEW_HEADERS.length);
 
-  // 6. Write
-  if (!fs.existsSync(XLSX_DIR)) fs.mkdirSync(XLSX_DIR, { recursive: true });
-  await wb.xlsx.writeFile(XLSX_PATH);
+  // 6. Write — to opts.outPath for a throwaway build (freshness gate), else the canonical path.
+  const outPath = opts.outPath ?? XLSX_PATH;
+  const outDir = path.dirname(outPath);
+  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+  await wb.xlsx.writeFile(outPath);
 
   // Build-time self-fail (LR-ENC-004): re-lint the workbook we just wrote with the
   // SAME shared rules (scripts/xlsx-lint-rules.mjs) used at commit and ship time.
   // `npm run xlsx:build` can therefore never silently emit a workbook with internal
   // vocabulary or a status/reason contradiction. Run as a subprocess to cross the
   // CJS (ts-node) → ESM (.mjs) boundary cleanly; the CLI re-reads XLSX_PATH from disk.
-  const lintScript = path.join(REPO_ROOT, 'scripts', 'xlsx-vocab-lint.mjs');
-  try {
-    execFileSync(process.execPath, [lintScript], { stdio: 'inherit' });
-  } catch {
-    throw new Error(
-      '[xlsx:build] self-check FAILED — the generated workbook contains banned vocabulary ' +
-      'or a status/reason contradiction (see the xlsx:lint output above). Fix the SOURCE ' +
-      '(MD test cases, spec test.fixme reasons, or export_test_cases/blocked-reasons.json) and rebuild.'
-    );
+  // Skipped for a throwaway build (outPath set / selfCheck === false): the subprocess
+  // re-reads the canonical XLSX_PATH, so it would lint the wrong (stale) file.
+  if (opts.selfCheck !== false && outPath === XLSX_PATH) {
+    const lintScript = path.join(REPO_ROOT, 'scripts', 'xlsx-vocab-lint.mjs');
+    try {
+      execFileSync(process.execPath, [lintScript], { stdio: 'inherit' });
+    } catch {
+      throw new Error(
+        '[xlsx:build] self-check FAILED — the generated workbook contains banned vocabulary ' +
+        'or a status/reason contradiction (see the xlsx:lint output above). Fix the SOURCE ' +
+        '(MD test cases, spec test.fixme reasons, or export_test_cases/blocked-reasons.json) and rebuild.'
+      );
+    }
   }
 
-  return { outPath: XLSX_PATH, sheetsBuilt: ['Overview', ...sortedSheetNames], rowsPerSheet };
+  return { outPath, sheetsBuilt: ['Overview', ...sortedSheetNames], rowsPerSheet };
 }
 
 /** Order: Overview first (handled outside), then local_office_* alphabetical, then locations_* alphabetical. */

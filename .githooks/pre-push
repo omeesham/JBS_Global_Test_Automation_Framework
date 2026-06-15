@@ -37,4 +37,26 @@ git diff --cached --name-only HEAD 2>/dev/null | while read -r staged_file; do
   node scripts/verify-no-forbidden.mjs --staged="$staged_file" || exit 1
 done
 
+# 4. Workbook content-freshness + reproducibility gate — last-line defense vs a
+# `git commit --no-verify` that skipped the pre-commit gate, or post-commit drift.
+# Runs the rebuild-diff + reproducibility check if the commits being pushed touch any
+# workbook input.
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+RUN_FRESHNESS=0
+if git rev-parse --verify --quiet "origin/$BRANCH" >/dev/null 2>&1; then
+  if git diff --name-only "origin/$BRANCH"..HEAD \
+       | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/specs_planning/test-cases/.+\.md$|^clients/[^/]+/test_cases_xlsx/.+\.xlsx$|^export_test_cases/.+\.(ts|json)$'; then
+    RUN_FRESHNESS=1
+  fi
+else
+  RUN_FRESHNESS=1 # no upstream yet — establishing the branch; verify freshness once
+fi
+if [ "$RUN_FRESHNESS" -eq 1 ]; then
+  echo "[pre-push] running xlsx freshness gate..." >&2
+  if ! npm run --silent xlsx:freshness; then
+    echo "[pre-push] HALT: deliverable workbook is stale or was built from uncommitted generators." >&2
+    exit 1
+  fi
+fi
+
 exit 0
