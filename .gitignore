@@ -69,6 +69,8 @@ Thumbs.db
 
 # Testing
 coverage/
+# ...but not the tracked /coverage skill (see line ~117: .claude/skills/ is shipped to collaborators)
+!.claude/skills/coverage/
 .nyc_output/
 
 # Temporary
@@ -128,6 +130,7 @@ current_plan.md
 
 # Chain orchestration runtime state (see PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md; only .gitkeep tracked)
 .claude/state/*.json
+.claude/state/*.jsonl
 .claude/state/*.log
 .claude/state/*.lock
 .claude/state/chain.STOP
