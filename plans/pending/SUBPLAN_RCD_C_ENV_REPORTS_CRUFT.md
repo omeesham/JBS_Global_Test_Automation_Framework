@@ -22,6 +22,8 @@ After A (configs gone) and B (scripts/ deduped), root still has: (1) multi-tenan
 
 Highest-risk step: relocating `reports/bugs/` (13 BUG-*.json files; verified live 2026-05-07). 57 files repo-wide reference `reports/bugs` and `.claude/rules/baseline.md:7` declares it as a path-glob (`paths: "reports/bugs/**/*.json"`). Move requires either (a) cross-cutting reference updates, or (b) keeping `reports/bugs/` at root as a structural exception. Phase 4 picks one explicitly, with user-visible impact callout.
 
+> **Provenance amendment (2026-06-12, PLAN_LOSSLESS_DEEP_TRIM adoption)**: this subplan's counts and file inventories (13 BUG-*.json; 12 cruft files; ref counts) are STALE — a 2026-06-12 spot-check saw ~5 bug JSONs at root. Regenerate every count/list in-session from `git ls-files` / `git status` / fresh `rg` before acting; the executing session is bound by the master's Re-Proof Protocol and Untouchables list in `plans/pending/PLAN_LOSSLESS_DEEP_TRIM.md` (tracked = lossless delete; untracked = relocate-to-tmp or skip, NEVER silent-delete; `reports/**` user data = relocate-only).
+
 ---
 
 ## Bootstrap

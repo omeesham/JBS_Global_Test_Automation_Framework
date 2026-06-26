@@ -68,6 +68,11 @@ Activity log is the audit trail. Missing entry = invisible session = audit findi
 (b) **Inference-classified** with a **grep-verifiable line item** in a named downstream subplan file that currently exists in `plans/pending/` or `plans/done/`. The agent MUST grep the recipient file for the specific item text before closing. "Scope-pushed to SP-X" without a grep-verifiable line item in SP-X's file = **phantom hand-off = audit finding**.
 (c) **User-flagged** with a named bug-candidate ID (e.g., `PRC-BUG-C`) AND a "Pending decisions" entry in the gated SP-E-* subplan, OR marked as a **discussion-item** per `feedback_discussion_item_not_bug.md` (empty-everywhere + no-UI-path + no-Jira). Discussion-items do NOT need a bug ID — they need a named flag in the catalog + Execution Summary.
 
+**(c) empty-surface extension — investigate HOW it populates before flagging empty (M4, 2026-06-19).** An empty surface (an empty tab, a "No results." grid, a blank list) may NOT be flagged `empty` + "refresh later" / "no data" and closed without first investigating how it is *supposed* to populate. Before assigning an empty surface to (c), record ALL three:
+- **c.1 — population path**: HOW does the surface get data? Name the concrete enabler — the UI path that adds a row, the governing Jira ID, the admin/super-admin setup step, or **which office actually has data** (e.g. Labor product groups repro on office 1101, NM-1881 — not the default 1604). "It was empty on 1604" is a data-state observation, never a population-path.
+- **c.2 — classification**: is the emptiness `data-blocked` (real data exists elsewhere / needs setup — testable once populated), `feature-blocked` (the surface is gated behind an unbuilt/disabled feature), or `by-design` (legitimately empty until a user acts)? The three have different dispositions; an unclassified "empty" is not a disposition.
+- **c.3 — escalate-if-unknown**: if the population path is unknown after a real dig (live UI affordance probe + Jira/Confluence per LR-ENC-004 + a second office), escalate via `/encore-questions` — do NOT silently accept the empty state. An empty surface with no c.1/c.2/c.3 record is the M4 miss (Labor override tab accepted empty, never investigated; the picker was currency-gated per NM-1472 and Labor data lived on office 1101 per NM-1881).
+
 Labels like "TRACKED (by inference)" / "NOT-TRACKED (inferred)" / "scope-pushed" on their own are NOT sufficient — they must be backed by (b) or (c).
 
 **HALT condition**: if ANY planned item cannot be classified into (a)/(b)/(c) at Status-flip time, HALT and ask the user. Do not flip Status on prose-only deferral. LR-027 guards the Execution Summary text; LR-040 guards the Status field itself.
@@ -77,11 +82,11 @@ Labels like "TRACKED (by inference)" / "NOT-TRACKED (inferred)" / "scope-pushed"
 1. List every planned item.
 2. For each, assign (a), (b), or (c).
 3. For (b): grep the recipient file. Missing → add the line item there first, then close.
-4. For (c): confirm the named flag / bug-ID / Pending-decision entry exists in the target file. Missing → add first.
+4. For (c): confirm the named flag / bug-ID / Pending-decision entry exists in the target file. Missing → add first. **For any EMPTY surface (empty tab / "No results." grid / blank list): confirm the c.1 population-path + c.2 classification + c.3 escalate-if-unknown record exists. Missing → investigate (live affordance probe + Jira per LR-ENC-004 + 2nd office) or escalate via `/encore-questions`; never close on "empty / refresh later".**
 5. Any item not (a)/(b)/(c) → HALT + ask user.
 
-**Trigger**: every SP-B-*, SP-C-*, SP-D-*, and any future subplan whose Step-by-Step enumerates parents / columns / TCs.
-**Graduated from**: SP-B-LM-2 (2026-04-22) premature-DONE incident.
+**Trigger**: every SP-B-*, SP-C-*, SP-D-*, and any future subplan whose Step-by-Step enumerates parents / columns / TCs; **plus any walk/catalog that encounters an empty surface (empty tab / "No results." grid / blank list) — the (c) empty-surface extension fires (record c.1/c.2/c.3)**.
+**Graduated from**: SP-B-LM-2 (2026-04-22) premature-DONE incident. The (c) empty-surface extension added 2026-06-19 by PLAN_CORP_PRICING_REWALK_REMEDIATION M4 (Labor override tab accepted empty, never investigated — the picker was currency-gated per NM-1472, Labor data lived on office 1101 per NM-1881). Cross-refs LR-057 (affordance probe), LR-061 (verify-before-blocked), LR-ENC-004 (Jira-first).
 
 ## LR-041: Conservative model + thinking selection — every subplan declares Model + Thinking + PermissionMode
 
@@ -196,6 +201,74 @@ Fires on every plan under `plans/pending/PLAN_*.md` whose title, frontmatter, or
 2026-05-06 — root `playwright.config.ts:66` still at `fullyParallel: true` 6 days after `clients/encore/playwright.config.ts:33` was set to `false` as a dependencyGate hard rule. `PLAN_CLIENT_DELIVERABLE_REBUILD` (2026-04-30) restructured the repo to client-architecture without enumerating "delete leftover root duplicates" — 8 file classes drifted; `PLAN_ROOT_CLIENT_DEDUPE.md` cleans up retroactively. Repeat-offense pattern: `SUBPLAN_REPO_04/05/06/07` (2026-04-16, all stale 19+ days) are retroactive evidence of the same lazy-restructure shape.
 
 Cross-refs: pairs with `feedback_restructure_plans_include_cleanup.md`; LR-027, LR-040, LR-046.
+
+## LR-060: Execution-completion discipline — no silent checkpoint; env defers only the env-blocked step
+
+Every closure gate (LR-055 C1–C6, the Per-Identity Matrix audit, LR-040) keys on the `Status: DONE`
+flip. An `/execute` that does partial work, leaves the plan PENDING, writes a chat summary, and stops
+trips NONE of them — mandated phases can be silently skipped. This rule + its Stop-hook close that hole.
+
+**Three obligations:**
+
+1. **No silent checkpoint.** An `/execute` of a plan file either (a) completes every mandated phase
+   (each declared artifact exists), or (b) records an explicit, user-signed `## Deferral Authorization`
+   block in the plan body naming what is deferred and why. Ending a session with the plan PENDING,
+   mandated-phase artifacts missing, and NO Deferral Authorization block is an audit finding. The
+   block requires a REAL user authorization (chat "yes" / "defer X" quoted in it) — the agent may not
+   self-author it (an override cannot convert missing evidence into evidence, per
+   `feedback_override_cannot_convert_missing_to_evidence.md`).
+
+2. **Env defers only the env-blocked step.** When the environment genuinely blocks a step (e.g. a flaky
+   server dropping connections during a long ×2 full-suite run), that SPECIFIC step may be deferred
+   (HALT-and-ask or a recorded Deferral Authorization). Env instability does NOT license deferring
+   env-INDEPENDENT work — baseline walks (browser observation, not a suite run), catalog / MD-XLSX
+   authoring, spec edits, `/review`, `/audit` are env-independent. Citing "env / next session" to defer
+   them is the 2026-06-18 Pricing RC-5 rationalization. Distinguish legitimate-blocker (HALT-ask) from
+   avoidable-deferral (forbidden).
+
+3. **No DONE flip with red owned-tests deferred to a task chip (M3, 2026-06-19).** A plan MUST NOT flip
+   `Status: DONE` while spec tests it owns are red/failing, UNLESS a `## Deferral Authorization` block
+   (a) names the red TC IDs verbatim AND (b) points to a **PENDING recipient subplan** that exists in
+   `plans/pending/` to carry them. A **transient task chip is NEVER a valid recipient** — it evaporates
+   when the session ends, leaving the red tests with no durable owner (the M3 miss: 10 red
+   `TC-CPR-TIO-*` toolbar tests deferred to a task chip on a DONE flip, then never run). This governs
+   the **test-status axis** specifically: a closure-gate that checks artifacts (C1–C6) or env-deferral
+   (obligations 1–2) does NOT catch "DONE while red, routed to a chip." A task chip is the right tool
+   for an *out-of-scope adjacent fix* (Phase 2.5 SPAWN), never for *red tests the plan was meant to land
+   green*. Distinct from LR-040(b): LR-040(b) only requires a recipient to *exist*, and a task chip
+   technically exists — obligation 3 closes that hatch by demanding a PENDING *plan file*, not a chip.
+
+**Enforcement (detective + forcing-function):** `.claude/hooks/execution-completion-gate.sh` (Stop
+hook) + `lib/check-execution-completion.mjs` warn on session end when an active `/execute` of a plan
+file has a mandated `_internal` artifact missing, the plan is not DONE, and no `## Deferral
+Authorization` block exists; the warning persists to
+`.claude/state/execution-completion-warnings-<sid>.json`, which `/final-q` + `/audit` read and floor
+the verdict. A Stop hook cannot hard-block session end — this is a detective control + forcing-function,
+not a veto. (The DENY-capable preventive for the sibling bug-baseline class is `check-bug-baseline.mjs`,
+LR-034.) **Obligation 3 (test-status) is additionally enforced at DONE-flip time by closure-check Ct**
+(`scripts/validate-plan-closure.mjs`, NON-overridable, rolling out via `test_status_mode` in
+`.claude/closure-config.json` — landed `announce`, ramp to `deny`): Ct FAILS a `Status: DONE` plan that
+cites a task chip alongside red/failing-test language, OR a `## Deferral Authorization` about test
+status that omits the red TC IDs or a `plans/pending/` recipient subplan. Ct keys on the documented
+deferral evidence in the plan body (the validator cannot run tests); silently-shipped red is still
+caught by the suite-run acceptance criterion + `/final-q`.
+
+**FCC scope note:** for FCC subplans this is Anti-Assumption Gates 4 + 6 in
+`PLAN_BIG_PIVOT_FCC_MASTER.md`. LR-050 forbids deferring stale-slop cleanup in restructure plans;
+LR-060 forbids deferring mandated phases / env-independent work in execution plans — different layer,
+same anti-defer spirit.
+
+**Trigger**: every `/execute` of a plan file; every session-end Stop while an `/execute` window is
+open; every decision to defer a plan phase citing "env" / "next session" / "stable env"; **every
+`Status: DONE` flip while owned spec tests are red — and every attempt to route red tests to a task
+chip instead of a PENDING recipient subplan (obligation 3)**.
+**Graduated from**: 2026-06-18 Pricing FCC session (RC-3 baseline-walk skipped silently + RC-5
+env-rationalized deferral of env-independent work + checkpoint-as-stopping-point; see
+`clients/encore/specs_planning/_internal/agent-mistakes.md`). Obligation 3 (no-red-close test-status
+deferral) added 2026-06-19 by PLAN_CORP_PRICING_REWALK_REMEDIATION M3 (10 red `TC-CPR-TIO-*` toolbar
+tests flipped DONE to a task chip). Pairs with LR-055 (closure DONE-flip gate + Ct), LR-040 (closure
+completeness — obligation 3 closes its task-chip-recipient hatch), LR-050 (restructure no-defer),
+LR-046 (strict-line HALT).
 
 ## TodoWrite Tagging Contract (SP02B — structural enforcement via hook pair)
 

@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_TIERED_DELEGATED_WALK.md",
+  "plan_basename": "PLAN_TIERED_DELEGATED_WALK.md",
+  "plan_sha256": "c7177b035af8713ea4460a852ca6fda1c8e05e1f5a95cc101bd87b003b49dffd",
+  "passed_at": "2026-06-22T16:01:08.662Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "3b3d9f27b01661e2bf09cbaa1832b9b8ff8c1a9d7b0e4a4f0f8113f2585d858f",
+  "validator_invocation_id": "1782144068662-1a1659a7626c970f7ae69c029cafdce9-c7177b035af8713e",
+  "artifacts": [],
+  "provisional": false
+}

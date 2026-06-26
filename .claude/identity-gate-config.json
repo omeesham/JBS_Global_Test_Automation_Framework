@@ -1,0 +1,9 @@
+{
+  "mode": "announce",
+  "_comment": "Rollout knob for the Layer-1 OWNER pipeline-artifact write-gate (PLAN_IDENTITY_ENFORCEMENT). Read by .claude/hooks/lib/check-identity-switch.mjs readGateMode(); env IDENTITY_GATE_MODE overrides per-invocation (tests). off = the Layer-1 branch is skipped entirely (legacy behavior — OWNER writes pipeline artifacts freely). announce = the gate ALLOWS the write but persists a warning to .claude/state/identity-gate-warnings-<sid>.json that /final-q + /audit read and floor the verdict (Layer 4) — warn-only, never blocks. deny = the gate DENIES an OWNER write to pipeline-artifact territory inside /execute unless the LR-043 §A override handshake is present, forcing /identity <ROLE> (which loads the role's HARD STOPs). Ramped exactly like closure-config.json's c6_mode.",
+  "_provenance": "PLAN_IDENTITY_ENFORCEMENT (2026-06-25). Lands in 'announce' per the plan's rollout sequence step 3: zero behavior change (warnings only) so the territory classification can be observed across a few real /execute runs and any false-positive fixed before flipping to 'deny' (step 6). Fail-open: any read/parse error in readGateMode() → treated as 'off'.",
+  "ramp_started": "2026-06-25",
+  "ramp_target": "deny",
+  "ramp_complete": false,
+  "ramp_note": "Flip to deny after a clean window of real /execute runs with no false-positive pipeline-artifact territory classifications (observe /final-q identity-gate warnings)."
+}

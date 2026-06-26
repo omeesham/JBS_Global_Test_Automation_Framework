@@ -77,6 +77,14 @@
     "reports",
     "logs",
     "playwright-report",
-    "client-delivery"
+    "client-delivery",
+    // Self-managed sub-projects: each has its own tsconfig + build command
+    // (pipeline/tsconfig.json via build:server, website/{backend,frontend},
+    // clients/encore/tsconfig.json). Root typecheck owns only root src/, scripts/,
+    // export_test_cases/. Excluding these prevents the root commonjs/node config
+    // from wrongly compiling ESM/bundler sub-projects.
+    "website",
+    "pipeline",
+    "clients"
   ]
 }

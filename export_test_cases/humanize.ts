@@ -30,7 +30,12 @@ export function sanitizeUnicode(value: string): string {
     .replace(/→/g, '->')
     // content checkmarks first (so a checkmark used as content is never read as
     // the action↔expected separator); bare separator checkmark stays '->' below.
-    .replace(/`\s*[✓✔]\s*`/g, 'check mark')
+    // Tight match only (no inner whitespace): a genuine content checkmark is `✔`. The
+    // loose `\s*` form falsely spanned the gap between two SEPARATE code-spans when a bare
+    // `✓` action→expected separator sat between them (`` `[testid]` ✓ `alertdialog` ``),
+    // welding "check mark" onto the next word (NTS-008, 2026-06-25). A spaced `✓` now falls
+    // through to the bare `->` separator rule below, as intended.
+    .replace(/`[✓✔]`/g, 'check mark')
     .replace(/\(\s*[✓✔]\s*\)/g, '(checked)')
     .replace(/\(\s*[✕✖✗✘]\s*\)/g, '(unchecked)')
     .replace(/=\s*[✓✔]/g, '= checked')
@@ -279,6 +284,7 @@ export function scrubInternalVocab(text: string): string {
     // Container roles + the Radix component-library name (LR-ENC-004 V2, 2026-06-05).
     // Radix stripped BEFORE listbox so "Radix listbox" collapses to "dropdown".
     [/\btabpanel\b/gi, 'panel'],
+    [/\balertdialog\b/gi, 'alert dialog'],
     [/\bRadix\b\s*/g, ''],
     [/\blistbox\b/gi, 'dropdown'],
     // Angular "dirty"/"pristine" change-tracking jargon → plain English. Specific
@@ -337,6 +343,66 @@ export function scrubInternalVocab(text: string): string {
   s = s.replace(/\bwalk-evidence\b/gi, 'a live walk');
   s = s.replace(/\bform-dirty\b/gi, 'unsaved-changes');
   s = s.replace(/\bthis TC\b/g, 'this test case');
+
+  // ── Coverage-depth taxonomy + surface-case labels (audit 2026-06-25). The internal
+  //    L1/L2/L3 depth markers (QUICK = L1, DEEP = L2/L3) belong ONLY on the
+  //    `**Surface_Family**:` line — which is NOT an emitted column. A GIVER appended them
+  //    to the human `## TC-…:` heading and they shipped into the NM-2260 Search Titles.
+  //    Strip the parenthesized markers + the SBC / Surface_Family labels from any client
+  //    cell. Backed by the xlsx-lint deny-list (fail-green backstop). ──
+  s = s.replace(/\s*\((?:QUICK|DEEP)\b[^)]*\)/gi, ''); // (QUICK) (DEEP) (DEEP/FLAG)
+  s = s.replace(/\s*\(\s*FLAG\s*\)/gi, '');
+  s = s.replace(/\bSurface[_ ]Family\b/gi, '');
+  s = s.replace(/\bSBC\b/g, '');
+
+  // ── Tier-2 test-method jargon → plain English (a reviewer reads the behavior, not how
+  //    we automate it). Multi-word forms first so the single-word fallbacks leave no
+  //    fragment. Backed by the deny-list (content-anchored / positive-control / nth()). ──
+  s = s.replace(/\bnth\s*\(\s*[^)]*\)/gi, 'row position');  // nth(N) / nth(0)
+  s = s.replace(/\bnth\s+row\s+index\b/gi, 'row position');
+  s = s.replace(/\bby\s+content[- ]anchor(?:ed)?\b/gi, 'by content');
+  s = s.replace(/\bcontent[- ]anchored\b/gi, 'content-based');
+  s = s.replace(/\bcontent\s+anchor\b/gi, 'content');
+  s = s.replace(/\bPositive[- ]control\b/g, 'Baseline check');
+  s = s.replace(/\bpositive[- ]control\b/g, 'baseline check');
+
+  // ── Selector / automation-directive jargon (audit 2026-06-25 round 2). CSS/Playwright
+  //    selectors and "do NOT use …" test directives are pure automation-speak a reviewer
+  //    never needs. Drop the `(e.g., tr:has-text(…) or ID-based anchor)` hint, translate a
+  //    `tag:has-text("X")` selector into "the \"X\" <tag>", and strip the directive tail. ──
+  s = s.replace(/\s*\(e\.g\.,?[^()]*has-text\([^)]*\)[^()]*\)/gi, '');
+  s = s.replace(/\b([a-z]+):has-text\(\s*"([^"]*)"\s*\)/gi, 'the "$2" $1');
+  s = s.replace(/:has-text\(\s*"([^"]*)"\s*\)/gi, '"$1"');
+  s = s.replace(/\busing a content-based selector\b/gi, 'by its content');
+  s = s.replace(/[-–—,;]?\s*do NOT use\b[^.\n]*?(?:row[- ]index|hard[- ]?cod|position|count|selector|nth)[^.\n]*/gi, '');
+
+  // ── Positional / DOM-internal jargon → plain English. ──
+  s = s.replace(/\bhard[- ]?cod(?:e|ed|ing)\b/gi, 'fixed');
+  s = s.replace(/\brow[- ]index\s+(\d+)/gi, 'row $1');
+  s = s.replace(/\brow[- ]index\b/gi, 'position');
+  s = s.replace(/\bordinal\s+position\b/gi, 'position');
+  s = s.replace(/\bordinal\b/gi, 'position');
+  s = s.replace(/\bin the DOM\b/gi, 'on the page');
+
+  // ── Leaked spec-helper index-calls (the Notes module ships these because they are
+  //    lowercase — the camelCase-call strip above cannot see `row(0, …)` / `value(0)`).
+  //    Translate the regular forms into plain steps; backed by the deny-list. ──
+  s = s.replace(/\bFor i in 0\.\d+\s*:/gi, 'For each note row:');
+  s = s.replace(/\bif i\s*>\s*0\b/gi, 'after the first row');
+  // Resolve nested `"X".repeat(N)` BEFORE the paste/fill rules below, so the inner `)` of
+  // repeat() does not truncate their non-greedy argument capture (NTS-044).
+  s = s.replace(/"([^"]*)"\.repeat\(\s*(\d+)\s*\)/gi, '"$1" repeated $2 times');
+  s = s.replace(/\bfill the note row\(\s*(\d+)\s*,\s*([^)]*?)\s*\)/gi, 'type $2 into note row $1');
+  s = s.replace(/\bfill the note row\(\s*i\s*,\s*([^)]*?)\s*\)/gi, 'type $1 into the note row');
+  s = s.replace(/\bread the note value\(\s*(\d+)\s*\)\s*returns\b/gi, 'note row $1 reads');
+  s = s.replace(/\bread the note value\(\s*i\s*\)/gi, "the note row's value");
+  s = s.replace(/\b(?:the )?note value\(\s*(\d+)\s*\)/gi, 'note row $1');
+  s = s.replace(/\bclear the note row\(\s*(\d+)\s*\)/gi, 'clear note row $1');
+  s = s.replace(/\bdelete the row\(\s*(\d+)\s*\)/gi, 'delete note row $1');
+  s = s.replace(/\bpaste into the note\(\s*(\d+)\s*,\s*([^)]*?)\s*\)/gi, 'paste $2 into note row $1');
+  s = s.replace(/\bappend text to the note\(\s*(\d+)\s*,\s*([^)]*?)\s*\)/gi, 'append $2 to note row $1');
+  s = s.replace(/\bvalue\(\s*(\d+)\s*\)/gi, "row $1's value");
+  s = s.replace(/\brow\(\s*(\d+)\s*\)/gi, 'row $1');
   // Internal clarification-question IDs (e.g. CPR-DETAIL-Q1) → the plain-English
   // phrase the other modules already use for raised product questions.
   s = s.replace(/\braised as [A-Z]{2,}-[A-Z]+-Q\d+\b/g, 'raised as a clarification for the product team');

@@ -75,6 +75,7 @@ Tier:
 Drop candidates matching ANY:
 - **DOM-walkable by us in < 5 min** (field label, type, click-to-open, default, dropdown options).
 - **DOM-walkable on OLD SITE (navigator2.training.psav.com) in < 5 min** (per LR-ENC-001 — baseline truth source). If we can answer by visiting the old Navigator UI, we don't need to ask Encore. Baseline-absent features (ECT, EnableMultidayPricing, Merchant Currency column, Benefits Multiplier — see `OSB-ACCESS-VERIFY-2026-04-24.md` §3/§5) are NOT killed by this criterion; they remain valid escalations (ALL-078).
+- **Jira-answerable via Rovo in < 5 min** (a governing NM ticket or Confluence spec on `encore.atlassian.net` answers it). Per LR-063 / LR-ENC-004, query Rovo (`searchJiraIssuesUsingJql` / `searchConfluenceUsingCql`) BEFORE shipping ANY question — a question that a committed `jira-defect-crossref-*` file or a < 5-min Rovo search resolves is noise to the Encore QA contact, not a question. **Headless**: if the Atlassian MCP is absent, log `[ROVO-SKIP]` and skip THIS criterion (do not silently treat it as passed). Baseline-absent features with NO governing ticket remain valid escalations (ALL-078).
 - **Framework-internal** (identity, plan IDs, agent tooling, selector strategy, test architecture).
 - **Already-closed BUG** (`status: closed` / `resolved` / `invalid`).
 - **Agent-decidable TBDs** (helper naming, SP authoring choices).

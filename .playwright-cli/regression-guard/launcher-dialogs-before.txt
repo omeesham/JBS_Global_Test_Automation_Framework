@@ -1,0 +1,175 @@
+=== REGRESSION-GUARD BEFORE (launcher-dialogs FCC) Thu Jun 11 19:21:09 IST 2026 ===
+--- exported symbols / function sigs (files to be modified) ---
+### clients/encore/src/selectors/locations/left-panel-basic-information.ts
+15:export const SetupLeftPanelBasicInformationSelectors = 
+### clients/encore/src/selectors/locations/account-address.ts
+15:export const SetupAccountAddressSelectors = 
+### clients/encore/src/data/locations/location-left-panel-basic-information.ts
+9:export const LP_DEFAULTS = 
+30:export const LP_BASELINE = 
+40:export const LP_DROPDOWN = 
+51:export const LP_TEST_VALUES = 
+### clients/encore/src/data/locations/location-account-address.ts
+10:export const VENUE_DISPLAY_FIELDS = [
+18:export const MASTER_DISPLAY_FIELDS = [
+26:export const VENUE_NAME = 'Parker Palm Springs';
+29:export const PHONE1_BASELINE = '760-883-1957';
+32:export const ACCOUNT_SEARCH = 
+38:export const ACCOUNT_NUMBER_SEARCH = 
+41:export const ADDRESS_SEARCH = 
+44:export const TEST_PHONE2_VALUE = '555-000-0001';
+47:export const ACCOUNT_TEST_PHONE = '111-222-3333';
+50:export const ACCOUNT_LIST_FILTERS = 
+58:export const ALT_ADDRESS = 
+65:export const ORIGINAL_ADDRESS = 
+### clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts
+18:export class LocationLeftPanelBasicInformationPage extends BasePage 
+29:  async navigateToBasicInformation(officeNo: string = '1604'): Promise<void> 
+42:  async isOnBasicInformation(): Promise<boolean> 
+49:  async reloadAndNavigate(officeNo: string = '1604'): Promise<void> 
+67:  async getOfficeValue(): Promise<string> 
+68:  async getLocalOfficeValue(): Promise<string> 
+69:  async getLocalOfficeName(): Promise<string> 
+70:  async getPayToAddress(): Promise<string> 
+71:  async getTaxMode(): Promise<string> 
+72:  async getCountry(): Promise<string> 
+73:  async getRegion(): Promise<string> 
+74:  async getServicingBranch(): Promise<string> 
+75:  async getLineOfBusiness(): Promise<string> 
+77:  async getLiveDateText(): Promise<string> 
+84:  async isFieldDisabled(key: string): Promise<boolean> 
+88:  async getActiveState() 
+89:  async getUnionState() 
+90:  async getECommerceState() 
+91:  async getProductionOrdersState() 
+94:  async getLocalOfficeNameMaxLength(): Promise<number | null> 
+103:  async setLocalOfficeName(value: string): Promise<void> 
+114:  async clearLocalOfficeName(): Promise<void> 
+125:  async setActive(checked: boolean): Promise<void> 
+129:  async setUnion(checked: boolean): Promise<void> 
+134:  async selectTaxMode(text: string): Promise<void> 
+135:  async selectCountry(text: string): Promise<void> 
+136:  async selectRegion(text: string): Promise<void> 
+138:  async selectServicingBranch(text: string): Promise<void> 
+144:  async getTaxModeOptions(): Promise<string[]> 
+145:  async getCountryOptions(): Promise<string[]> 
+146:  async getRegionOptions(): Promise<string[]> 
+147:  async getServicingBranchOptions(): Promise<string[]> 
+154:  async openLiveDatePopover(): Promise<boolean> 
+160:  async closeLiveDatePopover(): Promise<void> 
+172:  async clickLocalInformationTab(): Promise<void> 
+182:  async getJobCostingState() 
+185:  async isRemitPstVisible(): Promise<boolean> 
+194:  async isSaveEnabled(): Promise<boolean> 
+199:  async waitForSaveButtonEnabled(timeout = 10_000): Promise<boolean> 
+204:  async waitForSaveButtonDisabled(timeout = 10_000): Promise<boolean> 
+221:  async clickSave(): Promise<
+227:  async saveAndConfirm(): Promise<void> 
+264:  async ensureDefaultState(baseline: typeof LP_BASELINE = LP_BASELINE): Promise<void> 
+### clients/encore/src/pages/locations/location-account-address.page.ts
+7:export class LocationAccountAddressPage extends BasePage 
+22:  async isOnAccountAndAddressTab(): Promise<boolean> 
+33:  async navigateToAccountAndAddressTab(officeNo: string = '1604'): Promise<void> 
+53:  async isVenueNameDisabled(): Promise<boolean> 
+58:  async getVenueNameValue(): Promise<string> 
+117:  async getVenueAddressText(): Promise<string> 
+132:  async getVenueCityText(): Promise<string> 
+147:  async isVenueCardVisible(): Promise<boolean> 
+153:  async isMasterCardVisible(): Promise<boolean> 
+169:  async isDisplayFieldReadOnly(sectionText: string, expectedText: string): Promise<boolean> 
+184:  async openAccountListDialog(): Promise<void> 
+191:  async isAccountListDialogVisible(): Promise<boolean> 
+196:  async searchAccountByName(name: string): Promise<void> 
+201:  async isAccountListSelectDisabled(): Promise<boolean> 
+206:  async checkAccountListFirstRow(): Promise<void> 
+212:  async cancelAccountListDialog(): Promise<void> 
+219:  async resetAccountListSearch(): Promise<void> 
+225:  async getAccountNameFilterValue(): Promise<string> 
+230:  async isAccountListEmpty(): Promise<boolean> 
+237:  async accountListResultsContain(text: string): Promise<boolean> 
+249:  async searchAccountByAddress(address: string): Promise<void> 
+254:  async searchAccountByCity(city: string): Promise<void> 
+259:  async searchAccountByNumber(num: string): Promise<void> 
+264:  private async searchAccountByFilter(selectorKey: string, value: string, label: string): Promise<void> 
+291:  async selectAccountListFirstRow(): Promise<void> 
+299:  async hasAccountListFilters(): Promise<boolean> 
+306:  async hasAccountListActionButtons(): Promise<boolean> 
+313:  async hasAccountListTable(): Promise<boolean> 
+322:  async openVenueAddressDialog(): Promise<void> 
+329:  async openMasterAddressDialog(): Promise<void> 
+336:  async isAddressDialogVisible(): Promise<boolean> 
+341:  async getAddressRowCount(): Promise<number> 
+352:  async isAddressSelectDisabled(): Promise<boolean> 
+357:  async isAddressSaveDisabled(): Promise<boolean> 
+362:  async checkAddressFirstRow(): Promise<void> 
+368:  async searchAddress(term: string): Promise<void> 
+380:  async isAddressSearchVisible(): Promise<boolean> 
+385:  async addressResultsContain(text: string): Promise<boolean> 
+395:  async selectAddressRow(addressText: string): Promise<void> 
+405:  async cancelAddressDialog(): Promise<void> 
+412:  async getAddressTotalText(): Promise<string> 
+421:  async isSaveEnabled(): Promise<boolean> 
+428:  async clickSave(): Promise<
+433:  async openSaveDialog(): Promise<void> 
+440:  async cancelSaveDialog(): Promise<void> 
+447:  async getSaveChangesMessage(): Promise<string> 
+460:  async saveAndConfirm(): Promise<void> 
+484:  async ensureDefaultState(defaults?: 
+523:  async reloadAndNavigate(officeNo: string = '1604'): Promise<void> 
+### clients/encore/tests/locations/location-left-panel-basic-information.spec.ts
+39:  test('TC-LOC-LP-001: Left panel field baseline state', async (
+58:  test('TC-LOC-LP-002: Office field is always disabled', async (
+62:  test('TC-LOC-LP-003: Local Office field is always disabled', async (
+67:  test('TC-LOC-LP-004: Pay To Address field is always disabled', async (
+72:  test('TC-LOC-LP-005: eCommerce Active is permanently checked + disabled', async (
+76:  test('TC-LOC-LP-006: Enable Productions Orders is permanently checked + disabled', async (
+82:  test('TC-LOC-LP-007: Save button disabled on fresh page load', async (
+86:  test('TC-LOC-LP-008: Save button enables after a form change', async (
+99:  test('TC-LOC-LP-009: Local Office Name required — empty disables Save', async (
+109:  test('TC-LOC-LP-010: Local Office Name maxlength (live=255)', async (
+117:  test('TC-LOC-LP-011: Active checkbox toggle persists through save+reload', async (
+133:  test('TC-LOC-LP-012: Union checkbox toggle persists through save+reload', async (
+147:  test('TC-LOC-LP-013: Tax Mode dropdown options (US, International)', async (
+152:  test('TC-LOC-LP-014: Country dropdown options (US, Mexico, Canada, Bahamas)', async (
+157:  test('TC-LOC-LP-015: Region dropdown options + non-persist on reload', async (
+168:  test('TC-LOC-LP-016: Line Of Business is read-only/disabled in edit mode (NM-831)', async (
+176:  test('TC-LOC-LP-017: Servicing Branch Office dropdown + unselected default', async (
+192:  test('TC-LOC-LP-018: Country change clears Tax Mode + Region', async (
+202:  test('TC-LOC-LP-019: Save disabled after Country change (TaxModeID=0); re-select Tax Mode re-enables', async (
+210:  test('TC-LOC-LP-020: Tax Mode + Region NOT auto-restored after Country change', async (
+219:  test('TC-LOC-LP-021: Country=USA enables Job Costing; Canada unchecks it (Local Information)', async (
+227:  test('TC-LOC-LP-022: Country=Canada reveals Remit PST Tax (Local Information)', async (
+237:  test('TC-LOC-LP-023: Live Date button opens a date popover', async (
+256:  test('TC-LOC-LP-025: Local Office Name persists through save+reload', async (
+268:  test('TC-LOC-LP-026: Tax Mode persists through save+reload', async (
+280:  test('TC-LOC-LP-027: Region persists through save+reload', async (
+### clients/encore/tests/locations/location-account-address.spec.ts
+43:  test.fixme('TC-LOC-ACC-029: Phone 2 cleared value persists empty after reload', async (
+71:  test('TC-LOC-ACC-030: Account List Account Number filter returns matching account', async (
+87:  test('TC-LOC-ACC-031: Address dialog search filter then clear restores full set', async (
+101:  test('TC-LOC-ACC-001: Navigate to Account and Address tab; two-card layout visible', async (
+109:  test('TC-LOC-ACC-002: Venue Name field is disabled with correct value', async (
+115:  test('TC-LOC-ACC-003: Name button opens Account List dialog', async (
+125:  test('TC-LOC-ACC-004: Account List search returns results', async (
+138:  test('TC-LOC-ACC-005: Account List Select button disabled until row checked', async (
+148:  test('TC-LOC-ACC-006: Account List Cancel closes without changes', async (
+157:  test('TC-LOC-ACC-007: Account List Reset clears search fields', async (
+170:  test('TC-LOC-ACC-008: Venue Address button opens Select Customer Address dialog', async (
+179:  test('TC-LOC-ACC-009: Address dialog Select button disabled until row checked', async (
+188:  test('TC-LOC-ACC-010: Address dialog search bar filters results client-side', async (
+199:  test('TC-LOC-ACC-011: Address dialog Save button always disabled', async (
+208:  test('TC-LOC-ACC-012: Master Address button opens same Select Customer Address dialog', async (
+216:  test('TC-LOC-ACC-013: Venue address display fields are read-only', async (
+224:  test('TC-LOC-ACC-014: Master address display fields are read-only', async (
+232:  test('TC-LOC-ACC-015: Phone 1 required field shows inline error when cleared', async (
+242:  test('TC-LOC-ACC-016: Phone 2 optional, no validation error when empty', async (
+247:  test('TC-LOC-ACC-017: Save button disabled when no pending changes', async (
+252:  test('TC-LOC-ACC-018: Save button enables on field change', async (
+270:  test('TC-LOC-ACC-019: Save flow -- confirmation dialog then success', async (
+278:  test('TC-LOC-ACC-020: Save changes persist after page reload', async (
+319:  test('TC-LOC-ACC-022: Cancel Save dialog discards save without persisting', async (
+334:  test('TC-LOC-ACC-023: Phone 1 cleared shows invalid state and error icon', async (
+347:  test('TC-LOC-ACC-025: Account List Address filter returns matching results', async (
+359:  test('TC-LOC-ACC-026: Account List City filter returns matching results', async (
+371:  test('TC-LOC-ACC-027: Address selection changes venue display fields', async (
+390:  test('TC-LOC-ACC-028: Account selection changes venue name and persists', async (

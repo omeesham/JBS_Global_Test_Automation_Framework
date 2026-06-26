@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_CGS_A_STANDARD_AND_SKILLS.md",
+  "plan_basename": "SUBPLAN_CGS_A_STANDARD_AND_SKILLS.md",
+  "plan_sha256": "b6d4fff06d051513ae3921a88e633df631956b3e752bbe4516a874baf234ef58",
+  "passed_at": "2026-06-24T08:42:21.925Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "ff37b5a6b0259430f1a2bfd87b0fc482c4b6e76645a64e5d311fb80051dcd254",
+  "validator_invocation_id": "1782290541925-6d97d0a3953fbb71b2bed0e1a2a6f976-b6d4fff06d051513",
+  "artifacts": [],
+  "provisional": false
+}

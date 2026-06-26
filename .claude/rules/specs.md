@@ -62,7 +62,83 @@ When fixing a skipped test, FIRST remove the skip and run the original test logi
 If it passes, the underlying bug was fixed — keep the original assertions.
 Only rewrite to "test actual behavior" if the original logic STILL fails.
 This prevents unnecessary test rewrites and catches silently-fixed bugs.
+
+**Corollary — atomic un-skip + harden (2026-06-18)**: when you un-skip a test, apply its LR-019
+per-test baseline hardening (`ensureDefaultState` / `saveAndConfirm`) in the **same change**. An
+un-skipped-but-unhardened test is MORE fragile than a skipped one — it now runs but flakes under
+serial/retry execution. (2026-06-18 Pricing RC-7: TC-020 + TC-026..030 were un-skipped without the
+per-test baseline, leaving the suite worse than when they were skipped.) Never split un-skip and
+harden across changes. Mirrored as Anti-Assumption Gate 5 in `PLAN_BIG_PIVOT_FCC_MASTER.md`.
+
 **Trigger**: Any session that involves fixing skipped tests.
+
+## LR-061: No generalization from a single observation; no "un-drivable" without verify-first
+
+Two anti-assumption gates that turn the SUPREME "NEVER ASSUME" rule + `feedback_stop_guessing.md`
+into spec / page-object discipline. Sibling of LR-059 (no "works / verified" claim without driving
+the real counterpart) — this is the **negative-claim** side ("corrupt", "un-drivable").
+
+**A. N≥2 evidence before any generalization about app behavior.** A claim that data is "corrupt",
+an office is "atypical", a defect is "app-wide", or a divergence is a "regression" requires ≥2
+independent evidence sources — a SECOND office, OR the baseline (old site). One office is a single
+data point: it cannot distinguish office-specific data state from app behavior. (2026-06-18 Pricing:
+"1604 is corrupt" was asserted from one office; the user had to force a 1605 isolation test +
+baseline check.)
+
+**B. Verify-before-blocked.** Before declaring any control un-drivable / not-automatable / "won't
+accept input" / blocked, do ALL of:
+1. Clear leftover overlays + reload (a stuck modal from a prior bad keystroke blocks every later click).
+2. Diff the page object's EXISTING selectors against the live DOM — UI text drifts and a stale
+   selector (`getByRole('textbox', {name:'Search pricebooks...'})` vs live `'Search pricing
+   strategies...'`) silently never resolves (LR-029 class).
+3. Inspect the actual DOM structure (target the option `<button>`, not an inner `<span>`; use the
+   search box of a cmdk command palette).
+4. Try the documented interaction method (page-object helper / `.claude/context/patterns.md` node).
+Only after all 4 may a control be classed un-drivable — and the evidence (what was tried) is
+recorded. (2026-06-18 Pricing: the dropdown was wrongly called un-drivable; the real cause was a
+stuck overlay + a stale `'Search pricebooks...'` selector — a one-line fix.)
+
+**C. Positive-control before any negative/terminal verdict on a control (2026-06-19).** Section B
+makes you *try harder*; section C makes you *prove your tool works*. Before recording ANY
+"inert / defensive / un-drivable / does-not-add / control-does-nothing / no-add-affordance" verdict,
+you MUST prove the **same primitive** you used can mutate a **known-positive case** — a control, row,
+or mode where that action is *expected* to succeed:
+- Primitive fires on the known-positive case but NOT on the control under test → the verdict can
+  stand (it is the control/app, not your driver).
+- Primitive does NOT fire on the known-positive case → your **driver** is the problem, not the app —
+  fix the primitive and re-test BEFORE any verdict.
+
+A no-op recorded with **no positive control is unsound evidence** and may not be cited to skip a
+test, mark NOT-AUTOMATABLE, file a "no add affordance" bug, or close a surface. This is the M1
+miss-class: Detail drag "proven" not-to-add via `.dragTo()`; Override "inert cells" concluded from a
+raw-JS `.click()`; `New ▾` reached by URL and never clicked — each a primitive that silently never
+fired, accepted as app behavior.
+
+**Two known-bad primitives (these specific no-ops MUST never become a verdict):**
+1. **React onClick** — a raw-JS `element.click()` / `dispatchEvent(new Event('click'))` does NOT
+   reliably fire a React (synthetic-event) `onClick`. Use Playwright's `.click()` (it dispatches the
+   full trusted pointer sequence). The Override "inert cells / RBAC" call was a raw-JS `.click()`; a
+   Playwright `.click()` revealed the active `spinbutton` (W15-A 2026-06-09). Raw-JS click is for
+   reads/probes, never the basis for a "control does nothing" verdict.
+2. **Drag-and-drop** — NEVER assert "drag does not add" via Playwright `.dragTo()` or a single
+   dispatched drag event; `.dragTo()` frequently never fires HTML5/React DnD at all. A DnD verdict
+   requires the **full pointer sequence** (`mouse.move(source) → mouse.down() → mouse.move(target,
+   {steps:N}) → mouse.up()`, or `page.dragAndDrop(src, tgt, {steps:N})`), verified against a
+   positive control where a drag IS expected to add (e.g. create/New-Pricebook mode, where the same
+   drag DOES add — proving the management-mode no-add is real, not a dead primitive).
+
+**Trigger**: any session about to (a) classify app behavior as corrupt / atypical / app-wide /
+regression, (b) mark a control un-drivable / not-automatable / skip a test citing "can't drive it",
+or (c) record an inert / defensive / does-not-add / control-does-nothing verdict via a click or drag
+primitive. Enforced by `PLAN_BIG_PIVOT_FCC_MASTER.md` §Anti-Assumption Gates + per-agent HARD STOPs
+(REQUIREMENTS / PLANNER / GENERATOR / HEALER / WATCHDOG all carry the verify-before-blocked +
+positive-control embed) + the patterns.md "Before declaring a control un-drivable" node + master
+Sweep 13 (`ASSUMPTION-UNISOLATED`).
+**Graduated from**: 2026-06-18 Pricing FCC session (RC-1 + RC-2) for A/B; the positive-control
+corollary C from PLAN_CORP_PRICING_REWALK_REMEDIATION RCA (2026-06-19, M1 — the drag/inert-cell/New▾
+false-negative class; see `clients/encore/specs_planning/_internal/agent-mistakes.md`). Same family
+as LR-059, LR-021, LR-032 (MCP test don't theorize), LR-029 (verify selectors vs live DOM), LR-057
+(affordance probe).
 
 ## LR-022: No hardcoded structural counts in assertions
 

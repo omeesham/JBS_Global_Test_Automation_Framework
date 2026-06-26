@@ -51,7 +51,7 @@ Map each to a depth level. Deferred families (`rbac`/`concurrency`/`platform`) s
 ## Rules
 - `/ultracoverage` **authors** (QUICK via `/coverage` + DEEP) — it does not run them.
 - Never collapse multiple depth levels into one subplan when the set is large — depth-chunk so each level executes and closes independently (LR-060 no-silent-checkpoint friendliness).
-- DEEP surface cases are ordinary 3-segment TCs (`TC-<MOD>-<SUB>-NNN`) with a `**Surface_Family**: <family> (DEEP)` line — no `-SBC-MAX-` ID infix (3-segment grammar); they ride `check:tc-parity`, no new parity script.
+- DEEP surface cases are ordinary 3-segment TCs (`TC-<MOD>-<SUB>-NNN`) with a `**Surface_Family**: <family> (DEEP)` line — no `-SBC-MAX-` ID infix (3-segment grammar); they ride `check:tc-parity`, no new parity script. **The `(DEEP)` marker goes ONLY on the `**Surface_Family**:` line — NEVER on the `## TC-…:` heading (the heading ships as the reviewer Title; ALL-091).**
 - Reuse the QUICK subplan's walk/inventory; do NOT re-walk from this authoring skill.
 
 ## Verification Artifact (D23)

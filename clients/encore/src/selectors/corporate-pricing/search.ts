@@ -100,4 +100,23 @@ export const CorporatePricingSearchSelectors = {
   cellBooleanTrue: 'td span.text-primary',
   /** @where Search > Grid footer @el text @text "N items found" @keys item count total (VOLATILE — assert pattern not value) */
   lblItemsFound: 'text=/\\d[\\d,]*\\s+items found/',
+  /** @where Search > Grid empty-state @el text @text "No results." @keys verbatim empty message when a filter matches nothing */
+  lblNoResults: 'text="No results."',
+
+  // ---- Pagination (live-verified: shadcn DataTable footer; page 1 → first/prev disabled, next/last enabled) ----
+  /** @where Search > Pagination @el button @keys go to first page (disabled on page 1) */
+  btnPageFirst: 'button[aria-label="Go to first page"]',
+  /** @where Search > Pagination @el button @keys go to previous page (disabled on page 1) */
+  btnPagePrev: 'button[aria-label="Go to previous page"]',
+  /** @where Search > Pagination @el button @keys go to next page */
+  btnPageNext: 'button[aria-label="Go to next page"]',
+  /** @where Search > Pagination @el button @keys go to last page */
+  btnPageLast: 'button[aria-label="Go to last page"]',
+  /**
+   * @where Search > Pagination @el combobox @keys rows-per-page selector
+   * The page-size selector is the only [role="combobox"] whose label is purely digits (the Location /
+   * Currency filter comboboxes show words). Default "50"; options 10/20/30/40/50. Resolve via the
+   * digit-text filter in the page object (a bare role selector would also match the filter comboboxes).
+   */
+  drpPageSizeRole: '[role="combobox"]',
 } as const;

@@ -3,7 +3,7 @@
 One line per skill. Used by `/relevant` for sub-task skill matching.
 Maintained manually — update when creating or modifying skills.
 
-**Skill count**: 29 (was 30 pre-rationalization; `/slop` and `/upgrade` merged into `/audit` as `--mode={review|slop|upgrade}` per SUBPLAN_CCE_03; alias commands at `.claude/commands/{slop,upgrade}.md` preserve muscle memory).
+**Skill count**: 31 (29 + `/coverage` + `/ultracoverage` added 2026-06-24 SUBPLAN_CGS_A; `/slop` and `/upgrade` merged into `/audit` as `--mode={review|slop|upgrade}` per SUBPLAN_CCE_03; alias commands at `.claude/commands/{slop,upgrade}.md` preserve muscle memory).
 
 | Skill | Triggers | Match Types | Auto-Calls |
 |---|---|---|---|
@@ -19,6 +19,8 @@ Maintained manually — update when creating or modifying skills.
 | /review | review, check this code, code review, PR | VERIFY | identity |
 | /research | research, best practices, how do others, unfamiliar API | INFORM | identity |
 | /find-bugs | find bugs, QA, break it, stress test, what could go wrong | DIRECT | identity |
+| /coverage | create test cases, cover this module, coverage, test cases for <module> (DEFAULT for unqualified) — authors SUBPLAN_<MODULE>_COVERAGE_QUICK.md (field FCC + L1 surface must-asserts) | DIRECT | identity |
+| /ultracoverage | ultracoverage, deep coverage, exhaustive/max test cases, cover <module> fully/thoroughly — auto-calls /coverage then authors SUBPLAN_<MODULE>_COVERAGE_DEEP.md (depth-chunked L2/L3) | DIRECT | identity, coverage |
 | /deploy | deploy, push to prod, ship it, go live (DISABLE-MODEL-INVOCATION — explicit /deploy only) | DIRECT | identity, regression-guard, review |
 | /reflect | session end, what did we learn, retrospective | VERIFY | — |
 | /final-q | final question, are you really done, audit todos, session end completeness check | VERIFY | — |

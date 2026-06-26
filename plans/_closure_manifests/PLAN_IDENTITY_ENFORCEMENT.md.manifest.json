@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_IDENTITY_ENFORCEMENT.md",
+  "plan_basename": "PLAN_IDENTITY_ENFORCEMENT.md",
+  "plan_sha256": "85fc6920e2daf7a86ba04c530bbb3f641963f566a4aeb3b55ab746050be1a7b4",
+  "passed_at": "2026-06-25T06:26:46.420Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "2cf57d9cba1ab8dd9378ec5e924f4fe3456f0653f6cc231f5277b921dbf1980d",
+  "validator_invocation_id": "1782368806420-fea3e283abbe3b74266f53bdeaff8439-85fc6920e2daf7a8",
+  "artifacts": [],
+  "provisional": false
+}

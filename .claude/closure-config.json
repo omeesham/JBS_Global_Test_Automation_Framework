@@ -5,5 +5,22 @@
   "ramp_started": "2026-05-28",
   "ramp_target": "deny",
   "ramp_complete": false,
-  "ramp_note": "Flip to deny after 5 clean post-landing plan closures with no false positives (Phase 4). Record the flip in .claude/state/done-means-done-back-audit/ramp-complete.json."
+  "ramp_note": "Flip to deny after 5 clean post-landing plan closures with no false positives (Phase 4). Record the flip in .claude/state/done-means-done-back-audit/ramp-complete.json.",
+
+  "coverage_mode": "deny",
+  "coverage_gate_landing_date": "2026-06-19",
+  "_coverage_comment": "Rollout knob for closure-check Cx (machine-enumerated walk-coverage completeness, LR-062 / PLAN_EXHAUSTIVE_WALK_GUARANTEE). Mirrors c6_mode exactly: off = not computed; announce = computed + reported but verdict-neutral; deny = folded into the verdict (blocks Status: DONE on a plan citing an incomplete walk artifact). Cx DENIES when a cited field-inventory/old-site-baseline artifact has Coverage_Ratio < 100% / undispositioned manifest rows / CrossCheck != clean / coverageScope: PARTIAL. Read by scripts/validate-plan-closure.mjs resolveCoverageMode(); --coverage-mode=<x> CLI flag overrides per-invocation. NON-overridable like C2-C6 (no per-token escape) — remediate by completing the walk.",
+  "_coverage_grandfather": "coverage_gate_landing_date: walk artifacts whose MCP_Session_Date precedes this date are grandfathered (Cx not-applicable) until their next refresh — the 17 pre-2026-06-19 field-inventories are all exempt. Lands in 'announce' so Cx warns without blocking; ramp to 'deny' after the pilot + one real module proves zero false-positives.",
+  "coverage_ramp_started": "2026-06-19",
+  "coverage_ramp_target": "deny",
+  "coverage_ramp_complete": true,
+  "coverage_ramp_flipped": "2026-06-24",
+  "coverage_ramp_flip_note": "Flipped to deny by SUBPLAN_CGS_B_WALK_INTEGRITY after a clean blast-radius run: 0 Cx failures across all 377 plans/done/ (all walk-citing artifacts date-grandfathered; pricing-2026-06-19 provenance-grandfathered before the 2026-06-24 provenance landing date). The provenance sub-gate (LR-062 condition 5) is now enforcing.",
+
+  "test_status_mode": "announce",
+  "_test_status_comment": "Rollout knob for closure-check Ct (no-red-close test-status deferral gate, PLAN_CORP_PRICING_REWALK_REMEDIATION M3 / LR-060). Mirrors c6_mode/coverage_mode exactly: off = not computed; announce = computed + reported but verdict-neutral (warn-only); deny = folded into the verdict (blocks Status: DONE). Ct FAILS when a plan defers red/failing tests to a transient task chip (task_<hex>) OR carries a ## Deferral Authorization about test status that omits the red TC IDs or a PENDING recipient subplan. The validator cannot run tests — Ct keys on the documented-deferral evidence in the plan body, not on a live run. Read by scripts/validate-plan-closure.mjs resolveTestStatusMode(); --test-status-mode=<x> CLI flag overrides per-invocation. NON-overridable like C2-C6/Cx — remediate by greening the tests or filing a real PENDING recipient subplan that names the red TC IDs.",
+  "_test_status_provenance": "Lands in 'announce' (per the subplan's all-guards-announce mandate) so the re-walk + remediation run under the oracle without retroactively blocking in-flight work. Ramp to 'deny' is Subplan D's job — only AFTER the guard is negative-tested against its original miss (the 10 red TC-CPR-TIO toolbar tests deferred to a task chip).",
+  "test_status_ramp_started": "2026-06-23",
+  "test_status_ramp_target": "deny",
+  "test_status_ramp_complete": false
 }

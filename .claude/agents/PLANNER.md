@@ -28,20 +28,26 @@ Codename: **GIVER**. Pipeline role: deliver complete, MCP-verified data packages
 15. **VERIFY SAVE BUTTON SCOPE (PLN-024)**: enumerate every Save button on the page; document shared vs tab-specific testid + disabled state.
 16. **TEST REVERT BEHAVIOR (PLN-025)**: change → revert → check Save state. Document actual revert behavior (varies by form framework).
 17. **VERIFY DROPDOWN FEATURES (PLN-026)**: open dropdown → check for input/search element → document. Never assume search exists.
+18. **AFFORDANCE PROBE (LR-057)**: a disabled / read-only / static classification is NOT "covered" until the field + its label + its row/container are click-probed live. Record an `affordance:` token per field row (`none` | `launcher → "<title>"` | `navigation → <target>` | `popover → <name>`). A non-editable display input never proves non-interactivity — the affordance often lives on the label (a disabled-input `for=` association can hide it from a naive click). **Shared dialogs are covered per-LAUNCHER, never per-dialog** — every launcher needs its own select→field-update(→persist) proof. A Control Type / `affordance:` value with no `field-case-generation.md` §2 template → HALT (no-taxonomy-row backstop).
+19. **HARD STOP #19 — Walk completeness (LR-062) + Tiered Delegated Walk (LR-064)**: A walk artifact (field-inventory / baseline) may NOT be called done if its Coverage_Ratio < 100%, OR any manifest row is undispositioned, OR CrossCheck ≠ clean. The denominator is machine-enumerated by scripts/walk-coverage/enumerate-page.mjs — RUN IT; do NOT self-count what to walk. If the ratio is not 100%, HALT and ask the user: (a) re-walk, (b) disposition the remainder, (c) dispute the machine denominator with evidence. **TDW is the default field-inventory walk procedure (PLN-049) — run the TDW walk per LR-064**: Opus owns recon + the machine denominator + the `field-case-generation.md` §2 case-set + the per-field disposition; Haiku/Sonnet workers run only pre-specified deterministic probes (Bash `playwright-cli`) and report raw evidence. **NEVER disposition a field from an unverified delegated report** — every worker report passes the Stage-3 Opus verify (raw evidence present, §2.1 rejection-affordance oracle satisfied, no "looks fine"/missing-input rubber-stamp smells) BEFORE its element is dispositioned; a lazy report triggers a re-do/escalate one tier, never a silent close.
+20. **HARD STOP #20 — Jira-first enrichment (PLN-051, LR-063 + LR-ENC-004)**: NO cross-field / boundary / business-rule TC may be authored without first checking Rovo Jira/Confluence for the governing requirement (Phase 0.75 below). Search `encore.atlassian.net` for the module's NM tickets + Confluence spec, record a `## Jira/Confluence Findings` section in the field-inventory artifact, and classify any DOM-vs-Jira contradiction as intentional / app-bug / stale — never silently code around it. Jira = intent truth, DOM = render truth; every Jira fact is a LEAD re-verified on live DOM (ALL-024). Headless: consume the committed `jira-defect-crossref-<module>-<DATE>.md` + log `[ROVO-SKIP]` if Rovo is absent; never skip silently.
+21. **HARD STOP #21 — Verify-before-blocked + positive-control (LR-061 B+C, 2026-06-19)**: never record a field/control as inert / static / un-drivable / "does not add" (or document "no add affordance" in the inventory) without (B) reload-to-clear-overlays → diff the EXISTING page-object selector vs live DOM (stale-name drift, LR-029) → inspect the real DOM → try the documented helper; AND (C) **proving the same primitive mutates a known-positive case first**. A raw-JS `element.click()` does NOT reliably fire a React `onClick` — drive with Playwright `.click()` (the Override "inert cells" miss was a raw-JS-click false-negative, W15-A). NEVER conclude "drag/double-click does not add" from `.dragTo()` (it frequently never fires DnD) — require the full `mouse.move→down→move(steps)→up` sequence verified against a mode where the action DOES add (Detail mgmt-mode no-add must be proven against create-mode add, per NM-1443/NM-1472). A no-op with no positive control is unsound evidence and may not enter the field-inventory, a catalog disposition, or a TC.
+22. **HARD STOP #22 — Empty-surface investigation (LR-040(c) extension, M4, 2026-06-19)**: an empty tab / "No results." grid / blank list may NEVER be inventoried as empty + "refresh later" / "no data" without first investigating HOW it populates. Record all three: **c.1 population path** (UI affordance that adds a row / governing Jira ID / admin setup / WHICH office has data — Labor product groups repro on 1101 per NM-1881, not 1604); **c.2 classification** (`data-blocked` vs `feature-blocked` vs `by-design`); **c.3 escalate** via `/encore-questions` if unknown after a real dig (affordance probe + Rovo Jira/Confluence per LR-ENC-004 + 2nd office). "Empty on 1604" is a data-state observation, not a disposition — the 2026-06-19 Labor-override miss (add-affordance was currency-gated per NM-1472; data lived on 1101).
 
 ## Workflow (consumer of REQUIREMENTS' baseline artifact)
 
 1. **Pre-flight**: AGENT_SHARED_RULES.md §13. Read inbound queue entry, locate the dated baseline artifact at `_internal/old-site-baseline/<module>-<YYYY-MM-DD>.md`. If missing → HALT, escalate to Requirements (ALL-078).
 2. **Phase 0.5 — Baseline consultation (LR-ENC-001)**: read the baseline artifact end-to-end. Spot-check 2–3 random divergence claims on live old-site DOM (per LR-007 v2 spot-check path). If staleness verdict is `STALE` (>30 days) or any spot-check fails → re-walk the baseline.
-3. **Phase 1 — Read-only structure walk** (snapshot + hover only): enumerate fields, defaults, labels, validation messages, dropdown options, save buttons.
-4. **Phase 2 — Interaction** (with restore): trigger validation paths; capture exact error text; record save-dialog text verbatim; verify dropdown search behavior; trigger revert and observe Save state.
-5. **Phase 3 — Boundary / accessibility / behavioral**: edge values, keyboard nav, screen-reader labels, cascade fields.
-6. **Field-inventory artifact (PLN-049)**: emit at `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-<YYYY-MM-DD>.md` per `field-inventory-spec.md`. Frontmatter required keys: `MCP_Session_Date` (= filename date), `MCP_Session_Tool`, `MCP_Tool_Reason`, `Baseline_Artifact`, `Author_Identity`, `Stale_After`, `Page_URL`, `Test_Entity`. Body: 7 mandatory sections. Every interactive field has a row with non-empty `data-testid` or `(no testid — use aria-label/text)` fallback.
-7. **MCP_VERIFICATION_LOG**: comprehensive table — field name, default, validation pattern, dropdown options, save dialog text, cascade behavior, post-reload timing.
-8. **Test cases + test plan**: TC IDs `TC-XXX-YY-NNN`, `Updated` date, `FIELD INVENTORY` section, `Automatable` field, `N. Action → Expected` format. Async checks tagged `[POLL]`. Generator-Ready Package per PLN-022.
-9. **Self-audit (§8)**: tests match DOM, selectors verified, lint passes, count check, TC-plan sync.
-10. **`npm run planner:post-complete <id>`** — block on failure.
-11. **Activity-log row** per LR-028 (timestamp ≥ artifact mtime per LR-037).
+3. **Phase 0.75 — Jira/Confluence enrichment (PLN-051, LR-063 + LR-ENC-004)**: search `encore.atlassian.net` via Rovo for the module's NM tickets + Confluence spec; record a `## Jira/Confluence Findings` section in the field-inventory artifact (per `field-inventory-spec.md` optional section). Map each cross-field / boundary / business-rule case to its governing ticket; classify any DOM-vs-Jira contradiction intentional / app-bug / stale (HARD STOP #20). Every Jira fact is a LEAD re-verified on live DOM (ALL-024). Headless: consume the committed `jira-defect-crossref-*` file + log `[ROVO-SKIP]` if Rovo is absent.
+4. **Phase 1 — Read-only structure walk** (snapshot + hover only): enumerate fields, defaults, labels, validation messages, dropdown options, save buttons.
+5. **Phase 2 — Interaction** (with restore): trigger validation paths; capture exact error text; record save-dialog text verbatim; verify dropdown search behavior; trigger revert and observe Save state.
+6. **Phase 3 — Boundary / accessibility / behavioral**: edge values, keyboard nav, screen-reader labels, cascade fields.
+7. **Field-inventory artifact (PLN-049)**: emit at `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-<YYYY-MM-DD>.md` per `field-inventory-spec.md`. Frontmatter required keys: `MCP_Session_Date` (= filename date), `MCP_Session_Tool`, `MCP_Tool_Reason`, `Baseline_Artifact`, `Author_Identity`, `Stale_After`, `Page_URL`, `Test_Entity`. Body: 7 mandatory sections. Every interactive field has a row with non-empty `data-testid` or `(no testid — use aria-label/text)` fallback.
+8. **MCP_VERIFICATION_LOG**: comprehensive table — field name, default, validation pattern, dropdown options, save dialog text, cascade behavior, post-reload timing.
+9. **Test cases + test plan**: TC IDs `TC-XXX-YY-NNN`, `Updated` date, `FIELD INVENTORY` section, `Automatable` field, `N. Action → Expected` format. Async checks tagged `[POLL]`. Generator-Ready Package per PLN-022.
+10. **Self-audit (§8)**: tests match DOM, selectors verified, lint passes, count check, TC-plan sync.
+11. **`npm run planner:post-complete <id>`** — block on failure.
+12. **Activity-log row** per LR-028 (timestamp ≥ artifact mtime per LR-037).
 
 ## FCC Paradigm (2026-05-19)
 
@@ -49,6 +55,15 @@ For every module entering the pipeline post-2026-05-19, emit a dated field-case-
 `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-case-catalogs/<module>-<YYYY-MM-DD>.md`.
 The catalog enumerates per-field-type cases (per `field-case-generation.md` §2), maps each to
 EXISTING TC coverage vs FCC-gap, and lists the net-new FCC test IDs to be added.
+
+**Surface axis (Axis 2 / SBC, added 2026-06-24 SUBPLAN_CGS_A)**: for any module with a **grid / list /
+table / result** surface, the catalog ALSO gains a **§ Surface-Behavior Cases (SBC)** section enumerating
+the applicable `field-case-generation.md` §3 families × QUICK/DEEP rows (per LR-065 + the Case-Generation
+Standard), mapping each to EXISTING coverage vs SBC-gap, and listing net-new surface TC IDs as
+**ordinary 3-segment TCs** in the page's band (`TC-<MOD>-<SUB>-NNN`) marked with a `**Surface_Family**:
+<family> (QUICK|DEEP)` line — **no `-SBC-`/`-SBC-MAX-` ID infix** (3-segment grammar; a 4th segment fails
+`check-tc-parity` G6). Inapplicable family → `out-of-scope:<family>=<reason
+≥20 chars>`. Surface TCs are ordinary TCs — they ride `check:tc-parity`, no new parity script.
 
 Test-case file extension: append a `## Field-Case Coverage (FCC) — TC-<MOD>-FCC-NNN` block
 at the END of the module's test-cases markdown (NEW namespace, not renumbering).
@@ -59,7 +74,7 @@ reloadAndNavigateTo*, ensureEmptyState equivalents). File a GENERATOR escalation
 
 **Closure gate (added 2026-05-25 FCC-fix)**: before flipping queue-stage to `pending_generation`, the
 `planner:post-complete` output MUST show `selfAuditPassed=true`, `xlsxRebuilt=true` (legacy `csvExported=true` alias accepted through Phase C of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION), AND XLSX sheet row count
-must equal MD's TC count (FCC + main). The hand-off contract to BUILDER is that all three artifacts
+must equal MD's TC count (FCC + SBC + main, per LR-065 surface axis). The hand-off contract to BUILDER is that all three artifacts
 (MD, test-plan, catalog) are present and consistent. BUILDER's HARD STOP #11 enforces from the
 receiving side; this closure gate enforces from the sending side.
 

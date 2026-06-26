@@ -28,14 +28,20 @@
 // Fail-open policy: any parse error → allow (same posture as
 // check-finalq-required.mjs + check-rubberstamp.mjs).
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, writeFileSync, mkdirSync, renameSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
-import { ownershipFor, canWrite } from "../../../scripts/identity-ownership.mjs";
+import { dirname, resolve, join } from "node:path";
+import { tmpdir } from "node:os";
+import { ownershipFor, canWrite, isPipelineArtifact, ownerRoleFor } from "../../../scripts/identity-ownership.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(__dirname, "..", "..", "..");
 
 const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit"]);
+// Layer-1 /execute-context lookback window (mirrors check-todo-injection). Declared
+// at top level — the PreToolUse dispatch runs during module load, before the helper
+// block below, so this const must initialize before isInExecuteContext() can run (TDZ).
+const EXECUTE_LOOKBACK = 80;
 const OVERRIDE_AUTH_RX = /\b(override approved|override ok|approve override|authorized to override|i authorize|you are authorized)\b/i;
 // Line-anchored to avoid matching prose mentions like "the [OVERRIDE-REQUEST]
 // convention" (mid-sentence; must start a line). Tolerates common markdown
@@ -118,6 +124,42 @@ function handlePreToolUse(rawInput) {
   // Normalize to repo-relative forward-slash path.
   const relPath = normalizePath(targetPath);
 
+  // --- Layer 1 (PLAN_IDENTITY_ENFORCEMENT): OWNER pipeline-artifact write-gate ---
+  // Fires BEFORE the canWrite OWNER short-circuit (which returns true for OWNER
+  // unconditionally). Scoped to ALL of: ground-truth OWNER + an active /execute
+  // context + a pipeline-role-owned test deliverable. LR-043-safe by construction
+  // — framework paths (scripts/**, plans/**, .claude/**, docs/**, website/**) are
+  // not pipeline-artifact territory, so OWNER framework work is never gated. The
+  // canWrite() OWNER short-circuit is UNTOUCHED; this is an ADDITIONAL hook-level
+  // context-loading check ("adopt the role before writing the role's artifacts"),
+  // not a re-introduction of blanket OWNER access-control. Honors the
+  // identity-gate-config.json ramp knob; fail-open on any error.
+  if (currentIdentity === "OWNER" && isPipelineArtifact(relPath) && isInExecuteContext()) {
+    const mode = readGateMode();
+    if (mode !== "off") {
+      const role = ownerRoleFor(relPath) || "a pipeline role";
+      const msg =
+        `[IDENTITY-GATE] ${relPath} is ${role}-owned pipeline territory. You are OWNER — ` +
+        `its HARD STOPs are NOT loaded. Run /identity ${role} (loads the agent file + emits ` +
+        `the Step 6.5 Constraint Extract) before writing — OWNER authoring of a pipeline ` +
+        `role's test deliverable silently skips that role's gates. ` +
+        `Override = one-shot break-glass ([OVERRIDE-REQUEST] ${relPath} + user "override approved").`;
+      if (mode === "deny") {
+        if (hasOverrideAuthorization(relPath)) {
+          emitAllow(`[OVERRIDE] OWNER authorized to write ${relPath} — user-typed approval matched`);
+          return;
+        }
+        emitDenyReason(msg);
+        return;
+      }
+      // announce: allow + persist a warning that the Layer-4 /final-q + /audit nets read.
+      const sessionId = toolInput.session_id || toolInput.sessionId || "unknown";
+      persistAnnounceWarning(sessionId, relPath, role);
+      emitAllow(`[IDENTITY-GATE announce] ${msg}`);
+      return;
+    }
+  }
+
   // §2 check for ground-truth identity.
   if (canWrite(currentIdentity, relPath)) { emitAllow(); return; }
 
@@ -152,6 +194,67 @@ function hasOverrideAuthorization(path) {
     if (sawRequest && sawAuth) return true;
   }
   return false;
+}
+
+// --- Layer 1 (PLAN_IDENTITY_ENFORCEMENT) helpers ---
+// (EXECUTE_LOOKBACK is declared with the top-level constants — TDZ-safe for the
+// PreToolUse dispatch that runs during module load.)
+
+// Is an /execute active? Mirror of check-todo-injection.mjs isInExecute: walking
+// back from the latest message, /execute is active iff we hit a Skill=execute
+// before a Skill=final-q (final-q closes the /execute scope). Bounded lookback.
+function isInExecuteContext() {
+  const start = messages.length - 1;
+  const stop = Math.max(0, start - EXECUTE_LOOKBACK);
+  for (let i = start; i >= stop; i--) {
+    const msg = messages[i];
+    if (!msg || msg.role !== "assistant" || !Array.isArray(msg.content)) continue;
+    for (const c of msg.content) {
+      if (c?.type !== "tool_use" || c.name !== "Skill") continue;
+      const skill = (c.input?.skill || "").toLowerCase();
+      if (skill === "final-q") return false; // /final-q closed the /execute scope
+      if (skill === "execute") return true;
+    }
+  }
+  return false;
+}
+
+// Ramp knob: .claude/identity-gate-config.json {mode: off|announce|deny}, ramped
+// exactly like closure-config.json's c6_mode. Env IDENTITY_GATE_MODE overrides
+// (tests). Any read/parse error → "off" (fail-open: a broken config neither
+// gates nor warns — the hook's existing posture).
+function readGateMode() {
+  const envMode = (process.env.IDENTITY_GATE_MODE || "").toLowerCase();
+  if (envMode === "off" || envMode === "announce" || envMode === "deny") return envMode;
+  try {
+    const cfgPath = join(REPO_ROOT, ".claude", "identity-gate-config.json");
+    if (!existsSync(cfgPath)) return "off";
+    const cfg = JSON.parse(readFileSync(cfgPath, "utf8"));
+    const m = String(cfg.mode || "").toLowerCase();
+    return m === "off" || m === "announce" || m === "deny" ? m : "off";
+  } catch {
+    return "off";
+  }
+}
+
+// Persist an announce-mode warning for /final-q + /audit to read (Layer 4) —
+// array format mirrors LR-060's execution-completion-warnings. Best-effort,
+// fail-open (never throws). IDENTITY_GATE_STATE_DIR overrides the dir (tests).
+function persistAnnounceWarning(sessionId, relPath, role) {
+  try {
+    const stateDir = process.env.IDENTITY_GATE_STATE_DIR || join(REPO_ROOT, ".claude", "state");
+    if (!existsSync(stateDir)) mkdirSync(stateDir, { recursive: true });
+    const safe = String(sessionId).replace(/[^a-zA-Z0-9._-]/g, "_");
+    const target = join(stateDir, `identity-gate-warnings-${safe}.json`);
+    let arr = [];
+    if (existsSync(target)) {
+      try { const p = JSON.parse(readFileSync(target, "utf8")); if (Array.isArray(p)) arr = p; } catch { /* reset on corrupt */ }
+    }
+    arr.push({ timestamp: new Date().toISOString(), session_id: sessionId, path: relPath, role, mode: "announce" });
+    const tmp = join(tmpdir(), `idgate-${process.pid}-${Date.now()}.tmp`);
+    writeFileSync(tmp, JSON.stringify(arr, null, 2));
+    renameSync(tmp, target);
+  } catch { /* fail-open — must never throw */ }
 }
 
 function handleStop() {
@@ -242,6 +345,19 @@ function emitAllow(reason) {
   } else {
     process.stdout.write("allow");
   }
+}
+
+// Emit a deny with a caller-supplied reason (Layer-1 gate uses this; the §2
+// gate uses emitDeny below, which builds an ownership-specific message).
+function emitDenyReason(reason) {
+  const out = {
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      permissionDecisionReason: reason,
+    },
+  };
+  process.stdout.write(JSON.stringify(out));
 }
 
 function emitDeny(identity, path, ownership) {

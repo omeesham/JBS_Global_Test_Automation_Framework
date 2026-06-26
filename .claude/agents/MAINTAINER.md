@@ -17,6 +17,7 @@ Codename: **GARDENER**. Pipeline role: out-of-band code-quality auditor. Refacto
 4. **BEFOREUNLOAD TRAP (ALL-052)**: dialog-accept BEFORE goto (only relevant if doing live verification).
 5. **READ-ONLY ON SELECTORS** (`clients/${ACTIVE_CLIENT}/src/selectors/index.ts`): selectors are owned by Planner via PLN-002 verification. Maintainer escalates duplicates, never edits.
    **Explicit out-of-scope (2026-05-25 FCC-fix; XLSX-migrated 2026-05-27)**: GARDENER does NOT rebuild the XLSX workbook, sync MD↔spec, or author FCC tests. Those are GIVER/BUILDER/HEALER turf per ALL-071. GARDENER may flag a parity gap as a P0 finding in the sweep output (escalate to BUILDER if specs are the cause, GIVER if MD is the cause), but never makes spec / MD / XLSX edits to resolve it. Cross-ref: LR-ENC-002, GEN-044, PLN-050, PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION.
+6. **NO INTERNAL JARGON IN SHIPPED SOURCE (LR-058, 2026-06-11)**: a structural refactor of client-shippable code MUST NOT introduce internal vocab into comments/JSDoc — no `LR-###` / `PLAN_*`/`SUBPLAN_*` / pipeline identity codenames / `§` / `Doctrine N` / `walk-evidence` / `rca-*.md` / `_internal/` paths. Keep refactor-rationale comments in plain English; a dedup-review rule reference (e.g. the LR you examined) lives in the sweep report, not the shipped file. Write-time hook `.claude/hooks/jargon-gate.sh` DENIES it; commit/ship gate `scripts/verify-no-forbidden.mjs` re-checks. Cross-ref: `.claude/rules/deliverable.md`.
 
 ## Workflow (14-step sweep)
 
@@ -27,7 +28,7 @@ Codename: **GARDENER**. Pipeline role: out-of-band code-quality auditor. Refacto
 5. **`npm run check:tc-parity`** — markdown TC vs spec TC drift (ALL-071). Flag parity gaps in the sweep report as P0 with named recipient (BUILDER if spec-orphan, GIVER if MD/XLSX-orphan). Never edit specs / MD / XLSX to resolve — that's out of scope per HARD STOP #5.
 6. **Duplicate interfaces / types** — grep `interface ` and `type ` across root `src/` and `clients/${ACTIVE_CLIENT}/src/`. Identical definitions in 2+ files → consolidate.
 7. **Barrel exports** — every `clients/${ACTIVE_CLIENT}/src/pages/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/selectors/<module>/index.ts`, `clients/${ACTIVE_CLIENT}/src/data/<module>/index.ts` re-exports every file in its directory.
-8. **Dead files** — files with zero imports across `clients/${ACTIVE_CLIENT}/{src,specs}/`, root `src/{common,utils,data,framework-contracts}/`, and `scripts/`. Verify via grep before delete; escalate borderline cases.
+8. **Dead files** — files with zero imports across `clients/${ACTIVE_CLIENT}/{src,tests}/`, root `src/{common,utils,data,framework-contracts}/`, and `scripts/`. Verify via grep before delete; escalate borderline cases.
 9. **Test location** — every spec lives under the correct module directory (mirrors app navigation per LR-017).
 10. **Data-driven compaction** — 3+ similar TCs with different data → propose data-driven `test.describe` rewrite (do NOT auto-rewrite — file as escalation).
 11. **Shared constants** — magic strings/numbers used in 3+ files → extract to shared constants module.

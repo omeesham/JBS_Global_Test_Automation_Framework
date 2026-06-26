@@ -202,6 +202,15 @@ Before writing a single line of code:
 
 **Auto-call `/regression-guard` BEFORE** — snapshot all files the plan will modify.
 
+### Per-phase identity adoption (Layer 2 — PLAN_IDENTITY_ENFORCEMENT)
+
+If the plan declares **per-phase identities** (e.g. a subplan whose phases run `GIVER → BUILDER → AUDIT`), the FIRST action on entering each phase is to invoke `/identity <role>` for that phase's declared identity. This is not bookkeeping — it is the load-bearing adoption step:
+
+- Invoking `/identity <role>` loads that role's agent file (`.claude/agents/<ROLE>.md`) and emits the Step 6.5 Constraint Extract, so the role's HARD STOPs actually govern the phase's work. Staying silently OWNER skips every one of them.
+- **Layer 1 enforces this at write-time.** The PreToolUse identity-gate (`.claude/hooks/lib/check-identity-switch.mjs`) DENIES (mode `deny`) / WARNS + records (mode `announce`, per `.claude/identity-gate-config.json`) an OWNER write to a pipeline-role-owned artifact — test-cases, test-plans, field-inventories, field-case-catalogs, `*.spec.ts`, selectors, `REQUIREMENTS.md` — while inside `/execute`. So a GIVER-phase write to test-cases physically requires `/identity GIVER` first; you cannot blast through the phase as OWNER. Override = the LR-043 §A break-glass handshake (`[OVERRIDE-REQUEST] <path>` + user "override approved", one-shot).
+- **Phase 0.1 stays the static pre-check** (subplan identity ↔ §2 ownership, run once before TodoWrite). Layer 1 is the *runtime* enforcement Phase 0.1 always lacked: Phase 0.1 verifies the declared identity *can* write the paths; Layer 1 verifies the role is *actually adopted* at the moment of each write.
+- Single-identity plans (whole plan runs as one pipeline identity, or as OWNER doing framework work on OWNER-owned paths) need no per-phase switching — adopt once at the start; OWNER framework paths are never gated (LR-043-safe).
+
 1. Work through each item methodically — one at a time
 2. Mark each todo as `in_progress` when starting it, then `completed` only when VERIFIED (not just written, but confirmed working)
 3. If you discover something unexpected mid-execution, STOP and assess before continuing. On 2nd failure at same fix type → you're guessing, not fixing. Switch to root-cause trace (read evidence, hypothesize, verify) before attempt #3.

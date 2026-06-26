@@ -3,9 +3,11 @@
 # REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3)
 
 **Original**: PLAN_GENERATOR_AUDIT_AUTO_ADDON.md
-**Status**: REVISED — incorporates external adversarial audit + codebase verification
+**Status**: RESOLVED-BY-pointer (2026-06-11 — all 7 findings re-verified + dispositioned by SUBPLAN_AUTO_ADDON_FCC Phase 1.5)
 **Priority**: P2-CYCLE-3
 **Date**: 2026-03-25
+
+> **DISPOSITION 2026-06-11** (SUBPLAN_AUTO_ADDON_FCC Phase 1.5 re-verification — full verdict table at `clients/encore/specs_planning/_internal/false-green-sweeps/auto-addon-2026-06-11.md`): every finding re-checked against current code + live walk. **F1** selector-collision → STALE-IRRELEVANT (P0-DECONTAMINATION dedup already landed). **F2** beforeunload↔fixture race → ALREADY-FIXED (suppression at page-object L140-145; TC-013/014/015 green ×3). **F3** shared.ts button labels → STALE-IRRELEVANT (Stay/Discard already correct in `auto-addon.ts`). **F4** sub-tab dirty-flag hypothesis → CONFIRMED-real-behavior but MITIGATED (TC-013 navigateFresh; no new work). **F5** blind `toggleCheckbox` → CONFIRMED-STILL-REAL, KEPT with justification (harm mitigated by the new per-test `ensureDefaultState`; documented in the page object). **F6** async URL after dialog nav → ALREADY-FIXED (TC-015 `expect.poll`). **F7** pattern-discovery → STALE-IRRELEVANT (process meta-finding; the GEN-042..045/ALL-057/PLN-043 rule-adds target the evicted Copilot `.github/agents/` files, pipeline now runs on Claude Code). No finding remains open-and-un-homed → RESOLVED-BY-pointer.
 **Audit trail**: V1 (original) → V2 (external audit found 6 errors, 2 unsupported claims, 4 rule ID collisions) → V3 (this version, all corrections applied)
 
 ---

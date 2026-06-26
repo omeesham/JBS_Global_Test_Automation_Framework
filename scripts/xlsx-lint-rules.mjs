@@ -195,6 +195,7 @@ export const BANNED = [
   //    missed in the first cleanup; humanize.ts strips them at source, these are the
   //    fail-green backstop). ──
   { name: 'ARIA tabpanel role', re: /\btabpanel\b/i },
+  { name: 'ARIA alertdialog role', re: /\balertdialog\b/i },
   { name: 'ARIA listbox role', re: /\blistbox\b/i },
   { name: 'Radix component lib', re: /\bRadix\b/i },
   { name: 'ARIA attribute', re: /\baria-[a-z]+/i },
@@ -298,6 +299,38 @@ export const BANNED = [
   { name: 'MCP ref', re: /\bMCP\s+ref\b/i },
   { name: 'per source code', re: /\bper\s+source\s+code\b/i },
   { name: 'Jira tool ref', re: /\bJira\b/i },
+  // ── coverage-depth taxonomy leak (audit 2026-06-25 — QUICK/DEEP/(DEEP/FLAG) shipped
+  //    to the NM-2260 corporate_pricing_search Titles; the deny-list was shape-blind to
+  //    this class so xlsx:lint false-greened a leaking workbook). These are the internal
+  //    L1/L2/L3 depth labels from CASE_GENERATION_STANDARD — they belong ONLY on the
+  //    `**Surface_Family**:` line (which is not an emitted column), NEVER in a shipped
+  //    cell. The parenthesized form is the exact leak signature so prose like "deep link"
+  //    / "quick filter" is never a false match. humanize.ts strips them at source; these
+  //    are the fail-green backstop (ALL/ARCH logged this session). ──
+  { name: 'coverage depth marker (QUICK/DEEP)', re: /\((?:QUICK|DEEP)\b[^)]*\)/i },
+  { name: 'SBC depth token', re: /\bSBC\b/ },
+  { name: 'Surface_Family label', re: /Surface[_ ]Family/i },
+  { name: 'internal FLAG marker', re: /\bDEEP\/FLAG\b|\(\s*FLAG\s*\)/i },
+  // ── Tier-2: internal test-method jargon (reworded to plain English at source by
+  //    humanize.ts; this is the regression backstop). A reviewer reads behavior, not how
+  //    we automate it. Confirmed 0 occurrences across all sheets only AFTER the rebuild;
+  //    pre-rebuild these correctly FAIL on the corporate-pricing cells. ──
+  { name: 'content-anchored method', re: /content[- ]anchored/i },
+  { name: 'positive-control method', re: /positive[- ]control/i },
+  { name: 'nth(N) selector', re: /\bnth\(/i },
+  // ── Selector / automation-internal leaks (audit 2026-06-25 round 2 — confirmed code
+  //    tokens a reviewer must never see; humanize.ts rewrites them at source, these are the
+  //    fail-green backstop). Each scoped tight enough to never hit legitimate UI vocab
+  //    ("Currency Selector" control name, "anchor row" prose) — only literal code shapes. ──
+  { name: 'css/pw :has-text selector', re: /:has-text\(/i },
+  { name: 'querySelector/locator call', re: /querySelector|\.locator\(/i },
+  { name: 'DOM innerHTML/textContent', re: /\binnerHTML\b|\btextContent\b/ },
+  { name: 'xpath selector', re: /\bxpath\b|\/\/[a-z]+\[@/i },
+  { name: 'hardcoded (automation)', re: /\bhard[- ]?cod(?:e|ed|ing)\b/i },
+  { name: 'row-index (positional)', re: /\brow[- ]index\b/i },
+  { name: 'in the DOM (automation)', re: /\bin the DOM\b/i },
+  { name: 'spec-helper call on index', re: /\b(?:row|value|note|cell)\(\s*\d/i },
+  { name: 'JS .repeat() call', re: /\.repeat\(\s*\d/i },
 ];
 
 /**

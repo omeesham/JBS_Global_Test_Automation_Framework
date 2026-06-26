@@ -174,6 +174,19 @@ function buildC6AnnounceWarning(parsed, planBasename) {
   return `[PLAN-CLOSURE C6 ANNOUNCE] ${planBasename}: closure ALLOWED (c6_mode=announce) but the matrix/cascade check WOULD FAIL once c6_mode flips to deny. Fix before then:\n${lines.join('\n')}\n`;
 }
 
+// === Cx announce-mode warning builder (PLAN_EXHAUSTIVE_WALK_GUARANTEE / LR-062) ===
+// Parity with buildC6AnnounceWarning: when coverage_mode=announce the validator MEASURES Cx
+// (walk-coverage completeness) but leaves it OUT of the verdict. Surface a non-blocking warning so
+// ramp-period closures see what would block once coverage_mode flips to deny.
+function buildCoverageAnnounceWarning(parsed, planBasename) {
+  const cx = (parsed.checks || []).find(c => c.check === 'Cx');
+  if (!cx || cx.status !== 'FAIL') return '';
+  const lines = (cx.items || []).map(it =>
+    `  Cx walk-coverage [${it.artifact || '?'}]: ${(it.reasons || []).join('; ')}`);
+  if (lines.length === 0) return '';
+  return `[PLAN-CLOSURE Cx ANNOUNCE] ${planBasename}: closure ALLOWED (coverage_mode=announce) but the walk-coverage completeness check (LR-062) WOULD FAIL once coverage_mode flips to deny. Fix before then:\n${lines.join('\n')}\n`;
+}
+
 // === --edit-mode ===
 function handleEditMode(payload) {
   const toolName = payload.tool_name || payload.toolName || '';
@@ -250,6 +263,10 @@ function handleEditMode(payload) {
       if ((parsed.c6_mode || 'off') === 'announce') {
         const announceMsg = buildC6AnnounceWarning(parsed, planBasename);
         if (announceMsg) process.stderr.write(announceMsg);
+      }
+      if ((parsed.coverage_mode || 'off') === 'announce') {
+        const covMsg = buildCoverageAnnounceWarning(parsed, planBasename);
+        if (covMsg) process.stderr.write(covMsg);
       }
       emitAllow(`Plan closure validation: ${parsed.status}`);
       return;

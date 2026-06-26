@@ -1,0 +1,8 @@
+{
+  "tool": "playwright-cli",
+  "kind": "dom-snapshot",
+  "captured": "2026-06-25T10:00:00Z",
+  "control": "testid:fixture-input-name",
+  "observation": "input[data-testid=fixture-input-name] carried attribute readonly and aria-disabled=true",
+  "note": "Fixture evidence for SUBPLAN_CGS_B_WALK_INTEGRITY cx-walk-live.md row 2 — names the control (fixture-input-name) and embeds the session date."
+}

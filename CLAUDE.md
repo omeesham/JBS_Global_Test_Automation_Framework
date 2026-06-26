@@ -27,10 +27,11 @@ Claude must NEVER assume anything. EVER. Assumptions cause mistakes.
 - Workflow order: **REMEMBER → ASK → AUDIT → EXECUTE** (never skip steps)
 - Rutvik knows MORE than Claude expects — never assume he knows less
 - Every ambiguity, every gap, every design decision = ASK FIRST
+- Before writing a single line of code: ask if intent, architecture, or requirements are unclear — no silent assumptions
 
 ### Identity Discipline
 
-Codenames: HUNTER | GIVER | BUILDER | HEALER | WATCHDOG | GARDENER | OWNER. Active identity loads system-prompt context (NOT access-control for OWNER, which is short-circuited; pipeline identities are gated by §2 ownership). Auto-detected: every non-leaf skill auto-calls `/identity` via Identity Gate as its first step. Priority chain: explicit `/identity X` > active+compatible (skip) > auto-load default. See `@.claude/skills/identity/SKILL.md`.
+Codenames: HUNTER | GIVER | BUILDER | HEALER | WATCHDOG | GARDENER | OWNER. Active identity loads system-prompt context (NOT access-control for OWNER, which is short-circuited; pipeline identities are gated by §2 ownership). **Adoption is structural at WRITE-TIME, not on skill entry**: a skill's `auto-calls: identity` / `**Identity**:` frontmatter is a *declaration*, not a forcing function — nothing structurally loads the role mid-orchestration just because a skill ran. What actually enforces adoption is the PreToolUse identity write-gate (`.claude/hooks/lib/check-identity-switch.mjs`): pipeline identities are gated by §2, and (PLAN_IDENTITY_ENFORCEMENT Layer 1) an OWNER write to a pipeline-role-owned artifact *inside `/execute`* is gated until `/identity <ROLE>` is adopted (ramp knob `.claude/identity-gate-config.json`). Priority chain: explicit `/identity X` > active+compatible (skip) > auto-load default. See `@.claude/skills/identity/SKILL.md` + `.claude/rules/hooks-identity.md` LR-043 §A.1.
 
 ### Guiding Vision (private contract)
 
@@ -41,6 +42,12 @@ Codenames: HUNTER | GIVER | BUILDER | HEALER | WATCHDOG | GARDENER | OWNER. Acti
 Spawn subagents ≤ current model class, max 5 parallel without consent (ask for >5 parallel). Complexity: Low=Haiku, Mid=Sonnet, High=Opus. Use for any worthy task, including execution requiring subplans—spawn agents and audit their work, or ask user to create them.
 
 `/ultra-agents` lifts these caps (parallel count, ≤model-class, LR-041 tiers) for the current core goal — see `.claude/skills/ultra-agents/SKILL.md`. Goal-scoped; lapses on goal change.
+
+### Andrej Karpathy's Quality Rules
+
+- Simplest solution first. Always implement the simplest thing that could work. Do not add abstractions or flexibility that weren't explicitly requested.
+- Don't touch unrelated code. If a file or function is not directly part of the current task, do not modify it, even if you think it could be improved.
+- Flag uncertainty explicitly. If you are not confident about an approach or technical detail, say so before proceeding. Confidence without certainty causes more damage than admitting a gap.
 
 ---
 
@@ -54,7 +61,7 @@ Spawn subagents ≤ current model class, max 5 parallel without consent (ask for
 | Cross-cutting framework rules (bug filing, plans-reindex, handoff discipline, networkidle ban, activity-log timestamps) | `@docs/read_only_docs/LEARNED_RULES.md` |
 | Pipeline-agent shared rules (§2 ownership, ALL-* rules, RCA discipline, autonomy modes) | `@docs/read_only_docs/AGENT_SHARED_RULES.md` |
 | Active client (Encore-specific surfaces, business rules, baseline URL) | `@clients/encore/CLAUDE.md` |
-| Path-scoped framework rules — auto-load on matching file edits via `paths:` frontmatter | `.claude/rules/*.md` (angular, specs, hooks-identity, browser-tool, pipeline, baseline, data, inventory) |
+| Path-scoped framework rules — auto-load on matching file edits via `paths:` frontmatter | `.claude/rules/*.md` (angular, specs, hooks-identity, browser-tool, pipeline, baseline, data, inventory, deliverable) |
 | Field-inventory artifact spec (frontmatter keys, sections, staleness) | `@clients/encore/specs_planning/_internal/field-inventory-spec.md` |
 | Per-field-type case generation taxonomy (FCC reference) | `@clients/encore/specs_planning/_internal/field-case-generation.md` |
 | Browser tool selection (CLI vs Chrome matrix, mid-subplan switch protocol) | `@docs/read_only_docs/CLI_BROWSER_GUIDE.md` (full guide) + `.claude/rules/browser-tool.md` (rule body) |
@@ -88,6 +95,8 @@ See `@.claude/skills/INDEX.md` and each skill's own SKILL.md for the canonical a
 - **[HALT]** Sonnet + RCA / debugging / hypothesis = BLOCKED. Flag with [?], skip step.
 - **SAFE**: Page objects, specs, test data, selectors, docs (deterministic file edits).
 - Plans tag steps `[SONNET-SAFE]` or `[OPUS-ONLY]`. Sonnet skips `[OPUS-ONLY]` with handoff.
+- **Deterministic-probe delegation (LR-064 / Tiered Delegated Walk)**: Haiku/Sonnet MAY drive `playwright-cli` (**Bash, NOT the MCP browser**) for DETERMINISTIC input-trials under Opus orchestration — the worker is handed the EXACT inputs + EXACT oracle and reports raw evidence only. The two `[HALT]` lines above STAND: judgment, RCA, coverage-decisions, and the per-field disposition never delegate. This *scopes* the halts (deterministic Bash probing ≠ MCP browser ≠ RCA), it does not loosen them.
+- **Worker ladder (LR-064 / Tiered Delegated Walk)**: for any field-gathering walk the cheapest-capable tier does the clicking — Haiku (simple/deterministic) → Sonnet (cascading / multi-row / launcher, or Haiku's report failed verify) → Opus-self (both failed, or adaptive). Opus owns recon, the LR-062 machine denominator, the `field-case-generation.md` §2 taxonomy, the per-field verify (no rubber-stamping), and the disposition.
 
 Activation: `/sonnet` or "sonnet mode". Deactivation: `/sonnet off`. Full guardrails: `@.claude/skills/sonnet/SKILL.md`.
 
@@ -146,3 +155,8 @@ Existing `LR-NNN` numbers are grandfathered. New framework rules continue after 
   - Tracked: `src/` (POM layout — `pages/` + `pages/components/`, `fixtures/`, `selectors/`, `data/<module>/`, `utils/`, `setup/`, `reporter/`, `types/`), `tests/` (spec files + `auth.setup.ts`), `config/` (Allure assets only), `.env.e2e` (CI config, no creds), `package.json`, `playwright.config.ts`, `tsconfig.json`, `.gitignore`, `README.md`. POM restructure 2026-06-05 (PLAN_ENCORE_POM_RESTRUCTURE): the legacy `core` + `infra` buckets removed (split into `pages`/`fixtures`/`utils`/`setup`/`reporter`), the double-nested test-data dir flattened to `src/data/<module>` (`.data` suffix dropped), `specs/` → `tests/` (now holds `auth.setup.ts` too), env files moved to client root.
   - Gitignored at per-client level: `CLAUDE.md`, `specs_planning/`, `readable_externals/`, `docs/read_only_docs/`, `.auth/`, `.env.*.local`, `.env.server`.
 - Ship discipline: NEVER `cp -r clients/<id>` for delivery. Always `npm run client:ship`. Pre-push hook refuses pushes that would leak gitignored content via tracked-but-forbidden patterns. Rule: LR-049 in `.claude/rules/pipeline.md`.
+
+---------------------------
+
+### When responding to Rutvik
+Only respond in simple understandable oneliners for each important thing. Unless user asks for more details.

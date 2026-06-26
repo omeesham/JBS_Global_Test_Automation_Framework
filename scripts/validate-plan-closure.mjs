@@ -18,12 +18,18 @@
 //   --dry-run                            Measure C6 (+ C4 parent-cascade) without enforcing; exit 0.
 //   --c6-mode=<off|announce|deny>        Override closure-config.json c6_mode for this run.
 //   Default mode comes from .claude/closure-config.json (c6_mode); absent → 'off' (inert).
+//
+// Cx (machine-enumerated walk-coverage — LR-062) + Ct (no-red-close test-status — M3 / LR-060):
+//   --coverage-mode=<off|announce|deny>      Override closure-config.json coverage_mode for this run.
+//   --test-status-mode=<off|announce|deny>   Override closure-config.json test_status_mode for this run.
+//   --dry-run also forces Cx + Ct measurement (verdict-neutral, exit 0).
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync, renameSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync, renameSync, appendFileSync } from 'node:fs';
 import { resolve, join, dirname, basename, relative, extname, sep } from 'node:path';
 import { execSync } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { coverageVerdict, COVERAGE_GATE_LANDING_DATE } from './walk-coverage/lib/coverage-manifest.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -60,6 +66,38 @@ function readC6ModeFromConfig() {
 
 function resolveC6Mode(cliC6Mode) {
   const m = (cliC6Mode || readC6ModeFromConfig() || 'off').toLowerCase();
+  return (m === 'announce' || m === 'deny') ? m : 'off';
+}
+
+// === Cx activation mode (PLAN_EXHAUSTIVE_WALK_GUARANTEE / LR-062) — mirrors C6 exactly ===
+// Precedence: explicit CLI --coverage-mode=<off|announce|deny> > closure-config.json coverage_mode > 'off'.
+function resolveCoverageMode(cliCoverageMode) {
+  let cfgMode = 'off';
+  try {
+    const cfg = JSON.parse(readFileSync(CLOSURE_CONFIG_PATH, 'utf-8'));
+    if (cfg && typeof cfg.coverage_mode === 'string') cfgMode = cfg.coverage_mode;
+  } catch { /* no config → off */ }
+  const m = (cliCoverageMode || cfgMode || 'off').toLowerCase();
+  return (m === 'announce' || m === 'deny') ? m : 'off';
+}
+
+function resolveCoverageLandingDate() {
+  try {
+    const cfg = JSON.parse(readFileSync(CLOSURE_CONFIG_PATH, 'utf-8'));
+    if (cfg && typeof cfg.coverage_gate_landing_date === 'string') return cfg.coverage_gate_landing_date;
+  } catch { /* fall through to default */ }
+  return COVERAGE_GATE_LANDING_DATE;
+}
+
+// === Ct activation mode (PLAN_CORP_PRICING_REWALK_REMEDIATION M3 / LR-060) — mirrors C6/Cx exactly ===
+// Precedence: explicit CLI --test-status-mode=<off|announce|deny> > closure-config.json test_status_mode > 'off'.
+function resolveTestStatusMode(cliTestStatusMode) {
+  let cfgMode = 'off';
+  try {
+    const cfg = JSON.parse(readFileSync(CLOSURE_CONFIG_PATH, 'utf-8'));
+    if (cfg && typeof cfg.test_status_mode === 'string') cfgMode = cfg.test_status_mode;
+  } catch { /* no config → off */ }
+  const m = (cliTestStatusMode || cfgMode || 'off').toLowerCase();
   return (m === 'announce' || m === 'deny') ? m : 'off';
 }
 
@@ -722,6 +760,113 @@ function checkC6(body) {
   };
 }
 
+// === Cx: machine-enumerated walk-coverage completeness (LR-062 / PLAN_EXHAUSTIVE_WALK_GUARANTEE) ===
+// When a plan cites a walk-driven artifact (field-inventory / old-site-baseline), that artifact's
+// Coverage Manifest must be complete (Coverage_Ratio 100% / CrossCheck clean / no PARTIAL / no
+// undispositioned rows — coverage-manifest.mjs is the shared source of truth, also used by the
+// execution-completion Stop hook). Grandfathered when MCP_Session_Date precedes the landing date.
+// NON-overridable like C2-C6 — remediate by completing the walk, not by a per-token escape.
+const WALK_ARTIFACT_RX = /(?:field-inventories|old-site-baseline)\/[^/\s]+\.md$/;
+
+function checkCx(body, planPath, landingDate) {
+  const items = [];
+  // Fixture-path scoping: walk artifacts under scripts/test-fixtures/ are deliberately-shaped
+  // samples (incl. intentionally-fabricated ones) for the gate's own self-tests. A REAL plan that
+  // merely references a fixture path in prose (e.g. this gate's own subplan documenting its
+  // negative-test) must NOT be Cx-failed by reading that fixture as a production walk artifact —
+  // but a FIXTURE PLAN (itself under test-fixtures/) MUST still process them, or the cx-provenance
+  // negative tests would no-op. So: exclude fixture citations unless the plan itself is a fixture.
+  const planIsFixture = normalizePath(planPath).includes('test-fixtures/');
+  const cited = extractCitedPaths(body).map(normalizePath)
+    .filter(p => WALK_ARTIFACT_RX.test(p) && (planIsFixture || !p.includes('test-fixtures/')));
+  const seen = new Set();
+  for (const rel of cited) {
+    if (seen.has(rel)) continue;
+    seen.add(rel);
+    const abs = join(REPO_ROOT, rel);
+    if (!existsSync(abs)) continue;   // missing cited path → C3's job, not Cx's
+    let text = '';
+    try { text = readFileSync(abs, 'utf-8'); } catch { continue; }
+    // artifactPath enables the provenance sub-gate's on-disk evidence verification
+    // (exists / fresh / names-control). provenanceFail marks a FABRICATION-class incompleteness
+    // (oracle / missing-provenance / missing-or-stale evidence on an observation-claiming row),
+    // distinct from a mundane ratio/crosscheck gap — runSingle turns it into an integrity strike.
+    const v = coverageVerdict(text, landingDate, { artifactPath: abs });
+    if (!v.applicable) continue;      // grandfathered or no coverage manifest present
+    if (!v.complete) items.push({ artifact: rel, reasons: v.reasons, severity: 'FAIL', fabrication: !!v.provenanceFail });
+  }
+  return { check: 'Cx', status: items.length > 0 ? 'FAIL' : 'PASS', overridable: false, items };
+}
+
+// === Ct: no-red-close test-status deferral gate (PLAN_CORP_PRICING_REWALK_REMEDIATION M3 / LR-060) ===
+// A plan must not flip Status: DONE while owned spec tests are red unless a `## Deferral Authorization`
+// names the red TC IDs AND points to a PENDING recipient subplan — NEVER a transient task chip (the M3
+// miss: 10 red toolbar tests deferred to a task chip on a DONE flip). The validator cannot run tests,
+// so it keys on the DEFERRAL EVIDENCE present in the plan body — it catches the documented-deferral
+// holes, not silently-shipped red (that is the suite-run acceptance criterion + /final-q + the
+// execution-completion hook):
+//   A. a task-chip recipient (task_<hex>) cited on a line with test-status language → FAIL (a task chip
+//      evaporates; the red tests then rot with no durable owner).
+//   B. a `## Deferral Authorization` block that concerns test status (a red/fail/skip/fixme signal +
+//      a test/spec/TC context) but omits a TC ID OR a PENDING recipient subplan that EXISTS in
+//      plans/pending/ → FAIL.
+// Mirrors C6/Cx rollout: off → not computed; announce → measured + reported, verdict-neutral; deny →
+// folded into the verdict. NON-overridable — remediate by greening the tests OR filing a real PENDING
+// recipient subplan that names the red TC IDs (an override cannot convert red into green).
+const TASK_CHIP_RX = /\btask_[0-9a-f]{6,}\b/;
+const TEST_STATUS_TERM_RX = /\b(red|failing|failed|fails|test\.skip|test\.fixme|skipped|missing-coverage)\b/i;
+const TEST_CONTEXT_RX = /\b(test|spec)\b|TC-[A-Z]/;
+const TC_ID_RX = /\bTC-[A-Z0-9]+(?:-[A-Z0-9]+)*\b/;
+const RECIPIENT_SUBPLAN_RX = /(SUBPLAN_|PLAN_)[A-Za-z0-9_]+\.md/g;
+
+function checkCt(body) {
+  const items = [];
+  const lines = body.split('\n');
+  let inFence = false;
+
+  // --- A. task-chip-as-test-recipient (the exact M3 violation) ---
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^(```|~~~)/.test(line)) { inFence = !inFence; continue; }
+    if (inFence) continue;
+    if (shouldDropLineC1(line)) continue;   // skip headings / blockquotes / e.g.|example lines
+    if (TASK_CHIP_RX.test(line) && TEST_STATUS_TERM_RX.test(line)) {
+      items.push({ check: 'Ct', line: i + 1, severity: 'FAIL',
+        reason: `red/failing tests deferred to a transient task chip ("${line.trim().slice(0, 90)}") — route the red TC IDs to a PENDING recipient subplan, never a task chip (M3 / LR-060)` });
+    }
+  }
+
+  // --- B. Deferral Authorization completeness for test-status ---
+  const daRx = /^#{2,4}\s+Deferral Authorization\b[^\n]*$/im;
+  const m = body.match(daRx);
+  if (m) {
+    const startIdx = m.index + m[0].length;
+    const rest = body.slice(startIdx);
+    const nextHeading = rest.match(/^#{1,4}\s/m);
+    const section = nextHeading ? rest.slice(0, nextHeading.index) : rest;
+    const concernsTests = TEST_STATUS_TERM_RX.test(section) && TEST_CONTEXT_RX.test(section);
+    if (concernsTests) {
+      if (!TC_ID_RX.test(section)) {
+        items.push({ check: 'Ct', severity: 'FAIL',
+          reason: 'Deferral Authorization defers test status but names no TC ID — list the red TC IDs (M3 / LR-060)' });
+      }
+      let hasPendingRecipient = false;
+      const recRx = new RegExp(RECIPIENT_SUBPLAN_RX.source, 'g');
+      let rm;
+      while ((rm = recRx.exec(section)) !== null) {
+        if (existsSync(join(REPO_ROOT, 'plans', 'pending', rm[0]))) { hasPendingRecipient = true; break; }
+      }
+      if (!hasPendingRecipient) {
+        items.push({ check: 'Ct', severity: 'FAIL',
+          reason: 'Deferral Authorization defers test status but points to no PENDING recipient subplan in plans/pending/ — a task chip is not a valid recipient (M3 / LR-060)' });
+      }
+    }
+  }
+
+  const fails = items.filter(i => i.severity === 'FAIL');
+  return { check: 'Ct', status: fails.length > 0 ? 'FAIL' : 'PASS', overridable: false, items };
+}
+
 // === Path exemption (M3 + R3) ===
 const RULE_EXEMPT_PATHS = [
   /\.claude[\/\\]rules[\/\\]plan-closure\.md$/,
@@ -801,16 +946,42 @@ function validatePlan(body, planPath, opts = {}) {
     checks.push(c6);
   }
 
+  // Cx family activation (PLAN_EXHAUSTIVE_WALK_GUARANTEE / LR-062). off | announce | deny, mirroring
+  // C6: --dry-run forces measurement (verdict-neutral); deny folds the FAIL into the verdict.
+  const coverageMode = resolveCoverageMode(opts.coverageMode);
+  const coverageMeasured = !!opts.dryRun || coverageMode === 'announce' || coverageMode === 'deny';
+  const coverageEnforced = !opts.dryRun && coverageMode === 'deny';
+  let cx = null;
+  if (coverageMeasured) {
+    cx = checkCx(body, planPath, resolveCoverageLandingDate());
+    checks.push(cx);
+  }
+
+  // Ct family activation (PLAN_CORP_PRICING_REWALK_REMEDIATION M3 / LR-060). off | announce | deny,
+  // mirroring C6/Cx: --dry-run forces measurement (verdict-neutral); deny folds the FAIL into the verdict.
+  const testStatusMode = resolveTestStatusMode(opts.testStatusMode);
+  const testStatusMeasured = !!opts.dryRun || testStatusMode === 'announce' || testStatusMode === 'deny';
+  const testStatusEnforced = !opts.dryRun && testStatusMode === 'deny';
+  let ct = null;
+  if (testStatusMeasured) {
+    ct = checkCt(body);
+    checks.push(ct);
+  }
+
   // C1-C5 always fold into the verdict (C4 already incorporates the parent-cascade item via its
-  // own severity). C6 folds in only when enforced (deny, and not a dry-run).
+  // own severity). C6 + Cx + Ct fold in only when enforced (deny, and not a dry-run).
   const baseFail = [c1, c2, c3, c4, c5].some(c => c.status === 'FAIL');
   const c6Fail = c6Enforced && c6 && c6.status === 'FAIL';
-  const anyFail = baseFail || c6Fail;
+  const cxFail = coverageEnforced && cx && cx.status === 'FAIL';
+  const ctFail = testStatusEnforced && ct && ct.status === 'FAIL';
+  const anyFail = baseFail || c6Fail || cxFail || ctFail;
 
   return {
     plan: bn,
     status: anyFail ? 'FAIL' : 'PASS',
     c6_mode: c6Measured ? (opts.dryRun ? 'dry-run' : c6Mode) : 'off',
+    coverage_mode: coverageMeasured ? (opts.dryRun ? 'dry-run' : coverageMode) : 'off',
+    test_status_mode: testStatusMeasured ? (opts.dryRun ? 'dry-run' : testStatusMode) : 'off',
     checks,
   };
 }
@@ -858,6 +1029,30 @@ function recordAttempt(planPath, result) {
   writeFileSync(attemptFile, JSON.stringify(attempts, null, 2) + '\n', 'utf-8');
 }
 
+// === Integrity strike (SUBPLAN_CGS_B task 5 — whole-walk rejection + collective penalty) ===
+// A single fabrication (oracle / missing-provenance / missing-or-stale evidence on an
+// observation-claiming walk row, detected by Cx with fabrication:true) already FAILS the entire
+// plan closure (Cx folds into the verdict under coverage_mode=deny). On top of that we write an
+// APPEND-ONLY integrity strike to .claude/state/integrity-strikes.jsonl — a durable, collective
+// record that a fabricated walk was submitted for closure. Append-only JSONL: never rewritten,
+// only grown, so the strike history cannot be quietly laundered.
+function recordIntegrityStrike(planPath, fabricationItems) {
+  try {
+    if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true });
+    const strikeFile = join(STATE_DIR, 'integrity-strikes.jsonl');
+    const entry = {
+      timestamp: new Date().toISOString(),
+      plan: basename(planPath),
+      kind: 'walk-provenance-fabrication',
+      artifacts: fabricationItems.map(i => ({ artifact: i.artifact, reasons: i.reasons })),
+    };
+    appendFileSync(strikeFile, JSON.stringify(entry) + '\n', 'utf-8');
+    return strikeFile;
+  } catch {
+    return null;   // never wedge closure on a strike-log write failure
+  }
+}
+
 // === Fail-closed counter (V5) ===
 function recordFailClosed(planPath, error) {
   const bn = basename(planPath);
@@ -883,6 +1078,8 @@ function runSingle(planPath, opts) {
     overrideMode: opts.overrideMode || 'enforce',
     forceCheck: opts.forceCheck,
     c6Mode: opts.c6Mode,
+    coverageMode: opts.coverageMode,
+    testStatusMode: opts.testStatusMode,
     dryRun: opts.dryRun,
   });
 
@@ -894,7 +1091,10 @@ function runSingle(planPath, opts) {
       if (c.status !== 'PASS') {
         console.log(`  ${c.check}: ${c.status}${c.overridable ? ' (OVERRIDABLE)' : ' (NOT OVERRIDABLE)'}`);
         for (const item of c.items.slice(0, 5)) {
-          const detail = item.reason || item.token || item.path || item.target || '';
+          // Cx items carry { artifact, reasons[] } (no singular `reason`) — render them explicitly
+          // so a fabrication/incompleteness FAIL prints its cause instead of a blank line.
+          const cxDetail = item.artifact ? `${item.artifact}: ${(item.reasons || []).join('; ')}` : '';
+          const detail = item.reason || item.token || item.path || item.target || cxDetail || '';
           console.log(`    - ${detail}`);
         }
       }
@@ -903,6 +1103,18 @@ function runSingle(planPath, opts) {
 
   if (result.status === 'FAIL') {
     recordAttempt(absPath, result);
+  }
+
+  // Integrity strike: a fabricated walk submitted for closure under an ENFORCING coverage gate.
+  // Gated to genuine closure attempts — never on the hook's projected-state pass (--content-from-stdin)
+  // and never in measurement mode (--dry-run) — so a single keystroke-edit can't spam the strike log.
+  if (!opts.contentFromStdin && !opts.dryRun && result.coverage_mode === 'deny') {
+    const cx = (result.checks || []).find(c => c.check === 'Cx');
+    const fabrication = cx ? (cx.items || []).filter(i => i.fabrication) : [];
+    if (fabrication.length > 0) {
+      const sf = recordIntegrityStrike(absPath, fabrication);
+      if (sf) console.log(`[INTEGRITY-STRIKE] walk fabrication recorded → ${relative(REPO_ROOT, sf)}`);
+    }
   }
 
   if (opts.writeManifest && result.status === 'PASS') {
@@ -950,7 +1162,12 @@ function runAll(opts) {
   for (const f of files) {
     const planPath = join(doneDir, f);
     const body = readFileSync(planPath, 'utf-8');
-    const result = validatePlan(body, planPath, { overrideMode: 'retro', forceCheck: true });
+    // Forward explicit CLI mode overrides (e.g. --coverage-mode=deny on the blast-radius run) so
+    // `--all` actually evaluates at the requested mode instead of silently ignoring the flag.
+    const result = validatePlan(body, planPath, {
+      overrideMode: 'retro', forceCheck: true,
+      coverageMode: opts.coverageMode, testStatusMode: opts.testStatusMode, c6Mode: opts.c6Mode, dryRun: opts.dryRun,
+    });
     results.push(result);
 
     if (!opts.json) {
@@ -1059,7 +1276,7 @@ function runSelfTest() {
     // Generic fixtures test C1-C5 semantics; C6 is exercised by dedicated synthetic fixtures
     // (PLAN_DONE_MEANS_DONE Phase 2.2a self-tests, run via --dry-run). Force C6 off here so the
     // legacy fixture verdicts stay stable regardless of closure-config.json's live c6_mode.
-    const result = validatePlan(body, fixturePath, { overrideMode: 'enforce', forceCheck: true, c6Mode: 'off' });
+    const result = validatePlan(body, fixturePath, { overrideMode: 'enforce', forceCheck: true, c6Mode: 'off', coverageMode: 'off', testStatusMode: 'off' });
 
     let expectPass = false;
     if (expectedVerdict === 'PASS') expectPass = true;
@@ -1115,9 +1332,13 @@ if (args.includes('--self-test')) {
   const dryRun = args.includes('--dry-run');
   const c6ModeArg = args.find(a => a.startsWith('--c6-mode='));
   const c6Mode = c6ModeArg ? c6ModeArg.split('=')[1] : undefined;
+  const coverageModeArg = args.find(a => a.startsWith('--coverage-mode='));
+  const coverageMode = coverageModeArg ? coverageModeArg.split('=')[1] : undefined;
+  const testStatusModeArg = args.find(a => a.startsWith('--test-status-mode='));
+  const testStatusMode = testStatusModeArg ? testStatusModeArg.split('=')[1] : undefined;
 
   if (all) {
-    const result = runAll({ json, reportOnly: reportOnly || !enforce, rewriteManifests });
+    const result = runAll({ json, reportOnly: reportOnly || !enforce, rewriteManifests, coverageMode, testStatusMode, c6Mode, dryRun });
     if (enforce && !reportOnly && !rewriteManifests) {
       const anyFail = result.plans.some(p => p.status === 'FAIL');
       process.exit(anyFail ? 1 : 0);
@@ -1135,6 +1356,8 @@ if (args.includes('--self-test')) {
       contentFromStdin,
       dryRun,
       c6Mode,
+      coverageMode,
+      testStatusMode,
       overrideMode: staged ? 'staged' : contentFromStdin ? 'stdin' : 'enforce',
       forceCheck: contentFromStdin || dryRun,
     });

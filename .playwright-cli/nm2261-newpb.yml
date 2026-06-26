@@ -1,0 +1,121 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e21]:
+      - list [ref=e23]:
+        - listitem [ref=e24]:
+          - button [ref=e25] [cursor=pointer]:
+            - img [ref=e29]
+      - generic [ref=e35]:
+        - list [ref=e37]:
+          - listitem [ref=e38]:
+            - link "Home" [ref=e39] [cursor=pointer]:
+              - /url: /navigator/locations//home
+              - img [ref=e40]
+              - generic [ref=e43]: Home
+          - listitem [ref=e44]:
+            - link "Inbox" [ref=e45] [cursor=pointer]:
+              - /url: /navigator/locations//inbox
+              - img [ref=e46]
+              - generic [ref=e49]: Inbox
+          - listitem [ref=e50]:
+            - button "Actions" [ref=e51] [cursor=pointer]:
+              - img [ref=e52]
+              - generic [ref=e54]: Actions
+              - img [ref=e55]
+          - listitem [ref=e57]:
+            - button "Commissions" [ref=e58] [cursor=pointer]:
+              - img [ref=e59]
+              - generic [ref=e61]: Commissions
+              - img [ref=e62]
+          - listitem [ref=e64]:
+            - button "Tax" [ref=e65] [cursor=pointer]:
+              - img [ref=e66]
+              - generic [ref=e69]: Tax
+              - img [ref=e70]
+          - listitem [ref=e72]:
+            - button "Setup" [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+              - generic [ref=e77]: Setup
+              - img [ref=e78]
+          - listitem [ref=e80]:
+            - button "Studio" [ref=e81] [cursor=pointer]:
+              - img [ref=e82]
+              - generic [ref=e84]: Studio
+              - img [ref=e85]
+        - generic [ref=e87]:
+          - generic [ref=e88]: Search
+          - list [ref=e90]:
+            - listitem [ref=e91]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=e92]:
+              - link "Job Search" [ref=e93] [cursor=pointer]:
+                - /url: /navigator/locations//fulfillments
+                - img [ref=e94]
+                - generic [ref=e97]: Job Search
+            - listitem [ref=e98]:
+              - link "Asset Search" [ref=e99] [cursor=pointer]:
+                - /url: /navigator/locations//assets
+                - img [ref=e100]
+                - generic [ref=e103]: Asset Search
+            - listitem [ref=e104]:
+              - link "Customer Search" [ref=e105] [cursor=pointer]:
+                - /url: /navigator/locations//customers
+                - img [ref=e106]
+                - generic [ref=e109]: Customer Search
+            - listitem [ref=e110]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e111]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e112]:
+              - link "Item Search" [ref=e113] [cursor=pointer]:
+                - /url: /navigator/locations//products
+                - img [ref=e114]
+                - generic [ref=e124]: Item Search
+            - listitem [ref=e125]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e126]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e128]:
+          - listitem [ref=e129]:
+            - button "Navigator Assistant" [ref=e130] [cursor=pointer]:
+              - img [ref=e131]
+              - generic [ref=e133]: Navigator Assistant
+      - list [ref=e136]:
+        - listitem [ref=e137]:
+          - button "PC prd click auto" [ref=e138] [cursor=pointer]:
+            - generic [ref=e140]: PC
+            - generic [ref=e142]: prd click auto
+            - img [ref=e143]
+      - button "Click to restore sidebar" [ref=e147]
+    - main [ref=e148]:
+      - generic [ref=e151]:
+        - generic [ref=e153]:
+          - button "trigger-button" [ref=e154] [cursor=pointer]:
+            - img
+          - generic [ref=e156]:
+            - link "Corporate Pricing" [ref=e157] [cursor=pointer]:
+              - /url: /navigator/locations//settings/corporate-pricing
+            - img [ref=e158]
+            - heading "New Pricebook" [level=1] [ref=e161]
+            - button "More information" [ref=e162]:
+              - img [ref=e163]
+        - generic [ref=e166]:
+          - generic [ref=e167]:
+            - generic [ref=e168]:
+              - button "Pricing Strategy" [ref=e169] [cursor=pointer]
+              - button "Pricing Detail" [ref=e170] [cursor=pointer]
+            - generic [ref=e171]:
+              - button "Save" [disabled]
+          - main [ref=e200]
+  - region "Notifications alt+T"

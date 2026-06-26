@@ -4,7 +4,7 @@
 **Priority**: P1
 **Created**: 2026-06-05
 **Identity**: GIVER
-**Parent**: PLAN_CORP_PRICING_MASTER.md
+**Parent**: PLAN_CORP_PRICING_JIRA_DELIVERY.md
 **Depends on**: SUBPLAN_CORP_PRICING_00_FOUNDATION.md
 **Blocks**: none
 **Model**: claude-opus-4-8

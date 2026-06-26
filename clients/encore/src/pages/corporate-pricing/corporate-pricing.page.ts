@@ -189,4 +189,25 @@ export class CorporatePricingBasePage extends BasePage {
       input.dispatchEvent(new Event('change', { bubbles: true }));
     }, value);
   }
+
+  /**
+   * Drag a source item onto a target via the FULL pointer sequence
+   * (move → down → multi-step move → settle move → up). Playwright's `.dragTo()` frequently never
+   * fires the drag-and-drop event chain on this kind of pointer-driven list, so the only reliable
+   * primitive — for proving a drag DOES add (create mode) AND that it does NOT add (management mode) —
+   * is the real pointer sequence. `steps` controls the interpolated move granularity.
+   */
+  protected async dragSourceToGrid(source: Locator, target: Locator, steps = 8): Promise<void> {
+    await source.scrollIntoViewIfNeeded();
+    const sb = await source.boundingBox();
+    const tb = await target.boundingBox();
+    if (!sb || !tb) throw new Error('dragSourceToGrid: source or target has no bounding box');
+    const tx = tb.x + tb.width / 2;
+    const ty = tb.y + Math.min(tb.height / 2, 80);
+    await this.page.mouse.move(sb.x + sb.width / 2, sb.y + sb.height / 2);
+    await this.page.mouse.down();
+    await this.page.mouse.move(tx, ty, { steps });
+    await this.page.mouse.move(tx, ty + 6, { steps: 3 }); // settle inside the drop zone
+    await this.page.mouse.up();
+  }
 }

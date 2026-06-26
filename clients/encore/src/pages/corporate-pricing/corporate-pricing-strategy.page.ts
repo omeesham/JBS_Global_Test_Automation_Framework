@@ -158,6 +158,11 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     };
   }
 
+  /** Whether the "Locations Using Pricing As Default" table is rendered for the selected strategy. */
+  async hasLocationsTable(): Promise<boolean> {
+    return this.isVisibleSafe(S.tblLocationsUsingDefault);
+  }
+
   /** Read the locations assigned to the selected strategy. */
   async getStrategyLocations(): Promise<Array<{ office: string; name: string }>> {
     const rows = this.page.locator(S.tblLocationsUsingDefault).first().locator('tbody tr');
@@ -239,16 +244,140 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
    * caller's reload + re-read (save-success ≠ pristine).
    */
   async saveAndConfirm(): Promise<{ toastSeen: boolean }> {
-    await this.clickSaveButtonOrThrow('form not dirty');
-    await this.confirmSaveDialogIfPresent(2_000);
-    const toastSeen = await this.page
+    // Attach the success-toast waiter BEFORE clicking Save — the toast surfaces and auto-dismisses
+    // quickly, so a waiter set up only after the click + dialog-confirm can race past it (the source
+    // of an intermittent miss under full-suite load).
+    const toastPromise = this.page
       .getByText(CorporatePricingStrategyPage.SAVE_TOAST, { exact: false })
       .first()
       .waitFor({ state: 'visible', timeout: 20_000 })
       .then(() => true)
       .catch(() => false);
+    await this.clickSaveButtonOrThrow('form not dirty');
+    await this.confirmSaveDialogIfPresent(2_000);
+    const toastSeen = await toastPromise;
     await this.waitForAngularStable();
     return { toastSeen };
+  }
+
+  // ---------------------------------------------------------------------------
+  // NEW-STRATEGY DIALOG — fine-grained controls (validation + flag combinatorics)
+  // ---------------------------------------------------------------------------
+
+  /** The open "New Pricing Strategy" dialog. */
+  private addDialog(): Locator {
+    return this.page.locator(S.dlgNewStrategy).first();
+  }
+
+  /** Fill the dialog's Strategy Name field (dialog must be open). */
+  async fillDialogName(value: string): Promise<void> {
+    await this.addDialog().getByRole('textbox', { name: 'Strategy Name' }).fill(value);
+  }
+
+  /** Current value of the dialog's Strategy Name field (e.g. to confirm the 100-character input cap). */
+  async getDialogName(): Promise<string> {
+    return this.addDialog().getByRole('textbox', { name: 'Strategy Name' }).inputValue();
+  }
+
+  /** Whether the dialog's Add button is enabled (it is disabled while the name is empty or whitespace). */
+  async isDialogAddEnabled(): Promise<boolean> {
+    return this.addDialog().getByRole('button', { name: 'Add', exact: true }).isEnabled().catch(() => false);
+  }
+
+  /** Read a dialog flag checkbox's checked + disabled state (dialog must be open). */
+  async getDialogFlag(name: StrategyFlag): Promise<{ checked: boolean; disabled: boolean }> {
+    const cb = this.addDialog().getByRole('checkbox', { name });
+    return {
+      checked: await cb.isChecked().catch(() => false),
+      disabled: await cb.isDisabled().catch(() => false),
+    };
+  }
+
+  /** Set a dialog flag checkbox to a desired state (dialog must be open). */
+  async setDialogFlag(name: StrategyFlag, checked: boolean): Promise<void> {
+    const cb = this.addDialog().getByRole('checkbox', { name });
+    if (checked) await cb.check();
+    else await cb.uncheck();
+  }
+
+  /** Click the dialog's Add and wait for it to close (used when the name is valid + unique). */
+  async clickDialogAdd(): Promise<void> {
+    await this.addDialog().getByRole('button', { name: 'Add', exact: true }).click();
+    await this.addDialog().waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => { /* dialog animates out */ });
+    await this.waitForAngularStable();
+  }
+
+  /** Click Add but expect the dialog to STAY open (e.g. a duplicate name is rejected inline). */
+  async clickDialogAddExpectingRejection(): Promise<void> {
+    await this.addDialog().getByRole('button', { name: 'Add', exact: true }).click();
+    await this.waitForAngularStable();
+  }
+
+  /** The dialog's inline validation message, or '' when none is shown. */
+  async getDialogError(): Promise<string> {
+    const err = this.addDialog().getByText(/already exists|required|invalid/i).first();
+    return (await err.count()) > 0 ? (await err.innerText()).trim() : '';
+  }
+
+  /** Close the Add dialog via its Close (X) control. */
+  async closeAddDialog(): Promise<void> {
+    const dlg = this.addDialog();
+    if (await dlg.isVisible().catch(() => false)) {
+      await dlg.getByRole('button', { name: 'Close', exact: true }).click();
+      await dlg.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => { /* ignore */ });
+    }
+  }
+
+  /** Open the dialog, set the given flags, fill the name, submit Add — appends an in-session row. */
+  async addStrategyWithFlags(name: string, flags: Partial<Record<StrategyFlag, boolean>>): Promise<void> {
+    await this.openAddStrategyDialog();
+    for (const key of Object.keys(flags) as StrategyFlag[]) {
+      await this.setDialogFlag(key, flags[key] as boolean);
+    }
+    await this.fillDialogName(name);
+    await this.clickDialogAdd();
+  }
+
+  // ---------------------------------------------------------------------------
+  // EDITOR FLAGS + LIST FILTER (deep coverage)
+  // ---------------------------------------------------------------------------
+
+  /** Set an editor flag checkbox to a desired state (a strategy must be selected). */
+  async setEditorFlag(name: StrategyFlag, checked: boolean): Promise<void> {
+    const cb = this.page.getByRole('checkbox', { name });
+    if (checked) await cb.check();
+    else await cb.uncheck();
+  }
+
+  /** Whether a strategy with the given name appears in the list (reflects any active filter). */
+  async hasStrategy(name: string): Promise<boolean> {
+    return (await this.page.getByRole('complementary').getByRole('button', { name }).count()) > 0;
+  }
+
+  /** Type into the "Search strategies..." filter (pass an empty string to clear it). */
+  async searchStrategies(text: string): Promise<void> {
+    await this.page.locator(S.txtSearchStrategies).first().fill(text);
+    await this.waitForAngularStable();
+  }
+
+  // ---------------------------------------------------------------------------
+  // NAVIGATION-AWAY (unsaved-changes prompt)
+  // ---------------------------------------------------------------------------
+
+  /** Click the "Corporate Pricing" breadcrumb (navigates away from the pricebook). */
+  async clickBackBreadcrumb(): Promise<void> {
+    await this.page.locator(S.lnkBackToSearch).first().click();
+  }
+
+  /** Whether the "Unsaved changes" prompt is showing. */
+  async isUnsavedChangesPromptVisible(): Promise<boolean> {
+    return this.page.getByRole('alertdialog', { name: /unsaved changes/i }).isVisible().catch(() => false);
+  }
+
+  /** Resolve the "Unsaved changes" prompt with the given choice. */
+  async resolveUnsavedChangesPrompt(choice: 'Stay' | 'Discard'): Promise<void> {
+    await this.page.getByRole('alertdialog').getByRole('button', { name: choice, exact: true }).click().catch(() => { /* ignore */ });
+    await this.waitForAngularStable();
   }
 
   // ---------------------------------------------------------------------------

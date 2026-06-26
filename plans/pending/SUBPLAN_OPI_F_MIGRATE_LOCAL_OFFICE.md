@@ -46,8 +46,8 @@ Migrates the separate Local Office Settings page (`/settings/local-office`, dist
 
 ## Phase 1+ — Actual work (OPI_C recipe per spec)
 
-1. **local-office-settings** (`local-office-settings.data.ts` + spec) — `DATE_OFFSET_DEFAULTS`, `CHECKBOX_DEFAULTS`, `DEFAULT_PHONE_1`, default order type, PO fields → per-office editable maps (BAS-001 comprehensive baseline resets to per-office values). Keep LR-008 positivity RULES flat. `reloadBasicInfo(officeNo)` → `office` fixture.
-2. **local-office-ect** (`local-office-ect.data.ts` + spec) — ECT values → per-office FIXED maps; confirm each pool office exposes the SAME ECT sections (F10.4, from OPI_B) so section-save selectors (`ect-settings-btn-save-*`) resolve. If any pool office lacks a section a test exercises → flag to OPI_B for pool replacement (do NOT silently skip).
+1. **local-office-settings** (`local-office-settings.ts` + spec) — `DATE_OFFSET_DEFAULTS`, `CHECKBOX_DEFAULTS`, `DEFAULT_PHONE_1`, default order type, PO fields → per-office editable maps (BAS-001 comprehensive baseline resets to per-office values). Keep LR-008 positivity RULES flat. `reloadBasicInfo(officeNo)` → `office` fixture.
+2. **local-office-ect** (`local-office-ect.ts` + spec) — ECT values → per-office FIXED maps; confirm each pool office exposes the SAME ECT sections (F10.4, from OPI_B) so section-save selectors (`ect-settings-btn-save-*`) resolve. If any pool office lacks a section a test exercises → flag to OPI_B for pool replacement (do NOT silently skip).
 3. Both specs: live-read each pool office's values for these tabs at migration (LR-015, reconcile vs nav2 F5.1, dated provenance — no OPI_B pre-capture); `OFFICE_NO`→`office` fixture; resolve `*For(office)` in-body only (F1.1); Save-enabled-before-confirm (F2.2); run `--workers=1` (==today) then `--workers=2` isolation.
 
 **Sonnet boundary**: data + spec edits [SONNET-SAFE]; ECT section-save verification + `--workers=2` RCA [OPUS-ONLY].
@@ -95,4 +95,4 @@ grep -rnE "import .*OFFICE_NO" clients/encore/tests/local-office/local-office-{s
 
 ## Handoff (post-execution)
 
-Both Local Office Settings specs are per-office and isolated at workers=2, with ECT section-save proven on every pool office. With OPI_C/D/E/F complete, all 14 specs are migrated off the single-1604 dependency. The only remaining work is OPI_Z: make `officeNo` required (compiler catches any straggler), deprecate the hardcoded HOME_URL env, flip the default worker counts back up, prove the FULL suite green at workers=4 and 8, sweep residual 1604 literals, and close the parent.
+Both Local Office Settings specs are per-office and isolated at workers=2, with ECT section-save proven on every pool office. With OPI_C/D/E/F complete, all locations + local-office specs are migrated off the single-1604 dependency. Remaining: **OPI_G** migrates the Corporate Pricing specs (same recipe, gated on OPI_B's corp-pricing parity), then **OPI_Z** makes `officeNo` required, deprecates the hardcoded HOME_URL env, decides the corp-pricing project (F11.3), flips the default worker counts back up, proves the FULL suite green at workers=4 and 8, sweeps residual 1604 literals, and closes the parent. (OPI_F and OPI_G are independent siblings — both depend only on OPI_C — and can run in either order before Z.)

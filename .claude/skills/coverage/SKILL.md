@@ -31,7 +31,7 @@ Runs `/identity` Step 1.5 with caller=`/coverage`. No-op if compatible identity 
 ## Step 2: Decide the case set (per the Standard)
 
 - **Axis 1 (FCC, `TC-<MOD>-FCC-*`)**: every field's `field-case-generation.md` §2 templates + the §2.1 rejection-affordance oracle.
-- **Axis 2 (SBC QUICK)**: per applicable §3 family, the **L1 must-assert** only (pagination moves; one sort flips; a link-cell navigates; "no results" shows; a filter returns matching rows; sort/page-size survives reload). Each is an **ordinary 3-segment TC** (`TC-<MOD>-<SUB>-NNN`) carrying a `**Surface_Family**: <family> (QUICK)` line — no `-SBC-` ID infix (3-segment grammar; rides `check:tc-parity`). Inapplicable family → `out-of-scope:<family>=<reason ≥20 chars>` (LR-065).
+- **Axis 2 (SBC QUICK)**: per applicable §3 family, the **L1 must-assert** only (pagination moves; one sort flips; a link-cell navigates; "no results" shows; a filter returns matching rows; sort/page-size survives reload). Each is an **ordinary 3-segment TC** (`TC-<MOD>-<SUB>-NNN`) carrying a `**Surface_Family**: <family> (QUICK)` line — no `-SBC-` ID infix (3-segment grammar; rides `check:tc-parity`). Inapplicable family → `out-of-scope:<family>=<reason ≥20 chars>` (LR-065). **The `(QUICK)` marker goes ONLY on the `**Surface_Family**:` line — NEVER on the `## TC-…:` heading (the heading ships as the reviewer Title; ALL-091).**
 - L2/L3 (math/matrices/pairwise/a11y/file-I/O/integration/volume) are **out of scope for QUICK** — they belong to `/ultracoverage`'s DEEP subplan. Note them as deferred-to-DEEP.
 
 ## Step 3: Author `SUBPLAN_<MODULE>_COVERAGE_QUICK.md`

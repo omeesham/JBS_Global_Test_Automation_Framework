@@ -158,6 +158,29 @@ function isSpecPath(targetPath) {
   return SPEC_PATH_RX.test(norm);
 }
 
+// ---------------------------------------------------------------------------
+// Evidence-dir write gate — SUBPLAN_CGS_B_WALK_INTEGRITY task 3 (LR-062 provenance).
+//
+// A `provenance: live` walk disposition must cite a MACHINE-EMITTED evidence
+// artifact (network capture / snapshot / screenshot) that playwright-cli writes
+// into `.playwright-cli/` via Bash. If the agent could hand-type files there with
+// Edit/Write, the un-fakeable-ness of the coverage-manifest provenance gate
+// collapses (hand-authored "proof" is exactly the fabrication that gate prevents).
+//
+// So Edit|Write|NotebookEdit whose target resolves under `.playwright-cli/` is
+// DENIED. Bash is untouched — playwright-cli (driven via Bash) writes the dir
+// freely; only the agent's hand-authoring path is closed. Independent of /execute
+// state (the integrity rule holds always). Override = LR-043 §A handshake, same
+// posture as the banned-phrase + skip/fixme gates above.
+// ---------------------------------------------------------------------------
+const EVIDENCE_DIR_RX = /(^|[\\/])\.playwright-cli[\\/]/;
+
+function isEvidenceDirTarget(targetPath) {
+  if (!targetPath) return false;
+  const norm = String(targetPath).replace(/\\/g, "/");
+  return EVIDENCE_DIR_RX.test(norm) || EVIDENCE_DIR_RX.test(String(targetPath));
+}
+
 // Legacy: still used by self-tests for the pure-scan path. Net-new logic below
 // wraps this for the live grandfather check.
 function scanSkipFixmeWithoutBugCite(content) {
@@ -495,6 +518,29 @@ function handleValidate(payload, sessionId, transcriptPath) {
         return;
       }
     }
+  }
+
+  // -------------------------------------------------------------------------
+  // Evidence-dir write gate — SUBPLAN_CGS_B task 3. Fires regardless of /execute
+  // state. Denies hand-authoring of machine-emitted evidence under .playwright-cli/
+  // (proof must come from playwright-cli, never the agent's keyboard).
+  // -------------------------------------------------------------------------
+  if (isEvidenceDirTarget(targetPath)) {
+    if (hasOverrideAuthorization(messages, targetPath)) {
+      emitAllow(`[OVERRIDE] evidence-dir write gate bypassed for ${shortPath(targetPath)}`);
+      return;
+    }
+    emitDeny(
+      `Hand-authoring machine evidence into .playwright-cli/ (${shortPath(targetPath)}) is denied by the ` +
+        "walk-integrity provenance gate (SUBPLAN_CGS_B / LR-062). A 'provenance: live' walk row must cite " +
+        "evidence EMITTED BY playwright-cli (network capture / snapshot / screenshot) — never typed by the " +
+        "agent, because hand-authored proof is exactly the fabrication this gate prevents. Produce the " +
+        "evidence by RUNNING playwright-cli via Bash (snapshot / screenshot / network), which writes " +
+        ".playwright-cli/ itself; then cite that file's path in the walk row's 'evidence:' pointer. " +
+        "Override path (one-shot, LR-043 §A): emit '[OVERRIDE-REQUEST] " + shortPath(targetPath) +
+        "' and have the user type 'override approved'."
+    );
+    return;
   }
 
   if (!inExecute) {
@@ -1056,6 +1102,32 @@ function runSelfTest() {
   cases.push([
     "isSpecPath excludes nested node_modules",
     () => !isSpecPath("website/backend/node_modules/zod/src/foo.test.ts"),
+  ]);
+
+  // 20b. isEvidenceDirTarget — SUBPLAN_CGS_B evidence-dir write gate (.playwright-cli/).
+  cases.push([
+    "evidence-dir positive: repo-relative .playwright-cli/",
+    () => isEvidenceDirTarget(".playwright-cli/page-1.yml"),
+  ]);
+  cases.push([
+    "evidence-dir positive: absolute POSIX .playwright-cli/",
+    () => isEvidenceDirTarget("/home/rutvik/proj/.playwright-cli/net-x.json"),
+  ]);
+  cases.push([
+    "evidence-dir positive: Windows backslash .playwright-cli\\",
+    () => isEvidenceDirTarget("C:\\Users\\rutvi\\projects\\encore_framework\\.playwright-cli\\snap.yml"),
+  ]);
+  cases.push([
+    "evidence-dir NEGATIVE: walk-evidence MD is NOT blocked (F5 — LR-064 authoring preserved)",
+    () => !isEvidenceDirTarget("clients/encore/specs_planning/_internal/walk-evidence-pricing-2026-06-24.md"),
+  ]);
+  cases.push([
+    "evidence-dir NEGATIVE: field-inventory MD is NOT blocked",
+    () => !isEvidenceDirTarget("clients/encore/specs_planning/_internal/field-inventories/pricing-2026-06-24.md"),
+  ]);
+  cases.push([
+    "evidence-dir NEGATIVE: ordinary source file",
+    () => !isEvidenceDirTarget("scripts/walk-coverage/lib/coverage-manifest.mjs"),
   ]);
 
   // 21. scanSkipFixmeNetNewWithoutBugCite — grandfather behavior.

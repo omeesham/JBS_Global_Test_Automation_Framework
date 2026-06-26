@@ -31,6 +31,34 @@ export const SetupPricingSelectors = {
  /** @where Setup > Location > Pricing tab > USD @el dropdown @text "Primary Production Equip. Pricing" @keys primary production equipment pricing combobox usd */
   drpPrimaryProductionEquipmentPricingUSD: '[data-testid="location-settings-select-primary-production-equipment-pricing-usd"]',
 
+ // ---- Primary Pricing Fields — CAD (multi-currency offices only, e.g. 1605) ----
+ // Live-verified 2026-06-19: all five render and are enabled on office 1605 when Corporate Pricing
+ // is checked. Their option lists are currently empty on 1605 ("No pricing strategy found.").
+ /** @where Setup > Location > Pricing tab > CAD @el dropdown @text "Primary Labor Pricing" @keys primary labor pricing combobox cad */
+  drpPrimaryLaborPricingCAD: '[data-testid="location-settings-select-primary-labor-pricing-cad"]',
+ /** @where Setup > Location > Pricing tab > CAD @el dropdown @text "Primary Equipment Pricing" @keys primary equipment pricing combobox cad */
+  drpPrimaryEquipmentPricingCAD: '[data-testid="location-settings-select-primary-equipment-pricing-cad"]',
+ /** @where Setup > Location > Pricing tab > CAD @el dropdown @text "Primary Internal Equipment Pricing" @keys primary internal equipment pricing combobox cad */
+  drpPrimaryInternalEquipmentPricingCAD: '[data-testid="location-settings-select-primary-internal-equipment-pricing-cad"]',
+ /** @where Setup > Location > Pricing tab > CAD @el dropdown @text "Primary Production Labor Pricing" @keys primary production labor pricing combobox cad */
+  drpPrimaryProductionLaborPricingCAD: '[data-testid="location-settings-select-primary-production-labor-pricing-cad"]',
+ /** @where Setup > Location > Pricing tab > CAD @el dropdown @text "Primary Production Equip. Pricing" @keys primary production equipment pricing combobox cad */
+  drpPrimaryProductionEquipmentPricingCAD: '[data-testid="location-settings-select-primary-production-equipment-pricing-cad"]',
+
+ // ---- Primary Pricing Fields — MXN (multi-currency offices only, e.g. 1605) ----
+ // Live-verified 2026-06-19: all five render and are enabled on office 1605 when Corporate Pricing
+ // is checked. Labor and Equipment carry selectable pricing strategies; the other three are empty.
+ /** @where Setup > Location > Pricing tab > MXN @el dropdown @text "Primary Labor Pricing" @keys primary labor pricing combobox mxn */
+  drpPrimaryLaborPricingMXN: '[data-testid="location-settings-select-primary-labor-pricing-mxn"]',
+ /** @where Setup > Location > Pricing tab > MXN @el dropdown @text "Primary Equipment Pricing" @keys primary equipment pricing combobox mxn */
+  drpPrimaryEquipmentPricingMXN: '[data-testid="location-settings-select-primary-equipment-pricing-mxn"]',
+ /** @where Setup > Location > Pricing tab > MXN @el dropdown @text "Primary Internal Equipment Pricing" @keys primary internal equipment pricing combobox mxn */
+  drpPrimaryInternalEquipmentPricingMXN: '[data-testid="location-settings-select-primary-internal-equipment-pricing-mxn"]',
+ /** @where Setup > Location > Pricing tab > MXN @el dropdown @text "Primary Production Labor Pricing" @keys primary production labor pricing combobox mxn */
+  drpPrimaryProductionLaborPricingMXN: '[data-testid="location-settings-select-primary-production-labor-pricing-mxn"]',
+ /** @where Setup > Location > Pricing tab > MXN @el dropdown @text "Primary Production Equip. Pricing" @keys primary production equipment pricing combobox mxn */
+  drpPrimaryProductionEquipmentPricingMXN: '[data-testid="location-settings-select-primary-production-equipment-pricing-mxn"]',
+
  // ---- Secondary Pricing Grid ----
  /** @where Setup > Location > Pricing tab > Secondary @el table @text "Location Secondary Pricing" @keys secondary pricing grid table */
   tblSecondaryPricingGrid: '[data-testid="location-settings-table-secondary-pricing"]',

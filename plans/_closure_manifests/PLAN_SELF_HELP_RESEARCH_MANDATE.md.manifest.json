@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_SELF_HELP_RESEARCH_MANDATE.md",
+  "plan_basename": "PLAN_SELF_HELP_RESEARCH_MANDATE.md",
+  "plan_sha256": "9ca2ea3f2d7fa7b09e6d86c580c364a23c3dcf58d8afff3ed4d1293ab458cd45",
+  "passed_at": "2026-06-22T13:14:59.642Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "3b3d9f27b01661e2bf09cbaa1832b9b8ff8c1a9d7b0e4a4f0f8113f2585d858f",
+  "validator_invocation_id": "1782134099641-70b7537f6c2e4ea8c08d5e83f3692a54-9ca2ea3f2d7fa7b0",
+  "artifacts": [],
+  "provisional": false
+}

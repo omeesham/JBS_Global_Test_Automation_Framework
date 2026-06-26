@@ -2,7 +2,6 @@
   "name": "playwright-typescript-framework",
   "version": "1.0.0",
   "description": "Playwright TypeScript automation framework with Page Object Model",
-  "_vendor_deprecation_note": "DEPRECATED 2026-05-19 — vendor:build / vendor:build:all entries below are dead code per PLAN_DIST_REGRESSION_AND_N_FIXES. Clients ship clients/<id>/src/ directly via git archive — no compiled output. Final removal tracked by PLAN_ROOT_CLIENT_DEDUPE.md.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -83,8 +82,6 @@
     "server:dev": "node --watch -r ts-node/register pipeline/server/index.ts",
     "worker:start": "ts-node pipeline/worker/index.ts",
     "db:migrate": "ts-node -e \"require('./pipeline/server/db/client').initializeSchema().then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); })\"",
-    "vendor:build": "ts-node scripts/build-framework-vendor.ts",
-    "vendor:build:all": "node scripts/build-framework-vendor-all.mjs",
     "client:ship": "bash scripts/ship-client.sh",
     "check:tc-parity": "ts-node scripts/check-tc-parity.ts",
     "xlsx:build": "ts-node export_test_cases/to-xlsx.ts --list-only",
@@ -93,11 +90,16 @@
     "xlsx:freshness": "ts-node scripts/xlsx-freshness.ts",
     "xlsx:dump": "ts-node scripts/xlsx-dump.ts",
     "xlsx:lint": "node scripts/xlsx-vocab-lint.mjs",
+    "test:humanize": "ts-node scripts/humanize.test.ts",
     "test:xlsx-sheet-name": "ts-node scripts/to-xlsx-sheet-name.test.ts",
+    "test:xlsx-compose-reason": "ts-node scripts/xlsx-compose-reason.test.ts",
     "test:xlsx-continuation-row": "node scripts/xlsx-continuation-row.test.mjs",
     "test:xlsx-merged-shape": "node scripts/xlsx-merged-shape.test.mjs",
     "test:sp00-with-run": "ts-node scripts/sp00-with-run.test.ts",
     "test:sp00-fixme-path": "ts-node scripts/sp00-fixme-path.test.ts",
+    "walk:enumerate": "node scripts/walk-coverage/enumerate-page.mjs",
+    "walk:enumerate:test": "node scripts/walk-coverage/lib/test-enumerate-fixtures.mjs",
+    "walk:cross-check": "node scripts/walk-coverage/cross-check.mjs",
     "plans:reindex": "node scripts/plans-reindex.mjs",
     "plans:reindex:check": "node scripts/plans-reindex.mjs --check",
     "plans:validate-closure": "node scripts/validate-plan-closure.mjs --enforce --plan",
@@ -114,7 +116,8 @@
     "verify:rules-fire": "node scripts/verify-rules-fire.mjs",
     "verify:protected-names": "node scripts/verify-protected-names.mjs",
     "verify:no-stale-refs": "node scripts/verify-no-stale-live-refs.mjs",
-    "check:browsertool-parity": "node scripts/check-browsertool-parity.mjs"
+    "check:browsertool-parity": "node scripts/check-browsertool-parity.mjs",
+    "check:lr-embed-parity": "node scripts/check-lr-embed-parity.mjs"
   },
   "keywords": [
     "playwright",

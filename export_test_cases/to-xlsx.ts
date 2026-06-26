@@ -1,4 +1,4 @@
-/**
+﻿/**
  * to-xlsx.ts — Multi-sheet XLSX workbook emitter for the Encore test-case deliverable.
  *
  * Output: `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` (the SOLE
@@ -320,10 +320,12 @@ function parseMd(filePath: string): ParsedTc[] {
     const r = rows[i]!;
     const id = (r[idCol] ?? '').trim();
     if (!id) continue;
-    // scrubInternalVocab on every customer-facing cell — strips Phase D
-    // pre-audit's flagged tokens (BUG-IDs, LR-NNN, MCP-verified, SP-XXX-NN,
-    // RCA dates, internal HTML TODO comments, spec-helper function calls,
-    // /api/ paths, form.* idioms) per humanize.ts.
+    // Second scrubInternalVocab pass is LOAD-BEARING — NOT a no-op.
+    // scrubInternalVocab is NOT idempotent on all inputs: when a bare-token like
+    // LR-057 is stripped from (LR-057 per-launcher coverage), the audit-trail
+    // parenthetical rule (\(\s*per\b...) has already run and misses the residual
+    // ( per-launcher coverage). The second pass catches it.
+    // Verified 2026-06-25 — 1 changed cell in locations_account_address when removed.
     tcs.push({
       id,
       title: scrubInternalVocab(titleCol >= 0 ? (r[titleCol] ?? '') : ''),

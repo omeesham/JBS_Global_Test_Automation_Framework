@@ -1,0 +1,1033 @@
+- generic [ref=e1]:
+  - alert [ref=e18]
+  - generic [ref=e20]:
+    - generic [ref=e23]:
+      - list [ref=e25]:
+        - listitem [ref=e26]:
+          - button "1604 Parker Palm Springs" [ref=e2332] [cursor=pointer]:
+            - generic [ref=e29]: "1604"
+            - generic [ref=e30]:
+              - generic [ref=e31]: Parker Palm Springs
+              - img [ref=e32]
+      - generic [ref=e38]:
+        - list [ref=e40]:
+          - listitem [ref=e41]:
+            - link "Home" [ref=e2333] [cursor=pointer]:
+              - /url: /navigator/locations/1604/home
+              - img [ref=e43]
+              - generic [ref=e46]: Home
+          - listitem [ref=e47]:
+            - link "Inbox" [ref=e2334] [cursor=pointer]:
+              - /url: /navigator/locations/1604/inbox
+              - img [ref=e49]
+              - generic [ref=e52]: Inbox
+          - listitem [ref=e53]:
+            - button "Actions" [ref=e2335] [cursor=pointer]:
+              - img [ref=e55]
+              - generic [ref=e57]: Actions
+              - img [ref=e58]
+          - listitem [ref=e60]:
+            - button "Commissions" [ref=e2336] [cursor=pointer]:
+              - img [ref=e62]
+              - generic [ref=e64]: Commissions
+              - img [ref=e65]
+          - listitem [ref=e67]:
+            - button "Tax" [ref=e2337] [cursor=pointer]:
+              - img [ref=e69]
+              - generic [ref=e72]: Tax
+              - img [ref=e73]
+          - listitem [ref=e75]:
+            - button "Setup" [ref=e2338] [cursor=pointer]:
+              - img [ref=e77]
+              - generic [ref=e80]: Setup
+              - img [ref=e81]
+          - listitem [ref=e83]:
+            - button "Studio" [ref=e2339] [cursor=pointer]:
+              - img [ref=e85]
+              - generic [ref=e87]: Studio
+              - img [ref=e88]
+        - generic [ref=e90]:
+          - generic [ref=e91]: Search
+          - list [ref=e93]:
+            - listitem [ref=e94]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=e95]:
+              - link "Job Search" [ref=e2340] [cursor=pointer]:
+                - /url: /navigator/locations/1604/fulfillments
+                - img [ref=e97]
+                - generic [ref=e100]: Job Search
+            - listitem [ref=e101]:
+              - link "Asset Search" [ref=e2341] [cursor=pointer]:
+                - /url: /navigator/locations/1604/assets
+                - img [ref=e103]
+                - generic [ref=e106]: Asset Search
+            - listitem [ref=e107]:
+              - link "Customer Search" [ref=e2342] [cursor=pointer]:
+                - /url: /navigator/locations/1604/customers
+                - img [ref=e109]
+                - generic [ref=e112]: Customer Search
+            - listitem [ref=e113]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e114]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e115]:
+              - link "Item Search" [ref=e2343] [cursor=pointer]:
+                - /url: /navigator/locations/1604/products
+                - img [ref=e117]
+                - generic [ref=e127]: Item Search
+            - listitem [ref=e128]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e129]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e131]:
+          - listitem [ref=e132]:
+            - button "Navigator Assistant" [ref=e2344] [cursor=pointer]:
+              - img [ref=e134]
+              - generic [ref=e136]: Navigator Assistant
+      - list [ref=e139]:
+        - listitem [ref=e140]:
+          - button "PC prd click auto" [ref=e2345] [cursor=pointer]:
+            - generic [ref=e143]: PC
+            - generic [ref=e145]: prd click auto
+            - img [ref=e146]
+      - button "Click to restore sidebar" [ref=e2346]
+    - main [ref=e151]:
+      - generic [ref=e154]:
+        - generic [ref=e156]:
+          - button "trigger-button" [ref=e2347] [cursor=pointer]:
+            - img
+          - generic [ref=e159]:
+            - heading "Corporate Pricing" [level=1] [ref=e2348]
+            - button "More information" [ref=e2349]:
+              - img [ref=e163]
+        - generic [ref=e166]:
+          - complementary [ref=e168]:
+            - generic [ref=e169]:
+              - generic [ref=e170]:
+                - generic [ref=e172]:
+                  - img [ref=e173]
+                  - text: Search Criteria
+                - generic [ref=e176]:
+                  - generic [ref=e177]:
+                    - generic [ref=e178]: Pricebook
+                    - textbox "Enter name" [ref=e2350]
+                  - generic [ref=e182]:
+                    - generic [ref=e183]: Pricing Strategy
+                    - textbox "Enter strategy" [ref=e2351]
+                  - generic [ref=e187]:
+                    - generic [ref=e188]: Location
+                    - combobox "Open popover" [ref=e2352] [cursor=pointer]:
+                      - generic [ref=e191]: All Locations
+                      - img
+                  - generic [ref=e192]:
+                    - generic [ref=e193]: Currency
+                    - generic [ref=e194]:
+                      - combobox [ref=e195] [cursor=pointer]:
+                        - generic: All Currencies
+                        - img
+                      - combobox [ref=e196]
+                  - generic [ref=e197]:
+                    - checkbox [ref=e198] [cursor=pointer]
+                    - checkbox
+                    - generic [ref=e199]: Is Internal
+                  - generic [ref=e200]:
+                    - checkbox [ref=e201] [cursor=pointer]
+                    - checkbox
+                    - generic [ref=e202]: Is Labor
+                  - generic [ref=e203]:
+                    - checkbox [checked] [ref=e204] [cursor=pointer]:
+                      - generic:
+                        - img
+                    - checkbox [checked]
+                    - generic [ref=e205]: Active Only
+              - generic [ref=e206]:
+                - button "Reset" [ref=e2353] [cursor=pointer]
+                - button "Search" [ref=e2354] [cursor=pointer]
+          - button "Hide filters" [ref=e2355] [cursor=pointer]:
+            - img
+          - generic [ref=e211]:
+            - generic [ref=e212]:
+              - generic [ref=e213]:
+                - img [ref=e214]
+                - generic [ref=e218]: 593 items found
+              - generic [ref=e220]:
+                - button "Pricing Override" [ref=e2356] [cursor=pointer]:
+                  - img
+                  - text: Pricing Override
+                - button "Loc Pricing Export" [ref=e2357] [cursor=pointer]:
+                  - img
+                  - text: Loc Pricing Export
+                - button "Loc Pricing Import" [ref=e2358] [cursor=pointer]:
+                  - img
+                  - text: Loc Pricing Import
+                - generic [ref=e224]:
+                  - button "New" [ref=e2359] [cursor=pointer]:
+                    - img
+                    - text: New
+                  - button [ref=e226] [cursor=pointer]:
+                    - img
+                - generic [ref=e227]:
+                  - button "Export" [ref=e2360] [cursor=pointer]:
+                    - img
+                    - text: Export
+                  - button [ref=e229] [cursor=pointer]:
+                    - img
+                - generic [ref=e230]:
+                  - button "Import" [ref=e2361] [cursor=pointer]:
+                    - img
+                    - text: Import
+                  - button [ref=e232] [cursor=pointer]:
+                    - img
+                - button "Grid Options" [active] [ref=e2362] [cursor=pointer]:
+                  - img
+                  - generic [ref=e235]: Grid Options
+            - table [ref=e242]:
+              - rowgroup [ref=e243]:
+                - row "Price Book Resize column pricebookName Price Book Strategy Resize column strategyName Price Year Resize column strategyYear Is GSO Resize column isGSO Is Internal Resize column isInternal Is Labor Resize column isLabor Is Active Resize column isActive Is Productions Resize column isProduction Currency Resize column currencyAbbrv" [ref=e2363]:
+                  - columnheader "Price Book Resize column pricebookName" [ref=e2364]:
+                    - generic [ref=e246]:
+                      - img [ref=e247]
+                      - button "Price Book" [ref=e2365] [cursor=pointer]:
+                        - generic [ref=e1569]: Price Book
+                        - img
+                    - button "Resize column pricebookName" [ref=e2366]
+                  - columnheader "Price Book Strategy Resize column strategyName" [ref=e2367]:
+                    - generic [ref=e260]:
+                      - img [ref=e261]
+                      - button "Price Book Strategy" [ref=e2368] [cursor=pointer]:
+                        - generic [ref=e1572]: Price Book Strategy
+                        - img
+                    - button "Resize column strategyName" [ref=e2369]
+                  - columnheader "Price Year Resize column strategyYear" [ref=e2370]:
+                    - generic [ref=e274]:
+                      - img [ref=e275]
+                      - button "Price Year" [ref=e2371] [cursor=pointer]:
+                        - generic [ref=e1575]: Price Year
+                        - img
+                    - button "Resize column strategyYear" [ref=e2372]
+                  - columnheader "Is GSO Resize column isGSO" [ref=e2373]:
+                    - generic [ref=e288]:
+                      - img [ref=e289]
+                      - button "Is GSO" [ref=e2374] [cursor=pointer]:
+                        - generic [ref=e1578]: Is GSO
+                        - img
+                    - button "Resize column isGSO" [ref=e2375]
+                  - columnheader "Is Internal Resize column isInternal" [ref=e2376]:
+                    - generic [ref=e302]:
+                      - img [ref=e303]
+                      - button "Is Internal" [ref=e2377] [cursor=pointer]:
+                        - generic [ref=e1581]: Is Internal
+                        - img
+                    - button "Resize column isInternal" [ref=e2378]
+                  - columnheader "Is Labor Resize column isLabor" [ref=e2379]:
+                    - generic [ref=e316]:
+                      - img [ref=e317]
+                      - button "Is Labor" [ref=e2380] [cursor=pointer]:
+                        - generic [ref=e1584]: Is Labor
+                        - img
+                    - button "Resize column isLabor" [ref=e2381]
+                  - columnheader "Is Active Resize column isActive" [ref=e2382]:
+                    - generic [ref=e330]:
+                      - img [ref=e331]
+                      - button "Is Active" [ref=e2383] [cursor=pointer]:
+                        - generic [ref=e1587]: Is Active
+                        - img
+                    - button "Resize column isActive" [ref=e2384]
+                  - columnheader "Is Productions Resize column isProduction" [ref=e2385]:
+                    - generic [ref=e344]:
+                      - img [ref=e345]
+                      - button "Is Productions" [ref=e2386] [cursor=pointer]:
+                        - generic [ref=e1590]: Is Productions
+                        - img
+                    - button "Resize column isProduction" [ref=e2387]
+                  - columnheader "Currency Resize column currencyAbbrv" [ref=e2388]:
+                    - generic [ref=e358]:
+                      - img [ref=e359]
+                      - button "Currency" [ref=e2389] [cursor=pointer]:
+                        - generic [ref=e1593]: Currency
+                        - img
+                    - button "Resize column currencyAbbrv" [ref=e2390]
+              - rowgroup [ref=e371]:
+                - row "2021-PB6 2021-Tier 3 Urban A 2021 ✔ -" [ref=e2391]:
+                  - cell "2021-PB6" [ref=e2392]:
+                    - button "2021-PB6" [ref=e2393] [cursor=pointer]:
+                      - generic [ref=e1595]: 2021-PB6
+                  - cell "2021-Tier 3 Urban A" [ref=e2394]:
+                    - generic [ref=e1596]: 2021-Tier 3 Urban A
+                  - cell "2021" [ref=e2395]:
+                    - generic [ref=e1597]: "2021"
+                  - cell [ref=e380]
+                  - cell [ref=e381]
+                  - cell [ref=e382]
+                  - cell "✔" [ref=e2396]
+                  - cell [ref=e384]
+                  - cell "-" [ref=e2397]:
+                    - generic [ref=e1599]: "-"
+                - row "2022-NP Tier 1 2022-NP Tier 1 2022 ✔ ✔ -" [ref=e2398]:
+                  - cell "2022-NP Tier 1" [ref=e2399]:
+                    - button "2022-NP Tier 1" [ref=e2400] [cursor=pointer]:
+                      - generic [ref=e1601]: 2022-NP Tier 1
+                  - cell "2022-NP Tier 1" [ref=e2401]:
+                    - generic [ref=e1602]: 2022-NP Tier 1
+                  - cell "2022" [ref=e2402]:
+                    - generic [ref=e1603]: "2022"
+                  - cell [ref=e396]
+                  - cell [ref=e397]
+                  - cell [ref=e398]
+                  - cell "✔" [ref=e2403]
+                  - cell "✔" [ref=e2404]
+                  - cell "-" [ref=e2405]:
+                    - generic [ref=e1605]: "-"
+                - row "2022-NP Tier 2 2022-NP Tier 2 2022 ✔ ✔ USD" [ref=e2406]:
+                  - cell "2022-NP Tier 2" [ref=e2407]:
+                    - button "2022-NP Tier 2" [ref=e2408] [cursor=pointer]:
+                      - generic [ref=e1607]: 2022-NP Tier 2
+                  - cell "2022-NP Tier 2" [ref=e2409]:
+                    - generic [ref=e1608]: 2022-NP Tier 2
+                  - cell "2022" [ref=e2410]:
+                    - generic [ref=e1609]: "2022"
+                  - cell [ref=e412]
+                  - cell [ref=e413]
+                  - cell [ref=e414]
+                  - cell "✔" [ref=e2411]
+                  - cell "✔" [ref=e2412]
+                  - cell "USD" [ref=e2413]:
+                    - generic [ref=e1611]: USD
+                - row "2022-NP Tier 3 2022-NP Tier 3 2022 ✔ ✔ USD" [ref=e2414]:
+                  - cell "2022-NP Tier 3" [ref=e2415]:
+                    - button "2022-NP Tier 3" [ref=e2416] [cursor=pointer]:
+                      - generic [ref=e1613]: 2022-NP Tier 3
+                  - cell "2022-NP Tier 3" [ref=e2417]:
+                    - generic [ref=e1614]: 2022-NP Tier 3
+                  - cell "2022" [ref=e2418]:
+                    - generic [ref=e1615]: "2022"
+                  - cell [ref=e428]
+                  - cell [ref=e429]
+                  - cell [ref=e430]
+                  - cell "✔" [ref=e2419]
+                  - cell "✔" [ref=e2420]
+                  - cell "USD" [ref=e2421]:
+                    - generic [ref=e1617]: USD
+                - row "2022-NP Tier 3 y5y 2022 ✔ -" [ref=e2422]:
+                  - cell "2022-NP Tier 3" [ref=e2423]:
+                    - button "2022-NP Tier 3" [ref=e2424] [cursor=pointer]:
+                      - generic [ref=e1619]: 2022-NP Tier 3
+                  - cell "y5y" [ref=e2425]:
+                    - generic [ref=e1620]: y5y
+                  - cell "2022" [ref=e2426]:
+                    - generic [ref=e1621]: "2022"
+                  - cell [ref=e444]
+                  - cell [ref=e445]
+                  - cell [ref=e446]
+                  - cell "✔" [ref=e2427]
+                  - cell [ref=e448]
+                  - cell "-" [ref=e2428]:
+                    - generic [ref=e1623]: "-"
+                - row "2022-PB10 2022-Tier 3 Suburban B 2022 ✔ USD" [ref=e2429]:
+                  - cell "2022-PB10" [ref=e2430]:
+                    - button "2022-PB10" [ref=e2431] [cursor=pointer]:
+                      - generic [ref=e1625]: 2022-PB10
+                  - cell "2022-Tier 3 Suburban B" [ref=e2432]:
+                    - generic [ref=e1626]: 2022-Tier 3 Suburban B
+                  - cell "2022" [ref=e2433]:
+                    - generic [ref=e1627]: "2022"
+                  - cell [ref=e460]
+                  - cell [ref=e461]
+                  - cell [ref=e462]
+                  - cell "✔" [ref=e2434]
+                  - cell [ref=e464]
+                  - cell "USD" [ref=e2435]:
+                    - generic [ref=e1629]: USD
+                - row "2022-PB1A 2022-Tier 1 Luxury A 2022 ✔ USD" [ref=e2436]:
+                  - cell "2022-PB1A" [ref=e2437]:
+                    - button "2022-PB1A" [ref=e2438] [cursor=pointer]:
+                      - generic [ref=e1631]: 2022-PB1A
+                  - cell "2022-Tier 1 Luxury A" [ref=e2439]:
+                    - generic [ref=e1632]: 2022-Tier 1 Luxury A
+                  - cell "2022" [ref=e2440]:
+                    - generic [ref=e1633]: "2022"
+                  - cell [ref=e476]
+                  - cell [ref=e477]
+                  - cell [ref=e478]
+                  - cell "✔" [ref=e2441]
+                  - cell [ref=e480]
+                  - cell "USD" [ref=e2442]:
+                    - generic [ref=e1635]: USD
+                - row "2022-PB1B 2022-Tier 1 Luxury B 2022 ✔ USD" [ref=e2443]:
+                  - cell "2022-PB1B" [ref=e2444]:
+                    - button "2022-PB1B" [ref=e2445] [cursor=pointer]:
+                      - generic [ref=e1637]: 2022-PB1B
+                  - cell "2022-Tier 1 Luxury B" [ref=e2446]:
+                    - generic [ref=e1638]: 2022-Tier 1 Luxury B
+                  - cell "2022" [ref=e2447]:
+                    - generic [ref=e1639]: "2022"
+                  - cell [ref=e492]
+                  - cell [ref=e493]
+                  - cell [ref=e494]
+                  - cell "✔" [ref=e2448]
+                  - cell [ref=e496]
+                  - cell "USD" [ref=e2449]:
+                    - generic [ref=e1641]: USD
+                - row "2022-PB2 2022-Tier 1 Luxury C 2022 ✔ USD" [ref=e2450]:
+                  - cell "2022-PB2" [ref=e2451]:
+                    - button "2022-PB2" [ref=e2452] [cursor=pointer]:
+                      - generic [ref=e1643]: 2022-PB2
+                  - cell "2022-Tier 1 Luxury C" [ref=e2453]:
+                    - generic [ref=e1644]: 2022-Tier 1 Luxury C
+                  - cell "2022" [ref=e2454]:
+                    - generic [ref=e1645]: "2022"
+                  - cell [ref=e508]
+                  - cell [ref=e509]
+                  - cell [ref=e510]
+                  - cell "✔" [ref=e2455]
+                  - cell [ref=e512]
+                  - cell "USD" [ref=e2456]:
+                    - generic [ref=e1647]: USD
+                - row "2022-PB2 2022-Tier 1 Urban A 2022 ✔ USD" [ref=e2457]:
+                  - cell "2022-PB2" [ref=e2458]:
+                    - button "2022-PB2" [ref=e2459] [cursor=pointer]:
+                      - generic [ref=e1649]: 2022-PB2
+                  - cell "2022-Tier 1 Urban A" [ref=e2460]:
+                    - generic [ref=e1650]: 2022-Tier 1 Urban A
+                  - cell "2022" [ref=e2461]:
+                    - generic [ref=e1651]: "2022"
+                  - cell [ref=e524]
+                  - cell [ref=e525]
+                  - cell [ref=e526]
+                  - cell "✔" [ref=e2462]
+                  - cell [ref=e528]
+                  - cell "USD" [ref=e2463]:
+                    - generic [ref=e1653]: USD
+                - row "2022-PB3 2022-Tier 1 Resort A 2022 ✔ USD" [ref=e2464]:
+                  - cell "2022-PB3" [ref=e2465]:
+                    - button "2022-PB3" [ref=e2466] [cursor=pointer]:
+                      - generic [ref=e1655]: 2022-PB3
+                  - cell "2022-Tier 1 Resort A" [ref=e2467]:
+                    - generic [ref=e1656]: 2022-Tier 1 Resort A
+                  - cell "2022" [ref=e2468]:
+                    - generic [ref=e1657]: "2022"
+                  - cell [ref=e540]
+                  - cell [ref=e541]
+                  - cell [ref=e542]
+                  - cell "✔" [ref=e2469]
+                  - cell [ref=e544]
+                  - cell "USD" [ref=e2470]:
+                    - generic [ref=e1659]: USD
+                - row "2022-PB3 2022-Tier 1 Urban B 2022 ✔ USD" [ref=e2471]:
+                  - cell "2022-PB3" [ref=e2472]:
+                    - button "2022-PB3" [ref=e2473] [cursor=pointer]:
+                      - generic [ref=e1661]: 2022-PB3
+                  - cell "2022-Tier 1 Urban B" [ref=e2474]:
+                    - generic [ref=e1662]: 2022-Tier 1 Urban B
+                  - cell "2022" [ref=e2475]:
+                    - generic [ref=e1663]: "2022"
+                  - cell [ref=e556]
+                  - cell [ref=e557]
+                  - cell [ref=e558]
+                  - cell "✔" [ref=e2476]
+                  - cell [ref=e560]
+                  - cell "USD" [ref=e2477]:
+                    - generic [ref=e1665]: USD
+                - row "2022-PB3 2022-Tier 2 Luxury A 2022 ✔ USD" [ref=e2478]:
+                  - cell "2022-PB3" [ref=e2479]:
+                    - button "2022-PB3" [ref=e2480] [cursor=pointer]:
+                      - generic [ref=e1667]: 2022-PB3
+                  - cell "2022-Tier 2 Luxury A" [ref=e2481]:
+                    - generic [ref=e1668]: 2022-Tier 2 Luxury A
+                  - cell "2022" [ref=e2482]:
+                    - generic [ref=e1669]: "2022"
+                  - cell [ref=e572]
+                  - cell [ref=e573]
+                  - cell [ref=e574]
+                  - cell "✔" [ref=e2483]
+                  - cell [ref=e576]
+                  - cell "USD" [ref=e2484]:
+                    - generic [ref=e1671]: USD
+                - row "2022-PB4 2022-Stand-Alone Virtual_US 2022 ✔ USD" [ref=e2485]:
+                  - cell "2022-PB4" [ref=e2486]:
+                    - button "2022-PB4" [ref=e2487] [cursor=pointer]:
+                      - generic [ref=e1673]: 2022-PB4
+                  - cell "2022-Stand-Alone Virtual_US" [ref=e2488]:
+                    - generic [ref=e1674]: 2022-Stand-Alone Virtual_US
+                  - cell "2022" [ref=e2489]:
+                    - generic [ref=e1675]: "2022"
+                  - cell [ref=e588]
+                  - cell [ref=e589]
+                  - cell [ref=e590]
+                  - cell "✔" [ref=e2490]
+                  - cell [ref=e592]
+                  - cell "USD" [ref=e2491]:
+                    - generic [ref=e1677]: USD
+                - row "2022-PB4 2022-Tier 1 Airport A 2022 ✔ USD" [ref=e2492]:
+                  - cell "2022-PB4" [ref=e2493]:
+                    - button "2022-PB4" [ref=e2494] [cursor=pointer]:
+                      - generic [ref=e1679]: 2022-PB4
+                  - cell "2022-Tier 1 Airport A" [ref=e2495]:
+                    - generic [ref=e1680]: 2022-Tier 1 Airport A
+                  - cell "2022" [ref=e2496]:
+                    - generic [ref=e1681]: "2022"
+                  - cell [ref=e604]
+                  - cell [ref=e605]
+                  - cell [ref=e606]
+                  - cell "✔" [ref=e2497]
+                  - cell [ref=e608]
+                  - cell "USD" [ref=e2498]:
+                    - generic [ref=e1683]: USD
+                - row "2022-PB4 2022-Tier 1 Branch 2022 ✔ USD" [ref=e2499]:
+                  - cell "2022-PB4" [ref=e2500]:
+                    - button "2022-PB4" [ref=e2501] [cursor=pointer]:
+                      - generic [ref=e1685]: 2022-PB4
+                  - cell "2022-Tier 1 Branch" [ref=e2502]:
+                    - generic [ref=e1686]: 2022-Tier 1 Branch
+                  - cell "2022" [ref=e2503]:
+                    - generic [ref=e1687]: "2022"
+                  - cell [ref=e620]
+                  - cell [ref=e621]
+                  - cell [ref=e622]
+                  - cell "✔" [ref=e2504]
+                  - cell [ref=e624]
+                  - cell "USD" [ref=e2505]:
+                    - generic [ref=e1689]: USD
+                - row "2022-PB4 2022-Tier 1 Offsite Events 2022 ✔ USD" [ref=e2506]:
+                  - cell "2022-PB4" [ref=e2507]:
+                    - button "2022-PB4" [ref=e2508] [cursor=pointer]:
+                      - generic [ref=e1691]: 2022-PB4
+                  - cell "2022-Tier 1 Offsite Events" [ref=e2509]:
+                    - generic [ref=e1692]: 2022-Tier 1 Offsite Events
+                  - cell "2022" [ref=e2510]:
+                    - generic [ref=e1693]: "2022"
+                  - cell [ref=e636]
+                  - cell [ref=e637]
+                  - cell [ref=e638]
+                  - cell "✔" [ref=e2511]
+                  - cell [ref=e640]
+                  - cell "USD" [ref=e2512]:
+                    - generic [ref=e1695]: USD
+                - row "2022-PB4 2022-Tier 1 Resort B 2022 ✔ USD" [ref=e2513]:
+                  - cell "2022-PB4" [ref=e2514]:
+                    - button "2022-PB4" [ref=e2515] [cursor=pointer]:
+                      - generic [ref=e1697]: 2022-PB4
+                  - cell "2022-Tier 1 Resort B" [ref=e2516]:
+                    - generic [ref=e1698]: 2022-Tier 1 Resort B
+                  - cell "2022" [ref=e2517]:
+                    - generic [ref=e1699]: "2022"
+                  - cell [ref=e652]
+                  - cell [ref=e653]
+                  - cell [ref=e654]
+                  - cell "✔" [ref=e2518]
+                  - cell [ref=e656]
+                  - cell "USD" [ref=e2519]:
+                    - generic [ref=e1701]: USD
+                - row "2022-PB4 2022-Tier 1 Suburban A 2022 ✔ USD" [ref=e2520]:
+                  - cell "2022-PB4" [ref=e2521]:
+                    - button "2022-PB4" [ref=e2522] [cursor=pointer]:
+                      - generic [ref=e1703]: 2022-PB4
+                  - cell "2022-Tier 1 Suburban A" [ref=e2523]:
+                    - generic [ref=e1704]: 2022-Tier 1 Suburban A
+                  - cell "2022" [ref=e2524]:
+                    - generic [ref=e1705]: "2022"
+                  - cell [ref=e668]
+                  - cell [ref=e669]
+                  - cell [ref=e670]
+                  - cell "✔" [ref=e2525]
+                  - cell [ref=e672]
+                  - cell "USD" [ref=e2526]:
+                    - generic [ref=e1707]: USD
+                - row "2022-PB4 2022-Tier 2 Luxury B 2022 ✔ USD" [ref=e2527]:
+                  - cell "2022-PB4" [ref=e2528]:
+                    - button "2022-PB4" [ref=e2529] [cursor=pointer]:
+                      - generic [ref=e1709]: 2022-PB4
+                  - cell "2022-Tier 2 Luxury B" [ref=e2530]:
+                    - generic [ref=e1710]: 2022-Tier 2 Luxury B
+                  - cell "2022" [ref=e2531]:
+                    - generic [ref=e1711]: "2022"
+                  - cell [ref=e684]
+                  - cell [ref=e685]
+                  - cell [ref=e686]
+                  - cell "✔" [ref=e2532]
+                  - cell [ref=e688]
+                  - cell "USD" [ref=e2533]:
+                    - generic [ref=e1713]: USD
+                - row "2022-PB4 2022-Tier 2 Resort A 2022 ✔ USD" [ref=e2534]:
+                  - cell "2022-PB4" [ref=e2535]:
+                    - button "2022-PB4" [ref=e2536] [cursor=pointer]:
+                      - generic [ref=e1715]: 2022-PB4
+                  - cell "2022-Tier 2 Resort A" [ref=e2537]:
+                    - generic [ref=e1716]: 2022-Tier 2 Resort A
+                  - cell "2022" [ref=e2538]:
+                    - generic [ref=e1717]: "2022"
+                  - cell [ref=e700]
+                  - cell [ref=e701]
+                  - cell [ref=e702]
+                  - cell "✔" [ref=e2539]
+                  - cell [ref=e704]
+                  - cell "USD" [ref=e2540]:
+                    - generic [ref=e1719]: USD
+                - row "2022-PB4 2022-Tier 2 Urban A 2022 ✔ USD" [ref=e2541]:
+                  - cell "2022-PB4" [ref=e2542]:
+                    - button "2022-PB4" [ref=e2543] [cursor=pointer]:
+                      - generic [ref=e1721]: 2022-PB4
+                  - cell "2022-Tier 2 Urban A" [ref=e2544]:
+                    - generic [ref=e1722]: 2022-Tier 2 Urban A
+                  - cell "2022" [ref=e2545]:
+                    - generic [ref=e1723]: "2022"
+                  - cell [ref=e716]
+                  - cell [ref=e717]
+                  - cell [ref=e718]
+                  - cell "✔" [ref=e2546]
+                  - cell [ref=e720]
+                  - cell "USD" [ref=e2547]:
+                    - generic [ref=e1725]: USD
+                - row "2022-PB4 2022-US_GSO-Tier1 2022 ✔ ✔ USD" [ref=e2548]:
+                  - cell "2022-PB4" [ref=e2549]:
+                    - button "2022-PB4" [ref=e2550] [cursor=pointer]:
+                      - generic [ref=e1727]: 2022-PB4
+                  - cell "2022-US_GSO-Tier1" [ref=e2551]:
+                    - generic [ref=e1728]: 2022-US_GSO-Tier1
+                  - cell "2022" [ref=e2552]:
+                    - generic [ref=e1729]: "2022"
+                  - cell "✔" [ref=e2553]
+                  - cell [ref=e733]
+                  - cell [ref=e734]
+                  - cell "✔" [ref=e2554]
+                  - cell [ref=e736]
+                  - cell "USD" [ref=e2555]:
+                    - generic [ref=e1731]: USD
+                - row "2022-PB5 2022-Tier 1 Airport B 2022 ✔ USD" [ref=e2556]:
+                  - cell "2022-PB5" [ref=e2557]:
+                    - button "2022-PB5" [ref=e2558] [cursor=pointer]:
+                      - generic [ref=e1733]: 2022-PB5
+                  - cell "2022-Tier 1 Airport B" [ref=e2559]:
+                    - generic [ref=e1734]: 2022-Tier 1 Airport B
+                  - cell "2022" [ref=e2560]:
+                    - generic [ref=e1735]: "2022"
+                  - cell [ref=e748]
+                  - cell [ref=e749]
+                  - cell [ref=e750]
+                  - cell "✔" [ref=e2561]
+                  - cell [ref=e752]
+                  - cell "USD" [ref=e2562]:
+                    - generic [ref=e1737]: USD
+                - row "2022-PB5 2022-Tier 1 Convention Center 2022 ✔ USD" [ref=e2563]:
+                  - cell "2022-PB5" [ref=e2564]:
+                    - button "2022-PB5" [ref=e2565] [cursor=pointer]:
+                      - generic [ref=e1739]: 2022-PB5
+                  - cell "2022-Tier 1 Convention Center" [ref=e2566]:
+                    - generic [ref=e1740]: 2022-Tier 1 Convention Center
+                  - cell "2022" [ref=e2567]:
+                    - generic [ref=e1741]: "2022"
+                  - cell [ref=e764]
+                  - cell [ref=e765]
+                  - cell [ref=e766]
+                  - cell "✔" [ref=e2568]
+                  - cell [ref=e768]
+                  - cell "USD" [ref=e2569]:
+                    - generic [ref=e1743]: USD
+                - row "2022-PB5 2022-Tier 1 Suburban B 2022 ✔ USD" [ref=e2570]:
+                  - cell "2022-PB5" [ref=e2571]:
+                    - button "2022-PB5" [ref=e2572] [cursor=pointer]:
+                      - generic [ref=e1745]: 2022-PB5
+                  - cell "2022-Tier 1 Suburban B" [ref=e2573]:
+                    - generic [ref=e1746]: 2022-Tier 1 Suburban B
+                  - cell "2022" [ref=e2574]:
+                    - generic [ref=e1747]: "2022"
+                  - cell [ref=e780]
+                  - cell [ref=e781]
+                  - cell [ref=e782]
+                  - cell "✔" [ref=e2575]
+                  - cell [ref=e784]
+                  - cell "USD" [ref=e2576]:
+                    - generic [ref=e1749]: USD
+                - row "2022-PB5 2022-Tier 2 Branch A 2022 ✔ USD" [ref=e2577]:
+                  - cell "2022-PB5" [ref=e2578]:
+                    - button "2022-PB5" [ref=e2579] [cursor=pointer]:
+                      - generic [ref=e1751]: 2022-PB5
+                  - cell "2022-Tier 2 Branch A" [ref=e2580]:
+                    - generic [ref=e1752]: 2022-Tier 2 Branch A
+                  - cell "2022" [ref=e2581]:
+                    - generic [ref=e1753]: "2022"
+                  - cell [ref=e796]
+                  - cell [ref=e797]
+                  - cell [ref=e798]
+                  - cell "✔" [ref=e2582]
+                  - cell [ref=e800]
+                  - cell "USD" [ref=e2583]:
+                    - generic [ref=e1755]: USD
+                - row "2022-PB5 2022-Tier 2 Resort B 2022 ✔ USD" [ref=e2584]:
+                  - cell "2022-PB5" [ref=e2585]:
+                    - button "2022-PB5" [ref=e2586] [cursor=pointer]:
+                      - generic [ref=e1757]: 2022-PB5
+                  - cell "2022-Tier 2 Resort B" [ref=e2587]:
+                    - generic [ref=e1758]: 2022-Tier 2 Resort B
+                  - cell "2022" [ref=e2588]:
+                    - generic [ref=e1759]: "2022"
+                  - cell [ref=e812]
+                  - cell [ref=e813]
+                  - cell [ref=e814]
+                  - cell "✔" [ref=e2589]
+                  - cell [ref=e816]
+                  - cell "USD" [ref=e2590]:
+                    - generic [ref=e1761]: USD
+                - row "2022-PB5 2022-Tier 2 Suburban A 2022 ✔ USD" [ref=e2591]:
+                  - cell "2022-PB5" [ref=e2592]:
+                    - button "2022-PB5" [ref=e2593] [cursor=pointer]:
+                      - generic [ref=e1763]: 2022-PB5
+                  - cell "2022-Tier 2 Suburban A" [ref=e2594]:
+                    - generic [ref=e1764]: 2022-Tier 2 Suburban A
+                  - cell "2022" [ref=e2595]:
+                    - generic [ref=e1765]: "2022"
+                  - cell [ref=e828]
+                  - cell [ref=e829]
+                  - cell [ref=e830]
+                  - cell "✔" [ref=e2596]
+                  - cell [ref=e832]
+                  - cell "USD" [ref=e2597]:
+                    - generic [ref=e1767]: USD
+                - row "2022-PB5 2022-Tier 2 Urban B 2022 ✔ USD" [ref=e2598]:
+                  - cell "2022-PB5" [ref=e2599]:
+                    - button "2022-PB5" [ref=e2600] [cursor=pointer]:
+                      - generic [ref=e1769]: 2022-PB5
+                  - cell "2022-Tier 2 Urban B" [ref=e2601]:
+                    - generic [ref=e1770]: 2022-Tier 2 Urban B
+                  - cell "2022" [ref=e2602]:
+                    - generic [ref=e1771]: "2022"
+                  - cell [ref=e844]
+                  - cell [ref=e845]
+                  - cell [ref=e846]
+                  - cell "✔" [ref=e2603]
+                  - cell [ref=e848]
+                  - cell "USD" [ref=e2604]:
+                    - generic [ref=e1773]: USD
+                - row "2022-PB5 2022-Tier 3 Branch A 2022 ✔ USD" [ref=e2605]:
+                  - cell "2022-PB5" [ref=e2606]:
+                    - button "2022-PB5" [ref=e2607] [cursor=pointer]:
+                      - generic [ref=e1775]: 2022-PB5
+                  - cell "2022-Tier 3 Branch A" [ref=e2608]:
+                    - generic [ref=e1776]: 2022-Tier 3 Branch A
+                  - cell "2022" [ref=e2609]:
+                    - generic [ref=e1777]: "2022"
+                  - cell [ref=e860]
+                  - cell [ref=e861]
+                  - cell [ref=e862]
+                  - cell "✔" [ref=e2610]
+                  - cell [ref=e864]
+                  - cell "USD" [ref=e2611]:
+                    - generic [ref=e1779]: USD
+                - row "2022-PB5 2022-Tier 3 Luxury A 2022 ✔ USD" [ref=e2612]:
+                  - cell "2022-PB5" [ref=e2613]:
+                    - button "2022-PB5" [ref=e2614] [cursor=pointer]:
+                      - generic [ref=e1781]: 2022-PB5
+                  - cell "2022-Tier 3 Luxury A" [ref=e2615]:
+                    - generic [ref=e1782]: 2022-Tier 3 Luxury A
+                  - cell "2022" [ref=e2616]:
+                    - generic [ref=e1783]: "2022"
+                  - cell [ref=e876]
+                  - cell [ref=e877]
+                  - cell [ref=e878]
+                  - cell "✔" [ref=e2617]
+                  - cell [ref=e880]
+                  - cell "USD" [ref=e2618]:
+                    - generic [ref=e1785]: USD
+                - row "2022-PB6 2022-Tier 1 Suburban C 2022 ✔ USD" [ref=e2619]:
+                  - cell "2022-PB6" [ref=e2620]:
+                    - button "2022-PB6" [ref=e2621] [cursor=pointer]:
+                      - generic [ref=e1787]: 2022-PB6
+                  - cell "2022-Tier 1 Suburban C" [ref=e2622]:
+                    - generic [ref=e1788]: 2022-Tier 1 Suburban C
+                  - cell "2022" [ref=e2623]:
+                    - generic [ref=e1789]: "2022"
+                  - cell [ref=e892]
+                  - cell [ref=e893]
+                  - cell [ref=e894]
+                  - cell "✔" [ref=e2624]
+                  - cell [ref=e896]
+                  - cell "USD" [ref=e2625]:
+                    - generic [ref=e1791]: USD
+                - row "2022-PB6 2022-Tier 2 Airport A 2022 ✔ USD" [ref=e2626]:
+                  - cell "2022-PB6" [ref=e2627]:
+                    - button "2022-PB6" [ref=e2628] [cursor=pointer]:
+                      - generic [ref=e1793]: 2022-PB6
+                  - cell "2022-Tier 2 Airport A" [ref=e2629]:
+                    - generic [ref=e1794]: 2022-Tier 2 Airport A
+                  - cell "2022" [ref=e2630]:
+                    - generic [ref=e1795]: "2022"
+                  - cell [ref=e908]
+                  - cell [ref=e909]
+                  - cell [ref=e910]
+                  - cell "✔" [ref=e2631]
+                  - cell [ref=e912]
+                  - cell "USD" [ref=e2632]:
+                    - generic [ref=e1797]: USD
+                - row "2022-PB6 2022-Tier 2 Offsite Events 2022 ✔ USD" [ref=e2633]:
+                  - cell "2022-PB6" [ref=e2634]:
+                    - button "2022-PB6" [ref=e2635] [cursor=pointer]:
+                      - generic [ref=e1799]: 2022-PB6
+                  - cell "2022-Tier 2 Offsite Events" [ref=e2636]:
+                    - generic [ref=e1800]: 2022-Tier 2 Offsite Events
+                  - cell "2022" [ref=e2637]:
+                    - generic [ref=e1801]: "2022"
+                  - cell [ref=e924]
+                  - cell [ref=e925]
+                  - cell [ref=e926]
+                  - cell "✔" [ref=e2638]
+                  - cell [ref=e928]
+                  - cell "USD" [ref=e2639]:
+                    - generic [ref=e1803]: USD
+                - row "2022-PB6 2022-Tier 2 Resort C 2022 ✔ USD" [ref=e2640]:
+                  - cell "2022-PB6" [ref=e2641]:
+                    - button "2022-PB6" [ref=e2642] [cursor=pointer]:
+                      - generic [ref=e1805]: 2022-PB6
+                  - cell "2022-Tier 2 Resort C" [ref=e2643]:
+                    - generic [ref=e1806]: 2022-Tier 2 Resort C
+                  - cell "2022" [ref=e2644]:
+                    - generic [ref=e1807]: "2022"
+                  - cell [ref=e940]
+                  - cell [ref=e941]
+                  - cell [ref=e942]
+                  - cell "✔" [ref=e2645]
+                  - cell [ref=e944]
+                  - cell "USD" [ref=e2646]:
+                    - generic [ref=e1809]: USD
+                - row "2022-PB6 2022-Tier 2 Suburban B 2022 ✔ USD" [ref=e2647]:
+                  - cell "2022-PB6" [ref=e2648]:
+                    - button "2022-PB6" [ref=e2649] [cursor=pointer]:
+                      - generic [ref=e1811]: 2022-PB6
+                  - cell "2022-Tier 2 Suburban B" [ref=e2650]:
+                    - generic [ref=e1812]: 2022-Tier 2 Suburban B
+                  - cell "2022" [ref=e2651]:
+                    - generic [ref=e1813]: "2022"
+                  - cell [ref=e956]
+                  - cell [ref=e957]
+                  - cell [ref=e958]
+                  - cell "✔" [ref=e2652]
+                  - cell [ref=e960]
+                  - cell "USD" [ref=e2653]:
+                    - generic [ref=e1815]: USD
+                - row "2022-PB6 2022-Tier 3 Luxury B 2022 ✔ USD" [ref=e2654]:
+                  - cell "2022-PB6" [ref=e2655]:
+                    - button "2022-PB6" [ref=e2656] [cursor=pointer]:
+                      - generic [ref=e1817]: 2022-PB6
+                  - cell "2022-Tier 3 Luxury B" [ref=e2657]:
+                    - generic [ref=e1818]: 2022-Tier 3 Luxury B
+                  - cell "2022" [ref=e2658]:
+                    - generic [ref=e1819]: "2022"
+                  - cell [ref=e972]
+                  - cell [ref=e973]
+                  - cell [ref=e974]
+                  - cell "✔" [ref=e2659]
+                  - cell [ref=e976]
+                  - cell "USD" [ref=e2660]:
+                    - generic [ref=e1821]: USD
+                - row "2022-PB6 2022-Tier 3 Resort A 2022 ✔ USD" [ref=e2661]:
+                  - cell "2022-PB6" [ref=e2662]:
+                    - button "2022-PB6" [ref=e2663] [cursor=pointer]:
+                      - generic [ref=e1823]: 2022-PB6
+                  - cell "2022-Tier 3 Resort A" [ref=e2664]:
+                    - generic [ref=e1824]: 2022-Tier 3 Resort A
+                  - cell "2022" [ref=e2665]:
+                    - generic [ref=e1825]: "2022"
+                  - cell [ref=e988]
+                  - cell [ref=e989]
+                  - cell [ref=e990]
+                  - cell "✔" [ref=e2666]
+                  - cell [ref=e992]
+                  - cell "USD" [ref=e2667]:
+                    - generic [ref=e1827]: USD
+                - row "2022-PB6 2022-Tier 3 Urban A 2022 ✔ USD" [ref=e2668]:
+                  - cell "2022-PB6" [ref=e2669]:
+                    - button "2022-PB6" [ref=e2670] [cursor=pointer]:
+                      - generic [ref=e1829]: 2022-PB6
+                  - cell "2022-Tier 3 Urban A" [ref=e2671]:
+                    - generic [ref=e1830]: 2022-Tier 3 Urban A
+                  - cell "2022" [ref=e2672]:
+                    - generic [ref=e1831]: "2022"
+                  - cell [ref=e1004]
+                  - cell [ref=e1005]
+                  - cell [ref=e1006]
+                  - cell "✔" [ref=e2673]
+                  - cell [ref=e1008]
+                  - cell "USD" [ref=e2674]:
+                    - generic [ref=e1833]: USD
+                - row "2022-PB6 2022-US_GSO-Tier2 2022 ✔ ✔ USD" [ref=e2675]:
+                  - cell "2022-PB6" [ref=e2676]:
+                    - button "2022-PB6" [ref=e2677] [cursor=pointer]:
+                      - generic [ref=e1835]: 2022-PB6
+                  - cell "2022-US_GSO-Tier2" [ref=e2678]:
+                    - generic [ref=e1836]: 2022-US_GSO-Tier2
+                  - cell "2022" [ref=e2679]:
+                    - generic [ref=e1837]: "2022"
+                  - cell "✔" [ref=e2680]
+                  - cell [ref=e1021]
+                  - cell [ref=e1022]
+                  - cell "✔" [ref=e2681]
+                  - cell [ref=e1024]
+                  - cell "USD" [ref=e2682]:
+                    - generic [ref=e1839]: USD
+                - row "2022-PB7 2022-Tier 2 Airport B 2022 ✔ USD" [ref=e2683]:
+                  - cell "2022-PB7" [ref=e2684]:
+                    - button "2022-PB7" [ref=e2685] [cursor=pointer]:
+                      - generic [ref=e1841]: 2022-PB7
+                  - cell "2022-Tier 2 Airport B" [ref=e2686]:
+                    - generic [ref=e1842]: 2022-Tier 2 Airport B
+                  - cell "2022" [ref=e2687]:
+                    - generic [ref=e1843]: "2022"
+                  - cell [ref=e1036]
+                  - cell [ref=e1037]
+                  - cell [ref=e1038]
+                  - cell "✔" [ref=e2688]
+                  - cell [ref=e1040]
+                  - cell "USD" [ref=e2689]:
+                    - generic [ref=e1845]: USD
+                - row "2022-PB7 2022-Tier 2 Branch B 2022 ✔ USD" [ref=e2690]:
+                  - cell "2022-PB7" [ref=e2691]:
+                    - button "2022-PB7" [ref=e2692] [cursor=pointer]:
+                      - generic [ref=e1847]: 2022-PB7
+                  - cell "2022-Tier 2 Branch B" [ref=e2693]:
+                    - generic [ref=e1848]: 2022-Tier 2 Branch B
+                  - cell "2022" [ref=e2694]:
+                    - generic [ref=e1849]: "2022"
+                  - cell [ref=e1052]
+                  - cell [ref=e1053]
+                  - cell [ref=e1054]
+                  - cell "✔" [ref=e2695]
+                  - cell [ref=e1056]
+                  - cell "USD" [ref=e2696]:
+                    - generic [ref=e1851]: USD
+                - row "2022-PB7 2022-Tier 2 Convention Center 2022 ✔ USD" [ref=e2697]:
+                  - cell "2022-PB7" [ref=e2698]:
+                    - button "2022-PB7" [ref=e2699] [cursor=pointer]:
+                      - generic [ref=e1853]: 2022-PB7
+                  - cell "2022-Tier 2 Convention Center" [ref=e2700]:
+                    - generic [ref=e1854]: 2022-Tier 2 Convention Center
+                  - cell "2022" [ref=e2701]:
+                    - generic [ref=e1855]: "2022"
+                  - cell [ref=e1068]
+                  - cell [ref=e1069]
+                  - cell [ref=e1070]
+                  - cell "✔" [ref=e2702]
+                  - cell [ref=e1072]
+                  - cell "USD" [ref=e2703]:
+                    - generic [ref=e1857]: USD
+                - row "2022-PB7 2022-Tier 2 Suburban C 2022 ✔ USD" [ref=e2704]:
+                  - cell "2022-PB7" [ref=e2705]:
+                    - button "2022-PB7" [ref=e2706] [cursor=pointer]:
+                      - generic [ref=e1859]: 2022-PB7
+                  - cell "2022-Tier 2 Suburban C" [ref=e2707]:
+                    - generic [ref=e1860]: 2022-Tier 2 Suburban C
+                  - cell "2022" [ref=e2708]:
+                    - generic [ref=e1861]: "2022"
+                  - cell [ref=e1084]
+                  - cell [ref=e1085]
+                  - cell [ref=e1086]
+                  - cell "✔" [ref=e2709]
+                  - cell [ref=e1088]
+                  - cell "USD" [ref=e2710]:
+                    - generic [ref=e1863]: USD
+                - row "2022-PB7 2022-Tier 3 Resort B 2022 ✔ USD" [ref=e2711]:
+                  - cell "2022-PB7" [ref=e2712]:
+                    - button "2022-PB7" [ref=e2713] [cursor=pointer]:
+                      - generic [ref=e1865]: 2022-PB7
+                  - cell "2022-Tier 3 Resort B" [ref=e2714]:
+                    - generic [ref=e1866]: 2022-Tier 3 Resort B
+                  - cell "2022" [ref=e2715]:
+                    - generic [ref=e1867]: "2022"
+                  - cell [ref=e1100]
+                  - cell [ref=e1101]
+                  - cell [ref=e1102]
+                  - cell "✔" [ref=e2716]
+                  - cell [ref=e1104]
+                  - cell "USD" [ref=e2717]:
+                    - generic [ref=e1869]: USD
+                - row "2022-PB7 2022-Tier 3 Urban B 2022 ✔ USD" [ref=e2718]:
+                  - cell "2022-PB7" [ref=e2719]:
+                    - button "2022-PB7" [ref=e2720] [cursor=pointer]:
+                      - generic [ref=e1871]: 2022-PB7
+                  - cell "2022-Tier 3 Urban B" [ref=e2721]:
+                    - generic [ref=e1872]: 2022-Tier 3 Urban B
+                  - cell "2022" [ref=e2722]:
+                    - generic [ref=e1873]: "2022"
+                  - cell [ref=e1116]
+                  - cell [ref=e1117]
+                  - cell [ref=e1118]
+                  - cell "✔" [ref=e2723]
+                  - cell [ref=e1120]
+                  - cell "USD" [ref=e2724]:
+                    - generic [ref=e1875]: USD
+                - row "2022-PB8 2022-eCommerce 2022 ✔ USD" [ref=e2725]:
+                  - cell "2022-PB8" [ref=e2726]:
+                    - button "2022-PB8" [ref=e2727] [cursor=pointer]:
+                      - generic [ref=e1877]: 2022-PB8
+                  - cell "2022-eCommerce" [ref=e2728]:
+                    - generic [ref=e1878]: 2022-eCommerce
+                  - cell "2022" [ref=e2729]:
+                    - generic [ref=e1879]: "2022"
+                  - cell [ref=e1132]
+                  - cell [ref=e1133]
+                  - cell [ref=e1134]
+                  - cell "✔" [ref=e2730]
+                  - cell [ref=e1136]
+                  - cell "USD" [ref=e2731]:
+                    - generic [ref=e1881]: USD
+                - row "2022-PB8 2022-Tier 3 Convention Center 2022 ✔ USD" [ref=e2732]:
+                  - cell "2022-PB8" [ref=e2733]:
+                    - button "2022-PB8" [ref=e2734] [cursor=pointer]:
+                      - generic [ref=e1883]: 2022-PB8
+                  - cell "2022-Tier 3 Convention Center" [ref=e2735]:
+                    - generic [ref=e1884]: 2022-Tier 3 Convention Center
+                  - cell "2022" [ref=e2736]:
+                    - generic [ref=e1885]: "2022"
+                  - cell [ref=e1148]
+                  - cell [ref=e1149]
+                  - cell [ref=e1150]
+                  - cell "✔" [ref=e2737]
+                  - cell [ref=e1152]
+                  - cell "USD" [ref=e2738]:
+                    - generic [ref=e1887]: USD
+                - row "2022-PB8 2022-US_GSO-Tier3 2022 ✔ ✔ USD" [ref=e2739]:
+                  - cell "2022-PB8" [ref=e2740]:
+                    - button "2022-PB8" [ref=e2741] [cursor=pointer]:
+                      - generic [ref=e1889]: 2022-PB8
+                  - cell "2022-US_GSO-Tier3" [ref=e2742]:
+                    - generic [ref=e1890]: 2022-US_GSO-Tier3
+                  - cell "2022" [ref=e2743]:
+                    - generic [ref=e1891]: "2022"
+                  - cell "✔" [ref=e2744]
+                  - cell [ref=e1165]
+                  - cell [ref=e1166]
+                  - cell "✔" [ref=e2745]
+                  - cell [ref=e1168]
+                  - cell "USD" [ref=e2746]:
+                    - generic [ref=e1893]: USD
+            - generic [ref=e1178]:
+              - generic [ref=e1180]:
+                - combobox [ref=e1181] [cursor=pointer]:
+                  - generic: "50"
+                  - img
+                - paragraph [ref=e1182]: rows per page
+              - generic [ref=e1183]:
+                - button "Go to first page" [disabled]:
+                  - img
+                - button "Go to previous page" [disabled]:
+                  - img
+                - generic [ref=e1184]:
+                  - textbox "Current page number" [ref=e2747]: "1"
+                  - generic [ref=e1186]: /
+                  - text: "12"
+                - button "Go to next page" [ref=e2748] [cursor=pointer]:
+                  - img
+                - button "Go to last page" [ref=e2749] [cursor=pointer]:
+                  - img
+  - region "Notifications alt+T"
+  - generic [ref=e2751]:
+    - text: Grid Options
+    - tooltip "Grid Options" [ref=e2752]

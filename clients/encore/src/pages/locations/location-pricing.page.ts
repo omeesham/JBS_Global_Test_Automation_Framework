@@ -50,34 +50,33 @@ export class LocationPricingPage extends BasePage {
   }
 
  /**
- * Wait for the pricing API data to fully load after tab navigation.
- * The Pricing tab renders checkboxes with DEFAULT state before the API response
- * populates them with persisted values. networkidle alone is unreliable because
- * Angular's change detection applies API data to DOM attributes AFTER the HTTP
- * response is received (async gap). RCA PRI-025: in serial runs, this gap widens
- * enough that checkbox reads return stale default values.
- * Signal: Primary Labor Pricing dropdown value becomes non-empty (populated by API).
+ * Wait for the pricing data to fully load after tab navigation.
+ * The Pricing tab renders checkboxes and dropdowns with DEFAULT state before the API response
+ * populates them with persisted values. Waiting on network-idle alone is unreliable because
+ * Angular's change detection applies API data to DOM attributes AFTER the HTTP response is
+ * received (async gap); in serial runs that gap widens enough that reads return stale defaults.
+ * Each readiness signal uses waitForFunction so it resolves the instant the condition holds,
+ * rather than sleeping for a fixed interval per check.
  */
   async waitForPricingDataLoaded(): Promise<void> {
     await this.waitForAngularStable();
- // Signal 1: Primary Labor Pricing dropdown value populated by API
-    const dropdown = this.getElement('drpPrimaryLaborPricingUSD');
-    for (let i = 0; i < 40; i++) {
-      const text = (await dropdown.textContent() ?? '').trim();
-      if (text.length > 0 && text !== 'Select') break;
-      await this.page.waitForTimeout(250);
-    }
- // Signal 2: Grid rows rendered — grid data loads AFTER dropdown in a separate
- // Angular change detection cycle. Without this, date inputs and checkbox states
- // read as empty/default (PRI-020 flakiness).
-    const gridRows = this.page.locator('[role="tabpanel"] table tbody tr');
-    for (let i = 0; i < 20; i++) {
-      const count = await gridRows.count();
-      if (count > 0) break;
-      await this.page.waitForTimeout(250);
-    }
- // Signal 3: Final Angular stability pass — ensures checkbox aria-checked and
- // date input values reflect persisted state (not default render values).
+ // Signal 1 (primary, reliable across offices): the secondary pricing grid has rendered its rows.
+ // Grid data arrives after the pricing API responds, so a non-zero row count proves the tab is
+ // populated. Every office has price-book rows, so this signal is office-independent.
+    await this.page.waitForFunction(
+      () => document.querySelectorAll('[role="tabpanel"] table tbody tr').length > 0,
+      undefined,
+      { timeout: 20_000 },
+    ).catch(() => { /* a genuine no-data state is surfaced by the test's own assertions */ });
+ // Signal 2: the Primary Labor dropdown has been bound by Angular (its label is no longer the
+ // empty pre-render placeholder). Confirms checkbox aria-checked and dropdown values reflect
+ // persisted state rather than default render values.
+    await this.page.waitForFunction(
+      (sel) => (((document.querySelector(sel)?.textContent) ?? '').trim().length > 0),
+      '[data-testid="location-settings-select-primary-labor-pricing-usd"]',
+      { timeout: 10_000 },
+    ).catch(() => {});
+ // Final Angular stability pass.
     await this.waitForAngularStable();
   }
 
@@ -133,7 +132,7 @@ export class LocationPricingPage extends BasePage {
  /**
  * Select a pricebook option from a primary pricing dropdown popover.
  * MCP-verified : combobox opens a dialog[name="Popover Content"] containing
- * a search textbox (placeholder "Search pricebooks...") and option buttons.
+ * a search textbox (placeholder "Search pricing strategies...") and option buttons.
  * IMPORTANT: clicking an already-selected option DESELECTS it (Radix toggle behavior).
  * This method skips interaction when the target value is already displayed.
  * @param selectorKey - selector key for the combobox (e.g., 'drpPrimaryLaborPricingUSD')
@@ -150,7 +149,7 @@ export class LocationPricingPage extends BasePage {
     const dialog = this.page.getByRole('dialog', { name: 'Popover Content' });
     await dialog.waitFor({ state: 'visible', timeout: 5_000 });
  // Search for the option (the list is virtualized with 100+ entries)
-    const searchInput = dialog.getByRole('textbox', { name: 'Search pricebooks...' });
+    const searchInput = dialog.getByRole('textbox', { name: 'Search pricing strategies...' });
     await searchInput.fill(optionText);
  // Wait for the filtered option button to appear
     const optionBtn = dialog.getByRole('button', { name: optionText, exact: true });
@@ -158,6 +157,29 @@ export class LocationPricingPage extends BasePage {
     await optionBtn.click();
     await dialog.waitFor({ state: 'hidden', timeout: 5_000 });
     Log.info(`[OK] Selected "${optionText}" for ${selectorKey}`);
+  }
+
+ /**
+ * Clear a primary pricing dropdown by toggling its current selection off — the Radix combobox
+ * treats clicking the already-selected option as a deselect, returning the field to "--Select--".
+ * No-op if the dropdown is already unset. Used to restore a dropdown after a persistence test.
+ * @param selectorKey - selector key for the combobox
+ */
+  async clearPrimaryDropdown(selectorKey: string): Promise<void> {
+    const current = (await this.getDropdownValue(selectorKey)).trim();
+    if (current === '' || current === '--Select--' || current === 'Select') {
+      return; // already unset
+    }
+    await this.getElement(selectorKey).click();
+    const dialog = this.page.getByRole('dialog', { name: 'Popover Content' });
+    await dialog.waitFor({ state: 'visible', timeout: 5_000 });
+    const searchInput = dialog.getByRole('textbox', { name: 'Search pricing strategies...' });
+    await searchInput.fill(current);
+    const optionBtn = dialog.getByRole('button', { name: current, exact: true });
+    await optionBtn.waitFor({ state: 'visible', timeout: 5_000 });
+    await optionBtn.click();
+    await dialog.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+    Log.info(`Cleared ${selectorKey} (was "${current}")`);
   }
 
  // ---------------------------------------------------------------------------
@@ -565,6 +587,66 @@ export class LocationPricingPage extends BasePage {
  */
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSavePricing');
+  }
+
+ /**
+ * Save-and-confirm wrapper for the field-coverage runner. Wraps clickSave() and throws on failure
+ * so a real save error surfaces as a test failure rather than a silent {success:false} return.
+ */
+  async saveAndConfirm(): Promise<void> {
+    const result = await this.clickSave();
+    if (!result.success) {
+      throw new Error(`Pricing save failed: ${result.networkError ?? 'unknown error'}`);
+    }
+  }
+
+ /**
+ * Per-test baseline: restore the net-zero-vulnerable fields to their default state so a crashed
+ * prior run cannot make the next test's change a no-op. Resets the two top checkboxes and clears
+ * Is Alternative on the given price-book rows.
+ *
+ * Bounded retry (max 3) wraps the whole cycle — read → reset → save → reload → re-verify — because
+ * a save reports success even when the Save button was disabled (so save-success alone never proves
+ * the reset landed). The post-reload re-read against persisted state is the load-bearing check; if
+ * it still shows non-default, the loop resets again, then throws after 3 cycles. The happy path
+ * (already at defaults) returns after reads only — no save, no reload — so it stays fast on this
+ * heavy tab.
+ */
+  async ensureDefaultState(
+    defaults: { corporatePricing: boolean; priceGuideInclusive: boolean; gridRows: readonly string[] },
+    officeNo: string = '1604',
+  ): Promise<void> {
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      let dirty = false;
+      if ((await this.getCheckboxState('chkCorporatePricing')).checked !== defaults.corporatePricing) {
+        await this.setRadixCheckbox('chkCorporatePricing', defaults.corporatePricing);
+        dirty = true;
+      }
+      if ((await this.getCheckboxState('chkPriceGuideInclusive')).checked !== defaults.priceGuideInclusive) {
+        await this.setRadixCheckbox('chkPriceGuideInclusive', defaults.priceGuideInclusive);
+        dirty = true;
+      }
+      for (const row of defaults.gridRows) {
+        if ((await this.getIsAlternativeState(row)).checked) {
+          await this.uncheckIsAlternative(row);
+          dirty = true;
+        }
+      }
+      if (!dirty) return; // already at defaults — fast path, no save/reload
+
+      await this.saveAndConfirm();
+      await this.reloadPricingTab(officeNo);
+
+      const corpOk = (await this.getCheckboxState('chkCorporatePricing')).checked === defaults.corporatePricing;
+      const guideOk = (await this.getCheckboxState('chkPriceGuideInclusive')).checked === defaults.priceGuideInclusive;
+      let rowsOk = true;
+      for (const row of defaults.gridRows) {
+        if ((await this.getIsAlternativeState(row)).checked) { rowsOk = false; break; }
+      }
+      if (corpOk && guideOk && rowsOk) return;
+    }
+    throw new Error(`ensureDefaultState: Pricing not at defaults after ${maxAttempts} attempts`);
   }
 
  /** Click the Save button WITHOUT confirming the dialog. Opens the Save Changes dialog. */

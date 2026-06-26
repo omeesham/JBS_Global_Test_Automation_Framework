@@ -78,6 +78,15 @@ Complete this checklist in a single pass. Fix any issues found before proceeding
 
   **Do not tick this step as "done" on vibes.** Run the greps. Report the captured values to the user. If all 11 steps pass, explicitly state: "LR-041 + LR-038 v2 gates passed: MODEL=<x> / THINKING=<y> / PERM=<z> / TOOL=<b>."
 
+- **[GATE] Duty-coverage — each phase-identity's HARD STOPs are reflected in the plan body** (Layer 0, PLAN_IDENTITY_ENFORCEMENT) — **advisory HALT, same posture as the LR-041 gate above**. The framework already enforces *what each role delivers* (LR-048 Per-Identity Matrix + closure-check C6 → file exists) but never *that each role's HARD STOPs governed the work*. Close it at authoring time:
+
+  1. List every **pipeline identity** the plan's phases invoke (HUNTER / GIVER / BUILDER / HEALER / WATCHDOG / GARDENER — skip OWNER; OWNER carries no agent-file HARD STOPs).
+  2. For each, **read `.claude/agents/<ROLE>.md`** and extract its `## HARD STOPS` header list (the numbered items).
+  3. For each applicable HARD STOP, confirm the plan body either **reflects** it (an implementation step / case-set decision / explicit acceptance line honors it) OR **explicitly excuses** it (`out-of-scope: <reason>` — e.g. "no live walk this plan, baseline reused per LR-013").
+  4. A HARD STOP that is **neither reflected nor excused** → emit it in an advisory list and **HALT** until the author dispositions it. This is an author-resolved checklist, NOT a brittle fuzzy-matcher — surface the unaddressed HARD STOP headers and let the author decide reflect-vs-excuse.
+
+  Why this is here and not a new script (slop-reduced): it reuses the Step 3 HALT gate that already greps-and-HALTs on Model/Thinking/PermissionMode — proving the framework already hard-gates *some* fields; this extends the same gate to *duties*. Structural enforcement of the duties themselves fires later, at `/execute` time, via the Layer-1 write-gate (the role phase physically cannot write its artifacts as OWNER with HARD STOPs unloaded). The Step-3 gate is the planning-time companion: it proves the plan *covered* each role's duties before the plan flips PENDING.
+
 ## Step 4: Intent Review
 - Re-read the user's original request word by word
 - Compare every claim in the plan against the actual codebase (verify, don't assume)

@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_CURRENCY_FCC.md",
+  "plan_basename": "SUBPLAN_CURRENCY_FCC.md",
+  "plan_sha256": "499fc274a2e20554f74e9eae74cfccf2cab2a738c222a9a01611d0e1c8c08be2",
+  "passed_at": "2026-06-18T06:17:48.407Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "fdb22a47528cec7afce1a6e39d3f5ee355959fa7a53d3cf3a7c25f10c6763000",
+  "validator_invocation_id": "1781763468407-f27173628861c26e1fe8eb1581e473db-499fc274a2e20554",
+  "artifacts": [],
+  "provisional": false
+}

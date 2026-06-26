@@ -1,6 +1,6 @@
 # SUBPLAN: Neutral-Eye Audit + Fix — Auto Add-on
 
-**Status**: Pending
+**Status**: SUBSUMED (into SUBPLAN_AUTO_ADDON_FCC.md — user triage 2026-06-11)
 **Priority**: P0-CYCLE-1
 **Created**: 2026-04-22
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md
@@ -15,6 +15,8 @@
 ---
 
 ## Provenance (vision preservation)
+
+> **SUBSUMED 2026-06-11** into [`SUBPLAN_AUTO_ADDON_FCC.md`](AUTO_ADDON_FCC.md) (user triage). All still-live focus areas below were executed there: the baseline walk → `old-site-baseline/auto-addon-2026-06-11.md`; the field inventory → `field-inventories/auto-addon-2026-06-11.md`; the TC-016 item-count correction → corrected to country-scoped (premise was wrong); round-trip persistence per item → confirmed live; NM-1462/64/65 → recorded as LR-040(c) discussion item (not testable on US office 1604). Multi-office (1605/1101) focus dropped per user fact (item list is country-scoped, constant within a country; 1604-only scope). No further work here — see the FCC subplan's Execution Summary.
 
 This subplan was originally authored 2026-04-22 with the following goal:
 

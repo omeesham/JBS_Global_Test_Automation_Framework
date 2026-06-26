@@ -100,6 +100,10 @@ export const OWNERSHIP_ROWS = [
     grants: { HUNTER: "APPEND", GIVER: "APPEND", BUILDER: "APPEND", HEALER: "APPEND", WATCHDOG: "APPEND", GARDENER: "APPEND", OWNER: "APPEND" },
   },
   {
+    pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/rca-*.md",
+    grants: { HUNTER: "READ", GIVER: "READ", BUILDER: "READ", HEALER: "CREATE", WATCHDOG: "READ", GARDENER: "READ", OWNER: "RW" },
+  },
+  {
     pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/intake/<module>-<agent>-*.md",
     grants: { HUNTER: "CREATE", GIVER: "CREATE", BUILDER: "CREATE", HEALER: "CREATE", WATCHDOG: "CREATE", GARDENER: "READ", OWNER: "RW" },
   },
@@ -296,15 +300,117 @@ export function canWrite(identity, path) {
   return new Set(["RW", "CREATE", "UPDATE", "ADD", "APPEND", "FIX", "REFACTOR"]).has(action);
 }
 
+// ---------------------------------------------------------------------------
+// Pipeline-artifact derivation (PLAN_IDENTITY_ENFORCEMENT Layer 1).
+//
+// Pure inversion of OWNERSHIP_ROWS — no new ownership table. Used by the
+// identity-switch hook's Layer-1 branch to ask the question the OWNER
+// short-circuit never asks: "is this OWNER about to write a PIPELINE role's
+// test deliverable inside an execution context, with that role's HARD STOPs
+// unloaded?"
+// ---------------------------------------------------------------------------
+
+// Pipeline (non-OWNER) identities, in IDENTITIES declaration order (drives
+// tie-breaking in ownerRoleFor).
+const PIPELINE_IDENTITIES = IDENTITIES.filter((id) => id !== "OWNER");
+
+// Write-grant priority for "primary author" derivation. CREATE (makes the file)
+// outranks RW outranks the narrower writes; APPEND last (shared-log grant).
+// READ / SYNC ONLY / HARD_STOP / "—" are not writes and are absent here.
+const WRITE_GRANT_PRIORITY = ["CREATE", "RW", "UPDATE", "ADD", "FIX", "REFACTOR", "APPEND"];
+
+// "Strong" (role-authoring) write grants. APPEND is deliberately EXCLUDED: the
+// only APPEND-for-OWNER rows are the shared ceremony logs (agent-mistakes.md,
+// agent-activity-log.md) that OWNER writes legitimately as LR-028 closure
+// ceremony — gating those would break the ceremony. See isPipelineArtifact.
+const STRONG_WRITE_GRANTS = new Set(["CREATE", "RW", "UPDATE", "ADD", "FIX", "REFACTOR"]);
+
+// Most-specific OWNERSHIP_ROWS match (last match wins — same precedence as
+// ownershipFor). Returns the row object or null.
+function mostSpecificRow(rawPath) {
+  const path = rawPath.replace(/\\/g, "/").replace(/^\.\//, "");
+  let match = null;
+  for (const row of OWNERSHIP_ROWS) {
+    if (globToRegExp(row.pattern).test(path)) match = row;
+  }
+  return match;
+}
+
+/**
+ * isPipelineArtifact(path) — true iff `path` is a PIPELINE-role-owned test
+ * deliverable (so an OWNER write to it inside /execute means the role's HARD
+ * STOPs are NOT loaded), and NOT OWNER framework territory.
+ *
+ * Definition (intent-faithful to PLAN_IDENTITY_ENFORCEMENT Layer 1 — see the
+ * plan's deviation note: the literal "CREATE/RW" criterion is widened to "any
+ * STRONG write" so the plan's own example list — selectors=ADD, REQUIREMENTS=
+ * HUNTER UPDATE — is honoured, and narrowed by an OWNER≠APPEND clause so the
+ * shared ceremony logs are NOT gated):
+ *   true iff the most-specific §2 row grants some pipeline (non-OWNER) identity a
+ *   STRONG write (CREATE/RW/UPDATE/ADD/FIX/REFACTOR) AND OWNER's own grant on
+ *   that row is not "APPEND".
+ * Framework territory (scripts/**, plans/**, config/**, .claude/skills/**,
+ * .claude/agents/**, and the OWNER catch-alls) gives pipeline roles "—" → false.
+ * HARD_STOPS and unmatched paths → false.
+ */
+export function isPipelineArtifact(rawPath) {
+  const path = rawPath.replace(/\\/g, "/").replace(/^\.\//, "");
+  for (const rx of HARD_STOPS) if (rx.test(path)) return false;
+  const row = mostSpecificRow(path);
+  if (!row) return false;
+  if (row.grants.OWNER === "APPEND") return false; // shared ceremony log (LR-028)
+  return PIPELINE_IDENTITIES.some((id) => STRONG_WRITE_GRANTS.has(row.grants[id]));
+}
+
+/**
+ * ownerRoleFor(path) — the PRIMARY pipeline identity that owns `path` as a
+ * writer (inverts OWNERSHIP_ROWS), or null if no pipeline role writes it.
+ *
+ * "Primary" = highest-priority write grant per WRITE_GRANT_PRIORITY on the
+ * most-specific matching row; ties broken by IDENTITIES order (HUNTER < GIVER <
+ * BUILDER < HEALER < WATCHDOG < GARDENER). Examples: *.spec.ts → BUILDER
+ * (CREATE); test-cases → GIVER (CREATE); REQUIREMENTS.md → HUNTER (UPDATE);
+ * selectors → GIVER (ADD, ties with BUILDER, GIVER wins by order). Used to
+ * render the Layer-1 deny/announce message ("run /identity <ROLE>").
+ */
+export function ownerRoleFor(rawPath) {
+  const row = mostSpecificRow(rawPath);
+  if (!row) return null;
+  let best = null;
+  let bestRank = Infinity;
+  for (const id of PIPELINE_IDENTITIES) {
+    const rank = WRITE_GRANT_PRIORITY.indexOf(row.grants[id]);
+    if (rank !== -1 && rank < bestRank) {
+      bestRank = rank;
+      best = id;
+    }
+  }
+  return best;
+}
+
 // CLI: `node scripts/identity-ownership.mjs <identity> <path>`
+//      `node scripts/identity-ownership.mjs --owner-role <path>`  → primary role | "none"
+//      `node scripts/identity-ownership.mjs --is-artifact <path>` → true/false (exit 0/1)
 import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const invokedPath = process.argv[1] ? process.argv[1].replace(/\\/g, "/") : "";
 const selfPath = __filename.replace(/\\/g, "/");
 if (invokedPath === selfPath || invokedPath.endsWith("/identity-ownership.mjs")) {
-  const [identity, path] = process.argv.slice(2);
+  const argv = process.argv.slice(2);
+  if (argv[0] === "--owner-role") {
+    if (!argv[1]) { console.error("usage: node identity-ownership.mjs --owner-role <path>"); process.exit(2); }
+    console.log(ownerRoleFor(argv[1]) ?? "none");
+    process.exit(0);
+  }
+  if (argv[0] === "--is-artifact") {
+    if (!argv[1]) { console.error("usage: node identity-ownership.mjs --is-artifact <path>"); process.exit(2); }
+    const yes = isPipelineArtifact(argv[1]);
+    console.log(String(yes));
+    process.exit(yes ? 0 : 1);
+  }
+  const [identity, path] = argv;
   if (!identity || !path) {
-    console.error("usage: node identity-ownership.mjs <IDENTITY> <path>");
+    console.error("usage: node identity-ownership.mjs <IDENTITY> <path> | --owner-role <path> | --is-artifact <path>");
     process.exit(2);
   }
   const result = ownershipFor(identity, path);

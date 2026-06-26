@@ -85,6 +85,7 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | `clients/${ACTIVE_CLIENT}/specs_planning/test-plans/**` | — | CREATE | READ | READ | READ | READ | READ |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` | APPEND | APPEND | APPEND | APPEND | RW (quality gate) | APPEND | APPEND |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND | APPEND |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/rca-*.md` | READ | READ | READ | CREATE | READ | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/intake/<module>-<agent>-*.md` | CREATE | CREATE | CREATE | CREATE | CREATE | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-*.md` | CREATE | READ | READ | UPDATE | UPDATE | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/walk-evidence-*.md` | CREATE | CREATE | READ | UPDATE | UPDATE | READ | RW |
@@ -637,6 +638,8 @@ Applies to ALL agents during exploration, code writing, selector discovery, or a
 | Don't know fixture/helper exists | Fixture definitions + test setup | `src/fixtures/pages.fixture.ts`, `src/index.ts` | Before creating test setup code | `grep "test.extend" src/fixtures/pages.fixture.ts` |
 | Previous agent output incomplete | Queue item history + activity log | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-queue.json`, `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md` | When inheriting work from previous stage | Read queue item's `history` array |
 | Spec-level pattern already exists | Existing specs for same setup/assertion | `clients/${ACTIVE_CLIENT}/tests/**/*.spec.ts` | Before writing beforeEach or repeated assertions | `grep -r "navigateTo.*Tab" clients/${ACTIVE_CLIENT}/tests/` |
+| Behavior might be a known bug / by-design (before filing BUG or escalating) | Rovo Jira NM tickets + Confluence spec | `encore.atlassian.net` via Atlassian MCP (`searchJiraIssuesUsingJql` / `searchConfluenceUsingCql`) | Before any `BUG` / `FEATURE_CHANGE` disposition or "ask the user" (LR-063 / LR-ENC-004) | `searchJiraIssuesUsingJql` `project = NM AND text ~ "<module>"` |
+| Uncertain feature change / "is this intended?" | Rovo governing ticket / Confluence page | same — `encore.atlassian.net` (`getJiraIssue` / `getConfluencePage`) | Before classifying a divergence `UNCERTAIN` / `REQUIREMENT-GAP` (LR-063) | open the NM ticket: by-design → reclassify, open → cite in `requirementSource` |
 
 **NOTE**: `agent-learnings.md` is an empty stub — all learnings merged into agent-mistakes.md Resolution column. Do NOT reference it as primary source.
 

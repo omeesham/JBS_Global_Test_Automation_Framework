@@ -1,0 +1,256 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e21]:
+      - list [ref=e23]:
+        - listitem [ref=e24]:
+          - button "1604 Parker Palm Springs" [ref=e25] [cursor=pointer]:
+            - generic [ref=e27]: "1604"
+            - generic [ref=e28]:
+              - generic [ref=e29]: Parker Palm Springs
+              - img [ref=e30]
+      - generic [ref=e36]:
+        - list [ref=e38]:
+          - listitem [ref=e39]:
+            - link "Home" [ref=e40] [cursor=pointer]:
+              - /url: /navigator/locations/1604/home
+              - img [ref=e41]
+              - generic [ref=e44]: Home
+          - listitem [ref=e45]:
+            - link "Inbox" [ref=e46] [cursor=pointer]:
+              - /url: /navigator/locations/1604/inbox
+              - img [ref=e47]
+              - generic [ref=e50]: Inbox
+          - listitem [ref=e51]:
+            - button "Actions" [ref=e52] [cursor=pointer]:
+              - img [ref=e53]
+              - generic [ref=e55]: Actions
+              - img [ref=e56]
+          - listitem [ref=e58]:
+            - button "Commissions" [ref=e59] [cursor=pointer]:
+              - img [ref=e60]
+              - generic [ref=e62]: Commissions
+              - img [ref=e63]
+          - listitem [ref=e65]:
+            - button "Tax" [ref=e66] [cursor=pointer]:
+              - img [ref=e67]
+              - generic [ref=e70]: Tax
+              - img [ref=e71]
+          - listitem [ref=e73]:
+            - button "Setup" [ref=e74] [cursor=pointer]:
+              - img [ref=e75]
+              - generic [ref=e78]: Setup
+              - img [ref=e79]
+          - listitem [ref=e81]:
+            - button "Studio" [ref=e82] [cursor=pointer]:
+              - img [ref=e83]
+              - generic [ref=e85]: Studio
+              - img [ref=e86]
+        - generic [ref=e88]:
+          - generic [ref=e89]: Search
+          - list [ref=e91]:
+            - listitem [ref=e92]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=e93]:
+              - link "Job Search" [ref=e94] [cursor=pointer]:
+                - /url: /navigator/locations/1604/fulfillments
+                - img [ref=e95]
+                - generic [ref=e98]: Job Search
+            - listitem [ref=e99]:
+              - link "Asset Search" [ref=e100] [cursor=pointer]:
+                - /url: /navigator/locations/1604/assets
+                - img [ref=e101]
+                - generic [ref=e104]: Asset Search
+            - listitem [ref=e105]:
+              - link "Customer Search" [ref=e106] [cursor=pointer]:
+                - /url: /navigator/locations/1604/customers
+                - img [ref=e107]
+                - generic [ref=e110]: Customer Search
+            - listitem [ref=e111]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e112]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e113]:
+              - link "Item Search" [ref=e114] [cursor=pointer]:
+                - /url: /navigator/locations/1604/products
+                - img [ref=e115]
+                - generic [ref=e125]: Item Search
+            - listitem [ref=e126]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e127]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e129]:
+          - listitem [ref=e130]:
+            - button "Navigator Assistant" [ref=e131] [cursor=pointer]:
+              - img [ref=e132]
+              - generic [ref=e134]: Navigator Assistant
+      - list [ref=e137]:
+        - listitem [ref=e138]:
+          - button "PC prd click auto" [ref=e139] [cursor=pointer]:
+            - generic [ref=e141]: PC
+            - generic [ref=e143]: prd click auto
+            - img [ref=e144]
+      - button "Click to restore sidebar" [ref=e148]
+    - main [ref=e149]:
+      - generic [ref=e152]:
+        - generic [ref=e154]:
+          - button "trigger-button" [ref=e155] [cursor=pointer]:
+            - img
+          - generic [ref=e157]:
+            - link "Corporate Pricing" [ref=e158] [cursor=pointer]:
+              - /url: /navigator/locations/1604/settings/corporate-pricing
+            - img [ref=e159]
+            - heading "Product Group Override" [level=1] [ref=e162]
+            - button "More information" [ref=e163]:
+              - img [ref=e164]
+        - generic [ref=e167]:
+          - generic [ref=e172]:
+            - generic [ref=e173] [cursor=pointer]:
+              - generic [ref=e175]:
+                - img [ref=e176]
+                - text: Change Local Office
+              - generic [ref=e180]: 1101 - Corporate Office Encore USA SGA
+            - generic [ref=e181]:
+              - checkbox "Active only" [ref=e182] [cursor=pointer]
+              - generic [ref=e183] [cursor=pointer]: Active only
+            - generic [ref=e184]:
+              - generic [ref=e185]: "Currency :"
+              - combobox "Currency :" [ref=e186] [cursor=pointer]:
+                - generic: ALL
+                - img
+          - button "Collapse search panel" [ref=e188] [cursor=pointer]:
+            - img
+          - generic [ref=e190]:
+            - generic [ref=e191]:
+              - generic [ref=e192]:
+                - img [ref=e193]
+                - generic [ref=e197]: 0 items found
+              - generic [ref=e198]:
+                - generic [ref=e199]:
+                  - button "Save" [disabled]
+                  - button "Export" [ref=e200] [cursor=pointer]:
+                    - img
+                    - text: Export
+                  - button "Import" [ref=e201] [cursor=pointer]:
+                    - img
+                    - text: Import
+                - button "Grid Options" [ref=e203] [cursor=pointer]:
+                  - img
+                  - generic [ref=e204]: Grid Options
+            - generic [ref=e205]:
+              - tablist [ref=e206]:
+                - tab "Equipment" [selected] [ref=e207] [cursor=pointer]:
+                  - generic [ref=e208]: Equipment
+                - tab "Labor" [ref=e209] [cursor=pointer]:
+                  - generic [ref=e210]: Labor
+              - generic [ref=e212]:
+                - textbox "Filter Product Groups Override..." [ref=e213]
+                - img [ref=e215]
+              - tabpanel "Equipment" [ref=e218]:
+                - generic [ref=e220]:
+                  - table [ref=e19003]:
+                    - rowgroup [ref=e19004]:
+                      - row "Location Resize column locationNo Product Group Resize column productGroupId Product Group Name Resize column productGroupName Currency Resize column currencyId Current Price Resize column currentPrice Override Price Resize column price Max Discount % Resize column maxAllowedDiscount Active Resize column active Mod Date Resize column updatedAt Updated By Resize column updatedBy" [ref=e19005]:
+                        - columnheader "Location Resize column locationNo" [ref=e19006]:
+                          - generic [ref=e19007]:
+                            - img [ref=e19008]
+                            - button "Location" [ref=e19017] [cursor=pointer]:
+                              - generic [ref=e19018]: Location
+                              - img
+                          - button "Resize column locationNo" [ref=e19019]
+                        - columnheader "Product Group Resize column productGroupId" [ref=e19020]:
+                          - generic [ref=e19021]:
+                            - img [ref=e19022]
+                            - button "Product Group" [ref=e19031] [cursor=pointer]:
+                              - generic [ref=e19032]: Product Group
+                              - img
+                          - button "Resize column productGroupId" [ref=e19033]
+                        - columnheader "Product Group Name Resize column productGroupName" [ref=e19034]:
+                          - generic [ref=e19035]:
+                            - img [ref=e19036]
+                            - button "Product Group Name" [ref=e19045] [cursor=pointer]:
+                              - generic [ref=e19046]: Product Group Name
+                              - img
+                          - button "Resize column productGroupName" [ref=e19047]
+                        - columnheader "Currency Resize column currencyId" [ref=e19048]:
+                          - generic [ref=e19049]:
+                            - img [ref=e19050]
+                            - button "Currency" [ref=e19059] [cursor=pointer]:
+                              - generic [ref=e19060]: Currency
+                              - img
+                          - button "Resize column currencyId" [ref=e19061]
+                        - columnheader "Current Price Resize column currentPrice" [ref=e19062]:
+                          - generic [ref=e19063]:
+                            - img [ref=e19064]
+                            - button "Current Price" [ref=e19073] [cursor=pointer]:
+                              - generic [ref=e19074]: Current Price
+                              - img
+                          - button "Resize column currentPrice" [ref=e19075]
+                        - columnheader "Override Price Resize column price" [ref=e19076]:
+                          - generic [ref=e19077]:
+                            - img [ref=e19078]
+                            - button "Override Price" [ref=e19087] [cursor=pointer]:
+                              - generic [ref=e19088]: Override Price
+                              - img
+                          - button "Resize column price" [ref=e19089]
+                        - columnheader "Max Discount % Resize column maxAllowedDiscount" [ref=e19090]:
+                          - generic [ref=e19091]:
+                            - img [ref=e19092]
+                            - button "Max Discount %" [ref=e19101] [cursor=pointer]:
+                              - generic [ref=e19102]: Max Discount %
+                              - img
+                          - button "Resize column maxAllowedDiscount" [ref=e19103]
+                        - columnheader "Active Resize column active" [ref=e19104]:
+                          - generic [ref=e19105]:
+                            - img [ref=e19106]
+                            - button "Active" [ref=e19115] [cursor=pointer]:
+                              - generic [ref=e19116]: Active
+                              - img
+                          - button "Resize column active" [ref=e19117]
+                        - columnheader "Mod Date Resize column updatedAt" [ref=e19118]:
+                          - generic [ref=e19119]:
+                            - img [ref=e19120]
+                            - button "Mod Date" [ref=e19129] [cursor=pointer]:
+                              - generic [ref=e19130]: Mod Date
+                              - img
+                          - button "Resize column updatedAt" [ref=e19131]
+                        - columnheader "Updated By Resize column updatedBy" [ref=e19132]:
+                          - generic [ref=e19133]:
+                            - img [ref=e19134]
+                            - button "Updated By" [ref=e19143] [cursor=pointer]:
+                              - generic [ref=e19144]: Updated By
+                              - img
+                          - button "Resize column updatedBy" [ref=e19145]
+                  - generic [ref=e19146]:
+                    - img [ref=e19148]
+                    - paragraph [ref=e19150]: No results.
+            - generic [ref=e374]:
+              - generic [ref=e376]:
+                - combobox [ref=e377] [cursor=pointer]:
+                  - generic: "20"
+                  - img
+                - paragraph [ref=e378]: rows per page
+              - generic [ref=e379]:
+                - button "Go to first page" [disabled]:
+                  - img
+                - button "Go to previous page" [disabled]:
+                  - img
+                - generic [ref=e380]:
+                  - textbox "Current page number" [ref=e381]: "1"
+                  - generic [ref=e382]: /
+                  - text: "1"
+                - button "Go to next page" [disabled]:
+                  - img
+                - button "Go to last page" [disabled]:
+                  - img
+  - region "Notifications alt+T"

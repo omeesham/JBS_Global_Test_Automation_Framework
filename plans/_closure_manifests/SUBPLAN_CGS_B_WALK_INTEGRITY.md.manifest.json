@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_CGS_B_WALK_INTEGRITY.md",
+  "plan_basename": "SUBPLAN_CGS_B_WALK_INTEGRITY.md",
+  "plan_sha256": "7ba0fd39fecbf5355ae04d30e295f3a459c522a5e7e92b459e25eed816d728bf",
+  "passed_at": "2026-06-24T09:04:27.917Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "2cf57d9cba1ab8dd9378ec5e924f4fe3456f0653f6cc231f5277b921dbf1980d",
+  "validator_invocation_id": "1782291867916-8ee37eae981c88e12da0006455b53f78-7ba0fd39fecbf535",
+  "artifacts": [],
+  "provisional": false
+}

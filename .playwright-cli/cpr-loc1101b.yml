@@ -1,0 +1,359 @@
+- generic:
+  - alert
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: "1604"
+                    - generic:
+                      - generic: Parker Palm Springs
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - list:
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/home
+                            - img
+                            - generic: Home
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/inbox
+                            - img
+                            - generic: Inbox
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Actions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Commissions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Tax
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Setup
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Studio
+                            - img
+                    - generic:
+                      - generic: Search
+                      - generic:
+                        - list:
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Order Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/fulfillments
+                              - img
+                              - generic: Job Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/assets
+                              - img
+                              - generic: Asset Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/customers
+                              - img
+                              - generic: Customer Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: DRO Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Payment Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/products
+                              - img
+                              - generic: Item Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: ECT Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Event Agendas
+                    - generic:
+                      - list:
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Navigator Assistant
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - button:
+                      - generic:
+                        - generic: PC
+                      - generic:
+                        - generic: prd click auto
+                      - img
+            - button
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - button:
+                    - img
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /navigator/locations/1604/settings/corporate-pricing
+                        - text: Corporate Pricing
+                      - img
+                      - generic:
+                        - heading [level=1]: Product Group Override
+                      - button:
+                        - img
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                  - text: Change Local Office
+                              - generic:
+                                - generic: Select a location
+                            - generic:
+                              - checkbox
+                              - generic: Active only
+                            - generic:
+                              - generic: "Currency :"
+                              - combobox:
+                                - generic: ALL
+                                - img
+                  - generic:
+                    - button:
+                      - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+                          - generic: 0 items found
+                        - generic:
+                          - generic:
+                            - button [disabled]: Save
+                            - button:
+                              - img
+                              - text: Export
+                            - button:
+                              - img
+                              - text: Import
+                          - generic:
+                            - button:
+                              - img
+                              - generic: Grid Options
+                      - generic:
+                        - tablist:
+                          - tab [selected]:
+                            - generic: Equipment
+                          - tab:
+                            - generic: Labor
+                        - generic:
+                          - generic:
+                            - textbox:
+                              - /placeholder: Filter Product Groups Override...
+                            - generic:
+                              - img
+                        - tabpanel:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - table:
+                                        - rowgroup:
+                                          - row:
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Location
+                                                      - img
+                                              - button
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Product Group
+                                                      - img
+                                              - button
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Product Group Name
+                                                      - img
+                                              - button
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Currency
+                                                      - img
+                                              - button
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Current Price
+                                                      - img
+                                              - button
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Override Price
+                                                      - img
+                                              - button
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Max Discount %
+                                                      - img
+                                              - button
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Active
+                                                      - img
+                                              - button
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Mod Date
+                                                      - img
+                                              - button
+                                            - columnheader:
+                                              - generic:
+                                                - img
+                                                - generic:
+                                                  - generic:
+                                                    - button:
+                                                      - generic: Updated By
+                                                      - img
+                                              - button
+                              - generic:
+                                - generic:
+                                  - img
+                                - paragraph: No results.
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - combobox:
+                                - generic: "20"
+                                - img
+                              - paragraph: rows per page
+                          - generic:
+                            - button [disabled]:
+                              - img
+                            - button [disabled]:
+                              - img
+                            - generic:
+                              - textbox: "1"
+                              - generic: /
+                              - text: "1"
+                            - button [disabled]:
+                              - img
+                            - button [disabled]:
+                              - img
+  - region "Notifications alt+T"
+  - dialog "Change Local Office" [active] [ref=e384]:
+    - generic [ref=e385]:
+      - heading "Change Local Office" [level=2] [ref=e386]:
+        - generic [ref=e387]:
+          - img [ref=e388]
+          - generic [ref=e391]: Change Local Office
+      - paragraph [ref=e392]
+    - generic [ref=e393]:
+      - generic [ref=e395]:
+        - generic [ref=e397]:
+          - checkbox "Active" [ref=e398] [cursor=pointer]
+          - generic [ref=e399] [cursor=pointer]: Active
+        - generic [ref=e401]:
+          - img [ref=e403]
+          - textbox "Search by Location Name, Number" [ref=e406]: "1101"
+          - button [ref=e18987] [cursor=pointer]:
+            - img
+      - table [ref=e410]:
+        - rowgroup [ref=e411]:
+          - row "Local Office Local Office Name" [ref=e412]:
+            - columnheader [ref=e413]
+            - columnheader "Local Office" [ref=e414]:
+              - generic [ref=e18993]: Local Office
+            - columnheader "Local Office Name" [ref=e416]:
+              - generic [ref=e18994]: Local Office Name
+        - rowgroup [ref=e418]:
+          - row "Select row 1101 Corporate Office Encore USA SGA" [ref=e424] [cursor=pointer]:
+            - cell "Select row" [ref=e425]:
+              - checkbox "Select row" [checked] [ref=e18995]:
+                - generic:
+                  - img
+            - cell "1101" [ref=e427]:
+              - generic [ref=e18996]: "1101"
+            - cell "Corporate Office Encore USA SGA" [ref=e429]:
+              - generic [ref=e18997]: Corporate Office Encore USA SGA
+    - generic [ref=e18982]:
+      - button "Select" [ref=e18998] [cursor=pointer]
+      - button "Cancel" [ref=e18983] [cursor=pointer]
+    - button "Close" [ref=e18984] [cursor=pointer]:
+      - img
+      - generic [ref=e18985]: Close

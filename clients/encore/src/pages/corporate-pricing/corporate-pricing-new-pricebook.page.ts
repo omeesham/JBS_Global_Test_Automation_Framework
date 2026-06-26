@@ -179,6 +179,16 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     }
   }
 
+  /**
+   * Remove an in-session (uncommitted) strategy via its nested Remove icon. Used by the
+   * save-gating tests (add a strategy → remove it → Save returns to disabled). No DB round-trip.
+   */
+  async removeStrategy(name: string = NEW_PRICEBOOK.strategyName): Promise<void> {
+    const item = this.page.getByRole('button', { name }).first();
+    await item.getByRole('button').first().click();
+    await this.waitForAngularStable();
+  }
+
   // ---------------------------------------------------------------------------
   // PRICING DETAIL — product-group ADD (create mode)
   // ---------------------------------------------------------------------------
@@ -202,6 +212,17 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     const row = this.page.locator(S.npSourceRow, { hasText: name }).first();
     await row.waitFor({ state: 'visible', timeout: 10_000 });
     await row.dblclick();
+  }
+
+  /**
+   * Drag a product-group source item (by content) onto the pricebook grid via the full pointer
+   * sequence → adds it. This is the positive control that proves the drag primitive fires when adding
+   * is allowed (create mode); the management-mode Detail tab uses the same primitive to prove no-add.
+   */
+  async dragProductGroupByName(name: string): Promise<void> {
+    const row = this.page.locator(S.npSourceRow, { hasText: name }).first();
+    await row.waitFor({ state: 'visible', timeout: 10_000 });
+    await this.dragSourceToGrid(row, this.page.locator(S.npDetailGrid).first());
   }
 
   /** Content-normalized rows of the destination pricebook detail grid (`<tbody> tr`). */

@@ -29,6 +29,15 @@ const TOKENS = [
   /clients\/encore\/specs\//,
   /clients\/\$\{ACTIVE_CLIENT\}\/specs\//,
   /(?:^|[\s`'"(])specs\/(?:locations|local-office|corporate-pricing)\//,
+  // Brace-shorthand dir-list naming the old `specs` test dir beside `src` —
+  // e.g. `clients/${ACTIVE_CLIENT}/{src,specs}/`. The POM restructure (2026-06-05)
+  // renamed `specs/`→`tests/`; an agent file that enumerates client dirs as a brace
+  // group silently kept the old name (MAINTAINER.md:31 dead-file sweep drift, caught
+  // 2026-06-24 by PLAN_IDENTITY_ENFORCEMENT Layer 5). Requiring BOTH `src` AND `specs`
+  // in the same `{...}` group is the POM dir-pair signature — it deliberately does NOT
+  // match a rule-pack glob like `.claude/rules/{specs,angular,...}.md` (no `src`) and
+  // won't match `specs_planning` (`\bspecs\b` has no boundary before `_`).
+  /\{(?=[^}]*\bsrc\b)[^}]*\bspecs\b[^}]*\}/,
 ];
 
 // Live layer = tracked files an agent reads as current truth.

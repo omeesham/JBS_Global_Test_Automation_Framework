@@ -108,6 +108,16 @@ grep "$(date -u +%FT)" .claude/state/hook-failures.log 2>/dev/null | wc -l
 
 > Cross-check: hook-failures.log clean for this session → ran 'grep "$(date -u +%FT)" .claude/state/hook-failures.log | wc -l' → output: 'N hits' → mismatch (if N>0) → YELLOW floor (silent hook bug detected — investigate before next /execute).
 
+**MANDATORY cross-check — identity-gate announce warnings** (Layer 4, PLAN_IDENTITY_ENFORCEMENT): when the Layer-1 OWNER pipeline-artifact gate is in `announce` mode (`.claude/identity-gate-config.json`), an OWNER write to a pipeline-role-owned artifact (test-cases / test-plans / field-inventories / field-case-catalogs / `*.spec.ts` / selectors / `REQUIREMENTS.md`) made inside this session's `/execute` is ALLOWED but RECORDED. Read the session's warnings file (one per session):
+
+```bash
+ls -t .claude/state/identity-gate-warnings-*.json 2>/dev/null | head -1 | xargs -r grep -c '"path"' 2>/dev/null || echo 0
+```
+
+Any entry means a pipeline artifact was authored as OWNER with that role's HARD STOPs unloaded — the exact gap this gate measures. Emit a Cross-check row; **verdict floor = YELLOW** (the work landed but skipped a role's gates — re-adopt `/identity <ROLE>` and re-verify that role's HARD STOPs against the artifact before the parent closes). This keeps the `announce` ramp measurable and keeps a net even before the gate flips to `deny`:
+
+> Cross-check: identity-gate announce warnings → ran 'ls -t .claude/state/identity-gate-warnings-*.json | head -1 | xargs grep -c "\"path\""' → output: 'N entries' → (if N>0) YELLOW floor (OWNER authored a pipeline artifact inside /execute with HARD STOPs unloaded — Layer-1 announce).
+
 Output: one line per claim that was cross-checked, in this **evidence-emission** format (v2 — supersedes the v1 prose-only format that allowed rubber-stamping):
 
 > Cross-check: [claim] → ran '<exact command>' → output: '<output snippet OR "N hits found at lines …" OR "0 hits">' → [match / mismatch] → [tag]
@@ -212,6 +222,13 @@ grep -c '"name":"Skill"[^}]*"skill":"<skill-name>"' <transcript-path>
 Each `[/skill:direct]` tag where the named skill was never invoked → **auto-reclassify the todo row to `screwed`** (the `/relevant` injection promised the skill would handle the work; nothing was invoked; the work either didn't happen or happened ad-hoc without skill discipline). Reclassification count counts toward the Step 6.0 verdict floor (1 → YELLOW, ≥2 → RED) — same penalty schedule.
 
 Tags that are NOT `direct` (`wrap` / `inform` / `verify`) are advisory — no penalty for not invoking, but if invocation would have been free and you chose not to, note it in the row's annotation.
+
+#### Step 6.0.6: No-red-close test-status check (LR-060 obligation 3 / closure-check Ct, M3)
+
+If this session flipped (or is about to flip) a plan to `Status: DONE`, scan for red-test deferral to a transient **task chip**:
+
+- Any plan body line citing a task chip (`task_<hex>`) alongside red/failing-test language, OR a `## Deferral Authorization` about test status that omits the red TC IDs or a **PENDING recipient subplan in `plans/pending/`** → **hard verdict floor RED**. A task chip evaporates at session end; red tests routed to it have no durable owner (the M3 miss: 10 red `TC-CPR-TIO-*` toolbar tests). Red tests stay with the plan or move to a PENDING recipient subplan naming the TC IDs.
+- This mirrors closure-check Ct (`scripts/validate-plan-closure.mjs`, `test_status_mode`). `/final-q` is the human-readable companion: even when Ct is in `announce` (verdict-neutral at the gate), `/final-q` floors the verdict so the gap is surfaced before any "done" claim.
 
 #### Step 6.1: Pick verdict (after Step 6.0 reclassifications)
 

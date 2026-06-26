@@ -460,7 +460,7 @@ LR-055 machine-gate: `node scripts/validate-plan-closure.mjs --enforce --plan pl
 |---|---|---|---|
 | HUNTER | field-inventory + old-site-baseline | `clients/encore/specs_planning/_internal/field-inventories/account-address-2026-05-29.md`<br>`clients/encore/specs_planning/_internal/old-site-baseline/account-address-2026-05-29.md` | `ls` both files; `grep MCP_Session_Date` = filename date |
 | GIVER | test-cases.md, test-plan.md, XLSX, catalog | `clients/encore/specs_planning/_internal/field-case-catalogs/account-address-2026-05-29.md` | `npm run check:tc-parity` exit 0 |
-| BUILDER | spec, page object, test data | `clients/encore/specs/locations/location-account-address.spec.ts` | `npx playwright test --list` resolves all net-new TC IDs |
+| BUILDER | spec, page object, test data | `clients/encore/tests/locations/location-account-address.spec.ts` | `npx playwright test --list` resolves all net-new TC IDs |
 | HEALER | false-green fixes (CONDITIONAL on Phase 0.5) | `(skipped: conditional on Phase 0.5 — if 1-3 FALSE-GREEN found, this cell is replaced at close with the path to the fixed spec; if 0 found, no HEALER work is required for this module)` | `grep -c "FALSE-GREEN" clients/encore/specs_planning/_internal/false-green-sweeps/account-address-2026-05-29.md` |
 | WATCHDOG | false-green sweep + FCC audit | `clients/encore/specs_planning/_internal/false-green-sweeps/account-address-2026-05-29.md` | sweep verdict + Phase 4 audit GREEN |
 | GARDENER | structural sweep | `(skipped: typecheck/lint/dedup/barrel/parity were run inline at Phase 5 and evidence-emitted in the Execution Summary; no separate sweep artifact is produced for an additive-test change)` | `npm run typecheck` clean |
@@ -526,3 +526,13 @@ ls clients/encore/specs_planning/_internal/false-green-sweeps/account-address-20
 - App-side bugs surfaced during the walk/sweep — file a `BUG-LOC-ACC-<NNN>` bug JSON under the client bugs directory per LR-034 (this session filed BUG-LOC-ACC-001); do not fix app code.
 - Renumbering existing TCs or reusing the 021/024 gaps — forbidden (STRICT-LINE-D + naming policy).
 - Cross-module FCC (other Location Settings tabs) — their own `§Roadmap` subplans.
+
+---
+
+## Post-Audit Correction (2026-06-11) — Master Bill To per-launcher coverage gap
+
+The Account & Address tab has three launcher fields. This subplan proved Venue/Branch **Name** and Venue/Branch **Address** GREEN, but **Master Bill To Address** was only half-covered: TC-LOC-ACC-012 proved the shared "Select Customer Address" dialog OPENS via the Master launcher, yet no test selected an address from the Master dialog, verified the Master display fields update, or probed Master-side persistence. Root cause: **shared-dialog conflation** — dialog-level coverage (exercised via the Venue launcher) was silently treated as launcher-level coverage for the Master launcher. The two launchers in fact diverge: Venue address selection does NOT persist through save+reload (TC-LOC-ACC-027), whereas Master Bill To selection DOES persist.
+
+Corrected by **SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC.md** (DONE 2026-06-11, Workstream B): 2 net-new TCs — TC-LOC-ACC-032 (Master row select → Master display fields update, Venue unchanged, Save enables) + TC-LOC-ACC-033 (Master persistence: select-different → save → reload → verify → restore-anchored-original → save → reload → verify). TC-LOC-ACC-012/014 notes extended to point select/persist at the new TCs. RCA: `clients/encore/specs_planning/_internal/rca-launcher-dialog-misses-2026-06-11.md`; walk evidence: `clients/encore/specs_planning/_internal/walk-evidence-account-address-master-bill-to-2026-06-11.md`. Permanent prevention landed in the launcher-dialog subplan (LR-057 — coverage is dedup'd per-LAUNCHER, never per-dialog). No app bug for the Master launcher (it persists correctly).
+
+(Housekeeping note for this closed plan: the BUILDER matrix cell was repointed `specs/`→`tests/` to match the 2026-06-05 POM restructure, and the four 2026-05-29 evidence artifacts + BUG-LOC-ACC-001.json — cleaned from the working tree by specs_planning churn — were restored from git so the closure gate resolves them. No claim of this subplan changed.)

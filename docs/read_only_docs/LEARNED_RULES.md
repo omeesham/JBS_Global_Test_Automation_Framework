@@ -228,3 +228,41 @@ The `/identity` skill accepts a free-form `args` string but the **PreToolUse hoo
 
 **Trigger**: Every `/identity` invocation; every PreToolUse Edit/Write/NotebookEdit call. Companion mandate in `.claude/skills/identity/SKILL.md` Step 1.
 **Graduated from**: 2026-04-29 — testid migration session, first `/identity GIVER — selector authoring + page object updates` invocation made the hook treat the entire prose string as the codename. Single same-day fix in the hook + this rule.
+
+---
+
+## LR-059: No "works / verified / tested" claim without driving the REAL counterpart end-to-end
+
+A self-built simulator / mock / stub that conforms to your OWN new protocol is **circular** verification: it proves the API contract you just wrote, NOT that the real, separately-running counterpart actually cooperates. Under **version skew** (the real component is running OLDER code than your change) the simulator is GREEN while the real system is BROKEN — a false green.
+
+**Why:** 2026-06-18 (IntelliQE "Login to Claude") — Disconnect/Remove were declared "works, 25/25 AUTO green." The AUTO suite drove a *simulated* connector that obeyed the new command protocol. The user's REAL running connector was OLD code that ignored the new `{command}` shape, so the server (which I had made wait for the connector to confirm) never forgot it and the UI stayed "connected" forever. The real end-to-end drive was explicitly SKIPPED with a "would pollute the repo" rationalization — and that exact skipped step is where every reported bug lived. `feedback_real_verification.md` already said this (87 days old) and was violated anyway → graduated.
+
+**How to apply:**
+1. For any feature that integrates a separately-running component (agent / connector / browser / device / external service), "done / works / tested / verified / all green" REQUIRES exercising the REAL component end-to-end — not a mock you wrote.
+2. A passing unit / contract / AUTO suite is NECESSARY, not SUFFICIENT. State it as "contract verified; real E2E pending" until the real drive passes.
+3. Test against the ACTUAL deployed / installed version, not a fresh build of your own change — version skew is invisible to same-session mocks.
+4. "Hard to test" / "would pollute" / "the user can see it themselves" are signals the step is LOAD-BEARING, not licenses to skip. Find a clean way (throwaway dir, separate profile); don't skip.
+
+**Trigger**: Any claim of done / works / tested / verified / green for a feature that talks to a separately-running process or external system; any decision to SKIP a real end-to-end / live-UI verification step.
+**Graduated from**: 2026-06-18 — `feedback_real_verification.md` (memory-file-only) failed; same family as `feedback_verify_on_preview.md` and `feedback_claim_vs_artifact_crosscheck.md`.
+
+---
+
+## LR-063: Self-help research mandate — exhaust Rovo (Jira/Confluence) before declaring unknown or asking the user
+
+Before any agent or skill declares **"unknown / UNCERTAIN / REQUIREMENT-GAP / BASELINE-ABSENT"** or escalates a question to the user, it MUST run the research chain **in order** and stop at the first step that answers:
+
+1. **self / context** — what this session, this conversation, and prior reasoning already establish.
+2. **repo artifacts** — REQUIREMENTS.md, old-site-baseline artifacts, field-inventories, catalogs, agent-mistakes.md, prior `jira-defect-crossref-*` files, the tracked `clients/encore/docs/*.docx` / `*.xlsx` Jira exports.
+3. **Rovo Jira/Confluence** (Atlassian MCP, `encore.atlassian.net`) — **MANDATORY** when the question is about product behavior/intent OR a new module is being walked. Search the module's NM tickets + the Confluence spec.
+4. **web** — only when the question is general (framework / library), not product-specific.
+5. **user** — only for genuine high-impact-steering decisions that steps 1–4 cannot resolve.
+
+**Headless caveat**: Rovo is interactively-authenticated and may be absent in headless / cron / `/chain` runs. If the Atlassian MCP is not connected, log `[ROVO-SKIP: MCP not connected]` and continue with the remaining sources — **never silently skip step 3, and never silently proceed as if it had been researched.** A human-attended session that already committed a `jira-defect-crossref-<module>-<DATE>.md` artifact satisfies step 3 for downstream headless consumers (they read the committed file). Canary: call `getVisibleJiraProjects` first; empty/error → treat Rovo as unavailable and log the skip.
+
+**Why**: Rovo was wired up and connected but referenced by zero rules / agent prompts / skills — so a requirements gatherer about to automate a brand-new module never read its Jira/Confluence requirements, and agents escalated "ask the user" instead of self-helping with ground truth already on disk (e.g. `jira-defect-crossref-2026-06-09.md`, the tracked `clients/encore/docs/Pricing-Functional Details-JIRA STORIES 1.docx`). Graduated from `feedback_self_first_research.md`, whose self→repo→web→user chain omitted Jira entirely.
+
+**How to apply**: every Jira/Confluence fact is a **LEAD**, re-verified against DOM truth (ALL-024 / LR-045) before it enters a TC — Jira/Confluence is **intent truth**, the live DOM is **render truth**; they are parallel axes, not rungs of one ladder, and a divergence is signal (classify per REQ-014), never an automatic "Jira wins." Encore's structural enforcement of this rule for new-module intake is **LR-ENC-004**. Per-agent insertion points: HUNTER Phase 0.5, GIVER Phase 0.75, BUILDER's unknown-value gate, HEALER's pre-disposition check, WATCHDOG's pre-escalation step, AGENT_SHARED_RULES §14, and the `/encore-questions` kill-list.
+
+**Trigger**: every REQUIREMENT-GAP / BASELINE-ABSENT / UNCERTAIN classification; every new-module intake; every `/encore-questions` batch; LR-034 Step 1 "no documented requirement"; any point an agent is about to escalate to the user.
+**Graduated from**: 2026-06-22 — Rovo connected but unreferenced (caught during Products planning); landed as PLAN_SELF_HELP_RESEARCH_MANDATE. Cross-refs LR-ENC-004, LR-034, LR-045, ALL-024, `feedback_self_first_research.md`, AGENT_SHARED_RULES §14.

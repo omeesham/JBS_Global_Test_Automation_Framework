@@ -18,7 +18,7 @@
 
 ## Context
 
-Legal is the cleanest pilot: it already has a working bounded-retry `ensureDefaultState(defaults)` and the proven editable/fixed split idiom. Migrating it end-to-end **establishes the repeatable per-spec recipe** that D/E/F follow, and is the first proof that per-worker offices kill the clobber. Owns **F1.1, F1.4, F2.2, F8.4 (Legal scope)**. No TC semantics change — this is a data-sourcing refactor, so no Phase 0.5b baseline walk and no new test cases.
+Legal is the cleanest pilot: it already has a working bounded-retry `ensureDefaultState(defaults)` and the proven editable/fixed split idiom. Migrating it end-to-end **establishes the repeatable per-spec recipe** that D/E/F/G follow, and is the first proof that per-worker offices kill the clobber. Owns **F1.1, F1.4, F2.2, F8.4 (Legal scope)**. No TC semantics change — this is a data-sourcing refactor, so no Phase 0.5b baseline walk and no new test cases.
 
 ---
 
@@ -47,9 +47,9 @@ Legal is the cleanest pilot: it already has a working bounded-retry `ensureDefau
 
 ---
 
-## Phase 1+ — Actual work (THE RECIPE — D/E/F reuse verbatim)
+## Phase 1+ — Actual work (THE RECIPE — D/E/F/G reuse verbatim)
 
-1. **Data → per-office maps** (`clients/encore/src/data/locations/location-legal.data.ts`): convert `LEGAL_DEFAULTS` → `LEGAL_EDITABLE_BY_OFFICE: ByOffice<{serviceChargeName; termsName}>`; convert fixed values (languageName, alt SC/Terms) → `LEGAL_FIXED_BY_OFFICE`. Add accessors `legalDefaultsFor(office)` / `legalFixedFor(office)` using `forOffice`. Live-read each pool office's Legal values at migration time (LR-015, the `LP_DEFAULTS` pattern), reconcile vs nav2 (F5.1), and paste into the maps with dated provenance — OPI_B does not pre-capture values. Keep dropdown CATALOGS + dialog text FLAT (office-independent).
+1. **Data → per-office maps** (`clients/encore/src/data/locations/location-legal.ts`): convert `LEGAL_DEFAULTS` → `LEGAL_EDITABLE_BY_OFFICE: ByOffice<{serviceChargeName; termsName}>`; convert fixed values (languageName, alt SC/Terms) → `LEGAL_FIXED_BY_OFFICE`. Add accessors `legalDefaultsFor(office)` / `legalFixedFor(office)` using `forOffice`. Live-read each pool office's Legal values at migration time (LR-015, the `LP_DEFAULTS` pattern), reconcile vs nav2 (F5.1), and paste into the maps with dated provenance — OPI_B does not pre-capture values. Keep dropdown CATALOGS + dialog text FLAT (office-independent).
 2. **Spec → office fixture** (`clients/encore/tests/locations/location-legal.spec.ts`): drop `import { OFFICE_NO }`; add `office` to each test/`beforeEach` signature; replace `navigateToLegalTab(OFFICE_NO)` → `navigateToLegalTab(office)`; replace `ensureDefaultState(LEGAL_DEFAULTS)` → `ensureDefaultState(legalDefaultsFor(office))`; replace any fixed-value assertion (language name, etc.) with `legalFixedFor(office).<field>`.
 3. **F1.1 discipline**: resolve `legalDefaultsFor(office)`/`legalFixedFor(office)` INSIDE `beforeEach`/test body — never as a module-level const. (Grep the spec for any top-level `*For(` call → must be zero.)
 4. **F2.2**: ensure the save path asserts Save ENABLED before confirm (Legal's `ensureDefaultState` already loops on post-reload re-read; confirm the dirty-check guards a read-only office).
@@ -69,7 +69,7 @@ Stray `'1604'` in Legal files → DO-NOW. Cross-tab Legal mutation noticed from 
 |---|---|---|---|
 | HUNTER | old-site-baseline | (none) — offices confirmed in OPI_B; Legal values live-read here at migration (LR-015) | (none) |
 | GIVER | test-cases / test-plans / XLSX | (skipped: no TC semantics change — data-sourcing refactor only; parity must still verify clean) | `npm run check:tc-parity` exit 0 |
-| BUILDER | `clients/encore/tests/locations/location-legal.spec.ts` + `.../location-legal.data.ts` | per-office maps + `office`-fixture spec; first-run pass | `cd clients/encore && npx playwright test tests/locations/location-legal.spec.ts --list` |
+| BUILDER | `clients/encore/tests/locations/location-legal.spec.ts` + `.../location-legal.ts` | per-office maps + `office`-fixture spec; first-run pass | `cd clients/encore && npx playwright test tests/locations/location-legal.spec.ts --list` |
 | HEALER | per-fix MD | (none) | (none) |
 | WATCHDOG | findings | (none) | (none) |
 | GARDENER | refactor citation | (none) | (none) |
@@ -78,7 +78,7 @@ Stray `'1604'` in Legal files → DO-NOW. Cross-tab Legal mutation noticed from 
 
 ## Acceptance criteria
 
-- [ ] `location-legal.data.ts` exposes `LEGAL_EDITABLE_BY_OFFICE` / `LEGAL_FIXED_BY_OFFICE` + accessors; every pool office has an entry (TS `Record<PoolOffice,T>` enforces).
+- [ ] `location-legal.ts` exposes `LEGAL_EDITABLE_BY_OFFICE` / `LEGAL_FIXED_BY_OFFICE` + accessors; every pool office has an entry (TS `Record<PoolOffice,T>` enforces).
 - [ ] Spec imports no `OFFICE_NO`; zero module-level `*For(` calls (F1.1).
 - [ ] **Legal spec green single-worker** (`--workers=1`) == today's Legal result.
 - [ ] **Legal spec green in isolation at `--workers=2`** running on ≥2 distinct pool offices (proves isolation; this is the first clobber-killed proof for one spec).
@@ -102,4 +102,4 @@ npm run check:tc-parity   # expect: exit 0
 
 ## Handoff (post-execution)
 
-Legal is fully per-office and proven isolated at workers=2 — the first spec whose clobber is structurally gone. The 5-step recipe (data→maps, spec→fixture, F1.1 in-body resolution, F2.2 enabled-Save, page-object wiring) is now the template OPI_D/E/F apply to the remaining specs. Next: OPI_D migrates the remaining Location Settings specs as a batch using this recipe.
+Legal is fully per-office and proven isolated at workers=2 — the first spec whose clobber is structurally gone. The 5-step recipe (data→maps, spec→fixture, F1.1 in-body resolution, F2.2 enabled-Save, page-object wiring) is now the template OPI_D/E/F/G apply to the remaining specs. Next: OPI_D migrates the remaining Location Settings specs as a batch using this recipe.

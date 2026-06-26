@@ -165,16 +165,92 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
 
   /**
    * Management-mode defensive probe: attempt a drag of a source item onto the grid; report grid growth.
-   * Drag is implemented via Playwright's `dragTo` (HTML5 dnd). Returns { before, after } row counts.
+   * Uses the full pointer sequence (move → down → move → up) — never `.dragTo()`, which often never
+   * fires the drag chain and would give a false "did not add". The create-mode positive control
+   * (`CorporatePricingNewPricebookPage.dragProductGroupByName`) proves the SAME primitive DOES add when
+   * adding is allowed, so a no-grow here is genuine management-mode behavior, not a dead primitive.
+   * Returns { before, after } row counts.
    */
   async attemptDragAdd(index = 0): Promise<{ before: number; after: number }> {
     const before = await this.getProductGroupRowCount();
     const item = this.page.locator(S.itemDraggableAny).nth(index);
-    await item.scrollIntoViewIfNeeded();
-    await item.dragTo(this.page.locator(S.tblDetailGrid).first()).catch(() => { /* drop may be rejected — that is the point */ });
+    await this.dragSourceToGrid(item, this.page.locator(S.tblDetailGrid).first())
+      .catch(() => { /* drop may be rejected in management mode — that is the point */ });
     await this.waitForAngularStable(2_000).catch(() => { /* best-effort */ });
     const after = await this.getProductGroupRowCount();
     return { before, after };
+  }
+
+  // ---------------------------------------------------------------------------
+  // CELL VALIDATION STATE (aria-invalid) + CLEAR (real keystrokes)
+  // ---------------------------------------------------------------------------
+
+  /** The `aria-invalid` attribute on an anchored row's New Price input (null when valid). */
+  async getNewPriceAriaInvalid(name: string): Promise<string | null> {
+    return this.newPriceInput(name).getAttribute('aria-invalid');
+  }
+
+  /** The `aria-invalid` attribute on an anchored row's Max Discount input (null when valid). */
+  async getMaxDiscountAriaInvalid(name: string): Promise<string | null> {
+    return this.maxDiscountInput(name).getAttribute('aria-invalid');
+  }
+
+  /** Clear an anchored row's New Price input back to empty (real keystrokes: select-all → delete → blur). */
+  async clearNewPrice(name: string): Promise<void> {
+    const inp = this.newPriceInput(name);
+    await inp.scrollIntoViewIfNeeded();
+    await inp.click();
+    await inp.press('Control+a');
+    await inp.press('Delete');
+    await inp.press('Tab');
+  }
+
+  /** Focus an anchored row's Max Discount input (no edit) and return its current value — focus-stability check. */
+  async getMaxDiscountAfterFocus(name: string): Promise<string> {
+    const inp = this.maxDiscountInput(name);
+    await inp.scrollIntoViewIfNeeded();
+    await inp.click();
+    return (await inp.inputValue()).trim();
+  }
+
+  /** Clear an anchored row's Max Discount input back to empty (real keystrokes). */
+  async clearMaxDiscount(name: string): Promise<void> {
+    const inp = this.maxDiscountInput(name);
+    await inp.scrollIntoViewIfNeeded();
+    await inp.click();
+    await inp.press('Control+a');
+    await inp.press('Delete');
+    await inp.press('Tab');
+  }
+
+  // ---------------------------------------------------------------------------
+  // SURFACE PROBES — pagination + sort presence (the Detail grid renders every row
+  // at once; it exposes NO page-size selector, NO page-navigation buttons, and its
+  // headers are not sort triggers — these probes assert that observed reality).
+  // ---------------------------------------------------------------------------
+
+  /** Accessible labels of any page-navigation buttons rendered on the page (Detail grid has none → []). */
+  async getPaginationNavLabels(): Promise<string[]> {
+    const labels = await this.page.locator('button[aria-label]').evaluateAll((els) =>
+      els.map((e) => e.getAttribute('aria-label') || '').filter((a) => /first page|previous page|next page|last page/i.test(a)),
+    );
+    return labels;
+  }
+
+  /** Whether a rows-per-page selector exists (a [role="combobox"] whose label is purely digits). */
+  async hasPageSizeControl(): Promise<boolean> {
+    return (await this.page.locator('[role="combobox"]').filter({ hasText: /^\s*\d+\s*$/ }).count()) > 0;
+  }
+
+  /** Whether a grid column header (by text) wraps a clickable sort button. */
+  async headerHasSortButton(headerText: string): Promise<boolean> {
+    const th = this.page.locator(`${S.tblDetailGrid} th`, { hasText: headerText }).first();
+    return (await th.locator('button').count()) > 0;
+  }
+
+  /** The `aria-sort` attribute on a grid column header (null when the column is not a sort target). */
+  async getHeaderAriaSort(headerText: string): Promise<string | null> {
+    return this.page.locator(`${S.tblDetailGrid} th`, { hasText: headerText }).first().getAttribute('aria-sort');
   }
 
   // ---------------------------------------------------------------------------

@@ -78,6 +78,22 @@ This is a "restructure plan" per LR-050 (changes the testing paradigm framework-
 
 ---
 
+## Anti-Assumption Gates (binding for every FCC subplan — added 2026-06-18)
+
+Graduated from the Pricing FCC session (2026-06-18), where assumptions were recorded as facts: "office 1604 corrupt" was claimed from one office with no baseline; a dropdown was declared "un-drivable" when the real cause was a stuck overlay + a stale page-object selector never diffed against live DOM; the mandatory Phase 0.5b baseline walk was skipped silently; a bug was filed with an invalid `baselineComparison`; and env instability was used to defer env-independent work while leaving the plan PENDING (a "silent checkpoint"). RCA: `clients/encore/specs_planning/_internal/agent-mistakes.md` (2026-06-18 ALL-* entries).
+
+Every per-module FCC subplan (and its `/execute`) is bound by these 6 gates. They are enforced by LR-061 + LR-060 (`.claude/rules/`), the execution-completion Stop-hook + bug-baseline PreToolUse validator (`.claude/hooks/`), per-agent HARD STOPs, and the per-module closure gate below.
+
+1. **Baseline-first is a HARD GATE, not authoring decoration.** Phase 0.5b MUST *execute* and emit `old-site-baseline/<module>-<DATE>.md` BEFORE any behavior classification, "atypical/corrupt" claim, TC correction, or bug filing. A baseline *read* is browser observation, not a suite run — env instability never excuses skipping it. (LR-045, LR-ENC-001, LR-048 §5)
+2. **N≥2 evidence before any generalization.** Any claim of "data corrupt / office atypical / app-wide / regression" requires ≥2 independent sources (2 offices, OR new-site + baseline). One office is a single data point, never a conclusion. (LR-061)
+3. **Verify-before-blocked.** Before declaring any control un-drivable / not-automatable / blocked: (a) clear overlays + reload, (b) diff the page object's existing selectors against the live DOM (stale-selector check), (c) inspect actual DOM structure, (d) try the documented interaction method. Only then may a control be classed un-drivable, with the evidence recorded. (LR-061, LR-021, LR-032)
+4. **No env-rationalized deferral of env-independent work.** Env instability may defer ONLY the specifically env-blocked step (e.g. the ×2 full-suite run). Baseline walk / catalog / MD-XLSX / spec edits / `/review` are env-independent and may NOT be deferred citing env. (LR-060)
+5. **Atomic un-skip + harden.** Never un-skip a test without applying its per-test baseline (LR-019) hardening in the SAME change — an un-skipped-but-unhardened test is more fragile than a skipped one. (LR-021 corollary)
+6. **No silent checkpoint.** An FCC `/execute` either completes all phases OR records an explicit user-signed `## Deferral Authorization` block in the subplan. Leaving the plan PENDING with mandated phases unexecuted and no recorded authorization is an audit finding — the closure gates key on the `Status: DONE` flip, so this is the one path they cannot catch; the execution-completion Stop-hook flags it. (LR-060)
+7. **Machine-enumerated walk denominator (LR-062).** No field-inventory / baseline walk for an FCC module is "done" until scripts/walk-coverage/enumerate-page.mjs has produced the denominator, every union element is dispositioned, CrossCheck: clean, and Coverage_Ratio 100%. Self-labeled PARTIAL is not a stopping point. Closure check Cx enforces this at Status flip.
+
+---
+
 ## Roadmap (children subplans)
 
 ### Pilot (next executable)
@@ -91,17 +107,42 @@ This is a "restructure plan" per LR-050 (changes the testing paradigm framework-
 Authored AFTER Notes subplan closes GREEN. One subplan per module, each ~200–400 lines using the paradigm. Files will be created with this exact naming (so parent-cascade per LR-027 finds them):
 
 - `SUBPLAN_LOCAL_INFORMATION_FCC.md` — **NEXT after Notes** (sequencing note: SSL false-green sweep precedes LOCAL_INFORMATION_FCC per user override 2026-05-22; see [`SUBPLAN_SSL_FALSE_GREEN_SWEEP.md`](SUBPLAN_SSL_FALSE_GREEN_SWEEP.md). The override does NOT promote LOCAL_INFORMATION_FCC ahead of Notes — Notes pilot remains queue position #1; SSL sweep was authored as a retroactive WATCHDOG/HEALER half against the already-shipped SSL pilot.)
-- `SUBPLAN_CURRENCY_FCC.md`
-- `SUBPLAN_PRICING_FCC.md`
+- [SUBPLAN_CURRENCY_FCC.md](../done/SUBPLAN_CURRENCY_FCC.md) — **DONE 2026-06-17**, blend of the existing 27-TC Currency spec: LR-019 hardened `ensureDefaultState` wired into `beforeEach` (the load-bearing fix — STATE-LEAK from the TC-001-inline-only baseline + annotation-only `dependencyGate` closed), 1 net-new (TC-LOC-CUR-028: revert-to-saved re-disables Save — the LR-009/026 smart-diff gap; sibling Auto-Add-On had it, Currency lacked it), USD-merchant save-cycle already covered (TC-022, not minted — STRICT-LINE-B), CAD/MXN merchant deferred (c) data-thin (1/0 options on 1604), false-green sweep GREEN (0 unfixed), full-identity sweep (7 dated artifacts, zero `(skipped)`), full spec green ×2 (29 passed; 1 TC-022 reload-flake classified). LR-055 C1–C6 PASS.
+- [SUBPLAN_PRICING_FCC.md](../done/SUBPLAN_PRICING_FCC.md) — **DONE 2026-06-19**, resumed from the 2026-06-18 partial pass. Blend of the existing Pricing spec (the one Location-Settings tab "never automated due to API failures"): the save API is confirmed healthy — 6 of 7 documented skips re-enabled green (TC-020 dates + TC-026..030 dropdown persistence), TC-025 stays skipped against the one real app defect (Corporate Pricing uncheck saves HTTP 200 but reverts on reload, app-wide 1604+1605, `BUG-LOC-PRI-001`). LR-019 `ensureDefaultState` + `saveAndConfirm` wired into the `beforeEach` (superseding the ad-hoc self-heal); `waitForPricingDataLoaded` LR-052-converted to `waitForFunction`. **3 net-new multi-currency TCs on office 1605** (TC-036 all-15-dropdowns render; TC-037/038 MXN Labor/Equipment select+persist) — live walk proved only 2 of 10 CAD/MXN dropdowns carry selectable strategies, so render-coverage is the honest ceiling for the other 8 (empty option lists). Data-drift fix: 2 dead grid rows remapped to live-verified rows (had been silently false-passing 2 tests). Fresh-context `/audit` GREEN; full spec green ×2 (37 passed / 1 skipped). DQU_12 SUBSUMED here; coverage-audit Parts 1-4 addressed, Part 5 left as a user-decision discussion-item. `LR-027 cascade SKIPPED per master plan §Cascade closure rules (user override 2026-05-21)`.
 - [SUBPLAN_ACCOUNT_ADDRESS_FCC.md](../done/SUBPLAN_ACCOUNT_ADDRESS_FCC.md) — **DONE 2026-05-29**, 2 net-new filter TCs (TC-LOC-ACC-030 Account# filter, -031 address-search clear-restores) implemented + passing; TC-LOC-ACC-029 (Phone 2 clear-persist) deferred-with-bug as `test.fixme` citing BUG-LOC-ACC-001 (app does not persist an empty Phone 2). Full spec 29 passed / 1 skipped.
 - [SUBPLAN_LEGAL_FCC.md](../done/SUBPLAN_LEGAL_FCC.md) — **DONE 2026-05-27**, 1 net-new FCC test (TC-LOC-LGL-019 negative listbox enumeration + save-cycle); 12 cases LR-040(b) deferred (same mechanic, different data, already covered by existing 15 TCs); 3 cases LR-040(c) not applicable (2 APP BUGs sort-order, 1 missing left-panel selector).
-- `SUBPLAN_AUTO_ADDON_FCC.md`
+- [SUBPLAN_AUTO_ADDON_FCC.md](../done/SUBPLAN_AUTO_ADDON_FCC.md) — **DONE 2026-06-11**, blend of the existing 19-TC Auto Add-On spec: LR-019 per-test `ensureDefaultState` wired into `beforeEach` (the load-bearing fix; STATE-LEAK closed), LR-052 fixed-sleep poll replaced, TC-016 corrected to country-scoped (premise was wrong), false-green sweep GREEN (0 unfixed), Phase-1.5 re-verified all 7 generator-audit findings (already-fixed/stale/mitigated), **honest-zero net-new** (full field×case coverage proven by existing 20 TCs incl. TC-020 bulk-invert), full spec green ×3. DQU_18 SUBSUMED here.
 - `SUBPLAN_LOCAL_OFFICE_BASIC_INFO_FCC.md`
 - `SUBPLAN_ECT_SETTINGS_FCC.md`
 - `SUBPLAN_HIST_PER_COLUMN_FCC.md` (covers Location Management History spec restructure if needed)
 - [SUBPLAN_LEFT_PANEL_BASIC_INFORMATION_FCC.md](../done/SUBPLAN_LEFT_PANEL_BASIC_INFORMATION_FCC.md) — **DONE 2026-06-03**, 26 of 27 TCs automated (TC-LOC-LP-001..023 with 016 corrected to read-only + 3 net-new persistence 025/026/027; TC-024 deferred), full spec 27 passed ×2. Renamed from `SUBPLAN_LEFT_PANEL_FCC` (module `left_panel` → `left_panel_basic_information`). **W2-08 RESOLVED**: the Country dropdown DOES exist (4 opts, live-verified) → cascade automated; **LGL-015 NOT subsumed** by TC-LOC-LP-018..022 — those tests exercise the Country selector but only assert left-panel Tax Mode/Region + cross-tab Job Costing/Remit-PST, never opening the Legal tab; the Legal-tab Service Charge + Terms reset (LGL-015) is an open coverage gap, now automatable (post-audit correction 2026-06-03). Routed from `PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md` SP07; revived per user 2026-06-01.
+- [SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC.md](../done/SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC.md) — **DONE 2026-06-11**, two launcher-dialog coverage gaps closed together (user escalation 2026-06-11): **A** Pay To Address launcher / "Pay To List" dialog (total miss in the 2026-06-03 left-panel walk) — 10 net-new TC-LOC-LP-028..037, ID-anchored save-restore, selection PERSISTS; **B** Master Bill To per-launcher gap on Account & Address (shared-dialog conflation) — 2 net-new TC-LOC-ACC-032/033, Master selection PERSISTS (diverges from Venue's non-persist, TC-ACC-027). 0 bugs (both launchers correct). Permanent prevention: **LR-057** affordance-probe mandate + per-launcher coverage clause + no-taxonomy-row HALT (inventory.md), field-inventory-spec + field-case-generation amendments, PLANNER #18 / REQUIREMENTS #9, master **Sweep 12 (`UNPROBED-AFFORDANCE`)**. Both DONE siblings carry a 2026-06-11 Post-Audit Correction. `LR-027 cascade SKIPPED per master plan §Cascade closure rules (user override 2026-05-21)`.
 
 Each future subplan inherits the paradigm — no re-installing the runner, taxonomy, or agent prompt sections. Each does only: HUNTER baseline freshness → GIVER catalog + TCs → BUILDER spec FCC block + page-object helpers + data → WATCHDOG completeness audit → GARDENER sweep → OWNER closure. **Plus** the False-Green Sweep doctrine obligations below.
+
+### Location Products (distinct surface — added 2026-06-22)
+
+Products is **not** a Location-Settings tab — it is a separate top-level URL
+`/locations/{id}/products` (old-site nav2 equivalent: "item search"), so `navigateToSubTab()` does NOT
+apply and Save-dialog / rendering parity must be walked, not assumed. This master now spans **multiple
+surfaces**, not Location-Settings-only. Net-new (zero prior coverage), built in 3 priority-tiered subplans
+so a partial execution ships the basic batch first (corp-pricing model):
+
+- `SUBPLAN_PRODUCTS_00_FOUNDATION.md` — **P0**, Depends-on `PLAN_SELF_HELP_RESEARCH_MANDATE.md` +
+  `PLAN_TIERED_DELEGATED_WALK.md`. Baseline (both sites) + Rovo Jira research → field-inventory via the TDW
+  engine (LR-064; LR-062 100%) → register `PRD` code → net-new scaffolding (page object direct-nav,
+  selectors, data, fixture). No tests.
+- `SUBPLAN_PRODUCTS_FCC.md` — **P1 (SHIP-FIRST)**, Depends-on Foundation. phase-0-verification +
+  field-case-catalog (Jira-enriched) + FCC TC catalog (MD + test-plan + XLSX) → BUILDER FCC describe
+  (blend-at-top) → WATCHDOG false-green sweep + FCC-completeness audit (separate session) → GARDENER →
+  OWNER closure. Should-have-but-missing-testid fields ship `test.fixme` (Task 0a / LR-014).
+- `SUBPLAN_PRODUCTS_DQU.md` — **P2 (GATED stub)**, Depends-on FCC. Deep-quality: cross-field/cascade,
+  grid/cell-edit, compound, neutral-eye, a11y/RBAC/real file-I/O. Full design post-FCC.
+
+Two framework preconditions land FIRST and auto-apply to every future module:
+`PLAN_SELF_HELP_RESEARCH_MANDATE.md` (Rovo/Jira self-help before asking the user) and
+`PLAN_TIERED_DELEGATED_WALK.md` (the default walk engine — Opus judges, Haiku/Sonnet click). Both block
+`SUBPLAN_PRODUCTS_00_FOUNDATION.md`.
 
 ---
 
@@ -126,6 +167,8 @@ During Notes pilot execution (2026-05-21), Rutvik observed in a headed run: logi
 | `page.waitForTimeout` as sole sync | Fixed sleep masks real timing | Sweep 9 |
 | Assertions after `page.*` setup checking via `<pageObject>.*` | Setup on wrong page → assertion reads UNCHANGED real state | Sweep 10 |
 | `expect.poll()` with timeouts > 10s | Long timeout masks underlying flake | Sweep 11 |
+| Passing assertion on a field whose label/launcher affordance — or whose per-launcher select-cycle — was never exercised | A disabled-display / read-only field hides an interactive launcher, or a shared dialog behaves differently per launcher; the assertion is true but blind | Sweep 12 (`UNPROBED-AFFORDANCE`; LR-057) |
+| A finding / behavior-classification (corrupt / atypical / app-wide / regression) resting on ONE office or with NO baseline comparison | A single-office observation or unbaselined state is asserted as a general truth; it may be office data state, not app behavior | Sweep 13 (`ASSUMPTION-UNISOLATED`; LR-061, added 2026-06-18) |
 
 ### Per-module FCC subplan obligations (binding for SSL-onward, except SSL grandfather)
 
@@ -135,7 +178,7 @@ Every per-module FCC subplan in §Roadmap MUST:
 
 2. **Phase 0 — empirical verification gate**: before any spec/page-object change, run nested-orbit v2 Phase 0 checks (page-collision theory + context-options propagation + trace fidelity + per-TC baseline) and write the verification artifact at `clients/encore/specs_planning/_internal/phase-0-verification-<MODULE>-<YYYY-MM-DD>.md`. PROCEED verdict required before continuing.
 
-3. **Phase 0.5 — false-green pre-audit**: run all 11 sweeps (table above) against the target module's existing spec(s). Emit a dated report at `clients/encore/specs_planning/_internal/false-green-sweeps/<MODULE>-<YYYY-MM-DD>.md` (note: subdirectory `false-green-sweeps/` — repo convention). Classify each finding as: FALSE-GREEN / PARTIAL / FLAKY-MASK / STALE-SKIP / INFLATED / STATE-LEAK / CLEAN.
+3. **Phase 0.5 — false-green pre-audit**: run all 13 sweeps (table above) against the target module's existing spec(s). Emit a dated report at `clients/encore/specs_planning/_internal/false-green-sweeps/<MODULE>-<YYYY-MM-DD>.md` (note: subdirectory `false-green-sweeps/` — repo convention). Classify each finding as: FALSE-GREEN / PARTIAL / FLAKY-MASK / STALE-SKIP / INFLATED / STATE-LEAK / UNPROBED-AFFORDANCE / ASSUMPTION-UNISOLATED / CLEAN.
 
 4. **Phase N-1 — false-green fix**: before closure, fix every confirmed false-green finding from Phase 0.5 using the **nested-orbit v2 §A-1 fix decision** (rewrite test to drop bare `page` from destructure; use `<pageObject>.page`). NOT a getter or override — those alternatives were explicitly rejected in v2 (conflicts with R14 exception comment + doesn't fix context-options gap).
 
@@ -148,6 +191,9 @@ Cannot close GREEN if any of:
 - Any false-green finding from Phase 0.5 unfixed AND not classified per LR-040 (a)/(b)/(c).
 - Any stale skip/fixme from Sweep 7 not un-skipped and verified (LR-021) — except app-bug-blocked skips (re-skip with updated comment per LR-021 corollary).
 - Any test in the module destructures the built-in `page` alongside a custom fixture.
+- **Phase 0.5b baseline artifact missing** when the subplan drives TC corrections or files bugs (Anti-Assumption Gate 1).
+- Any **"corrupt / atypical / app-wide / regression" claim resting on <2 evidence sources** (Sweep 13 / Gate 2 unmet).
+- Any bug filed with `baselineComparison` outside the LR-034 enum, or any test **un-skipped without LR-019 hardening** (Gates 5–6).
 
 ### Two-subplan variant (if combined exceeds ~400 lines)
 
@@ -186,6 +232,10 @@ App-bug skips MUST NOT be force-un-skipped (LR-021 corollary): verify the app bu
 `PLAN_DQU_V6.md` is in `plans/done/`. The 27 `SUBPLAN_DQU_*.md` files remaining in `plans/pending/` are orphaned by their parent's closure — they were originally scoped as DQU work that overlaps with the FCC paradigm rollout.
 
 **Current disposition**: chat-only deferral. No `/execute` of DQU subplans until master triages. Future agents MUST consult this master before `/execute SUBPLAN_DQU_*`. OWNER triages each remaining DQU subplan after Notes pilot closes: **subsume into FCC rollout / keep as standalone / drop**. Triage decision recorded in this master's eventual Execution Summary (per LR-027).
+
+**Triage log**:
+- `SUBPLAN_DQU_12_F1a_PRICING_AUDIT.md` → **SUBSUMED** into `SUBPLAN_PRICING_FCC.md` (user triage 2026-06-15; closed 2026-06-19). Its still-live focus areas — IsAlternate→UseDate→Start/End cascade, Corporate-grid validation, Corporate-Pricing-toggle-disables-fields, cell-edit restrictions, Price-Guide-inclusion default, EnableMultidayPricing tab-placement — were absorbed into the Pricing FCC pass and verified live (precedent: DQU_18 → Auto Add-On). DQU_12 flipped to SUBSUMED.
+- `SUBPLAN_DQU_18_F1g_AUTO_ADDON_AUDIT.md` → **SUBSUMED** into `SUBPLAN_AUTO_ADDON_FCC.md` (user triage 2026-06-11). Its Phase 0.5b baseline walk, Phase 1 field inventory, and Phase 2 TC-MD diff + XLSX rebuild WERE the Auto Add-On FCC subplan's Phases 0.5b/1/2; its still-live focus areas (round-trip persistence per item, country-scoped rules NM-1462/64/65 as not-testable-on-1604, TC-016 disposition) were absorbed. Its multi-office focus (1605/1101) was dropped per user fact (item list is country-scoped, not per-location; 1604-only scope). DQU_18 flipped to SUBSUMED.
 
 ---
 
@@ -239,6 +289,7 @@ Out-of-scope (deferred to named follow-up plans, NOT this master's cascade):
 - [ ] SSL FCC coverage shipped (✓ — already done via DQU pilot chain, 30 SSL TCs grandfathered).
 - [ ] SSL false-green sweep subplan closed GREEN (✓ — completed 2026-05-22 per user override; sweep report at `clients/encore/specs_planning/_internal/false-green-sweeps/shared-setup-locations-2026-05-22.md`; see [`SUBPLAN_SSL_FALSE_GREEN_SWEEP.md`](SUBPLAN_SSL_FALSE_GREEN_SWEEP.md) Execution Summary).
 - [ ] Every module in §Roadmap "Future per-module subplans" has a subplan in `plans/done/`.
+- [ ] Location Products (distinct surface): all 3 subplans (`SUBPLAN_PRODUCTS_00_FOUNDATION`, `_FCC`, `_DQU`) in `plans/done/`; preconditions `PLAN_SELF_HELP_RESEARCH_MANDATE` + `PLAN_TIERED_DELEGATED_WALK` closed first.
 - [ ] DQU triage decision recorded (per remaining DQU subplan: subsumed / kept / dropped) in a follow-up plan or in this master's Execution Summary.
 - [ ] `/regression-guard` snapshot before/after = no silent breakage in framework-wide artifacts touched by paradigm install.
 - [ ] Activity-log row appended per LR-028 for each child subplan closure.

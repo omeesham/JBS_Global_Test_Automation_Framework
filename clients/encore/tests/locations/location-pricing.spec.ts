@@ -1,9 +1,13 @@
-// STATUS (2026-05-08): GET getLocationDetail?localOfficeId=1604 has recovered.
-// 28 of 33 active TCs pass at 1w retries=0 after PRI stabilization fixes.
-// 7 TCs remain hard-skipped per inline justifications (TC-020 + TC-025..030):
-//   * TC-020: dates don't round-trip after save (Encore-side, see test-skip).
-//   * TC-025..030: POST update-location-pricing returns 500 (Encore-side, see TC-026 SKIP RCA block below).
-// Re-running spec at 2w may surface env-saturation flakes; document if observed.
+// STATUS (2026-06-18): Pricing save endpoints (POST upsert-location-pricebook + PUT update-properties) return 200.
+// 6 previously-skipped TCs now pass and are re-enabled: TC-020 (dates persist after save) and
+// TC-026..030 (primary pricing dropdown persistence — the prior block was a stale option-picker
+// search-box selector, now corrected in the page object).
+// 1 TC stays skipped: TC-025 (Corporate Pricing uncheck saves 200 but reverts to checked on reload —
+// app-side; reproduced on offices 1604 and 1605; see the TC-025 skip note + filed bug).
+// Note: the 6 re-enabled TCs pass when run individually; a full-suite serial run still needs the
+// per-test baseline reset (ensureDefaultState) for stability, and the e2e environment was dropping
+// connections during long runs on 2026-06-18 (ERR_CONNECTION_RESET) — re-confirm a clean full-suite
+// pass twice once the per-test baseline is wired and the environment is stable.
 import { test, expect } from '../../src/fixtures/pages.fixture';
 import {
   PRICING_COLUMN_HEADERS,
@@ -12,72 +16,48 @@ import {
   MULTI_ALT_PRICEBOOKS,
   PRIMARY_TEST_ROW,
   SECONDARY_TEST_ROW,
-  ECOMMERCE_TEST_ROW,
+  TERTIARY_TEST_ROW,
   DEFAULT_CURRENCY_FILTER,
   DROPDOWN_PERSISTENCE_CASES,
   DATE_TEST_VALUES,
   TC033_DATE_VALUES,
+  PRICING_DEFAULTS,
+  MULTI_CURRENCY_OFFICE_NO,
+  PRIMARY_PRICING_DROPDOWNS_CAD,
+  PRIMARY_PRICING_DROPDOWNS_MXN,
+  MXN_PRIMARY_PERSISTENCE_CASES,
 } from '../../src/data/locations/location-pricing';
 import { OFFICE_NO } from '../../src/data/common';
+import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 
 test.describe('Location Pricing @locations @pricing', () => {
- // MNT-010: describe-level default timeout. Only TC-001 (90s) and persistence tests (120s) override.
-  test.setTimeout(60_000);
+ // Describe-level default timeout. The per-test baseline restore can include a save+reload cycle
+ // on this heavy tab, so the budget is generous; the happy path finishes well under it.
+  test.setTimeout(120_000);
 
-  // Per-test navigation guard (dependency-gate removal Phase 1.5). See BAS spec :33.
-  // Plus PRI-stabilization (B3'): every TC self-heals Corporate Pricing baseline before running.
-  // Reason: TC-016..023 all assume Corp Pricing checked. DB drift / prior-test pollution can leave
-  // it unchecked, which renders the Is Alternative checkbox disabled and cascades 8 TC failures.
-  // The restore is silent / no-op when DB is already correct.
+  // Per-test baseline (replaces the prior ad-hoc Corporate-Pricing-only self-heal). Restores every
+  // net-zero-vulnerable field — both top checkboxes and the test price-book rows — so a crashed
+  // prior run or a single-test retry cannot leave the page dirty and make a test's change a no-op.
   test.beforeEach(async ({ locationPricingPage }) => {
-    // Detect whether we're on the Pricing tab via DOM presence of chkCorporatePricing
-    // rather than URL (Plan B3' originally used URL check, but Encore sub-tabs share the
-    // same `settings/location` URL — after a sibling spec like Notes, URL match returns
-    // true even though Pricing tab is not active, causing waitForPricingDataLoaded to
-    // time out on a Pricing-only locator. DOM presence is the reliable signal).
-    const onPricingTab = await locationPricingPage.isOnPricingTab();
-    if (!onPricingTab) {
+    // Navigate only if we are not already on THIS office's Pricing tab. Encore sub-tabs share the
+    // settings/location URL, so confirm both the office (URL) and the active tab (DOM presence) —
+    // a sibling multi-currency test on another office can leave us on a pricing tab for the wrong
+    // office, and DOM presence alone would not catch that.
+    const onThisOffice = locationPricingPage.getCurrentUrl().includes(`locations/${OFFICE_NO}/`);
+    if (!onThisOffice || !(await locationPricingPage.isOnPricingTab())) {
       await locationPricingPage.navigateToPricingTab(OFFICE_NO);
     }
-    // Baseline assertion: Corporate Pricing must be checked for grid-row tests to function.
-    const corpState = await locationPricingPage.getCheckboxState('chkCorporatePricing');
-    if (!corpState.checked) {
-      await locationPricingPage.checkCheckbox('chkCorporatePricing');
-      await locationPricingPage.clickSave();
-      await locationPricingPage.reloadPricingTab(OFFICE_NO);
-    }
+    // Restore defaults. Fast no-op (reads only) when the page is already clean.
+    await locationPricingPage.ensureDefaultState(PRICING_DEFAULTS, OFFICE_NO);
   });
 
  // ── Navigate ONCE -- all subsequent tests reuse this page state ──────────────
   test('TC-LOC-PRI-001: Verify Pricing tab default state', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate([]);
-    test.setTimeout(90_000);
-    await locationPricingPage.navigateToPricingTab(OFFICE_NO);
- // wait for API data BEFORE reading any state — reading before API response gives Angular defaults, not DB values.
-    await locationPricingPage.waitForPricingDataLoaded();
- // Pre-cleanup: reset test rows and checkboxes that may be dirty from a previously failed run.
-    for (const row of [PRIMARY_TEST_ROW, SECONDARY_TEST_ROW, ECOMMERCE_TEST_ROW]) {
-      const state = await locationPricingPage.getIsAlternativeState(row);
-      if (state.checked) {
-        await locationPricingPage.uncheckIsAlternative(row);
-      }
-    }
- // Pre-cleanup: wait for pricing API data to load, then read true DB state.
- // The pricing API populates checkbox states; reading before it returns gives stale defaults.
-    await locationPricingPage.waitForPricingDataLoaded();
- // Now read the persisted (DB) checkbox states and fix any dirty state from prior runs.
-    for (const chk of ['chkCorporatePricing', 'chkPriceGuideInclusive'] as const) {
-      const chkState = await locationPricingPage.getCheckboxState(chk);
-      if (!chkState.checked) {
-        await locationPricingPage.checkCheckbox(chk);
-      }
-    }
-    await locationPricingPage.clickSave();
-    await locationPricingPage.reloadPricingTab(OFFICE_NO);
- // Wait for API data again before assertions
-    await locationPricingPage.waitForPricingDataLoaded();
+ // The beforeEach (ensureDefaultState) has already navigated to the Pricing tab and restored the
+ // baseline (both checkboxes checked, test rows clean). This test asserts that default render.
     expect(locationPricingPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
- // Poll for checkbox state — networkidle may resolve before Angular populates from API
+ // Poll for checkbox state — the data load applies persisted values to the DOM asynchronously.
     await expect.poll(
       async () => (await locationPricingPage.getCheckboxState('chkCorporatePricing')).checked,
       { timeout: 15_000, message: 'Corporate Pricing should be checked after data load' }
@@ -107,7 +87,7 @@ test.describe('Location Pricing @locations @pricing', () => {
 
   test('TC-LOC-PRI-004: Verify grid row default state', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
- // TC: Check 2021-Tier 3 Urban A and 2022-eCommerce rows -- both should have Is Alternative
+ // TC: Check 2021-Tier 3 Urban A and 2022-Zone 5 A rows -- both should have Is Alternative
  // unchecked with cascaded fields disabled.
     for (const row of [PRIMARY_TEST_ROW, SECONDARY_TEST_ROW]) {
       const isAlt = await locationPricingPage.getIsAlternativeState(row);
@@ -136,7 +116,7 @@ test.describe('Location Pricing @locations @pricing', () => {
 
   test('TC-LOC-PRI-006: Use Effective Date disabled cannot be clicked when Is Alternative unchecked', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
- // TC: 2022-eCommerce row -- Is Alternative unchecked, Use Effective Date disabled
+ // TC: 2022-Zone 5 A row -- Is Alternative unchecked, Use Effective Date disabled
     const isAlt = await locationPricingPage.getIsAlternativeState(SECONDARY_TEST_ROW);
     expect(isAlt.checked).toBe(false);
     const useDate = await locationPricingPage.getUseEffectiveDateState(SECONDARY_TEST_ROW);
@@ -167,19 +147,19 @@ test.describe('Location Pricing @locations @pricing', () => {
 
   test('TC-LOC-PRI-008: Start/End Date remain disabled when Use Effective Date unchecked', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
- // TC: 2022-NP LB1 row -- Is Alternative checked, Use Effective Date unchecked -> dates disabled
-    await locationPricingPage.checkIsAlternative(ECOMMERCE_TEST_ROW);
+ // TC: 2022-Zone 1 A row -- Is Alternative checked, Use Effective Date unchecked -> dates disabled
+    await locationPricingPage.checkIsAlternative(TERTIARY_TEST_ROW);
  // checkbox cascade is async — poll until Use Effective Date is enabled.
     await expect.poll(
-      () => locationPricingPage.getUseEffectiveDateState(ECOMMERCE_TEST_ROW).then(s => s.disabled),
+      () => locationPricingPage.getUseEffectiveDateState(TERTIARY_TEST_ROW).then(s => s.disabled),
       { timeout: 5_000 },
     ).toBe(false);
-    const useDate = await locationPricingPage.getUseEffectiveDateState(ECOMMERCE_TEST_ROW);
+    const useDate = await locationPricingPage.getUseEffectiveDateState(TERTIARY_TEST_ROW);
     expect(useDate.checked, 'Use Effective Date should still be unchecked').toBe(false);
-    expect(await locationPricingPage.isStartDateEnabled(ECOMMERCE_TEST_ROW)).toBe(false);
-    expect(await locationPricingPage.isEndDateEnabled(ECOMMERCE_TEST_ROW)).toBe(false);
+    expect(await locationPricingPage.isStartDateEnabled(TERTIARY_TEST_ROW)).toBe(false);
+    expect(await locationPricingPage.isEndDateEnabled(TERTIARY_TEST_ROW)).toBe(false);
  // Cleanup
-    await locationPricingPage.resetGridRow(ECOMMERCE_TEST_ROW);
+    await locationPricingPage.resetGridRow(TERTIARY_TEST_ROW);
   });
 
   test('TC-LOC-PRI-009: Uncheck Use Effective Date clears Start/End Date values', async ({ locationPricingPage, dependencyGate }) => {
@@ -341,7 +321,7 @@ test.describe('Location Pricing @locations @pricing', () => {
 
   test('TC-LOC-PRI-021: Multiple price books can have alternate pricing simultaneously', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
- // TC: 2021-Tier 3 Urban A, 2022-eCommerce, 2022-NP LB1 -- all checked concurrently
+ // TC: 2021-Tier 3 Urban A, 2022-Zone 5 A, 2022-Zone 1 A -- all checked concurrently
     for (const pb of MULTI_ALT_PRICEBOOKS) {
       await locationPricingPage.checkIsAlternative(pb);
     }
@@ -358,7 +338,7 @@ test.describe('Location Pricing @locations @pricing', () => {
   test('TC-LOC-PRI-022: Grid validates all rows -- missing date shows validation error', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
  // TC: Row 1 (2021-Tier 3 Urban A) cascade without dates -- missing required dates triggers validation.
- // Row 2 (2022-eCommerce) cascade with valid start date 05/01/2026.
+ // Row 2 (2022-Zone 5 A) cascade with valid start date 05/01/2026.
  // Grid-level validation catches row 1's missing required dates.
     await locationPricingPage.enableFullCascade(PRIMARY_TEST_ROW);
     await locationPricingPage.enableFullCascade(SECONDARY_TEST_ROW);
@@ -381,9 +361,8 @@ test.describe('Location Pricing @locations @pricing', () => {
 
  // ── Save-dependent / persistence tests (TC-020, TC-023-030) ─────────────────
 
- // API 500 bug resolved but dates still don't persist after save+reload (getStartDateValue returns "").
- // Re-skipped : app-level issue — grid row date values not returned by API after save.
-  test.skip('TC-LOC-PRI-020: Valid dates persist after save', async ({ locationPricingPage, dependencyGate }) => {
+ // Re-enabled 2026-06-18: dates now persist after save+reload (verified live on office 1604).
+  test('TC-LOC-PRI-020: Valid dates persist after save', async ({ locationPricingPage, dependencyGate }) => {
     test.setTimeout(120_000);
  // TC: 2021-Tier 3 Urban A row -- enter valid dates, save, reload, verify persistence
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
@@ -471,9 +450,9 @@ test.describe('Location Pricing @locations @pricing', () => {
     ).toBe(true);
   });
 
- // API 500 bug resolved but Corporate Pricing uncheck does NOT persist after save+reload.
- // Save returns 200 but checkbox reverts to checked on page reload — app-level issue.
- // Re-skipped : same category as PRI-020 (data doesn't round-trip).
+ // Kept skipped (app-side bug, reproduced 2026-06-18): Corporate Pricing uncheck saves 200 but
+ // reverts to checked on reload — confirmed on BOTH office 1604 and 1605 (app-wide, not data-specific).
+ // See filed bug. Distinct from TC-020/TC-026..030, which now persist correctly.
   test.skip('TC-LOC-PRI-025: Corporate Pricing -- uncheck, save, reload, verify persists; restore', async ({ locationPricingPage, dependencyGate }) => {
     test.setTimeout(120_000);
     const key = 'chkCorporatePricing';
@@ -503,21 +482,14 @@ test.describe('Location Pricing @locations @pricing', () => {
     ).toBe(true);
   });
 
- // ── Dropdown persistence (TC-026..030) — MNT-008: data-driven loop, bidirectional toggle ──
- // SKIP RCA : POST update-location-pricing returns 500 Internal Server Error.
- // Save fires 2 concurrent API calls: POST update-location-pricing + PUT update-properties.
- // PUT update-properties returns 200 fast → dialog closes → Angular stabilizes →
- // clickSaveWithDialog removes its network listener → THEN the 500 arrives undetected.
- // This is a race condition in base-page.ts clickSaveWithDialog (line ~387: page.off
- // removes listener after waitForAngularStable, before slow responses arrive).
- // clickSave reports { success: true } falsely. Dropdown values revert on reload.
- // DiagnosticsCollector DOES capture the 500 in networkFailures[].
- // Old tests silently passed because selectPrimaryDropdownOption skipped when DB = test value.
- // Bidirectional toggle exposed this by forcing actual changes → revealed 500.
- // Do NOT attempt to fix these tests. The 500 is a server-side bug. The race condition
- // in clickSaveWithDialog needs its own follow-up (affects ALL page objects).
+ // ── Dropdown persistence (TC-026..030) — data-driven loop, bidirectional toggle ──
+ // Re-enabled 2026-06-18: the save returns 200 and the dropdown values persist after reload
+ // (verified live on office 1604, all 5 cases green). The earlier block was NOT a server 500 —
+ // it was a stale option-picker selector: the search box's placeholder had changed to
+ // "Search pricing strategies...", so the page object never located it. Fixed in
+ // selectPrimaryDropdownOption.
   for (const { tcId, key, option, alternateOption, label } of DROPDOWN_PERSISTENCE_CASES) {
-    test.skip(`${tcId}: ${label} -- bidirectional persist (toggle pattern)`, async ({ locationPricingPage, dependencyGate }) => {
+    test(`${tcId}: ${label} -- bidirectional persist (toggle pattern)`, async ({ locationPricingPage, dependencyGate }) => {
       test.setTimeout(120_000);
  // Phase 1: Select ALTERNATE value → save → reload → verify
       await locationPricingPage.selectPrimaryDropdownOption(key, alternateOption);
@@ -633,4 +605,77 @@ test.describe('Location Pricing @locations @pricing', () => {
     expect(interactiveCount, 'Read-only columns should have no interactive elements').toBe(0);
   });
 
+});
+
+// ── Multi-currency primary pricing (office 1605) ─────────────────────────────
+// Office 1604 (the suite above) is single-currency — only the five USD primary dropdowns render.
+// Office 1605 is multi-currency: it renders all fifteen primary pricing dropdowns (5 USD + 5 CAD +
+// 5 MXN). These cases cover the per-currency dropdowns that exist only on a multi-currency office.
+// They live in their own describe because they run against a different office, so they need their
+// own navigation and baseline rather than the office-1604 beforeEach above.
+test.describe('Location Pricing — Multi-currency (office 1605) @locations @pricing', () => {
+  test.setTimeout(120_000);
+
+  test.beforeEach(async ({ locationPricingPage }) => {
+    const onThisOffice = locationPricingPage.getCurrentUrl().includes(`locations/${MULTI_CURRENCY_OFFICE_NO}/`);
+    if (!onThisOffice || !(await locationPricingPage.isOnPricingTab())) {
+      await locationPricingPage.navigateToPricingTab(MULTI_CURRENCY_OFFICE_NO);
+    }
+    // Corporate Pricing must be checked for the primary dropdowns to be enabled.
+    const corp = await locationPricingPage.getCheckboxState('chkCorporatePricing');
+    if (!corp.checked) {
+      await locationPricingPage.checkCheckbox('chkCorporatePricing');
+      await locationPricingPage.saveAndConfirm();
+      await locationPricingPage.reloadPricingTab(MULTI_CURRENCY_OFFICE_NO);
+    }
+  });
+
+  test('TC-LOC-PRI-036: All per-currency primary pricing dropdowns render and are enabled', async ({ locationPricingPage }) => {
+    // Every USD, CAD, and MXN primary pricing dropdown should render and be enabled when Corporate
+    // Pricing is checked on a multi-currency office.
+    const allDropdowns = [
+      ...PRIMARY_PRICING_DROPDOWNS,
+      ...PRIMARY_PRICING_DROPDOWNS_CAD,
+      ...PRIMARY_PRICING_DROPDOWNS_MXN,
+    ];
+    for (const key of allDropdowns) {
+      const enabled = await locationPricingPage.isDropdownEnabled(key);
+      expect(enabled, `${key} should render and be enabled when Corporate Pricing is checked`).toBe(true);
+    }
+  });
+
+  // Per-currency persistence: each MXN dropdown that carries pricing strategies starts unset, so
+  // selecting a value is always a real change. Select → save → reload → confirm it persisted, then
+  // restore the dropdown to unset so the office is left clean for the next run.
+  for (const { tcId, key, option, label } of MXN_PRIMARY_PERSISTENCE_CASES) {
+    test(`${tcId}: ${label} -- select, save, persists after reload`, async ({ locationPricingPage }) => {
+      await saveAndVerifyCase({
+        id: tcId,
+        label,
+        baseline: () => locationPricingPage.clearPrimaryDropdown(key),
+        act: () => locationPricingPage.selectPrimaryDropdownOption(key, option),
+        expectBeforeSave: async () => {
+          expect(await locationPricingPage.getDropdownValue(key)).toBe(option);
+          expect(
+            await locationPricingPage.waitForSaveEnabled(),
+            `Save should enable after selecting ${label}`,
+          ).toBe(true);
+        },
+        saveAndConfirm: () => locationPricingPage.saveAndConfirm(),
+        reload: () => locationPricingPage.reloadPricingTab(MULTI_CURRENCY_OFFICE_NO),
+        expectAfterReload: async () => {
+          await expect.poll(
+            () => locationPricingPage.getDropdownValue(key),
+            { timeout: 15_000, message: `${label} should persist after save+reload` },
+          ).toBe(option);
+        },
+        cleanup: async () => {
+          await locationPricingPage.clearPrimaryDropdown(key);
+          if (await locationPricingPage.isSaveEnabled()) {
+            await locationPricingPage.saveAndConfirm();
+          }
+        },
+      });
+    });
+  }
 });

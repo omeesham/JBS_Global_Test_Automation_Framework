@@ -426,3 +426,376 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
   });
 
 });
+
+test.describe('Corporate Pricing — Search: Grid Options + filter→grid content @corporate-pricing @search', () => {
+
+  test.beforeEach(async ({ corporatePricingSearchPage: cp }) => {
+    test.setTimeout(120_000);
+    await cp.open('1604');
+  });
+
+  // ── Grid Options (column show/hide + reset; visibility is a persisted user preference) ──
+
+  test('TC-CPR-SRC-031: Grid Options menu exposes a toggle per column and Reset to Default View', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.openGridOptions();
+    const labels = (await cp.getGridOptionColumns()).map((c) => c.label);
+    for (const name of CORP_PRICING_SEARCH.liveColumns) {
+      expect(labels.some((l) => l.includes(name)), `toggle for "${name}" present`).toBe(true);
+    }
+    expect(await cp.page.locator('[role="menuitem"]', { hasText: 'Reset to Default View' }).count()).toBeGreaterThan(0);
+    await cp.closeGridOptions();
+  });
+
+  test('TC-CPR-SRC-032: Toggling a column off hides it and the setting persists across a reload', async ({ corporatePricingSearchPage: cp }) => {
+    try {
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(true);
+      await cp.openGridOptions();
+      await cp.toggleGridColumn('Is GSO');
+      await cp.closeGridOptions();
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(false);
+      await cp.open('1604'); // reload
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(false); // hidden state persisted
+    } finally {
+      await cp.ensureAllGridColumnsVisible(); // restore the all-columns baseline
+    }
+  });
+
+  test('TC-CPR-SRC-033: Reset to Default View restores all columns and persists across a reload', async ({ corporatePricingSearchPage: cp }) => {
+    try {
+      await cp.openGridOptions();
+      await cp.toggleGridColumn('Is GSO');
+      await cp.closeGridOptions();
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(false);
+      await cp.openGridOptions();
+      await cp.page.locator('[role="menuitem"]', { hasText: 'Reset to Default View' }).first().click();
+      await cp.closeGridOptions();
+      for (const name of CORP_PRICING_SEARCH.liveColumns) expect(await cp.isGridColumnVisible(name)).toBe(true);
+      await cp.open('1604'); // reload
+      for (const name of CORP_PRICING_SEARCH.liveColumns) expect(await cp.isGridColumnVisible(name)).toBe(true);
+    } finally {
+      await cp.ensureAllGridColumnsVisible();
+    }
+  });
+
+  // ── Filter → grid content coherence (every returned row obeys the applied filter) ──
+
+  test('TC-CPR-SRC-034: Currency = USD returns rows that all show USD in the Currency column', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.selectCurrency('USD');
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+    const vals = await cp.readColumnForVisibleRows('Currency');
+    expect(vals.length).toBeGreaterThan(0);
+    for (const v of vals) expect(v).toBe('USD');
+  });
+
+  test('TC-CPR-SRC-035: Is Internal returns rows that are all marked Internal', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.setCheckbox('isInternal', true);
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+    const bools = await cp.readBooleanColumnForVisibleRows('Is Internal');
+    expect(bools.length).toBeGreaterThan(0);
+    for (const b of bools) expect(b).toBe(true);
+  });
+
+  test('TC-CPR-SRC-036: Is Labor returns the labor population (every row marked Labor)', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.setCheckbox('isLabor', true);
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+    for (const b of await cp.readBooleanColumnForVisibleRows('Is Labor')) expect(b).toBe(true);
+  });
+
+  test('TC-CPR-SRC-037: Active Only off reveals an inactive row; on restricts to active rows', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.setCheckbox('activeOnly', false);
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+    expect((await cp.readBooleanColumnForVisibleRows('Is Active')).some((b) => b === false)).toBe(true);
+    // Re-checking Active Only restores the default query (served from cache → no response to await).
+    await cp.setCheckbox('activeOnly', true);
+    await cp.clickSearch();
+    await expect.poll(async () => (await cp.readBooleanColumnForVisibleRows('Is Active')).every((b) => b === true), { timeout: 15_000 }).toBe(true);
+  });
+
+  test('TC-CPR-SRC-038: Location filter narrows the grid to the selected location', async ({ corporatePricingSearchPage: cp }) => {
+    const baseline = await cp.getItemCountNumber();
+    await cp.selectFirstRealLocation();
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeLessThanOrEqual(baseline);
+  });
+
+  test('TC-CPR-SRC-039: Pricing Strategy filter narrows to rows whose strategy contains the entered text', async ({ corporatePricingSearchPage: cp }) => {
+    const sample = (await cp.readColumnForVisibleRows('Price Book Strategy')).find((s) => s.length > 0) ?? '';
+    const needle = (sample.split(/\s+/)[0] || 'Tier');
+    await cp.fillStrategyFilter(needle);
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+    for (const s of await cp.readColumnForVisibleRows('Price Book Strategy')) {
+      expect(s.toLowerCase()).toContain(needle.toLowerCase());
+    }
+  });
+
+  test('TC-CPR-SRC-040: Pricebook filter narrows by name-contains and by exact ID', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.fillPricebookFilter('2'); // broad substring
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+    for (const n of await cp.readColumnForVisibleRows('Price Book')) expect(n).toContain('2');
+    await cp.clearPricebookFilter();
+    await cp.fillPricebookFilter(CORP_PRICING_SEARCH.pricebookFilterSample.value); // exact ID "2021-PB6"
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+    expect((await cp.readColumnForVisibleRows('Price Book')).some((n) => n.includes('2021-PB6'))).toBe(true);
+  });
+
+  // ── Compound / order-independence / reset-from-compound ──
+
+  test('TC-CPR-SRC-041: Combined filters return rows that satisfy every active criterion (AND)', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.setCheckbox('isLabor', true);
+    await cp.selectCurrency('USD'); // Active Only stays checked (default)
+    await cp.searchAndWaitForList();
+    await cp.page.waitForTimeout(300);
+    const count = await cp.getTbodyRowCount();
+    if (count === 0) {
+      expect(await cp.hasNoResultsMessage()).toBe(true); // an empty intersection is a coherent result
+      return;
+    }
+    const labor = await cp.readBooleanColumnForVisibleRows('Is Labor');
+    const currency = await cp.readColumnForVisibleRows('Currency');
+    const active = await cp.readBooleanColumnForVisibleRows('Is Active');
+    for (let i = 0; i < Math.min(labor.length, 5); i++) {
+      expect(labor[i]).toBe(true);
+      expect(currency[i]).toBe('USD');
+      expect(active[i]).toBe(true);
+    }
+  });
+
+  test('TC-CPR-SRC-042: Filter application order does not change the result set', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.selectCurrency('USD');
+    await cp.setCheckbox('isInternal', true);
+    await cp.searchAndWaitForList();
+    await cp.page.waitForTimeout(300);
+    const count1 = await cp.getItemCountNumber();
+    const names1 = await cp.getFirstNPriceBookNames(5);
+    await cp.clickReset();
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThanOrEqual(count1);
+    await cp.setCheckbox('isInternal', true); // reverse staging order
+    await cp.selectCurrency('USD');
+    await cp.clickSearch(); // identical query to the forward run → served from cache (no response to await)
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 15_000 }).toBe(count1);
+    expect((await cp.getFirstNPriceBookNames(5)).sort()).toEqual(names1.sort());
+  });
+
+  test('TC-CPR-SRC-043: Reset from a multi-filter state restores the baseline; column visibility is unaffected', async ({ corporatePricingSearchPage: cp }) => {
+    try {
+      const baseline = await cp.getItemCountNumber();
+      await cp.openGridOptions();
+      await cp.toggleGridColumn('Is GSO'); // hide a column before resetting filters
+      await cp.closeGridOptions();
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(false);
+      await cp.fillPricebookFilter('2');
+      await cp.selectCurrency('USD');
+      await cp.setCheckbox('isInternal', true);
+      await cp.searchAndWaitForList();
+      await cp.clickReset();
+      expect(await cp.getPricebookFilterValue()).toBe('');
+      expect(await cp.getCheckboxState('isInternal')).toBe(false);
+      expect(await cp.getCurrencyDefaultText()).toContain('All Currencies');
+      await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(baseline);
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(false); // Reset clears filters only, not column visibility
+    } finally {
+      await cp.ensureAllGridColumnsVisible();
+    }
+  });
+
+});
+
+test.describe('SBC — Search surface behaviors @corporate-pricing @search', () => {
+
+  test.beforeEach(async ({ corporatePricingSearchPage: cp }) => {
+    test.setTimeout(120_000);
+    await cp.open('1604');
+  });
+
+  test('TC-CPR-SRC-044: A single filter returns only rows that match the query', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.selectCurrency('USD');
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+    for (const v of await cp.readColumnForVisibleRows('Currency')) expect(v).toBe('USD');
+  });
+
+  test('TC-CPR-SRC-045: Filters stage client-side, Search fires one query, and rows match (incl. exact-ID)', async ({ corporatePricingSearchPage: cp }) => {
+    const counter = cp.attachListCallCounter();
+    try {
+      await cp.fillPricebookFilter('2');
+      await cp.setCheckbox('isInternal', true);
+      expect(counter.count()).toBe(0); // staging fires no server call
+      const before = counter.count();
+      await cp.searchAndWaitForList();
+      expect(counter.count()).toBe(before + 1); // exactly one query on Search
+      await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+      for (const n of await cp.readColumnForVisibleRows('Price Book')) expect(n).toContain('2');
+      for (const b of await cp.readBooleanColumnForVisibleRows('Is Internal')) expect(b).toBe(true);
+      await cp.clickReset();
+      await cp.fillPricebookFilter(CORP_PRICING_SEARCH.pricebookFilterSample.value);
+      await cp.searchAndWaitForList();
+      expect((await cp.readColumnForVisibleRows('Price Book')).some((n) => n.includes('2021-PB6'))).toBe(true);
+    } finally {
+      counter.dispose();
+    }
+  });
+
+  test('TC-CPR-SRC-046: Changing the page size re-renders the grid and next-page navigation works', async ({ corporatePricingSearchPage: cp }) => {
+    const pageErrors: string[] = [];
+    cp.page.on('pageerror', (e) => pageErrors.push(e.message));
+    await cp.setPageSize('10');
+    expect(await cp.getPageSizeValue()).toBe('10');
+    expect(await cp.getTbodyRowCount()).toBeLessThanOrEqual(10);
+    expect(await cp.isPageNavDisabled('next')).toBe(false);
+    await cp.clickPageNav('next');
+    expect(await cp.getTbodyRowCount()).toBeGreaterThan(0);
+    expect(pageErrors, 'no uncaught page exceptions during paging').toEqual([]);
+  });
+
+  test('TC-CPR-SRC-047: All page sizes render; page-1/last-page nav disabled-states; no duplicate rows across pages', async ({ corporatePricingSearchPage: cp }) => {
+    for (const size of ['10', '20', '30', '40', '50']) {
+      await cp.setPageSize(size);
+      expect(await cp.getPageSizeValue()).toBe(size);
+      expect(await cp.getTbodyRowCount()).toBeLessThanOrEqual(Number(size));
+    }
+    await cp.setPageSize('10');
+    expect(await cp.isPageNavDisabled('first')).toBe(true);
+    expect(await cp.isPageNavDisabled('previous')).toBe(true);
+    expect(await cp.isPageNavDisabled('next')).toBe(false);
+    const page1 = await cp.getFirstNPriceBookNames(10);
+    await cp.clickPageNav('next');
+    const page2 = await cp.getFirstNPriceBookNames(10);
+    for (const n of page2) expect(page1, 'no row repeats across pages').not.toContain(n);
+    await cp.clickPageNav('last');
+    expect(await cp.isPageNavDisabled('next')).toBe(true);
+    expect(await cp.isPageNavDisabled('last')).toBe(true);
+  });
+
+  test('TC-CPR-SRC-048: Column headers are buttons, but clicking does not reorder the grid (sort is inactive)', async ({ corporatePricingSearchPage: cp }) => {
+    // Live behaviour on this build: a header click sets no aria-sort and leaves row order unchanged.
+    expect(await cp.columnHeaderHasButton('Price Year')).toBe(true);
+    const firstBefore = (await cp.getFirstNPriceBookNames(1))[0];
+    await cp.clickColumnHeaderSort('Price Year');
+    expect(await cp.getColumnAriaSort('Price Year')).toBeNull();
+    expect((await cp.getFirstNPriceBookNames(1))[0]).toBe(firstBefore);
+  });
+
+  test('TC-CPR-SRC-049: Pagination within a filtered result keeps the filter applied', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.selectCurrency('USD');
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getTbodyRowCount(), { timeout: 10_000 }).toBeGreaterThan(0);
+    await cp.setPageSize('10');
+    if (!(await cp.isPageNavDisabled('next'))) await cp.clickPageNav('next');
+    for (const v of await cp.readColumnForVisibleRows('Currency')) expect(v).toBe('USD'); // still USD on the next page
+  });
+
+  test('TC-CPR-SRC-050: Multi-filter AND holds; adding a criterion never widens the result; Reset clears all', async ({ corporatePricingSearchPage: cp }) => {
+    const baseline = await cp.getItemCountNumber();
+    await cp.selectCurrency('USD');
+    await cp.setCheckbox('isInternal', true);
+    await cp.searchAndWaitForList();
+    await cp.page.waitForTimeout(300);
+    const count2 = await cp.getItemCountNumber();
+    if (await cp.getTbodyRowCount() > 0) {
+      const cur = await cp.readColumnForVisibleRows('Currency');
+      for (let i = 0; i < Math.min(cur.length, 5); i++) expect(cur[i]).toBe('USD');
+    }
+    await cp.setCheckbox('isLabor', true); // add a 3rd criterion
+    await cp.searchAndWaitForList();
+    await cp.page.waitForTimeout(300);
+    expect(await cp.getItemCountNumber()).toBeLessThanOrEqual(count2); // narrows or maintains, never widens
+    await cp.clickReset();
+    expect(await cp.getCheckboxState('isInternal')).toBe(false);
+    expect(await cp.getCheckboxState('isLabor')).toBe(false);
+    expect(await cp.getCurrencyDefaultText()).toContain('All Currencies');
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(baseline);
+  });
+
+  test('TC-CPR-SRC-051: A pricebook name cell is a navigating link; a boolean column reads as checkmark/empty', async ({ corporatePricingSearchPage: cp }) => {
+    expect(await cp.getPricebookLinkCellCount()).toBeGreaterThan(0); // name cells render as links
+    for (const v of await cp.readColumnForVisibleRows('Is Active')) {
+      expect(['', CORP_PRICING_SEARCH.booleanTrueMarker]).toContain(v); // checkmark or empty, no stray text
+    }
+    await cp.fillPricebookFilter(CORP_PRICING_SEARCH.pricebookFilterSample.value);
+    await cp.searchAndWaitForList();
+    await cp.clickPricebookName(CORP_PRICING_SEARCH.pricebookFilterSample.expectedName);
+    await expect(cp.page).toHaveURL(/\/corporate-pricing\/details\/[0-9a-f-]+/i);
+  });
+
+  test('TC-CPR-SRC-052: All boolean columns use checkmark/empty; currency values are valid; name cells navigate', async ({ corporatePricingSearchPage: cp }) => {
+    for (const col of CORP_PRICING_SEARCH.booleanColumns) {
+      for (const v of await cp.readColumnForVisibleRows(col)) {
+        expect(['', CORP_PRICING_SEARCH.booleanTrueMarker], `boolean column "${col}" cell`).toContain(v);
+      }
+    }
+    // Currency renders a valid code, or a dash for a row that genuinely has no currency.
+    for (const v of await cp.readColumnForVisibleRows('Currency')) expect(['USD', 'CAD', 'MXN', '-', '']).toContain(v);
+    expect(await cp.getPricebookLinkCellCount()).toBeGreaterThan(0);
+    await cp.fillPricebookFilter(CORP_PRICING_SEARCH.pricebookFilterSample.value);
+    // The prior test already ran this exact query, so the repeat is served from the browser cache and
+    // fires no new list response (see the filter dedup note in the page object). Click Search and poll
+    // for the matching row to settle, instead of awaiting a response the cache short-circuits.
+    await cp.clickSearch();
+    await expect
+      .poll(async () => (await cp.findRowByName(CORP_PRICING_SEARCH.pricebookFilterSample.expectedName)) !== null, { timeout: 15_000 })
+      .toBe(true);
+    await cp.clickPricebookName(CORP_PRICING_SEARCH.pricebookFilterSample.expectedName);
+    await expect(cp.page).toHaveURL(/\/corporate-pricing\/details\/[0-9a-f-]+/i);
+  });
+
+  test('TC-CPR-SRC-053: A no-match filter shows "No results.", 0 items found, and zero rows', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.fillPricebookFilter('ZZZ-NOPE-NOMATCH-9999');
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(0);
+    expect(await cp.getTbodyRowCount()).toBe(0);
+    expect(await cp.hasNoResultsMessage()).toBe(true); // verbatim "No results."
+  });
+
+  test('TC-CPR-SRC-054: Zero, one, and many-row states render; an off-screen row reads by content anchor', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.fillPricebookFilter('ZZZ-NOPE-NOMATCH-9999');
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(0);
+    expect(await cp.hasNoResultsMessage()).toBe(true);
+    await cp.clickReset();
+    await cp.fillPricebookFilter(CORP_PRICING_SEARCH.pricebookFilterSample.value); // exact ID → exactly one row
+    await cp.searchAndWaitForList();
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(1);
+    await cp.clickReset();
+    await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThan(1);
+    expect(await cp.getItemCountText()).toMatch(CORP_PRICING_SEARCH.itemCountPattern);
+    expect(await cp.findRowByName(CORP_PRICING_SEARCH.pricebookFilterSample.expectedName)).not.toBeNull(); // off-screen, by content
+  });
+
+  test('TC-CPR-SRC-055: A page-size change is honored and survives a reload as a valid page size', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.setPageSize('10');
+    expect(await cp.getPageSizeValue()).toBe('10');
+    expect(await cp.getTbodyRowCount()).toBeLessThanOrEqual(10);
+    await cp.open('1604'); // reload
+    expect(['10', '50']).toContain(await cp.getPageSizeValue()); // persisted (10) or reset to default (50) — both valid, no corrupt state
+  });
+
+  test('TC-CPR-SRC-056: Column visibility persists across reload and browser-back; nav-away does not crash', async ({ corporatePricingSearchPage: cp }) => {
+    // Sort persistence is not applicable on this build (header-click sort is inactive — see SRC-048).
+    try {
+      await cp.openGridOptions();
+      await cp.toggleGridColumn('Is GSO');
+      await cp.closeGridOptions();
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(false);
+      await cp.open('1604'); // reload
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(false); // persisted across reload
+      // browser-back: visit a pricebook then go back; column visibility intact
+      await cp.fillPricebookFilter(CORP_PRICING_SEARCH.pricebookFilterSample.value);
+      await cp.searchAndWaitForList();
+      await cp.clickPricebookName(CORP_PRICING_SEARCH.pricebookFilterSample.expectedName);
+      await expect(cp.page).toHaveURL(/\/corporate-pricing\/details\/[0-9a-f-]+/i);
+      await cp.page.goBack();
+      await cp.waitForGridLoaded();
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(false); // still hidden after browser-back
+    } finally {
+      await cp.ensureAllGridColumnsVisible();
+    }
+  });
+
+});

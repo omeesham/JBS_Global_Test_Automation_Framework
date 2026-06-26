@@ -19,6 +19,12 @@
       "Bash(node .claude/hooks/lib/check-todo-injection.mjs *)",
       "Bash(bash .claude/hooks/rca-verdict-gate.sh *)",
       "Bash(node .claude/hooks/lib/check-rca-verdict.mjs *)",
+      "Bash(bash .claude/hooks/execution-completion-gate.sh *)",
+      "Bash(node .claude/hooks/lib/check-execution-completion.mjs *)",
+      "Bash(node .claude/hooks/lib/test-execution-completion-fixtures.mjs)",
+      "Bash(bash .claude/hooks/bug-baseline-gate.sh *)",
+      "Bash(node .claude/hooks/lib/check-bug-baseline.mjs *)",
+      "Bash(node .claude/hooks/lib/test-bug-baseline-fixtures.mjs)",
       "Bash(bash .claude/hooks/relevant-injection.sh *)",
       "Bash(node .claude/hooks/lib/relevant-injection.mjs *)",
       "Bash(node scripts/run-relevant-scan.mjs *)",
@@ -52,6 +58,14 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/plan-closure-gate.sh --edit-mode"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/jargon-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/bug-baseline-gate.sh"
           }
         ]
       },
@@ -91,6 +105,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/rca-verdict-gate.sh --validate"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/execution-completion-gate.sh --validate"
           }
         ]
       }

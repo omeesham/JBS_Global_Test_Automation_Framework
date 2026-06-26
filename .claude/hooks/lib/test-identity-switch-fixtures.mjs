@@ -15,6 +15,7 @@ const dir = mkdtempSync(join(tmpdir(), "idsw-"));
 const checker = new URL("./check-identity-switch.mjs", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1");
 
 let failures = 0;
+let total = 0;
 
 // Build helpers for JSONL lines.
 function asst(text, tools = []) {
@@ -31,14 +32,18 @@ function user(text) {
 function identitySkillCall(codename) {
   return { name: "Skill", input: { skill: "identity", args: codename } };
 }
+function executeSkillCall(plan = "PLAN_FOO.md") {
+  return { name: "Skill", input: { skill: "execute", args: plan } };
+}
 
-function runPreToolUse(name, fixture, toolInput, expectDecision) {
+function runPreToolUse(name, fixture, toolInput, expectDecision, env = {}) {
+  total++;
   const path = join(dir, `${name}.jsonl`);
   writeFileSync(path, fixture.join("\n"));
   const toolInputArg = JSON.stringify(toolInput).replace(/"/g, '\\"');
   let out;
   try {
-    out = execSync(`node "${checker}" "${path}" "${toolInputArg}"`, { encoding: "utf8" }).trim();
+    out = execSync(`node "${checker}" "${path}" "${toolInputArg}"`, { encoding: "utf8", env: { ...process.env, ...env } }).trim();
   } catch (e) {
     out = `ERROR(${e.message})`;
   }
@@ -50,6 +55,7 @@ function runPreToolUse(name, fixture, toolInput, expectDecision) {
 }
 
 function runStop(name, fixture, expect) {
+  total++;
   const path = join(dir, `${name}.jsonl`);
   writeFileSync(path, fixture.join("\n"));
   let out;
@@ -121,6 +127,68 @@ runPreToolUse("pretool_bash_allow", [
   asst("[HUNTER | ...] > Loaded.", [identitySkillCall("HUNTER")]),
 ], { tool_name: "Bash", tool_input: { command: "ls" } }, "allow");
 
+// === Layer-1 OWNER pipeline-artifact gate fixtures (PLAN_IDENTITY_ENFORCEMENT) ===
+// The gate fires only when ALL hold: ground-truth OWNER + active /execute (Skill=execute,
+// no later final-q) + target is a pipeline-role-owned deliverable. Mode is forced via
+// IDENTITY_GATE_MODE env; announce-mode writes its warning into the temp dir via
+// IDENTITY_GATE_STATE_DIR so real .claude/state/ is untouched.
+const PIPE_ARTIFACT = "clients/encore/specs_planning/test-cases/foo.md";
+
+// L1. deny mode — OWNER + /execute + Write to GIVER-owned test-cases → deny.
+runPreToolUse("layer1_owner_execute_testcases_deny", [
+  user("/execute PLAN_FOO.md"),
+  asst("Starting execution.", [executeSkillCall()]),
+], { tool_name: "Write", tool_input: { file_path: PIPE_ARTIFACT }, session_id: "t1" }, "deny",
+  { IDENTITY_GATE_MODE: "deny" });
+
+// L2. announce mode — same situation → allow (warn + persist, never block).
+runPreToolUse("layer1_owner_execute_testcases_announce_allow", [
+  user("/execute PLAN_FOO.md"),
+  asst("Starting execution.", [executeSkillCall()]),
+], { tool_name: "Write", tool_input: { file_path: PIPE_ARTIFACT }, session_id: "t2" }, "allow",
+  { IDENTITY_GATE_MODE: "announce", IDENTITY_GATE_STATE_DIR: dir });
+
+// L3. off mode — gate disabled → allow.
+runPreToolUse("layer1_owner_execute_testcases_off_allow", [
+  user("/execute PLAN_FOO.md"),
+  asst("Starting execution.", [executeSkillCall()]),
+], { tool_name: "Write", tool_input: { file_path: PIPE_ARTIFACT }, session_id: "t3" }, "allow",
+  { IDENTITY_GATE_MODE: "off" });
+
+// L4. framework path — OWNER + /execute + Write to scripts/ → allow even in deny (LR-043 safe;
+// scripts/ is not pipeline-artifact territory, so the Layer-1 branch is skipped).
+runPreToolUse("layer1_owner_execute_scripts_allow", [
+  user("/execute PLAN_FOO.md"),
+  asst("Starting execution.", [executeSkillCall()]),
+], { tool_name: "Write", tool_input: { file_path: "scripts/foo.mjs" }, session_id: "t4" }, "allow",
+  { IDENTITY_GATE_MODE: "deny" });
+
+// L5. no /execute — OWNER quick-edit of a pipeline artifact OUTSIDE /execute → allow
+// (ad-hoc OWNER edits preserved; the gate only fires inside an execution context).
+runPreToolUse("layer1_owner_no_execute_testcases_allow", [
+  user("hi"),
+  asst("hello"),
+], { tool_name: "Write", tool_input: { file_path: PIPE_ARTIFACT }, session_id: "t5" }, "allow",
+  { IDENTITY_GATE_MODE: "deny" });
+
+// L6. role adopted — GIVER (not OWNER) + /execute + Write to test-cases → allow (Layer-1 skipped
+// for non-OWNER; GIVER has CREATE on test-cases per §2).
+runPreToolUse("layer1_giver_execute_testcases_allow", [
+  user("/identity GIVER"),
+  asst("[GIVER | PLN-* ...] > Loaded.", [identitySkillCall("GIVER")]),
+  asst("Starting execution.", [executeSkillCall()]),
+], { tool_name: "Write", tool_input: { file_path: PIPE_ARTIFACT }, session_id: "t6" }, "allow",
+  { IDENTITY_GATE_MODE: "deny" });
+
+// L7. deny + override handshake — OWNER + /execute + [OVERRIDE-REQUEST] same path + user auth → allow.
+runPreToolUse("layer1_owner_execute_testcases_override_allow", [
+  user("/execute PLAN_FOO.md"),
+  asst("Starting execution.", [executeSkillCall()]),
+  asst(`[OVERRIDE-REQUEST] ${PIPE_ARTIFACT} — one-shot OWNER edit, reason: trivial typo.`),
+  user("override approved"),
+], { tool_name: "Write", tool_input: { file_path: PIPE_ARTIFACT }, session_id: "t7" }, "allow",
+  { IDENTITY_GATE_MODE: "deny" });
+
 // === Stop fixtures ===
 
 // 8. STOP-BANNER-DRIFT — last /identity=OWNER, last banner=[GARDENER] → block
@@ -163,4 +231,4 @@ if (failures > 0) {
   console.error(`FAILED — ${failures} fixture(s) did not match expected decision.`);
   process.exit(1);
 }
-console.log(`ALL PASS — ${12} fixtures.`);
+console.log(`ALL PASS — ${total} fixtures.`);

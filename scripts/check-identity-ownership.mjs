@@ -17,7 +17,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
-import { OWNERSHIP_ROWS, IDENTITIES } from "./identity-ownership.mjs";
+import { OWNERSHIP_ROWS, IDENTITIES, ownershipFor, ownerRoleFor, isPipelineArtifact } from "./identity-ownership.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rulesPath = resolve(__dirname, "..", "docs", "read_only_docs", "AGENT_SHARED_RULES.md");
@@ -110,8 +110,51 @@ for (let i = 0; i < maxLen; i++) {
   }
 }
 
+// ── Derivation-consistency drift guard (PLAN_IDENTITY_ENFORCEMENT Layer 1) ──
+// Assert ownerRoleFor() + isPipelineArtifact() stay consistent with OWNERSHIP_ROWS
+// for every row (drift guard — mirrors the parity discipline above). Independent
+// second implementations of the grant sets so a priority/definition change in
+// identity-ownership.mjs that diverges from intent is caught here.
+const WRITE_GRANTS = new Set(["RW", "CREATE", "UPDATE", "ADD", "APPEND", "FIX", "REFACTOR"]);
+const STRONG_GRANTS = new Set(["CREATE", "RW", "UPDATE", "ADD", "FIX", "REFACTOR"]); // APPEND excluded (shared logs)
+const PIPELINE_IDS = IDENTITIES.filter((id) => id !== "OWNER");
+
+function samplePathFor(pattern) {
+  return pattern
+    .replaceAll("${ACTIVE_CLIENT}", "encore")
+    .replace(/\*\*/g, "x")
+    .replace(/\*/g, "x")
+    .replace(/<[^>]+>/g, "x");
+}
+
+for (const row of OWNERSHIP_ROWS) {
+  const p = samplePathFor(row.pattern);
+  // Resolve the row the function actually treats as most-specific for this path
+  // (could be a later, more-specific row — use ownershipFor's reason to find it).
+  const reason = ownershipFor("OWNER", p).reason || "";
+  const m = reason.startsWith("§2 row: ") ? OWNERSHIP_ROWS.find((r) => r.pattern === reason.slice(8)) : null;
+  if (!m) continue; // sample path didn't resolve to a §2 row (catch-all/default) — skip
+
+  const role = ownerRoleFor(p);
+  const art = isPipelineArtifact(p);
+
+  // Invariant 1 — a returned primary role must actually have a write grant on the matched row.
+  if (role !== null && !WRITE_GRANTS.has(m.grants[role])) {
+    drifts.push(`derivation: ownerRoleFor("${p}") = ${role}, but ${role} grant on row "${m.pattern}" is "${m.grants[role]}" (not a write)`);
+  }
+  // Invariant 2 — isPipelineArtifact must equal: some pipeline id has a STRONG write AND OWNER ≠ APPEND.
+  const expectArt = m.grants.OWNER !== "APPEND" && PIPELINE_IDS.some((id) => STRONG_GRANTS.has(m.grants[id]));
+  if (art !== expectArt) {
+    drifts.push(`derivation: isPipelineArtifact("${p}") = ${art}, expected ${expectArt} from row "${m.pattern}" grants`);
+  }
+  // Invariant 3 — a pipeline artifact must have a pipeline owner role.
+  if (art && role === null) {
+    drifts.push(`derivation: isPipelineArtifact("${p}") = true but ownerRoleFor = null (no pipeline owner) for row "${m.pattern}"`);
+  }
+}
+
 if (drifts.length === 0) {
-  console.log("[check-identity-ownership] OK — §2 table matches identity-ownership.mjs mirror");
+  console.log("[check-identity-ownership] OK — §2 table matches identity-ownership.mjs mirror + ownerRoleFor/isPipelineArtifact consistent");
   process.exit(0);
 }
 

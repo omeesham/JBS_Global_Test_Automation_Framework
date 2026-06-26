@@ -19,128 +19,23 @@ import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+// Pattern sets + path helpers live in one shared module so the commit/ship-time gate
+// (this file) and the write-time PreToolUse jargon hook (.claude/hooks/lib/check-jargon.mjs,
+// LR-058) can never drift apart. Editing a pattern there updates both layers at once.
+import {
+  DENY_GLOBS,
+  MARKER_GREP,
+  MARKER_GREP_CLIENT_ONLY,
+  SOURCE_COMMENT_JARGON,
+  matchesDeny,
+  isClientShipping,
+} from './lib/forbidden-patterns.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-const DENY_GLOBS = [
-  /\/CLAUDE\.md$/,
-  /\/specs_planning\//,
-  /\/readable_externals\//,
-  // Entire per-client docs/ folder is internal — never ships (read-only guides,
-  // REQUIREMENTS.md, MODULE_REGISTRY.md, JIRA story/test docs). Broadened 2026-06-08
-  // from the three specific entries: docs/ no longer ships. Unanchored so it matches
-  // both the stripped client path (/docs/...) and the full path (/clients/<id>/docs/...).
-  /\/docs\//,
-  /\/api-testing\/REQUIREMENTS_API\.md$/,
-  /\/\.auth\//,
-  /^\.git\//,
-  /^\.github\//,
-  /^\.claude\//,
-  /\/agent-mistakes\.md$/,
-  /\/agent-activity-log\.md$/,
-  /\/agent-performance\.json$/,
-  /\/agent-metrics-report\.md$/,
-  /\/agent-escalations\.json$/,
-  /\/agent-learnings\.md$/,
-  /\/test-id-registry\.json$/,
-  /\/daily-status-bank\.json$/,
-  /\/active-experiments\.md$/,
-  /\.env\.local$/,
-  /\.env\..+\.local$/,
-  /\.env\.server$/,
-  /^\/pipeline\//,
-  // Date-stamped throwaway tools under clients/<id>/scripts/ — denies one-off
-  // dated helpers (e.g., foo-2026-04-29.mjs) while allowing permanent ones
-  // (preserve-allure-history.js, archive-allure.js, etc.). Root scripts/ is
-  // structurally outside `git archive HEAD clients/<id>/`, so no extra rule
-  // is needed for it here.
-  /\/clients\/[^/]+\/scripts\/.*-\d{4}-\d{2}-\d{2}\.(mjs|js|ts)$/,
-  // Stale env files that no code path loads — Encore runs only the e2e env.
-  /\.env\.production$/,
-  /\.env\.staging$/,
-  /\.env\.example$/,
-];
-
-// Patterns scanned across every staged or shipped file (sentinels that should
-// never appear anywhere in the repo).
-const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /v-rutvik/, /khosariya/];
-
-// Patterns scanned ONLY in client-shipping files (target output, or a staged
-// path under clients/<id>/ that would survive the DENY_GLOB filter). Framework-
-// internal files (rules, docs, hooks, root CLAUDE.md) legitimately reference
-// these terms, so applying them repo-wide would wedge normal commits.
-const MARKER_GREP_CLIENT_ONLY = [
-  // Plan / ticket IDs
-  /\bPLAN_[A-Z0-9_]+\b/,
-  /\bSUBPLAN_[A-Z0-9_]+\b/,
-  /\bSP-[A-Z]{2,}-\d+\b/,
-  // Pipeline identity codenames
-  /\b(HUNTER|GIVER|BUILDER|HEALER|WATCHDOG|GARDENER)\b/,
-  /\bOWNER\b(?!_)/,
-  // Internal artifact paths
-  /\bagent-(mistakes|activity-log|performance|queue|escalations|learnings)\b/,
-  /\bspecs_planning\b/,
-  /\breadable_externals\b/,
-  /\bread_only_docs\b/,
-  // Build-process leaks
-  /\bvendor:build\b/,
-  /\bvendor-meta\b/,
-  /\bPath [AB]\b/,
-  // Vendor identity
-  /\bJBS\b/,
-  /\bIntelliQE\b/i,
-  /\bRutviK[-_]?JBS\b/,
-  /\bencore_deliverables_test\b/,
-  // Tooling identity
-  /\.claude\//,
-  /@agent-doc\b/,
-  // Internal date-stamped report paths
-  /reports\/testid-verification\//,
-  /JIRA_VERIFICATION_\d{4}-\d{2}-\d{2}/,
-];
-
-// Source-comment jargon — internal-process vocabulary that must never ship inside
-// client source comments/JSDoc. These are GATE-INVISIBLE to the hard MARKER_GREP_CLIENT_ONLY
-// set above (they don't break a build, only professionalism/readability), so this curated
-// array extends the same client-shipping scope to them. A one-time scrub is not enough — this
-// makes a reintroduction fail the ship/commit gate permanently.
-//
-// SCOPING: applied with the SAME reach as MARKER_GREP_CLIENT_ONLY — every file in `--target`
-// (the real shipped output) and every `isClientShipping()` file in `--staged-diff`.
-//
-// FAIL-GREEN DISCIPLINE: every pattern here was confirmed to have ZERO occurrences in the clean
-// post-scrub shipped tree before being added, so the gate wedges nothing legitimate. Patterns are
-// deliberately unambiguous internal IDs/artifacts. DELIBERATELY EXCLUDED (would false-positive on
-// legitimate code/vocab, or kept by product decision): `NM-####` (client's own Jira tickets — kept),
-// `oracle` (legit: OracleProductCode field / Oracle DB), `recon` (matches reconcile/reconnect),
-// `FCC` (used in functional `@fcc` tags + describe titles), `Path [C-Z]` (collides with Windows
-// drive paths like `Path D:\`), `F11` (a keyboard key), and the `field-case-runner.ts` filename
-// (a real shipped file legitimately referenced by name). This array is intentionally distinct from
-// `xlsx-lint-rules.mjs` `BANNED` — that one is tuned for plain-English workbook cells and is far
-// more aggressive than is safe for source (Angular, Playwright, data-testid, HTTP verbs, etc.).
-const SOURCE_COMMENT_JARGON = [
-  // Internal rule / requirement IDs
-  /\bLR-(?:ENC-)?\d{3}\b/,
-  /\b(?:ALL|AUD|PLN|GEN|HLR)-\d{2,3}\b/,
-  /\bREQ-\d{3}\b/,
-  // Internal doctrine / section references
-  /\bDoctrine\s+\d/,
-  /§/,
-  // Internal wave / phase / question IDs
-  /\bWave-1\.5\b/,
-  /\bWV15\b/,
-  /\bQ-WV\d/,
-  /\bCPR-WV/,
-  /\bCPR-\d+-Q\d/,
-  /\bW15-[0-9A-Za-z]/,
-  /\bEDGE_P\d/,
-  // Internal artifact names
-  /\bwalk-evidence\b/,
-  /\bfield-inventor/,
-  /\bneutral-eye\b/,
-  /\bencore-questions\b/,
-  /\brejection-affordance\b/,
-];
+// DENY_GLOBS, MARKER_GREP, MARKER_GREP_CLIENT_ONLY, SOURCE_COMMENT_JARGON, matchesDeny, and
+// isClientShipping now live in scripts/lib/forbidden-patterns.mjs (imported above) — the single
+// source of truth shared with the LR-058 write-time hook.
 
 // LR-054 / ALL-077 — manufactured-blocker banned-phrase regexes. Scanned ONLY
 // in path-scoped target artifacts (walk-evidence / neutral-eye-audits /
@@ -195,9 +90,7 @@ function arg(name) {
 }
 const hasFlag = (name) => process.argv.includes(`--${name}`);
 
-function matchesDeny(rel) {
-  return DENY_GLOBS.some((re) => re.test(rel));
-}
+// matchesDeny + isClientShipping are imported from ./lib/forbidden-patterns.mjs.
 
 // XLSX deliverable vocab + integrity gate (LR-ENC-004). The DENY_GLOB / MARKER_GREP
 // scans above are text-based and cannot see inside the binary .xlsx, so lint every
@@ -217,14 +110,6 @@ async function lintXlsxDir(dir, label) {
     }
     console.log(`[verify-no-forbidden] OK ${label} XLSX '${f}' clean (${result.rowsScanned} rows)`);
   }
-}
-
-// True when a staged repo path would survive the DENY_GLOB filter and ship
-// inside clients/<id>/. Used to scope MARKER_GREP_CLIENT_ONLY in pre-commit.
-function isClientShipping(rel) {
-  const m = rel.match(/^clients\/[^/]+\/(.+)$/);
-  if (!m) return false;
-  return !matchesDeny('/' + m[1]);
 }
 
 function walkDir(root, prefix = '') {
@@ -363,6 +248,7 @@ function checkStagedDiff() {
       if (!hasStatusDoneAnyForm(planBuf)) continue;
     }
     if (rel === 'scripts/verify-no-forbidden.mjs') continue; // self-reference: this script's own MARKER_GREP literals
+    if (rel === 'scripts/lib/forbidden-patterns.mjs') continue; // self-reference: the shared pattern module's own MARKER_GREP / jargon literals
     if (rel === '.claude/hooks/lib/check-todo-injection.mjs') continue; // self-reference: hook's own BANNED_PHRASES + self-test literals
     if (rel === '.claude/hooks/lib/check-plan-closure.mjs') continue; // self-reference: hook's own regex literals
     // Binary file extensions — text-pattern MARKER_GREP/BANNED_PHRASES regex on

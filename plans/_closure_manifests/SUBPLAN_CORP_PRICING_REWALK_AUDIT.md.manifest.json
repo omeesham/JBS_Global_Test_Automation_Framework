@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_CORP_PRICING_REWALK_AUDIT.md",
+  "plan_basename": "SUBPLAN_CORP_PRICING_REWALK_AUDIT.md",
+  "plan_sha256": "b93350e42aa62960ba37140370e4c001f87b1bca23c35593b87f043cd8f06e4e",
+  "passed_at": "2026-06-23T11:24:15.184Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "6953db1690de5e4d398601e0b06347873a508949d727e1dbfccf320dab139436",
+  "validator_invocation_id": "1782213855184-dacbbe2287abec37319b1337064cb618-b93350e42aa62960",
+  "artifacts": [],
+  "provisional": false
+}

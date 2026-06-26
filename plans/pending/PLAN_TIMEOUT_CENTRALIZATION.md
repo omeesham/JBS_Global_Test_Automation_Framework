@@ -17,7 +17,9 @@
 
 ## Context
 
-Encore's suite passes on our machine but flaked on a slower one. Timeouts today are scattered hardcoded literals across two parallel systems: `AppConstants` (4 `*_MS` fields, consumed only by `login.page.ts`) and raw literals everywhere else. There is no `globalTimeout` and no env knob, so a degraded box has no single lever.
+Encore's suite passes on our machine but flaked on a slower one. Timeouts today are scattered hardcoded literals across two parallel systems: `AppConstants` (the class in `clients/encore/src/utils/constants.ts` — 4 `*_MS` fields, consumed only by `login.page.ts`) and raw literals everywhere else. There is no `globalTimeout` and no env knob, so a degraded box has no single lever.
+
+> **Note (slow-machine flake root cause, 2026-06-12):** the slow-machine flake that originally motivated this plan was later root-caused to the single-office-1604 **worker write-contention** (two parallel workers both SAVE office 1604 → clobber → assertion fails), owned by `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (parked). Timeout changes do NOT fix that race. This plan is still worth doing on its own merits — one env-scalable source of truth + the verified auth-budget bug — but it is **not** the flake fix, and its baseline/regression gate runs single-worker (sidestepping the race) so the two efforts don't entangle.
 
 This plan creates ONE environment-scalable source of truth for the **reusable** timeout tiers + a `TIMEOUT_MULTIPLIER` knob, and fixes the verified auth-budget bug — **without changing local behaviour at MULT=1 except for the explicitly-listed deltas, and without regressing any existing spec.**
 
@@ -25,12 +27,12 @@ This plan creates ONE environment-scalable source of truth for the **reusable** 
 
 A three-round external audit (all 10 findings code-verified against actual files + the closure validator + the failure log) proved the earlier draft bundled the goal with a **wrong flake diagnosis** and **unsafe/inert extras**. Those are removed:
 
-- **The Notes flake is NOT a timeout/hydration problem.** The recorded failure (the failing run's `_cli-run.log` ~line 4145 + the `failure-summary.json` TC-LOC-NTS-039 entry) is the *wrong top-level tab active* ("Location Management History" instead of "Basic Information"), so the Notes sub-tab was never mounted and a wait sat on a nonexistent element. That wait is **already 30s** (`base-page.ts:447`). Timeout changes cannot fix it. **The flake RCA is PARKED as a separate item per user (2026-06-03) — not in this plan.**
+- **The Notes flake is NOT a timeout/hydration problem.** The recorded failure (the failing run's `_cli-run.log` ~line 4145 + the `failure-summary.json` TC-LOC-NTS-039 entry) is the *wrong top-level tab active* ("Location Management History" instead of "Basic Information"), so the Notes sub-tab was never mounted and a wait sat on a nonexistent element. That wait is **already 30s** (`base.page.ts:447`). Timeout changes cannot fix it. **The deeper root cause is the single-office-1604 worker write-contention — owned by `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (parked 2026-06-12), NOT this plan.**
 - **No "wait for data" / `waitForTabInteractive` helper** — it would reject valid empty states (e.g. a location with no notes; `location-notes.page.ts:44` already races content-or-empty correctly) and the `waitForAngularStable` call sites are heterogeneous (navigation, save, sort, dropdown) — they can't route through one tab helper.
 - **No "zero hardcoded literals" claim.** Genuine one-offs (the 45s account-search at `location-account-address.page.ts:275`, the 4s SSL dialog probe at `location-shared-setup-locations.page.ts:73`, `waitForTimeout(...)` sleeps, `Date.now()+N` deadlines, default-parameter timeouts) are NOT reusable tiers — they stay in place with a clarifying comment. We centralize the reusable tiers + the 6 named optional waits.
 - **No `waitForAngularStable` behaviour change, no Radix `.catch` change, no `clickWithRetry` retirement, no `--fail-on-flaky-tests` gate** — all are `PLAN_WAIT_PATTERN_CLEANUP.md` (which itself needs correction; see its file).
 
-**Headline (true, but informational only here):** the app is **React/Next.js, not Angular** (`auth-storage.ts:74` filters `next-auth.session-token`; Radix/shadcn/lucide; `location-notes.spec.ts:554` "Next.js 15 App-Router RSC"), so `waitForAngularStable()` (`base-page.ts:222`) is a silent no-op. We do NOT delete those calls in this plan — we only centralize their `10_000` default *number*. `clients/encore/CLAUDE.md:4` ("Angular + Radix UI") is stale; fixing that string is the one app-stack correction in scope.
+**Headline (true, but informational only here):** the app is **React/Next.js, not Angular** (`auth-storage.ts:74` filters `next-auth.session-token`; Radix/shadcn/lucide; `location-notes.spec.ts:554` "Next.js 15 App-Router RSC"), so `waitForAngularStable()` (`base.page.ts:222`) is a silent no-op. We do NOT delete those calls in this plan — we only centralize their `10_000` default *number*. `clients/encore/CLAUDE.md:4` ("Angular + Radix UI") is stale; fixing that string is the one app-stack correction in scope.
 
 **Provenance**: corrected design at `~/.claude/plans/now-find-the-timeouts-moonlit-naur.md` (2026-06-03). All counts below were verified 2026-06-03 but the working tree is changing → Phase 0 re-greps as authoritative.
 
@@ -51,6 +53,7 @@ A three-round external audit (all 10 findings code-verified against actual files
 - `.claude/rules/pipeline.md` (LR-020 verify-claims, LR-027/040/048/050 closure + structure)
 - `.claude/rules/specs.md` (LR-018 baseline-workflow, LR-024 clean-before-RCA, LR-052 no-fixed-sleep-in-poll)
 - `.claude/rules/browser-tool.md` (LR-038 v2 / LR-054)
+- `.claude/rules/deliverable.md` (LR-058 — NO internal IDs/jargon in shipped `clients/encore/` comments; write-time hook DENIES `LR-NNN`/plan-IDs/codenames in new shipped-file content)
 - `.claude/rules/plan-closure.md` (LR-055 close-gate C1–C6; matrix-cell C6 format)
 - `docs/read_only_docs/AGENT_SHARED_RULES.md` (§2 ownership, ALL-* rules)
 - `docs/read_only_docs/LEARNED_RULES.md` (LR-018 baseline, LR-028 activity-log, LR-037 timestamps, LR-035 INDEX auto-gen)
@@ -62,21 +65,21 @@ A three-round external audit (all 10 findings code-verified against actual files
 
 1. `Depends on: none` — proceed.
 2. Read `.claude/context/navigation.md` (R00) — pull timeout/wait/auth findings instead of re-discovering.
-3. Read `clients/encore/specs_planning/_internal/agent-mistakes.md` — filter GARDENER `MNT-*` / `ALL-*` (esp. MNT-010 describe-level setTimeout default).
+3. Read `clients/encore/specs_planning/_internal/agent-mistakes.md` — filter GARDENER `MNT-*` / `ALL-*`. (NOTE: the 2026-06-03 draft cited `MNT-010` for the describe-level-`setTimeout`-default convention; no such entry exists in the current `agent-mistakes.md` — apply the describe-level-default guidance on its own merits, not via that phantom ID.)
 4. LR scan — LR-018/020/024/027/028/037/048/050/055, LR-ENC-002/003.
 5. **Browser-tool announcement** (LR-038 v2): `BrowserTool=none` — code edits + `@playwright/test` spec runs only.
-6. **Re-grep authoritative scope** (counts verified 2026-06-03, re-confirm — tree is changing):
-   - `rg -n "15_?000" clients/encore/src` → split into **readiness/content/grid/table-visibility waits** (promote to 30s) vs **everything else** (login flow, checkbox actions, `Date.now()+15_000` deadline at `location-auto-addon.page.ts:88`, default param `waitForRecentTopRow(... = 15_000)` at `location-management-history.page.ts:325`) — the latter are NOT promoted.
-   - `rg -nc "timeout:\s*\d" clients/encore/src clients/encore/specs` (reusable-tier literals to migrate)
-   - `rg -nc "\.setTimeout\(" clients/encore/specs` (verified 154 / 14 files — test budgets)
-   - Confirm the one-offs to LEAVE: `location-account-address.page.ts:275` (45s), `location-shared-setup-locations.page.ts:73` (4s), `waitForTimeout(...)` sites (~20), `Date.now()+N` (~3).
+6. **Re-grep authoritative scope** (counts re-verified 2026-06-12; the tree changed since 2026-06-03 — these refreshed numbers are illustrative, the live re-grep is binding):
+   - `rg -n "15_?000" clients/encore/src` → split into **readiness/content/grid/table-visibility waits** (promote to 30s) vs **everything else** (login flow, checkbox actions, default param `waitForRecentTopRow(... = 15_000)` at `location-management-history.page.ts:325`) — the latter are NOT promoted. **CORRECTION:** the `Date.now()+15_000` deadline that the 2026-06-03 draft cited at `location-auto-addon.page.ts:88` **no longer exists** (auto-addon's 15s waits are now at `:136/:152/:183`); the only `Date.now()+N` deadlines today are `base.page.ts:399` (5s drain) and `pages.fixture.ts:285` (60s expiry grace).
+   - `rg -nc "timeout:\s*\d" clients/encore/src clients/encore/tests` (reusable-tier literals to migrate). NOTE ~10 NEW 15s literals exist outside the promotion list (account-address:44, left-panel :271/:323, corporate-pricing-detail:193, corporate-pricing-search :465/:506 request-waits) — classify each per role, don't blanket-promote.
+   - `rg -nc "\.setTimeout\(" clients/encore/tests` (re-verified **180 / 19 files** 2026-06-12 — was 154/14 on 2026-06-03 — test budgets)
+   - Confirm the one-offs to LEAVE: `location-account-address.page.ts:307` and `:317` (45s account-search — now TWO sites), `location-shared-setup-locations.page.ts:73` (4s SSL probe), `waitForTimeout(...)` sites (**24 / 8 files**), `Date.now()+N` (2 sites, above).
 7. **Baseline (LR-018):** `cd clients/encore && npm run clean` → full single-worker run on `.env.local` (LR-ENC-003 — **never** `CI_ENV=e2e` locally) under the SHIPPING config (retries unchanged `CI?2:1`) → save the pass-set + per-spec timing as the regression baseline. Every later phase diffs against this.
 
 ---
 
 ## Phase 1 — SoT module + multiplier (eval-order-correct) + config wiring
 
-Extend the EXISTING `clients/encore/src/core/app-constants.ts` (no new file — already holds the timeout constants, imported by `login.page.ts`, imports nothing). Add the constants below.
+Extend the EXISTING `clients/encore/src/utils/constants.ts` (no new file — the `AppConstants` class already holds the 4 timeout constants, imported by `login.page.ts`, imports nothing). NOTE: pre-2026-06-05 this file was `src/core/app-constants.ts`; the POM restructure moved it to `src/utils/constants.ts` — path corrected here. Add the constants below.
 
 ```ts
 const BASE = {
@@ -87,12 +90,15 @@ const BASE = {
   fieldValidation: 5_000, dialogWait: 5_000, dialogHidden: 10_000,
   // tab/content readiness — the genuinely-15s content/grid/table waits → 30s (deliberate; see Phase 2)
   tabReadiness: 30_000, pageReload: 30_000,
-  // waitForAngularStable default (number only; behaviour unchanged — base-page.ts:222)
+  // waitForAngularStable default (number only; behaviour unchanged — base.page.ts:222)
   angularStable: 10_000,
   // Radix (values preserved; .catch BEHAVIOUR is PLAN_WAIT_PATTERN_CLEANUP, not here)
   radixOpen: 3_000, radixClick: 5_000, radixHidden: 3_000, radixHiddenFast: 2_000,
-  // the 6 named optional waits — centralized at current values (honors user "All 6")
-  scrollInto: 3_000, spinnerHidden: 5_000, notificationProbe: 3_000, healthCheck: 10_000,
+  // named optional waits — centralized at current values. Phase 0 re-grep is the
+  // authoritative source for the FINAL set (the 2026-06-03 "All 6" wording predates
+  // the deliverable slop audit that removed NOTIFICATION_SELECTORS — see note below;
+  // `notificationProbe` is DROPPED here because it has no live consumer).
+  scrollInto: 3_000, spinnerHidden: 5_000, healthCheck: 10_000,
   // auth/login — values PRESERVED, no silent cut
   loginPageLoad: 60_000, loginAction: 15_000, loginElementWait: 20_000,
   authGoto: 78_000, authValidateGoto: 90_000,
@@ -109,7 +115,7 @@ const TEST_BUDGET_BASE = {
 
 **[Finding #4 — eval-order fix, MANDATORY] The multiplier must be read AFTER env files load.** `playwright.config.ts:8` calls `dotenvFlow.config()` *after* its import block, so a top-level `const MULT = Number(process.env.TIMEOUT_MULTIPLIER)` frozen at import time would read `undefined` for a multiplier set in a `.env` file → silently ignored at config-level AND runtime. Fix with ONE of:
 - **(a) preferred** — expose a getter/function so the multiplier is read at access time: `export const TIMEOUTS = new Proxy({}, { get: (_, k) => Math.round(BASE[k] * mult()) })` (or a `t('action')` helper), where `mult()` reads `process.env.TIMEOUT_MULTIPLIER` each call. Config reads inside `defineConfig()` (after dotenv ✓); page objects read at runtime (after dotenv ✓).
-- **(b) alternative** — `app-constants.ts` calls `dotenvFlow.config({ path: …, node_env: process.env.CI_ENV||'local', silent: true })` at its top before computing `MULT` (it is imported first; dotenv-flow won't override real shell vars).
+- **(b) alternative** — `src/utils/constants.ts` calls `dotenvFlow.config({ path: …, node_env: process.env.CI_ENV||'local', silent: true })` at its top before computing `MULT` (it is imported first; dotenv-flow won't override real shell vars).
 
 Pick whichever is cleaner in review; **the verification test (Phase 3) that sets `TIMEOUT_MULTIPLIER` in the `.env` file and asserts a config-level AND a runtime timeout both scale is the gate** — it must pass.
 
@@ -122,7 +128,7 @@ Pick whichever is cleaner in review; **the verification test (Phase 3) that sets
 | `ELEMENT_WAIT_TIMEOUT_MS` (20s) | `loginElementWait` | 20s | **NOT** `elementVisible` (5s) |
 | `NAVIGATION_TIMEOUT_MS` (30s) | `navigation` | 30s | already 30s — clean |
 
-Remove the 4 `*_MS` static fields after repointing `login.page.ts`. (Note 2026-06-03: `AppConstants.NOTIFICATION_SELECTORS` and `custom-matchers.ts` were removed by the deliverable slop audit — the old "keep NOTIFICATION_SELECTORS"/"repoint custom-matchers.ts:39 → notificationProbe" steps are now moot; `notificationProbe` is no longer needed unless a future consumer wants it.) **Wire `playwright.config.ts`**: `timeout`/`expect.timeout`/`actionTimeout`/`navigationTimeout` → the constants, add `globalTimeout`. **Do NOT change `retries`** (leave `CI?2:1`). **Do NOT touch `trace`** — already `on-first-retry` at `:79`.
+Remove the 4 `*_MS` static fields after repointing `login.page.ts`. (Note 2026-06-03: `AppConstants.NOTIFICATION_SELECTORS` and `custom-matchers.ts` were removed by the deliverable slop audit — the old "keep NOTIFICATION_SELECTORS"/"repoint custom-matchers.ts:39 → notificationProbe" steps are now moot; `notificationProbe` is no longer needed unless a future consumer wants it.) **Wire `playwright.config.ts`**: `timeout` (`:25`) / `expect.timeout` (`:26`) / `actionTimeout` (`:91`) / `navigationTimeout` (`:92`) → the constants, add `globalTimeout`. **Do NOT change `retries`** (leave `CI?2:1` at `:37`). **Do NOT touch `trace`** — at `:79` it is `getArtifactSetting('ENABLE_TRACING', CI ? 'on-first-retry' : 'retain-on-failure')` (i.e. on-first-retry on CI, retain-on-failure locally, env-overridable) — leave the whole expression as-is.
 
 **Gate:** `npm run typecheck` clean + 2 representative specs pass vs baseline.
 
@@ -130,22 +136,25 @@ Remove the 4 `*_MS` static fields after repointing `login.page.ts`. (Note 2026-0
 
 ## Phase 2 — Migrate reusable-tier literals (per file, value-preserving) + the 15s→30s readiness promotion
 
-Every **reusable-tier** timeout literal → the matching constant at its CURRENT value (incl. the 6 named waits + `base-page.ts:208` spinner 5s, `:536/582` listbox-hidden 3s/2s, `:568` scroll 3s, `:222` angularStable 10s; `global-setup.ts:106,120` health-check 10s).
+Every **reusable-tier** timeout literal → the matching constant at its CURRENT value (incl. the 6 named waits + `base.page.ts:208` spinner 5s, `:536/582` listbox-hidden 3s/2s, `:568` scroll 3s, `:222` angularStable 10s; `global-setup.ts:106,120` health-check 10s).
 
-**The ONLY deliberate value change** — promote the genuinely-15s **content/grid/table-visibility readiness** waits to `tabReadiness` (30s). Authoritative list from Phase-0 grep (verified 2026-06-03): `location-notes.page.ts:38/45/46/218`, `location-currency.page.ts:54`, `location-legal.page.ts:38/45/71/80`, `local-office-history.page.ts:36`, `location-management-history.page.ts:34/71`, `location-left-panel-basic-information.page.ts:174`. **This is a consistency/robustness change, explicitly NOT the flake fix** (the recorded flake is at an already-30s wait). Do NOT promote: `login.page.ts:51` (login flow → `loginElementWait`-class), the checkbox actions `location-left-panel-basic-information.page.ts:127/131` (action), `location-auto-addon.page.ts:79/124` (dialog/checkbox → `dialogWait`/`elementVisible`), and the non-tier one-offs (`:88` `Date.now()+15_000`, `:325` default param) — those keep their current value (centralized as the matching tier where one fits, else left with a comment).
+**The ONLY deliberate value change** — promote the genuinely-15s **content/grid/table-visibility readiness** waits to `tabReadiness` (30s). Authoritative list (re-verified 2026-06-12, all still present): `location-notes.page.ts:38/45/46/218`, `location-currency.page.ts:54`, `location-legal.page.ts:38/45/71/80`, `local-office-history.page.ts:36`, `location-management-history.page.ts:34/71`, `location-left-panel-basic-information.page.ts:174`. **Already-done (do NOT re-promote):** `base.page.ts:447` (navigateToSubTab tab wait) and `:455` (readiness wait) were ALREADY promoted to 30s in a prior session (the `:455` comment cites 4-worker contention / BAS-001) — Phase 2 only centralizes their *number* into `tabReadiness`, no value change there. **This is a consistency/robustness change, explicitly NOT the flake fix** (the recorded flake is at an already-30s wait). Do NOT promote: `login.page.ts:51` (login flow → `loginElementWait`-class), the checkbox actions `location-left-panel-basic-information.page.ts:127/131` (action), `location-auto-addon.page.ts:79/124` (dialog/checkbox → `dialogWait`/`elementVisible`), and the non-tier one-offs (`:88` `Date.now()+15_000`, `:325` default param) — those keep their current value (centralized as the matching tier where one fits, else left with a comment).
 
 **No bulk find-replace.** Per file: identify each literal's semantic role → map to the named constant → `npm run typecheck` + run that file's spec individually vs the Phase-0 baseline. Regression → STOP + RCA (LR-024) before continuing.
+
+**LR-058 (shipped-file hygiene):** every clarifying comment added to a `clients/encore/` file (page objects, specs, `src/utils/constants.ts`) MUST be plain English — NO `LR-NNN`, plan IDs, or pipeline codenames (the write-time `jargon-gate.sh` hook DENIES the Edit otherwise). State the WHY ("kept at 45s — account search is intentionally slow on this grid"), never the rule ID.
 
 ---
 
 ## Phase 3 — Test budgets + auth-budget fix (BLOCKING gate)
 
-1. Centralize the ~154 `.setTimeout(` calls → `TEST_BUDGETS.*` + describe-level defaults per MNT-010 **where the value is unconditional**. **Conditional `setTimeout`s stay conditional** — e.g. `location-local-information.spec.ts:298` `if (bc.valid) test.setTimeout(90_000)` becomes `if (bc.valid) test.setTimeout(TEST_BUDGETS.extended)` (swap the number; do NOT move to a describe default — a describe default can't express the `if`). Per-file typecheck + spec run vs baseline.
+1. Centralize the ~**180** `.setTimeout(` calls (re-verified 2026-06-12; was 154 on 2026-06-03) → `TEST_BUDGETS.*` + describe-level defaults **where the value is unconditional**. **Conditional `setTimeout`s stay conditional** — e.g. `location-local-information.spec.ts:299` `if (bc.valid) test.setTimeout(90_000)` becomes `if (bc.valid) test.setTimeout(TEST_BUDGETS.extended)` (swap the number; do NOT move to a describe default — a describe default can't express the `if`). Per-file typecheck + spec run vs baseline.
 2. **[BLOCKING] Auth-budget fix — math against the REAL call graph (Finding #1).** Earlier math modeled ONE `validateState` and a non-existent fixtures retry loop. Verified reality:
-   - `auth.setup.ts` can run `validateState` **twice** in one setup: fast-path `:34`, then under-lock re-check `:51` (on the stale→peer-refresh path) — *before* `performSsoLogin` (3-attempt loop, `:73-92`).
-   - `fixtures.ts` worker path has **NO retry loop**: `refreshSharedState` (`:200`) does one `validateState` `:213` + one `performSsoLogin` `:230`, then the primary `goto(78s)` `:286` + Dashboard `waitFor(60s)` `:289`, inside `{ scope:'worker', timeout: 300_000 }` `:296`.
+   - `clients/encore/tests/auth.setup.ts` (was `src/infra/auth.setup.ts` pre-restructure) can run `validateState` **twice** in one setup: fast-path `:34`, then under-lock re-check `:51` (on the stale→peer-refresh path) — *before* `performSsoLogin` (3-attempt loop, `:73-92`). (Line numbers verified 2026-06-12.)
+   - `clients/encore/src/fixtures/pages.fixture.ts` (was `src/infra/fixtures.ts` pre-restructure) worker path has **NO retry loop**: `refreshSharedState` (`:211`) does one `validateState` `:224` + one `performSsoLogin` `:241`, then the primary `goto(78s)` `:297` + Dashboard `waitFor(60s)` `:298-300`, inside `{ scope:'worker', timeout: 300_000 }` `:307`. **NEW since 2026-06-03 (must be in the budget math):** a cheap cookie-expiry pre-check at `:276-288` (`readEarliestSessionExpiry()` + 60s grace) can trigger `refreshSharedState` BEFORE the goto — model it as an additional refresh trigger, not a replacement.
    - Note: gotos use fast `waitUntil` (`domcontentloaded` for `validateState`), so a stale check resolves at ~`goto(fast)+validateDashboard` (~32s), not the full 90s cap — but the budget proof must still model **both** `validateState` calls + the SSO loop, not assume the 90s cap.
-   - **Fix:** scale `authSetup`+`authWorker` via the multiplier; cap `validateState` `MAX_TRIES` 3→2 (this IS a resilience change — list it in deltas); write the worst case for the two-call `auth.setup` path AND the single-pass `fixtures` path at MULT=1 **and** MULT=2 into the Execution Summary; **verify empirically** (force-stale run) before rollout. (The 78s `load`→`domcontentloaded` change is OUT — `PLAN_WAIT_PATTERN_CLEANUP`.)
+   - **Fix:** scale `authSetup`+`authWorker` via the multiplier; cap `validateState` `MAX_TRIES` 3→2 (this IS a resilience change — list it in deltas); write the worst case for the two-call `auth.setup` path AND the single-pass `fixtures` path at MULT=1 **and** MULT=2 into the Execution Summary; **verify empirically** (force-stale run, `EXP_FORCE_STALE_FIRST=1`) before rollout. (The 78s `load`→`domcontentloaded` change is OUT — `PLAN_WAIT_PATTERN_CLEANUP`.)
+   - **OPI interaction (do not break later parallel-isolation work):** `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (parked) will add a per-office save-access **preflight to the `setup` project** (OPI_B), increasing setup-time cost. Do NOT tighten `authSetup` so aggressively that it leaves no headroom for that future preflight — scale it, don't shrink it to today's exact worst case. Keep this plan's baseline/regression runs **single-worker** (the worker race only fires at workers≥2), consistent with OPI's interim `workers=1` policy.
 3. **[Finding #4 verification]** Add/run a check: set `TIMEOUT_MULTIPLIER=2` **in the `.env` file** (not just the shell) and assert a config-level timeout (e.g. `actionTimeout`) AND a runtime timeout both scale to 2×. Then document `TIMEOUT_MULTIPLIER` (default 1; >1 for a degraded box only — NEVER the standard CI value) in `config/environments/.env.e2e` comment + `clients/encore/README.md`.
 4. Full suite once at MULT=1, once at MULT=2 (sanity) vs baseline.
 
@@ -155,13 +164,13 @@ Every **reusable-tier** timeout literal → the matching constant at its CURRENT
 
 1. **Removed:** the 4 `AppConstants.*_MS` static fields — verify `rg "PAGE_LOAD_TIMEOUT_MS|ACTION_TIMEOUT_MS|NAVIGATION_TIMEOUT_MS|ELEMENT_WAIT_TIMEOUT_MS" clients/encore` returns 0 after Phase 1.
 2. **Corrected:** `clients/encore/CLAUDE.md:4` stack line "Angular + Radix UI" → React/Next.js + next-auth. Verify the string no longer claims the app stack is Angular.
-3. **Replaced:** reusable-tier literals → named constants — verify `rg "timeout:\s*\d" clients/encore/src clients/encore/specs` matches only `app-constants.ts` + the documented one-offs (45s account-search, 4s SSL probe, `Date.now()+N`, default params, `waitForTimeout` sleeps), each carrying a clarifying comment.
+3. **Replaced:** reusable-tier literals → named constants — verify `rg "timeout:\s*\d" clients/encore/src clients/encore/tests` matches only `src/utils/constants.ts` + the documented one-offs (45s account-search, 4s SSL probe, `Date.now()+N`, default params, `waitForTimeout` sleeps), each carrying a clarifying comment.
 
 ---
 
 ## Phase 2.5 — Adjacent-Sweep ritual (MANDATORY)
 
-For any adjacent fix noticed that is (GARDENER) + (same file/module) + (5–30 min) + (no user input): DO-NOW / SPAWN (`mcp__ccd_session__spawn_task`) / APPEND (grep-verified line into a named pending plan). Bare "out of scope" with no recipient = HALT + ask (LR-040/LR-046). Wait-pattern items (clickWithRetry, sleeps, Radix `.catch`, 78s goto) → recipient `PLAN_WAIT_PATTERN_CLEANUP.md`. The Notes flake → recipient: the parked flake-RCA item (do NOT fold into this plan).
+For any adjacent fix noticed that is (GARDENER) + (same file/module) + (5–30 min) + (no user input): DO-NOW / SPAWN (`mcp__ccd_session__spawn_task`) / APPEND (grep-verified line into a named pending plan). Bare "out of scope" with no recipient = HALT + ask (LR-040/LR-046). Wait-pattern items (clickWithRetry, sleeps, Radix `.catch`, 78s goto) → recipient `PLAN_WAIT_PATTERN_CLEANUP.md`. The single-office worker-contention flake → recipient: `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (parked; do NOT fold into this plan).
 
 ---
 
@@ -176,7 +185,7 @@ This plan modifies `.spec.ts` files, so the matrix is required (LR-048 v3). All 
 | BUILDER | specs/**/*.spec.ts | (none) | (none) |
 | HEALER | per-fix MD update | (none) | (none) |
 | WATCHDOG | findings table | (none) | (none) |
-| GARDENER | framework src refactor | clients/encore/src/core/app-constants.ts | `cd clients/encore && npm run typecheck` clean |
+| GARDENER | framework src refactor | clients/encore/src/utils/constants.ts | `cd clients/encore && npm run typecheck` clean |
 
 > Matrix footnotes (why each `(none)`): HUNTER/GIVER/BUILDER — no requirement/TC added/removed/renamed; only mechanical timeout-literal & `setTimeout` swaps, parity unaffected. HEALER — not RCA-driven (the Notes flake RCA is parked separately). WATCHDOG — not audit-driven.
 
@@ -199,7 +208,7 @@ This plan modifies `.spec.ts` files, so the matrix is required (LR-048 v3). All 
 
 ## Explicitly OUT of scope (parked — not drift)
 
-- **Notes flake RCA** (wrong-parent-tab navigation gap) — separate item, parked per user 2026-06-03.
+- **Notes flake RCA** — root-caused to the single-office-1604 worker write-contention; owned by `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (parked per user 2026-06-12). Not this plan.
 - `waitForAngularStable` call-site removal, Radix `.catch:582` behaviour, `clickWithRetry` retirement, fixed-sleep→condition swaps, `--fail-on-flaky-tests` gate — all `PLAN_WAIT_PATTERN_CLEANUP.md`.
 - The dead Azure PR gate (`.ci/azure-pipelines.yml` runs `--project=chrome`/`firefox` whose `testMatch:[]` → 0 tests) — separate CI finding, not a timeout job.
 - `expect.poll`→web-first conversion (~180 calls / 9 files) — separate future plan.
@@ -212,7 +221,7 @@ This plan modifies `.spec.ts` files, so the matrix is required (LR-048 v3). All 
 cd clients/encore
 npm run typecheck                                   # expect: clean
 rg "PAGE_LOAD_TIMEOUT_MS|ACTION_TIMEOUT_MS|NAVIGATION_TIMEOUT_MS|ELEMENT_WAIT_TIMEOUT_MS" .   # expect: 0 (fields removed)
-rg -n "timeout:\s*\d" src specs                     # expect: only app-constants.ts + documented commented one-offs
+rg -n "timeout:\s*\d" src tests                     # expect: only src/utils/constants.ts + documented commented one-offs
 TIMEOUT_MULTIPLIER=1 npm test                        # expect: baseline pass-set unchanged
 # .env-file multiplier test (Finding #4): set TIMEOUT_MULTIPLIER=2 in .env.local, then:
 npm test                                             # expect: still green (slower); config+runtime timeouts scaled; no auth-setup timeout
@@ -223,4 +232,4 @@ node ../../scripts/validate-plan-closure.mjs ../../plans/pending/PLAN_TIMEOUT_CE
 
 ## Handoff (post-execution)
 
-Chat-only per `feedback_handoff_in_chat_only.md` (no obstacle claims). Summarize: SoT landed in `app-constants.ts`; reusable literals/`setTimeout`s centralized; login values preserved; multiplier proven to work from a `.env` file; auth budget fixed and proven at ×1 and ×2 against the real call graph; the documented one-offs left with comments. Confirm the Notes flake was NOT touched (parked) and `PLAN_WAIT_PATTERN_CLEANUP.md` inherits the centralized constants.
+Chat-only per `feedback_handoff_in_chat_only.md` (no obstacle claims). Summarize: SoT landed in `src/utils/constants.ts`; reusable literals/`setTimeout`s centralized; login values preserved; multiplier proven to work from a `.env` file; auth budget fixed and proven at ×1 and ×2 against the real call graph; the documented one-offs left with comments. Confirm the worker-contention flake was NOT touched (parked, owned by `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md`) and `PLAN_WAIT_PATTERN_CLEANUP.md` inherits the centralized constants.

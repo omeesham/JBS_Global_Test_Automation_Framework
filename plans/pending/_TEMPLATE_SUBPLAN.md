@@ -8,9 +8,13 @@
     2. Drop the leading underscore from the filename.
     3. Flip Status from TEMPLATE-DRAFT to PENDING (or GATED).
     4. Replace every <placeholder> below.
-    5. Delete sections that don't apply (the ONLY skip-allowed sections are
-       Phase 0.5b — see its CONDITIONAL trigger below — and Parent: when this
-       is a top-level PLAN_*.md, not a SUBPLAN_*.md).
+    5. Delete sections that don't apply. The ONLY skip-allowed sections are
+       Phase 0.5b and Parent:. Parent: is dropped only for a top-level PLAN_*.md.
+       Phase 0.5b may be dropped ONLY for a genuine net-new feature with no
+       baseline — and even then NOT silently: declare `baselineScope:
+       baseline-absent` in the subplan (per LR-ENC-001). If the subplan drives
+       TC corrections or files bugs, Phase 0.5b is NON-DELETABLE (Anti-Assumption
+       Gate 1; PLAN_BIG_PIVOT_FCC_MASTER.md §Anti-Assumption Gates).
     6. Run: node scripts/check-subplan-identity.mjs plans/pending/<your-file>.md
        (Phase 0.1 cross-check; HALT if violations are reported.)
 
@@ -63,6 +67,14 @@
 - `docs/read_only_docs/LEARNED_RULES.md` (cross-cutting LR-NNN)
 - `clients/${ACTIVE_CLIENT}/CLAUDE.md` <!-- if client-specific work -->
 
+**Anti-Assumption Gates** (binding for FCC + any TC-correcting / bug-filing subplan — per `PLAN_BIG_PIVOT_FCC_MASTER.md` §Anti-Assumption Gates):
+- [ ] Phase 0.5b baseline walk EXECUTED before any behavior classification / bug filing (Gate 1 — LR-045 / LR-ENC-001 / LR-048 §5).
+- [ ] No "corrupt / atypical / app-wide / regression" claim on <2 evidence sources — 2 offices OR new-site+baseline (Gate 2 — LR-061).
+- [ ] No control marked un-drivable without overlay-clear + reload + PO-selector-vs-live-DOM diff + DOM-inspect (Gate 3 — LR-061 / LR-021).
+- [ ] No env-rationalized deferral of env-independent work; env defers only the env-blocked step (Gate 4 — LR-060).
+- [ ] Un-skip + LR-019 harden applied atomically in the same change (Gate 5 — LR-021 corollary).
+- [ ] All phases complete OR a user-signed `## Deferral Authorization` block recorded — no silent PENDING checkpoint (Gate 6 — LR-060).
+
 ---
 
 ## Phase 0 — Dependency + browser-tool gate (MANDATORY)
@@ -79,12 +91,19 @@
 ## Phase 0.5b — Baseline-first walk (CONDITIONAL — REQUIRED when ANY of)
 
 <!--
-  DELETE THIS WHOLE SECTION when none of the following triggers apply.
   KEEP IT (and fill it in) when ANY of these match:
     - Identity = WATCHDOG
     - Skills (above) include /find-bugs
     - Title contains "audit", "neutral-eye", "find-bugs", or "module audit"
     - Subplan output drives TC corrections in test-cases/ or test-plans/
+    - Subplan files or reclassifies any reports/bugs/BUG-*.json
+
+  NON-DELETABLE in all the above (Anti-Assumption Gate 1, LR-045/LR-ENC-001/LR-048 §5):
+  this section must EXECUTE, not just exist at authoring time. It may be dropped ONLY
+  for a genuine net-new feature with no baseline — and then NOT silently: declare
+  `baselineScope: baseline-absent` per LR-ENC-001 (NOT a HALT). Skipping a required
+  baseline walk and recording observed states as fact is the exact 2026-06-18 Pricing
+  fuckup this gate prevents.
 -->
 
 1. Visit baseline truth source first per `.claude/rules/baseline.md` workflow row 4.
@@ -134,6 +153,7 @@ Bare "out of scope" / "flagged for follow-up" with no recipient = HALT + ask use
 
 - [ ] <criterion 1>
 - [ ] <criterion 2>
+- [ ] (If this subplan drives a field-inventory / baseline walk) Coverage Manifest present: machine-enumerated via scripts/walk-coverage/enumerate-page.mjs, every union element dispositioned, CrossCheck: clean, Coverage_Ratio 100% (LR-062 / closure Cx).
 - [ ] `/regression-guard` snapshot before/after = no silent breakage on touched files.
 - [ ] Activity-log row appended per LR-028 with LR-037 timestamp ≥ all touched-file mtimes.
 - [ ] `/final-q` verdict block emitted (GREEN | YELLOW | RED) per LR-042.

@@ -576,4 +576,138 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     }
     await this.closeGridOptions();
   }
+
+  // ---------- column-content reads (filter → grid coherence) ----------
+
+  /** 0-based index of a grid column by its header text (exact, else substring). -1 if absent. */
+  async getColumnIndexByName(name: string): Promise<number> {
+    const headers = await this.getColumnHeaders();
+    const exact = headers.indexOf(name);
+    return exact >= 0 ? exact : headers.findIndex((h) => h.includes(name));
+  }
+
+  /** Whitespace-normalized text of a named column across all CURRENTLY-RENDERED rows (virtualized sample). */
+  async readColumnForVisibleRows(name: string): Promise<string[]> {
+    const idx = await this.getColumnIndexByName(name);
+    if (idx < 0) throw new Error(`readColumnForVisibleRows: column "${name}" not found in grid headers`);
+    const rows = this.page.locator(S.rowGridAny);
+    const n = await rows.count();
+    const out: string[] = [];
+    for (let r = 0; r < n; r++) out.push((await rows.nth(r).locator('td').nth(idx).innerText()).replace(/\s+/g, ' ').trim());
+    return out;
+  }
+
+  /** Boolean state (Unicode ✔ = true, empty = false) of a named boolean column across rendered rows. */
+  async readBooleanColumnForVisibleRows(name: string): Promise<boolean[]> {
+    const idx = await this.getColumnIndexByName(name);
+    if (idx < 0) throw new Error(`readBooleanColumnForVisibleRows: column "${name}" not found`);
+    const rows = this.page.locator(S.rowGridAny);
+    const n = await rows.count();
+    const out: boolean[] = [];
+    for (let r = 0; r < n; r++) out.push(await this.readBooleanCell(rows.nth(r), idx));
+    return out;
+  }
+
+  /** Price Book name (column 0) of the first N rendered rows — content anchor for order/identity checks. */
+  async getFirstNPriceBookNames(n: number): Promise<string[]> {
+    const rows = this.page.locator(S.rowGridAny);
+    const count = Math.min(await rows.count(), n);
+    const out: string[] = [];
+    for (let r = 0; r < count; r++) out.push((await rows.nth(r).locator('td').nth(0).innerText()).replace(/\s+/g, ' ').trim());
+    return out;
+  }
+
+  /** Number of data rows currently in the `<tbody>` (0 on an empty result). */
+  async getTbodyRowCount(): Promise<number> {
+    return this.page.locator(S.rowGridAny).count();
+  }
+
+  /** Whether the verbatim "No results." empty-state message is shown. */
+  async hasNoResultsMessage(): Promise<boolean> {
+    return this.isVisibleSafe(S.lblNoResults);
+  }
+
+  /** Count of Price Book name link-cells rendered in the grid (each navigates to a pricebook's Details). */
+  async getPricebookLinkCellCount(): Promise<number> {
+    return this.page.locator(S.rowNameButton).count();
+  }
+
+  // ---------- pagination (shadcn DataTable footer) ----------
+
+  /** The rows-per-page selector — the only [role="combobox"] whose label is purely digits. */
+  private pageSizeCombo(): Locator {
+    return this.page.locator(S.drpPageSizeRole).filter({ hasText: /^\s*\d+\s*$/ }).first();
+  }
+
+  /** Whether a rows-per-page selector is present (digit-text combobox). */
+  async hasPageSizeControl(): Promise<boolean> {
+    return (await this.page.locator(S.drpPageSizeRole).filter({ hasText: /^\s*\d+\s*$/ }).count()) > 0;
+  }
+
+  /** The current rows-per-page value (e.g. "50"). */
+  async getPageSizeValue(): Promise<string> {
+    return (await this.pageSizeCombo().innerText()).replace(/\s+/g, ' ').trim();
+  }
+
+  /** Open the rows-per-page selector, read its option texts, close (Escape). */
+  async getPageSizeOptions(): Promise<string[]> {
+    await this.pageSizeCombo().click();
+    await this.page.locator('[role="option"]').first().waitFor({ state: 'visible', timeout: 8_000 });
+    const out = (await this.page.locator('[role="option"]').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim());
+    await this.page.keyboard.press('Escape').catch(() => { /* nothing open */ });
+    return out.filter(Boolean);
+  }
+
+  /** Select a rows-per-page value and wait for the grid to re-render (no fixed sleep). */
+  async setPageSize(value: string | number): Promise<void> {
+    await this.pageSizeCombo().click();
+    await this.page.locator('[role="option"]', { hasText: new RegExp(`^${value}$`) }).first().click();
+    await this.page.locator(S.rowGridAny).first().waitFor({ state: 'visible', timeout: 15_000 }).catch(() => { /* grid settles */ });
+  }
+
+  private pageNavSelector(which: 'first' | 'previous' | 'next' | 'last'): string {
+    return which === 'first' ? S.btnPageFirst : which === 'previous' ? S.btnPagePrev : which === 'next' ? S.btnPageNext : S.btnPageLast;
+  }
+
+  /** Whether a pagination nav button is present at all. */
+  async hasPageNav(which: 'first' | 'previous' | 'next' | 'last'): Promise<boolean> {
+    return (await this.page.locator(this.pageNavSelector(which)).count()) > 0;
+  }
+
+  /** Whether a pagination nav button is disabled (`disabled` attr or `aria-disabled="true"`). */
+  async isPageNavDisabled(which: 'first' | 'previous' | 'next' | 'last'): Promise<boolean> {
+    const b = this.page.locator(this.pageNavSelector(which)).first();
+    if (await b.isDisabled().catch(() => false)) return true;
+    return (await b.getAttribute('aria-disabled')) === 'true';
+  }
+
+  /** Click a pagination nav button and wait for the grid to settle. */
+  async clickPageNav(which: 'first' | 'previous' | 'next' | 'last'): Promise<void> {
+    await this.page.locator(this.pageNavSelector(which)).first().click();
+    await this.page.locator(S.rowGridAny).first().waitFor({ state: 'visible', timeout: 15_000 }).catch(() => { /* grid settles */ });
+  }
+
+  // ---------- sorting (column-header buttons) ----------
+
+  private headerCell(name: string): Locator {
+    return this.page.locator(S.colHeaderAny, { hasText: name }).first();
+  }
+
+  /** Whether a column header (by text) wraps a clickable button (the sort trigger). */
+  async columnHeaderHasButton(name: string): Promise<boolean> {
+    return (await this.headerCell(name).locator('button').count()) > 0;
+  }
+
+  /** Click a column header's sort button (if present) and let the grid settle. */
+  async clickColumnHeaderSort(name: string): Promise<void> {
+    const btn = this.headerCell(name).locator('button').first();
+    if ((await btn.count()) > 0) await btn.click();
+    else await this.headerCell(name).click();
+    await this.page.locator(S.rowGridAny).first().waitFor({ state: 'visible', timeout: 10_000 }).catch(() => { /* settle */ });
+  }
+
+  /** The `aria-sort` attribute on a column header (null when no active sort). */
+  async getColumnAriaSort(name: string): Promise<string | null> {
+    return this.headerCell(name).getAttribute('aria-sort');
+  }
 }

@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_CORP_PRICING_NM2261_STRATEGY.md",
+  "plan_basename": "SUBPLAN_CORP_PRICING_NM2261_STRATEGY.md",
+  "plan_sha256": "44bad541b241aaaccb62fe0c9253e070214672c1562d7a3d04c8dcb89221755b",
+  "passed_at": "2026-06-25T23:55:13.376Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "2cf57d9cba1ab8dd9378ec5e924f4fe3456f0653f6cc231f5277b921dbf1980d",
+  "validator_invocation_id": "1782431713375-33cb11fa9af3db3ef126b2275b2e8db0-44bad541b241aaac",
+  "artifacts": [],
+  "provisional": false
+}

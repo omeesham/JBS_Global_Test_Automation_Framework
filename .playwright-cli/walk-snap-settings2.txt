@@ -1,9 +1,0 @@
-### Page
-- Page URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
-- Page Title: Location Settings | Navigator
-### Snapshot
-```yaml
-- generic [active] [ref=e1]:
-  - alert [ref=e2]
-  - region "Notifications alt+T"
-```

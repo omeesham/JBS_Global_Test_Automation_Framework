@@ -7,9 +7,25 @@ test.describe('Location Currency @locations @currency', () => {
   // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
   // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
   test.beforeEach(async ({ locationCurrencyPage }) => {
+    test.setTimeout(60_000);
     if (!(await locationCurrencyPage.isOnCurrencyTab())) {
       await locationCurrencyPage.navigateToCurrencyTab(OFFICE_NO);
     }
+    // Enforce the known default grid state per-test so a leaked/dirty start from a
+    // prior crash, retry, or parallel run cannot make a real change read as no-change.
+    await locationCurrencyPage.ensureDefaultState();
+  });
+
+  test('TC-LOC-CUR-028: Reverting a currency selection re-disables Save (no net change)', async ({ locationCurrencyPage, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    // From the enforced default, selecting CAD is a real change -> Save enables.
+    expect(await locationCurrencyPage.isSaveEnabled()).toBe(false);
+    await locationCurrencyPage.checkCheckbox('chkCADSelected');
+    await expect.poll(() => locationCurrencyPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
+    // Reverting CAD back to its saved (unselected) state is a no-net-change -> Save re-disables.
+    await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
+    await expect.poll(() => locationCurrencyPage.isSaveEnabled(), { timeout: 5_000 }).toBe(false);
   });
 
   test('TC-LOC-CUR-001: Navigate to Currency tab; 3 rows, 4 column headers visible', async ({ locationCurrencyPage, dependencyGate }) => {

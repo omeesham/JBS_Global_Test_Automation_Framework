@@ -1,0 +1,123 @@
+#!/usr/bin/env node
+// scripts/walk-coverage/lib/test-coverage-manifest.mjs
+// PLAN_EXHAUSTIVE_WALK_GUARANTEE — Phase 4 fixtures for the shared coverage-completeness logic
+// (coverage-manifest.mjs). In-memory string cases — no browser, no files. Exit 1 on any failure.
+//
+//   node scripts/walk-coverage/lib/test-coverage-manifest.mjs
+
+import { coverageVerdict, parseCoverageSignals, isGrandfathered } from './coverage-manifest.mjs';
+
+const LANDING = '2026-06-19';
+let passed = 0, failed = 0;
+const ok = (name, cond, detail = '') => {
+  if (cond) { console.log(`  [PASS] ${name}`); passed++; }
+  else { console.log(`  [FAIL] ${name}${detail ? ' — ' + detail : ''}`); failed++; }
+};
+
+const header = (date, ratio, cc, scope) =>
+  `MCP_Session_Date: ${date}\nCoverage_Ratio: ${ratio}\nWalk_State: office=1604\nCrossCheck: ${cc}\n` +
+  (scope ? `coverageScope: ${scope}\n` : '') + `\n## Coverage Manifest (machine-enumerated)\n| key | role | found | disposition |\n`;
+
+// 1. complete (in-scope, 100%, clean, dispositioned)
+const complete = header('2026-06-20', '47/47 (100%)', 'clean') + '| `testid:x` | button | 2026-06-20 | covered-by-TC: TC-1 |\n';
+let v = coverageVerdict(complete, LANDING);
+ok('complete artifact → applicable + complete', v.applicable && v.complete, JSON.stringify(v.reasons));
+
+// 2. ratio < 100%
+v = coverageVerdict(header('2026-06-20', '40/47 (85%)', 'clean'), LANDING);
+ok('ratio < 100% → applicable + NOT complete', v.applicable && !v.complete && v.reasons.some(r => /Coverage_Ratio/.test(r)));
+
+// 3. CrossCheck not clean
+v = coverageVerdict(header('2026-06-20', '47/47 (100%)', '3 A△B elements to review'), LANDING);
+ok('CrossCheck != clean → NOT complete', v.applicable && !v.complete && v.reasons.some(r => /CrossCheck/.test(r)));
+
+// 4. coverageScope PARTIAL
+v = coverageVerdict(header('2026-06-20', '47/47 (100%)', 'clean', 'PARTIAL'), LANDING);
+ok('coverageScope PARTIAL → NOT complete', v.applicable && !v.complete && v.reasons.some(r => /PARTIAL/.test(r)));
+
+// 5. undispositioned manifest rows
+const undisp = header('2026-06-20', '47/47 (100%)', 'clean') + '| `testid:x` | button | 2026-06-20 | _undispositioned_ |\n| `testid:y` | link | 2026-06-20 | _undispositioned_ |\n';
+v = coverageVerdict(undisp, LANDING);
+ok('undispositioned rows → NOT complete', v.applicable && !v.complete && v.reasons.some(r => /undispositioned/.test(r)), JSON.stringify(v.reasons));
+
+// 6. grandfathered (date precedes landing)
+v = coverageVerdict(header('2026-06-10', '5/47 (10%)', 'dirty', 'PARTIAL'), LANDING);
+ok('grandfathered (date < landing) → NOT applicable (complete=true)', !v.applicable && v.complete && v.reasons[0].includes('grandfathered'));
+
+// 7. no coverage manifest at all
+v = coverageVerdict('MCP_Session_Date: 2026-06-20\n\n## Field Inventory\n| Field | ... |\n', LANDING);
+ok('no manifest → NOT applicable', !v.applicable && v.complete && v.reasons[0] === 'no-coverage-manifest');
+
+// 8. explicit "100%" form (no N/M)
+v = coverageVerdict('MCP_Session_Date: 2026-06-20\nCoverage_Ratio: 100% complete\nCrossCheck: clean\n', LANDING);
+ok('explicit 100% form → complete', v.applicable && v.complete, JSON.stringify(v.reasons));
+
+// 9. missing date but has manifest → in-scope (conservative), incomplete if ratio missing
+v = coverageVerdict('## Coverage Manifest (machine-enumerated)\nCrossCheck: clean\n', LANDING);
+ok('missing date + manifest → applicable + incomplete (no ratio)', v.applicable && !v.complete);
+
+// boundary: date == landing is NOT grandfathered (in-scope on the landing day)
+ok('date == landing is in-scope (not grandfathered)', isGrandfathered('2026-06-19', LANDING) === false);
+ok('date one day before landing IS grandfathered', isGrandfathered('2026-06-18', LANDING) === true);
+
+// signal parser: bolded frontmatter form
+const sig = parseCoverageSignals('**Coverage_Ratio**: 12/12 (100%)\n**CrossCheck**: clean\n## Coverage Manifest\n');
+ok('parser handles bolded frontmatter', sig.ratioComplete && sig.crossCheckClean && sig.hasManifest);
+
+// === Provenance sub-gate (SUBPLAN_CGS_B) — dates ON/AFTER 2026-06-24 are provenance-gated ===
+// Build a 100%/clean header so provenance is the only variable. Default ratio matches row count.
+const provHeader = (date, rows, ratio = '1/1 (100%)') =>
+  header(date, ratio, 'clean') + rows;
+const ROW_ORACLE_OBS = '| `testid:btn-save` | button | 2026-06-25 | read-only-verified: wrapper; provenance: oracle |\n';
+const ROW_MISSING_PROV = '| `testid:btn-save` | button | 2026-06-25 | affordance-probed: launcher "Picker" |\n';
+const ROW_LIVE_OK = '| `testid:btn-save` | button | 2026-06-25 | affordance-probed: launcher; provenance: live; evidence: .playwright-cli/net-x.json |\n';
+const ROW_LIVE_NO_EV = '| `testid:btn-save` | button | 2026-06-25 | read-only-verified: x; provenance: live |\n';
+const ROW_TC_ORACLE = '| `testid:btn-save` | button | 2026-06-25 | covered-by-TC: TC-1; provenance: oracle |\n';
+const ROW_OOS_ORACLE = '| `testid:nav` | a | 2026-06-25 | out-of-scope: global app-shell nav (not this surface); provenance: oracle |\n';
+const ROW_TC_OK = '| `testid:btn-save` | button | 2026-06-25 | covered-by-TC: TC-1 |\n';
+
+// P1. oracle on an observation-claiming row → fabrication
+v = coverageVerdict(provHeader('2026-06-25', ROW_ORACLE_OBS), LANDING);
+ok('P1 oracle on observation row → NOT complete + provenanceFail',
+  v.applicable && !v.complete && v.provenanceFail && v.reasons.some(r => /provenance: oracle/.test(r)), JSON.stringify(v.reasons));
+
+// P2. observation row with no provenance token → fabrication (un-fakeable proof required)
+v = coverageVerdict(provHeader('2026-06-25', ROW_MISSING_PROV), LANDING);
+ok('P2 missing provenance on observation row → NOT complete + provenanceFail',
+  v.applicable && !v.complete && v.provenanceFail && v.reasons.some(r => /missing 'provenance: live'/.test(r)));
+
+// P3. provenance: live + evidence pointer, text-only mode (no artifactPath) → trusts the pointer (deep check is Cx's job)
+v = coverageVerdict(provHeader('2026-06-25', ROW_LIVE_OK), LANDING);
+ok('P3 live+evidence pointer, text-only → complete', v.applicable && v.complete && !v.provenanceFail, JSON.stringify(v.reasons));
+
+// P4. provenance: live but NO evidence pointer → fabrication (text-detectable)
+v = coverageVerdict(provHeader('2026-06-25', ROW_LIVE_NO_EV), LANDING);
+ok('P4 live but no evidence pointer → NOT complete + provenanceFail',
+  v.applicable && !v.complete && v.provenanceFail && v.reasons.some(r => /cites no 'evidence:'/.test(r)));
+
+// P5. covered-by-TC contradicting provenance: oracle → fabrication
+v = coverageVerdict(provHeader('2026-06-25', ROW_TC_ORACLE), LANDING);
+ok('P5 covered-by-TC + provenance oracle → NOT complete + provenanceFail',
+  v.applicable && !v.complete && v.provenanceFail && v.reasons.some(r => /contradicts provenance: oracle/.test(r)));
+
+// P6. out-of-scope is honest inference — oracle there is fine (F7: do not over-reject)
+v = coverageVerdict(provHeader('2026-06-25', ROW_OOS_ORACLE), LANDING);
+ok('P6 out-of-scope + oracle → complete (honest inference, not gated)', v.applicable && v.complete && !v.provenanceFail, JSON.stringify(v.reasons));
+
+// P7. THE no-false-positive guard (F1): a pre-2026-06-24 artifact with an oracle observation row is
+// provenance-grandfathered → stays complete (this is exactly why pricing-2026-06-19 does not newly fail).
+v = coverageVerdict(provHeader('2026-06-23', ROW_ORACLE_OBS.replace('2026-06-25', '2026-06-23')), LANDING);
+ok('P7 pre-provenance-landing artifact w/ oracle row → complete (date-gated, no false-positive)',
+  v.applicable && v.complete && !v.provenanceFail, JSON.stringify(v.reasons));
+
+// P8. covered-by-TC (no provenance) on a gated artifact → complete (TC-ID is inherent evidence)
+v = coverageVerdict(provHeader('2026-06-25', ROW_TC_OK), LANDING);
+ok('P8 covered-by-TC (no provenance) on gated artifact → complete', v.applicable && v.complete && !v.provenanceFail, JSON.stringify(v.reasons));
+
+// P9. parser surfaces manifest rows with provenance/evidence tokens
+const prows = parseCoverageSignals(provHeader('2026-06-25', ROW_LIVE_OK)).manifestRows;
+ok('P9 parser extracts manifest row provenance+evidence',
+  prows.length === 1 && prows[0].disposition === 'affordance-probed' && prows[0].provenance === 'live' && prows[0].evidence === '.playwright-cli/net-x.json');
+
+console.log(`\ncoverage-manifest fixtures: ${passed} passed, ${failed} failed, ${passed + failed} total`);
+process.exit(failed > 0 ? 1 : 0);

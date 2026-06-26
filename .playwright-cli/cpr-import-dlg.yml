@@ -1,0 +1,1160 @@
+- generic:
+  - alert
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: "1604"
+                    - generic:
+                      - generic: Parker Palm Springs
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - list:
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/home
+                            - img
+                            - generic: Home
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1604/inbox
+                            - img
+                            - generic: Inbox
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Actions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Commissions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Tax
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Setup
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Studio
+                            - img
+                    - generic:
+                      - generic: Search
+                      - generic:
+                        - list:
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Order Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/fulfillments
+                              - img
+                              - generic: Job Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/assets
+                              - img
+                              - generic: Asset Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/customers
+                              - img
+                              - generic: Customer Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: DRO Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Payment Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1604/products
+                              - img
+                              - generic: Item Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: ECT Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Event Agendas
+                    - generic:
+                      - list:
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Navigator Assistant
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - button:
+                      - generic:
+                        - generic: PC
+                      - generic:
+                        - generic: prd click auto
+                      - img
+            - button
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - button:
+                    - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=1]: Corporate Pricing
+                      - button:
+                        - img
+              - generic:
+                - generic:
+                  - generic:
+                    - complementary:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                              - text: Search Criteria
+                          - generic:
+                            - generic:
+                              - generic: Pricebook
+                              - generic:
+                                - generic:
+                                  - textbox:
+                                    - /placeholder: Enter name
+                            - generic:
+                              - generic: Pricing Strategy
+                              - generic:
+                                - generic:
+                                  - textbox:
+                                    - /placeholder: Enter strategy
+                            - generic:
+                              - generic: Location
+                              - generic:
+                                - combobox:
+                                  - generic: All Locations
+                                  - img
+                            - generic:
+                              - generic: Currency
+                              - generic:
+                                - combobox:
+                                  - generic: All Currencies
+                                  - img
+                                - combobox
+                            - generic:
+                              - checkbox
+                              - checkbox
+                              - generic: Is Internal
+                            - generic:
+                              - checkbox
+                              - checkbox
+                              - generic: Is Labor
+                            - generic:
+                              - checkbox [checked]:
+                                - generic:
+                                  - img
+                              - checkbox [checked]
+                              - generic: Active Only
+                        - generic:
+                          - button: Reset
+                          - button: Search
+                  - generic:
+                    - button:
+                      - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                        - generic: 593 items found
+                      - generic:
+                        - generic:
+                          - button:
+                            - img
+                            - text: Pricing Override
+                          - button:
+                            - img
+                            - text: Loc Pricing Export
+                          - button:
+                            - img
+                            - text: Loc Pricing Import
+                          - generic:
+                            - button:
+                              - img
+                              - text: New
+                            - button:
+                              - img
+                          - generic:
+                            - button:
+                              - img
+                              - text: Export
+                            - button:
+                              - img
+                          - generic:
+                            - button:
+                              - img
+                              - text: Import
+                            - button:
+                              - img
+                          - generic:
+                            - button:
+                              - img
+                              - generic: Grid Options
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - table:
+                                  - rowgroup:
+                                    - row:
+                                      - columnheader:
+                                        - generic:
+                                          - img
+                                          - generic:
+                                            - generic:
+                                              - button:
+                                                - generic: Price Book
+                                                - img
+                                        - button
+                                      - columnheader:
+                                        - generic:
+                                          - img
+                                          - generic:
+                                            - generic:
+                                              - button:
+                                                - generic: Price Book Strategy
+                                                - img
+                                        - button
+                                      - columnheader:
+                                        - generic:
+                                          - img
+                                          - generic:
+                                            - generic:
+                                              - button:
+                                                - generic: Price Year
+                                                - img
+                                        - button
+                                      - columnheader:
+                                        - generic:
+                                          - img
+                                          - generic:
+                                            - generic:
+                                              - button:
+                                                - generic: Is GSO
+                                                - img
+                                        - button
+                                      - columnheader:
+                                        - generic:
+                                          - img
+                                          - generic:
+                                            - generic:
+                                              - button:
+                                                - generic: Is Internal
+                                                - img
+                                        - button
+                                      - columnheader:
+                                        - generic:
+                                          - img
+                                          - generic:
+                                            - generic:
+                                              - button:
+                                                - generic: Is Labor
+                                                - img
+                                        - button
+                                      - columnheader:
+                                        - generic:
+                                          - img
+                                          - generic:
+                                            - generic:
+                                              - button:
+                                                - generic: Is Active
+                                                - img
+                                        - button
+                                      - columnheader:
+                                        - generic:
+                                          - img
+                                          - generic:
+                                            - generic:
+                                              - button:
+                                                - generic: Is Productions
+                                                - img
+                                        - button
+                                      - columnheader:
+                                        - generic:
+                                          - img
+                                          - generic:
+                                            - generic:
+                                              - button:
+                                                - generic: Currency
+                                                - img
+                                        - button
+                                  - rowgroup:
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2021-PB6
+                                      - cell:
+                                        - generic: 2021-Tier 3 Urban A
+                                      - cell:
+                                        - generic: "2021"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: "-"
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-NP Tier 1
+                                      - cell:
+                                        - generic: 2022-NP Tier 1
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell: ✔
+                                      - cell:
+                                        - generic:
+                                          - generic: "-"
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-NP Tier 2
+                                      - cell:
+                                        - generic: 2022-NP Tier 2
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell: ✔
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-NP Tier 3
+                                      - cell:
+                                        - generic: 2022-NP Tier 3
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell: ✔
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-NP Tier 3
+                                      - cell:
+                                        - generic: y5y
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: "-"
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB10
+                                      - cell:
+                                        - generic: 2022-Tier 3 Suburban B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB1A
+                                      - cell:
+                                        - generic: 2022-Tier 1 Luxury A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB1B
+                                      - cell:
+                                        - generic: 2022-Tier 1 Luxury B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB2
+                                      - cell:
+                                        - generic: 2022-Tier 1 Luxury C
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB2
+                                      - cell:
+                                        - generic: 2022-Tier 1 Urban A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB3
+                                      - cell:
+                                        - generic: 2022-Tier 1 Resort A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB3
+                                      - cell:
+                                        - generic: 2022-Tier 1 Urban B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB3
+                                      - cell:
+                                        - generic: 2022-Tier 2 Luxury A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-Stand-Alone Virtual_US
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-Tier 1 Airport A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-Tier 1 Branch
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-Tier 1 Offsite Events
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-Tier 1 Resort B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-Tier 1 Suburban A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-Tier 2 Luxury B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-Tier 2 Resort A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-Tier 2 Urban A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB4
+                                      - cell:
+                                        - generic: 2022-US_GSO-Tier1
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell: ✔
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB5
+                                      - cell:
+                                        - generic: 2022-Tier 1 Airport B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB5
+                                      - cell:
+                                        - generic: 2022-Tier 1 Convention Center
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB5
+                                      - cell:
+                                        - generic: 2022-Tier 1 Suburban B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB5
+                                      - cell:
+                                        - generic: 2022-Tier 2 Branch A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB5
+                                      - cell:
+                                        - generic: 2022-Tier 2 Resort B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB5
+                                      - cell:
+                                        - generic: 2022-Tier 2 Suburban A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB5
+                                      - cell:
+                                        - generic: 2022-Tier 2 Urban B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB5
+                                      - cell:
+                                        - generic: 2022-Tier 3 Branch A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB5
+                                      - cell:
+                                        - generic: 2022-Tier 3 Luxury A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB6
+                                      - cell:
+                                        - generic: 2022-Tier 1 Suburban C
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB6
+                                      - cell:
+                                        - generic: 2022-Tier 2 Airport A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB6
+                                      - cell:
+                                        - generic: 2022-Tier 2 Offsite Events
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB6
+                                      - cell:
+                                        - generic: 2022-Tier 2 Resort C
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB6
+                                      - cell:
+                                        - generic: 2022-Tier 2 Suburban B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB6
+                                      - cell:
+                                        - generic: 2022-Tier 3 Luxury B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB6
+                                      - cell:
+                                        - generic: 2022-Tier 3 Resort A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB6
+                                      - cell:
+                                        - generic: 2022-Tier 3 Urban A
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB6
+                                      - cell:
+                                        - generic: 2022-US_GSO-Tier2
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell: ✔
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB7
+                                      - cell:
+                                        - generic: 2022-Tier 2 Airport B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB7
+                                      - cell:
+                                        - generic: 2022-Tier 2 Branch B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB7
+                                      - cell:
+                                        - generic: 2022-Tier 2 Convention Center
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB7
+                                      - cell:
+                                        - generic: 2022-Tier 2 Suburban C
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB7
+                                      - cell:
+                                        - generic: 2022-Tier 3 Resort B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB7
+                                      - cell:
+                                        - generic: 2022-Tier 3 Urban B
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB8
+                                      - cell:
+                                        - generic: 2022-eCommerce
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB8
+                                      - cell:
+                                        - generic: 2022-Tier 3 Convention Center
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                                    - row:
+                                      - cell:
+                                        - button:
+                                          - generic: 2022-PB8
+                                      - cell:
+                                        - generic: 2022-US_GSO-Tier3
+                                      - cell:
+                                        - generic: "2022"
+                                      - cell: ✔
+                                      - cell
+                                      - cell
+                                      - cell: ✔
+                                      - cell
+                                      - cell:
+                                        - generic:
+                                          - generic: USD
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - combobox:
+                              - generic: "50"
+                              - img
+                            - paragraph: rows per page
+                        - generic:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - generic:
+                            - textbox: "1"
+                            - generic: /
+                            - text: "12"
+                          - button:
+                            - img
+                          - button:
+                            - img
+  - region "Notifications alt+T"
+  - dialog "Import" [ref=e1550]:
+    - generic [ref=e1551]:
+      - heading "Import" [level=2] [ref=e1552]
+      - paragraph [ref=e1553]: Select between 1 and 3 years and choose a currency to continue.
+    - generic [ref=e1554]:
+      - generic [ref=e1555]:
+        - paragraph [ref=e1556]: Year(s)
+        - combobox "Open popover" [active] [ref=e1557] [cursor=pointer]:
+          - generic [ref=e1559]: Select years...
+          - img
+      - generic [ref=e1560]:
+        - paragraph [ref=e1561]: Currency
+        - combobox [ref=e1562] [cursor=pointer]:
+          - generic: Select currency...
+          - img
+    - generic [ref=e1563]:
+      - button "Cancel" [ref=e1564] [cursor=pointer]
+      - button "Continue" [disabled]
+    - button "Close" [ref=e1565] [cursor=pointer]:
+      - img
+      - generic [ref=e1566]: Close

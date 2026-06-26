@@ -58,4 +58,25 @@ export const STRATEGY = {
   liveTabs: ['Pricing Strategy', 'Pricing Detail'] as const,
   docxTabs: ['Pricing Strategy', 'Pricing Detail', 'History'] as const,
   absentTab: 'History',
+
+  /** Deep-coverage (NM-2261) — in-session strategy names; never saved (reload discards). */
+  deep: {
+    alpha: 'ZZ-QA-Alpha (discard)',
+    bravo: 'ZZ-QA-Bravo (discard)',
+    charlie: 'ZZ-QA-Charlie (discard)',
+    inactiveFlag: 'ZZ-QA-Inactive-Flag (discard)',
+    gsoFlag: 'ZZ-QA-GSO-Flag (discard)',
+    internalFlag: 'ZZ-QA-Internal-Flag (discard)',
+    productionsFlag: 'ZZ-QA-Productions-Flag (discard)',
+    /** A 255-character entry — the name field caps input at 100 characters. */
+    overLengthName: 'A'.repeat(255),
+    nameMaxLength: 100,
+    /** Special characters — accepted and preserved verbatim. */
+    specialName: 'ZZ-Test & <Strategy> "2026"',
+    /** Reusing the existing strategy name triggers the duplicate-name rejection. */
+    duplicateName: '2022-NP Tier 1',
+    duplicateError: 'A pricing strategy with this name already exists.',
+    /** Reversible special-character rename of the existing strategy (restored afterward). */
+    specialPersistName: '2022-NP Tier 1 & "QA"',
+  },
 } as const;

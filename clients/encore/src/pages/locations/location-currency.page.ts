@@ -4,6 +4,7 @@ import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
 import { LocationSettingsSelectors } from '../../selectors';
 import { CheckboxState } from '../components/location-form-helpers.component';
+import { MERCHANT_DATA } from '../../data/locations/location-currency';
 
 /** Type returned by clickSaveAndCaptureDialog */
 export type SaveDialogType = 'save-changes' | 'error' | 'none';
@@ -246,6 +247,69 @@ export class LocationCurrencyPage extends BasePage {
     await this.getElement('dlgErrorDialog').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info(`Error dialog text: ${text}`);
     return text;
+  }
+
+ // ─────────────────────────────────────────────────────────────────────────────
+ // DEFAULT-STATE BASELINE
+ // ─────────────────────────────────────────────────────────────────────────────
+
+ /**
+ * Click Save, confirm the dialog, and throw if the save did not succeed.
+ * A void-returning wrapper around clickSave() for callers that want a save
+ * failure to surface as an error rather than a {success:false} flag.
+ */
+  async saveAndConfirm(): Promise<void> {
+    const result = await this.clickSave();
+    if (!result.success) {
+      throw new Error(`Currency save did not succeed${result.networkError ? `: ${result.networkError}` : ''}`);
+    }
+  }
+
+ /**
+ * Enforce the known default grid state for office 1604 before a test runs.
+ * Default = USD selected + USD set as default, CAD and MXN unselected, USD merchant
+ * set to the office default. No-ops when the grid is already at the default.
+ *
+ * Uses a bounded retry (max 3): read the grid, and if it has drifted, reset the
+ * fields, save, RELOAD, and re-read. The reload + re-read is required because the
+ * Save button reports success even when it is disabled, so saving alone never
+ * proves the reset actually landed — only reading the reloaded grid does. Throws
+ * if the grid is still drifted after 3 attempts so a broken baseline fails loudly
+ * instead of letting later tests run from a dirty starting state.
+ */
+  async ensureDefaultState(): Promise<void> {
+    const MAX_ATTEMPTS = 3;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      if (await this.isAtDefaultState()) return;
+      // Re-select USD first so its Is-Default checkbox becomes enabled, set USD as the
+      // single default (this clears any other default), then clear CAD/MXN selections.
+      await this.checkCheckbox('chkUSDSelected');
+      await this.checkCheckbox('chkUSDIsDefault');
+      await this.uncheckCheckbox('chkCADSelected');
+      await this.uncheckCheckbox('chkMXNSelected');
+      if (!(await this.getMerchantValue('drpUSDMerchant')).includes(MERCHANT_DATA.usd.id)) {
+        await this.selectMerchantOption('drpUSDMerchant', MERCHANT_DATA.usd.display);
+      }
+      if (await this.isSaveEnabled()) {
+        await this.saveAndConfirm();
+      }
+      await this.reloadAndNavigateToCurrencyTab();
+    }
+    if (!(await this.isAtDefaultState())) {
+      throw new Error('Currency baseline could not be enforced after 3 attempts (grid still drifted from the USD default state)');
+    }
+  }
+
+ /** Read the grid and report whether it currently matches the office default state. */
+  async isAtDefaultState(): Promise<boolean> {
+    const usdSelected = await this.getCheckboxState('chkUSDSelected');
+    const usdDefault = await this.getCheckboxState('chkUSDIsDefault');
+    const cadSelected = await this.getCheckboxState('chkCADSelected');
+    const mxnSelected = await this.getCheckboxState('chkMXNSelected');
+    const usdMerchant = await this.getMerchantValue('drpUSDMerchant');
+    return usdSelected.checked && usdDefault.checked
+      && !cadSelected.checked && !mxnSelected.checked
+      && usdMerchant.includes(MERCHANT_DATA.usd.id);
   }
 
  // ─────────────────────────────────────────────────────────────────────────────

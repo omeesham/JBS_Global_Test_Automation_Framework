@@ -17,6 +17,8 @@ Any multi-client TC-authoring pipeline MUST declare a baseline truth source per 
 
 old-site DOM > live new-site MCP DOM > error-context.md > screenshots > failure-summary.json > REQUIREMENTS.md > test plans > test cases > Jira. Old-site DOM overrides new-site DOM where both exist.
 
+> **Two-axis note (LR-063 / LR-ENC-004, added 2026-06-22)**: this ranking is the **render-truth** axis (what the app actually does — DOM wins). Jira/Confluence is the **intent-truth** axis (what it is *supposed* to do) on a **parallel track** — its low rank means "never overrides observed DOM," NOT "ignore it." Consult Rovo with/before the baseline walk (the LR-063 chain); treat every Jira fact as a LEAD re-verified against DOM. A DOM-vs-Jira divergence is signal to classify (bug candidate / requirement gap / intentional UX), never an automatic win for Jira.
+
 ## Workflow shape (applies to every Requirements → Planner → Generator loop AND every audit / find-bugs subplan that drives TC corrections)
 
 1. **Requirements (HUNTER)**: Phase 1a — visit baseline first, emit `clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-<YYYY-MM-DD>.md`; Phase 1b — visit new site, compare row-by-row, classify every divergence (per REQ-014).

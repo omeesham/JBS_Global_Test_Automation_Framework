@@ -46,3 +46,23 @@ Graduated from agent-mistakes.md. Practical decision trees for recurring situati
 **Because**: SP-B-LO-1b retry #2 (2026-04-20) spent ~15 automation attempts concluding the Save button was blocked by a synthetic-event trust gate at the framework level, and wrote a fiction rule (original ALL-076). The actual cause was a missed Radix AlertDialog that the existing `clickSaveAndConfirm` helper already drives — 15+ passing spec calls prove the pattern works unattended. Six guardrails (LR-012, navigation.md §B, ALL-073 repo-first, `clickSaveAndConfirm` helper, navigation.md §C registry, ALL-024 DOM-truth) each would have caught this on attempt 2. The gap wasn't the rules — it was that no symptom-triggered decision tree existed at the moment of failure.
 
 **Graduated from**: ALL-076 (rewrite), RCA session 2026-04-21
+
+## Pattern: Before declaring a control "un-drivable" / "won't accept input"
+**When you see**: a click/fill does nothing, an option won't commit, a search box "won't accept input", or you're about to skip a test / mark NOT-AUTOMATABLE citing "can't drive it".
+**Do** (ALL of, before concluding — LR-061 verify-before-blocked):
+1. Reload the page — a stuck modal/overlay from a prior bad keystroke (a `key Escape` that didn't fire, a left-open listbox) modally blocks every later click. Clear it first.
+2. Diff the page object's EXISTING selector against the live DOM — UI text drifts (`getByRole('textbox', {name:'Search pricebooks...'})` vs live `'Search pricing strategies...'`). A stale name silently never resolves (LR-029 class).
+3. Inspect the real DOM: target the option `<button>`, not an inner `<span>`; for a cmdk command palette, `fill` the search input (it filters live), THEN click the filtered option button. (`playwright-cli type` crashes on a CSS selector — use `fill`.)
+4. Try the page-object's documented helper.
+Only after all 4 may you record "un-drivable" — with the evidence of what was tried.
+**Because**: 2026-06-18 Pricing — TC-026..030 dropdowns were declared "un-drivable" after a few failed clicks. Real causes: a stuck currency-filter listbox (bad Escape) + a stale `'Search pricebooks...'` page-object selector + targeting the wrong element + never using the search box. A one-line selector fix re-enabled all 5. The user caught it ("you're assuming too much, not putting in enough effort").
+**Graduated from**: LR-061, RC-2, session 2026-06-18
+
+## Pattern: Before calling app behavior "corrupt" / "atypical" / "app-wide" / a "regression"
+**When you see**: one office/page shows unexpected data (empty dropdowns, disabled fields, a value that won't persist) and you're about to conclude the data is corrupt, the office is atypical, the bug is app-wide, or it's a regression.
+**Do** (LR-061 N≥2 evidence + LR-045 baseline):
+1. Test a SECOND office — does it reproduce? Same on 2 offices → app-wide; different → office data state, not app behavior. **Pick the right alternate**: corporate-only surfaces (Commission, Labor) live on office **1101** ("Corporate Office"); currency/pricing variety lives on **1605**. Re-check the right one before concluding missing/corrupt (LR-ENC-005).
+2. Check the BASELINE (old site) — is the state present there too? Present on baseline → intended/expected, not a bug. Absent → candidate regression.
+3. Classify only after ≥2 independent sources agree.
+**Because**: 2026-06-18 Pricing — "1604 is corrupt" was asserted from one office with no baseline; the disabled date-grid + empty dropdowns were never baseline-checked ("is it disabled in baseline? did you even check?" — no). The Corp-Pricing revert turned out app-wide (reproduced on 1605); the disabled cascade was expected behavior. One data point can't tell these apart.
+**Graduated from**: LR-061, RC-1/RC-4, session 2026-06-18

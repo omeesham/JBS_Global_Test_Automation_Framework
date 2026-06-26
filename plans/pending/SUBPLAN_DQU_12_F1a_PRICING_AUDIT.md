@@ -1,6 +1,8 @@
 # SUBPLAN: Neutral-Eye Audit + Fix — Pricing
 
-**Status**: Pending
+> **SUBSUMED 2026-06-19 into [SUBPLAN_PRICING_FCC.md](SUBPLAN_PRICING_FCC.md) (user triage 2026-06-15).** Its still-live focus areas — IsAlternate→UseDate→Start/End cascade, Corporate-grid validation, Corporate-Pricing-toggle-disables-fields, cell-edit restrictions, Price-Guide-inclusion default, EnableMultidayPricing tab-placement — were absorbed into the Pricing FCC pass and verified live (precedent: DQU_18 → Auto Add-On). No separate execution remains.
+
+**Status**: SUBSUMED (into SUBPLAN_PRICING_FCC.md — user triage 2026-06-15)
 **Priority**: P0-CYCLE-1
 **Created**: 2026-04-22
 **Parent**: PLAN_DELIVERABLE_QUALITY_UPGRADE.md
