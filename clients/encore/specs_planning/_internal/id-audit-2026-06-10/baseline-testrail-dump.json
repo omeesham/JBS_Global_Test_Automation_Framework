@@ -1,0 +1,515 @@
+{
+  "Local Office - ECT Settings": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 114,
+    "modules": [
+      "Local Office"
+    ],
+    "subModules": [
+      "ECT Settings"
+    ],
+    "firstIds": [
+      "TC-LOS-ECT-001",
+      "TC-LOS-ECT-002",
+      "TC-LOS-ECT-003"
+    ]
+  },
+  "Local Office - History": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 25,
+    "modules": [
+      "Local Office"
+    ],
+    "subModules": [
+      "History"
+    ],
+    "firstIds": [
+      "TC-LOS-HIS-001",
+      "TC-LOS-HIS-002",
+      "TC-LOS-HIS-003"
+    ]
+  },
+  "Local Office - Basic Info": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 268,
+    "modules": [
+      "Local Office"
+    ],
+    "subModules": [
+      "Basic Information"
+    ],
+    "firstIds": [
+      "TC-LOS-BAS-001",
+      "TC-LOS-BAS-002",
+      "TC-LOS-BAS-003"
+    ]
+  },
+  "Corporate Pricing - Detail": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 57,
+    "modules": [
+      "Corporate Pricing"
+    ],
+    "subModules": [
+      "Pricing Detail"
+    ],
+    "firstIds": [
+      "TC-LOC-CPR-201",
+      "TC-LOC-CPR-202",
+      "TC-LOC-CPR-203"
+    ]
+  },
+  "Corporate Pricing - Pricebook": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 68,
+    "modules": [
+      "Corporate Pricing"
+    ],
+    "subModules": [
+      "New Pricebook"
+    ],
+    "firstIds": [
+      "TC-LOC-CPR-301",
+      "TC-LOC-CPR-302",
+      "TC-LOC-CPR-303"
+    ]
+  },
+  "Corporate Pricing - Override": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 57,
+    "modules": [
+      "Corporate Pricing"
+    ],
+    "subModules": [
+      "Override"
+    ],
+    "firstIds": [
+      "TC-LOC-CPR-501",
+      "TC-LOC-CPR-502",
+      "TC-LOC-CPR-503"
+    ]
+  },
+  "Corporate Pricing - Search": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 69,
+    "modules": [
+      "Corporate Pricing"
+    ],
+    "subModules": [
+      "Search"
+    ],
+    "firstIds": [
+      "TC-LOC-CPR-001",
+      "TC-LOC-CPR-002",
+      "TC-LOC-CPR-003"
+    ]
+  },
+  "Corporate Pricing - Strategy": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 69,
+    "modules": [
+      "Corporate Pricing"
+    ],
+    "subModules": [
+      "Pricing Strategy"
+    ],
+    "firstIds": [
+      "TC-LOC-CPR-101",
+      "TC-LOC-CPR-102",
+      "TC-LOC-CPR-103"
+    ]
+  },
+  "Corporate Pricing - Toolbar": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 37,
+    "modules": [
+      "Corporate Pricing"
+    ],
+    "subModules": [
+      "Toolbar I/O"
+    ],
+    "firstIds": [
+      "TC-LOC-CPR-601",
+      "TC-LOC-CPR-602",
+      "TC-LOC-CPR-603"
+    ]
+  },
+  "Locations - Account & Address": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 111,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Account & Address"
+    ],
+    "firstIds": [
+      "TC-LOC-ACC-001",
+      "TC-LOC-ACC-002",
+      "TC-LOC-ACC-003"
+    ]
+  },
+  "Locations - Auto Add-On": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 81,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Auto Add-On"
+    ],
+    "firstIds": [
+      "TC-LOC-AAO-001",
+      "TC-LOC-AAO-002",
+      "TC-LOC-AAO-003"
+    ]
+  },
+  "Locations - Currency": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 114,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Currency"
+    ],
+    "firstIds": [
+      "TC-LOC-CUR-001",
+      "TC-LOC-CUR-002",
+      "TC-LOC-CUR-003"
+    ]
+  },
+  "Locations - Basic Information": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 126,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Basic Information"
+    ],
+    "firstIds": [
+      "TC-LOC-LP-001",
+      "TC-LOC-LP-002",
+      "TC-LOC-LP-003"
+    ]
+  },
+  "Locations - Legal": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 102,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Legal"
+    ],
+    "firstIds": [
+      "TC-LOC-LGL-001",
+      "TC-LOC-LGL-002",
+      "TC-LOC-LGL-003"
+    ]
+  },
+  "Locations - Local Information": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 575,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Local Information"
+    ],
+    "firstIds": [
+      "TC-LOC-LI-001",
+      "TC-LOC-LI-002",
+      "TC-LOC-LI-003"
+    ]
+  },
+  "Locations - Management History": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 100,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Management History"
+    ],
+    "firstIds": [
+      "TC-LOC-MGH-001",
+      "TC-LOC-MGH-002",
+      "TC-LOC-MGH-003"
+    ]
+  },
+  "Locations - Notes": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 366,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Notes"
+    ],
+    "firstIds": [
+      "TC-LOC-NTS-001",
+      "TC-LOC-NTS-002",
+      "TC-LOC-NTS-003"
+    ]
+  },
+  "Locations - Pricing": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 160,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Pricing"
+    ],
+    "firstIds": [
+      "TC-LOC-PRI-001",
+      "TC-LOC-PRI-002",
+      "TC-LOC-PRI-003"
+    ]
+  },
+  "Locations - Shared Setup": {
+    "headers": [
+      "ID",
+      "Title",
+      "Module",
+      "Sub-Module",
+      "Test Data",
+      "Type",
+      "Priority",
+      "Automation Type",
+      "Preconditions",
+      "Steps (Step)",
+      "Steps (Expected Result)"
+    ],
+    "rowCount": 232,
+    "modules": [
+      "Locations"
+    ],
+    "subModules": [
+      "Shared Setup Locations"
+    ],
+    "firstIds": [
+      "TC-LOC-SSL-001",
+      "TC-LOC-SSL-002",
+      "TC-LOC-SSL-003"
+    ]
+  }
+}

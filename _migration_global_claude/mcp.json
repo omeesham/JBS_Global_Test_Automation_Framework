@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "playwright-test": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["playwright", "run-test-mcp-server"],
+      "env": {
+        "BASE_URL": "https://demo.us.espocrm.com/"
+      }
+    }
+  }
+}

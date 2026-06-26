@@ -1,0 +1,138 @@
+﻿2026-06-10 19:44:44 [24948] INFO  AutomationFramework - === Global Test Setup Started ===
+2026-06-10 19:44:44 [24948] INFO  AutomationFramework - Workers: 2
+2026-06-10 19:44:44 [24948] INFO  AutomationFramework - Projects: 7
+2026-06-10 19:44:44 [24948] INFO  AutomationFramework - Created report directory: reports/test-results
+2026-06-10 19:44:46 [24948] INFO  AutomationFramework - Loading credentials from env source
+2026-06-10 19:44:46 [24948] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-06-10 19:44:46 [24948] INFO  AutomationFramework - === Global Test Setup Completed ===
+
+Running 2 tests using 1 worker
+
+[1A[2K[1/2] [setup] › tests\auth.setup.ts:25:6 › acquire shared auth state
+[1A[2K[setup] › tests\auth.setup.ts:25:6 › acquire shared auth state
+[auth.setup] existing state stale -> refresh under lock
+
+[1A[2K2026-06-10 19:44:55 [7916] INFO  AutomationFramework - Loading credentials from env source
+
+[1A[2K2026-06-10 19:44:55 [7916] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+
+[1A[2K2026-06-10 19:45:00 [7916] INFO  AutomationFramework - LoginPage constructed for Navigator Cloud
+
+[1A[2K2026-06-10 19:45:00 [7916] INFO  AutomationFramework - Starting Microsoft SSO login for s-prd-clickauto@psav.com
+
+[1A[2K2026-06-10 19:45:00 [7916] INFO  AutomationFramework - Waiting for Navigator Cloud sign-in page...
+
+[1A[2K2026-06-10 19:45:00 [7916] INFO  AutomationFramework - [OK] Clicked "Continue Now" on Navigator Cloud sign-in page
+
+[1A[2K2026-06-10 19:45:00 [7916] INFO  AutomationFramework - Waiting for Microsoft login page...
+
+[1A[2K2026-06-10 19:45:04 [7916] INFO  AutomationFramework - [OK] Microsoft login page loaded
+
+[1A[2K2026-06-10 19:45:04 [7916] INFO  AutomationFramework - Entering email...
+
+[1A[2K2026-06-10 19:45:05 [7916] INFO  AutomationFramework - Waiting for password field...
+
+[1A[2K2026-06-10 19:45:05 [7916] INFO  AutomationFramework - Entering password...
+
+[1A[2K2026-06-10 19:45:07 [7916] INFO  AutomationFramework - "Stay signed in?" prompt detected, clicking Yes...
+
+[1A[2K2026-06-10 19:45:08 [7916] INFO  AutomationFramework - [OK] "Stay signed in" accepted
+
+[1A[2K2026-06-10 19:45:08 [7916] INFO  AutomationFramework - Waiting for redirect to Navigator Cloud...
+
+[1A[2K2026-06-10 19:45:12 [7916] INFO  AutomationFramework - [wait] Waiting for domcontentloaded after redirect...
+
+[1A[2K2026-06-10 19:45:12 [7916] INFO  AutomationFramework - [wait] Waiting for full page load...
+
+[1A[2K2026-06-10 19:45:12 [7916] INFO  AutomationFramework - [OK] Page load complete after redirect
+
+[1A[2K2026-06-10 19:45:14 [7916] INFO  AutomationFramework - Authentication check: [OK] Authenticated -- URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/home
+
+[1A[2K2026-06-10 19:45:14 [7916] INFO  AutomationFramework - [OK] Microsoft SSO login successful
+
+[1A[2K[auth.setup] login succeeded on attempt 1/3
+
+[1A[2K[auth.setup] state saved -> C:\Users\rutvi\projects\encore_framework\clients\encore\.auth\encore-state.json
+
+[1A[2K[auth.setup] state file validates -> session+csrf cookies present, not expired
+
+[1A[2K[2/2] [encore-locations] › tests\locations\location-local-information.spec.ts:437:7 › Location Local Info @locations @local-info › TC-LOC-LI-070: Skip Billing toggle persists after save+reload
+[1A[2K[encore-locations] › tests\locations\location-local-information.spec.ts:437:7 › Location Local Info @locations @local-info › TC-LOC-LI-070: Skip Billing toggle persists after save+reload
+2026-06-10 19:45:16 [14008] INFO  AutomationFramework - Loading credentials from env source
+
+[1A[2K2026-06-10 19:45:16 [14008] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+
+[1A[2K2026-06-10 19:45:22 [14008] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+
+[1A[2K2026-06-10 19:45:22 [14008] INFO  AutomationFramework - LocationLocalInfoPage initialized
+
+[1A[2K2026-06-10 19:45:22 [14008] INFO  AutomationFramework - Navigating to locations/1604/settings/location
+
+[1A[2K2026-06-10 19:45:22 [14008] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+
+[1A[2K2026-06-10 19:45:23 [14008] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+
+[1A[2K2026-06-10 19:45:25 [14008] INFO  AutomationFramework - [OK] Tab active: tabLocalInformation
+
+[1A[2K2026-06-10 19:45:25 [14008] INFO  AutomationFramework - [OK] Form ready: chkSkipBilling is enabled
+
+[1A[2K2026-06-10 19:45:25 [14008] INFO  AutomationFramework - Checkbox [chkSkipBilling] -> checked=false disabled=false
+
+[1A[2K2026-06-10 19:45:25 [14008] INFO  AutomationFramework - Checked: chkSkipBilling
+
+[1A[2K2026-06-10 19:45:25 [14008] INFO  AutomationFramework - Save confirmation dialog appeared -- confirming
+
+[1A[2K2026-06-10 19:45:26 [14008] INFO  AutomationFramework - [OK] Save complete (btnSaveLocalInfo)
+
+[1A[2K2026-06-10 19:45:26 [14008] INFO  AutomationFramework - Reloading page and navigating back to Local Information
+
+[1A[2K2026-06-10 19:45:26 [14008] INFO  AutomationFramework - Navigating to locations/1604/settings/location
+
+[1A[2K2026-06-10 19:45:26 [14008] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+
+[1A[2K2026-06-10 19:45:27 [14008] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+
+[1A[2K2026-06-10 19:45:29 [14008] INFO  AutomationFramework - [OK] Tab active: tabLocalInformation
+
+[1A[2K2026-06-10 19:45:29 [14008] INFO  AutomationFramework - [OK] Form ready: chkSkipBilling is enabled
+
+[1A[2K2026-06-10 19:45:29 [14008] INFO  AutomationFramework - Checkbox [chkSkipBilling] -> checked=false disabled=false
+
+[1A[2K2026-06-10 19:45:29 [14008] INFO  AutomationFramework - [OK] Form ready: chkSkipBilling is enabled
+
+[1A[2K2026-06-10 19:45:29 [14008] INFO  AutomationFramework - Checkbox [chkSkipBilling] -> checked=false disabled=false
+
+[1A[2K  1) [encore-locations] › tests\locations\location-local-information.spec.ts:437:7 › Location Local Info @locations @local-info › TC-LOC-LI-070: Skip Billing toggle persists after save+reload 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      454 |  // Verify toggled state persisted
+      455 |       const afterToggle = await locationLocalInfoPage.getCheckboxState('chkSkipBilling');
+    > 456 |       expect(afterToggle.checked).toBe(!initial.checked);
+          |                                   ^
+      457 |     } finally {
+      458 |  // ALWAYS restore original state -- prevents pollution for LI-002 on next run
+      459 |       await locationLocalInfoPage.waitForFormReady('chkSkipBilling');
+        at C:\Users\rutvi\projects\encore_framework\clients\encore\tests\locations\location-local-information.spec.ts:456:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\location-local-information-2503a--persists-after-save-reload-encore-locations\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: reports\test-results\location-local-information-2503a--persists-after-save-reload-encore-locations\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\location-local-information-2503a--persists-after-save-reload-encore-locations\trace.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\location-local-information-2503a--persists-after-save-reload-encore-locations\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  1 failed
+    [encore-locations] › tests\locations\location-local-information.spec.ts:437:7 › Location Local Info @locations @local-info › TC-LOC-LI-070: Skip Billing toggle persists after save+reload 
+  1 passed (45.8s)

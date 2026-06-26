@@ -1,0 +1,118 @@
+{
+  "last_updated": "2026-06-22",
+  "bank": [],
+  "reported_history": [
+    {
+      "date": "2026-06-01",
+      "lines": [
+        "Reviewed requirements documentation and Jira ticket data for the local office and locations area ahead of upcoming module walk sessions",
+        "Reviewed Jira requirements across the locations area — noted expected field behaviors and items to verify during upcoming walk sessions"
+      ]
+    },
+    {
+      "date": "2026-06-02",
+      "lines": [
+        "Reviewed test coverage for the Locations area against Jira requirements — walked the management history and account sections to verify field behavior matched documentation",
+        "Fixed a test that was passing without properly checking the expected application state — updated it to verify the right condition based on Jira-documented behavior"
+      ]
+    },
+    {
+      "date": "2026-06-03",
+      "lines": [
+        "Walked the Basic Information tab in the Locations area and reviewed Jira-extracted field requirements — documented where current app behavior differed from what the old system showed",
+        "Reviewed requirements documentation for the left panel section of the Locations module based on Jira data — noted gaps between observed and documented field behavior"
+      ]
+    },
+    {
+      "date": "2026-06-04",
+      "lines": [
+        "Continued reviewing Jira requirements and walk findings for the local office and locations area following Wednesday's sessions",
+        "Reviewed test coverage notes for the locations modules based on Jira ticket data — continued the field-by-field breakdown from earlier walk sessions"
+      ]
+    },
+    {
+      "date": "2026-06-05",
+      "lines": [
+        "Walked through the Corporate Pricing module and reviewed Jira requirements for the detail, search, and strategy sections — captured current field behavior and compared against baseline documentation",
+        "Continued requirements review for the Corporate Pricing area — noted fields that would need updated test coverage based on Jira ticket data"
+      ]
+    },
+    {
+      "date": "2026-06-08",
+      "lines": [
+        "Reviewed and corrected test case documentation across a range of modules — updated entries to match current Jira requirements and removed outdated references",
+        "Fixed a test for the Notes module that had an incorrect check — corrected it to verify the right application state before completing, as per Jira requirements"
+      ]
+    },
+    {
+      "date": "2026-06-09",
+      "lines": [
+        "Corrected the test case report file after running into a format issue — updated how test results are compiled to ensure the output matched the expected structure",
+        "Cleaned up test case descriptions across the locations and local office modules — updated wording to more accurately reflect Jira ticket language"
+      ]
+    },
+    {
+      "date": "2026-06-10",
+      "lines": [
+        "Upgraded specs for Corporate Pricing — added test coverage for recently reviewed sections including the override and toolbar areas based on Jira requirements",
+        "Reviewed and corrected test case descriptions across Corporate Pricing to ensure field coverage aligned with documented Jira requirements"
+      ]
+    },
+    {
+      "date": "2026-06-11",
+      "lines": [
+        "Updated and improved the test case report format — reorganized module data to make results easier to follow and aligned with the latest Jira requirements",
+        "Created specs for Account & Address, Auto Add-On, and Basic Information tabs in the Locations area based on Jira requirements and walk findings"
+      ]
+    },
+    {
+      "date": "2026-06-12",
+      "lines": [
+        "Continued Corporate Pricing spec work — reviewed the search and new pricebook sections against Jira requirements and confirmed key field behaviors were documented",
+        "Reviewed overall test coverage across recently updated modules to confirm the week's spec additions aligned with Jira requirements"
+      ]
+    },
+    {
+      "date": "2026-06-15",
+      "lines": [
+        "Updated test case documentation to reflect Notes tab corrections — improved how results are described to make the pass/fail reasoning clearer for reviewers",
+        "Reviewed and corrected the test case report to ensure results accurately reflected the latest verified application behavior against Jira requirements"
+      ]
+    },
+    {
+      "date": "2026-06-16",
+      "lines": [
+        "Continued reviewing test case coverage across the locations area — verified recent spec additions aligned with Jira requirements following last week's work",
+        "Reviewed and corrected a few requirements notes for the local office and locations modules based on Jira ticket data"
+      ]
+    },
+    {
+      "date": "2026-06-17",
+      "lines": [
+        "Upgraded specs for the Currency tab in the Locations area — added coverage for field validation and save behavior based on Jira requirements",
+        "Reviewed Jira requirements for the Currency module and corrected a few test cases that didn't match observed application behavior"
+      ]
+    },
+    {
+      "date": "2026-06-18",
+      "lines": [
+        "Continued work on the Currency tab specs — reviewed and finalized test coverage against Jira requirements to close out the Currency module spec update",
+        "Reviewed requirements documentation across the local office and locations modules to align upcoming Pricing spec work with Jira"
+      ]
+    },
+    {
+      "date": "2026-06-19",
+      "lines": [
+        "Upgraded specs for the Pricing tab in the Locations area — added field-level coverage based on Jira requirements and walk findings",
+        "Walked through the Pricing module to verify current application behavior matched Jira-documented requirements — updated test cases based on findings"
+      ]
+    },
+    {
+      "date": "2026-06-22",
+      "lines": [
+        "Reviewing Jira requirements and walk findings for the locations area — continuing spec coverage work following last week's Pricing and Currency tab updates",
+        "Working through remaining location module tabs to verify current coverage and ensure specs are aligned with Jira documentation"
+      ]
+    }
+  ]
+}

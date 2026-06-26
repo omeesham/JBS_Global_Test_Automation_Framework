@@ -1,0 +1,81 @@
+﻿2026-06-10 19:47:33 [30508] INFO  AutomationFramework - === Global Test Setup Started ===
+2026-06-10 19:47:33 [30508] INFO  AutomationFramework - Workers: 2
+2026-06-10 19:47:33 [30508] INFO  AutomationFramework - Projects: 7
+2026-06-10 19:47:33 [30508] INFO  AutomationFramework - Created report directory: reports/test-results
+2026-06-10 19:47:34 [30508] INFO  AutomationFramework - Loading credentials from env source
+2026-06-10 19:47:34 [30508] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-06-10 19:47:34 [30508] INFO  AutomationFramework - === Global Test Setup Completed ===
+
+Running 2 tests using 1 worker
+
+[auth.setup] existing state stale -> refresh under lock
+2026-06-10 19:47:44 [33704] INFO  AutomationFramework - Loading credentials from env source
+2026-06-10 19:47:44 [33704] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-06-10 19:47:50 [33704] INFO  AutomationFramework - LoginPage constructed for Navigator Cloud
+2026-06-10 19:47:50 [33704] INFO  AutomationFramework - Starting Microsoft SSO login for s-prd-clickauto@psav.com
+2026-06-10 19:47:50 [33704] INFO  AutomationFramework - Waiting for Navigator Cloud sign-in page...
+2026-06-10 19:47:51 [33704] INFO  AutomationFramework - [OK] Clicked "Continue Now" on Navigator Cloud sign-in page
+2026-06-10 19:47:51 [33704] INFO  AutomationFramework - Waiting for Microsoft login page...
+2026-06-10 19:48:13 [33704] ERROR AutomationFramework - Microsoft SSO login failed: TimeoutError: page.waitForSelector: Timeout 20000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[type="email"][name="loginfmt"]') to be visible[22m
+[2m    - waiting for" https://login.microsoftonline.com/5401e4bc-dd14-49e9-83f0-6149a597b98a/oauth2/v2.0/authorize?client_id=eb2591be-c4b2-4fbe-b12c-6328bdcfaa2f&redirect_uri=https%3a%2f%2fguest.encoreglobal.com%2fencoreg…" navigation to finish...[22m
+[2m    - navigated to "https://login.microsoftonline.com/5401e4bc-dd14-49e9-83f0-6149a597b98a/oauth2/v2.0/authorize?client_id=eb2591be-c4b2-4fbe-b12c-6328bdcfaa2f&redirect_uri=https%3a%2f%2fguest.encoreglobal.com%2fencoreg…"[22m
+
+2026-06-10 19:48:17 [33704] INFO  AutomationFramework - [screenshot] Screenshot saved: reports/test-results/screenshots/screenshot-microsoft-sso-login-failed-2026-06-10T19-48-13.878Z.png
+node.exe : [auth.setup] attempt 1/3 failed: loginWithMicrosoft returned false
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([auth.setup] at... returned false:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2026-06-10 19:48:24 [33704] INFO  AutomationFramework - LoginPage constructed for Navigator Cloud
+2026-06-10 19:48:24 [33704] INFO  AutomationFramework - Starting Microsoft SSO login for s-prd-clickauto@psav.com
+2026-06-10 19:48:24 [33704] INFO  AutomationFramework - Waiting for Navigator Cloud sign-in page...
+2026-06-10 19:48:25 [33704] INFO  AutomationFramework - [OK] Clicked "Continue Now" on Navigator Cloud sign-in page
+2026-06-10 19:48:25 [33704] INFO  AutomationFramework - Waiting for Microsoft login page...
+2026-06-10 19:48:30 [33704] INFO  AutomationFramework - [OK] Microsoft login page loaded
+2026-06-10 19:48:30 [33704] INFO  AutomationFramework - Entering email...
+2026-06-10 19:48:30 [33704] INFO  AutomationFramework - Waiting for password field...
+2026-06-10 19:48:30 [33704] INFO  AutomationFramework - Entering password...
+2026-06-10 19:48:32 [33704] INFO  AutomationFramework - "Stay signed in?" prompt detected, clicking Yes...
+2026-06-10 19:48:33 [33704] INFO  AutomationFramework - [OK] "Stay signed in" accepted
+2026-06-10 19:48:33 [33704] INFO  AutomationFramework - Waiting for redirect to Navigator Cloud...
+2026-06-10 19:48:36 [33704] INFO  AutomationFramework - [wait] Waiting for domcontentloaded after redirect...
+2026-06-10 19:48:36 [33704] INFO  AutomationFramework - [wait] Waiting for full page load...
+2026-06-10 19:48:36 [33704] INFO  AutomationFramework - [OK] Page load complete after redirect
+2026-06-10 19:48:38 [33704] INFO  AutomationFramework - Authentication check: [OK] Authenticated -- URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/home
+2026-06-10 19:48:38 [33704] INFO  AutomationFramework - [OK] Microsoft SSO login successful
+[auth.setup] login succeeded on attempt 2/3
+[auth.setup] state saved -> C:\Users\rutvi\projects\encore_framework\clients\encore\.auth\encore-state.json
+[auth.setup] state file validates -> session+csrf cookies present, not expired
+  ok 1 [setup] › tests\auth.setup.ts:25:6 › acquire shared auth state (1.1m)
+2026-06-10 19:48:40 [28572] INFO  AutomationFramework - Loading credentials from env source
+2026-06-10 19:48:40 [28572] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-06-10 19:48:46 [28572] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+2026-06-10 19:48:46 [28572] INFO  AutomationFramework - LocationLocalInfoPage initialized
+2026-06-10 19:48:46 [28572] INFO  AutomationFramework - Navigating to locations/1604/settings/location
+2026-06-10 19:48:46 [28572] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+2026-06-10 19:48:46 [28572] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+2026-06-10 19:48:49 [28572] INFO  AutomationFramework - [OK] Tab active: tabLocalInformation
+2026-06-10 19:48:49 [28572] INFO  AutomationFramework - [OK] Form ready: chkSkipBilling is enabled
+2026-06-10 19:48:49 [28572] INFO  AutomationFramework - Checkbox [chkSkipBilling] -> checked=true disabled=false
+2026-06-10 19:48:49 [28572] INFO  AutomationFramework - Unchecked: chkSkipBilling
+2026-06-10 19:48:49 [28572] INFO  AutomationFramework - Save confirmation dialog appeared -- confirming
+2026-06-10 19:48:49 [28572] INFO  AutomationFramework - [OK] Save complete (btnSaveLocalInfo)
+2026-06-10 19:48:49 [28572] INFO  AutomationFramework - Reloading page and navigating back to Local Information
+2026-06-10 19:48:50 [28572] INFO  AutomationFramework - Navigating to locations/1604/settings/location
+2026-06-10 19:48:50 [28572] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+2026-06-10 19:48:51 [28572] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/location
+2026-06-10 19:48:52 [28572] INFO  AutomationFramework - [OK] Tab active: tabLocalInformation
+2026-06-10 19:48:52 [28572] INFO  AutomationFramework - [OK] Form ready: chkSkipBilling is enabled
+2026-06-10 19:48:52 [28572] INFO  AutomationFramework - Checkbox [chkSkipBilling] -> checked=false disabled=false
+2026-06-10 19:48:52 [28572] INFO  AutomationFramework - [OK] Form ready: chkSkipBilling is enabled
+2026-06-10 19:48:52 [28572] INFO  AutomationFramework - Checkbox [chkSkipBilling] -> checked=false disabled=false
+2026-06-10 19:48:52 [28572] INFO  AutomationFramework - Checked: chkSkipBilling
+2026-06-10 19:48:53 [28572] INFO  AutomationFramework - Save confirmation dialog appeared -- confirming
+2026-06-10 19:48:53 [28572] INFO  AutomationFramework - [OK] Save complete (btnSaveLocalInfo)
+  ok 2 [encore-locations] › tests\locations\location-local-information.spec.ts:437:7 › Location Local Info @locations @local-info › TC-LOC-LI-070: Skip Billing toggle persists after save+reload (7.4s)
+
+  2 passed (1.3m)

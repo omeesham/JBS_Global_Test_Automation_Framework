@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "plugins": {
+    "playwright@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\rutvi\\.claude\\plugins\\cache\\claude-plugins-official\\playwright\\61c0597779bd",
+        "version": "61c0597779bd",
+        "installedAt": "2026-02-12T14:20:43.853Z",
+        "lastUpdated": "2026-03-21T08:22:07.814Z",
+        "gitCommitSha": "2cd88e7947b7382e045666abee790c7f55f669f3"
+      }
+    ],
+    "claude-md-management@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\rutvi\\.claude\\plugins\\cache\\claude-plugins-official\\claude-md-management\\1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-21T22:05:47.691Z",
+        "lastUpdated": "2026-02-21T22:05:47.691Z",
+        "gitCommitSha": "aa296ec81e8ccb49c9784f167c2c0aa625a86cec"
+      }
+    ],
+    "claude-code-setup@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\rutvi\\.claude\\plugins\\cache\\claude-plugins-official\\claude-code-setup\\1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-21T22:06:20.323Z",
+        "lastUpdated": "2026-02-21T22:06:20.323Z",
+        "gitCommitSha": "aa296ec81e8ccb49c9784f167c2c0aa625a86cec"
+      }
+    ],
+    "code-simplifier@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\rutvi\\.claude\\plugins\\cache\\claude-plugins-official\\code-simplifier\\1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-21T22:06:44.087Z",
+        "lastUpdated": "2026-02-21T22:06:44.087Z",
+        "gitCommitSha": "aa296ec81e8ccb49c9784f167c2c0aa625a86cec"
+      }
+    ],
+    "feature-dev@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\rutvi\\.claude\\plugins\\cache\\claude-plugins-official\\feature-dev\\61c0597779bd",
+        "version": "61c0597779bd",
+        "installedAt": "2026-02-21T22:07:27.440Z",
+        "lastUpdated": "2026-03-21T08:22:07.838Z",
+        "gitCommitSha": "aa296ec81e8ccb49c9784f167c2c0aa625a86cec"
+      }
+    ]
+  }
+}
