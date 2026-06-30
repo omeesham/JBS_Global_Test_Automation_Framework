@@ -40,7 +40,7 @@ export class LocationPricingPage extends BasePage {
 
  /**
  * Force-reload the current page and re-select the Pricing tab.
- * MNT-003: delegates to navigate-away + navigateToSubTab instead of reimplementing.
+ * Delegates to navigate-away + navigateToSubTab instead of reimplementing.
  */
   async reloadPricingTab(officeNo: string = '1604'): Promise<void> {
     const base = this.config?.base_url || '';
@@ -112,7 +112,7 @@ export class LocationPricingPage extends BasePage {
     return !disabled;
   }
 
- /** Get the current value of a primary pricing dropdown. MNT-012: delegates to BasePage.getFieldDisplayValue. */
+ /** Get the current value of a primary pricing dropdown. Delegates to the shared BasePage helper. */
   async getDropdownValue(selectorKey: string): Promise<string> {
     return this.getFieldDisplayValue(selectorKey);
   }
@@ -186,7 +186,7 @@ export class LocationPricingPage extends BasePage {
  // CURRENCY FILTER
  // ---------------------------------------------------------------------------
 
- /** Get the current text of the currency filter dropdown. MNT-012: delegates to BasePage.getFieldDisplayValue. */
+ /** Get the current text of the currency filter dropdown. Delegates to the shared BasePage helper. */
   async getCurrencyFilterValue(): Promise<string> {
     return this.getFieldDisplayValue('drpCurrencyFilter');
   }
@@ -573,7 +573,7 @@ export class LocationPricingPage extends BasePage {
 
  /**
  * Wait for the Save button to become enabled (form dirty state propagation).
- * MNT-004 + MNT-012: delegates to BasePage.waitForSaveEnabled (no hardcoded selectors).
+ * Delegates to BasePage.waitForSaveEnabled (no hardcoded selectors).
  * @param saveBtnKey - defaults to 'btnSavePricing' for this tab
  * @param timeout - defaults to 5000ms
  */

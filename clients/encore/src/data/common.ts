@@ -1,8 +1,8 @@
 /**
  * Test data for: Shared constants (cross-spec)
- * Consumed by: All specs in specs/
+ * Consumed by: All specs in tests/
  * Office: 1604 (Parker Palm Springs)
- * MNT-009: values used identically in 3+ specs belong here, not redefined per spec.
+ * Shared constants used across multiple specs live here, not redefined per spec.
  * Changing values here affects ALL specs.
  */
 

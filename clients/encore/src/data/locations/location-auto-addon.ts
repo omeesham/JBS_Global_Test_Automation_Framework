@@ -15,7 +15,7 @@ export const AUTO_ADDON_DEFAULTS = [
   { key: 'chkAutoAddonLabor', name: 'Labor', checked: true },
 ] as const;
 
-/** Data-driven persistence cases for TC-017/018 (MNT-008: identical flow, different key). */
+/** Data-driven persistence cases for TC-017/018 (identical flow, different key). */
 export const UNCHECK_PERSISTENCE_CASES = [
   { key: 'chkAutoAddonWordly', name: 'Wordly', tc: 'TC-LOC-AAO-017' },
   { key: 'chkAutoAddonLabor', name: 'Labor', tc: 'TC-LOC-AAO-018' },

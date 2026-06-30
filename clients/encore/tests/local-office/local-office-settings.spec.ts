@@ -469,7 +469,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
   test('TC-LOS-BAS-035: Discount exemption toggles independently', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
     expect(await localOfficeSettingsPage.isElementVisible('tblDiscountExemptions')).toBe(true);
-    const beforeCount = await localOfficeSettingsPage.getExemptCount();
     await localOfficeSettingsPage.toggleExemption(0);
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
  // Cleanup
@@ -772,7 +771,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
  // Re-enable once the dirty-tracking wiring on the Active toggle cell is fixed.
  // [2026-06-02 RECHECK on 1604] Un-skipped + ran live: STILL FAILS — toggled the room inactive,
  // saved, reloaded, and it came back ACTIVE (the inactive state does not persist). Stays skipped.
-  test.skip('TC-LOS-BAS-048: Verify a room Inactive toggle persists after save and reload', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test.skip('TC-LOS-BAS-048: Verify a room Inactive toggle persists after save and reload', async ({ localOfficeSettingsPage }) => {
  // Full round-trip: add room, toggle to inactive, save, reload, verify inactive persists.
     test.setTimeout(90_000);
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);

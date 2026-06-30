@@ -58,7 +58,7 @@ export const MULTI_ALT_PRICEBOOKS = [
 export const DEFAULT_CURRENCY_FILTER = 'All';
 
 /**
- * Dropdown persistence test cases (TC-026..030). MNT-008: data-driven loop.
+ * Dropdown persistence test cases (TC-026..030). Data-driven loop.
  * Each entry has `option` (target/DB value) and `alternateOption` (different value for bidirectional toggle).
  * The toggle pattern ensures tests ALWAYS change the dropdown — fixing the silent-pass bug where
  * selectPrimaryDropdownOption skips interaction when current DB value already matches `option`.

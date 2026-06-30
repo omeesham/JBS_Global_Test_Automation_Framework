@@ -586,7 +586,7 @@ export class BasePage {
 
  /**
  * Get column header texts by iterating over an array of selector keys.
- * MNT-012: shared pattern used by Currency (4 cols) + Pricing (7 cols) -> BasePage.
+ * Shared pattern used by Currency (4 cols) + Pricing (7 cols).
  * @param keys - Array of selector keys for column header elements
  * @returns Array of trimmed header texts in the same order as keys
  */
@@ -602,7 +602,7 @@ export class BasePage {
  /**
  * Get displayed value of a form field (input or text element).
  * Tries inputValue first (for input elements), falls back to textContent.
- * MNT-012: shared pattern used by Currency (getMerchantValue) + Pricing (getDropdownValue, getCurrencyFilterValue) -> BasePage.
+ * Shared pattern used by Currency (getMerchantValue) + Pricing (getDropdownValue, getCurrencyFilterValue).
  * @param selectorKey - Selector key for the field element
  * @returns Trimmed field display value
  */
@@ -615,7 +615,7 @@ export class BasePage {
  /**
  * Wait for a save button to become enabled (form dirty state propagation).
  * Polls the button disabled state efficiently.
- * MNT-012: extracted from LocationPricingPage -- all tabs have save buttons.
+ * Shared by all tabs — every tab has a save button.
  * @param saveBtnKey - Selector key for the save button
  * @param timeout - Maximum wait time in ms (default: 5000)
  * @returns true if save became enabled within timeout, false otherwise

@@ -155,7 +155,7 @@ Allure's **Categories** panel groups failures into the same buckets visually.
 
 ## Updating
 
-Receive the latest version from the QA automation team. Do **not** commit or edit files under `src/**` or `specs/**` — those are framework-owned and will be overwritten on the next update. If you need a change in those paths, request it from the QA automation team.
+Receive the latest version from the QA automation team. Do **not** commit or edit files under `src/**` or `tests/**` — those are framework-owned and will be overwritten on the next update. If you need a change in those paths, request it from the QA automation team.
 
 Safe-to-edit without conflicts: anything under `reports/` (generated output) and `node_modules/` (installed). Credentials live in your environment / secret store, not in the repo.
 

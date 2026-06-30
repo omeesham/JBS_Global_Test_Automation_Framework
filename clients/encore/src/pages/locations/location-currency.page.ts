@@ -69,7 +69,7 @@ export class LocationCurrencyPage extends BasePage {
     return rows;
   }
 
- /** Get the visible text of all 4 column headers. MNT-012: delegates to BasePage.getColumnHeadersByKeys. */
+ /** Get the visible text of all 4 column headers. Delegates to the shared BasePage helper. */
   async getColumnHeaders(): Promise<string[]> {
     return this.getColumnHeadersByKeys(['colHeaderCurrencyCode', 'colHeaderSelected', 'colHeaderIsDefault', 'colHeaderMerchant']);
   }
@@ -116,7 +116,7 @@ export class LocationCurrencyPage extends BasePage {
  // MERCHANT DROPDOWN OPERATIONS
  // ─────────────────────────────────────────────────────────────────────────────
 
- /** Get the current displayed value of a merchant dropdown. MNT-012: delegates to BasePage.getFieldDisplayValue. */
+ /** Get the current displayed value of a merchant dropdown. Delegates to the shared BasePage helper. */
   async getMerchantValue(dropdownKey: string): Promise<string> {
     return this.getFieldDisplayValue(dropdownKey);
   }

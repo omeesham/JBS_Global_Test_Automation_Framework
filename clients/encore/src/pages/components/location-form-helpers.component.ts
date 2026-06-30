@@ -39,7 +39,7 @@ export abstract class LocationFormHelpers extends BasePage {
     await this.page.waitForFunction(
       (selector: string) => {
         const node = document.querySelector(selector);
-        return node && !(node as HTMLInputElement).disabled && !node.getAttribute('aria-disabled');
+        return node && !(node as HTMLInputElement).disabled && node.getAttribute('aria-disabled') !== 'true';
       },
       LocationSettingsSelectors[selectorKey],
       { timeout },

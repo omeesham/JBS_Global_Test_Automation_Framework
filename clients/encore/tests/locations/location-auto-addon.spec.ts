@@ -191,7 +191,7 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession')).toBe(false);
   });
 
- // --- Round-Trip Persistence: Data-Driven (TC-017/018, MNT-008) ---
+ // --- Round-Trip Persistence: Data-Driven (TC-017/018) ---
   for (const item of UNCHECK_PERSISTENCE_CASES) {
     test(`${item.tc}: ${item.name} Uncheck Persists After Save+Reload`, async ({ locationAutoAddonPage, dependencyGate }) => {
       dependencyGate(['TC-LOC-AAO-001']);

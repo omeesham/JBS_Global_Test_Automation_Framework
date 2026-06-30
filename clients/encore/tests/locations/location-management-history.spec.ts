@@ -81,12 +81,12 @@ test.describe('Location Management History @locations @management-history', () =
     await locationManagementHistoryPage.setRowsPerPage(DEFAULT_ROWS_PER_PAGE);
   });
 
-  test('TC-LOC-MGH-006: Pagination controls disabled when only one page', async ({ locationManagementHistoryPage, dependencyGate }) => {
+  test('TC-LOC-MGH-006: Pagination controls disabled when only one page', async ({ dependencyGate }) => {
     dependencyGate(['TC-LOC-MGH-001']);
     test.skip(true, 'Office 1604 has 2900+ rows -- always multi-page. Requires a location with <= 20 history rows.');
   });
 
-  test('TC-LOC-MGH-007: Empty state message for location with no history', async ({ locationManagementHistoryPage, dependencyGate }) => {
+  test('TC-LOC-MGH-007: Empty state message for location with no history', async ({ dependencyGate }) => {
     dependencyGate(['TC-LOC-MGH-001']);
  // TC requirement: a location with NO history. 1604 has history.
  // This test documents the expected empty state behavior.
@@ -214,7 +214,7 @@ test.describe('Location Management History @locations @management-history', () =
  // a live walk (2026-06-02) — all four nav buttons stay in the DOM
  // through the full Next→Prev→Last→First sequence. The real failure was our getPaginationText() reading a
  // <span> when the indicator is an <input> + a "/N" span; that selector is now fixed. Assertions unchanged.
-  test('TC-LOC-MGH-019: Pagination navigation enables with multiple pages', async ({ locationManagementHistoryPage, dependencyGate }) => {
+  test('TC-LOC-MGH-019: Pagination navigation enables with multiple pages', async ({ locationManagementHistoryPage }) => {
  // Page 1: next/last enabled, first/prev disabled
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('first')).toBe(true);
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('previous')).toBe(true);

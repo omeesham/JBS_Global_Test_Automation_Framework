@@ -98,7 +98,7 @@ export const ALL_SELECTORS = buildAllSelectors(
 // (LOS is allowed to "collide" with Location Settings — different pages, same button names)
 // HIS + ECT namespaces are namespace-prefixed (drpHistoryType, fldVenueFixedCosts, etc.)
 // and share zero keys with Settings — included here to verify same property.
-const _LOS_COLLISION_CHECK = buildAllSelectors(
+void buildAllSelectors(
   MicrosoftLoginSelectors,
   LocalOfficeSettingsSelectors,
   LocalOfficeHistorySelectors,
@@ -118,7 +118,7 @@ const _LOS_COLLISION_CHECK = buildAllSelectors(
 // This check verifies the 6 CP screen partitions don't collide with EACH OTHER (intra-module boundary):
 // Override uses `ovr`-prefixed keys and New Pricebook (NM-1440) uses `np`-prefixed keys,
 // so each shares zero keys with Search and with each other.
-const _CORPORATE_PRICING_COLLISION_CHECK = buildAllSelectors(
+void buildAllSelectors(
   CorporatePricingSearchSelectors,
   CorporatePricingDetailsSelectors,
   CorporatePricingStrategySelectors,

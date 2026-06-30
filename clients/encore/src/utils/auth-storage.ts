@@ -148,16 +148,15 @@ export function deleteState(): void {
 }
 
 /**
- * Group A-2 (lifecycle refactor 2026-05-21): single source of truth
- * for SSO login. Both `auth.setup.ts` and `fixtures.ts:refreshSharedState` consume this.
+ * Single source of truth for SSO login. Both `auth.setup.ts` and
+ * `fixtures.ts:refreshSharedState` consume this.
  *
  * Each caller keeps its own retry policy + caller-specific logging — this helper covers
  * only the core SSO step (context + goto + loginWithMicrosoft + Dashboard wait). Callers
  * own writeStateAtomic + close + retry budgeting.
  *
- * On loginWithMicrosoft returning false, the helper closes the context and throws. On
- * any other failure (goto / Dashboard wait), the context is left open and the error
- * propagates — callers are expected to close in their own catch/finally.
+ * On ANY failure (loginWithMicrosoft returning false, goto, or Dashboard wait), the helper
+ * closes the context before the error propagates — callers do not need to close it themselves.
  */
 export async function performSsoLogin(
   browser: Browser,

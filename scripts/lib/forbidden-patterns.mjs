@@ -114,7 +114,7 @@ export const MARKER_GREP_CLIENT_ONLY = [
 export const SOURCE_COMMENT_JARGON = [
   // Internal rule / requirement IDs
   /\bLR-(?:ENC-)?\d{3}\b/,
-  /\b(?:ALL|AUD|PLN|GEN|HLR)-\d{2,3}\b/,
+  /\b(?:ALL|AUD|PLN|GEN|HLR|MNT)-\d{2,3}\b/,
   /\bREQ-\d{3}\b/,
   // Internal doctrine / section references. Widened 2026-06-11 from /\bDoctrine\s+\d/
   // (case-sensitive, no infix) to also catch the lowercase "doctrine item N" form that
@@ -140,6 +140,10 @@ export const SOURCE_COMMENT_JARGON = [
   /\brejection-affordance\b/,
   /\brca-[a-z0-9-]+\.md\b/,
   /\b_internal\//,
+  // Renamed-away directory paths — dead in shipped source. The test dir was renamed
+  // `specs/` -> `tests/`; any surviving `specs/` reference in a shipped comment/doc is stale.
+  // Safe: `specs/` never matches `specs_planning/` (underscore, not slash).
+  /\bspecs\//,
 ];
 
 // ── Shared helpers ───────────────────────────────────────────────────────────

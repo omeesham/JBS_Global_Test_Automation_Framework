@@ -1,6 +1,6 @@
 /** Custom Playwright test fixtures for dependency injection of page objects */
 
-import { test as base, Page, BrowserContext } from '@playwright/test';
+import { Page, BrowserContext } from '@playwright/test';
 import { LocationCurrencyPage } from '../pages/locations/location-currency.page';
 import { LocationLocalInfoPage } from '../pages/locations/location-local-info.page';
 import { LocationPricingPage } from '../pages/locations/location-pricing.page';

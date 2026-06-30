@@ -362,7 +362,7 @@ test.describe('Location Pricing @locations @pricing', () => {
  // ── Save-dependent / persistence tests (TC-020, TC-023-030) ─────────────────
 
  // Re-enabled 2026-06-18: dates now persist after save+reload (verified live on office 1604).
-  test('TC-LOC-PRI-020: Valid dates persist after save', async ({ locationPricingPage, dependencyGate }) => {
+  test('TC-LOC-PRI-020: Valid dates persist after save', async ({ locationPricingPage }) => {
     test.setTimeout(120_000);
  // TC: 2021-Tier 3 Urban A row -- enter valid dates, save, reload, verify persistence
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
@@ -453,7 +453,7 @@ test.describe('Location Pricing @locations @pricing', () => {
  // Kept skipped (app-side bug, reproduced 2026-06-18): Corporate Pricing uncheck saves 200 but
  // reverts to checked on reload — confirmed on BOTH office 1604 and 1605 (app-wide, not data-specific).
  // See filed bug. Distinct from TC-020/TC-026..030, which now persist correctly.
-  test.skip('TC-LOC-PRI-025: Corporate Pricing -- uncheck, save, reload, verify persists; restore', async ({ locationPricingPage, dependencyGate }) => {
+  test.skip('TC-LOC-PRI-025: Corporate Pricing -- uncheck, save, reload, verify persists; restore', async ({ locationPricingPage }) => {
     test.setTimeout(120_000);
     const key = 'chkCorporatePricing';
     await locationPricingPage.navigateToPricingTab(OFFICE_NO);
@@ -489,7 +489,7 @@ test.describe('Location Pricing @locations @pricing', () => {
  // "Search pricing strategies...", so the page object never located it. Fixed in
  // selectPrimaryDropdownOption.
   for (const { tcId, key, option, alternateOption, label } of DROPDOWN_PERSISTENCE_CASES) {
-    test(`${tcId}: ${label} -- bidirectional persist (toggle pattern)`, async ({ locationPricingPage, dependencyGate }) => {
+    test(`${tcId}: ${label} -- bidirectional persist (toggle pattern)`, async ({ locationPricingPage }) => {
       test.setTimeout(120_000);
  // Phase 1: Select ALTERNATE value → save → reload → verify
       await locationPricingPage.selectPrimaryDropdownOption(key, alternateOption);

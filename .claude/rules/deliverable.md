@@ -20,12 +20,13 @@ Files that ship to the client (everything under `clients/<id>/` that survives th
 `src/`, `tests/`, `config/`, `scripts/`, `README.md`, root config) are **customer-facing**. Their
 comments, JSDoc, string literals, and test titles MUST carry **zero** internal-process vocabulary:
 
-- Rule / requirement IDs — `LR-###`, `LR-ENC-###`, `ALL/AUD/PLN/GEN/HLR-###`, `REQ-###`
+- Rule / requirement IDs — `LR-###`, `LR-ENC-###`, `ALL/AUD/PLN/GEN/HLR/MNT-###`, `REQ-###`
 - Plan / ticket IDs — `PLAN_*`, `SUBPLAN_*`, `SP-XX-N`
 - Pipeline identity codenames — `HUNTER`, `GIVER`, `BUILDER`, `HEALER`, `WATCHDOG`, `GARDENER`, `OWNER`
 - Doctrine / section refs — `§`, `Doctrine N`, `doctrine item N`
 - Internal artifact names/paths — `walk-evidence`, `field-inventor*`, `rca-*.md`, `_internal/`, `specs_planning`, `neutral-eye`, `agent-*`
 - Wave / phase IDs — `Wave-1.5`, `WV15`, `W15-*`, `Q-WV*`, `CPR-*-Q*`, `EDGE_P*`
+- Renamed-away directory paths — `specs/` (the test dir is now `tests/`; a surviving `specs/` reference in shipped source is stale)
 
 **The load-bearing principle**: *a plan that cites a rule does NOT license the token into the file.*
 When a subplan says "keep separate (LR-012 spirit)" or "verify-only guard (LR-057)", the shipped

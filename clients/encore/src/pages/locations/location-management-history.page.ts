@@ -1,6 +1,5 @@
 import { Page } from '@playwright/test';
 import { BasePage } from '../base.page';
-import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
 
 export class LocationManagementHistoryPage extends BasePage {
