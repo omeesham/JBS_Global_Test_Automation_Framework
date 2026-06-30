@@ -69,18 +69,29 @@ trap cleanup EXIT
 #    artifacts are structurally excluded, LR-049 layer 1).
 git -C "$REPO_ROOT" archive HEAD clients/encore/ | tar -x -C "$SCRATCH" --strip-components=2
 
+# 1b. Remove paths that must never ship even when force-tracked in git (e.g. internal
+#     docs/ or specs_planning/ files that were added via git add -f during migrations).
+#     Mirrors the DENY_GLOBS in scripts/lib/forbidden-patterns.mjs.
+rm -rf "$SCRATCH/docs" "$SCRATCH/specs_planning" "$SCRATCH/readable_externals" \
+       "$SCRATCH/.github" "$SCRATCH/.auth" "$SCRATCH/.claude" "$SCRATCH/CLAUDE.md"
+
 # 2. Trim tests/ to the module's surface + auth.setup.ts. auth.setup.ts is not a
-#    *.spec.ts so the find below never touches it (kept automatically). The SURFACE
-#    glob is matched (unquoted in case) against each spec's path relative to tests/,
-#    both directly ($SURFACE) and one level down (*/$SURFACE).
+#    *.spec.ts so the find below never touches it (kept automatically). SURFACE may
+#    be a comma-separated list of globs (mirrors --modules comma syntax); each spec
+#    is kept if its path relative to tests/ matches ANY listed glob, both directly
+#    ($s) and one level down (*/$s). A single glob (legacy usage) is a list of one.
 if [[ -d "$SCRATCH/tests" ]]; then
+  IFS=',' read -ra SURFACE_LIST <<< "$SURFACE"
   find "$SCRATCH/tests" -type f -name '*.spec.ts' -print0 \
     | while IFS= read -r -d '' f; do
         rel="${f#$SCRATCH/tests/}"
-        case "$rel" in
-          $SURFACE|*/$SURFACE) : ;;       # keep surface match
-          *) rm -f "$f" ;;
-        esac
+        keep=0
+        for s in "${SURFACE_LIST[@]}"; do
+          case "$rel" in
+            $s|*/$s) keep=1; break ;;
+          esac
+        done
+        [[ "$keep" -eq 1 ]] || rm -f "$f"
       done
   # prune now-empty dirs left behind
   find "$SCRATCH/tests" -type d -empty -delete 2>/dev/null || true
