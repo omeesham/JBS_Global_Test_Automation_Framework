@@ -122,8 +122,11 @@ export function humanizeAssertion(text: string): string {
     .replace(/\[\s*data-testid\s*=\s*"[^"]+"\s*\]/gi, '')
     .replace(/\s*data-testid\s*=\s*"[^"]+"\s*/gi, ' ')
     // ── Cleanup whitespace and dangling punctuation introduced by the strips ──
+    // Newline-safe (2026-06-29): horizontal-only collapse so a strip that leaves
+    // `space+\n` at a step boundary cannot fuse two numbered steps (see the same
+    // fix in scrubInternalVocab). Single-line cells are unaffected (no `\n`).
     .replace(/[ \t]+/g, ' ')
-    .replace(/\s+([,.;])/g, '$1')
+    .replace(/[^\S\n]+([,.;])/g, '$1')
     .replace(/^[\s,.;|]+|[\s,.;|]+$/g, '')
     .trim();
 }
@@ -281,6 +284,8 @@ export function scrubInternalVocab(text: string): string {
     // accessibility tree). Idempotent: 'dropdown'/'field'/'panel' contain no role tokens.
     [/\bcombobox\b/gi, 'dropdown'],
     [/\bspinbutton\b/gi, 'field'],
+    [/\btextboxes\b/gi, 'fields'],
+    [/\btextbox\b/gi, 'field'],
     // Container roles + the Radix component-library name (LR-ENC-004 V2, 2026-06-05).
     // Radix stripped BEFORE listbox so "Radix listbox" collapses to "dropdown".
     [/\btabpanel\b/gi, 'panel'],
@@ -419,8 +424,15 @@ export function scrubInternalVocab(text: string): string {
 
   // Cleanup: collapse whitespace + dangling punctuation introduced by the
   // strips above (matches humanizeAssertion's trailing cleanup).
-  s = s.replace(/\s{2,}/g, ' ')
-       .replace(/\s+([,.;:])/g, '$1')
+  // NEWLINE-SAFE (2026-06-29 fix): collapse only HORIZONTAL whitespace runs.
+  // The previous `\s{2,}` matched a `space+\n` pair left when a strip removed a
+  // trailing `(per …)` parenthetical at end-of-step, collapsing both into ONE
+  // space and FUSING two numbered steps onto one line (LI-003/004/078, SRC-056).
+  // `[^\S\n]` is "whitespace that is not a newline", so step-boundary newlines
+  // survive while real double-spaces still collapse. Single-line cells (titles,
+  // expected) contain no `\n`, so their behaviour is unchanged.
+  s = s.replace(/[^\S\n]{2,}/g, ' ')
+       .replace(/[^\S\n]+([,.;:])/g, '$1')
        .replace(/[ \t]+\n/g, '\n')
        .replace(/^[\s,.;|]+|[\s,.;|]+$/g, '')
        .trim();

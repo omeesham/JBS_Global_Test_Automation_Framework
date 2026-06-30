@@ -11,6 +11,7 @@
 import { MarkdownParser } from './markdown-parser';
 import { TestCase, TestStep, ColumnConfig, Audience } from './types';
 import { scrubInternalVocab, sanitizeUnicode, cleanMarkdown, humanizeAssertion, convertElementIdsToLabels } from './humanize';
+import { splitNumberedSteps } from './testrail-format';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -236,7 +237,7 @@ export class CsvConverter {
       const stepsMatch = body.match(/(?:\*\*)?Steps(?:\*\*)?:\s*(.+?)(?=\n\s*\*\*Expected\*\*:|\n\s*\*\*Steps \(Human\)\*\*:|\n\s*\*\*Data\*\*:|\n\s*\*\*Notes\*\*:|\n---|\n##|$)/s);
       let steps = stepsMatch && stepsMatch[1] ? stepsMatch[1].trim() : '';
 
-      const expectedMatch = body.match(/\n\s*\*\*Expected\*\*:\s*(.+?)(?=\n\s*\*\*Data\*\*:|\n\s*\*\*Notes\*\*:|\n\s*\*\*Cleanup\*\*:|\n\s*\*\*Automatable\*\*:|\n\s*\*\*MCP_VERIFICATION_LOG\*\*:|\n\s*\*\*Automation File\*\*:|\n\s*\*\*Expected Result \(Human\)\*\*:|\n---|\n##|$)/s);
+      const expectedMatch = body.match(/\n\s*\*\*Expected\*\*:\s*(.+?)(?=\n\s*\*\*Data\*\*:|\n\s*\*\*Notes?\*\*:|\n\s*\*\*Flag\*\*:|\n\s*\*\*Cleanup\*\*:|\n\s*\*\*Automatable\*\*:|\n\s*\*\*MCP_VERIFICATION_LOG\*\*:|\n\s*\*\*Automation File\*\*:|\n\s*\*\*Expected Result \(Human\)\*\*:|\n---|\n##|$)/s);
       let expected = expectedMatch && expectedMatch[1] ? expectedMatch[1].trim() : '';
 
       const dataMatch = body.match(/\n\s*\*\*Data\*\*:\s*(.+?)(?=\n---|\n##|\n\s*\*\*Notes\*\*:|\n\s*\*\*Automatable\*\*:|\n\s*\*\*MCP_VERIFICATION_LOG\*\*:|$)/s);
@@ -361,8 +362,10 @@ export class CsvConverter {
     let stepNumber = 0;
     
     // Split individual steps (numbered format: "1. action -> expected 2. action...")
-    // Negative lookbehind prevents splitting inside double-digit numbers (e.g., "10." would incorrectly match "0." at position 1)
-    const stepParts = agentSteps.split(/(?<!\d)(?=\d+\.\s)/).filter(s => s.trim());
+    // Sequence-aware (see splitNumberedSteps): only a `N.` equal to the next
+    // expected step number is a boundary, so a content number ending a sentence
+    // ("...for office 1604. 3. Wait...") is NOT mistaken for a step delimiter.
+    const stepParts = splitNumberedSteps(agentSteps);
     
     const humanSteps = stepParts.map(part => {
       stepNumber++;
@@ -381,7 +384,13 @@ export class CsvConverter {
       const rawAction = arrowMatch && arrowMatch[2]
         ? arrowMatch[2].trim()
         : part.replace(/^\d+\.\s*/, '').trim();
-      const action = cleanMarkdown(convertElementIdsToLabels(rawAction));
+      const action = cleanMarkdown(convertElementIdsToLabels(rawAction))
+        // Drop a dangling action↔expected separator left at a step boundary. The
+        // source uses a trailing `✓` "verified" marker (→ `->` via sanitizeUnicode)
+        // or a trailing `--`/`->`, none of which has an expected half to absorb in
+        // action-only mode. A step never legitimately ends in a separator run.
+        .replace(/\s*[-–—>]{2,}\s*$/, '')
+        .trim();
       return `${stepNumber}. ${action}`;
     }).filter(Boolean);
 
@@ -584,8 +593,13 @@ export class CsvConverter {
    */
   private static formatStepsWithLineBreaks(steps: string): string {
     if (!steps) return '';
-    // Add newline before each step number (except first)
-    return steps.replace(/\s+(\d+)\.\s/g, '\n$1. ').trim();
+    // Add a newline before each REAL step number. Sequence-aware (see
+    // splitNumberedSteps): a content number that ends a sentence ("...office
+    // 1604. 3. ...") is not a step boundary, so it is not broken onto its own
+    // line and the number is preserved. Falls back to the original text when the
+    // blob is not numbered.
+    const parts = splitNumberedSteps(steps);
+    return parts.length <= 1 ? steps.trim() : parts.join('\n').trim();
   }
 
   /**

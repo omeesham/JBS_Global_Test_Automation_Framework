@@ -53,7 +53,7 @@ import {
 } from './sp00-augment-logic';
 import { CsvConverter } from './to-csv';
 import { scrubInternalVocab } from './humanize';
-import { parseSteps, perStepExpected, deriveTestData, DEFAULT_TYPE, DEFAULT_PRIORITY } from './testrail-format';
+import { parseSteps, deriveTestData, DEFAULT_TYPE, DEFAULT_PRIORITY } from './testrail-format';
 
 // ────────────────────────── Paths ──────────────────────────
 
@@ -168,22 +168,6 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
 };
 
 const EXCEL_SHEET_NAME_LIMIT = 31;
-
-// Sheet → human display submodule (e.g. 'local_information' → 'Local Information'),
-// sourced from the module-codes.json registry (single source of truth). Used ONLY
-// to feed perStepExpected() a clean, underscore-free submodule name for the
-// synthesised middle-step expecteds — the Submodule CELL value keeps coming from
-// to-csv.ts (machine name, C8-asserted), this map is display text only.
-const SHEET_TO_DISPLAY_SUB: Record<string, string> = (() => {
-  const raw = JSON.parse(
-    fs.readFileSync(path.join(__dirname, 'module-codes.json'), 'utf8').replace(/^﻿/, '')
-  ) as { submodules: Record<string, Record<string, { display: string; sheet: string }>> };
-  const out: Record<string, string> = {};
-  for (const subs of Object.values(raw.submodules)) {
-    for (const e of Object.values(subs)) out[e.sheet] = e.display;
-  }
-  return out;
-})();
 
 // ── Notes / Reason cell (PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER) ──
 //
@@ -558,7 +542,6 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
     headerRow.font = { bold: true };
     headerRow.alignment = { vertical: 'middle', horizontal: 'left' };
 
-    const displaySub = SHEET_TO_DISPLAY_SUB[sheetName] ?? sheetName;
     for (const tc of tcs) {
       // accumulate ONCE per case — Overview/SUMMARY counts stay per-case even
       // though the case now spans 1 first-row + N continuation step-rows.
@@ -576,7 +559,10 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
 
       steps.forEach((step, i) => {
         const isLast = i === steps.length - 1;
-        const expected = perStepExpected(step, tc.expected, isLast, displaySub);
+        // Case-level Expected only (DECISION 2026-06-26): the one authored
+        // `**Expected**:` lands on the LAST step; action steps stay blank. The old
+        // perStepExpected() verb-heuristic synthesiser (1,796 vacuous fillers) is gone.
+        const expected = isLast ? tc.expected.trim() : '';
         const stepCell = `${i + 1}. ${step}`;
         ws.addRow(
           i === 0

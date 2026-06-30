@@ -370,7 +370,7 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     expect(await p.getMaxDiscountAriaInvalid(name)).not.toBe('true'); // 100 is accepted as valid input
     await p.saveAndConfirm();
     await p.open();
-    // BUG NM-1967: entering 100 and saving stores/redisplays the Max Discount as 1, not 100.
+    // KNOWN APP DEFECT (NM-1967): entering 100 and saving stores/redisplays the Max Discount as 1, not 100.
     const atRest = await p.getMaxDiscount(name);
     expect(atRest).toContain('1.00'); // reloads as "1.00 %"
     expect(atRest).not.toContain('100'); // the entered 100 is gone

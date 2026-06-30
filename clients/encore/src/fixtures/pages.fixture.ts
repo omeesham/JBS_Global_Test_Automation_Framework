@@ -88,10 +88,10 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     // Best-effort page-topology check at fixture post-use. Detects context leaks that survive
     // teardown. Worker-scoped browser → contexts() is scoped to this worker.
     //
-    // Known limitation (Phase 0 verification 2026-05-21): the BUG-1 "bare page + page-object"
+    // Known limitation (Phase 0 verification 2026-05-21): the bare-page-collision "bare page + page-object"
     // destructure collision pattern does NOT trigger this check, because Playwright tears down
     // the bare-page test-scoped context BEFORE this auto-use fixture's post-use code runs. The
-    // structural defense for BUG-1 is the Group E lint guard at pre-commit / pre-push.
+    // structural defense for bare-page-collision is the Group E lint guard at pre-commit / pre-push.
     // This check IS still useful for: (a) contexts created by test code via explicit
     // browser.newContext() that aren't cleaned up; (b) future page-object code that
     // creates side-contexts; (c) any case where >1 context survives test teardown.
@@ -307,7 +307,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
   }, { scope: 'worker', timeout: 300_000 }],
 
  /**
- * Fix #2: runtime guard for BUG-1 page-fixture collision.
+ * Fix #2: runtime guard for bare-page-collision page-fixture collision.
  *
  * Background: when a spec destructures `{ page, locationXxxPage }`, Playwright resolves
  * BOTH fixtures. The page-object fixtures use `authenticatedSession.page` (the legitimate
@@ -319,7 +319,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * Why throw (Option A) rather than redirect to `authenticatedSession.page` (Option B):
  * redirecting changes test semantics silently AND loses Playwright's built-in trace/video/
  * screenshot capture (those bind to the page returned by THIS `page` fixture). Throwing
- * fails loudly with a [diag:BUG-1] pointer.
+ * fails loudly with a [diag:bare-page-collision] pointer.
  *
  * Layered with .githooks/pre-commit grep guard (Fix #1a) + CI lint step (Fix #1b). If a
  * spec escapes both static checks (e.g. `--no-verify` push, fresh clone without hooks),
@@ -331,7 +331,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  */
   page: async ({}, _use, testInfo) => {
     const msg =
-      `[diag:BUG-1] test "${testInfo.titlePath.join(' > ')}" requested bare {page} from ` +
+      `[diag:bare-page-collision] test "${testInfo.titlePath.join(' > ')}" requested bare {page} from ` +
       `fixture destructure. This causes Playwright to create a separate about:blank context ` +
       `(diagnostics blind to it). Fix: drop 'page' from the destructure; use a *Page fixture ` +
       `(e.g. {locationNotesPage}) or authenticatedSession.page for direct page operations.`;
