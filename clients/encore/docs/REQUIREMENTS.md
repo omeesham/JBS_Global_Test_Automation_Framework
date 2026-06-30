@@ -108,7 +108,7 @@ Key routes:
 
 ## Test Data Strategy
 
-Test credentials live in **`clients/encore/.env.local`** (client root, gitignored — each collaborator creates their own per `docs/SETUP.md`). **NOT** in `config/environments/.env.e2e` (that path no longer exists). Per **LR-ENC-003**: `.env.e2e` (tracked, at client root) carries CI tuning + the target URL but **NO credentials** — GitHub Actions injects `NAVIGATOR_*`/`BASE_URL` from Secrets; local/agent runs use `.env.local`.
+Test credentials live in **`clients/encore/.env.local`** (client root, gitignored — each collaborator creates their own per `docs/SETUP.md`). **NOT** in `config/environments/.env.e2e` (that path no longer exists). Per **LR-ENC-003**: `.env.e2e` (tracked, at client root) carries CI tuning + the target URL but **NO credentials** — CI injects `NAVIGATOR_*`/`BASE_URL` from its secret store; local/agent runs use `.env.local`.
 
 - `NAVIGATOR_USERNAME` - Microsoft SSO email
 - `NAVIGATOR_PASSWORD` - Microsoft SSO password
@@ -1418,7 +1418,7 @@ Agents must use ONLY the values listed here. Other values = rejection by the app
 
 ### Authorized user accounts
 
-Credentials live in **`clients/encore/.env.local`** (client root, **gitignored** — each collaborator creates their own). Per **LR-ENC-003**, the tracked `clients/encore/.env.e2e` carries **NO credentials** (CI injects `NAVIGATOR_*` from GitHub Secrets). The old `config/environments/.env.e2e` path no longer exists.
+Credentials live in **`clients/encore/.env.local`** (client root, **gitignored** — each collaborator creates their own). Per **LR-ENC-003**, the tracked `clients/encore/.env.e2e` carries **NO credentials** (CI injects `NAVIGATOR_*` from its secret store). The old `config/environments/.env.e2e` path no longer exists.
 
 - `NAVIGATOR_USERNAME` — Microsoft SSO email (test account)
 - `NAVIGATOR_PASSWORD` — SSO password

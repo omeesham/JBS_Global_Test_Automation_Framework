@@ -43,7 +43,7 @@ Azure Pipelines will automatically detect `.ci/azure-pipelines.yml` when configu
 
 ### GitHub Actions
 
-GitHub Actions workflows are located in `.github/workflows/` (separate from this folder).
+The GitHub Actions workflow previously located in `.github/workflows/` was removed per client request. CI is now run via the team's own pipeline (Jenkins or Azure DevOps, configured above).
 
 ## Environment Variables
 

@@ -30,7 +30,7 @@ If a rule applies to any Angular/Playwright client, it belongs in root `CLAUDE.m
 - **Base URL**: `cloudapps-e2e.encoreglobal.com` (E2E environment; see `clients/encore/.env.local`)
 - **Test office**: 1604 (hardcoded in many TCs)
 - **Master / corporate office**: 1101 ("Corporate Office") — NOT a day-to-day test office, but it carries data & whole feature areas 1604 lacks (Commission — corporate-only, Navigator Contracts role; Labor — NM-1881). Empty/absent on 1604 ≠ missing — re-check 1101 first (LR-ENC-005). (Currency/pricing variety lives on 1605, not 1101.)
-- **Auth**: Microsoft SSO; credentials in `clients/encore/.env.local` (gitignored; CI uses GitHub Secrets)
+- **Auth**: Microsoft SSO; credentials in `clients/encore/.env.local` (gitignored; CI injects credentials from its secret store)
 - **Module registry**: `clients/encore/docs/MODULE_REGISTRY.md` (agent-only — gitignored per root `.gitignore:185`, never ships)
 - **Requirements**: `clients/encore/docs/REQUIREMENTS.md` (agent-only — gitignored per root `.gitignore:184`, never ships)
 - **Encore-specific agent rules** (ALL-* additions): `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md`
@@ -86,9 +86,9 @@ If you ever feel like "I'll do the MD/XLSX later in a follow-up subplan" — tha
 
 **Cross-refs**: ALL-071 (framework parity rule); LR-027 (execution summary); LR-040 (closure-gate); LR-048 v2 (subplan matrix); BUILDER HARD STOP #11; PLANNER HARD STOP #8/#10; HEALER HARD STOP #6; AUDIT Workflow step 1.5 + Identity-Drift mode; GEN-044 + PLN-050 agent-mistakes entries.
 
-### LR-ENC-003: The `.env.e2e` file is GitHub-Actions-only; local/agent spec runs use `.env.local`
+### LR-ENC-003: The `.env.e2e` file is CI-only; local/agent spec runs use `.env.local`
 
-Both files target the same e2e server (`cloudapps-e2e.encoreglobal.com`) — the difference is the config file. `.env.local` (gitignored) carries credentials + dev tuning; `.env.e2e` (tracked) carries prod-CI tuning and **NO** credentials (CI injects `NAVIGATOR_*`/`BASE_URL` from GitHub Secrets).
+Both files target the same e2e server (`cloudapps-e2e.encoreglobal.com`) — the difference is the config file. `.env.local` (gitignored) carries credentials + dev tuning; `.env.e2e` (tracked) carries prod-CI tuning and **NO** credentials (CI injects `NAVIGATOR_*`/`BASE_URL` from the environment / secret store).
 
 Env selection defaults to `local` (set inline in `playwright.config.ts` + `src/setup/global-setup.ts`); CI sets `CI_ENV=e2e`. A guard in `src/setup/global-setup.ts` THROWS if `CI_ENV=e2e` without `CI` — so a local run can never execute against the e2e config file.
 
@@ -186,11 +186,11 @@ When a new automation user is provisioned, run these steps in order:
 
 1. **Receive credentials** — username + password from M365 admin / Encore IT.
 2. **Verify the user has no second-factor authentication configured** — M365 Admin → Users → [new user] → Authentication methods.
-3. **Add GitHub secrets** — repo Settings → Secrets and variables → Actions:
+3. **Set credentials in the environment** — the GitHub Actions workflow has been removed per client request. Provide credentials via a local `.env.local` file (gitignored) or your team's own CI secret store:
    - `NAVIGATOR_USERNAME` = the new user's UPN.
    - `NAVIGATOR_PASSWORD` = the new user's password.
    - `BASE_URL` = Encore env URL.
-4. **Trigger workflow** — `gh workflow run playwright-tests.yml` or "Run workflow" in GitHub UI.
+4. **Run the suite** — `npm run test:cli` locally, or trigger via your team's own CI pipeline.
 5. **Verify green** — auth log shows login completes; suite completes; HTML report artifact downloaded.
 
 ## When encore needs fresh login session

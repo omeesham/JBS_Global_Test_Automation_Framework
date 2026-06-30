@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Bundles the failure-diagnosis inputs into one zip the QA-automation team can
-// download and feed to RCA tooling. Picked-up by the CI workflow on every run
+// download and feed to RCA tooling. Picked up by CI on every run
 // (success or failure) and also runnable locally after `npx playwright test`.
 //
 // Contents (each conditional — included only if present on disk):

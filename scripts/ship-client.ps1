@@ -45,10 +45,10 @@ Remove-Item -Force "$Out\_archive.tar"
 & node scripts/verify-no-forbidden.mjs --target=$Out
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-# Deliverable must include at least one CI workflow (mirror of ship-client.sh check).
+# Deliverable must NOT contain a GitHub workflow (client requirement; mirror of ship-client.sh).
 $Wf = Get-ChildItem -Path "$Out\.github\workflows" -Filter "*.y*ml" -ErrorAction SilentlyContinue
-if (-not $Wf) {
-    Write-Error "ERR: $Out has no .github/workflows/*.yml -- deliverable will have no CI. Fix: add clients/$Client/.github/workflows/<name>.yml in source."
+if ($Wf) {
+    Write-Error "ERR: $Out contains a GitHub workflow ($($Wf.Name)). The client requires deliverables with NO .github workflows. Remove it from clients/$Client/."
     exit 5
 }
 

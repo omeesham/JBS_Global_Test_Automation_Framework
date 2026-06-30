@@ -22,10 +22,10 @@ async function globalSetup(config: FullConfig) {
     silent: true,
   });
 
-  // The .env.e2e file is GitHub-Actions-only; block any non-CI run that loaded it.
+  // The .env.e2e file is CI-only; block any non-CI run that loaded it.
   if (process.env.CI_ENV === 'e2e' && !process.env.CI) {
     throw new Error(
-      "[env-guard] '.env.e2e' is the GitHub Actions CI config and must not be used locally.\n" +
+      "[env-guard] '.env.e2e' is the CI config and must not be used locally.\n" +
       "Local runs use '.env.local' (same target server, different config).\n" +
       "Fix: run `npm test` without CI_ENV (it loads .env.local). See docs/SETUP.md Step 2 to create .env.local.",
     );

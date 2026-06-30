@@ -20,6 +20,8 @@ src/selectors/SELECTOR_CATALOG.md
 # Internal artifacts — never ship to client
 CLAUDE.md
 .auth/
+# Client requires NO GitHub workflows in the deliverable — never track or ship .github
+.github/
 
 # Playwright debug session artifacts (may contain live session cookies — never ship, never commit)
 .playwright-cli/

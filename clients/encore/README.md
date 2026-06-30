@@ -32,7 +32,7 @@ npm install
 npx playwright install chromium
 ```
 
-Credentials are not committed — the suite runs in **GitHub Actions**. Set `NAVIGATOR_USERNAME`, `NAVIGATOR_PASSWORD`, and `BASE_URL` under repo **Settings → Secrets and variables → Actions**, then run the **Playwright Tests** workflow (Actions tab → Run workflow). `.env.e2e` holds only non-secret config.
+Credentials are not committed. Provide `NAVIGATOR_USERNAME`, `NAVIGATOR_PASSWORD`, and `BASE_URL` as environment variables — e.g. in a local `.env.local` file (using the values your QA automation team provides), or your CI's secret store — before running. `.env.e2e` holds only non-secret config.
 
 Verify the setup with a single short spec (~60 seconds — exercises auth + a real module flow):
 
@@ -157,14 +157,14 @@ Allure's **Categories** panel groups failures into the same buckets visually.
 
 Receive the latest version from the QA automation team. Do **not** commit or edit files under `src/**` or `specs/**` — those are framework-owned and will be overwritten on the next update. If you need a change in those paths, request it from the QA automation team.
 
-Safe-to-edit without conflicts: anything under `reports/` (generated output) and `node_modules/` (installed). Credentials live in GitHub Secrets, not in the repo.
+Safe-to-edit without conflicts: anything under `reports/` (generated output) and `node_modules/` (installed). Credentials live in your environment / secret store, not in the repo.
 
 ---
 
 ## Troubleshooting
 
 1. **Nothing runs at all** — `npm install` exited non-zero, or `npx playwright install chromium` didn't complete. Re-run both; check node/npm versions meet the requirements above.
-2. **Every test fails with auth errors** — credentials expired or rotated. Update the GitHub Secrets (`NAVIGATOR_USERNAME` / `NAVIGATOR_PASSWORD`).
+2. **Every test fails with auth errors** — credentials expired or rotated. Update the credentials in your environment / secret store (`NAVIGATOR_USERNAME` / `NAVIGATOR_PASSWORD`).
 3. **`TC-LOC-CUR-001` verify fails but the app works in a browser** — Microsoft SSO is having a bad moment. Retry in 5 minutes before deeper triage.
 4. **Reports look empty / blank widgets** — run `npm run clean` and re-run `test:cli`. Some widgets (Trend) only populate after the second run.
 5. **Allure Trend never grows** — ensure `test:cli` is used. `npm test` alone runs the suite without the stash/restore chain, so history doesn't accumulate.
@@ -173,4 +173,4 @@ Safe-to-edit without conflicts: anything under `reports/` (generated output) and
 
 ## License & credentials
 
-Credentials are provided via GitHub Secrets at workflow runtime — nothing is committed. `.env.e2e` carries only non-secret CI config.
+Credentials are provided via environment variables at runtime — nothing is committed. `.env.e2e` carries only non-secret CI config.
