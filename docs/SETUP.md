@@ -29,7 +29,7 @@ Get the SSO automation-user credentials from the team. (CI uses `.env.e2e` + Git
 
 ## Step 3 — (Optional) Tune your local run
 
-`.env.local` can also set `MAX_WORKERS`, `LOG_LEVEL`, `DEFAULT_BROWSER`. Defaults are fine for most work.
+`.env.local` can also set `MAX_WORKERS`, `LOG_LEVEL`, `DEFAULT_BROWSER`. Default worker count is 1 due to a known multi-worker conflict on shared app state — only override `MAX_WORKERS` if you understand the risk.
 
 ## Step 4 — Install Claude CLI
 

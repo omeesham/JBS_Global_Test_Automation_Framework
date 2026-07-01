@@ -81,15 +81,14 @@ npm run allure:open     # Allure
 
 ### Tuning parallelism
 
-Worker count is set by an inline expression in `playwright.config.ts` (CI default 4, local 2). Override per run with the `MAX_WORKERS` env var:
+Worker count defaults to 1 everywhere in `playwright.config.ts` due to an unresolved multi-worker conflict on shared Encore app state — when two workers run tests against the same office (e.g., 1604) in parallel, one worker's save surprises the other's mid-test assertion, causing false failures. Override per run with the `MAX_WORKERS` env var only if you understand this limitation:
 
 ```bash
-MAX_WORKERS=4 npm test          # match CI default explicitly
-MAX_WORKERS=8 npm test          # try higher locally
-MAX_WORKERS=1 npm test          # force serial
+MAX_WORKERS=4 npm test          # 4 workers (use only if aware of shared-state conflict)
+MAX_WORKERS=1 npm test          # force serial (the default, safest)
 ```
 
-More workers = faster wall-clock but higher load on the app under test. Module projects keep `fullyParallel: false` so each spec file stays in one worker (required for the per-test baseline-reset ordering); different spec files still run in parallel across workers. If 4 introduces state races on shared office=1604, drop the CI default to 2 in the config.
+More workers = faster wall-clock but higher contention on shared app state. Module projects keep `fullyParallel: false` so each spec file stays in one worker (required for the per-test baseline-reset ordering); different spec files still run in parallel across workers.
 
 ---
 

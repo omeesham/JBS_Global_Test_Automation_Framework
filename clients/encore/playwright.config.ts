@@ -35,10 +35,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   retries: process.env.CI ? 2 : 1,
-  // Dynamic workers: CI default 4; local 2; override via `MAX_WORKERS=N` env.
+  // Default workers: 1 everywhere (unresolved multi-worker conflict on shared Encore app state). Override with `MAX_WORKERS=N` env if needed.
   workers: process.env.MAX_WORKERS
     ? Math.max(1, parseInt(process.env.MAX_WORKERS, 10))
-    : (process.env.CI ? 4 : 2),
+    : 1,
 
   preserveOutput: 'always',
 
