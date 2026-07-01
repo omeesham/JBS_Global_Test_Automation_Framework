@@ -216,7 +216,20 @@
       "WebFetch(domain:www.mindstudio.ai)",
       "WebFetch(domain:research.memgpt.ai)",
       "WebFetch(domain:www.penligent.ai)",
-      "PowerShell(claude --version)"
+      "PowerShell(claude --version)",
+      "mcp__351f3923-22c5-4ff0-a7bd-339c0028aae5__getJiraIssue",
+      "Bash(playwright-cli --raw eval \"\\(\\) => { const l=[...document.querySelectorAll\\('label'\\)].find\\(x=>x.textContent.includes\\('Pay To Address'\\)\\); if\\(!l\\) return 'label-not-found'; l.dispatchEvent\\(new MouseEvent\\('click',{bubbles:true,cancelable:true}\\)\\); return 'dispatched'; }\")",
+      "Bash(playwright-cli --raw eval \"\\(\\) => { const d=[...document.querySelectorAll\\('[role=dialog]'\\)].find\\(x=>x.textContent.includes\\('Pay To List'\\)\\); return d? 'dialog-open' : 'no-dialog'; }\")",
+      "Bash(LOG=\"/c/Users/rutvi/AppData/Local/Temp/claude/C--Users-rutvi-projects-encore-framework/a95e82a8-ffb2-48b0-821a-0317e0829988/scratchpad/confirm-run.log\" *)",
+      "Bash(python -c ' *)",
+      "Bash(where python3 *)",
+      "Bash(where py *)",
+      "Bash(where python.exe)",
+      "Bash(python3 -c \"import openpyxl; print\\('openpyxl ok'\\)\")",
+      "Bash(pip3 install *)",
+      "PowerShell(python3 -c \"import openpyxl; print\\('ok'\\)\" 2>&1)",
+      "PowerShell(Get-Command py, python, python3 -ErrorAction SilentlyContinue)",
+      "PowerShell(& \"C:\\\\Users\\\\rutvi\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\python.exe\" -c \"print\\('hello'\\)\" 2>&1)"
     ]
   },
   "_header": [
