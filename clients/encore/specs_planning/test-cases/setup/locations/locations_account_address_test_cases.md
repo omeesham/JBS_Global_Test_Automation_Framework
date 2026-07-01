@@ -350,14 +350,14 @@
 
 ---
 
-## TC-LOC-ACC-024: Switching tabs with unsaved changes does not warn
+## TC-LOC-ACC-024: Unsaved-changes warning fires only when leaving the basic-info group, not between its sub-tabs
 | Priority | Status | Type |
 |----------|--------|------|
 | P1 | Manual | State Transition |
 
 **Depends_On**: TC-LOC-ACC-001
-**Steps**: 1. Edit "Phone 2" with a test value so "Save" becomes enabled (the form now has unsaved changes). 2. Without saving, switch to a different tab on the page. 3. Observe whether an "Unsaved Changes" warning appears. 4. Reload the page to discard the changes.
-**Expected**: Switching tabs with unsaved changes does not show an "Unsaved Changes" warning on this page. The edit stays in the form until you save or reload.
+**Steps**: 1. On the Account and Address sub-tab, edit "Phone 2" with a test value so "Save" becomes enabled (the left-panel form now has unsaved changes). 2. Without saving, switch to another basic-info sub-tab (for example Local Information, Currency, Legal, or Notes). Confirm no warning appears and the edit is retained. 3. Still without saving, switch away from the basic-info group — to another setup module such as Corporate Pricing, or to the Management History tab. 4. Observe the "Unsaved changes" dialog with "Stay" and "Discard" buttons. 5. Reload the page to discard any remaining changes.
+**Expected**: The eight left-panel basic-info sub-tabs (Local Information, Currency, Pricing, Account and Address, Legal, Notes, Shared Setup Locations, Auto Add-On) share one global Save, so switching among them with unsaved changes shows no warning and the edits carry across sub-tabs — a single Save commits them all. Leaving that group — to another setup module such as Corporate Pricing, or to the Management History tab — shows an "Unsaved changes" dialog with "Stay" and "Discard" buttons.
 **Automatable**: No
 
 
