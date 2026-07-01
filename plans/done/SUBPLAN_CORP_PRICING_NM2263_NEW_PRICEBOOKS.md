@@ -2,7 +2,8 @@
 
 > **⚠ SBC ID correction (2026-06-24):** surface/behavior cases use **ordinary 3-segment IDs** (`TC-CPR-<SUB>-NNN`, the page's existing band) + a `**Surface_Family**: <family> (QUICK|DEEP)` line — **NOT** the 4-segment `-SBC-` / `-SBC-MAX-` infix this plan body references (that shape is rejected by `check-tc-parity` G6). Same coverage, grammar-safe. Canonical: LR-065 (`.claude/rules/inventory.md`) + `docs/read_only_docs/CASE_GENERATION_STANDARD.md`.
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-06-30
 **Priority**: P1
 **Created**: 2026-06-24
 **Identity**: OWNER
@@ -38,9 +39,9 @@ Folds three source subplans (SOURCE A: drag-add positive-control + create-mode a
 
 **Context files** (every rule + parent + reference this subplan loads):
 - `plans/pending/PLAN_CORP_PRICING_JIRA_DELIVERY.md` (parent)
-- `plans/pending/SUBPLAN_CORP_PRICING_DETAIL_DRAGDROP_REMEDIATION.md` (SOURCE A — drag-add positive-control, create-mode add-path coverage)
-- `plans/pending/SUBPLAN_CORP_PRICING_EDGE_P3.md` (SOURCE B — NM-2022 + NM-2057 validation leads)
-- `plans/pending/SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION.md` (SOURCE C — `New ▾` dropdown click)
+- `plans/done/SUBPLAN_CORP_PRICING_DETAIL_DRAGDROP_REMEDIATION.md` (SOURCE A — drag-add positive-control, create-mode add-path coverage; closed)
+- `plans/pending/SUBPLAN_PRICING_EDGE_P3.md` (SOURCE B — NM-2022 + NM-2057 validation leads)
+- `plans/done/SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION.md` (SOURCE C — `New ▾` dropdown click; closed)
 - `plans/done/SUBPLAN_CORP_PRICING_1440_NEW_PRICEBOOK.md` (CONTEXT only — DONE Equipment create flow, TC-CPR-NPB-001..024 [TC-LOC-CPR-301..330]; no-commit pattern; do not duplicate)
 - `clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-2026-06-23.md` (live DOM truth — sections E, B)
 - `clients/encore/specs_planning/_internal/field-case-generation.md` (§2 field-type case taxonomy, §3 surface families)
@@ -234,7 +235,7 @@ Bare "out of scope" / "flagged for follow-up" with no recipient = HALT + ask use
 | HUNTER | baseline freshness (LR-ENC-001) | `(skipped: baseline-absent per LR-ENC-001; walk-evidence consumed from walk-evidence-corporate-pricing-2026-06-23.md — within 14-day LR-013 window)` | `grep "MCP_Session_Date: 2026-06-23" clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-2026-06-23.md` |
 | GIVER | test-cases MD + test-plan + XLSX | `clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_new_pricebook_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/corporate-pricing/corporate_pricing_new_pricebook_test_plan.md`<br>`clients/encore/test_cases_xlsx/encore_test_cases.xlsx` | `npm run check:tc-parity` exit 0 |
 | BUILDER | spec + page object + selectors + data | `clients/encore/tests/corporate-pricing/corporate-pricing-new-pricebook.spec.ts`<br>`clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts`<br>`clients/encore/src/selectors/corporate-pricing/new-pricebook.ts`<br>`clients/encore/src/data/corporate-pricing/new-pricebook.ts` | `npx playwright test corporate-pricing-new-pricebook --workers=1` green ×2 |
-| HEALER | per-fix RCA doc (conditional) | `(skipped: conditional — only if first-run reds; replaced at close with the RCA artifact path, else no HEALER work)` | `npx playwright test corporate-pricing-new-pricebook --workers=1` green (HEALER fix confirmed if triggered) |
+| HEALER | per-fix RCA doc (conditional) | `(skipped: 3 first-run reds TC-042/044/045 fixed inline from Playwright error-context artifacts — empty-grid empty-state is a tbody row, the empty-state hint is split across elements, and a link-cell nav flaked under load; fixes folded into the spec + page object, no separate RCA doc)` | `npx playwright test corporate-pricing-new-pricebook --workers=1` green (HEALER fix confirmed if triggered) |
 | WATCHDOG | NM-2022 + NM-2057 disposition (confirm-or-file) | `(skipped: WATCHDOG disposition is inline in Phase 4 — NM-2022/NM-2057 confirm-or-file recorded in activity log; BUG-CPR-NPB-NM2022/NM2057 filed at reports/bugs/ IFF confirmed per LR-034)` | `grep -r "NM-2022\|NM-2057" clients/encore/specs_planning/_internal/agent-activity-log.md` |
 | GARDENER | (none) | `(none)` | (none) |
 | OWNER | closure + (conditional) bug files | `(skipped: closure ceremony only; BUG-CPR-NPB-NM2022 and/or BUG-CPR-NPB-NM2057 filed at reports/bugs/ only if confirmed live — LR-034; activity-log row per LR-028)` | `node scripts/validate-plan-closure.mjs --dry-run` exit 0 |
@@ -281,6 +282,29 @@ node scripts/validate-plan-closure.mjs --dry-run   # expect: exit 0 or announce-
 ```
 
 ---
+
+## Execution Summary
+
+**Executed**: 2026-06-30 (BUILDER + GIVER work; OWNER closure). Extends the NM-1440 band (TC-CPR-NPB-001..031, already green) — never duplicates.
+
+**TCs implemented (19 net-new, TC-CPR-NPB-032..050)** — 50/50 green ×2 (`npx playwright test corporate-pricing-new-pricebook --workers=1` → 51 passed ×2, 0 failed/0 flaky, 2026-06-30):
+- Drag-add positive control (SOURCE A): 032 (real pointer-sequence drag adds in create mode), 033 (drag-add → Save reachable → Cancel, no-commit). Reuses the existing `dragProductGroupByName` (`mouse.move→down→move→up`); zero `.dragTo()`.
+- `New ▾` menu (SOURCE C): 034 (menu lists Equipment + Labor), 035 (→ `/add?type=equipment`), 036 (→ `/add?type=labor`) — driven by menu-item click, not URL.
+- Update-existing management mode: 037 (existing pricebook opens in mgmt mode — both tabs, Save disabled clean, create heading absent), 038 (Max Discount inline edit enables Save, no-commit; Max Discount is the reliable dirty lever). Deep inline-edit/save-cycle/persist coverage cited to `TC-CPR-DET-*` + `TC-CPR-STR-*` (extends, never duplicates).
+- Validation leads (SOURCE B): 039, 040.
+- Axis-2 Surface-Behavior Cases (LR-065): render-state 041/042/043, empty-vol 044/045, persistence 046/047/048, result-fidelity 049/050. result-fidelity PROMOTED in-scope (the source list HAS a "Search ID or Name…" box — the plan draft guessed out-of-scope). Out-of-scope tokens: pagination, sorting, combination.
+
+**TCs dropped: 0.** All planned scope delivered.
+
+**NM-2022 + NM-2057 disposition (SOURCE B, LR-044 confirm-or-file; reproduced live 2026-06-29 before authoring):**
+- **NM-2057 → NOT-REPRODUCED.** Empty Price Year carries `aria-invalid="true"` AND a visible RED border (`oklch(0.577 0.245 27.325)`), turning neutral-gray when valid. There IS a visible+programmatic required/invalid indicator (not silent). No bug filed. TC-039 asserts the indicator.
+- **NM-2022 → CLIENT-SIDE reproduced; SERVER NOT-AUTOMATABLE.** An existing pricebook name raises no client-side inline uniqueness error (strategy names DO validate). The server name-only-vs-name+strategy rule cannot be exercised without committing two duplicate pricebooks (irreversible — no-commit). No bug filed (clarification). TC-040 asserts the client-side behavior.
+
+**First-run reds fixed (HEALER, artifact-first from Playwright error-context):** TC-045 (empty-grid empty-state is a `tbody tr` → assert the hint, not `length 0`), TC-044 (hint split across elements → `getDetailEmptyStateHint` reads the tightest both-phrase container), TC-042 (link-cell nav flaked under load → removed the redundant nav re-check; TC-041 owns navigation).
+
+**Documentation / deliverables:** test-cases MD + test-plan synced to 50 TCs; `encore_test_cases.xlsx` rebuilt (`check:tc-parity` 769=769 exit 0; `xlsx:lint` exit 0); `navigation.md` registry row updated. New page-object helpers added (`getYearValidationState`, `setNameAndReadUniqueness`, `getDetailEmptyStateHint`, `filterSourceGroups`, `clearSourceFilter`, `clickStrategyTab` on New-Pricebook; `getNewMenuItemTexts`, `getPricebookNameCells`, `getGridHeaders`, `getRowCellText` on Search). `npx tsc --noEmit` exit 0; `/regression-guard` additive-only (no removals).
+
+**Phase 2.5 Adjacent-Sweep: NONE qualifying.** The `check:tc-parity` title-divergence FLAGs are in OTHER modules (TC-CPR-DET/SRC, TC-LOS-*), pre-existing + non-fatal + not touched by this subplan → out of Adjacent-Sweep scope (different module).
 
 ## Handoff
 

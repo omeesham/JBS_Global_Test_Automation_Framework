@@ -161,6 +161,7 @@ For EACH link in the chain, ask:
 - Are there inconsistencies between changed files?
 - Do the changes work together as a cohesive whole?
 - **App bug gate (LR-034)**: If audit evidence reveals application behavior that contradicts documented requirements, follow **LR-034 Bug Filing Protocol** — file to `reports/bugs/` before finalizing the audit verdict.
+- **Save-route parity (LR-066)**: if the audited work touches a module with ≥2 route-param/mode sibling save routes on a shared page (e.g. `?type=equipment` vs `?type=labor`), list each save-capable route and confirm EACH drives a real Save (a dialog-reach or commit test), or carries an explicit `parity-waived: <reason>` marker. A sibling route closed on load + field-enable checks alone is a finding — "the field enables Save" is not "Save works." Cross-check: `node scripts/check-save-route-parity.mjs`.
 
 ## Step 2.5: Claim-vs-Artifact Cross-Check (MANDATORY — anti-rubber-stamp)
 

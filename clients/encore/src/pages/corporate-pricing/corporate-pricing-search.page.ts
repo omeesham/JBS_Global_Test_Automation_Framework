@@ -399,6 +399,70 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     });
   }
 
+  // ---------- render-state reads (pricebook list) ----------
+
+  /** Open the New split-menu and read its two item texts (Equipment Pricing / Labor Pricing). */
+  async getNewMenuItemTexts(): Promise<string[]> {
+    await this.openNewMenu();
+    const eq = (await this.page.locator(S.mnuNewEquipmentPricing).first().innerText().catch(() => '')).trim();
+    const lb = (await this.page.locator(S.mnuNewLaborPricing).first().innerText().catch(() => '')).trim();
+    await this.page.keyboard.press('Escape').catch(() => { /* menu may already be closing */ });
+    return [eq, lb].filter(Boolean);
+  }
+
+  /** The grid column header texts, in order. */
+  async getGridHeaders(): Promise<string[]> {
+    return (await this.page.locator('thead th').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  }
+
+  /**
+   * Every Price Book name cell on the current page, with whether it carries a link affordance
+   * (a clickable button). Proves every pricebook-name cell is a link that navigates to Details.
+   */
+  async getPricebookNameCells(): Promise<{ text: string; isLink: boolean }[]> {
+    const rows = this.page.locator('tbody tr');
+    const n = await rows.count();
+    const out: { text: string; isLink: boolean }[] = [];
+    for (let i = 0; i < n; i++) {
+      const firstCell = rows.nth(i).locator('td').first();
+      const text = (await firstCell.innerText()).replace(/\s+/g, ' ').trim();
+      const isLink = (await firstCell.locator('button.cursor-pointer, a, [role="link"]').count()) > 0;
+      out.push({ text, isLink });
+    }
+    return out;
+  }
+
+  /** Read a data row's cell text by 0-based row + column index (content-anchored). */
+  async getRowCellText(rowIndex: number, colIndex: number): Promise<string> {
+    const cell = this.page.locator('tbody tr').nth(rowIndex).locator('td').nth(colIndex);
+    return (await cell.innerText()).replace(/\s+/g, ' ').trim();
+  }
+
+  /**
+   * The Currency column is filled by a SECOND request (the core/currencies lookup) that resolves
+   * AFTER the grid rows render, so each Currency cell shows a "-" placeholder until it lands and the
+   * grid re-maps the code. The grid-loaded wait only proves the rows rendered, so a Currency read
+   * fired right after it can catch the placeholder (the window widens under heavy back-to-back load).
+   * Poll the DOM until the first row's Currency cell resolves away from the placeholder before reading.
+   * Best-effort (.catch): if it genuinely never resolves (a real defect), the caller still reads "-"
+   * and its currency assertion fails cleanly — this removes the race without weakening the assertion.
+   */
+  async waitForCurrencyColumnResolved(timeout = 15_000): Promise<void> {
+    const headers = await this.getGridHeaders();
+    const idx = headers.findIndex((h) => /currency/i.test(h));
+    if (idx < 0) return; // no Currency column on this grid — nothing to settle
+    await this.page.waitForFunction(
+      (i) => {
+        const r0 = document.querySelector('tbody tr');
+        if (!r0) return false;
+        const txt = (r0.querySelectorAll('td')[i]?.textContent || '').trim();
+        return txt.length > 0 && txt !== '-';
+      },
+      idx,
+      { timeout, polling: 100 },
+    ).catch(() => { /* never resolved — the read below returns the placeholder, assertion fails cleanly */ });
+  }
+
   // ===========================================================================
   // Toolbar I/O — Export ▾ / Import ▾ / Loc Pricing / Grid Options.
   // Trigger + variant level ONLY: assert the menu opens, the variants are present, and the correct

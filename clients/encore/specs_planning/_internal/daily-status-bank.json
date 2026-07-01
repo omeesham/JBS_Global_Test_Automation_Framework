@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-22",
+  "last_updated": "2026-06-26",
   "bank": [],
   "reported_history": [
     {
@@ -110,8 +110,36 @@
     {
       "date": "2026-06-22",
       "lines": [
-        "Reviewing Jira requirements and walk findings for the locations area — continuing spec coverage work following last week's Pricing and Currency tab updates",
-        "Working through remaining location module tabs to verify current coverage and ensure specs are aligned with Jira documentation"
+        "Reviewed Jira requirements and walk findings across the locations area — continued spec upgrade work following last week's Pricing and Currency tab updates",
+        "Worked through remaining location module tabs to verify specs were complete and aligned with Jira documentation"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "lines": [
+        "Reviewed Corporate Pricing field behaviors across the main tabs — walked the search, strategy, detail, and override areas against Jira requirements",
+        "Fixed and corrected specs in the Corporate Pricing area following the re-walk — updated cases that weren't verifying the right application state based on Jira"
+      ]
+    },
+    {
+      "date": "2026-06-24",
+      "lines": [
+        "Audited Corporate Pricing specs following the re-walk — verified each field had the right checks based on Jira requirements",
+        "Continued reviewing Jira requirements across the Corporate Pricing area to address gaps identified during the walk sessions"
+      ]
+    },
+    {
+      "date": "2026-06-25",
+      "lines": [
+        "Reviewed and updated requirements documentation for the Corporate Pricing area — corrected Jira-based content that had drifted from what was documented",
+        "Upgraded specs for the Corporate Pricing search and detail sections — added cases for filter and grid behaviors based on Jira requirements"
+      ]
+    },
+    {
+      "date": "2026-06-26",
+      "lines": [
+        "Upgraded specs for the Corporate Pricing Strategy section based on Jira requirements — added cases for pricing strategy creation and management behaviors",
+        "Reviewed Jira requirements for the Corporate Pricing area and updated documentation to reflect corporate office structure and related field behaviors"
       ]
     }
   ]

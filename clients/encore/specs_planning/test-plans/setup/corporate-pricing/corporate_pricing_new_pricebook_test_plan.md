@@ -1,14 +1,14 @@
-# Corporate Pricing — New Pricebook Test Plan (NM-1440)
+# Corporate Pricing — New Pricebook Test Plan (NM-1440 + NM-2263)
 
 **Module**: corporate-pricing
 **Test Cases**: specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_new_pricebook_test_cases.md
 **Field Inventory**: specs_planning/_internal/field-inventories/corporate-pricing-new-pricebook-2026-06-09.md
 **Divergences**: specs_planning/_internal/encore-questions-drafts/corporate-pricing-newpricebook-divergences-2026-06-09.md
-**Updated**: 2026-06-09 (NM-1440 New Pricebook create flow, Wave-1.5 priority)
+**Updated**: 2026-06-30 (Labor Save coverage — TC-051 dialog→Cancel + TC-052 commit→persist→Search, mirroring the Equipment Save flow on the Labor route)
 
 ## Scope boundary
 
-This plan owns the **create-flow destination page** (`/add?type=equipment|labor`) — header, strategy add, product-group ADD, Save reachability — for BOTH options. It does NOT re-cover the Search `+ New ▾` dropdown affordance itself (that is TC-CPR-SRC-016/017). **No-commit**: a created pricebook is irreversible via UI (CPR-1440-Q4), so save-cycle scenarios assert Save *reachability* and Cancel the confirm dialog; actual persistence is NOT-AUTOMATED-IN-CI. Baseline (LR-019) = navigate fresh to the always-empty create page per test.
+This plan owns the **create-flow destination page** (`/add?type=equipment|labor`) — header, strategy add, product-group ADD, Save reachability — for BOTH options. It does NOT re-cover the Search `+ New ▾` dropdown affordance itself (that is TC-CPR-SRC-016/017). **No-commit default**: a created pricebook is irreversible via UI (CPR-1440-Q4), so the field-coverage save-cycle scenarios assert Save *reachability* and Cancel the confirm dialog. **ONE committing scenario (TC-CPR-NPB-031)** actually saves a pricebook and proves it persists — this environment is single-tenant (ours), so the permanent record is accepted (authorized 2026-06-26). Baseline (LR-019) = navigate fresh to the always-empty create page per test.
 
 ## Selector Mapping
 
@@ -42,7 +42,7 @@ This plan owns the **create-flow destination page** (`/add?type=equipment|labor`
 ## Save mechanics (page-object contract)
 
 - React inputs filled via **native value-setter + input/change** (`setReactInput`) — `.fill()` does not commit React state.
-- Strategy add: open dialog (`btnNewStrategy`) → fill `txtDlgStrategyName` → `btnDlgAdd`. Empty name ⇒ Add no-op.
+- Strategy add: open dialog (`btnNewStrategy`) → fill `txtDlgStrategyName` → `btnDlgAdd`. Empty name ⇒ Add disabled (the guard).
 - Product-group add: **double-click** a `pgSourceRow` (content-anchored).
 - Save reachability: `btnSave` enabled → click → `dlgSaveChanges` appears → `btnSaveChangesCancel` (NEVER confirm in CI).
 
@@ -125,7 +125,7 @@ This plan owns the **create-flow destination page** (`/add?type=equipment|labor`
 1. Step: addStrategy A then addStrategy B, expected: Total 2
 
 ## Scenario: TC-CPR-NPB-020 - Add with empty name is a no-op
-1. Step: Open dlgNewStrategy, leave name empty, click btnDlgAdd, expected: Total unchanged; dialog stays open
+1. Step: Open dlgNewStrategy, leave name empty, expected: Add button disabled (the guard); Total unchanged; dialog stays open
 
 ## Scenario: TC-CPR-NPB-021 - Save disabled on empty form
 1. Step: Open create page fresh, expected: loads
@@ -168,9 +168,123 @@ This plan owns the **create-flow destination page** (`/add?type=equipment|labor`
 1. Step: Click tabPricingDetail, expected: activates
 2. Step: Read pgSourceRow content, expected: Labor product groups (e.g. "Banners Design", "Content Development")
 
-## Coverage Index (regenerated 2026-06-11 from the test-cases file)
+## Scenario: TC-CPR-NPB-031 - Saving a new pricebook persists it (the ONE committing test)
+1. Step: Build a savable, non-empty book — unique Name (prefix + run-stamp from `PRICEBOOK_RUN_STAMP` env, pid fallback; never clock/random) + Year + one strategy + one product group (Balloon Light Decor) on the Pricing Detail tab, expected: btnSave enabled
+2. Step: Click btnSave → confirm dlgSaveChanges (COMMIT), expected: redirect to `/details/<new-guid>`
+3. Step: Reload the new book's Details page, click tabPricingDetail, read tblDetailGrid by content, expected: "Balloon Light Decor" still present
+4. Step: Open Search, turn Active-Only off, filter by the unique name, Search, expected: the new book row is found
 
-Authoritative current case list (30 cases). Scenario prose above may lag; this index is mechanically regenerated.
+---
+
+## NM-2263 extension scenarios
+
+> Drag-add (real pointer sequence, never `.dragTo()`), the toolbar New ▾ menu clicks, an
+> update-existing management-mode entry pair (deep inline-edit/save/persist owned by TC-CPR-DET-* /
+> TC-CPR-STR-*, cited not duplicated), the NM-2022/NM-2057 validation-lead dispositions, and the
+> Axis-2 Surface-Behavior Cases. New selector keys: `btnNew` (toolbar New split-button),
+> `mnuNewEquipmentPricing` / `mnuNewLaborPricing` (menu items) — from
+> `clients/encore/src/selectors/corporate-pricing/search.ts`.
+
+## Scenario: TC-CPR-NPB-032 - Drag (real pointer sequence) adds a product group in create mode
+1. Step: On Pricing Detail tab, drag pgSourceRow("Balloon Light Decor") onto tblDetailGrid via mouse move→down→multi-move→settle→up (never `.dragTo()`), expected: row added
+2. Step: Read tblDetailGrid by content, expected: "Balloon Light Decor" present (create-mode drag positive control)
+
+## Scenario: TC-CPR-NPB-033 - Drag-add → Save reachable → Cancel (NO-COMMIT)
+1. Step: Name+Year+one strategy set; drag a product group onto the grid, expected: row lands
+2. Step: Assert btnSave enabled, expected: enabled
+3. Step: Click btnSave → dlgSaveChanges → btnSaveChangesCancel, expected: dialog cancels, nothing committed
+
+## Scenario: TC-CPR-NPB-034 - New ▾ menu presents Equipment Pricing + Labor Pricing
+1. Step: On Search, click btnNew to open the dropdown, expected: menu opens
+2. Step: Read menu items, expected: "Equipment Pricing" + "Labor Pricing" present
+
+## Scenario: TC-CPR-NPB-035 - New ▾ → Equipment Pricing navigates to /add?type=equipment
+1. Step: Open New ▾ menu, click mnuNewEquipmentPricing, expected: navigates
+2. Step: Read URL, expected: contains `/add?type=equipment`
+
+## Scenario: TC-CPR-NPB-036 - New ▾ → Labor Pricing navigates to /add?type=labor
+1. Step: Open New ▾ menu, click mnuNewLaborPricing, expected: navigates
+2. Step: Read URL, expected: contains `/add?type=labor`
+
+## Scenario: TC-CPR-NPB-037 - Existing pricebook opens in management mode (both tabs, Save disabled)
+1. Step: Navigate to the detailFixture pricebook Details (2021-PB6), expected: loads in management mode
+2. Step: Read tabs + Save state, expected: both tabs present; "New Pricebook" create heading absent; Save disabled on clean load
+3. Note: deep inline-edit/save/persist owned by TC-CPR-DET-* / TC-CPR-STR-* (cited, not duplicated)
+
+## Scenario: TC-CPR-NPB-038 - Management-mode Max Discount edit enables Save (save-gate; NO-COMMIT)
+1. Step: On the existing pricebook Pricing Detail tab, set an anchored row's Max Discount to a different value (keyboard — the reliable dirty lever), expected: form dirty
+2. Step: Assert Save enabled, expected: enabled (save-gate)
+3. Step: Reload to discard (reversible mgmt mode) — do NOT commit, expected: fixture unchanged
+
+## Scenario: TC-CPR-NPB-039 - Empty Year shows visible required/invalid indicator
+1. Step: On a fresh create page, read txtPriceYear aria-invalid + border with year empty, expected: aria-invalid="true" + red/destructive border
+2. Step: Enter a valid year, re-read, expected: aria-invalid="false" + border clears (NOT-REPRODUCED — indicator present)
+
+## Scenario: TC-CPR-NPB-040 - Existing name raises no client-side uniqueness error
+1. Step: setReactInput(txtPricebookName, existing name "2022-NP Tier 1"), blur + settle, expected: no inline "already exists" error
+2. Step: Read aria-invalid, expected: false; form stays client-savable (server name+strategy semantics NOT-AUTOMATABLE no-commit)
+
+## Scenario: TC-CPR-NPB-041 - [render-state QUICK] Search pricebook-name cells navigate
+1. Step: Read a pricebook-name cell in the Search grid first column, expected: link affordance
+2. Step: Click it, expected: navigates to `/details/<guid>` (link-cell render-state; non-link → RCA, never blind-file)
+
+## Scenario: TC-CPR-NPB-042 - [render-state DEEP] every name cell is a link + sample navigates + Currency renders
+1. Step: Enumerate every pricebook-name cell on the first page, assert each has the link affordance (no strict count), expected: all links
+2. Step: Click a sample → Details; read a Currency cell, expected: navigates; Currency renders a code (e.g. USD)
+
+## Scenario: TC-CPR-NPB-043 - [render-state DEEP] boolean columns render per table format (LR-036)
+1. Step: Read the 5 boolean column headers (Is GSO/Is Internal/Is Labor/Is Active/Is Productions), expected: present
+2. Step: Read boolean cells across rows, expected: TRUE vs FALSE distinguishable by render (Unicode ✔ / empty), no count
+
+## Scenario: TC-CPR-NPB-044 - [empty-vol QUICK] empty-state hint verbatim + one-product grid
+1. Step: Read the empty grid's empty-state hint, expected: "No items added yet — Double-click or drag product groups from the sidebar"
+2. Step: Add one product group, read grid, expected: exactly that one group present (content-anchored)
+
+## Scenario: TC-CPR-NPB-045 - [empty-vol DEEP] 0/1/N volume + source virtualization integrity
+1. Step: Confirm 0 rows; add group A (1) then group B (N), expected: grid renders 0→1→N by content
+2. Step: Type a known off-screen group into the source search, expected: it becomes reachable by content (virtualization integrity, no count)
+
+## Scenario: TC-CPR-NPB-046 - [persistence QUICK] dirty survives Strategy↔Detail tab switch
+1. Step: Add a strategy + a product group (dirty), expected: Total 1 + one grid row
+2. Step: Switch to Pricing Strategy tab then back to Pricing Detail, read state, expected: strategy + grid row both retained
+
+## Scenario: TC-CPR-NPB-047 - [persistence DEEP] dirty discards on navigate-away (beforeunload) → reload empty
+1. Step: Make form dirty (Name+Year+strategy), navigate away (beforeunload auto-accepted), expected: leaves
+2. Step: Re-open the create page, read fields, expected: empty (Name blank, zero strategies — nothing persisted)
+
+## Scenario: TC-CPR-NPB-048 - [persistence DEEP] remove the only strategy → Save returns disabled (no net change)
+1. Step: Name+Year set; add one strategy → Save enabled, expected: enabled
+2. Step: Remove that strategy, assert Save, expected: disabled (≥1 strategy required; reverting leaves no net change)
+
+## Scenario: TC-CPR-NPB-049 - [result-fidelity QUICK] source search filters the catalog
+1. Step: On Pricing Detail tab, type a known group fragment into txtSearchProductGroups, expected: list filters
+2. Step: Read visible source rows, expected: the searched group present (result reflects query, content-anchored)
+
+## Scenario: TC-CPR-NPB-050 - [result-fidelity DEEP] exact-name search narrows then clear restores full catalog
+1. Step: Confirm unfiltered source catalog has > 1 item; search an exact name, expected: narrows to match(es)
+2. Step: Clear the source search, expected: full catalog restored (> 1 item; no strict count)
+
+---
+
+## Labor Save scenarios (2026-06-30)
+
+> The Labor route previously had only a Save-enable check (029). These two mirror the Equipment
+> Save flow (024 + 031) on the Labor route, proving the core Save action actually fires on Labor.
+
+## Scenario: TC-CPR-NPB-051 - Labor Save opens the confirmation dialog; Cancel aborts without committing
+1. Step: On the Labor create page, fill Name + Year + one strategy, expected: btnSave enabled
+2. Step: Click btnSave, expected: the "Save Changes" dialog (dlgSaveChanges) appears
+3. Step: Click Cancel in the dialog, expected: dialog closes, still on `/add?type=labor` (no commit)
+
+## Scenario: TC-CPR-NPB-052 - Saving a new Labor pricebook persists it (the Labor committing test)
+1. Step: Build a savable, non-empty Labor book — unique Name (distinct Labor prefix + run-stamp from `PRICEBOOK_RUN_STAMP` env, pid fallback; never clock/random) + Year + one strategy + one Labor product group (Banners Design) on the Pricing Detail tab, expected: btnSave enabled
+2. Step: Click btnSave → confirm dlgSaveChanges (COMMIT), expected: redirect to `/details/<new-guid>`
+3. Step: Reload the new book's Details page, click tabPricingDetail, read tblDetailGrid by content, expected: "Banners Design" still present
+4. Step: Open Search, turn Active-Only off, turn the "Is Labor" filter ON, filter by the unique name, Search, expected: the new book row is found (the Search hides Labor pricebooks unless Is Labor is on)
+
+## Coverage Index (regenerated 2026-06-30 from the test-cases file)
+
+Authoritative current case list (52 cases). Scenario prose above may lag; this index is mechanically regenerated.
 
 - TC-CPR-NPB-001 — New Pricebook (Equipment) create page loads via the type route param
 - TC-CPR-NPB-002 — Pricebook Name field is present and editable
@@ -202,3 +316,25 @@ Authoritative current case list (30 cases). Scenario prose above may lag; this i
 - TC-CPR-NPB-028 — New Pricebook (Labor) create page loads; Type shows Labor (read-only)
 - TC-CPR-NPB-029 — Labor flow header parity + Save gating
 - TC-CPR-NPB-030 — Labor Pricing Detail shows a Labor-specific product-group catalog
+- TC-CPR-NPB-031 — Saving a new pricebook persists it — created book reloads + is found by Search with its product group
+- TC-CPR-NPB-032 — Dragging a product group (real pointer sequence) adds it to the create grid
+- TC-CPR-NPB-033 — Drag-add → edit New Price + Max Discount → Save reachable (NO-COMMIT)
+- TC-CPR-NPB-034 — New ▾ menu presents Equipment Pricing + Labor Pricing items
+- TC-CPR-NPB-035 — New ▾ → Equipment Pricing navigates to the Equipment create route
+- TC-CPR-NPB-036 — New ▾ → Labor Pricing navigates to the Labor create route
+- TC-CPR-NPB-037 — An existing pricebook opens in management mode (both tabs, Save disabled on clean load)
+- TC-CPR-NPB-038 — Management-mode inline New-Price edit enables Save (save-gate; NO-COMMIT)
+- TC-CPR-NPB-039 — Empty Price Year shows a visible required/invalid indicator (Save disabled)
+- TC-CPR-NPB-040 — An existing pricebook name raises no client-side inline uniqueness error
+- TC-CPR-NPB-041 — Search pricebook-name cells navigate to the pricebook Details (render-state QUICK)
+- TC-CPR-NPB-042 — Every rendered pricebook-name cell is a navigable link + Currency renders (render-state DEEP)
+- TC-CPR-NPB-043 — Search boolean columns render per the table's boolean format (render-state DEEP, LR-036)
+- TC-CPR-NPB-044 — Create-mode empty-state hint reads verbatim + a one-product grid renders (empty-vol QUICK)
+- TC-CPR-NPB-045 — Create-mode 0/1/N volume + source-catalog virtualization integrity (empty-vol DEEP)
+- TC-CPR-NPB-046 — Create-mode dirty state survives a Strategy ↔ Detail tab switch (persistence QUICK)
+- TC-CPR-NPB-047 — Create-mode dirty discards on navigate-away (beforeunload) → reload shows empty form (persistence DEEP)
+- TC-CPR-NPB-048 — Removing the only strategy returns Save to disabled — no net change (persistence DEEP)
+- TC-CPR-NPB-049 — Source-list search filters the product-group catalog to matches (result-fidelity QUICK)
+- TC-CPR-NPB-050 — Source search by exact name narrows then clears to restore the full catalog (result-fidelity DEEP)
+- TC-CPR-NPB-051 — Labor Save opens the confirmation dialog; Cancel aborts without committing (Labor mirror of 024)
+- TC-CPR-NPB-052 — Saving a new Labor pricebook persists it — created book reloads + is found by Search with Is-Labor filter on (Labor mirror of 031)

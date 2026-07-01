@@ -86,17 +86,59 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     expect(typeof isProductions.checked).toBe('boolean');
   });
 
-  test('TC-CPR-STR-013: Selected strategy displays its assigned locations', async ({ corporatePricingStrategyPage: p }) => {
-    await p.selectStrategy(STRATEGY.fixtureStrategyName);
-    // The "Locations Using Pricing As Default" table renders for the selected strategy.
-    expect(await p.hasLocationsTable()).toBe(true);
-    // Which offices currently use this strategy as their default is live, volatile assignment data
-    // (a strategy may be the default for zero, one, or many locations), so assert the SHAPE of any
-    // listed rows (office number + name) rather than a fixed assignment set.
-    const locations = await p.getStrategyLocations();
-    for (const loc of locations) {
-      expect(loc.office).toMatch(/\d/);
-      expect(loc.name.length).toBeGreaterThan(0);
+  test('TC-CPR-STR-013: Setting a location\'s Primary Pricing surfaces that office in the strategy grid', async ({ corporatePricingStrategyPage: strategyPage, locationPricingPage }) => {
+    // Cross-surface integration (location save-cycle + strategy reload) — give it room.
+    test.setTimeout(120_000);
+    // The strategy's "Locations Using Pricing As Default" grid is a read-only back-reference: an
+    // office appears here ONLY after it selects this strategy as its Primary Pricing on the
+    // Location -> Pricing tab. Asserting "any listed rows have the right shape" passes VACUOUSLY
+    // when the grid is empty (the loop never runs) — which is the live state whenever no office
+    // currently points at the strategy. So this test SEEDS the relationship it asserts: it points
+    // office 1604's Primary Equipment Pricing at a known strategy, proves that office surfaces in
+    // the strategy's grid, then restores the office's original selection (net-zero, so a re-run and
+    // any later test start from the same state).
+    const { office, strategyName, pricebookGuid } = STRATEGY.crossSurfaceSeed;
+    const equipmentDropdown = 'drpPrimaryEquipmentPricingUSD';
+
+    await locationPricingPage.navigateToPricingTab(office);
+    const original = (await locationPricingPage.getDropdownValue(equipmentDropdown)).trim();
+    let changed = false;
+    try {
+      // Seed: make this office use `strategyName` as its Primary Equipment Pricing. Only save when a
+      // real change is needed (selecting the already-selected value is a toggle-safe no-op).
+      if (original !== strategyName) {
+        await locationPricingPage.selectPrimaryDropdownOption(equipmentDropdown, strategyName);
+        await locationPricingPage.saveAndConfirm();
+        changed = true;
+        // Confirm the seed landed before asserting on the strategy surface — a select/save that
+        // silently no-ops would otherwise surface as a confusing "office missing from grid" failure.
+        expect((await locationPricingPage.getDropdownValue(equipmentDropdown)).trim()).toBe(strategyName);
+      }
+
+      // Verify on the strategy surface: the seeded office MUST now appear in the strategy's grid.
+      await strategyPage.open(pricebookGuid, office);
+      await strategyPage.selectStrategy(strategyName);
+      expect(await strategyPage.hasLocationsTable()).toBe(true);
+      const locations = await strategyPage.getStrategyLocations();
+      // NON-VACUOUS: the grid cannot be empty — the office we pointed at this strategy is required.
+      expect(locations.length).toBeGreaterThan(0);
+      expect(locations.some((l) => l.office === office)).toBe(true);
+      // Now that the loop is guaranteed to run, the per-row shape assertion is meaningful.
+      for (const loc of locations) {
+        expect(loc.office).toMatch(/\d/);
+        expect(loc.name.length).toBeGreaterThan(0);
+      }
+    } finally {
+      // Restore the location's original Primary Equipment Pricing so the test is net-zero.
+      if (changed) {
+        await locationPricingPage.navigateToPricingTab(office);
+        if (original === '' || original === '--Select--' || original === 'Select') {
+          await locationPricingPage.clearPrimaryDropdown(equipmentDropdown);
+        } else {
+          await locationPricingPage.selectPrimaryDropdownOption(equipmentDropdown, original);
+        }
+        await locationPricingPage.saveAndConfirm();
+      }
     }
   });
 

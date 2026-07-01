@@ -116,9 +116,10 @@
 
 ---
 
-## Scenario: TC-CPR-STR-013 - Selected strategy displays locations
-1. Step: Open Pricebook Details and select "2022-NP Tier 1", expected: editor loads
-2. Step: Read tblLocationsUsingDefault rows, expected: assigned locations listed (e.g. 1991, 7011)
+## Scenario: TC-CPR-STR-013 - Setting a location's Primary Pricing surfaces that office in the strategy grid
+1. Step: On office 1604's Pricing tab, set Primary Equipment Pricing to "2026-Tier 2 Resort B" and Save (skip save if already selected), expected: selection persists
+2. Step: Open the "2026-Tier 2 Resort B" strategy and read tblLocationsUsingDefault rows, expected: at least one row, and office 1604 is present
+3. Step: Restore office 1604's Primary Equipment Pricing to its original value, expected: net-zero
 
 ---
 
@@ -379,7 +380,7 @@ Authoritative current case list (63 cases). Scenario prose above may lag; this i
 - TC-CPR-STR-010 — Pricing Detail tab is present and activates
 - TC-CPR-STR-011 — History tab is absent on the live site
 - TC-CPR-STR-012 — Clicking an existing strategy loads its details
-- TC-CPR-STR-013 — Selected strategy displays its assigned locations
+- TC-CPR-STR-013 — Setting a location's Primary Pricing surfaces that office in the strategy grid
 - TC-CPR-STR-014 — Edit an existing strategy and Save persists the change (with restore)
 - TC-CPR-STR-015 — Add New opens the New Pricing Strategy dialog and appends a row
 - TC-CPR-STR-016 — Newly added strategy shows a Remove button

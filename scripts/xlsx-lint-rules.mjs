@@ -472,6 +472,43 @@ export function lintWorkbook(xlsxPath) {
       }
     }
 
+    // ── fused-step + unbalanced-paren scan (C7 extension, 2026-06-29). Backstops the
+    //    two exporter-corruption classes root-fixed this date: (1) humanize.ts collapsed
+    //    a `space+\n` left by a stripped trailing `(per …)` note into one space, fusing
+    //    two numbered steps onto one cell (LI-003/004/078); (2) testrail-format.ts split
+    //    a `; ` INSIDE a balanced parenthetical, leaving a dangling "(" / ")" half
+    //    (SRC-008 / ECT-013 / LI-111). Both fail the build if they ever regress. ──
+    const stepV = String(r['Steps'] ?? '');
+    const lead = stepV.match(/^\s*(\d+)\.\s/);
+    if (lead) {
+      const next = parseInt(lead[1], 10) + 1;
+      // A clean atomic step cell carries ONE leading "N." and no later sequential
+      // "(N+1)." boundary. The `\s` before guards against a value like "20." (where
+      // the digit run is preceded by another digit, not whitespace).
+      if (new RegExp(`(?:^|\\s)${next}\\.\\s`).test(stepV.slice(lead[0].length))) {
+        integrityViolations.push({
+          code: 'C7', sheet: r.sheet, tcId: hitTcId,
+          detail: `fused steps in Steps: step ${lead[1]} runs into step ${next}: "${stepV.length > 80 ? stepV.slice(0, 80) + '…' : stepV}"`,
+        });
+      }
+    }
+    for (const pcol of ['Title', 'Steps', 'Expected Result', 'Preconditions']) {
+      const v = String(r[pcol] ?? '');
+      if (!v) continue;
+      let depth = 0, unbalanced = false;
+      for (let k = 0; k < v.length; k++) {
+        const ch = v[k];
+        if (ch === '(') depth++;
+        else if (ch === ')') { if (depth === 0) { unbalanced = true; break; } depth--; }
+      }
+      if (unbalanced || depth !== 0) {
+        integrityViolations.push({
+          code: 'C7', sheet: r.sheet, tcId: hitTcId,
+          detail: `unbalanced parentheses in ${pcol}: "${v.length > 80 ? v.slice(0, 80) + '…' : v}"`,
+        });
+      }
+    }
+
     // ── integrity scan (Automation Status = execution axis; the reason-only
     //    'Notes / Reason' cell is the curated reason, optionally "Blocked — " marked) ──
     const cov = String(r['Coverage Status'] ?? '').trim();

@@ -37,11 +37,20 @@ export const STRATEGY = {
     isActive: { checked: true, disabled: false },
   },
 
-  /** Locations assigned to the fixture strategy (assert containment, not exact count). */
-  expectedLocations: [
-    { office: '1991', name: 'Premier Global Events' },
-    { office: '7011', name: 'Production' },
-  ],
+  /**
+   * Cross-surface seed for TC-CPR-STR-013 ("Locations Using Pricing As Default" grid).
+   * Live-verified 2026-06-29: office 1604's Primary Equipment Pricing = this strategy ⇒ office 1604
+   * appears in the strategy's grid. The grid is a read-only back-reference populated by a location
+   * selecting the strategy as its Primary Pricing — so the test points office 1604's Primary
+   * Equipment Pricing at this strategy, asserts 1604 surfaces in the grid, then restores the
+   * location's original selection (the prior fixed-assignment data 1991/7011 had been reassigned
+   * away, which is exactly what made the old row-shape loop pass vacuously on an empty grid).
+   */
+  crossSurfaceSeed: {
+    office: '1604',
+    strategyName: '2026-Tier 2 Resort B',
+    pricebookGuid: 'd4f8d502-ca92-5fdf-91d6-5b1bee109f54',
+  },
 
   /** Reversible edit marker for the existing strategy name (save-cycle TCs). */
   reversibleEdit: {

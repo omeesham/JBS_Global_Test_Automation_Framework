@@ -33,6 +33,19 @@ export const NEW_PRICEBOOK = {
   /** Whitespace-only — treated as empty (Save stays disabled). */
   whitespaceName: '   ',
 
+  /**
+   * Committing persistence test ONLY — fixed name PREFIX; the spec appends a run-stamp suffix read
+   * from process.env.PRICEBOOK_RUN_STAMP (passed in by CI/agent), falling back to the test-runner pid
+   * — NEVER Date.now()/random (those are non-reproducible). Keeps each committed pricebook uniquely
+   * searchable on the single-tenant environment.
+   */
+  persistNamePrefix: 'QA-Persist-',
+  /**
+   * Same committing-persistence pattern for the Labor create route — a DISTINCT prefix so a committed
+   * Labor pricebook is separable from an Equipment one in Search (both routes share one Search screen).
+   */
+  persistNamePrefixLabor: 'QA-Persist-LAB-',
+
   // ---- Year field-coverage inputs ----
   validYear: '2026',
   /** Decimal — accepted client-side (Save stays enabled); server validation unverified. */
@@ -57,6 +70,24 @@ export const NEW_PRICEBOOK = {
   equipmentGroupB: 'Analog Mixer 12 - 23 Ch',      // ID 280
   /** Labor catalog sample (differs from Equipment — type-specific). */
   laborGroupSample: ['Banners Design', 'Branding Media Production', 'Content Development'] as const,
+  /**
+   * A single known-addable Labor product group (catalog ID 400) — used as the commit fixture for the
+   * Labor persist test, the Labor counterpart of `equipmentGroupA`. Live-verified add-able 2026-06-30.
+   */
+  laborGroupA: 'Banners Design',
+
+  /**
+   * An existing pricebook name (live on office 1604) — used to prove the create form does NOT
+   * block a duplicate pricebook name client-side (NM-2022). The strategy name field DOES validate
+   * uniqueness client-side (NM-2261); the pricebook-name field does not.
+   */
+  existingPricebookName: '2022-NP Tier 1',
+
+  /** Empty-state hint on the empty Pricing Detail destination grid (create mode) — two stable phrases. */
+  emptyStateHint: {
+    addedPhrase: 'No items added yet',
+    actionPhrase: 'Double-click or drag product groups from the sidebar',
+  },
 
   /** Save confirmation dialog (shared "Save Changes" dialog). */
   saveDialog: {
