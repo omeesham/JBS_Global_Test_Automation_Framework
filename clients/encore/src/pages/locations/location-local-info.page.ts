@@ -233,10 +233,25 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
       }
     }
 
-    if (restoreEnableKey) { await this.checkCheckbox(restoreEnableKey); }
-    await this.setSpinValue(spinKey, restoreValue);
-    await this.clickSave();
-    await this.waitForAngularStable();
+    // Restore the field to baseline and PROVE it persisted -- this test saved a real boundary value
+    // above, so a silent failure to revert would leak it to the shared office and contaminate later
+    // tests. The spin display is the entered value x100 (see the persistence check above); a disabled
+    // spin cannot be changed and counts as already-restored, but its enabling checkbox must be back.
+    await this.saveAndVerifyPersisted({
+      isAtTarget: async () => {
+        if (restoreEnableKey && !(await this.getCheckboxState(restoreEnableKey)).checked) return false;
+        const s = await this.getSpinState(spinKey);
+        if (s.disabled) return true;
+        return Math.abs(parseFloat(s.value) - parseFloat(restoreValue) * 100) < 0.01;
+      },
+      applyMutation: async () => {
+        if (restoreEnableKey) { await this.checkCheckbox(restoreEnableKey); }
+        await this.setSpinValue(spinKey, restoreValue);
+      },
+      save: async () => { await this.clickSave(); },
+      reload: () => this.reloadAndNavigateToLocalInfo(officeNo),
+      label: `${String(spinKey)} restored to ${restoreValue}`,
+    });
     return { passed: true, detail: `${value} -> valid [ok]` };
   }
 
@@ -265,11 +280,26 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
       if (disabled !== expectedDisabled) failures.push(`${target} disabled: expected ${expectedDisabled}, got ${disabled}`);
     }
 
-    for (const r of restore) {
-      if (r.action === 'check') { await this.checkCheckbox(r.key); } else { await this.uncheckCheckbox(r.key); }
-    }
-    if (spinRestore) { await this.setSpinValue(spinRestore.key, spinRestore.value); }
-    await this.clickSave();
+    // Restore the toggled controls and PROVE the revert persisted -- the trigger toggle above was
+    // saved, so a silent failure to revert would leak it to the shared office. Verify on the
+    // unambiguous checkbox states; the optional spin is re-applied best-effort.
+    await this.saveAndVerifyPersisted({
+      isAtTarget: async () => {
+        for (const r of restore) {
+          if ((await this.getCheckboxState(r.key)).checked !== (r.action === 'check')) return false;
+        }
+        return true;
+      },
+      applyMutation: async () => {
+        for (const r of restore) {
+          if (r.action === 'check') { await this.checkCheckbox(r.key); } else { await this.uncheckCheckbox(r.key); }
+        }
+        if (spinRestore) { await this.setSpinValue(spinRestore.key, spinRestore.value); }
+      },
+      save: async () => { await this.clickSave(); },
+      reload: () => this.reloadAndNavigateToLocalInfo(),
+      label: 'dependency restore',
+    });
     return { passed: failures.length === 0, failures };
   }
 
@@ -287,8 +317,14 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     await this.fillText(fieldKey, overlong);
     const truncated = await this.getTextValue(fieldKey);
     if (truncated.length > maxLength) return { passed: false, detail: `Truncation failed: length ${truncated.length} > ${maxLength}` };
-    await this.fillText(fieldKey, restoreValue);
-    await this.clickSave();
+    // Restore the field text and PROVE it persisted before the next serial test runs.
+    await this.saveAndVerifyPersisted({
+      isAtTarget: async () => (await this.getTextValue(fieldKey)) === restoreValue,
+      applyMutation: () => this.fillText(fieldKey, restoreValue),
+      save: async () => { await this.clickSave(); },
+      reload: () => this.reloadAndNavigateToLocalInfo(),
+      label: `${String(fieldKey)} restored to baseline text`,
+    });
     return { passed: true, detail: `maxLength=${maxLength} enforced [ok]` };
   }
 }

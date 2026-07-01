@@ -46,6 +46,14 @@ export const TEST_PHONE2_VALUE = '555-000-0001';
 /** Test phone number for save-enable/persistence tests (TC-018). */
 export const ACCOUNT_TEST_PHONE = '111-222-3333';
 
+/**
+ * Dedicated per-test baseline value for Phone 2. Distinct from both TEST_PHONE2_VALUE and
+ * ACCOUNT_TEST_PHONE and filled by no test, so the per-test reset always lands on a value that
+ * every test's own fill genuinely changes (Save reliably enables — no net-zero stall). Non-empty
+ * on purpose: clearing Phone 2 to empty does not persist, so the baseline never sets it empty.
+ */
+export const PHONE2_BASELINE = '760-000-0002';
+
 /** Account List filter terms for TC-025/026. MCP-verified : "Beverly" in Address returns 3 accounts. */
 export const ACCOUNT_LIST_FILTERS = {
   address: 'Beverly',

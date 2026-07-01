@@ -54,6 +54,30 @@ spec you're touching, cleanly, in the same change. Do **NOT** retro-fit untouche
 single-worker run (2026-05-29) showed **zero** current baseline failures, so this is *preventive*
 discipline for new work + CI's parallel/retry runs, not a repair of a broken suite.
 
+**Structural enforcement (2026-07-01).** LR-019 is no longer rule-only — a 2026-06-30 audit found the
+rule had rotted on five save-capable specs (`location-local-information`, `local-office-settings`,
+`local-office-ect`, the non-FCC describes of `location-notes` + `location-shared-setup-locations`),
+each carrying its baseline only in the first test's body. Defense in depth now mirrors LR-066/LR-067:
+
+1. **Gate (`scripts/check-per-test-baseline.mjs`, wired into `.githooks/pre-commit` Gate 5e / `npm run
+   check:per-test-baseline`).** Registry-driven: every save-capable describe must carry a recognised
+   per-test mechanism (`ensureDefaultState`/`ensureEmptyState`/`ensureClean*` in `beforeEach`, the FCC
+   runner `saveAndVerifyCase({ baseline })`, or a fresh `open()`) — a first-test-only baseline fails.
+   The known gaps are **WAIVED** (with a ≥20-char reason) pending each submodule's FCC subplan; a new
+   unguarded save-spec **fails the commit**; the glob WARN pass flags any save-capable spec missing
+   from the registry. The gate credits all three mechanisms, so it does not false-flag FCC / fresh-open
+   describes (the false-positive class that misled the first-pass audit).
+2. **Agent HARD STOPs** — GENERATOR #16 + HEALER #11: wire the baseline AND register/waive the spec in
+   the SAME change.
+3. **Backlog** — three deferred fixes remain (`location-local-information`, `local-office-settings`,
+   `local-office-ect`), recorded in `plans/pending/PLAN_BIG_PIVOT_FCC_MASTER.md` (per-test-baseline
+   section); each FCC subplan lands its fix and removes that spec's gate waiver. A waiver is a tracked
+   promise, not a fix — the gap stays real until the FCC subplan closes it. The other two of the
+   original five — the non-FCC describes of `location-notes` + `location-shared-setup-locations` — plus
+   `location-account-address` were wired to a per-test `beforeEach` reset in place on 2026-07-01 and are
+   now ENFORCED (account-address uses a dedicated non-empty Phone 2 baseline that side-steps the open
+   empty-Phone-2 persistence issue).
+
 **Trigger**: Every new spec, AND every time you add/modify a CRUD/save test in an existing spec.
 
 ## LR-021: Un-skip before rewrite — always try original logic first
@@ -255,3 +279,78 @@ cascades.
 `page.waitForRequest(...)`, `page.waitForResponse(...)`, or `page.route(...)` for the
 purpose of asserting save behavior. Also fires on `find-bugs` / `bugfix` sessions that
 add request observers to a spec.
+
+## LR-066: Save-route parity — every save-capable route exercises a real Save
+
+When a module exposes **N sibling create/save routes that share one page** — they differ only by a
+route param or mode (e.g. `…/add?type=equipment` vs `…/add?type=labor`) — EACH route must have ≥1
+test that **drives a real Save**, not merely a load + field-enable check:
+
+- **Dialog-reach minimum**: a test that clicks Save and asserts the confirmation dialog appears, then
+  Cancels (`clickSaveExpectDialog` / `clickSaveWithDialog` / `saveAndConfirm`).
+- **Commit where the primary route commits**: if any sibling route has a commit-and-persist test, every
+  sibling must too (`confirmSaveAndGetNewId` / `saveAndVerifyCase`), OR carry an explicit
+  `parity-waived: <reason ≥20 chars>` marker explaining why that route legitimately cannot commit.
+
+A save-capable route closed on **load + field-enable checks alone** does NOT satisfy this — "the field
+enables Save" is not "Save works." The thin route is synced, green, and exists, so the structural gates
+(TC counts, MD/XLSX sync, file-exists, pass/fail) never flag it — none measures behavioral depth.
+
+**Why this is load-bearing, with proof**: the 2026-06-30 NM-2263 Labor gap. The Equipment route had a
+full Save flow (dialog→Cancel + commit→persist→Search); the Labor route had only a Save-*enable* check.
+Adding the missing Labor commit test (TC-CPR-NPB-052) immediately surfaced a **real behavioral
+divergence the thin route had hidden**: the Corporate Pricing Search screen hides Labor pricebooks
+unless the "Is Labor" filter is on — so "does a Labor pricebook save and become findable?" was not just
+untested, it was *non-obvious*. An enable-only sibling is exactly where route-specific behavior goes
+undiscovered. (It is also a quiet LR-046 break — a strict "Equipment + Labor" acceptance line silently
+rescoped to enable-only without a HALT.)
+
+**Trigger**: any spec authoring or modification for a module with ≥2 route-param/mode siblings on a
+shared save page. Enforced by `scripts/check-save-route-parity.mjs` (a registry-driven gate wired into
+`.githooks/pre-commit` as Gate D) + the WATCHDOG audit checklist (`/audit` review mode + `AUDIT.md`).
+**Graduated from**: 2026-06-30 — SUBPLAN_CORP_PRICING_LABOR_SAVE_AND_ROUTE_PARITY_GATE, after the
+NM-2263 Labor enable-only gap shipped through every structural gate undetected.
+
+## LR-067: Reverting or persisting shared server state MUST verify persistence — never trust the save call
+
+Any page-object method that reverts or sets state on the shared test server — names matching
+`restore* | reset* | revert* | cleanup* | ensureDefault*`, plus any per-test baseline helper — MUST
+prove the change landed: re-read the persisted value after a reload, with bounded retry. Use the
+shared `BasePage.saveAndVerifyPersisted({ isAtTarget, applyMutation, save, reload })` helper rather
+than re-implementing the loop. (DOM-only conveniences that intentionally do NOT save — e.g. a
+between-assertion grid uncheck — are exempt, but their comment must say so, and the authoritative
+per-test reset that DOES persist must verify.)
+
+Two failure modes this closes (both live in the office-1604 Pay To leak that persisted "Encore
+Bahamas" to the shared server and cascaded the whole left-panel spec during the 2026-06-30 cold-run
+of the locations deliverable):
+
+1. **The save call lies.** `clickSaveWithDialog` (and its hand-copied twins) returns `{success:true}`
+   when the Save button is DISABLED — a no-op indistinguishable from a real persisted save — and
+   returns `{success:false}` on a 4xx/5xx that a caller can silently ignore. So save-success alone
+   never proves anything persisted. No save primitive may report success/ok on a branch where no save
+   ran: signal the no-op distinctly (`saved:false`, or a dedicated `'disabled'` result) so a caller
+   can tell "saved" from "did nothing." The post-reload re-read is the load-bearing check, not the
+   boolean.
+
+2. **A verify-only guard that throws is NOT enough when self-heal is possible.** A guard may throw on
+   drift ONLY when repair is genuinely impossible. "Reading the value back is ambiguous" is NOT such a
+   reason when an ID-/value-anchored re-set exists (e.g. Pay To reads the ambiguous name "Encore" but
+   can be re-set by ID 1) — there, self-heal via the hardened restore, and throw only if THAT fails.
+
+**Structural enforcement (2026-07-01).** This is no longer rule-only — a BLOCKING gate
+(`scripts/check-save-honesty.mjs`, wired into `.githooks/pre-commit` Gate 5f; framework-side, never
+ships) fires on every staged `clients/*/src/pages/**.ts` and FAILS the commit if (1) a non-query method
+reports success on an `isDisabled()` branch without signalling the no-op (`saved:false` / `'disabled'`),
+or (2) a `restore* | reset* | revert* | cleanup* | ensureDefault* | ensureEmpty* | ensureClean*` method
+calls a save helper but neither uses `saveAndVerifyPersisted` nor a retry loop. The gate is fail-green
+(zero flags on the clean tree before it was wired to block) and carries one escape valve: a method that
+legitimately persists-then-verifies by a path the gate cannot see, or a DOM-only reset, declares
+`// save-verify-exempt: <reason>` in its body. Sibling of the LR-066 save-route-parity gate (Gate 5d)
+and the LR-019 per-test-baseline gate (Gate 5e).
+
+**Trigger**: any new or modified page-object method that reverts/persists shared server state, and any
+new save primitive. **Graduated from**: 2026-06-30 — the office-1604 Pay To "Encore Bahamas" leak
+found during the independent cold-run of the locations deliverable; one weak one-shot restore plus
+duplicated lying save primitives. Cross-ref LR-019 (per-test baseline mandatory), LR-009/LR-026
+(Angular dirty state), LR-059 (no "verified" without driving the real thing).

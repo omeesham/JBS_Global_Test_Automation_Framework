@@ -125,11 +125,11 @@ export class LocationAutoAddonPage extends BasePage {
  * the "Save" variant (`btnSaveChangesConfirm`); and this method adds a post-save form-re-enable wait
  * (the checkboxes are disabled during save processing). Behavior is not identical → kept separate.
  */
-  async clickSave(): Promise<{ success: boolean; networkError?: string }> {
+  async clickSave(): Promise<{ success: boolean; saved?: boolean; networkError?: string }> {
     const saveBtn = this.saveButton;
     if (await saveBtn.isDisabled()) {
-      Log.info('Save button disabled -- skipping click');
-      return { success: true };
+      Log.info('Save button disabled -- no save performed');
+      return { success: true, saved: false };
     }
     await saveBtn.click();
     const dialog = this.getElement('dlgSaveChanges');
@@ -150,7 +150,7 @@ export class LocationAutoAddonPage extends BasePage {
       ) as HTMLButtonElement | null;
       return !!el && !el.disabled && el.getAttribute('aria-disabled') !== 'true';
     }, undefined, { timeout: 15_000 }).catch(() => {});
-    return { success: true };
+    return { success: true, saved: true };
   }
 
   async isSaveDialogVisible(): Promise<boolean> {

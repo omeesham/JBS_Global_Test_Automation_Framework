@@ -485,6 +485,10 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
     if (!(await pg.isOnSharedSetupTab())) {
       await pg.navigateToSharedSetupTab(OFFICE_NO);
     }
+    // Per-test baseline: remove any extra location rows and reset Shares Inventory before every
+    // test, so a single test re-run (retry / parallel) starts from the default clean table. The
+    // in-body clean-up calls below stay, so this delete loop is normally a no-op (nothing to remove).
+    await pg.ensureCleanSSLTable(OFFICE_NO);
   });
 
   test('TC-LOC-SSL-001: Tab loads with shared-setup table and Add button', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {

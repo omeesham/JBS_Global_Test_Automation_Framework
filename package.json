@@ -48,6 +48,8 @@
     "test:tc-mcp-citations": "node scripts/check-tc-mcp-citations.test.mjs",
     "validate:fieldinventory-staleness": "node scripts/check-fieldinventory-staleness.mjs",
     "test:fieldinventory-staleness": "node scripts/check-fieldinventory-staleness.test.mjs",
+    "validate:vacuous-grid": "node scripts/check-vacuous-grid-assertions.mjs",
+    "test:vacuous-grid": "node scripts/check-vacuous-grid-assertions.test.mjs",
     "build:context": "ts-node scripts/task-context-builder.ts",
     "build:context:json": "ts-node scripts/task-context-builder.ts --json",
     "metrics:agents": "ts-node scripts/agent-metrics.ts",
@@ -117,7 +119,8 @@
     "verify:protected-names": "node scripts/verify-protected-names.mjs",
     "verify:no-stale-refs": "node scripts/verify-no-stale-live-refs.mjs",
     "check:browsertool-parity": "node scripts/check-browsertool-parity.mjs",
-    "check:lr-embed-parity": "node scripts/check-lr-embed-parity.mjs"
+    "check:lr-embed-parity": "node scripts/check-lr-embed-parity.mjs",
+    "check:per-test-baseline": "node scripts/check-per-test-baseline.mjs"
   },
   "keywords": [
     "playwright",

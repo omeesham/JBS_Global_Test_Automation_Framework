@@ -7,7 +7,7 @@ import { CheckboxState } from '../components/location-form-helpers.component';
 import { MERCHANT_DATA } from '../../data/locations/location-currency';
 
 /** Type returned by clickSaveAndCaptureDialog */
-export type SaveDialogType = 'save-changes' | 'error' | 'none';
+export type SaveDialogType = 'save-changes' | 'error' | 'none' | 'disabled';
 
 export class LocationCurrencyPage extends BasePage {
   constructor(page: Page, config?: IConfig) {
@@ -189,20 +189,21 @@ export class LocationCurrencyPage extends BasePage {
  * Click the Currency Save button and confirm dialog if it appears.
  * Delegates to BasePage.clickSaveWithDialog (shared save dialog pattern).
  */
-  async clickSave(): Promise<{ success: boolean; networkError?: string }> {
+  async clickSave(): Promise<{ success: boolean; saved?: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSaveCurrency');
   }
 
  /**
  * Click Save, then detect whether the result is a Save Changes dialog, an Error dialog,
  * or neither. Caller must dismiss via cancelCurrentDialog / confirmSaveDialog.
+ * Returns 'disabled' when the Save button was disabled (no save ran) -- distinct from 'none', which means a save ran but no dialog appeared.
  */
   async clickSaveAndCaptureDialog(): Promise<SaveDialogType> {
     const el = this.getElement('btnSaveCurrency');
     await el.waitFor({ state: 'visible', timeout: 5_000 });
     if (await el.isDisabled()) {
-      Log.info('Save button disabled -- cannot capture dialog');
-      return 'none';
+      Log.info('Save button disabled -- no save performed (distinct from no-dialog)');
+      return 'disabled';
     }
     await el.click();
     const saveDialog = this.getElement('dlgSaveChanges');

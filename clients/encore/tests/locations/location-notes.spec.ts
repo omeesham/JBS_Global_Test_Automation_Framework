@@ -667,6 +667,9 @@ test.describe('Location Notes @locations @notes', () => {
     if (!(await locationNotesPage.isOnNotesTab())) {
       await locationNotesPage.navigateToNotesTab(OFFICE_NO);
     }
+    // Per-test baseline: clear notes to the default empty state before every test, so a single
+    // test re-run (retry / parallel) starts clean instead of inheriting a prior test's saved rows.
+    await locationNotesPage.ensureEmptyState();
   });
 
  // ─── Group A: Navigation + Default State ─────────────────────────────────

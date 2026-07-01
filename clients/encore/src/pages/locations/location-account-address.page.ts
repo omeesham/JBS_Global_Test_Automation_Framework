@@ -247,10 +247,10 @@ export class LocationAccountAddressPage extends BasePage {
     Log.info('Cancelled Account List dialog');
   }
 
- /** Click Reset in Account List dialog. */
+ /** Click Reset in the Account List dialog: clears the dialog's search filters only -- does NOT change any saved/server state. */
   async resetAccountListSearch(): Promise<void> {
     await this.clickWithRetry('btnAccListReset');
-    Log.info('Reset Account List search');
+    Log.info('Reset Account List search filters (dialog only, no server state changed)');
   }
 
  /** Get the Account Name filter field value. */

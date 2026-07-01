@@ -102,6 +102,70 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
+# --- 5c) ALL-092: vacuous grid/list-loop guard (warn-only).
+# Fires whenever a clients/*/tests/**/*.spec.ts is staged. Flags any
+# `for (… of getRows…){ … expect(…) … }` loop with no prior non-zero-count guard
+# in the same test block — the pattern that let TC-CPR-STR-013 pass vacuously on an
+# empty grid (see scripts/check-vacuous-grid-assertions.mjs header). WARN-ONLY for
+# now (the script exits 0 by default); ratchet to --enforce or --baseline once the
+# suite is confirmed clean (mirrors the C6 off→announce→deny measured rollout).
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+  echo "[pre-commit] spec file staged → scanning for vacuous grid loops (ALL-092, warn-only)..." >&2
+  node scripts/check-vacuous-grid-assertions.mjs || true
+fi
+
+# --- 5d) LR-066: save-route parity gate. ----------------------------------------
+# Fires whenever a clients/*/tests/**/*.spec.ts is staged. Asserts that every registered
+# multi-route (route-param/mode sibling) save page exercises a REAL Save on EACH route — a
+# sibling route closed on load + field-enable checks alone is rejected (the NM-2263 Labor
+# enable-only gap). Sibling of the ALL-071 parity gate; calls node directly (no npm script,
+# so no package.json edit). --staged scopes the gate to registered specs that are staged.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+  echo "[pre-commit] spec file staged → running save-route parity (LR-066)..." >&2
+  if ! node scripts/check-save-route-parity.mjs --staged; then
+    echo "[pre-commit] HALT: a save-capable sibling route is not exercising a real Save (LR-066)." >&2
+    echo "         Each route-param/mode sibling needs a dialog-reach (or commit) test, or a 'parity-waived: <reason>' marker." >&2
+    echo "         Inspect: node scripts/check-save-route-parity.mjs" >&2
+    exit 1
+  fi
+fi
+
+# --- 5e) LR-019: per-test baseline gate. ----------------------------------------
+# Fires whenever a clients/*/tests/**/*.spec.ts is staged. Asserts every save-capable describe
+# resets baseline PER-TEST (ensureDefaultState in beforeEach, the FCC runner baseline, or a fresh
+# open()) — a first-test-only baseline is rejected. Registry-driven (scripts/check-per-test-baseline.mjs):
+# the known gaps are waived pending their FCC subplan; new unguarded save-specs fail. --staged scopes
+# the gate to registered/save-capable specs that are staged.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+  echo "[pre-commit] spec file staged → running per-test baseline gate (LR-019)..." >&2
+  if ! node scripts/check-per-test-baseline.mjs --staged; then
+    echo "[pre-commit] HALT: a save-capable describe lacks a per-test baseline (LR-019)." >&2
+    echo "         Wire ensureDefaultState into test.beforeEach (or use the FCC runner baseline), OR register/waive it." >&2
+    echo "         Inspect: npm run check:per-test-baseline" >&2
+    exit 1
+  fi
+fi
+
+# --- 5f) LR-067: save-honesty gate. ---------------------------------------------
+# Fires whenever a clients/*/src/pages/**.ts page object is staged. Fails the commit if a save
+# primitive lies on its disabled branch (reports success without saved:false), or a restore/reset/
+# revert/cleanup/ensureDefault method persists shared state without verifying (saveAndVerifyPersisted
+# or a retry loop) and carries no `// save-verify-exempt:` marker. Sibling of Gate 5d (LR-066) / 5e
+# (LR-019); node-direct (no npm script). --staged scopes to staged page objects.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/src/pages/.*\.ts$'; then
+  echo "[pre-commit] page object staged → running save-honesty gate (LR-067)..." >&2
+  if ! node scripts/check-save-honesty.mjs --staged; then
+    echo "[pre-commit] HALT: a save primitive lies, or a restore persists shared state without verifying (LR-067)." >&2
+    echo "         Signal the no-op (saved:false) / route the restore through saveAndVerifyPersisted, OR mark // save-verify-exempt: <reason>." >&2
+    echo "         Inspect: node scripts/check-save-honesty.mjs" >&2
+    exit 1
+  fi
+fi
+
 # --- 6) LR-028 + LR-037: activity-log timestamp validation. ----------------------
 # Fires whenever agent-activity-log.md is staged. Guards against backdated rows
 # (timestamp < latest mtime of any referenced file).

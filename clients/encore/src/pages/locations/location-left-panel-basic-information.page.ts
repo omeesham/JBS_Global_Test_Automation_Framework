@@ -338,10 +338,10 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     await this.submitPayToSearch();
   }
 
-  /** Click Reset (clears filters, restores the full pre-loaded list). */
+  /** Click Reset in the Pay To List dialog: clears the dialog's search filters only -- does NOT change the office's saved Pay To. */
   async resetPayToSearch(): Promise<void> {
     await this.clickWithRetry('btnPTLReset');
-    Log.info('Reset Pay To List search');
+    Log.info('Reset Pay To List search filters (dialog only, no server state changed)');
   }
 
   /** Does the Pay To List results table contain the given text in a visible row? */
@@ -413,11 +413,15 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     Log.info(`[OK] Selected Pay To ID ${id}`);
   }
 
-  /** Restore office-1604 Pay To to the original (ID-anchored) and persist: select → save → reload. */
+  /** Restore office-1604 Pay To to the original (ID-anchored) and PROVE it persisted: re-set by ID -> save -> reload -> re-read; throws if it cannot land. */
   async restorePayToOriginal(): Promise<void> {
-    await this.selectPayToById(String(PAY_TO_ORIGINAL.id));
-    await this.saveAndConfirm();
-    await this.reloadAndNavigate();
+    await this.saveAndVerifyPersisted({
+      isAtTarget: async () => (await this.getPayToAddress()) === PAY_TO_ORIGINAL.name,
+      applyMutation: () => this.selectPayToById(String(PAY_TO_ORIGINAL.id)),
+      save: () => this.saveAndConfirm(),
+      reload: () => this.reloadAndNavigate(),
+      label: `office 1604 Pay To = "${PAY_TO_ORIGINAL.name}" (ID ${PAY_TO_ORIGINAL.id})`,
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -435,19 +439,15 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
    * Country is set FIRST — a Country change cascade-clears Tax Mode + Region, so it must precede them.
    */
   async ensureDefaultState(baseline: typeof LP_BASELINE = LP_BASELINE): Promise<void> {
-    // VERIFY-ONLY Pay To guard. Pay To selection persists, but a display read returns only
-    // the NAME ("Encore"), which is ambiguous (IDs 1 & 4 both "Encore") — so we CANNOT auto-repair by
-    // name without risking the wrong ID. Honest detection beats a wrong repair: THROW with guidance if
-    // the Pay To name drifted off the office-1604 default, so a leaked alternate (e.g. "Encore Bahamas"
-    // from a crashed persistence run) fails LOUD instead of silently poisoning every Pay To assertion.
-    // ID-anchored restore lives in the persistence case's cleanup/finally (restorePayToOriginal), not here.
-    const payToName = await this.getPayToAddress();
-    if (payToName !== PAY_TO_ORIGINAL.name) {
-      throw new Error(
-        `ensureDefaultState: Pay To Address drifted to "${payToName}" (expected "${PAY_TO_ORIGINAL.name}", `
-        + `office-1604 payToId ${PAY_TO_ORIGINAL.id}). Name-anchored repair is UNSAFE (≥2 "Encore" rows) — `
-        + `restore office 1604 to Pay To ID ${PAY_TO_ORIGINAL.id} via the Pay To List dialog, then re-run.`,
-      );
+    // Pay To self-heal guard. A display read returns only the NAME ("Encore"), which is ambiguous
+    // (two Pay To rows share it), so we cannot safely repair by name alone. But an ID-anchored
+    // restore exists (restorePayToOriginal re-selects Pay To ID 1 and verifies it persisted), so when
+    // the name has drifted off the office-1604 default -- e.g. a leaked alternate from a crashed run --
+    // we drive that restore instead of failing the whole test. It still throws if the restore itself
+    // cannot land, so a genuinely unrepairable state stays loud.
+    if ((await this.getPayToAddress()) !== PAY_TO_ORIGINAL.name) {
+      Log.warn(`Pay To drifted off the office-1604 default -- self-healing to "${PAY_TO_ORIGINAL.name}" (ID ${PAY_TO_ORIGINAL.id})`);
+      await this.restorePayToOriginal();
     }
 
     const maxAttempts = 3;

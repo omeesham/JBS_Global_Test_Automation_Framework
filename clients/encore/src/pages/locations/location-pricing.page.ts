@@ -551,12 +551,15 @@ export class LocationPricingPage extends BasePage {
   }
 
  /**
- * Reset a grid row to defaults: uncheck Is Alternative (cascades clear everything).
- * Use after tests that modify row state to avoid side effects on subsequent serial tests.
+ * In-grid convenience reset: uncheck Is Alternative for a row in the DOM (cascades clear the row).
+ * This does NOT save or reload -- it only tidies the live grid between assertions in the same test.
+ * The authoritative per-test reset of persisted grid state is ensureDefaultState (run in beforeEach),
+ * which re-reads after reload and re-drives until the server actually shows defaults. Keep this light;
+ * do not add a save here, or it will fight the baseline reset.
  */
   async resetGridRow(priceBookName: string): Promise<void> {
     await this.uncheckIsAlternative(priceBookName);
-    Log.info(`Row reset: ${priceBookName}`);
+    Log.info(`Row reset (in-grid only, not persisted): ${priceBookName}`);
   }
 
  // ---------------------------------------------------------------------------

@@ -84,19 +84,27 @@ export class LocationSharedSetupLocationsPage extends BasePage {
  * contamination. No-op if state is already clean.
  */
   async ensureCleanSSLTable(officeNo: string = '1604'): Promise<void> {
-    const si = await this.getSelfSharesInventoryState();
-    let nsRow = await this.findNonSelfRow();
-    if (nsRow || si.checked) {
-      Log.info(`[CLEANUP] Dirty state: non-self=${!!nsRow}, SI=${si.checked} — cleaning`);
- // Delete all non-self rows (re-scan after each delete since indexes shift)
-      while (nsRow) {
-        await this.deleteNonSelfRow(nsRow.index);
-        nsRow = await this.findNonSelfRow();
-      }
-      if (si.checked) await this.setSelfSharesInventory(false);
-      await this.clickSave();
-      await this.reloadAndNavigateToSSLTab(officeNo);
-    }
+    // Persisting shared SSL state: prove the table is actually clean after reload (re-read + bounded
+    // retry) — a one-shot save can silently no-op and leak a dirty row into the next test.
+    await this.saveAndVerifyPersisted({
+      isAtTarget: async () => {
+        const si = await this.getSelfSharesInventoryState();
+        const nsRow = await this.findNonSelfRow();
+        return !nsRow && !si.checked;
+      },
+      applyMutation: async () => {
+        let nsRow = await this.findNonSelfRow();
+        while (nsRow) {
+          await this.deleteNonSelfRow(nsRow.index);
+          nsRow = await this.findNonSelfRow();
+        }
+        const si = await this.getSelfSharesInventoryState();
+        if (si.checked) await this.setSelfSharesInventory(false);
+      },
+      save: async () => { await this.clickSave(); },
+      reload: async () => { await this.reloadAndNavigateToSSLTab(officeNo); },
+      label: `SSL table clean (office ${officeNo})`,
+    });
   }
 
  // ─────────────────────────────────────────────────────────────────────────────

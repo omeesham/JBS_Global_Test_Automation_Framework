@@ -341,6 +341,9 @@ export class LocationNotesPage extends BasePage {
  * then reloads to get a fresh Angular form state.
  */
   async ensureEmptyState(): Promise<void> {
+    // save-verify-exempt: verifies inline — after the save + reload below it re-reads
+    // isDefaultEmptyState() and self-heals once if the delete did not persist, instead of
+    // routing through the shared persist-and-verify helper.
     await this.page.waitForTimeout(500);
     const deleteCount = await this.getElement('btnNotesDelete').count();
     if (deleteCount > 0) {

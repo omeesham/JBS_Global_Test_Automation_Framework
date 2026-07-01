@@ -344,6 +344,7 @@ export class BasePage {
  * Click a save button and confirm the Save Changes dialog if it appears.
  * Extracted from LocationCurrencyPage, LocationPricingPage, LocationLocalInfoPage (identical pattern).
  * shared pattern used by 3+ page objects → belongs in BasePage.
+ * Returns saved:true only when a real save ran; saved:false means the button was disabled (no-op) or the save failed -- callers reverting shared state must not treat a no-op as persisted.
  * @param saveBtnKey - Selector key for the save button (e.g., 'btnSavePricing')
  * @param dialogKey - Selector key for the confirmation dialog (default: 'dlgSaveChanges')
  * @param confirmBtnKey - Selector key for the confirm button (default: 'btnSaveChangesConfirm')
@@ -354,12 +355,12 @@ export class BasePage {
     dialogKey: string = 'dlgSaveChanges',
     confirmBtnKey: string = 'btnSaveChangesConfirm',
     dialogTimeout: number = 5_000,
-  ): Promise<{ success: boolean; networkError?: string }> {
+  ): Promise<{ success: boolean; saved?: boolean; networkError?: string }> {
     const saveBtn = this.getElement(saveBtnKey);
     await saveBtn.waitFor({ state: 'visible', timeout: 5_000 });
     if (await saveBtn.isDisabled()) {
-      Log.info(`Save button disabled (${saveBtnKey}) -- skipping click`);
-      return { success: true };
+      Log.info(`Save button disabled (${saveBtnKey}) -- no save performed`);
+      return { success: true, saved: false };
     }
 
  // Capture network responses during save to detect silent API failures.
@@ -413,11 +414,48 @@ export class BasePage {
  // Check for API errors
     if (networkErrors.length > 0) {
       Log.error(`[FAIL] Save had API errors: ${networkErrors.join(', ')}`);
-      return { success: false, networkError: networkErrors.join('; ') };
+      return { success: false, saved: false, networkError: networkErrors.join('; ') };
     }
 
     Log.info(`[OK] Save complete (${saveBtnKey})`);
-    return { success: true };
+    return { success: true, saved: true };
+  }
+
+ /**
+ * Persist a change and PROVE it landed. A save call can report success when nothing was saved
+ * (the button is disabled on a net-zero change, and an API error is easy to ignore), so trusting
+ * the save alone is unsafe for anything that reverts or sets shared server state. This wraps the
+ * proven shape -- read back; if already correct, stop; otherwise re-apply the change, save, reload,
+ * and read back again -- in a bounded retry. The post-reload re-read is the load-bearing check;
+ * once the attempt budget is spent it throws, turning a silent failure-to-persist into a loud one.
+ *
+ * @param opts.isAtTarget    read the persisted value back and return true when it matches the goal
+ * @param opts.applyMutation (re-)drive the form change that sets the goal value
+ * @param opts.save          the page's own save-and-confirm
+ * @param opts.reload        navigate away and back so the next read comes from the server
+ * @param opts.maxAttempts   whole-cycle attempts before throwing (default 3)
+ * @param opts.label         plain-English context for logs and the failure message
+ */
+  protected async saveAndVerifyPersisted(opts: {
+    isAtTarget: () => Promise<boolean>;
+    applyMutation: () => Promise<void>;
+    save: () => Promise<void>;
+    reload: () => Promise<void>;
+    maxAttempts?: number;
+    label?: string;
+  }): Promise<void> {
+    const maxAttempts = opts.maxAttempts ?? 3;
+    const label = opts.label ?? 'value';
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      if (await opts.isAtTarget()) return;
+      await opts.applyMutation();
+      await opts.save();
+      await opts.reload();
+      if (await opts.isAtTarget()) return;
+      Log.warn(`saveAndVerifyPersisted: ${label} not persisted after attempt ${attempt}/${maxAttempts}`);
+    }
+    Log.error(`saveAndVerifyPersisted: ${label} failed to persist after ${maxAttempts} attempts`);
+    throw new Error(`Could not persist ${label} after ${maxAttempts} attempts`);
   }
 
  /**
