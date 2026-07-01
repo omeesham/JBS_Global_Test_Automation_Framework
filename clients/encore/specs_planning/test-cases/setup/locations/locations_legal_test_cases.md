@@ -214,12 +214,13 @@
 **Steps**:
 1. Navigate to **Legal** tab (fresh page load) -> Tab loads
 2. Verify left-panel **Save** button -> Disabled
-3. Click **Service Charge Name** combobox -> Select "Administrative Fee" -> Value updates to "Administrative Fee"
-4. Verify left-panel **Save** button -> Now enabled (not disabled)
+3. Click **Service Charge Name** combobox -> Dropdown opens
+4. Select a different option from the dropdown (e.g., "Administrative Fee") -> Value updates to "Administrative Fee"
+5. Verify left-panel **Save** button -> Now enabled (not disabled)
 
 **Expected**: Changing Service Charge Name enables the shared left-panel Save button
 **Data**: office=1604
-**Cleanup**: Reload page without saving (accept beforeunload dialog) to discard change
+**Cleanup**: Reload page without saving (accept the browser's leave-page confirmation) to discard change
 
 ---
 
@@ -234,8 +235,9 @@
 **Steps**:
 1. Navigate to **Legal** tab (fresh page load) -> Tab loads
 2. Verify left-panel **Save** button -> Disabled
-3. Click **Terms and Conditions Name** combobox -> Select "Encore Terms and Conditions" -> Value updates
-4. Verify left-panel **Save** button -> Now enabled (not disabled)
+3. Click **Terms and Conditions Name** combobox -> Dropdown opens
+4. Select a different option from the dropdown (e.g., "Encore Terms and Conditions") -> Value updates
+5. Verify left-panel **Save** button -> Now enabled (not disabled)
 
 **Expected**: Changing T&C Name enables the shared left-panel Save button
 **Data**: office=1604
@@ -323,7 +325,7 @@
 3. Click left-panel **Save** button -> Save Changes dialog appears
 4. Click **Cancel** button in dialog -> Dialog closes
 5. Verify left-panel **Save** button -> Still enabled (changes not saved)
-6. Reload page (accept beforeunload) -> Page reloads fresh
+6. Reload page (accept the browser's leave-page confirmation) -> Page reloads fresh
 7. Click **Legal** tab -> Verify **Service Charge Name** -> Still "Resort Service Charge" (change was NOT saved)
 
 **Expected**: Clicking Cancel in Save Changes dialog dismisses dialog without saving; original values persist after reload
@@ -331,7 +333,7 @@
 
 ---
 
-## TC-LOC-LGL-014: Beforeunload dialog triggers when navigating with unsaved Legal changes
+## TC-LOC-LGL-014: Browser warns before leaving the page when there are unsaved Legal changes
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | State |
@@ -342,11 +344,11 @@
 **Steps**:
 1. Navigate to **Legal** tab (fresh page load) -> Tab loads
 2. Change **Terms and Conditions Name** to "Blank" -> Save enables
-3. Attempt to reload or navigate away -> Browser beforeunload dialog appears
+3. Attempt to reload or navigate away -> The browser's leave-page confirmation appears
 4. Dismiss dialog (stay on page) -> Page remains, unsaved changes preserved
 5. Accept dialog (leave page) -> Page reloads, changes discarded
 
-**Expected**: Unsaved Legal changes trigger the browser's beforeunload confirmation dialog on navigation attempts
+**Expected**: Unsaved Legal changes trigger the browser's leave-page confirmation when there are unsaved changes and the user attempts to navigate away
 **Data**: office=1604
 
 ---
@@ -386,7 +388,7 @@
 3. Read all option texts -> Collect into array
 4. Compare to case-insensitive alphabetical sort -> Assert sorted
 
-**Expected**: Options sorted alphabetically per v1 requirement
+**Expected**: Options are sorted alphabetically
 **Data**: office=1604
 
 **OMITTED Reason**: MCP-verified : SC dropdown is NOT sorted alphabetically. Generic names appear first, then location-specific. This is an **APP BUG** — v1 requirement says "sorted alphabetically". Test would fail against live behavior. Logged in REQUIREMENTS.md and master plan.
@@ -407,7 +409,7 @@
 3. Read all option texts -> Collect into array
 4. Compare to case-insensitive alphabetical sort -> Assert sorted
 
-**Expected**: Options sorted alphabetically per v1 requirement
+**Expected**: Options are sorted alphabetically
 **Data**: office=1604
 
 **OMITTED Reason**: MCP-verified : T&C dropdown is NOT sorted alphabetically. Same pattern as SC. **APP BUG** logged in REQUIREMENTS.md and master plan.

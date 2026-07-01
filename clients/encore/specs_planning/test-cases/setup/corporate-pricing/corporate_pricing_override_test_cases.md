@@ -139,12 +139,12 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 1. Open the "Select a location" picker, search 1604, check the row, click Select -> Grid loads
 2. Read the grid -> rows > 0; the anchor "House Video Monitor - Specialty" is present
 
-**Expected**: Selecting office 1604 populates the override grid (content-anchored, not count-asserted per LR-022).
+**Expected**: Selecting office 1604 populates the override grid.
 **Data**: office=1604
 
 ---
 
-## TC-CPR-OVR-005: Grid renders all 10 column headers
+## TC-CPR-OVR-005: Grid renders all column headers
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -157,7 +157,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 **Steps**:
 1. Read the grid column headers -> Location, Product Group, Product Group Name, Currency, Current Price, Override Price, Max Discount %, Active, Mod Date, Updated By
 
-**Expected**: All 10 columns render, including the Updated By column.
+**Expected**: All columns render, including the Updated By column.
 **Data**: office=1604
 
 ---
@@ -288,7 +288,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 1. Type "House Video" into the "Filter Product Groups Override..." input -> grid narrows
 2. Read the grid -> rows > 0 and <= the unfiltered count; the anchor row is present
 
-**Expected**: The client-side filter narrows the rendered grid by Product Group Name (no Search button).
+**Expected**: The filter narrows the rendered grid by Product Group Name (no Search button).
 **Data**: office=1604
 
 ---
@@ -331,7 +331,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-015: No-match filter empties the grid; clearing restores rows
+## TC-CPR-OVR-015: No-match filter empties the grid, and clearing restores rows
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -458,7 +458,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 1. Edit the Override Price to 0 -> cell shows 0
 2. Edit it to a large number (e.g. 999999) -> cell shows the value
 
-**Expected**: The Override Price accepts BVA values 0 and a large number (client does not block; no commit).
+**Expected**: The Override Price accepts boundary values 0 and a large number (the client does not block them; no commit).
 **Data**: office=1604, product group=2605
 
 ---
@@ -476,12 +476,12 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 **Steps**:
 1. Open the Override Price editor and attempt to enter alphabetic text ("abc") -> the numeric input retains no alphabetic characters
 
-**Expected**: The Override Price input is `type=number` — non-numeric text is rejected (coerced to empty); no alpha retained (LR-011). Editor is Escaped (no commit).
+**Expected**: The Override Price field accepts numbers only — non-numeric text is rejected (cleared to empty); no letters are retained. The editor is closed with Escape (no commit).
 **Data**: office=1604, product group=2605
 
 ---
 
-## TC-CPR-OVR-023: Max Discount % — out-of-range (>100) handling (under review)
+## TC-CPR-OVR-023: Max Discount % — out-of-range (>100) handling
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -496,7 +496,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 2. Edit it to a decimal (12.5) -> commits
 3. Attempt to set it to a value over 100 (e.g. 150 / 333), then try to click or tab out of the cell
 
-**Expected**: A normal percentage (incl. decimals) commits and dirties the form. For a value over 100, the field currently does not commit AND does not show a validation error or release focus (the cursor stays trapped until the value is lowered to <=100) — this is a defect under review, so the case is parked. Once resolved, an out-of-range entry should surface a clear validation message and still allow the user to leave the field.
+**Expected**: A normal percentage (incl. decimals) commits and dirties the form. An out-of-range value (over 100) should surface a clear validation message and still allow the user to leave the field. Currently, the field does not commit and does not show a validation error when a value over 100 is entered; the cursor stays in the field until the value is brought back to 100 or below.
 **Data**: office=1604, product group=2605
 
 ---
@@ -528,7 +528,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 **Depends_On**: TC-CPR-OVR-018
 **Automatable**: Yes
 
-**Preconditions**: On the Override screen with 1604 selected; fixture row 2605 at its default (445.00).
+**Preconditions**: On the Override screen with 1604 selected; test row 2605 at its default (445.00).
 
 **Steps**:
 1. (baseline) Ensure 2605 Override Price = 445.00
@@ -537,7 +537,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 4. Reload + re-select location -> the new value persists in the grid
 5. (cleanup) Restore 2605 to 445.00 via `ensureDefaultState()`
 
-**Expected**: A saved Override Price persists after reload; the fixture is restored to its baseline (no drift).
+**Expected**: A saved Override Price persists after reload; the test row is restored to its starting value.
 **Data**: office=1604, product group=2605
 
 ---
@@ -550,7 +550,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 **Depends_On**: TC-CPR-OVR-023
 **Automatable**: Yes
 
-**Preconditions**: On the Override screen with 1604 selected; fixture row 2605 at its default.
+**Preconditions**: On the Override screen with 1604 selected; test row 2605 at its default.
 
 **Steps**:
 1. (baseline) Ensure 2605 at default
@@ -558,7 +558,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 3. Save -> dialog -> confirm -> reload + re-select -> the Max Discount value persists
 4. (cleanup) Restore 2605 via `ensureDefaultState()`
 
-**Expected**: A saved Max Discount % persists after reload; the fixture is restored.
+**Expected**: A saved Max Discount % persists after reload; the test row is restored to its starting value.
 **Data**: office=1604, product group=2605
 
 ---
@@ -571,7 +571,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 **Depends_On**: TC-CPR-OVR-024
 **Automatable**: Yes
 
-**Preconditions**: On the Override screen with 1604 selected; fixture row 2605 at its default Active state.
+**Preconditions**: On the Override screen with 1604 selected; test row 2605 at its default Active state.
 
 **Steps**:
 1. (baseline) Ensure 2605 at default
@@ -579,12 +579,12 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 3. Save -> dialog -> confirm -> reload + re-select -> the toggled Active state persists
 4. (cleanup) Restore 2605 Active via `ensureDefaultState()`
 
-**Expected**: A saved Active toggle persists after reload; the fixture is restored.
+**Expected**: A saved Active toggle persists after reload; the test row is restored to its starting value.
 **Data**: office=1604, product group=2605
 
 ---
 
-## TC-CPR-OVR-028: Save opens the "Save Changes" dialog; Cancel aborts without committing
+## TC-CPR-OVR-028: Save opens the "Save Changes" dialog, and Cancel aborts without committing
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -592,7 +592,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 **Depends_On**: TC-CPR-OVR-018
 **Automatable**: Yes
 
-**Preconditions**: On the Override screen with 1604 selected; fixture row 2605 at its default.
+**Preconditions**: On the Override screen with 1604 selected; test row 2605 at its default.
 
 **Steps**:
 1. Edit the Override Price -> Save enabled

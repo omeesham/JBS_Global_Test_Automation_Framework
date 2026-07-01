@@ -39,7 +39,7 @@
 
 **Depends_On**: none (baseline-enforcement per LR-019)
 **Steps**:
-1. Navigate to `/navigator/locations/1604/settings/local-office` -> Page loads with Basic Information tab active
+1. Open the Local Office Settings page.
 2. Click **Location Settings History** tab -> Tab becomes selected (`aria-selected="true"`)
 3. Verify **History Type Selector** combobox is visible with default value "Location Management History" -> Combobox displayed
 4. Verify history table container is visible -> Table with column headers and data/empty state
@@ -49,7 +49,7 @@
 
 ---
 
-## TC-LOS-HIS-002: History Tab — Column Headers (42 Columns)
+## TC-LOS-HIS-002: History Tab — Column Headers
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -58,11 +58,11 @@
 **Depends_On**: TC-LOS-HIS-001
 **Steps**:
 1. Navigate to History tab -> Tab panel visible
-2. Verify table has exactly 42 column headers -> Count matches
+2. Verify the table shows the full set of column headers -> All headers present
 3. Verify first columns: **Local Office**, **Prep Date Offset**, **Return Date Offset**, **Set Date Offset**, **Strike Date Offset** -> Present in order
 4. Verify last columns: **Holiday Multiplier**, **Recalc Labor Hours**, **Modified By**, **Modified On** -> Present in order
 
-**Expected**: History table shows all 42 expected column headers | **Data**: location=1604
+**Expected**: The history table shows the full set of expected column headers
 **Automatable**: Yes
 
 ---
@@ -78,7 +78,7 @@
 1. Navigate to History tab -> Table visible
 2. Verify table body contains at least one data row (not "No results.") -> Populated state
 
-**Expected**: Office 1604 has history records; `isHistoryTableEmpty` returns `false`
+**Expected**: Office 1604 has at least one history record, so the table is not empty
 **Automatable**: Yes
 
 
@@ -115,7 +115,7 @@
 3. Verify page indicator text "1 / 1" -> Current page and total pages
 4. Verify 4 navigation buttons: **Go to first page**, **Go to previous page**, **Go to next page**, **Go to last page** -> All present
 
-**Expected**: Pagination controls present with default 20 rows per page, all nav disabled when no data
+**Expected**: The pagination area shows a "Rows Per Page" selector defaulting to 20, a page indicator, and all four navigation buttons (first, previous, next, last page)
 **Automatable**: Yes
 
 ---
@@ -150,6 +150,6 @@
 3. Verify non-sortable columns (**Local Office**, **Section Name**, **Service Type - Exempt**, **Notes**) have plain text, no sort button -> No button child
 4. Click a sort button (e.g., **Modified On**) -> Sort icon changes direction (ascending/descending indicator)
 
-**Expected**: 38 columns have sort buttons; 4 columns are plain text (not sortable)
+**Expected**: Most columns have sort buttons; a few columns are plain text (not sortable).
 **Automatable**: Yes
 

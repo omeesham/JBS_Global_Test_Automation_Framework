@@ -116,7 +116,7 @@
 
 **Depends_On**: none (baseline-enforcement per LR-019)
 **Steps**:
-1. Navigate to `/navigator/locations/1604/settings/local-office` -> Page title = "Local Office Settings | Navigator"
+1. Open the Local Office Settings page.
 2. Verify heading reads **Local Office Settings** -> h1 heading visible
 3. Verify 3 tabs present: **Basic Information** | **Location Settings History** | **ECT Settings** -> 3 tabs in tablist
 4. Verify **Basic Information** tab is selected by default -> Tab has `aria-selected="true"`
@@ -142,7 +142,7 @@
 6. Verify **Delivery Date Offset (Relative to Start)** = `0` Hrs -> Input value = "0"
 7. Verify **Pickup Date Offset (Relative to End)** = `0` Hrs -> Input value = "0"
 
-**Expected**: All 6 offset inputs match defaults: -1, 1, -1, 1, 0, 0 | **Data**: location=1604
+**Expected**: All 6 offset inputs match defaults: -1, 1, -1, 1, 0, 0
 **Automatable**: Yes
 
 ---
@@ -201,7 +201,7 @@
 7. Verify "Prep Date Offset" shows `-2` -> Value persisted
 8. Cleanup: change back to `-1` and save
 
-**Expected**: Date offset value persists after save and reload, the Save Changes dialog gates the save, and the notifications region shows the success toast "Local office settings updated" after the dialog confirms. | **Data**: Prep from -1 to -2
+**Expected**: Date offset value persists after save and reload, the Save Changes dialog gates the save, and the notifications region shows the success toast "Local office settings updated" after the dialog confirms.
 **Automatable**: Yes
 
 ---
@@ -444,7 +444,7 @@
 6. Verify the "Save" button is enabled -> The form can be saved with a valid phone number
 7. Cleanup: restore the original phone value
 
-**Expected**: Phone 1 accepts only values that match the phone-number format. Non-phone text is shown as invalid and the Save button stays disabled until the user enters a valid phone number. | **Data**: invalid input "abcdef", valid input "555-000-1111"
+**Expected**: Phone 1 accepts only values that match the phone-number format. Non-phone text is shown as invalid and the Save button stays disabled until the user enters a valid phone number.
 **Automatable**: No (blocked until the underlying issue is resolved)
 
 ---
@@ -465,7 +465,7 @@
 6. Reload page -> Verify **Phone 1** = "555-123-4567" -> Persisted
 7. **Cleanup**: Restore original value and save
 
-**Expected**: Valid phone number persists after save and reload | **Data**: Phone 1 = "555-123-4567"
+**Expected**: Valid phone number persists after save and reload
 **Automatable**: Yes
 
 ---
@@ -561,7 +561,7 @@
 5. Reload page -> Verify **Default Order Type** = "Outside" -> Persisted
 6. **Cleanup**: Change back to "Event" and save
 
-**Expected**: Default Order Type selection persists after save and reload | **Data**: from Event to Outside
+**Expected**: Default Order Type selection persists after save and reload
 **Automatable**: Yes
 
 ---
@@ -582,7 +582,7 @@
 6. Reload page -> Verify **PO Number** = "PO-TEST-123" -> Persisted
 7. **Cleanup**: Restore original value and save
 
-**Expected**: PO Number text persists after save and reload | **Data**: PO Number = "PO-TEST-123"
+**Expected**: PO Number text persists after save and reload
 **Automatable**: Yes
 
 ---
@@ -603,7 +603,7 @@
 6. Reload page -> Verify **PO Number Label** = "Purchase Order #" -> Persisted
 7. **Cleanup**: Restore original value and save
 
-**Expected**: PO Number Label text persists after save and reload | **Data**: PO Number Label = "Purchase Order #"
+**Expected**: PO Number Label text persists after save and reload
 **Automatable**: Yes
 
 ---
@@ -624,7 +624,7 @@
 5. For each row in the table, verify an inline name input is present (each row has an editable name field) -> Each row exposes its name as an editable input
 6. Verify the table layout matches the requirements document for the office under test (the set of section names, the active or inactive state of each row, and the total row count come from the requirements document for that office, not from this TC) -> Per-office state matches its requirements row
 
-**Expected**: The Section Configuration table is visible with at least one row and the Use Section checkbox is checked. Each row exposes its name as an editable input. The exact set of section names, the active or inactive state of each row, and the total row count are office-specific and are sourced from the requirements document for the office under test. | **Data**: location=1604 (per-office data sourced from `clients/encore/docs/REQUIREMENTS.md` Sections table for the office under test)
+**Expected**: The Section Configuration table is visible with at least one row and the Use Section checkbox is checked. Each row exposes its name as an editable input. The exact set of section names, the active or inactive state of each row, and the total row count are office-specific and are sourced from the requirements document for the office under test.
 **Automatable**: Yes
 
 ---
@@ -758,7 +758,7 @@
 4. Verify the "Rental Orders/DROs" checkbox is checked by default -> Checkbox is in the checked state for office 1604
 5. Record both states as the documented defaults for office 1604
 
-**Expected**: For office 1604, the Default Logo section shows two checkboxes labeled "Quotes" and "Rental Orders/DROs" and both are checked by default. | **Data**: location=1604
+**Expected**: For office 1604, the Default Logo section shows two checkboxes labeled "Quotes" and "Rental Orders/DROs" and both are checked by default.
 **Automatable**: Yes
 
 ---
@@ -771,14 +771,14 @@
 
 **Depends_On**: TC-LOS-BAS-001
 **Steps**:
-1. Navigate to Local Office Settings, Basic Information tab -> Default Logo section visible
-2. Click **Company Logo** combobox to open -> Dropdown opens
-3. Count and record all options -> 12 options present
-4. Verify options include: PSAV, Encore, and venue-specific logos
-5. Verify current selected value matches page default
-6. Close dropdown without changing
+1. Navigate to Local Office Settings, Basic Information tab and scroll to the "Default Logo" section
+2. Click the "Company Logo" combobox to open the dropdown
+3. Verify the dropdown lists all available logo options
+4. Verify options include PSAV, Encore, and venue-specific logos
+5. Verify the current selected value matches the page default
+6. Close the dropdown without changing the selection
 
-**Expected**: Company Logo combobox has 12 options | **Data**: location=1604
+**Expected**: The Company Logo dropdown offers its full set of logo options
 **Automatable**: Yes
 
 ---
@@ -792,9 +792,9 @@
 **Depends_On**: TC-LOS-BAS-001
 **Steps**:
 1. Navigate to Local Office Settings, Basic Information tab -> Default Logo section visible
-2. Note current **Company Logo** selection and preview image `src` attribute
+2. Note the current **Company Logo** selection and its preview image
 3. Change **Company Logo** to a different option -> Selected option changes
-4. Verify logo preview image `src` attribute changed -> Different image URL
+4. Verify the logo preview image updated to the new logo -> Different image
 5. **Cleanup**: Restore original selection
 
 **Expected**: Changing Company Logo updates the preview image
@@ -897,12 +897,12 @@
 4. If Save is enabled, save and reload -> Verify stored as plain text, no execution
 5. **Cleanup**: Clear PO Number and restore original value
 
-**Expected**: XSS payload stored as plain text or rejected; never executed | **Data**: input=`<script>alert(1)</script>`
+**Expected**: XSS payload stored as plain text or rejected; never executed
 **Automatable**: Yes
 
 ---
 
-## TC-LOS-BAS-040: Empty Section Name — Reverts to Previous Value on Blur
+## TC-LOS-BAS-040: Empty Section Name — Reverts to Previous Value When Focus Leaves
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -911,8 +911,8 @@
 **Depends_On**: TC-LOS-BAS-001
 **Steps**:
 1. Reload Basic Info for clean state
-2. Get section[0] name (expect "Audio")
-3. Edit section[0] to empty string, press Tab
+2. Get the first section name (expect "Audio")
+3. Edit the first section name to an empty string, press Tab
 4. Verify name reverted to original "Audio"
 
 **Expected**: Empty section name reverts to previous value
@@ -927,8 +927,8 @@
 
 **Depends_On**: TC-LOS-BAS-001
 **Steps**:
-1. Get section[0] name
-2. Edit section[0] to `" "` (whitespace), press Tab
+1. Get the first section name
+2. Edit the first section name to a whitespace-only value, press Tab
 3. Verify name is either whitespace (accepted) or reverted (rejected)
 4. Cleanup: restore original name if accepted, reload
 
@@ -977,12 +977,12 @@
 
 **Depends_On**: TC-LOS-BAS-001
 **Steps**:
-1. Reload for clean state, get section[0] name ("Audio")
-2. Type "TEMP CANCEL TEST" into section[0], press Escape
+1. Reload for clean state, get the first section name ("Audio")
+2. Type "TEMP CANCEL TEST" into the first section name field, press Escape
 3. Verify name is "TEMP CANCEL TEST" (Escape does NOT revert)
 4. Cleanup: restore original name, reload
 
-**Expected**: Escape key does not cancel editing — no custom Escape handler on section inputs
+**Expected**: Pressing Escape does not cancel editing of section names
 
 ---
 
@@ -1001,7 +1001,7 @@
 5. Find room, verify still inactive after reload
 6. Cleanup: toggle back to active + save
 
-**Expected**: Room active/inactive toggle persists through save+reload round-trip | **Gap #19**
+**Expected**: Room active/inactive toggle persists through save+reload round-trip
 
 ---
 
@@ -1019,7 +1019,7 @@
 4. Verify "Room Edit Renamed" in room names, "Room Edit Test" absent
 5. Cleanup: rename back to original + save
 
-**Expected**: Room name edit persists through save+reload round-trip | **Gap #19**
+**Expected**: Room name edit persists through save+reload round-trip
 
 ---
 
@@ -1071,7 +1071,7 @@
  - Restore default value
 2. Reload after all fields tested
 
-**Expected**: Positive values in "relative to start" fields are shown as invalid | **LR-008**
+**Expected**: Positive values in "relative to start" fields are shown as invalid
 
 ---
 
@@ -1089,7 +1089,7 @@
  - Restore default value
 2. Reload after all fields tested
 
-**Expected**: Negative values in "relative to end" fields are shown as invalid | **LR-008**
+**Expected**: Negative values in "relative to end" fields are shown as invalid
 
 ---
 
@@ -1102,7 +1102,7 @@
 **Depends_On**: TC-LOS-BAS-001
 **Steps**:
 1. Type "abc" into Return Date Offset, Tab
-2. Poll until aria-invalid=true
+2. Wait until a validation error appears.
 3. Verify Save disabled
 4. Reload to clear cached form state (LR-011)
 
@@ -1119,7 +1119,7 @@
 **Depends_On**: TC-LOS-BAS-001
 **Steps**:
 1. Type "abc" into Delivery Date Offset, Tab
-2. Poll until aria-invalid=true
+2. Wait until a validation error appears.
 3. Verify Save disabled
 4. Reload to clear cached form state (LR-011)
 
@@ -1127,7 +1127,7 @@
 
 ---
 
-## TC-LOS-BAS-061: MaxLen Boundary — 3-Char Field Rejects 4+ Chars
+## TC-LOS-BAS-061: Maximum Length Boundary — 3-Char Field Rejects 4+ Chars
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -1135,8 +1135,8 @@
 
 **Depends_On**: TC-LOS-BAS-001
 **Steps**:
-1. Type "1234" into Prep (maxLen=3)
-2. Verify stored length <= 3 (HTML maxlength truncates)
+1. Type "1234" into Prep (max 3 characters)
+2. Verify the stored value is at most 3 characters (extra input is truncated)
 3. Truncated "123" is positive for "relative to start" -> aria-invalid
 4. Cleanup: restore default, reload
 
@@ -1144,7 +1144,7 @@
 
 ---
 
-## TC-LOS-BAS-062: MaxLen Boundary — 4-Char Field Accepts Value at Limit
+## TC-LOS-BAS-062: Maximum Length Boundary — 4-Char Field Accepts Value at Limit
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -1152,7 +1152,7 @@
 
 **Depends_On**: TC-LOS-BAS-001
 **Steps**:
-1. Type "-999" into Set (maxLen=4)
+1. Type "-999" into Set (max 4 characters)
 2. Verify stored value = "-999"
 3. Verify aria-invalid=false (negative is valid for "relative to start")
 4. Verify Save enabled
@@ -1178,7 +1178,7 @@
 6. Verify Save enabled
 7. Cleanup: restore default, reload
 
-**Expected**: Cross-validation error clears after correction | **, LR-009, LR-010**
+**Expected**: Cross-validation error clears after correction
 
 ---
 
@@ -1192,7 +1192,7 @@
 **Steps**:
 1. Clear Prep Date Offset, Tab
 2. Save + confirm
-3. Reload, verify Prep value = "" (not "0")
+3. Reload and verify the Prep value is empty (not 0).
 4. Cleanup: restore to -1, save
 
 **Expected**: Null offset preserved as empty string, not "0"
@@ -1209,7 +1209,7 @@
 **Steps**:
 1. Clear Return Date Offset, Tab
 2. Save + confirm
-3. Reload, verify Return value = "" (not "0")
+3. Reload and verify the Return value is empty (not 0).
 4. Cleanup: restore to 1, save
 
 **Expected**: Null offset preserved as empty string
@@ -1226,11 +1226,11 @@
 **Steps**:
 1. Reload, clear Prep (default -1)
 2. Leave Delivery at default (0)
-3. Poll: Delivery should NOT be aria-invalid (skipped when Prep is null)
+3. Verify Delivery is not shown as invalid (skipped when Prep is empty)
 4. Verify Save enabled (Prep was changed)
 5. Cleanup: reload to discard
 
-**Expected**: not triggered when Prep is null
+**Expected**: Cross-validation is not triggered when Prep is empty
 
 ---
 
@@ -1244,10 +1244,10 @@
 **Steps**:
 1. Reload, clear all 6 date offsets
 2. Save + confirm
-3. Reload, verify all 6 values = "" (not "0")
+3. Reload and verify all six values are empty (not 0).
 4. Cleanup: restore all defaults, save
 
-**Expected**: All null offsets preserved as empty after bulk clear
+**Expected**: All empty offsets stay empty after bulk clear
 
 ---
 

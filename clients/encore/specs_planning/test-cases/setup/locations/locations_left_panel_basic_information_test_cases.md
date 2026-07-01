@@ -73,8 +73,8 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 |----------|--------|------|
 | High | Automated | Baseline |
 
-**Steps**: 1. Navigate to `locations/1604/settings` -- page loads 2. Verify **Office** shows 1604, disabled ✓ 3. Verify **Local Office** shows 1604, disabled ✓ 4. Verify **Local Office Name** shows "Parker Palm Springs", editable ✓ 5. Verify **Active** checkbox is checked ✓ 6. Verify **Live Date** displays a date in "Month Dayth, YYYY" format (the value is not asserted — 1604 is a shared test office whose Live Date changes between runs) ✓ 7. Verify **Tax Mode** shows "US" ✓ 8. Verify **Country** shows "United States" ✓ 9. Verify **Region** shows "Palm Springs" ✓ 10. Verify **Servicing Branch Office** shows "Select Servicing Branch Office" (no selection) ✓ 11. Verify **Line Of Business** shows "Hotel Services Division" ✓ 12. Verify **Pay To Address** shows "Encore", disabled ✓ 13. Verify **Union** is unchecked ✓ 14. Verify **eCommerce Active** is checked and disabled ✓ 15. Verify **Enable Productions Orders** is checked and disabled ✓
-**Expected**: All 15 fields display expected default values in correct enabled/disabled state for location 1604
+**Steps**: 1. Open the location Settings page -- it loads 2. Verify **Office** shows 1604, disabled ✓ 3. Verify **Local Office** shows 1604, disabled ✓ 4. Verify **Local Office Name** shows "Parker Palm Springs", editable ✓ 5. Verify **Active** checkbox is checked ✓ 6. Verify **Live Date** displays a date in "Month Dayth, YYYY" format ✓ 7. Verify **Tax Mode** shows "US" ✓ 8. Verify **Country** shows "United States" ✓ 9. Verify **Region** shows "Palm Springs" ✓ 10. Verify **Servicing Branch Office** shows "Select Servicing Branch Office" (no selection) ✓ 11. Verify **Line Of Business** shows "Hotel Services Division" ✓ 12. Verify **Pay To Address** shows "Encore", disabled ✓ 13. Verify **Union** is unchecked ✓ 14. Verify **eCommerce Active** is checked and disabled ✓ 15. Verify **Enable Productions Orders** is checked and disabled ✓
+**Expected**: All fields display their expected default values in correct enabled/disabled state for location 1604
 **Data**: `Office=1604` | `LocalOfficeName=Parker Palm Springs` | `Active=checked` | `LiveDate=(volatile; assert format only; live 2026-06-03 = June 15th, 1990)` | `TaxMode=US` | `Country=United States` | `Region=Palm Springs` | `LOB=Hotel Services Division`
 **Automatable**: Yes
 
@@ -104,14 +104,14 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 
 ---
 
-## TC-LOC-LP-004: Verify Pay To Address Display Input is Always Disabled (launcher field)
+## TC-LOC-LP-004: Verify Pay To Address Display Input is Always Disabled (opens a dialog)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Field State |
 
 **Preconditions**: Located on Basic Information page for location 1604
-**Steps**: 1. Observe **Pay To Address** display input showing "Encore" (the Pay To **name**), `[disabled]` ✓ — the input cannot receive focus or be edited 2. Note this asserts the **display input** only; the field is a **launcher** whose `<label>` opens the "Pay To List" dialog (covered by TC-LOC-LP-028..037) — the disabled display does NOT mean the field is non-interactive (LR-057 affordance probe)
-**Expected**: The Pay To Address **display input** is permanently disabled and shows "Encore" (payToId 1's name) for location 1604. The disabled state applies to the display input only; the field's interactive launcher lives on its label (covered by TC-LOC-LP-028..037).
+**Steps**: 1. Observe the "Pay To Address" display input showing "Encore" and verify it is disabled and cannot receive focus or be edited. 2. Note that this asserts the display input only. The field's label opens the "Pay To List" dialog, so the disabled display does not mean the field is non-interactive.
+**Expected**: The "Pay To Address" display input is permanently disabled and shows "Encore" for location 1604. The disabled state applies to the display input only; the field's interactive affordance lives on its label.
 **Notes**: This TC's input-disabled assertion stays TRUE. The launcher coverage is net-new (TC-LOC-LP-028..037), NOT a change to this TC's assertion. Wording corrected this revision — the prior "permanently read-only" phrasing masked the launcher affordance (ID kept, assertion unchanged).
 **Automatable**: Yes
 
@@ -146,10 +146,10 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 |----------|--------|------|
 | High | Automated | Save Button |
 
-**Preconditions**: Navigate fresh to `locations/1604/settings` (no prior changes)
-**Steps**: 1. Page loads completely -- left panel visible 2. Verify **Save** button is disabled (grayed out, not clickable) 3. Verify no form changes have been made (pristine state)
-**Expected**: Save button is disabled on fresh load because the clean state = true
-**Notes**: Save disabled condition: `the clean state = true`
+**Preconditions**: Open the location Settings page fresh (no prior changes)
+**Steps**: 1. Page loads completely -- left panel visible 2. Verify **Save** button is disabled (grayed out, not clickable) 3. Verify no form changes have been made
+**Expected**: Save button is disabled on fresh load because there are no unsaved changes
+**Notes**: Save is disabled while the form has no unsaved changes.
 **Automatable**: Yes
 
 ---
@@ -172,22 +172,22 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 |----------|--------|------|
 | High | Automated | Validation |
 
-**Preconditions**: On Basic Information page, form in pristine state
-**Steps**: 1. Click **Local Office Name** field -- focus 2. Select all text (Ctrl+A) and delete -- field becomes empty 3. Press Tab to blur -- exclamation icon (⚠) appears next to the field ✓ 4. Observe **Save** button state -- Save stays DISABLED (the empty required field gates Save) ✓ 5. Verify exclamation icon is visible indicating required error
+**Preconditions**: On Basic Information page, with no unsaved changes
+**Steps**: 1. Click **Local Office Name** field -- focus 2. Select all text (Ctrl+A) and delete -- field becomes empty 3. Press Tab to move focus off the field -- an exclamation icon (⚠) appears next to the field ✓ 4. Observe **Save** button state -- Save stays DISABLED (the empty required field gates Save) ✓ 5. Verify exclamation icon is visible indicating required error
 **Expected**: Clearing the required Local Office Name shows the exclamation validation icon AND Save stays DISABLED (the empty required field gates Save — matches the requirement).
 **Notes**: Clearing the required name shows the error icon and leaves Save disabled, consistent with the documented invalid-state-disables-Save behavior.
 **Automatable**: Yes
 
 ---
 
-## TC-LOC-LP-010: Verify Local Office Name maxlength (live = 255)
+## TC-LOC-LP-010: Verify Local Office Name Maximum Length (live = 255)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Validation |
 
 **Preconditions**: On Basic Information page for location 1604
-**Steps**: 1. Click **Local Office Name** field -- clear existing text 2. Read the input's `maxlength` attribute -- value is **255** ✓ 3. The browser enforces the limit on keystroke at 255 characters ✓
-**Expected**: Local Office Name input enforces a maximum length of **255** characters (an open question for Encore — is 255 the intended limit, or should it be 50?)
+**Steps**: 1. Click **Local Office Name** field -- clear existing text 2. Read the field's maximum-length limit -- it is **255** ✓ 3. The browser enforces the limit on keystroke at 255 characters ✓
+**Expected**: Local Office Name input enforces a maximum length of **255** characters
 **Data**: `maxLength=255` (live) | `testValue=AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEE` (50-char sample)
 **Cleanup**: Restore field to "Parker Palm Springs" and save
 **Automatable**: Yes
@@ -252,8 +252,8 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 | Medium | Automated | Dropdown |
 
 **Preconditions**: On Basic Information page for location 1604
-**Steps**: 1. Click **Region** dropdown -- opens ✓ 2. Verify 59 options (alphabetical: Alabama, Arizona, Atlanta, Boston.) ✓ 3. Verify current selection is "Palm Springs" ✓ 4. Select "Boston" from the list -- Region changes to Boston ✓ 5. Reload page without saving -- Region reverts to "Palm Springs" (changes not persisted)
-**Expected**: Region has 59 options, current is Palm Springs; selecting different region updates field
+**Steps**: 1. Click the "Region" dropdown. 2. Verify the dropdown lists options alphabetically (starting with Alabama, Arizona, Atlanta, Boston). 3. Verify current selection is "Palm Springs". 4. Select "Boston" from the list and verify the Region field updates to "Boston". 5. Reload the page without saving and verify the Region reverts to "Palm Springs".
+**Expected**: The Region dropdown offers its full set of region options; the current value for this location is "Palm Springs"; selecting a different region updates the field immediately
 **Data**: `optionCount=59` | `currentValue=Palm Springs`
 **Automatable**: Yes
 
@@ -278,8 +278,8 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 | Medium | Automated | Dropdown |
 
 **Preconditions**: On Basic Information page for location 1604
-**Steps**: 1. Click **Servicing Branch Office** dropdown -- opens ✓ 2. Verify the dropdown lists **>200 options** (218 at last check; first option varies by environment, e.g. "1752 -- W Hoboken") ✓ 3. Verify current UI shows "Select Servicing Branch Office" (no selection for 1604) ✓ 4. Select any option -- field updates, Save enables ✓
-**Expected**: Servicing Branch Office lists more than 200 options (218 at last check; the exact count is not asserted); GL Servicing Division must be ≥1 (selecting a value satisfies validation)
+**Steps**: 1. Click the "Servicing Branch Office" dropdown. 2. Verify the dropdown lists a large number of branch office options (the first option varies by environment, e.g. "1752 -- W Hoboken"). 3. Verify the current field shows "Select Servicing Branch Office" (no selection for this location). 4. Select any option and verify the field updates and Save becomes enabled.
+**Expected**: The "Servicing Branch Office" dropdown contains a large list of branch office options; no branch office is currently selected for this location; selecting any option enables Save and satisfies the required field validation
 **Data**: `optionCount=218 (live 2026-06-03; spec asserts >200, not exact)` | `default=Select Servicing Branch Office (value=0)`
 **Notes**: GL Servicing Division corresponds to this field. Validator: `Validators.min(1)` — having no selection means value=0 which fails validation. Whether this prevents Save is consistent with `the invalid state` condition. Last option not asserted (sorted list may vary by environment).
 **Automatable**: Yes
@@ -292,22 +292,22 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 | High | Automated | Country Cascade |
 
 **Preconditions**: On Basic Information page, Country = United States, Tax Mode = US, Region = Palm Springs
-**Steps**: 1. Verify Tax Mode = "US", Region = "Palm Springs" ✓ 2. Click **Country** -- select "Canada" 3. Observe **Tax Mode** dropdown is now empty (cleared) with exclamation icon ✓ 4. Observe **Region** dropdown is now empty (cleared) ✓ 5. Verify Save button is now disabled (TaxModeID = 0) ✓
-**Expected**: Changing country clears Tax Mode (shows error) and Region; Save becomes disabled because TaxModeID = 0
+**Steps**: 1. Verify Tax Mode = "US", Region = "Palm Springs" ✓ 2. Click **Country** -- select "Canada" 3. Observe **Tax Mode** dropdown is now empty (cleared) with exclamation icon ✓ 4. Observe **Region** dropdown is now empty (cleared) ✓ 5. Verify Save button is now disabled (Tax Mode is empty) ✓
+**Expected**: Changing country clears Tax Mode (shows error) and Region; Save becomes disabled because Tax Mode is empty
 **Notes**: Tax Mode and Region must be manually re-selected after country change
 **Automatable**: Yes
 
 ---
 
-## TC-LOC-LP-019: Verify Save Disabled After Country Change (TaxModeID = 0)
+## TC-LOC-LP-019: Verify Save Disabled After Country Change (Tax Mode Cleared)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Save Button / Cascade |
 
 **Preconditions**: On Basic Information page; Country = United States, Tax Mode = US, Region = Palm Springs
-**Steps**: 1. Click **Country** -- select "Canada" ↓ Tax Mode and Region are cleared 2. Verify **Save** button is disabled (TaxModeID = 0) ✓ 3. Click **Tax Mode** -- select "International" ✓ 4. Verify **Save** button is now enabled ✓ 5. Re-select Country to a different value -- Tax Mode clears again -- Save disables
-**Expected**: Save disabled when TaxModeID = 0; selecting a Tax Mode value re-enables Save (if no other disable conditions present)
-**Notes**: `locationDetail.TaxModeID == 0` is an explicit Save disabled condition per source code
+**Steps**: 1. Click **Country** -- select "Canada", which clears Tax Mode and Region 2. Verify **Save** button is disabled (Tax Mode is empty) ✓ 3. Click **Tax Mode** -- select "International" ✓ 4. Verify **Save** button is now enabled ✓ 5. Re-select Country to a different value -- Tax Mode clears again -- Save disables
+**Expected**: Save is disabled when Tax Mode is empty; selecting a Tax Mode value re-enables Save (if no other disable conditions present)
+**Notes**: An empty Tax Mode is an explicit Save-disabled condition.
 **Automatable**: Yes
 
 ---
@@ -356,7 +356,7 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 | Low | Automated | Field Interaction |
 
 **Preconditions**: On Basic Information page for location 1604
-**Steps**: 1. Observe **Live Date** rendered as a button (cursor: pointer) showing a date in "Month Dayth, YYYY" format (value-agnostic — 1604's Live Date drifts between runs) ✓ 2. Click **Live Date** button -- date picker popover opens ✓ 3. Verify the date-picker popover opens (the spec asserts the popover opens; calendar contents are value-agnostic) ✓ 4. Press Escape or click outside -- popover closes; date unchanged ✓
+**Steps**: 1. Observe **Live Date** rendered as a button (cursor: pointer) showing a date in "Month Dayth, YYYY" format (value-agnostic — 1604's Live Date drifts between runs) ✓ 2. Click **Live Date** button -- date picker popover opens ✓ 3. Verify the date-picker popover opens and shows a calendar (its contents do not depend on the field's value) ✓ 4. Press Escape or click outside -- popover closes. The date is unchanged. ✓
 **Expected**: Live Date is a clickable button (not a plain text field); clicking opens a date picker popover showing the saved date. The Pay To Address input above it remains read-only regardless.
 **Notes**: Live Date is volatile on shared office 1604 (assert format, not value). Displayed in "Month Dayth, YYYY" format; the test asserts the format and that the popover opens.
 **Automatable**: Yes
@@ -368,8 +368,8 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 |----------|--------|------|
 | High | Deferred | Cross-Tab / Save Button |
 
-**Preconditions**: Navigate to `locations/1604/settings`, form in pristine state
-**Steps**: 1. Click **Legal** tab -- Legal tab opens showing grid 2. Clear a **Service Charge Name** dropdown -- exclamation icon appears ✓ 3. Return to **Basic Information** tab (left panel) 4. Toggle **Union** checkbox -- Save enables ✓ 5. Click **Save** -- observe whether save succeeds or is blocked by Legal validation 6. Document exact behavior: save blocked (expected per an invalid Legal-tab condition) OR save succeeds with Legal error persisting
+**Preconditions**: Open the location Settings page; the form has no unsaved changes
+**Steps**: 1. Click **Legal** tab -- Legal tab opens showing grid 2. Clear a **Service Charge Name** dropdown -- exclamation icon appears ✓ 3. Return to **Basic Information** tab (left panel) 4. Toggle **Union** checkbox -- Save becomes enabled ✓ 5. Click **Save** -- observe whether save succeeds or is blocked by Legal validation 6. Document exact behavior: save blocked (expected per an invalid Legal-tab condition) OR save succeeds with Legal error persisting
 **Expected**: Per requirements an invalid Legal-tab condition is a Save disabled condition. Document actual observed behavior for cross-tab save interaction.
 **Notes**: **Not automated (deferred).** Driving the Legal tab invalid (clearing the required Service Charge) has no UI "clear" affordance on the required Service Charge dropdown and risks leaving the Legal tab in a modified state. Save-gating on an invalid Basic Information state is already proven by TC-019 (TaxModeID=0). Flagged for a design decision.
 **Data**: `Location=1604` | `LegalGrid=1 row (US English)`
@@ -413,14 +413,14 @@ Live-DOM verification (selectors, defaults, states) is captured in **FIELD INVEN
 
 Source catalog: `_internal/field-case-catalogs/launcher-dialogs-2026-06-11.md` (Workstream A — per-launcher gap matrix). The Pay To Address field is a **launcher** opening the "Pay To List" search dialog (5 filters, 13-col sortable table, per-row checkbox, Select-disabled-until-checked, Cancel/Close-X, single page). The 2026-06-03 walk classified it as a plain disabled textbox (RCA `_internal/rca-launcher-dialog-misses-2026-06-11.md`). All cases live-verified 2026-06-11 (Playwright CLI, office 1604); see `_internal/field-inventories/left-panel-basic-information-2026-06-11.md` §Launcher dialogs.
 
-## TC-LOC-LP-028: Pay To Address launcher opens the "Pay To List" dialog
+## TC-LOC-LP-028: Pay To Address label opens the "Pay To List" dialog
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Launcher / Dialog |
 
 **Preconditions**: On Basic Information page for location 1604
-**Steps**: 1. Click the **Pay To Address** label (launcher; the disabled-input association blocks a standard click — driven via a forced/dispatched click) 2. Verify the **"Pay To List"** dialog opens 3. Verify the 5 filters (Pay To ID, Pay To Name, Address, Phone, Fax) + **Search** + **Reset** are present 4. Verify the results table renders with rows pre-loaded (the customer's Pay To list) 5. Verify the footer **Select** (disabled) + **Cancel** buttons are present
-**Expected**: Clicking the Pay To Address label opens the "Pay To List" search dialog with 5 filters, Search/Reset, a results table, and Select/Cancel — the launcher affordance the disabled display input masks
+**Steps**: 1. Click the "Pay To Address" label (the "Pay To Address" display field is disabled, so clicking its label is how the dialog is opened) 2. Verify the "Pay To List" dialog opens 3. Verify the 5 filters (Pay To ID, Pay To Name, Address, Phone, Fax) + "Search" + "Reset" are present 4. Verify the results table renders with rows pre-loaded (the customer's Pay To list) 5. Verify the footer "Select" (disabled) + "Cancel" buttons are present
+**Expected**: Clicking the Pay To Address label opens the "Pay To List" search dialog with 5 filters, Search/Reset, a results table, and Select/Cancel
 **Data**: office=1604, dialogTitle="Pay To List"
 **Notes**: Headline fix for the launcher-blindness false-green (TC-LOC-LP-004 asserted only the disabled input). Launcher = `label:has-text("Pay To Address")`, driven via `dispatchEvent('click')` / `click({force:true})`.
 **MCP_VERIFICATION_LOG**: `field-inventories/left-panel-basic-information-2026-06-11.md` §Launcher dialogs → Pay To List (affordance + dialog internals verbatim, 2026-06-11).
@@ -449,8 +449,8 @@ Source catalog: `_internal/field-case-catalogs/launcher-dialogs-2026-06-11.md` (
 | Medium | Automated | Launcher / Dialog |
 
 **Preconditions**: Pay To List dialog open
-**Steps**: 1. Open the dialog 2. Check a row (Select enables) 3. Click **Cancel** 4. Verify the dialog closes 5. Verify the Pay To Address display still shows "Encore" and the left-panel **Save** stays disabled (no model change)
-**Expected**: Cancel dismisses the dialog without applying any selection; form stays pristine
+**Steps**: 1. Open the dialog 2. Check a row (Select enables) 3. Click **Cancel** 4. Verify the dialog closes 5. Verify the Pay To Address display still shows "Encore" and the left-panel **Save** stays disabled because nothing was changed
+**Expected**: Cancel dismisses the dialog without applying any selection; the form has no unsaved changes
 **Data**: office=1604
 **Notes**: Discard path — no mutation. Save stays `[disabled]`.
 **MCP_VERIFICATION_LOG**: `field-inventories/left-panel-basic-information-2026-06-11.md` §Launcher dialogs → Discard semantics ("Cancel closes the dialog; form stays pristine").
@@ -494,8 +494,8 @@ Source catalog: `_internal/field-case-catalogs/launcher-dialogs-2026-06-11.md` (
 | Medium | Automated | Launcher / Filter |
 
 **Preconditions**: Pay To List dialog open
-**Steps**: 1. Open the dialog 2. Type `Encore` into the Pay To **Name** filter 3. Click **Search** 4. Verify the results contain more than one "Encore"-named row (server-side contains: IDs 1, 4, 6, 7)
-**Expected**: The Pay To Name filter is a server-side "contains" filter — "Encore" returns multiple rows (proving the name is NOT a unique restore anchor; `toContain`, no exact count, LR-022)
+**Steps**: 1. Open the dialog 2. Type `Encore` into the Pay To **Name** filter 3. Click **Search** 4. Verify the results contain more than one "Encore"-named row
+**Expected**: The Pay To Name filter is a "contains" search — typing "Encore" returns multiple rows, so the name alone does not identify a single row.
 **Data**: office=1604, name=Encore → ≥2 rows
 **Notes**: Establishes WHY restore is ID-anchored, not name-anchored (≥2 "Encore" rows).
 **MCP_VERIFICATION_LOG**: `field-inventories/left-panel-basic-information-2026-06-11.md` §Launcher dialogs → Filters ("Pay To Name … server-side contains — `Encore` → 4 rows").
@@ -509,7 +509,7 @@ Source catalog: `_internal/field-case-catalogs/launcher-dialogs-2026-06-11.md` (
 | Medium | Automated | Launcher / Filter |
 
 **Preconditions**: Pay To List dialog open
-**Steps**: 1. Open the dialog 2. Type a non-matching Pay To ID (e.g. `99999`) 3. Click **Search** 4. Verify the table shows the verbatim **"No results."** message (announced rejection, not silent)
+**Steps**: 1. Open the dialog 2. Type a non-matching Pay To ID (e.g. `99999`) 3. Click **Search** 4. Verify the table shows the verbatim "No results." message (announced rejection, not silent)
 **Expected**: A no-match search returns the verbatim "No results." empty-state — an announced rejection, not silence
 **Data**: office=1604, payToId=99999 → "No results."
 **Notes**: Verbatim empty-state text per the field-coverage taxonomy (announced, not silent).
@@ -525,7 +525,7 @@ Source catalog: `_internal/field-case-catalogs/launcher-dialogs-2026-06-11.md` (
 
 **Preconditions**: Pay To List dialog open
 **Steps**: 1. Open the dialog 2. Filter by Pay To ID (e.g. `7`) → Search (results narrow) 3. Click **Reset** 4. Verify the filters clear and the full pre-loaded Pay To list is restored
-**Expected**: Reset clears all filters and restores the full unfiltered Pay To list (no visible form taint)
+**Expected**: Reset clears all filters and restores the full unfiltered Pay To list (with no leftover changes)
 **Data**: office=1604
 **Notes**: Reset side-effect check (ACC-007 precedent — defensive reload after if taint is observed live).
 **MCP_VERIFICATION_LOG**: `field-inventories/left-panel-basic-information-2026-06-11.md` §Launcher dialogs → Search ("Reset: clears all filters, restores the full list, refs stable, no visible form taint").
@@ -538,8 +538,8 @@ Source catalog: `_internal/field-case-catalogs/launcher-dialogs-2026-06-11.md` (
 |----------|--------|------|
 | High | Automated | Launcher / Field Interaction |
 
-**Preconditions**: Pay To List dialog open; Pay To Address = "Encore" (payToId 1)
-**Steps**: 1. Open the dialog 2. Filter/find Pay To ID 7 ("Encore Bahamas") and check its row 3. Click **Select** → dialog closes 4. Verify the Pay To Address display updates to "Encore Bahamas" 5. Verify the left-panel **Save** enables (form dirty) 6. Reload WITHOUT saving → verify the display reverts to "Encore" (no persist without save)
+**Preconditions**: Pay To List dialog open. Pay To Address = "Encore"
+**Steps**: 1. Open the dialog 2. Filter/find Pay To ID 7 ("Encore Bahamas") and check its row 3. Click **Select** → dialog closes 4. Verify the Pay To Address display updates to "Encore Bahamas" 5. Verify the left-panel **Save** becomes enabled 6. Reload WITHOUT saving → verify the display reverts to "Encore" (no persist without save)
 **Expected**: Selecting a Pay To via the dialog updates the display field and dirties the form (Save enables); reloading without saving discards the change
 **Data**: office=1604, alt=PAY_TO_ALTERNATE (ID 7, "Encore Bahamas")
 **Notes**: Display-update + Save-enable proof WITHOUT mutating the saved value (discard via reload). Persistence is TC-037.
@@ -553,9 +553,9 @@ Source catalog: `_internal/field-case-catalogs/launcher-dialogs-2026-06-11.md` (
 |----------|--------|------|
 | High | Automated | Launcher / Persistence |
 
-**Preconditions**: Pay To Address = "Encore" (payToId 1) — enforced by per-test baseline
-**Steps**: 1. Open the dialog, select Pay To ID 7 ("Encore Bahamas") → Save → confirm the "Save Changes" dialog (Ok) 2. Reload → verify the Pay To Address persists as "Encore Bahamas" (`financial.payToId === 7`) 3. **Restore**: open the dialog, search Pay To **ID** `1`, select that row → Save → Ok → reload → verify Pay To Address back to "Encore" (`financial.payToId === 1`)
-**Expected**: A Pay To selection persists through save+reload (unlike the Venue address selection ACC-027, which does not — a per-launcher divergence). Office 1604 is restored to its original Pay To (ID 1) via the **ID** anchor (the name "Encore" is ambiguous — IDs 1 & 4 share it).
+**Preconditions**: Pay To Address = "Encore" — enforced by per-test baseline
+**Steps**: 1. Open the dialog and select Pay To ID 7 ("Encore Bahamas"), then Save and confirm the "Save Changes" dialog with Ok 2. Reload and verify the Pay To Address persists as "Encore Bahamas" 3. Restore: open the dialog, search Pay To ID 1, select that row, Save, confirm with Ok, reload, and verify the Pay To Address is back to "Encore"
+**Expected**: A Pay To selection persists through save and reload (unlike the Venue address selection, which does not). Office 1604 is restored to its original Pay To (ID 1) using the ID to search (the name "Encore" is ambiguous — IDs 1 and 4 share it).
 **Data**: office=1604, PAY_TO_ORIGINAL (ID 1, "Encore"), PAY_TO_ALTERNATE (ID 7, "Encore Bahamas")
 **Notes**: Implemented via the field-coverage runner (`saveAndVerifyCase`, LR-019 compile-required baseline). Restore-by-ID lives in the case `cleanup` + `finally`. Save endpoint `PUT /navigator/api/location/update-properties` (LR-056). No-leak: post-run office 1604 = payToId 1.
 **MCP_VERIFICATION_LOG**: `field-inventories/left-panel-basic-information-2026-06-11.md` §Launcher dialogs → Selection→field→persistence steps 2-4 ("financial.payToId === 7 → persists … restore: payToId === 1 ✅").

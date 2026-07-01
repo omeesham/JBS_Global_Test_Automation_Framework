@@ -67,7 +67,7 @@ Validation Rules Discovered:
 **Depends_On**: none (baseline-enforcement per LR-019)
 Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-001)
 
-**Steps**: 1. Navigate to `locations/1604/settings` -- Page loads 2. Verify Basic Information tab selected -- Left/right panels visible 3. Click Local Information tab -- Tab activates 4. Verify Local Information panel loads -- 52 fields visible, Save button disabled
+**Steps**: 1. Open the location Settings page and verify it loads. 2. Verify the "Basic Information" tab is selected with the left and right panels visible. 3. Click the "Local Information" tab and verify it activates. 4. Verify the Local Information panel loads with all fields visible and "Save" button disabled.
 **Expected**: Local Information tab displays all fields in default state, Save button disabled
 **Data**: `Office=1604` | `URL=locations/1604/settings`
 **Automatable**: Yes
@@ -82,8 +82,8 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-002 batch defaults)
 
-**Steps**: 1. Verify "Apply LDW" checkbox is checked 2. Verify "LDW Percentage" spinbutton is enabled. Read its current value as the office baseline rather than asserting a fixed default — the live default for office 1604 is `0.00%`; the prior `0.04%` assertion was an office-specific value left over from previous testing, not a system default.
-**Expected**: Apply LDW is checked by default. LDW Percentage spinbutton is enabled. Value is the office's persisted setting (no fixed system default — read-as-baseline, restore-on-cleanup pattern).
+**Steps**: 1. Verify "Apply LDW" checkbox is checked 2. Verify "LDW Percentage" field is enabled and read its current value as the office baseline. Office 1604 currently shows `0.00%`, so do not assert a fixed default value.
+**Expected**: Apply LDW is checked by default. The LDW Percentage field is enabled. Its value is the office's saved setting; there is no fixed default value.
 **Data**: `chkApplyLDW=checked` | `spinLDWPercentage=read-as-baseline` | `office=1604 (live default 0.00%)`
 **Automatable**: Yes
 
@@ -99,9 +99,8 @@ Status: Blocked by (calc-on-net sibling cascade currently broken — children st
 
 Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPENDENCIES loop)
 
-**Steps**: 1. Read "LDW Percentage" spinbutton value and "Calculate LDW On Net Amount" checkbox state and store originals 2. Uncheck "Apply LDW" checkbox 3. Verify "LDW Percentage" spinbutton is disabled with value reset to 0 4. Verify "Calculate LDW On Net Amount" checkbox is disabled AND unchecked (per requirements parent-children cascade — currently asserts new-site regression) 5. Re-check "Apply LDW" checkbox 6. Verify "LDW Percentage" spinbutton is enabled with value remaining at 0 (NOT restored) 7. Verify "Calculate LDW On Net Amount" checkbox is enabled and respects its prior baseline state
-**Expected**: Unchecking Apply LDW disables BOTH the LDW Percentage spinbutton (value resets to 0) AND the Calculate LDW On Net Amount sibling checkbox (per old-site baseline parent-to-children dependency convention — same expectation as Allow Service Charge children +).
-Actual on the live site: only the LDW Percentage spinbutton disables; the Calculate LDW On Net Amount sibling checkbox stays checked + enabled when parent is unchecked. Save-cycle persistence of this state has not yet been verified — the assertion documents the correct contract and will fail until the application wires the Calculate-on-Net sibling to the parent.
+**Steps**: 1. Read "LDW Percentage" spinbutton value and "Calculate LDW On Net Amount" checkbox state and store originals 2. Uncheck "Apply LDW" checkbox 3. Verify "LDW Percentage" spinbutton is disabled with value reset to 0 4. Verify "Calculate LDW On Net Amount" checkbox is disabled AND unchecked 5. Re-check "Apply LDW" checkbox 6. Verify "LDW Percentage" spinbutton is enabled with value remaining at 0 (NOT restored) 7. Verify "Calculate LDW On Net Amount" checkbox is enabled and respects its prior baseline state
+**Expected**: Unchecking Apply LDW should disable BOTH the LDW Percentage field (value resets to 0) AND the Calculate LDW On Net Amount checkbox, matching the dependency behavior of the other parent-and-children field groups. On the live site today, only the LDW Percentage field disables; the Calculate LDW On Net Amount checkbox stays checked and enabled when the parent is unchecked. This is a known open issue, so this check is expected to fail until it is fixed.
 **Data**: `chkApplyLDW=toggle` | `spinLDWPercentage=baseline to 0 to 0` | `chkCalcLDWOnNetAmount=baseline to disabled+unchecked to enabled+baseline` | `bug=`
 **Automatable**: Yes (assertion currently fails on new site; pin against fix)
 
@@ -117,7 +116,7 @@ Status: Blocked by (calc-on-net sibling cascade currently broken — children st
 
 Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPENDENCIES loop — pending: chkApplyCablesConsumablesFee disabled for office 1604)
 
-**Steps**: 1. Verify "Apply C&C Fee" checkbox baseline state and read "Calculate C&C On Net Amount" sibling baseline 2. Verify "C&C Percentage" spinbutton state matches parent (enabled when parent checked, disabled when parent unchecked) 3. Toggle "Apply C&C Fee" off (if currently checked, uncheck) 4. Verify "C&C Percentage" spinbutton is disabled with value 0 5. Verify "Calculate C&C On Net Amount" checkbox is disabled AND unchecked (per requirements parent-children cascade — currently asserts new-site regression) 6. Toggle "Apply C&C Fee" back on 7. Verify "C&C Percentage" spinbutton re-enables 8. Verify "Calculate C&C On Net Amount" checkbox is re-enabled and Save button transitions to enabled with the dirty state
+**Steps**: 1. Verify "Apply C&C Fee" checkbox baseline state and read "Calculate C&C On Net Amount" sibling baseline 2. Verify "C&C Percentage" spinbutton state matches parent (enabled when parent checked, disabled when parent unchecked) 3. Toggle "Apply C&C Fee" off (if currently checked, uncheck) 4. Verify "C&C Percentage" spinbutton is disabled with value 0 5. Verify "Calculate C&C On Net Amount" checkbox is disabled AND unchecked 6. Toggle "Apply C&C Fee" back on 7. Verify "C&C Percentage" spinbutton re-enables 8. Verify "Calculate C&C On Net Amount" checkbox is re-enabled and Save button transitions to enabled with the dirty state
 **Expected**: Toggling Apply C&C Fee enables/disables BOTH the C&C Percentage spinbutton AND the Calculate C&C On Net Amount sibling checkbox (per old-site baseline parent-to-children dependency convention — same expectation as Allow Service Charge children + Apply LDW children).
 Actual on the live site: only the C&C Percentage spinbutton disables when parent is unchecked; the Calculate C&C On Net Amount sibling checkbox stays checked + enabled. Save-cycle persistence of this state has not yet been verified.
 **Data**: `chkApplyCablesConsumablesFee=toggle` | `spinCCPercentage=enabled-to-disabled-to-enabled` | `chkCalcCACOnNetAmount=baseline-to-disabled+unchecked-to-enabled+baseline` | `bug=`
@@ -133,8 +132,8 @@ Actual on the live site: only the C&C Percentage spinbutton disables when parent
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPENDENCIES loop — pending: chkAllowETS disabled for office 1604)
 
-**Steps**: 1. Verify "Allow ETS" checkbox is unchecked — 2. Verify "ETS Percentage" spinbutton is disabled with value 0 — 3. Check "Allow ETS" checkbox — 4. Verify "ETS Percentage" spinbutton is enabled — 5. Verify "ETS Percentage" value is 23.00% (non-union office default — `0.23` raw decimal) — 6. Uncheck "Allow ETS" checkbox — 7. Verify "ETS Percentage" spinbutton is disabled with value reset to 0
-**Expected**: Checking Allow ETS enables spinbutton and sets default value to 23.00% (raw `0.23`) for non-union offices, 24.00% (raw `0.24`) for union offices per requirements. Unchecking resets to 0.
+**Steps**: 1. Verify "Allow ETS" checkbox is unchecked. 2. Verify "ETS Percentage" spinbutton is disabled with value 0. 3. Check "Allow ETS" checkbox. 4. Verify "ETS Percentage" spinbutton is enabled. 5. Verify "ETS Percentage" value is 23.00% (non-union office default). 6. Uncheck "Allow ETS" checkbox. 7. Verify "ETS Percentage" spinbutton is disabled with value reset to 0.
+**Expected**: Checking Allow ETS enables spinbutton and sets default value to 23.00% for non-union offices, 24.00% for union offices per requirements. Unchecking resets to 0.
 **Data**: `chkAllowETS=unchecked to checked` | `spinETSPercentage=disabled,0 to enabled,23.00%` | `office=1604` | `union=false`
 **Automatable**: Yes
 
@@ -155,7 +154,7 @@ Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPE
 
 ---
 
-## TC-LOC-LI-007: Verify Threshold Disabled When AllowDPCD Checked (Dual Dependency)
+## TC-LOC-LI-007: Verify Threshold Disabled When Allow DPCD Checked (Dual Dependency)
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Automated | Field Dependency |
@@ -163,8 +162,8 @@ Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPE
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-007)
 
-**Steps**: 1. Verify "Allow DPCD" checkbox is checked by default 2. Read current state of "Prompt For Approval" checkbox and treat as setup baseline (live default on office 1604 is *checked*; if checked, uncheck it before continuing so the dual-condition transition can be exercised) 3. Verify "Threshold" spinbutton is disabled with value 0 4. Check "Prompt For Approval" checkbox 5. Verify "Threshold" spinbutton is STILL disabled (because Allow DPCD is checked) 6. Uncheck "Allow DPCD" checkbox 7. Verify "Prompt For Approval" checkbox is still checked 8. Verify "Threshold" spinbutton is NOW ENABLED (Allow DPCD is false AND Prompt For Approval is true)
-**Expected**: Threshold has DUAL dependency: disabled when `AllowDPCD=true OR PromptForApproval=false OR canEditLoc=false`. Enabling requires AllowDPCD=false AND PromptForApproval=true.
+**Steps**: 1. Verify "Allow DPCD" checkbox is checked by default 2. Read the current state of "Prompt For Approval" checkbox and record it as the baseline. 3. If "Prompt For Approval" is checked, uncheck it so the starting state has both conditions needed to keep "Threshold" disabled. 4. Verify "Threshold" spinbutton is disabled with value 0 5. Check "Prompt For Approval" checkbox 6. Verify "Threshold" spinbutton is STILL disabled (because Allow DPCD is checked) 7. Uncheck "Allow DPCD" checkbox 8. Verify "Prompt For Approval" checkbox is still checked 9. Verify "Threshold" spinbutton is NOW ENABLED (Allow DPCD is unchecked AND Prompt For Approval is checked)
+**Expected**: Threshold has DUAL dependency: disabled when Allow DPCD is checked, OR Prompt For Approval is unchecked, OR the user lacks location-edit permission. Enabling requires Allow DPCD to be unchecked AND Prompt For Approval to be checked.
 **Data**: `AllowDPCD=true means Threshold=disabled` | `AllowDPCD=false plus PromptForApproval=true means Threshold=enabled` | `dualDependency=true` | `liveDefault2026-04-27=AllowDPCD checked + PromptForApproval checked + Threshold disabled (single-condition AllowDPCD=true is sufficient to disable)`
 **Automatable**: Yes
 
@@ -176,13 +175,13 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | High | Manual | Field Dependency |
 
 **Steps**: 1. Uncheck "Allow DPCD" checkbox and verify "Threshold" spinbutton is enabled 2. Check "Prompt For Approval" checkbox and verify "Threshold" spinbutton is still enabled 3. Set "Threshold" spinbutton to 50.5 4. Check "Allow DPCD" checkbox and verify "Threshold" spinbutton is disabled with value reset to 0 5. Uncheck "Allow DPCD" checkbox and verify "Threshold" spinbutton is enabled with value still 0 (not restored) 6. Set "Threshold" spinbutton to 25.0 7. Uncheck "Prompt For Approval" checkbox and verify "Threshold" spinbutton is disabled with value reset to 0
-**Expected**: Threshold resets to 0 when AllowDPCD becomes true OR PromptForApproval becomes false
+**Expected**: Threshold resets to 0 when Allow DPCD is checked OR Prompt For Approval is unchecked.
 **Data**: `resetTriggers=AllowDPCD=true OR PromptForApproval=false` | `resetValue=0`
 **Automatable**: Yes
 
 ---
 
-## TC-LOC-LI-008: Verify Skip Billing Disables Oracle Fields
+## TC-LOC-LI-008: Verify Skip Billing Does Not Disable Oracle Fields
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Manual | Field Dependency |
@@ -190,9 +189,9 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 **Depends_On**: TC-LOC-LI-001
 **Preconditions** (slate-clear): Office 1604 may carry leaked values in Oracle fields from prior testing. Reset Oracle Product to `0000`, Oracle Department to `900`, Oracle Organization to `Encore US BU` and Save before starting this TC. Read-and-restore in `finally` block.
 
-**Steps**: 1. Verify "Oracle Product" textbox is enabled with value `0000` 2. Verify "Oracle Department" textbox is enabled with value `900` 3. Verify "Oracle Organization" dropdown is enabled with selection `Encore US BU` 4. Check "Skip Billing" checkbox 5. Verify "Oracle Product" textbox is disabled 6. Verify "Oracle Department" textbox is disabled 7. Verify "Oracle Organization" dropdown is disabled 8. Uncheck "Skip Billing" checkbox 9. Verify all 3 fields are re-enabled with original values
-**Expected**: Skip Billing disables Oracle Product, Oracle Department, and Oracle Organization fields. With SkipBilling is unchecked, Oracle Organization is enabled and selectable on a healthy backend.
-**Data**: `chkSkipBilling=unchecked to checked` | `txtOracleProduct=enabled to disabled` | `txtOracleDepartment=enabled to disabled` | `drpOracleOrganization=enabled to disabled` | `slateClearRequired=true`
+**Steps**: 1. Verify "Oracle Product" field is enabled with value `0000` 2. Verify "Oracle Department" field is enabled with value `900` 3. Verify "Oracle Organization" dropdown is enabled with selection `Encore US BU` 4. Check "Skip Billing" checkbox 5. Verify "Oracle Product" field stays enabled 6. Verify "Oracle Department" field stays enabled 7. Verify "Oracle Organization" dropdown stays enabled 8. Uncheck "Skip Billing" checkbox 9. Verify all 3 fields remain enabled with their original values
+**Expected**: Checking Skip Billing does not disable the Oracle Product, Oracle Department, or Oracle Organization fields; they stay enabled because Skip Billing is a billing flag only. Oracle Organization remains enabled and selectable.
+**Data**: `chkSkipBilling=unchecked to checked` | `txtOracleProduct=stays enabled` | `txtOracleDepartment=stays enabled` | `drpOracleOrganization=stays enabled` | `slateClearRequired=true`
 **Automatable**: Yes
 
 ---
@@ -202,8 +201,8 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 |----------|--------|------|
 | Critical | Manual | Required Field Validation |
 
-**Steps**: 1. Verify "Skip Billing" checkbox is unchecked (the "required" condition) 2. Clear "Oracle Product" textbox 3. Verify "Oracle Product" field shows the invalid-state indicator after clear (the empty-state error indicator is rendered on the input via aria-invalid=true) 4. Verify "Save" button is DISABLED while the form is invalid (form-validity wiring restored PRIMARY_SYMPTOM_RESOLVED) 5. Clear "Oracle Department" textbox 6. Set "Oracle Organization" dropdown to "--Select--" (ID < 1) 7. Re-verify "Save" button stays disabled 8. Restore each field to a valid value 9. Verify Save re-enables after all 3 are valid 10. Click Save and confirm successful save
-**Expected**: Oracle Product, Oracle Department, and Oracle Organization are REQUIRED when Skip Billing is unchecked. When the form is invalid, the Save button is disabled (form-validity wiring) so the user cannot fire a silent save. The empty required fields render an accessible invalid-state indicator (aria-invalid=true) so screen readers see the constraint sighted users do. Once all 3 fields hold valid values, Save re-enables and clicking it submits the change successfully.
+**Steps**: 1. Verify "Skip Billing" checkbox is unchecked (the "required" condition). 2. Clear "Oracle Product" textbox. 3. Verify "Oracle Product" field is shown as invalid after being cleared. 4. Verify "Save" button is DISABLED while the form is invalid. 5. Clear "Oracle Department" textbox. 6. Set "Oracle Organization" dropdown to "--Select--". 7. Re-verify "Save" button stays disabled. 8. Restore each field to a valid value. 9. Verify "Save" re-enables after all 3 fields are valid. 10. Click "Save" and confirm the save completes successfully.
+**Expected**: Oracle Product, Oracle Department, and Oracle Organization are REQUIRED when Skip Billing is unchecked. When the form is invalid, the "Save" button is disabled so the user cannot submit without correcting the errors. The empty required fields are shown as invalid so the user can identify which fields need values. Once all 3 fields hold valid values, "Save" re-enables and clicking it submits the change successfully.
 **Data**: `chkSkipBilling=unchecked` | `txtOracleProduct=[required]` | `txtOracleDepartment=[required]` | `drpOracleOrganization=[required]` | `expectedSaveButtonState=disabled when invalid` | `expectedAriaInvalid=true on empty required fields`
 **Automatable**: Yes — assert form-validity-to-save-disabled wiring (matches old-site baseline per `OSB-ACCESS-VERIFY.md` §4).
 
@@ -217,7 +216,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDARIES loop)
 
-**Steps**: 1. Ensure "Apply LDW" checkbox is checked and "LDW Percentage" spinbutton is enabled 2. Clear field and enter 0 — Field accepts value 3. Click Save button — Save completes 4. Reload page and navigate back to Local Information 5. Verify "LDW Percentage" spinbutton has value 0 with no error message
+**Steps**: 1. Ensure "Apply LDW" checkbox is checked and "LDW Percentage" spinbutton is enabled. 2. Clear the field and enter 0. 3. Click "Save" and verify it completes. 4. Reload the page and navigate back to Local Information. 5. Verify "LDW Percentage" spinbutton has value 0 with no error message.
 **Expected**: Value 0 is valid, persists, no validation error
 **Data**: `spinLDWPercentage=0` | `min=0` | `max=100` | `step=0.01`
 **Automatable**: Yes
@@ -232,7 +231,7 @@ Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDAR
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDARIES loop)
 
-**Steps**: 1. Enter 0.01 in "LDW Percentage" spinbutton — Field accepts value 2. Click Save button and reload page 3. Verify "LDW Percentage" spinbutton has value 0.01 with no error message
+**Steps**: 1. Enter 0.01 in "LDW Percentage" spinbutton. 2. Click "Save" and reload the page. 3. Verify "LDW Percentage" spinbutton has value 0.01 with no error message.
 **Expected**: Value 0.01 (min + step) is valid, persists, no validation error
 **Data**: `spinLDWPercentage=0.01`
 **Automatable**: Yes
@@ -247,7 +246,7 @@ Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDAR
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDARIES loop)
 
-**Steps**: 1. Enter 99.99 in "LDW Percentage" spinbutton — Field accepts value 2. Click Save button and reload page 3. Verify "LDW Percentage" spinbutton has value 99.99 with no error message
+**Steps**: 1. Enter 99.99 in "LDW Percentage" spinbutton. 2. Click "Save" and reload the page. 3. Verify "LDW Percentage" spinbutton has value 99.99 with no error message.
 **Expected**: Value 99.99 (max - step) is valid, persists, no validation error
 **Data**: `spinLDWPercentage=99.99`
 **Automatable**: Yes
@@ -262,7 +261,7 @@ Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDAR
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDARIES loop)
 
-**Steps**: 1. Enter 100 in "LDW Percentage" spinbutton — Field accepts value 2. Click Save button and reload page 3. Verify "LDW Percentage" spinbutton has value 100 with no error message
+**Steps**: 1. Enter 100 in "LDW Percentage" spinbutton. 2. Click "Save" and reload the page. 3. Verify "LDW Percentage" spinbutton has value 100 with no error message.
 **Expected**: Value 100 (max) is valid, persists, no validation error
 **Data**: `spinLDWPercentage=100`
 **Automatable**: Yes
@@ -277,7 +276,7 @@ Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDAR
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDARIES loop — silent-invalid cat-B: save disabled, no inline error)
 
-**Steps**: 1. Enter "-0.01" in "LDW Percentage" spinbutton — Field accepts value 2. Click Save button — Save completes 3. Reload page and navigate to Local Information 4. Verify "LDW Percentage" spinbutton has value "-0.01" 5. Verify error message shows "Number must be greater than or equal to 0" 6. Cleanup: Restore "LDW Percentage" spinbutton to valid value (e.g., 0.04) and save to prevent downstream test corruption
+**Steps**: 1. Enter "-0.01" in "LDW Percentage" spinbutton. 2. Click "Save" and verify it completes. 3. Reload the page and navigate to Local Information. 4. Verify "LDW Percentage" spinbutton has value "-0.01". 5. Verify the error message shows "Number must be greater than or equal to 0". 6. Cleanup: Restore "LDW Percentage" spinbutton to a valid value (e.g., 0.04) and save to prevent downstream test corruption.
 **Expected**: Invalid value saves but displays validation error on page load
 **Data**: `spinLDWPercentage=-0.01` | `errorMessage=Number must be greater than or equal to 0`
 **Automatable**: Yes
@@ -292,7 +291,7 @@ Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDAR
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDARIES loop — inline error detected on blur)
 
-**Steps**: 1. Enter "-5" in "LDW Percentage" spinbutton — Field accepts value 2. Click Save button and reload page 3. Verify "LDW Percentage" spinbutton has value "-5" with error message displayed 4. Cleanup: Restore to valid value and save
+**Steps**: 1. Enter "-5" in "LDW Percentage" spinbutton. 2. Click "Save" and reload the page. 3. Verify "LDW Percentage" spinbutton has value "-5" with error message displayed. 4. Cleanup: Restore to a valid value and save.
 **Expected**: Invalid negative value saves, shows error on reload
 **Data**: `spinLDWPercentage=-5`
 **Automatable**: Yes
@@ -324,21 +323,21 @@ Notes: Always restore to valid value.
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDARIES loop — inline error detected on blur)
 
-**Steps**: 1. Enter "150.99" in "LDW Percentage" spinbutton — Field accepts value 2. Click Save button and reload page 3. Verify "LDW Percentage" spinbutton has value "150.99" with error message displayed 4. Cleanup: Restore to valid value (e.g., 0.04) and save
+**Steps**: 1. Enter "150.99" in "LDW Percentage" spinbutton. 2. Click "Save" and reload the page. 3. Verify "LDW Percentage" spinbutton has value "150.99" with error message displayed. 4. Cleanup: Restore to a valid value (e.g., 0.04) and save.
 **Expected**: Invalid value far above max saves, shows error on reload
 **Data**: `spinLDWPercentage=150.99`
 **Automatable**: Yes
 
 ---
 
-## TC-LOC-LI-017: Verify All Spinbuttons Share Same Boundaries (0-100, step 0.01)
+## TC-LOC-LI-017: Verify All Percentage Fields Share the Same Limits (0-100, step 0.01)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Manual | Equivalence Partitioning |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Enable "C&C Percentage" spinbutton and enter "50.50" — Field accepts value 2. Enable "ETS Percentage" spinbutton and enter "75.25" — Field accepts value 3. Enable "Resort Tax Percentage" spinbutton and enter "99.99" — Field accepts value 4. Enter "0.33" in "Labor Billing Goal" spinbutton — Field accepts value 5. Click Save button and reload page 6. Verify all values persisted with no errors
-**Expected**: All 5 percentage spinbuttons (LDW, C&C, ETS, Resort Tax, Labor Goal) have same constraints: min=0, max=100, step=0.01
+**Steps**: 1. Enable "C&C Percentage" spinbutton and enter "50.50". 2. Enable "ETS Percentage" spinbutton and enter "75.25". 3. Enable "Resort Tax Percentage" spinbutton and enter "99.99". 4. Enter "0.33" in "Labor Billing Goal" spinbutton. 5. Click "Save" and reload the page. 6. Verify all values persisted with no errors.
+**Expected**: All 5 percentage fields (LDW, C&C, ETS, Resort Tax, Labor Goal) have the same constraints: minimum 0, maximum 100, changing in increments of 0.01
 **Data**: `min=0` | `max=100` | `step=0.01` | `applicableTo=5 spinbuttons`
 **Automatable**: Yes
 
@@ -350,8 +349,8 @@ Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDAR
 | Medium | Manual | Field Attribute |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Uncheck "Allow DPCD" checkbox and check "Prompt For Approval" checkbox — "Threshold" spinbutton becomes enabled 2. Inspect "Threshold" spinbutton attributes — min=0, max=100, step=0.1 (coarser than other spinbuttons at 0.01) 3. Check "Allow DPCD" checkbox — "Threshold" spinbutton disabled again
-**Expected**: Threshold spinbutton has step=0.1 (coarser than 0.01), conditionally disabled based on AllowDPCD and PromptForApproval states (see TC-LOC-LI-007)
+**Steps**: 1. Uncheck "Allow DPCD" checkbox and check "Prompt For Approval" checkbox so the "Threshold" spinbutton becomes enabled. 2. Inspect "Threshold" spinbutton and verify its step is 0.1, which is coarser than the other fields at 0.01. 3. Check "Allow DPCD" checkbox and verify "Threshold" is disabled again.
+**Expected**: The Threshold field steps in increments of 0.1 (coarser than 0.01) and is conditionally disabled depending on the related approval settings.
 **Data**: `spinThreshold.step=0.1` | `conditionallyDisabled=AllowDPCD OR !PromptForApproval OR !canEditLoc`
 **Automatable**: Yes
 
@@ -365,8 +364,8 @@ Automation File: specs/locations/location-local-information.spec.ts (LDW_BOUNDAR
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (TEXT_FIELD_CONSTRAINTS loop)
 
-**Steps**: 1. Clear "Oracle Product" textbox 2. Paste 100-character string "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789." — Field accepts value 3. Read field value — Only 25 characters stored 4. Verify maxLength attribute — maxLength=25 5. Click Save button and reload page 6. Verify "Oracle Product" textbox has value truncated to first 25 chars
-**Expected**: Oracle Product enforces maxLength=25 client-side, truncates input, persists truncated value
+**Steps**: 1. Clear "Oracle Product" textbox. 2. Paste the 100-character string "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789." and verify the field accepts the input. 3. Read the field value and verify only 25 characters are stored. 4. Verify the field enforces a maximum length of 25 characters. 5. Click "Save" and reload the page. 6. Verify "Oracle Product" textbox holds only the first 25 characters.
+**Expected**: Oracle Product enforces a maximum of 25 characters, truncates input, persists truncated value
 **Data**: `txtOracleProduct.maxLength=25` | `input=100chars` | `stored=25chars`
 **Automatable**: Yes
 
@@ -380,8 +379,8 @@ Automation File: specs/locations/location-local-information.spec.ts (TEXT_FIELD_
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (TEXT_FIELD_CONSTRAINTS loop)
 
-**Steps**: 1. Clear "Oracle Department" textbox 2. Paste 100-character string — Field accepts value 3. Read field value — Only 25 characters stored 4. Verify maxLength attribute — maxLength=25 5. Click Save button and reload page 6. Verify value persisted at 25 chars
-**Expected**: Oracle Department enforces maxLength=25 client-side, truncates input
+**Steps**: 1. Clear "Oracle Department" textbox. 2. Paste a 100-character string and verify the field accepts the input. 3. Read the field value and verify only 25 characters are stored. 4. Verify the field enforces a maximum length of 25 characters. 5. Click "Save" and reload the page. 6. Verify the value persisted at 25 characters.
+**Expected**: Oracle Department enforces a maximum of 25 characters, truncates input
 **Data**: `txtOracleDepartment.maxLength=25`
 **Automatable**: Yes
 
@@ -395,7 +394,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TEXT_FIELD_
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-021/029)
 
-**Steps**: 1. Enter "PROD001" (7 chars) in "Oracle Product" textbox — Field accepts value 2. Click Save button and reload page 3. Verify value persisted as "PROD001" with no error 4. Enter "ABC" (3 chars) — Field accepts and persists value 5. Enter "X" (1 char) — Field accepts and persists value
+**Steps**: 1. Enter "PROD001" (7 characters) in "Oracle Product" textbox. 2. Click "Save" and reload the page. 3. Verify the value persisted as "PROD001" with no error. 4. Enter "ABC" (3 characters) and verify it accepts and persists. 5. Enter "X" (1 character) and verify it accepts and persists.
 **Expected**: Valid input range 1-25 characters accepts alphanumeric values
 **Data**: `txtOracleProduct=1-25 chars alphanumeric`
 **Automatable**: Yes
@@ -408,7 +407,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | Medium | Manual | Dropdown Options |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Click "Oracle Organization" dropdown — Dropdown opens 2. Count options — 8 total 3. Verify option list includes "--Select--", "Encore US BU", "Encore CA BU", "Encore BH BU", "Encore Bahamas", "Encore MX BU", "PSR Mexico", "Encore Mexico" 4. Verify current selection is "Encore US BU" with checkmark icon visible
+**Steps**: 1. Click "Oracle Organization" dropdown and verify it opens. 2. Count the options and verify there are 8 total. 3. Verify the option list includes "--Select--", "Encore US BU", "Encore CA BU", "Encore BH BU", "Encore Bahamas", "Encore MX BU", "PSR Mexico", and "Encore Mexico". 4. Verify the current selection is "Encore US BU" with a checkmark icon visible next to it.
 **Expected**: 8 organization options available, default is "Encore US BU"
 **Data**: `drpOracleOrganization.options=8` | `default=Encore US BU`
 **Automatable**: Yes
@@ -421,21 +420,21 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | Medium | Manual | Dropdown Selection |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Select "Encore CA BU" from "Oracle Organization" dropdown — Selection changes 2. Click Save button and reload page 3. Verify "Oracle Organization" dropdown shows "Encore CA BU" selected 4. Select "Encore Bahamas" — Selection changes 5. Click Save button and reload page 6. Verify "Encore Bahamas" persisted
+**Steps**: 1. Select "Encore CA BU" from "Oracle Organization" dropdown and verify the selection changes. 2. Click "Save" and reload the page. 3. Verify "Oracle Organization" dropdown shows "Encore CA BU" selected. 4. Select "Encore Bahamas" and verify the selection changes. 5. Click "Save" and reload the page. 6. Verify "Encore Bahamas" persisted.
 **Expected**: Dropdown selection changes persist after save/reload
 **Data**: `drpOracleOrganization=from Encore US BU to Encore CA BU to Encore Bahamas`
 **Automatable**: Yes
 
 ---
 
-## TC-LOC-LI-024: Verify Billing Way Change API Validation - Error Path
+## TC-LOC-LI-024: Verify Billing Way Change When Unbilled Orders Exist - Error Path
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Manual | API Validation |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Verify "Billing Way" radio button shows "Event" selected 2. Click "Daily" option 3. Wait for API validation 4. Verify error dialog: "There are orders that have not been billed in the current billing period. Those must be invoiced before the change can be made." 5. Click "Ok" 6. Verify "Billing Way" reverted to "Event"
-**Expected**: Changing Billing Way triggers API validation. If unbilled orders exist, selection reverts.
+**Steps**: 1. Verify "Billing Way" radio button shows "Event" selected 2. Click "Daily" option 3. Wait for the system to check for unbilled orders 4. Verify error dialog: "There are orders that have not been billed in the current billing period. Those must be invoiced before the change can be made." 5. Click "Ok" 6. Verify "Billing Way" reverted to "Event"
+**Expected**: Changing Billing Way makes the system check for unbilled orders. If unbilled orders exist, the selection reverts.
 **Data**: `BillingWay=Event`
 
 Notes: API: /api/location/check-unbilled. Error key: a billing constraint
@@ -443,7 +442,7 @@ Notes: API: /api/location/check-unbilled. Error key: a billing constraint
 
 ---
 
-## TC-LOC-LI-024A: Verify Billing Way Change API Validation - Success Path
+## TC-LOC-LI-024A: Verify Billing Way Change When No Unbilled Orders - Success Path
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Manual | API Validation |
@@ -451,7 +450,7 @@ Notes: API: /api/location/check-unbilled. Error key: a billing constraint
 Preconditions (Human):
 No unbilled orders exist for office (billing complete).
 
-**Steps**: 1. Verify "Billing Way" shows "Event" selected 2. Verify "Effective Date" button is disabled 3. Click "Daily" option 4. Wait for API validation success 5. Verify "Effective Date" button is now enabled 6. Verify "Effective Date" shows current date 7. Verify "Billing Way" shows "Daily"
+**Steps**: 1. Verify "Billing Way" shows "Event" selected 2. Verify "Effective Date" button is disabled 3. Click "Daily" option 4. Wait for the system's unbilled-orders check to complete 5. Verify "Effective Date" button is now enabled 6. Verify "Effective Date" shows current date 7. Verify "Billing Way" shows "Daily"
 **Expected**: Successful Billing Way change enables Effective Date button.
 **Data**: `BillingWay=from Event to Daily`
 **Automatable**: Yes
@@ -481,7 +480,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts
 
-**Steps**: 1. Verify "Suppress Day/Rate Discount" checkbox is disabled (always) 2. Verify "Compass Integration" checkbox is checked and disabled (when isNew=false, see TC-LOC-LI-057) 3. Verify "Display Tax" checkbox is checked and disabled (when Company Remit Tax OR Company Remit Tax 2 is true, see TC-LOC-LI-053/054) 4. Make changes to other fields and click Save button 5. Verify all 3 checkboxes are still disabled with states unchanged
+**Steps**: 1. Verify "Suppress Day/Rate Discount" checkbox is disabled (always) 2. Verify "Compass Integration" checkbox is checked and disabled. 3. Verify "Display Tax" checkbox is checked and disabled when Company Remit Tax or Company Remit Tax 2 is on. 4. Make changes to other fields and click Save button 5. Verify all 3 checkboxes are still disabled with states unchanged
 **Expected**: Suppress Day/Rate Discount always disabled. Compass Integration and Display Tax conditionally disabled based on context.
 **Data**: `chkSuppressDayRateDiscount=always disabled` | `chkCompassIntegration=disabled when !isNew` | `chkDisplayTax=disabled when HRIRemitTax OR HRIRemitTax2`
 **Automatable**: Yes
@@ -495,7 +494,7 @@ Automation File: specs/locations/location-local-information.spec.ts
 
 **Depends_On**: TC-LOC-LI-001
 **Steps**: 1. Verify "Effective Date" button is disabled and shows "May 11th, 2007" 2. Verify "Billing Cycle" dropdown is disabled and shows "Weekly" 3. Make other field changes and click Save button 4. Verify both fields are still disabled with values unchanged
-**Expected**: Effective Date button disabled by default (enabled after Billing Way API success, see TC-LOC-LI-024A). Billing Cycle disabled initially (can become disabled via API when localBillingRan is true, see TC-LOC-LI-048).
+**Expected**: The Effective Date button is disabled by default and becomes enabled once the billing details load. The Billing Cycle is disabled initially.
 **Data**: `btnEffectiveDate=disabled by default` | `drpBillingCycle=disabled initially` | `note=both are conditionally disabled, not permanently`
 Notes: Effective Date (BillingWay Effective Date) is a DIFFERENT field from Live Date in the left panel. Live Date = May 8th, 2007; Effective Date = May 11th, 2007. Both are correct for office 1604.
 **Automatable**: Yes
@@ -508,7 +507,7 @@ Notes: Effective Date (BillingWay Effective Date) is a DIFFERENT field from Live
 | Medium | Manual | Field State |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Verify "Service Charge" checkbox is checked 2. Uncheck "Service Charge" checkbox — Checkbox unchecks, Save button enabled 3. Click Save button and reload page 4. Verify "Service Charge" checkbox is unchecked (persisted) 5. Re-check checkbox, Save, and reload 6. Verify checkbox is checked again
+**Steps**: 1. Verify "Service Charge" checkbox is checked. 2. Uncheck "Service Charge" checkbox and verify the "Save" button becomes enabled. 3. Click "Save" and reload the page. 4. Verify "Service Charge" checkbox is unchecked. 5. Re-check the checkbox, save, and reload. 6. Verify the checkbox is checked again.
 **Expected**: Service Charge checkbox is checked by default, can toggle, persists state
 **Data**: `chkServiceCharge=checked default`
 **Automatable**: Yes
@@ -523,7 +522,7 @@ Notes: Effective Date (BillingWay Effective Date) is a DIFFERENT field from Live
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-021/029)
 
-**Steps**: 1. Toggle "Calculate LDW on Net Amount" checkbox — No other field changes 2. Toggle "Show Service Charge As Administrative Fee" checkbox — No other field changes 3. Toggle "Calculate Service Charge On Net Amount" checkbox — No other field changes 4. Toggle "Warehouse Billing" checkbox — No other field changes 5. Click Save button and reload page 6. Verify all 4 checkboxes have new states persisted
+**Steps**: 1. Toggle "Calculate LDW on Net Amount" checkbox and verify no other field changes. 2. Toggle "Show Service Charge As Administrative Fee" checkbox and verify no other field changes. 3. Toggle "Calculate Service Charge On Net Amount" checkbox and verify no other field changes. 4. Toggle "Warehouse Billing" checkbox and verify no other field changes. 5. Click "Save" and reload the page. 6. Verify all 4 checkboxes have their new states persisted.
 **Expected**: Standalone checkboxes (no dependencies) toggle independently, persist state
 **Data**: `independentCheckboxes=30+ fields`
 **Automatable**: Yes
@@ -536,8 +535,8 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | High | Manual | Decision Table |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Enable all dependency checkboxes: "Apply C&C Fee", "Allow ETS", "Allow Resort Tax" — 3 spinbuttons enabled 2. Set "C&C Percentage" spinbutton to 10, "ETS Percentage" spinbutton to 5, "Resort Tax Percentage" spinbutton to 3 3. Click Save button and reload page 4. Verify all 3 checkboxes are checked 5. Verify all 3 spinbuttons are enabled with values persisted 6. Uncheck all 3 checkboxes — All 3 spinbuttons disabled with values reset to 0 7. Click Save button and reload page 8. Verify spinbuttons are disabled with values at 0
-**Expected**: Multiple checkbox--spinbutton dependencies work simultaneously without interference
+**Steps**: 1. Enable all dependency checkboxes: "Apply C&C Fee", "Allow ETS", and "Allow Resort Tax", and verify all three fields become enabled. 2. Enter 10, 5, and 3 into "C&C Percentage", "ETS Percentage", and "Resort Tax Percentage" respectively. 3. Click "Save" and reload the page. 4. Verify all 3 checkboxes are checked. 5. Verify all 3 fields are enabled with their values persisted. 6. Uncheck all 3 checkboxes and verify all 3 fields become disabled with values reset to 0. 7. Click "Save" and reload the page. 8. Verify fields are disabled with values at 0.
+**Expected**: Multiple checkbox-to-field dependencies work simultaneously without interference
 **Data**: `multiDependency=3 checkboxes + 3 spinbuttons`
 **Automatable**: Yes
 
@@ -549,7 +548,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | Medium | Manual | Decision Table |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Test combination: "Apply LDW" checkbox is checked, "Apply C&C Fee" checkbox is unchecked — "LDW Percentage" spinbutton is enabled, "C&C Percentage" spinbutton is disabled 2. Test combination: "Apply LDW" checkbox is unchecked, "Apply C&C Fee" checkbox is checked — "LDW Percentage" spinbutton is disabled (reset), "C&C Percentage" spinbutton is enabled 3. Test combination: Both checked — Both enabled 4. Test combination: Both unchecked — Both disabled 5. Save and reload after each test — States persist correctly
+**Steps**: 1. Check "Apply LDW" and uncheck "Apply C&C Fee", then verify "LDW Percentage" is enabled and "C&C Percentage" is disabled. 2. Uncheck "Apply LDW" and check "Apply C&C Fee", then verify "LDW Percentage" is disabled (reset) and "C&C Percentage" is enabled. 3. Check both and verify both fields are enabled. 4. Uncheck both and verify both fields are disabled. 5. Save and reload after each combination and verify states persist correctly.
 **Expected**: All 4 combinations (2^2) of 2 dependent checkboxes produce correct spinbutton states
 **Data**: `combinations=4` | `chk1×chk2=spin1×spin2`
 **Automatable**: Yes
@@ -564,7 +563,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-032)
 
-**Steps**: 1. Load page and verify Save button is disabled 2. Toggle any checkbox — Save button enables 3. Revert checkbox — Save button may stay enabled 4. Change spinbutton value — Save button enabled 5. Click Save button — Save executes successfully; Save button returns to disabled (no pending changes remain)
+**Steps**: 1. Load the page and verify "Save" is disabled. 2. Toggle any checkbox and verify "Save" becomes enabled. 3. Revert the checkbox and note that "Save" may stay enabled. 4. Change a spinbutton value and verify "Save" is enabled. 5. Click "Save" and verify it executes successfully and then returns to disabled with no pending changes remaining.
 **Expected**: Save button enables when any field changes; returns to disabled after a successful save when no unsaved changes remain
 **Data**: `btnSave=disabled--modified--enabled--save--disabled`
 **Automatable**: Yes
@@ -577,7 +576,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | High | Manual | Data Isolation |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Capture all 52 field values as baseline 2. Modify 4 fields: uncheck "Apply LDW", change "Set Strike Labor Billing Goal" from 0.33 to 0.50, change "Oracle Product" from 0000 to TEST, change "Oracle Organization" from Encore US BU to Encore CA BU 3. Leave 48 fields untouched 4. Click Save, reload 5. Verify 4 modified fields match new values 6. Verify 48 untouched fields match baseline
+**Steps**: 1. Capture all 52 field values as baseline 2. Modify 4 fields: uncheck "Apply LDW", change "Set Strike Labor Billing Goal" from 0.33 to 0.50, change "Oracle Product" from 0000 to TEST, change "Oracle Organization" from Encore US BU to Encore CA BU 3. Leave the rest of the fields untouched 4. Click Save, reload 5. Verify 4 modified fields match new values 6. Verify all untouched fields match baseline
 **Expected**: Modifying subset of fields does NOT affect untouched fields.
 **Data**: `modified=4` | `untouched=48` | `total=52`
 **Automatable**: Yes
@@ -590,7 +589,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | Low | Manual | Button Control |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Set "LDW Percentage" spinbutton to 5.50 2. Click Increment button — Value is 5.51 (step +0.01) 3. Click Increment button 10 times — Value is 5.61 4. Click Decrement button — Value is 5.60 5. Verify buttons respect min/max limits — At 100, Increment disabled; at 0, Decrement disabled
+**Steps**: 1. Set "LDW Percentage" spinbutton to 5.50. 2. Click the Increment button and verify the value is 5.51. 3. Click the Increment button 10 more times and verify the value is 5.61. 4. Click the Decrement button and verify the value is 5.60. 5. Verify the buttons respect min/max limits: Increment is disabled at 100, and Decrement is disabled at 0.
 **Expected**: Increment/Decrement buttons change value by step amount (0.01), respect boundaries
 **Data**: `step=0.01` | `Increment=+0.01` | `Decrement=-0.01`
 **Automatable**: Yes
@@ -603,9 +602,9 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | Critical | Manual | Validation Timing |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Enter invalid value -10 in "LDW Percentage" spinbutton — Field shows invalid-state indicator (aria-invalid=true, error message "Number must be greater than or equal to 0") 2. Verify "Save" button is DISABLED while the form is invalid (user physically cannot fire a silent save) 3. Restore "LDW Percentage" to a valid value (e.g., 0 or 0.5) — Field clears the invalid-state indicator 4. Verify "Save" button transitions to enabled (form is now valid AND dirty) 5. Click Save — Save completes; reload to confirm the valid value persisted
-**Expected**: Save button stays disabled when LDW Percentage = -10 (out of range; min=0). User must restore a valid value before Save enables. Form-validity behavior (Save disabled while a field holds an invalid value) is confirmed working on the live site; the previously reported issue is resolved.
-**Data**: `spinLDWPercentage=-10 invalid` | `expectedSaveButtonState=disabled while invalid` | `expectedAriaInvalid=true on -10` | `validValue=0 or 0.5`
+**Steps**: 1. Enter -10 in "LDW Percentage" and verify the field is shown as invalid with the error "Number must be greater than or equal to 0". 2. Verify "Save" is DISABLED while the entry is invalid. 3. Restore "LDW Percentage" to a valid value (e.g., 0 or 0.5) and verify the invalid indicator clears. 4. Verify "Save" becomes enabled because the entry is now valid and there are unsaved changes. 5. Click "Save" and verify it completes. Reload to confirm the valid value persisted.
+**Expected**: "Save" is disabled when "LDW Percentage" is -10 (below the minimum of 0). The user must restore a valid value before "Save" enables.
+**Data**: `spinLDWPercentage=-10 invalid` | `expectedSaveButtonState=disabled while invalid` | `validValue=0 or 0.5`
 **Automatable**: Yes
 
 ---
@@ -616,8 +615,8 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | High | Manual | Multiple Validations |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Set "LDW Percentage" spinbutton to -5, "C&C Percentage" spinbutton to 150, "ETS Percentage" spinbutton to -1 — 3 invalid values 2. Click Save button and reload page 3. Verify "LDW Percentage" spinbutton shows error: "Number must be greater than or equal to 0" 4. Verify "C&C Percentage" spinbutton shows error: "Number must be less than or equal to 100" 5. Verify "ETS Percentage" spinbutton shows error: "Number must be greater than or equal to 0"
-**Expected**: Multiple invalid fields show separate error messages simultaneously. Verbatim error texts (per live interface): LDW Percentage = "Number must be greater than or equal to 0"; C&C Percentage = "Number must be less than or equal to 100"; ETS Percentage = "Number must be greater than or equal to 0". Each error renders inline with its associated spinbutton (aria-invalid=true on each input); errors do not collapse to a single summary.
+**Steps**: 1. Set "LDW Percentage" to -5, "C&C Percentage" to 150, and "ETS Percentage" to -1 to create three invalid values. 2. Click "Save" and reload the page. 3. Verify "LDW Percentage" shows the error "Number must be greater than or equal to 0". 4. Verify "C&C Percentage" shows the error "Number must be less than or equal to 100". 5. Verify "ETS Percentage" shows the error "Number must be greater than or equal to 0".
+**Expected**: Multiple invalid fields show separate error messages simultaneously. Verbatim error texts (per live interface): LDW Percentage = "Number must be greater than or equal to 0"; C&C Percentage = "Number must be less than or equal to 100"; ETS Percentage = "Number must be greater than or equal to 0". Each error renders inline next to its associated spinbutton, which is shown as invalid; errors do not collapse to a single summary.
 **Data**: `invalidFields=3` | `errorMessages=3 distinct`
 **Automatable**: Yes
 
@@ -629,7 +628,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | Medium | Manual | Error Recovery |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Set "LDW Percentage" spinbutton to 150 — Invalid value 2. Save and reload page 3. Verify error displayed shows "Number must be less than or equal to 100" 4. Change "LDW Percentage" spinbutton to 50 — Valid value 5. Click Save button and reload page 6. Verify error removed — No error message, value is 50
+**Steps**: 1. Set "LDW Percentage" spinbutton to 150 to create an invalid value. 2. Save and reload the page. 3. Verify the error displayed shows "Number must be less than or equal to 100". 4. Change "LDW Percentage" spinbutton to 50 to create a valid value. 5. Click "Save" and reload the page. 6. Verify no error message is shown and the value is 50.
 **Expected**: Correcting invalid value to valid range removes error message on next reload
 **Data**: `invalidValue=from 150 to validValue=50 to errorRemoved`
 **Automatable**: Yes
@@ -720,9 +719,9 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | High | Manual | Comprehensive Test |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Randomly modify 25+ of 51 fields (mix of checkboxes, spinbuttons, textboxes, dropdowns, radios) 2. Store all modifications 3. Click Save, reload 4. Verify ALL 51 fields -- 25+ modified match new values, 25+ unmodified match baseline
+**Steps**: 1. Randomly modify at least half of the form's fields (a mix of checkboxes, fields, and text boxes). 2. Store all modifications. 3. Click "Save" and reload. 4. Verify every field: the modified ones match the new values and the unmodified ones are unchanged.
 **Expected**: Large-scale random modifications persist correctly, no field corruption or side effects
-**Data**: `randomlyModified=25+` | `total=51`
+**Data**: `randomlyModified=25+`
 **Automatable**: Yes
 
 ---
@@ -735,7 +734,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts
 
-**Steps**: 1. Change 1 checkbox -- Save enables 2. Change 1 spinbutton -- Save enables 3. Change 1 textbox -- Save enables 4. Change 1 dropdown -- Save enables 5. Change 1 radio -- Save enables 6. Verify each triggers dirty state -- Save button activated
+**Steps**: 1. Change 1 checkbox and verify "Save" becomes enabled. 2. Change 1 spinbutton and verify "Save" is still enabled. 3. Change 1 textbox and verify "Save" is still enabled. 4. Change 1 dropdown and verify "Save" is still enabled. 5. Change 1 radio button and verify "Save" is still enabled. 6. Verify each field type triggers dirty state with the "Save" button activated.
 **Expected**: All 5 field types (checkbox, spinbutton, textbox, dropdown, radio) trigger change detection
 **Data**: `fieldTypes=5` | `allTriggerChange=true`
 **Automatable**: Yes
@@ -749,7 +748,7 @@ Automation File: specs/locations/location-local-information.spec.ts
 
 **Depends_On**: TC-LOC-LI-001
 Preconditions (Human):
-Billing Way change succeeded (see TC-LOC-LI-024A). "Effective Date" button is enabled.
+Billing Way change succeeded. "Effective Date" button is enabled.
 
 **Steps**: 1. Verify "Effective Date" shows current date 2. Click date picker 3. Select yesterday's date 4. Click Save 5. Verify error: "Date cannot be in the past" 6. Select today or future date 7. Click Save and verify success
 **Expected**: Effective Date must be today or later. Past dates show error.
@@ -784,7 +783,7 @@ Notes: Error key: a required-field validation. Tooltip text from a tooltip messa
 Preconditions (Human):
 Office has already processed billing for current period. System automatically checks this on page load.
 
-**Steps**: 1. Navigate to Local Information for office that has run billing 2. Verify "Billing Cycle" dropdown is disabled 3. Verify alert/tooltip surfaces the verbatim message: `Corporate billing for the local batch must be completed before the billing cycle can be changed.` (sourced from the `billingCycleMsg` key in the bundled `useLocationMetadata` localization map; rendered when `localBillingRan === true`) 4. Make other changes, Save 5. Verify "Billing Cycle" remains disabled
+**Steps**: 1. Navigate to Local Information for office that has run billing 2. Verify "Billing Cycle" dropdown is disabled 3. Verify the alert/tooltip displays the verbatim message: `Corporate billing for the local batch must be completed before the billing cycle can be changed.` 4. Make other changes, Save 5. Verify "Billing Cycle" remains disabled
 **Expected**: Billing Cycle disabled if billing has already run. The user-visible alert/tooltip text is the verbatim string: `Corporate billing for the local batch must be completed before the billing cycle can be changed.`
 **Data**: `BillingCycle=disabled` | `expectedAlertText="Corporate billing for the local batch must be completed before the billing cycle can be changed."` | `localBillingRan is true`
 
@@ -795,7 +794,7 @@ Notes: API: BillingCycle change handler. localBillingRan is true when data > 0. 
 
 > **[TC-LOC-LI-049 and TC-LOC-LI-050 removed]** These IDs were reserved and subsequently removed before completion. They are excluded from the total TC count.
 
-## TC-LOC-LI-051: Verify AllowDPCD Disabled When IsCommReceiver False
+## TC-LOC-LI-051: Verify Allow DPCD Disabled When Comm Receiver Is Unchecked
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Field Dependency |
@@ -804,13 +803,13 @@ Notes: API: BillingCycle change handler. localBillingRan is true when data > 0. 
 Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPENDENCIES loop)
 
 **Steps**: 1. Verify "Comm Receiver" checkbox is checked (default) 2. Verify "Allow DPCD" checkbox is enabled and checked 3. Uncheck "Comm Receiver" checkbox 4. Verify "Allow DPCD" checkbox is DISABLED 5. Verify "Allow DPCD" checkbox value is reset to false (unchecked) 6. Re-check "Comm Receiver" checkbox 7. Verify "Allow DPCD" checkbox is enabled again (but remains unchecked, not auto-restored)
-**Expected**: AllowDPCD disabled when IsCommReceiver=false, resets to false
+**Expected**: Allow DPCD is disabled when Comm Receiver is unchecked, and its value resets to unchecked
 **Data**: `IsCommReceiver=false means AllowDPCD=disabled,false` | `resetTrigger=IsCommReceiver=false`
 **Automatable**: Yes
 
 ---
 
-## TC-LOC-LI-052: Verify ShowSubRental Disabled When IsCommReceiver False
+## TC-LOC-LI-052: Verify Show SubRental Disabled When Comm Receiver Unchecked
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Field Dependency |
@@ -819,13 +818,13 @@ Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPE
 Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPENDENCIES loop)
 
 **Steps**: 1. Verify "Comm Receiver" checkbox is checked 2. Verify "Show SubRental" checkbox is enabled 3. Check "Show SubRental" checkbox 4. Uncheck "Comm Receiver" checkbox 5. Verify "Show SubRental" checkbox is DISABLED 6. Verify "Show SubRental" checkbox value resets to false (same behavior as Allow DPCD) 7. Re-check "Comm Receiver" checkbox 8. Verify "Show SubRental" checkbox is enabled but remains unchecked (not restored)
-**Expected**: ShowSubRental disabled when IsCommReceiver=false. Value resets to false (same as AllowDPCD).
+**Expected**: Show SubRental is disabled when Comm Receiver is unchecked. Its value resets to unchecked (the same behavior as Allow DPCD).
 **Data**: `IsCommReceiver=false means ShowSubRental=disabled,false` | `resetBehavior=resets to false`
 **Automatable**: Yes
 
 ---
 
-## TC-LOC-LI-053: Verify DisplayTax Auto-Set When HRIRemitTax Enabled
+## TC-LOC-LI-053: Verify Display Tax Auto-Set When Company Remit Tax Enabled
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Auto-Set Behavior |
@@ -834,13 +833,13 @@ Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPE
 Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPENDENCIES loop)
 
 **Steps**: 1. Verify "Display Tax" checkbox is checked and disabled 2. Verify "Company Remit Tax" checkbox is checked (default) 3. Uncheck "Company Remit Tax" checkbox 4. Verify "Display Tax" checkbox becomes enabled if Company Remit Tax 2 is also false, or remains disabled if Company Remit Tax 2 is true 5. Re-check "Company Remit Tax" checkbox 6. Verify "Display Tax" checkbox is auto-set to true (checked) and DISABLED
-**Expected**: DisplayTax automatically set to true and disabled when HRIRemitTax=true
+**Expected**: Display Tax is automatically checked and disabled when Company Remit Tax is enabled
 **Data**: `HRIRemitTax=true means DisplayTax=true,disabled` | `autoSet=true`
 **Automatable**: Yes
 
 ---
 
-## TC-LOC-LI-054: Verify DisplayTax Auto-Set When HRIRemitTax2 Enabled
+## TC-LOC-LI-054: Verify Display Tax Auto-Set When Second Company Remit Tax Enabled
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Manual | Auto-Set Behavior |
@@ -855,7 +854,7 @@ Notes: Second remit tax (HRIRemitTax2) visibility varies by country. Skip steps 
 
 ---
 
-## TC-LOC-LI-055: Verify EnableIDCBilling Disabled When InternalCompany False
+## TC-LOC-LI-055: Verify Enable IDC Billing Disabled When Intercompany Unchecked
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Field Dependency |
@@ -864,7 +863,7 @@ Notes: Second remit tax (HRIRemitTax2) visibility varies by country. Skip steps 
 Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPENDENCIES loop)
 
 **Steps**: 1. Verify "Intercompany" checkbox is checked (default) 2. Verify "Enable IDC Billing" checkbox is enabled 3. Uncheck "Intercompany" checkbox 4. Verify "Enable IDC Billing" checkbox is DISABLED 5. Verify "Enable IDC Billing" checkbox value is reset to false (unchecked) 6. Re-check "Intercompany" checkbox 7. Verify "Enable IDC Billing" checkbox is enabled (unchecked, not restored)
-**Expected**: EnableIDCBilling disabled when InternalCompany=false, resets to false
+**Expected**: Enable IDC Billing is disabled when Intercompany is unchecked, and its value resets to unchecked
 **Data**: `InternalCompany=false means EnableIDCBilling=disabled,false` | `resetTrigger=InternalCompany=false`
 **Automatable**: Yes
 
@@ -878,8 +877,8 @@ Automation File: specs/locations/location-local-information.spec.ts (ACTIVE_DEPE
 | Medium | Manual | Field State |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Open existing location (office 1604, isNew=false) and verify "Compass Integration" checkbox is DISABLED 2. Navigate to create new location (isNew=true) and verify "Compass Integration" checkbox is ENABLED 3. Check "Compass Integration" checkbox and Save new location 4. Re-open created location (now isNew=false) and verify "Compass Integration" checkbox is DISABLED (cannot uncheck after creation)
-**Expected**: IsIntegratedWithCOMPASS disabled when !isNew (updating existing location), enabled only during creation
+**Steps**: 1. Open an existing location (office 1604) and verify "Compass Integration" checkbox is DISABLED 2. Navigate to create a new location and verify "Compass Integration" checkbox is ENABLED 3. Check "Compass Integration" checkbox and Save the new location 4. Re-open the created location (now an existing location) and verify "Compass Integration" checkbox is DISABLED (cannot uncheck after creation)
+**Expected**: Compass Integration is disabled when updating an existing location, and enabled only during creation
 **Data**: `isNew=false means Compass=disabled` | `isNew=true means Compass=enabled`
 **Automatable**: Yes
 
@@ -909,21 +908,21 @@ Notes: Internal: for USA.
 Preconditions (Human):
 Navigator is open. User has access to international offices (Canada, Mexico, or other non-USA locations).
 
-**Steps**: 1. Navigate to Canadian/Mexican/international office (country selection) 2. Verify Company Remit Tax field is visible 3. Verify discount checking is disabled 4. Verify field behaviors differ from USA offices — International rule set applied
+**Steps**: 1. Navigate to a Canadian, Mexican, or other international office. 2. Verify the "Company Remit Tax" field is visible. 3. Verify discount checking is disabled. 4. Verify field behaviors differ from USA offices because the international rule set is applied.
 **Expected**: Non-USA offices (country selection) have different rules via updateControlStatus(countryId)
 **Data**: `country selection` | `` | ``
 **Automatable**: Yes
 
 ---
 
-## TC-LOC-LI-060: Verify canEditLoc=false Read-Only State
+## TC-LOC-LI-060: Verify Read-Only State For Users Without Edit Permission
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Manual | Permission State |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Login as read-only user with Location Viewer role (canEditLoc=false) - requires manual provisioning of test account with readonly permissions 2. Navigate to office 1604 Local Information 3. Verify "LDW Percentage" spinbutton is DISABLED (canEditLoc=false) 4. Verify "C&C Percentage" spinbutton is DISABLED 5. Verify "ETS Percentage" spinbutton is DISABLED 6. Verify "Resort Tax Percentage" spinbutton is DISABLED 7. Verify "Threshold" spinbutton is DISABLED 8. Verify "Allow DPCD" checkbox is DISABLED 9. Verify "Show SubRental" checkbox is DISABLED 10. Verify "Display Tax" checkbox is DISABLED 11. Verify Save button is DISABLED or hidden
-**Expected**: Users without canEditLoc permission see all conditional fields as disabled (read-only)
+**Steps**: 1. Login as a read-only user with the Location Viewer role - this requires manually provisioning a test account with read-only permissions 2. Navigate to office 1604 Local Information 3. Verify "LDW Percentage" spinbutton is DISABLED 4. Verify "C&C Percentage" spinbutton is DISABLED 5. Verify "ETS Percentage" spinbutton is DISABLED 6. Verify "Resort Tax Percentage" spinbutton is DISABLED 7. Verify "Threshold" spinbutton is DISABLED 8. Verify "Allow DPCD" checkbox is DISABLED 9. Verify "Show SubRental" checkbox is DISABLED 10. Verify "Display Tax" checkbox is DISABLED 11. Verify Save button is DISABLED or hidden
+**Expected**: Users without edit permission see all conditional fields as disabled (read-only)
 **Data**: `canEditLoc=false means allConditionalFields=disabled` | `permissionState=read-only` | `testAccount=requires manual provisioning of Location Viewer role account` | `role=Location Viewer`
 **Automatable**: Yes
 
@@ -948,9 +947,9 @@ Navigator is open. User has access to international offices (Canada, Mexico, or 
 | High | Manual | Read-Only Verification |
 
 **Depends_On**: TC-LOC-LI-001
-**Preconditions**: User is on `locations/1604/settings`. Left panel is visible alongside the right-panel tabs.
+**Preconditions**: User is on the location Settings page. Left panel is visible alongside the right-panel tabs.
 
-**Steps**: 1. Verify "Office" input field is rendered as disabled (cannot type, click, or change value) — Non-interactive 2. Verify "Local Office" input field is rendered as disabled — Non-interactive 3. Verify "Pay To Address" input field is rendered as disabled — Non-interactive 4. Verify "eCommerce Active" checkbox is rendered as disabled (grayed out, cannot be checked/unchecked) — Non-interactive 5. Verify "Enable Productions Orders" checkbox is rendered as disabled — Non-interactive 6. Attempt to interact with any disabled field — No state change occurs
+**Steps**: 1. Verify the "Office" input field is rendered as disabled and cannot be typed into or changed. 2. Verify the "Local Office" input field is rendered as disabled. 3. Verify the "Pay To Address" input field is rendered as disabled. 4. Verify the "eCommerce Active" checkbox is rendered as disabled (grayed out and cannot be checked or unchecked). 5. Verify the "Enable Productions Orders" checkbox is rendered as disabled. 6. Attempt to interact with any disabled field and verify no state change occurs.
 **Expected**: All 5 confirmed-disabled left-panel fields (Office, Local Office, Pay To Address, eCommerce Active, Enable Productions Orders) are rendered as non-interactive. No value changes are possible.
 **Data**: `office=1604` | `disabledFields=5` | `Office, Local Office, Pay To Address, eCommerce Active, Enable Productions Orders`
 
@@ -965,9 +964,9 @@ Notes: DO NOT attempt to edit, clear, or change any left-panel field value — r
 | Medium | Manual | Read-Only Verification |
 
 **Depends_On**: TC-LOC-LI-001
-**Preconditions**: User is on `locations/1604/settings`. Left panel is visible.
+**Preconditions**: User is on the location Settings page. Left panel is visible.
 
-**Steps**: 1. Read "Office" input field value — Displays "1604" 2. Read "Local Office" input field value — Displays "1604" 3. Read "Pay To Address" input field value — Displays "Encore" 4. Read "eCommerce Active" checkbox state — Is checked and disabled (non-interactive) 5. Read "Enable Productions Orders" checkbox state — Is checked and disabled (non-interactive) 6. Perform any right-panel tab edit (e.g., toggle any Local Information checkbox) and Save 7. Re-verify all 5 left-panel fields — Office="1604", Local Office="1604", Pay To Address="Encore", eCommerce Active=checked+disabled, Enable Productions Orders=checked+disabled
+**Steps**: 1. Read the "Office" field value and verify it displays "1604". 2. Read the "Local Office" field value and verify it displays "1604". 3. Read the "Pay To Address" field value and verify it displays "Encore". 4. Read the "eCommerce Active" checkbox state and verify it is checked and disabled. 5. Read the "Enable Productions Orders" checkbox state and verify it is checked and disabled. 6. Perform any right-panel tab edit (for example, toggle any Local Information checkbox) and save. 7. Re-verify all 5 left-panel fields and confirm their values are unchanged.
 **Expected**: Office="1604", Local Office="1604", Pay To Address="Encore", eCommerce Active=checked+disabled, Enable Productions Orders=checked+disabled. All values unchanged after right-panel save.
 **Data**: `office=1604` | `localOffice=1604` | `payToAddress=Encore` | `eCommerceActive=checked+disabled` | `enableProductionsOrders=checked+disabled`
 
@@ -984,7 +983,7 @@ Notes: DO NOT attempt to edit any left-panel value — all 5 fields are disabled
 **Depends_On**: TC-LOC-LI-001
 Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-064/065)
 
-**Steps**: 1. Verify "Ticker Calc" checkbox is checked by default — Checked 2. Uncheck "Ticker Calc" checkbox — Checkbox unchecks, Save button enables 3. Click Save and reload page 4. Verify "Ticker Calc" checkbox is unchecked — State persisted 5. Re-check "Ticker Calc" checkbox — Checkbox checks, Save button enables 6. Click Save and reload page 7. Verify "Ticker Calc" checkbox is checked — State restored
+**Steps**: 1. Verify "Ticker Calc" checkbox is checked by default. 2. Uncheck "Ticker Calc" checkbox and verify the "Save" button becomes enabled. 3. Click "Save" and reload the page. 4. Verify "Ticker Calc" checkbox is unchecked. 5. Re-check "Ticker Calc" checkbox and verify the "Save" button becomes enabled. 6. Click "Save" and reload the page. 7. Verify "Ticker Calc" checkbox is checked again.
 **Expected**: Ticker Calc defaults to checked. Toggle is independent (no side effects on other fields). Persists after save/reload cycle.
 **Data**: `chkTickerCalc=checked default` | `independent=true`
 **Automatable**: Yes
@@ -1000,8 +999,8 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 
 Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-064/065)
 
-**Steps**: 1. Set "Service Charge" parent checkbox to checked 2. Verify "Show Service Charge As Administrative Fee" defaults to unchecked AND is enabled (parent-checked enables children) 3. Verify "Calculate Service Charge On Net Amount" defaults to unchecked AND is enabled 4. Check "Show Service Charge As Administrative Fee" -- no side effects on other fields 5. Check "Calculate Service Charge On Net Amount" -- no side effects on other fields 6. Click Save and reload the page 7. Verify both children persisted as checked 8. Uncheck "Service Charge" parent 9. Verify per documented requirement: both children become disabled and values reset to unchecked
-**Expected**: Service Charge parent to children dependency: when parent is unchecked, both children should be disabled (and unchecked). When parent is checked, children are independently togglable. Same pattern as Apply LDW to LDW Percentage, Apply C&C to C&C children, Allow ETS to ETS Percentage. Actual on the live site: the dependent options remain active (checked and enabled) regardless of the parent state. Pending an application fix for the Service Charge parent-to-children dependency.
+**Steps**: 1. Set "Service Charge" parent checkbox to checked. 2. Verify "Show Service Charge As Administrative Fee" defaults to unchecked and is enabled because the parent is checked. 3. Verify "Calculate Service Charge On Net Amount" defaults to unchecked and is enabled. 4. Check "Show Service Charge As Administrative Fee" and verify no side effects on other fields. 5. Check "Calculate Service Charge On Net Amount" and verify no side effects on other fields. 6. Click "Save" and reload the page. 7. Verify both children persisted as checked. 8. Uncheck "Service Charge" parent. 9. Verify per the documented requirement that both children become disabled and their values reset to unchecked.
+**Expected**: Service Charge parent to children dependency: when parent is unchecked, both children should be disabled (and unchecked). When parent is checked, children are independently togglable. Same pattern as Apply LDW to LDW Percentage, Apply C&C to C&C children, Allow ETS to ETS Percentage. Actual on the live site: the dependent options remain active (checked and enabled) regardless of the parent state.
 **Data**: `chkServiceCharge=parent` | `chkShowServiceChargeAsAdministrativeFee=child1` | `chkCalculateServiceChargeOnNetAmount=child2` | `expectedDependency=parent-checked enables children, parent-unchecked disables and resets children` | `actualBehavior=children always active`
 **Automatable**: Yes — once is fixed, automation should assert the dependency. Until fixed, this TC documents the contract gap.
 
@@ -1013,7 +1012,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | Medium | Manual | Field State |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Verify "Enable Job Costing" checkbox is checked by default — Checked 2. Verify "Enable Proposal" checkbox is checked by default — Checked 3. Uncheck "Enable Job Costing" — Unchecks, Save button enables, no dependency triggered on other fields 4. Uncheck "Enable Proposal" — Unchecks, no dependency triggered 5. Click Save and reload page 6. Verify "Enable Job Costing" is unchecked — Persisted 7. Verify "Enable Proposal" is unchecked — Persisted 8. Re-check both, click Save, reload 9. Verify "Enable Job Costing" is checked — Restored 10. Verify "Enable Proposal" is checked — Restored
+**Steps**: 1. Verify "Enable Job Costing" checkbox is checked by default. 2. Verify "Enable Proposal" checkbox is checked by default. 3. Uncheck "Enable Job Costing" and verify the "Save" button becomes enabled with no dependency triggered on other fields. 4. Uncheck "Enable Proposal" and verify no dependency is triggered. 5. Click "Save" and reload the page. 6. Verify "Enable Job Costing" is unchecked. 7. Verify "Enable Proposal" is unchecked. 8. Re-check both, click "Save", and reload. 9. Verify "Enable Job Costing" is checked. 10. Verify "Enable Proposal" is checked.
 **Expected**: Enable Job Costing and Enable Proposal both default to checked, are independent (no cross-field effects), and persist toggle state after save/reload.
 **Data**: `chkEnableJobCosting=checked default` | `chkEnableProposal=checked default` | `independent=true`
 **Automatable**: Yes
@@ -1026,7 +1025,7 @@ Automation File: specs/locations/location-local-information.spec.ts (TC-LOC-LI-0
 | Medium | Automated | UI Validation | Yes | specs/locations/location-local-information.spec.ts:338 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. For each checkbox on Local Information tab, read the visible label text -> Labels collected 2. Compare each label against expected text from CHECKBOX_LABEL_CASES test data -> All labels validated 3. Collect all mismatches and assert zero failures -> Pass/fail in one assertion
+**Steps**: 1. For each checkbox on the "Local Information" tab, read the visible label text and collect all labels. 2. Compare each label against the expected text from CHECKBOX_LABEL_CASES test data and verify all labels match. 3. Collect all mismatches and verify zero failures.
 **Expected**: All checkbox fields display their correct, human-readable labels matching the requirements specification.
 **Data**: CHECKBOX_LABEL_CASES array (key to expected label pairs)
 **Automatable**: Yes
@@ -1034,13 +1033,13 @@ Notes: Bulk validation test — tests all checkbox labels in one pass. Added per
 
 ---
 
-## TC-LOC-LI-068: Oracle Product Accepts Special Characters; Value Persists
+## TC-LOC-LI-068: Oracle Product accepts special characters and the value persists
 | Priority | Status | Type | Automatable | Automation File |
 |----------|--------|------|-------------|-----------------|
 | High | Automated | Field Persistence | Yes | specs/locations/location-local-information.spec.ts:351 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Read current Oracle Product value -> Original saved 2. Enter special characters test value into Oracle Product field -> Value set 3. Click Save -> Save completes 4. Reload page and navigate back to Local Info tab -> Page reloads 5. Verify Oracle Product contains the special characters value -> Persisted 6. Restore original value and Save -> Baseline restored
+**Steps**: 1. Read the current "Oracle Product" value and save it as the original. 2. Enter the special characters test value into "Oracle Product". 3. Click "Save" and verify it completes. 4. Reload the page and navigate back to the "Local Information" tab. 5. Verify "Oracle Product" contains the special characters value. 6. Restore the original value and save.
 **Expected**: Oracle Product text field accepts and persists special characters after save+reload cycle. Original value restored at cleanup.
 **Data**: `txtOracleProduct` | `specialChars` test value | `office=1604`
 **Automatable**: Yes
@@ -1054,7 +1053,7 @@ Notes: — server now accepts persistent changes for office 1604.
 | High | Automated | Field Persistence | Yes | specs/locations/location-local-information.spec.ts:364 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Read current Oracle Department value -> Original saved 2. Enter alphanumeric test value into Oracle Department field -> Value set 3. Click Save -> Save completes 4. Reload page and navigate back to Local Info tab -> Page reloads 5. Verify Oracle Department contains the test value -> Persisted 6. Restore original value and Save -> Baseline restored
+**Steps**: 1. Read the current "Oracle Department" value and save it as the original. 2. Enter the alphanumeric test value into "Oracle Department". 3. Click "Save" and verify it completes. 4. Reload the page and navigate back to the "Local Information" tab. 5. Verify "Oracle Department" contains the test value. 6. Restore the original value and save.
 **Expected**: Oracle Department text field accepts and persists alphanumeric values after save+reload cycle. Original value restored at cleanup.
 **Data**: `txtOracleDepartment` | `oracleDeptTest` value | `office=1604`
 **Automatable**: Yes
@@ -1067,8 +1066,8 @@ Notes: — server now accepts persistent changes for office 1604.
 |----------|--------|------|-------------|-----------------|
 | High | Automated | Field Persistence | Yes | specs/locations/location-local-information.spec.ts:377 |
 
-**Steps**: 1. Wait for Skip Billing checkbox to be visible and interactive -> Checkbox ready 2. Read initial checked/unchecked state of Skip Billing -> Initial state recorded 3. Toggle Skip Billing to opposite state -> Toggled 4. Click Save -> Save completes 5. Reload page and navigate back to Local Info tab -> Page reloads 6. Verify Skip Billing is in the toggled state -> Persisted after save+reload 7. Restore original state and Save -> Baseline restored (always-restore in finally block)
-**Expected**: Skip Billing checkbox toggle persists after save+reload cycle. Original state always restored regardless of test outcome. Skip Billing does NOT disable Oracle Product — it is a billing flag only.
+**Steps**: 1. Wait for the "Skip Billing" checkbox to be visible and interactive. 2. Read the initial checked or unchecked state of "Skip Billing". 3. Toggle "Skip Billing" to the opposite state. 4. Click "Save" and verify it completes. 5. Reload the page and navigate back to the "Local Information" tab. 6. Verify "Skip Billing" is in the toggled state. 7. Restore the original state and save.
+**Expected**: The Skip Billing checkbox toggle persists after a save and reload. The original state is always restored at the end, regardless of test outcome.
 **Data**: `chkSkipBilling` | `office=1604`
 **Automatable**: Yes
 Notes: MCP-verified — Skip Billing does NOT disable Oracle Product (checkbox is billing flag only). Updated from the prior version to test actual toggle+persist behavior.
@@ -1081,7 +1080,7 @@ Notes: MCP-verified — Skip Billing does NOT disable Oracle Product (checkbox i
 | High | Automated | Field State | Yes | specs/locations/location-local-information.spec.ts:172 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Check "Enable Multiday Pricing" checkbox (default: unchecked) -> Save button enables 2. Click Save -> Save completes 3. Reload page and navigate back to Local Info tab -> Page reloads 4. Verify "Enable Multiday Pricing" is checked -> Persisted after save+reload 5. Uncheck "Enable Multiday Pricing" to restore baseline -> Unchecked 6. Click Save -> Baseline restored
+**Steps**: 1. Check "Enable Multiday Pricing" (default is unchecked) and verify the "Save" button becomes enabled. 2. Click "Save" and verify it completes. 3. Reload the page and navigate back to the "Local Information" tab. 4. Verify "Enable Multiday Pricing" is checked. 5. Uncheck "Enable Multiday Pricing" to restore the baseline. 6. Click "Save" and verify the baseline is restored.
 **Expected**: Enable Multiday Pricing checkbox toggles ON, persists after save+reload, and can be restored to baseline.
 **Data**: `chkEnableMultidayPricing=unchecked default` | `office=1604`
 **Automatable**: Yes
@@ -1095,7 +1094,7 @@ Notes: Added per requirements update (Jira). MCP-verified.
 | High | Automated | Field State | Yes | specs/locations/location-local-information.spec.ts:233 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Check "Enable IDC Billing" checkbox -> Checked 2. Click Save -> Save completes 3. Reload page and navigate back to Local Info tab -> Page reloads 4. Verify "Enable IDC Billing" is checked -> Persisted after save+reload 5. Uncheck "Enable IDC Billing" to restore baseline -> Unchecked 6. Click Save -> Baseline restored
+**Steps**: 1. Check "Enable IDC Billing" and verify it is checked. 2. Click "Save" and verify it completes. 3. Reload the page and navigate back to the "Local Information" tab. 4. Verify "Enable IDC Billing" is checked. 5. Uncheck "Enable IDC Billing" to restore the baseline. 6. Click "Save" and verify the baseline is restored.
 **Expected**: Enable IDC Billing checkbox persists as checked after save+reload cycle.
 **Data**: `chkEnableIDCBilling` | `office=1604`
 **Automatable**: Yes
@@ -1103,13 +1102,13 @@ Notes: Added per requirements update (Jira). MCP-verified.
 
 ---
 
-## TC-LOC-LI-073: DisplayTax Auto-Sets True When CompanyRemitTax Re-Checked
+## TC-LOC-LI-073: Display Tax Auto-Checks When Company Remit Tax Re-Checked
 | Priority | Status | Type | Automatable | Automation File |
 |----------|--------|------|-------------|-----------------|
 | High | Automated | Dependency | Yes | specs/locations/location-local-information.spec.ts:187 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Uncheck "Company Remit Tax" -> "Display Tax" becomes enabled (editable) 2. Uncheck "Display Tax" -> Unchecked 3. Re-check "Company Remit Tax" -> "Display Tax" auto-sets to checked AND becomes disabled 4. Click Save -> Cascade behavior persisted
+**Steps**: 1. Uncheck "Company Remit Tax" and verify "Display Tax" becomes enabled. 2. Uncheck "Display Tax". 3. Re-check "Company Remit Tax" and verify "Display Tax" auto-sets to checked and becomes disabled. 4. Click "Save" and verify the cascade behavior is persisted.
 **Expected**: Unchecking Company Remit Tax releases Display Tax for editing. Re-checking Company Remit Tax auto-sets Display Tax to true and disables it (cascade dependency).
 **Data**: `chkCompanyRemitTax` | `chkDisplayTax` | `cascade=true`
 **Automatable**: Yes
@@ -1123,8 +1122,8 @@ Notes: Cascade dependency. MCP ref: MCP-09.
 | High | Automated | Decision Table | Yes | specs/locations/location-local-information.spec.ts:127 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. "Combo A" (DPCD=on, PFA=off — baseline): Verify Threshold is disabled 2. "Combo B" (DPCD=on, PFA=on): Check Prompt For Approval -> Threshold stays disabled 3. "Combo D" (DPCD=off, PFA=on): Uncheck Allow DPCD -> Threshold becomes enabled 4. "Combo C" (DPCD=off, PFA=off): Uncheck Prompt For Approval -> Threshold disabled again 5. Return to Combo D: Re-check Prompt For Approval -> Threshold enabled 6. Set Threshold to 50.00 7. Re-check Allow DPCD (-> Combo B) -> Threshold disabled AND value resets to 0 8. Restore baseline (Combo A) and Save
-**Expected**: Threshold is ONLY enabled when Allow DPCD=false AND Prompt For Approval=true (Combo D). All other 3 combos disable it. When Threshold becomes disabled, its value resets to 0.
+**Steps**: 1. Combo A (Allow DPCD on, Prompt For Approval off, baseline): Verify "Threshold" is disabled. 2. Combo B (Allow DPCD on, Prompt For Approval on): Check "Prompt For Approval" and verify "Threshold" stays disabled. 3. Combo D (Allow DPCD off, Prompt For Approval on): Uncheck "Allow DPCD" and verify "Threshold" becomes enabled. 4. Combo C (Allow DPCD off, Prompt For Approval off): Uncheck "Prompt For Approval" and verify "Threshold" is disabled again. 5. Return to Combo D: re-check "Prompt For Approval" and verify "Threshold" is enabled. 6. Set "Threshold" to 50.00. 7. Re-check "Allow DPCD" (Combo B) and verify "Threshold" is disabled and its value resets to 0. 8. Restore the baseline (Combo A) and save.
+**Expected**: Threshold is only enabled when Allow DPCD is unchecked AND Prompt For Approval is checked (Combo D). All other 3 combinations disable it. When Threshold becomes disabled, its value resets to 0.
 **Data**: `chkAllowDPCD` | `chkPromptForApproval` | `spinThreshold` | `4-combo decision table`
 **Automatable**: Yes
 Notes: Dual dependency. Added per requirements update (Jira). a prior observation from exploration.
@@ -1137,7 +1136,7 @@ Notes: Dual dependency. Added per requirements update (Jira). a prior observatio
 | High | Automated | Dependency | Yes | specs/locations/location-local-information.spec.ts:211 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Check "Apply Cables & Consumables Fee" -> C&C Percentage spinbutton becomes enabled 2. Set C&C Percentage to 5.00 -> Value set 3. Uncheck "Apply Cables & Consumables Fee" -> C&C Percentage disabled AND value resets to 0 4. Click Save -> Reset state persisted
+**Steps**: 1. Check "Apply Cables and Consumables Fee" and verify the "C&C Percentage" spinbutton becomes enabled. 2. Set "C&C Percentage" to 5.00. 3. Uncheck "Apply Cables and Consumables Fee" and verify "C&C Percentage" is disabled and its value resets to 0. 4. Click "Save" and verify the reset state is persisted.
 **Expected**: Checking Apply C&C Fee enables C&C% spinbutton. Unchecking disables it AND resets value to 0 (not just disable).
 **Data**: `chkApplyCablesConsumablesFee` | `spinCCPercentage` | `reset-on-disable=true`
 **Automatable**: Yes
@@ -1151,7 +1150,7 @@ Notes: MCP ref: MCP-05. Confirms a prior observation (unchecking dependency rese
 | High | Automated | Dependency | Yes | specs/locations/location-local-information.spec.ts:222 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Check "Allow Resort Tax" -> Resort Tax Percentage spinbutton becomes enabled 2. Set Resort Tax Percentage to 3.00 -> Value set 3. Uncheck "Allow Resort Tax" -> Resort Tax Percentage disabled AND value resets to 0 4. Click Save -> Reset state persisted
+**Steps**: 1. Check "Allow Resort Tax" and verify the "Resort Tax Percentage" spinbutton becomes enabled. 2. Set "Resort Tax Percentage" to 3.00. 3. Uncheck "Allow Resort Tax" and verify "Resort Tax Percentage" is disabled and its value resets to 0. 4. Click "Save" and verify the reset state is persisted.
 **Expected**: Checking Allow Resort Tax enables Resort Tax% spinbutton. Unchecking disables it AND resets value to 0.
 **Data**: `chkAllowResortTax` | `spinResortTaxPercentage` | `reset-on-disable=true`
 **Automatable**: Yes
@@ -1165,7 +1164,7 @@ Notes: MCP ref: MCP-06. Same reset-on-disable pattern as C&C Fee.
 | High | Automated | Dependency | Yes | specs/locations/location-local-information.spec.ts:198 |
 
 **Depends_On**: TC-LOC-LI-001
-**Steps**: 1. Check "Allow ETS" -> ETS Percentage spinbutton becomes enabled AND pre-fills with 23.00% (non-union default for office 1604) 2. Verify ETS Percentage value is 23 -> Non-union default applied 3. Uncheck "Allow ETS" -> ETS Percentage disabled AND value resets to 0 4. Click Save -> Reset state persisted
+**Steps**: 1. Check "Allow ETS" and verify the "ETS Percentage" spinbutton becomes enabled and pre-fills with 23.00% (non-union default for office 1604). 2. Verify "ETS Percentage" value is 23. 3. Uncheck "Allow ETS" and verify "ETS Percentage" is disabled and its value resets to 0. 4. Click "Save" and verify the reset state is persisted.
 **Expected**: Checking Allow ETS enables ETS% and pre-fills it with the union/non-union default (23% for non-union office 1604). Unchecking disables and resets to 0.
 **Data**: `chkAllowETS` | `spinETSPercentage` | `nonUnionDefault=23` | `office=1604 (non-union)`
 **Automatable**: Yes
@@ -1179,8 +1178,8 @@ Notes: MCP ref: MCP-03. Office 1604 is non-union, so default is 23%. Union offic
 | High | Manual | Field Dependency (Negative) |
 
 
-**Steps**: 1. Read "Calculate LDW On Net Amount" checkbox baseline (default: checked on office 1604) 2. Uncheck "Apply LDW" parent checkbox 3. Verify "Calculate LDW On Net Amount" sibling checkbox transitions to disabled AND unchecked (per the required parent-to-children dependency) 4. Re-check "Apply LDW" parent 5. Verify "Calculate LDW On Net Amount" sibling re-enables and respects its baseline 6. Cleanup: restore baseline state, no save (transient assertion only)
-**Expected**: Unchecking Apply LDW disables AND unchecks the Calculate LDW On Net Amount sibling checkbox per the LI parent-to-children cascade convention (same expectation as Allow Service Charge children + Apply C&C children per LI-079).
+**Steps**: 1. Read "Calculate LDW On Net Amount" checkbox baseline (default: checked on office 1604) 2. Uncheck "Apply LDW" parent checkbox 3. Verify "Calculate LDW On Net Amount" sibling checkbox transitions to disabled AND unchecked 4. Re-check "Apply LDW" parent 5. Verify "Calculate LDW On Net Amount" sibling re-enables and respects its baseline 6. Cleanup: restore baseline state, no save (transient assertion only)
+**Expected**: Unchecking Apply LDW is expected to disable and uncheck the Calculate LDW On Net Amount sibling checkbox (the same parent-to-child behavior as the Service Charge and C&C groups).
 Actual on the live site: the sibling stays checked + enabled when parent is unchecked (only the LDW Percentage spinbutton disables). Save-cycle persistence not verified.
 **Data**: `chkApplyLDW=toggle` | `chkCalcLDWOnNetAmount=expected disabled+unchecked when parent unchecked` | `bug=`
 **Automatable**: Yes (assertion currently fails on new site; pin against fix)
@@ -1194,7 +1193,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 
 
 **Steps**: 1. Read "Calculate C&C On Net Amount" checkbox baseline (default: checked on office 1604) 2. Uncheck "Apply C&C Fee" parent checkbox 3. Verify "Calculate C&C On Net Amount" sibling checkbox transitions to disabled AND unchecked 4. Re-check "Apply C&C Fee" parent 5. Verify "Calculate C&C On Net Amount" sibling re-enables and respects its baseline 6. Cleanup: restore baseline state, no save (transient assertion only)
-**Expected**: Unchecking Apply C&C Fee disables AND unchecks the Calculate C&C On Net Amount sibling checkbox per the LI parent-to-children cascade convention (same expectation as LI-078 LDW variant + Service Charge variant).
+**Expected**: Unchecking Apply C&C Fee disables and unchecks the Calculate C&C On Net Amount sibling checkbox.
 Actual on the live site: the sibling stays checked + enabled when parent is unchecked. Save-cycle persistence not verified.
 **Data**: `chkApplyCablesConsumablesFee=toggle` | `chkCalcCACOnNetAmount=expected disabled+unchecked when parent unchecked` | `bug=`
 **Automatable**: Yes (assertion currently fails on new site; pin against fix)
@@ -1207,7 +1206,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 | Medium | Manual | Field Dependency (Negative) |
 
 **Steps**: 1. Read "Apply Set/Strike Labor Minutes" checkbox baseline (default: checked on office 1604 when Enable Set/Strike Minutes is checked) 2. Uncheck "Enable Set/Strike Labor Minutes" parent checkbox 3. Verify "Apply Set/Strike Labor Minutes" child checkbox transitions to disabled (and unchecked per cascade convention) 4. Re-check "Enable Set/Strike Labor Minutes" parent 5. Verify "Apply Set/Strike Labor Minutes" child re-enables 6. Cleanup: restore baseline state, no save (transient assertion only)
-**Expected**: Unchecking Enable Set/Strike Labor Minutes disables and unchecks the Apply Set/Strike Labor Minutes child checkbox per the LI parent-to-children cascade convention. This cascade was not previously covered by any test case; that coverage gap is now closed.
+**Expected**: Unchecking Enable Set/Strike Labor Minutes disables and unchecks the Apply Set/Strike Labor Minutes child checkbox (the parent-to-child cascade behavior).
 **Data**: `chkEnableSetStrikeMinutes=toggle` | `chkApplySetStrikeMinutes=expected disabled+unchecked when parent unchecked`
 **Automatable**: Yes
 
@@ -1218,7 +1217,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | Medium | Manual | Boundary Value (Negative Suite) |
 
-**Steps**: 1. Ensure "Apply C&C Fee" is checked and "C&C Percentage" spinbutton is enabled 2. Clear field and enter 0 — Field accepts 3. Click Save and reload 4. Verify "C&C Percentage" persists as 0 with no error
+**Steps**: 1. Ensure "Apply C&C Fee" is checked and "C&C Percentage" spinbutton is enabled. 2. Clear the field and enter 0. 3. Click "Save" and reload. 4. Verify "C&C Percentage" persists as 0 with no error.
 **Expected**: Value 0 is valid for C&C Percentage, persists, no error message.
 **Data**: `spinCCPercentage=0` | `min=0` | `max=100`
 **Automatable**: Yes
@@ -1230,7 +1229,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | Medium | Manual | Boundary Value (Negative Suite) |
 
-**Steps**: 1. Enter 100 in "C&C Percentage" — Field accepts 2. Save and reload 3. Verify value persists as 100 with no error
+**Steps**: 1. Enter 100 in "C&C Percentage". 2. Save and reload. 3. Verify the value persists as 100 with no error.
 **Expected**: Value 100 is valid (max), persists, no error.
 **Data**: `spinCCPercentage=100`
 **Automatable**: Yes
@@ -1242,8 +1241,8 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | High | Manual | Boundary Value (Negative) |
 
-**Steps**: 1. Enter -0.01 in "C&C Percentage" — Field accepts but renders error indicator (aria-invalid=true) 2. Verify Save button is DISABLED (form-validity gate PRIMARY_SYMPTOM_RESOLVED) 3. Verify error message: "Number must be greater than or equal to 0" 4. Restore valid value to clear error
-**Expected**: -0.01 invalid (just below min). aria-invalid=true. Save disabled until valid.
+**Steps**: 1. Enter -0.01 in "C&C Percentage" and verify the field is shown as invalid. 2. Verify "Save" is DISABLED. 3. Verify the error message "Number must be greater than or equal to 0" is shown. 4. Restore a valid value to clear the error.
+**Expected**: -0.01 is below the minimum and the field is shown as invalid. "Save" is disabled until the value is corrected.
 **Data**: `spinCCPercentage=-0.01` | `expectedError=Number must be greater than or equal to 0`
 **Automatable**: Yes
 
@@ -1254,8 +1253,8 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | Medium | Manual | Boundary Value (Negative) |
 
-**Steps**: 1. Enter -5 in "C&C Percentage" — Field accepts but renders error 2. Verify Save disabled 3. Verify error: "Number must be greater than or equal to 0"
-**Expected**: -5 invalid (far below min). aria-invalid=true. Save disabled.
+**Steps**: 1. Enter -5 in "C&C Percentage" and verify the field is shown as invalid. 2. Verify "Save" is disabled. 3. Verify the error "Number must be greater than or equal to 0" is shown.
+**Expected**: -5 is far below the minimum and the field is shown as invalid. "Save" is disabled.
 **Data**: `spinCCPercentage=-5` | `expectedError=Number must be greater than or equal to 0`
 **Automatable**: Yes
 
@@ -1266,8 +1265,8 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | High | Manual | Boundary Value (Negative) |
 
-**Steps**: 1. Enter 100.01 in "C&C Percentage" — Field renders error 2. Verify Save disabled 3. Verify error: "Number must be less than or equal to 100"
-**Expected**: 100.01 invalid (just above max). aria-invalid=true. Save disabled.
+**Steps**: 1. Enter 100.01 in "C&C Percentage" and verify the field is shown as invalid. 2. Verify "Save" is disabled. 3. Verify the error "Number must be less than or equal to 100" is shown.
+**Expected**: 100.01 is above the maximum and the field is shown as invalid. "Save" is disabled.
 **Data**: `spinCCPercentage=100.01` | `expectedError=Number must be less than or equal to 100`
 **Automatable**: Yes
 
@@ -1278,7 +1277,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | Medium | Manual | Boundary Value (Negative) |
 
-**Steps**: 1. Enter 150.99 in "C&C Percentage" — Field renders error 2. Verify Save disabled 3. Verify error: "Number must be less than or equal to 100"
+**Steps**: 1. Enter 150.99 in "C&C Percentage" and verify the field is shown as invalid. 2. Verify "Save" is disabled. 3. Verify the error "Number must be less than or equal to 100" is shown.
 **Expected**: 150.99 invalid (far above max). Save disabled.
 **Data**: `spinCCPercentage=150.99` | `expectedError=Number must be less than or equal to 100`
 **Automatable**: Yes
@@ -1314,7 +1313,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | High | Manual | Boundary Value (Negative) |
 
-**Steps**: 1. Enter -0.01 in "ETS Percentage" 2. Verify aria-invalid=true and Save disabled 3. Verify error: "Number must be greater than or equal to 0"
+**Steps**: 1. Enter -0.01 in "ETS Percentage" and verify the field is shown as invalid. 2. Verify "Save" is disabled. 3. Verify the error "Number must be greater than or equal to 0" is shown.
 **Expected**: -0.01 invalid. Save disabled.
 **Data**: `spinETSPercentage=-0.01` | `expectedError=Number must be greater than or equal to 0`
 **Automatable**: Yes
@@ -1386,7 +1385,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | High | Manual | Boundary Value (Negative) |
 
-**Steps**: 1. Enter -0.01 in "Resort Tax Percentage" 2. Verify aria-invalid=true and Save disabled 3. Verify error: "Number must be greater than or equal to 0"
+**Steps**: 1. Enter -0.01 in "Resort Tax Percentage" and verify the field is shown as invalid. 2. Verify "Save" is disabled. 3. Verify the error "Number must be greater than or equal to 0" is shown.
 **Expected**: -0.01 invalid. Save disabled.
 **Data**: `spinResortTaxPercentage=-0.01` | `expectedError=Number must be greater than or equal to 0`
 **Automatable**: Yes
@@ -1458,7 +1457,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | High | Manual | Boundary Value (Negative) |
 
-**Steps**: 1. Enter -0.01 in "Set/Strike Labor Billing" 2. Verify aria-invalid=true and Save disabled 3. Verify error: "Number must be greater than or equal to 0"
+**Steps**: 1. Enter -0.01 in "Set/Strike Labor Billing" and verify the field is shown as invalid. 2. Verify "Save" is disabled. 3. Verify the error "Number must be greater than or equal to 0" is shown.
 **Expected**: -0.01 invalid. Save disabled.
 **Data**: `spinSetStrikeLaborBilling=-0.01` | `expectedError=Number must be greater than or equal to 0`
 **Automatable**: Yes
@@ -1506,10 +1505,10 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | Medium | Manual | Boundary Value (Negative Suite) |
 
-**Preconditions**: AllowDPCD=false AND PromptForApproval=true (Combo D per TC-074), so Threshold is enabled.
+**Preconditions**: Allow DPCD is unchecked AND Prompt For Approval is checked (Combo D), so Threshold is enabled.
 
 **Steps**: 1. Place office in Combo D so Threshold is enabled 2. Clear and enter 0 in Threshold 3. Save and reload 4. Verify value persists as 0
-**Expected**: Value 0 valid for Threshold (note: Threshold step=0.1 not 0.01).
+**Expected**: Value 0 valid for Threshold (Threshold changes in increments of 0.1, not 0.01).
 **Data**: `spinThreshold=0` | `step=0.1`
 **Automatable**: Yes
 
@@ -1536,7 +1535,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 
 **Preconditions**: Combo D (Threshold enabled).
 
-**Steps**: 1. Enter -0.1 in Threshold (one step below min) 2. Verify aria-invalid=true and Save disabled 3. Verify error: "Number must be greater than or equal to 0"
+**Steps**: 1. Enter -0.1 in "Threshold" (one step below the minimum). 2. Verify the field is shown as invalid and "Save" is disabled. 3. Verify the error "Number must be greater than or equal to 0" is shown.
 **Expected**: -0.1 invalid. Save disabled.
 **Data**: `spinThreshold=-0.1` | `expectedError=Number must be greater than or equal to 0`
 **Automatable**: Yes
@@ -1590,10 +1589,10 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 |----------|--------|------|
 | Medium | Manual | Input Validation (Negative) |
 
-**Preconditions**: Skip Billing unchecked (Oracle fields required); slate-clear per TC-008 to baseline 0000.
+**Preconditions**: Skip Billing unchecked (Oracle fields required). The Oracle fields are cleared to their baseline (0000) before the test.
 
-**Steps**: 1. Type semicolons, single quotes, and double quotes into Oracle Product field (e.g., `'; DROP TABLE--`) within the maxLength=25 cap 2. Read the field value back via interface 3. Tab off the field 4. Click Save 5. Reload page 6. Verify either: (a) the literal characters persisted exactly as typed, OR (b) the input was sanitized/rejected at client and the live behavior is captured verbatim
-**Expected**: Observe and record the live behavior: client-side acceptance vs sanitization vs rejection. The TC documents what the system actually does — it does NOT prescribe a server-side hardening contract. If raw SQL characters persist to the server, record the finding for follow-up with the application team.
+**Steps**: 1. Type semicolons, single quotes, and double quotes into Oracle Product field (e.g., `'; DROP TABLE--`) within the 25-character limit 2. Read the field value back via interface 3. Tab off the field 4. Click Save 5. Reload page 6. Verify either: (a) the literal characters persisted exactly as typed, OR (b) the input was cleaned up or rejected, and the live behavior is captured exactly
+**Expected**: Observe and record the live behavior: whether the value is accepted, cleaned up, or rejected. The TC documents what the system actually does — it does not set any requirement for how the input must be handled. If raw SQL characters are stored as-is, record the finding for follow-up with the application team.
 **Data**: `txtOracleProduct=' DROP TABLE-- (or similar)` | `maxLength=25` | `outcome=document live behavior`
 **Notes**: Kept as a manual check - this is a security / exploratory verification that requires tester observation each run
 **Automatable**: Yes
@@ -1607,8 +1606,8 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 
 **Preconditions**: Skip Billing unchecked; slate-clear to 0000.
 
-**Steps**: 1. Type a Unicode mix into Oracle Product field within maxLength=25 (e.g., `日本語🎉Café`) 2. Tab off, Save, reload 3. Read the persisted value 4. Document whether the field preserves multibyte chars exactly, normalizes, replaces with `?`, or rejects
-**Expected**: Observe and record the live behavior — preservation vs normalization vs rejection. Multibyte char count vs maxLength=25 (does Oracle Product count by code-point or byte?).
+**Steps**: 1. Type a Unicode mix into Oracle Product field within the 25-character limit (e.g., `日本語🎉Café`) 2. Tab off, Save, reload 3. Read the persisted value 4. Document whether the field preserves multibyte chars exactly, normalizes, replaces with `?`, or rejects
+**Expected**: Observe and record what happens to the characters: whether they are kept as typed, changed, or rejected, and whether multi-byte characters (such as emoji) each count as one character against the 25-character limit.
 **Data**: `txtOracleProduct=日本語🎉Café (or similar Unicode mix)` | `maxLength=25` | `outcome=document live behavior`
 **Notes**: Kept as a manual check - this is a security / exploratory verification that requires tester observation each run
 **Automatable**: Yes
@@ -1622,7 +1621,7 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 
 **Preconditions**: Skip Billing unchecked; slate-clear to 900.
 
-**Steps**: 1. Type semicolons, single quotes, double quotes into Oracle Department field within maxLength=25 2. Tab off, Save, reload 3. Read the persisted value 4. Document client-side acceptance vs sanitization vs rejection (mirror LI-111 for the Oracle Department field)
+**Steps**: 1. Type semicolons, single quotes, double quotes into Oracle Department field within the 25-character limit 2. Tab off, Save, reload 3. Read the persisted value 4. Document whether the value is accepted, cleaned up, or rejected
 **Expected**: Observe and record the live behavior. Same security manual review criteria as LI-111.
 **Data**: `txtOracleDepartment=' DROP TABLE-- (or similar)` | `maxLength=25` | `outcome=document live behavior`
 **Notes**: Kept as a manual check - this is a security / exploratory verification that requires tester observation each run
@@ -1637,8 +1636,8 @@ Actual on the live site: the sibling stays checked + enabled when parent is unch
 
 **Preconditions**: Skip Billing unchecked; slate-clear to 900.
 
-**Steps**: 1. Type Unicode mix into Oracle Department field within maxLength=25 2. Tab off, Save, reload 3. Read the persisted value 4. Document preservation vs normalization vs rejection (mirror LI-112 for Oracle Department)
-**Expected**: Observe and record the live behavior — multibyte preservation vs normalization vs rejection. Same maxLength code-point-vs-byte ambiguity as LI-112.
+**Steps**: 1. Type Unicode mix into Oracle Department field within the 25-character limit 2. Tab off, Save, reload 3. Read the persisted value 4. Record whether the characters are kept as typed, changed, or rejected
+**Expected**: Observe and record what happens to the multi-byte characters: whether they are kept as typed, changed, or rejected, and how they count against the 25-character limit.
 **Data**: `txtOracleDepartment=日本語🎉Café (or similar Unicode mix)` | `maxLength=25` | `outcome=document live behavior`
 **Notes**: Kept as a manual check - this is a security / exploratory verification that requires tester observation each run
 **Automatable**: Yes

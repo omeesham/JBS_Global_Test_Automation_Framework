@@ -67,14 +67,13 @@
 
 
 **Steps**:
-1. Navigate to `/navigator/locations/1604/settings/local-office` -> Page loads
+1. Open the Local Office Settings page.
 2. Click the "ECT Settings" tab -> Tab becomes selected
 3. Verify the heading reads "1604 - Parker Palm Springs" -> Location name is displayed
 4. Verify the "Edit/View" label is shown with a "Commission structure" link -> Link element is present in the page
 5. Verify the "Select Currency" combobox shows "USD" -> Default currency is displayed
-6. Note: clicking the "Commission structure" link to verify the destination page is OUT OF SCOPE for this TC (gated by the metadata above) -> Click-outcome verification deferred
 
-**Expected**: The ECT tab displays the location name, the Commission structure link element, and the currency dropdown. Clicking the Commission structure link to verify the destination page is gated by the metadata above and is not asserted by this TC.
+**Expected**: The ECT tab displays the location name, the Commission structure link element, and the currency dropdown.
 **Automatable**: No (link-click outcome blocked until the underlying issue is resolved)
 
 ---
@@ -88,14 +87,14 @@
 **Depends_On**: TC-LOS-ECT-001
 
 **Steps**:
-1. Navigate to `/navigator/locations/1604/settings/local-office` -> Page loads
+1. Open the Local Office Settings page.
 2. Click the "ECT Settings" tab -> Tab becomes selected
 3. Verify the heading "Event Profit Target" is visible on the tab -> Heading present
 4. Verify the heading "Fixed Costs" is visible on the tab -> Heading present
-5. Verify the heading "Labor Cost Assumptions" is visible on the tab (plural form) -> Heading present
+5. Verify the heading "Labor Cost Assumptions" is visible on the tab -> Heading present
 6. Verify the heading "SubRental Matrix" is visible on the tab -> Heading present
 
-**Expected**: The ECT Settings tab shows the four sub-section headings verbatim: "Event Profit Target", "Fixed Costs", "Labor Cost Assumptions" (plural), and "SubRental Matrix".
+**Expected**: The ECT Settings tab shows the four sub-section headings verbatim: "Event Profit Target", "Fixed Costs", "Labor Cost Assumptions", and "SubRental Matrix".
 **Automatable**: Yes
 
 ---
@@ -127,7 +126,7 @@
 **Depends_On**: TC-LOS-ECT-001
 **Steps**:
 1. Navigate to ECT Settings tab -> Scroll to **Event Profit Target** section
-2. Verify heading "Event Profit Target" (h4) -> Heading present
+2. Verify heading "Event Profit Target" -> Heading present
 3. Verify table has 4 columns: **Lower Limit**, **Upper Limit**, **Target**, **Currency** -> Headers match
 4. Verify table has 9 data rows -> Row count = 9
 5. Verify first row: $5,000.01 | $10,000.00 | 40.0% | USD -> Data matches
@@ -156,7 +155,7 @@
 7. Verify **Peak Labor Adjustment %** = "5.0%" -> Read-only display
 8. Verify **Non-Peak Labor Adjustment %** = "0.0%" -> Read-only display
 
-**Expected**: All 7 read-only fixed cost fields display correct values | **Data**: location=1604
+**Expected**: All 7 read-only fixed cost fields display correct values
 **Automatable**: Yes
 
 ---
@@ -180,7 +179,7 @@
 9. Verify **Benefits Multiplier** = "25.0%" -> Persisted
 10. **Cleanup**: Change back to `0.2` (displays 20.0%) and save
 
-**Expected**: Benefits Multiplier editable as decimal; displays as percentage; persists after save | **Data**: from 0.2 to 0.25
+**Expected**: Benefits Multiplier editable as decimal; displays as percentage; persists after save
 **Automatable**: Yes
 
 ---
@@ -243,9 +242,9 @@
 6. Verify the last row's Labor Class cell shows "zzzFinishing Service" -> Last-row label matches
 7. Verify the "Labor Class" column is read-only -> Labor Class cells are not editable
 8. Verify the "Labor Cost" cells are editable inputs -> Labor Cost column accepts user input
-9. Note: the numeric value displayed in any Labor Cost cell is office-state-dependent and is NOT asserted by this TC
+9. Note: the numeric value displayed in any Labor Cost cell varies by office and is not checked here.
 
-**Expected**: The Labor Cost Assumptions table is present with two columns ("Labor Class" and "Labor Cost"). The first row's Labor Class text is "Administrative Fee", the last row's Labor Class text is "zzzFinishing Service", the Labor Class column is read-only, and the Labor Cost column is editable. The numeric value of any specific Labor Cost cell is not asserted (office-state-dependent).
+**Expected**: The Labor Cost Assumptions table is present with two columns ("Labor Class" and "Labor Cost"). The first row's Labor Class text is "Administrative Fee", the last row's Labor Class text is "zzzFinishing Service", the Labor Class column is read-only, and the Labor Cost column is editable. The numeric value of any specific Labor Cost cell varies by office and is not checked here.
 **Automatable**: Yes
 
 ---
@@ -268,7 +267,7 @@
 8. Verify **Administrative Fee** labor cost = "40.00" -> Persisted
 9. **Cleanup**: Change back to `35` and save
 
-**Expected**: Labor cost values editable and persist after save | **Data**: Administrative Fee from 35.00 to 40.00
+**Expected**: Labor cost values editable and persist after save
 **Automatable**: Yes
 
 ---
@@ -307,7 +306,7 @@
 **Depends_On**: TC-LOS-ECT-001
 **Steps**:
 1. Navigate to ECT Settings tab -> Scroll to **SubRental Matrix** section
-2. Verify heading "SubRental Matrix" (h4) -> Heading present
+2. Verify heading "SubRental Matrix" -> Heading present
 3. Verify table has 4 columns: **Lower Limit**, **Upper Limit**, **Subrental Percentage**, **Currency** -> Headers match
 4. Verify table has 9 data rows -> Row count = 9
 5. Verify first row: $0.00 | $4,999.00 | 0.9% | USD -> Data matches
@@ -338,7 +337,7 @@
 
 ---
 
-## TC-LOS-ECT-013: Historical Subrental % — Edit, Save, Persist (RT)
+## TC-LOS-ECT-013: Historical Subrental % — Edit, Save, Persist
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -346,19 +345,19 @@
 
 **Depends_On**: TC-LOS-ECT-001
 **Steps**:
-1. Read current Historical Subrental value (defensive — don't assume default)
-2. Pick test value different from current (e.g., if 0.0% -> fill 0.1; if already changed -> fill 0)
-3. Save Fixed Costs -> wait for save button disabled
-4. Navigate to Basic Info -> return to ECT
+1. Read current Historical Subrental value (defensive — do not assume a default)
+2. Pick a test value different from the current value (for example: if currently 0.0%, use 0.1; if already changed, use 0)
+3. Save Fixed Costs and wait for the Save button to become disabled.
+4. Navigate to Basic Info, then return to ECT
 5. Verify display shows expected percent
-6. Restore: fill original raw value -> save -> verify restored
+6. Restore: fill original raw value, save, then verify restored
 
 **Expected**: Historical Subrental % persists across save-reload cycle
 **Automatable**: Yes
 
 ---
 
-## TC-LOS-ECT-014: Labor Cost Middle Row (Index 33) — Persistence (RT)
+## TC-LOS-ECT-014: Labor Cost Middle Row — Persistence
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -367,17 +366,17 @@
 **Depends_On**: TC-LOS-ECT-001
 **Steps**:
 1. Navigate to ECT tab
-2. Read current labor cost value at row index 33
+2. Read the current labor cost value for a labor class in the middle of the table.
 3. Pick different test value
 4. Fill -> save Labor Costs -> navigate away -> return -> verify persisted
 5. Restore original value
 
-**Expected**: Labor cost middle row (index 33) persists correctly; data-driven with TC-015
+**Expected**: Labor cost middle row persists correctly after save and reload
 **Automatable**: Yes
 
 ---
 
-## TC-LOS-ECT-015: Labor Cost Last Row (Index 65) — Persistence (RT)
+## TC-LOS-ECT-015: Labor Cost Last Row — Persistence
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -386,17 +385,17 @@
 **Depends_On**: TC-LOS-ECT-001
 **Steps**:
 1. Navigate to ECT tab
-2. Read current labor cost value at row index 65 (last row of 66-row table)
+2. Read the current labor cost value in the last row of the table.
 3. Pick different test value
 4. Fill -> save Labor Costs -> navigate away -> return -> verify persisted
 5. Restore original value
 
-**Expected**: Labor cost last row (index 65) persists correctly; exercises scroll + BVA upper boundary
+**Expected**: Labor cost last row persists correctly after save and reload (this also exercises scrolling to the last row)
 **Automatable**: Yes
 
 ---
 
-## TC-LOS-ECT-016: Multi-field Fixed Costs — Single Save Persists Both (RT)
+## TC-LOS-ECT-016: Multi-field Fixed Costs — Single Save Persists Both
 
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|
@@ -404,14 +403,14 @@
 
 **Depends_On**: TC-LOS-ECT-001
 **Steps**:
-1. Read current BM and HS values
+1. Read current Benefits Multiplier and Historical Subrental % values
 2. Edit both Benefits Multiplier and Historical Subrental %
 3. Single save (Fixed Costs)
 4. Full page reload -> navigate to ECT
 5. Verify both values persisted
 6. Restore both -> single save -> verify restored
 
-**Expected**: Editing both BM and HS then saving once persists BOTH values
+**Expected**: Editing both Benefits Multiplier and Historical Subrental % then saving once persists BOTH values
 **Automatable**: Yes
 
 ---
@@ -424,12 +423,12 @@
 
 **Depends_On**: TC-LOS-ECT-001
 **Steps**:
-1. Read current BM value (baseline)
-2. Fill BM with different value (dirty the form)
+1. Read current Benefits Multiplier value (baseline)
+2. Fill Benefits Multiplier with a different value to make a change
 3. Click Basic Info tab directly (triggers unsaved changes dialog)
 4. Click Discard on the dialog
 5. Navigate back to ECT
-6. Verify BM is unchanged (original value)
+6. Verify Benefits Multiplier is unchanged (original value)
 
 **Expected**: Discarding unsaved changes prevents persistence; unsaved-changes detection fires correctly on ECT tab
 **Automatable**: Yes

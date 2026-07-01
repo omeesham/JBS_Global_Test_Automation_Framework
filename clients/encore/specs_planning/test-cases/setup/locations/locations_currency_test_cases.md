@@ -219,7 +219,7 @@
 
 **Depends_On**: TC-LOC-CUR-001
 **Steps**: 1. Uncheck USD **Selected** checkbox ✓ Unchecked 2. Verify CAD **Selected** ✓ Already unchecked 3. Verify MXN **Selected** ✓ Already unchecked 4. Verify **Save** button state ✓ Save is DISABLED (app prevents save when 0 currencies selected — no error dialog, Save simply stays disabled)
-**Expected**: Save blocked (disabled) when no currencies selected. NOTE: The earlier plan expected error dialog ("At least one currency must be selected") — actual app behavior is Save button disable, not error notification. 
+**Expected**: Save is disabled (no error dialog) when no currency is selected.
 **Data**: office=1604
 **Status**: ✅ Automated
 **Automation File**: specs/locations/location-currency.spec.ts
@@ -401,14 +401,14 @@
 
 ---
 
-## TC-LOC-CUR-026: Beforeunload dialog fires when form is dirty
+## TC-LOC-CUR-026: Browser warns before leaving the page when there are unsaved changes
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | ✅ Automated | State Transition |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked (form dirty) 3. Verify **Save** enabled ✓ Enabled 4. Attempt page reload ✓ Beforeunload dialog fires 5. Dismiss dialog (stay on page) ✓ Page stays
-**Expected**: Browser beforeunload dialog fires when attempting to navigate away from a dirty form
+**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked (when there are unsaved changes) 3. Verify **Save** enabled ✓ Enabled 4. Attempt page reload ✓ The browser's leave-page confirmation fires 5. Dismiss dialog (stay on page) ✓ Page stays
+**Expected**: The browser's leave-page confirmation fires when attempting to navigate away when there are unsaved changes
 **Data**: office=1604
 **Status**: ✅ Automated
 **Automation File**: specs/locations/location-currency.spec.ts
@@ -461,7 +461,7 @@ Added 2026-06-17 — per-field-type case-completeness pass over the 3×4 currenc
 
 **Depends_On**: none (per-test enforced baseline)
 **Steps**: 1. From the enforced default state, click CAD **Selected** ✓ CAD Selected checked, **Save** enabled 2. Uncheck CAD **Selected** (revert to saved state) ✓ CAD Selected unchecked 3. Verify **Save** button ✓ Returns to disabled (form detects no net change)
-**Expected**: Reverting a checkbox change back to its saved state re-disables Save (the form detects no actual change, so there is nothing to save). Confirms the smart-diff dirty-tracking behavior at grid level.
+**Expected**: Reverting a checkbox change back to its saved state re-disables Save (the form detects no actual change, so there is nothing to save). The form compares against the saved state, not just whether a change event fired.
 **Data**: office=1604
 **Status**: ✅ Automated
 **Automation File**: specs/locations/location-currency.spec.ts

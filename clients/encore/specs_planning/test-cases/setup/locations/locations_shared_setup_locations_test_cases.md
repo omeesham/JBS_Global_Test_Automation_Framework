@@ -87,9 +87,9 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to Setup > Location > 1604 > click **Shared Setup Locations** tab -> Tab activates, tabpanel visible
-2. Verify a table with data-testid="location-settings-table-shared-setup" is visible -> Table present
-3. Verify **Add** button is visible in last table row -> Add button present and enabled
+1. Navigate to Setup > Location > 1604 and click the "Shared Setup Locations" tab. Verify the tab activates and the panel is visible.
+2. Verify the Shared Setup Locations table is visible.
+3. Verify the "Add" button is visible in the last table row and is enabled.
 
 **Expected**: Tab renders table with 5-column layout and Add button at bottom
 **Data**: office=1604
@@ -105,8 +105,8 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads
-2. Inspect column headers left-to-right -> Order: **Local Office** | **Local Office Name** | **Primary Office** | **Shares Inventory** | (empty actions column)
+1. Navigate to the "Shared Setup Locations" tab and verify it loads.
+2. Inspect the column headers from left to right and verify the order is: "Local Office", "Local Office Name", "Primary Office", "Shares Inventory", and one empty actions column.
 
 **Expected**: 5 columns with headers "Local Office", "Local Office Name", "Primary Office", "Shares Inventory", and one empty header
 **Data**: office=1604
@@ -122,11 +122,11 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads
-2. Locate first data row -> Cells show "1604" and "Parker Palm Springs"
-3. Verify **Primary Office** checkbox is checked and disabled (aria-checked="true", disabled) -> Confirmed
-4. Verify **Shares Inventory** checkbox is unchecked and editable (aria-checked="false", not disabled) -> Confirmed
-5. Verify **Delete** button is disabled -> Confirmed
+1. Navigate to the "Shared Setup Locations" tab and verify it loads.
+2. Locate the first data row and verify the cells show "1604" and "Parker Palm Springs".
+3. Verify the "Primary Office" checkbox is checked and disabled.
+4. Verify the "Shares Inventory" checkbox is unchecked and editable.
+5. Verify the "Delete" button is disabled.
 
 **Expected**: Self-location (1604) row: Primary Office locked-checked, Shares Inventory editable-unchecked, Delete disabled
 **Data**: office=1604
@@ -142,9 +142,9 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads
-2. Attempt to click **Primary Office** checkbox in row 1604 -> No interaction (checkbox is disabled)
-3. Verify checkbox state unchanged -> Still checked (aria-checked="true")
+1. Navigate to the "Shared Setup Locations" tab and verify it loads.
+2. Attempt to click the "Primary Office" checkbox in the row for office 1604 and verify no interaction occurs because the checkbox is disabled.
+3. Verify the checkbox state is unchanged and still checked.
 
 **Expected**: Primary Office cannot be unchecked for the self-location; clicking it has no effect because the checkbox is disabled
 **Data**: office=1604
@@ -160,9 +160,9 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads
-2. Inspect **Delete** button for row 1604 -> Button has disabled attribute
-3. Attempt to click Delete -> No action (disabled)
+1. Navigate to the "Shared Setup Locations" tab and verify it loads.
+2. Inspect the "Delete" button for row 1604 and verify it is disabled.
+3. Attempt to click "Delete" and verify no action occurs.
 
 **Expected**: Delete button is disabled for self-location; self-row cannot be removed
 **Data**: office=1604
@@ -180,9 +180,9 @@
 **Preconditions**: Shares Inventory is unchecked for 1604
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads, left-panel Save button is disabled
-2. Click **Shares Inventory** checkbox in row 1604 -> Checkbox becomes checked (aria-checked="true")
-3. Observe left-panel Save button state -> Save button becomes enabled
+1. Navigate to the "Shared Setup Locations" tab and verify it loads with the left-panel "Save" button disabled.
+2. Click the "Shares Inventory" checkbox in the row for office 1604 and verify it becomes checked.
+3. Observe the left-panel "Save" button and verify it becomes enabled.
 
 **Expected**: Toggling Shares Inventory marks form as dirty, enables left-panel Save
 **Data**: office=1604
@@ -201,10 +201,10 @@
 **Preconditions**: Shares Inventory is unchecked for 1604
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads
-2. Click **Shares Inventory** checkbox -> Becomes checked, Save enabled
-3. Click **Shares Inventory** again -> Becomes unchecked (reverted to original)
-4. Observe Save button state -> Save button is disabled again
+1. Navigate to the "Shared Setup Locations" tab and verify it loads.
+2. Click "Shares Inventory" and verify it becomes checked with "Save" enabled.
+3. Click "Shares Inventory" again and verify it becomes unchecked, reverting to the original state.
+4. Observe the "Save" button state and verify it is disabled again.
 
 **Expected**: Reverting to original state removes dirty flag, Save disables
 **Data**: office=1604
@@ -222,12 +222,12 @@
 **Preconditions**: Shares Inventory is unchecked for 1604
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads
-2. Click **Shares Inventory** checkbox -> Becomes checked
-3. Click left-panel **Save** -> "Save Changes" alert dialog appears with Save and Cancel buttons
-4. Click **Save** in dialog -> Data saved, dialog closes
-5. Reload page, navigate back to **Shared Setup Locations** tab -> Tab loads
-6. Verify **Shares Inventory** for row 1604 -> Checked state persisted (aria-checked="true")
+1. Navigate to the "Shared Setup Locations" tab and verify it loads.
+2. Click "Shares Inventory" and verify it becomes checked.
+3. Click the left-panel "Save" and verify the "Save Changes" dialog appears with "Save" and "Cancel" buttons.
+4. Click "Save" in the dialog and verify the data is saved and the dialog closes.
+5. Reload the page and navigate back to the "Shared Setup Locations" tab.
+6. Verify the "Shares Inventory" checkbox for row 1604 is still checked.
 
 **Expected**: Checked state persists after save + reload
 **Data**: office=1604
@@ -244,14 +244,14 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads
-2. Click **Add** button in last table row -> "Change Local Office" dialog opens
-3. Verify dialog heading is "Change Local Office" (h2) -> Correct
-4. Verify search input with placeholder "Search by Location Name, Number" -> Present
-5. Verify results table with 3 columns (checkbox, Local Office, Local Office Name) -> Table visible with rows
-6. Verify **Select** button is disabled (no row selected) -> Confirmed
-7. Verify **Cancel** button is enabled -> Confirmed
-8. Click **Cancel** -> Dialog closes, no changes to main table
+1. Navigate to the "Shared Setup Locations" tab and verify it loads.
+2. Click "Add" in the last table row and verify the "Change Local Office" dialog opens.
+3. Verify the dialog heading reads "Change Local Office".
+4. Verify the search input with placeholder "Search by Location Name, Number" is present.
+5. Verify the results table has 3 columns (checkbox, Local Office, Local Office Name) and is visible with rows.
+6. Verify the "Select" button is disabled because no row is selected.
+7. Verify the "Cancel" button is enabled.
+8. Click "Cancel" and verify the dialog closes with no changes to the main table.
 
 **Expected**: Add opens "Change Local Office" dialog with search, results table, Select/Cancel buttons. Cancel closes without changes.
 **Data**: office=1604
@@ -267,10 +267,10 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> click **Add** -> Dialog opens with 4614+ rows
-2. Type "Miami" in search input -> Results filter to ~69 rows containing "Miami" in location name
-3. Verify filtered rows show matching names (e.g., "Miami Marriott Biscayne Bay") -> Matches visible
-4. Click **Cancel** to close
+1. Navigate to the "Shared Setup Locations" tab, click "Add", and verify the dialog opens with a large number of rows.
+2. Type "Miami" in the search input and verify the results filter to rows containing "Miami" in the location name.
+3. Verify the filtered rows show matching names such as "Miami Marriott Biscayne Bay".
+4. Click "Cancel" to close.
 
 **Expected**: Search input filters results table by location name substring match
 **Data**: office=1604, search="Miami"
@@ -286,10 +286,10 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> click **Add** -> Dialog opens
-2. Type "990002" in search input -> Results filter to 1 row: "990002 - Test Server1"
-3. Verify exact match shown -> Confirmed
-4. Click **Cancel** to close
+1. Navigate to the "Shared Setup Locations" tab, click "Add", and verify the dialog opens.
+2. Type "990002" in the search input and verify the results filter to 1 row showing "990002 - Test Server1".
+3. Verify the exact match is shown.
+4. Click "Cancel" to close.
 
 **Expected**: Search input filters results table by location number match
 **Data**: office=1604, search="990002"
@@ -305,11 +305,11 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> click **Add** -> Dialog opens
-2. Verify **Select** button is disabled -> Disabled (no row selected)
-3. Search for "1099" -> 1 result row
-4. Click the row checkbox (role="checkbox" aria-label="Select row") -> Checkbox becomes checked
-5. Verify **Select** button is now enabled -> Enabled
+1. Navigate to the "Shared Setup Locations" tab, click "Add", and verify the dialog opens.
+2. Verify the "Select" button is disabled because no row is selected.
+3. Search for "1099" and verify 1 result row appears.
+4. Click the row checkbox and verify it becomes checked.
+5. Verify the "Select" button is now enabled.
 
 **Expected**: Selecting a row checkbox enables the Select button
 **Data**: office=1604, search="1099"
@@ -326,15 +326,15 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Only self-row (1604) present
-2. Click **Add** -> Dialog opens
-3. Search for a location (e.g., "1099") -> Filter to result
-4. Check the row checkbox -> Select button enables
-5. Click **Select** -> Dialog closes, new row appears in table
-6. Verify new row shows correct Local Office number and Local Office Name -> Confirmed
-7. Verify left-panel Save button is enabled -> Form is dirty
+1. Navigate to the "Shared Setup Locations" tab and verify only the self-row for office 1604 is present.
+2. Click "Add" and verify the dialog opens.
+3. Search for a location such as "1099" and verify the results filter.
+4. Check the row checkbox and verify the "Select" button becomes enabled.
+5. Click "Select" and verify the dialog closes with a new row appearing in the table.
+6. Verify the new row shows the correct Local Office number and Local Office Name.
+7. Verify the left-panel "Save" button is enabled because there are unsaved changes.
 
-**Expected**: Selecting a location and clicking Select adds it to the table and marks form dirty
+**Expected**: Selecting a location and clicking Select adds it to the table and Save becomes enabled
 **Data**: office=1604, added=1099
 **Cleanup**: Click Delete on added row -> navigate away and discard changes or reload
 
@@ -348,13 +348,13 @@
 **Depends_On**: TC-LOC-SSL-001
 **Automatable**: Yes
 
-**Preconditions**: A non-self location has been added via TC-LOC-SSL-013
+**Preconditions**: A non-self location has been added
 
 **Steps**:
-1. Inspect the added (non-self) row in the table
-2. Verify **Primary Office** checkbox is unchecked and **disabled** (aria-checked="false", disabled attribute present) -> Confirmed
-3. Verify **Shares Inventory** checkbox is checked and **editable** (aria-checked="true", not disabled) -> Confirmed
-4. Verify **Delete** button is **enabled** (not disabled) -> Confirmed
+1. Inspect the added non-self row in the table.
+2. Verify the "Primary Office" checkbox is unchecked and disabled.
+3. Verify the "Shares Inventory" checkbox is checked and editable.
+4. Verify the "Delete" button is enabled.
 
 **Expected**: Non-self rows: Primary Office disabled+unchecked, Shares Inventory checked+editable, Delete enabled
 **Data**: office=1604, added row
@@ -370,13 +370,13 @@
 **Depends_On**: TC-LOC-SSL-001
 **Automatable**: Yes
 
-**Preconditions**: A non-self location has been added (e.g., via TC-LOC-SSL-013)
+**Preconditions**: A non-self location has been added
 
 **Steps**:
-1. Verify table has 2+ data rows (self + added) -> Confirmed
-2. Click **Delete** on the added (non-self) row -> Row is immediately removed from the table (no confirmation dialog)
-3. Verify table returns to only self-row (1604) + Add row -> Confirmed
-4. Verify left-panel Save button state -> Still enabled (form dirty from add+delete cycle)
+1. Verify the table has 2 or more data rows (self plus at least one added row).
+2. Click "Delete" on the added non-self row and verify the row is immediately removed from the table with no confirmation dialog.
+3. Verify the table returns to only the self-row (1604) and the "Add" row.
+4. Verify the left-panel "Save" button is still enabled because there are unsaved changes from the add and delete cycle.
 
 **Expected**: Delete immediately removes the non-self row without any confirmation dialog
 **Data**: office=1604
@@ -393,13 +393,13 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Only self-row
-2. Click **Add** -> Dialog opens
-3. Search for "Miami" -> Results appear
-4. Check a row checkbox (e.g., "1233 - Miami Marriott Biscayne Bay") -> Select enabled
-5. Click **Cancel** instead of Select -> Dialog closes
-6. Verify main table still has only self-row (1604) -> No new row added
-7. Verify left-panel Save button is disabled -> No dirty state
+1. Navigate to the "Shared Setup Locations" tab and verify only the self-row is present.
+2. Click "Add" and verify the dialog opens.
+3. Search for "Miami" and verify results appear.
+4. Check a row checkbox such as "1233 - Miami Marriott Biscayne Bay" and verify "Select" becomes enabled.
+5. Click "Cancel" instead of "Select" and verify the dialog closes.
+6. Verify the main table still has only the self-row (1604) with no new row added.
+7. Verify the left-panel "Save" button is disabled because no dirty state was created.
 
 **Expected**: Cancelling dialog after selecting a row makes no changes to the table
 **Data**: office=1604
@@ -415,11 +415,11 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads
-2. Inspect the Shared Setup Locations tabpanel for a local Save button -> None found inside tabpanel
-3. Toggle **Shares Inventory** -> Left-panel Save becomes enabled
-4. Click left-panel **Save** -> "Save Changes" alert dialog with Save and Cancel buttons
-5. Click **Save** in dialog -> Changes saved
+1. Navigate to the "Shared Setup Locations" tab and verify it loads.
+2. Inspect the Shared Setup Locations panel for a local "Save" button and verify none is found inside the panel.
+3. Toggle "Shares Inventory" and verify the left-panel "Save" becomes enabled.
+4. Click the left-panel "Save" and verify the "Save Changes" dialog appears with "Save" and "Cancel" buttons.
+5. Click "Save" in the dialog and verify changes are saved.
 
 **Expected**: No dedicated Save inside this tab; save uses left-panel Save with "Save Changes" confirmation dialog
 **Data**: office=1604
@@ -436,12 +436,12 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Reload and navigate to **Shared Setup Locations** tab -> Clean state (self only)
-2. Click **Add** -> Search "Miami" -> Select first available result -> Click **Select**
-3. Verify table now has 2 rows -> Confirmed
-4. Click **Save** -> Confirm dialog -> Save succeeds
-5. Reload page and navigate back to SSL tab -> Table reloads from server
-6. Verify table still has 2 rows and added location data matches -> Persisted
+1. Reload and navigate to the "Shared Setup Locations" tab to confirm a clean state with only the self-row.
+2. Click "Add", search for "Miami", select the first available result, and click "Select".
+3. Verify the table now has 2 rows.
+4. Click "Save" and confirm the dialog, then verify the save succeeds.
+5. Reload the page and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table still has 2 rows and the added location data matches.
 
 **Expected**: Added location persists after save + reload round-trip
 **Data**: office=1604, search="Miami" (dynamic — picks first available)
@@ -458,11 +458,11 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Setup: add first available location via name search + save + reload
-2. Verify non-self row has SI=checked (default) -> Confirmed
-3. Toggle **Shares Inventory** OFF on non-self row -> Save enabled
-4. Click **Save** -> Succeeds
-5. Reload and navigate back -> Non-self SI is unchecked -> Persisted
+1. Setup: add the first available location via name search, save, and reload.
+2. Verify the non-self row has "Shares Inventory" checked by default.
+3. Toggle "Shares Inventory" off on the non-self row and verify "Save" becomes enabled.
+4. Click "Save" and verify it succeeds.
+5. Reload and navigate back and verify the non-self "Shares Inventory" is unchecked.
 
 **Expected**: Non-self Shares Inventory toggle persists after save + reload
 **Data**: office=1604, search="Miami" (dynamic)
@@ -479,10 +479,10 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Setup: add first available location + save + reload -> 2 rows
-2. Delete non-self row -> Row removed instantly, Save enabled
-3. Click **Save** -> Succeeds
-4. Reload and navigate back -> Only self-row remains -> Deletion persisted
+1. Setup: add the first available location, save, and reload to confirm 2 rows.
+2. Delete the non-self row and verify it is removed instantly with "Save" becoming enabled.
+3. Click "Save" and verify it succeeds.
+4. Reload and navigate back and verify only the self-row remains.
 
 **Expected**: Deleted location stays removed after save + reload
 **Data**: office=1604, search="Miami" (dynamic)
@@ -498,11 +498,11 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Reload to clean state -> Self SI=unchecked, 1 row
-2. Toggle self **Shares Inventory** ON
-3. Add location via name search dialog
-4. Click **Save** -> Succeeds
-5. Reload -> Self SI=checked AND added row present -> Both changes persisted
+1. Reload to a clean state and verify "Shares Inventory" is unchecked with 1 row.
+2. Toggle "Shares Inventory" on for the self-row.
+3. Add a location via the name search dialog.
+4. Click "Save" and verify it succeeds.
+5. Reload and verify "Shares Inventory" is checked and the added row is present.
 
 **Expected**: Multiple changes (self SI toggle + add location) persist together
 **Data**: office=1604, search="Miami" (dynamic)
@@ -519,18 +519,18 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Reload to clean state -> Self SI=unchecked
-2. Toggle self **Shares Inventory** ON -> Save enabled
-3. Click **Save** -> "Save Changes" dialog appears
-4. Click **Cancel** in dialog -> Dialog closes, form still dirty
-5. Reload without saving -> Self SI reverts to unchecked -> Not persisted
+1. Reload to a clean state and verify "Shares Inventory" is unchecked.
+2. Toggle "Shares Inventory" on and verify "Save" becomes enabled.
+3. Click "Save" and verify the "Save Changes" dialog appears.
+4. Click "Cancel" in the dialog and verify the dialog closes while the form stays dirty.
+5. Reload without saving and verify "Shares Inventory" reverts to unchecked and was not persisted.
 
 **Expected**: Cancelling the Save dialog does NOT persist changes
 **Data**: office=1604
 
 ---
 
-## TC-LOC-SSL-023: Beforeunload fires when SSL form is dirty
+## TC-LOC-SSL-023: Browser warns before leaving the page when there are unsaved changes.
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -539,12 +539,12 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Reload to clean state
-2. Toggle self **Shares Inventory** -> Form dirty, Save enabled
-3. Trigger page reload -> Browser beforeunload dialog fires
-4. Dismiss dialog (stay on page) -> Page remains
+1. Reload to a clean state.
+2. Toggle "Shares Inventory" and verify the form has unsaved changes with "Save" enabled.
+3. Trigger a page reload and verify the browser's leave-page confirmation dialog fires.
+4. Dismiss the dialog to stay on the page and verify the page remains.
 
-**Expected**: Dirty form triggers beforeunload dialog on navigation/reload
+**Expected**: Unsaved changes trigger the browser's leave-page confirmation on navigation/reload
 **Data**: office=1604
 **Cleanup**: Navigate away to discard
 
@@ -559,11 +559,11 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Setup: add first available location + save
-2. Read the added location's number from the table
-3. Click **Add** -> Dialog opens
-4. Search for the added location's number -> "No results." (count=1, localOffice empty)
-5. Verify the row is NOT the added location -> Confirmed absent
+1. Setup: add the first available location and save.
+2. Read the added location's number from the table.
+3. Click "Add" and verify the dialog opens.
+4. Search for the added location's number and verify no results are returned (already associated).
+5. Verify the added location is absent from the dialog results.
 
 **Expected**: Dialog excludes locations already associated with this office
 **Data**: office=1604, search=dynamic (captured from table after add)
@@ -571,7 +571,7 @@
 
 ---
 
-## TC-LOC-SSL-025: Each column header testid resolves to expected text
+## TC-LOC-SSL-025: Each column header shows its expected label
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -580,14 +580,14 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Navigate to **Shared Setup Locations** tab -> Tab loads
-2. Verify `colHeaderLocalOffice` testid resolves and is visible -> Confirmed
-3. Verify `colHeaderLocalOfficeName` testid resolves and is visible -> Confirmed
-4. Verify `colHeaderPrimaryOffice` testid resolves and is visible -> Confirmed
-5. Verify `colHeaderSharesInventory` testid resolves and is visible -> Confirmed
-6. Verify `colHeaderActions` testid resolves and is visible -> Confirmed
+1. Navigate to the "Shared Setup Locations" tab and verify it loads.
+2. Verify the "Local Office" column header is visible.
+3. Verify the "Local Office Name" column header is visible.
+4. Verify the "Primary Office" column header is visible.
+5. Verify the "Shares Inventory" column header is visible.
+6. Verify the actions column header is visible.
 
-**Expected**: Per-testid resolution for each of the 5 column headers (complements TC-002 whole-array check)
+**Expected**: Each of the 5 column headers is addressed and verified individually
 **Data**: office=1604
 
 ---
@@ -601,11 +601,11 @@
 **Automatable**: Yes (currently skipped via test.fixme)
 
 **Steps**:
-1. Reload + navigate to **Shared Setup Locations** tab; ensure clean state
-2. Click **Add** -> Dialog opens
-3. Search for "1233" -> Dialog row count expected = 1
-4. Read the first dialog row -> localOffice = "1233", localOfficeName contains "Miami Marriott"
-5. Click **Cancel** to close dialog
+1. Reload and navigate to the "Shared Setup Locations" tab and ensure a clean state.
+2. Click "Add" and verify the dialog opens.
+3. Search for "1233" and verify 1 result row is returned.
+4. Read the first dialog row and verify "Local Office" = "1233" and "Local Office Name" contains "Miami Marriott".
+5. Click "Cancel" to close the dialog.
 
 **Expected**: Number-search "1233" returns exactly one row for the Miami Marriott Biscayne Bay office
 **Data**: office=1604, search="1233"
@@ -622,15 +622,15 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Reload + navigate to **Shared Setup Locations** tab; ensure clean state
-2. Toggle self **Shares Inventory** ON -> Save enables
-3. Click **Add** -> Dialog opens; search "Chicago"
-4. Verify dialog row count < `the configured max search results` (currently 600) -> Confirmed
-5. Select the first dialog row -> Select button enables
-6. Click **Select** -> Dialog closes; new row added to main table
-7. Click left-panel **Save** -> Confirm dialog -> Save succeeds
-8. Reload + navigate back -> Self SI is checked AND added Chicago row is present
-9. Cleanup: revert self SI + delete added row + Save (try/finally per LR-026)
+1. Reload and navigate to the "Shared Setup Locations" tab and ensure a clean state.
+2. Toggle "Shares Inventory" on for the self-row and verify "Save" becomes enabled.
+3. Click "Add" and verify the dialog opens. Search for "Chicago".
+4. Verify the dialog row count is within the configured maximum search results.
+5. Select the first dialog row and verify the "Select" button becomes enabled.
+6. Click "Select" and verify the dialog closes with a new row added to the main table.
+7. Click the left-panel "Save", confirm the dialog, and verify the save succeeds.
+8. Reload and navigate back and verify "Shares Inventory" is checked and the added Chicago row is present.
+9. Cleanup: revert "Shares Inventory", delete the added row, and save.
 
 **Expected**: Multiple changes (self SI toggle + non-Miami add) persist together after save + reload
 **Data**: office=1604, search="Chicago"
@@ -647,13 +647,13 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Reload + navigate to **Shared Setup Locations** tab; ensure clean state
-2. Make form dirty (toggle Shares Inventory) -> Save enables
-3. Click the **Location Management History** top-level tab -> "Unsaved Changes" alertdialog appears
-4. Click **Stay** in the dialog -> Dialog closes
-5. Verify active top-level tab still contains "Basic Information" (the SSL parent tab) -> Confirmed
-6. Verify Save is still enabled (dirty state preserved) -> Confirmed
-7. Cleanup: discard changes and return to clean state
+1. Reload and navigate to the "Shared Setup Locations" tab and ensure a clean state.
+2. Toggle "Shares Inventory" and verify "Save" becomes enabled.
+3. Click the "Location Management History" top-level tab and verify the "Unsaved Changes" dialog appears.
+4. Click "Stay" in the dialog and verify the dialog closes.
+5. Verify the active top-level tab still shows "Basic Information" (the parent tab of Shared Setup Locations).
+6. Verify "Save" is still enabled because the dirty state is preserved.
+7. Cleanup: discard changes and return to a clean state.
 
 **Expected**: Tab switch with dirty form shows Unsaved Changes dialog; Stay preserves both tab focus and dirty state
 **Data**: office=1604
@@ -669,14 +669,14 @@
 **Automatable**: Yes
 
 **Steps**:
-1. Reload + navigate to **Shared Setup Locations** tab; ensure clean state
-2. Capture console errors on the page
-3. Rapid-click the **Add** button 5 times with 50ms between clicks
-4. Verify exactly 1 dialog is open after settle (poll for isAddDialogVisible) -> Confirmed
-5. Verify dialog count = 1 (no stacking) -> Confirmed
-6. Cleanup: click Cancel to close the single dialog; detach console listener
+1. Reload and navigate to the "Shared Setup Locations" tab and ensure a clean state.
+2. Watch for any error on the page.
+3. Rapidly click the "Add" button 5 times in quick succession.
+4. Verify exactly 1 dialog is open after the clicks settle.
+5. Verify there is no dialog stacking (count = 1).
+6. Cleanup: click "Cancel" to close the single dialog.
 
-**Expected**: App-level modal guard blocks repeat dialog invocation while one is already open; rapid clicks collapse to a single dialog
+**Expected**: Opening the dialog repeatedly in quick succession still shows only one dialog.
 **Data**: office=1604, click_count=5, click_interval=50ms
 **Note**: Console errors retained for trace visibility (not asserted — ambient the application noise like NG0100 / ResizeObserver loop makes strict empty-array assertion too flaky for CI). Load-bearing assertion is `countAddDialogs === 1`.
 
@@ -691,15 +691,11 @@
 **Automatable**: Yes (currently skipped via test.fixme)
 
 **Steps**:
-1. Reload + navigate to **Shared Setup Locations** tab; ensure clean state
-2. For each query in [Chicago, Boston, Marriott]:
- a. Click **Add** -> Dialog opens
- b. Search the query -> Dialog row count < `the configured max search results` (600)
- c. Select first dialog row -> Select enables
- d. Click **Select** -> Row added to main table
-3. Click left-panel **Save** -> Confirm dialog -> Save succeeds
-4. Reload + navigate back -> Verify table data row count = 1 + 3 (self + 3 added)
-5. Cleanup (restore to baseline): delete all non-self rows + Save until only the self-row remains; reload + verify count = 1
+1. Reload and navigate to the "Shared Setup Locations" tab and ensure a clean state.
+2. For each search query in Chicago, Boston, and Marriott: click "Add" and verify the dialog opens. Search the query and verify the row count is within the configured maximum. Select the first dialog row and verify "Select" becomes enabled. Click "Select" and verify the row is added to the main table.
+3. Click the left-panel "Save", confirm the dialog, and verify the save succeeds.
+4. Reload and navigate back and verify the table has 4 data rows (self plus 3 added).
+5. Cleanup: delete all non-self rows, save, and verify only the self-row remains after reload.
 
 **Expected**: All three non-Miami rows persist after save + reload; small-N (3-row) smoke variant for multi-add coverage
 **Data**: office=1604, queries=["Chicago", "Boston", "Marriott"]
@@ -788,13 +784,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` (also opens dialog via `click Add`)
-2. act → `searchInDialog('A')` (1-char filter)
-3. expectBeforeSave → poll `getDialogRowCount > 0` (some result rendered)
-4. click Save and confirm the dialog → `clickDialogCancel` (no persistence — search is in-dialog filter)
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 1` (only self, no leak)
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state (only the self-row) and open the "Change Local Office" dialog.
+2. Type a single character "A" in the search input.
+3. Verify at least one row is rendered in the dialog.
+4. Click "Cancel" to close the dialog without saving.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table still shows only the self-row with no leaked additions.
+7. Restore the table to a clean state.
 
 **Expected**: 1-char search filter renders ≥1 row in dialog; no form leak after cancel + reload
 **Data**: office=1604, search="A"
@@ -812,13 +808,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` + `click Add`
-2. act → `searchInDialog(repeat 'X' 200 times)`
-3. expectBeforeSave → poll dialog still visible + table state stable (no JS error)
-4. click Save and confirm the dialog → `clickDialogCancel`
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 1`
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state and click "Add" to open the dialog.
+2. Type a string of 200 repeated "X" characters in the search input.
+3. Verify the dialog is still visible and the table state is stable with no JavaScript error.
+4. Click "Cancel" to close the dialog.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table shows only the self-row.
+7. Restore the table to a clean state.
 
 **Expected**: 200-char paste does not break dialog rendering; either 0 results or "No results." cleanly
 **Data**: office=1604, search=`"X".repeat(200)`
@@ -836,13 +832,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` + `click Add`
-2. act → `searchInDialog('Atlanta')` (filter to small N) → `searchInDialog('')` (clear)
-3. expectBeforeSave → poll `getDialogRowCount >= 3000` (restored to bulk; per LR-022 no strict count)
-4. click Save and confirm the dialog → `clickDialogCancel`
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 1`
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state and click "Add" to open the dialog.
+2. Search for "Atlanta" to filter to a small number of rows, then clear the search input.
+3. Verify the dialog row count is restored to the bulk catalog size (3000 or more rows).
+4. Click "Cancel" to close the dialog.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table shows only the self-row.
+7. Restore the table to a clean state.
 
 **Expected**: Clearing the search input restores the unfiltered row count; baseline is bulk catalog (~3000+)
 **Data**: office=1604, filtered="Atlanta", cleared=""
@@ -860,13 +856,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` + `click Add`
-2. act → `searchInDialog('&"\\'<>')` (mixed special chars)
-3. expectBeforeSave → poll dialog visible + Select button stays disabled (no real row selected)
-4. click Save and confirm the dialog → `clickDialogCancel`
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 1`
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state and click "Add" to open the dialog.
+2. Type the mixed special characters string in the search input.
+3. Verify the dialog is still visible and the "Select" button stays disabled because no valid row is selected.
+4. Click "Cancel" to close the dialog.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table shows only the self-row.
+7. Restore the table to a clean state.
 
 **Expected**: Special chars produce either zero real rows or "No results." placeholder; no crash, Select stays disabled
 **Data**: office=1604, search=`&"\\'<>`
@@ -884,13 +880,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` + `click Add`
-2. act → `searchInDialog(' ')` (3 spaces)
-3. expectBeforeSave → poll dialog visible + Select stays disabled
-4. click Save and confirm the dialog → `clickDialogCancel`
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 1`
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state and click "Add" to open the dialog.
+2. Type three spaces in the search input.
+3. Verify the dialog is still visible and the "Select" button stays disabled.
+4. Click "Cancel" to close the dialog.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table shows only the self-row.
+7. Restore the table to a clean state.
 
 **Expected**: Whitespace-only input either treats as empty (full bulk) or shows "No results."; no crash
 **Data**: office=1604, search=`" "`
@@ -908,13 +904,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` + `click Add`
-2. act → `searchInDialog(' Atlanta ')` (leading/trailing 2-space wrap)
-3. expectBeforeSave → poll `getDialogRowCount > 0` AND `getDialogRowCount < 600` (filtered to Atlanta region)
-4. click Save and confirm the dialog → `clickDialogCancel`
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 1`
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state and click "Add" to open the dialog.
+2. Type " Atlanta " with leading and trailing spaces in the search input.
+3. Verify at least one row is shown and the count is less than the maximum (filtered to the Atlanta region).
+4. Click "Cancel" to close the dialog.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table shows only the self-row.
+7. Restore the table to a clean state.
 
 **Expected**: Filter trims (or doesn't) whitespace consistently; Atlanta rows render
 **Data**: office=1604, search=`" Atlanta "`
@@ -932,13 +928,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` + `click Add`
-2. act → `searchInDialog('Atlanta')` → `searchInDialog('Boston')` (clear + retype)
-3. expectBeforeSave → poll `getFirstDialogRowText.localOfficeName` does NOT contain "Atlanta" (final state = Boston filter)
-4. click Save and confirm the dialog → `clickDialogCancel`
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 1`
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state and click "Add" to open the dialog.
+2. Search for "Atlanta", then clear and retype "Boston" in the search input.
+3. Verify the first visible dialog row does not contain "Atlanta" in the name (final state shows Boston rows).
+4. Click "Cancel" to close the dialog.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table shows only the self-row.
+7. Restore the table to a clean state.
 
 **Expected**: Re-typing replaces previous filter; final state shows Boston rows, not Atlanta
 **Data**: office=1604, query1="Atlanta", query2="Boston"
@@ -956,13 +952,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` + `click Add`
-2. act → `searchInDialog('Atlanta')` → capture initial row count → `searchInDialog('')` (clear via input.clear)
-3. expectBeforeSave → poll restored count > filtered count (restored to bulk)
-4. click Save and confirm the dialog → `clickDialogCancel`
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 1`
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state and click "Add" to open the dialog.
+2. Search for "Atlanta" and capture the row count, then clear the search input completely.
+3. Verify the restored row count is greater than the filtered count (bulk catalog restored).
+4. Click "Cancel" to close the dialog.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table shows only the self-row.
+7. Restore the table to a clean state.
 
 **Expected**: Clearing input via clear restores rows to bulk count (catalog ~3000+ post-filter)
 **Data**: office=1604
@@ -980,14 +976,14 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes (currently `test.fixme` due to same app bug as TC-030)
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable`
-2. act → add 3 non-Miami rows (Chicago / Dallas / Denver) via search-select-add → save → reload → identify MIDDLE-by-add-order (row 1 in 0-indexed: Dallas) → `deleteNonSelfRow(middleIndex)`
-3. expectBeforeSave → poll Save enabled
-4. click Save and confirm the dialog → `click Save and confirm the dialog`
-5. expectAfterSave → Save disabled
-6. reload → `reloadAndNavigateToSSLTab`
-7. expectAfterReload → `getDataRowCount === 3` (self + 2 remaining); assert remaining row offices = {Chicago, Denver}, NOT Dallas
-8. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state.
+2. Add 3 non-Miami rows (Chicago, Dallas, Denver) by searching for and adding each. Save and reload. Then identify the middle-added row (Dallas) and delete it.
+3. Verify "Save" is enabled.
+4. Click "Save" and confirm the dialog.
+5. Verify "Save" is disabled after the save completes.
+6. Reload and navigate back to the "Shared Setup Locations" tab.
+7. Verify the table has 3 rows (self plus 2 remaining) and the remaining offices are Chicago and Denver, not Dallas.
+8. Restore the table to a clean state.
 
 **Expected**: Deleting middle row preserves rows 0 and 2 across save+reload
 **Data**: office=1604, queries=["Chicago", "Dallas", "Denver"], deleteIndex=1 (post-add-order)
@@ -1006,13 +1002,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable`
-2. act → add 2 non-Miami rows (Atlanta, Boston) → save → reload → delete BOTH non-self rows (loop `findNonSelfRow` + `deleteNonSelfRow` until null)
-3. expectBeforeSave → `getDataRowCount === 1` (only self in-page after deletes)
-4. click Save and confirm the dialog → `click Save and confirm the dialog`
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 1` (only self persisted)
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state.
+2. Add 2 non-Miami rows (Atlanta, Boston), save, reload, then delete both non-self rows.
+3. Verify only the self-row remains in the table.
+4. Click "Save" and confirm the dialog.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify only the self-row persisted.
+7. Restore the table to a clean state.
 
 **Expected**: Bulk-delete of all non-self rows persists; baseline 1-row state restored after save+reload
 **Data**: office=1604, queries=["Atlanta", "Boston"]
@@ -1030,12 +1026,12 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` → toggle self SI to known state (OFF, the default)
-2. act → add 1 non-Miami row (Atlanta) → save → reload → toggle non-self row SI OFF (default = checked, so this toggles to false) → save
-3. click Save and confirm the dialog → `click Save and confirm the dialog`
-4. reload → `reloadAndNavigateToSSLTab`
-5. expectAfterReload → `getSelfSharesInventoryState.checked === false` (UNCHANGED — self SI stays at baseline) AND `getNonSelfRowState(nsRow.index).sharesInventory.checked === false` (CHANGED — non-self toggled)
-6. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state and confirm "Shares Inventory" for the self-row is unchecked (the default).
+2. Add 1 non-Miami row (Atlanta), save, and reload. Then toggle the non-self row "Shares Inventory" off (default is checked, so this changes it to unchecked) and save.
+3. Click "Save" and confirm the dialog.
+4. Reload and navigate back to the "Shared Setup Locations" tab.
+5. Verify the self-row "Shares Inventory" is still unchecked (unchanged) and the non-self row "Shares Inventory" is unchecked (was changed).
+6. Restore the table to a clean state.
 
 **Expected**: Toggling non-self SI does NOT affect self SI across the save+reload cycle (cross-row save independence)
 **Data**: office=1604, query="Atlanta"
@@ -1053,13 +1049,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes (currently `test.fixme` due to cleanup churn on random Delete bug)
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable`
-2. act → add 5 non-Miami rows (Chicago / Boston / Dallas / Denver / Atlanta)
-3. expectBeforeSave → poll Save enabled, `getDataRowCount === 6` (self + 5)
-4. click Save and confirm the dialog → `click Save and confirm the dialog`
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → `getDataRowCount === 6`; assert all 5 office codes present (content-based, no strict order per LR-053/LR-051)
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state.
+2. Add 5 non-Miami rows (Chicago, Boston, Dallas, Denver, Atlanta).
+3. Verify "Save" is enabled and the table shows 6 rows (self plus 5).
+4. Click "Save" and confirm the dialog.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the table shows 6 rows and all 5 office codes are present.
+7. Restore the table to a clean state.
 
 **Expected**: 5-row boundary push persists across save+reload
 **Data**: office=1604, queries=["Chicago", "Boston", "Dallas", "Denver", "Atlanta"]
@@ -1078,13 +1074,13 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable` → confirm self SI = unchecked (default)
-2. act → add 1 non-Miami row (Atlanta) → save → reload → capture self SI state (false) → toggle non-self row SI OFF (no save yet)
-3. expectBeforeSave → in-page state: `getSelfSharesInventoryState.checked === false` (still false — untouched) AND `getNonSelfRowState(nsRow.index).sharesInventory.checked === false` (was true default, now toggled)
-4. click Save and confirm the dialog → `click Save and confirm the dialog` (commit the toggle to clean up the dirty state)
-5. reload → `reloadAndNavigateToSSLTab`
-6. expectAfterReload → self SI still false (post-save still unchanged)
-7. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state and confirm "Shares Inventory" for the self-row is unchecked.
+2. Add 1 non-Miami row (Atlanta), save, and reload. Capture the self-row "Shares Inventory" state (unchecked). Then toggle the non-self row "Shares Inventory" off without saving.
+3. Verify in-page state before save: the self-row "Shares Inventory" is still unchecked (untouched) and the non-self row "Shares Inventory" is now unchecked (was checked by default, now toggled).
+4. Click "Save" and confirm the dialog to commit the toggle and clean up the dirty state.
+5. Reload and navigate back to the "Shared Setup Locations" tab.
+6. Verify the self-row "Shares Inventory" is still unchecked after save.
+7. Restore the table to a clean state.
 
 **Expected**: Toggling non-self SI does NOT change self SI in-page (pre-save assertion)
 **Data**: office=1604, query="Atlanta"
@@ -1102,16 +1098,15 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 **Automatable**: Yes
 
 **Steps**:
-1. baseline → `ensureCleanSSLTable`
-2. act (round-trip): toggle self SI ON → save → reload → assert checked → toggle self SI OFF → save → reload → assert UNCHECKED
-3. click Save and confirm the dialog → `click Save and confirm the dialog` (final save in the round-trip; the lifecycle runner saves only once — the intermediate save is handled in the act step)
-4. reload → `reloadAndNavigateToSSLTab` (final reload — second of two reloads in the round-trip)
-5. expectAfterReload → `getSelfSharesInventoryState.checked === false` (final state)
-6. cleanup → `ensureCleanSSLTable`
+1. Ensure the table is in a clean state.
+2. Toggle "Shares Inventory" on for the self-row, save, reload, verify it is checked, then toggle "Shares Inventory" off, save, and reload.
+3. Note: the final save and reload are the second of two reloads in the round-trip. The intermediate save occurs within step 2.
+4. After the final reload, verify the self-row "Shares Inventory" is unchecked (final state).
+5. Restore the table to a clean state.
 
-**Note**: this TC deviates from one-act-per-test purity for the round-trip motion — pattern parallels the equivalent Notes round-trip TC (edit-twice round-trip). The act step performs both legs of the round-trip; the final save, reload and post-reload check cover only the FINAL leg. The UI cache-invalidation behaviour is verified via the final reload; intermediate state is captured inline in the act step.
+**Note**: This case performs both legs of the round-trip in a single action step. The final save, reload, and post-reload check cover only the final leg. The persisted result is verified via the final reload, with the intermediate state captured inline in the action step.
 
-**Expected**: SI toggles ON → persists checked, toggles OFF → persists unchecked (full state-machine round-trip)
+**Expected**: SI toggled ON persists as checked, and toggled OFF persists as unchecked (a full round-trip of the toggle state).
 **Data**: office=1604
 
 ---
