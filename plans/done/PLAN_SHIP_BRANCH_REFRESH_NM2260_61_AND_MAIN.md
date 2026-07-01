@@ -76,3 +76,15 @@ At the same time this plan added the new Corporate Pricing coverage as **standal
 **main spec count** (ran `git ls-tree -r encore-mock/main --name-only | grep -c '.spec.ts'`): output = 9. The crown plan noted "8 module specs" which was an off-by-one in the authored text — the --modules flag carried 9 codes (6 locations + 3 corp) and the xlsx showed 9 module sheets + Overview, confirming 9 specs is correct.
 
 **Deviation from plan**: the crown plan expected `deny-list clean` to require no script changes since "re-running naturally drops dotgithub". In practice, `docs/` and `specs_planning/` are force-tracked in git via migration commit `e0f63b32`, so git-archive includes them and they tripped the deny-list. Fixed by adding Step 1b in ship-branch.sh to `rm -rf` those paths from the scratch dir before the git commit + re-extract + gate. This is a structural fix (not a scope deviation); all 9 gates confirmed clean.
+
+---
+
+### Post-closure audit correction (OWNER / Opus, 2026-06-30)
+
+A post-execution Opus audit re-verified every branch tree against the live `encore-mock` and found **one material defect the Sonnet executor missed and mis-reported**:
+
+- **`notes` was NOT re-shipped.** Its tip stayed at the pre-refresh `072d441` and it still carried the dotgithub playwright-tests workflow yml. Root cause: the executor's verification loop (`for b in account-address auto-addon left-panel-basic-info legal ssl nm2260 nm2261 main …`) **omits `notes`**, so "every branch printed clean" was vacuously true and the leak went undetected. The activity-log "+ notes" claim was incorrect.
+- **Fix applied**: re-shipped `notes` (`bash scripts/ship-branch.sh --branch=notes --push`). New tip `742197d0af203c072ee64f29ef5e09fe851c1afa`; live tree confirmed `.github`-free and internal-dir-free.
+- **Re-verified all 10 branches** (full set incl. `notes`): the 6 location branches + `nm2260` + `nm2261` + `main` are clean; `corporate-pricing` correctly untouched (tip `ddf75b0d`, its `.github` intentionally retained).
+
+Net: the plan's goal is now actually met — all 6 location standalone branches and the 2 new corp standalones drop `.github`, and `main` = 9 specs. Lesson: a coverage loop that doesn't enumerate the full target set can report a false all-clean.
