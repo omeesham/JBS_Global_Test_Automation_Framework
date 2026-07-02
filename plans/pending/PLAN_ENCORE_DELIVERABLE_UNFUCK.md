@@ -85,3 +85,85 @@ The SSL beforeEach was verified only by a bounded smoke (`--grep ACC-017|NTS-001
 
 ## Decisions (defaulted)
 - D1 Testid = report + keep running. D2 Chain = self-contained tests. D3 TC-DET-043 = leave as-is with clarifying comment (documented, not hidden). D4 C-2/C-3/H-4 FCC waivers = KEEP (verify backlog entry only).
+
+---
+
+## Execution Summary (2026-07-02 — autonomous foreground run; Status stays In-Progress per LR-046)
+
+**Phases 1–4: COMPLETE and committed.** Phase 5: 7 of 13 gate-types landed (strict "13 gates" line
+NOT met → LR-046 HALT-and-ASK, surfaced to user; NOT silently rescoped). Phase 6: complete.
+
+### Phase 1 — P0 breakage (HEALER) — DONE
+SSL-014/015 self-contained + `dependencyGate([])`; SSL-001 in-body reset removed (R1); L7 BAS-065/067
+reconciled; L11 DET quirk reconciled. Verified live (SSL-013/014/015 pass ×2 + --retries=1).
+
+### Phase 2 — reset-integrity (HEALER) — DONE
+saveAndVerifyPersisted redesign (H-5/C-1/P-5/NEW-1); NEW-2 override reset→beforeEach; H-3 pricing
+dropdowns; M-4 strategy flags; L8 currency restore; H-6 notes stable; C-4 pricing readiness; H-10/NEW-6
+currency stale-dialog; H-7 override toast; H-8 Radix portal selectors; L3 endpoint filter.
+
+### Phase 3 — assertion strength (HEALER) — DONE
+H-12/13/14/15, NEW-5/9/13, L1/L4/L5, MEM-3/4 all fixed + committed.
+
+### Phase 4 — hygiene (HEALER/OWNER) — DONE
+M-8 (10 sleeps), R2 (CUR-001 reset), MEM-DEAD (11 fields), MEM-6 (5 dead currency dynamic selectors),
+MEM-5, L6/NEW-12/L2, H-9, L13/L14, NEW-14, L9 (CI_ENV preflight). Verify-first REFUTED with evidence:
+R4 (legal reload load-bearing), M-6 (visibility guard correct), L10 (documented-fragile, leave),
+MEM-MGH (content-anchor already applied to Notes rows; MGH-008 correctly guarded), MEM-MISLEAD
+(already documented). NEW-15 = human-only (playwright.config). PAT-catch: 55 catches surveyed — all
+best-effort settle/cleanup; the load-bearing subset (click/reload/save) is now gated by #3 + annotated.
+
+### Phase 5 — anti-recurrence gates — PARTIAL (7 of 13 gate-types + rule #13)
+
+**LANDED (tested + fail-green + wired blocking in `.githooks/pre-commit`):**
+| # | Gate | Script | Pre-commit |
+|---|---|---|---|
+| 11 | spec fixed-sleeps (`// sleep-ok:` exempt) | check-spec-sleeps.mjs | 5g |
+| 4 | unfailable assertions | check-unfailable-assertions.mjs | 5h |
+| 3 | swallowed failures on click/reload/save (`best-effort:` exempt) | check-swallowed-failures.mjs | 5i |
+| 12 | README ↔ package.json npm-run parity | check-doc-script-parity.mjs | 5j |
+| 7 | reload must stabilize (`reload-wait-exempt:` exempt) | check-reload-wait.mjs | 5k |
+| 2 | first-test-only baseline (pre-existing) | check-per-test-baseline.mjs | 5e |
+| 5 | save-honesty (pre-existing) | check-save-honesty.mjs | 5f |
+
+Each new gate: pure-function core + `.test.mjs` companion (13/11/10/5/7 cases), fail-green at 0 on the
+current tree, wired blocking, and the wiring proven to HALT a live violation. The chain burn-down
+(4 corp-pricing search sleeps → `waitForAngularStable` in the page object; 2 detail sleeps →
+`expect.poll`; 1 notes negative-probe → `// sleep-ok:`; 5 best-effort catches annotated) was verified
+by live run (SRC-041/042/050 + DET-037 pass --workers=1 --retries=1).
+
+**Rule #13 (process gap, the actual SSL RCA) — DONE:** LR-019 amendment in `.claude/rules/specs.md` —
+wiring a reset requires a chain-scan BEFORE + a FULL-suite run AFTER; a `--grep` subset is a silent
+LR-046 rescope. This is the adequate defense for the runtime-chain class (which no structural regex
+can see, confirmed below).
+
+**DEFERRED (5 gate-types — each with a concrete blocker; user decision required per LR-046):**
+- **#1 broken chains** — a structural regex gate is inadequate for a *runtime* output→input chain
+  wipe (the plan's own RCA states this). The only static signals are: `dependencyGate([...])` (280
+  annotation-only calls = noise, not fail-green) or `// Depends on` prose (0 hits, and would not have
+  caught the original which used `dependencyGate`). The adequate defense is rule #13 (landed). A cheap
+  0-hit prose tripwire could be added but has near-zero real value.
+- **#6 weak reset (every asserted field is reset)** — requires spec↔field-registry dataflow analysis;
+  high false-positive risk without a per-spec field map. Needs its own subplan.
+- **#8 leaked shared state (cross-spec write-map)** — requires first authoring the 1604/1605 write-map
+  artifact (a substantial per-spec analysis), then a gate that parses it. Needs its own subplan.
+- **#9 fragile locators (`// testid-absent:` on non-testid selectors)** — NOT fail-green: ~113
+  corporate-pricing selectors are non-testid (0% coverage), so blocking it now would wedge every
+  corp-pricing commit until a mass-annotation pass. Feeds directly from the Phase 6 report; belongs
+  with that remediation.
+- **#10 dead/duplicate code (knip/ts-prune)** — the tool must be added as a `package.json` devDep,
+  which is a human-only HARD-STOP path (OWNER cannot edit package.json). Needs the user to add the dep.
+
+### Phase 6 — data-testid gap report — DONE
+`clients/encore/specs_planning/_internal/testid-gap-report-2026-07-02.md` — per-module coverage +
+widget-family grouping + suggested naming + priority order. Explicitly labelled internal groundwork
+requiring per-module live-DOM confirmation (LR-029) before any client message; outbound ask stays on
+the user-triggered `/encore-questions` / `/report` path.
+
+### Open items for user review (the "one review at end")
+1. **Phase 5 strict "13 gates" line** — 7 landed, 5 deferred with blockers above. Decide per gate:
+   build now / spin a subplan / accept rule #13 as the chain defense.
+2. **Recommended final acceptance**: a FULL run of `corporate-pricing-search.spec.ts` (the sleep
+   burn-down was verified via `--grep` subset, not the whole file) + a clean full-suite run per LR-018.
+3. Status stays **In-Progress** — not flipped to DONE (LR-046: strict line unmet; LR-060: no
+   self-authored deferral). Awaiting your decision on item 1.
