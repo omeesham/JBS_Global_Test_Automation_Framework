@@ -219,6 +219,8 @@ export class BasePage {
  * Use this after navigation/reload instead of networkidle for Angular SPAs.
  * RCA : networkidle hangs on Angular SPAs because zone.js micro-tasks
  * keep the network "active". This method uses Angular's own stability API instead.
+ * This is a MAX wait: it resolves as soon as Angular reports stable, or at `timeout` as a backstop —
+ * it does not block for the full timeout, and returns immediately on non-Angular pages.
  */
   protected async waitForAngularStable(timeout = 10_000): Promise<void> {
     try {
