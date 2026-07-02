@@ -58,7 +58,12 @@ export class LocationNotesPage extends BasePage {
     } finally {
       this.page.removeListener('dialog', handler);
     }
+    // Let Angular finish binding the reloaded model before (and after) re-entering the tab —
+    // without this a fast re-read can race the post-reload hydration and return stale values
+    // (mirrors the Currency tab reload, which stabilizes on both sides of the tab click).
+    await this.waitForAngularStable();
     await this.clickNotesTab();
+    await this.waitForAngularStable();
   }
 
  // ─────────────────────────────────────────────────────────────────────────────

@@ -63,21 +63,29 @@ export class LocationPricingPage extends BasePage {
  // Signal 1 (primary, reliable across offices): the secondary pricing grid has rendered its rows.
  // Grid data arrives after the pricing API responds, so a non-zero row count proves the tab is
  // populated. Every office has price-book rows, so this signal is office-independent.
-    await this.page.waitForFunction(
+    const gridReady = await this.page.waitForFunction(
       () => document.querySelectorAll('[role="tabpanel"] table tbody tr').length > 0,
       undefined,
       { timeout: 20_000 },
-    ).catch(() => { /* a genuine no-data state is surfaced by the test's own assertions */ });
+    ).then(() => true).catch(() => false);
  // Signal 2: the Primary Labor dropdown has been bound by Angular (its label is no longer the
  // empty pre-render placeholder). Confirms checkbox aria-checked and dropdown values reflect
  // persisted state rather than default render values.
-    await this.page.waitForFunction(
+    const dropdownReady = await this.page.waitForFunction(
       (sel) => (((document.querySelector(sel)?.textContent) ?? '').trim().length > 0),
       '[data-testid="location-settings-select-primary-labor-pricing-usd"]',
       { timeout: 10_000 },
-    ).catch(() => {});
+    ).then(() => true).catch(() => false);
  // Final Angular stability pass.
     await this.waitForAngularStable();
+ // At least one readiness signal must hold. If BOTH fail, the tab rendered neither its grid nor its
+ // bound dropdown — a stale/empty render, not real data — so fail loudly instead of silently
+ // continuing (the previous code swallowed both signals, proving nothing about whether the tab loaded).
+    if (!gridReady && !dropdownReady) {
+      throw new Error(
+        'waitForPricingDataLoaded: neither the pricing grid nor the Primary Labor dropdown became ready within timeout — the Pricing tab did not populate.',
+      );
+    }
   }
 
  // ---------------------------------------------------------------------------

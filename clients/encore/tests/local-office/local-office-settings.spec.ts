@@ -876,19 +876,22 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.clickSaveAndConfirm();
   });
 
-  test('TC-LOS-BAS-065: Clear Return offset → save → reload → app re-applies default 1', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-BAS-065: Clear Return offset → save → reload → verify empty (not re-defaulted)', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
     test.setTimeout(60_000);
-    // Live-verified 2026-05-08: clearing Return Date Offset and saving causes the
-    // app to coerce empty back to its default '1' on reload (not stored as empty).
-    // See reports/live-verification-2026-05-08.md.
+    // Live behavior: clearing the Return Date Offset and saving persists it as empty on
+    // reload — the app does NOT coerce it back to a default. Matches the single-field Prep
+    // null round-trip and the clear-all-offsets case.
     await localOfficeSettingsPage.clearAndTab('txtReturnDateOffset');
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     const value = await localOfficeSettingsPage.getInputValue('txtReturnDateOffset');
-    expect(value).toBe('1');
-    // No additional cleanup needed — app already restored '1'.
+    expect(value).toBe('');
+    // Cleanup: restore the default Return offset so the shared office returns to baseline.
+    await localOfficeSettingsPage.fillAndTab('txtReturnDateOffset', '1');
+    await localOfficeSettingsPage.waitForSaveToEnable();
+    await localOfficeSettingsPage.clickSaveAndConfirm();
   });
 
   test('TC-LOS-BAS-066: Clear Prep but keep Delivery → no cross-validation error', async ({ localOfficeSettingsPage, dependencyGate }) => {

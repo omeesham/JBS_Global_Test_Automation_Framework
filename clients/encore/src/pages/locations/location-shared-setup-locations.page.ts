@@ -84,27 +84,34 @@ export class LocationSharedSetupLocationsPage extends BasePage {
  * contamination. No-op if state is already clean.
  */
   async ensureCleanSSLTable(officeNo: string = '1604'): Promise<void> {
-    // Persisting shared SSL state: prove the table is actually clean after reload (re-read + bounded
-    // retry) — a one-shot save can silently no-op and leak a dirty row into the next test.
-    await this.saveAndVerifyPersisted({
-      isAtTarget: async () => {
-        const si = await this.getSelfSharesInventoryState();
-        const nsRow = await this.findNonSelfRow();
-        return !nsRow && !si.checked;
-      },
-      applyMutation: async () => {
-        let nsRow = await this.findNonSelfRow();
-        while (nsRow) {
-          await this.deleteNonSelfRow(nsRow.index);
-          nsRow = await this.findNonSelfRow();
-        }
-        const si = await this.getSelfSharesInventoryState();
-        if (si.checked) await this.setSelfSharesInventory(false);
-      },
-      save: async () => { await this.clickSave(); },
-      reload: async () => { await this.reloadAndNavigateToSSLTab(officeNo); },
-      label: `SSL table clean (office ${officeNo})`,
-    });
+    // Removing a saved shared-setup row is a two-step commit: clicking a row's delete button marks it
+    // for removal but leaves it in the grid until a Save persists the change. Marking many rows before
+    // one Save leaves the grid in a state where the remaining delete buttons stop responding, so clean
+    // in saved batches instead: delete a bounded run of non-self rows (always the current first one,
+    // which always has a live button), Save (commits the removals), reload for a fresh grid, and
+    // re-check — repeating until only the self row remains and Shares Inventory is cleared. A normal,
+    // already-clean office returns on the first check with no deletes.
+    // save-verify-exempt: this method persists in batches and re-reads the reloaded table after every
+    // Save to confirm the removals landed — the same persistence proof saveAndVerifyPersisted performs.
+    const maxBatches = 80;
+    for (let batch = 0; batch < maxBatches; batch++) {
+      const si = await this.getSelfSharesInventoryState();
+      let row = await this.findNonSelfRow();
+      if (!row && !si.checked) return; // already clean
+      let deleted = 0;
+      while (row && deleted < 20) {
+        await this.deleteNonSelfRow(row.index);
+        deleted++;
+        row = await this.findNonSelfRow();
+      }
+      if (si.checked) await this.setSelfSharesInventory(false);
+      await this.clickSave();
+      await this.reloadAndNavigateToSSLTab(officeNo);
+    }
+    throw new Error(
+      `ensureCleanSSLTable: office ${officeNo} shared-setup table still has non-self rows after ` +
+      `${maxBatches} save batches — manual cleanup needed.`,
+    );
   }
 
  // ─────────────────────────────────────────────────────────────────────────────
@@ -138,7 +145,11 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     for (let i = 1; i <= count; i++) {
       const cells = await this.page.locator(`${tbl} tbody tr:nth-child(${i}) td`).allTextContents();
       const office = (cells[0] ?? '').trim();
-      if (office !== '1604') {
+      // A real shared-location row shows a numeric office number. Skip the self office (1604) and,
+      // crucially, the empty-state placeholder row ("No shared setup locations added yet.") — that
+      // placeholder is not a deletable row and has no delete control, so treating it as a non-self
+      // row would make the cleanup click a button that never appears.
+      if (office !== '1604' && /^\d+$/.test(office)) {
         return { index: i, localOffice: office, localOfficeName: (cells[1] ?? '').trim() };
       }
     }

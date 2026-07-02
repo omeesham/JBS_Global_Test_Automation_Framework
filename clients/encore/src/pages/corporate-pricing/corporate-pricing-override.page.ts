@@ -33,6 +33,7 @@ import type { IConfig } from '../../types';
 import { CorporatePricingOverrideSelectors as OS } from '../../selectors/corporate-pricing/override';
 import { CORPORATE_PRICING_ROUTES, CORPORATE_PRICING_COMMON } from '../../data/corporate-pricing/common';
 import { CORP_PRICING_OVERRIDE } from '../../data/corporate-pricing/override';
+import { Log } from '../../utils/logger';
 
 export type OverrideTab = 'Equipment' | 'Labor';
 
@@ -353,12 +354,18 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     if (await dlg.isVisible().catch(() => false)) {
       await this.page.locator(OS.ovrSaveDialogConfirm).first().click();
     }
-    // settle on the success toast (persistence is re-verified by the caller's reload + DOM re-read)
-    await this.page
+    // Settle on the success toast (persistence is re-verified by the caller's reload + DOM re-read).
+    // Warn instead of silently swallowing a timeout — a missing toast is a real signal the save may
+    // not have completed cleanly, even though the caller's reload + re-read remains the proof.
+    const toastSeen = await this.page
       .getByText(CORP_PRICING_OVERRIDE.saveSuccessToast, { exact: false })
       .first()
       .waitFor({ state: 'visible', timeout: 12_000 })
-      .catch(() => {});
+      .then(() => true)
+      .catch(() => false);
+    if (!toastSeen) {
+      Log.warn('saveAndConfirm: success toast not seen within 12s — the caller reload + re-read still proves persistence, but the save may not have completed cleanly.');
+    }
     await this.waitForAngularStable(2_000).catch(() => {});
   }
 

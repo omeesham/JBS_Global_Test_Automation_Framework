@@ -393,6 +393,14 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
    * If MORE than one strategy is present, a prior test persisted a NEW strategy — which is NOT
    * UI-removable (legacy strategies have no Remove). That is unrecoverable fixture drift → THROW
    * loudly rather than silently continue (the spec is designed to never persist a new strategy).
+   *
+   * The flag checkboxes (Is Active / Is Productions / Is Internal / Is GSO) are deliberately NOT
+   * restored here, and that is sufficient: no test ever commits an un-reverted flag change on the
+   * fixture strategy — flag toggles are net-zero (reverted within the same test) and flag-carrying
+   * strategies are only ever added in memory (never saved, so they vanish on the next reload). An
+   * uncommitted toggle is discarded by this method's reload; a committed extra strategy is caught by
+   * the count guard above. The name is therefore the only persisted-mutable field, so restoring it
+   * fully restores the baseline.
    */
   async ensureDefaultState(defaults: { name: string } = { name: STRATEGY.fixtureStrategyName }): Promise<void> {
     const maxAttempts = 3;

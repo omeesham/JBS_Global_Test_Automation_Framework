@@ -205,12 +205,19 @@ export class LocationCurrencyPage extends BasePage {
       Log.info('Save button disabled -- no save performed (distinct from no-dialog)');
       return 'disabled';
     }
+    // Clear any error dialog left open by a prior action, so a stale error cannot be misread as THIS
+    // save's result.
+    const errorDialog = this.getElement('dlgErrorDialog');
+    if (await errorDialog.isVisible().catch(() => false)) {
+      await this.getElement('btnErrorOk').click().catch(() => {});
+      await errorDialog.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+    }
     await el.click();
     const saveDialog = this.getElement('dlgSaveChanges');
     const saveVisible = await saveDialog.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true).catch(() => false);
     if (saveVisible) { Log.info('Save Changes dialog appeared'); return 'save-changes'; }
-    const errorDialog = this.getElement('dlgErrorDialog');
-    const errorVisible = await errorDialog.isVisible().catch(() => false);
+    // Wait briefly for a possibly late-rendering error dialog instead of a single zero-wait snapshot.
+    const errorVisible = await errorDialog.waitFor({ state: 'visible', timeout: 2_000 }).then(() => true).catch(() => false);
     if (errorVisible) { Log.info('Error dialog appeared'); return 'error'; }
     Log.info('No dialog appeared after Save');
     return 'none';

@@ -147,9 +147,8 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
   test('TC-CPR-DET-018: Verify a saved New Price override becomes the row Price after reload', async ({ corporatePricingDetailPage: p }) => {
     const name = DETAIL.anchorB.name;
     await p.setNewPrice(name, DETAIL.newPriceEdit.value);
-    // Known app quirk: a New-Price-only edit may not enable Save. The Max-Discount lever guarantees
-    // the batch commits; the New-Price value is committed with the grid. ensureDefaultState reverts both.
-    if (!(await p.isSaveEnabled())) await p.setMaxDiscount(name, '1');
+    // A New-Price edit alone marks the grid dirty and enables Save; the saved value becomes the row Price.
+    expect(await p.isSaveEnabled()).toBe(true);
     await p.saveAndConfirm();
     await p.open();
     expect(await p.getCellText(name, 'price')).toBe(DETAIL.newPriceEdit.value);

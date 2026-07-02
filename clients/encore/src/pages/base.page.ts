@@ -4,6 +4,7 @@ import { recordCall as recordRetryCall, type AttemptRecord } from '../utils/retr
 import { getTsSelector } from '../selectors';
 import { IConfig } from '../types';
 import { CheckboxState } from './components/location-form-helpers.component';
+import { isAuthUrl } from '../utils/url-host';
 
 export class BasePage {
   // Group A-1 (lifecycle refactor 2026-05-21):
@@ -370,8 +371,13 @@ export class BasePage {
     const networkErrors: string[] = [];
     let inFlight = 0;
     const requestTracker = () => { inFlight++; };
+    // Only backend API responses count as save failures. The Next.js App-Router fires
+    // server-component-render POSTs to the page URL (plus RSC/telemetry requests) that can
+    // return 4xx during the save window without being data-save failures — scoping to the
+    // '/navigator/api/' backend path stops those framework requests from being read as
+    // save errors that fail an otherwise-successful save.
     const responseHandler = (response: { status(): number; url(): string }) => {
-      if (response.status() >= 400) {
+      if (response.status() >= 400 && response.url().includes('/navigator/api/')) {
         networkErrors.push(`${response.status()} ${response.url()}`);
       }
     };
@@ -429,9 +435,21 @@ export class BasePage {
  * and read back again -- in a bounded retry. The post-reload re-read is the load-bearing check;
  * once the attempt budget is spent it throws, turning a silent failure-to-persist into a loud one.
  *
+ * The re-read is necessary but not sufficient on its own: it confirms the value is at the goal
+ * after a server round-trip, not that THIS save is what put it there (the value could already
+ * have matched). That is acceptable here -- the goal is "state is correct going into the next
+ * test", not save attribution. `save` is intentionally void: the callers' save-and-confirm has
+ * no result worth branching on at this layer; persistence is proven by the reload + re-read.
+ *
+ * Two failure modes are made loud instead of silent:
+ *  - a transient throw (navigation/timeout) inside one attempt consumes ONLY that attempt and the
+ *    loop retries from a clean reload, rather than the throw killing the whole retry budget;
+ *  - a reload that lands on the sign-in page (expired auth) throws a clear "session lost" error
+ *    up front, instead of every attempt failing the re-read for a reason that looks like non-persistence.
+ *
  * @param opts.isAtTarget    read the persisted value back and return true when it matches the goal
  * @param opts.applyMutation (re-)drive the form change that sets the goal value
- * @param opts.save          the page's own save-and-confirm
+ * @param opts.save          the page's own save-and-confirm (void by design -- see above)
  * @param opts.reload        navigate away and back so the next read comes from the server
  * @param opts.maxAttempts   whole-cycle attempts before throwing (default 3)
  * @param opts.label         plain-English context for logs and the failure message
@@ -446,16 +464,43 @@ export class BasePage {
   }): Promise<void> {
     const maxAttempts = opts.maxAttempts ?? 3;
     const label = opts.label ?? 'value';
+    // Guard against a reload that silently dropped us on the auth page: isAtTarget can never be
+    // true there, so without this every attempt would burn on a re-read that looks like a
+    // failure-to-persist. Throw a distinct, terminal error a caller can act on (re-authenticate).
+    const assertSessionAlive = (): void => {
+      const url = this.page.url();
+      if (isAuthUrl(url) || url.toLowerCase().includes('/auth/sign-in')) {
+        throw new Error(
+          `saveAndVerifyPersisted: session lost while persisting ${label} — reload landed on the sign-in page (${url}). Re-authenticate before re-running.`,
+        );
+      }
+    };
+    const trail: string[] = [];
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      if (await opts.isAtTarget()) return;
-      await opts.applyMutation();
-      await opts.save();
-      await opts.reload();
-      if (await opts.isAtTarget()) return;
-      Log.warn(`saveAndVerifyPersisted: ${label} not persisted after attempt ${attempt}/${maxAttempts}`);
+      try {
+        if (await opts.isAtTarget()) return;
+        await opts.applyMutation();
+        await opts.save();
+        await opts.reload();
+        assertSessionAlive();
+        if (await opts.isAtTarget()) return;
+        trail.push(`attempt ${attempt}: reloaded but value still not at target`);
+        Log.warn(`saveAndVerifyPersisted: ${label} not persisted after attempt ${attempt}/${maxAttempts}`);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        // Session loss is terminal — retrying cannot recover it, so surface it immediately.
+        if (msg.includes('session lost')) throw err;
+        // Any other throw is treated as a transient failure of THIS attempt: record it, recover to
+        // clean server state with a best-effort reload, and let the loop try again within budget.
+        trail.push(`attempt ${attempt}: threw — ${msg}`);
+        Log.warn(`saveAndVerifyPersisted: ${label} attempt ${attempt}/${maxAttempts} threw, retrying — ${msg}`);
+        if (attempt === maxAttempts) break;
+        await opts.reload().catch(() => { /* best-effort recovery before the next attempt */ });
+      }
     }
-    Log.error(`saveAndVerifyPersisted: ${label} failed to persist after ${maxAttempts} attempts`);
-    throw new Error(`Could not persist ${label} after ${maxAttempts} attempts`);
+    const detail = trail.length ? ` Attempt trail: ${trail.join(' | ')}.` : '';
+    Log.error(`saveAndVerifyPersisted: ${label} failed to persist after ${maxAttempts} attempts.${detail}`);
+    throw new Error(`Could not persist ${label} after ${maxAttempts} attempts.${detail}`);
   }
 
  /**

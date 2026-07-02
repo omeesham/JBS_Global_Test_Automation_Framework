@@ -143,6 +143,10 @@ test.describe('Location Currency @locations @currency', () => {
     expect((await locationCurrencyPage.getCheckboxState('chkMXNIsDefault')).checked).toBe(true);
     expect(await locationCurrencyPage.isMerchantNoMatchesFound('drpMXNMerchant')).toBe(true);
     await locationCurrencyPage.uncheckCheckbox('chkMXNSelected');
+    // Making MXN the default cleared USD's default; unchecking MXN then leaves the office with no
+    // default currency. Restore USD as the default before saving so this test doesn't persist a
+    // no-default state onto the shared office for whatever runs next.
+    await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
     await locationCurrencyPage.clickSave();
   });
 
