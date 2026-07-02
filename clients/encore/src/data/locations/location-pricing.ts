@@ -90,6 +90,11 @@ export const TC033_DATE_VALUES = {
  * Consumed by the page object's ensureDefaultState() in the spec beforeEach so a crashed prior run
  * (e.g. a left-checked checkbox or grid row) cannot make the next test's "change" a no-op.
  * Live-verified 2026-06-19: office 1604 Corporate Pricing + Include Service Fee both checked.
+ *
+ * The five primary pricing dropdowns are intentionally NOT reset here: on office 1604 they start
+ * unset ("--Select--") with no canonical default value, and most carry no selectable strategies,
+ * so there is nothing to restore them to. The multi-currency persistence tests (office 1605) that
+ * do select a strategy restore their own dropdown to unset in-test — so no crash-safety gap exists.
  */
 export const PRICING_DEFAULTS = {
   corporatePricing: true,
