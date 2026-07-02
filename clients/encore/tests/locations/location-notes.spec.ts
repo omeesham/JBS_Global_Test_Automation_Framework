@@ -585,8 +585,8 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       // catch swallows the click rejection since "did the click attempt fire" is the test, not
       // "did the click succeed". The side-effect assertions below are the real check.
       await realPage.locator('[data-testid="location-settings-btn-save"]').click({ force: true, timeout: 2_000 }).catch(() => {});
-      // Settle window for any race-condition request. This is allowed as a one-shot probe,
-      // not inside a polling loop.
+      // sleep-ok: a fixed settle window to prove NO save request fires — a negative has no signal
+      // to poll for. This is a one-shot probe, not inside a polling loop.
       await realPage.waitForTimeout(1_000);
       expect(await locationNotesPage.isSaveEnabled()).toBe(false);
       expect(networkRequests).toHaveLength(0);

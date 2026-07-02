@@ -258,7 +258,8 @@ export class LocationLegalPage extends BasePage {
     };
     this.page.on('dialog', handler);
     try {
- // Trigger reload which fires beforeunload; dismiss keeps us on page
+ // best-effort: this reload only needs to fire the beforeunload prompt; the handler above
+ // dismisses it (which keeps us on the page), so the reload is expected to be cancelled.
       await this.page.reload({ timeout: 5_000 }).catch(() => {});
     } finally {
       this.page.removeListener('dialog', handler);

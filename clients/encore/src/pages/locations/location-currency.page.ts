@@ -209,6 +209,7 @@ export class LocationCurrencyPage extends BasePage {
     // save's result.
     const errorDialog = this.getElement('dlgErrorDialog');
     if (await errorDialog.isVisible().catch(() => false)) {
+      // best-effort: the dialog can close on its own between the visibility check and this click.
       await this.getElement('btnErrorOk').click().catch(() => {});
       await errorDialog.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     }
@@ -251,6 +252,7 @@ export class LocationCurrencyPage extends BasePage {
     const visible = await el.isVisible().catch(() => false);
     if (!visible) return '';
     const text = ((await el.textContent().catch(() => '')) ?? '').trim();
+    // best-effort: the dialog can close on its own between reading the text and this dismiss click.
     await this.getElement('btnErrorOk').click().catch(() => {});
     await this.getElement('dlgErrorDialog').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info(`Error dialog text: ${text}`);
@@ -336,6 +338,8 @@ export class LocationCurrencyPage extends BasePage {
     };
     this.page.on('dialog', handler);
     try {
+      // best-effort: this reload only needs to fire the beforeunload prompt; the handler above
+      // dismisses it, so the reload is expected to be cancelled rather than complete.
       await this.page.reload({ timeout: 5_000 }).catch(() => {});
     } finally {
       this.page.removeListener('dialog', handler);

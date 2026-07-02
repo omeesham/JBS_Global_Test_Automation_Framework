@@ -387,14 +387,14 @@ test.describe('Corporate Pricing — Pricing Detail create-mode positive control
     // Content-anchored: the grid may start with a placeholder row, so assert the added group is
     // PRESENT by name rather than counting rows (count is confounded by the placeholder).
     await np.addProductGroupByName(DETAIL.anchorA.name); // double-click ADD
-    await np.page.waitForTimeout(500);
-    expect((await np.getDetailGridRows()).join(' | '), 'double-click adds the product group')
-      .toContain(DETAIL.anchorA.name);
+    await expect.poll(async () => (await np.getDetailGridRows()).join(' | '), {
+      message: 'double-click adds the product group', timeout: 10_000,
+    }).toContain(DETAIL.anchorA.name);
 
     await np.dragProductGroupByName(DETAIL.anchorB.name); // full-pointer drag ADD (the positive-control primitive)
-    await np.page.waitForTimeout(800);
-    expect((await np.getDetailGridRows()).join(' | '), 'full-pointer drag adds another product group')
-      .toContain(DETAIL.anchorB.name);
+    await expect.poll(async () => (await np.getDetailGridRows()).join(' | '), {
+      message: 'full-pointer drag adds another product group', timeout: 10_000,
+    }).toContain(DETAIL.anchorB.name);
     // No commit — the create page is intentionally non-persisting; this only proves the add primitive fires.
   });
 });

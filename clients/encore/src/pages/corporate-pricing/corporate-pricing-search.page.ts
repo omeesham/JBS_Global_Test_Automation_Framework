@@ -299,9 +299,11 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.clickSearch();
     const resp = await respPromise;
     // After Search, wait for grid STRUCTURE (headers), NOT a data row — a server filter can legitimately
-    // return 0 results (e.g. Pricebook + Is Internal combo), so requiring a row would hang. The count
-    // poll in the spec handles the value-settle.
+    // return 0 results (e.g. Pricebook + Is Internal combo), so requiring a row would hang.
     await this.page.locator(S.colHeaderAny).first().waitFor({ state: 'visible', timeout: 30_000 });
+    // Then wait for the app to finish rendering the (possibly zero) result rows. This settles the
+    // row-count value so callers can read it immediately without a fixed sleep.
+    await this.waitForAngularStable();
     return resp.url();
   }
 

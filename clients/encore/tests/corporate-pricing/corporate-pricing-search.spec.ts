@@ -551,7 +551,6 @@ test.describe('Corporate Pricing — Search: Grid Options + filter→grid conten
     await cp.setCheckbox('isLabor', true);
     await cp.selectCurrency('USD'); // Active Only stays checked (default)
     await cp.searchAndWaitForList();
-    await cp.page.waitForTimeout(300);
     const count = await cp.getTbodyRowCount();
     if (count === 0) {
       expect(await cp.hasNoResultsMessage()).toBe(true); // an empty intersection is a coherent result
@@ -571,7 +570,6 @@ test.describe('Corporate Pricing — Search: Grid Options + filter→grid conten
     await cp.selectCurrency('USD');
     await cp.setCheckbox('isInternal', true);
     await cp.searchAndWaitForList();
-    await cp.page.waitForTimeout(300);
     const count1 = await cp.getItemCountNumber();
     const names1 = await cp.getFirstNPriceBookNames(5);
     await cp.clickReset();
@@ -696,7 +694,6 @@ test.describe('SBC — Search surface behaviors @corporate-pricing @search', () 
     await cp.selectCurrency('USD');
     await cp.setCheckbox('isInternal', true);
     await cp.searchAndWaitForList();
-    await cp.page.waitForTimeout(300);
     const count2 = await cp.getItemCountNumber();
     if (await cp.getTbodyRowCount() > 0) {
       const cur = await cp.readColumnForVisibleRows('Currency');
@@ -704,7 +701,6 @@ test.describe('SBC — Search surface behaviors @corporate-pricing @search', () 
     }
     await cp.setCheckbox('isLabor', true); // add a 3rd criterion
     await cp.searchAndWaitForList();
-    await cp.page.waitForTimeout(300);
     expect(await cp.getItemCountNumber()).toBeLessThanOrEqual(count2); // narrows or maintains, never widens
     await cp.clickReset();
     expect(await cp.getCheckboxState('isInternal')).toBe(false);

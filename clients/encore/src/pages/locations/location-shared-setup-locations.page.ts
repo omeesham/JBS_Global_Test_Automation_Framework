@@ -55,6 +55,8 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     };
     this.page.on('dialog', handler);
     try {
+      // best-effort: this reload only needs to fire the beforeunload prompt; the handler above
+      // dismisses it, so the reload is expected to be cancelled rather than complete.
       await this.page.reload({ timeout: 5_000 }).catch(() => {});
     } finally {
       this.page.removeListener('dialog', handler);
