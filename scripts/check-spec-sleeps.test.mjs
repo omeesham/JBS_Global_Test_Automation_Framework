@@ -86,13 +86,22 @@ test('exempts a sleep annotated inline', () => {
   assertEq(findSleeps('  await page.waitForTimeout(1000); // sleep-ok: negative probe').length, 0);
 });
 
-test('does NOT exempt when the marker is two lines above', () => {
+test('does NOT exempt when a non-comment line separates the marker from the sleep', () => {
   const src = [
     '  // sleep-ok: reason',
     '  const x = 1;',
     '  await page.waitForTimeout(1000);',
   ].join('\n');
-  assertEq(findSleeps(src).length, 1, 'the marker must be on the sleep line or the one directly above');
+  assertEq(findSleeps(src).length, 1, 'the comment-block walk stops at the non-comment line');
+});
+
+test('exempts a sleep with the marker in a multi-line comment block directly above', () => {
+  const src = [
+    '  // A fixed settle to prove NO save request fires.',
+    '  // sleep-ok: a negative has no signal to poll for.',
+    '  await page.waitForTimeout(1000);',
+  ].join('\n');
+  assertEq(findSleeps(src).length, 0, 'marker anywhere in the contiguous comment block above exempts');
 });
 
 // ---------- walkSpecFiles + buildReport — full pipeline over a temp repo ----------

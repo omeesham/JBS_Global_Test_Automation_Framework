@@ -166,6 +166,61 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
+# --- 5g) Deliverable-unfuck gate: no fixed sleeps in spec files (the DIAGNOSTIC-PAUSE class).
+# Fires when a clients/*/tests/**/*.spec.ts is staged. A fixed page.waitForTimeout / hand-rolled
+# setTimeout sleep flakes and never confirms the transition it waits for — use expect.poll /
+# waitForFunction / waitFor instead. A legitimate prove-a-negative settle is exempt via `// sleep-ok:`.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+  echo "[pre-commit] spec file staged → scanning for fixed sleeps (spec-sleeps gate)..." >&2
+  if ! node scripts/check-spec-sleeps.mjs --enforce; then
+    echo "[pre-commit] HALT: a spec uses a fixed sleep. Replace with expect.poll / waitForFunction /" >&2
+    echo "         locator.waitFor, or annotate a prove-a-negative settle with '// sleep-ok: <reason>'." >&2
+    exit 1
+  fi
+fi
+
+# --- 5h) Deliverable-unfuck gate: no unfailable assertions in spec files.
+# Fires when a clients/*/tests/**/*.spec.ts is staged. Bans swallow-to-benign (.catch(()=>'')),
+# unanchored digit regex (toMatch(/\d/)), and count>=0 tautologies — assertions that pass for
+# almost any value and so give false confidence.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+  echo "[pre-commit] spec file staged → scanning for unfailable assertions..." >&2
+  if ! node scripts/check-unfailable-assertions.mjs --enforce; then
+    echo "[pre-commit] HALT: a spec has an assertion that cannot fail (swallow-to-benign, unanchored" >&2
+    echo "         digit regex, or count>=0). Assert the real value/shape instead." >&2
+    exit 1
+  fi
+fi
+
+# --- 5i) Deliverable-unfuck gate: an empty catch on a load-bearing action must be justified.
+# Fires when a clients/*/src/pages/**.ts page object is staged. An empty `.catch(()=>{})` on a
+# click / reload / save silently discards a real failure — annotate intentional best-effort swallows
+# with a `best-effort:` comment (a settle-only waitFor catch is not flagged).
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/src/pages/.*\.ts$'; then
+  echo "[pre-commit] page object staged → scanning for swallowed failures..." >&2
+  if ! node scripts/check-swallowed-failures.mjs --enforce; then
+    echo "[pre-commit] HALT: an empty catch on a click/reload/save discards a real failure." >&2
+    echo "         Add a '// best-effort: <reason>' comment if the swallow is intentional." >&2
+    exit 1
+  fi
+fi
+
+# --- 5j) Deliverable-unfuck gate: README npm-run commands must exist in package.json.
+# Fires when a README.md or package.json is staged. A documented `npm run <name>` with no matching
+# script is a doc lie a collaborator will copy and hit.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '(^|/)README\.md$|(^|/)package\.json$'; then
+  echo "[pre-commit] README/package.json staged → checking documented npm-run commands..." >&2
+  if ! node scripts/check-doc-script-parity.mjs --enforce; then
+    echo "[pre-commit] HALT: a README documents an 'npm run <name>' that its package.json lacks." >&2
+    echo "         Fix the README command or add the script." >&2
+    exit 1
+  fi
+fi
+
 # --- 6) LR-028 + LR-037: activity-log timestamp validation. ----------------------
 # Fires whenever agent-activity-log.md is staged. Guards against backdated rows
 # (timestamp < latest mtime of any referenced file).

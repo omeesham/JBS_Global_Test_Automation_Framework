@@ -40,8 +40,18 @@ const WAIT_FOR_TIMEOUT_RE = /\bwaitForTimeout\s*\(/;
 // The hand-rolled sleep idiom: `setTimeout(<something>, <number>)` used as a delay. `test.setTimeout(`
 // and `setup.setTimeout(` are the timeout-budget API and are excluded by the negative lookbehind on `.`.
 const RAW_SLEEP_RE = /(?<![.\w])setTimeout\s*\(/;
-// Exemption marker — this line or the one directly above proves a negative (no signal to poll).
-const SLEEP_OK_RE = /\/\/\s*sleep-ok\s*:/i;
+// Exemption marker — this line, or the contiguous comment block directly above, proves a negative.
+const SLEEP_OK_RE = /sleep-ok\s*:/i;
+
+/** True when a comment-only line (`// …` or a `* …` / `/* …` JSDoc line). */
+function isCommentLine(l) { return /^\s*(?:\/\/|\*|\/\*)/.test(l ?? ''); }
+/** True when `re` appears in the contiguous comment block immediately above line index `i`. */
+function markerInCommentBlockAbove(lines, i, re) {
+  for (let j = i - 1; j >= 0 && isCommentLine(lines[j]); j--) {
+    if (re.test(lines[j])) return true;
+  }
+  return false;
+}
 
 /**
  * Scan one spec's source. Returns findings: { line, kind, snippet }.
@@ -59,8 +69,9 @@ export function findSleeps(text) {
       : RAW_SLEEP_RE.test(line) ? 'setTimeout'
       : null;
     if (!kind) continue;
-    // Exempt when the sleep line itself, or the line immediately above, carries the sleep-ok marker.
-    const exempt = SLEEP_OK_RE.test(line) || (i > 0 && SLEEP_OK_RE.test(lines[i - 1]));
+    // Exempt when the sleep line itself, or the contiguous comment block directly above it, carries
+    // the sleep-ok marker (so a multi-line justification is recognised).
+    const exempt = SLEEP_OK_RE.test(line) || markerInCommentBlockAbove(lines, i, SLEEP_OK_RE);
     if (exempt) continue;
     findings.push({ line: i + 1, kind, snippet: line.trim() });
   }
