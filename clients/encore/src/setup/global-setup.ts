@@ -86,8 +86,10 @@ function ensureReportDirectories(): void {
 async function runPreflightChecks(): Promise<PreflightResult[]> {
   const results: PreflightResult[] = [];
 
- // Check 1: Required env vars
-  for (const envVar of ['BASE_URL', 'CI_ENV']) {
+ // Check 1: Required env vars. Only BASE_URL is truly required — CI_ENV is optional and
+ // defaults to 'local' when unset (see dotenv-flow node_env above + playwright.config.ts),
+ // so a bare local `npm test` legitimately leaves it empty and must not fail pre-flight.
+  for (const envVar of ['BASE_URL']) {
     const value = process.env[envVar];
     if (!value || value.trim() === '') {
       results.push({ check: `env:${envVar}`, status: 'FAIL', message: `Missing required env var: ${envVar}` });
