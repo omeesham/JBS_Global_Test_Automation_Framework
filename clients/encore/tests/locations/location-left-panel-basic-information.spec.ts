@@ -235,29 +235,27 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
   test('TC-LOC-LP-011: Active checkbox toggle persists through save+reload', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     await lp.setActive(false);
     await lp.saveAndConfirm();
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-A (revert) — let save PUT finish before reload (Mode A)
     await lp.reloadAndNavigate(OFFICE_NO);
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-B (revert) — let reload hydrate persisted value (Mode B)
-    expect((await lp.getActiveState()).checked).toBe(false);
+    // Poll the reloaded value — the persisted checkbox hydrates asynchronously after reload, so a
+    // single immediate read can catch the pre-hydration state (replaces the former fixed wait).
+    await expect.poll(async () => (await lp.getActiveState()).checked, { timeout: 10_000 }).toBe(false);
     // restore
     await lp.setActive(true);
     await lp.saveAndConfirm();
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-A (revert) — let save PUT finish before reload (Mode A)
     await lp.reloadAndNavigate(OFFICE_NO);
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-B (revert) — let reload hydrate persisted value (Mode B)
-    expect((await lp.getActiveState()).checked).toBe(true);
+    await expect.poll(async () => (await lp.getActiveState()).checked, { timeout: 10_000 }).toBe(true);
   });
 
   test('TC-LOC-LP-012: Union checkbox toggle persists through save+reload', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     await lp.setUnion(true);
     await lp.saveAndConfirm();
     await lp.reloadAndNavigate(OFFICE_NO);
-    expect((await lp.getUnionState()).checked).toBe(true);
+    await expect.poll(async () => (await lp.getUnionState()).checked, { timeout: 10_000 }).toBe(true);
     // restore
     await lp.setUnion(false);
     await lp.saveAndConfirm();
     await lp.reloadAndNavigate(OFFICE_NO);
-    expect((await lp.getUnionState()).checked).toBe(false);
+    await expect.poll(async () => (await lp.getUnionState()).checked, { timeout: 10_000 }).toBe(false);
   });
 
   // ── Dropdown enumerations ──────────────────────────────────────────────────

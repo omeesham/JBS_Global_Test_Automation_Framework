@@ -201,11 +201,10 @@ test.describe('Location Legal @locations @legal', () => {
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-A (revert) — let save PUT finish before reload (Mode A)
- // Reload and verify persistence
+ // Reload and verify persistence — poll the reloaded value (the persisted dropdown hydrates
+ // asynchronously after reload, so a single immediate read can catch the pre-hydration state).
     await locationLegalPage.reloadAndNavigateToLegalTab();
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-B (revert) — let reload hydrate persisted value (Mode B)
-    expect(await locationLegalPage.getServiceChargeValue()).toBe(LEGAL_ALT_SC);
+    await expect.poll(async () => locationLegalPage.getServiceChargeValue(), { timeout: 10_000 }).toBe(LEGAL_ALT_SC);
  // Cleanup: restore original
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
     const restore = await locationLegalPage.clickSave();
@@ -223,11 +222,9 @@ test.describe('Location Legal @locations @legal', () => {
  // Save
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-A (revert) — let save PUT finish before reload (Mode A)
  // Reload and verify persistence
     await locationLegalPage.reloadAndNavigateToLegalTab();
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-B (revert) — let reload hydrate persisted value (Mode B)
-    expect(await locationLegalPage.getTermsValue()).toBe(LEGAL_ALT_TC);
+    await expect.poll(async () => locationLegalPage.getTermsValue(), { timeout: 10_000 }).toBe(LEGAL_ALT_TC);
  // Cleanup: restore original
     await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
     const restore = await locationLegalPage.clickSave();
@@ -283,12 +280,11 @@ test.describe('Location Legal @locations @legal', () => {
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-A (revert) — let save PUT finish before reload (Mode A)
- // Reload and verify both persisted
+ // Reload and verify both persisted — poll each reloaded value (persisted dropdowns hydrate
+ // asynchronously after reload, so a single immediate read can catch the pre-hydration state).
     await locationLegalPage.reloadAndNavigateToLegalTab();
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // DIAGNOSTIC-PAUSE-B (revert) — let reload hydrate persisted value (Mode B)
-    expect(await locationLegalPage.getServiceChargeValue()).toBe(LEGAL_ALT_SC);
-    expect(await locationLegalPage.getTermsValue()).toBe(LEGAL_ALT_TC);
+    await expect.poll(async () => locationLegalPage.getServiceChargeValue(), { timeout: 10_000 }).toBe(LEGAL_ALT_SC);
+    await expect.poll(async () => locationLegalPage.getTermsValue(), { timeout: 10_000 }).toBe(LEGAL_ALT_TC);
  // Cleanup: restore BOTH to defaults
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
     await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
