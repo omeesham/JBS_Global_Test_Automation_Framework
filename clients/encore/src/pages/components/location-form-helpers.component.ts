@@ -73,6 +73,11 @@ export abstract class LocationFormHelpers extends BasePage {
     if (wasChecked) { await el.uncheck(); } else { await el.check(); }
     const isNowChecked = (await this.getRadixCheckboxState(selectorKey)).checked;
     Log.info(`Toggled ${selectorKey}: ${wasChecked} -> ${isNowChecked}`);
+    // A toggle must actually flip the state — if it did not, the checkbox was disabled or the click
+    // missed, and a silent no-op would let a caller act on a state that never changed.
+    if (isNowChecked === wasChecked) {
+      throw new Error(`toggleCheckbox("${String(selectorKey)}") did not change state (still ${isNowChecked})`);
+    }
     return isNowChecked;
   }
 

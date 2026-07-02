@@ -61,7 +61,7 @@ This stashes Allure history, cleans, restores history, runs the suite, and regen
 | `npm test` | Run full suite, no history-preservation chain |
 | `npx playwright test --project=chromium` | Run via the chromium project |
 | `npx playwright test <path> --project=chromium` | Run a single spec or directory |
-| `npm run test:chrome` | Run via the `chrome` project (real Chrome channel) |
+| `npx playwright test --project=chrome` | Run via the `chrome` project (real Chrome channel) |
 | `npm run test:debug` / `test:ui` / `test:headed` | Debug, Playwright UI, or headed-browser modes |
 | `npm run test:failed` | Re-run only previously-failed tests |
 | `npm run test:grep -- "@notes"` | Filter by tag/grep |
@@ -143,9 +143,9 @@ Every failing run writes `reports/failure-summary.json`. Each failure carries a 
 
 | Category | Who to file with |
 |---|---|
-| `AUTHENTICATION` | Transient SSO flake — retry. Escalate if persistent. |
+| `AUTH` | Transient SSO flake — retry. Escalate if persistent. |
 | `NETWORK` | Usually upstream / environment. Re-run before triaging. |
-| `TIMEOUT` / `SELECTOR` / `INFRASTRUCTURE` | Framework-side — file with the QA automation team |
+| `TIMING` / `SELECTOR` / `INFRASTRUCTURE` | Framework-side — file with the QA automation team |
 | `APPLICATION` / `DATA` (a.k.a. "Product Defects") | App-side — file with Encore's product team |
 
 Allure's **Categories** panel groups failures into the same buckets visually.
