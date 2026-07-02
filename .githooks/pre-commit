@@ -221,6 +221,20 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
+# --- 5k) Deliverable-unfuck gate: a page reload must stabilize the app before continuing.
+# Fires when a clients/*/src/pages/**.ts page object is staged. A this.page.reload() that is not
+# followed (within the method) by waitForAngularStable races the Angular re-bootstrap. Probe reloads
+# (`.reload(...).catch`) and reload closures are exempt; `// reload-wait-exempt:` overrides.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/src/pages/.*\.ts$'; then
+  echo "[pre-commit] page object staged → checking reloads stabilize the app..." >&2
+  if ! node scripts/check-reload-wait.mjs --enforce; then
+    echo "[pre-commit] HALT: a page.reload() is not followed by waitForAngularStable (race risk)." >&2
+    echo "         Add 'await this.waitForAngularStable();' after the reload, or mark // reload-wait-exempt: <reason>." >&2
+    exit 1
+  fi
+fi
+
 # --- 6) LR-028 + LR-037: activity-log timestamp validation. ----------------------
 # Fires whenever agent-activity-log.md is staged. Guards against backdated rows
 # (timestamp < latest mtime of any referenced file).
