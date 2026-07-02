@@ -33,15 +33,8 @@ test.describe('Location Currency @locations @currency', () => {
     test.setTimeout(60_000);
     await locationCurrencyPage.navigateToCurrencyTab(OFFICE_NO);
     expect(locationCurrencyPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
- // Enforce known baseline: USD=selected+isDefault+correct merchant, CAD/MXN=unselected.
- // Guards against state corruption from previous test runs (idempotent -- no-ops if DB is already correct).
- // merchant must also be reset — prior runs may have changed it to ALTERNATE_USD_MERCHANT.
-    await locationCurrencyPage.checkCheckbox('chkUSDSelected');
-    await locationCurrencyPage.checkCheckbox('chkUSDIsDefault');
-    await locationCurrencyPage.selectMerchantOption('drpUSDMerchant', MERCHANT_DATA.usd.display);
-    await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
-    await locationCurrencyPage.uncheckCheckbox('chkMXNSelected');
-    await locationCurrencyPage.clickSave();
+ // The per-test beforeEach already enforces the USD-default baseline (ensureDefaultState), so this
+ // test only verifies the grid structure — the inline re-baseline here was a duplicate of that.
     expect(await locationCurrencyPage.getGridRowCount()).toBe(3);
     expect(await locationCurrencyPage.getColumnHeaders()).toEqual(CURRENCY_COLUMN_HEADERS);
   });
