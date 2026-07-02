@@ -479,9 +479,15 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
 
 test.describe('Location Shared Setup Locations @locations @shared-setup', () => {
 
-  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
-  // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
+  // Per-test navigation guard: DOM-presence beats url.includes (the settings/location URL is
+  // shared across sub-tabs, so a URL check can't tell which tab is showing).
   test.beforeEach(async ({ locationSharedSetupLocationsPage: pg }) => {
+    // The baseline cleanup below deletes any leftover shared-setup rows and reloads to confirm they
+    // are gone. If the shared office accumulated several stray rows from an interrupted prior run, that
+    // cleanup can take longer than the default per-test timeout — which would wedge every test in this
+    // file behind a timing-out setup. Give the whole slot (this hook included) headroom so it can
+    // finish cleaning instead of dying mid-clean. A normal, already-clean office finishes in seconds.
+    test.setTimeout(90_000);
     if (!(await pg.isOnSharedSetupTab())) {
       await pg.navigateToSharedSetupTab(OFFICE_NO);
     }
@@ -494,9 +500,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   test('TC-LOC-SSL-001: Tab loads with shared-setup table and Add button', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
-    await pg.navigateToSharedSetupTab(OFFICE_NO);
- // Baseline enforcement — clean up any extra rows and reset SI.
-    await pg.ensureCleanSSLTable(OFFICE_NO);
+    // The per-test setup already navigates to the tab and clears any extra rows.
     expect(await pg.isElementVisible('tblSharedSetupLocations')).toBe(true);
     expect(await pg.isElementVisible('btnSharedAdd')).toBe(true);
   });
@@ -630,8 +634,16 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-014: Non-self row has correct state (Primary Office disabled, Shares Inventory editable)', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    dependencyGate(['TC-LOC-SSL-001']);
- // Depends on TC-013: 1099 row is in the table (unsaved)
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    // Add an unsaved location row so this test owns the non-self row it inspects.
+    await pg.clickAdd();
+    await pg.searchInDialog(ADD_LOCATION.searchByNumber);
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 5_000 }).toBe(1);
+    await pg.selectFirstDialogRow();
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+    await pg.clickDialogSelect();
+    expect(await pg.getDataRowCount()).toBe(2);
     const state = await pg.getNonSelfRowState(2);
     expect(state.primaryOffice.checked).toBe(false);
     expect(state.primaryOffice.disabled).toBe(true);
@@ -641,16 +653,22 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-015: Delete removes non-self row instantly with no confirmation dialog', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    dependencyGate(['TC-LOC-SSL-001']);
- // Depends on TC-013/014: 1099 row at index 2
+    dependencyGate([]);
+    test.setTimeout(60_000);
+    // Add an unsaved location row so this test owns the non-self row it deletes.
+    await pg.clickAdd();
+    await pg.searchInDialog(ADD_LOCATION.searchByNumber);
+    await expect.poll(() => pg.getDialogRowCount(), { timeout: 5_000 }).toBe(1);
+    await pg.selectFirstDialogRow();
+    await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
+    await pg.clickDialogSelect();
     expect(await pg.getDataRowCount()).toBe(2);
     await pg.deleteNonSelfRow(2);
  // Row must disappear immediately -- no alertdialog
     expect(await pg.isElementVisible('dlgSaveChanges', 1_500)).toBe(false);
     await expect.poll(() => pg.getDataRowCount(), { timeout: 5_000 }).toBe(1);
     await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true); // dirty from add+delete cycle
- // Cleanup: hard reload — discardAndReturn left the Angular SPA in a broken serial
- // state where the next test's clickAdd opened the wrong dialog.
+    // Cleanup: hard reload so the next test starts from a clean serial state.
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
   });
 

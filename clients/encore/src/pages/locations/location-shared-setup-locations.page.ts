@@ -87,24 +87,27 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     // Removing a saved shared-setup row is a two-step commit: clicking a row's delete button marks it
     // for removal but leaves it in the grid until a Save persists the change. Marking many rows before
     // one Save leaves the grid in a state where the remaining delete buttons stop responding, so clean
-    // in saved batches instead: delete a bounded run of non-self rows (always the current first one,
-    // which always has a live button), Save (commits the removals), reload for a fresh grid, and
-    // re-check — repeating until only the self row remains and Shares Inventory is cleared. A normal,
-    // already-clean office returns on the first check with no deletes.
+    // in saved batches instead: delete a bounded run of the extra location rows (always the current
+    // first one, which always has a live button), Save (commits the removals), reload for a fresh grid,
+    // and re-check — repeating until only the office's own row remains. A normal, already-clean office
+    // returns on the first check with no deletes.
+    //
+    // IMPORTANT: this cleanup never touches the office's own "1604" self-row or its Shares Inventory
+    // checkbox. Un-checking Shares Inventory on the self-row and saving makes the whole self-row
+    // disappear from the table, which would wipe the baseline every other test depends on. Only the
+    // extra (numeric, non-1604) rows are deleted here.
     // save-verify-exempt: this method persists in batches and re-reads the reloaded table after every
     // Save to confirm the removals landed — the same persistence proof saveAndVerifyPersisted performs.
     const maxBatches = 80;
     for (let batch = 0; batch < maxBatches; batch++) {
-      const si = await this.getSelfSharesInventoryState();
       let row = await this.findNonSelfRow();
-      if (!row && !si.checked) return; // already clean
+      if (!row) return; // no extra rows -> clean; the office's own self-row (if present) is left as-is
       let deleted = 0;
       while (row && deleted < 20) {
         await this.deleteNonSelfRow(row.index);
         deleted++;
         row = await this.findNonSelfRow();
       }
-      if (si.checked) await this.setSelfSharesInventory(false);
       await this.clickSave();
       await this.reloadAndNavigateToSSLTab(officeNo);
     }
