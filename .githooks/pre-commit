@@ -166,7 +166,7 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
-# --- 5g) Deliverable-unfuck gate: no fixed sleeps in spec files (the DIAGNOSTIC-PAUSE class).
+# --- 5g) Deliverable-remediation gate: no fixed sleeps in spec files (the DIAGNOSTIC-PAUSE class).
 # Fires when a clients/*/tests/**/*.spec.ts is staged. A fixed page.waitForTimeout / hand-rolled
 # setTimeout sleep flakes and never confirms the transition it waits for — use expect.poll /
 # waitForFunction / waitFor instead. A legitimate prove-a-negative settle is exempt via `// sleep-ok:`.
@@ -180,7 +180,7 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
-# --- 5h) Deliverable-unfuck gate: no unfailable assertions in spec files.
+# --- 5h) Deliverable-remediation gate: no unfailable assertions in spec files.
 # Fires when a clients/*/tests/**/*.spec.ts is staged. Bans swallow-to-benign (.catch(()=>'')),
 # unanchored digit regex (toMatch(/\d/)), and count>=0 tautologies — assertions that pass for
 # almost any value and so give false confidence.
@@ -194,7 +194,7 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
-# --- 5i) Deliverable-unfuck gate: an empty catch on a load-bearing action must be justified.
+# --- 5i) Deliverable-remediation gate: an empty catch on a load-bearing action must be justified.
 # Fires when a clients/*/src/pages/**.ts page object is staged. An empty `.catch(()=>{})` on a
 # click / reload / save silently discards a real failure — annotate intentional best-effort swallows
 # with a `best-effort:` comment (a settle-only waitFor catch is not flagged).
@@ -208,7 +208,7 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
-# --- 5j) Deliverable-unfuck gate: README npm-run commands must exist in package.json.
+# --- 5j) Deliverable-remediation gate: README npm-run commands must exist in package.json.
 # Fires when a README.md or package.json is staged. A documented `npm run <name>` with no matching
 # script is a doc lie a collaborator will copy and hit.
 if git diff --cached --name-only --diff-filter=ACMR \
@@ -221,7 +221,7 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
-# --- 5k) Deliverable-unfuck gate: a page reload must stabilize the app before continuing.
+# --- 5k) Deliverable-remediation gate: a page reload must stabilize the app before continuing.
 # Fires when a clients/*/src/pages/**.ts page object is staged. A this.page.reload() that is not
 # followed (within the method) by waitForAngularStable races the Angular re-bootstrap. Probe reloads
 # (`.reload(...).catch`) and reload closures are exempt; `// reload-wait-exempt:` overrides.

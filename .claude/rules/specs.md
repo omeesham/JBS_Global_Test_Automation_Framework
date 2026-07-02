@@ -106,7 +106,7 @@ describe:
 
 Cross-refs: LR-018 (run-all is truth), LR-046 (strict-line HALT-not-rescope), LR-060 (no silent
 checkpoint), and the pre-commit spec-sleeps / unfailable-assertion / swallowed-failure gates (which
-catch the *structural* fuckup classes this rule's *runtime* class complements).
+catch the *structural* failure classes this rule's *runtime* class complements).
 
 ## LR-021: Un-skip before rewrite — always try original logic first
 

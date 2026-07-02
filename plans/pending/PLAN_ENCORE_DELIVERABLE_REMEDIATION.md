@@ -5,10 +5,10 @@ BrowserTool: cli
 Identity: HEALER (phases 1-3 specs/page-objects) → GARDENER (phase 4 hygiene, phase 5 gates) → OWNER (phase 6 report)
 Origin: ~/.claude/plans/beforeeach-at-line-491-fluttering-nygaard.md (full verdict-matrix adjudication lives there)
 ExecutionMode: FULL autonomous foreground — live-app = oracle (fix to match reality + log), commit locally per phase, NEVER push/ship, one review at end
-Progress: clients/encore/specs_planning/_internal/UNFUCK_PROGRESS.md · Deviations: UNFUCK_DEVIATIONS.md
+Progress: clients/encore/specs_planning/_internal/REMEDIATION_PROGRESS.md · Deviations: REMEDIATION_DEVIATIONS.md
 ---
 
-# PLAN: Encore Deliverable Unfuck — Verified Findings, RCA, Remediation
+# PLAN: Encore Deliverable Remediation — Verified Findings, RCA, Remediation
 
 ## Bootstrap (read before executing)
 - Repo: `C:\Users\rutvi\projects\encore_framework`; client surface: `clients/encore/` (self-contained Playwright/TS suite for Navigator Cloud).
@@ -68,7 +68,7 @@ The SSL beforeEach was verified only by a bounded smoke (`--grep ACC-017|NTS-001
 23. PAT-catch triage: ~34 swallow-class `.catch(()=>{})` — propagate/log load-bearing ones; document best-effort probes.
 
 ### Phase 5 — anti-recurrence: FLAG + BLOCK in CI (no auto-repair) — GARDENER
-24. Author/extend 13 deterministic gates (one per fuckup type — broken chains, first-test-only baseline, swallowed failures, can't-fail assertions, save-trusted-blind, weak reset, race/missing-wait, leaked shared state, fragile locators, dead/dup code, dead-time sleeps, doc/config lies, verification-rescope). Each FAILS commit+CI with file+line+fix. Fail-green each on the clean tree before switching to blocking. Wire into `.githooks/pre-commit` AND ship/`check:all` (closes M-1).
+24. Author/extend 13 deterministic gates (one per defect type — broken chains, first-test-only baseline, swallowed failures, can't-fail assertions, save-trusted-blind, weak reset, race/missing-wait, leaked shared state, fragile locators, dead/dup code, dead-time sleeps, doc/config lies, verification-rescope). Each FAILS commit+CI with file+line+fix. Fail-green each on the clean tree before switching to blocking. Wire into `.githooks/pre-commit` AND ship/`check:all` (closes M-1).
 25. LR-019 amendment (`.claude/rules/specs.md`) for chain-scan-before + full-run-after; cross-ref LR-046/LR-060.
 26. Process capture (agent-mistakes + LEARNED_RULES + activity-log); commit 1604/1605 cross-spec write map (feeds gate #8); worker-count warning near playwright.config.
 

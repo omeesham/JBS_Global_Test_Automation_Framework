@@ -1,7 +1,7 @@
 ---
 title: Encore Navigator Cloud — data-testid Coverage & Gap Report
 date: 2026-07-02
-author: OWNER (deliverable-unfuck Phase 6)
+author: OWNER (deliverable-remediation Phase 6)
 scope: selector-usage inventory across clients/encore/src/selectors/**
 status: INTERNAL groundwork — NOT yet a client message (see §7 before sending anything to Encore)
 verification: selector-file inventory only; per-module LIVE-DOM confirmation (LR-029) REQUIRED before any missing-testid claim goes to the client

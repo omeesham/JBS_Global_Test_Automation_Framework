@@ -259,7 +259,7 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 113 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | — | — | — | — | — | 2026-06-08 |
 | 114 | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | Plan — clients/encore restructure: kill `setup/` + `tests/` wrappers + move test-data + infra to src/ + delete seed spec → ship to encore_deliverables_test:notes-latest | — | — (ready) | — | — | — | acceptEdits | none | 2026-06-08 |
 | 115 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-06-08 |
-| 116 | [PLAN_ENCORE_DELIVERABLE_UNFUCK.md](pending/PLAN_ENCORE_DELIVERABLE_UNFUCK.md) | PLAN: Encore Deliverable Unfuck — Verified Findings, RCA, Remediation | — | — (ready) | IN-PROGRESS | — | — | default | cli | 2026-07-02 |
+| 116 | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | PLAN: Encore Deliverable Remediation — Verified Findings, RCA, Remediation | — | — (ready) | IN-PROGRESS | — | — | default | cli | 2026-07-02 |
 | 117 | [PLAN_SPEC_BASELINE_ENFORCEMENT.md](pending/PLAN_SPEC_BASELINE_ENFORCEMENT.md) | PLAN — Spec Baseline-State Enforcement (fix + rule, no static gate) | — | — (ready) | PENDING | — | — | execution (one page-object method + spec `beforeEach` wiring + one rule-prose edit + one stale-comment fix) | — | 2026-06-08 |
 | 118 | [PLAN_ULTRA_AGENTS_COPILOT_WORKER.md](pending/PLAN_ULTRA_AGENTS_COPILOT_WORKER.md) | Plan — Copilot CLI as Claude Code's free, unlimited "Jr. Worker" (via `/ultra-agents`) | — | — (ready) | — | — | — | — | — | 2026-06-22 |
 | 119 | [SUBPLAN_WALKER_OBSERVATION_MANDATE.md](pending/SUBPLAN_WALKER_OBSERVATION_MANDATE.md) | SUBPLAN — Walker Observation Mandate (+ the Corp-Pricing error-state bug that exposed the gap) | High | — (ready) | PENDING | Opus | xhi | auto | chrome (Part 2 bug is visual; CLI is structurally blind to it) | 2026-06-26 |
@@ -705,7 +705,7 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
-| 2026-07-02 | pending | [PLAN_ENCORE_DELIVERABLE_UNFUCK.md](pending/PLAN_ENCORE_DELIVERABLE_UNFUCK.md) | IN-PROGRESS |
+| 2026-07-02 | pending | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | IN-PROGRESS |
 | 2026-07-01 | pending | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PENDING |
 | 2026-07-01 | done | [PLAN_SHIP_BRANCH_REFRESH_NM2260_61_AND_MAIN.md](done/PLAN_SHIP_BRANCH_REFRESH_NM2260_61_AND_MAIN.md) | DONE |
 | 2026-06-30 | pending | [PLAN_CORP_PRICING_JIRA_DELIVERY.md](pending/PLAN_CORP_PRICING_JIRA_DELIVERY.md) | PENDING |
