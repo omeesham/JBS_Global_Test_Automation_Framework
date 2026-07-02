@@ -82,12 +82,19 @@ export class CredentialLoader {
   }
 
   private static _mapRecord(record: CredentialRecord, role?: string): Credentials {
+    // Never expose secrets through metadata — strip password / mfa fields before surfacing the record.
+    const safeMeta = { ...record } as Record<string, string | undefined>;
+    delete safeMeta.password;
+    delete safeMeta.pass;
+    delete safeMeta.mfaSecret;
+    delete safeMeta.mfa_secret;
+    delete safeMeta.totp_secret;
     return {
       username: record.username || record.user || record.email || '',
       password: record.password || record.pass || '',
       mfaSecret: record.mfaSecret || record.mfa_secret || record.totp_secret,
       role: record.role || role,
-      metadata: record as Record<string, string | undefined>,
+      metadata: safeMeta,
     };
   }
 

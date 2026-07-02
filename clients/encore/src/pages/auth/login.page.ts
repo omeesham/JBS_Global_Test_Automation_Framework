@@ -86,7 +86,10 @@ export class LoginPage extends BasePage {
 
  // Step 7: Wait for redirect back to Navigator Cloud
       Log.info('Waiting for redirect to Navigator Cloud...');
-      const expectedHostname = new URL(this.config?.base_url || this.config?.url || '').hostname;
+      // Use the same base-URL cascade as goto() (including BASE_URL) and guard the empty case —
+      // new URL('') throws a TypeError, which here would mask the real navigation state being checked.
+      const baseForHost = this.config?.base_url || this.config?.url || process.env.BASE_URL || '';
+      const expectedHostname = baseForHost ? new URL(baseForHost).hostname : '';
 
       try {
         await this.page.waitForURL(
@@ -204,7 +207,10 @@ export class LoginPage extends BasePage {
       }
 
  // Check if on Navigator Cloud domain
-      const expectedHostname = new URL(this.config?.base_url || this.config?.url || '').hostname;
+      // Use the same base-URL cascade as goto() (including BASE_URL) and guard the empty case —
+      // new URL('') throws a TypeError, which here would mask the real navigation state being checked.
+      const baseForHost = this.config?.base_url || this.config?.url || process.env.BASE_URL || '';
+      const expectedHostname = baseForHost ? new URL(baseForHost).hostname : '';
       if (!urlHostMatches(url, expectedHostname)) {
         return false;
       }
