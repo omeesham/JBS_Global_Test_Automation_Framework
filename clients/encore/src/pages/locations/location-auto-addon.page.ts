@@ -203,6 +203,9 @@ export class LocationAutoAddonPage extends BasePage {
       window.addEventListener('beforeunload', (e) => e.stopImmediatePropagation(), true);
     });
     await homeLink.click();
+    // These page-scoped changes (widened viewport, suppressed beforeunload) are intentional and are
+    // not restored here: the widened viewport is harmless for later tests, and the beforeunload
+    // suppression is reset automatically when the next test's beforeEach reloads the page.
   }
 
   async isUnsavedDialogVisible(): Promise<boolean> {

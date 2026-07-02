@@ -684,7 +684,10 @@ export class LocationPricingPage extends BasePage {
  // UNSAVED CHANGES DIALOG
  // ---------------------------------------------------------------------------
 
- /** Click sidebar Home link to trigger unsaved changes dialog. Suppresses beforeunload to get app-level dialog. */
+ /** Click sidebar Home link to trigger unsaved changes dialog. Suppresses beforeunload to get the
+  * app-level dialog. The page-scoped changes (widened viewport, suppressed beforeunload) are not
+  * restored here — the viewport is harmless for later tests and the suppression resets on the next
+  * test's page reload. */
   async clickSidebarHome(): Promise<void> {
     const homeLink = this.page.getByRole('link', { name: 'Home' });
     if (!await homeLink.isVisible().catch(() => false)) {

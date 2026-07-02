@@ -523,7 +523,9 @@ export class BasePage {
     if (!currentUrl.includes(`${expectedPath}/${settingsPath}`)) {
       const baseUrl = this.config?.base_url || '';
       Log.info(`Navigating to ${expectedPath}/${settingsPath}`);
-      await this.navigateTo(`${baseUrl}${expectedPath}/${settingsPath}`);
+      // Join with exactly one slash regardless of whether base_url has a trailing one, rather than
+      // relying on the base_url-ends-in-slash convention (a config without it would break the path).
+      await this.navigateTo(`${baseUrl.replace(/\/$/, '')}/${expectedPath}/${settingsPath}`);
       await this.waitForAngularStable();
     }
     const tab = this.getElement(tabKey);
