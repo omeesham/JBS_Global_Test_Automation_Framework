@@ -41,6 +41,10 @@ export class LoginPage extends BasePage {
  * @returns True if login successful and redirected to Navigator Cloud
  */
   async loginWithMicrosoft(username: string, password: string): Promise<boolean> {
+    // Contract: resolves to true only when the post-login authenticated state is verified; resolves to
+    // false on every failure (OAuth error, redirect loop, post-login load failure, or failed
+    // verification). Failure detail is logged + screenshotted here rather than thrown — callers react
+    // to the false return, and must not expect a thrown error as the failure signal.
     const collector = (this.page as unknown as Record<string, unknown>).__diagnosticsCollector as DiagnosticsCollector | undefined;
 
     try {
@@ -244,13 +248,14 @@ export class LoginPage extends BasePage {
  */
   async getLoginError(): Promise<string | null> {
     try {
-      const errorDiv = await this.page.locator(MicrosoftLoginSelectors.divError).first();
-      if (await errorDiv.isVisible({ timeout: 2000 })) {
-        const errorText = await errorDiv.textContent();
-        return errorText?.trim() || 'Unknown error';
-      }
+      const errorDiv = this.page.locator(MicrosoftLoginSelectors.divError).first();
+      // isVisible() ignores its timeout and checks instantly; waitFor actually waits (up to 2s) for a
+      // slow-rendering error to appear, so a real error is not missed by checking a beat too early.
+      await errorDiv.waitFor({ state: 'visible', timeout: 2000 });
+      const errorText = await errorDiv.textContent();
+      return errorText?.trim() || 'Unknown error';
     } catch {
- // No error visible
+ // No error appeared within the wait window.
     }
     return null;
   }
