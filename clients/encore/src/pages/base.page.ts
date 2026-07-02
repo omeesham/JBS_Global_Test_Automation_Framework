@@ -645,9 +645,12 @@ export class BasePage {
       const startMs = Date.now();
       try {
         const listbox = await this.openComboboxListbox(dropdownKey);
+        // Match by accessible name (scoped to this listbox) rather than interpolating the option text
+        // into a :has-text() selector — the role match is properly escaped, so an option label that
+        // contains a quote or bracket can never break or hijack the selector.
         const option = opts.exact
           ? this.page.getByRole('option', { name: optionText, exact: true })
-          : listbox.locator(`[role="option"]:has-text("${optionText}")`);
+          : listbox.getByRole('option', { name: optionText });
         await option.scrollIntoViewIfNeeded({ timeout: 3_000 });
         await option.click({ timeout: 5_000 });
         attempts.push({ attemptN: attempt, durationMs: Date.now() - startMs, outcome: 'pass' });
@@ -691,8 +694,12 @@ export class BasePage {
  */
   protected async getFieldDisplayValue(selectorKey: string): Promise<string> {
     const el = this.getElement(selectorKey);
-    const value = await el.inputValue().catch(() => '') || await el.textContent().catch(() => '');
-    return (value || '').trim();
+    // Prefer the input value; only fall back to text content when the element is not an input
+    // (inputValue() throws for non-input elements). A legitimately empty input then reads as empty
+    // rather than silently falling through to textContent.
+    const asInput = await el.inputValue().then((v) => ({ isInput: true, v })).catch(() => ({ isInput: false, v: '' }));
+    const value = asInput.isInput ? asInput.v : ((await el.textContent().catch(() => '')) ?? '');
+    return value.trim();
   }
 
  /**
