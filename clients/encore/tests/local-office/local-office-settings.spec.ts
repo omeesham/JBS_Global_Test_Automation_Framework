@@ -429,7 +429,9 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
  // Verify table is visible and record baseline count rather than assert strict empty.
     expect(await localOfficeSettingsPage.isElementVisible('tblRoomConfig')).toBe(true);
     const roomCount = await localOfficeSettingsPage.getRoomRowCount();
-    expect(roomCount).toBeGreaterThanOrEqual(0);
+    // Rooms may pre-exist (no delete UI), so record the baseline rather than assert a strict count —
+    // but the row count must read as a real integer (a broken table selector would yield NaN).
+    expect(Number.isInteger(roomCount)).toBe(true);
   });
 
   test('TC-LOS-BAS-031: Add room row', async ({ localOfficeSettingsPage, dependencyGate }) => {
@@ -703,7 +705,10 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
  // Whitespace may be accepted or trimmed — verify it's either whitespace or reverted
     const accepted = afterBlur.trim() === '' && afterBlur !== originalName;
     const reverted = afterBlur === originalName;
-    expect(accepted || reverted).toBe(true);
+    // Whitespace-only is either accepted-as-whitespace or reverted to the original — no third outcome.
+    if (!accepted && !reverted) {
+      expect(afterBlur, 'whitespace-only name should be kept as whitespace or reverted to original').toBe(originalName);
+    }
  // Cleanup: restore original name and reload
     if (accepted) {
       await localOfficeSettingsPage.editSectionName(0, originalName);

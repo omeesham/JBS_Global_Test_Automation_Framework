@@ -177,8 +177,8 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
       expectBeforeSave: async () => {
         const count = await pg.getDialogRowCount();
         // Either filter trims whitespace (matches Atlanta) OR doesn't (0 real results + "No results.").
-        // Both are acceptable behaviors; assert no crash + dialog stable.
-        expect(count).toBeGreaterThanOrEqual(0);
+        // Both are acceptable behaviors; assert no crash + dialog stable. toBeLessThan also fails on
+        // NaN, so it doubles as a crash guard — a broken dialog count would not be a real number.
         expect(count).toBeLessThan(ADD_LOCATION.searchByNameMaxResults);
       },
       saveAndConfirm: () => pg.clickDialogCancel(),

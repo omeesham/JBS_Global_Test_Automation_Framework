@@ -125,7 +125,7 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
       expect(locations.some((l) => l.office === office)).toBe(true);
       // Now that the loop is guaranteed to run, the per-row shape assertion is meaningful.
       for (const loc of locations) {
-        expect(loc.office).toMatch(/\d/);
+        expect(loc.office).toMatch(/^\d+$/);
         expect(loc.name.length).toBeGreaterThan(0);
       }
     } finally {
@@ -214,7 +214,7 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     expect(await p.isSaveEnabled()).toBe(true);
     // discard without saving — reload restores the unsaved edit
     await p.open();
-    expect(await p.getStrategyName().catch(() => '')).not.toBe(STRATEGY.reversibleEdit.editedName);
+    expect(await p.getStrategyName()).not.toBe(STRATEGY.reversibleEdit.editedName);
   });
 
   test('TC-CPR-STR-022: Adding a new strategy changes the state to dirty (Save enabled)', async ({ corporatePricingStrategyPage: p }) => {
@@ -255,7 +255,10 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     // guards against is a silent no-op where the save produces NO feedback at all.
     const { toastSeen } = await p.saveAndConfirm();
     const saveAcknowledged = !(await p.isSaveEnabled());
-    expect(toastSeen || saveAcknowledged).toBe(true);
+    // At least one user-visible confirmation signal must appear (guards against a silent no-op save).
+    if (!toastSeen && !saveAcknowledged) {
+      expect(saveAcknowledged, 'expected a success toast OR the Save button to reset after commit').toBe(true);
+    }
     // restore
     await p.open();
     await p.selectFirstStrategy();

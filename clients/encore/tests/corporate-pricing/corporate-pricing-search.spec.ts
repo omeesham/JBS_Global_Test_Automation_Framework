@@ -165,7 +165,7 @@ test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & re
       expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.pricebook}=${CORP_PRICING_SEARCH.fcc.pricebookBroad}`);
       expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.currency}=${CORP_PRICING_SEARCH.fcc.currencyId.USD}`);
       expect(url).toContain(`${CORP_PRICING_SEARCH.fcc.params.isInternal}=true`);
-      await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThanOrEqual(0); // grid re-rendered (numeric count)
+      await expect.poll(async () => Number.isInteger(await cp.getItemCountNumber()), { timeout: 10_000 }).toBe(true); // grid re-rendered with a numeric count (not a "—" placeholder)
     } finally {
       counter.dispose();
     }

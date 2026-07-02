@@ -164,8 +164,13 @@ test.describe('Location Currency @locations @currency', () => {
     await locationCurrencyPage.checkCheckbox('chkCADSelected');
     await locationCurrencyPage.selectMerchantOption('drpCADMerchant', MERCHANT_DATA.canada.display);
     await locationCurrencyPage.uncheckCheckbox('chkCADSelected');
+    // In-memory: unchecking the currency must not clear its merchant selection in the form.
     expect(await locationCurrencyPage.getMerchantValue('drpCADMerchant')).toContain(MERCHANT_DATA.canada.id);
     await locationCurrencyPage.clickSave();
+    // Persistence: reload and confirm the merchant survived the save → reload round trip
+    // (the title claims it PERSISTS — an in-memory-only check could not prove that).
+    await locationCurrencyPage.reloadAndNavigateToCurrencyTab();
+    expect(await locationCurrencyPage.getMerchantValue('drpCADMerchant')).toContain(MERCHANT_DATA.canada.id);
   });
 
   test('TC-LOC-CUR-016: USD Merchant can be changed to alternate option', async ({ locationCurrencyPage, dependencyGate }) => {

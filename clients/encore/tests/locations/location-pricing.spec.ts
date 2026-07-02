@@ -268,6 +268,10 @@ test.describe('Location Pricing @locations @pricing', () => {
       await locationPricingPage.isGridRowVisible(PRIMARY_TEST_ROW),
       'Primary USD row should remain visible when filtering USD',
     ).toBe(true);
+ // Office 1604 carries only USD rows, so a "filter hides the non-USD rows" negative control is not
+ // possible here — verified live that the filter dropdown offers only the currencies actually
+ // present (no CAD/MXN option to select). This test therefore proves the USD filter keeps the USD
+ // rows visible and does not wrongly drop them; the hide behaviour requires a multi-currency office.
  // Reset filter
     await locationPricingPage.selectCurrencyFilter(DEFAULT_CURRENCY_FILTER);
   });

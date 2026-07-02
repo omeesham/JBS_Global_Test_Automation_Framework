@@ -74,7 +74,7 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     const row = await p.findRowByProductGroup(ANCHOR);
     expect(row).not.toBeNull();
     const current = (await row!.locator('td').nth(CORP_PRICING_OVERRIDE.columnIndex.currentPrice).innerText()).trim();
-    expect(current).toMatch(/\d/); // a value (e.g. "0.00"), not blank — Current Price IS displayed
+    expect(current).toMatch(/\d+\.\d{2}/); // a money value (e.g. "0.00"), not blank — Current Price IS displayed
   });
 
   test('TC-CPR-OVR-007: Active column renders as a Radix checkbox with readable aria-checked', async ({ corporatePricingOverridePage: p }) => {
