@@ -80,6 +80,34 @@ each carrying its baseline only in the first test's body. Defense in depth now m
 
 **Trigger**: Every new spec, AND every time you add/modify a CRUD/save test in an existing spec.
 
+### LR-019 amendment — wiring a reset REQUIRES a full-suite run + a chain scan (2026-07-02)
+
+Graduated from the 2026-07-01 SSL-013→014→015 break: a `beforeEach` reset (`ensureCleanSSLTable`)
+was added to `location-shared-setup-locations`, but it wiped an UNSAVED row that TC-013 left for
+TC-014/015 to consume — a hidden output→input chain. The change was verified only by a bounded
+grep-smoke (`--grep TC-LOC-ACC-017|TC-LOC-NTS-001|TC-LOC-SSL-001`, 4 passed) while the plan required
+the FULL `location-shared-setup-locations` suite. The one behavioural check that covered the chain
+was silently narrowed to a sibling that could not hit it (an LR-046 strict-line rescope with no HALT).
+Every automated gate is structural (regex) and cannot see a runtime chain break — only a full run can.
+
+Two obligations, both non-optional, whenever you wire or change a per-test reset in a save-capable
+describe:
+
+1. **Chain scan BEFORE.** Grep the describe for cross-test coupling — `// Depends on`, prior-state
+   reads, an unsaved row/state one test leaves for the next — before adding a reset. If a chain
+   exists, either make each test self-contained (re-establish its own precondition) or scope the reset
+   so it cannot wipe a live precondition. A reset "normally a no-op" is exactly the false-assumption
+   that shipped this break.
+2. **Full-suite run AFTER.** Run the ENTIRE spec file (not `--grep` a subset) after wiring the reset —
+   that is the ONLY check that exercises inter-test order. A bounded grep-smoke does **not** satisfy
+   this line: if the plan/verification step says "run the full spec", narrowing it to a subset is a
+   silent rescope (LR-046) and must HALT-and-ask, not proceed. `/final-q` cross-checks the plan's
+   verification-step text against the command actually run and flags a narrowed run.
+
+Cross-refs: LR-018 (run-all is truth), LR-046 (strict-line HALT-not-rescope), LR-060 (no silent
+checkpoint), and the pre-commit spec-sleeps / unfailable-assertion / swallowed-failure gates (which
+catch the *structural* fuckup classes this rule's *runtime* class complements).
+
 ## LR-021: Un-skip before rewrite — always try original logic first
 
 When fixing a skipped test, FIRST remove the skip and run the original test logic AS-IS.
