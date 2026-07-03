@@ -58,7 +58,15 @@ export const DENY_GLOBS = [
 ];
 
 // ── Repo-wide markers (sentinels that should never appear anywhere) ───────────
-export const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /v-rutvik/, /khosariya/];
+// The last entry is the profanity / crude-word guard (added 2026-07-03). Its
+// source is deliberately OBFUSCATED (`f(?:u)ck`, not the literal token) so this
+// pattern module — and the write-time jargon hook that imports it — never
+// self-match on their own definition, and a naive `grep` of the repo for the
+// literal word returns zero. It matches the whole family case-insensitively:
+// the bare word, unfuck*, fuckup*, fucked. (A rare base64 blob can contain the
+// substring; such report files live under deny-listed specs_planning and are not
+// normally committed — rename/exclude if one ever trips this.)
+export const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /v-rutvik/, /khosariya/, /f(?:u)ck/i];
 
 // ── Client-shipping-only markers (hard tokens) ───────────────────────────────
 // Scanned ONLY in client-shipping files (target output, or a staged path under

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# commit-msg hook — reject crude/informal profanity in commit messages.
+# Companion to the file-content guard in scripts/lib/forbidden-patterns.mjs
+# (MARKER_GREP): the pre-commit --staged-diff scan sees file *contents* but never
+# the commit *message*, so this hook closes that gap. The match pattern is
+# OBFUSCATED ('f(u)ck', not the literal token) so this hook file does not itself
+# contain the literal word — keeping the file-content guard green.
+set -euo pipefail
+msg_file="$1"
+# Strip git's comment/template lines before scanning the real message body.
+if grep -v '^#' "$msg_file" | grep -iqE 'f(u)ck'; then
+  echo "[commit-msg] BLOCKED: commit message contains a crude/informal word." >&2
+  echo "             Reword professionally (mistake / remediation / incident / defect)." >&2
+  echo "             Guard added 2026-07-03; companion to the MARKER_GREP file-content scan." >&2
+  exit 1
+fi
+exit 0
