@@ -52,7 +52,7 @@ The user's confidence gate ("each failing TC runs successfully 2× before full s
 
 ### Tests dropped / deferred
 
-None dropped from the 27-TC failing list. Three flakes at 2w (BAS-006, BAS-049, BAS-065) are env-saturation per existing reports `RCA_FUCKUP_REPORT_2026-05-07.md` / `the-problem-ci-runs-clever-parnas.md`; they are NOT this plan's done-definition (1w is) and are tracked as separate concerns.
+None dropped from the 27-TC failing list. Three flakes at 2w (BAS-006, BAS-049, BAS-065) are env-saturation per existing reports `RCA_MISTAKE_REPORT_2026-05-07.md` / `the-problem-ci-runs-clever-parnas.md`; they are NOT this plan's done-definition (1w is) and are tracked as separate concerns.
 
 ### Follow-up plans authored (mandatory per E1/E2)
 

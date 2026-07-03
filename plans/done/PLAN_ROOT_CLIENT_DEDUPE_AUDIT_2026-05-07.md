@@ -27,7 +27,7 @@ User asked for honest verification of the 11 review findings + 3 ultrathink find
 
 ---
 
-## Verification: 11 fuckups (claim → artifact → verdict)
+## Verification: 11 mistakes (claim → artifact → verdict)
 
 | # | Claim | Artifact read | Verdict |
 |---|---|---|---|
@@ -169,7 +169,7 @@ User can now invoke `/execute plans/pending/SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_C
 
 ## LR compliance
 
-- **LR-020** (claim-vs-artifact cross-check): every plan claim verified pre-edit; 11/11 fuckups REAL not fabricated.
+- **LR-020** (claim-vs-artifact cross-check): every plan claim verified pre-edit; 11/11 mistakes REAL not fabricated.
 - **LR-027** (this section): execution summary covers every edit with file:line citations and disposition.
 - **LR-028**: activity-log row appended at `2026-05-07T01:48`.
 - **LR-035**: INDEX.md regenerated post-creation via `npm run plans:reindex` (this plan lives in `plans/done/`, picked up at next reindex).
@@ -187,8 +187,8 @@ User can now invoke `/execute plans/pending/SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_C
 
 | Date | Author | Action |
 |---|---|---|
-| 2026-05-07 | OWNER (this session, audit phase) | /audit + /review + /relevant invoked; 11/11 fuckups verified REAL via claim-vs-artifact; 3 ultrathink findings classified; 2 gaps surfaced |
+| 2026-05-07 | OWNER (this session, audit phase) | /audit + /review + /relevant invoked; 11/11 mistakes verified REAL via claim-vs-artifact; 3 ultrathink findings classified; 2 gaps surfaced |
 | 2026-05-07 | OWNER (this session, planning phase) | dreamy-finding-squid.md authored at `~/.claude/plans/`; ExitPlanMode → user approved |
 | 2026-05-07 | OWNER (this session, /execute phase) | 6 plan-mandated edits + 2 Adjacent-Sweep DO-NOWs + LR-028 row landed |
 | 2026-05-07 | OWNER (this session, post-/final-q) | repo mirror created at this file per user directive "save plans in repo, not just .claude" |
-| 2026-05-07 | WATCHDOG (fresh session, AUD-017 §19.3 remediation) | external audit caught 5 real defects this self-audit's GREEN missed: F1 bug count `10`→reality `13` (5 strict-line failures across SUBPLAN_RCD_C), F2 `_ship-test/playwright.config.ts` not filtered (verification grep would false-fail), F3 `clients/encore/readable_externals/agent/` destination dir missing (`git mv` would fail), D1 Phase 4.6 `grep -c` returns ~44 not 5, D2 LR-050 violation in own plan (Phase 4 enumeration incomplete; catch-all `rm -rf reports/` masking ~18 items). All 5 patched in pending subplans. **GREEN verdict from this self-audit is hereby downgraded to YELLOW retrospectively** — the 11/11 fuckups verified REAL claim is correct; the missing-fuckup detection failed (count audits never ran). The §19 thesis "self-audit by the same session that produced a deliverable is structurally non-falsifiable" is empirically validated. Fresh-session audit canonical findings: `~/.claude/plans/plan-root-client-dedupe-review-the-plan-shimmying-creek.md`. |
+| 2026-05-07 | WATCHDOG (fresh session, AUD-017 §19.3 remediation) | external audit caught 5 real defects this self-audit's GREEN missed: F1 bug count `10`→reality `13` (5 strict-line failures across SUBPLAN_RCD_C), F2 `_ship-test/playwright.config.ts` not filtered (verification grep would false-fail), F3 `clients/encore/readable_externals/agent/` destination dir missing (`git mv` would fail), D1 Phase 4.6 `grep -c` returns ~44 not 5, D2 LR-050 violation in own plan (Phase 4 enumeration incomplete; catch-all `rm -rf reports/` masking ~18 items). All 5 patched in pending subplans. **GREEN verdict from this self-audit is hereby downgraded to YELLOW retrospectively** — the 11/11 mistakes verified REAL claim is correct; the missing-mistake detection failed (count audits never ran). The §19 thesis "self-audit by the same session that produced a deliverable is structurally non-falsifiable" is empirically validated. Fresh-session audit canonical findings: `~/.claude/plans/plan-root-client-dedupe-review-the-plan-shimmying-creek.md`. |

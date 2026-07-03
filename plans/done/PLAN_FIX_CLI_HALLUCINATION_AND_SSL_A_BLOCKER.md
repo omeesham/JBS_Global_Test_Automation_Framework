@@ -19,7 +19,7 @@ Same root cause across three instances: agent/me answered authoritatively about 
 2. **Me, this session.** Said `playwright CLI ≠ live Claude interaction` without consulting `docs/read_only_docs/CLI_BROWSER_GUIDE.md` Table 2. Conflated `npx playwright` with `playwright-cli`.
 3. **Repo-wide pattern (Audit Sweep 2).** 6 scripts in `scripts/`, ~1781 lines, all import `chromium` directly + skip `LoginPage`. Institutional, not one-off.
 
-User directive (2026-05-18 mid-plan): "first goal is not to execute the plan, it is to make sure it never happens, only then i will execute that plan we fucked up already." → **Prevention is the primary milestone. Execution is gated on prevention verification.**
+User directive (2026-05-18 mid-plan): "first goal is not to execute the plan, it is to make sure it never happens, only then i will execute that plan we messed up already." → **Prevention is the primary milestone. Execution is gated on prevention verification.**
 
 Audit Sweep 4 corrections (applied): LR-053 taken → **LR-054**; consolidate into existing `feedback_browser_tool_selection.md`; mistake ID **ALL-077**; `.env.e2e` at lines 42-43; CLAUDE.md line 134 verbatim.
 

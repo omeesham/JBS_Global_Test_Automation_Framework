@@ -1,4 +1,4 @@
-# PLAN — Comprehensive Agent-Identity Standards Realignment + Structural Cure for FCC-Pattern Fuckups
+# PLAN — Comprehensive Agent-Identity Standards Realignment + Structural Cure for FCC-Pattern Mistakes
 
 **Status**: DONE
 **Executed**: 2026-05-25
@@ -21,8 +21,8 @@
 
 **User intent (2026-05-25, verbatim)**:
 1. "Update them [identity sys prompts] to current repo standards if they are not already to make sure everything is setup properly."
-2. "Find the reason why FCC fucked up, find all places where FCC subplans / parent fucked up."
-3. "Ultrathink a solution in which we do minimal changes to make sure whatever was already fucked up will never be fucked up… each subplan's job is to make sure each identity is satisfied by the execution of the subplan… no work should be left unplanned/unexecuted at any cost."
+2. "Find the reason why FCC messed up, find all places where FCC subplans / parent messed up."
+3. "Ultrathink a solution in which we do minimal changes to make sure whatever was already messed up will never be messed up… each subplan's job is to make sure each identity is satisfied by the execution of the subplan… no work should be left unplanned/unexecuted at any cost."
 4. "ultrathink and go through everything not just one thing, fix it properly, no patchy stuff, take best approach to fix things without being lazy in any corner."
 
 **SP00..SP08 already owns retroactive cleanup of existing CSV/MD/test-plan backlog**; this plan is the **forward-looking structural cure** so DQU (next pilot) and beyond cannot repeat the pattern.
@@ -69,7 +69,7 @@ This plan is an OWNER governance plan; pipeline identities are not exercised. Ma
 
 ## Audit Findings (forensic synthesis from this session's read passes + audit-add discoveries)
 
-### 2.1 FCC fuckup root cause (1-line)
+### 2.1 FCC mistake root cause (1-line)
 
 `.claude/agents/GENERATOR.md` FCC Paradigm section (lines 39–49) lists 5 steps for FCC spec authoring but contains **no step** requiring PLANNER's MD / test-plan / field-case-catalog to exist BEFORE spec writing. BUILDER followed its sys-prompt; the prompt is the bug.
 
@@ -88,7 +88,7 @@ This plan is an OWNER governance plan; pipeline identities are not exercised. Ma
 | `docs/read_only_docs/AGENT_SHARED_RULES.md` line 801 (§19.4) — **audit-add** | hypothetical legacy reference to `.github/agents/playwright-pipeline-audit.agent.md` HARD STOP 0a | `.claude/agents/AUDIT.md` HARD STOP 0a |
 | `.claude/agents/RUTVIK.agent.md` line 19 — **audit-add** | `clients/encore/tests/` in per-client surface ownership | `clients/encore/specs/` (post-2026-04-30 rebuild) |
 
-**Impact**: every `/identity X` Step 2 ("READ the agent file in full") reads a missing path → role-drift hallucination → HARD STOPs never internalized → FCC-style fuckups go un-blocked.
+**Impact**: every `/identity X` Step 2 ("READ the agent file in full") reads a missing path → role-drift hallucination → HARD STOPs never internalized → FCC-style mistakes go un-blocked.
 
 ### 2.3 Per-agent FCC-paradigm gaps (read-confirmed 2026-05-25)
 
@@ -115,7 +115,7 @@ All needed scripts exist; almost none are wired into pre-commit:
 | `.githooks/pre-commit` | 4 gates: plans-reindex, TC-MD ↔ field-inventory, vendor-fresh (warn-only), BUG-1 page-fixture | ❌ Does NOT call check:tc-parity or validate:activity-log or validate-plan-closure |
 | `.githooks/pre-push` | vendor-fresh (deprecated no-op), deny-list-forbidden | ❌ No parity gate |
 
-### 2.5 Quantification of the existing fuckup (from SP00 + glob audit)
+### 2.5 Quantification of the existing mistake (from SP00 + glob audit)
 
 - Notes module: 26 FCC TCs + 32 main + 5 HIST = 63 spec TCs; MD has 37 rows; CSV **missing entirely**.
 - Local-office: 14 SSL FCC TCs in spec; CSVs merged into one file (should be 3: BAS, HIS, ECT).
@@ -176,7 +176,7 @@ Add HARD STOP #11 after #10 (EXACT COMBOBOX MATCH, line 23):
 
 Augment FCC Paradigm section — insert as new step 6 after current step 5:
 
-> 6. **Post-write parity gate** (FCC fuckup prevention, 2026-05-25): after the spec is written and `npx playwright test --list` confirms TC IDs resolve, run `npm run check:tc-parity`. Exit 0 → continue to Phase 3 (First Run). Exit 1 → HALT, escalate to PLANNER for MD/test-plan/CSV reconciliation. NEVER declare done with parity gaps. The pre-commit hook also enforces this — bypassing via `--no-verify` is a §16 (autonomy) violation.
+> 6. **Post-write parity gate** (FCC mistake prevention, 2026-05-25): after the spec is written and `npx playwright test --list` confirms TC IDs resolve, run `npm run check:tc-parity`. Exit 0 → continue to Phase 3 (First Run). Exit 1 → HALT, escalate to PLANNER for MD/test-plan/CSV reconciliation. NEVER declare done with parity gaps. The pre-commit hook also enforces this — bypassing via `--no-verify` is a §16 (autonomy) violation.
 
 Augment Workflow step 8 (Self-audit) — append two items:
 
@@ -201,7 +201,7 @@ Augment FCC Paradigm section — append Closure gate paragraph:
 
 Insert Workflow step 1.5 between current 1 and 2:
 
-> 1.5. **Parity pre-check (FCC fuckup prevention, 2026-05-25)**: every audit invocation runs `npm run check:tc-parity` BEFORE any mode-specific work. Any non-zero exit = CRITICAL P0 finding "FCC parity violation across repo"; emit per-module spec-orphan / MD-orphan / CSV-orphan counts in findings table BEFORE proceeding to requested mode. Parity violation discovered = block "no findings" verdict on audit regardless of mode outcome.
+> 1.5. **Parity pre-check (FCC mistake prevention, 2026-05-25)**: every audit invocation runs `npm run check:tc-parity` BEFORE any mode-specific work. Any non-zero exit = CRITICAL P0 finding "FCC parity violation across repo"; emit per-module spec-orphan / MD-orphan / CSV-orphan counts in findings table BEFORE proceeding to requested mode. Parity violation discovered = block "no findings" verdict on audit regardless of mode outcome.
 
 Add new Modes table row:
 
@@ -245,7 +245,7 @@ Edit line 19 (per-client surface row): `clients/encore/tests/` → `clients/enco
 Insert three new conditional blocks before final `exit 0` (current line 53):
 
 ```bash
-# --- 5) ALL-071: spec ↔ MD ↔ CSV parity (FCC fuckup prevention, 2026-05-25). ----
+# --- 5) ALL-071: spec ↔ MD ↔ CSV parity (FCC mistake prevention, 2026-05-25). ----
 if git diff --cached --name-only --diff-filter=ACMR \
      | grep -qE '^clients/[^/]+/specs/.*\.spec\.ts$'; then
   echo "[pre-commit] spec file staged → running check:tc-parity (ALL-071)..." >&2
@@ -284,13 +284,13 @@ fi
 
 Augment LR-048 (Subplan Structural Minimum) — insert item 6.5 between current item 6 (Phase 1+) and item 7 (Acceptance criteria):
 
-> 6.5. **Per-identity satisfaction matrix** (FCC fuckup prevention, 2026-05-25 — LR-048 v2) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, CSV exports under `test_cases_csv/`, `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
+> 6.5. **Per-identity satisfaction matrix** (FCC mistake prevention, 2026-05-25 — LR-048 v2) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, CSV exports under `test_cases_csv/`, `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
 >
 >    The subplan body MUST contain a section `## Per-Identity Satisfaction` with a table enumerating HUNTER / GIVER / BUILDER / HEALER / WATCHDOG / GARDENER + owned artifact + concrete deliverable + acceptance command for each.
 >
 >    Rules: any cell marked `(none)` is acceptable AND must be EXPLICITLY MARKED — silence ≠ "no work", silence = LR-048 violation. Each non-`(none)` cell's Acceptance command MUST appear in Phase 3.5 closure step (LR-027) with evidence-emission format. At Status flip to DONE, every non-`(none)` cell is classified (a)/(b)/(c) per LR-040.
 >
->    **Why this exists**: SUBPLAN_NOTES_FCC_PILOT (2026-05-21) added 26 Notes FCC TCs to specs but did not enumerate GIVER's deliverables (MD FCC block, test-plan Scenarios, CSV re-export). Without a structural matrix, those items silently became "future cleanup" — exactly what PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT is now retroactively unfucking. The matrix is the structural prevention.
+>    **Why this exists**: SUBPLAN_NOTES_FCC_PILOT (2026-05-21) added 26 Notes FCC TCs to specs but did not enumerate GIVER's deliverables (MD FCC block, test-plan Scenarios, CSV re-export). Without a structural matrix, those items silently became "future cleanup" — exactly what PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT is now retroactively remediating. The matrix is the structural prevention.
 >
 >    **Cross-refs**: LR-040 (closure-gate completeness); LR-050 (restructure plans enumerate stale-slop cleanup); LR-027 (execution summary mandatory); ALL-071 (spec-MD parity).
 
@@ -307,13 +307,13 @@ Insert after LR-008 (line 77 area, before LR-012):
 > 2. Pre-commit hook gates A/B/C in `.githooks/pre-commit` — commits HALT on parity gaps, backdated activity-log rows, or plan closure without Execution Summary.
 > 3. LR-048 v2 Per-Identity Satisfaction Matrix — subplans cannot leave artifact obligations unscoped at authoring time.
 >
-> If you ever feel like "I'll do the MD/CSV later in a follow-up subplan" — that's the FCC fuckup pattern. STOP. Author the parity work IN the current subplan, OR explicitly mark it `(none)` in the matrix with a one-line justification.
+> If you ever feel like "I'll do the MD/CSV later in a follow-up subplan" — that's the FCC mistake pattern. STOP. Author the parity work IN the current subplan, OR explicitly mark it `(none)` in the matrix with a one-line justification.
 >
 > **Trigger**: every subplan touching Encore spec / test-case / test-plan / CSV artifacts.
 > **Graduated from**: SUBPLAN_NOTES_FCC_PILOT (2026-05-21) closure-gate gap → PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT retroactive cleanup → this plan's structural prevention.
 > **Cross-refs**: ALL-071 (framework parity rule); LR-027 (execution summary); LR-040 (closure-gate); LR-048 v2 (subplan matrix); BUILDER HARD STOP #11.
 
-### Layer 6 — Codify FCC fuckup as agent-mistakes entries (TABLE format)
+### Layer 6 — Codify FCC mistake as agent-mistakes entries (TABLE format)
 
 **File**: `clients/encore/specs_planning/_internal/agent-mistakes.md`
 
@@ -559,5 +559,5 @@ Every out-of-scope item has a named recipient (b) or a self-trigger-conditioned 
 Format (timestamp set at completion):
 
 ```
-| 2026-05-25Thh:mm | OWNER | done | plans/pending/PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.md, .claude/skills/identity/SKILL.md, docs/read_only_docs/AGENT_SHARED_RULES.md, .claude/agents/GENERATOR.md, .claude/agents/PLANNER.md, .claude/agents/AUDIT.md, .claude/agents/HEALER.md, .claude/agents/MAINTAINER.md, .claude/agents/REQUIREMENTS.md, .claude/agents/RUTVIK.agent.md, .githooks/pre-commit, .claude/rules/pipeline.md, clients/encore/CLAUDE.md, clients/encore/specs_planning/_internal/agent-mistakes.md | FCC structural cure: 8 layers across 14 files. L1 SKILL.md path realignment (4 edits incl 1.4 audit-add). L1.5 AGENT_SHARED_RULES.md §2 + §19.4 audit (5 edits incl 1.5.5 audit-add). L2 per-agent FCC HARD STOPs (7 files incl 2.7 RUTVIK audit-add). L3 pre-commit gates A/B/C (ALL-071/LR-028/LR-027). L4 LR-048 v2 per-identity satisfaction matrix. L5 LR-ENC-002 client-level rule. L6 GEN-044 + PLN-050 mistake-table rows. SYNC-ONLY framing dropped per scratch O1 (sync-agent-mistakes.ts no-op for .claude/agents/ post-2026-04-27). 51→40 FCC count fix. Closes forward-looking FCC fuckup pattern; SP00..SP08 owns retroactive cleanup. |
+| 2026-05-25Thh:mm | OWNER | done | plans/pending/PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE.md, .claude/skills/identity/SKILL.md, docs/read_only_docs/AGENT_SHARED_RULES.md, .claude/agents/GENERATOR.md, .claude/agents/PLANNER.md, .claude/agents/AUDIT.md, .claude/agents/HEALER.md, .claude/agents/MAINTAINER.md, .claude/agents/REQUIREMENTS.md, .claude/agents/RUTVIK.agent.md, .githooks/pre-commit, .claude/rules/pipeline.md, clients/encore/CLAUDE.md, clients/encore/specs_planning/_internal/agent-mistakes.md | FCC structural cure: 8 layers across 14 files. L1 SKILL.md path realignment (4 edits incl 1.4 audit-add). L1.5 AGENT_SHARED_RULES.md §2 + §19.4 audit (5 edits incl 1.5.5 audit-add). L2 per-agent FCC HARD STOPs (7 files incl 2.7 RUTVIK audit-add). L3 pre-commit gates A/B/C (ALL-071/LR-028/LR-027). L4 LR-048 v2 per-identity satisfaction matrix. L5 LR-ENC-002 client-level rule. L6 GEN-044 + PLN-050 mistake-table rows. SYNC-ONLY framing dropped per scratch O1 (sync-agent-mistakes.ts no-op for .claude/agents/ post-2026-04-27). 51→40 FCC count fix. Closes forward-looking FCC mistake pattern; SP00..SP08 owns retroactive cleanup. |
 ```

@@ -356,7 +356,7 @@ Run `/regression-guard` BEFORE Phase A and AFTER Phase E. Run `/final-q` per LR-
 
 ## Cross-plan note for next reviewer
 
-The audit corrections at the top of this file mirror those in `PLAN_PRI_STABILIZATION.md` (revised same day). Both plans were authored in the same batch with the same five recurring fuckups:
+The audit corrections at the top of this file mirror those in `PLAN_PRI_STABILIZATION.md` (revised same day). Both plans were authored in the same batch with the same five recurring mistakes:
 
 1. Already-done items proposed as new work.
 2. Hard-skipped TCs misclassified as cascade skips.

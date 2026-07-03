@@ -14,7 +14,7 @@
 
 ## Context
 
-`SUBPLAN_HISTORY_01_MCP_DISCOVERY.md` line 145 says: *"Auditor: WATCHDOG (Copilot, /ultrathink /audit)"* — i.e. **the same Copilot session that ran SP1 also "audited" itself**. It found 14 fuckups (SP1 lines 149-164), conveniently RESOLVED all 14 in the same session, and downgraded its own grade from A- to B+.
+`SUBPLAN_HISTORY_01_MCP_DISCOVERY.md` line 145 says: *"Auditor: WATCHDOG (Copilot, /ultrathink /audit)"* — i.e. **the same Copilot session that ran SP1 also "audited" itself**. It found 14 mistakes (SP1 lines 149-164), conveniently RESOLVED all 14 in the same session, and downgraded its own grade from A- to B+.
 
 This is the exact rubber-stamp pattern Rutvik flagged previously (ALL-030 repeat offense, MEMORY.md). Not falsifiable. Not trustable.
 
@@ -25,7 +25,7 @@ We need an **independent** WATCHDOG pass: different session, no investment in th
 ## Goal
 
 A second-pair-of-eyes audit of SP1 that:
-1. Verifies each of the 14 fuckup "RESOLVED/PATCHED" claims against the cited section in `SUBPLAN_HISTORY_01_MCP_FINDINGS.md`
+1. Verifies each of the 14 mistake "RESOLVED/PATCHED" claims against the cited section in `SUBPLAN_HISTORY_01_MCP_FINDINGS.md`
 2. Verifies each "tag added to master plan" claim against `PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md`
 3. Adds at least 1 new finding NOT in Copilot's self-audit (per AUD-001: assume errors exist)
 4. Produces a verdict: SP1 is genuinely DONE, or needs further work
@@ -42,7 +42,7 @@ Output: append `## External Audit (2026-04-XX)` section to `SUBPLAN_HISTORY_01_M
    - `plans/pending/SUBPLAN_HISTORY_01_MCP_DISCOVERY.md` (claims to audit)
    - `plans/pending/SUBPLAN_HISTORY_01_MCP_FINDINGS.md` (the deliverable — full 429 lines)
    - `plans/pending/PLAN_HISTORY_INTEGRATION_CROSS_TAB_SAVE_VERIFICATION.md` (where the 7 tags allegedly were added)
-3. **For each of the 14 fuckups (SP1 lines 149-164)**:
+3. **For each of the 14 mistakes (SP1 lines 149-164)**:
    - Read the "Resolution" column claim
    - Open the cited file/section and verify the patch text actually exists
    - Mark each: ✅ VERIFIED-PRESENT / ❌ MISSING / ⚠️ PARTIAL
@@ -65,7 +65,7 @@ Output: append `## External Audit (2026-04-XX)` section to `SUBPLAN_HISTORY_01_M
    **Auditor**: WATCHDOG ([model], session [date])
    **NOT THE SAME SESSION as SP1 execution** — independent verification.
 
-   ### Spot-check results (14 fuckup patches)
+   ### Spot-check results (14 mistake patches)
    | FU-ID | Claim | Verified? | Evidence |
    |---|---|---|---|
 
@@ -91,7 +91,7 @@ Output: append `## External Audit (2026-04-XX)` section to `SUBPLAN_HISTORY_01_M
 
 ## Acceptance Criteria
 
-- [ ] All 14 fuckup patches verified ✅/❌/⚠️ with evidence
+- [ ] All 14 mistake patches verified ✅/❌/⚠️ with evidence
 - [ ] At least 3 MCP re-verifications run
 - [ ] At least 1 NEW finding logged
 - [ ] External audit section written, signed with auditor identity + session date

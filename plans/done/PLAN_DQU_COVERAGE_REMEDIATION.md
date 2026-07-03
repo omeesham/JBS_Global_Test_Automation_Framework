@@ -21,7 +21,7 @@
 
 DQU (Deliverable Quality Upgrade) was audit-of-existing-TCs-and-fix-specs. It assumed documented TCs were the universe and improved their fidelity. It never systematically walked Nav2 archetype-by-archetype to discover what was MISSING -- which is why the Local Office Settings asswhoop happened and why this remediation plan exists. The first remediation attempt (catalog-first) was the second miss: it re-indexed knowledge instead of executing per module. The Notes pilot shape was the third miss: HIST TCs authored INSIDE source-submodule files. v4 fixed the HIST architecture but missed two structural failure modes:
 
-- (a) **Docs-for-paperweight gap.** REQUIREMENTS.md / MODULE_REGISTRY.md / Jira not used as scenario sources; Matrix B was archetype-only, requirements-blind. The user's frustration ("what the fuck are docs for?") was structurally justified.
+- (a) **Docs-for-paperweight gap.** REQUIREMENTS.md / MODULE_REGISTRY.md / Jira not used as scenario sources; Matrix B was archetype-only, requirements-blind. The user's frustration ("what are docs even for?") was structurally justified.
 - (b) **Cross-field gap.** Field-state dependencies, validation dependencies, conditional visibility, limit dependencies, cascading options, save combinations — none enumerated as a mandatory scenario class in Track A. v4 named "save combinations" only in Track B (HIST), Track A was silent.
 
 v5 closes both. Five corrections this version carries:
@@ -180,7 +180,7 @@ DELETION-CANDIDATE rows flag for reviewer; do NOT delete unilaterally. MIGRATE-T
 | `NO-REQUIREMENT -- <HUNTER-update-ref>` | Live behavior discovered in HUNTER Phase 1b had no documented rule; HUNTER added rule to REQUIREMENTS.md; row cites HUNTER's update. |
 | `BLOCKED-BY-BUG-{ID}` | Requirement is real but app broken; bug filed. |
 
-Closure: zero unclassified cells. This Matrix is the structural answer to "what the fuck are docs for?" — REQUIREMENTS.md / Jira / BUGs become coverage drivers, not paperweights.
+Closure: zero unclassified cells. This Matrix is the structural answer to "what are docs even for?" — REQUIREMENTS.md / Jira / BUGs become coverage drivers, not paperweights.
 
 **Matrix D — Cross-Field Interactions (NEW in v5).** Six sub-matrices, consolidated into one per-module artifact:
 

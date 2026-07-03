@@ -13,7 +13,7 @@
 
 Kill duplicate folders, consolidate scattered files, clean accumulated junk. One canonical location for each thing.
 
-## What's Fucked
+## What's Botched
 
 - **3 allure locations**: `allure-report/` (root, 5.2M), `allure-results/` (root, 354K), `reports/allure-results/` (46M) — all gitignored but locally messy
 - **Export tooling**: `export_test_cases/` holds the converter scripts (`to-xlsx.ts` + its `to-csv.ts` parity oracle). The former `test_cases_csv/` output dir was deleted in the 2026-05-27 CSV→XLSX migration; the deliverable is now the single `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` workbook

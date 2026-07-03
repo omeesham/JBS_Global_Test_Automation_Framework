@@ -203,4 +203,4 @@ After SUBPLAN C:
 |---|---|---|---|
 | 2026-05-06 | OWNER | initial plan | scratch report → 8-tier scope, 4 open questions |
 | 2026-05-07 | OWNER (this session) | review + Q&A + 3 subplans authored | 11 review findings (5C/4H/2N) addressed; 7 user questions answered; SUBPLAN_RCD_A/B/C written per LR-048 |
-| 2026-05-07 | OWNER (audit follow-up, same session) | self-/audit + corrective edits | Verified 11/11 fuckups REAL via claim-vs-artifact cross-check; closed 2 gaps (Sc3 dev-loop docs, test:adapters config dependency) via SUBPLAN_RCD_A Phase 4.5 + 4.6; locked test:adapters Option A (new framework playwright config); added Q8/Q9; fixed fictional `.github/workflows/playwright-tests.yml` ref in line 160 |
+| 2026-05-07 | OWNER (audit follow-up, same session) | self-/audit + corrective edits | Verified 11/11 mistakes REAL via claim-vs-artifact cross-check; closed 2 gaps (Sc3 dev-loop docs, test:adapters config dependency) via SUBPLAN_RCD_A Phase 4.5 + 4.6; locked test:adapters Option A (new framework playwright config); added Q8/Q9; fixed fictional `.github/workflows/playwright-tests.yml` ref in line 160 |

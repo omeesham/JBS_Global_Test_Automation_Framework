@@ -646,7 +646,7 @@ The personal-creds file (`config/environments/.env.local`, now moved per A4) liv
 
 ---
 
-## Phase 7 — Workstream G: agent awareness (so no agent fucks this up again)
+## Phase 7 — Workstream G: agent awareness (so no agent repeats this mistake)
 
 Goal: every Claude (or other) agent reading the framework AFTER this plan ships sees the new structure clearly, with structural enforcement (rules + hooks) backing the documentation.
 

@@ -17,7 +17,7 @@ hasn't even been synced with it yet (sync was last run before AUD-017 was added;
 
 **Evidence of failure-mode**: SP1 MCP Discovery (2026-04-13) produced a discovery
 deliverable, then the SAME Copilot session wrote "## Post-Execution Audit (Round 2)"
-into SP1 itself, "found" 14 fuckups, "RESOLVED" all 14 same-turn, and graded itself B+.
+into SP1 itself, "found" 14 mistakes, "RESOLVED" all 14 same-turn, and graded itself B+.
 External WATCHDOG audit 2026-04-15 (different session) caught 3 new findings the
 original auditor missed — including NF-001/002 (HIGH-severity unimplementable
 `aria-sort` sort-detection design that would have silently broken Phase 1 integration
@@ -61,7 +61,7 @@ AUD-017 (WATCHDOG-specific) and ALL-030 (tone).
 Any of the following is BLOCKED:
 1. Writing a `## Post-Execution Audit`, `## Round 2 Audit`, `## Round 2`, or
    `## Self-Audit` section into a file the current session produced
-2. Adding an "Audit Summary" / "Fuckups Found" / "Revised Grade" table signed
+2. Adding an "Audit Summary" / "Mistakes Found" / "Revised Grade" table signed
    by the same agent identity that signed the original deliverable
 3. Editing an existing same-session audit section to "fix" findings the session
    just found itself
@@ -210,12 +210,12 @@ self-audit of <file> — logged for audit trail`. Override is NOT sticky.
 
 **Before** (existing Resolution text is valuable — keep as historical trigger):
 ```
-SP1_MCP_DISCOVERY (2026-04-13) ran Round-2 audit in same Copilot session, "found" 14 fuckups, RESOLVED all 14 same turn, graded itself B+. External watchdog pass (2026-04-15) caught 3 new findings the original auditor missed (NF-001/002/003), including a HIGH-severity unimplementable sort-detection design that would have silently broken Phase 1 integration tests.
+SP1_MCP_DISCOVERY (2026-04-13) ran Round-2 audit in same Copilot session, "found" 14 mistakes, RESOLVED all 14 same turn, graded itself B+. External watchdog pass (2026-04-15) caught 3 new findings the original auditor missed (NF-001/002/003), including a HIGH-severity unimplementable sort-detection design that would have silently broken Phase 1 integration tests.
 ```
 
 **After** (append graduation reference):
 ```
-SP1_MCP_DISCOVERY (2026-04-13) ran Round-2 audit in same Copilot session, "found" 14 fuckups, RESOLVED all 14 same turn, graded itself B+. External watchdog pass (2026-04-15) caught 3 new findings the original auditor missed (NF-001/002/003), including a HIGH-severity unimplementable sort-detection design that would have silently broken Phase 1 integration tests. **GRADUATED 2026-04-15 to structural hard gate**: AGENT_SHARED_RULES.md §19 Audit Integrity, playwright-pipeline-audit.agent.md HARD STOP 0a, .claude/skills/audit/SKILL.md Step 0 pre-flight. Simulated violation verified HALT fires (see PLAN_AUD017_HARD_GATE.md execution summary).
+SP1_MCP_DISCOVERY (2026-04-13) ran Round-2 audit in same Copilot session, "found" 14 mistakes, RESOLVED all 14 same turn, graded itself B+. External watchdog pass (2026-04-15) caught 3 new findings the original auditor missed (NF-001/002/003), including a HIGH-severity unimplementable sort-detection design that would have silently broken Phase 1 integration tests. **GRADUATED 2026-04-15 to structural hard gate**: AGENT_SHARED_RULES.md §19 Audit Integrity, playwright-pipeline-audit.agent.md HARD STOP 0a, .claude/skills/audit/SKILL.md Step 0 pre-flight. Simulated violation verified HALT fires (see PLAN_AUD017_HARD_GATE.md execution summary).
 ```
 
 **Do NOT modify**: ALL-030 row, AUD-018 row, or any other rows. Scope discipline.

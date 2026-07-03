@@ -22,7 +22,7 @@
 Rovo (the Atlassian MCP, `encore.atlassian.net`, server id `351f3923-…`) is wired up and connected, but
 referenced by **zero rules, zero agent prompts, zero skills** — only in one plan body
 (`PLAN_CORP_PRICING_REWALK_REMEDIATION.md:45`) as a one-off Rutvik ran manually. The consequence is a
-systemic fuckup: a requirements gatherer about to automate a brand-new module never reads its
+systemic mistake: a requirements gatherer about to automate a brand-new module never reads its
 Jira/Confluence requirements; agents escalate "UNKNOWN / ask the user" instead of self-helping; TC details
 that live in tickets are never consulted. Rutvik caught this during Products planning and locked the fix as
 its **own standalone plan, landed first**, because it touches 6 agent prompts + 2 rules + 2 skills + 1

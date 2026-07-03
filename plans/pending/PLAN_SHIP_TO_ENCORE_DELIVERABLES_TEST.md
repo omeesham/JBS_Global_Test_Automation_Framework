@@ -19,7 +19,7 @@
 
 ## Audit corrections (2026-05-08, OWNER `/review` pass — RISK-FOCUSED for LR-049)
 
-The original draft of this plan had **5 verified hard defects + 3 soft notes**, all in the EXECUTION step sequencing (different shape from PLAN_PRI/MGH which were RCA-heavy). Same author, same batch. SHIP is a procedural plan, so the fuckup pattern is *wrong commands / wrong sequence / wrong assumption about hook scope* — high blast-radius because LR-049 governs ship and a wrong command can leak gitignored content.
+The original draft of this plan had **5 verified hard defects + 3 soft notes**, all in the EXECUTION step sequencing (different shape from PLAN_PRI/MGH which were RCA-heavy). Same author, same batch. SHIP is a procedural plan, so the mistake pattern is *wrong commands / wrong sequence / wrong assumption about hook scope* — high blast-radius because LR-049 governs ship and a wrong command can leak gitignored content.
 
 | # | Severity | Original claim | Reality | Correction |
 |---|---|---|---|---|

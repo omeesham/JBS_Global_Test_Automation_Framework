@@ -298,7 +298,7 @@ If trigger DID fire: run the removal checklist in `clients/encore/CLAUDE.md` § 
 
 Created 2026-04-29 by OWNER as the LR-040(b) recipient for SP-EFD-01 + SP-EFD-03 deferred verification gates. Amended 2026-04-30 per Rutvik's hard-scope directive (verbatim in §Goal) requiring an isolated Encore-deliverables repo as the verification target + clean Playwright/Allure HTML + full-run expectation.
 
-Re-amended 2026-04-30 (later same day) after `/review` audit found 10 fuckups in the first amendment:
+Re-amended 2026-04-30 (later same day) after `/review` audit found 10 mistakes in the first amendment:
 
 - F1 (CRITICAL) — `encore-locations` spec count corrected from 12 → 9 (LR-020; real disk count) in Step 1 + Step 3 #7.
 - F2 (CRITICAL) — Step −1 #3/#4 added to fix two cross-boundary refs in `clients/encore/tests/setup/global-setup.ts` (`scripts/cleanup-logs` require + dotenv-flow path resolving to repo-root). Without these, `${DELIV_REPO}` isolation literally cannot run.

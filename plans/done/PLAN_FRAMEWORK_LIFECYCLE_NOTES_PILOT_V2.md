@@ -32,7 +32,7 @@ V1 was independently reviewed by 3 passes:
 - Phase 0 empirical verification mandatory before any code change.
 
 ### V2 changes from v1
-1. Drop "Unfuck" from title; professional language.
+1. Drop "Remediation" from title; professional language.
 2. Honest bug count (7), not inflated 14.
 3. Add Phase 0 empirical verification (page-collision theory, context-options gap, trace fidelity, TC-mapping baseline).
 4. Add 4 missing bugs from Council.

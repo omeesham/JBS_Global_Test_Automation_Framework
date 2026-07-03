@@ -60,7 +60,7 @@ Both Location Settings and Local Office Settings are sub-pages of the **Setup** 
 
 ---
 
-## Agent Fuckup Audit — Local Office Settings
+## Agent Mistake Audit — Local Office Settings
 
 Professional audit of all mistakes made by repo agents while working on Local Office Settings:
 

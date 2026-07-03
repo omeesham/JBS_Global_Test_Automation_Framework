@@ -103,7 +103,7 @@
   for a genuine net-new feature with no baseline — and then NOT silently: declare
   `baselineScope: baseline-absent` per LR-ENC-001 (NOT a HALT). Skipping a required
   baseline walk and recording observed states as fact is the exact 2026-06-18 Pricing
-  fuckup this gate prevents.
+  mistake this gate prevents.
 -->
 
 1. Visit baseline truth source first per `.claude/rules/baseline.md` workflow row 4.

@@ -1,6 +1,6 @@
 > NEEDS TO BE CHECKED FOR LEFTOVER SLOP (LR-050 — restructure plans must enumerate stale-slop cleanup IN-SCOPE).
 
-# MASTER PLAN: Repo Unfucking & Client Delivery
+# MASTER PLAN: Repo Remediating & Client Delivery
 
 **Status**: PENDING
 **Created**: 2026-04-16
@@ -99,4 +99,4 @@ PLAN_HIST_COMMIT_HISTORY_WORK
 | 10 | Source Code Quality Sweep | P2 | Audit src/ for duplicated patterns, dead code, AI slop |
 | 11 | Scripts, Config & Root Files Audit | P2 | Audit scripts/, config/, root configs, .gitignore |
 | 12 | Test Infrastructure Audit | P2 | Audit tests/ structure, test-data, fixtures, seed spec |
-| 13 | Copilot Accountability Audit | P1 | Trace Copilot fuckups — their fault or our gap? |
+| 13 | Copilot Accountability Audit | P1 | Trace Copilot mistakes — their fault or our gap? |

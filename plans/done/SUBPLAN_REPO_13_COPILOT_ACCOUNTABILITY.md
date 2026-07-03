@@ -17,11 +17,11 @@ Substance superseded by [PLAN_CC_ANTHROPIC_ALIGNMENT.md](PLAN_CC_ANTHROPIC_ALIGN
 
 ## Goal
 
-Determine whether Copilot session fuckups were because (A) Copilot is dumb and ignored our rules, (B) our rules/infrastructure weren't ready for Copilot, or (C) both. Make sure WE are clean so we can't be blamed for any repeat fuckups if Copilot improves or company switches to Claude CLI.
+Determine whether Copilot session mistakes were because (A) Copilot is dumb and ignored our rules, (B) our rules/infrastructure weren't ready for Copilot, or (C) both. Make sure WE are clean so we can't be blamed for any repeat mistakes if Copilot improves or company switches to Claude CLI.
 
 ## Why This Matters
 
-Company people will use Copilot CLI (cheaper) for production orchestration. If Copilot fucks up again, we need to prove: "our rules covered this, Copilot ignored them." If we can't prove that, WE get blamed. This audit builds that evidence.
+Company people will use Copilot CLI (cheaper) for production orchestration. If Copilot botches it again, we need to prove: "our rules covered this, Copilot ignored them." If we can't prove that, WE get blamed. This audit builds that evidence.
 
 ## Source Material
 
@@ -30,9 +30,9 @@ Company people will use Copilot CLI (cheaper) for production orchestration. If C
 3. **COP-001 through COP-009** in agent-mistakes.md — Copilot-specific rules
 4. **ALL-030** in agent-mistakes.md — rubber-stamp self-audit (repeat offense)
 
-## Known Fuckups from Copilot Session
+## Known Mistakes from Copilot Session
 
-| # | Fuckup | Category |
+| # | Mistake | Category |
 |---|--------|----------|
 | 1 | Skipped TC-079 (SkipBilling→Oracle) without testing the error condition | Lazy SKIP |
 | 2 | Skipped TC-078 without changing BillingCycle to "--Select--" | Lazy SKIP |
@@ -44,7 +44,7 @@ Company people will use Copilot CLI (cheaper) for production orchestration. If C
 
 ## Direction
 
-For EACH fuckup above:
+For EACH mistake above:
 
 ### Step 1: Did a rule exist at the time?
 - Check agent-mistakes.md for rules that should have prevented this
@@ -63,7 +63,7 @@ For EACH fuckup above:
 - For BOTH: rewrite the rule at the source AND add a COP-* specific version
 
 ### Step 4: Evidence file
-Create `reports/COPILOT_ACCOUNTABILITY_AUDIT.md` documenting: each fuckup, classification, rule that should have prevented it, fix applied. This is our proof that we did our due diligence.
+Create `reports/COPILOT_ACCOUNTABILITY_AUDIT.md` documenting: each mistake, classification, rule that should have prevented it, fix applied. This is our proof that we did our due diligence.
 
 ## After Processing
 
@@ -72,7 +72,7 @@ Create `reports/COPILOT_ACCOUNTABILITY_AUDIT.md` documenting: each fuckup, class
 
 ## Verification
 
-- Every fuckup classified as A, B, or C with evidence
+- Every mistake classified as A, B, or C with evidence
 - Every OUR GAP has a new rule graduated
 - Every COPILOT FAULT has strengthened COP-* enforcement
 - `npm run validate:sync` passes

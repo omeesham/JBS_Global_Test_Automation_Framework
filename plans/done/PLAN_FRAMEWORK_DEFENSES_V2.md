@@ -6,7 +6,7 @@
 **Thinking**: max
 **PermissionMode**: ask-perms (write fixes only after user GREEN-flag).
 **BrowserTool**: cli (Phase 0 live checks only; fix code is deterministic file edits).
-**Audit chain**: Council Watchdog (Yellow, 7 flags) → my v1 (5 fuckups dropped) → Meta-Auditor (Yellow Watchdog, 5 substantive reversals/affirmations) → my watchdog meta-audit (GREEN 5/5 via direct file reads) → user send-back (GREEN with 2 refinements) → /ultrathink Step 3 adversarial audit 2026-05-22 OWNER session (9 findings: 2 blockers + 7 substantive; blockers fixed in v2.1) → **v2.2 user-directed P0-6 walk (CLI headed, OWNER 2026-05-22 — refutes v2.1 LR-054-class deferral; gap CONFIRMED REAL for 2 of 8 helpers)**. All integrated below.
+**Audit chain**: Council Watchdog (Yellow, 7 flags) → my v1 (5 mistakes dropped) → Meta-Auditor (Yellow Watchdog, 5 substantive reversals/affirmations) → my watchdog meta-audit (GREEN 5/5 via direct file reads) → user send-back (GREEN with 2 refinements) → /ultrathink Step 3 adversarial audit 2026-05-22 OWNER session (9 findings: 2 blockers + 7 substantive; blockers fixed in v2.1) → **v2.2 user-directed P0-6 walk (CLI headed, OWNER 2026-05-22 — refutes v2.1 LR-054-class deferral; gap CONFIRMED REAL for 2 of 8 helpers)**. All integrated below.
 ---
 
 # Framework Defenses — Final Plan (audit-corrected v2.1, LR-048 compliant)

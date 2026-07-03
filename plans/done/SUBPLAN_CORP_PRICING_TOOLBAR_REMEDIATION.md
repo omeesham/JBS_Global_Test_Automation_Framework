@@ -1,4 +1,4 @@
-# SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION — Unfuck the stale toolbar + cover every button & dropdown value  [SUPERSEDED]
+# SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION — Remediation the stale toolbar + cover every button & dropdown value  [SUPERSEDED]
 
 > **SUPERSEDED (2026-06-24) by [PLAN_CORP_PRICING_JIRA_DELIVERY.md](PLAN_CORP_PRICING_JIRA_DELIVERY.md).** No work lost — re-homed item-for-item (conservation restructure, LR-050): Export ▾ drift-fix → NM-2264; Import ▾ drift-fix → NM-2265; Loc Pricing Export re-verify → NM-2262; Loc Pricing Import re-verify → NM-2305; New ▾ Equipment/Labor → NM-2263; Pricing Override link + override Grid Options → NM-2267; Search Grid Options → NM-2260. Retained for history only; do NOT execute.
 

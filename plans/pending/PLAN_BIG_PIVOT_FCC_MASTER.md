@@ -39,7 +39,7 @@ When Notes closes GREEN, the paradigm is installed for every subsequent module. 
 
 ## Context
 
-The user is pivoting framework testing posture from **form-level saves** (fill many fields, click Save once) to **field-level cases** (every field change is independently saved, refreshed, and verified). Goal: per-case failure isolation — one case failing must not block the next. Mandate phrase: "shiny as fuck" coverage — no case left uncovered for the pilot module.
+The user is pivoting framework testing posture from **form-level saves** (fill many fields, click Save once) to **field-level cases** (every field change is independently saved, refreshed, and verified). Goal: per-case failure isolation — one case failing must not block the next. Mandate phrase: "seriously polished" coverage — no case left uncovered for the pilot module.
 
 Cross-references:
 - External QA framework guide digested 2026-05-19 ("Architecting Autonomous Quality Assurance: A Comprehensive Framework for Web Field Validation, Test Generation, and Coverage Maximization"). The paradigm doctrine in §Doctrine below is its actionable distillation.
@@ -219,7 +219,7 @@ Cannot close GREEN if any of:
 
 ### Two-subplan variant (if combined exceeds ~400 lines)
 
-Split into `SUBPLAN_<MODULE>_UNFUCK.md` (WATCHDOG/HEALER — false-green audit + fix, closes first) + `SUBPLAN_<MODULE>_FCC.md` (HUNTER/GIVER/BUILDER — FCC catalog + implementation, consumes cleaned baseline). Both list each other in `**Depends on**:`; UNFUCK closes first; both must close before module is shipped.
+Split into `SUBPLAN_<MODULE>_REMEDIATION.md` (WATCHDOG/HEALER — false-green audit + fix, closes first) + `SUBPLAN_<MODULE>_FCC.md` (HUNTER/GIVER/BUILDER — FCC catalog + implementation, consumes cleaned baseline). Both list each other in `**Depends on**:`; REMEDIATION closes first; both must close before module is shipped.
 
 ### SSL grandfather
 

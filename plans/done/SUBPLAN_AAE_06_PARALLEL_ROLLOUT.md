@@ -2,7 +2,7 @@
 
 **Status**: CANCELLED
 **Cancelled**: 2026-04-28
-**Cancellation reason**: Manual one-by-one revival per user direction 2026-04-28 ("fuck chain, i dont trust it"). Parallel-chain orchestration was rejected; the 9 module audits are revived as standalone subplans (SP-DQU-12..20) for sequential `/execute`. See SP-DQU-12..20 in `plans/pending/` for the actual work; the original body below is preserved unchanged as historical record of the parallel approach considered.
+**Cancellation reason**: Manual one-by-one revival per user direction 2026-04-28 ("no chain, i dont trust it"). Parallel-chain orchestration was rejected; the 9 module audits are revived as standalone subplans (SP-DQU-12..20) for sequential `/execute`. See SP-DQU-12..20 in `plans/pending/` for the actual work; the original body below is preserved unchanged as historical record of the parallel approach considered.
 **Priority**: P0-CYCLE-1
 **Created**: 2026-04-23
 **Parent**: PLAN_AGENT_AUTHORING_EFFICIENCY.md

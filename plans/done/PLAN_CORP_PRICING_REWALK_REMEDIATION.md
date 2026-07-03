@@ -60,8 +60,8 @@ Corporate Pricing is the most-automated Encore module (this master + the Wave-1/
 | Surface / control | Status | Disposition |
 |---|---|---|
 | Search / Strategy / Detail(edit-save) / New-Pricebook / Override-grid FCC | ✅ green | re-verify only |
-| Pricing Detail drag/dbl-click (mgmt) | ⚠️ spec-correct conclusion, unsound evidence | **UNFUCK** (real drag + positive control; settle vs NM-1443) |
-| Toolbar Export ▾ / Import ▾ / Loc Pricing | 🔴 10 STALE/RED | **UNFUCK** |
+| Pricing Detail drag/dbl-click (mgmt) | ⚠️ spec-correct conclusion, unsound evidence | **REMEDIATION** (real drag + positive control; settle vs NM-1443) |
+| Toolbar Export ▾ / Import ▾ / Loc Pricing | 🔴 10 STALE/RED | **REMEDIATION** |
 | `New ▾` dropdown values | ⚠️ via URL, never clicked | **MISSED** |
 | `Pricing Override` link | ❌ zero coverage | **MISSED** |
 | Override-page Grid Options | ❌ not covered | **MISSED** |

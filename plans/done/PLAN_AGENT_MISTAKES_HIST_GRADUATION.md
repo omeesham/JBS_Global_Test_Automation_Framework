@@ -13,7 +13,7 @@
 
 ## Context
 
-SP1 discovered patterns that are now scattered across 14 fuckup entries + 429-line MCP findings doc but haven't been graduated to permanent rules in `agent-mistakes.md`. Per AUD-004 (mandatory registry update) + `/compile-learnings` periodic skill, patterns with 3+ occurrences (or 1 occurrence + high impact) should become permanent rules.
+SP1 discovered patterns that are now scattered across 14 mistake entries + 429-line MCP findings doc but haven't been graduated to permanent rules in `agent-mistakes.md`. Per AUD-004 (mandatory registry update) + `/compile-learnings` periodic skill, patterns with 3+ occurrences (or 1 occurrence + high impact) should become permanent rules.
 
 Candidate patterns from SP1:
 1. **Boolean format differs across systems** (Unicode ✔ vs SVG lucide-check) — 1 occurrence but HIGH impact (every assertion needs system-specific code)

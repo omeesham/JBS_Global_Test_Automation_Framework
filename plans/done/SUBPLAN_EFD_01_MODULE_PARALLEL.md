@@ -123,7 +123,7 @@ API-testing path (`clients/encore/api-testing/`) parsing — if existing config 
 
 **Final shape (post mid-session user redirect)**:
 
-The SP-EFD-01 design intent — per-module Playwright projects + `--workers=2` invocation — is preserved EXCLUSIVELY in `playwright.config.ci.ts` (CI / GitHub Actions only). `playwright.config.ts` is at **zero diff** vs HEAD's pre-SP-EFD-01 baseline (4 browser projects, `workers: process.env.CI ? 1 : 1`, no module projects). Local default invocations (`npx playwright test ...`) behave EXACTLY as they did before this subplan ran. This shape was authored mid-session at the user's verbatim direction 2026-04-29: *"local should run as it used to before this plan was executed, i dont want my local to be fucked, the worker changes only in cli git actions"*.
+The SP-EFD-01 design intent — per-module Playwright projects + `--workers=2` invocation — is preserved EXCLUSIVELY in `playwright.config.ci.ts` (CI / GitHub Actions only). `playwright.config.ts` is at **zero diff** vs HEAD's pre-SP-EFD-01 baseline (4 browser projects, `workers: process.env.CI ? 1 : 1`, no module projects). Local default invocations (`npx playwright test ...`) behave EXACTLY as they did before this subplan ran. This shape was authored mid-session at the user's verbatim direction 2026-04-29: *"local should run as it used to before this plan was executed, i dont want my local to be botched, the worker changes only in cli git actions"*.
 
 **Files modified**:
 

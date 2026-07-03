@@ -146,7 +146,7 @@ Must include:
 
 **Auditor**: WATCHDOG (Copilot, /ultrathink /audit)
 **Revised Grade**: B+ (downgraded from initial A-)
-**Fuckups Found**: 14 (5 HIGH, 4 MEDIUM, 4 LOW, 1 INFO)
+**Mistakes Found**: 14 (5 HIGH, 4 MEDIUM, 4 LOW, 1 INFO)
 
 | ID | Sev | Finding | Resolution |
 |---|---|---|---|
@@ -178,7 +178,7 @@ All fixes applied to SUBPLAN_HISTORY_01_MCP_FINDINGS.md (14 patches) and master 
 
 **Methodology**: Static verification of 14 claimed patch locations in `SUBPLAN_HISTORY_01_MCP_FINDINGS.md` via `Grep` and targeted `Read`, cross-reference of `[MCP-CONFIRMED]` tags in master plan, then 5 independent Playwright MCP re-verifications on Office 1604 (live DOM as of 2026-04-15 09:07-09:12 UTC).
 
-### Spot-check Results — 14 Fuckup Patches
+### Spot-check Results — 14 Mistake Patches
 
 | FU-ID | Sev | Self-Audit Claim | Verified? | Evidence |
 |---|---|---|---|---|

@@ -26,7 +26,7 @@ Per [PLAN_BIG_PIVOT_FCC_MASTER.md](PLAN_BIG_PIVOT_FCC_MASTER.md), Notes is the p
 1. **Paradigm install** (Phase 1, one-time framework-wide): create the runner, the taxonomy doc, the catalog directory; update CLAUDE.md @-refs + AGENT_SHARED_RULES.md §2 + all 6 pipeline agent prompts. Every future module FCC subplan reuses this work without reinstalling.
 2. **Notes pilot** (Phases 2–7, module-specific): comprehensive granular per-field-case coverage for Notes — **26 net-new FCC tests** implemented + **1 DEFERRED** (FCC-005; post-dedup: 32 authored − 5 duplicates of existing TC-012/013/025/026/036/037 − 1 deferred FCC-005) under the per-case `baseline → act → save → reload → verify → cleanup` lifecycle. **Existing 32 main-spec TCs** (28 explicit `test()` blocks + 4-test `SPECIAL_CONTENT_TESTS` for-loop at line 181) and **5 HIST-spec TCs** (separate file at `clients/encore/specs/locations/history/location-hist-notes.spec.ts`) remain untouched.
 
-The "shiny as fuck" mandate from the user: no case should be findable after this pilot ships. Coverage spans all applicable cells of the Multi-row FormArray row in the taxonomy (positive / BVA / negative / save-cycle), plus archetype probes (ARCH-013 save-cycle 6-state, ARCH-014 cross-field where applicable), plus the 3 known BUGs' regression watches.
+The "seriously polished" mandate from the user: no case should be findable after this pilot ships. Coverage spans all applicable cells of the Multi-row FormArray row in the taxonomy (positive / BVA / negative / save-cycle), plus archetype probes (ARCH-013 save-cycle 6-state, ARCH-014 cross-field where applicable), plus the 3 known BUGs' regression watches.
 
 SSL is **explicitly out of scope** — user-owned, separate session.
 

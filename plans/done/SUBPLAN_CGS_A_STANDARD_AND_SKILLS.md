@@ -35,7 +35,7 @@ Pillar A of PLAN_CASE_GENERATION_STANDARD. We have no codified case-generation t
 
 **Context files**:
 - `PLAN_CASE_GENERATION_STANDARD.md` (parent)
-- `~/.claude/plans/i-fucked-up-i-refactored-cascade.md` (full design + verified facts)
+- `~/.claude/plans/refactor-cascade-incident.md` (full design + verified facts)
 - `.claude/rules/inventory.md` (LR-062/LR-064/LR-057, LR-065 lands here)
 - `.claude/rules/pipeline.md` (LR-048/LR-041/LR-040/LR-027)
 - `docs/read_only_docs/AGENT_SHARED_RULES.md` · `docs/read_only_docs/LEARNED_RULES.md`

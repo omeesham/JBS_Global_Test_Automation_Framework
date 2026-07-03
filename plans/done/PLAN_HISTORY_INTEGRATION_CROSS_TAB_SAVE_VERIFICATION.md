@@ -628,11 +628,11 @@ test('TC-XXX-HIST: Verify saves appear in history', async ({ page, pageName, his
 ## Sub-Plan Completion Gate
 
 **MANDATORY** — every sub-plan must pass these 5 checks before the executing agent marks it DONE.
-Added after SP1 Round 2 audit found 14 fuckups from 3 root causes: handoff blindness, checklist blindness, undocumented observations.
+Added after SP1 Round 2 audit found 14 mistakes from 3 root causes: handoff blindness, checklist blindness, undocumented observations.
 
 | # | Check | Prevents | What to Do |
 |---|---|---|---|
-| 1 | **Handoff audit** | Discovery ≠ handoff (7 of 14 fuckups) | Re-read your deliverables as the NEXT agent who has ZERO context and NO MCP access. Can they implement from your output alone? If a BUILDER can't write an assertion from your format description, it's incomplete. |
+| 1 | **Handoff audit** | Discovery ≠ handoff (7 of 14 mistakes) | Re-read your deliverables as the NEXT agent who has ZERO context and NO MCP access. Can they implement from your output alone? If a BUILDER can't write an assertion from your format description, it's incomplete. |
 | 2 | **Parent plan cross-check** | Checklist blindness (3 of 14) | Re-read the master plan's "What MCP must verify," "What to Watch For," and "Execution agent obligations." Is every item relevant to your phase covered? Uncovered item = audit finding. |
 | 3 | **Observation log** | Undocumented surprises (4 of 14) | Document EVERY unexpected finding — format surprises, UI workarounds, behaviors that contradicted the plan. Even minor ones. If you worked around something, write it down. |
 | 4 | **Format precision** | Downstream failures | Every data format must be EXACT and copy-pasteable. "Boolean column" is NOT sufficient. "SVG lucide-check icon, detect via `innerHTML.includes('lucide-check')`, textContent='' for both true and false" IS sufficient. |
