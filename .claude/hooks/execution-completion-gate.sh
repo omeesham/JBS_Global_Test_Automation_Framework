@@ -8,7 +8,7 @@
 #       `## Deferral Authorization` block, it warns (and persists to
 #       .claude/state/execution-completion-warnings-${sid}.json). Closes the
 #       closure-gates-only-fire-on-Status:DONE hole (LR-060 / the 2026-06-18
-#       Pricing silent-checkpoint fuckup).
+#       Pricing silent-checkpoint mistake).
 #
 # Mode detection: passed as argv[1] from settings.json (`--validate`). Stop hooks
 # have no capture phase.

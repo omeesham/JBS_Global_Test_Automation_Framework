@@ -51,7 +51,7 @@ For every spec generation under FCC paradigm:
    no shared state. `dependencyGate([])` for FCC tests.
 4. Existing TCs at BOTTOM remain untouched (preserve prior coverage).
 5. Per-field-type test data lives in the module's data file; reuse constants where possible.
-6. **Post-write parity gate** (FCC fuckup prevention, 2026-05-25): after the spec is written and `npx playwright test --list` confirms TC IDs resolve, run `npm run check:tc-parity`. Exit 0 → continue to Phase 3 (First Run). Exit 1 → HALT, escalate to PLANNER for MD/test-plan/XLSX reconciliation. NEVER declare done with parity gaps. The pre-commit hook also enforces this — bypassing via `--no-verify` is a §16 (autonomy) violation. Cross-ref: HARD STOP #11, GEN-044, LR-ENC-002.
+6. **Post-write parity gate** (FCC mistake prevention, 2026-05-25): after the spec is written and `npx playwright test --list` confirms TC IDs resolve, run `npm run check:tc-parity`. Exit 0 → continue to Phase 3 (First Run). Exit 1 → HALT, escalate to PLANNER for MD/test-plan/XLSX reconciliation. NEVER declare done with parity gaps. The pre-commit hook also enforces this — bypassing via `--no-verify` is a §16 (autonomy) violation. Cross-ref: HARD STOP #11, GEN-044, LR-ENC-002.
 **Surface axis (Axis 2 / SBC, added 2026-06-24 SUBPLAN_CGS_A)**: when the GIVER catalog carries a
 § Surface-Behavior Cases section, generate a parallel `test.describe('SBC — <module>')` block (also at the
 TOP, below the FCC block) using the EXISTING page-object grid helpers (pagination / sort / row-count /

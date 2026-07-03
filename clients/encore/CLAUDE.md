@@ -78,7 +78,7 @@ When any subplan produces, modifies, or deletes a `clients/encore/tests/**/*.spe
 2. **Pre-commit hook gates A/B/C** in `.githooks/pre-commit` — commits HALT on parity gaps (Gate A: `check:tc-parity`), backdated activity-log rows (Gate B: `validate-activity-log.mjs`), or plan closure without Execution Summary (Gate C: `validate-plan-closure.mjs --staged --enforce`).
 3. **LR-048 v2 Per-Identity Satisfaction Matrix** — subplans cannot leave artifact obligations unscoped at authoring time. Silence ≠ "no work"; every cell must be explicitly named or marked `(none)`.
 
-If you ever feel like "I'll do the MD/XLSX later in a follow-up subplan" — that's the FCC fuckup pattern. STOP. Author the parity work IN the current subplan, OR explicitly mark it `(none)` in the LR-048 v2 matrix with a one-line justification. Pre-commit Gate A will refuse the commit either way; the matrix is the upstream prevention.
+If you ever feel like "I'll do the MD/XLSX later in a follow-up subplan" — that's the FCC mistake pattern. STOP. Author the parity work IN the current subplan, OR explicitly mark it `(none)` in the LR-048 v2 matrix with a one-line justification. Pre-commit Gate A will refuse the commit either way; the matrix is the upstream prevention.
 
 **Trigger**: every subplan touching Encore spec / test-case / test-plan / XLSX artifacts.
 

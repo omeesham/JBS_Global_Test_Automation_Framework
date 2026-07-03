@@ -7,7 +7,7 @@ metadata:
   originSessionId: ee95b1cd-9055-48e0-aeae-7a3dbb53a682
 ---
 
-Rutvik keeps a **general-purpose quality prompt** he pastes onto many tasks: *"feel free for whatever subplans … full identity sweeps not surface-level … /review /audit … do not assume, read before you think you got it, do not rush, no cut corners … each /identity job satisfied … nothing causes regressions due to partial work."* On 2026-06-15 (drafting SUBPLAN_CURRENCY_FCC) he clarified: **"don't take that prompt too seriously, it's a general-purpose prompt … for bigger plans, no subplans needed for this small task. Main goal = identity coverage, no code-level fuckups."**
+Rutvik keeps a **general-purpose quality prompt** he pastes onto many tasks: *"feel free for whatever subplans … full identity sweeps not surface-level … /review /audit … do not assume, read before you think you got it, do not rush, no cut corners … each /identity job satisfied … nothing causes regressions due to partial work."* On 2026-06-15 (drafting SUBPLAN_CURRENCY_FCC) he clarified: **"don't take that prompt too seriously, it's a general-purpose prompt … for bigger plans, no subplans needed for this small task. Main goal = identity coverage, no code-level mistakes."**
 
 **Why:** the prompt is boilerplate scaled for large multi-subplan work; applying every clause literally to a small task = over-engineering (e.g. splitting into sub-subplans nobody wanted).
 

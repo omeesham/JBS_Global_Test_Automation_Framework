@@ -766,7 +766,7 @@ Any of the following is BLOCKED and must HALT:
 
 1. Writing a `## Post-Execution Audit`, `## Round 2 Audit`, `## Round 2`, or
    `## Self-Audit` section into a file the current session produced
-2. Adding an "Audit Summary" / "Fuckups Found" / "Revised Grade" table signed
+2. Adding an "Audit Summary" / "Mistakes Found" / "Revised Grade" table signed
    by the same agent identity that signed the original deliverable
 3. Editing an existing same-session audit section to "fix" findings the session
    just surfaced in itself

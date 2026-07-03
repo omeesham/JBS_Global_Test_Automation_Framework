@@ -17,11 +17,11 @@
 ## PC-2 — Shipped workbook Module/Submodule cells wrong + 3-vocabulary label divergence — **S0 (shipped wrong)**
 
 All 150 corp rows in `encore_test_cases.xlsx` ship Module=`locations` (from `extractModule()` to-csv.ts:688 — moduleMap has 5 speculative codes (AUTH/ORD/USR/RPT/SET) but NOT corporate-pricing); Submodule uniformly `corporate_pricing` (band collapse — screen identity carried only by sheet name); TestRail workbook says `Corporate Pricing` + per-screen Sub-Modules → **the two delivered artifacts contradict each other**. Corp sheet names ride the silent `toSheetName()` fallback (no SHEET_NAMES entries; `corporate_pricing_new_pricebook` is exactly 31 chars = Excel limit). Overview labels = raw slugs.
-- **Recommendation: FUCKUP_FIX regardless of PC-1 ruling** (registry-driven Module/Submodule + pinned sheet names + regen).
+- **Recommendation: MISTAKE_FIX regardless of PC-1 ruling** (registry-driven Module/Submodule + pinned sheet names + regen).
 
 ## PC-3 — Overview sheet arithmetic wrong (Manual uncounted) — S0/S1
 
-Overview has no Manual column → `Total ≠ Automated + Pending` on sheets with Manual TCs (locations_notes 58 vs 55; locations_local_information 114 vs 110; 7 Manual TCs total). Client-visible arithmetic error in the shipped workbook. **Recommendation: FUCKUP_FIX** (add Manual column to Overview).
+Overview has no Manual column → `Total ≠ Automated + Pending` on sheets with Manual TCs (locations_notes 58 vs 55; locations_local_information 114 vs 110; 7 Manual TCs total). Client-visible arithmetic error in the shipped workbook. **Recommendation: MISTAKE_FIX** (add Manual column to Overview).
 
 ## PC-4 — BUG-ID grammar chaos + documented-rule-vs-corpus drift — S2 (S1 where in shipped specs)
 
@@ -30,11 +30,11 @@ Live corpus splits 3-segment (BUG-LOC-NTS/SHR/ACC/AAO/BI/MGH/ECT, BUG-LOS-ECT/BA
 
 ## PC-5 — Phantom/dangling internal references — S2
 
-(a) 37× `Depends_On: TC-LOC-LI-NE-001` → defined nowhere (NE-001..010 phantom; family starts at 011). (b) 23 of 24 live-referenced bug IDs have NO JSON on disk; navigation.md cites ≥8 specific `.json` paths with content claims that don't exist; docs prescribe root `reports/bugs/` which doesn't exist (actual: `clients/encore/reports/bugs/`). (c) 16 `TC-NEW-SSL-*`/`TC-LOS-ECT-NEW-1` placeholders never reconciled. (d) 75 lines across 7 MDs + 7 test-plan pointers + 14 test-cases pointers reference pre-restructure paths (`specs/`, `test-cases/locations/`). (e) fixme-registry stale-claim layers. **Recommendation: FUCKUP_FIX (internal batch)** — fix Depends_On to nearest real anchor or drop; correct doc paths; ledger placeholders; path-fix the 75+21 stale pointers.
+(a) 37× `Depends_On: TC-LOC-LI-NE-001` → defined nowhere (NE-001..010 phantom; family starts at 011). (b) 23 of 24 live-referenced bug IDs have NO JSON on disk; navigation.md cites ≥8 specific `.json` paths with content claims that don't exist; docs prescribe root `reports/bugs/` which doesn't exist (actual: `clients/encore/reports/bugs/`). (c) 16 `TC-NEW-SSL-*`/`TC-LOS-ECT-NEW-1` placeholders never reconciled. (d) 75 lines across 7 MDs + 7 test-plan pointers + 14 test-cases pointers reference pre-restructure paths (`specs/`, `test-cases/locations/`). (e) fixme-registry stale-claim layers. **Recommendation: MISTAKE_FIX (internal batch)** — fix Depends_On to nearest real anchor or drop; correct doc paths; ledger placeholders; path-fix the 75+21 stale pointers.
 
 ## PC-6 — Test plans stale vs test cases — S2
 
-LI plan uses obsolete 2-seg grammar (TC-LOC-001..015, 34 refs, none resolve) + claims 63 cases vs 114 actual; SSL plan Total 24 vs 44 headers; Notes plan 27 vs 58; MGH plan 19 vs 25; orphan duplicate `locations_left_panel_test_plan.md` (pairs with no cases file); self-referencing sibling lists in 2 local-office plans. **Recommendation: FUCKUP_FIX (internal batch)** — refresh counts/ranges, fix grammar refs, delete/merge orphan plan, fix sibling lists.
+LI plan uses obsolete 2-seg grammar (TC-LOC-001..015, 34 refs, none resolve) + claims 63 cases vs 114 actual; SSL plan Total 24 vs 44 headers; Notes plan 27 vs 58; MGH plan 19 vs 25; orphan duplicate `locations_left_panel_test_plan.md` (pairs with no cases file); self-referencing sibling lists in 2 local-office plans. **Recommendation: MISTAKE_FIX (internal batch)** — refresh counts/ranges, fix grammar refs, delete/merge orphan plan, fix sibling lists.
 
 ## PC-7 — Shipped LI-family grammar anomalies — S1
 
@@ -43,11 +43,11 @@ LI plan uses obsolete 2-seg grammar (TC-LOC-001..015, 34 refs, none resolve) + c
 
 ## PC-8 — Code-table hygiene — S2
 
-5 dead TAB_MAP codes (PRC/LCL/HST/HIST/HISL) duplicated across to-csv.ts + humanize.ts (dead parallel surface: TAB_MAP + 9 functions) + unused `LO_PREFIX_TO_SHEET` (3rd alias copy); extractModule's 5 speculative module codes + missing corporate-pricing; 3 parallel label vocabularies (to-csv slugs / to-xlsx display / _gen-testrail Title-Case). **Recommendation: FUCKUP_FIX** — registry becomes single source; dead copies removed.
+5 dead TAB_MAP codes (PRC/LCL/HST/HIST/HISL) duplicated across to-csv.ts + humanize.ts (dead parallel surface: TAB_MAP + 9 functions) + unused `LO_PREFIX_TO_SHEET` (3rd alias copy); extractModule's 5 speculative module codes + missing corporate-pricing; 3 parallel label vocabularies (to-csv slugs / to-xlsx display / _gen-testrail Title-Case). **Recommendation: MISTAKE_FIX** — registry becomes single source; dead copies removed.
 
 ## PC-9 — Spec-side tag/title anomalies — S2/S3
 
-All 3 local-office specs tagged `@locations` (verified); ECT-014/015 IDs minted via template-literal (invisible to static scanners); 37 bare `TC-NNN` shorthand comment refs in shipped specs. **Recommendation: FUCKUP_FIX for the @locations tags; document the rest.**
+All 3 local-office specs tagged `@locations` (verified); ECT-014/015 IDs minted via template-literal (invisible to static scanners); 37 bare `TC-NNN` shorthand comment refs in shipped specs. **Recommendation: MISTAKE_FIX for the @locations tags; document the rest.**
 
 ## PC-10 — Sheet-name/label divergences — S3 (mostly mechanical)
 
@@ -55,11 +55,11 @@ All 3 local-office specs tagged `@locations` (verified); ECT-014/015 IDs minted 
 
 ## PC-11 — Validation gaps (guards pre-approved by user) — S1
 
-No check covers: ID-module-segment vs file/dir (SUB-001 checks only submodule codes — and its list registers CPR under LOC); ID vs sheet (634 rows unvalidated); Module/Submodule cell vs sheet; BUG grammar anywhere; TERSE allowlist/blocked-reasons liveness; xlsx⊃md parity direction; band policy (an Override TC numbered 050 would pass everything); TestRail workbook invisible to commit lint + **ship-time lint column-name-blind → false-green** (directly affects PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT); 3 inconsistent ID regexes across validators. **Recommendation: FUCKUP_FIX — guardrail 6/7 + C8, registry-driven; default strictness FAIL-now with pre-seeded exceptions.**
+No check covers: ID-module-segment vs file/dir (SUB-001 checks only submodule codes — and its list registers CPR under LOC); ID vs sheet (634 rows unvalidated); Module/Submodule cell vs sheet; BUG grammar anywhere; TERSE allowlist/blocked-reasons liveness; xlsx⊃md parity direction; band policy (an Override TC numbered 050 would pass everything); TestRail workbook invisible to commit lint + **ship-time lint column-name-blind → false-green** (directly affects PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT); 3 inconsistent ID regexes across validators. **Recommendation: MISTAKE_FIX — guardrail 6/7 + C8, registry-driven; default strictness FAIL-now with pre-seeded exceptions.**
 
 ## PC-12 — Misc artifact-header defects — S2/S3
 
-PRI file Total=35 vs 34 headers (034 documented-skip); LP summary table duplicate "Automated" column; 3 coexisting Module-header formats across 19 MDs; `****` scrub damage in the LOS-BAS gap table; stale LP catalog mapping; catalog filename convention drift. **Recommendation: FUCKUP_FIX (cheap batch).**
+PRI file Total=35 vs 34 headers (034 documented-skip); LP summary table duplicate "Automated" column; 3 coexisting Module-header formats across 19 MDs; `****` scrub damage in the LOS-BAS gap table; stale LP catalog mapping; catalog filename convention drift. **Recommendation: MISTAKE_FIX (cheap batch).**
 
 ## PC-13 — Confirmed by-design / false-positive boundary notes — REPORT_ONLY
 

@@ -30,7 +30,7 @@ Graduated from agent-mistakes.md. Practical decision trees for recurring situati
 ## Pattern: Don't Over-Plan Spec Fixing — Just Run It
 **When you see**: User says "fix failing spec" and you want to write a formal plan
 **Do**: Skip the /planning ceremony. Just: clean → run → run again → RCA from evidence → fix → verify.
-**Because**: Session 2026-04-02 — user corrected "the plan is to run the fucking spec". Elaborate planning delays action and the root cause is unknown until you see the actual failure. Plan AFTER you have evidence, not before.
+**Because**: Session 2026-04-02 — user corrected "the plan is to run the spec". Elaborate planning delays action and the root cause is unknown until you see the actual failure. Plan AFTER you have evidence, not before.
 **Graduated from**: User correction, session 2026-04-02
 
 ## Pattern: Save/Submit button disables but nothing persists

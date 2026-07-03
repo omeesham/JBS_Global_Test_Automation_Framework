@@ -6,7 +6,7 @@ originSessionId: 2ab77cbd-56f9-4e32-b1f3-753708c1ff4c
 ---
 When a multi-phase session ends with deferred work ("after the subplan, do the upgrade"), the deferred work MUST get the same skill discipline as fresh work — explicit /planning, /questionnaire, /execute, /audit, /final-q items in TodoWrite. NOT a single line that says "do the upgrade work."
 
-**Why:** Rutvik directive 2026-04-23 during SP-AAE-01 setup: "when u do the self upgrades in last todo, do not rush, plan and use all relevant skills.. inject this into the todo list itself so u dont fuckup at the end". The end of a session is when context budget is tight, attention is degraded, and the temptation to "just do it real quick" is highest. Single-line todos at the end of a long list are routinely converted into rushed implementations that skip /planning + /questionnaire and produce buggy or under-scoped output. Multiple prior sessions ended exactly this way (chain of plan→execute→done degrades to plan→done at the tail).
+**Why:** Rutvik directive 2026-04-23 during SP-AAE-01 setup: "when u do the self upgrades in last todo, do not rush, plan and use all relevant skills.. inject this into the todo list itself so u dont slip up at the end". The end of a session is when context budget is tight, attention is degraded, and the temptation to "just do it real quick" is highest. Single-line todos at the end of a long list are routinely converted into rushed implementations that skip /planning + /questionnaire and produce buggy or under-scoped output. Multiple prior sessions ended exactly this way (chain of plan→execute→done degrades to plan→done at the tail).
 
 **How to apply** (whenever the user defers a follow-up task to the end of the session):
 

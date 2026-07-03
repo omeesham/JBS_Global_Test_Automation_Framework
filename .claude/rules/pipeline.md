@@ -340,7 +340,7 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
 
    Phase 0.5b emits or consumes `clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-<YYYY-MM-DD>.md` per LR-045 row 4. `baselineScope: baseline-absent` is allowed (NOT a HALT) when the feature is net-new on the active site.
 6. **Phase 1+** — actual work, identity-scoped.
-6.5. **Per-Identity Satisfaction Matrix** (LR-048 v3 — added 2026-05-25 as v2, amended 2026-05-28 to v3 — FCC fuckup prevention) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, the XLSX deliverable at `test_cases_xlsx/encore_test_cases.xlsx` (post-2026-05-27 — legacy CSV exports under `test_cases_csv/` are retired in Phase D of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION), `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
+6.5. **Per-Identity Satisfaction Matrix** (LR-048 v3 — added 2026-05-25 as v2, amended 2026-05-28 to v3 — FCC mistake prevention) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, the XLSX deliverable at `test_cases_xlsx/encore_test_cases.xlsx` (post-2026-05-27 — legacy CSV exports under `test_cases_csv/` are retired in Phase D of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION), `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
 
    The subplan body MUST contain a section `## Per-Identity Satisfaction` with this table:
 
@@ -372,7 +372,7 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
 
    **Why v3**: SUBPLAN_LEGAL_FCC (2026-05-27) shipped a matrix whose 6-of-6 Concrete-deliverable cells were vague prose, and C1–C5 passed because vague prose is not a forbidden token. v3 + C6 close that hole — every cell now proves itself (file exists / honest skip with reason / explicit none).
 
-   **Why this exists**: SUBPLAN_NOTES_FCC_PILOT (2026-05-21) added 26 Notes FCC TCs to specs but did not enumerate the GIVER's deliverables (MD FCC block, test-plan Scenarios, deliverable rebuild — originally CSV re-export, post-2026-05-27 `npm run xlsx:build`). Same gap on SUBPLAN_SSL_FCC_PILOT (14 SSL FCC TCs). Without a structural matrix, those items silently became "future cleanup" — exactly what PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT retroactively unfucks. The matrix is the structural prevention.
+   **Why this exists**: SUBPLAN_NOTES_FCC_PILOT (2026-05-21) added 26 Notes FCC TCs to specs but did not enumerate the GIVER's deliverables (MD FCC block, test-plan Scenarios, deliverable rebuild — originally CSV re-export, post-2026-05-27 `npm run xlsx:build`). Same gap on SUBPLAN_SSL_FCC_PILOT (14 SSL FCC TCs). Without a structural matrix, those items silently became "future cleanup" — exactly what PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT retroactively remediates. The matrix is the structural prevention.
 
    **Cross-refs**: LR-040 (closure-gate completeness); LR-050 (restructure plans enumerate stale-slop cleanup); LR-027 (execution summary mandatory); ALL-071 (spec-MD parity); LR-ENC-002 (Encore client-level summary); BUILDER HARD STOP #11 (per-agent enforcement).
 

@@ -370,7 +370,7 @@ function sortPending(plans) {
  *   0 = AAE  (highest-leverage right now: SP-AAE-06 unblocks 10 superseded DQU subplans)
  *   1 = DQU  (Deliverable Quality Upgrade — active client-deliverable track)
  *   2 = other (REPO cleanup, skill dev, audits — real ongoing work, not deprioritized)
- *   3 = HIST  (Column-First Pivot — explicitly bottom per user "FUCK hist")
+ *   3 = HIST  (Column-First Pivot — explicitly bottom per user directive to deprioritize HIST)
  *
  * Detection: filename token first (canonical for SUBPLAN_<COHORT>_*), then parent
  * file fallback so plans like PLAN_BUG_ARCHETYPE_CATALOG (whose filename has no
@@ -380,7 +380,7 @@ function sortPending(plans) {
  * History: order was DQU > AAE > HIST > other early in conversation, then AAE > DQU >
  * HIST > other so AAE-06 lands top, then user flagged that REPO subplans (P1 cleanup
  * work, parent=MASTER_REPO_CLEANUP) sit BELOW HIST_PIVOT subplans. Since user said
- * "FUCK hist" repeatedly, HIST is now the LOWEST cohort, with all "other" work
+ * deprioritized HIST repeatedly, HIST is now the LOWEST cohort, with all "other" work
  * (including REPO cluster) above it.
  */
 function cohortRank(plan) {

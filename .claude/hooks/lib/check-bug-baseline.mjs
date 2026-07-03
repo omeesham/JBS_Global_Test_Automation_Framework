@@ -120,7 +120,7 @@ export function evaluate(payload, repoRoot = REPO_ROOT) {
           `Free-text like "not-yet-verified" is forbidden — a bug filed before the baseline ` +
           `was walked must be classified "not-checked" (honest), and reclassified after the ` +
           `Phase 0.5b baseline walk (LR-045 / LR-ENC-001). This is the 2026-06-18 Pricing ` +
-          `BUG-LOC-PRI-001 fuckup the gate prevents.`,
+          `BUG-LOC-PRI-001 mistake the gate prevents.`,
       };
     }
 

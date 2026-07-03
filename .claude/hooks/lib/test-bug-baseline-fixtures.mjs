@@ -18,7 +18,7 @@ const bug = (rel) => abs(`clients/encore/reports/bugs/${rel}`);
 const cases = [];
 const add = (name, fn) => cases.push([name, fn]);
 
-// ── DENY: the exact 2026-06-18 fuckup + other invalid enums ──────────────────
+// ── DENY: the exact 2026-06-18 mistake + other invalid enums ──────────────────
 add("DENY not-yet-verified (the BUG-LOC-PRI-001 value)", () => {
   const v = evaluate({
     tool_name: "Write",
