@@ -280,10 +280,13 @@ fi
 
 # --- 6) LR-028 + LR-037: activity-log timestamp validation. ----------------------
 # Fires whenever agent-activity-log.md is staged. Guards against backdated rows
-# (timestamp < latest mtime of any referenced file).
+# (timestamp < latest mtime of any referenced file). --staged scopes the check to the
+# rows ADDED in this commit's staged diff — the only rows where backdating can be
+# introduced. This kills the false-positive class where a LATER commit legitimately
+# re-touches a file an OLDER, already-committed row referenced (LR-037 fix 2026-07-06).
 if git diff --cached --name-only --diff-filter=ACMR | grep -qE 'agent-activity-log\.md$'; then
-  echo "[pre-commit] activity-log staged → validating LR-037 timestamps..." >&2
-  if ! node scripts/validate-activity-log.mjs --latest-per-file --recent=5 --quiet; then
+  echo "[pre-commit] activity-log staged → validating LR-037 timestamps (staged rows)..." >&2
+  if ! node scripts/validate-activity-log.mjs --staged --quiet; then
     echo "[pre-commit] HALT: activity-log row backdated relative to referenced file mtimes (LR-037)." >&2
     echo "         Inspect: npm run validate:activity-log:preflight" >&2
     exit 1

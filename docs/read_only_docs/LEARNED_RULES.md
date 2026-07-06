@@ -175,10 +175,11 @@ Every row appended to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-a
 
 **Validation**:
 
-- `npm run validate:activity-log` — full report (noisy for historical rows; shared files like CLAUDE.md get legitimately touched later and appear as false positives)
-- `npm run validate:activity-log:preflight` — `--latest-per-file --recent=5`, scoped to current-session additions; fails hard if the most recent rows are backdated
-- Runs automatically as part of `npm run pipeline:preflight`
-- Flags: `--recent=N` (last N rows), `--latest-per-file` (per-file scoping), `--baseline=YYYY-MM-DD`, `--json`
+- `npm run validate:activity-log:preflight` — `--staged` mode. **This is what the pre-commit gate (#6) and `pipeline:preflight` run.** It validates ONLY the rows ADDED in the currently-staged activity-log diff (`git diff --cached`) — the only rows where backdating can be introduced. No staged log changes → 0 rows → exit 0. Hard-fails a genuinely backdated staged row.
+- `npm run validate:activity-log` — full-file report (manual/advisory). Noisy for historical rows: shared files (CLAUDE.md) get legitimately touched later, and moved/renamed files (plan pending→done) resolve to a later commit-time, so already-committed rows appear as false positives. Do NOT wire this (or `--recent`/`--latest-per-file`) into a commit gate.
+- Flags: `--staged` (gate mode — staged-added rows only), `--recent=N` (last N rows), `--latest-per-file` (per-file scoping), `--baseline=YYYY-MM-DD`, `--json`.
+
+**Staged-scoping fix (2026-07-06)**: the gate previously ran `--latest-per-file --recent=5`, which re-validated *already-committed* rows against files' *current* mtime and false-positived whenever a later commit legitimately re-touched a file an older row named (bare-dir `docs/read_only_docs`, or a plan moved `pending/`→`done/`). `--latest-per-file` couldn't fix it (it keys on the exact string token). `--staged` scopes to newly-added rows, eliminating the FP class. **Honest residual**: `--staged` no longer catches *split-commit* backdating (write a row now, touch its referenced files in a *later* commit) — a choreographed evasion, not the lazy single-commit backdating the gate targets, and the unavoidable price of removing the FP (you cannot re-check an immutable committed row against HEAD without FP-ing on legit drift). Editing an *old* row in a new commit is also re-checked by `--staged` and can FP if its files drifted — rare (log is append-only per LR-028); `--no-verify` remains the sanctioned escape.
 
 **Tolerance**: 1 minute. When appending a row, use the current wall clock at the moment of the append, not the time work "started". If work was started earlier, say so in the notes.
 

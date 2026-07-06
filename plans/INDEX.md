@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 128 pending · 396 done · 114 stale (>14d) · 0 DONE-in-pending
+**Totals**: 127 pending · 397 done · 113 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -19,7 +19,6 @@
 | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | 104d | 2026-03-24 | P2-CYCLE-3 |
 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | 96d | 2026-04-01 | P2-CYCLE-3 |
 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | 94d | 2026-04-03 | P5-PARKED |
-| [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | 82d | 2026-04-15 | P2-CYCLE-3 |
 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | 82d | 2026-04-15 | P2-CYCLE-3 |
 | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | 81d | 2026-04-16 | P1-CYCLE-2 |
 | [SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md](pending/SUBPLAN_REPO_03_AGENT_FILE_RESTRUCTURE.md) | 81d | 2026-04-16 | P1-CYCLE-2 |
@@ -240,32 +239,31 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 93 | [SUBPLAN_TRIM_06_CLOSURE.md](pending/SUBPLAN_TRIM_06_CLOSURE.md) | SUBPLAN_TRIM_06_CLOSURE — final battery, docs residue, master closure | P1 | [SUBPLAN_TRIM_03_PLAN_CORPUS_HYGIENE.md](pending/SUBPLAN_TRIM_03_PLAN_CORPUS_HYGIENE.md), [SUBPLAN_TRIM_04_SCRIPTS_DEADWEIGHT.md](pending/SUBPLAN_TRIM_04_SCRIPTS_DEADWEIGHT.md), [SUBPLAN_TRIM_05_EXPORT_CONVERTERS.md](pending/SUBPLAN_TRIM_05_EXPORT_CONVERTERS.md), [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](pending/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md), [SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md](pending/SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md) | PENDING | Opus | xhi | auto | none | 2026-06-12 |
 | 94 | [PLAN_TIMEOUT_CENTRALIZATION.md](pending/PLAN_TIMEOUT_CENTRALIZATION.md) | PLAN_TIMEOUT_CENTRALIZATION — One source of truth for timeouts + env multiplier + auth-budget fix | P1 | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-06-03 |
 | 95 | [godsplan.md](pending/godsplan.md) | PLAN: Claude Code Baseline Research + Gene-Marriage Upgrade | P2-CYCLE-3 | — (ready) | PENDING | Opus | max | plan | — | 2026-04-23 |
-| 96 | [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](pending/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | PLAN_ACTIVITY_LOG_TIMESTAMP_GATE | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
-| 97 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PLAN: Chat UI Bugs — Website Pipeline Experience | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
-| 98 | [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | PLAN: Codebase Cleanup — Audit-Corrected Version | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
-| 99 | [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | PLAN: Adversarial Full-Chain Audit — V3 (Post-External-Review) | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-03-24 |
-| 100 | [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3) | P2-CYCLE-3 | — (ready) | RESOLVED-BY-POINTER | — | — | — | — | 2026-06-11 |
-| 101 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
-| 102 | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | PLAN: Framework Maintainer Sweep — Selector Collision Architecture Fix | P2-CYCLE-3 | — (ready) | PARTIALLY-DONE | — | — | — | — | 2026-03-24 |
-| 103 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
-| 104 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PLAN: Playwright CLI Gradual Adoption | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-01 |
-| 105 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PLAN: Test Data CSV Conversion | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
-| 106 | [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | PLAN: Visual Debug Skill — Give All Agents Eyes | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
-| 107 | [PLAN_56_HIDE_LEFT_PANEL_FROM_ALLURE.md](pending/PLAN_56_HIDE_LEFT_PANEL_FROM_ALLURE.md) | PLAN_56 — Hide "Location Left Panel — Basic Information" from the Allure report (only) | P2 | — (ready) | PENDING | — | — | — | — | 2026-06-03 |
-| 108 | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | SUBPLAN: Pipeline tsc Compilation — Harden Build Mode | P2-NORMAL | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-05-01 |
-| 109 | [SUBPLAN_TESTRAIL_DEEP_SWEEP.md](pending/SUBPLAN_TESTRAIL_DEEP_SWEEP.md) | SUBPLAN_TESTRAIL_DEEP_SWEEP — other-module gap audit + non-deliverable Notes/MGH reference sweep | P2 | — (ready) | PENDING | Opus | xhi | auto | none | 2026-06-05 |
-| 110 | [PLAN_WAIT_PATTERN_CLEANUP.md](pending/PLAN_WAIT_PATTERN_CLEANUP.md) | PLAN_WAIT_PATTERN_CLEANUP — Best-practice wait-pattern hardening (runs AFTER timeout centralization) | P3 | [PLAN_TIMEOUT_CENTRALIZATION.md](pending/PLAN_TIMEOUT_CENTRALIZATION.md) | PENDING | Opus | xhi | acceptEdits | none | 2026-06-03 |
-| 111 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P5-PARKED | — (ready) | PENDING | — | — | — | — | 2026-04-03 |
-| 112 | [_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md](pending/_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md) | Parity Restructure Traceability — SP01-SP08 → W1-01..W2-09 + Wave 0 (XLSX migration) | — | — (ready) | TRACEABILITY-ARTIFACT | — | — | — | — | 2026-05-26 |
-| 113 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | — | — | — | — | — | 2026-06-08 |
-| 114 | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | Plan — clients/encore restructure: kill `setup/` + `tests/` wrappers + move test-data + infra to src/ + delete seed spec → ship to encore_deliverables_test:notes-latest | — | — (ready) | — | — | — | acceptEdits | none | 2026-06-08 |
-| 115 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-06-08 |
-| 116 | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | PLAN: Encore Deliverable Remediation — Verified Findings, RCA, Remediation | — | — (ready) | IN-PROGRESS | — | — | default | cli | 2026-07-06 |
-| 117 | [PLAN_SPEC_BASELINE_ENFORCEMENT.md](pending/PLAN_SPEC_BASELINE_ENFORCEMENT.md) | PLAN — Spec Baseline-State Enforcement (fix + rule, no static gate) | — | — (ready) | PENDING | — | — | execution (one page-object method + spec `beforeEach` wiring + one rule-prose edit + one stale-comment fix) | — | 2026-06-08 |
-| 118 | [PLAN_ULTRA_AGENTS_COPILOT_WORKER.md](pending/PLAN_ULTRA_AGENTS_COPILOT_WORKER.md) | Plan — Copilot CLI as Claude Code's free, unlimited "Jr. Worker" (via `/ultra-agents`) | — | — (ready) | — | — | — | — | — | 2026-07-06 |
-| 119 | [SUBPLAN_WALKER_OBSERVATION_MANDATE.md](pending/SUBPLAN_WALKER_OBSERVATION_MANDATE.md) | SUBPLAN — Walker Observation Mandate (+ the Corp-Pricing error-state bug that exposed the gap) | High | — (ready) | PENDING | Opus | xhi | auto | chrome (Part 2 bug is visual; CLI is structurally blind to it) | 2026-06-26 |
-| 120 | [SUBPLAN_CORP_PRICING_1444_HISTORY.md](pending/SUBPLAN_CORP_PRICING_1444_HISTORY.md) | SUBPLAN_CORP_PRICING_1444_HISTORY — Pricebook Management History tab (GATED STUB) | P1 | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-06-05 |
-| 121 | [PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md](pending/PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md) | PLAN: Re-enable / de-flake the 6 fixable tests from the 2026-06-02 live QA verification | P1 | — (ready) | PENDING | opus | xhi | acceptEdits | cli | 2026-06-02 |
+| 96 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PLAN: Chat UI Bugs — Website Pipeline Experience | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
+| 97 | [PLAN_CODEBASE_CLEANUP.md](pending/PLAN_CODEBASE_CLEANUP.md) | PLAN: Codebase Cleanup — Audit-Corrected Version | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
+| 98 | [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | PLAN: Adversarial Full-Chain Audit — V3 (Post-External-Review) | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-03-24 |
+| 99 | [PLAN_GENERATOR_AUDIT_AUTO_ADDON.md](pending/PLAN_GENERATOR_AUDIT_AUTO_ADDON.md) | REVISED PLAN: Generator Audit — Auto Add-On (Post-Adversarial Audit V3) | P2-CYCLE-3 | — (ready) | RESOLVED-BY-POINTER | — | — | — | — | 2026-06-11 |
+| 100 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
+| 101 | [PLAN_MAINTAINER_SWEEP.md](pending/PLAN_MAINTAINER_SWEEP.md) | PLAN: Framework Maintainer Sweep — Selector Collision Architecture Fix | P2-CYCLE-3 | — (ready) | PARTIALLY-DONE | — | — | — | — | 2026-03-24 |
+| 102 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
+| 103 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PLAN: Playwright CLI Gradual Adoption | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-01 |
+| 104 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PLAN: Test Data CSV Conversion | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
+| 105 | [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | PLAN: Visual Debug Skill — Give All Agents Eyes | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
+| 106 | [PLAN_56_HIDE_LEFT_PANEL_FROM_ALLURE.md](pending/PLAN_56_HIDE_LEFT_PANEL_FROM_ALLURE.md) | PLAN_56 — Hide "Location Left Panel — Basic Information" from the Allure report (only) | P2 | — (ready) | PENDING | — | — | — | — | 2026-06-03 |
+| 107 | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | SUBPLAN: Pipeline tsc Compilation — Harden Build Mode | P2-NORMAL | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-05-01 |
+| 108 | [SUBPLAN_TESTRAIL_DEEP_SWEEP.md](pending/SUBPLAN_TESTRAIL_DEEP_SWEEP.md) | SUBPLAN_TESTRAIL_DEEP_SWEEP — other-module gap audit + non-deliverable Notes/MGH reference sweep | P2 | — (ready) | PENDING | Opus | xhi | auto | none | 2026-06-05 |
+| 109 | [PLAN_WAIT_PATTERN_CLEANUP.md](pending/PLAN_WAIT_PATTERN_CLEANUP.md) | PLAN_WAIT_PATTERN_CLEANUP — Best-practice wait-pattern hardening (runs AFTER timeout centralization) | P3 | [PLAN_TIMEOUT_CENTRALIZATION.md](pending/PLAN_TIMEOUT_CENTRALIZATION.md) | PENDING | Opus | xhi | acceptEdits | none | 2026-06-03 |
+| 110 | [PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md](pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md) | PLAN: Requirements-Driven Test Quality Upgrade | P5-PARKED | — (ready) | PENDING | — | — | — | — | 2026-04-03 |
+| 111 | [_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md](pending/_PARITY_RESTRUCTURE_TRACEABILITY_2026-05-26.md) | Parity Restructure Traceability — SP01-SP08 → W1-01..W2-09 + Wave 0 (XLSX migration) | — | — (ready) | TRACEABILITY-ARTIFACT | — | — | — | — | 2026-05-26 |
+| 112 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | — | — | — | — | — | 2026-06-08 |
+| 113 | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | Plan — clients/encore restructure: kill `setup/` + `tests/` wrappers + move test-data + infra to src/ + delete seed spec → ship to encore_deliverables_test:notes-latest | — | — (ready) | — | — | — | acceptEdits | none | 2026-06-08 |
+| 114 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-06-08 |
+| 115 | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | PLAN: Encore Deliverable Remediation — Verified Findings, RCA, Remediation | — | — (ready) | IN-PROGRESS | — | — | default | cli | 2026-07-06 |
+| 116 | [PLAN_SPEC_BASELINE_ENFORCEMENT.md](pending/PLAN_SPEC_BASELINE_ENFORCEMENT.md) | PLAN — Spec Baseline-State Enforcement (fix + rule, no static gate) | — | — (ready) | PENDING | — | — | execution (one page-object method + spec `beforeEach` wiring + one rule-prose edit + one stale-comment fix) | — | 2026-06-08 |
+| 117 | [PLAN_ULTRA_AGENTS_COPILOT_WORKER.md](pending/PLAN_ULTRA_AGENTS_COPILOT_WORKER.md) | Plan — Copilot CLI as Claude Code's free, unlimited "Jr. Worker" (via `/ultra-agents`) | — | — (ready) | — | — | — | — | — | 2026-07-06 |
+| 118 | [SUBPLAN_WALKER_OBSERVATION_MANDATE.md](pending/SUBPLAN_WALKER_OBSERVATION_MANDATE.md) | SUBPLAN — Walker Observation Mandate (+ the Corp-Pricing error-state bug that exposed the gap) | High | — (ready) | PENDING | Opus | xhi | auto | chrome (Part 2 bug is visual; CLI is structurally blind to it) | 2026-06-26 |
+| 119 | [SUBPLAN_CORP_PRICING_1444_HISTORY.md](pending/SUBPLAN_CORP_PRICING_1444_HISTORY.md) | SUBPLAN_CORP_PRICING_1444_HISTORY — Pricebook Management History tab (GATED STUB) | P1 | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-06-05 |
+| 120 | [PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md](pending/PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md) | PLAN: Re-enable / de-flake the 6 fixable tests from the 2026-06-02 live QA verification | P1 | — (ready) | PENDING | opus | xhi | acceptEdits | cli | 2026-06-02 |
 
 ### Parent Plans (Waiting on Subplans)
 These stay in `pending/` until their last subplan closes them (LR-027 parent-cascade). Do not execute directly.
@@ -547,6 +545,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | [SUBPLAN_HIST_PIVOT_03_A3_PURGE_MDS_CSVS.md](done/SUBPLAN_HIST_PIVOT_03_A3_PURGE_MDS_CSVS.md) | SUBPLAN SP-A3: Strip HIST Sections from 10 Test-Case MDs + Re-export CSVs | DONE | 2026-04-20 |
 | [SUBPLAN_HIST_PIVOT_04_H_DOCS_LANG.md](done/SUBPLAN_HIST_PIVOT_04_H_DOCS_LANG.md) | SUBPLAN SP-H: REQUIREMENTS.md §History Tracking — Language Revision | DONE | 2026-04-20 |
 | [SUBPLAN_HIST_PIVOT_05_B_LO_1_BASIC_INFO_CATALOG.md](done/SUBPLAN_HIST_PIVOT_05_B_LO_1_BASIC_INFO_CATALOG.md) | SUBPLAN SP-B-LO-1: MCP Catalog — Local Office Basic Info → 42-col History Mapping | DONE | 2026-04-20 |
+| [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](done/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | PLAN_ACTIVITY_LOG_TIMESTAMP_GATE | DONE | 2026-04-17 (built) · 2026-07-06 (closed) |
 | [PLAN_MULTI_TENANT_RESTRUCTURE.md](done/PLAN_MULTI_TENANT_RESTRUCTURE.md) | MASTER PLAN: Multi-Tenant Repo Restructure | DONE | 2026-04-17 |
 | [SUBPLAN_MT_01_SCAFFOLD_ALIASES.md](done/SUBPLAN_MT_01_SCAFFOLD_ALIASES.md) | SUBPLAN MT-01: Scaffold + Aliases + Config Shim (No File Moves) | DONE | 2026-04-17 |
 | [SUBPLAN_MT_02_MOVE_TEST_CONTENT.md](done/SUBPLAN_MT_02_MOVE_TEST_CONTENT.md) | SUBPLAN MT-02: Move Encore Test Content | DONE | 2026-04-17 |
@@ -692,8 +691,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (128 files)
-  done/                 ← completed plans (396 files)
+  pending/              ← active plans (127 files)
+  done/                 ← completed plans (397 files)
 ```
 
 When completing a plan:
@@ -710,6 +709,7 @@ When completing a plan:
 | 2026-07-06 | pending | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | IN-PROGRESS |
 | 2026-07-06 | pending | [PLAN_ULTRA_AGENTS_COPILOT_WORKER.md](pending/PLAN_ULTRA_AGENTS_COPILOT_WORKER.md) | — |
 | 2026-07-06 | pending | [SUBPLAN_PRODUCTS_00_FOUNDATION.md](pending/SUBPLAN_PRODUCTS_00_FOUNDATION.md) | PENDING |
+| 2026-07-06 | done | [PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md](done/PLAN_ACTIVITY_LOG_TIMESTAMP_GATE.md) | DONE |
 | 2026-07-06 | done | [PLAN_GATE_BACKLOG_AND_1604_TRACKER.md](done/PLAN_GATE_BACKLOG_AND_1604_TRACKER.md) | DONE |
 | 2026-07-03 | pending | [godsplan.md](pending/godsplan.md) | PENDING |
 | 2026-07-03 | pending | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PENDING |
@@ -746,4 +746,3 @@ When completing a plan:
 | 2026-07-03 | done | [SUBPLAN_HISTORY_01_MCP_DISCOVERY.md](done/SUBPLAN_HISTORY_01_MCP_DISCOVERY.md) | DONE |
 | 2026-07-03 | done | [SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC.md](done/SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC.md) | DONE |
 | 2026-07-03 | done | [SUBPLAN_NOTES_FCC_PILOT.md](done/SUBPLAN_NOTES_FCC_PILOT.md) | DONE |
-| 2026-07-03 | done | [SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md](done/SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md) | SUPERSEDED |
