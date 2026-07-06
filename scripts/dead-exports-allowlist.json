@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "note": "Baseline freeze for the dead-export gate (scripts/check-dead-exports.mjs). Each entry is a pre-existing export ts-prune flags as unused, categorized honestly: 'config-referenced' = a real false positive (Playwright registers it by config-string path, which ts-prune cannot resolve); 'public-api-surface' / 'public-api-barrel' = an intentional exported type/utility surface; 'test-data-surface' = an authored spec-data constant with no current consumer. Standing up the gate does not delete shipped client exports or authored test-data; a separate code-quality pass (under a spec/data owner identity) may remove the truly-orphaned ones later. The gate's forward value is catching a NEW dead export in a staged client file.",
+  "entries": [
+    {
+      "file": "clients/encore/src/reporter/agent-reporter.ts",
+      "export": "default",
+      "reason": "Playwright custom reporter registered by path string in playwright.config.ts reporter[]; ts-prune cannot resolve config-string references, so this is a false positive.",
+      "category": "config-referenced",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/setup/global-setup.ts",
+      "export": "default",
+      "reason": "Playwright globalSetup registered via require.resolve in playwright.config.ts; ts-prune cannot resolve the config-string reference, so this is a false positive.",
+      "category": "config-referenced",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/types/index.ts",
+      "export": "FailureCategory",
+      "reason": "Public type-surface barrel re-export from ./diagnostics; current consumers import from ./diagnostics directly but the barrel is the single public type entry-point.",
+      "category": "public-api-barrel",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/types/index.ts",
+      "export": "NetworkFailure",
+      "reason": "Public type-surface barrel re-export from ./diagnostics; current consumers import from ./diagnostics directly but the barrel is the single public type entry-point.",
+      "category": "public-api-barrel",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/types/index.ts",
+      "export": "ConsoleEntry",
+      "reason": "Public type-surface barrel re-export from ./diagnostics; current consumers import from ./diagnostics directly but the barrel is the single public type entry-point.",
+      "category": "public-api-barrel",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/types/index.ts",
+      "export": "AuthChainEntry",
+      "reason": "Public type-surface barrel re-export from ./diagnostics; current consumers import from ./diagnostics directly but the barrel is the single public type entry-point.",
+      "category": "public-api-barrel",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/types/index.ts",
+      "export": "DiagnosticSnapshot",
+      "reason": "Public type-surface barrel re-export from ./diagnostics; current consumers import from ./diagnostics directly but the barrel is the single public type entry-point.",
+      "category": "public-api-barrel",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/types/index.ts",
+      "export": "IValidationFields",
+      "reason": "Public validation-fields map interface exported from the types entry-point; retained as part of the shared type surface used when authoring field-validation specs and data.",
+      "category": "public-api-surface",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/utils/auth-storage.ts",
+      "export": "deleteState",
+      "reason": "Auth-storage lifecycle API: the delete counterpart to writeStateAtomic/validateState; retained so the saved-session surface stays complete for fresh-login and state-reset flows.",
+      "category": "public-api-surface",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/data/locations/location-local-info.ts",
+      "export": "SPIN_DEFAULTS",
+      "reason": "Authored spin-field default-value test-data constant; retained as spec-authoring surface for spin default cases in the local-information tests.",
+      "category": "test-data-surface",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/data/locations/location-management-history.ts",
+      "export": "ALL_COLUMN_HEADERS",
+      "reason": "Authored full column-header list test-data constant; retained as spec-authoring surface for management-history header-verification cases.",
+      "category": "test-data-surface",
+      "added": "2026-07-06"
+    },
+    {
+      "file": "clients/encore/src/data/locations/location-shared-setup-locations.ts",
+      "export": "SEARCH_BVA_EMPTY",
+      "reason": "Authored empty-string boundary-value test-data constant; retained as spec-authoring surface for shared-setup-locations search boundary cases.",
+      "category": "test-data-surface",
+      "added": "2026-07-06"
+    }
+  ]
+}
