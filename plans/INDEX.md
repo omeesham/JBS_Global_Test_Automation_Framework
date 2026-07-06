@@ -226,7 +226,7 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 79 | [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | SUBPLAN: Rename jbs_framework | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
 | 80 | [PLAN_MASTER_REPO_CLEANUP.md](pending/PLAN_MASTER_REPO_CLEANUP.md) | MASTER PLAN: Repo Remediating & Client Delivery | P1-CYCLE-2 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
 | 81 | [PLAN_CASE_GENERATION_STANDARD.md](pending/PLAN_CASE_GENERATION_STANDARD.md) | PLAN_CASE_GENERATION_STANDARD — Codify the case-generation technique + lie-proof live-walk | P1 | — (ready) | PENDING | Opus | hi | auto | none | 2026-06-24 |
-| 82 | [PLAN_GATE_BACKLOG_AND_1604_TRACKER.md](pending/PLAN_GATE_BACKLOG_AND_1604_TRACKER.md) | PLAN_GATE_BACKLOG_AND_1604_TRACKER | P1 | — (ready) | PENDING | Opus | xhi | auto | cli — **Justification**: WS-E LR-029 live testid sweep drives playwright-cli across corporate-pricing surfaces; 1604 evidence already gathered this session. | 2026-07-06 |
+| 82 | [PLAN_GATE_BACKLOG_AND_1604_TRACKER.md](pending/PLAN_GATE_BACKLOG_AND_1604_TRACKER.md) | PLAN_GATE_BACKLOG_AND_1604_TRACKER | P1 | — (ready) | IN-PROGRESS | Opus | xhi | auto | cli — **Justification**: WS-E LR-029 live testid sweep drives playwright-cli across corporate-pricing surfaces; 1604 evidence already gathered this session. | 2026-07-06 |
 | 83 | [PLAN_ID_NAMING_AUDIT_AND_REMEDIATION.md](pending/PLAN_ID_NAMING_AUDIT_AND_REMEDIATION.md) | PLAN_ID_NAMING_AUDIT_AND_REMEDIATION — repo-wide ID/naming consistency audit + gated remediation | P1 | — (ready) | PENDING | Opus | xhi | auto | none | 2026-06-10 |
 | 84 | [PLAN_JARGON_AUTHORING_GATE.md](pending/PLAN_JARGON_AUTHORING_GATE.md) | PLAN_JARGON_AUTHORING_GATE — RCA + scrub + authoring-time gate for shipped-source jargon | P1 | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-06-11 |
 | 85 | [SUBPLAN_TRIM_01_COMMIT_PENDING_DELETIONS.md](pending/SUBPLAN_TRIM_01_COMMIT_PENDING_DELETIONS.md) | SUBPLAN_TRIM_01_COMMIT_PENDING_DELETIONS — commit the already-deleted tracked files (clean fingerprint baseline) | P1 | — (ready) | PENDING | Sonnet | mid | auto | none | 2026-06-12 |
@@ -708,7 +708,7 @@ When completing a plan:
 | Date | Folder | File | Status |
 |---|---|---|---|
 | 2026-07-06 | pending | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | IN-PROGRESS |
-| 2026-07-06 | pending | [PLAN_GATE_BACKLOG_AND_1604_TRACKER.md](pending/PLAN_GATE_BACKLOG_AND_1604_TRACKER.md) | PENDING |
+| 2026-07-06 | pending | [PLAN_GATE_BACKLOG_AND_1604_TRACKER.md](pending/PLAN_GATE_BACKLOG_AND_1604_TRACKER.md) | IN-PROGRESS |
 | 2026-07-06 | pending | [PLAN_ULTRA_AGENTS_COPILOT_WORKER.md](pending/PLAN_ULTRA_AGENTS_COPILOT_WORKER.md) | — |
 | 2026-07-03 | pending | [godsplan.md](pending/godsplan.md) | PENDING |
 | 2026-07-03 | pending | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PENDING |

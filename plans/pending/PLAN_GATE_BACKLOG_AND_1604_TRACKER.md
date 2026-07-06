@@ -1,6 +1,6 @@
 # PLAN_GATE_BACKLOG_AND_1604_TRACKER
 
-**Status**: PENDING
+**Status**: In-Progress
 **Priority**: P1
 **Created**: 2026-07-06
 **Identity**: OWNER (gates, rules, plans, xlsx, bug JSON) + HEALER (spec/data comment edits + any spec fixes)
@@ -66,6 +66,21 @@ Adversarial-audit refinements (F1–F5) folded in below.
 - [ ] Override spec live: 28 passed / 1 skipped.
 - [ ] Pre-commit gates 5l/5m/5n wired in `.githooks/pre-commit`; every commit passes the full gate suite.
 - [ ] Delegation receipt emitted (ledger run_ids + 0 Claude Agent spawns).
+
+## Execution Progress (2026-07-06)
+- **WS-A (1604 write-up)** — DONE, commit `77234bd0`. override.ts + spec revert-to-1604 notes; `BUG-CPR-OVR-002.json` (LR-034, baseline-absent); tracker A12 (RED) + C7 (YELLOW) + footer; questions-state. Override spec 28 passed / 1 skipped.
+- **WS-D (#6 weak-reset)** — DONE, commit `97631f25`. Copilot-fleet audit (14 specs; 12 ok + 3 self-extracted) found ZERO bare-save resets. Delivered `check-weak-reset.mjs` as a bare-save detector (per adversarial finding F2 the per-field registry was runtime-infeasible — the gate is a freeze + drift-detector, not oversold as a per-field prover). Gate 5m wired; 6/6 unit tests; synthetic HALT proven.
+- **WS-C (#10 dead-code)** — DONE, commit `609e4dc1`. `check-dead-exports.mjs` (ts-prune via `npx -y ts-prune@0.10.3`, offline → WARN+pass) + `.test.mjs` (6/6) + 12-entry categorized `dead-exports-allowlist.json`. Gate 5l wired; synthetic HALT proven; full-tree scan fail-green.
+- **WS-B (#8) + WS-F (closure)** — DONE, commit `21a3b859`. #8 cross-ref to `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (workers default 1); remediation Phase-5 dispositions rewritten with honest LR-046 accounting (9 blocking + 1 rule + 1 runtime-redirect + 1 policy-decided-encoding-deferred).
+- **WS-E (#9 golden rule + live sweep)** — DEFERRED (see Deferral Authorization).
+
+**Delegation receipt** (`/ultra-agents` + worker-ext.md): Copilot worker fleet — 15 ledger runs (1 smoke + 14 extractors), 12 ok / 3 self-extracted (largest specs timed out); **0 Claude Agent spawns** after `/ultra-agents` (spawn-guard honored; the fleet is free — "save limits" respected). Every fleet claim anchor-verified against source.
+
+## Deferral Authorization
+**WS-E (#9 fragile-locators golden rule + WARN gate 5n + LR-029 live testid sweep) is deferred to a focused follow-up session — user-authorized 2026-07-06.**
+- **User authorization (real decision)**: when asked how to proceed with the 4 remaining workstreams, the user selected **"WS-C+B+F now, WS-E fresh"** — explicitly running WS-C/WS-B/WS-F this session and doing WS-E (the heaviest piece, whose live browser sweep deserves fresh context) in a separate session.
+- **What is deferred**: golden-rule block in `AGENT_SHARED_RULES.md`; LR-014 rewrite in `.claude/rules/inventory.md` (keep LR-029) + repoint `SUBPLAN_PRODUCTS_00_FOUNDATION.md:74` grep; `PLANNER.md`/`HEALER.md` touch-ups; WARN-only `scripts/check-testid-preference.mjs` (gate 5n, always exit 0); the LR-029 live playwright-cli sweep → `testid-gap-report` v2 + switch-back checklist → tracker D2 refresh.
+- **No red deferred** (LR-060 obligation 3): WS-E produces policy + a WARN-only gate + a report; it leaves no spec test failing. No task chip is used as a recipient — this plan (In-Progress) is the durable owner, and the remediation parent (#9) records the same deferral.
 
 ## Handoff
 Outcomes reported in chat per commit batch; no obstacle claims (LR-039).
