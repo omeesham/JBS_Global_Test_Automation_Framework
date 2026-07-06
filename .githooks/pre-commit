@@ -235,6 +235,22 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
+# --- 5m) LR-019/LR-067: weak-reset gate (remediation Phase 5 gate #6). ----------
+# Fires when a clients/*/tests/**/*.spec.ts is staged. Forbids the "bare-save reset" anti-pattern:
+# a save-capable describe whose beforeEach/afterEach SAVES (saveAndConfirm / clickSave*) but never
+# restores a baseline (ensureDefaultState / ensureEmptyState / reloadAndReselect / FCC runner /
+# fresh open()). Such a reset pins the last test's mutated state as the baseline for the next test.
+# Fail-green on the clean tree (the 2026-07-06 fleet audit found zero); catches a future regression.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+  echo "[pre-commit] spec file staged → running weak-reset gate (LR-019/LR-067)..." >&2
+  if ! node scripts/check-weak-reset.mjs --staged; then
+    echo "[pre-commit] HALT: a save-capable describe resets by saving without restoring a baseline (weak reset)." >&2
+    echo "         Use ensureDefaultState/ensureEmptyState/reloadAndReselect, the FCC runner, or a fresh open()." >&2
+    exit 1
+  fi
+fi
+
 # --- 6) LR-028 + LR-037: activity-log timestamp validation. ----------------------
 # Fires whenever agent-activity-log.md is staged. Guards against backdated rows
 # (timestamp < latest mtime of any referenced file).
