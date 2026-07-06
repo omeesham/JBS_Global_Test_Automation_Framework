@@ -10,6 +10,10 @@ import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
  * Corporate Pricing — Product Group Override screen, full field-coverage (NM-1463).
  * TC-CPR-OVR-001..528. Live-grounded 2026-06-09.
  *
+ * Fixture anchored to office 1606 (2026-07-06) while an open Product Group Override data/import
+ * problem on office 1604 awaits the Encore product team's answer (see `encore-qa-tracker.xlsx`);
+ * revert the fixture to the office-1604 anchors when it is resolved (the data file records them).
+ *
  * RESOLVED: the grid IS editable for the automation user (an earlier exploration's "inert cells"
  * was a false negative). Edit = click the Override Price / Max Discount cell `div[role=button]` → an
  * active `spinbutton` reveals → native value-setter (React-controlled; `.fill()` does not commit) +
@@ -18,14 +22,14 @@ import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
  * backend API path, never the page URL) → toast "Pricing overrides saved successfully." Net-zero verified
  * (revert-to-original disables Save). NM-1870 / NM-1889 not-reproduced (live verdicts recorded).
  *
- * MUTATION SAFETY: only the save-cycle describe commits, on the dedicated Override fixture row 2605
- * (`House Video Monitor - Specialty`, default Override Price 445.00) — distinct screen/data-model from the
+ * MUTATION SAFETY: only the save-cycle describe commits, on the dedicated Override fixture row 2609
+ * (`House Video Monitor LED 70"-79"`, default Override Price 500.00) — distinct screen/data-model from the
  * Strategy/Detail fixtures (zero collision). Each save-cycle restores via the bounded-retry
  * `ensureDefaultState()` (throws on residual drift). Read/filter/edit-behavior describes never commit.
  * Heavy page (server-loaded grid) → per-test timeout raised where a reload stack runs.
  */
 
-const LOC = CORP_PRICING_OVERRIDE_FIXTURE.office; // location picker search needle ('1604')
+const LOC = CORP_PRICING_OVERRIDE_FIXTURE.office; // location picker search needle ('1606')
 const ANCHOR = CORP_PRICING_OVERRIDE_FIXTURE.mutationRowAnchor.productGroupName;
 const ANCHOR_ID = CORP_PRICING_OVERRIDE_FIXTURE.mutationRowAnchor.productGroupId;
 const DEFAULTS = {
@@ -84,10 +88,10 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     expect(typeof state).toBe('boolean'); // aria-checked resolves to a real boolean, not empty textContent
   });
 
-  test('TC-CPR-OVR-008: Labor tab shows the empty state for office 1604 with headers rendered', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-008: Labor tab shows the empty state for office 1606 with headers rendered', async ({ corporatePricingOverridePage: p }) => {
     await p.switchOverrideTab('Labor');
     expect(await p.getActiveTab()).toBe('Labor');
-    expect(await p.getVisibleRowCount()).toBe(0); // 1604 has no Labor overrides
+    expect(await p.getVisibleRowCount()).toBe(0); // 1606 has no Labor overrides
     const headers = (await p.getColumnHeaders()).join(' | ');
     expect(headers).toContain('Override Price'); // structure still renders
   });
@@ -155,7 +159,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     test.setTimeout(90_000);
     // Per-test baseline: enforce the row's VALUE baseline per-test (not just reload). TC-519 reverts to the
     // hardcoded default and asserts Save disables (net-zero) — if a prior save-cycle hard-kill left
-    // the row drifted off 445.00, a reload-only baseline would false-fail it against correct app
+    // the row drifted off 500.00, a reload-only baseline would false-fail it against correct app
     // behavior. ensureDefaultState subsumes reloadAndReselect (it reload+reselects internally) and is
     // a cheap read-only no-op when the row is already at default.
     await p.ensureDefaultState(ANCHOR, DEFAULTS, LOC);

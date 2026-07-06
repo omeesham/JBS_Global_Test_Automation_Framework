@@ -2,7 +2,17 @@
  * Corporate Pricing — Product Group Override screen test data (live-discovered).
  * Consumed by `corporate-pricing-override.page.ts` + `corporate-pricing-override.spec.ts`.
  *
- * Verified on the live app, 2026-06-08 (office 1604). No design doc for this screen → the live DOM
+ * Verified on the live app (office 1604, 2026-06-08); re-anchored to office 1606 on 2026-07-06 because
+ * office 1604 no longer carries Product Group Override data on this environment: its grid reads "0 items"
+ * while a same-screen Export still lists rows for 1604, and importing that data fails server-side with a
+ * duplicate-key error. This is an OPEN question raised to the Encore product team (see `encore-qa-tracker.xlsx`
+ * and NM-1463); office 1606 is the healthy control. REVERT THIS FIXTURE TO OFFICE 1604 WHEN ENCORE RESOLVES IT:
+ *   office '1604';
+ *   mutationRowAnchor { productGroupId '2605', productGroupName 'House Video Monitor - Specialty',
+ *                       overridePriceDefault '445.00', activeDefault true };
+ *   readAnchors 2605 @ 445.00 / 2606 @ 470.00 / 2607 @ 600.00;
+ *   OVERRIDE_NUMERIC_CASES.overridePrice.default '445.00'.
+ * No design doc for this screen → the live DOM
  * is the source of truth. Only live-verified values are committed; counts that are volatile on the
  * shared office (item total) are asserted by pattern, never value (assert content, not exact counts).
  * Route builder lives in
@@ -73,7 +83,7 @@ export const CORP_PRICING_OVERRIDE = {
   /** Empty state shown before a location is selected (grid is location-gated). */
   emptyStateText: 'No results.',
 
-  /** Item-count footer — VOLATILE on shared 1604; assert this pattern, never the number. */
+  /** Item-count footer — VOLATILE on the shared office; assert this pattern, never the number. */
   itemCountPattern: /\d[\d,]*\s+items found/,
 
   /** Location picker dialog (opened by the "Select a location" card). */
@@ -103,7 +113,7 @@ export const CORP_PRICING_OVERRIDE = {
  */
 export const OVERRIDE_NUMERIC_CASES = {
   overridePrice: {
-    default: '445.00',
+    default: '500.00',
     edited: '446',
     zero: '0',
     decimal: '123.45',
@@ -136,24 +146,24 @@ export const OVERRIDE_NUMERIC_CASES = {
  * Anchored by content (Product Group ID + Name), never index (assert content, not position).
  */
 export const CORP_PRICING_OVERRIDE_FIXTURE = {
-  office: '1604',
+  office: '1606',
   tab: 'Equipment' as const,
   currency: 'ALL' as const,
   /**
-   * Mutation-row anchor — CONFIRMED reversible (2026-06-09: round-tripped Override Price
-   * 445.00 → 446.00 → 445.00 via the live save-cycle). `overridePriceDefault` / `activeDefault` are
+   * Mutation-row anchor — CONFIRMED reversible on the live save-cycle (Override Price round-trips
+   * 500.00 → 446 → 500.00, office 1606, 2026-07-06). `overridePriceDefault` / `activeDefault` are
    * the baseline `ensureDefaultState` restores to.
    */
   mutationRowAnchor: {
-    productGroupId: '2605',
-    productGroupName: 'House Video Monitor - Specialty',
-    overridePriceDefault: '445.00',
+    productGroupId: '2609',
+    productGroupName: 'House Video Monitor LED 70"-79"',
+    overridePriceDefault: '500.00',
     activeDefault: true,
   },
-  /** Live-observed content anchors for read-only assertions (2026-06-08, Equipment tab). */
+  /** Live-observed content anchors for read-only assertions (office 1606, 2026-07-06, Equipment tab). */
   readAnchors: [
-    { productGroupId: '2605', productGroupName: 'House Video Monitor - Specialty', overridePrice: '445.00' },
-    { productGroupId: '2606', productGroupName: 'House Video Monitor LED 40"-49"', overridePrice: '470.00' },
-    { productGroupId: '2607', productGroupName: 'House Video Monitor LED 50"-59"', overridePrice: '600.00' },
+    { productGroupId: '2609', productGroupName: 'House Video Monitor LED 70"-79"', overridePrice: '500.00' },
+    { productGroupId: '2606', productGroupName: 'House Video Monitor LED 40"-49"', overridePrice: '170.00' },
+    { productGroupId: '2607', productGroupName: 'House Video Monitor LED 50"-59"', overridePrice: '278.00' },
   ],
 } as const;
