@@ -116,7 +116,7 @@ MEM-MGH (content-anchor already applied to Notes rows; MGH-008 correctly guarded
 (already documented). NEW-15 = human-only (playwright.config). PAT-catch: 55 catches surveyed — all
 best-effort settle/cleanup; the load-bearing subset (click/reload/save) is now gated by #3 + annotated.
 
-### Phase 5 — anti-recurrence gates — 9 of 13 gate-types + rule #13 (#6/#10 added 2026-07-06)
+### Phase 5 — anti-recurrence gates — 9 of 13 blocking gate-types + rule #13 + #9 golden rule/WARN gate 5n (#6/#9/#10 added 2026-07-06)
 
 **LANDED (tested + fail-green + wired blocking in `.githooks/pre-commit`):**
 | # | Gate | Script | Pre-commit |
@@ -142,6 +142,21 @@ each), fail-green on the clean tree, wired blocking, synthetic HALT proven. #6 (
 was preceded by a 14-spec bare-save audit that found zero weak resets (freeze + drift-detector). #10
 (`check-dead-exports.mjs`) uses `npx -y ts-prune@0.10.3` — no `package.json` devDep — with a 12-entry
 categorized baseline allowlist; offline → WARN + pass so a commit never wedges without network.
+
+**2026-07-06 addition (#9 → 5n, testid-first golden rule) — DONE:** #9 (fragile-locators) landed as a
+POLICY — the testid-first golden rule: use `data-testid` when present; else the next-best stable
+locator + a tracked gap; switch back when the app adds one — encoded in `AGENT_SHARED_RULES.md` §5/§10,
+`.claude/rules/inventory.md` LR-014 (rewritten; LR-029 kept), `PLANNER.md`/`HEALER.md`, plus a
+**WARN-only** pre-commit gate 5n (`check-testid-preference.mjs`, always exit 0 — a static gate cannot
+see the live DOM, so it reminds rather than blocks; that is why #9 is not counted among the 9 blocking
+gates). An LR-029 live sweep of the Corporate Pricing surfaces corrected the earlier "zero testids"
+claim (Search exposes 3 generic component testids; the other surfaces zero). With #9 encoded, all five
+deferred Phase-5 items (#1 rule-covered · #6 gate 5m · #8 runtime-redirect · #9 golden rule + 5n · #10
+gate 5l) are resolved. Delivered by the child plan
+[PLAN_GATE_BACKLOG_AND_1604_TRACKER.md](../done/PLAN_GATE_BACKLOG_AND_1604_TRACKER.md) — **DONE
+2026-07-06** (executed #6/#9/#10 gates + the 1604 override write-up). This parent stays **In-Progress**
+on its own open item 2 (full `corporate-pricing-search.spec.ts` + clean full-suite acceptance — outside
+the child plan's scope, not yet requested).
 
 **Rule #13 (process gap, the actual SSL RCA) — DONE:** LR-019 amendment in `.claude/rules/specs.md` —
 wiring a reset requires a chain-scan BEFORE + a FULL-suite run AFTER; a `--grep` subset is a silent

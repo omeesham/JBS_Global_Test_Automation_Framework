@@ -1,6 +1,7 @@
 # PLAN_GATE_BACKLOG_AND_1604_TRACKER
 
-**Status**: In-Progress
+**Status**: DONE
+**Executed**: 2026-07-06
 **Priority**: P1
 **Created**: 2026-07-06
 **Identity**: OWNER (gates, rules, plans, xlsx, bug JSON) + HEALER (spec/data comment edits + any spec fixes)
@@ -50,37 +51,48 @@ Adversarial-audit refinements (F1–F5) folded in below.
 ## Per-Identity Satisfaction
 | Identity | Owned artifact | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HEALER | override.ts + corporate-pricing-override.spec.ts comments; any weak-reset spec fixes | `clients/encore/src/data/corporate-pricing/override.ts` + `clients/encore/tests/corporate-pricing/corporate-pricing-override.spec.ts` (edited) | `cd clients/encore && npx playwright test tests/corporate-pricing/corporate-pricing-override.spec.ts --workers=1` → 28 passed/1 skipped |
-| OWNER | gates, rules, plans, xlsx, bug JSON | `scripts/check-weak-reset.mjs`, `scripts/check-dead-exports.mjs`, `scripts/check-testid-preference.mjs` (+tests, +registry, +allowlist); `clients/encore/reports/bugs/BUG-CPR-OVR-002.json`; `clients/encore/test_cases_xlsx/encore-qa-tracker.xlsx` (rows) | `node scripts/check-weak-reset.mjs` + `node scripts/check-dead-exports.mjs` + `.test.mjs` all exit 0 |
+| HEALER | override.ts + corporate-pricing-override.spec.ts comments; any weak-reset spec fixes | clients/encore/src/data/corporate-pricing/override.ts<br>clients/encore/tests/corporate-pricing/corporate-pricing-override.spec.ts | `cd clients/encore && npx playwright test tests/corporate-pricing/corporate-pricing-override.spec.ts --workers=1` → 28 passed/1 skipped |
+| OWNER | gates, rules, plans, xlsx, bug JSON | scripts/check-weak-reset.mjs<br>scripts/check-weak-reset.test.mjs<br>scripts/check-dead-exports.mjs<br>scripts/check-dead-exports.test.mjs<br>scripts/dead-exports-allowlist.json<br>scripts/check-testid-preference.mjs<br>scripts/check-testid-preference.test.mjs<br>clients/encore/reports/bugs/BUG-CPR-OVR-002.json<br>clients/encore/test_cases_xlsx/encore-qa-tracker.xlsx | `node scripts/check-weak-reset.mjs` + `node scripts/check-dead-exports.mjs` + `.test.mjs` all exit 0 |
 | GIVER | (none) | (none) | (none) |
 | BUILDER | (none — no new spec TCs) | (none) | (none) |
 | WATCHDOG | (none) | (none) | (none) |
-| GARDENER | dead-code deletions (if any) | listed in Commit C body | `npm run typecheck` clean |
+| GARDENER | dead-code deletions (if any) | (skipped: WS-C triage allowlisted all 12 baseline dead-exports rather than deleting; zero GARDENER deletions this plan) | `npm run typecheck` clean |
 | HUNTER | (none) | (none) | (none) |
 
 ## Acceptance criteria
-- [ ] `node scripts/check-weak-reset.mjs` → PASS 0-FAIL on clean tree; synthetic violation → exit 1.
-- [ ] `node scripts/check-dead-exports.mjs` → 0 findings post-triage; synthetic staged dead export + `--enforce` → exit 1.
-- [ ] Three new `.test.mjs` green.
-- [ ] Tracker read-back: A12 RED fill, C7 YELLOW fill, 9 cols, footer counts updated.
-- [ ] Override spec live: 28 passed / 1 skipped.
-- [ ] Pre-commit gates 5l/5m/5n wired in `.githooks/pre-commit`; every commit passes the full gate suite.
-- [ ] Delegation receipt emitted (ledger run_ids + 0 Claude Agent spawns).
+- [x] `node scripts/check-weak-reset.mjs` → PASS 0-FAIL on clean tree; synthetic violation → exit 1. (WS-D, `97631f25`)
+- [x] `node scripts/check-dead-exports.mjs` → 0 findings post-triage; synthetic staged dead export + `--enforce` → exit 1. (WS-C, `609e4dc1`)
+- [x] Three new `.test.mjs` green. (check-weak-reset 6/6, check-dead-exports 6/6, check-testid-preference 13/13)
+- [x] Tracker read-back: A12 RED fill, C7 YELLOW fill, 9 cols, footer counts updated. (WS-A, `77234bd0`)
+- [x] Override spec live: 28 passed / 1 skipped. (WS-A)
+- [x] Pre-commit gates 5l/5m/5n wired in `.githooks/pre-commit`; every commit passes the full gate suite. (5n `d97923b2`)
+- [x] Delegation receipt emitted (ledger run_ids + 0 Claude Agent spawns). (Execution Progress delegation receipt)
 
 ## Execution Progress (2026-07-06)
 - **WS-A (1604 write-up)** — DONE, commit `77234bd0`. override.ts + spec revert-to-1604 notes; `BUG-CPR-OVR-002.json` (LR-034, baseline-absent); tracker A12 (RED) + C7 (YELLOW) + footer; questions-state. Override spec 28 passed / 1 skipped.
 - **WS-D (#6 weak-reset)** — DONE, commit `97631f25`. Copilot-fleet audit (14 specs; 12 ok + 3 self-extracted) found ZERO bare-save resets. Delivered `check-weak-reset.mjs` as a bare-save detector (per adversarial finding F2 the per-field registry was runtime-infeasible — the gate is a freeze + drift-detector, not oversold as a per-field prover). Gate 5m wired; 6/6 unit tests; synthetic HALT proven.
 - **WS-C (#10 dead-code)** — DONE, commit `609e4dc1`. `check-dead-exports.mjs` (ts-prune via `npx -y ts-prune@0.10.3`, offline → WARN+pass) + `.test.mjs` (6/6) + 12-entry categorized `dead-exports-allowlist.json`. Gate 5l wired; synthetic HALT proven; full-tree scan fail-green.
 - **WS-B (#8) + WS-F (closure)** — DONE, commit `21a3b859`. #8 cross-ref to `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (workers default 1); remediation Phase-5 dispositions rewritten with honest LR-046 accounting (9 blocking + 1 rule + 1 runtime-redirect + 1 policy-decided-encoding-deferred).
-- **WS-E (#9 golden rule + live sweep)** — DEFERRED (see Deferral Authorization).
+- **WS-E (#9 golden rule + live sweep)** — DONE, commits `d97923b2` (Arm 1: golden-rule encode + WARN gate 5n) + Arm 2 (this batch: LR-029 live sweep → gap-report v2 + D2 refresh). Golden rule (testid-first; tracked fallback; switch-back) encoded in `AGENT_SHARED_RULES.md` §5 + §10 + `.claude/rules/inventory.md` LR-014 rewrite (LR-029 kept mandatory) + `PLANNER.md`/`HEALER.md` + `SUBPLAN_PRODUCTS_00_FOUNDATION.md:74` grep repoint. WARN-only gate 5n wired (`scripts/check-testid-preference.mjs` + test 13/13; synthetic WARN proven, always exit 0). **LR-029 live sweep** (playwright-cli, office 1604, fresh auth 2026-07-06) **corrected v1's "zero testids" claim**: the Search screen exposes 3 generic component testids (`e2e-card-header`/`e2e-card-title`/`e2e-checkbox`, none per-control), the other 4 surfaces (pg-override, new-pricebook eq/labor, details incl. Strategy + Pricing Detail tabs) zero → `testid-gap-report-2026-07-06.md` v2 (live-verified) + `testid-live-dumps-2026-07-06/` + D2 tracker Status refreshed to live-confirmed.
 
 **Delegation receipt** (`/ultra-agents` + worker-ext.md): Copilot worker fleet — 15 ledger runs (1 smoke + 14 extractors), 12 ok / 3 self-extracted (largest specs timed out); **0 Claude Agent spawns** after `/ultra-agents` (spawn-guard honored; the fleet is free — "save limits" respected). Every fleet claim anchor-verified against source.
 
-## Deferral Authorization
-**WS-E (#9 fragile-locators golden rule + WARN gate 5n + LR-029 live testid sweep) is deferred to a focused follow-up session — user-authorized 2026-07-06.**
-- **User authorization (real decision)**: when asked how to proceed with the 4 remaining workstreams, the user selected **"WS-C+B+F now, WS-E fresh"** — explicitly running WS-C/WS-B/WS-F this session and doing WS-E (the heaviest piece, whose live browser sweep deserves fresh context) in a separate session.
-- **What is deferred**: golden-rule block in `AGENT_SHARED_RULES.md`; LR-014 rewrite in `.claude/rules/inventory.md` (keep LR-029) + repoint `SUBPLAN_PRODUCTS_00_FOUNDATION.md:74` grep; `PLANNER.md`/`HEALER.md` touch-ups; WARN-only `scripts/check-testid-preference.mjs` (gate 5n, always exit 0); the LR-029 live playwright-cli sweep → `testid-gap-report` v2 + switch-back checklist → tracker D2 refresh.
-- **No red deferred** (LR-060 obligation 3): WS-E produces policy + a WARN-only gate + a report; it leaves no spec test failing. No task chip is used as a recipient — this plan (In-Progress) is the durable owner, and the remediation parent (#9) records the same deferral.
+## Deferral Authorization (SUPERSEDED 2026-07-06)
+**SUPERSEDED — no longer in effect.** WS-E was originally deferred to a fresh session (user choice "WS-C+B+F now, WS-E fresh", 2026-07-06). The user then reversed that in-session with **"/execute properly this task"** (targeting WS-E), and WS-E was executed and landed the same day (see the WS-E line under Execution Progress). No work remains deferred; the original deferral text lives in git history (commit `85c7f5cc`). This plan closes DONE.
+
+## Execution Summary
+
+**Executed 2026-07-06.** All six workstreams (WS-A…WS-F) landed; the parent
+`PLAN_ENCORE_DELIVERABLE_REMEDIATION.md` stays In-Progress (its open item 2 — full
+`corporate-pricing-search.spec.ts` + clean full-suite acceptance — was NOT in this plan's scope and
+was not requested).
+
+- **TCs implemented**: 0 (this is a gate/infra + client-tracker plan, not a spec-authoring plan). **TCs dropped**: 0.
+- **Gates delivered** (remediation Phase 5 backlog): #6 weak-reset `scripts/check-weak-reset.mjs` (pre-commit 5m, `97631f25`); #10 dead-export `scripts/check-dead-exports.mjs` + allowlist (pre-commit 5l, `609e4dc1`); #9 testid-first golden rule + WARN-only `scripts/check-testid-preference.mjs` (pre-commit 5n, `d97923b2`). #8 → cross-referenced to `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (runtime workers≥2, workers default 1 today); #1 → rule-covered. Honest LR-046 accounting recorded in the parent (`21a3b859`).
+- **MCP / live verification (LR-029, 2026-07-06)**: playwright-cli live sweep of the Corporate Pricing surfaces (Search, pg-override, New Pricebook eq/labor, Pricebook Details incl. Pricing Strategy + Pricing Detail tabs; office 1604, fresh auth). Finding: Search exposes 3 generic component `data-testid`s (`e2e-card-header`, `e2e-card-title`, `e2e-checkbox` — none per-control); the other four surfaces expose zero. This **corrected** v1's "entire module uses ZERO data-testid" claim. Raw dumps: `clients/encore/specs_planning/_internal/testid-live-dumps-2026-07-06/`.
+- **Documentation changes**: golden rule encoded in `AGENT_SHARED_RULES.md` §5/§10, `.claude/rules/inventory.md` LR-014 (rewritten; LR-029 kept), `.claude/agents/PLANNER.md` + `HEALER.md`, `SUBPLAN_PRODUCTS_00_FOUNDATION.md:74` grep repointed. Client-facing `testid-gap-report-2026-07-06.md` v2 (live-verified) + QA-tracker D2 Status refreshed.
+- **Test pass confirmation**: `scripts/check-testid-preference.test.mjs` 13/13; `check-dead-exports.test.mjs` 6/6; `check-weak-reset.test.mjs` 6/6. Override spec 28 passed / 1 skipped (WS-A). Every commit passed the full pre-commit gate suite (5a–5n). Synthetic HALT/WARN proven for each new gate.
+- **Delegation receipt**: Copilot worker fleet — 15 ledger runs for WS-D extraction (12 ok / 3 self-extracted); **0 Claude Agent spawns** after `/ultra-agents`. WS-E used no fleet (Opus-direct doc edits + Opus-only LR-029 live sweep — correctly not delegated per F1/F3).
 
 ## Handoff
 Outcomes reported in chat per commit batch; no obstacle claims (LR-039).
