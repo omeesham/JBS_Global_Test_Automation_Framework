@@ -90,8 +90,11 @@ The SSL beforeEach was verified only by a bounded smoke (`--grep ACC-017|NTS-001
 
 ## Execution Summary (2026-07-02 — autonomous foreground run; Status stays In-Progress per LR-046)
 
-**Phases 1–4: COMPLETE and committed.** Phase 5: 7 of 13 gate-types landed (strict "13 gates" line
-NOT met → LR-046 HALT-and-ASK, surfaced to user; NOT silently rescoped). Phase 6: complete.
+**Phases 1–4: COMPLETE and committed.** Phase 5: 9 of 13 defect-types now have a blocking gate (5m
+weak-reset + 5l dead-export added 2026-07-06); of the remaining 4 — #13 landed as a rule (LR-019
+amendment), #1 is rule-covered (infeasible as a gate), #8 is a runtime redirect to the office-pool
+plan, #9 is policy-decided with encoding deferred. Strict "13 gates" line resolved per-gate per LR-046
+(see "Open items" §1), NOT silently rescoped. Phase 6: complete.
 
 ### Phase 1 — P0 breakage (HEALER) — DONE
 SSL-014/015 self-contained + `dependencyGate([])`; SSL-001 in-body reset removed (R1); L7 BAS-065/067
@@ -113,7 +116,7 @@ MEM-MGH (content-anchor already applied to Notes rows; MGH-008 correctly guarded
 (already documented). NEW-15 = human-only (playwright.config). PAT-catch: 55 catches surveyed — all
 best-effort settle/cleanup; the load-bearing subset (click/reload/save) is now gated by #3 + annotated.
 
-### Phase 5 — anti-recurrence gates — PARTIAL (7 of 13 gate-types + rule #13)
+### Phase 5 — anti-recurrence gates — 9 of 13 gate-types + rule #13 (#6/#10 added 2026-07-06)
 
 **LANDED (tested + fail-green + wired blocking in `.githooks/pre-commit`):**
 | # | Gate | Script | Pre-commit |
@@ -125,6 +128,8 @@ best-effort settle/cleanup; the load-bearing subset (click/reload/save) is now g
 | 7 | reload must stabilize (`reload-wait-exempt:` exempt) | check-reload-wait.mjs | 5k |
 | 2 | first-test-only baseline (pre-existing) | check-per-test-baseline.mjs | 5e |
 | 5 | save-honesty (pre-existing) | check-save-honesty.mjs | 5f |
+| 6 | weak reset — bare-save anti-pattern (2026-07-06) | check-weak-reset.mjs | 5m |
+| 10 | dead exports — ts-prune + baseline allowlist (2026-07-06) | check-dead-exports.mjs | 5l |
 
 Each new gate: pure-function core + `.test.mjs` companion (13/11/10/5/7 cases), fail-green at 0 on the
 current tree, wired blocking, and the wiring proven to HALT a live violation. The chain burn-down
@@ -132,27 +137,48 @@ current tree, wired blocking, and the wiring proven to HALT a live violation. Th
 `expect.poll`; 1 notes negative-probe → `// sleep-ok:`; 5 best-effort catches annotated) was verified
 by live run (SRC-041/042/050 + DET-037 pass --workers=1 --retries=1).
 
+**2026-07-06 additions (#6 → 5m, #10 → 5l):** same shape — pure-function core + `.test.mjs` (6 cases
+each), fail-green on the clean tree, wired blocking, synthetic HALT proven. #6 (`check-weak-reset.mjs`)
+was preceded by a 14-spec bare-save audit that found zero weak resets (freeze + drift-detector). #10
+(`check-dead-exports.mjs`) uses `npx -y ts-prune@0.10.3` — no `package.json` devDep — with a 12-entry
+categorized baseline allowlist; offline → WARN + pass so a commit never wedges without network.
+
 **Rule #13 (process gap, the actual SSL RCA) — DONE:** LR-019 amendment in `.claude/rules/specs.md` —
 wiring a reset requires a chain-scan BEFORE + a FULL-suite run AFTER; a `--grep` subset is a silent
 LR-046 rescope. This is the adequate defense for the runtime-chain class (which no structural regex
 can see, confirmed below).
 
-**DEFERRED (5 gate-types — each with a concrete blocker; user decision required per LR-046):**
-- **#1 broken chains** — a structural regex gate is inadequate for a *runtime* output→input chain
-  wipe (the plan's own RCA states this). The only static signals are: `dependencyGate([...])` (280
-  annotation-only calls = noise, not fail-green) or `// Depends on` prose (0 hits, and would not have
-  caught the original which used `dependencyGate`). The adequate defense is rule #13 (landed). A cheap
-  0-hit prose tripwire could be added but has near-zero real value.
-- **#6 weak reset (every asserted field is reset)** — requires spec↔field-registry dataflow analysis;
-  high false-positive risk without a per-spec field map. Needs its own subplan.
-- **#8 leaked shared state (cross-spec write-map)** — requires first authoring the 1604/1605 write-map
-  artifact (a substantial per-spec analysis), then a gate that parses it. Needs its own subplan.
-- **#9 fragile locators (`// testid-absent:` on non-testid selectors)** — NOT fail-green: ~113
-  corporate-pricing selectors are non-testid (0% coverage), so blocking it now would wedge every
-  corp-pricing commit until a mass-annotation pass. Feeds directly from the Phase 6 report; belongs
-  with that remediation.
-- **#10 dead/duplicate code (knip/ts-prune)** — the tool must be added as a `package.json` devDep,
-  which is a human-only HARD-STOP path (OWNER cannot edit package.json). Needs the user to add the dep.
+**DISPOSITION (2026-07-06 — per-gate decisions, user-authorized; resolves the former DEFERRED block per LR-046):**
+- **#1 broken chains — RULE-COVERED (no structural gate; infeasible as one).** A structural regex
+  cannot see a *runtime* output→input chain wipe (the plan's own RCA states this). The only static
+  signals are `dependencyGate([...])` (280 annotation-only calls = noise) or `// Depends on` prose
+  (0 hits, and would not have caught the original, which used `dependencyGate`). The adequate defense
+  is the LR-019 amendment / rule #13 (chain-scan-before + full-run-after), which landed. A 0-hit prose
+  tripwire has near-zero value and was deliberately not added.
+- **#6 weak reset — DONE (gate 5m, commit 97631f25, 2026-07-06).** `scripts/check-weak-reset.mjs`
+  forbids the "bare-save reset" anti-pattern (a beforeEach/afterEach that saves without restoring a
+  baseline). A 14-spec audit found zero such resets, so the gate is a freeze + drift-detector; the
+  per-field prover is the same runtime-infeasibility as #1 and was NOT oversold as one. 6/6 unit tests;
+  synthetic HALT proven; fires on staged `clients/*/tests/**/*.spec.ts`.
+- **#8 leaked shared state — POLICY-REDIRECT (runtime, not a commit-time gate).** This is a *runtime*
+  workers≥2 write collision on shared Encore app state (offices 1604/1605), not a coding defect a
+  static gate can catch. It is already owned by
+  `plans/pending/PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (the per-worker office-pool
+  isolation design, which subsumes the 1604/1605 write-map). Today the collision cannot occur:
+  `workers` defaults to 1 everywhere (`clients/encore/playwright.config.ts:38`). No gate authored here
+  — the office-pool plan is the correct home.
+- **#9 fragile locators — POLICY DECIDED, ENCODING DEFERRED (not closed here).** The user set the
+  testid golden rule on 2026-07-06: use a `data-testid` when present; otherwise use the next-best
+  locator AND record the gap (tracker/report); switch back to the testid when one is added. Encoding it
+  everywhere (rules + agents) + a WARN-only preference gate (5n) + a live testid sweep of the
+  corp-pricing surfaces → gap-report v2 is a separable follow-on — a static gate cannot know the live
+  DOM, so it is WARN by design, not blocking. Deferred to a focused follow-up.
+- **#10 dead/duplicate code — DONE (gate 5l, commit 609e4dc1, 2026-07-06).** `scripts/check-dead-exports.mjs`
+  runs ts-prune via `npx -y ts-prune@0.10.3` (no `package.json` devDep needed — the earlier human-only
+  blocker is gone); offline → WARN + pass. 12 baseline findings frozen in
+  `scripts/dead-exports-allowlist.json` (2 config-referenced false positives + 6 public type surface +
+  1 auth-storage utility + 3 authored test-data), each with a ≥20-char reason. 6/6 unit tests; synthetic
+  HALT proven; fires on staged `clients/*/{src,tests}/**/*.ts`.
 
 ### Phase 6 — data-testid gap report — DONE
 `clients/encore/specs_planning/_internal/testid-gap-report-2026-07-02.md` — per-module coverage +
@@ -161,9 +187,23 @@ requiring per-module live-DOM confirmation (LR-029) before any client message; o
 the user-triggered `/encore-questions` / `/report` path.
 
 ### Open items for user review (the "one review at end")
-1. **Phase 5 strict "13 gates" line** — 7 landed, 5 deferred with blockers above. Decide per gate:
-   build now / spin a subplan / accept rule #13 as the chain defense.
-2. **Recommended final acceptance**: a FULL run of `corporate-pricing-search.spec.ts` (the sleep
-   burn-down was verified via `--grep` subset, not the whole file) + a clean full-suite run per LR-018.
-3. Status stays **In-Progress** — not flipped to DONE (LR-046: strict line unmet; LR-060: no
-   self-authored deferral). Awaiting your decision on item 1.
+1. **Phase 5 strict "13 gates" line — RESOLVED per-gate (2026-07-06, user-authorized).** Honest LR-046
+   accounting: the strict "author/extend 13 gates" line does NOT resolve as 13 blocking pre-commit
+   gates. It resolves as —
+   - **9 blocking gates**: 5e–5k (the original 7) + 5m weak-reset (#6) + 5l dead-export (#10).
+   - **1 rule, not a gate** (#1 broken chains): a structural regex cannot see a runtime chain wipe; the
+     LR-019 amendment (chain-scan-before + full-run-after) is the landed defense.
+   - **1 runtime redirect** (#8 leaked shared state): owned by
+     `PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md`; not a commit-time coding defect (workers
+     default 1 today).
+   - **1 policy decided, encoding deferred** (#9 fragile locators): the testid golden rule is decided;
+     its rule-encoding + WARN-only gate 5n + live testid sweep are a separable, non-blocking follow-on.
+
+   Per LR-046 this is the EXPLICIT per-gate disposition the user authorized on 2026-07-06 — NOT a
+   silent rescope of the strict line.
+2. **Recommended final acceptance (STILL OPEN)**: a FULL run of `corporate-pricing-search.spec.ts` (the
+   sleep burn-down was verified via `--grep` subset, not the whole file) + a clean full-suite run per
+   LR-018. Not requested in the 2026-07-06 gate-backlog work — deferred until you ask.
+3. Status stays **In-Progress** — not flipped to DONE. Two items remain genuinely open: the #9
+   golden-rule encoding + live sweep (item 1, deferred follow-on) and the final full-suite acceptance
+   (item 2). LR-046: no silent rescope; LR-060: no self-authored deferral.

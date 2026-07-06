@@ -276,7 +276,7 @@ These stay in `pending/` until their last subplan closes them (LR-027 parent-cas
 | [PLAN_CLOSURE_GATE_V6_PARENT.md](pending/PLAN_CLOSURE_GATE_V6_PARENT.md) | PLAN_CLOSURE_GATE_V6_PARENT | P0-EMERGENCY | PENDING-DRAFT-V6 | 7 | 2026-05-18 |
 | [PLAN_CORP_PRICING_JIRA_DELIVERY.md](pending/PLAN_CORP_PRICING_JIRA_DELIVERY.md) | PLAN_CORP_PRICING_JIRA_DELIVERY — Jira-aligned delivery re-sequencing of all remaining Corporate Pricing work (conservation restructure) | P0 | PENDING | 9 | 2026-06-24 |
 | [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | PLAN: Deliverable Quality Upgrade — CSV, Specs, Cleanup, Reporting | P0-CYCLE-1 | PENDING | 27 | 2026-04-22 |
-| [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | PLAN: Encore Deliverable Remediation — Verified Findings, RCA, Remediation | — | IN-PROGRESS | 1 | 2026-07-02 |
+| [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | PLAN: Encore Deliverable Remediation — Verified Findings, RCA, Remediation | — | IN-PROGRESS | 1 | 2026-07-06 |
 | [PLAN_LOSSLESS_DEEP_TRIM.md](pending/PLAN_LOSSLESS_DEEP_TRIM.md) | PLAN_LOSSLESS_DEEP_TRIM — Repo-wide lossless deep trim (master tracker) | P1 | PENDING | 6 | 2026-06-12 |
 | [PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md](pending/PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md) | PLAN: Per-Worker Office Pool — Parallel Isolation (remove the single-1604 write-contention) | P0-EMERGENCY | PENDING | 8 | 2026-06-04 |
 | [PLAN_ROOT_CLIENT_DEDUPE.md](pending/PLAN_ROOT_CLIENT_DEDUPE.md) | PLAN: Root-vs-Client Slop Dedupe — kill leftover encore-only-era duplicates at repo root | P0-EMERGENCY | PENDING | 2 | 2026-05-06 |
@@ -707,6 +707,7 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-07-06 | pending | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | IN-PROGRESS |
 | 2026-07-06 | pending | [PLAN_GATE_BACKLOG_AND_1604_TRACKER.md](pending/PLAN_GATE_BACKLOG_AND_1604_TRACKER.md) | PENDING |
 | 2026-07-06 | pending | [PLAN_ULTRA_AGENTS_COPILOT_WORKER.md](pending/PLAN_ULTRA_AGENTS_COPILOT_WORKER.md) | — |
 | 2026-07-03 | pending | [godsplan.md](pending/godsplan.md) | PENDING |
@@ -745,5 +746,4 @@ When completing a plan:
 | 2026-07-03 | done | [SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC.md](done/SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC.md) | DONE |
 | 2026-07-03 | done | [SUBPLAN_NOTES_FCC_PILOT.md](done/SUBPLAN_NOTES_FCC_PILOT.md) | DONE |
 | 2026-07-03 | done | [SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md](done/SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md) | SUPERSEDED |
-| 2026-07-02 | pending | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | IN-PROGRESS |
 | 2026-07-01 | done | [PLAN_SHIP_BRANCH_REFRESH_NM2260_61_AND_MAIN.md](done/PLAN_SHIP_BRANCH_REFRESH_NM2260_61_AND_MAIN.md) | DONE |
