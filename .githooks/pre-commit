@@ -267,6 +267,17 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
+# --- 5n) testid-preference reminder (remediation Phase 5 gate #9 — testid-first golden rule). ----
+# Fires when a clients/*/src/selectors/**/*.ts is staged. Lists ADDED non-`data-testid` selector lines
+# and points at the golden rule (AGENT_SHARED_RULES.md §5 + LR-014). WARN-ONLY BY DESIGN: a static gate
+# cannot see the live DOM, and LR-029 says only a live-DOM check decides whether a testid truly exists,
+# so this reminds — it never blocks (the golden rule explicitly allows a tracked fallback). Always exit 0.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/src/selectors/.*\.ts$'; then
+  echo "[pre-commit] selector file staged → testid-preference reminder (gate #9, warn-only)..." >&2
+  node scripts/check-testid-preference.mjs --staged || true
+fi
+
 # --- 6) LR-028 + LR-037: activity-log timestamp validation. ----------------------
 # Fires whenever agent-activity-log.md is staged. Guards against backdated rows
 # (timestamp < latest mtime of any referenced file).

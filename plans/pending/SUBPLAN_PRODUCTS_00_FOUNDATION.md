@@ -71,7 +71,7 @@ This Foundation subplan discovers the surface from both sites + Jira and lays ne
 1. Confirm BOTH `plans/done/PLAN_SELF_HELP_RESEARCH_MANDATE.md` AND `plans/done/PLAN_TIERED_DELEGATED_WALK.md`
    exist (else HALT — HUNTER can't Jira-research and the TDW procedure (LR-064) isn't the default yet).
    Confirm `clients/encore/src/utils/field-case-runner.ts` `saveAndVerifyCase` exists. Confirm Task 0a
-   LR-014 amendment landed (`grep "never fallback-to-green" .claude/rules/inventory.md`).
+   LR-014 golden-rule landed (`grep "testid-first golden rule" .claude/rules/inventory.md`).
 2. Read `.claude/context/navigation.md` (R00) Exploration Registry — **no Products row expected** (first
    explore); do NOT derive the surface from other Location modules.
 3. Read `clients/encore/specs_planning/_internal/agent-mistakes.md` — filter ALL-* + the identity prefix of

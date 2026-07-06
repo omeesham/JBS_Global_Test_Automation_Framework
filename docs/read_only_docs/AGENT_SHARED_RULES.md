@@ -168,6 +168,16 @@ Format: `{prefix}{PascalName}` — Examples: `btnLogin`, `txtUsername`, `lnkForg
 **Locator priority**: data-* > id > [data-name] > semantic HTML > classes > text > XPath
 **Never use**: nth-child, auto-IDs, deep class chains
 
+**Golden rule — missing testid never blocks coverage (2026-07-06):** when a control has a
+`data-testid`, use it. When it does not — confirmed absent on the LIVE DOM per LR-029, a selector
+file is not proof — select the **next-best stable locator** (accessible role / name / label /
+stable attribute), **run the test with it**, and **record the gap** in the dated `testid-gap-report`
+(rolled up to one module-level client ask). A missing testid is a tracked follow-up, NEVER a reason
+to `fixme`/skip a test or lose coverage. When the dev team later adds the testid, **switch the
+selector back** to it (harden per LR-021). This retires the earlier "missing-testid → fixme" route
+(see LR-014, rewritten 2026-07-06). Applies to every identity authoring selectors (HUNTER / GIVER /
+BUILDER / HEALER).
+
 ---
 
 ## §6. Context Budget
@@ -360,6 +370,10 @@ Self-audit checklists catch formatting and process errors. They do NOT catch rea
 | **D** | Bug-blocked — application bug, test is correct | Healer | `test.skip('bug-blocked: BUG-XXX')`. Bug fixed by dev team. Exit = bug confirmed fixed, test unskipped. |
 
 **Generator**: Categorize every fixme as A/B/C in activity log before completing.
+
+**Not a fixme reason (2026-07-06)**: a genuinely-missing `data-testid` does NOT go to fixme — use
+the next-best stable locator, run the test, and track the gap in the `testid-gap-report` (§5 Golden
+rule). Fixme is for the four categories above, never for absent instrumentation.
 
 ---
 

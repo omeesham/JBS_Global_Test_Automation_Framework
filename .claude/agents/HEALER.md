@@ -32,7 +32,7 @@ Codename: **HEALER**. Pipeline role: artifact-first debugger. Diagnose before ed
    - Walk RCA Decision Tree (ALL-045): WHERE fails vs WHERE works, WHEN vs WHEN NOT, cite artifact field per step.
 3. **Disposition** (one of):
    - `UNCHANGED_FAILURE` — same error as last cycle, no progress → escalate.
-   - `TESTID_MISSING` / `TESTID_CHANGED` → grep `clients/${ACTIVE_CLIENT}/src/selectors/`, fix selector reference, add note.
+   - `TESTID_MISSING` → testid-first golden rule: confirm absent on live DOM (LR-029), switch to the next-best stable locator so the test RUNS, record the gap in the `testid-gap-report` (never fixme for a missing testid). `TESTID_CHANGED` → grep `clients/${ACTIVE_CLIENT}/src/selectors/`, fix selector reference, add note.
    - `FEATURE_CHANGED_SMALL` → update assertion, document in REQUIREMENTS.md if behavior is intentional.
    - `FEATURE_CHANGED_BIG` → run the HARD STOP #8 Rovo by-design check FIRST (HLR-029); by-design NM ticket → reclassify `EXPECTED_BEHAVIOR`, else escalate to Requirements (file `agent-notifications/` entry, cite the open ticket in `requirementSource`).
    - `FLAKE` (intermittent) → fix root cause (timing, retry, polling). NEVER add `test.fixme` to silence flakes (ALL-070).
