@@ -30,6 +30,35 @@ NM-2305 (`SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md`) builds the shared `setInpu
 
 ---
 
+## Mutation-Safety Authorization (Rutvik, 2026-07-07 — BINDING; satisfies LR-060 authorization + LR-019 mutation-safety)
+
+Real import commits are **AUTHORIZED** under the SAME binding constraints as `SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md` §Mutation-Safety Authorization (throwaway office only, **NEVER 1101**, never 1604/1605/1606 or any office another spec uses; whole E2E env is ours for automation; **no restore endpoint exists** — restore = best-effort re-import of pre-captured state). Jira research 2026-07-07 confirmed the import bug class is still live in training (NM-2186 "Rejected", Aruna 2026-06-25 "Still see this issue"). Import ▾ All variants go through the two-dialog contract (Year+Currency gate → Continue → file-chooser, walk-evidence B7–B9) then commit a real mutating PUT that also fires Kafka legacy-sync events.
+
+1. **Reuse, do not duplicate.** Import the `locPricingUpload` + `captureLocPricingGridState` helpers and the fixture-directory convention from NM-2305 (Depends-on). Do NOT re-implement the upload primitive.
+2. **Minimal per-variant fixtures scoped to the throwaway location.** Each of the 4 variants (Equipment Pricing / Labor Pricing / Equipment Max Discount / Labor Max Discount) gets its own minimal fixture containing ONLY the throwaway location's row(s) — never a full/multi-location file (bounds blast radius + dodges the live NM-2186 504 large-file bug).
+3. **Throwaway office = the SAME execution-determined office NM-2305 selected** (read it from the data constant NM-2305 recorded); re-verify it is outside {1101, 1604, 1605, 1606} and any other spec's office.
+4. **Fixture format source** — derive from a real export; best-effort + Jira scans; escalate to the Encore QA tracker + notify Rutvik personally ONLY as last resort (per user directive); gate the affected round-trip TC verify-only until Encore supplies a demo file.
+5. **Coverage depth = FULL DEEP as authored** (user directive) — real-commit authorization makes DEEP result-fidelity + persistence runnable per variant; author them.
+6. **SBC ID grammar** — plain 3-segment `TC-CPR-TIO-NNN` + a `**Surface_Family**: <family> (QUICK|DEEP)` line; the `-SBC-`/`-SBC-MAX-` strings in the body are stale shorthand for the surface-behavior bands, NOT literal ID infixes (`check-tc-parity` G6 rejects a 4th segment).
+
+---
+
+## Council-Audit Reconciliation (2026-07-07 — BINDING; supersedes any conflicting body text below)
+
+⚠ **EXECUTOR — READ FIRST.** Adversarial GPT-5.5 council review (2026-07-07, two rounds) surfaced material defects. The R-directives below are BINDING and OVERRIDE the older phase bodies, the Verification block, AND the acceptance criteria wherever they conflict. Wherever any text still shows the OLD pattern — controlled-no-persist success path, raw `setInputFiles` in the spec, deriving fixture format from walk-evidence B9, a mutating large-file import, asserting currency against an "upload dialog context", or "Year boundary ×2" — IGNORE the stale text and follow the R-directive. These are your authoring contract:
+
+- **R1 — No "controlled no-persist" success path.** Remove the "controlled no-persist verification" fallback for the happy path (Phase 2 mutation-safety protocol + happy-path steps) — it contradicts the authorized real-commit contract and leaves result-fidelity/persistence false-green. Require: minimal throwaway-office commit → post-import validation via re-downloaded CSV (per NM-2305 R2, keyed by `(LocationNo, PriceBook, Currency)`) → best-effort re-import restore → document residual only if restore is imperfect.
+- **R2 — Reuse NM-2305's shared upload primitive; NO raw setInputFiles.** Call NM-2305's public `uploadFileToOpenDialog(fixturePath)` primitive AFTER the two-dialog Year+Currency→Continue→file-chooser gate opens the file-chooser. Do NOT call raw `setInputFiles` anywhere outside that shared primitive. Acceptance MUST grep-verify helper reuse AND assert zero raw `setInputFiles` in this spec outside the helper.
+  - **R2 note — NM-2305 execution finding (2026-07-07, live-verified):** the Loc Pricing Import app **auto-submits the import the MOMENT a file is chosen** — there is NO separate "Upload" click. `uploadFileToOpenDialog` already models this exactly (arms the PUT-response wait AND the in-browser-rejection wait *before* choosing, chooses the file via Browse→file-chooser, then races: a real `PUT .../location-import` response = fired, a rejection message = nothing fired). Consequence for THIS subplan: the DEEP "attempt Upload with no file selected → assert Upload disabled" step (≈ Step 8 / line ~254) has a **stale premise** — there is no manual Upload button to click. Rewrite that negative case to what actually exists: (a) an invalid file (empty / non-CSV / malformed) is rejected in the browser with NO PUT firing (assert via the primitive's `{success:false,status:null,message}`), and/or (b) opening the import dialog and dismissing it WITHOUT choosing a file fires no PUT. Also observed live: the full ~38k-row import returns **HTTP 500 "Failed to replace LocationPricebook document …" (NM-2407)** — a 500 replace-failure, not a 504 timeout; reconcile R4's large-file status wording against that observed 500 if you cite a status code.
+- **R3 — Fixture format comes from a real Export, not B9.** Walk-evidence B9 proves only the second upload dialog + file input — it has NO schema or endpoint contract. Derive each variant fixture from a real Export CSV; if no valid format can be built after real effort, gate that variant's round-trip TC verify-only and escalate per the fixture-source directive (QA tracker + ping Rutvik, last resort).
+- **R4 — DEEP large-file safety.** Remove any mutating large-file import from runnable coverage (the still-live NM-2186 504 partial-apply). Large-file is covered ONLY as a non-committing pre-upload rejection (prove no PUT fires) or `data-blocked` with a documented reason. Never commit a large valid import.
+- **R5 — Currency/Year assertion location.** The second (upload) dialog shows NO Year/Currency context (B9). Assert the selected currency + year on the upload REQUEST/body when Upload fires (capturing CAD/MXN live, never hardcoded), OR limit the currency edge to visible gate-enablement on the FIRST (precondition) dialog. Do not assert currency against a non-existent "upload dialog context."
+- **R6 — Year(s) 4th-year boundary is mandatory.** Prove a 4th year cannot be submitted (or file/track a live divergence if the UI allows it) — do not silently skip. Acceptance = "Year boundary ×3" (1 / 3 / 4).
+- **R7 — Mutation-safety office acceptance.** Add an acceptance assertion that reads the throwaway-office data constant NM-2305 recorded, matches EVERY fixture row's LocationNo to it, and FAILS if any fixture touches 1101/1604/1605/1606 or another spec's office. Closure must not pass while a fixture could mutate a protected/shared office.
+- **R8 — SBC grammar.** Plain 3-segment `TC-CPR-TIO-NNN` IDs + `**Surface_Family**:` line + file-tail `behavior-cases:` / `out-of-scope:` tokens. NO `-SBC-`/`-SBC-MAX-` IDs anywhere — acceptance included.
+
+---
+
 ## Bootstrap
 
 **Identity**: OWNER (multi-identity span: BUILDER fixes drift → HEALER first-run RCA → GIVER TC catalog + XLSX → WATCHDOG do-or-die audit)
@@ -290,13 +319,13 @@ Bare "out of scope" / "flagged for follow-up" with no recipient = HALT + ask use
 - [ ] `TC-CPR-TIO-007..011` corrected to the new Year+Currency precondition dialog contract — all 5 pass ×2 consecutive clean runs (`npx playwright test corporate-pricing-toolbar-io --workers=1 --retries=0` twice).
 - [ ] Stale `openImportVariantDialog` / `getImportDialogInfo` page-object contract replaced with two-step sequence (precondition dialog → Continue → upload dialog); no old-contract callers remain.
 - [ ] Real upload round-trip TCs present for all 4 variants (All Equipment Pricing, All Labor Pricing, All Equipment Max Discount, All Labor Max Discount) — happy-path + error-path per variant; all green ×2.
-- [ ] Edge TCs present (Year boundary ×2, Currency each-option, Cancel aborts ×2, Continue gate boundary, empty file, wrong-format file); all green ×2.
-- [ ] Mutation safety protocol honored for every upload TC: dedicated fixture files committed, pre-state captured, restore documented.
+- [ ] Edge TCs present (Year boundary ×3 = 1 / 3 / 4 per R6, Currency each-option, Cancel aborts ×2, Continue gate boundary, empty file, wrong-format file); all green ×2.
+- [ ] Mutation safety protocol honored for every upload TC: dedicated per-variant minimal fixture files committed, pre-state captured, best-effort re-import restore executed (residual documented only if imperfect). **Office guard (R7)**: an acceptance assertion reads NM-2305's throwaway-office constant and fails if ANY fixture row's LocationNo is 1101/1604/1605/1606 or another spec's office.
 - [ ] `npm run check:tc-parity` exit 0 — TC IDs in spec match MD.
 - [ ] `npm run xlsx:lint` exit 0 — XLSX rebuilt with new TC rows.
 - [ ] `npm run typecheck` clean — no TypeScript errors introduced.
 - [ ] Do-or-die `/audit` clean: no false-green, no internal jargon in shipped source (LR-058), no hardcoded counts (LR-022), per-test baselines present (LR-019), mutation safety honored.
-- [ ] **Axis-2 surface families dispositioned (LR-065 → LR-062 Cx)**: the Import ▾ All surface carries a `behavior-cases:` disposition for all 7 families — result-fidelity + combination + empty-vol + persistence each ≥1 QUICK `TC-CPR-TIO-SBC-*` + full DEEP `TC-CPR-TIO-SBC-MAX-*` (combination DEEP = bounded pairwise across the 4 variants × Year × Currency); pagination/sorting/render-state each an `out-of-scope:<family>=<reason ≥20 chars>` token.
+- [ ] **Axis-2 surface families dispositioned (LR-065 → LR-062 Cx)**: the Import ▾ All surface carries a `behavior-cases:` disposition for all 7 families — result-fidelity + combination + empty-vol + persistence each ≥1 QUICK plain `TC-CPR-TIO-NNN` case (with a `**Surface_Family**: <family> (QUICK)` line) + full DEEP plain `TC-CPR-TIO-NNN` cases (with `(DEEP)`) — combination DEEP = bounded pairwise across the 4 variants × Year × Currency; empty-vol DEEP large-file is rejection-only/`data-blocked` per R4; pagination/sorting/render-state each an `out-of-scope:<family>=<reason ≥20 chars>` token. NO `-SBC-` IDs (R8).
 - [ ] `/regression-guard` before/after snapshot clean — no silent breakage on touched files.
 - [ ] Activity-log row appended per LR-028 with LR-037 timestamp ≥ all touched-file mtimes.
 - [ ] `/final-q` verdict block emitted (GREEN | YELLOW | RED) per LR-042.
@@ -325,8 +354,10 @@ grep -F "precondition dialog" clients/encore/tests/corporate-pricing/corporate-p
 # Confirm SOURCE A fold: all 4 variants drift-fixed
 grep -E "TC-CPR-TIO-00[7-9]|TC-CPR-TIO-01[01]" clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts
 
-# Confirm SOURCE B fold: real upload round-trip TCs present
-grep -F "setInputFiles" clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts
+# Confirm SOURCE B fold: real upload round-trip TCs REUSE the shared helper (per R2 — the spec must NOT call raw setInputFiles)
+grep -F "uploadFileToOpenDialog" clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts
+# expect: present. AND raw setInputFiles must NOT appear in the spec (it lives only in the shared page-object primitive):
+test "$(grep -c "setInputFiles" clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts)" -eq 0 && echo "OK: helper-only, no raw setInputFiles in spec"
 ```
 
 ---

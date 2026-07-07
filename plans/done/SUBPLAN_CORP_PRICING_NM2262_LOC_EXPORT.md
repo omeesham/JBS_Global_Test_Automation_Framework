@@ -2,7 +2,8 @@
 
 > **⚠ SBC ID correction (2026-06-24):** surface/behavior cases use **ordinary 3-segment IDs** (`TC-CPR-<SUB>-NNN`, the page's existing band) + a `**Surface_Family**: <family> (QUICK|DEEP)` line — **NOT** the 4-segment `-SBC-` / `-SBC-MAX-` infix this plan body references (that shape is rejected by `check-tc-parity` G6). Same coverage, grammar-safe. Canonical: LR-065 (`.claude/rules/inventory.md`) + `docs/read_only_docs/CASE_GENERATION_STANDARD.md`.
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-07-07
 **Priority**: P1
 **Created**: 2026-06-24
 **Identity**: OWNER
@@ -43,8 +44,8 @@ Deliverable for Jira NM-2262 — "Automate Location Pricing Export WITH verifica
 
 **Context files** (every rule + parent + reference this subplan loads):
 - `plans/pending/PLAN_CORP_PRICING_JIRA_DELIVERY.md` (parent)
-- `plans/pending/SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION.md` (SOURCE A — fold origin)
-- `plans/pending/SUBPLAN_CORP_PRICING_EDGE_P3.md` (SOURCE B — fold origin)
+- `plans/done/SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION.md` (SOURCE A — fold origin; retired to done/ by the Jira-delivery conservation restructure)
+- `plans/pending/SUBPLAN_CORP_PRICING_SHADOW_EDGE.md` (SOURCE B — fold origin; the former `EDGE_P3` renamed to SHADOW_EDGE by the same restructure)
 - `clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-2026-06-23.md` (walk evidence — §B row B11 is the canonical live oracle for `Loc Pricing Export`)
 - `clients/encore/CLAUDE.md` (LR-ENC-001/002/003/004; LR-036)
 - `.claude/rules/specs.md` (LR-019 per-test baseline, LR-061 positive-control)
@@ -260,8 +261,8 @@ Candidates to evaluate:
 |---|---|---|---|
 | HUNTER | (none — baseline-absent declared; walk-evidence 2026-06-23 is the oracle; no new baseline walk required) | (none) | (none) |
 | GIVER | test-cases MD + test-plan + XLSX workbook | `clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_toolbar_io_test_cases.md`<br>`clients/encore/test_cases_xlsx/encore_test_cases.xlsx` | `npm run check:tc-parity` exit 0 |
-| BUILDER | spec (new TC block) + download helper + selector | `clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts`<br>`clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts`<br>`clients/encore/src/selectors/corporate-pricing/pricing.ts` | `npx playwright test corporate-pricing-toolbar-io --grep "NM-2262" --workers=1` green |
-| HEALER | first-run fixes (conditional) | `(skipped: conditional — only if first-run reds; replaced at close with the fixed spec path if HEALER work was needed, else (none))` | `npx playwright test corporate-pricing-toolbar-io --workers=1` green ×2 |
+| BUILDER | spec (new TC block) + download helper + data (reused existing `search.ts` selector `btnLocPricingExport` — no new selector file) | `clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts`<br>`clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts`<br>`clients/encore/src/data/corporate-pricing/toolbar-io.ts` | `npx playwright test corporate-pricing-toolbar-io --grep "NM-2262" --workers=1` green |
+| HEALER | first-run fixes (conditional) | `(skipped: first run was green — no HEALER RCA needed; the audit-driven fixes are recorded under the Execution Summary do-or-die audit)` | `npx playwright test corporate-pricing-toolbar-io --workers=1` green ×2 |
 | WATCHDOG | (none — closure audit is parent plan's do-or-die audit step) | (none) | (none) |
 | GARDENER | (none — helper polish deferred to NM-2264 if reuse refactor is needed; Phase 2.5 Adjacent-Sweep decides) | (none) | (none) |
 | OWNER | closure ceremony + handoff | `(skipped: closure ceremony only — deliverables are the GIVER/BUILDER artifacts above; handoff is chat-only per LR-039)` | `node scripts/validate-plan-closure.mjs --dry-run` exit 0 |
@@ -316,3 +317,41 @@ grep -F "TC-CPR-TIO-018" clients/encore/tests/corporate-pricing/corporate-pricin
 ## Handoff (post-execution — chat-only per LR-039)
 
 The download round-trip for `Loc Pricing Export` is fully automated: `LocPricingExportHelper` lives in the search page object, returns a typed `{filename, content, headers, rowCount}` struct, and is covered by TC-CPR-TIO-018..022 green ×2. The helper is the primary handoff to NM-2264 (Export All): the NM-2264 subplan calls `downloadLocPricingExport` after completing the Year+Currency gate steps for each of the 4 Export▾ variants — the core download+parse logic requires no modification. TC-CPR-TIO-012 (endpoint smoke) remains green and is deliberately NOT subsumed — it is the fast CI smoke check; the new band provides the file-content layer above it.
+
+---
+
+## Execution Summary
+
+**Executed**: 2026-07-07
+
+**TCs implemented (7 new — TC-CPR-TIO-018..024):**
+- TC-CPR-TIO-018..023 — automated, green ×2 consecutive on office 1604. Real `Loc Pricing Export` download round-trip: filename pattern, non-empty/parseable, exact 11-column header, ≥1 data row, locale on the download's own request, second-consecutive re-trigger, and DEEP per-row value-format fidelity over the whole ~38k-row file (column count + numeric LocationNo + supported currency USD/CAD/MXN + 0/1 flags).
+- TC-CPR-TIO-024 — Manual/`test.skip`, **data-blocked** (empty-vol DEEP): no empty-location-pricebook office is confirmed. Population path recorded (empty office), classification = data-blocked, escalate-if-unknown noted (LR-040(c)).
+- TC-CPR-TIO-012 (SOURCE A endpoint smoke) — re-verified green ×2, UNCHANGED, deliberately not subsumed.
+
+**Reusable helper:** `downloadLocPricingExport()` on `CorporatePricingSearchPage`, a thin wrapper over the generic `captureCsvDownload(trigger, apiPathFragment)` returning `CsvDownloadResult {filename, content, headers, rows, rowCount, requestUrl}` (quote-aware, BOM-stripped, faithful parse). NM-2264 (Export ▾ variants) reuses `captureCsvDownload` by passing its own trigger + `pricing-export` path.
+
+**Live findings (2026-07-06, office 1604):** the download event fires (real browser download); filename `LocationPricebooks_<YYYYMMDD>_<HHMMSS>UTC.csv`; 11 headers `LocationNo,PricingStrategy,PriceBook,Currency,IsInternal,IsLabor,IsAlternate,IsProduction,UseDate,StartDate,EndDate`; ~38,010 rows; the export is an **all-locations** dataset (rows begin at office 1101), a different dataset from the on-screen strategy grid.
+
+**Plan deviations (what + why):**
+1. **Selector reuse (Phase 2.2 stale):** reused the existing `search.ts` `btnLocPricingExport` — no new `pricing.ts` selector file was created (the plan's Phase 2.2 named a non-existent file).
+2. **TC-021 not a duplicate of TC-012:** it asserts `locale=en-US` on the request captured on the SAME click that produces the downloaded file (TC-012 uses a separate network-only click).
+3. **Surface-behavior IDs (per this subplan's own header ⚠ correction):** surface/behavior cases use ordinary 3-segment `TC-CPR-TIO-NNN` IDs + a disposition section, NOT the `-SBC-`/`-SBC-MAX-` infix the Phase 1b/acceptance body references (that shape is rejected by `check:tc-parity` G6).
+4. **DEEP result-fidelity = file-is-oracle, not grid-match:** the acceptance line's "exported-content-matches-grid round-trip" was dispositioned as file-structure/value-format fidelity because Loc Export is a different dataset than the Search grid (asserting a grid row-for-row diff would be a false premise). `out-of-scope` tokens carry the reasons in the test-cases surface-behavior section.
+5. **Helper genericized + type renamed** `LocPricingExportResult`→`CsvDownloadResult` (audit-driven, for NM-2264 reuse; zero dangling references).
+
+**Do-or-die audit (final, xhigh):** 3 parallel gpt-5.5 reviewers (correctness / code-quality-slop / test-integrity). Findings + dispositions:
+- **BLOCKER (fixed):** 8 TypeScript errors under `noUncheckedIndexedAccess` in the TC-023 row loop (missed initially — esbuild transpiles specs without type-checking). Rewritten with `.entries()` + `?? ''` guards + widened currency type.
+- **Major (fixed):** helper hard-coded the Loc button/endpoint → extracted generic `captureCsvDownload`; `splitCsvLine` trimmed fields + dropped blank lines (masked whitespace / a malformed blank row) → faithful parse (no trim, keep interior blanks, strip only BOM + terminal newline); `Surface_Family` taxonomy leaked into the shipped spec → moved to the test-cases MD only.
+- **Minor (fixed):** TC-023 now also checks numeric LocationNo; TC-019 asserts comma-delimited (no longer false-green on a garbage 1-line file); doc drift synced (TC-023 "sample"→"every row", status 23 Automated + 1 Manual, filename underscore+UTC, spec header range 001..024).
+- **Dismissed (verified):** "stale download false-green" — `waitForEvent('download')` does not replay already-fired events and these serial tests fire exactly one download each.
+
+**Out-of-scope / pre-existing (NOT NM-2262):** the full toolbar-io suite carries **8 pre-existing failures** — TC-CPR-TIO-002/003/004/005 (Export ▾) + 008/009/010/011 (Import ▾) — the documented 2026-06-10 Year+Currency dialog drift, owned by **NM-2264** (Export ▾) and **NM-2305/NM-2265** (Import ▾) per the parent conservation table. Proven not a regression here: this change is purely additive (0 deletions to those methods; `git diff` verified). Not fixed (correctly their scope; LR-046 — not silently rescoped into NM-2262).
+
+**Verification (evidence):**
+- `npx playwright test corporate-pricing-toolbar-io --grep "NM-2262|TC-CPR-TIO-012:" --workers=1 --retries=0` → `8 passed` ×2 consecutive (TC-024 skipped).
+- `npm run check:tc-parity` → exit 0 (`PASS: All spec TCs are present in both markdown and XLSX deliverable`).
+- `npm run xlsx:build` → exit 0 (vocab-lint clean).
+- `npx tsc --noEmit -p tsconfig.json` → clean (0 errors on touched files).
+- `/regression-guard` → additive only (199 insertions / 3 deletions within the NM-2262 band; renamed type has 0 references; no pre-existing method touched).
+- HTML report screenshot delivered to the user for the ticket (All 8 · Passed 8 · Failed 0 · Skipped 1).

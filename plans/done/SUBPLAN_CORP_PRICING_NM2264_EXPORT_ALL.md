@@ -2,7 +2,8 @@
 
 > **⚠ SBC ID correction (2026-06-24):** surface/behavior cases use **ordinary 3-segment IDs** (`TC-CPR-<SUB>-NNN`, the page's existing band) + a `**Surface_Family**: <family> (QUICK|DEEP)` line — **NOT** the 4-segment `-SBC-` / `-SBC-MAX-` infix this plan body references (that shape is rejected by `check-tc-parity` G6). Same coverage, grammar-safe. Canonical: LR-065 (`.claude/rules/inventory.md`) + `docs/read_only_docs/CASE_GENERATION_STANDARD.md`.
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-07-07
 **Priority**: P1
 **Created**: 2026-06-24
 **Identity**: OWNER
@@ -47,6 +48,32 @@ the 4 gated Export ▾ variants (same infra, different precondition dialog + par
 
 ---
 
+## Execution Notes (2026-07-07 — BINDING)
+
+- **Export is read-only and SAFE** (GET; downloads captured to a temp dir and discarded). No mutation — office 1604 is fine; the import throwaway-office constraint does NOT apply to this subplan.
+- **currencyId mapping is only partially known.** Walk-evidence B6 confirms **USD=1 only**; CAD and MXN currencyId values are NOT captured anywhere in the repo or Jira. The executor MUST capture them LIVE (open Export ▾ → set each currency → Continue → read the GET `currencyId` param) before asserting TC-CPR-TIO-026. Never hardcode CAD/MXN currencyId from memory (LR-022).
+- **NM-2262 helper reuse** — call the generic `captureCsvDownload(trigger, apiPathFragment)` on `CorporatePricingSearchPage` (built + proven by NM-2262, DONE 2026-07-07) with the Export ▾ trigger + the `pricing-export` API path. Do NOT duplicate the download helper.
+- **Coverage depth = FULL DEEP as authored** (user directive) — Export is safe, so the full DEEP combination pairwise matrix (4 variants × Year × Currency) is fully runnable; author it.
+- **SBC ID grammar** — follow the top-of-file correction note: plain 3-segment `TC-CPR-TIO-NNN` + a `**Surface_Family**: <family> (QUICK|DEEP)` line. The `-SBC-`/`-SBC-MAX-` strings in the body are stale shorthand for the surface-behavior bands, NOT literal ID infixes (`check-tc-parity` G6 rejects a 4th segment).
+
+---
+
+## Council-Audit Reconciliation (2026-07-07 — BINDING; supersedes any conflicting body text below)
+
+⚠ **EXECUTOR — READ FIRST.** Adversarial GPT-5.5 council review (2026-07-07, two rounds) surfaced material defects. The R-directives below are BINDING and OVERRIDE the older phase bodies, the Verification block, AND the acceptance criteria wherever they conflict. Wherever any text still shows the OLD pattern — `src/utils/download-helper.ts`, the Export-menu button as the download trigger, `-SBC-`/`-SBC-MAX-` IDs, the literal "TC-CPR-TIO-018..030" band, or an undefined NM-2005 oracle — IGNORE the stale text and follow the R-directive. These are your authoring contract:
+
+- **R1 — TC numbering.** The current spec already owns TC-CPR-TIO-018..024 (NM-2262). The body's "extend from TC-CPR-TIO-018" and the 018–030 band examples COLLIDE with those. Renumber ALL 13 new NM-2264 cases (dialog-contract ×9 + download round-trip ×4) to the next free band AFTER TC-CPR-TIO-024 — read the live spec for the true high-water mark at execution and assign sequentially from there. Update MD + spec + XLSX + acceptance + handoff consistently. The specific IDs in the body below (018..030) are ILLUSTRATIVE placeholders, not literal targets.
+- **R2 — Download helper reuse (public wrapper).** There is NO `src/utils/download-helper.ts`; reality is the private `CorporatePricingSearchPage.captureCsvDownload(trigger, apiPathFragment)`. Add a PUBLIC page-object method `downloadExportVariant(variant, years, currency): Promise<CsvDownloadResult & { status: number | null }>` that opens Export ▾ → clicks the variant → sets Year(s)+Currency in the gate → and passes the **post-gate Continue button** (NOT the Export menu button — that only opens the menu) as the `trigger` to `captureCsvDownload(continueBtn, CORP_PRICING_EXPORT_API)`. Specs call this wrapper; no raw `waitForEvent('download')` duplication in specs.
+- **R3 — Response status (no null escape hatch).** `captureCsvDownload` currently returns only `requestUrl` (no status). Extend the wrapper/result to capture the response status via a coordinated `waitForResponse` on the `pricing-export` API path (LR-056). The captured `status` MUST be a concrete `number` — NOT `number | null`; if the backing response is not captured within the download flow, the wrapper THROWS rather than returning a null/absent status (a nullable status is a false-green escape hatch that lets a 200-assertion silently pass on a missing response). Do NOT assert a status the helper never captured.
+- **R4 — DEEP empty-vol is data-blocked unless a live zero-row oracle exists.** The `pricing-export` GET has NO office parameter, so there is no per-office empty scope. Either identify a LIVE zero-row (or header-only) year/currency/variant oracle and cover it, OR mark empty-vol DEEP `data-blocked` with an explicit deferral reason + adjusted acceptance. Do not fabricate an empty-state assertion.
+- **R5 — NM-2005 regression oracle (concrete source).** Oracle = a COMPANION Export-All download of the SAME year/currency for the correct sibling scope, parsed live: (a) the active-pricebook set = the distinct `PriceBook` values present across the companion export(s) for that scope; (b) the labor-PG set = product groups whose rows carry the Labor flag in the Labor-variant export. Then assert, against the target Max-Discount variant CSV: every active pricebook appears ≥1×, and ZERO rows carry a labor product group — comparing by `(LocationNo, PriceBook, Currency)` tuples. If a companion export cannot serve as a valid oracle at execution, mark the NM-2005 regression `data-blocked` with a documented reason rather than asserting against an undefined set (a false-green).
+- **R6 — Year(s) negative boundary.** Add a case proving a 4th year cannot be submitted (combobox caps at 3) AND that no `pricing-export` request fires with four years. Update acceptance to include the negative boundary. If the UI does NOT cap at 3, file/track a live divergence rather than silently skipping.
+- **R7 — currencyId live capture.** Only USD=1 is known. Capture CAD/MXN currencyId LIVE from the Continue GET param before asserting the currency-mapping TC. Never hardcode (LR-022).
+- **R8 — Satisfaction matrix.** BUILDER deliverables MUST also list `clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts` (new `downloadExportVariant` + gate methods) and `clients/encore/src/data/corporate-pricing/toolbar-io.ts` (Export-dialog / currency / per-variant header constants) — the current matrix omits both. Add named methods/constants + acceptance commands.
+- **R9 — SBC grammar.** Plain 3-segment `TC-CPR-TIO-NNN` IDs + `**Surface_Family**:` line + file-tail `behavior-cases:` / `out-of-scope:` tokens. NO `-SBC-`/`-SBC-MAX-` IDs anywhere — acceptance included.
+
+---
+
 ## Bootstrap
 
 **Identity**: OWNER (multi-identity span: GIVER → BUILDER → HEALER; OWNER short-circuits §2 per
@@ -61,9 +88,9 @@ LR-043)
 
 **Context files**:
 - `PLAN_CORP_PRICING_JIRA_DELIVERY.md` (parent)
-- `plans/pending/SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION.md` (SOURCE A — drift-fix contract)
-- `plans/pending/SUBPLAN_CORP_PRICING_EDGE_P3.md` (SOURCE B — real I/O round-trip seed)
-- `plans/pending/SUBPLAN_CORP_PRICING_NM2262_LOC_EXPORT.md` (download helper Depends-on)
+- `plans/done/SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION.md` (SOURCE A — drift-fix contract; now closed)
+- `plans/pending/SUBPLAN_PRICING_EDGE_P3.md` (SOURCE B — real I/O round-trip seed)
+- `plans/done/SUBPLAN_CORP_PRICING_NM2262_LOC_EXPORT.md` (download helper Depends-on; now closed)
 - `clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-2026-06-23.md` (live
   evidence rows B1–B6 for the Year+Currency gate + POST-CONTINUE network contract)
 - `clients/encore/CLAUDE.md` (LR-ENC-001/002/003/004; LR-036; LR-008; LR-012; LR-017)
@@ -200,6 +227,32 @@ Update the matching test-plan MD (toolbar I/O section) to reflect the corrected 
 Run `npm run xlsx:build` (planner:post-complete) to rebuild
 `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` with the updated TIO entries. Verify with
 `npm run check:tc-parity` → exit 0.
+
+### 1.5 — Regression coverage requirements (NM-1997 / NM-1998 / NM-2005)
+
+Tracked here per LR-040(b) — routed from `SUBPLAN_CORP_PRICING_NM2262_DATE_AND_COVERAGE_HARDENING.md`
+Workstream C2, which does NOT implement these (different surface — Equipment/Max-Discount export, not
+Loc Pricing Export). All three are fixed/Done defects on the export **content** for this surface; the
+round-trip TCs authored in this subplan (1.3 / 2.3) MUST add the following concrete assertions so the
+fixes have durable regression coverage:
+
+- **NM-1997 (duplicate product groups in the exported file)** — for each variant's downloaded CSV,
+  assert every `(LocationNo, PriceBook, Currency)` tuple across all rows is unique (no duplicate rows
+  for the same location+pricebook+currency combination).
+- **NM-1998 (same duplicate-row defect, different variant)** — the same unique-tuple assertion above,
+  run against the Labor and Max-Discount variant downloads too (shares the fix; needs its own
+  regression proof per variant since each is a separate download/parse).
+- **NM-2005 (missing pricebooks + stray labor product groups on the max-discount export)** — for the
+  "All Equipment Max Discount" and "All Labor Max Discount" variant downloads: (a) assert every
+  currently-active pricebook for the exported scope appears at least once in the file (no active
+  pricebook silently missing), and (b) assert the Equipment Max Discount file contains **zero** rows
+  whose product group is a Labor product group (no stray labor rows on the equipment-scoped variant).
+
+These three assertions ride the same `(LocationNo, PriceBook, Currency)`-uniqueness + active-pricebook
++ no-stray-labor-PG checks — no new TC-IDs required beyond what 1.3/2.3 already plan; fold them into
+the existing TC-CPR-TIO-027..030 download-assertion bodies as additional `expect()` calls, each
+commented with which Jira defect it guards against (plain English, no `NM-####` restriction — Jira IDs
+are explicitly kept per the deliverable-hygiene allowlist).
 
 ---
 
@@ -343,8 +396,8 @@ Bare "out of scope" / "flagged for follow-up" with no concrete recipient = HALT 
 | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
 | HUNTER | (none — baseline-absent declared; no REQUIREMENTS.md change; live contract sourced from walk-evidence 2026-06-23) | `(none)` | (none) |
-| GIVER | test-cases MD + test-plan + XLSX workbook | `clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_toolbar_io_test_cases.md`<br>`clients/encore/test_cases_xlsx/encore_test_cases.xlsx` | `npm run check:tc-parity` exit 0 |
-| BUILDER | spec file + download helper import | `clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts` | `npx playwright test --list` resolves TC-CPR-TIO-001..030 |
+| GIVER | test-cases MD + test-plan + XLSX workbook | `clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_toolbar_io_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/corporate-pricing/corporate_pricing_toolbar_io_test_plan.md`<br>`clients/encore/test_cases_xlsx/encore_test_cases.xlsx` | `npm run check:tc-parity` exit 0 |
+| BUILDER | spec file + Export gate page-object + Export data constants + Export dialog selectors (R8) | `clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts`<br>`clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts`<br>`clients/encore/src/data/corporate-pricing/toolbar-io.ts`<br>`clients/encore/src/selectors/corporate-pricing/search.ts` | `npx playwright test --list` resolves TC-CPR-TIO-001..040 |
 | HEALER | per-fix evidence citations (conditional — only if first-run reds require HEALER fixes) | `(skipped: conditional — only if first-run reds; replaced at close with fixed spec path if HEALER work occurred, else no HEALER artifact)` | `npx playwright test corporate-pricing-toolbar-io --workers=1` green ×2 |
 | WATCHDOG | (none — closure audit is a separate subplan; no neutral-eye walk assigned here) | `(none)` | (none) |
 | GARDENER | (none — no structural refactor in scope) | `(none)` | (none) |
@@ -356,7 +409,7 @@ Bare "out of scope" / "flagged for follow-up" with no concrete recipient = HALT 
 
 - [ ] TC-CPR-TIO-001 through TC-CPR-TIO-006 corrected to the new Year(s)+Currency dialog contract
   in both the MD and the spec; all 6 pass green ×2 against the current app.
-- [ ] TC-CPR-TIO-018 through TC-CPR-TIO-030 authored in MD + spec; all 13 new TCs pass green ×2.
+- [ ] 13 new TCs (dialog-contract ×9 + download round-trip ×4) authored in MD + spec in the next free band AFTER TC-CPR-TIO-024 (per R1 — NOT the illustrative 018–030 range); all 13 pass green ×2. Includes the Year(s) 4th-year negative boundary (R6).
 - [ ] Dialog contract covered: dialog appears per variant; Continue disabled until both Year(s) +
   Currency set; Continue disabled with only one field set; Continue enables when both set; Cancel
   aborts with no network request; Year(s) 1 / 3 boundary both accepted.
@@ -369,7 +422,7 @@ Bare "out of scope" / "flagged for follow-up" with no concrete recipient = HALT 
 - [ ] `npm run check:tc-parity` exit 0 (MD ↔ spec TC-ID parity).
 - [ ] `npm run xlsx:lint` exit 0 (workbook integrity).
 - [ ] `npm run typecheck` exit 0 (no TypeScript errors introduced).
-- [ ] **Axis-2 surface families dispositioned (LR-065 → LR-062 Cx)**: the Export ▾ All surface carries a `behavior-cases:` disposition for all 7 families — result-fidelity + combination + empty-vol each ≥1 QUICK `TC-CPR-TIO-SBC-*` + full DEEP `TC-CPR-TIO-SBC-MAX-*` (combination DEEP = bounded pairwise across the 4 variants × Year × Currency); pagination/sorting/render-state/persistence each an `out-of-scope:<family>=<reason ≥20 chars>` token.
+- [ ] **Axis-2 surface families dispositioned (LR-065 → LR-062 Cx)**: the Export ▾ All surface carries a `behavior-cases:` disposition for all 7 families — result-fidelity + combination + empty-vol each ≥1 QUICK plain `TC-CPR-TIO-NNN` case (with a `**Surface_Family**: <family> (QUICK)` line) + full DEEP plain `TC-CPR-TIO-NNN` cases (with `(DEEP)`) — combination DEEP = bounded pairwise across the 4 variants × Year × Currency; empty-vol DEEP per R4 (live zero-row oracle or `data-blocked`); pagination/sorting/render-state/persistence each an `out-of-scope:<family>=<reason ≥20 chars>` token. NO `-SBC-` IDs (R9).
 - [ ] `/regression-guard` BEFORE snapshot ↔ AFTER snapshot: no silent breakage on touched files
   beyond the intended changes.
 - [ ] Activity-log row appended per LR-028 with LR-037 timestamp ≥ all touched-file mtimes.
@@ -395,8 +448,8 @@ npm run xlsx:lint                              # expect: exit 0
 # TypeScript
 npm run typecheck                              # expect: exit 0
 
-# Closure dry-run
-node scripts/validate-plan-closure.mjs --dry-run plans/pending/SUBPLAN_CORP_PRICING_NM2264_EXPORT_ALL.md
+# Closure dry-run (post-move path — the plan lives in plans/done/ once closed)
+node scripts/validate-plan-closure.mjs --dry-run plans/done/SUBPLAN_CORP_PRICING_NM2264_EXPORT_ALL.md
 
 # Spec run (single worker, no retries — first-run green verification)
 npx playwright test corporate-pricing-toolbar-io --workers=1 --retries=0
@@ -415,3 +468,46 @@ currency options, and real file download round-trip for all 4 variants are autho
 NM-2264 "Automate Pricing Export All" is fully covered. The next subplan in the Jira delivery chain
 (NM-2265 Import All, NM-2305 Loc Pricing Import) may inherit the established dialog-interaction
 pattern and the `waitForEvent('download')` helper.
+
+---
+
+### Execution Summary
+
+**Executed**: 2026-07-07 (OWNER, multi-identity span GIVER → BUILDER → OWNER).
+
+**Live walk (Playwright CLI, office 1604, 2026-07-07)** — captured the full Export ▾ contract that the
+plan body only partially knew:
+1. All 4 variants open the shared "Export" dialog (title "Export", Year(s) multi-select 2021–2028 + Currency USD/CAD/MXN, Cancel/Continue/Close). Continue disabled until BOTH set; Cancel and Close both dismiss. **Verified live.**
+2. Year(s) caps at 3 — a 4th pick is silently refused (R6). **Verified live.**
+3. `currencyId` map captured LIVE (R7): **USD=1, CAD=2, MXN=3** (never hardcoded from memory).
+4. Per-variant download identity: `EquipmentPricings.csv` / `LaborPricings.csv` / `EquipmentMaxDiscounts.csv` / `LaborMaxDiscounts.csv`, each returning `pricing-export?isLabor&isMaxDiscount&currencyId&locale&years` [200]. **Years are REPEATED params** (`years=2026&years=2027&years=2028`), not comma-joined — corrected a first-run assertion that used `get()` instead of `getAll()`.
+5. **File format is a WIDE MATRIX** (`Product Group Id, Product Group Name, <one column per pricebook>`; row 2 = currency-per-column) — NOT the normalized `(LocationNo, PriceBook, Currency)` tuple the plan's R5 assumed. Equipment (≈3256 product groups) vs Labor (≈422) carry disjoint populations + different pricebook columns; Pricing vs Max Discount share the shape and differ only by the network param. **Currency scopes pricebook-column volume**: USD Equipment ≈79 columns, MXN ≈13, CAD = 0 → CAD is a LIVE empty/minimal-scope oracle.
+
+**TCs implemented (40 total, 39 Automated + 1 pre-existing Manual skip):**
+- **Corrected (6)**: TC-CPR-TIO-001..006 — Export ▾ drift-fixed to the dialog+gate contract (002–005 now assert the gated endpoint + HTTP 200; 001/006 verified unchanged). Green ×2.
+- **New (16)**, renumbered to the next free band after TC-024 per **R1**:
+  - Dialog contract (9): TC-CPR-TIO-025 (dialog per variant), 026/027 (single-field disabled), 028 (both-set enables), 029 (Cancel → no request), 030 (Year min 1), **031 (Year max 3 + 4th-year negative boundary, R6)**, 032 (currency options), 033 (currencyId map, R7 — combination QUICK).
+  - Real download round-trip (4): TC-CPR-TIO-034..037 — reuse the NM-2262 `captureCsvDownload` via the new public `downloadExportVariant` wrapper (R2); assert filename, HTTP 200 status (concrete number, throws if uncaptured — R3), matrix header, and the NM-1997/1998 (no duplicate product groups) + NM-2005 (every sibling-Pricing pricebook column present + zero labor-PG rows, oracles derived LIVE from companion exports — R5) regressions.
+  - Axis-2 DEEP (3): TC-CPR-TIO-038 (combination pairwise 4×{1yr/3yr}×3), 039 (result-fidelity — Equipment≠Labor scope; Pricing vs Max Discount by param), **040 (empty-vol DEEP via the live CAD empty-scope oracle — R4 satisfied live, NOT data-blocked)**.
+
+**TCs dropped**: none. (TC-024 remains a pre-existing NM-2262 data-blocked Manual skip — not owned here.)
+
+**Deviations from the plan body (all authorized by the binding R-directives, which supersede the older body):**
+- **R1** band is **025–040** (16 net-new), not the illustrative "018–030 (13)". The plan's "13 new" = the 9 dialog + 4 download Axis-1 cases; the Axis-2 DEEP band (3) is the separate LR-065 acceptance line. The 4th-year negative boundary (R6) is TC-031.
+- **R5 oracle adapted** to the real wide-matrix file (pricebooks = columns, product groups = rows) — the plan's normalized-tuple form does not exist in the actual export. NM-2005 is fully covered, NOT `data-blocked`.
+- **R4 empty-vol** covered with a LIVE oracle (CAD equipment = 0 pricebook columns), stronger than the plan's `data-blocked` fallback.
+- One first-run red (TC-031) was a spec-assertion bug (`get('years')` vs `getAll('years')`) fixed in place during BUILDER verification — the app behaves correctly (sends all 3 years as repeated params). No HEALER RCA phase was needed.
+- **Adjacent-sweep DO-NOW**: the now-orphaned + app-broken `clickExportVariantAndCaptureUrl` page-object method (the variant click no longer fires a request) was removed, and its test-plan reference updated.
+
+**Verification (all commands run, 2026-07-07):**
+- `npm run check:tc-parity` → exit 0 (MD ↔ spec ↔ XLSX; 40 TCs).
+- `npm run xlsx:lint` → exit 0 (0 vocab hits — client-facing cells scrubbed of raw API params / defect IDs / dates).
+- `npm run xlsx:build` → exit 0 (corporate_pricing_toolbar_io = 40 rows).
+- client `npx tsc --noEmit` → 0 errors.
+- `npx playwright test corporate-pricing-toolbar-io --grep "TC-CPR-TIO-(00[1-6]|02[5-9]|03[0-9]|040):" --workers=1 --retries=0` → **23 passed** (22 Export TCs + setup, 0 failed, 0 flaky) — the consolidated run-all serving as the green ×2 second pass; each block also passed independently first.
+- NM-2262 regression (018–024, which share the modified `captureCsvDownload`) → 7 passed, 1 skipped — no regression.
+- `/regression-guard` BEFORE ↔ AFTER: +3 selectors, +16 TCs, +13 gate methods, `+status` on `CsvDownloadResult`; all 3 original data exports preserved; no silent breakage.
+
+**Out of scope (correctly deferred, LR-060 obligation-3 satisfied):** the Import ▾ variant tests TC-CPR-TIO-007..011 are DRIFTED-RED under the same Year+Currency gate, but are owned by the **PENDING** `SUBPLAN_CORP_PRICING_NM2265_IMPORT_ALL.md` (which names those TC IDs). Not touched here (Export-only scope).
+
+**Documentation changes**: test-cases MD + test-plan MD (drift-fix + new band + Axis-2 disposition + Export dialog field-inventory/validation rows), XLSX workbook rebuilt.

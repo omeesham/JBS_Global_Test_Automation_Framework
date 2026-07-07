@@ -18,7 +18,94 @@ import {
   CORP_PRICING_TOOLBAR_IO,
   CORP_PRICING_EXPORT_API,
   CORP_PRICING_LOC_EXPORT_API,
+  CORP_PRICING_LOC_IMPORT_API,
 } from '../../data/corporate-pricing/toolbar-io';
+import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+/** Parsed result of a CSV file download (NM-2262 — reusable across the Corporate Pricing export flows). */
+export type CsvDownloadResult = {
+  /** The browser-suggested download filename (e.g. "LocationPricebooks_20260706_172243UTC.csv"). */
+  filename: string;
+  /** Raw CSV text read from the completed download (a leading byte-order mark is stripped). */
+  content: string;
+  /** Parsed header row — fields are raw (NOT trimmed) so a whitespace regression is caught, not masked. */
+  headers: string[];
+  /** Parsed data rows (excludes the header), quote-aware so a value containing a comma stays one field. */
+  rows: string[][];
+  /** Number of data rows. */
+  rowCount: number;
+  /** The export request URL captured on the SAME click (carries the locale param). */
+  requestUrl: string;
+  /**
+   * The HTTP status of the export response, captured on the same click. Always a concrete number:
+   * if the backing response cannot be captured the helper throws rather than returning a placeholder,
+   * so a "200" assertion can never silently pass on a response that was never observed.
+   */
+  status: number;
+};
+
+/**
+ * Outcome of a Loc Pricing Import upload (NM-2305). The load-bearing field is the REAL server outcome,
+ * not the dialog: the upload dialog can look fine while the import silently failed, so this captures the
+ * backing PUT's status AND raw response body and derives `success` from them — never from the UI alone.
+ *
+ * Two shapes:
+ *  - The file was accepted and uploaded → `status` is the HTTP code, `responseBody` the raw JSON, and
+ *    `success` is true only when the server returned 2xx AND `{ success: true }`.
+ *  - The file was rejected before any upload (empty / wrong type / unparseable — the app validates the
+ *    file in the browser and never enables Upload) → `status`/`requestUrl`/`responseBody` are null,
+ *    `success` is false, and `message` is the rejection text shown in the dialog.
+ */
+export type LocImportResult = {
+  /** True only when a real import request returned 2xx and a `{ success: true }` body. */
+  success: boolean;
+  /** HTTP status of the import PUT, or null when the file was rejected in the browser and nothing was sent. */
+  status: number | null;
+  /** Server message on a real upload, or the dialog's rejection text when the file never left the browser. */
+  message: string;
+  /** The import request URL, or null when no request fired. */
+  requestUrl: string | null;
+  /** Raw response body of the import PUT, or null when no request fired. Kept so a caller can read the
+   *  server's own `success`/`validationErrors` even when the dialog shows only a generic message. */
+  responseBody: string | null;
+};
+
+/**
+ * Split one CSV line into raw fields, honoring double-quoted fields (so a comma inside a quoted value
+ * does not split it) and escaped `""` quotes. Fields are NOT trimmed — the export is a file we verify,
+ * so stray whitespace must surface as a mismatch rather than being silently normalized away.
+ */
+function splitCsvLine(line: string): string[] {
+  const out: string[] = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; } // escaped quote
+      else inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      out.push(cur);
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+/**
+ * Quote one CSV field per RFC 4180 when it contains a comma, double-quote, or newline: wrap it in
+ * double-quotes and double any embedded quote; a plain value is returned unchanged. Keeps a pricebook or
+ * strategy name that happens to contain a comma from shifting into the next column when captured rows are
+ * written back out to a file.
+ */
+function toCsvField(value: string): string {
+  return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
 
 export type SearchCheckbox = 'isInternal' | 'isLabor' | 'activeOnly';
 
@@ -520,17 +607,197 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return (await this.page.locator(S.mnuToolbarVariant).count()) === 0;
   }
 
-  /**
-   * Open Export ▾, click a variant, and return the export request URL. The `waitForRequest` predicate
-   * is armed BEFORE the click and filters the backend export API path (never the page URL,
-   * which Next.js App-Router also POSTs to for RSC renders). Trigger-level: the request firing is the
-   * assertion; the downloaded CSV's content is deferred to a later edge-case test phase (no `waitForEvent('download')`).
-   */
-  async clickExportVariantAndCaptureUrl(variant: string): Promise<string> {
+  // ---------- Export ▾ precondition dialog (NM-2264 — Year(s) + Currency gate) ----------
+  // Clicking an Export variant now opens a shared dialog that requires 1–3 years and a currency
+  // before Continue enables; only Continue fires the export. These helpers drive that gate and the
+  // real per-variant download (the download reuses the same CSV capture as the Loc Pricing Export path).
+
+  /** The "Export" dialog, scoped by its unique prompt so it never collides with the import dialog. */
+  private exportDialog(): Locator {
+    return this.page.locator(S.dlgExport).filter({ hasText: CORP_PRICING_TOOLBAR_IO.exportDialog.prompt }).first();
+  }
+
+  /** The dialog's Year(s) combobox (first) and Currency combobox (second), in DOM order. */
+  private exportYearCombo(): Locator {
+    return this.exportDialog().locator(S.cmbExportField).nth(0);
+  }
+  private exportCurrencyCombo(): Locator {
+    return this.exportDialog().locator(S.cmbExportField).nth(1);
+  }
+
+  /** Open Export ▾, click a variant, and wait for the Year(s)+Currency dialog to render. */
+  async openExportVariantDialog(variant: string): Promise<void> {
     await this.openExportMenu();
-    const reqPromise = this.page.waitForRequest((r) => r.url().includes(CORP_PRICING_EXPORT_API), { timeout: 15_000 });
     await this.page.locator(S.mnuToolbarVariant, { hasText: variant }).first().click();
-    return (await reqPromise).url();
+    await this.exportDialog().waitFor({ state: 'visible', timeout: 6_000 });
+  }
+
+  /** Read the open Export dialog: text, how many comboboxes render, its buttons, and whether Continue is disabled. */
+  async getExportDialogInfo(): Promise<{ text: string; comboCount: number; buttons: string[]; continueDisabled: boolean }> {
+    const dlg = this.exportDialog();
+    const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
+    const comboCount = await dlg.locator(S.cmbExportField).count();
+    const buttons = (await dlg.locator('button').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const continueDisabled = await dlg.locator('button', { hasText: /^Continue$/ }).first().isDisabled();
+    return { text, comboCount, buttons, continueDisabled };
+  }
+
+  /** Whether the dialog's Continue button is currently enabled. */
+  async isExportContinueEnabled(): Promise<boolean> {
+    return this.exportDialog().locator('button', { hasText: /^Continue$/ }).first().isEnabled();
+  }
+
+  /** Open the Year(s) multi-select listbox. */
+  private async openExportYearList(): Promise<void> {
+    await this.exportYearCombo().click();
+    await this.page.locator(S.optExportListItem).first().waitFor({ state: 'visible', timeout: 4_000 });
+  }
+
+  /** Close the Year(s) listbox (Escape); the dialog itself stays open. */
+  private async closeExportYearList(): Promise<void> {
+    await this.page.keyboard.press('Escape');
+    await this.page.locator(S.optExportListItem).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
+  }
+
+  /** Click one year option (the Year(s) list must already be open). */
+  private async clickExportYearOption(year: string | number): Promise<void> {
+    await this.page.locator(S.optExportListItem, { hasText: new RegExp(`^${year}$`) }).first().click();
+  }
+
+  /** Select one or more years (1–3) in the Year(s) combobox and close the list. */
+  async setExportYears(years: Array<string | number>): Promise<void> {
+    await this.openExportYearList();
+    for (const y of years) await this.clickExportYearOption(y);
+    await this.closeExportYearList();
+  }
+
+  /**
+   * Attempt to add ONE more year on top of the current selection, then report the resulting selected
+   * years. Used to prove the 1–3 cap: after 3 are chosen, a 4th does not register (the app silently
+   * refuses it), so the returned list still has 3 years.
+   */
+  async attemptExtraExportYear(year: string | number): Promise<string[]> {
+    await this.openExportYearList();
+    // Positive control: prove the extra option is actually present and clickable BEFORE clicking it, so a
+    // "still 3 selected" result means the app REFUSED the 4th year — not that the option was missing or the
+    // click silently did nothing. No catch here: if the option is absent or the click fails, the test must
+    // fail loudly rather than pass on a swallowed failure.
+    const extraOption = this.page.locator(S.optExportListItem, { hasText: new RegExp(`^${year}$`) }).first();
+    await extraOption.waitFor({ state: 'visible', timeout: 4_000 });
+    await extraOption.click();
+    const selected = await this.getExportSelectedYears();
+    await this.closeExportYearList();
+    return selected;
+  }
+
+  /** The years currently selected, read from the Year(s) combobox chips (deduped, ascending). */
+  async getExportSelectedYears(): Promise<string[]> {
+    const text = await this.exportYearCombo().innerText().catch(() => '');
+    const years = text.match(/\d{4}/g) ?? [];
+    return [...new Set(years)].sort();
+  }
+
+  /** Open the Currency combobox, read its options, and close it without selecting. */
+  async getExportCurrencyOptions(): Promise<string[]> {
+    await this.exportCurrencyCombo().click();
+    await this.page.locator(S.optExportListItem).first().waitFor({ state: 'visible', timeout: 4_000 });
+    const opts = await this.page.locator(S.optExportListItem).allInnerTexts();
+    await this.page.keyboard.press('Escape');
+    return opts.map((t) => t.trim()).filter(Boolean);
+  }
+
+  /** Select a currency by its code (single-select — the list closes on pick). */
+  async setExportCurrency(code: string): Promise<void> {
+    await this.exportCurrencyCombo().click();
+    await this.page.locator(S.optExportListItem, { hasText: new RegExp(`^${code}$`) }).first().click();
+  }
+
+  /** Cancel the Export dialog; returns whether it closed. */
+  async cancelExportDialog(): Promise<boolean> {
+    await this.exportDialog().locator('button', { hasText: /^Cancel$/ }).first().click().catch(() => { /* best-effort: fall through to the hidden-state check below, which is the real oracle for whether it closed */ });
+    return this.exportDialog().waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
+  }
+
+  /** Dismiss the Export dialog via its Close (X) button; returns whether it closed. */
+  async closeExportDialog(): Promise<boolean> {
+    await this.exportDialog().locator('button', { hasText: /^Close$/ }).first().click().catch(() => { /* best-effort: fall through to the hidden-state check below, which is the real oracle for whether it closed */ });
+    return this.exportDialog().waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
+  }
+
+  /**
+   * Set Year(s)+Currency in the open Export dialog, arm a short listener for the export request, click
+   * Cancel, and report whether any export request fired (should be false) plus whether the dialog closed.
+   * The listener filters the backend export path, never the page URL.
+   */
+  async cancelExportAndCheckNoRequest(
+    variant: string,
+    years: Array<string | number>,
+    currency: string,
+  ): Promise<{ requestFired: boolean; closed: boolean }> {
+    await this.openExportVariantDialog(variant);
+    await this.setExportYears(years);
+    await this.setExportCurrency(currency);
+    const reqSeen = this.page
+      .waitForRequest((r) => r.url().includes(CORP_PRICING_EXPORT_API), { timeout: 1_500 })
+      .then(() => true)
+      .catch(() => false);
+    const closed = await this.cancelExportDialog();
+    const requestFired = await reqSeen;
+    return { requestFired, closed };
+  }
+
+  /**
+   * NM-2264 real Export ▾ round-trip: open the variant dialog, set Year(s)+Currency, then Continue —
+   * the post-gate Continue button is the download trigger (the Export menu button only opens the menu).
+   * Reuses the shared CSV capture (download + request + response status on the same click).
+   */
+  async downloadExportVariant(
+    variant: string,
+    years: Array<string | number>,
+    currency: string,
+  ): Promise<CsvDownloadResult> {
+    await this.openExportVariantDialog(variant);
+    await this.setExportYears(years);
+    await this.setExportCurrency(currency);
+    const continueBtn = this.exportDialog().locator('button', { hasText: /^Continue$/ }).first();
+    return this.captureCsvDownload(continueBtn, CORP_PRICING_EXPORT_API);
+  }
+
+  /**
+   * Click Continue on the already-configured Export dialog and capture the fired export request URL +
+   * response status — for the tests that assert the request params (currencyId / years / variant flags)
+   * without needing to read the downloaded file. Any resulting download is left to auto-discard.
+   */
+  async continueExportAndCaptureRequest(): Promise<{ url: string; status: number }> {
+    const continueBtn = this.exportDialog().locator('button', { hasText: /^Continue$/ }).first();
+    const [req] = await Promise.all([
+      this.page.waitForRequest((r) => r.url().includes(CORP_PRICING_EXPORT_API), { timeout: 20_000 }),
+      continueBtn.click(),
+    ]);
+    const resp = await req.response();
+    if (!resp) throw new Error('continueExportAndCaptureRequest: the export response was not captured');
+    return { url: req.url(), status: resp.status() };
+  }
+
+  /**
+   * The pricebook column headers of an export matrix (everything after the two fixed base columns).
+   * Used to compare the active-pricebook set between a Pricing export and its Max Discount sibling.
+   */
+  exportPricebookColumns(headers: string[]): string[] {
+    return headers.slice(CORP_PRICING_TOOLBAR_IO.exportBaseColumns.length);
+  }
+
+  /**
+   * The Product Group Id values (first column) of an export matrix's data rows. Skips the currency
+   * row (row after the header) and any blank trailing entries. Used for duplicate-detection and for
+   * the labor-vs-equipment cross-checks.
+   */
+  exportProductGroupIds(result: CsvDownloadResult): string[] {
+    // rows[0] is the currency row (",,USD,USD,..."); the product-group rows follow.
+    return result.rows
+      .slice(1)
+      .map((r) => (r[0] ?? '').trim())
+      .filter((id) => id.length > 0);
   }
 
   /** The custom "Import ..." upload dialog, scoped by its prompt text (role is `dialog` or `alertdialog`). */
@@ -559,7 +826,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     const dlg = this.importDialog();
     if ((await dlg.count()) === 0) return;
     const closeBtn = dlg.locator('button', { hasText: /^(Close|Cancel)$/ }).first();
-    if ((await closeBtn.count()) > 0) await closeBtn.click().catch(() => { /* fall through to Escape */ });
+    if ((await closeBtn.count()) > 0) await closeBtn.click().catch(() => { /* best-effort: fall through to the Escape fallback + hidden-state wait below */ });
     else await this.page.keyboard.press('Escape').catch(() => { /* nothing */ });
     await dlg.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
   }
@@ -574,10 +841,154 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return (await reqPromise).url();
   }
 
+  /**
+   * Click a CSV-export trigger and capture the REAL downloaded file. Arms the browser download event AND
+   * the export request on the SAME click, so one action yields the suggested filename, the file contents,
+   * and the request URL (which carries the locale param). The file is read from the browser's temporary
+   * download path — nothing is written into the repo. Generic on purpose: every export flow (the
+   * per-location export here and the grid-scoped Export variants) reuses this one path by passing its own
+   * trigger button and backend export-path fragment.
+   */
+  private async captureCsvDownload(trigger: Locator, apiPathFragment: string): Promise<CsvDownloadResult> {
+    const [download, request] = await Promise.all([
+      this.page.waitForEvent('download', { timeout: 30_000 }),
+      this.page.waitForRequest((r) => r.url().includes(apiPathFragment), { timeout: 30_000 }),
+      trigger.click(),
+    ]);
+    // The export status is part of the contract (a download must be a real 200, not a silent 4xx/5xx),
+    // so read the backing response for the captured request. If it cannot be read, throw — the caller
+    // must never assert a status that was never observed.
+    const response = await request.response();
+    if (!response) throw new Error('captureCsvDownload: the export response was not captured — cannot assert its status');
+    const status = response.status();
+    const filePath = await download.path();
+    if (!filePath) throw new Error('captureCsvDownload: the download did not resolve to a file path');
+    const raw = readFileSync(filePath, 'utf-8');
+    const content = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw; // strip a leading byte-order mark if present
+    const lines = content.split(/\r?\n/);
+    if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop(); // drop only the terminal newline; keep interior blanks so a malformed blank row is caught, not dropped
+    const [first, ...rest] = lines;
+    const headers = first !== undefined ? splitCsvLine(first) : [];
+    const rows = rest.map(splitCsvLine);
+    return {
+      filename: download.suggestedFilename(),
+      content,
+      headers,
+      rows,
+      rowCount: rows.length,
+      requestUrl: request.url(),
+      status,
+    };
+  }
+
+  /**
+   * Loc Pricing Export real download round-trip (NM-2262) — a thin wrapper over the generic CSV-download
+   * capture. The grid-scoped Export variants call the same primitive with their own trigger + export path.
+   */
+  async downloadLocPricingExport(): Promise<CsvDownloadResult> {
+    return this.captureCsvDownload(this.page.locator(S.btnLocPricingExport).first(), CORP_PRICING_LOC_EXPORT_API);
+  }
+
   /** Click "Loc Pricing Import" (direct, no menu) — opens the "Import All Location Pricing" dialog. */
   async openLocPricingImportDialog(): Promise<void> {
     await this.page.locator(S.btnLocPricingImport).first().click();
     await this.importDialog().waitFor({ state: 'visible', timeout: 6_000 });
+  }
+
+  /**
+   * Generic import-upload primitive (Loc Pricing Import — reused by the grid-scoped Import All flows).
+   * Assumes an "Import ..." file dialog is ALREADY open. The app submits the import the MOMENT a file is
+   * chosen — there is NO separate "Upload" click (live-verified: choosing a valid file fires
+   * PUT .../location-import on its own and the dialog closes on success).
+   *
+   * The outcome is classified on the ground truth of whether an import request actually fired, not on a
+   * dialog-message timing race: a `waitForRequest` for the import PUT is armed BEFORE the file is chosen
+   * (the choice is what auto-submits). If the request fires, the REAL server response (status + raw body)
+   * is the outcome — never the dialog alone; on success the dialog is awaited hidden so a following export
+   * cannot race an open modal. If no request fires, the app rejected the file in the browser and the
+   * dialog's own text is returned as the message. If NEITHER a request nor any dialog text is observed the
+   * method throws, rather than passing a status-less "no request" result off as a rejection. Filters the
+   * request on the import API path, not the page URL.
+   */
+  async uploadFileToOpenDialog(fixturePath: string): Promise<LocImportResult> {
+    const dlg = this.importDialog();
+    // Ground truth that an import was ATTEMPTED is the PUT firing. Arm it BEFORE choosing the file, because
+    // choosing the file is what auto-submits. A timeout means no import fired (an in-browser rejection);
+    // any OTHER wait error (page crash, context close, navigation) is real and is re-thrown, never nulled.
+    const requestPromise = this.page
+      .waitForRequest((r) => r.url().includes(CORP_PRICING_LOC_IMPORT_API) && r.method() === 'PUT', { timeout: 15_000 })
+      .catch((err: Error) => {
+        if (err.name === 'TimeoutError') return null;
+        throw err;
+      });
+
+    // Choose the file via the dialog's Browse button + native file chooser (the real user path).
+    const [chooser] = await Promise.all([
+      this.page.waitForEvent('filechooser'),
+      dlg.locator(S.btnImportBrowse).click(),
+    ]);
+    await chooser.setFiles(fixturePath);
+
+    const request = await requestPromise;
+    if (request) {
+      // An import fired — the load-bearing outcome is the server response, never the dialog.
+      const resp = await request.response();
+      if (!resp) throw new Error('uploadFileToOpenDialog: the import request fired but its response was not captured — cannot assert an outcome that was never observed');
+      const status = resp.status();
+      const responseBody = await resp.text();
+      let parsed: { success?: boolean; message?: string; data?: { message?: string } } | null = null;
+      try { parsed = JSON.parse(responseBody); } catch { /* non-JSON body — the raw text is kept for the caller */ }
+      const success = status >= 200 && status < 300 && parsed?.success === true;
+      const message = parsed?.data?.message ?? parsed?.message ?? responseBody.slice(0, 300);
+      // On success, wait for the dialog to close so the next export can't race a still-open modal.
+      if (success) await dlg.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => { /* some flows leave it open; not fatal to the already-captured result */ });
+      return { success, status, message, requestUrl: request.url(), responseBody };
+    }
+
+    // No import fired → the app rejected the file in the browser. Return the dialog's own message so the
+    // caller can assert it. Guard against a silent "nothing happened at all": if the dialog carries no
+    // text we cannot classify the outcome — fail loudly rather than pass a status-less result off as a
+    // rejection.
+    const dialogText = (await dlg.innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    if (!dialogText) {
+      throw new Error('uploadFileToOpenDialog: no import request fired and the import dialog carried no text — the upload outcome could not be classified');
+    }
+    return { success: false, status: null, message: dialogText, requestUrl: null, responseBody: null };
+  }
+
+  /** Open the Loc Pricing Import dialog and upload a file in one call. */
+  async locPricingImport(fixturePath: string): Promise<LocImportResult> {
+    await this.openLocPricingImportDialog();
+    return this.uploadFileToOpenDialog(fixturePath);
+  }
+
+  /**
+   * Read one location's pricebook rows straight from a fresh Loc Pricing Export (NM-2305 round-trip
+   * oracle). The export is the source of truth for what actually persisted, so pre/post import checks
+   * compare these rows rather than the on-screen search grid (a different, tenant-wide dataset). Rows are
+   * matched by content, never by position. Reuses the proven export download + parse.
+   */
+  async captureLocPricingCsvRows(locationNo: string): Promise<{ header: string[]; rows: string[][] }> {
+    const csv = await this.downloadLocPricingExport();
+    const locIdx = csv.headers.indexOf('LocationNo');
+    const rows = csv.rows.filter((r) => (r[locIdx] ?? '') === locationNo);
+    return { header: csv.headers, rows };
+  }
+
+  /**
+   * Re-import a location's captured rows to put it back the way it was (best-effort restore after a
+   * mutating round-trip). Writes the rows to a temporary CSV, runs them through the real import, then
+   * removes the temp file. Returns the import outcome so a caller can confirm the restore landed.
+   */
+  async restoreLocPricingRows(header: string[], rows: string[][]): Promise<LocImportResult> {
+    const csv = [header, ...rows].map((r) => r.map(toCsvField).join(',')).join('\n') + '\n';
+    const tmp = join(tmpdir(), `loc-pricing-restore-${process.pid}-${Date.now()}.csv`);
+    writeFileSync(tmp, csv, 'utf-8');
+    try {
+      return await this.locPricingImport(tmp);
+    } finally {
+      try { unlinkSync(tmp); } catch { /* temp cleanup is best-effort */ }
+    }
   }
 
   // ---------- Grid Options (column show/hide popover) ----------

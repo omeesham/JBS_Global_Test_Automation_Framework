@@ -81,6 +81,24 @@ export const CorporatePricingSearchSelectors = {
    * callers scope it further by the "Choose a file to import data" prompt text to disambiguate.
    */
   dlgImport: '[role="dialog"], [role="alertdialog"]',
+  /** @where Import dialog @el button @text "Browse" @keys opens the native file chooser; choosing a file auto-submits the import (no separate Upload click — live-verified 2026-07-07) */
+  btnImportBrowse: 'button:text-is("Browse")',
+  /** @where Import dialog @el button @text "Upload" @keys legacy submit button; the app auto-submits on file choice, so this is not the automation path */
+  btnImportUpload: 'button:text-is("Upload")',
+  /** @where Import dialog @el input @keys the hidden file input (accept=".csv"); driven via setInputFiles, scoped to the dialog */
+  inputImportFile: 'input[type="file"]',
+
+  // ---- Export precondition dialog (NM-2264 — Year(s) + Currency gate; live-verified 2026-07-07) ----
+  /**
+   * @where Search > Export ▾ variant @el dialog @keys the "Export" Year(s)+Currency precondition dialog
+   * Base role selector; the page object scopes it by the unique prompt text ("Select between 1 and 3 years")
+   * so it never collides with the import dialog or other page dialogs.
+   */
+  dlgExport: '[role="dialog"]',
+  /** @where Export dialog @el combobox @keys the Year(s) + Currency comboboxes inside the dialog */
+  cmbExportField: 'button[role="combobox"]',
+  /** @where Export dialog listbox @el option @keys Year(s) / Currency options (portalled; list must be open) */
+  optExportListItem: '[role="option"]',
 
   // ---- Results grid (HARDENED 2026-06-05: real HTML <table>, NOT ARIA grid roles) ----
   // Live walk found ZERO role="grid"/"row"/"columnheader" — the grid is a shadcn/TanStack

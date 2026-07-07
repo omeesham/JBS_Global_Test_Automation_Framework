@@ -376,7 +376,7 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
 
   /** Resolve the "Unsaved changes" prompt with the given choice. */
   async resolveUnsavedChangesPrompt(choice: 'Stay' | 'Discard'): Promise<void> {
-    await this.page.getByRole('alertdialog').getByRole('button', { name: choice, exact: true }).click().catch(() => { /* ignore */ });
+    await this.page.getByRole('alertdialog').getByRole('button', { name: choice, exact: true }).click().catch(() => { /* best-effort: the prompt may have auto-resolved before this click; the stability wait below is the real settle */ });
     await this.waitForAngularStable();
   }
 
