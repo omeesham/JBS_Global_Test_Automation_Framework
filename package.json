@@ -121,7 +121,8 @@
     "verify:no-stale-refs": "node scripts/verify-no-stale-live-refs.mjs",
     "check:browsertool-parity": "node scripts/check-browsertool-parity.mjs",
     "check:lr-embed-parity": "node scripts/check-lr-embed-parity.mjs",
-    "check:per-test-baseline": "node scripts/check-per-test-baseline.mjs"
+    "check:per-test-baseline": "node scripts/check-per-test-baseline.mjs",
+    "check:spec-quality": "node scripts/check-unfailable-assertions.mjs --enforce && node scripts/check-swallowed-failures.mjs --enforce && node scripts/check-spec-sleeps.mjs --enforce && node scripts/check-reload-wait.mjs --enforce && node scripts/check-vacuous-grid-assertions.mjs"
   },
   "keywords": [
     "playwright",

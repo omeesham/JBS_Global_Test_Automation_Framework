@@ -38,6 +38,12 @@
  *                      for the commit gate — it cannot fix the moved-file / bare-dir FP classes
  *                      because it keys on the exact string token.)
  *
+ * Commit-regenerated files (plans/INDEX.md — re-staged by the pre-commit reindex, see
+ * GENERATED_FILE_PATHS below) are EXEMPT from the mtime comparison in every mode: their mtime
+ * is bumped forward by the very commit carrying the row, so checking it is a guaranteed FP.
+ * The exemption is per-file — a real authored file listed in the same row is still checked.
+ * (LR-037 FP fix v2, 2026-07-07.)
+ *
  * LR-037: Activity log timestamps must be >= all referenced file mtimes / commit times.
  */
 
@@ -63,6 +69,29 @@ const baselineDate = baselineArg ? baselineArg.slice('--baseline='.length) : nul
 const recentArg = args.find(a => a.startsWith('--recent='));
 const recentN = recentArg ? Number(recentArg.slice('--recent='.length)) : null;
 const latestPerFile = args.includes('--latest-per-file');
+
+/**
+ * Files the commit process REGENERATES and RE-STAGES itself, so their mtime is bumped
+ * FORWARD by the very commit that carries the activity-log row referencing them. Checking
+ * such a file's post-hook mtime against the row's honest "When" is a guaranteed false
+ * positive — the row was written before the hook touched the file. These paths are
+ * machine-generated (never hand-authored, LR-035), so their mtime is meaningless as a
+ * "when was this work done" signal and is correctly excluded from the backdating check.
+ *
+ * The ONLY current member is plans/INDEX.md (`.githooks/pre-commit` §1: `node
+ * scripts/plans-reindex.mjs` → `git add plans/INDEX.md`). Add a path here ONLY if a hook
+ * both regenerates AND re-stages it inside the commit. Anti-backdating stays fully intact
+ * for every real authored file — this narrows the check, it does not weaken it.
+ * (LR-037 FP fix v2, 2026-07-07.)
+ */
+const GENERATED_FILE_PATHS = new Set([
+  'plans/INDEX.md',
+]);
+
+/** True if relPath is a commit-regenerated file exempt from the mtime backdating check. */
+export function isGeneratedFile(relPath) {
+  return GENERATED_FILE_PATHS.has(relPath);
+}
 
 /** Parse "YYYY-MM-DDTHH:MM" as local time; return ms epoch. */
 export function parseRowTime(s) {
@@ -252,9 +281,13 @@ export function computeRowViolations(rows, resolveTime, opts = {}) {
     let worstTrue = null;
     let worstSource = null;
     const missingFiles = [];
+    let generatedCount = 0;
     for (const f of files) {
       // In latest-per-file mode, skip files for which this row is NOT the latest claim.
       if (latestRowForFile && latestRowForFile.get(f) !== row) continue;
+      // Commit-regenerated files (e.g. plans/INDEX.md) have their mtime bumped forward by
+      // the very commit that carries this row — exclude from the backdating check (LR-037 FP).
+      if (isGeneratedFile(f)) { generatedCount++; continue; }
       const t = resolveTime(f);
       if (t.time === null) {
         missingFiles.push(f);
@@ -282,6 +315,8 @@ export function computeRowViolations(rows, resolveTime, opts = {}) {
     }
     if (missingFiles.length === files.length) {
       skipped.push({ row: row.lineNo, when: row.when, reason: `all-files-missing (${missingFiles.length})` });
+    } else if (generatedCount === files.length) {
+      skipped.push({ row: row.lineNo, when: row.when, reason: `all-files-generated (${generatedCount})` });
     }
   }
   return { violations, skipped, checked };

@@ -208,7 +208,7 @@ Every closure gate (LR-055 C1–C6, the Per-Identity Matrix audit, LR-040) keys 
 flip. An `/execute` that does partial work, leaves the plan PENDING, writes a chat summary, and stops
 trips NONE of them — mandated phases can be silently skipped. This rule + its Stop-hook close that hole.
 
-**Three obligations:**
+**Four obligations:**
 
 1. **No silent checkpoint.** An `/execute` of a plan file either (a) completes every mandated phase
    (each declared artifact exists), or (b) records an explicit, user-signed `## Deferral Authorization`
@@ -238,6 +238,18 @@ trips NONE of them — mandated phases can be silently skipped. This rule + its 
    green*. Distinct from LR-040(b): LR-040(b) only requires a recipient to *exist*, and a task chip
    technically exists — obligation 3 closes that hatch by demanding a PENDING *plan file*, not a chip.
 
+4. **Spec-quality gates run on the WORKING TREE before any "done" / "green" / "verified" claim.** The
+   pre-commit spec-quality gates (`check-unfailable-assertions`, `check-swallowed-failures`,
+   `check-spec-sleeps`, `check-reload-wait`) fire at COMMIT time on `git diff --cached` — so
+   **uncommitted** spec / page-object work is UNGATED, and a green spec RUN is not the same as a
+   strong-assertion audit. Any session that touches `clients/*/tests/**` or `clients/*/src/pages/**`
+   MUST run `npm run check:spec-quality` (the aggregate that runs those gates in `--enforce` over the
+   working tree) and see it pass BEFORE claiming done / verified / green. A commit-time-only gate is NOT
+   a substitute. The 2026-07-07 NM-2264 Export-All miss is the graduating incident: six weak /
+   silent-swallow assertions shipped past a "green ×2" claim precisely because the gates never ran on the
+   uncommitted tree — the same authoring-layer gap as LR-058 (a gate that only fires at commit/ship time,
+   nothing at the moment of the claim).
+
 **Enforcement (detective + forcing-function):** `.claude/hooks/execution-completion-gate.sh` (Stop
 hook) + `lib/check-execution-completion.mjs` warn on session end when an active `/execute` of a plan
 file has a mandated `_internal` artifact missing, the plan is not DONE, and no `## Deferral
@@ -261,7 +273,9 @@ same anti-defer spirit.
 **Trigger**: every `/execute` of a plan file; every session-end Stop while an `/execute` window is
 open; every decision to defer a plan phase citing "env" / "next session" / "stable env"; **every
 `Status: DONE` flip while owned spec tests are red — and every attempt to route red tests to a task
-chip instead of a PENDING recipient subplan (obligation 3)**.
+chip instead of a PENDING recipient subplan (obligation 3)**; **every "done" / "verified" / "green"
+claim on a session that touched `clients/*/tests/**` or `clients/*/src/pages/**` — run
+`npm run check:spec-quality` on the working tree first (obligation 4)**.
 **Graduated from**: 2026-06-18 Pricing FCC session (RC-3 baseline-walk skipped silently + RC-5
 env-rationalized deferral of env-independent work + checkpoint-as-stopping-point; see
 `clients/encore/specs_planning/_internal/agent-mistakes.md`). Obligation 3 (no-red-close test-status

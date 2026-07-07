@@ -103,23 +103,39 @@ cs_exists || exit 0
 status=$(cs_get .status 2>/dev/null || echo '')
 [ "$status" = "running" ] || exit 0
 
-# 3. Extract transcript path
+# 3. Extract transcript path from the Stop event.
 transcript=$(printf '%s' "$input" | sed -n 's/.*"transcript_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)
+
+# 3.5 Identify the subplan this chain is currently waiting on.
+idx=$(cs_get .currentIndex)
+current_file=$(cs_get ".queue.$idx.file" 2>/dev/null || echo 'unknown')
+
+# 3.6 RC-2 session-ownership guard (2026-07-07). The Stop hook fires on EVERY
+# session's turn-end — the interactive launcher, a manual interrupt (Stop button /
+# Ctrl-C), or an unrelated subplan's headless run — not just the headless
+# `/execute <current_file>` session it means to grade. Only that session's
+# transcript opens with the user prompt "/execute <current_file>". Any other
+# stopping session → silent exit (no verdict recorded, no pause, no spawn).
+# Without this guard, an interactive interrupt stamps verdict-NONE onto the
+# running subplan and poisons the chain — observed 2026-07-06: NM2305 was paused
+# 22s after spawn (a pending interrupt on the interactive launcher) while its own
+# headless session was still alive. See parse-verdict.mjs transcriptOwnsSubplan()
+# + LR-042 §C.  Fail-safe: missing/unreadable transcript or any error → not-owned
+# → silent exit (never poison; a genuine headless transcript is present+readable).
 if [ -z "$transcript" ] || [ ! -f "$transcript" ]; then
-  pause_chain "transcript-not-found"
   exit 0
 fi
+owns=$(node "$PARSE_VERDICT_MJS" --owns-subplan "$transcript" "$current_file" 2>/dev/null || echo 'no')
+[ "$owns" = "yes" ] || exit 0
 
-# 4. Parse verdict
+# 4. Parse verdict (confirmed: this Stop is the genuine headless run of current_file).
 verdict=$(parse_verdict "$transcript")
 if [ -z "$verdict" ]; then
   pause_chain "verdict-parse-error"
   exit 0
 fi
 
-# 5. Identify current subplan
-idx=$(cs_get .currentIndex)
-current_file=$(cs_get ".queue.$idx.file" 2>/dev/null || echo 'unknown')
+# 5. (idx + current_file resolved at step 3.5, above the ownership guard.)
 
 # 6. Record outcome atomically (P5.5 — replaces case statement + 4 cs_set + cs_history_append)
 # Pass transcript path as 5th arg so --record-outcome can SHA-256-hash it for V3.1
@@ -217,8 +233,17 @@ esac
 # 10. Spawn — default is `nohup claude -p ...`; overridable via CHAIN_SPAWN_CMD for tests.
 SPAWN_CMD="${CHAIN_SPAWN_CMD:-nohup claude -p}"
 
+# RC-1 (2026-07-07): On Git-Bash/MSYS (this repo's shell on Windows), a bare
+# "/execute …" argument passed to the native claude(node).exe is rewritten by
+# POSIX-path conversion into "C:/Program Files/Git/execute …" — the slash-command
+# never reaches the headless session, which then does no plan work and exits
+# verdict-NONE. This bit the very first real chain run (2026-07-06): the manual
+# launch AND this auto-advance spawn both mangled. MSYS2_ARG_CONV_EXCL='*'
+# disables the conversion for THIS spawn only (harmless no-op env var on
+# Linux/macOS). Verified: without it argv[0] becomes the Git-install path; with
+# it "/execute SUBPLAN_X.md" --model … passes through byte-for-byte. See LR-042 §C.
 # shellcheck disable=SC2086
-$SPAWN_CMD "/execute $next_file" \
+MSYS2_ARG_CONV_EXCL='*' $SPAWN_CMD "/execute $next_file" \
   --model "$next_model" \
   --effort "$next_effort_cli" \
   --permission-mode "$next_perm" \

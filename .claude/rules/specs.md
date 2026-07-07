@@ -382,3 +382,71 @@ new save primitive. **Graduated from**: 2026-06-30 — the office-1604 Pay To "E
 found during the independent cold-run of the locations deliverable; one weak one-shot restore plus
 duplicated lying save primitives. Cross-ref LR-019 (per-test baseline mandatory), LR-009/LR-026
 (Angular dirty state), LR-059 (no "verified" without driving the real thing).
+
+## LR-068: No silent partial coverage — every asserted record's fields are all covered or all explained
+
+When a test validates a structured record (a CSV row, a JSON object, an API response body, any payload
+with a fixed field set), every field is either asserted OR carries an explicit, evidence-based
+documented reason for being excluded (data-blocked — no sample exists to check a format against;
+domain-unknown-after-research — the field's meaning could not be confirmed even after checking the
+live data + Jira/Confluence). "I don't know this field's format" is a research trigger — go look at a
+real sample, check the spec doc — never a free pass to leave it silently unasserted while the
+surrounding test still reports green.
+
+This is the sibling of LR-031: LR-031 catches an agent writing an explicit `test.skip` /
+`NOT-AUTOMATABLE` without exhausting investigation first. LR-068 catches the quieter failure — a test
+that never skips anything, passes green, and still leaves part of the record unchecked because nobody
+noticed the gap. A passing test with silently narrower coverage than its own record shape is exactly as
+dangerous as an unjustified skip, and harder to catch, because nothing about the test run signals that
+anything is missing.
+
+**How to apply**: before finalizing an assertion over a structured record, list every field the record
+actually carries (read a live sample, not just the fields the plan mentioned) and account for each one —
+asserted, or excluded with a one-line reason naming what was checked (a live sample / the spec doc) and
+why it can't be asserted yet. If the reason is "no populated sample exists for this field's non-default
+state," that is a legitimate data-blocked exclusion — write it down next to the assertion, don't leave it
+unmentioned.
+
+**Deliberately no gate/hook**: detecting "this test should have asserted field X" from static analysis
+is heuristic and false-positive prone — the noise from a naive "are all record fields referenced
+somewhere in this test" check would be worse than the problem it catches. This rule is enforced by
+agent awareness (this entry + the paired memory note) at authoring time, not a structural gate.
+
+**Trigger**: any spec authoring or modification that asserts against a structured record (CSV row / JSON
+object / API response) with a fixed, known field set.
+**Graduated from**: 2026-07-07 — TC-CPR-TIO-023 (NM-2262 Loc Pricing Export) asserted 8 of the CSV's 11
+columns and silently left the 3 date columns (`UseDate`/`StartDate`/`EndDate`) unasserted; the gap
+surfaced only because the user asked directly, not because any structural check caught it. Root cause:
+"unknown date format" was treated as a free skip instead of a research trigger, and LR-031 only covers
+explicit skips, not silent under-assertion inside an otherwise-green test.
+
+### LR-068 corollary — assertion strength (assert the strongest KNOWN oracle)
+
+LR-068 says *cover every field*; this corollary says *cover each one at full strength*. A field that is
+"asserted" by a weak oracle is only cosmetically covered — a real regression still sails through. Three
+concrete forms, all from the 2026-07-07 NM-2264 Export-All council review:
+
+- **(a) Literal over comparison when the true value is KNOWN.** If the expected value is knowable (an
+  empty scope is `0`, a fixed set is `[2026,2027,2028]`), assert the literal (`toBe(0)`), never a weaker
+  relative comparison (`toBeLessThan(other)`). The test's own name is the spec — a test titled "CAD
+  Equipment has no pricebooks" whose oracle is `cadCols < usdCols` still passes when CAD wrongly returns
+  1..N columns. (Council #1: TC-040 CAD-Equipment empty-scope asserted comparatively, not `=== 0`.)
+- **(b) Collection VALUE, not just length.** An array / repeated-query-param / `getAll(...)` oracle must
+  assert membership or the exact set, not only `.toHaveLength(n)`. Wrong values with the right count pass
+  a length-only check. Prefer `expect([...vals].sort()).toEqual([...expected].sort())` (sort-agnostic
+  unless order is proven meaningful). (Council #3: TC-031/038 `getAll('years')` asserted count-only.)
+  This one has a **warn-only structural net** — the `getall-length-only` kind in
+  `scripts/check-unfailable-assertions.mjs` (ratcheting toward enforce), escape `// length-only-ok:`.
+- **(c) Every field of the structured record** — the core LR-068, restated: a CSV row / query-param set /
+  JSON body asserts each field or documents the exclusion. (Council #5/#6: the wide-matrix body's
+  currency row + per-row width, and the download-tied request's `currencyId`/`years`/`locale`, were
+  silently uncovered.)
+
+**Mandatory adversarial self-pass** for any TC asserting an export / CSV / structured record / captured
+request: before calling it done, re-read each assertion and ask "what wrong value would STILL pass this?"
+— the exact pass a cross-vendor reviewer runs. Then run `npm run check:spec-quality` on the **working
+tree** (LR-060) — a commit-time-only gate does not run on uncommitted work, and green ≠ strong.
+
+**Gate coverage is partial by design**: (b) is netted warn-only; (a) and (c) are heuristic/FP-prone and
+stay gate-less per LR-068's "deliberately no gate" reasoning — they are caught by this awareness + the
+self-pass + the paired memory note, not by regex.

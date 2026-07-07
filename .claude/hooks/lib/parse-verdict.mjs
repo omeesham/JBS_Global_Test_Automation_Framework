@@ -117,6 +117,70 @@ function hashTranscript(transcriptPath) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// RC-2 session-ownership guard (2026-07-07). The chain-orchestrator Stop hook
+// fires on EVERY session's turn-end — the interactive launcher, a manual
+// interrupt (Stop button / Ctrl-C), or an unrelated subplan's headless run —
+// not just the headless `/execute <current_file>` session it means to grade.
+// Without this guard the orchestrator reads currentIndex, parses the STOPPING
+// session's (verdict-less) transcript, and stamps verdict-NONE onto the current
+// subplan — poisoning the chain. Observed 2026-07-06: an interactive interrupt
+// paused NM2305 22s after spawn while its headless session was still alive.
+//
+// A headless `claude -p "/execute X"` session's transcript ALWAYS opens with a
+// user turn whose string content is exactly "/execute X". That is the unique,
+// deterministic signature we match. Foreign sessions (whose first user prompt is
+// anything else) → "no" → the orchestrator silently ignores their Stop.
+// Fail-safe: any parse/read error → "no" (never record, never poison; a genuine
+// session's transcript is readable — we just parsed it for the verdict).
+
+function basenameOf(p) {
+  return String(p ?? "").replace(/^.*[\\/]/, "").trim();
+}
+
+// First user-turn STRING prompt in a transcript (skips tool_result user turns).
+function firstUserPrompt(transcriptPath) {
+  if (!transcriptPath || !existsSync(transcriptPath)) return null;
+  const raw = readFileSync(transcriptPath, "utf8");
+  for (const line of raw.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    let obj;
+    try { obj = JSON.parse(line); } catch { continue; }
+    if ((obj.type ?? obj.message?.role) !== "user") continue;
+    const content = obj.message?.content ?? obj.content;
+    if (typeof content === "string") return content;
+    if (Array.isArray(content)) {
+      for (const c of content) {
+        if (typeof c === "string") return c;
+        if (c && typeof c === "object" && c.type === "text" && typeof c.text === "string") return c.text;
+      }
+    }
+    // user turn carrying only tool_result blocks → not the driving prompt; keep looking.
+  }
+  return null;
+}
+
+// True iff the transcript is the headless `/execute <currentFile>` run.
+// Exported for the self-test harness.
+export function transcriptOwnsSubplan(transcriptPath, currentFile) {
+  try {
+    const prompt = firstUserPrompt(transcriptPath);
+    if (!prompt) return false;
+    const m = /^\s*\/execute\s+(.+?)\s*$/.exec(prompt);
+    if (!m) return false;
+    const target = basenameOf(m[1]);
+    const want = basenameOf(currentFile);
+    return Boolean(target) && Boolean(want) && target === want;
+  } catch {
+    return false;
+  }
+}
+
+// --owns-subplan <transcript> <current_file>  → stdout "yes" | "no"
+function modeOwnsSubplan(transcriptPath, currentFile) {
+  process.stdout.write(transcriptOwnsSubplan(transcriptPath, currentFile) ? "yes" : "no");
+}
+
 // --record-outcome <chain.json> <idx> <verdict> <current_file> [transcript_path]
 function modeRecordOutcome(chainPath, idxStr, verdict, currentFile, transcriptPath) {
   const idx = Number.parseInt(idxStr, 10);
@@ -222,6 +286,10 @@ function modePrepSpawn(chainPath, newIdxStr, nextFile, modeFlag) {
 }
 
 // Dispatch new modes BEFORE the verdict-parse path (which expects argv[2] to be a file).
+if (process.argv[2] === "--owns-subplan") {
+  modeOwnsSubplan(process.argv[3], process.argv[4]);
+  process.exit(0);
+}
 if (process.argv[2] === "--record-outcome") {
   modeRecordOutcome(process.argv[3], process.argv[4], process.argv[5], process.argv[6], process.argv[7]);
   process.exit(0);
@@ -357,6 +425,41 @@ if (process.argv[2] === "--self-test") {
     if (v3NoTransOut !== "advance") failures.push(`V3.1 no-transcript expected 'advance' got '${v3NoTransOut}'`);
     const v3NoTransState = readJson(v3NoTransChain);
     if (v3NoTransState.queue[0].endedAtTranscriptHash) failures.push(`V3.1 no-transcript: endedAtTranscriptHash should be unset, got ${v3NoTransState.queue[0].endedAtTranscriptHash}`);
+
+    // RC-2 session-ownership guard (2026-07-07): only the headless `/execute <file>`
+    // session's transcript may record a verdict for that subplan. A foreign session
+    // (interactive launcher, manual interrupt, or a different subplan's run) must NOT.
+    const ownTranscript = join(tmpRoot, "own-NM2305.jsonl");
+    writeFileSync(ownTranscript,
+      '{"type":"user","message":{"role":"user","content":"/execute SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md"}}\n' +
+      '{"type":"assistant","message":{"content":[{"type":"text","text":"working"}]}}\n', "utf8");
+    const foreignTranscript = join(tmpRoot, "foreign-interactive.jsonl");
+    writeFileSync(foreignTranscript,
+      '{"type":"user","message":{"role":"user","content":"whats your current context usage burn? did we fire the chain yet?"}}\n', "utf8");
+    const mangledTranscript = join(tmpRoot, "mangled.jsonl");
+    writeFileSync(mangledTranscript,
+      '{"type":"user","message":{"role":"user","content":"C:/Program Files/Git/execute SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md"}}\n', "utf8");
+    const toolResultFirstTranscript = join(tmpRoot, "toolresult-first.jsonl");
+    writeFileSync(toolResultFirstTranscript,
+      '{"type":"user","message":{"role":"user","content":[{"type":"tool_result","content":"x"}]}}\n' +
+      '{"type":"user","message":{"role":"user","content":"/execute SUBPLAN_CORP_PRICING_NM2264_EXPORT_ALL.md"}}\n', "utf8");
+
+    // (a) genuine owner → true; and CLI mode prints "yes"
+    if (!transcriptOwnsSubplan(ownTranscript, "SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md")) failures.push("owns-subplan: genuine owner returned false");
+    const ownCli = execFileSync(process.execPath, [process.argv[1], "--owns-subplan", ownTranscript, "SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md"], { encoding: "utf8" });
+    if (ownCli !== "yes") failures.push(`owns-subplan CLI genuine expected 'yes' got '${ownCli}'`);
+    // (b) same transcript, DIFFERENT current subplan (post-advance double-fire) → false
+    if (transcriptOwnsSubplan(ownTranscript, "SUBPLAN_CORP_PRICING_NM2264_EXPORT_ALL.md")) failures.push("owns-subplan: cross-subplan should be false");
+    // (c) foreign interactive session (the 2026-07-06 interrupt case) → false
+    if (transcriptOwnsSubplan(foreignTranscript, "SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md")) failures.push("owns-subplan: foreign interactive should be false");
+    const foreignCli = execFileSync(process.execPath, [process.argv[1], "--owns-subplan", foreignTranscript, "SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md"], { encoding: "utf8" });
+    if (foreignCli !== "no") failures.push(`owns-subplan CLI foreign expected 'no' got '${foreignCli}'`);
+    // (d) MSYS-mangled launch prompt is NOT a valid /execute → false (broken launch must not record)
+    if (transcriptOwnsSubplan(mangledTranscript, "SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md")) failures.push("owns-subplan: mangled prompt should be false");
+    // (e) first user turn is a tool_result → skip to the real driving prompt (basename match, different subplan)
+    if (!transcriptOwnsSubplan(toolResultFirstTranscript, "SUBPLAN_CORP_PRICING_NM2264_EXPORT_ALL.md")) failures.push("owns-subplan: tool_result-first should still match driving prompt");
+    // (f) missing transcript → false (fail-safe, never poison)
+    if (transcriptOwnsSubplan(join(tmpRoot, "does-not-exist.jsonl"), "SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md")) failures.push("owns-subplan: missing transcript should be false");
 
     // Cleanup tmp dir
     const { rmSync } = await import("node:fs");

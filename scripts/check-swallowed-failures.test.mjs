@@ -61,6 +61,29 @@ test('recognises the marker in a multi-line comment block directly above', () =>
   assertEq(findSwallowed(src).length, 0, 'marker anywhere in the contiguous comment block above justifies');
 });
 
+// --- A2 widenings: custom click-wrappers + comment-only catch bodies ---
+test('flags an empty catch on a custom click-wrapper (.clickExportYearOption)', () => {
+  assertEq(findSwallowed('await this.clickExportYearOption(year).catch(() => {});').length, 1,
+    'custom .click*() wrappers are load-bearing, not just literal .click()');
+});
+test('flags a comment-only catch body on .click() (a comment is not a handler)', () => {
+  assertEq(findSwallowed('await this.btn.click().catch(() => { /* may be inert */ });').length, 1);
+});
+test('flags the NM-2264 shape: custom wrapper + comment-only body, no marker', () => {
+  assertEq(findSwallowed('await this.clickExportYearOption(year).catch(() => { /* the extra pick may be inert once capped */ });').length, 1);
+});
+test('does NOT flag a best-effort-annotated custom click-wrapper swallow', () => {
+  assertEq(findSwallowed('await this.clickExportYearOption(year).catch(() => {}); // best-effort: the 4th pick is expected to be refused').length, 0);
+});
+test('does NOT flag a real (non-empty, non-comment-only) catch body', () => {
+  assertEq(findSwallowed('await this.btn.click().catch((e) => { this.log(e); });').length, 0,
+    'a catch with an actual statement is a handler, not a swallow');
+});
+test('does NOT flag .clickable property access (no call paren)', () => {
+  assertEq(findSwallowed('const c = el.clickable; await noop().catch(() => {});').length, 0,
+    'no load-bearing call on the line — .clickable is a property, not a .click*() call');
+});
+
 test('empty / undefined input is safe', () => {
   assertEq(findSwallowed('').length, 0);
   assertEq(findSwallowed(undefined).length, 0);

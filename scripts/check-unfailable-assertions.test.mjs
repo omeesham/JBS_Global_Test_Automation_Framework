@@ -61,6 +61,49 @@ test('does NOT flag a real count bound', () => {
   assertEq(findUnfailable('expect(rowCount).toBeGreaterThan(0);').length, 0, 'a strict > 0 count check is meaningful');
 });
 
+// D — getAll length-only (warn-only, cross-line)
+test('flags a getAll result asserted only by toHaveLength', () => {
+  const src = [
+    "const yearsParams = url.searchParams.getAll('years');",
+    'expect(yearsParams).toHaveLength(3);',
+  ].join('\n');
+  const f = findUnfailable(src);
+  assertEq(f.length, 1); assertEq(f[0].kind, 'getall-length-only');
+});
+test('flags getAll asserted only by .length equality', () => {
+  const src = [
+    "const yp = req.searchParams.getAll('years');",
+    'expect(yp.length).toBe(2);',
+  ].join('\n');
+  assertEq(findUnfailable(src).length, 1);
+});
+test('does NOT flag a getAll result whose values are asserted (toEqual)', () => {
+  const src = [
+    "const yearsParams = url.searchParams.getAll('years');",
+    'expect(yearsParams).toHaveLength(3);',
+    "expect([...yearsParams].sort()).toEqual(['2026', '2027', '2028']);",
+  ].join('\n');
+  assertEq(findUnfailable(src).length, 0, 'the value assertion elsewhere in the file exempts it');
+});
+test('does NOT flag when a .not.toContain value check is present', () => {
+  const src = [
+    "const yearsParams = url.searchParams.getAll('years');",
+    'expect(yearsParams).toHaveLength(3);',
+    "expect(yearsParams).not.toContain('2025');",
+  ].join('\n');
+  assertEq(findUnfailable(src).length, 0, 'a membership check counts as a value assertion');
+});
+test('respects the // length-only-ok escape on the assertion line', () => {
+  const src = [
+    "const yp = url.searchParams.getAll('years');",
+    'expect(yp).toHaveLength(1); // length-only-ok: single-year case, value asserted upstream',
+  ].join('\n');
+  assertEq(findUnfailable(src).length, 0);
+});
+test('getall-length-only does NOT fire on a non-getAll array length assertion', () => {
+  assertEq(findUnfailable('expect(rows).toHaveLength(3);').length, 0, 'only .getAll-sourced vars are in scope for kind D');
+});
+
 test('empty / undefined input yields no findings', () => {
   assertEq(findUnfailable('').length, 0);
   assertEq(findUnfailable(undefined).length, 0);

@@ -6,8 +6,11 @@
  * real failure: the click never landed, or the reload never happened, and the test sails on believing
  * it did. A best-effort swallow is sometimes correct (dismissing a dialog that may not be present, a
  * probe reload meant to be interrupted) — but that intent must be STATED, not assumed. This gate flags
- * an empty `.catch(() => {})` chained to a `.click(` / `.reload(` / a save call in a page object,
- * UNLESS the line (or the line directly above) carries a `best-effort` comment explaining why.
+ * an empty (or comment-only) `.catch(() => {})` chained to ANY `.click*(` custom wrapper (`.click(`,
+ * `.clickExportYearOption(`, `.clickTab(` …) / `.reload(` / a save call in a page object, UNLESS the
+ * line (or the line directly above) carries a `best-effort` comment explaining why. A body that is only
+ * a block comment still swallows the failure — the comment is not a real handler — so it is flagged the
+ * same as an empty body unless best-effort-annotated.
  *
  * This operationalises LR-003 (no silent catch) for the page-object action class. Empty catches on
  * settle-only `waitFor({ state })` calls are NOT flagged — waiting for a dialog that may already be
@@ -25,10 +28,14 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = path.resolve(__dirname, '..');
 
-// An empty catch: `.catch(() => {})` or `.catch((e) => {})` with a whitespace-only body.
-const EMPTY_CATCH_RE = /\.catch\s*\(\s*\(\s*\w*\s*\)\s*=>\s*\{\s*\}\s*\)/;
-// A load-bearing action on the same line: click / reload / a save call.
-const LOAD_BEARING_RE = /\.(click|reload)\s*\(|\b(?:clickSave\w*|saveAndConfirm|saveChanges|clickSaveWithDialog)\s*\(/;
+// A swallowing catch: `.catch(() => {})` / `.catch((e) => {})` with a body that is empty OR only a
+// block comment (`{ /* … */ }`). A comment is not a handler, so a comment-only body swallows the
+// failure exactly like `{ }` — both are flagged (best-effort annotation is what exempts, below).
+const EMPTY_OR_COMMENTED_CATCH_RE = /\.catch\s*\(\s*\(\s*\w*\s*\)\s*=>\s*\{\s*(?:\/\*.*?\*\/\s*)?\}\s*\)/;
+// A load-bearing action on the same line: ANY `.click*(` wrapper (`.click(`, `.clickExportYearOption(`,
+// `.clickTab(` — custom page-object wrappers ARE load-bearing) / `.reload(` / a save call. The `\w*`
+// requires a call `(`, so a property access like `el.clickable` (no paren) is not matched.
+const LOAD_BEARING_RE = /\.click\w*\s*\(|\.reload\s*\(|\b(?:clickSave\w*|saveAndConfirm|saveChanges|clickSaveWithDialog)\s*\(/;
 // Justification marker (comment), case-insensitive: `// best-effort: …` / `/* best-effort … */`.
 const BEST_EFFORT_RE = /best-effort/i;
 
@@ -52,7 +59,7 @@ export function findSwallowed(text) {
   const findings = [];
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (!EMPTY_CATCH_RE.test(line) || !LOAD_BEARING_RE.test(line)) continue;
+    if (!EMPTY_OR_COMMENTED_CATCH_RE.test(line) || !LOAD_BEARING_RE.test(line)) continue;
     // Justified when the catch line itself, or the contiguous comment block directly above it,
     // carries the best-effort marker (so a multi-line justification is recognised).
     const justified = BEST_EFFORT_RE.test(line) || markerInCommentBlockAbove(lines, i, BEST_EFFORT_RE);

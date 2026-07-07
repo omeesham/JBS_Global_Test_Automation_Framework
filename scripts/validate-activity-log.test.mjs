@@ -17,6 +17,7 @@ import {
   computeRowViolations,
   extractFiles,
   parseRowTime,
+  isGeneratedFile,
 } from './validate-activity-log.mjs';
 
 let pass = 0, fail = 0;
@@ -101,6 +102,41 @@ check('missing-skipped', miss.skipped.length, 1);
 //  diff yields zero rows → zero violations, regardless of how far the referenced files drifted.)
 const noStagedRows = computeRowViolations(parseStagedAddedRows(''), resolverLate);
 check('fp-gone-empty-input', noStagedRows.violations.length, 0);
+
+// ---- generated-file exemption (LR-037 FP fix v2): plans/INDEX.md is regenerated + re-staged
+// by the pre-commit hook, bumping its mtime PAST an honest row's When — must NOT be a violation.
+check('isGenerated-index',      isGeneratedFile('plans/INDEX.md'), true);
+check('isGenerated-real-file',  isGeneratedFile('scripts/foo.mjs'), false);
+check('isGenerated-other-index', isGeneratedFile('docs/INDEX.md'), false);
+
+// A row whose ONLY file is the hook-bumped INDEX.md, with an honest earlier When → CLEAN.
+// (This is the exact founding incident: row at 22:21, INDEX.md re-touched to 22:35 by the hook.)
+const idxResolver = (f) => f === 'plans/INDEX.md'
+  ? { time: at('2026-07-06T22:35'), source: 'mtime', exists: true }
+  : { time: null, source: 'missing', exists: false };
+const genOnly = computeRowViolations([mkRow('2026-07-06T22:21', 'plans/INDEX.md')], idxResolver);
+check('generated-only-clean', genOnly.violations.length, 0);
+check('generated-only-skipped', genOnly.skipped.some(s => /all-files-generated/.test(s.reason)), true);
+
+// Mixed row: honest real file + the generated INDEX.md → still CLEAN (real file not backdated,
+// INDEX.md exempt). Real file last touched 10:00, row claims 10:00.
+const mixResolver = (f) => f === 'plans/INDEX.md'
+  ? { time: at('2026-07-06T22:35'), source: 'mtime', exists: true }
+  : f === 'plans/done/X.md'
+  ? { time: at('2026-07-06T10:00'), source: 'mtime', exists: true }
+  : { time: null, source: 'missing', exists: false };
+const mixed = computeRowViolations([mkRow('2026-07-06T10:00', 'plans/done/X.md, plans/INDEX.md')], mixResolver);
+check('mixed-clean', mixed.violations.length, 0);
+
+// CRITICAL — the exemption must NOT mask a genuinely backdated REAL file sitting next to INDEX.md.
+const mixBackResolver = (f) => f === 'plans/INDEX.md'
+  ? { time: at('2026-07-06T22:35'), source: 'mtime', exists: true }
+  : f === 'scripts/late.mjs'
+  ? { time: at('2026-07-06T14:32'), source: 'mtime', exists: true }
+  : { time: null, source: 'missing', exists: false };
+const mixBack = computeRowViolations([mkRow('2026-07-06T09:00', 'scripts/late.mjs, plans/INDEX.md')], mixBackResolver);
+check('mixed-still-fires-on-real', mixBack.violations.length, 1);
+check('mixed-fires-file-is-real', mixBack.violations[0]?.file, 'scripts/late.mjs');
 
 // ---- extractFiles / cleanFileToken sanity ----
 check('extract-basic', extractFiles('a/b.ts, c/d.ts'), ['a/b.ts', 'c/d.ts']);

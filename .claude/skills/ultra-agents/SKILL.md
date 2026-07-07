@@ -45,6 +45,13 @@ no longer has to motivate "go deep, no limits" by hand each time.
 - Trivial single-file / obvious local edit → just do it inline. Spawning here is waste, not
   thoroughness — and waste is its own kind of corner-cut (noise + cost).
 
+## Local worker extension (load on EVERY invocation)
+FIRST ACTION when this skill is invoked — before planning the work, fanning out, or answering
+questions about delegation: if `.claude/skills/ultra-agents/worker-ext.md` exists on disk, Read it.
+On this machine it defines local-only worker-delegation DEFAULTS (worker types, when they are the
+default path, how to verify their output) that take precedence over this skill's generic fan-out
+guidance. If the file is absent, ignore this section.
+
 ## The core job — catch what a shallow pass misses
 When something changes, fan out parallel subagents along DIFFERENT search angles so nothing
 hides: by direct reference (imports/calls/usages) · by name + naming-convention variants ·
