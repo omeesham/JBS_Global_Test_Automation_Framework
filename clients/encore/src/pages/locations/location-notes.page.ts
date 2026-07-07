@@ -292,10 +292,32 @@ export class LocationNotesPage extends BasePage {
       this.getLocator('btnSaveNotes'),
       { timeout: 5_000 }
     );
+    // Arm a wait for the actual Notes save response BEFORE clicking. The Save button flipping
+    // back to disabled is only a UI signal — Angular can disable it before the save request has
+    // finished on the server. A fast follow-up reload then cancels the in-flight save, and the
+    // reloaded page reads back stale (pre-save) data. Match the backend save endpoint (PUT), not
+    // the page URL — server-render/hydration POSTs hit the page path and must never be mistaken
+    // for the save.
+    const saveResponse = this.page.waitForResponse(
+      (r) =>
+        r.url().includes('/navigator/api/location/update-properties') &&
+        r.request().method() !== 'GET',
+      { timeout: 15_000 },
+    );
     const result = await this.clickSaveWithDialog('btnSaveNotes');
     if (!result.success) {
       Log.error(`[ERR] Save failed: ${result.networkError}`);
     }
+    // Wait for the save request to actually land (successful status + body fully read) before
+    // returning, so a caller's reload cannot cancel an in-flight save. Fail loudly on a missing
+    // or non-2xx response rather than silently passing on stale data.
+    const response = await saveResponse;
+    if (!response.ok()) {
+      throw new Error(
+        `[Notes] Save request did not succeed: ${response.status()} ${response.statusText()} (${response.url()})`,
+      );
+    }
+    await response.finished();
  // Wait for Save button to become disabled — confirms save API response was received
  // and the form is pristine. Without this, immediate page.reload can race with the
  // server processing the save, causing reload to fetch pre-save (stale) data.
