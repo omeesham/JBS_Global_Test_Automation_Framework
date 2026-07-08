@@ -41,10 +41,9 @@ export const SSL_DIALOG_HEADING = 'Change Local Office';
 // Granular search/multi-row test data — TC-LOC-SSL-031..044 (2026-05-22).
 // Non-Miami queries throughout per BUG-LOC-SHR-001 workaround.
 
-/** Search BVA group inputs (min / max / empty) */
+/** Search BVA group inputs (min / max) */
 export const SEARCH_BVA_1_CHAR = 'A';
 export const SEARCH_BVA_LONG_200 = 'X'.repeat(200);
-export const SEARCH_BVA_EMPTY = '';
 
 /** Search special-chars / whitespace inputs */
 export const SEARCH_NEG_SPECIAL = `&"'<>`;

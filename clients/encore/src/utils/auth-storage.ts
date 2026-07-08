@@ -139,14 +139,6 @@ export async function validateState(page: Page, baseUrl: string): Promise<boolea
   return false;
 }
 
-export function deleteState(): void {
-  try {
-    if (fs.existsSync(STATE_PATH)) fs.unlinkSync(STATE_PATH);
-  } catch {
-    /* best effort */
-  }
-}
-
 /**
  * Single source of truth for SSO login. Both `auth.setup.ts` and
  * `fixtures.ts:refreshSharedState` consume this.

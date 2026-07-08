@@ -1,11 +1,8 @@
 ﻿import { Page } from '@playwright/test';
-import { CheckboxState, LocationFormHelpers, SpinState } from '../components/location-form-helpers.component';
+import { LocationFormHelpers } from '../components/location-form-helpers.component';
 import { LocationSettingsSelectors } from '../../selectors';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
-
-// Re-export for backward compatibility
-export type { CheckboxState, SpinState };
 
 /** Left-panel baseline snapshot (read-only fields) */
 export interface LeftPanelBaseline {

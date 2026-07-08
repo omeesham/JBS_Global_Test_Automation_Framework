@@ -2,7 +2,6 @@
 
 import { defineConfig } from '@playwright/test';
 import * as dotenvFlow from 'dotenv-flow';
-import * as path from 'path';
 
 // Local-first: bare `npm test` loads .env.local; CI sets CI_ENV=e2e to load .env.e2e.
 dotenvFlow.config({

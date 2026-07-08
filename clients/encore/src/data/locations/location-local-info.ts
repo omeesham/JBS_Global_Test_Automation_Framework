@@ -80,22 +80,6 @@ export const DISABLED_CHECKBOX_STATES: Record<string, boolean> = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SPINBUTTON / FIELD DEFAULTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-export interface SpinDefault {
-  key: SelectorKey;
-  value: string;
-  disabled: boolean;
-}
-
-export const SPIN_DEFAULTS: SpinDefault[] = [
- // RC-2 FIX : Visible input shows "4.00%" -> after % strip -> "4.00".
- // The hidden form-binding input stored "0.04" but is never readable. Display value = "4.00".
-  { key: 'spinLDWPercentage', value: '4.00', disabled: false },
-];
-
-// ─────────────────────────────────────────────────────────────────────────────
 // BOUNDARY TEST DATA -- LDW Percentage [0, 100]
 // ─────────────────────────────────────────────────────────────────────────────
 
