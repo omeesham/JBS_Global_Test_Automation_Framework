@@ -37,9 +37,17 @@
       "Bash(npm run plans:validate-overrides *)",
       "Bash(npm run plans:validate-layout *)",
       "Bash(npm run plans:validate-closure:changed *)",
+      "Bash(bash .claude/hooks/no-verify-gate.sh)",
+      "Bash(node .claude/hooks/lib/check-no-verify.mjs *)",
       "mcp__plugin_playwright_playwright__browser_snapshot",
       "mcp__Claude_in_Chrome__read_network_requests",
       "mcp__Claude_in_Chrome__tabs_context_mcp"
+    ],
+    "deny": [
+      "Bash(git commit --no-verify:*)",
+      "Bash(git commit -n:*)",
+      "Bash(git push --no-verify:*)",
+      "Bash(git merge --no-verify:*)"
     ]
   },
   "hooks": {
@@ -79,6 +87,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/plan-closure-gate.sh --bash-mode"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/no-verify-gate.sh"
           }
         ]
       }
