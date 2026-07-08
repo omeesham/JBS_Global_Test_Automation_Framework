@@ -170,9 +170,9 @@ Import mutates real data in the E2E environment. This is the same constraint as 
 - **Never mutate arbitrary data**: only rows whose before-state was explicitly captured may be asserted after import. Do not rely on "whatever is in the grid" as the after-state oracle.
 - **If no safe restore exists**: record a documented reason in the test comment (plain English, no internal IDs per LR-058), gate the TC as a verify-only assertion (upload → assert success dialog / progress indicator / error message → cancel or assert rollback), and flag via `/encore-questions` if full round-trip requires admin setup outside test scope.
 
-### TC-CPR-TIO-018 through TC-CPR-TIO-029 (approximate band — check spec for next-free after Phase 1 edits)
+### New submodule for the Import ▾ All real-upload tests (do NOT reuse the vacated toolbar TIO-018+ band)
 
-Extend the TIO band from TC-CPR-TIO-018 onward. The exact IDs are determined after reading the spec's current high-water mark post-Phase 1. Do not hardcode IDs here — read the spec, use the next sequential free number.
+The Import ▾ All work gets its OWN submodule + spec + branch, per the per-ticket submodule convention. **Do NOT extend the `TC-CPR-TIO-018..051` band — it was split out 2026-07-08 into the `loc_pricing_export` (LEX), `export_all` (EXA), and `loc_pricing_import` (LIM) submodules, and those numbers are taken.** Mint a new submodule (e.g. `import_all` / `IMP`) in `export_test_cases/module-codes.json` at execution, number its cases `TC-CPR-IMP-001+`, and author them in a NEW spec `corporate-pricing-import-all.spec.ts` (it auto-runs under the chromium project). The baseline Import ▾ trigger tests `TC-CPR-TIO-007..011` remain in the slimmed `corporate-pricing-toolbar-io.spec.ts` (baseline submodule) and are corrected in Phase 1 as before.
 
 **For each of the 4 variants (All Equipment Pricing, All Labor Pricing, All Equipment Max Discount, All Labor Max Discount), author the following TC set:**
 
@@ -197,9 +197,9 @@ Extend the TIO band from TC-CPR-TIO-018 onward. The exact IDs are determined aft
 
 2. **Create fixture files** — author minimal valid and intentionally malformed fixtures for each variant in the designated fixture directory. Valid fixture: minimal CSV/XLSX matching the import schema (check the API endpoint signature from walk-evidence row B9 for format hints; if format is unclear, escalate via `/encore-questions` before assuming). Malformed fixture: a file that triggers the app's error path (wrong MIME type, missing required columns, or zero data rows).
 
-3. **Author TCs in spec** — extend `clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts` with a new `test.describe` block for "Import All — real upload round-trip" covering all 4 variants × 2 paths (happy + error). Apply LR-019 per-test baseline (mutation safety protocol above), LR-058 (no internal jargon in comments), LR-022 (no hardcoded structural counts).
+3. **Author TCs in spec** — create a NEW spec `clients/encore/tests/corporate-pricing/corporate-pricing-import-all.spec.ts` (NOT toolbar-io — that is now baseline-only after the 2026-07-08 split) with a `test.describe` block for "Import All — real upload round-trip" covering all 4 variants × 2 paths (happy + error). Apply LR-019 per-test baseline (mutation safety protocol above), LR-058 (no internal jargon in comments), LR-022 (no hardcoded structural counts).
 
-4. **Author TC entries in MD** — add TC-CPR-TIO-NNN rows to the corporate pricing toolbar-IO test-cases MD with IDs, titles, preconditions, steps, expected results, and tags. Run `npm run check:tc-parity` to confirm alignment.
+4. **Author TC entries in MD** — add `TC-CPR-IMP-NNN` rows to a NEW `corporate_pricing_import_all_test_cases.md` (the mdBasename registered for the new submodule) with IDs, titles, preconditions, steps, expected results, and tags. Run `npm run check:tc-parity` to confirm alignment.
 
 5. **Update test-plan** — add the new TC IDs to the test-plan scenarios section.
 

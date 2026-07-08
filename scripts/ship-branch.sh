@@ -23,6 +23,9 @@
 #   legal            --modules=LOC.LGL  --surface='location-legal*'
 #   account-address  --modules=LOC.ACC  --surface='location-account-address*'
 #   corporate-pricing --modules=CPR     --surface='corporate-pricing/**'
+#   nm2262           --modules=CPR.LEX  --surface='corporate-pricing-loc-export*'   (Loc Pricing Export)
+#   nm2264           --modules=CPR.EXA  --surface='corporate-pricing-export-all*'   (Export All)
+#   nm2305           --modules=CPR.LIM  --surface='corporate-pricing-loc-import*'   (Loc Pricing Import)
 #
 # Usage:
 #   bash scripts/ship-branch.sh --branch=notes                 # preset, dry-run
@@ -54,6 +57,9 @@ if [[ -z "$MODULES" || -z "$SURFACE" ]]; then
     legal)            MODULES="${MODULES:-LOC.LGL}"; SURFACE="${SURFACE:-location-legal*}" ;;
     account-address)  MODULES="${MODULES:-LOC.ACC}"; SURFACE="${SURFACE:-location-account-address*}" ;;
     corporate-pricing) MODULES="${MODULES:-CPR}";    SURFACE="${SURFACE:-corporate-pricing/**}" ;;
+    nm2262)           MODULES="${MODULES:-CPR.LEX}"; SURFACE="${SURFACE:-corporate-pricing-loc-export*}" ;;
+    nm2264)           MODULES="${MODULES:-CPR.EXA}"; SURFACE="${SURFACE:-corporate-pricing-export-all*}" ;;
+    nm2305)           MODULES="${MODULES:-CPR.LIM}"; SURFACE="${SURFACE:-corporate-pricing-loc-import*}" ;;
     *) echo "[ship-branch] need --modules and --surface (no preset for branch '$BRANCH')" >&2; exit 2 ;;
   esac
 fi

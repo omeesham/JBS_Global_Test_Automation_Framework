@@ -1,25 +1,14 @@
-# Corporate Pricing — Search Toolbar I/O Test Plan (NM-1604/1625/1446, Wave-1.5-B FCC)
+# Corporate Pricing — Search Toolbar I/O Test Plan — baseline (NM-1604 / NM-1625 / NM-1446)
 
-**Module**: corporate-pricing
-**Test Cases**: specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_toolbar_io_test_cases.md
-**Field Inventory**: specs_planning/_internal/field-inventories/corporate-pricing-toolbar-io-2026-06-08.md
-**Divergences**: specs_planning/_internal/encore-questions-drafts/corporate-pricing-wave15-divergences-2026-06-08.md
-**Spec**: clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts
-**Updated**: 2026-06-09 (toolbar I/O trigger-level FCC — Export/Import variants + Loc Pricing + Grid Options)
+**Module**: corporate-pricing | **Submodule**: toolbar_io | **Total**: 17 | **Updated**: 2026-07-08
 
-## Scope boundary
+> Baseline toolbar surface plan (Export ▾ / Import ▾ triggers, Loc Pricing Export / Import triggers, Grid Options) + the shared surface reference (live model, selector mapping, page-object contract). The real round-trip plans split to sibling submodule plans: `corporate_pricing_loc_export_test_plan.md` (NM-2262), `corporate_pricing_export_all_test_plan.md` (NM-2264), `corporate_pricing_loc_import_test_plan.md` (NM-2305).
 
-This plan owns the **Corporate Pricing Search action-bar I/O affordances** at **trigger + variant level only**: Export ▾ (4 variants → endpoint), Import ▾ (4 variants → upload dialog), Loc Pricing Export (→ endpoint), Loc Pricing Import (→ upload dialog), and Grid Options (column show/hide + persist-on-reload). **baseline-absent + DOCX-absent** → live DOM is the intent oracle (Q-WV15-2).
-
-**Explicitly OUT of scope (DEFERRED to `SUBPLAN_CORP_PRICING_EDGE_P3.md`, LR-040(b))**: the real download/upload round-trip — asserting downloaded CSV file content/format per variant (`waitForEvent('download')` + parse), real import upload of fixture files, and import validation/error/success. No download-dir or fixture-file infra is built here. Payload-level Jira leads (NM-2164 decimal rounding, NM-1986 row cap, NM-1997/1998/2005 export dataset) are file-content defects → EDGE_P3.
-
-**NOT re-covered**: the `+New ▾` split-button (already FULL P1 — TC-CPR-SRC-016/017; create-flow owned by `SUBPLAN_CORP_PRICING_1440_NEW_PRICEBOOK`).
-
-**Read-only / mutation safety**: Export tests trigger real CSV downloads (Playwright auto-discards them; `.playwright-cli/*.csv` is gitignored). Import tests open the upload dialog and Cancel without uploading. Grid Options column-visibility is a **server-persisted per-user preference** → the `@mutation` describe restores all columns to visible via `ensureAllGridColumnsVisible()` in before/afterEach (LR-019 baseline + cleanup).
+---
 
 ## Live model (verified 2026-06-09, `playwright-cli -s=cpr-toolbar-fcc`, office 1604)
 
-- **Export ▾** (`button:text-is("Export")`) → Radix menu, 4 variants. Each fires `GET /navigator/api/location/pricing/pricing-export?isLabor={t/f}&isMaxDiscount={t/f}&locale=en-US` (+ CSV download). The `isLabor`/`isMaxDiscount` pair maps 1:1 to the variant. Dismisses on Escape + outside-click.
+- **Export ▾** (`button:text-is("Export")`) → Radix menu, 4 variants. Each variant now opens a shared **"Export" precondition dialog** (Year(s) multi-select 2021–2028 cap 3 + Currency USD/CAD/MXN; Continue disabled until both set; Cancel/Close dismiss). On Continue the export fires `GET /navigator/api/location/pricing/pricing-export?isLabor={t/f}&isMaxDiscount={t/f}&currencyId={1|2|3}&locale=en-US&years={y[,y,y]}` [200] (+ CSV download — a wide product-group × pricebook matrix). `isLabor`/`isMaxDiscount` map 1:1 to the variant; currencyId USD=1/CAD=2/MXN=3 (live 2026-07-07). The menu itself still dismisses on Escape + outside-click.
 - **Import ▾** (`button:text-is("Import")`) → same 4 variants; each opens a **custom in-app dialog** "Import &lt;variant&gt;" (Browse/Cancel/Upload/Close + `input[type=file]`). NOT a native OS chooser; no network on trigger.
 - **Loc Pricing Export** → `GET .../pricing/location-export?locale=en-US` (+ CSV). **Loc Pricing Import** → "Import All Location Pricing" dialog.
 - **Grid Options** (`button[aria-label="Grid Options"]` — icon button, sr-only label, LR-029 correction) → Radix menu of 9 `menuitemcheckbox` (one per grid column, all checked). Toggle hides the `<th>`; persists across reload; toggle back restores.
@@ -45,10 +34,13 @@ This plan owns the **Corporate Pricing Search action-bar I/O affordances** at **
 
 - `openExportMenu()` / `openImportMenu()` — Radix-retry open (mirrors `openNewMenu`).
 - `getMenuVariants()` — variant labels in the open menu.
-- `clickExportVariantAndCaptureUrl(variant)` — arms `waitForRequest(pricing-export)` before the variant click; returns the export URL (params asserted by the spec).
+- `openExportVariantDialog(variant)` / `getExportDialogInfo()` / `isExportContinueEnabled()` / `setExportYears([years])` / `attemptExtraExportYear(y)` / `getExportSelectedYears()` / `getExportCurrencyOptions()` / `setExportCurrency(code)` / `cancelExportDialog()` / `closeExportDialog()` / `cancelExportAndCheckNoRequest(...)` — NM-2264 Export dialog gate helpers.
+- `continueExportAndCaptureRequest()` — clicks Continue on the configured dialog and returns `{ url, status }` for the param-only tests (currencyId / years / variant flags) without reading the file.
+- `downloadExportVariant(variant, years, currency)` — NM-2264 real round-trip: opens Export ▾ → variant → sets Year(s)+Currency in the gate → passes the **post-gate Continue button** as the trigger to the reused `captureCsvDownload`; returns `CsvDownloadResult & { status: number }` (status captured via the backing response; throws if uncaptured — no null escape). Helpers `exportPricebookColumns(headers)` + `exportProductGroupIds(result)` slice the matrix for the pricebook/duplicate cross-checks. (The pre-gate direct-fire helper was removed — that contract no longer exists in the app.)
 - `dismissToolbarMenuWithOutsideClick()` — coordinate mouse-click on the heading (locator clicks are obscured by the Radix overlay); returns whether the menu closed.
 - `openImportVariantDialog(variant)` / `getImportDialogInfo()` / `closeImportDialog()` — open the upload dialog, read title/buttons/file-input, cancel (no upload).
-- `clickLocPricingExportAndCaptureUrl()` — arms `waitForRequest(location-export)`; returns the URL.
+- `clickLocPricingExportAndCaptureUrl()` — arms `waitForRequest(location-export)`; returns the URL (endpoint-only, TC-CPR-TIO-012).
+- `downloadLocPricingExport()` — NM-2262 real round-trip: arms `waitForEvent('download')` + `waitForRequest(location-export)` on the SAME click; reads the file from the browser temp path; returns `{ filename, content, headers, rows, rowCount, requestUrl }` (quote-aware CSV parse). Reusable by the grid-scoped Export variants (NM-2264).
 - `openLocPricingImportDialog()` — opens the "Import All Location Pricing" dialog.
 - `openGridOptions()` / `getGridOptionColumns()` / `toggleGridColumn(label)` / `closeGridOptions()` / `isGridColumnVisible(label)` / `ensureAllGridColumnsVisible()` — Grid Options menu + grid-header reads + restore.
 
@@ -58,18 +50,18 @@ This plan owns the **Corporate Pricing Search action-bar I/O affordances** at **
 1. Step: Open Export ▾, expected: dropdown opens
 2. Step: Read variants, expected: All Equipment Pricing / All Labor Pricing / All Equipment Max Discount / All Labor Max Discount present
 
-## Scenario: TC-CPR-TIO-002 - Export "All Equipment Pricing" endpoint
-1. Step: Open Export ▾, click the variant (arms waitForRequest), expected: download begins
-2. Step: Inspect the export URL, expected: `pricing-export?isLabor=false&isMaxDiscount=false&locale=en-US`
+## Scenario: TC-CPR-TIO-002 - Export "All Equipment Pricing" dialog + gated endpoint
+1. Step: Open Export ▾, click the variant, expected: the "Export" Year(s)+Currency dialog opens (Continue disabled)
+2. Step: Set Year(s)=2026 + Currency=USD, Continue, expected: `pricing-export?isLabor=false&isMaxDiscount=false...locale=en-US` [200]
 
-## Scenario: TC-CPR-TIO-003 - Export "All Labor Pricing" endpoint
-1. Step: Click the variant, expected: URL `isLabor=true&isMaxDiscount=false&locale=en-US`
+## Scenario: TC-CPR-TIO-003 - Export "All Labor Pricing" dialog + gated endpoint
+1. Step: Open the variant dialog, set Year(s)=2026 + Currency=USD, Continue, expected: URL `isLabor=true&isMaxDiscount=false...locale=en-US` [200]
 
-## Scenario: TC-CPR-TIO-004 - Export "All Equipment Max Discount" endpoint
-1. Step: Click the variant, expected: URL `isLabor=false&isMaxDiscount=true&locale=en-US`
+## Scenario: TC-CPR-TIO-004 - Export "All Equipment Max Discount" dialog + gated endpoint
+1. Step: Open the variant dialog, set Year(s)=2026 + Currency=USD, Continue, expected: URL `isLabor=false&isMaxDiscount=true...locale=en-US` [200]
 
-## Scenario: TC-CPR-TIO-005 - Export "All Labor Max Discount" endpoint
-1. Step: Click the variant, expected: URL `isLabor=true&isMaxDiscount=true&locale=en-US`
+## Scenario: TC-CPR-TIO-005 - Export "All Labor Max Discount" dialog + gated endpoint
+1. Step: Open the variant dialog, set Year(s)=2026 + Currency=USD, Continue, expected: URL `isLabor=true&isMaxDiscount=true...locale=en-US` [200]
 
 ## Scenario: TC-CPR-TIO-006 - Export ▾ dismisses on outside-click
 1. Step: Open Export ▾ (confirm open), expected: variants visible
@@ -116,15 +108,14 @@ This plan owns the **Corporate Pricing Search action-bar I/O affordances** at **
 1. Step: Uncheck "Price Year", expected: header gone
 2. Step: Re-check "Price Year", expected: header restored
 
-## Coverage Index (regenerated 2026-06-11 from the test-cases file)
 
-Authoritative current case list (17 cases). Scenario prose above may lag; this index is mechanically regenerated.
+## Coverage Index
 
 - TC-CPR-TIO-001 — Export ▾ opens and lists all 4 export variants
-- TC-CPR-TIO-002 — Export "All Equipment Pricing" fires the equipment-pricing export endpoint
-- TC-CPR-TIO-003 — Export "All Labor Pricing" fires the labor-pricing export endpoint
-- TC-CPR-TIO-004 — Export "All Equipment Max Discount" fires the equipment-max-discount export endpoint
-- TC-CPR-TIO-005 — Export "All Labor Max Discount" fires the labor-max-discount export endpoint
+- TC-CPR-TIO-002 — Export "All Equipment Pricing" — dialog + gated equipment-pricing export
+- TC-CPR-TIO-003 — Export "All Labor Pricing" — dialog + gated labor-pricing export
+- TC-CPR-TIO-004 — Export "All Equipment Max Discount" — dialog + gated equipment max-discount export
+- TC-CPR-TIO-005 — Export "All Labor Max Discount" — dialog + gated labor max-discount export
 - TC-CPR-TIO-006 — Export ▾ menu dismisses on outside-click
 - TC-CPR-TIO-007 — Import ▾ opens and lists all 4 import variants
 - TC-CPR-TIO-008 — Import "All Equipment Pricing" opens its titled upload dialog (no native file chooser)

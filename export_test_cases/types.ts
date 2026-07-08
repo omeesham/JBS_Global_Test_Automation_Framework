@@ -182,6 +182,9 @@ export const KNOWN_SUB_CODES = [
   'NPB',  // new_pricebook
   'OVR',  // override
   'TIO',  // toolbar_io
+  'LEX',  // loc_pricing_export (NM-2262 — split from toolbar_io)
+  'EXA',  // export_all (NM-2264 — split from toolbar_io)
+  'LIM',  // loc_pricing_import (NM-2305 — split from toolbar_io)
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];

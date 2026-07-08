@@ -434,6 +434,9 @@ export class CsvConverter {
     'NPB': { tab: 'New Pricebook page is active' },
     'OVR': { tab: 'Product Group Override page is active' },
     'TIO': { tab: 'Corporate Pricing search page is active' },
+    'LEX': { tab: 'Corporate Pricing search page is active' },
+    'EXA': { tab: 'Corporate Pricing search page is active' },
+    'LIM': { tab: 'Corporate Pricing search page is active' },
   };
 
   /**

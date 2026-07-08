@@ -11,7 +11,7 @@
  *       locations_left_panel_basic_info, locations_legal, locations_local_information,
  *       locations_management_history, locations_notes, locations_pricing,
  *       locations_shared_setup_location  ← truncated from "..._locations" (32→31 chars; Excel limit)
- *       + corporate_pricing_* sheets (search, strategy, detail, new_pricebook, override, toolbar_io)
+ *       + corporate_pricing_* sheets (search, strategy, detail, new_pricebook, override, toolbar_io, loc_export, export_all, loc_import)
  *
  * Sources (post-Phase-D + 2026-05-27 post-audit cleanup):
  *   PRIMARY (sole) — `clients/encore/specs_planning/test-cases/setup/<module>/*.md`
@@ -143,6 +143,9 @@ const SHEET_NAMES: Record<string, string> = {
   corporate_pricing_new_pricebook: 'corporate_pricing_new_pricebook',
   corporate_pricing_override: 'corporate_pricing_override',
   corporate_pricing_toolbar_io: 'corporate_pricing_toolbar_io',
+  corporate_pricing_loc_export: 'corporate_pricing_loc_export',
+  corporate_pricing_export_all: 'corporate_pricing_export_all',
+  corporate_pricing_loc_import: 'corporate_pricing_loc_import',
 };
 
 const SHEET_DISPLAY_NAMES: Record<string, string> = {
@@ -165,6 +168,9 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   corporate_pricing_new_pricebook: 'Corporate Pricing — New Pricebook',
   corporate_pricing_override: 'Corporate Pricing — Product Group Override',
   corporate_pricing_toolbar_io: 'Corporate Pricing — Toolbar Import/Export',
+  corporate_pricing_loc_export: 'Corporate Pricing — Loc Pricing Export',
+  corporate_pricing_export_all: 'Corporate Pricing — Export All',
+  corporate_pricing_loc_import: 'Corporate Pricing — Loc Pricing Import',
 };
 
 const EXCEL_SHEET_NAME_LIMIT = 31;

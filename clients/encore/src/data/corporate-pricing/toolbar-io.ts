@@ -1,6 +1,6 @@
 /**
  * Corporate Pricing — Search toolbar I/O test data (NM-1604/1625/1446).
- * Consumed by `corporate-pricing-search.page.ts` + `corporate-pricing-toolbar-io.spec.ts`.
+ * Consumed by `corporate-pricing-search.page.ts` + the `corporate-pricing-toolbar-io`, `-loc-export`, `-export-all`, and `-loc-import` specs.
  *
  * Live-verified on the e2e app (office 1604 for the toolbar variants; office 5897 for the real Loc
  * Pricing Import round-trip). Variant enumeration + the correct endpoint/dialog per affordance, PLUS the

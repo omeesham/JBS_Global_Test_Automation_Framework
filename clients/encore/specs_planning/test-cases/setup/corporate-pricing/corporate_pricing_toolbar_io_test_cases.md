@@ -1,6 +1,8 @@
-# Corporate Pricing — Search Toolbar I/O Test Cases (NM-1604/1625/1446, Wave-1.5-B FCC)
+# Corporate Pricing — Search Toolbar I/O Test Cases — baseline (NM-1604 / NM-1625 / NM-1446)
 
-**Module**: corporate-pricing | **Total**: 17 | **Status**: Automated | **Updated**: 2026-06-09
+**Module**: corporate-pricing | **Submodule**: toolbar_io | **Total**: 17 | **Updated**: 2026-07-08
+
+> Baseline toolbar surface: the Export ▾ / Import ▾ menus, the Loc Pricing Export / Loc Pricing Import triggers, and Grid Options. The real file round-trips split into their own submodule docs — Loc Pricing Export download → `corporate_pricing_loc_export_test_cases.md` (NM-2262); Export ▾ dialog + real download → `corporate_pricing_export_all_test_cases.md` (NM-2264); Loc Pricing Import upload → `corporate_pricing_loc_import_test_cases.md` (NM-2305). This doc holds the shared surface reference (MCP verification log, field inventory, validation rules, selector-mapping) for all four.
 
 ---
 
@@ -15,9 +17,10 @@
 | Tool | Playwright CLI v0.1.8+ (`playwright-cli -s=cpr-toolbar-fcc`, storageState `clients/encore/.auth/encore-state.json`) — read-only trigger enumeration + network capture |
 | Scope | **TRIGGER + VARIANT level ONLY.** Real download/upload round-trip (file content, import validation/error/success) is DEFERRED to `SUBPLAN_CORP_PRICING_EDGE_P3.md` (LR-040(b) grep-verifiable). No fixture files / download-dir infra built here. |
 | Stack | React/Next.js (App Router, RSC); `waitForAngularStable` is a no-op (wait for `tbody tr`/`th`). Action bar overflows at narrow viewports — config runs at 1920×1080 so all 7 buttons are clickable. |
-| **Export** | `button:text-is("Export")` → Radix menu, **4 variants** (All Equipment Pricing / All Labor Pricing / All Equipment Max Discount / All Labor Max Discount). Each variant fires **`GET /navigator/api/location/pricing/pricing-export?isLabor={t/f}&isMaxDiscount={t/f}&locale=en-US`** + a direct CSV download (EquipmentPricings.csv / LaborPricings.csv / EquipmentMaxDiscounts.csv / LaborMaxDiscounts.csv). `isLabor`+`isMaxDiscount` map 1:1 to the variant. Menu dismisses on Escape AND outside-click. |
+| **Export** (drift-corrected 2026-07-07, NM-2264) | `button:text-is("Export")` → Radix menu, **4 variants** (All Equipment Pricing / All Labor Pricing / All Equipment Max Discount / All Labor Max Discount). Clicking a variant now opens a shared **"Export" precondition dialog** ("Select between 1 and 3 years and choose a currency to continue.") with a **Year(s)** multi-select combobox (options 2021–2028, cap 3) + a **Currency** combobox (USD/CAD/MXN) + Cancel / Continue / Close. **Continue is disabled until BOTH Year(s) and Currency are set.** On Continue the export fires **`GET /navigator/api/location/pricing/pricing-export?isLabor={t/f}&isMaxDiscount={t/f}&currencyId={n}&locale=en-US&years=<y>`** [200] + a direct CSV download. Each chosen year is a SEPARATE repeated `years=` param (e.g. `&years=2026&years=2027&years=2028` for a 3-year selection — NOT a comma-joined value), so a reader must use `getAll('years')`, not `get('years')`. `isLabor`+`isMaxDiscount` map 1:1 to the variant; `currencyId` = **USD=1 / CAD=2 / MXN=3** (live-captured 2026-07-07); `years` carries the 1–3 gate-chosen years. Downloaded filenames (no timestamp): EquipmentPricings.csv / LaborPricings.csv / EquipmentMaxDiscounts.csv / LaborMaxDiscounts.csv. Menu dismisses on Escape AND outside-click. |
+| **Export file shape** (NM-2264, live 2026-07-07) | The `pricing-export` CSV is a **wide matrix**: header row 1 = `Product Group Id, Product Group Name, <one column per pricebook>`; row 2 = the chosen currency repeated per pricebook column; data rows = a product group's price (or max-discount %) per pricebook column. **Equipment vs Labor variants carry different product-group populations AND different pricebook columns** (Equipment ≈3256 product groups; Labor ≈422). **Pricing vs Max Discount** share the same matrix shape and differ only in cell values (Max Discount cells are mostly blank — populated only where a discount % is set), so the variant is proven by the network `isMaxDiscount` param, not by column structure. **Currency scopes the pricebook-column volume**: for office 1604 Equipment, USD ≈79 pricebook columns, MXN ≈13, **CAD = 0** (only the two base columns) — CAD is the live empty/minimal-scope oracle. |
 | **Import** | `button:text-is("Import")` → Radix menu, **same 4 variants**. Each variant click opens a **custom in-app dialog** titled "Import &lt;variant&gt;" (e.g. "Import All Equipment Pricing") with prompt "Choose a file to import data.", buttons Browse/Cancel/Upload/Close, and an `input[type=file]`. **NOT a native OS file chooser; NO network fires on trigger** (the upload POST fires only after a file is chosen + Upload — EDGE_P3). |
-| **Loc Pricing Export** | `button:text-is("Loc Pricing Export")` → **`GET /navigator/api/location/pricing/location-export?locale=en-US`** + CSV download (`LocationPricebooks-*.csv`). A location-scoped export distinct from the grid-scoped Export. |
+| **Loc Pricing Export** | `button:text-is("Loc Pricing Export")` → **`GET /navigator/api/location/pricing/location-export?locale=en-US`** + CSV download. Filename confirmed 2026-07-06: `LocationPricebooks_<YYYYMMDD>_<HHMMSS>UTC.csv` (underscore+UTC; the older `LocationPricebooks-*.csv` note pre-dated the NM-2262 live download). A location-scoped export distinct from the grid-scoped Export. |
 | **Loc Pricing Import** | `button:text-is("Loc Pricing Import")` → opens the dialog titled **"Import All Location Pricing"** (same Browse/Upload/Cancel/Close + file-input shape). No network on trigger. |
 | **Grid Options** | **`button[aria-label="Grid Options"]`** — a 32×32 ICON button (its "Grid Options" label is sr-only, so `:text-is` cannot match it; LR-029 live correction). `aria-haspopup="menu"` → Radix menu with **9 `menuitemcheckbox`** (one per grid column: Price Book, Price Book Strategy, Price Year, Is GSO, Is Internal, Is Labor, Is Active, Is Productions, Currency), **all checked by default**. Toggling a column OFF removes its `<th>` from the grid; the hidden state **persists across reload** (server-persisted per-user preference); toggling back ON restores it. |
 | data-testid coverage | **ZERO** on the toolbar (text/role/aria-label-anchored — Doctrine 4). |
@@ -33,9 +36,11 @@
 | NM-2126 | non-Revenue-Management users can still export/import (RBAC gap) | The automation user CAN open Export/Import + fire the export endpoints | **not-reproducible-single-account** — the role gate cannot be proven/disproven with one account (no RM vs non-RM comparison). Trigger verdict: export/import available to this user; RBAC negative is NOT-AUTOMATABLE. |
 | NM-2164 | Max Discount import rounds decimals to whole numbers | requires inspecting an imported payload | **deferred-to-EDGE_P3** (payload-level, real upload). |
 | NM-1986 | import caps ~50 rows / single pricebook | requires a real multi-row upload | **deferred-to-EDGE_P3**. |
-| NM-1997 / NM-1998 / NM-2005 | export includes duplicate product groups / wrong/missing dataset | requires inspecting downloaded CSV content | **deferred-to-EDGE_P3** (file-content assertions). |
+| NM-1997 / NM-1998 | export includes duplicate product groups | downloaded CSV content, per variant | **COVERED 2026-07-07 (NM-2264)** — TC-CPR-EXA-010..013 assert the Product Group Id column has no duplicate rows in each variant's real download. |
+| NM-2005 | max-discount export missing pricebooks / stray labor product groups | downloaded CSV content, cross-variant | **COVERED 2026-07-07 (NM-2264)** — TC-CPR-EXA-012/013 assert, against the max-discount CSV, that every pricebook column present in the sibling Pricing export (same currency) is present, and that ZERO rows carry a labor product group (labor-PG set derived live from the Labor variant download). |
+| NM-2164 (max-discount import decimal rounding) / NM-1986 (import row cap) | IMPORT payload defects | require a real upload | **still deferred** — Import ▾ round-trip is owned by the Import-All effort, not NM-2264 (export only). |
 
-> Trigger-level scope cannot confirm/deny the payload-level defects (NM-2164/1986/1997/1998/2005) — they manifest only in the downloaded/uploaded FILE content, which EDGE_P3 owns. They are recorded here as live-proof-gated leads, not encoded as expectations (LR-044).
+> The EXPORT-side file-content defects (NM-1997/1998/2005) are now covered by the real per-variant download round-trip added under NM-2264 (TC-CPR-EXA-010..013). The remaining IMPORT-side payload defects (NM-2164/1986) still require a real upload and are out of NM-2264's export-only scope.
 
 ---
 
@@ -46,7 +51,11 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 | Affordance | Trigger selector | Control type | Trigger behavior | Notes |
 |---|---|---|---|---|
 | Export | `button:text-is("Export")` | dropdown → 4 menuitems | opens variant menu | dismisses on Escape + outside-click |
-| Export variant | `[role="menuitem"]` (menu open) | menuitem ×4 | `GET pricing-export?isLabor&isMaxDiscount&locale` + CSV | params map 1:1 to variant |
+| Export variant | `[role="menuitem"]` (menu open) | menuitem ×4 | opens the "Export" Year(s)+Currency precondition dialog | affordance: launcher → "Export" dialog (drift 2026-07-07) |
+| Export dialog | `[role="dialog"]` (prompt "Select between 1 and 3 years") | dialog | Year(s) + Currency comboboxes + Cancel/Continue/Close | Continue disabled until BOTH set; Cancel & Close dismiss |
+| Export dialog → Year(s) | `button[role="combobox"]` (dialog, first) → `[role="option"]` | multi-select ×8 (2021–2028) | pick 1–3 years; a 4th is silently refused (cap 3) | options portalled; combobox shows comma-separated chips |
+| Export dialog → Currency | `button[role="combobox"]` (dialog, "Select currency") → `[role="option"]` | single-select ×3 (USD/CAD/MXN) | picks currency; currencyId USD=1/CAD=2/MXN=3 on Continue | single-select closes on pick |
+| Export dialog → Continue | `[role="dialog"] button:text-is("Continue")` | button | fires `GET pricing-export?isLabor&isMaxDiscount&currencyId&locale&years` + CSV | enabled only when Year(s)+Currency both set |
 | Import | `button:text-is("Import")` | dropdown → 4 menuitems | opens variant menu | same 4 labels as Export |
 | Import variant | `[role="menuitem"]` (menu open) | menuitem ×4 | opens "Import &lt;variant&gt;" dialog | no network on trigger |
 | Import dialog | `[role="dialog"], [role="alertdialog"]` (prompt "Choose a file to import data") | dialog | Browse/Cancel/Upload/Close + `input[type=file]` | upload = EDGE_P3 |
@@ -57,7 +66,9 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 
 ## Validation Rules
 
-- **Export variant → endpoint**: each of the 4 variants fires `pricing-export` with the matching `isLabor`/`isMaxDiscount` pair + `locale=en-US`. Assert on the backend API path, never the page URL (LR-056).
+- **Export variant → dialog (drift 2026-07-07, NM-2264)**: each variant opens the shared "Export" precondition dialog. Continue is disabled until BOTH a Year(s) selection (1–3) and a Currency are set; Cancel and Close both dismiss the dialog with no request. The Year(s) combobox caps at 3 — a 4th year cannot be added.
+- **Export Continue → endpoint**: on Continue the variant fires `pricing-export` with the matching `isLabor`/`isMaxDiscount` pair + `currencyId` (USD=1/CAD=2/MXN=3) + `years` (the 1–3 chosen) + `locale=en-US`, returning 200. Assert on the backend API path, never the page URL (LR-056).
+- **Export file (real download)**: the `pricing-export` CSV is a wide matrix (Product Group Id, Product Group Name, then one column per pricebook; row 2 = currency-per-column). Every product-group row's Product Group Id is unique (no duplicate rows — NM-1997/1998). On the max-discount variant, every pricebook column present in the sibling Pricing export (same currency) is present, and zero rows carry a labor product group (NM-2005; oracles derived live from the companion Pricing + Labor exports).
 - **Import variant → dialog**: opens a custom upload dialog (NOT a native chooser); the dialog title is variant-specific. No upload performed (EDGE_P3).
 - **Loc Pricing Export → endpoint**: `location-export?locale=en-US` (distinct from the grid Export `pricing-export`).
 - **Grid Options**: every grid column is a toggle, all on by default; toggling off hides the `<th>` and persists across reload; restore by toggling back on (mutation safety).
@@ -68,6 +79,11 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 | Spec helper | Selector key (`CorporatePricingSearchSelectors`) | Value |
 |---|---|---|
 | `openExportMenu()` | `btnExport` | `button:text-is("Export")` |
+| `openExportVariantDialog(variant)` | `btnExport` + `mnuToolbarVariant` + `dlgExport` | opens Export ▾ → variant → "Export" dialog |
+| `setExportYears([years])` / `attemptSelectExportYear(y)` | `dlgExport` + `optExportListItem` | Year(s) multi-select (cap 3) |
+| `setExportCurrency('USD'\|'CAD'\|'MXN')` | `dlgExport` + `optExportListItem` | Currency single-select |
+| `isExportContinueEnabled()` / `cancelExportDialog()` / `closeExportDialog()` | `dlgExport` (`Continue`/`Cancel`/`Close`) | gate state + dismiss |
+| `downloadExportVariant(variant, years, currency)` | `dlgExport` Continue → `CORP_PRICING_EXPORT_API` | full round-trip → `CsvDownloadResult & { status }` |
 | `openImportMenu()` | `btnImport` | `button:text-is("Import")` |
 | `getMenuVariants()` / variant click | `mnuToolbarVariant` | `[role="menuitem"]` |
 | `clickLocPricingExportAndCaptureUrl()` | `btnLocPricingExport` | `button:text-is("Loc Pricing Export")` |
@@ -76,7 +92,6 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 | `openGridOptions()` | `btnGridOptions` | `button[aria-label="Grid Options"]` (LR-029 corrected) |
 | `getGridOptionColumns()` / `toggleGridColumn()` | `mnuGridColumn` | `[role="menuitemcheckbox"]` |
 
----
 
 ## TC-CPR-TIO-001: Export opens and lists all 4 export variants
 | Priority | Status | Type |
@@ -97,7 +112,7 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 
 ---
 
-## TC-CPR-TIO-002: Export "All Equipment Pricing" starts an equipment-pricing export
+## TC-CPR-TIO-002: Export "All Equipment Pricing" — dialog + gated equipment-pricing export
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -108,15 +123,17 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 **Preconditions**: On the Search screen with the grid loaded.
 
 **Steps**:
-1. Open Export and click "All Equipment Pricing" -> a download begins
-2. Confirm a file download begins for the Equipment standard pricing
+1. Open Export and click "All Equipment Pricing" -> the "Export" precondition dialog opens (Continue disabled)
+2. Set Year(s) = 2026 and Currency = USD; the export fires on Continue
+3. Inspect the export request URL
 
-**Expected**: Choosing "All Equipment Pricing" starts an equipment standard-pricing export and a file download begins.
-**Data**: office=1604
+**Expected**: The variant opens the Year(s)+Currency dialog (Continue disabled until both fields are set); on Continue the equipment standard-pricing export runs and returns success (HTTP 200).
+**Data**: office=1604, years=2026, currency=USD
+**Notes**: Drift-corrected 2026-07-07 (NM-2264) — the variant now gates behind the Year(s)+Currency dialog before the export fires; the pre-2026-07-07 direct-click-to-download contract no longer exists. The spec asserts the exact request params (isLabor=false, isMaxDiscount=false, locale=en-US).
 
 ---
 
-## TC-CPR-TIO-003: Export "All Labor Pricing" starts a labor-pricing export
+## TC-CPR-TIO-003: Export "All Labor Pricing" — dialog + gated labor-pricing export
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -127,15 +144,17 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 **Preconditions**: On the Search screen with the grid loaded.
 
 **Steps**:
-1. Open Export and click "All Labor Pricing"
-2. Confirm a file download begins for the Labor standard pricing
+1. Open Export and click "All Labor Pricing" -> the "Export" dialog opens
+2. Set Year(s) = 2026 and Currency = USD, then Continue
+3. Inspect the export request URL
 
-**Expected**: Choosing "All Labor Pricing" starts a labor standard-pricing export and a file download begins.
-**Data**: office=1604
+**Expected**: On Continue the labor standard-pricing export runs and returns success (HTTP 200).
+**Data**: office=1604, years=2026, currency=USD
+**Notes**: Drift-corrected 2026-07-07 (NM-2264) — gated behind the Year(s)+Currency dialog. The spec asserts the exact request params (isLabor=true, isMaxDiscount=false, locale=en-US).
 
 ---
 
-## TC-CPR-TIO-004: Export "All Equipment Max Discount" starts an equipment max-discount export
+## TC-CPR-TIO-004: Export "All Equipment Max Discount" — dialog + gated equipment max-discount export
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -146,15 +165,17 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 **Preconditions**: On the Search screen with the grid loaded.
 
 **Steps**:
-1. Open Export and click "All Equipment Max Discount"
-2. Confirm a file download begins for the Equipment max-discount data
+1. Open Export and click "All Equipment Max Discount" -> the "Export" dialog opens
+2. Set Year(s) = 2026 and Currency = USD, then Continue
+3. Inspect the export request URL
 
-**Expected**: Choosing "All Equipment Max Discount" starts an equipment max-discount export and a file download begins.
-**Data**: office=1604
+**Expected**: On Continue the equipment max-discount export runs and returns success (HTTP 200).
+**Data**: office=1604, years=2026, currency=USD
+**Notes**: Drift-corrected 2026-07-07 (NM-2264) — gated behind the Year(s)+Currency dialog. The spec asserts the exact request params (isLabor=false, isMaxDiscount=true, locale=en-US).
 
 ---
 
-## TC-CPR-TIO-005: Export "All Labor Max Discount" starts a labor max-discount export
+## TC-CPR-TIO-005: Export "All Labor Max Discount" — dialog + gated labor max-discount export
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -165,11 +186,13 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 **Preconditions**: On the Search screen with the grid loaded.
 
 **Steps**:
-1. Open Export and click "All Labor Max Discount"
-2. Confirm a file download begins for the Labor max-discount data
+1. Open Export and click "All Labor Max Discount" -> the "Export" dialog opens
+2. Set Year(s) = 2026 and Currency = USD, then Continue
+3. Inspect the export request URL
 
-**Expected**: Choosing "All Labor Max Discount" starts a labor max-discount export and a file download begins.
-**Data**: office=1604
+**Expected**: On Continue the labor max-discount export runs and returns success (HTTP 200).
+**Data**: office=1604, years=2026, currency=USD
+**Notes**: Drift-corrected 2026-07-07 (NM-2264) — gated behind the Year(s)+Currency dialog. The spec asserts the exact request params (isLabor=true, isMaxDiscount=true, locale=en-US).
 
 ---
 
@@ -400,4 +423,6 @@ ZERO toolbar data-testids; text/role/aria-label-anchored. Consumes `field-invent
 2. Open Grid Options, re-check "Price Year", close -> the header reappears
 
 **Expected**: Toggling a hidden column back ON restores its header (the grid returns to its all-columns-visible state).
-**Data**: office=1604, column="Price Year"
+**Data**: office=1604
+
+---

@@ -109,7 +109,7 @@ This subplan modifies `.spec.ts` + data files (mechanical office-fixture + per-o
 |---|---|---|---|
 | HUNTER | old-site-baseline | (none) — corp-pricing entity existence confirmed in OPI_B; values live-read here at migration (LR-015) | (none) |
 | GIVER | test-cases / test-plans / XLSX | (skipped: data-sourcing refactor only, no TC semantics change; parity must still verify clean) | `npm run check:tc-parity` exit 0 |
-| BUILDER | `tests/corporate-pricing/{corporate-pricing-detail,-strategy,-override,-search,-toolbar-io,-new-pricebook}.spec.ts` + `src/data/corporate-pricing/{common,detail,strategy,override}.ts` | per-office maps + `office`-fixture specs; each first-run pass | `cd clients/encore && npx playwright test tests/corporate-pricing/ --list` |
+| BUILDER | `tests/corporate-pricing/{corporate-pricing-detail,-strategy,-override,-search,-toolbar-io,-new-pricebook}.spec.ts` + `src/data/corporate-pricing/{common,detail,strategy,override}.ts` | per-office maps + `office`-fixture specs; each first-run pass; also assess the 3 toolbar-split specs (`-loc-export` / `-export-all` / `-loc-import`, created 2026-07-08) for office-parameterization — `loc-import` uses throwaway office 5897 and is likely exempt | `cd clients/encore && npx playwright test tests/corporate-pricing/ --list` |
 | HEALER | per-fix MD | (none) — proactive isolation refactor, not RCA-driven (if a `--workers=2` run surfaces a real bug → file per LR-044) | (none) |
 | WATCHDOG | findings table | (none) — not audit-driven | (none) |
 | GARDENER | refactor citation | structural data-sourcing change only; no spec logic change | `cd clients/encore && npm run typecheck` clean |
