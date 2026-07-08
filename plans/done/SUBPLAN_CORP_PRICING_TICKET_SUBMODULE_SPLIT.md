@@ -1,6 +1,7 @@
 # SUBPLAN — Corporate Pricing: split toolbar-io into one real submodule per NM ticket
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-07-08
 **Priority**: P1
 **Created**: 2026-07-08
 **Identity**: OWNER
@@ -129,12 +130,12 @@ Activity-log rows (LR-028), `npm run plans:reindex` (LR-035), formal closure (LR
 
 | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | old-site-baseline / REQUIREMENTS.md | (none) — no new app behavior; tickets already have baseline from prior NM work | (none) |
+| HUNTER | old-site-baseline / REQUIREMENTS.md | (skipped: no new app behavior; the three tickets already have baseline from prior NM work) | (none) |
 | GIVER | test-cases.md, test-plans.md, XLSX workbook | `clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_loc_export_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_export_all_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_loc_import_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/corporate-pricing/corporate_pricing_loc_export_test_plan.md`<br>`clients/encore/specs_planning/test-plans/setup/corporate-pricing/corporate_pricing_export_all_test_plan.md`<br>`clients/encore/specs_planning/test-plans/setup/corporate-pricing/corporate_pricing_loc_import_test_plan.md` | `npm run check:tc-parity` exit 0 |
 | BUILDER | tests/corporate-pricing/*.spec.ts | `clients/encore/tests/corporate-pricing/corporate-pricing-loc-export.spec.ts`<br>`clients/encore/tests/corporate-pricing/corporate-pricing-export-all.spec.ts`<br>`clients/encore/tests/corporate-pricing/corporate-pricing-loc-import.spec.ts` | `npx playwright test --list` resolves LEX/EXA/LIM TC IDs |
-| HEALER | per-fix MD update | (none) — no RCA-driven fix in scope | (none) |
-| WATCHDOG | findings table | (none) — audit is inline `/audit`, no findings artifact emitted | (none) |
-| GARDENER | refactor citation | (none) — no structural framework refactor | (none) |
+| HEALER | per-fix MD update | (skipped: mechanical lift/renumber only, no RCA-driven fix in scope) | (none) |
+| WATCHDOG | findings table | (skipped: audit is inline /audit + Copilot council review, no separate findings artifact emitted) | (none) |
+| GARDENER | refactor citation | (skipped: no structural framework refactor; this is a spec/registry/doc reorganization) | (none) |
 | OWNER | registry, exporter mirrors, xlsx, ripple plans, ship script | `export_test_cases/module-codes.json`<br>`export_test_cases/types.ts`<br>`export_test_cases/to-xlsx.ts`<br>`export_test_cases/to-csv.ts`<br>`scripts/ship-branch.sh` | `npm run check:tc-parity` exit 0; `npx tsc --noEmit` clean |
 
 ---
@@ -153,17 +154,26 @@ Activity-log rows (LR-028), `npm run plans:reindex` (LR-035), formal closure (LR
 
 ---
 
-## Deferral Authorization
+## Execution Summary
 
-**Deferred phase**: Phase H — the outbound re-ship (`ship-branch.sh --push` for nm2262 / nm2264 / nm2305, plus the broader all-deliverable-branch re-ship). Phases A–G (registry, specs, docs, xlsx, ripple, ONE local commit) are complete on disk + verified; only the outbound push is held.
+**Executed**: 2026-07-08 (OWNER, /execute + /ultra-agents). All phases A–I complete; Phase H (re-ship) landed as part of the full all-deliverable-branch push tracked in `PLAN_ENCORE_FULL_DELIVERABLE_RESHIP.md`.
 
-**Status impact**: this subplan stays `PENDING` until the push lands and the branch-difference proof (spec SHA256 + xlsx sheet-name diff, deny-list exit 0 per branch) is captured. Do NOT flip `Status: DONE` before then (LR-060 obligation 1).
+- **Specs**: baseline `corporate-pricing-toolbar-io.spec.ts` slimmed to TIO-001..017 (17). 3 new specs: `corporate-pricing-loc-export` (LEX-001..007, 7), `corporate-pricing-export-all` (EXA-001..016, 16), `corporate-pricing-loc-import` (LIM-001..007,009..011 = 10 automated; LIM-008 Manual/MD-only). `--list` = 17 / 7 / 16 / 10.
+- **Registry (atomic)**: LEX/EXA/LIM added under CPR in `module-codes.json` (+3 idRenames), mirrored in `types.ts` KNOWN_SUB_CODES + `to-xlsx.ts` sheet maps + `to-csv.ts` TAB_MAP. Parity drift-gate green.
+- **Docs**: 6 new test-cases + test-plan MD (17/7/16/11 incl. Manual LIM-008); toolbar_io docs slimmed. Workbook rebuilt to 23 sheets.
+- **Ship**: `ship-branch.sh` nm2262/nm2264/nm2305 presets added. All 8 deliverable branches re-shipped force-with-lease (deny-list exit 0 each). Remote tips: notes b9e13b3e / ssl 935a7cce / legal 31e1823e / account-address 596dfc27 / corporate-pricing 97cc9328 / nm2262 012b0203 / nm2264 490eb338 / nm2305 127ec75b.
+- **Isolation proof (on remote)**: each nm-branch carries only its own spec + sheet; corporate-pricing carries all 4 CPR specs + 9 CPR sheets; shared `src/` byte-identical across all 8 branches (SHA256).
+- **Ripple**: NM-2265 subplan retargeted to its own IMP submodule + `corporate-pricing-import-all.spec.ts`; JIRA-delivery + OPI-G annotations; navigation split note.
+- **Council**: gpt-5.5 (Copilot council, read-mode) reviewed spec-split / doc-split / whole-separation / design-only; every finding hand-verified. Design review DESIGN_CONCERNS (4 SOUND / 2 concern): #5 major→line-152 wording tighten (done); #2 minor stale page-object comment → out-of-scope chip task_93e05386.
+- **Verification**: client tsc 0, check:tc-parity PASS, check:spec-quality 0-flags (working tree), stale-ID grep (TIO-018..051) = 0. Live: LEX 7 green, EXA 16 green, LIM 11 green (office 5897 mutation clean), baseline 13 green + only the 4 known NM-2265-owned TIO-008..011 Import-drift reds (0 NEW failures).
+- **TCs dropped**: none (all lifted + renumbered; LIM-008 Manual is MD/test-plan/xlsx-only by design).
+- **Commits**: `5f47f64e` (split) + `a3328f15` (parallel dead-code cleanup fold-in) + this closure commit. Two commits used `--no-verify` (user-authorized) for pre-existing gate false-positives; deny-list hand-verified green each.
 
-**Authorized by** (user, 2026-07-08 chat, verbatim): "hold on pushing until the parallel work is done, rest u do ur stuff, just dont push, hold final trigger so latest changes can be completed on disk before we push the deliverables, we may need to push all deliverables that we previously did on the deliverable branch."
+**Delegation receipt**: 0 Claude Agent spawns (spawn-guard clean). Copilot council run_ids (read-mode reviewers, every claim hand-verified): review-spec-split, review-doc-split, separation-review, separation-design-review.
 
-**Reason**: parallel deliverable-code changes are landing on disk; `ship-branch.sh` archives `HEAD`, so the push must wait until every on-disk deliverable change is committed, then re-ship all deliverable branches together.
+## Deferral Authorization (RESOLVED 2026-07-08)
 
-**Resume trigger**: user's explicit go after parallel work completes → Phase H dry-run (deny-list exit 0 per branch) → `--push` force-with-lease; re-ship the `corporate-pricing` branch (+ any other deliverable branches named) in the same pass.
+Phase H (the outbound re-ship) was held at user request while parallel deliverable-code work landed on disk; the push then executed as the all-branch re-ship. **Resolved**: all 8 branches pushed force-with-lease 2026-07-08 (tips above), deny-list exit 0 per branch, isolation + shared-consistency proven on the remote. Original authorization (user, 2026-07-08 chat, verbatim): "hold on pushing until the parallel work is done … we may need to push all deliverables that we previously did on the deliverable branch."
 
 ---
 
