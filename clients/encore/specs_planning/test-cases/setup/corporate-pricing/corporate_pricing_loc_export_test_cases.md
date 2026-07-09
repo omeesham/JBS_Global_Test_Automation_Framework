@@ -2,9 +2,9 @@
 
 **Module**: corporate-pricing | **Submodule**: loc_pricing_export | **Total**: 7 | **Updated**: 2026-07-08
 
-> The REAL Loc Pricing Export download round-trip + downloaded-file verification — the file itself, beyond the baseline endpoint check TC-CPR-TIO-012. LEX-007 is a data-blocked empty-dataset stub (Manual until an empty-location-pricebook office is confirmed).
+> The REAL Loc Pricing Export download round-trip + downloaded-file verification — the file itself, beyond the network-only endpoint check. LEX-007 is a data-blocked empty-dataset stub (Manual until an empty-location-pricebook office is confirmed).
 
-> Shared toolbar surface reference (MCP verification log, field inventory, validation rules, selector-mapping) lives in the baseline doc `corporate_pricing_toolbar_io_test_cases.md`.
+> Shared toolbar surface reference (MCP verification log, field inventory, validation rules, selector-mapping) is now consolidated per-ticket; the toolbar_io submodule was dissolved and its coverage folded into the delivered tickets.
 
 ---
 
@@ -83,7 +83,7 @@
 1. Trigger the Loc Pricing Export and capture the export request on the SAME click that produces the download
 2. Inspect the captured request URL
 
-**Expected**: The download's own request URL contains `location-export` and `locale=en-US` (distinct from TC-CPR-TIO-012, which captures the endpoint on a separate network-only click; this asserts the locale on the request tied to the actual downloaded file).
+**Expected**: The download's own request URL contains `location-export` and `locale=en-US` (distinct from the separate network-only endpoint check; this asserts the locale on the request tied to the actual downloaded file).
 **Data**: office=1604
 
 ---

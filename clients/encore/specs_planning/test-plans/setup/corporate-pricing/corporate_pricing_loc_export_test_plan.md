@@ -2,7 +2,7 @@
 
 **Module**: corporate-pricing | **Submodule**: loc_pricing_export | **Total**: 7 | **Updated**: 2026-07-08
 
-> Shared toolbar surface reference (live model, selector mapping, page-object contract) lives in the baseline plan `corporate_pricing_toolbar_io_test_plan.md`.
+> Shared toolbar surface reference (live model, selector mapping, page-object contract) is now consolidated per-ticket; the toolbar_io submodule was dissolved and its coverage folded into the delivered tickets.
 
 ---
 

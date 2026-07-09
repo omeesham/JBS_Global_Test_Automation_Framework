@@ -2,9 +2,9 @@
 
 **Module**: corporate-pricing | **Submodule**: export_all | **Total**: 17 | **Updated**: 2026-07-09
 
-> The four Export ▾ variants gate behind a shared Year(s)(1–3) + Currency dialog (Continue disabled until BOTH set); on Continue the export fires and downloads a wide product-group × pricebook matrix CSV. Covers the dialog behavior, boundary values, the live currencyId map (USD=1 / CAD=2 / MXN=3), the real per-variant download round-trip (with the NM-1997 / NM-1998 / NM-2005 file-content regressions folded in), and the Axis-2 surface-behavior DEEP band. The baseline Export ▾ trigger tests (TC-CPR-TIO-002..005, corrected to this dialog contract) stay in the baseline doc.
+> The four Export ▾ variants gate behind a shared Year(s)(1–3) + Currency dialog (Continue disabled until BOTH set); on Continue the export fires and downloads a wide product-group × pricebook matrix CSV. Covers the dialog behavior, boundary values, the live currencyId map (USD=1 / CAD=2 / MXN=3), the real per-variant download round-trip (with the NM-1997 / NM-1998 / NM-2005 file-content regressions folded in), and the Axis-2 surface-behavior DEEP band. The Export ▾ trigger behavior is folded into the dialog-contract cases below (TC-CPR-EXA-001 and 010-013).
 
-> Shared toolbar surface reference (MCP verification log, field inventory, validation rules, selector-mapping) lives in the baseline doc `corporate_pricing_toolbar_io_test_cases.md`.
+> Shared toolbar surface reference (MCP verification log, field inventory, validation rules, selector-mapping) is now consolidated per-ticket; the toolbar_io submodule was dissolved and its coverage folded into the delivered tickets.
 
 ---
 
@@ -13,7 +13,7 @@
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-TIO-001
+**Depends_On**: TC-CPR-EXA-001
 **Automatable**: Yes
 
 **Preconditions**: On the Search screen with the grid loaded (office 1604).

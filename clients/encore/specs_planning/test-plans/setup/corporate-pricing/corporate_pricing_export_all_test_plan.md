@@ -2,13 +2,13 @@
 
 **Module**: corporate-pricing | **Submodule**: export_all | **Total**: 16 | **Updated**: 2026-07-08
 
-> Shared toolbar surface reference (live model, selector mapping, page-object contract) lives in the baseline plan `corporate_pricing_toolbar_io_test_plan.md`.
+> Shared toolbar surface reference (live model, selector mapping, page-object contract) is now consolidated per-ticket; the toolbar_io submodule was dissolved and its coverage folded into the delivered tickets.
 
 ---
 
 ## Scope
 
-**Grid Export ▾ real round-trip — NOW IN SCOPE (NM-2264, added 2026-07-07)**: the four `Export ▾` variants now gate behind a shared **Year(s)(1–3) + Currency** dialog (Continue disabled until both set); on Continue the export fires `pricing-export?isLabor&isMaxDiscount&currencyId&locale&years`. TC-CPR-TIO-002..005 are corrected to that contract; TC-CPR-EXA-001..016 add the dialog behavior, boundary values, the live currencyId map (USD=1/CAD=2/MXN=3), the real per-variant download round-trip (reusing the NM-2262 helper), and the Axis-2 combination/result-fidelity/empty-vol DEEP band. The export file-content defects NM-1997/1998/2005 are now covered by the real downloads (TC-CPR-EXA-010..013).
+**Grid Export ▾ real round-trip — NOW IN SCOPE (NM-2264, added 2026-07-07)**: the four `Export ▾` variants now gate behind a shared **Year(s)(1–3) + Currency** dialog (Continue disabled until both set); on Continue the export fires `pricing-export?isLabor&isMaxDiscount&currencyId&locale&years`. The former trigger-only coverage is corrected to that dialog contract; TC-CPR-EXA-001..016 add the dialog behavior, boundary values, the live currencyId map (USD=1/CAD=2/MXN=3), the real per-variant download round-trip (reusing the NM-2262 helper), and the Axis-2 combination/result-fidelity/empty-vol DEEP band. The export file-content defects NM-1997/1998/2005 are now covered by the real downloads (TC-CPR-EXA-010..013).
 
 ## Export ▾ All — dialog contract, boundaries, currency mapping, and real round-trip (NM-2264)
 

@@ -4,7 +4,7 @@
 
 > The REAL Loc Pricing Import upload round-trip: the server applies the file as a per-(location, currency) replace, bounded to a throwaway office (5897). Covers success (flip Primary↔Alternate, verified in a fresh export), partial-update, the in-browser rejections (empty / non-CSV / malformed / header-only), cancel, persistence, import write-scope, and create semantics. LIM-008 is the full/large-file boundary — verified live once (HTTP 500 replace-failure, NM-2407) and documented, not automated.
 
-> Shared toolbar surface reference (MCP verification log, field inventory, validation rules, selector-mapping) lives in the baseline doc `corporate_pricing_toolbar_io_test_cases.md`.
+> Shared toolbar surface reference (MCP verification log, field inventory, validation rules, selector-mapping) is now consolidated per-ticket; the toolbar_io submodule was dissolved and its coverage folded into the delivered tickets.
 
 ---
 
@@ -14,7 +14,7 @@
 | High | Automated | Functional |
 **Surface_Family**: result-fidelity (QUICK)
 
-**Depends_On**: TC-CPR-TIO-013
+**Depends_On**: TC-CPR-LIM-012
 **Automatable**: Yes
 
 **Preconditions**: On the Search screen (office 1604). The throwaway location 5897's current pricebook rows are captured first so they can be restored afterward.
@@ -57,7 +57,7 @@
 | High | Automated | Negative |
 **Surface_Family**: empty-vol (QUICK)
 
-**Depends_On**: TC-CPR-TIO-013
+**Depends_On**: TC-CPR-LIM-012
 **Automatable**: Yes
 
 **Preconditions**: On the Search screen (office 1604).
@@ -78,7 +78,7 @@
 | Medium | Automated | Negative |
 **Surface_Family**: empty-vol (DEEP)
 
-**Depends_On**: TC-CPR-TIO-013
+**Depends_On**: TC-CPR-LIM-012
 **Automatable**: Yes
 
 **Preconditions**: On the Search screen (office 1604).
@@ -98,7 +98,7 @@
 | Medium | Automated | Negative |
 **Surface_Family**: empty-vol (DEEP)
 
-**Depends_On**: TC-CPR-TIO-013
+**Depends_On**: TC-CPR-LIM-012
 **Automatable**: Yes
 
 **Preconditions**: On the Search screen (office 1604).
@@ -117,7 +117,7 @@
 |----------|--------|------|
 | Medium | Automated | Negative |
 
-**Depends_On**: TC-CPR-TIO-013
+**Depends_On**: TC-CPR-LIM-012
 **Automatable**: Yes
 
 **Preconditions**: On the Search screen (office 1604).
@@ -180,7 +180,7 @@
 | Medium | Automated | Negative |
 **Surface_Family**: empty-vol (DEEP)
 
-**Depends_On**: TC-CPR-TIO-013
+**Depends_On**: TC-CPR-LIM-012
 **Automatable**: Yes
 
 **Preconditions**: On the Search screen (office 1604).
