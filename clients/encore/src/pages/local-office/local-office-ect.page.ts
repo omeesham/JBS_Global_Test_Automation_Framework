@@ -23,7 +23,7 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
 
  /**
  * Navigate to ECT Settings tab with robust retry for intermittent API failures.
- * RCA ECT-009/012: The ECT API intermittently returns "No currencies" or "No data available"
+ * The ECT API intermittently returns "No currencies" or "No data available"
  * under load. Original retry loop had a bug: after the 3rd retry it didn't re-check whether
  * data loaded before falling through to lblEctLocationName.waitFor → 30s timeout.
  * Fix: unified retry loop that always checks AFTER each reload, with delay between retries
@@ -88,7 +88,7 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
 
  /**
  * Click Fixed Costs Save and wait for save to complete.
- * RCA ECT-012: waitForAngularStable resolves before the save HTTP response arrives.
+ * waitForAngularStable resolves before the save HTTP response arrives.
  * Navigating immediately triggers "Unsaved changes" dialog (Angular dirty form).
  * Fix: poll until Save button disables — concrete signal that save completed and
  * form was marked pristine. Prevents race between save response and navigation.
@@ -101,7 +101,7 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
 
  /**
  * Click Labor Costs Save and wait for save to complete.
- * Same race condition fix as clickSaveFixedCosts — see RCA ECT-012.
+ * Same race condition fix as clickSaveFixedCosts.
  */
   async clickSaveLaborCosts(): Promise<void> {
     await this.getElement('btnSaveLaborCosts').click();
@@ -163,7 +163,7 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
   }
 
  /** Fill labor cost input by row index, press Tab ( + LRN-LOS-002).
- * RCA ECT-009: Angular can fire "Unsaved changes" alertdialog asynchronously after
+ * Angular can fire "Unsaved changes" alertdialog asynchronously after
  * tab load. If the click is intercepted, dismiss the dialog and retry. */
   async fillLaborCost(rowIndex: number, value: string): Promise<void> {
     const input = this.page.locator(`[data-testid="ect-settings-input-labor-cost-${rowIndex}"]`);

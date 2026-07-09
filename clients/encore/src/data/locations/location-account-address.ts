@@ -54,7 +54,7 @@ export const ACCOUNT_TEST_PHONE = '111-222-3333';
  */
 export const PHONE2_BASELINE = '760-000-0002';
 
-/** Account List filter terms for TC-025/026. MCP-verified : "Beverly" in Address returns 3 accounts. */
+/** Account List filter terms for TC-025/026. Live-verified: "Beverly" in Address returns 3 accounts. */
 export const ACCOUNT_LIST_FILTERS = {
   address: 'Beverly',
   addressExpected: 'Beverly',  // Results contain "Beverly" in address column

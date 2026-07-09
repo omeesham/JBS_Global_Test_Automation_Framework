@@ -8,7 +8,8 @@ import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 
 /**
  * Corporate Pricing — Product Group Override screen, full field-coverage (NM-1463).
- * TC-CPR-OVR-001..528. Live-grounded 2026-06-09.
+ * TC-CPR-OVR-001..037 (TC-023 is skipped pending an app fix — see its note below). Live-grounded 2026-06-09;
+ * net-new coverage (TC-029..037) added and re-verified live on office 1606 on 2026-07-09.
  *
  * Fixture anchored to office 1606 (2026-07-06) while an open Product Group Override data/import
  * problem on office 1604 awaits the Encore product team's answer (see `encore-qa-tracker.xlsx`);
@@ -45,7 +46,7 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
   });
 
   test('TC-CPR-OVR-001: Override screen loads with Equipment selected by default', async ({ corporatePricingOverridePage: p }) => {
-    expect(p.page.url()).toContain('/corporate-pricing/pg-override');
+    expect(p.page.url(), 'URL navigates to the Product Group Override screen').toContain('/corporate-pricing/pg-override');
     expect(await p.getActiveTab()).toBe('Equipment');
   });
 
@@ -60,11 +61,13 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     await p.open(); // fresh load, no location chosen
     expect(await p.isEmpty()).toBe(true); // "No results." visible
     expect(await p.getVisibleRowCount()).toBe(0); // no data rows until a location is picked
-    await expect(p.page.getByText('Select a location').first()).toBeVisible();
+    await test.step('Confirm the choose-a-location prompt appears', async () => {
+      await expect(p.page.getByText('Select a location').first()).toBeVisible();
+    });
   });
 
   test('TC-CPR-OVR-004: Selecting a location populates the grid with the anchor row', async ({ corporatePricingOverridePage: p }) => {
-    expect(await p.getVisibleRowCount()).toBeGreaterThan(0);
+    expect(await p.getVisibleRowCount(), 'Grid populates after selecting a location').toBeGreaterThan(0);
     expect(await p.findRowByProductGroup(ANCHOR)).not.toBeNull();
   });
 
@@ -142,7 +145,7 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     await p.filterProductGroups('zzz-no-such-group-zzz');
     expect(await p.getVisibleRowCount()).toBe(0);
     await p.clearFilter();
-    expect(await p.getVisibleRowCount()).toBeGreaterThan(0);
+    expect(await p.getVisibleRowCount(), 'Clearing the filter restores the grid rows').toBeGreaterThan(0);
   });
 
   test('TC-CPR-OVR-016: Filter tolerates whitespace and special characters without crashing', async ({ corporatePricingOverridePage: p }) => {
@@ -208,16 +211,15 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     expect(/[a-z]/i.test(retained)).toBe(false); // type=number coerces non-numeric to "" — no alpha retained
   });
 
-  // BUG-CPR-OVR-001 — Max Discount over 100 silently TRAPS focus (no error shown, no way to leave the field).
-  // Parked as fixme: the OLD assertion below (">100 rejected" === PASS) MASKED this defect — a binary
-  // "did it commit?" check cannot see a silent focus-trap (no error node, no state change). Reproduced
-  // live by hand on the Pricing Detail grid (2026-06-09, value 333 / pricebook 2022-PB10); the same >100
-  // reject mechanic appears here on Override (editor will not commit) so the trap likely repeats, but is
-  // NOT human-confirmed here. We do NOT know the correct behavior until Encore fixes the field and it is
-  // live — decide then whether >100 should (a) show an error + release focus, (b) clamp to 100, or
-  // (c) be allowed, then un-fixme and re-assert against the intended behavior (an out-of-range entry
-  // must surface a visible signal and must never trap focus). Do NOT re-green the old assertion: the
-  // current ">100 silently rejected" result is the defect under report, not a pass.
+  // BUG-CPR-OVR-001 — Max Discount % over 100 is rejected, but the field does not recover cleanly.
+  // Kept skipped. Re-verified live on office 1606 (2026-07-09): entering a value over 100 sets the input to
+  // an invalid state (aria-invalid="true") and shows a red border — a real indicator, NOT silent — and the
+  // editor refuses to commit the value. BUT the field still misbehaves on recovery: it will not dismiss when
+  // you click another cell, and it leaves the cell blank, so an out-of-range entry wedges the row (it even
+  // stalled an automated re-drive). Correct behavior remains undefined until the app is fixed (should an
+  // over-cap entry clamp to 100, or show an inline message and release the field?). Do NOT re-green the old
+  // "did it commit? === false" assertion — that binary cannot tell a clean reject from this stuck state.
+  // The valid boundary (values up to and including 100 commit) is covered separately by TC-CPR-OVR-037.
   test.fixme('TC-CPR-OVR-023: Max Discount % — out-of-range (>100) handling [blocked: BUG-CPR-OVR-001 silent focus-trap; intended behavior unknown until fixed & live]', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     // a normal percentage commits and dirties the form
@@ -235,6 +237,28 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     const before = await p.readActiveState(row!);
     await p.toggleActive(row!);
     expect(await p.readActiveState(row!)).toBe(!before);
+    expect(await p.isOverrideSaveEnabled()).toBe(true);
+  });
+
+  // NM-1463: editing the Override Price on an inactive row automatically re-activates it.
+  test('TC-CPR-OVR-034: Editing the Override Price on an inactive row auto-activates it (NM-1463)', async ({ corporatePricingOverridePage: p }) => {
+    const row = await p.findRowByProductGroup(ANCHOR);
+    expect(row).not.toBeNull();
+    await p.setActive(row!, false); // make the row inactive (staged only — never saved)
+    expect(await p.readActiveState(row!)).toBe(false);
+    await p.setOverridePrice(row!, OVERRIDE_NUMERIC_CASES.overridePrice.edited);
+    expect(await p.readActiveState(row!)).toBe(true); // editing the price re-activated the row
+    expect(await p.isOverrideSaveEnabled()).toBe(true);
+  });
+
+  // The Max Discount % cap is inclusive at 100 — a value up to and including 100 commits. (The over-100
+  // path is a known defect and is covered, kept skipped, by TC-CPR-OVR-023.)
+  test('TC-CPR-OVR-037: Max Discount % accepts values up to the 100 cap (inclusive)', async ({ corporatePricingOverridePage: p }) => {
+    const row = await p.findRowByProductGroup(ANCHOR);
+    expect(row).not.toBeNull();
+    expect(await p.tryMaxDiscount(row!, OVERRIDE_NUMERIC_CASES.maxDiscount.edited)).toBe(true); // 10 commits
+    expect(await p.tryMaxDiscount(row!, OVERRIDE_NUMERIC_CASES.maxDiscount.boundary)).toBe(true); // 100 commits (inclusive cap)
+    expect(parseFloat(await p.readMaxDiscount(row!))).toBe(100);
     expect(await p.isOverrideSaveEnabled()).toBe(true);
   });
 });
@@ -263,7 +287,7 @@ test.describe('Corporate Pricing — Product Group Override: save-cycle (mutatio
       expectAfterReload: async () => {
         const row = await p.findRowByProductGroup(ANCHOR);
         expect(row).not.toBeNull();
-        expect(parseFloat(await p.readOverridePrice(row!))).toBe(parseFloat(OVERRIDE_NUMERIC_CASES.overridePrice.edited));
+        expect(parseFloat(await p.readOverridePrice(row!)), 'Override Price value persists after reload').toBe(parseFloat(OVERRIDE_NUMERIC_CASES.overridePrice.edited));
       },
       cleanup: () => p.ensureDefaultState(ANCHOR, DEFAULTS, LOC),
     });
@@ -330,5 +354,156 @@ test.describe('Corporate Pricing — Product Group Override: save-cycle (mutatio
     expect(dialogText).toContain(CORP_PRICING_OVERRIDE.saveDialog.title);
     expect(dialogText).toContain(CORP_PRICING_OVERRIDE.saveDialog.body);
     // Cancel leaves the staged edit dirty but uncommitted; afterEach ensureDefaultState reloads + restores.
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+test.describe('Corporate Pricing — Product Group Override: navigation & location picker @corporate-pricing @override', () => {
+  test('TC-CPR-OVR-029: The Search action bar "Pricing Override" button navigates to the Override screen', async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(90_000);
+    await p.openViaSearchActionBar();
+    expect(p.page.url()).toContain('/pg-override');
+    await test.step('Confirm the Product Group Override heading is visible', async () => {
+      await expect(p.page.locator('h1:text-is("Product Group Override")')).toBeVisible();
+    });
+  });
+
+  test('TC-CPR-OVR-030: The "Change Local Office" picker gates Select until a row is checked; Cancel applies nothing', async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(90_000);
+    await p.open(); // fresh load, no location selected yet
+    const m = await p.inspectLocationModal(LOC);
+    expect(m.title).toContain(CORP_PRICING_OVERRIDE.locationModalTitle); // "Change Local Office"
+    expect(m.selectDisabledInitially).toBe(true); // Select is disabled before any row is checked
+    expect(m.rowsMatching).toBeGreaterThan(0); // searching the office finds its row
+    expect(m.selectEnabledAfterCheck).toBe(true); // checking the row enables Select
+    expect(m.gridEmptyAfterCancel).toBe(true); // Cancel closes the picker with no location applied
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+test.describe('Corporate Pricing — Product Group Override: Grid Options (column visibility) @corporate-pricing @override @mutation', () => {
+  const COL = CORP_PRICING_OVERRIDE.gridOptionsToggleColumn; // 'Updated By' — a trailing, reversible column
+
+  // Column visibility is a server-persisted preference — restore all columns before and after each test.
+  test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(120_000);
+    await p.ensureAllGridColumnsVisible(LOC);
+  });
+  test.afterEach(async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(120_000);
+    await p.ensureAllGridColumnsVisible(LOC);
+  });
+
+  test('TC-CPR-OVR-031: Grid Options lists every column; toggling one hides its header and it persists across reload', async ({ corporatePricingOverridePage: p }) => {
+    await p.openGridOptions();
+    const cols = await p.getGridOptionColumns();
+    const labels = cols.map((c) => c.label).join(' | ');
+    for (const expected of CORP_PRICING_OVERRIDE.gridColumns) expect(labels).toContain(expected);
+    expect(cols.filter((c) => !c.checked).map((c) => c.label)).toEqual([]); // all columns shown by default
+    await p.closeGridOptions();
+
+    expect(await p.isGridColumnVisible(COL)).toBe(true); // present at baseline
+    await p.openGridOptions();
+    await p.toggleGridColumn(COL);
+    await p.closeGridOptions();
+    expect(await p.isGridColumnVisible(COL)).toBe(false); // header removed
+
+    await p.reloadAndReselect(LOC);
+    expect(await p.isGridColumnVisible(COL)).toBe(false); // the hidden state persisted across the reload
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+test.describe('Corporate Pricing — Product Group Override: toolbar Export / Import @corporate-pricing @override', () => {
+  test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(90_000);
+    await p.reloadAndReselect(LOC);
+  });
+
+  test('TC-CPR-OVR-032: Export downloads a Product Group Overrides CSV directly (no dialog)', async ({ corporatePricingOverridePage: p }) => {
+    const r = await p.downloadOverrideExport();
+    expect(r.filename).toMatch(CORP_PRICING_OVERRIDE.export.filenamePattern); // ProductGroupOverrides_<timestamp>UTC.csv
+    expect(r.requestUrl).toContain(CORP_PRICING_OVERRIDE.export.apiPathFragment); // the override export endpoint, not a page URL
+    expect(r.requestUrl).toContain(CORP_PRICING_OVERRIDE.export.localeParam); // locale carried on the download's own request
+    expect(r.content.length).toBeGreaterThan(0); // a non-empty file
+    expect(r.headers).toEqual(CORP_PRICING_OVERRIDE.export.expectedHeaders); // exact column set + order (the file is the oracle)
+  });
+
+  // The exported file is tenant-wide (rows begin around office 1101, not scoped to the selected office),
+  // so its own structure/content is the oracle, not a grid row-for-row diff — see the `export` comment
+  // in override.ts. Validates EVERY row in plain JS (a per-row expect() over ~9k rows is too slow), then
+  // asserts the aggregate: a malformed row anywhere in the file collects here and fails with the first
+  // offenders shown. Product Group Name is free text (may itself carry a literal `"` — e.g. an inch-mark
+  // size like 50"-59" — RFC4180-quoted/escaped in the file) and is not asserted for content; the numeric
+  // ID / enum / flag / money columns around it are, per-column, below.
+  test('TC-CPR-OVR-038: Every downloaded CSV row is well-formed with valid IDs, currency, 0/1 flags, and money fields', async ({ corporatePricingOverridePage: p }) => {
+    const EXPORT = CORP_PRICING_OVERRIDE.export;
+    const r = await p.downloadOverrideExport();
+    const locIdx = r.headers.indexOf('Location Id');
+    const pgIdx = r.headers.indexOf('Product Group Id');
+    const currencyIdx = r.headers.indexOf('Currency');
+    const boolIdxs = EXPORT.booleanColumns.map((c) => r.headers.indexOf(c));
+    const moneyIdx = r.headers.indexOf(EXPORT.moneyColumn);
+    const overridePriceIdx = r.headers.indexOf(EXPORT.optionalMoneyColumn);
+    const discIdx = r.headers.indexOf(EXPORT.optionalPercentColumn);
+    const validCurrencies: readonly string[] = EXPORT.validCurrencies; // widen the const tuple so .includes accepts any string
+    expect(locIdx).toBeGreaterThanOrEqual(0);
+    expect(pgIdx).toBeGreaterThanOrEqual(0);
+    expect(currencyIdx).toBeGreaterThanOrEqual(0);
+    expect(boolIdxs).not.toContain(-1); // all format-checked columns present in the header row
+    expect(moneyIdx).toBeGreaterThanOrEqual(0);
+    expect(overridePriceIdx).toBeGreaterThanOrEqual(0);
+    expect(discIdx).toBeGreaterThanOrEqual(0);
+    const dataLines = r.content.split(/\r?\n/).slice(1).filter((l) => l.length > 0);
+    expect(dataLines.length).toBeGreaterThan(0);
+    // A naive comma split is safe here: the file never quotes a comma inside a field (only a literal `"`
+    // character), so every well-formed row splits into exactly headers.length fields — verified below.
+    const offenders: string[] = [];
+    for (const [i, line] of dataLines.entries()) {
+      if (offenders.length >= 10) break; // enough detail to diagnose; the assertion still fails on the first offender
+      const row = line.split(',');
+      if (row.length !== r.headers.length) { offenders.push(`row ${i}: ${row.length} cols (expected ${r.headers.length})`); continue; }
+      if (!/^\d+$/.test(row[locIdx] ?? '')) { offenders.push(`row ${i}: Location Id "${row[locIdx] ?? ''}"`); continue; }
+      if (!/^\d+$/.test(row[pgIdx] ?? '')) { offenders.push(`row ${i}: Product Group Id "${row[pgIdx] ?? ''}"`); continue; }
+      if (!validCurrencies.includes(row[currencyIdx] ?? '')) { offenders.push(`row ${i}: currency "${row[currencyIdx] ?? ''}"`); continue; }
+      const badFlag = boolIdxs.find((bi) => { const v = row[bi]; return v !== '0' && v !== '1'; });
+      if (badFlag !== undefined) { offenders.push(`row ${i}: flag col ${badFlag} = "${row[badFlag] ?? ''}"`); continue; }
+      if (!/^\d+\.\d{2}$/.test(row[moneyIdx] ?? '')) { offenders.push(`row ${i}: Current Price "${row[moneyIdx] ?? ''}"`); continue; }
+      const overridePrice = row[overridePriceIdx] ?? '';
+      if (overridePrice !== '' && !/^\d+\.\d{2}$/.test(overridePrice)) { offenders.push(`row ${i}: Override Price "${overridePrice}"`); continue; }
+      const discount = row[discIdx] ?? '';
+      if (discount !== '' && !/^\d+(\.\d+)?$/.test(discount)) { offenders.push(`row ${i}: Override Discount "${discount}"`); continue; }
+    }
+    expect(offenders).toEqual([]); // every row: full column set, numeric IDs, supported currency, 0/1 flags, well-formed money/percent fields
+  });
+
+  test('TC-CPR-OVR-033: Import opens the "Import All Pricing Overrides" dialog with a file input; Cancel closes it without uploading', async ({ corporatePricingOverridePage: p }) => {
+    await p.openImportDialog();
+    const d = await p.readImportDialog();
+    expect(d.text).toContain(CORP_PRICING_OVERRIDE.importDialog.title); // "Import All Pricing Overrides"
+    for (const b of CORP_PRICING_OVERRIDE.importDialog.buttons) expect(d.buttons).toContain(b); // Browse / Cancel / Upload / Close
+    expect(d.hasFileInput).toBe(true); // a file input exists (no real upload is performed)
+    await p.closeImportDialog();
+    expect(await p.isImportDialogVisible()).toBe(false); // Cancel dismissed the dialog
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+test.describe('Corporate Pricing — Product Group Override: surface behavior (sorting / render) @corporate-pricing @override', () => {
+  test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(90_000);
+    await p.reloadAndReselect(LOC);
+  });
+
+  test('TC-CPR-OVR-035: Clicking a column header does not sort (no active sort state, row order unchanged)', async ({ corporatePricingOverridePage: p }) => {
+    const s = await p.probeColumnSort('Product Group Name');
+    expect(s.orderChanged).toBe(false); // row order unchanged after the header click
+    expect(['ascending', 'descending']).not.toContain(String(s.ariaSortAfter)); // the header never enters an active sort state
+  });
+
+  test('TC-CPR-OVR-036: Every row shows a Current Price value on office 1606 (no blank cell) (NM-2206)', async ({ corporatePricingOverridePage: p }) => {
+    const prices = await p.getCurrentPriceCells();
+    expect(prices.length).toBeGreaterThan(0);
+    for (const price of prices) expect(price).toMatch(/\d+\.\d{2}/); // a well-formed money value, never blank / missing
   });
 });

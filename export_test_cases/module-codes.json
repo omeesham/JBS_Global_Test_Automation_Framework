@@ -29,10 +29,10 @@
       "DET": { "name": "detail", "display": "Pricing Detail", "sheet": "corporate_pricing_detail", "mdBasename": "corporate_pricing_detail_test_cases" },
       "NPB": { "name": "new_pricebook", "display": "New Pricebook", "sheet": "corporate_pricing_new_pricebook", "mdBasename": "corporate_pricing_new_pricebook_test_cases" },
       "OVR": { "name": "override", "display": "Product Group Override", "sheet": "corporate_pricing_override", "mdBasename": "corporate_pricing_override_test_cases" },
-      "TIO": { "name": "toolbar_io", "display": "Toolbar Import/Export", "sheet": "corporate_pricing_toolbar_io", "mdBasename": "corporate_pricing_toolbar_io_test_cases" },
       "LEX": { "name": "loc_pricing_export", "display": "Loc Pricing Export", "sheet": "corporate_pricing_loc_export", "mdBasename": "corporate_pricing_loc_export_test_cases" },
       "EXA": { "name": "export_all", "display": "Export All", "sheet": "corporate_pricing_export_all", "mdBasename": "corporate_pricing_export_all_test_cases" },
-      "LIM": { "name": "loc_pricing_import", "display": "Loc Pricing Import", "sheet": "corporate_pricing_loc_import", "mdBasename": "corporate_pricing_loc_import_test_cases" }
+      "LIM": { "name": "loc_pricing_import", "display": "Loc Pricing Import", "sheet": "corporate_pricing_loc_import", "mdBasename": "corporate_pricing_loc_import_test_cases" },
+      "IMA": { "name": "import_all", "display": "Import All", "sheet": "corporate_pricing_import_all", "mdBasename": "corporate_pricing_import_all_test_cases" }
     }
   },
   "sheetNameNotes": {
@@ -51,6 +51,7 @@
     "TC-CPR-TIO-018..024": "TC-CPR-LEX-001..007 (Loc Pricing Export submodule split-out, NM-2262; LEX-007=old 024 Manual/data-blocked)",
     "TC-CPR-TIO-025..040": "TC-CPR-EXA-001..016 (Export-All dialog submodule split-out, NM-2264)",
     "TC-CPR-TIO-041..051": "TC-CPR-LIM-001..011 (Loc Pricing Import submodule split-out, NM-2305; LIM-008=old 048 Manual/MD-only)",
+    "TC-CPR-TIO-001..017 (dissolved 2026-07-09)": "toolbar_io submodule folded into its natural tickets: 006->EXA-017, 013->LIM-012, 014->SRC-057, 017->SRC-058 (4 unique behaviors kept); 001-005/007/012/015-016 dropped as subsumed (EXA-001/010-013, IMA-001, LEX-004, SRC-032/056); 008-011 dropped as stale (Import menu now gates behind a Year+Currency precondition dialog per NM-2265, superseded by IMA-001..018)",
     "TC-LOC-LI-NE-011..047": "TC-LOC-LI-078..114 (neutral-eye sub-family folded into the numeric LI sequence, offset +67)",
     "TC-LOC-LI-SKIP-BILLING": "TC-LOC-LI-070 (restores the relocated 070 slot it physically occupies)"
   },

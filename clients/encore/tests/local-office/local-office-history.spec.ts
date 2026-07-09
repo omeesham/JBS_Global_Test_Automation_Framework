@@ -4,8 +4,8 @@ import { OFFICE_NO } from '../../src/data/common';
 
 test.describe('Local Office Settings — History Tab @local-office-history', () => {
 
-  // Per-test navigation guard (dependency-gate removal Phase 1.5).
-  // Mirrors BAS spec :33. Re-navigates only when retry-recycle landed on /home.
+  // Per-test navigation guard.
+  // Re-navigates only when retry-recycle landed on /home.
   test.beforeEach(async ({ localOfficeHistoryPage }) => {
     const url = localOfficeHistoryPage.getCurrentUrl();
     if (!url.includes('settings/local-office')) {
@@ -19,8 +19,8 @@ test.describe('Local Office Settings — History Tab @local-office-history', () 
     test.setTimeout(60_000);
     await localOfficeHistoryPage.navigateToBasicInfoTab(OFFICE_NO);
     await localOfficeHistoryPage.navigateToHistoryTab();
-    expect(await localOfficeHistoryPage.isTabSelected('tabHistory')).toBe(true);
-    expect(await localOfficeHistoryPage.isElementVisible('drpHistoryType')).toBe(true);
+    expect(await localOfficeHistoryPage.isTabSelected('tabHistory'), 'History tab should be active').toBe(true);
+    expect(await localOfficeHistoryPage.isElementVisible('drpHistoryType'), 'History type selector should be visible').toBe(true);
     expect(await localOfficeHistoryPage.getComboboxValue('drpHistoryType')).toContain(HISTORY_COMBOBOX.default);
     expect(await localOfficeHistoryPage.isElementVisible('tblHistory')).toBe(true);
   });
@@ -28,13 +28,13 @@ test.describe('Local Office Settings — History Tab @local-office-history', () 
   test('TC-LOS-HIS-002: History table has column headers', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-HIS-001']);
     const columnCount = await localOfficeHistoryPage.getHistoryColumnHeaderCount();
-    expect(columnCount).toBeGreaterThan(0);
+    expect(columnCount, 'History table should show column headers').toBeGreaterThan(0);
   });
 
  // HIS-003: Office 1604 always has history records — verify table has data (original empty-state test was unreproducible).
   test('TC-LOS-HIS-003: History table has data for office 1604', async ({ localOfficeHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-HIS-001']);
-    expect(await localOfficeHistoryPage.isHistoryTableEmpty()).toBe(false);
+    expect(await localOfficeHistoryPage.isHistoryTableEmpty(), 'History table should contain data rows').toBe(false);
   });
 
   test('TC-LOS-HIS-004: History type selector — 2 options', async ({ localOfficeHistoryPage, dependencyGate }) => {

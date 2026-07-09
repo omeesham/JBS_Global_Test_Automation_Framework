@@ -71,9 +71,8 @@ export const SetupAccountAddressSelectors = {
   tblAccListResults: '[data-testid="location-settings-modal-account-list"] table',
 
  // ---- Select Customer Address Dialog ----
- // FIXME (2026-04-29): all 6 dialog testids MISSING in live DOM (containerHasTestid: false,
- // innerTestids: [], only Radix internals data-state/data-slot present). Reverted to
- // role-based + text-match scope until the testids land.
+ // No dialog testids are rendered (only Radix internals present); match by role+text.
+ // Switch to testids if the app adds them.
  /** @where Setup > Location > Select Customer Address Dialog @el dialog @text "Select Customer Address" @keys address select dialog modal */
   dlgSelectAddress: '[role="dialog"]:has-text("Select Customer Address")',
  /** @where Setup > Location > Select Customer Address Dialog @el input @text "Search..." @keys search filter address client-side */
@@ -95,7 +94,7 @@ export const SetupAccountAddressSelectors = {
 
  // ---- Save Changes Dialog (message text -- supplements shared.ts) ----
  /** @where Setup > Location > Save Changes Dialog @el paragraph @text "Are you sure" @keys save confirmation message text */
- // FIXME (2026-04-29): containerTestid: null in live DOM (only Radix data-state/data-slot
- // present). Reverted to role-based scope until the container testid lands.
+ // No container testid is rendered (only Radix internals present); match by role+text.
+ // Switch to a testid if the app adds one.
   txtSaveChangesMessage: '[role="alertdialog"]:has-text("Save Changes") p',
 } as const;

@@ -12,10 +12,10 @@ import { OFFICE_NO } from '../../src/data/common';
 
 test.describe('Local Office Settings — ECT Settings @local-office-ect', () => {
 
-  // Per-test navigation guard (dependency-gate removal Phase 1.5).
+  // Per-test navigation guard.
   // When Playwright retries recycle the worker, the fixture's unconditional goto lands
   // on Dashboard/home. Without this guard, the failing test re-runs against /home and
-  // every subsequent test in the spec produces a /home cascade. Mirrors BAS spec :33.
+  // every subsequent test in the spec produces a /home cascade.
   test.beforeEach(async ({ localOfficeEctPage }) => {
     const url = localOfficeEctPage.getCurrentUrl();
     if (!url.includes('settings/local-office')) {
@@ -37,7 +37,7 @@ test.describe('Local Office Settings — ECT Settings @local-office-ect', () => 
       await localOfficeEctPage.reloadBasicInfo(OFFICE_NO);
       await localOfficeEctPage.navigateToEctTab();
     }
-    expect(await localOfficeEctPage.isTabSelected('tabEctSettings')).toBe(true);
+    expect(await localOfficeEctPage.isTabSelected('tabEctSettings'), 'ECT Settings tab should be active').toBe(true);
     expect(await localOfficeEctPage.getTextContent('lblEctLocationName')).toContain(ECT_PAGE.locationDisplay);
     expect(await localOfficeEctPage.isElementVisible('lnkCommissionStructure')).toBe(true);
     expect(await localOfficeEctPage.getComboboxValue('drpCurrency')).toContain(ECT_PAGE.currency);
@@ -68,13 +68,12 @@ test.describe('Local Office Settings — ECT Settings @local-office-ect', () => 
     test.setTimeout(60_000);
     expect(await localOfficeEctPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(BENEFITS_MULTIPLIER.defaultDisplay);
     await localOfficeEctPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.testInput);
-    expect(await localOfficeEctPage.isEctFixedCostsSaveEnabled()).toBe(true);
+    expect(await localOfficeEctPage.isEctFixedCostsSaveEnabled(), 'Save should enable after editing a field').toBe(true);
     await localOfficeEctPage.clickSaveFixedCosts();
  // Navigate away and return to verify persistence
     await localOfficeEctPage.clickTab('tabBasicInformation');
     await localOfficeEctPage.navigateToEctTab();
-    expect(await localOfficeEctPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(BENEFITS_MULTIPLIER.expectedAfterSave);
- // Cleanup
+    expect(await localOfficeEctPage.getEctFieldValue('txtBenefitsMultiplier'), 'Edited value should persist after navigating away').toContain(BENEFITS_MULTIPLIER.expectedAfterSave);
     await localOfficeEctPage.fillAndTab('txtBenefitsMultiplier', BENEFITS_MULTIPLIER.restoreValue);
     await localOfficeEctPage.clickSaveFixedCosts();
   });
@@ -133,11 +132,9 @@ test.describe('Local Office Settings — ECT Settings @local-office-ect', () => 
     await localOfficeEctPage.fillLaborCost(0, testValue);
     expect(await localOfficeEctPage.isEctLaborCostsSaveEnabled()).toBe(true);
     await localOfficeEctPage.clickSaveLaborCosts();
- // Navigate away and return
     await localOfficeEctPage.clickTab('tabBasicInformation');
     await localOfficeEctPage.navigateToEctTab();
-    expect(await localOfficeEctPage.getLaborCostValue(0)).toBe(`${testValue}.00`);
- // Cleanup — restore original
+    expect(await localOfficeEctPage.getLaborCostValue(0), 'Labor cost should keep the saved value after reload').toBe(`${testValue}.00`);
     await localOfficeEctPage.fillLaborCost(0, currentValue.replace('.00', ''));
     await localOfficeEctPage.clickSaveLaborCosts();
   });
@@ -185,7 +182,6 @@ test.describe('Local Office Settings — ECT Settings @local-office-ect', () => 
     await localOfficeEctPage.clickTab('tabBasicInformation');
     await localOfficeEctPage.navigateToEctTab();
     expect(await localOfficeEctPage.getEctFieldValue('txtHistoricalSubrental')).toContain(expectedDisplay);
- // Restore original value
     const restoreRaw = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.restoreValue : HISTORICAL_SUBRENTAL.testValue;
     await localOfficeEctPage.fillAndTab('txtHistoricalSubrental', restoreRaw);
     await localOfficeEctPage.clickSaveFixedCosts();
@@ -204,11 +200,9 @@ test.describe('Local Office Settings — ECT Settings @local-office-ect', () => 
       await localOfficeEctPage.fillLaborCost(rowIndex, testValue);
       expect(await localOfficeEctPage.isEctLaborCostsSaveEnabled()).toBe(true);
       await localOfficeEctPage.clickSaveLaborCosts();
- // Navigate away and return
       await localOfficeEctPage.clickTab('tabBasicInformation');
       await localOfficeEctPage.navigateToEctTab();
       expect(await localOfficeEctPage.getLaborCostValue(rowIndex)).toBe(`${testValue}.00`);
- // Restore original
       await localOfficeEctPage.fillLaborCost(rowIndex, currentValue.replace('.00', ''));
       await localOfficeEctPage.clickSaveLaborCosts();
     });
@@ -227,10 +221,8 @@ test.describe('Local Office Settings — ECT Settings @local-office-ect', () => 
     const hsTest = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.testValue : HISTORICAL_SUBRENTAL.restoreValue;
     const bmExpected = currentBM.includes(BENEFITS_MULTIPLIER.defaultDisplay) ? BENEFITS_MULTIPLIER.expectedAfterSave : BENEFITS_MULTIPLIER.defaultDisplay;
     const hsExpected = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.expectedAfterSave : HISTORICAL_SUBRENTAL.defaultDisplay;
- // Edit both fields
     await localOfficeEctPage.fillAndTab('txtBenefitsMultiplier', bmTest);
     await localOfficeEctPage.fillAndTab('txtHistoricalSubrental', hsTest);
- // Single save
     await localOfficeEctPage.clickSaveFixedCosts();
  // Full page reload — stronger than tab navigation
     await localOfficeEctPage.reloadBasicInfo(OFFICE_NO);
@@ -238,7 +230,6 @@ test.describe('Local Office Settings — ECT Settings @local-office-ect', () => 
  // Verify both values persisted
     expect(await localOfficeEctPage.getEctFieldValue('txtBenefitsMultiplier')).toContain(bmExpected);
     expect(await localOfficeEctPage.getEctFieldValue('txtHistoricalSubrental')).toContain(hsExpected);
- // Restore both
     const bmRestore = currentBM.includes(BENEFITS_MULTIPLIER.defaultDisplay) ? BENEFITS_MULTIPLIER.restoreValue : BENEFITS_MULTIPLIER.testInput;
     const hsRestore = currentHS.includes(HISTORICAL_SUBRENTAL.defaultDisplay) ? HISTORICAL_SUBRENTAL.restoreValue : HISTORICAL_SUBRENTAL.testValue;
     await localOfficeEctPage.fillAndTab('txtBenefitsMultiplier', bmRestore);

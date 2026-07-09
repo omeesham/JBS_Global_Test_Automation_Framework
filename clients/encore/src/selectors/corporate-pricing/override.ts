@@ -107,4 +107,28 @@ export const CorporatePricingOverrideSelectors = {
   ovrSaveDialogConfirm: '[role="alertdialog"] button:text-is("Save")',
   /** @where Override > Save dialog @el button @text "Cancel" @keys abort save (text-anchored) */
   ovrSaveDialogCancel: '[role="alertdialog"] button:text-is("Cancel")',
+
+  // ---- Navigation from the Search action bar ----
+  /** @where Search action bar @el button @text "Pricing Override" @keys navigates to the Override screen */
+  ovrNavFromSearch: 'button:has-text("Pricing Override")',
+
+  // ---- Grid Options popover (the Override toolbar's own; column show/hide + reset) ----
+  /** @where Override > Grid Options @el menuitemcheckbox @keys one per column (read aria-checked) */
+  ovrGridOptionsMenuItem: '[role="menuitemcheckbox"]',
+  /** @where Override > Grid Options @el menuitem @text "Reset to Default" @keys restore all columns */
+  ovrGridOptionsReset: 'text=/reset to default/i',
+
+  // ---- Import dialog (a custom in-app modal, NOT a native file chooser) ----
+  /** @where Override > Import dialog @el dialog @text "Import All Pricing Overrides" @keys the import modal */
+  ovrImportDialog: '[role="dialog"]:has-text("Import All Pricing Overrides")',
+  /** @where Override > Import dialog @el input[type=file] @keys the file input inside the dialog */
+  ovrImportFileInput: 'input[type="file"]',
+  /** @where Override > Import dialog @el button @text "Cancel" @keys dismiss the import dialog */
+  ovrImportCancel: '[role="dialog"] button:text-is("Cancel")',
+  /** @where Override > Import dialog @el button @text "Close" @keys close the import dialog */
+  ovrImportClose: '[role="dialog"] button:text-is("Close")',
+
+  // ---- Location picker dialog container (read the title / buttons for the picker-detail checks) ----
+  /** @where Override > Picker dialog @el dialog @keys the "Change Local Office" picker modal container */
+  ovrLocationModalDialog: '[role="dialog"]',
 } as const;

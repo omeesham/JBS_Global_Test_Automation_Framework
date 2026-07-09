@@ -30,8 +30,7 @@ import {
 // Runner: clients/encore/src/utils/field-case-runner.ts saveAndVerifyCase().
 test.describe('Location Notes — FCC @locations @notes @fcc', () => {
 
-  // D-2 lifecycle refactor 2026-05-21: DOM-presence beats url.includes
-  // (shared `settings/location` URL across sub-tabs).
+  // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
   test.beforeEach(async ({ locationNotesPage }) => {
     if (!(await locationNotesPage.isOnNotesTab())) {
       await locationNotesPage.navigateToNotesTab(OFFICE_NO);
@@ -421,7 +420,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   });
 
   // BUG-LOC-NTS-004: Delete button vanishes on single-row form-array after clear() — TC cannot
-  // reach the Delete step. Filed 2026-05-21 (lifecycle refactor Group D-4).
+  // reach the Delete step.
   // BUG-LOC-NTS-004
   // FIXME TC-LOC-NTS-056 (Blocked — the Delete control disappears on a single-row note list after the text is cleared, so the row cannot be deleted. Pending an application fix.)
   test.fixme('TC-LOC-NTS-056: Verify deleting the only note row returns the empty state', async ({ locationNotesPage, dependencyGate }) => {
@@ -469,15 +468,13 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.fillNote(0, NOTE_CANCEL_RESAVE_FINAL);
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
-    expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_CANCEL_RESAVE_FINAL);
+    expect(await locationNotesPage.getNoteValue(0), 'Note should keep the final saved value after reload').toBe(NOTE_CANCEL_RESAVE_FINAL);
     await locationNotesPage.ensureEmptyState();
   });
 
   test('TC-LOC-NTS-049: Verify reloading during the save dialog does not persist the note', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
-    // Group A-1 (lifecycle refactor 2026-05-21): bare `page` destructure
-    // removed — operations now run on the page-object's real page (locationNotesPage.page).
     const realPage = locationNotesPage.page;
     await locationNotesPage.ensureEmptyState();
     await locationNotesPage.fillNote(0, NOTE_IDEMPOTENT);
@@ -499,7 +496,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   test('TC-LOC-NTS-050: Verify pressing Escape on the save dialog cancels without saving', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
-    // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
     const realPage = locationNotesPage.page;
     await locationNotesPage.ensureEmptyState();
     await locationNotesPage.fillNote(0, NOTE_ESCAPE_DIALOG);
@@ -522,7 +518,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   test('TC-LOC-NTS-051: Verify the save dialog behavior when clicking outside it', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
-    // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
     const realPage = locationNotesPage.page;
     await locationNotesPage.ensureEmptyState();
     await locationNotesPage.fillNote(0, NOTE_ESCAPE_DIALOG);
@@ -551,18 +546,14 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   test('TC-LOC-NTS-052: Verify a second save attempt keeps the Save button disabled', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
-    // lifecycle refactor closure (2026-05-22) — /rca mama-led orchestration.
-    // Subagent B (HEADED CLI live walk) identified Encore's real data-save endpoint as
-    // `PUT /navigator/api/location/update-properties`. POSTs to `/locations/.../settings/location`
-    // are Next.js 15 App-Router RSC server-component renders (framework hydration POSTs that
-    // cascade for 0-8s after any page.reload — including NTS-057's prior reloadAndNavigateToNotesTab).
-    // Subagent A (trace timeline) confirmed the prior captured POST was HAR 218 with body=[] firing
-    // 27ms after HAR 214's response-end, AFTER listener attach. The original `/settings/location`
-    // filter was over-broad and matched framework noise. Filter narrowed to `/navigator/api/` so
-    // the listener captures only real Encore API calls (save endpoint, etc.).
-    // force:true is preserved — Subagent B's V4 (synthetic MouseEvent on disabled button) proved
-    // Angular gates the save inside the click handler (form.dirty/valid check) and aborts before
-    // any HTTP request. The test now correctly verifies the defense-in-depth contract.
+    // The real save endpoint is `PUT /navigator/api/location/update-properties`; the network wait
+    // is narrowed to `/navigator/api/`. POSTs to `/locations/.../settings/location` are Next.js 15
+    // App-Router RSC server-component renders (framework hydration POSTs that cascade for 0-8s after
+    // any page.reload). Filter narrowed to `/navigator/api/` so the listener captures only real
+    // Encore API calls.
+    // force:true is preserved — a synthetic MouseEvent on a disabled button proved Angular gates
+    // the save inside the click handler (form.dirty/valid check) and aborts before any HTTP request.
+    // The test verifies the defense-in-depth contract.
     const realPage = locationNotesPage.page;
     await locationNotesPage.ensureEmptyState();
     await locationNotesPage.fillNote(0, NOTE_IDEMPOTENT);
@@ -601,7 +592,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     dependencyGate([]);
     test.setTimeout(120_000);
     await locationNotesPage.ensureEmptyState();
-    // Save 1
     await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_A);
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
@@ -618,14 +608,13 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
   test('TC-LOC-NTS-054: Verify saving Notes does not leave the Currency tab unsaved', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
-    // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
     const realPage = locationNotesPage.page;
     await locationNotesPage.ensureEmptyState();
     await locationNotesPage.fillNote(0, NOTE_1_CHAR);
     await locationNotesPage.saveAndConfirm();
     // Cross-tab isolation proof: switching to Currency must NOT trigger the "Unsaved Changes"
     // alertdialog. (The shared Save button being disabled only proves Notes is pristine — not
-    // that Currency was untouched, because the Save button is page-scoped per notes.ts:57.)
+    // that Currency was untouched, because the Save button is page-scoped.)
     const currencyTab = realPage.locator('[data-testid="location-settings-sub-tab-currency"]');
     await currencyTab.click();
     // If Currency had been dirtied as a side-effect of Notes save, navigating away would open
@@ -661,8 +650,8 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
 
 test.describe('Location Notes @locations @notes', () => {
 
-  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
-  // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
+  // Per-test navigation guard — DOM-presence beats url.includes
+  // (shared `settings/location` URL across sub-tabs).
   test.beforeEach(async ({ locationNotesPage }) => {
     if (!(await locationNotesPage.isOnNotesTab())) {
       await locationNotesPage.navigateToNotesTab(OFFICE_NO);
@@ -673,7 +662,7 @@ test.describe('Location Notes @locations @notes', () => {
   });
 
  // ─── Group A: Navigation + Default State ─────────────────────────────────
- // MCP-verified: Default state = 1 empty textarea row (0/4000), NOT "No Notes Available"
+ // Live-verified: Default state = 1 empty textarea row (0/4000), NOT "No Notes Available"
 
   test('TC-LOC-NTS-001: Verify Notes tab default empty state', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
@@ -715,7 +704,6 @@ test.describe('Location Notes @locations @notes', () => {
 
   test('TC-LOC-NTS-004: Multi-row counter includes delimiter per row boundary', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
- // Row 0 exists already
     await locationNotesPage.fillNote(0, NOTE_HELLO);
     expect(await locationNotesPage.getCharCount()).toBe(5);
     await locationNotesPage.clickAdd();
@@ -877,10 +865,10 @@ test.describe('Location Notes @locations @notes', () => {
 
   test('TC-LOC-NTS-016: Row created via Add has Delete visible; typing keeps it', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
- // lifecycle refactor closure (2026-05-22): defensive per-test baseline
- // reset. Prior-session DB pollution (e.g., from a preceding test that errored before its
- // own ensureEmptyState cleanup ran) leaves saved rows whose Delete buttons inflate the
- // count assertion below. Resetting here guarantees an empty DB regardless of upstream state.
+ // Defensive per-test baseline reset. Prior-session DB pollution (e.g., from a preceding test
+ // that errored before its own ensureEmptyState cleanup ran) leaves saved rows whose Delete
+ // buttons inflate the count assertion below. Resetting here guarantees an empty DB regardless
+ // of upstream state.
     await locationNotesPage.ensureEmptyState();
  // After save-empty cycles, state is "No Notes Available". prepareEmptyRow clicks Add.
  // Empty single row = no Delete button (appears only with content or 2+ rows).
@@ -955,7 +943,6 @@ test.describe('Location Notes @locations @notes', () => {
     dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
- // Add 3 rows
     await locationNotesPage.fillNote(0, NOTE_ROW_ALPHA);
     await locationNotesPage.clickAdd();
     await locationNotesPage.fillNote(1, NOTE_ROW_BETA);
@@ -973,7 +960,6 @@ test.describe('Location Notes @locations @notes', () => {
     expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_ROW_BETA);
     expect(await locationNotesPage.getNoteValue(2)).toBe(NOTE_ROW_GAMMA);
     expect(await locationNotesPage.getCharCount()).toBe(28);
- // Cleanup
     await locationNotesPage.ensureEmptyState();
   });
 
@@ -981,7 +967,6 @@ test.describe('Location Notes @locations @notes', () => {
     dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
- // Fill 4000 chars
     await locationNotesPage.fillNote(0, NOTE_4000_CHARS);
     expect(await locationNotesPage.getCharCount()).toBe(4000);
  // Save + reload
@@ -991,7 +976,6 @@ test.describe('Location Notes @locations @notes', () => {
     expect(await locationNotesPage.getCharCount()).toBe(4000);
     const value = await locationNotesPage.getNoteValue(0);
     expect(value.length).toBe(4000);
- // Cleanup
     await locationNotesPage.ensureEmptyState();
   });
 
@@ -999,14 +983,12 @@ test.describe('Location Notes @locations @notes', () => {
     dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
- // Add 3 rows
     await locationNotesPage.fillNote(0, NOTE_KEEP_FIRST);
     await locationNotesPage.clickAdd();
     await locationNotesPage.fillNote(1, NOTE_DELETE_ME);
     await locationNotesPage.clickAdd();
     await locationNotesPage.fillNote(2, NOTE_KEEP_LAST);
     expect(await locationNotesPage.getNoteRowCount()).toBe(3);
- // Delete middle row
     await locationNotesPage.deleteRow(1);
     expect(await locationNotesPage.getNoteRowCount()).toBe(2);
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_KEEP_FIRST);
@@ -1018,7 +1000,6 @@ test.describe('Location Notes @locations @notes', () => {
     expect(await locationNotesPage.getNoteRowCount()).toBe(2);
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_KEEP_FIRST);
     expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_KEEP_LAST);
- // Cleanup
     await locationNotesPage.ensureEmptyState();
   });
 
@@ -1026,7 +1007,6 @@ test.describe('Location Notes @locations @notes', () => {
     dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
- // Add a note
     await locationNotesPage.fillNote(0, NOTE_CANCEL_TEST);
     expect(await locationNotesPage.isSaveEnabled()).toBe(true);
  // Click Save but cancel the dialog
@@ -1039,7 +1019,7 @@ test.describe('Location Notes @locations @notes', () => {
   });
 
  // ─── Group K: Coverage Gap-Fill (TC-033..037) ─────────────────────────────
- // MCP-verified 2026-05-12: sequential save, edit-existing, save-empty, overage persistence, delete-persist
+ // Live-verified 2026-05-12: sequential save, edit-existing, save-empty, overage persistence, delete-persist
 
   test('TC-LOC-NTS-028: Sequential save — add second note with reload between saves, both persist', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
@@ -1051,7 +1031,7 @@ test.describe('Location Notes @locations @notes', () => {
  // Reload required: Playwright .fill() does NOT trigger Angular change detection after the
  // form's markAsPristine() runs post-save. Real user typing works fine — this is an
  // automation-tool limitation, not an app bug (manually verified live 2026-05-14).
- // RCA 2026-05-12: 4/4 runs show "Save button did not enable within 5s".
+ // Prior runs showed the Save button did not enable within 5s.
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_SEQ_A);
     await locationNotesPage.clickAdd();
@@ -1075,10 +1055,9 @@ test.describe('Location Notes @locations @notes', () => {
  // Reload required: Playwright .fill() does NOT trigger Angular change detection after the
  // form's markAsPristine() runs post-save. Real user typing works fine — this is an
  // automation-tool limitation, not an app bug (manually verified live 2026-05-14).
- // RCA 2026-05-12: 6/6 runs show "Save button did not enable within 5s".
+ // Prior runs showed the Save button did not enable within 5s.
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_ORIGINAL);
- // Overwrite with new text and save
     await locationNotesPage.fillNote(0, NOTE_EDITED);
     await locationNotesPage.saveAndConfirm();
  // Reload + verify edited text persisted
@@ -1126,7 +1105,6 @@ test.describe('Location Notes @locations @notes', () => {
     dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
- // Save a note
     await locationNotesPage.fillNote(0, NOTE_DELETE_CHECK);
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();

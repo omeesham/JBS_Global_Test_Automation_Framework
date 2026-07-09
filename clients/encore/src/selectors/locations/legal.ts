@@ -27,7 +27,7 @@ export const SetupLegalSelectors = {
  /** @where Setup > Location > Legal tab @el table @text "Legal grid" @keys legal table grid rows columns */
   tblLegal: '[data-testid="location-settings-table-legal"]',
 
- // ---- Column Headers ---- (added 2026-04-29)
+ // ---- Column Headers ----
  /** @where Setup > Location > Legal tab > Header @el label @text "Language Name" @keys column header language */
   colHeaderLanguageName: '[data-testid="location-settings-table-legal-col-language-name"]',
  /** @where Setup > Location > Legal tab > Header @el label @text "Service Charge Name" @keys column header service-charge */

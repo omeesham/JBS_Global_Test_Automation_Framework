@@ -1,6 +1,6 @@
 # Corporate Pricing — Loc Pricing Import Test Cases (NM-2305)
 
-**Module**: corporate-pricing | **Submodule**: loc_pricing_import | **Total**: 11 (10 Automated + 1 Manual/large-file boundary) | **Updated**: 2026-07-08
+**Module**: corporate-pricing | **Submodule**: loc_pricing_import | **Total**: 12 (11 Automated + 1 Manual/large-file boundary) | **Updated**: 2026-07-09
 
 > The REAL Loc Pricing Import upload round-trip: the server applies the file as a per-(location, currency) replace, bounded to a throwaway office (5897). Covers success (flip Primary↔Alternate, verified in a fresh export), partial-update, the in-browser rejections (empty / non-CSV / malformed / header-only), cancel, persistence, import write-scope, and create semantics. LIM-008 is the full/large-file boundary — verified live once (HTTP 500 replace-failure, NM-2407) and documented, not automated.
 
@@ -234,6 +234,26 @@
 **Expected**: The import returns success but the response's createdCount is 0, and the novel pricebook does NOT appear in the re-downloaded export — office 5897 still has exactly its three baseline rows. The import updates existing pricebooks; it does not create a new pricebook definition.
 **Data**: office=5897, file=create-novel.csv
 **Notes**: NM-2305 create-semantics. Live-verified 2026-07-07 (office 5897): a novel pricebook is reported "processed" with createdCount:0 and never appears — while the response's updatedCount counts the dropped row (an inflated-count reporting lead). A previously-removed KNOWN pricebook, by contrast, is re-added on import (the per-test baseline reset relies on this).
+
+---
+
+## TC-CPR-LIM-012: Loc Pricing Import opens the "Import All Location Pricing" dialog
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Functional |
+
+**Depends_On**: none (baseline-enforcement per LR-019)
+**Automatable**: Yes
+
+**Preconditions**: On the Search screen with the grid loaded (office 1604).
+
+**Steps**:
+1. Click "Loc Pricing Import" (a direct button, not a menu variant) -> a dialog opens
+2. Read the dialog -> title "Import All Location Pricing", Browse/Upload controls, a file input present
+3. Close the dialog (no file uploaded)
+
+**Expected**: Loc Pricing Import opens the "Import All Location Pricing" upload dialog (a direct trigger, distinct from the grid Import ▾ variants; the real upload round-trip is covered by TC-CPR-LIM-001..011).
+**Data**: office=1604
 
 ---
 

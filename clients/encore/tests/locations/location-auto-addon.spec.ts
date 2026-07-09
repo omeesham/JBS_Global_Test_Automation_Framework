@@ -4,7 +4,7 @@ import { OFFICE_NO, SAVE_CHANGES_DIALOG, UNSAVED_CHANGES_DIALOG } from '../../sr
 
 test.describe('Location Auto Add-On @locations @auto-addon', () => {
 
-  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
+  // Per-test navigation guard.
   // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
   test.beforeEach(async ({ locationAutoAddonPage }) => {
     if (!(await locationAutoAddonPage.isOnAutoAddonTab())) {
@@ -21,7 +21,7 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     dependencyGate([]);
     test.setTimeout(90_000);
     await locationAutoAddonPage.navigateToAutoAddonTab(OFFICE_NO);
-    expect(locationAutoAddonPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
+    expect(locationAutoAddonPage.getCurrentUrl(), 'Should be on the Location Settings page').toContain(`locations/${OFFICE_NO}/settings`);
     expect(await locationAutoAddonPage.getCheckboxCount()).toBe(5);
  // Default-state restore moved to the describe-level beforeEach (ensureDefaultState) so
  // it runs per-test, not only here — a per-test retry can no longer skip the baseline.
@@ -42,7 +42,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
  // Radix checkbox toggle fires async state update — poll for checked state.
     await expect.poll(() => locationAutoAddonPage.isCheckboxChecked('chkAutoAddonEncoreMusic'), { timeout: 5_000 }).toBe(false);
     await expect.poll(() => locationAutoAddonPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup: revert
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonEncoreMusic');
   });
 
@@ -52,7 +51,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
  // Radix checkbox toggle fires async state update — poll for checked state.
     await expect.poll(() => locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession'), { timeout: 5_000 }).toBe(true);
     await expect.poll(() => locationAutoAddonPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup: revert
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
@@ -84,7 +82,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.clickSaveCancel();
     expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession')).toBe(true);
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
- // Cleanup: revert
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
@@ -93,7 +90,7 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.clickSaveButton();
     await locationAutoAddonPage.clickSaveOk();
-    expect(await locationAutoAddonPage.waitForToast()).toBe(true);
+    expect(await locationAutoAddonPage.waitForToast(), 'Save success confirmation should appear').toBe(true);
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(false);
  // Cleanup: restore ECDS to unchecked
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
@@ -106,7 +103,7 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.clickSave();
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
-    expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession')).toBe(true);
+    expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession'), 'Toggled setting should persist after page reload').toBe(true);
  // Cleanup: restore ECDS to unchecked
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.clickSave();
@@ -144,7 +141,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
  // No unsaved changes dialog should appear -- sub-tab switch is silent
     await locationAutoAddonPage.navigateToAutoAddonTab(OFFICE_NO);
     expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession')).toBe(true);
- // Cleanup: revert
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 
@@ -173,7 +169,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     expect(locationAutoAddonPage.getCurrentUrl()).toContain('/settings/location');
     expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession')).toBe(true);
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
- // Cleanup: revert
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
 

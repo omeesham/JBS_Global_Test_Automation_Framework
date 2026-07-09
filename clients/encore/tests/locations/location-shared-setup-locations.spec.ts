@@ -26,7 +26,7 @@ import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 // phantom row; non-Miami searches behave correctly).
 test.describe('Location Shared Setup Locations @locations @shared-setup', () => {
 
-  // D-2 lifecycle refactor pattern (mirrors location-notes.spec.ts:35-39).
+  // Per-test navigation guard pattern.
   test.beforeEach(async ({ locationSharedSetupLocationsPage: pg }) => {
     if (!(await pg.isOnSharedSetupTab())) {
       await pg.navigateToSharedSetupTab(OFFICE_NO);
@@ -70,7 +70,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
       act: () => pg.searchInDialog(SEARCH_BVA_LONG_200),
       expectBeforeSave: async () => {
         // Dialog still visible + Select stays disabled (no row selectable from non-matching filter)
-        expect(await pg.isAddDialogVisible()).toBe(true);
+        expect(await pg.isAddDialogVisible(), 'Dialog should remain open after a long search').toBe(true);
         await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(false);
       },
       saveAndConfirm: () => pg.clickDialogCancel(),
@@ -551,7 +551,6 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-007: Reverting Shares Inventory to original state disables Save', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    // 2026-05-22 un-skip-and-retry corollary verify — user-authorized fixme+comment trust rule; companion to TC-030 user-confirmed bug; umbrella cite BUG-LOC-SSL-001 (false-green/regression set).
     test.fixme(true, 'Blocked — reverting Shares Inventory on an added row to its original state leaves the form marked as changed, so Save stays enabled even though there is no net change. Pending an application fix.'); // BUG-LOC-SSL-001
     dependencyGate(['TC-LOC-SSL-001']);
  // SSL-006 toggle-back leaves Angular dirty state. Reload for clean baseline.
@@ -615,7 +614,7 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
     await pg.searchInDialog(ADD_LOCATION.searchByNumber);
     await expect.poll(() => pg.getDialogRowCount(), { timeout: 5_000 }).toBe(1);
     await pg.selectFirstDialogRow();
- // RCA SSL-012: dispatchEvent('click') fires async React state update —
+ // dispatchEvent('click') fires an async React state update —
  // Select button enable propagates after a short delay. Use expect.poll.
     await expect.poll(() => pg.isDialogSelectEnabled(), { timeout: 5_000 }).toBe(true);
     await pg.clickDialogCancel();
@@ -724,7 +723,6 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
  // Capture added row from TABLE (not dialog — dialog text timing is unreliable)
     const added = await pg.findNonSelfRow();
     expect(added).not.toBeNull();
- // Save
     const result = await pg.clickSave();
     expect(result.success).toBe(true);
  // Reload and verify
@@ -839,7 +837,6 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
     test.setTimeout(90_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
     await pg.ensureCleanSSLTable(OFFICE_NO);
- // Make a change
     await pg.toggleSelfSharesInventory();
     expect((await pg.getSelfSharesInventoryState()).checked).toBe(true);
     await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
@@ -858,7 +855,6 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
     test.setTimeout(90_000);
     await pg.reloadAndNavigateToSSLTab(OFFICE_NO);
     await pg.ensureCleanSSLTable(OFFICE_NO);
- // Make form dirty
     await pg.toggleSelfSharesInventory();
     await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
  // Trigger reload — beforeunload should fire and be dismissed (stay on page)
@@ -982,7 +978,6 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
  // (not asserted — ambient Angular noise like NG0100 / ResizeObserver loop makes strict
  // empty-array assertion too flaky for CI).
     test.setTimeout(60_000);
-    // Group A-1 (lifecycle refactor 2026-05-21): bare `page` removed.
     // console listener now attaches to the REAL app page and will actually capture errors
     // emitted while clicking Add.
     const realPage = pg.page;
@@ -1005,7 +1000,6 @@ test.describe('Location Shared Setup Locations @locations @shared-setup', () => 
   });
 
   test('TC-LOC-SSL-030: Verify three added location rows persist after save and reload', async ({ locationSharedSetupLocationsPage: pg, dependencyGate }) => {
-    // 2026-05-22 un-skip-and-retry corollary verify — user manual probe confirmed bug PRESENT; companion to TC-007 fixme line 76; umbrella cite BUG-LOC-SSL-001 (false-green/regression set).
     test.fixme(true, 'Blocked — the per-row Delete control intermittently stops responding after a row is added, saved and the page reloaded, so the cleanup step cannot complete reliably. Pending an application fix.'); // BUG-LOC-SSL-001 (987)
     dependencyGate(['TC-LOC-SSL-001']);
  // Small-N (3-row) smoke variant: adds Chicago + Boston + Marriott rows, saves,

@@ -1,6 +1,6 @@
 # Corporate Pricing — Product Group Override Test Cases (NM-1463, Wave-1.5-A FCC)
 
-**Module**: corporate-pricing | **Total**: 28 | **Status**: Automated | **Updated**: 2026-06-09
+**Module**: corporate-pricing | **Total**: 38 (TC-023 skipped — app defect) | **Status**: Automated | **Updated**: 2026-07-09
 
 ---
 
@@ -21,6 +21,28 @@
 | Net-zero (LR-009) | reverting Override Price to its saved value DISABLES Save (verified) |
 | Mutation safety | save-cycle commits only on fixture row **2605 House Video Monitor - Specialty** (default Override Price 445.00); restored by bounded-retry `ensureDefaultState()`. Distinct screen/data-model from Strategy/Detail fixtures (zero collision). |
 | data-testid coverage | **ZERO** on the grid (text/role/grid-header/content-anchored — Doctrine 4). The shared "Change Local Office" picker modal has testids (e.g. `location-settings-modal-change-local-office-input-search`). |
+
+---
+
+## 2026-07-09 re-verification (office 1606) + net-new coverage (TC-029..037)
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-07-09 |
+| Runtime | Spec re-anchored to **location 1606** (office 1604 no longer carries Override data on this environment — an open item with the Encore product team; 1606 is the healthy control). Anchor row 2609 "House Video Monitor LED 70\"-79\"" (Override Price 500.00, active). All 7 rows on 1606 render active. |
+| Navigation (TC-029) | The Search action bar "Pricing Override" button navigates to `/pg-override` (heading "Product Group Override"). |
+| Location picker (TC-030) | "Change Local Office" modal — Select is disabled until a row is checked, then enabled; a search finds the office row; Cancel closes with no location applied. (No "All Locations" row on 1606.) |
+| Grid Options (TC-031) | Override toolbar has its OWN Grid Options (`button[aria-label="Grid Options"]`): 10 column toggles + "Reset to Default"; hiding a column removes its header and persists across reload (server preference). |
+| Export (TC-032) | Override Export is a **direct** CSV download `ProductGroupOverrides_<timestamp>UTC.csv` via `GET corporate-price-pg-override/export?locale=en-US` — NO Year/Currency dialog (distinct from the Search screen's Export menu). |
+| Export header/row pinning (TC-038, added 2026-07-09) | The file is a **tenant-wide** dump (rows begin around office 1101, not scoped to the on-screen selection) with **9** columns — `Location Id, Product Group Id, Product Group Name, Is Labor, Currency, Current Price, Override Price, Override Discount, Is Active` — a different shape from the 10-column on-screen grid. Live-verified against a real download (8,995 rows): IDs always numeric, Currency always USD/CAD/MXN, Is Labor/Is Active always 0/1, Current Price always populated money, Override Price money-or-blank (1 blank row), Override Discount decimal-or-blank (mostly blank). Product Group Name may itself carry a literal `"` (e.g. an inch-mark size) but is not asserted for content. |
+| Import (TC-033) | Override Import opens the "Import All Pricing Overrides" dialog (Browse / Cancel / Upload / Close + a file input); tests never upload a real file. |
+| NM-1463 (TC-034) | Editing the Override Price on an **inactive** row auto-activates it. |
+| NM-2206 (TC-036) | Every row shows a Current Price value on 1606 + USD (no blank / red-circle). |
+| Sorting (TC-035) | **Inactive** — a column-header click sets no active sort state and does not reorder (consistent with the Search + Detail grids). |
+| Pagination | Behavior not exercised on 1606 (7 rows < the 10-row minimum page size); the options list (10/20/30/40/50) is already covered by TC-CPR-OVR-011. |
+| Max Discount % cap (TC-037) | **Inclusive at 100** — values up to and including 100 commit. Over 100 sets aria-invalid + a red border and refuses to commit, but does not recover cleanly (still defective — TC-CPR-OVR-023 kept skipped, see its note). |
+
+---
 
 ### Clarifications (RAISED — Doctrine 2; Jira leads live-verified per LR-044) — see the wave15 divergences draft
 
@@ -62,7 +84,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 - **Edit**: click cell → spinbutton; commit on Enter (native value-setter required; `.fill()` no-ops React state).
 - **Save gate**: any dirty cell (Override Price / Max Discount / Active) enables Save; reverting to the saved value disables it (LR-009 net-zero).
 - **Override Price**: `type=number` — non-numeric coerced to empty (LR-011); 0 / decimal / large accepted (renders with thousands separators, e.g. "999,999.00").
-- **Max Discount %**: numeric, renders "N.00 %"; **capped at 100** — entering >100 is REJECTED (the inline editor refuses to commit). Valid 0–100 incl. decimals commit (CPR-WV15-Q3).
+- **Max Discount %**: numeric, renders "N.00 %"; **cap is inclusive at 100** — 0–100 (incl. decimals) commit (TC-037). Over 100 is flagged invalid (aria-invalid + red border) and refuses to commit, but does not recover cleanly — kept skipped as TC-023 (see its note).
 - **Save**: dialog-gated ("Save Changes") → `POST corporate-price-pg-override` → toast; persists after reload.
 - **Mutation safety**: save-cycle on fixture row 2605 only, restored via `ensureDefaultState()` (no-drift, bounded retry + throw).
 
@@ -496,8 +518,8 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 2. Edit it to a decimal (12.5) -> commits
 3. Attempt to set it to a value over 100 (e.g. 150 / 333), then try to click or tab out of the cell
 
-**Expected**: A normal percentage (incl. decimals) commits and dirties the form. An out-of-range value (over 100) should surface a clear validation message and still allow the user to leave the field. Currently, the field does not commit and does not show a validation error when a value over 100 is entered; the cursor stays in the field until the value is brought back to 100 or below.
-**Data**: office=1604, product group=2605
+**Expected**: A normal percentage (incl. decimals) commits and dirties the form. An out-of-range value (over 100) should surface a clear message and still let the user leave the field. Live on office 1606: over 100 sets the input invalid (aria-invalid + a red border) and refuses to commit — a real indicator, not silent — but the field does not recover cleanly (it will not dismiss on a click to another cell and leaves the cell blank), so an out-of-range entry wedges the row. Correct behavior is undefined until the app is fixed; kept skipped. The valid boundary (values up to and including 100) is covered by TC-CPR-OVR-037.
+**Data**: location=1606, product group=2609
 
 ---
 
@@ -602,3 +624,200 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 **Expected**: Save opens the shared "Save Changes" confirmation dialog; Cancel aborts without committing.
 **Data**: office=1604, product group=2605
+
+---
+
+## TC-CPR-OVR-029: The Search action bar "Pricing Override" button navigates to the Override screen
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: none
+**Automatable**: Yes
+
+**Preconditions**: Authenticated on the Corporate Pricing Search screen.
+
+**Steps**:
+1. Click the Search action bar "Pricing Override" button -> the app navigates to `/pg-override`
+2. Read the URL and heading -> URL contains `/pg-override`; heading is "Product Group Override"
+
+**Expected**: The "Pricing Override" action-bar button navigates from the Search screen to the Override screen.
+**Data**: office context (default)
+
+---
+
+## TC-CPR-OVR-030: The "Change Local Office" picker gates Select until a row is checked; Cancel applies nothing
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-003
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with no location selected.
+
+**Steps**:
+1. Open the "Select a location" picker -> the "Change Local Office" modal opens
+2. Read the Select button before checking any row -> disabled
+3. Search the office and check its row -> Select becomes enabled
+4. Click Cancel -> the modal closes and the grid stays empty (no location applied)
+
+**Expected**: The picker is titled "Change Local Office"; Select is disabled until a row is checked, then enabled; Cancel closes it without applying a location.
+**Data**: location=1606
+
+---
+
+## TC-CPR-OVR-031: Grid Options lists every column; toggling one hides its header and it persists across reload
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-004
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected; all columns visible.
+
+**Steps**:
+1. Open Grid Options -> a toggle per column (all 10) renders, all checked; "Reset to Default" is present
+2. Toggle the "Updated By" column off -> its header is removed from the grid
+3. Reload the page and re-select the location -> the "Updated By" column is still hidden (server-persisted)
+4. (baseline) Restore all columns before and after the test
+
+**Expected**: Grid Options exposes a toggle per column plus Reset to Default; hiding a column removes its header and the hidden state persists across a reload.
+**Data**: location=1606, column="Updated By"
+
+---
+
+## TC-CPR-OVR-032: Export downloads a Product Group Overrides CSV directly (no dialog)
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-004
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected.
+
+**Steps**:
+1. Click the Override toolbar "Export" button -> a CSV file downloads directly (no Year/Currency dialog)
+2. Read the download -> filename `ProductGroupOverrides_<timestamp>UTC.csv`; the request hits `corporate-price-pg-override/export?locale=en-US`; the file is a non-empty CSV with a header row
+
+**Expected**: Export triggers a direct Product Group Overrides CSV download from the override export endpoint, carrying the exact 9-column header set in order (per-row content is a separate concern, covered by TC-CPR-OVR-038).
+**Data**: location=1606
+
+---
+
+## TC-CPR-OVR-033: Import opens the "Import All Pricing Overrides" dialog with a file input; Cancel closes it without uploading
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-004
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected.
+
+**Steps**:
+1. Click the Override toolbar "Import" button -> the "Import All Pricing Overrides" dialog opens
+2. Read the dialog -> buttons Browse / Cancel / Upload / Close; a file input exists
+3. Click Cancel -> the dialog closes (no file uploaded)
+
+**Expected**: Import opens the "Import All Pricing Overrides" dialog with Browse/Cancel/Upload/Close and a file input; Cancel dismisses it without uploading. (No real upload is performed — shared-environment data safety.)
+**Data**: location=1606
+
+---
+
+## TC-CPR-OVR-034: Editing the Override Price on an inactive row auto-activates it
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-017
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected; anchor row at its default (active).
+
+**Steps**:
+1. Set the anchor row inactive (staged only) -> Active reads false
+2. Edit the Override Price to a new value -> Active flips to true automatically
+3. Observe Save -> Enabled
+
+**Expected**: Editing the Override Price on an inactive row automatically re-activates it. (No commit — staged edit discarded on the next navigation.)
+**Data**: location=1606, product group=2609
+
+---
+
+## TC-CPR-OVR-035: Clicking a column header does not sort (no active sort state, row order unchanged)
+| Priority | Status | Type |
+|----------|--------|------|
+| Low | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-004
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected.
+
+**Steps**:
+1. Click a column header (e.g. "Product Group Name") -> no active sort state (`aria-sort` is not ascending/descending)
+2. Read the first row before and after -> row order is unchanged
+
+**Expected**: The Override grid headers are not sort triggers on this build — a header click sets no active sort state and does not reorder rows (consistent with the Search and Detail grids).
+**Data**: location=1606
+
+---
+
+## TC-CPR-OVR-036: Every row shows a Current Price value on office 1606 (no blank cell)
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-004
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected (USD data).
+
+**Steps**:
+1. Read the Current Price cell of every visible row -> each contains a numeric value (never blank / missing)
+
+**Expected**: Current Price renders a value for every row on office 1606 + USD — the blank / red-circle state does not occur here.
+**Data**: location=1606
+
+---
+
+## TC-CPR-OVR-037: Max Discount % accepts values up to the 100 cap (inclusive)
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-004
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected; anchor row at its default.
+
+**Steps**:
+1. Edit the Max Discount % to a normal percentage (10) -> commits
+2. Edit it to the cap value (100) -> commits (the cap is inclusive); the cell shows "100.00 %"
+3. Observe Save -> Enabled
+
+**Expected**: The Max Discount % cap is inclusive at 100 — values up to and including 100 commit. (The over-100 path is a known defect, covered and kept skipped as TC-CPR-OVR-023. No commit — staged edit discarded.)
+**Data**: location=1606, product group=2609
+
+---
+
+## TC-CPR-OVR-038: Every downloaded CSV row is well-formed with valid IDs, currency, 0/1 flags, and money fields
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-032
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected.
+
+**Steps**:
+1. Click the Override toolbar "Export" button -> a CSV file downloads
+2. Read the header row -> the 9 columns are present (Location Id, Product Group Id, Product Group Name, Is Labor, Currency, Current Price, Override Price, Override Discount, Is Active)
+3. Validate every data row against its column's expected format -> no offenders
+
+**Expected**: Every row in the downloaded file has the full 9-column shape, a numeric Location Id and Product Group Id, a supported Currency (USD/CAD/MXN), 0/1 values in the Is Labor and Is Active flag columns, an always-populated Current Price money value, an Override Price that is either blank or a money value, and an Override Discount that is either blank or a plain decimal. The file is a tenant-wide dump (not scoped to the selected location); Product Group Name is free text and is not asserted for content.
+**Data**: location=1606 (trigger only; the file itself spans all locations)

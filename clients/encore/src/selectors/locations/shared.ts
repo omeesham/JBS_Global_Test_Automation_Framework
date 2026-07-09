@@ -4,25 +4,11 @@
  * Other tab-specific selectors (Legal, Account & Address, Notes, etc.) will be added
  * when those modules enter test generation.
  */
-// Verification notes (2026-04-29 live DOM walk):
-// - location-settings-modal-account-list           ✓ PRESENT
-// - location-settings-modal-change-local-office    ✓ PRESENT
-// - location-settings-modal-unsaved-changes        ✓ PRESENT (fires on top-level tab nav,
-//   NOT sub-tab; inner buttons are "Discard"/"Stay", NOT "OK"/"Cancel")
-// - location-settings-modal-save-changes           ✗ MISSING (containerTestid: null in live DOM) — REVERTED below
-// - location-settings-modal-select-customer-address (and 5 inner)  ✗ ALL 6 MISSING — REVERTED in account-address.ts
-// - location-settings-modal-error                  ✗ MISSING — 4 save-error paths forced via
-//   Playwright route mocking + offline (HTTP 500/400/422 + 200/isSuccess=false + network offline);
-//   console confirmed each error fired; in every case form stayed dirty and dialog never
-//   rendered; 0 testids matching error/modal/alert/toast in DOM. REVERTED below.
 export const SetupSharedSelectors = {
  // ---- API Error Dialog ----
- // FIXME (2026-04-29): no container testid is rendered. 4 distinct save-error paths forced via
- // Playwright route mocking on **/api/location/update-properties (HTTP 500, HTTP 400,
- // HTTP 422 with structured payload, HTTP 200 with isSuccess=false body) PLUS full network-offline
- // mode. In every case the error fired (browser console confirmed) but no dialog rendered in DOM
- // and no testid matching error/modal/alert/toast was present. Reverted to role+text-match.
- // Re-migrate when the testid lands or the trigger condition is documented.
+ // No container testid is rendered for the error dialog. Forcing several save-error and offline
+ // paths fired the error (console-confirmed) but never rendered a dialog or any error/alert testid,
+ // so these are a role+text fallback — revisit when the app exposes a testid or documents the trigger.
  /** @where Setup > Location > Error Dialog @el dialog @text "Error" @keys error alert dialog api popup */
   dlgErrorDialog: '[role="alertdialog"]:has-text("Error")',
  /** @where Setup > Location > Error Dialog @el label @text "Error Message" @keys error message body detail */
@@ -31,8 +17,8 @@ export const SetupSharedSelectors = {
   btnErrorOk: '[role="alertdialog"]:has-text("Error") button:has-text("Ok")',
 
  // ---- Save Changes Dialog ----
- // FIXME (2026-04-29): containerTestid: null in live DOM (only Radix data-state/data-slot
- // present). Reverted to role-based + text-match scope until the container testid lands.
+ // No container testid is rendered (only Radix internals present); match by role+text.
+ // Switch to a testid if the app adds one.
  /** @where Setup > Location > Save Changes Dialog @el dialog @text "Save Changes" @keys save confirm dialog alert */
   dlgSaveChanges: '[role="alertdialog"]:has-text("Save Changes")',
  /** @where Setup > Location > Save Changes Dialog @el button @text "Cancel" @keys save cancel abort dialog */

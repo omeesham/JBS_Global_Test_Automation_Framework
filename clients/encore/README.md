@@ -104,6 +104,8 @@ After every run:
 | `reports/junit-results.xml` | JUnit XML for CI dashboards |
 | `reports/test-results.json` | Raw Playwright results |
 
+Each test step in the Playwright HTML report reads as a plain-English action (e.g. "Open the Currency tab", "Save changes and confirm") instead of raw selector code, so the report is readable without a technical background. Expand any step to see the underlying detail.
+
 ### Viewing reports locally
 
 ```bash

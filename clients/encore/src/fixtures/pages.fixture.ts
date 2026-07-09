@@ -36,6 +36,7 @@ import {
   writeStateAtomic,
 } from '../utils/auth-storage';
 import { dependencyGateExt } from './dependency-gate';
+import { wrapWithSteps } from './step-wrapper';
 
 // Define worker-scoped fixtures (shared across tests in same worker)
 type WorkerFixtures = {
@@ -84,14 +85,13 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
 
     await use(undefined as unknown as void);
 
-    // Group C-1 (lifecycle refactor 2026-05-21):
     // Best-effort page-topology check at fixture post-use. Detects context leaks that survive
     // teardown. Worker-scoped browser → contexts() is scoped to this worker.
     //
-    // Known limitation (Phase 0 verification 2026-05-21): the bare-page-collision "bare page + page-object"
+    // Known limitation: the bare-page-collision "bare page + page-object"
     // destructure collision pattern does NOT trigger this check, because Playwright tears down
     // the bare-page test-scoped context BEFORE this auto-use fixture's post-use code runs. The
-    // structural defense for bare-page-collision is the Group E lint guard at pre-commit / pre-push.
+    // structural defense for bare-page-collision is the lint guard at pre-commit / pre-push.
     // This check IS still useful for: (a) contexts created by test code via explicit
     // browser.newContext() that aren't cleaned up; (b) future page-object code that
     // creates side-contexts; (c) any case where >1 context survives test teardown.
@@ -121,7 +121,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
           snapshot.domSnippet = domContent.slice(0, 50_000);
         } catch { /* page may be closed */ }
 
- // Generate for RCA Step 0.2
+ // Capture the failing selector to enrich the failure report
         try {
  // Extract failing selector from error (same prefixes as AgentReporter)
           const selectorPrefixes = ['btn', 'txt', 'drp', 'chk', 'lnk', 'rdo', 'dlg', 'tbl', 'err', 'col', 'spin', 'tab', 'pnl'];
@@ -213,8 +213,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
       const release = await acquireLock();
       try {
         // Re-check: a peer worker may have refreshed while we waited for the lock.
-        // Group A-5 (lifecycle refactor 2026-05-21): probe context
-        // closed under try/finally so a validateState throw doesn't leak the probe context.
+        // Probe context closed under try/finally so a validateState throw doesn't leak it.
         const probe = await browser.newContext(
           fs.existsSync(STATE_PATH) ? { storageState: STATE_PATH } : undefined,
         );
@@ -231,11 +230,10 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
         }
 
         // Full SSO login (file-lock guarantees only this worker is here).
-        // Group A-2 (lifecycle refactor 2026-05-21): SSO step extracted to
-        // performSsoLogin (auth-storage). On throw, the helper has already closed the context;
-        // the surrounding catch is no longer needed for cleanup. Caller-specific error wrapping
-        // preserved so the prior error message ("SSO login failed during state refresh") still
-        // identifies the call path in logs.
+        // SSO step delegated to performSsoLogin (auth-storage). On throw, the helper has already
+        // closed the context; the surrounding catch is no longer needed for cleanup.
+        // Caller-specific error wrapping preserved so the prior error message
+        // ("SSO login failed during state refresh") still identifies the call path in logs.
         let loginCtx: import('@playwright/test').BrowserContext;
         try {
           ({ ctx: loginCtx } = await performSsoLogin(browser, config.base_url, config, credentials));
@@ -251,10 +249,9 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
       }
     };
 
-    // Group A-3 (lifecycle refactor 2026-05-21): hoist the stateMissing
-    // check ABOVE newSharedContext(). The old order created a context, closed it on stale, then
-    // recreated — wasted one context per cold-start worker. With the hoist, refresh runs first
-    // when needed and newSharedContext() runs exactly once.
+    // The stateMissing check is hoisted ABOVE newSharedContext(). The old order created a
+    // context, closed it on stale, then recreated — wasting one context per cold-start worker.
+    // With the hoist, refresh runs first when needed and newSharedContext() runs exactly once.
 
     // AUTH-STATE-SHARED test hook: when EXP_FORCE_STALE_FIRST=1, simulate mid-run
     // expiry on the first pre-test guard call per worker process. Forces both workers
@@ -277,7 +274,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     // Refreshes shared state when the earliest `next-auth.session-token*`
     // expiry is past (with 60s grace). Catches "cookies expired per their own
     // expires field" before the 60s Dashboard timeout fires. Tri-state per
-    // auth.setup.ts:121 — `null` from readEarliestSessionExpiry() means missing
+    // the auth-setup expiry check — `null` from readEarliestSessionExpiry() means missing
     // or all-session-cookies, both already handled by `stateMissing` + existing
     // fail-eventual safety net at validateState's Dashboard wait.
     const earliestExpiry = stateMissing ? null : readEarliestSessionExpiry();
@@ -344,7 +341,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * Uses authenticatedSession page so tests start pre-authenticated.
  */
   locationCurrencyPage: async ({ authenticatedSession, config }, use) => {
-    const locationCurrencyPage = new LocationCurrencyPage(authenticatedSession.page, config);
+    const locationCurrencyPage = wrapWithSteps(new LocationCurrencyPage(authenticatedSession.page, config), 'LocationCurrencyPage');
     await use(locationCurrencyPage);
   },
 
@@ -354,7 +351,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * R14 exception (intentional): Must use authenticatedSession.page to access Navigator Cloud.
  */
   locationLocalInfoPage: async ({ authenticatedSession, config }, use) => {
-    const locationLocalInfoPage = new LocationLocalInfoPage(authenticatedSession.page, config);
+    const locationLocalInfoPage = wrapWithSteps(new LocationLocalInfoPage(authenticatedSession.page, config), 'LocationLocalInfoPage');
     await use(locationLocalInfoPage);
   },
 
@@ -363,7 +360,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * Uses authenticatedSession page so tests start pre-authenticated.
  */
   locationPricingPage: async ({ authenticatedSession, config }, use) => {
-    const locationPricingPage = new LocationPricingPage(authenticatedSession.page, config);
+    const locationPricingPage = wrapWithSteps(new LocationPricingPage(authenticatedSession.page, config), 'LocationPricingPage');
     await use(locationPricingPage);
   },
 
@@ -372,7 +369,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * Uses authenticatedSession page so tests start pre-authenticated.
  */
   locationAccountAddressPage: async ({ authenticatedSession, config }, use) => {
-    const locationAccountAddressPage = new LocationAccountAddressPage(authenticatedSession.page, config);
+    const locationAccountAddressPage = wrapWithSteps(new LocationAccountAddressPage(authenticatedSession.page, config), 'LocationAccountAddressPage');
     await use(locationAccountAddressPage);
   },
 
@@ -381,7 +378,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * Uses authenticatedSession page so tests start pre-authenticated.
  */
   locationNotesPage: async ({ authenticatedSession, config }, use) => {
-    const locationNotesPage = new LocationNotesPage(authenticatedSession.page, config);
+    const locationNotesPage = wrapWithSteps(new LocationNotesPage(authenticatedSession.page, config), 'LocationNotesPage');
     await use(locationNotesPage);
   },
 
@@ -390,7 +387,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * Uses authenticatedSession page so tests start pre-authenticated.
  */
   locationLegalPage: async ({ authenticatedSession, config }, use) => {
-    const locationLegalPage = new LocationLegalPage(authenticatedSession.page, config);
+    const locationLegalPage = wrapWithSteps(new LocationLegalPage(authenticatedSession.page, config), 'LocationLegalPage');
     await use(locationLegalPage);
   },
 
@@ -399,7 +396,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * Uses authenticatedSession page so tests start pre-authenticated.
  */
   locationLeftPanelBasicInformationPage: async ({ authenticatedSession, config }, use) => {
-    const locationLeftPanelBasicInformationPage = new LocationLeftPanelBasicInformationPage(authenticatedSession.page, config);
+    const locationLeftPanelBasicInformationPage = wrapWithSteps(new LocationLeftPanelBasicInformationPage(authenticatedSession.page, config), 'LocationLeftPanelBasicInformationPage');
     await use(locationLeftPanelBasicInformationPage);
   },
 
@@ -408,32 +405,32 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * Uses authenticatedSession page so tests start pre-authenticated.
  */
   locationSharedSetupLocationsPage: async ({ authenticatedSession, config }, use) => {
-    const locationSharedSetupLocationsPage = new LocationSharedSetupLocationsPage(authenticatedSession.page, config);
+    const locationSharedSetupLocationsPage = wrapWithSteps(new LocationSharedSetupLocationsPage(authenticatedSession.page, config), 'LocationSharedSetupLocationsPage');
     await use(locationSharedSetupLocationsPage);
   },
 
   localOfficeSettingsPage: async ({ authenticatedSession, config }, use) => {
-    const localOfficeSettingsPage = new LocalOfficeSettingsPage(authenticatedSession.page, config);
+    const localOfficeSettingsPage = wrapWithSteps(new LocalOfficeSettingsPage(authenticatedSession.page, config), 'LocalOfficeSettingsPage');
     await use(localOfficeSettingsPage);
   },
 
   localOfficeHistoryPage: async ({ authenticatedSession, config }, use) => {
-    const localOfficeHistoryPage = new LocalOfficeHistoryPage(authenticatedSession.page, config);
+    const localOfficeHistoryPage = wrapWithSteps(new LocalOfficeHistoryPage(authenticatedSession.page, config), 'LocalOfficeHistoryPage');
     await use(localOfficeHistoryPage);
   },
 
   localOfficeEctPage: async ({ authenticatedSession, config }, use) => {
-    const localOfficeEctPage = new LocalOfficeEctPage(authenticatedSession.page, config);
+    const localOfficeEctPage = wrapWithSteps(new LocalOfficeEctPage(authenticatedSession.page, config), 'LocalOfficeEctPage');
     await use(localOfficeEctPage);
   },
 
   locationAutoAddonPage: async ({ authenticatedSession, config }, use) => {
-    const locationAutoAddonPage = new LocationAutoAddonPage(authenticatedSession.page, config);
+    const locationAutoAddonPage = wrapWithSteps(new LocationAutoAddonPage(authenticatedSession.page, config), 'LocationAutoAddonPage');
     await use(locationAutoAddonPage);
   },
 
   locationManagementHistoryPage: async ({ authenticatedSession, config }, use) => {
-    const locationManagementHistoryPage = new LocationManagementHistoryPage(authenticatedSession.page, config);
+    const locationManagementHistoryPage = wrapWithSteps(new LocationManagementHistoryPage(authenticatedSession.page, config), 'LocationManagementHistoryPage');
     await use(locationManagementHistoryPage);
   },
 
@@ -442,7 +439,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
    * S1/S2/S3 add their own per-screen page-object fixtures extending CorporatePricingBasePage.
    */
   corporatePricingBasePage: async ({ authenticatedSession, config }, use) => {
-    const corporatePricingBasePage = new CorporatePricingBasePage(authenticatedSession.page, config);
+    const corporatePricingBasePage = wrapWithSteps(new CorporatePricingBasePage(authenticatedSession.page, config), 'CorporatePricingBasePage');
     await use(corporatePricingBasePage);
   },
 
@@ -451,7 +448,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
    * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
    */
   corporatePricingSearchPage: async ({ authenticatedSession, config }, use) => {
-    const corporatePricingSearchPage = new CorporatePricingSearchPage(authenticatedSession.page, config);
+    const corporatePricingSearchPage = wrapWithSteps(new CorporatePricingSearchPage(authenticatedSession.page, config), 'CorporatePricingSearchPage');
     await use(corporatePricingSearchPage);
   },
 
@@ -460,7 +457,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
    * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
    */
   corporatePricingStrategyPage: async ({ authenticatedSession, config }, use) => {
-    const corporatePricingStrategyPage = new CorporatePricingStrategyPage(authenticatedSession.page, config);
+    const corporatePricingStrategyPage = wrapWithSteps(new CorporatePricingStrategyPage(authenticatedSession.page, config), 'CorporatePricingStrategyPage');
     await use(corporatePricingStrategyPage);
   },
 
@@ -469,7 +466,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
    * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
    */
   corporatePricingDetailPage: async ({ authenticatedSession, config }, use) => {
-    const corporatePricingDetailPage = new CorporatePricingDetailPage(authenticatedSession.page, config);
+    const corporatePricingDetailPage = wrapWithSteps(new CorporatePricingDetailPage(authenticatedSession.page, config), 'CorporatePricingDetailPage');
     await use(corporatePricingDetailPage);
   },
 
@@ -478,7 +475,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
    * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
    */
   corporatePricingOverridePage: async ({ authenticatedSession, config }, use) => {
-    const corporatePricingOverridePage = new CorporatePricingOverridePage(authenticatedSession.page, config);
+    const corporatePricingOverridePage = wrapWithSteps(new CorporatePricingOverridePage(authenticatedSession.page, config), 'CorporatePricingOverridePage');
     await use(corporatePricingOverridePage);
   },
 
@@ -487,7 +484,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
    * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
    */
   corporatePricingNewPricebookPage: async ({ authenticatedSession, config }, use) => {
-    const corporatePricingNewPricebookPage = new CorporatePricingNewPricebookPage(authenticatedSession.page, config);
+    const corporatePricingNewPricebookPage = wrapWithSteps(new CorporatePricingNewPricebookPage(authenticatedSession.page, config), 'CorporatePricingNewPricebookPage');
     await use(corporatePricingNewPricebookPage);
   },
 

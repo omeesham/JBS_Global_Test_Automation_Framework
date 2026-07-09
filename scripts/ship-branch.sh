@@ -16,7 +16,7 @@
 #
 # DEFAULT = DRY-RUN (build + trim + deny-list verify, NO push). Pass --push to push.
 #
-# 5 branches (each currently also carries the now-retired *_testrail.xlsx twin —
+# 16 branches (each currently also carries the now-retired *_testrail.xlsx twin —
 # DELETE it on the next refresh, LR-050):
 #   notes            --modules=LOC.NTS  --surface='location-notes*'
 #   ssl              --modules=LOC.SSL  --surface='location-shared-setup*'
@@ -26,6 +26,17 @@
 #   nm2262           --modules=CPR.LEX  --surface='corporate-pricing-loc-export*'   (Loc Pricing Export)
 #   nm2264           --modules=CPR.EXA  --surface='corporate-pricing-export-all*'   (Export All)
 #   nm2305           --modules=CPR.LIM  --surface='corporate-pricing-loc-import*'   (Loc Pricing Import)
+#   auto-addon             --modules=LOC.AAO  --surface='location-auto-addon*'
+#   left-panel-basic-info  --modules=LOC.LP   --surface='location-left-panel-basic-information*'
+#   locations              --modules=LOC.ACC,LOC.AAO,LOC.LP,LOC.LGL,LOC.NTS,LOC.SSL
+#                          --surface='location-account-address*,location-auto-addon*,location-left-panel-basic-information*,location-legal*,location-notes*,location-shared-setup*'
+#   nm2260           --modules=CPR.DET,CPR.SRC  --surface='corporate-pricing-detail*,corporate-pricing-search*'
+#   nm2261           --modules=CPR.STR          --surface='corporate-pricing-strategy*'
+#   nm2263           --modules=CPR.NPB          --surface='corporate-pricing-new-pricebook*'
+#   nm2265           --modules=CPR.IMA          --surface='corporate-pricing-import-all*'   (Import All)
+#   nm2267           --modules=CPR.OVR          --surface='corporate-pricing-override*'     (Product Group Override)
+# The corporate-pricing collection preset (CPR) now = exactly the 8 delivered tickets — the toolbar_io
+# submodule was dissolved 2026-07-09 (its unique cases folded into EXA/LIM/SRC).
 #
 # Usage:
 #   bash scripts/ship-branch.sh --branch=notes                 # preset, dry-run
@@ -49,7 +60,7 @@ for arg in "$@"; do
   esac
 done
 
-# Presets for the 5 known branches (override with explicit --modules/--surface).
+# Presets for the 16 known branches (override with explicit --modules/--surface).
 if [[ -z "$MODULES" || -z "$SURFACE" ]]; then
   case "$BRANCH" in
     notes)            MODULES="${MODULES:-LOC.NTS}"; SURFACE="${SURFACE:-location-notes*}" ;;
@@ -60,6 +71,14 @@ if [[ -z "$MODULES" || -z "$SURFACE" ]]; then
     nm2262)           MODULES="${MODULES:-CPR.LEX}"; SURFACE="${SURFACE:-corporate-pricing-loc-export*}" ;;
     nm2264)           MODULES="${MODULES:-CPR.EXA}"; SURFACE="${SURFACE:-corporate-pricing-export-all*}" ;;
     nm2305)           MODULES="${MODULES:-CPR.LIM}"; SURFACE="${SURFACE:-corporate-pricing-loc-import*}" ;;
+    auto-addon)             MODULES="${MODULES:-LOC.AAO}"; SURFACE="${SURFACE:-location-auto-addon*}" ;;
+    left-panel-basic-info)  MODULES="${MODULES:-LOC.LP}";  SURFACE="${SURFACE:-location-left-panel-basic-information*}" ;;
+    locations)              MODULES="${MODULES:-LOC.ACC,LOC.AAO,LOC.LP,LOC.LGL,LOC.NTS,LOC.SSL}"; SURFACE="${SURFACE:-location-account-address*,location-auto-addon*,location-left-panel-basic-information*,location-legal*,location-notes*,location-shared-setup*}" ;;
+    nm2260)                 MODULES="${MODULES:-CPR.DET,CPR.SRC}"; SURFACE="${SURFACE:-corporate-pricing-detail*,corporate-pricing-search*}" ;;
+    nm2261)                 MODULES="${MODULES:-CPR.STR}"; SURFACE="${SURFACE:-corporate-pricing-strategy*}" ;;
+    nm2263)                 MODULES="${MODULES:-CPR.NPB}"; SURFACE="${SURFACE:-corporate-pricing-new-pricebook*}" ;;
+    nm2265)                 MODULES="${MODULES:-CPR.IMA}"; SURFACE="${SURFACE:-corporate-pricing-import-all*}" ;;
+    nm2267)                 MODULES="${MODULES:-CPR.OVR}"; SURFACE="${SURFACE:-corporate-pricing-override*}" ;;
     *) echo "[ship-branch] need --modules and --surface (no preset for branch '$BRANCH')" >&2; exit 2 ;;
   esac
 fi

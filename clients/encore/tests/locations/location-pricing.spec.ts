@@ -56,7 +56,7 @@ test.describe('Location Pricing @locations @pricing', () => {
     dependencyGate([]);
  // The beforeEach (ensureDefaultState) has already navigated to the Pricing tab and restored the
  // baseline (both checkboxes checked, test rows clean). This test asserts that default render.
-    expect(locationPricingPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
+    expect(locationPricingPage.getCurrentUrl(), 'Should be on the Location Settings page').toContain(`locations/${OFFICE_NO}/settings`);
  // Poll for checkbox state — the data load applies persisted values to the DOM asynchronously.
     await expect.poll(
       async () => (await locationPricingPage.getCheckboxState('chkCorporatePricing')).checked,
@@ -81,7 +81,7 @@ test.describe('Location Pricing @locations @pricing', () => {
   test('TC-LOC-PRI-003: Verify Location Secondary Pricing grid structure (7 columns)', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
     const headers = await locationPricingPage.getColumnHeaders();
-    expect(headers).toEqual([...PRICING_COLUMN_HEADERS]);
+    expect(headers, 'Pricing grid should display all expected columns').toEqual([...PRICING_COLUMN_HEADERS]);
     expect(await locationPricingPage.isGridRowVisible(PRIMARY_TEST_ROW)).toBe(true);
   });
 
@@ -110,7 +110,6 @@ test.describe('Location Pricing @locations @pricing', () => {
       () => locationPricingPage.getUseEffectiveDateState(PRIMARY_TEST_ROW).then(s => s.disabled),
       { timeout: 5_000, message: 'Use Effective Date should be enabled after Is Alternative checked' },
     ).toBe(false);
- // Cleanup
     await locationPricingPage.resetGridRow(PRIMARY_TEST_ROW);
   });
 
@@ -141,7 +140,6 @@ test.describe('Location Pricing @locations @pricing', () => {
  // date field enable cascades async after Use Effective Date check.
     await expect.poll(() => locationPricingPage.isStartDateEnabled(PRIMARY_TEST_ROW), { timeout: 5_000, message: 'Start Date should be enabled' }).toBe(true);
     await expect.poll(() => locationPricingPage.isEndDateEnabled(PRIMARY_TEST_ROW), { timeout: 5_000, message: 'End Date should be enabled' }).toBe(true);
- // Cleanup
     await locationPricingPage.resetGridRow(PRIMARY_TEST_ROW);
   });
 
@@ -158,7 +156,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     expect(useDate.checked, 'Use Effective Date should still be unchecked').toBe(false);
     expect(await locationPricingPage.isStartDateEnabled(TERTIARY_TEST_ROW)).toBe(false);
     expect(await locationPricingPage.isEndDateEnabled(TERTIARY_TEST_ROW)).toBe(false);
- // Cleanup
     await locationPricingPage.resetGridRow(TERTIARY_TEST_ROW);
   });
 
@@ -174,7 +171,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     const endVal = await locationPricingPage.getEndDateValue(PRIMARY_TEST_ROW);
     expect(startVal, 'Start Date should be cleared after unchecking Use Effective Date').toBe('');
     expect(endVal, 'End Date should be cleared after unchecking Use Effective Date').toBe('');
- // Cleanup
     await locationPricingPage.resetGridRow(PRIMARY_TEST_ROW);
   });
 
@@ -206,7 +202,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     ).toBe(false);
     const after = await locationPricingPage.verifyPrimaryDropdownStates(PRIMARY_PRICING_DROPDOWNS, false);
     expect(after.allPassed, after.failures.join('; ')).toBe(true);
- // Restore
     await locationPricingPage.checkCheckbox('chkCorporatePricing');
   });
 
@@ -221,7 +216,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     expect(isAlt.disabled, 'Is Alternative should remain enabled').toBe(false);
     const useDate = await locationPricingPage.getUseEffectiveDateState(PRIMARY_TEST_ROW);
     expect(useDate.disabled, 'Use Effective Date should remain enabled').toBe(false);
- // Restore
     await locationPricingPage.checkCheckbox('chkCorporatePricing');
     await locationPricingPage.resetGridRow(PRIMARY_TEST_ROW);
   });
@@ -272,7 +266,6 @@ test.describe('Location Pricing @locations @pricing', () => {
  // possible here — verified live that the filter dropdown offers only the currencies actually
  // present (no CAD/MXN option to select). This test therefore proves the USD filter keeps the USD
  // rows visible and does not wrongly drop them; the hide behaviour requires a multi-currency office.
- // Reset filter
     await locationPricingPage.selectCurrencyFilter(DEFAULT_CURRENCY_FILTER);
   });
 
@@ -297,7 +290,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     const hasError = await locationPricingPage.hasDateValidationError();
     expect(hasError, 'Validation error should appear for missing Start Date').toBe(true);
     await locationPricingPage.closeDatePopover();
- // Cleanup
     await locationPricingPage.resetGridRow(PRIMARY_TEST_ROW);
   });
 
@@ -305,7 +297,7 @@ test.describe('Location Pricing @locations @pricing', () => {
     dependencyGate(['TC-LOC-PRI-001']);
  // TC intent: verify End Date field validates (cannot accept invalid input).
  // Adaptation: Radix date picker input is readOnly -- only calendar selection is allowed.
- // RCA-fix: PRI-018's resetGridRow may leave Is Alternative checked if Radix state drifts.
+ // PRI-018's resetGridRow may leave Is Alternative checked if Radix state drifts.
  // Ensure clean row state before enabling full cascade.
     await locationPricingPage.resetGridRow(PRIMARY_TEST_ROW);
     await locationPricingPage.enableFullCascade(PRIMARY_TEST_ROW);
@@ -319,7 +311,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     const hasError = await locationPricingPage.hasDateValidationError();
     expect(hasError, 'Validation error should appear for missing End Date').toBe(true);
     await locationPricingPage.closeDatePopover();
- // Cleanup
     await locationPricingPage.resetGridRow(PRIMARY_TEST_ROW);
   });
 
@@ -333,7 +324,6 @@ test.describe('Location Pricing @locations @pricing', () => {
       const state = await locationPricingPage.getIsAlternativeState(pb);
       expect(state.checked, `${pb} should be checked`).toBe(true);
     }
- // Cleanup
     for (const pb of MULTI_ALT_PRICEBOOKS) {
       await locationPricingPage.resetGridRow(pb);
     }
@@ -388,7 +378,7 @@ test.describe('Location Pricing @locations @pricing', () => {
       { timeout: 15_000, message: 'Start date should persist after save+reload' }
     ).toContain(DATE_TEST_VALUES.startDate);
     const endVal = await locationPricingPage.getEndDateValue(PRIMARY_TEST_ROW);
-    expect(endVal).toContain(DATE_TEST_VALUES.endDate);
+    expect(endVal, 'End date should persist after save and reload').toContain(DATE_TEST_VALUES.endDate);
     await expect.poll(
       async () => (await locationPricingPage.getIsAlternativeState(PRIMARY_TEST_ROW)).checked,
       { timeout: 10_000, message: 'Is Alternative should be checked after save+reload' }
@@ -403,7 +393,7 @@ test.describe('Location Pricing @locations @pricing', () => {
   test('TC-LOC-PRI-023: Verify Pricing tab has dedicated Save button', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
  // TC: Pricing tab has a dedicated Save button that enables when form is dirty.
- // MCP-verified: button[data-testid="location-settings-btn-save"] exists on Pricing tab.
+ // Live-verified: button[data-testid="location-settings-btn-save"] exists on Pricing tab.
  // reloadPricingTab (not navigate) — forces full page reload to clear dirty state from prior serial tests
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
  // M1: Save button should be DISABLED on clean page load (no pending changes)
@@ -424,7 +414,7 @@ test.describe('Location Pricing @locations @pricing', () => {
     const key = 'chkPriceGuideInclusive';
     const label = 'Include Service Fee in Price Guides';
     await locationPricingPage.navigateToPricingTab(OFFICE_NO);
- // RCA PRI-025: use expect.poll — Angular applies API data to DOM async after networkidle.
+ // Use expect.poll — Angular applies API data to DOM async after networkidle.
     await expect.poll(
       () => locationPricingPage.getCheckboxState(key).then(s => s.checked),
       { timeout: 10_000, message: `${label} should be checked (waiting for API data)` }
@@ -474,7 +464,6 @@ test.describe('Location Pricing @locations @pricing', () => {
       () => locationPricingPage.getCheckboxState(key).then(s => s.checked),
       { timeout: 10_000, message: 'Corporate Pricing should remain unchecked after reload' }
     ).toBe(false);
- // Restore
     await locationPricingPage.checkCheckbox(key);
     await locationPricingPage.waitForSaveEnabled();
     const restoreSave = await locationPricingPage.clickSave();

@@ -9,7 +9,7 @@ export const DynamicSelectors = {
 
  // ---- Pricing Tab Grid ----
  // NOTE: Grid checkboxes are Radix button[role="checkbox"], not native input[type="checkbox"].
- // Date cells use input[data-slot="input"], not direct <button>. MCP-verified .
+ // Date cells use input[data-slot="input"], not direct <button>. Live-verified.
  /** @where Setup > Location > Pricing tab > Grid @el row @text "{priceBookName}" @keys price-book row pricing @param priceBookName -- price book name */
   rowPriceBook: (priceBookName: string) => `tr:has(td:has-text("${priceBookName}"))`,
  /** @where Setup > Location > Pricing tab > Grid @el checkbox @text "{priceBookName}" @keys alternative price-book toggle @param priceBookName -- price book name */

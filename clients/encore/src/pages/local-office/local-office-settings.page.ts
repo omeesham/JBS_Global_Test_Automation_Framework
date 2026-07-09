@@ -172,7 +172,7 @@ export class LocalOfficeSettingsPage extends BasePage {
 
  /**
  * Click a tab. Handles "Unsaved changes" alertdialog if it appears.
- * RCA ECT-012: Angular doesn't reliably call markAsPristine after ECT save.
+ * Angular doesn't reliably call markAsPristine after ECT save.
  * The save API completes (button disables, toast shows) but the form dirty flag
  * persists. Clicking another tab triggers the dirty guard → "Unsaved changes" dialog.
  * Dismiss with "Discard" to complete the navigation.

@@ -33,7 +33,6 @@ If a rule applies to any Angular/Playwright client, it belongs in root `CLAUDE.m
 - **Auth**: Microsoft SSO; credentials in `clients/encore/.env.local` (gitignored; CI injects credentials from its secret store)
 - **Module registry**: `clients/encore/docs/MODULE_REGISTRY.md` (agent-only — gitignored per root `.gitignore:185`, never ships)
 - **Requirements**: `clients/encore/docs/REQUIREMENTS.md` (agent-only — gitignored per root `.gitignore:184`, never ships)
-- **Encore-specific agent rules** (ALL-* additions): `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md`
 - **Jira prefix**: `NM-NNNN` (e.g., NM-1264 — Delivery ≥ Prep cross-field validation)
 
 ---
@@ -123,6 +122,43 @@ When a walk, spec, RCA, `/find-bugs`, or `/encore-questions` session hits an emp
 
 **Cross-refs**: NM-1881 (Labor), `_internal/intake/commission-hunter-2026-06-26.md` (Commission KT), `patterns.md` "corrupt/atypical" tree, LR-061 (N≥2 evidence), LR-ENC-001 (baseline truth).
 
+### LR-ENC-006: Client-readable Playwright report — every page-object action renders as a plain-English step
+
+The Encore HTML report ships to a non-technical client. Every public **async** method on a page object
+that performs a user-visible action MUST render as a short plain-English sentence (action-first, ≤ ~12
+words, no selectors / `data-testid` / locator code) in the report — NOT the raw
+`Click locator('[data-testid="…"]')` that Playwright auto-generates from the code line.
+
+**Mechanism** (do not bypass):
+- A fixture-layer Proxy (`clients/encore/src/fixtures/step-wrapper.ts`, `wrapWithSteps`) wraps every
+  page-object fixture in `pages.fixture.ts` and auto-derives each label from the method name via
+  `camelToLabel` + a jargon-translation map. NEW page-object fixtures MUST be wrapped the same way.
+- Label DATA (jargon map + hand-label overrides + jargon deny-list) lives in ONE file:
+  `clients/encore/src/fixtures/label-jargon.json` — imported by the runtime AND (via
+  `scripts/lib/label-derivation.mjs`) by the tooling. Add a translation there when a method name carries
+  an abbreviation (SSL → "Shared Setup Locations", ECT → "ECT Settings", Csv → "CSV"); add a hand-label
+  override for the highest-visibility methods that deserve a terser sentence.
+- Auth/login (`LoginPage`) is EXCLUDED — it is constructed in `auth-storage.ts`, never through the
+  Proxy, and the client never needs "log in via SSO" narrated. The `safeStep` guard also degrades to an
+  unwrapped call when there is no active test context (worker-scoped auth refresh), so wrapping can never
+  break the suite.
+- Specs MUST NOT call `.page.<accessor>().<action>()` directly (e.g. `p.page.locator(...).click()`) —
+  that prints raw locator code as a step title. Move the action behind a labelled page-object method, or
+  wrap the block in `test.step('short english', …)`.
+
+**Enforcement**:
+- Pre-commit gate `scripts/check-step-labels.mjs` (slot 5o, `npm run check:step-labels`) — fails a commit
+  that stages an unwrapped fixture, a method whose derived label carries untranslated jargon, or a spec
+  with a raw `.page.<action>`.
+- One-time audit `node scripts/generate-label-inventory.mjs` — prints every auto-derived label and fails
+  on residual jargon; run it after adding page objects to prove the report stays clean.
+
+**Trigger**: any new page object / fixture; any spec authoring; any method rename on a page object.
+**Graduated from**: 2026-07-09 — client feedback that the delivered report read as raw code
+(`Click locator('[data-testid="…"]')`); PLAN_ENCORE_REPORT_READABILITY. Cross-refs LR-058 (no jargon in
+shipped source), LR-017 (page separation); one clean report for all audiences (engineers expand the step
+tree for raw detail).
+
 ### LR-008: Date offset validation — positivity constraints per field type
 "Relative to start" fields (Prep, Set, Delivery) must be <= 0.
 "Relative to end" fields (Return, Strike, Pickup) must be >= 0.
@@ -141,7 +177,7 @@ Pages at different URLs are DIFFERENT pages. Never merge selectors into a shared
 object or co-locate files in the same directory. Each page group gets its own selector
 partition, own directory, and own collision detection boundary.
 "Location Settings" (`/settings/location`) ≠ "Local Office Settings" (`/settings/local-office`).
-Check `clients/encore/docs/REQUIREMENTS.md`, `clients/encore/docs/MODULE_REGISTRY.md`, and `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` for page boundaries before creating any new page object.
+Check `clients/encore/docs/REQUIREMENTS.md` and `clients/encore/docs/MODULE_REGISTRY.md` for page boundaries before creating any new page object.
 Directory structure mirrors the app navigation hierarchy: `clients/encore/tests/{module}/` + `clients/encore/src/pages/{module}/` + `clients/encore/src/selectors/{module}/` + `clients/encore/src/data/{module}/` (modules: `locations`, `local-office`, `corporate-pricing`). (Post-2026-06-05 POM restructure: `specs/`→`tests/`, `src/data/testdata/`→`src/data/`.)
 **Trigger**: Any new page object or selector file creation.
 
@@ -175,7 +211,6 @@ returned empty for every SVG row → every boolean assertion false regardless of
 
 | File | Purpose |
 |---|---|
-| `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` | Encore-specific additions to framework agent rules (§12 additions, Encore Jira ID conventions, Office 1604 hardcode notes). Paired with `docs/REQUIREMENTS.md` (functional spec) + `docs/MODULE_REGISTRY.md` (module→directory map) — all three live agent-only (gitignored, never ship). |
 | `clients/encore/specs_planning/_internal/agent-mistakes.md` | Encore-specific agent mistake log (graduates to LR-ENC-NNN here when patterns repeat) |
 
 ---

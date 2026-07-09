@@ -8,11 +8,22 @@
 
 import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
 
 const dir = mkdtempSync(join(tmpdir(), "idsw-"));
-const checker = new URL("./check-identity-switch.mjs", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1");
+// fileURLToPath (not `new URL(...).pathname`) — pathname leaves spaces
+// percent-encoded (%20) and keeps the leading slash before the drive letter, so
+// on a repo root WITH SPACES it yields a non-existent path → MODULE_NOT_FOUND.
+// fileURLToPath decodes and returns an OS-native path the subprocess can load.
+const checker = fileURLToPath(new URL("./check-identity-switch.mjs", import.meta.url));
+// Repo root, computed the SAME way the hook computes its REPO_ROOT
+// (checker is at <root>/.claude/hooks/lib/…). Used to build absolute-path
+// fixtures that exercise normalizePath's REPO_ROOT strip against THIS checkout's
+// root — spaces and all — so the test is portable across machines.
+const repoRoot = resolve(dirname(checker), "..", "..", "..").replace(/\\/g, "/");
+const absFromRoot = (rel) => `${repoRoot}/${rel}`;
 
 let failures = 0;
 let total = 0;
@@ -126,6 +137,38 @@ runPreToolUse("pretool_bash_allow", [
   user("/identity HUNTER"),
   asst("[HUNTER | ...] > Loaded.", [identitySkillCall("HUNTER")]),
 ], { tool_name: "Bash", tool_input: { command: "ls" } }, "allow");
+
+// === Absolute-path normalization fixtures (Windows Edit/Write tool paths) ===
+// The Edit/Write tools pass ABSOLUTE paths; on this repo the root contains spaces.
+// normalizePath must relativize them against REPO_ROOT before the §2 lookup, or
+// every pipeline-identity write default-denies (the 2026-07-09 regression). These
+// build the absolute path from THIS checkout's root so they run anywhere.
+
+// A1. REGRESSION REPRO — BUILDER + Edit of an ABSOLUTE selectors path (spaces in
+// root) → allow. BUILDER has ADD on clients/${ACTIVE_CLIENT}/src/selectors/**;
+// pre-fix this default-denied because the absolute path matched no §2 row.
+runPreToolUse("pretool_builder_abs_selectors_allow", [
+  user("/identity BUILDER"),
+  asst("[BUILDER | GEN-* ALL-* LR-*] > Loaded.", [identitySkillCall("BUILDER")]),
+], { tool_name: "Edit", tool_input: { file_path: absFromRoot("clients/encore/src/selectors/corporate-pricing/override.ts") } }, "allow");
+
+// A2. ANTI-BLANKET-ALLOW — BUILDER + Edit of an ABSOLUTE base.page.ts path
+// (backslash separators) → deny. BUILDER = "—" on base.page.ts, so relativization
+// must still resolve to the correct §2 row and DENY — proving the fix normalizes
+// rather than short-circuiting every absolute path to allow.
+runPreToolUse("pretool_builder_abs_basepage_deny", [
+  user("/identity BUILDER"),
+  asst("[BUILDER | GEN-* ALL-* LR-*] > Loaded.", [identitySkillCall("BUILDER")]),
+], { tool_name: "Edit", tool_input: { file_path: absFromRoot("clients/encore/src/pages/base.page.ts").replace(/\//g, "\\") } }, "deny");
+
+// A3. LAYER-1 ON ABSOLUTE PATH — OWNER + /execute + Write to an ABSOLUTE
+// test-cases path in deny mode → deny. Proves isPipelineArtifact() also sees the
+// relativized path (pre-fix the Layer-1 OWNER gate silently no-op'd on absolutes).
+runPreToolUse("layer1_owner_execute_abs_testcases_deny", [
+  user("/execute PLAN_FOO.md"),
+  asst("Starting execution.", [executeSkillCall()]),
+], { tool_name: "Write", tool_input: { file_path: absFromRoot("clients/encore/specs_planning/test-cases/foo.md"), session_id: "tA3" } }, "deny",
+  { IDENTITY_GATE_MODE: "deny" });
 
 // === Layer-1 OWNER pipeline-artifact gate fixtures (PLAN_IDENTITY_ENFORCEMENT) ===
 // The gate fires only when ALL hold: ground-truth OWNER + active /execute (Skill=execute,

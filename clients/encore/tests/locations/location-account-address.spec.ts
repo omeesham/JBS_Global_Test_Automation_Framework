@@ -10,10 +10,10 @@ import { OFFICE_NO } from '../../src/data/common';
 
 test.describe('Location Account and Address @locations @account-address', () => {
 
-  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
+  // Per-test navigation guard.
   // DOM-presence beats url.includes — Encore sub-tabs share `settings/location` URL,
   // so the URL match returns true after a sibling spec like Notes even when this tab
-  // is not active. Mirrors location-pricing.spec.ts isOnPricingTab() pattern.
+  // is not active.
   //
   // Hook timeout = 60s (default config = 30s). Cold-start nav (SSO handoff + Angular load
   // + tab activate + phone1 hydrate) can exceed 30s under M365/Encore backend contention
@@ -105,8 +105,7 @@ test.describe('Location Account and Address @locations @account-address', () => 
   });
 
   // ─── NET-NEW granular field-coverage cases (TC-LOC-ACC-029..031) — blended at the TOP of the
-  //     existing describe, same @locations @account-address tags, no separate fcc-tag (Rutvik
-  //     2026-05-29 standing convention). De-dup by proven outcome (catalog account-address-2026-05-29).
+  //     existing describe, same @locations @account-address tags, no separate fcc-tag.
   //     Save-cycle case uses the field-coverage runner; filter cases use ordinary test() (no save). ───
 
   // BUG-BLOCKED: BUG-LOC-ACC-001 — clearing Phone 2 and saving does NOT persist empty; the prior
@@ -176,8 +175,8 @@ test.describe('Location Account and Address @locations @account-address', () => 
     dependencyGate([]);
     test.setTimeout(60_000);
     await locationAccountAddressPage.navigateToAccountAndAddressTab(OFFICE_NO);
-    expect(await locationAccountAddressPage.isVenueCardVisible()).toBe(true);
-    expect(await locationAccountAddressPage.isMasterCardVisible()).toBe(true);
+    expect(await locationAccountAddressPage.isVenueCardVisible(), 'Venue card should be visible on the page').toBe(true);
+    expect(await locationAccountAddressPage.isMasterCardVisible(), 'Master card should be visible on the page').toBe(true);
   });
 
   test('TC-LOC-ACC-002: Venue Name field is disabled with correct value', async ({ locationAccountAddressPage, dependencyGate }) => {
@@ -312,7 +311,6 @@ test.describe('Location Account and Address @locations @account-address', () => 
     await locationAccountAddressPage.clearPhone1AndBlur();
     expect(await locationAccountAddressPage.isPhone1Invalid()).toBe(true);
     expect(await locationAccountAddressPage.isPhone1ErrorIconVisible()).toBe(true);
- // Restore baseline
     await locationAccountAddressPage.fillPhone1(PHONE1_BASELINE);
     await locationAccountAddressPage.clickSave();
   });
@@ -341,7 +339,6 @@ test.describe('Location Account and Address @locations @account-address', () => 
     expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
     await locationAccountAddressPage.fillPhone2(ACCOUNT_TEST_PHONE);
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Discard changes
     await locationAccountAddressPage.reloadAndNavigate(OFFICE_NO);
   });
 
@@ -350,7 +347,7 @@ test.describe('Location Account and Address @locations @account-address', () => 
     await locationAccountAddressPage.fillPhone2(TEST_PHONE2_VALUE);
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
     await locationAccountAddressPage.clickSave();
-    expect(await locationAccountAddressPage.isSaveEnabled()).toBe(false);
+    expect(await locationAccountAddressPage.isSaveEnabled(), 'Save should be disabled after successful save').toBe(false);
   });
 
   test('TC-LOC-ACC-020: Save changes persist after page reload', async ({ locationAccountAddressPage, dependencyGate }) => {
@@ -366,7 +363,7 @@ test.describe('Location Account and Address @locations @account-address', () => 
     await locationAccountAddressPage.fillPhone2(target);
     await expect.poll(() => locationAccountAddressPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
     await locationAccountAddressPage.clickSave();
- // Reload and confirm Phone 2 persisted. Live RCA 2026-06-02:
+ // Reload and confirm Phone 2 persisted.
  // Phone 2 DOES persist, but the save commits a beat AFTER clickSave() returns. If a single reload's
  // getLocationDetail fires before that commit lands, it serves the pre-save value and the loaded page
  // does not auto-refetch — a fresh re-navigation after the commit reads the persisted value immediately
@@ -411,7 +408,7 @@ test.describe('Location Account and Address @locations @account-address', () => 
 
   test('TC-LOC-ACC-023: Phone 1 cleared shows invalid state and error icon', async ({ locationAccountAddressPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-ACC-001']);
- // MCP-verified : clearing Phone 1 shows aria-invalid=true but Save stays enabled.
+ // Live-verified: clearing Phone 1 shows aria-invalid=true but Save stays enabled.
  // This TC verifies validation indicators; Save blocking is NOT app behavior.
     await locationAccountAddressPage.clearPhone1AndBlur();
     expect(await locationAccountAddressPage.isPhone1Invalid()).toBe(true);
@@ -451,7 +448,7 @@ test.describe('Location Account and Address @locations @account-address', () => 
   test('TC-LOC-ACC-027: Address selection changes venue display fields', async ({ locationAccountAddressPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(60_000);
- // MCP-verified : address selection updates display but does NOT persist through save+reload.
+ // Live-verified: address selection updates display but does NOT persist through save+reload.
  // Angular form model doesn't serialize the new address. This TC tests E2E display change only.
  // Verify starting state
     await expect.poll(() => locationAccountAddressPage.getVenueCityText(), { timeout: 5_000 }).toBe(ORIGINAL_ADDRESS.city);

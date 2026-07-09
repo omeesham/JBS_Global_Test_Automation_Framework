@@ -257,6 +257,21 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
   // DIRTY / SAVE (reuses the shared dialog-gated Save)
   // ---------------------------------------------------------------------------
 
+  /** The Save Changes confirmation dialog. */
+  get saveChangesDialog(): Locator {
+    return this.page.getByRole('alertdialog');
+  }
+
+  /** Click the Detail Save button (surfaces the Save Changes confirmation dialog). */
+  async clickSaveButton(): Promise<void> {
+    await this.page.locator('button:text-is("Save")').first().click();
+  }
+
+  /** Confirm the Save Changes dialog. */
+  async confirmSaveChangesDialog(): Promise<void> {
+    await this.saveChangesDialog.getByRole('button', { name: /^(save|ok)$/i }).first().click();
+  }
+
   /**
    * Click Save (defensive — confirm the "Save Changes" alertdialog), then best-effort wait for
    * Save to disable (commit signal). THROWS if Save is disabled at call time so a silent no-op

@@ -39,6 +39,8 @@
       "Bash(npm run plans:validate-closure:changed *)",
       "Bash(bash .claude/hooks/no-verify-gate.sh)",
       "Bash(node .claude/hooks/lib/check-no-verify.mjs *)",
+      "Bash(bash .claude/hooks/graft-ship-gate.sh)",
+      "Bash(node .claude/hooks/lib/check-graft-ship.mjs *)",
       "mcp__plugin_playwright_playwright__browser_snapshot",
       "mcp__Claude_in_Chrome__read_network_requests",
       "mcp__Claude_in_Chrome__tabs_context_mcp"
@@ -91,6 +93,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/no-verify-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/graft-ship-gate.sh"
           }
         ]
       }

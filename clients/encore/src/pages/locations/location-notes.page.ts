@@ -19,12 +19,10 @@ export class LocationNotesPage extends BasePage {
   }
 
  /**
- * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
- * beforeEach can avoid re-navigating when already on the tab.
+ * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab.
  */
   async isOnNotesTab(): Promise<boolean> {
-    // Fix #4a (radix-tab-dom 2026-05-22):
-    // Use the tab trigger's aria-selected (mirrors base-page.ts:448) instead of count()>0
+    // Use the tab trigger's aria-selected instead of count()>0
     // on a child anchor. Radix mounts inactive panels for some tabs (forceMount-equivalent);
     // the trigger's aria-selected is the only reliable cross-tab signal.
     const tab = this.getElement('tabNotes');
@@ -36,9 +34,9 @@ export class LocationNotesPage extends BasePage {
   async clickNotesTab(): Promise<void> {
     await this.clickWithRetry('tabNotes');
     await this.getElement('sectionNotes').waitFor({ state: 'visible', timeout: 15_000 });
-    // D-1 (lifecycle refactor 2026-05-21): race content vs empty-state so we don't return on
+    // Race content vs empty-state so we don't return on
     // the wrapper alone while the inner Notes data is still hydrating.
-    // Fix #4c: dropped trailing .catch(Log.warn) so race-lost
+    // Dropped trailing .catch(Log.warn) so race-lost
     // timeouts fail loudly at the click step (where the symptom is) instead of being swallowed
     // and surfacing later as misattributed assertion failures.
     await Promise.race([

@@ -3,7 +3,7 @@
 One line per skill. Used by `/relevant` for sub-task skill matching.
 Maintained manually — update when creating or modifying skills.
 
-**Skill count**: 31 (29 + `/coverage` + `/ultracoverage` added 2026-06-24 SUBPLAN_CGS_A; `/slop` and `/upgrade` merged into `/audit` as `--mode={review|slop|upgrade}` per SUBPLAN_CCE_03; alias commands at `.claude/commands/{slop,upgrade}.md` preserve muscle memory).
+**Skill count**: 32 (29 + `/coverage` + `/ultracoverage` added 2026-06-24 SUBPLAN_CGS_A; `/graft` added 2026-07-09 (graft-safety automation — NM-2265 stale-index prevention); `/slop` and `/upgrade` merged into `/audit` as `--mode={review|slop|upgrade}` per SUBPLAN_CCE_03; alias commands at `.claude/commands/{slop,upgrade}.md` preserve muscle memory).
 
 | Skill | Triggers | Match Types | Auto-Calls |
 |---|---|---|---|
@@ -16,6 +16,7 @@ Maintained manually — update when creating or modifying skills.
 | /bugfix | fix, broken, not working, error, crash | DIRECT | identity, regression-guard, reflect |
 | /rca | RCA, root cause, why is this failing, analyze failure | DIRECT | identity |
 | /cleanup | clean up, dead code, remove unused, orphaned | DIRECT | identity, regression-guard |
+| /graft | graft, splice, integrate from branch, port code — hand-port colleague code, verify vs source, prove with a real E2E, sync git index to the tested worktree so the disk never lies (NM-2265 stale-index prevention) | DIRECT | identity |
 | /review | review, check this code, code review, PR | VERIFY | identity |
 | /research | research, best practices, how do others, unfamiliar API | INFORM | identity |
 | /find-bugs | find bugs, QA, break it, stress test, what could go wrong | DIRECT | identity |

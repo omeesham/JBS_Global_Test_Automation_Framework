@@ -278,6 +278,23 @@ if git diff --cached --name-only --diff-filter=ACMR \
   node scripts/check-testid-preference.mjs --staged || true
 fi
 
+# --- 5o) step-label readability gate (readable HTML report). -----------------------
+# Fires when a fixture / page-object / spec is staged. Enforces three things that keep the
+# client-facing Playwright HTML report in plain English: every page-object fixture is wrapped in
+# wrapWithSteps(); no page-object method name derives an untranslated-jargon report label; and specs
+# do not call .page.<accessor>...<action> directly (which prints raw locator code as a step title).
+# --staged scopes the check to the about-to-commit files.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/(src/fixtures/pages\.fixture\.ts|src/pages/.*\.page\.ts|tests/.*\.spec\.ts)$'; then
+  echo "[pre-commit] fixture/page-object/spec staged → step-label readability gate..." >&2
+  if ! node scripts/check-step-labels.mjs --enforce --staged; then
+    echo "[pre-commit] HALT: step-label readability gate failed (unwrapped fixture / jargon label / raw .page. action)." >&2
+    echo "         Fix: wrap the fixture in wrapWithSteps(); add a jargonMap translation or rename the method; move the .page.<action> behind a labelled page-object method or wrap it in test.step()." >&2
+    echo "         Inspect: node scripts/check-step-labels.mjs" >&2
+    exit 1
+  fi
+fi
+
 # --- 6) LR-028 + LR-037: activity-log timestamp validation. ----------------------
 # Fires whenever agent-activity-log.md is staged. Guards against backdated rows
 # (timestamp < latest mtime of any referenced file). --staged scopes the check to the

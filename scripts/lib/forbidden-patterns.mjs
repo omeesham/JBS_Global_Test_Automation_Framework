@@ -152,6 +152,43 @@ export const SOURCE_COMMENT_JARGON = [
   // `specs/` -> `tests/`; any surviving `specs/` reference in a shipped comment/doc is stale.
   // Safe: `specs/` never matches `specs_planning/` (underscore, not slash).
   /\bspecs\//,
+
+  // ── 2026-07-09 comment-scrub additions ──────────────────────────────────────
+  // Families found leaking in shipped test/page/selector comments during the
+  // deliverable comment-scrub. Every pattern below was FAIL-GREEN verified: ZERO
+  // occurrences across the 124 cleaned client-source files before being added, so
+  // the write-time hook + ship gate wedge nothing legitimate. Two families are
+  // deliberately NARROWED (not the bare word) to avoid colliding with possible
+  // Encore equipment codes / product-group names:
+  //   - RCA  -> only the label forms (RCA-fix / RCA note / RCA <TC-ID> / RCA <date>),
+  //             NOT bare "RCA" (could be an equipment connector code).
+  //   - MCP  -> only "MCP-verified" / "MCP verification" / "MCP-RCA" tool refs,
+  //             NOT bare "MCP".
+  //   - The refactor "Group A-1" label is caught via `lifecycle refactor` below,
+  //             not a standalone `Group [A-Z]-\d` (that would hit product groups).
+  // Refactor-changelog labels
+  /\blifecycle refactor\b/i,
+  /\bRelocated 20\d\d\b/,
+  // Root-Cause-Analysis process labels (narrowed — see note above)
+  /\bRCA[- ](?:fix|note|protocol|Step|[A-Z]{2,5}-\d|\d{4}-\d{2}-\d{2})/,
+  /\bmama-led\b/,
+  /\bprobe outcome\b/i,
+  /\baudit refit\b/i,
+  // AI-tooling / agent-fleet vocabulary
+  /\bMCP[ -]?(?:verif|RCA)/i,
+  /\bSubagent [A-Z]\b/,
+  // Internal plan / artifact references
+  /\bsubplan\b/i,
+  /\bmaster plan\b/i,
+  /\bExecution Summary\b/, // case-sensitive: the plan-section artifact name, not lowercase prose
+  /\bchat handoff\b/i,
+  /\bfield-coverage catalog\b/i,
+  /\bcatalog\/MD\b/,
+  /\bREQUIREMENTS(?:_API)?\.md\b/,
+  /\bdependency-gate removal\b/i,
+  // Fragile cross-file line-pointers (`base.page.ts:448`, `auth.setup.ts:121`) — line
+  // numbers drift; the reference rots. Bans the `<file>.ts:<line>` / `<file>.page.ts:<line>` form.
+  /\b[a-z][\w-]*\.(?:page\.)?ts:\d+/,
 ];
 
 // ── Shared helpers ───────────────────────────────────────────────────────────

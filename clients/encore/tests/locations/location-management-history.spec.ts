@@ -31,14 +31,11 @@ function parseDateVal(val: string): number {
 test.describe('Location Management History @locations @management-history', () => {
 
   // Per-test navigation guard. Unconditionally calls navigateToHistoryTab —
-  // the page-object method has its own internal URL-check (page.ts:21) that
-  // skips the navigateTo when URL is already correct, while still re-clicking
-  // the tab when aria-selected != 'true' and waiting on <th> visibility.
-  // Audit 2026-05-08 (MGH stabilization B1'): replaces the previous URL-
-  // substring guard, which proved insufficient — URL on /settings/location does
-  // NOT guarantee History tab is the active tab and <th> is rendered (see
-  // _mgh-only-2026-05-08.txt: TC-008/009/010/011/012/013/014/017 all timed out
-  // at 10s on <th>.first().waitFor in retry workers where beforeEach skipped).
+  // the page-object method has its own internal URL-check that skips the
+  // navigateTo when URL is already correct, while still re-clicking the tab
+  // when aria-selected != 'true' and waiting on <th> visibility.
+  // DOM-presence beats URL-substring — URL on /settings/location does NOT
+  // guarantee History tab is the active tab and <th> is rendered.
   test.beforeEach(async ({ locationManagementHistoryPage }) => {
     await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
   });
@@ -47,14 +44,14 @@ test.describe('Location Management History @locations @management-history', () =
     dependencyGate([]);
     test.setTimeout(60_000);
     await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
-    expect(await locationManagementHistoryPage.isTableVisible()).toBe(true);
+    expect(await locationManagementHistoryPage.isTableVisible(), 'History table should be visible after loading').toBe(true);
     expect(await locationManagementHistoryPage.getColumnHeaderCount()).toBeGreaterThan(0);
   });
 
   test('TC-LOC-MGH-002: All 87 column headers present', async ({ locationManagementHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-MGH-001']);
     const count = await locationManagementHistoryPage.getColumnHeaderCount();
-    expect(count).toBe(COLUMN_COUNT);
+    expect(count, 'History table should show the expected number of columns').toBe(COLUMN_COUNT);
     const headers = await locationManagementHistoryPage.getColumnHeaders();
     expect(headers[0]).toBe(FIRST_COLUMN);
     expect(headers[headers.length - 1]).toBe(LAST_COLUMN);
@@ -77,7 +74,6 @@ test.describe('Location Management History @locations @management-history', () =
     await locationManagementHistoryPage.setRowsPerPage('10');
     const rows = await locationManagementHistoryPage.getDataRowCount();
     expect(rows).toBeLessThanOrEqual(10);
- // Reset to default
     await locationManagementHistoryPage.setRowsPerPage(DEFAULT_ROWS_PER_PAGE);
   });
 
@@ -176,7 +172,7 @@ test.describe('Location Management History @locations @management-history', () =
     const col38 = headers[37]; // 0-indexed
     expect(col37).toBe('Calculate CAC on Net Amount');
     expect(col38).toBe('Terms and Conditions');
- // Both columns are non-sortable (MCP-verified )
+ // Both columns are non-sortable (Live-verified)
     expect(await locationManagementHistoryPage.isSortButtonPresentByIndex(36)).toBe(false);
     expect(await locationManagementHistoryPage.isSortButtonPresentByIndex(37)).toBe(false);
   });
@@ -427,7 +423,7 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
       // this is the strongest robustness contract available without spinning a
       // fresh context. BUG-LOC-NTS-001 workaround codified inside ensureEmptyState:
       // clears textarea.value first, then Delete, then Save, then reload
-      // (page-object source: location-notes.page.ts:254).
+      // (implemented in the Location Notes page object).
       await locationNotesPage.clickNotesTab();
       await locationNotesPage.ensureEmptyState();
     }

@@ -16,7 +16,7 @@ import { OFFICE_NO } from '../../src/data/common';
 
 test.describe('Location Local Info @locations @local-info', () => {
 
-  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
+  // Per-test navigation guard.
   // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
   test.beforeEach(async ({ locationLocalInfoPage }) => {
     if (!(await locationLocalInfoPage.isOnLocalInfoTab())) {
@@ -92,8 +92,8 @@ test.describe('Location Local Info @locations @local-info', () => {
       await locationLocalInfoPage.navigateToLocalInfoTab(OFFICE_NO);
       await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 30_000);
     }
-    expect(locationLocalInfoPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
-    expect(await locationLocalInfoPage.isSaveEnabled()).toBe(false);
+    expect(locationLocalInfoPage.getCurrentUrl(), 'Should be on the Location Settings page').toContain(`locations/${OFFICE_NO}/settings`);
+    expect(await locationLocalInfoPage.isSaveEnabled(), 'Save should be disabled on a clean form').toBe(false);
   });
 
   test('TC-LOC-LI-002: All default states', async ({ locationLocalInfoPage, dependencyGate }) => {
@@ -222,7 +222,7 @@ test.describe('Location Local Info @locations @local-info', () => {
     await locationLocalInfoPage.clickSave();
     await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
     await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 15_000);
-    expect((await locationLocalInfoPage.getCheckboxState('chkEnableMultidayPricing')).checked).toBe(true);
+    expect((await locationLocalInfoPage.getCheckboxState('chkEnableMultidayPricing')).checked, 'Multiday Pricing should stay enabled after save and reload').toBe(true);
  // Restore to unchecked (reload between persistence tests to reset form dirty state)
     await locationLocalInfoPage.uncheckCheckbox('chkEnableMultidayPricing');
     await locationLocalInfoPage.clickSave();
@@ -286,7 +286,7 @@ test.describe('Location Local Info @locations @local-info', () => {
     await locationLocalInfoPage.clickSave();
     await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
     await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 15_000);
-    expect((await locationLocalInfoPage.getCheckboxState('chkEnableIDCBilling')).checked).toBe(true);
+    expect((await locationLocalInfoPage.getCheckboxState('chkEnableIDCBilling')).checked, 'IDC Billing should stay enabled after save and reload').toBe(true);
     await locationLocalInfoPage.uncheckCheckbox('chkEnableIDCBilling');
     await locationLocalInfoPage.clickSave();
   });
@@ -337,7 +337,7 @@ test.describe('Location Local Info @locations @local-info', () => {
     expect(await locationLocalInfoPage.isSaveEnabled()).toBe(true);
     await locationLocalInfoPage.clickSave();
     await locationLocalInfoPage.reloadAndNavigateToLocalInfo(OFFICE_NO);
-    expect(await locationLocalInfoPage.getBillingType()).toBe(LOCAL_INFO_TEST_VALUES.billingTypeDirect);
+    expect(await locationLocalInfoPage.getBillingType(), 'Billing Type should keep the saved value after reload').toBe(LOCAL_INFO_TEST_VALUES.billingTypeDirect);
     await locationLocalInfoPage.selectBillingType(LOCAL_INFO_TEST_VALUES.billingType);
     await locationLocalInfoPage.clickSave();
   });
@@ -432,7 +432,7 @@ test.describe('Location Local Info @locations @local-info', () => {
     await locationLocalInfoPage.clickSave();
   });
 
- // MCP-verified : Skip Billing does NOT disable Oracle Product (checkbox is a billing flag only).
+ // Live-verified: Skip Billing does NOT disable Oracle Product (checkbox is a billing flag only).
  // Rewritten to test actual behavior: toggle persists after save+reload.
   test('TC-LOC-LI-070: Skip Billing toggle persists after save+reload', async ({ locationLocalInfoPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LI-001']);

@@ -7,7 +7,6 @@ import { CheckboxState } from './components/location-form-helpers.component';
 import { isAuthUrl } from '../utils/url-host';
 
 export class BasePage {
-  // Group A-1 (lifecycle refactor 2026-05-21):
   // `page` is public readonly so specs can use `<pageObjectFixture>.page` for direct page
   // operations (reload, keyboard, mouse, dialog handlers) WITHOUT destructuring the bare
   // `page` fixture alongside, which would cause BUG-1 (Playwright DI creates a second
@@ -217,7 +216,7 @@ export class BasePage {
  * Wait for Angular to finish all pending async operations (zone.js stability).
  * Falls back silently if Angular testabilities are not available (non-Angular pages).
  * Use this after navigation/reload instead of networkidle for Angular SPAs.
- * RCA : networkidle hangs on Angular SPAs because zone.js micro-tasks
+ * networkidle hangs on Angular SPAs because zone.js micro-tasks
  * keep the network "active". This method uses Angular's own stability API instead.
  * This is a MAX wait: it resolves as soon as Angular reports stable, or at `timeout` as a backstop —
  * it does not block for the full timeout, and returns immediately on non-Angular pages.

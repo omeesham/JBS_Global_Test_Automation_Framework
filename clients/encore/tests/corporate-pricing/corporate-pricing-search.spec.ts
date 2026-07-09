@@ -395,7 +395,9 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
   test('TC-CPR-SRC-015: Clicking a Price Book name navigates to the Pricebook Details route', async ({ corporatePricingSearchPage: cp }) => {
     await cp.clickPricebookName(CORP_PRICING_SEARCH.pricebookFilterSample.expectedName);
     await expect(cp.page).toHaveURL(/\/corporate-pricing\/details\/[0-9a-f-]+/i);
-    await expect(cp.page.locator('h1', { hasText: 'Corporate Pricing Details' })).toBeVisible();
+    await test.step('Confirm the Corporate Pricing Details heading appears', async () => {
+      await expect(cp.page.locator('h1', { hasText: 'Corporate Pricing Details' })).toBeVisible();
+    });
   });
 
   test('TC-CPR-SRC-016: New Equipment Pricing option opens the equipment add page', async ({ corporatePricingSearchPage: cp }) => {
@@ -442,7 +444,9 @@ test.describe('Corporate Pricing — Search: Grid Options + filter→grid conten
     for (const name of CORP_PRICING_SEARCH.liveColumns) {
       expect(labels.some((l) => l.includes(name)), `toggle for "${name}" present`).toBe(true);
     }
-    expect(await cp.page.locator('[role="menuitem"]', { hasText: 'Reset to Default View' }).count()).toBeGreaterThan(0);
+    await test.step('Confirm the reset-to-default view option is offered', async () => {
+      expect(await cp.page.locator('[role="menuitem"]', { hasText: 'Reset to Default View' }).count()).toBeGreaterThan(0);
+    });
     await cp.closeGridOptions();
   });
 
@@ -467,11 +471,38 @@ test.describe('Corporate Pricing — Search: Grid Options + filter→grid conten
       await cp.closeGridOptions();
       expect(await cp.isGridColumnVisible('Is GSO')).toBe(false);
       await cp.openGridOptions();
-      await cp.page.locator('[role="menuitem"]', { hasText: 'Reset to Default View' }).first().click();
+      await cp.resetGridToDefaultView();
       await cp.closeGridOptions();
       for (const name of CORP_PRICING_SEARCH.liveColumns) expect(await cp.isGridColumnVisible(name)).toBe(true);
       await cp.open('1604'); // reload
       for (const name of CORP_PRICING_SEARCH.liveColumns) expect(await cp.isGridColumnVisible(name)).toBe(true);
+    } finally {
+      await cp.ensureAllGridColumnsVisible();
+    }
+  });
+
+  // Every grid column starts enabled — the "all-on" default state (SRC-031 covers the per-column
+  // toggle listing + the Reset option).
+  test('TC-CPR-SRC-057: Every grid column toggle is enabled (checked) by default', async ({ corporatePricingSearchPage: cp }) => {
+    await cp.openGridOptions();
+    const cols = await cp.getGridOptionColumns();
+    expect(cols.length).toBeGreaterThan(0);
+    expect(cols.every((c) => c.checked)).toBe(true); // all columns shown by default
+    await cp.closeGridOptions();
+  });
+
+  // Individually re-toggling a hidden column back ON restores it (SRC-033 covers the bulk "Reset to
+  // Default View"; this is the per-column path).
+  test('TC-CPR-SRC-058: Toggling a hidden column back ON restores its header', async ({ corporatePricingSearchPage: cp }) => {
+    try {
+      await cp.openGridOptions();
+      await cp.toggleGridColumn('Is GSO'); // hide
+      await cp.closeGridOptions();
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(false);
+      await cp.openGridOptions();
+      await cp.toggleGridColumn('Is GSO'); // show again
+      await cp.closeGridOptions();
+      expect(await cp.isGridColumnVisible('Is GSO')).toBe(true); // restored via individual re-toggle
     } finally {
       await cp.ensureAllGridColumnsVisible();
     }

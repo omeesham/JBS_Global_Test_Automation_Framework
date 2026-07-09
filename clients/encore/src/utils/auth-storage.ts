@@ -60,7 +60,7 @@ export function readStateOrNull(): StorageStateFile | null {
  *   (c) all session-token cookies are session-cookies (`expires === -1`
  *       or `undefined`) — treat as "no real expiry, behaves fresh".
  *
- * Tri-state semantics mirror auth.setup.ts:121
+ * Tri-state semantics mirror the auth-setup expiry check
  * (`!!sessionToken && (expires === undefined || expires < 0 || expires > now)`).
  * In all `null` cases the caller's `stateMissing` / downstream behavior already
  * handles the path — no new branch needed.

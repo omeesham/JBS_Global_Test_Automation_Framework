@@ -23,7 +23,9 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
   // ── Entry + Header (reference-only) ─────────────────────────────────────────
 
   test('TC-CPR-STR-001: Pricebook Details management page loads with the pricebook header', async ({ corporatePricingStrategyPage: p }) => {
-    await expect(p.page.getByRole('heading', { name: 'Corporate Pricing Details' })).toBeVisible();
+    await test.step('Confirm the Corporate Pricing Details heading is visible', async () => {
+      await expect(p.page.getByRole('heading', { name: 'Corporate Pricing Details' })).toBeVisible();
+    });
     expect(await p.getHeaderField('name')).toBe(STRATEGY.header.name);
   });
 
@@ -60,7 +62,7 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
   });
 
   test('TC-CPR-STR-009: Pricing Strategy tab is selected by default on load', async ({ corporatePricingStrategyPage: p }) => {
-    expect(await p.isStrategyTabActive()).toBe(true);
+    expect(await p.isStrategyTabActive(), 'Pricing Strategy tab is active by default').toBe(true);
   });
 
   test('TC-CPR-STR-010: Pricing Detail tab is present and activates', async ({ corporatePricingStrategyPage: p }) => {
@@ -152,8 +154,7 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     await p.saveAndConfirm();
     await p.open();
     await p.selectFirstStrategy();
-    expect(await p.getStrategyName()).toBe(STRATEGY.reversibleEdit.editedName);
-    // restore (cleanup)
+    expect(await p.getStrategyName(), 'Edited strategy name persists after reload').toBe(STRATEGY.reversibleEdit.editedName);
     await p.setStrategyName(STRATEGY.reversibleEdit.restoredName);
     await p.saveAndConfirm();
     await p.open();
@@ -167,9 +168,9 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     const before = await p.getStrategyTotal();
     await p.openAddStrategyDialog();
     expect(await p.isAddDialogOpen()).toBe(true);
-    await p.page.locator(/* dialog name field */ '[role="dialog"]').getByRole('textbox', { name: 'Strategy Name' }).fill(STRATEGY.newStrategyPayload.name);
-    await p.page.getByRole('dialog').getByRole('button', { name: 'Add', exact: true }).click();
-    await expect(p.page.getByRole('dialog')).toBeHidden({ timeout: 10_000 });
+    await p.fillDialogName(STRATEGY.newStrategyPayload.name);
+    await p.clickDialogAdd();
+    expect(await p.isAddDialogOpen()).toBe(false);
     expect(await p.getStrategyTotal()).toBe(before + 1);
     // discard (no Save) — restore baseline
     await p.removeStrategy(STRATEGY.newStrategyPayload.name);
@@ -179,7 +180,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
   test('TC-CPR-STR-016: Newly added strategy shows a Remove button', async ({ corporatePricingStrategyPage: p }) => {
     await p.addStrategy(STRATEGY.newStrategyPayload.name);
     expect(await p.isRemoveVisible(STRATEGY.newStrategyPayload.name)).toBe(true);
-    // discard
     await p.removeStrategy(STRATEGY.newStrategyPayload.name);
   });
 
@@ -221,7 +221,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     expect(await p.isSaveEnabled()).toBe(false);
     await p.addStrategy(STRATEGY.newStrategyPayload.name);
     expect(await p.isSaveEnabled()).toBe(true);
-    // discard
     await p.removeStrategy(STRATEGY.newStrategyPayload.name);
   });
 
@@ -240,7 +239,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     await p.selectFirstStrategy();
     expect(await p.getStrategyName()).toBe(STRATEGY.reversibleEdit.editedName);
     expect(await p.isSaveEnabled()).toBe(false); // batch committed → clean
-    // restore
     await p.setStrategyName(STRATEGY.reversibleEdit.restoredName);
     await p.saveAndConfirm();
   });
@@ -259,7 +257,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     if (!toastSeen && !saveAcknowledged) {
       expect(saveAcknowledged, 'expected a success toast OR the Save button to reset after commit').toBe(true);
     }
-    // restore
     await p.open();
     await p.selectFirstStrategy();
     await p.setStrategyName(STRATEGY.reversibleEdit.restoredName);
@@ -273,7 +270,9 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     expect(await p.isSaveEnabled()).toBe(true); // dirty
     await p.saveAndConfirm();
     // After a successful save the form is clean → the Save button returns to "Save" and disables.
-    await expect(p.page.locator('button:text-is("Save")').first()).toBeDisabled({ timeout: 10_000 });
+    await test.step('Confirm the Save button returns to disabled after commit', async () => {
+      await expect(p.page.locator('button:text-is("Save")').first()).toBeDisabled({ timeout: 10_000 });
+    });
     // restore (reload first to clear the toast → avoid a back-to-back save race)
     await p.open();
     await p.selectFirstStrategy();
@@ -515,7 +514,6 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
     await p.open();
     await p.selectFirstStrategy();
     expect(await p.getStrategyName()).toBe(STRATEGY.deep.specialPersistName);
-    // restore
     await p.setStrategyName(STRATEGY.fixtureStrategyName);
     await p.saveAndConfirm();
     await p.open();
@@ -537,7 +535,8 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
     expect((await p.getFlag('Is Internal')).disabled).toBe(true);
     expect((await p.getFlag('Is GSO')).disabled).toBe(true);
     // The strategy list (left pane) renders only name buttons — no boolean columns/checkboxes there.
-    const listCheckboxes = await p.page.getByRole('complementary').getByRole('checkbox').count();
+    const listCheckboxes = await test.step('Count the sidebar checkboxes', async () =>
+      p.page.getByRole('complementary').getByRole('checkbox').count());
     expect(listCheckboxes).toBe(0);
   });
 
@@ -547,8 +546,7 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
     await p.saveAndConfirm();
     await p.open();
     await p.selectFirstStrategy();
-    expect(await p.getStrategyName()).toBe(STRATEGY.reversibleEdit.editedName);
-    // restore
+    expect(await p.getStrategyName(), 'Saved strategy edit survives page reload').toBe(STRATEGY.reversibleEdit.editedName);
     await p.setStrategyName(STRATEGY.reversibleEdit.restoredName);
     await p.saveAndConfirm();
   });

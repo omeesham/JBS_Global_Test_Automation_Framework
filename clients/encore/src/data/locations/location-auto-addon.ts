@@ -6,7 +6,7 @@
  * Changing values here affects the listed spec.
  */
 
-/** Auto Add-On checkbox defaults for location 1604 (MCP-verified ). */
+/** Auto Add-On checkbox defaults for location 1604 (Live-verified). */
 export const AUTO_ADDON_DEFAULTS = [
   { key: 'chkAutoAddonEncoreMusic', name: 'Encore Music', checked: true },
   { key: 'chkAutoAddonWirelessPresenter', name: 'Wireless Presenter', checked: true },

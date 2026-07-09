@@ -20,12 +20,11 @@ export class LocationSharedSetupLocationsPage extends BasePage {
   }
 
  /**
- * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
- * beforeEach can avoid re-navigating when already on the tab.
+ * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab.
  */
   async isOnSharedSetupTab(): Promise<boolean> {
     // Fix #4a: use tab trigger aria-selected, not
-    // child-anchor count(). Mirrors base-page.ts:448.
+    // child-anchor count().
     const tab = this.getElement('tabSharedSetupLocations');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
@@ -233,7 +232,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
   }
 
  /**
- * Save callback for saveAndVerifyCase() lifecycle. Mirrors location-notes.page.ts:269 — delegates to
+ * Save callback for saveAndVerifyCase() lifecycle. Delegates to
  * BasePage.clickSaveWithDialog and throws on failure so the runner's try/catch surfaces it.
  */
   async saveAndConfirm(): Promise<void> {
@@ -434,7 +433,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
   async clickTopLevelTab(tabKey: 'tabBasicInformation' | 'tabLocationManagementHistory'): Promise<void> {
     const tab = this.getElement(tabKey);
     await tab.click();
-    // Two valid post-click outcomes (lifecycle refactor 2026-05-27, TC-028 fix):
+    // Two valid post-click outcomes:
     //   (a) Clean form: Radix transitions aria-selected="true" (router navigates).
     //   (b) Dirty form: Angular CanDeactivate guard blocks navigation; the Unsaved Changes
     //       alertdialog appears and aria-selected stays "false". TC-028 exercises this path
@@ -457,8 +456,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
 
  /**
  * Return the label of the currently active top-level tab.
- * Group D-3 (lifecycle refactor 2026-05-21): scope to the two
- * known top-level testids instead of `[role="tab"][aria-selected="true"]`.first(),
+ * Scope to the two known top-level testids instead of `[role="tab"][aria-selected="true"]`.first(),
  * which also matches sub-tabs (Currency / Notes / etc.) and was order-dependent.
  */
   async getActiveTopLevelTab(): Promise<string> {

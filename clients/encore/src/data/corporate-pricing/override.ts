@@ -104,6 +104,55 @@ export const CORP_PRICING_OVERRIDE = {
 
   /** Backend save endpoint — filter network listeners on this, NEVER the page URL. */
   saveApiPath: '/navigator/api/location/corporate-price-pg-override',
+
+  /** Location picker dialog title (verbatim). */
+  locationModalTitle: 'Change Local Office',
+
+  /** Grid Options popover — a reversible column to toggle in tests (a trailing, non-first column). */
+  gridOptionsToggleColumn: 'Updated By',
+  /** Grid Options "restore all columns" control label. */
+  gridOptionsResetLabel: 'Reset to Default',
+
+  /**
+   * Override-page Export = a DIRECT CSV download (no Year/Currency dialog — distinct from the
+   * Search screen's Export menu). Filter the download's own request on the backend API path, never the page URL.
+   *
+   * The exported file is the oracle — a tenant-wide dump (rows begin around office 1101, not scoped to
+   * whichever office is selected on screen when Export is clicked), a different dataset from the on-screen
+   * grid (which has 10 columns incl. Mod Date / Updated By; the file has these 9 instead, incl. Location Id
+   * and Is Labor which the grid does not show). Live-verified 2026-07-09 from a real download (8,995 rows):
+   * every row splits into exactly 9 comma-separated fields (Product Group Name may contain literal `"`
+   * inch-mark characters, RFC4180-quoted/escaped, but never an unquoted comma, so a plain `split(',')` is safe).
+   */
+  export: {
+    filenamePattern: /^ProductGroupOverrides_\d{8}_\d{6}UTC\.csv$/,
+    apiPathFragment: 'corporate-price-pg-override/export',
+    localeParam: 'locale=en-US',
+    /** The 9 header columns, in file order (live-verified 2026-07-09). */
+    expectedHeaders: [
+      'Location Id', 'Product Group Id', 'Product Group Name', 'Is Labor',
+      'Currency', 'Current Price', 'Override Price', 'Override Discount', 'Is Active',
+    ],
+    /** Currency values actually observed across the full file (live-verified 2026-07-09). */
+    validCurrencies: ['USD', 'CAD', 'MXN'],
+    /** 0/1 flag columns (live-verified: no other value ever appears). */
+    booleanColumns: ['Is Labor', 'Is Active'],
+    /** Always populated, always a plain money value (live-verified: 0 malformed of 8,995 rows). */
+    moneyColumn: 'Current Price',
+    /** Almost always populated with a plain money value; blank on 1 of 8,995 live-verified rows. */
+    optionalMoneyColumn: 'Override Price',
+    /** Blank on most rows (8,731 of 8,995 live-verified); when set, a plain decimal (percentage), never a "%" sign. */
+    optionalPercentColumn: 'Override Discount',
+  },
+
+  /** Override-page Import opens a custom in-app dialog (never a native chooser); tests never upload a real file. */
+  importDialog: {
+    title: 'Import All Pricing Overrides',
+    buttons: ['Browse', 'Cancel', 'Upload', 'Close'] as const,
+  },
+
+  /** Max Discount % upper cap: values up to and including 100 commit; over 100 is flagged (aria-invalid) and rejected. */
+  maxDiscountCap: 100,
 } as const;
 
 /**
@@ -124,6 +173,8 @@ export const OVERRIDE_NUMERIC_CASES = {
   maxDiscount: {
     edited: '10',
     zero: '0',
+    boundary: '100', // the inclusive upper cap — commits
+    justOver: '101', // one over the cap — flagged aria-invalid, does not commit
     overHundred: '150',
     decimal: '12.5',
     negative: '-5',

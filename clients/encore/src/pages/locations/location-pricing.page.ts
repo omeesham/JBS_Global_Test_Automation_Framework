@@ -32,7 +32,7 @@ export class LocationPricingPage extends BasePage {
  */
   async isOnPricingTab(): Promise<boolean> {
     // Fix #4a: use tab trigger aria-selected, not
-    // child-anchor count(). Mirrors base-page.ts:448.
+    // child-anchor count().
     const tab = this.getElement('tabPricing');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
@@ -139,7 +139,7 @@ export class LocationPricingPage extends BasePage {
 
  /**
  * Select a pricebook option from a primary pricing dropdown popover.
- * MCP-verified : combobox opens a dialog[name="Popover Content"] containing
+ * Live-verified: combobox opens a dialog[name="Popover Content"] containing
  * a search textbox (placeholder "Search pricing strategies...") and option buttons.
  * IMPORTANT: clicking an already-selected option DESELECTS it (Radix toggle behavior).
  * This method skips interaction when the target value is already displayed.
@@ -466,7 +466,7 @@ export class LocationPricingPage extends BasePage {
  // Scroll grid row to center of viewport before opening popover — prevents popover rendering off-screen
     await row.scrollIntoViewIfNeeded();
     const cell = row.locator(`td:nth-child(${colIndex})`);
- // MCP-RCA : The popover trigger is a <div role="button" aria-label="Open popover">.
+ // The popover trigger is a <div role="button" aria-label="Open popover">.
  // After enableFullCascade, Angular needs a render cycle to remove aria-disabled and
  // pointer-events:none. Wait for the trigger to be interactive before clicking.
     const trigger = cell.locator('[role="button"][aria-label="Open popover"]:not([aria-disabled="true"])');
@@ -478,7 +478,7 @@ export class LocationPricingPage extends BasePage {
     await dialog.waitFor({ state: 'visible', timeout: 5_000 });
 
  // Navigate to the target month/year.
- // MCP-RCA : dispatchEvent('click') fires a raw Event that React/Radix
+ // dispatchEvent('click') fires a raw Event that React/Radix
  // processes unreliably (label may not update). Use force:true click instead —
  // the row.scrollIntoViewIfNeeded above ensures the calendar is in viewport.
  // Poll for the status label change instead of a fixed timeout to avoid race conditions.
@@ -495,7 +495,7 @@ export class LocationPricingPage extends BasePage {
       const navBtn = diff > 0
         ? dialog.getByRole('button', { name: 'Go to the Next Month' })
         : dialog.getByRole('button', { name: 'Go to the Previous Month' });
- // MCP-RCA : dispatchEvent('click') fires a raw Event that React ignores.
+ // dispatchEvent('click') fires a raw Event that React ignores.
  // Regular .click and .click({force:true}) fail with "outside viewport" for rows
  // near the bottom of the grid. HTMLElement.click (via evaluate) bypasses viewport
  // checks entirely and fires a real click event that React's synthetic event system handles.

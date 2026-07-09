@@ -121,7 +121,7 @@ export const LocalOfficeSettingsSelectors = {
 
  // ---- Dialogs (shared across BAS/HIS/ECT specs) ----
  // NOTE: Local Office Settings "Save Changes" dialog uses "Save" button (NOT "Ok" like Location Settings).
- // MCP-verified: alertdialog has Cancel + Save buttons.
+ // Live-verified: alertdialog has Cancel + Save buttons.
  // The unsaved-changes dialog has custom Stay/Discard buttons (not shared OK/Cancel).
  /** @where Local Office Settings > Save Changes Dialog @el alertdialog @text "Save Changes" @keys save dialog confirm */
   dlgSaveChanges: '[role="alertdialog"]:has-text("Save Changes")',

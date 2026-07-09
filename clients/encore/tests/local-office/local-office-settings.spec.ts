@@ -25,9 +25,8 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
 
   // Per-test navigation guard — makes every test retry-independent.
   // When Playwright retries recycle the worker, the fixture's unconditional goto
-  // (fixtures.ts:241-250) lands on Dashboard/home. Without this guard, the failing
-  // test re-runs against /home (50/61 entries in the 2026-05-08 failure-summary
-  // were on /home). The guard re-navigates only when the URL is wrong, so the
+  // lands on Dashboard/home. Without this guard, the failing test re-runs against
+  // /home. The guard re-navigates only when the URL is wrong, so the
   // first-test (BAS-001) and warm subsequent-tests are not slowed down twice.
   test.beforeEach(async ({ localOfficeSettingsPage }) => {
     const url = localOfficeSettingsPage.getCurrentUrl();
@@ -92,11 +91,11 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       await localOfficeSettingsPage.clickSaveAndConfirm();
       await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     }
-    expect(localOfficeSettingsPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings/local-office`);
-    expect(await localOfficeSettingsPage.isTabSelected('tabBasicInformation')).toBe(true);
+    expect(localOfficeSettingsPage.getCurrentUrl(), 'Should be on the Local Office Settings page').toContain(`locations/${OFFICE_NO}/settings/local-office`);
+    expect(await localOfficeSettingsPage.isTabSelected('tabBasicInformation'), 'Basic Information tab should be active').toBe(true);
     expect(await localOfficeSettingsPage.isElementVisible('tabHistory')).toBe(true);
     expect(await localOfficeSettingsPage.isElementVisible('tabEctSettings')).toBe(true);
-    expect(await localOfficeSettingsPage.isSaveEnabled()).toBe(false);
+    expect(await localOfficeSettingsPage.isSaveEnabled(), 'Save should be disabled on a clean form').toBe(false);
   });
 
   test('TC-LOS-BAS-002: Default date offsets — all 6 match expected values', async ({ localOfficeSettingsPage, dependencyGate }) => {
@@ -126,8 +125,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
-    expect(await localOfficeSettingsPage.getInputValue('txtPrepDateOffset')).toBe(DATE_OFFSET_TEST_VALUES.valid);
- // Cleanup: restore original
+    expect(await localOfficeSettingsPage.getInputValue('txtPrepDateOffset'), 'Saved value should persist after reload').toBe(DATE_OFFSET_TEST_VALUES.valid);
     await localOfficeSettingsPage.fillAndTab('txtPrepDateOffset', '-1');
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
@@ -159,7 +157,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.fillAndTab('txtDeliveryDateOffset', DATE_OFFSET_TEST_VALUES.recovery);
     await expect.poll(() => localOfficeSettingsPage.isFieldInvalid('txtDeliveryDateOffset'), { timeout: 5_000 }).toBe(false);
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup: restore original
     await localOfficeSettingsPage.fillAndTab('txtDeliveryDateOffset', '0');
   });
 
@@ -200,7 +197,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       { timeout: 5_000 },
     ).toBe(false);
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup
     await localOfficeSettingsPage.uncheckCheckbox('chkUseFulfillment');
     expect((await localOfficeSettingsPage.getCheckboxState('chkUseEquipmentsQc')).disabled).toBe(true);
   });
@@ -220,7 +216,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       () => localOfficeSettingsPage.getCheckboxState('chkUseEquipmentsQc').then(s => s.disabled),
       { timeout: 10_000 },
     ).toBe(false);
- // Cleanup
     await localOfficeSettingsPage.uncheckCheckbox('chkUseFulfillment');
     await localOfficeSettingsPage.clickSaveAndConfirm();
   });
@@ -233,7 +228,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.clickSaveAndConfirm();
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     expect((await localOfficeSettingsPage.getCheckboxState('chkDefaultLaborToHourly')).checked).toBe(true);
- // Cleanup
     await localOfficeSettingsPage.uncheckCheckbox('chkDefaultLaborToHourly');
     await localOfficeSettingsPage.clickSaveAndConfirm();
   });
@@ -265,8 +259,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
-    expect(await localOfficeSettingsPage.getInputValue('txtPhone1')).toBe(PHONE_TEST_VALUES.testFormat);
- // Cleanup
+    expect(await localOfficeSettingsPage.getInputValue('txtPhone1'), 'Phone number should keep the saved value after reload').toBe(PHONE_TEST_VALUES.testFormat);
     await localOfficeSettingsPage.fillAndTab('txtPhone1', DEFAULT_PHONE_1);
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
@@ -297,7 +290,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       expect((await localOfficeSettingsPage.getCheckboxState(key)).checked, label).toBe(true);
     }
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup
     for (const { key } of ONE_DAY_JOB_CHECKBOXES) {
       await localOfficeSettingsPage.uncheckCheckbox(key);
     }
@@ -345,7 +337,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.clickSaveAndConfirm();
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     expect(await localOfficeSettingsPage.getInputValue('txtPoNumber')).toBe(PO_TEST_VALUES.number);
- // Cleanup
     await localOfficeSettingsPage.fillAndTab('txtPoNumber', '');
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
@@ -361,7 +352,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.clickSaveAndConfirm();
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     expect(await localOfficeSettingsPage.getInputValue('txtPoNumberLabel')).toBe(PO_TEST_VALUES.label);
- // Cleanup
     await localOfficeSettingsPage.fillAndTab('txtPoNumberLabel', '');
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
@@ -402,7 +392,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.editSectionName(0, SECTION_TEST_VALUES.editValue);
     // 10s polling: Angular dirty propagation after section-grid edits is sometimes slow.
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 10_000 }).toBe(true);
- // Cleanup
     await localOfficeSettingsPage.editSectionName(0, SECTION_TEST_VALUES.originalName);
   });
 
@@ -425,7 +414,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
 
   test('TC-LOS-BAS-030: Room Configuration — table structure and baseline', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
- // Room table may have pre-existing entries from MCP verification artifacts (no delete UI — ).
+ // Room table may have pre-existing entries from earlier test runs (no delete UI).
  // Verify table is visible and record baseline count rather than assert strict empty.
     expect(await localOfficeSettingsPage.isElementVisible('tblRoomConfig')).toBe(true);
     const roomCount = await localOfficeSettingsPage.getRoomRowCount();
@@ -466,7 +455,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.selectComboboxExact('drpCompanyLogo', differentOption);
     const newSrc = await localOfficeSettingsPage.getLogoPreviewSrc();
     expect(newSrc).not.toBe(originalSrc);
- // Cleanup: restore original
     await localOfficeSettingsPage.selectComboboxExact('drpCompanyLogo', currentValue);
   });
 
@@ -475,7 +463,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     expect(await localOfficeSettingsPage.isElementVisible('tblDiscountExemptions')).toBe(true);
     await localOfficeSettingsPage.toggleExemption(0);
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup
     await localOfficeSettingsPage.toggleExemption(0);
   });
 
@@ -487,7 +474,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     if (dialogAppeared) {
       expect(await localOfficeSettingsPage.isSaveEnabled()).toBe(true);
     }
- // Cleanup
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
@@ -500,7 +486,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.clickUnsavedStay();
     expect(await localOfficeSettingsPage.isTabSelected('tabBasicInformation')).toBe(true);
     expect(await localOfficeSettingsPage.getInputValue('txtPrepDateOffset')).toBe('-3');
- // Cleanup
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
@@ -530,7 +515,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
  // App stores XSS as plain text (correct security behavior) — verify it round-trips exactly
       expect(stored).toBe(xss);
     }
- // Cleanup
     await localOfficeSettingsPage.fillAndTab('txtPoNumber', '');
     if (await localOfficeSettingsPage.isSaveEnabled()) {
       await localOfficeSettingsPage.clickSaveAndConfirm();
@@ -543,7 +527,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
 
   test('TC-LOS-BAS-047: Section edit → Escape does NOT revert (no cancel-on-Escape in live app)', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
- // MCP verified: Escape key does NOT cancel section name editing.
+ // Live-verified: Escape key does NOT cancel section name editing.
  // The typed value persists — the input is a plain text field without custom Escape handling.
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     const originalName = await localOfficeSettingsPage.getSectionNameByIndex(0);
@@ -649,7 +633,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       { timeout: 5_000, message: '"-999" should be valid for Set (negative, maxLen=4)' },
     ).toBe(false);
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup
     await localOfficeSettingsPage.fillAndTab(key, defaultValue);
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
@@ -673,7 +656,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       { timeout: 5_000, message: 'After correction, cross-validation error should clear' },
     ).toBe(false);
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup: restore default
     await localOfficeSettingsPage.fillAndTab(triggerField, defaultValue);
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
@@ -764,7 +746,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
  // verified: adding duplicate room name → count unchanged.
     await localOfficeSettingsPage.addRoom(ROOM_TEST_VALUES.testRoom);
     const countAfterFirst = await localOfficeSettingsPage.getRoomRowCount();
- // Try adding same name again
     await localOfficeSettingsPage.addRoom(ROOM_TEST_VALUES.testRoom);
     const countAfterDuplicate = await localOfficeSettingsPage.getRoomRowCount();
     expect(countAfterDuplicate).toBe(countAfterFirst);
@@ -799,7 +780,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       await localOfficeSettingsPage.clickSaveAndConfirm();
       await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     }
- // Toggle to inactive
     const idx2 = (await localOfficeSettingsPage.getRoomNames()).indexOf(roomName);
     await localOfficeSettingsPage.toggleRoomActive(idx2);
     expect(await localOfficeSettingsPage.isRoomActive(idx2)).toBe(false);
@@ -846,7 +826,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       idx = names.indexOf(roomName);
     }
     expect(idx, `Room "${roomName}" must exist`).toBeGreaterThanOrEqual(0);
- // Rename
     await localOfficeSettingsPage.editRoomName(idx, renamedName);
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
@@ -877,7 +856,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     const value = await localOfficeSettingsPage.getInputValue('txtPrepDateOffset');
     expect(value).toBe('');
- // Cleanup: restore original value
     await localOfficeSettingsPage.fillAndTab('txtPrepDateOffset', '-1');
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();

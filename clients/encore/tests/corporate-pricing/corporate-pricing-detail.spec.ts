@@ -30,7 +30,7 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
   // ── Load + structure ────────────────────────────────────────────────────────
 
   test('TC-CPR-DET-001: Pricing Detail tab activates and the product-group grid renders', async ({ corporatePricingDetailPage: p }) => {
-    expect(await p.isDetailTabActive()).toBe(true);
+    expect(await p.isDetailTabActive(), 'Pricing Detail tab is active on load').toBe(true);
     expect(await p.getProductGroupRowCount()).toBeGreaterThan(0);
   });
 
@@ -105,11 +105,11 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     await p.setMaxDiscount(DETAIL.anchorA.name, DETAIL.maxDiscountEdit.value);
     expect(await p.isSaveEnabled()).toBe(true);
     // Click Save and assert the confirm dialog surfaces before committing.
-    await p.page.locator('button:text-is("Save")').first().click();
-    await expect(p.page.getByRole('alertdialog')).toBeVisible({ timeout: 5_000 });
-    await expect(p.page.getByRole('alertdialog')).toContainText('Save Changes');
-    await p.page.getByRole('alertdialog').getByRole('button', { name: /^(save|ok)$/i }).first().click();
-    await expect(p.page.getByRole('alertdialog')).toBeHidden({ timeout: 10_000 });
+    await p.clickSaveButton();
+    await expect(p.saveChangesDialog).toBeVisible({ timeout: 5_000 });
+    await expect(p.saveChangesDialog).toContainText('Save Changes');
+    await p.confirmSaveChangesDialog();
+    await expect(p.saveChangesDialog).toBeHidden({ timeout: 10_000 });
     await p.ensureDefaultState(); // restore (re-opens + settles)
   });
 
@@ -119,7 +119,7 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     expect(await p.isSaveEnabled()).toBe(true);
     await p.saveAndConfirm();
     await p.open();
-    expect(await p.getMaxDiscount(name)).toContain(DETAIL.maxDiscountEdit.displayContains);
+    expect(await p.getMaxDiscount(name), 'Max Discount value persists after reload').toContain(DETAIL.maxDiscountEdit.displayContains);
     await p.ensureDefaultState(); // restore (no cross-run drift)
   });
 

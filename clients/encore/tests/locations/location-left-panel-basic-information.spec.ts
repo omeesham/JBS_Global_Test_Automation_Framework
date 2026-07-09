@@ -19,8 +19,8 @@ import {
  * read-only in EDIT mode by design (Encore NM-831/NM-1140) → TC-016 asserts disabled; Servicing
  * Branch has 218 options (not 215); Live Date = "June 15th, 1990".
  *
- * TC-024 (cross-tab Legal-invalid Save gating) is documented (c) in the catalog/MD — see the note
- * below TC-023 — flagged for a design decision (no-leak mandate vs the Legal screen's tamper-teardown finding).
+ * TC-024 (cross-tab Legal-invalid Save gating) is a known coverage gap (see the note below TC-023):
+ * a design decision is pending — no-DOM-leak requirement vs the Legal tab's tamper-teardown behaviour.
  *
  * Per-test baseline reset via ensureDefaultState. Mutating-and-persisting tests restore
  * office-1604 defaults themselves so nothing leaks into sibling specs. No bare `page` destructure.
@@ -141,7 +141,7 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
       reload: () => lp.reloadAndNavigate(OFFICE_NO),
       expectAfterReload: async () => {
         // Pay To selection PERSISTS through save+reload (unlike the Venue address selection, ACC-027).
-        expect(await lp.getPayToAddress()).toBe(PAY_TO_ALTERNATE.name);
+        expect(await lp.getPayToAddress(), 'Pay To selection should persist after save and reload').toBe(PAY_TO_ALTERNATE.name);
       },
       // Restore office-1604 to the ORIGINAL Pay To by ID (name "Encore" is ambiguous — IDs 1 & 4).
       cleanup: () => lp.restorePayToOriginal(),
@@ -198,13 +198,13 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
   // ── Save button enable/disable ─────────────────────────────────────────────
 
   test('TC-LOC-LP-007: Save button disabled on fresh page load', async ({ locationLeftPanelBasicInformationPage: lp }) => {
-    expect(await lp.isSaveEnabled()).toBe(false);
+    expect(await lp.isSaveEnabled(), 'Save should be disabled on a fresh page load').toBe(false);
   });
 
   test('TC-LOC-LP-008: Save button enables after a form change', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     expect(await lp.isSaveEnabled()).toBe(false);
     await lp.setUnion(true);
-    expect(await lp.waitForSaveButtonEnabled()).toBe(true); // change enables Save (async Angular dirty)
+    expect(await lp.waitForSaveButtonEnabled(), 'Save should become enabled after a form change').toBe(true); // change enables Save (async Angular dirty)
     // Reverting the toggle is a NET-ZERO change → Save returns to DISABLED (Angular net-zero
     // detection, Angular dirty-state). The original spec doc's "stays dirty after revert" does not reproduce live.
     await lp.setUnion(false);
@@ -363,9 +363,9 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
   // Legal tab into an INVALID state (clearing the required Service Charge) has no UI "clear"
   // affordance on the Radix required select AND risks Legal state-leak per the Legal screen's tamper-teardown
   // finding (a DOM mutation of a Radix SC combobox tears down the Angular page). Save-gating on an
-  // invalid Basic-Information state is already proven by TC-019 (TaxModeID=0). Documented (c) in the
-  // field-coverage catalog + flagged for a design decision (no-leak mandate vs the Legal screen's tamper-teardown finding) — see the
-  // subplan Execution Summary + chat handoff. NOT a bug → no BUG cite, no test.fixme stub.
+  // invalid Basic-Information state is already proven by TC-019 (TaxModeID=0). This is
+  // a known coverage gap; a design decision is pending (no-DOM-leak requirement vs the Legal tab's
+  // tamper-teardown behaviour). NOT a bug → no BUG cite, no test.fixme stub.
 
   // ── Net-new: save+reload persistence per distinct editable field ───────────
 

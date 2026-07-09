@@ -6,7 +6,7 @@
  * Changing values here affects the listed spec.
  */
 
-/** Expected column headers (left to right, 7 total). MCP-verified */
+/** Expected column headers (left to right, 7 total). Live-verified */
 export const PRICING_COLUMN_HEADERS = [
   'Pricing Strategy',
   'Pricebook',
@@ -62,7 +62,7 @@ export const DEFAULT_CURRENCY_FILTER = 'All';
  * Each entry has `option` (target/DB value) and `alternateOption` (different value for bidirectional toggle).
  * The toggle pattern ensures tests ALWAYS change the dropdown — fixing the silent-pass bug where
  * selectPrimaryDropdownOption skips interaction when current DB value already matches `option`.
- * Alternate options MCP-verified : all confirmed to exist in the live dropdown popover.
+ * Alternate options Live-verified: all confirmed to exist in the live dropdown popover.
  */
 export const DROPDOWN_PERSISTENCE_CASES = [
   { tcId: 'TC-LOC-PRI-026', key: 'drpPrimaryLaborPricingUSD', option: '2026-Zone 3 D', alternateOption: '2026-Zone 3 E', label: 'Primary Labor Pricing' },

@@ -15,15 +15,13 @@ export class LocationAccountAddressPage extends BasePage {
  // ─────────────────────────────────────────────────────────────────────────────
 
  /**
- * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
- * beforeEach can avoid re-navigating when already on the tab. URL `settings/location` is
+ * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab. URL `settings/location` is
  * shared across all sub-tabs and is an unreliable signal after a sibling spec.
  */
   async isOnAccountAndAddressTab(): Promise<boolean> {
-    // Fix #4a (radix-tab-dom 2026-05-22):
     // pnlAccountAndAddress is a panel-wrapper testid that Radix keeps mounted across
     // all tab states (count() > 0 returns TRUE even when this tab is inactive). The
-    // tab trigger's aria-selected is the only reliable signal — mirrors base-page.ts:448.
+    // tab trigger's aria-selected is the only reliable signal.
     const tab = this.getElement('tabAccountAndAddress');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';

@@ -1,6 +1,6 @@
 /**
  * Corporate Pricing — Export ▾ dialog contract + real download round-trip (NM-2264).
- * TC-CPR-EXA-001..016. Live-grounded 2026-07-07 (office 1604).
+ * TC-CPR-EXA-001..017. Live-grounded 2026-07-07 (office 1604).
  *
  * The four Export ▾ variants no longer download directly — each opens a shared Year(s)(1-3) +
  * Currency dialog (Continue disabled until BOTH are set), and only on Continue does the export
@@ -128,6 +128,14 @@ test.describe('Corporate Pricing — Export ▾ dialog contract (NM-2264) @corpo
       expect(url).toContain(`currencyId=${c.currencyId}`); // USD=1, CAD=2, MXN=3 (live-captured)
     }
   });
+
+  // The Export ▾ menu itself dismisses on an outside-click (standard dropdown behavior); the
+  // per-variant dialog contract above covers what each variant opens.
+  test('TC-CPR-EXA-017: Export menu dismisses on outside-click', async ({ corporatePricingSearchPage: p }) => {
+    await p.openExportMenu();
+    expect((await p.getMenuVariants()).length).toBeGreaterThan(0); // menu confirmed open
+    expect(await p.dismissToolbarMenuWithOutsideClick()).toBe(true); // closes on outside-click
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -146,7 +154,7 @@ test.describe('Corporate Pricing — Export ▾ real download round-trip (NM-226
 
   test('TC-CPR-EXA-010: All Equipment Pricing — real download + no duplicate product groups', async ({ corporatePricingSearchPage: p }) => {
     const r = await p.downloadExportVariant('All Equipment Pricing', [YEAR], 'USD');
-    expect(r.filename).toBe('EquipmentPricings.csv');
+    expect(r.filename, 'The export should download the Equipment Pricing file').toBe('EquipmentPricings.csv');
     expect(r.status).toBe(200);
     expect(r.requestUrl).toContain('isLabor=false');
     expect(r.requestUrl).toContain('isMaxDiscount=false');

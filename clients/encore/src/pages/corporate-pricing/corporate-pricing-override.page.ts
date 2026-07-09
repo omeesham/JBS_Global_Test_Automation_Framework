@@ -27,6 +27,7 @@
  * buttons — Playwright `getByRole('alertdialog')` does NOT match it) → POST corporate-price-pg-override
  * → toast. Net-zero (revert disables Save) verified. Max Discount % is capped at 100 (>100 rejected).
  */
+import { expect } from '@playwright/test';
 import type { Page, Locator } from '@playwright/test';
 import { CorporatePricingBasePage } from './corporate-pricing.page';
 import type { IConfig } from '../../types';
@@ -34,6 +35,7 @@ import { CorporatePricingOverrideSelectors as OS } from '../../selectors/corpora
 import { CORPORATE_PRICING_ROUTES, CORPORATE_PRICING_COMMON } from '../../data/corporate-pricing/common';
 import { CORP_PRICING_OVERRIDE } from '../../data/corporate-pricing/override';
 import { Log } from '../../utils/logger';
+import { readFileSync } from 'node:fs';
 
 export type OverrideTab = 'Equipment' | 'Labor';
 
@@ -99,8 +101,23 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
    * matching row, confirm with "Select". Content-anchored — never an index.
    */
   async selectLocation(nameOrNumber: string): Promise<void> {
+    const search = this.page.locator(OS.ovrLocationPickerSearch).first();
     await this.openLocationPicker();
-    await this.page.locator(OS.ovrLocationPickerSearch).first().fill(nameOrNumber);
+    // The picker is a Radix modal whose search input can mount a moment before it becomes
+    // editable (open animation + a server-loaded location list). A fill occasionally races
+    // that window and finds the input non-editable; a fresh re-open reliably clears the stuck
+    // state, so the open-and-fill is bounded-retried before giving up.
+    for (let attempt = 1; ; attempt++) {
+      try {
+        await search.fill(nameOrNumber, { timeout: 6_000 });
+        break;
+      } catch (err) {
+        if (attempt >= 3) throw err;
+        await this.page.keyboard.press('Escape').catch(() => { /* best-effort dismiss before re-open */ });
+        await search.waitFor({ state: 'hidden', timeout: 2_000 }).catch(() => { /* best-effort: re-open regardless of dismiss result */ });
+        await this.openLocationPicker();
+      }
+    }
     const row = this.page.locator(OS.ovrLocationPickerRowAny, { hasText: nameOrNumber }).first();
     await row.waitFor({ state: 'visible', timeout: 10_000 });
     await row.locator(OS.ovrLocationPickerRowCheckbox).first().check();
@@ -435,5 +452,200 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     ) {
       throw new Error(`ensureDefaultState: failed to restore "${anchor}" (price=${gotP}, maxDisc=${gotMd}, active=${gotA})`);
     }
+  }
+
+  // ---------- navigation from the Search action bar ----------
+
+  /** Start on the Search screen and click its "Pricing Override" action-bar button; wait for the Override screen. */
+  async openViaSearchActionBar(office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
+    const base = (this.config?.base_url ?? '').replace(/\/+$/, '');
+    await this.navigateTo(`${base}${CORPORATE_PRICING_ROUTES.searchPath(office)}`);
+    await this.waitForAngularStable();
+    await this.page.locator(OS.ovrNavFromSearch).first().click();
+    await this.page.waitForURL(/\/pg-override/, { timeout: 20_000 }).catch(() => { /* the caller asserts the URL */ });
+    await this.waitForLoaded();
+  }
+
+  // ---------- location picker detail ----------
+
+  /**
+   * Open the location picker, capture its detail facts (title, Select disabled-before / enabled-after a row
+   * is checked, matching-row count), then Cancel (no location applied). Returns the observed facts.
+   */
+  async inspectLocationModal(needle: string): Promise<{
+    title: string;
+    selectDisabledInitially: boolean;
+    rowsMatching: number;
+    selectEnabledAfterCheck: boolean;
+    gridEmptyAfterCancel: boolean;
+  }> {
+    await this.openLocationPicker();
+    const title = (await this.page.locator(OS.ovrLocationModalDialog).first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    const selectDisabledInitially = await this.page.locator(OS.ovrLocationPickerSelect).first().isDisabled().catch(() => false);
+    await this.page.locator(OS.ovrLocationPickerSearch).first().fill(needle);
+    const rows = this.page.locator(OS.ovrLocationPickerRowAny, { hasText: needle });
+    // The picker search is server-backed — wait for the matching row to render before counting
+    // (a fixed sleep raced the result). A genuine zero-match is still handled by the count below.
+    await rows.first().waitFor({ state: 'visible', timeout: 10_000 }).catch(() => { /* best-effort: zero rows is itself a valid observation */ });
+    const rowsMatching = await rows.count();
+    await rows.first().locator(OS.ovrLocationPickerRowCheckbox).first().check().catch(() => { /* row may need a plain click */ });
+    // Wait for the Select button to actually become enabled after checking the row, rather than a
+    // fixed pause; a row that genuinely never enables Select resolves to false at the timeout.
+    const selectBtn = this.page.locator(OS.ovrLocationPickerSelect).first();
+    const selectEnabledAfterCheck = await expect(selectBtn)
+      .toBeEnabled({ timeout: 5_000 })
+      .then(() => true)
+      .catch(() => false);
+    await this.page.locator(OS.ovrLocationPickerCancel).first().click().catch(() => { /* best-effort dismiss; the gridEmptyAfterCancel read below is the real check */ });
+    // Wait for the choose-a-location prompt to actually reappear (picker closed) rather than a fixed pause.
+    await this.page.locator(OS.ovrSelectLocationText).first().waitFor({ state: 'visible', timeout: 5_000 }).catch(() => { /* the read below is the real oracle */ });
+    const gridEmptyAfterCancel = await this.isVisibleSafe(OS.ovrSelectLocationText);
+    return { title, selectDisabledInitially, rowsMatching, selectEnabledAfterCheck, gridEmptyAfterCancel };
+  }
+
+  // ---------- Grid Options (column show/hide; visibility persists server-side) ----------
+
+  /** Open the Grid Options popover (an icon button carrying an accessible name). */
+  async openGridOptions(): Promise<void> {
+    await this.page.locator(OS.ovrBtnGridOptions).first().click();
+    await this.page.locator(OS.ovrGridOptionsMenuItem).first().waitFor({ state: 'visible', timeout: 8_000 });
+  }
+
+  /** Read the Grid Options column toggles as {label, checked}. */
+  async getGridOptionColumns(): Promise<Array<{ label: string; checked: boolean }>> {
+    return this.page.locator(OS.ovrGridOptionsMenuItem).evaluateAll((els) =>
+      els.map((e) => ({
+        label: (e.textContent || '').replace(/\s+/g, ' ').trim(),
+        checked: e.getAttribute('aria-checked') === 'true',
+      })),
+    );
+  }
+
+  /** Toggle a Grid Options column by its visible label. */
+  async toggleGridColumn(label: string): Promise<void> {
+    await this.page.locator(OS.ovrGridOptionsMenuItem, { hasText: label }).first().click();
+    await this.page.waitForTimeout(500);
+  }
+
+  /** Close the Grid Options popover. */
+  async closeGridOptions(): Promise<void> {
+    await this.page.keyboard.press('Escape');
+    await this.page.waitForTimeout(400);
+  }
+
+  /** Whether a grid column header containing the given label is currently rendered. */
+  async isGridColumnVisible(label: string): Promise<boolean> {
+    const headers = await this.getColumnHeaders();
+    return headers.some((h) => h.includes(label));
+  }
+
+  /** Click "Reset to Default" inside the Grid Options popover (restores every column). */
+  async resetGridToDefault(): Promise<void> {
+    await this.page.locator(OS.ovrGridOptionsReset).first().click().catch(() => { /* best-effort; callers re-open Grid Options and verify column state */ });
+    await this.page.waitForTimeout(600);
+  }
+
+  /**
+   * Baseline restore: ensure every grid column is visible again. Column visibility is a server-persisted
+   * preference, so a test that hides a column must restore it. Bounded retry re-reads the columns after
+   * a reload and re-toggles any still hidden, throwing if the baseline cannot be restored — a silently
+   * no-op'd toggle must never report success while a column stays hidden for the next test.
+   */
+  async ensureAllGridColumnsVisible(needle: string, office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
+    const allColumnsChecked = async (): Promise<boolean> => {
+      await this.openGridOptions();
+      const cols = await this.getGridOptionColumns();
+      await this.closeGridOptions();
+      return cols.every((c) => c.checked);
+    };
+    await this.saveAndVerifyPersisted({
+      isAtTarget: allColumnsChecked,
+      applyMutation: async () => {
+        await this.openGridOptions();
+        const cols = await this.getGridOptionColumns();
+        for (const c of cols) if (!c.checked) await this.toggleGridColumn(c.label);
+        await this.closeGridOptions();
+      },
+      save: async () => { /* each toggle persists immediately server-side; no separate save step */ },
+      reload: async () => this.reloadAndReselect(needle, office),
+      label: 'grid column visibility',
+    });
+  }
+
+  // ---------- toolbar Export (direct CSV download) / Import (dialog) ----------
+
+  /**
+   * Click the Override toolbar's Export button and capture the direct CSV download: returns its filename,
+   * the download request URL, and the file's raw content + parsed header row. The exported file is the oracle.
+   */
+  async downloadOverrideExport(): Promise<{ filename: string; requestUrl: string; content: string; headers: string[] }> {
+    const [download, request] = await Promise.all([
+      this.page.waitForEvent('download', { timeout: 30_000 }),
+      this.page.waitForRequest((r) => r.url().includes(CORP_PRICING_OVERRIDE.export.apiPathFragment), { timeout: 30_000 }),
+      this.page.locator(OS.ovrBtnExport).first().click(),
+    ]);
+    const filePath = await download.path();
+    if (!filePath) throw new Error('downloadOverrideExport: the download did not resolve to a file path');
+    const raw = readFileSync(filePath, 'utf-8');
+    const content = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw; // strip a leading byte-order mark if present
+    const firstLine = content.split(/\r?\n/)[0] ?? '';
+    const headers = firstLine ? firstLine.split(',').map((h) => h.replace(/^"|"$/g, '').trim()) : [];
+    return { filename: download.suggestedFilename(), requestUrl: request.url(), content, headers };
+  }
+
+  /** Open the Override toolbar's Import dialog (a custom in-app modal, not a native file chooser). */
+  async openImportDialog(): Promise<void> {
+    await this.page.locator(OS.ovrBtnImport).first().click();
+    await this.page.locator(OS.ovrImportDialog).first().waitFor({ state: 'visible', timeout: 10_000 });
+  }
+
+  /** Read the Import dialog facts: verbatim text, button labels, and whether a file input exists. */
+  async readImportDialog(): Promise<{ text: string; buttons: string[]; hasFileInput: boolean }> {
+    const dlg = this.page.locator(OS.ovrImportDialog).first();
+    const text = (await dlg.innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    const buttons = (await dlg.locator('button').allInnerTexts().catch(() => [])).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const hasFileInput = (await this.page.locator(OS.ovrImportFileInput).count()) > 0;
+    return { text, buttons, hasFileInput };
+  }
+
+  /** Close the Import dialog without uploading a file (Cancel, falling back to Close). */
+  async closeImportDialog(): Promise<void> {
+    await this.page.locator(OS.ovrImportCancel).first().click().catch(async () => {
+      await this.page.locator(OS.ovrImportClose).first().click().catch(() => { /* best-effort fallback close; the hidden-wait below confirms dismissal */ });
+    });
+    await this.page.locator(OS.ovrImportDialog).first().waitFor({ state: 'hidden', timeout: 6_000 }).catch(() => {});
+  }
+
+  /** Whether the Import dialog is currently visible. */
+  async isImportDialogVisible(): Promise<boolean> {
+    return this.isVisibleSafe(OS.ovrImportDialog);
+  }
+
+  // ---------- sorting probe + current-price read ----------
+
+  /**
+   * Click a grid column header and report whether it activates sorting: `aria-sort` before/after and
+   * whether the first row's content changed. On this build header clicks are inert (no sort).
+   */
+  async probeColumnSort(headerLabel: string): Promise<{ ariaSortBefore: string | null; ariaSortAfter: string | null; orderChanged: boolean }> {
+    const firstRowBefore = (await this.page.locator(OS.ovrGridRowAny).first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    const header = this.page.locator(OS.ovrColHeaderAny, { hasText: headerLabel }).first();
+    const ariaSortBefore = await header.getAttribute('aria-sort').catch(() => null);
+    await header.click().catch(() => { /* best-effort: an inert header may not react (that is the behavior under test); the reads below are the oracle */ });
+    await this.page.waitForTimeout(1_000);
+    const ariaSortAfter = await header.getAttribute('aria-sort').catch(() => null);
+    const firstRowAfter = (await this.page.locator(OS.ovrGridRowAny).first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    return { ariaSortBefore, ariaSortAfter, orderChanged: firstRowBefore !== firstRowAfter };
+  }
+
+  /** Read every visible row's Current Price cell text (for the blank/missing-value guard). */
+  async getCurrentPriceCells(): Promise<string[]> {
+    const rows = this.page.locator(OS.ovrGridRowAny);
+    const n = await rows.count();
+    const out: string[] = [];
+    for (let i = 0; i < n; i++) {
+      out.push((await rows.nth(i).locator('td').nth(CORP_PRICING_OVERRIDE.columnIndex.currentPrice).innerText().catch(() => '')).trim());
+    }
+    return out;
   }
 }

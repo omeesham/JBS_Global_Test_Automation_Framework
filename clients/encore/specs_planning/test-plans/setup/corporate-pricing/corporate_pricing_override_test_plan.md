@@ -4,7 +4,7 @@
 **Test Cases**: specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_override_test_cases.md
 **Field Inventory**: specs_planning/_internal/field-inventories/corporate-pricing-override-2026-06-09.md
 **Divergences**: specs_planning/_internal/encore-questions-drafts/corporate-pricing-wave15-divergences-2026-06-08.md
-**Updated**: 2026-06-09 (Product Group Override full FCC — Q-WV15-1 edit-mechanism RESOLVED)
+**Updated**: 2026-07-09 (re-verified on location 1606 + net-new coverage TC-029..037: navigation, location-picker detail, Grid Options, direct Export CSV, Import dialog, NM-1463 auto-activate, sorting-inactive, NM-2206 guard, Max Discount ≤100 boundary)
 
 ## Scope boundary
 
@@ -128,10 +128,8 @@ This plan owns the **Product Group Override screen** (`/pg-override`) — tabs, 
 ## Scenario: TC-CPR-OVR-022 - Non-numeric rejected (LR-011)
 1. Step: probeOverridePriceInput(row, "abc"), expected: retained value has no alpha (type=number coerces to "")
 
-## Scenario: TC-CPR-OVR-023 - Max Discount % accepts valid %, rejects >100 (capped at 100)
-1. Step: tryMaxDiscount(row, "10"), expected: committed=true; Save enabled (renders "10.00 %")
-2. Step: tryMaxDiscount(row, "12.5"), expected: committed=true
-3. Step: tryMaxDiscount(row, "150"), expected: committed=false (>100 rejected — editor will not commit; CPR-WV15-Q3)
+## Scenario: TC-CPR-OVR-023 - Max Discount % over 100 handling (SKIPPED — app defect)
+Kept skipped. Live on location 1606 (2026-07-09): over 100 sets aria-invalid + a red border and refuses to commit (a real indicator, not silent) but does not recover cleanly (won't dismiss on click-away; leaves the cell blank; even stalled an automated re-drive). Correct behavior undefined until the app is fixed. The valid boundary (values up to and including 100 commit) is covered by TC-CPR-OVR-037.
 
 ## Scenario: TC-CPR-OVR-024 - Toggling Active dirties form
 1. Step: readActiveState(row), then toggleActive(row), expected: state flips
@@ -161,9 +159,50 @@ This plan owns the **Product Group Override screen** (`/pg-override`) — tabs, 
 2. Step: clickSaveAndCancel(), expected: dialog text contains "Save Changes" + "Are you sure you want to save the changes?"
 3. Step: Cancel → no commit; afterEach ensureDefaultState restores
 
-## Coverage Index (regenerated 2026-06-11 from the test-cases file)
+## Scenario: TC-CPR-OVR-029 - Search "Pricing Override" button navigates to /pg-override
+1. Step: openViaSearchActionBar() from the Search screen, expected: URL contains /pg-override
+2. Step: read heading, expected: "Product Group Override"
 
-Authoritative current case list (28 cases). Scenario prose above may lag; this index is mechanically regenerated.
+## Scenario: TC-CPR-OVR-030 - Location picker gates Select; Cancel applies nothing
+1. Step: open() (no location) then inspectLocationModal("1606"), expected: title "Change Local Office"; selectDisabledInitially true
+2. Step: after checking the office row, expected: rowsMatching > 0; selectEnabledAfterCheck true
+3. Step: Cancel, expected: gridEmptyAfterCancel true (no location applied)
+
+## Scenario: TC-CPR-OVR-031 - Grid Options: list columns; hide persists across reload
+1. Step: openGridOptions + getGridOptionColumns, expected: all 10 columns present + checked; "Reset to Default" present
+2. Step: toggleGridColumn("Updated By") + close, expected: isGridColumnVisible("Updated By") false
+3. Step: reloadAndReselect, expected: still hidden (server-persisted); beforeEach/afterEach ensureAllGridColumnsVisible restores
+
+## Scenario: TC-CPR-OVR-032 - Export: direct Product Group Overrides CSV download
+1. Step: downloadOverrideExport(), expected: filename matches ProductGroupOverrides_<timestamp>UTC.csv
+2. Step: read the download's request, expected: contains corporate-price-pg-override/export + locale=en-US
+3. Step: read content, expected: a non-empty CSV; headers match the exact 9-column expected set, in order
+
+## Scenario: TC-CPR-OVR-033 - Import: "Import All Pricing Overrides" dialog; Cancel closes
+1. Step: openImportDialog + readImportDialog, expected: text contains "Import All Pricing Overrides"; buttons Browse/Cancel/Upload/Close; hasFileInput true
+2. Step: closeImportDialog, expected: isImportDialogVisible false (no real upload)
+
+## Scenario: TC-CPR-OVR-034 - Editing Override Price on an inactive row auto-activates it (NM-1463)
+1. Step: setActive(row, false), expected: readActiveState false
+2. Step: setOverridePrice(row, "446"), expected: readActiveState true (auto-activated); Save enabled
+
+## Scenario: TC-CPR-OVR-035 - Header click does not sort (inactive)
+1. Step: probeColumnSort("Product Group Name"), expected: orderChanged false; ariaSortAfter not ascending/descending
+
+## Scenario: TC-CPR-OVR-036 - Every row shows a Current Price value on 1606 (NM-2206)
+1. Step: getCurrentPriceCells(), expected: length > 0; every cell matches `\d` (no blank / missing)
+
+## Scenario: TC-CPR-OVR-037 - Max Discount % cap inclusive at 100
+1. Step: tryMaxDiscount(row, "10"), expected: committed true
+2. Step: tryMaxDiscount(row, "100"), expected: committed true (inclusive cap); readMaxDiscount == 100; Save enabled
+
+## Scenario: TC-CPR-OVR-038 - Every downloaded CSV row is well-formed
+1. Step: downloadOverrideExport(), expected: headers include the ID/currency/flag/money columns at known indices
+2. Step: validate every data row's Location Id, Product Group Id, Currency, Is Labor, Current Price, Override Price, Override Discount, Is Active against their expected formats, expected: zero offenders collected
+
+## Coverage Index (regenerated 2026-07-09 from the test-cases file)
+
+Authoritative current case list (38 cases; TC-023 skipped — app defect). Scenario prose above may lag; this index is mechanically regenerated.
 
 - TC-CPR-OVR-001 — Override screen loads with Equipment selected by default
 - TC-CPR-OVR-002 — Equipment + Labor tabs render and switching flips aria-selected
@@ -193,3 +232,13 @@ Authoritative current case list (28 cases). Scenario prose above may lag; this i
 - TC-CPR-OVR-026 — Max Discount % save-cycle persists after reload and restores
 - TC-CPR-OVR-027 — Active toggle save-cycle persists after reload and restores
 - TC-CPR-OVR-028 — Save opens the "Save Changes" dialog; Cancel aborts without committing
+- TC-CPR-OVR-029 — The Search action bar "Pricing Override" button navigates to the Override screen
+- TC-CPR-OVR-030 — The "Change Local Office" picker gates Select until a row is checked; Cancel applies nothing
+- TC-CPR-OVR-031 — Grid Options lists every column; toggling one hides its header and it persists across reload
+- TC-CPR-OVR-032 — Export downloads a Product Group Overrides CSV directly (no dialog)
+- TC-CPR-OVR-033 — Import opens the "Import All Pricing Overrides" dialog with a file input; Cancel closes it without uploading
+- TC-CPR-OVR-034 — Editing the Override Price on an inactive row auto-activates it (NM-1463)
+- TC-CPR-OVR-035 — Clicking a column header does not sort (no active sort state, row order unchanged)
+- TC-CPR-OVR-036 — Every row shows a Current Price value on office 1606 (no blank cell) (NM-2206)
+- TC-CPR-OVR-037 — Max Discount % accepts values up to the 100 cap (inclusive)
+- TC-CPR-OVR-038 — Every downloaded CSV row is well-formed with valid IDs, currency, 0/1 flags, and money fields

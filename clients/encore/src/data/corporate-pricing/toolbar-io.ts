@@ -26,6 +26,16 @@ export const CORP_PRICING_LOC_EXPORT_API = '/navigator/api/location/pricing/loca
  */
 export const CORP_PRICING_LOC_IMPORT_API = '/navigator/api/location/pricing/location-import' as const;
 
+/**
+ * Import ▾ All (grid-scoped) — the real commit endpoint. Choosing a file does NOT commit: the app first
+ * re-downloads the current server pricebook via the export path and diffs the file against it in the
+ * browser, then stages the differences in a "Select items to publish" modal. The mutating PUT fires ONLY
+ * when the user selects rows and clicks Publish. Distinct from `location-import` (that is the location-
+ * scoped Loc Pricing Import; this one is the grid/corporate-scoped Import All). Live-verified 2026-07-08
+ * (NM-2265). Filter save listeners on THIS path, not the page URL.
+ */
+export const CORP_PRICING_IMPORT_ALL_API = '/navigator/api/location/pricing/pricing-import' as const;
+
 export const CORP_PRICING_TOOLBAR_IO = {
   /**
    * Export ▾ and Import ▾ expose the SAME 4 variant labels (live-verified identical lists).
@@ -98,6 +108,88 @@ export const CORP_PRICING_TOOLBAR_IO = {
     titlePrefix: 'Import ',
     prompt: 'Choose a file to import data',
     buttons: ['Browse', 'Cancel', 'Upload', 'Close'],
+  } as const,
+
+  /**
+   * Import ▾ All (grid-scoped) — the real upload round-trip (NM-2265 / NM-1446). Live-verified 2026-07-08
+   * (office 1604). This is a DELTA-STAGE flow, fundamentally different from the location-scoped Loc Pricing
+   * Import above:
+   *
+   *  1. Import ▾ → a variant → a Year(s)+Currency precondition dialog (title "Import", the same 1-3 year cap
+   *     and USD/CAD/MXN currency gate as Export ▾; Continue disabled until both set).
+   *  2. Continue → the "Import All <variant>" upload dialog (Browse + a `.csv` file input).
+   *  3. Choosing a file does NOT commit — the app re-downloads the current server pricebook (via the export
+   *     path, scoped to the chosen variant + currency + years) and diffs the uploaded file against it in the
+   *     browser. Then, depending on the diff, it either shows a message (no changes / no matching pricebooks /
+   *     unsupported type) or opens a "Select items to publish" modal listing every changed cell as
+   *     Pricebook / Product Group ID / Product Group Name / Price / New Price, one row per change.
+   *  4. Nothing persists until the user selects rows (Publish is disabled until at least one is checked) and
+   *     clicks Publish, which fires the ONLY mutating request (`CORP_PRICING_IMPORT_ALL_API`). Success shows
+   *     a "Pricing import complete. There were N pricing change updates." toast.
+   *
+   * It is a delta MERGE (product-group rows absent from the file are left untouched — NOT deleted; the file is
+   * fixed-width so a pricebook column can never be "absent"), and it has no
+   * location axis (the file's columns are Product Group Id + Product Group Name + one column per pricebook;
+   * there is no LocationNo), so a change touches a corporate pricebook that every location referencing it
+   * shares. The round-trip below therefore mutates ONE product-group price in ONE pricebook that no other
+   * test reads, and restores it, verifying the restore from a fresh export (never trusting the undo).
+   */
+  importAll: {
+    /** The precondition dialog (Year(s)+Currency), reached by clicking an Import ▾ variant. */
+    precondition: {
+      /** The dialog heading — distinguishes it from the identically-prompted Export precondition dialog. */
+      title: 'Import',
+      /** Prompt used to scope the dialog. Identical wording to the Export dialog — always pair it with the title. */
+      prompt: 'Select between 1 and 3 years and choose a currency to continue.',
+      buttons: ['Cancel', 'Continue', 'Close'] as const,
+      /** At most 3 years may be chosen; a 4th pick is silently refused. */
+      maxYears: 3,
+      /** Year options offered on 2026-07-08 (assert membership, never the exact set — the range shifts yearly). */
+      yearOptions: ['2021', '2022', '2023', '2024', '2025', '2026', '2027', '2028'] as const,
+      /** A safe in-range default year for the round-trip. */
+      defaultYear: '2026',
+    },
+    /** Messages the upload dialog shows for a client-side-classified (non-committing) diff outcome. */
+    messages: {
+      /** File matches the server exactly — nothing to publish. */
+      noChanges: 'There are no changes between the imported and server pricebook',
+      /** File has no pricebook column that matches the server (empty / malformed / wrong variant). */
+      noMatch: 'None of the pricebooks on the server match the imported pricebook',
+      /** Non-`.csv` file, rejected before any network. */
+      unsupportedType: 'Unsupported file type',
+    },
+    /** The delta-review modal shown when the file carries ≥1 change. */
+    publishModal: {
+      title: 'Select items to publish',
+      /** Column headers, in order. */
+      columns: ['Pricebook', 'Product Group ID', 'Product Group Name', 'Price', 'New Price'] as const,
+      /** Fragment of the success toast after a real Publish. */
+      successToastFragment: 'Pricing import complete',
+    },
+    /**
+     * The safe mutation target for the real round-trip. Product group 271 in pricebook `2026-LV-PB-9025`
+     * (Equipment Pricing / 2026 / USD) is referenced by NO other corporate-pricing test — deliberately not
+     * `2021-PB6`, `2022-NP Tier 1`, `2023-Internal1`, or the Override product groups — so mutating and
+     * restoring it cannot turn another spec's assertions red. The natural server baseline is captured live at
+     * test start (never hardcoded here); `testValue` is a distinctive value proving the change came from the import.
+     */
+    roundTrip: {
+      variant: 'All Equipment Pricing',
+      years: ['2026'] as const,
+      currency: 'USD',
+      productGroupId: '271',
+      /** The product group's name, pinned from the live contract — asserted on the staged delta row. */
+      productGroupName: "Lift 0'-40' Boom - Daily",
+      pricebook: '2026-LV-PB-9025',
+      /** A distinctive price the round-trip imports, then restores away from (unlikely to be a natural value). */
+      testValue: '424.24',
+    },
+    /** Committed static fixtures for the client-side rejection paths (the happy-path fixtures are built at run time from a fresh export). */
+    fixtures: {
+      empty: 'empty.csv',
+      malformed: 'malformed.csv',
+      wrongFormat: 'wrong-format.txt',
+    },
   } as const,
 
   /** "Loc Pricing Import" opens its own import dialog with this exact title. */

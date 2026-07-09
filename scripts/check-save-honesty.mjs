@@ -15,7 +15,7 @@
  *      to a real persisted save is the root of the office-1604 Pay To leak.
  *
  *   2. RESTORE-NO-VERIFY — a method named restore* / reset* / revert* / cleanup* /
- *      ensureDefault* / ensureEmpty* / ensureClean* that calls a save helper but neither uses
+ *      ensureDefault* / ensureEmpty* / ensureClean* / ensureAll* that calls a save helper but neither uses
  *      the shared `saveAndVerifyPersisted` helper nor wraps the save in a retry loop that
  *      CONTAINS the save call (a loop only counts when it wraps the save — an unrelated loop
  *      such as a row-deletion while followed by a one-shot save does NOT satisfy this check).
@@ -153,8 +153,10 @@ function saveInsideLoop(body) {
 // --- New constants for LR-067 ---
 
 // LR-067 restore name set (extends the original restore/reset/revert/cleanup with the per-test
-// baseline persisters named in the rule). Matched against the METHOD NAME.
-const RESTORE_NAME = /^(?:restore|reset|revert|cleanup|ensureDefault|ensureEmpty|ensureClean)\w*/;
+// baseline persisters named in the rule, plus ensureAll* — e.g. ensureAllGridColumnsVisible —
+// which restores a server-persisted preference the same way ensureDefault*/ensureClean* do).
+// Matched against the METHOD NAME.
+const RESTORE_NAME = /^(?:restore|reset|revert|cleanup|ensureDefault|ensureEmpty|ensureClean|ensureAll)\w*/;
 
 // Inline waiver: a method that legitimately persists-then-verifies by a path this gate can't see,
 // or a DOM-only reset, declares this marker in its body to opt out of Check 2. The marker MUST

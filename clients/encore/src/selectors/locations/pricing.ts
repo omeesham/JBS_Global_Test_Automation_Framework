@@ -6,7 +6,7 @@ export const SetupPricingSelectors = {
  // ---- Pricing Tab Fields ----
  // NOTE: Pricing tab uses div/span layout (NOT dt/dd like Local Information tab).
  // Checkboxes are Radix button[role="checkbox"], dropdowns are button[role="combobox"].
- // MCP-verified .
+ // Live-verified.
  /** @where Setup > Location > Pricing tab @el checkbox @text "Corporate Pricing" @keys corporate pricing toggle */
   chkCorporatePricing: '[data-testid="location-settings-checkbox-corporate-pricing"]',
  /** @where Setup > Location > Pricing tab @el checkbox @text "Include Service Fee in Price Guides" @keys price-guide inclusive service-fee toggle */

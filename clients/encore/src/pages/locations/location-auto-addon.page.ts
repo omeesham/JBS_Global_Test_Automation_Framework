@@ -14,12 +14,11 @@ export class LocationAutoAddonPage extends BasePage {
   }
 
  /**
- * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
- * beforeEach can avoid re-navigating when already on the tab.
+ * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab.
  */
   async isOnAutoAddonTab(): Promise<boolean> {
     // Fix #4a: use tab trigger aria-selected, not
-    // child-anchor count(). Mirrors base-page.ts:448.
+    // child-anchor count().
     const tab = this.getElement('tabAutoAddon');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
@@ -79,8 +78,7 @@ export class LocationAutoAddonPage extends BasePage {
  * because clickSave() returns {success:true} even when Save is disabled (base re-enable path), so
  * a silent no-op (the set didn't dirty the form) never throws. The post-reload re-read against the
  * persisted DOM is the load-bearing check; if it still shows non-default the loop re-sets. After 3
- * failed cycles it throws, converting a silent baseline failure into a loud one. Mirrors
- * location-legal.page.ts `ensureDefaultState`.
+ * failed cycles it throws, converting a silent baseline failure into a loud one.
  */
   async ensureDefaultState(
     defaults: ReadonlyArray<{ key: string; name: string; checked: boolean }>,

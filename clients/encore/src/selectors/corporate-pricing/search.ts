@@ -100,6 +100,27 @@ export const CorporatePricingSearchSelectors = {
   /** @where Export dialog listbox @el option @keys Year(s) / Currency options (portalled; list must be open) */
   optExportListItem: '[role="option"]',
 
+  // ---- Import ▾ All precondition dialog + publish modal (NM-2265; live-verified 2026-07-08) ----
+  /**
+   * @where Search > Import ▾ variant @el dialog @keys the "Import" Year(s)+Currency precondition dialog
+   * Base role selector; the page object scopes it by the unique prompt AND the "Import" title (the Export
+   * dialog carries the identical prompt), so it never collides with the Export or upload dialogs.
+   */
+  dlgImportAll: '[role="dialog"]',
+  /** @where Import precondition dialog @el combobox @keys the Year(s) (nth 0) + Currency (nth 1) comboboxes */
+  cmbImportAllField: 'button[role="combobox"]',
+  /** @where Import precondition listbox @el option @keys Year(s) / Currency options (portalled; list must be open) */
+  optImportAllListItem: '[role="option"]',
+  /**
+   * @where Search > Import All upload dialog @el dialog @keys the "Select items to publish" delta-review modal
+   * Scoped in the page object by its heading; lists one row per changed cell with a per-row + select-all checkbox.
+   */
+  dlgPublishItems: '[role="dialog"]',
+  /** @where Publish modal @el checkbox @keys per-row + select-all checkboxes; callers scope to the modal (or its tbody for per-row). Publish is disabled until ≥1 is checked */
+  chkPublishRow: '[role="checkbox"]',
+  /** @where Publish modal @el button @text "Publish" @keys commits the selected staged rows (the only mutating action) */
+  btnPublish: 'button:text-is("Publish")',
+
   // ---- Results grid (HARDENED 2026-06-05: real HTML <table>, NOT ARIA grid roles) ----
   // Live walk found ZERO role="grid"/"row"/"columnheader" — the grid is a shadcn/TanStack
   // DataTable rendering `<table><thead><th>` + `<tbody><tr><td>`. The prior role-based

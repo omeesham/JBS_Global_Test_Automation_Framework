@@ -1,7 +1,7 @@
 /**
  * Corporate Pricing — Loc Pricing Import real upload round-trip (NM-2305).
- * TC-CPR-LIM-001..011 (LIM-008 is a Manual, documented-only large-file boundary — see the test
- * cases doc). Live-grounded 2026-07-07.
+ * TC-CPR-LIM-001..012 (LIM-008 is a Manual, documented-only large-file boundary — see the test
+ * cases doc; LIM-012 covers the import dialog surface). Live-grounded 2026-07-07.
  *
  * "Loc Pricing Import" uploads a CSV the server applies per (location, currency): the rows a file
  * carries for a location-and-currency REPLACE that location's existing rows in that currency, and
@@ -218,7 +218,7 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(result.success, result.message).toBe(true);
 
     await p.open(); // reload the Search page
-    expect(await p.getVisibleRowCount()).toBeGreaterThan(0); // grid re-renders, not left blank (guards NM-2206)
+    expect(await p.getVisibleRowCount(), 'The search grid should still render after reload').toBeGreaterThan(0); // grid re-renders, not left blank (guards NM-2206)
 
     const after = await p.captureLocPricingCsvRows(OFFICE);
     expect(requireRow(after, '2026-NP LB4')[ALT_IDX]).toBe('1'); // the imported value is durable, not an in-memory echo
@@ -270,5 +270,25 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     const pbIdx = after.header.indexOf('PriceBook');
     expect(after.rows.map((r) => r[pbIdx])).not.toContain('2026-NOVEL-PROBE-9999');
     expect(sortRows(after.rows)).toEqual(sortRows(before.rows)); // 5897 unchanged — the novel row was dropped
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Loc Pricing Import dialog surface — the direct "Loc Pricing Import" trigger (not a menu variant)
+// opens its own titled upload dialog. Read-only: it opens and dismisses the dialog without a file,
+// so it needs no baseline reset (the real upload round-trip is the mutation block above).
+test.describe('Corporate Pricing — Loc Pricing Import dialog surface (NM-2305) @corporate-pricing @loc-pricing-import', () => {
+  test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
+    test.setTimeout(60_000);
+    await p.open(); // per-test baseline: fresh search-grid load
+  });
+
+  test('TC-CPR-LIM-012: Loc Pricing Import opens the "Import All Location Pricing" dialog', async ({ corporatePricingSearchPage: p }) => {
+    await p.openLocPricingImportDialog();
+    const info = await p.getImportDialogInfo();
+    expect(info.text).toContain(CORP_PRICING_TOOLBAR_IO.locPricingImportDialogTitle);
+    expect(info.buttons).toEqual(expect.arrayContaining(['Browse', 'Upload']));
+    expect(info.hasFileInput).toBe(true);
+    await p.closeImportDialog();
   });
 });

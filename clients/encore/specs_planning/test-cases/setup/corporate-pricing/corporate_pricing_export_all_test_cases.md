@@ -1,6 +1,6 @@
 # Corporate Pricing — Export ▾ All: dialog contract + real download round-trip — Test Cases (NM-2264)
 
-**Module**: corporate-pricing | **Submodule**: export_all | **Total**: 16 | **Updated**: 2026-07-08
+**Module**: corporate-pricing | **Submodule**: export_all | **Total**: 17 | **Updated**: 2026-07-09
 
 > The four Export ▾ variants gate behind a shared Year(s)(1–3) + Currency dialog (Continue disabled until BOTH set); on Continue the export fires and downloads a wide product-group × pricebook matrix CSV. Covers the dialog behavior, boundary values, the live currencyId map (USD=1 / CAD=2 / MXN=3), the real per-variant download round-trip (with the NM-1997 / NM-1998 / NM-2005 file-content regressions folded in), and the Axis-2 surface-behavior DEEP band. The baseline Export ▾ trigger tests (TC-CPR-TIO-002..005, corrected to this dialog contract) stay in the baseline doc.
 
@@ -345,6 +345,25 @@
 **Expected**: A currency with no pricebooks in scope still produces a valid CSV — the two base columns are present and there are strictly fewer pricebook columns than the USD export (CAD is the minimal/empty end of the currency-scoped volume) — never a zero-byte or malformed file.
 **Data**: office=1604, years=2026, currencies=CAD (vs USD)
 **Notes**: NM-2264 Axis-2 empty-vol DEEP satisfied with a LIVE oracle (R4) rather than a data-blocked stub — the CAD equipment scope carried 0 pricebook columns on 2026-07-07 while USD carried ~79. Asserts "fewer than USD" (robust to a CAD pricebook being added later) rather than an exact zero.
+
+---
+
+## TC-CPR-EXA-017: Export menu dismisses on outside-click
+| Priority | Status | Type |
+|----------|--------|------|
+| Low | Automated | Functional |
+
+**Depends_On**: none (baseline-enforcement per LR-019)
+**Automatable**: Yes
+
+**Preconditions**: On the Search screen with the grid loaded (office 1604).
+
+**Steps**:
+1. Open the Export dropdown (menu confirmed open — it lists the export variants)
+2. Click outside the menu (on the page heading) -> the menu closes
+
+**Expected**: The Export dropdown menu dismisses on an outside-click (standard dropdown behavior). The per-variant Year(s)+Currency dialog contract is covered by TC-CPR-EXA-001..009.
+**Data**: office=1604
 
 ---
 

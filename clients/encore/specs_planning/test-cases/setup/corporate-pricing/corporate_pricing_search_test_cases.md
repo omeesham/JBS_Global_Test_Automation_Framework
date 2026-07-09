@@ -1037,6 +1037,48 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 ---
 
+## TC-CPR-SRC-057: Every grid column toggle is enabled (checked) by default
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Surface |
+
+**Surface_Family**: render-state
+
+**Depends_On**: none (baseline-enforcement per LR-019)
+**Automatable**: Yes
+
+**Preconditions**: On the Search screen with the grid loaded (office 1604); all columns visible (baseline).
+
+**Steps**:
+1. Open Grid Options -> the column menu opens
+2. Read the column toggles -> every column's checkbox is checked
+
+**Expected**: The Grid Options menu shows every grid column enabled (checked) by default. The per-column toggle listing + Reset to Default View are covered by TC-CPR-SRC-031.
+**Data**: office=1604
+
+---
+
+## TC-CPR-SRC-058: Toggling a hidden column back ON restores its header
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Surface |
+
+**Surface_Family**: render-state
+
+**Depends_On**: TC-CPR-SRC-032
+**Automatable**: Yes
+
+**Preconditions**: On the Search screen with the grid loaded (office 1604); "Is GSO" column visible (baseline).
+
+**Steps**:
+1. Open Grid Options, uncheck "Is GSO", close -> the "Is GSO" header is gone from the grid
+2. Open Grid Options, re-check "Is GSO", close -> the header reappears
+
+**Expected**: Toggling a hidden column back ON via its individual checkbox restores its header. The bulk "Reset to Default View" path is covered by TC-CPR-SRC-033.
+**Data**: office=1604, column="Is GSO"
+
+---
+
 ## Helper → TC mapping (all 30 `TC-ENC-PRC-1445-*` verified/corrected/dropped per LR-040)
 
 | Helper | Disposition | Mapped to |

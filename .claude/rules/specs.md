@@ -342,7 +342,7 @@ NM-2263 Labor enable-only gap shipped through every structural gate undetected.
 ## LR-067: Reverting or persisting shared server state MUST verify persistence — never trust the save call
 
 Any page-object method that reverts or sets state on the shared test server — names matching
-`restore* | reset* | revert* | cleanup* | ensureDefault*`, plus any per-test baseline helper — MUST
+`restore* | reset* | revert* | cleanup* | ensureDefault* | ensureAll*`, plus any per-test baseline helper — MUST
 prove the change landed: re-read the persisted value after a reload, with bounded retry. Use the
 shared `BasePage.saveAndVerifyPersisted({ isAtTarget, applyMutation, save, reload })` helper rather
 than re-implementing the loop. (DOM-only conveniences that intentionally do NOT save — e.g. a
@@ -370,7 +370,7 @@ of the locations deliverable):
 (`scripts/check-save-honesty.mjs`, wired into `.githooks/pre-commit` Gate 5f; framework-side, never
 ships) fires on every staged `clients/*/src/pages/**.ts` and FAILS the commit if (1) a non-query method
 reports success on an `isDisabled()` branch without signalling the no-op (`saved:false` / `'disabled'`),
-or (2) a `restore* | reset* | revert* | cleanup* | ensureDefault* | ensureEmpty* | ensureClean*` method
+or (2) a `restore* | reset* | revert* | cleanup* | ensureDefault* | ensureEmpty* | ensureClean* | ensureAll*` method
 calls a save helper but neither uses `saveAndVerifyPersisted` nor a retry loop. The gate is fail-green
 (zero flags on the clean tree before it was wired to block) and carries one escape valve: a method that
 legitimately persists-then-verifies by a path the gate cannot see, or a DOM-only reset, declares

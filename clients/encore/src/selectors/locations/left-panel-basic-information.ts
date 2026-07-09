@@ -69,8 +69,8 @@ export const SetupLeftPanelBasicInformationSelectors = {
   // field's <label> opens the "Pay To List" search dialog. A plain Playwright .click() on the label
   // is BLOCKED (the label's `for=` points at the disabled input → "element is not enabled") → the
   // page object drives the launcher via dispatchEvent('click') / click({force:true}).
-  // No data-testid on the dialog (re-confirmed; mirrors the Select Customer Address dialog, account-address.ts:74)
-  // → role+text fallback. FIXME: replace with testids if the app adds them.
+  // No data-testid on the dialog; mirrors the Select Customer Address dialog.
+  // Uses a role+text fallback; switch to testids if the app adds them.
   /**
    * @where Setup > Location > Left Panel @el label @text "Pay To Address" @keys pay-to launcher dialog opener
    * Launcher affordance lives on the LABEL (React onClick). Drive via dispatched/forced click — a

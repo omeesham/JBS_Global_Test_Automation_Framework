@@ -326,14 +326,31 @@ function textOf(content) {
   return out;
 }
 
+// Relativize a target path to a repo-root-relative forward-slash path before the
+// §2 ownership lookup. The Edit/Write/NotebookEdit tools pass ABSOLUTE paths
+// (mandatory on Windows, where this repo root contains spaces), but OWNERSHIP_ROWS
+// patterns are relative + `^…$`-anchored — so an absolute path matches nothing and
+// every pipeline identity default-denies. Strip the REPO_ROOT prefix (derived from
+// this hook's own location at load, so it tracks repo renames automatically) rather
+// than a hardcoded repo-dir name. Windows paths are case-insensitive, so the prefix
+// compare is case-folded; the remainder keeps its original case for the (case-
+// sensitive) glob match. A relative path (fixtures, or a tool that passed one)
+// shares no prefix with REPO_ROOT and simply passes through unchanged.
 function normalizePath(p) {
   let n = p.replace(/\\/g, "/");
-  // Strip absolute prefixes (C:/Users/.../repo/ → "")
-  const repoName = "encore_framework/";
-  const idx = n.lastIndexOf(repoName);
-  if (idx !== -1) n = n.slice(idx + repoName.length);
-  n = n.replace(/^\.\//, "");
-  return n;
+  const root = REPO_ROOT.replace(/\\/g, "/").replace(/\/+$/, "");
+  const nLower = n.toLowerCase();
+  const rootLower = root.toLowerCase();
+  if (root && nLower === rootLower) {
+    n = "";
+  } else if (root && nLower.startsWith(rootLower + "/")) {
+    n = n.slice(root.length + 1);
+  }
+  // A path that shares no prefix with REPO_ROOT (an already-relative fixture
+  // input, or a foreign absolute path) passes through unchanged: relatives then
+  // match the §2 rows directly, and a genuine foreign absolute path matches no
+  // rule and safely default-denies for pipeline identities.
+  return n.replace(/^\.\//, "").replace(/^\/+/, "");
 }
 
 function emitAllow(reason) {

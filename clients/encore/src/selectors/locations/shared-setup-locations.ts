@@ -27,7 +27,7 @@ export const SetupSharedSetupLocationsSelectors = {
  /** @where Setup > Location > Shared Setup Locations tab @el table @text "Shared setup locations grid" @keys table grid shared locations */
   tblSharedSetupLocations: '[data-testid="location-settings-table-shared-setup"]',
 
- // ---- Column Headers ---- (added 2026-04-29)
+ // ---- Column Headers ----
  /** @where Setup > Location > Shared Setup Locations > Header @el label @text "Local Office" @keys column header local-office */
   colHeaderLocalOffice: '[data-testid="location-settings-table-shared-setup-col-local-office"]',
  /** @where Setup > Location > Shared Setup Locations > Header @el label @text "Local Office Name" @keys column header local-office-name */

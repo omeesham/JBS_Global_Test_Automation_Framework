@@ -60,7 +60,5 @@ export const SetupNotesSelectors = {
   btnSaveNotes: '[data-testid="location-settings-btn-save"]',
 
  // ---- Save Changes Dialog ----
- // DEDUPLICATION (P0-DECONTAMINATION): dlgSaveChanges, btnSaveChangesConfirm, btnSaveChangesCancel
- // REMOVED — canonical versions live in shared.ts (SetupSharedSelectors).
- // Notes tab uses the SAME shared Save Changes dialog as all other Location Settings tabs.
+ // Shared Save-changes dialog selectors live in shared.ts.
 } as const;

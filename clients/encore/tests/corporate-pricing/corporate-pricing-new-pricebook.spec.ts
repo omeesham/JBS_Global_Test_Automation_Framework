@@ -54,8 +54,8 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
 
   test('TC-CPR-NPB-007: Tabs render — Pricing Strategy + Pricing Detail', async ({ corporatePricingNewPricebookPage: p }) => {
     const tabs = await p.getTabs();
-    expect(tabs).toContain('Pricing Strategy');
-    expect(tabs).toContain('Pricing Detail');
+    expect(tabs, 'Pricing Strategy tab should be visible').toContain('Pricing Strategy');
+    expect(tabs, 'Pricing Detail tab should be visible').toContain('Pricing Detail');
   });
 
   // ── Name field-coverage ─────────────────────────────────────────────────────────────────
@@ -129,8 +129,12 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     await p.openAddStrategyDialog();
     expect(await p.isAddDialogOpen()).toBe(true);
     // Dialog presents the Strategy Name field + flag checkboxes (no separate "Type" control).
-    await expect(p.page.locator('#new-strategy-name')).toBeVisible();
-    await expect(p.page.getByRole('dialog').getByRole('checkbox', { name: 'Is Active' })).toBeVisible();
+    await test.step('Confirm the strategy name field appears', async () => {
+      await expect(p.page.locator('#new-strategy-name')).toBeVisible();
+    });
+    await test.step('Confirm the Is Active checkbox appears in the dialog', async () => {
+      await expect(p.page.getByRole('dialog').getByRole('checkbox', { name: 'Is Active' })).toBeVisible();
+    });
     await p.cancelAddDialog();
   });
 
@@ -207,7 +211,9 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     test.setTimeout(90_000); // heavy detail tab (~3707 source items)
     await p.clickDetailTab();
     expect(await p.getSourceGroupCount()).toBeGreaterThan(0);
-    await expect(p.page.locator('input[placeholder="Search ID or Name..."]')).toBeVisible();
+    await test.step('Confirm the product group search field appears', async () => {
+      await expect(p.page.locator('input[placeholder="Search ID or Name..."]')).toBeVisible();
+    });
   });
 
   test('TC-CPR-NPB-026: Double-clicking a product group adds it to the pricebook grid', async ({ corporatePricingNewPricebookPage: p }) => {
@@ -249,7 +255,7 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     // group survived the save (content-anchored, never a count). The helper waits for the heavy
     // management-mode grid to render before reading (reading immediately races an empty grid).
     const detailRows = (await np.readSavedDetailGroups(NEW_PRICEBOOK.office, newId)).join(' | ');
-    expect(detailRows).toContain(NEW_PRICEBOOK.equipmentGroupA);
+    expect(detailRows, 'The saved product group should persist after reload').toContain(NEW_PRICEBOOK.equipmentGroupA);
 
     // Persistence proof 2 (SEARCH by name): the new book is discoverable by its unique name. Broaden
     // the result set (Active-Only off) so the assertion does not depend on the record's active flag.
@@ -544,9 +550,15 @@ test.describe('Corporate Pricing — Update existing pricebook (management mode)
   test('TC-CPR-NPB-037: An existing pricebook opens in management mode (both tabs, Save disabled on clean load)', async ({ corporatePricingDetailPage: dp }) => {
     test.setTimeout(150_000); // heavy management-mode grid (~2430 rows)
     await dp.open(); // opens the saved pricebook Details + activates the Pricing Detail tab
-    expect(await dp.page.locator('button:has-text("Pricing Strategy")').count()).toBeGreaterThan(0);
-    expect(await dp.page.locator('button:has-text("Pricing Detail")').count()).toBeGreaterThan(0);
-    expect(await dp.page.locator('h1:has-text("New Pricebook")').count()).toBe(0); // not the create form
+    await test.step('Confirm the Pricing Strategy tab is present', async () => {
+      expect(await dp.page.locator('button:has-text("Pricing Strategy")').count()).toBeGreaterThan(0);
+    });
+    await test.step('Confirm the Pricing Detail tab is present', async () => {
+      expect(await dp.page.locator('button:has-text("Pricing Detail")').count()).toBeGreaterThan(0);
+    });
+    await test.step('Confirm this is not the create form', async () => {
+      expect(await dp.page.locator('h1:has-text("New Pricebook")').count()).toBe(0); // not the create form
+    });
     expect(await dp.isSaveEnabled()).toBe(false); // clean load → Save disabled
   });
 

@@ -85,7 +85,7 @@ export abstract class LocationFormHelpers extends BasePage {
  * Reads the visible label text for a checkbox from the live DOM.
  * Structure: dt (label) + dd > button[role="checkbox"] -- all Local Info checkboxes follow this pattern.
  * Walks from the checkbox button up to its <dd> parent, then reads the preceding <dt> sibling text.
- * MCP-verified : term (dt) + definition (dd) confirmed in Local Information tab DOM.
+ * Live-verified: term (dt) + definition (dd) confirmed in Local Information tab DOM.
  */
   async getCheckboxLabel(selectorKey: string): Promise<string> {
     const el = this.getElement(selectorKey as keyof typeof LocationSettingsSelectors);

@@ -19,14 +19,12 @@ export class LocationLegalPage extends BasePage {
   }
 
  /**
- * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
- * beforeEach can avoid re-navigating when already on the tab.
+ * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab.
  */
   async isOnLegalTab(): Promise<boolean> {
-    // Fix #4a (radix-tab-dom 2026-05-22):
     // contentLegal is a panel-wrapper testid that Radix keeps mounted across all tab
     // states (count() > 0 returns TRUE even when Legal is inactive). The tab trigger's
-    // aria-selected is the only reliable signal — mirrors base-page.ts:448.
+    // aria-selected is the only reliable signal.
     const tab = this.getElement('tabLegal');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
@@ -36,10 +34,10 @@ export class LocationLegalPage extends BasePage {
   async clickLegalTab(): Promise<void> {
     await this.clickWithRetry('tabLegal');
     await this.getElement('contentLegal').waitFor({ state: 'visible', timeout: 15_000 });
-    // D-1 (lifecycle refactor 2026-05-21): wait for row-0 service-charge dropdown
+    // Wait for row-0 service-charge dropdown
     // (content-level anchor) so we don't return on the wrapper alone while the Legal
     // table is still hydrating.
-    // Fix #4c: dropped trailing .catch(Log.warn) so a missed
+    // Dropped trailing .catch(Log.warn) so a missed
     // wait fails loudly at the click step (where the symptom is) instead of being swallowed.
     await this.getElement('drpLegalServiceCharge0')
       .waitFor({ state: 'visible', timeout: 15_000 });
@@ -167,7 +165,7 @@ export class LocationLegalPage extends BasePage {
  * re-verify — because the flaky step is the 114-option Radix SC select (retry-on-detach): it can
  * "click successfully" yet leave the Angular model unchanged. A silent no-op leaves Save
  * disabled, and `clickSaveWithDialog` returns `{success:true}` when Save is disabled
- * (base-page.ts:360-363) — so save-success never proves the restore landed. The
+ * — so save-success never proves the restore landed. The
  * post-reload re-read against the persisted DOM is the load-bearing check; if it still
  * shows non-default, the loop re-selects. After 3 failed cycles it throws, converting a
  * silent baseline failure into a loud one instead of letting the spec re-rot.

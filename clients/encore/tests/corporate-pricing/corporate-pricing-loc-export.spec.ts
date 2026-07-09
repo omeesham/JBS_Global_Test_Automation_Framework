@@ -16,8 +16,7 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { CORP_PRICING_TOOLBAR_IO } from '../../src/data/corporate-pricing/toolbar-io';
 // Loc Pricing Export — REAL file download round-trip + downloaded-file verification (NM-2262).
 //
-// TC-CPR-TIO-012 (in the baseline toolbar spec) asserts only that the export request fires — it never captures
-// a file. This block captures the REAL downloaded CSV and verifies the FILE itself: filename pattern,
+// This block captures the REAL downloaded CSV and verifies the FILE itself: filename pattern,
 // non-empty/parseable, header columns, data rows, and that the download's own request carried the locale.
 // The exported file is the oracle (Loc Pricing Export is a location-scoped CSV, a different dataset from
 // the on-screen strategy grid — so the file's own structure/content is asserted, not a grid row-for-row diff).
@@ -38,9 +37,9 @@ test.describe('Corporate Pricing — Loc Pricing Export file round-trip (NM-2262
   // TC-CPR-LEX-002
   test('TC-CPR-LEX-002: Downloaded Loc Pricing Export file is non-empty and parseable as CSV', async ({ corporatePricingSearchPage: p }) => {
     const r = await p.downloadLocPricingExport();
-    expect(r.content.length).toBeGreaterThan(0);
+    expect(r.content.length, 'The exported file should not be empty').toBeGreaterThan(0);
     expect(r.content).toContain(','); // the file is actually comma-delimited, not a single garbage token
-    expect(r.headers.length).toBeGreaterThan(0); // a header row parsed out
+    expect(r.headers.length, 'The exported file should contain a parsed header row').toBeGreaterThan(0); // a header row parsed out
   });
 
   // TC-CPR-LEX-003

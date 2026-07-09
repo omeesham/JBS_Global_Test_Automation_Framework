@@ -19,6 +19,7 @@ import {
   CORP_PRICING_EXPORT_API,
   CORP_PRICING_LOC_EXPORT_API,
   CORP_PRICING_LOC_IMPORT_API,
+  CORP_PRICING_IMPORT_ALL_API,
 } from '../../data/corporate-pricing/toolbar-io';
 import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -70,6 +71,51 @@ export type LocImportResult = {
   /** Raw response body of the import PUT, or null when no request fired. Kept so a caller can read the
    *  server's own `success`/`validationErrors` even when the dialog shows only a generic message. */
   responseBody: string | null;
+};
+
+/** One staged change row in the Import All "Select items to publish" delta modal (NM-2265). */
+export type ImportAllStagedRow = {
+  pricebook: string;
+  productGroupId: string;
+  productGroupName: string;
+  /** The current server price (before the change). */
+  price: string;
+  /** The imported price (what will be committed if this row is published). */
+  newPrice: string;
+};
+
+/**
+ * The client-side outcome of choosing a file in the Import All upload dialog (NM-2265). Choosing a file
+ * does NOT commit — the app re-downloads the server pricebook and diffs the file against it in the browser.
+ *  - `staged`: the file carried ≥1 change; `staged` lists them and Publish is available (nothing committed yet).
+ *  - `no-changes`: the file matches the server exactly — nothing to publish.
+ *  - `no-match`: no pricebook column matched the server (empty / malformed / wrong-variant file).
+ *  - `unsupported-type`: a non-`.csv` file, rejected before any network.
+ *  - `other`: no known message settled within the wait — the raw dialog text is returned for diagnosis.
+ */
+export type ImportAllOutcome = {
+  kind: 'staged' | 'no-changes' | 'no-match' | 'unsupported-type' | 'other';
+  /** The dialog message for a non-staged outcome (empty for `staged`) — the RAW on-screen text. */
+  message: string;
+  /** The staged change rows when `kind === 'staged'`. */
+  staged: ImportAllStagedRow[];
+  /** The diff-on-choose GET pricing-export request URL (scoped to the chosen Year(s)+Currency), or null
+   *  when no network fired (an unsupported file type is rejected before any request). */
+  diffRequestUrl: string | null;
+};
+
+/** The result of publishing staged Import All changes — the ONLY mutating step (NM-2265). */
+export type ImportAllPublishResult = {
+  /** True when the commit PUT fired and returned 2xx. */
+  success: boolean;
+  /** HTTP status of the commit PUT, or null when no request fired. */
+  status: number | null;
+  /** The commit request URL, or null when none fired. */
+  requestUrl: string | null;
+  /** The commit request method (PUT), or null when none fired. */
+  method: string | null;
+  /** The success toast text (e.g. "Pricing import complete. There were 1 pricing change updates."). */
+  toast: string;
 };
 
 /**
@@ -805,13 +851,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.page.locator(S.dlgImport).filter({ hasText: CORP_PRICING_TOOLBAR_IO.importDialog.prompt }).first();
   }
 
-  /** Open Import ▾ and click a variant — opens the "Import <variant>" dialog (NOT a native file chooser). */
-  async openImportVariantDialog(variant: string): Promise<void> {
-    await this.openImportMenu();
-    await this.page.locator(S.mnuToolbarVariant, { hasText: variant }).first().click();
-    await this.importDialog().waitFor({ state: 'visible', timeout: 6_000 });
-  }
-
   /** Read the open import dialog: full text, button labels, and whether it carries a file input. */
   async getImportDialogInfo(): Promise<{ text: string; buttons: string[]; hasFileInput: boolean }> {
     const dlg = this.importDialog();
@@ -829,6 +868,397 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     if ((await closeBtn.count()) > 0) await closeBtn.click().catch(() => { /* best-effort: fall through to the Escape fallback + hidden-state wait below */ });
     else await this.page.keyboard.press('Escape').catch(() => { /* nothing */ });
     await dlg.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
+  }
+
+  // ---- Import ▾ All: Year(s)+Currency precondition dialog → upload → delta-publish (NM-2265) ----
+  // A delta-stage flow (grid-scoped), distinct from the location-scoped Loc Pricing Import below: clicking
+  // a variant opens a Year(s)+Currency precondition dialog; Continue opens the upload dialog; choosing a
+  // file diffs it against a fresh server export in the browser (no commit); nothing persists until the user
+  // selects rows in the "Select items to publish" modal and clicks Publish.
+
+  /**
+   * The Import All precondition dialog (Year(s)+Currency), scoped by its prompt AND "Import" title. The
+   * Export precondition dialog carries the identical prompt, so the title guard is what keeps them apart.
+   */
+  private importAllDialog(): Locator {
+    return this.page
+      .locator(S.dlgImportAll)
+      .filter({ hasText: CORP_PRICING_TOOLBAR_IO.importAll.precondition.prompt })
+      .filter({ hasText: CORP_PRICING_TOOLBAR_IO.importAll.precondition.title })
+      .first();
+  }
+
+  /** The precondition dialog's Year(s) combobox (first) and Currency combobox (second), in DOM order. */
+  private importAllYearCombo(): Locator {
+    return this.importAllDialog().locator(S.cmbImportAllField).nth(0);
+  }
+  private importAllCurrencyCombo(): Locator {
+    return this.importAllDialog().locator(S.cmbImportAllField).nth(1);
+  }
+
+  /** The "Select items to publish" delta-review modal, scoped by its heading. */
+  private publishModal(): Locator {
+    return this.page.locator(S.dlgPublishItems).filter({ hasText: CORP_PRICING_TOOLBAR_IO.importAll.publishModal.title }).first();
+  }
+
+  /**
+   * Cancel the "Select items to publish" modal without publishing; returns whether it closed. Staging a
+   * change REPLACES the upload dialog with this modal, so a caller that staged a change must dismiss THIS
+   * modal (not the upload dialog) — otherwise its overlay lingers and blocks the next action.
+   */
+  async cancelPublishModal(): Promise<boolean> {
+    const modal = this.publishModal();
+    if ((await modal.count()) === 0) return true;
+    const btn = modal.locator('button', { hasText: /^(Cancel|Close)$/ }).first();
+    if ((await btn.count()) > 0) await btn.click().catch(() => { /* best-effort: the hidden-state check below is the real oracle */ });
+    else await this.page.keyboard.press('Escape').catch(() => { /* nothing to dismiss */ });
+    return modal.waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
+  }
+
+  /** Open Import ▾, click a variant, and wait for the Year(s)+Currency precondition dialog to render. */
+  async openImportAllVariantDialog(variant: string): Promise<void> {
+    await this.openImportMenu();
+    await this.page.locator(S.mnuToolbarVariant, { hasText: variant }).first().click();
+    await this.importAllDialog().waitFor({ state: 'visible', timeout: 6_000 });
+  }
+
+  /** Read the open precondition dialog: text, combobox count, buttons, and whether Continue is disabled. */
+  async getImportAllDialogInfo(): Promise<{ text: string; comboCount: number; buttons: string[]; continueDisabled: boolean }> {
+    const dlg = this.importAllDialog();
+    const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
+    const comboCount = await dlg.locator(S.cmbImportAllField).count();
+    const buttons = (await dlg.locator('button').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const continueDisabled = await dlg.locator('button', { hasText: /^Continue$/ }).first().isDisabled();
+    return { text, comboCount, buttons, continueDisabled };
+  }
+
+  /** Whether the precondition dialog's Continue button is currently enabled. */
+  async isImportAllContinueEnabled(): Promise<boolean> {
+    return this.importAllDialog().locator('button', { hasText: /^Continue$/ }).first().isEnabled();
+  }
+
+  private async openImportAllYearList(): Promise<void> {
+    await this.importAllYearCombo().click();
+    await this.page.locator(S.optImportAllListItem).first().waitFor({ state: 'visible', timeout: 4_000 });
+  }
+  private async closeImportAllYearList(): Promise<void> {
+    await this.page.keyboard.press('Escape');
+    await this.page.locator(S.optImportAllListItem).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
+  }
+
+  /** Select one or more years (1–3) in the precondition dialog's Year(s) combobox and close the list. */
+  async setImportAllYears(years: Array<string | number>): Promise<void> {
+    await this.openImportAllYearList();
+    for (const y of years) await this.page.locator(S.optImportAllListItem, { hasText: new RegExp(`^${y}$`) }).first().click();
+    await this.closeImportAllYearList();
+  }
+
+  /**
+   * Attempt to add ONE more year on top of the current selection, then report the resulting years. Used to
+   * prove the 1–3 cap: after 3 are chosen, a 4th does not register, so the returned list still has 3 years.
+   * Fails loudly (no swallow) if the extra option is missing or its click fails — a "still 3" result must
+   * mean the app REFUSED the 4th, not that the option was absent.
+   */
+  async attemptExtraImportAllYear(year: string | number): Promise<string[]> {
+    await this.openImportAllYearList();
+    const extra = this.page.locator(S.optImportAllListItem, { hasText: new RegExp(`^${year}$`) }).first();
+    await extra.waitFor({ state: 'visible', timeout: 4_000 });
+    await extra.click();
+    const selected = await this.getImportAllSelectedYears();
+    await this.closeImportAllYearList();
+    return selected;
+  }
+
+  /** The years currently selected, read from the Year(s) combobox chips (deduped, ascending). */
+  async getImportAllSelectedYears(): Promise<string[]> {
+    const text = await this.importAllYearCombo().innerText().catch(() => '');
+    const years = text.match(/\d{4}/g) ?? [];
+    return [...new Set(years)].sort();
+  }
+
+  /** Open the Currency combobox, read its options, and close it without selecting. */
+  async getImportAllCurrencyOptions(): Promise<string[]> {
+    await this.importAllCurrencyCombo().click();
+    await this.page.locator(S.optImportAllListItem).first().waitFor({ state: 'visible', timeout: 4_000 });
+    const opts = await this.page.locator(S.optImportAllListItem).allInnerTexts();
+    await this.page.keyboard.press('Escape');
+    return opts.map((t) => t.trim()).filter(Boolean);
+  }
+
+  /** Select a currency by its code (single-select — the list closes on pick). */
+  async setImportAllCurrency(code: string): Promise<void> {
+    await this.importAllCurrencyCombo().click();
+    await this.page.locator(S.optImportAllListItem, { hasText: new RegExp(`^${code}$`) }).first().click();
+  }
+
+  /** Cancel the precondition dialog; returns whether it closed. */
+  async cancelImportAllDialog(): Promise<boolean> {
+    await this.importAllDialog().locator('button', { hasText: /^Cancel$/ }).first().click().catch(() => { /* best-effort: the hidden-state check below is the real oracle */ });
+    return this.importAllDialog().waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
+  }
+
+  /** Click Continue on the configured precondition dialog and wait for the "Import <variant>" upload dialog. */
+  async clickImportAllContinue(): Promise<void> {
+    await this.importAllDialog().locator('button', { hasText: /^Continue$/ }).first().click();
+    await this.importDialog().waitFor({ state: 'visible', timeout: 6_000 });
+  }
+
+  /** Open Import ▾, pick a variant, set Year(s)+Currency, and Continue to the upload dialog — the full
+   *  precondition-to-upload sequence in one call (collapses the block otherwise inlined across the tests). */
+  async openImportAllUploadFor(variant: string, years: Array<string | number>, currency: string): Promise<void> {
+    await this.openImportAllVariantDialog(variant);
+    await this.setImportAllYears(years);
+    await this.setImportAllCurrency(currency);
+    await this.clickImportAllContinue();
+  }
+
+  /**
+   * Choose a file in the OPEN upload dialog and classify the browser-side diff outcome. Does NOT commit —
+   * the app re-downloads the server pricebook and diffs; this waits for the outcome (a staged-changes modal
+   * OR a settled message) and returns it. The file is chosen via Browse → the native chooser (the same
+   * mechanic the Loc Pricing Import uses), but the outcome model differs so it is classified here.
+   */
+  async chooseImportAllFile(fixturePath: string): Promise<ImportAllOutcome> {
+    const uploadDlg = this.importDialog();
+    // The diff on choose fires GET pricing-export (scoped to the precondition Year(s)+Currency) for every
+    // outcome EXCEPT an unsupported file type (rejected before any network) — capture its URL best-effort.
+    const diffReqPromise = this.page
+      .waitForRequest((r) => r.url().includes(CORP_PRICING_EXPORT_API) && r.method() === 'GET', { timeout: 15_000 })
+      .then((r) => r.url())
+      .catch(() => null);
+    const [chooser] = await Promise.all([
+      this.page.waitForEvent('filechooser'),
+      uploadDlg.locator(S.btnImportBrowse).click(),
+    ]);
+    await chooser.setFiles(fixturePath);
+
+    // The app re-downloads the server pricebook and diffs in the browser — poll for the settled outcome
+    // (a staged-changes modal or a known message) rather than sleeping a fixed time.
+    const msgs = CORP_PRICING_TOOLBAR_IO.importAll.messages;
+    const publishTitle = CORP_PRICING_TOOLBAR_IO.importAll.publishModal.title;
+    const kind = (await this.page
+      .waitForFunction(
+        ({ m, pub }) => {
+          const dlg = document.querySelector('[role="dialog"], [role="alertdialog"]');
+          if (!dlg) return null;
+          const txt = dlg.textContent || '';
+          if (txt.includes(pub)) return 'staged';
+          if (txt.includes(m.unsupportedType)) return 'unsupported-type';
+          if (txt.includes(m.noChanges)) return 'no-changes';
+          if (txt.includes(m.noMatch)) return 'no-match';
+          return null; // keep polling until the diff settles
+        },
+        { m: msgs, pub: publishTitle },
+        { timeout: 20_000, polling: 200 },
+      )
+      .then((h) => h.jsonValue() as Promise<ImportAllOutcome['kind']>)
+      .catch(() => 'other' as const));
+
+    const diffRequestUrl = await diffReqPromise;
+    if (kind === 'staged') {
+      return { kind, message: '', staged: await this.readStagedRows(), diffRequestUrl };
+    }
+    // Return the RAW on-screen dialog text as `message` (not a synthesized constant), so a caller's message
+    // assertion checks what the app actually rendered rather than a value we handed back to ourselves.
+    const message = (await this.page.locator(S.dlgImport).first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    return { kind, message, staged: [], diffRequestUrl };
+  }
+
+  /** Read the staged change rows from the "Select items to publish" modal. */
+  private async readStagedRows(): Promise<ImportAllStagedRow[]> {
+    return this.publishModal().evaluate((dlg) => {
+      const rows = Array.from(dlg.querySelectorAll('tbody tr'));
+      return rows.map((r) => {
+        const cells = Array.from(r.querySelectorAll('td')).map((c) => (c.textContent || '').replace(/\s+/g, ' ').trim());
+        // A row is [maybe-checkbox-cell, Pricebook, Product Group ID, Product Group Name, Price, New Price];
+        // take the 5 rightmost so an optional leading checkbox cell is dropped robustly.
+        const [pricebook, productGroupId, productGroupName, price, newPrice] = cells.slice(-5);
+        return {
+          pricebook: pricebook ?? '',
+          productGroupId: productGroupId ?? '',
+          productGroupName: productGroupName ?? '',
+          price: price ?? '',
+          newPrice: newPrice ?? '',
+        };
+      });
+    });
+  }
+
+  /**
+   * Select every staged row and Publish — the ONLY mutating step. Arms the commit-request listener BEFORE
+   * clicking (Publish is disabled until ≥1 row is checked). Returns the real commit outcome + the success
+   * toast; never trusts the dialog alone for whether it persisted.
+   */
+  async publishStagedImport(opts?: { onlyProductGroupIds?: string[] }): Promise<ImportAllPublishResult> {
+    const modal = this.publishModal();
+    const only = opts?.onlyProductGroupIds;
+    if (only && only.length > 0) {
+      // Partial selection: check ONLY the per-row boxes whose row carries one of these product groups, so the
+      // commit publishes exactly the selected staged rows (a deselected staged row must NOT be written).
+      const rows = modal.locator('tbody tr');
+      const rowCount = await rows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = rows.nth(i);
+        const cells = (await row.locator('td').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim());
+        const productGroupId = cells.slice(-5)[1] ?? ''; // [pricebook, productGroupId, name, price, newPrice]
+        if (only.includes(productGroupId)) await row.locator(S.chkPublishRow).first().check();
+      }
+    } else {
+      // Select every box (header select-all + per-row). `.check()` verifies the ARIA state — a bare click can
+      // focus-without-toggle on a Radix checkbox, so it is the file's documented checkbox discipline.
+      const boxes = modal.locator(S.chkPublishRow);
+      const n = await boxes.count();
+      for (let i = 0; i < n; i++) await boxes.nth(i).check();
+    }
+    const reqPromise = this.page
+      .waitForRequest((r) => r.url().includes(CORP_PRICING_IMPORT_ALL_API) && r.method() !== 'GET', { timeout: 20_000 })
+      .catch((err: Error) => {
+        if (err.name === 'TimeoutError') return null;
+        throw err;
+      });
+    await modal.locator(S.btnPublish).first().click();
+    const req = await reqPromise;
+    if (!req) {
+      return { success: false, status: null, requestUrl: null, method: null, toast: '' };
+    }
+    const resp = await req.response();
+    if (!resp) throw new Error('publishStagedImport: the commit request fired but its response was not captured');
+    const status = resp.status();
+    // The commit closes the modal and shows a toast; read it best-effort for the caller's assertion.
+    const toast = (await this.page
+      .locator('[data-sonner-toast], [role="alert"]')
+      .filter({ hasText: CORP_PRICING_TOOLBAR_IO.importAll.publishModal.successToastFragment })
+      .first()
+      .innerText({ timeout: 8_000 })
+      .catch(() => '')).replace(/\s+/g, ' ').trim();
+    return { success: status >= 200 && status < 300, status, requestUrl: req.url(), method: req.method(), toast };
+  }
+
+  /**
+   * Read the "Select items to publish" modal WITHOUT committing: whether Publish is disabled, the column
+   * header set, the "Total Items" label text, and the staged row count — the publish gate, the header
+   * contract, and the item count, none of which the commit path (publishStagedImport) exposes.
+   */
+  async getPublishModalInfo(): Promise<{ publishDisabled: boolean; headers: string[]; totalItemsText: string; rowCount: number }> {
+    const modal = this.publishModal();
+    const publishDisabled = await modal.locator(S.btnPublish).first().isDisabled();
+    const headers = (await modal.locator('th').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const totalItemsText = (await modal.getByText(/Total Items/i).first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    const rowCount = await modal.locator('tbody tr').count();
+    return { publishDisabled, headers, totalItemsText, rowCount };
+  }
+
+  /** Check exactly ONE staged row's checkbox (the first per-row box), to prove Publish enables on a single
+   *  selection. Uses `.check()` (Radix-safe: verifies the ARIA state). */
+  async checkOneStagedRow(): Promise<void> {
+    await this.publishModal().locator('tbody').locator(S.chkPublishRow).first().check();
+  }
+
+  /**
+   * Read the current server price of one product-group × pricebook cell from a fresh Import All export.
+   * The export is the source of truth for what actually persisted (a different dataset from the on-screen
+   * search grid), so pre/post-import checks compare this rather than the grid.
+   */
+  async captureImportAllCellValue(opts: { variant: string; years: Array<string | number>; currency: string; productGroupId: string; pricebook: string }): Promise<string> {
+    const exp = await this.downloadExportVariant(opts.variant, opts.years, opts.currency);
+    const colIdx = exp.headers.indexOf(opts.pricebook);
+    if (colIdx < 0) throw new Error(`captureImportAllCellValue: pricebook column "${opts.pricebook}" not found in the export`);
+    const pgRow = exp.rows.find((r) => (r[0] ?? '').trim() === opts.productGroupId);
+    if (!pgRow) throw new Error(`captureImportAllCellValue: product group "${opts.productGroupId}" not found in the export`);
+    return (pgRow[colIdx] ?? '').trim();
+  }
+
+  /**
+   * From a fresh export, capture the target cell's value plus an UNTOUCHED reference ROW for a merge proof:
+   *  - `target`: the target product group × pricebook value (the natural baseline to restore to).
+   *  - `otherRow`: a DIFFERENT product group's price in the same pricebook — proves an omitted ROW survives Publish.
+   * Read-only: the reference row is never imported, so a single-row import touching only the target must leave
+   * it unchanged if the commit MERGES (and would wipe it if it REPLACED). The column dimension is deliberately
+   * NOT captured: the import file is fixed-width (every pricebook column is required — a column-narrow file is
+   * rejected as "unexpected format", verified 2026-07-09), so a row present in the file always carries all its
+   * columns. An omitted-column scenario cannot exist, making product-group ROW omission the only meaningful
+   * "absent-from-file → untouched" proof.
+   */
+  async captureImportAllMergeCanaries(opts: { variant: string; years: Array<string | number>; currency: string; productGroupId: string; pricebook: string }): Promise<{
+    target: { value: string };
+    otherRow: { productGroupId: string; pricebook: string; value: string };
+  }> {
+    const exp = await this.downloadExportVariant(opts.variant, opts.years, opts.currency);
+    const targetCol = exp.headers.indexOf(opts.pricebook);
+    if (targetCol < 0) throw new Error(`captureImportAllMergeCanaries: pricebook "${opts.pricebook}" not found in the export`);
+    const targetRow = exp.rows.find((r) => (r[0] ?? '').trim() === opts.productGroupId);
+    if (!targetRow) throw new Error(`captureImportAllMergeCanaries: product group "${opts.productGroupId}" not found in the export`);
+    const otherPgRow = exp.rows.find((r) => {
+      const pg = (r[0] ?? '').trim();
+      return pg && pg !== opts.productGroupId && /\d/.test((r[targetCol] ?? '').trim());
+    });
+    if (!otherPgRow) throw new Error('captureImportAllMergeCanaries: no untouched product-group row with a numeric price found for the merge proof');
+    return {
+      target: { value: (targetRow[targetCol] ?? '').trim() },
+      otherRow: { productGroupId: (otherPgRow[0] ?? '').trim(), pricebook: opts.pricebook, value: (otherPgRow[targetCol] ?? '').trim() },
+    };
+  }
+
+  /**
+   * Build a minimal Import All fixture from a FRESH export: clone one product group's full row and set one
+   * pricebook cell to `newValue`, keeping the header + currency rows exactly as exported. Because every other
+   * cell matches the current server, the browser diff stages EXACTLY that one changed cell. Returns the temp
+   * file path and the cell's pre-change value (the natural baseline to restore to). The temp file is the
+   * caller's to remove.
+   */
+  async buildImportAllSingleCellFixture(opts: { variant: string; years: Array<string | number>; currency: string; productGroupId: string; pricebook: string; newValue: string }): Promise<{ path: string; previousValue: string }> {
+    const exp = await this.downloadExportVariant(opts.variant, opts.years, opts.currency);
+    const colIdx = exp.headers.indexOf(opts.pricebook);
+    if (colIdx < 0) throw new Error(`buildImportAllSingleCellFixture: pricebook column "${opts.pricebook}" not found in the export`);
+    const pgRow = exp.rows.find((r) => (r[0] ?? '').trim() === opts.productGroupId);
+    if (!pgRow) throw new Error(`buildImportAllSingleCellFixture: product group "${opts.productGroupId}" not found in the export`);
+    const previousValue = (pgRow[colIdx] ?? '').trim();
+    const cloned = [...pgRow];
+    cloned[colIdx] = opts.newValue;
+    const currencyRow = exp.rows[0] ?? []; // the currency row (row after the header) is metadata the server matches — kept so only the price cell diffs
+    const csv = [exp.headers, currencyRow, cloned].map((r) => r.map(toCsvField).join(',')).join('\n') + '\n';
+    const tmp = join(tmpdir(), `import-all-${process.pid}-${Date.now()}.csv`);
+    writeFileSync(tmp, csv, 'utf-8');
+    return { path: tmp, previousValue };
+  }
+
+  /**
+   * Build an Import All fixture that changes TWO product-group cells in one pricebook column (from a fresh
+   * export), so the browser diff stages exactly two rows — used to exercise multi-row staging + partial-
+   * selection publish. Returns the temp path and each changed cell's pre-change value. The caller removes the file.
+   */
+  async buildImportAllMultiCellFixture(opts: { variant: string; years: Array<string | number>; currency: string; pricebook: string; changes: Array<{ productGroupId: string; newValue: string }> }): Promise<{ path: string; previousValues: Record<string, string> }> {
+    const exp = await this.downloadExportVariant(opts.variant, opts.years, opts.currency);
+    const colIdx = exp.headers.indexOf(opts.pricebook);
+    if (colIdx < 0) throw new Error(`buildImportAllMultiCellFixture: pricebook column "${opts.pricebook}" not found in the export`);
+    const previousValues: Record<string, string> = {};
+    const dataRows = opts.changes.map((c) => {
+      const pgRow = exp.rows.find((r) => (r[0] ?? '').trim() === c.productGroupId);
+      if (!pgRow) throw new Error(`buildImportAllMultiCellFixture: product group "${c.productGroupId}" not found in the export`);
+      previousValues[c.productGroupId] = (pgRow[colIdx] ?? '').trim();
+      const cloned = [...pgRow];
+      cloned[colIdx] = c.newValue;
+      return cloned;
+    });
+    const currencyRow = exp.rows[0] ?? []; // the currency row (row after the header) is metadata the server matches
+    const csv = [exp.headers, currencyRow, ...dataRows].map((r) => r.map(toCsvField).join(',')).join('\n') + '\n';
+    const tmp = join(tmpdir(), `import-all-multi-${process.pid}-${Date.now()}.csv`);
+    writeFileSync(tmp, csv, 'utf-8');
+    return { path: tmp, previousValues };
+  }
+
+  /** Remove a temp fixture written by `buildImportAllSingleCellFixture` (best-effort). */
+  removeTempFixture(path: string): void {
+    try { unlinkSync(path); } catch { /* temp cleanup is best-effort */ }
+  }
+
+  /**
+   * How many upload dialogs (a dialog carrying a file input) are currently open. Count-based, so it returns
+   * 0 when none is present WITHOUT throwing — the correct oracle for "no upload dialog appeared". Reading
+   * text off an absent dialog throws, and a blanket catch on that read masks a real crash as a false pass.
+   */
+  async importDialogCount(): Promise<number> {
+    return this.importDialog().locator(S.inputImportFile).count();
   }
 
   /**
@@ -1034,6 +1464,11 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.page.locator(S.mnuGridColumn).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
   }
 
+  /** Click "Reset to Default View" in the open grid-options menu. */
+  async resetGridToDefaultView(): Promise<void> {
+    await this.page.locator('[role="menuitem"]', { hasText: 'Reset to Default View' }).first().click();
+  }
+
   /** True if a grid column header with the given label is currently rendered. */
   async isGridColumnVisible(label: string): Promise<boolean> {
     return (await this.getColumnHeaders()).some((h) => h === label || h.includes(label));
@@ -1042,16 +1477,31 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   /**
    * Mutation-safety restore: re-check any unchecked Grid Options column so the grid returns to its
    * all-columns-visible baseline. Self-navigates (fresh page) so it is robust as a beforeEach/afterEach
-   * regardless of the test's end state. The column-visibility preference is server-persisted per user.
+   * regardless of the test's end state. The column-visibility preference is server-persisted per user —
+   * bounded retry re-reads the columns after a reload and re-toggles any still hidden, throwing if the
+   * baseline cannot be restored.
    */
   async ensureAllGridColumnsVisible(): Promise<void> {
-    await this.open();
-    await this.openGridOptions();
-    const cols = await this.getGridOptionColumns();
-    for (const c of cols) {
-      if (!c.checked) await this.toggleGridColumn(c.label);
-    }
-    await this.closeGridOptions();
+    const allColumnsChecked = async (): Promise<boolean> => {
+      await this.openGridOptions();
+      const cols = await this.getGridOptionColumns();
+      await this.closeGridOptions();
+      return cols.every((c) => c.checked);
+    };
+    await this.saveAndVerifyPersisted({
+      isAtTarget: allColumnsChecked,
+      applyMutation: async () => {
+        await this.openGridOptions();
+        const cols = await this.getGridOptionColumns();
+        for (const c of cols) {
+          if (!c.checked) await this.toggleGridColumn(c.label);
+        }
+        await this.closeGridOptions();
+      },
+      save: async () => { /* each toggle persists immediately server-side; no separate save step */ },
+      reload: async () => this.open(),
+      label: 'grid column visibility',
+    });
   }
 
   // ---------- column-content reads (filter → grid coherence) ----------

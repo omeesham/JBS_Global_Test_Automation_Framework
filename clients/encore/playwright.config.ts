@@ -43,20 +43,16 @@ export default defineConfig({
 
   reporter: [
     ['list'],
-    // AgentReporter writes reports/failure-summary.json on every failing run — primary /rca input.
+    // AgentReporter writes reports/failure-summary.json on every failing run — primary triage input.
     // Bundled by `npm run share-for-debugging` and shipped to CI artifact `share-for-debugging-*.zip`.
-    // Relocated 2026-05-19 from dist/framework/ to clients/encore/src/utils/ so the reporter
-    // ships with the deliverable (git archive --strip-components=2 excludes anything above clients/encore/).
+    // Local reporter — kept under the client tree so it ships inside the client bundle.
     ['./src/reporter/agent-reporter.ts'],
     ['html', { outputFolder: 'reports/html-report', open: 'never' }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['junit', { outputFile: 'reports/junit-results.xml' }],
-    // Group F (lifecycle refactor 2026-05-21, v3 corrected):
     // Skip Allure on CI — GitCommitInfo plugin times out on shallow-clone runners
-    // (M365 build agents have no full git history). Replaces the deleted
-    // playwright.config.ci.ts which was a thin override deleted intentionally per
-    // colleague's one-config-to-ship decision. This inline guard folds its only
-    // behavior back into the surviving single config.
+    // (M365 build agents have no full git history). This inline guard replaces
+    // a separate CI config file, keeping one config for shipping.
     ...(process.env.CI ? [] : [['allure-playwright', {
       resultsDir: 'reports/allure-results',
       detail: true,
@@ -99,7 +95,6 @@ export default defineConfig({
       testMatch: /auth\.setup\.ts/,
       use: { viewport: { width: 1920, height: 1080 } },
     },
-    // Group B-1 (lifecycle refactor 2026-05-21):
     // chrome/firefox/webkit are kept invokable for manual `--project=<name>` debugging,
     // but removed from the default suite because they have no `dependencies: ['setup']`
     // and no storageState — they always run unauthenticated and produce false-greens
@@ -125,7 +120,6 @@ export default defineConfig({
         },
       },
     },
-    // Group B-2 (lifecycle refactor 2026-05-21):
     // chromium becomes the generic catch-all for non-module-scoped specs. The
     // `testIgnore` keeps it from double-running module specs that are already owned
     // by the `encore-locations` and `encore-local-office` projects below.

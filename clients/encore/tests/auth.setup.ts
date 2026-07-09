@@ -67,9 +67,8 @@ setup('acquire shared auth state', async ({ browser }) => {
     let lastErr: unknown = null;
     const callRecord: AttemptRecord[] = [];
 
-    // Group A-2 (lifecycle refactor 2026-05-21): SSO step extracted to
-    // performSsoLogin (auth-storage). The 3-attempt retry + telemetry + per-attempt logging
-    // stay here; SSO core (newContext + goto + loginWithMicrosoft + Dashboard wait) is shared.
+    // The 3-attempt retry + telemetry + per-attempt logging stay here;
+    // SSO core (newContext + goto + loginWithMicrosoft + Dashboard wait) is shared via performSsoLogin.
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       const t0 = Date.now();
       try {

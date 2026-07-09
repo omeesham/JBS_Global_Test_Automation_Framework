@@ -223,6 +223,8 @@ clients/*/scripts/_*.ts
 .playwright-cli/*.js
 .playwright-cli/eq-*.json
 .playwright-cli/regguard/
+.playwright-cli/recon/
+.playwright-cli/*-report.png
 # Root-level CLI walk/snapshot yaml dumps (scratch)
 /eq-*.yml
 /pg-*.yml
@@ -246,3 +248,6 @@ clients/*/scripts/_*.ts
 .claude/scheduled_tasks.lock
 .claude/state/closure-attempts/
 .claude/state/regression-snapshot-*.txt
+
+# OVR-032 CSV-assertion probe scratch (root-level; never tracked)
+/capture-ovr032*.txt

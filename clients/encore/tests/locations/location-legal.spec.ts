@@ -16,16 +16,10 @@ import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 // data).
 // Runner: clients/encore/src/utils/field-case-runner.ts saveAndVerifyCase().
 //
-// Phase 3.0b probe outcome (2026-05-27): live CLI probe blocked at SSO redirect
-// (auth state not pre-loaded for ad-hoc CLI session). Engineering knowledge of
-// Radix UI + Angular form architecture predicts that Radix React state
-// isolation prevents DOM-tamper propagation. The test below asserts that as
-// a POSITIVE security property inside the runner's `act` step (DOM tamper +
-// state-isolation assertion), then proceeds to perform a legitimate SC mid-list save via
-// the same runner to exercise the saveAndConfirm hook + prove the post-tamper
-// value can still be changed legitimately. This 2-in-1 design satisfies (a) the
-// runner Hard Requirement, (b) STRICT-LINE-C single-test-block budget, and
-// (c) genuine coverage of the negative case + runner-integration smoke.
+// Radix React state isolation prevents DOM-tamper propagation to Angular form
+// state. The test asserts this as a security property (DOM tamper +
+// state-isolation check), then performs a legitimate SC mid-list save to prove
+// the form still works post-tamper.
 test.describe('Location Legal — FCC @locations @legal @fcc', () => {
 
   // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
@@ -37,17 +31,17 @@ test.describe('Location Legal — FCC @locations @legal @fcc', () => {
 
   // ─── Group ν — Negative validation (no UI path to invalid values) ────────
   //
-  // RCA note (2026-05-27 Phase 4 audit refit, second iteration): the original
+  // Live finding (2026-05-27, observed across two runs): the original
   // plan called for a `page.evaluate()` DOM tamper of the SC combobox button's
   // span textContent. Live behavior (observed across two test runs 2026-05-27):
   // ANY DOM mutation of the Radix combobox button — even text-only with no
   // synthetic events — tears down the Angular page with "Application error:
   // a client-side exception has occurred". The app aggressively rejects
   // external DOM mutation of the combobox node (defensive, but blocks safe
-  // automation of textContent-tamper). This live finding is documented in the
-  // field-coverage catalog (TC-019 disposition).
+  // automation of textContent-tamper). This live finding is recorded as the TC-019
+  // coverage disposition.
   //
-  // Pivot: the genuinely-uncovered mechanic per the master plan is
+  // Pivot: the genuinely-uncovered mechanic is
   // "server-side validation of dropdown values" / "no UI path to submit invalid
   // values". The most honest automation is **negative listbox enumeration +
   // full save-cycle**:
@@ -103,7 +97,7 @@ test.describe('Location Legal — FCC @locations @legal @fcc', () => {
 
 test.describe('Location Legal @locations @legal', () => {
 
-  // Per-test navigation guard (D-2 lifecycle refactor 2026-05-21).
+  // Per-test navigation guard.
   // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
   // Per-test baseline reset: every test starts from default SC/T&C so an
   // "alt-value" selection is always a real net change — even when office 1604 starts a
@@ -119,8 +113,8 @@ test.describe('Location Legal @locations @legal', () => {
     dependencyGate([]);
     test.setTimeout(60_000);
     // Baseline is enforced per-test in beforeEach (ensureDefaultState).
-    expect(locationLegalPage.getCurrentUrl()).toContain(`locations/${OFFICE_NO}/settings`);
-    expect(await locationLegalPage.getColumnHeaders()).toEqual([...LEGAL_COLUMN_HEADERS]);
+    expect(locationLegalPage.getCurrentUrl(), 'Should be on the Location Settings page').toContain(`locations/${OFFICE_NO}/settings`);
+    expect(await locationLegalPage.getColumnHeaders(), 'Legal grid should display all expected column headers').toEqual([...LEGAL_COLUMN_HEADERS]);
     expect(await locationLegalPage.getGridRowCount()).toBe(1);
   });
 
@@ -166,7 +160,6 @@ test.describe('Location Legal @locations @legal', () => {
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
- // Cleanup: reload to discard
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
 
@@ -175,7 +168,6 @@ test.describe('Location Legal @locations @legal', () => {
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
- // Cleanup: reload to discard
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
 
@@ -187,19 +179,16 @@ test.describe('Location Legal @locations @legal', () => {
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
  // Save stays enabled (dirty-state does not track net-zero)
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
- // Cleanup: reload to discard
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
 
   test('TC-LOC-LGL-011: Save SC change persists after reload', async ({ locationLegalPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LGL-001']);
     test.setTimeout(60_000);
- // Change SC
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
- // Save
     const result = await locationLegalPage.clickSave();
-    expect(result.success).toBe(true);
+    expect(result.success, 'Save should complete successfully').toBe(true);
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);
  // Reload and verify persistence — poll the reloaded value (the persisted dropdown hydrates
  // asynchronously after reload, so a single immediate read can catch the pre-hydration state).
@@ -216,10 +205,8 @@ test.describe('Location Legal @locations @legal', () => {
     test.setTimeout(60_000);
  // Fresh state after TC-011's save cycle
     await locationLegalPage.reloadAndNavigateToLegalTab();
- // Change T&C
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
- // Save
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
  // Reload and verify persistence
@@ -261,11 +248,11 @@ test.describe('Location Legal @locations @legal', () => {
  // clearing + the cross-tab Local-Information Job Costing / Remit-PST effects — they never open the Legal
  // tab, so the Legal-tab SC/T&C reset is left unverified. The Country selector now exists and is proven by
  // TC-LOC-LP-018..022, so LGL-015 is now AUTOMATABLE — it remains an open coverage gap, a candidate for its
- // own Legal-tab test (coverage gap noted during the left-panel basic-information review, 2026-06-03).
+ // own Legal-tab test (a known coverage gap).
 
  // TC-LOC-LGL-016/017 OMITTED: Sort order assertion — v1 requirement says "sorted alphabetically"
- // but MCP-verified : BOTH dropdowns are NOT sorted (generic names first, location-specific after).
- // Logged as APP BUG in REQUIREMENTS.md and master plan. Tests would fail against live behavior.
+ // but Live-verified: BOTH dropdowns are NOT sorted (generic names first, location-specific after).
+ // Logged as an app bug. Tests would fail against live behavior.
 
   test('TC-LOC-LGL-018: Combined SC + T&C change saves and persists both', async ({ locationLegalPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LGL-001']);
@@ -276,7 +263,6 @@ test.describe('Location Legal @locations @legal', () => {
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
- // Save
     const result = await locationLegalPage.clickSave();
     expect(result.success).toBe(true);
     expect(await locationLegalPage.isSaveEnabled()).toBe(false);

@@ -33,13 +33,12 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
   }
 
  /**
- * Group D-2 (lifecycle refactor 2026-05-21): DOM-presence guard so
- * beforeEach can avoid re-navigating when already on the tab. Uses chkApplyLDW (tab-specific),
+ * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab. Uses chkApplyLDW (tab-specific),
  * NOT btnSaveLocalInfo (shared across all Location Settings sub-tabs).
  */
   async isOnLocalInfoTab(): Promise<boolean> {
     // Fix #4a: use tab trigger aria-selected, not
-    // child-anchor count(). Mirrors base-page.ts:448.
+    // child-anchor count().
     const tab = this.getElement('tabLocalInformation');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
