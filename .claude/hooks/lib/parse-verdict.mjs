@@ -60,6 +60,7 @@
 import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, appendFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes, createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 
 // Cross-check regex — matches both v1 and v2 formats.
 // The (?:→ ran '...' → output: '...') group is optional; v1 omits it, v2 requires it.
@@ -476,6 +477,53 @@ if (process.argv[2] === "--self-test") {
   process.exit(0);
 }
 
+// Exported for the synthetic test harness.
+// Input: plain text already extracted from transcript (extractText() applied by caller).
+// Returns "GREEN" | "YELLOW" | "RED" (uppercase) or null.
+//
+// PRIMARY: window anchored at LAST "## /final-q audit" heading, 8000 chars, tolerant pattern.
+// FALLBACK (no heading or no match in window): scan forward to find LAST strict match of
+//   **Verdict**: (GREEN|YELLOW|RED) — bold label required; NEVER matches bare keywords or
+//   plain "Verdict: X" to prevent stale-quoted tokens from overriding the real verdict.
+export function extractVerdictFromText(text) {
+  // Locate the LAST "## /final-q audit" heading.
+  const auditRe = /(^|\n)[#\s]*\/?final-q audit\b/gi;
+  let lastAuditIdx = -1;
+  let m;
+  while ((m = auditRe.exec(text)) !== null) {
+    lastAuditIdx = m.index + m[1].length;
+  }
+
+  // Tolerant Verdict pattern — accepts:
+  //   **Verdict**: GREEN        (bold label + colon outside)
+  //   **Verdict: GREEN**        (bold spans the whole phrase)
+  //   Verdict: GREEN            (plain)
+  //   **Verdict**: **GREEN**    (each side bolded)
+  const verdictRe = /\*{0,2}\s*Verdict\s*\*{0,2}\s*:\s*\*{0,2}\s*\b(GREEN|YELLOW|RED)\b/gi;
+
+  // PRIMARY: window 8000 chars from last audit heading (belt-and-braces for long outputs).
+  // Takes the LAST match in the window so a quoted/earlier verdict never beats the real one.
+  if (lastAuditIdx >= 0) {
+    const window = text.slice(lastAuditIdx, lastAuditIdx + 8000);
+    const vm = window.match(verdictRe);
+    if (vm) {
+      const v = vm[vm.length - 1].match(/GREEN|YELLOW|RED/i)?.[0];
+      if (v) return v.toUpperCase();
+    }
+  }
+
+  // FALLBACK: strict pattern only — requires **Verdict**: to prevent bare quoted tokens
+  // (e.g. plan body citing "GREEN") from beating the real verdict in later prose.
+  const strictRe = /\*\*Verdict\*\*:\s*(GREEN|YELLOW|RED)/gi;
+  let lastStrict = null;
+  let sm;
+  while ((sm = strictRe.exec(text)) !== null) lastStrict = sm;
+  if (lastStrict) return lastStrict[1].toUpperCase();
+
+  return null;
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
 const file = process.argv[2];
 if (!file || !existsSync(file)) {
   process.stdout.write("NONE");
@@ -483,7 +531,7 @@ if (!file || !existsSync(file)) {
 }
 
 // Transcript flush is async — Stop hook may fire before the final assistant message
-// reaches disk. Retry up to 5× (2s apart, ~10s total) before giving up.
+// reaches disk. Retry up to 5× with exponential back-off (~7s total runway).
 function sleepSync(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
@@ -520,8 +568,8 @@ while (attempt < 5) {
   const raw = readFileSync(file, "utf8");
   text = extractText(raw);
   if (/final-q/i.test(text) && /Verdict[\s\S]{0,80}(GREEN|YELLOW|RED)/i.test(text)) break;
+  sleepSync([100, 300, 900, 2700, 3000][attempt] ?? 3000);
   attempt++;
-  if (attempt < 5) sleepSync(2000);
 }
 
 // Guard: /final-q must have been invoked at least once in this transcript
@@ -532,38 +580,6 @@ if (!/final-q/i.test(text)) {
   process.exit(0);
 }
 
-// Prefer anchored search: LAST "## /final-q audit" heading + next 3000 chars.
-const auditRe = /(^|\n)[#\s]*\/?final-q audit\b/gi;
-let lastAuditIdx = -1;
-let m;
-while ((m = auditRe.exec(text)) !== null) {
-  lastAuditIdx = m.index + m[1].length;
+const verdict = extractVerdictFromText(text);
+process.stdout.write(verdict ?? "NONE");
 }
-
-// Tolerant Verdict pattern — accepts:
-//   **Verdict**: GREEN        (bold label + colon outside)
-//   **Verdict: GREEN**        (bold spans the whole phrase)
-//   Verdict: GREEN            (plain)
-//   **Verdict**: **GREEN**    (each side bolded)
-const verdictRe = /\*{0,2}\s*Verdict\s*\*{0,2}\s*:\s*\*{0,2}\s*\b(GREEN|YELLOW|RED)\b/gi;
-
-let verdict = null;
-
-if (lastAuditIdx >= 0) {
-  const window = text.slice(lastAuditIdx, lastAuditIdx + 3000);
-  const vm = window.match(verdictRe);
-  if (vm) verdict = vm[0].match(/GREEN|YELLOW|RED/i)?.[0];
-}
-
-// Fallback: if no audit heading present but /final-q was invoked (skill tool_use or
-// TodoWrite/TaskList activeForm/subject "Running final-q audit"), take the LAST Verdict mention in the
-// full transcript. Covers sessions where the model summarizes the verdict in prose
-// instead of emitting the exact "## /final-q audit" heading.
-if (!verdict) {
-  let lastMatch = null;
-  verdictRe.lastIndex = 0;
-  while ((m = verdictRe.exec(text)) !== null) lastMatch = m;
-  if (lastMatch) verdict = lastMatch[0].match(/GREEN|YELLOW|RED/i)?.[0];
-}
-
-process.stdout.write(verdict ? verdict.toUpperCase() : "NONE");

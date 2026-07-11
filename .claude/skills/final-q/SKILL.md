@@ -1,6 +1,6 @@
 ---
 name: final-q
-description: Final-question audit before any "done" claim. Reconstruct the original todo list, tag every item with a one-word status (done/partial/skipped/deferred/failed/ignored), flag gaps honestly, and gate on context-budget thresholds (400k soft / 500k hard). Use before ending a session, when wrapping up, or when the user says "final-q", "are you really done", "audit todos".
+description: Final-question audit before any "done" claim. Reconstruct the original todo list, tag every item with a one-word status (done/partial/skipped/deferred/failed/ignored), flag gaps honestly, and gate on context-budget thresholds (75%–90% of model window; 400k–500k on the unknown-window fallback). Use before ending a session, when wrapping up, or when the user says "final-q", "are you really done", "audit todos".
 user-invocable: true
 auto-calls: none
 tools: TodoWrite, TaskCreate, TaskUpdate, TaskList, Read, Bash
@@ -17,7 +17,7 @@ tools: TodoWrite, TaskCreate, TaskUpdate, TaskList, Read, Bash
 - Before ending any non-trivial session
 - Before claiming "done" on any multi-step task
 - Before writing a handoff
-- When context approaches 400k tokens
+- When context approaches the YELLOW threshold (75% of model window; 400k on the unknown-window fallback)
 - When user says "final-q", "are you really done", "final question", "audit todos"
 
 ## Anti-Over-Engineering Principle
@@ -156,14 +156,39 @@ If this session touched a plan/subplan that has a `## Per-Identity Satisfaction`
 
 Fastest source: `node scripts/validate-plan-closure.mjs <plan> --dry-run --json`, then read the `C6` check's items. Any FAIL row (vague prose or missing file) → `/final-q` verdict floor = **YELLOW** (not RED — closure is machine-gated by C6, so YELLOW signals "fix before the parent closes"). (Added 2026-05-28, PLAN_DONE_MEANS_DONE Phase 2.3.)
 
+### Step 4.7: Mistake Attestation (mandatory — LR-069 §3.2)
+
+Emit one of these exact forms in your output:
+
+- `**Mistakes this session:** <N> (IDs + Sev)` — list every mistake ID and its Sev tag captured via `/reflect` Step 2 this session.
+- `**Mistakes this session:** none — 6 triggers checked` — when all 6 triggers were checked and none fired.
+
+**Missing this block floors the verdict to YELLOW.** The Stop-hook backstop (`mistake-ledger-gate.sh`) detects sessions that end without either token and persists to `.claude/state/mistake-ledger-warnings-<sid>.json` — `/audit` reads the same state file for verdict-flooring.
+
 ### Step 5: Estimate Context Budget
 
 Check the session's context usage. You do NOT have a direct API for the token count; estimate from:
 - Approximate conversation length (number of messages, size of tool outputs kept in context)
 - Any `/context` or `/cost` invocations visible in the transcript
 - User-provided numbers if they mention them
+- At build time check whether the statusline JSON exposes live token usage; prefer it if readable.
 
-Classify into one of three bands:
+Classify into one of three bands based on the **current model's context window**:
+
+| Model family | Context window |
+|---|---|
+| 1M-context models (claude-opus-4.5+, claude-sonnet-4.5+ at time of writing) | 1,000,000 tokens |
+| 200k standard models | 200,000 tokens |
+
+When the active model window is known, use **% of window** as thresholds:
+
+| Band | % of window | Approximate tokens (1M model) | Approximate tokens (200k model) | Rule |
+|---|---|---|---|---|
+| GREEN | < 75% | < 750k | < 150k | Safe. Continue taking new work freely. |
+| YELLOW | 75%–90% | 750k–900k | 150k–180k | Caution. Finish in-flight items. Do NOT take new work that could push past 90%. Recommend handoff if more work remains. |
+| RED | > 90% | > 900k | > 180k | **HARD STOP.** Do not continue without explicit user approval. |
+
+**Fallback when the model's window is unknown** (use these absolute numbers):
 
 | Band | Range | Rule |
 |---|---|---|
@@ -171,17 +196,19 @@ Classify into one of three bands:
 | YELLOW | 400k–500k | Caution. Finish in-flight items. Do NOT take new work that could push past 500k. Recommend handoff if more work remains. |
 | RED | > 500k | **HARD STOP.** Do not continue without explicit user approval. |
 
+Note: no live context-usage API exists in Claude Code (GH #27969 / #34340, closed not-planned). Estimate from conversation depth.
+
 If RED:
 1. Stop all new tool calls immediately.
-2. Output a clear "HARD STOP: context ~Xk, above 500k ceiling."
+2. Output a clear "HARD STOP: context ~Xk, above the RED threshold (90% of the model window; 500k on the unknown-window fallback)."
 3. Summarize remaining work.
 4. Ask the user: "Continue this session (explicit approval needed), hand off to new session, or stop here?"
 
 If YELLOW and the user hasn't explicitly authorized going higher:
 - Finish in-flight item only.
-- Ask the user BEFORE taking any new work: "Context ~Xk. More work would risk the 500k ceiling. Continue or hand off?"
+- Ask the user BEFORE taking any new work: "Context ~Xk. More work would risk the RED threshold (90% of the model window; 500k on the unknown-window fallback). Continue or hand off?"
 
-Going above 400k without explicit user permission is a violation. Going above 500k is a framework-level error.
+Going above the YELLOW threshold (75% of the model window; 400k on the unknown-window fallback) without explicit user permission is a violation. Going above the RED threshold (90% of the model window; 500k on the unknown-window fallback) is a framework-level error.
 
 ### Step 6: Verdict
 
@@ -274,6 +301,7 @@ Emit exactly this structure:
 | 2 | ... | screwed | [one sentence] |
 
 **Budget**: ~Xk tokens (GREEN / YELLOW / RED)
+**Mistakes this session:** <N> (IDs + Sev) OR none — 6 triggers checked
 **Verdict**: GREEN / YELLOW / RED — [one-sentence summary]
 ```
 
@@ -322,10 +350,10 @@ Multiple failed edits, budget at 520k, user's original ask still not started.
 ## /final-q audit
 ...table showing mostly `failed`, `ignored`, `screwed`...
 
-**Budget**: ~520k tokens (RED — above 500k ceiling)
+**Budget**: ~520k tokens (RED — above the RED threshold; 500k on the unknown-window fallback)
 **Verdict**: RED — hard stop. Primary ask (schema migration) never started. 4 failed attempts at prerequisite edits.
 
-HARD STOP reason: context above 500k. Continuing without permission is a framework violation.
+HARD STOP reason: context above the RED threshold (500k on the unknown-window fallback). Continuing without permission is a framework violation.
 Asking user: continue this session with explicit approval, or hand off to new session?
 ```
 
@@ -336,6 +364,10 @@ Asking user: continue this session with explicit approval, or hand off to new se
 - **Never auto-calls other skills** — /final-q is a leaf. It reports, it doesn't fix.
 - **Never writes files** — output goes in chat only.
 - **Never commits** — not in scope.
+
+## Local extension (load before emitting the audit block)
+
+If `.claude/skills/ultra-agents/worker-ext.md` exists on disk, Read it before emitting the audit block: it defines a local-only `Receipt` format that MUST be appended (in chat) right after the Verdict line for any session that did real work, plus local delegation defaults this audit must check compliance against — work that per those defaults should have been delegated but was done inline is a finding, not a footnote. If the file is absent, ignore this section.
 
 ## What /final-q is NOT
 

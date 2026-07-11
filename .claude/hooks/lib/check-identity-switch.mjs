@@ -41,7 +41,10 @@ const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit"]);
 // Layer-1 /execute-context lookback window (mirrors check-todo-injection). Declared
 // at top level — the PreToolUse dispatch runs during module load, before the helper
 // block below, so this const must initialize before isInExecuteContext() can run (TDZ).
-const EXECUTE_LOOKBACK = 80;
+// keep in sync with check-todo-injection.mjs (EXECUTE_LOOKBACK twin)
+const EXECUTE_LOOKBACK = 200;
+// Override window: env-configurable, default 3, hard ceiling 10 (not overridable by env).
+const OVERRIDE_TURNS = Math.min(10, Math.max(1, parseInt(process.env.IDENTITY_OVERRIDE_TURNS ?? "3", 10) || 3));
 const OVERRIDE_AUTH_RX = /\b(override approved|override ok|approve override|authorized to override|i authorize|you are authorized)\b/i;
 // Line-anchored to avoid matching prose mentions like "the [OVERRIDE-REQUEST]
 // convention" (mid-sentence; must start a line). Tolerates common markdown
@@ -179,12 +182,12 @@ function hasOverrideAuthorization(path) {
   let sawAuth = false;
   let asstTurnCount = 0;
 
-  // Scan backward from most recent; only consider last 3 assistant turns.
+  // Scan backward from most recent; only consider last OVERRIDE_TURNS assistant turns.
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];
     if (msg.role === "assistant") {
       asstTurnCount++;
-      if (asstTurnCount > 3) break;
+      if (asstTurnCount > OVERRIDE_TURNS) break;
       const t = textOf(msg.content);
       if (OVERRIDE_REQUEST_RX.test(t) && t.includes(path)) sawRequest = true;
     } else if (msg.role === "user") {

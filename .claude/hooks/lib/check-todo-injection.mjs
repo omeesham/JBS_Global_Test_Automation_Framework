@@ -54,9 +54,10 @@ const TAG_RE = /(\[\/[a-z-]+:(?:direct|wrap|inform|verify)\])|(LR-\d{3}\([^)]+\)
 const OVERRIDE_AUTH_RX = /\b(override approved|override ok|approve override|authorized to override|i authorize|you are authorized)\b/i;
 const OVERRIDE_REQUEST_RX = /(?:^|\n)[\s`>*_-]*\[OVERRIDE-REQUEST\][\s`]*\S/;
 
-// /execute detection window: scan last 80 messages (≈40 assistant turns) for the
+// /execute detection window: scan last 200 messages (≈100 assistant turns) for the
 // Skill invocation; cap prevents O(n) on very long sessions.
-const EXECUTE_LOOKBACK = 80;
+// keep in sync with check-identity-switch.mjs (EXECUTE_LOOKBACK twin)
+const EXECUTE_LOOKBACK = 200;
 
 const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit"]);
 

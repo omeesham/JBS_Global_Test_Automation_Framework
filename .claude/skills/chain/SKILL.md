@@ -71,7 +71,7 @@ Env override ceilings (power users):
 
 1. **Identity gate** → OWNER.
 2. **Concurrency check** — refuse if `chain.json.status=running` with "Chain already active. Use `/chain status` / `/chain stop` first."
-3. **Parse trial limit N** — if first arg is an integer 1..10, set `batchCap=N`; else `batchCap = $CHAIN_DAILY_CAP` (default 10). Reject N>10 with "Trial limit cannot exceed dailyCap=10. Override with env `CHAIN_DAILY_CAP`."
+3. **Parse trial limit N** — if first arg is an integer 1..10, set `batchCap=N`; else `batchCap = $CHAIN_DAILY_CAP` (default 10). Reject N>10 with "Trial limit cannot exceed dailyCap=10. Override with env `CHAIN_DAILY_CAP`." Note: `CHAIN_DAILY_CAP` is read by the orchestrating session here to initialize `dailyCap` in `chain.json`; the cap is then mechanically enforced by `chain-guards.sh` reading `chain.json.budget.dailyCap` — there is no direct env-var read in the hook code.
 4. **Build queue**:
    - Read `plans/INDEX.md` Execution Queue.
    - For each row: read the subplan file, extract `**Depends on**`, `**Model**`, `**Thinking**`, `**PermissionMode**`, `**RiskAcknowledged**` (bypassPermissions only), `**BrowserTool**`, `**BrowserToolJustification**` (both only), `**Created**` (LR-038 v2 grandfather check).
