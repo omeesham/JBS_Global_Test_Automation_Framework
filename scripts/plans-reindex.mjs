@@ -34,6 +34,7 @@
  * Missing fields fall back to file mtime / inference where reasonable.
  */
 
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -299,12 +300,41 @@ function parsePlanFile(filePath) {
   };
 }
 
+function toForwardSlash(p) {
+  return p.split(path.sep).join('/');
+}
+
+function getGitIgnoredPaths(absPaths) {
+  if (absPaths.length === 0) return new Set();
+  // git check-ignore requires forward-slash paths (even on Windows)
+  const repoPaths = absPaths.map((p) => toForwardSlash(path.relative(REPO_ROOT, p)));
+  let stdout;
+  try {
+    stdout = execFileSync('git', ['check-ignore', '--stdin'], {
+      input: repoPaths.join('\n'),
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+    });
+  } catch (err) {
+    // exit code 1 with no output = none of the inputs are ignored (benign)
+    if (err.status === 1 && !err.stdout) return new Set();
+    // any other failure = git is broken / missing — fail loudly, do NOT fall back
+    throw new Error(
+      `[plans-reindex] git check-ignore failed (status=${err.status}): ${err.stderr || err.message}`,
+    );
+  }
+  const ignoredRelative = new Set(stdout.split('\n').filter(Boolean));
+  return new Set(absPaths.filter((p) => ignoredRelative.has(toForwardSlash(path.relative(REPO_ROOT, p)))));
+}
+
 function listPlans(dir) {
   if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith('.md'))
-    .map((f) => parsePlanFile(path.join(dir, f)));
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith('.md'));
+  const absPaths = files.map((f) => path.join(dir, f));
+  const ignored = getGitIgnoredPaths(absPaths);
+  return absPaths
+    .filter((p) => !ignored.has(p))
+    .map((p) => parsePlanFile(p));
 }
 
 function fmtStatus(s) {
