@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_CORP_PRICING_NM2263_NEW_PRICEBOOKS.md",
+  "plan_basename": "SUBPLAN_CORP_PRICING_NM2263_NEW_PRICEBOOKS.md",
+  "plan_sha256": "578426db6e4ee2db4468797a53f6182fbd6293b8596fda56e0ee78b618253af3",
+  "passed_at": "2026-06-29T18:54:13.149Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "2cf57d9cba1ab8dd9378ec5e924f4fe3456f0653f6cc231f5277b921dbf1980d",
+  "validator_invocation_id": "1782759253148-226e3f360c382fa3bdfb01e45174afbe-578426db6e4ee2db",
+  "artifacts": [],
+  "provisional": false
+}

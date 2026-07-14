@@ -32,6 +32,6 @@ test.describe('Session Reuse Pattern', () => {
   test('TC-EX-SR-003: config fixture provides environment data', async ({ config }) => {
     // Config is also worker-scoped -- loaded once, shared across tests
     expect(config.base_url).toBeTruthy();
-    expect(config.username_automation).toBeTruthy();
+    expect(config.url).toBeTruthy();
   });
 });

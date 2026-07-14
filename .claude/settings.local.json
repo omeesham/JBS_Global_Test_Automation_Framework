@@ -229,7 +229,13 @@
       "Bash(pip3 install *)",
       "PowerShell(python3 -c \"import openpyxl; print\\('ok'\\)\" 2>&1)",
       "PowerShell(Get-Command py, python, python3 -ErrorAction SilentlyContinue)",
-      "PowerShell(& \"C:\\\\Users\\\\rutvi\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\python.exe\" -c \"print\\('hello'\\)\" 2>&1)"
+      "PowerShell(& \"C:\\\\Users\\\\rutvi\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\python.exe\" -c \"print\\('hello'\\)\" 2>&1)",
+      "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip=[System.IO.Compression.ZipFile]::OpenRead\\('C:\\\\Users\\\\rutvi\\\\projects\\\\encore_framework\\\\clients\\\\encore\\\\test_cases_xlsx\\\\encore-qa-tracker.xlsx'\\); foreach\\($n in @\\('xl/workbook.xml','xl/sharedStrings.xml'\\)\\){ $e=$zip.Entries | Where-Object {$_.FullName -eq $n}; if\\($e\\){ $r=New-Object System.IO.StreamReader\\($e.Open\\(\\)\\); $t=$r.ReadToEnd\\(\\); $r.Close\\(\\); Write-Output \"=== $n \\(first 900 chars\\) ===\"; Write-Output $t.Substring\\(0,[Math]::Min\\(900,$t.Length\\)\\) } }; $zip.Dispose\\(\\))",
+      "Bash(git fetch *)",
+      "WebFetch(domain:www.workwithloop.com)",
+      "WebFetch(domain:medium.com)",
+      "Bash(cat)",
+      "Bash(bash 'C:\\\\Users\\\\rutvi/.claude/delegation/wrapper-clear-waiter.sh')"
     ]
   },
   "_header": [

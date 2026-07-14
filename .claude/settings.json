@@ -76,6 +76,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/bug-baseline-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/md-first-gate.sh"
           }
         ]
       },
@@ -127,6 +131,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/execution-completion-gate.sh --validate"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/mistake-ledger-gate.sh --validate"
           }
         ]
       }

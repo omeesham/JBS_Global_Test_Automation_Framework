@@ -1,6 +1,6 @@
 # Encore QA Automation
 
-End-to-end Playwright test suite for Navigator Cloud (`cloudapps-e2e.encoreglobal.com`). Produces two reports per run (Playwright HTML + Allure). Browser projects (`chromium`, `chrome`, `firefox`, `webkit`) and parallelism (worker count) are all configurable per run — defaults in `playwright.config.ts`, overridable via CLI flags or environment variables.
+End-to-end Playwright test suite for Navigator Cloud (`cloudapps-e2e.encoreglobal.com`). Produces two reports per run (Playwright HTML + Allure). Browser projects (`chromium`, `encore-local-office`, `encore-locations`) and parallelism (worker count) are all configurable per run — defaults in `playwright.config.ts`, overridable via CLI flags or environment variables.
 
 ---
 
@@ -61,7 +61,6 @@ This stashes Allure history, cleans, restores history, runs the suite, and regen
 | `npm test` | Run full suite, no history-preservation chain |
 | `npx playwright test --project=chromium` | Run via the chromium project |
 | `npx playwright test <path> --project=chromium` | Run a single spec or directory |
-| `npx playwright test --project=chrome` | Run via the `chrome` project (real Chrome channel) |
 | `npm run test:debug` / `test:ui` / `test:headed` | Debug, Playwright UI, or headed-browser modes |
 | `npm run test:failed` | Re-run only previously-failed tests |
 | `npm run test:grep -- "@notes"` | Filter by tag/grep |
@@ -115,7 +114,7 @@ npm run allure:report     # generates + opens Allure in the browser
 
 ### When a test fails
 
-Run `npm run share-for-debugging` after the suite (it's also run automatically in CI). The script writes `reports/share-for-debugging-<timestamp>.zip` containing the diagnostic JSON, traces, screenshots, videos, and logs. Send that one file to the QA automation team — that's all they need.
+Run `npm run share-for-debugging` after the suite (it's also run automatically in CI). The script writes `reports/share-for-debugging-<timestamp>.zip` containing the diagnostic JSON, traces, screenshots, videos, and logs. Send that one file to the QA automation team — that's all they need. The bundle also records tests that failed first and passed on retry — those are marked `"finalOutcome": "flaky"` in `failure-summary.json` and still carry their failing attempt's trace and screenshot.
 
 ---
 
@@ -128,10 +127,15 @@ The suite is CI-agnostic. Pick the pattern that fits your pipeline:
 - run: npm install
 - run: npx playwright install chromium
 - run: npm run test:cli
+- run: npm run share-for-debugging
+  if: always()
 - uses: actions/upload-artifact
+  if: always()
   with:
-    path: reports/
+    path: reports/share-for-debugging-*.zip
 ```
+
+Run `npm run share-for-debugging` and archive the resulting `reports/share-for-debugging-<timestamp>.zip` after EVERY run — pass, fail, or flaky. A test that fails and then passes on retry only leaves its failing-attempt trace inside that bundle; if the bundle is only archived on failure, that evidence is lost.
 
 **Finer control** — split into stages, upload artifacts between them, set `continue-on-error` on the test step so reports still publish when tests fail.
 

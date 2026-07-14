@@ -1,7 +1,7 @@
 # PLAN_LOSSLESS_DEEP_TRIM — Repo-wide lossless deep trim (master tracker)
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P0
 **Created**: 2026-06-12
 **Identity**: OWNER
 **Depends on**: none

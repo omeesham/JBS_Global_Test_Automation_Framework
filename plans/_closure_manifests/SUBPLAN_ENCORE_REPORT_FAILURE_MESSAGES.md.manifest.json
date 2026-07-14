@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_ENCORE_REPORT_FAILURE_MESSAGES.md",
+  "plan_basename": "SUBPLAN_ENCORE_REPORT_FAILURE_MESSAGES.md",
+  "plan_sha256": "01f19e3ff407bd98977a1a57e6015b2c0b4f1cc7ff702d87f23a1650f8fdd90d",
+  "passed_at": "2026-07-09T12:37:25.649Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "2cf57d9cba1ab8dd9378ec5e924f4fe3456f0653f6cc231f5277b921dbf1980d",
+  "validator_invocation_id": "1783600645648-eb1088f574dee623d76b46d8da391ab5-01f19e3ff407bd98",
+  "artifacts": [],
+  "provisional": false
+}

@@ -20,7 +20,9 @@ Before finalizing ANY plan:
 - Verify cross-references between plans match current filenames
 
 Rule numbering collisions silently overwrite existing rules. Stale test counts undermine the audit's credibility. Stale filenames break cross-plan traceability.
-**Trigger**: Any plan that references rule numbers, test counts, or other plan filenames.
+
+**Data-flow corollary (2026-07-12 — graduated at 3rd occurrence: PLAN_UPLINK_PROTOCOL A1 + D7 + D8 / R-530, R-531)**: verifying a cited `file:line` anchor means confirming the **state the plan uses exists and holds AT that line** — not merely that the line exists. Per anchor class: (1) *injection anchor* — is the variable/buffer the plan injects into already built at that line? (A1: advisory inject cited copilot-worker.sh:96–98; `$PROMPT` isn't built until :235). (2) *write anchor* — is the record the plan wants to enrich still unwritten at this point? (D7: `ask_open` worded at the report-copy step :499; the ledger row it must land in is appended at :480). (3) *edit anchor* — does the cited file DEFINE the function being edited, or only call it? (D8: `write_pause_notice` edit targeted chain-orchestrator.sh:158 — a call site; the definition lives in chain-guards.sh:108). Address-exists is necessary, never sufficient. Also: never reuse an audit/recon report's label namespace (D1/D2/…) inside an implementation plan — the target file's own comments may already use those labels (`# D1:` copilot-worker.sh:324); rename to a fresh namespace (UW-1..4 precedent).
+**Trigger**: Any plan that references rule numbers, test counts, or other plan filenames; **plus any plan citing file:line anchors for injections, record enrichment, or function edits (data-flow corollary)**.
 
 ## LR-027: Plan finalization — execution summary MANDATORY before move to done/
 

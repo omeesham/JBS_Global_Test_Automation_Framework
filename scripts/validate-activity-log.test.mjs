@@ -138,12 +138,57 @@ const mixBack = computeRowViolations([mkRow('2026-07-06T09:00', 'scripts/late.mj
 check('mixed-still-fires-on-real', mixBack.violations.length, 1);
 check('mixed-fires-file-is-real', mixBack.violations[0]?.file, 'scripts/late.mjs');
 
+// ---- staged + latest-per-file: earlier row for same file is not checked ----
+// Row A (earlier) and Row B (later) both reference 'scripts/shared.mjs'.
+// File true time is AFTER Row A's claim but BEFORE Row B's claim.
+// Under latest-per-file Row A must be skipped; Row B must pass.
+const sharedResolver = (f) => f === 'scripts/shared.mjs'
+  ? { time: at('2026-07-06T12:00'), source: 'mtime', exists: true }
+  : { time: null, source: 'missing', exists: false };
+
+const rowA = mkRow('2026-07-06T09:00', 'scripts/shared.mjs', 10);
+const rowB = mkRow('2026-07-06T13:00', 'scripts/shared.mjs', 20);
+const latestForShared = new Map([['scripts/shared.mjs', rowB]]);
+
+const lpfBothRows = computeRowViolations([rowA, rowB], sharedResolver, { latestRowForFile: latestForShared });
+check('lpf-earlier-row-skipped', lpfBothRows.violations.length, 0);
+check('lpf-earlier-row-not-responsible', lpfBothRows.violations.every(v => v.row !== 10), true);
+
+// Without latest-per-file, Row A fires.
+const noLpf = computeRowViolations([rowA, rowB], sharedResolver);
+check('lpf-without-opt-earlier-fires', noLpf.violations.some(v => v.row === 10), true);
+
+// ---- staged + latest-per-file: REAL-FRAUD detection NOT weakened ----
+// A row is the ONLY (latest) row for a file, and the file's true time is AFTER the claim.
+// This must still fail — the gate is not weakened by latest-per-file.
+const fraudRow = mkRow('2026-07-06T09:00', 'scripts/fraud.mjs', 30);
+const fraudResolver = (f) => f === 'scripts/fraud.mjs'
+  ? { time: at('2026-07-06T14:00'), source: 'mtime', exists: true }
+  : { time: null, source: 'missing', exists: false };
+const latestForFraud = new Map([['scripts/fraud.mjs', fraudRow]]);
+
+const fraudCheck = computeRowViolations([fraudRow], fraudResolver, { latestRowForFile: latestForFraud });
+check('lpf-real-fraud-still-fires', fraudCheck.violations.length, 1);
+check('lpf-real-fraud-file', fraudCheck.violations[0]?.file, 'scripts/fraud.mjs');
+
 // ---- extractFiles / cleanFileToken sanity ----
 check('extract-basic', extractFiles('a/b.ts, c/d.ts'), ['a/b.ts', 'c/d.ts']);
 check('extract-moved', extractFiles('old.md -> new.md'), ['new.md']);
 check('extract-deleted-dropped', extractFiles('gone.md (deleted)'), []);
 check('extract-bareword-dropped', extractFiles('reindex, plans/x.md'), ['plans/x.md']);
 check('extract-annotation-stripped', extractFiles('src/foo.ts (edited)'), ['src/foo.ts']);
+
+// ---- extractFiles brace-expansion (LR-037 brace-notation fix) ----
+// Reproduces the row-117 real case: "export_test_cases/{module-codes.json,types.ts,to-xlsx.ts}"
+check('brace-expand-basic',
+  extractFiles('export_test_cases/{module-codes.json,types.ts,to-xlsx.ts}'),
+  ['export_test_cases/module-codes.json', 'export_test_cases/types.ts', 'export_test_cases/to-xlsx.ts']);
+check('brace-expand-with-sibling',
+  extractFiles('export_test_cases/{module-codes.json,types.ts}, scripts/foo.mjs'),
+  ['export_test_cases/module-codes.json', 'export_test_cases/types.ts', 'scripts/foo.mjs']);
+check('brace-expand-no-braces-unchanged',
+  extractFiles('a/b.ts, c/d.ts'),
+  ['a/b.ts', 'c/d.ts']);
 
 console.log(`\nvalidate-activity-log.test: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

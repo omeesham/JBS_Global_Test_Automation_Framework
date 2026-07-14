@@ -87,7 +87,7 @@ The user will invoke `/questionnaire` when:
 
 ## Auto-Calls
 
-None — this is a standalone skill. Called by `/chain` Phase 3 when blocking questions exist.
+None — this is a standalone skill. (It is NOT auto-called by `/chain` — that Phase-3 hook was never built, recon-verified 2026-07-12. Headless chain sessions surface blocking questions to Rutvik via the chain PAUSE_NOTICE `## ASK` section instead — see `write_pause_notice` in `.claude/hooks/lib/chain-guards.sh` + `/execute`'s `[UPLINK-ASK]` marker.)
 
 ## Output
 

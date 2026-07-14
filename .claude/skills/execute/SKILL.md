@@ -339,6 +339,7 @@ After Phase 3.5 (or after Phase 3 for ad-hoc /execute without a plan file), BEFO
 - NEVER end a /execute session without invoking `/final-q` (LR-042 — chain orchestrator requires the verdict block; the former `final-q-gate.sh` Stop hook that auto-blocked stops was removed 2026-04-23, so this is now skill-mandate enforcement only)
 - Focus on what's MISSING, not what's present — QA mindset
 - If the plan is wrong about something, fix it and note the correction
+- **Headless HALT protocol** (chain sessions only — PLAN_UPLINK_PROTOCOL P5.5): when a HALT-and-ask fires inside a chain-spawned `/execute` session (no interactive user present), the session MUST emit a `[UPLINK-ASK] <class>: <one-liner>? A/B (rec: X)` marker somewhere in the session log before stopping — class ∈ `diagnose|clarify-scope|contract-fix`. This is how `write_pause_notice`'s `## ASK` section surfaces the question verbatim for Rutvik (`/chain status` then shows the QUESTION, not just a state dump). Without this marker the chain pauses with no actionable question visible. One marker per HALT; use the most precise class.
 
 
 ## Verification Artifact (D23)

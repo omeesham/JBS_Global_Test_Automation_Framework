@@ -145,7 +145,12 @@ if [ -z "$outcome" ]; then
   pause_chain "record-outcome-failed: idx=$idx verdict=$verdict"
   exit 0
 fi
-if [ "$outcome" = "duplicate" ]; then
+# Parse multi-line outcome: first line = action, optional second line = "assumptions-list:<...>"
+# (Phase 5.5, PLAN_UPLINK_PROTOCOL P5.5: a GREEN v3 audit with a non-empty Assumptions list
+# emits "advance\nassumptions-list:<verbatim_list>" so the orchestrator can log it.)
+outcome_action=$(printf '%s' "$outcome" | head -n 1)
+outcome_assumptions=$(printf '%s' "$outcome" | sed -n 's/^assumptions-list://p' | head -n 1)
+if [ "$outcome_action" = "duplicate" ]; then
   # V3.1 (2026-04-27): Stop event re-fired AFTER currentIndex advanced. The transcript
   # hash matches a sibling slot's endedAtTranscriptHash, so this is the same Stop event
   # we already processed. Refuse to re-record (would corrupt the freshly-spawned next
@@ -153,12 +158,41 @@ if [ "$outcome" = "duplicate" ]; then
   # again (the prep-spawn marker would also catch it, but defense in depth). Silent exit.
   exit 0
 fi
-if [ "$outcome" = "pause" ]; then
+if [ "$outcome_action" = "assumptions-line-missing" ]; then
+  # Phase 5.5: GREEN verdict but v3 audit block lacks the mandatory **Assumptions**: line.
+  # record-outcome already set state.status=paused with the distinct reason; write the notice
+  # with that same verbatim reason so Rutvik sees WHY it paused (not the generic verdict-NONE).
+  write_pause_notice "assumptions-line-missing: $current_file"
+  exit 0
+fi
+if [ "$outcome_action" = "pause" ]; then
   # record-outcome already set state.status=paused for non-GREEN; just write the notice.
   write_pause_notice "verdict-$verdict: $current_file"
   exit 0
 fi
-# outcome == "advance" → GREEN, continue to spawn next.
+# outcome_action == "advance" → GREEN, continue to spawn next.
+
+# Phase 5.5: If a non-empty assumptions list rode this GREEN, log it for Rutvik.
+# Chain advances normally — no stall. The list is appended to ASSUMPTIONS_LOG.md
+# (discoverable via /chain status) and an uplink-ledger row for the audit trail.
+if [ -n "$outcome_assumptions" ]; then
+  _assumptions_log="$CHAIN_STATE_DIR/chain-sessions/ASSUMPTIONS_LOG.md"
+  {
+    if [ ! -f "$_assumptions_log" ]; then
+      printf '# Assumptions Log\n\nCaptures non-empty assumptions that rode a GREEN verdict.\n\n'
+    fi
+    printf '## %s — %s\n\n%s\n\n' "$current_file" "$(date -Iseconds)" "$outcome_assumptions"
+  } >> "$_assumptions_log"
+  _uplink_ledger="$HOME/.claude/delegation/uplink-ledger.jsonl"
+  mkdir -p "$(dirname "$_uplink_ledger")"
+  _run_id=$(cs_get .branch 2>/dev/null || echo 'unknown')
+  printf '{"ts":"%s","run_id":"%s","class":"green-assumption","subplan":"%s","assumptions":"%s"}\n' \
+    "$(date -Iseconds)" \
+    "$_run_id" \
+    "$current_file" \
+    "$(printf '%s' "$outcome_assumptions" | sed 's/\\/\\\\/g; s/"/\\"/g')" \
+    >> "$_uplink_ledger"
+fi
 
 # 7. Guard cascade — fail fast; pause with specific reason
 check_stop_marker || { rm -f "$CHAIN_STATE_DIR/chain.STOP"; cs_set .status '"aborted"'; write_pause_notice "STOP-marker (aborted)"; exit 0; }

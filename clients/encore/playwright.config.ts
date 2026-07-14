@@ -2,6 +2,8 @@
 
 import { defineConfig } from '@playwright/test';
 import * as dotenvFlow from 'dotenv-flow';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Local-first: bare `npm test` loads .env.local; CI sets CI_ENV=e2e to load .env.e2e.
 dotenvFlow.config({
@@ -17,12 +19,37 @@ function getArtifactSetting(envVar: string, defaultValue: string): string {
   return value;
 }
 
+// Fail fast on a malformed MAX_WORKERS instead of silently handing NaN to the runner.
+function parseMaxWorkers(raw: string | undefined): number | undefined {
+  if (raw === undefined || raw === '') return undefined;
+  if (!/^[1-9]\d*$/.test(raw)) {
+    throw new Error(
+      `MAX_WORKERS must be a positive integer (e.g. MAX_WORKERS=2), got "${raw}".`,
+    );
+  }
+  return parseInt(raw, 10);
+}
+
+// Safety ceiling for CI only: a wedged run (hung browser, endless retries) stops
+// after a generous cap instead of burning the runner for hours. Scales by itself:
+// 15 minutes per spec file, counted when the config loads.
+function countSpecFiles(dir: string): number {
+  let count = 0;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) count += countSpecFiles(full);
+    else if (entry.name.endsWith('.spec.ts')) count += 1;
+  }
+  return count;
+}
+
 export default defineConfig({
   testDir: __dirname,
   testMatch: ['tests/**/*.spec.ts'],
 
   timeout: process.env.CI ? 60 * 1000 : 30 * 1000,
   expect: { timeout: 5000 },
+  globalTimeout: process.env.CI ? countSpecFiles(path.join(__dirname, 'tests')) * 15 * 60 * 1000 : undefined,
 
   // HARD RULE: 1 spec = 1 worker, always (no within-file split). Within-file parallel
   // would race tests against each other's shared form/server state. Baseline isolation
@@ -35,9 +62,7 @@ export default defineConfig({
 
   retries: process.env.CI ? 2 : 1,
   // Default workers: 1 everywhere (unresolved multi-worker conflict on shared Encore app state). Override with `MAX_WORKERS=N` env if needed.
-  workers: process.env.MAX_WORKERS
-    ? Math.max(1, parseInt(process.env.MAX_WORKERS, 10))
-    : 1,
+  workers: parseMaxWorkers(process.env.MAX_WORKERS) ?? 1,
 
   preserveOutput: 'always',
 
@@ -95,31 +120,6 @@ export default defineConfig({
       testMatch: /auth\.setup\.ts/,
       use: { viewport: { width: 1920, height: 1080 } },
     },
-    // chrome/firefox/webkit are kept invokable for manual `--project=<name>` debugging,
-    // but removed from the default suite because they have no `dependencies: ['setup']`
-    // and no storageState — they always run unauthenticated and produce false-greens
-    // by hitting login pages instead of the app.
-    {
-      name: 'chrome',
-      testMatch: [],
-      use: {
-        channel: 'chrome',
-        viewport: null,
-        launchOptions: {
-          args: [
-            '--start-maximized',
-            '--disable-default-apps',
-            '--no-first-run',
-            '--disable-translate',
-            '--disable-sync',
-            '--disable-features=TranslateUI,OptimizationHints,MediaRouter',
-            '--disable-component-extensions-with-background-pages',
-            '--disable-domain-reliability',
-            '--metrics-recording-only',
-          ],
-        },
-      },
-    },
     // chromium becomes the generic catch-all for non-module-scoped specs. The
     // `testIgnore` keeps it from double-running module specs that are already owned
     // by the `encore-locations` and `encore-local-office` projects below.
@@ -138,8 +138,6 @@ export default defineConfig({
             '--disable-setuid-sandbox',
             '--disable-infobars',
             '--window-position=0,0',
-            '--ignore-certificate-errors',
-            '--ignore-certificate-errors-spki-list',
             '--disable-features=VizDisplayCompositor',
             '--disable-default-apps',
             '--no-first-run',
@@ -147,16 +145,6 @@ export default defineConfig({
           ],
         },
       },
-    },
-    {
-      name: 'firefox',
-      testMatch: [],
-      use: { viewport: { width: 1920, height: 1080 } },
-    },
-    {
-      name: 'webkit',
-      testMatch: [],
-      use: { viewport: { width: 1920, height: 1080 } },
     },
     // CI-only module projects — opt-in via:
     //   npx playwright test --workers=2 --project=encore-local-office --project=encore-locations

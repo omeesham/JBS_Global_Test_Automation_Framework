@@ -126,6 +126,17 @@ write_pause_notice() {
     echo "- daily:  $(cs_get .budget.executedToday 2>/dev/null || echo ?) / $(cs_get .budget.dailyCap 2>/dev/null || echo ?)"
     echo "- weekly: $(cs_get .budget.executedThisWeek 2>/dev/null || echo ?) / $(cs_get .budget.weeklyBudget 2>/dev/null || echo ?)"
     echo ""
+    # Uplink ASK surfacing (PLAN_UPLINK_PROTOCOL P5.3): if the paused subplan's session emitted a
+    # structured [UPLINK-ASK] <class>: <one-liner>? marker, surface the QUESTION verbatim so
+    # /chain status shows Rutvik the ask, not just a state dump.
+    local sesslog="$CHAIN_STATE_DIR/chain-sessions/${current_file}.log"
+    local asks=""
+    [ -f "$sesslog" ] && asks=$(grep -aoE '\[UPLINK-ASK\][^\r]*' "$sesslog" 2>/dev/null | sort -u)
+    if [ -n "$asks" ]; then
+      echo "## ASK (from the paused session — answer these, then \`/chain resume\`)"
+      printf '%s\n' "$asks" | sed 's/^\[UPLINK-ASK\][[:space:]]*/- /'
+      echo ""
+    fi
     echo "## To act"
     echo "- \`/chain status\` — view current state"
     echo "- \`/chain resume\` — continue from currentIndex (YELLOW/RED requires \`/chain skip\` first)"

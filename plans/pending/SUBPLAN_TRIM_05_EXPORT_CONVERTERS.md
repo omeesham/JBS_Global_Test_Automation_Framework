@@ -1,7 +1,7 @@
 # SUBPLAN_TRIM_05_EXPORT_CONVERTERS — transitive-dead analysis + removal of legacy export converters
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P0
 **Created**: 2026-06-12
 **Identity**: GARDENER
 **Parent**: PLAN_LOSSLESS_DEEP_TRIM.md

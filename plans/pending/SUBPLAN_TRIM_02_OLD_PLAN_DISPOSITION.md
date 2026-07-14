@@ -1,7 +1,7 @@
 # SUBPLAN_TRIM_02_OLD_PLAN_DISPOSITION — per-item disposition of the stale cleanup-plan family (supersede with audit trail)
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P0
 **Created**: 2026-06-12
 **Identity**: OWNER
 **Parent**: PLAN_LOSSLESS_DEEP_TRIM.md

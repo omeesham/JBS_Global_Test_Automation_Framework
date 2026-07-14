@@ -38,14 +38,16 @@ Review what happened in this session:
 
 Check each trigger against the session. If ANY fired, it's a learning to capture:
 
-| # | Trigger | Did it happen? |
-|---|---------|---------------|
-| 1 | User corrected you | What was wrong? What did they say? |
-| 2 | Retry was needed (first attempt failed) | What failed? Why? What fixed it? |
-| 3 | Unexpected state encountered | What did you expect vs. find? |
-| 4 | Output didn't match evidence | What did you claim vs. reality? |
-| 5 | Command errored out | What command? What error? Resolution? |
-| 6 | Approach changed mid-task | Original approach? Why abandoned? New approach? |
+| # | Trigger | Did it happen? | Sev |
+|---|---------|---------------|-----|
+| 1 | User corrected you | What was wrong? What did they say? | per §3.1 |
+| 2 | Retry was needed (first attempt failed) | What failed? Why? What fixed it? | per §3.1 |
+| 3 | Unexpected state encountered | What did you expect vs. find? | per §3.1 |
+| 4 | Output didn't match evidence | What did you claim vs. reality? | per §3.1 |
+| 5 | Command errored out | What command? What error? Resolution? | per §3.1 |
+| 6 | Approach changed mid-task | Original approach? Why abandoned? New approach? | per §3.1 |
+
+**Mandatory**: every fired trigger → append one row to `agent-mistakes.md` with the Sev tag and a one-line classification rationale **in this session** — no batching to later. Severity assigned per `.claude/rules/guardrail-policy.md` §3.1 rubric. Under-classification found by any later audit is itself an S1 mistake with its own row.
 
 ### Step 3: Categorize Learnings
 
@@ -104,7 +106,7 @@ GRADUATION CANDIDATES (3+ occurrences — run /compile-learnings):
 - Pattern: [description] — seen in R-XX, R-YY, R-ZZ
 ```
 
-## Auto-Calls
+**S0/S1 recurrence budget exhausted?** Any graduation candidate with Sev=S0 or Sev=S1 whose recurrence budget is exceeded (§3.1 of `.claude/rules/guardrail-policy.md`) requires a durable recipient — a `plans/pending/SUBPLAN_GUARDRAIL_<CLASS>.md` stub (LR-048 minimum) OR a grep-verifiable line item in an existing pending guardrail plan (LR-040(b)) — filed **in this session**. Task chips are forbidden recipients (LR-060 obligation 3).
 
 None — this is a leaf skill. Called BY `/execute`, `/bugfix`, `/audit`, and `/chain`.
 

@@ -78,6 +78,7 @@
     "logs",
     "playwright-report",
     "client-delivery",
+    "_migration_global_claude",
     // Self-managed sub-projects: each has its own tsconfig + build command
     // (pipeline/tsconfig.json via build:server, website/{backend,frontend},
     // clients/encore/tsconfig.json). Root typecheck owns only root src/, scripts/,

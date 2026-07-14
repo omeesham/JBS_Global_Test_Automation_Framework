@@ -16,7 +16,7 @@
  * - Items vary per location — count and labels are dynamic.
  * - Save button: shared left-panel [data-testid="location-settings-btn-save"].
  * - Save Changes dialog: [role="alertdialog"], buttons "Cancel" + "Ok" (NO data-testid).
- * - Unsaved Changes dialog: [role="alertdialog"], buttons "Stay" + "Discard" (NO data-testid).
+ * - Unsaved Changes dialog: [role="alertdialog"] data-testid="location-settings-modal-unsaved-changes", buttons "Stay" + "Discard".
  * Triggered ONLY on full page navigation away, NOT on sub-tab switching.
  * - Sub-tab switch preserves pending changes silently (no dialog).
  * - API readiness: wait for chkAutoAddonEncoreMusic to appear before asserting states.
@@ -72,8 +72,9 @@ export const SetupAutoAddonSelectors = {
  * @where Setup > Location > Auto Add-On > Unsaved Changes dialog @el alertdialog @text "Unsaved changes" @keys unsaved changes dialog navigate away
  * NOTE: Auto Add-On uses Stay/Discard buttons (not OK/Cancel like shared.ts).
  * Prefixed to avoid collision with shared.ts dlgUnsavedChanges.
- */
-  autoAddonDlgUnsavedChanges: '[role="alertdialog"]:has(h2:text-is("Unsaved changes"))',
+  * @verified 2026-07-10 — data-testid confirmed live on office 1604 via SPA navigation trigger.
+  */
+  autoAddonDlgUnsavedChanges: '[data-testid="location-settings-modal-unsaved-changes"]',
  /** @where Setup > Location > Auto Add-On > Unsaved Changes dialog @el button @text "Stay" @keys dialog stay remain on page */
   btnUnsavedChangesStay: '[role="alertdialog"]:has(h2:text-is("Unsaved changes")) button:has-text("Stay")',
  /** @where Setup > Location > Auto Add-On > Unsaved Changes dialog @el button @text "Discard" @keys dialog discard abandon changes leave */

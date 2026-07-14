@@ -48,7 +48,12 @@ export const SetupSharedSetupLocationsSelectors = {
   btnSelfDelete: '[data-testid="location-settings-btn-delete-shared-location-0"]',
 
  // ---- Add Button ----
- /** @where Setup > Location > Shared Setup Locations tab @el button @text "Add" @keys add shared location button @verified (testid is row-index-based — changes when rows added/removed — positional required) */
+ /** @where Setup > Location > Shared Setup Locations tab @el button @text "Add" @keys add shared location button
+  * LIVE-VERIFIED 2026-07-10: data-testid="location-settings-btn-add-shared-location-1" confirmed present
+  * BUT the suffix "-1" is the DOM row-index (row 0 = self-row, row 1 = Add row). When shared
+  * locations are added, the Add row shifts down and its testid changes to -2, -3, etc.
+  * Decision: KEEP positional selector — testid is unstable (row-index-based, changes on insert/delete).
+  */
   btnSharedAdd: '[data-testid="location-settings-table-shared-setup"] tbody tr:last-child button',
 
  // ---- Change Local Office Dialog ----

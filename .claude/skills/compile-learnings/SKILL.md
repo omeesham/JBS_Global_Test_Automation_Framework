@@ -59,6 +59,28 @@ For each graduated pattern:
 
 3. **Mark source entries** in agent-mistakes.md with `[GRADUATED → <target-file>]` tag so they're not re-processed.
 
+4. **S0/S1 graduation target** — defaults to a MECHANISM (hook / CI check / default-change). Prose-only graduation for an S0/S1 pattern requires an explicit un-gateable rationale recorded in the LR rule body. S2 → detective script; S3 → prose (per §3.1, `.claude/rules/guardrail-policy.md`).
+
+**Demotion review** (run at each `/compile-learnings` cadence — reads `.claude/state/gate-fires.log`):
+- deny-gate with 0 fires in 90 days AND no class recurrence → demote to `announce`
+- announce-gate with 0 fires in 90 days → demote to prose-only LR rule
+- ≥3 confirmed false positives in 30 days → demote + fix or delete the gate
+- Dead gates with no fire telemetry → delete
+
+### Step 4.5: Uplink graduation loop (UPLINK_DOCTRINE §6 ratchet)
+
+Scan `~/.claude/delegation/uplink-ledger.jsonl` for consult signatures. Any **question signature recurring ≥3 times** graduates — the Oracle's repeated answer becomes a standing document that permanently kills the question:
+
+1. Group ledger rows by `signature`; count occurrences per signature.
+2. For each signature with count ≥3, promote the cached answer to the **cheapest home that permanently answers it**:
+   - worker-specific recurring mistake → a lesson line in the offending `~/.copilot/agents/<name>.agent.md`
+   - recurring ticket-shape ambiguity → a line in `~/.claude/delegation/ticket-template.md`
+   - recurring "how to ask / what to check" → a rule in `~/.claude/delegation/ASKING_DOCTRINE.md`
+   - cross-cutting principle → a full `LR-NNN` graduation (Step 4 homes)
+3. Note the graduation so the signature is not re-processed (append a `graduated:<target>` marker or record it in the ledger).
+
+**Prime law**: every consult must lower the probability of the next consult. A flat consult count across 3 `scorecard.mjs report` runs (the §6.1 alarm) means this loop is not running — fix it. This is the capability ratchet running UPWARD (the weak tier absorbs judgment), the mirror of the routing matrix graduating models downward. Claude→Rutvik asks graduate the same way (3× the same ask signature → into memory/rule) so Rutvik is never asked the same question twice.
+
 ### Step 5: Build Decision Trees
 
 Create or update `.claude/context/patterns.md` with practical decision trees:

@@ -1,7 +1,7 @@
 # SUBPLAN_TRIM_01_COMMIT_PENDING_DELETIONS — commit the already-deleted tracked files (clean fingerprint baseline)
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P0
 **Created**: 2026-06-12
 **Identity**: OWNER
 **Parent**: PLAN_LOSSLESS_DEEP_TRIM.md

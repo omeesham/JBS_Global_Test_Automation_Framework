@@ -1,7 +1,7 @@
 # SUBPLAN_TRIM_03_PLAN_CORPUS_HYGIENE — move already-resolved plans out of pending/ + repair the broken Status field
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P0
 **Created**: 2026-06-12
 **Identity**: OWNER
 **Parent**: PLAN_LOSSLESS_DEEP_TRIM.md

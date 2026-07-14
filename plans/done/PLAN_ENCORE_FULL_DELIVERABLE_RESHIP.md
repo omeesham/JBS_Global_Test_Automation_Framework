@@ -144,3 +144,43 @@ cleanup landed.
   the parallel session's edits, staged (not authored) and surfaced to the user.
 
 **Delegation receipt**: 0 Claude Agent spawns; the push is Claude-only per LR-049 (never delegated to a worker).
+
+## Addendum (2026-07-08) — completeness correction
+
+**This plan's original title/Context/Execution Summary claimed "ALL deliverable branches" / "all 8" were re-shipped.
+That was WRONG.** The mock (`RutviK-JBS/encore_deliverables_test`) carries **14** deliverable branches, not 8 —
+`scripts/ship-branch.sh` simply had no presets for the other 6, and this plan conflated "the 8 presets" with "all
+branches" without checking `git ls-remote`. User caught the miss. The corrective ship (6 branches — `auto-addon`,
+`left-panel-basic-info`, `locations`, `nm2260`, `nm2261`, `nm2263`) landed the same day, tracked in the activity-log
+row below. `corporate-pricing` aggregate was deliberately HELD (not re-pushed — user directive) since it was already
+current.
+
+Corrected final state — all 14 branches carry the dead-code cleanup as of this addendum:
+
+| Branch | New tip (post-addendum re-ship) |
+|---|---|
+| notes | b9e13b3e (unchanged, already current) |
+| ssl | 935a7cce (unchanged, already current) |
+| legal | 31e1823e (unchanged, already current) |
+| account-address | 596dfc27 (unchanged, already current) |
+| corporate-pricing | 97cc9328 (unchanged, already current — HELD, not re-pushed this round) |
+| nm2262 | 012b0203 (unchanged, already current) |
+| nm2264 | 490eb338 (unchanged, already current) |
+| nm2305 | 127ec75b (unchanged, already current) |
+| auto-addon | f467efbd (re-shipped) |
+| left-panel-basic-info | a7e985c (re-shipped) |
+| locations | 3e56e9d (re-shipped) |
+| nm2260 | 13af634 (re-shipped) |
+| nm2261 | b675842 (re-shipped) |
+| nm2263 | e2d9354 (re-shipped) |
+
+Verified post-addendum: all 14 branches' `src/utils/auth-storage.ts`, `src/types/index.ts`, `tsconfig.json`,
+`playwright.config.ts` are blob-identical to HEAD (force-fetched `+refs/heads/*:refs/remotes/encore-mock/*` — a
+non-force fetch silently keeps stale tracking refs for any branch rewritten via `--force-with-lease`, which nearly
+produced a false STALE reading during this verification); the 6 re-shipped branches pass surface isolation (own
+spec-set only) and the forbidden-path leak scan (clean).
+
+**Lesson (for `/reflect`)**: a re-ship's branch set must be verified against `git ls-remote --heads <mock-remote>`,
+never against `scripts/ship-branch.sh`'s preset list alone — the preset list is a convenience cache, not the source
+of truth for "which branches exist." Separately: any post-push verification via local git refs MUST force-fetch
+(`+refs/heads/*:...`), or a rewritten branch reads as stale when it isn't.

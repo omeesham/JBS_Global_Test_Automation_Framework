@@ -123,14 +123,14 @@ export const LocalOfficeSettingsSelectors = {
  // NOTE: Local Office Settings "Save Changes" dialog uses "Save" button (NOT "Ok" like Location Settings).
  // Live-verified: alertdialog has Cancel + Save buttons.
  // The unsaved-changes dialog has custom Stay/Discard buttons (not shared OK/Cancel).
- /** @where Local Office Settings > Save Changes Dialog @el alertdialog @text "Save Changes" @keys save dialog confirm */
-  dlgSaveChanges: '[role="alertdialog"]:has-text("Save Changes")',
+ /** @where Local Office Settings > Save Changes Dialog @el alertdialog @text "Save Changes" @keys save dialog confirm @verified 2026-07-10 */
+  dlgSaveChanges: '[data-testid="location-settings-modal-save-changes"]',
  /** @where Local Office Settings > Save Changes Dialog @el button @text "Save" @keys save confirm submit dialog */
   btnSaveChangesConfirm: '[role="alertdialog"]:has-text("Save Changes") button:has-text("Save")',
  /** @where Local Office Settings > Save Changes Dialog @el button @text "Cancel" @keys save cancel abort dialog */
   btnSaveChangesCancel: '[role="alertdialog"]:has-text("Save Changes") button:has-text("Cancel")',
- /** @where Local Office Settings > Unsaved Dialog @el alertdialog @text "Any unsaved changes will be lost" @keys unsaved leave stay discard */
-  dlgUnsavedLocalOffice: '[role="alertdialog"]:has-text("Any unsaved changes will be lost")',
+ /** @where Local Office Settings > Unsaved Dialog @el alertdialog @text "Unsaved changes" @keys unsaved leave stay discard @verified 2026-07-10 */
+  dlgUnsavedLocalOffice: '[data-testid="location-settings-modal-unsaved-changes"]',
  /** @where Local Office Settings > Unsaved Dialog @el button @text "Stay" @keys unsaved stay cancel keep */
   btnUnsavedStay: '[role="alertdialog"] button:has-text("Stay")',
  /** @where Local Office Settings > Unsaved Dialog @el button @text "Discard" @keys unsaved discard leave navigate */

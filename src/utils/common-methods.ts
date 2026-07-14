@@ -14,7 +14,7 @@ export class CommonMethods {
  /**
  * Load configuration from environment variables.
  * Reads .env files from config/environments/ using dotenv-flow cascade.
- * @returns IConfig object with URLs and credentials
+ * @returns IConfig object with URLs
  */
   static initProp(): IConfig {
     const baseUrl = process.env.BASE_URL || '';
@@ -23,8 +23,6 @@ export class CommonMethods {
       url: baseUrl,
       base_url: baseUrl,
       home_url: process.env.HOME_URL || '',
-      username_automation: process.env.NAVIGATOR_USERNAME || process.env.USERNAME_AUTOMATION || 'test_user',
-      password_automation: process.env.NAVIGATOR_PASSWORD || process.env.PASSWORD_AUTOMATION || 'test_password',
     };
 
     return config;

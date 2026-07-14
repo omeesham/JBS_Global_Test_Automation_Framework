@@ -1,7 +1,7 @@
 # SUBPLAN_RCD_C_ENV_REPORTS_CRUFT — demote root tsconfig to framework-only + relocate root reports/ to client + sweep env + cruft
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P0
 **Created**: 2026-05-07
 **Identity**: OWNER
 **Parent**: PLAN_ROOT_CLIENT_DEDUPE.md

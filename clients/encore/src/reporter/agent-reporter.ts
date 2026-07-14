@@ -62,6 +62,8 @@ export interface FailureEntry {
   failureCount: number;
  /** TC-IDs declared as dependencies via dependencyGate fixture (parsed from annotations). */
   dependsOn: string[];
+ /** A test whose later retry passed is marked flaky; its failing-attempt evidence is kept either way. */
+  finalOutcome: 'failed' | 'flaky';
 }
 
 interface FailureSummary {
@@ -115,6 +117,9 @@ class AgentReporter implements Reporter {
   private perTestPassedOnRetry: Map<number, number> = new Map();
   private perTestFailedOnRetry: Map<number, number> = new Map();
   private perTestDurationByAttempt: Map<number, number> = new Map();
+  // Flaky-vs-hard-fail tracking: last status per test and all failure entries per test
+  private finalStatusByTestId: Map<string, string> = new Map();
+  private entriesByTestId: Map<string, FailureEntry[]> = new Map();
 
   onBegin(): void {
     // Fresh telemetry file per run; aggregator merges Layer-1 (file) + Layer-2 (in-process) on onEnd
@@ -123,6 +128,10 @@ class AgentReporter implements Reporter {
 
   onTestEnd(test: TestCase, result: TestResult): void {
     this.totalDuration += result.duration;
+
+    // Track the last-seen status per test (attempts arrive in order; last write wins).
+    // Used in onEnd to promote all failure entries for a test to 'flaky' if it eventually passed.
+    this.finalStatusByTestId.set(test.id, result.status);
 
     // Per-test retry tracking — runs for every TestEnd event regardless of pass/fail/skip
     const retryN = result.retry;
@@ -240,7 +249,12 @@ class AgentReporter implements Reporter {
         changeSize: null,
         failureCount: getFailureCount(test.title),
         dependsOn,
+        finalOutcome: 'failed',
       });
+      // Index the just-pushed entry so onEnd can promote it to 'flaky' if the test later passes.
+      const existing = this.entriesByTestId.get(test.id) ?? [];
+      existing.push(this.failures[this.failures.length - 1]!);
+      this.entriesByTestId.set(test.id, existing);
     }
   }
 
@@ -309,6 +323,19 @@ class AgentReporter implements Reporter {
       console.log('[AgentReporter] Skipping failure-summary.json write -- no tests executed');
       return;
     }
+
+ // Promote failure entries to 'flaky' when the test's final attempt passed.
+ // This keeps the failing-attempt evidence but makes the triage distinction explicit.
+ for (const [testId, finalStatus] of this.finalStatusByTestId.entries()) {
+   if (finalStatus === 'passed') {
+     const entries = this.entriesByTestId.get(testId);
+     if (entries) {
+       for (const entry of entries) {
+         entry.finalOutcome = 'flaky';
+       }
+     }
+   }
+ }
 
     // Layer 2 (per-test retry) derivation from in-process counters
     const perTestRecovered: Record<number, number> = {};

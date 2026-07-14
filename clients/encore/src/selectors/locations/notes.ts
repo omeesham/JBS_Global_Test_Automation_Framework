@@ -4,7 +4,7 @@
  * DOM notes (live-verified ):
  * - All location detail content renders inside the right-panel tabpanel.
  * - Notes section wrapper: [data-testid="location-settings-section-notes"].
- * - Table: <table data-slot="table"> inside the section — NO data-testid on the table itself.
+ * - Table: <table data-testid="location-settings-table-notes"> inside the section (testid added; previously absent).
  * - Table has ONLY <tbody> — there is NO <thead>; "No Notes Available" shows as a colspan row.
  * - Textarea: name="notes.notes.{i}.note" (i=0,1,2,...); NO maxlength attribute (limit is JS-enforced).
  * - Add button: <button>Add</button> with data-testid="location-settings-btn-add-note" (drift corrected 2026-05-21).
@@ -25,11 +25,8 @@ export const SetupNotesSelectors = {
   sectionNotes: '[data-testid="location-settings-section-notes"]',
 
  // ---- Notes Table ----
- // No table-level data-testid is exposed by the app (see DOM notes header); the table is
- // anchored by scoping to the Notes section wrapper. Empty-state cell is the only stable
- // cell-level anchor and is selected via section + text below.
- /** @where Setup > Location > Notes tab @el table @text "Notes table" @keys notes table rows grid */
-  tblNotes: '[data-testid="location-settings-section-notes"] table',
+ /** @where Setup > Location > Notes tab @el table @text "Notes table" @keys notes table rows grid @verified 2026-07-10 */
+  tblNotes: '[data-testid="location-settings-table-notes"]',
  /** @where Setup > Location > Notes tab > Empty state @el cell @text "No Notes Available" @keys empty no-notes available */
   lblNoNotesAvailable: '[data-testid="location-settings-section-notes"] td:has-text("No Notes Available")',
 

@@ -119,6 +119,57 @@ function hashTranscript(transcriptPath) {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 5.5 Assumptions-disposition helpers (PLAN_UPLINK_PROTOCOL P5.5)
+// ---------------------------------------------------------------------------
+
+// Extracts plain text from a JSONL or plain-text transcript for audit block parsing.
+// Module-level counterpart to extractText() in the main execution path.
+function extractTextFromTranscript(raw) {
+  const trimmed = raw.trimStart();
+  if (!trimmed.startsWith("{")) return raw;
+  let text = "";
+  for (const line of raw.split(/\r?\n/)) {
+    if (!line) continue;
+    let obj;
+    try { obj = JSON.parse(line); } catch { continue; }
+    const msg = obj.message ?? obj;
+    const content = msg?.content;
+    if (typeof content === "string") {
+      text += content + "\n";
+    } else if (Array.isArray(content)) {
+      for (const c of content) {
+        if (typeof c === "string") text += c + "\n";
+        else if (c && typeof c === "object" && c.type === "text" && typeof c.text === "string") {
+          text += c.text + "\n";
+        }
+      }
+    }
+  }
+  return text;
+}
+
+// Returns text of the last "## /final-q audit" block (up to 8000 chars), or null.
+function findLastAuditBlock(text) {
+  const auditRe = /(^|\n)[#\s]*\/?final-q audit\b/gi;
+  let lastIdx = -1, m;
+  while ((m = auditRe.exec(text)) !== null) lastIdx = m.index + m[1].length;
+  if (lastIdx < 0) return null;
+  return text.slice(lastIdx, lastIdx + 8000);
+}
+
+// Parses AuditFormat version and Assumptions line from a /final-q audit block.
+// Returns { hasV3: boolean, assumptionsLine: string|null }.
+// assumptionsLine is null when the **Assumptions**: line is absent; a trimmed string
+// (possibly empty) when present. "none — checked" is the canonical no-assumptions signal.
+// Legacy blocks (no **AuditFormat**: v3 marker) return { hasV3: false, assumptionsLine: null }.
+export function parseAuditFormatV3(block) {
+  const vm = /\*\*AuditFormat\*\*\s*:\s*v(\d+)/i.exec(block);
+  if (!vm || parseInt(vm[1], 10) < 3) return { hasV3: false, assumptionsLine: null };
+  const am = /\*\*Assumptions\*\*\s*:\s*([^\n\r]*)/i.exec(block);
+  return { hasV3: true, assumptionsLine: am ? am[1].trim() : null };
+}
+
+// ---------------------------------------------------------------------------
 // RC-2 session-ownership guard (2026-07-07). The chain-orchestrator Stop hook
 // fires on EVERY session's turn-end — the interactive launcher, a manual
 // interrupt (Stop button / Ctrl-C), or an unrelated subplan's headless run —
@@ -222,6 +273,51 @@ function modeRecordOutcome(chainPath, idxStr, verdict, currentFile, transcriptPa
 
   const ts = nowIso();
   const isGreen = verdict === "GREEN";
+
+  // Phase 5.5: Assumptions-disposition check (PLAN_UPLINK_PROTOCOL P5.5).
+  // Only applies to GREEN transcripts that carry the **AuditFormat**: v3 marker.
+  // Legacy transcripts (no marker) are UNCHANGED — backward compat is preserved.
+  // Returns: null (legacy/no-check), "missing" (v3 + Assumptions line absent),
+  //          or a trimmed non-empty string (v3 + non-empty assumptions list).
+  let assumptionsDisposition = null;
+  if (isGreen && transcriptPath && existsSync(transcriptPath)) {
+    try {
+      const raw = readFileSync(transcriptPath, "utf8");
+      const text = extractTextFromTranscript(raw);
+      const auditBlock = findLastAuditBlock(text);
+      if (auditBlock) {
+        const { hasV3, assumptionsLine } = parseAuditFormatV3(auditBlock);
+        if (hasV3) {
+          if (assumptionsLine === null) {
+            assumptionsDisposition = "missing";
+          } else if (!/^none\s*[—–-]\s*checked\s*$/i.test(assumptionsLine) && assumptionsLine.trim()) {
+            assumptionsDisposition = assumptionsLine.trim();
+          }
+        }
+      }
+    } catch {
+      // Transcript read/parse error → skip assumptions check (fail-open, backward compat).
+    }
+  }
+
+  // Contract violation: v3 + GREEN + Assumptions line missing → treat as failed.
+  // The session broke the v3 output contract; mark failed and pause with a DISTINCT reason
+  // so Rutvik sees "assumptions-line-missing" in the notice rather than the generic verdict-NONE.
+  if (assumptionsDisposition === "missing") {
+    state.queue[idx].status = "failed";
+    state.queue[idx].verdict = verdict;
+    state.queue[idx].endedAt = ts;
+    if (hash) state.queue[idx].endedAtTranscriptHash = hash;
+    state.history.push({ subplan: currentFile, verdict, endedAt: ts });
+    state.status = "paused";
+    state.pauseReason = `assumptions-line-missing: ${currentFile}`;
+    state.updatedAt = ts;
+    writeJsonAtomic(chainPath, state);
+    process.stdout.write("assumptions-line-missing");
+    return;
+  }
+
+  // Normal state mutation (GREEN or non-GREEN, or v3 with "none — checked"/legacy).
   state.queue[idx].status = isGreen ? "completed" : "failed";
   state.queue[idx].verdict = verdict;
   state.queue[idx].endedAt = ts;
@@ -234,7 +330,18 @@ function modeRecordOutcome(chainPath, idxStr, verdict, currentFile, transcriptPa
   }
   state.updatedAt = ts;
   writeJsonAtomic(chainPath, state);
-  process.stdout.write(isGreen ? "advance" : "pause");
+
+  if (isGreen) {
+    // v3 + GREEN + non-empty assumptions list → advance (chain not stalled) but expose the list
+    // to the orchestrator via a second stdout line so it can append to ASSUMPTIONS_LOG.
+    if (assumptionsDisposition) {
+      process.stdout.write(`advance\nassumptions-list:${assumptionsDisposition}`);
+    } else {
+      process.stdout.write("advance");
+    }
+  } else {
+    process.stdout.write("pause");
+  }
 }
 
 // --prep-spawn <chain.json> <new_idx> <next_file> [--enforce|--soft]
@@ -426,6 +533,63 @@ if (process.argv[2] === "--self-test") {
     if (v3NoTransOut !== "advance") failures.push(`V3.1 no-transcript expected 'advance' got '${v3NoTransOut}'`);
     const v3NoTransState = readJson(v3NoTransChain);
     if (v3NoTransState.queue[0].endedAtTranscriptHash) failures.push(`V3.1 no-transcript: endedAtTranscriptHash should be unset, got ${v3NoTransState.queue[0].endedAtTranscriptHash}`);
+
+    // Phase 5.5 self-tests (PLAN_UPLINK_PROTOCOL P5.5, 2026-07-12):
+    //
+    // Case 1: v3 + GREEN + Assumptions line MISSING → output "assumptions-line-missing",
+    //         chain slot marked failed, chain.status = paused, pauseReason contains marker.
+    const p55Chain1 = join(tmpRoot, "chain-p55-1.json");
+    const p55Trans1 = join(tmpRoot, "trans-p55-1.jsonl");
+    writeJsonAtomic(p55Chain1, {
+      status: "running", currentIndex: 0, branch: "main",
+      queue: [{ file: "SP-P55-1.md" }], budget: {}, history: [],
+    });
+    writeFileSync(p55Trans1,
+      '{"message":{"content":"## /final-q audit\\n**AuditFormat**: v3\\n**Verdict**: GREEN"}}\n',
+      "utf8",
+    );
+    const p55Out1 = execFileSync(process.execPath, [process.argv[1], "--record-outcome", p55Chain1, "0", "GREEN", "SP-P55-1.md", p55Trans1], { encoding: "utf8" });
+    if (p55Out1 !== "assumptions-line-missing") failures.push(`P5.5 case 1 (missing Assumptions) expected 'assumptions-line-missing' got '${p55Out1}'`);
+    const p55s1 = readJson(p55Chain1);
+    if (p55s1.queue[0].status !== "failed") failures.push(`P5.5 case 1: queue[0].status = '${p55s1.queue[0].status}' (expected 'failed')`);
+    if (p55s1.status !== "paused") failures.push(`P5.5 case 1: chain.status = '${p55s1.status}' (expected 'paused')`);
+    if (!/assumptions-line-missing/.test(p55s1.pauseReason ?? "")) failures.push(`P5.5 case 1: pauseReason '${p55s1.pauseReason}' should contain 'assumptions-line-missing'`);
+
+    // Case 2: v3 + GREEN + non-empty Assumptions list → first line "advance",
+    //         second line "assumptions-list:<verbatim_list>", slot marked completed.
+    const p55Chain2 = join(tmpRoot, "chain-p55-2.json");
+    const p55Trans2 = join(tmpRoot, "trans-p55-2.jsonl");
+    writeJsonAtomic(p55Chain2, {
+      status: "running", currentIndex: 0, branch: "main",
+      queue: [{ file: "SP-P55-2.md" }], budget: {}, history: [],
+    });
+    writeFileSync(p55Trans2,
+      '{"message":{"content":"## /final-q audit\\n**AuditFormat**: v3\\n**Assumptions**: assumed X; assumed Y\\n**Verdict**: GREEN"}}\n',
+      "utf8",
+    );
+    const p55Out2 = execFileSync(process.execPath, [process.argv[1], "--record-outcome", p55Chain2, "0", "GREEN", "SP-P55-2.md", p55Trans2], { encoding: "utf8" });
+    const p55Lines2 = p55Out2.split(/\r?\n/);
+    if (p55Lines2[0] !== "advance") failures.push(`P5.5 case 2 (non-empty list) line-0 expected 'advance' got '${p55Lines2[0]}'`);
+    if (!p55Lines2[1]?.startsWith("assumptions-list:")) failures.push(`P5.5 case 2: line-1 should start with 'assumptions-list:', got '${p55Lines2[1]}'`);
+    if (!p55Lines2[1]?.includes("assumed X; assumed Y")) failures.push(`P5.5 case 2: assumptions list not in output, got '${p55Lines2[1]}'`);
+    const p55s2 = readJson(p55Chain2);
+    if (p55s2.queue[0].status !== "completed") failures.push(`P5.5 case 2: queue[0].status = '${p55s2.queue[0].status}' (expected 'completed')`);
+
+    // Case 3: legacy transcript (no AuditFormat v3) + GREEN → "advance" unchanged (backward compat).
+    const p55Chain3 = join(tmpRoot, "chain-p55-3.json");
+    const p55Trans3 = join(tmpRoot, "trans-p55-3.jsonl");
+    writeJsonAtomic(p55Chain3, {
+      status: "running", currentIndex: 0, branch: "main",
+      queue: [{ file: "SP-P55-3.md" }], budget: {}, history: [],
+    });
+    writeFileSync(p55Trans3,
+      '{"message":{"content":"## /final-q audit\\n**Verdict**: GREEN"}}\n',
+      "utf8",
+    );
+    const p55Out3 = execFileSync(process.execPath, [process.argv[1], "--record-outcome", p55Chain3, "0", "GREEN", "SP-P55-3.md", p55Trans3], { encoding: "utf8" });
+    if (p55Out3 !== "advance") failures.push(`P5.5 case 3 (legacy, no AuditFormat v3) expected 'advance' got '${p55Out3}'`);
+    const p55s3 = readJson(p55Chain3);
+    if (p55s3.queue[0].status !== "completed") failures.push(`P5.5 case 3: queue[0].status = '${p55s3.queue[0].status}' (expected 'completed')`);
 
     // RC-2 session-ownership guard (2026-07-07): only the headless `/execute <file>`
     // session's transcript may record a verdict for that subplan. A foreign session

@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_CORP_PRICING_MISSING_TESTID_XLSX.md",
+  "plan_basename": "PLAN_CORP_PRICING_MISSING_TESTID_XLSX.md",
+  "plan_sha256": "665d029f6d34150e434ba35618aa963a998cb777a469df438341c8881fd24a43",
+  "passed_at": "2026-07-09T19:27:52.434Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "2cf57d9cba1ab8dd9378ec5e924f4fe3456f0653f6cc231f5277b921dbf1980d",
+  "validator_invocation_id": "1783625272434-671fab529057cdb498a0b244845bf8e2-665d029f6d34150e",
+  "artifacts": [],
+  "provisional": false
+}

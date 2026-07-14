@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_PW_CONFIG_HARDENING.md",
+  "plan_basename": "PLAN_PW_CONFIG_HARDENING.md",
+  "plan_sha256": "0e648588ded977e4e8eb292ea10874e3495822725e00c1f0c51e05e79bc78bf2",
+  "passed_at": "2026-07-10T06:30:51.739Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "2cf57d9cba1ab8dd9378ec5e924f4fe3456f0653f6cc231f5277b921dbf1980d",
+  "validator_invocation_id": "1783665051738-2fb0bdfd0b2e879f0400a0a4a3fa1288-0e648588ded977e4",
+  "artifacts": [],
+  "provisional": false
+}

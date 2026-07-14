@@ -5,6 +5,7 @@
 //
 // Contents (each conditional — included only if present on disk):
 //   reports/failure-summary.json  — primary RCA input written by AgentReporter
+//   reports/test-results.json     — Playwright's own per-test results including flaky-vs-failed status
 //   reports/test-results/         — per-test trace.zip, screenshots, video, error-context.md
 //   reports/diagnostics/          — per-spec diagnostic JSONs (when enabled)
 //   logs/                         — test-execution.log etc (SIBLING of reports/, not child)
@@ -29,6 +30,7 @@ const outFile = path.join(REPORTS_DIR, `share-for-debugging-${ts}.zip`);
 // Source of the logs/ path: src/utils/logger.ts (hardcoded to <repo>/logs/).
 const candidates = [
   { src: path.join(REPORTS_DIR, 'failure-summary.json'), dst: 'failure-summary.json' },
+  { src: path.join(REPORTS_DIR, 'test-results.json'),    dst: 'test-results.json' },
   { src: path.join(REPORTS_DIR, 'test-results'),         dst: 'test-results' },
   { src: path.join(REPORTS_DIR, 'diagnostics'),          dst: 'diagnostics' },
   { src: path.join(REPO_ROOT,   'logs'),                 dst: 'logs' },

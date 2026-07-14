@@ -3,7 +3,7 @@
 One line per skill. Used by `/relevant` for sub-task skill matching.
 Maintained manually — update when creating or modifying skills.
 
-**Skill count**: 32 (29 + `/coverage` + `/ultracoverage` added 2026-06-24 SUBPLAN_CGS_A; `/graft` added 2026-07-09 (graft-safety automation — NM-2265 stale-index prevention); `/slop` and `/upgrade` merged into `/audit` as `--mode={review|slop|upgrade}` per SUBPLAN_CCE_03; alias commands at `.claude/commands/{slop,upgrade}.md` preserve muscle memory).
+**Skill count**: 33 (29 + `/coverage` + `/ultracoverage` added 2026-06-24 SUBPLAN_CGS_A; `/graft` added 2026-07-09 (graft-safety automation — NM-2265 stale-index prevention); `/innovation` added 2026-07-12 PLAN_UPLINK_PROTOCOL (anti-over-delegation: frontier model authors novel thinking, delegation only feeds); `/slop` and `/upgrade` merged into `/audit` as `--mode={review|slop|upgrade}` per SUBPLAN_CCE_03; alias commands at `.claude/commands/{slop,upgrade}.md` preserve muscle memory).
 
 | Skill | Triggers | Match Types | Auto-Calls |
 |---|---|---|---|
@@ -33,6 +33,7 @@ Maintained manually — update when creating or modifying skills.
 | /sonnet | sonnet mode, use sonnet, model guardrails | WRAP | — |
 | /report | EXPLICIT ONLY — `/report <subject> for <encore\|jbs>` produces tier-appropriate artifact (agent-only md / human+agent md+light html / human-only visual html + optional --deck pptx) under clients/<client>/readable_externals/<audience>/. Never auto-routes. (DISABLE-MODEL-INVOCATION) | DIRECT | — |
 | /ultrathink | ultrathink, ultra think, ultrathink this — quality-gated wrapper that injects mandatory plan + audit gates before sub-skill execution | WRAP | identity, planning, execute, audit, reflect |
+| /innovation | innovate, innovation, novel, first of its kind, design a new system/doctrine/pattern, greenfield with no repo precedent — frontier model authors the novel thinking; delegation only feeds evidence/verification/drafts-from-a-Claude-design (NOT side-effecting) | WRAP | — |
 | /ultra-agents | EXPLICIT ONLY — lifts subagent count/class/tier caps for the current core goal; fan out a large multi-class army to exhaustively catch deeply-hidden updates. Goal-scoped; re-invoke when the core goal changes. (DISABLE-MODEL-INVOCATION) | WRAP | — |
 | /encore-questions | EXPLICIT ONLY — generate live-Chrome-verified batch of questions for the Encore client-side QA contact. Sub-commands: `submitted`, `resolve`, `reset`. Private (not auto-routed) (DISABLE-MODEL-INVOCATION) | DIRECT | — |
 | /standup | EXPLICIT ONLY — mid-day scrum standup in DID / DOING / THEN / AND format, plain-English ~20s read. Private | DIRECT | — |

@@ -1,32 +1,36 @@
 ---
 name: ultra-agents
-description: Goal-scoped authorization that lifts the self-imposed subagent caps (max-5-parallel, ≤current-model-class, LR-041 thinking tiers) so the agent can fan out a large, multi-class subagent army to exhaustively find and update every deeply-hidden thing a shallow pass would miss. Lapses when the core goal changes. Explicit-invoke only.
+description: Goal-scoped authorization that lifts the worker/subagent concurrency caps (default max-5 → up to 20 where the local worker extension defines the lever; plus the generic ≤current-model-class and LR-041 thinking-tier caps) so the agent can fan out wide and exhaustively find and update every deeply-hidden thing a shallow pass would miss. Lapses when the core goal changes. Explicit-invoke only.
 user-invocable: true
 disable-model-invocation: true
 auto-calls: none
 tools: Read, Glob, Grep, Bash, Edit, Write, Agent, TodoWrite
 ---
 
-# /ultra-agents — Unlimited Subagent Authorization (goal-scoped)
+# /ultra-agents — Wide Fan-Out Authorization (goal-scoped)
 
-A permission-opener, not a forced army. It AUTHORIZES a large, multi-class subagent
-fan-out for the current core goal and tells you to use it with judgment — so Rutvik
-no longer has to motivate "go deep, no limits" by hand each time.
+A permission-opener, not a forced army. It AUTHORIZES a wide worker fan-out for the current
+core goal and tells you to use it with judgment — so Rutvik no longer has to motivate
+"go deep, no limits" by hand each time. Invocation = his approval for the lifted caps.
 
 ## When to Use
 - **Identity**: ALL. Orthogonal to identity — identity controls WHAT you touch, this controls
   HOW WIDE you may search. Does NOT bypass identity §2 ownership or any safety/audit rail.
 - **Explicit only**: user types `/ultra-agents`. Never auto-routes (ambient phrases like
   "get an army on this" must not auto-spawn unlimited agents).
-- **Goal-scoped**: authorizes the army for the CURRENT CORE GOAL (the task in the message that
-  invoked it). Stays valid for follow-ups on the SAME goal. When the core goal CHANGES,
+- **Goal-scoped**: authorizes the wide fan-out for the CURRENT CORE GOAL (the task in the message
+  that invoked it). Stays valid for follow-ups on the SAME goal. When the core goal CHANGES,
   authorization LAPSES — revert to normal caps and ask the user to re-invoke for the new goal.
   Record the authorized goal in TodoWrite so it survives context compression.
 
 ## What it lifts — and what it does NOT
 **Lifts (self-imposed policy caps only):**
-- `CLAUDE.md` "max 5 parallel" → no fixed parallel cap (use judgment + resource sanity; very
-  high counts cause host I/O thrash).
+- **Worker concurrency (PRIMARY, when the local worker extension exists)**: the default
+  worker cap (5) → up to a hard ceiling of **20** for this goal. The worker extension defines
+  the concrete lever; without that file, this bullet is inert.
+- `CLAUDE.md` "max 5 parallel" subagent cap → no fixed parallel cap (use judgment + resource
+  sanity; very high counts cause host I/O thrash). Note: where the local worker extension is
+  active, worker delegation is the default path and direct subagent spawns stay guarded.
 - `CLAUDE.md` "≤ current model class" → spawn any class (Haiku / Sonnet / Opus) per task fit.
   Platform allows higher-class subagents; the ≤-parent rule was self-imposed.
 - `LR-041` subagent thinking-tier restrictions, for this goal's spawned work.

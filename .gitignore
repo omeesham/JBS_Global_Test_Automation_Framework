@@ -139,6 +139,9 @@ current_plan.md
 .claude/state/chain-sessions-green/*
 !.claude/state/.gitkeep
 !.claude/state/chain-sessions-green/.gitkeep
+# Parity-mission staging + recon (SECRET-tier mirrors of ~/.claude control surface; never tracked)
+.claude/state/parity-staging/
+.claude/state/parity-recon/
 
 # Bundle smoke test sandbox (ephemeral — created outside repo, but guard against accidental in-repo recreation)
 encore_bundle_sandbox/

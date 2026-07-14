@@ -81,9 +81,37 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * tests only use page object fixtures (locationPricingPage, etc.).
  */
   diagnosticsHandler: [async ({ authenticatedSession }, use, testInfo) => {
-    const { page } = authenticatedSession;
+    const { page, context } = authenticatedSession;
+
+    // Each test records into its own trace chunk so a failing attempt keeps its own
+    // trace even when a later retry passes -- flaky runs stay diagnosable from CI artifacts.
+    let traceChunkStarted = false;
+    try {
+      await context.tracing.startChunk({ title: testInfo.title });
+      traceChunkStarted = true;
+    } catch { /* tracing may be unavailable -- never block the test */ }
 
     await use(undefined as unknown as void);
+
+    const failed = testInfo.status !== 'passed' && testInfo.status !== 'skipped';
+    if (failed) {
+      try {
+        const screenshotPath = testInfo.outputPath('failure-screenshot.png');
+        await page.screenshot({ path: screenshotPath, fullPage: true });
+        await testInfo.attach('screenshot', { path: screenshotPath, contentType: 'image/png' });
+      } catch { /* page may already be closed */ }
+    }
+    if (traceChunkStarted && failed) {
+      try {
+        const tracePath = testInfo.outputPath('trace.zip');
+        await context.tracing.stopChunk({ path: tracePath });
+        await testInfo.attach('trace', { path: tracePath, contentType: 'application/zip' });
+      } catch { /* best-effort */ }
+    } else if (traceChunkStarted) {
+      try {
+        await context.tracing.stopChunk();
+      } catch { /* best-effort */ }
+    }
 
     // Best-effort page-topology check at fixture post-use. Detects context leaks that survive
     // teardown. Worker-scoped browser → contexts() is scoped to this worker.
@@ -285,6 +313,11 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     }
 
     const { ctx: context, pg: page } = await newSharedContext();
+    // Record everything on this shared context so each test's trace chunk (see the
+    // diagnostics fixture) can capture screenshots, DOM snapshots, and source lines.
+    try {
+      await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
+    } catch { /* tracing unavailable -- tests still run, just without trace capture */ }
     // Navigate primary page to base_url and confirm Dashboard.
     // BOTH fresh-after-refresh AND pre-existing-valid-state contexts start on about:blank
     // (probe-context wrap moved validateState off the primary page; primary page from
@@ -322,9 +355,11 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  * spec escapes both static checks (e.g. `--no-verify` push, fresh clone without hooks),
  * this runtime override is the final net.
  *
- * P0-7 gate: pre-land, the `_p0-7-smoke.spec.ts` no-op spec confirmed trace+video still
- * attach via `authenticatedSession.context` for tests that route through page-object
- * fixtures (never destructure bare {page}). No regression to debugging artifacts.
+ * Failure evidence for page-object tests is captured by the diagnostics fixture: it starts
+ * a trace chunk per test against this shared context and, on failure, saves a full-page
+ * screenshot and the trace zip. Per-test video is deliberately not recorded -- video
+ * recording is fixed when a context is created, so a shared worker-long context can only
+ * produce one giant multi-test video, which is not useful evidence.
  */
   page: async ({}, _use, testInfo) => {
     const msg =

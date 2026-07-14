@@ -165,6 +165,16 @@ Emit one of these exact forms in your output:
 
 **Missing this block floors the verdict to YELLOW.** The Stop-hook backstop (`mistake-ledger-gate.sh`) detects sessions that end without either token and persists to `.claude/state/mistake-ledger-warnings-<sid>.json` — `/audit` reads the same state file for verdict-flooring.
 
+### Step 4.8: Assumptions Disposition (mandatory — PLAN_UPLINK_PROTOCOL P5.5)
+
+Emit the audit-format marker and the assumptions line in your output block:
+
+- `**AuditFormat**: v3` — literal backward-compat marker. Always emit this line. The chain parser requires `**Assumptions**:` **only when this marker is present**; historical transcripts without it parse as legacy and are unaffected.
+- `**Assumptions**: none — checked` — when you made no silent assumptions during this session (actively verified all claims).
+- `**Assumptions**: <A>; <B>; …` — semicolon-separated verbatim list when assumptions were made. The chain **still advances on GREEN** when the list is non-empty (no stall); the list is logged to `ASSUMPTIONS_LOG.md` + `uplink-ledger.jsonl` for Rutvik's review.
+
+**Missing the `**Assumptions**:` line (in a v3 block) pauses the chain** — the orchestrator records `failed` for the slot and emits `assumptions-line-missing: <file>` as the pause reason, distinct from `verdict-NONE`, so Rutvik sees WHY it paused.
+
 ### Step 5: Estimate Context Budget
 
 Check the session's context usage. You do NOT have a direct API for the token count; estimate from:
@@ -302,6 +312,8 @@ Emit exactly this structure:
 
 **Budget**: ~Xk tokens (GREEN / YELLOW / RED)
 **Mistakes this session:** <N> (IDs + Sev) OR none — 6 triggers checked
+**AuditFormat**: v3
+**Assumptions**: none — checked | <A>; <B>; …
 **Verdict**: GREEN / YELLOW / RED — [one-sentence summary]
 ```
 

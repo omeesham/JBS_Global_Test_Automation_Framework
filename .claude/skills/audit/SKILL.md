@@ -273,6 +273,17 @@ Per-warning treatment:
 
 Output one line per warning: `RCA verdict-without-spawn: [timestamp] → [N verdict tokens] → [0 Agent calls] → automatic RED`.
 
+## Step 2.9: Mistake Attestation Scan (LR-069 §3.2 — MANDATORY)
+
+Run `ls .claude/state/mistake-ledger-warnings-*.json 2>/dev/null` for the audited session(s). For each warning file whose session ID matches a session in scope, check the session transcript for the attestation token (`**Mistakes this session:**`).
+
+Per-session treatment:
+- **Warning file present + no attestation token in transcript** → **verdict floor YELLOW** for that session. The Stop-hook backstop fired because the agent ended the session without attesting (via `/final-q` Step 4.7). Cannot round up to GREEN.
+- **Warning file present + attestation token found** → stale warning (cleared mid-session or file not deleted on attestation); note the discrepancy but do not floor.
+- **No warning files** → N/A; skip.
+
+Output one line per session in scope: `Mistake-ledger scan: [session-id] → [warning-file: yes/no] → [attestation-token: yes/no] → [verdict impact]`.
+
 ## Step 3: The Missing Audit (MOST IMPORTANT)
 
 This is the core of /audit review mode. Focus ENTIRELY on what was NOT done.

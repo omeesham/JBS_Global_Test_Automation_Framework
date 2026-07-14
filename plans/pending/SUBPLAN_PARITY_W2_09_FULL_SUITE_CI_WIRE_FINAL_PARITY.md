@@ -177,6 +177,7 @@ For every adjacent fix noticed during D17 sweep: DO-NOW / SPAWN / APPEND.
 - [ ] `/regression-guard` snapshot diff matches expectation
 - [ ] Activity-log row appended per LR-028 with LR-037 timestamp ≥ all touched-file mtimes
 - [ ] `/final-q` verdict block emitted
+- [ ] Path correction (routed 2026-07-10 from PLAN_REACTIVE_VS_PREVENTIVE_GUARDRAIL_AUDIT Phase 2 Step 1): the CI required-check wiring must reference the repo's actual git-hooks dir `.githooks/` — earlier drafts referenced `.husky/`, which does not exist in this repo. When wiring the required check, correct any `.husky` reference to `.githooks` and verify `git config core.hooksPath` agrees.
 
 ---
 

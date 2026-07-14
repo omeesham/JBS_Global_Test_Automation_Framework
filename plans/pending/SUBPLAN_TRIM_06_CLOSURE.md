@@ -1,7 +1,7 @@
 # SUBPLAN_TRIM_06_CLOSURE — final battery, docs residue, master closure
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P0
 **Created**: 2026-06-12
 **Identity**: OWNER
 **Parent**: PLAN_LOSSLESS_DEEP_TRIM.md

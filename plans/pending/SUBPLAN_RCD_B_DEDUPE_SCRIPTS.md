@@ -1,7 +1,7 @@
 # SUBPLAN_RCD_B_DEDUPE_SCRIPTS — dedupe root scripts/ archive helpers + strip dead allure scripts from root package.json
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P0
 **Created**: 2026-05-07
 **Identity**: OWNER
 **Parent**: PLAN_ROOT_CLIENT_DEDUPE.md

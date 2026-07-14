@@ -102,6 +102,19 @@ export function parseRowTime(s) {
 }
 
 /**
+ * Expand a single brace-notation token into one or more concrete paths.
+ * "prefix/{a,b,c}/suffix" → ["prefix/a/suffix", "prefix/b/suffix", "prefix/c/suffix"].
+ * Tokens without braces are returned as-is in a single-element array.
+ * Only handles one brace group per token (the common case in the Files column).
+ */
+function expandBraceToken(token) {
+  const m = token.match(/^([^{]*)\{([^}]+)\}(.*)$/);
+  if (!m) return [token];
+  const [, prefix, inner, suffix] = m;
+  return inner.split(',').map(part => `${prefix}${part.trim()}${suffix}`);
+}
+
+/**
  * Clean a single file token from the Files column.
  * Strips parenthetical annotations like "(deleted)", "(moved from pending/)", "(regenerated)".
  * Returns null if the token indicates the file no longer exists (deleted/moved-from).
@@ -136,12 +149,37 @@ function cleanFileToken(raw) {
   return s;
 }
 
-/** Extract file tokens from the "Files" cell. */
+/**
+ * Extract file tokens from the "Files" cell.
+ * Handles shell brace-notation groups like "dir/{a.json,b.ts,c.ts}" by using
+ * depth-aware comma splitting (so commas inside {} are not treated as token
+ * boundaries) followed by per-token brace expansion.
+ */
 export function extractFiles(cell) {
-  return cell
-    .split(',')
-    .map(cleanFileToken)
-    .filter(Boolean);
+  // Depth-aware tokenize: split on top-level commas only (ignore commas inside {}).
+  const tokens = [];
+  let depth = 0, cur = '';
+  for (const ch of cell) {
+    if (ch === '{') { depth++; cur += ch; }
+    else if (ch === '}') { depth--; cur += ch; }
+    else if (ch === ',' && depth === 0) {
+      if (cur.trim()) tokens.push(cur.trim());
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  if (cur.trim()) tokens.push(cur.trim());
+
+  // Expand each token (may contain a brace group), then clean each expanded path.
+  const files = [];
+  for (const token of tokens) {
+    for (const expanded of expandBraceToken(token)) {
+      const clean = cleanFileToken(expanded);
+      if (clean) files.push(clean);
+    }
+  }
+  return files;
 }
 
 /** Get git last-commit time (ms) for a file, or null if not tracked / no commits. */
@@ -375,7 +413,20 @@ function getStagedLogDiff() {
 /** --staged mode: check only rows added in the staged activity-log diff. Returns exit code. */
 function runStaged() {
   const rows = parseStagedAddedRows(getStagedLogDiff());
-  const { violations, skipped, checked } = computeRowViolations(rows, fileTrueTime);
+
+  // Apply the same "latest claim per file wins" logic used by run() with --latest-per-file.
+  // A staged row is only held responsible for a file if no LATER staged row also references
+  // that same file — earlier rows in the same multi-session backlog commit were honest when
+  // written; the later row already covers the file's true time.
+  const latestRowForFile = new Map();
+  for (const r of rows) {
+    for (const f of extractFiles(r.filesCell)) {
+      const prev = latestRowForFile.get(f);
+      if (!prev || r.whenMs > prev.whenMs) latestRowForFile.set(f, r);
+    }
+  }
+
+  const { violations, skipped, checked } = computeRowViolations(rows, fileTrueTime, { latestRowForFile });
   report({ checked, violations, skipped, rowsTotal: rows.length, baseline: null, mode: 'staged' });
   return violations.length ? 1 : 0;
 }

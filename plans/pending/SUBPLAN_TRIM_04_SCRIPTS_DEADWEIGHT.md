@@ -1,7 +1,7 @@
 # SUBPLAN_TRIM_04_SCRIPTS_DEADWEIGHT — coordinated vendor-fresh removal + dead root scripts + dead npm entries
 
 **Status**: PENDING
-**Priority**: P1
+**Priority**: P0
 **Created**: 2026-06-12
 **Identity**: OWNER
 **Parent**: PLAN_LOSSLESS_DEEP_TRIM.md
