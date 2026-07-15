@@ -16,46 +16,28 @@
  * - All selector counts confirmed unique via querySelectorAll on Office 1604 (Parker Palm Springs).
  */
 export const SetupNotesSelectors = {
- // ---- Notes Tab Navigation ----
- /** @where Setup > Location > Tabs @el tab @text "Notes" @keys tab notes navigate settings */
   tabNotes: '[data-testid="location-settings-sub-tab-notes"]',
 
- // ---- Notes Section Wrappers ----
- /** @where Setup > Location > Notes tab @el region @text "Notes section" @keys notes section wrapper container */
   sectionNotes: '[data-testid="location-settings-section-notes"]',
 
- // ---- Notes Table ----
- /** @where Setup > Location > Notes tab @el table @text "Notes table" @keys notes table rows grid @verified 2026-07-10 */
   tblNotes: '[data-testid="location-settings-table-notes"]',
- /** @where Setup > Location > Notes tab > Empty state @el cell @text "No Notes Available" @keys empty no-notes available */
   lblNoNotesAvailable: '[data-testid="location-settings-section-notes"] td:has-text("No Notes Available")',
 
- // ---- Note Row Textarea (Row 0 = first row, scoped to section) ----
  /**
  * @where Setup > Location > Notes tab > Row 1 @el textarea @text "Type notes here..." @keys note input text textarea row0
  * NOTE: name pattern is notes.notes.{i}.note where i=0,1,2,...
  * Use '[data-testid="location-settings-section-notes"] textarea' for nth access.
  */
   txtNoteRow0: 'textarea[name="notes.notes.0.note"]',
- /** @where Setup > Location > Notes tab > Any row @el textarea @text "Type notes here..." @keys note input textarea placeholder */
   txtNoteInputAll: '[data-testid="location-settings-section-notes"] textarea',
 
- // ---- Action Buttons ----
- /** @where Setup > Location > Notes tab @el button @text "Add" @keys add note row button */
   btnNotesAdd: '[data-testid="location-settings-btn-add-note"]',
- /** @where Setup > Location > Notes tab > Row @el button @text "Delete" @keys delete note row button */
   btnNotesDelete: '[data-testid="location-settings-section-notes"] button:has-text("Delete")',
 
- // ---- Character Counter & Progress Bar ----
- /** @where Setup > Location > Notes tab @el text @text "N/4000" @keys character counter count chars remaining */
   lblNotesCharCounter: '[data-testid="location-settings-label-note-character-counter"]',
- /** @where Setup > Location > Notes tab @el progressbar @text "character usage" @keys progress bar char usage visual */
   barNotesProgress: '[data-testid="location-settings-label-note-character-progress"]',
 
- // ---- Left Panel Save Button (shared across tabs) ----
- /** @where Setup > Location > Left Panel @el button @text "Save" @keys save submit form left-panel */
   btnSaveNotes: '[data-testid="location-settings-btn-save"]',
 
- // ---- Save Changes Dialog ----
  // Shared Save-changes dialog selectors live in shared.ts.
 } as const;

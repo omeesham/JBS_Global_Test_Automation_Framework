@@ -7,14 +7,6 @@ export class LocationManagementHistoryPage extends BasePage {
     super(page, config);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // NAVIGATION
- // ─────────────────────────────────────────────────────────────────────────────
-
- /**
- * Navigate to Location Management History tab.
- * Handles unsaved dialog if dirty form state persists .
- */
   async navigateToHistoryTab(officeNo = '1604'): Promise<void> {
     const currentUrl = this.page.url();
     if (!currentUrl.includes(`locations/${officeNo}/settings/location`)) {
@@ -46,10 +38,6 @@ export class LocationManagementHistoryPage extends BasePage {
     await this.waitForAngularStable();
   }
 
- /**
- * Switch to Basic Info tab, then back to History — capturing HTTP responses during the switch.
- * Used by TC-018 to verify the API fires on tab activation.
- */
   async captureResponsesOnHistoryTabSwitch(): Promise<string[]> {
  // Switch away from History tab
     const basicTab = this.getElement('tabBasicInformation');
@@ -74,16 +62,10 @@ export class LocationManagementHistoryPage extends BasePage {
     return responses;
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // TABLE STATE
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Check if history table is visible. */
   async isTableVisible(): Promise<boolean> {
     return this.getElement('tblMgmtHistory').isVisible();
   }
 
- /** Get all column header texts (L-to-R order). */
   async getColumnHeaders(): Promise<string[]> {
     const table = this.getElement('tblMgmtHistory');
     await table.locator('th').first().waitFor({ state: 'visible', timeout: 10_000 });
@@ -91,25 +73,20 @@ export class LocationManagementHistoryPage extends BasePage {
     return (await headers.allTextContents()).map(t => t.trim());
   }
 
- /** Get column header count. */
   async getColumnHeaderCount(): Promise<number> {
     return this.getElement('tblMgmtHistory').locator('th').count();
   }
 
- /** Get data row count (tbody rows). */
   async getDataRowCount(): Promise<number> {
     return this.getElement('tblMgmtHistory').locator('tbody tr').count();
   }
 
- /** Check if table shows empty state. */
   async isTableEmpty(): Promise<boolean> {
     const text = (await this.getElement('tblMgmtHistory').textContent() || '').trim();
     return text.includes('No results.');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
  // CELL ACCESS — By Header Name
- // ─────────────────────────────────────────────────────────────────────────────
 
  /**
  * Find column index by header text.
@@ -123,30 +100,16 @@ export class LocationManagementHistoryPage extends BasePage {
     return idx;
   }
 
- /**
- * Get cell value by row index (0-based) and header text.
- * Boolean columns with Unicode "✔" are readable via textContent.
- */
   async getColumnByHeader(rowIndex: number, headerText: string): Promise<string> {
     const colIndex = await this.getColumnIndex(headerText);
     return this.getColumnByIndex(rowIndex, colIndex);
   }
 
- /**
- * Get cell value by row index (0-based) and column index (0-based).
- * Use this for duplicate-named columns (e.g., col 64 = pricing Currency).
- */
   async getColumnByIndex(rowIndex: number, colIndex: number): Promise<string> {
     const cell = this.getElement('tblMgmtHistory').locator(`tbody tr`).nth(rowIndex).locator('td').nth(colIndex);
     return (await cell.textContent() || '').trim();
   }
 
- /**
- * Read multiple column values from a specific row.
- * @param rowIndex - 0-based row index
- * @param headerTexts - Array of column header names to read
- * @returns Record mapping header name → cell text
- */
   async getRowValues(rowIndex: number, headerTexts: string[]): Promise<Record<string, string>> {
     const result: Record<string, string> = {};
     for (const header of headerTexts) {
@@ -155,10 +118,6 @@ export class LocationManagementHistoryPage extends BasePage {
     return result;
   }
 
- /**
- * Read multiple column values from the latest (first) row.
- * Convenience wrapper for getRowValues(0, ...).
- */
   async getLatestRowValues(headerTexts: string[]): Promise<Record<string, string>> {
     return this.getRowValues(0, headerTexts);
   }
@@ -258,10 +217,6 @@ export class LocationManagementHistoryPage extends BasePage {
     return collected;
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // SORTING
- // ─────────────────────────────────────────────────────────────────────────────
-
  /** Click sort dropdown and select a direction for a sortable column by header text.
  * Radix dropdown flakiness: menu occasionally fails to appear after button click.
  * Retry pattern: Escape to close any lingering state, re-click, max 3 attempts.
@@ -294,20 +249,17 @@ export class LocationManagementHistoryPage extends BasePage {
     throw new Error(`clickSortColumn("${headerText}", "${direction}") failed after 3 attempts: ${String(lastErr)}`);
   }
 
- /** Check if a column has a sort button (by header text). */
   async isSortButtonPresent(headerText: string): Promise<boolean> {
     const colIndex = await this.getColumnIndex(headerText);
     const th = this.getElement('tblMgmtHistory').locator('th').nth(colIndex);
     return (await th.locator('button').count()) > 0;
   }
 
- /** Check if a column has a sort button (by 0-based column index). */
   async isSortButtonPresentByIndex(colIndex: number): Promise<boolean> {
     const th = this.getElement('tblMgmtHistory').locator('th').nth(colIndex);
     return (await th.locator('button').count()) > 0;
   }
 
- /** Sort by Modified On descending via dropdown menu. */
   async sortByModifiedOnDesc(): Promise<void> {
     await this.clickSortColumn('Modified On', 'descending');
   }
@@ -339,21 +291,14 @@ export class LocationManagementHistoryPage extends BasePage {
     throw new Error(`Top row Modified On "${lastVal}" not within ${maxAgeMs}ms of now after ${timeoutMs}ms wait — sort may not have applied`);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // PAGINATION
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Get current rows-per-page dropdown value. */
   async getRowsPerPageValue(): Promise<string> {
     return (await this.getElement('drpMgmtHistoryRowsPerPage').textContent() || '').trim();
   }
 
- /** Get rows-per-page dropdown options (delegates to BasePage.getComboboxOptions — trims + filters empties). */
   async getRowsPerPageOptions(): Promise<string[]> {
     return this.getComboboxOptions('drpMgmtHistoryRowsPerPage');
   }
 
- /** Select a rows-per-page option. */
   async setRowsPerPage(value: string): Promise<void> {
     await this.getElement('drpMgmtHistoryRowsPerPage').click();
     const listbox = this.page.locator('[role="listbox"]');
@@ -362,14 +307,6 @@ export class LocationManagementHistoryPage extends BasePage {
     await this.waitForAngularStable();
   }
 
- /**
-  * Get pagination text in canonical "<current> / <total>" form (e.g., "1 / 522").
-  * The indicator is NOT a single "N / M" span — it is an <input aria-label="Current page number">
-  * (current page) plus a separate <span> "/<total>" (verified on the live app,
-  * 2026-06-02). Read both and compose
-  * the "N / M" string the callers expect: TC-LOC-MGH-019's `.toContain`/`.toMatch` assertions and
-  * getApproximateTotalRowCount()'s `/\d+\s*\/\s*(\d+)/` regex.
-  */
   async getPaginationText(): Promise<string> {
     const tabContent = this.page.locator('[data-testid="location-settings-tab-content-management-history"]');
     const current = (await tabContent.locator('input[aria-label="Current page number"]').inputValue().catch(() => '')).trim();
@@ -379,7 +316,6 @@ export class LocationManagementHistoryPage extends BasePage {
     return `${current} / ${total}`;
   }
 
- /** Check if a pagination button is disabled. */
   async isPaginationButtonDisabled(direction: 'first' | 'previous' | 'next' | 'last'): Promise<boolean> {
     const keyMap = {
       first: 'btnMgmtHistoryFirstPage',
@@ -390,7 +326,6 @@ export class LocationManagementHistoryPage extends BasePage {
     return this.getElement(keyMap[direction]).isDisabled();
   }
 
- /** Click a pagination button. */
   async clickPaginationButton(direction: 'first' | 'previous' | 'next' | 'last'): Promise<void> {
     const keyMap = {
       first: 'btnMgmtHistoryFirstPage',
@@ -402,11 +337,6 @@ export class LocationManagementHistoryPage extends BasePage {
     await this.waitForAngularStable();
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // READ-ONLY VERIFICATION
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Verify the tab panel has no Add/Edit/Delete/Save controls. */
   async isReadOnly(): Promise<boolean> {
     const panel = this.page.locator('[role="tabpanel"]');
     const addBtn = await panel.locator('button:has-text("Add")').count();
@@ -424,7 +354,6 @@ export class LocationManagementHistoryPage extends BasePage {
     return addBtn === 0 && editBtn === 0 && deleteBtn === 0 && saveBtn === 0 && inputs === 0;
   }
 
- /** Verify data cells are non-interactive (no input/editor on click). */
   async areCellsNonInteractive(): Promise<boolean> {
     const firstCell = this.getElement('tblMgmtHistory').locator('tbody tr:first-child td:first-child');
     if (await firstCell.count() === 0) return true; // No data rows
@@ -433,11 +362,6 @@ export class LocationManagementHistoryPage extends BasePage {
     return inputsAfterClick === 0;
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // HORIZONTAL SCROLL
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Check if the table is wider than its container (horizontal scroll present). */
   async hasHorizontalScroll(): Promise<boolean> {
     const table = this.getElement('tblMgmtHistory');
     return table.evaluate(el => {
@@ -446,11 +370,6 @@ export class LocationManagementHistoryPage extends BasePage {
     });
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // ROW COUNT (via pagination)
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Get approximate total row count from pagination (pages × rowsPerPage). */
   async getApproximateTotalRowCount(): Promise<number> {
     const paginationText = await this.getPaginationText();
     const match = paginationText.match(/\d+\s*\/\s*(\d+)/);

@@ -21,10 +21,6 @@ export class LocalOfficeSettingsPage extends BasePage {
     return this.page.locator(selector);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // NAVIGATION
- // ─────────────────────────────────────────────────────────────────────────────
-
   async navigateToBasicInfoTab(officeNo = '1604'): Promise<void> {
     await this.navigateToSubTab('tabBasicInformation', 'frmBasicInfo', officeNo, 'local-office');
   }
@@ -41,16 +37,12 @@ export class LocalOfficeSettingsPage extends BasePage {
     await this.getElement('frmBasicInfo').waitFor({ state: 'visible', timeout: 30_000 });
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
  // SAVE — BASIC INFO (dialog-based: Yes/No)
- // ─────────────────────────────────────────────────────────────────────────────
 
   async isSaveEnabled(): Promise<boolean> {
     return !(await this.getElement('btnSave').isDisabled());
   }
 
- /** Poll until Save button becomes enabled (Angular dirty-state propagation).
-  * Default 10s — Angular dirty propagation can lag after section-grid edits. */
   async waitForSaveToEnable(timeout = 10_000): Promise<boolean> {
     return this.waitForSaveEnabled('btnSave', timeout);
   }
@@ -64,7 +56,6 @@ export class LocalOfficeSettingsPage extends BasePage {
     return this.clickSaveWithDialog('btnSave', 'dlgSaveChanges', 'btnSaveChangesConfirm');
   }
 
- /** Click Save then click Cancel to dismiss. Returns false if no dialog appears. */
   async clickSaveAndCancel(): Promise<boolean> {
     await this.getElement('btnSave').click();
     const dlg = this.getElement('dlgSaveChanges');
@@ -78,16 +69,10 @@ export class LocalOfficeSettingsPage extends BasePage {
     return false;
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // FIELD INTERACTIONS
- // ─────────────────────────────────────────────────────────────────────────────
-
   async getInputValue(key: string): Promise<string> {
     return this.getElement(key).inputValue();
   }
 
- /** Fill field using keyboard.type (fires raw keydown/input/keyup events for Angular/Radix),
- * then press Tab to trigger blur/commit. */
   async fillAndTab(key: string, value: string): Promise<void> {
     const el = this.getElement(key);
     await el.click();
@@ -100,7 +85,6 @@ export class LocalOfficeSettingsPage extends BasePage {
     await el.press('Tab');
   }
 
- /** Clear field completely, press Tab to trigger validation. */
   async clearAndTab(key: string): Promise<void> {
     const el = this.getElement(key);
     await el.click();
@@ -113,19 +97,13 @@ export class LocalOfficeSettingsPage extends BasePage {
     return (await this.getElement(key).getAttribute('aria-invalid')) === 'true';
   }
 
- /** Poll until field becomes aria-invalid="true" (cross-field async validation). */
   async expectInvalid(key: string, timeout = 5_000): Promise<boolean> {
     return this.waitForFieldInvalid(key, timeout);
   }
 
- /** Poll until field's aria-invalid clears (cross-field async validation). */
   async expectValid(key: string, timeout = 5_000): Promise<boolean> {
     return this.waitForFieldValid(key, timeout);
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // CHECKBOX (Radix UI — uses aria-checked)
- // ─────────────────────────────────────────────────────────────────────────────
 
   async getCheckboxState(key: string): Promise<CheckboxState> {
     return this.getRadixCheckboxState(key);
@@ -139,10 +117,6 @@ export class LocalOfficeSettingsPage extends BasePage {
     await this.setRadixCheckbox(key, false);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // COMBOBOX
- // ─────────────────────────────────────────────────────────────────────────────
-
   async getComboboxValue(key: string): Promise<string> {
     return (await this.getElement(key).textContent() || '').trim();
   }
@@ -151,21 +125,14 @@ export class LocalOfficeSettingsPage extends BasePage {
     return this.getComboboxOptions(key);
   }
 
- /** Select exact combobox option (delegates to BasePage.selectComboboxOption with exact:true; retry-on-detach + telemetry). */
   async selectComboboxExact(key: string, optionName: string): Promise<void> {
     await this.selectComboboxOption(key, optionName, { exact: true });
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // TAB STATE
- // ─────────────────────────────────────────────────────────────────────────────
 
   async isTabSelected(tabKey: string): Promise<boolean> {
     return (await this.getElement(tabKey).getAttribute('aria-selected')) === 'true';
   }
 
- /** Click a tab WITHOUT auto-dismissing the unsaved changes dialog.
- * Use this when the test needs to interact with the dialog itself (BAS-037/038). */
   async clickTabDirect(tabKey: string): Promise<void> {
     await this.getElement(tabKey).click();
   }
@@ -184,16 +151,10 @@ export class LocalOfficeSettingsPage extends BasePage {
     if (dismissed) await this.waitForAngularStable();
   }
 
- /** Wait for Basic Info form to be visible (public wrapper for spec use). */
   async waitForBasicInfoForm(timeout = 10_000): Promise<void> {
     await this.getElement('frmBasicInfo').waitFor({ state: 'visible', timeout });
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // SECTIONS TABLE
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Get data rows from sections table (excludes the "add new" placeholder row). */
   private getSectionDataRows() {
     const table = this.getElement('tblSections');
     return table.locator('tbody tr').filter({
@@ -201,18 +162,15 @@ export class LocalOfficeSettingsPage extends BasePage {
     });
   }
 
- /** Count data rows in the Sections table. */
   async getSectionRowCount(): Promise<number> {
     return this.getSectionDataRows().count();
   }
 
- /** Get a single section name by row index. */
   async getSectionNameByIndex(rowIndex: number): Promise<string> {
     const row = this.getSectionDataRows().nth(rowIndex);
     return (await row.locator('td:first-child input').inputValue()).trim();
   }
 
- /** Get all section names from the Sections table (reads input values). */
   async getSectionNames(): Promise<string[]> {
     const rows = this.getSectionDataRows();
     const count = await rows.count();
@@ -225,19 +183,16 @@ export class LocalOfficeSettingsPage extends BasePage {
     return names;
   }
 
- /** Check if a section row has the active checkmark (SVG lucide-check in toggle cell). */
   async isSectionActive(rowIndex: number): Promise<boolean> {
     const row = this.getSectionDataRows().nth(rowIndex);
     return (await row.locator('td:last-child svg').count()) > 0;
   }
 
- /** Click the active/checkmark cell for a section row to toggle. */
   async toggleSectionActive(rowIndex: number): Promise<void> {
     const row = this.getSectionDataRows().nth(rowIndex);
     await row.locator('td:last-child').click();
   }
 
- /** Edit a section name by clicking the input and typing. */
   async editSectionName(rowIndex: number, newName: string): Promise<void> {
     const row = this.getSectionDataRows().nth(rowIndex);
     const input = row.locator('td:first-child input');
@@ -247,7 +202,6 @@ export class LocalOfficeSettingsPage extends BasePage {
     await input.press('Tab');
   }
 
- /** Start editing a section name, type a value, then press Escape to cancel. */
   async editSectionNameAndCancel(rowIndex: number, tempName: string): Promise<void> {
     const row = this.getSectionDataRows().nth(rowIndex);
     const input = row.locator('td:first-child input');
@@ -257,7 +211,6 @@ export class LocalOfficeSettingsPage extends BasePage {
     await input.press('Escape');
   }
 
- /** Type a name in the "Add New" input at the bottom of the Sections table. */
   async addSection(name: string): Promise<void> {
     const section = this.getElement('tblSections');
     const addInput = section.locator('input[placeholder="Add New..."]');
@@ -269,11 +222,6 @@ export class LocalOfficeSettingsPage extends BasePage {
     await this.clickWithRetry('btnDefaultSection');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // ROOMS TABLE
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Get data rows from room table (excludes the "add new" placeholder row). */
   private getRoomDataRows() {
     const table = this.getElement('tblRoomConfig');
     return table.locator('tbody tr').filter({
@@ -285,12 +233,10 @@ export class LocalOfficeSettingsPage extends BasePage {
     return (await this.getRoomDataRows().count()) === 0;
   }
 
- /** Count data rows in the Room table. */
   async getRoomRowCount(): Promise<number> {
     return this.getRoomDataRows().count();
   }
 
- /** Get all room names from the Room table (reads input values). */
   async getRoomNames(): Promise<string[]> {
     const rows = this.getRoomDataRows();
     const count = await rows.count();
@@ -303,19 +249,16 @@ export class LocalOfficeSettingsPage extends BasePage {
     return names;
   }
 
- /** Check if a room row has the active checkmark (SVG in toggle cell). */
   async isRoomActive(rowIndex: number): Promise<boolean> {
     const row = this.getRoomDataRows().nth(rowIndex);
     return (await row.locator('td:last-child svg').count()) > 0;
   }
 
- /** Click the active/checkmark cell for a room row to toggle. */
   async toggleRoomActive(rowIndex: number): Promise<void> {
     const row = this.getRoomDataRows().nth(rowIndex);
     await row.locator('td:last-child').click();
   }
 
- /** Edit a room name by clicking the input and typing. */
   async editRoomName(rowIndex: number, newName: string): Promise<void> {
     const row = this.getRoomDataRows().nth(rowIndex);
     const input = row.locator('td:first-child input');
@@ -332,35 +275,20 @@ export class LocalOfficeSettingsPage extends BasePage {
     await addInput.press('Tab');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // LOGO
- // ─────────────────────────────────────────────────────────────────────────────
-
   async getLogoPreviewSrc(): Promise<string> {
     return (await this.getElement('imgLogoPreview').getAttribute('src')) || '';
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // DISCOUNT EXEMPTIONS
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Count rows with the exempt checkmark (SVG) in discount exemptions table. */
   async getExemptCount(): Promise<number> {
     const table = this.getElement('tblDiscountExemptions');
     return table.locator('tbody tr td:last-child svg').count();
   }
 
- /** Toggle exempt checkbox for a specific row by index. */
   async toggleExemption(rowIndex: number): Promise<void> {
     const table = this.getElement('tblDiscountExemptions');
     await table.locator('tbody tr').nth(rowIndex).locator('td:last-child').click();
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // UNSAVED CHANGES DIALOG
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Click Stay on the unsaved changes dialog. */
   async clickUnsavedStay(): Promise<void> {
     const dlg = this.getElement('dlgUnsavedLocalOffice');
     await dlg.waitFor({ state: 'visible', timeout: 5_000 });
@@ -368,7 +296,6 @@ export class LocalOfficeSettingsPage extends BasePage {
     await dlg.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
   }
 
- /** Click Discard on the unsaved changes dialog. */
   async clickUnsavedDiscard(): Promise<void> {
     const dlg = this.getElement('dlgUnsavedLocalOffice');
     await dlg.waitFor({ state: 'visible', timeout: 5_000 });

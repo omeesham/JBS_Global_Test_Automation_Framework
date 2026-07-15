@@ -26,48 +26,27 @@
  * - All selector counts confirmed unique via querySelectorAll on .
  */
 export const SetupAutoAddonSelectors = {
- // ---- Tab Navigation ----
- /** @where Setup > Location > Right Panel tabs @el tab @text "Auto Add-On" @keys auto addon tab navigate settings */
   tabAutoAddon: '[data-testid="location-settings-sub-tab-auto-add-on"]',
 
- // ---- Tabpanel & Form Wrappers ----
- /** @where Setup > Location > Auto Add-On tab @el tabpanel @text "Auto Add-On" @keys auto addon content panel wrapper */
   contentAutoAddon: '[data-testid="location-settings-sub-tab-content-auto-add-on"]',
- /** @where Setup > Location > Auto Add-On tab @el form @text "auto-add-on form" @keys auto addon form container */
   formAutoAddon: '[data-testid="location-settings-form-auto-add-on"]',
 
- // ---- Checkbox Items (location 1604 — items are location-specific) ----
- /** @where Setup > Location > Auto Add-On tab @el checkbox @text "Encore Music" @keys encore music checkbox add-on */
   chkAutoAddonEncoreMusic: '[data-testid="location-settings-checkbox-auto-add-on-false_encore music"]',
- /** @where Setup > Location > Auto Add-On tab @el checkbox @text "Wireless Presenter" @keys wireless presenter checkbox add-on */
   chkAutoAddonWirelessPresenter: '[data-testid="location-settings-checkbox-auto-add-on-false_wireless presenter"]',
- /** @where Setup > Location > Auto Add-On tab @el checkbox @text "Express Content Design Session" @keys express content design session checkbox add-on */
   chkAutoAddonExpressContentDesignSession: '[data-testid="location-settings-checkbox-auto-add-on-false_express content design session"]',
- /** @where Setup > Location > Auto Add-On tab @el checkbox @text "Wordly" @keys wordly checkbox add-on */
   chkAutoAddonWordly: '[data-testid="location-settings-checkbox-auto-add-on-false_wordly"]',
- /** @where Setup > Location > Auto Add-On tab @el checkbox @text "Labor" @keys labor checkbox add-on default */
   chkAutoAddonLabor: '[data-testid="location-settings-checkbox-auto-add-on-true_labor"]',
 
- // ---- All Checkboxes (dynamic count) ----
- /**
- * @where Setup > Location > Auto Add-On tab @el checkbox list @text "all add-on checkboxes" @keys all auto addon checkboxes list
- * NOTE: Use this with .all or nth to iterate when item count is unknown.
- */
   chkAutoAddonAll: '[data-testid^="location-settings-checkbox-auto-add-on-"]',
 
- // ---- Left Panel Save Button ----
  // DEDUPLICATION (P0-DECONTAMINATION): btnSave REMOVED — canonical version in left-panel.ts.
  // Auto-addon page object uses SetupAutoAddonSelectors.btnSave directly (private saveButton getter).
 
- // ---- Toast Notification ----
  // DEDUPLICATION (P0-DECONTAMINATION): toastLocalInfoUpdated REMOVED — canonical version in local-info.ts.
 
- // ---- Save Changes Dialog ----
  // DEDUPLICATION (P0-DECONTAMINATION): dlgSaveChanges, btnSaveChangesCancel REMOVED — canonical in shared.ts.
- /** @where Setup > Location > Auto Add-On > Save Changes dialog @el button @text "Ok" @keys dialog ok confirm save changes */
   btnSaveChangesOk: '[role="alertdialog"]:has(h2:text-is("Save Changes")) button:has-text("Ok")',
 
- // ---- Unsaved Changes Dialog (Auto Add-On specific — Stay/Discard buttons, NOT OK/Cancel) ----
  /**
  * @where Setup > Location > Auto Add-On > Unsaved Changes dialog @el alertdialog @text "Unsaved changes" @keys unsaved changes dialog navigate away
  * NOTE: Auto Add-On uses Stay/Discard buttons (not OK/Cancel like shared.ts).
@@ -75,8 +54,6 @@ export const SetupAutoAddonSelectors = {
   * @verified 2026-07-10 — data-testid confirmed live on office 1604 via SPA navigation trigger.
   */
   autoAddonDlgUnsavedChanges: '[data-testid="location-settings-modal-unsaved-changes"]',
- /** @where Setup > Location > Auto Add-On > Unsaved Changes dialog @el button @text "Stay" @keys dialog stay remain on page */
   btnUnsavedChangesStay: '[role="alertdialog"]:has(h2:text-is("Unsaved changes")) button:has-text("Stay")',
- /** @where Setup > Location > Auto Add-On > Unsaved Changes dialog @el button @text "Discard" @keys dialog discard abandon changes leave */
   btnUnsavedChangesDiscard: '[role="alertdialog"]:has(h2:text-is("Unsaved changes")) button:has-text("Discard")',
 } as const;

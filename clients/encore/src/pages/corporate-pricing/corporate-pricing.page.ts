@@ -26,25 +26,21 @@ export class CorporatePricingBasePage extends BasePage {
     Log.info(`${this.constructor.name} initialized`);
   }
 
-  /** Build a full URL from config.base_url + a route path suffix. */
   private buildUrl(pathSuffix: string): string {
     const base = (this.config?.base_url ?? '').replace(/\/+$/, '');
     return `${base}${pathSuffix}`;
   }
 
-  /** Navigate to the Corporate Pricing Search screen. */
   async gotoSearch(office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     await this.navigateTo(this.buildUrl(CORPORATE_PRICING_ROUTES.searchPath(office)));
     await this.waitForAngularStable();
   }
 
-  /** Navigate to a Pricebook Details screen (defaults to the Pricing Strategy tab). */
   async gotoDetails(office: string, pricebookId: string): Promise<void> {
     await this.navigateTo(this.buildUrl(CORPORATE_PRICING_ROUTES.detailsPath(office, pricebookId)));
     await this.waitForAngularStable();
   }
 
-  /** Navigate to the New Pricebook create screen for the given type (route-param `?type=`). */
   async gotoNewPricebook(office: string, type: 'equipment' | 'labor'): Promise<void> {
     await this.navigateTo(this.buildUrl(CORPORATE_PRICING_ROUTES.newPricebookPath(office, type)));
     await this.waitForAngularStable();
@@ -92,7 +88,6 @@ export class CorporatePricingBasePage extends BasePage {
     return [];
   }
 
-  /** Locate a single grid row by content (for interaction). Returns null if not found within scroll budget. */
   async findGridRowByContent(needle: string, maxScrolls = 40): Promise<Locator | null> {
     for (let s = 0; s < maxScrolls; s++) {
       const row = this.page.locator(S.rowGridAny, { hasText: needle }).first();
@@ -103,7 +98,6 @@ export class CorporatePricingBasePage extends BasePage {
     return null;
   }
 
-  /** Read the Search "N items found" count. Returns null if the label isn't present. */
   async getSearchItemCount(): Promise<number | null> {
     const el = this.page.locator(S.lblItemsFound).first();
     if ((await el.count()) === 0) return null;
@@ -122,19 +116,10 @@ export class CorporatePricingBasePage extends BasePage {
     await this.waitForAngularStable();
   }
 
-  // ---------------------------------------------------------------------------
-  // SHARED PRIMITIVES (extracted from the Search/Strategy/Detail page objects)
-  // ---------------------------------------------------------------------------
-
-  /** Dirty indicator shared by Strategy + Detail: the page-level Save button is enabled. */
   async isSaveEnabled(): Promise<boolean> {
     return this.page.locator(S.btnSaveDetails).first().isEnabled().catch(() => false);
   }
 
-  /**
-   * Click the page-level Save, THROWING if it is disabled (nothing to commit) so a silent no-op
-   * surfaces as a test failure. `reason` names the surface for the error (e.g. "form not dirty").
-   */
   protected async clickSaveButtonOrThrow(reason: string): Promise<void> {
     const save = this.page.locator(S.btnSaveDetails).first();
     if (!(await save.isEnabled().catch(() => false))) {
@@ -155,13 +140,11 @@ export class CorporatePricingBasePage extends BasePage {
     }
   }
 
-  /** True if the target's first match is visible; never throws (content-based active/open probe). */
   protected async isVisibleSafe(target: string | Locator): Promise<boolean> {
     const loc = typeof target === 'string' ? this.page.locator(target) : target;
     return loc.first().isVisible().catch(() => false);
   }
 
-  /** Read every matched element's whitespace-normalized innerText, dropping empties (header/list reads). */
   protected async readAllTexts(target: string | Locator): Promise<string[]> {
     const loc = typeof target === 'string' ? this.page.locator(target) : target;
     const n = await loc.count();

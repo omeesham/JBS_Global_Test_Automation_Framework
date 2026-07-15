@@ -1,20 +1,7 @@
-/**
- * Test data for: Location Local Information tab
- * Consumed by: tests/locations/location-local-information.spec.ts
- * Office: 1604 (Parker Palm Springs)
- * @office-dependent — checkbox defaults, field values tied to office 1604
- * Changing values here affects the listed spec.
- */
-
 import { LocationSettingsSelectors } from '../../selectors';
 
 type SelectorKey = keyof typeof LocationSettingsSelectors;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CHECKBOX DEFAULTS -- office 1604
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Checkboxes expected CHECKED by default */
 export const CHECKED_DEFAULTS: SelectorKey[] = [
   'chkApplyLDW',
   'chkTickerCalc',
@@ -31,7 +18,6 @@ export const CHECKED_DEFAULTS: SelectorKey[] = [
   'chkServiceCharge',   // enabled+checked on Navigator Cloud (was disabled+unchecked on legacy navigator2.training.psav.com baseline)
 ];
 
-/** Checkboxes expected UNCHECKED by default */
 export const UNCHECKED_DEFAULTS: SelectorKey[] = [
  // chkCalculateLDWonNetAmount excluded -- managed exclusively by TC-021/029 (check+save+restore cycle)
  // to avoid batch assertion failures when prior runs leave DB in dirty state.
@@ -54,21 +40,19 @@ export const UNCHECKED_DEFAULTS: SelectorKey[] = [
   'chkCanCreateExternalCustomerLink',
   'chkOffsiteEventLocation',
   'chkExhibitShowRate',
-  'chkEnableMultidayPricing',  // Gap #9: new checkbox, unchecked by default (SESSION_1_FINDINGS )
+  'chkEnableMultidayPricing',  // new checkbox, unchecked by default
 ];
 
-/** Checkboxes expected DISABLED by default */
 export const DISABLED_CHECKBOXES: SelectorKey[] = [
   'chkSuppressDayRateDiscount',
   'chkCompassIntegration',
   'chkDisplayTax',
   'chkEnableJobCosting',      // disabled+checked for office 1604
-  'chkUseESignature',         // Gap #12: disabled+checked
-  'chkEnableProductGroup',    // Gap #12: disabled+unchecked
-  'chkEnableDiscountGuidance', // Gap #12: disabled+checked
+  'chkUseESignature',         // disabled+checked
+  'chkEnableProductGroup',    // disabled+unchecked
+  'chkEnableDiscountGuidance', // disabled+checked
 ];
 
-/** Disabled checkboxes: expected checked state */
 export const DISABLED_CHECKBOX_STATES: Record<string, boolean> = {
   chkSuppressDayRateDiscount: false, // always disabled, unchecked
   chkCompassIntegration: true,       // disabled for existing location, checked
@@ -79,19 +63,13 @@ export const DISABLED_CHECKBOX_STATES: Record<string, boolean> = {
   chkEnableDiscountGuidance: true,   // : disabled+checked for office 1604
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BOUNDARY TEST DATA -- LDW Percentage [0, 100]
-// ─────────────────────────────────────────────────────────────────────────────
-
 export interface BoundaryCase {
   label: string;
   value: string;
   valid: boolean;
   errorContains?: string;
   restoreValue: string;
- /** If the app disables the spin after reload (e.g. LDW%=0 unchecks chkApplyLDW), re-check this key before restoring */
   restoreEnableKey?: SelectorKey;
- /** Mark entry as pending -- test will be fixme'd (blocked by app behavior for office 1604) */
   pending?: string;
 }
 
@@ -116,29 +94,16 @@ export const LDW_BOUNDARIES: BoundaryCase[] = [
   { label: 'invalid far above (1.5)',  value: '1.5',   valid: false, errorContains: 'Number must be', restoreValue: '0.04' },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DEPENDENCY TEST DATA -- checkbox toggle -> field enable/disable
-// ─────────────────────────────────────────────────────────────────────────────
-
 export interface DependencyCase {
   label: string;
- /** Checkbox that controls the target */
   trigger: SelectorKey;
- /** Action on trigger: 'check' enables target, 'uncheck' enables target */
   triggerAction: 'check' | 'uncheck';
- /** Target element affected */
   target: SelectorKey;
- /** Target type for assertion */
   targetType: 'spin' | 'checkbox';
- /** Expected target disabled state AFTER triggering */
   expectedDisabled: boolean;
- /** For checkboxes: expected checked state after trigger (if applicable) */
   expectedChecked?: boolean;
- /** Restore actions: keys to restore original state */
   restore: { key: SelectorKey; action: 'check' | 'uncheck' }[];
- /** Optional spin restore: set spin value after checkbox restores (e.g. restore LDW%=0.04 after Apply LDW test) */
   spinRestore?: { key: SelectorKey; value: string };
- /** Mark entry as pending -- test will be fixme'd (blocked by app behavior for office 1604) */
   pending?: string;
 }
 
@@ -198,12 +163,7 @@ export const SIMPLE_DEPENDENCIES: DependencyCase[] = [
   },
 ];
 
-/** Active dependencies only -- excludes entries blocked by office 1604 limitations */
 export const ACTIVE_DEPENDENCIES = SIMPLE_DEPENDENCIES.filter(d => !d.pending);
-
-// ─────────────────────────────────────────────────────────────────────────────
-// LEFT PANEL BASELINE -- office 1604
-// ─────────────────────────────────────────────────────────────────────────────
 
 export const LEFT_PANEL_EXPECTED = {
   office: '1604',
@@ -211,10 +171,6 @@ export const LEFT_PANEL_EXPECTED = {
   eCommerceActive: true,
   enableProductionsOrders: true,
 } as const;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TEXT FIELD CONSTRAINTS
-// ─────────────────────────────────────────────────────────────────────────────
 
 export interface MaxLengthCase {
   key: SelectorKey;
@@ -227,16 +183,11 @@ export const TEXT_FIELD_CONSTRAINTS: MaxLengthCase[] = [
   { key: 'txtOracleDepartment', maxLength: 25, restoreValue: '900' },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CHECKBOX LABEL VERIFICATION
-// ─────────────────────────────────────────────────────────────────────────────
-
 export interface CheckboxLabelCase {
   key: string;
   expected: string;
 }
 
-/** Test values for inline spec assertions (billing, Oracle fields, special chars). */
 export const LOCAL_INFO_TEST_VALUES = {
   billingType: 'Master',
   billingTypeDirect: 'Direct',
@@ -248,7 +199,6 @@ export const LOCAL_INFO_TEST_VALUES = {
   specialChars: 'TEST@#$%&*()',
 } as const;
 
-/** Verified label text extracted from dt:has-text("...") in src/selectors/locations/local-info.ts */
 export const CHECKBOX_LABEL_CASES: CheckboxLabelCase[] = [
   { key: 'chkApplyLDW',          expected: 'Apply LDW' },
   { key: 'chkSkipBilling',       expected: 'Skip Billing' },

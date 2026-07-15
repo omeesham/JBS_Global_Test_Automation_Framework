@@ -64,10 +64,6 @@ export function recordCall(layer: RetryLayer, attempts: AttemptRecord[]): void {
   }
 }
 
-/**
- * Read all JSONL entries from disk and aggregate by layer.
- * Returns an empty RetryStats if the file does not exist.
- */
 export function readAndAggregate(): RetryStats {
   const out: RetryStats = {};
   if (!fs.existsSync(TELEMETRY_FILE)) return out;
@@ -130,10 +126,6 @@ export function readAndAggregate(): RetryStats {
   return out;
 }
 
-/**
- * Delete the JSONL file. Called by the reporter `onBegin` to start fresh per run.
- * No-op if file is absent. Errors swallowed silently.
- */
 export function reset(): void {
   try {
     if (fs.existsSync(TELEMETRY_FILE)) fs.unlinkSync(TELEMETRY_FILE);

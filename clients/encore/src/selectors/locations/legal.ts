@@ -15,37 +15,21 @@
  * - All selector counts confirmed unique via querySelectorAll on .
  */
 export const SetupLegalSelectors = {
- // ---- Legal Tab Navigation ----
- /** @where Setup > Location > Tabs @el tab @text "Legal" @keys tab legal navigate settings */
   tabLegal: '[data-testid="location-settings-sub-tab-legal"]',
 
- // ---- Legal Section Wrapper ----
- /** @where Setup > Location > Legal tab @el region @text "Legal content" @keys legal tab content panel wrapper */
   contentLegal: '[data-testid="location-settings-sub-tab-content-legal"]',
 
- // ---- Legal Table ----
- /** @where Setup > Location > Legal tab @el table @text "Legal grid" @keys legal table grid rows columns */
   tblLegal: '[data-testid="location-settings-table-legal"]',
 
- // ---- Column Headers ----
- /** @where Setup > Location > Legal tab > Header @el label @text "Language Name" @keys column header language */
   colHeaderLanguageName: '[data-testid="location-settings-table-legal-col-language-name"]',
- /** @where Setup > Location > Legal tab > Header @el label @text "Service Charge Name" @keys column header service-charge */
   colHeaderServiceChargeName: '[data-testid="location-settings-table-legal-col-service-charge-name"]',
- /** @where Setup > Location > Legal tab > Header @el label @text "Terms and Conditions Name" @keys column header terms-and-conditions */
   colHeaderTermsAndConditionsName: '[data-testid="location-settings-table-legal-col-terms-and-conditions-name"]',
 
- // ---- Service Charge Combobox (Row 0) ----
- /** @where Setup > Location > Legal tab > Row 0 @el combobox @text "Service Charge Name" @keys service charge dropdown select legal row0 */
   drpLegalServiceCharge0: '[data-testid="location-settings-select-legal-0-service-charge"]',
 
- // ---- Terms and Conditions Combobox (Row 0) ----
- /** @where Setup > Location > Legal tab > Row 0 @el combobox @text "Terms and Conditions Name" @keys terms conditions dropdown select legal row0 */
   drpLegalTerms0: '[data-testid="location-settings-select-legal-0-terms"]',
 
- // ---- Left Panel Save Button (shared across tabs) ----
  // NOTE: Save dialog selectors (dlgSaveChanges, btnSaveChangesCancel, btnSaveChangesConfirm)
  // live in shared.ts -- reuse those keys, do NOT duplicate here.
- /** @where Setup > Location > Left Panel @el button @text "Save" @keys save submit form left-panel */
   btnSaveLegal: '[data-testid="location-settings-btn-save"]',
 } as const;

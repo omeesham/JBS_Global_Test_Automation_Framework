@@ -1,5 +1,3 @@
-/** Custom Playwright test fixtures for dependency injection of page objects */
-
 import { Page, BrowserContext } from '@playwright/test';
 import { LocationCurrencyPage } from '../pages/locations/location-currency.page';
 import { LocationLocalInfoPage } from '../pages/locations/location-local-info.page';
@@ -38,13 +36,11 @@ import {
 import { dependencyGateExt } from './dependency-gate';
 import { wrapWithSteps } from './step-wrapper';
 
-// Define worker-scoped fixtures (shared across tests in same worker)
 type WorkerFixtures = {
   config: IConfig;
   authenticatedSession: { page: Page; context: BrowserContext };
 };
 
-// Define test-scoped fixtures (fresh instance per test)
 type TestFixtures = {
   diagnosticsHandler: void;
   locationCurrencyPage: LocationCurrencyPage;
@@ -69,10 +65,6 @@ type TestFixtures = {
   dependencyGate: (deps: string[]) => void;
 };
 
-/**
- * Extended test with custom fixtures
- * Usage: import { test, expect } from './fixtures';
- */
 export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
  /**
  * Diagnostics handler fixture (auto-use)
@@ -149,7 +141,6 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
           snapshot.domSnippet = domContent.slice(0, 50_000);
         } catch { /* page may be closed */ }
 
- // Capture the failing selector to enrich the failure report
         try {
  // Extract failing selector from error (same prefixes as AgentReporter)
           const selectorPrefixes = ['btn', 'txt', 'drp', 'chk', 'lnk', 'rdo', 'dlg', 'tbl', 'err', 'col', 'spin', 'tab', 'pnl'];
@@ -168,7 +159,6 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
         body: Buffer.from(JSON.stringify(snapshot)),
       });
 
- // Persist per-spec diagnostics file for failure analysis
       if (testInfo.status !== 'passed') {
         const specName = path.basename(testInfo.file, '.spec.ts');
         const diagDir = path.join(process.cwd(), 'reports', 'diagnostics');
@@ -194,10 +184,6 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     }
   }, { auto: true }],
 
- /**
- * Configuration fixture (worker-scoped)
- * Loads environment config once per worker process for efficiency
- */
   config: [async ({}, use) => {
     const config = CommonMethods.initProp();
     await use(config);
@@ -371,74 +357,41 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     throw new Error(msg);
   },
 
- /**
- * LocationCurrencyPage fixture
- * Uses authenticatedSession page so tests start pre-authenticated.
- */
   locationCurrencyPage: async ({ authenticatedSession, config }, use) => {
     const locationCurrencyPage = wrapWithSteps(new LocationCurrencyPage(authenticatedSession.page, config), 'LocationCurrencyPage');
     await use(locationCurrencyPage);
   },
 
- /**
- * LocationLocalInfoPage fixture
- * Uses authenticatedSession page so tests start pre-authenticated (no login flow needed).
- * R14 exception (intentional): Must use authenticatedSession.page to access Navigator Cloud.
- */
   locationLocalInfoPage: async ({ authenticatedSession, config }, use) => {
     const locationLocalInfoPage = wrapWithSteps(new LocationLocalInfoPage(authenticatedSession.page, config), 'LocationLocalInfoPage');
     await use(locationLocalInfoPage);
   },
 
- /**
- * LocationPricingPage fixture
- * Uses authenticatedSession page so tests start pre-authenticated.
- */
   locationPricingPage: async ({ authenticatedSession, config }, use) => {
     const locationPricingPage = wrapWithSteps(new LocationPricingPage(authenticatedSession.page, config), 'LocationPricingPage');
     await use(locationPricingPage);
   },
 
- /**
- * LocationAccountAddressPage fixture
- * Uses authenticatedSession page so tests start pre-authenticated.
- */
   locationAccountAddressPage: async ({ authenticatedSession, config }, use) => {
     const locationAccountAddressPage = wrapWithSteps(new LocationAccountAddressPage(authenticatedSession.page, config), 'LocationAccountAddressPage');
     await use(locationAccountAddressPage);
   },
 
- /**
- * LocationNotesPage fixture
- * Uses authenticatedSession page so tests start pre-authenticated.
- */
   locationNotesPage: async ({ authenticatedSession, config }, use) => {
     const locationNotesPage = wrapWithSteps(new LocationNotesPage(authenticatedSession.page, config), 'LocationNotesPage');
     await use(locationNotesPage);
   },
 
- /**
- * LocationLegalPage fixture
- * Uses authenticatedSession page so tests start pre-authenticated.
- */
   locationLegalPage: async ({ authenticatedSession, config }, use) => {
     const locationLegalPage = wrapWithSteps(new LocationLegalPage(authenticatedSession.page, config), 'LocationLegalPage');
     await use(locationLegalPage);
   },
 
- /**
- * LocationLeftPanelBasicInformationPage fixture
- * Uses authenticatedSession page so tests start pre-authenticated.
- */
   locationLeftPanelBasicInformationPage: async ({ authenticatedSession, config }, use) => {
     const locationLeftPanelBasicInformationPage = wrapWithSteps(new LocationLeftPanelBasicInformationPage(authenticatedSession.page, config), 'LocationLeftPanelBasicInformationPage');
     await use(locationLeftPanelBasicInformationPage);
   },
 
- /**
- * LocationSharedSetupLocationsPage fixture
- * Uses authenticatedSession page so tests start pre-authenticated.
- */
   locationSharedSetupLocationsPage: async ({ authenticatedSession, config }, use) => {
     const locationSharedSetupLocationsPage = wrapWithSteps(new LocationSharedSetupLocationsPage(authenticatedSession.page, config), 'LocationSharedSetupLocationsPage');
     await use(locationSharedSetupLocationsPage);
@@ -469,10 +422,6 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     await use(locationManagementHistoryPage);
   },
 
-  /**
-   * CorporatePricingBasePage fixture (S0 foundation — shared base).
-   * S1/S2/S3 add their own per-screen page-object fixtures extending CorporatePricingBasePage.
-   */
   corporatePricingBasePage: async ({ authenticatedSession, config }, use) => {
     const corporatePricingBasePage = wrapWithSteps(new CorporatePricingBasePage(authenticatedSession.page, config), 'CorporatePricingBasePage');
     await use(corporatePricingBasePage);
@@ -505,10 +454,6 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     await use(corporatePricingDetailPage);
   },
 
-  /**
-   * CorporatePricingOverridePage fixture (Product Group Override screen, /pg-override).
-   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
-   */
   corporatePricingOverridePage: async ({ authenticatedSession, config }, use) => {
     const corporatePricingOverridePage = wrapWithSteps(new CorporatePricingOverridePage(authenticatedSession.page, config), 'CorporatePricingOverridePage');
     await use(corporatePricingOverridePage);

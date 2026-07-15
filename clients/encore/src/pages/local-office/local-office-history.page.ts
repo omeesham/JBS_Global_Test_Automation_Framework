@@ -4,10 +4,6 @@ import { LocalOfficeHistorySelectors, LocalOfficeSettingsSelectors, getTsSelecto
 
 export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
 
- /**
- * getElement override — prefer HIS selectors, cascade to shared tab/dialog selectors in LocalOfficeSettingsSelectors,
- * then global. LocalOfficeSettingsSelectors is excluded from ALL_SELECTORS (key collisions), so a direct cascade is required.
- */
   protected getElement(elementName: string): Locator {
     const selector = (LocalOfficeHistorySelectors as Record<string, string>)[elementName]
       ?? (LocalOfficeSettingsSelectors as Record<string, string>)[elementName]
@@ -15,10 +11,6 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     if (!selector) throw new Error(`Selector '${elementName}' not found in Local Office History, Settings, or global selectors`);
     return this.page.locator(selector);
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // NAVIGATION
- // ─────────────────────────────────────────────────────────────────────────────
 
  /**
  * Navigate to History tab. Handles unsaved dialog if dirty form persists.
@@ -36,9 +28,7 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     await this.getElement('tblHistory').waitFor({ state: 'visible', timeout: 15_000 });
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
  // HISTORY TAB — STRUCTURE
- // ─────────────────────────────────────────────────────────────────────────────
 
   async getHistoryColumnHeaderCount(): Promise<number> {
     return this.getElement('tblHistory').locator('th').count();
@@ -53,10 +43,6 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     return this.getElement('tblHistory').locator('th button').count();
   }
 
- /**
- * Get all column header texts from the history table.
- * Scoped to [data-testid="local-office-settings-history-table"] (5: 3 tables in DOM).
- */
   async getHistoryColumnHeaders(): Promise<string[]> {
     const table = this.getElement('tblHistory');
     return (await table.locator('th').allTextContents()).map(t => t.trim());
@@ -83,12 +69,6 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     return text;
   }
 
- /**
- * Read multiple column values from a specific row.
- * @param rowIndex - 0-based row index
- * @param headerTexts - Array of column header names to read
- * @returns Record mapping header name -> cell text
- */
   async getHistoryRowValues(rowIndex: number, headerTexts: string[]): Promise<Record<string, string>> {
     const result: Record<string, string> = {};
     for (const header of headerTexts) {
@@ -97,10 +77,6 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     return result;
   }
 
- /**
- * Sort history table by Modified On descending.
- * Checks current sort state before clicking.
- */
   async sortHistoryByModifiedOnDesc(): Promise<void> {
     const headers = await this.getHistoryColumnHeaders();
     const colIndex = headers.indexOf('Modified On');
@@ -121,11 +97,8 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     await this.waitForAngularStable();
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
  // HISTORY TAB — READ-ONLY + PAGINATION
- // ─────────────────────────────────────────────────────────────────────────────
 
- /** Check if history tab has editable fields or save button. */
   async isHistoryTabReadOnly(): Promise<boolean> {
     const panel = this.getElement('tabContentHistory');
     // Scope the editable-field check to the history data table. tblHistory IS the <table>, and the
@@ -139,14 +112,12 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     return inputs === 0 && saveBtn === 0;
   }
 
- /** Get pagination text from history tab. */
   async getHistoryPaginationText(): Promise<string> {
     const panel = this.getElement('tabContentHistory');
     const text = await panel.locator('text=/\\d+ \\/ \\d+/').textContent().catch(() => '');
     return (text || '').trim();
   }
 
- /** Get the count of pagination nav buttons in history tab. */
   async getHistoryPaginationButtonCount(): Promise<number> {
     const panel = this.getElement('tabContentHistory');
     return panel.locator('button[aria-label*="page"], button[aria-label*="Page"]').count();

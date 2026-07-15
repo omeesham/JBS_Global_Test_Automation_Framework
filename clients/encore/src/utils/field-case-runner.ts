@@ -13,25 +13,15 @@
 import { test } from '@playwright/test';
 
 export interface FieldCase {
-  /** TC ID for traceability, e.g. "TC-LOC-NTS-033" (canonical submodule-only form — no extra segment). */
   id: string;
-  /** Human-readable label for logs and Allure. */
   label: string;
-  /** Bring the page to a known starting state (DB-clean equivalent). REQUIRED. */
   baseline: () => Promise<void>;
-  /** Perform the one field-level change the case is testing. REQUIRED. */
   act: () => Promise<void>;
-  /** Optional pre-save assertions (UI state: counter, dirty flag, button enable). */
   expectBeforeSave?: () => Promise<void>;
-  /** Page-object's save-and-confirm-dialog method. REQUIRED. */
   saveAndConfirm: () => Promise<void>;
-  /** Optional post-save assertions BEFORE reload (button disabled, dialog closed). */
   expectAfterSave?: () => Promise<void>;
-  /** Page-object's reload-and-renavigate method. REQUIRED. */
   reload: () => Promise<void>;
-  /** The persisted-value assertion AFTER reload. REQUIRED. */
   expectAfterReload: () => Promise<void>;
-  /** Restore the page/DB to empty for the next case. RECOMMENDED. */
   cleanup?: () => Promise<void>;
 }
 

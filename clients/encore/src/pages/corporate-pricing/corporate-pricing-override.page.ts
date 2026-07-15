@@ -44,9 +44,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     super(page, config);
   }
 
-  // ---------- navigation / readiness ----------
-
-  /** Navigate directly to the Product Group Override screen. */
   async gotoOverride(office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     const base = (this.config?.base_url ?? '').replace(/\/+$/, '');
     await this.navigateTo(`${base}${CORPORATE_PRICING_ROUTES.overridePath(office)}`);
@@ -54,27 +51,21 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.waitForLoaded();
   }
 
-  /** Open the Override screen (alias for gotoOverride; mirrors the Search page object's `open`). */
   async open(office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     await this.gotoOverride(office);
   }
 
-  /** Wait until the screen chrome (heading + tabs) has rendered. */
   async waitForLoaded(timeout = 30_000): Promise<void> {
     await this.page.locator(OS.ovrHeading).first().waitFor({ state: 'visible', timeout });
     await this.page.locator(OS.ovrTabEquipment).first().waitFor({ state: 'visible', timeout });
   }
 
-  // ---------- Equipment / Labor tabs (NOT base switchTab — different tab set) ----------
-
-  /** The currently-active tab ('Equipment' | 'Labor') per `aria-selected`. */
   async getActiveTab(): Promise<OverrideTab | null> {
     if ((await this.page.locator(OS.ovrTabEquipment).getAttribute('aria-selected')) === 'true') return 'Equipment';
     if ((await this.page.locator(OS.ovrTabLabor).getAttribute('aria-selected')) === 'true') return 'Labor';
     return null;
   }
 
-  /** Switch to the Equipment or Labor tab and wait for `aria-selected="true"` on the target tab. */
   async switchOverrideTab(tab: OverrideTab): Promise<void> {
     const sel = tab === 'Equipment' ? OS.ovrTabEquipment : OS.ovrTabLabor;
     await this.page.locator(sel).first().click();
@@ -88,18 +79,11 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.waitForAngularStable();
   }
 
-  // ---------- location picker ----------
-
-  /** Open the "Select a location" picker dialog. */
   async openLocationPicker(): Promise<void> {
     await this.page.locator(OS.ovrSelectLocationText).first().click();
     await this.page.locator(OS.ovrLocationPickerSearch).first().waitFor({ state: 'visible', timeout: 10_000 });
   }
 
-  /**
-   * Select a location to populate the grid: open the picker, search by name/number, check the
-   * matching row, confirm with "Select". Content-anchored — never an index.
-   */
   async selectLocation(nameOrNumber: string): Promise<void> {
     const search = this.page.locator(OS.ovrLocationPickerSearch).first();
     await this.openLocationPicker();
@@ -125,9 +109,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.waitForAngularStable();
   }
 
-  // ---------- filters ----------
-
-  /** Currency filter option texts (opens, reads, closes). Live: ALL / USD / CAD / MXN. */
   async getCurrencyOptions(): Promise<string[]> {
     await this.page.locator(OS.ovrCurrencyDropdown).first().click();
     await this.page.locator('[role="option"]').first().waitFor({ state: 'visible', timeout: 8_000 });
@@ -136,14 +117,12 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return out.filter(Boolean);
   }
 
-  /** Select a Currency filter option by visible text. */
   async selectCurrency(value: string): Promise<void> {
     await this.page.locator(OS.ovrCurrencyDropdown).first().click();
     await this.page.locator('[role="option"]', { hasText: value }).first().click();
     await this.waitForAngularStable();
   }
 
-  /** Rows-per-page option texts (opens, reads, closes). Live: 10 / 20 / 30 / 40 / 50. */
   async getRowsPerPageOptions(): Promise<string[]> {
     await this.page.locator(OS.ovrRowsPerPage).first().click();
     await this.page.locator('[role="option"]').first().waitFor({ state: 'visible', timeout: 8_000 });
@@ -152,12 +131,10 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return out.filter(Boolean);
   }
 
-  /** Read the "Active only" filter checkbox state (`aria-checked`). */
   async getActiveOnlyState(): Promise<boolean> {
     return (await this.page.locator(OS.ovrActiveOnlyCheckbox).first().getAttribute('aria-checked')) === 'true';
   }
 
-  /** Check/uncheck the "Active only" filter (auto-verifies ARIA state). */
   async setActiveOnly(checked: boolean): Promise<void> {
     const cb = this.page.locator(OS.ovrActiveOnlyCheckbox).first();
     if (checked) await cb.check();
@@ -176,44 +153,32 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.page.waitForTimeout(800);
   }
 
-  /** Clear the product-group filter (native setter + settle). */
   async clearFilter(): Promise<void> {
     await this.setReactInput(OS.ovrFilterInput, '');
     await this.page.waitForTimeout(700);
   }
 
-  // ---------- grid reads (content-anchored) ----------
-
-  /** The grid column header texts, in DOM order. Live: 10 columns (Location…Updated By). */
   async getColumnHeaders(): Promise<string[]> {
     return this.readAllTexts(OS.ovrColHeaderAny);
   }
 
-  /** Number of grid column headers rendered. */
   async getColumnCount(): Promise<number> {
     return this.page.locator(OS.ovrColHeaderAny).count();
   }
 
-  /** Count currently-rendered grid rows (never assert the total). */
   async getVisibleRowCount(): Promise<number> {
     return this.page.locator(OS.ovrGridRowAny).count();
   }
 
-  /** Locate a grid row by Product Group name (content-anchored). Returns null if not present. */
   async findRowByProductGroup(name: string): Promise<Locator | null> {
     const row = this.page.locator(OS.ovrGridRowAny, { hasText: name }).first();
     return (await row.count()) > 0 ? row : null;
   }
 
-  /** True when there are no override rows (the "No results." empty state is visible). */
   async isEmpty(): Promise<boolean> {
     return this.isVisibleSafe(OS.ovrNoResults);
   }
 
-  /**
-   * Read the `Active` cell of a row as a boolean. The Override grid renders Active as a
-   * Radix checkbox (`button[role=checkbox]`); read `aria-checked`, NOT `textContent`.
-   */
   async readActiveState(row: Locator): Promise<boolean> {
     return (await row.locator('[role="checkbox"]').first().getAttribute('aria-checked')) === 'true';
   }
@@ -231,19 +196,14 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return (await src.innerText()).replace(/\s+/g, ' ').replace(/,/g, '').trim();
   }
 
-  /** Read the Override Price cell display value (e.g. "445.00"). */
   async readOverridePrice(row: Locator): Promise<string> {
     return this.readEditableCell(row, CORP_PRICING_OVERRIDE.columnIndex.overridePrice);
   }
 
-  /** Read the Max Discount % cell display value ("—" when unset). */
   async readMaxDiscount(row: Locator): Promise<string> {
     return this.readEditableCell(row, CORP_PRICING_OVERRIDE.columnIndex.maxDiscount);
   }
 
-  // ---------- grid readiness ----------
-
-  /** Wait for the override grid to render data rows (server-loaded after a location is selected). */
   async waitForGridRows(timeout = 20_000): Promise<void> {
     await this.page
       .locator(OS.ovrGridRowAny)
@@ -252,14 +212,11 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
       .catch(() => { /* may be legitimately empty (Labor / no-match filter) */ });
   }
 
-  /** Reload the Override screen and re-select the location (the field-coverage `reload` step). */
   async reloadAndReselect(needle: string, office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     await this.gotoOverride(office);
     await this.selectLocation(needle);
     await this.waitForGridRows();
   }
-
-  // ---------- per-cell edit (resolved 2026-06-09 — click → spinbutton → native-set → Enter) ----------
 
   /**
    * Open a click-to-edit numeric cell (`div[role=button]`) and return its revealed `spinbutton` editor.
@@ -273,8 +230,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return editor;
   }
 
-  /** Open a numeric cell editor, native-set the value, Enter to commit, then wait for the editor to
-   *  detach + a short settle so the cell's value <div> re-renders before any read (avoids a NaN race). */
   private async editNumericCell(row: Locator, cellSel: string, value: string): Promise<void> {
     const editor = await this.openCellEditor(row, cellSel);
     await this.setReactInput(editor, value);
@@ -283,12 +238,10 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.page.waitForTimeout(250);
   }
 
-  /** Commit `value` into the row's Override Price cell (does NOT click Save). Dirties the form. */
   async setOverridePrice(row: Locator, value: string): Promise<void> {
     await this.editNumericCell(row, OS.ovrCellOverridePrice, value);
   }
 
-  /** Commit `value` into the row's Max Discount % cell (does NOT click Save). Dirties the form. */
   async setMaxDiscount(row: Locator, value: string): Promise<void> {
     await this.editNumericCell(row, OS.ovrCellMaxDiscount, value);
   }
@@ -311,10 +264,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return committed;
   }
 
-  /**
-   * Open the Override Price editor, read the value the editor exposes, then **Escape** (discard — no
-   * change staged). Used to prove the cell is editable without dirtying the form.
-   */
   async peekOverridePriceEditor(row: Locator): Promise<string> {
     const editor = await this.openCellEditor(row, OS.ovrCellOverridePrice);
     const v = await editor.inputValue().catch(() => '');
@@ -337,19 +286,14 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return v;
   }
 
-  /** Toggle the row's Active checkbox (does NOT click Save). Dirties the form. */
   async toggleActive(row: Locator): Promise<void> {
     await row.locator(OS.ovrCellActiveCheckbox).first().click();
   }
 
-  /** Set the row's Active checkbox to `checked` (no-op if already there). Does NOT click Save. */
   async setActive(row: Locator, checked: boolean): Promise<void> {
     if ((await this.readActiveState(row)) !== checked) await this.toggleActive(row);
   }
 
-  // ---------- save (dialog-gated; live-verified 2026-06-09) ----------
-
-  /** Whether the page-level Save button is enabled (dirty indicator). */
   async isOverrideSaveEnabled(): Promise<boolean> {
     return this.page.locator(OS.ovrBtnSave).first().isEnabled().catch(() => false);
   }
@@ -386,10 +330,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.waitForAngularStable(2_000).catch(() => {});
   }
 
-  /**
-   * Click Save and capture the verbatim "Save Changes" dialog text WITHOUT confirming, then Cancel
-   * (no commit). Used by the save-dialog field-coverage case (mirrors the new-pricebook NO-COMMIT dialog probe).
-   */
   async clickSaveAndCancel(): Promise<string> {
     await this.page.locator(OS.ovrBtnSave).first().click();
     const dlg = this.page.locator(OS.ovrSaveDialog).first();
@@ -400,15 +340,11 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return text;
   }
 
-  // ---------- fixture restore (per-test baseline; bounded-retry, throws if it can't restore) ----------
-
-  /** Whitespace/decimal-tolerant numeric compare ("445.00" === "445"). */
   private static numEq(a: string, b: string): boolean {
     const n = (s: string): number => parseFloat(String(s).replace(/[^0-9.\-]/g, ''));
     return Number.isFinite(n(a)) && Number.isFinite(n(b)) && n(a) === n(b);
   }
 
-  /** Max Discount baseline is "unset" — rendered as an em-dash / hyphen / empty. */
   private static isMaxDiscountUnset(s: string): boolean {
     const t = (s ?? '').replace(/\s+/g, '').trim();
     return t === '' || t === '—' || t === '-' || t === '–';
@@ -454,9 +390,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     }
   }
 
-  // ---------- navigation from the Search action bar ----------
-
-  /** Start on the Search screen and click its "Pricing Override" action-bar button; wait for the Override screen. */
   async openViaSearchActionBar(office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     const base = (this.config?.base_url ?? '').replace(/\/+$/, '');
     await this.navigateTo(`${base}${CORPORATE_PRICING_ROUTES.searchPath(office)}`);
@@ -466,12 +399,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.waitForLoaded();
   }
 
-  // ---------- location picker detail ----------
-
-  /**
-   * Open the location picker, capture its detail facts (title, Select disabled-before / enabled-after a row
-   * is checked, matching-row count), then Cancel (no location applied). Returns the observed facts.
-   */
   async inspectLocationModal(needle: string): Promise<{
     title: string;
     selectDisabledInitially: boolean;
@@ -503,15 +430,11 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return { title, selectDisabledInitially, rowsMatching, selectEnabledAfterCheck, gridEmptyAfterCancel };
   }
 
-  // ---------- Grid Options (column show/hide; visibility persists server-side) ----------
-
-  /** Open the Grid Options popover (an icon button carrying an accessible name). */
   async openGridOptions(): Promise<void> {
     await this.page.locator(OS.ovrBtnGridOptions).first().click();
     await this.page.locator(OS.ovrGridOptionsMenuItem).first().waitFor({ state: 'visible', timeout: 8_000 });
   }
 
-  /** Read the Grid Options column toggles as {label, checked}. */
   async getGridOptionColumns(): Promise<Array<{ label: string; checked: boolean }>> {
     return this.page.locator(OS.ovrGridOptionsMenuItem).evaluateAll((els) =>
       els.map((e) => ({
@@ -521,25 +444,21 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     );
   }
 
-  /** Toggle a Grid Options column by its visible label. */
   async toggleGridColumn(label: string): Promise<void> {
     await this.page.locator(OS.ovrGridOptionsMenuItem, { hasText: label }).first().click();
     await this.page.waitForTimeout(500);
   }
 
-  /** Close the Grid Options popover. */
   async closeGridOptions(): Promise<void> {
     await this.page.keyboard.press('Escape');
     await this.page.waitForTimeout(400);
   }
 
-  /** Whether a grid column header containing the given label is currently rendered. */
   async isGridColumnVisible(label: string): Promise<boolean> {
     const headers = await this.getColumnHeaders();
     return headers.some((h) => h.includes(label));
   }
 
-  /** Click "Reset to Default" inside the Grid Options popover (restores every column). */
   async resetGridToDefault(): Promise<void> {
     await this.page.locator(OS.ovrGridOptionsReset).first().click().catch(() => { /* best-effort; callers re-open Grid Options and verify column state */ });
     await this.page.waitForTimeout(600);
@@ -572,12 +491,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     });
   }
 
-  // ---------- toolbar Export (direct CSV download) / Import (dialog) ----------
-
-  /**
-   * Click the Override toolbar's Export button and capture the direct CSV download: returns its filename,
-   * the download request URL, and the file's raw content + parsed header row. The exported file is the oracle.
-   */
   async downloadOverrideExport(): Promise<{ filename: string; requestUrl: string; content: string; headers: string[] }> {
     const [download, request] = await Promise.all([
       this.page.waitForEvent('download', { timeout: 30_000 }),
@@ -593,13 +506,11 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return { filename: download.suggestedFilename(), requestUrl: request.url(), content, headers };
   }
 
-  /** Open the Override toolbar's Import dialog (a custom in-app modal, not a native file chooser). */
   async openImportDialog(): Promise<void> {
     await this.page.locator(OS.ovrBtnImport).first().click();
     await this.page.locator(OS.ovrImportDialog).first().waitFor({ state: 'visible', timeout: 10_000 });
   }
 
-  /** Read the Import dialog facts: verbatim text, button labels, and whether a file input exists. */
   async readImportDialog(): Promise<{ text: string; buttons: string[]; hasFileInput: boolean }> {
     const dlg = this.page.locator(OS.ovrImportDialog).first();
     const text = (await dlg.innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
@@ -608,7 +519,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return { text, buttons, hasFileInput };
   }
 
-  /** Close the Import dialog without uploading a file (Cancel, falling back to Close). */
   async closeImportDialog(): Promise<void> {
     await this.page.locator(OS.ovrImportCancel).first().click().catch(async () => {
       await this.page.locator(OS.ovrImportClose).first().click().catch(() => { /* best-effort fallback close; the hidden-wait below confirms dismissal */ });
@@ -616,17 +526,10 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.page.locator(OS.ovrImportDialog).first().waitFor({ state: 'hidden', timeout: 6_000 }).catch(() => {});
   }
 
-  /** Whether the Import dialog is currently visible. */
   async isImportDialogVisible(): Promise<boolean> {
     return this.isVisibleSafe(OS.ovrImportDialog);
   }
 
-  // ---------- sorting probe + current-price read ----------
-
-  /**
-   * Click a grid column header and report whether it activates sorting: `aria-sort` before/after and
-   * whether the first row's content changed. On this build header clicks are inert (no sort).
-   */
   async probeColumnSort(headerLabel: string): Promise<{ ariaSortBefore: string | null; ariaSortAfter: string | null; orderChanged: boolean }> {
     const firstRowBefore = (await this.page.locator(OS.ovrGridRowAny).first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
     const header = this.page.locator(OS.ovrColHeaderAny, { hasText: headerLabel }).first();
@@ -638,7 +541,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return { ariaSortBefore, ariaSortAfter, orderChanged: firstRowBefore !== firstRowAfter };
   }
 
-  /** Read every visible row's Current Price cell text (for the blank/missing-value guard). */
   async getCurrentPriceCells(): Promise<string[]> {
     const rows = this.page.locator(OS.ovrGridRowAny);
     const n = await rows.count();

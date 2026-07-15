@@ -11,14 +11,6 @@ export class LocationPricingPage extends BasePage {
     Log.info('LocationPricingPage initialized');
   }
 
- // ---------------------------------------------------------------------------
- // NAVIGATION
- // ---------------------------------------------------------------------------
-
- /**
- * Navigate to the Pricing tab for the given office.
- * Delegates to BasePage.navigateToSubTab (shared tab nav pattern).
- */
   async navigateToPricingTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabPricing', 'chkCorporatePricing', officeNo);
  // Wait for pricing API to populate persisted checkbox states (default render is unchecked).
@@ -38,10 +30,6 @@ export class LocationPricingPage extends BasePage {
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
- /**
- * Force-reload the current page and re-select the Pricing tab.
- * Delegates to navigate-away + navigateToSubTab instead of reimplementing.
- */
   async reloadPricingTab(officeNo: string = '1604'): Promise<void> {
     const base = this.config?.base_url || '';
  // After Save→Cancel, form stays dirty. safeNavigateTo handles beforeunload dialog.
@@ -88,31 +76,18 @@ export class LocationPricingPage extends BasePage {
     }
   }
 
- // ---------------------------------------------------------------------------
- // CHECKBOX OPERATIONS (static selectors -- top section)
- // ---------------------------------------------------------------------------
-
- /** Get checked/disabled state of a static checkbox (Corporate Pricing, Price Guide Inclusive).
- * Delegates to BasePage.getRadixCheckboxState (Radix button[role="checkbox"] uses aria-checked). */
   async getCheckboxState(selectorKey: string): Promise<CheckboxState> {
     return this.getRadixCheckboxState(selectorKey);
   }
 
- /** Ensure a static checkbox is checked. Delegates to BasePage.setRadixCheckbox. */
   async checkCheckbox(selectorKey: string): Promise<void> {
     await this.setRadixCheckbox(selectorKey, true);
   }
 
- /** Ensure a static checkbox is unchecked. Delegates to BasePage.setRadixCheckbox. */
   async uncheckCheckbox(selectorKey: string): Promise<void> {
     await this.setRadixCheckbox(selectorKey, false);
   }
 
- // ---------------------------------------------------------------------------
- // PRIMARY PRICING DROPDOWNS
- // ---------------------------------------------------------------------------
-
- /** Check if a primary pricing dropdown is enabled. */
   async isDropdownEnabled(selectorKey: string): Promise<boolean> {
     const el = this.getElement(selectorKey);
     const disabled = await el.isDisabled().catch(() => true);
@@ -120,12 +95,10 @@ export class LocationPricingPage extends BasePage {
     return !disabled;
   }
 
- /** Get the current value of a primary pricing dropdown. Delegates to the shared BasePage helper. */
   async getDropdownValue(selectorKey: string): Promise<string> {
     return this.getFieldDisplayValue(selectorKey);
   }
 
- /** Verify all 5 primary pricing dropdowns are enabled/disabled. */
   async verifyPrimaryDropdownStates(keys: readonly string[], expectedEnabled: boolean): Promise<{ allPassed: boolean; failures: string[] }> {
     const failures: string[] = [];
     for (const key of keys) {
@@ -190,11 +163,6 @@ export class LocationPricingPage extends BasePage {
     Log.info(`Cleared ${selectorKey} (was "${current}")`);
   }
 
- // ---------------------------------------------------------------------------
- // CURRENCY FILTER
- // ---------------------------------------------------------------------------
-
- /** Get the current text of the currency filter dropdown. Delegates to the shared BasePage helper. */
   async getCurrencyFilterValue(): Promise<string> {
     return this.getFieldDisplayValue('drpCurrencyFilter');
   }
@@ -212,7 +180,6 @@ export class LocationPricingPage extends BasePage {
     }
   }
 
- /** Select a currency filter option by its display text. */
   async selectCurrencyFilter(optionText: string): Promise<void> {
     await this.getElement('drpCurrencyFilter').click();
     await this.page.waitForTimeout(500);
@@ -222,11 +189,6 @@ export class LocationPricingPage extends BasePage {
     Log.info(`Currency filter -> ${optionText}`);
   }
 
- // ---------------------------------------------------------------------------
- // COLUMN HEADERS
- // ---------------------------------------------------------------------------
-
- /** Get the text of all 7 column headers in the secondary pricing grid. */
   async getColumnHeaders(): Promise<string[]> {
     return this.getColumnHeadersByKeys([
       'colHeaderPricingStrategy', 'colHeaderPricebook', 'colHeaderCurrency',
@@ -235,11 +197,6 @@ export class LocationPricingPage extends BasePage {
     ]);
   }
 
- // ---------------------------------------------------------------------------
- // GRID ROW OPERATIONS (dynamic selectors)
- // ---------------------------------------------------------------------------
-
- /** Check if a price book row exists in the grid (DOM presence, not viewport visibility). */
   async isGridRowVisible(priceBookName: string): Promise<boolean> {
     const selector = DynamicSelectors.rowPriceBook(priceBookName);
     const count = await this.page.locator(selector).count();
@@ -247,7 +204,6 @@ export class LocationPricingPage extends BasePage {
     return count > 0;
   }
 
- /** Check if a price book row is displayed (CSS visible, not just DOM presence). Safe for filter tests. */
   async isGridRowDisplayed(priceBookName: string): Promise<boolean> {
     const selector = DynamicSelectors.rowPriceBook(priceBookName);
     const loc = this.page.locator(selector);
@@ -256,14 +212,12 @@ export class LocationPricingPage extends BasePage {
     return loc.first().isVisible().catch(() => false);
   }
 
- /** Get total number of visible rows in the grid. */
   async getGridRowCount(): Promise<number> {
     const count = await this.page.locator('[role="tabpanel"] table tbody tr').count();
     Log.info(`Grid row count: ${count}`);
     return count;
   }
 
- /** Get Is Alternative checkbox state for a grid row. */
   async getIsAlternativeState(priceBookName: string): Promise<CheckboxState> {
     const selector = DynamicSelectors.chkIsAlternative(priceBookName);
     const el = this.page.locator(selector);
@@ -275,7 +229,6 @@ export class LocationPricingPage extends BasePage {
     return { checked, disabled };
   }
 
- /** Get Use Effective Date checkbox state for a grid row. */
   async getUseEffectiveDateState(priceBookName: string): Promise<CheckboxState> {
     const selector = DynamicSelectors.chkUseEffectiveDate(priceBookName);
     const el = this.page.locator(selector);
@@ -287,7 +240,6 @@ export class LocationPricingPage extends BasePage {
     return { checked, disabled };
   }
 
- /** Check the Is Alternative checkbox for a grid row (click only if unchecked). */
   async checkIsAlternative(priceBookName: string): Promise<void> {
     const state = await this.getIsAlternativeState(priceBookName);
     if (!state.checked) {
@@ -297,7 +249,6 @@ export class LocationPricingPage extends BasePage {
     }
   }
 
- /** Uncheck the Is Alternative checkbox for a grid row (click only if checked). */
   async uncheckIsAlternative(priceBookName: string): Promise<void> {
     const state = await this.getIsAlternativeState(priceBookName);
     if (state.checked) {
@@ -307,7 +258,6 @@ export class LocationPricingPage extends BasePage {
     }
   }
 
- /** Check the Use Effective Date checkbox for a grid row (click only if unchecked). */
   async checkUseEffectiveDate(priceBookName: string): Promise<void> {
     const state = await this.getUseEffectiveDateState(priceBookName);
     if (!state.checked) {
@@ -317,7 +267,6 @@ export class LocationPricingPage extends BasePage {
     }
   }
 
- /** Uncheck the Use Effective Date checkbox for a grid row (click only if checked). */
   async uncheckUseEffectiveDate(priceBookName: string): Promise<void> {
     const state = await this.getUseEffectiveDateState(priceBookName);
     if (state.checked) {
@@ -327,7 +276,6 @@ export class LocationPricingPage extends BasePage {
     }
   }
 
- /** Check if the Start Date button/field is enabled for a grid row. */
   async isStartDateEnabled(priceBookName: string): Promise<boolean> {
     const selector = DynamicSelectors.dtpStartDate(priceBookName);
     const el = this.page.locator(selector);
@@ -336,7 +284,6 @@ export class LocationPricingPage extends BasePage {
     return !disabled;
   }
 
- /** Check if the End Date button/field is enabled for a grid row. */
   async isEndDateEnabled(priceBookName: string): Promise<boolean> {
     const selector = DynamicSelectors.dtpEndDate(priceBookName);
     const el = this.page.locator(selector);
@@ -345,40 +292,34 @@ export class LocationPricingPage extends BasePage {
     return !disabled;
   }
 
- /** Get the Start Date input value for a grid row. */
   async getStartDateValue(priceBookName: string): Promise<string> {
     const selector = DynamicSelectors.dtpStartDate(priceBookName);
     const input = this.page.locator(selector);
     return (await input.inputValue().catch(() => '')).trim();
   }
 
- /** Get the End Date input value for a grid row. */
   async getEndDateValue(priceBookName: string): Promise<string> {
     const selector = DynamicSelectors.dtpEndDate(priceBookName);
     const input = this.page.locator(selector);
     return (await input.inputValue().catch(() => '')).trim();
   }
 
- /** Enter a date via calendar popover for the Start Date field. dateValue format: MM/DD/YYYY. */
   async enterStartDate(priceBookName: string, dateValue: string): Promise<void> {
     await this.selectDateFromCalendar(priceBookName, 6, dateValue);
     Log.info(`Entered Start Date [${priceBookName}]: ${dateValue}`);
   }
 
- /** Enter a date via calendar popover for the End Date field. dateValue format: MM/DD/YYYY. */
   async enterEndDate(priceBookName: string, dateValue: string): Promise<void> {
     await this.selectDateFromCalendar(priceBookName, 7, dateValue);
     Log.info(`Entered End Date [${priceBookName}]: ${dateValue}`);
   }
 
- /** Check whether the Start Date input has the readOnly attribute (Radix calendar-only input). */
   async isStartDateReadOnly(priceBookName: string): Promise<boolean> {
     const selector = DynamicSelectors.dtpStartDate(priceBookName);
     const el = this.page.locator(selector);
     return (await el.getAttribute('readonly')) !== null;
   }
 
- /** Check whether the End Date input has the readOnly attribute (Radix calendar-only input). */
   async isEndDateReadOnly(priceBookName: string): Promise<boolean> {
     const selector = DynamicSelectors.dtpEndDate(priceBookName);
     const el = this.page.locator(selector);
@@ -395,10 +336,6 @@ export class LocationPricingPage extends BasePage {
     return (await msg.count()) > 0;
   }
 
- /**
- * Open the Start Date calendar popover for a grid row (does not select a date).
- * Useful for triggering/checking the validation tooltip.
- */
   async openStartDatePopover(priceBookName: string): Promise<void> {
     const row = this.page.locator(DynamicSelectors.rowPriceBook(priceBookName));
     const cell = row.locator('td:nth-child(6)');
@@ -409,10 +346,6 @@ export class LocationPricingPage extends BasePage {
     Log.info(`Opened Start Date popover for ${priceBookName}`);
   }
 
- /**
- * Open the End Date calendar popover for a grid row (does not select a date).
- * Useful for triggering/checking the validation tooltip.
- */
   async openEndDatePopover(priceBookName: string): Promise<void> {
     const row = this.page.locator(DynamicSelectors.rowPriceBook(priceBookName));
     const cell = row.locator('td:nth-child(7)');
@@ -422,7 +355,6 @@ export class LocationPricingPage extends BasePage {
     Log.info(`Opened End Date popover for ${priceBookName}`);
   }
 
- /** Close any open calendar popover by pressing Escape. */
   async closeDatePopover(): Promise<void> {
     await this.page.keyboard.press('Escape');
  // Wait for the dialog to disappear
@@ -521,10 +453,6 @@ export class LocationPricingPage extends BasePage {
       .click();
   }
 
- /**
- * Enable the full cascade for a grid row: Is Alternative -> Use Effective Date.
- * Utility for tests that need date fields enabled.
- */
   async enableFullCascade(priceBookName: string): Promise<void> {
     await this.checkIsAlternative(priceBookName);
  // checkbox cascade is async — poll until Use Effective Date is enabled
@@ -570,11 +498,6 @@ export class LocationPricingPage extends BasePage {
     Log.info(`Row reset (in-grid only, not persisted): ${priceBookName}`);
   }
 
- // ---------------------------------------------------------------------------
- // SAVE (Pricing-specific)
- // ---------------------------------------------------------------------------
-
- /** Check if the Pricing Save button is enabled. */
   async isSaveEnabled(): Promise<boolean> {
     const el = this.getElement('btnSavePricing');
     const disabled = await el.isDisabled().catch(() => true);
@@ -592,18 +515,10 @@ export class LocationPricingPage extends BasePage {
     return super.waitForSaveEnabled(saveBtnKey, timeout);
   }
 
- /**
- * Click the Pricing Save button and confirm the Save Changes dialog if it appears.
- * Delegates to BasePage.clickSaveWithDialog (shared save dialog pattern).
- */
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSavePricing');
   }
 
- /**
- * Save-and-confirm wrapper for the field-coverage runner. Wraps clickSave() and throws on failure
- * so a real save error surfaces as a test failure rather than a silent {success:false} return.
- */
   async saveAndConfirm(): Promise<void> {
     const result = await this.clickSave();
     if (!result.success) {
@@ -660,7 +575,6 @@ export class LocationPricingPage extends BasePage {
     throw new Error(`ensureDefaultState: Pricing not at defaults after ${maxAttempts} attempts`);
   }
 
- /** Click the Save button WITHOUT confirming the dialog. Opens the Save Changes dialog. */
   async clickSaveButton(): Promise<void> {
     const el = this.getElement('btnSavePricing');
     await el.click();
@@ -668,21 +582,15 @@ export class LocationPricingPage extends BasePage {
     Log.info('Clicked Save button — dialog opened');
   }
 
- /** Click Cancel on the Save Changes dialog (dismiss without saving). */
   async clickSaveCancel(): Promise<void> {
     await this.getElement('btnSaveChangesCancel').click();
     await this.getElement('dlgSaveChanges').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info('Clicked Save Cancel — dialog dismissed');
   }
 
- /** Check if the Save Changes dialog is currently visible. */
   async isSaveDialogVisible(): Promise<boolean> {
     return this.getElement('dlgSaveChanges').isVisible();
   }
-
- // ---------------------------------------------------------------------------
- // UNSAVED CHANGES DIALOG
- // ---------------------------------------------------------------------------
 
  /** Click sidebar Home link to trigger unsaved changes dialog. Suppresses beforeunload to get the
   * app-level dialog. The page-scoped changes (widened viewport, suppressed beforeunload) are not
@@ -702,13 +610,11 @@ export class LocationPricingPage extends BasePage {
     await homeLink.click();
   }
 
- /** Wait for the Unsaved Changes dialog and check visibility. */
   async isUnsavedDialogVisible(): Promise<boolean> {
     const dlg = this.page.locator('[data-testid="location-settings-modal-unsaved-changes"]');
     return dlg.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true).catch(() => false);
   }
 
- /** Click Stay on the Unsaved Changes dialog. */
   async clickUnsavedStay(): Promise<void> {
     const dlg = this.page.locator('[data-testid="location-settings-modal-unsaved-changes"]');
     await dlg.locator('button:has-text("Stay")').click();

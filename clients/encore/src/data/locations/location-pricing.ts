@@ -1,12 +1,3 @@
-/**
- * Test data for: Location Pricing tab
- * Consumed by: tests/locations/location-pricing.spec.ts
- * Office: 1604 (Parker Palm Springs)
- * @office-dependent — price book rows and currency options tied to office 1604
- * Changing values here affects the listed spec.
- */
-
-/** Expected column headers (left to right, 7 total). Live-verified */
 export const PRICING_COLUMN_HEADERS = [
   'Pricing Strategy',
   'Pricebook',
@@ -17,12 +8,6 @@ export const PRICING_COLUMN_HEADERS = [
   'End Date',
 ] as const;
 
-/**
- * Primary pricing dropdown selector keys (5 editable comboboxes).
- * @office-dependent — office 1604 default currency is USD; the per-currency variants
- * (CAD/MXN) live in the selector index but office 1604 specs target USD only.
- * Cross-currency tests should override this list with the matching `*CAD` / `*MXN` keys.
- */
 export const PRIMARY_PRICING_DROPDOWNS = [
   'drpPrimaryLaborPricingUSD',
   'drpPrimaryEquipmentPricingUSD',
@@ -38,23 +23,18 @@ export const PRIMARY_PRICING_DROPDOWNS = [
  * state; the underlying assertion of 2 options for clean state is correct. */
 export const CURRENCY_FILTER_OPTIONS = ['All', 'USD'] as const;
 
-/** Primary test row. Live-verified 2026-06-19: first row in office 1604's grid, always present, USD. */
 export const PRIMARY_TEST_ROW = '2021-Tier 3 Urban A';
 
-/** Secondary test row. Live-verified 2026-06-19: present in office 1604's grid, USD, Is Alternative enabled. */
 export const SECONDARY_TEST_ROW = '2022-Zone 5 A';
 
-/** Tertiary test row for independent cascade tests. Live-verified 2026-06-19: present in office 1604's grid, USD. */
 export const TERTIARY_TEST_ROW = '2022-Zone 1 A';
 
-/** Price books for the multi-row alternate-pricing test (TC-021). All three live-verified 2026-06-19 on office 1604. */
 export const MULTI_ALT_PRICEBOOKS = [
   PRIMARY_TEST_ROW,
   SECONDARY_TEST_ROW,
   TERTIARY_TEST_ROW,
 ] as const;
 
-/** Default currency filter value. */
 export const DEFAULT_CURRENCY_FILTER = 'All';
 
 /**
@@ -72,13 +52,11 @@ export const DROPDOWN_PERSISTENCE_CASES = [
   { tcId: 'TC-LOC-PRI-030', key: 'drpPrimaryProductionEquipmentPricingUSD', option: '2026-NP Tier 2', alternateOption: '2026-NP Tier 1', label: 'Primary Production Equipment Pricing' },
 ] as const;
 
-/** Date test values (used in skipped TC-020). */
 export const DATE_TEST_VALUES = {
   startDate: '04/01/2026',
   endDate: '04/30/2026',
 } as const;
 
-/** Date test values for TC-033 (grid validation → Save). Different from DATE_TEST_VALUES to avoid cross-test date collision with TC-020. */
 export const TC033_DATE_VALUES = {
   startDate: '05/01/2026',
   endDate: '05/31/2026',
@@ -102,17 +80,12 @@ export const PRICING_DEFAULTS = {
   gridRows: [PRIMARY_TEST_ROW, SECONDARY_TEST_ROW, TERTIARY_TEST_ROW],
 } as const;
 
-// ---------------------------------------------------------------------------
-// MULTI-CURRENCY (office 1605)
-// ---------------------------------------------------------------------------
 // Office 1604 is single-currency (USD only — no CAD/MXN primary dropdowns render).
 // Office 1605 is multi-currency: it renders all 15 primary dropdowns (5 USD + 5 CAD + 5 MXN).
 // Live-verified 2026-06-19.
 
-/** Multi-currency test office (renders the CAD and MXN primary-pricing dropdowns). */
 export const MULTI_CURRENCY_OFFICE_NO = '1605';
 
-/** CAD primary-pricing dropdown selector keys (office 1605). All five render and are enabled. */
 export const PRIMARY_PRICING_DROPDOWNS_CAD = [
   'drpPrimaryLaborPricingCAD',
   'drpPrimaryEquipmentPricingCAD',
@@ -121,7 +94,6 @@ export const PRIMARY_PRICING_DROPDOWNS_CAD = [
   'drpPrimaryProductionEquipmentPricingCAD',
 ] as const;
 
-/** MXN primary-pricing dropdown selector keys (office 1605). All five render and are enabled. */
 export const PRIMARY_PRICING_DROPDOWNS_MXN = [
   'drpPrimaryLaborPricingMXN',
   'drpPrimaryEquipmentPricingMXN',

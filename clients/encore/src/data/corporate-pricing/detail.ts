@@ -15,11 +15,9 @@ import { CORPORATE_PRICING_COMMON, CORPORATE_PRICING_FIXTURES } from './common';
 
 export const DETAIL = {
   office: CORPORATE_PRICING_COMMON.office, // '1604'
-  /** detailFixture pricebook (Detail suite only — distinct from strategyFixture). */
   pricebookGuid: CORPORATE_PRICING_FIXTURES.detailFixture.guid, // 91acb5ca-20e2-ce8e-a9ab-8c370925fd65
   pricebookName: CORPORATE_PRICING_FIXTURES.detailFixture.name, // '2021-PB6'
 
-  /** Grid column headers (verbatim, in order). */
   headers: ['ID', 'Product Group Name', 'Price', 'New Price', 'Max Discount'] as const,
 
   /**
@@ -30,22 +28,18 @@ export const DETAIL = {
   anchorA: { id: '277', name: 'Balloon Light Decor', basePrice: '615.00' },
   anchorB: { id: '280', name: 'Analog Mixer 12 - 23 Ch', basePrice: '195.00' },
 
-  /** Reversible Max-Discount edit (the dependable dirty lever). Restored to '0' (no discount). */
   maxDiscountEdit: {
     value: '12', // display becomes '12.00 %'
     displayContains: '12',
     restored: '0', // display '0.00 %' = no discount
   },
 
-  /** New-Price override value (becomes the Price column on save). Restored to the row's base price. */
   newPriceEdit: {
     value: '250.00',
     restored: '195.00', // = anchorB.basePrice — reverts the override
   },
 
-  /** Tabs: live shows 2; the requirements name 3 (History absent on the live app). */
   liveTabs: ['Pricing Strategy', 'Pricing Detail'] as const,
 
-  /** Source-list filter placeholder (verbatim). */
   sourceFilterPlaceholder: 'Search ID or Name...',
 } as const;

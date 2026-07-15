@@ -1,12 +1,3 @@
-/**
- * Test data for: Location Auto Add-On tab
- * Consumed by: tests/locations/location-auto-addon.spec.ts
- * Office: 1604 (Parker Palm Springs)
- * @office-dependent — checkbox defaults tied to office 1604
- * Changing values here affects the listed spec.
- */
-
-/** Auto Add-On checkbox defaults for location 1604 (Live-verified). */
 export const AUTO_ADDON_DEFAULTS = [
   { key: 'chkAutoAddonEncoreMusic', name: 'Encore Music', checked: true },
   { key: 'chkAutoAddonWirelessPresenter', name: 'Wireless Presenter', checked: true },
@@ -15,7 +6,6 @@ export const AUTO_ADDON_DEFAULTS = [
   { key: 'chkAutoAddonLabor', name: 'Labor', checked: true },
 ] as const;
 
-/** Data-driven persistence cases for TC-017/018 (identical flow, different key). */
 export const UNCHECK_PERSISTENCE_CASES = [
   { key: 'chkAutoAddonWordly', name: 'Wordly', tc: 'TC-LOC-AAO-017' },
   { key: 'chkAutoAddonLabor', name: 'Labor', tc: 'TC-LOC-AAO-018' },

@@ -1,4 +1,3 @@
-// ==================== IMPORTS ====================
 import { MicrosoftLoginSelectors } from './auth/login';
 import { SetupLeftPanelBasicInformationSelectors } from './locations/left-panel-basic-information';
 import { SetupLocalInfoSelectors } from './locations/local-info';
@@ -24,7 +23,6 @@ import {
   CorporatePricingNewPricebookSelectors,
 } from './corporate-pricing';
 
-// ==================== RE-EXPORTS ====================
 export { MicrosoftLoginSelectors } from './auth/login';
 export { DynamicSelectors } from './auth/dynamic';
 export { SetupLeftPanelBasicInformationSelectors } from './locations/left-panel-basic-information';
@@ -43,9 +41,6 @@ export { LocalOfficeHistorySelectors } from './local-office/local-office-history
 export { LocalOfficeEctSelectors } from './local-office/local-office-ect';
 export { CorporatePricingSelectors } from './corporate-pricing';
 
-// ==================== MERGED PAGE OBJECTS ====================
-
-/** Location Settings selectors — ONLY Location Settings partitions (NOT Local Office). */
 export const LocationSettingsSelectors = {
   ...SetupLeftPanelBasicInformationSelectors,
   ...SetupLocalInfoSelectors,
@@ -60,9 +55,6 @@ export const LocationSettingsSelectors = {
   ...SetupHistorySelectors,
 } as const;
 
-// ==================== COLLISION DETECTION + LOOKUP ====================
-
-/** Merge all static selector objects with collision detection (excludes dynamic selectors). */
 function buildAllSelectors(...objects: Record<string, string>[]): Record<string, string> {
   const merged: Record<string, string> = {};
   for (const obj of objects) {

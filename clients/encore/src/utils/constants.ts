@@ -1,25 +1,8 @@
-/**
- * Application-wide constants for testing configuration and expected values.
- * Includes timing constants used by page objects and test specs to avoid hardcoded values.
- */
-
 export class AppConstants {
- /**
- * Maximum time to wait for initial page load (includes SSO redirects).
- * Default: 60 seconds to handle Microsoft SSO authentication flow.
- */
   static readonly PAGE_LOAD_TIMEOUT_MS = 60000;      // Initial page load
   
- /**
- * Maximum time to wait for user actions like button clicks and form submissions.
- * Default: 15 seconds for interactive element response.
- */
   static readonly ACTION_TIMEOUT_MS = 15000;          // Button clicks, form submissions
   
- /**
- * Maximum time to wait for page transitions and navigation changes.
- * Default: 30 seconds for SPA route changes and full page loads.
- */
   static readonly NAVIGATION_TIMEOUT_MS = 30000;      // Page transitions
   
  /**

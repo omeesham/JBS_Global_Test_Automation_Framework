@@ -10,14 +10,6 @@ export class LocationAccountAddressPage extends BasePage {
     Log.info('LocationAccountAddressPage initialized');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // NAVIGATION
- // ─────────────────────────────────────────────────────────────────────────────
-
- /**
- * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab. URL `settings/location` is
- * shared across all sub-tabs and is an unreliable signal after a sibling spec.
- */
   async isOnAccountAndAddressTab(): Promise<boolean> {
     // pnlAccountAndAddress is a panel-wrapper testid that Radix keeps mounted across
     // all tab states (count() > 0 returns TRUE even when this tab is inactive). The
@@ -27,7 +19,6 @@ export class LocationAccountAddressPage extends BasePage {
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
- /** Navigate to Account and Address tab for the given office. Waits for API to load content. */
   async navigateToAccountAndAddressTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabAccountAndAddress', 'pnlAccountAndAddress', officeNo);
  // Account & Address API can be slow — wait for Phone 1 field to be populated (always present)
@@ -43,31 +34,22 @@ export class LocationAccountAddressPage extends BasePage {
     );
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // VENUE/BRANCH ACCOUNT CARD
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Check if the Venue Name textbox is disabled. */
   async isVenueNameDisabled(): Promise<boolean> {
     return this.getElement('txtAccVenueName').isDisabled();
   }
 
- /** Get the current value of the Venue Name field. */
   async getVenueNameValue(): Promise<string> {
     return this.getFieldDisplayValue('txtAccVenueName');
   }
 
- /** Get the current value of Phone 1. */
   async getPhone1Value(): Promise<string> {
     return this.getFieldDisplayValue('txtAccPhone1');
   }
 
- /** Get the current value of Phone 2. */
   async getPhone2Value(): Promise<string> {
     return this.getFieldDisplayValue('txtAccPhone2');
   }
 
- /** Clear Phone 1, blur, and check for validation error. */
   async clearPhone1AndBlur(): Promise<void> {
     const el = this.getElement('txtAccPhone1');
     await el.clear();
@@ -75,31 +57,26 @@ export class LocationAccountAddressPage extends BasePage {
     Log.info('Cleared Phone 1 and blurred');
   }
 
- /** Fill Phone 1 with a value. Phone mask transforms input, so skip fill-verify. */
   async fillPhone1(value: string): Promise<void> {
     await this.fillWithValidation('txtAccPhone1', value, { verify: false });
     await this.getElement('txtAccPhone1').press('Tab');
   }
 
- /** Fill Phone 2 with a value. Phone mask transforms input, so skip fill-verify. */
   async fillPhone2(value: string): Promise<void> {
     await this.fillWithValidation('txtAccPhone2', value, { verify: false });
     await this.getElement('txtAccPhone2').press('Tab');
   }
 
- /** Check if Phone 1 has aria-invalid="true". */
   async isPhone1Invalid(): Promise<boolean> {
     const val = await this.getElement('txtAccPhone1').getAttribute('aria-invalid');
     return val === 'true';
   }
 
- /** Check if Phone 2 has aria-invalid state. */
   async isPhone2Invalid(): Promise<boolean> {
     const val = await this.getElement('txtAccPhone2').getAttribute('aria-invalid');
     return val === 'true';
   }
 
- /** Check if the validation error icon is visible next to Phone 1 (app uses SVG icon, not text). */
   async isPhone1ErrorIconVisible(): Promise<boolean> {
     const input = this.getElement('txtAccPhone1');
  // Error icon is an SVG inside a tooltip-trigger div, sibling of the input within the same parent
@@ -107,11 +84,6 @@ export class LocationAccountAddressPage extends BasePage {
     return (await icon.count()) > 0 && (await icon.first().isVisible());
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // VENUE DISPLAY FIELD READERS
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Get the venue address line text (first dd after Address button). */
   async getVenueAddressText(): Promise<string> {
     const panel = this.getPanel();
     const venueSection = panel.locator(':text("Venue/Branch Account")').locator('..').locator('..');
@@ -137,17 +109,13 @@ export class LocationAccountAddressPage extends BasePage {
     return cityText;
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // MASTER BILL TO ADDRESS DISPLAY READERS
  //
  // The Master Bill To Address card has 5 read-only <dd> values (Address, City, State, Zip, Country)
  // and NO Name field (unlike Venue). Selecting a different address via the Master launcher updates
  // these AND persists (per-launcher divergence from Venue, which does NOT persist — TC-027; each launcher needs its own coverage).
  // Scope to the Master card the same way isDisplayFieldReadOnly() does (heading → climb 2 → card),
  // via Playwright locators (which pierce the <next-location-settings> shadow root).
- // ─────────────────────────────────────────────────────────────────────────────
 
- /** Locator for the Master Bill To Address card (heading → grandparent), scoped inside the panel. */
   private getMasterSection() {
     return this.getPanel().locator(':text("Master Bill To Address")').locator('..').locator('..');
   }
@@ -163,39 +131,25 @@ export class LocationAccountAddressPage extends BasePage {
     return dds.map((s) => s.trim()).filter(Boolean).join(' | ');
   }
 
- /** Master City text (the 2nd Master <dd>: Address, **City**, State, Zip, Country — no Name dd). */
   async getMasterCityText(): Promise<string> {
     const dds = await this.getMasterSection().locator('dd').allTextContents();
     return (dds[1] ?? '').trim();
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // CARD SECTION VISIBILITY
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Check if the Venue/Branch Account section header is visible. */
   async isVenueCardVisible(): Promise<boolean> {
     const panel = this.getElement('pnlAccountAndAddress');
     return panel.locator(':text("Venue/Branch Account")').isVisible();
   }
 
- /** Check if the Master Bill To Address section header is visible. */
   async isMasterCardVisible(): Promise<boolean> {
     const panel = this.getElement('pnlAccountAndAddress');
     return panel.locator(':text("Master Bill To Address")').isVisible();
   }
 
- /** Get the scoped tabpanel locator for Account and Address content. */
   private getPanel() {
     return this.getElement('pnlAccountAndAddress');
   }
 
- /**
- * Check if a display field in a card section is read-only (static text, no input).
- * @param sectionText - "Venue/Branch Account" or "Master Bill To Address"
- * @param expectedText - The expected text content of the dd element
- * @returns true if the field is present and contains no editable inputs
- */
   async isDisplayFieldReadOnly(sectionText: string, expectedText: string): Promise<boolean> {
     const panel = this.getPanel();
     const section = panel.locator(`:text("${sectionText}")`).locator('..').locator('..');
@@ -206,64 +160,50 @@ export class LocationAccountAddressPage extends BasePage {
     return inputs === 0;
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // ACCOUNT LIST DIALOG
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Open Account List dialog by clicking the Name button. */
   async openAccountListDialog(): Promise<void> {
     await this.clickWithRetry('btnAccName');
     await this.waitForElement('dlgAccountList', 10_000);
     Log.info('[OK] Account List dialog opened');
   }
 
- /** Check if Account List dialog is visible. */
   async isAccountListDialogVisible(): Promise<boolean> {
     return this.isElementVisible('dlgAccountList', 3_000);
   }
 
- /** Fill account name filter and click Search. Waits for results to render with actual content. */
   async searchAccountByName(name: string): Promise<void> {
     await this.searchAccountByFilter('txtAccListAccountName', name, 'name');
   }
 
- /** Check if the Select button in Account List dialog is disabled. */
   async isAccountListSelectDisabled(): Promise<boolean> {
     return this.getElement('btnAccListSelect').isDisabled();
   }
 
- /** Click the first row checkbox in Account List results. */
   async checkAccountListFirstRow(): Promise<void> {
     await this.clickWithRetry('chkAccListRowSelect');
     Log.info('Checked first row in Account List');
   }
 
- /** Click Cancel in Account List dialog. */
   async cancelAccountListDialog(): Promise<void> {
     await this.clickWithRetry('btnAccListCancel');
     await this.getElement('dlgAccountList').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info('Cancelled Account List dialog');
   }
 
- /** Click Reset in the Account List dialog: clears the dialog's search filters only -- does NOT change any saved/server state. */
   async resetAccountListSearch(): Promise<void> {
     await this.clickWithRetry('btnAccListReset');
     Log.info('Reset Account List search filters (dialog only, no server state changed)');
   }
 
- /** Get the Account Name filter field value. */
   async getAccountNameFilterValue(): Promise<string> {
     return this.getFieldDisplayValue('txtAccListAccountName');
   }
 
- /** Check if the results table has a "No results" row. */
   async isAccountListEmpty(): Promise<boolean> {
     const table = this.getElement('tblAccListResults');
     const text = await table.textContent();
     return (text || '').includes('No results');
   }
 
- /** Check if a specific text appears in the Account List results table. Waits briefly for content. */
   async accountListResultsContain(text: string): Promise<boolean> {
     const table = this.getElement('tblAccListResults');
  // Wait for table body to have text content
@@ -275,22 +215,18 @@ export class LocationAccountAddressPage extends BasePage {
     }
   }
 
- /** Fill Address filter and click Search. Waits for results. */
   async searchAccountByAddress(address: string): Promise<void> {
     await this.searchAccountByFilter('txtAccListAddress', address, 'address');
   }
 
- /** Fill City filter and click Search. Waits for results. */
   async searchAccountByCity(city: string): Promise<void> {
     await this.searchAccountByFilter('txtAccListCity', city, 'city');
   }
 
- /** Fill Account Number filter and click Search. Waits for results (TC-LOC-ACC-030). */
   async searchAccountByNumber(num: string): Promise<void> {
     await this.searchAccountByFilter('txtAccListAccountNumber', num, 'number');
   }
 
- /** Shared search logic: fill a filter field, click Search, wait for results to render. */
   private async searchAccountByFilter(selectorKey: string, value: string, label: string): Promise<void> {
     await this.fillWithValidation(selectorKey, value);
     await this.clickWithRetry('btnAccListSearch');
@@ -317,7 +253,6 @@ export class LocationAccountAddressPage extends BasePage {
     Log.info(`Searched account by ${label}: ${value}`);
   }
 
- /** Check first row and click Select to apply account. Waits for dialog to close. */
   async selectAccountListFirstRow(): Promise<void> {
     await this.clickWithRetry('chkAccListRowSelect');
     await this.clickWithRetry('btnAccListSelect');
@@ -325,49 +260,38 @@ export class LocationAccountAddressPage extends BasePage {
     Log.info('[OK] Selected first account row and applied');
   }
 
- /** Check if Account List dialog has filter fields. */
   async hasAccountListFilters(): Promise<boolean> {
     const numField = await this.isElementVisible('txtAccListAccountNumber', 3_000);
     const nameField = await this.isElementVisible('txtAccListAccountName', 3_000);
     return numField && nameField;
   }
 
- /** Check if Account List dialog has Search and Reset buttons. */
   async hasAccountListActionButtons(): Promise<boolean> {
     const search = await this.isElementVisible('btnAccListSearch', 3_000);
     const reset = await this.isElementVisible('btnAccListReset', 3_000);
     return search && reset;
   }
 
- /** Check if Account List dialog has results table. */
   async hasAccountListTable(): Promise<boolean> {
     return this.isElementVisible('tblAccListResults', 3_000);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // SELECT CUSTOMER ADDRESS DIALOG
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Open Select Customer Address dialog from Venue Address button. */
   async openVenueAddressDialog(): Promise<void> {
     await this.clickWithRetry('btnAccVenueAddress');
     await this.waitForElement('dlgSelectAddress', 10_000);
     Log.info('[OK] Select Customer Address dialog opened (venue)');
   }
 
- /** Open Select Customer Address dialog from Master Address button. */
   async openMasterAddressDialog(): Promise<void> {
     await this.clickWithRetry('btnAccMasterAddress');
     await this.waitForElement('dlgSelectAddress', 10_000);
     Log.info('[OK] Select Customer Address dialog opened (master)');
   }
 
- /** Check if Select Customer Address dialog is visible. */
   async isAddressDialogVisible(): Promise<boolean> {
     return this.isElementVisible('dlgSelectAddress', 3_000);
   }
 
- /** Get the number of visible data rows in the address dialog table (excludes hidden/footer rows). */
   async getAddressRowCount(): Promise<number> {
     const table = this.getElement('tblAddrResults');
     await table.waitFor({ state: 'visible', timeout: 5_000 });
@@ -378,23 +302,19 @@ export class LocationAccountAddressPage extends BasePage {
     return count;
   }
 
- /** Check if Select button in address dialog is disabled. */
   async isAddressSelectDisabled(): Promise<boolean> {
     return this.getElement('btnAddrSelect').isDisabled();
   }
 
- /** Check if Save button in address dialog is disabled. */
   async isAddressSaveDisabled(): Promise<boolean> {
     return this.getElement('btnAddrSave').isDisabled();
   }
 
- /** Click the first row checkbox in address dialog. */
   async checkAddressFirstRow(): Promise<void> {
     await this.clickWithRetry('chkAddrRow');
     Log.info('Checked first row in Address dialog');
   }
 
- /** Filter address rows using the search bar. Waits for client-side filter to apply. */
   async searchAddress(term: string): Promise<void> {
     const table = this.getElement('tblAddrResults');
     const initialRowCount = await table.locator('tbody tr').count();
@@ -406,12 +326,10 @@ export class LocationAccountAddressPage extends BasePage {
     Log.info(`Filtered addresses: ${term}`);
   }
 
- /** Check if address search bar is visible. */
   async isAddressSearchVisible(): Promise<boolean> {
     return this.isElementVisible('txtAddrSearch', 3_000);
   }
 
- /** Check if address table contains text in a visible row. */
   async addressResultsContain(text: string): Promise<boolean> {
     const table = this.getElement('tblAddrResults');
     const content = await table.locator('tbody tr').evaluateAll(
@@ -421,7 +339,6 @@ export class LocationAccountAddressPage extends BasePage {
     return content;
   }
 
- /** Check a specific row by address text, then click Select to apply. Waits for dialog to close. */
   async selectAddressRow(addressText: string): Promise<void> {
     const table = this.getElement('tblAddrResults');
     const row = table.locator(`tbody tr:has-text("${addressText}")`).first();
@@ -431,56 +348,41 @@ export class LocationAccountAddressPage extends BasePage {
     Log.info(`[OK] Selected address row: ${addressText}`);
   }
 
- /** Cancel/close the address dialog. */
   async cancelAddressDialog(): Promise<void> {
     await this.clickWithRetry('btnAddrCancel');
     await this.getElement('dlgSelectAddress').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info('Cancelled Address dialog');
   }
 
- /** Get the total addresses footer text. */
   async getAddressTotalText(): Promise<string> {
     return this.getTextContent('lblAddrTotal');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // SAVE FLOW (LEFT-PANEL SAVE)
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Check if the left-panel Save button is enabled. */
   async isSaveEnabled(): Promise<boolean> {
     const disabled = await this.getElement('btnSaveAccountAddress').isDisabled().catch(() => true);
     Log.info(`Left-panel Save enabled: ${!disabled}`);
     return !disabled;
   }
 
- /** Click left-panel Save and confirm the Save Changes dialog. */
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSaveAccountAddress');
   }
 
- /** Click Save button to open the Save Changes dialog WITHOUT confirming. */
   async openSaveDialog(): Promise<void> {
     await this.clickWithRetry('btnSaveAccountAddress');
     await this.waitForElement('dlgSaveChanges', 5_000);
     Log.info('[OK] Save Changes dialog opened (not confirmed)');
   }
 
- /** Cancel the Save Changes dialog (for discard scenarios). */
   async cancelSaveDialog(): Promise<void> {
     await this.clickWithRetry('btnSaveChangesCancel');
     await this.getElement('dlgSaveChanges').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info('Cancelled Save Changes dialog');
   }
 
- /** Get text from Save Changes dialog message. */
   async getSaveChangesMessage(): Promise<string> {
     return this.getTextContent('txtSaveChangesMessage');
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // FIELD-COVERAGE RUNNER HOOKS (field-case-runner.ts)
- // ─────────────────────────────────────────────────────────────────────────────
 
  /**
   * Field-coverage runner hook — `saveAndConfirm` shape required by `saveAndVerifyCase()`.
@@ -534,10 +436,6 @@ export class LocationAccountAddressPage extends BasePage {
     }
     throw new Error(`ensureDefaultState: A&A Phone1/Phone2 not at baseline after ${maxAttempts} attempts`);
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // RELOAD / NAVIGATE
- // ─────────────────────────────────────────────────────────────────────────────
 
  /**
   * Reload the page and re-navigate to Account and Address tab.

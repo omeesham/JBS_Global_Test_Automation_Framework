@@ -1,17 +1,3 @@
-/**
- * Corporate Pricing — Pricing Detail tab page object.
- *
- * Extends CorporatePricingBasePage (route + tab nav + defensive save primitives). The Detail tab is
- * a heavy shadcn/Radix HTML `<table>` (~2430 product-group rows, ~3707 draggable source items,
- * 0 data-testids) → content-anchored reads by Product Group Name, NEVER exact-count assertions.
- * Verified on the live app, 2026-06-05.
- *
- * Override model (live): "New Price" is a staging override — on Save its value becomes the row's
- * "Price" column (base Price has NO input = read-only). "Max Discount" persists as "N.NN %".
- * Save is dialog-gated ("Save Changes" alertdialog) and commits ALL dirty rows in one batch.
- * Dirty lever: editing Max Discount reliably enables Save; a New-Price-only edit does NOT reliably
- * enable it (a known app quirk) though the New-Price value still commits when the grid saves.
- */
 import { expect, type Locator, type Page } from '@playwright/test';
 import { CorporatePricingBasePage } from './corporate-pricing.page';
 import type { IConfig } from '../../types';
@@ -26,92 +12,67 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     super(page, config);
   }
 
-  // ---------------------------------------------------------------------------
-  // NAVIGATION
-  // ---------------------------------------------------------------------------
-
-  /** Open the Pricebook Details page and activate the Pricing Detail tab; wait for the grid. */
   async open(pricebookId: string = DETAIL.pricebookGuid, office: string = DETAIL.office): Promise<void> {
     await this.gotoDetails(office, pricebookId);
     await this.openDetailTab();
   }
 
-  /** Activate the Pricing Detail tab and wait for the product-group grid to render. */
   async openDetailTab(): Promise<void> {
     await this.switchTab('Pricing Detail');
     await this.page.locator(S.colDetailProductGroupName).first().waitFor({ state: 'visible', timeout: 25_000 });
     await this.waitForAngularStable();
   }
 
-  /** Is the Detail tab active? Content-based — the grid headers are rendered. */
   async isDetailTabActive(): Promise<boolean> {
     return this.isVisibleSafe(S.colDetailProductGroupName);
   }
 
-  // ---------------------------------------------------------------------------
   // GRID — HEADERS + ROWS (content-anchored)
-  // ---------------------------------------------------------------------------
 
-  /** The 5 grid column headers, in DOM order. */
   async getGridHeaders(): Promise<string[]> {
     return this.readAllTexts(`${S.tblDetailGrid} th`);
   }
 
-  /** Count of product-group DATA rows (rows that carry editable inputs). Behavioural, not asserted exact. */
   async getProductGroupRowCount(): Promise<number> {
     return this.page.locator(`${S.tblDetailGrid} tr:has(input)`).count();
   }
 
-  /** A grid row located by its (unique) Product Group Name. */
   private gridRow(name: string): Locator {
     return this.page.locator(`${S.tblDetailGrid} tr`, { hasText: name }).first();
   }
 
-  /** Read the read-only text of a column cell for an anchored row (e.g. 'price', 'id'). */
   async getCellText(name: string, col: keyof typeof DETAIL_GRID_COLS): Promise<string> {
     const cell = this.gridRow(name).locator('td').nth(DETAIL_GRID_COLS[col]);
     return (await cell.innerText()).replace(/\s+/g, ' ').trim();
   }
 
-  /** The New Price `<input>` for an anchored row (column 3). */
   private newPriceInput(name: string): Locator {
     return this.gridRow(name).locator('td').nth(DETAIL_GRID_COLS.newPrice).locator('input').first();
   }
 
-  /** The Max Discount `<input>` for an anchored row (column 4). */
   private maxDiscountInput(name: string): Locator {
     return this.gridRow(name).locator('td').nth(DETAIL_GRID_COLS.maxDiscount).locator('input').first();
   }
 
-  /** Current New Price input value for the row anchored by Product Group Name. */
   async getNewPrice(name: string): Promise<string> {
     return (await this.newPriceInput(name).inputValue()).trim();
   }
 
-  /** Current Max Discount input value for the row anchored by Product Group Name. */
   async getMaxDiscount(name: string): Promise<string> {
     return (await this.maxDiscountInput(name).inputValue()).trim();
   }
 
-  /**
-   * The Price (Base Price) cell is read-only when it contains NO `<input>`.
-   * Live: the cell is plain `<td>` text.
-   */
   async priceIsReadOnly(name: string): Promise<boolean> {
     const cell = this.gridRow(name).locator('td').nth(DETAIL_GRID_COLS.price);
     return (await cell.locator('input').count()) === 0;
   }
 
-  /** Whether an existing grid row exposes any Add/Remove affordance (Management mode → expected none). */
   async rowHasAddRemoveAffordance(name: string): Promise<boolean> {
     return (await this.gridRow(name).locator('button').count()) > 0;
   }
 
-  // ---------------------------------------------------------------------------
   // CELL EDITS (real keystrokes — fill() is unreliable for dirty-tracking)
-  // ---------------------------------------------------------------------------
 
-  /** Type a New Price override into an anchored row (real keystrokes). */
   async setNewPrice(name: string, value: string): Promise<void> {
     const inp = this.newPriceInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -122,7 +83,6 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     await inp.press('Tab');
   }
 
-  /** Type a Max Discount into an anchored row (real keystrokes — the dependable dirty lever). */
   async setMaxDiscount(name: string, value: string): Promise<void> {
     const inp = this.maxDiscountInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -133,16 +93,10 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     await inp.press('Tab');
   }
 
-  // ---------------------------------------------------------------------------
-  // SOURCE LIST (Available Product Groups, left side)
-  // ---------------------------------------------------------------------------
-
-  /** Count of draggable source-list product groups (behavioural `> 0`, not exact). */
   async getSourceItemCount(): Promise<number> {
     return this.page.locator(S.itemDraggableAny).count();
   }
 
-  /** Is the source-list "Search ID or Name..." filter present? */
   async hasSourceFilter(): Promise<boolean> {
     return (await this.page.locator(S.txtSourceFilter).count()) > 0;
   }
@@ -181,21 +135,14 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return { before, after };
   }
 
-  // ---------------------------------------------------------------------------
-  // CELL VALIDATION STATE (aria-invalid) + CLEAR (real keystrokes)
-  // ---------------------------------------------------------------------------
-
-  /** The `aria-invalid` attribute on an anchored row's New Price input (null when valid). */
   async getNewPriceAriaInvalid(name: string): Promise<string | null> {
     return this.newPriceInput(name).getAttribute('aria-invalid');
   }
 
-  /** The `aria-invalid` attribute on an anchored row's Max Discount input (null when valid). */
   async getMaxDiscountAriaInvalid(name: string): Promise<string | null> {
     return this.maxDiscountInput(name).getAttribute('aria-invalid');
   }
 
-  /** Clear an anchored row's New Price input back to empty (real keystrokes: select-all → delete → blur). */
   async clearNewPrice(name: string): Promise<void> {
     const inp = this.newPriceInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -205,7 +152,6 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     await inp.press('Tab');
   }
 
-  /** Focus an anchored row's Max Discount input (no edit) and return its current value — focus-stability check. */
   async getMaxDiscountAfterFocus(name: string): Promise<string> {
     const inp = this.maxDiscountInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -213,7 +159,6 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return (await inp.inputValue()).trim();
   }
 
-  /** Clear an anchored row's Max Discount input back to empty (real keystrokes). */
   async clearMaxDiscount(name: string): Promise<void> {
     const inp = this.maxDiscountInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -223,13 +168,10 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     await inp.press('Tab');
   }
 
-  // ---------------------------------------------------------------------------
   // SURFACE PROBES — pagination + sort presence (the Detail grid renders every row
   // at once; it exposes NO page-size selector, NO page-navigation buttons, and its
   // headers are not sort triggers — these probes assert that observed reality).
-  // ---------------------------------------------------------------------------
 
-  /** Accessible labels of any page-navigation buttons rendered on the page (Detail grid has none → []). */
   async getPaginationNavLabels(): Promise<string[]> {
     const labels = await this.page.locator('button[aria-label]').evaluateAll((els) =>
       els.map((e) => e.getAttribute('aria-label') || '').filter((a) => /first page|previous page|next page|last page/i.test(a)),
@@ -237,37 +179,27 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return labels;
   }
 
-  /** Whether a rows-per-page selector exists (a [role="combobox"] whose label is purely digits). */
   async hasPageSizeControl(): Promise<boolean> {
     return (await this.page.locator('[role="combobox"]').filter({ hasText: /^\s*\d+\s*$/ }).count()) > 0;
   }
 
-  /** Whether a grid column header (by text) wraps a clickable sort button. */
   async headerHasSortButton(headerText: string): Promise<boolean> {
     const th = this.page.locator(`${S.tblDetailGrid} th`, { hasText: headerText }).first();
     return (await th.locator('button').count()) > 0;
   }
 
-  /** The `aria-sort` attribute on a grid column header (null when the column is not a sort target). */
   async getHeaderAriaSort(headerText: string): Promise<string | null> {
     return this.page.locator(`${S.tblDetailGrid} th`, { hasText: headerText }).first().getAttribute('aria-sort');
   }
 
-  // ---------------------------------------------------------------------------
-  // DIRTY / SAVE (reuses the shared dialog-gated Save)
-  // ---------------------------------------------------------------------------
-
-  /** The Save Changes confirmation dialog. */
   get saveChangesDialog(): Locator {
     return this.page.getByRole('alertdialog');
   }
 
-  /** Click the Detail Save button (surfaces the Save Changes confirmation dialog). */
   async clickSaveButton(): Promise<void> {
     await this.page.locator('button:text-is("Save")').first().click();
   }
 
-  /** Confirm the Save Changes dialog. */
   async confirmSaveChangesDialog(): Promise<void> {
     await this.saveChangesDialog.getByRole('button', { name: /^(save|ok)$/i }).first().click();
   }
@@ -286,9 +218,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     await this.waitForAngularStable();
   }
 
-  // ---------------------------------------------------------------------------
   // BASELINE RESTORE — handles the sticky New-Price override
-  // ---------------------------------------------------------------------------
 
   /**
    * Restore the detailFixture's two mutation anchors to baseline: anchorA/anchorB Price = base, no

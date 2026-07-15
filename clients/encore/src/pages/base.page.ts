@@ -19,12 +19,6 @@ export class BasePage {
     this.config = config;
   }
 
- /**
- * Get Playwright selector string from TypeScript selector repository.
- * @param elementName - Element name from selectors/index.ts (e.g., 'txtUsername', 'btnLogin')
- * @returns CSS selector string
- * @throws Error if selector not found in repository
- */
   protected getLocator(elementName: string): string {
     const locator = getTsSelector(elementName);
     if (!locator) {
@@ -34,20 +28,10 @@ export class BasePage {
     return locator;
   }
 
- /**
- * Get selector from TypeScript repository without throwing error if not found.
- * @param elementName - Element name from selectors/index.ts
- * @returns CSS selector string or null if not found
- */
   protected getSelectorFromTs(elementName: string): string | null {
     return getTsSelector(elementName);
   }
 
- /**
- * Get Playwright Locator object for element.
- * @param elementName - Element name from selectors/index.ts
- * @returns Playwright Locator ready for interactions
- */
   protected getElement(elementName: string): Locator {
     const selector = this.getLocator(elementName);
     return this.page.locator(selector);
@@ -79,12 +63,6 @@ export class BasePage {
     }
   }
 
- /**
- * Navigate to URL with retry logic.
- * @param url - Target URL
- * @param options - Configuration (waitUntil: 'domcontentloaded', timeout: 30000ms, maxRetries: 2)
- * @throws Error if navigation fails after all retry attempts
- */
   async navigateTo(url: string, options?: { waitUntil?: 'load' | 'domcontentloaded' | 'networkidle'; timeout?: number; maxRetries?: number }): Promise<void> {
     const { waitUntil = 'domcontentloaded', timeout = 30000, maxRetries = 2 } = options || {};
     Log.info(`Navigating to: ${url}`);
@@ -105,12 +83,6 @@ export class BasePage {
     }
   }
 
- /**
- * Click element with retry logic on failure.
- * @param elementName - Element name from selectors/index.ts
- * @param options - Configuration (timeout: 10000ms, maxRetries: 3)
- * @returns true if click successful
- */
   async clickWithRetry(elementName: string, options?: { timeout?: number; maxRetries?: number }): Promise<boolean> {
     const { timeout = 10000, maxRetries = 3 } = options || {};
     Log.info(`Clicking element: ${elementName}`);
@@ -140,14 +112,6 @@ export class BasePage {
     throw new Error(`Click failed: ${elementName}`);
   }
 
- /**
- * Fill input field with value and optional verification.
- * @param elementName - Element name from selectors/index.ts
- * @param value - Text value to fill
- * @param options - Configuration (timeout: 10000ms, verify: true, clear: true)
- * @returns true if fill successful
- * @throws Error if fill operation fails
- */
   async fillWithValidation(elementName: string, value: string, options?: { timeout?: number; verify?: boolean; clear?: boolean }): Promise<boolean> {
     const { timeout = 10000, verify = true, clear = true } = options || {};
     Log.info(`Filling element: ${elementName} with value: ${value.substring(0, 20)}...`);
@@ -174,12 +138,6 @@ export class BasePage {
     }
   }
 
- /**
- * Wait for element to become visible.
- * @param elementName - Element name from selectors/index.ts
- * @param timeout - Maximum wait time in milliseconds (default: 10000)
- * @throws Error if element does not become visible within timeout
- */
   async waitForElement(elementName: string, timeout: number = 10000): Promise<void> {
     Log.info(`Waiting for element: ${elementName}`);
     try {
@@ -192,10 +150,6 @@ export class BasePage {
     }
   }
 
- /**
- * Wait for page to fully load and spinners to disappear.
- * @param options - Configuration (state: 'domcontentloaded', spinnerSelectors: ['.spinner', '.loading'], timeout: 30000)
- */
   async waitForPageLoad(options?: { state?: 'load' | 'domcontentloaded' | 'networkidle'; spinnerSelectors?: string[]; timeout?: number }): Promise<void> {
     const { state = 'domcontentloaded', spinnerSelectors = ['.spinner', '.loading'], timeout = 30000 } = options || {};
     Log.info('Waiting for page load...');
@@ -249,12 +203,6 @@ export class BasePage {
     }
   }
 
- /**
- * Take screenshot and save to reports/test-results/screenshots/.
- * @param name - Screenshot filename prefix
- * @param fullPage - Capture full scrollable page (default: true)
- * @returns Path to saved screenshot file
- */
   async takeScreenshot(name: string, fullPage: boolean = true): Promise<string> {
     const timestamp = new Date().toISOString().replace(/:/g, '-');
     const filename = `screenshot-${name}-${timestamp}.png`;
@@ -270,10 +218,6 @@ export class BasePage {
     }
   }
 
- /**
- * Get current page URL.
- * @returns Current page URL as string
- */
   getCurrentUrl(): string {
     return this.page.url();
   }
@@ -294,20 +238,10 @@ export class BasePage {
     return true;
   }
 
- /**
- * Get page title.
- * @returns Page title as string
- */
   async getPageTitle(): Promise<string> {
     return await this.page.title();
   }
 
- /**
- * Get text content from element.
- * @param elementName - Element name from selectors/index.ts
- * @param options - Configuration (trim: true)
- * @returns Element text content
- */
   async getTextContent(elementName: string, options?: { trim?: boolean }): Promise<string> {
     const { trim = true } = options || {};
     try {
@@ -322,12 +256,6 @@ export class BasePage {
     }
   }
 
- /**
- * Check if element is visible on page.
- * @param elementName - Element name from selectors/index.ts
- * @param timeout - Maximum wait time in milliseconds (default: 5000)
- * @returns true if element is visible, false otherwise
- */
   async isElementVisible(elementName: string, timeout: number = 5000): Promise<boolean> {
     try {
       const element = this.getElement(elementName);
@@ -338,9 +266,7 @@ export class BasePage {
     }
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
  // SHARED PAGE OBJECT HELPERS — extracted from Currency / Pricing / Local Info
- // ─────────────────────────────────────────────────────────────────────────────
 
  /**
  * Click a save button and confirm the Save Changes dialog if it appears.
@@ -542,7 +468,6 @@ export class BasePage {
     Log.info(`[OK] Tab active: ${tabKey}`);
   }
 
- /** Dismiss Angular/Radix "Unsaved changes" alertdialog if visible. Returns true if dismissed. */
   protected async dismissAlertDialogIfVisible(): Promise<boolean> {
     const dialog = this.page.locator('[role="alertdialog"]');
     if (await dialog.isVisible().catch(() => false)) {

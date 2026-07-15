@@ -15,10 +15,6 @@ type LabelData = {
 
 const { jargonMap, handLabels } = labelData as LabelData;
 
-/**
- * Split a camelCase / PascalCase identifier into words, keeping acronym runs whole
- * (e.g. "reloadAndNavigateToSSLTab" -> ["reload","And","Navigate","To","SSL","Tab"]).
- */
 function splitCamel(name: string): string[] {
   return name
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
@@ -46,7 +42,6 @@ export function camelToLabel(methodName: string): string {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-/** A hand-written short label (per class + method) beats the auto-derived one. */
 export function resolveLabel(className: string, methodName: string): string {
   const perClass = handLabels[className];
   const hand = perClass ? perClass[methodName] : undefined;
@@ -76,7 +71,6 @@ async function safeStep<T>(label: string, fn: () => Promise<T>): Promise<T> {
 }
 
 export interface WrapOptions {
-  /** Class names to exclude entirely (e.g. auth/login page objects). */
   exclude?: string[];
 }
 

@@ -2,10 +2,6 @@ import { Page } from '@playwright/test';
 import { Log } from './logger';
 import { IConfig } from '../types';
 
-/**
- * Common Methods -- config loading.
- * Used by fixtures (initProp) and login page.
- */
 export class CommonMethods {
   constructor(_page: Page) {
     Log.info('CommonMethods constructor');

@@ -4,7 +4,6 @@ import { LocationSettingsSelectors } from '../../selectors';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
 
-/** Left-panel baseline snapshot (read-only fields) */
 export interface LeftPanelBaseline {
   office: string;
   localOffice: string;
@@ -20,7 +19,6 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
   }
 
  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- // NAVIGATION
  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
  /**
@@ -32,10 +30,6 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     await this.navigateToSubTab('tabLocalInformation', 'btnSaveLocalInfo', officeNo);
   }
 
- /**
- * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab. Uses chkApplyLDW (tab-specific),
- * NOT btnSaveLocalInfo (shared across all Location Settings sub-tabs).
- */
   async isOnLocalInfoTab(): Promise<boolean> {
     // Fix #4a: use tab trigger aria-selected, not
     // child-anchor count().
@@ -60,13 +54,8 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
   }
 
  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- // LEFT PANEL BASELINE
  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
- /**
- * Capture left-panel read-only baseline values for office 1604.
- * Call once before any save operations; compare after saves to assert no corruption.
- */
   async captureLeftPanelBaseline(): Promise<LeftPanelBaseline> {
     Log.info('Capturing left-panel baseline values');
     const officeVal = await this.getElement('txtOffice').inputValue().catch(() => '');
@@ -85,41 +74,22 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return baseline;
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // RADIO GROUP INTERACTIONS
- // ─────────────────────────────────────────────────────────────────────────────
-
- /**
- * Check which Billing Type radio is selected.
- * @returns 'Master' | 'Direct'
- */
   async getBillingType(): Promise<'Master' | 'Direct'> {
     const masterChecked = (await this.getElement('rdoBillingTypeMaster').getAttribute('aria-checked').catch(() => null)) === 'true';
     return masterChecked ? 'Master' : 'Direct';
   }
 
- /**
- * Select Billing Type radio.
- */
   async selectBillingType(type: 'Master' | 'Direct'): Promise<void> {
     const key = type === 'Master' ? 'rdoBillingTypeMaster' : 'rdoBillingTypeDirect';
     await this.getElement(key).click();
     Log.info(`Selected Billing Type: ${type}`);
   }
 
- /**
- * Check which Billing Way radio is selected.
- * @returns 'Event' | 'Daily'
- */
   async getBillingWay(): Promise<'Event' | 'Daily'> {
     const eventChecked = (await this.getElement('rdoBillingWayEvent').getAttribute('aria-checked').catch(() => null)) === 'true';
     return eventChecked ? 'Event' : 'Daily';
   }
 
- /**
- * Select Billing Way radio.
- * NOTE: Triggers API validation (checkBillWayChange). May show error dialog if unbilled orders exist.
- */
   async selectBillingWay(way: 'Event' | 'Daily'): Promise<void> {
     const key = way === 'Event' ? 'rdoBillingWayEvent' : 'rdoBillingWayDaily';
     await this.getElement(key).click();
@@ -127,11 +97,6 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     await this.page.waitForLoadState('domcontentloaded').catch(() => {});
   }
 
- // SAVE OPERATIONS
-
- /**
- * Check if the Local Information Save button is enabled.
- */
   async isSaveEnabled(): Promise<boolean> {
     const el = this.getElement('btnSaveLocalInfo');
     const disabled = await el.isDisabled().catch(() => true);
@@ -148,39 +113,24 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return this.clickSaveWithDialog('btnSaveLocalInfo', 'dlgSaveChanges', 'btnSaveChangesConfirm', 10_000);
   }
 
- /**
- * Assert the "Local information updated" success toast is visible.
- */
   async waitForSaveToast(): Promise<void> {
     await this.getElement('toastLocalInfoUpdated').waitFor({ state: 'visible', timeout: 8000 });
     Log.info('Save success toast confirmed: "Local information updated"');
   }
 
- // EFFECTIVE DATE AND BILLING CYCLE
-
- /** Check if Effective Date button is disabled. */
   async isEffectiveDateDisabled(): Promise<boolean> {
     return await this.getElement('btnEffectiveDate').isDisabled().catch(() => true);
   }
 
- /** Check if Billing Cycle dropdown is disabled. */
   async isBillingCycleDisabled(): Promise<boolean> {
     return await this.getElement('drpBillingCycle').isDisabled().catch(() => true);
   }
 
- /** Get Billing Cycle selected display text. */
   async getBillingCycleValue(): Promise<string> {
     const el = this.getElement('drpBillingCycle');
     return (await el.textContent().catch(() => '') ?? '').trim();
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // TEST ORCHESTRATORS -- boundary testing, dependency, max-length
- // ─────────────────────────────────────────────────────────────────────────────
-
-  /**
-   * Full boundary test cycle: set -> (invalid: verify error) / (valid: save -> reload -> verify -> restore -> save).
-   */
   async testBoundaryValue(
     spinKey: keyof typeof LocationSettingsSelectors,
     value: string,
@@ -251,9 +201,6 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return { passed: true, detail: `${value} -> valid [ok]` };
   }
 
-  /**
-   * Test checkbox dependency: trigger -> verify target state -> restore.
-   */
   async testDependency(
     trigger: keyof typeof LocationSettingsSelectors,
     triggerAction: 'check' | 'uncheck',
@@ -299,9 +246,6 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return { passed: failures.length === 0, failures };
   }
 
-  /**
-   * Test maxLength enforcement: fill overlong string -> verify truncation.
-   */
   async testMaxLength(
     fieldKey: keyof typeof LocationSettingsSelectors,
     maxLength: number,

@@ -1,8 +1,3 @@
-/**
- * Login page object for Navigator Cloud with Microsoft SSO.
- * Handles Microsoft authentication flow: Continue Now -> email -> password -> redirect back to app.
- */
-
 import { Page } from '@playwright/test';
 import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
@@ -18,9 +13,6 @@ export class LoginPage extends BasePage {
     Log.info('LoginPage constructed for Navigator Cloud');
   }
 
- /**
- * Navigate to Navigator Cloud (auto-redirects to sign-in page, then Microsoft SSO)
- */
   async goto(): Promise<void> {
     const url = this.config?.base_url || this.config?.url || process.env.BASE_URL || '';
     Log.info(`Navigating to Navigator Cloud: ${url}`);
@@ -151,10 +143,6 @@ export class LoginPage extends BasePage {
     }
   }
 
- /**
- * Wait for Microsoft login page to appear
- * Microsoft auth page can take 10s average to load - wait for network idle before checking elements
- */
   private async waitForMicrosoftLoginPage(): Promise<void> {
     Log.info('Waiting for Microsoft login page...');
     
@@ -173,10 +161,6 @@ export class LoginPage extends BasePage {
     Log.info('[OK] Microsoft login page loaded');
   }
 
- /**
- * Handle optional "Stay signed in?" prompt
- * Clicks "Yes" to keep session alive longer
- */
   private async handleStaySignedIn(): Promise<void> {
     try {
       await this.page.waitForSelector(MicrosoftLoginSelectors.btnYesStaySignedIn, { 
@@ -193,10 +177,6 @@ export class LoginPage extends BasePage {
     }
   }
 
- /**
- * Check if user is authenticated (on Navigator Cloud, not Microsoft login page)
- * @returns True if authenticated and on Navigator Cloud
- */
   async isLoggedIn(): Promise<boolean> {
     try {
       const url = this.page.url();
@@ -239,19 +219,11 @@ export class LoginPage extends BasePage {
     }
   }
 
- /**
- * Detect if we've been redirected to Microsoft login (session expired)
- * @returns True if on Microsoft login page
- */
   async isOnMicrosoftLogin(): Promise<boolean> {
     const url = this.page.url();
     return urlHostMatches(url, 'login.microsoftonline.com');
   }
 
- /**
- * Check for authentication errors on Microsoft login page
- * @returns Error message if present, null otherwise
- */
   async getLoginError(): Promise<string | null> {
     try {
       const errorDiv = this.page.locator(MicrosoftLoginSelectors.divError).first();

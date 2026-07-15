@@ -5,10 +5,6 @@ import { Log } from '../../utils/logger';
 
 export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
 
- /**
- * getElement override — prefer ECT selectors, cascade to shared tab/dialog selectors in LocalOfficeSettingsSelectors,
- * then global. LocalOfficeSettingsSelectors is excluded from ALL_SELECTORS (key collisions), so a direct cascade is required.
- */
   protected getElement(elementName: string): Locator {
     const selector = (LocalOfficeEctSelectors as Record<string, string>)[elementName]
       ?? (LocalOfficeSettingsSelectors as Record<string, string>)[elementName]
@@ -16,10 +12,6 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
     if (!selector) throw new Error(`Selector '${elementName}' not found in Local Office ECT, Settings, or global selectors`);
     return this.page.locator(selector);
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // NAVIGATION
- // ─────────────────────────────────────────────────────────────────────────────
 
  /**
  * Navigate to ECT Settings tab with robust retry for intermittent API failures.
@@ -74,9 +66,7 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
     }
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
  // SAVE — ECT (no dialog — direct save)
- // ─────────────────────────────────────────────────────────────────────────────
 
   async isEctFixedCostsSaveEnabled(): Promise<boolean> {
     return !(await this.getElement('btnSaveFixedCosts').isDisabled());
@@ -99,17 +89,12 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
     await this.waitForSaveDisabled('btnSaveFixedCosts');
   }
 
- /**
- * Click Labor Costs Save and wait for save to complete.
- * Same race condition fix as clickSaveFixedCosts.
- */
   async clickSaveLaborCosts(): Promise<void> {
     await this.getElement('btnSaveLaborCosts').click();
     await this.waitForAngularStable();
     await this.waitForSaveDisabled('btnSaveLaborCosts');
   }
 
- /** Poll until a save button becomes disabled (form marked pristine after save). */
   private async waitForSaveDisabled(btnKey: string, timeout = 10_000): Promise<void> {
     const btn = this.getElement(btnKey);
     const deadline = Date.now() + timeout;
@@ -123,40 +108,32 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
     Log.warn(`[WARN] Save button (${btnKey}) did not disable within ${timeout}ms — proceeding anyway`);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
  // ECT TAB — FIELDS
- // ─────────────────────────────────────────────────────────────────────────────
 
   async getEctFieldValue(key: string): Promise<string> {
     return this.getFieldDisplayValue(key);
   }
 
- /** Get event profit target table row count. */
   async getEventProfitTargetRowCount(): Promise<number> {
     return this.getElement('tblEventProfitTarget').locator('tbody tr').count();
   }
 
- /** Check if event profit target table is read-only (no inputs). */
   async isEventProfitTargetReadOnly(): Promise<boolean> {
     return (await this.getElement('tblEventProfitTarget').locator('input, textarea').count()) === 0;
   }
 
- /** Get subrental matrix table row count. */
   async getSubRentalMatrixRowCount(): Promise<number> {
     return this.getElement('tblSubRentalMatrix').locator('tbody tr').count();
   }
 
- /** Check if subrental matrix is read-only (no inputs). */
   async isSubRentalReadOnly(): Promise<boolean> {
     return (await this.getElement('tblSubRentalMatrix').locator('input, textarea').count()) === 0;
   }
 
- /** Get labor cost table row count. */
   async getLaborCostRowCount(): Promise<number> {
     return this.getElement('tblLaborCostAssumptions').locator('tbody tr').count();
   }
 
- /** Get labor cost input value by row index (0-based). */
   async getLaborCostValue(rowIndex: number): Promise<string> {
     const input = this.page.locator(`[data-testid="ect-settings-input-labor-cost-${rowIndex}"]`);
     return input.inputValue();
@@ -181,31 +158,26 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
     await input.press('Tab');
   }
 
- /** Get first labor class name from the table. */
   async getFirstLaborClassName(): Promise<string> {
     const cell = this.getElement('tblLaborCostAssumptions').locator('tbody tr:first-child td:first-child');
     return (await cell.textContent() || '').trim();
   }
 
- /** Get last labor class name from the table. */
   async getLastLaborClassName(): Promise<string> {
     const cell = this.getElement('tblLaborCostAssumptions').locator('tbody tr:last-child td:first-child');
     return (await cell.textContent() || '').trim();
   }
 
- /** Check if labor class column is read-only (no inputs in first column). */
   async isLaborClassReadOnly(): Promise<boolean> {
     return (await this.getElement('tblLaborCostAssumptions')
       .locator('tbody tr:first-child td:first-child input').count()) === 0;
   }
 
- /** Check if labor cost column has input elements. */
   async isLaborCostEditable(): Promise<boolean> {
     return (await this.getElement('tblLaborCostAssumptions')
       .locator('tbody tr:first-child td:last-child input').count()) > 0;
   }
 
- /** Get the text of a table row cells for profit target or subrental tables. */
   async getTableRowTexts(tableKey: string, rowSelector: string): Promise<string[]> {
     const cells = this.getElement(tableKey).locator(`${rowSelector} td`);
     return (await cells.allTextContents()).map(t => t.trim());

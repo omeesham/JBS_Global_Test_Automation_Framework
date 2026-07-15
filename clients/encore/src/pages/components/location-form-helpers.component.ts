@@ -2,30 +2,21 @@ import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
 import { LocationSettingsSelectors } from '../../selectors';
 
-/** Checkbox state snapshot */
 export interface CheckboxState {
   checked: boolean;
   disabled: boolean;
 }
 
-/** Spinbutton value + enabled state */
 export interface SpinState {
   value: string;
   disabled: boolean;
 }
 
 export abstract class LocationFormHelpers extends BasePage {
- // ─────────────────────────────────────────────────────────────────────────────
- // ABSTRACT -- subclasses must implement
- // ─────────────────────────────────────────────────────────────────────────────
 
   abstract isSaveEnabled(): Promise<boolean>;
   abstract clickSave(): Promise<{ success: boolean; networkError?: string } | void>;
   abstract reloadAndNavigateToLocalInfo(officeNo: string): Promise<void>;
-
- // ─────────────────────────────────────────────────────────────────────────────
- // FORM READINESS
- // ─────────────────────────────────────────────────────────────────────────────
 
  /**
  * Wait for a form element to become enabled (not disabled).
@@ -46,10 +37,6 @@ export abstract class LocationFormHelpers extends BasePage {
     );
     Log.info(`[OK] Form ready: ${selectorKey} is enabled`);
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // CHECKBOX INTERACTIONS
- // ─────────────────────────────────────────────────────────────────────────────
 
   async getCheckboxState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<CheckboxState> {
     const state = await this.getRadixCheckboxState(selectorKey);
@@ -98,10 +85,6 @@ export abstract class LocationFormHelpers extends BasePage {
     return label;
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // SPINBUTTON INTERACTIONS
- // ─────────────────────────────────────────────────────────────────────────────
-
   async getSpinState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<SpinState> {
     const el = this.getElement(selectorKey);
  // RC-2 FIX: Custom percentage components display "4.00%"; strip trailing % to get "4.00".
@@ -126,10 +109,6 @@ export abstract class LocationFormHelpers extends BasePage {
     Log.info(`setSpinValue [${selectorKey}]: after Tab -> "${postTab}"`);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // TEXT FIELD INTERACTIONS
- // ─────────────────────────────────────────────────────────────────────────────
-
   async getTextValue(selectorKey: keyof typeof LocationSettingsSelectors): Promise<string> {
     return await this.getElement(selectorKey).inputValue().catch(() => '');
   }
@@ -142,10 +121,6 @@ export abstract class LocationFormHelpers extends BasePage {
     await el.press('Tab');
     Log.info(`Filled [${selectorKey}] = "${value.substring(0, 30)}"`);
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // VALIDATION STATE
- // ─────────────────────────────────────────────────────────────────────────────
 
   async hasValidationError(errorText: string): Promise<boolean> {
     const visible = await this.getElement('errValidationMessage')
@@ -175,10 +150,6 @@ export abstract class LocationFormHelpers extends BasePage {
     Log.info('Error dialog dismissed');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // FIELD ATTRIBUTE INSPECTION
- // ─────────────────────────────────────────────────────────────────────────────
-
   async getAttribute(selectorKey: keyof typeof LocationSettingsSelectors, attribute: string): Promise<string | null> {
     return await this.getElement(selectorKey).getAttribute(attribute).catch(() => null);
   }
@@ -191,10 +162,6 @@ export abstract class LocationFormHelpers extends BasePage {
   async isFieldDisabled(selectorKey: keyof typeof LocationSettingsSelectors): Promise<boolean> {
     return await this.getElement(selectorKey).isDisabled().catch(() => true);
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // BATCH VERIFICATION -- data-driven test support
- // ─────────────────────────────────────────────────────────────────────────────
 
   async verifyCheckboxDefaults(expected: Record<string, boolean>): Promise<{ allPassed: boolean; failures: string[] }> {
     const failures: string[] = [];

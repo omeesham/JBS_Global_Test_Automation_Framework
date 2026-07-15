@@ -5,7 +5,6 @@ import * as dotenvFlow from 'dotenv-flow';
 import * as path from 'path';
 import * as fs from 'fs';
 
-/** Pre-flight check result. */
 interface PreflightResult {
   check: string;
   status: 'PASS' | 'FAIL' | 'WARN';
@@ -35,10 +34,8 @@ async function globalSetup(config: FullConfig) {
   Log.info(`Workers: ${config.workers}`);
   Log.info(`Projects: ${config.projects?.length || 0}`);
 
- // ---- Ensure report directories exist (defensive — survives npm run clean) ----
   ensureReportDirectories();
 
- // ---- Pre-flight Health Checks ----
   const results = await runPreflightChecks();
   writePreflightReport(results);
 
@@ -62,8 +59,6 @@ async function globalSetup(config: FullConfig) {
   Log.info('=== Global Test Setup Completed ===');
 }
 
-// ---- Report directory pre-creation ----
-
 const REPORT_DIRS = [
   'reports/allure-results',
   'reports/html-report',
@@ -80,8 +75,6 @@ function ensureReportDirectories(): void {
     }
   }
 }
-
-// ---- Pre-flight checks ----
 
 async function runPreflightChecks(): Promise<PreflightResult[]> {
   const results: PreflightResult[] = [];

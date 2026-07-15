@@ -6,7 +6,6 @@ import { LocationSettingsSelectors } from '../../selectors';
 import { CheckboxState } from '../components/location-form-helpers.component';
 import { MERCHANT_DATA } from '../../data/locations/location-currency';
 
-/** Type returned by clickSaveAndCaptureDialog */
 export type SaveDialogType = 'save-changes' | 'error' | 'none' | 'disabled';
 
 export class LocationCurrencyPage extends BasePage {
@@ -15,21 +14,10 @@ export class LocationCurrencyPage extends BasePage {
     Log.info('LocationCurrencyPage initialized');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // NAVIGATION
- // ─────────────────────────────────────────────────────────────────────────────
-
- /**
- * Navigate to the Currency tab for the given office.
- * Delegates to BasePage.navigateToSubTab (shared tab nav pattern).
- */
   async navigateToCurrencyTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabCurrency', 'tblCurrencyGrid', officeNo);
   }
 
- /**
- * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab.
- */
   async isOnCurrencyTab(): Promise<boolean> {
     // Fix #4a: use tab trigger aria-selected, not
     // child-anchor count().
@@ -38,7 +26,6 @@ export class LocationCurrencyPage extends BasePage {
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
- /** Reload page and return to Currency tab. Handles potential beforeunload dialog. */
   async reloadAndNavigateToCurrencyTab(): Promise<void> {
     const handler = async (d: import('@playwright/test').Dialog) => {
       try { await d.accept(); } catch { /* dialog may already be handled */ }
@@ -55,11 +42,6 @@ export class LocationCurrencyPage extends BasePage {
     await this.waitForAngularStable();
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // GRID INSPECTION
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Count the number of currency rows in the grid (excludes header row). */
   async getGridRowCount(): Promise<number> {
     const grid = this.getElement('tblCurrencyGrid');
     await grid.waitFor({ state: 'visible', timeout: 5_000 });
@@ -68,12 +50,10 @@ export class LocationCurrencyPage extends BasePage {
     return rows;
   }
 
- /** Get the visible text of all 4 column headers. Delegates to the shared BasePage helper. */
   async getColumnHeaders(): Promise<string[]> {
     return this.getColumnHeadersByKeys(['colHeaderCurrencyCode', 'colHeaderSelected', 'colHeaderIsDefault', 'colHeaderMerchant']);
   }
 
- /** Check if the Currency Code cell for a given currency is read-only (not an input). */
   async isCurrencyCodeReadOnly(currency: string): Promise<boolean> {
     const gridSel = this.getLocator('tblCurrencyGrid');
     const cell = this.page.locator(`${gridSel} tbody tr:has-text("${currency}") td:first-child`);
@@ -82,18 +62,12 @@ export class LocationCurrencyPage extends BasePage {
     return inputCount === 0;
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // CHECKBOX OPERATIONS
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Get checked/disabled state of a currency checkbox (Selected or Is Default). */
   async getCheckboxState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<CheckboxState> {
     const state = await this.getRadixCheckboxState(selectorKey);
     Log.info(`${selectorKey}: checked=${state.checked}, disabled=${state.disabled}`);
     return state;
   }
 
- /** Ensure checkbox is checked (click only if unchecked). */
   async checkCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
     if (!(await this.getRadixCheckboxState(selectorKey)).checked) {
@@ -102,7 +76,6 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Checked: ${selectorKey}`);
   }
 
- /** Ensure checkbox is unchecked (click only if checked). */
   async uncheckCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
     if ((await this.getRadixCheckboxState(selectorKey)).checked) {
@@ -111,16 +84,10 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Unchecked: ${selectorKey}`);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // MERCHANT DROPDOWN OPERATIONS
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Get the current displayed value of a merchant dropdown. Delegates to the shared BasePage helper. */
   async getMerchantValue(dropdownKey: string): Promise<string> {
     return this.getFieldDisplayValue(dropdownKey);
   }
 
- /** Open a merchant dropdown, collect option texts, close it, return the list (delegates to BasePage.getComboboxOptions — trims + filters empties). */
   async getMerchantOptions(dropdownKey: string): Promise<string[]> {
     const options = await this.getComboboxOptions(dropdownKey);
     Log.info(`Merchant options for ${dropdownKey}: ${options.join(', ')}`);
@@ -162,7 +129,6 @@ export class LocationCurrencyPage extends BasePage {
     return noMatches;
   }
 
- /** Select a merchant option by its text label. */
   async selectMerchantOption(dropdownKey: string, optionText: string): Promise<void> {
     await this.getElement(dropdownKey).click();
     await this.waitForAngularStable();
@@ -172,11 +138,6 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Selected merchant option: ${optionText}`);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // SAVE / ERROR
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Check if the Currency Save button is enabled. */
   async isSaveEnabled(): Promise<boolean> {
     const el = this.getElement('btnSaveCurrency');
     const disabled = await el.isDisabled().catch(() => true);
@@ -184,10 +145,6 @@ export class LocationCurrencyPage extends BasePage {
     return !disabled;
   }
 
- /**
- * Click the Currency Save button and confirm dialog if it appears.
- * Delegates to BasePage.clickSaveWithDialog (shared save dialog pattern).
- */
   async clickSave(): Promise<{ success: boolean; saved?: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSaveCurrency');
   }
@@ -223,7 +180,6 @@ export class LocationCurrencyPage extends BasePage {
     return 'none';
   }
 
- /** Cancel the currently visible Save Changes dialog (if any). */
   async cancelCurrentDialog(): Promise<void> {
     const dialog = this.getElement('dlgSaveChanges');
     if (await dialog.isVisible().catch(() => false)) {
@@ -232,7 +188,6 @@ export class LocationCurrencyPage extends BasePage {
     }
   }
 
- /** Confirm the currently visible Save Changes dialog and wait for network idle. */
   async confirmSaveDialog(): Promise<void> {
     const dialog = this.getElement('dlgSaveChanges');
     if (await dialog.isVisible().catch(() => false)) {
@@ -242,10 +197,6 @@ export class LocationCurrencyPage extends BasePage {
     }
   }
 
- /**
- * Get the error message from the error dialog (if visible), then dismiss it.
- * Returns empty string if no error dialog is present.
- */
   async getDialogErrorText(): Promise<string> {
     const el = this.getElement('dlgErrorMessage');
     const visible = await el.isVisible().catch(() => false);
@@ -257,10 +208,6 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Error dialog text: ${text}`);
     return text;
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // DEFAULT-STATE BASELINE
- // ─────────────────────────────────────────────────────────────────────────────
 
  /**
  * Click Save, confirm the dialog, and throw if the save did not succeed.
@@ -309,7 +256,6 @@ export class LocationCurrencyPage extends BasePage {
     }
   }
 
- /** Read the grid and report whether it currently matches the office default state. */
   async isAtDefaultState(): Promise<boolean> {
     const usdSelected = await this.getCheckboxState('chkUSDSelected');
     const usdDefault = await this.getCheckboxState('chkUSDIsDefault');
@@ -321,14 +267,6 @@ export class LocationCurrencyPage extends BasePage {
       && usdMerchant.includes(MERCHANT_DATA.usd.id);
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // BEFOREUNLOAD
- // ─────────────────────────────────────────────────────────────────────────────
-
- /**
- * Attempt page reload. Returns true if a beforeunload dialog fired (dismissed — stayed on page).
- * Useful for TC-LOC-CUR-026 to verify dirty state triggers beforeunload.
- */
   async triggerBeforeunloadAndStay(): Promise<boolean> {
     let dialogFired = false;
     const handler = async (d: import('@playwright/test').Dialog) => {

@@ -13,9 +13,6 @@ export class LocationAutoAddonPage extends BasePage {
     await this.navigateToSubTab('tabAutoAddon', 'chkAutoAddonEncoreMusic', officeNo);
   }
 
- /**
- * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab.
- */
   async isOnAutoAddonTab(): Promise<boolean> {
     // Fix #4a: use tab trigger aria-selected, not
     // child-anchor count().
@@ -108,7 +105,6 @@ export class LocationAutoAddonPage extends BasePage {
     );
   }
 
- /** Save button locator — uses getElement which resolves via ALL_SELECTORS (btnSave from left-panel.ts). */
   private get saveButton(): Locator {
     return this.getElement('btnSave');
   }

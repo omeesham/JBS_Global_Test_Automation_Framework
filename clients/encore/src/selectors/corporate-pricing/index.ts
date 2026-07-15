@@ -25,7 +25,6 @@ export { CorporatePricingDetailGridSelectors } from './pricing-detail';
 export { CorporatePricingOverrideSelectors } from './override';
 export { CorporatePricingNewPricebookSelectors } from './new-pricebook';
 
-/** Merged Corporate Pricing namespace (all 6 screen partitions). */
 export const CorporatePricingSelectors = {
   ...CorporatePricingSearchSelectors,
   ...CorporatePricingDetailsSelectors,

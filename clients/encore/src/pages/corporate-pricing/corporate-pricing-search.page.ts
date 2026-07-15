@@ -27,17 +27,12 @@ import { join } from 'node:path';
 
 /** Parsed result of a CSV file download (NM-2262 — reusable across the Corporate Pricing export flows). */
 export type CsvDownloadResult = {
-  /** The browser-suggested download filename (e.g. "LocationPricebooks_20260706_172243UTC.csv"). */
   filename: string;
-  /** Raw CSV text read from the completed download (a leading byte-order mark is stripped). */
   content: string;
   /** Parsed header row — fields are raw (NOT trimmed) so a whitespace regression is caught, not masked. */
   headers: string[];
-  /** Parsed data rows (excludes the header), quote-aware so a value containing a comma stays one field. */
   rows: string[][];
-  /** Number of data rows. */
   rowCount: number;
-  /** The export request URL captured on the SAME click (carries the locale param). */
   requestUrl: string;
   /**
    * The HTTP status of the export response, captured on the same click. Always a concrete number:
@@ -60,16 +55,10 @@ export type CsvDownloadResult = {
  *    `success` is false, and `message` is the rejection text shown in the dialog.
  */
 export type LocImportResult = {
-  /** True only when a real import request returned 2xx and a `{ success: true }` body. */
   success: boolean;
-  /** HTTP status of the import PUT, or null when the file was rejected in the browser and nothing was sent. */
   status: number | null;
-  /** Server message on a real upload, or the dialog's rejection text when the file never left the browser. */
   message: string;
-  /** The import request URL, or null when no request fired. */
   requestUrl: string | null;
-  /** Raw response body of the import PUT, or null when no request fired. Kept so a caller can read the
-   *  server's own `success`/`validationErrors` even when the dialog shows only a generic message. */
   responseBody: string | null;
 };
 
@@ -78,9 +67,7 @@ export type ImportAllStagedRow = {
   pricebook: string;
   productGroupId: string;
   productGroupName: string;
-  /** The current server price (before the change). */
   price: string;
-  /** The imported price (what will be committed if this row is published). */
   newPrice: string;
 };
 
@@ -95,26 +82,17 @@ export type ImportAllStagedRow = {
  */
 export type ImportAllOutcome = {
   kind: 'staged' | 'no-changes' | 'no-match' | 'unsupported-type' | 'other';
-  /** The dialog message for a non-staged outcome (empty for `staged`) — the RAW on-screen text. */
   message: string;
-  /** The staged change rows when `kind === 'staged'`. */
   staged: ImportAllStagedRow[];
-  /** The diff-on-choose GET pricing-export request URL (scoped to the chosen Year(s)+Currency), or null
-   *  when no network fired (an unsupported file type is rejected before any request). */
   diffRequestUrl: string | null;
 };
 
 /** The result of publishing staged Import All changes — the ONLY mutating step (NM-2265). */
 export type ImportAllPublishResult = {
-  /** True when the commit PUT fired and returned 2xx. */
   success: boolean;
-  /** HTTP status of the commit PUT, or null when no request fired. */
   status: number | null;
-  /** The commit request URL, or null when none fired. */
   requestUrl: string | null;
-  /** The commit request method (PUT), or null when none fired. */
   method: string | null;
-  /** The success toast text (e.g. "Pricing import complete. There were 1 pricing change updates."). */
   toast: string;
 };
 
@@ -160,9 +138,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     super(page, config);
   }
 
-  // ---------- navigation / readiness ----------
-
-  /** Navigate to Search and wait for the grid to populate (item-count footer present). */
   async open(office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     await this.gotoSearch(office);
     await this.waitForGridLoaded();
@@ -181,38 +156,27 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.page.locator(S.rowGridAny).first().waitFor({ state: 'visible', timeout });
   }
 
-  // ---------- grid reads ----------
-
-  /** The grid's column header texts, in DOM order (whitespace-normalized, empties dropped). */
   async getColumnHeaders(): Promise<string[]> {
     return this.readAllTexts(S.colHeaderAny);
   }
 
-  /** Number of grid column headers currently rendered. */
   async getColumnCount(): Promise<number> {
     return this.page.locator(S.colHeaderAny).count();
   }
 
-  /** Count currently-rendered data rows (virtualized — ~50, NOT the 591 total; never assert the total). */
   async getVisibleRowCount(): Promise<number> {
     return this.page.locator(S.rowGridAny).count();
   }
 
-  /** Raw item-count footer text (e.g. "591 items found"). */
   async getItemCountText(): Promise<string> {
     return (await this.page.locator(S.lblItemsFound).first().innerText()).replace(/\s+/g, ' ').trim();
   }
 
-  /** Parsed item-count number (e.g. 591). VOLATILE — use for relative narrowed/broadened comparisons, never assert a fixed value. */
   async getItemCountNumber(): Promise<number> {
     const t = await this.getItemCountText();
     return parseInt(t.replace(/[^\d]/g, ''), 10);
   }
 
-  /**
-   * Sample the boolean columns (Is GSO..Is Productions, 0-based indices 3-7) across the rendered rows.
-   * Returns whether any ✔ was seen and whether every boolean cell is ✔-or-empty.
-   */
   async booleanCellsValid(maxRows = 15): Promise<{ hasTrue: boolean; allValid: boolean }> {
     const boolIdx = [3, 4, 5, 6, 7];
     const rows = this.page.locator(S.rowGridAny);
@@ -229,22 +193,15 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { hasTrue, allValid };
   }
 
-  /**
-   * Read a boolean cell (Unicode ✔): returns true when the cell shows ✔, false when empty.
-   * `colIndex` is the 0-based column position (see CORP_PRICING_SEARCH.liveColumns).
-   */
   async readBooleanCell(row: Locator, colIndex: number): Promise<boolean> {
     const cell = row.locator('td').nth(colIndex);
     const txt = (await cell.innerText()).trim();
     return txt.includes(CORP_PRICING_SEARCH.booleanTrueMarker);
   }
 
-  /** Locate a data row by its Price Book name (content-anchored, virtualization-aware via base helper). */
   async findRowByName(name: string): Promise<Locator | null> {
     return this.findGridRowByContent(name);
   }
-
-  // ---------- filters (staging) ----------
 
   /**
    * Set a React controlled <input> via the native value-setter + input/change events.
@@ -262,27 +219,22 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.setReactInput(selector, value);
   }
 
-  /** Stage a value in the Pricebook filter (no network until Search). */
   async fillPricebookFilter(value: string): Promise<void> {
     await this.setTextFilter(S.txtFilterPricebook, value);
   }
 
-  /** Clear the Pricebook filter (stages an empty value). */
   async clearPricebookFilter(): Promise<void> {
     await this.setTextFilter(S.txtFilterPricebook, '');
   }
 
-  /** Stage a value in the Pricing Strategy filter (no network until Search). */
   async fillStrategyFilter(value: string): Promise<void> {
     await this.setTextFilter(S.txtFilterStrategy, value);
   }
 
-  /** Current text in the Pricebook filter input. */
   async getPricebookFilterValue(): Promise<string> {
     return this.page.locator(S.txtFilterPricebook).inputValue();
   }
 
-  /** Current text in the Pricing Strategy filter input. */
   async getStrategyFilterValue(): Promise<string> {
     return this.page.locator(S.txtFilterStrategy).inputValue();
   }
@@ -299,21 +251,16 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.page.locator('[role="checkbox"]').nth(idx);
   }
 
-  /** Read a filter checkbox's ARIA state (true when `aria-checked="true"`). */
   async getCheckboxState(which: SearchCheckbox): Promise<boolean> {
     return (await this.checkbox(which).getAttribute('aria-checked')) === 'true';
   }
 
-  /** Check or uncheck a filter checkbox (auto-verifies the ARIA state). */
   async setCheckbox(which: SearchCheckbox, checked: boolean): Promise<void> {
     const cb = this.checkbox(which);
     if (checked) await cb.check();
     else await cb.uncheck();
   }
 
-  // ---------- dropdown filters ----------
-
-  /** Open a combobox, return its option texts, then close (Escape). Safe (read-only) — never tamper. */
   private async readComboOptions(comboSelector: string): Promise<string[]> {
     await this.page.locator(comboSelector).first().click();
     await this.page.locator('[role="option"]').first().waitFor({ state: 'visible', timeout: 8_000 });
@@ -327,27 +274,22 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out.filter(Boolean);
   }
 
-  /** Option texts in the Currency filter dropdown (opens, reads, closes). */
   async getCurrencyOptions(): Promise<string[]> {
     return this.readComboOptions(S.drpFilterCurrency);
   }
 
-  /** Option texts in the Location filter dropdown (opens, reads, closes). */
   async getLocationOptions(): Promise<string[]> {
     return this.readComboOptions(S.drpFilterLocation);
   }
 
-  /** The Currency dropdown's current (default) label text. */
   async getCurrencyDefaultText(): Promise<string> {
     return (await this.page.locator(S.drpFilterCurrency).first().innerText()).replace(/\s+/g, ' ').trim();
   }
 
-  /** The Location dropdown's current (default) label text. */
   async getLocationDefaultText(): Promise<string> {
     return (await this.page.locator(S.drpFilterLocation).first().innerText()).replace(/\s+/g, ' ').trim();
   }
 
-  /** Select a Currency option by its visible text. */
   async selectCurrency(value: string): Promise<void> {
     await this.page.locator(S.drpFilterCurrency).first().click();
     await this.page.locator('[role="option"]', { hasText: value }).first().click();
@@ -375,8 +317,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     }
     throw new Error('selectFirstRealLocation: the Location option did not stabilize after 3 attempts');
   }
-
-  // ---------- Field-coverage boundary probe (announced + escapable rejection check) ----------
 
   /**
    * Probe the Pricebook text filter (a plain React `<input>`) for a BVA / negative value, returning the
@@ -407,14 +347,10 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { staged, stagedLen: staged.length, ariaInvalid, escaped: before !== after, pageError };
   }
 
-  // ---------- actions ----------
-
-  /** Submit the staged filters (server-side query — pair with `searchAndWaitForList` to await results). */
   async clickSearch(): Promise<void> {
     await this.page.locator(S.btnSearch).first().click();
   }
 
-  /** Reset all filters to defaults and restore the full client-side list (no network). */
   async clickReset(): Promise<void> {
     await this.page.locator(S.btnReset).first().click();
   }
@@ -440,8 +376,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return resp.url();
   }
 
-  // ---------- network classification helpers ----------
-
   /**
    * Attach a counter for list-endpoint requests (filter `/navigator/api/...`, NOT the page URL).
    * Returns a live getter + a `dispose()` — the `authenticatedSession.page` is worker-scoped, so the
@@ -460,16 +394,11 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     };
   }
 
-  // ---------- Price Book name → details ----------
-
-  /** Click a Price Book name cell (content-anchored) → navigates to /details/<guid>. */
   async clickPricebookName(name: string): Promise<void> {
     const row = await this.findRowByName(name);
     if (!row) throw new Error(`Price Book row not found for "${name}"`);
     await row.locator('button.cursor-pointer').first().click();
   }
-
-  // ---------- New split-button ----------
 
   /**
    * Open the New split-button menu. Radix DropdownMenu can intermittently not open on the first click
@@ -491,19 +420,15 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await item.waitFor({ state: 'visible', timeout: 4_000 }); // final attempt — throws (real failure) if still closed
   }
 
-  /** Open the New split-menu and select "Equipment Pricing". */
   async clickNewEquipmentPricing(): Promise<void> {
     await this.openNewMenu();
     await this.page.locator(S.mnuNewEquipmentPricing).first().click();
   }
 
-  /** Open the New split-menu and select "Labor Pricing". */
   async clickNewLaborPricing(): Promise<void> {
     await this.openNewMenu();
     await this.page.locator(S.mnuNewLaborPricing).first().click();
   }
-
-  // ---------- action-bar presence ----------
 
   /**
    * Whether an action-bar button is PRESENT (attached in the DOM). "Present", not "visible" — at a
@@ -534,9 +459,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     });
   }
 
-  // ---------- render-state reads (pricebook list) ----------
-
-  /** Open the New split-menu and read its two item texts (Equipment Pricing / Labor Pricing). */
   async getNewMenuItemTexts(): Promise<string[]> {
     await this.openNewMenu();
     const eq = (await this.page.locator(S.mnuNewEquipmentPricing).first().innerText().catch(() => '')).trim();
@@ -545,15 +467,10 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return [eq, lb].filter(Boolean);
   }
 
-  /** The grid column header texts, in order. */
   async getGridHeaders(): Promise<string[]> {
     return (await this.page.locator('thead th').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
   }
 
-  /**
-   * Every Price Book name cell on the current page, with whether it carries a link affordance
-   * (a clickable button). Proves every pricebook-name cell is a link that navigates to Details.
-   */
   async getPricebookNameCells(): Promise<{ text: string; isLink: boolean }[]> {
     const rows = this.page.locator('tbody tr');
     const n = await rows.count();
@@ -567,7 +484,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
-  /** Read a data row's cell text by 0-based row + column index (content-anchored). */
   async getRowCellText(rowIndex: number, colIndex: number): Promise<string> {
     const cell = this.page.locator('tbody tr').nth(rowIndex).locator('td').nth(colIndex);
     return (await cell.innerText()).replace(/\s+/g, ' ').trim();
@@ -598,16 +514,10 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     ).catch(() => { /* never resolved — the read below returns the placeholder, assertion fails cleanly */ });
   }
 
-  // ===========================================================================
   // Toolbar I/O — Export ▾ / Import ▾ / Loc Pricing / Grid Options.
   // Trigger + variant level ONLY: assert the menu opens, the variants are present, and the correct
   // endpoint fires (Export) / dialog opens (Import). Real download/upload round-trip is a later edge-case test phase.
-  // ===========================================================================
 
-  /**
-   * Open a toolbar `▾` dropdown (Export / Import). Mirrors `openNewMenu`'s Radix retry — the Radix
-   * DropdownMenu can intermittently not open on the first click under heavy-page timing.
-   */
   private async openToolbarMenu(triggerSelector: string): Promise<void> {
     const item = this.page.locator(S.mnuToolbarVariant).first();
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -622,17 +532,14 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await item.waitFor({ state: 'visible', timeout: 4_000 }); // final attempt — throws if still closed
   }
 
-  /** Open the Export ▾ dropdown. */
   async openExportMenu(): Promise<void> {
     await this.openToolbarMenu(S.btnExport);
   }
 
-  /** Open the Import ▾ dropdown. */
   async openImportMenu(): Promise<void> {
     await this.openToolbarMenu(S.btnImport);
   }
 
-  /** The variant labels currently listed in the open Export/Import menu (whitespace-normalized). */
   async getMenuVariants(): Promise<string[]> {
     return (await this.page.locator(S.mnuToolbarVariant).allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
   }
@@ -653,17 +560,14 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return (await this.page.locator(S.mnuToolbarVariant).count()) === 0;
   }
 
-  // ---------- Export ▾ precondition dialog (NM-2264 — Year(s) + Currency gate) ----------
   // Clicking an Export variant now opens a shared dialog that requires 1–3 years and a currency
   // before Continue enables; only Continue fires the export. These helpers drive that gate and the
   // real per-variant download (the download reuses the same CSV capture as the Loc Pricing Export path).
 
-  /** The "Export" dialog, scoped by its unique prompt so it never collides with the import dialog. */
   private exportDialog(): Locator {
     return this.page.locator(S.dlgExport).filter({ hasText: CORP_PRICING_TOOLBAR_IO.exportDialog.prompt }).first();
   }
 
-  /** The dialog's Year(s) combobox (first) and Currency combobox (second), in DOM order. */
   private exportYearCombo(): Locator {
     return this.exportDialog().locator(S.cmbExportField).nth(0);
   }
@@ -671,14 +575,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.exportDialog().locator(S.cmbExportField).nth(1);
   }
 
-  /** Open Export ▾, click a variant, and wait for the Year(s)+Currency dialog to render. */
   async openExportVariantDialog(variant: string): Promise<void> {
     await this.openExportMenu();
     await this.page.locator(S.mnuToolbarVariant, { hasText: variant }).first().click();
     await this.exportDialog().waitFor({ state: 'visible', timeout: 6_000 });
   }
 
-  /** Read the open Export dialog: text, how many comboboxes render, its buttons, and whether Continue is disabled. */
   async getExportDialogInfo(): Promise<{ text: string; comboCount: number; buttons: string[]; continueDisabled: boolean }> {
     const dlg = this.exportDialog();
     const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
@@ -688,29 +590,24 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { text, comboCount, buttons, continueDisabled };
   }
 
-  /** Whether the dialog's Continue button is currently enabled. */
   async isExportContinueEnabled(): Promise<boolean> {
     return this.exportDialog().locator('button', { hasText: /^Continue$/ }).first().isEnabled();
   }
 
-  /** Open the Year(s) multi-select listbox. */
   private async openExportYearList(): Promise<void> {
     await this.exportYearCombo().click();
     await this.page.locator(S.optExportListItem).first().waitFor({ state: 'visible', timeout: 4_000 });
   }
 
-  /** Close the Year(s) listbox (Escape); the dialog itself stays open. */
   private async closeExportYearList(): Promise<void> {
     await this.page.keyboard.press('Escape');
     await this.page.locator(S.optExportListItem).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
   }
 
-  /** Click one year option (the Year(s) list must already be open). */
   private async clickExportYearOption(year: string | number): Promise<void> {
     await this.page.locator(S.optExportListItem, { hasText: new RegExp(`^${year}$`) }).first().click();
   }
 
-  /** Select one or more years (1–3) in the Year(s) combobox and close the list. */
   async setExportYears(years: Array<string | number>): Promise<void> {
     await this.openExportYearList();
     for (const y of years) await this.clickExportYearOption(y);
@@ -736,14 +633,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return selected;
   }
 
-  /** The years currently selected, read from the Year(s) combobox chips (deduped, ascending). */
   async getExportSelectedYears(): Promise<string[]> {
     const text = await this.exportYearCombo().innerText().catch(() => '');
     const years = text.match(/\d{4}/g) ?? [];
     return [...new Set(years)].sort();
   }
 
-  /** Open the Currency combobox, read its options, and close it without selecting. */
   async getExportCurrencyOptions(): Promise<string[]> {
     await this.exportCurrencyCombo().click();
     await this.page.locator(S.optExportListItem).first().waitFor({ state: 'visible', timeout: 4_000 });
@@ -752,19 +647,16 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return opts.map((t) => t.trim()).filter(Boolean);
   }
 
-  /** Select a currency by its code (single-select — the list closes on pick). */
   async setExportCurrency(code: string): Promise<void> {
     await this.exportCurrencyCombo().click();
     await this.page.locator(S.optExportListItem, { hasText: new RegExp(`^${code}$`) }).first().click();
   }
 
-  /** Cancel the Export dialog; returns whether it closed. */
   async cancelExportDialog(): Promise<boolean> {
     await this.exportDialog().locator('button', { hasText: /^Cancel$/ }).first().click().catch(() => { /* best-effort: fall through to the hidden-state check below, which is the real oracle for whether it closed */ });
     return this.exportDialog().waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
   }
 
-  /** Dismiss the Export dialog via its Close (X) button; returns whether it closed. */
   async closeExportDialog(): Promise<boolean> {
     await this.exportDialog().locator('button', { hasText: /^Close$/ }).first().click().catch(() => { /* best-effort: fall through to the hidden-state check below, which is the real oracle for whether it closed */ });
     return this.exportDialog().waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
@@ -825,10 +717,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { url: req.url(), status: resp.status() };
   }
 
-  /**
-   * The pricebook column headers of an export matrix (everything after the two fixed base columns).
-   * Used to compare the active-pricebook set between a Pricing export and its Max Discount sibling.
-   */
   exportPricebookColumns(headers: string[]): string[] {
     return headers.slice(CORP_PRICING_TOOLBAR_IO.exportBaseColumns.length);
   }
@@ -846,12 +734,10 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
       .filter((id) => id.length > 0);
   }
 
-  /** The custom "Import ..." upload dialog, scoped by its prompt text (role is `dialog` or `alertdialog`). */
   private importDialog(): Locator {
     return this.page.locator(S.dlgImport).filter({ hasText: CORP_PRICING_TOOLBAR_IO.importDialog.prompt }).first();
   }
 
-  /** Read the open import dialog: full text, button labels, and whether it carries a file input. */
   async getImportDialogInfo(): Promise<{ text: string; buttons: string[]; hasFileInput: boolean }> {
     const dlg = this.importDialog();
     const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
@@ -860,7 +746,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { text, buttons, hasFileInput };
   }
 
-  /** Close the import dialog (Close/Cancel button, else Escape). No file is uploaded (deferred to a later edge-case test phase). */
   async closeImportDialog(): Promise<void> {
     const dlg = this.importDialog();
     if ((await dlg.count()) === 0) return;
@@ -870,16 +755,11 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await dlg.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
   }
 
-  // ---- Import ▾ All: Year(s)+Currency precondition dialog → upload → delta-publish (NM-2265) ----
   // A delta-stage flow (grid-scoped), distinct from the location-scoped Loc Pricing Import below: clicking
   // a variant opens a Year(s)+Currency precondition dialog; Continue opens the upload dialog; choosing a
   // file diffs it against a fresh server export in the browser (no commit); nothing persists until the user
   // selects rows in the "Select items to publish" modal and clicks Publish.
 
-  /**
-   * The Import All precondition dialog (Year(s)+Currency), scoped by its prompt AND "Import" title. The
-   * Export precondition dialog carries the identical prompt, so the title guard is what keeps them apart.
-   */
   private importAllDialog(): Locator {
     return this.page
       .locator(S.dlgImportAll)
@@ -888,7 +768,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
       .first();
   }
 
-  /** The precondition dialog's Year(s) combobox (first) and Currency combobox (second), in DOM order. */
   private importAllYearCombo(): Locator {
     return this.importAllDialog().locator(S.cmbImportAllField).nth(0);
   }
@@ -896,7 +775,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.importAllDialog().locator(S.cmbImportAllField).nth(1);
   }
 
-  /** The "Select items to publish" delta-review modal, scoped by its heading. */
   private publishModal(): Locator {
     return this.page.locator(S.dlgPublishItems).filter({ hasText: CORP_PRICING_TOOLBAR_IO.importAll.publishModal.title }).first();
   }
@@ -915,14 +793,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return modal.waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
   }
 
-  /** Open Import ▾, click a variant, and wait for the Year(s)+Currency precondition dialog to render. */
   async openImportAllVariantDialog(variant: string): Promise<void> {
     await this.openImportMenu();
     await this.page.locator(S.mnuToolbarVariant, { hasText: variant }).first().click();
     await this.importAllDialog().waitFor({ state: 'visible', timeout: 6_000 });
   }
 
-  /** Read the open precondition dialog: text, combobox count, buttons, and whether Continue is disabled. */
   async getImportAllDialogInfo(): Promise<{ text: string; comboCount: number; buttons: string[]; continueDisabled: boolean }> {
     const dlg = this.importAllDialog();
     const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
@@ -932,7 +808,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { text, comboCount, buttons, continueDisabled };
   }
 
-  /** Whether the precondition dialog's Continue button is currently enabled. */
   async isImportAllContinueEnabled(): Promise<boolean> {
     return this.importAllDialog().locator('button', { hasText: /^Continue$/ }).first().isEnabled();
   }
@@ -946,7 +821,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.page.locator(S.optImportAllListItem).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
   }
 
-  /** Select one or more years (1–3) in the precondition dialog's Year(s) combobox and close the list. */
   async setImportAllYears(years: Array<string | number>): Promise<void> {
     await this.openImportAllYearList();
     for (const y of years) await this.page.locator(S.optImportAllListItem, { hasText: new RegExp(`^${y}$`) }).first().click();
@@ -969,14 +843,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return selected;
   }
 
-  /** The years currently selected, read from the Year(s) combobox chips (deduped, ascending). */
   async getImportAllSelectedYears(): Promise<string[]> {
     const text = await this.importAllYearCombo().innerText().catch(() => '');
     const years = text.match(/\d{4}/g) ?? [];
     return [...new Set(years)].sort();
   }
 
-  /** Open the Currency combobox, read its options, and close it without selecting. */
   async getImportAllCurrencyOptions(): Promise<string[]> {
     await this.importAllCurrencyCombo().click();
     await this.page.locator(S.optImportAllListItem).first().waitFor({ state: 'visible', timeout: 4_000 });
@@ -985,26 +857,21 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return opts.map((t) => t.trim()).filter(Boolean);
   }
 
-  /** Select a currency by its code (single-select — the list closes on pick). */
   async setImportAllCurrency(code: string): Promise<void> {
     await this.importAllCurrencyCombo().click();
     await this.page.locator(S.optImportAllListItem, { hasText: new RegExp(`^${code}$`) }).first().click();
   }
 
-  /** Cancel the precondition dialog; returns whether it closed. */
   async cancelImportAllDialog(): Promise<boolean> {
     await this.importAllDialog().locator('button', { hasText: /^Cancel$/ }).first().click().catch(() => { /* best-effort: the hidden-state check below is the real oracle */ });
     return this.importAllDialog().waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
   }
 
-  /** Click Continue on the configured precondition dialog and wait for the "Import <variant>" upload dialog. */
   async clickImportAllContinue(): Promise<void> {
     await this.importAllDialog().locator('button', { hasText: /^Continue$/ }).first().click();
     await this.importDialog().waitFor({ state: 'visible', timeout: 6_000 });
   }
 
-  /** Open Import ▾, pick a variant, set Year(s)+Currency, and Continue to the upload dialog — the full
-   *  precondition-to-upload sequence in one call (collapses the block otherwise inlined across the tests). */
   async openImportAllUploadFor(variant: string, years: Array<string | number>, currency: string): Promise<void> {
     await this.openImportAllVariantDialog(variant);
     await this.setImportAllYears(years);
@@ -1064,7 +931,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { kind, message, staged: [], diffRequestUrl };
   }
 
-  /** Read the staged change rows from the "Select items to publish" modal. */
   private async readStagedRows(): Promise<ImportAllStagedRow[]> {
     return this.publishModal().evaluate((dlg) => {
       const rows = Array.from(dlg.querySelectorAll('tbody tr'));
@@ -1148,8 +1014,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { publishDisabled, headers, totalItemsText, rowCount };
   }
 
-  /** Check exactly ONE staged row's checkbox (the first per-row box), to prove Publish enables on a single
-   *  selection. Uses `.check()` (Radix-safe: verifies the ARIA state). */
   async checkOneStagedRow(): Promise<void> {
     await this.publishModal().locator('tbody').locator(S.chkPublishRow).first().check();
   }
@@ -1247,7 +1111,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { path: tmp, previousValues };
   }
 
-  /** Remove a temp fixture written by `buildImportAllSingleCellFixture` (best-effort). */
   removeTempFixture(path: string): void {
     try { unlinkSync(path); } catch { /* temp cleanup is best-effort */ }
   }
@@ -1261,10 +1124,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.importDialog().locator(S.inputImportFile).count();
   }
 
-  /**
-   * Click "Loc Pricing Export" (direct, no menu) and return the location-export request URL.
-   * `waitForRequest` armed before the click, filtered on the backend API path.
-   */
   async clickLocPricingExportAndCaptureUrl(): Promise<string> {
     const reqPromise = this.page.waitForRequest((r) => r.url().includes(CORP_PRICING_LOC_EXPORT_API), { timeout: 15_000 });
     await this.page.locator(S.btnLocPricingExport).first().click();
@@ -1319,7 +1178,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.captureCsvDownload(this.page.locator(S.btnLocPricingExport).first(), CORP_PRICING_LOC_EXPORT_API);
   }
 
-  /** Click "Loc Pricing Import" (direct, no menu) — opens the "Import All Location Pricing" dialog. */
   async openLocPricingImportDialog(): Promise<void> {
     await this.page.locator(S.btnLocPricingImport).first().click();
     await this.importDialog().waitFor({ state: 'visible', timeout: 6_000 });
@@ -1386,7 +1244,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { success: false, status: null, message: dialogText, requestUrl: null, responseBody: null };
   }
 
-  /** Open the Loc Pricing Import dialog and upload a file in one call. */
   async locPricingImport(fixturePath: string): Promise<LocImportResult> {
     await this.openLocPricingImportDialog();
     return this.uploadFileToOpenDialog(fixturePath);
@@ -1421,9 +1278,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     }
   }
 
-  // ---------- Grid Options (column show/hide popover) ----------
-
-  /** Open the Grid Options menu (the icon button anchored by aria-label). Radix retry, mirrors openNewMenu. */
   async openGridOptions(): Promise<void> {
     const item = this.page.locator(S.mnuGridColumn).first();
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -1438,7 +1292,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await item.waitFor({ state: 'visible', timeout: 4_000 });
   }
 
-  /** The Grid Options column toggles: `{ label, checked }` per `menuitemcheckbox` (menu must be open). */
   async getGridOptionColumns(): Promise<{ label: string; checked: boolean }[]> {
     const loc = this.page.locator(S.mnuGridColumn);
     const n = await loc.count();
@@ -1453,23 +1306,19 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
-  /** Toggle one Grid Options column by its label (menu must be open). */
   async toggleGridColumn(label: string): Promise<void> {
     await this.page.locator(S.mnuGridColumn, { hasText: label }).first().click();
   }
 
-  /** Close the Grid Options menu (Escape). */
   async closeGridOptions(): Promise<void> {
     await this.page.keyboard.press('Escape').catch(() => { /* nothing open */ });
     await this.page.locator(S.mnuGridColumn).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
   }
 
-  /** Click "Reset to Default View" in the open grid-options menu. */
   async resetGridToDefaultView(): Promise<void> {
     await this.page.locator('[role="menuitem"]', { hasText: 'Reset to Default View' }).first().click();
   }
 
-  /** True if a grid column header with the given label is currently rendered. */
   async isGridColumnVisible(label: string): Promise<boolean> {
     return (await this.getColumnHeaders()).some((h) => h === label || h.includes(label));
   }
@@ -1504,16 +1353,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     });
   }
 
-  // ---------- column-content reads (filter → grid coherence) ----------
-
-  /** 0-based index of a grid column by its header text (exact, else substring). -1 if absent. */
   async getColumnIndexByName(name: string): Promise<number> {
     const headers = await this.getColumnHeaders();
     const exact = headers.indexOf(name);
     return exact >= 0 ? exact : headers.findIndex((h) => h.includes(name));
   }
 
-  /** Whitespace-normalized text of a named column across all CURRENTLY-RENDERED rows (virtualized sample). */
   async readColumnForVisibleRows(name: string): Promise<string[]> {
     const idx = await this.getColumnIndexByName(name);
     if (idx < 0) throw new Error(`readColumnForVisibleRows: column "${name}" not found in grid headers`);
@@ -1524,7 +1369,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
-  /** Boolean state (Unicode ✔ = true, empty = false) of a named boolean column across rendered rows. */
   async readBooleanColumnForVisibleRows(name: string): Promise<boolean[]> {
     const idx = await this.getColumnIndexByName(name);
     if (idx < 0) throw new Error(`readBooleanColumnForVisibleRows: column "${name}" not found`);
@@ -1535,7 +1379,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
-  /** Price Book name (column 0) of the first N rendered rows — content anchor for order/identity checks. */
   async getFirstNPriceBookNames(n: number): Promise<string[]> {
     const rows = this.page.locator(S.rowGridAny);
     const count = Math.min(await rows.count(), n);
@@ -1544,39 +1387,30 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
-  /** Number of data rows currently in the `<tbody>` (0 on an empty result). */
   async getTbodyRowCount(): Promise<number> {
     return this.page.locator(S.rowGridAny).count();
   }
 
-  /** Whether the verbatim "No results." empty-state message is shown. */
   async hasNoResultsMessage(): Promise<boolean> {
     return this.isVisibleSafe(S.lblNoResults);
   }
 
-  /** Count of Price Book name link-cells rendered in the grid (each navigates to a pricebook's Details). */
   async getPricebookLinkCellCount(): Promise<number> {
     return this.page.locator(S.rowNameButton).count();
   }
 
-  // ---------- pagination (shadcn DataTable footer) ----------
-
-  /** The rows-per-page selector — the only [role="combobox"] whose label is purely digits. */
   private pageSizeCombo(): Locator {
     return this.page.locator(S.drpPageSizeRole).filter({ hasText: /^\s*\d+\s*$/ }).first();
   }
 
-  /** Whether a rows-per-page selector is present (digit-text combobox). */
   async hasPageSizeControl(): Promise<boolean> {
     return (await this.page.locator(S.drpPageSizeRole).filter({ hasText: /^\s*\d+\s*$/ }).count()) > 0;
   }
 
-  /** The current rows-per-page value (e.g. "50"). */
   async getPageSizeValue(): Promise<string> {
     return (await this.pageSizeCombo().innerText()).replace(/\s+/g, ' ').trim();
   }
 
-  /** Open the rows-per-page selector, read its option texts, close (Escape). */
   async getPageSizeOptions(): Promise<string[]> {
     await this.pageSizeCombo().click();
     await this.page.locator('[role="option"]').first().waitFor({ state: 'visible', timeout: 8_000 });
@@ -1585,7 +1419,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out.filter(Boolean);
   }
 
-  /** Select a rows-per-page value and wait for the grid to re-render (no fixed sleep). */
   async setPageSize(value: string | number): Promise<void> {
     await this.pageSizeCombo().click();
     await this.page.locator('[role="option"]', { hasText: new RegExp(`^${value}$`) }).first().click();
@@ -1596,36 +1429,29 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return which === 'first' ? S.btnPageFirst : which === 'previous' ? S.btnPagePrev : which === 'next' ? S.btnPageNext : S.btnPageLast;
   }
 
-  /** Whether a pagination nav button is present at all. */
   async hasPageNav(which: 'first' | 'previous' | 'next' | 'last'): Promise<boolean> {
     return (await this.page.locator(this.pageNavSelector(which)).count()) > 0;
   }
 
-  /** Whether a pagination nav button is disabled (`disabled` attr or `aria-disabled="true"`). */
   async isPageNavDisabled(which: 'first' | 'previous' | 'next' | 'last'): Promise<boolean> {
     const b = this.page.locator(this.pageNavSelector(which)).first();
     if (await b.isDisabled().catch(() => false)) return true;
     return (await b.getAttribute('aria-disabled')) === 'true';
   }
 
-  /** Click a pagination nav button and wait for the grid to settle. */
   async clickPageNav(which: 'first' | 'previous' | 'next' | 'last'): Promise<void> {
     await this.page.locator(this.pageNavSelector(which)).first().click();
     await this.page.locator(S.rowGridAny).first().waitFor({ state: 'visible', timeout: 15_000 }).catch(() => { /* grid settles */ });
   }
 
-  // ---------- sorting (column-header buttons) ----------
-
   private headerCell(name: string): Locator {
     return this.page.locator(S.colHeaderAny, { hasText: name }).first();
   }
 
-  /** Whether a column header (by text) wraps a clickable button (the sort trigger). */
   async columnHeaderHasButton(name: string): Promise<boolean> {
     return (await this.headerCell(name).locator('button').count()) > 0;
   }
 
-  /** Click a column header's sort button (if present) and let the grid settle. */
   async clickColumnHeaderSort(name: string): Promise<void> {
     const btn = this.headerCell(name).locator('button').first();
     if ((await btn.count()) > 0) await btn.click();
@@ -1633,7 +1459,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.page.locator(S.rowGridAny).first().waitFor({ state: 'visible', timeout: 10_000 }).catch(() => { /* settle */ });
   }
 
-  /** The `aria-sort` attribute on a column header (null when no active sort). */
   async getColumnAriaSort(name: string): Promise<string | null> {
     return this.headerCell(name).getAttribute('aria-sort');
   }

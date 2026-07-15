@@ -21,11 +21,6 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     Log.info('LocationLeftPanelBasicInformationPage initialized');
   }
 
-  // ---------------------------------------------------------------------------
-  // NAVIGATION
-  // ---------------------------------------------------------------------------
-
-  /** Navigate to Location Settings (Basic Information left panel) for the given office. */
   async navigateToBasicInformation(officeNo: string = '1604'): Promise<void> {
     const expected = `locations/${officeNo}/settings/location`;
     if (!this.page.url().includes(expected)) {
@@ -38,14 +33,12 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     await this.getElement('txtLocalOfficeName').waitFor({ state: 'visible', timeout: 30_000 });
   }
 
-  /** DOM-presence guard so beforeEach can avoid re-navigating when already here. */
   async isOnBasicInformation(): Promise<boolean> {
     const el = this.getElement('txtLocalOfficeName');
     if ((await el.count()) === 0) return false;
     return el.isVisible().catch(() => false);
   }
 
-  /** Reload + return to Basic Information. Auto-accepts the dirty-form beforeunload dialog. */
   async reloadAndNavigate(officeNo: string = '1604'): Promise<void> {
     const handler = async (d: import('@playwright/test').Dialog) => {
       try { await d.accept(); } catch { /* dialog may already be handled */ }
@@ -60,10 +53,6 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     await this.navigateToBasicInformation(officeNo);
   }
 
-  // ---------------------------------------------------------------------------
-  // FIELD READERS (live display values)
-  // ---------------------------------------------------------------------------
-
   async getOfficeValue(): Promise<string> { return this.getFieldDisplayValue('txtOffice'); }
   async getLocalOfficeValue(): Promise<string> { return this.getFieldDisplayValue('txtLocalOffice'); }
   async getLocalOfficeName(): Promise<string> { return (await this.getElement('txtLocalOfficeName').inputValue()).trim(); }
@@ -73,14 +62,8 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
   async getRegion(): Promise<string> { return this.getFieldDisplayValue('drpRegion'); }
   async getServicingBranch(): Promise<string> { return this.getFieldDisplayValue('drpServicingBranch'); }
   async getLineOfBusiness(): Promise<string> { return this.getFieldDisplayValue('drpLineOfBusiness'); }
-  /** Live Date renders as the popover button's text ("June 15th, 1990"); aria-label is "Open popover". */
   async getLiveDateText(): Promise<string> { return this.getFieldDisplayValue('btnLiveDate'); }
 
-  // ---------------------------------------------------------------------------
-  // FIELD STATE
-  // ---------------------------------------------------------------------------
-
-  /** Generic disabled check by selector key (text inputs + the disabled LOB combobox). */
   async isFieldDisabled(key: string): Promise<boolean> {
     return this.getElement(key).isDisabled().catch(() => true);
   }
@@ -90,15 +73,10 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
   async getECommerceState() { return this.getRadixCheckboxState('chkECommerceActive'); }
   async getProductionOrdersState() { return this.getRadixCheckboxState('chkEnableProductionsOrders'); }
 
-  /** maxlength attribute of the Local Office Name input (TC-010). */
   async getLocalOfficeNameMaxLength(): Promise<number | null> {
     const max = await this.getElement('txtLocalOfficeName').getAttribute('maxlength');
     return max ? parseInt(max, 10) : null;
   }
-
-  // ---------------------------------------------------------------------------
-  // FIELD SETTERS
-  // ---------------------------------------------------------------------------
 
   async setLocalOfficeName(value: string): Promise<void> {
     const el = this.getElement('txtLocalOfficeName');
@@ -134,23 +112,13 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
   async selectTaxMode(text: string): Promise<void> { await this.selectComboboxOption('drpTaxMode', text, { exact: true }); }
   async selectCountry(text: string): Promise<void> { await this.selectComboboxOption('drpCountry', text, { exact: true }); }
   async selectRegion(text: string): Promise<void> { await this.selectComboboxOption('drpRegion', text, { exact: true }); }
-  /** Servicing Branch options are "<code> -- <name>" — substring match by intent. */
   async selectServicingBranch(text: string): Promise<void> { await this.selectComboboxOption('drpServicingBranch', text, { exact: false }); }
-
-  // ---------------------------------------------------------------------------
-  // DROPDOWN OPTION READERS (open -> read -> Escape)
-  // ---------------------------------------------------------------------------
 
   async getTaxModeOptions(): Promise<string[]> { return this.getComboboxOptions('drpTaxMode'); }
   async getCountryOptions(): Promise<string[]> { return this.getComboboxOptions('drpCountry'); }
   async getRegionOptions(): Promise<string[]> { return this.getComboboxOptions('drpRegion'); }
   async getServicingBranchOptions(): Promise<string[]> { return this.getComboboxOptions('drpServicingBranch'); }
 
-  // ---------------------------------------------------------------------------
-  // LIVE DATE POPOVER
-  // ---------------------------------------------------------------------------
-
-  /** Click Live Date to open the calendar popover. Returns true if a popover/calendar appeared. */
   async openLiveDatePopover(): Promise<boolean> {
     await this.getElement('btnLiveDate').click();
     const popover = this.page.locator('[data-radix-popper-content-wrapper], [role="dialog"], [role="grid"]');
@@ -161,14 +129,11 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     await this.page.keyboard.press('Escape');
   }
 
-  // ---------------------------------------------------------------------------
   // CROSS-TAB READS (Country cascade effects on the Local Information sub-tab).
   // The left panel is shared/always-visible, so a Country change applied here is
   // reactive on whichever sub-tab is showing — these READ Local Information only
   // (no Local Information mutation / no Local Information field-coverage spec needed).
-  // ---------------------------------------------------------------------------
 
-  /** Activate the Local Information sub-tab (right panel). */
   async clickLocalInformationTab(): Promise<void> {
     const tab = this.getElement('tabLocalInformation');
     await tab.waitFor({ state: 'visible', timeout: 15_000 });
@@ -178,24 +143,17 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     }
   }
 
-  /** Enable Job Costing checkbox state on Local Information (USA-only field). */
   async getJobCostingState() { return this.getRadixCheckboxState('chkEnableJobCosting'); }
 
-  /** Is the Canada-only "Remit PST Tax" checkbox present on Local Information? (no testid → text). */
   async isRemitPstVisible(): Promise<boolean> {
     return this.page.getByText('Remit PST Tax', { exact: false }).first()
       .isVisible({ timeout: 3_000 }).catch(() => false);
   }
 
-  // ---------------------------------------------------------------------------
-  // SAVE OPERATIONS (shared left-panel Save -> "Save Changes" dialog, confirm "Ok")
-  // ---------------------------------------------------------------------------
-
   async isSaveEnabled(): Promise<boolean> {
     return !(await this.getElement('btnSave').isDisabled().catch(() => true));
   }
 
-  /** Poll the shared Save button enabling (async Angular dirty propagation). */
   async waitForSaveButtonEnabled(timeout = 10_000): Promise<boolean> {
     return this.waitForSaveEnabled('btnSave', timeout);
   }
@@ -217,13 +175,11 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     }, undefined, { timeout }).then(() => true).catch(() => false);
   }
 
-  /** Click Save (waits for enabled) and confirm the shared Save Changes dialog. */
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     await this.waitForSaveEnabled('btnSave');
     return this.clickSaveWithDialog('btnSave', 'dlgSaveChanges', 'btnSaveChangesConfirm');
   }
 
-  /** Field-coverage runner hook — throws on a real save failure so the runner surfaces it (not a silent pass). */
   async saveAndConfirm(): Promise<void> {
     const result = await this.clickSave();
     if (!result.success) {
@@ -247,7 +203,6 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     }, undefined, { timeout: 10_000 }).catch(() => { /* best-effort; the test assertion catches a true miss */ });
   }
 
-  // ---------------------------------------------------------------------------
   // PAY TO ADDRESS LAUNCHER + "Pay To List" DIALOG
   //
   // Pay To Address is a LAUNCHER (not a plain disabled textbox — the 2026-06-03 walk first
@@ -262,9 +217,7 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
   // launchers diverge (dispatchEvent on a label vs button click), the filters are located
   // differently (accessible-name getByRole vs CSS/testid), and persistence differs per launcher —
   // a shared abstraction would couple three non-identical behaviors, so they are kept separate.
-  // ---------------------------------------------------------------------------
 
-  /** Open the "Pay To List" dialog via the launcher label (dispatched click — a plain click is blocked). */
   async openPayToDialog(): Promise<void> {
     const label = this.getElement('lblPayToAddress').first();
     await label.dispatchEvent('click');
@@ -276,12 +229,10 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     return this.getElement('dlgPayToList').first().isVisible({ timeout: 3_000 }).catch(() => false);
   }
 
-  /** Is the dialog footer Select button disabled (no row checked)? */
   async isPayToSelectDisabled(): Promise<boolean> {
     return this.getElement('btnPTLSelect').isDisabled().catch(() => true);
   }
 
-  /** Dialog has the (Pay To ID + Pay To Name) filter inputs (located by accessible name). */
   async hasPayToFilters(): Promise<boolean> {
     const dlg = this.getElement('dlgPayToList').first();
     const id = await dlg.getByRole('textbox', { name: 'Pay To ID', exact: true }).isVisible().catch(() => false);
@@ -289,14 +240,12 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     return id && name;
   }
 
-  /** Dialog has the Search + Reset action buttons. */
   async hasPayToActionButtons(): Promise<boolean> {
     const search = await this.isElementVisible('btnPTLSearch', 3_000);
     const reset = await this.isElementVisible('btnPTLReset', 3_000);
     return search && reset;
   }
 
-  /** Dialog has the results table + footer Cancel button. */
   async hasPayToTableAndCancel(): Promise<boolean> {
     const table = await this.isElementVisible('tblPTLResults', 3_000);
     const cancel = await this.isElementVisible('btnPTLCancel', 3_000);
@@ -316,7 +265,6 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     await el.pressSequentially(value, { delay: 20 });
   }
 
-  /** Click Search and await the server search response (filter the backend endpoint, never the page URL). */
   private async submitPayToSearch(): Promise<void> {
     const resp = this.page.waitForResponse(
       (r) => r.url().includes('/navigator/api/location/getLocationPayToList'),
@@ -326,25 +274,21 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     await resp;
   }
 
-  /** Filter by Pay To ID (precise) and Search. */
   async searchPayToById(id: string): Promise<void> {
     await this.typePayToFilter('Pay To ID', id);
     await this.submitPayToSearch();
   }
 
-  /** Filter by Pay To Name (server-side contains) and Search. */
   async searchPayToByName(name: string): Promise<void> {
     await this.typePayToFilter('Pay To Name', name);
     await this.submitPayToSearch();
   }
 
-  /** Click Reset in the Pay To List dialog: clears the dialog's search filters only -- does NOT change the office's saved Pay To. */
   async resetPayToSearch(): Promise<void> {
     await this.clickWithRetry('btnPTLReset');
     Log.info('Reset Pay To List search filters (dialog only, no server state changed)');
   }
 
-  /** Does the Pay To List results table contain the given text in a visible row? */
   async payToResultsContain(text: string): Promise<boolean> {
     const table = this.getElement('tblPTLResults');
     try {
@@ -355,7 +299,6 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     }
   }
 
-  /** Count visible data rows (rows with a non-empty 2nd cell = ID column). */
   async getPayToDialogRowCount(): Promise<number> {
     const table = this.getElement('tblPTLResults');
     await table.waitFor({ state: 'visible', timeout: 5_000 });
@@ -364,34 +307,29 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     );
   }
 
-  /** Is the empty-state "No results." shown in the dialog? */
   async isPayToDialogEmpty(): Promise<boolean> {
     const dlg = this.getElement('dlgPayToList').first();
     const text = await dlg.textContent().catch(() => '');
     return (text || '').includes('No results');
   }
 
-  /** Check the first visible result row's checkbox (after a search narrows results). */
   async checkPayToFirstRow(): Promise<void> {
     await this.clickWithRetry('chkPTLRowFirst');
     Log.info('Checked first Pay To row');
   }
 
-  /** Cancel the dialog (no selection applied). */
   async cancelPayToDialog(): Promise<void> {
     await this.clickWithRetry('btnPTLCancel');
     await this.getElement('dlgPayToList').first().waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info('Cancelled Pay To List dialog');
   }
 
-  /** Close the dialog via the Close (X) button. */
   async closePayToDialog(): Promise<void> {
     await this.clickWithRetry('btnPTLClose');
     await this.getElement('dlgPayToList').first().waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
     Log.info('Closed Pay To List dialog (X)');
   }
 
-  /** Dismiss the dialog with Escape. */
   async escPayToDialog(): Promise<void> {
     await this.page.keyboard.press('Escape');
     await this.getElement('dlgPayToList').first().waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
@@ -413,7 +351,6 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     Log.info(`[OK] Selected Pay To ID ${id}`);
   }
 
-  /** Restore office-1604 Pay To to the original (ID-anchored) and PROVE it persisted: re-set by ID -> save -> reload -> re-read; throws if it cannot land. */
   async restorePayToOriginal(): Promise<void> {
     await this.saveAndVerifyPersisted({
       isAtTarget: async () => (await this.getPayToAddress()) === PAY_TO_ORIGINAL.name,
@@ -424,9 +361,7 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     });
   }
 
-  // ---------------------------------------------------------------------------
   // BASELINE (per-test reset) — bounded whole-cycle retry, Country-first ordering
-  // ---------------------------------------------------------------------------
 
   /**
    * Restore the mutable left-panel fields to office-1604 defaults if dirty. Bounded retry (max 3)

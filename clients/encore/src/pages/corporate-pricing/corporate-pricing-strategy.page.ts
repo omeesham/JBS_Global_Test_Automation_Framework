@@ -1,13 +1,3 @@
-/**
- * Corporate Pricing — Pricing Strategy tab page object.
- *
- * Extends CorporatePricingBasePage (route + tab nav + defensive save primitives). The page has ZERO
- * data-testids → uses text/role/content-anchored locators (CorporatePricingSelectors CSS strings
- * + getByRole for accessible-name elements). NOT BasePage.getElement() — Corporate Pricing is
- * excluded from ALL_SELECTORS (intra-module sub-barrel).
- *
- * Verified on the live app, 2026-06-05.
- */
 import { type Locator, type Page } from '@playwright/test';
 import { CorporatePricingBasePage } from './corporate-pricing.page';
 import type { IConfig } from '../../types';
@@ -21,32 +11,20 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     super(page, config);
   }
 
-  // ---------------------------------------------------------------------------
-  // NAVIGATION
-  // ---------------------------------------------------------------------------
-
-  /** Open the Pricebook Details page (Strategy tab is the default) and wait for the strategy pane. */
   async open(pricebookId: string = STRATEGY.pricebookGuid, office: string = STRATEGY.office): Promise<void> {
     await this.gotoDetails(office, pricebookId);
     await this.page.locator(S.hdgPriceStrategies).first().waitFor({ state: 'visible', timeout: 25_000 });
     await this.waitForAngularStable();
   }
 
-  /** Is the Pricing Strategy tab active? Content-based (no aria-selected on the live DOM). */
   async isStrategyTabActive(): Promise<boolean> {
     return this.isVisibleSafe(S.hdgPriceStrategies);
   }
 
-  /** Activate the Pricing Detail tab. */
   async clickDetailTab(): Promise<void> {
     await this.switchTab('Pricing Detail');
   }
 
-  // ---------------------------------------------------------------------------
-  // HEADER (reference-only)
-  // ---------------------------------------------------------------------------
-
-  /** Read a header reference field. */
   async getHeaderField(field: 'name' | 'type' | 'year' | 'currency' | 'active'): Promise<string> {
     switch (field) {
       case 'name':
@@ -62,26 +40,16 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     }
   }
 
-  /** A header value is the `<p>` immediately following its label `<p>`. */
   private async readLabelValue(label: string): Promise<string> {
     return (await this.page.locator(`p:text-is("${label}") + p`).first().innerText()).trim();
   }
 
-  /**
-   * Header fields are reference-only (read-only text, no inputs). Returns true when the rendered
-   * controls are read-only elements (h2 name + p values), not editable inputs.
-   */
   async headerFieldsAreReadOnly(): Promise<boolean> {
     const nameTag = await this.page.locator(S.hdgPricebookName).first().evaluate((el) => el.tagName).catch(() => '');
     const typeTag = await this.page.locator('p:text-is("Labor/Equipment") + p').first().evaluate((el) => el.tagName).catch(() => '');
     return nameTag === 'H2' && typeTag === 'P';
   }
 
-  // ---------------------------------------------------------------------------
-  // TABS
-  // ---------------------------------------------------------------------------
-
-  /** The tab labels actually rendered (live shows 2; a History tab is absent). */
   async getTabs(): Promise<string[]> {
     const tabs: string[] = [];
     if ((await this.page.locator(S.tabPricingStrategy).count()) > 0) tabs.push('Pricing Strategy');
@@ -90,66 +58,48 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     return tabs;
   }
 
-  /** Is a "History" tab present? (Expected false — not present on the live app.) */
   async hasHistoryTab(): Promise<boolean> {
     return (await this.getTabs()).includes('History');
   }
 
-  // ---------------------------------------------------------------------------
-  // STRATEGY LIST (left pane)
-  // ---------------------------------------------------------------------------
-
-  /** "Total: N" strategy count. Returns -1 if not found. */
   async getStrategyTotal(): Promise<number> {
     const txt = await this.page.locator(S.lblStrategyTotal).first().innerText().catch(() => '');
     const m = txt.match(/Total:\s*(\d+)/);
     return m && m[1] ? parseInt(m[1], 10) : -1;
   }
 
-  /** Strategy list item button (left complementary pane), matched by its name. */
   private strategyListItem(name: string): Locator {
     return this.page.getByRole('complementary').getByRole('button', { name }).first();
   }
 
-  /** Select a strategy by name → loads its editor. */
   async selectStrategy(name: string): Promise<void> {
     await this.strategyListItem(name).click();
     await this.waitForAngularStable();
   }
 
-  /** Select the first (typically only) strategy in the list — name-agnostic (used by restore). */
   async selectFirstStrategy(): Promise<void> {
     await this.page.getByRole('complementary').getByRole('button').filter({ hasText: /\S/ }).first().click();
     await this.waitForAngularStable();
   }
 
-  /** Whether a strategy row exposes a Remove affordance (true only for isNew rows). */
   async isRemoveVisible(name: string): Promise<boolean> {
     const item = this.strategyListItem(name);
     if ((await item.count()) === 0) return false;
     return (await item.getByRole('button').count()) > 0; // nested Remove icon button
   }
 
-  // ---------------------------------------------------------------------------
-  // STRATEGY EDITOR (right pane)
-  // ---------------------------------------------------------------------------
-
-  /** Editor strategy-name textbox (accessible name "Pricing Strategy"). */
   private editorNameField(): Locator {
     return this.page.getByRole('textbox', { name: 'Pricing Strategy' });
   }
 
-  /** Current value of the editor's strategy-name textbox. */
   async getStrategyName(): Promise<string> {
     return (await this.editorNameField().inputValue()).trim();
   }
 
-  /** Set the editor strategy name (clears + types) — dirties the form. */
   async setStrategyName(value: string): Promise<void> {
     await this.editorNameField().fill(value);
   }
 
-  /** Read a strategy flag checkbox's checked + disabled state. */
   async getFlag(name: StrategyFlag): Promise<{ checked: boolean; disabled: boolean }> {
     const cb = this.page.getByRole('checkbox', { name });
     return {
@@ -158,12 +108,10 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     };
   }
 
-  /** Whether the "Locations Using Pricing As Default" table is rendered for the selected strategy. */
   async hasLocationsTable(): Promise<boolean> {
     return this.isVisibleSafe(S.tblLocationsUsingDefault);
   }
 
-  /** Read the locations assigned to the selected strategy. */
   async getStrategyLocations(): Promise<Array<{ office: string; name: string }>> {
     const rows = this.page.locator(S.tblLocationsUsingDefault).first().locator('tbody tr');
     const out: Array<{ office: string; name: string }> = [];
@@ -180,22 +128,15 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     return out;
   }
 
-  // ---------------------------------------------------------------------------
-  // ADD / REMOVE STRATEGY (dialog-gated)
-  // ---------------------------------------------------------------------------
-
-  /** Open the "New Pricing Strategy" modal (Add "+" icon in the Price Strategies pane). */
   async openAddStrategyDialog(): Promise<void> {
     await this.page.getByRole('complementary').getByRole('button').filter({ hasText: /^$/ }).first().click();
     await this.page.locator(S.dlgNewStrategy).first().waitFor({ state: 'visible', timeout: 10_000 });
   }
 
-  /** Is the New Pricing Strategy dialog open? */
   async isAddDialogOpen(): Promise<boolean> {
     return this.isVisibleSafe(S.dlgNewStrategy);
   }
 
-  /** Fill the dialog name + submit "Add" → appends an isNew strategy row (NOT saved/persisted). */
   async addStrategy(name: string): Promise<void> {
     await this.openAddStrategyDialog();
     const dlg = this.page.locator(S.dlgNewStrategy).first();
@@ -205,7 +146,6 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     await this.waitForAngularStable();
   }
 
-  /** Cancel the Add dialog if open. */
   async cancelAddDialog(): Promise<void> {
     const dlg = this.page.locator(S.dlgNewStrategy).first();
     if (await dlg.isVisible().catch(() => false)) {
@@ -214,22 +154,15 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     }
   }
 
-  /** Remove a NEW (isNew) strategy via its nested Remove icon — pre-commit, no DB round trip. */
   async removeStrategy(name: string): Promise<void> {
     await this.strategyListItem(name).getByRole('button').first().click();
     await this.waitForAngularStable();
   }
 
-  // ---------------------------------------------------------------------------
-  // DIRTY / SAVE
-  // ---------------------------------------------------------------------------
-
-  /** Dirty indicator = the page-level Save button is enabled (inherited `isSaveEnabled`, no separate badge). */
   async isDirty(): Promise<boolean> {
     return this.isSaveEnabled();
   }
 
-  /** Verbatim success-toast text (live 2026-06-05). */
   private static readonly SAVE_TOAST = 'Pricebook saved successfully';
 
   /**
@@ -260,31 +193,24 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     return { toastSeen };
   }
 
-  // ---------------------------------------------------------------------------
   // NEW-STRATEGY DIALOG — fine-grained controls (validation + flag combinatorics)
-  // ---------------------------------------------------------------------------
 
-  /** The open "New Pricing Strategy" dialog. */
   private addDialog(): Locator {
     return this.page.locator(S.dlgNewStrategy).first();
   }
 
-  /** Fill the dialog's Strategy Name field (dialog must be open). */
   async fillDialogName(value: string): Promise<void> {
     await this.addDialog().getByRole('textbox', { name: 'Strategy Name' }).fill(value);
   }
 
-  /** Current value of the dialog's Strategy Name field (e.g. to confirm the 100-character input cap). */
   async getDialogName(): Promise<string> {
     return this.addDialog().getByRole('textbox', { name: 'Strategy Name' }).inputValue();
   }
 
-  /** Whether the dialog's Add button is enabled (it is disabled while the name is empty or whitespace). */
   async isDialogAddEnabled(): Promise<boolean> {
     return this.addDialog().getByRole('button', { name: 'Add', exact: true }).isEnabled().catch(() => false);
   }
 
-  /** Read a dialog flag checkbox's checked + disabled state (dialog must be open). */
   async getDialogFlag(name: StrategyFlag): Promise<{ checked: boolean; disabled: boolean }> {
     const cb = this.addDialog().getByRole('checkbox', { name });
     return {
@@ -293,33 +219,28 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     };
   }
 
-  /** Set a dialog flag checkbox to a desired state (dialog must be open). */
   async setDialogFlag(name: StrategyFlag, checked: boolean): Promise<void> {
     const cb = this.addDialog().getByRole('checkbox', { name });
     if (checked) await cb.check();
     else await cb.uncheck();
   }
 
-  /** Click the dialog's Add and wait for it to close (used when the name is valid + unique). */
   async clickDialogAdd(): Promise<void> {
     await this.addDialog().getByRole('button', { name: 'Add', exact: true }).click();
     await this.addDialog().waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => { /* dialog animates out */ });
     await this.waitForAngularStable();
   }
 
-  /** Click Add but expect the dialog to STAY open (e.g. a duplicate name is rejected inline). */
   async clickDialogAddExpectingRejection(): Promise<void> {
     await this.addDialog().getByRole('button', { name: 'Add', exact: true }).click();
     await this.waitForAngularStable();
   }
 
-  /** The dialog's inline validation message, or '' when none is shown. */
   async getDialogError(): Promise<string> {
     const err = this.addDialog().getByText(/already exists|required|invalid/i).first();
     return (await err.count()) > 0 ? (await err.innerText()).trim() : '';
   }
 
-  /** Close the Add dialog via its Close (X) control. */
   async closeAddDialog(): Promise<void> {
     const dlg = this.addDialog();
     if (await dlg.isVisible().catch(() => false)) {
@@ -328,7 +249,6 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     }
   }
 
-  /** Open the dialog, set the given flags, fill the name, submit Add — appends an in-session row. */
   async addStrategyWithFlags(name: string, flags: Partial<Record<StrategyFlag, boolean>>): Promise<void> {
     await this.openAddStrategyDialog();
     for (const key of Object.keys(flags) as StrategyFlag[]) {
@@ -338,51 +258,35 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     await this.clickDialogAdd();
   }
 
-  // ---------------------------------------------------------------------------
   // EDITOR FLAGS + LIST FILTER (deep coverage)
-  // ---------------------------------------------------------------------------
 
-  /** Set an editor flag checkbox to a desired state (a strategy must be selected). */
   async setEditorFlag(name: StrategyFlag, checked: boolean): Promise<void> {
     const cb = this.page.getByRole('checkbox', { name });
     if (checked) await cb.check();
     else await cb.uncheck();
   }
 
-  /** Whether a strategy with the given name appears in the list (reflects any active filter). */
   async hasStrategy(name: string): Promise<boolean> {
     return (await this.page.getByRole('complementary').getByRole('button', { name }).count()) > 0;
   }
 
-  /** Type into the "Search strategies..." filter (pass an empty string to clear it). */
   async searchStrategies(text: string): Promise<void> {
     await this.page.locator(S.txtSearchStrategies).first().fill(text);
     await this.waitForAngularStable();
   }
 
-  // ---------------------------------------------------------------------------
-  // NAVIGATION-AWAY (unsaved-changes prompt)
-  // ---------------------------------------------------------------------------
-
-  /** Click the "Corporate Pricing" breadcrumb (navigates away from the pricebook). */
   async clickBackBreadcrumb(): Promise<void> {
     await this.page.locator(S.lnkBackToSearch).first().click();
   }
 
-  /** Whether the "Unsaved changes" prompt is showing. */
   async isUnsavedChangesPromptVisible(): Promise<boolean> {
     return this.page.getByRole('alertdialog', { name: /unsaved changes/i }).isVisible().catch(() => false);
   }
 
-  /** Resolve the "Unsaved changes" prompt with the given choice. */
   async resolveUnsavedChangesPrompt(choice: 'Stay' | 'Discard'): Promise<void> {
     await this.page.getByRole('alertdialog').getByRole('button', { name: choice, exact: true }).click().catch(() => { /* best-effort: the prompt may have auto-resolved before this click; the stability wait below is the real settle */ });
     await this.waitForAngularStable();
   }
-
-  // ---------------------------------------------------------------------------
-  // BASELINE RESTORE
-  // ---------------------------------------------------------------------------
 
   /**
    * Restore the fixture to its baseline: exactly 1 strategy named `defaults.name`. Bounded retry

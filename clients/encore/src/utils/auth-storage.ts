@@ -1,14 +1,3 @@
-/**
- * AUTH-STATE-SHARED — shared-storage-state helpers for parallel-worker auth.
- *
- * Lock-and-share pattern: a single setup project acquires a file-lock, performs a
- * fresh SSO login, and writes .auth/encore-state.json atomically.
- * All worker projects then consume the saved state read-only via use.storageState,
- * avoiding simultaneous fresh-login collisions across parallel workers.
- *
- * Search marker: AUTH-STATE-SHARED
- */
-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as lockfile from 'proper-lockfile';

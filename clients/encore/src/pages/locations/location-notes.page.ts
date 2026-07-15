@@ -9,18 +9,10 @@ export class LocationNotesPage extends BasePage {
     Log.info('LocationNotesPage initialized');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // NAVIGATION
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Navigate to Notes tab for the given office. */
   async navigateToNotesTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabNotes', 'sectionNotes', officeNo);
   }
 
- /**
- * DOM-presence guard so beforeEach can avoid re-navigating when already on the tab.
- */
   async isOnNotesTab(): Promise<boolean> {
     // Use the tab trigger's aria-selected instead of count()>0
     // on a child anchor. Radix mounts inactive panels for some tabs (forceMount-equivalent);
@@ -30,7 +22,6 @@ export class LocationNotesPage extends BasePage {
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
- /** Click Notes tab only (assumes already on location settings page). */
   async clickNotesTab(): Promise<void> {
     await this.clickWithRetry('tabNotes');
     await this.getElement('sectionNotes').waitFor({ state: 'visible', timeout: 15_000 });
@@ -45,7 +36,6 @@ export class LocationNotesPage extends BasePage {
     ]);
   }
 
- /** Reload page and return to Notes tab. Handles potential beforeunload dialog. */
   async reloadAndNavigateToNotesTab(): Promise<void> {
     const handler = async (d: import('@playwright/test').Dialog) => {
       try { await d.accept(); } catch { /* dialog may already be handled */ }
@@ -64,11 +54,6 @@ export class LocationNotesPage extends BasePage {
     await this.waitForAngularStable();
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // ROW MANAGEMENT
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Click the Add button to create a new note row. */
   async clickAdd(): Promise<void> {
     await this.clickWithRetry('btnNotesAdd');
   }
@@ -123,7 +108,6 @@ export class LocationNotesPage extends BasePage {
     Log.info(`[OK] Pasted ${text.length} chars into note row ${row}`);
   }
 
- /** Append text to row N's existing value via Angular-friendly input event. Field-coverage edit helper. */
   async appendToNote(row: number, suffix: string): Promise<void> {
     const textarea = this.getElement('txtNoteInputAll').nth(row);
     await textarea.focus();
@@ -136,7 +120,6 @@ export class LocationNotesPage extends BasePage {
     await textarea.press('Tab');
   }
 
- /** Prepend text to row N's existing value via Angular-friendly input event. Field-coverage edit helper. */
   async prependToNote(row: number, prefix: string): Promise<void> {
     const textarea = this.getElement('txtNoteInputAll').nth(row);
     await textarea.focus();
@@ -149,7 +132,6 @@ export class LocationNotesPage extends BasePage {
     await textarea.press('Tab');
   }
 
- /** Replace [start, end) of row N's value with newText via Angular-friendly input event. Field-coverage edit helper. */
   async replaceSliceInNote(row: number, start: number, end: number, newText: string): Promise<void> {
     const textarea = this.getElement('txtNoteInputAll').nth(row);
     await textarea.focus();
@@ -163,7 +145,6 @@ export class LocationNotesPage extends BasePage {
     await textarea.press('Tab');
   }
 
- /** Clear row N's textarea via Angular-friendly input event (Angular dirty-state + BUG-LOC-NTS-001 workaround pattern). Field-coverage delete prerequisite. */
   async clearNote(row: number): Promise<void> {
     const textarea = this.getElement('txtNoteInputAll').nth(row);
     await textarea.focus();
@@ -176,7 +157,6 @@ export class LocationNotesPage extends BasePage {
     await textarea.press('Tab');
   }
 
- /** Ensure at least 1 empty textarea row exists. Clicks Add if in "No Notes Available" state. */
   async prepareEmptyRow(): Promise<void> {
     const count = await this.getElement('txtNoteInputAll').count();
     if (count === 0) {
@@ -184,14 +164,12 @@ export class LocationNotesPage extends BasePage {
     }
   }
 
- /** Click Delete button on the given row index. */
   async deleteRow(row: number): Promise<void> {
     const deleteBtn = this.getElement('btnNotesDelete').nth(row);
     await deleteBtn.click();
     Log.info(`[OK] Deleted note row ${row}`);
   }
 
- /** Delete all note rows by clicking Delete buttons until none remain. */
   async deleteAllRows(): Promise<void> {
     let count = await this.getElement('btnNotesDelete').count();
     while (count > 0) {
@@ -206,77 +184,54 @@ export class LocationNotesPage extends BasePage {
     Log.info('[OK] All note rows deleted');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // STATE CHECKS
- // ─────────────────────────────────────────────────────────────────────────────
-
- /** Check if "No Notes Available" empty state is visible. */
   async isEmptyStateVisible(): Promise<boolean> {
     return this.getElement('lblNoNotesAvailable').isVisible();
   }
 
- /** Get input value of the textarea at the given row index. */
   async getNoteValue(row: number): Promise<string> {
     const el = this.getElement('txtNoteInputAll').nth(row);
     await el.waitFor({ state: 'visible', timeout: 15_000 });
     return el.inputValue();
   }
 
- /** Count the number of note textarea rows currently in the DOM. */
   async getNoteRowCount(): Promise<number> {
     return this.getElement('txtNoteInputAll').count();
   }
 
- /** Get the full text content of the character counter element. */
   async getCharCounterText(): Promise<string> {
     return (await this.getElement('lblNotesCharCounter').textContent()) ?? '';
   }
 
- /** Parse the numeric character count from the counter text (e.g., "25/4000" → 25). */
   async getCharCount(): Promise<number> {
     const text = await this.getCharCounterText();
     const match = text.match(/(\d+)\/4000/);
     return match && match[1] ? parseInt(match[1], 10) : -1;
   }
 
- /** Count the number of Delete buttons currently visible. */
   async getDeleteButtonCount(): Promise<number> {
     return this.getElement('btnNotesDelete').count();
   }
 
- /** Check if the Add button is visible. */
   async isAddButtonVisible(): Promise<boolean> {
     return this.getElement('btnNotesAdd').isVisible();
   }
 
- /** Check if the progress bar is visible. */
   async isProgressBarVisible(): Promise<boolean> {
     return this.getElement('barNotesProgress').isVisible();
   }
 
- /** Check if the left-panel Save button is enabled. */
   async isSaveEnabled(): Promise<boolean> {
     return this.getElement('btnSaveNotes').isEnabled();
   }
 
- /** Return the Locator for a specific textarea row. For direct interaction in specs (e.g., focus/type). */
   getNoteTextarea(row: number): import('@playwright/test').Locator {
     return this.getElement('txtNoteInputAll').nth(row);
   }
 
- /** Check if a textarea at row index has a maxlength attribute. Returns the value or null. */
   async getTextareaMaxlength(row: number): Promise<string | null> {
     return this.getElement('txtNoteInputAll').nth(row).getAttribute('maxlength');
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // SAVE DIALOG
- // ─────────────────────────────────────────────────────────────────────────────
-
- /**
- * Save and auto-confirm the dialog. Delegates to BasePage.clickSaveWithDialog.
- * Waits for Save button to become enabled first (Angular change detection timing).
- */
   async saveAndConfirm(): Promise<void> {
     await this.getElement('btnSaveNotes').waitFor({ state: 'visible', timeout: 5_000 });
  // Wait for Angular to enable Save (may take a tick after fill+Tab).
@@ -331,12 +286,10 @@ export class LocationNotesPage extends BasePage {
     );
   }
 
- /** Click Save button only (does NOT auto-confirm dialog). For TC-008 dialog verification. */
   async clickSaveButton(): Promise<void> {
     await this.clickWithRetry('btnSaveNotes');
   }
 
- /** Wait for save dialog to appear and return its heading + body text. */
   async getSaveDialogContent(): Promise<{ heading: string; body: string }> {
     const dialog = this.getElement('dlgSaveChanges');
     await dialog.waitFor({ state: 'visible', timeout: 5_000 });
@@ -345,26 +298,16 @@ export class LocationNotesPage extends BasePage {
     return { heading: heading.trim(), body: body.trim() };
   }
 
- /** Confirm the save dialog (click Save button inside dialog). */
   async confirmSaveDialog(): Promise<void> {
     await this.getElement('btnSaveChangesConfirm').click();
     await this.getElement('dlgSaveChanges').waitFor({ state: 'hidden', timeout: 10_000 });
   }
 
- /** Cancel the save dialog. */
   async cancelSaveDialog(): Promise<void> {
     await this.getElement('btnSaveChangesCancel').click();
     await this.getElement('dlgSaveChanges').waitFor({ state: 'hidden', timeout: 10_000 });
   }
 
- // ─────────────────────────────────────────────────────────────────────────────
- // CLEANUP HELPERS
- // ─────────────────────────────────────────────────────────────────────────────
-
- /**
- * Ensure DB has no saved notes. Deletes any rows with content, saves if needed,
- * then reloads to get a fresh Angular form state.
- */
   async ensureEmptyState(): Promise<void> {
     // save-verify-exempt: verifies inline — after the save + reload below it re-reads
     // isDefaultEmptyState() and self-heals once if the delete did not persist, instead of
@@ -421,10 +364,6 @@ export class LocationNotesPage extends BasePage {
     Log.info('[OK] Notes ensured empty (DB clean)');
   }
 
- /**
- * Check if the Notes tab is in a clean empty state.
- * Accepts two forms: "No Notes Available" table (0 textareas) OR 1 empty textarea row.
- */
   async isDefaultEmptyState(): Promise<boolean> {
     const noNotesVisible = await this.isEmptyStateVisible();
     const rowCount = await this.getElement('txtNoteInputAll').count();
@@ -437,17 +376,9 @@ export class LocationNotesPage extends BasePage {
     return false;
   }
 
- /**
- * Discard unsaved changes by reloading the page. Handles beforeunload dialog.
- * Re-navigates to Notes tab after reload.
- */
   async discardChangesViaReload(): Promise<void> {
     await this.reloadAndNavigateToNotesTab();
   }
-
- // ─────────────────────────────────────────────────────────────────────────────
- // SPECIAL TEST SUPPORT
- // ─────────────────────────────────────────────────────────────────────────────
 
  /**
  * Attempt navigation to trigger beforeunload dialog. Dismisses the dialog
@@ -478,7 +409,6 @@ export class LocationNotesPage extends BasePage {
     return dialogAppeared;
   }
 
- /** Switch to another sub-tab by key (e.g., 'tabCurrency'). For TC-010 tab-switch test. */
   async switchToTab(tabKey: string): Promise<void> {
     await this.clickWithRetry(tabKey);
     await this.waitForAngularStable();

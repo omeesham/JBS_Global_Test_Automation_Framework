@@ -5,7 +5,6 @@
  * without a dated live read behind it.
  */
 
-/** Office-1604 default field values/states (live 2026-06-03). */
 export const LP_DEFAULTS = {
   office: '', // primary-location-no renders empty for 1604 (placeholder "No office available")
   localOffice: '1604',
@@ -21,12 +20,6 @@ export const LP_DEFAULTS = {
   union: false,
 } as const;
 
-/**
- * Mutable-field baseline consumed by `ensureDefaultState` (per-test reset). Only the editable fields the
- * spec actually mutates — restored per-test so a prior crashed/retried run cannot poison defaults.
- * Order matters at reset time: Country is set FIRST (its change cascade-clears Tax Mode + Region),
- * then Tax Mode, then Region.
- */
 export const LP_BASELINE = {
   country: 'United States',
   taxMode: 'US',
@@ -36,7 +29,6 @@ export const LP_BASELINE = {
   union: false,
 } as const;
 
-/** Dropdown option sets (live 2026-06-03). Small enums assert exact (the complete set IS the feature). */
 export const LP_DROPDOWN = {
   taxMode: ['US', 'International'] as const,
   country: ['United States', 'Mexico', 'Canada', 'Bahamas'] as const,
@@ -55,10 +47,8 @@ export const LP_DROPDOWN = {
  * Source: live field verification 2026-06-11 (launcher dialogs).
  */
 export const PAY_TO_ORIGINAL = { id: 1, name: 'Encore' } as const;
-/** Uniquely-named alternate Pay To row (ID 7) — distinct name makes the persistence assertion unambiguous. */
 export const PAY_TO_ALTERNATE = { id: 7, name: 'Encore Bahamas' } as const;
 
-/** Values used by the editable-field tests (recovery/alt values differ from the saved value to force a net change). */
 export const LP_TEST_VALUES = {
   localOfficeNameMaxLength: 255, // LIVE input maxlength (the spec doc claimed 50 — corrected against live; flagged to Encore)
   // 50 chars exactly (TC-010 maxlength boundary).

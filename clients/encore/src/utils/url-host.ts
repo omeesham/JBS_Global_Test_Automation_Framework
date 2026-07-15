@@ -11,10 +11,8 @@
  * plain `.includes()` checks at the call sites.
  */
 
-/** Microsoft Entra / Azure AD B2C sign-in hosts. */
 export const AUTH_HOSTS = ['login.microsoftonline.com', 'b2clogin.com'] as const;
 
-/** Lower-cased hostname of an absolute URL, or '' if it cannot be parsed. */
 export function hostnameOf(rawUrl: string): string {
   try {
     return new URL(rawUrl).hostname.toLowerCase();
@@ -23,14 +21,12 @@ export function hostnameOf(rawUrl: string): string {
   }
 }
 
-/** True when the URL's host is exactly `host` or a proper `.`-boundary subdomain of it. */
 export function urlHostMatches(rawUrl: string, host: string): boolean {
   const h = hostnameOf(rawUrl);
   const t = host.toLowerCase();
   return h !== '' && (h === t || h.endsWith(`.${t}`));
 }
 
-/** True when the URL points at a known Microsoft auth host. */
 export function isAuthUrl(rawUrl: string): boolean {
   return AUTH_HOSTS.some((h) => urlHostMatches(rawUrl, h));
 }
