@@ -18,31 +18,16 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     Log.info('LocationLocalInfoPage initialized');
   }
 
- // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
- /**
- * Navigate directly to office 1604 Local Information tab via URL.
- * Delegates to BasePage.navigateToSubTab (shared tab nav pattern).
- * @param officeNo - Default 1604 (The Parker Palm Springs -- our test office)
- */
   async navigateToLocalInfoTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabLocalInformation', 'btnSaveLocalInfo', officeNo);
   }
 
   async isOnLocalInfoTab(): Promise<boolean> {
-    // Fix #4a: use tab trigger aria-selected, not
-    // child-anchor count().
     const tab = this.getElement('tabLocalInformation');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
- /**
- * Navigate away and back to trigger a page reload, then re-open Local Information tab.
- * Used after Save to verify persistence.
- * @param officeNo - Office number (default 1604)
- */
   async reloadAndNavigateToLocalInfo(officeNo: string = '1604'): Promise<void> {
     Log.info('Reloading page and navigating back to Local Information');
  // Navigate away to a different route first to force the app to destroy + recreate the
@@ -52,9 +37,6 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     await this.page.goto(`${base}locations`, { waitUntil: 'domcontentloaded' }).catch(() => {});
     await this.navigateToLocalInfoTab(officeNo);
   }
-
- // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   async captureLeftPanelBaseline(): Promise<LeftPanelBaseline> {
     Log.info('Capturing left-panel baseline values');
@@ -105,9 +87,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
   }
 
  /**
- * Click the Local Information Save button and confirm dialog if it appears.
- * Delegates to BasePage.clickSaveWithDialog (shared save dialog pattern).
- * Dialog timeout extended to 10s (LI form has slower server validation).
+ * Dialog timeout extended to 10s — this form has slower server validation.
  */
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSaveLocalInfo', 'dlgSaveChanges', 'btnSaveChangesConfirm', 10_000);
@@ -257,7 +237,6 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     await this.fillText(fieldKey, overlong);
     const truncated = await this.getTextValue(fieldKey);
     if (truncated.length > maxLength) return { passed: false, detail: `Truncation failed: length ${truncated.length} > ${maxLength}` };
-    // Restore the field text and PROVE it persisted before the next serial test runs.
     await this.saveAndVerifyPersisted({
       isAtTarget: async () => (await this.getTextValue(fieldKey)) === restoreValue,
       applyMutation: () => this.fillText(fieldKey, restoreValue),

@@ -15,8 +15,6 @@ export class LocationSharedSetupLocationsPage extends BasePage {
   }
 
   async isOnSharedSetupTab(): Promise<boolean> {
-    // Fix #4a: use tab trigger aria-selected, not
-    // child-anchor count().
     const tab = this.getElement('tabSharedSetupLocations');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
@@ -65,11 +63,6 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     await this.navigateToSharedSetupTab(officeNo);
   }
 
- /**
- * Defensive cleanup: delete extra rows and reset self SI to unchecked.
- * Call at the start of each persistence test to guard against serial state
- * contamination. No-op if state is already clean.
- */
   async ensureCleanSSLTable(officeNo: string = '1604'): Promise<void> {
     // Removing a saved shared-setup row is a two-step commit: clicking a row's delete button marks it
     // for removal but leaves it in the grid until a Save persists the change. Marking many rows before
@@ -104,11 +97,6 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     );
   }
 
- /**
- * Count data rows in the shared-setup table (excludes the fixed Add-button row at the end).
- * Before any additions: returns 1 (self-row only).
- * After adding N locations: returns 1 + N.
- */
   async getDataRowCount(): Promise<number> {
     const table = this.getElement('tblSharedSetupLocations');
     await table.waitFor({ state: 'visible', timeout: 10_000 });
@@ -199,8 +187,6 @@ export class LocationSharedSetupLocationsPage extends BasePage {
   }
 
  /**
- * Return true if a Save button exists INSIDE the active tabpanel (as opposed to the shared left-panel).
- * For the Shared Setup Locations tab: expected result is false (no dedicated in-tab Save).
  * Uses evaluate to walk up from the SSL table to its closest [role="tabpanel"] ancestor
  * (the inner SSL tabpanel only), preventing a false-positive match on the outer
  * "Basic Information" tabpanel which contains the shared left-panel Save button.
@@ -282,11 +268,6 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     Log.info('Dialog Cancel clicked, dialog closed');
   }
 
- /**
- * Inspect a data row by 1-based index (row 1 = self, row 2 = first added location, etc.).
- * Returns Primary Office and Shares Inventory checkbox states plus whether Delete is enabled.
- * Dynamic selectors are composed from the table base selector via getLocator.
- */
   async getNonSelfRowState(rowIndex: number): Promise<{
     primaryOffice: CheckboxState;
     sharesInventory: CheckboxState;
@@ -344,8 +325,6 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     }
   }
 
- // TOP-LEVEL TAB NAVIGATION + DIRTY-STATE HELPERS (TC-028 K1b in-SPA tab switch)
-
   async makeFormDirty(): Promise<void> {
     await this.toggleSelfSharesInventory();
   }
@@ -356,13 +335,11 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     // Two valid post-click outcomes:
     //   (a) Clean form: Radix transitions aria-selected="true" (router navigates).
     //   (b) Dirty form: Angular CanDeactivate guard blocks navigation; the Unsaved Changes
-    //       alertdialog appears and aria-selected stays "false". TC-028 exercises this path
-    //       and asserts the dialog via hasVisibleUnsavedDialog downstream.
-    // Pre-fix, this poll only accepted (a) and timed out on (b), failing TC-028 inside
-    // the helper before reaching the dialog assertion. Polling for "either outcome" keeps
-    // the clean-form contract intact (a still resolves first) while letting the dirty-form
-    // path proceed without a 10s timeout. Uses the specific dlgUnsavedChanges testid (not
-    // generic role="alertdialog") so the Add dialog (role="dialog") cannot false-positive.
+    //       alertdialog appears and aria-selected stays "false".
+    // Polling for "either outcome" keeps the clean-form contract intact (a still resolves first)
+    // while letting the dirty-form path proceed without a 10s timeout. Uses the specific
+    // dlgUnsavedChanges testid (not generic role="alertdialog") so the Add dialog (role="dialog")
+    // cannot false-positive.
     const dlgUnsaved = this.getElement('dlgUnsavedChanges');
     await expect.poll(
       async () =>
@@ -375,8 +352,7 @@ export class LocationSharedSetupLocationsPage extends BasePage {
   }
 
  /**
- * Return the label of the currently active top-level tab.
- * Scope to the two known top-level testids instead of `[role="tab"][aria-selected="true"]`.first(),
+ * Scopes to the two known top-level testids instead of `[role="tab"][aria-selected="true"]`.first(),
  * which also matches sub-tabs (Currency / Notes / etc.) and was order-dependent.
  */
   async getActiveTopLevelTab(): Promise<string> {
@@ -405,17 +381,12 @@ export class LocationSharedSetupLocationsPage extends BasePage {
     await dlg.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
   }
 
- /**
- * Fire `count` click events on the Add button back-to-back with `intervalMs` between each,
- * WITHOUT awaiting dialog visibility between clicks. After the burst, wait for at most one
- * dialog to settle. Used by TC-029 to assert single-dialog behavior under rapid clicks.
- */
   async rapidClickAdd(count: number = 5, intervalMs: number = 50): Promise<void> {
     const addBtn = this.getElement('btnSharedAdd');
     for (let i = 0; i < count; i++) {
       await addBtn.click({ force: true, noWaitAfter: true }).catch((err: Error) => {
         // Only swallow overlay-intercept-class errors (expected for late clicks while dialog is open).
-        // Anything else (element not found, detached, target closed) must propagate so TC-029 fails with the real cause.
+        // Anything else (element not found, detached, target closed) must propagate so the test fails with the real cause.
         if (!/intercepts pointer events|element is not visible|outside of the viewport|Target page, context or browser has been closed/i.test(err.message)) {
           throw err;
         }

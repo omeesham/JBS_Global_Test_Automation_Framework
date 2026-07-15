@@ -3,10 +3,6 @@ import { NEW_PRICEBOOK } from '../../src/data/corporate-pricing/new-pricebook';
 import { DETAIL } from '../../src/data/corporate-pricing/detail';
 
 /**
- * Corporate Pricing — New Pricebook create + manage flow, NM-1440 + NM-2263.
- * TC-CPR-NPB-001..050. Live-grounded 2026-06-09 (create) + 2026-06-29 (NM-2263 extension:
- * drag-add, New menu, update-existing entry, NM-2022/NM-2057 leads, surface-behavior cases).
- *
  * MUTATION SAFETY: NO-COMMIT. A created pricebook is irreversible via the UI (no delete/deactivate),
  * so save-cycle TCs assert Save *reachability* (Save enabled → "Save Changes" dialog →
  * Cancel) and never confirm. Baseline = a fresh, always-empty create page per test
@@ -21,7 +17,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     await p.open('equipment'); // baseline: fresh, empty create page
   });
 
-  // ── Page + header presence / defaults ───────────────────────────────────────
 
   test('TC-CPR-NPB-001: Equipment create page loads via the type route param', async ({ corporatePricingNewPricebookPage: p }) => {
     expect(await p.getHeading()).toBe('New Pricebook');
@@ -58,7 +53,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(tabs, 'Pricing Detail tab should be visible').toContain('Pricing Detail');
   });
 
-  // ── Name field-coverage ─────────────────────────────────────────────────────────────────
 
   test('TC-CPR-NPB-008: Single-character Pricebook Name keeps the form savable', async ({ corporatePricingNewPricebookPage: p }) => {
     await p.setYear(NEW_PRICEBOOK.validYear);
@@ -86,7 +80,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
   test('TC-CPR-NPB-011: Empty Pricebook Name blocks Save', async ({ corporatePricingNewPricebookPage: p }) => {
     await p.setYear(NEW_PRICEBOOK.validYear);
     await p.addStrategy();
-    // Name left empty
     expect(await p.isSaveEnabled()).toBe(false);
   });
 
@@ -97,12 +90,10 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(await p.isSaveEnabled()).toBe(false);
   });
 
-  // ── Year field-coverage ───────────────────────────────────────────────────────────────
 
   test('TC-CPR-NPB-013: Empty Price Year blocks Save', async ({ corporatePricingNewPricebookPage: p }) => {
     await p.setName(NEW_PRICEBOOK.validName);
     await p.addStrategy();
-    // Year left empty
     expect(await p.isSaveEnabled()).toBe(false);
   });
 
@@ -123,7 +114,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(await p.isSaveEnabled()).toBe(true);
   });
 
-  // ── Strategy add (dialog) ────────────────────────────────────────────────────
 
   test('TC-CPR-NPB-016: New Pricing Strategy (+) opens the add dialog (Name + flags, no Type field)', async ({ corporatePricingNewPricebookPage: p }) => {
     await p.openAddStrategyDialog();
@@ -170,7 +160,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     await p.cancelAddDialog();
   });
 
-  // ── Save gating + reachability (NO-COMMIT) ───────────────────────────────────
 
   test('TC-CPR-NPB-021: Save is disabled on the empty create form', async ({ corporatePricingNewPricebookPage: p }) => {
     expect(await p.isSaveEnabled()).toBe(false);
@@ -179,7 +168,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
   test('TC-CPR-NPB-022: Save stays disabled without a strategy (≥1 strategy required)', async ({ corporatePricingNewPricebookPage: p }) => {
     await p.setName(NEW_PRICEBOOK.validName);
     await p.setYear(NEW_PRICEBOOK.validYear);
-    // No strategy added.
     expect(await p.getStrategyTotal()).toBe(0);
     expect(await p.isSaveEnabled()).toBe(false); // ≥1 strategy required before Save enables
   });
@@ -205,7 +193,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(p.page.url()).toContain('/add');
   });
 
-  // ── Product-group ADD (Pricing Detail tab, create mode) ──────────────────────
 
   test('TC-CPR-NPB-025: Pricing Detail tab shows the Product Groups source list (Equipment catalog)', async ({ corporatePricingNewPricebookPage: p }) => {
     test.setTimeout(90_000); // heavy detail tab (~3707 source items)
@@ -234,7 +221,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(rows).toContain(NEW_PRICEBOOK.equipmentGroupB);
   });
 
-  // ── Save + PERSIST (the ONE committing test — leaves a permanent record) ──────
   // e2e is single-tenant (ours). This test SAVES a real pricebook. If it ever fails on "can't add",
   // the likely cause is we've used up the unique source product-groups (UI has no delete to recycle
   // them) — escalate THEN, not pre-emptively.
@@ -267,7 +253,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(row, `created pricebook "${name}" should be found in Search after save`).not.toBeNull();
   });
 
-  // ── Drag-add (a real full pointer sequence — move, down, move, up) ───────────
 
   test('TC-CPR-NPB-032: Dragging a product group (real pointer sequence) adds it to the create grid', async ({ corporatePricingNewPricebookPage: p }) => {
     test.setTimeout(90_000); // heavy detail tab (~3707 source items)
@@ -292,7 +277,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(p.page.url()).toContain('/add');
   });
 
-  // ── Validation leads (NM-2057 / NM-2022) ─────────────────────────────────────
 
   test('TC-CPR-NPB-039: Empty Price Year shows a visible required/invalid indicator', async ({ corporatePricingNewPricebookPage: p }) => {
     const empty = await p.getYearValidationState();
@@ -310,7 +294,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(res.hasInlineUniquenessError).toBe(false); // no "already exists" message client-side
   });
 
-  // ── Surface-behavior: empty-vol ──────────────────────────────────────────────
 
   test('TC-CPR-NPB-044: Create-mode empty-state hint reads verbatim + a one-product grid renders', async ({ corporatePricingNewPricebookPage: p }) => {
     test.setTimeout(90_000);
@@ -338,7 +321,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(sample).toContain(NEW_PRICEBOOK.equipmentGroupA);
   });
 
-  // ── Surface-behavior: persistence ────────────────────────────────────────────
 
   test('TC-CPR-NPB-046: Create-mode dirty state survives a Strategy ↔ Detail tab switch', async ({ corporatePricingNewPricebookPage: p }) => {
     test.setTimeout(90_000);
@@ -372,7 +354,6 @@ test.describe('Corporate Pricing — New Pricebook (Equipment) @corporate-pricin
     expect(await p.isSaveEnabled()).toBe(false); // ≥1 strategy required — Save tracks the live precondition
   });
 
-  // ── Surface-behavior: result-fidelity (source-list search) ───────────────────
 
   test('TC-CPR-NPB-049: Source-list search filters the product-group catalog to matches', async ({ corporatePricingNewPricebookPage: p }) => {
     test.setTimeout(90_000);
@@ -425,7 +406,6 @@ test.describe('Corporate Pricing — New Pricebook (Labor) @corporate-pricing @n
     expect(hit).toBe(true);
   });
 
-  // ── Save flow (Labor route) — mirrors the Equipment route's TC-024 + TC-031 ───
   // The Labor route shares the same page-level Save button + "Save Changes" dialog as Equipment; these
   // two tests prove the core Save action actually fires on Labor, not just that the button enables.
 
@@ -443,7 +423,6 @@ test.describe('Corporate Pricing — New Pricebook (Labor) @corporate-pricing @n
     expect(p.page.url()).toContain('type=labor');
   });
 
-  // ── Save + PERSIST (the ONE committing Labor test — leaves a permanent record) ──────
   // e2e is single-tenant (ours). This test SAVES a real Labor pricebook. If it ever fails on "can't add",
   // the likely cause is we've used up the unique source product-groups (UI has no delete to recycle them)
   // — escalate THEN, not pre-emptively. Mirrors the Equipment commit test (TC-031).

@@ -40,8 +40,6 @@ export function readStateOrNull(): StorageStateFile | null {
 }
 
 /**
- * Fix #3: cheap cookie-expiry pre-check.
- *
  * Returns the EARLIEST positive `expires` epoch (seconds) across all
  * `next-auth.session-token*` cookies in the stored state, or `null` when:
  *   (a) state file is missing or unreadable, OR
@@ -129,14 +127,8 @@ export async function validateState(page: Page, baseUrl: string): Promise<boolea
 }
 
 /**
- * Single source of truth for SSO login. Both `auth.setup.ts` and
- * `fixtures.ts:refreshSharedState` consume this.
- *
- * Each caller keeps its own retry policy + caller-specific logging — this helper covers
- * only the core SSO step (context + goto + loginWithMicrosoft + Dashboard wait). Callers
- * own writeStateAtomic + close + retry budgeting.
- *
- * On ANY failure (loginWithMicrosoft returning false, goto, or Dashboard wait), the helper
+ * Each caller keeps its own retry policy — this helper covers only the core SSO step
+ * (context + goto + loginWithMicrosoft + Dashboard wait). On ANY failure, the helper
  * closes the context before the error propagates — callers do not need to close it themselves.
  */
 export async function performSsoLogin(
@@ -149,7 +141,7 @@ export async function performSsoLogin(
   const page = await ctx.newPage();
   page.on('dialog', async (dialog) => {
     if (dialog.type() === 'beforeunload') {
-      try { await dialog.accept(); } catch { /* already handled */ }
+      try { await dialog.accept(); } catch { }
     }
   });
   try {
@@ -171,7 +163,7 @@ export async function performSsoLogin(
     // On any throw past newContext, propagate but DON'T leak the context — callers vary
     // (auth.setup retries with a fresh ctx, fixtures.ts treats it as terminal). Best-effort
     // close here; if the context is already closed, ignore.
-    try { await ctx.close(); } catch { /* ignore */ }
+    try { await ctx.close(); } catch { /* close errors are non-fatal — ctx is already being discarded */ }
     throw err;
   }
 }

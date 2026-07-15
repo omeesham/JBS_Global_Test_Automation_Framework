@@ -1,10 +1,3 @@
-/**
- * Test data — Location Settings Left Panel (Basic Information), office 1604.
- *
- * All defaults are LIVE DOM reads on 2026-06-03. Never hardcode a server value
- * without a dated live read behind it.
- */
-
 export const LP_DEFAULTS = {
   office: '', // primary-location-no renders empty for 1604 (placeholder "No office available")
   localOffice: '1604',
@@ -51,11 +44,11 @@ export const PAY_TO_ALTERNATE = { id: 7, name: 'Encore Bahamas' } as const;
 
 export const LP_TEST_VALUES = {
   localOfficeNameMaxLength: 255, // LIVE input maxlength (the spec doc claimed 50 — corrected against live; flagged to Encore)
-  // 50 chars exactly (TC-010 maxlength boundary).
+  // 50 chars exactly (maxlength boundary).
   localOfficeName50: 'AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEE',
-  // ≤50, differs from default (TC-025 save-persist).
+  // ≤50, differs from default (save-persist test).
   localOfficeNamePersist: 'Parker Palm Springs QA',
-  taxModeAlt: 'International', // TC-027 save-persist (US -> International -> US)
-  regionAlt: 'Boston', // TC-028 save-persist (Palm Springs -> Boston -> Palm Springs)
-  countryAlt: 'Canada', // cascade tests TC-018..022
+  taxModeAlt: 'International', // save-persist test (US -> International -> US)
+  regionAlt: 'Boston', // save-persist test (Palm Springs -> Boston -> Palm Springs)
+  countryAlt: 'Canada', // cascade tests
 } as const;

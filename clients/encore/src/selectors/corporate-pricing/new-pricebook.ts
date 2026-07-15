@@ -1,22 +1,9 @@
 /**
- * Corporate Pricing — New Pricebook create-flow selectors (NM-1440).
- *
- * Create page reached via `/settings/corporate-pricing/add?type=equipment|labor`. Shared header
- * (Pricebook Name / Type [disabled, route-fixed] / Price Year / Currency) above two tabs
- * (Pricing Strategy + Pricing Detail), an in-session strategy list with an Add dialog, and a
- * Pricing-Detail product-group source list (double-click ADD). Verified live 2026-06-09.
- *
- * Strategy: text/role/placeholder/content-anchored — near-zero data-testids. The ONLY usable id is
- * `#new-strategy-name` (Add-dialog name field). The form renders in LIGHT DOM (only a
- * `next-route-announcer` shadow host), so plain CSS resolves every field. React-controlled inputs
- * need the native value-setter (see the page object's `setReactInput`) — `.fill()` does not commit
- * React state.
- *
- * Key prefix `np` (mirrors Override's `ovr` precedent) so this 6th partition shares ZERO keys with
- * the Search/Details/Strategy/Detail/Override partitions and passes the intra-module collision
- * check in `src/selectors/index.ts`. The page-level Save button + the two tabs are NOT redefined
- * here — they are reused from the Details shell partition (`btnSaveDetails`, `tabPricingStrategy`,
- * `tabPricingDetail`) via the base page object's `isSaveEnabled`/`clickSaveButtonOrThrow`/`switchTab`.
+ * Key prefix `np`: prevents intra-module collision with the 5 other CP partitions.
+ * React-controlled inputs need the native value-setter (see page object `setReactInput`) —
+ * `.fill()` does not commit React state. The only usable testid is `#new-strategy-name`.
+ * tabPricingStrategy, tabPricingDetail, and btnSaveDetails are NOT redefined here — reused
+ * from the Details shell partition.
  */
 export const CorporatePricingNewPricebookSelectors = {
   npHeading: 'h1:has-text("New Pricebook")',

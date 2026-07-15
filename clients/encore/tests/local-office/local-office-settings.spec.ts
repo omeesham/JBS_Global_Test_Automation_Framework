@@ -43,7 +43,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
  // failed run that skipped its inline cleanup can't poison the next run.
  // Layered fix per CI-run stabilization (L3): checkbox states were missing here.
     let dirty = false;
- // 1. Date offsets (existing).
     for (const { key, value } of DATE_OFFSET_DEFAULTS) {
       const current = await localOfficeSettingsPage.getInputValue(key);
       if (current !== value) {
@@ -331,7 +330,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     test.setTimeout(60_000);
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     await localOfficeSettingsPage.fillAndTab('txtPoNumber', PO_TEST_VALUES.number);
- // Verify value was typed before saving
     expect(await localOfficeSettingsPage.getInputValue('txtPoNumber')).toBe(PO_TEST_VALUES.number);
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
@@ -377,7 +375,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.toggleSectionActive(0);
     expect(await localOfficeSettingsPage.isSectionActive(0)).toBe(false);
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 10_000 }).toBe(true);
- // Cleanup: toggle back and reload to discard
     await localOfficeSettingsPage.toggleSectionActive(0);
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
@@ -399,7 +396,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     dependencyGate(['TC-LOS-BAS-001']);
     await localOfficeSettingsPage.addSection(SECTION_TEST_VALUES.newSection);
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup: reload without saving
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
@@ -408,7 +404,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.toggleSectionActive(0);
     await localOfficeSettingsPage.clickDefaultSection();
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup: reload without saving
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
@@ -427,7 +422,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     dependencyGate(['TC-LOS-BAS-001']);
     await localOfficeSettingsPage.addRoom(ROOM_TEST_VALUES.testRoom);
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup: reload without saving
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
@@ -497,7 +491,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.clickTabDirect('tabHistory');
     await localOfficeSettingsPage.clickUnsavedDiscard();
     expect(await localOfficeSettingsPage.isTabSelected('tabHistory')).toBe(true);
- // Navigate back and verify edit was discarded
     await localOfficeSettingsPage.clickTab('tabBasicInformation');
     await localOfficeSettingsPage.waitForBasicInfoForm();
     expect(await localOfficeSettingsPage.getInputValue('txtPrepDateOffset')).toBe('-1');
@@ -521,9 +514,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     }
   });
 
- // ─────────────────────────────────────────────────────────────────────────
  // Gap #18: Section Grid Validation
- // ─────────────────────────────────────────────────────────────────────────
 
   test('TC-LOS-BAS-047: Section edit → Escape does NOT revert (no cancel-on-Escape in live app)', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
@@ -536,14 +527,11 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     const afterEscape = await localOfficeSettingsPage.getSectionNameByIndex(0);
  // Actual behavior: Escape does NOT revert — typed value persists
     expect(afterEscape).toBe('TEMP CANCEL TEST');
- // Cleanup: restore original name and reload
     await localOfficeSettingsPage.editSectionName(0, originalName);
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
- // ─────────────────────────────────────────────────────────────────────────
  // Gap #20: Date Offset Cross-Validation (Validate method)
- // ─────────────────────────────────────────────────────────────────────────
 
   test('TC-LOS-BAS-053: Verify a positive value in Relative to Start fields is rejected', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
@@ -660,9 +648,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
- // ─────────────────────────────────────────────────────────────────────────
  // Gap #18: Section Grid Validation (continued)
- // ─────────────────────────────────────────────────────────────────────────
 
   test('TC-LOS-BAS-040: Empty section name — reverts to previous value on blur', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
@@ -691,7 +677,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     if (!accepted && !reverted) {
       expect(afterBlur, 'whitespace-only name should be kept as whitespace or reverted to original').toBe(originalName);
     }
- // Cleanup: restore original name and reload
     if (accepted) {
       await localOfficeSettingsPage.editSectionName(0, originalName);
     }
@@ -718,9 +703,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     expect(await localOfficeSettingsPage.isSaveEnabled()).toBe(false);
   });
 
- // ─────────────────────────────────────────────────────────────────────────
  // Gap #19: Room Config Grid Validation
- // ─────────────────────────────────────────────────────────────────────────
 
   test('TC-LOS-BAS-050: Empty room name — revert behavior', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
@@ -737,7 +720,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     const namesAfter = await localOfficeSettingsPage.getRoomNames();
  // The room should still exist (name reverted or remained non-empty)
     expect(namesAfter.length).toBe(countAfterAdd);
- // Cleanup: reload to discard all unsaved changes
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
@@ -749,7 +731,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.addRoom(ROOM_TEST_VALUES.testRoom);
     const countAfterDuplicate = await localOfficeSettingsPage.getRoomRowCount();
     expect(countAfterDuplicate).toBe(countAfterFirst);
- // Cleanup: reload to discard
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
@@ -773,7 +754,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     const names = await localOfficeSettingsPage.getRoomNames();
     const idx = names.indexOf(roomName);
     expect(idx, `Room "${roomName}" must exist`).toBeGreaterThanOrEqual(0);
- // Ensure active baseline before toggling off
     if (!(await localOfficeSettingsPage.isRoomActive(idx))) {
       await localOfficeSettingsPage.toggleRoomActive(idx);
       await localOfficeSettingsPage.waitForSaveToEnable();
@@ -786,12 +766,10 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
- // Verify inactive persists after reload
     const reloadedNames = await localOfficeSettingsPage.getRoomNames();
     const reloadedIdx = reloadedNames.indexOf(roomName);
     expect(reloadedIdx, `Room "${roomName}" must persist after save`).toBeGreaterThanOrEqual(0);
     expect(await localOfficeSettingsPage.isRoomActive(reloadedIdx)).toBe(false);
- // Cleanup: toggle back to active
     await localOfficeSettingsPage.toggleRoomActive(reloadedIdx);
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
@@ -799,7 +777,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
 
   test('TC-LOS-BAS-049: Verify a room name change persists after save and reload', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
- // Full round-trip: rename room, save, reload, verify new name persists.
     test.setTimeout(90_000);
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
     const roomName = 'Room Edit Test';
@@ -830,20 +807,16 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
- // Verify rename persists
     const namesAfter = await localOfficeSettingsPage.getRoomNames();
     expect(namesAfter).toContain(renamedName);
     expect(namesAfter).not.toContain(roomName);
- // Cleanup: rename back to original
     const renamedIdx = namesAfter.indexOf(renamedName);
     await localOfficeSettingsPage.editRoomName(renamedIdx, roomName);
     await localOfficeSettingsPage.waitForSaveToEnable();
     await localOfficeSettingsPage.clickSaveAndConfirm();
   });
 
- // ─────────────────────────────────────────────────────────────────────────
  // SP-03: Null Offset Testing
- // ─────────────────────────────────────────────────────────────────────────
 
   test('TC-LOS-BAS-064: Clear Prep offset → save → reload → verify empty (not "0")', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
@@ -883,16 +856,13 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     dependencyGate(['TC-LOS-BAS-001']);
  // When Prep is empty, NM-1264 (Delivery >= Prep) should NOT fire because Prep is null.
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
- // Clear Prep (default -1) but leave Delivery at default (0)
     await localOfficeSettingsPage.clearAndTab('txtPrepDateOffset');
  // Delivery should NOT be marked invalid (NM-1264 skipped when Prep is null)
     await expect.poll(
       () => localOfficeSettingsPage.isFieldInvalid('txtDeliveryDateOffset'),
       { timeout: 3_000, message: 'Delivery should not be invalid when Prep is cleared' },
     ).toBe(false);
- // Save should be enabled (Prep was changed)
     await expect.poll(() => localOfficeSettingsPage.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
- // Cleanup: reload to discard
     await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
   });
 
@@ -911,7 +881,6 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       const value = await localOfficeSettingsPage.getInputValue(key);
       expect(value, `${label} should be empty after clearing`).toBe('');
     }
- // Cleanup: restore all defaults
     for (const { key, defaultValue } of NULL_OFFSET_FIELDS) {
       await localOfficeSettingsPage.fillAndTab(key, defaultValue);
     }
@@ -919,10 +888,8 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.clickSaveAndConfirm();
   });
 
- // ─────────────────────────────────────────────────────────────────────────
  // BLOCKED / NOT-AUTOMATABLE / DEFERRED TCs
  // (documented for traceability — not implemented)
- // ─────────────────────────────────────────────────────────────────────────
  // BAS-042/043: Duplicate section via rename → NO VALIDATION on live app (v1 spec not implemented)
  // BAS-046: Section delete → NO DELETE UI exists
  // BAS-052: Room delete → NO DELETE UI exists

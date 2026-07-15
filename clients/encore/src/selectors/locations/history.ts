@@ -1,8 +1,3 @@
-/**
- * Setup Module -- Location Management History Tab Selectors.
- * Covers: History tab navigation, history table, pagination, history type dropdown.
- * Page: Location Settings (/navigator/locations/{officeId}/settings/location)
- */
 export const SetupHistorySelectors = {
   tabLocationManagementHistory: '[data-testid="location-settings-tab-management-history"]',
 

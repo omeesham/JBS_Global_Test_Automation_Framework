@@ -23,8 +23,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.navigateToAutoAddonTab(OFFICE_NO);
     expect(locationAutoAddonPage.getCurrentUrl(), 'Should be on the Location Settings page').toContain(`locations/${OFFICE_NO}/settings`);
     expect(await locationAutoAddonPage.getCheckboxCount()).toBe(5);
- // Default-state restore moved to the describe-level beforeEach (ensureDefaultState) so
- // it runs per-test, not only here — a per-test retry can no longer skip the baseline.
   });
 
   test('TC-LOC-AAO-002: Default State of Checkbox Items (location 1604)', async ({ locationAutoAddonPage, dependencyGate }) => {
@@ -118,7 +116,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
   test('TC-LOC-AAO-011: Multiple Toggles Saved Together', async ({ locationAutoAddonPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-AAO-001']);
     test.setTimeout(60_000);
- // Navigate fresh to normalize server state (prior cleanup saves may fail silently)
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
     await locationAutoAddonPage.checkCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.uncheckCheckbox('chkAutoAddonEncoreMusic');
@@ -127,7 +124,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
     expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession')).toBe(true);
     expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonEncoreMusic')).toBe(false);
- // Cleanup: restore both to defaults
     await locationAutoAddonPage.uncheckCheckbox('chkAutoAddonExpressContentDesignSession');
     await locationAutoAddonPage.checkCheckbox('chkAutoAddonEncoreMusic');
     await locationAutoAddonPage.clickSave();
@@ -154,7 +150,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     expect(await locationAutoAddonPage.isUnsavedDialogVisible()).toBe(true);
     expect(await locationAutoAddonPage.getUnsavedDialogHeading()).toBe(UNSAVED_CHANGES_DIALOG.heading);
     expect(await locationAutoAddonPage.getUnsavedDialogBody()).toBe(UNSAVED_CHANGES_DIALOG.body);
- // Cleanup: stay + revert
     await locationAutoAddonPage.clickUnsavedStay();
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
   });
@@ -186,13 +181,11 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession')).toBe(false);
   });
 
- // --- Round-Trip Persistence: Data-Driven (TC-017/018) ---
   for (const item of UNCHECK_PERSISTENCE_CASES) {
     test(`${item.tc}: ${item.name} Uncheck Persists After Save+Reload`, async ({ locationAutoAddonPage, dependencyGate }) => {
       dependencyGate(['TC-LOC-AAO-001']);
       test.setTimeout(60_000);
       await locationAutoAddonPage.navigateFresh(OFFICE_NO);
- // Verify checkbox starts checked (default for Wordly and Labor)
       expect(await locationAutoAddonPage.isCheckboxChecked(item.key),
         `${item.name} should start checked`).toBe(true);
       await locationAutoAddonPage.uncheckCheckbox(item.key);
@@ -201,7 +194,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
       await locationAutoAddonPage.navigateFresh(OFFICE_NO);
       expect(await locationAutoAddonPage.isCheckboxChecked(item.key),
         `${item.name} should remain unchecked after reload`).toBe(false);
- // Cleanup: re-check to restore default
       await locationAutoAddonPage.checkCheckbox(item.key);
       await locationAutoAddonPage.clickSave();
     });
@@ -210,14 +202,11 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
   test('TC-LOC-AAO-019: Cancel Does Not Persist Toggle', async ({ locationAutoAddonPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-AAO-001']);
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
- // ECDS defaults to unchecked — toggle it to checked
     await locationAutoAddonPage.toggleCheckbox('chkAutoAddonExpressContentDesignSession');
     await expect.poll(() => locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession'), { timeout: 5_000 }).toBe(true);
     await locationAutoAddonPage.clickSaveButton();
     await locationAutoAddonPage.clickSaveCancel();
- // Navigate fresh — safeNavigateTo handles dirty form beforeunload
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
- // ECDS should still be unchecked (cancel = no save)
     expect(await locationAutoAddonPage.isCheckboxChecked('chkAutoAddonExpressContentDesignSession'),
       'ECDS should remain unchecked after cancel').toBe(false);
   });
@@ -226,7 +215,6 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     dependencyGate(['TC-LOC-AAO-001']);
     test.setTimeout(60_000);
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
- // Invert all 5 checkboxes
     for (const item of AUTO_ADDON_DEFAULTS) {
       if (item.checked) {
         await locationAutoAddonPage.uncheckCheckbox(item.key);
@@ -237,12 +225,10 @@ test.describe('Location Auto Add-On @locations @auto-addon', () => {
     expect(await locationAutoAddonPage.isSaveEnabled()).toBe(true);
     await locationAutoAddonPage.clickSave();
     await locationAutoAddonPage.navigateFresh(OFFICE_NO);
- // Verify all 5 are inverted from defaults
     for (const item of AUTO_ADDON_DEFAULTS) {
       expect(await locationAutoAddonPage.isCheckboxChecked(item.key),
         `${item.name} should be ${!item.checked ? 'checked' : 'unchecked'} after invert`).toBe(!item.checked);
     }
- // Cleanup: restore ALL defaults
     for (const item of AUTO_ADDON_DEFAULTS) {
       const current = await locationAutoAddonPage.isCheckboxChecked(item.key);
       if (current !== item.checked) {

@@ -24,7 +24,6 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
   async navigateToEctTab(): Promise<void> {
     const maxRetries = 4;
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
- // Click the ECT tab if not already selected
       const tab = this.getElement('tabEctSettings');
       const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
       if (isSelected !== 'true') {
@@ -33,26 +32,22 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
         await this.waitForAngularStable();
       }
 
- // Check for API failure states
       const panelContent = await this.page.locator('[role="tabpanel"]').textContent().catch(() => '');
       const noCurrencies = panelContent?.includes('No currencies for selected location');
       const noData = panelContent?.includes('No data available');
 
       if (!noCurrencies && !noData) {
- // Check that location name label is visible (content loaded)
         const lblVisible = await this.getElement('lblEctLocationName')
           .waitFor({ state: 'visible', timeout: 5_000 })
           .then(() => true).catch(() => false);
         if (lblVisible) {
- // Verify table data actually loaded
           const table = this.getElement('tblLaborCostAssumptions');
           const hasData = await table.locator('tbody tr').count() > 1
             || !(await table.textContent() || '').includes('No data available');
-          if (hasData) return; // Success — ECT tab fully loaded
+          if (hasData) return;
         }
       }
 
- // If we've exhausted all retries, throw with context
       if (attempt === maxRetries) {
         throw new Error(`ECT tab failed to load after ${maxRetries} retries. Last state: ${noCurrencies ? '"No currencies"' : noData ? '"No data available"' : 'label not visible'}`);
       }
@@ -65,9 +60,6 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
       await this.dismissAlertDialogIfVisible();
     }
   }
-
- // SAVE — ECT (no dialog — direct save)
-
   async isEctFixedCostsSaveEnabled(): Promise<boolean> {
     return !(await this.getElement('btnSaveFixedCosts').isDisabled());
   }
@@ -107,9 +99,6 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
     }
     Log.warn(`[WARN] Save button (${btnKey}) did not disable within ${timeout}ms — proceeding anyway`);
   }
-
- // ECT TAB — FIELDS
-
   async getEctFieldValue(key: string): Promise<string> {
     return this.getFieldDisplayValue(key);
   }
@@ -139,9 +128,8 @@ export class LocalOfficeEctPage extends LocalOfficeSettingsPage {
     return input.inputValue();
   }
 
- /** Fill labor cost input by row index, press Tab ( + LRN-LOS-002).
- * Angular can fire "Unsaved changes" alertdialog asynchronously after
- * tab load. If the click is intercepted, dismiss the dialog and retry. */
+ /** Angular can fire "Unsaved changes" alertdialog asynchronously after tab load.
+ * If the click is intercepted, dismiss the dialog and retry. */
   async fillLaborCost(rowIndex: number, value: string): Promise<void> {
     const input = this.page.locator(`[data-testid="ect-settings-input-labor-cost-${rowIndex}"]`);
     try {

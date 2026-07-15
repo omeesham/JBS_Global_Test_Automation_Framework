@@ -3,9 +3,9 @@
  * `CorporatePricingOverridePage extends CorporatePricingBasePage`.
  *
  * URL: /navigator/locations/{office}/settings/corporate-pricing/pg-override
- * Reached via the Search action-bar "Pricing Override" button (navigation confirmed BUILT 2026-06-08).
+ * Reached via the Search action-bar "Pricing Override" button.
  *
- * Live model (verified 2026-06-08):
+ * Live model:
  *  - Equipment / Labor tabs (Radix `role=tab`, `aria-selected`); switching reloads the grid.
  *  - Grid is **location-gated**: empty ("No results.") until a location is picked via the
  *    "Select a location" card → modal table (search + checkbox row + "Select").
@@ -19,13 +19,12 @@
  * for the Details tabs ('Pricing Strategy' | 'Pricing Detail'); the Override Equipment/Labor tabs get
  * their own switcher here.
  *
- * EDIT MECHANISM (RESOLVED 2026-06-09): the grid IS editable for the automation user
- * (an earlier exploration's "inert cells" reading was a false negative). Click an Override Price / Max Discount
+ * EDIT MECHANISM: the grid IS editable for the automation user. Click an Override Price / Max Discount
  * `div[role=button]` cell → an active `spinbutton` reveals → native value-setter (React-controlled;
  * `.fill()` does not commit) + `Enter` commits → Save enables. Active = Radix `checkbox` toggles +
  * dirties. Save → "Save Changes" dialog (matched via the CSS `[role="alertdialog"]` selector + TEXT
  * buttons — Playwright `getByRole('alertdialog')` does NOT match it) → POST corporate-price-pg-override
- * → toast. Net-zero (revert disables Save) verified. Max Discount % is capped at 100 (>100 rejected).
+ * → toast. Net-zero (revert disables Save). Max Discount % is capped at 100 (>100 rejected).
  */
 import { expect } from '@playwright/test';
 import type { Page, Locator } from '@playwright/test';
@@ -221,7 +220,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
   /**
    * Open a click-to-edit numeric cell (`div[role=button]`) and return its revealed `spinbutton` editor.
    * The Override grid spinbutton is React-controlled: `.fill()` does NOT commit React state, so callers
-   * MUST use `setReactInput` (native value-setter) + `Enter` to commit. Verified live 2026-06-09.
+   * MUST use `setReactInput` (native value-setter) + `Enter` to commit.
    */
   private async openCellEditor(row: Locator, cellSel: string): Promise<Locator> {
     await row.locator(cellSel).first().click();
@@ -300,16 +299,16 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
 
   /**
    * Click the page-level Save and confirm the shared "Save Changes" alertdialog, then settle on the
-   * success toast. Live-verified flow (2026-06-09): Save → alertdialog (heading "Save Changes", body
+   * success toast. Flow: Save → alertdialog (heading "Save Changes", body
    * "Are you sure you want to save the changes?", Cancel/Save) → `POST {saveApiPath}` → toast
    * "Pricing overrides saved successfully." The dialog can take a few seconds on this heavy page, so we
-   * wait for it explicitly (the base 2.5s probe was too short during initial exploration).
+   * wait for it explicitly.
    */
   async saveAndConfirm(): Promise<void> {
     await this.page.locator(OS.ovrBtnSave).first().click();
     // The dialog is `<div role="alertdialog">` — Playwright `getByRole('alertdialog')` does NOT match it
     // (shadow/portal a11y exclusion), so use the CSS selector + the TEXT-anchored Save button (the
-    // dialog buttons have no computed accessible name). Live finding 2026-06-09.
+    // dialog buttons have no computed accessible name).
     const dlg = this.page.locator(OS.ovrSaveDialog).first();
     await dlg.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => { /* direct-save fallback */ });
     if (await dlg.isVisible().catch(() => false)) {

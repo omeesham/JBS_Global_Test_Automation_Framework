@@ -1,9 +1,3 @@
-/**
- * Local Office Settings — ECT Settings tab selectors.
- * URL: /navigator/locations/{officeId}/settings/local-office (ECT Settings tab)
- * Shared tab/dialog infrastructure (tabEctSettings, tabContentEct, dlgUnsavedLocalOffice)
- * lives in LocalOfficeSettingsSelectors; EctPage cascades through both namespaces.
- */
 export const LocalOfficeEctSelectors = {
   secEctHeader: '[data-testid="ect-settings-section-header"]',
   secEctHeaderInner: '[data-testid="ect-settings-header"]',

@@ -58,11 +58,6 @@ export class LocationNotesPage extends BasePage {
     await this.clickWithRetry('btnNotesAdd');
   }
 
- /**
- * Fill the textarea at the given row index and press Tab (Angular blur trigger).
- * Row 0 = first row, Row 1 = second row, etc.
- * Auto-creates row 0 if page is in "No Notes Available" state (0 textareas).
- */
   async fillNote(row: number, text: string): Promise<void> {
     if (row === 0) {
       const count = await this.getElement('txtNoteInputAll').count();
@@ -82,10 +77,8 @@ export class LocationNotesPage extends BasePage {
   }
 
  /**
- * Programmatic paste — bypasses JS keyboard handler (soft limit).
- * Used for TC-007/TC-021 boundary test (4001+ chars via paste).
+ * Bypasses the JS keyboard handler for pasting long content.
  * Dispatches input+change events to trigger Angular model update.
- * Auto-creates row 0 if page is in "No Notes Available" state.
  */
   async pasteIntoNote(row: number, text: string): Promise<void> {
     if (row === 0) {
@@ -380,11 +373,6 @@ export class LocationNotesPage extends BasePage {
     await this.reloadAndNavigateToNotesTab();
   }
 
- /**
- * Attempt navigation to trigger beforeunload dialog. Dismisses the dialog
- * (stays on page) to verify it appeared without destroying the SPA context.
- * Returns whether the dialog appeared.
- */
   async navigateAwayWithUnsavedChanges(_url: string): Promise<boolean> {
     let dialogAppeared = false;
     const handler = async (dialog: import('@playwright/test').Dialog) => {
@@ -395,7 +383,6 @@ export class LocationNotesPage extends BasePage {
     (this.page as unknown as Record<string, unknown>).__skipBeforeunloadAutoAccept = true;
     this.page.on('dialog', handler);
     try {
- // Trigger navigation via browser back or location change
       await this.page.evaluate(() => {
         window.location.href = '/';
       }).catch(() => {

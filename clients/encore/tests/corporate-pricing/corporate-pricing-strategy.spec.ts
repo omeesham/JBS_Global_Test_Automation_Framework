@@ -3,10 +3,6 @@ import { STRATEGY } from '../../src/data/corporate-pricing/strategy';
 import { NEW_PRICEBOOK } from '../../src/data/corporate-pricing/new-pricebook';
 
 /**
- * Corporate Pricing — Pricebook Management / Pricing Strategy tab.
- * TC-CPR-STR-001..063 — the base management band (001..025) plus the deep "create multiple
- * strategies" coverage (026..063) in the two describe blocks below. Live-grounded.
- *
  * Mutation safety: per-test `ensureDefaultState()` restores the strategyFixture
  * (2022-NP Tier 1) to baseline (1 strategy, original name). Save-cycle tests mutate via a REVERSIBLE
  * existing-strategy name edit (the only UI-reversible save). Add/Remove tests discard WITHOUT saving
@@ -20,7 +16,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     await p.ensureDefaultState();
   });
 
-  // ── Entry + Header (reference-only) ─────────────────────────────────────────
 
   test('TC-CPR-STR-001: Pricebook Details management page loads with the pricebook header', async ({ corporatePricingStrategyPage: p }) => {
     await test.step('Confirm the Corporate Pricing Details heading is visible', async () => {
@@ -53,7 +48,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     expect(await p.headerFieldsAreReadOnly()).toBe(true);
   });
 
-  // ── Tabs ────────────────────────────────────────────────────────────────────
 
   test('TC-CPR-STR-008: Tabs render — Pricing Strategy + Pricing Detail', async ({ corporatePricingStrategyPage: p }) => {
     const tabs = await p.getTabs();
@@ -78,7 +72,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     expect(await p.hasHistoryTab()).toBe(false);
   });
 
-  // ── Strategy selection + locations ──────────────────────────────────────────
 
   test('TC-CPR-STR-012: Clicking an existing strategy loads its details', async ({ corporatePricingStrategyPage: p }) => {
     await p.selectStrategy(STRATEGY.fixtureStrategyName);
@@ -144,7 +137,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     }
   });
 
-  // ── Edit + Save persist (reversible mutation) ───────────────────────────────
 
   test('TC-CPR-STR-014: Edit an existing strategy and Save persists the change', async ({ corporatePricingStrategyPage: p }) => {
     test.setTimeout(60_000); // live save-cycle: 2 saves + 2 reloads
@@ -162,7 +154,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     expect(await p.getStrategyName()).toBe(STRATEGY.reversibleEdit.restoredName);
   });
 
-  // ── Add New (dialog) + Remove (isNew) — discard without saving ───────────────
 
   test('TC-CPR-STR-015: Add New opens the New Pricing Strategy dialog and appends a row', async ({ corporatePricingStrategyPage: p }) => {
     const before = await p.getStrategyTotal();
@@ -172,7 +163,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     await p.clickDialogAdd();
     expect(await p.isAddDialogOpen()).toBe(false);
     expect(await p.getStrategyTotal()).toBe(before + 1);
-    // discard (no Save) — restore baseline
     await p.removeStrategy(STRATEGY.newStrategyPayload.name);
     expect(await p.getStrategyTotal()).toBe(before);
   });
@@ -201,7 +191,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     expect(await p.isRemoveVisible(STRATEGY.fixtureStrategyName)).toBe(false);
   });
 
-  // ── Dirty / clean state ─────────────────────────────────────────────────────
 
   test('TC-CPR-STR-020: Unmodified strategy list shows the clean state (Save disabled)', async ({ corporatePricingStrategyPage: p }) => {
     expect(await p.isSaveEnabled()).toBe(false);
@@ -224,7 +213,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
     await p.removeStrategy(STRATEGY.newStrategyPayload.name);
   });
 
-  // ── Save batch + feedback + reset (reversible mutation) ──────────────────────
 
   test('TC-CPR-STR-023: Save commits pending strategy edits in one batch', async ({ corporatePricingStrategyPage: p }) => {
     test.setTimeout(60_000); // live save-cycle
@@ -282,9 +270,6 @@ test.describe('Corporate Pricing — Pricing Strategy @corporate-pricing @strate
 });
 
 /**
- * Corporate Pricing — Pricing Strategy deep coverage (NM-2261, create multiple strategies).
- * TC-CPR-STR-026..049, 053..057, 060..063. Live-grounded 2026-06-26.
- *
  * Mutation safety: new-strategy add/remove + multi-row tests run IN-SESSION only — a page reload
  * (the per-test `ensureDefaultState()` baseline) discards them, because a committed new strategy is
  * irreversible (a saved strategy becomes legacy with no Remove). Save-cycle tests use the only
@@ -297,7 +282,6 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
     await p.ensureDefaultState();
   });
 
-  // ── Multi-row FormArray (in-session add / edit / remove) ────────────────────
 
   test('TC-CPR-STR-026: Add multiple strategies in one session (N=2)', async ({ corporatePricingStrategyPage: p }) => {
     expect(await p.getStrategyTotal()).toBe(1);
@@ -343,7 +327,6 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
     expect(await p.isSaveEnabled()).toBe(false); // back to the clean legacy-only baseline
   });
 
-  // ── Save-cycle revert (recovery ≠ pristine) ─────────────────────────────────
 
   test('TC-CPR-STR-032: Reverting the strategy name disables Save', async ({ corporatePricingStrategyPage: p }) => {
     await p.selectFirstStrategy();
@@ -373,7 +356,6 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
     expect(await p.isSaveEnabled()).toBe(false);
   });
 
-  // ── Dialog flag defaults + combinatorics ────────────────────────────────────
 
   test('TC-CPR-STR-035: Dialog Is Active defaults checked', async ({ corporatePricingStrategyPage: p }) => {
     await p.openAddStrategyDialog();
@@ -448,7 +430,6 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
     expect(await p.getHeaderField('currency')).toBe(STRATEGY.header.currency);
   });
 
-  // ── Negative / validation ───────────────────────────────────────────────────
 
   test('TC-CPR-STR-045: Empty Strategy Name blocks Add', async ({ corporatePricingStrategyPage: p }) => {
     await p.openAddStrategyDialog();
@@ -489,7 +470,6 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
     expect(await p.getStrategyTotal()).toBe(1);
   });
 
-  // ── Dialog name field spec ──────────────────────────────────────────────────
 
   test('TC-CPR-STR-053: Strategy Name field caps input at 100 characters', async ({ corporatePricingStrategyPage: p }) => {
     await p.openAddStrategyDialog();
@@ -521,7 +501,6 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
     expect(await p.getStrategyName()).toBe(STRATEGY.fixtureStrategyName);
   });
 
-  // ── Surface-behavior: render-state / persistence / result-fidelity ──────────
 
   test('TC-CPR-STR-056: A strategy flag reads correctly from its rendered checkbox', async ({ corporatePricingStrategyPage: p }) => {
     await p.selectStrategy(STRATEGY.fixtureStrategyName);
@@ -588,7 +567,6 @@ test.describe('Corporate Pricing — Pricing Strategy deep coverage @corporate-p
 });
 
 /**
- * Corporate Pricing — Strategy save-gating on the New Pricebook create page (NM-2261).
  * TC-CPR-STR-030, 031, 050, 051, 052, 058, 059. The create flow is NO-COMMIT — Save reachability is
  * asserted without ever persisting (a committed pricebook is irreversible). Each test starts from a
  * fresh, always-empty create page (`open()` in beforeEach).

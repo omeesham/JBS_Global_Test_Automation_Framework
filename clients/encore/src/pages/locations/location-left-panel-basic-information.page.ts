@@ -4,17 +4,6 @@ import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
 import { LP_BASELINE, PAY_TO_ORIGINAL } from '../../data/locations/location-left-panel-basic-information';
 
-/**
- * Location Settings — Left Panel (Basic Information) page object.
- *
- * Drives the shared left-panel card on `/settings/location` (office 1604): 6 read-only +
- * 8 editable fields + the shared Save button. Reuses BasePage Radix helpers (combobox/checkbox)
- * and the shared "Save Changes" dialog (confirms with "Ok"). The `ensureDefaultState` bounded-retry
- * mirrors LocationLegalPage (per-test baseline) with Country-first ordering because a Country change
- * cascade-clears Tax Mode + Region.
- *
- * 2026-06-03. Field states live-verified that date.
- */
 export class LocationLeftPanelBasicInformationPage extends BasePage {
   constructor(page: Page, config?: IConfig) {
     super(page, config);
@@ -97,9 +86,8 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     await el.press('Tab');
   }
 
-  // Playwright check()/uncheck() click + AUTO-VERIFY the aria-checked state (with actionability
-  // retry) — robust against the Radix "click focuses but doesn't toggle" race that bare
-  // setRadixCheckbox (click-without-verify) hit (TC-008).
+  // Playwright check()/uncheck() auto-verifies the aria-checked state (with actionability retry) —
+  // robust against the Radix "click focuses but doesn't toggle" race that setRadixCheckbox can hit.
   async setActive(checked: boolean): Promise<void> {
     const el = this.getElement('chkActive');
     if (checked) await el.check({ timeout: 15_000 }); else await el.uncheck({ timeout: 15_000 });
@@ -129,10 +117,8 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     await this.page.keyboard.press('Escape');
   }
 
-  // CROSS-TAB READS (Country cascade effects on the Local Information sub-tab).
   // The left panel is shared/always-visible, so a Country change applied here is
-  // reactive on whichever sub-tab is showing — these READ Local Information only
-  // (no Local Information mutation / no Local Information field-coverage spec needed).
+  // reactive on whichever sub-tab is showing — these READ Local Information only.
 
   async clickLocalInformationTab(): Promise<void> {
     const tab = this.getElement('tabLocalInformation');
@@ -203,20 +189,13 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     }, undefined, { timeout: 10_000 }).catch(() => { /* best-effort; the test assertion catches a true miss */ });
   }
 
-  // PAY TO ADDRESS LAUNCHER + "Pay To List" DIALOG
-  //
-  // Pay To Address is a LAUNCHER (not a plain disabled textbox — the 2026-06-03 walk first
-  // misclassified it as one; corrected after root-cause analysis 2026-06-11). The disabled display input shows the
-  // current Pay To NAME; the field's <label> opens the "Pay To List" search dialog. A standard
-  // Playwright click on the label is BLOCKED (its `for=` points at the disabled input →
-  // "element is not enabled"), so the launcher is driven via dispatchEvent('click').
-  // Save endpoint PUT /navigator/api/location/update-properties; search GET …/getLocationPayToList.
-  // No dialog testids → role+text selectors. Selection PERSISTS (financial.payToId); restore is
-  // ID-anchored (the name "Encore" is ambiguous — IDs 1 & 4 both "Encore").
-  // KEPT SEPARATE from the account-address dialog helpers (no shared lookup-dialog base): the
-  // launchers diverge (dispatchEvent on a label vs button click), the filters are located
-  // differently (accessible-name getByRole vs CSS/testid), and persistence differs per launcher —
-  // a shared abstraction would couple three non-identical behaviors, so they are kept separate.
+  // Pay To Address opens via a <label> click, not a button — a standard Playwright click is
+  // BLOCKED (its `for=` points at the disabled input → "element is not enabled"), so the
+  // launcher is driven via dispatchEvent('click').
+  // The name "Encore" is ambiguous (IDs 1 & 4 share it), so restore is ID-anchored.
+  // Kept separate from the account-address dialog helpers: the launchers use different click
+  // mechanisms, the filter locators differ, and persistence behavior differs per launcher —
+  // a shared abstraction would couple non-identical behaviors.
 
   async openPayToDialog(): Promise<void> {
     const label = this.getElement('lblPayToAddress').first();
@@ -361,17 +340,12 @@ export class LocationLeftPanelBasicInformationPage extends BasePage {
     });
   }
 
-  // BASELINE (per-test reset) — bounded whole-cycle retry, Country-first ordering
-
   /**
-   * Restore the mutable left-panel fields to office-1604 defaults if dirty. Bounded retry (max 3)
-   * wraps the WHOLE cycle — read -> re-set -> save -> reload -> re-verify — because the flaky step is
-   * the Radix selects (retry-on-detach): a "successful" click can leave the Angular model unchanged, and
-   * `clickSaveWithDialog` returns `{success:true}` when Save is disabled, so save-success alone never
-   * proves the reset landed. The post-reload re-read is the load-bearing check; after 3 failed cycles
-   * it THROWS, converting a silent baseline failure into a loud one.
+   * Bounded retry (max 3) because a Radix select click can "succeed" yet leave Angular's model
+   * unchanged; clickSaveWithDialog returns {success:true} when Save is disabled, so save-success
+   * alone never proves the reset landed. The post-reload re-read is the load-bearing check.
    *
-   * Country is set FIRST — a Country change cascade-clears Tax Mode + Region, so it must precede them.
+   * Country is set FIRST — a Country change cascade-clears Tax Mode + Region.
    */
   async ensureDefaultState(baseline: typeof LP_BASELINE = LP_BASELINE): Promise<void> {
     // Pay To self-heal guard. A display read returns only the NAME ("Encore"), which is ambiguous

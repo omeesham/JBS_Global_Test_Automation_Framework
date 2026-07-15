@@ -7,10 +7,6 @@ import {
 import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 
 /**
- * Corporate Pricing — Product Group Override screen, full field-coverage (NM-1463).
- * TC-CPR-OVR-001..037 (TC-023 is skipped pending an app fix — see its note below). Live-grounded 2026-06-09;
- * net-new coverage (TC-029..037) added and re-verified live on office 1606 on 2026-07-09.
- *
  * Fixture anchored to office 1606 (2026-07-06) while an open Product Group Override data/import
  * problem on office 1604 awaits the Encore product team's answer (see `encore-qa-tracker.xlsx`);
  * revert the fixture to the office-1604 anchors when it is resolved (the data file records them).
@@ -38,7 +34,6 @@ const DEFAULTS = {
   active: CORP_PRICING_OVERRIDE_FIXTURE.mutationRowAnchor.activeDefault,
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Corporate Pricing — Product Group Override: read, structure & filters @corporate-pricing @override', () => {
   test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
@@ -156,7 +151,6 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Corporate Pricing — Product Group Override: Override Price / Max Discount edit behavior @corporate-pricing @override', () => {
   test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
@@ -263,7 +257,6 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Corporate Pricing — Product Group Override: save-cycle (mutation, fixture-restored) @corporate-pricing @override @mutation', () => {
   test.afterEach(async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(150_000);
@@ -357,7 +350,6 @@ test.describe('Corporate Pricing — Product Group Override: save-cycle (mutatio
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Corporate Pricing — Product Group Override: navigation & location picker @corporate-pricing @override', () => {
   test('TC-CPR-OVR-029: The Search action bar "Pricing Override" button navigates to the Override screen', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
@@ -380,7 +372,6 @@ test.describe('Corporate Pricing — Product Group Override: navigation & locati
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Corporate Pricing — Product Group Override: Grid Options (column visibility) @corporate-pricing @override @mutation', () => {
   const COL = CORP_PRICING_OVERRIDE.gridOptionsToggleColumn; // 'Updated By' — a trailing, reversible column
 
@@ -413,7 +404,6 @@ test.describe('Corporate Pricing — Product Group Override: Grid Options (colum
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Corporate Pricing — Product Group Override: toolbar Export / Import @corporate-pricing @override', () => {
   test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
@@ -488,7 +478,6 @@ test.describe('Corporate Pricing — Product Group Override: toolbar Export / Im
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Corporate Pricing — Product Group Override: surface behavior (sorting / render) @corporate-pricing @override', () => {
   test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);

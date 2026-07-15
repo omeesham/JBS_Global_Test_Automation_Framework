@@ -1,17 +1,3 @@
-/**
- * Setup Module -- Account and Address Tab Selectors.
- * Covers: Venue/Branch Account card, Master Bill To Address card,
- * Account List dialog, Select Customer Address dialog, phone fields.
- * DOM notes (planner-verified ):
- * - All location detail content renders inside <next-location-settings> shadow root.
- * Playwright pierces shadow DOM for all locators.
- * - Name/Address labels are <dt> elements containing clickable <button>.
- * - Address display fields (City, State, Zip, Country) are <dd> static text.
- * - Phone fields: input[name="accountAndAddress.contactPhone1|2"].
- * - Dialogs: Radix UI [role="dialog"].
- * - Row checkboxes: button[role="checkbox"] (Radix UI pattern).
- * - Left-panel Save (shared btnSave in left-panel.ts) used for this tab.
- */
 export const SetupAccountAddressSelectors = {
   tabAccountAndAddress: '[data-testid="location-settings-sub-tab-account-and-address"]',
   pnlAccountAndAddress: '[data-testid="location-settings-sub-tab-content-account-and-address"]',

@@ -19,10 +19,7 @@ export abstract class LocationFormHelpers extends BasePage {
   abstract reloadAndNavigateToLocalInfo(officeNo: string): Promise<void>;
 
  /**
- * Wait for a form element to become enabled (not disabled).
- * New E2E environment briefly renders form fields as disabled during hydration.
- * @param selectorKey - Key of the element to wait on
- * @param timeout - Max wait time in ms (default 10s)
+ * The E2E environment briefly renders form fields as disabled during hydration.
  */
   async waitForFormReady(selectorKey: keyof typeof LocationSettingsSelectors, timeout = 10_000): Promise<void> {
     const el = this.getElement(selectorKey);
@@ -87,7 +84,7 @@ export abstract class LocationFormHelpers extends BasePage {
 
   async getSpinState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<SpinState> {
     const el = this.getElement(selectorKey);
- // RC-2 FIX: Custom percentage components display "4.00%"; strip trailing % to get "4.00".
+ // Custom percentage components display "4.00%"; strip the trailing % before returning.
     const raw = await el.inputValue().catch(() => '');
     const value = raw.replace(/%$/, '').trim();
     const disabled = await el.isDisabled().catch(() => true);
@@ -98,9 +95,9 @@ export abstract class LocationFormHelpers extends BasePage {
   async setSpinValue(selectorKey: keyof typeof LocationSettingsSelectors, value: string): Promise<void> {
     const el = this.getElement(selectorKey);
     await el.click();
- // Ctrl+A is more reliable than triple-click for selecting all text (see RC-4 ).
+ // Ctrl+A is more reliable than triple-click for selecting all text in this input.
     await this.page.keyboard.press('Control+a');
- // keyboard.type fires raw keydown/input/keyup events -- Radix UI field commit requires this.
+ // keyboard.type fires raw keydown/input/keyup events — Radix UI field commit requires this.
     await this.page.keyboard.type(value);
     const preTab = await el.inputValue().catch(() => 'ERR');
     Log.info(`setSpinValue [${selectorKey}]: after type, before Tab -> "${preTab}"`);

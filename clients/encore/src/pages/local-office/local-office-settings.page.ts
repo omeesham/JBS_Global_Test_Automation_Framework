@@ -25,20 +25,15 @@ export class LocalOfficeSettingsPage extends BasePage {
     await this.navigateToSubTab('tabBasicInformation', 'frmBasicInfo', officeNo, 'local-office');
   }
 
- /** Reload page and navigate back to Basic Info tab.
- * Uses safeNavigateTo to handle beforeunload dialog when form has unsaved edits.
- * 30s form-visibility timeout: live-verified cold-load p95 ~9s isolated, but under
- * 4-worker contention loads regularly exceed 15s (was the BAS-001 timeout failure).
- * See reports/live-verification-2026-05-08.md. */
+ /** Uses safeNavigateTo to handle beforeunload dialog when form has unsaved edits.
+ * 30s form-visibility timeout: cold-load p95 ~9s isolated, but under 4-worker contention
+ * loads regularly exceed 15s. */
   async reloadBasicInfo(officeNo = '1604'): Promise<void> {
     const baseUrl = this.config?.base_url || '';
     await this.safeNavigateTo(`${baseUrl}locations/${officeNo}/settings/local-office`);
     await this.waitForAngularStable();
     await this.getElement('frmBasicInfo').waitFor({ state: 'visible', timeout: 30_000 });
   }
-
- // SAVE — BASIC INFO (dialog-based: Yes/No)
-
   async isSaveEnabled(): Promise<boolean> {
     return !(await this.getElement('btnSave').isDisabled());
   }
@@ -47,11 +42,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     return this.waitForSaveEnabled('btnSave', timeout);
   }
 
- /** Click Save and confirm via shared "Save Changes" dialog. Falls through if no dialog appears.
- * Returns {success, networkError?} from the underlying save — callers that care about
- * silent 500s can assert on `.success`. Existing callers that discard the return value
- * still compile (TS allows ignoring a Promise<T>).
- */
+ /** Returns {success, networkError?} — callers that care about silent 500s can assert on .success. */
   async clickSaveAndConfirm(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSave', 'dlgSaveChanges', 'btnSaveChangesConfirm');
   }

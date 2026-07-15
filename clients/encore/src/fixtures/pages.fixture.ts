@@ -66,12 +66,6 @@ type TestFixtures = {
 };
 
 export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
- /**
- * Diagnostics handler fixture (auto-use)
- * Reads from authenticatedSession.page (where collector is attached).
- * Runs for EVERY test — ensures diagnostics are captured even when
- * tests only use page object fixtures (locationPricingPage, etc.).
- */
   diagnosticsHandler: [async ({ authenticatedSession }, use, testInfo) => {
     const { page, context } = authenticatedSession;
 
@@ -91,18 +85,18 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
         const screenshotPath = testInfo.outputPath('failure-screenshot.png');
         await page.screenshot({ path: screenshotPath, fullPage: true });
         await testInfo.attach('screenshot', { path: screenshotPath, contentType: 'image/png' });
-      } catch { /* page may already be closed */ }
+      } catch { }
     }
     if (traceChunkStarted && failed) {
       try {
         const tracePath = testInfo.outputPath('trace.zip');
         await context.tracing.stopChunk({ path: tracePath });
         await testInfo.attach('trace', { path: tracePath, contentType: 'application/zip' });
-      } catch { /* best-effort */ }
+      } catch { }
     } else if (traceChunkStarted) {
       try {
         await context.tracing.stopChunk();
-      } catch { /* best-effort */ }
+      } catch { }
     }
 
     // Best-effort page-topology check at fixture post-use. Detects context leaks that survive
@@ -139,10 +133,9 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
         try {
           const domContent = await page.content();
           snapshot.domSnippet = domContent.slice(0, 50_000);
-        } catch { /* page may be closed */ }
+        } catch { }
 
         try {
- // Extract failing selector from error (same prefixes as AgentReporter)
           const selectorPrefixes = ['btn', 'txt', 'drp', 'chk', 'lnk', 'rdo', 'dlg', 'tbl', 'err', 'col', 'spin', 'tab', 'pnl'];
           const errorText = testInfo.errors.map(e => e.message || '').join(' ');
           const selectorMatch = errorText.match(
@@ -151,7 +144,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
           const errorContext = await collector.generateErrorContext(testInfo.title, selectorMatch?.[1] ?? null);
           const ecPath = testInfo.outputPath('error-context.md');
           fs.writeFileSync(ecPath, errorContext, 'utf-8');
-        } catch { /* best-effort — never block teardown */ }
+        } catch { /* never block teardown */ }
       }
 
       testInfo.attach('diagnostics', {
@@ -179,7 +172,7 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
             authChain: snapshot.authChain,
           });
           fs.writeFileSync(diagFile, JSON.stringify(existing, null, 2) + '\n', 'utf-8');
-        } catch { /* best-effort persistence */ }
+        } catch { }
       }
     }
   }, { auto: true }],
@@ -189,14 +182,6 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     await use(config);
   }, { scope: 'worker' }],
 
- /**
- * Authenticated session fixture (worker-scoped)
- *
- * AUTH-STATE-SHARED (2026-04-30):
- * Loads shared storageState from .auth/encore-state.json (created by the `setup` project).
- * Pre-test guard: validates state; on stale, acquires file-lock and refreshes (single re-login
- * across all workers). Falls back to fresh per-worker login only if state is missing entirely.
- */
   authenticatedSession: [async ({ browser, config }, use) => {
     const credentials = await CredentialLoader.loadCredentials({ type: 'env' });
 
@@ -243,11 +228,9 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
           return;
         }
 
-        // Full SSO login (file-lock guarantees only this worker is here).
-        // SSO step delegated to performSsoLogin (auth-storage). On throw, the helper has already
-        // closed the context; the surrounding catch is no longer needed for cleanup.
-        // Caller-specific error wrapping preserved so the prior error message
-        // ("SSO login failed during state refresh") still identifies the call path in logs.
+        // File-lock guarantees only this worker is here.
+        // On throw, performSsoLogin has already closed the context — no cleanup needed here.
+        // Caller-specific error wrapping preserves the call-path identifier in logs.
         let loginCtx: import('@playwright/test').BrowserContext;
         try {
           ({ ctx: loginCtx } = await performSsoLogin(browser, config.base_url, config, credentials));
@@ -267,15 +250,12 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     // context, closed it on stale, then recreated — wasting one context per cold-start worker.
     // With the hoist, refresh runs first when needed and newSharedContext() runs exactly once.
 
-    // AUTH-STATE-SHARED test hook: when EXP_FORCE_STALE_FIRST=1, simulate mid-run
-    // expiry on the first pre-test guard call per worker process. Forces both workers
-    // through refreshSharedState() simultaneously to verify the file-lock serialization.
-    // Pre-test guard rationale: the fresh-context browser render check (heading visibility) is
-    // unreliable for this app because Playwright's storageState does not capture sessionStorage
-    // / in-memory MSAL state, so cookie-only restoration leaves the SPA in a skeleton-loading
+    // When EXP_FORCE_STALE_FIRST=1, simulate mid-run expiry on the first pre-test guard
+    // call per worker process to verify the file-lock serialization.
+    // Pre-test guard rationale: Playwright's storageState does not capture sessionStorage
+    // or in-memory MSAL state, so cookie-only restoration leaves the SPA in a skeleton-loading
     // state in a context that did not go through SSO. We rely on auth.setup's file-based
-    // validation; here we only force a refresh when EXP_FORCE_STALE_FIRST is set or the state
-    // file is missing entirely.
+    // validation instead.
     const forceStaleFirst =
       process.env.EXP_FORCE_STALE_FIRST === '1' &&
       !(globalThis as unknown as { __expForceStaleConsumed?: boolean }).__expForceStaleConsumed;
@@ -284,13 +264,10 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
       Log.info('[fixture] EXP_FORCE_STALE_FIRST=1 -- forcing stale path for mid-run sim');
     }
     const stateMissing = !fs.existsSync(STATE_PATH);
-    // Fix #3: cheap cookie-expiry pre-check.
-    // Refreshes shared state when the earliest `next-auth.session-token*`
-    // expiry is past (with 60s grace). Catches "cookies expired per their own
-    // expires field" before the 60s Dashboard timeout fires. Tri-state per
-    // the auth-setup expiry check — `null` from readEarliestSessionExpiry() means missing
-    // or all-session-cookies, both already handled by `stateMissing` + existing
-    // fail-eventual safety net at validateState's Dashboard wait.
+    // Refresh shared state when the earliest `next-auth.session-token*` expiry is past
+    // (with 60s grace). Catches expired cookies before the 60s Dashboard timeout fires.
+    // `null` from readEarliestSessionExpiry() means missing or all-session-cookies,
+    // both handled by `stateMissing` + validateState's Dashboard wait.
     const earliestExpiry = stateMissing ? null : readEarliestSessionExpiry();
     const stateExpired =
       earliestExpiry !== null && earliestExpiry * 1000 < Date.now() + 60_000;
@@ -304,12 +281,9 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     try {
       await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
     } catch { /* tracing unavailable -- tests still run, just without trace capture */ }
-    // Navigate primary page to base_url and confirm Dashboard.
-    // BOTH fresh-after-refresh AND pre-existing-valid-state contexts start on about:blank
-    // (probe-context wrap moved validateState off the primary page; primary page from
-    // newSharedContext() is a brand-new blank page). Closes Phase A warm-up regression
-    // (parent plan post-depgate framework fixes deferred item) -- without this
-    // navigation, tests on the not-stale path start on about:blank -> SELECTOR failures.
+    // Both the post-refresh and the pre-existing-valid-state paths start on about:blank —
+    // the probe context owns validateState, so the primary page is never navigated before this
+    // goto. Without this, tests on the non-stale path fail with SELECTOR errors on about:blank.
     await page.goto(config.base_url, { timeout: 78_000 });
     await page
       .getByRole('heading', { name: 'Dashboard', level: 1 })
@@ -322,31 +296,31 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     await context.close();
   }, { scope: 'worker', timeout: 300_000 }],
 
- /**
- * Fix #2: runtime guard for bare-page-collision page-fixture collision.
- *
- * Background: when a spec destructures `{ page, locationXxxPage }`, Playwright resolves
- * BOTH fixtures. The page-object fixtures use `authenticatedSession.page` (the legitimate
- * authenticated context), but the default `page` fixture is a separate fixture that calls
- * `browser.newContext({ storageState })` — producing a second about:blank context that
- * diagnostics cannot see. This override intercepts the destructure point itself and throws
- * loudly so the bug is unmissable at the test boundary.
- *
- * Why throw (Option A) rather than redirect to `authenticatedSession.page` (Option B):
- * redirecting changes test semantics silently AND loses Playwright's built-in trace/video/
- * screenshot capture (those bind to the page returned by THIS `page` fixture). Throwing
- * fails loudly with a [diag:bare-page-collision] pointer.
- *
- * Layered with .githooks/pre-commit grep guard (Fix #1a) + CI lint step (Fix #1b). If a
- * spec escapes both static checks (e.g. `--no-verify` push, fresh clone without hooks),
- * this runtime override is the final net.
- *
- * Failure evidence for page-object tests is captured by the diagnostics fixture: it starts
- * a trace chunk per test against this shared context and, on failure, saves a full-page
- * screenshot and the trace zip. Per-test video is deliberately not recorded -- video
- * recording is fixed when a context is created, so a shared worker-long context can only
- * produce one giant multi-test video, which is not useful evidence.
- */
+  /**
+   * Runtime guard for bare-page-collision in the page fixture.
+   *
+   * When a spec destructures `{ page, locationXxxPage }`, Playwright resolves
+   * BOTH fixtures. The page-object fixtures use `authenticatedSession.page` (the legitimate
+   * authenticated context), but the default `page` fixture is a separate fixture that calls
+   * `browser.newContext({ storageState })` — producing a second about:blank context that
+   * diagnostics cannot see. This override intercepts the destructure point itself and throws
+   * loudly so the bug is unmissable at the test boundary.
+   *
+   * Why throw rather than redirect to `authenticatedSession.page`:
+   * redirecting changes test semantics silently AND loses Playwright's built-in trace/video/
+   * screenshot capture (those bind to the page returned by THIS `page` fixture). Throwing
+   * fails loudly with a [diag:bare-page-collision] pointer.
+   *
+   * Layered with pre-commit grep guard and CI lint step. If a spec escapes both static
+   * checks (e.g. `--no-verify` push, fresh clone without hooks), this runtime override
+   * is the final net.
+   *
+   * Failure evidence is captured by the diagnostics fixture: it starts a trace chunk per
+   * test against this shared context and, on failure, saves a full-page screenshot and trace
+   * zip. Per-test video is deliberately not recorded — video recording is fixed when a
+   * context is created, so a shared worker-long context produces one giant multi-test video,
+   * which is not useful evidence.
+   */
   page: async ({}, _use, testInfo) => {
     const msg =
       `[diag:bare-page-collision] test "${testInfo.titlePath.join(' > ')}" requested bare {page} from ` +
@@ -427,28 +401,16 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     await use(corporatePricingBasePage);
   },
 
-  /**
-   * CorporatePricingSearchPage fixture (S1 — Search screen, NM-1445).
-   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
-   */
   corporatePricingSearchPage: async ({ authenticatedSession, config }, use) => {
     const corporatePricingSearchPage = wrapWithSteps(new CorporatePricingSearchPage(authenticatedSession.page, config), 'CorporatePricingSearchPage');
     await use(corporatePricingSearchPage);
   },
 
-  /**
-   * CorporatePricingStrategyPage fixture (S2 — Pricing Strategy tab, NM-1441).
-   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
-   */
   corporatePricingStrategyPage: async ({ authenticatedSession, config }, use) => {
     const corporatePricingStrategyPage = wrapWithSteps(new CorporatePricingStrategyPage(authenticatedSession.page, config), 'CorporatePricingStrategyPage');
     await use(corporatePricingStrategyPage);
   },
 
-  /**
-   * CorporatePricingDetailPage fixture (S3 — Pricing Detail tab, NM-1443).
-   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
-   */
   corporatePricingDetailPage: async ({ authenticatedSession, config }, use) => {
     const corporatePricingDetailPage = wrapWithSteps(new CorporatePricingDetailPage(authenticatedSession.page, config), 'CorporatePricingDetailPage');
     await use(corporatePricingDetailPage);
@@ -459,10 +421,6 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
     await use(corporatePricingOverridePage);
   },
 
-  /**
-   * CorporatePricingNewPricebookPage fixture (NM-1440 — New Pricebook create flow, /add?type=...).
-   * Extends CorporatePricingBasePage; uses authenticatedSession page so tests start pre-authenticated.
-   */
   corporatePricingNewPricebookPage: async ({ authenticatedSession, config }, use) => {
     const corporatePricingNewPricebookPage = wrapWithSteps(new CorporatePricingNewPricebookPage(authenticatedSession.page, config), 'CorporatePricingNewPricebookPage');
     await use(corporatePricingNewPricebookPage);
@@ -470,5 +428,4 @@ export const test = dependencyGateExt.extend<TestFixtures, WorkerFixtures>({
 
 });
 
-// Re-export expect
 export { expect } from '@playwright/test';

@@ -22,12 +22,8 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
   test.describe.configure({ timeout: 150_000 });
 
   test.beforeEach(async ({ corporatePricingDetailPage: p }) => {
-    // Per-test baseline: restores detailFixture anchors to base Price / no discount and
-    // lands on the Pricing Detail tab.
     await p.ensureDefaultState();
   });
-
-  // ── Load + structure ────────────────────────────────────────────────────────
 
   test('TC-CPR-DET-001: Pricing Detail tab activates and the product-group grid renders', async ({ corporatePricingDetailPage: p }) => {
     expect(await p.isDetailTabActive(), 'Pricing Detail tab is active on load').toBe(true);
@@ -48,11 +44,8 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
   });
 
   test('TC-CPR-DET-005: Pricing details load on tab activation', async ({ corporatePricingDetailPage: p }) => {
-    // The anchored row's Price + override cells are present once details have loaded.
     expect(await p.getCellText(DETAIL.anchorA.name, 'price')).toBe(DETAIL.anchorA.basePrice);
   });
-
-  // ── Read-only vs editable cells ──────────────────────────────────────────────
 
   test('TC-CPR-DET-006: Base Price (Price column) is read-only', async ({ corporatePricingDetailPage: p }) => {
     expect(await p.priceIsReadOnly(DETAIL.anchorA.name)).toBe(true);
@@ -63,8 +56,6 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     expect(typeof (await p.getNewPrice(DETAIL.anchorA.name))).toBe('string');
     expect(typeof (await p.getMaxDiscount(DETAIL.anchorA.name))).toBe('string');
   });
-
-  // ── Management-mode defensive (no add) ───────────────────────────────────────
 
   test('TC-CPR-DET-008: Single-clicking a source product group does not add a grid row', async ({ corporatePricingDetailPage: p }) => {
     const { before, after } = await p.attemptSourceAdd('single');
@@ -86,8 +77,6 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     expect(await p.rowHasAddRemoveAffordance(DETAIL.anchorA.name)).toBe(false);
   });
 
-  // ── Dirty / Save ─────────────────────────────────────────────────────────────
-
   test('TC-CPR-DET-012: Unmodified grid shows the clean state (Save disabled)', async ({ corporatePricingDetailPage: p }) => {
     expect(await p.isSaveEnabled()).toBe(false);
   });
@@ -96,7 +85,6 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     expect(await p.isSaveEnabled()).toBe(false);
     await p.setMaxDiscount(DETAIL.anchorA.name, DETAIL.maxDiscountEdit.value);
     expect(await p.isSaveEnabled()).toBe(true);
-    // discard without saving — reload restores baseline (next beforeEach also restores)
     await p.open();
     expect(await p.isSaveEnabled()).toBe(false);
   });
@@ -104,7 +92,6 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
   test('TC-CPR-DET-014: Save is dialog-gated (Save Changes confirmation)', async ({ corporatePricingDetailPage: p }) => {
     await p.setMaxDiscount(DETAIL.anchorA.name, DETAIL.maxDiscountEdit.value);
     expect(await p.isSaveEnabled()).toBe(true);
-    // Click Save and assert the confirm dialog surfaces before committing.
     await p.clickSaveButton();
     await expect(p.saveChangesDialog).toBeVisible({ timeout: 5_000 });
     await expect(p.saveChangesDialog).toContainText('Save Changes');
@@ -142,12 +129,9 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     await p.ensureDefaultState(); // restore both
   });
 
-  // ── New Price override ───────────────────────────────────────────
-
   test('TC-CPR-DET-018: Verify a saved New Price override becomes the row Price after reload', async ({ corporatePricingDetailPage: p }) => {
     const name = DETAIL.anchorB.name;
     await p.setNewPrice(name, DETAIL.newPriceEdit.value);
-    // A New-Price edit alone marks the grid dirty and enables Save; the saved value becomes the row Price.
     expect(await p.isSaveEnabled()).toBe(true);
     await p.saveAndConfirm();
     await p.open();
@@ -158,7 +142,6 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
 
   test('TC-CPR-DET-019: An empty New Price leaves the Base Price in effect', async ({ corporatePricingDetailPage: p }) => {
     const name = DETAIL.anchorA.name;
-    // On a clean (no-override) row the New Price input is empty and the Price shows the base price.
     expect(await p.getNewPrice(name)).toBe('');
     expect(await p.getCellText(name, 'price')).toBe(DETAIL.anchorA.basePrice);
   });
@@ -231,8 +214,6 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     expect(await p.isSaveEnabled()).toBe(true);
   });
 
-  // ── Max Discount numeric boundaries ───────────────────────────────────────────
-
   test('TC-CPR-DET-028: Max Discount accepts 0 as a valid no-discount value', async ({ corporatePricingDetailPage: p }) => {
     const name = DETAIL.anchorA.name;
     await p.setMaxDiscount(name, '0');
@@ -273,8 +254,6 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     expect(await p.getMaxDiscountAriaInvalid(name)).not.toBe('true');
   });
 
-  // ── Dirty-state regression: reverting to the original value disables Save ──────
-
   test('TC-CPR-DET-033: Reverting an edited New Price back to its original value disables Save', async ({ corporatePricingDetailPage: p }) => {
     const name = DETAIL.anchorA.name;
     expect(await p.isSaveEnabled()).toBe(false);
@@ -313,8 +292,6 @@ test.describe('Corporate Pricing — Pricing Detail @corporate-pricing @detail',
     expect(await p.getCellText(name, 'price')).toBe(DETAIL.anchorB.basePrice);
     expect(typeof (await p.getNewPrice(name))).toBe('string');
   });
-
-  // ── Watches for related tickets (assert the correct, non-defective behavior) ───
 
   test('TC-CPR-DET-038: Editing and saving a row New Price does not silently change its Max Discount', async ({ corporatePricingDetailPage: p }) => {
     const name = DETAIL.anchorB.name;
@@ -421,7 +398,6 @@ test.describe('SBC — Pricing Detail surface behaviors @corporate-pricing @deta
   });
 
   test('TC-CPR-DET-046: A row that a paginated grid would place on a later page is present without any navigation', async ({ corporatePricingDetailPage: p }) => {
-    // No paging controls exist, so every row is in the DOM and content-anchored-readable directly.
     expect(await p.getCellText(DETAIL.anchorB.name, 'price')).toBe(DETAIL.anchorB.basePrice);
   });
 
@@ -430,7 +406,6 @@ test.describe('SBC — Pricing Detail surface behaviors @corporate-pricing @deta
   });
 
   test('TC-CPR-DET-048: Each product group appears once — content-anchored rows are unique', async ({ corporatePricingDetailPage: p }) => {
-    // Two distinct anchors resolve to two distinct rows with their own base prices (no duplication).
     expect(await p.getCellText(DETAIL.anchorA.name, 'price')).toBe(DETAIL.anchorA.basePrice);
     expect(await p.getCellText(DETAIL.anchorB.name, 'price')).toBe(DETAIL.anchorB.basePrice);
   });

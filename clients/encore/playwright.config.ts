@@ -1,5 +1,3 @@
-/** Encore Playwright configuration. */
-
 import { defineConfig } from '@playwright/test';
 import * as dotenvFlow from 'dotenv-flow';
 import * as fs from 'fs';
@@ -68,8 +66,6 @@ export default defineConfig({
 
   reporter: [
     ['list'],
-    // AgentReporter writes reports/failure-summary.json on every failing run — primary triage input.
-    // Bundled by `npm run share-for-debugging` and shipped to CI artifact `share-for-debugging-*.zip`.
     // Local reporter — kept under the client tree so it ships inside the client bundle.
     ['./src/reporter/agent-reporter.ts'],
     ['html', { outputFolder: 'reports/html-report', open: 'never' }],

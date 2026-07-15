@@ -14,9 +14,9 @@
 import { CORPORATE_PRICING_COMMON, CORPORATE_PRICING_FIXTURES } from './common';
 
 export const DETAIL = {
-  office: CORPORATE_PRICING_COMMON.office, // '1604'
-  pricebookGuid: CORPORATE_PRICING_FIXTURES.detailFixture.guid, // 91acb5ca-20e2-ce8e-a9ab-8c370925fd65
-  pricebookName: CORPORATE_PRICING_FIXTURES.detailFixture.name, // '2021-PB6'
+  office: CORPORATE_PRICING_COMMON.office,
+  pricebookGuid: CORPORATE_PRICING_FIXTURES.detailFixture.guid,
+  pricebookName: CORPORATE_PRICING_FIXTURES.detailFixture.name,
 
   headers: ['ID', 'Product Group Name', 'Price', 'New Price', 'Max Discount'] as const,
 

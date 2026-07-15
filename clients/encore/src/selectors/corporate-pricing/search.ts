@@ -22,40 +22,23 @@ export const CorporatePricingSearchSelectors = {
   btnLocPricingImport: 'button:text-is("Loc Pricing Import")',
   btnExport: 'button:text-is("Export")',
   btnImport: 'button:text-is("Import")',
-  /**
-   * @where Search > Action bar @el button @text "Grid Options" @keys grid options columns
-   * Live correction (2026-06-09): Grid Options is a 32×32 ICON button — its "Grid Options" label is
-   * sr-only, so `:text-is("Grid Options")` matches no VISIBLE text and never resolves. Anchor on the
-   * accessible name instead (`aria-label`, `aria-haspopup="menu"`). Live-verified, not invented.
-   */
+  // sr-only icon button — :text-is("Grid Options") matches no visible text; anchor on aria-label.
   btnGridOptions: 'button[aria-label="Grid Options"]',
 
   mnuToolbarVariant: '[role="menuitem"]',
   mnuGridColumn: '[role="menuitemcheckbox"]',
-  /**
-   * @where Search > Import ▾ / Loc Pricing Import @el dialog @keys the custom "Import ..." upload dialog
-   * Matches either ARIA role (the app's confirm/import dialogs are sometimes `alertdialog`, portal-nested);
-   * callers scope it further by the "Choose a file to import data" prompt text to disambiguate.
-   */
+  // matches role="dialog" or "alertdialog" (portaled dialogs vary); callers scope by prompt text to disambiguate.
   dlgImport: '[role="dialog"], [role="alertdialog"]',
   btnImportBrowse: 'button:text-is("Browse")',
   btnImportUpload: 'button:text-is("Upload")',
   inputImportFile: 'input[type="file"]',
 
-  /**
-   * @where Search > Export ▾ variant @el dialog @keys the "Export" Year(s)+Currency precondition dialog
-   * Base role selector; the page object scopes it by the unique prompt text ("Select between 1 and 3 years")
-   * so it never collides with the import dialog or other page dialogs.
-   */
+  // base role selector; scoped by unique prompt text in the PO to avoid collision with import dialogs.
   dlgExport: '[role="dialog"]',
   cmbExportField: 'button[role="combobox"]',
   optExportListItem: '[role="option"]',
 
-  /**
-   * @where Search > Import ▾ variant @el dialog @keys the "Import" Year(s)+Currency precondition dialog
-   * Base role selector; the page object scopes it by the unique prompt AND the "Import" title (the Export
-   * dialog carries the identical prompt), so it never collides with the Export or upload dialogs.
-   */
+  // base role selector; scoped by prompt AND "Import" title in the PO — Export dialog carries identical prompt.
   dlgImportAll: '[role="dialog"]',
   cmbImportAllField: 'button[role="combobox"]',
   optImportAllListItem: '[role="option"]',
@@ -79,11 +62,6 @@ export const CorporatePricingSearchSelectors = {
   btnPagePrev: 'button[aria-label="Go to previous page"]',
   btnPageNext: 'button[aria-label="Go to next page"]',
   btnPageLast: 'button[aria-label="Go to last page"]',
-  /**
-   * @where Search > Pagination @el combobox @keys rows-per-page selector
-   * The page-size selector is the only [role="combobox"] whose label is purely digits (the Location /
-   * Currency filter comboboxes show words). Default "50"; options 10/20/30/40/50. Resolve via the
-   * digit-text filter in the page object (a bare role selector would also match the filter comboboxes).
-   */
+  // only combobox showing a pure digit; location/currency filters show words — bare role selector matches those too.
   drpPageSizeRole: '[role="combobox"]',
 } as const;

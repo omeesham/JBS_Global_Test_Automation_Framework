@@ -266,12 +266,8 @@ export class BasePage {
     }
   }
 
- // SHARED PAGE OBJECT HELPERS — extracted from Currency / Pricing / Local Info
-
  /**
  * Click a save button and confirm the Save Changes dialog if it appears.
- * Extracted from LocationCurrencyPage, LocationPricingPage, LocationLocalInfoPage (identical pattern).
- * shared pattern used by 3+ page objects → belongs in BasePage.
  * Returns saved:true only when a real save ran; saved:false means the button was disabled (no-op) or the save failed -- callers reverting shared state must not treat a no-op as persisted.
  * @param saveBtnKey - Selector key for the save button (e.g., 'btnSavePricing')
  * @param dialogKey - Selector key for the confirmation dialog (default: 'dlgSaveChanges')
@@ -338,13 +334,11 @@ export class BasePage {
       Log.warn(`[WARN] ${inFlight} request(s) still in-flight after 5s drain — proceeding`);
     }
 
- // Remove all listeners
     this.page.off('request', requestTracker);
     this.page.off('response', responseHandler);
     this.page.off('requestfinished', requestDoneTracker);
     this.page.off('requestfailed', requestDoneTracker);
 
- // Check for API errors
     if (networkErrors.length > 0) {
       Log.error(`[FAIL] Save had API errors: ${networkErrors.join(', ')}`);
       return { success: false, saved: false, networkError: networkErrors.join('; ') };
@@ -432,8 +426,6 @@ export class BasePage {
 
  /**
  * Navigate to a settings sub-tab for a given office, clicking the tab only if not already active.
- * Extracted from LocationCurrencyPage, LocationPricingPage, LocationLocalInfoPage (identical pattern).
- * shared pattern used by 3+ page objects → belongs in BasePage.
  * @param tabKey - Selector key for the tab element
  * @param readinessElementKey - Selector key for an element confirming the tab content is loaded
  * @param officeNo - Office number (default: '1604')
@@ -462,8 +454,8 @@ export class BasePage {
       await tab.click();
       await this.waitForAngularStable();
     }
-    // 30s readiness timeout (was 15s): live-verified cold-load p95 ~9s isolated, but 4-worker
-    // contention regularly pushes form-visible past 15s — was the BAS-001 SELECTOR timeout.
+    // 30s readiness timeout (was 15s): cold-load p95 ~9s isolated, but 4-worker
+    // contention regularly pushes form-visible past 15s.
     await this.getElement(readinessElementKey).waitFor({ state: 'visible', timeout: 30_000 });
     Log.info(`[OK] Tab active: ${tabKey}`);
   }
@@ -485,7 +477,6 @@ export class BasePage {
  /**
  * Get the checked/disabled state of a Radix UI checkbox (button[role="checkbox"] using aria-checked).
  * Native HTML checkboxes use isChecked; Radix uses aria-checked attribute — this handles Radix.
- * shared Radix pattern used by Pricing + future pages → belongs in BasePage.
  * @param elementKey - Selector key for the Radix checkbox element
  */
   protected async getRadixCheckboxState(elementKey: string): Promise<CheckboxState> {
@@ -497,7 +488,6 @@ export class BasePage {
 
  /**
  * Set a Radix UI checkbox to a target checked state (clicks only if state differs).
- * shared Radix pattern → BasePage.
  * @param elementKey - Selector key for the Radix checkbox
  * @param checked - Desired state: true = checked, false = unchecked
  */
@@ -536,7 +526,6 @@ export class BasePage {
  /**
  * Open a combobox/dropdown, read all [role="option"] text contents, close it, return the list.
  * Handles Radix UI dropdowns that render a [role="listbox"] on click.
- * shared pattern used by Currency + Pricing → BasePage.
  * @param dropdownKey - Selector key for the combobox trigger element
  * @returns Array of trimmed, non-empty option strings
  */
@@ -554,9 +543,6 @@ export class BasePage {
  * Wraps option-click in a 3-retry loop; on failure presses Escape, waits for
  * listbox hidden, reopens via openComboboxListbox, scrollIntoViewIfNeeded(3s),
  * then click(5s). Per-attempt timeout ~5s keeps total budget ~15s.
- * Layer 5 ('radix') retry telemetry: every terminal pass + every terminal fail
- * flushes `attempts` via recordCall('radix', attempts) — mirrors Layer 1
- * (clickWithRetry) shape.
  * @param dropdownKey - Selector key for the combobox trigger element
  * @param optionText - Display text of the option to select
  * @param opts.exact - When true, exact-match via page.getByRole('option', {name, exact}).
@@ -600,7 +586,6 @@ export class BasePage {
 
  /**
  * Get column header texts by iterating over an array of selector keys.
- * Shared pattern used by Currency (4 cols) + Pricing (7 cols).
  * @param keys - Array of selector keys for column header elements
  * @returns Array of trimmed header texts in the same order as keys
  */
@@ -616,7 +601,6 @@ export class BasePage {
  /**
  * Get displayed value of a form field (input or text element).
  * Tries inputValue first (for input elements), falls back to textContent.
- * Shared pattern used by Currency (getMerchantValue) + Pricing (getDropdownValue, getCurrencyFilterValue).
  * @param selectorKey - Selector key for the field element
  * @returns Trimmed field display value
  */
@@ -633,13 +617,12 @@ export class BasePage {
  /**
  * Wait for a save button to become enabled (form dirty state propagation).
  * Polls the button disabled state efficiently.
- * Shared by all tabs — every tab has a save button.
  * @param saveBtnKey - Selector key for the save button
  * @param timeout - Maximum wait time in ms (default: 5000)
  * @returns true if save became enabled within timeout, false otherwise
  */
   // Default 10s (was 5s): Angular dirty-state propagation after section-grid
-  // edits can occasionally exceed 5s under contention — was the BAS-027 flake.
+  // edits can occasionally exceed 5s under contention.
   protected async waitForSaveEnabled(saveBtnKey: string, timeout = 10_000): Promise<boolean> {
     try {
       const btn = this.getElement(saveBtnKey);

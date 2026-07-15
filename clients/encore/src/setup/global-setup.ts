@@ -79,9 +79,9 @@ function ensureReportDirectories(): void {
 async function runPreflightChecks(): Promise<PreflightResult[]> {
   const results: PreflightResult[] = [];
 
- // Check 1: Required env vars. Only BASE_URL is truly required — CI_ENV is optional and
- // defaults to 'local' when unset (see dotenv-flow node_env above + playwright.config.ts),
- // so a bare local `npm test` legitimately leaves it empty and must not fail pre-flight.
+  // Check 1: Required env vars. Only BASE_URL is truly required — CI_ENV is optional and
+  // defaults to 'local' when unset (see dotenv-flow node_env above + playwright.config.ts),
+  // so a bare local `npm test` legitimately leaves it empty and must not fail pre-flight.
   for (const envVar of ['BASE_URL']) {
     const value = process.env[envVar];
     if (!value || value.trim() === '') {
@@ -91,10 +91,10 @@ async function runPreflightChecks(): Promise<PreflightResult[]> {
     }
   }
 
- // Check 2: Base URL reachable
- // Uses redirect: 'manual' because Navigator Cloud redirects unauthenticated requests
- // to /auth/sign-in which may return non-2xx (SSR quirk). A 3xx redirect proves the
- // server is up and routing correctly — that's all pre-flight needs to verify.
+  // Check 2: Base URL reachable
+  // Uses redirect: 'manual' because Navigator Cloud redirects unauthenticated requests
+  // to /auth/sign-in which may return non-2xx (SSR quirk). A 3xx redirect proves the
+  // server is up and routing correctly — that's all pre-flight needs to verify.
   const baseUrl = process.env.BASE_URL;
   if (baseUrl) {
     try {
@@ -109,7 +109,7 @@ async function runPreflightChecks(): Promise<PreflightResult[]> {
     }
   }
 
- // Check 3: OAuth endpoint reachable (WARN only -- may be blocked by network policy)
+  // Check 3: OAuth endpoint reachable (WARN only -- may be blocked by network policy)
   try {
     const oauthUrl = 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration';
     const response = await fetch(oauthUrl, { method: 'GET', signal: AbortSignal.timeout(10_000) });
@@ -122,7 +122,6 @@ async function runPreflightChecks(): Promise<PreflightResult[]> {
     results.push({ check: 'oauth_endpoint', status: 'WARN', message: `OAuth endpoint unreachable -- ${error instanceof Error ? error.message : String(error)}` });
   }
 
- // Check 4: Credential source loadable
   try {
     await CredentialLoader.loadCredentials({ type: 'env' });
     results.push({ check: 'credentials', status: 'PASS', message: 'Credentials loaded from environment' });
@@ -153,7 +152,7 @@ function cleanupDiagnosticFiles(): void {
         fs.unlinkSync(filePath);
       }
     }
-  } catch { /* best-effort cleanup */ }
+  } catch { /* deletion failure is non-fatal — stale diag files do not block test setup */ }
 }
 
 export default globalSetup;

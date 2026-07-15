@@ -1,9 +1,3 @@
-/**
- * Fixture-layer Proxy that renders each page-object action as a short, plain-English
- * step in the Playwright HTML report, so a non-technical reader sees sentences
- * ("Open the Currency tab") instead of raw locator code. Non-action members (the
- * public `page` property, getters, synchronous helpers) pass through untouched.
- */
 import { test } from '@playwright/test';
 import labelData from './label-jargon.json';
 
@@ -23,11 +17,6 @@ function splitCamel(name: string): string[] {
     .filter(Boolean);
 }
 
-/**
- * Convert a method name into a short plain-English report label. Each word is
- * translated through the jargon map (client-facing product words); words mapped to
- * an empty string are dropped; everything else is lowercased.
- */
 export function camelToLabel(methodName: string): string {
   const out: string[] = [];
   for (const word of splitCamel(methodName)) {
@@ -49,11 +38,9 @@ export function resolveLabel(className: string, methodName: string): string {
 }
 
 /**
- * Run `fn` inside a labelled test.step when a test context exists; otherwise run it
- * unwrapped. `test.info()` throws synchronously outside a running test (e.g. a
- * worker-scoped auth refresh), so it is a safe pre-check BEFORE calling test.step
- * (which would reject rather than throw). Body errors are NEVER caught here —
- * assertion failures and real errors propagate normally.
+ * `test.info()` throws synchronously outside a running test (e.g. a worker-scoped auth
+ * refresh), so it is a safe pre-check BEFORE calling test.step (which would reject rather
+ * than throw). Body errors are NEVER caught here — assertion failures propagate normally.
  */
 async function safeStep<T>(label: string, fn: () => Promise<T>): Promise<T> {
   let hasContext = false;
@@ -61,7 +48,6 @@ async function safeStep<T>(label: string, fn: () => Promise<T>): Promise<T> {
     test.info();
     hasContext = true;
   } catch {
-    // Documented fallback: no active test context -> run this method unwrapped.
     hasContext = false;
   }
   if (!hasContext) {
@@ -74,11 +60,6 @@ export interface WrapOptions {
   exclude?: string[];
 }
 
-/**
- * Wrap a page-object instance in a Proxy that renders each async action as a
- * plain-English `test.step` in the HTML report. Non-function members (properties,
- * the public `page`, getters) and synchronous methods pass through unchanged.
- */
 export function wrapWithSteps<T extends object>(
   instance: T,
   className: string,
@@ -90,17 +71,14 @@ export function wrapWithSteps<T extends object>(
   const handler: ProxyHandler<T> = {
     get(target, prop, receiver): unknown {
       const value = Reflect.get(target, prop, receiver);
-      // Non-function members (properties, `page`, getter results) — return UNCHANGED.
       if (typeof value !== 'function') {
         return value;
       }
-      // Synchronous functions — bind to the raw target, no step wrapping.
       if (value.constructor.name !== 'AsyncFunction') {
         return value.bind(target);
       }
-      // Async functions — wrap in a labelled step. `.apply(target, ...)` (raw target,
-      // not the proxy) means internal this.otherMethod() calls are not re-intercepted,
-      // so the report shows no confusing nested duplicate steps.
+      // `.apply(target, ...)` (raw target, not the proxy) means internal this.otherMethod()
+      // calls are not re-intercepted, so the report shows no confusing nested duplicate steps.
       const label = resolveLabel(className, String(prop));
       return (...args: unknown[]): Promise<unknown> =>
         safeStep(label, () => value.apply(target, args) as Promise<unknown>);

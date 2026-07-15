@@ -24,7 +24,6 @@ test.describe('Location Local Info @locations @local-info', () => {
     }
   });
 
- // ── Navigate ONCE -- all subsequent tests reuse this page state ──────────────
  // Timeout: 60s -- location settings navigation observed at ~18s on first load (auth + route + render).
   test('TC-LOC-LI-001: Navigate to Local Info tab; URL correct, Save disabled', async ({ locationLocalInfoPage, dependencyGate }) => {
     dependencyGate([]);
@@ -34,7 +33,6 @@ test.describe('Location Local Info @locations @local-info', () => {
  // mutable field this spec touches so a prior crashed run cannot poison defaults.
     await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 30_000);
     let dirty = false;
- // 1. UNCHECKED defaults must be unchecked (existing).
     for (const key of UNCHECKED_DEFAULTS) {
       const state = await locationLocalInfoPage.getCheckboxState(key);
       if (state.disabled) continue;
@@ -278,7 +276,6 @@ test.describe('Location Local Info @locations @local-info', () => {
     await locationLocalInfoPage.clickSave();
   });
 
- // : IDC Billing persists after save+reload. 2 save+reload cycles.
   test('TC-LOC-LI-072: Enable IDC Billing persists after save+reload', async ({ locationLocalInfoPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LI-001']);
     test.setTimeout(120_000);

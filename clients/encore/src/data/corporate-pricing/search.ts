@@ -48,7 +48,7 @@ export const CORP_PRICING_SEARCH = {
     currency: 'All Currencies',
     isInternal: false,
     isLabor: false,
-    activeOnly: true, // default checked
+    activeOnly: true,
   } as const,
 
   currencyOptions: ['All Currencies', 'USD', 'CAD', 'MXN'] as const,

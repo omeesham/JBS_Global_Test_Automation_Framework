@@ -2,12 +2,6 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import { CORP_PRICING_SEARCH } from '../../src/data/corporate-pricing/search';
 
 /**
- * Corporate Pricing — Search screen — functional + field-coverage (two-describe shape).
- *
- *  - Field-coverage describe (top, 12 cases TC-CPR-SRC-019..030): BVA / special / each-option / compound / reset-idempotency,
- *    live-walked 2026-06-10. Read-only → Search-cycle (stage→Search→server→restore).
- *  - Functional describe (below, 18 cases TC-CPR-SRC-001..018): the requirements + a live walk, 2026-06-05.
- *
  * Read-only screen — no mutation. Query-param contract (verified): pricebookName / pricingStrategyName /
  * currencyId (USD=1,CAD=2,MXN=3) / locationNo / isInternal / isLabor / isActive (omitted when Active Only unchecked).
  *
@@ -26,7 +20,6 @@ test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & re
     await cp.open();
   });
 
-  // ── Pricebook text filter — BVA / negative (each carries the announced + escapable rejection check) ──
 
   test('TC-CPR-SRC-019: Pricebook no-match input returns zero results server-side', async ({ corporatePricingSearchPage: cp }) => {
     await cp.fillPricebookFilter(CORP_PRICING_SEARCH.fcc.pricebookNoMatch);
@@ -75,7 +68,6 @@ test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & re
     await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBe(0);
   });
 
-  // ── Dropdown each-option ──────────────────────────────────────────────────────
 
   test('TC-CPR-SRC-024: Currency each-option (USD/CAD/MXN) submits the matching currencyId', async ({ corporatePricingSearchPage: cp }) => {
     for (const [name, id] of Object.entries(CORP_PRICING_SEARCH.fcc.currencyId)) {
@@ -97,7 +89,6 @@ test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & re
     await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeLessThanOrEqual(baseline);
   });
 
-  // ── Checkbox toggle + revert symmetry ─────────────────────────────────────────
 
   test('TC-CPR-SRC-026: Is Internal toggle + revert restores the baseline', async ({ corporatePricingSearchPage: cp }) => {
     const base = await cp.getItemCountNumber();
@@ -132,7 +123,6 @@ test.describe('Corporate Pricing — Search FCC: BVA, each-option, combined & re
     await expect.poll(async () => cp.getItemCountNumber(), { timeout: 15_000 }).toBe(base);
   });
 
-  // ── Reset idempotency + compound ──────────────────────────────────────────────
 
   test('TC-CPR-SRC-029: Reset is idempotent and fires no server request', async ({ corporatePricingSearchPage: cp }) => {
     const counter = cp.attachListCallCounter();
@@ -182,7 +172,6 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     await cp.open('1604');
   });
 
-  // ── Load + structure ────────────────────────────────────────────────────────
 
   test('TC-CPR-SRC-001: Component loads and calls the Pricebook list endpoint exactly once', async ({ corporatePricingSearchPage: cp }) => {
     const counter = cp.attachListCallCounter();
@@ -227,7 +216,6 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     expect(allValid).toBe(true); // every boolean cell is ✔ or empty
   });
 
-  // ── Text filters (stage → Search server-side) ────────────────────────────────
 
   test('TC-CPR-SRC-005: Pricebook filter stages on type, then Search narrows server-side', async ({ corporatePricingSearchPage: cp }) => {
     const counter = cp.attachListCallCounter();
@@ -271,7 +259,6 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     }
   });
 
-  // ── Dropdown filters ─────────────────────────────────────────────────────────
 
   test('TC-CPR-SRC-007: Currency dropdown options + select stages then Search applies', async ({ corporatePricingSearchPage: cp }) => {
     const opts = await cp.getCurrencyOptions();
@@ -298,7 +285,6 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     expect(opts).toContain(CORP_PRICING_SEARCH.locationFirstEntry); // "Clear selection" present
   });
 
-  // ── Checkbox filters (stage → Search server-side) ────────────────────────────
 
   test('TC-CPR-SRC-009: Is Internal stages then Search narrows to internal pricebooks', async ({ corporatePricingSearchPage: cp }) => {
     const counter = cp.attachListCallCounter();
@@ -340,7 +326,6 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThanOrEqual(before);
   });
 
-  // ── Reset ────────────────────────────────────────────────────────────────────
 
   test('TC-CPR-SRC-012: Reset clears every filter input and restores the full list', async ({ corporatePricingSearchPage: cp }) => {
     // stage + apply a narrowing filter
@@ -362,7 +347,6 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     await expect.poll(async () => cp.getItemCountNumber(), { timeout: 10_000 }).toBeGreaterThan(narrowed);
   });
 
-  // ── Network classification ────────────────────────────────────────────────
 
   test('TC-CPR-SRC-013: No network request fires while typing or selecting filters (client-side staging)', async ({ corporatePricingSearchPage: cp }) => {
     const counter = cp.attachListCallCounter();
@@ -390,7 +374,6 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     }
   });
 
-  // ── Navigation ─────────────────────────────────────────────────────────────
 
   test('TC-CPR-SRC-015: Clicking a Price Book name navigates to the Pricebook Details route', async ({ corporatePricingSearchPage: cp }) => {
     await cp.clickPricebookName(CORP_PRICING_SEARCH.pricebookFilterSample.expectedName);
@@ -410,7 +393,6 @@ test.describe('Corporate Pricing — Search @corporate-pricing @search', () => {
     await expect(cp.page).toHaveURL(/\/corporate-pricing\/add\?type=labor/i, { timeout: 15_000 });
   });
 
-  // ── Action bar ───────────────────────────────────────────────────────────────
 
   test('TC-CPR-SRC-018: Action-bar buttons are present and New behaves as a button', async ({ corporatePricingSearchPage: cp }) => {
     // Assert via the shadow-pierced textContent set (Playwright's :text-is misses these labels at the
@@ -436,7 +418,6 @@ test.describe('Corporate Pricing — Search: Grid Options + filter→grid conten
     await cp.open('1604');
   });
 
-  // ── Grid Options (column show/hide + reset; visibility is a persisted user preference) ──
 
   test('TC-CPR-SRC-031: Grid Options menu exposes a toggle per column and Reset to Default View', async ({ corporatePricingSearchPage: cp }) => {
     await cp.openGridOptions();
@@ -508,7 +489,6 @@ test.describe('Corporate Pricing — Search: Grid Options + filter→grid conten
     }
   });
 
-  // ── Filter → grid content coherence (every returned row obeys the applied filter) ──
 
   test('TC-CPR-SRC-034: Currency = USD returns rows that all show USD in the Currency column', async ({ corporatePricingSearchPage: cp }) => {
     await cp.selectCurrency('USD');
@@ -576,7 +556,6 @@ test.describe('Corporate Pricing — Search: Grid Options + filter→grid conten
     expect((await cp.readColumnForVisibleRows('Price Book')).some((n) => n.includes('2021-PB6'))).toBe(true);
   });
 
-  // ── Compound / order-independence / reset-from-compound ──
 
   test('TC-CPR-SRC-041: Combined filters return rows that satisfy every active criterion (AND)', async ({ corporatePricingSearchPage: cp }) => {
     await cp.setCheckbox('isLabor', true);

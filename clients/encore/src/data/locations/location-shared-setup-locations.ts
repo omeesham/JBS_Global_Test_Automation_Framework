@@ -12,9 +12,10 @@ export const SELF_ROW = {
 } as const;
 
 export const ADD_LOCATION = {
- /** Default name-search query (TC-010, TC-016, TC-019) — Boston returns 77 rows on e2e office 1604
-  *  per BUG-LOC-SHR-001 verificationLog 2026-05-19. TC-018/020/021/024 use distinct per-TC literals
-  *  (Chicago/Dallas/Denver/Atlanta) for alt-query independence — see spec inline literals. */
+ /** Default name-search query — Boston returns 77 rows on e2e office 1604
+  *  (live-verified 2026-05-19; non-Miami query required due to app behavior).
+  *  Alt-search specs use distinct per-spec literals (Chicago/Dallas/Denver/Atlanta)
+  *  for query independence — see spec inline literals. */
   searchByName: 'Boston',
  /** Max expected results after name search. Guards against full 4541-row catalog leakage.
   *  Raised 400 → 600 to accommodate Dallas/Denver/Atlanta whose e2e counts were unmeasured at
@@ -27,8 +28,7 @@ export const ADD_LOCATION = {
 
 export const SSL_DIALOG_HEADING = 'Change Local Office';
 
-// Granular search/multi-row test data — TC-LOC-SSL-031..044 (2026-05-22).
-// Non-Miami queries throughout per BUG-LOC-SHR-001 workaround.
+// Non-Miami queries throughout — Miami queries are unreliable on this office due to app behavior.
 
 export const SEARCH_BVA_1_CHAR = 'A';
 export const SEARCH_BVA_LONG_200 = 'X'.repeat(200);
@@ -46,7 +46,3 @@ export const SEARCH_DELETE_ALL_QUERIES = ['Atlanta', 'Boston'] as const;
 export const SEARCH_FIVE_ROW_QUERIES = ['Chicago', 'Boston', 'Dallas', 'Denver', 'Atlanta'] as const;
 
 export const SEARCH_CROSS_ROW_QUERY = 'Atlanta';
-
-// SEARCH_BULK_LOWER_BOUND removed 2026-06-02: TC-LOC-SSL-035 now uses a relative invariant
-// (cleared-count > Atlanta-filtered-count, mirroring TC-LOC-SSL-040) instead of a hardcoded
-// structural threshold (no exact-count assertion). The magic number was the sole consumer.

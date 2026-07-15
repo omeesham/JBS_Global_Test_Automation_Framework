@@ -97,19 +97,10 @@ void buildAllSelectors(
   LocalOfficeEctSelectors,
 );
 
-// Corporate Pricing — distinct multi-screen module (own selector namespace). Like Local Office, DELIBERATELY
-// EXCLUDED from ALL_SELECTORS. Reason (comment corrected 2026-06-10 — the prior note wrongly named
-// `btnSearch`/`btnReset` as *currently colliding* Location-Settings keys; they are NOT in the Location
-// partitions at all, and a CP-keys ∩ Location/Local-Office-keys intersection is presently EMPTY because
-// CP namespaces on purpose: `btnSaveDetails` not `btnSave`, `txtFilter*`, plus `ovr`/`np` prefixes).
-// The exclusion is BY-DESIGN, not collision-driven: CP page objects resolve `CorporatePricingSelectors.*`
-// DIRECTLY via `this.page.locator(...)` (text/role/grid-header — near-zero data-testid, D8), never through
-// getTsSelector/ALL_SELECTORS, so merging CP in would add nothing. It also keeps CP's generic single-word
-// keys (btnSearch, btnReset, btnExport, btnImport, btnNew, btnGridOptions) permanently clear of the
-// Location partitions' own generic keys — which DO include a `btnSave` (5×) — as both modules grow.
-// This check verifies the 6 CP screen partitions don't collide with EACH OTHER (intra-module boundary):
-// Override uses `ovr`-prefixed keys and New Pricebook (NM-1440) uses `np`-prefixed keys,
-// so each shares zero keys with Search and with each other.
+// Corporate Pricing — deliberately EXCLUDED from ALL_SELECTORS: CP page objects resolve
+// CorporatePricingSelectors.* directly via this.page.locator(...), never through
+// getTsSelector/ALL_SELECTORS, so merging CP in would add nothing.
+// This check verifies the 6 CP screen partitions don't collide with EACH OTHER (intra-module).
 void buildAllSelectors(
   CorporatePricingSearchSelectors,
   CorporatePricingDetailsSelectors,
@@ -121,11 +112,6 @@ void buildAllSelectors(
 // Reference the merged namespace so the import is used even though CP is excluded from ALL_SELECTORS.
 void CorporatePricingSelectors;
 
-/**
- * Get TypeScript selector by element name.
- * For dynamic selectors, use DynamicSelectors directly: DynamicSelectors.lnkOfficeCode('1604')
- * @returns selector string or null if not found
- */
 export function getTsSelector(elementName: string): string | null {
   return ALL_SELECTORS[elementName] ?? null;
 }

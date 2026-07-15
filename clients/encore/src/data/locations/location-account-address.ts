@@ -36,9 +36,9 @@ export const PHONE2_BASELINE = '760-000-0002';
 
 export const ACCOUNT_LIST_FILTERS = {
   address: 'Beverly',
-  addressExpected: 'Beverly',  // Results contain "Beverly" in address column
+  addressExpected: 'Beverly',
   city: 'LOS ANGELES',
-  cityExpected: 'LOS ANGELES', // Results contain "LOS ANGELES" in city column
+  cityExpected: 'LOS ANGELES',
 } as const;
 
 export const ALT_ADDRESS = {
@@ -55,8 +55,8 @@ export const ORIGINAL_ADDRESS = {
 
 /**
  * Master Bill To Address original (office 1604) — the restore anchor for the Master launcher
- * persistence case (TC-LOC-ACC-033). Captured BEFORE any change.
- * The Master launcher's selection PERSISTS (unlike the Venue launcher, TC-027), so a save-cycle
+ * persistence save-cycle test. Captured BEFORE any change.
+ * The Master launcher's selection PERSISTS (unlike the Venue launcher), so the save-cycle
  * test MUST restore by re-selecting this unique address row.
  * Source: live verification 2026-06-11 (API id 8ad746d8-…).
  */

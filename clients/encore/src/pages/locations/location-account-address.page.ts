@@ -109,12 +109,11 @@ export class LocationAccountAddressPage extends BasePage {
     return cityText;
   }
 
- //
  // The Master Bill To Address card has 5 read-only <dd> values (Address, City, State, Zip, Country)
  // and NO Name field (unlike Venue). Selecting a different address via the Master launcher updates
- // these AND persists (per-launcher divergence from Venue, which does NOT persist — TC-027; each launcher needs its own coverage).
+ // these AND persists (unlike Venue, which does NOT persist; each launcher needs its own coverage).
  // Scope to the Master card the same way isDisplayFieldReadOnly() does (heading → climb 2 → card),
- // via Playwright locators (which pierce the <next-location-settings> shadow root).
+ // via Playwright locators (which pierce the shadow root).
 
   private getMasterSection() {
     return this.getPanel().locator(':text("Master Bill To Address")').locator('..').locator('..');
@@ -206,7 +205,6 @@ export class LocationAccountAddressPage extends BasePage {
 
   async accountListResultsContain(text: string): Promise<boolean> {
     const table = this.getElement('tblAccListResults');
- // Wait for table body to have text content
     try {
       await table.locator(`tbody:has-text("${text}")`).waitFor({ state: 'visible', timeout: 10_000 });
       return true;
@@ -232,15 +230,11 @@ export class LocationAccountAddressPage extends BasePage {
     await this.clickWithRetry('btnAccListSearch');
     const table = this.getElement('tblAccListResults');
     const firstDataCell = table.locator('tbody tr:first-child td:nth-child(2)');
-    // Evidence-based budget (45s). The Account List backend search is slow AND variable: a live-app
-    // measurement on 2026-06-02 timed the
-    // Account-Number filter (AC000107) at ~29s time-to-first-result — far beyond the prior 15s — while a
-    // later spec run of the same search returned in ~11s. 45s (~1.5× the slow sample) absorbs the slow
-    // case; fast searches (name/city/address) still resolve as soon as results land, so the raised
-    // ceiling never slows a fast run. Shared by ACC-004/025/026/028/030.
+    // 45s budget: the Account List backend is slow and variable — account-number searches can take
+    // 25-30s on contended runs while name/city/address searches resolve faster. Fast searches resolve
+    // as soon as results land, so the raised ceiling never slows a fast run.
     await firstDataCell.waitFor({ state: 'visible', timeout: 45_000 });
-    // Poll for the actual transition (first data cell's text becoming non-empty) via
-    // waitForFunction instead of a fixed-sleep loop. Budget matches the waitFor above (evidence-based 45s).
+    // Poll for the first data cell's text becoming non-empty via waitForFunction (not a fixed sleep).
     const firstDataCellSelector = `${this.getLocator('tblAccListResults')} tbody tr:first-child td:nth-child(2)`;
     await this.page.waitForFunction(
       (selector: string) => {
@@ -385,9 +379,7 @@ export class LocationAccountAddressPage extends BasePage {
   }
 
  /**
-  * Field-coverage runner hook — `saveAndConfirm` shape required by `saveAndVerifyCase()`.
-  * Wraps the result-returning `clickSave()` and THROWS on failure so the runner
-  * surfaces server errors as test failures (not a silent `{success:false}` return).
+  * Throws on save failure so callers see server errors rather than a silent {success:false} return.
   */
   async saveAndConfirm(): Promise<void> {
     const result = await this.clickSave();
@@ -397,21 +389,11 @@ export class LocationAccountAddressPage extends BasePage {
   }
 
  /**
-  * HARDENED per-test baseline (2026-05-29). Restores the deterministically-
-  * restorable editable fields (Phone 1, Phone 2) to baseline. Used by the describe's
-  * shared `beforeEach` (covers the existing 26 + new filter tests) AND as the field-coverage
-  * runner `baseline:`/`cleanup:` callback for save-cycle cases.
+  * Bounded retry (max 3) because clickSaveWithDialog returns {success:true} even when Save
+  * is disabled, so save-success alone never proves the reset landed.
   *
-  * Bounded retry (max 3) wraps the WHOLE cycle — read → re-fill → save → reload →
-  * re-verify — because `clickSaveWithDialog` returns `{success:true}` even when Save is
-  * DISABLED (base-page), so save-success alone never proves the reset landed. The
-  * post-reload re-read against the persisted DOM is the load-bearing check.
-  *
-  * Phone 1 is account-linked + server-authoritative: a reload restores it to the account
-  * phone (= PHONE1_BASELINE) regardless of whether the masked `fill` propagated, so the
-  * cycle self-heals Phone 1 via the reload. If already clean on the first read, returns
-  * immediately (cheap — no reload), so back-to-back beforeEach + case-baseline calls cost
-  * one read, not two reloads. Throws after 3 failed cycles to fail loud, not silently rot.
+  * Phone 1 is server-authoritative: a reload restores it to the account phone regardless of
+  * whether the fill propagated. Already-clean state returns immediately (cheap — no reload).
   */
   async ensureDefaultState(defaults?: { phone1?: string; phone2?: string }): Promise<void> {
     const wantPhone1 = defaults?.phone1 ?? PHONE1_BASELINE;
@@ -438,15 +420,10 @@ export class LocationAccountAddressPage extends BasePage {
   }
 
  /**
-  * Reload the page and re-navigate to Account and Address tab.
-  *
   * Registers a listener for `GET /navigator-legacy/getLocationDetail` BEFORE the reload, then
-  * awaits it after navigation. Phone2 (and other location-level fields) binds to `data.Phone2`
-  * from this endpoint, observed at ~5-6s on contended runs. Without this wait, callers polling
-  * phone2 immediately after this method returns race against an in-flight hydration response
-  * (TC-LOC-ACC-020 root cause — the existing navigateToAccountAndAddressTab gates only on
-  * phone1, which hydrates from a faster account-API). Listener is tolerant via `.catch` so
-  * cached/early-return cases don't block.
+  * awaits it after navigation. Phone2 binds to this endpoint (~5-6s on contended runs);
+  * without this wait, callers polling Phone2 race an in-flight hydration response. The existing
+  * navigateToAccountAndAddressTab gates only on Phone1 (faster account-API).
   */
   async reloadAndNavigate(officeNo: string = '1604'): Promise<void> {
     const hydrationPromise = this.page.waitForResponse(

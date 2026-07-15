@@ -1,13 +1,3 @@
-// STATUS (2026-06-18): Pricing save endpoints (POST upsert-location-pricebook + PUT update-properties) return 200.
-// 6 previously-skipped TCs now pass and are re-enabled: TC-020 (dates persist after save) and
-// TC-026..030 (primary pricing dropdown persistence — the prior block was a stale option-picker
-// search-box selector, now corrected in the page object).
-// 1 TC stays skipped: TC-025 (Corporate Pricing uncheck saves 200 but reverts to checked on reload —
-// app-side; reproduced on offices 1604 and 1605; see the TC-025 skip note + filed bug).
-// Note: the 6 re-enabled TCs pass when run individually; a full-suite serial run still needs the
-// per-test baseline reset (ensureDefaultState) for stability, and the e2e environment was dropping
-// connections during long runs on 2026-06-18 (ERR_CONNECTION_RESET) — re-confirm a clean full-suite
-// pass twice once the per-test baseline is wired and the environment is stable.
 import { test, expect } from '../../src/fixtures/pages.fixture';
 import {
   PRICING_COLUMN_HEADERS,
@@ -51,7 +41,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     await locationPricingPage.ensureDefaultState(PRICING_DEFAULTS, OFFICE_NO);
   });
 
- // ── Navigate ONCE -- all subsequent tests reuse this page state ──────────────
   test('TC-LOC-PRI-001: Verify Pricing tab default state', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate([]);
  // The beforeEach (ensureDefaultState) has already navigated to the Pricing tab and restored the
@@ -256,7 +245,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     const beforeCount = await locationPricingPage.getGridRowCount();
     await locationPricingPage.selectCurrencyFilter('USD');
     const afterCount = await locationPricingPage.getGridRowCount();
- // All rows are USD so count unchanged
     expect(afterCount, 'Row count should be same when all rows are USD').toBe(beforeCount);
     expect(
       await locationPricingPage.isGridRowVisible(PRIMARY_TEST_ROW),
@@ -303,10 +291,8 @@ test.describe('Location Pricing @locations @pricing', () => {
     await locationPricingPage.enableFullCascade(PRIMARY_TEST_ROW);
     const isReadOnly = await locationPricingPage.isEndDateReadOnly(PRIMARY_TEST_ROW);
     expect(isReadOnly, 'End Date input should be readOnly (prevents invalid manual entry)').toBe(true);
- // Without selecting a date from the calendar, the field should remain empty
     const endVal = await locationPricingPage.getEndDateValue(PRIMARY_TEST_ROW);
     expect(endVal, 'End Date should be empty before calendar selection').toBe('');
- // Open End Date popover to check validation tooltip
     await locationPricingPage.openEndDatePopover(PRIMARY_TEST_ROW);
     const hasError = await locationPricingPage.hasDateValidationError();
     expect(hasError, 'Validation error should appear for missing End Date').toBe(true);
@@ -337,10 +323,8 @@ test.describe('Location Pricing @locations @pricing', () => {
     await locationPricingPage.enableFullCascade(PRIMARY_TEST_ROW);
     await locationPricingPage.enableFullCascade(SECONDARY_TEST_ROW);
     await locationPricingPage.enterStartDate(SECONDARY_TEST_ROW, '05/01/2026');
- // Verify row 2 has valid date set
     const validStart = await locationPricingPage.getStartDateValue(SECONDARY_TEST_ROW);
     expect(validStart).toContain('05/01/2026');
- // Open row 1 Start Date popover to reveal validation tooltip
     await locationPricingPage.openStartDatePopover(PRIMARY_TEST_ROW);
     const hasError = await locationPricingPage.hasDateValidationError();
     expect(hasError, 'Validation error should appear for missing dates on row 1').toBe(true);
@@ -353,7 +337,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     await locationPricingPage.resetGridRow(SECONDARY_TEST_ROW);
   });
 
- // ── Save-dependent / persistence tests (TC-020, TC-023-030) ─────────────────
 
  // Re-enabled 2026-06-18: dates now persist after save+reload (verified live on office 1604).
   test('TC-LOC-PRI-020: Valid dates persist after save', async ({ locationPricingPage }) => {
@@ -407,7 +390,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
   });
 
- // ── Checkbox persistence (TC-024) ──────────────────────────────────────────
   test('TC-LOC-PRI-024: Include Service Fee in Price Guides -- uncheck, save, reload, verify persists; restore', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
     test.setTimeout(120_000);
@@ -475,7 +457,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     ).toBe(true);
   });
 
- // ── Dropdown persistence (TC-026..030) — data-driven loop, bidirectional toggle ──
  // Re-enabled 2026-06-18: the save returns 200 and the dropdown values persist after reload
  // (verified live on office 1604, all 5 cases green). The earlier block was NOT a server 500 —
  // it was a stale option-picker selector: the search box's placeholder had changed to
@@ -512,16 +493,13 @@ test.describe('Location Pricing @locations @pricing', () => {
     });
   }
 
- // ── Dialog tests (TC-031..032) ─────────────────────────────────────────────
 
   test('TC-LOC-PRI-031: Save dialog Cancel -- edit, Save, Cancel, form stays dirty, no data saved', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
     test.setTimeout(90_000);
- // Make a change to enable Save
     await locationPricingPage.checkIsAlternative(PRIMARY_TEST_ROW);
     const saveEnabled = await locationPricingPage.waitForSaveEnabled();
     expect(saveEnabled, 'Save should be enabled after checking Is Alternative').toBe(true);
- // Open Save dialog then Cancel
     await locationPricingPage.clickSaveButton();
     expect(await locationPricingPage.isSaveDialogVisible(), 'Save dialog should be visible').toBe(true);
     await locationPricingPage.clickSaveCancel();
@@ -540,7 +518,6 @@ test.describe('Location Pricing @locations @pricing', () => {
     dependencyGate(['TC-LOC-PRI-001']);
     test.setTimeout(90_000);
     await locationPricingPage.navigateToPricingTab(OFFICE_NO);
- // Make a change to trigger unsaved state
     await locationPricingPage.uncheckCheckbox('chkCorporatePricing');
     await locationPricingPage.waitForSaveEnabled();
  // Navigate away via sidebar → triggers app-level unsaved dialog
@@ -556,37 +533,31 @@ test.describe('Location Pricing @locations @pricing', () => {
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
   });
 
- // ── Validation → Save state tests (TC-033, TC-035) ──────────────────────────
 
   test('TC-LOC-PRI-033: Grid validation errors block Save -- missing dates with cascade enabled', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
     test.setTimeout(90_000);
  // Clean slate: reload to clear any dirty state from prior tests
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
- // Save should be disabled on clean load (no pending changes)
     expect(await locationPricingPage.isSaveEnabled(), 'Save should be disabled on clean load').toBe(false);
  // Enable full cascade WITHOUT entering dates — required date fields left empty = validation error
     await locationPricingPage.checkIsAlternative(PRIMARY_TEST_ROW);
- // poll for UseDate enabled
     await expect.poll(
       () => locationPricingPage.getUseEffectiveDateState(PRIMARY_TEST_ROW).then(s => s.disabled),
       { timeout: 5_000 },
     ).toBe(false);
     await locationPricingPage.checkUseEffectiveDate(PRIMARY_TEST_ROW);
- // poll for date fields enabled
     await expect.poll(
       () => locationPricingPage.isStartDateEnabled(PRIMARY_TEST_ROW),
       { timeout: 5_000 },
     ).toBe(true);
     const saveAfterCascade = await locationPricingPage.waitForSaveEnabled('btnSavePricing', 3_000);
     expect(saveAfterCascade, 'Save should be DISABLED when dates empty').toBe(false);
- // Enter valid dates to clear validation error
     await locationPricingPage.enterStartDate(PRIMARY_TEST_ROW, TC033_DATE_VALUES.startDate);
     await locationPricingPage.enterEndDate(PRIMARY_TEST_ROW, TC033_DATE_VALUES.endDate);
  // After valid dates, Save should be enabled (dirty + no validation errors)
     const saveAfterDates = await locationPricingPage.waitForSaveEnabled('btnSavePricing', 5_000);
     expect(saveAfterDates, 'Save should be enabled after entering valid dates with dirty form').toBe(true);
- // Cleanup: reset row + reload
     await locationPricingPage.resetGridRow(PRIMARY_TEST_ROW);
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
   });
@@ -600,7 +571,6 @@ test.describe('Location Pricing @locations @pricing', () => {
 
 });
 
-// ── Multi-currency primary pricing (office 1605) ─────────────────────────────
 // Office 1604 (the suite above) is single-currency — only the five USD primary dropdowns render.
 // Office 1605 is multi-currency: it renders all fifteen primary pricing dropdowns (5 USD + 5 CAD +
 // 5 MXN). These cases cover the per-currency dropdowns that exist only on a multi-currency office.

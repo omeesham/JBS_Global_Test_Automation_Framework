@@ -40,7 +40,7 @@ export const UNCHECKED_DEFAULTS: SelectorKey[] = [
   'chkCanCreateExternalCustomerLink',
   'chkOffsiteEventLocation',
   'chkExhibitShowRate',
-  'chkEnableMultidayPricing',  // new checkbox, unchecked by default
+  'chkEnableMultidayPricing',
 ];
 
 export const DISABLED_CHECKBOXES: SelectorKey[] = [
@@ -205,5 +205,5 @@ export const CHECKBOX_LABEL_CASES: CheckboxLabelCase[] = [
   { key: 'chkWarehouseBilling',  expected: 'Warehouse Billing' },
   { key: 'chkCommReceiver',      expected: 'Comm Receiver' },
   { key: 'chkAllowDPCD',             expected: 'Allow DPCD' },
-  { key: 'chkEnableMultidayPricing', expected: 'Enable Multiday Pricing' },  // Gap #9
+  { key: 'chkEnableMultidayPricing', expected: 'Enable Multiday Pricing' },
 ];

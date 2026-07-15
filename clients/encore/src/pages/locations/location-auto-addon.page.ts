@@ -14,8 +14,6 @@ export class LocationAutoAddonPage extends BasePage {
   }
 
   async isOnAutoAddonTab(): Promise<boolean> {
-    // Fix #4a: use tab trigger aria-selected, not
-    // child-anchor count().
     const tab = this.getElement('tabAutoAddon');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
@@ -39,13 +37,10 @@ export class LocationAutoAddonPage extends BasePage {
   }
 
  /**
- * Blind toggle — flips the checkbox from its CURRENT live state via a plain click.
- * KEPT (not replaced by the smart setRadixCheckbox) per the Phase-1.5 re-verification of the
- * 2026-03-25 generator-audit Finding 5: the cascade-risk it flagged (a cleanup toggle going the
- * wrong direction after a silent save failure) is now mitigated by the per-test ensureDefaultState
- * baseline below — every test starts from a known-clean state regardless of a prior test's cleanup.
- * Use this where a test intentionally flips the current state and asserts the result; use
- * checkCheckbox / uncheckCheckbox (state-aware, idempotent) when a SPECIFIC target state is needed.
+ * Blind toggle — flips the checkbox from its current state. Use this when a test intentionally
+ * flips the state and asserts the result; use checkCheckbox/uncheckCheckbox (idempotent) when a
+ * specific target state is needed. The cascade-risk of a cleanup toggle going the wrong direction
+ * is mitigated by the per-test ensureDefaultState baseline.
  */
   async toggleCheckbox(key: string): Promise<void> {
  // Extended timeout: form inputs are temporarily disabled during save API processing
@@ -65,17 +60,12 @@ export class LocationAutoAddonPage extends BasePage {
   }
 
  /**
- * Per-test baseline — restore all Auto Add-On checkboxes to their defaults if dirty.
- * Wired into the spec's `beforeEach` (after the nav-guard) so EVERY test starts from a known
- * state, not just TC-001. A first-test-only baseline rots under per-test retries (a retry
- * re-runs `beforeEach` but NOT TC-001's body) and after the 2026-05-08 dependencyGate->annotation
- * change (TC-001 no longer guarantees-runs-first) — exactly the 2026-05-27 Legal failure shape.
+ * Wired into beforeEach so EVERY test starts from a known state. A first-test-only baseline rots
+ * under per-test retries (a retry re-runs beforeEach but not the first test body).
  *
- * Bounded retry (max 3) wraps the WHOLE cycle — read -> re-set -> save -> reload -> re-verify —
- * because clickSave() returns {success:true} even when Save is disabled (base re-enable path), so
- * a silent no-op (the set didn't dirty the form) never throws. The post-reload re-read against the
- * persisted DOM is the load-bearing check; if it still shows non-default the loop re-sets. After 3
- * failed cycles it throws, converting a silent baseline failure into a loud one.
+ * Bounded retry (max 3) because clickSave() returns {success:true} even when Save is disabled,
+ * so a silent no-op (the set didn't dirty the form) never throws. The post-reload re-read is the
+ * load-bearing check.
  */
   async ensureDefaultState(
     defaults: ReadonlyArray<{ key: string; name: string; checked: boolean }>,

@@ -110,9 +110,7 @@ export class LocationLegalPage extends BasePage {
   }
 
  /**
- * Field-coverage runner hook — saveAndConfirm shape required by `saveAndVerifyCase()`.
- * Wraps clickSave() and throws on failure so the runner surfaces server errors
- * as test failures (not silent `{success: false}` returns).
+ * Throws on save failure so callers see server errors rather than a silent {success:false} return.
  */
   async saveAndConfirm(): Promise<void> {
     const result = await this.clickSave();
@@ -122,17 +120,10 @@ export class LocationLegalPage extends BasePage {
   }
 
  /**
- * Baseline hook — restore SC + T&C to defaults if dirty. Used per-test by the
- * non-field-coverage `beforeEach` (per-test baseline) and as the field-coverage runner `baseline:`/`cleanup:` callback.
- *
- * Bounded retry (max 3) wraps the WHOLE cycle — read → re-select → save → reload →
- * re-verify — because the flaky step is the 114-option Radix SC select (retry-on-detach): it can
- * "click successfully" yet leave the Angular model unchanged. A silent no-op leaves Save
- * disabled, and `clickSaveWithDialog` returns `{success:true}` when Save is disabled
- * — so save-success never proves the restore landed. The
- * post-reload re-read against the persisted DOM is the load-bearing check; if it still
- * shows non-default, the loop re-selects. After 3 failed cycles it throws, converting a
- * silent baseline failure into a loud one instead of letting the spec re-rot.
+ * Bounded retry (max 3) because the 114-option Radix Service Charge select can "click
+ * successfully" yet leave Angular's model unchanged. A silent no-op leaves Save disabled,
+ * and clickSaveWithDialog returns {success:true} when Save is disabled — so save-success
+ * never proves the restore landed. The post-reload re-read is the load-bearing check.
  */
   async ensureDefaultState(defaults: { serviceChargeName: string; termsName: string }): Promise<void> {
     const maxAttempts = 3;

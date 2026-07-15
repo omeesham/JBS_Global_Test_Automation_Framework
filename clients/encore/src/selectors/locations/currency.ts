@@ -1,14 +1,3 @@
-/**
- * Setup Module -- Currency Tab Selectors.
- * Covers: Currency grid, save button, column headers, specific currency rows.
- * DOM notes (live-verified ):
- * - All location detail content renders inside <next-location-settings> shadow root.
- * Playwright pierces shadow DOM for all locators, so no special handling needed.
- * - Grid: actual <table data-testid="location-settings-table-currency"> -- no [role="tabpanel"] wrapper.
- * - Checkboxes: <button type="button" role="checkbox" aria-checked="true|false"> (Radix UI) -- NOT input[type="checkbox"].
- * - Column headers: <th> elements -- no explicit role="columnheader" attribute in DOM.
- * - Save: <button data-testid="location-settings-btn-save">.
- */
 export const SetupCurrencySelectors = {
   btnSaveCurrency: '[data-testid="location-settings-btn-save"]',
   tblCurrencyGrid: '[data-testid="location-settings-table-currency"]',

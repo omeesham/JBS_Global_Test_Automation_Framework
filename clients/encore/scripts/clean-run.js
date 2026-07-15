@@ -1,25 +1,10 @@
 #!/usr/bin/env node
-/**
- * Clean single-spec runner — wipe ALL report data (no history carryover), run
- * ONLY the spec(s) you name, regenerate Allure from scratch. Use when you want
- * a report that contains EXACTLY one run of one spec and nothing else.
- *
- * Usage:
- *   npm run clean:run -- tests/locations/location-auto-addon.spec.ts
- *   npm run clean:run -- --grep "Auto Add-On"
- *
- * Then open the two clean reports:
- *   npm run report        # Playwright HTML
- *   npm run allure:open   # Allure
- *
- * Difference vs test:cli — test:cli runs the WHOLE suite and PRESERVES Allure
- * trend history. clean:run targets the spec(s) you pass and wipes history too,
- * so both reports hold a single fresh run and nothing stale.
- *
- * No --project is hardcoded: Playwright auto-routes the spec to its project
- * (a tests/locations/** spec runs under encore-locations + its setup/auth
- * dependency; chromium ignores tests/locations/**, so no double-run).
- */
+// Unlike test:cli (which preserves Allure trend history), clean:run wipes ALL
+// history including the trend stash, so both reports show a single fresh run.
+//
+// No --project hardcoded: Playwright auto-routes specs to their project
+// (tests/locations/** runs under encore-locations + its auth dependency;
+// chromium ignores tests/locations/**, preventing double-run).
 const { execSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');

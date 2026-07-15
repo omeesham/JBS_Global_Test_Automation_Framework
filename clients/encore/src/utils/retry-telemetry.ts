@@ -1,15 +1,5 @@
-/**
- * Per-layer per-attempt retry telemetry.
- *
- * Layered retry calls (clickWithRetry, login, validateState, etc.) record their
- * per-attempt outcomes here. Agent-reporter aggregates on test-run end and
- * writes a `retryStats` field to failure-summary.json.
- *
- * Cross-process aggregation via shared JSONL file at reports/retry-telemetry.jsonl.
- * Append-only writes are safe across worker processes without explicit locking.
- *
- * Pure-additive: callers record outcomes; the telemetry never changes test behavior.
- */
+// Append-only JSONL writes are safe across worker processes without explicit locking.
+// Pure-additive: callers record outcomes; the telemetry never changes test behavior.
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -48,11 +38,6 @@ function ensureReportsDir(): void {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
-/**
- * Record a single retry-layer call's per-attempt outcomes.
- * Appends one JSONL line; safe across worker processes.
- * Telemetry must NEVER break tests — IO errors are swallowed silently.
- */
 export function recordCall(layer: RetryLayer, attempts: AttemptRecord[]): void {
   if (attempts.length === 0) return;
   try {

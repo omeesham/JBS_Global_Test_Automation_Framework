@@ -1,18 +1,3 @@
-/**
- * Corporate Pricing — Export ▾ dialog contract + real download round-trip (NM-2264).
- * TC-CPR-EXA-001..017. Live-grounded 2026-07-07 (office 1604).
- *
- * The four Export ▾ variants no longer download directly — each opens a shared Year(s)(1-3) +
- * Currency dialog (Continue disabled until BOTH are set), and only on Continue does the export
- * fire. These cases cover the dialog behavior, the 1-3 year cap, the currency-to-id mapping
- * (USD=1 / CAD=2 / MXN=3), the real per-variant download round-trip (with the duplicate-product-
- * group and missing-pricebook / stray-labor-row regressions folded in — NM-1997 / NM-1998 /
- * NM-2005), and the deeper surface-behavior band (bounded pairwise variant x year x currency,
- * per-variant file fidelity, and an empty-scope currency yielding a valid CSV).
- *
- * Endpoint assertions filter the backend API path, never the page URL. Downloads auto-discard to
- * a browser temp dir — these tests only read files, they never mutate server data.
- */
 import { test, expect } from '../../src/fixtures/pages.fixture';
 import { CORP_PRICING_TOOLBAR_IO } from '../../src/data/corporate-pricing/toolbar-io';
 const VARIANTS = CORP_PRICING_TOOLBAR_IO.variants;
@@ -42,14 +27,10 @@ function expectWellFormedExportMatrix(
     expect(row).toHaveLength(r.headers.length); // no ragged / malformed product-group row
   }
 }
-// Export ▾ Year(s)+Currency dialog contract, boundaries, and currency mapping (NM-2264).
-// The four Export variants gate behind a shared dialog: pick 1-3 years + a currency, then Continue
-// fires the export. These tests cover the dialog behavior and the request params (the real file
-// round-trip lives in the next block).
 test.describe('Corporate Pricing — Export ▾ dialog contract (NM-2264) @corporate-pricing @export-all', () => {
   test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
     test.setTimeout(90_000);
-    await p.open(); // per-test baseline: fresh search-grid load
+    await p.open();
   });
 
   test('TC-CPR-EXA-001: Each Export variant opens the shared "Export" Year(s)+Currency dialog', async ({ corporatePricingSearchPage: p }) => {
@@ -138,18 +119,12 @@ test.describe('Corporate Pricing — Export ▾ dialog contract (NM-2264) @corpo
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Export ▾ real per-variant download round-trip + file verification (NM-2264).
-// Reuses the same CSV capture as Loc Pricing Export (download + request + status on the same click).
-// The exported file is a wide product-group x pricebook matrix; the file + the request params are the
-// dual oracle. Folds in the export file-content regression checks (NM-1997/1998 duplicate product
-// groups; NM-2005 missing pricebooks / stray labor rows on the max-discount export).
 test.describe('Corporate Pricing — Export ▾ real download round-trip (NM-2264) @corporate-pricing @export-all', () => {
   const YEAR = EXP.defaultYear;
 
   test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
     test.setTimeout(150_000); // several real downloads + file reads per test
-    await p.open(); // per-test baseline: fresh search-grid load
+    await p.open();
   });
 
   test('TC-CPR-EXA-010: All Equipment Pricing — real download + no duplicate product groups', async ({ corporatePricingSearchPage: p }) => {
@@ -237,8 +212,6 @@ test.describe('Corporate Pricing — Export ▾ real download round-trip (NM-226
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Export ▾ Axis-2 surface-behavior DEEP band (NM-2264): combination (pairwise), result-fidelity, empty-vol.
 test.describe('Corporate Pricing — Export ▾ surface-behavior DEEP (NM-2264) @corporate-pricing @export-all', () => {
   const YEAR = EXP.defaultYear;
   const YEARSETS: string[][] = [[YEAR], ['2026', '2027', '2028']]; // 1-year and 3-year selections

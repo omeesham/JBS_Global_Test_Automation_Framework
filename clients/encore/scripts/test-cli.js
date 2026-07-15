@@ -1,14 +1,5 @@
 #!/usr/bin/env node
-/**
- * Daily test runner — preserves Allure history across runs.
- *
- * Pattern: stash history/ before clean -> clean reports -> restore history/ ->
- * run tests -> regenerate Allure report (history rolls forward).
- *
- * Replaces six legacy scripts (archive-allure, archive-html, ensure-report-dirs,
- * preserve-allure-history, preserve-failure-summary, run-test-daily) with stock
- * Allure plumbing. Trend chart in Allure UI requires history/ to survive cleans.
- */
+// Allure trend chart requires history/ to survive cleans — stash before clean, restore after.
 const { execSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');

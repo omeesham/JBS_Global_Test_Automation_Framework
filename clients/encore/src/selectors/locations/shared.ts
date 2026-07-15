@@ -1,9 +1,3 @@
-/**
- * Setup Module -- Shared Cross-Tab Dialog Selectors.
- * Covers: Error Dialog, Save Changes Dialog, Unsaved Changes Dialog.
- * Other tab-specific selectors (Legal, Account & Address, Notes, etc.) will be added
- * when those modules enter test generation.
- */
 export const SetupSharedSelectors = {
  // No container testid is rendered for the error dialog. Forcing several save-error and offline
  // paths fired the error (console-confirmed) but never rendered a dialog or any error/alert testid,
@@ -18,10 +12,6 @@ export const SetupSharedSelectors = {
   btnSaveChangesCancel: '[role="alertdialog"]:has-text("Save Changes") button:has-text("Cancel")',
   btnSaveChangesConfirm: '[role="alertdialog"]:has-text("Save Changes") button:has-text("Ok")',
 
- // Verified PRESENT in live DOM (2026-04-29). Trigger path: dirty form on Local Information
- // sub-tab → click TOP-LEVEL tab (location-settings-tab-management-history). Sub-tab clicks do
- // NOT trigger this dialog. Inner button labels are "Discard" (leave/discard) and "Stay"
- // (cancel-leave), NOT "OK"/"Cancel". Inner buttons have NO testids (innerCount: 0).
   dlgUnsavedChanges: '[data-testid="location-settings-modal-unsaved-changes"]',
  // Button text is "Discard", NOT "OK". Key name kept for usage stability;
  // semantically this is the "leave / discard changes" affirmative-leave button.

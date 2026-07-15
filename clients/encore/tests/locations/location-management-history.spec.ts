@@ -187,14 +187,12 @@ test.describe('Location Management History @locations @management-history', () =
 
   test('TC-LOC-MGH-016: Read-only -- table cells are not interactive', async ({ locationManagementHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-MGH-001']);
- // Click a cell and verify no input/editor appears
     expect(await locationManagementHistoryPage.areCellsNonInteractive()).toBe(true);
   });
 
   test('TC-LOC-MGH-017: Horizontal scroll works for wide table', async ({ locationManagementHistoryPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-MGH-001']);
     expect(await locationManagementHistoryPage.hasHorizontalScroll()).toBe(true);
- // Verify last column is accessible (col 87)
     const headers = await locationManagementHistoryPage.getColumnHeaders();
     expect(headers[headers.length - 1]).toBe(LAST_COLUMN);
   });
@@ -217,22 +215,18 @@ test.describe('Location Management History @locations @management-history', () =
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('next')).toBe(false);
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('last')).toBe(false);
 
- // Go to next page
     await locationManagementHistoryPage.clickPaginationButton('next');
     const paginationAfterNext = await locationManagementHistoryPage.getPaginationText();
     expect(paginationAfterNext).toContain('2');
 
- // Go to previous page
     await locationManagementHistoryPage.clickPaginationButton('previous');
     const paginationAfterPrev = await locationManagementHistoryPage.getPaginationText();
     expect(paginationAfterPrev).toMatch(/^1\s*\/\s*\d+$/);
 
- // Go to last page
     await locationManagementHistoryPage.clickPaginationButton('last');
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('next')).toBe(true);
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('last')).toBe(true);
 
- // Go to first page
     await locationManagementHistoryPage.clickPaginationButton('first');
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('first')).toBe(true);
     expect(await locationManagementHistoryPage.isPaginationButtonDisabled('previous')).toBe(true);
@@ -240,7 +234,6 @@ test.describe('Location Management History @locations @management-history', () =
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Notes column (col 69) HIST tests — consolidated here 2026-06-05 from the now-removed
 // tests/locations/history/location-hist-notes.spec.ts. This describe is the single source of Notes col-69 HIST truth.
 //
@@ -458,12 +451,10 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
     // Captured BEFORE Save A so the read-window includes both Save A and Save B.
     const sinceMs = Date.now() - 5_000;
 
-    // ── Save A: empty → NOTE_SEQUENTIAL_A ──────────────────────────────────
     await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_A);
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
 
-    // ── Save B: clear → NOTE_SEQUENTIAL_B ──────────────────────────────────
     // clearNote sets textarea.value="" via Angular-friendly input event so the
     // form re-dirties and Save re-enables. Different content from A guarantees
     // a new HIST row rather than a no-op save.
@@ -471,7 +462,6 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
     await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_B);
     await locationNotesPage.saveAndConfirm();
 
-    // ── HIST verification ──────────────────────────────────────────────────
     await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
     await locationManagementHistoryPage.sortByModifiedOnDesc();
     await locationManagementHistoryPage.waitForRecentTopRow();

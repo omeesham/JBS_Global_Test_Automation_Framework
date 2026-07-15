@@ -2,8 +2,6 @@ import { resolve } from 'node:path';
 import { test, expect } from '../../src/fixtures/pages.fixture';
 import { CORP_PRICING_TOOLBAR_IO, CORP_PRICING_IMPORT_ALL_API } from '../../src/data/corporate-pricing/toolbar-io';
 
-// Corporate Pricing — Import ▾ All (grid-scoped upload round-trip, NM-2265). Split into its own module so
-// the Import All deliverable ships independently of the rest of the toolbar I/O surface.
 const VARIANTS = CORP_PRICING_TOOLBAR_IO.variants;
 const IMP = CORP_PRICING_TOOLBAR_IO.importDialog;
 const CUR = CORP_PRICING_TOOLBAR_IO.currencies;
@@ -32,7 +30,7 @@ const RT = IMP_ALL.roundTrip;
 test.describe('Corporate Pricing — Import ▾ All precondition dialog (NM-2265) @corporate-pricing @toolbar-io', () => {
   test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
     test.setTimeout(90_000);
-    await p.open(); // per-test baseline: fresh search-grid load, no reliance on prior-test state
+    await p.open();
   });
 
   test('TC-CPR-IMA-001: Each Import variant opens the shared "Import" Year(s)+Currency dialog', async ({ corporatePricingSearchPage: p }) => {
@@ -95,22 +93,17 @@ test.describe('Corporate Pricing — Import ▾ All precondition dialog (NM-2265
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Import ▾ All — the browser-side diff outcomes (empty/malformed/wrong-format/no-change), all NON-committing.
 test.describe('Corporate Pricing — Import ▾ All diff outcomes (NM-2265) @corporate-pricing @toolbar-io', () => {
   test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
     test.setTimeout(120_000); // opening the flow + a real server-pricebook diff on file choose
     await p.open();
   });
 
-  /** Open the Import All upload dialog for the round-trip variant + Year/Currency, ready for a file choice. */
   async function openImportAllUpload(p: import('../../src/pages/corporate-pricing/corporate-pricing-search.page').CorporatePricingSearchPage): Promise<void> {
     await p.openImportAllUploadFor(RT.variant, [...RT.years], RT.currency);
   }
 
-  // TC-CPR-IMA-008 — an unchanged file diffs to "no changes" and stages nothing to publish
   test('TC-CPR-IMA-008: An unchanged file diffs to "no changes" and offers nothing to publish', async ({ corporatePricingSearchPage: p }) => {
-    // Build a file whose one cell equals the current server value → the browser diff finds no delta.
     const current = await p.captureImportAllCellValue({ variant: RT.variant, years: [...RT.years], currency: RT.currency, productGroupId: RT.productGroupId, pricebook: RT.pricebook });
     const noChange = await p.buildImportAllSingleCellFixture({ variant: RT.variant, years: [...RT.years], currency: RT.currency, productGroupId: RT.productGroupId, pricebook: RT.pricebook, newValue: current });
     let importFired = false;
@@ -139,7 +132,6 @@ test.describe('Corporate Pricing — Import ▾ All diff outcomes (NM-2265) @cor
     }
   });
 
-  // TC-CPR-IMA-009 — an empty file is rejected as "no matching pricebooks"
   test('TC-CPR-IMA-009: An empty file is rejected as "no matching pricebooks" and runs no import', async ({ corporatePricingSearchPage: p }) => {
     let importFired = false;
     const onReq = (req: import('@playwright/test').Request): void => {
@@ -156,7 +148,6 @@ test.describe('Corporate Pricing — Import ▾ All diff outcomes (NM-2265) @cor
     await p.closeImportDialog();
   });
 
-  // TC-CPR-IMA-010 — a malformed CSV is rejected as "no matching pricebooks"
   test('TC-CPR-IMA-010: A malformed CSV is rejected as "no matching pricebooks" and runs no import', async ({ corporatePricingSearchPage: p }) => {
     let importFired = false;
     const onReq = (req: import('@playwright/test').Request): void => {
@@ -173,7 +164,6 @@ test.describe('Corporate Pricing — Import ▾ All diff outcomes (NM-2265) @cor
     await p.closeImportDialog();
   });
 
-  // TC-CPR-IMA-011 — a non-CSV file is rejected by type before any network
   test('TC-CPR-IMA-011: A non-CSV file is rejected by type before any network', async ({ corporatePricingSearchPage: p }) => {
     let importFired = false;
     const onReq = (req: import('@playwright/test').Request): void => {
@@ -189,7 +179,6 @@ test.describe('Corporate Pricing — Import ▾ All diff outcomes (NM-2265) @cor
     await p.closeImportDialog();
   });
 
-  // TC-CPR-IMA-012
   test('TC-CPR-IMA-012: Cancelling the publish modal after staging changes commits nothing', async ({ corporatePricingSearchPage: p }) => {
     const changed = await p.buildImportAllSingleCellFixture({ variant: RT.variant, years: [...RT.years], currency: RT.currency, productGroupId: RT.productGroupId, pricebook: RT.pricebook, newValue: RT.testValue });
     let importFired = false;
@@ -220,14 +209,11 @@ test.describe('Corporate Pricing — Import ▾ All diff outcomes (NM-2265) @cor
       p.page.off('request', onReq);
       p.removeTempFixture(changed.path);
     }
-    // The server value is unchanged (no publish happened).
     const after = await p.captureImportAllCellValue({ variant: RT.variant, years: [...RT.years], currency: RT.currency, productGroupId: RT.productGroupId, pricebook: RT.pricebook });
     expect(after).toBe(changed.previousValue);
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Import ▾ All — the REAL upload round-trip that mutates a corporate price cell, then restores it.
 test.describe('Corporate Pricing — Import ▾ All real round-trip (NM-2265) @corporate-pricing @toolbar-io @mutation', () => {
   type SearchPage = import('../../src/pages/corporate-pricing/corporate-pricing-search.page').CorporatePricingSearchPage;
   let original: string | null = null;
@@ -276,14 +262,10 @@ test.describe('Corporate Pricing — Import ▾ All real round-trip (NM-2265) @c
     expect(restored, `afterEach must restore ${RT.productGroupId}/${RT.pricebook} to its original ${original} — an unrestored corporate price leaks to the shared server`).toBe(original);
   });
 
-  // TC-CPR-IMA-013 — a published change persists across reload, then is restored; untouched rows survive (merge)
   test('TC-CPR-IMA-013: Import All publishes a changed price, it persists across reload, then restores', async ({ corporatePricingSearchPage: p }) => {
-    // Build a file that changes exactly one corporate price cell (product group 271 × pricebook
-    // 2026-LV-PB-9025) to a distinctive value; `previousValue` is the natural server value to restore to.
     const changed = await p.buildImportAllSingleCellFixture({ variant: RT.variant, years: [...RT.years], currency: RT.currency, productGroupId: RT.productGroupId, pricebook: RT.pricebook, newValue: RT.testValue });
     try {
       expect(changed.previousValue).toBe(original); // the fixture builder and the beforeEach read the same start value
-      // Open the Import All flow and choose the changed file — the browser diff stages exactly one cell.
       await p.openImportAllUploadFor(RT.variant, [...RT.years], RT.currency);
       const staged = await p.chooseImportAllFile(changed.path);
       expect(staged.kind).toBe('staged');
@@ -332,7 +314,6 @@ test.describe('Corporate Pricing — Import ▾ All real round-trip (NM-2265) @c
     expect(restored, 'the target cell must be restored to its original value').toBe(original);
   });
 
-  // TC-CPR-IMA-017 — multi-row staging + partial-selection publish: only the CHECKED staged rows commit
   test('TC-CPR-IMA-017: Publishing a subset of staged rows commits only the selected rows', async ({ corporatePricingSearchPage: p }) => {
     // Stage TWO changed cells in the same pricebook — the target (271) and one untouched neighbour product
     // group — then publish ONLY the target. The neighbour is staged-but-deselected, so it must NOT commit.
@@ -350,7 +331,6 @@ test.describe('Corporate Pricing — Import ▾ All real round-trip (NM-2265) @c
       const staged = await p.chooseImportAllFile(multi.path);
       expect(staged.kind).toBe('staged');
       expect(staged.staged).toHaveLength(2); // both changed cells are staged (multi-row staging)
-      // Publish ONLY the target row — the neighbour stays unchecked (partial selection).
       const publish = await p.publishStagedImport({ onlyProductGroupIds: [RT.productGroupId] });
       expect(publish.success).toBe(true);
       expect(publish.status).toBe(200);
@@ -380,16 +360,12 @@ test.describe('Corporate Pricing — Import ▾ All real round-trip (NM-2265) @c
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Import ▾ All — surface behavior (NM-2265): result-fidelity (staged delta), combination (pairwise
-// gate), and a cross-variant negative. All NON-committing (choose + cancel, or gate-only).
 test.describe('Corporate Pricing — Import ▾ All surface-behavior (NM-2265) @corporate-pricing @toolbar-io', () => {
   test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
     test.setTimeout(200_000);
     await p.open();
   });
 
-  // TC-CPR-IMA-014 — the staged delta shows the exact changed cell, then Cancel commits nothing
   test('TC-CPR-IMA-014: The staged delta shows the exact changed cell (old price → new price), then Cancel commits nothing', async ({ corporatePricingSearchPage: p }) => {
     const changed = await p.buildImportAllSingleCellFixture({ variant: RT.variant, years: [...RT.years], currency: RT.currency, productGroupId: RT.productGroupId, pricebook: RT.pricebook, newValue: RT.testValue });
     let importFired = false;
@@ -420,7 +396,6 @@ test.describe('Corporate Pricing — Import ▾ All surface-behavior (NM-2265) @
     expect(after, 'the target cell is unchanged after Cancel — nothing was committed').toBe(changed.previousValue);
   });
 
-  // TC-CPR-IMA-015 — a bounded pairwise of variant × Year(s) × Currency all reach the upload dialog
   test('TC-CPR-IMA-015: Combination — a bounded pairwise of variant × Year(s) × Currency all reach the upload dialog', async ({ corporatePricingSearchPage: p }) => {
     const yearsets: string[][] = [['2026'], ['2026', '2027', '2028']]; // 1-year and 3-year selections
     // A bounded pairwise covering array over {4 variants} × {1yr, 3yr} × {USD, CAD, MXN} — indices are
@@ -446,7 +421,6 @@ test.describe('Corporate Pricing — Import ▾ All surface-behavior (NM-2265) @
     }
   });
 
-  // TC-CPR-IMA-016 — an Equipment file imported into the Labor variant matches nothing
   test('TC-CPR-IMA-016: An Equipment file imported into the Labor variant matches no pricebooks (no commit)', async ({ corporatePricingSearchPage: p }) => {
     // Build an Equipment-scoped changed file, then feed it to the LABOR import — the labor server pricebook
     // columns differ, so the diff matches nothing and stages nothing (the app's cross-variant guard).
@@ -473,7 +447,6 @@ test.describe('Corporate Pricing — Import ▾ All surface-behavior (NM-2265) @
     }
   });
 
-  // TC-CPR-IMA-018 — positive staging for a non-Equipment variant: a real Labor delta stages (non-committing)
   test('TC-CPR-IMA-018: A Labor-variant change stages a delta, then Cancel commits nothing', async ({ corporatePricingSearchPage: p }) => {
     const LABOR = 'All Labor Pricing';
     // Pick a real Labor target live — a product group with a numeric price in a Labor pricebook column (the
@@ -497,7 +470,6 @@ test.describe('Corporate Pricing — Import ▾ All surface-behavior (NM-2265) @
       await p.openImportAllUploadFor(LABOR, [...RT.years], RT.currency);
       p.page.on('request', onReq);
       const staged = await p.chooseImportAllFile(changed.path);
-      // A real Labor delta stages exactly the one changed cell — positive staging for a non-Equipment variant.
       expect(staged.kind).toBe('staged');
       expect(staged.staged).toHaveLength(1);
       expect(staged.staged[0]?.productGroupId).toBe(productGroupId);

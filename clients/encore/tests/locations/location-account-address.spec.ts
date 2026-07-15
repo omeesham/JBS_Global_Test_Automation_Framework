@@ -32,7 +32,6 @@ test.describe('Location Account and Address @locations @account-address', () => 
     await locationAccountAddressPage.ensureDefaultState({ phone2: PHONE2_BASELINE });
   });
 
-  // ─── NET-NEW Master Bill To launcher cases (TC-LOC-ACC-032..033) — blended at the TOP, same
   //     @locations @account-address tags, no @fcc tag (per the tagging convention).
   //     The Master launcher's select→Master-field-update→persist cycle had ZERO coverage (TC-012 only
   //     proved the dialog OPENS from Master). Per-launcher coverage: a Venue TC can NOT
@@ -41,19 +40,16 @@ test.describe('Location Account and Address @locations @account-address', () => 
   test('TC-LOC-ACC-032: Master Bill To selection updates Master display + leaves Venue unchanged + enables Save', async ({ locationAccountAddressPage: pg, dependencyGate }) => {
     dependencyGate(['TC-LOC-ACC-001']);
     test.setTimeout(90_000);
-    // Master starts at the original address
     await expect.poll(() => pg.getMasterCityText(), { timeout: 10_000 }).toBe(MASTER_BILL_TO_ORIGINAL.city);
     const venueBefore = await pg.getVenueCityText();
     // Select an alternate address via the MASTER launcher
     await pg.openMasterAddressDialog();
     await pg.selectAddressRow(ALT_ADDRESS.address1);
-    // Master display updates to the selected address
     await expect.poll(() => pg.getMasterCityText(), { timeout: 5_000 }).toBe(ALT_ADDRESS.city);
     // Venue/Branch display is UNCHANGED — the Master selection is isolated from Venue
     expect(await pg.getVenueCityText()).toBe(venueBefore);
     // Save enables (form dirty — NOT display-only)
     await expect.poll(() => pg.isSaveEnabled(), { timeout: 5_000 }).toBe(true);
-    // Discard: reload restores the original Master display (no save)
     await pg.reloadAndNavigate(OFFICE_NO);
     await expect.poll(() => pg.getMasterCityText(), { timeout: 10_000 }).toBe(MASTER_BILL_TO_ORIGINAL.city);
   });
@@ -104,7 +100,6 @@ test.describe('Location Account and Address @locations @account-address', () => 
     });
   });
 
-  // ─── NET-NEW granular field-coverage cases (TC-LOC-ACC-029..031) — blended at the TOP of the
   //     existing describe, same @locations @account-address tags, no separate fcc-tag.
   //     Save-cycle case uses the field-coverage runner; filter cases use ordinary test() (no save). ───
 
@@ -387,7 +382,6 @@ test.describe('Location Account and Address @locations @account-address', () => 
     }
   });
 
- // ─── Account & Address audit additions ─────────────────────────────────────
  // TC-021 DROPPED: live verification proved Phone 1 is account-linked.
  // Save completes but value always reverts to account phone on reload. NOT-AUTOMATABLE.
 

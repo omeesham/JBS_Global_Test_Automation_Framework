@@ -1,15 +1,15 @@
 import { CORPORATE_PRICING_COMMON, CORPORATE_PRICING_FIXTURES } from './common';
 
 export const STRATEGY = {
-  office: CORPORATE_PRICING_COMMON.office, // '1604'
-  pricebookGuid: CORPORATE_PRICING_FIXTURES.strategyFixture.guid, // 5f2a4088-9268-b033-4925-a48146afb1cb
-  pricebookName: CORPORATE_PRICING_FIXTURES.strategyFixture.name, // '2022-NP Tier 1'
+  office: CORPORATE_PRICING_COMMON.office,
+  pricebookGuid: CORPORATE_PRICING_FIXTURES.strategyFixture.guid,
+  pricebookName: CORPORATE_PRICING_FIXTURES.strategyFixture.name,
 
   fixtureStrategyName: '2022-NP Tier 1',
 
   header: {
     name: '2022-NP Tier 1',
-    type: 'Equipment', // Labor/Equipment
+    type: 'Equipment',
     year: '2022',
     currency: 'USD',
     active: 'Active',

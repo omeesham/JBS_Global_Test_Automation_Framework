@@ -12,7 +12,7 @@
 import { CORPORATE_PRICING_COMMON } from './common';
 
 export const NEW_PRICEBOOK = {
-  office: CORPORATE_PRICING_COMMON.office, // '1604'
+  office: CORPORATE_PRICING_COMMON.office,
 
   types: ['equipment', 'labor'] as const,
 
@@ -50,8 +50,8 @@ export const NEW_PRICEBOOK = {
     isProductions: { checked: false },
   },
 
-  equipmentGroupA: 'Balloon Light Decor',          // ID 277
-  equipmentGroupB: 'Analog Mixer 12 - 23 Ch',      // ID 280
+  equipmentGroupA: 'Balloon Light Decor',
+  equipmentGroupB: 'Analog Mixer 12 - 23 Ch',
   laborGroupSample: ['Banners Design', 'Branding Media Production', 'Content Development'] as const,
   laborGroupA: 'Banners Design',
 

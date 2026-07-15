@@ -10,11 +10,6 @@ import {
 } from '../../src/data/locations/location-left-panel-basic-information';
 
 /**
- * Location Settings — Left Panel (Basic Information).
- *
- * Automates 23 of the 24 documented manual TCs (TC-LOC-LP-001..023) + 3 net-new save-persist TCs
- * (025 Local Office Name, 026 Tax Mode, 027 Region). Field states live-verified 2026-06-03.
- *
  * Corrections vs the original MD (live DOM + old-site baseline both win): Line Of Business is
  * read-only in EDIT mode by design (Encore NM-831/NM-1140) → TC-016 asserts disabled; Servicing
  * Branch has 218 options (not 215); Live Date = "June 15th, 1990".
@@ -38,7 +33,6 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     await lp.ensureDefaultState();
   });
 
-  // ── Pay To Address launcher → "Pay To List" dialog (net-new 2026-06-11, blended at top) ─────
   //    Pay To Address is a LAUNCHER (the 2026-06-03 walk first classified it as a plain disabled
   //    textbox; corrected after root-cause analysis 2026-06-11). The launcher lives on the <label>;
   //    a plain click is blocked (disabled-input
@@ -148,7 +142,6 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     });
   });
 
-  // ── Baseline + read-only field states ──────────────────────────────────────
 
   test('TC-LOC-LP-001: Left panel field baseline state', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     expect(await lp.getLocalOfficeValue()).toBe(LP_DEFAULTS.localOffice);
@@ -195,7 +188,6 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     expect(await lp.getProductionOrdersState()).toEqual({ checked: true, disabled: true });
   });
 
-  // ── Save button enable/disable ─────────────────────────────────────────────
 
   test('TC-LOC-LP-007: Save button disabled on fresh page load', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     expect(await lp.isSaveEnabled(), 'Save should be disabled on a fresh page load').toBe(false);
@@ -212,7 +204,6 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     await lp.reloadAndNavigate(OFFICE_NO); // clean
   });
 
-  // ── Local Office Name validation ───────────────────────────────────────────
 
   test('TC-LOC-LP-009: Local Office Name required — empty disables Save', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     await lp.clearLocalOfficeName();
@@ -230,7 +221,6 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     expect(await lp.getLocalOfficeNameMaxLength()).toBe(LP_TEST_VALUES.localOfficeNameMaxLength);
   });
 
-  // ── Checkbox toggles (save+reload persistence) ─────────────────────────────
 
   test('TC-LOC-LP-011: Active checkbox toggle persists through save+reload', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     await lp.setActive(false);
@@ -258,7 +248,6 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     await expect.poll(async () => (await lp.getUnionState()).checked, { timeout: 10_000 }).toBe(false);
   });
 
-  // ── Dropdown enumerations ──────────────────────────────────────────────────
 
   test('TC-LOC-LP-013: Tax Mode dropdown options (US, International)', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     expect(await lp.getTaxModeOptions()).toEqual([...LP_DROPDOWN.taxMode]);
@@ -303,7 +292,6 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     expect(await lp.getServicingBranch()).toContain('Select Servicing Branch Office');
   });
 
-  // ── Country cascade ────────────────────────────────────────────────────────
 
   test('TC-LOC-LP-018: Country change clears Tax Mode + Region', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     expect(await lp.getTaxMode()).toBe(LP_DEFAULTS.taxMode);
@@ -348,7 +336,6 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
     await lp.reloadAndNavigate(OFFICE_NO); // discard
   });
 
-  // ── Live Date popover ──────────────────────────────────────────────────────
 
   test('TC-LOC-LP-023: Live Date button opens a date popover', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     // Value-agnostic (1604 Live Date drifts — shared office); assert format + that the popover opens.
@@ -367,7 +354,6 @@ test.describe('Location Left Panel — Basic Information @locations @left-panel-
   // a known coverage gap; a design decision is pending (no-DOM-leak requirement vs the Legal tab's
   // tamper-teardown behaviour). NOT a bug → no BUG cite, no test.fixme stub.
 
-  // ── Net-new: save+reload persistence per distinct editable field ───────────
 
   test('TC-LOC-LP-025: Local Office Name persists through save+reload', async ({ locationLeftPanelBasicInformationPage: lp }) => {
     await lp.setLocalOfficeName(LP_TEST_VALUES.localOfficeNamePersist);

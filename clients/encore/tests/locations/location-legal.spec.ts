@@ -9,13 +9,6 @@ import {
 import { OFFICE_NO } from '../../src/data/common';
 import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 
-// ─── Field-coverage — Legal Server Validation 2026-05-27 ────────
-// 1 net-new test (TC-LOC-LGL-019) covering the genuinely uncovered mechanic:
-// invalid value via DOM tamper → server behavior. Existing 15 TCs already cover
-// the value-agnostic dropdown save mechanic (same mechanic, different
-// data).
-// Runner: clients/encore/src/utils/field-case-runner.ts saveAndVerifyCase().
-//
 // Radix React state isolation prevents DOM-tamper propagation to Angular form
 // state. The test asserts this as a security property (DOM tamper +
 // state-isolation check), then performs a legitimate SC mid-list save to prove
@@ -29,8 +22,6 @@ test.describe('Location Legal — FCC @locations @legal @fcc', () => {
     }
   });
 
-  // ─── Group ν — Negative validation (no UI path to invalid values) ────────
-  //
   // Live finding (2026-05-27, observed across two runs): the original
   // plan called for a `page.evaluate()` DOM tamper of the SC combobox button's
   // span textContent. Live behavior (observed across two test runs 2026-05-27):
@@ -112,7 +103,6 @@ test.describe('Location Legal @locations @legal', () => {
   test('TC-LOC-LGL-001: Navigate to Legal tab; 3 column headers, 1 data row', async ({ locationLegalPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
-    // Baseline is enforced per-test in beforeEach (ensureDefaultState).
     expect(locationLegalPage.getCurrentUrl(), 'Should be on the Location Settings page').toContain(`locations/${OFFICE_NO}/settings`);
     expect(await locationLegalPage.getColumnHeaders(), 'Legal grid should display all expected column headers').toEqual([...LEGAL_COLUMN_HEADERS]);
     expect(await locationLegalPage.getGridRowCount()).toBe(1);
@@ -175,9 +165,8 @@ test.describe('Location Legal @locations @legal', () => {
     dependencyGate(['TC-LOC-LGL-001']);
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
- // Revert to original
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
- // Save stays enabled (dirty-state does not track net-zero)
+    // Save stays enabled (dirty-state does not track net-zero)
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
@@ -194,7 +183,6 @@ test.describe('Location Legal @locations @legal', () => {
  // asynchronously after reload, so a single immediate read can catch the pre-hydration state).
     await locationLegalPage.reloadAndNavigateToLegalTab();
     await expect.poll(async () => locationLegalPage.getServiceChargeValue(), { timeout: 10_000 }).toBe(LEGAL_ALT_SC);
- // Cleanup: restore original
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
     const restore = await locationLegalPage.clickSave();
     expect(restore.success).toBe(true);
@@ -203,7 +191,6 @@ test.describe('Location Legal @locations @legal', () => {
   test('TC-LOC-LGL-012: Save T&C change persists after reload', async ({ locationLegalPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LGL-001']);
     test.setTimeout(60_000);
- // Fresh state after TC-011's save cycle
     await locationLegalPage.reloadAndNavigateToLegalTab();
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
@@ -212,7 +199,6 @@ test.describe('Location Legal @locations @legal', () => {
  // Reload and verify persistence
     await locationLegalPage.reloadAndNavigateToLegalTab();
     await expect.poll(async () => locationLegalPage.getTermsValue(), { timeout: 10_000 }).toBe(LEGAL_ALT_TC);
- // Cleanup: restore original
     await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
     const restore = await locationLegalPage.clickSave();
     expect(restore.success).toBe(true);
@@ -220,15 +206,12 @@ test.describe('Location Legal @locations @legal', () => {
 
   test('TC-LOC-LGL-013: Cancel in Save dialog discards save', async ({ locationLegalPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LGL-001']);
- // Fresh state after TC-012's save cycle
     await locationLegalPage.reloadAndNavigateToLegalTab();
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     const dialogType = await locationLegalPage.clickSaveAndGetDialog();
     expect(dialogType).toBe('save-changes');
     await locationLegalPage.cancelSaveDialog();
- // Save still enabled (not saved)
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
- // Reload and verify original value
     await locationLegalPage.reloadAndNavigateToLegalTab();
     expect(await locationLegalPage.getServiceChargeValue()).toBe(LEGAL_DEFAULTS.serviceChargeName);
   });
@@ -238,28 +221,17 @@ test.describe('Location Legal @locations @legal', () => {
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     const dialogFired = await locationLegalPage.triggerBeforeunloadAndStay();
     expect(dialogFired).toBe(true);
- // Cleanup: reload (accept beforeunload) to discard
     await locationLegalPage.reloadAndNavigateToLegalTab();
   });
 
- // TC-LOC-LGL-015 (Country change resets the Legal-tab Service Charge + Terms & Conditions):
- // NOT automated here, and NOT subsumed by the left-panel spec. location-left-panel-basic-information.spec.ts
- // TC-LOC-LP-018..022 exercise the SAME Country selector, but only assert left-panel Tax Mode/Region
- // clearing + the cross-tab Local-Information Job Costing / Remit-PST effects — they never open the Legal
- // tab, so the Legal-tab SC/T&C reset is left unverified. The Country selector now exists and is proven by
- // TC-LOC-LP-018..022, so LGL-015 is now AUTOMATABLE — it remains an open coverage gap, a candidate for its
- // own Legal-tab test (a known coverage gap).
-
- // TC-LOC-LGL-016/017 OMITTED: Sort order assertion — v1 requirement says "sorted alphabetically"
- // but Live-verified: BOTH dropdowns are NOT sorted (generic names first, location-specific after).
- // Logged as an app bug. Tests would fail against live behavior.
+  // TC-LOC-LGL-016/017 OMITTED: Sort order assertion — v1 requirement says "sorted alphabetically"
+  // but Live-verified: BOTH dropdowns are NOT sorted (generic names first, location-specific after).
+  // Logged as an app bug. Tests would fail against live behavior.
 
   test('TC-LOC-LGL-018: Combined SC + T&C change saves and persists both', async ({ locationLegalPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LGL-001']);
     test.setTimeout(60_000);
- // reload before save cycle to ensure clean form state
     await locationLegalPage.reloadAndNavigateToLegalTab();
- // Change BOTH fields
     await locationLegalPage.selectServiceCharge(LEGAL_ALT_SC);
     await locationLegalPage.selectTerms(LEGAL_ALT_TC);
     expect(await locationLegalPage.isSaveEnabled()).toBe(true);
@@ -271,7 +243,6 @@ test.describe('Location Legal @locations @legal', () => {
     await locationLegalPage.reloadAndNavigateToLegalTab();
     await expect.poll(async () => locationLegalPage.getServiceChargeValue(), { timeout: 10_000 }).toBe(LEGAL_ALT_SC);
     await expect.poll(async () => locationLegalPage.getTermsValue(), { timeout: 10_000 }).toBe(LEGAL_ALT_TC);
- // Cleanup: restore BOTH to defaults
     await locationLegalPage.selectServiceCharge(LEGAL_DEFAULTS.serviceChargeName);
     await locationLegalPage.selectTerms(LEGAL_DEFAULTS.termsName);
     const restore = await locationLegalPage.clickSave();

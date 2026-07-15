@@ -2,7 +2,7 @@
  * Corporate Pricing — Search screen page object.
  * `CorporatePricingSearchPage extends CorporatePricingBasePage` (Search page object).
  *
- * Live model (verified 2026-06-05): filters STAGE on input (no network, no grid change);
+ * Filters STAGE on input (no network, no grid change);
  * the Search button submits all staged filters SERVER-SIDE as query params of
  * `GET /navigator/api/location/pricing/strategies`. Reset restores defaults + the full list
  * client-side. Read-only screen — no save. React/Next.js + shadcn DataTable; selectors are
@@ -213,9 +213,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * DOM-tamper-crash caveat does not apply (plain text input; verified non-crashing live).
    */
   private async setTextFilter(selector: string, value: string): Promise<void> {
-    // Delegates to the base React-controlled-input primitive (native value-setter + input/change
-    // events). The native-setter block was de-duplicated into CorporatePricingBasePage.setReactInput
-    // into a shared base primitive; behavior is identical (first()-match on the selector).
     await this.setReactInput(selector, value);
   }
 
@@ -241,7 +238,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
 
   /**
    * The 3 filter checkboxes are the only `[role="checkbox"]` on the Search screen, in DOM order
-   * Is Internal(0) / Is Labor(1) / Active Only(2) — live-verified 2026-06-05. Indexed access is
+   * Is Internal(0) / Is Labor(1) / Active Only(2). Indexed access is
    * the verified-stable locator (label-proximity `:has()` selectors are kept in search.ts as a
    * documented fallback). `.check()/.uncheck()` auto-verify the ARIA state (bare click can
    * focus-without-toggle on Radix checkboxes).
@@ -431,16 +428,10 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   }
 
   /**
-   * Whether an action-bar button is PRESENT (attached in the DOM). "Present", not "visible" — at a
-   * headless viewport the 7-button action bar overflows, so some buttons exist but report not-visible;
-   * presence is the right semantic for the "buttons present" requirement (the New affordance is
-   * proven interactable separately via openNewMenu).
-   */
-  /**
    * All button label texts on the page (shadow-pierced, via textContent). Used for action-bar
    * presence: Playwright's `:text-is`/visible-text engine misses the action-bar buttons at the
    * test render (their label is not "visible text" to Playwright), but a shadow-walk over
-   * `textContent` reliably finds all of them (verified live — all 7 action buttons present).
+   * `textContent` reliably finds all of them.
    */
   async getAllButtonTexts(): Promise<string[]> {
     return this.page.evaluate(() => {
@@ -514,10 +505,6 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     ).catch(() => { /* never resolved — the read below returns the placeholder, assertion fails cleanly */ });
   }
 
-  // Toolbar I/O — Export ▾ / Import ▾ / Loc Pricing / Grid Options.
-  // Trigger + variant level ONLY: assert the menu opens, the variants are present, and the correct
-  // endpoint fires (Export) / dialog opens (Import). Real download/upload round-trip is a later edge-case test phase.
-
   private async openToolbarMenu(triggerSelector: string): Promise<void> {
     const item = this.page.locator(S.mnuToolbarVariant).first();
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -549,7 +536,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * Uses a COORDINATE mouse-click, not `locator(heading).click()`: while a Radix menu is open it renders
    * a dismissable overlay over the page, so a locator click on an underlying element is "obscured" and
    * never becomes actionable (times out). A coordinate `mouse.click` dispatches a real pointerdown the
-   * overlay catches to dismiss the menu (live-verified 2026-06-09). The heading sits top-left, well
+   * overlay catches to dismiss the menu. The heading sits top-left, well
    * outside the top-right Export/Import menu panel, so the click lands genuinely outside it.
    */
   async dismissToolbarMenuWithOutsideClick(): Promise<boolean> {
@@ -1039,7 +1026,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * Read-only: the reference row is never imported, so a single-row import touching only the target must leave
    * it unchanged if the commit MERGES (and would wipe it if it REPLACED). The column dimension is deliberately
    * NOT captured: the import file is fixed-width (every pricebook column is required — a column-narrow file is
-   * rejected as "unexpected format", verified 2026-07-09), so a row present in the file always carries all its
+   * rejected as "unexpected format"), so a row present in the file always carries all its
    * columns. An omitted-column scenario cannot exist, making product-group ROW omission the only meaningful
    * "absent-from-file → untouched" proof.
    */
@@ -1186,8 +1173,8 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
   /**
    * Generic import-upload primitive (Loc Pricing Import — reused by the grid-scoped Import All flows).
    * Assumes an "Import ..." file dialog is ALREADY open. The app submits the import the MOMENT a file is
-   * chosen — there is NO separate "Upload" click (live-verified: choosing a valid file fires
-   * PUT .../location-import on its own and the dialog closes on success).
+   * chosen — there is NO separate "Upload" click; choosing a valid file fires
+   * PUT .../location-import on its own and the dialog closes on success.
    *
    * The outcome is classified on the ground truth of whether an import request actually fired, not on a
    * dialog-message timing race: a `waitForRequest` for the import PUT is armed BEFORE the file is chosen

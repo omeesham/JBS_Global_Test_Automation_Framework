@@ -1,51 +1,6 @@
-/**
- * Corporate Pricing — Loc Pricing Import real upload round-trip (NM-2305).
- * TC-CPR-LIM-001..012 (LIM-008 is a Manual, documented-only large-file boundary — see the test
- * cases doc; LIM-012 covers the import dialog surface). Live-grounded 2026-07-07.
- *
- * "Loc Pricing Import" uploads a CSV the server applies per (location, currency): the rows a file
- * carries for a location-and-currency REPLACE that location's existing rows in that currency, and
- * any location or currency partition absent from the file is left untouched. These cases flip a
- * pricebook between Primary and Alternate and confirm the change by RE-DOWNLOADING the export (the
- * export is the source of truth), plus the file-validation rejections (empty / non-CSV / malformed
- * / header-only / dismissed-without-a-file), the durable-after-reload check, and the observed write
- * scope (only the Alternate flag is applied; a pricebook not already defined is silently dropped).
- *
- * Mutation safety: every test resets a throwaway office (5897, outside every other spec's offices)
- * to a known baseline before and after, and the reset is persistence-verified by re-reading a fresh
- * export — never trusted from the upload's own success flag. Success cases assert the real server
- * response (status + body), never the dialog alone.
- */
 import { resolve } from 'node:path';
 import { test, expect } from '../../src/fixtures/pages.fixture';
 import { CORP_PRICING_TOOLBAR_IO, CORP_PRICING_LOC_IMPORT_API } from '../../src/data/corporate-pricing/toolbar-io';
-// Loc Pricing Import — REAL upload round-trip (NM-2305).
-//
-// "Loc Pricing Import" uploads a CSV that the server applies per (LOCATION, CURRENCY): the rows the file
-// carries for a location-and-currency REPLACE that location's existing rows in that currency — a row
-// omitted from the file within a currency the file touches is REMOVED, not merged (live-verified) — and
-// any location, and any currency partition, absent from the file is left untouched (a USD-only file
-// leaves a location's CAD rows intact). Because it is a REPLACE, the per-test baseline file (baseline.csv)
-// carries the office's COMPLETE USD row set so a reset restores every row. That makes a minimal
-// single-location USD file safe: it bounds the mutation to a throwaway office (5897 — outside every other
-// spec's offices) and avoids the failure a full ~38k-row import currently hits. The round-trip flips a
-// pricebook between Primary and Alternate (the IsAlternate flag) and confirms the change by RE-DOWNLOADING
-// the export — the export is the source of truth, a different dataset from the on-screen search grid.
-//
-// Live-observed write scope: of the flag columns only IsAlternate is applied by the import (Internal /
-// Labor / Production come back reported "updated" but do not change), and a pricebook name not already
-// defined in the system is silently dropped (createdCount stays 0 and the row never appears) — the import
-// updates existing pricebooks, it does not create new ones. TC-CPR-LIM-010/011 pin those behaviors.
-//
-// Mutation safety: every test resets office 5897 to its known baseline first and restores it after, and
-// the reset is persistence-verified (re-read from a fresh export, not trusted from the upload's own
-// success flag). The dialog can look fine while the server rejected the import, so the success cases
-// assert the REAL PUT response (status + body), never the dialog alone.
-//
-// The full/large-file boundary is not automated: importing the full ~38k-row export live on 2026-07-07
-// returned HTTP 500 partway through ("Failed to replace LocationPricebook document ..." — NM-2407), and
-// automating it would re-import ~38k rows on shared data every run. So it is verified once by hand and
-// documented, not wired into CI; the bounded valid round-trip below is the safe automated coverage.
 const IMP2 = CORP_PRICING_TOOLBAR_IO.locImport;
 const OFFICE = IMP2.throwawayOffice;
 const LOC_H = CORP_PRICING_TOOLBAR_IO.locExport.expectedHeaders;
@@ -76,7 +31,7 @@ function requireRow(cap: { header: string[]; rows: string[][] }, priceBook: stri
 test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305) @corporate-pricing @loc-pricing-import @mutation', () => {
   test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
     test.setTimeout(120_000); // upload + server processing + a full export re-download can be slow
-    await p.open(); // per-test baseline: fresh search-grid load, no reliance on prior-test state
+    await p.open();
     // Deterministic baseline: put the throwaway office back to all-Primary before every test so a prior
     // test (or a crashed run) can never bleed into this one.
     const reset = await p.locPricingImport(fixturePath('baseline.csv'));
@@ -98,7 +53,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     }
   });
 
-  // TC-CPR-LIM-001
   test('TC-CPR-LIM-001: Loc Pricing Import flips a pricebook Primary->Alternate and the change reflects in a fresh export', async ({ corporatePricingSearchPage: p }) => {
     // Known start: NP LB4 is Primary (the beforeEach reset already set this — assert it to prove causation).
     const before = await p.captureLocPricingCsvRows(OFFICE);
@@ -107,7 +61,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
 
     // The real mutation: upload a minimal single-location file that flips NP LB4 to Alternate.
     const result = await p.locPricingImport(fixturePath('valid-update.csv'));
-    // Assert the REAL server outcome, not the dialog.
     expect(result.status).toBe(200);
     expect(result.success).toBe(true);
     expect(result.message).toContain(IMP2.successMessageFragment);
@@ -118,7 +71,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(requireRow(after, '2026-NP LB4')).toEqual(['5897', '2026-NP LB4', '2026-NP LB4', 'USD', '0', '1', '1', '1', '0', '', '']);
   });
 
-  // TC-CPR-LIM-002
   test('TC-CPR-LIM-002: Loc Pricing Import replaces a location set — a row omitted from the file is removed, not merged', async ({ corporatePricingSearchPage: p }) => {
     // A canary office named in NO import file — captured before + after to prove the import touches only
     // the office the file carries, not others.
@@ -148,7 +100,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(sortRows(canaryAfter.rows)).toEqual(sortRows(canaryBefore.rows));
   });
 
-  // TC-CPR-LIM-003
   test('TC-CPR-LIM-003: Loc Pricing Import rejects an empty file in the browser and runs no import', async ({ corporatePricingSearchPage: p }) => {
     const before = await p.captureLocPricingCsvRows(OFFICE);
     const result = await p.locPricingImport(fixturePath('empty.csv'));
@@ -160,7 +111,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(sortRows(after.rows)).toEqual(sortRows(before.rows)); // nothing was committed
   });
 
-  // TC-CPR-LIM-004
   test('TC-CPR-LIM-004: Loc Pricing Import rejects a non-CSV file by type and runs no import', async ({ corporatePricingSearchPage: p }) => {
     const before = await p.captureLocPricingCsvRows(OFFICE);
     const result = await p.locPricingImport(fixturePath('wrong-format.txt'));
@@ -172,7 +122,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(sortRows(after.rows)).toEqual(sortRows(before.rows));
   });
 
-  // TC-CPR-LIM-005
   test('TC-CPR-LIM-005: Loc Pricing Import surfaces an error for a structurally malformed CSV and runs no import', async ({ corporatePricingSearchPage: p }) => {
     const before = await p.captureLocPricingCsvRows(OFFICE);
     const result = await p.locPricingImport(fixturePath('malformed.csv'));
@@ -189,7 +138,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(sortRows(after.rows)).toEqual(sortRows(before.rows));
   });
 
-  // TC-CPR-LIM-006
   // The app auto-submits the import the moment a file is chosen (live-verified) — so there is no
   // "choose then cancel" window. The meaningful negative case is that merely opening the import
   // affordance and dismissing it (without choosing a file) fires no import and changes nothing.
@@ -212,7 +160,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(sortRows(after.rows)).toEqual(sortRows(before.rows));
   });
 
-  // TC-CPR-LIM-007
   test('TC-CPR-LIM-007: Loc Pricing Import change persists on a fresh export after reload and the search grid still renders', async ({ corporatePricingSearchPage: p }) => {
     const result = await p.locPricingImport(fixturePath('valid-update.csv')); // flip NP LB4 -> Alternate
     expect(result.success, result.message).toBe(true);
@@ -224,7 +171,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(requireRow(after, '2026-NP LB4')[ALT_IDX]).toBe('1'); // the imported value is durable, not an in-memory echo
   });
 
-  // TC-CPR-LIM-009
   test('TC-CPR-LIM-009: Loc Pricing Import rejects a header-only CSV (headers, zero data rows) in the browser and runs no import', async ({ corporatePricingSearchPage: p }) => {
     const before = await p.captureLocPricingCsvRows(OFFICE);
     const result = await p.locPricingImport(fixturePath('header-only.csv'));
@@ -238,7 +184,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(sortRows(after.rows)).toEqual(sortRows(before.rows)); // nothing committed
   });
 
-  // TC-CPR-LIM-010
   test('TC-CPR-LIM-010: Loc Pricing Import applies only the Alternate flag — Internal/Labor/Production columns are not written', async ({ corporatePricingSearchPage: p }) => {
     // The file sets all four boolean flags to 1 on LV-PB. The server accepts it, but only Alternate is an
     // import-writable column — the fresh export proves the other three stay 0 (live-verified write scope).
@@ -255,7 +200,6 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
     expect(row[H.indexOf('IsProduction')]).toBe('0');  // unchanged despite the file setting it to 1
   });
 
-  // TC-CPR-LIM-011
   test('TC-CPR-LIM-011: Loc Pricing Import silently drops a pricebook not already defined in the system — no row is created', async ({ corporatePricingSearchPage: p }) => {
     const before = await p.captureLocPricingCsvRows(OFFICE);
     const result = await p.locPricingImport(fixturePath('create-novel.csv')); // 3 baseline rows + 1 novel pricebook
@@ -273,14 +217,10 @@ test.describe('Corporate Pricing — Loc Pricing Import real round-trip (NM-2305
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Loc Pricing Import dialog surface — the direct "Loc Pricing Import" trigger (not a menu variant)
-// opens its own titled upload dialog. Read-only: it opens and dismisses the dialog without a file,
-// so it needs no baseline reset (the real upload round-trip is the mutation block above).
 test.describe('Corporate Pricing — Loc Pricing Import dialog surface (NM-2305) @corporate-pricing @loc-pricing-import', () => {
   test.beforeEach(async ({ corporatePricingSearchPage: p }) => {
     test.setTimeout(60_000);
-    await p.open(); // per-test baseline: fresh search-grid load
+    await p.open();
   });
 
   test('TC-CPR-LIM-012: Loc Pricing Import opens the "Import All Location Pricing" dialog', async ({ corporatePricingSearchPage: p }) => {

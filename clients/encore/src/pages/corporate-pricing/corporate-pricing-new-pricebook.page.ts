@@ -28,8 +28,6 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     super(page, config);
   }
 
-  // NAVIGATION (per-test baseline = a fresh, always-empty create page per test)
-
   async open(type: PricebookType = 'equipment', office: string = NEW_PRICEBOOK.office): Promise<void> {
     await this.gotoNewPricebook(office, type);
     await this.page.locator(S.npName).first().waitFor({ state: 'visible', timeout: 25_000 });
@@ -93,8 +91,6 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
   async clickDetailTab(): Promise<void> {
     await this.switchTab('Pricing Detail');
   }
-
-  // STRATEGY LIST + ADD DIALOG
 
   async getStrategyTotal(): Promise<number> {
     const txt = await this.page.locator(S.npStrategyTotal).first().innerText().catch(() => '');
@@ -161,8 +157,6 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     await this.waitForAngularStable();
   }
 
-  // PRICING DETAIL — product-group ADD (create mode)
-
   async getSourceGroupCount(): Promise<number> {
     return this.page.locator(S.npSourceRow).count();
   }
@@ -228,8 +222,6 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     await this.setYear(year);
     await this.addStrategy();
   }
-
-  // SAVE (COMMITTING — single persistence test ONLY; leaves a permanent record)
 
   /**
    * Build a savable + NON-EMPTY pricebook: Name + Year + one strategy + one product group on the
@@ -298,8 +290,6 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     return this.getDetailGridRows();
   }
 
-  // VALIDATION-INDICATOR READS (NM-2057 / NM-2022) — no-commit observations
-
   /**
    * Read the Price Year field's validation indicator: the `aria-invalid` attribute plus the
    * field's computed border color (snapshot string). With an empty year the field is invalid and
@@ -332,8 +322,6 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     });
     return { ariaInvalid, hasInlineUniquenessError };
   }
-
-  // PRICING DETAIL — empty-state, source-list search (surface-behavior reads)
 
   /**
    * Verbatim empty-state hint shown on the empty destination grid (Pricing Detail tab). The hint is

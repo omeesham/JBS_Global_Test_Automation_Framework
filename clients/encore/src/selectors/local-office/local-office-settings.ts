@@ -1,11 +1,3 @@
-/**
- * Local Office Settings — Basic Information tab selectors + shared tab/dialog infrastructure.
- * URL: /navigator/locations/{officeId}/settings/local-office
- * History-tab selectors live in `./local-office-history.ts` (LocalOfficeHistorySelectors).
- * ECT-tab selectors live in `./local-office-ect.ts` (LocalOfficeEctSelectors).
- * Tab navigation + content panels + Save Changes / Unsaved dialogs stay here as shared infra
- * — HistoryPage / EctPage cascade through this namespace via their getElement overrides.
- */
 export const LocalOfficeSettingsSelectors = {
   tabContainer: '[data-testid="local-office-settings-tabs"]',
   tabBasicInformation: '[data-testid="local-office-settings-tab-basic-information"]',
@@ -64,8 +56,7 @@ export const LocalOfficeSettingsSelectors = {
   secDiscountExemptions: '[data-testid="local-office-settings-section-discount-exemptions"]',
   tblDiscountExemptions: '[data-testid="local-office-settings-table-discount-exemptions"]',
 
- // NOTE: Local Office Settings "Save Changes" dialog uses "Save" button (NOT "Ok" like Location Settings).
- // Live-verified: alertdialog has Cancel + Save buttons.
+ // Local Office Settings "Save Changes" dialog uses "Save" button (NOT "Ok" like Location Settings).
  // The unsaved-changes dialog has custom Stay/Discard buttons (not shared OK/Cancel).
   dlgSaveChanges: '[data-testid="location-settings-modal-save-changes"]',
   btnSaveChangesConfirm: '[role="alertdialog"]:has-text("Save Changes") button:has-text("Save")',

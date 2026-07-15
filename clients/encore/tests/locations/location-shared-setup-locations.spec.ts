@@ -19,9 +19,6 @@ import {
 import { OFFICE_NO } from '../../src/data/common';
 import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
 
-// 14 net-new tests per locations_shared_setup_locations_test_cases.md (TC-LOC-SSL-031..044).
-// Each test owns its baseline + cleanup. Runner: clients/encore/src/utils/field-case-runner.ts
-// saveAndVerifyCase(). Existing 30-TC describe block UNTOUCHED below.
 // Non-Miami test data throughout per BUG-LOC-SSL-001 workaround (Miami search returns
 // phantom row; non-Miami searches behave correctly).
 test.describe('Location Shared Setup Locations @locations @shared-setup', () => {

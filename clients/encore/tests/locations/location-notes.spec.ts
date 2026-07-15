@@ -24,10 +24,8 @@ import {
   NOTE_IDEMPOTENT, NOTE_SEQUENTIAL_A, NOTE_SEQUENTIAL_B,
 } from '../../src/data/locations/location-notes';
 
-// ─── Field-coverage — Notes 2026-05-19 ────────
 // 26 net-new tests + 1 DEFERRED (4000-char exact-limit persist — not implemented). Each test is
 // independent: own baseline, own cleanup.
-// Runner: clients/encore/src/utils/field-case-runner.ts saveAndVerifyCase().
 test.describe('Location Notes — FCC @locations @notes @fcc', () => {
 
   // DOM-presence beats url.includes (shared `settings/location` URL across sub-tabs).
@@ -37,7 +35,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     }
   });
 
-  // ─── Group α — Content BVA + length ──────────────────────────────────────
   test('TC-LOC-NTS-033: Verify a single-character note persists after save and reload', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
@@ -76,7 +73,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  // ─── Group β — Whitespace / special characters ────────────────────────────
   test('TC-LOC-NTS-035: Whitespace-only "   " persist', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
@@ -162,7 +158,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  // ─── Group γ — Edit operations (append / prepend / replace / clear) ───────
   test('TC-LOC-NTS-058: Edit append', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
@@ -264,7 +259,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  // ─── Group δ — Multi-row positive cases ──────────────────────────────────
   test('TC-LOC-NTS-042: 2-row positive (smallest multi-row save+reload)', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
@@ -359,7 +353,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  // ─── Group ε — Delete operations (clearNote-then-deleteRow per Angular dirty-state + BUG-001 workaround) ──
   test('TC-LOC-NTS-046: Verify deleting the first of two note rows leaves the other', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
@@ -454,7 +447,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  // ─── Group ζ — Save-dialog edge cases (plain test blocks; do not fit save+verify lifecycle) ──
   test('TC-LOC-NTS-048: Verify a note persists after a cancel-then-resave flow', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(90_000);
@@ -587,7 +579,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
-  // ─── Group η — Cross-state cases (sequential save, cross-tab isolation) ────
   test('TC-LOC-NTS-053: Sequential save persists most recent value', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(120_000);
@@ -595,7 +586,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_A);
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
-    // Save 2 (different content)
     await locationNotesPage.clearNote(0);
     await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_B);
     await locationNotesPage.saveAndConfirm();
@@ -627,7 +617,6 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
-  // ─── Group θ — BUG regression watch (BUG-LOC-NTS-003 placeholder content check) ────
   test('TC-LOC-NTS-055: Verify saved note rows persist by content after reload', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(60_000);
@@ -661,7 +650,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
- // ─── Group A: Navigation + Default State ─────────────────────────────────
  // Live-verified: Default state = 1 empty textarea row (0/4000), NOT "No Notes Available"
 
   test('TC-LOC-NTS-001: Verify Notes tab default empty state', async ({ locationNotesPage, dependencyGate }) => {
@@ -677,7 +665,6 @@ test.describe('Location Notes @locations @notes', () => {
     expect(await locationNotesPage.getDeleteButtonCount()).toBe(0);
   });
 
- // ─── Group B: Counter & Row Behavior (no save, discard via reload) ──────
  // After discard, state = 1 empty row at index 0. Use row 0 directly.
 
   test('TC-LOC-NTS-002: Type text in textarea and verify counter updates', async ({ locationNotesPage, dependencyGate }) => {
@@ -692,7 +679,6 @@ test.describe('Location Notes @locations @notes', () => {
 
   test('TC-LOC-NTS-003: Add second note row and verify Delete button behavior', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
- // Row 0 exists. Fill it, then Add row 1.
     await locationNotesPage.fillNote(0, NOTE_ROW1);
     expect(await locationNotesPage.getDeleteButtonCount()).toBeGreaterThan(0);
     await locationNotesPage.clickAdd();
@@ -752,7 +738,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
- // ─── Group C: Save & Persistence ────────────────────────────────────────
 
   test('TC-LOC-NTS-008: Save notes via left-panel Save button', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
@@ -778,7 +763,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.ensureEmptyState();
   });
 
- // ─── Group D: State Preservation ────────────────────────────────────────
 
   test('TC-LOC-NTS-010: Tab switch preserves unsaved notes', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
@@ -805,14 +789,12 @@ test.describe('Location Notes @locations @notes', () => {
     dependencyGate(['TC-LOC-NTS-001']);
     await locationNotesPage.fillNote(0, NOTE_ROW1);
     await locationNotesPage.saveAndConfirm();
- // Delete saved note + save empty
     await locationNotesPage.ensureEmptyState();
  // Reload: default state = 1 empty row (DB is empty)
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
   });
 
- // ─── Group E: Special Content Save+Reload (data-driven, 4 TCs) ─────────
 
   for (const tc of SPECIAL_CONTENT_TESTS) {
     test(`TC-LOC-NTS-${tc.tcId}: ${tc.name}`, async ({ locationNotesPage, dependencyGate }) => {
@@ -829,11 +811,9 @@ test.describe('Location Notes @locations @notes', () => {
     });
   }
 
- // ─── Group F: Row Manipulation ──────────────────────────────────────────
 
   test('TC-LOC-NTS-014: Add multiple rows and verify sequential positions', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
- // Ensure row 0 exists, then add 2 more = 3 total
     await locationNotesPage.prepareEmptyRow();
     await locationNotesPage.clickAdd();
     await locationNotesPage.clickAdd();
@@ -882,7 +862,6 @@ test.describe('Location Notes @locations @notes', () => {
 
   test('TC-LOC-NTS-017: Delete last remaining row restores No Notes Available', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
- // Type in row 0 to get Delete button, then delete it
     await locationNotesPage.fillNote(0, NOTE_ROW1);
     expect(await locationNotesPage.getDeleteButtonCount()).toBeGreaterThan(0);
     await locationNotesPage.deleteRow(0);
@@ -893,7 +872,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
- // ─── Group G: Paste Boundary ────────────────────────────────────────────
 
   test('TC-LOC-NTS-021: Paste exceeds 4000 char limit — counter shows overage', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
@@ -903,7 +881,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
- // ─── Group H: Keyboard Accessibility ────────────────────────────────────
 
   test('TC-LOC-NTS-022: Accessibility — keyboard navigation', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
@@ -917,27 +894,21 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.discardChangesViaReload();
   });
 
- // ─── Group I: Full Lifecycle ────────────────────────────────────────────
 
   test('TC-LOC-NTS-023: Full lifecycle — add, save, reload, delete, save', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
- // Add + save
     await locationNotesPage.fillNote(0, NOTE_LIFECYCLE);
     expect(await locationNotesPage.getCharCount()).toBe(20);
     await locationNotesPage.saveAndConfirm();
- // Reload + verify
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_LIFECYCLE);
     expect(await locationNotesPage.getCharCount()).toBeGreaterThanOrEqual(20);
- // Delete + save
     await locationNotesPage.ensureEmptyState();
- // Reload + verify default state
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
   });
 
- // ─── Group J: Persistence Gap-Fill (TC-024..027) ────────────────────────
 
   test('TC-LOC-NTS-024: Multi-row persistence — 3 rows save+reload+verify', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
@@ -950,7 +921,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.fillNote(2, NOTE_ROW_GAMMA);
     expect(await locationNotesPage.getNoteRowCount()).toBe(3);
     expect(await locationNotesPage.getCharCount()).toBe(28); // 9+1+8+1+9
- // Save + reload
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
  // Verify persistence via per-row content (strict row count is unstable under the
@@ -969,10 +939,8 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.ensureEmptyState();
     await locationNotesPage.fillNote(0, NOTE_4000_CHARS);
     expect(await locationNotesPage.getCharCount()).toBe(4000);
- // Save + reload
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
- // Verify persistence
     expect(await locationNotesPage.getCharCount()).toBe(4000);
     const value = await locationNotesPage.getNoteValue(0);
     expect(value.length).toBe(4000);
@@ -993,10 +961,8 @@ test.describe('Location Notes @locations @notes', () => {
     expect(await locationNotesPage.getNoteRowCount()).toBe(2);
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_KEEP_FIRST);
     expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_KEEP_LAST);
- // Save + reload
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
- // Verify persistence
     expect(await locationNotesPage.getNoteRowCount()).toBe(2);
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_KEEP_FIRST);
     expect(await locationNotesPage.getNoteValue(1)).toBe(NOTE_KEEP_LAST);
@@ -1009,7 +975,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.ensureEmptyState();
     await locationNotesPage.fillNote(0, NOTE_CANCEL_TEST);
     expect(await locationNotesPage.isSaveEnabled()).toBe(true);
- // Click Save but cancel the dialog
     await locationNotesPage.clickSaveButton();
     await locationNotesPage.cancelSaveDialog();
     expect(await locationNotesPage.isSaveEnabled()).toBe(true); // still unsaved
@@ -1018,14 +983,12 @@ test.describe('Location Notes @locations @notes', () => {
     expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
   });
 
- // ─── Group K: Coverage Gap-Fill (TC-033..037) ─────────────────────────────
  // Live-verified 2026-05-12: sequential save, edit-existing, save-empty, overage persistence, delete-persist
 
   test('TC-LOC-NTS-028: Sequential save — add second note with reload between saves, both persist', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
- // Save first note
     await locationNotesPage.fillNote(0, NOTE_SEQ_A);
     await locationNotesPage.saveAndConfirm();
  // Reload required: Playwright .fill() does NOT trigger Angular change detection after the
@@ -1037,7 +1000,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.clickAdd();
     await locationNotesPage.fillNote(1, NOTE_SEQ_B);
     await locationNotesPage.saveAndConfirm();
- // Reload + verify both persist
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.getNoteRowCount()).toBe(2);
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_SEQ_A);
@@ -1049,7 +1011,6 @@ test.describe('Location Notes @locations @notes', () => {
     dependencyGate(['TC-LOC-NTS-001']);
     test.setTimeout(60_000);
     await locationNotesPage.ensureEmptyState();
- // Save original
     await locationNotesPage.fillNote(0, NOTE_ORIGINAL);
     await locationNotesPage.saveAndConfirm();
  // Reload required: Playwright .fill() does NOT trigger Angular change detection after the
@@ -1060,7 +1021,6 @@ test.describe('Location Notes @locations @notes', () => {
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_ORIGINAL);
     await locationNotesPage.fillNote(0, NOTE_EDITED);
     await locationNotesPage.saveAndConfirm();
- // Reload + verify edited text persisted
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_EDITED);
     await locationNotesPage.ensureEmptyState();
@@ -1091,7 +1051,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.pasteIntoNote(0, NOTE_4001_CHARS);
     expect(await locationNotesPage.getCharCount()).toBe(4001);
     expect(await locationNotesPage.getCharCounterText()).toContain('(0 Left)');
- // Save + reload
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
  // Verify all 4001 chars survived — no server-side truncation
@@ -1113,7 +1072,6 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.deleteRow(0);
     expect(await locationNotesPage.isEmptyStateVisible()).toBe(true);
     await locationNotesPage.saveAndConfirm();
- // Reload + verify deletion persisted
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
   });

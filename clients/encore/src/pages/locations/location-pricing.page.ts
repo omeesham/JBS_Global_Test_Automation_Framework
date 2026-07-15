@@ -18,13 +18,10 @@ export class LocationPricingPage extends BasePage {
   }
 
  /**
- * Detect whether the Pricing tab is currently rendered (DOM presence of chkCorporatePricing).
- * Encore sub-tabs share `settings/location` URL — URL-based detection is unreliable after a
- * sibling spec like Notes; DOM presence is the reliable signal.
+ * Encore sub-tabs share `settings/location` URL — URL-based detection is unreliable after
+ * a sibling tab's navigation; aria-selected is the reliable signal.
  */
   async isOnPricingTab(): Promise<boolean> {
-    // Fix #4a: use tab trigger aria-selected, not
-    // child-anchor count().
     const tab = this.getElement('tabPricing');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
@@ -38,13 +35,10 @@ export class LocationPricingPage extends BasePage {
   }
 
  /**
- * Wait for the pricing data to fully load after tab navigation.
  * The Pricing tab renders checkboxes and dropdowns with DEFAULT state before the API response
  * populates them with persisted values. Waiting on network-idle alone is unreliable because
  * Angular's change detection applies API data to DOM attributes AFTER the HTTP response is
  * received (async gap); in serial runs that gap widens enough that reads return stale defaults.
- * Each readiness signal uses waitForFunction so it resolves the instant the condition holds,
- * rather than sleeping for a fixed interval per check.
  */
   async waitForPricingDataLoaded(): Promise<void> {
     await this.waitForAngularStable();
@@ -64,7 +58,6 @@ export class LocationPricingPage extends BasePage {
       '[data-testid="location-settings-select-primary-labor-pricing-usd"]',
       { timeout: 10_000 },
     ).then(() => true).catch(() => false);
- // Final Angular stability pass.
     await this.waitForAngularStable();
  // At least one readiness signal must hold. If BOTH fail, the tab rendered neither its grid nor its
  // bound dropdown — a stale/empty render, not real data — so fail loudly instead of silently
@@ -111,12 +104,9 @@ export class LocationPricingPage extends BasePage {
   }
 
  /**
- * Select a pricebook option from a primary pricing dropdown popover.
- * Live-verified: combobox opens a dialog[name="Popover Content"] containing
- * a search textbox (placeholder "Search pricing strategies...") and option buttons.
  * IMPORTANT: clicking an already-selected option DESELECTS it (Radix toggle behavior).
  * This method skips interaction when the target value is already displayed.
- * @param selectorKey - selector key for the combobox (e.g., 'drpPrimaryLaborPricingUSD')
+ * @param selectorKey - selector key for the combobox
  * @param optionText - exact pricebook name to select
  */
   async selectPrimaryDropdownOption(selectorKey: string, optionText: string): Promise<void> {
@@ -167,11 +157,8 @@ export class LocationPricingPage extends BasePage {
     return this.getFieldDisplayValue('drpCurrencyFilter');
   }
 
- /** Open currency filter dropdown and get all option texts.
- * Delegates to BasePage.getComboboxOptions (shared Radix listbox pattern).
- * B5' (PRI stabilization): outer try/finally fires Escape on the failure path
- * if the upstream open throws before BasePage's internal Escape runs. Defensive only;
- * Escape on already-closed popover is a safe no-op in Radix. */
+ /** The outer try/finally fires Escape on the failure path if the upstream open throws
+ * before BasePage's internal Escape runs — a safe no-op if the popover is already closed. */
   async getCurrencyFilterOptions(): Promise<string[]> {
     try {
       return await this.getComboboxOptions('drpCurrencyFilter');
@@ -327,7 +314,6 @@ export class LocationPricingPage extends BasePage {
   }
 
  /**
- * Check whether a date-missing validation message is visible.
  * The validation tooltip only renders while the calendar popover is open.
  * Caller must ensure the popover is already open before calling this.
  */
@@ -340,7 +326,6 @@ export class LocationPricingPage extends BasePage {
     const row = this.page.locator(DynamicSelectors.rowPriceBook(priceBookName));
     const cell = row.locator('td:nth-child(6)');
     await cell.getByRole('button', { name: 'Open popover' }).click();
- // Wait for calendar dialog to appear
     const dialog = this.page.getByRole('dialog', { name: 'Popover Content' });
     await dialog.waitFor({ state: 'visible', timeout: 5_000 });
     Log.info(`Opened Start Date popover for ${priceBookName}`);
@@ -363,11 +348,6 @@ export class LocationPricingPage extends BasePage {
     Log.info('Closed date popover');
   }
 
- /**
- * Select a date via the Radix calendar popover. Opens the popover, navigates to the
- * target month/year, then clicks the target day button. Popover auto-closes on selection.
- * @param colIndex 6 = Start Date, 7 = End Date
- */
   private static readonly MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December',
@@ -393,7 +373,6 @@ export class LocationPricingPage extends BasePage {
     const targetMonthName = LocationPricingPage.MONTH_NAMES[monthNum - 1];
     const targetLabel = `${targetMonthName} ${yearNum}`;
 
- // Open the calendar popover for the target cell
     const row = this.page.locator(DynamicSelectors.rowPriceBook(priceBookName));
  // Scroll grid row to center of viewport before opening popover — prevents popover rendering off-screen
     await row.scrollIntoViewIfNeeded();
@@ -405,11 +384,9 @@ export class LocationPricingPage extends BasePage {
     await trigger.waitFor({ state: 'visible', timeout: 10_000 });
     await trigger.click();
 
- // Wait for calendar dialog
     const dialog = this.page.getByRole('dialog', { name: 'Popover Content' });
     await dialog.waitFor({ state: 'visible', timeout: 5_000 });
 
- // Navigate to the target month/year.
  // dispatchEvent('click') fires a raw Event that React/Radix
  // processes unreliably (label may not update). Use force:true click instead —
  // the row.scrollIntoViewIfNeeded above ensures the calendar is in viewport.
@@ -470,11 +447,6 @@ export class LocationPricingPage extends BasePage {
     Log.info(`Full cascade enabled for ${priceBookName}`);
   }
 
- /**
- * Count interactive elements (button, input, checkbox, combobox) in a grid row's
- * read-only columns (Pricing Strategy, Pricebook, Currency — columns 1-3).
- * Returns 0 if all three columns are display-only as expected.
- */
   async getReadOnlyColumnInteractiveCount(priceBookName: string): Promise<number> {
     const row = this.page.locator(DynamicSelectors.rowPriceBook(priceBookName));
     let total = 0;
@@ -487,11 +459,10 @@ export class LocationPricingPage extends BasePage {
   }
 
  /**
- * In-grid convenience reset: uncheck Is Alternative for a row in the DOM (cascades clear the row).
- * This does NOT save or reload -- it only tidies the live grid between assertions in the same test.
+ * This does NOT save or reload — it only tidies the live grid between assertions in the same test.
  * The authoritative per-test reset of persisted grid state is ensureDefaultState (run in beforeEach),
- * which re-reads after reload and re-drives until the server actually shows defaults. Keep this light;
- * do not add a save here, or it will fight the baseline reset.
+ * which re-reads after reload and re-drives until the server actually shows defaults. Do not add a
+ * save here, or it will fight the baseline reset.
  */
   async resetGridRow(priceBookName: string): Promise<void> {
     await this.uncheckIsAlternative(priceBookName);
@@ -505,12 +476,6 @@ export class LocationPricingPage extends BasePage {
     return !disabled;
   }
 
- /**
- * Wait for the Save button to become enabled (form dirty state propagation).
- * Delegates to BasePage.waitForSaveEnabled (no hardcoded selectors).
- * @param saveBtnKey - defaults to 'btnSavePricing' for this tab
- * @param timeout - defaults to 5000ms
- */
   async waitForSaveEnabled(saveBtnKey = 'btnSavePricing', timeout = 5_000): Promise<boolean> {
     return super.waitForSaveEnabled(saveBtnKey, timeout);
   }
@@ -592,10 +557,9 @@ export class LocationPricingPage extends BasePage {
     return this.getElement('dlgSaveChanges').isVisible();
   }
 
- /** Click sidebar Home link to trigger unsaved changes dialog. Suppresses beforeunload to get the
-  * app-level dialog. The page-scoped changes (widened viewport, suppressed beforeunload) are not
-  * restored here — the viewport is harmless for later tests and the suppression resets on the next
-  * test's page reload. */
+  /** The page-scoped changes (widened viewport, suppressed beforeunload) are not
+   * restored here — the viewport is harmless for later tests and the suppression resets on the
+   * next test's page reload. */
   async clickSidebarHome(): Promise<void> {
     const homeLink = this.page.getByRole('link', { name: 'Home' });
     if (!await homeLink.isVisible().catch(() => false)) {

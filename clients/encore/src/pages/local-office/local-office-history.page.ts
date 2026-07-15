@@ -12,11 +12,6 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     return this.page.locator(selector);
   }
 
- /**
- * Navigate to History tab. Handles unsaved dialog if dirty form persists.
- * After save -> tab switch: wait for Save disabled, then switch.
- * If alertdialog appears, click "Discard" to proceed.
- */
   async navigateToHistoryTab(): Promise<void> {
     const tab = this.getElement('tabHistory');
     const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
@@ -27,8 +22,6 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     }
     await this.getElement('tblHistory').waitFor({ state: 'visible', timeout: 15_000 });
   }
-
- // HISTORY TAB — STRUCTURE
 
   async getHistoryColumnHeaderCount(): Promise<number> {
     return this.getElement('tblHistory').locator('th').count();
@@ -61,10 +54,9 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     const cell = this.getElement('tblHistory').locator('tbody tr').nth(rowIndex).locator('td').nth(colIndex);
     const text = (await cell.textContent() || '').trim();
 
- // : Boolean detection via innerHTML for SVG lucide-check icons
     if (text === '') {
       const html = await cell.innerHTML();
-      if (html.includes('lucide-check')) return '✔'; // Return ✔ for TRUE
+      if (html.includes('lucide-check')) return '✔';
     }
     return text;
   }
@@ -88,8 +80,6 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
 
     const ariaSort = await th.getAttribute('aria-sort').catch(() => null);
     if (ariaSort === 'descending') return;
- // Sort button opens a menu with "Sort ascending" / "Sort descending" items.
- // Matches the MGH page's clickSortColumn pattern.
     await sortBtn.click();
     const menu = this.page.locator('[role="menu"]');
     await menu.waitFor({ state: 'visible', timeout: 5_000 });
@@ -97,16 +87,11 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     await this.waitForAngularStable();
   }
 
- // HISTORY TAB — READ-ONLY + PAGINATION
-
   async isHistoryTabReadOnly(): Promise<boolean> {
     const panel = this.getElement('tabContentHistory');
-    // Scope the editable-field check to the history data table. tblHistory IS the <table>, and the
-    // paginator "Current page number" <input> is a sibling OUTSIDE it (verified on the live app,
-    // 2026-06-02; structurally different
-    // from MGH, where the testid is a wrapper div). Panel-wide counting catches the paginator input →
-    // false negative. The data table is genuinely input-free; assert exactly 0 — no relaxation. Save
-    // button check stays panel-wide.
+    // Scope to the data table only: tblHistory IS the <table>, and the paginator "Current page number"
+    // <input> is a sibling OUTSIDE it (unlike the Mgmt History page, where the testid is a wrapper div).
+    // Panel-wide counting catches the paginator input → false negative. Assert exactly 0 — no relaxation.
     const inputs = await this.getElement('tblHistory').locator('input:not([type="hidden"]), textarea').count();
     const saveBtn = await panel.locator('button:has-text("Save")').count();
     return inputs === 0 && saveBtn === 0;

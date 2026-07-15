@@ -1,15 +1,3 @@
-/**
- * Field-coverage lifecycle runner. Orchestrates the per-field-case discipline:
- *   baseline → act → expectBeforeSave? → save → expectAfterSave? → reload → expectAfterReload → cleanup
- *
- * Each field-coverage test calls saveAndVerifyCase() once with the case's spec. The runner is page-agnostic —
- * the spec passes the page-object's `saveAndConfirm` and `reload` callbacks, so SSL / other modules
- * reuse this same runner unchanged.
- *
- * Each phase runs inside a numbered, plain-English report step so the HTML/Allure report reads as the
- * test case's lifecycle ("Step 1: Reset…" through "Step 7: Restore…") rather than raw locator calls.
- */
-
 import { test } from '@playwright/test';
 
 export interface FieldCase {
@@ -26,9 +14,6 @@ export interface FieldCase {
 }
 
 /**
- * Execute one field-coverage case end-to-end. Throws on any step failure (Playwright assertions
- * propagate naturally — no catch/swallow). Each test() block calls this exactly once.
- *
  * Failure isolation: cleanup runs in a finally-equivalent — even if expectAfterReload
  * throws, cleanup still attempts to restore state for the next case. If cleanup itself throws,
  * the original assertion error is preserved (Playwright still reports the test failure).

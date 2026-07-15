@@ -1,17 +1,3 @@
-/**
- * Setup Module — Left Panel (Basic Information) Selectors.
- *
- * Covers the shared left-panel card on Location Settings (`/settings/location`, Basic Information):
- * 6 read-only + 8 editable fields, tab navigation, and the shared Save button.
- *
- * Renamed from `left-panel.ts` (2026-06-03). Selector
- * KEYS are unchanged (page objects resolve by key via ALL_SELECTORS); only the export name +
- * file name changed, plus the 9 net-new field selectors below.
- *
- * Live-verified 2026-06-03.
- * Tax Mode / Live Date / Line Of Business have NO data-testid → label-anchored selectors
- * (Playwright's CSS engine pierces open shadow roots AND supports `:has()` / `:text-is()`).
- */
 export const SetupLeftPanelBasicInformationSelectors = {
   txtOffice: '[data-testid="location-settings-input-primary-location-no"]',
   txtLocalOffice: '[data-testid="location-settings-input-location-no"]',
@@ -27,6 +13,7 @@ export const SetupLeftPanelBasicInformationSelectors = {
 
   txtLocalOfficeName: '[data-testid="location-settings-input-location-name"]',
   chkActive: '[data-testid="location-settings-checkbox-active"]',
+  // btnLiveDate, drpTaxMode: no data-testid; label-anchored via :has(> label:text-is(...)).
   btnLiveDate: 'div:has(> label:text-is("Live Date")) button',
   drpTaxMode: 'div:has(> label:text-is("Tax Mode")) button[role="combobox"]',
   drpCountry: '[data-testid="location-settings-select-country"]',
@@ -41,13 +28,10 @@ export const SetupLeftPanelBasicInformationSelectors = {
 
   btnSave: '[data-testid="location-settings-btn-save"]',
 
-  // Live-verified 2026-06-11. Pay To Address is a LAUNCHER:
-  // the disabled display input (`txtPayToAddress` above) shows the current Pay To NAME, but the
-  // field's <label> opens the "Pay To List" search dialog. A plain Playwright .click() on the label
-  // is BLOCKED (the label's `for=` points at the disabled input → "element is not enabled") → the
+  // Pay To Address is a LAUNCHER: the field's <label> opens the "Pay To List" dialog, but a plain
+  // Playwright .click() is BLOCKED (label `for=` points at the disabled input → "not enabled") →
   // page object drives the launcher via dispatchEvent('click') / click({force:true}).
-  // No data-testid on the dialog; mirrors the Select Customer Address dialog.
-  // Uses a role+text fallback; switch to testids if the app adds them.
+  // No data-testid on the dialog; role+text fallback.
   /**
    * @where Setup > Location > Left Panel @el label @text "Pay To Address" @keys pay-to launcher dialog opener
    * Launcher affordance lives on the LABEL (React onClick). Drive via dispatched/forced click — a
@@ -55,9 +39,8 @@ export const SetupLeftPanelBasicInformationSelectors = {
    */
   lblPayToAddress: 'label:has-text("Pay To Address")',
   dlgPayToList: '[role="dialog"]:has-text("Pay To List")',
-  // The 5 filter inputs (Pay To ID / Pay To Name / Address / Phone / Fax) derive their ACCESSIBLE NAME
-  // from a sibling label element (no stable CSS attribute — confirmed via the live a11y tree 2026-06-11),
-  // so the page object locates them by accessible name: `dlgPayToList.getByRole('textbox', { name })`.
+  // The 5 filter inputs (Pay To ID / Pay To Name / Address / Phone / Fax) have no stable CSS
+  // attribute; the page object locates them by accessible name: getByRole('textbox', { name }).
   // Not expressible as a CSS-string selector key here (getByRole is the only robust handle).
   btnPTLSearch: '[role="dialog"]:has-text("Pay To List") button:has-text("Search")',
   btnPTLReset: '[role="dialog"]:has-text("Pay To List") button:has-text("Reset")',

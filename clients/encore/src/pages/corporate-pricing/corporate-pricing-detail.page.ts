@@ -27,8 +27,6 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return this.isVisibleSafe(S.colDetailProductGroupName);
   }
 
-  // GRID — HEADERS + ROWS (content-anchored)
-
   async getGridHeaders(): Promise<string[]> {
     return this.readAllTexts(`${S.tblDetailGrid} th`);
   }
@@ -217,8 +215,6 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
       .catch(() => { /* app may leave it enabled; reload+re-read is the load-bearing check */ });
     await this.waitForAngularStable();
   }
-
-  // BASELINE RESTORE — handles the sticky New-Price override
 
   /**
    * Restore the detailFixture's two mutation anchors to baseline: anchorA/anchorB Price = base, no

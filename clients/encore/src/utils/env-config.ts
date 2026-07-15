@@ -7,11 +7,6 @@ export class CommonMethods {
     Log.info('CommonMethods constructor');
   }
 
- /**
- * Load configuration from environment variables.
- * Reads .env files from the client root using dotenv-flow cascade.
- * @returns IConfig object with URLs
- */
   static initProp(): IConfig {
     const baseUrl = process.env.BASE_URL || '';
     const config: IConfig = {

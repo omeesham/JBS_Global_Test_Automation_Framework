@@ -19,8 +19,6 @@ export class LocationCurrencyPage extends BasePage {
   }
 
   async isOnCurrencyTab(): Promise<boolean> {
-    // Fix #4a: use tab trigger aria-selected, not
-    // child-anchor count().
     const tab = this.getElement('tabCurrency');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
@@ -95,9 +93,8 @@ export class LocationCurrencyPage extends BasePage {
   }
 
  /**
- * Open the merchant dropdown and check if it is accessible (listbox appears).
- * Also checks if "No Matches Found" is present. Closes the dropdown after.
- * Retry carve-out: visibility probe, not option-select. Helper signature is select-only; probe semantics differ.
+ * Retry carve-out: this is a visibility probe, not an option-select. The shared retry
+ * helper is select-only; probe semantics differ.
  */
   async isMerchantDropdownAccessible(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
@@ -111,9 +108,8 @@ export class LocationCurrencyPage extends BasePage {
   }
 
  /**
- * Open the merchant dropdown and check if "No Matches Found" text is displayed.
- * Closes the dropdown after checking.
- * Retry carve-out: text-substring probe, not option-select. Helper signature is select-only; probe semantics differ.
+ * Retry carve-out: this is a text-substring probe, not an option-select. The shared retry
+ * helper is select-only; probe semantics differ.
  */
   async isMerchantNoMatchesFound(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
@@ -209,11 +205,6 @@ export class LocationCurrencyPage extends BasePage {
     return text;
   }
 
- /**
- * Click Save, confirm the dialog, and throw if the save did not succeed.
- * A void-returning wrapper around clickSave() for callers that want a save
- * failure to surface as an error rather than a {success:false} flag.
- */
   async saveAndConfirm(): Promise<void> {
     const result = await this.clickSave();
     if (!result.success) {
@@ -222,16 +213,8 @@ export class LocationCurrencyPage extends BasePage {
   }
 
  /**
- * Enforce the known default grid state for office 1604 before a test runs.
- * Default = USD selected + USD set as default, CAD and MXN unselected, USD merchant
- * set to the office default. No-ops when the grid is already at the default.
- *
- * Uses a bounded retry (max 3): read the grid, and if it has drifted, reset the
- * fields, save, RELOAD, and re-read. The reload + re-read is required because the
- * Save button reports success even when it is disabled, so saving alone never
- * proves the reset actually landed — only reading the reloaded grid does. Throws
- * if the grid is still drifted after 3 attempts so a broken baseline fails loudly
- * instead of letting later tests run from a dirty starting state.
+ * Bounded retry (max 3): the reload + re-read is required because the Save button reports
+ * success even when it is disabled, so saving alone never proves the reset actually landed.
  */
   async ensureDefaultState(): Promise<void> {
     const MAX_ATTEMPTS = 3;

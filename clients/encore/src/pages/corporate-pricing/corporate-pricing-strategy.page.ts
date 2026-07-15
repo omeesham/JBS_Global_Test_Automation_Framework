@@ -193,8 +193,6 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     return { toastSeen };
   }
 
-  // NEW-STRATEGY DIALOG — fine-grained controls (validation + flag combinatorics)
-
   private addDialog(): Locator {
     return this.page.locator(S.dlgNewStrategy).first();
   }
@@ -257,8 +255,6 @@ export class CorporatePricingStrategyPage extends CorporatePricingBasePage {
     await this.fillDialogName(name);
     await this.clickDialogAdd();
   }
-
-  // EDITOR FLAGS + LIST FILTER (deep coverage)
 
   async setEditorFlag(name: StrategyFlag, checked: boolean): Promise<void> {
     const cb = this.page.getByRole('checkbox', { name });

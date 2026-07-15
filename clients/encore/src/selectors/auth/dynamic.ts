@@ -1,8 +1,8 @@
 export const DynamicSelectors = {
   lnkOfficeCode: (officeCode: string) => `a:has-text("${officeCode}")`,
 
- // NOTE: Grid checkboxes are Radix button[role="checkbox"], not native input[type="checkbox"].
- // Date cells use input[data-slot="input"], not direct <button>. Live-verified.
+ // Grid checkboxes are Radix button[role="checkbox"], not native input[type="checkbox"].
+ // Date cells use input[data-slot="input"], not direct <button>.
   rowPriceBook: (priceBookName: string) => `tr:has(td:has-text("${priceBookName}"))`,
   chkIsAlternative: (priceBookName: string) => `tr:has(td:has-text("${priceBookName}")) td:nth-child(4) button[role="checkbox"]`,
   chkUseEffectiveDate: (priceBookName: string) => `tr:has(td:has-text("${priceBookName}")) td:nth-child(5) button[role="checkbox"]`,

@@ -29,13 +29,7 @@ export const CorporatePricingOverrideSelectors = {
   ovrBtnSave: 'button:text-is("Save")',
   ovrBtnExport: 'button:text-is("Export")',
   ovrBtnImport: 'button:text-is("Import")',
-  /**
-   * @where Override > Toolbar @el button @text "Grid Options" @keys column show/hide/reorder popover
-   * Grid Options is an sr-only ICON button — its "Grid Options" label sits in a visually-hidden span
-   * (NOT a visible text node like the sibling Export/Import buttons; confirmed on the live Override AX
-   * tree), so `:text-is("Grid Options")` matches no VISIBLE text and never resolves. Anchor on the
-   * accessible name, mirroring the live-verified Search sibling (`search.ts` btnGridOptions).
-   */
+  // sr-only icon button (label in visually-hidden span, not text node) — :text-is won't resolve; anchor on aria-label.
   ovrBtnGridOptions: 'button[aria-label="Grid Options"]',
 
   ovrRowsPerPage: 'button[role="combobox"]:has-text("20")',
