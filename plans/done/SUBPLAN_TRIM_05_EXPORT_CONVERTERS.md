@@ -1,6 +1,7 @@
 # SUBPLAN_TRIM_05_EXPORT_CONVERTERS — transitive-dead analysis + removal of legacy export converters
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-06-12
 **Identity**: GARDENER
@@ -30,7 +31,7 @@
 **Skills auto-called**: `/identity` · `/regression-guard` · `/relevant` · `/cleanup` · `/final-q`
 
 **Context files**:
-- `plans/pending/PLAN_LOSSLESS_DEEP_TRIM.md` (§Re-Proof Protocol VERBATIM, §Untouchables, §Ledger row 7)
+- `plans/done/PLAN_LOSSLESS_DEEP_TRIM.md` (§Re-Proof Protocol VERBATIM, §Untouchables, §Ledger row 7)
 - `.claude/rules/pipeline.md` (LR-048 matrix), `.claude/rules/data.md` (auto-loads on scripts/ts edits)
 - `docs/read_only_docs/AGENT_SHARED_RULES.md` (§2 GARDENER scope)
 - `clients/encore/CLAUDE.md` (LR-ENC-004 — deliverable workbook is generated, never hand-edited)
@@ -97,3 +98,27 @@ npx tsc --noEmit                                                    # expect: cl
 ## Handoff (post-execution)
 
 Chat-only. Outcome: which converters landed vs dropped (with the reachable-path citation per drop), build-equivalence evidence summary, next-batch ledger contents.
+
+---
+
+## Execution Summary
+
+**Executed 2026-07-16 via the copilot council** (opus-4.6 executor run trim05-build-0716, 212s; gpt-5.5 cross-review run trim05-review-0716 — GREEN, all 5 lanes independently re-executed). Dispatcher committed atomically with explicit pathspec (4 paths, 428 deletions); regenerated workbook restored (timestamp-only churn, content proven identical). Evidence dir: .claude/state/ua-worker/trim05-build-0716-artifacts (BEFORE/AFTER build + shape + sha256 tees, manifest); reviewer evidence: .claude/state/ua-worker/trim05-review-0716-artifacts.
+
+### Per-converter dispositions (LR-040)
+- to-jira converter (249 lines): REMOVED-with-unreachability-evidence — barrel-only reference in the export index; zero live npm/config/code callers (executor + reviewer independent greps over package.json, client package.json, .githooks, scripts, src, pipeline, config).
+- to-json converter (42 lines): REMOVED — same evidence class.
+- to-testmo converter (131 lines): REMOVED — same evidence class.
+- export_test_cases/index.ts: pruned exactly 6 lines (3 stale JSDoc bullets + 3 export lines); no other logic moved (reviewer lane 3).
+
+### Lossless proof (zero behavior change)
+- Workbook shape-test output hash BYTE-IDENTICAL across three builds (executor BEFORE, executor AFTER, reviewer re-run): 23 sheets, 820 rows each.
+- Workbook binary sha256 delta = xlsx embedded write-timestamp only — PROVEN by the reviewer's two consecutive no-code-change builds producing different binary hashes with identical shape hashes.
+- npx tsc --noEmit clean (both seats). markdown-parser.ts, to-csv.ts, to-xlsx.ts untouched (git diff --stat, reviewer-verified).
+
+### Next-batch ledger (recorded, not acted)
+- export_test_cases/README.md carries doc-only stale pointers to the removed converters and their example script snippets — routed to SUBPLAN_TRIM_06_CLOSURE consolidated list.
+- to-xlsx.ts comment-only mentions (3 lines) — same doc-only class, same recipient.
+
+### Documentation
+- LR-028 activity-log row appended this closure. Parent PLAN_LOSSLESS_DEEP_TRIM.md annotated per LR-027 parent-cascade.

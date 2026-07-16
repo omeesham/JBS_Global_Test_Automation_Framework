@@ -1,6 +1,7 @@
 # SUBPLAN_TRIM_04_SCRIPTS_DEADWEIGHT — coordinated vendor-fresh removal + dead root scripts + dead npm entries
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-06-12
 **Identity**: OWNER
@@ -28,7 +29,7 @@
 **Skills auto-called**: `/identity` · `/regression-guard` · `/relevant` · `/cleanup` (delete mechanics + report format) · `/final-q`
 
 **Context files**:
-- `plans/pending/PLAN_LOSSLESS_DEEP_TRIM.md` (§Re-Proof Protocol VERBATIM, §Untouchables, §Ledger rows 4–6, §closure-gate authoring note)
+- `plans/done/PLAN_LOSSLESS_DEEP_TRIM.md` (§Re-Proof Protocol VERBATIM, §Untouchables, §Ledger rows 4–6, §closure-gate authoring note)
 - `.claude/rules/pipeline.md` (LR-049 ship-discipline — hook smoke is mandatory)
 - `.claude/rules/hooks-identity.md` (auto-loads on .githooks/.claude-hooks edits)
 - `docs/read_only_docs/LEARNED_RULES.md`
@@ -86,3 +87,28 @@ npx tsc --noEmit                                                       # expect:
 ## Handoff (post-execution)
 
 Chat-only. Outcome: which of the 4–6 ledger rows landed vs dropped (with the refuting reference for each drop), ship-path smoke result, next-batch ledger contents for the closure session.
+
+---
+
+## Execution Summary
+
+**Executed 2026-07-16 via the copilot council** (opus-4.6 executor run trim04-build-0716, 665s; gpt-5.5 cross-review run trim04-review-0716 — GREEN, 0 defects, battery re-run independently). Dispatcher committed atomically: commit 93a07763 (7 paths, 437 deletions) with explicit pathspec so pre-existing WIP stayed out. Evidence dir: .claude/state/ua-worker/trim04-build-0716-artifacts (probes.verify.txt, proofs.txt, sha256-manifest.txt).
+
+### Ledger-row dispositions (LR-040)
+- **Row 4 (verify-vendor-fresh)**: REMOVED-with-evidence — fresh caller enumeration found exactly the known 4; all 4 edited surgically (.githooks/pre-commit -11, .githooks/pre-push -24, scripts/ship-client.sh -3, scripts/ship-client.ps1 -2); script deleted (-108). verify-no-forbidden calls byte-intact (LR-049 core infra), confirmed by reviewer lane 1.
+- **Row 5 (3 orphan scripts)**: scripts/priority-sweep.mjs REMOVED (-169) and scripts/migrate-queue-csv-to-xlsx.mjs REMOVED (-121) — full 5-class re-proof + prune-check, zero production callers; **scripts/validation-gates.ts DROPPED** — live callers found at scripts/audit-post-complete.ts:21, scripts/audit-pre-run.ts:122, and the healer post-complete gate script under pipeline/scripts/ (line 21) — survey was a false positive; parent ledger row annotated.
+- **Row 6 (dead npm entries)**: healer:post-complete entry removed from root package.json (target file nonexistent at the declared root path). DEVIATION: the package.json hunk rides the SUBPLAN_RCD_B commit because the file already carried RCD_B pre-staged WIP (allure entries) — shared-file split documented in both plans; the change is already in the working tree.
+
+### Verification battery (all tee'd)
+- rg verify-vendor-fresh over .githooks/ scripts/ package.json → 0 hits (executor + reviewer independently).
+- bash .githooks/pre-commit → exit 0. npx tsc --noEmit → clean (both seats).
+- git status snapshots bracket the diff — every change inside the ticket allow-list (reviewer lane 2 PASS).
+- Ship smoke DEFERRED to SUBPLAN_TRIM_06_CLOSURE per plan allowance — command recorded: npm run client:ship with --client=encore against a temp out dir (working tree carries pre-existing WIP blocking the clean-tree check).
+
+### Next-batch ledger (recorded, not acted)
+- validation-gates.ts is NOT dead (3 live callers) — parent plan ledger row 5 annotated this session.
+- Ephemeral Claude worktree copies under .claude/worktrees/ still contain the deleted-script text; recommend a prune-check exclusion, routed to SUBPLAN_TRIM_06_CLOSURE.
+- LATENT BUG escalated to owner: the healer post-complete gate file lives under pipeline/scripts/ while both the removed npm entry and the pipeline runtime resolver (pipeline/worker/index.ts:513) expect it under root scripts/ — the gate has been silently absent at runtime; out of trim scope (Untouchables family), flagged for the integration ultraaudit findings.
+
+### Documentation
+- LR-028 activity-log row appended this closure. Parent PLAN_LOSSLESS_DEEP_TRIM.md annotated per LR-027 parent-cascade.

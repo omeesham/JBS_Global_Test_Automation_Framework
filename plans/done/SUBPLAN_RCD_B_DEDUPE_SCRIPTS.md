@@ -1,6 +1,7 @@
 # SUBPLAN_RCD_B_DEDUPE_SCRIPTS — dedupe root scripts/ archive helpers + strip dead allure scripts from root package.json
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-05-07
 **Identity**: OWNER
@@ -34,8 +35,8 @@ After SUBPLAN_RCD_A delegates root `npm test` and `npm run test:daily` to `clien
 - `/final-q` (Phase 5 — exit per LR-042)
 
 **Context files**:
-- `plans/pending/PLAN_ROOT_CLIENT_DEDUPE.md` (parent)
-- `plans/pending/SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md` (predecessor — must be in `plans/done/` per Phase 0 gate)
+- `plans/done/PLAN_ROOT_CLIENT_DEDUPE.md` (parent)
+- `plans/done/SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md` (predecessor — must be in `plans/done/` per Phase 0 gate)
 - `.claude/rules/pipeline.md` (LR-027, LR-028, LR-046, LR-049, LR-050)
 - `docs/read_only_docs/AGENT_SHARED_RULES.md`
 - `docs/read_only_docs/LEARNED_RULES.md`
@@ -159,3 +160,32 @@ npm run clean
 ## Handoff
 
 After Phase 4 verification passes: SUBPLAN_RCD_C is unblocked (env + reports + cruft sweep + tsconfig demote). Parent PLAN_ROOT_CLIENT_DEDUPE.md remains pending until C closes.
+
+---
+
+## Execution Summary
+
+**Closed 2026-07-16.** The subplan's changes were pre-applied to the working tree by an earlier session; this session VERIFIED the applied state against the plan and committed it: opus-4.6 verification run rcdb-verify-0716 (17/17 state-vs-plan rows MATCH — 8 npm DELETE rows absent, 2 EDIT rows tail-stripped with rimraf bodies intact, 2 KEEP rows unchanged, 4 root scripts staged-deleted and absent from disk, plus the TRIM_04 healer:post-complete rider absent) + independent gpt-5.5 cross-provider re-execution rcdb-review-0716 (GREEN — re-ran the battery and the 17-row spot-verify itself). Commit 1772f8d6 (explicit 5-path pathspec). Evidence dirs: .claude/state/ua-worker/rcdb-verify-0716-artifacts and .claude/state/ua-worker/rcdb-review-0716-artifacts (phase1-zero-ref, phase4-battery, functional-coverage tees + manifests).
+
+### Acceptance criteria outcomes
+
+- 4 root scripts deleted — DONE (battery #1: absent from disk; commit 1772f8d6).
+- 8 root npm scripts deleted — DONE (battery #4: node check all "gone (ok)").
+- 2 root npm scripts edited (clean, clean:reports tails stripped) — DONE (rows 9-10 MATCH).
+- Verification grep #2 zero live-code hits — DONE (both seats, exclusions: node_modules, plans/, clients/, ephemeral .claude/worktrees/ + .claude/state/).
+- clients/encore/scripts/ helpers untouched — criterion VOID by premise-correction (see deviation below); replaced by functional-coverage proof.
+- npm run clean from root succeeds — DONE (exit 0; reports/ was absent beforehand, guard honored, no data touched).
+- Regression diff = the 4 deletions + package.json only — DONE (reviewer allow-list style check).
+- Activity-log row — DONE this closure. /final-q rides the session-level audit.
+
+### Deviation (premise-correction, owner-decided)
+
+The plan Context claimed clients/encore/scripts/ carries identical copies of the 4 archive helpers — FALSE at execution time (the client scripts dir holds only clean-run, share-for-debugging, test-cli, walks). The live reporting need is covered client-natively: allure:generate / allure:open / allure:report entries (npx allure direct) + clean, with Allure trend history preserved via the root clean:results keep-set (categories.json, environment.properties, history). The four ARCHIVING utilities (allure:archive, html:archive, reports:archive, allure:history) therefore retire with no successor. Owner delegated the decision in-chat 2026-07-16 ("do whatever is best... based on historical data, ur brain, and internet"); dispatcher decided RETIRE on: zero usage evidence anywhere (no doc/CI/hook refs, no archived content ever on disk, staged-deleted for weeks unnoticed), Allure-native history mechanism already covering trend preservation, instant git restorability, and current practice placing report retention in CI artifact stores rather than local copy scripts.
+
+### Next-batch ledger
+
+- None new — the worktree-copy grep-noise item and doc stale-pointers remain with SUBPLAN_TRIM_06_CLOSURE from the earlier trims.
+
+### Documentation
+
+- LR-028 activity-log row appended this closure. Parent PLAN_ROOT_CLIENT_DEDUPE.md annotated per LR-027 parent-cascade.

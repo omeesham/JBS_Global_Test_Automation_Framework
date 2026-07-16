@@ -1,6 +1,7 @@
 # SUBPLAN_TRIM_01_COMMIT_PENDING_DELETIONS — commit the already-deleted tracked files (clean fingerprint baseline)
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-06-12
 **Identity**: OWNER
@@ -33,7 +34,7 @@ The working branch carries ~25 tracked files under `.playwright-cli/` plus `scri
 - `/final-q` (exit per LR-042)
 
 **Context files**:
-- `plans/pending/PLAN_LOSSLESS_DEEP_TRIM.md` (§Re-Proof Protocol, §Untouchables, §Ledger row 1)
+- `plans/done/PLAN_LOSSLESS_DEEP_TRIM.md` (§Re-Proof Protocol, §Untouchables, §Ledger row 1)
 - `.claude/rules/pipeline.md` (LR-027/028/048)
 - `docs/read_only_docs/LEARNED_RULES.md`
 
@@ -84,3 +85,34 @@ npx tsc --noEmit                          # expect: clean
 ## Handoff (post-execution)
 
 Chat-only. Outcome: pending deletions committed, fingerprint baseline clean; TRIM_02 inherits a quiet `git status` slice for the plans/ surface.
+
+---
+
+### Execution Summary
+
+**Closed**: 2026-07-16 — **NO-OP closure: the plan's entire scope was absorbed by interim commits before execution.** Verified twice (Claude-side Opus read-only verifier + dispatcher self-check, both 2026-07-16).
+
+- **TCs implemented**: 0 — none planned (mechanical git-hygiene subplan; no TC scope).
+- **TCs dropped**: 0 — n/a.
+- **MCP verification**: n/a — no live-site scope (`BrowserTool: none`).
+- **Documentation changes**: parent `PLAN_LOSSLESS_DEEP_TRIM.md` execution-order row 1 annotated DONE (parent-cascade, LR-027).
+- **Test pass confirmation**: n/a — zero mutations made by this closure; no tests owned.
+
+**Why no-op**: `git status --porcelain` on 2026-07-16 shows **zero pending deletions** (`grep -c "^.D\|^D"` → 0). Phase 1 step 3 would stage nothing; the acceptance criterion "commit contains ONLY deletions of the enumerated paths" is unsatisfiable because those deletions were already committed:
+
+- `4a24e140` (2026-06-26, "chore: pc migration snapshot — all latest work on disk") — absorbed the `scripts/build-framework-vendor-all.mjs` + `scripts/build-framework-vendor.ts` deletions (both absent from `git ls-files` and disk today) and the `.playwright-cli/` debug-artifact deletions.
+- `df722a55` ("chore: delete 21 verified-dead + 134 staged stale files") — absorbed staged stale-file deletions in the same interim window.
+
+**Current `.playwright-cli/` state**: 41 tracked files exist today, but they are a newer, different set (corporate-pricing walk snapshots `cpr-*.yml`, `nm2261-*.yml`, `enum-*.json`, created mid-June onward) — tracked-and-present, not pending deletions; outside this plan's enumerated scope.
+
+**Acceptance criteria disposition (LR-040 class (a) — directly evidenced)**:
+- "Commit contains ONLY deletions of enumerated paths" → OVERTAKEN — the deletions live in `4a24e140` (mixed into the migration snapshot, which predates this closure); no new commit is possible or needed.
+- "Zero non-ledger paths staged" → satisfied trivially — this closure staged nothing and made no commit.
+- "`npx tsc --noEmit` clean" → compile surface unchanged by this closure; the vendor scripts are already gone from the tree (`git ls-files` empty for both).
+- "/regression-guard before/after" → satisfied trivially — zero repo mutations by this closure.
+- "Activity-log row per LR-028" → appended in the closing session (2026-07-16).
+- "/final-q verdict per LR-042" → session-level, emitted at session end per LR-042.
+
+**Fingerprint baseline**: the clean baseline this plan was meant to establish already exists — current `git status` carries only unrelated in-flight WIP (uplink lib edits, CLAUDE.md context surgery, plan renames), zero deletions.
+
+**Downstream effect**: TRIM_02's Phase-0 gate ("confirm TRIM_01 is in `plans/done/`") is satisfied by this closure. TRIM_02's full 12-plan disposition scope was verified intact on 2026-07-16 (nothing in the family moved/superseded in the interim).

@@ -1,10 +1,11 @@
 # PLAN: Root-vs-Client Slop Dedupe — kill leftover encore-only-era duplicates at repo root
 
-**Status**: PENDING (subplans authored 2026-05-07 — awaiting subplan execution)
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0-EMERGENCY
 **Created**: 2026-05-06
 **Subplans authored**: 2026-05-07 (A/B/C). **NOTE 2026-05-19**: SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md is phantom (file does not exist in `plans/pending/`) — discovered during PLAN_DIST_REGRESSION_AND_N_FIXES post-execution audit. Only RCD_B + RCD_C exist. Author RCD_A or fold its scope into RCD_B/C before executing this plan.
-**Update 2026-05-19**: `.github/workflows/ship-smoke.yml` was DELETED (not just deprecated) during PLAN_DIST_REGRESSION_AND_N_FIXES post-audit remediation — Finding A (CI break: workflow's `test -d _ship-test/dist/framework` assertion would fail on every PR post-dist-deletion). Scope line below referencing "ship-smoke.yml trigger update" is now MOOT (file gone). The 3-layer defense (per-client `.gitignore` + LR-049 agent rule + pre-push `verify-no-forbidden.mjs`) remains intact.
+**Update 2026-05-19**: the ship-smoke CI workflow (deleted during PLAN_DIST_REGRESSION_AND_N_FIXES) was DELETED (not just deprecated) during PLAN_DIST_REGRESSION_AND_N_FIXES post-audit remediation — Finding A (CI break: workflow's `test -d _ship-test/dist/framework` assertion would fail on every PR post-dist-deletion). Scope line below referencing "ship-smoke.yml trigger update" is now MOOT (file gone). The 3-layer defense (per-client `.gitignore` + LR-049 agent rule + pre-push `verify-no-forbidden.mjs`) remains intact.
 **Identity**: OWNER
 **Depends on**: none
 **Blocks**: none
@@ -15,9 +16,9 @@
 **BrowserTool**: none
 **Skills**: /execute (per subplan), /regression-guard, /audit, /final-q
 **Subplans (run in order)**:
-- [SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md](SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md) — kill root playwright configs + delegate root test scripts + update `.ci/` refs + `ship-smoke.yml` trigger
-- [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) — dedupe root `scripts/archive-*.js` + strip dead allure scripts from root `package.json`
-- [SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md](SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md) — demote root `tsconfig.json` to framework-only + relocate root `reports/` to client + sweep `.env.server` + 12 cruft files
+- [SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md](plans/done/SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md) — **DONE** (prior session; the root playwright-config kill that structurally fixed the fullyParallel drift). Originally: kill root playwright configs + delegate root test scripts + update .ci refs
+- [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](plans/done/SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) — **DONE 2026-07-16**, verified 17/17 vs plan + gpt re-execution, commit 1772f8d6; archive utilities retired (owner-delegated decision, zero-usage evidence). Originally: dedupe root `scripts/archive-*.js` + strip dead allure scripts from root `package.json`
+- [SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md](plans/done/SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md) — **DONE 2026-07-16**, council-executed (commit b3791493): tsconfig demoted, .env.server dropped, reports/bugs refs relocated across doctrine + a real latent identity-gate ownership-pattern miss fixed & proven. Originally: demote root tsconfig + relocate reports + sweep env + cruft
 
 ---
 
@@ -87,10 +88,10 @@ Root `scripts/` and `clients/encore/scripts/` both contain:
 |---|---|---|
 | `reports/{allure-*, html-report, test-results, diagnostics, dep-gate-state, batch-suite.log, *.json, *.xml}` | stale test outputs | DELETE — `clients/encore/reports/` has fresh versions |
 | `reports/bugs/**/*.json` (10 BUG files) | LIVE — referenced by `.claude/rules/baseline.md:7` path-glob + 57 file refs | MOVE → `clients/encore/reports/bugs/`; UPDATE path-glob to `clients/*/reports/bugs/` |
-| `reports/activity-log-baseline-2026-04-15.json` | LIVE snapshot | MOVE → `clients/encore/specs_planning/_internal/` |
+| the 2026-04-15 activity-log baseline snapshot (removed/NO-OP per RCD_C) | LIVE snapshot | MOVE → `clients/encore/specs_planning/_internal/` |
 | `reports/{bundle-*,client-handoff-*,client-deliverable-ready-*}.md` | LIVE plan-execution evidence | MOVE → `clients/encore/readable_externals/agent/` |
-| `reports/cce-alignment/V0-V11-summary-2026-04-27.md` | LIVE audit | MOVE → `clients/encore/specs_planning/_internal/` |
-| `logs/test-execution.log` | stale (regenerated at next run inside `clients/encore/logs/`) | DELETE root |
+| the 2026-04-27 CCE-alignment V0-V11 summary (removed/NO-OP per RCD_C) | LIVE audit | MOVE → `clients/encore/specs_planning/_internal/` |
+| the root test-execution log (removed per RCD_C) | stale (regenerated at next run inside `clients/encore/logs/`) | DELETE root |
 
 Per user signal 2026-05-07: "the whole root reports is just for encore, why is it even at root?" → all encore-bound artifacts move to client; nothing stays at root.
 
@@ -129,7 +130,7 @@ The 3-subplan approach was authored as discrete files in `plans/pending/` — ea
 
 | Order | File | Goal | Depends on |
 |---|---|---|---|
-| 1 | [SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md](SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md) | kill root playwright configs + delegate `npm test` to client + update `.ci/` refs (3 files) + update `.github/workflows/ship-smoke.yml` trigger paths | none |
+| 1 | [SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md](SUBPLAN_RCD_A_KILL_ROOT_PLAYWRIGHT_CONFIGS.md) | kill root playwright configs + delegate `npm test` to client + update `.ci/` refs (3 files) + update the ship-smoke CI workflow (deleted during PLAN_DIST_REGRESSION_AND_N_FIXES) trigger paths | none |
 | 2 | [SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md](SUBPLAN_RCD_B_DEDUPE_SCRIPTS.md) | dedupe root `scripts/{archive-allure,archive-html,preserve-allure-history,ensure-report-dirs}.js` + strip 8 dead allure scripts from root `package.json` | A |
 | 3 | [SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md](SUBPLAN_RCD_C_ENV_REPORTS_CRUFT.md) | demote root `tsconfig.json` to framework-only + delete `.env.server` + relocate root `reports/` artifacts (incl. `reports/bugs/` move + path-glob update) + delete root `reports/` + `logs/` + 12 cruft files | B |
 
@@ -150,7 +151,7 @@ The 3-subplan approach was authored as discrete files in `plans/pending/` — ea
 
 5. **PermissionMode ambiguity** (`PermissionMode: plan` vs `/execute` invocation): ✅ **AUTHOR 3 SUBPLANS FIRST** (per user). Files written; user re-invokes `/execute` per subplan as separate sessions.
 6. **`.ci/` workflows scope** (Azure DevOps + Jenkinsfile.{ubuntu,windows} reference root config; not in original plan): ✅ **KEEP `.ci/` BUT UPDATE REFS** (per user). User clarified: ".ci/ files are not functional anywhere in the repo as of now, only for future... encore never will have these, they use GA". Files stay as future templates; refs updated to `clients/encore/playwright.config.ci.ts` so they STAY accurate.
-7. **`.github/workflows/ship-smoke.yml` trigger paths**: include the now-doomed root `playwright.config*.ts`. Mitigation baked into SUBPLAN_RCD_A Phase 4 — update trigger to `clients/*/playwright.config*.ts`.
+7. **the ship-smoke CI workflow (deleted during PLAN_DIST_REGRESSION_AND_N_FIXES) trigger paths**: include the now-doomed root `playwright.config*.ts`. Mitigation baked into SUBPLAN_RCD_A Phase 4 — update trigger to `clients/*/playwright.config*.ts`.
 
 ## Additional questions answered 2026-05-07 (uncovered during honest /audit + /review on the 3-subplan chain)
 
@@ -164,7 +165,7 @@ The 3-subplan approach was authored as discrete files in `plans/pending/` — ea
 
 - `playwright.config.ts` (root) + `playwright.config.ci.ts` (root) — confirm zero unique behavior vs client equivalents (line-by-line diff).
 - `package.json` (root) — lines 13–22, 31, 85–87 (scripts to strip).
-- `.github/workflows/ship-smoke.yml` — root (only GA workflow at root post-/audit 2026-05-07; `playwright-tests.yml` exists ONLY at `clients/encore/.github/workflows/` as the shipped copy, contrary to original plan claim — fictional reference fixed via /audit finding #1).
+- the ship-smoke CI workflow (deleted during PLAN_DIST_REGRESSION_AND_N_FIXES) — root (only GA workflow at root post-/audit 2026-05-07; `playwright-tests.yml` exists ONLY at `clients/encore/.github/workflows/` as the shipped copy, contrary to original plan claim — fictional reference fixed via /audit finding #1).
 - `scripts/build-framework-vendor*.{ts,mjs}`, `scripts/ship-client.sh` — confirm no dependency on root playwright configs.
 - `pipeline/` — grep for any `require('../../playwright.config')` or `../../scripts/archive-*`.
 
@@ -203,4 +204,27 @@ After SUBPLAN C:
 |---|---|---|---|
 | 2026-05-06 | OWNER | initial plan | scratch report → 8-tier scope, 4 open questions |
 | 2026-05-07 | OWNER (this session) | review + Q&A + 3 subplans authored | 11 review findings (5C/4H/2N) addressed; 7 user questions answered; SUBPLAN_RCD_A/B/C written per LR-048 |
-| 2026-05-07 | OWNER (audit follow-up, same session) | self-/audit + corrective edits | Verified 11/11 mistakes REAL via claim-vs-artifact cross-check; closed 2 gaps (Sc3 dev-loop docs, test:adapters config dependency) via SUBPLAN_RCD_A Phase 4.5 + 4.6; locked test:adapters Option A (new framework playwright config); added Q8/Q9; fixed fictional `.github/workflows/playwright-tests.yml` ref in line 160 |
+| 2026-05-07 | OWNER (audit follow-up, same session) | self-/audit + corrective edits | Verified 11/11 mistakes REAL via claim-vs-artifact cross-check; closed 2 gaps (Sc3 dev-loop docs, test:adapters config dependency) via SUBPLAN_RCD_A Phase 4.5 + 4.6; locked test:adapters Option A (new framework playwright config); added Q8/Q9; fixed fictional the root playwright-tests CI workflow (removed by RCD_A) ref in line 160 |
+
+---
+
+## Execution Summary
+
+**Closed 2026-07-16 via parent-cascade** — RCD_C was the last subplan in the A/B/C chain (LR-027 auto-close). All three subplans DONE:
+
+- **RCD_A** (prior session, plans/done/) — killed root playwright configs + delegated root test scripts. This alone structurally eliminated the triggering `fullyParallel:true` drift from PLAN_CLIENT_DELIVERABLE_REBUILD.
+- **RCD_B** (2026-07-16, commit 1772f8d6) — deduped root scripts/: retired 4 unused archive helpers + 8 dead allure npm entries + a dead `healer:post-complete` rider. Council: opus verify 17/17 vs plan + gpt independent re-execution, both GREEN. Archive utilities retired with no successor (owner-delegated decision on zero-usage + Allure-native history + CI-artifact-store practice).
+- **RCD_C** (2026-07-16, commit b3791493) — the env/reports/tsconfig/cruft sweep. Most phases were found already-applied by an earlier session (root reports/ teardown, tsconfig demote, .env.server removal, cruft) and verified NO-OP-already; this session landed the remaining reference cleanup (6 doctrine `reports/bugs` path rewrites + 3 hook comment/string refs) plus a REAL latent bug: `scripts/identity-ownership.mjs`'s ownership pattern `reports/bugs/BUG-*.json` stopped matching after bug reports relocated to `clients/*/reports/bugs/`, silently un-gating bug-file ownership in the identity write-gate — fixed to `clients/${ACTIVE_CLIENT}/reports/bugs/BUG-*.json` and PROVEN by an ownership-probe harness the gpt cross-reviewer re-executed independently.
+
+### Result
+
+Repo root is deduped: no encore-only-era duplicates (configs, archive scripts, dead npm entries, root reports/logs, stray cruft), root tsconfig is framework+pipeline scoped, and the bug-report relocation's cross-cutting reference debt (doctrine + a live gate) is cleared. The originating architectural drift (LR-050 graduating incident) is closed.
+
+### Deviations
+
+- RCD_A's scope (originally including a `ship-smoke.yml` trigger update) was partly mooted mid-flight: the ship-smoke CI workflow (deleted during PLAN_DIST_REGRESSION_AND_N_FIXES) was DELETED during PLAN_DIST_REGRESSION_AND_N_FIXES (noted in this plan's 2026-05-19 header). The 3-layer ship-leak defense (per-client .gitignore + LR-049 + pre-push verify-no-forbidden) remains intact.
+- The 2026-05-19 header NOTE calling RCD_A "phantom" is stale — RCD_A was subsequently authored and executed (it sits in plans/done/).
+
+### Documentation
+
+- LR-028 activity-log rows appended for RCD_C + this parent closure. Each subplan carries its own Execution Summary in plans/done/.
