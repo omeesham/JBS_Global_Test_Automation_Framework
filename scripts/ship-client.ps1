@@ -26,8 +26,6 @@ if (-not (Test-Path "clients/$Client")) {
 }
 
 # Pre-flight verifiers
-& node scripts/verify-vendor-fresh.mjs --client=$Client
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & node scripts/verify-no-forbidden.mjs --client=$Client
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 

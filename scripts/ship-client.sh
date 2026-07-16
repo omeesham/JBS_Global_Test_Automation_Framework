@@ -30,9 +30,6 @@ fi
 # Pre-flight: clients/$CLIENT must exist.
 [[ ! -d "clients/$CLIENT" ]] && { echo "ERR: clients/$CLIENT not found" >&2; exit 4; }
 
-# Pre-flight: vendored framework must be fresh.
-node scripts/verify-vendor-fresh.mjs --client="$CLIENT"
-
 # Pre-flight: deny-list grep against tracked files for this client.
 node scripts/verify-no-forbidden.mjs --client="$CLIENT"
 

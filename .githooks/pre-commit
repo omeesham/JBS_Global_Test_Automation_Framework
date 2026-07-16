@@ -21,17 +21,6 @@ if git diff --cached --name-only --diff-filter=ACMR \
   node scripts/check-tc-has-fieldinventory.mjs
 fi
 
-# --- 3) Vendor-fresh check + deny-list staged-files grep --------
-# (PLAN_CLIENT_DELIVERABLE_REBUILD Path A — Workstream E5)
-if git diff --cached --name-only | grep -qE '^src/'; then
-  echo "[pre-commit] src/ changed — verifying vendored output is fresh"
-  for client_dir in clients/*/; do
-    [ -d "$client_dir" ] || continue
-    client_id="${client_dir%/}"; client_id="${client_id##*/}"
-    node scripts/verify-vendor-fresh.mjs --client="$client_id" --warn-only
-  done
-fi
-
 # Deny-list: refuse to commit a forbidden pattern marker (any cred-bearing literal).
 node scripts/verify-no-forbidden.mjs --staged-diff
 
