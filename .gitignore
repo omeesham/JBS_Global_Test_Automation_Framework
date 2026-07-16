@@ -254,3 +254,6 @@ clients/*/scripts/_*.ts
 
 # OVR-032 CSV-assertion probe scratch (root-level; never tracked)
 /capture-ovr032*.txt
+
+# Runtime key-rotation state (root-level; regenerated, never shipped — 2026-07-17 cleanB recon)
+/rotation-state.json
