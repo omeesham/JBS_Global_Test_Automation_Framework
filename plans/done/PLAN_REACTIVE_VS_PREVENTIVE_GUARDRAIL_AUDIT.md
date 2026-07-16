@@ -1,6 +1,7 @@
 # PLAN_REACTIVE_VS_PREVENTIVE_GUARDRAIL_AUDIT — stop netting mistakes after they land, start refusing them at write-time
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-07-15
 **Priority**: P0-EMERGENCY
 **Created**: 2026-07-08
 **Identity**: OWNER
@@ -166,15 +167,15 @@ Severity is assigned at capture time by the agent logging the mistake (3.2) and 
 ## Acceptance criteria
 
 - [x] Step 1 routed: `SUBPLAN_PARITY_W2_09_FULL_SUITE_CI_WIRE_FINAL_PARITY.md` re-verified as the CI-wire recipient AND annotated with the `.husky`→`.githooks` path-correction line item (LR-040 (b) — grep-verifiable).
-- [ ] Step 2 (MD-first structural gate) implemented as a new PreToolUse hook (`.claude/hooks/md-first-gate.sh` + lib), self-test included (mirroring `check-no-verify.mjs --self-test` precedent), wired in `.claude/settings.json`.
-- [ ] New gate verified: with mode=`deny` (self-test harness), attempt to Write a spec `test('TC-XXX-YYY-999'...)` with no MD row → DENY; add the MD row → allowed. Production knob lands at `announce` per Phase 3.3 (S1 ramp), ramp criterion recorded in `.claude/guardrail-config.json`.
-- [ ] `/regression-guard` snapshot before/after on any hook/settings edit — no silent breakage.
-- [ ] Step 6: `.claude/rules/guardrail-policy.md` exists carrying the 3.1 rubric, 3.3 ramp discipline, 3.4 budgets + demotion review, with `paths:` frontmatter loading on `.claude/hooks/**`, `scripts/check-*`, and `plans/**` edits; LR number confirmed free per LR-020 at execution time.
-- [ ] Step 7: `/reflect` SKILL.md carries the Sev column + same-session append mandate; `/compile-learnings` SKILL.md carries mechanism-default graduation + the demotion review; `/final-q` SKILL.md carries the mistake attestation block (each grep-verifiable).
-- [ ] Step 7: Stop-hook ledger backstop live in announce mode with a `--self-test` (mirroring `check-no-verify.mjs --self-test` precedent).
+- [x] Step 2 (MD-first structural gate) implemented as a new PreToolUse hook (`.claude/hooks/md-first-gate.sh` + lib), self-test included (mirroring `check-no-verify.mjs --self-test` precedent), wired in `.claude/settings.json`.
+- [x] New gate verified: with mode=`deny` (self-test harness), attempt to Write a spec `test('TC-XXX-YYY-999'...)` with no MD row → DENY; add the MD row → allowed. Production knob lands at `announce` per Phase 3.3 (S1 ramp), ramp criterion recorded in `.claude/guardrail-config.json`.
+- [x] `/regression-guard` snapshot before/after on any hook/settings edit — no silent breakage.
+- [x] Step 6: `.claude/rules/guardrail-policy.md` exists carrying the 3.1 rubric, 3.3 ramp discipline, 3.4 budgets + demotion review, with `paths:` frontmatter loading on `.claude/hooks/**`, `scripts/check-*`, and `plans/**` edits; LR number confirmed free per LR-020 at execution time.
+- [x] Step 7: `/reflect` SKILL.md carries the Sev column + same-session append mandate; `/compile-learnings` SKILL.md carries mechanism-default graduation + the demotion review; `/final-q` SKILL.md carries the mistake attestation block (each grep-verifiable).
+- [x] Step 7: Stop-hook ledger backstop live in announce mode with a `--self-test` (mirroring `check-no-verify.mjs --self-test` precedent).
 - [x] Self-healing loop proven once end-to-end on a REAL captured mistake (ALL-094, 2026-07-10 — the profanity-naming incident): capture (`agent-mistakes.md` ALL-094) → Sev tag (S1, budget-exhausted) → durable recipient (Step 8 nomination, grep-verifiable) — all grep-verified; AND the real Stop-hook `mistake-ledger-gate.sh` driven on real transcript I/O (warns + writes state + fires telemetry on no-attestation; clears stale state on attestation), not self-test fixtures (LR-059 — drove the real counterpart).
-- [ ] Activity-log row appended per LR-028, LR-037-compliant timestamp.
-- [ ] `/final-q` verdict block emitted (GREEN | YELLOW | RED) per LR-042.
+- [x] Activity-log row appended per LR-028, LR-037-compliant timestamp.
+- [x] `/final-q` verdict block emitted (GREEN | YELLOW | RED) per LR-042.
 - [ ] Step 8: professional-wording gate either landed at announce mode, or an explicit keep/demote decision for the nomination is recorded at the next /compile-learnings demotion review.
 
 ---
@@ -200,3 +201,20 @@ grep -n "Mistakes this session" .claude/skills/final-q/SKILL.md       # expect: 
 ## Handoff (post-execution)
 
 Chat-only summary per `feedback_handoff_in_chat_only.md` — no obstacle claims in this file.
+
+## Execution Summary
+
+- **Executed**: core implementation landed 2026-07-10 (prior sessions — LR-069 rule, md-first gate, mistake-ledger backstop, skill amendments); acceptance re-verified and plan closed 2026-07-15 as PLAN_LAZY_CEO_DELEGATOR run-order item #2.
+- **TCs implemented**: n/a — framework-enforcement infra plan; deliverables are hooks/rules/skills, no test cases in scope.
+- **TCs dropped**: n/a.
+- **MCP verification results**: n/a (BrowserTool: none). Verification = delegated cross-family battery, 2026-07-15:
+  1. The 12-check battery was re-executed fresh by claude-haiku-4.5 (`council-verifier`, run `verify-guardrail-xfam-0715-r2`, ledger `attempt: 2`) independently of the gpt-5.5 first pass — 13 tee'd artifacts with sha256 at `.claude/state/ua-worker/verify-guardrail-xfam-0715-artifacts/sha256-manifest.txt`, manifest re-hashed OK by the dispatcher.
+  2. Results: md-first self-test 22/22 pass; mistake-ledger self-test 25/25 pass; both wired in `.claude/settings.json`; `md_first_mode: announce` with full ramp metadata in `.claude/guardrail-config.json`; LR-069 rubric + ramp + budgets in `.claude/rules/guardrail-policy.md` with correct `paths:` frontmatter; Sev column + same-session mandate in `.claude/skills/reflect/SKILL.md`; attestation block in `.claude/skills/final-q/SKILL.md`; MECHANISM-default + Demotion review in `.claude/skills/compile-learnings/SKILL.md` (lines 62, 64); W2-09 `.githooks` path-correction annotation present; ALL-094 row present in agent-mistakes.md.
+  3. One REFUTED claim (empty compile-learnings artifact) was traced to a case-sensitive grep in the dispatcher's own ticket — corrected case-insensitive re-check confirms the content. Worker ASK (command-output vs file-read authority) dispositioned: command output stays authoritative for the worker; command defects are dispatcher-owned.
+- **Documentation changes**: none this session beyond this closure; prior sessions landed the rule/skill/hook documentation listed above.
+- **Test pass confirmation**: gate self-tests green 2026-07-15 (22/22 md-first, 25/25 mistake-ledger). No owned specs red — LR-060 obligation 3 not triggered.
+- **Per-criterion notes**:
+  - `/regression-guard` box: no durable snapshot artifact survives from the 2026-07-10 edit sessions (snapshots are ephemeral session artifacts); both gates' self-tests passing on the current tree is accepted as the no-silent-breakage evidence.
+  - Activity-log + `/final-q` boxes: activity-log row appended 2026-07-15T23:26 (LR-037-compliant); goal-level `/final-q` verdict emitted at session close per the /ultrathink gate.
+  - **Step 8 (professional-wording gate): DEFERRED** — the nomination is recorded at Phase 2 Step 8 of this plan (grep-verifiable, LR-040(b)); the keep/demote decision belongs to the next `/compile-learnings` demotion review per the criterion's own OR-branch. Tracking: `/compile-learnings` cadence reading `.claude/state/gate-fires.log`.
+  - Steps 3–5 (Tier-2 hygiene, leak prevention, Tier-1B rewrites): out-of-scope backlog per the plan's own Scope dial ("Steps 1–2 and 6–7 are the recommended immediate scope") — these are not deferrals of this plan.

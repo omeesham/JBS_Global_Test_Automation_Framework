@@ -1,5 +1,6 @@
 ---
-**Status**: PENDING (design — GATED on Rutvik go + protected-file grants + v2 reconciliation)
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-07-12
 **Identity**: OWNER
@@ -71,3 +72,25 @@ v2 is actively revising the skills-routing core (M2's skill sub-component) again
 1. Go/no-go on protected-file edits (worker-ext.md, copilot-worker.sh, DUTY_STACK, agent briefs) + SELF_GRANT.
 2. Confirm v2 (worker-skills-design-v2) is the owner of the skills-routing sub-component this integrates (vs re-scoping it here).
 3. Priority vs the other P0 delegation plans (ASSISTANT_LAYER, UPLINK Phase 7).
+
+---
+
+## Execution Summary
+
+**Landed across sessions (M1/M2/M3 built 2026-07-13 era; Phase 4 + wires + canary 2026-07-16 under the council regime). All acceptance criteria verified live 2026-07-16.**
+
+### Acceptance criteria — evidence per line
+- **M1**: ran `node scripts/ticket-doctrine-from-scope.mjs --self-test` → output: `39 cases: 39 PASS, 0 FAIL`; ran it on `clients/encore/tests/corporate-pricing/corporate-pricing-loc-export.spec.ts` → output includes `.claude/rules/specs.md` (+ angular/browser-tool/deliverable). In live dispatcher use.
+- **M2**: `scripts/ticket-skill-scan.mjs` uncapped true-match-type (verified in PLAN_WORKER_SKILL_ROUTING closure same day: registry INDEX-parity PASS, 33 skills, 11 TRANSFERABLE).
+- **M3**: `C:\Users\rutvi\.claude\delegation\worker-rules-extract.md` exists; spot-checked §1 Never-Assume + §2 Karpathy against root CLAUDE.md Supreme Rules — verbatim-traceable. **DUTY_STACK wire LANDED 2026-07-16**: extract inlined into the DUTY-STACK contract between BEGIN/END markers (marker count 3), after Rutvik in-chat GO ("go duty-stack") + scoped SELF_GRANT ceremony; first attempt was G1-TP1 DENIED (gate enforcing Rutvik-GO+grant exactly as designed — enforcement live, logged in grants audit). Backup: DUTY_STACK.md.bak-pinj-0716 (same dir). Wrapper prepends that file to every ticket-mode worker prompt (copilot-worker.sh:277-280), so workers now inherit the house rules.
+- **LR-069 declarations**: reviewer §PINJ + verifier §PINJ-VERIFY sections (machine-local council agent profiles, placed 2026-07-16 after structure prechecks) each declare Sev S1 + graduating incident (PARITY_GAP_MATRIX 2026-07-12) + announce-first ramp; knobs `pinj_reviewer_check_mode` / `pinj_doctrine_echo_mode` = "announce" in `.claude/guardrail-config.json`.
+- **Canary (LR-059 real-E2E)**: run `pinj-canary-0716` — DOCTRINE arrived ONLY via M1+M2 (pre-injection ticket snapshot in scratchpad, injected lines marked `# M1-injected`/`# M2-injected`; dispatcher curated 2 false-trigger skills out, noted in ticket). Worker followed the injected `/find-bugs` methodology (findings.md, 14 findings, all 6 SFDPOT categories named). R1 cap-death dropped DOCTRINE_READ → echo check fired 6 `PINJ-ECHO-MISSING` announce lines into `.claude/state/gate-fires.log` (telemetry wire proven live, first fire, zero false positives); R2 bounce → `PINJ-ECHO: OK — all injected paths echoed` (mechanical check script at `.claude/state/ua-worker/pinj-canary-0716-artifacts/check-doctrine-echo.mjs`). Calibration log started: `.claude/state/ua-worker/pinj_calibration_log.md`.
+- **Zero clobber**: every placement was an append (agent profiles, DUTY_STACK, config keys); no v2-landed text modified.
+
+### GATE decisions (this plan's reserved-for-Rutvik items) — both resolved
+1. Protected-file go: Rutvik in-chat 2026-07-16 blanket GO (agent briefs, config knobs) + explicit "go duty-stack" (DUTY_STACK wire) + SELF_GRANT ceremony.
+2. v2 ownership: PLAN_WORKER_SKILL_ROUTING confirmed owner of skills-routing (closed DONE 2026-07-16); this plan consumed its M2 scanner + registry rather than re-scoping.
+
+### Deviations
+- Phase 4 drafts required one bounce (pinj-phase4-draft-0716 R2) — reviewer-found defects fixed before placement.
+- Wrapper UW-wires beyond the DUTY_STACK prepend were NOT part of this plan's acceptance (UPLINK Phase 3 owns those — see PLAN_UPLINK_PROTOCOL).

@@ -1,6 +1,7 @@
 # SUBPLAN_LCD_03_COMPACTION_SURVIVAL — Make CEO identity survive /compact
 
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-07-13
 **Identity**: OWNER
@@ -65,7 +66,7 @@ Post-compaction, Claude loses CEO identity because `delegation-primer.mjs:82-95`
    - At count ≥3: escalated nudge referencing `self_incidents.log + Receipt` audit.
    - Counter RESETS on dispatch detection (existing behavior from LCD_02).
 
-   **Note**: `session-role.json` was removed from this design per `prosecute-correctness/result.md` OVERREACH finding (refute-gpt:17-18). The stale-re-fire machinery that depended on it was never proven to work at SessionStart. The nudge hook's own `session-bash-nudges.json` provides sufficient wording context without a separate role-state file.
+   **Note**: `session-role.json` was removed from this design per `.claude/state/ua-worker/prosecute-correctness/result.md` OVERREACH finding (refute-gpt:17-18). The stale-re-fire machinery that depended on it was never proven to work at SessionStart. The nudge hook's own `session-bash-nudges.json` provides sufficient wording context without a separate role-state file.
 
 ### Phase 3 — Verification
 
@@ -88,3 +89,36 @@ Post-compaction, Claude loses CEO identity because `delegation-primer.mjs:82-95`
 ## Rollback
 
 - Restore delegation-primer.mjs from backup: `cp ~/.claude/hooks/delegation-primer.mjs.bak ~/.claude/hooks/delegation-primer.mjs` — **`git checkout` does NOT work** for `~/.claude/` files; the backup copy is the only valid rollback mechanism
+
+---
+
+## Execution Summary
+
+**Delivered under the council regime (ONLY-COPILOT): opus-4.6 built, gpt-5.5 cross-reviewed, Claude dispatched/verified/installed.**
+
+### Phase 1 — Primer identity block: DONE
+- Identity block (verbatim per this plan's lines 40-47) injected into `delegation-primer.mjs` ON-mode + state-absent-fail-safe branches, in the exact plan order: `ASSISTANT MODE` line → `═══ YOU ARE THE CEO ═══` block (with `[AUTO-IDENTITY: CEO …]` token) → existing DELEGATION-FIRST rules + lessons splice.
+- **Dispatcher design deviation (documented, deliberate)**: the plan predates the 2026-07-16 `/assistants` master switch — when `assistant: "off"` (explicit) the primer emits NO CEO identity and NO token; Claude-solo means solo. State-absent still fail-safes to CEO harness.
+- Installed to `C:\Users\rutvi\.claude\hooks\delegation-primer.mjs` (backup: `C:\Users\rutvi\.claude\hooks\delegation-primer.mjs.bak-lcd03`). Owner authorization: Rutvik in-chat blanket GO 2026-07-16 ("Just go with everything that is ideal, best, long term") + LCD_02 apply precedent; install disclosed loudly in chat at apply time.
+- Minor addition beyond plan text: `PRIMER_*` env-overridable config paths — required by the build ticket's own probe rule (probes must never touch real home state); defaults unchanged in real sessions.
+
+### Phase 2 — Nudge CEO wording: DONE
+- Count-1 WARN reason now starts `You are in CEO mode this session — delegate this. ` (prefix prepends on all warn counts — dispatcher-accepted assumption; escalation content preserved); count ≥3 escalation text + dispatch-reset behavior unchanged; assistant-off exits silently (re-asserted by probe).
+- Installed to `C:\Users\rutvi\.claude\hooks\delegation-nudge.mjs` (backup: `C:\Users\rutvi\.claude\hooks\delegation-nudge.mjs.bak-lcd03`).
+
+### Phase 3 — Verification: DONE (three independent layers)
+1. **Builder probes (staging)**: 25/25 — P1-P7 new + P8 = full LCD_02 11-case regression battery; tee at `.claude/state/ua-worker/lcd03-build-0716-artifacts/probes.verify.txt`; `node --check` clean ×2.
+2. **Cross-provider review (gpt-5.5, independent re-execution)**: re-ran the battery itself 25/25 + diff audit + char-level contract fidelity + probe-vacuity audit + LR-069 announce-tier check — verdict GREEN, 0 defects; `.claude/state/ua-worker/lcd03-review-0716-artifacts/verdict.md`.
+3. **Live install battery (Claude, on the INSTALLED hooks)**: 8/8 — ON-mode ordering (plan items 4-5,7), real assistant-state OFF flip → no CEO block (restored in finally), idempotent double-fire = post-compact SessionStart re-fire simulation (plan item 6), nudge count-1 CEO wording + count-3 escalation (plan item 8), exempt-command silence.
+
+### Verification Artifact (D23)
+- `node C:\Users\rutvi\.claude\hooks\delegation-primer.mjs` with stdin `{"cwd":"C:/Users/rutvi/projects/encore_framework"}` → output contains `ASSISTANT MODE`, then `═══ YOU ARE THE CEO ═══`, then `[AUTO-IDENTITY: CEO`, then `DELEGATION-FIRST IS LIVE` in that index order.
+- Grep-able audit token: `[AUTO-IDENTITY: CEO — structural, primer-asserted, survives compaction]` appears in every ON-mode session start from now on.
+
+### Bounce record (honest ledger)
+- Build attempt 1 (`lcd03-build-0716`, 120cr): died on final call — 3 probe payloads had a PowerShell double-escape cwd bug (worker self-diagnosed); built files unaffected. Recorded `failed` + dispatcher lesson (payload-authoring rule → ticket DOCTRINE).
+- Bounce R2 (`lcd03-build-0716-r2`, 40cr, 136s): landed-vs-missing inventory → 25/25, incl. de-vacuizing P7. Recorded `bounced-then-green`.
+- Review (`lcd03-review-0716`, 60cr): GREEN first pass. Recorded `green`.
+
+### Rollback
+`cp C:\Users\rutvi\.claude\hooks\delegation-primer.mjs.bak-lcd03 C:\Users\rutvi\.claude\hooks\delegation-primer.mjs` (same pattern for nudge) — git checkout does NOT apply to `~/.claude` files.

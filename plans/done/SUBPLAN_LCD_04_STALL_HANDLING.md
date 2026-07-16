@@ -1,6 +1,7 @@
 # SUBPLAN_LCD_04_STALL_HANDLING — Upgrade stall guard to warn+bounce
 
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-07-13
 **Identity**: OWNER
@@ -99,3 +100,30 @@ The stall guard is WARN-only (`worker-ext.md:116`, `copilot-worker.sh:492-496`):
 - Set `stall_guard_action: "warn"` in guardrail-config.json (reverts to current behavior)
 - Delete `~/.claude/delegation/stall-queue/` directory
 - Revert copilot-worker.sh bounce logic (`git checkout -- copilot-worker.sh`)
+
+---
+
+## Execution Summary
+
+**Council-built (opus-4.6 R1 + Claude-side Opus escalation seat after 2 copilot cap-deaths), gpt-5.5 cross-reviewed (GREEN, independent 43/43 battery re-run, zero defects), installed by dispatcher after Rutvik in-chat GO 2026-07-16 ("go lcd04"), then proven on a REAL stalled dispatch.**
+
+### Phase 1 — Config: DONE
+3 keys (`stall_guard_action: "warn+bounce"`, `stall_guard_bounce_delay_s: 60`, `stall_guard_max_bounces: 2`) landed at BOTH declaration points: `.claude/guardrail-config.json` (this plan's Phase-1 location, with LR-069 comment) and `C:\Users\rutvi\.claude\delegation\config.json` (the wrapper's actual runtime read — build assumption (c), dispatcher-accepted; backup config.json.bak-lcd04). Home write via SELF_GRANT ceremony (Rutvik GO on record; grants audit-logged).
+
+### Phase 2 — Wrapper bounce: DONE
+`copilot-worker.sh` installed byte-identical to the reviewed staging build (`diff-of-diffs` empty; backup `copilot-worker.sh.bak-pre-lcd04` in `.claude/state/ua-worker/lcd04-build-0716-artifacts/`). Delta: env-overridable config reads with numeric validation + once-per-episode bounce (cumulative cap across episodes) + `STALL-EXHAUST` ledger/stderr on cap + NO kill path (reviewer lane-3 grep clean; plan line 70 honored).
+
+### Phase 3 — Nudge anti-rescue: DONE
+`delegation-nudge.mjs` installed (backup .bak-lcd04): fresh (<10min) stall-queue file appends "A worker just stalled — a bounce ticket is queued. Self-rescue = routing incident. Dispatch the bounce instead." to the WARN reason. Live-verified on the installed hook: CEO prefix + anti-rescue sentence both PASS (isolated counter/telemetry paths).
+
+### Phase 4 — Fallback: DONE (staged-proven)
+Max-bounces P4 probe: 3rd stall episode produces no 3rd bounce file + STALL-EXHAUST emitted (probes.verify.txt, 43/43 incl. P8=25/25 LCD_03 regression; reviewer independently re-ran 43/43).
+
+### Phase 5 — Verification: DONE with a REAL stall (LR-059)
+Run `lcd04-stallprobe-0716` (gpt-5.5, deliberate `sleep 400` silence): ledger row `stall_warns:1, secs:467, exit_reason:success`; stderr shows `STALL-WARN at elapsed=301s` then `STALL-BOUNCE READY: <real stall-queue path> queued. Dispatch it or wait for original — DO NOT RESCUE INLINE.` (bounce filename: lcd04-stallprobe-0716-bounce.md); bounce file contains the original ticket + `## STALL-CONTEXT` ("stalled at 360s... attempt 2... escalate +1 tier per worker-ext.md:73-85") — evidence copy at `.claude/state/ua-worker/lcd04-stallprobe-0716-artifacts/bounce-file-evidence.md`; worker was NOT killed (completed its 400s sleep, wrote `done.txt`). Plan Phase-5 items 6/7/8 all live-proven; item 9 (warn fallback) staged-proven (P5).
+
+### Verification Artifact (D23)
+`ls C:\Users\rutvi\.claude\delegation\stall-queue\` after any future 360s+ silent run → `<run-id>-bounce.md` containing `## STALL-CONTEXT`; ledger row gains `stall_warns≥1` while the worker still completes.
+
+### Bounce record (honest ledger)
+Build R1 (120cr): cap-death #7 — code landed, battery missing. R2 (60cr): cap-death #8, zero output (context-read burn). Escalated to Claude-side Opus subagent per the 2-consecutive-failures precedent ([UA-SPAWN-JUSTIFIED] token logged) — delivered 43/43. Review green first pass. Stall probe green first pass. Lessons recorded: multi-target builds 150+, per-target sizing.

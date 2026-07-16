@@ -1,6 +1,7 @@
 # SUBPLAN_LCD_07_OBSERVABILITY — Full Encore audit trail + ledger enrichment
 
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-07-13
 **Identity**: OWNER
@@ -152,3 +153,35 @@ OWNER HARD REQUIREMENT: every agent action on Encore work must be fully trackabl
 - Restore `~/.claude/hooks/delegation-gate.mjs` from backup to remove `ledger.jsonl` from PROTECTED list: `cp ~/.claude/hooks/delegation-gate.mjs.bak ~/.claude/hooks/delegation-gate.mjs` — **`git checkout` does NOT work** for `~/.claude/` files; backup must be taken before modification: `cp ~/.claude/hooks/delegation-gate.mjs ~/.claude/hooks/delegation-gate.mjs.bak`
 - Activity-log entries are append-only (harmless to leave)
 - Remove delegation-metrics section from Receipt template (`worker-ext.md` is in-repo: `git checkout -- .claude/skills/ultra-agents/worker-ext.md`)
+
+---
+
+## Execution Summary
+
+**Executed 2026-07-16.** Build: copilot council (opus-4.6 runs lcd07-build-0716 R1/R2 — both credit-capped honestly) completed by a Claude-side Opus escalation per the 2-cap-death precedent (8/8 probes; found and fixed 10 real defects in the copilot rounds incl. a CRLF anchor-match failure that had doomed both). Cross-provider review: gpt-5.5 run lcd07-review-0716 — GREEN, probes re-run independently, hashes byte-identical, per-probe self-grading-risk audit CLEAN. Rutvik gave the explicit in-chat GO for the protected applies; SELF_GRANT ceremony used for the home gate file.
+
+### Landed live (all 4 targets, byte-identical to reviewed staging)
+
+1. **Wrapper** (`.claude/skills/ultra-agents/copilot-worker.sh`): ledger rows enriched with ts, ts_end, tokens_in/out + cost_usd (null at worker depth — the CLI does not surface usage; workers self-report per the plan's own mitigation), dispatcher, session_id, ticket_id, parent_run_id, depth, effective_cap, sub_agents (parsed from a report SUB_AGENTS section with null+note fallbacks, empty array when absent). UUID run_id fallback replaces PID-filesize (AH-15) only when --run-id absent. Ledger append wrapped in a portable mkdir spin-lock (Git Bash has no flock) with unlocked-append+stderr fallback. Activity-log parity row appended per dispatch (AH-14/T-10).
+2. **Gate** (home delegation-gate, v6): both ledger paths added to PROTECTED with an LR-069 severity header (AH-02); wrapper Bash appends remain unblocked (the hook is tool-layer).
+3. **worker-ext.md**: Delegation Metrics receipt block with the denominator note (plan item 7) plus the owner-approved wording fix (nudges row names the real state file and shape final-q reads).
+4. **final-q SKILL**: Step 4.9 delegation-ratio check (3 counters, ratio, flag when ratio under 0.95 with self-work present) with corrected real paths (in-repo ledger; home state nudges file).
+
+### Verification (plan Phase 6, all machine-proven live)
+
+- Item 9: real canary dispatches (failed run lcd07-canary-0716 AND green run lcd07-canary-0716-r2) both wrote fully-enriched rows — dispatcher/session_id/ticket_id/parent_run_id/depth plumb-through proven, including on the failure path.
+- Item 10: home-ledger Write DENIED (fire-logged). Repo-ledger entry proven ALIVE by direct gate spawns with canonical payloads (deny + fire, 12/12 in the live RCA runs recorded at `.claude/state/ua-worker/lcd07-gatefix-0716-artifacts/probes.verify.txt`). NOTE: an initial "entry is dead" finding was a dispatcher probe artifact — the probe's nonexistent old_string was rejected by tool input-validation in ~4ms and never reached the hook layer; captured as CEO probe-craft in auto-memory.
+- Item 11 (lock): 20 truly-parallel appends through the extracted staged lock — 20/20 intact lines, zero interleaving (probe P5, reviewer re-run).
+- Item 12: wrapper activity-log rows appear for every dispatch (ok=true and ok=false both observed live).
+- Item 13: `scripts/validate-activity-log.mjs` parses the new rows via its real exported parser functions (probe P6 plus live rows in the benign no-files-extracted category).
+
+### Deviations
+
+- Activity-log format: the live parser contract (5-column table row) beats the plan's aspirational 3-line block (lines 108-112) — implemented as a table row.
+- tokens_in/tokens_out/cost_usd are null at wrapper level per the plan's own field-surfacing constraints (lines 95-101); worker self-report parsing is wired for sub_agents.
+- Plan item 7 wording: worker-ext nudges row names the real file and shape rather than the plan-verbatim text (owner-approved at apply time).
+- **Staged-ready hardening, deliberately NOT applied**: delegation-gate v6.1 (`.claude/state/ua-worker/lcd07-gatefix-0716-artifacts/delegation-gate.mjs.lcd07r2`, sim 16/16 with its `gate-trip-sim.mjs` harness) normalizes all comparison-site path bases — value-identical today (the live literal is norm-idempotent), closes a latent mixed-base trap; routed to the integration ultraaudit fix wave (grep-verifiable there: PLAN_COPILOT_INTEGRATION_ULTRAAUDIT.md Phase 5 category C). The escalation also caught a TDZ bug in an intermediate half-fix that would have disabled the entire gate if applied — the staging+review discipline is what caught it.
+
+### Documentation
+
+- LR-028 activity-log row appended this closure. Parent PLAN_LAZY_CEO_DELEGATOR.md run-order row 11 annotated per LR-027 parent-cascade.

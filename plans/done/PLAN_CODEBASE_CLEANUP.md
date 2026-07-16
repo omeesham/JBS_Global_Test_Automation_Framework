@@ -2,7 +2,8 @@
 
 **Original**: PLAN_CODEBASE_CLEANUP (2026-03-24)
 **This version**: Audit-corrected 2026-03-26
-**Status**: pending
+**Status**: SUPERSEDED
+**Superseded by**: plans/pending/PLAN_LOSSLESS_DEEP_TRIM.md (2026-06-12 deep-trim disposition; per-item table in SUBPLAN_TRIM_02 Execution Summary)
 **Priority**: P2-CYCLE-3
 **Scope**: Full repo — src/, scripts/, website/, tests/
 

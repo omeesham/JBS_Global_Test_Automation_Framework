@@ -3,7 +3,8 @@
 **ID**: PLAN_MAINTAINER_SWEEP
 **Created**: 2026-03-24
 **Updated**: 2026-03-27 (post-audit — corrected for P0 Decontamination f721e15)
-**Status**: partially-done
+**Status**: SUPERSEDED
+**Superseded by**: plans/pending/PLAN_LOSSLESS_DEEP_TRIM.md (2026-06-12 deep-trim disposition; per-item table in SUBPLAN_TRIM_02 Execution Summary). NOTE: the 2026-05-25 appended items SP-MNT-FCC-01/02 (LR-040 §b recipients for PLAN_AGENT_IDENTITY_REALIGNMENT_AND_FCC_STRUCTURAL_CURE) are still-valid — see SUBPLAN_TRIM_02 Next-batch ledger + handoff flag.
 **Priority**: P2-CYCLE-3
 
 ---

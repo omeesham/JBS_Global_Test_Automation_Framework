@@ -1,4 +1,5 @@
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-07-16 (verification-close; deliverables landed 2026-07-12/13)
 **Priority**: P2
 **Created**: 2026-07-13
 **Identity**: OWNER
@@ -9,14 +10,14 @@
 **PermissionMode**: auto
 **BrowserTool**: none
 **Depends on**: PLAN_UPLINK_PROTOCOL (P0–P6 landed; P7 independent)
-**NOT-CHAIN-RUNNABLE**: Phase 3 edits `worker-ext.md` (PROTECTED) — requires Rutvik live in-chat GO + a scoped SELF_GRANT per the same gate PLAN_UPLINK_PROTOCOL / PLAN_STATIC_TO_DYNAMIC honor. Phase 4 edits machine-local `~/.copilot/agents/*.agent.md` profiles. Never edit the wrapper/worker-ext while another session runs workers through it.
+**NOT-CHAIN-RUNNABLE**: Phase 3 edits `worker-ext.md` (PROTECTED) — requires Rutvik live in-chat GO + a scoped SELF_GRANT per the same gate PLAN_UPLINK_PROTOCOL / PLAN_STATIC_TO_DYNAMIC honor. Phase 4 edits machine-local copilot agent profiles (agent.md files in the home copilot agents dir). Never edit the wrapper/worker-ext while another session runs workers through it.
 
 # PLAN_WORKER_SKILL_ROUTING — Skill awareness, access, and enforcement for copilot council workers
 
 ## Bootstrap
 - **Identity**: OWNER (no switch needed; Phase 3 protected-file writes are gated by Rutvik GO + SELF_GRANT, not by an identity switch).
 - **Skills**: /execute (orchestrator) · /relevant (pre-execution) · /regression-guard (wrap the new scanner + config/hook edits) · /reflect + /final-q (closure).
-- **Context files**: this plan · `.claude/skills/ultra-agents/worker-ext.md` (skill-routing clause `:110`, PROTECTED list, dispatch how-to) · `.claude/skills/INDEX.md` (33-skill catalog — the classification source) · `scripts/run-relevant-scan.mjs` (the existing scanner contract this plan deliberately does NOT reuse) · `.claude/rules/guardrail-policy.md` (LR-069 ramp/bloat-governor + LR-070 uplink) · `.claude/rules/pipeline.md` (LR-020 / LR-048 / LR-050) · review evidence: `.claude/state/ua-worker/worker-skills-review-v2-{gpt,opus}/verdict.md` (both YELLOW; the 5 named fixes are folded into this v3) · design lineage: `.claude/state/ua-worker/worker-skills-design-{v2,v3}-0712/result.md`.
+- **Context files**: this plan · `.claude/skills/ultra-agents/worker-ext.md` (skill-routing clause `:110`, PROTECTED list, dispatch how-to) · `.claude/skills/INDEX.md` (33-skill catalog — the classification source) · `scripts/run-relevant-scan.mjs` (the existing scanner contract this plan deliberately does NOT reuse) · `.claude/rules/guardrail-policy.md` (LR-069 ramp/bloat-governor + LR-070 uplink) · `.claude/rules/pipeline.md` (LR-020 / LR-048 / LR-050) · review evidence: `.claude/state/ua-worker/worker-skills-review-v2-{gpt,opus}/verdict.md` (both YELLOW; the 5 named fixes are folded into this v3) · design lineage: `.claude/state/ua-worker/worker-skills-design-v2-0712/result.md` + `.claude/state/ua-worker/worker-skills-design-v3-0712/result.md`.
 - **Delegation split (this plan's own execution)**: council workers BUILD `scripts/ticket-skill-scan.mjs` + the state-dir registry/evidence-signature files to Claude-authored specs; Claude APPLIES the PROTECTED `worker-ext.md` edit under SELF_GRANT and the machine-local profile edits; cross-family review + T0 verify per the delegation pyramid; the E2E acceptance (a real `/rca`-DOCTRINE ticket → reviewer DIGEST) dispatches through the NEW machinery after apply.
 
 ## Context — the gap, precisely stated
@@ -57,7 +58,7 @@ Claude has a `Skill` tool that loads `.claude/skills/<name>/SKILL.md` on demand.
 
 | # | Skill | Evidence signature (what the worker's report MUST show) |
 |---|---|---|
-| 1 | `/rca` | DOCTRINE_READ lists `rca/SKILL.md`. Report shows: (1) artifact reads BEFORE any fix attempt, (2) IS/IS-NOT table or structured analysis, (3) root cause with cited evidence. |
+| 1 | `/rca` | DOCTRINE_READ lists `.claude/skills/rca/SKILL.md`. Report shows: (1) artifact reads BEFORE any fix attempt, (2) IS/IS-NOT table or structured analysis, (3) root cause with cited evidence. |
 | 2 | `/coverage` | DOCTRINE_READ lists `coverage/SKILL.md`. Report shows: FCC taxonomy per field, L1 surface/behavior must-asserts, `field-case-generation.md` categories cited. |
 | 3 | `/ultracoverage` | Same as `/coverage` plus L2/L3 depth markers (pairwise grids, date-BVA, persistence). |
 | 4 | `/regression-guard` | VERIFY_OUTPUT shows before/after structural fingerprint (exports, imports, routes, signatures) with diff. |
@@ -67,7 +68,7 @@ Claude has a `Skill` tool that loads `.claude/skills/<name>/SKILL.md` on demand.
 | 8 | `/cleanup` | Report shows dead-code/unused-import identification (with evidence) before removal. |
 | 9 | `/research` | Report shows ≥2 sources with URLs, findings mapped to our stack. |
 | 10 | `/graft` | Report shows source-vs-port verification diff + E2E proof run output. |
-| 11 | `/relevant` | DOCTRINE_READ lists `relevant/SKILL.md`. Report shows: sub-task decomposition with skill/rule tags per sub-task and routing rationale provided. (Transferable because: the core methodology — "scan for applicable skills/rules before multi-step work, tag sub-tasks" — is readable + followable; the hook-based auto-injection is Claude-only convenience.) |
+| 11 | `/relevant` | DOCTRINE_READ lists `.claude/skills/relevant/SKILL.md`. Report shows: sub-task decomposition with skill/rule tags per sub-task and routing rationale provided. (Transferable because: the core methodology — "scan for applicable skills/rules before multi-step work, tag sub-tasks" — is readable + followable; the hook-based auto-injection is Claude-only convenience.) |
 
 ### CLAUDE-ONLY skills (22 — require harness/hooks/transcript/interactive machinery)
 
@@ -165,7 +166,7 @@ Claude has a `Skill` tool that loads `.claude/skills/<name>/SKILL.md` on demand.
 
 ### 2.3 — Ticket template extension
 
-**File edited**: `~/.claude/delegation/ticket-template.md` (machine-local)
+**File edited**: `C:\Users\rutvi\.claude\delegation\ticket-template.md` (machine-local)
 **Change**: guidance comment after DOCTRINE field:
 ```
 ## DOCTRINE (read before starting; list in DOCTRINE_READ)
@@ -201,7 +202,7 @@ Claude has a `Skill` tool that loads `.claude/skills/<name>/SKILL.md` on demand.
 
 ### 3.1 — Reviewer prompt extension
 
-**File edited**: `~/.copilot/agents/council-reviewer.agent.md` (machine-local)
+**File edited**: the council-reviewer agent profile, machine-local home copilot agents dir
 **Change**: append `## Skill Methodology Compliance` section.
 
 ```markdown
@@ -297,7 +298,7 @@ This plan adds NO wrapper wire (UW-5 deferred). Zero collision with UW-1 (budget
 
 1. **Dependency check**: confirm `PLAN_UPLINK_PROTOCOL` Phases P0–P6 have landed (worker-ext.md step 0 CLARIFY round + PROTECTED list + agent-profile ASK sections present). This plan's reconciliation assumes those edits exist. If a UPLINK session is mid-flight on `worker-ext.md` / `copilot-worker.sh`, **HALT** — never edit those files while another session runs workers through them.
 2. **Browser tool**: `none` — pure repo/config/profile edits + one E2E dispatch through the delegation wrapper. No live-DOM work.
-3. **Protected-file gate**: Phase 3 (`worker-ext.md`) needs Rutvik's live in-chat GO + a scoped SELF_GRANT before any write. Do NOT enter Phase 3 without it. Phase 4 edits machine-local `~/.copilot/agents/*` profiles (outside the repo gate but still precheck-gated per Phase 4 step 1).
+3. **Protected-file gate**: Phase 3 (`worker-ext.md`) needs Rutvik's live in-chat GO + a scoped SELF_GRANT before any write. Do NOT enter Phase 3 without it. Phase 4 edits machine-local copilot agent profiles (outside the repo gate but still precheck-gated per Phase 4 step 1).
 
 ## Phases (each independently shippable)
 
@@ -332,9 +333,9 @@ This plan adds NO wrapper wire (UW-5 deferred). Zero collision with UW-1 (budget
 4. Verify: `grep 'ticket-skill-scan' .claude/skills/ultra-agents/worker-ext.md` returns recipe line.
 
 ### Phase 4 — Reviewer prompt extension (machine-local)
-1. **Precheck**: `grep -n '^## ' ~/.copilot/agents/council-reviewer.agent.md | tail -5` — verify structure safe for append; if unexpected structure → flag + HALT, do NOT append blindly.
+1. **Precheck**: `grep -n '^## ' "$HOME_COPILOT_AGENTS"/council-reviewer.agent.md | tail -5   # HOME_COPILOT_AGENTS = home copilot agents dir` — verify structure safe for append; if unexpected structure → flag + HALT, do NOT append blindly.
 2. Extend council-reviewer.agent.md (Deliverable 3.1).
-3. Verify: `grep '## Skill Methodology Compliance' ~/.copilot/agents/council-reviewer.agent.md` returns header.
+3. Verify: `grep '## Skill Methodology Compliance' "$HOME_COPILOT_AGENTS"/council-reviewer.agent.md` returns header.
 
 ### Phase 5 — Deferred — pending rent (verifier check + worker-profile awareness)
 
@@ -345,7 +346,7 @@ This plan adds NO wrapper wire (UW-5 deferred). Zero collision with UW-1 (budget
 **Deferred deliverables** (implement when prerequisite met):
 
 #### 5.1 — Verifier prompt extension
-**File edited**: `~/.copilot/agents/council-verifier.agent.md` (machine-local)
+**File edited**: the council-verifier agent profile, machine-local home copilot agents dir
 **Change**: append `## DOCTRINE_READ Completeness` section.
 
 ```markdown
@@ -362,11 +363,11 @@ Compare the two lists mechanically. No judgment needed.
 ```
 
 #### 5.2 — Worker-Side Awareness (agent profile)
-**File edited**: `~/.copilot/agents/council-worker.agent.md` (machine-local)
+**File edited**: the council-worker agent profile, machine-local home copilot agents dir
 
 **Precheck requirement**: before appending, execution MUST:
 ```bash
-grep -n '^## ' ~/.copilot/agents/council-worker.agent.md | tail -5
+grep -n '^## ' "$HOME_COPILOT_AGENTS"/council-worker.agent.md | tail -5
 ```
 Verify: (a) file exists, (b) has `## Lessons` or equivalent section, (c) no closing markers/special format after last `##` that would break from appending. If unexpected structure → flag in execution ASK, do NOT append blindly.
 
@@ -402,7 +403,7 @@ You do NOT need the Skill tool. The methodology is in the file. Read it, follow 
 - [ ] Reviewer section declares: Sev S2, graduating incident, ramp to bounce, announce-first, DOCTRINE_READ + evidence-signature checks, DIGEST line format.
 - [ ] Verifier section + worker profile section: DEFERRED to Phase 5 with named prerequisite (≥10 reviewed dispatches showing a miss).
 - [ ] guardrail-config has `reviewer_skill_compliance_mode`, `skill_route_mode` keys. `verifier_doctrine_read_mode` deferred to Phase 5.
-- [ ] E2E proof: ticket with `/rca/SKILL.md` in DOCTRINE → reviewer DIGEST shows `SKILL-COMPLIANCE: 1/1`.
+- [ ] E2E proof: ticket with the rca SKILL.md (`.claude/skills/rca/SKILL.md`) in DOCTRINE → reviewer DIGEST shows `SKILL-COMPLIANCE: 1/1`.
 - [ ] Zero clobber: diffs show ADDITIVE only — no UPLINK-landed text modified.
 - [ ] git status post-exec = only this plan's edits + result files.
 
@@ -451,11 +452,11 @@ grep 'ticket-skill-scan' .claude/skills/ultra-agents/worker-ext.md
 grep 'skill_route_mode' .claude/guardrail-config.json
 
 # Phase 4:
-grep '## Skill Methodology Compliance' ~/.copilot/agents/council-reviewer.agent.md
+grep '## Skill Methodology Compliance' "$HOME_COPILOT_AGENTS"/council-reviewer.agent.md
 
 # Phase 5 (deferred — verify only after prerequisite met):
-# grep '## DOCTRINE_READ Completeness' ~/.copilot/agents/council-verifier.agent.md
-# grep '## Skill Methodology Awareness' ~/.copilot/agents/council-worker.agent.md
+# grep '## DOCTRINE_READ Completeness' "$HOME_COPILOT_AGENTS"/council-verifier.agent.md
+# grep '## Skill Methodology Awareness' "$HOME_COPILOT_AGENTS"/council-worker.agent.md
 ```
 
 ---
@@ -481,3 +482,22 @@ grep '## Skill Methodology Compliance' ~/.copilot/agents/council-reviewer.agent.
 ## Handoff (chat-only per framework discipline)
 
 Execution outcome, deviations, and the E2E DIGEST proof are reported in chat at close — not written into this plan body. Phase 3 requires a live Rutvik GO before the protected `worker-ext.md` edit.
+
+---
+
+## Execution Summary
+
+**Verification-close 2026-07-16**: all Phase 1-4 deliverables were found ALREADY LANDED on disk (built 2026-07-12/13 by the worker-skills-design / wsr-inc-a / wsr-inc-b council sessions); this session re-ran every acceptance check live and closed the plan. No new edits were needed — re-execution would have risked clobbering landed UPLINK-adjacent text.
+
+### Per-phase evidence (all ran 2026-07-16)
+- **Phase 1**: ran the plan's name-set parity check → output: `P1-PARITY: PASS` (registry ↔ INDEX name sets match, no missing/extra/dup); ran signature row-count → output: `P1-SIG: PASS (11)`. Artifacts: `.claude/state/ua-worker/skill-transfer-registry.md`, `.claude/state/ua-worker/skill-evidence-signatures.md`.
+- **Phase 2**: `scripts/ticket-skill-scan.mjs` exists and passes all 3 heuristic checks — ran `--goal "root cause analysis" --work-type rca` → output contains `{"skill":"/rca","matchType":"DIRECT"}`; `--goal "fix the login bug" --work-type build` → `/regression-guard` present; `--goal "deploy to production" --work-type build` → zero applicable. (In live dispatcher use since 2026-07-16 — every ticket this session was scanner-populated.)
+- **Phase 3**: ran `grep -n 'ticket-skill-scan' .claude/skills/ultra-agents/worker-ext.md` → output: line 112 (recipe present, cites the scanner NOT run-relevant-scan); `C:\Users\rutvi\.claude\delegation\ticket-template.md` line 37 carries the DOCTRINE guidance comment; `.claude/guardrail-config.json` lines 26-35 carry `skill_route_mode: "deferred"` (+ reason + earning-rent prerequisite = the 2.4 deferral artifact) and the full `reviewer_skill_compliance_*` ramp block (ramp_started 2026-07-13, announce-first per LR-069).
+- **Phase 4**: ran the Phase-4 verify grep against the machine-local council-reviewer agent profile → output: line 39; section declares Sev S2, graduating incident TICKET-worker-skills-design-v2-0712, announce-first ramp, DIGEST line format.
+- **Phase 5**: DEFERRED BY DESIGN (plan lines 339-343, LR-069 §3.4 bloat governor) — prerequisite (≥10 reviewed dispatches showing a scanner+reviewer miss) not met; verifier section and worker-profile section verified ABSENT (grep count 0 in both agent files) and `verifier_doctrine_read_mode` key verified ABSENT from guardrail-config — exactly the deferred state the plan mandates.
+
+### E2E proof (acceptance item 12)
+Reviewer DIGEST `SKILL-COMPLIANCE: 1/1 skills evidenced` in `C:\Users\rutvi\.claude\delegation\reports\wsr-inc-b-e2e-review.report.md` (line 7); the negative path also proven live — `wsr-inc-a-review.report.md` DIGEST shows a real `SKILL-COMPLIANCE: 0/1` SKILL-SKIP finding, so the check demonstrably fires in both directions.
+
+### Deviations
+None. Zero file edits this session (verification-close). The protected-file GO for Phase 3 (Rutvik blanket GO 2026-07-16) was never consumed — the edit pre-existed with its own 2026-07-13 authorization trail (ramp_started stamp).

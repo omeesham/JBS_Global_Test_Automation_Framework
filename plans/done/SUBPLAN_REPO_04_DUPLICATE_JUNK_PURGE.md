@@ -1,6 +1,7 @@
 # SUBPLAN: Duplicate & Junk Purge
 
-**Status**: PENDING
+**Status**: SUPERSEDED
+**Superseded by**: plans/pending/PLAN_LOSSLESS_DEEP_TRIM.md (2026-06-12 deep-trim disposition; per-item table in SUBPLAN_TRIM_02 Execution Summary)
 **Priority**: P1-CYCLE-2
 **Parent**: MASTER_REPO_CLEANUP
 **Created**: 2026-04-16

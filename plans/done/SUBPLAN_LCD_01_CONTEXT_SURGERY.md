@@ -1,6 +1,7 @@
 # SUBPLAN_LCD_01_CONTEXT_SURGERY — Compress doer-craft out of CEO always-on context
 
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-07-13
 **Identity**: OWNER
@@ -33,7 +34,7 @@ Reduce always-on WORKER-MOVE content from 44% (~284 lines) to ~4% (~25 lines) ac
 
 ### Phase 1 — Create ticket-scoped worker landing zone (non-protected)
 
-1. Create `~/.claude/delegation/worker-doctrine-index.md` — a SINGLE index file listing existing doctrine paths workers must cite in their ticket DOCTRINE field, grouped by domain. No inline technique is stored here; this is a lookup-only pointer registry:
+1. Create `.claude/state/ua-worker/worker-doctrine-index.md` — a SINGLE index file listing existing doctrine paths workers must cite in their ticket DOCTRINE field, grouped by domain. No inline technique is stored here; this is a lookup-only pointer registry:
    ```markdown
    # Worker Doctrine Index
    ## Encore Walk / Divergence
@@ -48,9 +49,9 @@ Reduce always-on WORKER-MOVE content from 44% (~284 lines) to ~4% (~25 lines) ac
    ```
    Size cap: ≤40 lines. Workers read this index to know WHICH existing doc to cite — they do NOT read the full technique from here.
 
-2. Verify index is correct: `cat ~/.claude/delegation/worker-doctrine-index.md | grep "^##" | wc -l` → expect ≥4 domain sections.
+2. Verify index is correct: `cat .claude/state/ua-worker/worker-doctrine-index.md | grep "^##" | wc -l` → expect ≥4 domain sections.
 
-**Rationale for removing the original worker-primer.md approach** (per refute-gpt:9 FATAL FLAW): a new `~/.claude/delegation/worker-primer.md` had no proven injection mechanism — `worker-ext.md:109-111` only prepends `DUTY_STACK.md`, not a second primer. Technique content already lives in existing per-agent `.agent.md` files loaded by established paths. The doctrine-index approach uses the proven ticket-DOCTRINE mechanism instead of an unverified new loading path.
+**Rationale for removing the original worker-primer.md approach** (per refute-gpt:9 FATAL FLAW): a new home-dir delegation worker-primer file had no proven injection mechanism — `worker-ext.md:109-111` only prepends `DUTY_STACK.md`, not a second primer. Technique content already lives in existing per-agent `.agent.md` files loaded by established paths. The doctrine-index approach uses the proven ticket-DOCTRINE mechanism instead of an unverified new loading path.
 
 ### Phase 2 — Compress CEO context (PROTECTED — needs owner go + SELF_GRANT)
 
@@ -80,14 +81,14 @@ Reduce always-on WORKER-MOVE content from 44% (~284 lines) to ~4% (~25 lines) ac
    ```
    ## Worker-Lane Rules (cite in ticket DOCTRINE, not loaded here)
    Worker-specific technique lives in per-agent .agent.md files and existing rule docs.
-   Doctrine paths for tickets: see ~/.claude/delegation/worker-doctrine-index.md
+   Doctrine paths for tickets: see .claude/state/ua-worker/worker-doctrine-index.md
    ```
 
 ### Phase 3 — Verification
 
 6. Count always-on CEO context: `wc -l CLAUDE.md clients/encore/CLAUDE.md` → target: combined <400 lines (down from ~517).
 7. Verify no broken references: `grep -r "LR-ENC-001\|LR-ENC-002\|LR-ENC-003" plans/pending/ | head -20` → existing plans still reference the rule by name (which still works — the rule exists, just compressed).
-8. Verify doctrine index is discoverable: `cat ~/.claude/delegation/worker-doctrine-index.md | head -5` → confirms file exists with expected header.
+8. Verify doctrine index is discoverable: `cat .claude/state/ua-worker/worker-doctrine-index.md | head -5` → confirms file exists with expected header.
 
 ---
 
@@ -102,4 +103,32 @@ Reduce always-on WORKER-MOVE content from 44% (~284 lines) to ~4% (~25 lines) ac
 ## Rollback
 
 - `git checkout -- clients/encore/CLAUDE.md CLAUDE.md` (restores full content; these are git-tracked)
-- Delete `~/.claude/delegation/worker-doctrine-index.md` (home-dir file, no git rollback needed — just delete)
+- Delete `.claude/state/ua-worker/worker-doctrine-index.md` (git-tracked; `git checkout -- .claude/state/ua-worker/worker-doctrine-index.md` restores it)
+
+---
+
+### Execution Summary
+
+**Closed**: 2026-07-16. All three phases + the §5 MEMORY.md step landed; dispatcher line-read the full diff before accepting.
+
+- **TCs implemented**: 0 — none planned (context-surgery subplan; no TC scope).
+- **TCs dropped**: 0 — n/a.
+- **MCP verification**: n/a — no live-site scope.
+- **Documentation changes**: `CLAUDE.md` (2 compressions, line-neutral 161→161), `clients/encore/CLAUDE.md` (10 enumerated sections → CEO POINTER lines + surviving headings/summaries, 232→129), new doctrine index `.claude/state/ua-worker/worker-doctrine-index.md` (25 lines, 5 `##` sections, lookup-only), `MEMORY.md` §5 compression (worker-technique pointers folded into a single Worker-Lane block — done by the dispatcher directly, 2026-07-16, per the ticket's "dispatcher's own lane" rule).
+- **Test pass confirmation**: n/a — no runtime surface touched; verification is grep/wc-based (below).
+
+**Verification (artifacts at `.claude/state/ua-worker/lcd01-surgery-0715-artifacts/` with sha256-manifest.txt)**:
+- Combined `wc -l` 393 → 290 (<400 target ✓; the doer-craft bulk left the always-on files).
+- Doctrine index acceptance: 5 `##` sections (≥4 ✓), 25 lines (≤40 ✓), zero inline technique.
+- Broken-ref check: LR-ENC-001/002/003 still resolve by name across 20 `plans/pending/` references.
+- Diff = 5 hunks, all mapping to enumerated regions only (dispatcher read `lcd01.diff` end-to-end); backups of both pre-edit files + sha256 in the artifacts dir.
+- Load-bearing anchors preserved: the "no second-factor authentication configured" string (LR-054 anti-MFA-hallucination anchor), LR-012 + LR-ENC-005 full bodies, the "fresh login session" note, the `Tracked:` ship list (LR-049), the deterministic-probe "[HALT] lines STAND" clause.
+
+**Deviations (all dispatcher-authorized, logged)**:
+1. Phase-1 landing zone relocated from the originally planned `~/.claude/delegation/` location to `.claude/state/ua-worker/worker-doctrine-index.md` — the home path is hard-denied Tier-2 and unreadable by repo-confined workers (documented in ticket DEVIATION block; Rollback path updated accordingly: delete the in-repo file).
+2. LR-ENC-004: only the headless-degradation paragraph was compressible (the plan's "~20 lines" was an overestimate); Jira-first core kept.
+3. Provisioning checklist pointer-ized rather than removed entirely — keeps the LR-054 anchor greppable.
+4. Two intent-preserving keeps beyond the plan's barebones replacement text: the POM `Tracked:` file list and the deterministic-probe HALT-scoping clause (both CEO/ship-judgment-relevant, not doer-craft).
+5. Execution path: 3 copilot worker attempts failed (lcd01-surgery-0715 killed by prior session's cleanup = env; lcd01-surgery-0716 credit-cap death after context-read, zero edits) → executed by a Claude-side Opus subagent under Rutvik's 2026-07-16 in-chat GO (copilot untrusted this session); dispatcher verified the full diff personally before this closure.
+
+**Downstream**: landing zones for LCD_02/LCD_05 now exist (doctrine index + pointer pattern). `/delegation-temp` §Graduation: LCD_01 done; skill deletes when LCD_02 + LCD_03 also land.

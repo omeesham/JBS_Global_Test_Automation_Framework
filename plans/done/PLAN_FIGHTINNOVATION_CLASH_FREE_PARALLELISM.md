@@ -1,5 +1,6 @@
 ---
-**Status**: PENDING (read-only fight → design doc. ZERO CUD. Nothing builds/implements until Rutvik's separate go.)
+**Status**: DONE
+**Executed**: 2026-07-13
 **Priority**: P0
 **Created**: 2026-07-13
 **Identity**: OWNER
@@ -83,7 +84,7 @@ The fight is deliberately structured so the whole rubric is covered, not just th
 - [x] Claude authored zero fighter proposals (referee-only) — proposals at `.claude/state/ua-worker/{fight-clash-opus,fight-clash-gpt,refute-opus,refute-gpt}/result.md`; Claude wrote only the ring/refute briefs + verdict synthesis.
 
 ## FIGHT OUTCOME (2026-07-13) — design chosen
-Both fighters **converged independently** and agreed all three tie-breaks after refutation. Full synthesis + scorecard: **[verdict.md](../../.claude/state/fightinnovation/clash-isolation/verdict.md)**.
+Both fighters **converged independently** and agreed all three tie-breaks after refutation. Full synthesis + scorecard: **[verdict.md](.claude/state/fightinnovation/clash-isolation/verdict.md)**.
 
 **Chosen architecture — "isolated worktree + inline gated convergence":**
 1. **Isolation** — worktree-per-session + NTFS junctions to existing `node_modules` (proven live on this machine).
@@ -101,3 +102,16 @@ Both fighters **converged independently** and agreed all three tie-breaks after 
 - **OQ5** the `alias claude=` wrapper only isolates if EVERY launch path (terminal/IDE/shortcut) routes through it.
 
 **Next (each its own explicit Rutvik go — nothing fires now):** implement the chosen design (protected control files → go + grants + 2-session LR-059 proof, close OQ1 first) · formalize `/fightinnovation` skill · Task 3 mega-audit.
+
+## Execution Summary
+
+- **Executed**: fight ran 2026-07-13; closure ceremony completed 2026-07-15 (run-order item #1 of PLAN_LAZY_CEO_DELEGATOR).
+- **TCs implemented**: 0 — design-only plan, ZERO CUD by design; no test cases in scope.
+- **TCs dropped**: 0 — none planned.
+- **MCP verification results**: n/a — no browser/live-app surface. Verification = artifact existence checks:
+  1. `.claude/state/fightinnovation/clash-isolation/verdict.md` exists (7,835 bytes, mtime 2026-07-13) — chosen architecture "isolated worktree + inline gated convergence", scored vs R1–R9, loser's surviving points + Guard-B OQ1–OQ5 recorded.
+  2. Fighter proposals + refutations exist on disk: `.claude/state/ua-worker/fight-clash-opus/result.md`, `.claude/state/ua-worker/fight-clash-gpt/result.md`, `.claude/state/ua-worker/refute-opus/result.md`, `.claude/state/ua-worker/refute-gpt/result.md`.
+  3. Zero CUD confirmed at fight time (CUD-check `byzg4hfcm`, per acceptance box 3).
+- **Documentation changes**: this plan body (FIGHT OUTCOME section) + verdict.md. No code, rules, or protected files edited.
+- **Test pass confirmation**: n/a — no specs owned or touched; LR-060 obligation 3 not triggered.
+- **Deferred (per plan §Deferred — each needs its own explicit Rutvik go)**: implementation of the chosen design (protected control files, OQ1 first), `/fightinnovation` skill formalization, LR-059 2-parallel-session proof, Task-3 mega-audit. Follow-on sequencing is owned by `plans/pending/PLAN_LAZY_CEO_DELEGATOR.md` (§MASTER RUN-ORDER).

@@ -2,7 +2,8 @@
 
 # MASTER PLAN: Repo Remediating & Client Delivery
 
-**Status**: PENDING
+**Status**: SUPERSEDED
+**Superseded by**: plans/pending/PLAN_LOSSLESS_DEEP_TRIM.md (2026-06-12 deep-trim disposition; per-item table in SUBPLAN_TRIM_02 Execution Summary)
 **Created**: 2026-04-16
 **Priority**: P1-CYCLE-2
 **Parent**: none (master)

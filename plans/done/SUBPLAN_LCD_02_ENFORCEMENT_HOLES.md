@@ -1,6 +1,7 @@
 # SUBPLAN_LCD_02_ENFORCEMENT_HOLES — Close Bash/read/.md legwork holes
 
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-07-13
 **Identity**: OWNER
@@ -41,7 +42,7 @@ Address the PRIMARY cause of delegation regression (delegation-audit-B): Bash, r
    - WARN patterns (delegable legwork): `npx playwright`, `npm test`, `npm run (test|lint|check)`, `playwright-cli`, commands >200 chars with repo source paths, pipe chains with 2+ `grep`/`rg`, `rg -r`/`grep -r` with >50 char patterns
    - EXEMPT patterns (CEO peek): single `cat`/`head`/`grep` ≤1 file, `git log`/`diff`/`status`, `scorecard.mjs`, `copilot-worker.sh` (the dispatch), `ls`/`dir`, `echo`, hook/delegation file inspection
    - Action on WARN: emit `permissionDecision: "allow"` + `permissionDecisionReason` with nudge text
-   - Session counter: increment in `~/.claude/state/session-bash-nudges.json` (keyed by session_id)
+   - Session counter: increment in `C:SERSUTVI.CLAUDESTATESESSION-BASH-NUDGES.JSON` (keyed by session_id)
    - At count ≥3: escalated nudge text referencing self_incidents.log + Receipt audit
    - Counter RESETS on dispatch detection (Bash containing `copilot-worker.sh --ticket`)
 
@@ -106,3 +107,31 @@ Address the PRIMARY cause of delegation regression (delegation-audit-B): Bash, r
 - Delete `~/.claude/hooks/delegation-nudge.mjs` (new file — no git checkout needed, just delete)
 - Restore `~/.claude/settings.json` from backup: `cp ~/.claude/settings.json.bak ~/.claude/settings.json` — **`git checkout` does NOT work** for `~/.claude/` files
 - Restore `~/.claude/hooks/delegation-gate.mjs` from backup: `cp ~/.claude/hooks/delegation-gate.mjs.bak ~/.claude/hooks/delegation-gate.mjs` — **`git checkout` does NOT work** for `~/.claude/` files
+
+---
+
+### Execution Summary
+
+**Executed 2026-07-16** — council-executed (copilot opus-4.6 + gpt-5.5), Claude-side Opus staging build, owner-authorized apply (Rutvik in-chat "I allow u to do it", 2026-07-16).
+
+**Deliverables landed:**
+1. **Phase 1 — delegation-nudge.mjs**: built by copilot opus-4.6 over 3 attempts (R1 credit-cap death at 60cr; R2 completed the 10-case battery at 100cr; R3 fixed the install-location telemetry default — `__dirname`-derived REPO_ROOT breaks when the hook moves from repo staging to `~/.claude/hooks/`; now cwd-derived at WARN time). Final battery 11/11 — re-run independently by the dispatcher (`.claude/state/ua-worker/lcd02-nudge-0716-artifacts/run-tests.verify.txt`). Cross-provider adversarial review (gpt-5.5, run lcd02-nudge-review-0716): **GREEN — installable as-is** (`.claude/state/ua-worker/lcd02-nudge-review-0716-artifacts/verdict.md`). Installed at `~/.claude/hooks/delegation-nudge.mjs`, registered in settings.json (PreToolUse 9→10, backup `settings.json.bak-lcd02`).
+2. **Phases 2+3+4 — delegation-gate.mjs v5**: .md worker-surface advisory (WARN-only), SELF_GRANT ticket/plan-anchor validation, doctrine paths (`.claude/rules/`, `docs/read_only_docs/`, `.claude/skills/**/SKILL.md`) added to PROTECTED. Built by Claude-side Opus subagent in scratchpad staging with 19/19 offline probes; installed via the owner-authorized APPLY ceremony.
+3. **Folded riders (dispatcher-approved)**: PBUG-08 gate-fires telemetry (live — CSV verdicts landing in `.claude/state/gate-fires.log`), PBUG-09 identity-last fix, /assistants master-switch wiring (OFF = Claude-solo harness, ON = CEO harness).
+
+**Verification results (plan Phase 5, items 6–10):**
+1. Item 6 (nudge fires): live probe on the INSTALLED hook → allow + `delegation-nudge [1 this session]…` + CSV announce in `.claude/state/gate-fires.log`; additionally observed firing in-harness on the dispatcher's own `npm run` Bash call (session 92727b65).
+2. Item 7 (CEO peek silent): single-file `cat` probe → allow, no reason emitted.
+3. Item 8 (.md advisory): Edit probe on `clients/encore/tests/foo.md` → allow + worker-surface advisory + announce telemetry.
+4. Item 9 (grant tightening): grant with anchor-less justification → deny citing missing TICKET/PLAN/SUBPLAN anchor.
+5. Item 10 (pipeline unbroken): `npm run check:tc-parity` → exit 0, PASS.
+6. Master-switch battery: 8/8 — assistants OFF → source edit allowed; ON → denied; PROTECTED (gate file itself) denied in BOTH modes; real assistant-state restored to ON after probing.
+
+**Deviations:**
+- APPLY-LCD02.cmd shipped with LF line-endings + a cmd parser defect in its Step-3 block; steps 3–5 were completed manually 1:1 with the reviewed script (PowerShell), every placed hook `node --check` clean. Live hooks were verified untouched before the retry.
+- The telemetry-default defect was FOUND by live install verification after a GREEN review — the reviewer had flagged it as advisory ADV-2; dispatcher initially mis-dispositioned. Lesson recorded in dispatcher-lessons (install-location vs `__dirname`).
+- ADVISORY backlog (non-blocking, for future hardening): WARN regexes are case-sensitive; the gate emits an informational allow-note when assistants=OFF (cosmetic).
+
+**Documentation changes:** none-needed — hook file headers carry Sev class + graduating incident per LR-069; the skill/rule layer already documents the switch semantic (`.claude/skills/assistants/SKILL.md`, rewritten 2026-07-16).
+
+**Test pass confirmation:** 11/11 nudge battery + 8/8 live master-switch probes + `check:tc-parity` exit 0 — all 2026-07-16.

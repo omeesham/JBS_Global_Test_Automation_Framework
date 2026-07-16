@@ -1,6 +1,7 @@
 # PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY — Copilot workforce replicates EVERYTHING Claude has on this PC
 
-**Status**: IN-FLIGHT (wave 1 dispatched by Fable 2026-07-12; Opus continues)
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0-EMERGENCY
 **Created**: 2026-07-12
 **Identity**: OWNER
@@ -44,7 +45,7 @@ Until now Claude was the driver with access to everything (skills, rules, hooks,
 - **v2 skills-design STILL IN-FLIGHT** (foreign session, slot-314, opus-max) — owns the skills-routing sub-component. My design integrates it, does NOT re-author it; HARD no-clobber constraint on shared control files until v2 lands.
 - **Authored (Opus, innovation-core):**
   - [SUBPLAN_PARITY_INJECTION_SYSTEM.md](SUBPLAN_PARITY_INJECTION_SYSTEM.md) — 3 dispatcher-side mechanisms (M1 path-glob→DOCTRINE, M2 ticket-mode scanner + rule/memory inject, M3 worker-rules-extract preamble) + verification layer + v2 reconciliation. GATED.
-  - [SUBPLAN_PARITY_BUGFIXES.md](SUBPLAN_PARITY_BUGFIXES.md) — 10 verified bugs, grouped by protected file. GATED.
+  - `plans/done/SUBPLAN_PARITY_BUGFIXES.md` — **DONE 2026-07-16**, 10 verified bugs fixed (2 refuted untouched): wrapper batch + uplink hardening (19/19) + gate v5 riders (PBUG-08 telemetry live in gate-fires.log from both gates, PBUG-09 identity-last); grants superseded by direct owner in-chat authorization.
 
 **DECISION SURFACE FOR RUTVIK (the only things needing you):**
 1. Go/no-go on protected-file edits (wrapper, gates, DUTY_STACK, agent briefs) + issue SELF_GRANTs — nothing implements without this.
@@ -109,3 +110,20 @@ Reports land at `~/.claude/delegation/reports/<run-id>.report.md`; ledger rows i
 - [ ] After implementation: a canary dispatch PROVES a worker received skill+rule+memory injection matched to its ticket (report echo + ledger evidence) — LR-059 real-E2E, no simulation
 - [ ] In-flight skills-access work found and folded in (or explicit NOT-FOUND recorded)
 - [ ] Staging dir cleaned up; nothing SECRET-tier committed (verify `git status` clean of parity-staging before any commit)
+
+---
+
+## Execution Summary
+
+**Closed 2026-07-16 as the parent-cascade of its last child: both implementation children DONE (`plans/done/SUBPLAN_PARITY_BUGFIXES.md` 2026-07-16; `plans/done/SUBPLAN_PARITY_INJECTION_SYSTEM.md` 2026-07-16).**
+
+### Acceptance criteria — final disposition
+- **Recon/design artifacts**: 5 of 6 exist in `.claude/state/parity-recon/` (CLAUDE_CAPABILITY_INVENTORY, COPILOT_WORKER_RUNTIME_INVENTORY, PLANS_AND_INFLIGHT_MAP, DELEGATION_STACK_BUGS, PARITY_GAP_MATRIX — all cross-family reviewed, bounce-fixed, verdicts in body line 63). The 6th (INJECTION_SYSTEM_DRAFT) was deliberately HELD/SUPERSEDED (body line 38): innovation-class design authored directly by Claude as SUBPLAN_PARITY_INJECTION_SYSTEM — documented decision, not a gap.
+- **Bug findings dispositioned**: 12 findings → 10 fixed via SUBPLAN_PARITY_BUGFIXES (done), 2 refuted with reviewer evidence untouched.
+- **Design approved + implementation subplans**: both children existed in plans/pending/ and are now DONE; protected-file edits carried Rutvik's in-chat GOs (2026-07-16) + SELF_GRANT ceremony.
+- **Canary proof (LR-059)**: run `pinj-canary-0716` + `-r2` — worker received per-ticket skill (`/find-bugs` SKILL.md via M2) + rule (4 `.claude/rules/*.md` via M1) injection it was NOT hand-given (pre-injection snapshot diff), followed the methodology (6/6 SFDPOT in findings.md), and echoed every path in DOCTRINE_READ (`PINJ-ECHO: OK`); ledger rows + `.claude/state/gate-fires.log` PINJ-VERIFY telemetry. Memory-layer parity ships as the M3 standing worker-rules-extract inlined into the DUTY-STACK contract (child's documented design: curated static extract, not per-dispatch memory matching).
+- **Skills-access work found + folded**: PLAN_WORKER_SKILL_ROUTING (the commissioned work) found by wave-1 sweep, integrated (M2 scanner + registry consumed, never duplicated), and closed DONE 2026-07-16.
+- **Staging cleanup**: `.claude/state/parity-staging/` (196-file SECRET-tier snapshot) deleted 2026-07-16 per body step 7 — verified gitignored and never committed (`git log --all` empty for the path) before deletion; originals all live in the home dirs.
+
+### Net outcome
+Of the 11 MISSING context layers (worker runtime inventory §329), the dispatcher-side injection engine now closes the load-bearing ones per-dispatch: path-glob→rules (M1), goal→skill methodology (M2, canary-proven), house-rules/memory extract (M3, wired into every ticket-mode prompt). Verification layers live announce-tier: reviewer §PINJ evidence-signature check + verifier §PINJ-VERIFY echo check + calibration log for the LR-069 ramp.

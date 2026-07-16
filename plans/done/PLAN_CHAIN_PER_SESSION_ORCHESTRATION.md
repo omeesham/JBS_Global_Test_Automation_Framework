@@ -1,6 +1,7 @@
 # PLAN: /chain Per-Session Orchestration with Stop-Hook /final-q Gating
 
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-04-23 (landed) / 2026-07-16 (closure paperwork)
 **Priority**: P0-CYCLE-1
 **Created**: 2026-04-22
 **Parent**: (root — framework infra)
@@ -85,12 +86,12 @@ Existing infra to extend (not replace):
 | D17 | **Conservative model + thinking selection (universal rule).** **Per-model effort tiers (from `claude --help` + Claude Code docs `code.claude.com/docs/en/model-config`, verified 2026-04-23):** Opus 4.7 supports **5 levels**: `low, medium, high, xhigh, max`. Sonnet 4.6 supports **3 effective levels**: `low, medium, high` (CLI also accepts `max` but it silently clamps to `high` on Sonnet, so we treat Sonnet as 3-tier to avoid wishful-thinking authoring). Haiku does not support effort at all. **Silent-clamp behavior**: passing an unsupported level (e.g., `--effort xhigh` on Sonnet) clamps DOWN to highest supported level — no error. Internal authoring scale matches CLI 1:1: `lo=low`, `mid=medium`, `hi=high`, `xhi=xhigh`, `max=max`. **Sonnet** allowed: `mid` (mechanical work only — INDEX regen, file moves, tag rollouts) or `hi` (general default). **Sonnet `lo` and `max` are FORBIDDEN** (lo = under-thinking; max is a clamped no-op). **Opus** allowed: `hi` (low-complexity Opus), `xhi` (default — most Opus work), or `max` (RCA, exit audits, multi-rule judgment). **Opus `lo` and `mid` are FORBIDDEN** (if a task is small enough for Opus mid, promote it to Sonnet hi instead). Rationale per user 2026-04-22: "always better to burn budget of tokens via better models and think than save it and have trouble later debugging." | Eliminates under-thinking on judgment-heavy tasks. Tier counts are evidence-based (docs + CLI probe). Sonnet's 3-tier ceiling is a deliberate authoring contract, not a model limitation — keeps the rubric honest. |
 | D18 | `/planning` skill SKILL.md Step 6 is amended: every new subplan MUST declare `**Model**:` and `**Thinking**:` in its frontmatter, with values from the D17 scale. The bootstrap block template is updated to include lookup of these fields. The `/planning` skill validation pass adds a new checklist item: "Model + Thinking selected per D17 rubric — no Sonnet `lo`, no Opus `lo`/`mid`. If Sonnet `mid`, the subplan body justifies why the task is mechanical." | Without this, new subplans drift back to "default medium" and the orchestrator can't enforce conservative defaults. The rule lives at authoring time, not runtime. |
 | D19 | Model + Thinking Selection Rubric (D17 lookup table — see new §Model + Thinking Selection Rubric below) is the canonical authoring guide. Embedded in `/planning` SKILL.md, referenced from `CLAUDE.md` LR section as a new framework rule (LR-041 — proposed; final number assigned at execution time per LR-020). | Centralizes the rubric so it survives re-reads of stale plans. |
-| D20 | **Stop-hook firing in `claude -p` mode is a Phase-0 spike, not an assumption.** Before any orchestrator code is written, Step 0 of execution is: spawn `nohup claude -p "echo hello" > /tmp/spike.log 2>&1 &`, observe whether `final-q-gate.sh` fires (instrument it temporarily to write a heartbeat to `.claude/state/spike-heartbeat.txt`), confirm or refute. If hooks DON'T fire in `-p`, fall back to one of: (a) `claude` interactive with `--permission-mode auto` + a session-end signal in the prompt, (b) `mcp__scheduled-tasks__create_scheduled_task` with 0 delay as the spawn primitive, (c) PowerShell `Start-Job` wrapping interactive `claude`. | Evidence-driven design — no orchestration code lands until the trigger mechanism is verified. |
+| D20 | **Stop-hook firing in `claude -p` mode is a Phase-0 spike, not an assumption.** Before any orchestrator code is written, Step 0 of execution is: spawn `nohup claude -p "echo hello"` redirected to a temp spike log, observe whether `final-q-gate.sh` fires (instrument it temporarily to write a heartbeat file in the state dir), confirm or refute. If hooks DON'T fire in `-p`, fall back to one of: (a) `claude` interactive with `--permission-mode auto` + a session-end signal in the prompt, (b) `mcp__scheduled-tasks__create_scheduled_task` with 0 delay as the spawn primitive, (c) PowerShell `Start-Job` wrapping interactive `claude`. | Evidence-driven design — no orchestration code lands until the trigger mechanism is verified. |
 | D21 | **Per-batch counter `executedThisBatch` + `batchCap` added to state schema.** `executedThisBatch` resets to 0 on every `/chain` and `/chain resume`. `batchCap` set to `dailyCap` (10) on `/chain` start, `resumeCap` (5) on every `/chain resume`. Cap check is `executedThisBatch < batchCap` AND `executedToday < dailyCap` AND `executedThisWeek < weeklyBudget` (all three must pass). | Without per-batch tracking, the resume cap is unenforceable after a daily-cap pause. |
 | D22 | **State writes are flock-protected.** Every read-modify-write of `chain.json` wraps in `flock .claude/state/chain.lock`. Lock file added to `.gitignore`. `flock` is available in Git Bash via util-linux package; if unavailable on a given Windows install, fallback is mkdir-based atomic locking (`mkdir .claude/state/chain.lock.d` returns nonzero if exists). | Two hooks can fire near-simultaneously (e.g., user's interactive session ends while a background subplan also ends); without locking, one update is lost. |
 | D23 | **Verdict regex anchored on `## /final-q audit` heading.** Parse: find LAST occurrence of `^## /final-q audit` in the transcript, then within the next 30 lines look for `^\*\*Verdict\*\*:[[:space:]]*(GREEN\|YELLOW\|RED)\b`. Take that match. If no `## /final-q audit` heading exists in transcript, treat as `NONE` → pause with reason `verdict-missing`. | Eliminates false positives from chat text mentioning "verdict" or stale earlier verdicts. Authority is the audit block, not free-form mentions. |
 | D24 | **Day/week counters incremented at SPAWN time (not completion time).** A subplan spawned at 23:59 Sunday counts toward Sunday's daily total and that week's weekly total, even if it completes at 00:01 Monday. | Removes ambiguity at boundaries; matches "what we committed to do today" semantics. |
-| D25 | **Precondition before chain ever runs: verify `/execute` SKILL.md performs `git mv` (not `mv`) + `npm run plans:reindex` + activity-log row.** Evidence as of 2026-04-22: `/execute` SKILL.md line 173 says `mv plans/pending/PLAN_XXX.md plans/done/PLAN_XXX.md` (plain `mv`, not `git mv`) and contains zero references to `plans:reindex`. This is a **pre-existing gap in `/execute`** that violates LR-035 (INDEX auto-regen). Chain orchestration depends on `/execute` doing its closure work; therefore Step 0b of execution is to patch `/execute` SKILL.md before any chain code lands. | Verified by grep on 2026-04-22 — see Bash output in /review trail. Don't fix this in `/chain` — fix it in `/execute` where it belongs. |
+| D25 | **Precondition before chain ever runs: verify `/execute` SKILL.md performs `git mv` (not `mv`) + `npm run plans:reindex` + activity-log row.** Evidence as of 2026-04-22: `/execute` SKILL.md line 173 uses a plain `mv` for the pending→done plan move (not `git mv`) and contains zero references to `plans:reindex`. This is a **pre-existing gap in `/execute`** that violates LR-035 (INDEX auto-regen). Chain orchestration depends on `/execute` doing its closure work; therefore Step 0b of execution is to patch `/execute` SKILL.md before any chain code lands. | Verified by grep on 2026-04-22 — see Bash output in /review trail. Don't fix this in `/chain` — fix it in `/execute` where it belongs. |
 | D26 | **`acceptEdits` and `auto` permission-modes do NOT bypass destructive operations.** `acceptEdits` auto-confirms file edits; destructive ops (rm -rf, git push --force, dropping DB tables) still require explicit confirmation per CLAUDE.md "Executing actions with care". A subplan that wants `bypassPermissions` MUST declare `**RiskAcknowledged**: true` in its frontmatter; orchestrator refuses to spawn `bypassPermissions` without this field. | Belt-and-suspenders: permission-mode is the harness gate; RiskAcknowledged is the chain-layer gate. Both must agree before destructive autonomy is granted. |
 | D27 | **`.gitignore` additions extended.** Final list: `.claude/state/*.json`, `.claude/state/*.log`, `.claude/state/*.lock`, `.claude/state/chain.STOP`, `.claude/state/chain-sessions/`, `.claude/state/chain-archive/` (preserve `.claude/state/.gitkeep`). | Covers all runtime artifacts including the new lock file (D22) and archive dir (D11). |
 
@@ -202,7 +203,7 @@ Existing infra to extend (not replace):
 Files alongside in `.claude/state/`:
 
 - `chain-sessions/<SUBPLAN>.log` — stdout/stderr from each spawned session (gitignored).
-- `chain-sessions/PAUSE_NOTICE.md` — overwritten on every pause; what user sees on next `/chain status`.
+- `.claude/state/chain-sessions/PAUSE_NOTICE.md` — overwritten on every pause; what user sees on next `/chain status`.
 - `chain.STOP` — panic kill marker; presence aborts chain on next hook fire; auto-deleted after abort.
 
 ---
@@ -271,7 +272,7 @@ Files alongside in `.claude/state/`:
    Chain started.
    Queued: 7 subplans (capped at dailyCap=10)
    First subplan: SUBPLAN_DQU_02_B1_LOS_NEUTRAL_EYE_AUDIT.md (PID 12345)
-   Log:    .claude/state/chain-sessions/SUBPLAN_DQU_02_B1_LOS_NEUTRAL_EYE_AUDIT.log
+   Log:    .claude/state/chain-sessions/<SUBPLAN>.log (gitignored runtime artifact, per D27)
    Status: tail -f .claude/state/chain-sessions/*.log
    Stop:   touch .claude/state/chain.STOP
    ```
@@ -290,7 +291,7 @@ Files alongside in `.claude/state/`:
 
 1. Read `chain.json`.
 2. Print summary table: each subplan row with status, verdict, PID, log path.
-3. If `status=paused`, print contents of `chain-sessions/PAUSE_NOTICE.md`.
+3. If `status=paused`, print contents of `.claude/state/chain-sessions/PAUSE_NOTICE.md`.
 4. Print budget: `executedToday / dailyCap (or resumeCap)`, `executedThisWeek / weeklyBudget`, next reset times.
 5. No state changes.
 
@@ -516,7 +517,7 @@ Mapping to CLI when spawning:
 
 **Phase 0 spike (BLOCKS all other implementation per D20)**:
 
-0a. **Stop hook fires in `claude -p` mode?** Instrument `final-q-gate.sh` to write `.claude/state/spike-heartbeat.txt` with current epoch on every invocation. Run: `nohup claude -p "say hello" > /tmp/spike.log 2>&1 &`. Wait for spike.log to populate. Check heartbeat file. PASS = file exists with timestamp ≥ spike start. FAIL = redesign spawn primitive (D20 fallback options).
+0a. **Stop hook fires in `claude -p` mode?** Instrument `final-q-gate.sh` to write a heartbeat timestamp file in the state dir on every invocation. Run `nohup claude -p "say hello"` redirected to a temp spike log. Wait for the log to populate. Check the heartbeat file. PASS = file exists with timestamp ≥ spike start. FAIL = redesign spawn primitive (D20 fallback options).
 
 0b. **`/execute` precondition met?** Grep `.claude/skills/execute/SKILL.md` for `git mv` AND `plans:reindex`. PASS = both present. FAIL = patch per D25 before any chain code lands.
 
@@ -527,7 +528,7 @@ Mapping to CLI when spawning:
 After implementation (only proceed past this point if 0a-0d all PASS):
 
 1. **Unit-level (no real chain)**:
-   - `bash .claude/hooks/chain-orchestrator.sh < test/fixtures/stop-hook-input.json` with no `chain.json` → exits 0, no side effects.
+   - `bash .claude/hooks/chain-orchestrator.sh` fed a stop-hook-input fixture with no `chain.json` → exits 0, no side effects.
    - Same with `chain.json` status=paused → exits 0, no spawn.
    - Same with status=running + transcript containing `**Verdict**: GREEN` → updates state, mock-spawns (replace `nohup claude` with `echo`).
 
@@ -632,3 +633,31 @@ After implementation (only proceed past this point if 0a-0d all PASS):
 ## Open questions
 
 None blocking. All prior questions resolved via offline evidence + locked-decision rationale. If user wants to override any of D28-D31, they can flag before `/execute`.
+
+---
+
+### Execution Summary
+
+**Closed**: 2026-07-16 — **the plan is fully landed, deployed, and battle-tested; this closure is paperwork catching up with reality** (navigation.md line 95 already recorded it "Complete, landed 2026-04-23"). Closure evidence gathered by a read-only Claude-side Opus verification pass (2026-07-16) over every declared deliverable; the chain runtime itself was left untouched (PAUSED, HELD by user, NM2305 armed — read-only inspection only).
+
+- **TCs implemented**: 0 — none planned (framework-infrastructure plan; no TC scope).
+- **TCs dropped**: 0 — n/a.
+- **MCP verification**: n/a — no live-site scope.
+- **Test pass confirmation**: runtime evidence instead of a spec suite — two archived real chain runs in `.claude/state/chain-archive/` (2026-04-23, incl. SP-DQU-06) plus the live NM2305 chain state (`.claude/state/chain.json` status `paused`, PAUSE_NOTICE.md + session log present), and `parse-verdict.mjs --self-test` embedded cases.
+- **Documentation changes**: `.claude/skills/chain/SKILL.md` (full sub-command dispatch), `.claude/skills/INDEX.md` chain row, `.claude/skills/final-q/SKILL.md` D23 note, `.claude/skills/planning/SKILL.md` D18 gate, `.claude/skills/execute/SKILL.md` D25 git-mv+reindex, `.claude/context/navigation.md` rows 56/57/95, LR-041 authored in `.claude/rules/pipeline.md`.
+
+**Deliverables landed (all verified on disk 2026-07-16)** — NEW: `.claude/state/.gitkeep`, `.claude/hooks/chain-orchestrator.sh` (evolved: D1/D5/D7/D8/D10/D17/D21-D26/D29 + post-plan hardening), `.claude/hooks/chain-pause-notice.sh` (D28, wired SessionStart), `.claude/hooks/lib/chain-state.sh`, `.claude/hooks/lib/chain-guards.sh`, `.claude/skills/chain/SKILL.md`, plus implementation-chosen node backends `.claude/hooks/lib/chain-state.mjs` + `.claude/hooks/lib/parse-verdict.mjs`. MODIFIED: `.claude/settings.json` (Stop + SessionStart wiring), `.gitignore` (chain state entries + extensions), the five skill/docs files above, root `CLAUDE.md` (LR-041 reference; `/chain` routing lives in `.claude/skills/INDEX.md` — structural relocation, not a gap).
+
+**Drifts — resolved differently than written (LR-020 disposition, not defects)**:
+1. `final-q-gate.sh` ordering assumption (D3/D13) — that hook was deleted 2026-04-23 (LR-042 §A); `chain-orchestrator.sh` is now the FIRST Stop hook; enforcement moved to `/execute` Phase 4 + pause-on-verdict-NONE.
+2. jq-based state helpers (D22) — jq unavailable on this box; helpers are node-backed (`chain-state.mjs`), renamed `cs_get/cs_set/cs_inc/cs_pause`.
+3. bash `parse_verdict` (D5/D23) — superseded by `parse-verdict.mjs` (JSONL support, `--owns-subplan` RC-2 guard, atomic `--record-outcome`).
+4. `--thinking` flag → `--effort` (self-corrected in-plan D7/D17; runtime uses `map_effort_for_cli`).
+5. `claude-opus-4-7` → `claude-opus-4-8` (LR-041 bump 2026-06-05).
+6. `check_allowlist` in chain-guards.sh — deliberately deleted 2026-07-16 as dead code (PBUG-11), not drift.
+
+**Post-plan hardening (landed after the plan, recorded so the summary matches reality)**: SP-CCE-05 idempotency spawn-markers + double-fire SHA-256 guard + atomic record/prep + fail-closed policy (2026-04-27); LR-042 §C RC-1 `MSYS2_ARG_CONV_EXCL` path-mangling guard + RC-2 session-ownership guard (2026-07-07); PLAN_UPLINK_PROTOCOL P5.3 uplink `## ASK` surfacing in PAUSE_NOTICE (2026-07-12); adjacent growth: `/chain_audit` skill + `chain-audit.json` + `chain-sessions-green/`, COMPLETE_NOTICE done-path.
+
+**Spun-out items (LR-040(b) recipients verified)**: D30 DQU 35-subplan Model/Thinking/PermissionMode retrofit → downstream SP under PLAN_DELIVERABLE_QUALITY_UPGRADE (explicitly out of scope here, recorded in §Locked decisions); SP-CCE-05 → already landed in `plans/done/`.
+
+**Why closed without re-execution**: re-running the phases as written would rebuild already-shipped hooks and REGRESS the RC-1/RC-2/idempotency/uplink hardening with the plan's first-draft implementations. Verification chain: Claude-side Opus read-only verifier (per-deliverable table, 2026-07-16) + dispatcher spot-checks; chain runtime untouched throughout.

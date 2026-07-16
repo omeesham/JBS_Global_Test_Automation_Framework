@@ -1,6 +1,7 @@
 # SUBPLAN_LCD_05_LEARNING_LANES — Lesson-router + CEO/worker lane split + membrane
 
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-07-16
 **Priority**: P0
 **Created**: 2026-07-13
 **Identity**: OWNER
@@ -34,7 +35,7 @@ Today, ONE loop (`/reflect` + `/compile-learnings`) writes every lesson into Cla
 
 ### Phase 1 — Define the lesson-router classification
 
-1. Add to `~/.claude/delegation/lesson-router.md` (new file, gitignored):
+1. Add to `C:\Users\rutvi\.claude\delegation\lesson-router.md` (new file, gitignored):
    ```markdown
    # Lesson Router — Classification Rules
    
@@ -69,7 +70,7 @@ Today, ONE loop (`/reflect` + `/compile-learnings`) writes every lesson into Cla
    - After capturing a mistake, apply the lesson-router classification
    - CEO-LANE mistakes → write to `~/.claude/memory/feedback_*.md` (existing behavior)
    - WORKER-LANE mistakes → write to `~/.copilot/agents/<agent-name>.agent.md` § Lessons
-   - SYSTEM-LANE mistakes → file as guardrail plan stub in `plans/pending/` (existing behavior per `reflect/SKILL.md:109`)
+   - SYSTEM-LANE mistakes → file as guardrail plan stub in `plans/pending/` (existing behavior per `.claude/skills/reflect/SKILL.md` (guardrail-stub step))
    - For WORKER-LANE: also write a verify-pointer to `dispatcher-lessons.md` (1 line only):
      ```
      VERIFY-POINTER: <rule-name>; worker must: <expected behavior>; check: <Parity Report field>
@@ -81,7 +82,7 @@ Today, ONE loop (`/reflect` + `/compile-learnings`) writes every lesson into Cla
 
 4. In `.claude/skills/compile-learnings/SKILL.md`, add a worker-lane scan step:
    - **NEW**: After scanning CEO pile (existing), scan `~/.copilot/agents/*.agent.md` § Lessons sections
-   - Graduate recurring worker patterns (3+ occurrences) to `~/.claude/delegation/worker-primer.md` (the universal worker primer from LCD_01)
+   - Graduate recurring worker patterns (3+ occurrences) to the worker-primer file in the home delegation dir (the universal worker primer from LCD_01; created on first graduation)
    - Worker-lane lessons NEVER graduate into `CLAUDE.md`, `LEARNED_RULES.md`, or any CEO-loaded file
    - Verify-pointers in `dispatcher-lessons.md` are pruned when the underlying worker lesson graduates (to prevent dispatcher-lessons growth)
 
@@ -90,7 +91,7 @@ Today, ONE loop (`/reflect` + `/compile-learnings`) writes every lesson into Cla
 5. Add size caps:
    - `dispatcher-lessons.md`: max 30 lines of verify-pointers. When exceeded, oldest pointers are pruned (the underlying worker lesson remains in the agent file).
    - Per-agent `*.agent.md` § Lessons: max 20 entries. When exceeded, `/compile-learnings` graduates the most common to `worker-primer.md` and prunes the agent file.
-   - `worker-primer.md`: max 80 lines total. Overflow triggers a trim pass (archive to `~/.claude/delegation/worker-primer-archive.md`).
+   - `worker-primer.md`: max 80 lines total. Overflow triggers a trim pass (archive to a worker-primer-archive file in the same dir, created on first overflow).
 
 ### Phase 5 — Verification
 
@@ -100,7 +101,7 @@ Today, ONE loop (`/reflect` + `/compile-learnings`) writes every lesson into Cla
    - NOT to `feedback_*.md` or `CLAUDE.md`
 7. Create a test scenario: simulate a "Claude failed to delegate verification" → confirm it routes to `feedback_*.md` (CEO lane)
 8. Verify `dispatcher-lessons.md` does NOT contain full technique/implementation details (only verify-pointers)
-9. Count lines: `wc -l ~/.claude/delegation/dispatcher-lessons.md` → ≤30
+9. Count lines: `wc -l` on the dispatcher-lessons file (home delegation dir) → ≤30 verify-pointer lines
 
 ---
 
@@ -115,5 +116,29 @@ Today, ONE loop (`/reflect` + `/compile-learnings`) writes every lesson into Cla
 ## Rollback
 
 - Revert `/reflect` and `/compile-learnings` SKILL.md changes via git
-- Delete `~/.claude/delegation/lesson-router.md`
+- Delete the lesson-router file from the home delegation dir
 - Dispatcher-lessons content is additive (verify-pointers are harmless; can be manually cleared)
+
+---
+
+## Execution Summary
+
+**Council-built (opus-4.6 `lcd05-build-0716`, clean first pass, 35/35 probes incl. the plan's Phase-5 routing simulation), gpt-5.5 cross-reviewed (`lcd05-review-0716` GREEN, independent 35/35 re-run + membrane leak-check clean, zero defects), applied by dispatcher 2026-07-16 under Rutvik's "continue on the plans one by one" directive.**
+
+### Phase 1 — Lesson router: DONE
+Router file (WHO-table, 9-row classification table, membrane rule + VERIFY-POINTER format, verbatim per plan lines 38-64) placed at `C:\Users\rutvi\.claude\delegation\lesson-router.md` via scoped SELF_GRANT ceremony (30min TTL, single-path, grants audit-logged). Staged source: `.claude/state/ua-worker/lcd05-build-0716-artifacts/lesson-router.staged.md`.
+
+### Phase 2 — /reflect: DONE
+`.claude/skills/reflect/SKILL.md` gains Step 2.5 (lane classification: CEO/WORKER/SYSTEM with destinations) + the HARD BAN ("Full worker technique may NEVER be written to dispatcher-lessons.md... Only 1 line maximum may cross the membrane") + Step-5 routing hook. Additive only — reviewer fingerprint: zero base headings removed. Git-tracked (rollback = git checkout).
+
+### Phase 3 — /compile-learnings: DONE
+`.claude/skills/compile-learnings/SKILL.md` gains Step 3.5 (worker-lane scan of agent § Lessons; 3+ recurrence graduates to worker-primer.md; never-graduate-to-CEO-files HARD CONSTRAINT; pointer pruning on graduation + [GRADUATED] tags).
+
+### Phase 4 — Size caps: DONE
+Step 4.6 cap table: dispatcher-lessons ≤30 pointer lines / agent § Lessons ≤20 entries / worker-primer ≤80 lines with archive overflow — enforcement step runs after every graduation pass.
+
+### Phase 5 — Verification: DONE
+Routing simulation (`route-sim.mjs`, tee in `probes.verify.txt`): "worker skipped LR-036" → generator agent-file § Lessons + 1-line pointer, NOT feedback_* (plan item 6 ✓); "Claude failed to delegate verification" → feedback_*.md CEO-lane (item 7 ✓); pointer-format lint on both skills (item 8 ✓); dispatcher-lessons verify-pointer count currently 0 ≤ 30 (item 9 ✓ — cap applies to pointer lines per Phase 4). Reviewer independently re-ran the full battery + simulation.
+
+### Deviations
+None. (Build R1 assumptions — generator-agent default, P5 scope, fs-module tee — dispatcher-accepted, recorded in ticket.)
