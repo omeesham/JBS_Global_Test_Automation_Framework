@@ -52,7 +52,7 @@ You are not talking to a human. You are talking to **another Claude Code agent**
 Before the startup sequence, verify the user has a working environment:
 
 1. Check `config/environments/.env.local` exists → if missing, follow the First-Time Setup in `CLAUDE.md`
-2. Check `config/environments/.env.server` exists → if missing, copy from `.env.server.example`
+2. Check `clients/encore/.env.server` exists → if missing, copy from `.env.server.example` in the same dir (root config/environments/.env.server removed per SUBPLAN_RCD_C_ENV_REPORTS_CRUFT 2026-07-16)
 3. Check Docker is running: `docker ps` should show `intelliqe_postgres`
 4. Check dependencies: `node_modules/` should exist in root, `website/frontend/`, and `website/backend/`
 

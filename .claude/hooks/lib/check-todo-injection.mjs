@@ -509,7 +509,7 @@ function handleValidate(payload, sessionId, transcriptPath) {
             `(${shortPath(targetPath)}). Matched: ${sample}. ` +
             "Required: add a BUG-XXX-NNN reference on the same line or an adjacent line " +
             "(e.g., `test.skip('TC-001', ...);  // BUG-LOC-SHR-001 — appears under role X only`). " +
-            "Bugs are filed via reports/bugs/BUG-{MOD}-{NNN}.json per LR-034. " +
+            "Bugs are filed via clients/<id>/reports/bugs/BUG-{MOD}-{NNN}.json per LR-034. " +
             "If no bug exists, file one first OR pick a non-skip fix. " +
             "Pre-existing skip/fixme lines (verbatim match in old_string or on-disk file) are grandfathered. " +
             "See .claude/skills/rca/SKILL.md § REJECT bucket → Class 3. " +

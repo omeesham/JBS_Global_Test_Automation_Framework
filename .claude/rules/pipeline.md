@@ -118,7 +118,7 @@ Every NEW subplan MUST declare in frontmatter:
 
 ## LR-044: Bug Verification Protocol — read verbatim → follow exactly → minimize
 
-Any agent (filer or verifier) interacting with a filed `reports/bugs/BUG-*.json` — verifying, RCAing, fixing, closing, skipping tests against, or surfacing in any report — follows this sequence. Filed bugs are tooling, NOT an oracle.
+Any agent (filer or verifier) interacting with a filed `clients/${ACTIVE_CLIENT}/reports/bugs/BUG-*.json` — verifying, RCAing, fixing, closing, skipping tests against, or surfacing in any report — follows this sequence. Filed bugs are tooling, NOT an oracle.
 
 1. **Read `stepsToReproduce` VERBATIM first** — no paraphrasing, no shortcuts, no "I think I know what they meant." Classical manual-QA discipline: the verifier starts by following the filer's exact recipe, not an improvised alternative.
 
@@ -405,7 +405,7 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
 - `/planning` Step 3 validation (cross-checks new plan against this section).
 - GARDENER sweeps periodically per `PLAN_PLANS_GARDENER_SWEEP.md`.
 
-**Graduated from**: 2026-04-29 — repo-wide auto-injection audit found 9 SP-DQU-12..20 subplans inconsistent in their Phase 0.5b structure (some had it, some didn't, until amended in the same audit). LR-048 prevents recurrence by codifying the minimum. Co-landed with `reports/bugs/**/*.json` glob added to `.claude/rules/baseline.md` paths frontmatter (closes the bug-filing auto-load gap so any agent editing a `BUG-*.json` sees `baselineComparison` per LR-034).
+**Graduated from**: 2026-04-29 — repo-wide auto-injection audit found 9 SP-DQU-12..20 subplans inconsistent in their Phase 0.5b structure (some had it, some didn't, until amended in the same audit). LR-048 prevents recurrence by codifying the minimum. Co-landed with `clients/${ACTIVE_CLIENT}/reports/bugs/**/*.json` glob added to `.claude/rules/baseline.md` paths frontmatter (closes the bug-filing auto-load gap so any agent editing a `BUG-*.json` sees `baselineComparison` per LR-034).
 
 ## LR-049: Ship-via-git-archive only — never `cp -r` for client delivery
 

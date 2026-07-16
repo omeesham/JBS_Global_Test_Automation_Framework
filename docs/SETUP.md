@@ -59,7 +59,10 @@ Passes = Navigator Cloud credentials are working.
 ## Step 7 — Full stack (optional, for website/UI work)
 
 ```bash
-cp config/environments/.env.server.example config/environments/.env.server
+# NOTE (SUBPLAN_RCD_C_ENV_REPORTS_CRUFT 2026-07-16): root config/environments/.env.server removed.
+# Server-side env config now lives at clients/encore/.env.server (gitignored per client .gitignore).
+# Copy from the example and fill in values:
+# cp clients/encore/.env.server.example clients/encore/.env.server  (if available)
 # Set ENCRYPTION_SECRET: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 cd website/frontend && npm install && cd ../..
 cd website/backend && npm install && cd ../..

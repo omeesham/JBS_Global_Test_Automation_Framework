@@ -2,7 +2,7 @@
 // check-bug-baseline.mjs — LR-034 baselineComparison enum gate (PreToolUse on Edit|Write|NotebookEdit).
 //
 // THE HOLE THIS CLOSES (GAP-C / RC-6)
-//   reports/bugs/BUG-*.json files accept a free-text `baselineComparison`. The
+//   clients/<id>/reports/bugs/BUG-*.json files accept a free-text `baselineComparison`. The
 //   2026-06-18 Pricing session filed BUG-LOC-PRI-001 with
 //   `"baselineComparison": "not-yet-verified"` — not even a valid LR-034 value —
 //   inverting the truth hierarchy (a bug classified before the baseline was walked).

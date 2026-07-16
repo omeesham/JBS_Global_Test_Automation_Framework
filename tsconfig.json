@@ -1,11 +1,11 @@
 /**
  * @agent-doc
- * PURPOSE: TypeScript compiler configuration for the framework. Defines compilation targets, module resolution, type checking strictness, and output settings.
+ * PURPOSE: TypeScript compiler configuration for the framework (framework-only scope — demoted per SUBPLAN_RCD_C_ENV_REPORTS_CRUFT 2026-07-16). Covers src/ (framework source) and pipeline/ only. Client tsconfig lives at clients/encore/tsconfig.json.
  * OWNER: human-only
- * IMPACT: critical - All TypeScript compilation depends on this. Breaking it prevents builds. Type checking rules affect code quality.
+ * IMPACT: critical - All TypeScript compilation for framework/pipeline depends on this. Breaking it prevents builds. Type checking rules affect code quality.
  * DEPENDS-ON: None (TypeScript built-in)
  * USED-BY: TypeScript compiler (tsc), VS Code IntelliSense, npm run typecheck
- * RULES: Never disable strict checks. Keep ES2022 target for modern features. Keep paths aligned with package.json. Changes require full rebuild and typecheck.
+ * RULES: Never disable strict checks. Keep ES2022 target for modern features. Keep paths aligned with framework/pipeline layout. clients/** excluded — each client has its own tsconfig. Changes require full rebuild and typecheck.
  */
 
 {
@@ -16,17 +16,14 @@
     "module": "commonjs",
     "moduleResolution": "node",
 
-    // Path aliases (multi-tenant — see PLAN_MULTI_TENANT_RESTRUCTURE).
-    // SP-MT-02: aliases point to final multi-tenant layout.
+    // Path aliases (framework-only — demoted per SUBPLAN_RCD_C_ENV_REPORTS_CRUFT 2026-07-16).
+    // @client/* and @client-tests/* removed; clients/encore has its own tsconfig.json.
     //   @framework/* resolves to framework src/
-    //   @client/* resolves to clients/encore/src/ (hardcoded ACTIVE_CLIENT=encore for SP-MT-02;
-    //     SP-MT-06 parameterizes this when a second client is onboarded).
-    //   @client-tests/* resolves to clients/encore/tests/
+    //   @pipeline/* resolves to pipeline/ (internal runtime)
     "baseUrl": "./",
     "paths": {
       "@framework/*": ["src/*"],
-      "@client/*": ["clients/encore/src/*"],
-      "@client-tests/*": ["clients/encore/tests/*"]
+      "@pipeline/*": ["pipeline/*"]
     },
     
     // Emit

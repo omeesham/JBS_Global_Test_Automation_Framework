@@ -140,7 +140,7 @@ export const OWNERSHIP_ROWS = [
     grants: { HUNTER: "READ", GIVER: "RW", BUILDER: "READ", HEALER: "READ", WATCHDOG: "READ", GARDENER: "READ", OWNER: "RW" },
   },
   {
-    pattern: "reports/bugs/BUG-*.json",
+    pattern: "clients/${ACTIVE_CLIENT}/reports/bugs/BUG-*.json",
     grants: { HUNTER: "READ", GIVER: "READ", BUILDER: "CREATE", HEALER: "CREATE", WATCHDOG: "READ", GARDENER: "READ", OWNER: "RW" },
   },
   {
