@@ -2,6 +2,8 @@ import { test, expect } from '../../src/fixtures/pages.fixture';
 import {
   CORP_PRICING_OVERRIDE,
   CORP_PRICING_OVERRIDE_FIXTURE,
+  CORP_PRICING_OVERRIDE_ACTIVE_BED,
+  CORP_PRICING_OVERRIDE_SORT_BED,
   OVERRIDE_NUMERIC_CASES,
 } from '../../src/data/corporate-pricing/override';
 import { saveAndVerifyCase } from '../../src/utils/field-case-runner';
@@ -205,7 +207,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     expect(/[a-z]/i.test(retained)).toBe(false); // type=number coerces non-numeric to "" — no alpha retained
   });
 
-  // BUG-CPR-OVR-001 — Max Discount % over 100 is rejected, but the field does not recover cleanly.
+  // Max Discount % over 100 is rejected, but the field does not recover cleanly.
   // Kept skipped. Re-verified live on office 1606 (2026-07-09): entering a value over 100 sets the input to
   // an invalid state (aria-invalid="true") and shows a red border — a real indicator, NOT silent — and the
   // editor refuses to commit the value. BUT the field still misbehaves on recovery: it will not dismiss when
@@ -214,7 +216,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
   // over-cap entry clamp to 100, or show an inline message and release the field?). Do NOT re-green the old
   // "did it commit? === false" assertion — that binary cannot tell a clean reject from this stuck state.
   // The valid boundary (values up to and including 100 commit) is covered separately by TC-CPR-OVR-037.
-  test.fixme('TC-CPR-OVR-023: Max Discount % — out-of-range (>100) handling [blocked: BUG-CPR-OVR-001 silent focus-trap; intended behavior unknown until fixed & live]', async ({ corporatePricingOverridePage: p }) => {
+  test.fixme('TC-CPR-OVR-023: Max Discount % — out-of-range (>100) handling [blocked: field enters a stuck state on out-of-range entry; intended behavior unknown until the defect is fixed and live]', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     // a normal percentage commits and dirties the form
     expect(await p.tryMaxDiscount(row!, OVERRIDE_NUMERIC_CASES.maxDiscount.edited)).toBe(true); // 10
@@ -222,7 +224,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
     // a decimal percentage commits
     expect(await p.tryMaxDiscount(row!, OVERRIDE_NUMERIC_CASES.maxDiscount.decimal)).toBe(true); // 12.5
     // >100: the editor does not commit — the OLD assertion below treated that as correct, but it is the
-    // bug surface (BUG-CPR-OVR-001: silent trap, no error, no escape). Re-assert real behavior once fixed.
+    // bug surface (silent trap: no error, no escape). Re-assert real behavior once fixed.
     expect(await p.tryMaxDiscount(row!, OVERRIDE_NUMERIC_CASES.maxDiscount.overHundred)).toBe(false); // 150
   });
 
@@ -494,5 +496,307 @@ test.describe('Corporate Pricing — Product Group Override: surface behavior (s
     const prices = await p.getCurrentPriceCells();
     expect(prices.length).toBeGreaterThan(0);
     for (const price of prices) expect(price).toMatch(/\d+\.\d{2}/); // a well-formed money value, never blank / missing
+  });
+});
+
+test.describe('Corporate Pricing — Product Group Override: Change Local Office picker search & Active filter @corporate-pricing @override', () => {
+  test('TC-CPR-OVR-039: Typing a partial office number narrows picker rows; clearing restores the full list', async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(90_000);
+    await p.reloadAndReselect(LOC);
+    await p.openLocationPicker();
+    let matchCount = 0;
+    await test.step('Search "1107" narrows the list to matching offices', async () => {
+      await p.searchLocalOffice('1107');
+      matchCount = await p.getPickerRowCount();
+      expect(matchCount).toBeGreaterThan(0); // at least one match
+      expect(await p.pickerHasRowContaining('1107')).toBe(true); // "1107" text visible in a row
+      expect(await p.getPickerRowCountContaining('1107')).toBe(matchCount); // every visible row matches the search query
+    });
+    await test.step('Clearing the search restores more rows than the filtered result', async () => {
+      await p.clearPickerSearch();
+      const afterClearCount = await p.getPickerRowCount();
+      expect(afterClearCount).toBeGreaterThan(matchCount); // clearing un-narrows: full list has more rows than the filtered result
+    });
+    await p.cancelLocationPicker(); // no location change
+    expect(await p.getVisibleRowCount()).toBeGreaterThan(0); // original location (1606) grid unchanged
+  });
+
+  // Known behavior (reviewer-confirmed): the server ignores the activeOnly parameter — both CHECKED
+  // and UNCHECKED states return the same location set. Office 1222 ("Hyatt Fairfax at Fair Lakes")
+  // is confirmed inactive yet never appears in either state. Opening the picker fires ≥1 POST
+  // (positive control proving the network listener works); toggling fires 0 POSTs — the Active
+  // checkbox is a client-side filter only. The toggle assertion will fail when the app is fixed.
+  test('TC-CPR-OVR-040: Picker Active checkbox defaults unchecked; toggling is a client-side filter — no location-lookup POST fires', async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(120_000);
+    await p.reloadAndReselect(LOC);
+    await test.step('Open picker — fires at least one location-lookup POST (positive control: listener works)', async () => {
+      const openProbe = await p.openLocationPickerAndCapturePost();
+      expect(openProbe.postFired, 'opening the picker must fire a location-lookup POST').toBe(true);
+      expect(openProbe.locationCount, 'POST response must carry at least one location').toBeGreaterThan(0);
+    });
+    await test.step('Active checkbox defaults to UNCHECKED on open', async () => {
+      expect(await p.getPickerActiveCheckboxState()).toBe(false);
+    });
+    await test.step('Toggle Active to CHECKED — no location-lookup POST fires (client-side filter; activeOnly has no server effect)', async () => {
+      const checkProbe = await p.toggleLocalOfficePickerActiveAndCapturePost();
+      expect(await p.getPickerActiveCheckboxState()).toBe(true);
+      // Real documented behavior: toggle is handled client-side — no POST fires.
+      // This assertion fails when the app is fixed to honor activeOnly server-side.
+      expect(checkProbe.postFired, 'toggle must NOT fire a location-lookup POST (Active checkbox is a client-side filter)').toBe(false);
+      expect(await p.getPickerRowCount(), 'list must still show rows after client-side toggle').toBeGreaterThan(0);
+    });
+    await test.step('Search "1107" composes with Active CHECKED — matching rows visible', async () => {
+      await p.searchLocalOffice('1107');
+      expect(await p.pickerHasRowContaining('1107')).toBe(true);
+    });
+    await test.step('Clear search; toggle Active back to UNCHECKED — still no location-lookup POST fires', async () => {
+      await p.clearPickerSearch();
+      const uncheckProbe = await p.toggleLocalOfficePickerActiveAndCapturePost();
+      expect(await p.getPickerActiveCheckboxState()).toBe(false);
+      expect(uncheckProbe.postFired, 'toggle-back must NOT fire a location-lookup POST').toBe(false);
+      expect(await p.getPickerRowCount()).toBeGreaterThan(0);
+    });
+    await test.step('Cancel discards picker state — original grid (1606) remains loaded', async () => {
+      await p.cancelLocationPicker();
+      expect(await p.getVisibleRowCount()).toBeGreaterThan(0);
+    });
+  });
+});
+
+test.describe('Corporate Pricing — Product Group Override: Active-only and text-filter effects (NM-2269) @corporate-pricing @override', () => {
+  // Office 1105 has 9 Equipment rows (7 active, 2 inactive — Camlok #1 and Camlok #2).
+  // This office is the only walk-verified bed with inactive rows for the Active-only effect tests.
+  test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(90_000);
+    // Per-test baseline: full reload + location re-select resets all filter state
+    // (Active-only OFF, Currency ALL, text filter empty).
+    await p.reloadAndReselect(CORP_PRICING_OVERRIDE_ACTIVE_BED.office);
+  });
+
+  // @fcc TC-CPR-OVR-042
+  test('TC-CPR-OVR-042: Active-only removes inactive rows and restores the full set on uncheck (NM-2269)', async ({ corporatePricingOverridePage: p }) => {
+    // Baseline: Active-only is OFF; all 9 rows are visible (7 active + 2 inactive)
+    expect(await p.getActiveOnlyState()).toBe(false);
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+
+    // Check Active-only — the two inactive product groups must disappear
+    await p.setActiveOnly(true);
+    await expect.poll(() => p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.activeOnlyRows);
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.activeOnlyRows);
+    expect(await p.findRowByProductGroup(CORP_PRICING_OVERRIDE_ACTIVE_BED.inactiveGroupName1)).toBeNull();
+    expect(await p.findRowByProductGroup(CORP_PRICING_OVERRIDE_ACTIVE_BED.inactiveGroupName2)).toBeNull();
+
+    // Uncheck Active-only — full set and the inactive rows must be restored
+    await p.setActiveOnly(false);
+    await expect.poll(() => p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+    expect(await p.findRowByProductGroup(CORP_PRICING_OVERRIDE_ACTIVE_BED.inactiveGroupName1)).not.toBeNull();
+    expect(await p.findRowByProductGroup(CORP_PRICING_OVERRIDE_ACTIVE_BED.inactiveGroupName2)).not.toBeNull();
+  });
+
+  // Office 1105 is USD-only (verified 2026-07-17: 9 Equipment rows, all USD).
+  // The selectCurrency PO method relies on ovrCurrencyDropdown ('button[role="combobox"]:has-text("ALL")'),
+  // which matches only when currency is currently ALL — safe for one call per test.
+  // Two-direction oracle: ALL shows rows; an absent currency shows 0. A filter that ignores
+  // its input cannot satisfy both assertions simultaneously.
+  test('TC-CPR-OVR-043: Currency filter yields the exact row count for the present currency, 0 for an absent currency, and restores the full set', async ({ corporatePricingOverridePage: p }) => {
+    // Direction 1: ALL (baseline reset by beforeEach) shows the full row set
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+
+    // Direction 2: selecting an absent currency must yield exactly 0
+    // (CAD has no rows on office 1105 — verified 2026-07-17; if filter ignores input it would stay at totalRows)
+    await p.selectCurrency(CORP_PRICING_OVERRIDE_ACTIVE_BED.absentCurrency);
+    await expect.poll(() => p.getVisibleRowCount(), { timeout: 30_000 }).toBe(0);
+    expect(await p.getVisibleRowCount()).toBe(0);
+  });
+
+  // @fcc TC-CPR-OVR-044
+  test('TC-CPR-OVR-044: Active-only and text filter applied simultaneously produce the correct intersection; filter order does not affect the result; resetting all restores the full row set (NM-2269)', async ({ corporatePricingOverridePage: p }) => {
+    // Phase A — text filter first, then Active-only on top
+    // Camlok filter alone: 2 rows (both Camlok rows are inactive)
+    await p.filterProductGroups(CORP_PRICING_OVERRIDE_ACTIVE_BED.textFilterCamlok);
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.camlokTotalRows);
+    // Add Active-only on top: Camloks are inactive, so intersection is 0 rows
+    await p.setActiveOnly(true);
+    await expect.poll(() => p.getVisibleRowCount()).toBe(0);
+    expect(await p.getVisibleRowCount()).toBe(0);
+
+    // Reset both filters (text filter first, then Active-only)
+    await p.clearFilter();
+    await expect.poll(() => p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.activeOnlyRows);
+    await p.setActiveOnly(false);
+    await expect.poll(() => p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+
+    // Phase B — Active-only first, then text filter (order independence: same intersection, different order)
+    await p.setActiveOnly(true);
+    await expect.poll(() => p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.activeOnlyRows);
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.activeOnlyRows);
+    await p.filterProductGroups(CORP_PRICING_OVERRIDE_ACTIVE_BED.textFilterCamlok);
+    // Camloks are inactive, Active-only still ON → 0 rows (same result as Phase A — order independent)
+    expect(await p.getVisibleRowCount()).toBe(0);
+
+    // Reset Active-only while text filter still active → inactive Camloks become visible again
+    await p.setActiveOnly(false);
+    await expect.poll(() => p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.camlokTotalRows);
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.camlokTotalRows);
+    // Clear text filter → full row set restored
+    await p.clearFilter();
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+  });
+});
+
+test.describe('Corporate Pricing — Product Group Override: grid text filter + sort effects (NM-2270) @corporate-pricing @override', () => {
+  // Office 1105: 9 Equipment rows total; walk-A certifies sort oracles and filter counts.
+  test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(90_000);
+    await p.reloadAndReselect(CORP_PRICING_OVERRIDE_SORT_BED.office);
+  });
+
+  // @fcc TC-CPR-OVR-045
+  test('TC-CPR-OVR-045: Text filter "Camlok" narrows the grid to matching rows; clearing restores the full set (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+    const PGN_COL = CORP_PRICING_OVERRIDE.columnIndex.productGroupName;
+
+    // Baseline: all 9 rows visible (walk-A certified for office 1105)
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+
+    // Apply filter — only the 2 Camlok rows survive
+    await p.filterProductGroups(CORP_PRICING_OVERRIDE_ACTIVE_BED.textFilterCamlok);
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.camlokTotalRows);
+
+    // Assert the specific Camlok product identities are the visible rows (not just count)
+    const filteredNames = await p.getColumnCellValues(PGN_COL);
+    expect(filteredNames).toContain(CORP_PRICING_OVERRIDE_ACTIVE_BED.inactiveGroupName1);
+    expect(filteredNames).toContain(CORP_PRICING_OVERRIDE_ACTIVE_BED.inactiveGroupName2);
+
+    // Clear filter — full 9-row set restores
+    await p.clearFilter();
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+  });
+
+  // @fcc TC-CPR-OVR-046
+  test('TC-CPR-OVR-046: Product Group Name column sort: ascending first cell matches walk oracle and order is non-decreasing; descending first cell matches walk oracle and order is non-increasing (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+    const PGN_COL = CORP_PRICING_OVERRIDE.columnIndex.productGroupName;
+
+    // Sort ascending via the header dropdown menu (walk-A: sort is a dropdown, not a header-click toggle)
+    await p.sortColumnViaDropdown('Product Group Name', 'ascending');
+    expect(await p.getFirstRowCellText(PGN_COL)).toBe(CORP_PRICING_OVERRIDE_SORT_BED.productGroupNameAscFirstCell);
+    const ascValues = await p.getColumnCellValues(PGN_COL);
+    for (let i = 1; i < ascValues.length; i++) {
+      expect(ascValues[i]!.localeCompare(ascValues[i - 1]!)).toBeGreaterThanOrEqual(0);
+    }
+
+    // Sort descending
+    await p.sortColumnViaDropdown('Product Group Name', 'descending');
+    expect(await p.getFirstRowCellText(PGN_COL)).toBe(CORP_PRICING_OVERRIDE_SORT_BED.productGroupNameDescFirstCell);
+    const descValues = await p.getColumnCellValues(PGN_COL);
+    for (let i = 1; i < descValues.length; i++) {
+      expect(descValues[i]!.localeCompare(descValues[i - 1]!)).toBeLessThanOrEqual(0);
+    }
+  });
+
+  // @fcc TC-CPR-OVR-047
+  test('TC-CPR-OVR-047: Product Group column sort: ascending values are non-decreasing; descending values are non-increasing — self-verifying monotonic oracle (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+    // Second sortable column: "Product Group" (numeric product group IDs, column index 1).
+    // Compared numerically — the app sorts these as numbers (e.g. 2 before 10), not as strings.
+    const PG_COL = CORP_PRICING_OVERRIDE.columnIndex.productGroup;
+
+    await p.sortColumnViaDropdown('Product Group', 'ascending');
+    const ascValues = await p.getColumnCellValues(PG_COL);
+    expect(ascValues.length, 'ascending sort must yield at least one row').toBeGreaterThan(0);
+    for (let i = 1; i < ascValues.length; i++) {
+      const prev = Number(ascValues[i - 1]!);
+      const curr = Number(ascValues[i]!);
+      expect(isNaN(prev), `ascending: row ${i - 1} cell "${ascValues[i - 1]}" should be numeric`).toBe(false);
+      expect(isNaN(curr), `ascending: row ${i} cell "${ascValues[i]}" should be numeric`).toBe(false);
+      expect(curr, `ascending: row ${i} (${curr}) must be ≥ row ${i - 1} (${prev})`).toBeGreaterThanOrEqual(prev);
+    }
+
+    await p.sortColumnViaDropdown('Product Group', 'descending');
+    const descValues = await p.getColumnCellValues(PG_COL);
+    expect(descValues.length, 'descending sort must yield at least one row').toBeGreaterThan(0);
+    for (let i = 1; i < descValues.length; i++) {
+      const prev = Number(descValues[i - 1]!);
+      const curr = Number(descValues[i]!);
+      expect(isNaN(prev), `descending: row ${i - 1} cell "${descValues[i - 1]}" should be numeric`).toBe(false);
+      expect(isNaN(curr), `descending: row ${i} cell "${descValues[i]}" should be numeric`).toBe(false);
+      expect(curr, `descending: row ${i} (${curr}) must be ≤ row ${i - 1} (${prev})`).toBeLessThanOrEqual(prev);
+    }
+  });
+
+  // @fcc TC-CPR-OVR-049
+  test('TC-CPR-OVR-049: Text filter and column sort applied together: filtered rows match the filter and are correctly ordered (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+    const PGN_COL = CORP_PRICING_OVERRIDE.columnIndex.productGroupName;
+
+    // Apply text filter, then sort — the filtered set must be the right count and non-decreasing
+    await p.filterProductGroups(CORP_PRICING_OVERRIDE_ACTIVE_BED.textFilterCamlok);
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.camlokTotalRows);
+    await p.sortColumnViaDropdown('Product Group Name', 'ascending');
+    const filteredSorted = await p.getColumnCellValues(PGN_COL);
+    expect(filteredSorted.length).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.camlokTotalRows); // filter survives the sort
+
+    // Every visible row must match the filter (case-insensitive)
+    for (const name of filteredSorted) {
+      expect(name!.toLowerCase()).toContain(CORP_PRICING_OVERRIDE_ACTIVE_BED.textFilterCamlok.toLowerCase());
+    }
+
+    for (let i = 1; i < filteredSorted.length; i++) {
+      expect(filteredSorted[i]!.localeCompare(filteredSorted[i - 1]!)).toBeGreaterThanOrEqual(0);
+    }
+
+    // Clear filter — full row set restores
+    await p.clearFilter();
+    expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
+  });
+});
+
+test.describe('Corporate Pricing — Product Group Override: Grid Options column hide and Reset to Default (NM-2270) @corporate-pricing @override @mutation', () => {
+  // Column visibility is a server-persisted preference — restore all columns before and after each test.
+  test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(120_000);
+    await p.ensureAllGridColumnsVisible(CORP_PRICING_OVERRIDE_SORT_BED.office);
+  });
+  test.afterEach(async ({ corporatePricingOverridePage: p }) => {
+    test.setTimeout(120_000);
+    await p.ensureAllGridColumnsVisible(CORP_PRICING_OVERRIDE_SORT_BED.office);
+  });
+
+  // @fcc TC-CPR-OVR-048
+  test('TC-CPR-OVR-048: Hiding "Max Discount %" via Grid Options reduces visible column count; Reset to Default restores all columns (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+    // Baseline: all 10 columns visible (walk-A certified)
+    expect(await p.getColumnCount()).toBe(CORP_PRICING_OVERRIDE_SORT_BED.gridDefaultColumnCount);
+
+    // Hide "Max Discount %" — visible column count must drop to 9 (walk-A certified)
+    await p.openGridOptions();
+    await p.toggleGridColumn(CORP_PRICING_OVERRIDE_SORT_BED.gridHideTestColumn);
+    await p.closeGridOptions();
+    expect(await p.getColumnCount()).toBe(CORP_PRICING_OVERRIDE_SORT_BED.gridHiddenColumnCount);
+
+    // Reset to Default — all 10 columns must be restored
+    await p.openGridOptions();
+    await p.resetGridToDefault();
+    await p.closeGridOptions();
+    expect(await p.getColumnCount()).toBe(CORP_PRICING_OVERRIDE_SORT_BED.gridDefaultColumnCount);
+  });
+});
+
+test.describe('Corporate Pricing — Product Group Override: RBAC access gate @corporate-pricing @override', () => {
+  // PERMANENTLY NOT AUTOMATABLE — owner-confirmed 2026-07-20.
+  //
+  // The deny-path (non-RM user sees no edit cell, no Save, no Import on the Override grid) requires
+  // a second test account with a non-Revenue-Management role. The client has confirmed that no such
+  // account exists, cannot be obtained, and will never be obtained. Every available automation
+  // account carries equivalent RM-level access; there is no in-app role-switch mechanism.
+  //
+  // RBAC API investigation (2026-07-20, live network capture): navigating to the Override screen
+  // with valid auth fires only GET /navigator/api/env and GET /navigator/api/auth/session — no
+  // role/permission endpoint, no route guard, no feature flag, no DOM role indicator. There is no
+  // API surface a test could query to assert the deny-path. (NM-2126)
+  //
+  // The positive-path coverage (RM user CAN edit, CAN enable Save, CAN open Import) is already
+  // provided by TC-CPR-OVR-017, TC-CPR-OVR-018, and TC-CPR-OVR-033.
+  test.skip('TC-CPR-OVR-041: Non-Revenue-Management user sees a read-only Override grid — no edit, no Save, no Import [blocked: every automation account we hold has equivalent access and no RBAC state is exposed on the Override screen; a second automation account WITHOUT the 1101 Revenue Management role would make this automatable immediately; see NM-2126]', async () => {
+    // Body intentionally empty — this test is permanently unautomatable.
+    // See the describe-block comment above for the investigation evidence.
   });
 });

@@ -7,7 +7,6 @@
 #   check_branch                    — exit 0 if git HEAD matches chain.json .branch
 #   check_stop_marker               — exit 0 if chain.STOP absent
 #   check_cap <batch|daily|weekly>  — exit 0 if counter < cap
-#   check_allowlist <file>          — exit 0 if file is in chain.json.queue[].file
 #   check_cli_effort_supports_xhigh — exit 0 if `claude --effort xhigh --help` wouldn't reject
 #   map_effort_for_cli <authoring-scale>  — prints CLI --effort value (clamps xhi→high on old CLI)
 #   write_pause_notice <reason>     — writes PAUSE_NOTICE.md with diagnostic
@@ -59,14 +58,6 @@ check_cap() {
       ;;
   esac
   [ -n "$counter" ] && [ -n "$cap" ] && [ "$counter" -lt "$cap" ]
-}
-
-check_allowlist() {
-  local file="$1"
-  local queue_json
-  queue_json=$(cs_get .queue 2>/dev/null) || return 1
-  # Simple substring match — queue is a JSON array of {"file": "...", ...}
-  printf '%s' "$queue_json" | grep -q "\"file\":[[:space:]]*\"$file\""
 }
 
 # Detects whether local `claude` CLI accepts --effort xhigh.

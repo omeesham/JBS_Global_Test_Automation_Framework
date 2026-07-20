@@ -1,5 +1,7 @@
 # PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule
 
+**Status**: PENDING
+
 ## Context
 
 The original PLAN_BUG_HUNTING_RULEBOOK delivered working foundation code (types, classifier, notification system, 20+ agent rules). An external audit found **5 critical bugs** in the detection logic and **80% scope bloat** (DB tables, frontend components, SSE events that don't improve detection). This v2 strips to detection-only fixes plus a new cornerstone rule: **Encore's AI agent generates data-testid for every element — missing = bug from Encore's side, not ours.**
@@ -92,7 +94,7 @@ Current selector analysis: 82% data-testid, 18% exceptions (SSO login external, 
 
 ### FIX-4: Compile-time safety for disposition mapping (already done!)
 
-**Status**: `BUG_HUNT_TO_DISPOSITION` is typed as `Record<BugHuntCategory, TriageDisposition>` — TypeScript already enforces that every enum value is mapped at compile time. Adding a new `BugHuntCategory` without updating the mapping = TS error.
+**Disposition typing**: `BUG_HUNT_TO_DISPOSITION` is typed as `Record<BugHuntCategory, TriageDisposition>` — TypeScript already enforces that every enum value is mapped at compile time. Adding a new `BugHuntCategory` without updating the mapping = TS error.
 **Priority**: P2-CYCLE-3
 
 **No work needed.** MISS-3 from the audit was wrong about the mapping being incomplete.

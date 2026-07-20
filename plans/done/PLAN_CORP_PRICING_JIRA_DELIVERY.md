@@ -1,6 +1,6 @@
 # PLAN_CORP_PRICING_JIRA_DELIVERY — Jira-aligned delivery re-sequencing of all remaining Corporate Pricing work (conservation restructure)
 
-**Status**: PENDING
+**Status**: SUPERSEDED (2026-07-17 — absorbed item-for-item into the six per-ticket plans SUBPLAN_CORP_PRICING_NM2268..NM2273; proof: .claude/state/ua-worker/chips/delegation-temp/out-ticket-split/ABSORPTION-MANIFEST.md)
 **Priority**: P0
 **Created**: 2026-06-24
 **Identity**: OWNER

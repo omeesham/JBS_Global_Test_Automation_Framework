@@ -49,6 +49,26 @@ Check each trigger against the session. If ANY fired, it's a learning to capture
 
 **Mandatory**: every fired trigger → append one row to `agent-mistakes.md` with the Sev tag and a one-line classification rationale **in this session** — no batching to later. Severity assigned per `.claude/rules/guardrail-policy.md` §3.1 rubric. Under-classification found by any later audit is itself an S1 mistake with its own row.
 
+### Step 2.5: Apply Lesson-Router Classification
+
+For each mistake identified in Step 2, classify the lane before writing to any memory file.
+
+**WHO made the mistake?**
+- Claude (CEO) — bad judgment, rubber-stamping, delegation failure → **CEO-LANE**
+- Worker — code/logic/rule error in a delegated task execution → **WORKER-LANE**
+- Ticket was bad (ambiguous/missing DOCTRINE) — CEO's ticket-craft failure → **CEO-LANE**
+- System — hook bug / wrapper defect / template gap → **SYSTEM-LANE**
+
+**Lane destinations:**
+- **CEO-LANE** → `~/.claude/memory/feedback_*.md` (existing behavior) — eligible for CLAUDE.md/LEARNED_RULES graduation via `/compile-learnings`
+- **WORKER-LANE** → named agent's `~/.copilot/agents/<agent-name>.agent.md` § Lessons (full technique) + 1-line verify-pointer into `dispatcher-lessons.md`:
+```
+VERIFY-POINTER: <rule-name>; worker must: <expected behavior>; check: <Parity Report field>
+```
+- **SYSTEM-LANE** → file as guardrail plan stub in `plans/pending/` (see Step 5)
+
+**HARD BAN — Full worker technique may NEVER be written to `dispatcher-lessons.md`.** If a WORKER-LANE lesson contains implementation details, multi-line explanations, or specific code patterns, the router MUST redirect the full content to the agent file and emit only the 1-line verify-pointer into `dispatcher-lessons.md`. Only 1 line maximum may cross the membrane. This prevents re-pollution via primer injection (`delegation-primer.mjs:75-95` injects dispatcher-lessons into every session).
+
 ### Step 3: Categorize Learnings
 
 For each learning identified, classify as:
@@ -60,7 +80,7 @@ For each learning identified, classify as:
 
 ### Step 4: Update Memory Files
 
-1. **Mistakes**: Append to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` following existing format
+1. **Mistakes**: Append to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` following existing format. Then route per Step 2.5 lane classification — CEO-LANE to `~/.claude/memory/feedback_*.md`, WORKER-LANE to `~/.copilot/agents/<agent-name>.agent.md` § Lessons plus a 1-line verify-pointer in `dispatcher-lessons.md`, SYSTEM-LANE to a guardrail plan stub in `plans/pending/`.
 2. **Patterns**: Write to appropriate memory file in `.claude/projects/.../memory/` — update existing file if topic matches, create new if novel
 3. **Preferences**: Write to `feedback_*.md` in memory directory
 4. **References**: Write to `reference_*.md` in memory directory

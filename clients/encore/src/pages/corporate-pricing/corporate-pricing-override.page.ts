@@ -13,7 +13,7 @@
  *  - "Filter Product Groups Override..." filters the grid **client-side** (no Search button).
  *  - Save is disabled on clean; dialog-gated by the shared Corporate Pricing save pattern.
  *
- * Selector strategy: text/role/grid-header/content-anchored (ZERO data-testids). Reuses the base
+ * Selector strategy: text/role/grid-header/content-anchored (one data-testid used as a context anchor). Reuses the base
  * `readGridRowsByContent` / `findGridRowByContent` / `readAllTexts` / `isVisibleSafe` /
  * `confirmSaveDialogIfPresent` (shared base helpers). Does NOT reuse the base `switchTab` — that union is typed
  * for the Details tabs ('Pricing Strategy' | 'Pricing Detail'); the Override Equipment/Labor tabs get
@@ -37,6 +37,14 @@ import { Log } from '../../utils/logger';
 import { readFileSync } from 'node:fs';
 
 export type OverrideTab = 'Equipment' | 'Labor';
+
+/** Result of probing for a POST /api/location/location-lookup during an action. */
+export interface LocationLookupProbe {
+  /** True if a POST fired during the action window; false means the action is a client-side operation. */
+  postFired: boolean;
+  /** Parsed from body.locations.length; -1 when no POST fired or the response could not be parsed. */
+  locationCount: number;
+}
 
 export class CorporatePricingOverridePage extends CorporatePricingBasePage {
   constructor(page: Page, config?: IConfig) {
@@ -73,14 +81,18 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.page
       .locator(`[role="tab"][aria-selected="true"]:has-text("${tab}")`)
       .first()
-      .waitFor({ state: 'visible', timeout: 10_000 })
-      .catch(() => { /* best-effort; the test asserts via getActiveTab */ });
+      .waitFor({ state: 'visible', timeout: 10_000 });
     await this.waitForAngularStable();
   }
 
   async openLocationPicker(): Promise<void> {
-    await this.page.locator(OS.ovrSelectLocationText).first().click();
+    // ovrChangeLocationTrigger ('text=Change Local Office') is visible in both states:
+    // no location selected and location already loaded.
+    await this.page.locator(OS.ovrChangeLocationTrigger).first().click();
     await this.page.locator(OS.ovrLocationPickerSearch).first().waitFor({ state: 'visible', timeout: 10_000 });
+    // Wait for the initial location list to load from the API before returning — callers read rows
+    // and search immediately; proceeding before the first row renders produces false-empty counts.
+    await this.page.locator('[role="dialog"] tbody tr').first().waitFor({ state: 'visible', timeout: 15_000 });
   }
 
   async selectLocation(nameOrNumber: string): Promise<void> {
@@ -540,12 +552,170 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return { ariaSortBefore, ariaSortAfter, orderChanged: firstRowBefore !== firstRowAfter };
   }
 
+  // --- Change Local Office picker helpers (NM-2268, search-narrowing + Active checkbox) ---
+
+  /**
+   * Type a search query into the "Search by Location Name, Number" textbox inside an already-open
+   * Change Local Office picker dialog. Search is client-side — no API call per keystroke. A short
+   * settle wait lets the filter re-render before the caller reads the row count.
+   */
+  async searchLocalOffice(query: string): Promise<void> {
+    // fill() clears the existing value and fires a trusted CDP input event that triggers the
+    // server-backed debounced search POST. Wait for a matching row to appear (mirrors selectLocation)
+    // rather than waiting on a fixed timeout or a response promise that could capture a stale POST.
+    await this.page.locator(OS.ovrLocationPickerSearch).first().fill(query);
+    await this.page.locator(OS.ovrLocationPickerRowAny, { hasText: query }).first()
+      .waitFor({ state: 'visible', timeout: 8_000 })
+      .catch(() => {}); // zero-match is a valid outcome; the caller asserts it
+  }
+
+  /** Clear the picker search box and wait for the full unfiltered list to reload from the server. */
+  async clearPickerSearch(): Promise<void> {
+    await this.page.locator(OS.ovrLocationPickerSearch).first().fill('');
+    await this.page.locator('[role="dialog"] tbody tr').first()
+      .waitFor({ state: 'visible', timeout: 8_000 })
+      .catch(() => {});
+    await this.page.waitForTimeout(300); // let virtual list stabilize after reload
+  }
+
+  /** Count visible tbody rows inside the Change Local Office picker dialog. */
+  async getPickerRowCount(): Promise<number> {
+    return this.page.locator(OS.ovrLocationPickerRowAny).count();
+  }
+
+  /**
+   * Return true if at least one picker row contains the given text (visible text-match inside tbody tr).
+   * Used to assert that a search result is present without relying on exact row counts across data states.
+   */
+  async pickerHasRowContaining(text: string): Promise<boolean> {
+    return (await this.page.locator(OS.ovrLocationPickerRowAny, { hasText: text }).count()) > 0;
+  }
+
+  /**
+   * Return the number of visible picker rows that contain the given text.
+   * Used to verify that a search filter shows only matching offices — every rendered row
+   * should contain the search query when the filter is active.
+   */
+  async getPickerRowCountContaining(text: string): Promise<number> {
+    return this.page.locator(OS.ovrLocationPickerRowAny, { hasText: text }).count();
+  }
+
+  /**
+   * Read the Active filter checkbox state inside the Change Local Office picker dialog.
+   * The Active checkbox is the FIRST [role="checkbox"] in the dialog — it appears above the search
+   * textbox and the table rows.
+   */
+  async getPickerActiveCheckboxState(): Promise<boolean> {
+    return (await this.page.locator(OS.ovrLocationPickerActiveCheckbox).first().getAttribute('data-state')) === 'checked';
+  }
+
+  /**
+   * Toggle the Active filter checkbox in the Change Local Office picker dialog.
+   * Toggling the Active filter is handled client-side — it does NOT trigger a new location-lookup
+   * request, and the returned location set is unchanged.
+   * (Known issue: the active-only filter has no server effect.)
+   */
+  async toggleLocalOfficePickerActive(): Promise<void> {
+    await this.page.locator(OS.ovrLocationPickerActiveCheckbox).first().click();
+  }
+
+  /** Click the Cancel button inside the Change Local Office picker dialog. */
+  async cancelLocationPicker(): Promise<void> {
+    // best-effort: cancel button may already be absent if the picker was dismissed
+    await this.page.locator(OS.ovrLocationPickerCancel).first().click().catch(() => {});
+    await this.page.locator(OS.ovrSelectLocationText).first()
+      .waitFor({ state: 'visible', timeout: 5_000 })
+      .catch(() => {});
+  }
+
+  /**
+   * Open the Change Local Office picker and probe for a POST /api/location/location-lookup.
+   * Returns postFired:true with locationCount from body.locations.length when the request fires
+   * (expected on first open). Returns postFired:false / locationCount:-1 if no POST fires within
+   * the 3-second window. No DOM fallback — a missing POST is reported honestly.
+   */
+  async openLocationPickerAndCapturePost(): Promise<LocationLookupProbe> {
+    const responsePromise = this.page.waitForResponse(
+      (r) => r.url().includes('/api/location/location-lookup') && r.request().method() === 'POST',
+      { timeout: 5_000 },
+    ).then(async (response): Promise<LocationLookupProbe> => {
+      const body = await response.json().catch(() => ({})) as { locations?: unknown[] };
+      return { postFired: true, locationCount: Array.isArray(body.locations) ? body.locations.length : -1 };
+    }).catch((): LocationLookupProbe => ({ postFired: false, locationCount: -1 }));
+
+    await this.openLocationPicker();
+    return Promise.race([
+      responsePromise,
+      this.page.waitForTimeout(3_000).then((): LocationLookupProbe => ({ postFired: false, locationCount: -1 })),
+    ]);
+  }
+
+  /**
+   * Toggle the Active filter checkbox and probe for a POST /api/location/location-lookup.
+   * Returns postFired:false / locationCount:-1 when toggle is a client-side filter (the
+   * activeOnly flag currently has no server effect). Returns postFired:true if the app is
+   * fixed to make a server call. No DOM fallback — a missing POST is reported as postFired:false.
+   */
+  async toggleLocalOfficePickerActiveAndCapturePost(): Promise<LocationLookupProbe> {
+    const responsePromise = this.page.waitForResponse(
+      (r) => r.url().includes('/api/location/location-lookup') && r.request().method() === 'POST',
+      { timeout: 5_000 },
+    ).then(async (response): Promise<LocationLookupProbe> => {
+      const body = await response.json().catch(() => ({})) as { locations?: unknown[] };
+      return { postFired: true, locationCount: Array.isArray(body.locations) ? body.locations.length : -1 };
+    }).catch((): LocationLookupProbe => ({ postFired: false, locationCount: -1 }));
+
+    await this.toggleLocalOfficePickerActive();
+    return Promise.race([
+      responsePromise,
+      this.page.waitForTimeout(3_000).then((): LocationLookupProbe => ({ postFired: false, locationCount: -1 })),
+    ]);
+  }
+
   async getCurrentPriceCells(): Promise<string[]> {
     const rows = this.page.locator(OS.ovrGridRowAny);
     const n = await rows.count();
     const out: string[] = [];
     for (let i = 0; i < n; i++) {
       out.push((await rows.nth(i).locator('td').nth(CORP_PRICING_OVERRIDE.columnIndex.currentPrice).innerText().catch(() => '')).trim());
+    }
+    return out;
+  }
+
+  /**
+   * Sort a grid column by opening its header dropdown and clicking the
+   * "Sort ascending" or "Sort descending" menu item. This is the live sort mechanism
+   * on the Override grid — a dropdown menu, not a header-click toggle (walk-A finding).
+   * Waits for the grid to settle before returning (one-shot, not a poll loop).
+   */
+  async sortColumnViaDropdown(headerLabel: string, direction: 'ascending' | 'descending'): Promise<void> {
+    const header = this.page.locator(OS.ovrColHeaderAny, { hasText: headerLabel }).first();
+    await header.click();
+    const menuLabel = direction === 'ascending' ? 'Sort ascending' : 'Sort descending';
+    const menuItem = this.page.getByRole('menuitem', { name: menuLabel }).first();
+    await menuItem.waitFor({ state: 'visible', timeout: 6_000 });
+    await menuItem.click();
+    await this.page.waitForTimeout(1_200); // one-shot settle for the grid re-render after sort
+  }
+
+  /**
+   * Read the inner text of the first visible row's cell at the given column index (0-based).
+   * Used to assert walk-certified first-cell sort oracles.
+   */
+  async getFirstRowCellText(colIndex: number): Promise<string> {
+    return (await this.page.locator(OS.ovrGridRowAny).first().locator('td').nth(colIndex).innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+  }
+
+  /**
+   * Read every visible row's cell text at the given column index (0-based).
+   * Used to verify that a column is monotonically ordered after an ASC or DESC sort.
+   */
+  async getColumnCellValues(colIndex: number): Promise<string[]> {
+    const rows = this.page.locator(OS.ovrGridRowAny);
+    const n = await rows.count();
+    const out: string[] = [];
+    for (let i = 0; i < n; i++) {
+      out.push((await rows.nth(i).locator('td').nth(colIndex).innerText().catch(() => '')).replace(/\s+/g, ' ').trim());
     }
     return out;
   }

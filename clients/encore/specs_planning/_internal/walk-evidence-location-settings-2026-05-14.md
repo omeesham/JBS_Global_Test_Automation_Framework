@@ -11,7 +11,7 @@ URLs:
 Bugs:
   - BUG-MGH-001 (clients/encore/reports/bugs/BUG-MGH-001.json) — R1 bisection
   - BUG-LOC-NTS-002 (reports/bugs/BUG-LOC-NTS-002.json) — R3 cross-tab dialog inventory
-WalkUser: v-rutvik.khosariya@psav.com
+WalkUser: <automation-user>
 WindowStartIso: 2026-05-14T14:39:08.193Z
 WindowEndIso: 2026-05-14T14:54:35Z
 ---

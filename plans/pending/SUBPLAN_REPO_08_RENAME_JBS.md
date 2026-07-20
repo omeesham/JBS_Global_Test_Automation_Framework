@@ -8,6 +8,8 @@
 
 ---
 
+> **Parked: out of deep-trim scope per user decision 2026-06-12 (see PLAN_LOSSLESS_DEEP_TRIM).** Status stays PENDING — this subplan is intentionally NOT superseded by the deep-trim disposition (SUBPLAN_TRIM_02); the framework/folder rename is a separate, user-coordinated decision (breaks absolute paths in settings + memory), not stale slop.
+
 ## Goal
 
 Rename framework from `encore_framework` to `jbs_framework` across all references.

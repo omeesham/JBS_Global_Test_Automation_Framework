@@ -22,6 +22,8 @@ This is the **refined version** after an external adversarial review challenged 
 
 ## Category A — RULE REGISTRY INTEGRITY
 
+> **DISPOSITION 2026-07-16 (PLAN_LOSSLESS_DEEP_TRIM / SUBPLAN_TRIM_02 — Category-A-only pass, LR-020 re-verify)**: Category A (A-01..A-05) is **TARGET-GONE**. The 2026-04-15 GARDENER "still valid" note predates the 2026-04-30 client-deliverable rebuild + 2026-06-05 POM restructure, which relocated + reworked the rule registry. Re-verified against the current registry `clients/encore/specs_planning/_internal/agent-mistakes.md`: `rg "GEN-028|GEN-029|GEN-033..037"` → 0 hits; `rg "^\| GEN-|^\| HLR-|master...134|155"` → 0 hits (the GEN-/HLR- ID scheme + the "134 rules" master-count comment no longer exist). The `.github/agents/playwright-test-generator.agent.md` file referenced throughout A-01..A-05 is also gone (agent prompts now live at `.claude/agents/*.md`). `npm run sync:mistakes` / `validate:sync` scripts survive, but the specific IDs they'd track do not. **No Status flip** (this plan is NOT wholly stale — Categories C/D are code-bug findings, left untouched per the disposition scope). Category A needs no execution; if a fresh rule-registry integrity audit is wanted, author it against the CURRENT registry, not these IDs. Full disposition table in SUBPLAN_TRIM_02 Execution Summary.
+
 ### A-01: CRITICAL — GEN-028 DUPLICATE ID in agent-mistakes.md
 - **Evidence**: `specs_planning/_internal/agent-mistakes.md` line 172 = "Accessibility tree element types ≠ HTML tags". Line 176 = "NEVER declare completion without running tests". Same ID, different rules.
 - **Impact**: `injectedContext` references GEN-028 19 times — wrong rule may propagate to generator.

@@ -5,8 +5,13 @@ export const CorporatePricingOverrideSelectors = {
   ovrTabLabor: '[role="tab"]:has-text("Labor")',
 
   ovrSelectLocationText: 'text=Select a location',
+  // Persistent trigger that opens the Change Local Office picker dialog in both states:
+  // before any location is selected (shows "Change Local Office Select a location") and
+  // after a location is loaded (shows "Change Local Office <location name>").
+  // Verified: trigger text 'Change Local Office' is present in both states (ref=e173).
+  ovrChangeLocationTrigger: 'text=Change Local Office',
   ovrLocationPickerSearch: 'input[placeholder="Search by Location Name, Number"]',
-  ovrLocationPickerRowAny: 'tbody tr',
+  ovrLocationPickerRowAny: '[role="dialog"] tbody tr',
   ovrLocationPickerRowCheckbox: '[role="checkbox"]',
   ovrLocationPickerSelect: 'button:text-is("Select")',
   ovrLocationPickerCancel: 'button:text-is("Cancel")',
@@ -55,4 +60,9 @@ export const CorporatePricingOverrideSelectors = {
   ovrImportClose: '[role="dialog"] button:text-is("Close")',
 
   ovrLocationModalDialog: '[role="dialog"]',
+
+  // Active filter checkbox inside the Change Local Office picker dialog.
+  // This is the first [role="checkbox"] in the dialog, appearing above the search textbox and the
+  // table rows. The per-row selection checkboxes are inside tbody — using .first() in the page object selects the filter.
+  ovrLocationPickerActiveCheckbox: '[role="dialog"]:has([data-testid="location-settings-modal-change-local-office-input-search"]) [role="checkbox"]',
 } as const;

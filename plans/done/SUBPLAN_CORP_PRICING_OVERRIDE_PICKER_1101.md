@@ -1,6 +1,6 @@
 # SUBPLAN_CORP_PRICING_OVERRIDE_PICKER_1101
 
-**Status**: PENDING
+**Status**: SUPERSEDED (2026-07-17 — absorbed item-for-item into the six per-ticket plans SUBPLAN_CORP_PRICING_NM2268..NM2273; proof: .claude/state/ua-worker/chips/delegation-temp/out-ticket-split/ABSORPTION-MANIFEST.md)
 **Priority**: Low — gated on an external blocker (see below)
 **Created**: 2026-07-13
 **Identity**: BUILDER

@@ -73,17 +73,17 @@ Corrected 42-item sequence (ordering prosecutor `## CORRECTED RUN-ORDER`, refere
 | 0 | ✅ Re-verify DONE substrates: `PLAN_STATIC_TO_DYNAMIC.md`, `PLAN_IDENTITY_ENFORCEMENT.md` | In `plans/done/` — confirm done status; not run candidates. Redesign builds on them. |
 | 1 | `PLAN_FIGHTINNOVATION_CLASH_FREE_PARALLELISM.md` | Read-only design must precede any parallel integration execution. |
 | 2 | `PLAN_REACTIVE_VS_PREVENTIVE_GUARDRAIL_AUDIT.md` | Guardrail severity/friction rules before new hooks. |
-| 3 | `PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY.md` | Parent/gap-matrix checkpoint before parity children. |
+| 3 | [PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY.md](../done/PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY.md) — **DONE 2026-07-16** | Parent-cascade close: both children done (BUGFIXES 10-fixed/2-refuted; INJECTION_SYSTEM M1+M2+M3 wired, canary-proven echo, DUTY_STACK extract live); staging snapshot deleted per step 7. |
 | 4 | `SUBPLAN_PARITY_BUGFIXES.md` | Fix substrate (`copilot-worker.sh`, `guardrail-config.json`, `delegation-gate.mjs`) before Uplink/Injection/LCD hook work. |
-| 5 | `SUBPLAN_LCD_01_CONTEXT_SURGERY.md` | Creates landing zones for LCD_02/LCD_05. |
-| 6 | `SUBPLAN_LCD_02_ENFORCEMENT_HOLES.md` | After audit, bugfixes, and context pointers. |
-| 7 | `SUBPLAN_LCD_03_COMPACTION_SURVIVAL.md` | Depends on LCD_02 primer/nudge state. |
-| 8 | `SUBPLAN_LCD_04_STALL_HANDLING.md` | Depends on LCD_02 anti-rescue nudge. |
+| 5 | [SUBPLAN_LCD_01_CONTEXT_SURGERY.md](../done/SUBPLAN_LCD_01_CONTEXT_SURGERY.md) — **DONE 2026-07-16** | Creates landing zones for LCD_02/LCD_05. Landed: doctrine index (relocated in-repo per ticket DEVIATION), 10 CEO pointers in encore CLAUDE.md (232→129), root CLAUDE.md 2 compressions, MEMORY.md worker-lane fold. |
+| 6 | [SUBPLAN_LCD_02_ENFORCEMENT_HOLES.md](../done/SUBPLAN_LCD_02_ENFORCEMENT_HOLES.md) — **DONE 2026-07-16** | Nudge hook installed+registered (11/11 battery, gpt review GREEN), gate v5 live (.md advisory, grant anchor, doctrine PROTECTED, PBUG-08/09, /assistants switch — 8/8 live probes), check:tc-parity exit 0. |
+| 7 | [SUBPLAN_LCD_03_COMPACTION_SURVIVAL.md](../done/SUBPLAN_LCD_03_COMPACTION_SURVIVAL.md) — **DONE 2026-07-16** | CEO identity block in primer ON/fail-safe branches (OFF stays pure per master switch) + nudge CEO-mode wording; council-built (opus build 25/25 probes, gpt review GREEN, 0 defects), installed with .bak-lcd03 backups, live 8/8 incl. real OFF-flip + idempotent re-fire. |
+| 8 | [SUBPLAN_LCD_04_STALL_HANDLING.md](../done/SUBPLAN_LCD_04_STALL_HANDLING.md) — **DONE 2026-07-16** | Stall warn+bounce live: wrapper pre-writes bounce ticket at warn+60s (max 2, STALL-EXHAUST after), nudge warns anti-rescue while a fresh bounce is queued, worker never killed; proven on a REAL 400s-silent dispatch (bounce file + STALL-CONTEXT + worker survived). |
 | 9 | `PLAN_UPLINK_PROTOCOL.md` | ASK schema/uplink must exist before chain, injection, assistant, observability. |
-| 10 | `PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md` | Must coordinate with Uplink Phase 4. |
-| 11 | `SUBPLAN_LCD_07_OBSERVABILITY.md` | After stall handling and wired uplink; owns ledger enrichment. |
+| 10 | [PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md](../done/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md) — **DONE 2026-07-16** (closure paperwork; was fully landed 2026-04-23 + hardened since) | Verified already-built by read-only pass 2026-07-16; re-execution would have regressed RC-1/RC-2/idempotency/uplink hardening. Chain runtime untouched (PAUSED/HELD). |
+| 11 | [SUBPLAN_LCD_07_OBSERVABILITY.md](../done/SUBPLAN_LCD_07_OBSERVABILITY.md) — **DONE 2026-07-16**, owner-GO'd live apply: enriched ledger (ts/dispatcher/session/ticket/depth/cap/sub_agents, UUID fallback, mkdir-lock), gate AH-02 ledger PROTECTED, activity-log parity per dispatch, final-q delegation-ratio Step 4.9; proven by live canaries + direct gate spawns; v6.1 norm-hardening staged for the ultraaudit fix wave. | After stall handling and wired uplink; owns ledger enrichment. |
 | 12 | `SUBPLAN_UPLINK_WAVE2.md` | After Uplink calibration and rebase against LCD_07 ledger. |
-| 13 | `SUBPLAN_LCD_05_LEARNING_LANES.md` | After LCD_01; before pruning/memory. |
+| 13 | [SUBPLAN_LCD_05_LEARNING_LANES.md](../done/SUBPLAN_LCD_05_LEARNING_LANES.md) — **DONE 2026-07-16** | Lesson-router live (CEO/WORKER/SYSTEM lanes) + /reflect Step 2.5 with membrane HARD BAN + /compile-learnings worker-lane scan/graduation/size-caps; council-built (35/35 probes + routing sim), gpt review GREEN. |
 | 14 | `PLAN_LOSSLESS_DEEP_TRIM.md` | Manual self-pruning parent. |
 | 15 | `SUBPLAN_TRIM_01_COMMIT_PENDING_DELETIONS.md` | Clean baseline first. |
 | 16 | `SUBPLAN_TRIM_02_OLD_PLAN_DISPOSITION.md` | Decides stale cleanup families before moves. |
@@ -94,7 +94,7 @@ Corrected 42-item sequence (ordering prosecutor `## CORRECTED RUN-ORDER`, refere
 | 21 | `SUBPLAN_TRIM_04_SCRIPTS_DEADWEIGHT.md` | After TRIM_02; before TRIM_06. |
 | 22 | `SUBPLAN_TRIM_05_EXPORT_CONVERTERS.md` | After TRIM_02; before TRIM_06. |
 | 23 | `SUBPLAN_TRIM_06_CLOSURE.md` | Fan-in after TRIM_03/04/05 + RCD_B/C. |
-| 24 | `SUBPLAN_LCD_06_SELF_PRUNING.md` | Codifies ongoing pruning after lanes + manual trim. |
+| 24 | [SUBPLAN_LCD_06_SELF_PRUNING.md](../done/SUBPLAN_LCD_06_SELF_PRUNING.md) — **DONE 2026-07-16**, council loop (opus build ×3 + gpt review BOUNCE→GREEN, 49/49 probes): pruning-policy.md in home delegation dir, scripts/prune-check.mjs (exit 0/1/2 fail-safe), compile-learnings Step 4.7 § Pruning Check (no autonomous deletion ever). | Codifies ongoing pruning after lanes + manual trim. |
 | ⛔ | `PLAN_WORKER_SKILL_ROUTING.md` ⚠ **PARALLEL-SESSION HOT** | ⛔ **DO NOT EXECUTE v1** — RED-verdicted; superseded by worker-skills-design-v2. Re-check DONE/superseded status via `plans/INDEX.md` before running — may have moved under a parallel session. |
 | 25 | worker-skills-design-v2 checkpoint *(not a plan file)* ⚠ **PARALLEL-SESSION HOT** | Classifier hard no-clobber on `worker-ext.md` before Injection M2/M3. A separate session is executing a skills plan RIGHT NOW — re-check DONE/superseded status via `plans/INDEX.md` before proceeding to #26. |
 | 26 | `SUBPLAN_PARITY_INJECTION_SYSTEM.md` ⚠ **PARALLEL-SESSION HOT** | After bugfixes, Uplink, LCD_01/LCD_05, and v2 routing. Re-check DONE/superseded status via `plans/INDEX.md` before running — may have moved under a parallel session. |

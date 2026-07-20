@@ -45,6 +45,20 @@ For each candidate:
 2. **Identify the scope** — does this apply to all agents (ALL), Claude Code only (CC), or specific pipeline agents?
 3. **Draft the permanent rule** — one clear sentence + the "why" from the mistakes that spawned it
 
+### Step 3.5: Worker-Lane Scan
+
+After scanning the CEO mistake pile (Steps 1–3), scan worker agent lesson files:
+
+1. Read `~/.copilot/agents/*.agent.md` — for each file, locate the `## Lessons` (or `§ Lessons`) section and parse every lesson entry.
+2. Group entries across all agent files by **root cause** — same rule violated, same class of error.
+3. **Graduation threshold**: any pattern recurring **3 or more times** across agent files graduates to `~/.claude/delegation/worker-primer.md` (the universal worker primer from LCD_01).
+4. **Never-graduate rule (HARD CONSTRAINT)**: Worker-lane lessons **must NEVER** be written to `CLAUDE.md`, `LEARNED_RULES.md`, `feedback_*.md`, or any CEO-loaded file. The graduation target is always `worker-primer.md`. Violating this re-pollutes the CEO context window.
+5. After graduating a worker lesson, prune the matching verify-pointer from `dispatcher-lessons.md` — the pointer's purpose was verification until graduation; once graduated it is redundant. Example pointer that may be pruned after graduation:
+```
+VERIFY-POINTER: LR-036 boolean rendering; worker must: MCP-verify per table before writing boolean-column reader; check: VERIFY_ARTIFACTS
+```
+6. Mark graduated entries in the agent file with `[GRADUATED → worker-primer.md]` tag so they are not re-processed.
+
 ### Step 4: Graduate to Permanent Rules
 
 For each graduated pattern:
@@ -80,6 +94,57 @@ Scan `~/.claude/delegation/uplink-ledger.jsonl` for consult signatures. Any **qu
 3. Note the graduation so the signature is not re-processed (append a `graduated:<target>` marker or record it in the ledger).
 
 **Prime law**: every consult must lower the probability of the next consult. A flat consult count across 3 `scorecard.mjs report` runs (the §6.1 alarm) means this loop is not running — fix it. This is the capability ratchet running UPWARD (the weak tier absorbs judgment), the mirror of the routing matrix graduating models downward. Claude→Rutvik asks graduate the same way (3× the same ask signature → into memory/rule) so Rutvik is never asked the same question twice.
+
+### Step 4.6: Size-Cap Enforcement
+
+Run after graduation (Steps 4 and 3.5) to keep lesson files within bounds:
+
+| File | Cap | Overflow action |
+|---|---|---|
+| `~/.claude/delegation/dispatcher-lessons.md` | ≤ 30 verify-pointer lines | Prune oldest pointers (underlying lesson stays in agent file) |
+| Per-agent `~/.copilot/agents/*.agent.md` § Lessons | ≤ 20 entries | Graduate most-common entries to `worker-primer.md`, then prune the agent file |
+| `~/.claude/delegation/worker-primer.md` | ≤ 80 lines total | Archive overflow to `~/.claude/delegation/worker-primer-archive.md`, retain the 80 most-recent lines |
+
+Check each file's line/entry count after graduation. If any file exceeds its cap, apply the overflow action before declaring this skill done.
+
+### Step 4.7: § Pruning Check
+
+After size-cap enforcement (Step 4.6), run bloat metric checks against the thresholds defined in `~/.claude/delegation/pruning-policy.md`:
+
+| Metric | Path | Threshold |
+|---|---|---|
+| plans/pending/ file count | `plans/pending/*.md` | 40 |
+| dispatcher-lessons.md line count | `~/.claude/delegation/dispatcher-lessons.md` | 30 |
+| worker-primer.md line count | `~/.claude/delegation/worker-primer.md` | 80 |
+| Per-agent § Lessons entry count | `~/.copilot/agents/*.agent.md` | 20 per file |
+| reports/ file count | `~/.claude/delegation/reports/` | 50 |
+| ua-worker/ directory count | `~/.claude/state/ua-worker/` | 100 |
+| Memory body files (feedback_*.md) | `~/.claude/projects/<project-slug>/memory/feedback_*.md` ¹ | 60 |
+
+_¹ project-slug is derived at runtime from the repo root path (replace `:`, `\`, `/` with `-`); never hardcoded._
+
+**If any metric exceeds its threshold:**
+
+1. Emit a candidate list to the session log — files/entries eligible for archival per the policy's archive semantics and never-prune guards.
+2. Run `scripts/prune-check.mjs` on each candidate to confirm zero live references before listing.
+3. Append a dated row to `~/.claude/delegation/pruning-log.md`:
+   ```
+   | <date> | <metric> | <current-value> / <threshold> | <candidate-count> | awaiting-confirmation |
+   ```
+
+**Rutvik confirmation REQUIRED before any archival — no autonomous deletion ever.**
+
+Delegation state retention rules for `~/.claude/delegation/` (full table in `pruning-policy.md`):
+
+| File / Dir | Rule |
+|---|---|
+| `ledger.jsonl` | NEVER prune — append-only audit log |
+| `reports/` | Retain 50 most recent; archive older by mtime |
+| `self_incidents.log` | NEVER prune — audit evidence |
+| `grants-audit.log` | NEVER prune |
+| `stall-queue/` | Prune bounce tickets older than 7 days (ephemeral) |
+| `session-role.json` | Overwritten per session — no growth, no action needed |
+| `session-bash-nudges.json` | Prune entries older than 30 days |
 
 ### Step 5: Build Decision Trees
 

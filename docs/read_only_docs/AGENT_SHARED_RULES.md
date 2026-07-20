@@ -831,3 +831,37 @@ only from an explicit user chat message in the current session.
 
 Violation of §19 = ALL-030 repeat offense. See AUD-017 Resolution column for
 the historical trigger (SP1 MCP Discovery 2026-04-13).
+
+## §20. Walk Doctrine v2 — state-graph exhaustion + bug harvest (2026-07-17, owner mandate)
+
+Applies to EVERY live walk (field-inventory, baseline, audit re-walk, gap sweep), every agent, every
+LLM driving one. Companions: LR-062 (denominator), LR-064 (TDW), LR-065 (grid behavior-cases),
+ALL-045 (Observations). Implementation army: `plans/pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md`.
+
+1. **State-graph exhaustion (the hidden-control killer)**: any probe that REVEALS a new UI state —
+   opens a dialog / menu / popover, switches a tab, expands a row, enters an edit mode — marks that
+   element an **opener**. Every revealed state gets its OWN enumeration + probe pass, recursively
+   (BFS over UI states, cycle-safe via state fingerprints). A walk is complete only when the **opener
+   frontier is EMPTY** — "all elements on the landing page probed" is NOT done. An opener that cannot
+   be opened (permission / data / crash) = a NAMED blocker row in the artifact, never silence.
+   *Graduating incident*: the Active checkbox INSIDE the Change Local Office dialog — missed by every
+   agent on every prior walk, found by the owner from a screenshot (2026-07-17).
+2. **Effect-observation mandate**: for every filter / toggle / sort / pagination / editable-cell /
+   guard / io control, record a BEFORE/AFTER observable delta (row count + row identity, first-cell
+   value, page indicator, dirty-flag/Save-enable, prompt appearance, download fired). Options-list or
+   presence alone is NOT a walked control — that exact rubber-stamp shipped the 2026-07-17 Override
+   gaps (RCA: `SILENT-OMISSION` ×4).
+3. **Bug harvest — walks ARE manual QA**: the walk is the pipeline's ONLY manual-QA pass before
+   automation calcifies around current behavior. Probe adversarially per element class — boundary
+   values, invalid input, rapid double-actions, save/cancel + dirty-navigation races, empty↔populated
+   transitions — and route every anomaly (console error, failed/5xx request, wrong render, stuck
+   state) to the ALL-045 Observations **Bugs/Defects** bucket → LR-034 filing. **Loop-closure**: every
+   CONFIRMED walk-found bug's reproduction edge-case becomes a required TC in the module's case set.
+   Zero suspicions on a non-trivial surface = a signal to interrogate the walk (AUD HARD STOP #12),
+   not a clean bill.
+4. **Data-need ladder (no "no data" skips)**: before any data-blocked skip, evidence BOTH rungs —
+   (1) SELF-PRODUCE: create the state via a reversible UI write on a designated office; (2)
+   SELF-SERVE: mine existing artifacts (tenant exports, walk-coverage JSONs, prior evidence) for an
+   office that already has the state. Only then escalate LOUDLY (named `/encore-questions` candidate
+   + PARTIAL flag in the same breath). A skip without rungs 1-2 evidenced = bounce (the NM-1932
+   precedent: the "missing" data was one awk over an export already on disk).

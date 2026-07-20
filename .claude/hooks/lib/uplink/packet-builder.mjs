@@ -67,11 +67,35 @@ export function buildPacket({ envelope, askBlock }, policy) {
     }
   }
 
-  // Overflow: still over cap after exhausting all droppable fields.
+  // Overflow: still over cap after exhausting all droppable envelope fields.
+  // NEVER blind-slice the serialized JSON — that reintroduces the invalid-JSON bug
+  // (PBUG-06). Instead shrink packetObj.ask.ask at a word boundary BEFORE JSON.stringify
+  // so the assembled packet is ALWAYS valid JSON. Consumers MUST check overflow===true
+  // before trusting the ask text — the truncated value may be incomplete or empty.
   let overflow = false;
   if (serialized.length > maxChars) {
-    serialized = serialized.slice(0, maxChars);
     overflow = true;
+    const askText = typeof packetObj.ask.ask === 'string' ? packetObj.ask.ask : '';
+    // Real budget for ask text = cap minus the skeleton (packet with an EMPTY ask).
+    // The skeleton still carries the NEVER_DROP fields (goal, failing_state), so when
+    // they alone exceed the cap the budget goes non-positive (handled by the else branch).
+    const skeleton = JSON.stringify({ ...packetObj, ask: { ...packetObj.ask, ask: '' } });
+    const budget = maxChars - skeleton.length - 5; // -5: '...' marker + safety margin
+    if (askText.length > 0 && budget > 0) {
+      // Skeleton fits — shrink the ask text to the available budget at a word boundary.
+      let truncated = askText.slice(0, budget);
+      const lastSpace = truncated.lastIndexOf(' ');
+      if (lastSpace > 0) truncated = truncated.slice(0, lastSpace);
+      packetObj.ask = { ...packetObj.ask, ask: truncated + '...' };
+    } else {
+      // Skeleton alone is at/over the cap: no room for ANY ask text without dropping the
+      // load-bearing envelope. Emit the minimal valid packet — empty ask, envelope intact.
+      // The packet may still exceed max_chars here (goal + failing_state are NEVER_DROP);
+      // valid JSON is the hard invariant, the cap is best-effort. overflow===true tells the
+      // consumer the ask was dropped.
+      packetObj.ask = { ...packetObj.ask, ask: '' };
+    }
+    serialized = JSON.stringify(packetObj);
   }
 
   return { packet: serialized, dropped, overflow, sig };

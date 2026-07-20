@@ -4,7 +4,7 @@
 
 > **Shadow re-home (2026-06-24, PLAN_CORP_PRICING_JIRA_DELIVERY):** renamed from `SUBPLAN_CORP_PRICING_EDGE_P3.md` (git history preserved). Re-pointed to the Jira-delivery parent as **shadow-tier** residual coverage — runs AFTER the 8 ticket deliverables, held back from deliverable pushes. Items that moved INTO ticket deliverables are stripped from the seed list below and replaced with cross-refs (no duplication, no loss): real file-I/O round-trips → NM-2262/2264/2305/2265; create-mode drag-add → NM-2263; New-Pricebook NM-2022/2057 validations → NM-2263. Residual edge/stress/module-wide coverage stays here.
 
-**Status**: PENDING
+**Status**: SUPERSEDED (2026-07-17 — absorbed item-for-item into the six per-ticket plans SUBPLAN_CORP_PRICING_NM2268..NM2273; proof: .claude/state/ua-worker/chips/delegation-temp/out-ticket-split/ABSORPTION-MANIFEST.md)
 **Priority**: P3
 **Created**: 2026-06-05
 **Identity**: GIVER

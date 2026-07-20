@@ -100,8 +100,8 @@ export class CredentialLoader {
 
   private static _loadEnvRecord(): CredentialRecord {
     return {
-      username: process.env.NAVIGATOR_USERNAME || process.env.USERNAME_AUTOMATION || '',
-      password: process.env.NAVIGATOR_PASSWORD || process.env.PASSWORD_AUTOMATION || '',
+      username: process.env.NAVIGATOR_USERNAME || '',
+      password: process.env.NAVIGATOR_PASSWORD || '',
       mfaSecret: process.env.NAVIGATOR_MFA_SECRET || process.env.MFA_SECRET,
       role: 'env',
       _source: 'environment variables',

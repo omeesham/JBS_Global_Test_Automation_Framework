@@ -164,6 +164,55 @@ test('buildPacket: SPLIT AUTHORSHIP — worker free-text only in ask section, ne
   );
 });
 
+test('buildPacket: overflow=true produces valid JSON with ask truncated at word boundary', () => {
+  // Policy with max_chars=120 forces overflow when ask text is long.
+  // truncation_order is empty so no envelope fields are dropped — ask must absorb the cut.
+  const OVERFLOW_POLICY = {
+    classes: ['diagnose'],
+    packet: { max_chars: 120, truncation_order: [] },
+  };
+  const longAsk = 'explain the root cause of the intermittent failure in production deployment pipeline';
+  const result = buildPacket({
+    envelope: { goal: 'g', failing_state: 'f' },
+    askBlock: { class: 'diagnose', ask: longAsk },
+  }, OVERFLOW_POLICY);
+
+  assert.equal(result.overflow, true, 'overflow must be true when packet exceeds max_chars');
+  // Critical: overflow packet must be valid JSON (pre-fix this was a raw slice → SyntaxError).
+  assert.doesNotThrow(() => JSON.parse(result.packet), 'overflow packet must be valid JSON');
+  assert.ok(result.packet.length <= 120, `overflow packet must be within max_chars (got ${result.packet.length})`);
+  const parsed = JSON.parse(result.packet);
+  assert.equal(typeof parsed.ask.ask, 'string', 'ask.ask must be a string in the overflow packet');
+  assert.ok(parsed.ask.ask.endsWith('...'), 'truncated ask must end with ellipsis marker');
+});
+
+test('buildPacket: overflow with skeleton over cap — minimal valid packet, NEVER_DROP fields preserved', () => {
+  // max_chars=60 but goal alone is 80 chars, so the skeleton (NEVER_DROP goal+failing_state
+  // with an EMPTY ask) already exceeds the cap. There is NO room for ask text without dropping
+  // load-bearing fields, so the ask is emptied. The packet CANNOT fit under max_chars here
+  // (goal+failing_state are NEVER_DROP); the invariant that MUST still hold is VALID JSON —
+  // never a blind slice of the serialized string (which is the exact PBUG-06 bug).
+  const SKELETON_OVER_CAP_POLICY = {
+    classes: ['diagnose'],
+    packet: { max_chars: 60, truncation_order: [] },
+  };
+  const bigGoal = 'x'.repeat(80);
+  const result = buildPacket({
+    envelope: { goal: bigGoal, failing_state: 'f' },
+    askBlock: { class: 'diagnose', ask: 'why does this fail intermittently in prod' },
+  }, SKELETON_OVER_CAP_POLICY);
+
+  assert.equal(result.overflow, true, 'overflow must be true when even the skeleton exceeds the cap');
+  // HARD INVARIANT: valid JSON even though the packet cannot fit under max_chars.
+  assert.doesNotThrow(() => JSON.parse(result.packet), 'skeleton-over-cap packet must still be valid JSON');
+  const parsed = JSON.parse(result.packet);
+  // NEVER_DROP fields survive intact — never dropped to satisfy the cap.
+  assert.equal(parsed.envelope.goal, bigGoal, 'goal (NEVER_DROP) must be preserved even when skeleton over cap');
+  assert.equal(parsed.envelope.failing_state, 'f', 'failing_state (NEVER_DROP) must be preserved');
+  // Minimal valid overflow packet: ask emptied (no partial/invalid content, no misleading marker).
+  assert.equal(parsed.ask.ask, '', 'ask.ask must be emptied when there is no budget for any ask text');
+});
+
 test('loadPolicy: throws a clear error on missing file', () => {
   assert.throws(
     () => loadPolicy('/nonexistent/path/uplink-policy.json'),

@@ -175,6 +175,38 @@ Emit the audit-format marker and the assumptions line in your output block:
 
 **Missing the `**Assumptions**:` line (in a v3 block) pauses the chain** — the orchestrator records `failed` for the slot and emits `assumptions-line-missing: <file>` as the pause reason, distinct from `verdict-NONE`, so Rutvik sees WHY it paused.
 
+
+### Step 4.9: Delegation Ratio Check (LCD07)
+
+Compute delegation ratio from the three counters for this session:
+
+1. **Dispatches**: count ledger rows matching this session:
+   ```bash
+   grep -c "\"session_id\":\"${CLAUDE_SESSION_ID:-}\"" .claude/state/ua-worker/ledger.jsonl 2>/dev/null || echo 0
+   # Exact path: <REPO>/.claude/state/ua-worker/ledger.jsonl (run from repo root — the ledger lives in-repo, not under ~)
+   ```
+2. **Self-work events**: count self_incidents.log lines matching this session:
+   ```bash
+   grep -c "${CLAUDE_SESSION_ID:-}" ~/.claude/delegation/self_incidents.log 2>/dev/null || echo 0
+   ```
+3. **Nudges fired**: read this session's fire-count from session-bash-nudges.json (exact path: ~/.claude/state/session-bash-nudges.json — shape {"<session-id>": <count>}):
+   ```bash
+   node -e "try{var d=JSON.parse(require('fs').readFileSync(require('os').homedir()+'/.claude/state/session-bash-nudges.json','utf8'));var n=d[process.env.CLAUDE_SESSION_ID||''];console.log(typeof n==='number'?n:0);}catch(e){console.log(0);}" 2>/dev/null || echo 0
+   ```
+
+Emit the computed ratio block (output in chat — do NOT write to disk):
+
+```
+## Delegation Metrics
+- Dispatches this session: <N>
+- Self-work events logged: <N>
+- Nudges fired: <N>
+- Delegation ratio: <dispatches / (dispatches + self_work + nudges)> (target ≥ 0.95)
+```
+
+If **ratio < 0.95 AND self_work > 0**: flag as a **CEO discipline gap** in the final-q output:
+> ⚠️ Delegation ratio below target: <ratio>. Self-work logged: <N> events. Review self_incidents.log for inline work that should have been ticketed.
+
 ### Step 5: Estimate Context Budget
 
 Check the session's context usage. You do NOT have a direct API for the token count; estimate from:

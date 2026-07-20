@@ -213,6 +213,25 @@ This trail is what makes mama's judgment auditable — a future reader (the user
 
 "Honest + stuck → cry for help" is the escape hatch. It can be abused: declare stuck early, cry, end. Mama's check before each cry: would a manual tester with one more hour ALSO be stuck here? If no, mama is the bias point — re-spawn with sharper goal instead of crying.
 
+### Prior-Fix Trial — MANDATORY on every recurrence-class RCA (owner law 2026-07-17, LR-069 §3.5)
+
+Before analyzing the new instance, check: does the failing AREA already carry a "permanent" fix — a
+graduated LR rule, gate, HARD STOP, or taxonomy mandate covering this failure class? (Grep
+LEARNED_RULES.md + `.claude/rules/*.md` "Graduated from" lines + agent-mistakes.md for the class.)
+If YES, this is a **recurrence-class RCA** and the RCA output MUST contain a `## Prior-Fix Trial`
+section BEFORE any new-fix proposal, answering three questions per prior fix:
+1. What did it do to prevent this class?
+2. Why did it fail to prevent THIS instance? (enum: `scoped-wrong` | `prose-not-mechanism` |
+   `rubber-stampable` | `dead/never-fired` | `different-sub-class`)
+3. What will the new mechanism do differently?
+
+Verdict per prior fix: `SURVIVES` (genuinely different sub-class — keep) or `CONVICTED` (rewire into
+machine-enforced form, or RETIRE-AND-REMOVE in the same change — a convicted fix left idling on disk
+is sediment-slop, LR-069 §3.4/§3.5). **Layering a new fix over an unconvicted failed fix is
+FORBIDDEN** — an RCA that proposes a new mechanism while the old one sits untried is incomplete and
+may not close. Graduating incident: 2026-07-17 Override walk gaps — LR-062/LR-064/FCC taxonomy/walk
+HARD STOPs all existed, all failed to fire, and were nearly layered over instead of tried.
+
 ### Round-2 invert-and-retest (when an RCA verdict is reopened)
 
 When the user, `/audit`, or a follow-up session reopens a closed `/rca` verdict, mama's FIRST action is NOT to re-check the prior reasoning. **Re-checking the prior reasoning is re-confirmation, not re-analysis** — confirmation bias survives.

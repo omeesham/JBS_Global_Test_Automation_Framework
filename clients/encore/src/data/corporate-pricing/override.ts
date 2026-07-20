@@ -141,6 +141,52 @@ export const OVERRIDE_NUMERIC_CASES = {
  * did NOT reveal an input via click/dblclick/Enter during the initial read-only exploration.
  * Anchored by content (Product Group ID + Name), never index (assert content, not position).
  */
+/**
+ * Walk-certified sort oracles for office 1105 Equipment tab (NM-2270).
+ * Verified 2026-07-17 (walk-A): the Override grid column sort is triggered via a header
+ * dropdown menu ("Sort ascending" / "Sort descending" / "Hide column") — NOT a header-click toggle.
+ * Product Group Name ASC first cell: "07A Compass Screen Set Kit";
+ * Product Group Name DESC first cell: "Whiteboard Supply - Marker 4 Pk"
+ *   (confirmed via live run — the prior constant "Whiteboard Supply" was truncated; full value confirmed 2026-07-18).
+ */
+export const CORP_PRICING_OVERRIDE_SORT_BED = {
+  office: '1105',
+  productGroupNameAscFirstCell: '07A Compass Screen Set Kit',
+  productGroupNameDescFirstCell: 'Whiteboard Supply - Marker 4 Pk',
+  /** Walk-A certified: all 10 columns visible at default state (after Reset to Default). */
+  gridDefaultColumnCount: 10,
+  /** Walk-A certified: 9 columns visible after hiding "Max Discount %" via Grid Options. */
+  gridHiddenColumnCount: 9,
+  /** Column hidden in TC-CPR-OVR-048 to exercise the hide/reset round-trip. */
+  gridHideTestColumn: 'Max Discount %',
+} as const;
+
+/**
+ * Read-only data bed for Active-only filter effect tests (office 1105).
+ * Verified 2026-07-17: 9 Equipment rows total, 7 active, 2 inactive.
+ * The two inactive rows are Product Groups 1482 (Camlok #1) and 1484 (Camlok #2).
+ * All rows carry USD currency — no multi-currency data on this office.
+ */
+export const CORP_PRICING_OVERRIDE_ACTIVE_BED = {
+  office: '1105',
+  totalRows: 9,
+  activeOnlyRows: 7,
+  inactiveGroupName1: "Camlok #1 - 50' (Set of 5 Conductors)",
+  inactiveGroupName2: "Camlok #2 - 10'",
+  textFilterCamlok: 'Camlok',
+  camlokTotalRows: 2,
+  /**
+   * Currency that has override rows on this office. Selecting it must show exactly totalRows.
+   * Verified 2026-07-17: all 9 Equipment rows carry USD — no multi-currency data on office 1105.
+   */
+  presentCurrency: 'USD' as const,
+  /**
+   * A currency with no override rows on this office. Selecting it must show exactly 0 rows.
+   * Verified 2026-07-17 (same walk — 1105 is USD-only; CAD has no rows).
+   */
+  absentCurrency: 'CAD' as const,
+} as const;
+
 export const CORP_PRICING_OVERRIDE_FIXTURE = {
   office: '1606',
   tab: 'Equipment' as const,

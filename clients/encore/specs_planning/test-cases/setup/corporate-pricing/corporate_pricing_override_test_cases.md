@@ -1,6 +1,6 @@
 # Corporate Pricing — Product Group Override Test Cases (NM-1463, Wave-1.5-A FCC)
 
-**Module**: corporate-pricing | **Total**: 38 (TC-023 skipped — app defect) | **Status**: Automated | **Updated**: 2026-07-09
+**Module**: corporate-pricing | **Total**: 49 (TC-023 skipped — app defect; TC-041 skipped — RBAC blocked; TC-043 skipped — data-blocked) | **Status**: Automated | **Updated**: 2026-07-18
 
 ---
 
@@ -821,3 +821,243 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 **Expected**: Every row in the downloaded file has the full 9-column shape, a numeric Location Id and Product Group Id, a supported Currency (USD/CAD/MXN), 0/1 values in the Is Labor and Is Active flag columns, an always-populated Current Price money value, an Override Price that is either blank or a money value, and an Override Discount that is either blank or a plain decimal. The file is a tenant-wide dump (not scoped to the selected location); Product Group Name is free text and is not asserted for content.
 **Data**: location=1606 (trigger only; the file itself spans all locations)
+
+---
+
+## TC-CPR-OVR-039: Typing a partial office number narrows picker rows; clearing restores the full list
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-004
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected.
+
+**Steps**:
+1. Open the Change Local Office picker dialog
+2. Type "1107" into the "Search by Location Name, Number" textbox -> the table narrows to offices matching "1107"; at least one row with "1107" is visible
+3. Clear the search box -> the table restores to show more rows than the narrowed set
+
+**Expected**: The picker search box filters the location table client-side (no API call per keystroke). Typing a partial office number narrows the visible rows to matching entries; clearing the input restores the full list. Cancel closes the picker with no location applied to the grid.
+**Data**: location=1606 (trigger); search needle "1107"
+
+---
+
+## TC-CPR-OVR-040: Picker Active checkbox defaults to unchecked; toggling is a client-side filter — no location-lookup server request fires on toggle
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-004
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with location 1606 selected.
+
+**Steps**:
+1. Open the Change Local Office picker dialog — a location-lookup API call fires (positive control proving the network listener works); assert postFired=true and locationCount > 0
+2. Assert: Active checkbox is UNCHECKED (aria-checked=false / data-state=unchecked) by default
+3. Toggle Active to CHECKED — assert NO location-lookup API call fires (toggle is a client-side filter; server ignores activeOnly parameter); assert checkbox is CHECKED; assert row list still renders rows
+4. Search "1107" while Active is CHECKED — list narrows to matching offices (search and Active compose)
+5. Clear search; toggle Active back to UNCHECKED — assert still NO location-lookup API call fires; assert checkbox is UNCHECKED; assert rows visible
+6. Cancel -> the original 1606 grid is unaffected (no new location applied)
+
+**Expected**: Opening the picker fires a location-lookup API call (positive control). Toggling the Active checkbox is a client-side filter — no location-lookup API call fires on toggle (server ignores the activeOnly parameter; both checked and unchecked return the same 2,651 active-only location set). Default state is UNCHECKED. Search composes with the Active filter. This test fails when the app is fixed to honor activeOnly server-side (the postFired=false assertions flip).
+
+Note: BUG-CONFIRMED-B — activeOnly ignored server-side (1222 evidence walk-evidence-F); open fires a POST (positive control), toggle fires 0 POSTs (reviewer-confirmed attempt 4). On fix, flip the postFired assertions to toBe(true) and assert that unchecked -> inactive offices appear and checked -> they are hidden.
+**Data**: location=1606 (trigger)
+
+---
+
+## TC-CPR-OVR-041: Non-Revenue-Management user sees a read-only Override grid — no edit, no Save, no Import
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Skipped (blocked) | Functional |
+
+**Depends_On**: TC-CPR-OVR-004
+**Automatable**: Yes — pending a second test account with a non-RM role
+
+**Preconditions**: Logged in as a non-Revenue-Management user.
+
+**Steps**:
+1. Navigate to the Corporate Pricing Override screen
+2. Attempt to click an Override Price cell -> no spinbutton editor reveals (cell is inert)
+3. Observe the Save button -> absent or permanently disabled
+4. Observe the Import button -> absent or disabled
+
+**Expected**: A non-Revenue-Management user cannot edit Override cells, trigger Save, or access Import. The grid renders in read-only mode (Revenue Management role required for edit access).
+
+**Blocked reason**: blocked-pending-question: RBAC-role-switch — the automation environment provisions a single account with full edit rights; no in-app role-switch is available. Test is authored but `.skip`-annotated until a second non-RM account is provisioned.
+**Data**: non-RM test account (not yet provisioned)
+
+---
+
+## TC-CPR-OVR-042: Active-only removes inactive rows and restores the full set on uncheck
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-010
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with office 1105 selected; Active-only is OFF (default).
+
+**Steps**:
+1. Read Active-only state and row count → Active-only is unchecked; 9 rows visible
+2. Check Active-only → row count drops to 7; the Camlok #1 and Camlok #2 rows are absent
+3. Uncheck Active-only → 9 rows restored; both Camlok rows are visible again
+
+**Expected**: Checking Active-only filters the grid to the 7 active rows (removes the 2 inactive product groups Camlok #1 and Camlok #2). Unchecking restores all 9 rows. The identity delta — which specific rows disappear — is asserted in both directions.
+**Data**: office=1105 (9 total / 7 active / 2 inactive: Product Groups 1482 and 1484)
+
+---
+
+## TC-CPR-OVR-043: Currency filter yields the exact row count for the present currency, 0 for an absent currency, and restores the full set
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-009
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with the standard test office selected.
+
+**Steps**:
+1. Select the currency present in the data (USD) from the Currency dropdown → grid shows the full expected row count
+2. Select a currency with no matching rows → grid shows zero rows
+3. Select ALL → full row set restores
+
+**Expected**: Selecting the present currency yields the exact expected row count; selecting a currency with no matching rows yields exactly 0; selecting ALL restores the full set. Asserting both directions proves the filter reads its input — a filter that ignored the selection could not satisfy both the exact-count and the zero-count assertion.
+
+**Note**: The available corporate-group offices carry USD-only override rows (1101 = 0 rows; 1105/1606/1107 all USD — verified during the sprint walk), so cross-currency narrowing (USD → CAD) cannot be exercised. The absent-currency → 0 assertion covers the same behavior from the reachable direction. A multi-currency office would allow the stronger cross-currency form.
+**Data**: `CORP_PRICING_OVERRIDE_ACTIVE_BED` (standard test office)
+
+---
+
+## TC-CPR-OVR-044: Active-only and text filter applied simultaneously produce the correct intersection; filter order does not affect the result; resetting all restores the full row set
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-042
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with office 1105 selected; no filters active.
+
+**Steps**:
+1. Filter by text "Camlok" → 2 rows (both inactive)
+2. Check Active-only on top → 0 rows (intersection: Camlok rows are inactive, filtered out)
+3. Reset both filters → 9 rows restored
+4. Check Active-only first → 7 rows; then filter "Camlok" on top → 0 rows (same intersection as step 2 — order independent)
+5. Uncheck Active-only while "Camlok" text filter active → 2 rows (inactive Camlok rows visible again)
+6. Clear text filter → 9 rows fully restored
+
+**Expected**: The Active-only and text filter combine correctly regardless of application order (order independence). The intersection of "Camlok" text filter + Active-only is 0 rows because both Camlok product groups are inactive. Resetting each filter independently produces the expected intermediate counts; clearing all filters fully restores the 9-row set.
+**Data**: office=1105; text filter needle "Camlok"
+
+---
+
+## TC-CPR-OVR-045: Text filter "Camlok" narrows the grid to matching rows; clearing restores the full set
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-012
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with office 1105 selected; text filter is empty; all 9 rows visible.
+
+**Steps**:
+1. Read visible row count → 9 (walk-A certified for office 1105)
+2. Type "Camlok" into the "Filter Product Groups Override..." text box → grid narrows to 2 rows (walk-A certified count)
+3. Assert the two visible rows are "Camlok #1 - 50' (Set of 5 Conductors)" and "Camlok #2 - 10'" (specific product identities, not just count)
+4. Clear the text filter → grid restores to 9 rows
+
+**Expected**: Typing "Camlok" narrows the grid to exactly the 2 Camlok product rows. The specific row identities ("Camlok #1 - 50' (Set of 5 Conductors)" and "Camlok #2 - 10'") are confirmed, not just the count. Clearing the filter restores the full 9-row set.
+**Data**: office=1105; filter needle "Camlok"; expected filtered count=2; Camlok row 1="Camlok #1 - 50' (Set of 5 Conductors)"; Camlok row 2="Camlok #2 - 10'"; expected restored count=9
+
+---
+
+## TC-CPR-OVR-046: Product Group Name column sort: ascending first cell matches walk oracle and order is non-decreasing; descending matches walk oracle and order is non-increasing
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-005
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with office 1105 selected; grid showing 9 rows.
+
+**Steps**:
+1. Open the "Product Group Name" column header dropdown menu → click "Sort ascending"
+2. Read the first cell of Product Group Name → "07A Compass Screen Set Kit" (walk-A certified)
+3. Read all visible Product Group Name cells → values are non-decreasing
+4. Open the header dropdown again → click "Sort descending"
+5. Read the first cell → "Whiteboard Supply" (walk-A certified)
+6. Read all visible Product Group Name cells → values are non-increasing
+
+**Expected**: Sorting ascending puts "07A Compass Screen Set Kit" first and the full column is non-decreasing. Sorting descending puts "Whiteboard Supply - Marker 4 Pk" first and the full column is non-increasing. The sort mechanism is a header dropdown menu — not a header-click toggle.
+**Data**: office=1105; ASC first cell "07A Compass Screen Set Kit"; DESC first cell "Whiteboard Supply - Marker 4 Pk" (confirmed via live run 2026-07-18)
+
+---
+
+## TC-CPR-OVR-047: Product Group column sort: ascending values are non-decreasing; descending values are non-increasing — self-verifying monotonic oracle
+| Priority | Status | Type |
+|----------|--------|------|
+| Medium | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-046
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with office 1105 selected; grid showing 9 rows.
+
+**Steps**:
+1. Open the "Product Group" column header dropdown menu → click "Sort ascending"
+2. Read all visible Product Group cells → values are non-decreasing (monotonic ascending check, no hardcoded first cell)
+3. Open the header dropdown again → click "Sort descending"
+4. Read all visible Product Group cells → values are non-increasing (monotonic descending check)
+
+**Expected**: The "Product Group" column (numeric product group IDs) sorts correctly in both directions via the same header dropdown mechanism confirmed in TC-CPR-OVR-046. Monotonic ordering is asserted numerically (not as strings, since the app sorts by numeric value — e.g. 2 before 10) without relying on any hardcoded first-cell value. Confirms the sort mechanism is consistent across columns.
+**Data**: office=1105; second sortable column "Product Group" (column index 1); comparison is numeric
+
+---
+
+## TC-CPR-OVR-048: Hiding "Max Discount %" via Grid Options reduces visible column count; Reset to Default restores all columns
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-031
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with office 1105 selected; all 10 columns visible (restored by beforeEach/afterEach).
+
+**Steps**:
+1. Read visible column count → 10 (walk-A certified default)
+2. Open Grid Options → toggle off "Max Discount %" → close Grid Options
+3. Read visible column count → 9 (walk-A certified hidden count; "Max Discount %" header is absent)
+4. Open Grid Options → click "Reset to Default" → close Grid Options
+5. Read visible column count → 10 (all columns restored)
+
+**Expected**: Hiding "Max Discount %" reduces the visible column count from 10 to 9. Clicking "Reset to Default" in Grid Options restores all 10 columns. The before/after column-count delta is asserted in both directions. beforeEach/afterEach restore all columns so the test is order-independent.
+**Data**: office=1105; default column count=10; hidden column count=9; hidden column="Max Discount %"
+
+---
+
+## TC-CPR-OVR-049: Text filter and column sort applied together: filtered rows match the filter and are correctly ordered
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Functional |
+
+**Depends_On**: TC-CPR-OVR-045, TC-CPR-OVR-046
+**Automatable**: Yes
+
+**Preconditions**: On the Override screen with office 1105 selected; no filters active; all 9 rows visible.
+
+**Steps**:
+1. Apply text filter "Camlok" → 2 rows visible
+2. Apply "Sort ascending" on the "Product Group Name" column → assert 2 rows still visible (filter survives the sort); assert every visible row's Product Group Name contains "Camlok" (case-insensitive); assert values are non-decreasing
+3. Clear the text filter → 9 rows restored
+
+**Expected**: Applying a text filter and a column sort simultaneously produces a result set that satisfies both constraints: every row matches the filter text (contains "Camlok"), the row count is 2, and the column order is non-decreasing. The filter survives the sort without resetting. Clearing the filter restores the full 9-row set.
+**Data**: office=1105; filter needle "Camlok"; expected filtered+sorted count=2; every row name must contain "Camlok" (case-insensitive); expected restored count=9

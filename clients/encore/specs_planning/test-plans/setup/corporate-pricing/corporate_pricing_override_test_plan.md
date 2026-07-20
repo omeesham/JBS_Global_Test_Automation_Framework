@@ -4,7 +4,7 @@
 **Test Cases**: specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_override_test_cases.md
 **Field Inventory**: specs_planning/_internal/field-inventories/corporate-pricing-override-2026-06-09.md
 **Divergences**: specs_planning/_internal/encore-questions-drafts/corporate-pricing-wave15-divergences-2026-06-08.md
-**Updated**: 2026-07-09 (re-verified on location 1606 + net-new coverage TC-029..037: navigation, location-picker detail, Grid Options, direct Export CSV, Import dialog, NM-1463 auto-activate, sorting-inactive, NM-2206 guard, Max Discount ≤100 boundary)
+**Updated**: 2026-07-18 (NM-2269: Active-only effect TC-042, currency data-blocked TC-043, compound stress TC-044; NM-2270: grid text filter TC-045, sort effects TC-046/047, grid options TC-048, compound stress TC-049)
 
 ## Scope boundary
 
@@ -202,7 +202,7 @@ Kept skipped. Live on location 1606 (2026-07-09): over 100 sets aria-invalid + a
 
 ## Coverage Index (regenerated 2026-07-09 from the test-cases file)
 
-Authoritative current case list (38 cases; TC-023 skipped — app defect). Scenario prose above may lag; this index is mechanically regenerated.
+Authoritative current case list (49 cases; TC-023 skipped — app defect). Scenario prose above may lag; this index is mechanically regenerated.
 
 - TC-CPR-OVR-001 — Override screen loads with Equipment selected by default
 - TC-CPR-OVR-002 — Equipment + Labor tabs render and switching flips aria-selected
@@ -242,3 +242,51 @@ Authoritative current case list (38 cases; TC-023 skipped — app defect). Scena
 - TC-CPR-OVR-036 — Every row shows a Current Price value on office 1606 (no blank cell) (NM-2206)
 - TC-CPR-OVR-037 — Max Discount % accepts values up to the 100 cap (inclusive)
 - TC-CPR-OVR-038 — Every downloaded CSV row is well-formed with valid IDs, currency, 0/1 flags, and money fields
+- TC-CPR-OVR-039 — Typing a partial office number narrows picker rows; clearing restores the full list
+- TC-CPR-OVR-040 — Picker Active checkbox defaults to unchecked; toggling is a client-side filter — no location-lookup POST fires on toggle
+- TC-CPR-OVR-041 — Non-Revenue-Management user sees a read-only Override grid — no edit, no Save, no Import (SKIPPED — RBAC blocked)
+- TC-CPR-OVR-042 — Active-only removes inactive rows and restores the full set on uncheck (NM-2269)
+- TC-CPR-OVR-043 — Currency filter narrows the grid to rows matching the selected currency (SKIPPED — data-blocked, no multi-currency bed)
+- TC-CPR-OVR-044 — Compound: Active-only + text filter intersection; order independence; full reset restores (NM-2269)
+- TC-CPR-OVR-045 — Text filter "Camlok" narrows the grid to matching rows; clearing restores the full set (NM-2270)
+- TC-CPR-OVR-046 — Product Group Name column sort: ascending/descending first cell and monotonic order asserted (NM-2270)
+- TC-CPR-OVR-047 — Product Group column sort: self-verifying monotonic oracle, no hardcoded first-cell value (NM-2270)
+- TC-CPR-OVR-048 — Hiding "Max Discount %" reduces visible column count; Reset to Default restores all columns (NM-2270)
+- TC-CPR-OVR-049 — Text filter and column sort applied together; every row matches filter; filter survives sort; reset restores (NM-2270)
+
+## Scenario: TC-CPR-OVR-042 - Active-only effect: 9→7→9 row-count delta with identity delta (NM-2269)
+1. Step: getActiveOnlyState → false; getVisibleRowCount → 9
+2. Step: setActiveOnly(true) + waitForTimeout(800), expected: getVisibleRowCount 7; findRowByProductGroup("Camlok #1…") null; findRowByProductGroup("Camlok #2…") null
+3. Step: setActiveOnly(false) + waitForTimeout(800), expected: getVisibleRowCount 9; both Camlok rows present
+Data: office=1105 (9 rows / 7 active / Camloks 1482+1484 inactive)
+
+## Scenario: TC-CPR-OVR-043 - Currency filter grid narrowing (SKIPPED — data-blocked)
+Skipped: all corporate-group offices as of 2026-07-17 carry USD-only rows (1101=0 rows, 1105/1606/1107 all USD). Re-enable when a multi-currency bed is identified or seeded.
+
+## Scenario: TC-CPR-OVR-044 - Compound filter stress: intersection + order independence + full reset (NM-2269)
+1. Step: filterProductGroups("Camlok") → 2 rows; setActiveOnly(true) → 0 rows (Phase A)
+2. Step: clearFilter + setActiveOnly(false) → 9 rows (reset)
+3. Step: setActiveOnly(true) → 7; filterProductGroups("Camlok") → 0 rows (Phase B — order independent)
+4. Step: setActiveOnly(false) → 2 rows (Camlok filter still active); clearFilter → 9 rows fully restored
+
+## Scenario: TC-CPR-OVR-045 - Grid text filter effect: "Camlok" narrows to 2 rows; clear restores 9 (NM-2270)
+1. Step: getVisibleRowCount → 9 (baseline, office 1105)
+2. Step: filterProductGroups("Camlok"), expected: getVisibleRowCount 2; getColumnCellValues(2) contains "Camlok #1 - 50' (Set of 5 Conductors)" and "Camlok #2 - 10'"
+3. Step: clearFilter, expected: getVisibleRowCount 9
+
+## Scenario: TC-CPR-OVR-046 - Product Group Name sort ASC/DESC with walk-certified first-cell oracles (NM-2270)
+1. Step: sortColumnViaDropdown("Product Group Name", "ascending"), expected: getFirstRowCellText(2) == "07A Compass Screen Set Kit"; getColumnCellValues(2) non-decreasing
+2. Step: sortColumnViaDropdown("Product Group Name", "descending"), expected: getFirstRowCellText(2) == "Whiteboard Supply - Marker 4 Pk" (confirmed via live run 2026-07-18); getColumnCellValues(2) non-increasing
+
+## Scenario: TC-CPR-OVR-047 - Product Group column sort: self-verifying monotonic oracle (NM-2270)
+1. Step: sortColumnViaDropdown("Product Group", "ascending"), expected: getColumnCellValues(1) length > 0; non-decreasing (numeric comparison)
+2. Step: sortColumnViaDropdown("Product Group", "descending"), expected: getColumnCellValues(1) length > 0; non-increasing (numeric comparison)
+
+## Scenario: TC-CPR-OVR-048 - Grid Options: hide "Max Discount %" reduces columns; Reset restores (NM-2270)
+1. Step (baseline): getColumnCount → 10; beforeEach/afterEach ensureAllGridColumnsVisible
+2. Step: openGridOptions + toggleGridColumn("Max Discount %") + closeGridOptions, expected: getColumnCount 9
+3. Step: openGridOptions + resetGridToDefault + closeGridOptions, expected: getColumnCount 10
+
+## Scenario: TC-CPR-OVR-049 - Text filter + sort simultaneously; every row matches filter; filter survives sort; reset restores (NM-2270)
+1. Step: filterProductGroups("Camlok") → 2 rows; sortColumnViaDropdown("Product Group Name", "ascending"), expected: getColumnCellValues(2).length 2; every row name contains "Camlok" (case-insensitive); values non-decreasing
+2. Step: clearFilter, expected: getVisibleRowCount 9

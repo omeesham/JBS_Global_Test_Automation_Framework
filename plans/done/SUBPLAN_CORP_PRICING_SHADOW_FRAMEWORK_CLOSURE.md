@@ -2,7 +2,7 @@
 
 > **Shadow re-home (2026-06-24, PLAN_CORP_PRICING_JIRA_DELIVERY):** renamed from `SUBPLAN_CORP_PRICING_REMEDIATION_CLOSURE.md`. Re-pointed to the Jira-delivery parent as the **final shadow-tier node** — runs LAST, after all 8 ticket deliverables + SHADOW_INTEGRATION + SHADOW_EDGE. Its job (negative-test the prevention guards + ramp closure gates announce→deny) is internal framework hardening, not a client deliverable. Content/depth unchanged. `Depends on` collapses to `SUBPLAN_CORP_PRICING_SHADOW_EDGE.md` (which transitively requires the whole chain).
 
-**Status**: PENDING
+**Status**: SUPERSEDED (2026-07-17 — absorbed item-for-item into the six per-ticket plans SUBPLAN_CORP_PRICING_NM2268..NM2273; proof: .claude/state/ua-worker/chips/delegation-temp/out-ticket-split/ABSORPTION-MANIFEST.md)
 **Priority**: P0
 **Created**: 2026-06-19
 **Identity**: OWNER

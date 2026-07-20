@@ -12,12 +12,11 @@
   "mistake_ledger_ramp_target": "deny",
   "mistake_ledger_ramp_complete": false,
   "mistake_ledger_ramp_note": "promote to deny after 10 consecutive mutating sessions end attested with zero false-positive warnings (stale mid-session warning files cleared on attestation do not count as fires). deny is non-veto per LR-060 (Stop hooks cannot block); it floors the verdict to RED and emits warn-deny in telemetry vs YELLOW/warn for announce.",
-  "stall_guard_mode": "warn",
+  "_stall_note": "PBUG-12 (2026-07-16): the former 'stall_guard_mode' key here was DEAD — no .mjs/.sh under .claude/scripts/pipeline reads it (grep-verified). The live stall knob is STALL_MODE in ~/.claude/delegation/config.json, read by the dispatch wrapper (copilot-worker.sh). Change stall behavior THERE, not here. The stall_guard_ramp_* keys below are retained as human-read ramp documentation only.",
   "_stall_guard_comment": "Rollout knob for the Phase 1 stall guard (the dispatch wrapper, PLAN_STATIC_TO_DYNAMIC). warn = fire STALL-WARN to stall.log + META stall_warns, do NOT kill; kill = arm the guard to terminate stalled dispatches; off = disable. Ramp discipline per LR-069 §3.3: land warn, promote to kill only after ramp criterion is met. Graduating incident: tavily-mcp-build-01 killed at static 600s wall ceiling while producing output (2026-07-10, ledger-verified double-spend).",
   "stall_guard_ramp_started": "2026-07-11",
   "stall_guard_ramp_target": "kill",
   "stall_guard_ramp_note": "warn-only until ≥20 dispatches show zero false STALL-WARNs on later-successful runs; then arm kill",
-  "uplink_mode": "announce",
   "_uplink_mode_KNOWN_GAP": "FLAGGED-NOT-FIXED 2026-07-13: the dispatch wrapper does NOT read this key. Its uplink-fire helper hardcodes the literal 'announce' (wrapper line ~151) and no 'enforce' code path exists. Flipping uplink_mode to 'enforce' is a SILENT NO-OP today — the enforce wiring (real consult + advisory injection) must be built in the wrapper before this knob does anything. Do not trust uplink_ramp_target below until that lands. Surfaced by a cross-family gap-hunt debate; ranking + evidence in the delegation decision-debates.jsonl (2026-07-13 entry). Left as a flag by owner direction; if still unused later it gets removed anyway.",
   "_uplink_comment": "Rollout knob for the uplink consult machinery (UPLINK_DOCTRINE §2 calibration ≡ LR-069 ramp; wires in the dispatch wrapper UW-1..4 + .claude/hooks/lib/uplink/*.mjs; HARD policy in ~/.claude/delegation/uplink-policy.json). announce = trip-wires log CONSULT-WOULD-FIRE to uplink.log + gate-fires.log, NOTHING is killed/consulted/injected; enforce = wires actually fire consults + inject binding advisories; off = disabled. Sev S1 per LR-069 §3.1 (assumption-leak survives to ship). Graduating incident: Rutvik owner directive 2026-07-12 — agents assume, managers miss it, assumption failures leak to the deliverable uncaught. Rule body: LR-070 in .claude/rules/guardrail-policy.md. Every fire appends one CSV line to .claude/state/gate-fires.log.",
   "uplink_ramp_started": "2026-07-12",
@@ -33,5 +32,12 @@
   "reviewer_skill_compliance_ramp_started": "2026-07-13",
   "reviewer_skill_compliance_ramp_target": "bounce",
   "reviewer_skill_compliance_ramp_complete": false,
-  "reviewer_skill_compliance_ramp_note": "promote to auto-bounce after >=10 reviewed dispatches with skill DOCTRINE where SKILL-SKIP false-positive rate <5%; record ramp_flipped date + set ramp_complete true on flip"
+  "reviewer_skill_compliance_ramp_note": "promote to auto-bounce after >=10 reviewed dispatches with skill DOCTRINE where SKILL-SKIP false-positive rate <5%; record ramp_flipped date + set ramp_complete true on flip",
+  "stall_guard_action": "warn+bounce",
+  "stall_guard_bounce_delay_s": 60,
+  "stall_guard_max_bounces": 2,
+  "_stall_guard_comment": "LCD_04 stall warn+bounce (Sev S1; graduating incident: 2026-07-16 8 cap-death/stall runs in one day). Rollback: set stall_guard_action to warn. Rutvik in-chat GO 2026-07-16 ('go lcd04'). Rule: SUBPLAN_LCD_04_STALL_HANDLING Phase 1.",
+  "pinj_reviewer_check_mode": "announce",
+  "pinj_doctrine_echo_mode": "announce",
+  "_pinj_comment": "PARITY_INJECTION Phase 4 calibration knobs (Sev S1, graduating incident PARITY_GAP_MATRIX 2026-07-12). announce = PINJ findings are named review/verify findings only, dispatcher decides bounce; promote per LR-069 §3.3 after calibration. Rule: SUBPLAN_PARITY_INJECTION_SYSTEM Phase 4; sections live in the council-reviewer/-verifier agent profiles (machine-local). Landed 2026-07-16 under Rutvik blanket GO."
 }

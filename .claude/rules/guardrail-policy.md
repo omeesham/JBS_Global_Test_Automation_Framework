@@ -74,6 +74,25 @@ One shared append-only log. Without this the demotion review is unauditable pros
 
 Direction of trust: gates exist to make quality CHEAP, not to make work slow — when a class stops recurring, its gate must shrink with it.
 
+### §3.5 — Recurrence convicts the prior fix (owner doctrine 2026-07-17)
+
+When a failure class RECURS in an area that already carries a "permanent" fix (rule, gate, HARD STOP,
+taxonomy mandate), the incident response MUST start by putting the PRIOR fix on trial — it is the
+prime suspect, most likely slop. Mandatory three-question trial before any new mechanism lands:
+(1) what did the old fix do to prevent this class; (2) why did it fail to prevent THIS instance
+(enum: `scoped-wrong` | `prose-not-mechanism` | `rubber-stampable` | `dead/never-fired` |
+`different-sub-class`); (3) what will the new mechanism do differently. Verdict per prior fix:
+`SURVIVES` (genuinely different sub-class — keep) or `CONVICTED`. **A CONVICTED fix is rewired into a
+machine-enforced form or RETIRED-AND-REMOVED in the same change — never left idling as sediment**
+(dead harness wastes time, effort, and accumulates non-working slop; removal is part of the fix, per
+the §3.4 dead-gate deletion posture and LR-050 in-scope-cleanup). **Layering a new fix on top of an
+unconvicted-but-failed old fix is FORBIDDEN.** Record the trial verdicts in the incident's RCA/plan.
+Enforcement companions: `/rca` Prior-Fix Trial phase (mandatory section on recurrence-class RCAs),
+`/planning` Step 3 recurrence gate (HALT without a trial section), and the machine closure-check per
+`plans/pending/SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md`. *Graduating incident*: 2026-07-17 Override
+walk gaps — LR-062/LR-064/FCC-taxonomy/walk HARD STOPs all existed and none fired (landing-page-only
+denominator, rubber-stampable prose mandates, no machine checking assertions).
+
 **Trigger**: any authoring or edit of a hook script (`.claude/hooks/**`), a check script (`scripts/check-*`), or a plan/subplan (`plans/**`) that introduces, modifies, or removes a gate. Re-verify the LR number is free per LR-020 before assigning.
 
 **Graduated from**: PLAN_REACTIVE_VS_PREVENTIVE_GUARDRAIL_AUDIT Phase 3 (2026-07-10 amendment — the owner directive to implement a standing severity-policy + self-healing loop system, not a one-time fix list). Cross-refs LR-040, LR-048, LR-055, LR-060, LR-062.

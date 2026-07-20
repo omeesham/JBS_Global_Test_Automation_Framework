@@ -10,7 +10,7 @@
 >
 > **HALT + ASK** if: a dependency is blocked / scope ambiguity beyond the field roster / the live walk needs a CREATE that can't be safely reversed / regression-guard shows unrelated changes / any inventory field cannot be classified into one of the three allowed buckets (LR-040 closure gate).
 
-**Status**: PENDING
+**Status**: SUPERSEDED (2026-07-17 — absorbed item-for-item into the six per-ticket plans SUBPLAN_CORP_PRICING_NM2268..NM2273; proof: .claude/state/ua-worker/chips/delegation-temp/out-ticket-split/ABSORPTION-MANIFEST.md)
 **Priority**: P2
 **Created**: 2026-06-09
 **Identity**: GIVER
