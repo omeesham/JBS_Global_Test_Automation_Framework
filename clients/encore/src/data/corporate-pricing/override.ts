@@ -142,7 +142,7 @@ export const OVERRIDE_NUMERIC_CASES = {
  * Anchored by content (Product Group ID + Name), never index (assert content, not position).
  */
 /**
- * Walk-certified sort oracles for office 1105 Equipment tab (NM-2270).
+ * Sort-order verification data for the office 1105 Equipment tab.
  * Verified 2026-07-17 (walk-A): the Override grid column sort is triggered via a header
  * dropdown menu ("Sort ascending" / "Sort descending" / "Hide column") — NOT a header-click toggle.
  * Product Group Name ASC first cell: "07A Compass Screen Set Kit";
