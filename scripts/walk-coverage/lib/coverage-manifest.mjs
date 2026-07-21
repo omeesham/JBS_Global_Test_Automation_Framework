@@ -24,6 +24,8 @@
 // fabrication signal the closure gate turns into a whole-plan rejection + integrity strike).
 
 import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { isAbsolute, join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -38,6 +40,24 @@ export const COVERAGE_GATE_LANDING_DATE = '2026-06-19';
 // post-date COVERAGE_GATE_LANDING_DATE). This is what stops the gate from retroactively failing the
 // pre-existing manifests (e.g. pricing-2026-06-19) that never carried a provenance token.
 export const PROVENANCE_GATE_LANDING_DATE = '2026-06-24';
+
+// Artifacts dated on/after this date MUST include a Coverage Manifest or the gate denies.
+// Configurable via opts.manifestMandatoryDate (tests) or closure-config.json manifest_mandatory_date.
+export const MANIFEST_MANDATORY_DATE = '2026-07-22';
+
+// Allowlist patterns for `out-of-scope` row reason text. Reason must be ≥20 chars AND match at
+// least one pattern. Prevents blanket OOS dumps with no cited rule or structural justification.
+const OOS_CITATION_RX = [
+  /^LR-\d{3}/i,
+  /^LR-ENC-\d{3}/i,
+  /^ALL-\d{3}/i,
+  /^NM-\d{3,5}/i,
+  /^EXEMPT:(LR-\w+|NM-\d{3,5})\b/i,
+  /^not-interactive\b/i,
+  /^outside-module\b/i,
+  /^third-party\b/i,
+  /^duplicate-of:/i,
+];
 
 // Dispositions that ASSERT a live observation of a control — these need machine evidence on a
 // provenance-gated artifact. `out-of-scope` is honest inference (no observation claim, never gated).
@@ -72,7 +92,9 @@ export function parseCoverageSignals(text) {
   const undispositioned = (t.match(/_undispositioned_/g) || []).length;
   const manifestRows = extractManifestRows(t);
 
-  return { mcpDate, hasManifest, ratio, ratioComplete, crossCheck, crossCheckClean, partial, undispositioned, manifestRows };
+  const completionRef = (t.match(/(?:\*\*)?Completion_Record(?:\*\*)?\s*:\s*([^\n]+)/i) || [])[1]?.trim() || '';
+  const hasCompletionRecord = !!completionRef;
+  return { mcpDate, hasManifest, ratio, ratioComplete, crossCheck, crossCheckClean, partial, undispositioned, manifestRows, completionRef, hasCompletionRecord };
 }
 
 // Parse the Coverage Manifest table rows. Each row is a markdown table line whose cells carry a
@@ -167,10 +189,94 @@ function checkEvidenceArtifact(evidencePointer, controlRef, mcpDate, artifactPat
   return { ok: true, reason: '' };
 }
 
+// Verify the completion-record JSON referenced by a manifest's `Completion_Record:` frontmatter key.
+// Returns { ok, reason, data }. Handles halted status with exemption check (Item 5 gate side).
+function checkCompletionRecord(completionRef, artifactPath) {
+  if (!completionRef) return { ok: false, reason: 'Completion_Record absent' };
+  const jsonRel = completionRef.replace(/\s*\(.*\)$/, '').trim();
+  const jsonPath = isAbsolute(jsonRel) ? jsonRel : join(REPO_ROOT, jsonRel);
+  if (!existsSync(jsonPath)) return { ok: false, reason: `Completion_Record JSON not found: ${jsonRel}` };
+  let data;
+  try { data = JSON.parse(readFileSync(jsonPath, 'utf-8')); } catch { return { ok: false, reason: 'Completion_Record JSON unparseable' }; }
+  const cr = data.completion_record;
+  if (!cr) return { ok: false, reason: 'Completion_Record JSON lacks completion_record field' };
+  if (cr.status === 'halted') {
+    // Item 5: check for a valid unexpired human exemption in .claude/walk-exemptions.json
+    const exemptionsPath = join(REPO_ROOT, '.claude/walk-exemptions.json');
+    let exemptions = [];
+    try {
+      if (existsSync(exemptionsPath)) {
+        exemptions = JSON.parse(readFileSync(exemptionsPath, 'utf-8')).exemptions || [];
+      }
+    } catch { /* no valid exemptions */ }
+    const now = new Date();
+    const match = exemptions.find(e =>
+      (cr.surfaces_attempted || []).some(s => s.includes(e.module)) &&
+      e.expires && new Date(e.expires) > now
+    );
+    if (match) return { ok: true, reason: `HALTED but exempted: ${match.reason} (by ${match.granted_by})` };
+    return { ok: false, reason: `HALTED — no valid exemption. halt_reasons: ${(cr.halt_reasons || []).join('; ')}` };
+  }
+  if (cr.status !== 'complete') return { ok: false, reason: `Completion_Record unknown status: ${cr.status}` };
+  // Anti-tamper: content_sha256 is REQUIRED for complete records — its absence means the hash check was skipped.
+  if (!cr.content_sha256) {
+    return { ok: false, reason: 'Completion_Record missing content_sha256 — re-run enumerate-page.mjs' };
+  }
+  const stripped = JSON.parse(JSON.stringify(data));
+  delete stripped.completion_record.content_sha256;
+  const expected = createHash('sha256').update(JSON.stringify(stripped, null, 2) + '\n').digest('hex');
+  if (cr.content_sha256 !== expected) return { ok: false, reason: 'Completion_Record JSON content_sha256 mismatch (file tampered)' };
+  return { ok: true, data: cr };
+}
+
 // ISO dates sort lexically. Missing date → conservatively NOT grandfathered (in-scope).
 export function isGrandfathered(mcpDate, landingDate = COVERAGE_GATE_LANDING_DATE) {
   if (!mcpDate) return false;
   return mcpDate < landingDate;
+}
+
+// Returns the YYYY-MM-DD of the first git commit that added artifactPath, or null on any error/untracked.
+// Uses --diff-filter=A so only the add-commit is returned; the last output line is the oldest (first-add).
+function getGitFirstCommitDate(artifactPath) {
+  if (!artifactPath) return null;
+  try {
+    const relPath = artifactPath.startsWith(REPO_ROOT)
+      ? artifactPath.slice(REPO_ROOT.length).replace(/^[\\/]/, '').replace(/\\/g, '/')
+      : artifactPath.replace(/\\/g, '/');
+    const result = spawnSync(
+      'git',
+      ['log', '--follow', '--diff-filter=A', '--format=%aI', '--', relPath],
+      { cwd: REPO_ROOT, encoding: 'utf-8', timeout: 5000 }
+    );
+    if (result.status !== 0 || result.error || !result.stdout) return null;
+    const lines = result.stdout.trim().split('\n').map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return null;
+    const m = lines[lines.length - 1].match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : null;
+  } catch {
+    // git unavailable, not a repo, or unexpected error — treat as null (enforced, not grandfathered).
+    return null;
+  }
+}
+
+// Determine whether an artifact is SUBJECT TO the mandate (coverage gate / manifest requirement).
+// Uses ONLY non-forgeable signals — mtime is author-forgeable (touch -d) and is deliberately excluded.
+// Fail-closed: on any uncertainty, treat the artifact as subject to the mandate.
+//
+// ENFORCE (subject) if ANY:
+//   - signals.hasCompletionRecord: machine completion record present on this artifact
+//   - git first-commit date >= mandatoryDate: file was added on/after the mandate
+//   - git UNKNOWN / untracked (no first-commit date): a NEW file — always enforce
+// GRANDFATHER (not subject) ONLY if: !hasCompletionRecord AND git-first-commit-date EXISTS AND < mandatoryDate.
+export function isSubjectToMandate(artifactPath, signals, mandatoryDate = MANIFEST_MANDATORY_DATE) {
+  if (signals.hasCompletionRecord) return true;
+  const gitDate = getGitFirstCommitDate(artifactPath);
+  if (gitDate !== null) {
+    return gitDate >= mandatoryDate;
+  }
+  // No git date — file is untracked or git unavailable. mtime is author-forgeable, so we
+  // never use it as a grandfather signal. Fail toward enforcement on all such uncertainty.
+  return true;
 }
 
 /**
@@ -189,11 +295,18 @@ export function isGrandfathered(mcpDate, landingDate = COVERAGE_GATE_LANDING_DAT
  *   so the closure gate can reject the whole walk and write an integrity strike.
  */
 export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, opts = {}) {
-  const { artifactPath = '', provenanceLandingDate = PROVENANCE_GATE_LANDING_DATE } = opts;
+  const { artifactPath = '', provenanceLandingDate = PROVENANCE_GATE_LANDING_DATE, manifestMandatoryDate = MANIFEST_MANDATORY_DATE } = opts;
   const s = parseCoverageSignals(text);
-  if (!s.hasManifest) return { applicable: false, complete: true, reasons: ['no-coverage-manifest'], provenanceFail: false, signals: s };
-  if (isGrandfathered(s.mcpDate, landingDate)) {
-    return { applicable: false, complete: true, reasons: [`grandfathered (MCP_Session_Date ${s.mcpDate} < ${landingDate})`], provenanceFail: false, signals: s };
+  if (!s.hasManifest) {
+    if (!isSubjectToMandate(artifactPath, s, manifestMandatoryDate)) {
+      return { applicable: false, complete: true, reasons: ['no-coverage-manifest (pre-mandatory-date)'], provenanceFail: false, signals: s };
+    }
+    return { applicable: true, complete: false,
+      reasons: [`Coverage Manifest ABSENT — run \`npm run walk:enumerate\` (LR-062). Mandatory for artifacts dated >= ${manifestMandatoryDate}`],
+      provenanceFail: false, signals: s };
+  }
+  if (!isSubjectToMandate(artifactPath, s, landingDate)) {
+    return { applicable: false, complete: true, reasons: [`grandfathered (git-old TRACKED artifact, no Completion_Record, first-commit < ${landingDate})`], provenanceFail: false, signals: s };
   }
   const reasons = [];
   if (!s.ratioComplete) reasons.push(`Coverage_Ratio not 100% (${s.ratio ? (s.ratio.n + '/' + s.ratio.m) : 'missing/unparseable'})`);
@@ -203,7 +316,7 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
 
   // === Provenance sub-gate (SUBPLAN_CGS_B) — only for artifacts on/after PROVENANCE_GATE_LANDING_DATE ===
   let provenanceFail = false;
-  if (!isGrandfathered(s.mcpDate, provenanceLandingDate)) {
+  if (isSubjectToMandate(artifactPath, s, provenanceLandingDate)) {
     for (const row of (s.manifestRows || [])) {
       const ref = row.controlRef || '(unlabeled row)';
       if (OBSERVATION_DISPOSITIONS.includes(row.disposition)) {
@@ -228,6 +341,32 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
         reasons.push(`row "${ref}" covered-by-TC contradicts provenance: oracle (a TC is live evidence; oracle = classified-from-spec)`);
         provenanceFail = true;
       }
+    }
+  }
+
+  // Item 3: out-of-scope citation validation + 15% global cap
+  const oosRows = (s.manifestRows || []).filter(r => r.disposition === 'out-of-scope');
+  const totalRows = (s.manifestRows || []).length;
+  for (const row of oosRows) {
+    const reasonText = row.raw.match(/out-of-scope\s*:\s*([^|`\n]+)/i)?.[1]?.trim() || '';
+    if (reasonText.length < 20) {
+      reasons.push(`out-of-scope "${row.controlRef}" reason <20 chars`);
+    }
+    if (!OOS_CITATION_RX.some(rx => rx.test(reasonText))) {
+      reasons.push(`out-of-scope "${row.controlRef}" lacks allowlist citation`);
+    }
+  }
+  if (totalRows > 0 && oosRows.length / totalRows > 0.15) {
+    reasons.push(`out-of-scope rows exceed 15% global cap (${oosRows.length}/${totalRows} = ${Math.round(oosRows.length / totalRows * 100)}%)`);
+  }
+
+  // Item 2 gate side: Completion_Record required for post-mandatory-date artifacts
+  if (isSubjectToMandate(artifactPath, s, manifestMandatoryDate)) {
+    if (!s.hasCompletionRecord) {
+      reasons.push('Completion_Record frontmatter missing — re-run enumerate-page.mjs');
+    } else if (artifactPath) {
+      const crCheck = checkCompletionRecord(s.completionRef, artifactPath);
+      if (!crCheck.ok) reasons.push(crCheck.reason);
     }
   }
 

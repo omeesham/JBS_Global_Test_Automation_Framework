@@ -30,6 +30,7 @@ import { execSync } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { coverageVerdict, COVERAGE_GATE_LANDING_DATE } from './walk-coverage/lib/coverage-manifest.mjs';
+import { verifyDenominator, spotAudit } from './walk-coverage/verify-denominator.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -794,6 +795,17 @@ function checkCx(body, planPath, landingDate) {
     const v = coverageVerdict(text, landingDate, { artifactPath: abs });
     if (!v.applicable) continue;      // grandfathered or no coverage manifest present
     if (!v.complete) items.push({ artifact: rel, reasons: v.reasons, severity: 'FAIL', fabrication: !!v.provenanceFail });
+    // W-DENOM: denominator integrity (item 4) + spot audit (item 7) -- only when coverage is complete.
+    if (v.applicable && v.complete && v.signals.hasCompletionRecord) {
+      const jsonRel = v.signals.completionRef.replace(/\s*\(.*\)$/, '').trim();
+      const jsonPath = join(REPO_ROOT, jsonRel);
+      const dr = verifyDenominator(text, jsonPath);
+      const sr = spotAudit(text);
+      const denomReasons = [];
+      if (!dr.ok) denomReasons.push(...(dr.reasons || [dr.reason]).filter(Boolean));
+      if (!sr.ok) denomReasons.push(...sr.failures.map(f => `spot-audit: ${f}`));
+      if (denomReasons.length > 0) items.push({ artifact: rel, reasons: denomReasons, severity: 'FAIL', fabrication: false });
+    }
   }
   return { check: 'Cx', status: items.length > 0 ? 'FAIL' : 'PASS', overridable: false, items };
 }

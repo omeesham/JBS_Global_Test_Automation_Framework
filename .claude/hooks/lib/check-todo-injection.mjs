@@ -182,6 +182,21 @@ function isEvidenceDirTarget(targetPath) {
   return EVIDENCE_DIR_RX.test(norm) || EVIDENCE_DIR_RX.test(String(targetPath));
 }
 
+// ---------------------------------------------------------------------------
+// Walk-exemptions write gate — walk-completeness enforcement (LR-062 / 2026-07-21 RCA).
+// Sev: S0 (a self-granted exemption fabricates a coverage pass = false-green).
+// `.claude/walk-exemptions.json` is the HUMAN-ONLY registry that lets a genuinely
+// unreachable walk surface pass closure; if an agent could write it, "halted
+// enumeration = deny" collapses into a self-served skip. DENIED in every mode
+// (same posture as the .playwright-cli/ gate). Human grants via LR-043 §A override.
+// ---------------------------------------------------------------------------
+const WALK_EXEMPTIONS_RX = /(^|[\\/])\.claude[\\/]walk-exemptions\.json$/;
+
+function isWalkExemptionsTarget(targetPath) {
+  if (!targetPath) return false;
+  const norm = String(targetPath).replace(/\\/g, "/");
+  return WALK_EXEMPTIONS_RX.test(norm) || WALK_EXEMPTIONS_RX.test(String(targetPath));
+}
 // Legacy: still used by self-tests for the pure-scan path. Net-new logic below
 // wraps this for the live grandfather check.
 function scanSkipFixmeWithoutBugCite(content) {
@@ -543,7 +558,25 @@ function handleValidate(payload, sessionId, transcriptPath) {
     );
     return;
   }
-
+  // -------------------------------------------------------------------------
+  // Walk-exemptions write gate — walk-completeness enforcement (LR-062 / 2026-07-21).
+  // Denies agent hand-authoring of the human-only walk exemption registry, always.
+  // -------------------------------------------------------------------------
+  if (isWalkExemptionsTarget(targetPath)) {
+    if (hasOverrideAuthorization(messages, targetPath)) {
+      emitAllow(`[OVERRIDE] walk-exemptions write gate bypassed for ${shortPath(targetPath)}`);
+      return;
+    }
+    emitDeny(
+      `Editing the walk exemption registry (${shortPath(targetPath)}) is denied by the ` +
+        "walk-completeness enforcement gate (LR-062). `.claude/walk-exemptions.json` is HUMAN-ONLY: " +
+        "if an agent could grant its own exemption, 'halted enumeration = deny' collapses into a " +
+        "self-served skip (a fabricated coverage pass). A human grants an exemption in chat via the " +
+        "one-shot override handshake. Override path (LR-043 §A): emit '[OVERRIDE-REQUEST] " +
+        shortPath(targetPath) + "' and have the user type 'override approved'."
+    );
+    return;
+  }
   if (!inExecute) {
     emitAllow();
     return;
@@ -1130,7 +1163,27 @@ function runSelfTest() {
     "evidence-dir NEGATIVE: ordinary source file",
     () => !isEvidenceDirTarget("scripts/walk-coverage/lib/coverage-manifest.mjs"),
   ]);
-
+  // 20c. isWalkExemptionsTarget — walk-completeness enforcement write gate.
+  cases.push([
+    "walk-exemptions positive: repo-relative",
+    () => isWalkExemptionsTarget(".claude/walk-exemptions.json"),
+  ]);
+  cases.push([
+    "walk-exemptions positive: absolute POSIX",
+    () => isWalkExemptionsTarget("/home/rutvik/proj/.claude/walk-exemptions.json"),
+  ]);
+  cases.push([
+    "walk-exemptions positive: Windows backslash",
+    () => isWalkExemptionsTarget("C:\\Users\\rutvi\\projects\\encore_framework\\.claude\\walk-exemptions.json"),
+  ]);
+  cases.push([
+    "walk-exemptions NEGATIVE: a different .claude json",
+    () => !isWalkExemptionsTarget(".claude/closure-config.json"),
+  ]);
+  cases.push([
+    "walk-exemptions NEGATIVE: same name elsewhere",
+    () => !isWalkExemptionsTarget("scripts/walk-coverage/walk-exemptions.json"),
+  ]);
   // 21. scanSkipFixmeNetNewWithoutBugCite — grandfather behavior.
   cases.push([
     "net-new deny: NEW skip without cite (oldContent empty)",

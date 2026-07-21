@@ -26,8 +26,10 @@
 import { chromium } from 'playwright';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createHash } from 'node:crypto';
 import { inPageEnumerate, collapseArchetypes, setAlgebra, renderManifest } from './lib/deep-pierce.mjs';
+import { MODULE_CONFIG as MC_DATA } from './lib/module-config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
@@ -56,7 +58,7 @@ const CPR_DETAIL_GUID   = '91acb5ca-20e2-ce8e-a9ab-8c370925fd65';  // 2021-PB6  
 // ---- per-module walk config (the M1 "per-module whitelist" for deterministic self-expand) ----
 // Generic affordance-probe self-expand also runs (role=tab unselected, aria-expanded=false); the
 // whitelist makes the validated pricing path deterministic + bounded.
-const MODULE_CONFIG = {
+export const MODULE_CONFIG = {
   pricing: {
     path: (office) => `${BASE}/locations/${office}/settings/location`,
     // Activate the Radix sub-tab by TESTID, not role — the pilot proved getByRole did not flip the
@@ -69,6 +71,7 @@ const MODULE_CONFIG = {
     openerTestidPatterns: [/toggle-settings-panel/i, /toggle-settings/i],
     cascadeParentTestidPatterns: [/is-alternate/i],
     excludeOptionRoles: true,                   // cmdk option lists are NOT denominator elements (M2)
+    ...MC_DATA.pricing,
   },
 
   // ===========================================================================================
@@ -84,7 +87,13 @@ const MODULE_CONFIG = {
     // The "N items found" footer paints BEFORE data (S1 race) — wait on a real results row, not the footer.
     contentMarker: 'tbody tr',
     openerTestidPatterns: [],
+    // Role/text openers: Import ▾ and Export ▾ use Radix ids (no data-testid); matched by role+text.
+    openerRoleTextPatterns: [
+      { role: 'button', text: 'Import' },
+      { role: 'button', text: 'Export' },
+    ],
     excludeOptionRoles: true,
+    ...MC_DATA['corporate-pricing-search'],
   },
   'corporate-pricing-strategy': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/details/${args.pricebook || CPR_STRATEGY_GUID}`,
@@ -229,6 +238,48 @@ async function enumerateState(page) {
   return out;
 }
 
+// ---- scan body-level portals (Radix/headless-UI menus, dialogs, listboxes) ----
+// Safe to call at any time: when nothing is open it returns []. Called inline after each
+// role/text opener click AND once at the end of main to capture any leftover open portals.
+async function scanPortalElements(page) {
+  return page.evaluate(() => {
+    const sels = [
+      '[data-radix-popper-content-wrapper]',
+      '[data-radix-select-viewport]',
+      '[role="listbox"]',
+      '[role="dialog"]',
+      '[role="menu"]',
+    ];
+    const results = [];
+    const seen = new Set();
+    for (const sel of sels) {
+      for (const el of document.querySelectorAll(sel)) {
+        for (const child of el.querySelectorAll('[role="option"],[role="menuitem"],button,a,input,select,textarea')) {
+          const tid = child.getAttribute('data-testid');
+          const key = tid
+            ? `testid:${tid}`
+            : `role:${(child.getAttribute('role') || child.tagName.toLowerCase())}:${(child.textContent || '').trim().slice(0, 40)}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          const isDisabled = child.disabled === true || child.getAttribute('aria-disabled') === 'true';
+          const entry = {
+            key,
+            role: child.getAttribute('role') || child.tagName.toLowerCase(),
+            name: (child.textContent || '').trim().slice(0, 60),
+            why: 'portal-scan',
+            inA: true,
+            inB: false,
+            disabled: isDisabled,
+          };
+          if (isDisabled) entry.status = 'UNREACHABLE';
+          results.push(entry);
+        }
+      }
+    }
+    return results;
+  });
+}
+
 async function main() {
   const office = args.office || '1604';
   const moduleName = args.module || 'pricing';
@@ -321,6 +372,28 @@ async function main() {
           if (await loc.count()) { await loc.first().click({ timeout: 5000 }); await waitReady(page); clicked++; activated.add(e.key); }
         } catch { activated.add(e.key); }
       }
+      // Role/text opener pass: click buttons matched by role+text (e.g. Import ▾ which has no data-testid).
+      // Each opener is clicked, portals scanned inline, entries merged, then menu closed before next opener.
+      if (cfg && cfg.openerRoleTextPatterns) {
+        for (const pattern of cfg.openerRoleTextPatterns) {
+          const activatedKey = `roletext:${pattern.role}:${pattern.text}`;
+          if (activated.has(activatedKey)) continue;
+          try {
+            const loc = page.getByRole(pattern.role, { name: pattern.text, exact: true });
+            if (!(await loc.count())) { activated.add(activatedKey); continue; }
+            await loc.first().click({ timeout: 5000 });
+            await waitReady(page);
+            const inlinePortals = await scanPortalElements(page);
+            const branch = `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`;
+            mergeEntries(accum, inlinePortals, branch, false);
+            report.branches.push({ branch, openerText: pattern.text, addedKeys: inlinePortals.length });
+            clicked++;
+            activated.add(activatedKey);
+            await page.keyboard.press('Escape');
+            await page.waitForTimeout(300);
+          } catch (err) { report.branches.push({ branch: `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`, openerText: pattern.text, error: String(err).slice(0, 120) }); activated.add(`roletext:${pattern.role}:${pattern.text}`); }
+        }
+      }
       const after = await enumerateState(page);
       const added = mergeEntries(accum, after.entries, `expand-${cycle}`, excludeOptions);
       report.cycles.push({ cycle, openersClicked: clicked, added, accum: accum.size });
@@ -350,6 +423,16 @@ async function main() {
       }
     }
 
+    // --- Portal scan: Radix/headless-UI portals rendered at document.body root ---
+    // Portals are only present when their trigger (select, dropdown, menu) is open.  Any portal left
+    // open by the self-expand pass will be captured here.  When nothing is open the scan finds zero
+    // elements — that is a safe no-op (no crash, no false elements added).
+    // Full live portal-reach proof (portals opened by trigger clicks) requires a headed run; see
+    // ASSUMPTIONS-MADE in the worker report.
+    const portalEntries = await scanPortalElements(page);
+    const portalAdded = mergeEntries(accum, portalEntries, 'portal-scan', false);
+    report.cycles.push({ cycle: 'portal-scan', portalElements: portalEntries.length, added: portalAdded, accum: accum.size });
+
     // --- archetype-collapse (F3/G8) + set algebra (M4) ---
     const rawEntries = [...accum.values()];
     const entries = collapseArchetypes(rawEntries, parseInt(args['archetype-threshold'] || '4', 10));
@@ -362,13 +445,31 @@ async function main() {
     report.g1Recovered = g1hits;
     report.entries = entries;
 
+    // --- completion_record: attach before JSON write; self-hash for anti-tamper ---
+    // Build the record first (without content_sha256), serialize, compute sha256 over that,
+    // then embed the hash.  Any file mutation after this point will fail the gate's re-verify.
+    report.completion_record = {
+      version: 1,
+      status: 'complete',
+      surfaces_attempted: [state],
+      surfaces_enumerated: [state],
+      element_count: entries.length,
+      raw_before_collapse: rawEntries.length,
+      halt_reasons: [],
+    };
+    const preHash = JSON.stringify(report, null, 2) + '\n';
+    report.completion_record.content_sha256 = createHash('sha256').update(preHash).digest('hex');
+
     // --- emit JSON provenance + markdown manifest scaffold ---
     const outDir = join(REPO_ROOT, 'reports', 'walk-coverage');
     if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
     const jsonPath = args.out ? resolve(REPO_ROOT, args.out) : join(outDir, `${state}.json`);
     writeFileSync(jsonPath, JSON.stringify(report, null, 2) + '\n', 'utf-8');
-    const manifestMd = renderManifest({ walkState: `office=${office} module=${moduleName}`, entries,
-      machineFoundDate: report.date, sourceJson: `reports/walk-coverage/${state}.json` });
+    const walkedStateLabels = ['resting', ...report.branches.map(b => b.branch).filter(Boolean)];
+    const walkStateStr = `office=${office} module=${moduleName} walked=[${walkedStateLabels.join(',')}]`;
+    const manifestMd = renderManifest({ walkState: walkStateStr, entries,
+      machineFoundDate: report.date, sourceJson: `reports/walk-coverage/${state}.json`,
+      completionRecord: report.completion_record });
     const mdPath = jsonPath.replace(/\.json$/, '.manifest.md');
     writeFileSync(mdPath, manifestMd, 'utf-8');
 
@@ -379,10 +480,26 @@ async function main() {
     console.log(`  Manifest: ${mdPath.replace(REPO_ROOT, '.')}`);
   } catch (e) {
     console.error(`[FATAL] ${String(e).slice(0, 300)}`);
+    // Write halted completion_record to JSON before exit — spec requires this on any error path.
+    try {
+      const haltDir = join(REPO_ROOT, 'reports', 'walk-coverage');
+      if (!existsSync(haltDir)) mkdirSync(haltDir, { recursive: true });
+      const haltJsonPath = args.out ? resolve(REPO_ROOT, args.out) : join(haltDir, `${state}.json`);
+      report.completion_record = {
+        version: 1,
+        status: 'halted',
+        surfaces_attempted: [state],
+        surfaces_enumerated: [],
+        element_count: 0,
+        raw_before_collapse: 0,
+        halt_reasons: [String(e).slice(0, 200)],
+      };
+      writeFileSync(haltJsonPath, JSON.stringify(report, null, 2) + '\n', 'utf-8');
+    } catch { /* swallow — already in error path */ }
     await browser.close();
     process.exit(1);
   }
   await browser.close();
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) { main(); }

@@ -272,7 +272,7 @@ export function setAlgebra(entries) {
  * column is emitted UNFILLED — the agent dispositions every row; Coverage_Ratio starts at 0/N.
  * @param {object} o  { walkState, entries, machineFoundDate, sourceJson }
  */
-export function renderManifest({ walkState, entries, machineFoundDate, sourceJson }) {
+export function renderManifest({ walkState, entries, machineFoundDate, sourceJson, completionRecord }) {
   const N = entries.length;
   const lines = [];
   lines.push('## Coverage Manifest (machine-enumerated)');
@@ -282,6 +282,9 @@ export function renderManifest({ walkState, entries, machineFoundDate, sourceJso
   lines.push(`Coverage_Ratio: 0/${N} (0%)   # update as you disposition; closure Cx requires 100%`);
   lines.push(`Walk_State: ${walkState}`);
   lines.push('CrossCheck: <pending>          # "clean" once every A△B review-set element is classified');
+  if (completionRecord) {
+    lines.push(`Completion_Record: ${sourceJson} (status=${completionRecord.status}, elements=${completionRecord.element_count})`);
+  }
   lines.push('-->');
   lines.push('');
   lines.push(`Machine denominator: **${N}** element(s). Provenance JSON: \`${sourceJson}\`.`);
