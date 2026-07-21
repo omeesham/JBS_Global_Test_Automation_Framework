@@ -49,13 +49,15 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REMOTE_NAME="encore-mock"
 REMOTE_URL="https://github.com/RutviK-JBS/encore_deliverables_test.git"
 
-BRANCH=""; MODULES=""; SURFACE=""; DO_PUSH=0
+BRANCH=""; MODULES=""; SURFACE=""; TCS=""; DO_PUSH=0; KEEP_SCRATCH=0
 for arg in "$@"; do
   case "$arg" in
-    --branch=*)  BRANCH="${arg#*=}" ;;
-    --modules=*) MODULES="${arg#*=}" ;;
-    --surface=*) SURFACE="${arg#*=}" ;;
-    --push)      DO_PUSH=1 ;;
+    --branch=*)       BRANCH="${arg#*=}" ;;
+    --modules=*)      MODULES="${arg#*=}" ;;
+    --surface=*)      SURFACE="${arg#*=}" ;;
+    --tcs=*)          TCS="${arg#*=}" ;;
+    --push)           DO_PUSH=1 ;;
+    --keep-scratch)   KEEP_SCRATCH=1 ;;
     *) echo "[ship-branch] unknown arg: $arg" >&2; exit 2 ;;
   esac
 done
@@ -79,15 +81,27 @@ if [[ -z "$MODULES" || -z "$SURFACE" ]]; then
     nm2263)                 MODULES="${MODULES:-CPR.NPB}"; SURFACE="${SURFACE:-corporate-pricing-new-pricebook*}" ;;
     nm2265)                 MODULES="${MODULES:-CPR.IMA}"; SURFACE="${SURFACE:-corporate-pricing-import-all*}" ;;
     nm2267)                 MODULES="${MODULES:-CPR.OVR}"; SURFACE="${SURFACE:-corporate-pricing-override*}" ;;
+    nm2268|nm2269|nm2270)  MODULES="${MODULES:-CPR.OVR}"; SURFACE="${SURFACE:-corporate-pricing-override*}" ;;
     *) echo "[ship-branch] need --modules and --surface (no preset for branch '$BRANCH')" >&2; exit 2 ;;
   esac
 fi
 [[ -n "$BRANCH" ]] || { echo "[ship-branch] --branch is required" >&2; exit 2; }
 
-echo "[ship-branch] branch=$BRANCH modules=$MODULES surface=$SURFACE push=$DO_PUSH"
+echo "[ship-branch] branch=$BRANCH modules=$MODULES surface=$SURFACE tcs=${TCS:-<none>} push=$DO_PUSH"
+
+# Guard: if --tcs is supplied, spec-trim.mjs must exist before any work begins.
+# Shipping a TC-filtered workbook without matching spec trimming is a mismatched delivery.
+if [[ -n "$TCS" ]]; then
+  if [[ ! -f "$REPO_ROOT/scripts/spec-trim.mjs" ]]; then
+    echo "[ship-branch] FATAL — --tcs='$TCS' requires scripts/spec-trim.mjs, which does not exist." >&2
+    echo "[ship-branch] A workbook trimmed to '$TCS' without matching spec trimming is a mismatched delivery." >&2
+    echo "[ship-branch] Build or obtain spec-trim.mjs (built in parallel by worker B1) before using --tcs." >&2
+    exit 1
+  fi
+fi
 
 SCRATCH="$(mktemp -d)"; VERIFY="$(mktemp -d)"
-cleanup() { rm -rf "$SCRATCH" "$VERIFY"; }
+cleanup() { [[ "$KEEP_SCRATCH" -eq 1 ]] || rm -rf "$SCRATCH" "$VERIFY"; }
 trap cleanup EXIT
 
 # 1. git-archive extract of the client (tracked files only — gitignored agent
@@ -122,8 +136,36 @@ if [[ -d "$SCRATCH/tests" ]]; then
   find "$SCRATCH/tests" -type d -empty -delete 2>/dev/null || true
 fi
 
+# 2b. Apply TC-level spec trimming when --tcs is supplied (runs on the surface-filtered
+#     spec files). spec-trim.mjs existence is pre-checked above so this never silently skips.
+# Each spec file is trimmed individually; any failure aborts before the workbook trim
+# because a trimmed workbook beside an untrimmed spec is the worst artifact this pipeline
+# can produce.
+if [[ -n "$TCS" ]]; then
+  while IFS= read -r -d '' specFile; do
+    if ! node "$REPO_ROOT/scripts/spec-trim.mjs" "$specFile" --keep="$TCS"; then
+      echo "[ship-branch] FATAL — spec-trim.mjs failed on: $specFile" >&2
+      echo "[ship-branch] Refusing to continue to workbook trim — a trimmed workbook beside an untrimmed spec is a mismatched delivery." >&2
+      exit 1
+    fi
+  done < <(find "$SCRATCH/tests" -name '*.spec.ts' -print0)
+
+  # 2c. Source-level dead-code elimination (src-trim.mjs) — DISABLED 2026-07-20.
+  #     General reachability-based pruning proved unreliable on this codebase (decorators,
+  #     dynamic access, cross-file imports -> both false-positive removals that broke tsc and
+  #     false-negative keeps). Owner decision: ship the src tree WHOLE. The client reviewer
+  #     scrutinizes the workbook and spec runs, not un-called page-object helpers; the real
+  #     tells (future-ticket test cases + ticket-named constants/comments) are already removed
+  #     by spec-trim + xlsx-trim, and no NM-226x/NM-227x string survives the payload.
+  #     Left in the tree (scripts/src-trim.mjs) but not invoked. Re-enable only if rebuilt on a
+  #     proven tool (e.g. knip/ts-prune).
+  :
+fi
+
 # 3. Trim the workbook to the module scope (registry-driven + Overview-row prune).
-node "$REPO_ROOT/scripts/xlsx-trim.mjs" "$SCRATCH/test_cases_xlsx/encore_test_cases.xlsx" --modules="$MODULES"
+XLSX_TRIM_ARGS=( --modules="$MODULES" )
+[[ -n "$TCS" ]] && XLSX_TRIM_ARGS+=( --tcs="$TCS" )
+node "$REPO_ROOT/scripts/xlsx-trim.mjs" "$SCRATCH/test_cases_xlsx/encore_test_cases.xlsx" "${XLSX_TRIM_ARGS[@]}"
 
 # 4. Throwaway git repo with EXPLICIT identity (never inherited in a temp dir).
 git -C "$SCRATCH" init -q
@@ -147,6 +189,7 @@ echo "[ship-branch] deny-list clean on $VERIFY"
 # 7. Push (only with --push AND a clean gate). force-with-lease against the live tip.
 if [[ "$DO_PUSH" -ne 1 ]]; then
   echo "[ship-branch] DRY-RUN complete (build + trim + deny-list verify). Re-run with --push to ship."
+  [[ "$KEEP_SCRATCH" -eq 1 ]] && echo "[ship-branch] SCRATCH=$SCRATCH (--keep-scratch: not cleaning up)"
   exit 0
 fi
 

@@ -24,10 +24,18 @@ core goal and tells you to use it with judgment — so Rutvik no longer has to m
   Record the authorized goal in TodoWrite so it survives context compression.
 
 ## What it lifts — and what it does NOT
+
+> **Read this first.** Everything below about "workers" depends on an optional local file,
+> `.claude/skills/ultra-agents/worker-ext.md`. **If that file is not on disk — the normal case —
+> there is no worker fleet and the worker bullet below is INERT.** Do not wait for workers, do not
+> hunt for a dispatch wrapper, and never treat "delegate it" as a precondition for starting: fan out
+> with ordinary Claude subagents and do the work yourself. Every other bullet still applies normally.
+
 **Lifts (self-imposed policy caps only):**
-- **Worker concurrency (PRIMARY, when the local worker extension exists)**: the default
-  worker cap (5) → up to a hard ceiling of **20** for this goal. The worker extension defines
-  the concrete lever; without that file, this bullet is inert.
+- **Worker concurrency (PRIMARY — applies ONLY when `worker-ext.md` exists on disk; otherwise this
+  bullet is INERT, skip it)**: the default worker cap (5) → up to a hard ceiling of **20** for this
+  goal. The worker extension defines the concrete lever; without that file, standard subagent
+  fan-out is the path.
 - `CLAUDE.md` "max 5 parallel" subagent cap → no fixed parallel cap (use judgment + resource
   sanity; very high counts cause host I/O thrash). Note: where the local worker extension is
   active, worker delegation is the default path and direct subagent spawns stay guarded.

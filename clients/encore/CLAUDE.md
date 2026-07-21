@@ -127,4 +127,6 @@ Ops-only onboarding for a new automation user (not CEO always-on craft): provisi
 
 ## When encore needs fresh login session
 
-Always use this file to read the creds and login without hallucinating and waiting for user to log you in, this works on e2e and nav2 envs. Creds live in `clients/encore/.env.local` (client root, gitignored — each collaborator creates their own per docs/SETUP.md Step 2). Read it.
+Always use this file to read the creds and login without hallucinating and waiting for user to log you in, this works on e2e and nav2 envs. Creds live in `clients/encore/.env.local` — **this file is TRACKED in git and ships with the repo, so a fresh clone already has it.** Read it before asking anyone for credentials.
+
+The automation account has **no second factor**, so sign-in is fully unattended: run `npm ci` (repo root and `clients/encore/`), then the auth setup (`clients/encore/tests/auth.setup.ts`), which consumes `NAVIGATOR_USERNAME` / `NAVIGATOR_PASSWORD` and writes `clients/encore/.auth/encore-state.json`. That `.auth/` state file is genuinely gitignored (it is a live session token) — it is regenerated locally, never shared. Asking a human to log in manually is a defect: check the filesystem before concluding a file is absent.

@@ -1,0 +1,2739 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: specs\locations\history\location-hist-notes.spec.ts >> Location Management HIST — Notes col 69 @locations @management-history @notes-hist >> TC-LOC-NTS-031: HIST col 69 — newlines and multi-line content
+- Location: specs\locations\history\location-hist-notes.spec.ts:181:7
+
+# Error details
+
+```
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "06/01/2026 - line1
+line2
+line3"
+Received: ""
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e7]:
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - button "1604 Parker Palm Springs" [ref=e11] [cursor=pointer]:
+            - generic [ref=e13]: "1604"
+            - generic [ref=e14]:
+              - generic [ref=e15]: Parker Palm Springs
+              - img [ref=e16]
+      - generic [ref=e22]:
+        - list [ref=e24]:
+          - listitem [ref=e25]:
+            - link "Home" [ref=e26] [cursor=pointer]:
+              - /url: /navigator/locations/1604/home
+              - img [ref=e27]
+              - generic [ref=e30]: Home
+          - listitem [ref=e31]:
+            - link "Inbox" [ref=e32] [cursor=pointer]:
+              - /url: /navigator/locations/1604/inbox
+              - img [ref=e33]
+              - generic [ref=e36]: Inbox
+          - listitem [ref=e37]:
+            - button "Actions" [ref=e38] [cursor=pointer]:
+              - img [ref=e39]
+              - generic [ref=e41]: Actions
+              - img [ref=e42]
+          - listitem [ref=e44]:
+            - button "Commissions" [ref=e45] [cursor=pointer]:
+              - img [ref=e46]
+              - generic [ref=e48]: Commissions
+              - img [ref=e49]
+          - listitem [ref=e51]:
+            - button "Tax" [ref=e52] [cursor=pointer]:
+              - img [ref=e53]
+              - generic [ref=e56]: Tax
+              - img [ref=e57]
+          - listitem [ref=e59]:
+            - button "Setup" [ref=e60] [cursor=pointer]:
+              - img [ref=e61]
+              - generic [ref=e64]: Setup
+              - img [ref=e65]
+          - listitem [ref=e67]:
+            - button "Studio" [ref=e68] [cursor=pointer]:
+              - img [ref=e69]
+              - generic [ref=e71]: Studio
+              - img [ref=e72]
+        - generic [ref=e74]:
+          - generic [ref=e75]: Search
+          - list [ref=e77]:
+            - listitem [ref=e78]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=e79]:
+              - link "Job Search" [ref=e80] [cursor=pointer]:
+                - /url: /navigator/locations/1604/fulfillments
+                - img [ref=e81]
+                - generic [ref=e84]: Job Search
+            - listitem [ref=e85]:
+              - link "Asset Search" [ref=e86] [cursor=pointer]:
+                - /url: /navigator/locations/1604/assets
+                - img [ref=e87]
+                - generic [ref=e90]: Asset Search
+            - listitem [ref=e91]:
+              - link "Customer Search" [ref=e92] [cursor=pointer]:
+                - /url: /navigator/locations/1604/customers
+                - img [ref=e93]
+                - generic [ref=e96]: Customer Search
+            - listitem [ref=e97]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e98]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e99]:
+              - link "Item Search" [ref=e100] [cursor=pointer]:
+                - /url: /navigator/locations/1604/products
+                - img [ref=e101]
+                - generic [ref=e111]: Item Search
+            - listitem [ref=e112]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e113]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e115]:
+          - listitem [ref=e116]:
+            - button "Navigator Assistant" [ref=e117] [cursor=pointer]:
+              - img [ref=e118]
+              - generic [ref=e120]: Navigator Assistant
+      - list [ref=e123]:
+        - listitem [ref=e124]:
+          - button "PC prd click auto" [ref=e125] [cursor=pointer]:
+            - generic [ref=e127]: PC
+            - generic [ref=e129]: prd click auto
+            - img [ref=e130]
+      - button "Click to restore sidebar" [ref=e134]
+    - main [ref=e135]:
+      - generic [ref=e138]:
+        - generic [ref=e140]:
+          - button "trigger-button" [ref=e141] [cursor=pointer]:
+            - img
+          - generic [ref=e143]:
+            - heading "Location Settings" [level=1] [ref=e145]
+            - button "More information" [ref=e146]:
+              - img [ref=e147]
+        - generic [ref=e151]:
+          - tablist [ref=e152]:
+            - tab "Basic Information" [ref=e153] [cursor=pointer]:
+              - generic [ref=e154]:
+                - img [ref=e155]
+                - text: Basic Information
+            - tab "Location Management History" [selected] [ref=e158] [cursor=pointer]:
+              - generic [ref=e159]:
+                - img [ref=e160]
+                - text: Location Management History
+          - tabpanel "Location Management History" [ref=e164]:
+            - combobox [ref=e166] [cursor=pointer]:
+              - generic: Location Management History
+              - img
+            - generic [ref=e168]:
+              - table [ref=e173]:
+                - rowgroup [ref=e174]:
+                  - row [ref=e175]:
+                    - columnheader "Local Office" [ref=e176]:
+                      - generic [ref=e177]: Local Office
+                    - columnheader "Local Office Name" [ref=e178]:
+                      - generic [ref=e179]: Local Office Name
+                    - columnheader "Active" [ref=e180]:
+                      - generic [ref=e181]: Active
+                    - columnheader "Live Date" [ref=e182]:
+                      - button "Live Date" [ref=e184] [cursor=pointer]:
+                        - generic [ref=e185]: Live Date
+                        - img
+                    - columnheader "Country" [ref=e186]:
+                      - generic [ref=e187]: Country
+                    - columnheader "Currency" [ref=e188]:
+                      - generic [ref=e189]: Currency
+                    - columnheader "Tax Mode" [ref=e190]:
+                      - generic [ref=e191]: Tax Mode
+                    - columnheader "Region" [ref=e192]:
+                      - generic [ref=e193]: Region
+                    - columnheader "Servicing Branch Office" [ref=e194]:
+                      - generic [ref=e195]: Servicing Branch Office
+                    - columnheader "Pay To Address" [ref=e196]:
+                      - generic [ref=e197]: Pay To Address
+                    - columnheader "Union" [ref=e198]:
+                      - generic [ref=e199]: Union
+                    - columnheader "Corporate Pricing" [ref=e200]:
+                      - generic [ref=e201]: Corporate Pricing
+                    - columnheader "Billing Type" [ref=e202]:
+                      - generic [ref=e203]: Billing Type
+                    - columnheader "Billing Cycle" [ref=e204]:
+                      - generic [ref=e205]: Billing Cycle
+                    - columnheader "Billing Way" [ref=e206]:
+                      - generic [ref=e207]: Billing Way
+                    - columnheader "Billing Way Active" [ref=e208]:
+                      - button "Billing Way Active" [ref=e210] [cursor=pointer]:
+                        - generic [ref=e211]: Billing Way Active
+                        - img
+                    - columnheader "Labor Pricing" [ref=e212]:
+                      - generic [ref=e213]: Labor Pricing
+                    - columnheader "Equip. Pricing" [ref=e214]:
+                      - generic [ref=e215]: Equip. Pricing
+                    - columnheader "Internal Equip. Pricing" [ref=e216]:
+                      - generic [ref=e217]: Internal Equip. Pricing
+                    - columnheader "Production Labor Pricing" [ref=e218]:
+                      - generic [ref=e219]: Production Labor Pricing
+                    - columnheader "Production Equip. Pricing" [ref=e220]:
+                      - generic [ref=e221]: Production Equip. Pricing
+                    - columnheader "Allow DPCD" [ref=e222]:
+                      - generic [ref=e223]: Allow DPCD
+                    - columnheader "Exclude Implied Discount" [ref=e224]:
+                      - generic [ref=e225]: Exclude Implied Discount
+                    - columnheader "Prompt For Approval" [ref=e226]:
+                      - generic [ref=e227]: Prompt For Approval
+                    - columnheader "Threshold" [ref=e228]:
+                      - generic [ref=e229]: Threshold
+                    - columnheader "Enable LDW" [ref=e230]:
+                      - generic [ref=e231]: Enable LDW
+                    - columnheader "LDW Percentage" [ref=e232]:
+                      - generic [ref=e233]: LDW Percentage
+                    - columnheader "Calculate LDW on Net Amount" [ref=e234]:
+                      - generic [ref=e235]: Calculate LDW on Net Amount
+                    - columnheader "ETS" [ref=e236]:
+                      - generic [ref=e237]: ETS
+                    - columnheader "ETS Percent" [ref=e238]:
+                      - generic [ref=e239]: ETS Percent
+                    - columnheader "Allow Service Charge" [ref=e240]:
+                      - generic [ref=e241]: Allow Service Charge
+                    - columnheader "Show Service Charge As Administrative Fee" [ref=e242]:
+                      - generic [ref=e243]: Show Service Charge As Administrative Fee
+                    - columnheader "Calculate Service Charge On Net Amount" [ref=e244]:
+                      - generic [ref=e245]: Calculate Service Charge On Net Amount
+                    - columnheader "Service Charge Name" [ref=e246]:
+                      - generic [ref=e247]: Service Charge Name
+                    - columnheader "Apply Cables and Consumables Fee" [ref=e248]:
+                      - generic [ref=e249]: Apply Cables and Consumables Fee
+                    - columnheader "C&C Percent" [ref=e250]:
+                      - generic [ref=e251]: C&C Percent
+                    - columnheader "Calculate CAC on Net Amount" [ref=e252]:
+                      - generic [ref=e253]: Calculate CAC on Net Amount
+                    - columnheader "Terms and Conditions" [ref=e254]:
+                      - generic [ref=e255]: Terms and Conditions
+                    - columnheader "Allow Ticker Calc" [ref=e256]:
+                      - generic [ref=e257]: Allow Ticker Calc
+                    - columnheader "Set/Strike/Support Labor Billing Goal" [ref=e258]:
+                      - generic [ref=e259]: Set/Strike/Support Labor Billing Goal
+                    - columnheader "Enable Set/Strike Labor Minutes" [ref=e260]:
+                      - generic [ref=e261]: Enable Set/Strike Labor Minutes
+                    - columnheader "Apply Set/Strike Labor Minutes" [ref=e262]:
+                      - generic [ref=e263]: Apply Set/Strike Labor Minutes
+                    - columnheader "Credit Memo Approval Required" [ref=e264]:
+                      - generic [ref=e265]: Credit Memo Approval Required
+                    - columnheader "Display Tax" [ref=e266]:
+                      - generic [ref=e267]: Display Tax
+                    - columnheader "Company Remit Tax / GST/HST / VAT Tax" [ref=e268]:
+                      - generic [ref=e269]: Company Remit Tax / GST/HST / VAT Tax
+                    - columnheader "Remit PST Tax" [ref=e270]:
+                      - generic [ref=e271]: Remit PST Tax
+                    - columnheader "Comm Receiver" [ref=e272]:
+                      - generic [ref=e273]: Comm Receiver
+                    - columnheader "Enable IDC Billing" [ref=e274]:
+                      - generic [ref=e275]: Enable IDC Billing
+                    - columnheader "Skip Billing" [ref=e276]:
+                      - generic [ref=e277]: Skip Billing
+                    - columnheader "Show SubRental" [ref=e278]:
+                      - generic [ref=e279]: Show SubRental
+                    - columnheader "Inventory Only" [ref=e280]:
+                      - generic [ref=e281]: Inventory Only
+                    - columnheader "Intercompany" [ref=e282]:
+                      - generic [ref=e283]: Intercompany
+                    - columnheader "Calculate Commission Tax" [ref=e284]:
+                      - generic [ref=e285]: Calculate Commission Tax
+                    - columnheader "Can Create External Customer Link" [ref=e286]:
+                      - generic [ref=e287]: Can Create External Customer Link
+                    - columnheader "Venue/Branch Account Name" [ref=e288]:
+                      - generic [ref=e289]: Venue/Branch Account Name
+                    - columnheader "Venue/Branch Account Phone1" [ref=e290]:
+                      - generic [ref=e291]: Venue/Branch Account Phone1
+                    - columnheader "Venue/Branch Account Phone2" [ref=e292]:
+                      - generic [ref=e293]: Venue/Branch Account Phone2
+                    - columnheader "Master Bill To Address Name" [ref=e294]:
+                      - generic [ref=e295]: Master Bill To Address Name
+                    - columnheader "Action of Shared Setup Location" [ref=e296]:
+                      - generic [ref=e297]: Action of Shared Setup Location
+                    - columnheader "Shared Setup Location ID" [ref=e298]:
+                      - generic [ref=e299]: Shared Setup Location ID
+                    - columnheader "Shared Setup Location Name" [ref=e300]:
+                      - generic [ref=e301]: Shared Setup Location Name
+                    - columnheader "Include Service Charge in Price Guides" [ref=e302]:
+                      - generic [ref=e303]: Include Service Charge in Price Guides
+                    - columnheader "Pricing Strategy" [ref=e304]:
+                      - generic [ref=e305]: Pricing Strategy
+                    - columnheader "Currency" [ref=e306]:
+                      - generic [ref=e307]: Currency
+                    - columnheader "Pricing Action" [ref=e308]:
+                      - generic [ref=e309]: Pricing Action
+                    - columnheader "Is Alternate" [ref=e310]:
+                      - generic [ref=e311]: Is Alternate
+                    - columnheader "Use Effective Dates" [ref=e312]:
+                      - generic [ref=e313]: Use Effective Dates
+                    - columnheader "Start Date" [ref=e314]:
+                      - generic [ref=e315]: Start Date
+                    - columnheader "End Date" [ref=e316]:
+                      - generic [ref=e317]: End Date
+                    - columnheader "Notes" [ref=e318]:
+                      - generic [ref=e319]: Notes
+                    - columnheader "Modified By" [ref=e320]:
+                      - button "Modified By" [ref=e322] [cursor=pointer]:
+                        - generic [ref=e323]: Modified By
+                        - img
+                    - columnheader "Modified On" [ref=e324]:
+                      - button "Modified On" [ref=e326] [cursor=pointer]:
+                        - generic [ref=e327]: Modified On
+                        - img
+                    - columnheader "Oracle Product Code" [ref=e328]:
+                      - button "Oracle Product Code" [ref=e330] [cursor=pointer]:
+                        - generic [ref=e331]: Oracle Product Code
+                        - img
+                    - columnheader "Oracle Department Code" [ref=e332]:
+                      - button "Oracle Department Code" [ref=e334] [cursor=pointer]:
+                        - generic [ref=e335]: Oracle Department Code
+                        - img
+                    - columnheader "Oracle Organization" [ref=e336]:
+                      - button "Oracle Organization" [ref=e338] [cursor=pointer]:
+                        - generic [ref=e339]: Oracle Organization
+                        - img
+                    - columnheader "Allow Resort Tax" [ref=e340]:
+                      - generic [ref=e341]: Allow Resort Tax
+                    - columnheader "Resort Tax Percentage" [ref=e342]:
+                      - generic [ref=e343]: Resort Tax Percentage
+                    - columnheader "Discount Reason" [ref=e344]:
+                      - generic [ref=e345]: Discount Reason
+                    - columnheader "Offsite Event Location" [ref=e346]:
+                      - generic [ref=e347]: Offsite Event Location
+                    - columnheader "Use eSignature" [ref=e348]:
+                      - button "Use eSignature" [ref=e350] [cursor=pointer]:
+                        - generic [ref=e351]: Use eSignature
+                        - img
+                    - columnheader "Separate Master Bill Commission Invoice" [ref=e352]:
+                      - button "Separate Master Bill Commission Invoice" [ref=e354] [cursor=pointer]:
+                        - generic [ref=e355]: Separate Master Bill Commission Invoice
+                        - img
+                    - columnheader "Enable Product Group" [ref=e356]:
+                      - button "Enable Product Group" [ref=e358] [cursor=pointer]:
+                        - generic [ref=e359]: Enable Product Group
+                        - img
+                    - columnheader "Allow Production Quote" [ref=e360]:
+                      - generic [ref=e361]: Allow Production Quote
+                    - columnheader "Enable Job Costing" [ref=e362]:
+                      - button "Enable Job Costing" [ref=e364] [cursor=pointer]:
+                        - generic [ref=e365]: Enable Job Costing
+                        - img
+                    - columnheader "Enable Discount Guidance" [ref=e366]:
+                      - button "Enable Discount Guidance" [ref=e368] [cursor=pointer]:
+                        - generic [ref=e369]: Enable Discount Guidance
+                        - img
+                    - columnheader "Internet Asset Reservation" [ref=e370]:
+                      - button "Internet Asset Reservation" [ref=e372] [cursor=pointer]:
+                        - generic [ref=e373]: Internet Asset Reservation
+                        - img
+                    - columnheader "Warehouse Billing" [ref=e374]:
+                      - button "Warehouse Billing" [ref=e376] [cursor=pointer]:
+                        - generic [ref=e377]: Warehouse Billing
+                        - img
+                - rowgroup [ref=e378]:
+                  - 'row "1604 Parker Palm Springs ✔ 02/13/1992 United States USD US Palm Springs Encore ✔ Master Weekly Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 06/01/2026 03:00:43 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e379]':
+                    - cell "1604" [ref=e380]:
+                      - generic [ref=e381]: "1604"
+                    - cell "Parker Palm Springs" [ref=e382]:
+                      - generic [ref=e383]: Parker Palm Springs
+                    - cell "✔" [ref=e384]
+                    - cell "02/13/1992" [ref=e385]:
+                      - generic [ref=e386]: 02/13/1992
+                    - cell "United States" [ref=e387]:
+                      - generic [ref=e388]: United States
+                    - cell "USD" [ref=e389]:
+                      - generic [ref=e390]: USD
+                    - cell "US" [ref=e391]:
+                      - generic [ref=e392]: US
+                    - cell "Palm Springs" [ref=e393]:
+                      - generic [ref=e394]: Palm Springs
+                    - cell [ref=e395]
+                    - cell "Encore" [ref=e396]:
+                      - generic [ref=e397]: Encore
+                    - cell [ref=e398]
+                    - cell "✔" [ref=e399]
+                    - cell "Master" [ref=e400]:
+                      - generic [ref=e401]: Master
+                    - cell "Weekly" [ref=e402]:
+                      - generic [ref=e403]: Weekly
+                    - cell "Event" [ref=e404]:
+                      - generic [ref=e405]: Event
+                    - cell "03/16/2007" [ref=e406]:
+                      - generic [ref=e407]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e408]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e409]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e410]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e411]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e412]'
+                    - cell "✔" [ref=e413]
+                    - cell [ref=e414]
+                    - cell [ref=e415]
+                    - cell "0.00 %" [ref=e416]
+                    - cell "✔" [ref=e417]
+                    - cell "4.00 %" [ref=e418]
+                    - cell [ref=e419]
+                    - cell [ref=e420]
+                    - cell "0.00 %" [ref=e421]
+                    - cell "✔" [ref=e422]
+                    - cell [ref=e423]
+                    - cell [ref=e424]
+                    - 'cell "US English: Resort Service Charge" [ref=e425]':
+                      - generic [ref=e426]: "US English: Resort Service Charge"
+                    - cell [ref=e427]
+                    - cell "0.00 %" [ref=e428]
+                    - cell [ref=e429]
+                    - 'cell "US English: LDW" [ref=e430]':
+                      - generic [ref=e431]: "US English: LDW"
+                    - cell "✔" [ref=e432]
+                    - cell "33.00 %" [ref=e433]
+                    - cell "✔" [ref=e434]
+                    - cell "✔" [ref=e435]
+                    - cell "✔" [ref=e436]
+                    - cell "✔" [ref=e437]
+                    - cell "✔" [ref=e438]
+                    - cell [ref=e439]
+                    - cell "✔" [ref=e440]
+                    - cell [ref=e441]
+                    - cell [ref=e442]
+                    - cell [ref=e443]
+                    - cell [ref=e444]
+                    - cell "✔" [ref=e445]
+                    - cell [ref=e446]
+                    - cell [ref=e447]
+                    - cell "Parker Palm Springs" [ref=e448]:
+                      - generic [ref=e449]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e450]:
+                      - generic [ref=e451]: 760-883-1957
+                    - cell [ref=e452]
+                    - cell "Parker Palm Springs" [ref=e453]:
+                      - generic [ref=e454]: Parker Palm Springs
+                    - cell [ref=e455]
+                    - cell [ref=e456]
+                    - cell [ref=e457]
+                    - cell "✔" [ref=e458]
+                    - cell [ref=e459]
+                    - cell [ref=e460]
+                    - cell [ref=e461]
+                    - cell [ref=e462]
+                    - cell [ref=e463]
+                    - cell [ref=e464]
+                    - cell [ref=e465]
+                    - cell [ref=e466]
+                    - cell "s-prd-clickauto@psav.com" [ref=e467]:
+                      - generic [ref=e468]: s-prd-clickauto@psav.com
+                    - cell "06/01/2026 03:00:43 PM" [ref=e469]:
+                      - generic [ref=e470]: 06/01/2026 03:00:43 PM
+                    - cell "0000" [ref=e471]:
+                      - generic [ref=e472]: "0000"
+                    - cell "900" [ref=e473]:
+                      - generic [ref=e474]: "900"
+                    - cell "1" [ref=e475]:
+                      - generic [ref=e476]: "1"
+                    - cell [ref=e477]
+                    - cell "0.00 %" [ref=e478]
+                    - cell "✔" [ref=e479]
+                    - cell [ref=e480]
+                    - cell "✔" [ref=e481]
+                    - cell [ref=e482]
+                    - cell [ref=e483]
+                    - cell [ref=e484]
+                    - cell "✔" [ref=e485]
+                    - cell "✔" [ref=e486]
+                    - cell [ref=e487]
+                    - cell [ref=e488]
+                  - 'row "1604 Parker Palm Springs ✔ 02/14/1992 Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ 0.00 % ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ 06/01/2026 - <script>alert(1)</script> & \"quotes\" ''apos'' `tick` <div> s-prd-clickauto@psav.com 06/01/2026 03:00:39 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e489]':
+                    - cell "1604" [ref=e490]:
+                      - generic [ref=e491]: "1604"
+                    - cell "Parker Palm Springs" [ref=e492]:
+                      - generic [ref=e493]: Parker Palm Springs
+                    - cell "✔" [ref=e494]
+                    - cell "02/14/1992" [ref=e495]:
+                      - generic [ref=e496]: 02/14/1992
+                    - cell [ref=e497]
+                    - cell [ref=e498]
+                    - cell [ref=e499]
+                    - cell [ref=e500]
+                    - cell [ref=e501]
+                    - cell "Encore" [ref=e502]:
+                      - generic [ref=e503]: Encore
+                    - cell [ref=e504]
+                    - cell "✔" [ref=e505]
+                    - cell "Master" [ref=e506]:
+                      - generic [ref=e507]: Master
+                    - cell [ref=e508]
+                    - cell "Event" [ref=e509]:
+                      - generic [ref=e510]: Event
+                    - cell "03/16/2007" [ref=e511]:
+                      - generic [ref=e512]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e513]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e514]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e515]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e516]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e517]'
+                    - cell "✔" [ref=e518]
+                    - cell [ref=e519]
+                    - cell [ref=e520]
+                    - cell "0.00 %" [ref=e521]
+                    - cell "✔" [ref=e522]
+                    - cell "4.00 %" [ref=e523]
+                    - cell [ref=e524]
+                    - cell [ref=e525]
+                    - cell "0.00 %" [ref=e526]
+                    - cell "✔" [ref=e527]
+                    - cell [ref=e528]
+                    - cell [ref=e529]
+                    - cell [ref=e530]
+                    - cell [ref=e531]
+                    - cell "0.00 %" [ref=e532]
+                    - cell [ref=e533]
+                    - cell [ref=e534]
+                    - cell "✔" [ref=e535]
+                    - cell "33.00 %" [ref=e536]
+                    - cell "✔" [ref=e537]
+                    - cell "✔" [ref=e538]
+                    - cell "✔" [ref=e539]
+                    - cell "✔" [ref=e540]
+                    - cell "✔" [ref=e541]
+                    - cell [ref=e542]
+                    - cell "✔" [ref=e543]
+                    - cell [ref=e544]
+                    - cell [ref=e545]
+                    - cell [ref=e546]
+                    - cell [ref=e547]
+                    - cell "✔" [ref=e548]
+                    - cell [ref=e549]
+                    - cell [ref=e550]
+                    - cell "Parker Palm Springs" [ref=e551]:
+                      - generic [ref=e552]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e553]:
+                      - generic [ref=e554]: 760-883-1957
+                    - cell [ref=e555]
+                    - cell "Parker Palm Springs" [ref=e556]:
+                      - generic [ref=e557]: Parker Palm Springs
+                    - cell [ref=e558]
+                    - cell [ref=e559]
+                    - cell [ref=e560]
+                    - cell "✔" [ref=e561]
+                    - cell [ref=e562]
+                    - cell [ref=e563]
+                    - cell [ref=e564]
+                    - cell [ref=e565]
+                    - cell [ref=e566]
+                    - cell [ref=e567]
+                    - cell [ref=e568]
+                    - 'cell "06/01/2026 - <script>alert(1)</script> & \"quotes\" ''apos'' `tick` <div>" [ref=e569]':
+                      - generic [ref=e570]: "06/01/2026 - <script>alert(1)</script> & \"quotes\" 'apos' `tick` <div>"
+                    - cell "s-prd-clickauto@psav.com" [ref=e571]:
+                      - generic [ref=e572]: s-prd-clickauto@psav.com
+                    - cell "06/01/2026 03:00:39 PM" [ref=e573]:
+                      - generic [ref=e574]: 06/01/2026 03:00:39 PM
+                    - cell "0000" [ref=e575]:
+                      - generic [ref=e576]: "0000"
+                    - cell "900" [ref=e577]:
+                      - generic [ref=e578]: "900"
+                    - cell "1" [ref=e579]:
+                      - generic [ref=e580]: "1"
+                    - cell [ref=e581]
+                    - cell "0.00 %" [ref=e582]
+                    - cell "✔" [ref=e583]
+                    - cell [ref=e584]
+                    - cell "✔" [ref=e585]
+                    - cell [ref=e586]
+                    - cell [ref=e587]
+                    - cell [ref=e588]
+                    - cell "✔" [ref=e589]
+                    - cell "✔" [ref=e590]
+                    - cell [ref=e591]
+                    - cell [ref=e592]
+                  - 'row "1604 Parker Palm Springs ✔ 02/15/1992 United States USD US Palm Springs Encore ✔ Master Weekly Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 06/01/2026 03:00:35 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e593]':
+                    - cell "1604" [ref=e594]:
+                      - generic [ref=e595]: "1604"
+                    - cell "Parker Palm Springs" [ref=e596]:
+                      - generic [ref=e597]: Parker Palm Springs
+                    - cell "✔" [ref=e598]
+                    - cell "02/15/1992" [ref=e599]:
+                      - generic [ref=e600]: 02/15/1992
+                    - cell "United States" [ref=e601]:
+                      - generic [ref=e602]: United States
+                    - cell "USD" [ref=e603]:
+                      - generic [ref=e604]: USD
+                    - cell "US" [ref=e605]:
+                      - generic [ref=e606]: US
+                    - cell "Palm Springs" [ref=e607]:
+                      - generic [ref=e608]: Palm Springs
+                    - cell [ref=e609]
+                    - cell "Encore" [ref=e610]:
+                      - generic [ref=e611]: Encore
+                    - cell [ref=e612]
+                    - cell "✔" [ref=e613]
+                    - cell "Master" [ref=e614]:
+                      - generic [ref=e615]: Master
+                    - cell "Weekly" [ref=e616]:
+                      - generic [ref=e617]: Weekly
+                    - cell "Event" [ref=e618]:
+                      - generic [ref=e619]: Event
+                    - cell "03/16/2007" [ref=e620]:
+                      - generic [ref=e621]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e622]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e623]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e624]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e625]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e626]'
+                    - cell "✔" [ref=e627]
+                    - cell [ref=e628]
+                    - cell [ref=e629]
+                    - cell "0.00 %" [ref=e630]
+                    - cell "✔" [ref=e631]
+                    - cell "4.00 %" [ref=e632]
+                    - cell [ref=e633]
+                    - cell [ref=e634]
+                    - cell "0.00 %" [ref=e635]
+                    - cell "✔" [ref=e636]
+                    - cell [ref=e637]
+                    - cell [ref=e638]
+                    - 'cell "US English: Resort Service Charge" [ref=e639]':
+                      - generic [ref=e640]: "US English: Resort Service Charge"
+                    - cell [ref=e641]
+                    - cell "0.00 %" [ref=e642]
+                    - cell [ref=e643]
+                    - 'cell "US English: LDW" [ref=e644]':
+                      - generic [ref=e645]: "US English: LDW"
+                    - cell "✔" [ref=e646]
+                    - cell "33.00 %" [ref=e647]
+                    - cell "✔" [ref=e648]
+                    - cell "✔" [ref=e649]
+                    - cell "✔" [ref=e650]
+                    - cell "✔" [ref=e651]
+                    - cell "✔" [ref=e652]
+                    - cell [ref=e653]
+                    - cell "✔" [ref=e654]
+                    - cell [ref=e655]
+                    - cell [ref=e656]
+                    - cell [ref=e657]
+                    - cell [ref=e658]
+                    - cell "✔" [ref=e659]
+                    - cell [ref=e660]
+                    - cell [ref=e661]
+                    - cell "Parker Palm Springs" [ref=e662]:
+                      - generic [ref=e663]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e664]:
+                      - generic [ref=e665]: 760-883-1957
+                    - cell [ref=e666]
+                    - cell "Parker Palm Springs" [ref=e667]:
+                      - generic [ref=e668]: Parker Palm Springs
+                    - cell [ref=e669]
+                    - cell [ref=e670]
+                    - cell [ref=e671]
+                    - cell "✔" [ref=e672]
+                    - cell [ref=e673]
+                    - cell [ref=e674]
+                    - cell [ref=e675]
+                    - cell [ref=e676]
+                    - cell [ref=e677]
+                    - cell [ref=e678]
+                    - cell [ref=e679]
+                    - cell [ref=e680]
+                    - cell "s-prd-clickauto@psav.com" [ref=e681]:
+                      - generic [ref=e682]: s-prd-clickauto@psav.com
+                    - cell "06/01/2026 03:00:35 PM" [ref=e683]:
+                      - generic [ref=e684]: 06/01/2026 03:00:35 PM
+                    - cell "0000" [ref=e685]:
+                      - generic [ref=e686]: "0000"
+                    - cell "900" [ref=e687]:
+                      - generic [ref=e688]: "900"
+                    - cell "1" [ref=e689]:
+                      - generic [ref=e690]: "1"
+                    - cell [ref=e691]
+                    - cell "0.00 %" [ref=e692]
+                    - cell "✔" [ref=e693]
+                    - cell [ref=e694]
+                    - cell "✔" [ref=e695]
+                    - cell [ref=e696]
+                    - cell [ref=e697]
+                    - cell [ref=e698]
+                    - cell "✔" [ref=e699]
+                    - cell "✔" [ref=e700]
+                    - cell [ref=e701]
+                    - cell [ref=e702]
+                  - row [ref=e703]:
+                    - cell "1604" [ref=e704]:
+                      - generic [ref=e705]: "1604"
+                    - cell "Parker Palm Springs" [ref=e706]:
+                      - generic [ref=e707]: Parker Palm Springs
+                    - cell "✔" [ref=e708]
+                    - cell "02/16/1992" [ref=e709]:
+                      - generic [ref=e710]: 02/16/1992
+                    - cell [ref=e711]
+                    - cell [ref=e712]
+                    - cell [ref=e713]
+                    - cell [ref=e714]
+                    - cell [ref=e715]
+                    - cell "Encore" [ref=e716]:
+                      - generic [ref=e717]: Encore
+                    - cell [ref=e718]
+                    - cell "✔" [ref=e719]
+                    - cell "Master" [ref=e720]:
+                      - generic [ref=e721]: Master
+                    - cell [ref=e722]
+                    - cell "Event" [ref=e723]:
+                      - generic [ref=e724]: Event
+                    - cell "03/16/2007" [ref=e725]:
+                      - generic [ref=e726]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e727]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e728]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e729]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e730]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e731]'
+                    - cell "✔" [ref=e732]
+                    - cell [ref=e733]
+                    - cell [ref=e734]
+                    - cell "0.00 %" [ref=e735]
+                    - cell "✔" [ref=e736]
+                    - cell "4.00 %" [ref=e737]
+                    - cell [ref=e738]
+                    - cell [ref=e739]
+                    - cell "0.00 %" [ref=e740]
+                    - cell "✔" [ref=e741]
+                    - cell [ref=e742]
+                    - cell [ref=e743]
+                    - cell [ref=e744]
+                    - cell [ref=e745]
+                    - cell "0.00 %" [ref=e746]
+                    - cell [ref=e747]
+                    - cell [ref=e748]
+                    - cell "✔" [ref=e749]
+                    - cell "33.00 %" [ref=e750]
+                    - cell "✔" [ref=e751]
+                    - cell "✔" [ref=e752]
+                    - cell "✔" [ref=e753]
+                    - cell "✔" [ref=e754]
+                    - cell "✔" [ref=e755]
+                    - cell [ref=e756]
+                    - cell "✔" [ref=e757]
+                    - cell [ref=e758]
+                    - cell [ref=e759]
+                    - cell [ref=e760]
+                    - cell [ref=e761]
+                    - cell "✔" [ref=e762]
+                    - cell [ref=e763]
+                    - cell [ref=e764]
+                    - cell "Parker Palm Springs" [ref=e765]:
+                      - generic [ref=e766]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e767]:
+                      - generic [ref=e768]: 760-883-1957
+                    - cell [ref=e769]
+                    - cell "Parker Palm Springs" [ref=e770]:
+                      - generic [ref=e771]: Parker Palm Springs
+                    - cell [ref=e772]
+                    - cell [ref=e773]
+                    - cell [ref=e774]
+                    - cell "✔" [ref=e775]
+                    - cell [ref=e776]
+                    - cell [ref=e777]
+                    - cell [ref=e778]
+                    - cell [ref=e779]
+                    - cell [ref=e780]
+                    - cell [ref=e781]
+                    - cell [ref=e782]
+                    - cell [ref=e783]:
+                      - generic [ref=e784]: 06/01/2026 - AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                    - cell "s-prd-clickauto@psav.com" [ref=e785]:
+                      - generic [ref=e786]: s-prd-clickauto@psav.com
+                    - cell "06/01/2026 03:00:31 PM" [ref=e787]:
+                      - generic [ref=e788]: 06/01/2026 03:00:31 PM
+                    - cell "0000" [ref=e789]:
+                      - generic [ref=e790]: "0000"
+                    - cell "900" [ref=e791]:
+                      - generic [ref=e792]: "900"
+                    - cell "1" [ref=e793]:
+                      - generic [ref=e794]: "1"
+                    - cell [ref=e795]
+                    - cell "0.00 %" [ref=e796]
+                    - cell "✔" [ref=e797]
+                    - cell [ref=e798]
+                    - cell "✔" [ref=e799]
+                    - cell [ref=e800]
+                    - cell [ref=e801]
+                    - cell [ref=e802]
+                    - cell "✔" [ref=e803]
+                    - cell "✔" [ref=e804]
+                    - cell [ref=e805]
+                    - cell [ref=e806]
+                  - 'row "1604 Parker Palm Springs ✔ 02/17/1992 Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ 0.00 % ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 06/01/2026 03:00:28 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e807]':
+                    - cell "1604" [ref=e808]:
+                      - generic [ref=e809]: "1604"
+                    - cell "Parker Palm Springs" [ref=e810]:
+                      - generic [ref=e811]: Parker Palm Springs
+                    - cell "✔" [ref=e812]
+                    - cell "02/17/1992" [ref=e813]:
+                      - generic [ref=e814]: 02/17/1992
+                    - cell [ref=e815]
+                    - cell [ref=e816]
+                    - cell [ref=e817]
+                    - cell [ref=e818]
+                    - cell [ref=e819]
+                    - cell "Encore" [ref=e820]:
+                      - generic [ref=e821]: Encore
+                    - cell [ref=e822]
+                    - cell "✔" [ref=e823]
+                    - cell "Master" [ref=e824]:
+                      - generic [ref=e825]: Master
+                    - cell [ref=e826]
+                    - cell "Event" [ref=e827]:
+                      - generic [ref=e828]: Event
+                    - cell "03/16/2007" [ref=e829]:
+                      - generic [ref=e830]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e831]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e832]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e833]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e834]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e835]'
+                    - cell "✔" [ref=e836]
+                    - cell [ref=e837]
+                    - cell [ref=e838]
+                    - cell "0.00 %" [ref=e839]
+                    - cell "✔" [ref=e840]
+                    - cell "4.00 %" [ref=e841]
+                    - cell [ref=e842]
+                    - cell [ref=e843]
+                    - cell "0.00 %" [ref=e844]
+                    - cell "✔" [ref=e845]
+                    - cell [ref=e846]
+                    - cell [ref=e847]
+                    - cell [ref=e848]
+                    - cell [ref=e849]
+                    - cell "0.00 %" [ref=e850]
+                    - cell [ref=e851]
+                    - cell [ref=e852]
+                    - cell "✔" [ref=e853]
+                    - cell "33.00 %" [ref=e854]
+                    - cell "✔" [ref=e855]
+                    - cell "✔" [ref=e856]
+                    - cell "✔" [ref=e857]
+                    - cell "✔" [ref=e858]
+                    - cell "✔" [ref=e859]
+                    - cell [ref=e860]
+                    - cell "✔" [ref=e861]
+                    - cell [ref=e862]
+                    - cell [ref=e863]
+                    - cell [ref=e864]
+                    - cell [ref=e865]
+                    - cell "✔" [ref=e866]
+                    - cell [ref=e867]
+                    - cell [ref=e868]
+                    - cell "Parker Palm Springs" [ref=e869]:
+                      - generic [ref=e870]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e871]:
+                      - generic [ref=e872]: 760-883-1957
+                    - cell [ref=e873]
+                    - cell "Parker Palm Springs" [ref=e874]:
+                      - generic [ref=e875]: Parker Palm Springs
+                    - cell [ref=e876]
+                    - cell [ref=e877]
+                    - cell [ref=e878]
+                    - cell "✔" [ref=e879]
+                    - cell [ref=e880]
+                    - cell [ref=e881]
+                    - cell [ref=e882]
+                    - cell [ref=e883]
+                    - cell [ref=e884]
+                    - cell [ref=e885]
+                    - cell [ref=e886]
+                    - cell [ref=e887]
+                    - cell "s-prd-clickauto@psav.com" [ref=e888]:
+                      - generic [ref=e889]: s-prd-clickauto@psav.com
+                    - cell "06/01/2026 03:00:28 PM" [ref=e890]:
+                      - generic [ref=e891]: 06/01/2026 03:00:28 PM
+                    - cell "0000" [ref=e892]:
+                      - generic [ref=e893]: "0000"
+                    - cell "900" [ref=e894]:
+                      - generic [ref=e895]: "900"
+                    - cell "1" [ref=e896]:
+                      - generic [ref=e897]: "1"
+                    - cell [ref=e898]
+                    - cell "0.00 %" [ref=e899]
+                    - cell "✔" [ref=e900]
+                    - cell [ref=e901]
+                    - cell "✔" [ref=e902]
+                    - cell [ref=e903]
+                    - cell [ref=e904]
+                    - cell [ref=e905]
+                    - cell "✔" [ref=e906]
+                    - cell "✔" [ref=e907]
+                    - cell [ref=e908]
+                    - cell [ref=e909]
+                  - 'row "1604 Parker Palm Springs ✔ 02/18/1992 Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ 0.00 % ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ 06/01/2026 - hello s-prd-clickauto@psav.com 06/01/2026 03:00:02 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e910]':
+                    - cell "1604" [ref=e911]:
+                      - generic [ref=e912]: "1604"
+                    - cell "Parker Palm Springs" [ref=e913]:
+                      - generic [ref=e914]: Parker Palm Springs
+                    - cell "✔" [ref=e915]
+                    - cell "02/18/1992" [ref=e916]:
+                      - generic [ref=e917]: 02/18/1992
+                    - cell [ref=e918]
+                    - cell [ref=e919]
+                    - cell [ref=e920]
+                    - cell [ref=e921]
+                    - cell [ref=e922]
+                    - cell "Encore" [ref=e923]:
+                      - generic [ref=e924]: Encore
+                    - cell [ref=e925]
+                    - cell "✔" [ref=e926]
+                    - cell "Master" [ref=e927]:
+                      - generic [ref=e928]: Master
+                    - cell [ref=e929]
+                    - cell "Event" [ref=e930]:
+                      - generic [ref=e931]: Event
+                    - cell "03/16/2007" [ref=e932]:
+                      - generic [ref=e933]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e934]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e935]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e936]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e937]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e938]'
+                    - cell "✔" [ref=e939]
+                    - cell [ref=e940]
+                    - cell [ref=e941]
+                    - cell "0.00 %" [ref=e942]
+                    - cell "✔" [ref=e943]
+                    - cell "4.00 %" [ref=e944]
+                    - cell [ref=e945]
+                    - cell [ref=e946]
+                    - cell "0.00 %" [ref=e947]
+                    - cell "✔" [ref=e948]
+                    - cell [ref=e949]
+                    - cell [ref=e950]
+                    - cell [ref=e951]
+                    - cell [ref=e952]
+                    - cell "0.00 %" [ref=e953]
+                    - cell [ref=e954]
+                    - cell [ref=e955]
+                    - cell "✔" [ref=e956]
+                    - cell "33.00 %" [ref=e957]
+                    - cell "✔" [ref=e958]
+                    - cell "✔" [ref=e959]
+                    - cell "✔" [ref=e960]
+                    - cell "✔" [ref=e961]
+                    - cell "✔" [ref=e962]
+                    - cell [ref=e963]
+                    - cell "✔" [ref=e964]
+                    - cell [ref=e965]
+                    - cell [ref=e966]
+                    - cell [ref=e967]
+                    - cell [ref=e968]
+                    - cell "✔" [ref=e969]
+                    - cell [ref=e970]
+                    - cell [ref=e971]
+                    - cell "Parker Palm Springs" [ref=e972]:
+                      - generic [ref=e973]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e974]:
+                      - generic [ref=e975]: 760-883-1957
+                    - cell [ref=e976]
+                    - cell "Parker Palm Springs" [ref=e977]:
+                      - generic [ref=e978]: Parker Palm Springs
+                    - cell [ref=e979]
+                    - cell [ref=e980]
+                    - cell [ref=e981]
+                    - cell "✔" [ref=e982]
+                    - cell [ref=e983]
+                    - cell [ref=e984]
+                    - cell [ref=e985]
+                    - cell [ref=e986]
+                    - cell [ref=e987]
+                    - cell [ref=e988]
+                    - cell [ref=e989]
+                    - cell "06/01/2026 - hello" [ref=e990]:
+                      - generic [ref=e991]: 06/01/2026 - hello
+                    - cell "s-prd-clickauto@psav.com" [ref=e992]:
+                      - generic [ref=e993]: s-prd-clickauto@psav.com
+                    - cell "06/01/2026 03:00:02 PM" [ref=e994]:
+                      - generic [ref=e995]: 06/01/2026 03:00:02 PM
+                    - cell "0000" [ref=e996]:
+                      - generic [ref=e997]: "0000"
+                    - cell "900" [ref=e998]:
+                      - generic [ref=e999]: "900"
+                    - cell "1" [ref=e1000]:
+                      - generic [ref=e1001]: "1"
+                    - cell [ref=e1002]
+                    - cell "0.00 %" [ref=e1003]
+                    - cell "✔" [ref=e1004]
+                    - cell [ref=e1005]
+                    - cell "✔" [ref=e1006]
+                    - cell [ref=e1007]
+                    - cell [ref=e1008]
+                    - cell [ref=e1009]
+                    - cell "✔" [ref=e1010]
+                    - cell "✔" [ref=e1011]
+                    - cell [ref=e1012]
+                    - cell [ref=e1013]
+                  - 'row "1604 Parker Palm Springs ✔ 02/19/1992 USD Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ 0.00 % ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 06/01/2026 02:59:58 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1014]':
+                    - cell "1604" [ref=e1015]:
+                      - generic [ref=e1016]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1017]:
+                      - generic [ref=e1018]: Parker Palm Springs
+                    - cell "✔" [ref=e1019]
+                    - cell "02/19/1992" [ref=e1020]:
+                      - generic [ref=e1021]: 02/19/1992
+                    - cell [ref=e1022]
+                    - cell "USD" [ref=e1023]:
+                      - generic [ref=e1024]: USD
+                    - cell [ref=e1025]
+                    - cell [ref=e1026]
+                    - cell [ref=e1027]
+                    - cell "Encore" [ref=e1028]:
+                      - generic [ref=e1029]: Encore
+                    - cell [ref=e1030]
+                    - cell "✔" [ref=e1031]
+                    - cell "Master" [ref=e1032]:
+                      - generic [ref=e1033]: Master
+                    - cell [ref=e1034]
+                    - cell "Event" [ref=e1035]:
+                      - generic [ref=e1036]: Event
+                    - cell "03/16/2007" [ref=e1037]:
+                      - generic [ref=e1038]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1039]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1040]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1041]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1042]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1043]'
+                    - cell "✔" [ref=e1044]
+                    - cell [ref=e1045]
+                    - cell [ref=e1046]
+                    - cell "0.00 %" [ref=e1047]
+                    - cell "✔" [ref=e1048]
+                    - cell "4.00 %" [ref=e1049]
+                    - cell [ref=e1050]
+                    - cell [ref=e1051]
+                    - cell "0.00 %" [ref=e1052]
+                    - cell "✔" [ref=e1053]
+                    - cell [ref=e1054]
+                    - cell [ref=e1055]
+                    - cell [ref=e1056]
+                    - cell [ref=e1057]
+                    - cell "0.00 %" [ref=e1058]
+                    - cell [ref=e1059]
+                    - cell [ref=e1060]
+                    - cell "✔" [ref=e1061]
+                    - cell "33.00 %" [ref=e1062]
+                    - cell "✔" [ref=e1063]
+                    - cell "✔" [ref=e1064]
+                    - cell "✔" [ref=e1065]
+                    - cell "✔" [ref=e1066]
+                    - cell "✔" [ref=e1067]
+                    - cell [ref=e1068]
+                    - cell "✔" [ref=e1069]
+                    - cell [ref=e1070]
+                    - cell [ref=e1071]
+                    - cell [ref=e1072]
+                    - cell [ref=e1073]
+                    - cell "✔" [ref=e1074]
+                    - cell [ref=e1075]
+                    - cell [ref=e1076]
+                    - cell "Parker Palm Springs" [ref=e1077]:
+                      - generic [ref=e1078]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e1079]:
+                      - generic [ref=e1080]: 760-883-1957
+                    - cell [ref=e1081]
+                    - cell "Parker Palm Springs" [ref=e1082]:
+                      - generic [ref=e1083]: Parker Palm Springs
+                    - cell [ref=e1084]
+                    - cell [ref=e1085]
+                    - cell [ref=e1086]
+                    - cell "✔" [ref=e1087]
+                    - cell [ref=e1088]
+                    - cell [ref=e1089]
+                    - cell [ref=e1090]
+                    - cell [ref=e1091]
+                    - cell [ref=e1092]
+                    - cell [ref=e1093]
+                    - cell [ref=e1094]
+                    - cell [ref=e1095]
+                    - cell "s-prd-clickauto@psav.com" [ref=e1096]:
+                      - generic [ref=e1097]: s-prd-clickauto@psav.com
+                    - cell "06/01/2026 02:59:58 PM" [ref=e1098]:
+                      - generic [ref=e1099]: 06/01/2026 02:59:58 PM
+                    - cell "0000" [ref=e1100]:
+                      - generic [ref=e1101]: "0000"
+                    - cell "900" [ref=e1102]:
+                      - generic [ref=e1103]: "900"
+                    - cell "1" [ref=e1104]:
+                      - generic [ref=e1105]: "1"
+                    - cell [ref=e1106]
+                    - cell "0.00 %" [ref=e1107]
+                    - cell "✔" [ref=e1108]
+                    - cell [ref=e1109]
+                    - cell "✔" [ref=e1110]
+                    - cell [ref=e1111]
+                    - cell [ref=e1112]
+                    - cell [ref=e1113]
+                    - cell "✔" [ref=e1114]
+                    - cell "✔" [ref=e1115]
+                    - cell [ref=e1116]
+                    - cell [ref=e1117]
+                  - 'row "1604 Parker Palm Springs ✔ 02/20/1992 Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ 0.00 % ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ 06/01/2026 - hello s-prd-clickauto@psav.com 06/01/2026 02:59:28 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1118]':
+                    - cell "1604" [ref=e1119]:
+                      - generic [ref=e1120]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1121]:
+                      - generic [ref=e1122]: Parker Palm Springs
+                    - cell "✔" [ref=e1123]
+                    - cell "02/20/1992" [ref=e1124]:
+                      - generic [ref=e1125]: 02/20/1992
+                    - cell [ref=e1126]
+                    - cell [ref=e1127]
+                    - cell [ref=e1128]
+                    - cell [ref=e1129]
+                    - cell [ref=e1130]
+                    - cell "Encore" [ref=e1131]:
+                      - generic [ref=e1132]: Encore
+                    - cell [ref=e1133]
+                    - cell "✔" [ref=e1134]
+                    - cell "Master" [ref=e1135]:
+                      - generic [ref=e1136]: Master
+                    - cell [ref=e1137]
+                    - cell "Event" [ref=e1138]:
+                      - generic [ref=e1139]: Event
+                    - cell "03/16/2007" [ref=e1140]:
+                      - generic [ref=e1141]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1142]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1143]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1144]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1145]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1146]'
+                    - cell "✔" [ref=e1147]
+                    - cell [ref=e1148]
+                    - cell [ref=e1149]
+                    - cell "0.00 %" [ref=e1150]
+                    - cell "✔" [ref=e1151]
+                    - cell "4.00 %" [ref=e1152]
+                    - cell [ref=e1153]
+                    - cell [ref=e1154]
+                    - cell "0.00 %" [ref=e1155]
+                    - cell "✔" [ref=e1156]
+                    - cell [ref=e1157]
+                    - cell [ref=e1158]
+                    - cell [ref=e1159]
+                    - cell [ref=e1160]
+                    - cell "0.00 %" [ref=e1161]
+                    - cell [ref=e1162]
+                    - cell [ref=e1163]
+                    - cell "✔" [ref=e1164]
+                    - cell "33.00 %" [ref=e1165]
+                    - cell "✔" [ref=e1166]
+                    - cell "✔" [ref=e1167]
+                    - cell "✔" [ref=e1168]
+                    - cell "✔" [ref=e1169]
+                    - cell "✔" [ref=e1170]
+                    - cell [ref=e1171]
+                    - cell "✔" [ref=e1172]
+                    - cell [ref=e1173]
+                    - cell [ref=e1174]
+                    - cell [ref=e1175]
+                    - cell [ref=e1176]
+                    - cell "✔" [ref=e1177]
+                    - cell [ref=e1178]
+                    - cell [ref=e1179]
+                    - cell "Parker Palm Springs" [ref=e1180]:
+                      - generic [ref=e1181]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e1182]:
+                      - generic [ref=e1183]: 760-883-1957
+                    - cell [ref=e1184]
+                    - cell "Parker Palm Springs" [ref=e1185]:
+                      - generic [ref=e1186]: Parker Palm Springs
+                    - cell [ref=e1187]
+                    - cell [ref=e1188]
+                    - cell [ref=e1189]
+                    - cell "✔" [ref=e1190]
+                    - cell [ref=e1191]
+                    - cell [ref=e1192]
+                    - cell [ref=e1193]
+                    - cell [ref=e1194]
+                    - cell [ref=e1195]
+                    - cell [ref=e1196]
+                    - cell [ref=e1197]
+                    - cell "06/01/2026 - hello" [ref=e1198]:
+                      - generic [ref=e1199]: 06/01/2026 - hello
+                    - cell "s-prd-clickauto@psav.com" [ref=e1200]:
+                      - generic [ref=e1201]: s-prd-clickauto@psav.com
+                    - cell "06/01/2026 02:59:28 PM" [ref=e1202]:
+                      - generic [ref=e1203]: 06/01/2026 02:59:28 PM
+                    - cell "0000" [ref=e1204]:
+                      - generic [ref=e1205]: "0000"
+                    - cell "900" [ref=e1206]:
+                      - generic [ref=e1207]: "900"
+                    - cell "1" [ref=e1208]:
+                      - generic [ref=e1209]: "1"
+                    - cell [ref=e1210]
+                    - cell "0.00 %" [ref=e1211]
+                    - cell "✔" [ref=e1212]
+                    - cell [ref=e1213]
+                    - cell "✔" [ref=e1214]
+                    - cell [ref=e1215]
+                    - cell [ref=e1216]
+                    - cell [ref=e1217]
+                    - cell "✔" [ref=e1218]
+                    - cell "✔" [ref=e1219]
+                    - cell [ref=e1220]
+                    - cell [ref=e1221]
+                  - 'row "1604 Parker Palm Springs ✔ 02/21/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 12:16:18 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1222]':
+                    - cell "1604" [ref=e1223]:
+                      - generic [ref=e1224]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1225]:
+                      - generic [ref=e1226]: Parker Palm Springs
+                    - cell "✔" [ref=e1227]
+                    - cell "02/21/1992" [ref=e1228]:
+                      - generic [ref=e1229]: 02/21/1992
+                    - cell "United States" [ref=e1230]:
+                      - generic [ref=e1231]: United States
+                    - cell "USD" [ref=e1232]:
+                      - generic [ref=e1233]: USD
+                    - cell "US" [ref=e1234]:
+                      - generic [ref=e1235]: US
+                    - cell "Palm Springs" [ref=e1236]:
+                      - generic [ref=e1237]: Palm Springs
+                    - cell [ref=e1238]
+                    - cell "Encore" [ref=e1239]:
+                      - generic [ref=e1240]: Encore
+                    - cell [ref=e1241]
+                    - cell "✔" [ref=e1242]
+                    - cell "Master" [ref=e1243]:
+                      - generic [ref=e1244]: Master
+                    - cell [ref=e1245]
+                    - cell "Event" [ref=e1246]:
+                      - generic [ref=e1247]: Event
+                    - cell "03/16/2007" [ref=e1248]:
+                      - generic [ref=e1249]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1250]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1251]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1252]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1253]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1254]'
+                    - cell "✔" [ref=e1255]
+                    - cell [ref=e1256]
+                    - cell [ref=e1257]
+                    - cell "0.00 %" [ref=e1258]
+                    - cell "✔" [ref=e1259]
+                    - cell "4.00 %" [ref=e1260]
+                    - cell [ref=e1261]
+                    - cell [ref=e1262]
+                    - cell "0.00 %" [ref=e1263]
+                    - cell "✔" [ref=e1264]
+                    - cell [ref=e1265]
+                    - cell [ref=e1266]
+                    - 'cell "US English: Resort Service Charge" [ref=e1267]':
+                      - generic [ref=e1268]: "US English: Resort Service Charge"
+                    - cell [ref=e1269]
+                    - cell "0.00 %" [ref=e1270]
+                    - cell [ref=e1271]
+                    - 'cell "US English: LDW" [ref=e1272]':
+                      - generic [ref=e1273]: "US English: LDW"
+                    - cell "✔" [ref=e1274]
+                    - cell "33.00 %" [ref=e1275]
+                    - cell "✔" [ref=e1276]
+                    - cell "✔" [ref=e1277]
+                    - cell "✔" [ref=e1278]
+                    - cell "✔" [ref=e1279]
+                    - cell "✔" [ref=e1280]
+                    - cell [ref=e1281]
+                    - cell "✔" [ref=e1282]
+                    - cell [ref=e1283]
+                    - cell [ref=e1284]
+                    - cell [ref=e1285]
+                    - cell [ref=e1286]
+                    - cell "✔" [ref=e1287]
+                    - cell [ref=e1288]
+                    - cell [ref=e1289]
+                    - cell "Parker Palm Springs" [ref=e1290]:
+                      - generic [ref=e1291]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e1292]:
+                      - generic [ref=e1293]: 760-883-1957
+                    - cell [ref=e1294]
+                    - cell "Parker Palm Springs" [ref=e1295]:
+                      - generic [ref=e1296]: Parker Palm Springs
+                    - cell [ref=e1297]
+                    - cell [ref=e1298]
+                    - cell [ref=e1299]
+                    - cell "✔" [ref=e1300]
+                    - cell [ref=e1301]
+                    - cell [ref=e1302]
+                    - cell [ref=e1303]
+                    - cell [ref=e1304]
+                    - cell [ref=e1305]
+                    - cell [ref=e1306]
+                    - cell [ref=e1307]
+                    - cell [ref=e1308]
+                    - cell "s-prd-clickauto@psav.com" [ref=e1309]:
+                      - generic [ref=e1310]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 12:16:18 PM" [ref=e1311]:
+                      - generic [ref=e1312]: 05/29/2026 12:16:18 PM
+                    - cell "0000" [ref=e1313]:
+                      - generic [ref=e1314]: "0000"
+                    - cell "900" [ref=e1315]:
+                      - generic [ref=e1316]: "900"
+                    - cell "1" [ref=e1317]:
+                      - generic [ref=e1318]: "1"
+                    - cell [ref=e1319]
+                    - cell "0.00 %" [ref=e1320]
+                    - cell "✔" [ref=e1321]
+                    - cell [ref=e1322]
+                    - cell "✔" [ref=e1323]
+                    - cell [ref=e1324]
+                    - cell [ref=e1325]
+                    - cell [ref=e1326]
+                    - cell "✔" [ref=e1327]
+                    - cell "✔" [ref=e1328]
+                    - cell [ref=e1329]
+                    - cell [ref=e1330]
+                  - 'row "1604 Parker Palm Springs ✔ 02/22/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 12:15:38 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1331]':
+                    - cell "1604" [ref=e1332]:
+                      - generic [ref=e1333]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1334]:
+                      - generic [ref=e1335]: Parker Palm Springs
+                    - cell "✔" [ref=e1336]
+                    - cell "02/22/1992" [ref=e1337]:
+                      - generic [ref=e1338]: 02/22/1992
+                    - cell "United States" [ref=e1339]:
+                      - generic [ref=e1340]: United States
+                    - cell "USD" [ref=e1341]:
+                      - generic [ref=e1342]: USD
+                    - cell "US" [ref=e1343]:
+                      - generic [ref=e1344]: US
+                    - cell "Palm Springs" [ref=e1345]:
+                      - generic [ref=e1346]: Palm Springs
+                    - cell [ref=e1347]
+                    - cell "Encore" [ref=e1348]:
+                      - generic [ref=e1349]: Encore
+                    - cell [ref=e1350]
+                    - cell "✔" [ref=e1351]
+                    - cell "Master" [ref=e1352]:
+                      - generic [ref=e1353]: Master
+                    - cell [ref=e1354]
+                    - cell "Event" [ref=e1355]:
+                      - generic [ref=e1356]: Event
+                    - cell "03/16/2007" [ref=e1357]:
+                      - generic [ref=e1358]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1359]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1360]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1361]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1362]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1363]'
+                    - cell "✔" [ref=e1364]
+                    - cell [ref=e1365]
+                    - cell [ref=e1366]
+                    - cell "0.00 %" [ref=e1367]
+                    - cell "✔" [ref=e1368]
+                    - cell "4.00 %" [ref=e1369]
+                    - cell [ref=e1370]
+                    - cell [ref=e1371]
+                    - cell "0.00 %" [ref=e1372]
+                    - cell "✔" [ref=e1373]
+                    - cell [ref=e1374]
+                    - cell [ref=e1375]
+                    - 'cell "US English: Resort Service Charge" [ref=e1376]':
+                      - generic [ref=e1377]: "US English: Resort Service Charge"
+                    - cell [ref=e1378]
+                    - cell "0.00 %" [ref=e1379]
+                    - cell [ref=e1380]
+                    - 'cell "US English: LDW" [ref=e1381]':
+                      - generic [ref=e1382]: "US English: LDW"
+                    - cell "✔" [ref=e1383]
+                    - cell "33.00 %" [ref=e1384]
+                    - cell "✔" [ref=e1385]
+                    - cell "✔" [ref=e1386]
+                    - cell "✔" [ref=e1387]
+                    - cell "✔" [ref=e1388]
+                    - cell "✔" [ref=e1389]
+                    - cell [ref=e1390]
+                    - cell "✔" [ref=e1391]
+                    - cell [ref=e1392]
+                    - cell [ref=e1393]
+                    - cell [ref=e1394]
+                    - cell [ref=e1395]
+                    - cell "✔" [ref=e1396]
+                    - cell [ref=e1397]
+                    - cell [ref=e1398]
+                    - cell "Parker Palm Springs" [ref=e1399]:
+                      - generic [ref=e1400]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e1401]:
+                      - generic [ref=e1402]: 760-883-1957
+                    - cell [ref=e1403]
+                    - cell "Parker Palm Springs" [ref=e1404]:
+                      - generic [ref=e1405]: Parker Palm Springs
+                    - cell [ref=e1406]
+                    - cell [ref=e1407]
+                    - cell [ref=e1408]
+                    - cell "✔" [ref=e1409]
+                    - cell [ref=e1410]
+                    - cell [ref=e1411]
+                    - cell [ref=e1412]
+                    - cell [ref=e1413]
+                    - cell [ref=e1414]
+                    - cell [ref=e1415]
+                    - cell [ref=e1416]
+                    - cell [ref=e1417]
+                    - cell "s-prd-clickauto@psav.com" [ref=e1418]:
+                      - generic [ref=e1419]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 12:15:38 PM" [ref=e1420]:
+                      - generic [ref=e1421]: 05/29/2026 12:15:38 PM
+                    - cell "0000" [ref=e1422]:
+                      - generic [ref=e1423]: "0000"
+                    - cell "900" [ref=e1424]:
+                      - generic [ref=e1425]: "900"
+                    - cell "1" [ref=e1426]:
+                      - generic [ref=e1427]: "1"
+                    - cell [ref=e1428]
+                    - cell "0.00 %" [ref=e1429]
+                    - cell "✔" [ref=e1430]
+                    - cell [ref=e1431]
+                    - cell "✔" [ref=e1432]
+                    - cell [ref=e1433]
+                    - cell [ref=e1434]
+                    - cell [ref=e1435]
+                    - cell "✔" [ref=e1436]
+                    - cell "✔" [ref=e1437]
+                    - cell [ref=e1438]
+                    - cell [ref=e1439]
+                  - 'row "1604 Parker Palm Springs ✔ 02/23/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 555-000-0001 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 12:15:28 PM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1440]':
+                    - cell "1604" [ref=e1441]:
+                      - generic [ref=e1442]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1443]:
+                      - generic [ref=e1444]: Parker Palm Springs
+                    - cell "✔" [ref=e1445]
+                    - cell "02/23/1992" [ref=e1446]:
+                      - generic [ref=e1447]: 02/23/1992
+                    - cell "United States" [ref=e1448]:
+                      - generic [ref=e1449]: United States
+                    - cell "USD" [ref=e1450]:
+                      - generic [ref=e1451]: USD
+                    - cell "US" [ref=e1452]:
+                      - generic [ref=e1453]: US
+                    - cell "Palm Springs" [ref=e1454]:
+                      - generic [ref=e1455]: Palm Springs
+                    - cell [ref=e1456]
+                    - cell "Encore" [ref=e1457]:
+                      - generic [ref=e1458]: Encore
+                    - cell [ref=e1459]
+                    - cell "✔" [ref=e1460]
+                    - cell "Master" [ref=e1461]:
+                      - generic [ref=e1462]: Master
+                    - cell [ref=e1463]
+                    - cell "Event" [ref=e1464]:
+                      - generic [ref=e1465]: Event
+                    - cell "03/16/2007" [ref=e1466]:
+                      - generic [ref=e1467]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1468]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1469]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1470]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1471]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1472]'
+                    - cell "✔" [ref=e1473]
+                    - cell [ref=e1474]
+                    - cell [ref=e1475]
+                    - cell "0.00 %" [ref=e1476]
+                    - cell "✔" [ref=e1477]
+                    - cell "4.00 %" [ref=e1478]
+                    - cell [ref=e1479]
+                    - cell [ref=e1480]
+                    - cell "0.00 %" [ref=e1481]
+                    - cell "✔" [ref=e1482]
+                    - cell [ref=e1483]
+                    - cell [ref=e1484]
+                    - 'cell "US English: Resort Service Charge" [ref=e1485]':
+                      - generic [ref=e1486]: "US English: Resort Service Charge"
+                    - cell [ref=e1487]
+                    - cell "0.00 %" [ref=e1488]
+                    - cell [ref=e1489]
+                    - 'cell "US English: LDW" [ref=e1490]':
+                      - generic [ref=e1491]: "US English: LDW"
+                    - cell "✔" [ref=e1492]
+                    - cell "33.00 %" [ref=e1493]
+                    - cell "✔" [ref=e1494]
+                    - cell "✔" [ref=e1495]
+                    - cell "✔" [ref=e1496]
+                    - cell "✔" [ref=e1497]
+                    - cell "✔" [ref=e1498]
+                    - cell [ref=e1499]
+                    - cell "✔" [ref=e1500]
+                    - cell [ref=e1501]
+                    - cell [ref=e1502]
+                    - cell [ref=e1503]
+                    - cell [ref=e1504]
+                    - cell "✔" [ref=e1505]
+                    - cell [ref=e1506]
+                    - cell [ref=e1507]
+                    - cell "Parker Palm Springs" [ref=e1508]:
+                      - generic [ref=e1509]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e1510]:
+                      - generic [ref=e1511]: 760-883-1957
+                    - cell "555-000-0001" [ref=e1512]:
+                      - generic [ref=e1513]: 555-000-0001
+                    - cell "Parker Palm Springs" [ref=e1514]:
+                      - generic [ref=e1515]: Parker Palm Springs
+                    - cell [ref=e1516]
+                    - cell [ref=e1517]
+                    - cell [ref=e1518]
+                    - cell "✔" [ref=e1519]
+                    - cell [ref=e1520]
+                    - cell [ref=e1521]
+                    - cell [ref=e1522]
+                    - cell [ref=e1523]
+                    - cell [ref=e1524]
+                    - cell [ref=e1525]
+                    - cell [ref=e1526]
+                    - cell [ref=e1527]
+                    - cell "s-prd-clickauto@psav.com" [ref=e1528]:
+                      - generic [ref=e1529]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 12:15:28 PM" [ref=e1530]:
+                      - generic [ref=e1531]: 05/29/2026 12:15:28 PM
+                    - cell "0000" [ref=e1532]:
+                      - generic [ref=e1533]: "0000"
+                    - cell "900" [ref=e1534]:
+                      - generic [ref=e1535]: "900"
+                    - cell "1" [ref=e1536]:
+                      - generic [ref=e1537]: "1"
+                    - cell [ref=e1538]
+                    - cell "0.00 %" [ref=e1539]
+                    - cell "✔" [ref=e1540]
+                    - cell [ref=e1541]
+                    - cell "✔" [ref=e1542]
+                    - cell [ref=e1543]
+                    - cell [ref=e1544]
+                    - cell [ref=e1545]
+                    - cell "✔" [ref=e1546]
+                    - cell "✔" [ref=e1547]
+                    - cell [ref=e1548]
+                    - cell [ref=e1549]
+                  - 'row "1604 Parker Palm Springs ✔ 02/24/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 11:33:40 AM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1550]':
+                    - cell "1604" [ref=e1551]:
+                      - generic [ref=e1552]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1553]:
+                      - generic [ref=e1554]: Parker Palm Springs
+                    - cell "✔" [ref=e1555]
+                    - cell "02/24/1992" [ref=e1556]:
+                      - generic [ref=e1557]: 02/24/1992
+                    - cell "United States" [ref=e1558]:
+                      - generic [ref=e1559]: United States
+                    - cell "USD" [ref=e1560]:
+                      - generic [ref=e1561]: USD
+                    - cell "US" [ref=e1562]:
+                      - generic [ref=e1563]: US
+                    - cell "Palm Springs" [ref=e1564]:
+                      - generic [ref=e1565]: Palm Springs
+                    - cell [ref=e1566]
+                    - cell "Encore" [ref=e1567]:
+                      - generic [ref=e1568]: Encore
+                    - cell [ref=e1569]
+                    - cell "✔" [ref=e1570]
+                    - cell "Master" [ref=e1571]:
+                      - generic [ref=e1572]: Master
+                    - cell [ref=e1573]
+                    - cell "Event" [ref=e1574]:
+                      - generic [ref=e1575]: Event
+                    - cell "03/16/2007" [ref=e1576]:
+                      - generic [ref=e1577]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1578]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1579]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1580]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1581]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1582]'
+                    - cell "✔" [ref=e1583]
+                    - cell [ref=e1584]
+                    - cell [ref=e1585]
+                    - cell "0.00 %" [ref=e1586]
+                    - cell "✔" [ref=e1587]
+                    - cell "4.00 %" [ref=e1588]
+                    - cell [ref=e1589]
+                    - cell [ref=e1590]
+                    - cell "0.00 %" [ref=e1591]
+                    - cell "✔" [ref=e1592]
+                    - cell [ref=e1593]
+                    - cell [ref=e1594]
+                    - 'cell "US English: Resort Service Charge" [ref=e1595]':
+                      - generic [ref=e1596]: "US English: Resort Service Charge"
+                    - cell [ref=e1597]
+                    - cell "0.00 %" [ref=e1598]
+                    - cell [ref=e1599]
+                    - 'cell "US English: LDW" [ref=e1600]':
+                      - generic [ref=e1601]: "US English: LDW"
+                    - cell "✔" [ref=e1602]
+                    - cell "33.00 %" [ref=e1603]
+                    - cell "✔" [ref=e1604]
+                    - cell "✔" [ref=e1605]
+                    - cell "✔" [ref=e1606]
+                    - cell "✔" [ref=e1607]
+                    - cell "✔" [ref=e1608]
+                    - cell [ref=e1609]
+                    - cell "✔" [ref=e1610]
+                    - cell [ref=e1611]
+                    - cell [ref=e1612]
+                    - cell [ref=e1613]
+                    - cell [ref=e1614]
+                    - cell "✔" [ref=e1615]
+                    - cell [ref=e1616]
+                    - cell [ref=e1617]
+                    - cell "Parker Palm Springs" [ref=e1618]:
+                      - generic [ref=e1619]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e1620]:
+                      - generic [ref=e1621]: 760-883-1957
+                    - cell [ref=e1622]
+                    - cell "Parker Palm Springs" [ref=e1623]:
+                      - generic [ref=e1624]: Parker Palm Springs
+                    - cell [ref=e1625]
+                    - cell [ref=e1626]
+                    - cell [ref=e1627]
+                    - cell "✔" [ref=e1628]
+                    - cell [ref=e1629]
+                    - cell [ref=e1630]
+                    - cell [ref=e1631]
+                    - cell [ref=e1632]
+                    - cell [ref=e1633]
+                    - cell [ref=e1634]
+                    - cell [ref=e1635]
+                    - cell [ref=e1636]
+                    - cell "s-prd-clickauto@psav.com" [ref=e1637]:
+                      - generic [ref=e1638]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 11:33:40 AM" [ref=e1639]:
+                      - generic [ref=e1640]: 05/29/2026 11:33:40 AM
+                    - cell "0000" [ref=e1641]:
+                      - generic [ref=e1642]: "0000"
+                    - cell "900" [ref=e1643]:
+                      - generic [ref=e1644]: "900"
+                    - cell "1" [ref=e1645]:
+                      - generic [ref=e1646]: "1"
+                    - cell [ref=e1647]
+                    - cell "0.00 %" [ref=e1648]
+                    - cell "✔" [ref=e1649]
+                    - cell [ref=e1650]
+                    - cell "✔" [ref=e1651]
+                    - cell [ref=e1652]
+                    - cell [ref=e1653]
+                    - cell [ref=e1654]
+                    - cell "✔" [ref=e1655]
+                    - cell "✔" [ref=e1656]
+                    - cell [ref=e1657]
+                    - cell [ref=e1658]
+                  - 'row "1604 Parker Palm Springs ✔ 02/25/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 555-000-0001 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 11:33:36 AM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1659]':
+                    - cell "1604" [ref=e1660]:
+                      - generic [ref=e1661]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1662]:
+                      - generic [ref=e1663]: Parker Palm Springs
+                    - cell "✔" [ref=e1664]
+                    - cell "02/25/1992" [ref=e1665]:
+                      - generic [ref=e1666]: 02/25/1992
+                    - cell "United States" [ref=e1667]:
+                      - generic [ref=e1668]: United States
+                    - cell "USD" [ref=e1669]:
+                      - generic [ref=e1670]: USD
+                    - cell "US" [ref=e1671]:
+                      - generic [ref=e1672]: US
+                    - cell "Palm Springs" [ref=e1673]:
+                      - generic [ref=e1674]: Palm Springs
+                    - cell [ref=e1675]
+                    - cell "Encore" [ref=e1676]:
+                      - generic [ref=e1677]: Encore
+                    - cell [ref=e1678]
+                    - cell "✔" [ref=e1679]
+                    - cell "Master" [ref=e1680]:
+                      - generic [ref=e1681]: Master
+                    - cell [ref=e1682]
+                    - cell "Event" [ref=e1683]:
+                      - generic [ref=e1684]: Event
+                    - cell "03/16/2007" [ref=e1685]:
+                      - generic [ref=e1686]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1687]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1688]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1689]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1690]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1691]'
+                    - cell "✔" [ref=e1692]
+                    - cell [ref=e1693]
+                    - cell [ref=e1694]
+                    - cell "0.00 %" [ref=e1695]
+                    - cell "✔" [ref=e1696]
+                    - cell "4.00 %" [ref=e1697]
+                    - cell [ref=e1698]
+                    - cell [ref=e1699]
+                    - cell "0.00 %" [ref=e1700]
+                    - cell "✔" [ref=e1701]
+                    - cell [ref=e1702]
+                    - cell [ref=e1703]
+                    - 'cell "US English: Resort Service Charge" [ref=e1704]':
+                      - generic [ref=e1705]: "US English: Resort Service Charge"
+                    - cell [ref=e1706]
+                    - cell "0.00 %" [ref=e1707]
+                    - cell [ref=e1708]
+                    - 'cell "US English: LDW" [ref=e1709]':
+                      - generic [ref=e1710]: "US English: LDW"
+                    - cell "✔" [ref=e1711]
+                    - cell "33.00 %" [ref=e1712]
+                    - cell "✔" [ref=e1713]
+                    - cell "✔" [ref=e1714]
+                    - cell "✔" [ref=e1715]
+                    - cell "✔" [ref=e1716]
+                    - cell "✔" [ref=e1717]
+                    - cell [ref=e1718]
+                    - cell "✔" [ref=e1719]
+                    - cell [ref=e1720]
+                    - cell [ref=e1721]
+                    - cell [ref=e1722]
+                    - cell [ref=e1723]
+                    - cell "✔" [ref=e1724]
+                    - cell [ref=e1725]
+                    - cell [ref=e1726]
+                    - cell "Parker Palm Springs" [ref=e1727]:
+                      - generic [ref=e1728]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e1729]:
+                      - generic [ref=e1730]: 760-883-1957
+                    - cell "555-000-0001" [ref=e1731]:
+                      - generic [ref=e1732]: 555-000-0001
+                    - cell "Parker Palm Springs" [ref=e1733]:
+                      - generic [ref=e1734]: Parker Palm Springs
+                    - cell [ref=e1735]
+                    - cell [ref=e1736]
+                    - cell [ref=e1737]
+                    - cell "✔" [ref=e1738]
+                    - cell [ref=e1739]
+                    - cell [ref=e1740]
+                    - cell [ref=e1741]
+                    - cell [ref=e1742]
+                    - cell [ref=e1743]
+                    - cell [ref=e1744]
+                    - cell [ref=e1745]
+                    - cell [ref=e1746]
+                    - cell "s-prd-clickauto@psav.com" [ref=e1747]:
+                      - generic [ref=e1748]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 11:33:36 AM" [ref=e1749]:
+                      - generic [ref=e1750]: 05/29/2026 11:33:36 AM
+                    - cell "0000" [ref=e1751]:
+                      - generic [ref=e1752]: "0000"
+                    - cell "900" [ref=e1753]:
+                      - generic [ref=e1754]: "900"
+                    - cell "1" [ref=e1755]:
+                      - generic [ref=e1756]: "1"
+                    - cell [ref=e1757]
+                    - cell "0.00 %" [ref=e1758]
+                    - cell "✔" [ref=e1759]
+                    - cell [ref=e1760]
+                    - cell "✔" [ref=e1761]
+                    - cell [ref=e1762]
+                    - cell [ref=e1763]
+                    - cell [ref=e1764]
+                    - cell "✔" [ref=e1765]
+                    - cell "✔" [ref=e1766]
+                    - cell [ref=e1767]
+                    - cell [ref=e1768]
+                  - 'row "1604 Parker Palm Springs ✔ 02/26/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 08:56:02 AM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1769]':
+                    - cell "1604" [ref=e1770]:
+                      - generic [ref=e1771]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1772]:
+                      - generic [ref=e1773]: Parker Palm Springs
+                    - cell "✔" [ref=e1774]
+                    - cell "02/26/1992" [ref=e1775]:
+                      - generic [ref=e1776]: 02/26/1992
+                    - cell "United States" [ref=e1777]:
+                      - generic [ref=e1778]: United States
+                    - cell "USD" [ref=e1779]:
+                      - generic [ref=e1780]: USD
+                    - cell "US" [ref=e1781]:
+                      - generic [ref=e1782]: US
+                    - cell "Palm Springs" [ref=e1783]:
+                      - generic [ref=e1784]: Palm Springs
+                    - cell [ref=e1785]
+                    - cell "Encore" [ref=e1786]:
+                      - generic [ref=e1787]: Encore
+                    - cell [ref=e1788]
+                    - cell "✔" [ref=e1789]
+                    - cell "Master" [ref=e1790]:
+                      - generic [ref=e1791]: Master
+                    - cell [ref=e1792]
+                    - cell "Event" [ref=e1793]:
+                      - generic [ref=e1794]: Event
+                    - cell "03/16/2007" [ref=e1795]:
+                      - generic [ref=e1796]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1797]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1798]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1799]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1800]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1801]'
+                    - cell "✔" [ref=e1802]
+                    - cell [ref=e1803]
+                    - cell [ref=e1804]
+                    - cell "0.00 %" [ref=e1805]
+                    - cell "✔" [ref=e1806]
+                    - cell "4.00 %" [ref=e1807]
+                    - cell [ref=e1808]
+                    - cell [ref=e1809]
+                    - cell "0.00 %" [ref=e1810]
+                    - cell "✔" [ref=e1811]
+                    - cell [ref=e1812]
+                    - cell [ref=e1813]
+                    - 'cell "US English: Resort Service Charge" [ref=e1814]':
+                      - generic [ref=e1815]: "US English: Resort Service Charge"
+                    - cell [ref=e1816]
+                    - cell "0.00 %" [ref=e1817]
+                    - cell [ref=e1818]
+                    - 'cell "US English: LDW" [ref=e1819]':
+                      - generic [ref=e1820]: "US English: LDW"
+                    - cell "✔" [ref=e1821]
+                    - cell "33.00 %" [ref=e1822]
+                    - cell "✔" [ref=e1823]
+                    - cell "✔" [ref=e1824]
+                    - cell "✔" [ref=e1825]
+                    - cell "✔" [ref=e1826]
+                    - cell "✔" [ref=e1827]
+                    - cell [ref=e1828]
+                    - cell "✔" [ref=e1829]
+                    - cell [ref=e1830]
+                    - cell [ref=e1831]
+                    - cell [ref=e1832]
+                    - cell [ref=e1833]
+                    - cell "✔" [ref=e1834]
+                    - cell [ref=e1835]
+                    - cell [ref=e1836]
+                    - cell "Parker Palm Springs" [ref=e1837]:
+                      - generic [ref=e1838]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e1839]:
+                      - generic [ref=e1840]: 760-883-1957
+                    - cell [ref=e1841]
+                    - cell "Parker Palm Springs" [ref=e1842]:
+                      - generic [ref=e1843]: Parker Palm Springs
+                    - cell [ref=e1844]
+                    - cell [ref=e1845]
+                    - cell [ref=e1846]
+                    - cell "✔" [ref=e1847]
+                    - cell [ref=e1848]
+                    - cell [ref=e1849]
+                    - cell [ref=e1850]
+                    - cell [ref=e1851]
+                    - cell [ref=e1852]
+                    - cell [ref=e1853]
+                    - cell [ref=e1854]
+                    - cell [ref=e1855]
+                    - cell "s-prd-clickauto@psav.com" [ref=e1856]:
+                      - generic [ref=e1857]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 08:56:02 AM" [ref=e1858]:
+                      - generic [ref=e1859]: 05/29/2026 08:56:02 AM
+                    - cell "0000" [ref=e1860]:
+                      - generic [ref=e1861]: "0000"
+                    - cell "900" [ref=e1862]:
+                      - generic [ref=e1863]: "900"
+                    - cell "1" [ref=e1864]:
+                      - generic [ref=e1865]: "1"
+                    - cell [ref=e1866]
+                    - cell "0.00 %" [ref=e1867]
+                    - cell "✔" [ref=e1868]
+                    - cell [ref=e1869]
+                    - cell "✔" [ref=e1870]
+                    - cell [ref=e1871]
+                    - cell [ref=e1872]
+                    - cell [ref=e1873]
+                    - cell "✔" [ref=e1874]
+                    - cell "✔" [ref=e1875]
+                    - cell [ref=e1876]
+                    - cell [ref=e1877]
+                  - 'row "1604 Parker Palm Springs ✔ 02/27/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 08:55:57 AM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1878]':
+                    - cell "1604" [ref=e1879]:
+                      - generic [ref=e1880]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1881]:
+                      - generic [ref=e1882]: Parker Palm Springs
+                    - cell "✔" [ref=e1883]
+                    - cell "02/27/1992" [ref=e1884]:
+                      - generic [ref=e1885]: 02/27/1992
+                    - cell "United States" [ref=e1886]:
+                      - generic [ref=e1887]: United States
+                    - cell "USD" [ref=e1888]:
+                      - generic [ref=e1889]: USD
+                    - cell "US" [ref=e1890]:
+                      - generic [ref=e1891]: US
+                    - cell "Palm Springs" [ref=e1892]:
+                      - generic [ref=e1893]: Palm Springs
+                    - cell [ref=e1894]
+                    - cell "Encore" [ref=e1895]:
+                      - generic [ref=e1896]: Encore
+                    - cell [ref=e1897]
+                    - cell "✔" [ref=e1898]
+                    - cell "Master" [ref=e1899]:
+                      - generic [ref=e1900]: Master
+                    - cell [ref=e1901]
+                    - cell "Event" [ref=e1902]:
+                      - generic [ref=e1903]: Event
+                    - cell "03/16/2007" [ref=e1904]:
+                      - generic [ref=e1905]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1906]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1907]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1908]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1909]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e1910]'
+                    - cell "✔" [ref=e1911]
+                    - cell [ref=e1912]
+                    - cell [ref=e1913]
+                    - cell "0.00 %" [ref=e1914]
+                    - cell "✔" [ref=e1915]
+                    - cell "4.00 %" [ref=e1916]
+                    - cell [ref=e1917]
+                    - cell [ref=e1918]
+                    - cell "0.00 %" [ref=e1919]
+                    - cell "✔" [ref=e1920]
+                    - cell [ref=e1921]
+                    - cell [ref=e1922]
+                    - 'cell "US English: Resort Service Charge" [ref=e1923]':
+                      - generic [ref=e1924]: "US English: Resort Service Charge"
+                    - cell [ref=e1925]
+                    - cell "0.00 %" [ref=e1926]
+                    - cell [ref=e1927]
+                    - 'cell "US English: LDW" [ref=e1928]':
+                      - generic [ref=e1929]: "US English: LDW"
+                    - cell "✔" [ref=e1930]
+                    - cell "33.00 %" [ref=e1931]
+                    - cell "✔" [ref=e1932]
+                    - cell "✔" [ref=e1933]
+                    - cell "✔" [ref=e1934]
+                    - cell "✔" [ref=e1935]
+                    - cell "✔" [ref=e1936]
+                    - cell [ref=e1937]
+                    - cell "✔" [ref=e1938]
+                    - cell [ref=e1939]
+                    - cell [ref=e1940]
+                    - cell [ref=e1941]
+                    - cell [ref=e1942]
+                    - cell "✔" [ref=e1943]
+                    - cell [ref=e1944]
+                    - cell [ref=e1945]
+                    - cell "Parker Palm Springs" [ref=e1946]:
+                      - generic [ref=e1947]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e1948]:
+                      - generic [ref=e1949]: 760-883-1957
+                    - cell [ref=e1950]
+                    - cell "Parker Palm Springs" [ref=e1951]:
+                      - generic [ref=e1952]: Parker Palm Springs
+                    - cell [ref=e1953]
+                    - cell [ref=e1954]
+                    - cell [ref=e1955]
+                    - cell "✔" [ref=e1956]
+                    - cell [ref=e1957]
+                    - cell [ref=e1958]
+                    - cell [ref=e1959]
+                    - cell [ref=e1960]
+                    - cell [ref=e1961]
+                    - cell [ref=e1962]
+                    - cell [ref=e1963]
+                    - cell [ref=e1964]
+                    - cell "s-prd-clickauto@psav.com" [ref=e1965]:
+                      - generic [ref=e1966]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 08:55:57 AM" [ref=e1967]:
+                      - generic [ref=e1968]: 05/29/2026 08:55:57 AM
+                    - cell "0000" [ref=e1969]:
+                      - generic [ref=e1970]: "0000"
+                    - cell "900" [ref=e1971]:
+                      - generic [ref=e1972]: "900"
+                    - cell "1" [ref=e1973]:
+                      - generic [ref=e1974]: "1"
+                    - cell [ref=e1975]
+                    - cell "0.00 %" [ref=e1976]
+                    - cell "✔" [ref=e1977]
+                    - cell [ref=e1978]
+                    - cell "✔" [ref=e1979]
+                    - cell [ref=e1980]
+                    - cell [ref=e1981]
+                    - cell [ref=e1982]
+                    - cell "✔" [ref=e1983]
+                    - cell "✔" [ref=e1984]
+                    - cell [ref=e1985]
+                    - cell [ref=e1986]
+                  - 'row "1604 Parker Palm Springs ✔ 02/28/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 08:55:49 AM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e1987]':
+                    - cell "1604" [ref=e1988]:
+                      - generic [ref=e1989]: "1604"
+                    - cell "Parker Palm Springs" [ref=e1990]:
+                      - generic [ref=e1991]: Parker Palm Springs
+                    - cell "✔" [ref=e1992]
+                    - cell "02/28/1992" [ref=e1993]:
+                      - generic [ref=e1994]: 02/28/1992
+                    - cell "United States" [ref=e1995]:
+                      - generic [ref=e1996]: United States
+                    - cell "USD" [ref=e1997]:
+                      - generic [ref=e1998]: USD
+                    - cell "US" [ref=e1999]:
+                      - generic [ref=e2000]: US
+                    - cell "Palm Springs" [ref=e2001]:
+                      - generic [ref=e2002]: Palm Springs
+                    - cell [ref=e2003]
+                    - cell "Encore" [ref=e2004]:
+                      - generic [ref=e2005]: Encore
+                    - cell [ref=e2006]
+                    - cell "✔" [ref=e2007]
+                    - cell "Master" [ref=e2008]:
+                      - generic [ref=e2009]: Master
+                    - cell [ref=e2010]
+                    - cell "Event" [ref=e2011]:
+                      - generic [ref=e2012]: Event
+                    - cell "03/16/2007" [ref=e2013]:
+                      - generic [ref=e2014]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2015]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2016]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2017]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2018]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2019]'
+                    - cell "✔" [ref=e2020]
+                    - cell [ref=e2021]
+                    - cell [ref=e2022]
+                    - cell "0.00 %" [ref=e2023]
+                    - cell "✔" [ref=e2024]
+                    - cell "4.00 %" [ref=e2025]
+                    - cell [ref=e2026]
+                    - cell [ref=e2027]
+                    - cell "0.00 %" [ref=e2028]
+                    - cell "✔" [ref=e2029]
+                    - cell [ref=e2030]
+                    - cell [ref=e2031]
+                    - 'cell "US English: Resort Service Charge" [ref=e2032]':
+                      - generic [ref=e2033]: "US English: Resort Service Charge"
+                    - cell [ref=e2034]
+                    - cell "0.00 %" [ref=e2035]
+                    - cell [ref=e2036]
+                    - 'cell "US English: LDW" [ref=e2037]':
+                      - generic [ref=e2038]: "US English: LDW"
+                    - cell "✔" [ref=e2039]
+                    - cell "33.00 %" [ref=e2040]
+                    - cell "✔" [ref=e2041]
+                    - cell "✔" [ref=e2042]
+                    - cell "✔" [ref=e2043]
+                    - cell "✔" [ref=e2044]
+                    - cell "✔" [ref=e2045]
+                    - cell [ref=e2046]
+                    - cell "✔" [ref=e2047]
+                    - cell [ref=e2048]
+                    - cell [ref=e2049]
+                    - cell [ref=e2050]
+                    - cell [ref=e2051]
+                    - cell "✔" [ref=e2052]
+                    - cell [ref=e2053]
+                    - cell [ref=e2054]
+                    - cell "Parker Palm Springs" [ref=e2055]:
+                      - generic [ref=e2056]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e2057]:
+                      - generic [ref=e2058]: 760-883-1957
+                    - cell [ref=e2059]
+                    - cell "Parker Palm Springs" [ref=e2060]:
+                      - generic [ref=e2061]: Parker Palm Springs
+                    - cell [ref=e2062]
+                    - cell [ref=e2063]
+                    - cell [ref=e2064]
+                    - cell "✔" [ref=e2065]
+                    - cell [ref=e2066]
+                    - cell [ref=e2067]
+                    - cell [ref=e2068]
+                    - cell [ref=e2069]
+                    - cell [ref=e2070]
+                    - cell [ref=e2071]
+                    - cell [ref=e2072]
+                    - cell [ref=e2073]
+                    - cell "s-prd-clickauto@psav.com" [ref=e2074]:
+                      - generic [ref=e2075]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 08:55:49 AM" [ref=e2076]:
+                      - generic [ref=e2077]: 05/29/2026 08:55:49 AM
+                    - cell "0000" [ref=e2078]:
+                      - generic [ref=e2079]: "0000"
+                    - cell "900" [ref=e2080]:
+                      - generic [ref=e2081]: "900"
+                    - cell "1" [ref=e2082]:
+                      - generic [ref=e2083]: "1"
+                    - cell [ref=e2084]
+                    - cell "0.00 %" [ref=e2085]
+                    - cell "✔" [ref=e2086]
+                    - cell [ref=e2087]
+                    - cell "✔" [ref=e2088]
+                    - cell [ref=e2089]
+                    - cell [ref=e2090]
+                    - cell [ref=e2091]
+                    - cell "✔" [ref=e2092]
+                    - cell "✔" [ref=e2093]
+                    - cell [ref=e2094]
+                    - cell [ref=e2095]
+                  - 'row "1604 Parker Palm Springs ✔ 02/29/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 08:55:44 AM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e2096]':
+                    - cell "1604" [ref=e2097]:
+                      - generic [ref=e2098]: "1604"
+                    - cell "Parker Palm Springs" [ref=e2099]:
+                      - generic [ref=e2100]: Parker Palm Springs
+                    - cell "✔" [ref=e2101]
+                    - cell "02/29/1992" [ref=e2102]:
+                      - generic [ref=e2103]: 02/29/1992
+                    - cell "United States" [ref=e2104]:
+                      - generic [ref=e2105]: United States
+                    - cell "USD" [ref=e2106]:
+                      - generic [ref=e2107]: USD
+                    - cell "US" [ref=e2108]:
+                      - generic [ref=e2109]: US
+                    - cell "Palm Springs" [ref=e2110]:
+                      - generic [ref=e2111]: Palm Springs
+                    - cell [ref=e2112]
+                    - cell "Encore" [ref=e2113]:
+                      - generic [ref=e2114]: Encore
+                    - cell [ref=e2115]
+                    - cell "✔" [ref=e2116]
+                    - cell "Master" [ref=e2117]:
+                      - generic [ref=e2118]: Master
+                    - cell [ref=e2119]
+                    - cell "Event" [ref=e2120]:
+                      - generic [ref=e2121]: Event
+                    - cell "03/16/2007" [ref=e2122]:
+                      - generic [ref=e2123]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2124]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2125]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2126]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2127]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2128]'
+                    - cell "✔" [ref=e2129]
+                    - cell [ref=e2130]
+                    - cell [ref=e2131]
+                    - cell "0.00 %" [ref=e2132]
+                    - cell "✔" [ref=e2133]
+                    - cell "4.00 %" [ref=e2134]
+                    - cell [ref=e2135]
+                    - cell [ref=e2136]
+                    - cell "0.00 %" [ref=e2137]
+                    - cell "✔" [ref=e2138]
+                    - cell [ref=e2139]
+                    - cell [ref=e2140]
+                    - 'cell "US English: Resort Service Charge" [ref=e2141]':
+                      - generic [ref=e2142]: "US English: Resort Service Charge"
+                    - cell [ref=e2143]
+                    - cell "0.00 %" [ref=e2144]
+                    - cell [ref=e2145]
+                    - 'cell "US English: LDW" [ref=e2146]':
+                      - generic [ref=e2147]: "US English: LDW"
+                    - cell "✔" [ref=e2148]
+                    - cell "33.00 %" [ref=e2149]
+                    - cell "✔" [ref=e2150]
+                    - cell "✔" [ref=e2151]
+                    - cell "✔" [ref=e2152]
+                    - cell "✔" [ref=e2153]
+                    - cell "✔" [ref=e2154]
+                    - cell [ref=e2155]
+                    - cell "✔" [ref=e2156]
+                    - cell [ref=e2157]
+                    - cell [ref=e2158]
+                    - cell [ref=e2159]
+                    - cell [ref=e2160]
+                    - cell "✔" [ref=e2161]
+                    - cell [ref=e2162]
+                    - cell [ref=e2163]
+                    - cell "Parker Palm Springs" [ref=e2164]:
+                      - generic [ref=e2165]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e2166]:
+                      - generic [ref=e2167]: 760-883-1957
+                    - cell [ref=e2168]
+                    - cell "Parker Palm Springs" [ref=e2169]:
+                      - generic [ref=e2170]: Parker Palm Springs
+                    - cell [ref=e2171]
+                    - cell [ref=e2172]
+                    - cell [ref=e2173]
+                    - cell "✔" [ref=e2174]
+                    - cell [ref=e2175]
+                    - cell [ref=e2176]
+                    - cell [ref=e2177]
+                    - cell [ref=e2178]
+                    - cell [ref=e2179]
+                    - cell [ref=e2180]
+                    - cell [ref=e2181]
+                    - cell [ref=e2182]
+                    - cell "s-prd-clickauto@psav.com" [ref=e2183]:
+                      - generic [ref=e2184]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 08:55:44 AM" [ref=e2185]:
+                      - generic [ref=e2186]: 05/29/2026 08:55:44 AM
+                    - cell "0000" [ref=e2187]:
+                      - generic [ref=e2188]: "0000"
+                    - cell "900" [ref=e2189]:
+                      - generic [ref=e2190]: "900"
+                    - cell "1" [ref=e2191]:
+                      - generic [ref=e2192]: "1"
+                    - cell [ref=e2193]
+                    - cell "0.00 %" [ref=e2194]
+                    - cell "✔" [ref=e2195]
+                    - cell [ref=e2196]
+                    - cell "✔" [ref=e2197]
+                    - cell [ref=e2198]
+                    - cell [ref=e2199]
+                    - cell [ref=e2200]
+                    - cell "✔" [ref=e2201]
+                    - cell "✔" [ref=e2202]
+                    - cell [ref=e2203]
+                    - cell [ref=e2204]
+                  - 'row "1604 Parker Palm Springs ✔ 03/01/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ 0.00 % ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 08:55:17 AM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e2205]':
+                    - cell "1604" [ref=e2206]:
+                      - generic [ref=e2207]: "1604"
+                    - cell "Parker Palm Springs" [ref=e2208]:
+                      - generic [ref=e2209]: Parker Palm Springs
+                    - cell "✔" [ref=e2210]
+                    - cell "03/01/1992" [ref=e2211]:
+                      - generic [ref=e2212]: 03/01/1992
+                    - cell "United States" [ref=e2213]:
+                      - generic [ref=e2214]: United States
+                    - cell "USD" [ref=e2215]:
+                      - generic [ref=e2216]: USD
+                    - cell "US" [ref=e2217]:
+                      - generic [ref=e2218]: US
+                    - cell "Palm Springs" [ref=e2219]:
+                      - generic [ref=e2220]: Palm Springs
+                    - cell [ref=e2221]
+                    - cell "Encore" [ref=e2222]:
+                      - generic [ref=e2223]: Encore
+                    - cell [ref=e2224]
+                    - cell "✔" [ref=e2225]
+                    - cell "Master" [ref=e2226]:
+                      - generic [ref=e2227]: Master
+                    - cell [ref=e2228]
+                    - cell "Event" [ref=e2229]:
+                      - generic [ref=e2230]: Event
+                    - cell "03/16/2007" [ref=e2231]:
+                      - generic [ref=e2232]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2233]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2234]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2235]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2236]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2237]'
+                    - cell "✔" [ref=e2238]
+                    - cell [ref=e2239]
+                    - cell [ref=e2240]
+                    - cell "0.00 %" [ref=e2241]
+                    - cell "✔" [ref=e2242]
+                    - cell "4.00 %" [ref=e2243]
+                    - cell [ref=e2244]
+                    - cell [ref=e2245]
+                    - cell "0.00 %" [ref=e2246]
+                    - cell "✔" [ref=e2247]
+                    - cell [ref=e2248]
+                    - cell [ref=e2249]
+                    - cell [ref=e2250]
+                    - cell [ref=e2251]
+                    - cell "0.00 %" [ref=e2252]
+                    - cell [ref=e2253]
+                    - cell [ref=e2254]
+                    - cell "✔" [ref=e2255]
+                    - cell "33.00 %" [ref=e2256]
+                    - cell "✔" [ref=e2257]
+                    - cell "✔" [ref=e2258]
+                    - cell "✔" [ref=e2259]
+                    - cell "✔" [ref=e2260]
+                    - cell "✔" [ref=e2261]
+                    - cell [ref=e2262]
+                    - cell "✔" [ref=e2263]
+                    - cell [ref=e2264]
+                    - cell [ref=e2265]
+                    - cell [ref=e2266]
+                    - cell [ref=e2267]
+                    - cell "✔" [ref=e2268]
+                    - cell [ref=e2269]
+                    - cell [ref=e2270]
+                    - cell "Parker Palm Springs" [ref=e2271]:
+                      - generic [ref=e2272]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e2273]:
+                      - generic [ref=e2274]: 760-883-1957
+                    - cell [ref=e2275]
+                    - cell "Parker Palm Springs" [ref=e2276]:
+                      - generic [ref=e2277]: Parker Palm Springs
+                    - cell [ref=e2278]
+                    - cell [ref=e2279]
+                    - cell [ref=e2280]
+                    - cell "✔" [ref=e2281]
+                    - cell [ref=e2282]
+                    - cell [ref=e2283]
+                    - cell [ref=e2284]
+                    - cell [ref=e2285]
+                    - cell [ref=e2286]
+                    - cell [ref=e2287]
+                    - cell [ref=e2288]
+                    - cell [ref=e2289]
+                    - cell "s-prd-clickauto@psav.com" [ref=e2290]:
+                      - generic [ref=e2291]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 08:55:17 AM" [ref=e2292]:
+                      - generic [ref=e2293]: 05/29/2026 08:55:17 AM
+                    - cell "0000" [ref=e2294]:
+                      - generic [ref=e2295]: "0000"
+                    - cell "900" [ref=e2296]:
+                      - generic [ref=e2297]: "900"
+                    - cell "1" [ref=e2298]:
+                      - generic [ref=e2299]: "1"
+                    - cell [ref=e2300]
+                    - cell "0.00 %" [ref=e2301]
+                    - cell "✔" [ref=e2302]
+                    - cell [ref=e2303]
+                    - cell "✔" [ref=e2304]
+                    - cell [ref=e2305]
+                    - cell [ref=e2306]
+                    - cell [ref=e2307]
+                    - cell "✔" [ref=e2308]
+                    - cell "✔" [ref=e2309]
+                    - cell [ref=e2310]
+                    - cell [ref=e2311]
+                  - 'row "1604 Parker Palm Springs ✔ 03/02/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ US English: Resort Service Charge 0.00 % US English: LDW ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 08:55:12 AM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e2312]':
+                    - cell "1604" [ref=e2313]:
+                      - generic [ref=e2314]: "1604"
+                    - cell "Parker Palm Springs" [ref=e2315]:
+                      - generic [ref=e2316]: Parker Palm Springs
+                    - cell "✔" [ref=e2317]
+                    - cell "03/02/1992" [ref=e2318]:
+                      - generic [ref=e2319]: 03/02/1992
+                    - cell "United States" [ref=e2320]:
+                      - generic [ref=e2321]: United States
+                    - cell "USD" [ref=e2322]:
+                      - generic [ref=e2323]: USD
+                    - cell "US" [ref=e2324]:
+                      - generic [ref=e2325]: US
+                    - cell "Palm Springs" [ref=e2326]:
+                      - generic [ref=e2327]: Palm Springs
+                    - cell [ref=e2328]
+                    - cell "Encore" [ref=e2329]:
+                      - generic [ref=e2330]: Encore
+                    - cell [ref=e2331]
+                    - cell "✔" [ref=e2332]
+                    - cell "Master" [ref=e2333]:
+                      - generic [ref=e2334]: Master
+                    - cell [ref=e2335]
+                    - cell "Event" [ref=e2336]:
+                      - generic [ref=e2337]: Event
+                    - cell "03/16/2007" [ref=e2338]:
+                      - generic [ref=e2339]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2340]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2341]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2342]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2343]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2344]'
+                    - cell "✔" [ref=e2345]
+                    - cell [ref=e2346]
+                    - cell [ref=e2347]
+                    - cell "0.00 %" [ref=e2348]
+                    - cell "✔" [ref=e2349]
+                    - cell "4.00 %" [ref=e2350]
+                    - cell [ref=e2351]
+                    - cell [ref=e2352]
+                    - cell "0.00 %" [ref=e2353]
+                    - cell "✔" [ref=e2354]
+                    - cell [ref=e2355]
+                    - cell [ref=e2356]
+                    - 'cell "US English: Resort Service Charge" [ref=e2357]':
+                      - generic [ref=e2358]: "US English: Resort Service Charge"
+                    - cell [ref=e2359]
+                    - cell "0.00 %" [ref=e2360]
+                    - cell [ref=e2361]
+                    - 'cell "US English: LDW" [ref=e2362]':
+                      - generic [ref=e2363]: "US English: LDW"
+                    - cell "✔" [ref=e2364]
+                    - cell "33.00 %" [ref=e2365]
+                    - cell "✔" [ref=e2366]
+                    - cell "✔" [ref=e2367]
+                    - cell "✔" [ref=e2368]
+                    - cell "✔" [ref=e2369]
+                    - cell "✔" [ref=e2370]
+                    - cell [ref=e2371]
+                    - cell "✔" [ref=e2372]
+                    - cell [ref=e2373]
+                    - cell [ref=e2374]
+                    - cell [ref=e2375]
+                    - cell [ref=e2376]
+                    - cell "✔" [ref=e2377]
+                    - cell [ref=e2378]
+                    - cell [ref=e2379]
+                    - cell "Parker Palm Springs" [ref=e2380]:
+                      - generic [ref=e2381]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e2382]:
+                      - generic [ref=e2383]: 760-883-1957
+                    - cell [ref=e2384]
+                    - cell "Parker Palm Springs" [ref=e2385]:
+                      - generic [ref=e2386]: Parker Palm Springs
+                    - cell [ref=e2387]
+                    - cell [ref=e2388]
+                    - cell [ref=e2389]
+                    - cell "✔" [ref=e2390]
+                    - cell [ref=e2391]
+                    - cell [ref=e2392]
+                    - cell [ref=e2393]
+                    - cell [ref=e2394]
+                    - cell [ref=e2395]
+                    - cell [ref=e2396]
+                    - cell [ref=e2397]
+                    - cell [ref=e2398]
+                    - cell "s-prd-clickauto@psav.com" [ref=e2399]:
+                      - generic [ref=e2400]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 08:55:12 AM" [ref=e2401]:
+                      - generic [ref=e2402]: 05/29/2026 08:55:12 AM
+                    - cell "0000" [ref=e2403]:
+                      - generic [ref=e2404]: "0000"
+                    - cell "900" [ref=e2405]:
+                      - generic [ref=e2406]: "900"
+                    - cell "1" [ref=e2407]:
+                      - generic [ref=e2408]: "1"
+                    - cell [ref=e2409]
+                    - cell "0.00 %" [ref=e2410]
+                    - cell "✔" [ref=e2411]
+                    - cell [ref=e2412]
+                    - cell "✔" [ref=e2413]
+                    - cell [ref=e2414]
+                    - cell [ref=e2415]
+                    - cell [ref=e2416]
+                    - cell "✔" [ref=e2417]
+                    - cell "✔" [ref=e2418]
+                    - cell [ref=e2419]
+                    - cell [ref=e2420]
+                  - 'row "1604 Parker Palm Springs ✔ 03/03/1992 United States USD US Palm Springs Encore ✔ Master Event 03/16/2007 USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: USD: ; CAD: ; MXN: ✔ 0.00 % ✔ 4.00 % 0.00 % ✔ 0.00 % ✔ 33.00 % ✔ ✔ ✔ ✔ ✔ ✔ ✔ Parker Palm Springs 760-883-1957 Parker Palm Springs ✔ s-prd-clickauto@psav.com 05/29/2026 08:54:59 AM 0000 900 1 0.00 % ✔ ✔ ✔ ✔" [ref=e2421]':
+                    - cell "1604" [ref=e2422]:
+                      - generic [ref=e2423]: "1604"
+                    - cell "Parker Palm Springs" [ref=e2424]:
+                      - generic [ref=e2425]: Parker Palm Springs
+                    - cell "✔" [ref=e2426]
+                    - cell "03/03/1992" [ref=e2427]:
+                      - generic [ref=e2428]: 03/03/1992
+                    - cell "United States" [ref=e2429]:
+                      - generic [ref=e2430]: United States
+                    - cell "USD" [ref=e2431]:
+                      - generic [ref=e2432]: USD
+                    - cell "US" [ref=e2433]:
+                      - generic [ref=e2434]: US
+                    - cell "Palm Springs" [ref=e2435]:
+                      - generic [ref=e2436]: Palm Springs
+                    - cell [ref=e2437]
+                    - cell "Encore" [ref=e2438]:
+                      - generic [ref=e2439]: Encore
+                    - cell [ref=e2440]
+                    - cell "✔" [ref=e2441]
+                    - cell "Master" [ref=e2442]:
+                      - generic [ref=e2443]: Master
+                    - cell [ref=e2444]
+                    - cell "Event" [ref=e2445]:
+                      - generic [ref=e2446]: Event
+                    - cell "03/16/2007" [ref=e2447]:
+                      - generic [ref=e2448]: 03/16/2007
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2449]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2450]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2451]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2452]'
+                    - 'cell "USD: ; CAD: ; MXN:" [ref=e2453]'
+                    - cell "✔" [ref=e2454]
+                    - cell [ref=e2455]
+                    - cell [ref=e2456]
+                    - cell "0.00 %" [ref=e2457]
+                    - cell "✔" [ref=e2458]
+                    - cell "4.00 %" [ref=e2459]
+                    - cell [ref=e2460]
+                    - cell [ref=e2461]
+                    - cell "0.00 %" [ref=e2462]
+                    - cell "✔" [ref=e2463]
+                    - cell [ref=e2464]
+                    - cell [ref=e2465]
+                    - cell [ref=e2466]
+                    - cell [ref=e2467]
+                    - cell "0.00 %" [ref=e2468]
+                    - cell [ref=e2469]
+                    - cell [ref=e2470]
+                    - cell "✔" [ref=e2471]
+                    - cell "33.00 %" [ref=e2472]
+                    - cell "✔" [ref=e2473]
+                    - cell "✔" [ref=e2474]
+                    - cell "✔" [ref=e2475]
+                    - cell "✔" [ref=e2476]
+                    - cell "✔" [ref=e2477]
+                    - cell [ref=e2478]
+                    - cell "✔" [ref=e2479]
+                    - cell [ref=e2480]
+                    - cell [ref=e2481]
+                    - cell [ref=e2482]
+                    - cell [ref=e2483]
+                    - cell "✔" [ref=e2484]
+                    - cell [ref=e2485]
+                    - cell [ref=e2486]
+                    - cell "Parker Palm Springs" [ref=e2487]:
+                      - generic [ref=e2488]: Parker Palm Springs
+                    - cell "760-883-1957" [ref=e2489]:
+                      - generic [ref=e2490]: 760-883-1957
+                    - cell [ref=e2491]
+                    - cell "Parker Palm Springs" [ref=e2492]:
+                      - generic [ref=e2493]: Parker Palm Springs
+                    - cell [ref=e2494]
+                    - cell [ref=e2495]
+                    - cell [ref=e2496]
+                    - cell "✔" [ref=e2497]
+                    - cell [ref=e2498]
+                    - cell [ref=e2499]
+                    - cell [ref=e2500]
+                    - cell [ref=e2501]
+                    - cell [ref=e2502]
+                    - cell [ref=e2503]
+                    - cell [ref=e2504]
+                    - cell [ref=e2505]
+                    - cell "s-prd-clickauto@psav.com" [ref=e2506]:
+                      - generic [ref=e2507]: s-prd-clickauto@psav.com
+                    - cell "05/29/2026 08:54:59 AM" [ref=e2508]:
+                      - generic [ref=e2509]: 05/29/2026 08:54:59 AM
+                    - cell "0000" [ref=e2510]:
+                      - generic [ref=e2511]: "0000"
+                    - cell "900" [ref=e2512]:
+                      - generic [ref=e2513]: "900"
+                    - cell "1" [ref=e2514]:
+                      - generic [ref=e2515]: "1"
+                    - cell [ref=e2516]
+                    - cell "0.00 %" [ref=e2517]
+                    - cell "✔" [ref=e2518]
+                    - cell [ref=e2519]
+                    - cell "✔" [ref=e2520]
+                    - cell [ref=e2521]
+                    - cell [ref=e2522]
+                    - cell [ref=e2523]
+                    - cell "✔" [ref=e2524]
+                    - cell "✔" [ref=e2525]
+                    - cell [ref=e2526]
+                    - cell [ref=e2527]
+              - generic [ref=e2531]:
+                - generic [ref=e2533]:
+                  - combobox [ref=e2534] [cursor=pointer]:
+                    - generic: "20"
+                    - img
+                  - paragraph [ref=e2535]: rows per page
+                - generic [ref=e2536]:
+                  - button "Go to first page" [disabled]:
+                    - img
+                  - button "Go to previous page" [disabled]:
+                    - img
+                  - generic [ref=e2537]:
+                    - textbox "Current page number" [ref=e2538]: "1"
+                    - generic [ref=e2539]: /
+                    - text: "505"
+                  - button "Go to next page" [ref=e2540] [cursor=pointer]:
+                    - img
+                  - button "Go to last page" [ref=e2541] [cursor=pointer]:
+                    - img
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e2542]:
+        - img [ref=e2544]
+        - generic [ref=e2547]: Local information updated
+```
+
+# Test source
+
+```ts
+  40  |   NOTE_SEQUENTIAL_HIST_A,
+  41  |   NOTE_SEQUENTIAL_HIST_B,
+  42  | } from '../../../src/data/testdata/locations/location-notes.data';
+  43  | 
+  44  | /** Format today as MM/DD/YYYY with leading-zero preservation (catalog rule). */
+  45  | function todayMMDDYYYY(): string {
+  46  |   const d = new Date();
+  47  |   const mm = String(d.getMonth() + 1).padStart(2, '0');
+  48  |   const dd = String(d.getDate()).padStart(2, '0');
+  49  |   const yyyy = d.getFullYear();
+  50  |   return `${mm}/${dd}/${yyyy}`;
+  51  | }
+  52  | 
+  53  | /**
+  54  |  * Two valid encoded forms for a single-content-row save.
+  55  |  *   col 69 = formArrayRows.map(r => `${D} - ${r.value}`).join(' | ')
+  56  |  * Trailing-space artifact ` ` from the empty placeholder row is trimmed by
+  57  |  * page-object `getColumnByIndex` / `getRowsSinceTimestamp` read paths.
+  58  |  */
+  59  | function expectedCol69Forms(payload: string, D: string): [string, string] {
+  60  |   return [
+  61  |     `${D} - ${payload}`,                       // FormArray = [content]
+  62  |     `${D} - ${payload} | ${D} -`,              // FormArray = [content, empty placeholder] (trimmed)
+  63  |   ];
+  64  | }
+  65  | 
+  66  | const PAYLOADS = {
+  67  |   'TC-LOC-NTS-028': 'hello',                                                                  // baseline → 'hello' save (catalog Save-1 analog)
+  68  |   'TC-LOC-NTS-029': 'A'.repeat(4000),                                                         // boundary char count (catalog soft-limit 4000)
+  69  |   'TC-LOC-NTS-030': `<script>alert(1)</script> & "quotes" 'apos' \`tick\` <div>`,            // special chars / HTML-like / quotes / backticks
+  70  |   'TC-LOC-NTS-031': 'line1\nline2\nline3',                                                    // newlines + multi-line content
+  71  |   'TC-LOC-NTS-032': 'café résumé 中文 ✔',                                                    // unicode (BMP-only — Latin diacritic + CJK + dingbat)
+  72  | } as const;
+  73  | 
+  74  | test.describe('Location Management HIST — Notes col 69 @locations @management-history @notes-hist', () => {
+  75  | 
+  76  |   // Per-test setup: navigate to Notes tab + enforce baseline empty state (LR-019).
+  77  |   // `ensureEmptyState()` is intermittently unreliable per BUG-LOC-NTS-001 — the
+  78  |   // first delete+save cycle sometimes doesn't persist when Angular's auto-row logic
+  79  |   // races the Delete click. Retry up to 3 times; the second/third attempts work
+  80  |   // because the prior cycle reloaded the form, surfacing the persisted state and
+  81  |   // letting the next deleteAllRows hit a different timing window.
+  82  |   test.beforeEach(async ({ locationNotesPage }) => {
+  83  |     const url = locationNotesPage.getCurrentUrl();
+  84  |     if (!url.includes(`locations/${OFFICE_NO}/settings/location`)) {
+  85  |       await locationNotesPage.navigateToNotesTab(OFFICE_NO);
+  86  |     } else {
+  87  |       // URL is right but the active tab may not be Notes (esp. if prior test left on History).
+  88  |       await locationNotesPage.clickNotesTab();
+  89  |     }
+  90  |     let isEmpty = false;
+  91  |     for (let attempt = 0; attempt < 3 && !isEmpty; attempt++) {
+  92  |       await locationNotesPage.ensureEmptyState();
+  93  |       isEmpty = await locationNotesPage.isDefaultEmptyState();
+  94  |     }
+  95  |     // After up to 3 retries, the form must show 0 OR 1 empty textarea (both are valid
+  96  |     // baselines per LocationNotesPage.isDefaultEmptyState()). The next fillNote(0, ...)
+  97  |     // handles both. If still not empty after 3 attempts, this assertion captures the
+  98  |     // pathological case for triage rather than silently proceeding.
+  99  |     expect(isEmpty).toBe(true);
+  100 |   });
+  101 | 
+  102 |   // Shared per-test routine: fill + save + content-anchored history lookup + strict assert.
+  103 |   async function runCol69Assertion(
+  104 |     locationNotesPage: any,
+  105 |     locationManagementHistoryPage: any,
+  106 |     payload: string,
+  107 |   ): Promise<void> {
+  108 |     const D = todayMMDDYYYY();
+  109 |     const [formA, formB] = expectedCol69Forms(payload, D);
+  110 | 
+  111 |     // 5s back-buffer covers client-server clock skew on Modified On rendering.
+  112 |     const sinceMs = Date.now() - 5_000;
+  113 | 
+  114 |     await locationNotesPage.fillNote(0, payload);
+  115 |     await locationNotesPage.saveAndConfirm();
+  116 | 
+  117 |     await locationManagementHistoryPage.navigateToHistoryTab(OFFICE_NO);
+  118 |     await locationManagementHistoryPage.sortByModifiedOnDesc();
+  119 |     await locationManagementHistoryPage.waitForRecentTopRow();
+  120 | 
+  121 |     const rows = await locationManagementHistoryPage.getRowsSinceTimestamp(
+  122 |       sinceMs,
+  123 |       ['Notes', 'Modified On'],
+  124 |     );
+  125 |     const matched = rows.find((r: Record<string, string>) => (r.Notes ?? '') === formA || (r.Notes ?? '') === formB);
+  126 |     if (!matched) {
+  127 |       const notesPreview = rows.map((r: Record<string, string>) => {
+  128 |         const notes = r.Notes ?? '';
+  129 |         return {
+  130 |           modifiedOn: r['Modified On'] ?? '',
+  131 |           notesLen: notes.length,
+  132 |           notesHead: notes.slice(0, 80),
+  133 |         };
+  134 |       });
+  135 |       console.log(`[col69-no-match] sinceMs=${sinceMs} validForms=${JSON.stringify([formA, formB])} rows=${JSON.stringify(notesPreview)}`);
+  136 |       // Rich-diff failure path: assert against formA so report shows actual vs expected.
+  137 |       // Picks the newest row's Notes value (rows are desc-sorted) for the diff.
+  138 |       const firstRow = rows[0];
+  139 |       const actual = firstRow ? (firstRow.Notes ?? '<no Notes col on row 0>') : '<no rows since sinceMs>';
+> 140 |       expect(actual).toBe(formA);
+      |                      ^ Error: expect(received).toBe(expected) // Object.is equality
+  141 |       return; // unreachable — expect above throws
+  142 |     }
+  143 |     // Strict equality on the matched row's Notes value.
+  144 |     // LR-046 strict-line: literal `.toBe` form (no `.toContain` matcher anywhere in spec).
+  145 |     // LR-051: avoid opaque `.toBe(true)` on OR expressions — branch so failure shows
+  146 |     // actual vs expected (formA is preferred / single-row form; formB is the
+  147 |     // placeholder-fallback form). This branch is unreachable when `.find` matched,
+  148 |     // but lets the report surface the actual string if a regression weakens the match.
+  149 |     const matchedNotes = matched.Notes ?? '';
+  150 |     if (matchedNotes !== formA && matchedNotes !== formB) {
+  151 |       expect(matchedNotes).toBe(formA);
+  152 |     }
+  153 | 
+  154 |     await locationManagementHistoryPage.returnToBasicInformation();
+  155 |   }
+  156 | 
+  157 |   test('TC-LOC-NTS-028: HIST col 69 — empty to "hello" save', async ({
+  158 |     locationNotesPage, locationManagementHistoryPage, dependencyGate,
+  159 |   }) => {
+  160 |     dependencyGate([]);
+  161 |     test.setTimeout(90_000);
+  162 |     await runCol69Assertion(locationNotesPage, locationManagementHistoryPage, PAYLOADS['TC-LOC-NTS-028']);
+  163 |   });
+  164 | 
+  165 |   test('TC-LOC-NTS-029: HIST col 69 — long text 4000 chars (boundary)', async ({
+  166 |     locationNotesPage, locationManagementHistoryPage, dependencyGate,
+  167 |   }) => {
+  168 |     dependencyGate(['TC-LOC-NTS-028']);
+  169 |     test.setTimeout(120_000);  // longer for 4000-char fill + save round-trip
+  170 |     await runCol69Assertion(locationNotesPage, locationManagementHistoryPage, PAYLOADS['TC-LOC-NTS-029']);
+  171 |   });
+  172 | 
+  173 |   test('TC-LOC-NTS-030: HIST col 69 — special chars (HTML-like, quotes, backticks)', async ({
+  174 |     locationNotesPage, locationManagementHistoryPage, dependencyGate,
+  175 |   }) => {
+  176 |     dependencyGate(['TC-LOC-NTS-028']);
+  177 |     test.setTimeout(90_000);
+  178 |     await runCol69Assertion(locationNotesPage, locationManagementHistoryPage, PAYLOADS['TC-LOC-NTS-030']);
+  179 |   });
+  180 | 
+  181 |   test('TC-LOC-NTS-031: HIST col 69 — newlines and multi-line content', async ({
+  182 |     locationNotesPage, locationManagementHistoryPage, dependencyGate,
+  183 |   }) => {
+  184 |     dependencyGate(['TC-LOC-NTS-028']);
+  185 |     test.setTimeout(90_000);
+  186 |     await runCol69Assertion(locationNotesPage, locationManagementHistoryPage, PAYLOADS['TC-LOC-NTS-031']);
+  187 |   });
+  188 | 
+  189 |   test('TC-LOC-NTS-032: HIST col 69 — unicode (Latin diacritic + CJK + dingbat)', async ({
+  190 |     locationNotesPage, locationManagementHistoryPage, dependencyGate,
+  191 |   }) => {
+  192 |     dependencyGate(['TC-LOC-NTS-028']);
+  193 |     test.setTimeout(90_000);
+  194 |     try {
+  195 |       await runCol69Assertion(locationNotesPage, locationManagementHistoryPage, PAYLOADS['TC-LOC-NTS-032']);
+  196 |     } finally {
+  197 |       // Final cleanup — restore Office 1604 to catalog baseline (col 69 = "").
+  198 |       // try/finally ensures cleanup runs even if the assertion above fails.
+  199 |       // `locationNotesPage` is a test-scoped fixture (not afterAll-compatible), so
+  200 |       // this is the strongest robustness contract available without spinning a
+  201 |       // fresh context. BUG-LOC-NTS-001 workaround codified inside ensureEmptyState:
+  202 |       // clears textarea.value first, then Delete, then Save, then reload
+  203 |       // (page-object source: location-notes.page.ts:254).
+  204 |       await locationNotesPage.clickNotesTab();
+  205 |       await locationNotesPage.ensureEmptyState();
+  206 |     }
+  207 |   });
+  208 | 
+  209 |   /**
+  210 |    * TC-LOC-NTS-038 — HIST col 69 sequential-save 2-row distinctness.
+  211 |    *
+  212 |    * Spawned from FCC notes completion 2026-05-21 Phase 1.6 (NTS-059
+  213 |    * Notes-side rename; HIST counterpart). The Notes-spec NTS-059 was realigned
+  214 |    * 2026-05-21 — its title now reads "Sequential save persists most recent value
+  215 |    * (HIST row verification deferred to HIST spec)", and this is the deferred-to spec.
+  216 |    *
+  217 |    * Assertion the renamed NTS-059 no longer makes: that sequential saves produce
+  218 |    * TWO distinct HIST rows (one per save), not one merged row.
+  219 |    *
+  220 |    * Strategy: content-anchored lookup per `feedback_history_content_anchored_lookup.md`.
+  221 |    * Office 1604 sees interleaved saves from the shared save handler, so we cannot
+  222 |    * assume row[0] / row[1] are our saves — find each by content match independently,
+  223 |    * then assert the temporal ordering on their `Modified On` timestamps.
+  224 |    */
+  225 |   test('TC-LOC-NTS-038: HIST col 69 — sequential save (A then B) produces 2 distinct history rows', async ({
+  226 |     locationNotesPage, locationManagementHistoryPage, dependencyGate,
+  227 |   }) => {
+  228 |     dependencyGate(['TC-LOC-NTS-028']);
+  229 |     test.setTimeout(120_000);
+  230 | 
+  231 |     const D = todayMMDDYYYY();
+  232 |     const [formA1, formA2] = expectedCol69Forms(NOTE_SEQUENTIAL_HIST_A, D);
+  233 |     const [formB1, formB2] = expectedCol69Forms(NOTE_SEQUENTIAL_HIST_B, D);
+  234 | 
+  235 |     // 5s back-buffer covers client-server clock skew on Modified On rendering.
+  236 |     // Captured BEFORE Save A so the read-window includes both Save A and Save B.
+  237 |     const sinceMs = Date.now() - 5_000;
+  238 | 
+  239 |     // ── Save A: empty → NOTE_SEQUENTIAL_HIST_A ─────────────────────────────
+  240 |     await locationNotesPage.fillNote(0, NOTE_SEQUENTIAL_HIST_A);
+```
