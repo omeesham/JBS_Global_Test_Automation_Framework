@@ -257,3 +257,20 @@ clients/*/scripts/_*.ts
 
 # Runtime key-rotation state (root-level; regenerated, never shipped — 2026-07-17 cleanB recon)
 /rotation-state.json
+
+# Delegation / copilot / uplink orchestration infra — kept on disk, NEVER shipped to the team repo
+# (a colleague's Claude is a direct WORKER, not a delegator — this infra would degrade their agent).
+# 2026-07-21: untracked via `git rm --cached`; history left intact. Do not re-add.
+.claude/hooks/lib/uplink/
+plans/pending/PLAN_UPLINK_PROTOCOL.md
+plans/pending/SUBPLAN_UPLINK_WAVE2.md
+plans/pending/PLAN_LAZY_CEO_DELEGATOR.md
+plans/pending/PLAN_COPILOT_INTEGRATION_ULTRAAUDIT.md
+plans/pending/PLAN_COPILOT_HARNESS_PARITY_GAPS.md
+plans/done/PLAN_AUDIT_COPILOT.md
+plans/done/PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY.md
+plans/done/SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md
+plans/done/SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md
+
+# This remediation plan documents the scrubbed PII/markers verbatim — kept local, never shipped
+plans/pending/PLAN_REPO_MARKER_AND_PAIRING_REMEDIATION.md

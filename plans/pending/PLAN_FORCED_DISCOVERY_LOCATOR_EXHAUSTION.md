@@ -89,8 +89,8 @@ The judge triages suspicions → filed bugs (LR-034 pipeline). **Closing the loo
 CONFIRMED walk-found bug's reproduction edge-case becomes a required TC in the module's
 required-case set** — the bug's exact conditions get automated so that class of regression can never
 land silently again. A walk that files zero suspicions on a non-trivial surface is itself a signal
-the judge must interrogate (bare-minimum-pass detection), not a clean bill. If walks are fucked,
-everything downstream is fucked — this section outranks speed on every walk dispatch.
+the judge must interrogate (bare-minimum-pass detection), not a clean bill. If walks are broken,
+everything downstream is broken — this section outranks speed on every walk dispatch.
 
 **Human-catch feed (owner mandate 2026-07-17)**: the loop-closing mandate extends beyond walk-found
 bugs to HUMAN-found ones — every entry in `.claude/state/human-catches.jsonl` (the Human-Catch

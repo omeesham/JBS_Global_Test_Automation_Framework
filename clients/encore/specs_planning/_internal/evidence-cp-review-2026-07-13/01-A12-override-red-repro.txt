@@ -1,0 +1,40 @@
+COMMAND: playwright-cli run-code <A12 API repro>
+### Result
+{"url":"https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/pg-override","title":"Product Group Override | Navigator","grid1604":{"status":500,"ok":false,"text":"{\"success\":false,\"validationErrors\":{\"exception\":[\"An item with the same key has already been added. Key: 4543\"]},\"message\":\"An item with the same key has already been added. Key: 4543\"}","parsed":{"success":false,"validationErrors":{"exception":["An item with the same key has already been added. Key: 4543"]},"message":"An item with the same key has already been added. Key: 4543"}},"grid1606":{"status":200,"ok":true,"text":"{\"success\":true,\"data\":[{\"id\":\"41c94ab0-b595-5ebe-187a-8accaad2689c\",\"locationNo\":\"1606\",\"currencies\":[{\"currencyId\":1,\"overrides\":[{\"productGroupId\":2606,\"productGroupName\":\"House Video Monitor LED 40\\\"-49\\\"\",\"price\":170,\"currentPrice\":0,\"isLabor\":false,\"active\":true,\"createdAt\":\"2025-12-29T10:58:20.097Z\",\"createdBy\":\"jonathan.ferrera\",\"updatedAt\":\"2026-06-12T14:27:46.159Z\",\"updatedBy\":\"<automation-user>\"},{\"productGroupId\":2607,\"productGroupName\":\"House Video Monitor LED 50\\\"-59\\\"\",\"price\":278,\"currentPrice\":0,\"isLabor\":false,\"active\":true,\"createdAt\":\"2025-12-29T10:58:20.097Z\",\"createdBy\":\"jonathan.ferrera\",\"updatedAt\":\"2026-06-12T14:27:46.159Z\",\"updatedBy\":\"<automation-user>\"},{\"productGroupId\":2608,\"productGroupName\":\"House Video Monitor LED 60\\\"-69\\\"\",\"price\":391,\"currentPrice\":0,\"isLabor\":false,\"active\":true,\"createdAt\":\"2025-12-29T10:58:20.097Z\",\"createdBy\":\"jonathan.ferrera\",\"updatedAt\":\"2026-06-12T14:27:46.159Z\",\"updatedBy\":\"<automation-user>\"},{","parsed":null},"exportCsv":{"status":200,"totalRows":8995,"rows1604":731,"rows4543":0,"header":"Location Id,Product Group Id,Product Group Name,Is Labor,Currency,Current Price,Override Price,Override Discount,Is Active","first1604":"1604,271,Lift 0'-40' Boom - Daily,0,USD,0.00,56.00,0.08,1"},"bodyExcerpt":"1604\nParker Palm Springs\nHome\nInbox\nActions\nCommissions\nTax\nSetup\nStudio\nSearch\nOrder Search\nJob Search\nAsset Search\nCustomer Search\nDRO Search\nPayment Search\nItem Search\nECT Search\nEvent Agendas\nNavigator Assistant\nPC\nprd click auto\nCorporate Pricing\nProduct Group Override\nChange Local Office\nSelect a location\nActive only\nCurrency :\nALL\n0 items found\nSave\nExport\nImport\nGrid Options\nEquipment\nLabor\nLocation\n\t\nProduct Group\n\t\nProduct Group Name\n\t\nCurrency\n\t\nCurrent Price\n\t\nOverride Price\n\t\nMax Discount %\n\t\nActive\n\t\nMod Date\n\t\nUpdated By\n\nNo results.\n\n20\n\nrows per page\n\n/\n1"}
+### Ran Playwright code
+```js
+await (async (page) => {
+  const base = 'https://cloudapps-e2e.encoreglobal.com/navigator';
+  await page.goto(`${base}/locations/1604/settings/corporate-pricing/pg-override`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(5000);
+  const fetchJson = async (path) => {
+    const r = await page.evaluate(async (url) => {
+      const res = await fetch(url, { credentials: 'include' });
+      const text = await res.text();
+      return { status: res.status, ok: res.ok, text: text.slice(0, 1000) };
+    }, `${base}${path}`);
+    let parsed = null;
+    try { parsed = JSON.parse(r.text); } catch {}
+    return { ...r, parsed };
+  };
+  const grid1604 = await fetchJson('/api/location/corporate-price-pg-override?localOfficeId=1604');
+  const grid1606 = await fetchJson('/api/location/corporate-price-pg-override?localOfficeId=1606');
+  const exportCsv = await page.evaluate(async (url) => {
+    const res = await fetch(url, { credentials: 'include' });
+    const text = await res.text();
+    const lines = text.trim().split(/\r?\n/);
+    const rows = lines.slice(1);
+    const rows1604 = rows.filter((line) => line.startsWith('1604,'));
+    const rows4543 = rows1604.filter((line) => line.split(',')[1] === '4543');
+    return { status: res.status, totalRows: rows.length, rows1604: rows1604.length, rows4543: rows4543.length, header: lines[0], first1604: rows1604[0] || null };
+  }, `${base}/api/location/corporate-price-pg-override/export?locale=en-US`);
+  const body = await page.locator('body').innerText({ timeout: 10000 }).catch(e => `BODY_READ_ERROR: ${e.message}`);
+  return { url: page.url(), title: await page.title(), grid1604, grid1606, exportCsv, bodyExcerpt: body.slice(0, 800) };
+})(page);
+```
+### Page
+- Page URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/pg-override
+- Page Title: Product Group Override | Navigator
+- Console: 1 errors, 0 warnings
+### Events
+- New console entries: clients\encore\.playwright-cli\console-2026-07-13T14-34-25-675Z.log#L1
