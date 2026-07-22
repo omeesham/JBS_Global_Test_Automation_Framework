@@ -28,8 +28,9 @@ import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
-import { inPageEnumerate, collapseArchetypes, setAlgebra, renderManifest } from './lib/deep-pierce.mjs';
+import { inPageEnumerate, collapseArchetypes, setAlgebra, renderManifest, templateKey } from './lib/deep-pierce.mjs';
 import { MODULE_CONFIG as MC_DATA } from './lib/module-config.mjs';
+import { loadFieldCaseTaxonomy } from './lib/field-case-parser.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
@@ -302,6 +303,121 @@ async function scanPortalElements(page) {
       }
     }
     return results;
+  });
+}
+
+// ---- Phase 2.2: machine-derived field type detection ----------------------------------------
+
+// Convert an entry key to a Playwright-compatible CSS selector, or null if unresolvable.
+function entryKeyToSelector(key) {
+  const clean = key.replace(/\s*\[archetype×\d+\]$/, '');
+  if (clean.startsWith('testid:')) return `[data-testid="${clean.slice(7)}"]`;
+  if (clean.startsWith('id:')) return `[id="${clean.slice(3)}"]`;
+  if (clean.startsWith('name:')) return `[name="${clean.slice(5).split('|')[0]}"]`;
+  // struct: and role: keys have no reliable single-element CSS selector
+  return null;
+}
+
+function formatEvidence(obs) {
+  const parts = [];
+  if (obs.tag) parts.push(`tag=${obs.tag}`);
+  if (obs.type) parts.push(`type=${obs.type}`);
+  if (obs.role) parts.push(`role=${obs.role}`);
+  return parts.join(';');
+}
+
+function isRestingConclusive(obs) {
+  const tag = (obs.tag || '').toUpperCase();
+  const role = (obs.role || '').toLowerCase();
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return true;
+  if (['checkbox', 'switch', 'spinbutton', 'combobox', 'listbox'].includes(role)) return true;
+  return false;
+}
+
+// Safety denylist: controls whose accessible name or key matches these words must NEVER be clicked.
+// The enumerator runs against a SHARED environment — clicking Save/Delete/etc. mutates real data.
+// Fail CLOSED: if uncertain whether a control is safe, do not click.
+const CLICK_DENYLIST_PATTERN = /\b(save|submit|apply|confirm|delete|remove|discard|send|post|publish|approve|reject|cancel)\b/i;
+
+// Tags/roles that are plausibly editable cells or input triggers (safe to click for probing).
+// A bare <button> that is not a click-to-edit cell should never be probed.
+const PROBEABLE_TAGS = new Set(['INPUT', 'SELECT', 'TEXTAREA', 'TD', 'TH', 'SPAN', 'DIV', 'A']);
+const PROBEABLE_ROLES = new Set([
+  'cell', 'gridcell', 'textbox', 'combobox', 'listbox', 'spinbutton',
+  'checkbox', 'switch', 'option', 'tab', 'menuitem', 'treeitem',
+]);
+
+function isProbeableByClikc(tag, role) {
+  if (PROBEABLE_TAGS.has(tag)) return true;
+  if (role && PROBEABLE_ROLES.has(role)) return true;
+  return false;
+}
+
+async function readAccessibleName(page, selector) {
+  try {
+    return await page.$eval(selector, el => {
+      return (el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 200);
+    });
+  } catch {
+    return '';
+  }
+}
+
+// Signal-to-type mapping rules. Each rule tests a normalized observation and provides a regex
+// to search the runtime-loaded legal type names. No hardcoded type strings — the taxonomy
+// (field-case-generation.md) loaded via loadFieldCaseTaxonomy() is the single source of truth.
+// Evaluation: ALL rules are tested; resolve only on a unique match (Defect 2 fix).
+const TYPE_SIGNAL_RULES = [
+  { match: o => o.role === 'spinbutton',  pattern: /numeric|spinbutton/i },
+  { match: o => o.role === 'checkbox',    pattern: /checkbox/i },
+  { match: o => o.role === 'switch',      pattern: /checkbox|switch|toggle/i },
+  { match: o => o.role === 'combobox',    pattern: /dropdown|combobox/i },
+  { match: o => o.role === 'listbox',     pattern: /dropdown|combobox|listbox/i },
+  { match: o => o.tag === 'INPUT' && o.type === 'number',  pattern: /numeric|spinbutton/i },
+  { match: o => o.tag === 'INPUT' && o.type === 'checkbox', pattern: /checkbox/i },
+  { match: o => o.tag === 'INPUT' && o.type === 'password', pattern: /password/i },
+  { match: o => o.tag === 'INPUT' && (o.type === 'date' || o.type === 'datetime-local'), pattern: /date/i },
+  { match: o => o.tag === 'INPUT' && o.type === 'file',    pattern: /file/i },
+  { match: o => o.tag === 'INPUT',        pattern: /plain.text/i },
+  { match: o => o.tag === 'SELECT',       pattern: /dropdown|combobox/i },
+  { match: o => o.tag === 'TEXTAREA',     pattern: /plain.text/i },
+];
+
+export function deriveFieldType(observation, legalTypes) {
+  const normalized = {
+    tag: (observation.tag || '').toUpperCase(),
+    type: (observation.type || '').toLowerCase(),
+    role: (observation.role || '').toLowerCase(),
+  };
+  const matchedTypes = new Set();
+  for (const rule of TYPE_SIGNAL_RULES) {
+    if (rule.match(normalized)) {
+      const matches = legalTypes.filter(t => rule.pattern.test(t));
+      for (const m of matches) matchedTypes.add(m);
+    }
+  }
+  if (matchedTypes.size === 1) return [...matchedTypes][0];
+  // Zero matches or ambiguous (2+) — return null; caller handles disambiguation
+  return matchedTypes.size >= 2 ? { ambiguous: [...matchedTypes] } : null;
+}
+
+async function readElementObservation(page, selector) {
+  return page.$eval(selector, el => ({
+    tag: el.tagName.toUpperCase(),
+    type: el.getAttribute('type') || '',
+    role: el.getAttribute('role') || '',
+  }));
+}
+
+async function readActiveElementObservation(page) {
+  return page.evaluate(() => {
+    const el = document.activeElement;
+    if (!el || el === document.body) return null;
+    return {
+      tag: el.tagName.toUpperCase(),
+      type: el.getAttribute('type') || '',
+      role: el.getAttribute('role') || '',
+    };
   });
 }
 
@@ -595,6 +711,124 @@ async function main() {
     report.symDiffReview = algebra.symDiff;
     report.g1Recovered = g1hits;
     report.entries = entries;
+
+    // --- Phase 2.2: derive field types from DOM observation ---
+    const taxonomy = loadFieldCaseTaxonomy();
+    const legalTypes = taxonomy.fieldTypes.map(ft => ft.type);
+
+    const archetypeRepKeys = new Map();
+    for (const raw of rawEntries) {
+      const tk = templateKey(raw.key);
+      if (!archetypeRepKeys.has(tk)) archetypeRepKeys.set(tk, raw.key);
+    }
+
+    const derivedTypes = {};
+    for (const entry of entries) {
+      const controlKey = entry.key;
+      let selectorKey = controlKey;
+      if (entry.archetype) {
+        const tk = controlKey.replace(/\s*\[archetype×\d+\]$/, '');
+        selectorKey = archetypeRepKeys.get(tk) || controlKey;
+      }
+      const selector = entryKeyToSelector(selectorKey);
+      if (!selector) {
+        derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
+        continue;
+      }
+      let obs;
+      try {
+        obs = await readElementObservation(page, selector);
+      } catch (err) {
+        console.warn(`[derive-type] read failed for ${controlKey}: ${String(err).slice(0, 80)}`);
+        derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
+        continue;
+      }
+      if (!obs) {
+        derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
+        continue;
+      }
+      if (isRestingConclusive(obs)) {
+        const fieldType = deriveFieldType(obs, legalTypes);
+        if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
+          derivedTypes[controlKey] = {
+            type: null,
+            resolved: false,
+            evidence: `${formatEvidence(obs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
+            probe: 'unresolved',
+          };
+        } else {
+          derivedTypes[controlKey] = {
+            type: fieldType,
+            resolved: fieldType !== null,
+            evidence: formatEvidence(obs),
+            probe: 'resting',
+          };
+        }
+      } else {
+        // DEFECT 1 FIX: denylist check — never click destructive/mutating controls
+        const accessibleName = await readAccessibleName(page, selector);
+        const keyText = controlKey.replace(/^(testid:|id:|name:)/, '');
+        if (CLICK_DENYLIST_PATTERN.test(keyText) || CLICK_DENYLIST_PATTERN.test(accessibleName)) {
+          derivedTypes[controlKey] = {
+            type: null,
+            resolved: false,
+            evidence: `denylist_hit: key="${keyText}" accessibleName="${accessibleName}"`,
+            probe: 'unresolved',
+          };
+          continue;
+        }
+        // Only click elements whose role/tag is plausibly an editable cell or input trigger
+        const obsTag = (obs.tag || '').toUpperCase();
+        const obsRole = (obs.role || '').toLowerCase();
+        if (!isProbeableByClikc(obsTag, obsRole)) {
+          derivedTypes[controlKey] = {
+            type: null,
+            resolved: false,
+            evidence: `non_probeable: tag=${obsTag} role=${obsRole}`,
+            probe: 'unresolved',
+          };
+          continue;
+        }
+        // DEFECT 3 FIX: Escape in finally — always dismiss edit mode even on throw
+        let activeObs = null;
+        let clickPerformed = false;
+        try {
+          await page.click(selector, { timeout: 3000 });
+          clickPerformed = true;
+          await page.waitForTimeout(300);
+          activeObs = await readActiveElementObservation(page);
+        } catch (err) {
+          console.warn(`[derive-type] click-probe failed for ${controlKey}: ${String(err).slice(0, 80)}`);
+        } finally {
+          if (clickPerformed) {
+            try {
+              await page.keyboard.press('Escape');
+              await page.waitForTimeout(200);
+            } catch (escErr) {
+              console.warn(`[derive-type] Escape failed for ${controlKey}: ${String(escErr).slice(0, 80)}`);
+            }
+          }
+        }
+        const effectiveObs = activeObs || obs;
+        const fieldType = deriveFieldType(effectiveObs, legalTypes);
+        if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
+          derivedTypes[controlKey] = {
+            type: null,
+            resolved: false,
+            evidence: `${formatEvidence(effectiveObs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
+            probe: 'unresolved',
+          };
+        } else {
+          derivedTypes[controlKey] = {
+            type: fieldType,
+            resolved: fieldType !== null,
+            evidence: formatEvidence(effectiveObs),
+            probe: activeObs ? 'edit-mode-click' : 'resting',
+          };
+        }
+      }
+    }
+    report.derived_types = derivedTypes;
 
     // --- completion_record: attach before JSON write; self-hash for anti-tamper ---
     // Build the record first (without content_sha256), serialize, compute sha256 over that,
