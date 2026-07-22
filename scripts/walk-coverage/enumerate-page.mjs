@@ -24,7 +24,7 @@
 // Browser-tool: Playwright CLI/script family (LR-038 v2 / browser-tool.md). Unattended catalog walk.
 
 import { chromium } from 'playwright';
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -54,6 +54,20 @@ const BASE = 'https://cloudapps-e2e.encoreglobal.com/navigator';
 // details-tab entries below to land on a real pricebook (the Details/Strategy/Detail screens require a guid).
 const CPR_STRATEGY_GUID = '5f2a4088-9268-b033-4925-a48146afb1cb';  // 2022-NP Tier 1 (Active)  — Pricing Strategy fixture
 const CPR_DETAIL_GUID   = '91acb5ca-20e2-ce8e-a9ab-8c370925fd65';  // 2021-PB6     (Inactive) — Pricing Detail fixture
+
+// ---- guardrail-mode reader (LR-069 §3.3 ramp discipline) -----------------------------------
+// Reads toothless_surface_mode from .claude/guardrail-config.json. Returns 'announce' on any
+// read/parse failure (fail-safe: absent key → announce per §3.3 ramp discipline).
+function readGuardrailMode() {
+  const cfgPath = join(REPO_ROOT, '.claude', 'guardrail-config.json');
+  try {
+    const raw = readFileSync(cfgPath, 'utf-8');
+    const parsed = JSON.parse(raw);
+    return parsed.toothless_surface_mode || 'announce';
+  } catch {
+    return 'announce';
+  }
+}
 
 // ---- per-module walk config (the M1 "per-module whitelist" for deterministic self-expand) ----
 // Generic affordance-probe self-expand also runs (role=tab unselected, aria-expanded=false); the
@@ -103,6 +117,7 @@ export const MODULE_CONFIG = {
     contentMarker: 'text=Pricing Strategy',
     openerTestidPatterns: [],
     excludeOptionRoles: true,
+    ...MC_DATA['corporate-pricing-strategy'],
   },
   'corporate-pricing-detail': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/details/${args.pricebook || CPR_DETAIL_GUID}`,
@@ -112,6 +127,7 @@ export const MODULE_CONFIG = {
     contentMarker: 'text=Pricing Detail',
     openerTestidPatterns: [],
     excludeOptionRoles: true,
+    ...MC_DATA['corporate-pricing-detail'],
   },
   'corporate-pricing-new-pricebook': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/add?type=${args.type || 'equipment'}`,
@@ -120,18 +136,27 @@ export const MODULE_CONFIG = {
     contentMarker: 'h1:has-text("New Pricebook")',
     openerTestidPatterns: [],
     excludeOptionRoles: true,
+    ...MC_DATA['corporate-pricing-new-pricebook'],
   },
   'corporate-pricing-override': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/pg-override`,
     contentMarker: 'h1:text-is("Product Group Override")',
     openerTestidPatterns: [],
+    // Role/text openers: Labor tab (exposes labor product groups), currency combobox (exposes options),
+    // rows-per-page combobox (exposes options). Each carries a `branch` override so the emitted label
+    // matches the requiredStates entry in module-config.mjs character-for-character (hard gate constraint).
+    openerRoleTextPatterns: [
+      { role: 'tab',      text: 'Labor', branch: 'tab:labor' },
+      { role: 'combobox', text: 'ALL',   branch: 'expand:currency' },
+      { role: 'combobox', text: '20',    branch: 'expand:rows-per-page', selector: 'button[role="combobox"]:has-text("20")' },
+    ],
+    // NM-1472 PRECONDITION: the Product-Group Picker (double-click + drag add) renders ONLY after a
+    // specific location AND a non-ALL currency are selected — walks using Currency=ALL never saw it.
+    // The locationDriver pass selects office 1101 (Labor product groups repro there — NM-1881) and
+    // the first non-ALL currency, then enumerates the page to capture the picker's add controls.
+    locationDriver: { searchTerm: '1101', branchLabel: 'location-selected+non-all-currency' },
     excludeOptionRoles: true,
-    // NM-1472 PRECONDITION (why the original walk missed the add-affordance): the Product-Group Picker
-    // (double-click + drag add) renders ONLY after a SPECIFIC location AND a SPECIFIC currency are
-    // selected — walks that used Currency=ALL never saw it. The resting enumeration here captures the
-    // location-gated empty state + the "Select a location" launcher + the Equipment/Labor tabs; the
-    // re-walk (the keystone audit subplan) MUST drive a location + a non-ALL currency to enumerate the
-    // picker's add controls. Labor product groups repro on office 1101 (NM-1881), not 1604.
+    ...MC_DATA['corporate-pricing-override'],
   },
 };
 
@@ -297,6 +322,25 @@ async function main() {
     process.exit(2);
   }
 
+  // --- toothless-surface meta-gate (LR-069 §3.3): a module with no requiredStates AND no opener
+  //     patterns cannot be verified by verify-denominator.mjs — the gate has no labels to check
+  //     and no non-resting states to reach. Warn or hard-fail before opening a browser, per the
+  //     mode in .claude/guardrail-config.json. ---
+  if (cfg) {
+    const rs = cfg.requiredStates || [];
+    const openerCount = (cfg.openerTestidPatterns || []).length
+                      + (cfg.openerRoleTextPatterns || []).length;
+    if (rs.length === 0 && openerCount === 0) {
+      const mode = readGuardrailMode();
+      if (mode === 'deny') {
+        console.error(`[TOOTHLESS-SURFACE] module="${moduleName}" has no requiredStates and no opener patterns — denominator is unverifiable. Resolve required states before walking. (mode=deny)`);
+        process.exit(4);
+      } else {
+        console.warn(`[TOOTHLESS-SURFACE] module="${moduleName}" has no requiredStates and no opener patterns — walk proceeds but denominator gate cannot verify it. (mode=${mode})`);
+      }
+    }
+  }
+
   const browser = await chromium.launch({ headless: !headed });
   const context = await browser.newContext({ storageState: authPath });
   const page = await context.newPage();
@@ -379,19 +423,21 @@ async function main() {
           const activatedKey = `roletext:${pattern.role}:${pattern.text}`;
           if (activated.has(activatedKey)) continue;
           try {
-            const loc = page.getByRole(pattern.role, { name: pattern.text, exact: true });
+            const loc = pattern.selector
+              ? page.locator(pattern.selector)
+              : page.getByRole(pattern.role, { name: pattern.text, exact: true });
             if (!(await loc.count())) { activated.add(activatedKey); continue; }
             await loc.first().click({ timeout: 5000 });
             await waitReady(page);
             const inlinePortals = await scanPortalElements(page);
-            const branch = `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`;
+            const branch = pattern.branch || `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`;
             mergeEntries(accum, inlinePortals, branch, false);
-            report.branches.push({ branch, openerText: pattern.text, addedKeys: inlinePortals.length });
+            report.branches.push({ branch, openerText: pattern.text, addedKeys: inlinePortals.length, ok: true });
             clicked++;
             activated.add(activatedKey);
             await page.keyboard.press('Escape');
             await page.waitForTimeout(300);
-          } catch (err) { report.branches.push({ branch: `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`, openerText: pattern.text, error: String(err).slice(0, 120) }); activated.add(`roletext:${pattern.role}:${pattern.text}`); }
+          } catch (err) { report.branches.push({ branch: pattern.branch || `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`, openerText: pattern.text, error: String(err).slice(0, 120), ok: false }); activated.add(`roletext:${pattern.role}:${pattern.text}`); }
         }
       }
       const after = await enumerateState(page);
@@ -418,8 +464,8 @@ async function main() {
           const added = mergeEntries(accum, onState.entries, 'cascade:alt-on', excludeOptions);
           await loc.click({ timeout: 5000 }).catch(() => {});   // O4: RESTORE before any navigation
           await waitReady(page);
-          report.branches.push({ branch: 'cascade:alt-on', parentKey: k, addedKeys: added, accumBefore: before, accumAfter: accum.size });
-        } catch (e) { report.branches.push({ branch: 'cascade:alt-on', parentKey: k, error: String(e).slice(0, 120) }); }
+          report.branches.push({ branch: 'cascade:alt-on', parentKey: k, addedKeys: added, accumBefore: before, accumAfter: accum.size, ok: true });
+        } catch (e) { report.branches.push({ branch: 'cascade:alt-on', parentKey: k, error: String(e).slice(0, 120), ok: false }); }
       }
     }
 
@@ -432,6 +478,111 @@ async function main() {
     const portalEntries = await scanPortalElements(page);
     const portalAdded = mergeEntries(accum, portalEntries, 'portal-scan', false);
     report.cycles.push({ cycle: 'portal-scan', portalElements: portalEntries.length, added: portalAdded, accum: accum.size });
+
+    // --- location-driver pass: select a real location + non-ALL currency to expose picker controls ---
+    // Implements CORRECTION 1 (dg-phase1b-01): NM-1472 shows the Product-Group Picker add controls
+    // only appear after a specific location AND non-ALL currency are selected. Drives this state
+    // programmatically using selectors from CorporatePricingOverrideSelectors. office 1101 used
+    // because Labor product groups repro there (NM-1881); not 1604.
+    if (cfg && cfg.locationDriver) {
+      const { searchTerm, branchLabel } = cfg.locationDriver;
+      try {
+        const trigger = page.locator('text=Change Local Office').first();
+        if (await trigger.count()) {
+          await trigger.click({ timeout: 8000 });
+          const searchInput = page.locator('input[placeholder="Search by Location Name, Number"]').first();
+          await searchInput.waitFor({ state: 'visible', timeout: 10000 });
+          await page.locator('[role="dialog"] tbody tr').first().waitFor({ state: 'visible', timeout: 15000 });
+          // Bounded retry in case the Radix modal open-animation races the fill (mirrors selectLocation).
+          for (let attempt = 1; ; attempt++) {
+            try { await searchInput.fill(searchTerm, { timeout: 6000 }); break; }
+            catch (err) {
+              if (attempt >= 3) throw err;
+              await page.keyboard.press('Escape').catch(() => {});
+              await searchInput.waitFor({ state: 'hidden', timeout: 2000 }).catch(() => {});
+              await trigger.click({ timeout: 8000 });
+              await searchInput.waitFor({ state: 'visible', timeout: 10000 });
+            }
+          }
+          const row = page.locator('[role="dialog"] tbody tr').filter({ hasText: searchTerm }).first();
+          await row.waitFor({ state: 'visible', timeout: 10000 });
+          await row.locator('[role="checkbox"]').first().check();
+          await page.locator('button:text-is("Select")').first().click();
+          await waitReady(page);
+          // Select the first non-ALL currency to expose the Product-Group Picker add controls (NM-1472).
+          let currencyVerified = false;
+          const currencyBtn = page.locator('button[role="combobox"]:has-text("ALL")').first();
+          if (await currencyBtn.count()) {
+            await currencyBtn.click({ timeout: 5000 });
+            const opts = page.locator('[role="option"]');
+            await opts.first().waitFor({ state: 'visible', timeout: 8000 });
+            // Scan the open currency portal now — after a non-ALL option is selected the combobox
+            // text changes away from 'ALL', making the openerRoleTextPatterns entry unmatchable in
+            // any subsequent pass.  Record the expand:currency branch inline while the portal is open.
+            const currencyOpenerPattern = cfg.openerRoleTextPatterns && cfg.openerRoleTextPatterns.find(p => p.role === 'combobox' && p.text === 'ALL');
+            if (currencyOpenerPattern) {
+              const currencyBranch = currencyOpenerPattern.branch || `expand:${currencyOpenerPattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`;
+              const currencyPortalEntries = await scanPortalElements(page);
+              const currencyPortalAdded = mergeEntries(accum, currencyPortalEntries, currencyBranch, false);
+              report.branches.push({ branch: currencyBranch, openerText: currencyOpenerPattern.text, addedKeys: currencyPortalAdded, ok: true });
+              activated.add(`roletext:${currencyOpenerPattern.role}:${currencyOpenerPattern.text}`);
+            }
+            const optTexts = (await opts.allInnerTexts()).map(t => t.trim()).filter(Boolean);
+            const nonAll = optTexts.find(t => t !== 'ALL');
+            if (nonAll) {
+              await page.locator('[role="option"]').filter({ hasText: nonAll }).first().click();
+              await waitReady(page);
+              currencyVerified = (await page.locator('button[role="combobox"]:has-text("ALL")').count()) === 0;
+            } else {
+              await page.keyboard.press('Escape');
+            }
+          }
+          const locState = await enumerateState(page);
+          const locAdded = mergeEntries(accum, locState.entries, branchLabel, excludeOptions);
+          if (currencyVerified) {
+            report.branches.push({ branch: branchLabel, searchTerm, addedKeys: locAdded, ok: true });
+          } else {
+            report.branches.push({ branch: branchLabel, searchTerm, addedKeys: locAdded, ok: false, note: 'location selected but currency not verified non-ALL — compound state not achieved' });
+          }
+        } else {
+          report.branches.push({ branch: branchLabel, note: '"Change Local Office" trigger not found — location-driver skipped', ok: false });
+        }
+      } catch (e) {
+        report.branches.push({ branch: branchLabel, error: String(e).slice(0, 200), ok: false });
+      }
+    }
+
+    // --- post-location opener pass: re-run role/text openers unreachable on the pre-location empty state ---
+    // Only fires for surfaces that declare locationDriver. Patterns that already produced an ok:true
+    // branch record (tab:labor from pass 1, expand:currency from the inline driver scan) are skipped
+    // — no duplicate branch records accumulate.
+    if (cfg && cfg.locationDriver && cfg.openerRoleTextPatterns) {
+      for (const pattern of cfg.openerRoleTextPatterns) {
+        const activatedKey = `roletext:${pattern.role}:${pattern.text}`;
+        const branch = pattern.branch || `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`;
+        if (report.branches.some(b => b.branch === branch && b.ok)) continue;
+        try {
+          const loc = pattern.selector
+            ? page.locator(pattern.selector)
+            : page.getByRole(pattern.role, { name: pattern.text, exact: true });
+          if (!(await loc.count())) {
+            report.branches.push({ branch, openerText: pattern.text, note: 'not found after location driver', ok: false });
+            continue;
+          }
+          await loc.first().click({ timeout: 5000 });
+          await waitReady(page);
+          const inlinePortals = await scanPortalElements(page);
+          mergeEntries(accum, inlinePortals, branch, false);
+          report.branches.push({ branch, openerText: pattern.text, addedKeys: inlinePortals.length, ok: true });
+          activated.add(activatedKey);
+          await page.keyboard.press('Escape');
+          await page.waitForTimeout(300);
+        } catch (err) {
+          report.branches.push({ branch, openerText: pattern.text, error: String(err).slice(0, 120), ok: false });
+          activated.add(activatedKey);
+        }
+      }
+    }
 
     // --- archetype-collapse (F3/G8) + set algebra (M4) ---
     const rawEntries = [...accum.values()];
@@ -465,7 +616,7 @@ async function main() {
     if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
     const jsonPath = args.out ? resolve(REPO_ROOT, args.out) : join(outDir, `${state}.json`);
     writeFileSync(jsonPath, JSON.stringify(report, null, 2) + '\n', 'utf-8');
-    const walkedStateLabels = ['resting', ...report.branches.map(b => b.branch).filter(Boolean)];
+    const walkedStateLabels = [...new Set(['resting', ...report.branches.filter(b => b.ok && b.branch).map(b => b.branch)])];
     const walkStateStr = `office=${office} module=${moduleName} walked=[${walkedStateLabels.join(',')}]`;
     const manifestMd = renderManifest({ walkState: walkStateStr, entries,
       machineFoundDate: report.date, sourceJson: `reports/walk-coverage/${state}.json`,

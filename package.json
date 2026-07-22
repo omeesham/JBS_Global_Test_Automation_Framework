@@ -114,8 +114,9 @@
     "check:lr-embed-parity": "node scripts/check-lr-embed-parity.mjs",
     "check:per-test-baseline": "node scripts/check-per-test-baseline.mjs",
     "check:step-labels": "node scripts/check-step-labels.mjs --enforce",
-    "check:spec-quality": "node scripts/check-unfailable-assertions.mjs --enforce && node scripts/check-swallowed-failures.mjs --enforce && node scripts/check-spec-sleeps.mjs --enforce && node scripts/check-reload-wait.mjs --enforce && node scripts/check-vacuous-grid-assertions.mjs",
-    "check:untracked-knowledge": "node scripts/check-untracked-knowledge.mjs"
+    "check:spec-quality": "node scripts/check-unfailable-assertions.mjs --enforce && node scripts/check-swallowed-failures.mjs --enforce && node scripts/check-spec-sleeps.mjs --enforce && node scripts/check-reload-wait.mjs --enforce && node scripts/check-vacuous-grid-assertions.mjs && node scripts/check-reject-oracle.mjs",
+    "check:untracked-knowledge": "node scripts/check-untracked-knowledge.mjs",
+    "check:ramp-expiry": "node scripts/check-ramp-expiry.mjs"
   },
   "keywords": [
     "playwright",
