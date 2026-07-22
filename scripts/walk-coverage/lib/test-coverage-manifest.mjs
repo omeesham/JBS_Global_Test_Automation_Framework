@@ -8,15 +8,22 @@
 import { coverageVerdict, parseCoverageSignals, isGrandfathered } from './coverage-manifest.mjs';
 
 const LANDING = '2026-06-19';
+const PRE_MANDATE_TRACKED_ARTIFACT = 'package.json';
+const POST_COVERAGE_PRE_MANDATE_TRACKED_ARTIFACT = 'scripts/walk-coverage/lib/test-coverage-manifest.mjs';
+const TEST_COMPLETION_RECORD = 'reports/walk-coverage/test-fixture.json (status=complete, elements=1)';
 let passed = 0, failed = 0;
 const ok = (name, cond, detail = '') => {
   if (cond) { console.log(`  [PASS] ${name}`); passed++; }
   else { console.log(`  [FAIL] ${name}${detail ? ' — ' + detail : ''}`); failed++; }
 };
 
-const header = (date, ratio, cc, scope) =>
-  `MCP_Session_Date: ${date}\nCoverage_Ratio: ${ratio}\nWalk_State: office=1604\nCrossCheck: ${cc}\n` +
-  (scope ? `coverageScope: ${scope}\n` : '') + `\n## Coverage Manifest (machine-enumerated)\n| key | role | found | disposition |\n`;
+const header = (date, ratio, cc, scope, options = {}) => {
+  const { completionRecord = TEST_COMPLETION_RECORD } = options;
+  return `MCP_Session_Date: ${date}\nCoverage_Ratio: ${ratio}\nWalk_State: office=1604\nCrossCheck: ${cc}\n` +
+    (scope ? `coverageScope: ${scope}\n` : '') +
+    (completionRecord ? `Completion_Record: ${completionRecord}\n` : '') +
+    `\n## Coverage Manifest (machine-enumerated)\n| key | role | found | disposition |\n`;
+};
 
 // 1. complete (in-scope, 100%, clean, dispositioned)
 const complete = header('2026-06-20', '47/47 (100%)', 'clean') + '| `testid:x` | button | 2026-06-20 | covered-by-TC: TC-1 |\n';
@@ -41,19 +48,27 @@ v = coverageVerdict(undisp, LANDING);
 ok('undispositioned rows → NOT complete', v.applicable && !v.complete && v.reasons.some(r => /undispositioned/.test(r)), JSON.stringify(v.reasons));
 
 // 6. grandfathered (date precedes landing)
-v = coverageVerdict(header('2026-06-10', '5/47 (10%)', 'dirty', 'PARTIAL'), LANDING);
+v = coverageVerdict(
+  header('2026-06-10', '5/47 (10%)', 'dirty', 'PARTIAL', { completionRecord: '' }),
+  LANDING,
+  { artifactPath: PRE_MANDATE_TRACKED_ARTIFACT },
+);
 ok('grandfathered (date < landing) → NOT applicable (complete=true)', !v.applicable && v.complete && v.reasons[0].includes('grandfathered'));
 
 // 7. no coverage manifest at all
-v = coverageVerdict('MCP_Session_Date: 2026-06-20\n\n## Field Inventory\n| Field | ... |\n', LANDING);
-ok('no manifest → NOT applicable', !v.applicable && v.complete && v.reasons[0] === 'no-coverage-manifest');
+v = coverageVerdict(
+  'MCP_Session_Date: 2026-06-20\n\n## Field Inventory\n| Field | ... |\n',
+  LANDING,
+  { artifactPath: PRE_MANDATE_TRACKED_ARTIFACT },
+);
+ok('no manifest → NOT applicable', !v.applicable && v.complete && v.reasons[0].startsWith('no-coverage-manifest'));
 
 // 8. explicit "100%" form (no N/M)
-v = coverageVerdict('MCP_Session_Date: 2026-06-20\nCoverage_Ratio: 100% complete\nCrossCheck: clean\n', LANDING);
+v = coverageVerdict(`MCP_Session_Date: 2026-06-20\nCoverage_Ratio: 100% complete\nCrossCheck: clean\nCompletion_Record: ${TEST_COMPLETION_RECORD}\n`, LANDING);
 ok('explicit 100% form → complete', v.applicable && v.complete, JSON.stringify(v.reasons));
 
 // 9. missing date but has manifest → in-scope (conservative), incomplete if ratio missing
-v = coverageVerdict('## Coverage Manifest (machine-enumerated)\nCrossCheck: clean\n', LANDING);
+v = coverageVerdict(`Completion_Record: ${TEST_COMPLETION_RECORD}\n## Coverage Manifest (machine-enumerated)\nCrossCheck: clean\n`, LANDING);
 ok('missing date + manifest → applicable + incomplete (no ratio)', v.applicable && !v.complete);
 
 // boundary: date == landing is NOT grandfathered (in-scope on the landing day)
@@ -66,15 +81,23 @@ ok('parser handles bolded frontmatter', sig.ratioComplete && sig.crossCheckClean
 
 // === Provenance sub-gate (SUBPLAN_CGS_B) — dates ON/AFTER 2026-06-24 are provenance-gated ===
 // Build a 100%/clean header so provenance is the only variable. Default ratio matches row count.
-const provHeader = (date, rows, ratio = '1/1 (100%)') =>
-  header(date, ratio, 'clean') + rows;
+const provHeader = (date, rows, ratio = '1/1 (100%)', options = {}) =>
+  header(date, ratio, 'clean', undefined, options) + rows;
 const ROW_ORACLE_OBS = '| `testid:btn-save` | button | 2026-06-25 | read-only-verified: wrapper; provenance: oracle |\n';
 const ROW_MISSING_PROV = '| `testid:btn-save` | button | 2026-06-25 | affordance-probed: launcher "Picker" |\n';
 const ROW_LIVE_OK = '| `testid:btn-save` | button | 2026-06-25 | affordance-probed: launcher; provenance: live; evidence: .playwright-cli/net-x.json |\n';
 const ROW_LIVE_NO_EV = '| `testid:btn-save` | button | 2026-06-25 | read-only-verified: x; provenance: live |\n';
 const ROW_TC_ORACLE = '| `testid:btn-save` | button | 2026-06-25 | covered-by-TC: TC-1; provenance: oracle |\n';
-const ROW_OOS_ORACLE = '| `testid:nav` | a | 2026-06-25 | out-of-scope: global app-shell nav (not this surface); provenance: oracle |\n';
+const ROW_OOS_ORACLE = '| `testid:nav` | a | 2026-06-25 | out-of-scope: outside-module shared app shell nav is not part of this surface; provenance: oracle |\n';
 const ROW_TC_OK = '| `testid:btn-save` | button | 2026-06-25 | covered-by-TC: TC-1 |\n';
+const P6_ROWS =
+  '| `testid:btn-a` | button | 2026-06-25 | covered-by-TC: TC-1 |\n' +
+  '| `testid:btn-b` | button | 2026-06-25 | covered-by-TC: TC-2 |\n' +
+  '| `testid:btn-c` | button | 2026-06-25 | covered-by-TC: TC-3 |\n' +
+  '| `testid:btn-d` | button | 2026-06-25 | covered-by-TC: TC-4 |\n' +
+  '| `testid:btn-e` | button | 2026-06-25 | covered-by-TC: TC-5 |\n' +
+  '| `testid:btn-f` | button | 2026-06-25 | covered-by-TC: TC-6 |\n' +
+  ROW_OOS_ORACLE;
 
 // P1. oracle on an observation-claiming row → fabrication
 v = coverageVerdict(provHeader('2026-06-25', ROW_ORACLE_OBS), LANDING);
@@ -101,12 +124,19 @@ ok('P5 covered-by-TC + provenance oracle → NOT complete + provenanceFail',
   v.applicable && !v.complete && v.provenanceFail && v.reasons.some(r => /contradicts provenance: oracle/.test(r)));
 
 // P6. out-of-scope is honest inference — oracle there is fine (F7: do not over-reject)
-v = coverageVerdict(provHeader('2026-06-25', ROW_OOS_ORACLE), LANDING);
+v = coverageVerdict(provHeader('2026-06-25', P6_ROWS, '7/7 (100%)'), LANDING);
 ok('P6 out-of-scope + oracle → complete (honest inference, not gated)', v.applicable && v.complete && !v.provenanceFail, JSON.stringify(v.reasons));
 
 // P7. THE no-false-positive guard (F1): a pre-2026-06-24 artifact with an oracle observation row is
 // provenance-grandfathered → stays complete (this is exactly why pricing-2026-06-19 does not newly fail).
-v = coverageVerdict(provHeader('2026-06-23', ROW_ORACLE_OBS.replace('2026-06-25', '2026-06-23')), LANDING);
+v = coverageVerdict(
+  provHeader('2026-06-23', ROW_ORACLE_OBS.replace('2026-06-25', '2026-06-23'), '1/1 (100%)', { completionRecord: '' }),
+  LANDING,
+  {
+    artifactPath: POST_COVERAGE_PRE_MANDATE_TRACKED_ARTIFACT,
+    provenanceLandingDate: '2026-06-27',
+  },
+);
 ok('P7 pre-provenance-landing artifact w/ oracle row → complete (date-gated, no false-positive)',
   v.applicable && v.complete && !v.provenanceFail, JSON.stringify(v.reasons));
 

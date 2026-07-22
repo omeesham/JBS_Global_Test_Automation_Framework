@@ -282,12 +282,14 @@ export function isSubjectToMandate(artifactPath, signals, mandatoryDate = MANIFE
 /**
  * @param {string} text  the walk artifact's full markdown.
  * @param {string} [landingDate]  the coverage-gate grandfather date.
- * @param {{artifactPath?:string, provenanceLandingDate?:string}} [opts]
- *   artifactPath enables on-disk evidence verification (exists / fresh / names-control). Without it,
- *   the provenance check degrades to text-only (still rejects `oracle` + missing-provenance on
- *   observation rows; deep evidence-file verification is deferred). provenanceLandingDate overrides
- *   PROVENANCE_GATE_LANDING_DATE (testing).
- * @returns {{ applicable:boolean, complete:boolean, reasons:string[], provenanceFail:boolean, signals:object }}
+ * @param {{artifactPath?:string, provenanceLandingDate?:string, depthGateMode?:string, manifestControls?:Array, inventoryRows?:Array, exemptedCaseRows?:Array, totalNegBvaCaseRows?:number, dispositions?:Array}} [opts]
+ *   artifactPath enables on-disk evidence verification. provenanceLandingDate overrides
+ *   PROVENANCE_GATE_LANDING_DATE (testing). depthGateMode overrides depth_gate_mode config for all
+ *   depth-gate checks (testing). manifestControls/inventoryRows → Phase 2.4 parity check.
+ *   exemptedCaseRows/totalNegBvaCaseRows → Phase 2.6 neg/BVA budget. dispositions → Phase 2.7
+ *   disposition uniqueness. When depth-gate data is provided, checks run and fold into the verdict
+ *   per depth_gate_mode (off → skip, announce → report only, deny → fold into complete).
+ * @returns {{ applicable:boolean, complete:boolean, reasons:string[], provenanceFail:boolean, signals:object, depthGate:object, depthGateReasons:string[] }}
  *   applicable=false (and complete=true) when grandfathered OR no Coverage Manifest present —
  *   Cx only governs walk artifacts that opted into the manifest contract on/after the landing date.
  *   provenanceFail=true marks a FABRICATION-class failure (oracle / missing-provenance / missing-or-stale
@@ -370,5 +372,316 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
     }
   }
 
-  return { applicable: true, complete: reasons.length === 0, reasons, provenanceFail, signals: s };
+  // ─── Depth-gate checks (Phase 2.4 / 2.6 / 2.7) — wired into verdict path
+  const depthGateResults = {};
+  const depthGateReasons = [];
+  const depthMode = opts.depthGateMode !== undefined ? opts.depthGateMode : undefined;
+  const depthOpts = { artifactPath, signals: s, mandatoryDate: manifestMandatoryDate, ...(depthMode !== undefined ? { rampModeOverride: depthMode } : {}) };
+
+  if (opts.manifestControls !== undefined || opts.inventoryRows !== undefined) {
+    const r = checkManifestInventoryParity(opts.manifestControls || [], opts.inventoryRows || [], depthOpts);
+    depthGateResults.parity = r;
+    depthGateReasons.push(...r.reasons);
+    if (!r.pass) reasons.push(...r.reasons);
+  }
+
+  if (opts.exemptedCaseRows !== undefined || opts.totalNegBvaCaseRows !== undefined) {
+    const r = checkNegBvaExemptionBudget(opts.exemptedCaseRows || [], opts.totalNegBvaCaseRows ?? 0, depthOpts);
+    depthGateResults.negBvaBudget = r;
+    depthGateReasons.push(...r.reasons);
+    if (!r.pass) reasons.push(...r.reasons);
+  }
+
+  if (opts.dispositions !== undefined) {
+    const r = checkDispositionUniqueness(opts.dispositions || [], depthOpts);
+    depthGateResults.dispositionUniqueness = r;
+    depthGateReasons.push(...r.reasons);
+    if (!r.pass) reasons.push(...r.reasons);
+  }
+
+  return { applicable: true, complete: reasons.length === 0, reasons, provenanceFail, signals: s, depthGate: depthGateResults, depthGateReasons };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PLAN_WALK_DEPTH_GATE — Phase 2.4 / 2.6 / 2.7 numerator teeth
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Ramp config reader — shared by all three depth-gate checks.
+function readDepthGateMode() {
+  const configPath = join(REPO_ROOT, '.claude/guardrail-config.json');
+  if (!existsSync(configPath)) {
+    console.log('DEPTH-GATE: guardrail-config.json absent — defaulting to announce');
+    return 'announce';
+  }
+  let raw;
+  try {
+    raw = readFileSync(configPath, 'utf-8');
+  } catch (err) {
+    throw new Error(`guardrail-config.json unreadable (fail-closed): ${err.message}`);
+  }
+  let config;
+  try {
+    config = JSON.parse(raw);
+  } catch (err) {
+    throw new Error(`guardrail-config.json malformed JSON (fail-closed): ${err.message}`);
+  }
+  const mode = config.depth_gate_mode;
+  if (mode === undefined) {
+    console.log('DEPTH-GATE: depth_gate_mode key absent in config — defaulting to announce');
+    return 'announce';
+  }
+  if (mode === 'off' || mode === 'deny' || mode === 'announce') return mode;
+  throw new Error(`guardrail-config.json depth_gate_mode="${mode}" is not a valid value (fail-closed — expected off|deny|announce)`);
+}
+
+// Non-interactive control types — inventory rows with these are legitimately absent from the
+// machine enumerator output (Direction 2 exemption). Matched case-insensitively.
+const NON_INTERACTIVE_CONTROL_TYPES = [
+  'static', 'read-only', 'readonly', 'display-only', 'display', 'label',
+  'heading', 'text', 'info', 'divider', 'separator', 'computed', 'formula',
+];
+
+/**
+ * Phase 2.4 — Manifest ↔ inventory parity check.
+ *
+ * Direction 1: machine control (from enumerator/manifest) absent from inventory → FAIL always.
+ * Direction 2: inventory row with no machine control → FAIL unless controlType is non-interactive.
+ *
+ * @param {Array<{machineKey: string}>} manifestControls - Controls found by the machine enumerator.
+ * @param {Array<{machineKey: string, controlType: string}>} inventoryRows - Rows from field inventory.
+ * @param {{artifactPath?: string, signals?: object, mandatoryDate?: string}} [opts]
+ * @returns {{pass: boolean, reasons: string[], direction1Gaps: string[], direction2Gaps: string[], counts: object, rampMode: string}}
+ */
+export function checkManifestInventoryParity(manifestControls, inventoryRows, opts = {}) {
+  const rampMode = opts.rampModeOverride !== undefined ? opts.rampModeOverride : readDepthGateMode();
+  const noopResult = { pass: true, reasons: ['depth_gate_mode: off — parity check skipped'], direction1Gaps: [], direction2Gaps: [], counts: { manifest: 0, inventory: 0, missing_from_inventory: 0, missing_from_manifest: 0 }, rampMode };
+
+  if (rampMode === 'off') return noopResult;
+
+  const manifestKeys = new Set((manifestControls || []).map(c => c.machineKey).filter(Boolean));
+  const inventoryMap = new Map();
+  for (const row of (inventoryRows || [])) {
+    if (row.machineKey) inventoryMap.set(row.machineKey, row);
+  }
+
+  // Silent-pass guard: zero rows evaluated on a subject surface = FAIL.
+  const subjectToMandate = opts.artifactPath
+    ? isSubjectToMandate(opts.artifactPath, opts.signals || {}, opts.mandatoryDate)
+    : true; // no path → conservative (enforce)
+
+  if (subjectToMandate && manifestKeys.size === 0 && inventoryMap.size === 0) {
+    const msg = 'PARITY ZERO-ROW FAIL: both manifest and inventory are empty on a subject-to-mandate surface';
+    console.log(`PARITY: manifest=0 inventory=0 missing=0 — ZERO-ROW FAIL`);
+    return { pass: false, reasons: [msg], direction1Gaps: [], direction2Gaps: [], counts: { manifest: 0, inventory: 0, missing_from_inventory: 0, missing_from_manifest: 0 }, rampMode };
+  }
+
+  const direction1Gaps = []; // machine controls not in inventory
+  const direction2Gaps = []; // inventory rows not in manifest (interactive only)
+
+  // Direction 1: every manifest control must appear in inventory
+  for (const key of manifestKeys) {
+    if (!inventoryMap.has(key)) {
+      direction1Gaps.push(key);
+    }
+  }
+
+  // Direction 2: every inventory row must appear in manifest UNLESS non-interactive
+  for (const [key, row] of inventoryMap) {
+    if (!manifestKeys.has(key)) {
+      const ct = (row.controlType || '').trim().toLowerCase();
+      const isNonInteractive = NON_INTERACTIVE_CONTROL_TYPES.some(t => ct === t || ct.startsWith(t + ':'));
+      if (!isNonInteractive) {
+        direction2Gaps.push(key);
+      }
+    }
+  }
+
+  const counts = {
+    manifest: manifestKeys.size,
+    inventory: inventoryMap.size,
+    missing_from_inventory: direction1Gaps.length,
+    missing_from_manifest: direction2Gaps.length,
+  };
+
+  console.log(`PARITY: manifest=${counts.manifest} inventory=${counts.inventory} missing_from_inventory=${counts.missing_from_inventory} missing_from_manifest=${counts.missing_from_manifest}`);
+
+  const reasons = [];
+  if (direction1Gaps.length > 0) {
+    reasons.push(`Direction 1 FAIL: ${direction1Gaps.length} machine control(s) absent from inventory: [${direction1Gaps.join(', ')}]`);
+  }
+  if (direction2Gaps.length > 0) {
+    reasons.push(`Direction 2 FAIL: ${direction2Gaps.length} interactive inventory row(s) absent from manifest: [${direction2Gaps.join(', ')}]`);
+  }
+
+  const hasFailures = reasons.length > 0;
+  // Ramp: announce → report but verdict-neutral; deny → fold into verdict.
+  const pass = rampMode === 'announce' ? true : !hasFailures;
+
+  return { pass, reasons, direction1Gaps, direction2Gaps, counts, rampMode };
+}
+
+// Per-category exemption budget — 5% cap on Negative/BVA exemptions (far tighter than the 15%
+// global OOS cap). Human-approved walk-exemptions.json entry required for each.
+const NEG_BVA_EXEMPT_RATIO = 0.05;
+// Path to the human-approved exemptions file (repo-root-relative).
+// Schema: { "exemptions": [{ "case_id": "<id>", "category": "Negative"|"BVA", "reason": "<why>", "approved_by": "<name>", "date": "<ISO>" }] }
+const WALK_EXEMPTIONS_PATH = 'scripts/walk-coverage/walk-exemptions.json';
+
+/**
+ * Phase 2.6 — Per-category exemption budget for Negative and BVA case rows.
+ *
+ * Exempting a neg/BVA case row requires BOTH: (1) within the tight 5% budget, AND (2) a matching
+ * entry in walk-exemptions.json. Missing/malformed file while a claim exists → FAIL (fail-closed).
+ *
+ * @param {Array<{caseId: string, category: string}>} exemptedCaseRows - Case rows claimed as exempt.
+ * @param {number} totalNegBvaCaseRows - Total neg/BVA case rows on this surface.
+ * @param {{artifactPath?: string, signals?: object, mandatoryDate?: string}} [opts]
+ * @returns {{pass: boolean, reasons: string[], counts: object, rampMode: string}}
+ */
+export function checkNegBvaExemptionBudget(exemptedCaseRows, totalNegBvaCaseRows, opts = {}) {
+  const rampMode = opts.rampModeOverride !== undefined ? opts.rampModeOverride : readDepthGateMode();
+  if (rampMode === 'off') {
+    return { pass: true, reasons: ['depth_gate_mode: off — neg/BVA budget check skipped'], counts: { neg_bva_total: 0, neg_bva_exempt_claimed: 0, budget: 0 }, rampMode };
+  }
+
+  const subjectToMandate = opts.artifactPath
+    ? isSubjectToMandate(opts.artifactPath, opts.signals || {}, opts.mandatoryDate)
+    : true;
+
+  const negBvaExempted = (exemptedCaseRows || []).filter(r => {
+    const cat = (r.category || '').toLowerCase();
+    return cat === 'negative' || cat === 'bva';
+  });
+
+  // Silent-pass guard: zero total neg/BVA rows on a subject surface → FAIL
+  if (subjectToMandate && totalNegBvaCaseRows === 0) {
+    const msg = 'EXEMPT ZERO-ROW FAIL: zero neg/BVA case rows on a subject-to-mandate surface — enumeration may be incomplete';
+    console.log(`EXEMPT: neg_bva_total=0 neg_bva_exempt_claimed=${negBvaExempted.length} budget=0 — ZERO-ROW FAIL`);
+    return { pass: false, reasons: [msg], counts: { neg_bva_total: 0, neg_bva_exempt_claimed: negBvaExempted.length, budget: 0 }, rampMode };
+  }
+
+  const budget = Math.max(1, Math.floor(totalNegBvaCaseRows * NEG_BVA_EXEMPT_RATIO));
+  const counts = { neg_bva_total: totalNegBvaCaseRows, neg_bva_exempt_claimed: negBvaExempted.length, budget };
+  console.log(`EXEMPT: neg_bva_total=${totalNegBvaCaseRows} neg_bva_exempt_claimed=${negBvaExempted.length} budget=${budget}`);
+
+  const reasons = [];
+
+  // Budget check
+  if (negBvaExempted.length > budget) {
+    reasons.push(`Neg/BVA exemption budget exceeded: ${negBvaExempted.length} claimed > ${budget} budget (${Math.round(NEG_BVA_EXEMPT_RATIO * 100)}% of ${totalNegBvaCaseRows})`);
+  }
+
+  // walk-exemptions.json validation — every neg/BVA exemption must have an entry
+  if (negBvaExempted.length > 0) {
+    const exemptionsPath = join(REPO_ROOT, WALK_EXEMPTIONS_PATH);
+    let approvedExemptions = null;
+    try {
+      if (!existsSync(exemptionsPath)) {
+        reasons.push(`walk-exemptions.json NOT FOUND at ${WALK_EXEMPTIONS_PATH} — required for neg/BVA exemptions (fail-closed)`);
+      } else {
+        const raw = JSON.parse(readFileSync(exemptionsPath, 'utf-8'));
+        if (!raw || !Array.isArray(raw.exemptions)) {
+          reasons.push(`walk-exemptions.json malformed — missing "exemptions" array (fail-closed)`);
+        } else {
+          approvedExemptions = new Set(raw.exemptions.map(e => e.case_id).filter(Boolean));
+        }
+      }
+    } catch (err) {
+      reasons.push(`walk-exemptions.json unreadable/unparseable: ${err.message} (fail-closed)`);
+    }
+
+    if (approvedExemptions !== null) {
+      const unapproved = negBvaExempted.filter(r => !approvedExemptions.has(r.caseId));
+      if (unapproved.length > 0) {
+        reasons.push(`${unapproved.length} neg/BVA exemption(s) lack walk-exemptions.json entry: [${unapproved.map(r => r.caseId).join(', ')}]`);
+      }
+    }
+  }
+
+  const hasFailures = reasons.length > 0;
+  const pass = rampMode === 'announce' ? true : !hasFailures;
+
+  return { pass, reasons, counts, rampMode };
+}
+
+// TC disposition ceiling — max case rows a single TC may dispose without per-row title-token binding.
+const TC_DISPOSE_CEILING = 3;
+// Hard ceiling — title tokens CANNOT lift past this. Above requires per-case runtime receipts (Phase 3.2).
+const TC_DISPOSE_HARD_CEILING = 8;
+
+// Match a case_id as an exact delimited token in text — bounded by whitespace, punctuation, or
+// string edges. Prevents "case-1" from satisfying "case-12".
+function isExactDelimitedToken(text, token) {
+  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const rx = new RegExp(`(?:^|[\\s,;|/()\\[\\]{}:])${escaped}(?:$|[\\s,;|/()\\[\\]{}:])`, 'i');
+  return rx.test(text);
+}
+
+/**
+ * Phase 2.7 — One case_id, one disposition. A TC id disposing multiple case rows must demonstrate
+ * per-row parameterisation via title-token binding (the TC title contains the literal case_id for
+ * each row it disposes). Exceeding the ceiling without binding → FAIL.
+ *
+ * @param {Array<{caseId: string, tcId: string, tcTitle: string}>} dispositions - TC→case_id mappings.
+ * @param {{artifactPath?: string, signals?: object, mandatoryDate?: string, ceiling?: number, hardCeiling?: number}} [opts]
+ * @returns {{pass: boolean, reasons: string[], violations: Array<{tcId: string, caseIds: string[], unboundIds: string[], hardCeilingExceeded?: boolean}>, counts: object, rampMode: string}}
+ */
+export function checkDispositionUniqueness(dispositions, opts = {}) {
+  const rampMode = opts.rampModeOverride !== undefined ? opts.rampModeOverride : readDepthGateMode();
+  if (rampMode === 'off') {
+    return { pass: true, reasons: ['depth_gate_mode: off — disposition uniqueness check skipped'], violations: [], counts: { tcs: 0, over_ceiling: 0 }, rampMode };
+  }
+
+  const ceiling = opts.ceiling || TC_DISPOSE_CEILING;
+  const hardCeiling = opts.hardCeiling || TC_DISPOSE_HARD_CEILING;
+  const subjectToMandate = opts.artifactPath
+    ? isSubjectToMandate(opts.artifactPath, opts.signals || {}, opts.mandatoryDate)
+    : true;
+
+  // Group by TC id
+  const tcMap = new Map();
+  for (const d of (dispositions || [])) {
+    if (!d.tcId) continue;
+    if (!tcMap.has(d.tcId)) tcMap.set(d.tcId, { title: d.tcTitle || '', caseIds: [] });
+    tcMap.get(d.tcId).caseIds.push(d.caseId);
+  }
+
+  // Silent-pass guard: zero dispositions on a subject surface → FAIL
+  if (subjectToMandate && tcMap.size === 0 && (dispositions || []).length === 0) {
+    const msg = 'DISPOSE ZERO-ROW FAIL: zero dispositions on a subject-to-mandate surface';
+    console.log(`DISPOSE: tcs=0 over_ceiling=0 — ZERO-ROW FAIL`);
+    return { pass: false, reasons: [msg], violations: [], counts: { tcs: 0, over_ceiling: 0 }, rampMode };
+  }
+
+  const violations = [];
+  for (const [tcId, entry] of tcMap) {
+    // Hard ceiling: above this, always FAIL regardless of title tokens — needs Phase 3.2 runtime receipts
+    if (entry.caseIds.length > hardCeiling) {
+      violations.push({ tcId, caseIds: entry.caseIds, unboundIds: entry.caseIds, hardCeilingExceeded: true });
+      continue;
+    }
+    if (entry.caseIds.length <= ceiling) continue;
+    // Soft ceiling exceeded: check title-token binding with exact delimited match
+    const unboundIds = entry.caseIds.filter(cid => !isExactDelimitedToken(entry.title, cid));
+    if (unboundIds.length > 0) {
+      violations.push({ tcId, caseIds: entry.caseIds, unboundIds, hardCeilingExceeded: false });
+    }
+  }
+
+  const counts = { tcs: tcMap.size, over_ceiling: violations.length };
+  console.log(`DISPOSE: tcs=${counts.tcs} over_ceiling=${counts.over_ceiling}`);
+
+  const reasons = [];
+  for (const v of violations) {
+    if (v.hardCeilingExceeded) {
+      reasons.push(`TC "${v.tcId}" disposes ${v.caseIds.length} case rows — exceeds hard ceiling (${hardCeiling}). Per-case runtime receipts required (Phase 3.2)`);
+    } else {
+      reasons.push(`TC "${v.tcId}" disposes ${v.caseIds.length} case rows (ceiling=${ceiling}) without title-token binding for: [${v.unboundIds.join(', ')}]`);
+    }
+  }
+
+  const hasFailures = reasons.length > 0;
+  const pass = rampMode === 'announce' ? true : !hasFailures;
+
+  return { pass, reasons, violations, counts, rampMode };
 }
