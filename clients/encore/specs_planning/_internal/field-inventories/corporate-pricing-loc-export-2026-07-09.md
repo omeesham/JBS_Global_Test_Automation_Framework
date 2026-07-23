@@ -55,12 +55,17 @@ Next.js / React + shadcn/Radix (same stack as the Search grid; `:text-is` can mi
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified. Loc Pricing Export is a direct CSV download; unrelated stale Import cases TC-CPR-TIO-008..011 failed in the 2026-07-09 toolbar-io-suite run.
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-07-09

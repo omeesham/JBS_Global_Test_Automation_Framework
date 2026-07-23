@@ -25,6 +25,12 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFieldCaseTaxonomy, parseFieldCaseTaxonomy } from './lib/field-case-parser.mjs';
+// Structural key-identity helpers only (which keys are grid rows, and which grid each belongs to).
+// The two denominator paths must not share their CASE COUNTING — that would make the parity check a
+// tautology — but they MUST share this DEFINITION, exactly as they already share the widened-set
+// definition. Otherwise the check reports an arithmetic difference between two authors instead of a
+// real disagreement, burying the signal it exists to raise.
+import { partitionControls, gridUnits } from './lib/case-parity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -95,7 +101,13 @@ try {
 }
 
 const derivedTypes = completionRecord?.derived_types ?? {};
-const controlKeys = Object.keys(derivedTypes);
+// Grid rows are NOT standalone controls. Owner directive, verbatim: "our goal is to test all unique
+// cases possible in all unique ways… if a grid has 100 rows, we dont repeat 1 test on each!" On the
+// real 4107 Override manifest, 414 of 504 entries are `struct:tr|…` rows belonging to ONE grid;
+// billing each row its own field-case set inflated the denominator by 53,372 rows and made a single
+// table look like the bulk of the test surface. Grid rows earn §3 surface-behaviour cases ONCE per
+// grid (emitted below), never §2 field cases per row.
+const { gridRowKeys, controlKeys } = partitionControls(derivedTypes);
 
 // ── Load inventory and build testid → label map ──────────────────────────────
 
@@ -253,6 +265,33 @@ for (const controlKey of controlKeys) {
     };
     if (widened) row.widened = true;
     rows.push(row);
+  }
+}
+
+// ── §3 surface axis — each distinct grid earns its behaviour cases ONCE ──────
+//
+// LR-065: a grid's behaviours (pagination, sorting, result-fidelity, render-state, empty/volume,
+// combination, persistence) live BETWEEN elements, so a field-only census can mark every cell
+// covered while the grid has zero pagination or sort tests. The 7 taxonomy families collectively
+// constitute that axis — there is no family literally named "grid" — so a grid earns the sum of all
+// of them, one time, keyed on the table's DOM path rather than on any row's content.
+const surfaceFamilies = taxonomy.surfaceFamilies ?? [];
+const grids = gridUnits(gridRowKeys);
+
+for (const [unit, memberRows] of grids) {
+  for (const family of surfaceFamilies) {
+    for (const c of family.cases ?? []) {
+      rows.push({
+        case_id:         `grid:${unit}::${family.family}::${c.caseId ?? c.input}`,
+        field_key:       `grid:${unit}`,
+        field_label:     `GRID (${memberRows.length} row(s), counted once)`,
+        field_type:      'GRID',
+        category:        c.depth ?? c.category ?? 'surface',
+        surface_family:  family.family,
+        requires_oracle: c.requiresOracle ?? false,
+        disposed_by:     null,
+      });
+    }
   }
 }
 

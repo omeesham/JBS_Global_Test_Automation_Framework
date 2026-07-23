@@ -99,7 +99,9 @@ The grid is a single HTML `<table>`. Header row = 5 `<th>`; each data row = 5 `<
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 | Bug ID | Field / Feature | Observed | Expected (per requirements) | Status |
 |---|---|---|---|---|
@@ -107,6 +109,9 @@ The grid is a single HTML `<table>`. Header row = 5 `<th>`; each data row = 5 `<
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-05

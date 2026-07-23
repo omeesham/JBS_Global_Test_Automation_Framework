@@ -137,3 +137,7 @@ REDUNDANCY (something else provably covers it), never about effort saved.
 ## Handoff
 
 Chat-only per LR-039.
+
+## Inherited doctrine-ledger item (PLAN_UNIQUE_CASE_COVERAGE_FLOOR Phase 4)
+
+- **Rule id `3-5-recurrence-convicts-the-prior-fix-owner-doctrine-2026-07`** (`.claude/rules/guardrail-policy.md` §3.5) — adjudicated **UNENFORCED: S1**. The prior-fix trial is prose-only today (`/rca` + `/planning` skill steps); the machine closure-check that §3.5 itself names as its enforcement companion is this subplan and has not landed. This subplan is the recorded owner. Recorded by the doctrine ledger (`.claude/doctrine-ledger.json`), which fails until this line exists — a recipient nobody can grep is a phantom handoff (LR-040(b)).

@@ -94,3 +94,13 @@ Dialog-level coverage proven via Venue (TC-LOC-ACC-012 "dialog opens") could **n
 - `MASTER_BILL_TO_ORIGINAL = { address1: "8899 Beverly Blvd Ste 412", city: "WEST HOLLYWOOD", state: "CA", postalCode: "90048", country: "United States" }`.
 - Alternate search term / row: `4200 E Palm Canyon Dr` (PALM SPRINGS) — clean, distinct from the anchor.
 - Restore mechanism: re-select the "8899 Beverly Blvd Ste 412" row (unique in the list) → Select → Save → Ok.
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

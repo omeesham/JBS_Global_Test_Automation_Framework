@@ -112,7 +112,20 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const report = buildReport({ repoRoot: args.repoRoot, filePaths: walkPageFiles(args.repoRoot) });
+  const filePaths = walkPageFiles(args.repoRoot);
+
+  // VACUOUS-ON-ZERO guard: a check with nothing to check is broken, not passing.
+  if (filePaths.length === 0) {
+    const clientsDir = path.join(args.repoRoot, 'clients');
+    if (!fs.existsSync(clientsDir)) {
+      console.error(`[check-reload-wait] FAIL — clients/ directory not found at ${clientsDir}`);
+    } else {
+      console.error(`[check-reload-wait] FAIL — no page-object .ts files found under clients/*/src/pages/`);
+    }
+    process.exit(1);
+  }
+
+  const report = buildReport({ repoRoot: args.repoRoot, filePaths });
 
   console.error('[check-reload-wait] summary');
   console.error(`  page reloads not followed by waitForAngularStable: ${report.total} across ${report.files.length} file(s)`);

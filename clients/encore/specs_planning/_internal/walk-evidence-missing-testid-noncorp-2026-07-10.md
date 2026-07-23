@@ -154,3 +154,13 @@ Each row below corresponds 1:1 to a workbook row in `LOCAL_OFFICE_MISSING_TESTID
 ## 8. SSO / login controls — confirmed excluded
 
 `clients/encore/src/selectors/auth/login.ts` was explicitly excluded from the candidate set per ticket spec (Microsoft SSO is external and un-instrumentable). Zero login.ts selectors appear in the workbook.
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

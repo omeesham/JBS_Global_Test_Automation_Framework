@@ -58,3 +58,7 @@ Each identity owns specific artifacts. After this plan's changes (CSV renames, M
 ## Handoff
 
 Next: SP-DQU-34 (handoff package). Chat summary: any stale-done claims found + resolved per identity.
+
+## Inherited doctrine-ledger item (PLAN_UNIQUE_CASE_COVERAGE_FLOOR Phase 4)
+
+- **Rule id `d-execute-phase-0-1-cross-check-halt-claude-skills-execute-s`** (`.claude/rules/hooks-identity.md`, LR-043 §D) — adjudicated **UNENFORCED: S1**. The `/execute` Phase 0.1 identity ↔ §2 cross-check HALT is skill prose; nothing blocks an execute run that never ran `check-subplan-identity.mjs`. Recorded by `.claude/doctrine-ledger.json`, which fails until this line exists (LR-040(b)).

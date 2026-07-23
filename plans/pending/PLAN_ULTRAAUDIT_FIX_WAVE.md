@@ -151,3 +151,7 @@ Items requiring Rutvik input before any action:
 8. **Orphaned untracked PNGs**: git-clean nod required to remove.
 9. **docker-compose/render/jest vestigials** + **gitignored scratch dirs**: disposition before ship.
 10. **9 residual staged pending plans**: confirm which are active vs stale before Phase 7 closure.
+
+## Inherited doctrine-ledger item (PLAN_UNIQUE_CASE_COVERAGE_FLOOR Phase 4)
+
+- **Rule id `3-3-ramp-discipline-never-straight-to-deny-for-s1`** (`.claude/rules/guardrail-policy.md` §3.3) — adjudicated **UNENFORCED: S1**. Nothing mechanically prevents an S1/S2 gate from landing straight at `deny`; `check-ramp-expiry.mjs` enforces ramp *deadlines* only, never the *initial landing mode*. Needs a check that a newly-added gate mode key starts at `announce`. Recorded by the doctrine ledger (`.claude/doctrine-ledger.json`), which fails until this line exists — a recipient nobody can grep is a phantom handoff (LR-040(b)).

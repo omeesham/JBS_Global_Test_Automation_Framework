@@ -65,12 +65,17 @@ Next.js / React + shadcn/Radix (same stack as the Search grid; `:text-is` can mi
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session.
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-07-09

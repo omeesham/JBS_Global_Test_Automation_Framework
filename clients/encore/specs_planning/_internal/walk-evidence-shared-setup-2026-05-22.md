@@ -116,3 +116,13 @@ All four are **out-of-scope-with-named-recipient** per LR-040 — they have grep
 GREEN. Field-inventory 2026-05-12 spot-check passes (LR-007 path-(a) satisfied — 3 of 3 critical fields agree on testid resolution, default value, enabled/disabled state). Three minor DOM-attribute deltas (D-001/D-002/D-003) recorded with downstream recipients. BUG-LOC-SHR-001 still active; Phase 2 catalog must encode the non-Miami workaround.
 
 Phase 2 (GIVER) cleared to proceed.
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

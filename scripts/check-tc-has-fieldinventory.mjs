@@ -333,6 +333,12 @@ function main() {
     today = todayIso();
   }
 
+  if (files.length === 0) {
+    const source = args.fixturePath ? `fixture ${args.fixturePath}` : 'git diff --cached';
+    console.log(`[check-tc-has-fieldinventory] skip — no staged test-case markdowns found (source: ${source})`);
+    process.exit(0);
+  }
+
   if (args.verbose) {
     console.log(`[check-tc-has-fieldinventory] today=${today} repoRoot=${args.repoRoot} tcFiles=${files.length}`);
   }

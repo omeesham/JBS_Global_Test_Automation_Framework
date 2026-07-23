@@ -70,12 +70,17 @@ Next.js / React + shadcn/Radix (same stack as the Search grid; `:text-is` can mi
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session. (Export/Import variant behavior is undocumented, not defective — raised as Q-WV15-2, not filed.)
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-08

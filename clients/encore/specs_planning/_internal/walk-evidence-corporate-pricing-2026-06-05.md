@@ -231,3 +231,13 @@ Field types present that will need FCC coverage in Wave 2 (P2), surfaced here fo
 - **multi-row FormArray**: Price Strategies list (add/edit/remove/delete-all).
 Full FCC design is deferred to Wave 2 by Doctrine 1 (needs P1's live field-inventories) — listed here only as the FCC-lens seed.
 </content>
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

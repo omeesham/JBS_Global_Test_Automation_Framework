@@ -296,6 +296,88 @@ export function isSubjectToMandate(artifactPath, signals, mandatoryDate = MANIFE
  *   evidence on an observation-claiming row) — distinct from a mundane ratio/crosscheck incompleteness —
  *   so the closure gate can reject the whole walk and write an integrity strike.
  */
+// ─────────────────────────────────────────────────────────────────────────────
+// Type binding — a machine-derived field type may not contradict its own evidence.
+//
+// Phase 1 item 6 demoted Coverage_Ratio out of the blocking verdict on the stated grounds that it
+// was "a computed number nobody blocks on". That premise was false: the m1-wrong-machine-type
+// mutant (derived type "text" on a field whose recorded evidence reads `tag=SELECT role=combobox`)
+// had been failing INCIDENTALLY through the Coverage_Ratio path. The demotion was still correct —
+// but it exposed a real hole, because nothing here ever checked that a derived type agrees with the
+// DOM the enumerator actually observed.
+//
+// Deliberately conservative: a contradiction is reported only when BOTH sides resolve to a definite
+// control family. Unrecognized evidence or an unmapped type is skipped and counted, never guessed —
+// a false FAIL here would block every walk, which is a worse outcome than the hole it closes.
+
+const EVIDENCE_FAMILIES = [
+  { re: /\btag=SELECT\b|\b(combobox|listbox)\b/i, family: 'select' },
+  { re: /\btag=TEXTAREA\b|\btextarea\b/i, family: 'textarea' },
+  { re: /\bcheckbox\b/i, family: 'checkbox' },
+  { re: /\bradio\b/i, family: 'radio' },
+  { re: /\bspinbutton\b/i, family: 'number' },
+  { re: /\bslider\b/i, family: 'slider' },
+  { re: /\b(switch|toggle)\b/i, family: 'switch' },
+];
+
+const TYPE_FAMILY = {
+  select: 'select', dropdown: 'select', combobox: 'select', listbox: 'select',
+  textarea: 'textarea',
+  checkbox: 'checkbox',
+  radio: 'radio',
+  number: 'number', numeric: 'number', spinbutton: 'number', currency: 'number',
+  slider: 'slider',
+  switch: 'switch', toggle: 'switch',
+  text: 'text', string: 'text', email: 'text', password: 'text', search: 'text',
+};
+
+function evidenceFamily(evidence) {
+  if (!evidence || typeof evidence !== 'string') return null;
+  const hit = EVIDENCE_FAMILIES.find(e => e.re.test(evidence));
+  return hit ? hit.family : null;
+}
+
+/** Load `derived_types` from the Completion_Record JSON. Mirrors checkCompletionRecord path resolution. */
+function loadDerivedTypes(completionRef) {
+  if (!completionRef) return null;
+  const jsonRel = completionRef.replace(/\s*\(.*\)$/, '').trim();
+  const jsonPath = isAbsolute(jsonRel) ? jsonRel : join(REPO_ROOT, jsonRel);
+  if (!existsSync(jsonPath)) return null;
+  try {
+    return JSON.parse(readFileSync(jsonPath, 'utf-8')).derived_types || null;
+  } catch {
+    // Unreadable/unparseable JSON is already reported by checkCompletionRecord; returning null
+    // avoids emitting the same failure twice. Documented fallback, not a silent swallow (LR-003).
+    return null;
+  }
+}
+
+/**
+ * Blocking reasons for each field whose derived type contradicts its own recorded evidence.
+ * @returns {{ reasons:string[], checked:number, skipped:string[] }}
+ */
+export function checkTypeBinding(derivedTypes) {
+  const reasons = [];
+  const skipped = [];
+  let checked = 0;
+  for (const [key, entry] of Object.entries(derivedTypes || {})) {
+    const declared = String(entry?.type ?? '').toLowerCase();
+    const observedFamily = evidenceFamily(entry?.evidence);
+    const declaredFamily = TYPE_FAMILY[declared];
+    if (!observedFamily || !declaredFamily) {
+      skipped.push(`${key} (declared="${declared || 'missing'}", evidence=${observedFamily ? 'known' : 'unrecognized'})`);
+      continue;
+    }
+    checked++;
+    if (observedFamily !== declaredFamily) {
+      reasons.push(
+        `TYPEBIND field "${key}" derived type="${declared}" contradicts ${observedFamily} observation (${entry.evidence})`
+      );
+    }
+  }
+  return { reasons, checked, skipped };
+}
+
 export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, opts = {}) {
   const { artifactPath = '', provenanceLandingDate = PROVENANCE_GATE_LANDING_DATE, manifestMandatoryDate = MANIFEST_MANDATORY_DATE } = opts;
   const s = parseCoverageSignals(text);
@@ -311,7 +393,13 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
     return { applicable: false, complete: true, reasons: [`grandfathered (git-old TRACKED artifact, no Completion_Record, first-commit < ${landingDate})`], provenanceFail: false, signals: s };
   }
   const reasons = [];
-  if (!s.ratioComplete) reasons.push(`Coverage_Ratio not 100% (${s.ratio ? (s.ratio.n + '/' + s.ratio.m) : 'missing/unparseable'})`);
+  const warnings = [];
+  // Coverage_Ratio — demoted to non-blocking warning (Phase 1 item 6). The type-binding check
+  // is the real structural gate; ratio is supporting evidence only.
+  const coverageRatioSignal = !s.ratioComplete
+    ? `Coverage_Ratio not 100% (${s.ratio ? (s.ratio.n + '/' + s.ratio.m) : 'missing/unparseable'})`
+    : null;
+  if (!s.ratioComplete) warnings.push(coverageRatioSignal);
   if (!s.crossCheckClean) reasons.push(`CrossCheck != clean ("${s.crossCheck || 'missing'}")`);
   if (s.partial) reasons.push('coverageScope: PARTIAL present');
   if (s.undispositioned > 0) reasons.push(`${s.undispositioned} undispositioned manifest row(s)`);
@@ -372,6 +460,18 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
     }
   }
 
+  // Type binding — blocking, and deliberately NOT ramp-gated. This is not a new policy gate whose
+  // false-positive rate is unknown; it restores an enforcement property the tree had until
+  // Coverage_Ratio was demoted. A machine that contradicts its own observation is never acceptable.
+  const derivedTypes = opts.derivedTypes !== undefined ? opts.derivedTypes : loadDerivedTypes(s.completionRef);
+  const typeBinding = derivedTypes ? checkTypeBinding(derivedTypes) : { reasons: [], checked: 0, skipped: [] };
+  reasons.push(...typeBinding.reasons);
+  if (derivedTypes && typeBinding.checked === 0 && typeBinding.skipped.length > 0) {
+    // Every field was unresolvable on one side or the other, so the check ran but proved nothing.
+    // Surfaced rather than passing silently — a check with nothing to check must not read as green.
+    warnings.push(`type-binding evaluated 0 of ${typeBinding.skipped.length} field(s); none had both a mapped type and recognized evidence`);
+  }
+
   // ─── Depth-gate checks (Phase 2.4 / 2.6 / 2.7) — wired into verdict path
   const depthGateResults = {};
   const depthGateReasons = [];
@@ -399,7 +499,7 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
     if (!r.pass) reasons.push(...r.reasons);
   }
 
-  return { applicable: true, complete: reasons.length === 0, reasons, provenanceFail, signals: s, depthGate: depthGateResults, depthGateReasons };
+  return { applicable: true, complete: reasons.length === 0, reasons, warnings, provenanceFail, signals: s, depthGate: depthGateResults, depthGateReasons, coverageRatioSignal, typeBinding };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -430,8 +530,8 @@ function readDepthGateMode() {
     console.log('DEPTH-GATE: depth_gate_mode key absent in config — defaulting to announce');
     return 'announce';
   }
-  if (mode === 'off' || mode === 'deny' || mode === 'announce') return mode;
-  throw new Error(`guardrail-config.json depth_gate_mode="${mode}" is not a valid value (fail-closed — expected off|deny|announce)`);
+  if (mode === 'deny' || mode === 'announce') return mode;
+  throw new Error(`guardrail-config.json depth_gate_mode="${mode}" is not a valid value (fail-closed — expected deny|announce)`);
 }
 
 // Non-interactive control types — inventory rows with these are legitimately absent from the
@@ -454,9 +554,6 @@ const NON_INTERACTIVE_CONTROL_TYPES = [
  */
 export function checkManifestInventoryParity(manifestControls, inventoryRows, opts = {}) {
   const rampMode = opts.rampModeOverride !== undefined ? opts.rampModeOverride : readDepthGateMode();
-  const noopResult = { pass: true, reasons: ['depth_gate_mode: off — parity check skipped'], direction1Gaps: [], direction2Gaps: [], counts: { manifest: 0, inventory: 0, missing_from_inventory: 0, missing_from_manifest: 0 }, rampMode };
-
-  if (rampMode === 'off') return noopResult;
 
   const manifestKeys = new Set((manifestControls || []).map(c => c.machineKey).filter(Boolean));
   const inventoryMap = new Map();
@@ -540,9 +637,6 @@ const WALK_EXEMPTIONS_PATH = 'scripts/walk-coverage/walk-exemptions.json';
  */
 export function checkNegBvaExemptionBudget(exemptedCaseRows, totalNegBvaCaseRows, opts = {}) {
   const rampMode = opts.rampModeOverride !== undefined ? opts.rampModeOverride : readDepthGateMode();
-  if (rampMode === 'off') {
-    return { pass: true, reasons: ['depth_gate_mode: off — neg/BVA budget check skipped'], counts: { neg_bva_total: 0, neg_bva_exempt_claimed: 0, budget: 0 }, rampMode };
-  }
 
   const subjectToMandate = opts.artifactPath
     ? isSubjectToMandate(opts.artifactPath, opts.signals || {}, opts.mandatoryDate)
@@ -628,15 +722,26 @@ function isExactDelimitedToken(text, token) {
  */
 export function checkDispositionUniqueness(dispositions, opts = {}) {
   const rampMode = opts.rampModeOverride !== undefined ? opts.rampModeOverride : readDepthGateMode();
-  if (rampMode === 'off') {
-    return { pass: true, reasons: ['depth_gate_mode: off — disposition uniqueness check skipped'], violations: [], counts: { tcs: 0, over_ceiling: 0 }, rampMode };
+
+  // Silent-pass guard (item 5): zero case rows on a subject surface = FAIL regardless of ramp mode.
+  const subjectToMandate = opts.artifactPath
+    ? isSubjectToMandate(opts.artifactPath, opts.signals || {}, opts.mandatoryDate)
+    : true;
+  if (subjectToMandate) {
+    if (dispositions === undefined || dispositions === null) {
+      const msg = 'DISPOSITION ZERO-ROW FAIL: case row dispositions are ABSENT (undefined) on a subject-to-mandate surface — no case rows were provided';
+      console.log(`DISPOSE: dispositions=undefined — ZERO-ROW FAIL (absent)`);
+      return { pass: false, reasons: [msg], violations: [], counts: { tcs: 0, over_ceiling: 0 }, rampMode };
+    }
+    if (Array.isArray(dispositions) && dispositions.length === 0) {
+      const msg = 'DISPOSITION ZERO-ROW FAIL: case row dispositions are EMPTY ([]) on a subject-to-mandate surface — enumeration produced zero case rows';
+      console.log(`DISPOSE: dispositions=[] — ZERO-ROW FAIL (empty)`);
+      return { pass: false, reasons: [msg], violations: [], counts: { tcs: 0, over_ceiling: 0 }, rampMode };
+    }
   }
 
   const ceiling = opts.ceiling || TC_DISPOSE_CEILING;
   const hardCeiling = opts.hardCeiling || TC_DISPOSE_HARD_CEILING;
-  const subjectToMandate = opts.artifactPath
-    ? isSubjectToMandate(opts.artifactPath, opts.signals || {}, opts.mandatoryDate)
-    : true;
 
   // Group by TC id
   const tcMap = new Map();
@@ -644,13 +749,6 @@ export function checkDispositionUniqueness(dispositions, opts = {}) {
     if (!d.tcId) continue;
     if (!tcMap.has(d.tcId)) tcMap.set(d.tcId, { title: d.tcTitle || '', caseIds: [] });
     tcMap.get(d.tcId).caseIds.push(d.caseId);
-  }
-
-  // Silent-pass guard: zero dispositions on a subject surface → FAIL
-  if (subjectToMandate && tcMap.size === 0 && (dispositions || []).length === 0) {
-    const msg = 'DISPOSE ZERO-ROW FAIL: zero dispositions on a subject-to-mandate surface';
-    console.log(`DISPOSE: tcs=0 over_ceiling=0 — ZERO-ROW FAIL`);
-    return { pass: false, reasons: [msg], violations: [], counts: { tcs: 0, over_ceiling: 0 }, rampMode };
   }
 
   const violations = [];

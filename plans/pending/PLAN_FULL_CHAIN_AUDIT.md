@@ -191,3 +191,7 @@ Phase 4: Execute PLAN_MAINTAINER_SWEEP (with B-01/B-02 corrections applied)
 - **V1**: Original 22 findings
 - **V2**: External adversarial review debunked 4 findings (C-02, C-05, C-06, D-01), identified 2 misses (GEN-029 missing, GEN-033–037 orphaned), flagged B-01 needs MCP verification
 - **V3 (this version)**: 14 verified findings. False-positive rate reduced from 18% to 0%. All claims cross-referenced against actual file state.
+
+## Inherited doctrine-ledger item (PLAN_UNIQUE_CASE_COVERAGE_FLOOR Phase 4)
+
+- **Rule id `b-chain-sessions-artifacts-move-only-via-chain-audit-green-e`** (`.claude/rules/hooks-identity.md`, LR-042) — adjudicated **UNENFORCED: S1**. Nothing mechanically prevents a `chain-sessions/*` artifact from being moved outside a `/chain_audit` GREEN approval path. Recorded by `.claude/doctrine-ledger.json`, which fails until this line exists (LR-040(b)).

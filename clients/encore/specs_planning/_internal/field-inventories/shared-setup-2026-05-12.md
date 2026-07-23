@@ -151,7 +151,9 @@ Deferred dialog/toast verbatim text to BUILDER Phase 5 — `## Known gaps` row.
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 | Bug ID | Field / Feature | Observed | Expected (per requirements) | Status |
 |---|---|---|---|---|
@@ -159,6 +161,9 @@ Deferred dialog/toast verbatim text to BUILDER Phase 5 — `## Known gaps` row.
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-05-12

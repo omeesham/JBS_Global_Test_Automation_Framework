@@ -217,7 +217,20 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const report = buildReport({ repoRoot: args.repoRoot, filePaths: walkSpecFiles(args.repoRoot) });
+  const filePaths = walkSpecFiles(args.repoRoot);
+
+  // Guard: the defined subject (spec files) must exist — zero files checked is not "nothing wrong".
+  if (filePaths.length === 0) {
+    const clientsDir = path.join(args.repoRoot, 'clients');
+    if (!fs.existsSync(clientsDir)) {
+      console.error(`[check-vacuous-grid-assertions] FAIL: clients/ directory not found at ${clientsDir} — expected spec files to check but found none`);
+    } else {
+      console.error(`[check-vacuous-grid-assertions] FAIL: no .spec.ts files found under ${clientsDir}/*/tests/ — expected spec files to check but found none`);
+    }
+    process.exit(1);
+  }
+
+  const report = buildReport({ repoRoot: args.repoRoot, filePaths });
 
   if (args.out) {
     fs.mkdirSync(path.dirname(args.out), { recursive: true });

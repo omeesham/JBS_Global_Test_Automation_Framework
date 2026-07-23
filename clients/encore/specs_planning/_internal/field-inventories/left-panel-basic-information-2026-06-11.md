@@ -98,12 +98,17 @@ All other rows (Office, Local Office, Line Of Business, eCommerce Active, Enable
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 None for Pay To. Pay To selection updates the model and persists correctly. (The 2026-06-03 launcher MISS is a process/coverage gap, not an app defect — see `rca-launcher-dialog-misses-2026-06-11.md`.)
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-11

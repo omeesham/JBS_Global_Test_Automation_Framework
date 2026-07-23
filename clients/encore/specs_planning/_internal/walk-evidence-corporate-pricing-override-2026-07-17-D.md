@@ -220,3 +220,13 @@ Evidence: `raw-EA2/step7-final-state.png` sha256=A9FC5E1B55DE69E6BD58FEC4B4C8752
 
 ## NO SAVE COMMITS
 Zero save operations committed during this walk. All staged rows were discarded via the "Unsaved changes" alertdialog Discard button. Grid confirmed back to 1 row on reload.
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

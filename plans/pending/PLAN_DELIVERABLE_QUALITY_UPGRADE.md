@@ -298,3 +298,9 @@ SP-30 (Allure) and SP-34 (handoff package) can ship immediately after SP-08 even
 - Run regression-guard before + after any code-touching subplan.
 - Handoffs between subplans in CHAT ONLY per `feedback_handoff_in_chat_only.md` — never write handoff notes to files.
 - Describe OUTCOMES, not obstacles per LR-039 — if blocked, re-test simplest approach once, then ask user.
+
+## Inherited doctrine-ledger item (PLAN_UNIQUE_CASE_COVERAGE_FLOOR Phase 4)
+
+- **LR-010** (cross-field async, `.claude/rules/angular.md`) — adjudicated **UNENFORCED: S1**. No gate verifies that a spec awaits a dependent field's async recompute before asserting on it; the failure mode is a flake that reads the pre-update value. Recorded by `.claude/doctrine-ledger.json`, which fails until this line exists (LR-040(b) — a recipient nobody can grep is a phantom handoff).
+
+- **Rule id `.claude/rules/baseline.md#preamble`** (`.claude/rules/baseline.md:14`, LR-045) — adjudicated **UNENFORCED: S1**. Nothing checks that a multi-client TC-authoring pipeline actually declares a baseline truth source per client; a new client can be onboarded with no baseline and nothing objects. Recorded by `.claude/doctrine-ledger.json` (LR-040(b)).

@@ -151,3 +151,13 @@ These are intentional dirty changes left in place — the walk did not revert th
 - No connection drops.
 - All 10 tab walks completed in ~16 minutes wall-clock (14:38 → 14:54).
 - Total network POST requests captured: 8× `POST /navigator/locations/1604/settings/location` (Tabs 1-8, Next.js Server Action) + 1× `POST /navigator/locations/1604/settings/local-office` (Tab 9 Server Action) + 1× ECT-specific endpoint (Tab 10 section save — no dialog, direct API call).
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

@@ -93,3 +93,13 @@ Machine denominator: **70** element(s) (identical raw set on 1604 and 1101 resti
 ## Handoff
 
 NM-1472 currency-gated Picker RESOLVED on Equipment (3358) + Labor (420, office 1101 — M4 closed). Override surface controls fully enumerated. Consumed by **SUBPLAN_CORP_PRICING_OVERRIDE_GAPS_REMEDIATION (B3)** — builds the picker-add TCs (Equipment + Labor), location-modal TCs, Grid Options 10-col TCs, and the designed discount-requires-price/auto-activate validation TCs. The drift ledger (`corp-pricing-drift-ledger-2026-06-19.md`) carries the cross-surface classification.
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

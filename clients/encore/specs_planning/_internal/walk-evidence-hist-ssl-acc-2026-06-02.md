@@ -86,3 +86,13 @@ Surface: Account & Address tab → Name button (`location-settings-btn-lookup-ve
 | ACC-030 | account exists, filter returns 1 correct row; backend ~29 s | raise inner waits + poll to 45 s, `test.setTimeout` 90 s |
 
 No item requires a verbatim revert (§HALT-c) or a data fabrication (§HALT-d). No assertion is weakened. SSL-035 + ACC-020 are deterministic spec-side fixes that did not require a live walk (relative-assertion + per-test-baseline) and are executed per §5.
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

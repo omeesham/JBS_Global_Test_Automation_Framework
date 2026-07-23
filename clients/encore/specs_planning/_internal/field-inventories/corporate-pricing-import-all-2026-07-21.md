@@ -140,7 +140,9 @@ No drift observed between live DOM and REQUIREMENTS.md for documented fields —
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session. All observed behaviors match documented spec (NM-2265).
 
@@ -148,6 +150,9 @@ No app bugs identified in this session. All observed behaviors match documented 
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-07-21

@@ -230,7 +230,19 @@ export function diffAgainstBaseline(report, baseline) {
 // ---------- entry point ----------
 function main() {
   const args = parseArgs(process.argv.slice(2));
+
+  const clientsDir = path.join(args.repoRoot, 'clients');
+  if (!fs.existsSync(clientsDir)) {
+    console.error(`[check-tc-mcp-citations] FAIL — clients directory not found at ${clientsDir}`);
+    process.exit(2);
+  }
+
   const filePaths = walkTcMarkdownFiles(args.repoRoot);
+  if (filePaths.length === 0) {
+    console.error(`[check-tc-mcp-citations] FAIL — no test-case markdown files found under ${clientsDir}/*/specs_planning/test-cases/`);
+    process.exit(2);
+  }
+
   const report = buildReport({ repoRoot: args.repoRoot, filePaths });
 
   if (args.out) {

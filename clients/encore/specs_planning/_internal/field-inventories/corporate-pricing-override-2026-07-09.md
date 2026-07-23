@@ -89,7 +89,9 @@
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 - **NM-2206**: blank/red-circle after MFE pricebook + import — NOT observed this session (no MFE-import path exercised).
 - **NM-2165**: import network error, PGs still update.
@@ -97,6 +99,9 @@
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-07-09

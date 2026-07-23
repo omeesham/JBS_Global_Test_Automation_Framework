@@ -53,6 +53,13 @@ function main() {
   const gaps = [];
   let checked = 0;
 
+  if (EMBED_REQUIREMENTS.length === 0) {
+    const msg = 'EMBED_REQUIREMENTS registry is empty — expected at least one embed mandate in scripts/check-lr-embed-parity.mjs';
+    if (json) process.stdout.write(JSON.stringify({ checked: 0, gaps: [], status: 'FAIL', error: msg }, null, 2) + '\n');
+    else console.error(`[FAIL] LR-embed parity: ${msg}`);
+    process.exit(1);
+  }
+
   for (const req of EMBED_REQUIREMENTS) {
     for (const agent of req.agents) {
       checked++;
@@ -68,6 +75,13 @@ function main() {
         gaps.push({ lr: req.lr, agent, file, reason: `embed-mandated ${req.lr} (${req.note}) NOT found in ${file}` });
       }
     }
+  }
+
+  if (checked === 0) {
+    const msg = `EMBED_REQUIREMENTS has ${EMBED_REQUIREMENTS.length} entries but all have empty agent lists — 0 (lr,agent) pairs checked`;
+    if (json) process.stdout.write(JSON.stringify({ checked: 0, gaps: [], status: 'FAIL', error: msg }, null, 2) + '\n');
+    else console.error(`[FAIL] LR-embed parity: ${msg}`);
+    process.exit(1);
   }
 
   if (json) {

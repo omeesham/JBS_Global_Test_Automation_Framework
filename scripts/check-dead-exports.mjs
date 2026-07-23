@@ -66,8 +66,9 @@ function runTsPrune() {
   } catch (err) {
     return { ok: false, toolError: String(err.stderr || err.message || err).slice(0, 400) };
   }
-  const findings = raw.split('\n').map(parseTsPruneLine).filter(Boolean).filter((f) => !f.usedInModule);
-  return { ok: true, findings };
+  const allParsed = raw.split('\n').map(parseTsPruneLine).filter(Boolean);
+  const findings = allParsed.filter((f) => !f.usedInModule);
+  return { ok: true, findings, totalParsedLines: allParsed.length, rawEmpty: !raw.trim() };
 }
 
 function stagedFiles() {
@@ -112,6 +113,15 @@ function main() {
   if (!res.ok) {
     console.warn(`WARN: dead-exports — ts-prune could not run (offline or tool error); gate skipped. Detail: ${res.toolError}`);
     return 0; // never wedge a commit offline
+  }
+
+  if (res.totalParsedLines === 0) {
+    if (res.rawEmpty) {
+      console.error(`FAIL: dead-exports — ts-prune produced no output (empty stdout). Expected analysis of ${TSCONFIG} to yield exported symbols.`);
+    } else {
+      console.error('FAIL: dead-exports — ts-prune produced output but zero lines matched the expected finding format. The ts-prune output format may have changed.');
+    }
+    return 1;
   }
 
   const findingKeys = new Set(res.findings.map(key));

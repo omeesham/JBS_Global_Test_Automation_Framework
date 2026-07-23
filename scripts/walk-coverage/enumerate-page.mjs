@@ -309,13 +309,52 @@ async function scanPortalElements(page) {
 // ---- Phase 2.2: machine-derived field type detection ----------------------------------------
 
 // Convert an entry key to a Playwright-compatible CSS selector, or null if unresolvable.
+// Item 4: struct: keys resolve via their recorded DOM ancestor path. Where a key genuinely
+// cannot resolve (e.g. ambiguous ancestor path), it is recorded with disposition 'unresolvable'.
 function entryKeyToSelector(key) {
   const clean = key.replace(/\s*\[archetype×\d+\]$/, '');
   if (clean.startsWith('testid:')) return `[data-testid="${clean.slice(7)}"]`;
   if (clean.startsWith('id:')) return `[id="${clean.slice(3)}"]`;
   if (clean.startsWith('name:')) return `[name="${clean.slice(5).split('|')[0]}"]`;
-  // struct: and role: keys have no reliable single-element CSS selector
+  if (clean.startsWith('struct:')) {
+    // struct: keys have format "struct:role|accName|ancestorPath"
+    // Attempt to build a selector from the ancestor path + role/name
+    const parts = clean.slice(7).split('|');
+    const role = parts[0] || '';
+    const name = parts[1] || '';
+    const ancestorPath = parts[2] || '';
+    // Walk the ancestor path from outermost to innermost to build a scoped selector
+    const ancestors = ancestorPath.split('/').filter(Boolean);
+    const selectorParts = [];
+    for (const seg of ancestors) {
+      // Segments are either testid/name/id values or bare tag names
+      if (/^[a-z]+$/.test(seg)) {
+        selectorParts.push(seg);
+      } else {
+        // Prefer data-testid match, fall back to id, fall back to name
+        selectorParts.push(`[data-testid="${seg}"], [id="${seg}"], [name="${seg}"]`);
+      }
+    }
+    // Build a descendant selector: last ancestor > element[role]
+    if (selectorParts.length > 0) {
+      const lastAncestor = selectorParts[selectorParts.length - 1];
+      const isCssSelector = lastAncestor.startsWith('[');
+      const ancestorSel = isCssSelector ? lastAncestor.split(',')[0].trim() : lastAncestor;
+      if (role) {
+        return `${ancestorSel} [role="${role}"], ${ancestorSel} ${role}`;
+      }
+      return ancestorSel;
+    }
+    // Cannot resolve — return null; caller records as unresolvable disposition
+    return null;
+  }
+  // role: keys have no reliable single-element CSS selector
   return null;
+}
+
+// Item 4: record unresolvable struct: keys with an explicit disposition and reason
+function classifyUnresolvableKey(controlKey, reason) {
+  return { type: null, resolved: false, evidence: `unresolvable: ${reason}`, probe: 'unresolvable' };
 }
 
 function formatEvidence(obs) {
@@ -438,21 +477,21 @@ async function main() {
     process.exit(2);
   }
 
-  // --- toothless-surface meta-gate (LR-069 §3.3): a module with no requiredStates AND no opener
-  //     patterns cannot be verified by verify-denominator.mjs — the gate has no labels to check
-  //     and no non-resting states to reach. Warn or hard-fail before opening a browser, per the
-  //     mode in .claude/guardrail-config.json. ---
+  // --- toothless-surface meta-gate (LR-069 §3.3): a module whose only requiredState is 'resting'
+  //     AND has no opener patterns cannot be verified by verify-denominator.mjs — resting alone
+  //     is a tautology (Item 1b). Warn or hard-fail before opening a browser. ---
   if (cfg) {
     const rs = cfg.requiredStates || [];
+    const nonRestingStates = rs.filter(s => s.label !== 'resting');
     const openerCount = (cfg.openerTestidPatterns || []).length
                       + (cfg.openerRoleTextPatterns || []).length;
-    if (rs.length === 0 && openerCount === 0) {
+    if (nonRestingStates.length === 0 && openerCount === 0) {
       const mode = readGuardrailMode();
       if (mode === 'deny') {
-        console.error(`[TOOTHLESS-SURFACE] module="${moduleName}" has no requiredStates and no opener patterns — denominator is unverifiable. Resolve required states before walking. (mode=deny)`);
+        console.error(`[TOOTHLESS-SURFACE] module="${moduleName}" has no non-resting requiredStates and no opener patterns — denominator is unverifiable. Resolve required states before walking. (mode=deny)`);
         process.exit(4);
       } else {
-        console.warn(`[TOOTHLESS-SURFACE] module="${moduleName}" has no requiredStates and no opener patterns — walk proceeds but denominator gate cannot verify it. (mode=${mode})`);
+        console.warn(`[TOOTHLESS-SURFACE] module="${moduleName}" has no non-resting requiredStates and no opener patterns — walk proceeds but denominator gate cannot verify it. (mode=${mode})`);
       }
     }
   }
@@ -497,8 +536,25 @@ async function main() {
     }
 
     // --- resting-state enumeration + CDP G1 on its candidates (Pay To Address lives here) ---
+    // Item 1(a): detect whether the page is genuinely at rest (no open dialogs/modals/popovers).
+    // Only mark resting as observed when no overlay is blocking the base surface.
+    const hasOpenOverlay = await page.evaluate(() => {
+      const dialogs = document.querySelectorAll('[role="dialog"], [role="alertdialog"], dialog[open]');
+      for (const d of dialogs) {
+        const cs = getComputedStyle(d);
+        if (cs.display !== 'none' && cs.visibility !== 'hidden') return true;
+      }
+      const popovers = document.querySelectorAll('[data-state="open"], [aria-expanded="true"][aria-haspopup]');
+      for (const p of popovers) {
+        const cs = getComputedStyle(p);
+        if (cs.display !== 'none' && cs.visibility !== 'hidden') return true;
+      }
+      return false;
+    });
+    report._restingObserved = !hasOpenOverlay;
+
     let cur = await enumerateState(page);
-    if (args.debug) console.error(`[debug] resting enumerate: entries=${cur.entries.length} scanned=${cur.stats.scanned} candidates=${cur.candidates.length}`);
+    if (args.debug) console.error(`[debug] resting enumerate: entries=${cur.entries.length} scanned=${cur.stats.scanned} candidates=${cur.candidates.length} restingObserved=${report._restingObserved}`);
     mergeEntries(accum, cur.entries, 'resting', excludeOptions);
     let g1hits = [];
     if (useCdp) {
@@ -510,7 +566,7 @@ async function main() {
       }
     }
     report.cycles.push({ cycle: 0, action: 'resting', scanned: cur.stats.scanned, shadowHosts: cur.stats.shadowHosts,
-                         candidates: cur.candidates.length, g1hits: g1hits.length, accum: accum.size });
+                         candidates: cur.candidates.length, g1hits: g1hits.length, accum: accum.size, restingObserved: report._restingObserved });
 
     // --- self-expand to fixpoint: activate NEW openers each cycle until no new keys ---
     const activated = new Set();
@@ -700,6 +756,51 @@ async function main() {
       }
     }
 
+    // --- Item 5: §20 state-graph exhaustion — detect interactive containers never opened ---
+    // Scan for dialogs, menus, popovers that are present in the DOM but were never activated
+    // during the walk. Their controls should join the denominator; an unopened container is a finding.
+    const unopenedContainers = await page.evaluate(() => {
+      const containers = [];
+      const interactiveContainers = document.querySelectorAll(
+        '[role="dialog"], [role="menu"], [role="listbox"], [aria-haspopup="true"], ' +
+        '[aria-haspopup="dialog"], [aria-haspopup="menu"], [aria-haspopup="listbox"], ' +
+        '[data-state="closed"], [aria-expanded="false"]'
+      );
+      for (const el of interactiveContainers) {
+        const cs = getComputedStyle(el);
+        if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+        const testid = el.getAttribute('data-testid') || '';
+        const role = el.getAttribute('role') || el.tagName.toLowerCase();
+        const name = (el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 40);
+        containers.push({ testid, role, name, tag: el.tagName.toLowerCase() });
+      }
+      return containers;
+    });
+    const activatedKeys = new Set([...activated].map(k => k.toLowerCase()));
+    const neverOpened = unopenedContainers.filter(c => {
+      const key = c.testid ? `testid:${c.testid}` : `${c.role}:${c.name}`;
+      return !activatedKeys.has(key.toLowerCase()) && !activatedKeys.has(`roletext:${c.role}:${c.name}`.toLowerCase());
+    });
+    report.stateGraphExhaustion = {
+      containersFound: unopenedContainers.length,
+      neverOpened: neverOpened.length,
+      samples: neverOpened.slice(0, 10),
+    };
+    if (neverOpened.length > 0 && cfg) {
+      const declaredExpansion = (cfg.openerTestidPatterns || []).length + (cfg.openerRoleTextPatterns || []).length;
+      if (declaredExpansion === 0) {
+        const mode = readGuardrailMode();
+        const msg = `[STATE-GRAPH-EXHAUSTION] module="${moduleName}" declares no reachable-state expansion but enumeration found ${neverOpened.length} interactive container(s) never opened: ${neverOpened.slice(0, 3).map(c => c.testid || c.name).join(', ')}`;
+        if (mode === 'deny') {
+          console.error(msg + ' (mode=deny — FAILING)');
+          report.stateGraphExhaustion.verdict = 'FAIL';
+        } else {
+          console.warn(msg + ` (mode=${mode})`);
+          report.stateGraphExhaustion.verdict = 'ANNOUNCE';
+        }
+      }
+    }
+
     // --- archetype-collapse (F3/G8) + set algebra (M4) ---
     const rawEntries = [...accum.values()];
     const entries = collapseArchetypes(rawEntries, parseInt(args['archetype-threshold'] || '4', 10));
@@ -732,7 +833,9 @@ async function main() {
       }
       const selector = entryKeyToSelector(selectorKey);
       if (!selector) {
-        derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
+        // Item 4: struct:/role: keys that cannot resolve get explicit unresolvable disposition
+        const keyPrefix = selectorKey.split(':')[0];
+        derivedTypes[controlKey] = classifyUnresolvableKey(controlKey, `${keyPrefix}: key has no resolvable CSS selector from ancestor path`);
         continue;
       }
       let obs;
@@ -850,7 +953,13 @@ async function main() {
     if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
     const jsonPath = args.out ? resolve(REPO_ROOT, args.out) : join(outDir, `${state}.json`);
     writeFileSync(jsonPath, JSON.stringify(report, null, 2) + '\n', 'utf-8');
-    const walkedStateLabels = [...new Set(['resting', ...report.branches.filter(b => b.ok && b.branch).map(b => b.branch)])];
+    // Item 1(a): resting enters the walked set ONLY when observed, not hardcoded.
+    // The resting enumeration at cycle 0 is the observation; if the page was not genuinely
+    // at rest (e.g., started on an open dialog), restingObserved will be false.
+    const walkedStateLabels = [...new Set([
+      ...(report._restingObserved ? ['resting'] : []),
+      ...report.branches.filter(b => b.ok && b.branch).map(b => b.branch),
+    ])];
     const walkStateStr = `office=${office} module=${moduleName} walked=[${walkedStateLabels.join(',')}]`;
     const manifestMd = renderManifest({ walkState: walkStateStr, entries,
       machineFoundDate: report.date, sourceJson: `reports/walk-coverage/${state}.json`,

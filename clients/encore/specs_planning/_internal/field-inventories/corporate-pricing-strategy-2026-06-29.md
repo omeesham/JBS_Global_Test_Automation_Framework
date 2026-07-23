@@ -79,7 +79,9 @@ contents change only via the cross-surface Location → Pricing tab "Primary Pri
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session. The "Locations Using Pricing As Default" grid renders and
 populates correctly; the empty grid on the office 1604 fixture strategy is a data-state (no location
@@ -89,6 +91,9 @@ exactly one row `["1604", "Parker Palm Springs"]` (zero-mutation proof).
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-29

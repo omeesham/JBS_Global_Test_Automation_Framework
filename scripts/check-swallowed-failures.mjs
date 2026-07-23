@@ -120,9 +120,23 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const report = buildReport({ repoRoot: args.repoRoot, filePaths: walkPageFiles(args.repoRoot) });
+  const filePaths = walkPageFiles(args.repoRoot);
+
+  if (filePaths.length === 0) {
+    const clientsDir = path.join(args.repoRoot, 'clients');
+    if (!fs.existsSync(clientsDir)) {
+      console.error(`[check-swallowed-failures] FAIL: clients/ directory not found at ${clientsDir}`);
+    } else {
+      console.error(`[check-swallowed-failures] FAIL: no page-object .ts files found under ${clientsDir}/*/src/pages/`);
+    }
+    console.error('  expected: at least one .ts file in clients/<client>/src/pages/**/ to check');
+    process.exit(1);
+  }
+
+  const report = buildReport({ repoRoot: args.repoRoot, filePaths });
 
   console.error('[check-swallowed-failures] summary');
+  console.error(`  scanned ${filePaths.length} page-object file(s)`);
   console.error(`  unannotated empty catches on click/reload/save: ${report.total} across ${report.files.length} file(s)`);
   for (const f of report.files) {
     for (const v of f.findings) {

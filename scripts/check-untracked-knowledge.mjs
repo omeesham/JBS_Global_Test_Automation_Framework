@@ -97,6 +97,29 @@ function isDirIgnored(dirPath) {
 // Collect all tracked files
 const allTracked = gitOutput('git ls-files').split('\n').filter(Boolean);
 
+// Guard: a git repo must have tracked files for this check to be meaningful.
+// Without this, a git failure (swallowed by gitOutput) cascades to zero armed dirs → "CLEAN".
+if (allTracked.length === 0) {
+  let isGitRepo = false;
+  try {
+    execSync('git rev-parse --is-inside-work-tree', { cwd: ROOT, stdio: 'pipe' });
+    isGitRepo = true;
+  } catch { /* not a git repo or git unavailable */ }
+
+  if (!isGitRepo) {
+    console.error(
+      'check:untracked-knowledge — FAIL: not a git repository or git is unavailable; ' +
+        'expected to run inside a git working tree.'
+    );
+  } else {
+    console.error(
+      'check:untracked-knowledge — FAIL: git ls-files returned zero tracked files; ' +
+        'cannot evaluate (expected a non-empty tracked-file index).'
+    );
+  }
+  process.exit(1);
+}
+
 // Strip git C-string quoting: git quotes paths containing special chars as "path/name"
 function stripGitQuotes(p) {
   return (p.startsWith('"') && p.endsWith('"')) ? p.slice(1, -1) : p;

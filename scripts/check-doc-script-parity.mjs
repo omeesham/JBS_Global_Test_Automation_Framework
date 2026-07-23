@@ -114,7 +114,21 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const report = buildReport({ repoRoot: args.repoRoot, pairs: findReadmePairs(args.repoRoot) });
+  const pairs = findReadmePairs(args.repoRoot);
+
+  if (!pairs.length) {
+    if (!fs.existsSync(args.repoRoot)) {
+      console.error(`[check-doc-script-parity] FAIL — repo root does not exist: ${args.repoRoot}`);
+    } else {
+      console.error('[check-doc-script-parity] FAIL — no README.md + package.json pairs found');
+      console.error(`  searched: ${args.repoRoot}`);
+      console.error(`  and: ${path.join(args.repoRoot, 'clients', '*')}`);
+      console.error('  expected at least one README.md with a sibling package.json');
+    }
+    process.exit(1);
+  }
+
+  const report = buildReport({ repoRoot: args.repoRoot, pairs });
 
   console.error('[check-doc-script-parity] summary');
   console.error(`  README npm-run refs with no matching package.json script: ${report.total}`);

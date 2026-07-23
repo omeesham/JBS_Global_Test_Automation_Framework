@@ -23,7 +23,7 @@
  *   --receipts-dir <dir>    Receipts dir (default: clients/encore/.machine-evidence/reject-oracle)
  *   --specs-dir <dir>       Spec files dir (default: clients/encore/tests)
  *   --inventory-dir <dir>   Field-case catalog dir
- *                           (default: clients/encore/specs_planning/_internal/field-case-catalogs)
+ *                           (default: clients/encore/specs_planning/_internal/field-inventories)
  *   --repo-root <dir>       Repo root (default: parent of scripts/)
  *   --json                  Emit machine-readable JSON
  */
@@ -96,7 +96,13 @@ function loadCaseRows(inventoryDir) {
   }
 
   const rows = [];
-  const COVERED_BY_RE = /covered-by-TC:([A-Za-z0-9_-]+)/g;
+  // `\s*` after the colon is load-bearing, not cosmetic. LR-062 documents the disposition as
+  // `covered-by-TC: <TC-ID>` and every artifact on disk writes it that way — with a space. The
+  // original regex demanded `covered-by-TC:TC-123` with none, so it matched nothing, anywhere, ever:
+  // this gate has scanned 0 rows since it was written and exited 0 while doing so. That is the exact
+  // shape this sweep exists to kill — a check that is structurally incapable of finding its subject
+  // and reports success for it.
+  const COVERED_BY_RE = /covered-by-TC:\s*([A-Za-z0-9_-]+)/g;
 
   for (const file of files) {
     const filePath = path.join(inventoryDir, file);
@@ -325,6 +331,11 @@ export function run({
   const resolvedReceiptsDir =
     receiptsDir ?? path.join(repoRoot, 'clients', 'encore', '.machine-evidence', 'reject-oracle');
   const resolvedSpecsDir = specsDir ?? path.join(repoRoot, 'clients', 'encore', 'tests');
+  // Default is `field-inventories`, NOT `field-case-catalogs`. `covered-by-TC:` is LR-062
+  // field-inventory disposition vocabulary and appears only there; catalogs record coverage in a
+  // `| TC | Field(s) | Proven assertion(s) |` table and carry the token zero times. Pointed at
+  // catalogs this loader found nothing by construction — which, combined with the regex bug fixed
+  // above, is why the gate had never evaluated a row.
   const resolvedInventoryDir =
     inventoryDir ??
     path.join(
@@ -333,7 +344,7 @@ export function run({
       'encore',
       'specs_planning',
       '_internal',
-      'field-case-catalogs',
+      'field-inventories',
     );
 
   // Read mode — fail-CLOSED on unreadable/malformed config.
@@ -344,17 +355,26 @@ export function run({
     );
   }
 
-  // Load case rows — tolerant of absent inventory.
+  // Load case rows — FAIL on absent or empty inventory (not a variable working set).
+  if (!fs.existsSync(resolvedInventoryDir)) {
+    const msg = `[reject-oracle] FAIL: inventory directory does not exist at ${path.relative(repoRoot, resolvedInventoryDir) || resolvedInventoryDir}`;
+    if (jsonOutput) {
+      console.log(JSON.stringify({ mode, rowsChecked: 0, findings: [msg], message: msg }));
+    } else {
+      console.error(msg);
+    }
+    return { exitCode: 1, findings: [msg], rowsChecked: 0, mode };
+  }
+
   const rows = loadCaseRows(resolvedInventoryDir);
   if (rows.length === 0) {
-    const msg = `[reject-oracle] 0 rows checked — no covered-by-TC:<ID> dispositions found in ${path.relative(repoRoot, resolvedInventoryDir)}`;
+    const msg = `[reject-oracle] FAIL: inventory directory exists but contains 0 covered-by-TC:<ID> dispositions in ${path.relative(repoRoot, resolvedInventoryDir)}`;
     if (jsonOutput) {
-      console.log(JSON.stringify({ mode, rowsChecked: 0, findings: [], message: msg }));
+      console.log(JSON.stringify({ mode, rowsChecked: 0, findings: [msg], message: msg }));
     } else {
-      console.log(msg);
+      console.error(msg);
     }
-    // Exit per mode even on 0 rows so callers observe correct exit code.
-    return { exitCode: 0, findings: [], rowsChecked: 0, mode };
+    return { exitCode: 1, findings: [msg], rowsChecked: 0, mode };
   }
 
   // Collect spec files once for efficiency.

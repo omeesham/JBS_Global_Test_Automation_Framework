@@ -1,0 +1,492 @@
+{
+  "$schema": "doctrine-ledger-v1",
+  "config": {
+    "s3_threshold_ratio": 0.4,
+    "s3_threshold_adjudicator": "Claude (CEO seat), 2026-07-23 — set from the completed 66-rule census, NOT self-graded to fit: 0.40 sits just above the measured 37.9% so it functions as a REGRESSION ceiling. Adding ~2 more S3 classifications trips it. Every current S3 was reviewed individually; one (LR-014) was rejected and re-classified S2 because a warn-only gate is DISARMED, not un-gateable.",
+    "s3_threshold_note": "Seeded 2026-07-23 from the completed census (25 S3 of 66). Intent is to catch S3 share GROWING, since classifying a rule un-gateable is the cheapest way to make an unenforced rule look settled.",
+    "recipient_sla_days": 30,
+    "retirement_window_days": 90
+  },
+  "rules": [
+    {
+      "id": "LR-009",
+      "file": ".claude/rules/angular.md",
+      "line": 15,
+      "unenforced": "No automation checks whether test recovery values match server-saved defaults; requires semantic knowledge of per-field server state unavailable to static analysis",
+      "severity": "S3",
+      "adjudicator": "council-worker (ucf-led-claude-rules-angular-md)"
+    },
+    {
+      "id": "LR-010",
+      "file": ".claude/rules/angular.md",
+      "line": 23,
+      "unenforced": "No forbidden-pattern or lint bans direct getAttribute('aria-invalid') in specs; enforceable by adding a forbidden-patterns entry forcing use of polling page-object helpers",
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md"
+    },
+    {
+      "id": "LR-026",
+      "file": ".claude/rules/angular.md",
+      "line": 45,
+      "unenforced": "check-reload-wait.mjs enforces stabilization AFTER reloads, not reload PRESENCE between save-bearing tests; a new lint similar to check-spec-sleeps could detect missing inter-test reloads",
+      "severity": "S2",
+      "recipient": "plans/pending/PLAN_SPEC_BASELINE_ENFORCEMENT.md"
+    },
+    {
+      "id": "gate-2-task-classification-2-way-matrix",
+      "file": ".claude/rules/browser-tool.md",
+      "line": 32,
+      "unenforced": "Task classification is judgment — no hook verifies the agent chose the correct matrix row. browsertool-gate enforces frontmatter-consistency, not classification correctness.",
+      "severity": "S3",
+      "adjudicator": "UCF ledger worker (ucf-led-claude-rules-browser-tool-md)"
+    },
+    {
+      "id": "mandatory-announcement-accountability",
+      "file": ".claude/rules/browser-tool.md",
+      "line": 44,
+      "unenforced": "First-output announcement is un-gateable (no hook determines 'first output of a browser-interacting session'). BrowserTool frontmatter existence is deliberately fail-open (check-browsertool.mjs:172-175). BrowserToolJustification validator claimed by rule text does not exist.",
+      "severity": "S3",
+      "adjudicator": "UCF ledger worker (ucf-led-claude-rules-browser-tool-md)"
+    },
+    {
+      "id": "mid-subplan-switch-protocol-browser-switch",
+      "file": ".claude/rules/browser-tool.md",
+      "line": 54,
+      "unenforced": "Switch logging is activity-log discipline. No hook verifies [BROWSER-SWITCH] rows exist. Switch budget (>=2 YELLOW, >=3 RED) is retrospective /final-q + /audit concern, not a structural gate.",
+      "severity": "S3",
+      "adjudicator": "UCF ledger worker (ucf-led-claude-rules-browser-tool-md)"
+    },
+    {
+      "id": "chrome-connection-drop-protocol",
+      "file": ".claude/rules/browser-tool.md",
+      "line": 69,
+      "unenforced": "Chrome websocket drop is a runtime event. No hook detects connection drops — PreToolUse fires before tool calls, not in response to tool failures. Drop logging and HALT-on-chrome-only are behavioral directives with no structural enforcement.",
+      "severity": "S3",
+      "adjudicator": "UCF ledger worker (ucf-led-claude-rules-browser-tool-md)"
+    },
+    {
+      "id": "LR-054",
+      "file": ".claude/rules/browser-tool.md",
+      "line": 94,
+      "unenforced": "Mandate to grep Table 2 BEFORE answering is a temporal-process requirement — no hook can verify an agent consulted a specific file before formulating a response. Companion defenses (todo-injection-gate, verify-no-forbidden) catch downstream output on targeted paths but do not enforce the consultation mandate itself.",
+      "severity": "S3",
+      "adjudicator": "UCF ledger worker (ucf-led-claude-rules-browser-tool-md)"
+    },
+    {
+      "id": "LR-058",
+      "file": ".claude/rules/deliverable.md",
+      "line": 21,
+      "enforced_by": ".claude/hooks/lib/check-jargon.mjs:115"
+    },
+    {
+      "id": "enforcement-defense-in-depth-write-time-commit-time-ship-tim",
+      "file": ".claude/rules/deliverable.md",
+      "line": 47,
+      "enforced_by": ".claude/hooks/lib/check-jargon.mjs:100"
+    },
+    {
+      "id": "LR-069",
+      "file": ".claude/rules/guardrail-policy.md",
+      "line": 15,
+      "unenforced": "severity validation armed on existing ledger entries (check-doctrine-ledger.mjs:318) but coverage floor at announce-mode (disarmed) — new gates can skip ledger; graduating-incident not validated",
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_UNIQUE_CASE_COVERAGE_FLOOR.md"
+    },
+    {
+      "id": "3-1-severity-rubric-the-speed-quality-governor",
+      "file": ".claude/rules/guardrail-policy.md",
+      "line": 21,
+      "unenforced": "classification definition table — correctness of severity assignment is inherently judgment-based, no mechanical check possible",
+      "severity": "S3",
+      "adjudicator": "audit pipeline (WATCHDOG / /audit / owner) per rule text line 26"
+    },
+    {
+      "id": "3-3-ramp-discipline-never-straight-to-deny-for-s1",
+      "file": ".claude/rules/guardrail-policy.md",
+      "line": 36,
+      "unenforced": "no mechanism prevents S1/S2 deny-on-landing; check-ramp-expiry enforces deadlines only, not initial landing mode",
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_ULTRAAUDIT_FIX_WAVE.md"
+    },
+    {
+      "id": "3-4-bloat-governor-anti-eternity-lever",
+      "file": ".claude/rules/guardrail-policy.md",
+      "line": 75,
+      "unenforced": "philosophical principle — gate direction-of-trust judgment is un-gateable; demotion review is manual cadence on acknowledged-incomplete telemetry data",
+      "severity": "S3",
+      "adjudicator": "/compile-learnings cadence review per rule text line 69"
+    },
+    {
+      "id": "3-5-recurrence-convicts-the-prior-fix-owner-doctrine-2026-07",
+      "file": ".claude/rules/guardrail-policy.md",
+      "line": 80,
+      "unenforced": "prior-fix trial requirement is prose-only (/rca + /planning skill steps); machine closure-check named in rule is still in plans/pending",
+      "severity": "S1",
+      "recipient": "plans/pending/SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md"
+    },
+    {
+      "id": "a-final-q-is-non-skippable-before-any-session-ends",
+      "file": ".claude/rules/hooks-identity.md",
+      "line": 22,
+      "unenforced": "Stop hook final-q-gate.sh deliberately removed (false-positive-prone — fired on every edit-bearing Stop). Remaining enforcement is skill prose mandate only. Chain-orchestrator provides partial enforcement for chain-spawned sessions (pauses on verdict-NONE) but not interactive sessions.",
+      "severity": "S3",
+      "adjudicator": "ucf-led-claude-rules-hooks-identity-md worker"
+    },
+    {
+      "id": "b-chain-sessions-artifacts-move-only-via-chain-audit-green-e",
+      "file": ".claude/rules/hooks-identity.md",
+      "line": 32,
+      "unenforced": "No PreToolUse hook inspects Bash commands for destructive operations targeting .claude/state/chain-sessions/. Rule is prose-only despite documenting a prior violation.",
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_FULL_CHAIN_AUDIT.md"
+    },
+    {
+      "id": "c-chain-stop-hook-correctness-session-ownership-git-bash-lau",
+      "file": ".claude/rules/hooks-identity.md",
+      "line": 50,
+      "enforced_by": ".claude/hooks/chain-orchestrator.sh:128"
+    },
+    {
+      "id": "LR-043",
+      "file": ".claude/rules/hooks-identity.md",
+      "line": 59,
+      "enforced_by": ".claude/hooks/lib/check-identity-switch.mjs:167"
+    },
+    {
+      "id": "d-execute-phase-0-1-cross-check-halt-claude-skills-execute-s",
+      "file": ".claude/rules/hooks-identity.md",
+      "line": 95,
+      "unenforced": "Script exists and works (can exit 1) but is called from /execute SKILL.md prose mandate, not wired as a hook in settings.json. Agent compliance required.",
+      "severity": "S1",
+      "recipient": "plans/pending/SUBPLAN_DQU_29_I1_IDENTITY_RIPPLE_SYNC.md"
+    },
+    {
+      "id": "LR-007",
+      "file": ".claude/rules/inventory.md",
+      "line": 15,
+      "enforced_by": "scripts/generator-pre-run.ts:436"
+    },
+    {
+      "id": "LR-013",
+      "file": ".claude/rules/inventory.md",
+      "line": 25,
+      "enforced_by": "scripts/generator-pre-run.ts:436"
+    },
+    {
+      "id": "LR-014",
+      "file": ".claude/rules/inventory.md",
+      "line": 39,
+      "unenforced": "DISARMED, not un-gateable — check-testid-preference.mjs exists but is warn-only (exit 0). Remedy is to arm it behind a ramp, not to declare the class unenforceable.",
+      "severity": "S2",
+      "recipient": "plans/pending/PLAN_BIG_PIVOT_FCC_MASTER.md"
+    },
+    {
+      "id": "LR-015",
+      "file": ".claude/rules/inventory.md",
+      "line": 48,
+      "unenforced": "no gate exists; data provenance (did this value come from a dated MCP session?) is semantic judgment no static gate can adjudicate",
+      "severity": "S3",
+      "adjudicator": "ucf-led-claude-rules-inventory-md worker"
+    },
+    {
+      "id": "LR-057",
+      "file": ".claude/rules/inventory.md",
+      "line": 80,
+      "unenforced": "agent prompt HARD STOPs only; the load-bearing check (did you actually click-probe?) is not machine-verifiable",
+      "severity": "S3",
+      "adjudicator": "ucf-led-claude-rules-inventory-md worker"
+    },
+    {
+      "id": "LR-062",
+      "file": ".claude/rules/inventory.md",
+      "line": 95,
+      "enforced_by": "scripts/walk-coverage/lib/coverage-manifest.mjs:381"
+    },
+    {
+      "id": "LR-064",
+      "file": ".claude/rules/inventory.md",
+      "line": 114,
+      "unenforced": "procedure/methodology rule; walk outcome enforced by LR-062 but delegation-tier process is not machine-verifiable",
+      "severity": "S3",
+      "adjudicator": "ucf-led-claude-rules-inventory-md worker"
+    },
+    {
+      "id": "LR-065",
+      "file": ".claude/rules/inventory.md",
+      "line": 145,
+      "unenforced": "case-parity.mjs has grid logic but is NOT wired into coverage-manifest.mjs/Cx gate — enforcement path claimed but not connected",
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_CASE_GENERATION_STANDARD.md"
+    },
+    {
+      "id": "LR-019",
+      "file": ".claude/rules/specs.md",
+      "line": 26,
+      "enforced_by": ".githooks/pre-commit:133"
+    },
+    {
+      "id": "LR-019",
+      "file": ".claude/rules/specs.md",
+      "line": 88,
+      "unenforced": "amendment requires full-suite run + chain scan — runtime process invisible to static analysis; rule self-classifies at line 91: 'Every automated gate is structural (regex) and cannot see a runtime chain break'",
+      "severity": "S3",
+      "adjudicator": "ucf-led-claude-rules-specs-md worker"
+    },
+    {
+      "id": "LR-061",
+      "file": ".claude/rules/specs.md",
+      "line": 156,
+      "unenforced": "positive-control experiment adequacy is a semantic/domain judgment — no regex can evaluate whether the right known-positive case was tested with the right primitive",
+      "severity": "S3",
+      "adjudicator": "ucf-led-claude-rules-specs-md worker"
+    },
+    {
+      "id": "LR-051",
+      "file": ".claude/rules/specs.md",
+      "line": 239,
+      "unenforced": "no script catches expect(a===x||a===y).toBe(true); check-unfailable-assertions.mjs covers 4 other kinds but not this one; a focused regex could catch it",
+      "severity": "S2",
+      "recipient": "plans/pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md"
+    },
+    {
+      "id": "LR-052",
+      "file": ".claude/rules/specs.md",
+      "line": 252,
+      "enforced_by": ".githooks/pre-commit:165"
+    },
+    {
+      "id": "LR-056",
+      "file": ".claude/rules/specs.md",
+      "line": 276,
+      "unenforced": "page-URL vs API-URL classification requires per-module domain knowledge; no structural gate can determine if a URL string overlaps the page URL without knowing the module's URL structure",
+      "severity": "S3",
+      "adjudicator": "ucf-led-claude-rules-specs-md worker"
+    },
+    {
+      "id": "LR-066",
+      "file": ".claude/rules/specs.md",
+      "line": 314,
+      "enforced_by": ".githooks/pre-commit:116"
+    },
+    {
+      "id": "LR-067",
+      "file": ".claude/rules/specs.md",
+      "line": 342,
+      "enforced_by": ".githooks/pre-commit:150"
+    },
+    {
+      "id": "LR-068",
+      "file": ".claude/rules/specs.md",
+      "line": 434,
+      "unenforced": "heuristic / false-positive-prone by the rule's own recorded determination — (a) and (c) stay gate-less by design; (b) is netted warn-only",
+      "severity": "S3",
+      "adjudicator": "LR-069 §3.1 rubric names LR-068 as the standing permanently-unenforced precedent; posture recorded independently at .claude/rules/specs.md:451 by that rule's own author, not by this ledger"
+    },
+    {
+      "id": "LR-ENC-002",
+      "file": "clients/encore/CLAUDE.md",
+      "line": 51,
+      "enforced_by": ".githooks/pre-commit:53"
+    },
+    {
+      "id": "LR-ENC-006",
+      "file": "clients/encore/CLAUDE.md",
+      "line": 90,
+      "enforced_by": ".githooks/pre-commit:279"
+    },
+    {
+      "id": "LR-008",
+      "file": "clients/encore/CLAUDE.md",
+      "line": 95,
+      "unenforced": "Field-type-dependent semantic constraint (Prep/Set/Delivery ≤ 0 vs Return/Strike/Pickup ≥ 0) requires maintained classification map of field names to constraint categories; no static gate exists or is feasible without fragility",
+      "severity": "S3",
+      "recipient": null,
+      "adjudicator": "ucf-led-clients-encore-claude-md worker"
+    },
+    {
+      "id": "LR-017",
+      "file": "clients/encore/CLAUDE.md",
+      "line": 104,
+      "unenforced": "Page-boundary separation is architectural judgment requiring semantic understanding of URL structure and app routing; directory-lint would be heuristic-only and false-positive-prone on shared components",
+      "severity": "S3",
+      "recipient": null,
+      "adjudicator": "ucf-led-clients-encore-claude-md worker"
+    },
+    {
+      "id": "LR-030",
+      "file": "docs/read_only_docs/LEARNED_RULES.md",
+      "line": 35,
+      "unenforced": "silently is intent-based — no deterministic file/content signal to gate on",
+      "severity": "S3",
+      "adjudicator": "UCF ledger worker (this session)"
+    },
+    {
+      "id": "LR-032",
+      "file": "docs/read_only_docs/LEARNED_RULES.md",
+      "line": 61,
+      "unenforced": "investigate-vs-theorize is cognitive behavior — no deterministic hook signal",
+      "severity": "S3",
+      "adjudicator": "UCF ledger worker (this session)"
+    },
+    {
+      "id": "LR-034",
+      "file": "docs/read_only_docs/LEARNED_RULES.md",
+      "line": 133,
+      "enforced_by": ".claude/hooks/lib/check-bug-baseline.mjs:189"
+    },
+    {
+      "id": "LR-037",
+      "file": "docs/read_only_docs/LEARNED_RULES.md",
+      "line": 172,
+      "enforced_by": ".githooks/pre-commit:295"
+    },
+    {
+      "id": "LR-047",
+      "file": "docs/read_only_docs/LEARNED_RULES.md",
+      "line": 224,
+      "enforced_by": ".claude/hooks/lib/check-identity-switch.mjs:100"
+    },
+    {
+      "id": "LR-063",
+      "file": "docs/read_only_docs/LEARNED_RULES.md",
+      "line": 257,
+      "unenforced": "Rovo-before-UNKNOWN gate not wired; canary signal exists (getVisibleJiraProjects) but no hook built",
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_UPLINK_PROTOCOL.md"
+    },
+    {
+      "id": ".claude/rules/baseline.md#preamble",
+      "file": ".claude/rules/baseline.md",
+      "line": 14,
+      "unenforced": true,
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md"
+    },
+    {
+      "id": "LR-002",
+      "file": ".claude/rules/data.md",
+      "line": 24,
+      "unenforced": true,
+      "severity": "S3",
+      "adjudicator": "ucf-led2-lot1 worker session"
+    },
+    {
+      "id": "LR-003",
+      "file": ".claude/rules/data.md",
+      "line": 30,
+      "enforced_by": ".githooks/pre-commit:193"
+    },
+    {
+      "id": "LR-020",
+      "file": ".claude/rules/pipeline.md",
+      "line": 24,
+      "unenforced": true,
+      "severity": "S3",
+      "adjudicator": "ucf-led2-lot1 worker session"
+    },
+    {
+      "id": "LR-027",
+      "file": ".claude/rules/pipeline.md",
+      "line": 39,
+      "enforced_by": ".githooks/pre-commit:308"
+    },
+    {
+      "id": "LR-040",
+      "file": ".claude/rules/pipeline.md",
+      "line": 70,
+      "enforced_by": ".githooks/pre-commit:306"
+    },
+    {
+      "id": "LR-041",
+      "file": ".claude/rules/pipeline.md",
+      "line": 95,
+      "unenforced": true,
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md"
+    },
+    {
+      "id": "LR-044",
+      "file": ".claude/rules/pipeline.md",
+      "line": 141,
+      "unenforced": true,
+      "severity": "S3",
+      "adjudicator": "ucf-led2-lot2"
+    },
+    {
+      "id": "LR-046",
+      "file": ".claude/rules/pipeline.md",
+      "line": 147,
+      "enforced_by": "scripts/validate-plan-closure.mjs:612"
+    },
+    {
+      "id": "append-and-close-is-forbidden",
+      "file": ".claude/rules/pipeline.md",
+      "line": 156,
+      "enforced_by": "scripts/validate-plan-closure.mjs:612"
+    },
+    {
+      "id": "scope-of-strict",
+      "file": ".claude/rules/pipeline.md",
+      "line": 174,
+      "unenforced": true,
+      "severity": "S1",
+      "recipient": "plans/pending/SUBPLAN_DQU_05C_LR_046_HOOK_AUTHORING.md"
+    },
+    {
+      "id": "graduated-from",
+      "file": ".claude/rules/pipeline.md",
+      "line": 185,
+      "unenforced": true,
+      "severity": "S3",
+      "adjudicator": "ucf-led2-lot3 worker (distinct from pipeline.md SP-DQU-05B author): provenance section prescribes no behavior — narrative history, not a directive"
+    },
+    {
+      "id": "LR-050",
+      "file": ".claude/rules/pipeline.md",
+      "line": 187,
+      "unenforced": true,
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_SPEC_BASELINE_ENFORCEMENT.md"
+    },
+    {
+      "id": "LR-060",
+      "file": ".claude/rules/pipeline.md",
+      "line": 229,
+      "unenforced": true,
+      "severity": "S3",
+      "adjudicator": "ucf-led2-lot3 worker (distinct from LR-060 author): obligation 2 requires semantic classification of work-type (env-dependent vs env-independent) — inherently judgment-based, false-positive-prone if automated"
+    },
+    {
+      "id": "todowrite-tagging-contract-sp02b-structural-enforcement-via-",
+      "file": ".claude/rules/pipeline.md",
+      "line": 293,
+      "enforced_by": ".claude/settings.json:66"
+    },
+    {
+      "id": "hook-enforcement-behavior",
+      "file": ".claude/rules/pipeline.md",
+      "line": 324,
+      "enforced_by": ".claude/hooks/lib/check-todo-injection.mjs:18"
+    },
+    {
+      "id": "LR-048",
+      "file": ".claude/rules/pipeline.md",
+      "line": 345,
+      "unenforced": true,
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_CLOSURE_GATE_V6_PARENT.md"
+    },
+    {
+      "id": "LR-049",
+      "file": ".claude/rules/pipeline.md",
+      "line": 417,
+      "enforced_by": "scripts/ship-client.sh:34"
+    },
+    {
+      "id": "LR-055",
+      "file": ".claude/rules/plan-closure.md",
+      "line": 24,
+      "enforced_by": "scripts/validate-plan-closure.mjs:165"
+    }
+  ]
+}

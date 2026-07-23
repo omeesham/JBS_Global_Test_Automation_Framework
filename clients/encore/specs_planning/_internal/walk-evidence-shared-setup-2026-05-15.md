@@ -728,3 +728,13 @@ Status field update: keep `open` (still real on e2e); severity stays `high`; add
 | Step 2A.1 smoke-pass D.delete-flow `surface-exists: yes` | Recorded as `divergent` | Nav2 SSL grid has no per-row Delete column; spec asserts on per-row Delete behavior. UI pattern divergence (SlickGrid vs Radix) — NOT halting per LR-046 because D is already classified COVERED-FIXME-PARTIAL and SP-D's TC-020 unfixme cycle is the resolution point (parent plan v5 Step 6 protocol ownership). |
 | LR-024 net-zero data delta on shared baseline | Save not exercised on nav2 SI toggle (would mutate baseline state); GAP-003 J.cross-field marked partial | nav2 office 1604 is shared baseline truth — mutating SI state mid-walk risks LR-024 net-zero violation. Cell-click editor activation was probed (confirms surface) but the Save → reload cycle deferred to SP-D Step 6 (which already plans add+save+reload as part of TC-018-024 unfixme). |
 | ceremony /regression-guard pre+post snapshot via skill invocation | Minimal fingerprint only (line count + symbol count snapshot at session start); skipped full skill | SP-A is artifact authoring only (walk-evidence + BUG JSON update); zero spec/PO/selector code mutation → /regression-guard skill invocation is a no-op for this subplan. Audit-note #2 spirit (structural fingerprint, not stat) is satisfied by the no-mutation guarantee. |
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

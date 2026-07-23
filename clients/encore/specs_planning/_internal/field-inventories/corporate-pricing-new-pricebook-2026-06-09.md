@@ -107,7 +107,9 @@ Stack note: New Pricebook is **Next.js / React (App Router, RSC)** — `waitForA
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs filed in this session. Five behaviors diverge from the XLSX helper expectations and are **raised as `/encore-questions` clarifications** (Doctrine 2 — not silently absorbed, not false-filed), tracked in `clients/encore/specs_planning/_internal/encore-questions-drafts/corporate-pricing-newpricebook-divergences-2026-06-09.md`:
 
@@ -121,6 +123,9 @@ No app bugs filed in this session. Five behaviors diverge from the XLSX helper e
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Network-request evidence
 
 | Action | API call(s) observed | Status | Inference |

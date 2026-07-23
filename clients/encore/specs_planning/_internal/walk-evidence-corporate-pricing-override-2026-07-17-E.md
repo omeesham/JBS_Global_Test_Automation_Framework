@@ -278,3 +278,13 @@ await page.reload();
 ```
 
 <!-- INCREMENTAL APPEND POINT — END -->
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

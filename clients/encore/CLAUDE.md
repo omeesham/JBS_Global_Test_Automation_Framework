@@ -30,7 +30,7 @@ If a rule applies to any Angular/Playwright client, it belongs in root `CLAUDE.m
 - **Base URL**: `cloudapps-e2e.encoreglobal.com` (E2E environment; see `clients/encore/.env.local`)
 - **Test office**: 1604 (hardcoded in many TCs)
 - **Master / corporate office**: 1101 ("Corporate Office") — NOT a day-to-day test office, but it carries data & whole feature areas 1604 lacks (Commission — corporate-only, Navigator Contracts role; Labor — NM-1881). Empty/absent on 1604 ≠ missing — re-check 1101 first (LR-ENC-005). (Currency/pricing variety lives on 1605, not 1101.)
-- **Auth**: Microsoft SSO; credentials in `clients/encore/.env.local` (gitignored; CI injects credentials from its secret store)
+- **Auth**: Microsoft SSO; credentials in `clients/encore/.env.local` (**tracked in git** — a fresh clone already has working creds; see `:130`. CI additionally injects `NAVIGATOR_*` from its secret store via `.env.e2e`)
 - **Module registry**: `clients/encore/docs/MODULE_REGISTRY.md` (agent-only — gitignored per root `.gitignore:185`, never ships)
 - **Requirements**: `clients/encore/docs/REQUIREMENTS.md` (agent-only — gitignored per root `.gitignore:184`, never ships)
 - **Jira prefix**: `NM-NNNN` (e.g., NM-1264 — Delivery ≥ Prep cross-field validation)
@@ -54,7 +54,7 @@ Any subplan producing/modifying/deleting a `clients/encore/tests/**/*.spec.ts` t
 
 ### LR-ENC-003: The `.env.e2e` file is CI-only; local/agent spec runs use `.env.local`
 
-Local/agent runs use `.env.local` (gitignored, has creds); `.env.e2e` is CI-only (tracked, no creds — CI injects `NAVIGATOR_*`/`BASE_URL`). Never set `CI_ENV=e2e` locally; `src/setup/global-setup.ts` throws if `CI_ENV=e2e` without `CI`. Just `npm test`.
+Local/agent runs use `.env.local` (**tracked in git**, has creds — verify with `git ls-files clients/encore/.env.local`); `.env.e2e` is CI-only (also tracked, no creds — CI injects `NAVIGATOR_*`/`BASE_URL`). Both files are tracked; they differ by whether they carry credentials, not by git status. Never set `CI_ENV=e2e` locally; `src/setup/global-setup.ts` throws if `CI_ENV=e2e` without `CI`. Just `npm test`.
 
 <!-- CEO POINTER: LR-ENC-003 env-file selection mechanism detail → ticket DOCTRINE; cite clients/encore/CLAUDE.md LR-ENC-003; VERIFY: worker confirms its local run loaded `.env.local`, not `.env.e2e` -->
 
@@ -121,7 +121,7 @@ Boolean cells render differently per table in the same Angular app (Unicode ✔ 
 
 ## Automation User Provisioning Checklist
 
-Ops-only onboarding for a new automation user (not CEO always-on craft): provision the M365 user with **no second-factor authentication configured**, set `NAVIGATOR_USERNAME` / `NAVIGATOR_PASSWORD` / `BASE_URL` in `clients/encore/.env.local` (gitignored; GitHub Actions removed per client request), run `npm run test:cli`, verify green.
+Ops-only onboarding for a new automation user (not CEO always-on craft): provision the M365 user with **no second-factor authentication configured**, set `NAVIGATOR_USERNAME` / `NAVIGATOR_PASSWORD` / `BASE_URL` in `clients/encore/.env.local` (**tracked in git** — committing it is the intended behaviour so colleagues get a working clone; GitHub Actions removed per client request), run `npm run test:cli`, verify green.
 
 <!-- CEO POINTER: full automation-user provisioning steps → ops runbook, not CEO always-on context (full steps in git history + docs/SETUP.md); VERIFY: the "no second-factor authentication configured" fact above is the LR-054 anti-MFA-hallucination anchor — keep it greppable in this file -->
 

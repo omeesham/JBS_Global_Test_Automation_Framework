@@ -45,7 +45,9 @@ The P1 inventory (2026-06-05) verified `pricebookName`, `isInternal`, `isLabor`,
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 **None found.** Every FCC boundary behavior is internally consistent and correct-looking:
 
@@ -59,6 +61,9 @@ The two pre-existing spec/requirements divergences (D1 8↔9 columns, D2 server-
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-10

@@ -216,8 +216,19 @@ export function resolveRef(rawPath, relFilePath, repoRoot) {
 
 function getTrackedSet(repoRoot) {
   const r = spawnSync('git', ['ls-files'], { cwd: repoRoot, encoding: 'utf8', timeout: 30000 });
-  if (r.error || r.status !== 0) return new Set();
-  return new Set(r.stdout.split('\n').map((l) => l.trim().replace(/\\/g, '/')).filter(Boolean));
+  if (r.error || r.status !== 0) {
+    const detail = r.error ? r.error.message : (r.stderr || '').trim();
+    throw new Error(
+      'git ls-files failed in ' + repoRoot + ' -- cannot enumerate tracked files. Detail: ' + detail,
+    );
+  }
+  const files = r.stdout.split('\n').map((l) => l.trim().replace(/\\/g, '/')).filter(Boolean);
+  if (files.length === 0) {
+    throw new Error(
+      'git ls-files returned 0 tracked files in ' + repoRoot + ' -- expected a populated repository',
+    );
+  }
+  return new Set(files);
 }
 
 /** Batch-checks which of the given repo-relative paths are gitignored. */
@@ -313,7 +324,13 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const { broken, stats } = buildReport({ repoRoot: args.repoRoot });
+  let broken, stats;
+  try {
+    ({ broken, stats } = buildReport({ repoRoot: args.repoRoot }));
+  } catch (e) {
+    console.error('[check-shared-deps] FATAL -- ' + e.message);
+    process.exit(1);
+  }
 
   if (broken.length > 0) {
     console.error('\n[check-shared-deps] BROKEN references — paths a colleague cannot obtain from a fresh clone:\n');

@@ -76,6 +76,17 @@ for (let i = 2; i < lines.length; i++) {
 //   Req -> HUNTER, Pln -> GIVER, Gen -> BUILDER, Heal -> HEALER,
 //   Audit -> WATCHDOG, Maint -> GARDENER, Owner -> OWNER
 
+// — Zero-row guards (vacuous-on-zero defense) —
+if (parsedRows.length === 0) {
+  console.error("[check-identity-ownership] §2 table header found but zero data rows parsed — expected ownership rows after the header/separator in " + rulesPath);
+  process.exit(2);
+}
+
+if (OWNERSHIP_ROWS.length === 0) {
+  console.error("[check-identity-ownership] OWNERSHIP_ROWS import is empty — identity-ownership.mjs must declare at least one ownership row");
+  process.exit(2);
+}
+
 // Compare to OWNERSHIP_ROWS declaration order.
 const expected = OWNERSHIP_ROWS;
 const drifts = [];

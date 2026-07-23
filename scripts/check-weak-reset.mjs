@@ -182,6 +182,14 @@ function main() {
     console.log('SKIP: weak-reset (LR-019/LR-067) — no save-capable spec is staged.');
     return 0;
   }
+  if (!stagedOnly && checked === 0) {
+    if (allSpecs.length === 0) {
+      console.error('\nFAIL: weak-reset — no .spec.ts files found under clients/; expected save-capable specs to exist. Check cwd and clients/ directory.');
+    } else {
+      console.error(`\nFAIL: weak-reset — found ${allSpecs.length} spec file(s) but 0 save-capable describe blocks; expected at least one.`);
+    }
+    return 1;
+  }
   if (warnings.length) {
     console.warn('\nWARN: weak-reset — save-capable describe(s) with no reset action (per-test-baseline gate owns these):');
     for (const w of warnings) console.warn('  ? ' + w);

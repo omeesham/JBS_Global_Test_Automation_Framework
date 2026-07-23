@@ -129,7 +129,21 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const report = buildReport({ repoRoot: args.repoRoot, filePaths: walkSpecFiles(args.repoRoot) });
+  const filePaths = walkSpecFiles(args.repoRoot);
+
+  const clientsDir = path.join(args.repoRoot, 'clients');
+  if (!fs.existsSync(clientsDir)) {
+    console.error('[check-spec-sleeps] FAIL — clients/ directory does not exist at ' + clientsDir);
+    console.error('  The check requires clients/<client>/tests/**/*.spec.ts to scan.');
+    process.exit(1);
+  }
+  if (filePaths.length === 0) {
+    console.error('[check-spec-sleeps] FAIL — 0 spec files found under ' + clientsDir);
+    console.error('  Expected clients/<client>/tests/**/*.spec.ts but found none.');
+    process.exit(1);
+  }
+
+  const report = buildReport({ repoRoot: args.repoRoot, filePaths });
 
   console.error('[check-spec-sleeps] summary');
   console.error(`  fixed sleeps in specs: ${report.total} across ${report.files.length} file(s)`);

@@ -87,12 +87,17 @@
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session. (Line-Of-Business-disabled and Live-Date-value are documentation drift / data differences, not application defects. Country cascade behaves per requirements.)
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-03

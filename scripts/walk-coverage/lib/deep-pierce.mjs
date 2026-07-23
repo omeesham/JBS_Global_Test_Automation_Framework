@@ -212,21 +212,27 @@ export function templateKey(key) {
  * differing only by a row index collapse to ONE per-column archetype with a rowCount annotation,
  * so the denominator is data-volume-INDEPENDENT (32 rows × 4 controls → 4 archetypes, not 128).
  * "Homogeneous" = same `role` AND same `why`. Groups below `threshold` are left as individual rows.
+ * Item 6: collapse key incorporates column identity so two cells in different columns (Override
+ * Price vs Max Discount) are never merged even if they display the same value.
  * @param {Array} entries  [{ key, role, name, why, inA, inB, disabled }]
  * @param {number} threshold  minimum group size to collapse (default 4)
  */
 export function collapseArchetypes(entries, threshold = 4) {
   const groups = new Map();
   for (const e of entries) {
+    // Item 6: include column identity in the collapse key. Column identity is derived from the
+    // accessible name or the last path segment of struct: keys (the innermost ancestor).
     const tk = templateKey(e.key);
-    if (!groups.has(tk)) groups.set(tk, []);
-    groups.get(tk).push(e);
+    const colId = extractColumnIdentity(e);
+    const groupKey = colId ? `${tk}||col:${colId}` : tk;
+    if (!groups.has(groupKey)) groups.set(groupKey, []);
+    groups.get(groupKey).push(e);
   }
   const out = [];
-  for (const [tk, members] of groups) {
+  for (const [gk, members] of groups) {
+    const tk = templateKey(members[0].key);
     const homogeneous = members.every(m => m.role === members[0].role && m.why === members[0].why);
     if (members.length >= threshold && homogeneous && tk !== members[0].key) {
-      // collapse: union the A/B membership + disabled across the row instances
       out.push({
         key: `${tk} [archetype×${members.length}]`,
         role: members[0].role,
@@ -243,6 +249,29 @@ export function collapseArchetypes(entries, threshold = 4) {
     }
   }
   return out;
+}
+
+/** Extract column identity from an entry's key for collapse dedup (Item 6). */
+function extractColumnIdentity(entry) {
+  const key = entry.key;
+  // testid: keys often encode column info as the last hyphenated segment before row digits
+  if (key.startsWith('testid:')) {
+    const parts = key.slice(7).split('-');
+    // Find the column portion by stripping trailing numeric parts (row indices)
+    const nonNumeric = parts.filter(p => !/^\d+$/.test(p));
+    return nonNumeric.length > 0 ? nonNumeric.join('-') : null;
+  }
+  // struct: keys encode ancestor path; column is typically in the accessible name
+  if (key.startsWith('struct:')) {
+    const segments = key.slice(7).split('|');
+    const name = segments[1] || '';
+    if (name) return name;
+  }
+  // name: keys have format "name:fieldName|role"
+  if (key.startsWith('name:')) {
+    return key.slice(5).split('|')[0] || null;
+  }
+  return null;
 }
 
 /**

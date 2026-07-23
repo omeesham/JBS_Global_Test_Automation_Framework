@@ -188,7 +188,9 @@ Local Office, Prep Date Offset, Return Date Offset, Set Date Offset, Strike Date
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 Per LR-034 protocol — three application bugs identified in the 2026-04-23 audit. JSON files filed at `reports/bugs/` by SP-DQU-03 (this subplan).
 
@@ -200,6 +202,9 @@ Per LR-034 protocol — three application bugs identified in the 2026-04-23 audi
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-04-23 (inherited from neutral-eye audit; today's promotion 2026-04-27 is a re-anchor)

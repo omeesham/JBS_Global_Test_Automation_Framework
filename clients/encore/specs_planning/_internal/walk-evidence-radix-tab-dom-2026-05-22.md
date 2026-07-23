@@ -114,3 +114,13 @@ Live snapshots emitted by playwright-cli during the walk:
 - `.playwright-cli/page-2026-05-22T13-51-41-758Z.yml` (initial load — Local Info active)
 - `.playwright-cli/page-2026-05-22T13-53-16-966Z.yml` (after Notes click)
 - `.playwright-cli/page-2026-05-22T13-54-22-922Z.yml` (after Currency click)
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

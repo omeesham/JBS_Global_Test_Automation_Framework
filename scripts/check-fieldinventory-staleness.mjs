@@ -241,6 +241,23 @@ function main() {
     warnDays: args.warnDays, haltDays: args.haltDays,
   });
 
+  // Zero artifacts = the check never ran. Fail loudly with distinct messages.
+  if (report.totals.artifacts === 0) {
+    const clients = args.client ? [args.client] : listClients(args.repoRoot);
+    if (clients.length === 0) {
+      console.error(`[check-fieldinventory-staleness] FAIL: no clients/ directory found under ${args.repoRoot}`);
+    } else {
+      const dirs = clients.map(c => fieldInventoryDir(args.repoRoot, c));
+      const existing = dirs.filter(d => fs.existsSync(d));
+      if (existing.length === 0) {
+        console.error(`[check-fieldinventory-staleness] FAIL: no field-inventories directory exists. Looked in:\n${dirs.map(d => '  ' + d).join('\n')}`);
+      } else {
+        console.error(`[check-fieldinventory-staleness] FAIL: field-inventories directories exist but contain no matching artifacts. Looked in:\n${existing.map(d => '  ' + d).join('\n')}`);
+      }
+    }
+    process.exit(2);
+  }
+
   if (args.out) {
     fs.mkdirSync(path.dirname(args.out), { recursive: true });
     fs.writeFileSync(args.out, JSON.stringify(report, null, 2));

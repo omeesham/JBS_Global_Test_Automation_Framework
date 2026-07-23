@@ -107,11 +107,21 @@ Every section below has (a) a stated purpose, (b) a required content schema, and
 - **Required content**: four sub-headings — `Save button behavior`, `Save dialog`, `Post-save toast`, `Dirty-state behavior`. Verbatim text for all dialog/toast labels and bodies.
 - **Grep rule**: `^## Save-cycle observations$`
 
-### §6 — `## Known App Bugs`
+### §6 — `## Observations`
 
-- **Purpose**: link the artifact to any LR-034-filed application bugs discovered during the walk so downstream test authors can gate the affected TCs.
-- **Required content**: a table with cols `Bug ID | Field / Feature | Observed | Expected (per requirements) | Status`. If none, the literal sentence `No app bugs identified in this session.`
-- **Grep rule**: `^## Known App Bugs$`
+- **Purpose**: capture and escalate everything the walk *saw* — application defects to be gated by LR-034, plus improvement ideas. This is the recording slot the coverage-only disposition vocabulary (LR-062) structurally lacked.
+- **Required content**: two sub-headings, both non-optional.
+  - **`### Bugs / Defects`** — a table with cols `Bug ID | Field / Feature | Observed | Expected (per requirements) | Status`. Use `BUG-CANDIDATE` while pending MCP-confirm; a filed bug carries its `BUG-{MODULE}-{NNN}` id per LR-034.
+  - **`### Suggestions / Improvements`** — enhancement / missing-feature ideas and ambiguous discussion-items (per `feedback_discussion_item_not_bug.md`).
+- **`none` is valid and expected; blank is not.** A walk that observed nothing writes the literal `none` under each bucket. An *absent* section, or a present-but-blank bucket, is an incomplete walk. There is deliberately **no bug quota** — bugs are not always there to be caught, but an agent that *saw* bugged behaviour is forced to record and escalate it.
+- **Grep rule**: `^## Observations$`
+
+> **Legacy shape — `## Known App Bugs` (retired 2026-07-23).** 23 artifacts used `## Known App Bugs`,
+> 5 used `## Observations`, and 19 had neither. All 47 were migrated to the canonical shape above by
+> PLAN_UNIQUE_CASE_COVERAGE_FLOOR Phase 5.2 — deliberately **not** grandfathered, because a
+> permanently-exempt legacy tier is how the next census finds the same 19. `scripts/check-walk-observations.mjs`
+> still *parses* `## Known App Bugs` so it can report it as `LEGACY: needs migration` rather than
+> crashing; that parse path is a migration ramp, **not a second sanctioned format.** Do not author it.
 
 ### §7 — `## Staleness signal`
 
@@ -210,7 +220,7 @@ The following field-inventory artifacts were produced before the LR-062 landing 
 - Buttons (in order, verbatim): "Cancel", "Save"
 ```
 
-### Sample Known App Bugs row
+### Sample `## Observations` → `### Bugs / Defects` row
 
 ```
 | BUG-LOS-ECT-010 | ECT Labor Cost inputs | Triple-click + Delete + type "abc" + Tab silently coerces to 0.00; Save button enables; no aria-invalid | Non-numeric input should reject (matching the without-clearing case) OR fire aria-invalid + keep Save disabled | open |
@@ -239,7 +249,9 @@ grep -F '## Live-state caveat' <file> || HALT "missing section: Live-state cavea
 grep -F '## Field Inventory' <file> || HALT "missing section: Field Inventory"
 grep -F '## Labels + Section Names' <file> || HALT "missing section: Labels + Section Names"
 grep -F '## Save-cycle observations' <file> || HALT "missing section: Save-cycle observations"
-grep -F '## Known App Bugs' <file> || HALT "missing section: Known App Bugs"
+grep -F '## Observations' <file> || HALT "missing section: Observations"
+grep -F '### Bugs / Defects' <file> || HALT "missing sub-section: Bugs / Defects"
+grep -F '### Suggestions / Improvements' <file> || HALT "missing sub-section: Suggestions / Improvements"
 grep -F '## Staleness signal' <file> || HALT "missing section: Staleness signal"
 
 # Field Inventory column header — exact 8-col shape
@@ -279,7 +291,7 @@ The first real-world consumer of this format is SP-DQU-03 (Local Office Settings
    - `Test_Entity: Office 1604 (Parker Palm Springs)` (from the source's Session office line)
 3. The source already has §1 (URL(s) visited), §2 (Live-state caveat), parts of §3 (Field Inventory — but split across 4 sub-section tables with varying column counts), §4 (Section names + labels), and §6 (Suspected APP bugs). Restructure each Field Inventory sub-section table to use the 8 mandatory columns. Some columns will need synthesis from the source's narrative text (Validation Rules, Cross-field deps), but no data is lost — the source documents everything required.
 4. Add §5 `## Save-cycle observations` by extracting the Save dialog rows from the source's `## Links + actions` table + the dirty-state notes scattered through the source. The verbatim dialog text is already captured in source rows for "Basic Info → Save button (after valid edit)" and "Tab switch while form dirty".
-5. Rename the source's `## Suspected APP bugs` to `## Known App Bugs` and link the existing BUG-LOS-BAS-016 / BUG-LOS-ECT-001 / BUG-LOS-ECT-010 IDs. Status defaults to `open` until they have a fix.
+5. Rename the source's `## Suspected APP bugs` to `## Observations`, put its rows under `### Bugs / Defects`, and add a `### Suggestions / Improvements` bucket (literal `none` if there are none). Link the existing BUG-LOS-BAS-016 / BUG-LOS-ECT-001 / BUG-LOS-ECT-010 IDs. Status defaults to `open` until they have a fix.
 6. Add §7 `## Staleness signal` at the bottom: `Last verified: 2026-04-23`, `Fresh-until: 2026-05-07`, `Stale-after: 2026-05-23`, `Refresh triggers: <see template>`.
 7. The source's `## Suggested TCs`, `## Diff vs CSV`, `## Network-request evidence`, `## Known gaps` map cleanly to optional sections — preserve them as-is.
 8. The source's bottom Activity-log row template is already in the right shape — adjust its Files column to reference the new target path instead of the source path.
@@ -297,7 +309,7 @@ The first real-world consumer of this format is SP-DQU-03 (Local Office Settings
 | LR-014 (FIELD INVENTORY testid completeness) | §3 Field Inventory — `data-testid` column is mandatory per row; explicit fallback string allowed; hook rejects empty cells |
 | LR-015 (defaults from dated MCP) | Frontmatter `MCP_Session_Date` is the timestamp; §3 Field Inventory `Default Value` column MUST come from live DOM read on that date; §2 Live-state caveat records drift vs documented defaults |
 | LR-026 (Angular form dirty state defensive) | §5 Save-cycle observations `Dirty-state behavior` sub-section — documents quirks per page so consumers can wire defensive helpers |
-| LR-034 (Bug Filing Protocol) | §6 Known App Bugs — every discovered app bug references its `BUG-{MODULE}-{NNN}.json` file |
+| LR-034 (Bug Filing Protocol) | §6 Observations → `### Bugs / Defects` — every discovered app bug references its `BUG-{MODULE}-{NNN}.json` file |
 | LR-036 (Boolean encoding differs per table) | Optional `## Boolean encoding registry` section — when fields feed history-table boolean columns, the per-table detection pattern is recorded |
 | LR-038 (Browser tool selection + announcement) | Frontmatter `MCP_Session_Tool` + `MCP_Tool_Reason` — the LR-038 announcement is encoded structurally so the hook can verify it exists |
 | LR-040 (Closure gate completeness) | This entire spec — every mandatory section has a stated (a) purpose, (b) required content schema, (c) grep-verifiable presence rule. Closure of any artifact in this format is grep-checkable, not prose-checkable |

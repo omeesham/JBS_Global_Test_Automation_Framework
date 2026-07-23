@@ -197,3 +197,12 @@ Confirmed: dialog shows "All Locations → 1101, 1102, 1105, 1107, 1112..." with
 
 ---
 
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

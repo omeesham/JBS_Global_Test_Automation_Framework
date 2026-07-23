@@ -105,7 +105,9 @@ Row anchor = the unique **Product Group** ID + **Product Group Name** (e.g. `260
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 | Bug ID | Field / Feature | Observed | Expected (per requirements) | Status |
 |---|---|---|---|---|
@@ -115,6 +117,9 @@ No confirmed app bugs in this session.
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-08

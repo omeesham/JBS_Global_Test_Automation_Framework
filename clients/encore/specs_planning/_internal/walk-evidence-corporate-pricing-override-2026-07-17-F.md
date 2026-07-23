@@ -150,3 +150,13 @@
 **Impact**: The "Active" checkbox in the Change Local Office dialog is non-functional with respect to inactive locations — the `activeOnly:false` path never returns inactive locations. Users cannot select an inactive office as the pricing override context, even if they explicitly uncheck "Active."
 
 ---
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

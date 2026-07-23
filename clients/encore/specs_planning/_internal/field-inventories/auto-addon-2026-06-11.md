@@ -100,12 +100,17 @@ Checkbox labels verbatim: "Encore Music", "Wireless Presenter", "Express Content
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session. (Round-trip persistence confirmed: ECDS check→Save→Ok→reload still checked; uncheck→Save→Ok→reload back to unchecked. Save enables/disables per smart diff. No silent no-op, no 4xx/5xx.)
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-11

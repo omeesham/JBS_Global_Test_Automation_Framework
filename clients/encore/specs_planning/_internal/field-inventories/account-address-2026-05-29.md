@@ -143,7 +143,9 @@ Verification detail (recorded so future readers don't misread the live address):
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session.
 
@@ -157,6 +159,9 @@ Documented app-limitations carried from prior sessions (NOT newly filed as `BUG-
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-05-29

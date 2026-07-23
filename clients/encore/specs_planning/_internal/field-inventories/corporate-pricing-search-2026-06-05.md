@@ -118,12 +118,17 @@ Selector strategy (Doctrine 4 / D8 / LR-029): near-zero automation-grade `data-t
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session. The two divergences (D1 8↔9 columns; D2 server-side-vs-DOCX-client-side filtering) are **specification/requirements clarifications**, not application defects — the live behavior is internally consistent and correct-looking; the DOCX is a pre-build placeholder. Both raised via `/encore-questions` (see `encore-questions-drafts/corporate-pricing-search-divergences-2026-06-05.md`), NOT filed as `BUG-*`.
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-05

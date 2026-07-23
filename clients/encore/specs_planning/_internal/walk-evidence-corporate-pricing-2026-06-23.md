@@ -138,3 +138,13 @@ confirmation of the parent's "1444 History GATED" row.
   exact-text engine `text="X"`. React-controlled inputs: the native value-setter sets the DOM value but
   may not trip React dirty (Detail grid) — a **trusted keyboard** edit (click→type→blur) is the
   load-bearing commit for dirty-dependent assertions.
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

@@ -100,7 +100,9 @@ and no pricebook was committed during recon (read-only positive control).
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session. The Labor route's load, catalog, add, Save-enable, and
 Save-dialog behaviors matched expectations and were indistinguishable from the already-covered
@@ -109,6 +111,9 @@ at Save-enable and never proved a Labor pricebook saves — not an app defect.)
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-30

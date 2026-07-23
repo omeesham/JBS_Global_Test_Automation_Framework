@@ -139,3 +139,13 @@ The 2026-06-08 recon reported the Override Price / Max Discount % click-to-edit 
 - **NM-1675** cross-page recompute — requires a Location Settings › Pricing edit (PRE_EDGE scope).
 - **Labor editable-cell coverage** — 0 Labor rows for 1604; Labor FCC limited to tab-switch + empty-state + headers.
 - **Grid Options popover** + **Export/Import file round-trip** — owned by W15-B / EDGE_P3.
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

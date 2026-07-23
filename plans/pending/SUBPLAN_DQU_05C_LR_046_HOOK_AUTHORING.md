@@ -137,3 +137,7 @@ Three reasons (matches SP-DQU-05B's authoring rationale, with hook-specific spec
 Once SP-DQU-05C is DONE → SP-DQU-06 (converter rename Specific Field to Tags) resumes the original DQU sequence.
 
 No obstacle claims (LR-039).
+
+## Inherited doctrine-ledger item (PLAN_UNIQUE_CASE_COVERAGE_FLOOR Phase 4)
+
+- **Rule id `scope-of-strict`** (`.claude/rules/pipeline.md`, LR-046 "Scope of strict") — adjudicated **UNENFORCED: S1**. The strict-token list (`zero`, `all N`, `every`, `100%`, `no exceptions`) is prose; no hook detects a TodoWrite flip to `completed` against a strict line the live file state does not satisfy. This subplan is the named owner of that hook. Recorded by `.claude/doctrine-ledger.json` (LR-040(b)).

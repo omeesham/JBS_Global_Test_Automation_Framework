@@ -194,6 +194,16 @@ function main() {
     process.exit(0);
   }
 
+  if (!args.staged && totalScoped === 0) {
+    const clientsDir = join(REPO_ROOT, 'clients');
+    if (!existsSync(clientsDir)) {
+      process.stderr.write(`FAIL: step-labels — clients/ directory not found at ${clientsDir}. Cannot run non-staged scan.\n`);
+    } else {
+      process.stderr.write('FAIL: step-labels — non-staged scan found 0 fixture/page/spec files under clients/. Expected *.fixture.ts in src/fixtures/, *.page.ts in src/pages/, or *.spec.ts in tests/.\n');
+    }
+    process.exit(1);
+  }
+
   const violations = [
     ...checkFixtureWrapping(fixtureFiles),
     ...checkLabelJargon(pageFiles),

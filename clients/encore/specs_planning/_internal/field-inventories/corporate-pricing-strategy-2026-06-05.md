@@ -131,12 +131,17 @@
 
 ---
 
-## Known App Bugs
+## Observations
+
+### Bugs / Defects
 
 No app bugs identified in this session. The two live divergences from the DOCX (History tab absent; Add-New is modal-gated rather than inline) are **expected-not-yet-built / UI refinements**, not defects — routed to `/encore-questions` clarification per Doctrine 2, not filed as `BUG-*` per LR-034.
 
 ---
 
+### Suggestions / Improvements
+
+none
 ## Staleness signal
 
 - **Last verified**: 2026-06-05

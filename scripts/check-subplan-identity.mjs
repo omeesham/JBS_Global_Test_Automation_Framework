@@ -100,6 +100,16 @@ for (const line of lines) {
   }
 }
 
+if (paths.length === 0) {
+  console.error(JSON.stringify({
+    ok: false,
+    error: `artifact section "${sectionMatch[1]}" found in ${planPath} but zero paths could be parsed from it — the table may be malformed or empty`,
+    identity,
+    sectionFound: sectionMatch[1],
+  }));
+  process.exit(2);
+}
+
 // 3. Check each path against §2 ownership for declared identity.
 const violations = [];
 for (const p of paths) {

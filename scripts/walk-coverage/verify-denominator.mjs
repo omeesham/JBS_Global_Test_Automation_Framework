@@ -21,6 +21,8 @@ import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
 import { extractManifestRows } from './lib/coverage-manifest.mjs';
 import { MODULE_CONFIG as MODULE_REQUIRED_STATES } from './lib/module-config.mjs';
+import { loadFieldCaseTaxonomy } from './lib/field-case-parser.mjs';
+import { computePathA, computePathB, reconcile } from './lib/case-parity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
@@ -153,8 +155,89 @@ export function verifyDenominator(artifactText, jsonPath) {
             reasons.push(`required walk state missing: "${label}" (module: ${moduleName})`);
           }
         }
+        // Item 1(c): a resting-only declaration must cite evidence (enumeration run reference).
+        // A hand-written justification comment is not evidence.
+        const nonResting = requiredStates.filter(s => s.label !== 'resting');
+        if (nonResting.length === 0) {
+          const restingEntry = requiredStates.find(s => s.label === 'resting');
+          if (!restingEntry || !restingEntry.evidence) {
+            reasons.push(`RESTING-ONLY TAUTOLOGY: module "${moduleName}" declares only resting as a required state with no evidence citation. Add an 'evidence' field citing the enumeration run that found zero openers.`);
+          }
+        }
+      } else {
+        // Item 2: an unregistered module FAILS — unknown module has no verification, which is
+        // vacuous-on-zero at the surface level. Never a silent pass.
+        reasons.push(`UNREGISTERED MODULE: "${moduleName}" has no entry in MODULE_REQUIRED_STATES — cannot verify required states. Register it in lib/module-config.mjs.`);
       }
-      // If requiredStates is null, module has no required states — no check performed.
+    }
+  }
+
+  // Item 3: Unresolved-probe ratio becomes a failing condition.
+  // Reads unresolved_probe_mode from .claude/guardrail-config.json (announce-first per LR-069 §3.3).
+  if (data.derived_types) {
+    const allKeys = Object.keys(data.derived_types);
+    const unresolvedKeys = allKeys.filter(k => {
+      const dt = data.derived_types[k];
+      return dt.probe === 'unresolved' || dt.probe === 'unresolvable';
+    });
+    const total = allKeys.length;
+    const unresolvedCount = unresolvedKeys.length;
+    if (total > 0) {
+      const fraction = unresolvedCount / total;
+      // Read threshold from guardrail-config; default 0.5 (50%)
+      let unresolvedThreshold = 0.5;
+      let unresolvedMode = 'announce';
+      try {
+        const gcPath = join(REPO_ROOT, '.claude', 'guardrail-config.json');
+        if (existsSync(gcPath)) {
+          const gc = JSON.parse(readFileSync(gcPath, 'utf-8'));
+          if (gc.unresolved_probe_mode) unresolvedMode = gc.unresolved_probe_mode;
+          if (typeof gc.unresolved_probe_threshold === 'number') unresolvedThreshold = gc.unresolved_probe_threshold;
+        }
+      } catch { /* fail-safe to defaults */ }
+      if (fraction > unresolvedThreshold) {
+        const pct = Math.round(fraction * 100);
+        const sample = unresolvedKeys.slice(0, 10).join(', ');
+        const msg = `UNRESOLVED-PROBE-RATIO: ${unresolvedCount}/${total} (${pct}%) exceeds threshold ${Math.round(unresolvedThreshold * 100)}%. Offending keys: ${sample}`;
+        if (unresolvedMode === 'deny') {
+          reasons.push(msg);
+        } else {
+          // announce mode: report but do not block
+          reasons.push(`[ANNOUNCE] ${msg}`);
+        }
+      }
+    }
+  }
+
+  // ── Phase 3: two-path denominator parity, tolerance ZERO ────────────────────────────────────
+  // Path A (archetype expansion from derived_types × taxonomy) and Path B (census of emitted case
+  // rows) are computed independently and must agree EXACTLY. The 37-vs-79 disagreement survived
+  // because nobody ever put the two numbers beside each other; both are printed here either way.
+  if (data.derived_types) {
+    try {
+      const taxonomy = loadFieldCaseTaxonomy();
+      const pathA = computePathA(data.derived_types, taxonomy);
+
+      // Path B needs the emitter's actual output. Its ABSENCE is a failure, never a skip —
+      // "no case rows to compare" is exactly the vacuous-on-zero pass this plan exists to kill.
+      const rowsPath = join(REPO_ROOT, 'reports', 'walk-coverage', 'case-rows.json');
+      if (!existsSync(rowsPath)) {
+        reasons.push(
+          `PARITY UNVERIFIABLE: no case-rows artifact at reports/walk-coverage/case-rows.json — ` +
+          `run emit-case-rows.mjs --out=<that path>. Path A computed ${pathA.total}; Path B unknown. ` +
+          `An unverifiable denominator fails rather than passing silently.`
+        );
+      } else {
+        const raw = JSON.parse(readFileSync(rowsPath, 'utf-8'));
+        const rows = Array.isArray(raw) ? raw : (raw.rows || raw.case_rows || []);
+        const parity = reconcile(pathA, computePathB(rows));
+        console.log(parity.report);
+        reasons.push(...parity.reasons);
+      }
+    } catch (err) {
+      // A taxonomy that will not parse means the denominator cannot be computed at all. That is a
+      // hard failure: silently continuing would report a verdict on a number nobody produced.
+      reasons.push(`PARITY ERROR: ${err.message}`);
     }
   }
 

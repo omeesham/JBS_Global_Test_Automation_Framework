@@ -30,7 +30,7 @@
  */
 
 import { execSync } from 'node:child_process';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
 const ROOT = process.cwd();
@@ -237,6 +237,15 @@ const files = stagedOnly
 if (stagedOnly && files.length === 0) {
   console.log('SKIP: save-honesty (LR-067) — no page object is staged.');
   process.exit(0);
+}
+
+if (!stagedOnly && files.length === 0) {
+  if (!existsSync(PAGES_GLOB_ROOT)) {
+    console.error(`FAIL: save-honesty (LR-067) — clients directory not found at ${PAGES_GLOB_ROOT}. Run from the repo root.`);
+  } else {
+    console.error(`FAIL: save-honesty (LR-067) — 0 page object .ts files found under ${PAGES_GLOB_ROOT}/*/src/pages/. Expected at least one.`);
+  }
+  process.exit(1);
 }
 
 const flags = findings(files);

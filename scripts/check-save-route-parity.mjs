@@ -109,6 +109,12 @@ for (const entry of REGISTRY) {
   }
 }
 
+if (!stagedOnly && checked === 0) {
+  console.error('FAIL: save-route parity (LR-066) — REGISTRY is empty; the gate has nothing to check.');
+  console.error('  Expected: at least one entry in REGISTRY with saveRouteDescribes. Found: 0 checked routes.');
+  process.exit(1);
+}
+
 if (stagedOnly && checked === 0) {
   console.log('SKIP: save-route parity (LR-066) — no registered spec is staged.');
   process.exit(0);

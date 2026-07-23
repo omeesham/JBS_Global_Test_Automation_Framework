@@ -119,7 +119,13 @@ Consumed from walk fleet 2026-07-17. `baselineScope: baseline-absent` (net-new m
    after the failed import attempt.
 2. Author NEW TC: upload empty.csv fixture — assert application handles gracefully (error message
    or no-op), grid data unchanged.
-3. Do NOT use office 1604 (HTTP 500 — walk-certified broken; never use per ticket constraint).
+3. Do NOT use office 1604 — it returns HTTP 500 **on location selection alone** (NM-2011, dup key 4543),
+   so a test aimed at it dies before reaching the import surface. Never use.
+4. **The "healthy bed" offices named in this plan (1105/1107) are candidates, not certified.** NM-2272
+   runs BEFORE NM-2273, so it hits this risk first: run the target-certification checklist from
+   `SUBPLAN_CORP_PRICING_NM2273_OVERRIDE_IMPORT.md` **Phase 0.7** before authoring any TC that writes,
+   and consume the office it certifies. Added 2026-07-23 (Rutvik) — same instruction, applied where it
+   bites first.
 
 ---
 

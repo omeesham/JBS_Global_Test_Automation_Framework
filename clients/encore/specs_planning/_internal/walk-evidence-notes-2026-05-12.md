@@ -147,3 +147,13 @@ During PROBE E, after saving a deletion (resulting in 0 notes), reload showed "N
 | PROBE F | 4000 soft limit, no hard enforcement | TC-007, TC-021 |
 | BUG-NTS-001 | Appears fixed | TC-005, TC-013, TC-026 |
 | BUG-NTS-003 | Not reproduced | N/A |
+
+## Observations
+
+### Bugs / Defects
+
+none (retrofitted — original walk did not record findings)
+
+### Suggestions / Improvements
+
+none (retrofitted — original walk did not record findings)

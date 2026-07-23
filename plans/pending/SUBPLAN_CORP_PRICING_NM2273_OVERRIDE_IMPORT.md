@@ -37,8 +37,12 @@ switches identity to WATCHDOG.
 dialog title "Import All Pricing Overrides", controls: "Choose a file to import data." paragraph,
 "Upload file" button, "Attached file" showing "No file selected", "Upload progress" progressbar,
 "Cancel" button (`data-testid="pg-override-upload-dialog-cancel"`), "Upload" button (disabled until
-file selected). Healthy offices for import test: 1105 (9 Equipment rows, walk-A) / 1107 (walk-B).
-1604 = HTTP 500 — never use. Export tenant-wide = 8995 rows (walk-A).
+file selected). Export tenant-wide = 8995 rows (walk-A).
+
+**Target offices — CANDIDATES, NOT CERTIFIED.** 1105 (9 Equipment rows, walk-A) / 1107 (walk-B) / 4107
+(round-trip proven, evidence E) are *starting points for Phase 0.7*, not pre-approved beds. No phase may
+consume an office this Context section names; every phase consumes the office Phase 0.7 certifies live.
+**1604 = HTTP 500 on location selection alone (NM-2011, dup key 4543) — never use, never certify.**
 
 **Existing fixtures**: `malformed.csv` and `empty.csv` exist in `clients/encore/src/data/corporate-pricing/toolbar-io.ts`
 fixture registry. Existing import spec: `clients/encore/tests/corporate-pricing/corporate-pricing-loc-import.spec.ts`
@@ -72,8 +76,9 @@ its own page-object method.
 
 1. Confirm NM2272 is done. Walk-evidence files exist.
 2. Read navigation.md, agent-mistakes.md (BUILDER), patterns.md.
-3. LR scan: LR-019, LR-022, LR-055, LR-060, LR-066, LR-067, LR-068, LR-ENC-002, LR-ENC-003, LR-ENC-005.
+3. LR scan: LR-019, LR-022, LR-033, LR-055, LR-060, LR-066, LR-067, LR-068, LR-ENC-002, LR-ENC-003, LR-ENC-005.
 4. `BrowserTool=cli`.
+5. **Phase 0.7 is the first work step.** No test authoring begins until it names a certified target.
 
 ---
 
@@ -83,9 +88,75 @@ Consumed from walk fleet 2026-07-17. `baselineScope: baseline-absent` (net-new m
 
 ---
 
+## Phase 0.7 — Certify a healthy import target FIRST (BUILDER) — **BLOCKING GATE**
+
+**This is the first task of this subplan. Nothing in Phases 1–4 may begin until it produces a certified
+target.** Provenance: Rutvik 2026-07-23.
+
+### Why this phase exists
+
+Office **1604 fails on location selection alone** — selecting it in the Override screen fires the grid
+API and returns HTTP 500 (NM-2011, duplicate product-group key 4543). That is not an import defect; it
+is a *target* defect that poisons every test aimed at that office before the import surface is even
+reached. Automating against a target with that class of fault produces red tests that say nothing about
+the feature under test.
+
+Every "healthy office" claim in this plan and its sibling (1105, 1107, 4107) is inherited from earlier
+walk notes. **Inherited health is a hypothesis, not a certification** — this repo has already been burned
+by claims recorded without the observation that would justify them (see
+`plans/pending/PLAN_58_COVERAGE_MANIFEST_ORACLE_GATE.md`). Certify live, in this session, before building.
+
+### The job
+
+1. **Pick a candidate and certify it live.** Candidate order (strongest first — do not skip ahead
+   without recording why):
+   - **4107** — designated e2e office AND the only office with a proven clean import round-trip
+     (`walk-evidence-corporate-pricing-override-2026-07-17-E.md`, Steps 5a/5b/6).
+   - **1105**, **1107** — asserted healthy in walk-A/walk-B; unverified for import.
+   - Any other office. The e2e tenant is disposable — you are **not** limited to a named list.
+   - **NEVER 1604.**
+
+2. **Certification checklist — every item observed live, not inferred.** Record the actual observation
+   (value seen, count seen), never a bare ✓:
+   - [ ] Selecting the office in the Override location picker completes with **no HTTP 500 and no error
+         toast**. Watch the network, not just the screen (LR-033) — a silent client-side failure and a
+         server 500 look identical in a screenshot.
+   - [ ] The grid renders. Record the Equipment row count and the Labor row count **separately** — an
+         office with zero Labor rows cannot carry the Labor half of this surface.
+   - [ ] Record the currency (or currencies) present. Multi-currency offices behave differently
+         (NM-1472 currency gating).
+   - [ ] The office's rows appear in the tenant-wide export, so an import round-trip can actually
+         target them.
+   - [ ] No product-group key appears twice for this office — the 4543 defect class is a duplicate key.
+
+3. **If a candidate fails any item, move to the next candidate and keep going.** Do not stop, do not
+   report "no healthy office found", and do not proceed on a partial pass. Standing instruction
+   (Rutvik): if the target lacks what you need, find another target — do not stop until you have one.
+   Record each rejected candidate and the specific item it failed; a rejection list is evidence, and the
+   next agent should not re-test what you already disqualified.
+
+4. **Know the blast radius before you write to anything.** The import file is **tenant-wide**, and the
+   semantics are **UPSERT-ALL**: every row in the uploaded CSV gets its Mod Date + Updated By stamped,
+   including rows whose values did not change (evidence E). So the certified target governs which
+   *values* you change, but the *metadata* touch is tenant-wide. State this explicitly in the artifact
+   so nobody later mistakes a refreshed Mod Date elsewhere for a bug.
+
+5. **Emit the artifact**:
+   `clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-import-target-<YYYY-MM-DD>.md`
+   containing: the certified office, every checklist observation with its real value, the rejected
+   candidates with their failing item, and the blast-radius note.
+
+### Gate
+
+Phases 1–4 consume **the office named in that artifact**. If the artifact does not exist or does not
+name a certified target, **HALT** — do not fall back to a hardcoded office from this plan's Context
+section, and do not proceed against 1604 under any circumstance.
+
+---
+
 ## Phase 1 — Upload button disabled until file selected (BUILDER)
 
-1. Author NEW TC: open import dialog on healthy office (1105 or 1107) → assert "Upload" button is
+1. Author NEW TC: open import dialog on **the Phase 0.7 certified office** → assert "Upload" button is
    disabled; assert "No file selected" text visible. This is the gate that prevents empty uploads.
    Walk-A certified: "Upload" button disabled until file selected.
 2. Assert dialog title "Import All Pricing Overrides" and presence of Cancel button.
@@ -95,7 +166,7 @@ Consumed from walk fleet 2026-07-17. `baselineScope: baseline-absent` (net-new m
 
 ## Phase 2 — Malformed CSV clean rejection (BUILDER)
 
-1. Author NEW TC: on healthy office (1105 or 1107, NOT 1604), open import dialog → upload existing
+1. Author NEW TC: on **the Phase 0.7 certified office** (never 1604), open import dialog → upload existing
    `malformed.csv` fixture → assert a readable rejection message appears (error banner / toast /
    inline message — walk the actual UI response). Assert zero rows changed: capture row snapshot
    before import, reload after rejection, compare row data unchanged.
@@ -121,7 +192,11 @@ Consumed from walk fleet 2026-07-17. `baselineScope: baseline-absent` (net-new m
 1604-specific imports only; 4107 is clean. No preview screen (direct commit, unlike NM-2265 sibling);
 UPSERT-ALL semantics (every row in CSV gets Mod Date + Updated By updated, even unchanged rows).
 
-**TC to author — positive round-trip (work office 4107, designated e2e, evidence E):**
+**TC to author — positive round-trip.** Target = **the Phase 0.7 certified office**. The steps below are
+the worked example from evidence E on office 4107 (row 4107/4298, `152.00 → 152.01 → 152.00`) — if Phase
+0.7 certifies 4107, use them verbatim; if it certifies a different office, keep the *sequence* and
+re-derive the office/product-group/price values from that office's own live grid. Do NOT carry 4107's
+values onto another office.
 1. Export: trigger Export button → save CSV (tenant-wide, `ProductGroupOverrides_YYYYMMDD_HHMMSSUTC.csv`).
 2. Pre-process fixture: filter out rows where column[6] (Override Price) is empty — NM-1940 workaround;
    the raw export contains one such row (`1115,286,01D Double Screen Set Kit,0,USD,0.00,,,0`) that
@@ -180,7 +255,7 @@ DO-NOW / APPEND with grep-verification. Bare deferral = HALT + ask.
 
 | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | (none) | (none) | (none) |
+| HUNTER | import-target certification artifact (Phase 0.7 — pre-build recon, executed by the BUILDER seat; no identity switch) | `clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-import-target-<YYYY-MM-DD>.md` | artifact exists AND names a certified office; `grep -c "1604" <artifact>` shows it only as a rejected/never-use entry |
 | GIVER | test-cases MD + test-plan MD + XLSX | `clients/encore/specs_planning/test-cases/corporate_pricing_override_test_cases.md` (Upload-disabled + malformed-rejection + empty-file TCs) | `npm run check:tc-parity` exit 0 |
 | BUILDER | corporate-pricing-override.spec.ts + page object extensions | `clients/encore/tests/corporate-pricing/corporate-pricing-override.spec.ts` (Phase 1–3 TCs) | `npx playwright test --list` resolves new TC IDs; spec run green ×2 |
 | HEALER | (none) | (none) | (none) |
@@ -192,6 +267,11 @@ DO-NOW / APPEND with grep-verification. Bare deferral = HALT + ask.
 
 ## Acceptance criteria
 
+- [ ] **Phase 0.7 target certification artifact exists**, names one certified office, records every
+      checklist item with its observed value (not a bare ✓), lists rejected candidates with the item each
+      failed, and carries the tenant-wide UPSERT-ALL blast-radius note
+- [ ] **Every Phase 1–4 TC targets the certified office from that artifact** — grep the spec for the
+      office constant and confirm it matches; zero TCs target 1604
 - [ ] Upload-disabled-until-file TC: assert Upload button disabled before file selection, enabled after
 - [ ] Malformed CSV rejection TC: `malformed.csv` on healthy office (1105/1107) → readable error + zero rows changed (LR-067)
 - [ ] Empty file edge TC: `empty.csv` → readable rejection + zero rows changed

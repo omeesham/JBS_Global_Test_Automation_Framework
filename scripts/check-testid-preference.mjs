@@ -99,7 +99,8 @@ function stagedSelectorFiles() {
   try {
     return execSync('git diff --cached --name-only --diff-filter=ACMR', { encoding: 'utf8' })
       .split('\n').map((s) => s.trim()).filter((s) => SELECTOR_FILE_RE.test(s));
-  } catch {
+  } catch (err) {
+    console.warn(`WARN: testid-preference — could not list staged files (${err.message ?? 'unknown error'}); skipping.`);
     return [];
   }
 }
