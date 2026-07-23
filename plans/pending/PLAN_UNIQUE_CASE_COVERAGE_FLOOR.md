@@ -542,3 +542,79 @@ Four read-only cross-provider research seats, dispatched 2026-07-22, each forbid
 | `dc-t2-01` | claude-opus-4.6 | `.claude/state/ua-worker/dc-t2-01/` | 12 archetypes — 3 missing from taxonomy / 3 invisible to the enumerator; root cause of 6-of-504 |
 | `dc-t3-01` | gpt-5.3-codex | `.claude/state/ua-worker/dc-t3-01/` | **(C) no-mechanism** — bug-harvest doctrine written in 8 places, enforced in none; 19 of 47 artifacts carry neither required section; `ASK: none` |
 | `dc-t4-01` | claude-opus-4.6 | `.claude/state/ua-worker/dc-t4-01/` | The blocking gate counts elements; the correct unit is computed but ramp-controlled |
+
+---
+
+### Execution Summary
+
+**Status**: PENDING — deliberately not flipped to DONE; one phase is genuinely unfinished (below).
+**Commit**: `367363ff` on `main` — 164 files, +14,616/−287.
+**Executed**: 2026-07-23
+
+#### What landed
+
+1. **Vacuous-on-zero sweep across all 26 `scripts/check-*.mjs`** — 20 VACUOUS fixed, 3 SOUND, 2
+   NOT-APPLICABLE, 1 fixed by the dispatcher. Absent and empty input now fail with DISTINCT messages
+   naming what was expected and where it looked.
+2. **`check-reject-oracle.mjs` had never evaluated a single row since it was written.** Its regex
+   demanded `covered-by-TC:<ID>` while LR-062 and every artifact on disk write `covered-by-TC: <ID>`
+   with a space; its default directory was `field-case-catalogs`, where that token appears zero times.
+   Matching a format nobody writes, in a directory without its subject, it found nothing and exited 0.
+   Now scans **167 rows**.
+3. **`check-doctrine-ledger.mjs`, two defects** — the coverage floor fired only on a wholly-empty
+   ledger (seed one rule and the remaining 65 vanish behind a green line), and `.` does not match `\r`
+   in JS, so every CRLF doctrine file scanned as zero headings. Corpus went 11 files → **66 rules**
+   once `LEARNED_RULES.md` and the client `CLAUDE.md` became visible. It also reported OK when the
+   corpus was missing entirely.
+4. **Doctrine ledger seeded 66/66, 0 violations, armed to `deny`** — the ramp criterion was coverage,
+   not elapsed time, so it armed the moment coverage hit 100%. `s3_threshold_ratio` seeded 0.40
+   against a measured 37.9% as a regression ceiling. Three worker adjudications were REJECTED:
+   LR-068 → S3 (its own recorded posture at `specs.md:451`), LR-063 re-routed to a recipient that
+   actually references it, LR-014 → S2 (a warn-only gate is DISARMED, not un-gateable).
+5. **Denominator parity exact — PathA 11,522 = PathB 11,522**, zero tolerance. The emitter had billed
+   each of 414 grid rows its own field-case set (+53,372 phantom rows); a grid now earns its §3
+   surface-behaviour cases once. Artifact 26 MB → 3.9 MB.
+6. **Walk-observation doctrine reconciled** — `field-inventory-spec.md` §6 mandated (and HALTed on)
+   the legacy `## Known App Bugs` shape the validator flags as legacy. 48/48 artifacts conform.
+7. **`clients/encore/CLAUDE.md` `.env.local` corrected in 3 places** — it IS tracked (`git ls-files`).
+
+#### What did NOT land
+
+- **Phase 6 live dependent-effect probe: NOT RUN.** The probe's live branch is unimplemented —
+  `scripts/walk-coverage/dependent-effect-probe.mjs:223`, `// Live mode — NOT implemented in this
+  build-only ticket`. Everything short of it is proven: `--validate-config` ok, `--dry-run` resolves
+  both dependency pairs, and the office fence is a real gate (refuses 1604 with exit 1, allows 4107
+  with exit 0).
+- **Phase 5 `-DEPEND` walk-evidence artifact: NOT PRODUCED** — same blocker.
+
+#### Phase 6 is UNBLOCKED for the next session (verified 2026-07-23T16:12)
+
+**Office 4107 — the office this plan names — renders 1 row** (delegated census, 2026-07-23T16:22,
+`scripts/walk-coverage/grid-census.mjs`). So do 4104 (1), 9220 (1) and 9460 (4). 9311/2463/8843 read 0.
+Run the probe against **4107 exactly as Phase 6 specifies** — no fence change, no office substitution.
+Wider sample for context: 1974=161, 9187=134, 9019=58, 9185=54, 4559=35, 3633=30 — the grid is healthy.
+The only remaining gap is the unimplemented live branch at `dependent-effect-probe.mjs:223`.
+
+**Warning for whoever picks this up**: several earlier `0 items found` readings in this session were
+MY premature waits, not the app — 9460 read 0 with a wait keyed on row count and 4 with a wait keyed
+on the item-count text. Wait on `([0-9,]+) items found` changing off `0`, and commit the location via
+BOTH the row `[role=checkbox]` AND the `Select` button, or the grid stays empty and lies to you.
+
+#### Corrections recorded (both were mine)
+
+- An earlier reading claimed Override data had been lost. It had not. Today's server export matches
+  2026-07-17 exactly at **8,996 rows / 1,782 locations**; office 1604 is byte-identical. Only 4 rows
+  differ, on locations 1105/1107/1174 — none of them ours, and our specs target 1604 only.
+- An earlier reading then claimed an **app-wide grid display bug**. Also wrong: a 30-office sweep
+  found **29 of 30 render rows** (1974=161, 9187=134, 9019=58, 9185=54 …). The zero-row offices
+  (1604/9460/9463) are the anomaly, not the rule. Both calls were generalizations from ≤3
+  observations — the exact LR-061 failure class, caught by widening the sample rather than by a gate.
+
+#### Verification
+
+| Command | Result |
+|---|---|
+| `node scripts/walk-coverage/replay-nm2271.mjs` | 8/8 matched, 0 mismatched |
+| `npm run check:spec-quality` | exit 0 |
+| `npm run check:ramp-expiry` | exit 0 |
+| `node scripts/check-doctrine-ledger.mjs` | 66 rules validated, 0 violations |
