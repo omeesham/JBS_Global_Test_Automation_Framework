@@ -90,11 +90,146 @@ export const CORP_PRICING_OVERRIDE = {
     moneyColumn: 'Current Price',
     optionalMoneyColumn: 'Override Price',
     optionalPercentColumn: 'Override Discount',
+
+    /**
+     * Export scope oracle (verified live 2026-07-21). Ten exports taken across ten different grid
+     * states — location picker, Equipment/Labor tab, Active only, Currency, text filter,
+     * rows-per-page and column sort — all returned the SAME file, byte for byte. Export is an
+     * unconditional tenant-wide dump: its request carries no filter parameters. Treated as intended
+     * behavior (NM-1446 documents the mechanism, and the import dialog is titled "Import All Pricing
+     * Overrides"). Floors are deliberately well below the observed values (8,996 rows across 1,782
+     * offices, stable over 4 days) so real data growth never breaks the suite.
+     */
+    scope: {
+      minDataRows: 5000,
+      minDistinctLocations: 500,
+      /** Both Is Labor values must survive every export, whichever tab is showing. */
+      expectedIsLaborValues: ['0', '1'],
+      /** The tenant carries all three; an export missing one would mean the filter leaked in. */
+      minDistinctCurrencies: 3,
+    },
+
+    /**
+     * NM-1940 — the export emits rows whose Override Price is empty, which the app's own import then
+     * rejects. Assert the file TOLERATES them; never assert "every row has an override price".
+     */
+    emptyOverridePriceIsTolerated: true,
+
+    /**
+     * Locale behavior. French and Mexican Spanish translate the header row; German and British
+     * English fall back to the English header. Data rows are locale-independent — money stays
+     * "1001.00" under French, which is what keeps a comma-delimited file parseable. Malformed values
+     * degrade to the English header with a 200, never an error.
+     */
+    locales: {
+      localizing: ['fr-FR', 'es-MX'],
+      fallback: ['de-DE', 'en-GB'],
+      malformed: ['zz-ZZ', 'xx', '%20'],
+    },
+
+    /**
+     * Override Discount is stored as a FRACTION and displayed as a percentage — 0.06 in the file
+     * reads as "6.00 %" in the grid. Four rows across the tenant break that convention and store a
+     * raw percentage instead (13, 14, 20), so the grid renders them as 1300.00 %, 1400.00 % and
+     * 2000.00 % — above the 0-100 cap the app enforces when the value is typed in. Confirmed against
+     * the export file, the grid's JSON API and the rendered grid, all three agreeing (2026-07-21).
+     * Pinned in both directions: a rise means the bad rows are spreading, a drop to zero means they
+     * were cleaned up and the guard can be retired.
+     */
+    discountScale: {
+      percentCap: 100,
+      knownOverScaleRows: 4,
+    },
+
+    /**
+     * File structure: LF line endings (NOT CRLF — verified byte-for-byte: 8,997 line feeds, zero
+     * carriage returns), RFC 4180 quoting, UTF-8 text with no byte-order mark.
+     */
+    structure: {
+      lineEnding: '\n',
+      /** Product Group Name carries literal inch marks (50"-59"), doubled per RFC 4180. */
+      minQuotedRows: 100,
+    },
+  },
+
+  /**
+   * The grid's own data endpoint, which is separate from the export endpoint. Office 1604 returns
+   * HTTP 500 ("An item with the same key has already been added. Key: 4543") while every other office
+   * checked returns 200 — and the screen renders that failure as a silent "0 items found". Observed
+   * live 2026-07-21 and reproduced three times. The check below guards against the failure spreading
+   * to other offices and flags the day 1604 recovers.
+   */
+  gridApi: {
+    pathFragment: '/navigator/api/location/corporate-price-pg-override',
+    healthyOffices: ['1105', '1974', '9187', '9019', '9185', '1115'] as const,
+    knownFailingOffice: '1604',
+    knownFailureSignature: 'same key has already been added',
+  },
+
+  pager: {
+    rowsPerPageOptions: ['10', '20', '30', '40', '50'] as const,
+    defaultRowsPerPage: '20',
+    /** An office with enough Equipment overrides to page through (161 rows on 2026-07-21). */
+    multiPageOffice: '1974',
   },
 
   importDialog: {
     title: 'Import All Pricing Overrides',
     buttons: ['Browse', 'Cancel', 'Upload', 'Close'] as const,
+    noFileText: 'No file selected',
+  },
+
+  /**
+   * Import upload behavior — live-verified 2026-07-23 on office 4107 (the live-certified import target).
+   * The Override import commits directly (no preview screen) and upserts ONLY the rows present in the
+   * file — a location absent from the file keeps its rows untouched (verified: a partial import left
+   * office 1105 unchanged). A MINIMAL valid file (header + one row) returns a clean HTTP 200 in ~2s; the
+   * full tenant dump instead stalls the client at "Uploading… 50%" (NM-2186) while applying in the
+   * background, so the round-trip test imports a minimal file for a deterministic completion signal.
+   */
+  import: {
+    fixtureDir: 'import-all',
+    malformedFixture: 'malformed.csv',
+    emptyFixture: 'empty.csv',
+    apiPathFragment: 'corporate-price-pg-override/import',
+    malformedRejectPattern: /Error Row#:\d+, Msg: LocationId, ProductGroupId, OverridePrice is required\./,
+    emptyRejectMessage: 'Please check the upload file format.',
+    nm1940RejectPattern: /Error Row#:\d+, Msg: LocationId, ProductGroupId, OverridePrice is required\./,
+    roundTrip: {
+      office: '4107',
+      canaryOffice: '1105',
+      productGroupId: '4298',
+      productGroupName: 'Project Manager (Pre/Post) - Hourly',
+      overridePriceColumnIndex: 6,
+      emptyPriceRowPrefix: '1115,286,',
+    },
+
+    /**
+     * Field-level validation matrix — live-verified 2026-07-23 on office 4107 / product group 4298.
+     * The import is a PER-ROW partial-success API: a valid file returns HTTP 200 with a body of shape
+     * { success, data: { successRecordCount, failureRecordCount, errors: [{ error }] } }. A 200 does NOT
+     * mean a row applied — a fully-invalid file still returns 200 with failureRecordCount > 0. Rows are
+     * atomic: any one invalid field rejects the whole row (a valid Override Price in that row does not
+     * apply). Rejections surface on two layers — parse/format errors as an alert toast with NO server
+     * POST, and semantic/data errors inside the 200 response body's errors[] with NO toast.
+     */
+    validation: {
+      resultShape: { successCount: 'successRecordCount', failureCount: 'failureRecordCount', errors: 'errors' },
+      bodyErrors: {
+        invalidCurrency:    { fixture: 'override-invalid-currency.csv',     errorContains: 'invalid data for Currency' },
+        negativePrice:      { fixture: 'override-negative-price.csv',       errorContains: 'invalid data for OverridePrice' },
+        discountOver100:    { fixture: 'override-discount-over-100.csv',    errorContains: 'invalid data for OverrideDiscount' },
+        nonexistentPg:      { fixture: 'override-nonexistent-pg.csv',       errorContains: "ProductGroupId '9999999' does not exist" },
+        nonexistentLocation:{ fixture: 'override-nonexistent-location.csv', errorContains: "LocationNo '9999999' does not exist" },
+      },
+      toastErrors: {
+        nonNumericPrice: { fixture: 'override-nonnumeric-price.csv', pattern: /Error Row#:\d+, Msg: The Override Price should be decimal format within two decimal places\./ },
+        tooFewColumns:   { fixture: 'override-too-few-columns.csv',  pattern: /Error Row#:\d+, Msg: LocationId, ProductGroupId, OverridePrice is required\./ },
+        headerOnly:      { fixture: 'override-header-only.csv',      message: 'Please check the upload file format.' },
+      },
+      wrongExtension: { fixture: 'wrong-format.txt', message: 'Unsupported file type. Allowed: .csv' },
+      extraColumns: { fixture: 'override-extra-columns.csv' },
+    },
   },
 
   maxDiscountCap: 100,
@@ -187,6 +322,73 @@ export const CORP_PRICING_OVERRIDE_ACTIVE_BED = {
   absentCurrency: 'CAD' as const,
 } as const;
 
+/**
+ * Labor-tab mutation fixture (NM-2271) — office 1105 Labor has exactly two override rows
+ * (verified live 2026-07-20 with a committed save + restore round-trip: 160.00 → 161 → 160.00,
+ * POST 200 + success toast + persistence across reload confirmed on row 655).
+ * The Labor grid uses the same click-to-edit spinbutton cells and the same save dialog as
+ * Equipment; the Active cell is a checkbox read via aria-checked on both tabs of this grid.
+ */
+export const CORP_PRICING_OVERRIDE_LABOR_BED = {
+  office: '1105',
+  mutationRowAnchor: {
+    productGroupId: '655',
+    productGroupName: 'General - Ops',
+    overridePriceDefault: '160.00',
+    activeDefault: false,
+  },
+  secondRow: { productGroupId: '656', productGroupName: 'General - Utility' },
+  laborEdited: '161', // differs from the 160.00 default so the edit is a net change
+} as const;
+
+/**
+ * Populated Labor volume/pagination bed (NM-2271) — office 9460 Labor, verified live 2026-07-20:
+ * "212 items found", 20 rows per page by default, first page starts at "Banners Design",
+ * page 2 starts at "Candids Video Engineer - FULL DAY", the last page holds the remainder.
+ * Totals are for bed sanity + content anchors — assert relationships, never brittle equalities.
+ */
+export const CORP_PRICING_OVERRIDE_LABOR_VOLUME_BED = {
+  office: '9460',
+  page1FirstRowAnchor: 'Banners Design',
+  filterNeedle: 'Banners', // narrows the 212-row Labor grid to the anchor row
+  minExpectedRows: 100, // bed-sanity floor: the office carries a triple-digit Labor row count
+} as const;
+
+/**
+ * Blank Override Price render bed (NM-1932) — office 1115, Product Group 286
+ * "01D Double Screen Set Kit" carries a blank (never-set) Override Price. Verified live
+ * 2026-07-20: the cell renders an em-dash inside a muted span — NOT an empty cell.
+ */
+export const CORP_PRICING_OVERRIDE_EMDASH_BED = {
+  office: '1115',
+  blankRowName: '01D Double Screen Set Kit',
+  emDash: '—',
+  mutedSpanClass: 'text-muted-foreground',
+} as const;
+
+/**
+ * Currency-gated Product Group picker bed (NM-2271 add-override flow) — office 4104.
+ * Verified live 2026-07-20 (and 2026-07-17 discovery walk): the picker panel appears in the
+ * left search area ONLY when a specific currency (USD/CAD/MXN — not ALL) is selected; rows are
+ * added by dragging a picker row into the override grid. A dropped row stages client-side
+ * (no network call) at Override Price 0.00 / inactive, and enables Save.
+ */
+export const CORP_PRICING_OVERRIDE_PICKER_BED = {
+  office: '4104',
+  gatingCurrency: 'USD' as const,
+  pickerHeading: 'Product Groups',
+  pickerSearchPlaceholder: 'Search product groups...',
+  droppedRowDefaults: { overridePrice: '0.00', active: false },
+} as const;
+
+/** Unsaved-changes guard dialog contract — verified verbatim live (2026-07-17 walks + 2026-07-20 Stay probe). */
+export const CORP_PRICING_OVERRIDE_UNSAVED_DIALOG = {
+  title: 'Unsaved changes',
+  body: 'Are you sure you want to leave this view? Any unsaved changes will be lost.',
+  stayButton: 'Stay',
+  discardButton: 'Discard',
+} as const;
+
 export const CORP_PRICING_OVERRIDE_FIXTURE = {
   office: '1606',
   tab: 'Equipment' as const,
@@ -207,4 +409,147 @@ export const CORP_PRICING_OVERRIDE_FIXTURE = {
     { productGroupId: '2606', productGroupName: 'House Video Monitor LED 40"-49"', overridePrice: '170.00' },
     { productGroupId: '2607', productGroupName: 'House Video Monitor LED 50"-59"', overridePrice: '278.00' },
   ],
+} as const;
+
+/**
+ * BVA / negative / boundary oracle for Override Price and Max Discount % fields.
+ * Each entry carries its INPUT value and its EXPECTED DISPLAYED STRING — input and display
+ * diverge on this screen (the gap is three of the five known defects).
+ *
+ * Per-field divergence: Max Discount displays with "%" suffix; Override Price does not.
+ * Values sourced from live oracle verification (ORACLE-FACTS.md).
+ */
+export const OVERRIDE_FIELD_ORACLE = {
+  /** Values the app REJECTS (editor stays open / does not commit). */
+  rejected: {
+    both: [
+      { input: '150', reason: 'over-cap on MaxDisc; out-of-range on OverridePrice' },
+      { input: '-5', reason: 'negative' },
+      { input: '-0.01', reason: 'negative fractional' },
+    ],
+    maxDiscountOnly: [
+      { input: '1e5', reason: 'scientific notation rejected on Max Discount' },
+    ],
+  },
+
+  /** Values the app COMMITS — with per-field expected displayed strings. */
+  committed: [
+    { input: '50', maxDiscountDisplay: '50.00 %', overridePriceDisplay: '50.00' },
+    { input: '100', maxDiscountDisplay: '100.00 %', overridePriceDisplay: '100.00' },
+    { input: '007', maxDiscountDisplay: '7.00 %', overridePriceDisplay: '7.00' },
+    { input: '99.99', maxDiscountDisplay: '99.99 %', overridePriceDisplay: '99.99' },
+    { input: '0', maxDiscountDisplay: '0.00 %', overridePriceDisplay: '0.00' },
+    { input: '1e5', maxDiscountDisplay: null as unknown as string, overridePriceDisplay: '100000.00', note: 'commits on Override Price only; rejected on Max Discount' },
+  ],
+
+  /** Known display defects (app transforms input incorrectly). */
+  defects: [
+    { input: '0.5', maxDiscountDisplay: '50.00 %', overridePriceDisplay: '50.00', bug: 'multiplies by 100' },
+    { input: '1.2.3', maxDiscountDisplay: '1.23 %', overridePriceDisplay: '1.23', bug: 'silently drops second decimal point' },
+    { input: 'abc', maxDiscountDisplay: '—', overridePriceDisplay: '—', bug: 'renders em-dash instead of rejection' },
+  ],
+
+  /** Unprobed values — keep marked until live-verified. */
+  unverified: [
+    { input: '0.001', note: 'TODO-UNVERIFIED' },
+    { input: '12.345', note: 'TODO-UNVERIFIED' },
+    { input: '999999.99', note: 'TODO-UNVERIFIED' },
+  ],
+} as const;
+
+/**
+ * Single-row Equipment bed — office 4107, Product Group 4298.
+ * Verified: exactly 1 row, Max Discount is empty (renders em-dash "—"), Active = true, USD.
+ */
+export const CORP_PRICING_OVERRIDE_SINGLE_ROW_BED = {
+  office: '4107',
+  productGroupId: '4298',
+  currentPrice: '305.00',
+  overridePrice: '152.00',
+  maxDiscount: '—',
+  active: true,
+  currency: 'USD' as const,
+  expectedRowCount: 1,
+} as const;
+
+/**
+ * Multi-row Equipment bed — office 1134, two Product Groups.
+ * Used for multi-row edit/save tests (edit PG 565, verify PG 893 untouched).
+ */
+export const CORP_PRICING_OVERRIDE_MULTI_ROW_BED = {
+  office: '1134',
+  rows: [
+    { productGroupId: '565', currentPrice: '13.00', maxDiscount: '14.00 %' },
+    { productGroupId: '893', currentPrice: '12.00', maxDiscount: '6.00 %' },
+  ],
+} as const;
+
+/**
+ * Multi-currency bed — office 1145.
+ * Verified: 10 USD rows + 1 CAD row. Used to test currency filter isolation.
+ */
+export const CORP_PRICING_OVERRIDE_MULTI_CURRENCY_BED = {
+  office: '1145',
+  usdRowCount: 10,
+  cadRowCount: 1,
+  totalRowCount: 11,
+} as const;
+
+// --- NM-2271 BVA constants (lot-worker API contract) ---
+
+export const OVERRIDE_BVA_OFFICES = {
+  equipment: {
+    office: '4107',
+    rows: [{ productGroupId: '4298', currentPrice: '305.00', overridePrice: '152.00', maxDiscount: '—', active: true, currency: 'USD' as const }],
+  },
+  labor: {
+    office: '1134',
+    rows: [
+      { productGroupId: '565', overridePrice: '13.00', maxDiscount: '14.00' },
+      { productGroupId: '893', overridePrice: '12.00', maxDiscount: '6.00' },
+    ],
+  },
+} as const;
+
+export const OVERRIDE_BVA_REJECTED = {
+  overHundred: { input: '150', reason: '>100 cap' },
+  negativeFive: { input: '-5', reason: 'negative' },
+  scientificNotation: { input: '1e5', reason: 'scientific notation >100' },
+  negativeSmall: { input: '-0.01', reason: 'negative fractional' },
+} as const;
+
+export const OVERRIDE_BVA_COMMITTED = {
+  fifty: { input: '50', expectedDisplay: '50.00 %' },
+  hundredCap: { input: '100', expectedDisplay: '100.00 %' },
+  leadingZeros: { input: '007', expectedDisplay: '7.00 %' },
+  justUnderCap: { input: '99.99', expectedDisplay: '99.99 %' },
+} as const;
+
+export const OVERRIDE_BVA_DEFECTS = {
+  hundredXMisread: { input: '0.5', expectedDisplay: '50.00 %' },
+  silentCorruptionMaxDiscount: { input: '1.2.3', expectedDisplay: '1.23 %' },
+  silentCorruptionOverridePrice: { input: '1.2.3', expectedDisplay: '1.23' },
+  blankCommits: { input: 'abc', expectedDisplay: '\u2014' },
+} as const;
+
+export const OVERRIDE_REJECTION_SIGNATURE = {
+  ariaInvalid: 'true',
+  borderColor: 'oklch(0.577 0.245 27.325)',
+  alertRoleTextContent: null,
+} as const;
+
+export const OVERRIDE_CURRENCY_BED = {
+  office: '1145',
+  officeName: 'Hilton Dallas/Park Cities',
+  tab: 'Equipment' as const,
+  totalRows: 11,
+  currencies: {
+    USD: { count: 10 },
+    CAD: { count: 1 },
+    MXN: { count: 0 },
+  },
+  rows: {
+    cadAnchor: { productGroupId: '425', productGroupName: 'Box Truss 20.5x20.5 - 5\'' },
+    usdAnchor: { productGroupId: '4298', productGroupName: 'Project Manager (Pre/Post) - Hourly' },
+  },
 } as const;

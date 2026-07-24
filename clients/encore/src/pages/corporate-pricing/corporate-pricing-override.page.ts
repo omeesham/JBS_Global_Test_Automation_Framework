@@ -134,6 +134,13 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.waitForAngularStable();
   }
 
+  /** Reset the currency filter back to ALL when a specific currency is currently selected. */
+  async resetCurrencyFilter(currentCurrency: string): Promise<void> {
+    await this.page.locator(`button[role="combobox"]:has-text("${currentCurrency}")`).first().click();
+    await this.page.locator('[role="option"]', { hasText: 'ALL' }).first().click();
+    await this.waitForAngularStable();
+  }
+
   async getRowsPerPageOptions(): Promise<string[]> {
     await this.page.locator(OS.ovrRowsPerPage).first().click();
     await this.page.locator('[role="option"]').first().waitFor({ state: 'visible', timeout: 8_000 });
@@ -236,7 +243,10 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
    */
   private async openCellEditor(row: Locator, cellSel: string): Promise<Locator> {
     await row.locator(cellSel).first().click();
-    const editor = this.page.getByRole('spinbutton').first();
+    // Scope editor to the row — not page-wide — so a stale editor left in another
+    // row by the known two-editor defect cannot silently resolve as "ours".
+    // Playwright strict mode: throws if 0 or 2+ spinbuttons exist in the row.
+    const editor = row.getByRole('spinbutton');
     await editor.waitFor({ state: 'visible', timeout: 8_000 });
     return editor;
   }
@@ -245,7 +255,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     const editor = await this.openCellEditor(row, cellSel);
     await this.setReactInput(editor, value);
     await editor.press('Enter');
-    await editor.waitFor({ state: 'detached', timeout: 8_000 }).catch(() => { /* read below tolerates a slow close */ });
+    await editor.waitFor({ state: 'hidden', timeout: 8_000 });
     await this.page.waitForTimeout(250);
   }
 
@@ -266,10 +276,9 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     const editor = await this.openCellEditor(row, OS.ovrCellMaxDiscount);
     await this.setReactInput(editor, value);
     await editor.press('Enter');
-    const committed = await editor.waitFor({ state: 'detached', timeout: 4_000 }).then(() => true).catch(() => false);
+    const committed = await editor.waitFor({ state: 'hidden', timeout: 4_000 }).then(() => true).catch(() => false);
     if (!committed) {
       await editor.press('Escape').catch(() => {});
-      await this.page.getByRole('spinbutton').first().waitFor({ state: 'detached', timeout: 4_000 }).catch(() => {});
     }
     await this.page.waitForTimeout(200);
     return committed;
@@ -279,7 +288,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     const editor = await this.openCellEditor(row, OS.ovrCellOverridePrice);
     const v = await editor.inputValue().catch(() => '');
     await editor.press('Escape').catch(() => {});
-    await this.page.getByRole('spinbutton').first().waitFor({ state: 'detached', timeout: 5_000 }).catch(() => {});
     return v;
   }
 
@@ -293,7 +301,6 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.setReactInput(editor, raw);
     const v = await editor.inputValue().catch(() => '');
     await editor.press('Escape').catch(() => {});
-    await this.page.getByRole('spinbutton').first().waitFor({ state: 'detached', timeout: 5_000 }).catch(() => {});
     return v;
   }
 
@@ -347,7 +354,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await dlg.waitFor({ state: 'visible', timeout: 10_000 });
     const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
     await this.page.locator(OS.ovrSaveDialogCancel).first().click();
-    await dlg.waitFor({ state: 'hidden', timeout: 8_000 }).catch(() => {});
+    await dlg.waitFor({ state: 'hidden', timeout: 8_000 });
     return text;
   }
 
@@ -372,9 +379,11 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     defaults: { overridePrice: string; active: boolean },
     needle: string,
     office: string = CORPORATE_PRICING_COMMON.office,
+    tab: OverrideTab = 'Equipment',
   ): Promise<void> {
     for (let attempt = 0; attempt < 3; attempt++) {
       await this.reloadAndReselect(needle, office);
+      if (tab !== 'Equipment') await this.switchOverrideTab(tab); // a reload always lands on the Equipment tab
       const row = await this.findRowByProductGroup(anchor);
       if (!row) throw new Error(`ensureDefaultState: row "${anchor}" not found for office ${office}`);
       const priceOk = CorporatePricingOverridePage.numEq(await this.readOverridePrice(row), defaults.overridePrice);
@@ -387,6 +396,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
       if (await this.isOverrideSaveEnabled()) await this.saveAndConfirm();
     }
     await this.reloadAndReselect(needle, office);
+    if (tab !== 'Equipment') await this.switchOverrideTab(tab);
     const row = await this.findRowByProductGroup(anchor);
     const gotP = row ? await this.readOverridePrice(row) : 'MISSING';
     const gotMd = row ? await this.readMaxDiscount(row) : 'MISSING';
@@ -534,7 +544,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.page.locator(OS.ovrImportCancel).first().click().catch(async () => {
       await this.page.locator(OS.ovrImportClose).first().click().catch(() => { /* best-effort fallback close; the hidden-wait below confirms dismissal */ });
     });
-    await this.page.locator(OS.ovrImportDialog).first().waitFor({ state: 'hidden', timeout: 6_000 }).catch(() => {});
+    await this.page.locator(OS.ovrImportDialog).first().waitFor({ state: 'hidden', timeout: 6_000 });
   }
 
   async isImportDialogVisible(): Promise<boolean> {
@@ -718,5 +728,670 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
       out.push((await rows.nth(i).locator('td').nth(colIndex).innerText().catch(() => '')).replace(/\s+/g, ' ').trim());
     }
     return out;
+  }
+
+  /** Read the grid's total record count from the "items found" footer text (spans all pages). */
+  async getItemsFoundTotal(): Promise<number> {
+    const text = (await this.page.locator(OS.ovrItemsFound).first().innerText()).trim();
+    return parseInt(text.replace(/,/g, ''), 10);
+  }
+
+  // --- Grid pagination (NM-2271) — icon buttons identified by aria-label ---
+
+  /** Read the disabled state of all four page-navigation buttons. */
+  async getPaginationButtonStates(): Promise<{ first: boolean; previous: boolean; next: boolean; last: boolean }> {
+    return {
+      first: await this.page.locator(OS.ovrPageBtnFirst).first().isDisabled(),
+      previous: await this.page.locator(OS.ovrPageBtnPrevious).first().isDisabled(),
+      next: await this.page.locator(OS.ovrPageBtnNext).first().isDisabled(),
+      last: await this.page.locator(OS.ovrPageBtnLast).first().isDisabled(),
+    };
+  }
+
+  /** Navigate the grid to the first / previous / next / last page and wait for the rows to re-render. */
+  async goToPage(target: 'first' | 'previous' | 'next' | 'last'): Promise<void> {
+    const sel = { first: OS.ovrPageBtnFirst, previous: OS.ovrPageBtnPrevious, next: OS.ovrPageBtnNext, last: OS.ovrPageBtnLast }[target];
+    await this.page.locator(sel).first().click();
+    await this.page.waitForTimeout(1_200); // one-shot settle for the server-paged grid re-render
+  }
+
+  /**
+   * Read the current rows-per-page selection. The control is the page-size combobox whose visible
+   * text is always one of the size options — the currency combobox next to it never shows a number.
+   */
+  private rowsPerPageCombobox(): Locator {
+    return this.page.getByRole('combobox').filter({ hasText: /^(10|20|30|40|50)$/ }).first();
+  }
+
+  async getRowsPerPageValue(): Promise<string> {
+    return (await this.rowsPerPageCombobox().innerText()).replace(/\s+/g, ' ').trim();
+  }
+
+  /** Change the rows-per-page selection and wait for the grid to re-render with the new page size. */
+  async setRowsPerPage(value: string): Promise<void> {
+    await this.rowsPerPageCombobox().click();
+    await this.page.locator('[role="option"]', { hasText: value }).first().click();
+    await this.page.waitForTimeout(1_200);
+  }
+
+  // --- Unsaved-changes guard (NM-2271) ---
+
+  /**
+   * Click the in-app Home link while the grid holds an uncommitted edit, and wait for the
+   * "Unsaved changes" guard dialog. The guard only fires on IN-APP link navigation — a direct
+   * URL change triggers the browser's own leave-page prompt instead, so this helper always
+   * navigates via the Home link. Returns the dialog's verbatim text for content assertions.
+   */
+  async navigateHomeExpectUnsavedDialog(): Promise<string> {
+    await this.page.getByRole('link', { name: 'Home' }).first().click();
+    const dlg = this.page.locator(OS.ovrUnsavedDialog).first();
+    await dlg.waitFor({ state: 'visible', timeout: 10_000 });
+    return (await dlg.innerText()).replace(/\s+/g, ' ').trim();
+  }
+
+  /** Choose "Stay" in the unsaved-changes dialog and wait for it to close (remains on the page). */
+  async stayOnPage(): Promise<void> {
+    await this.page.locator(OS.ovrUnsavedDialogStay).first().click();
+    await this.page.locator(OS.ovrUnsavedDialog).first().waitFor({ state: 'hidden', timeout: 8_000 });
+  }
+
+  /**
+   * Choose "Discard" in the unsaved-changes dialog and wait for navigation to complete.
+   * The destination is a heavy server-rendered page, so the navigation budget matches the rest of
+   * this page object (30s, same as the load wait) — a 15s budget flaked on a slow first paint.
+   */
+  async discardAndLeave(): Promise<void> {
+    await this.page.locator(OS.ovrUnsavedDialogDiscard).first().click();
+    await this.page.waitForURL(/\/home/, { timeout: 30_000 });
+  }
+
+  // --- Keyboard access to editable cells (NM-2271) ---
+
+  /**
+   * Focus the row's Override Price display cell and press Enter to open its numeric editor.
+   * Returns the editor's exposed value. Verified live: the display cell is a focusable
+   * button-style element, Enter reveals the editor, Escape closes it without dirtying the form.
+   */
+  async openOverridePriceEditorWithKeyboard(row: Locator): Promise<string> {
+    await row.locator(OS.ovrCellOverridePrice).first().focus();
+    await this.page.keyboard.press('Enter');
+    const editor = row.getByRole('spinbutton');
+    await editor.waitFor({ state: 'visible', timeout: 8_000 });
+    return editor.inputValue().catch(() => '');
+  }
+
+  /** Press Escape to dismiss an open cell editor and wait for it to close (no value committed). */
+  async closeEditorWithKeyboard(): Promise<void> {
+    const editor = this.page.getByRole('spinbutton');
+    const count = await editor.count();
+    if (count !== 1) {
+      throw new Error(`Expected exactly 1 spinbutton editor before Escape, found ${count}`);
+    }
+    await this.page.keyboard.press('Escape');
+    await editor.waitFor({ state: 'hidden', timeout: 8_000 });
+  }
+
+  // --- Currency-gated Product Group picker / drag-to-add (NM-2271) ---
+
+  /** True when the Product Group picker panel (search box) is present in the left search area. */
+  async isProductGroupPickerVisible(): Promise<boolean> {
+    return this.isVisibleSafe(OS.ovrPickerSearchInput);
+  }
+
+  /**
+   * Count the picker's draggable product-group rows (the only draggable table rows on the page).
+   * The picker panel mounts BEFORE its rows finish loading from the server, so wait for the first
+   * row to render (bounded) before counting — a count taken too early reads 0 on a healthy picker.
+   */
+  async getPickerDraggableRowCount(): Promise<number> {
+    await this.page.locator(OS.ovrPickerDraggableRow).first().waitFor({ state: 'visible', timeout: 20_000 }).catch(() => { /* a genuinely empty picker is a valid observation — the caller asserts the count */ });
+    return this.page.locator(OS.ovrPickerDraggableRow).count();
+  }
+
+  /**
+   * Drag the picker's first product-group row into the given override grid tab panel, staging a
+   * new override row client-side (no request fires until Save). Returns the dragged row's text so
+   * the caller can identify the staged row. Uses the pointer-based drag that was proven live to
+   * stage a row on this grid. Waits for the async-loaded picker rows before dragging.
+   */
+  async dragFirstPickerRowToGrid(tab: OverrideTab): Promise<string> {
+    const source = this.page.locator(OS.ovrPickerDraggableRow).first();
+    await source.waitFor({ state: 'visible', timeout: 20_000 });
+    const rowText = (await source.innerText()).replace(/\s+/g, ' ').trim();
+    const target = this.page.getByRole('tabpanel', { name: tab }).first();
+    await source.dragTo(target);
+    await this.page.waitForTimeout(1_000); // settle: the staged row renders client-side
+    return rowText;
+  }
+
+  // --- Labor-tab equivalents of Equipment helpers (NM-2271) ---
+  // Labor matches Equipment: same click-to-edit spinbutton cells, same save dialog, same
+  // checkbox Active cell. These mirror the Equipment helpers with a mandatory tab-switch.
+
+  /**
+   * Navigate to the Override page, select a location, switch to Labor tab, and wait for
+   * grid rows. Mirrors the Equipment `reloadAndReselect` with a Labor tab switch.
+   */
+  async reloadAndReselectLabor(needle: string, office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
+    await this.gotoOverride(office);
+    await this.selectLocation(needle);
+    await this.switchOverrideTab('Labor');
+    await this.waitForGridRows();
+  }
+
+  /**
+   * Set the Override Price on a Labor-tab row. Identical mechanism to Equipment — the Labor grid
+   * uses the same spinbutton cells (verified live 2026-07-20).
+   */
+  async setLaborOverridePrice(row: Locator, value: string): Promise<void> {
+    await this.editNumericCell(row, OS.ovrCellOverridePrice, value);
+  }
+
+  /**
+   * Set the Max Discount on a Labor-tab row. Same spinbutton mechanism as Equipment.
+   */
+  async setLaborMaxDiscount(row: Locator, value: string): Promise<void> {
+    await this.editNumericCell(row, OS.ovrCellMaxDiscount, value);
+  }
+
+  /**
+   * Toggle the Active checkbox on a Labor-tab row. Same Radix checkbox mechanism as Equipment.
+   */
+  async toggleLaborActive(row: Locator): Promise<void> {
+    await row.locator(OS.ovrCellActiveCheckbox).first().click();
+  }
+
+  /**
+   * Restore a Labor fixture row to its baseline state. Mirrors `ensureDefaultState` with a
+   * mandatory tab switch to Labor after each reload (a reload always lands on Equipment).
+   */
+  async ensureLaborDefaultState(
+    anchor: string,
+    defaults: { overridePrice: string; active: boolean },
+    needle: string,
+    office: string = CORPORATE_PRICING_COMMON.office,
+  ): Promise<void> {
+    await this.ensureDefaultState(anchor, defaults, needle, office, 'Labor');
+  }
+
+  // --- Revert-to-original helper (net-zero changes disable Save) ---
+
+  /**
+   * Revert an editable numeric cell to its original (empty/baseline) value by clearing it.
+   * CRITICAL: typing an empty string into a cell that has no baseline is a no-op (Ctrl+A then
+   * typing nothing leaves the old value). The live-verified mechanism is:
+   *   Ctrl+A → Delete → Enter
+   * which selects all, deletes to empty, then commits the empty value — restoring the em-dash
+   * display and leaving Save DISABLED (net-zero).
+   */
+  async revertCellToOriginal(row: Locator, cellSel: string): Promise<void> {
+    const editor = await this.openCellEditor(row, cellSel);
+    await this.page.keyboard.press('Control+a');
+    await this.page.keyboard.press('Delete');
+    await editor.press('Enter');
+    await editor.waitFor({ state: 'hidden', timeout: 8_000 });
+    await this.page.waitForTimeout(250);
+  }
+
+  /** Revert the Override Price cell to its original (empty/baseline) state. */
+  async revertOverridePriceToOriginal(row: Locator): Promise<void> {
+    await this.revertCellToOriginal(row, OS.ovrCellOverridePrice);
+  }
+
+  /** Revert the Max Discount cell to its original (empty/baseline) state. */
+  async revertMaxDiscountToOriginal(row: Locator): Promise<void> {
+    await this.revertCellToOriginal(row, OS.ovrCellMaxDiscount);
+  }
+
+  // --- BVA navigation helpers (NM-2271 lot contract) ---
+
+  /** Navigate to an Equipment-tab row: reload → select location → ensure Equipment tab → find row by PG ID. */
+  async navigateToEquipmentRow(office: string, needle: string, productGroup: string): Promise<Locator> {
+    await this.gotoOverride(office);
+    await this.selectLocation(needle);
+    await this.waitForGridRows();
+    const activeTab = await this.getActiveTab();
+    if (activeTab !== 'Equipment') await this.switchOverrideTab('Equipment');
+    const row = await this.findRowByProductGroup(productGroup);
+    if (!row) throw new Error(`navigateToEquipmentRow: row PG "${productGroup}" not found on office ${office}`);
+    return row;
+  }
+
+  /** Navigate to a Labor-tab row: reload → select location → switch to Labor → find row by PG ID. */
+  async navigateToLaborRow(office: string, needle: string, productGroup: string): Promise<Locator> {
+    await this.gotoOverride(office);
+    await this.selectLocation(needle);
+    await this.switchOverrideTab('Labor');
+    await this.waitForGridRows();
+    const row = await this.findRowByProductGroup(productGroup);
+    if (!row) throw new Error(`navigateToLaborRow: row PG "${productGroup}" not found on office ${office}`);
+    return row;
+  }
+
+  /** Reload page and reselect location with a specific tab switch. */
+  async reloadAndReselectTab(needle: string, office: string, tab: OverrideTab): Promise<void> {
+    await this.gotoOverride(office);
+    await this.selectLocation(needle);
+    if (tab !== 'Equipment') await this.switchOverrideTab(tab);
+    await this.waitForGridRows();
+  }
+
+  /** Edit a cell then revert to the original value; returns Save-button state at each phase. */
+  async editAndRevertToOriginal(
+    row: Locator,
+    field: 'overridePrice' | 'maxDiscount',
+    editValue: string,
+    originalValue: string,
+  ): Promise<{ saveEnabledAfterEdit: boolean; saveDisabledAfterRevert: boolean }> {
+    const cellSel = field === 'overridePrice' ? OS.ovrCellOverridePrice : OS.ovrCellMaxDiscount;
+    // Edit to the new value
+    const editor1 = await this.openCellEditor(row, cellSel);
+    await this.page.keyboard.press('Control+a');
+    await this.page.keyboard.type(editValue);
+    await editor1.press('Enter');
+    await editor1.waitFor({ state: 'hidden', timeout: 8_000 });
+    await this.page.waitForTimeout(250);
+    const saveEnabledAfterEdit = await this.isOverrideSaveEnabled();
+
+    // Revert to original
+    if (originalValue === '' || originalValue === '\u2014') {
+      await this.revertCellToOriginal(row, cellSel);
+    } else {
+      const editor2 = await this.openCellEditor(row, cellSel);
+      await this.page.keyboard.press('Control+a');
+      await this.page.keyboard.type(originalValue);
+      await editor2.press('Enter');
+      await editor2.waitFor({ state: 'hidden', timeout: 8_000 });
+      await this.page.waitForTimeout(250);
+    }
+    const saveDisabledAfterRevert = !(await this.isOverrideSaveEnabled());
+    return { saveEnabledAfterEdit, saveDisabledAfterRevert };
+  }
+
+  /** Alias for fragment compatibility — delegates to isOverrideSaveEnabled. */
+  async isSaveEnabled(): Promise<boolean> {
+    return this.isOverrideSaveEnabled();
+  }
+
+  /** The page-level Save button locator. */
+  get saveButton(): Locator {
+    return this.page.locator(OS.ovrBtnSave).first();
+  }
+
+  // --- probeEditOracle: rejection/commit oracle (NM-2271) ---
+
+  /** Result of a `probeEditOracle` call — captures the full state of an edit attempt. */
+  // (exported at module level below the class for external use)
+
+  /**
+   * Probe the edit oracle for a numeric cell: type a value using REAL KEYBOARD INPUT, then capture
+   * every observable signal BEFORE pressing Escape. Capture order is fixed and non-negotiable:
+   *   1. committed? (editor closed after Enter)
+   *   2. displayed value verbatim (if committed)
+   *   3. aria-invalid attribute
+   *   4. computed border-color of the editor
+   *   5. error text SCOPED to the editing context (cell/editor associations only — excludes headers)
+   *   6. Save button state
+   *   7. THEN escapability (Escape is cleanup, never observation)
+   *
+   * Uses `keyboard.type()` (real keystrokes), NEVER a JS native-setter — the two disagree on
+   * multi-dot values like "1.2.3" and only the typed path is reachable by a user.
+   *
+   * Error-text search is scoped to: the cell's own aria-describedby/aria-errormessage targets,
+   * adjacent siblings, and portal content tied to that editor. Excludes grid headers and page
+   * titles. `[role="alert"]` exists on this page and is EMPTY on every rejection — the helper
+   * distinguishes "no validation message" from "found unrelated text".
+   */
+  async probeEditOracle(
+    row: Locator,
+    field: 'overridePrice' | 'maxDiscount',
+    inputValue: string,
+  ): Promise<{
+    committed: boolean;
+    displayedValue: string | null;
+    rawDisplayedValue: string | null;
+    ariaInvalid: string | null;
+    borderColor: string | null;
+    errorText: string | null;
+    saveEnabled: boolean;
+    escapable: boolean;
+  }> {
+    // Open the cell editor — scoped to the row, not page-wide (see openCellEditor)
+    const cellSel = field === 'overridePrice' ? OS.ovrCellOverridePrice : OS.ovrCellMaxDiscount;
+    await row.locator(cellSel).first().click();
+    const editor = row.getByRole('spinbutton');
+    await editor.waitFor({ state: 'visible', timeout: 8_000 });
+
+    // Select all existing content and type the new value using REAL keyboard input
+    await this.page.keyboard.press('Control+a');
+    await this.page.keyboard.type(inputValue);
+
+    // Press Enter to attempt commit
+    await this.page.keyboard.press('Enter');
+    await this.page.waitForTimeout(400);
+
+    // 1. committed? — check if the editor closed
+    const editorStillVisible = await editor.isVisible().catch(() => false);
+    const committed = !editorStillVisible;
+
+    // 2. displayed value verbatim (if committed, read from the cell's display button)
+    let displayedValue: string | null = null;
+    let rawDisplayedValue: string | null = null;
+    if (committed) {
+      const cell = row.locator('td').nth(cellSel === OS.ovrCellOverridePrice
+        ? CORP_PRICING_OVERRIDE.columnIndex.overridePrice
+        : CORP_PRICING_OVERRIDE.columnIndex.maxDiscount);
+      const disp = cell.locator('[role="button"]').first();
+      await disp.waitFor({ state: 'visible', timeout: 5_000 });
+      const rawText = (await disp.innerText()).replace(/\s+/g, ' ').trim() || null;
+      rawDisplayedValue = rawText;
+      displayedValue = rawText ? rawText.replace(/,/g, '') : null;
+    }
+
+    // 3. aria-invalid
+    const ariaInvalid = committed
+      ? null
+      : await editor.getAttribute('aria-invalid').catch(() => null);
+
+    // 4. computed border-color
+    let borderColor: string | null = null;
+    if (!committed) {
+      borderColor = await editor.evaluate(
+        (el) => window.getComputedStyle(el).borderColor,
+      ).catch(() => null);
+    }
+
+    // 5. error text SCOPED to the editing context (excludes headers/page titles)
+    let errorText: string | null = null;
+    if (!committed) {
+      // Check aria-describedby / aria-errormessage references first
+      const describedBy = await editor.getAttribute('aria-describedby').catch(() => null);
+      const errorMsgId = await editor.getAttribute('aria-errormessage').catch(() => null);
+
+      if (describedBy) {
+        const ids = describedBy.split(/\s+/);
+        for (const id of ids) {
+          const el = this.page.locator(`#${id}`);
+          const txt = (await el.innerText().catch(() => '')).trim();
+          if (txt && !txt.includes('Override') && !txt.includes('Product Group')) {
+            errorText = txt;
+            break;
+          }
+        }
+      }
+      if (!errorText && errorMsgId) {
+        const el = this.page.locator(`#${errorMsgId}`);
+        const txt = (await el.innerText().catch(() => '')).trim();
+        if (txt && !txt.includes('Override') && !txt.includes('Product Group')) {
+          errorText = txt;
+        }
+      }
+      // Check adjacent siblings of the editor for error content
+      if (!errorText) {
+        const parent = editor.locator('..');
+        const siblings = parent.locator('> *:not([role="spinbutton"])');
+        const count = await siblings.count();
+        for (let i = 0; i < count; i++) {
+          const txt = (await siblings.nth(i).innerText().catch(() => '')).trim();
+          if (txt && txt.length < 200 && !txt.includes('Override') && !txt.includes('Product Group')) {
+            errorText = txt;
+            break;
+          }
+        }
+      }
+      // Check role="alert" — exists on this page but is empty on every rejection
+      if (!errorText) {
+        const alert = this.page.locator('[role="alert"]').first();
+        if ((await alert.count()) > 0) {
+          const txt = (await alert.innerText().catch(() => '')).trim();
+          if (txt && txt.length > 0 && !txt.includes('Override') && !txt.includes('Product Group')) {
+            errorText = txt;
+          }
+        }
+      }
+    }
+
+    // 6. Save button state
+    const saveEnabled = await this.isOverrideSaveEnabled();
+
+    // 7. THEN escapability — Escape is cleanup, never observation
+    // Escapability = after Escape, can the user open a different cell's editor?
+    // The old detach-based check was broken: Angular keeps rejected editor nodes attached
+    // (visible, text=""), so waitFor({state:'detached'}) could never succeed — escapable
+    // was effectively hardcoded false. The real signal is user-level: clicking a different
+    // cell opens a working editor. (trap-decider.md, 2026-07-22)
+    let escapable = true;
+    if (!committed) {
+      await this.page.keyboard.press('Escape');
+
+      // Click the OTHER editable numeric cell in the same row
+      const otherCellSel = field === 'overridePrice' ? OS.ovrCellMaxDiscount : OS.ovrCellOverridePrice;
+      const otherCell = row.locator(otherCellSel).first();
+      await otherCell.click();
+      // Scope to the other cell's td column — the rejected editor stays visible
+      // in the original cell, so row-scoped getByRole('spinbutton') would match
+      // two elements and trigger a strict-mode violation (CHEAT-CATALOGUE #12)
+      // 0-based columnIndex → 1-based nth-child
+      const otherColIndex = field === 'overridePrice'
+        ? CORP_PRICING_OVERRIDE.columnIndex.maxDiscount
+        : CORP_PRICING_OVERRIDE.columnIndex.overridePrice;
+      const otherColTd = row.locator(`td:nth-child(${otherColIndex + 1})`);
+      const otherEditor = otherColTd.getByRole('spinbutton');
+      try {
+        await otherEditor.waitFor({ state: 'visible', timeout: 4_000 });
+      } catch (err: unknown) {
+        // A genuine timeout means the editor never opened — real focus trap.
+        // Any other error (strict-mode violation, detached node) is a code
+        // defect and must surface, not masquerade as app behaviour.
+        if (err instanceof Error && err.name === 'TimeoutError') {
+          escapable = false;
+        } else {
+          throw err;
+        }
+      }
+
+      // Clean up: dismiss the other editor without committing
+      if (escapable) {
+        await this.page.keyboard.press('Escape');
+      }
+    }
+
+    return { committed, displayedValue, rawDisplayedValue, ariaInvalid, borderColor, errorText, saveEnabled, escapable };
+  }
+
+  /** Probe the Override Price field with the edit oracle. */
+  async probeOverridePriceOracle(row: Locator, inputValue: string) {
+    return this.probeEditOracle(row, 'overridePrice', inputValue);
+  }
+
+  /** Probe the Max Discount field with the edit oracle. */
+  async probeMaxDiscountOracle(row: Locator, inputValue: string) {
+    return this.probeEditOracle(row, 'maxDiscount', inputValue);
+  }
+
+  // ── NM-2272 graft: export / grid-status / search-panel methods ──
+
+  /**
+   * Same download as `downloadOverrideExport`, but also returns the file's RAW bytes so a test can
+   * inspect what the decoded string hides — the byte-order mark and the CRLF line endings.
+   */
+  async downloadOverrideExportRaw(): Promise<{ filename: string; requestUrl: string; bytes: Buffer; content: string; headers: string[] }> {
+    const [download, request] = await Promise.all([
+      this.page.waitForEvent('download', { timeout: 30_000 }),
+      this.page.waitForRequest((r) => r.url().includes(CORP_PRICING_OVERRIDE.export.apiPathFragment), { timeout: 30_000 }),
+      this.page.locator(OS.ovrBtnExport).first().click(),
+    ]);
+    const filePath = await download.path();
+    if (!filePath) throw new Error('downloadOverrideExportRaw: the download did not resolve to a file path');
+    const bytes = readFileSync(filePath);
+    const raw = bytes.toString('utf-8');
+    const content = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
+    const firstLine = content.split(/\r?\n/)[0] ?? '';
+    const headers = firstLine ? firstLine.split(',').map((h) => h.replace(/^"|"$/g, '').trim()) : [];
+    return { filename: download.suggestedFilename(), requestUrl: request.url(), bytes, content, headers };
+  }
+
+  /**
+   * Request the export directly for a given locale, reusing the page's own authenticated session.
+   * The Export button always sends `en-US`, so this is the only way to exercise the other locales.
+   */
+  async fetchExportForLocale(locale: string): Promise<{ status: number; headerLine: string; dataLines: string[] }> {
+    const path = `/navigator/api/location/${CORP_PRICING_OVERRIDE.export.apiPathFragment}${locale ? `?locale=${locale}` : ''}`;
+    const result = await this.page.evaluate(async (url) => {
+      const res = await fetch(url);
+      return { status: res.status, text: await res.text() };
+    }, path);
+    const lines = result.text.split(/\r?\n/).filter((l) => l.length > 0);
+    return { status: result.status, headerLine: lines[0] ?? '', dataLines: lines.slice(1) };
+  }
+
+  /**
+   * Ask the grid's own data endpoint for one office and report what it answers. The screen swallows a
+   * failure here and draws an empty grid, so the status code is the only honest signal.
+   */
+  async fetchGridStatusForOffice(officeId: string): Promise<{ status: number; body: string }> {
+    const path = `${CORP_PRICING_OVERRIDE.gridApi.pathFragment}?localOfficeId=${officeId}`;
+    return this.page.evaluate(async (url) => {
+      const res = await fetch(url);
+      return { status: res.status, body: (await res.text()).slice(0, 300) };
+    }, path);
+  }
+
+  /**
+   * Click the collapse/expand control and report the search panel's label and measured size on either
+   * side of the click — the only way to tell a real collapse from a label that merely flips.
+   */
+  async toggleSearchPanelAndMeasure(): Promise<{ labelBefore: string; labelAfter: string; sizeBefore: string; sizeAfter: string }> {
+    const btn = this.page.locator(OS.ovrCollapseSearchPanel).first();
+    const measure = async () => this.page.evaluate(() => {
+      const el = document.getElementById('pg-ref-currency');
+      const panel = el?.closest('div')?.parentElement?.parentElement ?? null;
+      const r = panel?.getBoundingClientRect();
+      return r ? `${Math.round(r.width)}x${Math.round(r.height)}` : 'absent';
+    });
+    const labelBefore = (await btn.getAttribute('aria-label')) ?? '';
+    const sizeBefore = await measure();
+    await btn.click();
+    await this.page.waitForTimeout(600);
+    return {
+      labelBefore,
+      labelAfter: (await this.page.locator(OS.ovrCollapseSearchPanel).first().getAttribute('aria-label')) ?? '',
+      sizeBefore,
+      sizeAfter: await measure(),
+    };
+  }
+
+  // ── NM-2273 graft: import methods ──
+
+  /**
+   * Read the import dialog's upload gate: whether the Upload button is disabled and the
+   * "No file selected" hint is showing (both true before any file is attached).
+   */
+  async readImportUploadState(): Promise<{ uploadDisabled: boolean; noFileVisible: boolean }> {
+    const uploadDisabled = await this.page.locator(OS.ovrImportUploadBtn).first().isDisabled();
+    const noFileVisible = await this.isVisibleSafe(OS.ovrImportNoFileText);
+    return { uploadDisabled, noFileVisible };
+  }
+
+  /** Attach a file to the import dialog and wait for the Upload button to enable (the attach registered). */
+  async attachImportFile(absPath: string): Promise<void> {
+    await this.page.locator(OS.ovrImportUploadInput).first().setInputFiles(absPath);
+    await expect(this.page.locator(OS.ovrImportUploadBtn).first()).toBeEnabled({ timeout: 10_000 });
+  }
+
+  /** Click the import dialog's Upload button. Does not wait — callers read the rejection alert or the commit. */
+  async clickImportUpload(): Promise<void> {
+    await this.page.locator(OS.ovrImportUploadBtn).first().click();
+  }
+
+  /**
+   * Submit an import and capture the server's PER-ROW result. The Override import is a partial-success
+   * API: the POST returns HTTP 200 with a body of shape
+   * `{ success, data: { successRecordCount, failureRecordCount, errors: [{ error }] } }`. A 200 alone
+   * does NOT mean a row applied — a fully-invalid file still returns 200 with `failureRecordCount > 0` and
+   * `successRecordCount: 0` — so callers assert on the counts / errors, not the status. Parse/format
+   * rejections (non-numeric price, too-few-columns, empty/header-only) never reach the server: no POST
+   * fires, `status` comes back `'no-response'`, and the caller reads the alert via `readImportAlert()`.
+   * (The full tenant dump instead stalls at "Uploading… 50%", NM-2186 — use a minimal file here.)
+   */
+  async submitImportAndCaptureResult(timeout = 30_000): Promise<{
+    status: number | 'no-response';
+    successRecordCount: number;
+    failureRecordCount: number;
+    errors: string[];
+  }> {
+    const respP = this.page
+      .waitForResponse(
+        (r) => r.request().method() === 'POST' && r.url().includes(CORP_PRICING_OVERRIDE.import.apiPathFragment),
+        { timeout },
+      )
+      .then(async (r) => {
+        const body = (await r.json().catch(() => ({}))) as {
+          data?: { successRecordCount?: number; failureRecordCount?: number; errors?: Array<{ error?: string }> };
+        };
+        const data = body.data ?? {};
+        return {
+          status: r.status(),
+          successRecordCount: data.successRecordCount ?? 0,
+          failureRecordCount: data.failureRecordCount ?? 0,
+          errors: Array.isArray(data.errors) ? data.errors.map((e) => e?.error ?? '').filter(Boolean) : [],
+        };
+      })
+      .catch(() => ({ status: 'no-response' as const, successRecordCount: 0, failureRecordCount: 0, errors: [] as string[] }));
+    await this.page.locator(OS.ovrImportUploadBtn).first().click();
+    return respP;
+  }
+
+  /**
+   * Attach a file to the import dialog WITHOUT waiting for Upload to enable. Used for the file-type gate:
+   * a non-`.csv` file leaves Upload disabled with an "Unsupported file type" message, so `attachImportFile`'s
+   * enable-wait would (correctly) time out. The caller asserts the disabled state via `readImportUploadState()`.
+   */
+  async attachImportFileRaw(absPath: string): Promise<void> {
+    await this.page.locator(OS.ovrImportUploadInput).first().setInputFiles(absPath);
+  }
+
+  /** Read the target row's Mod Date + Updated By (for asserting an import stamped them). */
+  async readRowMeta(row: Locator): Promise<{ modDate: string; updatedBy: string }> {
+    const cells = row.locator('td');
+    return {
+      modDate: (await cells.nth(CORP_PRICING_OVERRIDE.columnIndex.modDate).innerText().catch(() => '')).replace(/\s+/g, ' ').trim(),
+      updatedBy: (await cells.nth(CORP_PRICING_OVERRIDE.columnIndex.updatedBy).innerText().catch(() => '')).replace(/\s+/g, ' ').trim(),
+    };
+  }
+
+  /**
+   * Read the import rejection message. A rejected upload surfaces as an on-screen alert and leaves the
+   * dialog open. Returns the trimmed alert text, or '' if none appears within the timeout.
+   */
+  async readImportAlert(timeout = 15_000): Promise<string> {
+    const alert = this.page.locator(OS.ovrImportAlert).first();
+    try {
+      await alert.waitFor({ state: 'visible', timeout });
+    } catch {
+      return '';
+    }
+    return (await alert.innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+  }
+
+  /**
+   * Read the imported Override Price back after a commit. A minimal import returns a clean response, so
+   * the value is normally present on the first reload; this reload-and-re-read is wrapped in a brief
+   * bounded retry to absorb any read-after-write lag on the shared server (each reload's network latency
+   * is the natural spacing — no fixed sleep). Returns the last value read, so a timeout surfaces a clear
+   * value diff rather than an opaque wait error.
+   */
+  async awaitImportedOverridePrice(needle: string, productGroupName: string, expected: string, timeoutMs = 45_000): Promise<string> {
+    const deadline = Date.now() + timeoutMs;
+    let last = '';
+    do {
+      await this.reloadAndReselect(needle);
+      const row = await this.findRowByProductGroup(productGroupName);
+      if (row) {
+        last = await this.readOverridePrice(row);
+        if (parseFloat(last) === parseFloat(expected)) return last;
+      }
+    } while (Date.now() < deadline);
+    return last;
   }
 }

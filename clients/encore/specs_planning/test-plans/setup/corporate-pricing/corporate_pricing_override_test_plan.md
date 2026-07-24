@@ -4,7 +4,7 @@
 **Test Cases**: specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_override_test_cases.md
 **Field Inventory**: specs_planning/_internal/field-inventories/corporate-pricing-override-2026-06-09.md
 **Divergences**: specs_planning/_internal/encore-questions-drafts/corporate-pricing-wave15-divergences-2026-06-08.md
-**Updated**: 2026-07-18 (NM-2269: Active-only effect TC-042, currency data-blocked TC-043, compound stress TC-044; NM-2270: grid text filter TC-045, sort effects TC-046/047, grid options TC-048, compound stress TC-049)
+**Updated**: 2026-07-22 (NM-2271 Wave-2: 62 new cases TC-CPR-OVR-066..127 — Override Price BVA/rejection, Labor axis, Max Discount % Labor, location-picker edge cases, pagination RPP, currency filter)
 
 ## Scope boundary
 
@@ -50,6 +50,21 @@ This plan owns the **Product Group Override screen** (`/pg-override`) — tabs, 
 - Net-zero (LR-009): reverting Override Price to the saved value disables Save.
 
 ---
+
+---
+
+## Wave-2 Traceability (NM-2271) — 62 new test cases
+
+| Lot | Cases | Final IDs | Coverage |
+|-----|-------|-----------|----------|
+| LOT-A | 18 | TC-CPR-OVR-066..083 | Override Price BVA/rejection (Equipment), Max Discount % BVA/defects (Equipment), net-zero |
+| LOT-B | 15 | TC-CPR-OVR-084..098 | Override Price full axis (Labor), defect assertions (Labor), net-zero |
+| LOT-C | 13 | TC-CPR-OVR-099..111 | Max Discount % full axis (Labor), defect assertions (Labor), net-zero |
+| LOT-D | 9 | TC-CPR-OVR-112..120 | Location picker edge cases, import rejection, tab-switch dirty state, filter+sort |
+| LOT-D-RPP | 4 | TC-CPR-OVR-121..124 | Rows-per-page re-render (10/30/40/50) |
+| LOT-D-CUR | 3 | TC-CPR-OVR-125..127 | Currency filter (USD/CAD/MXN) |
+
+**TC-CPR-OVR-023 replaced**: previously skipped (">100 handling unknown"); now authored with full rejection oracle (>100 contract established). Content sourced from LOT-A TC-CPR-OVR-A-12.
 
 ## Scenario: TC-CPR-OVR-001 - Override screen loads, Equipment selected
 1. Step: Navigate to `/pg-override` (office 1604), expected: loads on the override route
@@ -253,6 +268,22 @@ Authoritative current case list (49 cases; TC-023 skipped — app defect). Scena
 - TC-CPR-OVR-047 — Product Group column sort: self-verifying monotonic oracle, no hardcoded first-cell value (NM-2270)
 - TC-CPR-OVR-048 — Hiding "Max Discount %" reduces visible column count; Reset to Default restores all columns (NM-2270)
 - TC-CPR-OVR-049 — Text filter and column sort applied together; every row matches filter; filter survives sort; reset restores (NM-2270)
+- TC-CPR-OVR-050 — Labor tab renders a populated grid with real data on office 9460 (NM-2271)
+- TC-CPR-OVR-051 — Labor grid text filter narrows to matching rows and clearing restores the page (NM-2271)
+- TC-CPR-OVR-052 — Labor grid column sort orders Product Group Name ascending and descending (NM-2271)
+- TC-CPR-OVR-053 — Labor Override Price save-cycle persists after reload and restores (NM-2271)
+- TC-CPR-OVR-054 — Labor Max Discount % save-cycle persists after reload and restores (NM-2271)
+- TC-CPR-OVR-055 — Labor Active toggle save-cycle persists after reload and restores (NM-2271)
+- TC-CPR-OVR-056 — Navigating away from a dirty grid raises the unsaved-changes dialog; Stay keeps the page and the edit (NM-2271)
+- TC-CPR-OVR-057 — Discard in the unsaved-changes dialog leaves the page and drops the edit (NM-2271)
+- TC-CPR-OVR-058 — Page navigation changes the visible rows and enables or disables the nav buttons at each end (NM-2271)
+- TC-CPR-OVR-059 — Raising rows-per-page shows more rows without changing the total (NM-2271)
+- TC-CPR-OVR-060 — A page-1 row reads back identically after paging to the last page and returning (NM-2271)
+- TC-CPR-OVR-061 — A blank Override Price renders as an em-dash in a muted style, not an empty cell (NM-1932)
+- TC-CPR-OVR-062 — Enter opens the Override Price editor on a focused cell; Escape closes it without dirtying the form (NM-2271)
+- TC-CPR-OVR-063 — The Product Group picker appears only when a specific currency is selected (NM-2271)
+- TC-CPR-OVR-064 — Dragging a picker row stages a new override row with no request until Save; Discard drops it (NM-2271)
+- TC-CPR-OVR-065 — The picker serves the Labor tab and drag staging works there too (NM-2271)
 
 ## Scenario: TC-CPR-OVR-042 - Active-only effect: 9→7→9 row-count delta with identity delta (NM-2269)
 1. Step: getActiveOnlyState → false; getVisibleRowCount → 9
@@ -290,3 +321,261 @@ Skipped: all corporate-group offices as of 2026-07-17 carry USD-only rows (1101=
 ## Scenario: TC-CPR-OVR-049 - Text filter + sort simultaneously; every row matches filter; filter survives sort; reset restores (NM-2270)
 1. Step: filterProductGroups("Camlok") → 2 rows; sortColumnViaDropdown("Product Group Name", "ascending"), expected: getColumnCellValues(2).length 2; every row name contains "Camlok" (case-insensitive); values non-decreasing
 2. Step: clearFilter, expected: getVisibleRowCount 9
+
+## Scenario: TC-CPR-OVR-050 - Labor tab renders a populated grid with real data on office 9460 (NM-2271)
+1. Step: reloadAndReselect("9460", "9460") + switchOverrideTab("Labor"), expected: getActiveTab "Labor"
+2. Step: getVisibleRowCount, expected: > 0 (populated grid)
+3. Step: getItemsFoundTotal, expected: > 100 (triple-digit Labor data set — "212 items found" at verification time)
+4. Step: findRowByProductGroup("Banners Design"), expected: not null
+
+## Scenario: TC-CPR-OVR-051 - Labor grid text filter narrows to matching rows and clearing restores the page (NM-2271)
+1. Step: getVisibleRowCount (full page baseline)
+2. Step: filterProductGroups("Banners"), expected: count narrows below the full page, stays above 0; findRowByProductGroup("Banners Design") not null
+3. Step: clearFilter, expected: getVisibleRowCount above the narrowed count (relative assertions only)
+
+## Scenario: TC-CPR-OVR-052 - Labor grid column sort orders Product Group Name ascending and descending (NM-2271)
+1. Step: sortColumnViaDropdown("Product Group Name", "ascending"), expected: getColumnCellValues(2) length > 1; sequence non-decreasing (case-insensitive)
+2. Step: sortColumnViaDropdown("Product Group Name", "descending"), expected: sequence non-increasing (self-verifying monotonic oracle)
+
+## Scenario: TC-CPR-OVR-053 - Labor Override Price save-cycle persists after reload and restores (NM-2271)
+1. Step: ensureDefaultState("General - Ops", {160.00, inactive}, "1105", "1105", "Labor") (per-test baseline)
+2. Step: setOverridePrice(row 655, "161"), expected: isOverrideSaveEnabled true
+3. Step: saveAndConfirm (dialog + backend save call + toast)
+4. Step: reloadAndReselect + switchOverrideTab("Labor"), expected: readOverridePrice(row 655) 161
+5. Step: cleanup ensureDefaultState, expected: 160.00 restored and verified
+
+## Scenario: TC-CPR-OVR-054 - Labor Max Discount % save-cycle persists after reload and restores (NM-2271)
+1. Step: baseline ensureDefaultState (Labor) → setMaxDiscount(row 655, "10"), expected: Save enables
+2. Step: saveAndConfirm → reloadAndReselect + Labor tab, expected: readMaxDiscount(row 655) 10
+3. Step: cleanup ensureDefaultState, expected: Max Discount back to unset ("—")
+
+## Scenario: TC-CPR-OVR-055 - Labor Active toggle save-cycle persists after reload and restores (NM-2271)
+1. Step: baseline ensureDefaultState (Labor) → readActiveState(row 655) → toggleActive, expected: Save enables
+2. Step: saveAndConfirm → reloadAndReselect + Labor tab, expected: readActiveState == !original (persisted)
+3. Step: cleanup ensureDefaultState, expected: inactive baseline restored
+
+## Scenario: TC-CPR-OVR-056 - Dirty-grid navigation guard: Stay keeps the page and the edit (NM-2271)
+1. Step: setOverridePrice(row 655, original+39), expected: isOverrideSaveEnabled true (dirty)
+2. Step: navigateHomeExpectUnsavedDialog, expected: dialog text contains "Unsaved changes", the verbatim body, "Stay", "Discard"
+3. Step: stayOnPage, expected: URL still /pg-override; readOverridePrice(row 655) == staged value; Save still enabled
+4. Step: cleanup navigateHomeExpectUnsavedDialog + discardAndLeave
+
+## Scenario: TC-CPR-OVR-057 - Dirty-grid navigation guard: Discard leaves and drops the edit (NM-2271)
+1. Step: setOverridePrice(row 655, original+41), expected: dirty
+2. Step: navigateHomeExpectUnsavedDialog + discardAndLeave, expected: URL contains /home
+3. Step: reloadAndReselect + Labor tab, expected: readOverridePrice(row 655) == original (nothing persisted)
+
+## Scenario: TC-CPR-OVR-058 - Page navigation: row content changes per page; nav buttons disable at each end (NM-2271)
+1. Step: getPaginationButtonStates on page 1, expected: first+previous disabled, next+last enabled; record getFirstRowCellText(2)
+2. Step: goToPage("next"), expected: first-row identity changes; previous enables
+3. Step: goToPage("last"), expected: next+last disabled; getVisibleRowCount > 0 and <= getRowsPerPageValue
+
+## Scenario: TC-CPR-OVR-059 - Rows-per-page 20→50 shows more rows; total unchanged (NM-2271)
+1. Step: getVisibleRowCount + getItemsFoundTotal (baseline at 20)
+2. Step: setRowsPerPage("50"), expected: getVisibleRowCount increased; getItemsFoundTotal unchanged
+
+## Scenario: TC-CPR-OVR-060 - Content-anchored round trip: page 1 row reads back identically after last-page round trip (NM-2271)
+1. Step: getFirstRowCellText(2) (content anchor on page 1)
+2. Step: goToPage("last"), expected: getVisibleRowCount > 0
+3. Step: goToPage("first"), expected: getFirstRowCellText(2) identical to the anchor; findRowByProductGroup(anchor) not null
+
+## Scenario: TC-CPR-OVR-061 - Blank Override Price renders as an em-dash in a muted style (NM-1932)
+1. Step: reloadAndReselect("1115", "1115"); findRowByProductGroup("01D Double Screen Set Kit"), expected: not null
+2. Step: readOverridePrice(row), expected: exactly "—" (em-dash) and NOT ""
+3. Step: read the cell markup, expected: contains the muted placeholder span class
+
+## Scenario: TC-CPR-OVR-062 - Keyboard access: Enter opens the cell editor; Escape cancels without dirtying (NM-2271)
+1. Step: openOverridePriceEditorWithKeyboard(anchor row), expected: editor value == the row's current Override Price
+2. Step: closeEditorWithKeyboard, expected: isOverrideSaveEnabled false (no dirty state)
+3. Note: arrow-key grid navigation does NOT exist and the save dialogs render aria-hidden while modal — documented findings, not assertions
+
+## Scenario: TC-CPR-OVR-063 - Product Group picker appears only when a specific currency is selected (NM-2271)
+1. Step: reloadAndReselect("4104", "4104"); isProductGroupPickerVisible, expected: false (Currency ALL)
+2. Step: selectCurrency("USD"), expected: isProductGroupPickerVisible true (poll)
+3. Step: getPickerDraggableRowCount, expected: > 0
+
+## Scenario: TC-CPR-OVR-064 - Drag staging: row count +1, zero save requests, 0.00/inactive landing; Discard drops it (NM-2271)
+1. Step: selectCurrency("USD") + record getVisibleRowCount + attach save-endpoint request listener
+2. Step: dragFirstPickerRowToGrid("Equipment"), expected: getVisibleRowCount +1; zero save requests during the drag; isOverrideSaveEnabled true
+3. Step: findRowByProductGroup(dragged id), expected: readOverridePrice 0.00; readActiveState false
+4. Step: navigateHomeExpectUnsavedDialog + discardAndLeave; reloadAndReselect + selectCurrency("USD"), expected: row count back to the pre-drag value
+
+## Scenario: TC-CPR-OVR-065 - The picker serves the Labor tab and drag staging works there too (NM-2271)
+1. Step: selectCurrency("USD") + switchOverrideTab("Labor"), expected: isProductGroupPickerVisible true; getPickerDraggableRowCount > 0
+2. Step: dragFirstPickerRowToGrid("Labor"), expected: getVisibleRowCount +1; isOverrideSaveEnabled true
+3. Step: cleanup navigateHomeExpectUnsavedDialog + discardAndLeave (nothing persists)
+
+
+## Scenario: TC-CPR-OVR-128 - Export returns every location in the tenant
+1. Step: downloadOverrideExport, expected: distinct Location Id count > 500 and > 1
+
+## Scenario: TC-CPR-OVR-129 - Export carries the full override population
+1. Step: downloadOverrideExport, expected: data rows > 5000 and > getVisibleRowCount()
+
+## Scenario: TC-CPR-OVR-130 - Labor tab re-scopes the grid but not the export
+1. Step: switchOverrideTab("Equipment") + downloadOverrideExport, expected: baseline file + grid row count
+2. Step: switchOverrideTab("Labor"), expected: getActiveTab "Labor"; getVisibleRowCount differs from Equipment
+3. Step: downloadOverrideExport, expected: content identical to baseline; Is Labor values include both 0 and 1
+
+## Scenario: TC-CPR-OVR-131 - A different office re-scopes the grid but not the export
+1. Step: downloadOverrideExport, expected: baseline file + grid row count
+2. Step: selectLocation("1974") + waitForGridRows, expected: getVisibleRowCount differs from baseline
+3. Step: downloadOverrideExport, expected: content identical to baseline
+
+## Scenario: TC-CPR-OVR-132 - Active only hides rows in the grid; the export keeps them
+1. Step: reloadAndReselect("1105") + setActiveOnly(false), expected: baseline row count
+2. Step: setActiveOnly(true), expected: getVisibleRowCount < baseline
+3. Step: downloadOverrideExport, expected: Is Active = 0 rows still present
+
+## Scenario: TC-CPR-OVR-133 - Currency filter empties the grid; the export keeps every currency
+1. Step: getCurrencyOptions + selectCurrency(least-used), expected: getVisibleRowCount changes
+2. Step: downloadOverrideExport, expected: distinct Currency count >= 3
+
+## Scenario: TC-CPR-OVR-134 - Text filter narrows the grid; the export is unchanged
+1. Step: downloadOverrideExport, expected: baseline file
+2. Step: filterProductGroups(first 6 chars of the first row name), expected: row count narrows but stays > 0
+3. Step: downloadOverrideExport, expected: content identical to baseline
+
+## Scenario: TC-CPR-OVR-135 - Rows-per-page changes the draw; the export is unchanged
+1. Step: selectLocation("1974") + setRowsPerPage("10") + downloadOverrideExport, expected: baseline file + rows drawn
+2. Step: setRowsPerPage("50"), expected: rows drawn > at 10
+3. Step: downloadOverrideExport, expected: content identical to baseline
+
+## Scenario: TC-CPR-OVR-136 - Export on an empty, unscoped grid returns the whole tenant
+1. Step: open() with no office, expected: isEmpty true; getVisibleRowCount 0
+2. Step: downloadOverrideExport, expected: rows > 5000; distinct locations > 500
+
+## Scenario: TC-CPR-OVR-137 - Equipment grid count reconciles with the export
+1. Step: switchOverrideTab("Equipment") + setActiveOnly(false), expected: grid row count
+2. Step: downloadOverrideExport, expected: Is Labor = 0 rows for this Location Id == grid count; total office rows >= that
+
+## Scenario: TC-CPR-OVR-138 - The export tolerates rows with no Override Price
+1. Step: downloadOverrideExport, expected: blank Override Price count < total; non-blank count > 0
+
+## Scenario: TC-CPR-OVR-139 - CSV structure: LF endings, full column set, quoted inch marks
+1. Step: downloadOverrideExportRaw, expected: raw bytes contain LF and zero CR
+2. Step: split every data row, expected: field count == header count on all rows
+3. Step: collect doubled-quote rows, expected: count > 100; quoting well formed
+
+## Scenario: TC-CPR-OVR-140 - Locale changes the header, never the data
+1. Step: fetchExportForLocale("en-US"), expected: 200; header == expectedHeaders
+2. Step: fetchExportForLocale for fr-FR and es-MX, expected: 200; header differs; row count and first data row identical to English
+3. Step: fetchExportForLocale for de-DE and en-GB, expected: 200; header identical to English
+
+## Scenario: TC-CPR-OVR-141 - Malformed locale falls back instead of failing
+1. Step: fetchExportForLocale for zz-ZZ, xx, %20, expected: 200; English header; same row count
+2. Step: fetchExportForLocale(""), expected: 200; English header
+
+## Scenario: TC-CPR-OVR-142 - Grid endpoint health across offices
+1. Step: fetchGridStatusForOffice for 1105/1974/9187/9019/9185/1115, expected: 200 each
+2. Step: fetchGridStatusForOffice("1604"), expected: >= 500 carrying "same key has already been added", or 200 if the office has recovered
+
+## Scenario: TC-CPR-OVR-143 - Tab, Currency and Active only combined
+1. Step: downloadOverrideExport, expected: baseline file
+2. Step: setActiveOnly(true) then selectCurrency(specific), expected: each count <= the previous
+3. Step: switchOverrideTab("Labor"), expected: getActiveTab "Labor"
+4. Step: downloadOverrideExport, expected: content identical to baseline
+
+## Scenario: TC-CPR-OVR-144 - Page size across a reload; export unaffected
+1. Step: selectLocation("1974") + downloadOverrideExport, expected: baseline file
+2. Step: setRowsPerPage("50"), expected: rows drawn > 20
+3. Step: reloadAndReselect("1974"), expected: getVisibleRowCount > 0
+4. Step: downloadOverrideExport, expected: content identical to baseline
+
+## Scenario: TC-CPR-OVR-145 - Sorting does not reorder the exported file
+1. Step: downloadOverrideExport + getFirstRowCellText(2), expected: baseline file + first cell
+2. Step: sortColumnViaDropdown("Product Group Name", "descending"), expected: first cell changes
+3. Step: downloadOverrideExport, expected: content identical to baseline
+
+## Scenario: TC-CPR-OVR-146 - Grid row reconciles with the export file
+1. Step: read first grid row Product Group Id / Name / Override Price, expected: non-empty
+2. Step: downloadOverrideExport, expected: a file row matches Location Id + Product Group Id
+3. Step: compare Override Price numerically, expected: within 2 decimal places of the on-screen value
+4. Step: collect names matching /^0d/, expected: count > 0 and each retains its leading zero
+5. Step: inspect the final data row and decode the body, expected: full field count; no replacement characters
+
+## Scenario: TC-CPR-OVR-147 - Override Discount scale integrity
+1. Step: downloadOverrideExport, expected: non-empty Override Discount values collected
+2. Step: split at 1, expected: fraction-scale count > 10x the above-1 count
+3. Step: count above-1 rows, expected: <= 4 (the known percent-scale rows); each reported as the percentage it renders (>100)
+
+## Scenario: TC-CPR-OVR-148 - Import dialog gates Upload until a file is attached
+1. Step: reloadAndReselect("4107") + openImportDialog, expected: readImportDialog().text contains "Import All Pricing Overrides"; buttons contain "Cancel"
+2. Step: readImportUploadState (before any file), expected: uploadDisabled true; noFileVisible true
+3. Step: attachImportFile(import-all/malformed.csv), expected: readImportUploadState().uploadDisabled false (attaching a file enables Upload)
+4. Step: closeImportDialog, expected: isImportDialogVisible false (Cancel dismisses with nothing uploaded)
+
+## Scenario: TC-CPR-OVR-149 - Malformed CSV rejected; zero rows changed (office 4107)
+1. Step (baseline): reloadAndReselect("4107"); capture readOverridePrice(product group 4298 row) + getVisibleRowCount
+2. Step: openImportDialog + attachImportFile(import-all/malformed.csv) + clickImportUpload, expected: readImportAlert matches /Error Row#:\d+, Msg: LocationId, ProductGroupId, OverridePrice is required\./
+3. Step (verify): reloadAndReselect("4107"), expected: readOverridePrice == baseline; getVisibleRowCount == baseline count (rejection prevented any mutation)
+
+## Scenario: TC-CPR-OVR-150 - Empty CSV rejected with file-format error; zero rows changed (office 4107)
+1. Step (baseline): reloadAndReselect("4107"); capture readOverridePrice(product group 4298 row) + getVisibleRowCount
+2. Step: openImportDialog + attachImportFile(import-all/empty.csv) + clickImportUpload, expected: readImportAlert == "Please check the upload file format." (distinct from the malformed row-error)
+3. Step (verify): reloadAndReselect("4107"), expected: readOverridePrice == baseline; getVisibleRowCount == baseline count
+
+## Scenario: TC-CPR-OVR-151 - Valid import round-trip on 4107/4298 (minimal file → clean HTTP 200; NM-2186 full-dump stall avoided)
+1. Step: downloadOverrideExport; extract the verbatim target row (4107/4298) + header; read baseline price; modified = baseline + 0.01
+2. Step: openImportDialog + attachImportFile(minimal file = header + the one target row, price=modified) + submitImportAndCaptureResult, expected: status 200 AND successRecordCount 1 AND failureRecordCount 0 (a 200 alone is not proof — the body is the oracle); awaitImportedOverridePrice("4107", 4298, modified) == modified after reload; target row Updated By stamped + fresh Mod Date + currency/Active unchanged
+3. Step (canary): reloadAndReselect("1105"), expected: getVisibleRowCount 9 + inactiveGroupName1 row present (a minimal import applied exactly one row — a location absent from the file keeps its full set and content)
+4. Step (restore): openImportDialog + attachImportFile(minimal file, price=baseline) + submitImportAndCaptureResult; awaitImportedOverridePrice("4107", 4298, baseline) == baseline (restored)
+
+## Scenario: TC-CPR-OVR-152 - Raw export rejected on its empty-Override-Price row; full rollback (NM-1940)
+1. Step (baseline): reloadAndReselect("4107"); capture readOverridePrice(product group 4298 row)
+2. Step: downloadOverrideExport, expected: content still carries the empty-Override-Price row (prefix "1115,286,")
+3. Step: openImportDialog + attachImportFile(raw export) + clickImportUpload, expected: readImportAlert matches /Error Row#:\d+, Msg: LocationId, ProductGroupId, OverridePrice is required\./ (observed Row#:19)
+4. Step (verify): reloadAndReselect("4107"), expected: readOverridePrice == baseline (whole import aborted, no partial apply)
+5. Step (canary): reloadAndReselect("1105"), expected: getVisibleRowCount 9 + inactiveGroupName1 row present (aborted import touched no other office)
+
+## Scenario: TC-CPR-OVR-153 - Import rejects an invalid currency (per-row body error, nothing applied)
+1. Step (baseline): reloadAndReselect("4107"); readOverridePrice(4298)
+2. Step: openImportDialog + attachImportFile(override-invalid-currency.csv) + submitImportAndCaptureResult, expected: status 200, successRecordCount 0, failureRecordCount 1, errors contains "invalid data for Currency"
+3. Step (verify): reloadAndReselect("4107"), expected: readOverridePrice unchanged
+
+## Scenario: TC-CPR-OVR-154 - Import rejects a negative Override Price (body error)
+1. Step: attachImportFile(override-negative-price.csv) + submitImportAndCaptureResult, expected: 200, 0 applied, 1 failed, errors contains "invalid data for OverridePrice"; grid unchanged after reload
+
+## Scenario: TC-CPR-OVR-155 - Import rejects Override Discount > 100 (import enforces the grid's 100 cap)
+1. Step: attachImportFile(override-discount-over-100.csv) + submitImportAndCaptureResult, expected: 200, 0 applied, 1 failed, errors contains "invalid data for OverrideDiscount"; grid unchanged
+
+## Scenario: TC-CPR-OVR-156 - Import rejects a non-numeric Override Price (parse-level alert)
+1. Step: attachImportFile(override-nonnumeric-price.csv) + clickImportUpload + readImportAlert, expected: matches /Error Row#:\d+, Msg: The Override Price should be decimal format within two decimal places\./; grid unchanged
+
+## Scenario: TC-CPR-OVR-157 - Import rejects a nonexistent Product Group Id (referential integrity)
+1. Step: attachImportFile(override-nonexistent-pg.csv) + submitImportAndCaptureResult, expected: 200, 0 applied, 1 failed, errors contains "ProductGroupId '9999999' does not exist"; grid unchanged
+
+## Scenario: TC-CPR-OVR-158 - Import rejects a nonexistent Location (referential integrity)
+1. Step: attachImportFile(override-nonexistent-location.csv) + submitImportAndCaptureResult, expected: 200, 0 applied, 1 failed, errors contains "LocationNo '9999999' does not exist"; grid unchanged
+
+## Scenario: TC-CPR-OVR-159 - Import rejects a row with too few columns (required-field alert)
+1. Step: attachImportFile(override-too-few-columns.csv) + clickImportUpload + readImportAlert, expected: matches /Error Row#:\d+, Msg: LocationId, ProductGroupId, OverridePrice is required\./; grid unchanged
+
+## Scenario: TC-CPR-OVR-160 - Import ignores extra trailing columns and applies the valid row
+1. Step: attachImportFile(override-extra-columns.csv) + submitImportAndCaptureResult, expected: 200, successRecordCount 1, failureRecordCount 0; reloadAndReselect("4107") readOverridePrice == 152.00 (certified baseline, no drift)
+
+## Scenario: TC-CPR-OVR-161 - Import rejects a header-only file (file-format alert)
+1. Step: attachImportFile(override-header-only.csv) + clickImportUpload + readImportAlert, expected: == "Please check the upload file format."; grid unchanged
+
+## Scenario: TC-CPR-OVR-162 - Import blocks a non-CSV file (Upload stays disabled)
+1. Step: openImportDialog + attachImportFileRaw(wrong-format.txt), expected: readImportUploadState().uploadDisabled == true AND readImportAlert contains "Unsupported file type. Allowed: .csv"
+
+## Scenario: TC-CPR-OVR-163 - Attached-file state + dismiss without uploading
+1. Step: openImportDialog, expected: dialog text contains "No file selected" AND buttons include both Cancel and Close
+2. Step: attachImportFile(malformed.csv), expected: dialog text no longer contains "No file selected"
+3. Step: closeImportDialog(), expected: isImportDialogVisible() == false
+
+## Scenario: TC-CPR-OVR-164 - Mixed valid+invalid file is a partial success (rows are independent)
+1. Step: read baseline Override Price of 4298
+2. Step: build [header, valid 4298@baseline, invalid 4107/9999999] + submitImportAndCaptureResult, expected: status 200, successRecordCount 1, failureRecordCount 1, errors contains "ProductGroupId '9999999' does not exist"
+3. Step: reloadAndReselect("4107"), expected: readOverridePrice(4298) == baseline (valid no-op row did not corrupt it)
+
+## Scenario: TC-CPR-OVR-165 - Duplicate rows accepted (idempotent, no duplicate-key error)
+1. Step: read baseline Override Price of 4298
+2. Step: build [header, valid 4298@baseline, valid 4298@baseline] + submitImportAndCaptureResult, expected: status 200, successRecordCount 2, failureRecordCount 0
+3. Step: reloadAndReselect("4107"), expected: readOverridePrice(4298) == baseline
+
+## Scenario: TC-CPR-OVR-166 - Large batch (6000 rows) processed per-row, no stall/size-limit
+1. Step: read baseline Override Price of 4298
+2. Step: build 6000-row all-invalid file (4107/9999999) + submitImportAndCaptureResult, expected: status 200, successRecordCount 0, failureRecordCount 6000 (no stall, no size-limit error)
+3. Step: reloadAndReselect("4107"), expected: readOverridePrice(4298) == baseline

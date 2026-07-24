@@ -59,10 +59,50 @@ export const CorporatePricingOverrideSelectors = {
   ovrImportCancel: '[role="dialog"] button:text-is("Cancel")',
   ovrImportClose: '[role="dialog"] button:text-is("Close")',
 
+  // Import upload dialog controls (live-verified 2026-07-23, office 4107). The Override import has a
+  // MANUAL Upload button that stays disabled until a file is attached — unlike the auto-submit Location
+  // Pricing import. The app exposes stable testids for the file input and the Upload/Cancel buttons;
+  // these are preferred over CSS for stability.
+  ovrImportUploadInput: '[data-testid="pg-override-upload-dialog-file-input"]',
+  ovrImportUploadBtn: '[data-testid="pg-override-upload-dialog-upload"]',
+  ovrImportUploadCancel: '[data-testid="pg-override-upload-dialog-cancel"]',
+  // Import rejection surfaces as an ARIA alert (toast). Two distinct messages: a per-row
+  // "Error Row#:N, Msg: ..." for a required-field/malformed failure, and "Please check the upload file
+  // format." for an empty/unparseable file.
+  ovrImportAlert: '[role="alert"]',
+  ovrImportNoFileText: 'text=No file selected',
+
   ovrLocationModalDialog: '[role="dialog"]',
+
+  // Grid pagination controls — icon buttons identified by aria-label (verified live 2026-07-20).
+  ovrPageBtnFirst: 'button[aria-label="Go to first page"]',
+  ovrPageBtnPrevious: 'button[aria-label="Go to previous page"]',
+  ovrPageBtnNext: 'button[aria-label="Go to next page"]',
+  ovrPageBtnLast: 'button[aria-label="Go to last page"]',
+
+  // Toggles its own aria-label between the two values below while collapsing nothing, so BOTH labels
+  // must be matched to locate the control in either state.
+  ovrCollapseSearchPanel: 'button[aria-label="Collapse search panel"], button[aria-label="Expand search panel"]',
+
+  // Unsaved-changes guard dialog (fires on in-app navigation away from a dirty grid). Same
+  // alertdialog CSS-selector caveat as the save dialog: role-based lookup does not match it, and a
+  // second alertdialog ("Save Changes") exists on this page — scope by the dialog's own title text.
+  ovrUnsavedDialog: '[role="alertdialog"]:has-text("Unsaved changes")',
+  ovrUnsavedDialogStay: '[role="alertdialog"]:has-text("Unsaved changes") button:text-is("Stay")',
+  ovrUnsavedDialogDiscard: '[role="alertdialog"]:has-text("Unsaved changes") button:text-is("Discard")',
+
+  // Currency-gated Product Group picker (add-override affordance, verified live 2026-07-20).
+  // Picker rows are the only draggable <tr> elements on the page (grid header cells are draggable
+  // <th> column-reorder handles — excluded by the tr scoping).
+  ovrPickerSearchInput: 'input[placeholder="Search product groups..."]',
+  ovrPickerDraggableRow: 'tr[draggable="true"]',
 
   // Active filter checkbox inside the Change Local Office picker dialog.
   // This is the first [role="checkbox"] in the dialog, appearing above the search textbox and the
   // table rows. The per-row selection checkboxes are inside tbody — using .first() in the page object selects the filter.
   ovrLocationPickerActiveCheckbox: '[role="dialog"]:has([data-testid="location-settings-modal-change-local-office-input-search"]) [role="checkbox"]',
+
+  // Column sort dropdown menu items (Radix dropdown, not header-click toggle — verified walk-A 2026-07-17).
+  ovrSortMenuItemAsc: 'role=menuitem[name="Sort ascending"]',
+  ovrSortMenuItemDesc: 'role=menuitem[name="Sort descending"]',
 } as const;
