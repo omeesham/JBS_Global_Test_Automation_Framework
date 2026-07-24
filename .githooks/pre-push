@@ -7,17 +7,30 @@ set -e
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-# 3. Per-file deny-list grep against staged paths.
-git diff --cached --name-only HEAD 2>/dev/null | while read -r staged_file; do
-  [ -z "$staged_file" ] && continue
-  node scripts/verify-no-forbidden.mjs --staged="$staged_file" || exit 1
-done
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+
+# 3. Per-file deny-list grep against pushed commits.
+# Scans the commits actually being pushed (origin/$BRANCH..HEAD); when no upstream
+# exists, scans the full tracked tree once (same fallback posture as section 4).
+if git rev-parse --verify --quiet "origin/$BRANCH" >/dev/null 2>&1; then
+  FILE_LIST="$(git diff --name-only --diff-filter=d "origin/$BRANCH"..HEAD)"
+else
+  FILE_LIST="$(git ls-files)"
+fi
+while IFS= read -r pushed_file; do
+  [ -z "$pushed_file" ] && continue
+  node scripts/verify-no-forbidden.mjs --head-file="$pushed_file" || {
+    echo "[pre-push] DENY: forbidden pattern in $pushed_file" >&2
+    mkdir -p .claude/state
+    echo "pre-push-leak-scan, $(date -u +%Y-%m-%dT%H:%M:%SZ), deny, $pushed_file" >> .claude/state/gate-fires.log
+    exit 1
+  }
+done <<< "$FILE_LIST"
 
 # 4. Workbook content-freshness + reproducibility gate — last-line defense vs a
 # `git commit --no-verify` that skipped the pre-commit gate, or post-commit drift.
 # Runs the rebuild-diff + reproducibility check if the commits being pushed touch any
 # workbook input.
-BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 RUN_FRESHNESS=0
 if git rev-parse --verify --quiet "origin/$BRANCH" >/dev/null 2>&1; then
   if git diff --name-only "origin/$BRANCH"..HEAD \

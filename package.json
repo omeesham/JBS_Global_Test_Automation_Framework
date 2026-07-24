@@ -119,7 +119,9 @@
     "check:doctrine-ledger": "node scripts/check-doctrine-ledger.mjs",
     "check:walk-observations": "node scripts/check-walk-observations.mjs",
     "check:untracked-knowledge": "node scripts/check-untracked-knowledge.mjs",
-    "check:ramp-expiry": "node scripts/check-ramp-expiry.mjs"
+    "check:ramp-expiry": "node scripts/check-ramp-expiry.mjs",
+    "check:enforcement-claims": "node scripts/check-enforcement-claims.mjs",
+    "prepare": "npm run plans:hooks:install"
   },
   "keywords": [
     "playwright",

@@ -54,12 +54,14 @@
 // emit `permissionDecision: "allow"`. Breaking the hook must never wedge a
 // session (LR-043 §A scoping fix preserves this).
 
-import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, statSync, mkdirSync, appendFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve, basename } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
+const STATE_DIR = join(REPO_ROOT, ".claude", "state");
+const GATE_FIRES_LOG = join(STATE_DIR, "gate-fires.log");
 
 // --- Constants / regexes ---
 
@@ -358,6 +360,7 @@ function emitAllow(reason) {
 }
 
 function emitDeny({ browserTool, toolClass, toolName, subplan, command }) {
+  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `browsertool-gate, ${new Date().toISOString()}, deny, ${subplan || 'session'}\n`); } catch {}
   const cmdDetail = command ? ` (command: \`${command.slice(0, 80)}${command.length > 80 ? "..." : ""}\`)` : "";
   const reason =
     `[BROWSERTOOL-GATE] Subplan ${subplan} declares BrowserTool=${browserTool}, ` +

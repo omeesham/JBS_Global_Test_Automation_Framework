@@ -34,6 +34,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
 const STATE_DIR = join(REPO_ROOT, ".claude", "state");
 const FAILURE_LOG = join(STATE_DIR, "hook-failures.log");
+const GATE_FIRES_LOG = join(STATE_DIR, "gate-fires.log");
 
 const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit"]);
 
@@ -181,7 +182,8 @@ function emitAllow(reason) {
   process.stdout.write(JSON.stringify(out));
 }
 
-function emitDeny(reason) {
+function emitDeny(reason, target) {
+  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `bug-baseline-gate, ${new Date().toISOString()}, deny, ${target || 'session'}\n`); } catch {}
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: {

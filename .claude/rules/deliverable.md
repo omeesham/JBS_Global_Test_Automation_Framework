@@ -59,8 +59,7 @@ reason in plain English. If a future maintainer needs the internal rule referenc
 plan or the activity-log row, not the file.
 
 **Trigger**: every Edit/Write to a file under `clients/<id>/` that ships (per the deny-globs).
-Enforced structurally by the three gates above + GENERATOR HARD STOP #12 / HEALER HARD STOP #7 /
-MAINTAINER HARD STOP #6.
+Enforced by: [WIRED: .claude/hooks/lib/check-jargon.mjs] (write-time PreToolUse deny) + [WIRED: scripts/verify-no-forbidden.mjs] (pre-commit + ship-time gates) + [AGENT-DISCIPLINE] GENERATOR HARD STOP #12 / HEALER HARD STOP #7 / MAINTAINER HARD STOP #6 (prose instructions agents follow; no independent hook).
 
 **Graduated from**: 2026-06-11 — 25 internal-jargon comment lines reintroduced across 9 shippable
 files by two Opus build sessions **<24h after** the 2026-06-10 source-comment scrub. Root cause: the

@@ -41,6 +41,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
 const STATE_DIR = join(REPO_ROOT, ".claude", "state");
 const FAILURE_LOG = join(STATE_DIR, "hook-failures.log");
+const GATE_FIRES_LOG = join(STATE_DIR, "gate-fires.log");
 
 // 4 tag types — covers every TodoWrite obligation per pipeline.md TodoWrite
 // Tagging Contract section. Match against (content + " " + activeForm).
@@ -772,6 +773,7 @@ function emitAllow(reason) {
 }
 
 function emitDeny(reason) {
+  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `todo-injection-gate, ${new Date().toISOString()}, deny, session\n`); } catch {}
   const out = {
     hookSpecificOutput: {
       hookEventName: "PreToolUse",

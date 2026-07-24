@@ -28,7 +28,7 @@
 // Fail-open policy: any parse error → allow (same posture as
 // check-finalq-required.mjs + check-rubberstamp.mjs).
 
-import { readFileSync, existsSync, writeFileSync, mkdirSync, renameSync } from "node:fs";
+import { readFileSync, existsSync, writeFileSync, mkdirSync, renameSync, appendFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
@@ -36,6 +36,8 @@ import { ownershipFor, canWrite, isPipelineArtifact, ownerRoleFor } from "../../
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
+const STATE_DIR = join(REPO_ROOT, ".claude", "state");
+const GATE_FIRES_LOG = join(STATE_DIR, "gate-fires.log");
 
 const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit"]);
 // Layer-1 /execute-context lookback window (mirrors check-todo-injection). Declared
@@ -370,6 +372,7 @@ function emitAllow(reason) {
 // Emit a deny with a caller-supplied reason (Layer-1 gate uses this; the §2
 // gate uses emitDeny below, which builds an ownership-specific message).
 function emitDenyReason(reason) {
+  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `identity-gate, ${new Date().toISOString()}, deny, session\n`); } catch {}
   const out = {
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
@@ -381,6 +384,7 @@ function emitDenyReason(reason) {
 }
 
 function emitDeny(identity, path, ownership) {
+  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `identity-gate, ${new Date().toISOString()}, deny, ${path}\n`); } catch {}
   const reason =
     `[IDENTITY-GATE] ${identity} cannot ${ownership.action === "READ" ? "write (READ only)" : "access"} ${path} per ${ownership.reason}. ` +
     `Options: (1) invoke /identity <NEW> to switch to a compatible identity (re-reads rules + emits Step 6.5 Constraint Extract), ` +

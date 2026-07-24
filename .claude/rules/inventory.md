@@ -81,7 +81,7 @@ A non-editable display input is NOT proof the field is non-interactive — the i
 
 **LR-013 spot-check extension**: the LR-013 spot-check oracle gains a 4th check — on sampled fields, the `affordance:` token is present AND probe-confirmed (not just testid-resolves / default-matches / state-matches).
 
-**Trigger**: every field-inventory walk (HUNTER/GIVER), every catalog/gap-matrix authoring, every WATCHDOG completeness audit, every baseline-divergence classification. Enforced by PLANNER HARD STOP #18 + REQUIREMENTS HARD STOP #9 + the `field-inventory-spec.md` `affordance:` token mandate + master Sweep 12 (`UNPROBED-AFFORDANCE`).
+**Trigger**: every field-inventory walk (HUNTER/GIVER), every catalog/gap-matrix authoring, every WATCHDOG completeness audit, every baseline-divergence classification. [AGENT-DISCIPLINE] Enforced by PLANNER HARD STOP #18 + REQUIREMENTS HARD STOP #9 + the `field-inventory-spec.md` `affordance:` token mandate + master Sweep 12 (`UNPROBED-AFFORDANCE`) — these are prose instructions agents follow; no automated hook fires independently.
 
 **Graduated from**: 2026-06-11 — Pay To Address / BL-DIV-4 (TOTAL miss: a launcher dialog classified as a plain disabled textbox by the 2026-06-03 left-panel walk) + Master Bill To shared-dialog conflation (PARTIAL miss: dialog-level coverage via Venue treated as per-launcher coverage). Both user-discovered. RCA: `clients/encore/specs_planning/_internal/rca-launcher-dialog-misses-2026-06-11.md`. Co-landed with SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC.
 
@@ -133,7 +133,7 @@ The default execution procedure for any field-gathering walk (HUNTER baseline/in
 
 **Worker model-class ladder:** Haiku → Sonnet → Opus-self, escalating by field complexity OR on a failed Stage-3 verdict (cross-ref CLAUDE.md Model-Aware Guardrails). Honest caveat: if Haiku fails often the re-do overhead eats the savings — start Haiku on trivial fields only, measure, tune.
 
-**Trigger**: every field-inventory walk (HUNTER / GIVER per PLN-049), old-site baseline walk, and WATCHDOG audit re-walk — the default execution model for all three. Enforced by REQUIREMENTS HARD STOP #11 + PLANNER HARD STOP #19 + AUDIT HARD STOP #11 (the no-disposition-from-unverified-report clause) + the CLAUDE.md guardrail delegation clause.
+**Trigger**: every field-inventory walk (HUNTER / GIVER per PLN-049), old-site baseline walk, and WATCHDOG audit re-walk — the default execution model for all three. [AGENT-DISCIPLINE] Enforced by REQUIREMENTS HARD STOP #11 + PLANNER HARD STOP #19 + AUDIT HARD STOP #11 (the no-disposition-from-unverified-report clause) + the CLAUDE.md guardrail delegation clause — these are prose instructions agents follow; no automated hook fires independently.
 **Graduated from**: PLAN_TIERED_DELEGATED_WALK (2026-06-22) — make the walk efficient by delegating the labor, never the judgment; parity-proven against Pricing before becoming default. Cross-refs LR-062 (completeness denominator), LR-057 (affordance probe), LR-007 / LR-013 (spot-check verification), LR-032 / LR-059 (real-verification, no theorizing), `/rca` mama rule (no rubber-stamp), AUD-017 (synthesis ≠ oracle).
 
 ## LR-065: Grid/list/table surfaces carry behavior-cases — the surface axis folds into the LR-062 100% gate

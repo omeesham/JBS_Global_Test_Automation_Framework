@@ -40,6 +40,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
 const STATE_DIR = join(REPO_ROOT, ".claude", "state");
 const FAILURE_LOG = join(STATE_DIR, "hook-failures.log");
+const GATE_FIRES_LOG = join(STATE_DIR, "gate-fires.log");
 
 const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit"]);
 const BINARY_RX = /\.(png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|pdf|zip|tar|gz|7z|xlsx|xlsm|xls|mp4|webm|wav|mp3)$/i;
@@ -150,7 +151,10 @@ async function runHook() {
   try {
     const verdict = await evaluate(payload);
     if (verdict.allow) emitAllow();
-    else emitDeny(verdict.reason);
+    else {
+      try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `jargon-gate, ${new Date().toISOString()}, deny, ${verdict.rel || 'unknown'}\n`); } catch {}
+      emitDeny(verdict.reason);
+    }
   } catch (e) {
     failOpen(`evaluate threw: ${e.message}`);
   }

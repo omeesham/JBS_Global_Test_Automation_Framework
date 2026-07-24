@@ -311,4 +311,12 @@ if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^plans/(pending|
   fi
 fi
 
+# --- 8) Enforcement-claim lint (announce mode — LR-069 ramp). -------------------
+# Fires when any rule/doc/skill markdown in the claim corpus is staged.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^(CLAUDE\.md|\.claude/rules/|docs/read_only_docs/|\.claude/skills/|clients/[^/]+/CLAUDE\.md)'; then
+  echo "[pre-commit] rule/doc/skill file staged → checking enforcement claims (announce)..." >&2
+  node scripts/check-enforcement-claims.mjs --announce
+fi
+
 exit 0

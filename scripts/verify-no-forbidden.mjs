@@ -13,6 +13,7 @@
  *   --target=<path> : walk <path> recursively + filter against DENY_GLOBS, fail if any match.
  *   --staged-diff   : scan staged file contents for MARKER_GREP, fail on any hit.
  *   --staged=<file> : check a single staged path against DENY_GLOBS.
+ *   --head-file=<file> : check a single pushed file (path + HEAD content) for forbidden patterns.
  */
 
 import { execSync } from 'node:child_process';
@@ -315,17 +316,103 @@ function checkStagedFile(file) {
   process.exit(0);
 }
 
+function checkHeadFile(file) {
+  // Pre-push per-file content-scan mode: checks file content from the HEAD revision
+  // (what actually ships). Path deny-globs scope which content patterns apply (via
+  // isClientShipping), matching --staged-diff behavior. Binary files are skipped.
+  const rel = file.replace(/\\/g, '/');
+
+  // Skip historical artifacts (plans/done/ legitimately references internal vocab)
+  if (rel.startsWith('plans/done/')) process.exit(0);
+
+  // Skip self-reference files (contain pattern literals by definition)
+  const SELF_REF = new Set([
+    'scripts/verify-no-forbidden.mjs',
+    'scripts/lib/forbidden-patterns.mjs',
+    '.claude/hooks/lib/check-todo-injection.mjs',
+    '.claude/hooks/lib/check-plan-closure.mjs',
+  ]);
+  if (SELF_REF.has(rel)) process.exit(0);
+
+  // Narrow secrets-deny gate — refuse only never-tracked secret paths under clients/.
+  // The broad DENY_GLOBS govern the client DELIVERABLE channel (ship/target), not the
+  // framework repo push (specs_planning/, per-client CLAUDE.md, etc. are tracked by design).
+  // Only .auth/ (live session tokens) and .env.server (server-side secrets) are truly
+  // never-legitimate in a push range — .env.local is tracked with creds by design (LR-ENC-003).
+  if (rel.startsWith('clients/')) {
+    const SECRET_PATH_DENY = [/\/\.auth\//, /\/\.env\.server$/];
+    if (SECRET_PATH_DENY.some((re) => re.test('/' + rel))) {
+      console.error(`[verify-no-forbidden] head-file forbidden secret path: ${rel}`);
+      process.exit(1);
+    }
+  }
+
+  // Binary file extensions — text-pattern scan on compressed bytes produces false positives
+  if (/\.(xlsx|xlsm|xls|png|jpg|jpeg|gif|pdf|ico|zip|tar|gz|woff2?|ttf|eot|otf|mp4|webm|wav|mp3)$/i.test(rel)) {
+    process.exit(0);
+  }
+
+  // Pending plans with non-DONE status: skip content scan (they legitimately reference
+  // internal vocab while being authored; only closure-ready plans get marker-checked)
+  if (rel.startsWith('plans/pending/')) {
+    let planBuf;
+    try {
+      planBuf = execSync(`git show HEAD:${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+    } catch { process.exit(0); }
+    if (!hasStatusDoneAnyForm(planBuf)) process.exit(0);
+  }
+
+  // Read content from HEAD revision (what is actually being pushed)
+  let buf;
+  try {
+    buf = execSync(`git show HEAD:${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+  } catch (err) {
+    // File not found in HEAD — loud failure (missing expected input must never silent-skip)
+    console.error(`[verify-no-forbidden] head-file git-show failed for path: ${rel}`);
+    process.exit(1);
+  }
+
+  // Apply content rules — same scoping as --staged-diff: client-shipping paths get the
+  // full pattern set; all other paths get repo-wide MARKER_GREP only. Path deny-globs
+  // are structurally embedded in isClientShipping() (deny-listed paths = not shipping).
+  const patterns = isClientShipping(rel)
+    ? [...MARKER_GREP, ...MARKER_GREP_CLIENT_ONLY, ...SOURCE_COMMENT_JARGON]
+    : MARKER_GREP;
+
+  for (const re of patterns) {
+    if (re.test(buf)) {
+      console.error(`[verify-no-forbidden] head-file content denied: ${rel} :: ${re}`);
+      process.exit(1);
+    }
+  }
+
+  // LR-054 / ALL-077 banned-phrase scan for target paths
+  if (isBannedPhraseTarget(rel)) {
+    for (const re of BANNED_PHRASES) {
+      const m = buf.match(re);
+      if (m) {
+        console.error(`[verify-no-forbidden] head-file banned phrase: ${rel} :: ${JSON.stringify(m[0])}`);
+        process.exit(1);
+      }
+    }
+  }
+
+  process.exit(0);
+}
+
 const client = arg('client');
 const target = arg('target');
 const staged = arg('staged');
+const headFile = arg('head-file');
 
 if (client) await checkClient(client);
 else if (target) await checkTarget(target);
 else if (hasFlag('staged-diff')) checkStagedDiff();
+else if (headFile) checkHeadFile(headFile);
 else if (staged) checkStagedFile(staged);
 else {
   console.error(
-    'Usage: verify-no-forbidden.mjs --client=<id> | --target=<path> | --staged-diff | --staged=<file>'
+    'Usage: verify-no-forbidden.mjs --client=<id> | --target=<path> | --staged-diff | --head-file=<file> | --staged=<file>'
   );
   process.exit(2);
 }

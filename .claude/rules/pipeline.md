@@ -114,7 +114,7 @@ Every NEW subplan MUST declare in frontmatter:
 3. Sonnet `mid`/`medium` and Opus `max` require a structural `**Justification**:` frontmatter line (not prose elsewhere — greppable, unambiguous). Missing = HALT.
 4. `bypassPermissions` requires `**RiskAcknowledged**: true` frontmatter line. Missing = orchestrator refuses to spawn (D26).
 
-**Trigger**: every new subplan authored via `/planning`. Enforced by `/planning` SKILL.md Step 3 `[GATE]` (D18) AND by `/chain` SKILL.md queue-build PRESENT-value validator.
+**Trigger**: every new subplan authored via `/planning`. [AGENT-DISCIPLINE] Enforced by `/planning` SKILL.md Step 3 `[GATE]` (D18) AND by `/chain` SKILL.md queue-build PRESENT-value validator — these are skill-step instructions Claude follows when the skill is loaded; no independent hook validates the model/thinking/permission values.
 
 ## LR-044: Bug Verification Protocol — read verbatim → follow exactly → minimize
 
