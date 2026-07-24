@@ -859,8 +859,20 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await source.waitFor({ state: 'visible', timeout: 20_000 });
     const rowText = (await source.innerText()).replace(/\s+/g, ' ').trim();
     const target = this.page.getByRole('tabpanel', { name: tab }).first();
-    await source.dragTo(target);
-    await this.page.waitForTimeout(1_000); // settle: the staged row renders client-side
+    const rowsBefore = await this.page.locator(OS.ovrGridRowAny).count();
+
+    const deadline = Date.now() + 20_000;
+    const waits = [500, 1_000, 2_000, 2_000, 2_000, 2_000, 2_000, 2_000];
+    let attempt = 0;
+    while (true) {
+      await source.dragTo(target);
+      await this.page.waitForTimeout(500);
+      if (await this.page.locator(OS.ovrGridRowAny).count() > rowsBefore) break;
+      if (Date.now() >= deadline) break;
+      const wait = waits[Math.min(attempt, waits.length - 1)] ?? 2_000;
+      await this.page.waitForTimeout(wait);
+      attempt++;
+    }
     return rowText;
   }
 
