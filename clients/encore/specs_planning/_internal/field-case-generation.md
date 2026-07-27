@@ -26,6 +26,25 @@
 4. Run each case as its own independent test. Each: baseline → act → save → reload → verify → cleanup.
 5. Existing module TCs stay at the BOTTOM of the spec — FCC/SBC are additive, not destructive.
 
+### Step-table format (per-step Expected Result)
+
+The `**Steps**:` field in each TC is a pipe-table where each row carries its own Expected Result:
+
+    **Steps**:
+    | # | Step | Expected Result |
+    |---|------|-----------------|
+    | 1 | Navigate to Setup > Location > 1604 — Currency tab | The Currency tab loads and its content is visible. |
+    | 2 | Verify grid shows 3 currencies (USD, CAD, MXN) | Three currency rows are visible with correct codes. |
+    | 3 | Verify column headers | Four headers visible: Currency Code, Selected, Is Default, Merchant. |
+
+    **Expected**: Grid displays 3 currencies with correct column headers
+
+- Every step must have its own Expected Result, including the last. Empty cells → blank workbook cells (`to-xlsx.ts:633`).
+- The `**Expected**:` line is the per-case summary (CSV oracle); it is **not** a per-step fallback in the XLSX (`to-xlsx.ts:632`).
+- Escape pipes in cell content as `\|` (`to-xlsx.ts:821`).
+- The exporter matches the header literally: `| # | Step | Expected Result |` — deviations silently skip extraction (`to-xlsx.ts:813`).
+- Linter rules authors trip over: see `docs/read_only_docs/CASE_GENERATION_STANDARD.md` § "Linter rules."
+
 ## §1 — The 3-tier save verification framing
 - **Tier 1** (BASELINE, always required): UI cache invalidation via page reload + re-navigation + DOM read of persisted value. Implemented today via `reloadAndNavigateTo*Tab()` page-object helpers.
 - **Tier 2** (RECOMMENDED, partial today): Network response check — POST/PUT/PATCH returned 2xx, response body reflects committed payload, server-generated metadata (timestamps, version hashes) present. `clickSaveWithDialog()` captures errors; explicit payload-structure assertions are an FCC follow-up.
@@ -98,7 +117,46 @@ If neither (a) nor (b) holds → that is a defect (silent focus-trap / silent re
 - Runner: clients/encore/src/utils/field-case-runner.ts
 - Source: external QA framework guide (digested 2026-05-19 — see PLAN_BIG_PIVOT_FCC_MASTER and SUBPLAN_NOTES_FCC_PILOT)
 
-## §5 — Promotion criteria
+## §5 — Interaction-Axis Taxonomy (Axis 3 — per-element-class mandatory effects)
+
+> **Extends** §2 (Axis 1, field-type) and §3 (Axis 2, surface-behavior) with a THIRD axis:
+> per-interactive-element-class effect-assertions. Where §2 generates cases per field type and §3
+> per surface behavior family, §5 generates cases per element class — the mandatory effects each
+> interactive element must demonstrate.
+>
+> **Source**: PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION design core (2026-07-17).
+>
+> **Anti-silence (R4)**: every row carries a machine-checkable emission requirement. A row that a
+> walker can satisfy by producing no output is decoration, not a mandate. Silence is a detectable
+> schema violation, never an ambiguous pass. For each class, a walker MUST emit one of: `PROBED`
+> (with effect observations), `DATA-BLOCKED` (with blocking reason + unlock), or `UNCLASSIFIED`
+> (with what was seen). Missing emission = schema rejection by
+> `scripts/walk-coverage/interaction-map-schema.mjs`.
+>
+> **DATA-BLOCKED protocol**: when a walker cannot exercise a case, it MUST emit `DATA-BLOCKED` with:
+> (a) `dataBlockedReason` — why the case could not be exercised,
+> (b) `dataBlockedUnlock` — what resource would make it exercisable.
+> "I couldn't test it so I said nothing" is a schema violation, not a quiet pass.
+>
+> **Schema**: `scripts/walk-coverage/interaction-map-schema.mjs` (version 1.0.0).
+> **Drone probes**: `scripts/walk-coverage/drone-probes.mjs` (per-class deterministic sequences).
+> **Invariant generator**: `scripts/walk-coverage/generate-invariants.mjs` (metamodel → I1–I11 set).
+
+| # | Element class | Mandatory case(s) | Emission requirement (R4) |
+|---|---|---|---|
+| 1 | filter (checkbox / dropdown / searchbox) | Asserted EFFECT on the row set, both directions; a zero-delta observation is NEVER terminal — routes to the Zero-Effect Probe Protocol (differential-data ladder). | `PROBED` with `effectObserved:boolean` + `probes[]`. Zero-delta auto-files as structured suspicion. |
+| 2 | sort | Order actually changes, per sortable column. | `PROBED` with `effectObserved:boolean` per column. |
+| 3 | pagination / rows-per-page | Page actually changes; requires a data-bed office (see data doctrine). | `PROBED` or `DATA-BLOCKED` (with unlock naming required row count). |
+| 4 | editable cell / input | Accepts input + Save-cycle + persistence + recovery. | `PROBED` with `effectObserved:boolean`. |
+| 5 | guard | Dirty-state prompt appears AND both prompt actions (Stay / Leave) honored. Navigate-away is mandatory, not deferred to DEEP. | `PROBED` with `effectObserved:boolean`. |
+| 6 | io (export / import) | Real file round-trip, or an explicit evidence-backed blocker. Round-trip = system's own export accepted by own import (I9 invariant). | `PROBED` or `DATA-BLOCKED`. |
+| 7 | menu / disclosure | Every item enumerated; state-changing items exercised + restored. **Reset/restore-default affordances are mandatory probes** — omitting a reset item while exercising other menu items is a partial-implementation gap (RCA gap 3). | `PROBED` per item. Each menu item individually emitted. |
+| 8 | add / picker affordances | Flow driven to commit on a designated office, or user-authorized deferral. | `PROBED` or `DATA-BLOCKED` or `USER-AUTHORIZED-DEFERRAL`. |
+| 9 | context-selector | Scope-gating control whose effect is loading/replacing the entire data context (e.g. Change Local Office). **The selector's own option set MUST be cross-checked against a second, independent source. The selector is not permitted to be its own oracle.** The second source must be named (API list, sibling screen, export, DB count). | `PROBED` with `effectObserved:boolean` + `secondSource:{type, ref}`. Missing `secondSource` = R3 schema rejection. |
+
+**Unclassifiable elements (residual-1 floor)**: an element the extractor cannot classify into any of the 9 classes above is a LOUD UNKNOWN — emitted as `UNCLASSIFIED` with a description of what was seen. It blocks closure (never silence). Detection survives; auto-generation of that type's invariant waits until the type is taught once.
+
+## §6 — Promotion criteria
 - The framework-level methodology already lives at [`docs/read_only_docs/CASE_GENERATION_STANDARD.md`](../../../../docs/read_only_docs/CASE_GENERATION_STANDARD.md) (the Standard). When a **second client** lands, it authors its own `<client>/.../field-case-generation.md` instance against that Standard — this file is no longer promoted (it stays the Encore instance).
 - When a **new field type** appears in any module → append a row to §2 with positive/BVA/negative/save-cycle templates (+ §2.1 oracle).
 - When a **new surface behavior** appears that the 7 families don't cover → add it as an 8th family in BOTH the Standard and §3 here (don't stretch an existing family).

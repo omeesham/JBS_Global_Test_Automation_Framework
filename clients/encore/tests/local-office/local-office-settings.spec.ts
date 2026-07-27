@@ -296,7 +296,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
 
   test('TC-LOS-BAS-021: Default Order Type — 2 options (Event, Outside)', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
- // Poll for combobox data to load — Angular populates form values async after tab render
+ // Poll for dropdown data to load — Angular populates form values async after tab render
     await expect.poll(
       async () => localOfficeSettingsPage.getComboboxValue('drpDefaultOrderType'),
       { timeout: 30_000, message: 'Default Order Type should be populated after tab load' }
@@ -313,7 +313,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
       await localOfficeSettingsPage.selectComboboxExact('drpDefaultOrderType', ORDER_TYPE_VALUES.alternate);
       await localOfficeSettingsPage.clickSaveAndConfirm();
       await localOfficeSettingsPage.reloadBasicInfo(OFFICE_NO);
- // Poll for API data to populate combobox after reload (FIX-FLAKY: BAS-022)
+ // Poll for API data to populate dropdown after reload
       await expect.poll(
         async () => localOfficeSettingsPage.getComboboxValue('drpDefaultOrderType'),
         { timeout: 10_000, message: 'Default Order Type should be "Outside" after save+reload' }
@@ -434,7 +434,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     expect(rentalState.checked).toBe(true);
   });
 
-  test('TC-LOS-BAS-033: Company Logo combobox — has options', async ({ localOfficeSettingsPage, dependencyGate }) => {
+  test('TC-LOS-BAS-033: Company Logo dropdown — has options', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
     const options = await localOfficeSettingsPage.getComboboxOptionsList('drpCompanyLogo');
     expect(options.length).toBeGreaterThan(0);

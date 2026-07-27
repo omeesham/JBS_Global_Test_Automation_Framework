@@ -1,6 +1,6 @@
 {
   "schema": "nm2271-frozen-inputs/v1",
-  "frozen_at_head": "3d42a1ae400258b70ce9ddcade68f901389a0a53",
+  "frozen_at_head": "2cd02c5ee35fca57bf96d47a77dfb9c8215799b4",
   "superseded": [
     {
       "role": "historical_tc_set",
@@ -42,13 +42,13 @@
     },
     {
       "role": "historical_spec",
-      "path": "clients/encore/tests/corporate-pricing/corporate-pricing-override.spec.ts",
+      "path": "clients/encore/tests/corporate-override/corporate-override-nm2271.spec.ts",
       "commit": "8665088cc6a1f9301c668e369c1977773fa5f586",
       "commit_date": "2026-07-21T16:48:45+05:30",
       "blob": "2c5d5680fc35711c6da1f618bfe5d072a3aca3c3",
       "sha256": "00e5d4f1d1e39640fc81610cfaa366fab4857777e1efb6f9aec980b968156e66",
       "bytes": 72681,
-      "note": "Spec implementing the NM-2271 shipped TC set at the same pinned revision"
+      "note": "NM-2271 shipped monolithic spec (pre-split path used for git resolution; current path for reference)"
     }
   ],
   "expected_failures": {
@@ -58,5 +58,5 @@
     "rejection_oracle_omissions_cases": 10,
     "source": "plans/pending/PLAN_WALK_DEPTH_GATE.md:263-266"
   },
-  "content_sha256": "35341d43df8a6f4316f528fd6e95cebeeb930a12648216e0772f7c0471e0244d"
+  "content_sha256": "4f22318f95505e8188323e9e3d7574ec5ebc76046573a1ee5e2a43acc80c5c2f"
 }

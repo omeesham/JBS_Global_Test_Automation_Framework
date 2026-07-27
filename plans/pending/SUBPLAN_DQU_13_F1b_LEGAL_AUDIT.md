@@ -99,7 +99,7 @@ Before Phase 1's e2e walk, visit nav2 baseline first and emit `clients/encore/sp
 2. Diff Phase 1 artifact against `clients/encore/specs_planning/test-cases/setup/locations/locations_legal_test_cases.md`.
 3. For each diff: apply fix to TC MD with inline `**MCP_VERIFICATION_LOG**: legal-<date>.md §Field Inventory row "<field>" — <evidence>` citation.
 4. File `BUG-LEG-NNN.json` per LR-034 schema for any APP-layer defect. Append `**Status**: Blocked by BUG-LEG-NNN` to affected TCs.
-5. Rebuild the XLSX deliverable: `npm run xlsx:build` (re-parses the edited Legal MD into `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`; the per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D). Verify the Tags column is populated in the legal sheet.
+5. Rebuild the XLSX deliverable: `npm run xlsx:build` (re-parses the edited Legal MD into `clients/encore/testcases/encore_test_cases.xlsx`; the per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D). Verify the Tags column is populated in the legal sheet.
 6. Regression fingerprint snapshot before + after via `/regression-guard`.
 
 ## Acceptance criteria (LR-040 closure gate — every diffed item classified)

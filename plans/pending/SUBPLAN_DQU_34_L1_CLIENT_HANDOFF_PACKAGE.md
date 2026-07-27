@@ -20,7 +20,7 @@
 **Model + thinking**: Opus + high (final-shipping judgment)
 **Dependency gate**: SP-DQU-08 + SP-DQU-30 + SP-DQU-31 + SP-DQU-29 all `Status: DONE`
 **Context files**:
-- `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` (single multi-sheet workbook — all modules)
+- `clients/encore/testcases/encore_test_cases.xlsx` (single multi-sheet workbook — all modules)
 - `reports/allure-report/` (Allure output)
 - `reports/bugs/CLIENT_PACKAGE-*.md` (bug reports)
 - `reports/bugs/INDEX-*.md`
@@ -33,7 +33,7 @@ Assemble the 4 client deliverables in priority order: **XLSX workbook (1) > spec
 
 1. Create `deliverables/2026-04-22/` directory (or use existing convention if project has one).
 2. Copy (or link) into deliverables folder:
-   - `test-cases/` → the `encore_test_cases.xlsx` workbook from `clients/encore/test_cases_xlsx/` (one sheet per module).
+   - `test-cases/` → the `encore_test_cases.xlsx` workbook from `clients/encore/testcases/` (one sheet per module).
    - `allure-report/` → full allure output.
    - `bugs/` → `CLIENT_PACKAGE-*.md` + `INDEX-*.md`.
 3. Write `deliverables/2026-04-22/README.md`:

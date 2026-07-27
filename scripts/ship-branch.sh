@@ -16,7 +16,7 @@
 #
 # DEFAULT = DRY-RUN (build + trim + deny-list verify, NO push). Pass --push to push.
 #
-# 16 branches (each currently also carries the now-retired *_testrail.xlsx twin —
+# 22 branches (each currently also carries the now-retired *_testrail.xlsx twin —
 # DELETE it on the next refresh, LR-050):
 #   notes            --modules=LOC.NTS  --surface='location-notes*'
 #   ssl              --modules=LOC.SSL  --surface='location-shared-setup*'
@@ -34,7 +34,13 @@
 #   nm2261           --modules=CPR.STR          --surface='corporate-pricing-strategy*'
 #   nm2263           --modules=CPR.NPB          --surface='corporate-pricing-new-pricebook*'
 #   nm2265           --modules=CPR.IMA          --surface='corporate-pricing-import-all*'   (Import All)
-#   nm2267           --modules=CPR.OVR          --surface='corporate-pricing-override*'     (Product Group Override)
+#   nm2267           --modules=CPR.OVR,COR.CORE --surface='corporate-pricing-override-nav*,corporate-override-core*'  (Override nav + core)
+#   nm2268           --modules=COR.N268         --surface='corporate-override-nm2268*'      (Override — location picker)
+#   nm2269           --modules=COR.N269         --surface='corporate-override-nm2269*'      (Override — active/currency filters)
+#   nm2270           --modules=COR.N270         --surface='corporate-override-nm2270*'      (Override — text filter & sort)
+#   nm2271           --modules=COR.N271         --surface='corporate-override-nm2271*'      (Override — labor tab & FCC)
+#   nm2272           --modules=COR.N272         --surface='corporate-override-nm2272*'      (Override — export)
+#   nm2273           --modules=COR.N273         --surface='corporate-override-nm2273*'      (Override — import)
 # The corporate-pricing collection preset (CPR) now = exactly the 8 delivered tickets — the toolbar_io
 # submodule was dissolved 2026-07-09 (its unique cases folded into EXA/LIM/SRC).
 #
@@ -80,8 +86,13 @@ if [[ -z "$MODULES" || -z "$SURFACE" ]]; then
     nm2261)                 MODULES="${MODULES:-CPR.STR}"; SURFACE="${SURFACE:-corporate-pricing-strategy*}" ;;
     nm2263)                 MODULES="${MODULES:-CPR.NPB}"; SURFACE="${SURFACE:-corporate-pricing-new-pricebook*}" ;;
     nm2265)                 MODULES="${MODULES:-CPR.IMA}"; SURFACE="${SURFACE:-corporate-pricing-import-all*}" ;;
-    nm2267)                 MODULES="${MODULES:-CPR.OVR}"; SURFACE="${SURFACE:-corporate-pricing-override*}" ;;
-    nm2268|nm2269|nm2270)  MODULES="${MODULES:-CPR.OVR}"; SURFACE="${SURFACE:-corporate-pricing-override*}" ;;
+    nm2267)                MODULES="${MODULES:-CPR.OVR,COR.CORE}"; SURFACE="${SURFACE:-corporate-pricing-override-nav*,corporate-override-core*}" ;;
+    nm2268)                MODULES="${MODULES:-COR.N268}"; SURFACE="${SURFACE:-corporate-override-nm2268*}" ;;
+    nm2269)                MODULES="${MODULES:-COR.N269}"; SURFACE="${SURFACE:-corporate-override-nm2269*}" ;;
+    nm2270)                MODULES="${MODULES:-COR.N270}"; SURFACE="${SURFACE:-corporate-override-nm2270*}" ;;
+    nm2271)                MODULES="${MODULES:-COR.N271}"; SURFACE="${SURFACE:-corporate-override-nm2271*}" ;;
+    nm2272)                MODULES="${MODULES:-COR.N272}"; SURFACE="${SURFACE:-corporate-override-nm2272*}" ;;
+    nm2273)                MODULES="${MODULES:-COR.N273}"; SURFACE="${SURFACE:-corporate-override-nm2273*}" ;;
     *) echo "[ship-branch] need --modules and --surface (no preset for branch '$BRANCH')" >&2; exit 2 ;;
   esac
 fi
@@ -100,8 +111,25 @@ if [[ -n "$TCS" ]]; then
   fi
 fi
 
+# Working-tree integrity snapshot — assert at exit that the source tree under
+# clients/ is unchanged. A structural guarantee: no path-resolution bug or future
+# code change can silently corrupt tracked files during a build/trim run.
+_WTC_SNAPSHOT="$(git -C "$REPO_ROOT" status --porcelain -- clients/ 2>/dev/null || true)"
+
 SCRATCH="$(mktemp -d)"; VERIFY="$(mktemp -d)"
-cleanup() { [[ "$KEEP_SCRATCH" -eq 1 ]] || rm -rf "$SCRATCH" "$VERIFY"; }
+cleanup() {
+  local rc=$?
+  local _wt_after
+  _wt_after="$(git -C "$REPO_ROOT" status --porcelain -- clients/ 2>/dev/null || true)"
+  if [[ "$_wt_after" != "$_WTC_SNAPSHOT" ]]; then
+    echo "[ship-branch] SAFETY VIOLATION — source tree under clients/ was modified during this run!" >&2
+    echo "[ship-branch] A write escaped the scratch directory. Diff:" >&2
+    diff <(echo "$_WTC_SNAPSHOT") <(echo "$_wt_after") >&2 || true
+    rc=99
+  fi
+  [[ "$KEEP_SCRATCH" -eq 1 ]] || rm -rf "$SCRATCH" "$VERIFY"
+  return "$rc"
+}
 trap cleanup EXIT
 
 # 1. git-archive extract of the client (tracked files only — gitignored agent

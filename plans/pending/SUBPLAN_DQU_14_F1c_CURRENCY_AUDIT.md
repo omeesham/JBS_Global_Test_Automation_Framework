@@ -95,7 +95,7 @@ Before Phase 1's e2e walk, visit nav2 baseline first and emit `clients/encore/sp
 2. Diff Phase 1 artifact against `clients/encore/specs_planning/test-cases/setup/locations/locations_currency_test_cases.md`.
 3. For each diff: apply fix with `**MCP_VERIFICATION_LOG**: currency-<date>.md §<section> "<field>" — <evidence>` citation.
 4. File `BUG-CUR-NNN.json` per LR-034 for any APP-layer defect.
-5. Rebuild the XLSX deliverable: `npm run xlsx:build` (re-parses the edited Currency MD into `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`; the per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D). Verify the Tags column in the currency sheet.
+5. Rebuild the XLSX deliverable: `npm run xlsx:build` (re-parses the edited Currency MD into `clients/encore/testcases/encore_test_cases.xlsx`; the per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D). Verify the Tags column in the currency sheet.
 6. Regression fingerprint via `/regression-guard`.
 
 ## Acceptance criteria (LR-040 closure gate)

@@ -141,7 +141,7 @@ DO-NOW / SPAWN / APPEND for every adjacent fix; bare "out of scope" = HALT + ask
 | Identity | Owned artifact | Concrete deliverable | Acceptance command |
 |---|---|---|---|
 | HUNTER | baseline + Jira (reused) | `(skipped: baseline + field-inventory + jira-defect-crossref produced in SUBPLAN_PRODUCTS_00_FOUNDATION; reused here with freshness re-checked per LR-013)` | grep freshness ≤14d |
-| GIVER | catalog + TCs + workbook | `clients/encore/specs_planning/_internal/field-case-catalogs/products-<DATE>.md`<br>`clients/encore/specs_planning/test-cases/setup/locations/locations_products_test_cases.md`<br>`clients/encore/test_cases_xlsx/encore_test_cases.xlsx` | `npm run check:tc-parity` (root) exit 0 |
+| GIVER | catalog + TCs + workbook | `clients/encore/specs_planning/_internal/field-case-catalogs/products-<DATE>.md`<br>`clients/encore/specs_planning/test-cases/setup/locations/locations_products_test_cases.md`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` (root) exit 0 |
 | BUILDER | spec + helpers | `clients/encore/tests/locations/location-products.spec.ts`<br>`clients/encore/src/pages/locations/location-products.page.ts` | `npx playwright test … location-products.spec.ts --list` resolves all `TC-LOC-PRD-*` |
 | HEALER | conditional | `(skipped: net-new spec; no pre-existing failing/false-green tests; HEALER fires only if Phase 4 returns RED)` | n/a |
 | WATCHDOG | verification + sweep + audit | `clients/encore/specs_planning/_internal/phase-0-verification-products-<DATE>.md`<br>`clients/encore/specs_planning/_internal/false-green-sweeps/products-<DATE>.md`<br>`clients/encore/specs_planning/_internal/fcc-completeness-audit-products-<DATE>.md` | PROCEED + sweep GREEN + audit GREEN (fresh session) |

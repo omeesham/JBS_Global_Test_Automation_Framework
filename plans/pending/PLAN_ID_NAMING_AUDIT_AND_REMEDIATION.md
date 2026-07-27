@@ -25,7 +25,7 @@
 User found `TC-LOC-CPR-608` in Corporate Pricing while Local Office uses `TC-LOS-HIS-002` and Locations uses `TC-LOC-CUR-009`. Verified during planning:
 
 - Repo convention is `TC-{MODULE}-{SUBMODULE}-{NNN}`; Corporate Pricing (a top-level module) carries the Locations segment `LOC`, with its real submodule encoded in number bands (001/1xx/2xx/3xx/[4xx reserved → History NM-1444]/5xx/6xx). Prefix + bands were planned (`plans/done/SUBPLAN_CORP_PRICING_00_FOUNDATION.md` F10 reservation) with no recorded rationale for `LOC`. The client's own Jira seed helpers used `TC-ENC-PRC-*`.
-- Confirmed corruption: `export_test_cases/to-csv.ts` `extractModule()` derives module from ID segment-1 → corp-pricing rows in `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` carry Module="locations", contradicting both the MD headers (`**Module**: corporate-pricing`) and the TestRail workbook (`scripts/_gen-testrail.ts` SHEET_META says "Corporate Pricing").
+- Confirmed corruption: `export_test_cases/to-csv.ts` `extractModule()` derives module from ID segment-1 → corp-pricing rows in `clients/encore/testcases/encore_test_cases.xlsx` carry Module="locations", contradicting both the MD headers (`**Module**: corporate-pricing`) and the TestRail workbook (`scripts/_gen-testrail.ts` SHEET_META says "Corporate Pricing").
 - Root cause class: existing gates (check-tc-parity guardrails 1–5, xlsx-lint C1–C7, vocab lint, verify-no-forbidden) are syntactic/set-based; none validates ID-segment ↔ module/sheet congruence.
 - Additional candidates: BUG-ID scheme drift (BUG-CPR-001 vs BUG-LOC-CPR-*; 2-seg vs 3-seg same-module; BUG-SET/LS/LO ambiguity; TC-LOC-SSL vs BUG-LOC-SHR), TAB_MAP alias drift (PRI+PRC, LI+LCL, HIS+HST, HIST+HISL), numbering gaps (TC-LOC-LI-070, TC-LOS-BAS-042/043 — gap-cause must be git-verified; never renumber).
 - Two scare-claims already disproven in planning (TC-LOC-MGH refs in notes MD = relocation cross-refs; TC-ENC-PRC = client seed provenance in plans only) → every finding gets adversarial verification before user ruling.
@@ -68,7 +68,7 @@ Verdict report block per pattern class (verdict chain, cost-to-FIX vs cost-to-KE
 3.1 **TC rename iff Gate-1 = A/B**, one synchronized change (LR-ENC-002): rename-map gen with global-uniqueness assert vs union of ALL existing TC IDs (HALT on collision) → 6 specs (titles + dependsOn; Node utf8 rewrites, longest-key-first) → 6 MDs → 6 test plans → `blocked-reasons.json` keys → registry/code tables → `npm run xlsx:build` → `_gen-testrail.ts` → parity+lint → LIVE docs only (navigation.md §C, corp field-inventories/catalogs). `plans/done/*` untouched (historical records; closure manifests hash content; rename-map.csv is the bridge). If Gate-1 = C/D: registry `idPrefixOverrides` + exception entry; regen both workbooks (PC-3 Module fix ships regardless).
 3.2 **BUG-ID standardization iff Gate-2 approves**: registry `bugPrefixes`; rename on-disk JSONs (+`formerIds` ledger); LIVE refs only; regen+lint proves no BUG ID leaks into the workbook.
 3.3 **Hygiene iff Gate-3 approves**: TAB_MAP alias collapse (legacy codes → registry `aliases`, WARN on use); `gapLedger` entries with git-archaeology verdicts (no renumbering); individual cross-ref fixes.
-3.4 Delete untracked temp `clients/encore/test_cases_xlsx/encore_test_cases_testrail_corp_pricing.xlsx` (user-approved 2026-06-10).
+3.4 Delete untracked temp `clients/encore/testcases/encore_test_cases_testrail_corp_pricing.xlsx` (user-approved 2026-06-10).
 
 ## Phase 4 — Permanent guards (land before the rename commit, allowlist pre-seeded per Gate 4)
 
@@ -93,8 +93,8 @@ V1 registry shape self-tests · V2 `npm run check:tc-parity` exit 0 (exception N
 | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
 | HUNTER | (none — no live-site walk; baseline-absent per Phase 0.5b) | (none) | (none) |
-| GIVER | test-cases MDs, test-plans, XLSX workbook (corp-pricing set; OWNER-executed per LR-028 activity log) | clients/encore/test_cases_xlsx/encore_test_cases.xlsx (regenerated) <br> clients/encore/specs_planning/_internal/id-audit-2026-06-10/verdict-report.md | `npm run check:tc-parity` exit 0 |
-| BUILDER | specs/corporate-pricing/*.spec.ts title/dependsOn renames (iff Gate-1 = A/B; OWNER-executed) | clients/encore/specs_planning/_internal/id-audit-2026-06-10/id-rename-map.csv | `npx playwright test --list` count == baseline |
+| GIVER | test-cases MDs, test-plans, XLSX workbook (corp-pricing set; OWNER-executed per LR-028 activity log) | clients/encore/testcases/encore_test_cases.xlsx (regenerated) <br> clients/encore/specs_planning/_internal/id-audit-2026-06-10/verdict-report.md | `npm run check:tc-parity` exit 0 |
+| BUILDER | tests/corporate-pricing/*.spec.ts title/dependsOn renames (iff Gate-1 = A/B; OWNER-executed) | clients/encore/specs_planning/_internal/id-audit-2026-06-10/id-rename-map.csv | `npx playwright test --list` count == baseline |
 | HEALER | (none — no failing-spec RCA in scope) | (none) | (none) |
 | WATCHDOG | findings tables (audit-driven; no spec/MD/XLSX edits in audit phase) | clients/encore/specs_planning/_internal/id-audit-2026-06-10/findings-merged.json | findings file exists + every pattern class carries a 3-lens verdict chain |
 | GARDENER | (none — structural refactors limited to registry-driven table reads, covered under OWNER rows above) | (none) | (none) |

@@ -33,7 +33,7 @@ test.describe('Location Management History @locations @management-history', () =
   // Per-test navigation guard. Unconditionally calls navigateToHistoryTab —
   // the page-object method has its own internal URL-check that skips the
   // navigateTo when URL is already correct, while still re-clicking the tab
-  // when aria-selected != 'true' and waiting on <th> visibility.
+  // when the tab is not yet active and waiting on <th> visibility.
   // DOM-presence beats URL-substring — URL on /settings/location does NOT
   // guarantee History tab is the active tab and <th> is rendered.
   test.beforeEach(async ({ locationManagementHistoryPage }) => {
@@ -244,17 +244,17 @@ test.describe('Location Management History @locations @management-history', () =
 // Spec design — content-anchored row lookup (avoids multi-save row-position pollution):
 //   capture `Date.now() - 5000` (clock-skew buffer) BEFORE save → save → nav history →
 //   sort desc → getRowsSinceTimestamp → pick the row whose Notes value matches one of the two
-//   valid encoded forms. The BUG-LOC-NTS-003 auto-empty placeholder may or may not be present
+//   valid encoded forms. The auto-empty placeholder may or may not be present
 //   at save time, so both forms are accepted without weakening byte-exact equality. Office 1604
 //   sees interleaved saves from the shared save handler, so content-anchored lookup is the only
 //   deterministic way to find the right row across the suite.
 //
 // Bug workarounds embedded:
-//   - BUG-LOC-NTS-001 (delete-only no-persist): ensureEmptyState() codifies the
+//   - Delete-only not persisting: ensureEmptyState() codifies the
 //     clear+delete+save+reload sequence; invoked in beforeEach (per-test baseline) and TC-032's finally.
-//   - BUG-LOC-NTS-002 (dialog button = "Ok" not "Save"): handled by the shared
+//   - Dialog button says "Ok" instead of "Save": handled by the shared
 //     btnSaveChangesConfirm path via clickSaveWithDialog in BasePage.
-//   - BUG-LOC-NTS-003 (auto-empty placeholder): expected accepts both single-row and
+//   - Auto-empty placeholder row: expected accepts both single-row and
 //     content+placeholder forms; content-anchored lookup is agnostic to which fired.
 
 /** Format today as MM/DD/YYYY with leading-zero preservation (catalog rule). */
@@ -290,7 +290,7 @@ const COL69_PAYLOADS = {
 test.describe('Location Management HIST — Notes col 69 @locations @management-history @notes-hist', () => {
 
   // Per-test setup: navigate to Notes tab + enforce baseline empty state per test.
-  // `ensureEmptyState()` is intermittently unreliable per BUG-LOC-NTS-001 — the
+  // `ensureEmptyState()` is intermittently unreliable (delete-only does not always persist) — the
   // first delete+save cycle sometimes doesn't persist when Angular's auto-row logic
   // races the Delete click. Retry up to 3 times; the second/third attempts work
   // because the prior cycle reloaded the form, surfacing the persisted state and
@@ -414,7 +414,7 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
       // try/finally ensures cleanup runs even if the assertion above fails.
       // `locationNotesPage` is a test-scoped fixture (not afterAll-compatible), so
       // this is the strongest robustness contract available without spinning a
-      // fresh context. BUG-LOC-NTS-001 workaround codified inside ensureEmptyState:
+      // fresh context. Delete-only-not-persisting workaround codified inside ensureEmptyState:
       // clears textarea.value first, then Delete, then Save, then reload
       // (implemented in the Location Notes page object).
       await locationNotesPage.clickNotesTab();
@@ -472,7 +472,7 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
     );
 
     // Find Save A's row + Save B's row by content match. Either FormArray form
-    // is valid (BUG-LOC-NTS-003 placeholder may or may not be present at save time).
+    // is valid (auto-empty placeholder may or may not be present at save time).
     const isMatchA = (notes: string): boolean => notes === formA1 || notes === formA2;
     const isMatchB = (notes: string): boolean => notes === formB1 || notes === formB2;
     const rowA = rows.find((r: Record<string, string>) => isMatchA(r.Notes ?? ''));

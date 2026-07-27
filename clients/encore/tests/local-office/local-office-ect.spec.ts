@@ -84,7 +84,7 @@ test.describe('Local Office Settings — ECT Settings @local-office-ect', () => 
  // Cleanup — full page reload discards unsaved changes and resets Angular dirty state.
  // Cannot save-restore: filling original value (0) makes Save disabled while Angular
  // still tracks intermediate 0.1 as dirty. Tab click would trigger Radix
- // "Unsaved changes" alertdialog that blocks all pointer events on subsequent tests.
+ // "Unsaved changes" confirmation dialog that blocks all pointer events on subsequent tests.
  // reloadBasicInfo does safeNavigateTo (handles native beforeunload) + fresh page load.
     await localOfficeEctPage.reloadBasicInfo(OFFICE_NO);
     await localOfficeEctPage.navigateToEctTab();

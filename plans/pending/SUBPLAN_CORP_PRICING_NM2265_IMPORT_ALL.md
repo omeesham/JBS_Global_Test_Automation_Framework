@@ -305,12 +305,12 @@ Bare "out of scope" / "flagged for follow-up" with no recipient = HALT + ask use
 | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
 | HUNTER | (none — baseline-absent; walk-evidence-corporate-pricing-2026-06-23.md is the oracle) | `(none)` | (none) |
-| GIVER | test-cases MD + test-plan + XLSX workbook | `clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_toolbar_io_test_cases.md`<br>`clients/encore/test_cases_xlsx/encore_test_cases.xlsx` | `npm run check:tc-parity` exit 0 |
+| GIVER | test-cases MD + test-plan + XLSX workbook | `clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_toolbar_io_test_cases.md`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` exit 0 |
 | BUILDER | spec file + page object | `clients/encore/tests/corporate-pricing/corporate-pricing-toolbar-io.spec.ts`<br>`clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts` | `npx playwright test corporate-pricing-toolbar-io --list` resolves all new TC IDs |
 | HEALER | per-fix RCA log (conditional — only if first-run reds) | `(skipped: conditional — only authored if Phase 4 fires; replaced at close with the fixed spec path or confirmed no HEALER work)` | `npx playwright test corporate-pricing-toolbar-io --workers=1` green |
 | WATCHDOG | do-or-die audit findings | `(skipped: audit is in-session Phase 5 — findings recorded in activity-log row; no separate artifact unless defects found requiring a BUG-*.json)` | `/audit` Mode review exit clean |
 | GARDENER | (none) | `(none)` | (none) |
-| OWNER | closure + XLSX rebuild coordination | `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` | `npm run xlsx:lint` exit 0 |
+| OWNER | closure + XLSX rebuild coordination | `clients/encore/testcases/encore_test_cases.xlsx` | `npm run xlsx:lint` exit 0 |
 
 ---
 

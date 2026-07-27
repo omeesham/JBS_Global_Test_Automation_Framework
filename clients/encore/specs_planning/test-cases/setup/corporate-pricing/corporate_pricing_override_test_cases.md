@@ -26,3 +26,15 @@
 
 ---
 
+## FIELD INVENTORY
+
+N/A — this file contains only TC-CPR-OVR-029, a URL-level navigation test (Search → Override screen). No editable fields are exercised. The full Override screen field inventory lives in `corporate-override/corporate_override_core_test_cases.md`.
+
+## Validation Rules
+
+N/A — TC-CPR-OVR-029 verifies only that the "Pricing Override" action-bar button navigates to `/pg-override`. No field-level validation rules apply. See `corporate-override/corporate_override_core_test_cases.md` for Override field validation rules.
+
+## MCP_VERIFICATION_LOG
+
+Navigation to the Override screen was verified as part of the Override screen MCP walk (2026-06-09, office 1604) and re-verified 2026-07-09 (office 1606, TC-029..037 batch). Full verification log in `corporate-override/corporate_override_core_test_cases.md`.
+

@@ -71,7 +71,7 @@ Provenance: restructured from `SUBPLAN_PARITY_08_CI_GUARDRAILS_AND_VERIFICATION.
 
 ### Phase 2 — D17: Drift-back sweep (RUNS FIRST — catches anything Wave 1 + Wave 2 missed)
 
-1. Run `node clients/encore/scripts/ci/check-xlsx-sanity.mjs clients/encore/test_cases_xlsx/encore_test_cases.xlsx` — must exit 0 (CSV target retired per PLAN_CSV_TO_XLSX Phase D).
+1. Run `node clients/encore/scripts/ci/check-xlsx-sanity.mjs clients/encore/testcases/encore_test_cases.xlsx` — must exit 0 (CSV target retired per PLAN_CSV_TO_XLSX Phase D).
 2. Run `node clients/encore/scripts/ci/check-comment-sanity.mjs` against the ENTIRE `clients/encore/` deliverable (not just files touched in Wave 1/2) — must exit 0.
 3. Run every other W1-05 validator against `clients/encore/tests/` + `clients/encore/specs_planning/test-cases/` — all must exit 0.
 4. If any residual red flag exists outside this plan's touched-files set: file a follow-up subplan to clean it; do NOT close W2-09 with phantom-handoff per LR-040.
@@ -192,7 +192,7 @@ ls .github/workflows/parity-*.yml  # expect: at least 2 files (parity-check + pa
 grep -i "xlsx-sanity\|comment-sanity\|red flag" .github/PULL_REQUEST_TEMPLATE.md  # expect: matches
 
 # D17 sweep clean
-node clients/encore/scripts/ci/check-xlsx-sanity.mjs clients/encore/test_cases_xlsx/encore_test_cases.xlsx && echo OK  # expect: OK
+node clients/encore/scripts/ci/check-xlsx-sanity.mjs clients/encore/testcases/encore_test_cases.xlsx && echo OK  # expect: OK
 node clients/encore/scripts/ci/check-comment-sanity.mjs clients/encore/  # expect: exit 0
 
 # Full suite green

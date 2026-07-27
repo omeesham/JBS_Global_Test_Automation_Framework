@@ -368,7 +368,7 @@ test.describe('Location Local Info @locations @local-info', () => {
     expect(disabledCheckedResult.allPassed, disabledCheckedResult.failures.join('; ')).toBe(true);
   });
 
- // TC-045: all 5 interactive field types (checkbox, spinbutton, textbox, dropdown, radio) enable Save.
+ // TC-045: all 5 interactive field types (checkbox, number field, textbox, dropdown, radio) enable Save.
   test('TC-LOC-LI-045: All field types trigger Save enable', async ({ locationLocalInfoPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-LI-001']);
  // radio -- already verified by TC-025 inline; just assert current save-disabled state
@@ -377,7 +377,7 @@ test.describe('Location Local Info @locations @local-info', () => {
     await locationLocalInfoPage.toggleCheckbox('chkWarehouseBilling');
     expect(await locationLocalInfoPage.isSaveEnabled()).toBe(true);
     await locationLocalInfoPage.toggleCheckbox('chkWarehouseBilling');
- // spinbutton
+ // number field
     await locationLocalInfoPage.setSpinValue('spinLDWPercentage', '0.50');
     expect(await locationLocalInfoPage.isSaveEnabled()).toBe(true);
     await locationLocalInfoPage.setSpinValue('spinLDWPercentage', '0.04');

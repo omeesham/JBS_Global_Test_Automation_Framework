@@ -136,7 +136,7 @@ Rev2's Phases 2.7, 3.2 and 3.5 exist specifically to kill steps 3 and 4.
 - [ ] **1.1** Add `requiredStates` + opener patterns to `scripts/walk-coverage/lib/module-config.mjs` for
       `corporate-pricing-override`, `-strategy`, `-detail`, `-new-pricebook`. For override, at minimum:
       `resting`, `tab:labor`, `expand:currency`, `expand:rows-per-page`, plus the location + non-ALL-currency
-      precondition. Source control names from `clients/encore/src/selectors/corporate-pricing/override.ts` —
+      precondition. Source control names from `clients/encore/src/selectors/corporate-override/override.ts` —
       do not invent state names.
 - [ ] **1.2** Convert the override entry's prose comment into machine requiredStates; delete the now-redundant
       *instruction* (keep the *why*). Prose duplicating an enforced rule rots into a contradiction.

@@ -396,7 +396,7 @@ test.describe('Override BVA — Labor Override Price', () => {
   const ROW_PG565 = BED.rows[0].productGroupId; // PG 565 — Override Price 13.00
   const ROW_PG893 = BED.rows[1].productGroupId; // PG 893 — Override Price 12.00
 
-  test('TC-CPR-OVR-084: Clicking Override Price on Labor reveals editable spinbutton', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-084: Clicking Override Price on Labor reveals editable number field', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     // Click the Override Price cell — column-specific selector matching probeEditOracle
@@ -825,7 +825,7 @@ test.describe('Override Pagination — Rows-Per-Page Re-renders Grid (office 946
   });
 
   test('TC-CPR-OVR-121: Select 10 → grid shows exactly 10 rows', async ({ corporatePricingOverridePage: overridePage }) => {
-    // Change rows-per-page to 10 via Radix combobox (not a native <select>)
+    // Change rows-per-page to 10 via the page-size dropdown (not a native select)
     await overridePage.setRowsPerPage('10');
 
     // Wait for grid to re-render with the new page size
@@ -842,7 +842,7 @@ test.describe('Override Pagination — Rows-Per-Page Re-renders Grid (office 946
   });
 
   test('TC-CPR-OVR-122: Select 30 → grid shows exactly 30 rows', async ({ corporatePricingOverridePage: overridePage }) => {
-    // Change rows-per-page to 30 via Radix combobox
+    // Change rows-per-page to 30 via the page-size dropdown
     await overridePage.setRowsPerPage('30');
 
     await overridePage.page.locator(GRID_ROW).first().waitFor({ state: 'visible' });
@@ -858,7 +858,7 @@ test.describe('Override Pagination — Rows-Per-Page Re-renders Grid (office 946
   });
 
   test('TC-CPR-OVR-123: Select 40 → grid shows exactly 40 rows', async ({ corporatePricingOverridePage: overridePage }) => {
-    // Change rows-per-page to 40 via Radix combobox
+    // Change rows-per-page to 40 via the page-size dropdown
     await overridePage.setRowsPerPage('40');
 
     await overridePage.page.locator(GRID_ROW).first().waitFor({ state: 'visible' });
@@ -874,7 +874,7 @@ test.describe('Override Pagination — Rows-Per-Page Re-renders Grid (office 946
   });
 
   test('TC-CPR-OVR-124: Select 50 → grid shows exactly 50 rows', async ({ corporatePricingOverridePage: overridePage }) => {
-    // Change rows-per-page to 50 via Radix combobox
+    // Change rows-per-page to 50 via the page-size dropdown
     await overridePage.setRowsPerPage('50');
 
     await overridePage.page.locator(GRID_ROW).first().waitFor({ state: 'visible' });

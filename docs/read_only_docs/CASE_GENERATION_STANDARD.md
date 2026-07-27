@@ -96,6 +96,41 @@ Surface/behavior TCs are ordinary TCs — they ride the existing `check:tc-parit
 
 ---
 
+## Markdown step-table format (per-step Expected Result)
+
+Every TC's `**Steps**:` field is a pipe-table. Each row carries its own Expected Result:
+
+    **Steps**:
+    | # | Step | Expected Result |
+    |---|------|-----------------|
+    | 1 | Navigate to the target page and tab | The tab loads and its content is visible. |
+    | 2 | Verify grid shows expected rows | Rows are visible with correct data. |
+    | 3 | Verify column headers | All expected column headers are visible. |
+
+    **Expected**: Grid displays expected rows with correct column headers
+
+**Rules:**
+- Every step must have its own Expected Result, including the last. Empty cells → blank workbook cells (`to-xlsx.ts:633`).
+- The `**Expected**:` line below the table is the per-case summary (CSV parity oracle); it is **not** a per-step fallback in the XLSX (`to-xlsx.ts:632`).
+- Escape pipes in cell content as `\|` (`to-xlsx.ts:821`).
+- The exporter matches the header literally: `| # | Step | Expected Result |`. A non-matching header silently skips extraction (`to-xlsx.ts:813`).
+
+### Linter rules (`scripts/lint-test-cases.ts`)
+
+`npm run lint:testcases` checks every `*test-cases*.md` / `*test_cases*.md` file:
+
+| Rule | Rejects |
+|---|---|
+| STRUCT-001 / 002 / 003 | Missing `## FIELD INVENTORY`, `## Validation Rules`, or `## MCP_VERIFICATION_LOG` section (`lint-test-cases.ts:178–193`) |
+| PLN-018 | Selector code names in Steps — `chk`/`spin`/`rdo`/`txt`/`drp`/`btn` prefixes (`lint-test-cases.ts:42`) |
+| PLN-015 | Uncertain language in Steps — `if visible`, `varies by`, `or similar` (`lint-test-cases.ts:64`) |
+| AUD-005 | Unfilled `DISCOVER_` placeholders (`lint-test-cases.ts:70`) |
+| SUB-001 | TC ID submodule code not in `KNOWN_SUB_CODES` (`export_test_cases/types.ts`) (`lint-test-cases.ts:279`) |
+| AUT-001 | Missing `**Automatable**:` field — required: `Yes` / `No` / `Blocked:[reason]` (`lint-test-cases.ts:315`) |
+| PLN-021 | Arrow (`→`) in Data sections — use "from X to Y" (`lint-test-cases.ts:50`) |
+
+---
+
 ## Unknown field/surface type → brain-first live exploration (not a dead HALT)
 
 If an inventoried control type or surface has **no matching template row** here or in the client

@@ -50,7 +50,7 @@ All paths under `clients/encore/`. Run from `clients/encore/`.
 ## NOT touched (explicit)
 - `reports/test-results.json`, `reports/junit-results.xml`, `reports/failure-summary.json`,
   `reports/html-report/`, `reports/diagnostics/` — left exactly as the run produced them.
-- `clients/encore/test_cases_xlsx/*.xlsx` — untouched.
+- `clients/encore/testcases/*.xlsx` — untouched.
 - `specs/`, `src/pages/`, `src/selectors/`, `specs_planning/test-cases/` — untouched.
 - `allure-results/history/`, `categories.json`, `environment.properties` — kept.
 

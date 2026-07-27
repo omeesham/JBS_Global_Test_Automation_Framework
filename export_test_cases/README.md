@@ -2,9 +2,9 @@
 
 **Purpose**: Convert markdown test cases (`specs_planning/test-cases/*.md`) into various formats for import into test management tools.
 
-> **2026-05-27 migration**: the client deliverable flipped from per-module CSVs (the former `clients/encore/test_cases_csv/` directory) to a single multi-sheet workbook at `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` per `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION`. Build with `npm run xlsx:build` (`--list-only` default, or `--with-run` for live pass/fail). Phase D removed the `test_cases_csv/` directory and the standalone CSV-to-disk CLI; `to-csv.ts` survives only as the in-memory MD→CSV parity oracle that `to-xlsx.ts` consumes to emit identical workbook bytes.
+> **2026-05-27 migration**: the client deliverable flipped from per-module CSVs (the former `clients/encore/test_cases_csv/` directory) to a single multi-sheet workbook at `clients/encore/testcases/encore_test_cases.xlsx` per `PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION`. Build with `npm run xlsx:build` (`--list-only` default, or `--with-run` for live pass/fail). Phase D removed the `test_cases_csv/` directory and the standalone CSV-to-disk CLI; `to-csv.ts` survives only as the in-memory MD→CSV parity oracle that `to-xlsx.ts` consumes to emit identical workbook bytes.
 >
-> **2026-06-11 TestRail merge** (`PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT`): the deliverable is now a single **TestRail step-expanded** workbook — the former `encore_test_cases_testrail.xlsx` twin and its `scripts/_gen-testrail.ts` converter are **retired**. `to-xlsx.ts` emits the step-expanded layout directly via the shared `export_test_cases/testrail-format.ts` (`parseSteps` / `perStepExpected` / `deriveTestData`). Each case = one **first row** + N **continuation step-rows** (`Steps (Step)` · `Steps (Expected Result)` only). `--with-run` now performs a REAL `npx playwright test --reporter=json` run and stamps actual Pass/Fail; the default `--list-only` is assumed-pass. The shape is regression-guarded by `npm run test:xlsx-merged-shape`, `test:xlsx-continuation-row`, and `test:sp00-with-run`.
+> **2026-06-11 TestRail merge** (`PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT`): the deliverable is now a single **TestRail step-expanded** workbook — the former `encore_test_cases_testrail.xlsx` twin and its `scripts/_gen-testrail.ts` converter are **retired**. `to-xlsx.ts` emits the step-expanded layout directly via the shared `export_test_cases/testrail-format.ts` (`parseSteps` / `deriveTestData`). Each case = one **first row** + N **continuation step-rows** (`Steps (Step)` · `Steps (Expected Result)` only). `--with-run` now performs a REAL `npx playwright test --reporter=json` run and stamps actual Pass/Fail; the default `--list-only` is assumed-pass. The shape is regression-guarded by `npm run test:xlsx-merged-shape`, `test:xlsx-continuation-row`, and `test:sp00-with-run`.
 >
 > **2026-06-11 Notes / Reason declutter** (`PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER`): `Notes / Reason` is now **reason-only and the LAST column**. The column carries ONLY the curated execution reason (`composeReason(reason, execution)` — the `Blocked — ` marker stays execution-gated + idempotent); MD Notes (`**Notes**:` / `**Cleanup**:`) are **no longer surfaced** to the deliverable (they remain in the MD source). Because the build's integrity tripwire keeps a failure reason off every Pass row, Pass rows are empty automatically; the ~21 curated Pending/Manual reasons (in `blocked-reasons.json`) survive. A permanent **C9 anti-pollution gate** in `scripts/xlsx-lint-rules.mjs` (`lintWorkbook`) fires at build/commit/ship: C9a (a populated Pass row), C9b (a `Cleanup after test:` breadcrumb), C9c (a non-curated blank-execution cell). The first-row column order is `TC ID · Title · Module · Submodule · Test Data · Type · Priority · Coverage Status · Automation Status · Preconditions · Steps (Step) · Steps (Expected Result) · Notes / Reason`. New regression test: `npm run test:xlsx-compose-reason`.
 
@@ -93,9 +93,18 @@ The CSV exporter routes every human-column value through two helpers in `to-csv.
 - `data-testid="..."` and `[data-testid="..."]` clauses are dropped
 - `aria-label`, `aria-valuenow`, `aria-expanded` are intentionally PRESERVED (they may be deliberate accessibility documentation)
 
-**Format change in the Steps column:**
-- The pre-2026-04 `[ok]` per-step expected line has been removed — Steps is now action-only.
-- The Expected Result column carries the per-TC `**Expected**:` summary, humanized.
+**Format: per-step Expected Result (step-table shape):**
+
+Steps are authored as a pipe-table with per-step Expected Results:
+
+    | # | Step | Expected Result |
+    |---|------|-----------------|
+    | 1 | Navigate to ... | Page loads. |
+    | 2 | Verify ... | Field shows "X". |
+
+- Every step carries its own Expected Result — the exporter reads column 3 of each row (`to-xlsx.ts:818–821`).
+- The case-level `**Expected**:` line below the table is the per-case summary used by the CSV parity oracle; it is **not** emitted to the XLSX as a per-step fallback (`to-xlsx.ts:632`).
+- The XLSX emits one first-row (all 13 cols) + N continuation step-rows (`Steps (Step)` + `Steps (Expected Result)` only) (`to-xlsx.ts:635–654`).
 
 ### Re-exporting after editing source markdown
 
@@ -106,8 +115,9 @@ npm run xlsx:build
 ```
 
 `to-xlsx.ts` reparses the markdown through `CsvConverter.convertFile()` (the parity
-oracle) and rewrites `clients/encore/test_cases_xlsx/encore_test_cases.xlsx`. There is
-no longer a per-module CSV output directory.
+oracle) and rewrites `clients/encore/testcases/encore_test_cases.xlsx` (consolidated)
+plus per-module split workbooks under `clients/encore/testcases/<group>/<stem>.xlsx`
+(groups: `locations/`, `local-office/`, `corporate-pricing/`, `corporate-override/`).
 
 ### Example
 

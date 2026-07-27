@@ -57,7 +57,7 @@ Provenance: restructured from `SUBPLAN_PARITY_08_CI_GUARDRAILS_AND_VERIFICATION.
 ## Phase 0 — Dependency + browser-tool gate
 
 1. Confirm PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D closed GREEN (CSVs deleted, workbook is canonical, `npm run check:tc-parity` exits 0 with XLSX reader).
-2. Confirm `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` exists and `npm run xlsx:build` is wired.
+2. Confirm `clients/encore/testcases/encore_test_cases.xlsx` exists and `npm run xlsx:build` is wired.
 3. Read navigation.md, agent-mistakes.md per `/execute` Phase 0.
 4. **BrowserTool announcement**: `BrowserTool=none`. Reason: pure script authoring + unit testing against fixture files.
 
@@ -130,7 +130,7 @@ Author `check-test-has-assertion.mjs`:
 ### Phase 9 — D12: XLSX cleanliness CI script (absorbed from defunct W1-02)
 
 Author `clients/encore/scripts/ci/check-xlsx-sanity.mjs` (renamed from W1-02's `check-csv-sanity.mjs`; target flipped CSV → XLSX per supersession):
-- Reads workbook at `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` via `exceljs`
+- Reads workbook at `clients/encore/testcases/encore_test_cases.xlsx` via `exceljs`
 - For every per-module sheet, validate cell content against `red-flag-patterns.json` (see Phase 9.5 below)
 - Flag: hardcoded e2e URL leaks (`cloudapps-e2e.encoreglobal.com`), placeholder TODO/FIXME inside `Preconditions`/`Steps`/`Expected Result` cells, empty `TC ID` cells, malformed `Steps` (less than 1 step)
 - Exit 1 on findings

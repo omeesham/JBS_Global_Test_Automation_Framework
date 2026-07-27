@@ -17,6 +17,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { execSync } from 'child_process';
 import { KNOWN_SUB_CODES } from '../export_test_cases/types';
 import { SHARED_PATHS } from './shared-types';
 
@@ -503,9 +504,46 @@ function printReport(result: LintResult): void {
 
 // CLI entry point
 const args = process.argv.slice(2);
-const targetPath = args[0];
+const staged = args.includes('--staged');
 
-const result = runLint(targetPath);
-printReport(result);
+if (staged) {
+  // Staged-files-only mode: lint only test-case MDs in the git staging area.
+  // Allows the pre-commit hook to gate on new defects without blocking on
+  // pre-existing errors in unstaged files.
+  const stagedOutput = execSync('git diff --cached --name-only --diff-filter=ACMR', { encoding: 'utf-8' });
+  const stagedFiles = stagedOutput
+    .split(/\r?\n/)
+    .filter(f => /^clients\/[^/]+\/specs_planning\/test-cases\/.+\.md$/.test(f))
+    .filter(f => {
+      const basename = path.basename(f);
+      return basename.includes('test-cases') || basename.includes('test_cases');
+    })
+    .map(f => path.resolve(process.cwd(), f))
+    .filter(f => fs.existsSync(f));
 
-process.exit(result.passed ? 0 : 1);
+  if (stagedFiles.length === 0) {
+    console.log('[lint:testcases --staged] No staged test-case files — skipping.');
+    process.exit(0);
+  }
+
+  const allViolations: Violation[] = [];
+  for (const file of stagedFiles) {
+    allViolations.push(...lintFile(file));
+    const content = fs.readFileSync(file, 'utf-8');
+    allViolations.push(...reconcileSelectors(file, content));
+  }
+
+  const result: LintResult = {
+    violations: allViolations,
+    filesChecked: stagedFiles.length,
+    passed: allViolations.filter(v => v.severity === 'error').length === 0
+  };
+
+  printReport(result);
+  process.exit(result.passed ? 0 : 1);
+} else {
+  const targetPath = args.filter(a => !a.startsWith('--'))[0];
+  const result = runLint(targetPath);
+  printReport(result);
+  process.exit(result.passed ? 0 : 1);
+}

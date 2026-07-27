@@ -34,7 +34,7 @@ done <<< "$FILE_LIST"
 RUN_FRESHNESS=0
 if git rev-parse --verify --quiet "origin/$BRANCH" >/dev/null 2>&1; then
   if git diff --name-only "origin/$BRANCH"..HEAD \
-       | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/specs_planning/test-cases/.+\.md$|^clients/[^/]+/test_cases_xlsx/.+\.xlsx$|^export_test_cases/.+\.(ts|json)$'; then
+       | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/specs_planning/test-cases/.+\.md$|^clients/[^/]+/testcases/.+\.xlsx$|^export_test_cases/.+\.(ts|json)$'; then
     RUN_FRESHNESS=1
   fi
 else

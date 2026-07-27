@@ -22,7 +22,7 @@
 **Context files**:
 - `clients/encore/specs_planning/_internal/tc-authoring-rules.md`
 - `clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md` (sample artifact to benchmark — Basic Information tab; sibling files for HIS + ECT post-2026-05-05 split)
-- `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` → `local_office_settings` sheet (sample deliverable output; per-module CSVs retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D)
+- `clients/encore/testcases/encore_test_cases.xlsx` → `local_office_settings` sheet (sample deliverable output; per-module CSVs retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D)
 - `.claude/skills/research/SKILL.md` (skill definition for /research)
 **Phase 0 directive**: no browser required (research is web-based via /research skill). Announce in chat.
 **HALT conditions**:

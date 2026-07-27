@@ -123,7 +123,7 @@ Switch identity: `/identity HEALER`.
    - Update `clients/encore/CLAUDE.md (was REQUIREMENTS.md, removed 2026-05-19 per unified-matsumoto plan)` with the change rationale + cross-link to NM-* / Jira if available.
    - HUNTER identity required for REQUIREMENTS.md edits per R11 — switch identity if needed.
 
-4. Rebuild the XLSX deliverable: `npm run xlsx:build` — re-parses every edited MD (LOS settings/history/ect siblings post-2026-05-05 split + LI) through the in-memory parity oracle into the single `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` workbook (one sheet per module). The per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D.
+4. Rebuild the XLSX deliverable: `npm run xlsx:build` — re-parses every edited MD (LOS settings/history/ect siblings post-2026-05-05 split + LI) through the in-memory parity oracle into the single `clients/encore/testcases/encore_test_cases.xlsx` workbook (one sheet per module). The per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D.
 
 5. Run Phase 0 greps (4 from `tc-authoring-rules.md`) on both edited MDs. Zero hits required on edited TCs.
 

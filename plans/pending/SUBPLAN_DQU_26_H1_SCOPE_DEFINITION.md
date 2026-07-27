@@ -37,7 +37,7 @@ Per D9: scope of /simplify + /cleanup sweeps is Encore deliverables + Encore-spe
    - `src/selectors/**/*.ts` (selectors)
    - `src/data/**/*.ts` (test data)
    - `clients/encore/specs_planning/test-cases/**/*.md` (test case MDs)
-   - `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` (XLSX deliverable — a binary build artifact, no code simplification needed; per-module CSVs retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D)
+   - `clients/encore/testcases/encore_test_cases.xlsx` (XLSX deliverable — a binary build artifact, no code simplification needed; per-module CSVs retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D)
    - `export_test_cases/**/*.ts` (export script — converter)
    - `src/utils/**/*.ts` (shared utilities IF used only by Encore specs; check import graph)
 2. Build explicit EXCLUDE list:

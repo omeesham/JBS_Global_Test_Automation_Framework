@@ -9,7 +9,7 @@ import { isAuthUrl } from '../utils/url-host';
 export class BasePage {
   // `page` is public readonly so specs can use `<pageObjectFixture>.page` for direct page
   // operations (reload, keyboard, mouse, dialog handlers) WITHOUT destructuring the bare
-  // `page` fixture alongside, which would cause BUG-1 (Playwright DI creates a second
+  // `page` fixture alongside, which would cause a known issue where Playwright DI creates a second
   // about:blank context for the bare `page`). `readonly` keeps consumers from rebinding.
   public readonly page: Page;
   protected config?: IConfig;

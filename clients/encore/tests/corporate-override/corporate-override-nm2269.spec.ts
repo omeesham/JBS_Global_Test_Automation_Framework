@@ -39,7 +39,7 @@ test.describe('Corporate Pricing — Product Group Override: Active-only and tex
   });
 
   // Office 1105 is USD-only (verified 2026-07-17: 9 Equipment rows, all USD).
-  // The selectCurrency PO method relies on ovrCurrencyDropdown ('button[role="combobox"]:has-text("ALL")'),
+  // The selectCurrency method relies on the currency filter dropdown showing "ALL",
   // which matches only when currency is currently ALL — safe for one call per test.
   // Two-direction oracle: ALL shows rows; an absent currency shows 0. A filter that ignores
   // its input cannot satisfy both assertions simultaneously.
@@ -100,7 +100,7 @@ test.describe('Override Currency Filter — Office 1145 (multi-currency bed)', (
     const rows = overridePage.page.locator(GRID_ROW);
     await expect(rows).toHaveCount(BED.totalRows, { timeout: 10_000 });
 
-    // Apply USD filter via Radix combobox (not a native <select>)
+    // Apply USD filter via the currency dropdown
     await overridePage.selectCurrency('USD');
 
     // Assert: exactly 10 USD rows (auto-retry waits for grid re-render — no fixed sleep)
@@ -111,7 +111,7 @@ test.describe('Override Currency Filter — Office 1145 (multi-currency bed)', (
     // Assert row identity: USD row PG 4298 is PRESENT
     await expect(overridePage.page.locator(GRID_ROW, { hasText: BED.rows.usdAnchor.productGroupId })).toBeVisible();
 
-    // Restore: ALL filter → 11 rows (combobox now shows 'USD', re-target it)
+    // Restore: ALL filter → 11 rows (dropdown now shows 'USD', re-target it)
     await overridePage.resetCurrencyFilter('USD');
     await expect(rows).toHaveCount(BED.totalRows, { timeout: 15_000 });
   });
@@ -122,7 +122,7 @@ test.describe('Override Currency Filter — Office 1145 (multi-currency bed)', (
     const rows = overridePage.page.locator(GRID_ROW);
     await expect(rows).toHaveCount(BED.totalRows, { timeout: 10_000 });
 
-    // Apply CAD filter via Radix combobox
+    // Apply CAD filter via the currency dropdown
     await overridePage.selectCurrency('CAD');
 
     // Assert: exactly 1 CAD row (auto-retry waits for grid re-render — no fixed sleep)
@@ -133,7 +133,7 @@ test.describe('Override Currency Filter — Office 1145 (multi-currency bed)', (
     // Assert row identity: USD row PG 4298 is ABSENT
     await expect(overridePage.page.locator(GRID_ROW, { hasText: BED.rows.usdAnchor.productGroupId })).toBeHidden();
 
-    // Restore: ALL filter → 11 rows (combobox now shows 'CAD', re-target it)
+    // Restore: ALL filter → 11 rows (dropdown now shows 'CAD', re-target it)
     await overridePage.resetCurrencyFilter('CAD');
     await expect(rows).toHaveCount(BED.totalRows, { timeout: 15_000 });
   });
@@ -144,7 +144,7 @@ test.describe('Override Currency Filter — Office 1145 (multi-currency bed)', (
     const rows = overridePage.page.locator(GRID_ROW);
     await expect(rows).toHaveCount(BED.totalRows, { timeout: 10_000 });
 
-    // Apply MXN filter via Radix combobox
+    // Apply MXN filter via the currency dropdown
     await overridePage.selectCurrency('MXN');
 
     // Assert: exactly 0 rows (no MXN data on office 1145) — auto-retry waits for grid re-render
@@ -154,7 +154,7 @@ test.describe('Override Currency Filter — Office 1145 (multi-currency bed)', (
     await expect(overridePage.page.locator(GRID_ROW, { hasText: BED.rows.cadAnchor.productGroupId })).toBeHidden();
     await expect(overridePage.page.locator(GRID_ROW, { hasText: BED.rows.usdAnchor.productGroupId })).toBeHidden();
 
-    // Restore: ALL filter → 11 rows (combobox now shows 'MXN', re-target it)
+    // Restore: ALL filter → 11 rows (dropdown now shows 'MXN', re-target it)
     await overridePage.resetCurrencyFilter('MXN');
     await expect(rows).toHaveCount(BED.totalRows, { timeout: 15_000 });
   });

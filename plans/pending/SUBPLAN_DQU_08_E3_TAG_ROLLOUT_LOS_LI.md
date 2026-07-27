@@ -49,7 +49,7 @@ Add the `Tags` column to every TC's metadata table in LOS + LI MDs. Populate per
    - Add 4th column data cell with the assigned tag(s), comma-separated.
 4. Repeat for LI MD.
 5. Run all 6 Phase 0 greps on both MDs. Zero hits on Tags-empty-cell pattern.
-6. Rebuild the XLSX deliverable: `npm run xlsx:build` — re-parses both edited MDs (LOS siblings post-2026-05-05 split + LI) into the single `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` workbook. The per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D.
+6. Rebuild the XLSX deliverable: `npm run xlsx:build` — re-parses both edited MDs (LOS siblings post-2026-05-05 split + LI) into the single `clients/encore/testcases/encore_test_cases.xlsx` workbook. The per-module CSV re-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D.
 7. Open the rebuilt workbook sheets (LOS + LI) in verification:
    - The `Tags` column is present.
    - Every row has a non-empty Tags cell.

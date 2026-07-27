@@ -246,7 +246,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
       reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
       expectAfterReload: async () => {
-        // After clear+save+reload, two acceptable states per BUG-LOC-NTS-003 placeholder behavior:
+        // After clear+save+reload, two acceptable states per the auto-empty placeholder behavior:
         // (a) row 0 exists with empty textarea value, OR (b) default empty state (no rows).
         // Branch on isDefaultEmptyState — no catch-swallow (clear diagnostics, content not row-count).
         if (await locationNotesPage.isDefaultEmptyState()) {
@@ -404,7 +404,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
       reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
       expectAfterReload: async () => {
-        // Content assertion only — placeholder row from BUG-LOC-NTS-003 may inflate count
+        // Content assertion only — an auto-generated placeholder row may inflate count
         expect(await locationNotesPage.getNoteValue(0)).toBe(r0);
         expect(await locationNotesPage.getNoteValue(1)).toBe(r1);
       },
@@ -412,9 +412,8 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     });
   });
 
-  // BUG-LOC-NTS-004: Delete button vanishes on single-row form-array after clear() — TC cannot
-  // reach the Delete step.
-  // BUG-LOC-NTS-004
+  // Delete button vanishes on single-row note list after clear() — TC cannot reach the Delete step.
+  // Pending an application fix.
   // FIXME TC-LOC-NTS-056 (Blocked — the Delete control disappears on a single-row note list after the text is cleared, so the row cannot be deleted. Pending an application fix.)
   test.fixme('TC-LOC-NTS-056: Verify deleting the only note row returns the empty state', async ({ locationNotesPage, dependencyGate }) => {
     dependencyGate([]);
@@ -435,7 +434,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
       saveAndConfirm: () => locationNotesPage.saveAndConfirm(),
       reload: () => locationNotesPage.reloadAndNavigateToNotesTab(),
       expectAfterReload: async () => {
-        // Either default empty state or a single placeholder empty textarea (BUG-LOC-NTS-003).
+        // Either default empty state or a single auto-generated placeholder empty textarea.
         // Branch on isDefaultEmptyState — no catch-swallow (clear diagnostics, content not row-count).
         if (await locationNotesPage.isDefaultEmptyState()) {
           expect(await locationNotesPage.isDefaultEmptyState()).toBe(true);
@@ -516,7 +515,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.clickSaveButton();
     // Click in top-left corner of viewport (outside any modal dialog content).
     await realPage.mouse.click(2, 2);
-    // Title-aligned probe: observe whether the alertdialog dismissed or stayed (UX
+    // Title-aligned probe: observe whether the confirmation dialog dismissed or stayed (UX
     // classification of this case is pending). Branch — no opaque OR-assertion.
     const dialogStillOpen = await realPage.locator('[role="alertdialog"]').isVisible().catch(() => false);
     if (dialogStillOpen) {
@@ -603,7 +602,7 @@ test.describe('Location Notes — FCC @locations @notes @fcc', () => {
     await locationNotesPage.fillNote(0, NOTE_1_CHAR);
     await locationNotesPage.saveAndConfirm();
     // Cross-tab isolation proof: switching to Currency must NOT trigger the "Unsaved Changes"
-    // alertdialog. (The shared Save button being disabled only proves Notes is pristine — not
+    // confirmation dialog. (The shared Save button being disabled only proves Notes is pristine — not
     // that Currency was untouched, because the Save button is page-scoped.)
     const currencyTab = realPage.locator('[data-testid="location-settings-sub-tab-currency"]');
     await currencyTab.click();
@@ -1068,7 +1067,7 @@ test.describe('Location Notes @locations @notes', () => {
     await locationNotesPage.saveAndConfirm();
     await locationNotesPage.reloadAndNavigateToNotesTab();
     expect(await locationNotesPage.getNoteValue(0)).toBe(NOTE_DELETE_CHECK);
- // Delete row WITHOUT clearing textarea first (BUG-LOC-NTS-001 regression check)
+ // Delete row WITHOUT clearing textarea first (delete-only-not-persisting regression check)
     await locationNotesPage.deleteRow(0);
     expect(await locationNotesPage.isEmptyStateVisible()).toBe(true);
     await locationNotesPage.saveAndConfirm();

@@ -356,14 +356,14 @@ Every NEW subplan in `plans/pending/` MUST include these sections in this order:
 
    Phase 0.5b emits or consumes `clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-<YYYY-MM-DD>.md` per LR-045 row 4. `baselineScope: baseline-absent` is allowed (NOT a HALT) when the feature is net-new on the active site.
 6. **Phase 1+** — actual work, identity-scoped.
-6.5. **Per-Identity Satisfaction Matrix** (LR-048 v3 — added 2026-05-25 as v2, amended 2026-05-28 to v3 — FCC mistake prevention) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, the XLSX deliverable at `test_cases_xlsx/encore_test_cases.xlsx` (post-2026-05-27 — legacy CSV exports under `test_cases_csv/` are retired in Phase D of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION), `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
+6.5. **Per-Identity Satisfaction Matrix** (LR-048 v3 — added 2026-05-25 as v2, amended 2026-05-28 to v3 — FCC mistake prevention) — REQUIRED whenever a subplan's body or downstream effects produce, modify, or delete any of: `.spec.ts`, `test-cases/*.md`, `test-plans/*.md`, the XLSX deliverable at `testcases/encore_test_cases.xlsx` (post-2026-05-27 — legacy CSV exports under `test_cases_csv/` are retired in Phase D of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION), `field-case-catalogs/*.md`, `field-inventories/*.md`, `REQUIREMENTS.md`, `agent-mistakes.md`, or `_internal/old-site-baseline/*.md`.
 
    The subplan body MUST contain a section `## Per-Identity Satisfaction` with this table:
 
    | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
    |---|---|---|---|
    | HUNTER | old-site-baseline / REQUIREMENTS.md (if new behavior) | dated baseline artifact OR explicit `(none)` | grep artifact freshness |
-   | GIVER | test-cases.md, test-plans.md, XLSX workbook via planner:post-complete (rebuilds clients/${ACTIVE_CLIENT}/test_cases_xlsx/encore_test_cases.xlsx) | FCC block + Scenarios + post-complete run | `npm run check:tc-parity` exit 0 |
+   | GIVER | test-cases.md, test-plans.md, XLSX workbook via planner:post-complete (rebuilds clients/${ACTIVE_CLIENT}/testcases/encore_test_cases.xlsx) | FCC block + Scenarios + post-complete run | `npm run check:tc-parity` exit 0 |
    | BUILDER | specs/<module>/*.spec.ts | FCC describe block at top + first-run pass | `npx playwright test --list` resolves all FCC TC IDs |
    | HEALER | per-fix MD update (if RCA-driven) | MD row Status sync | `npm run check:tc-parity` exit 0 |
    | WATCHDOG | findings table (if audit-driven) | mode-specific output; no spec/MD/XLSX edits | per-mode acceptance |

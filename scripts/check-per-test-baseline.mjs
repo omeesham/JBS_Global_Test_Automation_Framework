@@ -113,12 +113,18 @@ const ENFORCED = [
     describes: [{ title: 'Location Account and Address @locations @account-address', mechanism: 'beforeEach-reset' }],
   },
   {
-    // Both Override save-cycle describes drive real saves through the field-case runner, whose
-    // `baseline` is required per case; each also carries an afterEach restore. Registered so a
-    // regression that strips the runner (or the restore) fails here instead of flaking later.
-    specPath: 'clients/encore/tests/corporate-pricing/corporate-pricing-override.spec.ts',
+    // Equipment Override save-cycle — split from the former monolithic corporate-pricing-override.spec.ts.
+    // Drives real saves through the field-case runner whose `baseline` is required per case.
+    specPath: 'clients/encore/tests/corporate-override/corporate-override-core.spec.ts',
     describes: [
       { title: 'Corporate Pricing — Product Group Override: save-cycle (mutation, fixture-restored)', mechanism: 'fcc' },
+    ],
+  },
+  {
+    // Labor Override save-cycle — split from the former monolithic corporate-pricing-override.spec.ts.
+    // Drives real saves through the field-case runner whose `baseline` is required per case.
+    specPath: 'clients/encore/tests/corporate-override/corporate-override-nm2271.spec.ts',
+    describes: [
       { title: 'Corporate Pricing — Product Group Override: Labor save-cycle (mutation, fixture-restored)', mechanism: 'fcc' },
     ],
   },

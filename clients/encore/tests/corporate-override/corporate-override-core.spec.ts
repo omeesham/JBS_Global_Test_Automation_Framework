@@ -24,10 +24,10 @@ import { tmpdir } from 'node:os';
  * revert the fixture to the office-1604 anchors when it is resolved (the data file records them).
  *
  * RESOLVED: the grid IS editable for the automation user (an earlier exploration's "inert cells"
- * was a false negative). Edit = click the Override Price / Max Discount cell `div[role=button]` → an
- * active `spinbutton` reveals → native value-setter (React-controlled; `.fill()` does not commit) +
- * `Enter` commits → Save enables. Active = Radix `checkbox` (a per-table boolean render format) toggles + dirties.
- * Save → "Save Changes" alertdialog → `POST /navigator/api/location/corporate-price-pg-override` (filter the
+ * was a false negative). Edit = click the Override Price / Max Discount cell button → an
+ * editable number field reveals → native value-setter (React-controlled; `.fill()` does not commit) +
+ * `Enter` commits → Save enables. Active = checkbox (a per-table boolean render format) toggles + dirties.
+ * Save → "Save Changes" confirmation dialog → `POST /navigator/api/location/corporate-price-pg-override` (filter the
  * backend API path, never the page URL) → toast "Pricing overrides saved successfully." Net-zero verified
  * (revert-to-original disables Save). NM-1870 / NM-1889 not-reproduced (live verdicts recorded).
  *
@@ -68,7 +68,7 @@ test.describe('Corporate Pricing — Product Group Override: read, structure & f
     expect(await p.getActiveTab()).toBe('Equipment');
   });
 
-  test('TC-CPR-OVR-002: Equipment + Labor tabs render and switching flips aria-selected', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-002: Equipment + Labor tabs render and switching activates the selected tab', async ({ corporatePricingOverridePage: p }) => {
     await p.switchOverrideTab('Labor');
     expect(await p.getActiveTab()).toBe('Labor');
     await p.switchOverrideTab('Equipment');
@@ -188,7 +188,7 @@ test.describe('Corporate Pricing — Product Group Override: Override Price / Ma
   test('TC-CPR-OVR-017: Clicking the Override Price cell reveals an editable numeric input', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     expect(row).not.toBeNull();
-    const editorValue = await p.peekOverridePriceEditor(row!); // opens spinbutton, reads, Escapes (no change)
+    const editorValue = await p.peekOverridePriceEditor(row!); // opens number field editor, reads, Escapes (no change)
     expect(parseFloat(editorValue)).toBe(parseFloat(DEFAULTS.overridePrice)); // editor exposes the current value
   });
 
@@ -820,7 +820,7 @@ test.describe('Override SBC — Tab-Switch Dirty Persistence (Equipment)', () =>
     // Switch to Labor tab — expect NO dialog (same-page tab, not navigation)
     await overridePage.switchOverrideTab('Labor');
 
-    // Verify no alertdialog appeared
+    // Verify no confirmation dialog appeared
     const dialog = overridePage.page.locator('[role="alertdialog"]');
     await expect(dialog).toBeHidden();
 
@@ -850,7 +850,7 @@ test.describe('Override SBC — Tab-Switch Dirty Persistence (Labor)', () => {
     // Switch to Equipment tab — expect NO dialog
     await overridePage.switchOverrideTab('Equipment');
 
-    // Verify no alertdialog appeared
+    // Verify no confirmation dialog appeared
     const dialog = overridePage.page.locator('[role="alertdialog"]');
     await expect(dialog).toBeHidden();
 

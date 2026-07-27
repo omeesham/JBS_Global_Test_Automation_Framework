@@ -175,7 +175,7 @@ test.describe('Location Pricing @locations @pricing', () => {
     expect(await locationPricingPage.isStartDateEnabled(PRIMARY_TEST_ROW), 'Start Date should be disabled').toBe(false);
     expect(await locationPricingPage.isEndDateEnabled(PRIMARY_TEST_ROW), 'End Date should be disabled').toBe(false);
  // reload to clear dirty form state — unchecking Is Alternative dirtied the form
- // without saving. Without reload, TC-011 may hit an "Unsaved changes" alertdialog.
+ // without saving. Without reload, TC-011 may hit an "Unsaved changes" confirmation dialog.
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
   });
 
@@ -376,7 +376,7 @@ test.describe('Location Pricing @locations @pricing', () => {
   test('TC-LOC-PRI-023: Verify Pricing tab has dedicated Save button', async ({ locationPricingPage, dependencyGate }) => {
     dependencyGate(['TC-LOC-PRI-001']);
  // TC: Pricing tab has a dedicated Save button that enables when form is dirty.
- // Live-verified: button[data-testid="location-settings-btn-save"] exists on Pricing tab.
+ // Live-verified: the Pricing tab has its own dedicated Save button.
  // reloadPricingTab (not navigate) — forces full page reload to clear dirty state from prior serial tests
     await locationPricingPage.reloadPricingTab(OFFICE_NO);
  // M1: Save button should be DISABLED on clean page load (no pending changes)

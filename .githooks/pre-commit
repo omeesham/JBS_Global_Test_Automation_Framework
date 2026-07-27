@@ -48,7 +48,7 @@ fi
 # and on the ID-grammar registry / blocked-reasons — parity now carries the
 # semantic guardrails 6/7 which key on those files.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/test_cases_xlsx/.+\.xlsx$|^export_test_cases/(module-codes|blocked-reasons)\.json$'; then
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/testcases/.+\.xlsx$|^export_test_cases/(module-codes|blocked-reasons)\.json$'; then
   echo "[pre-commit] spec file staged → running check:tc-parity (ALL-071)..." >&2
   if ! npm run --silent check:tc-parity; then
     echo "[pre-commit] HALT: ALL-071 parity gap. Fix MD/test-plan/XLSX before commit." >&2
@@ -66,7 +66,7 @@ fi
 # generators are committed (Check B). Fires whenever ANY workbook input is staged: a spec,
 # a test-case MD, the workbook itself, the builder, or blocked-reasons.json.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/specs_planning/test-cases/.+\.md$|^clients/[^/]+/test_cases_xlsx/.+\.xlsx$|^export_test_cases/.+\.(ts|json)$'; then
+     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/specs_planning/test-cases/.+\.md$|^clients/[^/]+/testcases/.+\.xlsx$|^export_test_cases/.+\.(ts|json)$'; then
   echo "[pre-commit] workbook input staged → running xlsx freshness gate (rebuild + diff)..." >&2
   if ! npm run --silent xlsx:freshness; then
     echo "[pre-commit] HALT: the deliverable workbook is stale or was built from uncommitted generators." >&2
@@ -81,7 +81,7 @@ fi
 # vocab (data-testid, BUG-LI-NNN, spec helpers, backend symbols, MCP-N verified
 # dates, NM-NNN tickets, bare YYYY-MM-DD audit markers) in the shipped TC content.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '(^clients/[^/]+/test_cases_xlsx/.+\.xlsx$|^clients/[^/]+/specs_planning/test-cases/.+\.md$)'; then
+     | grep -qE '(^clients/[^/]+/testcases/.+\.xlsx$|^clients/[^/]+/specs_planning/test-cases/.+\.md$)'; then
   echo "[pre-commit] TC MD or XLSX staged → running xlsx vocab lint (Phase D gate)..." >&2
   if ! node scripts/xlsx-vocab-lint.mjs; then
     echo "[pre-commit] HALT: client-deliverable workbook contains internal/agent vocab." >&2
@@ -317,6 +317,38 @@ if git diff --cached --name-only --diff-filter=ACMR \
      | grep -qE '^(CLAUDE\.md|\.claude/rules/|docs/read_only_docs/|\.claude/skills/|clients/[^/]+/CLAUDE\.md)'; then
   echo "[pre-commit] rule/doc/skill file staged → checking enforcement claims (announce)..." >&2
   node scripts/check-enforcement-claims.mjs --announce
+fi
+
+# --- 9) Stale-ref guard: refuse restructure-era dead paths in the live layer. ----
+# Graduating incident: PLAN_ENCORE_POM_RESTRUCTURE delivery scripts broke on moved paths.
+# Sev: S0 (broken pipeline). Unconditional: a stale reference can come from any file type
+# — no trigger pattern would predict all of them; runtime ~1.8s allows unconditional fire.
+echo "[pre-commit] running stale-ref guard (verify:no-stale-refs)..." >&2
+if ! node scripts/verify-no-stale-live-refs.mjs; then
+  echo "[pre-commit] HALT: stale pre-restructure path references in the live layer." >&2
+  echo "         Inspect: npm run verify:no-stale-refs" >&2
+  exit 1
+fi
+
+# --- 10) Test-case MD lint: staged-files-only authoring defect check. -------------
+# Graduating incident: 31 pre-existing lint errors pushed uncaught to client delivery.
+# Sev: S1 (quality drift to commit/ship). Fires only on staged test-case MDs via --staged
+# so the pre-existing backlog does not block unrelated commits.
+if git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^clients/[^/]+/specs_planning/test-cases/.+\.md$'; then
+  # Guard: ts-node must be available (devDependency; absent after npm install --production).
+  if [ ! -f node_modules/.bin/ts-node ] && ! command -v ts-node >/dev/null 2>&1; then
+    echo "[pre-commit] WARNING: ts-node not available — skipping lint:testcases. Run 'npm install'." >&2
+    mkdir -p .claude/state
+    echo "tc-md-lint-gate-10, $(date -u +%Y-%m-%dT%H:%M:%SZ), skip, ts-node-unavailable" >> .claude/state/gate-fires.log
+  else
+    echo "[pre-commit] test-case MD staged → running lint:testcases --staged..." >&2
+    if ! npx ts-node scripts/lint-test-cases.ts --staged; then
+      echo "[pre-commit] HALT: test-case lint errors in staged files." >&2
+      echo "         Inspect: npm run lint:testcases" >&2
+      exit 1
+    fi
+  fi
 fi
 
 exit 0
