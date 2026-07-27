@@ -11,10 +11,23 @@
  * clients/<client>/specs_planning/_internal/field-inventory-spec.md
  * and the parent plan PLAN_AGENT_AUTHORING_EFFICIENCY.md (AAE-D2).
  *
+ * MODE KNOB (.claude/guardrail-config.json → tc_fieldinventory_mode)
+ *   deny     — current behaviour: print every violation, exit 1. (DEFAULT)
+ *   announce — print every violation as a warning (same detail), exit 0.
+ *   off      — skip evaluation entirely, print one line saying so, exit 0.
+ *
+ * FAIL-SAFE: deny. A missing, unreadable, malformed, or unrecognised config
+ * value leaves the gate blocking — the fail-safe direction is CLOSED because
+ * this gate has been enforcing since it landed.
+ *
+ * TELEMETRY: every deny/announce verdict appends one CSV line to
+ * .claude/state/gate-fires.log:
+ *   check-tc-has-fieldinventory, <ISO timestamp>, <announce|deny>, <violation count>
+ *
  * Exit codes:
  *   0 — all staged TC edits either (a) don't touch content blocks, or (b) have
- *       a fresh paired field-inventory artifact.
- *   1 — one or more violations (error printed per violation).
+ *       a fresh paired field-inventory artifact; or mode is off/announce.
+ *   1 — one or more violations in deny mode (error printed per violation).
  *   2 — script error (git unavailable, bad args, etc.).
  *
  * Default behaviour (no args): reads `git diff --cached` and enforces against
@@ -51,6 +64,39 @@ const DEFAULT_REPO_ROOT = path.resolve(__dirname, '..');
 
 const FRESHNESS_DAYS = 14;
 const TC_MD_GLOB_RE = /^clients\/[^/]+\/specs_planning\/test-cases\/.+\.md$/;
+
+const STATE_DIR = path.join(DEFAULT_REPO_ROOT, '.claude', 'state');
+const GATE_FIRES_LOG = path.join(STATE_DIR, 'gate-fires.log');
+const GUARDRAIL_CONFIG = path.join(DEFAULT_REPO_ROOT, '.claude', 'guardrail-config.json');
+
+// ── Mode knob (mirrors check-md-first.mjs pattern; fail-safe is DENY) ────────
+
+/**
+ * Read tc_fieldinventory_mode from .claude/guardrail-config.json.
+ * Returns 'deny' | 'announce' | 'off'.
+ * Any read/parse failure or unrecognised value → 'deny' (fail-safe CLOSED).
+ */
+export function readGateMode() {
+  try {
+    if (!fs.existsSync(GUARDRAIL_CONFIG)) return 'deny';
+    const cfg = JSON.parse(fs.readFileSync(GUARDRAIL_CONFIG, 'utf8'));
+    const v = cfg.tc_fieldinventory_mode;
+    if (v === 'deny' || v === 'announce' || v === 'off') return v;
+    return 'deny';
+  } catch { return 'deny'; }
+}
+
+/**
+ * Append one CSV line to .claude/state/gate-fires.log.
+ * Swallows errors — telemetry must never change the verdict.
+ */
+function fireTelemetry(verdict, violationCount) {
+  try {
+    if (!fs.existsSync(STATE_DIR)) fs.mkdirSync(STATE_DIR, { recursive: true });
+    const line = `check-tc-has-fieldinventory, ${new Date().toISOString()}, ${verdict}, ${violationCount}`;
+    fs.appendFileSync(GATE_FIRES_LOG, line + '\n');
+  } catch { /* swallow — telemetry failure must never change the verdict */ }
+}
 
 // ---------- arg parsing ----------
 function parseArgs(argv) {
@@ -311,6 +357,14 @@ function formatViolation(v) {
 // ---------- entry point ----------
 function main() {
   const args = parseArgs(process.argv.slice(2));
+
+  // ── Mode knob: check before doing any work ──
+  const mode = readGateMode();
+  if (mode === 'off') {
+    console.log('[check-tc-has-fieldinventory] off — gate disabled via tc_fieldinventory_mode in .claude/guardrail-config.json');
+    process.exit(0);
+  }
+
   let files;
   let today;
 
@@ -340,7 +394,7 @@ function main() {
   }
 
   if (args.verbose) {
-    console.log(`[check-tc-has-fieldinventory] today=${today} repoRoot=${args.repoRoot} tcFiles=${files.length}`);
+    console.log(`[check-tc-has-fieldinventory] today=${today} repoRoot=${args.repoRoot} tcFiles=${files.length} mode=${mode}`);
   }
 
   const result = evaluate({ repoRoot: args.repoRoot, files, today, freshnessDays: FRESHNESS_DAYS });
@@ -350,6 +404,26 @@ function main() {
     process.exit(0);
   }
 
+  // ── Violations found — behaviour depends on mode ──
+  fireTelemetry(mode, result.violations.length);
+
+  if (mode === 'announce') {
+    console.log('[check-tc-has-fieldinventory] WARNING — violations found (mode=announce, not blocking).');
+    console.log('');
+    console.log('One or more staged test-case markdown edits changed the behavioural content');
+    console.log('(Steps / Expected / Data / Preconditions) without a paired field-inventory');
+    console.log(`artifact dated within the last ${FRESHNESS_DAYS} days. See`);
+    console.log('clients/<client>/specs_planning/_internal/field-inventory-spec.md (SP-AAE-01).');
+    console.log('');
+    for (const v of result.violations) {
+      console.log(formatViolation(v));
+      console.log('');
+    }
+    console.log('(knob: tc_fieldinventory_mode=announce in .claude/guardrail-config.json — not blocking)');
+    process.exit(0);
+  }
+
+  // mode === 'deny' (default)
   console.error('[check-tc-has-fieldinventory] BLOCKED — commit rejected.');
   console.error('');
   console.error('One or more staged test-case markdown edits changed the behavioural content');

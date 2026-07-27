@@ -69,5 +69,19 @@
   "doctrine_ledger_ramp_target": "2026-08-22",
   "doctrine_ledger_ramp_complete": true,
   "doctrine_ledger_ramp_note": "FLIPPED to deny 2026-07-23 on the stated criterion: coverage reached 66/66 with 0 violations. The criterion was coverage, not elapsed time — the moment the corpus was fully adjudicated the gate armed, so an unadjudicated rule can never silently reappear.",
-  "doctrine_ledger_ramp_flipped": "2026-07-23"
+  "doctrine_ledger_ramp_flipped": "2026-07-23",
+  "recurrence_trial_mode": "announce",
+  "_recurrence_trial_comment": "Rollout knob for the recurrence-trial closure sub-check (Cr in validate-plan-closure.mjs). Fires on Status: DONE plans via scripts/check-recurrence-trial.mjs --file <planPath>. off = check disabled (not computed); announce = check runs + reports findings but does NOT block closure (ramp default); deny = check runs + blocks closure on FAIL. Legal values: off, announce, deny. Sev S1 per LR-069 §3.1. Graduating incident: SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL Phase 2.",
+  "recurrence_trial_ramp_started": "2026-07-25",
+  "recurrence_trial_ramp_target": "2026-08-24",
+  "recurrence_trial_ramp_complete": false,
+  "recurrence_trial_ramp_note": "Promote recurrence_trial_mode to 'deny' after >=10 clean sessions with zero false positives in announce mode. Record ramp_flipped date and set recurrence_trial_ramp_complete to true on flip.",
+  "interaction_coverage_mode": "announce",
+  "_interaction_coverage_comment": "Rollout knob for the interaction-coverage closure sub-check (Ci in validate-plan-closure.mjs). Fires on Status: DONE plans via scripts/check-interaction-coverage.mjs --plan <planPath>. off = check disabled (not computed); announce = check runs + reports findings but does NOT block closure (ramp default); deny = check runs + blocks closure on FAIL. Legal values: off, announce, deny. Sev S1 per LR-069 §3.1. Graduating incident: PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION Phase 3.",
+  "interaction_coverage_ramp_started": "2026-07-25",
+  "interaction_coverage_ramp_target": "2026-08-24",
+  "interaction_coverage_ramp_complete": false,
+  "interaction_coverage_ramp_note": "Promote interaction_coverage_mode to 'deny' after >=10 clean sessions with zero false positives in announce mode. Record ramp_flipped date and set interaction_coverage_ramp_complete to true on flip.",
+  "tc_fieldinventory_mode": "deny",
+  "_tc_fieldinventory_comment": "Mode knob for the TC-has-field-inventory pre-commit gate (scripts/check-tc-has-fieldinventory.mjs). Enforces that test-case markdown content edits have a fresh paired field-inventory artifact. deny = reject the commit (exit 1); announce = print identical violation detail as a warning but allow (exit 0); off = skip evaluation entirely (exit 0). Default is DENY — fail-safe is CLOSED because this gate has been enforcing since it landed; a missing/malformed/unrecognised value falls back to deny. This knob exists for deliberate time-boxed overrides (e.g., batch restructuring) rather than as a ramp — the gate is already proven."
 }
