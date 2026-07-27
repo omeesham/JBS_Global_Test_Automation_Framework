@@ -95,7 +95,7 @@ const hasFlag = (name) => process.argv.includes(`--${name}`);
 
 // XLSX deliverable vocab + integrity gate (LR-ENC-004). The DENY_GLOB / MARKER_GREP
 // scans above are text-based and cannot see inside the binary .xlsx, so lint every
-// workbook under <dir>/test_cases_xlsx/ with the SAME shared rules used at build and
+// workbook under <dir>/testcases/ with the SAME shared rules used at build and
 // commit time. Hard-fails the ship on any banned vocab or status/reason contradiction.
 async function lintXlsxDir(dir, label) {
   if (!fs.existsSync(dir)) return;
@@ -142,7 +142,7 @@ async function checkClient(client) {
     );
     process.exit(1);
   }
-  await lintXlsxDir(path.join(REPO_ROOT, 'clients', client, 'test_cases_xlsx'), `client=${client}`);
+  await lintXlsxDir(path.join(REPO_ROOT, 'clients', client, 'testcases'), `client=${client}`);
   console.log(`[verify-no-forbidden] OK client=${client} tracked=${tracked.length}`);
 }
 
@@ -206,7 +206,7 @@ async function checkTarget(target) {
     }
   }
 
-  await lintXlsxDir(path.join(root, 'test_cases_xlsx'), `target=${target}`);
+  await lintXlsxDir(path.join(root, 'testcases'), `target=${target}`);
   console.log(`[verify-no-forbidden] OK target=${target} files=${files.length}`);
 }
 

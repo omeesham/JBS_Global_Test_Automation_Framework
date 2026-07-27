@@ -16,7 +16,7 @@ import { CorporatePricingBasePage } from '../pages/corporate-pricing/corporate-p
 import { CorporatePricingSearchPage } from '../pages/corporate-pricing/corporate-pricing-search.page';
 import { CorporatePricingStrategyPage } from '../pages/corporate-pricing/corporate-pricing-strategy.page';
 import { CorporatePricingDetailPage } from '../pages/corporate-pricing/corporate-pricing-detail.page';
-import { CorporatePricingOverridePage } from '../pages/corporate-pricing/corporate-pricing-override.page';
+import { CorporatePricingOverridePage } from '../pages/corporate-override/corporate-override.page';
 import { CorporatePricingNewPricebookPage } from '../pages/corporate-pricing/corporate-pricing-new-pricebook.page';
 import { CommonMethods } from '../utils/env-config';
 import { Log } from '../utils/logger';

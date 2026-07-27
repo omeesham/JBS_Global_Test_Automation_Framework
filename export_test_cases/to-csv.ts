@@ -237,6 +237,12 @@ export class CsvConverter {
       const stepsMatch = body.match(/(?:\*\*)?Steps(?:\*\*)?:\s*(.+?)(?=\n\s*\*\*Expected\*\*:|\n\s*\*\*Steps \(Human\)\*\*:|\n\s*\*\*Data\*\*:|\n\s*\*\*Notes\*\*:|\n---|\n##|$)/s);
       let steps = stepsMatch && stepsMatch[1] ? stepsMatch[1].trim() : '';
 
+      // Detect and convert step-table format to inline numbered list.
+      // After the 59A migration, **Steps**: is followed by a pipe-table
+      // `| # | Step | Expected Result |`. Convert table rows back to a
+      // numbered list so downstream parseSteps tokenisation is unchanged.
+      steps = CsvConverter.convertStepTableToInline(steps);
+
       const expectedMatch = body.match(/\n\s*\*\*Expected\*\*:\s*(.+?)(?=\n\s*\*\*Data\*\*:|\n\s*\*\*Notes?\*\*:|\n\s*\*\*Flag\*\*:|\n\s*\*\*Cleanup\*\*:|\n\s*\*\*Automatable\*\*:|\n\s*\*\*MCP_VERIFICATION_LOG\*\*:|\n\s*\*\*Automation File\*\*:|\n\s*\*\*Expected Result \(Human\)\*\*:|\n---|\n##|$)/s);
       let expected = expectedMatch && expectedMatch[1] ? expectedMatch[1].trim() : '';
 
@@ -588,6 +594,33 @@ export class CsvConverter {
     // Always wrap in quotes, escape internal quotes
     value = '"' + value.replace(/"/g, '""') + '"';
     return value;
+  }
+
+  /**
+   * Detect a pipe-table step format and convert back to inline numbered list.
+   * After the 59A migration, **Steps**: is followed by:
+   *   | # | Step | Expected Result |
+   *   |---|------|-----------------|
+   *   | 1 | ... | ... |
+   * Returns the original text unchanged when no table is detected.
+   */
+  static convertStepTableToInline(text: string): string {
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length < 3 || !/^\|\s*#\s*\|\s*Step\s*\|\s*Expected Result\s*\|$/.test(lines[0]!)) {
+      return text;
+    }
+    const stepTexts: string[] = [];
+    for (let i = 2; i < lines.length; i++) {
+      const row = lines[i]!;
+      if (!row.startsWith('|')) break;
+      const cells = row.split('|').slice(1, -1).map(c => c.trim());
+      if (cells.length >= 2) {
+        const num = cells[0];
+        const stepText = (cells[1] || '').replace(/\\\|/g, '|');
+        if (stepText) stepTexts.push(`${num}. ${stepText}`);
+      }
+    }
+    return stepTexts.join('\n');
   }
 
   /**

@@ -50,7 +50,7 @@ Navigator Cloud uses **Microsoft SSO (Single Sign-On)** (Azure AD / Entra ID).
 
 ## Application Structure
 
-Navigator Cloud is an **Angular** single-page application using **Radix UI** components, that loads after authentication. (Newer surfaces — Corporate Pricing — are **React / Next.js**, not Angular; see the Corporate Pricing section + navigation.md §C.)
+Navigator Cloud is an **Angular** single-page application using **Radix UI** components, that loads after authentication. (Newer surfaces — Corporate Pricing and Corporate Override (`/pg-override`) — are **React / Next.js**, not Angular; see the Corporate Pricing section + navigation.md §C.)
 
 ### Known Features
 - Home/dashboard view with sidebar navigation
@@ -66,11 +66,13 @@ Key routes:
 - Home: `/navigator/locations/{officeId}/home`
 - Settings: `/navigator/locations/{officeId}/settings/location`
 - Sign-in: `/navigator/auth/sign-in`
+- Corporate Pricing: `/navigator/settings/corporate-pricing`
+- Corporate Override (Product Group Override): `/pg-override`
 
 ### UI Framework
 - **Angular** SPA + **Radix UI** components (Angular is NOT replaced — the angular.md rule pack, `waitForAngularStable`, LR-009/LR-023/LR-026 all govern live behavior). Some shadow-DOM-rooted tabs need shadow-piercing selectors.
-- **Corporate Pricing is React / Next.js** (App Router) — `waitForAngularStable` is a no-op there; grid loads async (wait for `tbody tr`/`th`, not the footer); React-controlled inputs need the native value-setter, not `.fill()`. See navigation.md §C.
-- `data-testid` coverage is **uneven**, NOT universal: rich on Location Settings; **near-zero on Corporate Pricing** and zero on the old-site baseline — use text/role/grid-header/content-anchored selectors where testids are absent (do NOT fabricate testids; file via ALL-056).
+- **Corporate Pricing and Corporate Override are React / Next.js** (App Router) — `waitForAngularStable` is a no-op there; grid loads async (wait for `tbody tr`/`th`, not the footer); React-controlled inputs need the native value-setter, not `.fill()`. See navigation.md §C.
+- `data-testid` coverage is **uneven**, NOT universal: rich on Location Settings; **near-zero on Corporate Pricing and Corporate Override** and zero on the old-site baseline — use text/role/grid-header/content-anchored selectors where testids are absent (do NOT fabricate testids; file via ALL-056).
 - **Save observation (LR-056)**: assert saves on the backend API endpoint (`/navigator/api/...`), NEVER on the page-URL POST — Next.js App-Router fires server-component-render POSTs to the page URL that are false-positive "saves".
 
 ---
@@ -125,7 +127,7 @@ Credentials are loaded at runtime by `CredentialLoader` (`clients/encore/src/uti
 **Current Knowledge**:
 - Authentication: Microsoft SSO (current automation user has **no 2FA** — see Authentication System above)
 - Session Management: 8-hour session persistence via the `authenticatedSession` fixture
-- Technology: **Angular** SPA + **Radix UI** (Corporate Pricing is React/Next.js), path-based routing, **uneven** `data-testid` coverage
+- Technology: **Angular** SPA + **Radix UI** (Corporate Pricing and Corporate Override are React/Next.js), path-based routing, **uneven** `data-testid` coverage
 
 **Discovery Process**:
 1. Planner agent explores the application after successful login

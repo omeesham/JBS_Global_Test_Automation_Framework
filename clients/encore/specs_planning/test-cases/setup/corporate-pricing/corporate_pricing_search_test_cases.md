@@ -1,4 +1,4 @@
-# Corporate Pricing - Search (NM-1445) Test Cases
+﻿# Corporate Pricing - Search (NM-1445) Test Cases
 
 **Module**: corporate-pricing
 
@@ -22,8 +22,8 @@
 |---|--------|---------|----------------|-------------------|
 | 1 | Pricebook | text input | (empty) | `input[placeholder="Enter name"]` |
 | 2 | Pricing Strategy | text input (**not a dropdown** — helper-corrected) | (empty) | `input[placeholder="Enter strategy"]` |
-| 3 | Location | combobox (searchable popover, **2652 options**, LR-025) | All Locations | `button[role="combobox"]:has-text("All Locations")` |
-| 4 | Currency | combobox (4 options) | All Currencies | `button[role="combobox"]:has-text("All Currencies")` |
+| 3 | Location | dropdown (searchable popover, **2652 options**, LR-025) | All Locations | `button[role="dropdown"]:has-text("All Locations")` |
+| 4 | Currency | dropdown (4 options) | All Currencies | `button[role="dropdown"]:has-text("All Currencies")` |
 | 5 | Is Internal | checkbox (Radix) | unchecked | `div:has(> *:text-is("Is Internal")) [role="checkbox"]` |
 | 6 | Is Labor | checkbox (Radix) | unchecked | `div:has(> *:text-is("Is Labor")) [role="checkbox"]` |
 | 7 | Active Only | checkbox (Radix) | **checked** | `div:has(> *:text-is("Active Only")) [role="checkbox"]` |
@@ -48,7 +48,7 @@ Actions: **Reset**, **Search** (both `button:text-is(...)`).
 | Tool | Playwright CLI (office 1604) |
 | Page | Corporate Pricing — Search (NM-1445) |
 | Stack | React/Next.js (`corporate-pricing-container.tsx`); shadow-root content; 3 generic data-testids only |
-| Filters verified | 7 — Pricebook, Pricing Strategy, Location (combobox, 2652 opts), Currency (4 opts), Is Internal, Is Labor, Active Only (default checked); see FIELD INVENTORY & DISCOVERY above |
+| Filters verified | 7 — Pricebook, Pricing Strategy, Location (dropdown, 2652 opts), Currency (4 opts), Is Internal, Is Labor, Active Only (default checked); see FIELD INVENTORY & DISCOVERY above |
 | Grid verified | real `<table>`, 9 columns, virtualized (50 of 591 rendered); boolean TRUE = `✔` Unicode, FALSE = empty (LR-036) |
 | Filter model (D2) | SERVER-SIDE — staging on input; `GET …/pricing/strategies?<params>` on **Search**; **Reset** restores defaults client-side; load fires the endpoint once |
 | Divergences raised | D1 (live 9 cols vs DOCX 8), D2 (server-side vs DOCX client-side) — `_internal/encore-questions-drafts/corporate-pricing-search-divergences-2026-06-05.md` |
@@ -63,7 +63,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Initialization / Behavioural |
 
 **Preconditions**: Authenticated; navigating to the Corporate Pricing Search page fresh.
-**Steps**: 1. Open the Corporate Pricing Search page for office 1604. 2. Wait for the results grid to populate. 3. Watch the grid while the page sits idle.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Corporate Pricing Search page for office 1604. | The Corporate Pricing Search page loads and is displayed for office 1604 |
+| 2 | Wait for the results grid to populate. | The results grid populates with the default pricebook list |
+| 3 | Watch the grid while the page sits idle. | When the page opens, the grid populates once with the default pricebook list and does not reload on its own while idle. The default view reflects the default filters: Active Only on, Is Internal off, Is Labor off, first page of results |
+
 **Expected**: When the page opens, the grid populates once with the default pricebook list and does not reload on its own while idle. The default view reflects the default filters: Active Only on, Is Internal off, Is Labor off, first page of results.
 **Data**: `expectedListRequests=1`
 **Notes**: Confirmed exactly one request on load, with no background polling.
@@ -77,7 +83,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Structural / Table headers |
 
 **Preconditions**: On the Search page after initial load.
-**Steps**: 1. Read the grid header row. 2. Confirm each expected column is present. 3. Count the columns shown.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Read the grid header row. | The grid header row is visible with a title displayed for each column |
+| 2 | Confirm each expected column is present. | Each expected column is present in the grid header row |
+| 3 | Count the columns shown. | All expected columns are present - "Price Book", "Price Book Strategy", "Price Year", "Is GSO", "Is Internal", "Is Labor", "Is Active", "Is Productions", and "Currency". The grid shows nine columns in total |
+
 **Expected**: All expected columns are present — "Price Book", "Price Book Strategy", "Price Year", "Is GSO", "Is Internal", "Is Labor", "Is Active", "Is Productions", and "Currency". The grid shows nine columns in total.
 **Data**: `expectedColumnCount=9` | `splitColumn="Productions Currency" → ["Is Productions","Currency"]`
 **Notes**: The "Productions Currency" requirement maps to two live columns ("Is Productions" and "Currency"); the test confirms every required column name appears and that the grid shows nine columns.
@@ -91,7 +103,16 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Baseline |
 
 **Preconditions**: Fresh page load (no interaction).
-**Steps**: 1. Observe the 7 filters without interacting. 2. Verify Pricebook + Pricing Strategy inputs are empty. 3. Verify Location shows "All Locations" and Currency shows "All Currencies". 4. Verify Is Internal + Is Labor checkboxes are unchecked. 5. Verify **Active Only is checked** (default). 6. Verify the item-count footer matches the `N items found` pattern.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Observe the 7 filters without interacting. | All seven filters (Pricebook, Pricing Strategy, Location, Currency, Is Internal, Is Labor, Active Only) are visible on the page |
+| 2 | Verify Pricebook + Pricing Strategy inputs are empty. | The Pricebook and Pricing Strategy input fields are empty |
+| 3 | Verify Location shows "All Locations" and Currency shows "All Currencies". | The Location field shows "All Locations" and the Currency field shows "All Currencies" |
+| 4 | Verify Is Internal + Is Labor checkboxes are unchecked. | The Is Internal and Is Labor checkboxes are unchecked |
+| 5 | Verify **Active Only is checked** (default). | The Active Only checkbox is checked by default |
+| 6 | Verify the item-count footer matches the `N items found` pattern. | All filters are at their defaults: Pricebook and Pricing Strategy empty, Location "All Locations", Currency "All Currencies", Is Internal and Is Labor unchecked, and Active Only checked. The item-count footer reads in the normal "N items found" format |
+
 **Expected**: All filters are at their defaults: Pricebook and Pricing Strategy empty, Location "All Locations", Currency "All Currencies", Is Internal and Is Labor unchecked, and Active Only checked. The item-count footer reads in the normal "N items found" format.
 **Data**: `activeOnlyDefault=checked` | `isInternalDefault=unchecked` | `isLaborDefault=unchecked`
 **Notes**: Confirmed on a fresh load that Active Only is checked by default while the other checkboxes are unchecked.
@@ -105,7 +126,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Table-cell render |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Read the boolean columns (Is GSO, Is Internal, Is Labor, Is Active, Is Productions) across the rendered rows. 2. Confirm true cells show a check mark and false cells are empty.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Read the boolean columns (Is GSO, Is Internal, Is Labor, Is Active, Is Productions) across the rendered rows. | The five boolean columns each display a value for every rendered row |
+| 2 | Confirm true cells show a check mark and false cells are empty. | Boolean columns show a check mark for true and an empty cell for false. At least one check mark is present among the displayed rows; every boolean cell is either a check mark or empty (no other text) |
+
 **Expected**: Boolean columns show a check mark for true and an empty cell for false. At least one check mark is present among the displayed rows; every boolean cell is either a check mark or empty (no other text).
 **Data**: `trueMarker=check mark` | `falseMarker=(empty)` | `booleanColumns=[Is GSO, Is Internal, Is Labor, Is Active, Is Productions]`
 **Notes**: Observed example rows — "2021-PB6" shows a check only in Is Active; "2022-NP Tier 1" shows checks in Is Active and Is Productions.
@@ -119,7 +145,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Filter — text |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Type part of a pricebook name into the "Pricebook" filter. 2. Observe the grid (it does NOT change yet — the filter is staged). 3. Click **Search**. 4. Observe the grid narrow to the matching rows.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type part of a pricebook name into the "Pricebook" filter. | The Pricebook filter field accepts and displays the typed text |
+| 2 | Observe the grid (it does NOT change yet — the filter is staged). | The grid remains unchanged while the typed value stays staged in the filter |
+| 3 | Click **Search**. | The grid reloads and narrows to rows matching the typed Pricebook filter |
+| 4 | Observe the grid narrow to the matching rows. | Typing stages the filter (the grid does not change immediately). Clicking Search applies the pricebook-name filter, and the grid narrows to rows whose Price Book name contains the typed value. Observed example - typing "2021-PB6" narrows the grid to "1 items found" (the 2021-PB6 row). Clearing the filter and clicking Search restores the broader list |
+
 **Expected**: Typing stages the filter (the grid does not change immediately). Clicking Search applies the pricebook-name filter, and the grid narrows to rows whose Price Book name contains the typed value. Observed example — typing "2021-PB6" narrows the grid to "1 items found" (the 2021-PB6 row). Clearing the filter and clicking Search restores the broader list.
 **Data**: `filterValue=2021-PB6` | `expectedNarrowedName=2021-PB6`
 **Notes**: The narrowing happens when Search is clicked, not while typing — the page re-queries the server on Search rather than filtering immediately as you type.
@@ -133,7 +166,15 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — text |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Confirm "Pricing Strategy" is a free-text box (placeholder "Enter strategy"), not a dropdown. 2. Type part of a strategy name. 3. Observe the grid is unchanged (staged). 4. Click Search and observe the grid narrow. 5. Clear the field and click Search to restore the list.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Confirm "Pricing Strategy" is a free-text box (placeholder "Enter strategy"), not a dropdown. | The Pricing Strategy field is a free-text box showing the placeholder "Enter strategy", not a dropdown |
+| 2 | Type part of a strategy name. | The Pricing Strategy field accepts and displays the typed text |
+| 3 | Observe the grid is unchanged (staged). | The grid remains unchanged while the strategy filter stays staged |
+| 4 | Click Search and observe the grid narrow. | The grid reloads and narrows to rows matching the staged Pricing Strategy filter |
+| 5 | Clear the field and click Search to restore the list. | Pricing Strategy is a free-text filter. Typing stages the filter; clicking Search applies it and narrows the grid to matching strategy names; clearing the field and clicking Search restores the list |
+
 **Expected**: Pricing Strategy is a free-text filter. Typing stages the filter; clicking Search applies it and narrows the grid to matching strategy names; clearing the field and clicking Search restores the list.
 **Data**: `control=text box` | `placeholder=Enter strategy`
 **Notes**: The Pricing Strategy filter is a free-text box, not a dropdown.
@@ -147,7 +188,16 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — dropdown |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Open the "Currency" dropdown. 2. Verify the options: All Currencies, USD, CAD, MXN. 3. Select a currency (e.g. USD). 4. Observe the grid is unchanged (staged). 5. Click Search and observe the grid reload its results. 6. Clear back to "All Currencies" and click Search to restore.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the "Currency" dropdown. | The Currency dropdown opens and displays its list of options |
+| 2 | Verify the options: All Currencies, USD, CAD, MXN. | The Currency dropdown lists exactly All Currencies, USD, CAD, and MXN |
+| 3 | Select a currency (e.g. USD). | The selected currency (USD) is displayed in the Currency field |
+| 4 | Observe the grid is unchanged (staged). | The grid remains unchanged while the selected currency stays staged |
+| 5 | Click Search and observe the grid reload its results. | The grid reloads and updates to reflect the selected currency filter |
+| 6 | Clear back to "All Currencies" and click Search to restore. | The Currency dropdown lists exactly [All Currencies, USD, CAD, MXN]. Selecting a value stages it (no immediate change); clicking Search applies the currency filter and the grid reflects the chosen currency; resetting to "All Currencies" and clicking Search restores the full set |
+
 **Expected**: The Currency dropdown lists exactly [All Currencies, USD, CAD, MXN]. Selecting a value stages it (no immediate change); clicking Search applies the currency filter and the grid reflects the chosen currency; resetting to "All Currencies" and clicking Search restores the full set.
 **Data**: `currencyOptions=[All Currencies, USD, CAD, MXN]`
 **Notes**: Covers one representative dropdown filter narrowing the grid and then clearing back to the full list.
@@ -161,7 +211,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — dropdown |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Verify the Location filter default shows "All Locations". 2. Open the dropdown. 3. Verify it renders many location options (a searchable popover; first entry "Clear selection", then rows showing each office number and name). 4. Press Escape to close.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Verify the Location filter default shows "All Locations". | The Location filter shows "All Locations" by default |
+| 2 | Open the dropdown. | The Location dropdown opens and displays a searchable popover |
+| 3 | Verify it renders many location options (a searchable popover; first entry "Clear selection", then rows showing each office number and name). | The popover lists "Clear selection" first, followed by rows showing each office number and name |
+| 4 | Press Escape to close. | Location defaults to "All Locations" and opens a searchable popover listing the location options (more than 200). The narrowing behavior for each individual location is covered separately |
+
 **Expected**: Location defaults to "All Locations" and opens a searchable popover listing the location options (more than 200). The narrowing behavior for each individual location is covered separately.
 **Data**: `default=All Locations` | `firstEntry=Clear selection`
 **Notes**: This case confirms the default value and that the searchable list of locations is present; per-location narrowing is covered separately.
@@ -175,7 +232,15 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Filter — checkbox |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Tick the "Is Internal" checkbox. 2. Observe the grid is unchanged (the filter is staged, not yet applied). 3. Click Search. 4. Observe that the grid narrows to internal pricebooks. 5. Untick the checkbox and click Search to restore the list.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Tick the "Is Internal" checkbox. | The Is Internal checkbox becomes checked |
+| 2 | Observe the grid is unchanged (the filter is staged, not yet applied). | The grid remains unchanged while the Is Internal filter stays staged |
+| 3 | Click Search. | Clicking Search applies the staged Is Internal filter and reloads the grid |
+| 4 | Observe that the grid narrows to internal pricebooks. | The grid narrows to display only internal pricebooks |
+| 5 | Untick the checkbox and click Search to restore the list. | Ticking Is Internal stages the filter (the checkbox shows as checked; the grid stays unchanged). Clicking Search applies the internal-only filter and narrows the grid to internal rows. Unticking and clicking Search restores the list |
+
 **Expected**: Ticking Is Internal stages the filter (the checkbox shows as checked; the grid stays unchanged). Clicking Search applies the internal-only filter and narrows the grid to internal rows (observed example — "3 items found", the first being "2023-Internal1" with Is Internal checked). Unticking and clicking Search restores the list.
 **Data**: `filter=Is Internal` | `verifiedNarrowed=3 items`
 **Notes**: The narrowing happens on Search, not when the checkbox is ticked.
@@ -189,7 +254,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — checkbox |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Tick "Is Labor". 2. Observe the filter is staged (the grid is unchanged). 3. Click Search and observe that the grid narrows to labor rows. 4. Untick the checkbox and click Search to restore the list.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Tick "Is Labor". | The Is Labor checkbox becomes checked |
+| 2 | Observe the filter is staged (the grid is unchanged). | The grid remains unchanged while the Is Labor filter stays staged |
+| 3 | Click Search and observe that the grid narrows to labor rows. | Clicking Search applies the Is Labor filter and the grid updates to show only labor rows |
+| 4 | Untick the checkbox and click Search to restore the list. | Is Labor stages while ticked, then applies on Search; the grid narrows to labor rows; unticking and clicking Search restores the list |
+
 **Expected**: Is Labor stages while ticked, then applies on Search; the grid narrows to labor rows; unticking and clicking Search restores the list.
 **Data**: `filter=Is Labor`
 **Notes**: The narrowing happens on Search, not when the checkbox is ticked.
@@ -203,7 +275,15 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Filter — checkbox |
 
 **Preconditions**: Fresh page load (Active Only checked by default).
-**Steps**: 1. Verify Active Only is checked. 2. Uncheck it. 3. Observe the change is staged (the grid is unchanged). 4. Click Search and observe that the grid now includes inactive pricebooks as well. 5. Re-check Active Only and click Search to return to active-only.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Verify Active Only is checked. | The Active Only checkbox is checked |
+| 2 | Uncheck it. | The Active Only checkbox becomes unchecked |
+| 3 | Observe the change is staged (the grid is unchanged). | The grid remains unchanged while the unchecked state stays staged |
+| 4 | Click Search and observe that the grid now includes inactive pricebooks as well. | The grid reloads and includes inactive pricebooks alongside active ones |
+| 5 | Re-check Active Only and click Search to return to active-only. | Active Only defaults to checked (the page loads showing active pricebooks only). Unchecking stages the change; clicking Search re-queries without the active-only restriction, so inactive pricebooks appear alongside active ones. Re-checking and clicking Search returns to active-only |
+
 **Expected**: Active Only defaults to checked (the page loads showing active pricebooks only). Unchecking stages the change; clicking Search re-queries without the active-only restriction, so inactive pricebooks appear alongside active ones. Re-checking and clicking Search returns to active-only.
 **Data**: `default=checked`
 **Notes**: The grid's "Is Active" column and the "Active Only" filter both refer to the pricing strategy's active flag, not the pricebook record's status — do not conflate the two.
@@ -217,7 +297,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Reset |
 
 **Preconditions**: At least one text filter typed, one dropdown selected, one checkbox toggled, and a Search performed (grid narrowed).
-**Steps**: 1. With filters applied and the grid narrowed, click **Reset**. 2. Observe every input.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | With filters applied and the grid narrowed, click **Reset**. | Clicking Reset restores the grid and all filter inputs to their default state instantly |
+| 2 | Observe every input. | Reset clears the text inputs (Pricebook and Pricing Strategy become empty), resets the dropdowns to "All Locations"/"All Currencies", returns the checkboxes to their defaults (Is Internal and Is Labor unchecked, "Active Only re-checked"), AND restores the grid to the full original list - and the full list returns instantly. A second Reset on the already-clean state has no effect |
+
 **Expected**: Reset clears the text inputs (Pricebook and Pricing Strategy become empty), resets the dropdowns to "All Locations"/"All Currencies", returns the checkboxes to their defaults (Is Internal and Is Labor unchecked, **Active Only re-checked**), AND restores the grid to the full original list — and the full list returns instantly. A second Reset on the already-clean state has no effect.
 **Data**: `resetCheckboxes=[false, false, true]` (Is Internal, Is Labor, Active Only) | `resetText=["",""]`
 **Notes**: Reset clears all filter inputs and restores the original list immediately, without sending a new request to the server.
@@ -231,7 +316,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Network assertion |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Type into the Pricebook filter. 2. Toggle the Is Internal checkbox. 3. Open the Currency dropdown and select a value. 4. Observe the grid after each action.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type into the Pricebook filter. | The Pricebook filter field accepts and displays the typed text |
+| 2 | Toggle the Is Internal checkbox. | The Is Internal checkbox toggles to checked |
+| 3 | Open the Currency dropdown and select a value. | The selected currency value is displayed in the Currency field |
+| 4 | Observe the grid after each action. | The grid does not change during typing, toggling, or selecting - the filters are held until Search is clicked |
+
 **Expected**: The grid does not change during typing, toggling, or selecting — the filters are held until Search is clicked.
 **Data**: `expectedNewRequests=0`
 **Notes**: Confirms that entering filter values sends no request until Search is clicked.
@@ -245,7 +337,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Network assertion |
 
 **Preconditions**: On the Search page; a filter staged (for example, Is Internal ticked).
-**Steps**: 1. With Is Internal staged, click **Search**. 2. Observe the grid update.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | With Is Internal staged, click **Search**. | Clicking Search applies the staged Is Internal filter and the grid reloads |
+| 2 | Observe the grid update. | Clicking Search applies the staged filter (the internal-only filter) and the grid re-renders to show the matching rows. This confirms the filters are applied only when Search is clicked, not instantly as values are entered |
+
 **Expected**: Clicking Search applies the staged filter (the internal-only filter) and the grid re-renders to show the matching rows. This confirms the filters are applied only when Search is clicked, not instantly as values are entered.
 **Data**: `expectedNewRequests=1` | `carriesFilter=Is Internal`
 **Notes**: Confirms the filters are applied on the server only when Search is clicked.
@@ -259,7 +356,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Navigation |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Click a Price Book name in the grid (for example, "2021-PB6"). 2. Observe where it lands.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Click a Price Book name in the grid (for example, "2021-PB6"). | Clicking the Price Book name begins navigation away from the Search page toward the pricebook's Details page |
+| 2 | Observe where it lands. | The browser opens that pricebook's Corporate Pricing Details page (a details URL that includes the pricebook's unique identifier); the page heading reads "Corporate Pricing Details" |
+
 **Expected**: The browser opens that pricebook's Corporate Pricing Details page (a details URL that includes the pricebook's unique identifier); the page heading reads "Corporate Pricing Details".
 **Data**: `sampleName=2021-PB6` | `destination=Corporate Pricing Details page for that pricebook` | `detailsHeading=Corporate Pricing Details`
 **Notes**: Each Price Book name in the grid is a clickable link that opens its own details page.
@@ -273,7 +375,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Navigation / Route-param |
 
 **Preconditions**: On the Search page.
-**Steps**: 1. Click the **New** button (it opens a menu). 2. Click "Equipment Pricing". 3. Observe where it lands.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Click the **New** button (it opens a menu). | Clicking the New button opens a menu listing pricing type options |
+| 2 | Click "Equipment Pricing". | Clicking Equipment Pricing begins navigation to the add-pricing page in equipment mode |
+| 3 | Observe where it lands. | The browser opens the add-pricing page in "equipment" mode - the destination carries an "equipment" type indicator, so the add page knows to create an equipment pricing record (a required behavior) |
+
 **Expected**: The browser opens the add-pricing page in **equipment** mode — the destination carries an "equipment" type indicator, so the add page knows to create an equipment pricing record (a required behavior).
 **Data**: `menuItem=Equipment Pricing` | `mode=equipment`
 **Notes**: New is a menu button; a normal click opens the menu, exposing the Equipment Pricing and Labor Pricing choices.
@@ -287,7 +395,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Navigation / Route-param |
 
 **Preconditions**: On the Search page.
-**Steps**: 1. Click the **New** button. 2. Click "Labor Pricing". 3. Observe where it lands.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Click the **New** button. | Clicking the New button opens a menu listing pricing type options |
+| 2 | Click "Labor Pricing". | Clicking Labor Pricing begins navigation to the add-pricing page in labor mode |
+| 3 | Observe where it lands. | The browser opens the add-pricing page in "labor" mode - the destination carries a "labor" type indicator, so the add page knows to create a labor pricing record (a required behavior) |
+
 **Expected**: The browser opens the add-pricing page in **labor** mode — the destination carries a "labor" type indicator, so the add page knows to create a labor pricing record (a required behavior).
 **Data**: `menuItem=Labor Pricing` | `mode=labor`
 **Notes**: Selecting Labor Pricing from the New menu opens the add page set up for a labor pricing record.
@@ -301,7 +415,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | UI affordance |
 
 **Preconditions**: On the Search page.
-**Steps**: 1. Locate the action-bar buttons. 2. Confirm each is present. 3. Confirm "New" is a focusable, clickable button (opens its menu).
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Locate the action-bar buttons. | The action bar is visible with its full set of buttons displayed |
+| 2 | Confirm each is present. | Each expected action-bar button is present |
+| 3 | Confirm "New" is a focusable, clickable button (opens its menu). | The action bar shows: New, Pricing Override, Loc Pricing Export, Loc Pricing Import, Export, Import, Grid Options - all present as buttons. "New" behaves as a button (opens the Equipment/Labor menu). The "Pricing Override" button is present; its destination page is not yet built, so where it leads is checked separately once that page ships |
+
 **Expected**: The action bar shows: New, Pricing Override, Loc Pricing Export, Loc Pricing Import, Export, Import, Grid Options — all present as buttons. "New" behaves as a button (opens the Equipment/Labor menu). The "Pricing Override" button is present; its destination page is not yet built, so where it leads is checked separately once that page ships.
 **Data**: `actionBar=[New, Pricing Override, Loc Pricing Export, Loc Pricing Import, Export, Import, Grid Options]`
 **Notes**: This case confirms the action-bar buttons are present and that New behaves as a button. Where the Pricing Override button leads is covered separately, once that destination page is built.
@@ -319,7 +439,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — text / negative |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Type a pricebook name that matches nothing (e.g. "ZZZ-NOPE-NOMATCH-9999"). 2. Click Search. 3. Observe the grid.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type a pricebook name that matches nothing (e.g. "ZZZ-NOPE-NOMATCH-9999"). | The Pricebook filter field accepts and displays the typed text |
+| 2 | Click Search. | The grid reloads and shows "0 items found" |
+| 3 | Observe the grid. | Clicking Search applies the Pricebook-name filter and the grid shows "0 items found" - a clean empty result, no error |
+
 **Expected**: Clicking Search applies the Pricebook-name filter and the grid shows "0 items found" — a clean empty result, no error.
 **Data**: `noMatchExample=ZZZ-NOPE-NOMATCH-9999` | `param=pricebookName` | `expectedCount=0`
 **Notes**: A non-matching filter returns an empty grid; the filtering happens on the server when Search is clicked.
@@ -333,7 +459,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — text / boundary overflow |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Type a 250-character value into the Pricebook filter. 2. Confirm the field staged the full value (no length cap). 3. Confirm a natural Tab moves focus out of the field. 4. Click Search.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type a 250-character value into the Pricebook filter. | The Pricebook field accepts and displays all 250 typed characters |
+| 2 | Confirm the field staged the full value (no length cap). | The field retains the full 250-character value with no truncation |
+| 3 | Confirm a natural Tab moves focus out of the field. | Pressing Tab moves focus out of the field naturally |
+| 4 | Click Search. | The field accepts all 250 characters (no length limit); the field shows no validation error and focus can leave it naturally; Search returns "0 items found" and the page does not crash |
+
 **Expected**: The field accepts all 250 characters (no length limit); the field shows no validation error and focus can leave it naturally; Search returns "0 items found" and the page does not crash.
 **Data**: `overflowLen=250` | `param=pricebookName` | `expectedCount=0` | `maxlength=none`
 **Notes**: The Pricebook input has no length limit; a 250-character value returns an empty grid without error. The field shows no false error and focus exits normally.
@@ -347,7 +480,15 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Filter — text / negative special-chars |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Type a string of special characters (`%_'"<>&#`) into the Pricebook filter. 2. Confirm the field staged the literal text and shows no validation error. 3. Confirm a natural Tab moves focus out of the field (recorded before any cleanup key). 4. Click Search. 5. Confirm the page did not throw an error.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type a string of special characters (`%_'"<>&#`) into the Pricebook filter. | The Pricebook filter field accepts the special characters and shows no validation error. |
+| 2 | Confirm the field staged the literal text and shows no validation error. | The filter field displays the typed special characters exactly as entered, with no error message shown. |
+| 3 | Confirm a natural Tab moves focus out of the field (recorded before any cleanup key). | Tab moves focus away from the Pricebook filter field without trapping it. |
+| 4 | Click Search. | The search runs with the special-character string as the filter value. |
+| 5 | Confirm the page did not throw an error. | The page remains healthy with no error, and the grid shows zero items found. |
+
 **Expected**: The field accepts the special characters literally (no validation error); the value is accepted as a literal text filter; the grid shows "0 items found"; the page stays healthy (no error page). A natural Tab moves focus out of the field — no focus-trap.
 **Data**: `special=%_'"<>&#` | `param=pricebookName` | `expectedCount=0` | `pageError=0`
 **Notes**: Unlike the dropdown filters (which can break when tampered with), the plain text input handles arbitrary characters safely — no error, and focus exits normally.
@@ -361,7 +502,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Low | Automated | Filter — text / negative whitespace |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Type only spaces ("   ") into the Pricebook filter. 2. Confirm the field accepts it and a natural Tab moves focus out. 3. Click Search.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type only spaces ("   ") into the Pricebook filter. | The Pricebook field accepts the spaces and shows them staged in the input |
+| 2 | Confirm the field accepts it and a natural Tab moves focus out. | The field accepts the value and Tab moves focus out of the field naturally |
+| 3 | Click Search. | The whitespace-only value stages and submits; the server treats it as no meaningful filter and returns the full list (the item count shows the full size, not zero); no error |
+
 **Expected**: The whitespace-only value stages and submits; the server treats it as no meaningful filter and returns the full list (the item count shows the full size, not zero); no error.
 **Data**: `whitespace="   "` | `param=pricebookName` | `expectedResult=full list`
 **Notes**: Whitespace alone is not a zero-result and not an error — the server returns the full set. The field shows no false error and focus exits normally.
@@ -375,7 +522,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — text / negative |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Type a strategy name that matches nothing into the "Pricing Strategy" filter. 2. Click Search. 3. Observe that the grid updates.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type a strategy name that matches nothing into the "Pricing Strategy" filter. | The Pricing Strategy field accepts and displays the typed text |
+| 2 | Click Search. | The grid reloads and shows "0 items found" |
+| 3 | Observe that the grid updates. | Clicking Search applies the Pricing-Strategy-name filter and the grid shows "0 items found" |
+
 **Expected**: Clicking Search applies the Pricing-Strategy-name filter and the grid shows "0 items found".
 **Data**: `noMatchExample=ZZZ-NOPE-STRAT` | `param=pricingStrategyName` | `expectedCount=0`
 **Notes**: The Pricing Strategy filter is searched on the server by strategy name; a non-matching value returns an empty grid.
@@ -389,7 +542,11 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — dropdown / each-option |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. For each currency (USD, CAD, MXN): open the Currency dropdown, select it, click Search, observe the grid update, then Reset.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | For each currency (USD, CAD, MXN): open the Currency dropdown, select it, click Search, observe the grid update, then Reset. | Each currency selection stages (no immediate change) and clicking Search applies the selected currency; the grid updates to reflect the chosen currency |
+
 **Expected**: Each currency selection stages (no immediate change) and clicking Search applies the selected currency; the grid updates to reflect the chosen currency.
 **Data**: `options=[USD, CAD, MXN]` | `param=currencyId`
 **Notes**: Extends the single representative currency (USD) checked in P1 to all three available options; each selection produces its own server query. CAD may return no rows depending on the data, so the count is not asserted.
@@ -403,7 +560,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — dropdown / each-option (representative) |
 
 **Preconditions**: On the Search page with results loaded.
-**Steps**: 1. Open the Location dropdown. 2. Select the first real location option (skip "Clear selection"). 3. Click Search. 4. Observe that the grid updates.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Location dropdown. | The Location dropdown opens and displays a searchable popover of locations |
+| 2 | Select the first real location option (skip "Clear selection"). | The selected location is displayed in the Location field |
+| 3 | Click Search. | The grid reloads and narrows to the selected location's pricebooks |
+| 4 | Observe that the grid updates. | Selecting a specific location stages it and clicking Search applies the location filter; the grid narrows to that location's pricebooks (count is at or below the full list) |
+
 **Expected**: Selecting a specific location stages it and clicking Search applies the location filter; the grid narrows to that location's pricebooks (count is at or below the full list).
 **Data**: `param=locationNo` | `pick=first real option`
 **Notes**: The Location filter narrows by the chosen office; the representative option is read from the list dynamically rather than hardcoded.
@@ -417,7 +581,15 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — checkbox / toggle and revert |
 
 **Preconditions**: Fresh page load (Is Internal unchecked).
-**Steps**: 1. Note the baseline count. 2. Tick Is Internal and click Search. 3. Note the new count. 4. Untick Is Internal and click Search. 5. Compare to baseline.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Note the baseline count. | The "items found" footer displays the current baseline count |
+| 2 | Tick Is Internal and click Search. | The grid reloads and narrows to internal rows only |
+| 3 | Note the new count. | The "items found" footer displays the updated count for internal rows |
+| 4 | Untick Is Internal and click Search. | The grid reloads and returns to the unfiltered baseline list |
+| 5 | Compare to baseline. | Ticking applies the internal-only filter and the grid changes to internal rows; unticking and clicking Search restores the baseline count. The toggle is symmetric |
+
 **Expected**: Ticking applies the internal-only filter and the grid changes to internal rows; unticking and clicking Search restores the baseline count. The toggle is symmetric.
 **Data**: `param=isInternal` | `revert=baseline`
 **Notes**: Adds the revert (untick → restore) half that the P1 internal-filter case did not assert.
@@ -431,7 +603,15 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Filter — checkbox / toggle and revert |
 
 **Preconditions**: Fresh page load (Is Labor unchecked).
-**Steps**: 1. Note the baseline count. 2. Tick Is Labor and click Search. 3. Note the new count. 4. Untick Is Labor and click Search. 5. Compare to baseline.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Note the baseline count. | The "items found" footer displays the current baseline count |
+| 2 | Tick Is Labor and click Search. | The grid reloads and switches to show the labor population |
+| 3 | Note the new count. | The "items found" footer displays the updated count for labor rows |
+| 4 | Untick Is Labor and click Search. | The grid reloads and returns to the unfiltered baseline list |
+| 5 | Compare to baseline. | Ticking applies the labor filter and the grid switches to the labor population (which may be LARGER than the non-labor default - not a narrowing); unticking and clicking Search restores the baseline count |
+
 **Expected**: Ticking applies the labor filter and the grid switches to the labor population (which may be LARGER than the non-labor default — not a narrowing); unticking and clicking Search restores the baseline count.
 **Data**: `param=isLabor` | `revert=baseline` | `note=labor is a different population, not a subset`
 **Notes**: Is Labor switches between the non-labor (default) and labor sets — the labor set can be larger. The check is symmetry and revert, not "fewer rows".
@@ -445,7 +625,15 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Filter — checkbox / toggle and revert |
 
 **Preconditions**: Fresh page load (Active Only checked by default).
-**Steps**: 1. Note the baseline count (Active Only checked by default). 2. Uncheck Active Only and click Search. 3. Note the new count. 4. Re-check Active Only and click Search. 5. Compare to baseline.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Note the baseline count (Active Only checked by default). | The "items found" footer displays the active-only baseline count |
+| 2 | Uncheck Active Only and click Search. | The grid reloads and includes inactive pricebooks alongside active ones |
+| 3 | Note the new count. | The "items found" footer displays the updated count including inactive rows |
+| 4 | Re-check Active Only and click Search. | The grid reloads and returns to showing active pricebooks only |
+| 5 | Compare to baseline. | Unchecking Active Only drops the active-only restriction entirely; the grid reveals inactive pricebooks alongside active ones (count grows to at least the baseline). Re-checking restores the active-only view and the baseline count |
+
 **Expected**: Unchecking Active Only drops the active-only restriction entirely; the grid reveals inactive pricebooks alongside active ones (count grows to at least the baseline). Re-checking restores the active-only view and the baseline count.
 **Data**: `param=isActive` | `uncheckedBehavior=restriction dropped` | `revert=baseline`
 **Notes**: Adds the re-check → restore half and the detail that unchecking drops the active filter entirely — neither of which the P1 active-only case captured.
@@ -459,7 +647,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | Medium | Automated | Reset / idempotency |
 
 **Preconditions**: On the Search page; several filters applied and the grid narrowed.
-**Steps**: 1. Apply a text filter and a checkbox, then click Search. 2. Click Reset and note the result. 3. Click Reset a second time and note the result.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Apply a text filter and a checkbox, then click Search. | The grid reloads and narrows according to the applied text filter and checkbox |
+| 2 | Click Reset and note the result. | Clicking Reset clears the inputs and restores the grid to the full list |
+| 3 | Click Reset a second time and note the result. | The first Reset restores the full list and clears the inputs. A second Reset on the already-clean state has no further effect - the result is unchanged. After both resets, all inputs are cleared (Pricebook empty, Is Internal unchecked) |
+
 **Expected**: The first Reset restores the full list and clears the inputs. A second Reset on the already-clean state has no further effect — the result is unchanged. After both resets, all inputs are cleared (Pricebook empty, Is Internal unchecked).
 **Data**: `resetServerCalls=0` | `doubleReset=no further effect`
 **Notes**: Reset restores in the browser; a second Reset adds nothing.
@@ -473,7 +667,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 | High | Automated | Filter — combined |
 
 **Preconditions**: Fresh page load.
-**Steps**: 1. Stage a Pricebook text value, a Currency selection, and the Is Internal checkbox together (no Search yet). 2. Confirm the grid does not change yet while staging. 3. Click Search once. 4. Observe that the grid updates.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Stage a Pricebook text value, a Currency selection, and the Is Internal checkbox together (no Search yet). | All three values (Pricebook text, Currency selection, Is Internal checkbox) are staged in their fields |
+| 2 | Confirm the grid does not change yet while staging. | The grid remains unchanged while the three filters stay staged |
+| 3 | Click Search once. | The grid reloads and narrows by all three staged filters together |
+| 4 | Observe that the grid updates. | Staging multiple filters does not change the grid; clicking Search applies all the staged filters together (Pricebook name, Currency, and Is Internal) and the grid narrows by all conditions at once |
+
 **Expected**: Staging multiple filters does not change the grid; clicking Search applies all the staged filters together (Pricebook name, Currency, and Is Internal) and the grid narrows by all conditions at once.
 **Data**: `stagedRequests=0` | `searchRequests=1` | `filters=[Pricebook, Currency, Is Internal]`
 **Notes**: Exercises several filters at once — a single request, all conditions applied together.
@@ -494,10 +695,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Click the "Grid Options" button and expect a menu or panel to open.
-2. Read the list of items in the menu.
-3. Confirm "Reset to Default View" is present.
-4. Confirm exactly 9 column-toggle items are present, one for each column: Price Book, Price Book Strategy, Price Year, Is GSO, Is Internal, Is Labor, Is Active, Is Productions, Currency.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Click the "Grid Options" button and expect a menu or panel to open. | Clicking Grid Options opens a menu panel |
+| 2 | Read the list of items in the menu. | The menu displays a list of items, including toggles for each grid column |
+| 3 | Confirm "Reset to Default View" is present. | The "Reset to Default View" option is present in the menu |
+| 4 | Confirm exactly 9 column-toggle items are present, one for each column: Price Book, Price Book Strategy, Price Year, Is GSO, Is Internal, Is Labor, Is Active, Is Productions, Currency. | The Grid Options menu opens and presents "Reset to Default View" plus one toggle entry per grid column (9 total). All 9 toggles are visible in the menu before any column has been hidden |
 
 **Expected**: The Grid Options menu opens and presents "Reset to Default View" plus one toggle entry per grid column (9 total). All 9 toggles are visible in the menu before any column has been hidden.
 **Data**: `expectedToggles=9` | `toggleNames=[Price Book, Price Book Strategy, Price Year, Is GSO, Is Internal, Is Labor, Is Active, Is Productions, Currency]` | `resetOption=Reset to Default View`
@@ -515,10 +718,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with all 9 columns visible (default state).
 **Steps**:
-1. Open Grid Options.
-2. Click the toggle for "Is GSO" to turn it off.
-3. Close the menu and observe the grid.
-4. Reload the page and observe the grid again.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open Grid Options. | The Grid Options menu opens |
+| 2 | Click the toggle for "Is GSO" to turn it off. | The "Is GSO" toggle switches to off in the menu |
+| 3 | Close the menu and observe the grid. | The menu closes and the "Is GSO" column disappears from the grid |
+| 4 | Reload the page and observe the grid again. | After toggling "Is GSO" off, the "Is GSO" column disappears from the grid (no header, no cells). After a full page reload, "Is GSO" remains hidden - the column-visibility setting is persisted (not reset on navigation) |
 
 **Expected**: After toggling "Is GSO" off, the "Is GSO" column disappears from the grid (no header, no cells). After a full page reload, "Is GSO" remains hidden — the column-visibility setting is persisted (not reset on navigation).
 **Data**: `testedColumn=Is GSO` | `expectedColumnCountAfterHide=8` | `persistenceCheck=reload`
@@ -536,10 +741,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: At least one column has been hidden via Grid Options (e.g. SRC-032 left "Is GSO" hidden). On the Search page.
 **Steps**:
-1. Open Grid Options.
-2. Click "Reset to Default View".
-3. Close the menu and observe the grid.
-4. Reload the page and observe the grid again.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open Grid Options. | The Grid Options menu opens |
+| 2 | Click "Reset to Default View". | Clicking "Reset to Default View" restores all toggles to enabled in the menu |
+| 3 | Close the menu and observe the grid. | The menu closes and all 9 columns reappear in the grid |
+| 4 | Reload the page and observe the grid again. | After "Reset to Default View", all 9 columns reappear in the grid. After a full page reload, all 9 columns are still present - the reset to defaults is persisted and survives navigation |
 
 **Expected**: After "Reset to Default View", all 9 columns reappear in the grid. After a full page reload, all 9 columns are still present — the reset to defaults is persisted and survives navigation.
 **Data**: `expectedColumnCountAfterReset=9` | `persistenceCheck=reload`
@@ -559,9 +766,11 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded. Currency filter set to "All Currencies" (default).
 **Steps**:
-1. Open the Currency dropdown and select "USD".
-2. Click Search and wait for the grid to re-render.
-3. Read the Currency column value for every visible row.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Currency dropdown and select "USD". | "USD" is displayed as the selected value in the Currency field |
+| 2 | Click Search and wait for the grid to re-render. | The grid reloads and re-renders with the USD currency filter applied |
+| 3 | Read the Currency column value for every visible row. | Every visible row in the Currency column shows "USD". No row shows "CAD", "MXN", or any other value. The "N items found" text reflects the narrowed set |
 
 **Expected**: Every visible row in the Currency column shows "USD". No row shows "CAD", "MXN", or any other value. The "N items found" text reflects the narrowed set.
 **Data**: `filterValue=USD` | `columnToCheck=Currency` | `expectedCellValue=USD`
@@ -577,9 +786,11 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded. Is Internal checkbox unchecked (default).
 **Steps**:
-1. Tick the "Is Internal" checkbox.
-2. Click Search and wait for the grid to re-render.
-3. Read the "Is Internal" column value for every visible row.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Tick the "Is Internal" checkbox. | The Is Internal checkbox becomes checked |
+| 2 | Click Search and wait for the grid to re-render. | The grid reloads and re-renders with the Is Internal filter applied |
+| 3 | Read the "Is Internal" column value for every visible row. | Every visible row shows a checkmark in the Is Internal column. No row has an empty Is Internal cell. The "N items found" text reflects the narrowed set |
 
 **Expected**: Every visible row shows a checkmark in the Is Internal column (LR-036). No row has an empty Is Internal cell. The "N items found" text reflects the narrowed set.
 **Data**: `filter=Is Internal` | `columnToCheck=Is Internal` | `expectedCellValue=✔ (Unicode)` | `booleanFormat=LR-036`
@@ -595,10 +806,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded. Is Labor checkbox unchecked (default). Note the baseline "items found" count.
 **Steps**:
-1. Tick "Is Labor".
-2. Click Search and wait for the grid to re-render.
-3. Read the Is Labor column value for every visible row.
-4. Note the new "items found" count and compare to baseline.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Tick "Is Labor". | The Is Labor checkbox becomes checked |
+| 2 | Click Search and wait for the grid to re-render. | The grid reloads and re-renders with the Is Labor filter applied |
+| 3 | Read the Is Labor column value for every visible row. | The Is Labor column displays a value for every visible row |
+| 4 | Note the new "items found" count and compare to baseline. | Every visible row shows a checkmark in the Is Labor column. The returned item count may be LARGER than the baseline (the labor population is a separate set, not a subset of the default view). No non-labor row appears |
 
 **Expected**: Every visible row shows a checkmark in the Is Labor column. The returned item count may be LARGER than the baseline (the labor population is a separate set, not a subset of the default view). No non-labor row appears.
 **Data**: `filter=Is Labor` | `columnToCheck=Is Labor` | `expectedCellValue=✔ (Unicode)` | `countNote=labor set may be larger than non-labor default`
@@ -614,12 +827,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: Fresh page load (Active Only checked by default). Note the baseline "items found" count.
 **Steps**:
-1. Uncheck "Active Only".
-2. Click Search and wait for the grid to re-render.
-3. Confirm the Is Active column has at least one empty cell (inactive row present).
-4. Re-check "Active Only".
-5. Click Search and wait for the grid to re-render.
-6. Read the Is Active column for every visible row.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Uncheck "Active Only". | The Active Only checkbox becomes unchecked |
+| 2 | Click Search and wait for the grid to re-render. | The grid reloads and re-renders including inactive pricebooks |
+| 3 | Confirm the Is Active column has at least one empty cell (inactive row present). | The Is Active column shows at least one empty cell for an inactive row |
+| 4 | Re-check "Active Only". | The Active Only checkbox becomes checked again |
+| 5 | Click Search and wait for the grid to re-render. | The grid reloads and re-renders showing only active pricebooks |
+| 6 | Read the Is Active column for every visible row. | With Active Only OFF, at least one row has an empty Is Active cell (an inactive pricebook is now visible) and the "items found" count is at or above the Active-Only baseline. With Active Only ON, every visible row shows a checkmark in the Is Active column and the count returns to the baseline |
 
 **Expected**: With Active Only OFF, at least one row has an empty Is Active cell (an inactive pricebook is now visible) and the "items found" count is at or above the Active-Only baseline. With Active Only ON, every visible row shows a checkmark in the Is Active column and the count returns to the baseline.
 **Data**: `filter=Active Only` | `columnToCheck=Is Active` | `offExpected=at least one empty Is Active cell` | `onExpected=every Is Active cell is ✔`
@@ -635,10 +850,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded. Location filter at "All Locations" (default).
 **Steps**:
-1. Open the Location dropdown and select one specific location (read the option label to capture the office number).
-2. Click Search and wait for the grid to re-render.
-3. Verify the "items found" count is at or below the unfiltered baseline.
-4. Spot-check a sample of visible rows to confirm they belong to the selected location (e.g. via the Price Book name or any location-identifying cell).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Location dropdown and select one specific location (read the option label to capture the office number). | The selected location is displayed in the Location field |
+| 2 | Click Search and wait for the grid to re-render. | The grid reloads and re-renders narrowed to the selected location |
+| 3 | Verify the "items found" count is at or below the unfiltered baseline. | The "items found" count is at or below the unfiltered baseline count |
+| 4 | Spot-check a sample of visible rows to confirm they belong to the selected location (e.g. via the Price Book name or any location-identifying cell). | After selecting a specific location and clicking Search, the grid narrows to pricebooks belonging to that location's office number. The "items found" count is at or below the all-locations baseline. No row from a different location appears (within the visible sample) |
 
 **Expected**: After selecting a specific location and clicking Search, the grid narrows to pricebooks belonging to that location's office number. The "items found" count is at or below the all-locations baseline. No row from a different location appears (within the visible sample).
 **Data**: `filterControl=Location dropdown` | `param=locationNo` | `countCheck=lessOrEqual baseline`
@@ -654,9 +871,11 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Type a partial or full strategy name known to exist into the "Pricing Strategy" text filter.
-2. Click Search and wait for the grid to re-render.
-3. Read the Price Book Strategy column for every visible row.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type a partial or full strategy name known to exist into the "Pricing Strategy" text filter. | The Pricing Strategy field accepts and displays the typed text |
+| 2 | Click Search and wait for the grid to re-render. | The grid reloads and re-renders narrowed to matching strategy rows |
+| 3 | Read the Price Book Strategy column for every visible row. | Every visible row's Price Book Strategy value contains the entered string (contains match - the filter is a name/substring filter, not an exact-match filter). The "items found" count reflects the narrowed set |
 
 **Expected**: Every visible row's Price Book Strategy value contains the entered string (contains match — the filter is a name/substring filter, not an exact-match filter). The "items found" count reflects the narrowed set.
 **Data**: `filterControl=Pricing Strategy text input` | `matchType=contains` | `columnToCheck=Price Book Strategy`
@@ -672,11 +891,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Type a partial pricebook name substring (e.g. a prefix that should match multiple rows) into the Pricebook filter.
-2. Click Search and wait for the grid to re-render.
-3. Verify every visible row's Price Book column contains the entered substring.
-4. Clear the filter, type an exact ID-style value (e.g. "2021-PB6"), click Search.
-5. Verify the returned row's Price Book column matches exactly.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type a partial pricebook name substring (e.g. a prefix that should match multiple rows) into the Pricebook filter. | The Pricebook field accepts and displays the typed substring |
+| 2 | Click Search and wait for the grid to re-render. | The grid reloads and re-renders narrowed to rows containing the substring |
+| 3 | Verify every visible row's Price Book column contains the entered substring. | Every visible row's Price Book column contains the entered substring |
+| 4 | Clear the filter, type an exact ID-style value (e.g. "2021-PB6"), click Search. | The grid reloads and narrows to the row matching the exact ID-style value |
+| 5 | Verify the returned row's Price Book column matches exactly. | A partial name entry returns every row whose Price Book name contains the entered string (contains semantics). An ID-style exact entry returns only the exact-matching row(s). Every visible row satisfies the filter condition |
 
 **Expected**: A partial name entry returns every row whose Price Book name contains the entered string (contains semantics). An ID-style exact entry returns only the exact-matching row(s). Every visible row satisfies the filter condition.
 **Data**: `filterControl=Pricebook text input` | `partialMatchType=contains` | `exactMatchType=exact` | `columnToCheck=Price Book`
@@ -694,9 +915,11 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Set Is Labor to checked, Currency to "USD", Active Only to checked (default).
-2. Click Search and wait for the grid to re-render.
-3. For a sample of visible rows (at least the first 5, or all rows if fewer than 5 returned), read Is Labor, Currency, and Is Active column values.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Set Is Labor to checked, Currency to "USD", Active Only to checked (default). | The Is Labor and Active Only checkboxes are checked, and the Currency field shows "USD" |
+| 2 | Click Search and wait for the grid to re-render. | The grid reloads and re-renders narrowed by all three criteria together |
+| 3 | For a sample of visible rows (at least the first 5, or all rows if fewer than 5 returned), read Is Labor, Currency, and Is Active column values. | Every sampled row satisfies all three criteria simultaneously: Is Labor column shows a checkmark, Currency column = "USD", Is Active column shows a checkmark. No row violates any of the three conditions. The "items found" count reflects the intersection |
 
 **Expected**: Every sampled row satisfies all three criteria simultaneously: Is Labor column shows a checkmark, Currency column = "USD", Is Active column shows a checkmark. No row violates any of the three conditions. The "items found" count reflects the intersection.
 **Data**: `filters=[Is Labor=true, Currency=USD, Active Only=true]` | `andSemantics=true` | `sampleSize=first 5 rows (or all if fewer)`
@@ -712,11 +935,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded. Three distinct filters chosen: (A) Currency=USD, (B) Is Internal=checked, (C) Active Only=checked (default).
 **Steps**:
-1. Apply filters in order A, B, C (Currency first, then Is Internal, then Active Only). Click Search. Record the "items found" count and the Price Book names of the first N visible rows.
-2. Click Reset. Verify the grid returns to the unfiltered state.
-3. Apply the same filters in order C, B, A (Active Only first, then Is Internal, then Currency). Click Search.
-4. Record the "items found" count and the first N row names again.
-5. Compare the two runs.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Apply filters in order A, B, C (Currency first, then Is Internal, then Active Only). Click Search. Record the "items found" count and the Price Book names of the first N visible rows. | The grid reloads and narrows by Currency, Is Internal, and Active Only applied in that order |
+| 2 | Click Reset. Verify the grid returns to the unfiltered state. | Clicking Reset returns the grid to the unfiltered state |
+| 3 | Apply the same filters in order C, B, A (Active Only first, then Is Internal, then Currency). Click Search. | The grid reloads and narrows by the same three criteria applied in reverse order |
+| 4 | Record the "items found" count and the first N row names again. | The "items found" count and the first N row names are displayed for the reverse-order result |
+| 5 | Compare the two runs. | The "items found" count is identical between both filter-application orders. The first N visible rows are the same set in both runs (order of row appearance may vary; content of the set does not). Filter staging order has no effect on the final results |
 
 **Expected**: The "items found" count is identical between both filter-application orders. The first N visible rows are the same set in both runs (order of row appearance may vary; content of the set does not). Filter staging order has no effect on the final results.
 **Data**: `filtersA=[Currency=USD, Is Internal=true, Active Only=true]` | `filtersB=[Active Only=true, Is Internal=true, Currency=USD]` | `assertionTarget=count + first N row names equal`
@@ -732,10 +957,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded. Note the unfiltered "items found" count (baseline). Optionally: hide one column via Grid Options before this test to verify column visibility is independent of Reset.
 **Steps**:
-1. Stage at least 3 filters (e.g. Pricebook text, Currency=USD, Is Internal=checked). Click Search — observe the narrowed count.
-2. Click Reset.
-3. Observe the grid and all filter inputs.
-4. If a column was hidden before this test, verify it is still hidden after Reset.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Stage at least 3 filters (e.g. Pricebook text, Currency=USD, Is Internal=checked). Click Search — observe the narrowed count. | The grid reloads and narrows according to the three staged filters |
+| 2 | Click Reset. | Clicking Reset clears the filter inputs and reloads the grid |
+| 3 | Observe the grid and all filter inputs. | The grid shows the full unfiltered list and all filter inputs display their default values |
+| 4 | If a column was hidden before this test, verify it is still hidden after Reset. | After Reset: all filter inputs return to their defaults (Pricebook empty, Pricing Strategy empty, Location="All Locations", Currency="All Currencies", Is Internal=unchecked, Is Labor=unchecked, Active Only=checked); the grid count returns to the baseline unfiltered value. Grid Options column visibility is NOT affected by Reset - a hidden column remains hidden |
 
 **Expected**: After Reset: all filter inputs return to their defaults (Pricebook empty, Pricing Strategy empty, Location="All Locations", Currency="All Currencies", Is Internal=unchecked, Is Labor=unchecked, Active Only=checked); the grid count returns to the baseline unfiltered value. Grid Options column visibility is NOT affected by Reset — a hidden column remains hidden.
 **Data**: `filters=[Pricebook text, Currency=USD, Is Internal=true]` | `baselineRestore=unfiltered items found count` | `columnVisibilityUnchanged=true`
@@ -757,9 +984,11 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Apply one filter (e.g. Currency = USD).
-2. Click Search.
-3. Read the Currency column for every visible row.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Apply one filter (e.g. Currency = USD). | "USD" is displayed as the selected value in the Currency field |
+| 2 | Click Search. | The grid reloads and narrows to rows where the Currency filter is set to USD |
+| 3 | Read the Currency column for every visible row. | Every visible row satisfies the filter. No row with a different currency appears. The "items found" count reflects the narrowed set |
 
 **Expected**: Every visible row satisfies the filter. No row with a different currency appears. The "items found" count reflects the narrowed set.
 **Data**: `singleFilter=Currency=USD` | `columnToCheck=Currency`
@@ -777,12 +1006,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. For each filter type (Pricebook text, Pricing Strategy text, Currency dropdown, Location dropdown, Is Internal, Is Labor, Active Only): stage the filter, click Search, read the relevant column for all visible rows, confirm every row satisfies the criterion.
-2. Confirm that typing or selecting a filter does not change the grid.
-3. Confirm clicking Search applies all the staged filters at once.
-4. Apply a combined filter (at least 3 criteria). Confirm every visible row satisfies all criteria simultaneously (AND semantics).
-5. Stage a Pricebook ID-style value (e.g. "2021-PB6") — confirm exact-match semantics. Stage a partial name — confirm contains-match semantics.
-6. Confirm a cross-criteria row (e.g. a CAD row returned by a USD filter) is treated as a defect.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | For each filter type (Pricebook text, Pricing Strategy text, Currency dropdown, Location dropdown, Is Internal, Is Labor, Active Only): stage the filter, click Search, read the relevant column for all visible rows, confirm every row satisfies the criterion. | Each filter type, once searched, narrows the grid so every visible row satisfies that filter's criterion |
+| 2 | Confirm that typing or selecting a filter does not change the grid. | The grid remains unchanged while filters are typed or selected |
+| 3 | Confirm clicking Search applies all the staged filters at once. | Clicking Search applies all staged filters together and the grid reloads |
+| 4 | Apply a combined filter (at least 3 criteria). Confirm every visible row satisfies all criteria simultaneously (AND semantics). | Every visible row satisfies all the combined filter criteria simultaneously |
+| 5 | Stage a Pricebook ID-style value (e.g. "2021-PB6") — confirm exact-match semantics. Stage a partial name — confirm contains-match semantics. | The ID-style value returns only the exact-matching row, and the partial name returns rows containing that substring |
+| 6 | Confirm a cross-criteria row (e.g. a CAD row returned by a USD filter) is treated as a defect. | All filter types individually return only matching rows. Combined filters apply AND semantics - no cross-criteria row appears. Typing or selecting stages the filters without changing the grid; clicking Search applies them. ID-style filter matches exactly; name/strategy filter matches by contains. Any cross-criteria row in the result is a defect |
 
 **Expected**: All filter types individually return only matching rows. Combined filters apply AND semantics — no cross-criteria row appears. Typing or selecting stages the filters without changing the grid; clicking Search applies them. ID-style filter matches exactly; name/strategy filter matches by contains. Any cross-criteria row in the result is a defect.
 **Data**: `coverageScope=all 7 filters + combined` | `serverCallModel=staged client-side, submitted server-side on Search` | `idFilterSemantics=exact` | `nameFilterSemantics=contains`
@@ -800,12 +1031,14 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with the default 50-row page size. Grid has more than 10 rows.
 **Steps**:
-1. Open the page-size combobox and select "10".
-2. Wait for the grid to re-render.
-3. Confirm no error appears.
-4. Confirm the grid shows no more than one page of rows (the page size).
-5. Click "Go to next page".
-6. Confirm the grid re-renders with the next page of results.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the page-size dropdown and select "10". | "10" is displayed as the selected page size |
+| 2 | Wait for the grid to re-render. | The grid re-renders with no more than 10 rows visible |
+| 3 | Confirm no error appears. | No error message or error page appears |
+| 4 | Confirm the grid shows no more than one page of rows (the page size). | The grid displays no more rows than the selected page size |
+| 5 | Click "Go to next page". | The grid advances to and displays the next page of results |
+| 6 | Confirm the grid re-renders with the next page of results. | Changing the page size re-renders the grid so that the number of visible rows does not exceed the selected page size, and no error appears. The "Go to next page" button navigates to the next page of results. The "items found" count remains consistent across the page change |
 
 **Expected**: Changing the page size re-renders the grid so that the number of visible rows does not exceed the selected page size, and no error appears. The "Go to next page" button navigates to the next page of results. The "items found" count remains consistent across the page change.
 **Data**: `defaultPageSize=50` | `testPageSize=10` | `expectNoConsoleError=true`
@@ -823,11 +1056,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded. Grid has sufficient rows to exercise multiple pages (use the unfiltered default state which has many rows).
 **Steps**:
-1. For each page size [10, 20, 30, 40, 50]: set the page-size combobox, verify the grid renders with at most that many rows.
-2. Navigate to page 1 — assert "Go to first page" and "Go to previous page" are disabled.
-3. Navigate to the last page (click "Go to last page") and confirm "Go to next page" and "Go to last page" are disabled. Confirm the last page may have fewer rows than the selected page size.
-4. Navigate through all pages at page size 10. Collect the Price Book name from the first cell of each page and confirm no name appears on more than one page and no gaps in the sequence suggest skipped rows.
-5. Confirm the "items found" count remains unchanged throughout all pagination operations.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | For each page size [10, 20, 30, 40, 50]: set the page-size dropdown, verify the grid renders with at most that many rows. | The grid renders with no more rows than each selected page size (10, 20, 30, 40, 50) |
+| 2 | Navigate to page 1 — assert "Go to first page" and "Go to previous page" are disabled. | The "Go to first page" and "Go to previous page" buttons are disabled on page 1 |
+| 3 | Navigate to the last page (click "Go to last page") and confirm "Go to next page" and "Go to last page" are disabled. Confirm the last page may have fewer rows than the selected page size. | The "Go to next page" and "Go to last page" buttons are disabled on the last page, and its row count is at most the page size |
+| 4 | Navigate through all pages at page size 10. Collect the Price Book name from the first cell of each page and confirm no name appears on more than one page and no gaps in the sequence suggest skipped rows. | Each page's first Price Book name is unique across all pages, with no duplicates or gaps in the sequence |
+| 5 | Confirm the "items found" count remains unchanged throughout all pagination operations. | All five page sizes render without error. Page 1 disables first/prev buttons; last page disables next/last buttons. The final page may contain fewer rows than the page size (partial page). No row appears twice across pages; no rows are skipped. The "items found" count is stable across all pagination actions |
 
 **Expected**: All five page sizes render without error. Page 1 disables first/prev buttons; last page disables next/last buttons. The final page may contain fewer rows than the page size (partial page). No row appears twice across pages; no rows are skipped. The "items found" count is stable across all pagination actions.
 **Data**: `pageSizes=[10, 20, 30, 40, 50]` | `page1Disabled=[Go to first page, Go to previous page]` | `lastPageDisabled=[Go to next page, Go to last page]` | `noItemsFoundHeader=true (no X-Y of Z footer)`
@@ -847,11 +1082,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Confirm each of the 9 column headers is a clickable button.
-2. Click a column header (e.g. "Price Year") once and observe whether the grid reorders into ascending order.
-3. Click the same header again and observe whether the order flips to descending.
-4. Click a different column header and observe whether the sort moves to the new column.
-5. Record the first-row value before and after each click.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Confirm each of the 9 column headers is a clickable button. | Each of the 9 column headers is displayed as a clickable button |
+| 2 | Click a column header (e.g. "Price Year") once and observe whether the grid reorders into ascending order. | The grid reorders into ascending order by the Price Year column |
+| 3 | Click the same header again and observe whether the order flips to descending. | The grid reorders into descending order by the Price Year column |
+| 4 | Click a different column header and observe whether the sort moves to the new column. | The sort moves to the newly clicked column and the grid reorders accordingly |
+| 5 | Record the first-row value before and after each click. | Clicking a column header is intended to sort the grid by that column - once for ascending, again for descending - and clicking a different header moves the sort to that column, with the first row changing to reflect the new order. Observed in testing: clicking a header did not reorder the grid, so this behavior should be confirmed on the live site |
 
 **Expected**: Clicking a column header is intended to sort the grid by that column — once for ascending, again for descending — and clicking a different header moves the sort to that column, with the first row changing to reflect the new order. Observed in testing: clicking a header did not reorder the grid, so this behavior should be confirmed on the live site.
 **Data**: `columnHeaders=9 (all grid columns)`
@@ -869,10 +1106,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Apply a single filter (e.g. Currency = USD). Click Search.
-2. Change the page size to 10.
-3. Navigate to page 2 (if available).
-4. Read the Currency column for all visible rows on page 2.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Apply a single filter (e.g. Currency = USD). Click Search. | The grid reloads and narrows to rows where the Currency filter is set to USD |
+| 2 | Change the page size to 10. | The grid re-renders with no more than 10 rows visible |
+| 3 | Navigate to page 2 (if available). | The grid advances to and displays page 2 of the filtered results |
+| 4 | Read the Currency column for all visible rows on page 2. | Every visible row on page 2 of the filtered result still shows "USD" in the Currency column. Pagination within a filtered result set does not break the filter - rows on subsequent pages satisfy the active filter |
 
 **Expected**: Every visible row on page 2 of the filtered result still shows "USD" in the Currency column. Pagination within a filtered result set does not break the filter — rows on subsequent pages satisfy the active filter.
 **Data**: `filter=Currency=USD` | `pageSize=10` | `pageToCheck=2`
@@ -890,11 +1129,13 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Apply a 3-filter combination (Currency=USD, Is Internal=checked, Active Only=checked). Verify every visible row satisfies all 3 criteria (all three filters apply together).
-2. Click Reset. Verify all filter inputs are cleared/defaulted AND the grid count returns to the unfiltered baseline. No filter residue remains.
-3. Apply the same 3 filters in reverse order (Active Only first, then Is Internal, then Currency). Click Search.
-4. Compare the "items found" count and first N row names to the forward-order result.
-5. Apply 4 filters simultaneously (add Is Labor=checked). Verify AND semantics still hold across 4 criteria.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Apply a 3-filter combination (Currency=USD, Is Internal=checked, Active Only=checked). Verify every visible row satisfies all 3 criteria (all three filters apply together). | Every visible row satisfies all three criteria: Currency set to USD, Is Internal checked, and Active Only checked |
+| 2 | Click Reset. Verify all filter inputs are cleared/defaulted AND the grid count returns to the unfiltered baseline. No filter residue remains. | Clicking Reset clears all filter inputs to their defaults and the grid count returns to the unfiltered baseline |
+| 3 | Apply the same 3 filters in reverse order (Active Only first, then Is Internal, then Currency). Click Search. | The grid reloads and narrows by the same three criteria applied in reverse order |
+| 4 | Compare the "items found" count and first N row names to the forward-order result. | The "items found" count and first N row names match the forward-order result |
+| 5 | Apply 4 filters simultaneously (add Is Labor=checked). Verify AND semantics still hold across 4 criteria. | AND semantics hold for all combined-filter scenarios - no row violates any active criterion. Reset clears ALL filters (not just some) and restores the unfiltered baseline. Filter application order does not affect results. Adding more filter criteria narrows or maintains the result set (never expands it beyond the intersection) |
 
 **Expected**: AND semantics hold for all combined-filter scenarios — no row violates any active criterion. Reset clears ALL filters (not just some) and restores the unfiltered baseline. Filter application order does not affect results. Adding more filter criteria narrows or maintains the result set (never expands it beyond the intersection).
 **Data**: `combinedFilters3=[Currency=USD, Is Internal=true, Active Only=true]` | `combinedFilters4=[+ Is Labor=true]` | `orderIndependence=true` | `resetScope=all filters`
@@ -912,10 +1153,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Locate any Price Book name cell in the grid. Confirm it is a clickable link.
-2. Click the Price Book name.
-3. Confirm navigation to the Corporate Pricing Details page for that pricebook.
-4. Navigate back. Read the Is Active column for one row. Confirm the value is either a check mark or empty.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Locate any Price Book name cell in the grid. Confirm it is a clickable link. | The Price Book name cell is displayed as a clickable link |
+| 2 | Click the Price Book name. | Clicking the Price Book name begins navigation to its Details page |
+| 3 | Confirm navigation to the Corporate Pricing Details page for that pricebook. | The browser lands on the Corporate Pricing Details page for that pricebook |
+| 4 | Navigate back. Read the Is Active column for one row. Confirm the value is either a check mark or empty. | The Price Book name cell is a link. Clicking it navigates to the Details route. At least one boolean cell in Is Active shows a check mark for a true value. No boolean cell shows unexpected text |
 
 **Expected**: The Price Book name cell is a link. Clicking it navigates to the Details route. At least one boolean cell in Is Active shows a check mark for a true value. No boolean cell shows unexpected text.
 **Data**: `linkCell=Price Book name` | `destination=Corporate Pricing Details route` | `booleanFormat=Unicode ✔ (LR-036)` | `testedBooleanColumn=Is Active`
@@ -933,9 +1176,11 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded (unfiltered default, all 9 columns visible).
 **Steps**:
-1. For a sample of Price Book name cells (e.g. the first 5 visible rows), confirm each is a link. Click each link, confirm it navigates to the correct Corporate Pricing Details page for that pricebook, and navigate back. A cell that is not a link where a link is expected is a defect — investigate before reporting.
-2. For each of the 5 boolean columns (Is GSO, Is Internal, Is Labor, Is Active, Is Productions), read all visible cells. Confirm every cell is either a check mark or empty string — no other text (LR-036).
-3. For the Currency column, read all visible cells. Confirm every cell value is one of: USD, CAD, MXN. No unexpected currency code or blank cell (unless the row genuinely has no currency) should appear.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | For a sample of Price Book name cells (e.g. the first 5 visible rows), confirm each is a link. Click each link, confirm it navigates to the correct Corporate Pricing Details page for that pricebook, and navigate back. A cell that is not a link where a link is expected is a defect — investigate before reporting. | Each sampled Price Book name cell is a link that navigates to the correct Corporate Pricing Details page for that pricebook |
+| 2 | For each of the 5 boolean columns (Is GSO, Is Internal, Is Labor, Is Active, Is Productions), read all visible cells. Confirm every cell is either a check mark or empty string — no other text (LR-036). | Every cell in the 5 boolean columns shows either a check mark or an empty string, with no other text |
+| 3 | For the Currency column, read all visible cells. Confirm every cell value is one of: USD, CAD, MXN. No unexpected currency code or blank cell (unless the row genuinely has no currency) should appear. | All sampled Price Book name cells are link elements that navigate to the correct Details route. All 5 boolean columns show a check mark for true and are empty for false - no other text. All Currency cells contain a valid currency code (USD, CAD, MXN) |
 
 **Expected**: All sampled Price Book name cells are link elements that navigate to the correct Details route. All 5 boolean columns show a check mark for true and are empty for false — no other text. All Currency cells contain a valid currency code (USD, CAD, MXN).
 **Data**: `sampleSize=first 5 rows` | `booleanColumns=[Is GSO, Is Internal, Is Labor, Is Active, Is Productions]` | `booleanFormat=LR-036 check mark` | `validCurrencies=[USD, CAD, MXN]`
@@ -953,9 +1198,11 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. Enter a pricebook name that matches nothing (e.g. "ZZZ-NOPE-NOMATCH-9999") into the Pricebook filter.
-2. Click Search and wait for the grid to settle.
-3. Observe the grid body, item count text, and any empty-state message.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Enter a pricebook name that matches nothing (e.g. "ZZZ-NOPE-NOMATCH-9999") into the Pricebook filter. | The Pricebook field accepts and displays the typed text |
+| 2 | Click Search and wait for the grid to settle. | The grid reloads and settles showing zero data rows |
+| 3 | Observe the grid body, item count text, and any empty-state message. | The grid body has zero data rows. The "items found" text reads "0 items found". An empty-state message reading exactly "No results." (with the period) is displayed. No error page or script error appears |
 
 **Expected**: The grid body has zero data rows. The "items found" text reads "0 items found". An empty-state message reading exactly "No results." (with the period) is displayed. No error page or script error appears.
 **Data**: `noMatchValue=ZZZ-NOPE-NOMATCH-9999` | `expectedItemsFound=0 items found` | `expectedEmptyMessage=No results. (verbatim)` | `expectedTbodyRows=0`
@@ -973,10 +1220,12 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with results loaded.
 **Steps**:
-1. **0-row state**: apply a no-match filter and click Search. Confirm "0 items found", "No results." verbatim message, and no data rows visible in the grid body.
-2. **1-row state**: apply a filter that is known to return exactly one row (e.g. the exact pricebook ID "2021-PB6"). Confirm "1 items found" and exactly one data row visible in the grid body.
-3. **Large N-row state**: load the default unfiltered view. Confirm that a row which is not visible in the initial view can still be found by its Price Book name after scrolling.
-4. **Volume integrity**: confirm the "items found" count reads in the normal "N items found" format.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | **0-row state**: apply a no-match filter and click Search. Confirm "0 items found", "No results." verbatim message, and no data rows visible in the grid body. | The grid shows "0 items found", the "No results." message, and no data rows in the grid body |
+| 2 | **1-row state**: apply a filter that is known to return exactly one row (e.g. the exact pricebook ID "2021-PB6"). Confirm "1 items found" and exactly one data row visible in the grid body. | The grid shows "1 items found" and exactly one data row in the grid body |
+| 3 | **Large N-row state**: load the default unfiltered view. Confirm that a row which is not visible in the initial view can still be found by its Price Book name after scrolling. | The off-screen row becomes visible and is found by its Price Book name after scrolling |
+| 4 | **Volume integrity**: confirm the "items found" count reads in the normal "N items found" format. | All three result states (0, 1, and many rows) render correctly with their indicators. Off-screen rows can still be found by name after scrolling. The "items found" text always reflects the actual result count and reads in the normal "N items found" format |
 
 **Expected**: All three result states (0, 1, and many rows) render correctly with their indicators. Off-screen rows can still be found by name after scrolling. The "items found" text always reflects the actual result count and reads in the normal "N items found" format.
 **Data**: `0rowFilter=ZZZ-NOPE-NOMATCH-9999` | `1rowFilter=2021-PB6 (exact ID)` | `nRowState=unfiltered default` | `virtualizationCheck=content-anchored scroll lookup` | `countPattern=/\d[\d,]*\s+items found/`
@@ -994,9 +1243,11 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page with the default state (50 rows, no filters applied beyond Active Only default).
 **Steps**:
-1. Change the page size to 10.
-2. Reload the page.
-3. Observe the page-size combobox value and the grid row count.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Change the page size to 10. | "10" is displayed as the selected page size and the grid re-renders accordingly |
+| 2 | Reload the page. | The page reloads and redisplays the Search page |
+| 3 | Observe the page-size dropdown value and the grid row count. | After a full page reload, the page-size setting is still set to 10 (it did not revert to the default). The grid renders with no more rows than the selected page size. The page-size setting is persisted across navigation |
 
 **Expected**: After a full page reload, the page-size setting is still set to 10 (it did not revert to the default). The grid renders with no more rows than the selected page size. The page-size setting is persisted across navigation.
 **Data**: `testedSetting=page size` | `setValue=10` | `defaultValue=50` | `persistenceCheck=page reload`
@@ -1016,19 +1267,21 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 
 **Preconditions**: On the Search page. Default state (all columns visible, 50-row page size, no active filters beyond Active Only).
 **Steps**:
-1. Set the page size to 20.
-2. Reload the page.
-3. Confirm the page size is still 20 (page-size persistence).
-4. Apply Currency=USD and click Search.
-5. Reload the page.
-6. Confirm whether the Currency filter is still set to USD and the grid reflects USD results, or whether the grid has returned to the unfiltered state with Active Only still checked. Either outcome is acceptable. Record which one occurs.
-7. Hide the "Is GSO" column via Grid Options.
-8. Reload the page.
-9. Confirm "Is GSO" is still hidden (column-visibility persistence).
-10. Navigate to a pricebook Details page by clicking a pricebook link, then use browser back.
-11. Confirm the page size and column visibility are intact after returning via browser back.
-12. Type a value into the Pricebook filter without clicking Search, then navigate away (for example, click a pricebook link).
-13. Observe whether the app shows a confirmation prompt or silently discards the staged value.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Set the page size to 20. | "20" is displayed as the selected page size and the grid re-renders accordingly |
+| 2 | Reload the page. | The page reloads and redisplays the Search page |
+| 3 | Confirm the page size is still 20 (page-size persistence). | The page-size dropdown still shows 20 after the reload |
+| 4 | Apply Currency=USD and click Search. | The grid reloads and narrows to rows where the Currency filter is set to USD |
+| 5 | Reload the page. | The page reloads and redisplays the Search page |
+| 6 | Confirm whether the Currency filter is still set to USD and the grid reflects USD results, or whether the grid has returned to the unfiltered state with Active Only still checked. Either outcome is acceptable. Record which one occurs. | The Currency field shows either USD with matching results, or the unfiltered state with Active Only checked |
+| 7 | Hide the "Is GSO" column via Grid Options. | The "Is GSO" column disappears from the grid |
+| 8 | Reload the page. | The page reloads and redisplays the Search page |
+| 9 | Confirm "Is GSO" is still hidden (column-visibility persistence). | The "Is GSO" column remains hidden after the reload |
+| 10 | Navigate to a pricebook Details page by clicking a pricebook link, then use browser back. | The browser returns to the Search page after navigating back |
+| 11 | Confirm the page size and column visibility are intact after returning via browser back. | The page size and column visibility remain unchanged after returning via browser back |
+| 12 | Type a value into the Pricebook filter without clicking Search, then navigate away (for example, click a pricebook link). | The browser navigates away to the pricebook's Details page |
+| 13 | Observe whether the app shows a confirmation prompt or silently discards the staged value. | Page-size setting persists across reload. Column-visibility setting (Grid Options) persists across reload and browser-back. Active filters after a Search persist across reload OR are cleanly reset - the behavior is observable and consistent (no partial or corrupt state). Nav-away with a staged-but-unsearched filter either presents a discard confirmation or discards silently - both are acceptable; the case asserts which behavior occurs |
 
 **Expected**: Page-size setting persists across reload. Column-visibility setting (Grid Options) persists across reload and browser-back. Active filters after a Search persist across reload OR are cleanly reset — the behavior is observable and consistent (no partial or corrupt state). Nav-away with a staged-but-unsearched filter either presents a discard confirmation or discards silently — both are acceptable; the case asserts which behavior occurs.
 **Data**: `testedSettings=[page size, active filter, column visibility]` | `persistenceChecks=[reload, browser-back]` | `navAwayBehavior=observe and record (prompt or silent)`
@@ -1050,8 +1303,10 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 **Preconditions**: On the Search screen with the grid loaded (office 1604); all columns visible (baseline).
 
 **Steps**:
-1. Open Grid Options -> the column menu opens
-2. Read the column toggles -> every column's checkbox is checked
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open Grid Options -> the column menu opens | The Grid Options menu opens and displays the column toggles |
+| 2 | Read the column toggles -> every column's checkbox is checked | The Grid Options menu shows every grid column enabled (checked) by default. The per-column toggle listing + Reset to Default View are covered by TC-CPR-SRC-031 |
 
 **Expected**: The Grid Options menu shows every grid column enabled (checked) by default. The per-column toggle listing + Reset to Default View are covered by TC-CPR-SRC-031.
 **Data**: office=1604
@@ -1071,8 +1326,10 @@ N/A — read-only search/filter screen with no input validations. Filters stage 
 **Preconditions**: On the Search screen with the grid loaded (office 1604); "Is GSO" column visible (baseline).
 
 **Steps**:
-1. Open Grid Options, uncheck "Is GSO", close -> the "Is GSO" header is gone from the grid
-2. Open Grid Options, re-check "Is GSO", close -> the header reappears
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open Grid Options, uncheck "Is GSO", close -> the "Is GSO" header is gone from the grid | The "Is GSO" column disappears from the grid after the menu closes |
+| 2 | Open Grid Options, re-check "Is GSO", close -> the header reappears | Toggling a hidden column back ON via its individual checkbox restores its header. The bulk "Reset to Default View" path is covered by TC-CPR-SRC-033 |
 
 **Expected**: Toggling a hidden column back ON via its individual checkbox restores its header. The bulk "Reset to Default View" path is covered by TC-CPR-SRC-033.
 **Data**: office=1604, column="Is GSO"

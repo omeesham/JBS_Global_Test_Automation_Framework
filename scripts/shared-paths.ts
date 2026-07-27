@@ -99,8 +99,8 @@ export const SHARED_PATHS = Object.freeze({
   selectors:        clientPath(path.join('src', 'selectors')),
   fixtures:         clientPath(path.join('src', 'fixtures', 'pages.fixture.ts')),
   testData:         clientPath(path.join('src', 'data')),
-  workbook:         clientPath(path.join('test_cases_xlsx', 'encore_test_cases.xlsx')), // Multi-sheet XLSX deliverable (Phase B+; sole TC deliverable post-Phase-D 2026-05-27)
-  workbookDir:      clientPath('test_cases_xlsx'),                                  // Parent dir of the workbook
+  workbook:         clientPath(path.join('testcases', 'encore_test_cases.xlsx')), // Multi-sheet XLSX deliverable (Phase B+; sole TC deliverable post-Phase-D 2026-05-27)
+  workbookDir:      clientPath('testcases'),                                  // Parent dir of the workbook
   envDir:           clientRoot(),
 
   // Framework-shared (not per-client)

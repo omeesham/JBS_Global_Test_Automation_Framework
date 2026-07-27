@@ -35,7 +35,7 @@ export const MODULE_CONFIG = {
   // Override surface has two tabs (Equipment/Labor), a currency combobox, and a rows-per-page
   // combobox — each exposes distinct elements. A re-walk with a location selected and a non-ALL
   // currency additionally exposes the Product-Group Picker add controls (NM-1472).
-  'corporate-pricing-override': {
+  'corporate-override': {
     requiredStates: [
       { label: 'resting' },
       { label: 'tab:labor' },

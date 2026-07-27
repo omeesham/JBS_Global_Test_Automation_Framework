@@ -28,11 +28,11 @@
  */
 import { expect } from '@playwright/test';
 import type { Page, Locator } from '@playwright/test';
-import { CorporatePricingBasePage } from './corporate-pricing.page';
+import { CorporatePricingBasePage } from '../corporate-pricing/corporate-pricing.page';
 import type { IConfig } from '../../types';
-import { CorporatePricingOverrideSelectors as OS } from '../../selectors/corporate-pricing/override';
+import { CorporatePricingOverrideSelectors as OS } from '../../selectors/corporate-override/override';
 import { CORPORATE_PRICING_ROUTES, CORPORATE_PRICING_COMMON } from '../../data/corporate-pricing/common';
-import { CORP_PRICING_OVERRIDE } from '../../data/corporate-pricing/override';
+import { CORP_PRICING_OVERRIDE } from '../../data/corporate-override/override';
 import { Log } from '../../utils/logger';
 import { readFileSync } from 'node:fs';
 

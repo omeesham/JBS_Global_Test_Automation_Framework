@@ -1,4 +1,4 @@
-# Location - Currency Test Cases
+﻿# Location - Currency Test Cases
 
 **Module**: locations
 
@@ -21,9 +21,9 @@
 | 5 | Is Default (USD) | checkbox | `chkUSDIsDefault` / `chkCurrencyIsDefault('USD')` | checked | enabled only when Selected |
 | 6 | Is Default (CAD) | checkbox | `chkCADIsDefault` / `chkCurrencyIsDefault('CAD')` | disabled | enabled only when Selected |
 | 7 | Is Default (MXN) | checkbox | `chkMXNIsDefault` / `chkCurrencyIsDefault('MXN')` | disabled | enabled only when Selected |
-| 8 | Merchant (USD) | combobox | `drpUSDMerchant` / `drpCurrencyMerchant('USD')` | "316370 - PSAV US/USD" | always editable |
-| 9 | Merchant (CAD) | combobox | `drpCADMerchant` / `drpCurrencyMerchant('CAD')` | (1 option) | always editable |
-| 10 | Merchant (MXN) | combobox | `drpMXNMerchant` / `drpCurrencyMerchant('MXN')` | (0 options) | always editable |
+| 8 | Merchant (USD) | dropdown | `drpUSDMerchant` / `drpCurrencyMerchant('USD')` | "316370 - PSAV US/USD" | always editable |
+| 9 | Merchant (CAD) | dropdown | `drpCADMerchant` / `drpCurrencyMerchant('CAD')` | (1 option) | always editable |
+| 10 | Merchant (MXN) | dropdown | `drpMXNMerchant` / `drpCurrencyMerchant('MXN')` | (0 options) | always editable |
 | 11 | Grid table | table | `tblCurrencyGrid` | — | — |
 | 12 | Save button | button | `btnSaveCurrency` | disabled | enables on change |
 
@@ -47,7 +47,12 @@
 | High | ✅ Automated | User-Requested |
 
 **Depends_On**: none (baseline-enforcement per LR-019)
-**Steps**: 1. Navigate to Setup > Location > 1604 -- **Currency** tab ✓ Tab loads 2. Verify grid structure ✓ 4 columns visible: Currency Code, Selected, Is Default, Merchant
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Navigate to Setup > Location > 1604 -- **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Verify grid structure ✓ 4 columns visible: Currency Code, Selected, Is Default, Merchant | Four column headers are visible: Currency Code, Selected, Is Default, Merchant. |
+
 **Expected**: Grid displays 3 currencies (USD, CAD, MXN) with correct column headers
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -61,7 +66,12 @@
 | High | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Open **Currency** tab ✓ Tab loads 2. Check USD row ✓ **Selected** checkbox checked, **Is Default** checkbox checked, **Merchant** = "316370 - PSAV US/USD"
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Check USD row ✓ **Selected** checkbox checked, **Is Default** checkbox checked, **Merchant** = "316370 - PSAV US/USD" | The USD row shows Selected checked, Is Default checked, and Merchant showing "316370 - PSAV US/USD". |
+
 **Expected**: USD is selected and set as default with merchant assigned
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -75,7 +85,12 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Open **Currency** tab ✓ Tab loads 2. Check CAD row ✓ **Selected** unchecked, **Is Default** disabled, **Merchant** dropdown available
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Check CAD row ✓ **Selected** unchecked, **Is Default** disabled, **Merchant** dropdown available | The CAD row shows Selected unchecked, Is Default disabled, and the Merchant dropdown available. |
+
 **Expected**: CAD is unselected with Is Default disabled
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -89,7 +104,12 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Open **Currency** tab ✓ Tab loads 2. Check MXN row ✓ **Selected** unchecked, **Is Default** disabled, **Merchant** dropdown available
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Check MXN row ✓ **Selected** unchecked, **Is Default** disabled, **Merchant** dropdown available | The MXN row shows Selected unchecked, Is Default disabled, and the Merchant dropdown available. |
+
 **Expected**: MXN is unselected with Is Default disabled
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -103,7 +123,13 @@
 | High | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. CAD **Is Default** is disabled (initial state) ✓ Disabled 2. Click CAD **Selected** checkbox ✓ Checked, Save button enabled 3. Verify CAD **Is Default** ✓ Enabled (clickable)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | CAD **Is Default** is disabled (initial state) ✓ Disabled | CAD "Is Default" is disabled. |
+| 2 | Click CAD **Selected** checkbox ✓ Checked, Save button enabled | CAD "Selected" is checked and the Save button is enabled. |
+| 3 | Verify CAD **Is Default** ✓ Enabled (clickable) | CAD "Is Default" is enabled and can be clicked. |
+
 **Expected**: Selecting a currency enables its Is Default checkbox
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -117,7 +143,14 @@
 | High | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. USD **Is Default** checked (initial) ✓ Checked 2. Select CAD **Selected** checkbox ✓ CAD Selected checked 3. Click CAD **Is Default** checkbox ✓ CAD Is Default checked 4. Verify USD **Is Default** ✓ Auto-unchecked
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | USD **Is Default** checked (initial) ✓ Checked | USD "Is Default" is checked. |
+| 2 | Select CAD **Selected** checkbox ✓ CAD Selected checked | CAD "Selected" is checked. |
+| 3 | Click CAD **Is Default** checkbox ✓ CAD Is Default checked | CAD "Is Default" is checked. |
+| 4 | Verify USD **Is Default** ✓ Auto-unchecked | USD "Is Default" is automatically unchecked. |
+
 **Expected**: Only ONE default currency allowed; setting new default auto-unchecks previous
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -132,7 +165,13 @@
 | High | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Select CAD **Selected**, set CAD **Is Default** ✓ Both checked 2. Uncheck CAD **Selected** ✓ Unchecked 3. Verify CAD **Is Default** ✓ Disabled and unchecked
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select CAD **Selected**, set CAD **Is Default** ✓ Both checked | CAD "Selected" is checked and CAD "Is Default" is checked. |
+| 2 | Uncheck CAD **Selected** ✓ Unchecked | CAD "Selected" is unchecked. |
+| 3 | Verify CAD **Is Default** ✓ Disabled and unchecked | CAD "Is Default" is disabled and unchecked. |
+
 **Expected**: Unselecting currency disables and unchecks Is Default
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -147,7 +186,12 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: none (read-only structural — server-seeded merchant catalogue, no state mutation)
-**Steps**: 1. Click USD **Merchant** dropdown ✓ Dropdown opens 2. Verify options ✓ Two options: "316370 - PSAV US/USD", "316426 - Encore Bahamas/USD"
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Click USD **Merchant** dropdown ✓ Dropdown opens | The USD Merchant dropdown opens. |
+| 2 | Verify options ✓ Two options: "316370 - PSAV US/USD", "316426 - Encore Bahamas/USD" | Two options are displayed: "316370 - PSAV US/USD" and "316426 - Encore Bahamas/USD". |
+
 **Expected**: USD Merchant dropdown shows 2 merchant options
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -161,7 +205,13 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: none (read-only structural — server-seeded merchant catalogue)
-**Steps**: 1. Select CAD **Selected** checkbox ✓ CAD Selected checked 2. Click CAD **Merchant** dropdown ✓ Dropdown opens 3. Verify option ✓ One option: "316446 - PSAV Canada/CAD"
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select CAD **Selected** checkbox ✓ CAD Selected checked | CAD "Selected" is checked. |
+| 2 | Click CAD **Merchant** dropdown ✓ Dropdown opens | The CAD Merchant dropdown opens. |
+| 3 | Verify option ✓ One option: "316446 - PSAV Canada/CAD" | One option is displayed: "316446 - PSAV Canada/CAD". |
+
 **Expected**: CAD Merchant dropdown shows 1 merchant option
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -175,7 +225,13 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Select MXN **Selected** checkbox ✓ MXN Selected checked 2. Click MXN **Merchant** dropdown ✓ Dropdown opens 3. Verify message ✓ "No Matches Found"
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select MXN **Selected** checkbox ✓ MXN Selected checked | MXN "Selected" is checked. |
+| 2 | Click MXN **Merchant** dropdown ✓ Dropdown opens | The MXN Merchant dropdown opens. |
+| 3 | Verify message ✓ "No Matches Found" | The dropdown shows "No Matches Found". |
+
 **Expected**: MXN Merchant dropdown shows no available merchants
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -190,7 +246,14 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Select CAD **Selected** checkbox ✓ CAD Selected checked 2. Click CAD **Merchant** dropdown ✓ Dropdown opens 3. Select "316446 - PSAV Canada/CAD" ✓ Merchant selected, dropdown closes 4. Verify CAD **Merchant** field ✓ Shows "316446 - PSAV Canada/CAD"
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select CAD **Selected** checkbox ✓ CAD Selected checked | CAD "Selected" is checked. |
+| 2 | Click CAD **Merchant** dropdown ✓ Dropdown opens | The CAD Merchant dropdown opens. |
+| 3 | Select "316446 - PSAV Canada/CAD" ✓ Merchant selected, dropdown closes | The dropdown closes and "316446 - PSAV Canada/CAD" is selected. |
+| 4 | Verify CAD **Merchant** field ✓ Shows "316446 - PSAV Canada/CAD" | The CAD Merchant field shows "316446 - PSAV Canada/CAD". |
+
 **Expected**: Merchant selection updates the field value
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -204,7 +267,13 @@
 | High | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Select CAD **Selected**, assign merchant "316446 - PSAV Canada/CAD" ✓ CAD Selected checked, Merchant assigned 2. Uncheck CAD **Selected** ✓ CAD Selected unchecked 3. Verify CAD **Merchant** field ✓ Still shows "316446 - PSAV Canada/CAD"
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select CAD **Selected**, assign merchant "316446 - PSAV Canada/CAD" ✓ CAD Selected checked, Merchant assigned | CAD "Selected" is checked and the Merchant field shows "316446 - PSAV Canada/CAD". |
+| 2 | Uncheck CAD **Selected** ✓ CAD Selected unchecked | CAD "Selected" is unchecked. |
+| 3 | Verify CAD **Merchant** field ✓ Still shows "316446 - PSAV Canada/CAD" | The CAD Merchant field still shows "316446 - PSAV Canada/CAD". |
+
 **Expected**: Merchant value persists even when currency is unselected
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -218,7 +287,14 @@
 | High | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Uncheck USD **Selected** checkbox ✓ Unchecked 2. Verify CAD **Selected** ✓ Already unchecked 3. Verify MXN **Selected** ✓ Already unchecked 4. Verify **Save** button state ✓ Save is DISABLED (app prevents save when 0 currencies selected — no error dialog, Save simply stays disabled)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Uncheck USD **Selected** checkbox ✓ Unchecked | USD "Selected" is unchecked. |
+| 2 | Verify CAD **Selected** ✓ Already unchecked | CAD "Selected" is unchecked. |
+| 3 | Verify MXN **Selected** ✓ Already unchecked | MXN "Selected" is unchecked. |
+| 4 | Verify **Save** button state ✓ Save is DISABLED (app prevents save when 0 currencies selected — no error dialog, Save simply stays disabled) | The Save button is disabled. |
+
 **Expected**: Save is disabled (no error dialog) when no currency is selected.
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -233,7 +309,14 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Select USD **Selected** checkbox ✓ USD Selected checked 2. Ensure USD **Is Default** unchecked ✓ Is Default unchecked 3. Click **Save** button ✓ Confirmation dialog appears: "Are you sure you want to save the changes?" 4. Verify no validation error ✓ No error, only confirmation
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select USD **Selected** checkbox ✓ USD Selected checked | USD "Selected" is checked. |
+| 2 | Ensure USD **Is Default** unchecked ✓ Is Default unchecked | USD "Is Default" is unchecked. |
+| 3 | Click **Save** button ✓ Confirmation dialog appears: "Are you sure you want to save the changes?" | The "Save Changes" confirmation dialog appears. |
+| 4 | Verify no validation error ✓ No error, only confirmation | No validation error appears — only the confirmation dialog. |
+
 **Expected**: Save allowed even when no default currency is set (confirmation only)
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -247,7 +330,13 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Note **Save** button initial state ✓ Disabled 2. Click CAD **Selected** checkbox ✓ CAD Selected checked 3. Verify **Save** button ✓ Enabled
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Note **Save** button initial state ✓ Disabled | The Save button is disabled. |
+| 2 | Click CAD **Selected** checkbox ✓ CAD Selected checked | CAD "Selected" is checked. |
+| 3 | Verify **Save** button ✓ Enabled | The Save button is enabled. |
+
 **Expected**: Save button enables when any field is modified
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -261,7 +350,14 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. USD **Merchant** = "316370 - PSAV US/USD" (initial) ✓ Current value displayed 2. Click USD **Merchant** dropdown ✓ Dropdown opens 3. Select "316426 - Encore Bahamas/USD" ✓ Option selected 4. Verify USD **Merchant** field ✓ Shows "316426 - Encore Bahamas/USD"
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | USD **Merchant** = "316370 - PSAV US/USD" (initial) ✓ Current value displayed | USD Merchant shows "316370 - PSAV US/USD". |
+| 2 | Click USD **Merchant** dropdown ✓ Dropdown opens | The USD Merchant dropdown opens. |
+| 3 | Select "316426 - Encore Bahamas/USD" ✓ Option selected | "316426 - Encore Bahamas/USD" is selected. |
+| 4 | Verify USD **Merchant** field ✓ Shows "316426 - Encore Bahamas/USD" | USD Merchant shows "316426 - Encore Bahamas/USD". |
+
 **Expected**: USD merchant can be changed to alternate option
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -276,7 +372,14 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Select USD **Selected** and CAD **Selected** ✓ Both checked 2. Ensure both **Is Default** unchecked ✓ Both unchecked 3. Click **Save** button ✓ Confirmation dialog appears 4. Verify no validation error ✓ No error
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select USD **Selected** and CAD **Selected** ✓ Both checked | Both USD "Selected" and CAD "Selected" are checked. |
+| 2 | Ensure both **Is Default** unchecked ✓ Both unchecked | Both "Is Default" checkboxes are unchecked. |
+| 3 | Click **Save** button ✓ Confirmation dialog appears | The "Save Changes" confirmation dialog appears. |
+| 4 | Verify no validation error ✓ No error | No validation error appears. |
+
 **Expected**: Multiple currencies can be selected without designating a default
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -290,7 +393,12 @@
 | Low | ✅ Automated | User-Requested |
 
 **Depends_On**: none (read-only structural — column-cell behaviour, no state mutation)
-**Steps**: 1. Attempt to click USD **Currency Code** field ✓ No input field becomes editable 2. Verify field behavior ✓ Static text only, not editable
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Attempt to click USD **Currency Code** field ✓ No input field becomes editable | No input field becomes editable after clicking the USD Currency Code cell. |
+| 2 | Verify field behavior ✓ Static text only, not editable | The cell displays static text only and cannot be edited. |
+
 **Expected**: Currency Code column is read-only/static
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -304,7 +412,13 @@
 | Low | ✅ Automated | User-Requested |
 
 **Depends_On**: none (read-only structural — dropdown accessibility, no state mutation)
-**Steps**: 1. CAD **Selected** unchecked (initial) ✓ Unchecked 2. Click CAD **Merchant** dropdown ✓ Dropdown opens 3. Verify dropdown accessible ✓ Options displayed (not disabled)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | CAD **Selected** unchecked (initial) ✓ Unchecked | CAD "Selected" is unchecked. |
+| 2 | Click CAD **Merchant** dropdown ✓ Dropdown opens | The CAD Merchant dropdown opens. |
+| 3 | Verify dropdown accessible ✓ Options displayed (not disabled) | The dropdown displays its options and is not disabled. |
+
 **Expected**: Merchant dropdown is accessible even when currency is not selected
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -318,7 +432,14 @@
 | Medium | ✅ Automated | User-Requested |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Select USD **Selected** ✓ Checked 2. Select CAD **Selected** ✓ Checked 3. Select MXN **Selected** ✓ Checked 4. Verify all checkboxes ✓ All three **Selected** checkboxes checked
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select USD **Selected** ✓ Checked | USD "Selected" is checked. |
+| 2 | Select CAD **Selected** ✓ Checked | CAD "Selected" is checked. |
+| 3 | Select MXN **Selected** ✓ Checked | MXN "Selected" is checked. |
+| 4 | Verify all checkboxes ✓ All three **Selected** checkboxes checked | All three "Selected" checkboxes are checked simultaneously. |
+
 **Expected**: All three currencies can be selected at the same time
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -332,7 +453,17 @@
 | High | ✅ Automated | Round-Trip Persistence |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked 3. Verify **Save** button enabled ✓ Enabled 4. Click **Save** ✓ Save dialog confirmed, save completes 5. Verify **Save** button disabled ✓ Disabled (post-save) 6. Reload and navigate to **Currency** tab ✓ Tab loads 7. Verify CAD **Selected** ✓ Still checked (persisted)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Check CAD **Selected** checkbox ✓ CAD Selected checked | CAD "Selected" is checked. |
+| 3 | Verify **Save** button enabled ✓ Enabled | The Save button is enabled. |
+| 4 | Click **Save** ✓ Save dialog confirmed, save completes | The save dialog is confirmed and the save completes. |
+| 5 | Verify **Save** button disabled ✓ Disabled (post-save) | The Save button is disabled. |
+| 6 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab reloads and its content is visible. |
+| 7 | Verify CAD **Selected** ✓ Still checked (persisted) | CAD "Selected" is still checked. |
+
 **Expected**: Selecting a currency and saving persists the selection through page reload
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -347,7 +478,18 @@
 | High | ✅ Automated | Round-Trip Persistence |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Open USD **Merchant** dropdown, select "316426 - Encore Bahamas/USD" ✓ Merchant changed 3. Verify USD **Merchant** field ✓ Shows "316426" 4. Verify **Save** enabled ✓ Enabled 5. Click **Save** ✓ Save completes 6. Verify **Save** disabled ✓ Disabled (post-save) 7. Reload and navigate to **Currency** tab ✓ Tab loads 8. Verify USD **Merchant** ✓ Still shows "316426 - Encore Bahamas/USD" (persisted)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Open USD **Merchant** dropdown, select "316426 - Encore Bahamas/USD" ✓ Merchant changed | USD Merchant shows "316426 - Encore Bahamas/USD". |
+| 3 | Verify USD **Merchant** field ✓ Shows "316426" | The USD Merchant field shows "316426". |
+| 4 | Verify **Save** enabled ✓ Enabled | The Save button is enabled. |
+| 5 | Click **Save** ✓ Save completes | The save completes. |
+| 6 | Verify **Save** disabled ✓ Disabled (post-save) | The Save button is disabled. |
+| 7 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab reloads and its content is visible. |
+| 8 | Verify USD **Merchant** ✓ Still shows "316426 - Encore Bahamas/USD" (persisted) | USD Merchant still shows "316426 - Encore Bahamas/USD". |
+
 **Expected**: Changing merchant and saving persists the selection through page reload
 **Data**: office=1604 | alternate_merchant=316426 - Encore Bahamas/USD
 **Status**: ✅ Automated
@@ -362,7 +504,20 @@
 | High | ✅ Automated | Round-Trip Persistence |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked 3. Check CAD **Is Default** checkbox ✓ CAD Is Default checked 4. Verify USD **Is Default** auto-unchecked ✓ Unchecked (cascade) 5. Verify **Save** enabled ✓ Enabled 6. Click **Save** ✓ Save completes 7. Verify **Save** disabled ✓ Disabled (post-save) 8. Reload and navigate to **Currency** tab ✓ Tab loads 9. Verify CAD **Is Default** ✓ Checked (persisted) 10. Verify USD **Is Default** ✓ Unchecked (cascade persisted)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Check CAD **Selected** checkbox ✓ CAD Selected checked | CAD "Selected" is checked. |
+| 3 | Check CAD **Is Default** checkbox ✓ CAD Is Default checked | CAD "Is Default" is checked. |
+| 4 | Verify USD **Is Default** auto-unchecked ✓ Unchecked (cascade) | USD "Is Default" is automatically unchecked. |
+| 5 | Verify **Save** enabled ✓ Enabled | The Save button is enabled. |
+| 6 | Click **Save** ✓ Save completes | The save completes. |
+| 7 | Verify **Save** disabled ✓ Disabled (post-save) | The Save button is disabled. |
+| 8 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab reloads and its content is visible. |
+| 9 | Verify CAD **Is Default** ✓ Checked (persisted) | CAD "Is Default" is checked. |
+| 10 | Verify USD **Is Default** ✓ Unchecked (cascade persisted) | USD "Is Default" is unchecked. |
+
 **Expected**: Changing default currency and saving persists the cascade through page reload
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -377,7 +532,19 @@
 | High | ✅ Automated | Round-Trip Persistence |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked 3. Change USD **Merchant** to "316426 - Encore Bahamas/USD" ✓ Merchant changed 4. Verify **Save** enabled ✓ Enabled 5. Click **Save** (single save for both changes) ✓ Save completes 6. Verify **Save** disabled ✓ Disabled (post-save) 7. Reload and navigate to **Currency** tab ✓ Tab loads 8. Verify CAD **Selected** ✓ Checked (persisted) 9. Verify USD **Merchant** ✓ Shows "316426 - Encore Bahamas/USD" (persisted)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Check CAD **Selected** checkbox ✓ CAD Selected checked | CAD "Selected" is checked. |
+| 3 | Change USD **Merchant** to "316426 - Encore Bahamas/USD" ✓ Merchant changed | USD Merchant shows "316426 - Encore Bahamas/USD". |
+| 4 | Verify **Save** enabled ✓ Enabled | The Save button is enabled. |
+| 5 | Click **Save** (single save for both changes) ✓ Save completes | The save completes. |
+| 6 | Verify **Save** disabled ✓ Disabled (post-save) | The Save button is disabled. |
+| 7 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab reloads and its content is visible. |
+| 8 | Verify CAD **Selected** ✓ Checked (persisted) | CAD "Selected" is checked. |
+| 9 | Verify USD **Merchant** ✓ Shows "316426 - Encore Bahamas/USD" (persisted) | USD Merchant shows "316426 - Encore Bahamas/USD". |
+
 **Expected**: Multiple changes in a single save cycle all persist through page reload
 **Data**: office=1604 | alternate_merchant=316426 - Encore Bahamas/USD
 **Status**: ✅ Automated
@@ -392,7 +559,17 @@
 | Medium | ✅ Automated | State Transition |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked 3. Verify **Save** enabled ✓ Enabled 4. Click **Save** button ✓ Save Changes dialog appears 5. Click **Cancel** on Save Changes dialog ✓ Dialog dismissed 6. Reload and navigate to **Currency** tab ✓ Tab loads 7. Verify CAD **Selected** ✓ Unchecked (change was NOT saved)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Check CAD **Selected** checkbox ✓ CAD Selected checked | CAD "Selected" is checked. |
+| 3 | Verify **Save** enabled ✓ Enabled | The Save button is enabled. |
+| 4 | Click **Save** button ✓ Save Changes dialog appears | The "Save Changes" dialog appears. |
+| 5 | Click **Cancel** on Save Changes dialog ✓ Dialog dismissed | The dialog closes and the Currency tab remains with the pending change in place. |
+| 6 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab reloads and its content is visible. |
+| 7 | Verify CAD **Selected** ✓ Unchecked (change was NOT saved) | CAD "Selected" is unchecked, confirming the change was not saved. |
+
 **Expected**: Cancelling the Save Changes dialog discards all pending changes
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -407,12 +584,20 @@
 | Medium | ✅ Automated | State Transition |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Check CAD **Selected** checkbox ✓ CAD Selected checked (when there are unsaved changes) 3. Verify **Save** enabled ✓ Enabled 4. Attempt page reload ✓ The browser's leave-page confirmation fires 5. Dismiss dialog (stay on page) ✓ Page stays
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Check CAD **Selected** checkbox ✓ CAD Selected checked (when there are unsaved changes) | CAD "Selected" is checked. |
+| 3 | Verify **Save** enabled ✓ Enabled | The Save button is enabled. |
+| 4 | Attempt page reload ✓ The browser's leave-page confirmation fires | The browser's leave-page confirmation dialog appears. |
+| 5 | Dismiss dialog (stay on page) ✓ Page stays | The dialog is dismissed and the page remains on the Currency tab. |
+
 **Expected**: The browser's leave-page confirmation fires when attempting to navigate away when there are unsaved changes
 **Data**: office=1604
 **Status**: ✅ Automated
 **Automation File**: specs/locations/location-currency.spec.ts
-**Cleanup**: Reload and navigate to **Currency** tab to discard dirty state
+**Cleanup**: Reload and navigate to **Currency** tab to discard unsaved changes
 **Notes**: MCP-verified (MCP-4)
 
 ---
@@ -423,7 +608,17 @@
 | Medium | ✅ Automated | Edge Case |
 
 **Depends_On**: TC-LOC-CUR-001
-**Steps**: 1. Reload and navigate to **Currency** tab ✓ Tab loads 2. Uncheck USD **Is Default** checkbox ✓ Unchecked (no currency is default) 3. Verify **Save** enabled ✓ Enabled 4. Click **Save** ✓ Save dialog confirmed, save completes 5. Verify **Save** disabled ✓ Disabled (post-save) 6. Reload and navigate to **Currency** tab ✓ Tab loads 7. Verify USD **Is Default** ✓ Still unchecked (no-default state persisted)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab loads and its content is visible. |
+| 2 | Uncheck USD **Is Default** checkbox ✓ Unchecked (no currency is default) | USD "Is Default" is unchecked. |
+| 3 | Verify **Save** enabled ✓ Enabled | The Save button is enabled. |
+| 4 | Click **Save** ✓ Save dialog confirmed, save completes | The save dialog is confirmed and the save completes. |
+| 5 | Verify **Save** disabled ✓ Disabled (post-save) | The Save button is disabled. |
+| 6 | Reload and navigate to **Currency** tab ✓ Tab loads | The Currency tab reloads and its content is visible. |
+| 7 | Verify USD **Is Default** ✓ Still unchecked (no-default state persisted) | USD "Is Default" is unchecked. |
+
 **Expected**: Saving with no default currency set persists that state through page reload
 **Data**: office=1604
 **Status**: ✅ Automated
@@ -460,7 +655,13 @@ Added 2026-06-17 — per-field-type case-completeness pass over the 3×4 currenc
 | Medium | ✅ Automated | State Transition |
 
 **Depends_On**: none (per-test enforced baseline)
-**Steps**: 1. From the enforced default state, click CAD **Selected** ✓ CAD Selected checked, **Save** enabled 2. Uncheck CAD **Selected** (revert to saved state) ✓ CAD Selected unchecked 3. Verify **Save** button ✓ Returns to disabled (form detects no net change)
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | From the enforced default state, click CAD **Selected** ✓ CAD Selected checked, **Save** enabled | CAD "Selected" is checked and the Save button is enabled. |
+| 2 | Uncheck CAD **Selected** (revert to saved state) ✓ CAD Selected unchecked | CAD "Selected" is unchecked. |
+| 3 | Verify **Save** button ✓ Returns to disabled (form detects no net change) | The Save button is disabled. |
+
 **Expected**: Reverting a checkbox change back to its saved state re-disables Save (the form detects no actual change, so there is nothing to save). The form compares against the saved state, not just whether a change event fired.
 **Data**: office=1604
 **Status**: ✅ Automated

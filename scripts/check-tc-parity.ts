@@ -325,9 +325,9 @@ function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<str
   const testCasesDir = SHARED_PATHS.testCases;
 
   // sheet -> {modCode, subCode, entry}
-  const sheetOwner = new Map<string, { mod: string; sub: string; name: string }>();
+  const sheetOwner = new Map<string, { mod: string; sub: string; name: string; idModule?: string; idSubmodule?: string }>();
   for (const [mod, subs] of Object.entries(reg.submodules)) {
-    for (const [sub, entry] of Object.entries(subs)) sheetOwner.set(entry.sheet, { mod, sub, name: entry.name });
+    for (const [sub, entry] of Object.entries(subs)) sheetOwner.set(entry.sheet, { mod, sub, name: entry.name, idModule: (entry as any).idModule, idSubmodule: (entry as any).idSubmodule });
   }
 
   // 6a/6b/6c — MD headers: module/submodule codes registered + match dir/basename
@@ -345,12 +345,20 @@ function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<str
       const mod = reg.modules[parsed.mod];
       if (!mod) { if (!isExcepted(reg, 'G6a-MODULE', id)) failures.push(`[G6a] unregistered module code "${parsed.mod}" in ${id} (${baseName}.md)`); continue; }
       if (mod.dir !== dirName && !isExcepted(reg, 'G6b-DIR', id)) {
-        failures.push(`[G6b] ${id} carries module ${parsed.mod} (dir "${mod.dir}") but lives in test-cases/setup/${dirName}/`);
+        const crossGroupDir = Object.entries(reg.submodules).some(([ownerMod, subs]) =>
+          Object.values(subs).some((e: any) => e.idModule === parsed.mod && e.idSubmodule === parsed.sub && reg.modules[ownerMod]?.dir === dirName)
+        );
+        if (!crossGroupDir) failures.push(`[G6b] ${id} carries module ${parsed.mod} (dir "${mod.dir}") but lives in test-cases/setup/${dirName}/`);
       }
       const sub = reg.submodules[parsed.mod]?.[parsed.sub];
       if (!sub) { if (!isExcepted(reg, 'G6c-SUB', id)) failures.push(`[G6c] unregistered submodule code "${parsed.mod}/${parsed.sub}" in ${id} (${baseName}.md)`); continue; }
       if (sub.mdBasename !== baseName && !isExcepted(reg, 'G6c-SUB', id)) {
-        failures.push(`[G6c] ${id} (submodule ${parsed.sub} → ${sub.mdBasename}.md) found in ${baseName}.md`);
+        // Cross-group awareness: when a submodule declares idModule/idSubmodule matching
+        // this TC's codes, the case is legitimately located in that submodule's file.
+        const crossGroupFile = Object.entries(reg.submodules).some(([, subs]) =>
+          Object.values(subs).some((e: any) => e.idModule === parsed.mod && e.idSubmodule === parsed.sub && e.mdBasename === baseName)
+        );
+        if (!crossGroupFile) failures.push(`[G6c] ${id} (submodule ${parsed.sub} → ${sub.mdBasename}.md) found in ${baseName}.md`);
       }
     }
   }
@@ -365,7 +373,10 @@ function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<str
     if (!parsed) continue;
     const mod = reg.modules[parsed.mod];
     if (mod && mod.dir !== specDir && !isExcepted(reg, 'G6b-DIR', idMatch[0])) {
-      failures.push(`[G6b] spec ${fileMatch[1]} declares ${idMatch[0]} (module dir "${mod.dir}") under tests/${specDir}/`);
+      const crossGroupDir = Object.entries(reg.submodules).some(([ownerMod, subs]) =>
+        Object.values(subs).some((e: any) => e.idModule === parsed.mod && e.idSubmodule === parsed.sub && reg.modules[ownerMod]?.dir === specDir)
+      );
+      if (!crossGroupDir) failures.push(`[G6b] spec ${fileMatch[1]} declares ${idMatch[0]} (module dir "${mod.dir}") under tests/${specDir}/`);
     }
   }
 
@@ -387,7 +398,7 @@ function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<str
         if (modCell !== expectModuleCell) { failures.push(`[G6d] ${sheetName}/${id}: Module cell "${modCell}" ≠ registry "${expectModuleCell}"`); break; }
         if (subCell !== owner.name) { failures.push(`[G6d] ${sheetName}/${id}: Submodule cell "${subCell}" ≠ registry "${owner.name}"`); break; }
         const parsed = parseTcId(id);
-        if (parsed && (parsed.mod !== owner.mod || parsed.sub !== owner.sub) && !isExcepted(reg, 'G6e-SHEET', id)) {
+        if (parsed && (parsed.mod !== (owner.idModule || owner.mod) || parsed.sub !== (owner.idSubmodule || owner.sub)) && !isExcepted(reg, 'G6e-SHEET', id)) {
           failures.push(`[G6e] ${id} sits on sheet "${sheetName}" owned by ${owner.mod}/${owner.sub}`);
         }
       }

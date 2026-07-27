@@ -20,8 +20,10 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Click "Loc Pricing Export" and wait for the browser download event to fire
-2. Read the downloaded file's suggested filename
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Click "Loc Pricing Export" and wait for the browser download event to fire | The browser download event fires and the CSV file download begins. |
+| 2 | Read the downloaded file's suggested filename | A real file download occurs; the filename matches LocationPricebooks_<YYYYMMDD>_<HHMMSS>UTC.csv |
 
 **Expected**: A real file download occurs; the filename matches `LocationPricebooks_<YYYYMMDD>_<HHMMSS>UTC.csv`.
 **Data**: office=1604
@@ -40,8 +42,10 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Download the Loc Pricing Export file
-2. Read its raw contents and parse the header row
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Download the Loc Pricing Export file | The Loc Pricing Export file downloads successfully and is saved locally. |
+| 2 | Read its raw contents and parse the header row | The file is non-empty and a header row parses out (length > 0) |
 
 **Expected**: The file is non-empty and a header row parses out (length > 0).
 **Data**: office=1604
@@ -60,8 +64,11 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Download the Loc Pricing Export file and parse the header + data rows
-2. Compare the header row to the expected 11-column set/order; confirm >= 1 data row
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Download the Loc Pricing Export file and parse the header + data rows | The file downloads successfully and parses into a header row and data rows without error. |
+| 2 | Compare the header row to the expected 11-column set/order | The header row contains exactly the 11 expected columns in the expected order. |
+| 3 | confirm >= 1 data row | The header row equals LocationNo, PricingStrategy, PriceBook, Currency, IsInternal, IsLabor, IsAlternate, IsProduction, UseDate, StartDate, EndDate (exact set + order - the file is the oracle) and the export has at least one data row |
 
 **Expected**: The header row equals `LocationNo, PricingStrategy, PriceBook, Currency, IsInternal, IsLabor, IsAlternate, IsProduction, UseDate, StartDate, EndDate` (exact set + order — the file is the oracle) and the export has at least one data row.
 **Data**: office=1604; expected columns = the 11 live-verified headers (2026-07-06)
@@ -80,8 +87,10 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Trigger the Loc Pricing Export and capture the export request on the SAME click that produces the download
-2. Inspect the captured request URL
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Trigger the Loc Pricing Export and capture the export request on the SAME click that produces the download | The export network request is captured and the file download occurs from the same click. |
+| 2 | Inspect the captured request URL | The download's own request URL contains location-export and locale=en-US (distinct from the separate network-only endpoint check; this asserts the locale on the request tied to the actual downloaded file) |
 
 **Expected**: The download's own request URL contains `location-export` and `locale=en-US` (distinct from the separate network-only endpoint check; this asserts the locale on the request tied to the actual downloaded file).
 **Data**: office=1604
@@ -100,8 +109,10 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Download the Loc Pricing Export once
-2. Without reloading, click "Loc Pricing Export" again and capture the second download
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Download the Loc Pricing Export once | The Loc Pricing Export file downloads successfully on the first click. |
+| 2 | Without reloading, click "Loc Pricing Export" again and capture the second download | A fresh download occurs on the second consecutive click; both filenames match the pattern and the second file is non-empty (no state residue blocks re-trigger) |
 
 **Expected**: A fresh download occurs on the second consecutive click; both filenames match the pattern and the second file is non-empty (no state residue blocks re-trigger).
 **Data**: office=1604
@@ -120,8 +131,10 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Download and parse the Loc Pricing Export (quote-aware CSV parse)
-2. For EVERY data row (not a sample), verify the row has the full column set, LocationNo is numeric, the Currency is a supported code (USD/CAD/MXN), the boolean flags (IsInternal/IsLabor/IsAlternate/IsProduction) are 0/1, UseDate is 0/1, and the date-window columns (StartDate/EndDate) are both empty when UseDate=0 and both populated when UseDate=1
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Download and parse the Loc Pricing Export (quote-aware CSV parse) | The file downloads successfully and the quote-aware CSV parser processes all rows without error. |
+| 2 | For EVERY data row (not a sample), verify the row has the full column set, LocationNo is numeric, the Currency is a supported code (USD/CAD/MXN), the boolean flags (IsInternal/IsLabor/IsAlternate/IsProduction) are 0/1, UseDate is 0/1, and the date-window columns (StartDate/EndDate) are both empty when UseDate=0 and both populated when UseDate=1 | EVERY data row (all ~38k) has the full 11 columns, a numeric LocationNo, a supported Currency (USD/CAD/MXN), 0/1 boolean flags, a 0/1 UseDate, and a date-window that is empty exactly when UseDate=0 and populated exactly when UseDate=1 - a malformed row anywhere in the file fails the test. (Value-format fidelity - the exported file is the oracle; the export is an all-locations dataset, not the on-screen strategy grid, so structure/format is asserted rather than a grid row-for-row diff. The exact date-string format is not yet assertable - no export sample with UseDate=1 has been observed; this is a documented data-blocked boundary, not a silent gap.) |
 
 **Expected**: EVERY data row (all ~38k) has the full 11 columns, a numeric LocationNo, a supported Currency (USD/CAD/MXN), 0/1 boolean flags, a 0/1 UseDate, and a date-window that is empty exactly when UseDate=0 and populated exactly when UseDate=1 — a malformed row anywhere in the file fails the test. (Value-format fidelity — the exported file is the oracle; the export is an all-locations dataset, not the on-screen strategy grid, so structure/format is asserted rather than a grid row-for-row diff. The exact date-string format is not yet assertable — no export sample with UseDate=1 has been observed; this is a documented data-blocked boundary, not a silent gap.)
 **Data**: office=1604
@@ -140,8 +153,10 @@
 **Preconditions**: A tenant with zero location pricebooks anywhere (population path: the export is tenant-wide, not office-scoped — every observed download spans all locations starting at office 1101 — so an empty office is not sufficient; a whole zero-pricebook tenant is needed and none is available on the shared e2e server, so this is data-blocked and skipped until such a tenant exists).
 
 **Steps**:
-1. On a zero-location-pricebook tenant, download the Loc Pricing Export
-2. Parse the header + data rows
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | On a zero-location-pricebook tenant, download the Loc Pricing Export | The Loc Pricing Export file downloads successfully even though the tenant has zero location pricebooks. |
+| 2 | Parse the header + data rows | The CSV is header-only-but-valid (headers present, zero data rows) - never a zero-byte file. (Un-skip once such a tenant is identified.) |
 
 **Expected**: The CSV is header-only-but-valid (headers present, zero data rows) — never a zero-byte file. (Un-skip once such a tenant is identified.)
 **Data**: office=<zero-location-pricebook tenant, TBD>

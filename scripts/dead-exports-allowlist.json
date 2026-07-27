@@ -94,28 +94,28 @@
       "added": "2026-07-21"
     },
     {
-      "file": "clients/encore/src/data/corporate-pricing/override.ts",
+      "file": "clients/encore/src/data/corporate-override/override.ts",
       "export": "OVERRIDE_FIELD_ORACLE",
       "reason": "Authored field-expectation data for the override grid retained from the source branch; no spec consumer yet — future coverage seeds.",
       "category": "test-data-surface",
       "added": "2026-07-24"
     },
     {
-      "file": "clients/encore/src/data/corporate-pricing/override.ts",
+      "file": "clients/encore/src/data/corporate-override/override.ts",
       "export": "CORP_PRICING_OVERRIDE_SINGLE_ROW_BED",
       "reason": "Authored single-row test-bed data seed retained from the source branch for future override coverage; no current spec consumer.",
       "category": "test-data-surface",
       "added": "2026-07-24"
     },
     {
-      "file": "clients/encore/src/data/corporate-pricing/override.ts",
+      "file": "clients/encore/src/data/corporate-override/override.ts",
       "export": "CORP_PRICING_OVERRIDE_MULTI_ROW_BED",
       "reason": "Authored multi-row test-bed data seed retained from the source branch for future override coverage; no current spec consumer.",
       "category": "test-data-surface",
       "added": "2026-07-24"
     },
     {
-      "file": "clients/encore/src/data/corporate-pricing/override.ts",
+      "file": "clients/encore/src/data/corporate-override/override.ts",
       "export": "CORP_PRICING_OVERRIDE_MULTI_CURRENCY_BED",
       "reason": "Authored multi-currency test-bed data seed retained from the source branch for future override coverage; no current spec consumer.",
       "category": "test-data-surface",

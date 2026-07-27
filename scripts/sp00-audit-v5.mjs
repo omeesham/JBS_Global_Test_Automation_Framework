@@ -3,7 +3,7 @@
  * sp00-audit-v5.mjs — Comprehensive XLSX deliverable audit.
  *
  * Scans every module sheet in
- * clients/encore/test_cases_xlsx/encore_test_cases.xlsx for:
+ * clients/encore/testcases/encore_test_cases.xlsx for:
  *   1. Empty required cells
  *   2. Jargon / framework leakage
  *   3. Slop phrases in the Notes / Reason column
@@ -28,7 +28,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import XLSX from 'xlsx';
 
-const XLSX_PATH = join(process.cwd(), 'clients', 'encore', 'test_cases_xlsx', 'encore_test_cases.xlsx');
+const XLSX_PATH = join(process.cwd(), 'clients', 'encore', 'testcases', 'encore_test_cases.xlsx');
 // Column order tracks the sheet (Notes / Reason moved to the last column by
 // PLAN_DELIVERABLE_NOTES_REASON_DECLUTTER) — used positionally for COLUMNS[c] labels.
 const COLUMNS = [

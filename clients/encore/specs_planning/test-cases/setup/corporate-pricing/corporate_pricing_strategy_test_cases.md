@@ -1,4 +1,4 @@
-# Corporate Pricing — Pricebook Management / Pricing Strategy Test Cases (NM-1441 / NM-2261)
+﻿# Corporate Pricing — Pricebook Management / Pricing Strategy Test Cases (NM-1441 / NM-2261)
 
 **Module**: corporate-pricing | **Total**: 63 | **Status**: Complete | **Updated**: 2026-06-26
 
@@ -41,7 +41,7 @@ Live-driven session (Playwright CLI, headless `state-load` of the e2e session) t
 | **NM-2059 duplicate name** | **BLOCKED** — entering the existing strategy's name + Add shows inline error **"A pricing strategy with this name already exists."**, dialog stays open, Total unchanged. **Contradicts the NM-2059 lead** ("duplicates allowed"); the app correctly enforces uniqueness (lead is stale / already-fixed). | TC-047 |
 | LR-009 revert | Edit name → Save enabled; revert to original → **Save disabled**. Toggle Is Active → enabled; toggle back → **Save disabled**. (net-zero collapses dirty) | TC-032/033/034 |
 | Dirty across sub-tab switch | Editing then switching Strategy→Detail keeps Save enabled, **no dialog** (silent) | TC-061 |
-| Nav-away while dirty | Breadcrumb nav fires the **"Unsaved changes" alertdialog** ("Are you sure you want to leave this view? Any unsaved changes will be lost." — **Stay / Discard**); navigation blocked until resolved (+ native beforeunload) | TC-061 |
+| Nav-away while dirty | Breadcrumb nav fires the **"Unsaved changes" confirmation dialog** ("Are you sure you want to leave this view? Any unsaved changes will be lost." — **Stay / Discard**); navigation blocked until resolved (+ native beforeunload) | TC-061 |
 | Boolean render (LR-036) | Editor flags render as Radix `[role=checkbox][aria-checked]` (nested check `img` when true). The strategy **LIST** (left pane) renders only name buttons — **no boolean columns** | TC-056/057 |
 | Strategy search filter | "Search strategies..." filters the list client-side — `"zzzz"` → 0 rows (**Total: 0**), `"2022"` → the strategy shows. Total reflects the FILTERED count. → result-fidelity is **in-scope** (the plan's "no search affordance" out-of-scope reason is wrong per live DOM) | TC-062/063 |
 | Save gating (new pricebook) | `/add?type=equipment` with Name+Year set + 0 strategies → **Save disabled**; +1 strategy → enabled; remove last → disabled again (≥1-strategy gate, no commit) | TC-050/051/052, TC-030/031 |
@@ -122,9 +122,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Corporate Pricing Search page for office 1604, with the "2022-NP Tier 1" pricebook available to open.
 
 **Steps**:
-1. Navigate to the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604).
-2. Verify page title / heading.
-3. Verify the header reflects the chosen pricebook.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Navigate to the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604). | The Pricebook Details management page opens for the "2022-NP Tier 1" pricebook. |
+| 2 | Verify page title / heading. | The page title/heading identifies it as the Pricebook Details page. |
+| 3 | Verify the header reflects the chosen pricebook. | The Pricebook Details management page loads and its header reflects the selected pricebook |
 
 **Expected**: The Pricebook Details management page loads and its header reflects the selected pricebook.
 **Data**: office=1604, pricebook=2022-NP Tier 1
@@ -142,8 +144,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604).
 
 **Steps**:
-1. Open the Pricebook Details page for the "2022-NP Tier 1" pricebook.
-2. Read the header name.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page for the "2022-NP Tier 1" pricebook. | The Pricebook Details page for "2022-NP Tier 1" loads and displays its header. |
+| 2 | Read the header name. | Header name equals the pricebook name "2022-NP Tier 1" |
 
 **Expected**: Header name equals the pricebook name "2022-NP Tier 1".
 **Data**: office=1604
@@ -161,8 +165,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604).
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Read the "Labor/Equipment" header value.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads and displays its header. |
+| 2 | Read the "Labor/Equipment" header value. | Header Type value is "Equipment" (one of Labor/Equipment) |
 
 **Expected**: Header Type value is "Equipment" (one of Labor/Equipment).
 **Data**: office=1604
@@ -180,8 +186,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604).
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Read the "Year" header value.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads and displays its header. |
+| 2 | Read the "Year" header value. | Header Year value is "2022" |
 
 **Expected**: Header Year value is "2022".
 **Data**: office=1604
@@ -199,8 +207,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604).
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Read the "Currency" header value.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads and displays its header. |
+| 2 | Read the "Currency" header value. | Header Currency value is "USD" |
 
 **Expected**: Header Currency value is "USD".
 **Data**: office=1604
@@ -218,8 +228,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604).
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Read the Active-status indicator in the header.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads and displays its header. |
+| 2 | Read the Active-status indicator in the header. | Header shows a clear active/inactive indicator ("Active" for this pricebook) |
 
 **Expected**: Header shows a clear active/inactive indicator ("Active" for this pricebook).
 **Data**: office=1604
@@ -237,8 +249,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604).
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Inspect the 5 header fields (Name, Type, Year, Currency, Active).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads and displays its header. |
+| 2 | Inspect the 5 header fields (Name, Type, Year, Currency, Active). | No header field exposes an editable field - the header is presented as reference information only |
 
 **Expected**: No header field exposes an editable field — the header is presented as reference information only.
 **Data**: office=1604
@@ -256,9 +270,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604).
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Read the tab buttons.
-3. Read the tab buttons.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads and displays its header and tab row. |
+| 2 | Read the tab buttons. | The tab row is visible with labeled tab buttons. |
+| 3 | Read the tab buttons. | Exactly two tabs render: "Pricing Strategy" and "Pricing Detail" |
 
 **Expected**: Exactly two tabs render: "Pricing Strategy" and "Pricing Detail".
 **Data**: office=1604
@@ -276,8 +292,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), opened in a fresh session.
 
 **Steps**:
-1. Open the Pricebook Details page in a fresh session.
-2. Observe which tab content renders.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page in a fresh session. | The Pricebook Details page loads successfully in the fresh session. |
+| 2 | Observe which tab content renders. | The Pricing Strategy tab is active by default (its content area is shown) |
 
 **Expected**: The Pricing Strategy tab is active by default (its content area is shown).
 **Data**: office=1604
@@ -295,8 +313,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active.
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Click the "Pricing Detail" tab.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads with the Pricing Strategy tab active by default. |
+| 2 | Click the "Pricing Detail" tab. | Clicking "Pricing Detail" activates the Detail tab; its deeper behavior is covered by the Pricing Detail test suite |
 
 **Expected**: Clicking "Pricing Detail" activates the Detail tab; its deeper behavior is covered by the Pricing Detail test suite.
 **Data**: office=1604
@@ -314,8 +334,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604).
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Search the tab row for a "History" tab.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads and displays its tab row. |
+| 2 | Search the tab row for a "History" tab. | No History tab exists in the current version |
 
 **Expected**: No History tab exists in the current version.
 **Data**: office=1604
@@ -333,9 +355,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and the "2022-NP Tier 1" strategy present in the Price Strategies list.
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Click the strategy "2022-NP Tier 1" in the Price Strategies list.
-3. Verify the editor shows the strategy name + flag checkboxes (Is Productions, Is Internal, Is GSO, Is Active)
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads with the Price Strategies list displayed. |
+| 2 | Click the strategy "2022-NP Tier 1" in the Price Strategies list. | Clicking "2022-NP Tier 1" selects it and highlights it in the Price Strategies list. |
+| 3 | Verify the editor shows the strategy name + flag checkboxes (Is Productions, Is Internal, Is GSO, Is Active) | Selecting a strategy loads its details into the editor (name field + flag checkboxes reflect the strategy) |
 
 **Expected**: Selecting a strategy loads its details into the editor (name field + flag checkboxes reflect the strategy).
 **Data**: office=1604
@@ -353,9 +377,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Office 1604's Location → Pricing tab is reachable, and the "2026-Tier 2 Resort B" Equipment strategy (pricebook "2026-PB5") is selectable as a Primary Equipment Pricing option for office 1604.
 
 **Steps**:
-1. On office 1604's Pricing tab, set Primary Equipment Pricing to "2026-Tier 2 Resort B" and Save (skip the save when it is already selected).
-2. Open the "2026-Tier 2 Resort B" pricebook's Pricing Strategy tab and read the "Locations Using Pricing As Default" table.
-3. Restore office 1604's Primary Equipment Pricing to its original value.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | On office 1604's Pricing tab, set Primary Equipment Pricing to "2026-Tier 2 Resort B" and Save (skip the save when it is already selected). | Office 1604's Primary Equipment Pricing field shows "2026-Tier 2 Resort B" as the selected value. |
+| 2 | Open the "2026-Tier 2 Resort B" pricebook's Pricing Strategy tab and read the "Locations Using Pricing As Default" table. | The "2026-Tier 2 Resort B" pricebook's Pricing Strategy tab opens and displays the "Locations Using Pricing As Default" table. |
+| 3 | Restore office 1604's Primary Equipment Pricing to its original value. | Office 1604's Primary Equipment Pricing is restored to its original value and saved. |
 
 **Expected**: The "Locations Using Pricing As Default" table (cols "Local Office", "Local Office Name") lists at least one row and includes office 1604 — the office whose Primary Pricing now points at this strategy. The grid is a read-only back-reference: an office surfaces here only because of its Primary Pricing selection, so an empty grid is no longer accepted as a pass.
 **Data**: office=1604, strategy=2026-Tier 2 Resort B
@@ -373,11 +399,13 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and the "2022-NP Tier 1" strategy at its default saved state.
 
 **Steps**:
-1. Confirm the starting state (strategy = "2022-NP Tier 1").
-2. Edit the strategy name field (append a reversible marker).
-3. Click Save.
-4. Reload the page.
-5. Restore the original name (cleanup).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Confirm the starting state (strategy = "2022-NP Tier 1"). | The strategy name "2022-NP Tier 1" is shown in the list. |
+| 2 | Edit the strategy name field (append a reversible marker). | The strategy name field accepts the edited value. |
+| 3 | Click Save. | The changes are saved and the updated strategy name appears in the list. |
+| 4 | Reload the page. | The page reloads and the updated strategy name persists. |
+| 5 | Restore the original name (cleanup). | The strategy name is restored to "2022-NP Tier 1" and saved. |
 
 **Expected**: A saved edit to an existing strategy persists across reload; the strategy is restored to its original state afterward (no leftover changes).
 **Data**: office=1604, pricebook=2022-NP Tier 1
@@ -395,10 +423,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and one existing strategy in the list.
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Click the Add ("+") button in the Price Strategies pane.
-3. Enter a Strategy Name and click "Add".
-4. Discard the new strategy (Remove) without Save.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads with the Price Strategies pane displayed. |
+| 2 | Click the Add ("+") button in the Price Strategies pane. | Clicking "+" opens the New Pricing Strategy dialog. |
+| 3 | Enter a Strategy Name and click "Add". | The typed Strategy Name is accepted and clicking "Add" closes the dialog. |
+| 4 | Discard the new strategy (Remove) without Save. | The strategy is removed from the list; no changes are committed. |
 
 **Expected**: Add ("+") opens the New Pricing Strategy dialog; submitting "Add" appends a fresh (unsaved) strategy to the list. (The add flow opens a dialog first.)
 **Data**: office=1604
@@ -416,9 +446,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active, ready to add a new strategy via the dialog.
 
 **Steps**:
-1. Add a new strategy via the dialog.
-2. Inspect the new strategy's list item.
-3. Discard (Remove) without Save.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Add a new strategy via the dialog. | The new strategy appears as a row in the Price Strategies list. |
+| 2 | Inspect the new strategy's list item. | The new strategy's list item includes a visible Remove button. |
+| 3 | Discard (Remove) without Save. | A newly-added strategy row carries a Remove affordance |
 
 **Expected**: A newly-added strategy row carries a Remove affordance.
 **Data**: office=1604
@@ -436,8 +468,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and the existing (saved) "2022-NP Tier 1" strategy in the list.
 
 **Steps**:
-1. Open the Pricebook Details page.
-2. Inspect the legacy strategy's list item.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page. | The Pricebook Details page loads with the legacy strategy listed. |
+| 2 | Inspect the legacy strategy's list item. | A saved (legacy) strategy has no Remove control |
 
 **Expected**: A saved (legacy) strategy has no Remove control.
 **Data**: office=1604
@@ -455,9 +489,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and a newly added (unsaved) strategy in the list.
 
 **Steps**:
-1. Add a new strategy via the dialog.
-2. Click the new strategy's Remove button.
-3. Verify state.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Add a new strategy via the dialog. | The new strategy appears as a row in the Price Strategies list. |
+| 2 | Click the new strategy's Remove button. | Clicking Remove deletes the new strategy row from the list immediately. |
+| 3 | Verify state. | Removing a new (uncommitted) strategy deletes it from the list instantly, returning the form to clean |
 
 **Expected**: Removing a new (uncommitted) strategy deletes it from the list instantly, returning the form to clean.
 **Data**: office=1604
@@ -475,8 +511,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and an existing (saved) strategy visible in the list.
 
 **Steps**:
-1. Open the Pricebook Details page with a legacy strategy visible.
-2. Look for any remove/delete control on the legacy strategy.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page with a legacy strategy visible. | The Pricebook Details page loads with the legacy strategy visible in the list. |
+| 2 | Look for any remove/delete control on the legacy strategy. | There is no path to remove a legacy strategy from this management view (the Remove control is available only for newly-added strategies, never for saved ones) |
 
 **Expected**: There is no path to remove a legacy strategy from this management view (the Remove control is available only for newly-added strategies, never for saved ones).
 **Data**: office=1604
@@ -494,8 +532,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and no changes made.
 
 **Steps**:
-1. Open the Pricebook Details page and make no changes.
-2. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page and make no changes. | The Pricebook Details page loads with no pending changes. |
+| 2 | Observe the Save button. | With no pending changes the page is clean - there is no separate state badge; the Save button's disabled state is the clean indicator |
 
 **Expected**: With no pending changes the page is clean — there is no separate state badge; the Save button's disabled state is the clean indicator.
 **Data**: office=1604
@@ -513,9 +553,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active, a strategy selected, and no changes made (Save disabled).
 
 **Steps**:
-1. Open the Pricebook Details page (clean).
-2. Edit the selected strategy's name field.
-3. Discard (reload / restore) without Save.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page (clean). | The Pricebook Details page loads with the Save button disabled (clean state). |
+| 2 | Edit the selected strategy's name field. | The strategy name field accepts the typed edit and displays the new text. |
+| 3 | Discard (reload / restore) without Save. | Editing any editable strategy field transitions the page to dirty (Save enables) |
 
 **Expected**: Editing any editable strategy field transitions the page to dirty (Save enables).
 **Data**: office=1604
@@ -533,9 +575,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and no changes made (Save disabled).
 
 **Steps**:
-1. Open the Pricebook Details page (clean).
-2. Add a new strategy via the dialog.
-3. Discard (Remove) without Save.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page (clean). | The Pricebook Details page loads with the Save button disabled (clean state). |
+| 2 | Add a new strategy via the dialog. | The new strategy is added and appears in the Price Strategies list. |
+| 3 | Discard (Remove) without Save. | Adding a new strategy transitions the page to dirty (Save enables) |
 
 **Expected**: Adding a new strategy transitions the page to dirty (Save enables).
 **Data**: office=1604
@@ -553,11 +597,13 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and the page at its default saved state.
 
 **Steps**:
-1. Confirm the starting state.
-2. Edit the existing strategy (reversible marker) AND add a new strategy via the dialog.
-3. Click Save.
-4. Reload.
-5. Restore the starting state (remove the added strategy / revert the edit).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Confirm the starting state. | The strategy list shows the baseline strategies with the Save button disabled. |
+| 2 | Edit the existing strategy (reversible marker) AND add a new strategy via the dialog. | The existing strategy shows the edited name and the new strategy appears in the list; Save becomes enabled. |
+| 3 | Click Save. | Clicking Save submits both the edit and the addition and the page displays a success indicator. |
+| 4 | Reload. | The page reloads and displays the saved edit and the newly added strategy. |
+| 5 | Restore the starting state (remove the added strategy / revert the edit). | A single Save commits all pending edits + additions; both are reflected on reload; the page is restored to its starting state afterward |
 
 **Expected**: A single Save commits all pending edits + additions; both are reflected on reload; the page is restored to its starting state afterward.
 **Data**: office=1604, pricebook=2022-NP Tier 1
@@ -575,10 +621,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and the page at its default saved state.
 
 **Steps**:
-1. Confirm the starting state.
-2. Make a reversible change and click Save.
-3. Observe the notifications area.
-4. Restore the starting state.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Confirm the starting state. | The strategy list shows the baseline strategy with the Save button disabled. |
+| 2 | Make a reversible change and click Save. | The change is accepted and clicking Save submits it to the server. |
+| 3 | Observe the notifications area. | The notifications area displays a success message confirming the save. |
+| 4 | Restore the starting state. | After Save, a visible success indicator confirms the update |
 
 **Expected**: After Save, a visible success indicator confirms the update.
 **Data**: office=1604
@@ -596,10 +644,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the "2022-NP Tier 1" pricebook (office 1604), with the Pricing Strategy tab active and the page at its default saved state.
 
 **Steps**:
-1. Confirm the starting state.
-2. Make a reversible change.
-3. Click Save and wait for success.
-4. Restore the starting state.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Confirm the starting state. | The strategy list shows the baseline strategy with the Save button disabled. |
+| 2 | Make a reversible change. | The change is accepted and the Save button becomes enabled. |
+| 3 | Click Save and wait for success. | Clicking Save submits the change and a success indicator is displayed. |
+| 4 | Restore the starting state. | After a successful Save the state indicator returns to clean (Save disabled) |
 
 **Expected**: After a successful Save the state indicator returns to clean (Save disabled).
 **Data**: office=1604
@@ -621,10 +671,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, Total: 1.
 
 **Steps**:
-1. Open the New Pricing Strategy dialog, enter a unique name (strategy A), click Add.
-2. Open the dialog again, enter a second unique name (strategy B), click Add.
-3. Verify the Save button.
-4. Reload the page (discard).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the New Pricing Strategy dialog, enter a unique name (strategy A), click Add. | Strategy A is added and the list Total increases from 1 to 2. |
+| 2 | Open the dialog again, enter a second unique name (strategy B), click Add. | Strategy B is added and the list Total increases from 2 to 3. |
+| 3 | Verify the Save button. | The Save button is enabled. |
+| 4 | Reload the page (discard). | Two new strategies append to the in-session list (Total goes from 1 to 2 to 3); both names render; Save is enabled. Reloading discards them (never committed) |
 
 **Expected**: Two new strategies append to the in-session list (Total goes from 1 to 2 to 3); both names render; Save is enabled. Reloading discards them (never committed).
 **Data**: office=1604; in-session only
@@ -642,9 +694,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, Total: 1.
 
 **Steps**:
-1. Add three unique new strategies (A, B, C) via the dialog.
-2. Verify the Save button.
-3. Reload (discard).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Add three unique new strategies (A, B, C) via the dialog. | All three strategies (A, B, C) are added and the list Total increases from 1 to 4. |
+| 2 | Verify the Save button. | The Save button remains enabled. |
+| 3 | Reload (discard). | Three new strategies append (Total becomes 4); Save stays enabled across multiple adds. In-session only |
 
 **Expected**: Three new strategies append (Total becomes 4); Save stays enabled across multiple adds. In-session only.
 **Data**: office=1604; in-session only
@@ -662,10 +716,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Add two new strategies (A, B) via the dialog.
-2. Select A, edit its name in the editor to A2.
-3. Select B, edit its name in the editor to B2.
-4. Reload (discard).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Add two new strategies (A, B) via the dialog. | Strategies A and B are added and both appear in the list. |
+| 2 | Select A, edit its name in the editor to A2. | Strategy A's name field updates to A2 and the list reflects the renamed row. |
+| 3 | Select B, edit its name in the editor to B2. | Strategy B's name field updates to B2 and the list reflects the renamed row. |
+| 4 | Reload (discard). | Each row's name edits independently within a multi-row session; the list reflects both renames. In-session only (no persist) |
 
 **Expected**: Each row's name edits independently within a multi-row session; the list reflects both renames. In-session only (no persist).
 **Data**: office=1604; in-session only
@@ -683,10 +739,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, Total: 1.
 
 **Steps**:
-1. Add three new strategies (A, B, C) via the dialog.
-2. Remove A via its Remove icon.
-3. Remove B.
-4. Remove C.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Add three new strategies (A, B, C) via the dialog. | Strategies A, B, and C are added and the list Total increases from 1 to 4. |
+| 2 | Remove A via its Remove icon. | Strategy A is removed and the list Total decreases from 4 to 3. |
+| 3 | Remove B. | Strategy B is removed and the list Total decreases from 3 to 2. |
+| 4 | Remove C. | New (uncommitted) strategies remove one at a time (Total decrements each); after all new rows are removed the form is clean (Save disabled) |
 
 **Expected**: New (uncommitted) strategies remove one at a time (Total decrements each); after all new rows are removed the form is clean (Save disabled).
 **Data**: office=1604; in-session only
@@ -704,8 +762,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: New Pricebook create page (`/add?type=equipment`, office 1604).
 
 **Steps**:
-1. Set Pricebook Name + Year, then add one strategy via the dialog.
-2. Remove that strategy (its Remove icon).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Set Pricebook Name + Year, then add one strategy via the dialog. | The Pricebook Name and Year are accepted and the new strategy appears in the list with Save enabled. |
+| 2 | Remove that strategy (its Remove icon). | Removing the only strategy on a new pricebook leaves zero strategies and disables Save (the ≥1-strategy gate). No commit |
 
 **Expected**: Removing the only strategy on a new pricebook leaves zero strategies and disables Save (the ≥1-strategy gate). No commit.
 **Data**: office=1604; new pricebook (never saved)
@@ -723,7 +783,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: New Pricebook create page with Name + Year set and 0 strategies (Save disabled).
 
 **Steps**:
-1. Add a strategy via the dialog.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Add a strategy via the dialog. | Re-adding a strategy after delete-all re-enables Save. No commit |
 
 **Expected**: Re-adding a strategy after delete-all re-enables Save. No commit.
 **Data**: office=1604; new pricebook (never saved)
@@ -741,8 +803,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, clean baseline.
 
 **Steps**:
-1. Select the strategy and edit its name (append a marker).
-2. Clear the name back to the original "2022-NP Tier 1".
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select the strategy and edit its name (append a marker). | The strategy is selected and the name field updates with the appended marker; Save becomes enabled. |
+| 2 | Clear the name back to the original "2022-NP Tier 1". | Reverting the name to the saved value disables Save again - reverting to the original is detected as no net change |
 
 **Expected**: Reverting the name to the saved value disables Save again — reverting to the original is detected as no net change.
 **Data**: office=1604
@@ -760,8 +824,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, clean baseline.
 
 **Steps**:
-1. Toggle Is Active off.
-2. Toggle Is Active back on.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Toggle Is Active off. | Is Active becomes unchecked and Save becomes enabled. |
+| 2 | Toggle Is Active back on. | Toggling a flag then reverting it disables Save (reverting to the original is no net change) |
 
 **Expected**: Toggling a flag then reverting it disables Save (reverting to the original is no net change).
 **Data**: office=1604
@@ -779,9 +845,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, clean baseline.
 
 **Steps**:
-1. Edit the name AND toggle Is Active.
-2. Revert only the name.
-3. Revert Is Active.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Edit the name AND toggle Is Active. | The name field shows the edited value and Is Active toggles state; Save is enabled. |
+| 2 | Revert only the name. | The name field returns to its original value and Save remains enabled. |
+| 3 | Revert Is Active. | With two dirty fields, reverting one leaves Save enabled; reverting both disables Save. (Is Active is used as the second changeable field - Is Internal/Is GSO are disabled while Is Productions is checked.) |
 
 **Expected**: With two dirty fields, reverting one leaves Save enabled; reverting both disables Save. (Is Active is used as the second changeable field — Is Internal/Is GSO are disabled while Is Productions is checked.)
 **Data**: office=1604
@@ -799,7 +867,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the New Pricing Strategy dialog and read the Is Active checkbox.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the New Pricing Strategy dialog and read the Is Active checkbox. | Is Active defaults to checked in the New Pricing Strategy dialog |
 
 **Expected**: Is Active defaults to checked in the New Pricing Strategy dialog.
 **Data**: office=1604
@@ -817,7 +887,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the New Pricing Strategy dialog and read the Is GSO checkbox.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the New Pricing Strategy dialog and read the Is GSO checkbox. | Is GSO defaults to unchecked in the dialog |
 
 **Expected**: Is GSO defaults to unchecked in the dialog.
 **Data**: office=1604
@@ -835,7 +907,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the New Pricing Strategy dialog and read the Is Internal checkbox.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the New Pricing Strategy dialog and read the Is Internal checkbox. | Is Internal defaults to unchecked in the dialog |
 
 **Expected**: Is Internal defaults to unchecked in the dialog.
 **Data**: office=1604
@@ -853,7 +927,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the New Pricing Strategy dialog and read the Is Productions checkbox.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the New Pricing Strategy dialog and read the Is Productions checkbox. | Is Productions defaults to unchecked in the dialog |
 
 **Expected**: Is Productions defaults to unchecked in the dialog.
 **Data**: office=1604
@@ -871,9 +947,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the dialog, uncheck Is Active, enter a unique name, click Add.
-2. Select the new strategy.
-3. Reload (discard).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the dialog, uncheck Is Active, enter a unique name, click Add. | Is Active becomes unchecked in the dialog and the new strategy is added to the list. |
+| 2 | Select the new strategy. | The new strategy's editor opens and shows Is Active unchecked. |
+| 3 | Reload (discard). | A flag set in the dialog carries to the new in-session strategy (Is Active unchecked on the added row). In-session only |
 
 **Expected**: A flag set in the dialog carries to the new in-session strategy (Is Active unchecked on the added row). In-session only.
 **Data**: office=1604; in-session only
@@ -891,9 +969,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the dialog, check Is GSO, enter a unique name, click Add.
-2. Select the new strategy.
-3. Reload (discard).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the dialog, check Is GSO, enter a unique name, click Add. | Is GSO becomes checked in the dialog and the new strategy is added to the list. |
+| 2 | Select the new strategy. | The new strategy's editor opens and shows Is GSO checked. |
+| 3 | Reload (discard). | Checking Is GSO in the dialog carries to the added in-session strategy. In-session only |
 
 **Expected**: Checking Is GSO in the dialog carries to the added in-session strategy. In-session only.
 **Data**: office=1604; in-session only
@@ -911,9 +991,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the dialog, check Is Internal, enter a unique name, click Add.
-2. Select the new strategy.
-3. Reload (discard).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the dialog, check Is Internal, enter a unique name, click Add. | Is Internal becomes checked in the dialog and the new strategy is added to the list. |
+| 2 | Select the new strategy. | The new strategy's editor opens and shows Is Internal checked. |
+| 3 | Reload (discard). | Checking Is Internal in the dialog carries to the added in-session strategy. In-session only |
 
 **Expected**: Checking Is Internal in the dialog carries to the added in-session strategy. In-session only.
 **Data**: office=1604; in-session only
@@ -931,10 +1013,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the dialog, check Is Productions.
-2. Enter a unique name, click Add.
-3. Select the new strategy.
-4. Reload (discard).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the dialog, check Is Productions. | Is Productions becomes checked and Is Internal/Is GSO become disabled in the dialog. |
+| 2 | Enter a unique name, click Add. | The typed name is accepted and the new strategy is added to the list. |
+| 3 | Select the new strategy. | The new strategy's editor opens and shows Is Productions checked. |
+| 4 | Reload (discard). | Checking Is Productions carries to the new strategy AND disables Is Internal/Is GSO in the dialog (mutual-exclusion). In-session only |
 
 **Expected**: Checking Is Productions carries to the new strategy AND disables Is Internal/Is GSO in the dialog (mutual-exclusion). In-session only.
 **Data**: office=1604; in-session only
@@ -952,8 +1036,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab. The test strategy has Is Productions checked.
 
 **Steps**:
-1. Select the strategy in the editor.
-2. Open the New Pricing Strategy dialog and check Is Productions.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select the strategy in the editor. | The strategy opens in the editor with Is Productions checked and Is Internal/Is GSO disabled. |
+| 2 | Open the New Pricing Strategy dialog and check Is Productions. | Whenever Is Productions is checked (editor or dialog), Is Internal and Is GSO are disabled - a mutually-exclusive flag group |
 
 **Expected**: Whenever Is Productions is checked (editor or dialog), Is Internal and Is GSO are disabled — a mutually-exclusive flag group.
 **Data**: office=1604
@@ -971,7 +1057,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604).
 
 **Steps**:
-1. Inspect the Pricebook Details header Type (Labor/Equipment) and Currency.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Inspect the Pricebook Details header Type (Labor/Equipment) and Currency. | On an existing pricebook the Type (Labor/Equipment) and Currency render as non-editable reference fields (the labor/currency values become locked once the pricebook is created). The strategy form itself exposes no labor/currency control |
 
 **Expected**: On an existing pricebook the Type (Labor/Equipment) and Currency render as non-editable reference fields (the labor/currency values become locked once the pricebook is created). The strategy form itself exposes no labor/currency control.
 **Data**: office=1604
@@ -989,7 +1077,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the New Pricing Strategy dialog, leave Strategy Name empty.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the New Pricing Strategy dialog, leave Strategy Name empty. | With an empty Strategy Name the Add button is disabled (disabled-gate, no inline error) |
 
 **Expected**: With an empty Strategy Name the Add button is disabled (disabled-gate, no inline error).
 **Data**: office=1604
@@ -1007,7 +1097,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the dialog, enter spaces only ("   ").
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the dialog, enter spaces only ("   "). | A whitespace-only name keeps Add disabled (input trimmed) |
 
 **Expected**: A whitespace-only name keeps Add disabled (input trimmed).
 **Data**: office=1604
@@ -1025,8 +1117,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab; an existing strategy named "2022-NP Tier 1".
 
 **Steps**:
-1. Open the New Pricing Strategy dialog, enter the existing name "2022-NP Tier 1", click Add.
-2. Cancel the dialog (discard).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the New Pricing Strategy dialog, enter the existing name "2022-NP Tier 1", click Add. | An inline error reads "A pricing strategy with this name already exists." and no row is added. |
+| 2 | Cancel the dialog (discard). | A duplicate strategy name is rejected with the inline error "A pricing strategy with this name already exists." No row is added |
 
 **Expected**: A duplicate strategy name is rejected with the inline error "A pricing strategy with this name already exists." No row is added.
 **Data**: office=1604
@@ -1044,7 +1138,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, Total: 1.
 
 **Steps**:
-1. Open the dialog, enter a unique name, click Cancel.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the dialog, enter a unique name, click Cancel. | Cancel discards the pending strategy; the list and Total are unchanged |
 
 **Expected**: Cancel discards the pending strategy; the list and Total are unchanged.
 **Data**: office=1604
@@ -1062,7 +1158,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, Total: 1.
 
 **Steps**:
-1. Open the dialog, enter a unique name, click the Close (X) control.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the dialog, enter a unique name, click the Close (X) control. | Close (X) discards the pending strategy like Cancel |
 
 **Expected**: Close (X) discards the pending strategy like Cancel.
 **Data**: office=1604
@@ -1080,7 +1178,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: New Pricebook create page (`/add?type=equipment`, office 1604).
 
 **Steps**:
-1. Set Pricebook Name + Year, add no strategies.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Set Pricebook Name + Year, add no strategies. | With Name + Year set but 0 strategies, Save is disabled (the ≥1-strategy gate). No commit |
 
 **Expected**: With Name + Year set but 0 strategies, Save is disabled (the ≥1-strategy gate). No commit.
 **Data**: office=1604; new pricebook (never saved)
@@ -1098,7 +1198,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: New Pricebook create page with Name + Year set, 0 strategies (Save disabled).
 
 **Steps**:
-1. Add one strategy via the dialog.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Add one strategy via the dialog. | Adding the first strategy (with Name + Year set) enables Save. No commit |
 
 **Expected**: Adding the first strategy (with Name + Year set) enables Save. No commit.
 **Data**: office=1604; new pricebook (never saved)
@@ -1116,7 +1218,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: New Pricebook create page with Name + Year + 1 strategy (Save enabled).
 
 **Steps**:
-1. Remove the strategy.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Remove the strategy. | Removing the only strategy re-disables Save. No commit |
 
 **Expected**: Removing the only strategy re-disables Save. No commit.
 **Data**: office=1604; new pricebook (never saved)
@@ -1134,8 +1238,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the dialog, enter a 255-character name.
-2. Cancel (discard)
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the dialog, enter a 255-character name. | The Strategy Name field accepts input up to 100 characters and truncates the rest. |
+| 2 | Cancel (discard) | The Strategy Name field caps input at 100 characters; a 255-char entry is truncated to 100 |
 
 **Expected**: The Strategy Name field caps input at 100 characters; a 255-char entry is truncated to 100.
 **Data**: office=1604
@@ -1153,8 +1259,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Open the dialog and enter this literal name: `ZZ-Test & <Strategy> "2026"`.
-2. Cancel (discard)
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the dialog and enter this literal name: `ZZ-Test & <Strategy> "2026"`. | The Strategy Name field accepts and displays the special characters exactly as typed. |
+| 2 | Cancel (discard) | Special characters are accepted and preserved exactly (no corruption or HTML interpretation); Add is enabled |
 
 **Expected**: Special characters are accepted and preserved exactly (no corruption or HTML interpretation); Add is enabled.
 **Data**: office=1604
@@ -1172,9 +1280,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, clean baseline.
 
 **Steps**:
-1. Rename the existing strategy to a special-character value `2022-NP Tier 1 & "QA"`.
-2. Save and reload.
-3. Restore the original name and Save (cleanup).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Rename the existing strategy to a special-character value `2022-NP Tier 1 & "QA"`. | The name field accepts the special-character value without error. |
+| 2 | Save and reload. | The page reloads and the strategy name shows the special-character value unchanged. |
+| 3 | Restore the original name and Save (cleanup). | The strategy name is restored to "2022-NP Tier 1" and saved. |
 
 **Expected**: A strategy name containing special characters persists and round-trips exactly across save + reload (reversible existing-strategy edit, restored afterward).
 **Data**: office=1604
@@ -1202,7 +1312,9 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Select the strategy and read the Is Active flag's checked state from its rendered checkbox.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select the strategy and read the Is Active flag's checked state from its rendered checkbox. | A strategy flag's boolean state reads correctly from its rendered checkbox format; the flag's checked state is readable from its checkbox |
 
 **Expected**: A strategy flag's boolean state reads correctly from its rendered checkbox format; the flag's checked state is readable from its checkbox.
 **Data**: office=1604
@@ -1221,8 +1333,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Read each editor flag (Is Productions / Is Internal / Is GSO / Is Active) checked + disabled state via the Radix `aria-checked` render.
-2. Inspect the strategy list (left pane).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Read each editor flag (Is Productions / Is Internal / Is GSO / Is Active) checked + disabled state via the Radix `aria-checked` render. | Each editor flag's checked and disabled state is readable directly from its checkbox. |
+| 2 | Inspect the strategy list (left pane). | All four editor flags have their checked state readable from their checkboxes; the strategy list itself renders no boolean columns (booleans appear only in the editor) |
 
 **Expected**: All four editor flags have their checked state readable from their checkboxes; the strategy list itself renders no boolean columns (booleans appear only in the editor).
 **Data**: office=1604
@@ -1241,8 +1355,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: New Pricebook create page (0-strategy) + Pricebook Details for "2022-NP Tier 1" (1-strategy).
 
 **Steps**:
-1. On the existing pricebook, the strategy list renders one row (Total: 1)
-2. On a new pricebook with 0 strategies, the empty-strategy state renders and Save is disabled
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | On the existing pricebook, the strategy list renders one row (Total: 1) | The strategy list displays exactly one row and Total reads 1. |
+| 2 | On a new pricebook with 0 strategies, the empty-strategy state renders and Save is disabled | The 1-strategy list renders; the 0-strategy state renders its empty presentation and disables Save |
 
 **Expected**: The 1-strategy list renders; the 0-strategy state renders its empty presentation and disables Save.
 **Data**: office=1604
@@ -1261,10 +1377,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: New Pricebook create page + Pricebook Details for "2022-NP Tier 1".
 
 **Steps**:
-1. 0 strategies (new pricebook).
-2. 1 strategy (existing test pricebook).
-3. N strategies (multi-add in-session on the test pricebook).
-4. Reload (discard)
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | 0 strategies (new pricebook). | The strategy list displays its empty-state presentation and Total reads 0. |
+| 2 | 1 strategy (existing test pricebook). | The strategy list displays exactly one row and Total reads 1. |
+| 3 | N strategies (multi-add in-session on the test pricebook). | The strategy list displays all added rows and Total reflects the increased count. |
+| 4 | Reload (discard) | The strategy list renders correctly at 0 / 1 / N strategies and Total reflects the count |
 
 **Expected**: The strategy list renders correctly at 0 / 1 / N strategies and Total reflects the count.
 **Data**: office=1604; in-session for the N case
@@ -1283,15 +1401,17 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, clean baseline.
 
 **Steps**:
-1. Rename the existing strategy reversibly, Save, reload.
-2. Restore the original name and Save (cleanup)
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Rename the existing strategy reversibly, Save, reload. | The page reloads and the renamed strategy persists in the list. |
+| 2 | Restore the original name and Save (cleanup) | The strategy name is restored to its original value and saved. |
 
 **Expected**: A saved strategy edit survives reload (reversible, restored afterward).
 **Data**: office=1604
 
 ---
 
-## TC-CPR-STR-061: Dirty state survives sub-tab switch and prompts on nav-away
+## TC-CPR-STR-061: unsaved changes survives sub-tab switch and prompts on nav-away
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1303,9 +1423,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, clean baseline.
 
 **Steps**:
-1. Edit the strategy name (dirty), switch to the Pricing Detail tab.
-2. Trigger a full navigation away (the Corporate Pricing breadcrumb) while dirty.
-3. Click Discard.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Edit the strategy name (dirty), switch to the Pricing Detail tab. | The Pricing Detail tab becomes active and the unsaved name edit remains intact. |
+| 2 | Trigger a full navigation away (the Corporate Pricing breadcrumb) while dirty. | An "Unsaved changes" prompt is displayed with Stay and Discard options, and navigation is blocked. |
+| 3 | Click Discard. | Unsaved changes survive Strategy↔Detail sub-tab switches (silent); navigating away with unsaved changes raises the "Unsaved changes" prompt (Stay / Discard) and blocks navigation until resolved |
 
 **Expected**: Unsaved changes survive Strategy↔Detail sub-tab switches (silent); navigating away with unsaved changes raises the "Unsaved changes" prompt (Stay / Discard) and blocks navigation until resolved.
 **Data**: office=1604
@@ -1324,9 +1446,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab, Total: 1.
 
 **Steps**:
-1. Type a non-matching query ("zzzz") in "Search strategies...".
-2. Type a matching query ("2022").
-3. Clear the search.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type a non-matching query ("zzzz") in "Search strategies...". | The strategy list shows no rows and Total reads 0. |
+| 2 | Type a matching query ("2022"). | The strategy list shows the matching strategy and Total reads 1. |
+| 3 | Clear the search. | The strategy search box filters the list - a non-matching query yields no rows (Total reflects the filtered count, 0), a matching query shows the strategy |
 
 **Expected**: The strategy search box filters the list — a non-matching query yields no rows (Total reflects the filtered count, 0), a matching query shows the strategy.
 **Data**: office=1604
@@ -1345,10 +1469,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Pricebook Details for "2022-NP Tier 1" (office 1604), Pricing Strategy tab.
 
 **Steps**:
-1. Add two in-session strategies with distinct names (A, B).
-2. Filter by A's name.
-3. Clear the filter.
-4. Reload (discard).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Add two in-session strategies with distinct names (A, B). | Strategies A and B are added and both appear in the list. |
+| 2 | Filter by A's name. | The list narrows to show only strategy A and Total reflects the filtered count. |
+| 3 | Clear the filter. | The full strategy list is restored and Total reflects the unfiltered count. |
+| 4 | Reload (discard). | With multiple strategies the search narrows to matching names and Total reflects the filtered count; clearing restores the full list. In-session only |
 
 **Expected**: With multiple strategies the search narrows to matching names and Total reflects the filtered count; clearing restores the full list. In-session only.
 **Data**: office=1604; in-session only

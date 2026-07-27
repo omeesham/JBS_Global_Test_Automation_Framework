@@ -629,12 +629,12 @@ export function lintWorkbook(xlsxPath) {
     const registry = loadModuleRegistry();
     const sheetOwner = new Map();
     for (const [mod, subs] of Object.entries(registry.submodules)) {
-      for (const [sub, e] of Object.entries(subs)) sheetOwner.set(e.sheet, { mod, sub, name: e.name, moduleName: registry.modules[mod].name });
+      for (const [sub, e] of Object.entries(subs)) sheetOwner.set(e.sheet, { mod, sub, name: e.name, moduleName: registry.modules[mod].name, idModule: e.idModule, idSubmodule: e.idSubmodule });
     }
     // Strict mode (unregistered sheet = FAIL) applies to the canonical deliverable;
     // other workbooks (TestRail format — display sheet names) get C8 only on
     // registry-registered sheets, while vocab/C6/C7 cover them via HEADER_ALIASES.
-    const strictC8 = path.basename(xlsxPath) === 'encore_test_cases.xlsx';
+    const strictC8 = xlsxPath.includes('/testcases/') || xlsxPath.includes('\\testcases\\') || path.basename(xlsxPath) === 'encore_test_cases.xlsx';
     const reported = new Set();
     const once = (key, v) => { if (!reported.has(key)) { reported.add(key); integrityViolations.push(v); } };
     for (const r of allRows) {
@@ -647,8 +647,12 @@ export function lintWorkbook(xlsxPath) {
       if (modCell !== owner.moduleName) once(`${r.sheet}:mod`, { code: 'C8', sheet: r.sheet, tcId, detail: `Module cell "${modCell}" ≠ registry "${owner.moduleName}"` });
       if (subCell !== owner.name) once(`${r.sheet}:sub`, { code: 'C8', sheet: r.sheet, tcId, detail: `Submodule cell "${subCell}" ≠ registry "${owner.name}"` });
       const idm = tcId.match(/^TC-([A-Z]+)-([A-Z]+)-/);
-      if (idm && (idm[1] !== owner.mod || idm[2] !== owner.sub)) {
-        once(`${r.sheet}:id:${tcId}`, { code: 'C8', sheet: r.sheet, tcId, detail: `ID codes ${idm[1]}/${idm[2]} ≠ sheet owner ${owner.mod}/${owner.sub}` });
+      if (idm) {
+        const expectedMod = owner.idModule || owner.mod;
+        const expectedSub = owner.idSubmodule || owner.sub;
+        if (idm[1] !== expectedMod || idm[2] !== expectedSub) {
+          once(`${r.sheet}:id:${tcId}`, { code: 'C8', sheet: r.sheet, tcId, detail: `ID codes ${idm[1]}/${idm[2]} ≠ sheet owner ${expectedMod}/${expectedSub}` });
+        }
       }
     }
   }

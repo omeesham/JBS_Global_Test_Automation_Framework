@@ -19,7 +19,8 @@ Every page in Navigator Cloud belongs to exactly ONE module. Module directory na
 |---|---|---|---|
 | `locations` | Location Settings | `/settings/location` | local-information, currency, pricing, account-address, legal, notes, shared-setup-locations, auto-addon, left-panel-basic-information, management-history |
 | `local-office` | Local Office Settings | `/settings/local-office` | settings (Basic Information), history (Location Settings History), ect (ECT Settings) |
-| `corporate-pricing` | Corporate Pricing | `/settings/corporate-pricing` | search, strategy, detail (`/details/<guid>`), new-pricebook (`/add?type=equipment\|labor`), override (`/pg-override`), toolbar-io |
+| `corporate-pricing` | Corporate Pricing | `/settings/corporate-pricing` | search, strategy, detail (`/details/<guid>`), new-pricebook (`/add?type=equipment\|labor`), toolbar-io |
+| `corporate-override` | Corporate Override | `/pg-override` | core, nm2268, nm2269, nm2270, nm2271, nm2272, nm2273 |
 | `auth` | Microsoft SSO login | `/auth/sign-in` | page object `src/pages/auth/login.page.ts`; session setup `tests/auth.setup.ts` |
 
 > Spec file names are flat inside each module dir (e.g. `tests/locations/location-pricing.spec.ts`), NOT nested under a `setup/` or `history/` subfolder.
@@ -30,7 +31,7 @@ These Navigator sections exist but have no module dir yet. When a HUNTER/GIVER/B
 
 | Section | Known sub-pages |
 |---|---|
-| **Setup (other)** | Corporate Billing, Corp PG Pricing Override (standalone page), Discount Optimization, Discount Matrix, ECT Settings (standalone), Users, Bill Through Date, Service Type, Service Type Name, Service Charge |
+| **Setup (other)** | Corporate Billing, Discount Optimization, Discount Matrix, ECT Settings (standalone), Users, Bill Through Date, Service Type, Service Type Name, Service Charge |
 | **Actions** | Sourcing Dashboard, Reports, Offline Reports, Reports Statistics, Approve Equipment Transfers, Release Notes, Search Statistics, Fix Unlinked CRM Orders, FAQ |
 | **Commissions** | CMP, Allow DPCD, Tier/Flat, Product Code — **corporate office 1101 only (Navigator Contracts role)**; pre-intake KT: `specs_planning/_internal/intake/commission-hunter-2026-06-26.md` |
 | **Tax** | Order Origin Tax, Sales, Special Rate, State Tax, Tax Type Detail |

@@ -1,4 +1,4 @@
-# Corporate Pricing — Export ▾ All: dialog contract + real download round-trip — Test Cases (NM-2264)
+﻿# Corporate Pricing — Export ▾ All: dialog contract + real download round-trip — Test Cases (NM-2264)
 
 **Module**: corporate-pricing | **Submodule**: export_all | **Total**: 17 | **Updated**: 2026-07-09
 
@@ -19,10 +19,12 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. For each of the 4 Export variants: open Export and click the variant
-2. Confirm a dialog titled "Export" renders with a Year(s) combobox, a Currency combobox, and Cancel / Continue / Close buttons, with Continue disabled at open
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | For each of the 4 Export variants: open Export and click the variant | Clicking each of the 4 Export variants opens the shared "Export" dialog. |
+| 2 | Confirm a dialog titled "Export" renders with a Year(s) dropdown, a Currency dropdown, and Cancel / Continue / Close buttons, with Continue disabled at open | Every variant opens the same "Export" precondition dialog (Year(s) + Currency dropdownes, Cancel/Continue/Close), and Continue is disabled before any field is set |
 
-**Expected**: Every variant opens the same "Export" precondition dialog (Year(s) + Currency comboboxes, Cancel/Continue/Close), and Continue is disabled before any field is set.
+**Expected**: Every variant opens the same "Export" precondition dialog (Year(s) + Currency dropdownes, Cancel/Continue/Close), and Continue is disabled before any field is set.
 **Data**: office=1604
 **Notes**: NM-2264 dialog contract, live-verified 2026-07-07. Parametrized across all 4 variants.
 
@@ -39,8 +41,10 @@
 **Preconditions**: The "Export" dialog is open for a variant (office 1604).
 
 **Steps**:
-1. Set Year(s) = 2026, leave Currency unset
-2. Read the Continue button state
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Set Year(s) = 2026, leave Currency unset | Year(s) shows 2026 selected while the Currency dropdown remains unset. |
+| 2 | Read the Continue button state | Continue remains disabled with only Year(s) selected (both fields are required) |
 
 **Expected**: Continue remains disabled with only Year(s) selected (both fields are required).
 **Data**: office=1604, years=2026
@@ -59,8 +63,10 @@
 **Preconditions**: The "Export" dialog is open for a variant (office 1604).
 
 **Steps**:
-1. Set Currency = USD, leave Year(s) unset
-2. Read the Continue button state
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Set Currency = USD, leave Year(s) unset | Currency shows USD selected while the Year(s) dropdown remains unset. |
+| 2 | Read the Continue button state | Continue remains disabled with only Currency selected (both fields are required) |
 
 **Expected**: Continue remains disabled with only Currency selected (both fields are required).
 **Data**: office=1604, currency=USD
@@ -79,8 +85,10 @@
 **Preconditions**: The "Export" dialog is open for a variant (office 1604).
 
 **Steps**:
-1. Set Year(s) = 2026 and Currency = USD
-2. Read the Continue button state
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Set Year(s) = 2026 and Currency = USD | Year(s) shows 2026 selected and Currency shows USD selected. |
+| 2 | Read the Continue button state | Continue becomes enabled only when both Year(s) and Currency are set |
 
 **Expected**: Continue becomes enabled only when both Year(s) and Currency are set.
 **Data**: office=1604, years=2026, currency=USD
@@ -99,9 +107,11 @@
 **Preconditions**: The "Export" dialog is open for a variant (office 1604).
 
 **Steps**:
-1. Arm a listener for any `pricing-export` request
-2. Set Year(s) + Currency, then click Cancel
-3. Confirm the dialog closes and no `pricing-export` request fired
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Arm a listener for any `pricing-export` request | A listener for pricing-export requests is active and ready to capture any request that fires. |
+| 2 | Set Year(s) + Currency, then click Cancel | Year(s) and Currency are set, and clicking Cancel immediately closes the "Export" dialog. |
+| 3 | Confirm the dialog closes and no `pricing-export` request fired | Cancel closes the dialog and NO pricing-export request is sent (the gate is abandoned cleanly) |
 
 **Expected**: Cancel closes the dialog and NO `pricing-export` request is sent (the gate is abandoned cleanly).
 **Data**: office=1604
@@ -120,8 +130,10 @@
 **Preconditions**: The "Export" dialog is open for a variant (office 1604).
 
 **Steps**:
-1. Select exactly 1 year (2026) and Currency = USD
-2. Read the Continue button state
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select exactly 1 year (2026) and Currency = USD | Year(s) shows exactly one year (2026) selected and Currency shows USD selected. |
+| 2 | Read the Continue button state | A single-year selection is accepted (minimum of the 1-3 range) and Continue enables with Currency set |
 
 **Expected**: A single-year selection is accepted (minimum of the 1–3 range) and Continue enables with Currency set.
 **Data**: office=1604, years=2026, currency=USD
@@ -140,11 +152,16 @@
 **Preconditions**: The "Export" dialog is open for a variant (office 1604).
 
 **Steps**:
-1. Select 3 years (2026, 2027, 2028); confirm all 3 are selected
-2. Attempt to select a 4th year (2025); confirm the selection stays at 3 (the 4th is refused)
-3. Set Currency = USD and Continue; inspect the export request `years` param
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Select 3 years (2026, 2027, 2028) | The Year(s) dropdown shows 2026, 2027, and 2028 all selected. |
+| 2 | confirm all 3 are selected | All 3 selected years (2026, 2027, 2028) remain checked in the Year(s) dropdown. |
+| 3 | Attempt to select a 4th year (2025) | Clicking the 2025 option has no effect - it is not added to the Year(s) selection. |
+| 4 | confirm the selection stays at 3 (the 4th is refused) | The Year(s) selection stays at exactly 3 years (2026-2028), with 2025 excluded. |
+| 5 | Set Currency = USD and Continue | Currency shows USD selected, and clicking Continue closes the dialog and fires the pricing-export request. |
+| 6 | inspect the export request `years` param | The Year(s) dropdown caps at 3 - a 4th year cannot be added (selection stays at exactly 3 years), and the fired pricing-export request carries exactly the 3 chosen years, never 4 |
 
-**Expected**: The Year(s) combobox caps at 3 — a 4th year cannot be added (selection stays at exactly 3 years), and the fired `pricing-export` request carries exactly the 3 chosen years, never 4.
+**Expected**: The Year(s) dropdown caps at 3 — a 4th year cannot be added (selection stays at exactly 3 years), and the fired `pricing-export` request carries exactly the 3 chosen years, never 4.
 **Data**: office=1604, years=2026,2027,2028 (+attempted 2025), currency=USD
 **Notes**: NM-2264 negative boundary (R6), live-verified 2026-07-07 — the app silently refuses the 4th year (no aria-disabled; the pick simply does not register).
 
@@ -161,10 +178,12 @@
 **Preconditions**: The "Export" dialog is open for a variant (office 1604).
 
 **Steps**:
-1. Open the Currency combobox
-2. Read the options
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Currency dropdown | The Currency dropdown expands and displays its list of selectable options. |
+| 2 | Read the options | The Currency dropdown offers USD, CAD, and MXN (each selectable) |
 
-**Expected**: The Currency combobox offers USD, CAD, and MXN (each selectable).
+**Expected**: The Currency dropdown offers USD, CAD, and MXN (each selectable).
 **Data**: office=1604
 **Notes**: NM-2264, live-verified 2026-07-07.
 
@@ -182,8 +201,10 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. For each currency (USD, CAD, MXN): open Export → All Equipment Pricing → Year(s) = 2026 → Currency → Continue
-2. Inspect each fired `pricing-export` request's `currencyId` param
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | For each currency (USD, CAD, MXN): open Export → All Equipment Pricing → Year(s) = 2026 → Currency → Continue | The "Export" dialog opens for each currency (USD, CAD, MXN), ready for Year(s) and Continue to be set. |
+| 2 | Inspect each fired `pricing-export` request's `currencyId` param | Each currency sends its own distinct currency identifier on Continue - USD, CAD, and MXN each map to a different value (USD=1, CAD=2, MXN=3), confirmed against the live export request; the currency chosen in the gate maps one-to-one to the request |
 
 **Expected**: Each currency sends its own distinct currency identifier on Continue — USD, CAD, and MXN each map to a different value (USD=1, CAD=2, MXN=3), confirmed against the live export request; the currency chosen in the gate maps one-to-one to the request.
 **Data**: office=1604, years=2026, currencies=USD/CAD/MXN
@@ -203,9 +224,12 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Export → All Equipment Pricing → Year(s) = 2026 → Currency = USD → Continue; capture the real download + the backing request/response
-2. Assert the filename, HTTP 200, the matrix header (Product Group Id, Product Group Name, then pricebook columns), a non-empty file, and the network params
-3. Assert the exported file has no duplicate product-group rows (each Product Group Id appears once)
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Export → All Equipment Pricing → Year(s) = 2026 → Currency = USD → Continue | The export dialog closes and the equipment pricing CSV download begins. |
+| 2 | capture the real download + the backing request/response | The file downloads to disk and the backing network request and response are captured. |
+| 3 | Assert the filename, HTTP 200, the matrix header (Product Group Id, Product Group Name, then pricebook columns), a non-empty file, and the network params | The filename is EquipmentPricings.csv, the backing request returns HTTP 200, and the file contains the expected two base columns plus pricebook columns with at least one product-group row. |
+| 4 | Assert the exported file has no duplicate product-group rows (each Product Group Id appears once) | Every Product Group Id in the file is unique; no product-group row is duplicated. |
 
 **Expected**: A real `EquipmentPricings.csv` downloads; the backing request returns HTTP 200 for the equipment standard-pricing scope; the CSV parses with the two base columns + pricebook columns and at least one product-group row; and every Product Group Id is unique (no duplicate product-group rows).
 **Data**: office=1604, years=2026, currency=USD
@@ -225,9 +249,12 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Export → All Labor Pricing → Year(s) = 2026 → Currency = USD → Continue; capture the download + request/response
-2. Assert filename `LaborPricings.csv`, HTTP 200 for the labor standard-pricing scope, the matrix header, a non-empty file with at least one labor product-group row
-3. Assert the exported file has no duplicate product-group rows (each Product Group Id appears once)
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Export → All Labor Pricing → Year(s) = 2026 → Currency = USD → Continue | The export dialog closes and the labor pricing CSV download begins. |
+| 2 | capture the download + request/response | The file downloads to disk and the backing network request and response are captured. |
+| 3 | Assert filename `LaborPricings.csv`, HTTP 200 for the labor standard-pricing scope, the matrix header, a non-empty file with at least one labor product-group row | The filename is LaborPricings.csv, the backing request returns HTTP 200, and the file contains at least one labor product-group row with the expected header columns. |
+| 4 | Assert the exported file has no duplicate product-group rows (each Product Group Id appears once) | Every Product Group Id in the file is unique; no product-group row is duplicated. |
 
 **Expected**: A real `LaborPricings.csv` downloads (a different, labor-scoped product-group population than Equipment); the backing request returns HTTP 200 for the labor standard-pricing scope; the file parses with at least one row; and every Product Group Id is unique.
 **Data**: office=1604, years=2026, currency=USD
@@ -248,9 +275,12 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Download the sibling Equipment Pricing export (USD, 2026) to derive the active-pricebook set (its pricebook column headers) and download the Labor Pricing export (USD, 2026) to derive the labor-PG-Id set
-2. Export → All Equipment Max Discount → Year(s) = 2026 → Currency = USD → Continue; capture the download + request/response
-3. Assert filename `EquipmentMaxDiscounts.csv`, HTTP 200 for the equipment max-discount scope, unique Product Group Ids, that every pricebook column from the sibling Equipment Pricing export is present, and that ZERO rows carry a labor Product Group Id
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Download the sibling Equipment Pricing export (USD, 2026) to derive the active-pricebook set (its pricebook column headers) and download the Labor Pricing export (USD, 2026) to derive the labor-PG-Id set | Both sibling exports download successfully; the active pricebook column headers and the labor Product Group Id set are extracted as comparison oracles. |
+| 2 | Export → All Equipment Max Discount → Year(s) = 2026 → Currency = USD → Continue | The export dialog closes and the equipment max-discount CSV download begins. |
+| 3 | capture the download + request/response | The file downloads to disk and the backing network request and response are captured. |
+| 4 | Assert filename `EquipmentMaxDiscounts.csv`, HTTP 200 for the equipment max-discount scope, unique Product Group Ids, that every pricebook column from the sibling Equipment Pricing export is present, and that ZERO rows carry a labor Product Group Id | The filename is EquipmentMaxDiscounts.csv, the request returns HTTP 200, Product Group Ids are unique, every active pricebook column is present, and no row carries a labor Product Group Id. |
 
 **Expected**: `EquipmentMaxDiscounts.csv` downloads (HTTP 200 for the max-discount scope); every active pricebook column from the sibling Equipment Pricing export is present (no active pricebook silently missing); and no row's Product Group Id belongs to the labor set (no stray labor product groups on the equipment-scoped max-discount export).
 **Data**: office=1604, years=2026, currency=USD
@@ -271,9 +301,12 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Download the sibling Labor Pricing export (USD, 2026) to derive its pricebook-column set
-2. Export → All Labor Max Discount → Year(s) = 2026 → Currency = USD → Continue; capture the download + request/response
-3. Assert filename `LaborMaxDiscounts.csv`, HTTP 200 for the labor max-discount scope, unique Product Group Ids, and that every pricebook column from the sibling Labor Pricing export is present
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Download the sibling Labor Pricing export (USD, 2026) to derive its pricebook-column set | The labor pricing export downloads and its pricebook column headers are extracted as the comparison oracle. |
+| 2 | Export → All Labor Max Discount → Year(s) = 2026 → Currency = USD → Continue | The export dialog closes and the labor max-discount CSV download begins. |
+| 3 | capture the download + request/response | The file downloads to disk and the backing network request and response are captured. |
+| 4 | Assert filename `LaborMaxDiscounts.csv`, HTTP 200 for the labor max-discount scope, unique Product Group Ids, and that every pricebook column from the sibling Labor Pricing export is present | The filename is LaborMaxDiscounts.csv, the request returns HTTP 200, Product Group Ids are unique, and every labor pricebook column is present. |
 
 **Expected**: `LaborMaxDiscounts.csv` downloads (HTTP 200 for the labor max-discount scope); Product Group Ids are unique; and every pricebook column from the sibling Labor Pricing export is present (no active labor pricebook silently missing from the labor max-discount export).
 **Data**: office=1604, years=2026, currency=USD
@@ -294,8 +327,10 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Run a bounded pairwise covering array over {4 variants} × {1 year / 3 years} × {USD / CAD / MXN} (not the full cartesian product)
-2. For each combo: open the variant, set the years + currency, Continue, and inspect the fired request params
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Run a bounded pairwise covering array over {4 variants} × {1 year / 3 years} × {USD / CAD / MXN} (not the full cartesian product) | A bounded set of variant, Year(s), and Currency combinations is generated, covering all pairwise interactions. |
+| 2 | For each combo: open the variant, set the years + currency, Continue, and inspect the fired request params | Every pairwise combo fires pricing-export with the correct isLabor/isMaxDiscount, currencyId, and years, returning 200 - no combination breaks the parameter mapping |
 
 **Expected**: Every pairwise combo fires `pricing-export` with the correct `isLabor`/`isMaxDiscount` (per variant), `currencyId` (per currency), and `years` (per year selection), returning 200 — no combination breaks the parameter mapping.
 **Data**: office=1604; pairwise set across variants × {2026 | 2026,2027,2028} × {USD,CAD,MXN}
@@ -316,9 +351,11 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Download all four variants (USD, 2026) and compare their contents
-2. Assert Equipment vs Labor carry DIFFERENT product-group populations (disjoint Product Group Id sets) and different pricebook columns
-3. Assert Pricing vs Max Discount share the same matrix structure for a given scope, and rely on the network `isMaxDiscount` param to distinguish them (do NOT assert a false structural difference where the structure is identical)
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Download all four variants (USD, 2026) and compare their contents | All four export variants download successfully at USD/2026, each producing a file ready for comparison. |
+| 2 | Assert Equipment vs Labor carry DIFFERENT product-group populations (disjoint Product Group Id sets) and different pricebook columns | The Equipment and Labor files show disjoint Product Group Id sets and different pricebook columns. |
+| 3 | Assert Pricing vs Max Discount share the same matrix structure for a given scope, and rely on the network `isMaxDiscount` param to distinguish them (do NOT assert a false structural difference where the structure is identical) | Equipment and Labor exports are genuinely different scopes (disjoint product groups); Pricing and Max Discount exports for the same scope share the same column structure and are distinguished by the isMaxDiscount network param, not by column shape - the file content faithfully reflects each variant's isLabor/isMaxDiscount scope |
 
 **Expected**: Equipment and Labor exports are genuinely different scopes (disjoint product groups); Pricing and Max Discount exports for the same scope share the same column structure and are distinguished by the `isMaxDiscount` network param, not by column shape — the file content faithfully reflects each variant's `isLabor`/`isMaxDiscount` scope.
 **Data**: office=1604, years=2026, currency=USD
@@ -339,8 +376,10 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Download All Equipment Pricing at Currency = CAD, Year(s) = 2026 (the live empty-scope oracle — office 1604 has no CAD equipment pricebooks) and the USD sibling for comparison
-2. Assert the CAD file is a well-formed CSV whose header carries the two base columns (Product Group Id, Product Group Name), with strictly fewer pricebook columns than the USD export
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Download All Equipment Pricing at Currency = CAD, Year(s) = 2026 (the live empty-scope oracle — office 1604 has no CAD equipment pricebooks) and the USD sibling for comparison | Both the CAD and USD Equipment Pricing exports download successfully, ready for header and column comparison. |
+| 2 | Assert the CAD file is a well-formed CSV whose header carries the two base columns (Product Group Id, Product Group Name), with strictly fewer pricebook columns than the USD export | A currency with no pricebooks in scope still produces a valid CSV - the two base columns are present and there are strictly fewer pricebook columns than the USD export (CAD is the minimal/empty end of the currency-scoped volume) - never a zero-byte or malformed file |
 
 **Expected**: A currency with no pricebooks in scope still produces a valid CSV — the two base columns are present and there are strictly fewer pricebook columns than the USD export (CAD is the minimal/empty end of the currency-scoped volume) — never a zero-byte or malformed file.
 **Data**: office=1604, years=2026, currencies=CAD (vs USD)
@@ -359,8 +398,10 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Open the Export dropdown (menu confirmed open — it lists the export variants)
-2. Click outside the menu (on the page heading) -> the menu closes
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Export dropdown (menu confirmed open — it lists the export variants) | The Export dropdown opens and lists all export variants. |
+| 2 | Click outside the menu (on the page heading) -> the menu closes | The Export dropdown menu dismisses on an outside-click (standard dropdown behavior). The per-variant Year(s)+Currency dialog contract is covered by TC-CPR-EXA-001..009 |
 
 **Expected**: The Export dropdown menu dismisses on an outside-click (standard dropdown behavior). The per-variant Year(s)+Currency dialog contract is covered by TC-CPR-EXA-001..009.
 **Data**: office=1604
@@ -377,7 +418,7 @@ Export ▾ All is a 4-variant file-I/O flow behind a Year(s)+Currency preconditi
   - `empty-vol` — QUICK: TC-CPR-EXA-010 (a non-empty file per variant). DEEP: TC-CPR-EXA-016 (CAD equipment scope = live empty/minimal-scope oracle — valid CSV, base columns, strictly fewer pricebook columns than USD; a live oracle per R4, not a data-blocked stub).
 - `out-of-scope:pagination=Export ▾ emits a full-dataset file per variant with no rows-per-page control on the action; grid paging does not affect the export`
 - `out-of-scope:sorting=the export GET emits a server-ordered file; grid sort is not a request parameter, so there is no sort behavior on the export surface to assert`
-- `out-of-scope:render-state=the Export ▾ surface is a precondition dialog + action, not a cell-rendering grid; combobox option rendering is an Axis-1 dropdown field case (TC-CPR-EXA-008), not a render-state link/boolean cell`
+- `out-of-scope:render-state=the Export ▾ surface is a precondition dialog + action, not a cell-rendering grid; dropdown option rendering is an Axis-1 dropdown field case (TC-CPR-EXA-008), not a render-state link/boolean cell`
 - `out-of-scope:persistence=the Export ▾ Year+Currency dialog is modal and resets on each open; there is no persisted surface state to survive reload`
 
 ---

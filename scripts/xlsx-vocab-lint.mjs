@@ -15,7 +15,7 @@ import { lintWorkbook, formatReport } from './xlsx-lint-rules.mjs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
-const XLSX_PATH = path.join(ROOT, 'clients', 'encore', 'test_cases_xlsx', 'encore_test_cases.xlsx');
+const XLSX_PATH = path.join(ROOT, 'clients', 'encore', 'testcases', 'encore_test_cases.xlsx');
 
 let result;
 try {

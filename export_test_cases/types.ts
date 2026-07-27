@@ -185,6 +185,14 @@ export const KNOWN_SUB_CODES = [
   'EXA',  // export_all (NM-2264 — split from toolbar_io)
   'LIM',  // loc_pricing_import (NM-2305 — split from toolbar_io)
   'IMA',  // import_all (NM-2265 — grid-scoped Import All)
+  // corporate-override (COR)
+  'CORE', // core cases
+  'N268', // NM-2268
+  'N269', // NM-2269
+  'N270', // NM-2270
+  'N271', // NM-2271
+  'N272', // NM-2272
+  'N273', // NM-2273
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];

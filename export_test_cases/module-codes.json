@@ -3,7 +3,8 @@
   "modules": {
     "LOC": { "name": "locations", "display": "Locations", "dir": "locations" },
     "LOS": { "name": "local-office", "display": "Local Office", "dir": "local-office" },
-    "CPR": { "name": "corporate-pricing", "display": "Corporate Pricing", "dir": "corporate-pricing" }
+    "CPR": { "name": "corporate-pricing", "display": "Corporate Pricing", "dir": "corporate-pricing" },
+    "COR": { "name": "corporate-pricing", "display": "Corporate Override", "dir": "corporate-override" }
   },
   "submodules": {
     "LOC": {
@@ -28,11 +29,20 @@
       "STR": { "name": "strategy", "display": "Pricing Strategy", "sheet": "corporate_pricing_strategy", "mdBasename": "corporate_pricing_strategy_test_cases" },
       "DET": { "name": "detail", "display": "Pricing Detail", "sheet": "corporate_pricing_detail", "mdBasename": "corporate_pricing_detail_test_cases" },
       "NPB": { "name": "new_pricebook", "display": "New Pricebook", "sheet": "corporate_pricing_new_pricebook", "mdBasename": "corporate_pricing_new_pricebook_test_cases" },
-      "OVR": { "name": "override", "display": "Product Group Override", "sheet": "corporate_pricing_override", "mdBasename": "corporate_pricing_override_test_cases" },
+      "OVR": { "name": "override", "display": "Product Group Override", "sheet": "corporate_pricing_override", "mdBasename": "corporate_pricing_override_test_cases", "$comment": "TC-CPR-OVR-029 retained here — navigation-only case asserting the Pricing Override button routes to /pg-override; all other TC-CPR-OVR-* cases moved to the COR group (D8/D7)" },
       "LEX": { "name": "loc_pricing_export", "display": "Loc Pricing Export", "sheet": "corporate_pricing_loc_export", "mdBasename": "corporate_pricing_loc_export_test_cases" },
       "EXA": { "name": "export_all", "display": "Export All", "sheet": "corporate_pricing_export_all", "mdBasename": "corporate_pricing_export_all_test_cases" },
       "LIM": { "name": "loc_pricing_import", "display": "Loc Pricing Import", "sheet": "corporate_pricing_loc_import", "mdBasename": "corporate_pricing_loc_import_test_cases" },
       "IMA": { "name": "import_all", "display": "Import All", "sheet": "corporate_pricing_import_all", "mdBasename": "corporate_pricing_import_all_test_cases" }
+    },
+    "COR": {
+      "CORE": { "name": "override", "display": "Core", "sheet": "corporate_override_core", "mdBasename": "corporate_override_core_test_cases", "idModule": "CPR", "idSubmodule": "OVR", "$comment": "No idRenames entries added — TC-CPR-OVR-* IDs are not renumbered (D7). idModule+idSubmodule fields tell C8 that these sheets own TC-CPR-OVR-* IDs even though the sheet group is now COR (D10)." },
+      "N268": { "name": "override", "display": "NM-2268", "sheet": "corporate_override_nm2268", "mdBasename": "corporate_override_nm2268_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "N269": { "name": "override", "display": "NM-2269", "sheet": "corporate_override_nm2269", "mdBasename": "corporate_override_nm2269_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "N270": { "name": "override", "display": "NM-2270", "sheet": "corporate_override_nm2270", "mdBasename": "corporate_override_nm2270_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "N271": { "name": "override", "display": "NM-2271", "sheet": "corporate_override_nm2271", "mdBasename": "corporate_override_nm2271_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "N272": { "name": "override", "display": "NM-2272", "sheet": "corporate_override_nm2272", "mdBasename": "corporate_override_nm2272_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "N273": { "name": "override", "display": "NM-2273", "sheet": "corporate_override_nm2273", "mdBasename": "corporate_override_nm2273_test_cases", "idModule": "CPR", "idSubmodule": "OVR" }
     }
   },
   "sheetNameNotes": {

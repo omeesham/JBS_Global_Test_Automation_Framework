@@ -3,7 +3,7 @@
  * Planner Post-Complete Hook — Auto-rebuilds the XLSX workbook.
  *
  * Triggered when Planner marks stage as pending_generation.
- * Rebuilds clients/<id>/test_cases_xlsx/encore_test_cases.xlsx via the
+ * Rebuilds clients/<id>/testcases/encore_test_cases.xlsx via the
  * shared `npm run xlsx:build` script (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION
  * Phase B). The legacy per-item CSV export path is preserved as a one-phase
  * alias (`csvExport` artifact + `csv_export` history action) so older queue

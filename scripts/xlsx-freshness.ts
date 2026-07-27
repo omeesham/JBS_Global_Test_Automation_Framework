@@ -1,7 +1,7 @@
 #!/usr/bin/env ts-node
 /**
  * xlsx-freshness.ts — content freshness + reproducibility gate for the Encore
- * deliverable workbook (clients/encore/test_cases_xlsx/encore_test_cases.xlsx).
+ * deliverable workbook (clients/encore/testcases/encore_test_cases.xlsx).
  *
  * Replaces the prior MTIME check, which only compared source-MD file timestamps and
  * was blind to spec changes, builder changes, and "workbook committed but its builder
@@ -39,7 +39,7 @@ import ExcelJS from 'exceljs';
 import { buildWorkbook } from '../export_test_cases/to-xlsx';
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const XLSX_PATH = path.join(REPO_ROOT, 'clients', 'encore', 'test_cases_xlsx', 'encore_test_cases.xlsx');
+const XLSX_PATH = path.join(REPO_ROOT, 'clients', 'encore', 'testcases', 'encore_test_cases.xlsx');
 const MODULE_COL_COUNT = 13; // merged TestRail step-expanded schema width
 
 // Generator sources the committed workbook is built from. An uncommitted change to any

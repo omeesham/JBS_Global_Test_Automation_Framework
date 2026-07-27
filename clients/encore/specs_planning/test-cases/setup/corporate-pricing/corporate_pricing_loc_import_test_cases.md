@@ -20,9 +20,11 @@
 **Preconditions**: On the Search screen (office 1604). The throwaway location 5897's current pricebook rows are captured first so they can be restored afterward.
 
 **Steps**:
-1. Open "Loc Pricing Import" and upload a minimal single-location CSV containing only office 5897's rows, with one pricebook's Alternate flag flipped from Primary to Alternate.
-2. Capture the import request's HTTP status and raw response body, not just the dialog.
-3. Re-download the Loc Pricing Export and read office 5897's rows.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open "Loc Pricing Import" and upload a minimal single-location CSV containing only office 5897's rows, with one pricebook's Alternate flag flipped from Primary to Alternate. | The dialog accepts the CSV file and submits it for import. |
+| 2 | Capture the import request's HTTP status and raw response body, not just the dialog. | The import request's HTTP status code and response body are visible in the network capture. |
+| 3 | Re-download the Loc Pricing Export and read office 5897's rows. | The import returns HTTP 200 with a success: true body and a "Successfully processed" message; and the re-downloaded export shows the flipped pricebook row now Alternate, with all 11 columns of that row equal to the uploaded values |
 
 **Expected**: The import returns HTTP 200 with a `success: true` body and a "Successfully processed" message; and the re-downloaded export shows the flipped pricebook row now Alternate, with all 11 columns of that row equal to the uploaded values.
 **Data**: office=5897, file=valid-update.csv, endpoint=`.../pricing/location-import` (PUT)
@@ -42,8 +44,11 @@
 **Preconditions**: On the Search screen (office 1604). Office 5897's three rows set to baseline first.
 
 **Steps**:
-1. Upload a CSV containing only a SUBSET of office 5897's rows (two of the three) — one flipped Primary→Alternate, the other unchanged; the third row omitted.
-2. Re-download the export and read office 5897's rows.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Upload a CSV containing only a SUBSET of office 5897's rows (two of the three) — one flipped Primary→Alternate, the other unchanged | The partial CSV uploads and the import processes the two included rows for office 5897. |
+| 2 | the third row omitted. | The third row for office 5897, absent from the file, is removed from the server set. |
+| 3 | Re-download the export and read office 5897's rows. | The re-downloaded export shows office 5897 with exactly two rows: the flipped row now shows Alternate and the omitted row is no longer present. |
 
 **Expected**: The import REPLACES office 5897's set with exactly the two file rows — the flipped row is now Alternate, the unchanged in-file row is identical, and the row OMITTED from the file is REMOVED (office 5897 now has two rows, not three). Locations absent from the file are untouched.
 **Data**: office=5897, file=partial-update.csv
@@ -63,8 +68,10 @@
 **Preconditions**: On the Search screen (office 1604).
 
 **Steps**:
-1. Open "Loc Pricing Import" and attach a zero-byte CSV.
-2. Observe the dialog and whether any import request fires.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open "Loc Pricing Import" and attach a zero-byte CSV. | The Loc Pricing Import dialog opens and the file is attached for upload. |
+| 2 | Observe the dialog and whether any import request fires. | The dialog shows "The selected file does not contain any valid location pricing rows to import.", the Upload button stays disabled, and no import request is sent (nothing is committed) |
 
 **Expected**: The dialog shows "The selected file does not contain any valid location pricing rows to import.", the Upload button stays disabled, and no import request is sent (nothing is committed).
 **Data**: office=5897, file=empty.csv
@@ -84,7 +91,9 @@
 **Preconditions**: On the Search screen (office 1604).
 
 **Steps**:
-1. Open "Loc Pricing Import" and attach a plain-text `.txt` file.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open "Loc Pricing Import" and attach a plain-text `.txt` file. | The dialog shows "Unsupported file type. Allowed:.csv", Upload stays disabled, and no import request fires (nothing is committed) |
 
 **Expected**: The dialog shows "Unsupported file type. Allowed: .csv", Upload stays disabled, and no import request fires (nothing is committed).
 **Data**: office=5897, file=wrong-format.txt
@@ -104,7 +113,9 @@
 **Preconditions**: On the Search screen (office 1604).
 
 **Steps**:
-1. Open "Loc Pricing Import" and attach a CSV whose columns do not match the location-pricing schema.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open "Loc Pricing Import" and attach a CSV whose columns do not match the location-pricing schema. | An error is shown in the dialog, Upload stays disabled, and no import request fires (nothing is committed) |
 
 **Expected**: An error is shown in the dialog, Upload stays disabled, and no import request fires (nothing is committed).
 **Data**: office=5897, file=malformed.csv
@@ -123,8 +134,10 @@
 **Preconditions**: On the Search screen (office 1604).
 
 **Steps**:
-1. Open "Loc Pricing Import" and close/cancel the dialog WITHOUT choosing a file.
-2. Confirm no import request fired and the dialog closed.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open "Loc Pricing Import" and close/cancel the dialog WITHOUT choosing a file. | The Loc Pricing Import dialog opens and then closes without a file chosen. |
+| 2 | Confirm no import request fired and the dialog closed. | No import request is sent; the dialog closes; office 5897 is unchanged |
 
 **Expected**: No import request is sent; the dialog closes; office 5897 is unchanged.
 **Data**: office=5897, file=none (no file chosen)
@@ -144,9 +157,11 @@
 **Preconditions**: On the Search screen (office 1604). Office 5897's rows captured as baseline.
 
 **Steps**:
-1. Import a valid single-location file (flip a pricebook to Alternate).
-2. Reload the Search page.
-3. Re-download the export.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Import a valid single-location file (flip a pricebook to Alternate). | The dialog accepts the file and the import completes successfully. |
+| 2 | Reload the Search page. | The Search page reloads and finishes loading successfully. |
+| 3 | Re-download the export. | The search grid re-renders with rows (not left blank - guarding against the post-import blank-grid defect) AND the re-downloaded export still shows the imported value (the change is durable, not just an in-memory echo) |
 
 **Expected**: The search grid re-renders with rows (not left blank — guarding against the post-import blank-grid defect) AND the re-downloaded export still shows the imported value (the change is durable, not just an in-memory echo).
 **Data**: office=5897, file=valid-update.csv
@@ -166,7 +181,9 @@
 **Preconditions**: On the Search screen.
 
 **Steps**:
-1. (Not automated) Import the full ~38k-row exported file.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | (Not automated) Import the full ~38k-row exported file. | The full ~38,000-row import fails server-side. The upload stalls part-way through - the dialog progress bar stops near the middle and shows *"Import failed due to a server error. Please try again. If the problem continues, contact support."* The underlying request returns HTTP 500 with a *"Failed to replace... document..."* body - a server-side replace failure, not a gateway timeout. Because the file is re-imported unchanged, no location's values change: office 5897's rows and the total exported row count are identical afterward |
 
 **Expected**: The full ~38,000-row import fails server-side. The upload stalls part-way through — the dialog progress bar stops near the middle and shows *"Import failed due to a server error. Please try again. If the problem continues, contact support."* The underlying request returns HTTP 500 with a *"Failed to replace … document …"* body — a server-side replace failure, not a gateway timeout. Because the file is re-imported unchanged, no location's values change: office 5897's rows and the total exported row count are identical afterward.
 **Data**: the full exported CSV, roughly 38,000 rows — verified once by hand, never in CI.
@@ -186,8 +203,10 @@
 **Preconditions**: On the Search screen (office 1604).
 
 **Steps**:
-1. Open "Loc Pricing Import" and attach a CSV that has the 11 header columns but no data rows.
-2. Observe the dialog and whether any import request fires.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open "Loc Pricing Import" and attach a CSV that has the 11 header columns but no data rows. | The Loc Pricing Import dialog opens and the file is attached for upload. |
+| 2 | Observe the dialog and whether any import request fires. | The dialog shows "Please check the upload file format.", no import request is sent, and office 5897 is unchanged. This is a DISTINCT input from the zero-byte empty file (TC-CPR-LIM-003) - a header-only file is a separate rejection path with its own message |
 
 **Expected**: The dialog shows "Please check the upload file format.", no import request is sent, and office 5897 is unchanged. This is a DISTINCT input from the zero-byte empty file (TC-CPR-LIM-003) — a header-only file is a separate rejection path with its own message.
 **Data**: office=5897, file=header-only.csv
@@ -207,8 +226,10 @@
 **Preconditions**: On the Search screen (office 1604). Office 5897 reset to its baseline first.
 
 **Steps**:
-1. Upload a single-location file that sets ALL FOUR boolean flag columns (IsInternal, IsLabor, IsAlternate, IsProduction) to 1 on one pricebook row.
-2. Re-download the export and read that row.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Upload a single-location file that sets ALL FOUR boolean flag columns (IsInternal, IsLabor, IsAlternate, IsProduction) to 1 on one pricebook row. | The dialog accepts the file and the import completes successfully. |
+| 2 | Re-download the export and read that row. | The import returns HTTP 200 success, but the fresh export shows ONLY IsAlternate changed to 1 - IsInternal, IsLabor, and IsProduction stay 0. Of the flag columns, only IsAlternate is applied by the import |
 
 **Expected**: The import returns HTTP 200 success, but the fresh export shows ONLY IsAlternate changed to 1 — IsInternal, IsLabor, and IsProduction stay 0. Of the flag columns, only IsAlternate is applied by the import.
 **Data**: office=5897, file=field-writability.csv
@@ -228,8 +249,10 @@
 **Preconditions**: On the Search screen (office 1604). Office 5897 reset to its baseline first.
 
 **Steps**:
-1. Upload a file containing office 5897's three baseline rows PLUS one row for a novel pricebook name that does not exist in the system.
-2. Read the import response body and re-download the export.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Upload a file containing office 5897's three baseline rows PLUS one row for a novel pricebook name that does not exist in the system. | The dialog accepts the file and the import completes successfully. |
+| 2 | Read the import response body and re-download the export. | The import returns success but the response's createdCount is 0, and the novel pricebook does NOT appear in the re-downloaded export - office 5897 still has exactly its three baseline rows. The import updates existing pricebooks; it does not create a new pricebook definition |
 
 **Expected**: The import returns success but the response's createdCount is 0, and the novel pricebook does NOT appear in the re-downloaded export — office 5897 still has exactly its three baseline rows. The import updates existing pricebooks; it does not create a new pricebook definition.
 **Data**: office=5897, file=create-novel.csv
@@ -248,9 +271,11 @@
 **Preconditions**: On the Search screen with the grid loaded (office 1604).
 
 **Steps**:
-1. Click "Loc Pricing Import" (a direct button, not a menu variant) -> a dialog opens
-2. Read the dialog -> title "Import All Location Pricing", Browse/Upload controls, a file input present
-3. Close the dialog (no file uploaded)
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Click "Loc Pricing Import" (a direct button, not a menu variant) -> a dialog opens | The "Import All Location Pricing" dialog opens. |
+| 2 | Read the dialog -> title "Import All Location Pricing", Browse/Upload controls, a file input present | The dialog displays an upload control and an Upload button for selecting a file. |
+| 3 | Close the dialog (no file uploaded) | Loc Pricing Import opens the "Import All Location Pricing" upload dialog (a direct trigger, distinct from the grid Import ▾ variants; the real upload round-trip is covered by TC-CPR-LIM-001..011) |
 
 **Expected**: Loc Pricing Import opens the "Import All Location Pricing" upload dialog (a direct trigger, distinct from the grid Import ▾ variants; the real upload round-trip is covered by TC-CPR-LIM-001..011).
 **Data**: office=1604

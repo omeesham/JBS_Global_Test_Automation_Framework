@@ -1,7 +1,7 @@
 ﻿/**
  * to-xlsx.ts — Multi-sheet XLSX workbook emitter for the Encore test-case deliverable.
  *
- * Output: `clients/encore/test_cases_xlsx/encore_test_cases.xlsx` (the SOLE
+ * Output: `clients/encore/testcases/encore_test_cases.xlsx` (the SOLE
  *   deliverable workbook — the former `_testrail.xlsx` twin + its `_gen-testrail.ts`
  *   converter were retired by PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT, 2026-06-11)
  *   - Overview sheet (13 cols, per-module quantitative summary) — first tab
@@ -11,7 +11,8 @@
  *       locations_left_panel_basic_info, locations_legal, locations_local_information,
  *       locations_management_history, locations_notes, locations_pricing,
  *       locations_shared_setup_location  ← truncated from "..._locations" (32→31 chars; Excel limit)
- *       + corporate_pricing_* sheets (search, strategy, detail, new_pricebook, override, toolbar_io, loc_export, export_all, loc_import)
+ *       + corporate_pricing_* sheets (search, strategy, detail, new_pricebook, loc_export, export_all, loc_import, import_all)
+ *       + corporate_override_* sheets (core, nm2268..nm2273) — group split from corporate-pricing (59C/59D)
  *
  * Sources (post-Phase-D + 2026-05-27 post-audit cleanup):
  *   PRIMARY (sole) — `clients/encore/specs_planning/test-cases/setup/<module>/*.md`
@@ -60,7 +61,7 @@ import { parseSteps, deriveTestData, DEFAULT_TYPE, DEFAULT_PRIORITY } from './te
 const REPO_ROOT = path.resolve(__dirname, '..');
 const CLIENT_ROOT = path.join(REPO_ROOT, 'clients', 'encore');
 const MD_ROOT = path.join(CLIENT_ROOT, 'specs_planning', 'test-cases', 'setup');
-const XLSX_DIR = path.join(CLIENT_ROOT, 'test_cases_xlsx');
+const XLSX_DIR = path.join(CLIENT_ROOT, 'testcases');
 const XLSX_PATH = path.join(XLSX_DIR, 'encore_test_cases.xlsx');
 const FIXME_REGISTRY = path.join(REPO_ROOT, 'reports', 'fixme-registry.json');
 
@@ -145,6 +146,15 @@ const SHEET_NAMES: Record<string, string> = {
   corporate_pricing_loc_export: 'corporate_pricing_loc_export',
   corporate_pricing_export_all: 'corporate_pricing_export_all',
   corporate_pricing_loc_import: 'corporate_pricing_loc_import',
+  corporate_pricing_import_all: 'corporate_pricing_import_all',
+  // Corporate Override sheets (group split from corporate-pricing, 59C/59D)
+  corporate_override_core: 'corporate_override_core',
+  corporate_override_nm2268: 'corporate_override_nm2268',
+  corporate_override_nm2269: 'corporate_override_nm2269',
+  corporate_override_nm2270: 'corporate_override_nm2270',
+  corporate_override_nm2271: 'corporate_override_nm2271',
+  corporate_override_nm2272: 'corporate_override_nm2272',
+  corporate_override_nm2273: 'corporate_override_nm2273',
 };
 
 const SHEET_DISPLAY_NAMES: Record<string, string> = {
@@ -169,6 +179,52 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   corporate_pricing_loc_export: 'Corporate Pricing — Loc Pricing Export',
   corporate_pricing_export_all: 'Corporate Pricing — Export All',
   corporate_pricing_loc_import: 'Corporate Pricing — Loc Pricing Import',
+  corporate_pricing_import_all: 'Corporate Pricing — Import All',
+  // Corporate Override
+  corporate_override_core: 'Corporate Override — Core',
+  corporate_override_nm2268: 'Corporate Override — NM-2268',
+  corporate_override_nm2269: 'Corporate Override — NM-2269',
+  corporate_override_nm2270: 'Corporate Override — NM-2270',
+  corporate_override_nm2271: 'Corporate Override — NM-2271',
+  corporate_override_nm2272: 'Corporate Override — NM-2272',
+  corporate_override_nm2273: 'Corporate Override — NM-2273',
+};
+
+/** Sheet name → split-file group/stem for the `testcases/<group>/<stem>.xlsx` tree. */
+const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
+  // Corporate Pricing
+  corporate_pricing_detail: { group: 'corporate-pricing', stem: 'corporate-pricing-detail' },
+  corporate_pricing_export_all: { group: 'corporate-pricing', stem: 'corporate-pricing-export-all' },
+  corporate_pricing_import_all: { group: 'corporate-pricing', stem: 'corporate-pricing-import-all' },
+  corporate_pricing_loc_export: { group: 'corporate-pricing', stem: 'corporate-pricing-loc-export' },
+  corporate_pricing_loc_import: { group: 'corporate-pricing', stem: 'corporate-pricing-loc-import' },
+  corporate_pricing_new_pricebook: { group: 'corporate-pricing', stem: 'corporate-pricing-new-pricebook' },
+  corporate_pricing_override: { group: 'corporate-pricing', stem: 'corporate-pricing-override' },
+  corporate_pricing_search: { group: 'corporate-pricing', stem: 'corporate-pricing-search' },
+  corporate_pricing_strategy: { group: 'corporate-pricing', stem: 'corporate-pricing-strategy' },
+  // Locations
+  locations_account_address: { group: 'locations', stem: 'location-account-address' },
+  locations_auto_addon: { group: 'locations', stem: 'location-auto-addon' },
+  locations_left_panel_basic_info: { group: 'locations', stem: 'location-left-panel-basic-information' },
+  locations_legal: { group: 'locations', stem: 'location-legal' },
+  locations_notes: { group: 'locations', stem: 'location-notes' },
+  locations_shared_setup_location: { group: 'locations', stem: 'location-shared-setup-locations' },
+  locations_currency: { group: 'locations', stem: 'location-currency' },
+  locations_local_information: { group: 'locations', stem: 'location-local-information' },
+  locations_management_history: { group: 'locations', stem: 'location-management-history' },
+  locations_pricing: { group: 'locations', stem: 'location-pricing' },
+  // Local Office
+  local_office_settings: { group: 'local-office', stem: 'local-office-settings' },
+  local_office_history: { group: 'local-office', stem: 'local-office-history' },
+  local_office_ect: { group: 'local-office', stem: 'local-office-ect' },
+  // Corporate Override
+  corporate_override_core: { group: 'corporate-override', stem: 'corporate-override-core' },
+  corporate_override_nm2268: { group: 'corporate-override', stem: 'corporate-override-nm2268' },
+  corporate_override_nm2269: { group: 'corporate-override', stem: 'corporate-override-nm2269' },
+  corporate_override_nm2270: { group: 'corporate-override', stem: 'corporate-override-nm2270' },
+  corporate_override_nm2271: { group: 'corporate-override', stem: 'corporate-override-nm2271' },
+  corporate_override_nm2272: { group: 'corporate-override', stem: 'corporate-override-nm2272' },
+  corporate_override_nm2273: { group: 'corporate-override', stem: 'corporate-override-nm2273' },
 };
 
 const EXCEL_SHEET_NAME_LIMIT = 31;
@@ -272,6 +328,7 @@ interface ParsedTc {
   coverageStatus: AugmentData['coverageStatus'];
   automationExecution: AugmentData['automationExecution'];
   ifFailedReason: string;
+  stepExpectedResults: string[];
 }
 
 
@@ -325,7 +382,14 @@ function parseMd(filePath: string): ParsedTc[] {
       coverageStatus: '',
       automationExecution: '',
       ifFailedReason: '',
+      stepExpectedResults: [],
     });
+  }
+  // Populate per-step expected results from markdown step tables (D12).
+  const perStepER = extractPerStepExpected(filePath);
+  for (const tc of tcs) {
+    const ers = perStepER.get(tc.id);
+    if (ers) tc.stepExpectedResults = ers;
   }
   return tcs;
 }
@@ -562,11 +626,11 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
       if (steps.length === 0) steps = ['(no steps defined)'];
 
       steps.forEach((step, i) => {
-        const isLast = i === steps.length - 1;
-        // Case-level Expected only (DECISION 2026-06-26): the one authored
-        // `**Expected**:` lands on the LAST step; action steps stay blank. The old
-        // perStepExpected() verb-heuristic synthesiser (1,796 vacuous fillers) is gone.
-        const expected = isLast ? tc.expected.trim() : '';
+        // Per-step Expected Result (D12 — PLAN_59 amendment): each step's
+        // Expected Result comes from its own column in the markdown step
+        // table. The case-level **Expected**: is a separate field and is
+        // never used as a per-step fallback.
+        const expected = tc.stepExpectedResults?.[i]?.trim() || '';
         const stepCell = `${i + 1}. ${step}`;
         ws.addRow(
           i === 0
@@ -656,6 +720,11 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
   await wb.xlsx.writeFile(outPath);
 
+  // Write split files — one workbook per module sheet (PLAN_59 D2).
+  if (outPath === XLSX_PATH) {
+    await writeSplitFiles(wb);
+  }
+
   // Build-time self-fail (LR-ENC-004): re-lint the workbook we just wrote with the
   // SAME shared rules (scripts/xlsx-lint-rules.mjs) used at commit and ship time.
   // `npm run xlsx:build` can therefore never silently emit a workbook with internal
@@ -726,6 +795,65 @@ function walkMd(dir: string): string[] {
     }
   }
   return acc;
+}
+
+/**
+ * Extract per-step expected results from markdown step tables.
+ * Returns a map from TC ID to an array of expected-result strings,
+ * one per table row (aligned 1:1 with parseSteps output after migration).
+ */
+function extractPerStepExpected(filePath: string): Map<string, string[]> {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const result = new Map<string, string[]>();
+  const sections = content.split(/^## (TC-[A-Z]+(?:-[A-Z]+)*(?:-\d+[A-Z]?)?):/m);
+  for (let i = 1; i < sections.length; i += 2) {
+    const id = (sections[i] || '').trim();
+    const body = sections[i + 1] || '';
+    const tableMatch = body.match(
+      /\*\*Steps\*\*:\s*\n\s*\|\s*#\s*\|\s*Step\s*\|\s*Expected Result\s*\|\s*\n\s*\|[-|\s]+\|\s*\n((?:\s*\|.+\|\s*\n?)*)/,
+    );
+    if (tableMatch) {
+      const tableBody = tableMatch[1] || '';
+      const rows = tableBody.split('\n').filter(line => line.trim().startsWith('|'));
+      const expectedResults: string[] = [];
+      for (const row of rows) {
+        const cells = row.split('|').slice(1, -1).map(c => c.trim());
+        expectedResults.push((cells[2] || '').replace(/\\\|/g, '|'));
+      }
+      result.set(id, expectedResults);
+    }
+  }
+  return result;
+}
+
+/**
+ * Write split files — one single-sheet workbook per module under testcases/<group>/.
+ * Each split workbook clones the corresponding sheet from the consolidated workbook
+ * with its header, data rows, blank separator, and SUMMARY row intact (PLAN_59 D2).
+ */
+async function writeSplitFiles(consolidatedWb: ExcelJS.Workbook): Promise<void> {
+  for (const [sheetName, mapping] of Object.entries(SPLIT_FILE_MAP)) {
+    const srcWs = consolidatedWb.getWorksheet(sheetName);
+    if (!srcWs) continue;
+    const splitDir = path.join(XLSX_DIR, mapping.group);
+    if (!fs.existsSync(splitDir)) fs.mkdirSync(splitDir, { recursive: true });
+    const splitPath = path.join(splitDir, `${mapping.stem}.xlsx`);
+    const splitWb = new ExcelJS.Workbook();
+    const destWs = splitWb.addWorksheet(sheetName, { views: [{ state: 'frozen', ySplit: 1 }] });
+    srcWs.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+      const destRow = destWs.getRow(rowNumber);
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        const destCell = destRow.getCell(colNumber);
+        destCell.value = cell.value;
+        destCell.style = { ...cell.style };
+      });
+      destRow.commit();
+    });
+    for (let c = 1; c <= MODULE_SHEET_HEADERS.length; c++) {
+      destWs.getColumn(c).width = srcWs.getColumn(c).width;
+    }
+    await splitWb.xlsx.writeFile(splitPath);
+  }
 }
 
 // ────────────────────────── CLI ──────────────────────────

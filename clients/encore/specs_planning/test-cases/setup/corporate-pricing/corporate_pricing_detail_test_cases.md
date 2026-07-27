@@ -1,4 +1,4 @@
-# Corporate Pricing — Pricebook Management / Pricing Detail Test Cases (NM-1443)
+﻿# Corporate Pricing — Pricebook Management / Pricing Detail Test Cases (NM-1443)
 
 **Module**: corporate-pricing | **Total**: 55 | **Status**: Complete | **Updated**: 2026-06-25
 
@@ -103,9 +103,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page for the test pricebook (office 1604), with the page freshly loaded on the Pricing Strategy tab (before the Pricing Detail tab is opened).
 
 **Steps**:
-1. Open the Pricebook Details page for the test pricebook (office 1604).
-2. Click the "Pricing Detail" tab.
-3. Verify the grid contains product-group rows.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricebook Details page for the test pricebook (office 1604). | The Pricebook Details page loads with the Pricing Strategy tab active |
+| 2 | Click the "Pricing Detail" tab. | The "Pricing Detail" tab becomes active and its panel is displayed |
+| 3 | Verify the grid contains product-group rows. | The Pricing Detail tab activates and its product-group grid renders with rows; the grid loads its data when the tab is activated |
 
 **Expected**: The Pricing Detail tab activates and its product-group grid renders with rows; the grid loads its data when the tab is activated.
 **Data**: office=1604, pricebook=2021-PB6
@@ -123,8 +125,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the product-group grid loaded.
 
 **Steps**:
-1. Open the Pricing Detail tab.
-2. Read the grid column headers.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab. | The Pricing Detail tab opens and the product-group grid is displayed |
+| 2 | Read the grid column headers. | The grid shows five columns in order: ID, Product Group Name, Price, New Price, Max Discount. "Price" displays the base price, "New Price" captures the override price, and "Max Discount" captures the override discount |
 
 **Expected**: The grid shows five columns in order: ID, Product Group Name, Price, New Price, Max Discount. "Price" displays the base price, "New Price" captures the override price, and "Max Discount" captures the override discount.
 **Data**: office=1604
@@ -142,8 +146,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the Available Product Groups source list rendered alongside the grid.
 
 **Steps**:
-1. Open the Pricing Detail tab.
-2. Inspect the Available Product Groups list.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab. | The Pricing Detail tab opens and the product-group grid is displayed |
+| 2 | Inspect the Available Product Groups list. | The Available Product Groups source list loads with product groups available for browsing and selection |
 
 **Expected**: The Available Product Groups source list loads with product groups available for browsing and selection.
 **Data**: office=1604
@@ -161,8 +167,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the Available Product Groups source list rendered.
 
 **Steps**:
-1. Open the Pricing Detail tab.
-2. Look for a search/filter input over the Available Product Groups list.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab. | The Pricing Detail tab opens and the product-group grid is displayed |
+| 2 | Look for a search/filter input over the Available Product Groups list. | The source list exposes a "Search ID or Name..." filter so the user can browse and select product groups |
 
 **Expected**: The source list exposes a "Search ID or Name..." filter so the user can browse and select product groups.
 **Data**: office=1604
@@ -180,8 +188,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page in management mode (an existing pricebook), with the page loaded and the Pricing Detail tab not yet opened.
 
 **Steps**:
-1. Open a pricebook in management mode and click the Pricing Detail tab.
-2. Observe the grid.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open a pricebook in management mode and click the Pricing Detail tab. | The pricebook opens in management mode and the Pricing Detail tab becomes active |
+| 2 | Observe the grid. | When the Pricing Detail tab is activated, the current pricing details load into the grid |
 
 **Expected**: When the Pricing Detail tab is activated, the current pricing details load into the grid.
 **Data**: office=1604
@@ -199,8 +209,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row ("Balloon Light Decor") located.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate a known product-group row.
-2. Inspect its Price (Base Price) cell.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate a known product-group row. | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Inspect its Price (Base Price) cell. | The Base Price cell is read-only (no input) - it is displayed for reference only |
 
 **Expected**: The Base Price cell is read-only (no input) — it is displayed for reference only.
 **Data**: office=1604, row="Balloon Light Decor"
@@ -218,8 +230,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row ("Balloon Light Decor") located.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate a known product-group row.
-2. Inspect its New Price and Max Discount cells.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate a known product-group row. | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Inspect its New Price and Max Discount cells. | The New Price (override price) and Max Discount (override discount) cells are editable input fields |
 
 **Expected**: The New Price (override price) and Max Discount (override discount) cells are editable input fields.
 **Data**: office=1604, row="Balloon Light Decor"
@@ -238,9 +252,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and the Available Product Groups source list rendered.
 
 **Steps**:
-1. Open the Pricing Detail tab and note the current grid row count.
-2. Single-click a product group in the Available list.
-3. Re-read the grid row count.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and note the current grid row count. | The Pricing Detail tab opens and the grid's current row count is visible for reference |
+| 2 | Single-click a product group in the Available list. | The clicked product group becomes highlighted as selected in the Available list |
+| 3 | Re-read the grid row count. | In management mode a single-click selects/displays the group without adding it to the grid. No row is added |
 
 **Expected**: In management mode a single-click selects/displays the group without adding it to the grid. No row is added.
 **Data**: office=1604
@@ -259,9 +275,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and the Available Product Groups source list rendered.
 
 **Steps**:
-1. Open the Pricing Detail tab and note the current grid row count.
-2. Double-click a product group in the Available list.
-3. Re-read the grid row count.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and note the current grid row count. | The Pricing Detail tab opens and the grid's current row count is visible for reference |
+| 2 | Double-click a product group in the Available list. | The double-clicked product group is highlighted in the Available list |
+| 3 | Re-read the grid row count. | Double-click does NOT add a product group in management mode - new product groups cannot be added when editing an existing pricebook |
 
 **Expected**: Double-click does NOT add a product group in management mode — new product groups cannot be added when editing an existing pricebook.
 **Data**: office=1604
@@ -280,9 +298,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and the Available Product Groups source list rendered.
 
 **Steps**:
-1. Open the Pricing Detail tab and note the current grid row count.
-2. Drag a product group from the Available list and drop it onto the grid.
-3. Re-read the grid row count.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and note the current grid row count. | The Pricing Detail tab opens and the grid's current row count is visible for reference |
+| 2 | Drag a product group from the Available list and drop it onto the grid. | The product group is dragged from the Available list and dropped onto the grid area |
+| 3 | Re-read the grid row count. | Drag-and-drop does NOT add a product group in management mode |
 
 **Expected**: Drag-and-drop does NOT add a product group in management mode.
 **Data**: office=1604
@@ -300,8 +320,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a product-group row ("Balloon Light Decor") located.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate a product-group row.
-2. Inspect the row for any add/remove control.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate a product-group row. | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Inspect the row for any add/remove control. | Existing product-group rows carry no Add/Remove control in management mode (consistent with new product groups not being addable) |
 
 **Expected**: Existing product-group rows carry no Add/Remove control in management mode (consistent with new product groups not being addable).
 **Data**: office=1604, row="Balloon Light Decor"
@@ -319,8 +341,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid loaded, with no edits made to any row.
 
 **Steps**:
-1. Open the Pricing Detail tab and make no changes.
-2. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and make no changes. | The Pricing Detail tab opens with the grid displayed in its default, unmodified state |
+| 2 | Observe the Save button. | With no pending changes the grid is clean - the Save button's disabled state is the indicator that nothing has changed (there is no separate badge) |
 
 **Expected**: With no pending changes the grid is clean — the Save button's disabled state is the indicator that nothing has changed (there is no separate badge).
 **Data**: office=1604
@@ -338,10 +362,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded and clean (Save disabled), and a row's Max Discount cell editable.
 
 **Steps**:
-1. Open the Pricing Detail tab (clean).
-2. Edit a row's Max Discount cell.
-3. Verify the Save button enables.
-4. Discard the change by reloading without saving.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab (clean). | The Pricing Detail tab opens with the grid clean and the Save button disabled |
+| 2 | Edit a row's Max Discount cell. | The Max Discount cell accepts the newly typed value |
+| 3 | Verify the Save button enables. | The Save button is enabled |
+| 4 | Discard the change by reloading without saving. | Editing an editable override cell (Max Discount) marks the grid as changed, and the Save button enables |
 
 **Expected**: Editing an editable override cell (Max Discount) marks the grid as changed, and the Save button enables.
 **Data**: office=1604, row="Balloon Light Decor"
@@ -359,9 +385,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a reversible Max Discount edit ready to be made on a row.
 
 **Steps**:
-1. Open the Pricing Detail tab and make a reversible Max Discount edit.
-2. Click Save.
-3. Confirm the dialog.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and make a reversible Max Discount edit. | The Max Discount cell updates with the new value and the Save button becomes enabled |
+| 2 | Click Save. | Clicking Save opens a "Save Changes" confirmation dialog |
+| 3 | Confirm the dialog. | Save opens a "Save Changes" confirmation dialog that must be confirmed before the changes commit (shared confirmation pattern) |
 
 **Expected**: Save opens a "Save Changes" confirmation dialog that must be confirmed before the changes commit (shared confirmation pattern per LR-012).
 **Data**: office=1604, row="Balloon Light Decor"
@@ -379,10 +407,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid loaded; the anchor row is at its default state (base price, no discount) before the edit.
 
 **Steps**:
-1. Ensure default state (anchors at base, no discount).
-2. Edit a row's Max Discount to a new value and Save (confirm dialog).
-3. Reload the page and reopen the Pricing Detail tab.
-4. Restore the row via ensureDefaultState (cleanup).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Ensure default state (anchors at base, no discount). | The anchor row is confirmed at its default state with the base price and no discount applied. |
+| 2 | Edit a row's Max Discount to a new value and Save (confirm dialog). | The save confirmation dialog is accepted and the grid shows the updated Max Discount value. |
+| 3 | Reload the page and reopen the Pricing Detail tab. | The page reloads and the Pricing Detail tab is open with the grid showing the saved Max Discount value. |
+| 4 | Restore the row via ensureDefaultState (cleanup). | The row is restored to its original default state, leaving no residual test data. |
 
 **Expected**: A saved Max Discount (override discount) persists across reload; the test data is restored afterward so there is no cross-run drift.
 **Data**: office=1604, row="Balloon Light Decor", value="12"
@@ -400,10 +430,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid loaded; the anchor row is at its default state before the edit.
 
 **Steps**:
-1. Ensure default state.
-2. Make a reversible Max Discount edit.
-3. Click Save and confirm.
-4. Restore baseline via ensureDefaultState.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Ensure default state. | The grid displays its default state with the Save button disabled |
+| 2 | Make a reversible Max Discount edit. | The Max Discount cell updates with the new value and the Save button becomes enabled |
+| 3 | Click Save and confirm. | The confirmation dialog closes and the change is committed |
+| 4 | Restore baseline via ensureDefaultState. | After a successful Save the grid returns to the clean state (Save disabled) |
 
 **Expected**: After a successful Save the grid returns to the clean state (Save disabled).
 **Data**: office=1604, row="Balloon Light Decor"
@@ -421,11 +453,13 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid loaded; two anchor rows are at their default state before the edits.
 
 **Steps**:
-1. Ensure default state.
-2. Edit the Max Discount on two different product-group rows.
-3. Click Save and confirm.
-4. Reload and reopen the Pricing Detail tab.
-5. Restore both rows via ensureDefaultState.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Ensure default state. | Both anchor rows display their default Max Discount values with the Save button disabled |
+| 2 | Edit the Max Discount on two different product-group rows. | Both rows' Max Discount cells update with their new values and the Save button becomes enabled |
+| 3 | Click Save and confirm. | The confirmation dialog closes and both changes are committed |
+| 4 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the grid with both saved values |
+| 5 | Restore both rows via ensureDefaultState. | A single Save commits all pending grid override edits - every changed price and discount across the rows - in one batch |
 
 **Expected**: A single Save commits all pending grid override edits — every changed price and discount across the rows — in one batch.
 **Data**: office=1604, rows="Balloon Light Decor" + "Analog Mixer 12 - 23 Ch"
@@ -443,10 +477,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid loaded; the anchor row is at its base Price before the override is entered.
 
 **Steps**:
-1. Ensure default state (anchor row at its base Price).
-2. Enter a New Price (override) on the row and commit it via the grid Save (confirm dialog).
-3. Reload and reopen the Pricing Detail tab.
-4. Restore the row to its base Price via ensureDefaultState.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Ensure default state (anchor row at its base Price). | The anchor row displays its base Price with no New Price override |
+| 2 | Enter a New Price (override) on the row and commit it via the grid Save (confirm dialog). | The New Price is entered and committed after the confirmation dialog is accepted |
+| 3 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the grid with the saved New Price |
+| 4 | Restore the row to its base Price via ensureDefaultState. | A New Price (override price / staging price) entered and saved supersedes the base value - the Price column reflects it on reload |
 
 **Expected**: A New Price (override price / staging price) entered and saved supersedes the base value — the Price column reflects it on reload.
 **Data**: office=1604, row="Analog Mixer 12 - 23 Ch", value="250.00"
@@ -464,8 +500,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid loaded; a row with no override (New Price empty) located.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate a row with no override (New Price empty).
-2. Read the row's New Price input and Price cell.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate a row with no override (New Price empty). | The Pricing Detail tab opens and displays a row with an empty New Price field |
+| 2 | Read the row's New Price input and Price cell. | When the New Price (override price) is empty, the Base Price remains in effect for the row - if the user leaves the override field empty, the system defaults back to the Base Price |
 
 **Expected**: When the New Price (override price) is empty, the Base Price remains in effect for the row — if the user leaves the override field empty, the system defaults back to the Base Price.
 **Data**: office=1604, row="Balloon Light Decor"
@@ -483,10 +521,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid loaded; the anchor row is at its base Price before the override is entered.
 
 **Steps**:
-1. Ensure default state.
-2. Enter a valid currency-formatted New Price (two-decimal value) on a row and commit via Save.
-3. Reload and reopen the Pricing Detail tab.
-4. Restore the row to its default state.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Ensure default state. | The anchor row displays its base Price with no New Price override |
+| 2 | Enter a valid currency-formatted New Price (two-decimal value) on a row and commit via Save. | The New Price is entered and committed after the confirmation dialog is accepted |
+| 3 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the grid with the saved New Price |
+| 4 | Restore the row to its default state. | Save accepts a valid currency-formatted numeric entry and persists it; numeric entries are validated against the pricebook's currency format |
 
 **Expected**: Save accepts a valid currency-formatted numeric entry and persists it; numeric entries are validated against the pricebook's currency format.
 **Data**: office=1604, row="Analog Mixer 12 - 23 Ch", value="250.00"
@@ -505,12 +545,14 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row ("Balloon Light Decor") at its default state (no override).
 
 **Steps**:
-1. Open the Pricing Detail tab, locate row "Balloon Light Decor", and ensure it has no New Price override.
-2. Click the New Price input for that row, press Ctrl+A, press Delete, type "0", then click outside the field.
-3. Observe the Save button.
-4. Click Save and confirm the dialog.
-5. Reload the page and reopen the Pricing Detail tab.
-6. Restore via ensureDefaultState.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab, locate row "Balloon Light Decor", and ensure it has no New Price override. | The Pricing Detail tab opens and the "Balloon Light Decor" row displays an empty New Price field |
+| 2 | Click the New Price input for that row, press Ctrl+A, press Delete, type "0", then click outside the field. | The New Price field clears to empty once the field loses focus |
+| 3 | Observe the Save button. | The Save button remains disabled |
+| 4 | Click Save and confirm the dialog. | Clicking the disabled Save button has no effect, and no confirmation dialog appears |
+| 5 | Reload the page and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the "Balloon Light Decor" row with an empty New Price field |
+| 6 | Restore via ensureDefaultState. | Entering 0 in New Price is treated as "no override" - the field clears to empty and the grid stays clean, so Save does not enable |
 
 **Expected**: Entering 0 in New Price is treated as "no override" — the field clears to empty and the grid stays clean, so Save does not enable.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=0
@@ -528,10 +570,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the New Price input, press Ctrl+A, press Delete, type "-10", then click outside the field.
-3. Observe the cell value.
-4. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the New Price input, press Ctrl+A, press Delete, type "-10", then click outside the field. | The New Price field reformats the entered value once the field loses focus |
+| 3 | Observe the cell value. | The New Price cell displays "10.00" with the minus sign stripped |
+| 4 | Observe the Save button. | A negative New Price has its minus sign stripped after clicking outside the field; the remaining positive value (e.g. -10 becomes 10.00) is accepted and Save enables |
 
 **Expected**: A negative New Price has its minus sign stripped after clicking outside the field; the remaining positive value (e.g. -10 becomes 10.00) is accepted and Save enables.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=-10
@@ -549,11 +593,13 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the New Price input, press Ctrl+A, press Delete, type "9999999.99", then click outside the field.
-3. Observe the rendered value in the input.
-4. Observe the Save button.
-5. Reload without saving.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the New Price input, press Ctrl+A, press Delete, type "9999999.99", then click outside the field. | The New Price field retains the entered value and is flagged as invalid once the field loses focus |
+| 3 | Observe the rendered value in the input. | The input displays "9999999.99" highlighted as an invalid value |
+| 4 | Observe the Save button. | The Save button remains disabled |
+| 5 | Reload without saving. | A very large value beyond the allowed maximum is kept in the field but flagged as invalid, and Save is blocked while the cell is invalid |
 
 **Expected**: A very large value beyond the allowed maximum is kept in the field but flagged as invalid, and Save is blocked while the cell is invalid.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=9999999.99
@@ -571,11 +617,13 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the New Price input, press Ctrl+A, press Delete, type "12.3456", then click outside the field.
-3. Read the input value after clicking outside the field.
-4. Observe the Save button.
-5. Reload without saving.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the New Price input, press Ctrl+A, press Delete, type "12.3456", then click outside the field. | The New Price field reformats the entered value once the field loses focus |
+| 3 | Read the input value after clicking outside the field. | The input displays a value rounded or truncated to exactly 2 decimal places |
+| 4 | Observe the Save button. | The Save button is enabled |
+| 5 | Reload without saving. | After clicking outside the field, a New Price entry with more than 2 decimal places is rounded or truncated to 2 decimal places. The exact rounding direction (round-half-up vs truncate) is implementation-specific; the test asserts the result has exactly 2 decimal places |
 
 **Expected**: After clicking outside the field, a New Price entry with more than 2 decimal places is rounded or truncated to 2 decimal places. The exact rounding direction (round-half-up vs truncate) is implementation-specific; the test asserts the result has exactly 2 decimal places.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=12.3456
@@ -593,10 +641,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the New Price input, press Ctrl+A, press Delete, type "99999999999999999999999999999999" (a number far larger than the field allows), then click outside the field.
-3. Observe the cell value.
-4. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the New Price input, press Ctrl+A, press Delete, type "99999999999999999999999999999999" (a number far larger than the field allows), then click outside the field. | The New Price field rejects or truncates the oversized value once the field loses focus |
+| 3 | Observe the cell value. | The cell displays an invalid or truncated value rather than the full entered number |
+| 4 | Observe the Save button. | An overflow value beyond the numeric range never reaches a committable state - it is flagged invalid or not accepted, and Save stays disabled |
 
 **Expected**: An overflow value beyond the numeric range never reaches a committable state — it is flagged invalid or not accepted, and Save stays disabled.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=overflow string
@@ -614,11 +664,13 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the New Price input, press Ctrl+A, press Delete, type "abc", then click outside the field.
-3. Observe the cell value.
-4. Observe the Save button.
-5. Repeat with "!@#".
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the New Price input, press Ctrl+A, press Delete, type "abc", then click outside the field. | The New Price field clears to empty once the field loses focus |
+| 3 | Observe the cell value. | The cell displays no value |
+| 4 | Observe the Save button. | The Save button remains disabled |
+| 5 | Repeat with "!@#". | Non-numeric strings entered into New Price are discarded - the field clears to empty and Save stays disabled |
 
 **Expected**: Non-numeric strings entered into New Price are discarded — the field clears to empty and Save stays disabled.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", values="abc", "!@#"
@@ -636,9 +688,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row with a multi-thousand New Price override committed (e.g., "1234.56").
 
 **Steps**:
-1. Open the Pricing Detail tab and locate a row with a saved New Price override greater than 1,000.
-2. Read the New Price cell value.
-3. Confirm no trailing or extra decimal digits appear.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate a row with a saved New Price override greater than 1,000. | The Pricing Detail tab opens and displays a row with a saved New Price override greater than 1,000 |
+| 2 | Read the New Price cell value. | The New Price cell displays the value with comma-thousands grouping and 2 decimal places |
+| 3 | Confirm no trailing or extra decimal digits appear. | The New Price column renders currency values with comma-thousands grouping and exactly 2 decimal places - consistent with the pricebook currency format |
 
 **Expected**: The New Price column renders currency values with comma-thousands grouping and exactly 2 decimal places — consistent with the pricebook currency format.
 **Data**: office=1604, pricebook=2021-PB6
@@ -656,12 +710,14 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row ("Balloon Light Decor") at its default state (no Max Discount override).
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the Max Discount input, press Ctrl+A, press Delete, type "0", then click outside the field.
-3. Observe the Save button.
-4. Click Save and confirm the dialog.
-5. Reload and reopen the Pricing Detail tab.
-6. Restore via ensureDefaultState.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the Max Discount input, press Ctrl+A, press Delete, type "0", then click outside the field. | The Max Discount field displays "0.00 %" once the field loses focus |
+| 3 | Observe the Save button. | The Save button remains disabled |
+| 4 | Click Save and confirm the dialog. | Clicking the disabled Save button has no effect, and no confirmation dialog appears |
+| 5 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the "Balloon Light Decor" row with Max Discount at "0.00 %" |
+| 6 | Restore via ensureDefaultState. | Max Discount accepts 0 as a valid no-discount value (renders "0.00 %", no validation error). Because the test data baseline discount is already 0, re-entering 0 is no net change and Save stays disabled |
 
 **Expected**: Max Discount accepts 0 as a valid no-discount value (renders "0.00 %", no validation error). Because the test data baseline discount is already 0, re-entering 0 is no net change and Save stays disabled.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=0
@@ -679,10 +735,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the Max Discount input, press Ctrl+A, press Delete, type "-5", then click outside the field.
-3. Observe the cell value.
-4. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the Max Discount input, press Ctrl+A, press Delete, type "-5", then click outside the field. | The Max Discount field reformats the entered value once the field loses focus |
+| 3 | Observe the cell value. | The cell displays "5.00 %" with the minus sign stripped |
+| 4 | Observe the Save button. | A negative Max Discount has its minus sign stripped; the remaining positive value (e.g. -5 becomes 5.00 %) is accepted and Save enables |
 
 **Expected**: A negative Max Discount has its minus sign stripped; the remaining positive value (e.g. -5 becomes 5.00 %) is accepted and Save enables.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=-5
@@ -701,10 +759,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the Max Discount input, press Ctrl+A, press Delete, type "150", then click outside the field.
-3. Inspect the tooltip or validation message.
-4. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the Max Discount input, press Ctrl+A, press Delete, type "150", then click outside the field. | The Max Discount field retains "150" and is flagged as invalid once the field loses focus |
+| 3 | Inspect the tooltip or validation message. | A validation tooltip is displayed stating the value exceeds the allowed maximum |
+| 4 | Observe the Save button. | Entering a Max Discount value greater than 100 causes the input to stay at the entered value and show a validation warning. Save is blocked |
 
 **Expected**: Entering a Max Discount value greater than 100 causes the input to stay at the entered value and show a validation warning. Save is blocked.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=150
@@ -722,12 +782,14 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the Max Discount input, press Ctrl+A, press Delete, type "33.33", then click outside the field.
-3. Observe the Save button.
-4. Click Save and confirm.
-5. Reload and reopen the Pricing Detail tab.
-6. Restore via ensureDefaultState.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the Max Discount input, press Ctrl+A, press Delete, type "33.33", then click outside the field. | The Max Discount field displays "33.33 %" once the field loses focus |
+| 3 | Observe the Save button. | The Save button is enabled |
+| 4 | Click Save and confirm. | The confirmation dialog closes and the change is committed |
+| 5 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the "Balloon Light Decor" row with Max Discount at "33.33 %" |
+| 6 | Restore via ensureDefaultState. | A Max Discount value with exactly 2 decimal places is accepted, persisted as entered, and does not trigger any invalid state |
 
 **Expected**: A Max Discount value with exactly 2 decimal places is accepted, persisted as entered, and does not trigger any invalid state.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=33.33
@@ -745,10 +807,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the Max Discount input, press Ctrl+A, press Delete, type "xyz", then click outside the field.
-3. Observe the cell value.
-4. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the Max Discount input, press Ctrl+A, press Delete, type "xyz", then click outside the field. | The Max Discount field clears to empty once the field loses focus |
+| 3 | Observe the cell value. | The cell displays no value |
+| 4 | Observe the Save button. | Non-numeric input in Max Discount is discarded - the field clears to empty |
 
 **Expected**: Non-numeric input in Max Discount is discarded — the field clears to empty.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value="xyz"
@@ -766,10 +830,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded and clean (Save disabled), and a known product-group row with a known New Price state (e.g., empty override).
 
 **Steps**:
-1. Open the Pricing Detail tab (clean).
-2. Click the New Price input for "Balloon Light Decor", press Ctrl+A, press Delete, type "99.00", then click outside the field.
-3. Click the same New Price input again, press Ctrl+A, press Delete (clearing the value back to empty — the original state), then click outside the field.
-4. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab (clean). | The Pricing Detail tab opens with the grid clean and the Save button disabled |
+| 2 | Click the New Price input for "Balloon Light Decor", press Ctrl+A, press Delete, type "99.00", then click outside the field. | The New Price field displays "99.00" and the Save button becomes enabled |
+| 3 | Click the same New Price input again, press Ctrl+A, press Delete (clearing the value back to empty — the original state), then click outside the field. | The New Price field returns to empty once the field loses focus |
+| 4 | Observe the Save button. | Reverting an edited New Price back to its original value (empty in this case) resets the unsaved-changes state and Save returns to disabled. This validates that the grid does not remain "dirty" when no net change has been made |
 
 **Expected**: Reverting an edited New Price back to its original value (empty in this case) resets the unsaved-changes state and Save returns to disabled. This validates that the grid does not remain "dirty" when no net change has been made.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor"
@@ -787,12 +853,14 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active; the anchor row ("Balloon Light Decor") has a committed New Price override in place (from a prior test or setup step). The base price is known.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate the row with an existing New Price override.
-2. Click the New Price input, press Ctrl+A, press Delete (clearing the override to empty), then click outside the field.
-3. If clearing the override did not enable Save, mark the form changed by entering a Max Discount value and then reverting it.
-4. Click Save and confirm.
-5. Reload and reopen the Pricing Detail tab.
-6. Restore the row to its default state.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate the row with an existing New Price override. | The Pricing Detail tab opens and displays the row with its existing New Price override |
+| 2 | Click the New Price input, press Ctrl+A, press Delete (clearing the override to empty), then click outside the field. | The New Price field clears to empty once the field loses focus |
+| 3 | If clearing the override did not enable Save, mark the form changed by entering a Max Discount value and then reverting it. | The Save button becomes enabled after the additional Max Discount change |
+| 4 | Click Save and confirm. | The confirmation dialog closes and the change is committed |
+| 5 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the grid with the updated row |
+| 6 | Restore the row to its default state. | A committed New Price override can be reverted by entering the row's base value and saving again - the Price column returns to the Base Price |
 
 **Expected**: A committed New Price override can be reverted by entering the row's base value and saving again — the Price column returns to the Base Price.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor"
@@ -810,9 +878,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the grid loaded, and a known product-group row ("Balloon Light Decor") with a visible Base Price value.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate row "Balloon Light Decor".
-2. Click the Price (Base Price) cell and attempt to type "999".
-3. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate row "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Click the Price (Base Price) cell and attempt to type "999". | The Price cell opens no input field and the typed characters are not accepted |
+| 3 | Observe the Save button. | The Base Price cell is read-only - it contains no editable input. A click-and-type attempt does not open an input, does not change the displayed value, and does not enable Save |
 
 **Expected**: The Base Price cell is read-only — it contains no editable input. A click-and-type attempt does not open an input, does not change the displayed value, and does not enable Save.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor"
@@ -830,10 +900,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the full product-group grid loaded (a large grid of thousands of rows). The test targets a row that is not visible in the initial viewport.
 
 **Steps**:
-1. Open the Pricing Detail tab.
-2. Navigate to a page or scroll to a row whose Product Group Name or ID is known but does not appear in the first visible set.
-3. Locate the row by its Product Group Name or ID, not by its position in the grid.
-4. Read the New Price and Max Discount values for that row.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab. | The Pricing Detail tab opens and the product-group grid is displayed |
+| 2 | Navigate to a page or scroll to a row whose Product Group Name or ID is known but does not appear in the first visible set. | The grid scrolls or navigates to reveal rows beyond the initial visible set |
+| 3 | Locate the row by its Product Group Name or ID, not by its position in the grid. | The target row is found and displayed by its Product Group Name or ID |
+| 4 | Read the New Price and Max Discount values for that row. | Rows can be reliably located and read by their Product Group Name or ID, regardless of their position in the grid. The test never relies on a fixed row position or count |
 
 **Expected**: Rows can be reliably located and read by their Product Group Name or ID, regardless of their position in the grid. The test never relies on a fixed row position or count.
 **Data**: office=1604, pricebook=2021-PB6
@@ -851,12 +923,14 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Corporate Pricing Add page in create mode. The Available Product Groups source list is rendered alongside an empty or pre-existing product group grid.
 
 **Steps**:
-1. Open the Add Equipment corporate-pricing page.
-2. Note the current grid row count.
-3. Double-click a product group item in the source list.
-4. Note the updated grid row count.
-5. Drag a second product group from the source list and drop it on the grid (use a slow, multi-step drag so the drop registers).
-6. Confirm both added rows are present in the grid by their Product Group Name anchor.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Add Equipment corporate-pricing page. | The Add Equipment corporate-pricing page loads with the product group grid and Available Product Groups list displayed |
+| 2 | Note the current grid row count. | The grid's current row count is visible for reference |
+| 3 | Double-click a product group item in the source list. | The double-clicked product group is added to the grid as a new row |
+| 4 | Note the updated grid row count. | The grid row count increases by one, reflecting the newly added product group |
+| 5 | Drag a second product group from the source list and drop it on the grid (use a slow, multi-step drag so the drop registers). | The dragged product group is dropped onto the grid and added as a new row |
+| 6 | Confirm both added rows are present in the grid by their Product Group Name anchor. | In create mode, both double-click and drag add product group rows to the grid. This is the baseline check that confirms the add behavior works in create mode before the management-mode cases assert it does not fire there |
 
 **Expected**: In create mode, both double-click and drag add product group rows to the grid. This is the positive control that confirms the add behavior works in create mode before the management-mode cases assert it does not fire there.
 **Data**: office=1604, URL=/locations/1604/settings/corporate-pricing/add?type=equipment
@@ -875,12 +949,14 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active; a row is identified where the Max Discount cell is currently empty (no override).
 
 **Steps**:
-1. Open the Pricing Detail tab and locate a row where Max Discount is empty.
-2. Click the New Price input for that row, press Ctrl+A, press Delete, type a valid price (e.g., "100.00"), then click outside the field.
-3. Use Max Discount on a different (second) row to make a change and enable Save.
-4. Click Save and confirm the dialog.
-5. Reload and reopen the Pricing Detail tab.
-6. Check the Max Discount value. If it is still empty, the field correctly kept its empty state. If it changed to 0.00, the value was silently altered without any user action, which is a defect.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate a row where Max Discount is empty. | The Pricing Detail tab opens and displays a row with an empty Max Discount field |
+| 2 | Click the New Price input for that row, press Ctrl+A, press Delete, type a valid price (e.g., "100.00"), then click outside the field. | The New Price field displays "100.00" once the field loses focus |
+| 3 | Use Max Discount on a different (second) row to make a change and enable Save. | The second row's Max Discount updates and the Save button becomes enabled |
+| 4 | Click Save and confirm the dialog. | The confirmation dialog closes and the changes are committed |
+| 5 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the grid with the saved changes |
+| 6 | Check the Max Discount value. If it is still empty, the field correctly kept its empty state. If it changed to 0.00, the value was silently altered without any user action, which is a defect. | A row whose Max Discount was empty before the save should remain empty after a New Price edit is saved - saving should not silently change an empty Max Discount to 0.00. If the value changes to 0.00 after saving, that is a defect |
 
 **Expected**: A row whose Max Discount was empty before the save should remain empty after a New Price edit is saved — saving should not silently change an empty Max Discount to 0.00. If the value changes to 0.00 after saving, that is a defect.
 **Data**: office=1604, pricebook=2021-PB6
@@ -894,16 +970,18 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 
 **Depends_On**: TC-CPR-DET-012
 **Automatable**: Yes
-**Flag**: Oracle states New-Price-only edits do NOT reliably enable Save. Drive exact steps on a fresh page (no prior dirty state) and record whether Save enables or remains disabled after the New Price keyboard edit alone. Assert the actually-observed behavior; do not assume the oracle is authoritative without a live confirmation run. (Internal ref: CPR-DETAIL-BUG-A.)
+**Flag**: Oracle states New-Price-only edits do NOT reliably enable Save. Drive exact steps on a fresh page (no prior unsaved changes) and record whether Save enables or remains disabled after the New Price keyboard edit alone. Assert the actually-observed behavior; do not assume the oracle is authoritative without a live confirmation run. (Internal ref: CPR-DETAIL-BUG-A.)
 
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid in a clean state (Save disabled). No prior edits on this page load.
 
 **Steps**:
-1. Open the Pricing Detail tab on a fresh page load.
-2. Click the New Price input for "Analog Mixer 12 - 23 Ch", select all (Ctrl+A), delete, type "200.00", then click outside the field.
-3. Do NOT touch any other cell.
-4. Observe the Save button immediately after clicking outside the field.
-5. Record whether the Save button enabled or stayed disabled.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab on a fresh page load. | The Pricing Detail tab opens with the grid clean and the Save button disabled |
+| 2 | Click the New Price input for "Analog Mixer 12 - 23 Ch", select all (Ctrl+A), delete, type "200.00", then click outside the field. | The New Price field displays "200.00" once the field loses focus |
+| 3 | Do NOT touch any other cell. | No other cell in the grid is modified |
+| 4 | Observe the Save button immediately after clicking outside the field. | The Save button's current enabled or disabled state is visible immediately after the field loses focus |
+| 5 | Record whether the Save button enabled or stayed disabled. | Based on the current behavior, editing only the New Price field does not reliably enable Save. Record the actual result observed (Save enabled or stayed disabled); this behavior is currently inconsistent |
 
 **Expected**: Based on the current behavior, editing only the New Price field does not reliably enable Save. Record the actual result observed (Save enabled or stayed disabled); this behavior is currently inconsistent.
 **Data**: office=1604, pricebook=2021-PB6, row="Analog Mixer 12 - 23 Ch", value=200.00
@@ -922,9 +1000,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid clean.
 
 **Steps**:
-1. Open the Pricing Detail tab on a fresh page load.
-2. Click the New Price input for any row, select all (Ctrl+A), delete, type a valid price, then click outside the field.
-3. Observe the Save button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab on a fresh page load. | The Pricing Detail tab opens with the grid clean and the Save button disabled |
+| 2 | Click the New Price input for any row, select all (Ctrl+A), delete, type a valid price, then click outside the field. | The New Price field displays the entered value once the field loses focus |
+| 3 | Observe the Save button. | Per the requirement, editing the New Price field alone should mark the grid as changed and enable Save. If the live behavior does not match this, that is a gap against the requirement |
 
 **Expected**: Per the requirement, editing the New Price field alone should mark the grid as changed and enable Save. If the live behavior does not match this, that is a gap against the requirement.
 **Data**: office=1604, pricebook=2021-PB6
@@ -943,13 +1023,15 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active; the anchor row has a committed New Price override.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate the row with an existing New Price override.
-2. Note the base price of the row (the price before any override was set).
-3. Click the New Price input, press Ctrl+A, press Delete (clearing to empty), then click outside the field.
-4. Enable Save via a Max Discount edit on the same or a different row.
-5. Click Save and confirm.
-6. Reload and reopen the Pricing Detail tab.
-7. Observe the Price column and record whether it shows the base price or shows empty/0.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate the row with an existing New Price override. | The Pricing Detail tab opens and displays the row with its existing New Price override |
+| 2 | Note the base price of the row (the price before any override was set). | The row's base Price value is visible in the Price column |
+| 3 | Click the New Price input, press Ctrl+A, press Delete (clearing to empty), then click outside the field. | The New Price field clears to empty once the field loses focus |
+| 4 | Enable Save via a Max Discount edit on the same or a different row. | The Max Discount updates and the Save button becomes enabled |
+| 5 | Click Save and confirm. | The confirmation dialog closes and the change is committed |
+| 6 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the grid with the updated row |
+| 7 | Observe the Price column and record whether it shows the base price or shows empty/0. | Clearing a staged (uncommitted) New Price before saving leaves the displayed Price unchanged and the grid clean - nothing is committed. An unsaved staged value simply clears without affecting the Price |
 
 **Expected**: Clearing a staged (uncommitted) New Price before saving leaves the displayed Price unchanged and the grid clean — nothing is committed. An unsaved staged value simply clears without affecting the Price.
 **Data**: office=1604, pricebook=2021-PB6
@@ -968,12 +1050,14 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active; two anchor rows ("Balloon Light Decor" and "Analog Mixer 12 - 23 Ch") are both at their default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and note the current Max Discount value for "Analog Mixer 12 - 23 Ch" (row B).
-2. Edit the Max Discount of "Balloon Light Decor" (row A) to a new value.
-3. Click Save and confirm.
-4. Reload and reopen the Pricing Detail tab.
-5. Assert that row B's Max Discount is unchanged from the pre-save value.
-6. Restore both rows via ensureDefaultState.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and note the current Max Discount value for "Analog Mixer 12 - 23 Ch" (row B). | The Pricing Detail tab opens and row B's current Max Discount value is visible for reference |
+| 2 | Edit the Max Discount of "Balloon Light Decor" (row A) to a new value. | Row A's Max Discount field updates with the new value and the Save button becomes enabled |
+| 3 | Click Save and confirm. | The confirmation dialog closes and the change to row A is committed |
+| 4 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the grid with the saved change to row A |
+| 5 | Assert that row B's Max Discount is unchanged from the pre-save value. | Row B's Max Discount value matches the value recorded before the save |
+| 6 | Restore both rows via ensureDefaultState. | Editing and saving a New Price or Max Discount on row A does not affect row B's values. The batch save commits only the modified rows; unedited rows retain their pre-save values. If row B's value changes, this is a potential cross-row price isolation defect |
 
 **Expected**: Editing and saving a New Price or Max Discount on row A does not affect row B's values. The batch save commits only the modified rows; unedited rows retain their pre-save values. If row B's value changes, this is a potential cross-row price isolation defect.
 **Data**: office=1604, pricebook=2021-PB6, rowA="Balloon Light Decor", rowB="Analog Mixer 12 - 23 Ch"
@@ -992,11 +1076,13 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active; the anchor row "Balloon Light Decor" has a committed Max Discount of 100.
 
 **Steps**:
-1. Ensure "Balloon Light Decor" has a saved Max Discount of 100 (set and save if needed).
-2. Reload and reopen the Pricing Detail tab.
-3. Click (focus) the Max Discount input for "Balloon Light Decor" without typing.
-4. Read the input value immediately after focus: if "1", the defect is reproduced (record the result accordingly). If "100", the defect did not reproduce in this run.
-5. Restore via ensureDefaultState.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Ensure "Balloon Light Decor" has a saved Max Discount of 100 (set and save if needed). | The "Balloon Light Decor" row shows a saved Max Discount of 100 |
+| 2 | Reload and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the "Balloon Light Decor" row |
+| 3 | Click (focus) the Max Discount input for "Balloon Light Decor" without typing. | The Max Discount input receives focus and displays its current value |
+| 4 | Read the input value immediately after focus: if "1", the defect is reproduced (record the result accordingly). If "100", the defect did not reproduce in this run. | The focused input's displayed value is visible for comparison against the saved value of 100 |
+| 5 | Restore via ensureDefaultState. | A Max Discount of 100, once saved, should still read 100 after reload and when the field is focused. Observed on the current build: it displays as "1.00 %" at rest and "1" when focused - the entered 100 is lost. Record the actual result |
 
 **Expected**: A Max Discount of 100, once saved, should still read 100 after reload and when the field is focused. Observed on the current build: it displays as "1.00 %" at rest and "1" when focused — the entered 100 is lost. Record the actual result.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=100
@@ -1020,10 +1106,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the product-group grid loaded with multiple pages of rows.
 
 **Steps**:
-1. Open the Pricing Detail tab.
-2. Change the page-size selector to a non-default value (e.g., 10).
-3. Click the "next page" navigation button.
-4. Click the "previous page" navigation button.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab. | The Pricing Detail tab opens and the product-group grid is displayed |
+| 2 | Change the page-size selector to a non-default value (e.g., 10). | No page-size selector is present on the grid for interaction |
+| 3 | Click the "next page" navigation button. | No "next page" navigation button is present on the grid for interaction |
+| 4 | Click the "previous page" navigation button. | The Detail grid renders every product-group row at once - it exposes no rows-per-page selector and no page-navigation buttons (it is non-paginated) |
 
 **Expected**: The Detail grid renders every product-group row at once — it exposes no rows-per-page selector and no page-navigation buttons (it is non-paginated).
 **Data**: office=1604, pricebook=2021-PB6
@@ -1043,8 +1131,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the product-group grid loaded.
 
 **Steps**:
-1. Open the Pricing Detail tab.
-2. For each page-size option (10, 20, 30, 40, 50): select the option and verify the grid renders rows up to that page size without errors.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab. | The Pricing Detail tab opens and the product-group grid is displayed |
+| 2 | For each page-size option (10, 20, 30, 40, 50): select the option and verify the grid renders rows up to that page size without errors. | The Detail grid is non-paginated - it renders all rows with no page-size selector at all |
 
 **Expected**: The Detail grid is non-paginated — it renders all rows with no page-size selector at all.
 **Data**: office=1604, pricebook=2021-PB6
@@ -1064,8 +1154,10 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, with the product-group grid loaded and more than one page of rows available.
 
 **Steps**:
-1. Navigate to the last page of the Detail grid (use the "last page" nav button or step through pages to the end).
-2. Count the rows on the last page.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Navigate to the last page of the Detail grid (use the "last page" nav button or step through pages to the end). | No "last page" navigation control exists; the grid already displays all rows on one page |
+| 2 | Count the rows on the last page. | The Detail grid has no pagination, so every row (including those a paginated grid would place on a later page) is present on the page and readable by content without any navigation |
 
 **Expected**: The Detail grid has no pagination, so every row (including those a paginated grid would place on a later page) is present in the DOM and readable by content anchor without any navigation.
 **Data**: office=1604, pricebook=2021-PB6
@@ -1085,12 +1177,14 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the product-group grid loaded with multiple pages.
 
 **Steps**:
-1. Ensure the grid is on page 1.
-2. Observe the "first page" and "previous page" nav buttons.
-3. Observe the "next page" and "last page" nav buttons.
-4. Navigate to the last page.
-5. Observe the "next page" and "last page" nav buttons.
-6. Observe the "first page" and "previous page" nav buttons.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Ensure the grid is on page 1. | The grid displays its full set of rows with no page indicator |
+| 2 | Observe the "first page" and "previous page" nav buttons. | No "first page" or "previous page" navigation button is present |
+| 3 | Observe the "next page" and "last page" nav buttons. | No "next page" or "last page" navigation button is present |
+| 4 | Navigate to the last page. | No navigation occurs, as the grid already displays all rows on one page |
+| 5 | Observe the "next page" and "last page" nav buttons. | No "next page" or "last page" navigation button is present |
+| 6 | Observe the "first page" and "previous page" nav buttons. | The Detail grid renders no first/previous/next/last navigation controls - it is non-paginated |
 
 **Expected**: The Detail grid renders no first/previous/next/last navigation controls — it is non-paginated.
 **Data**: office=1604, pricebook=2021-PB6
@@ -1110,11 +1204,13 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the product-group grid loaded with multiple pages. A set of known Product Group Names is available for anchoring.
 
 **Steps**:
-1. On page 1, note the Product Group Names of the first and last visible rows.
-2. Navigate to page 2.
-3. Verify that none of the page-1 anchor names appear on page 2 (no duplicates).
-4. Navigate to the last page and note the last visible row's Product Group Name.
-5. Navigate back to page 1.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | On page 1, note the Product Group Names of the first and last visible rows. | The Product Group Names of the first and last visible rows are displayed for reference |
+| 2 | Navigate to page 2. | No separate page 2 exists; the same single page of rows remains displayed |
+| 3 | Verify that none of the page-1 anchor names appear on page 2 (no duplicates). | None of the page-1 anchor names are duplicated elsewhere in the grid |
+| 4 | Navigate to the last page and note the last visible row's Product Group Name. | The last visible row's Product Group Name is displayed for reference |
+| 5 | Navigate back to page 1. | Each product group appears exactly once - rows are unique (the grid is non-paginated, so there are no cross-page duplicates or skips) |
 
 **Expected**: Each product group appears exactly once — rows are unique (the grid is non-paginated, so there are no cross-page duplicates or skips).
 **Data**: office=1604, pricebook=2021-PB6
@@ -1134,10 +1230,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the product-group grid loaded.
 
 **Steps**:
-1. Note the Product Group Name of the first visible row on the current page.
-2. Click the "Product Group Name" column header.
-3. Click the same header again.
-4. Observe whether the rows reorder. If they reorder, sorting works. If they do not reorder, record that sorting did not change the order.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Note the Product Group Name of the first visible row on the current page. | The first visible row's Product Group Name is displayed for reference |
+| 2 | Click the "Product Group Name" column header. | Clicking the column header produces no sort indicator or row reordering |
+| 3 | Click the same header again. | Clicking the header again produces no sort indicator or row reordering |
+| 4 | Observe whether the rows reorder. If they reorder, sorting works. If they do not reorder, record that sorting did not change the order. | The Detail grid column headers are not sort triggers - they are plain headers with no sort control, so there is no header-click sorting on this surface |
 
 **Expected**: The Detail grid column headers are not sort triggers — they are plain headers with no sort control, so there is no header-click sorting on this surface.
 **Data**: office=1604, pricebook=2021-PB6
@@ -1156,9 +1254,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the product-group grid loaded with at least one row that has a committed New Price override (comma-thousands value with 2 decimal places).
 
 **Steps**:
-1. Open the Pricing Detail tab and locate a row with a saved New Price override (e.g., "1,234.56").
-2. Read the New Price cell value.
-3. Inspect the Price (Base Price) cell on the same row.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate a row with a saved New Price override (e.g., "1,234.56"). | The Pricing Detail tab opens and displays the row with its saved New Price override |
+| 2 | Read the New Price cell value. | The New Price cell displays "1,234.56" with comma-thousands grouping and 2 decimal places |
+| 3 | Inspect the Price (Base Price) cell on the same row. | The New Price override cell renders its stored value in currency format (comma-thousands, 2 decimal places). The Price (Base Price) column cell is read-only text with no input element |
 
 **Expected**: The New Price override cell renders its stored value in currency format (comma-thousands, 2 decimal places). The Price (Base Price) column cell is read-only text with no input element.
 **Data**: office=1604, pricebook=2021-PB6
@@ -1177,10 +1277,12 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active, the product-group grid loaded. Multiple rows are available: some with New Price overrides, some without (empty override).
 
 **Steps**:
-1. Open the Pricing Detail tab.
-2. For three or more rows with committed New Price overrides: read each New Price cell value and verify comma-thousands format with exactly 2 decimal places.
-3. For three or more rows with no New Price override (empty): read each New Price cell (empty) and its corresponding Price cell.
-4. For rows with Max Discount overrides: verify the Max Discount cell renders with up to 2 decimal places.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab. | The Pricing Detail tab opens and the product-group grid is displayed |
+| 2 | For three or more rows with committed New Price overrides: read each New Price cell value and verify comma-thousands format with exactly 2 decimal places. | Each New Price cell displays its value with comma-thousands grouping and exactly 2 decimal places |
+| 3 | For three or more rows with no New Price override (empty): read each New Price cell (empty) and its corresponding Price cell. | Each row with no override shows an empty New Price cell alongside its populated Price cell |
+| 4 | For rows with Max Discount overrides: verify the Max Discount cell renders with up to 2 decimal places. | All editable currency cells (New Price, Max Discount) that have committed values render with the correct format (comma-thousands, 2dp). Rows with no override show an empty New Price input alongside a populated Base Price - the base price is always displayed for reference regardless of override state |
 
 **Expected**: All editable currency cells (New Price, Max Discount) that have committed values render with the correct format (comma-thousands, 2dp). Rows with no override show an empty New Price input alongside a populated Base Price — the base price is always displayed for reference regardless of override state.
 **Data**: office=1604, pricebook=2021-PB6
@@ -1199,9 +1301,11 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: A pricebook with exactly one product group row is available in office 1604 (or can be constructed via the add flow). The Pricing Detail tab is accessible for that pricebook.
 
 **Steps**:
-1. Open the Pricing Detail tab for the 1-row pricebook.
-2. Confirm the grid renders the single row (located by its Product Group Name).
-3. Confirm no error state, empty-state placeholder, or "no rows" message appears (the grid has 1 row, not 0).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab for the 1-row pricebook. | The Pricing Detail tab opens and displays the grid with its single row |
+| 2 | Confirm the grid renders the single row (located by its Product Group Name). | The single row is displayed and identifiable by its Product Group Name |
+| 3 | Confirm no error state, empty-state placeholder, or "no rows" message appears (the grid has 1 row, not 0). | A single row renders and is readable by its product-group name |
 
 **Expected**: A single row renders and is readable by its product-group name.
 **Data**: office=1604
@@ -1220,11 +1324,13 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: Access to pricebooks with 0 rows (empty shell), 1 row, and the full large test pricebook (2021-PB6) in office 1604.
 
 **Steps**:
-1. Open the Pricing Detail tab for a pricebook with 0 product group rows.
-2. Open the Pricing Detail tab for a 1-row pricebook.
-3. Open the Pricing Detail tab for the full large test pricebook (2021-PB6).
-4. On the large grid, navigate to a page beyond the first and locate a row by its Product Group Name (by content, not by row position).
-5. Confirm no cross-page duplication or row disappearance.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab for a pricebook with 0 product group rows. | The Pricing Detail tab opens and displays the grid with no product-group rows |
+| 2 | Open the Pricing Detail tab for a 1-row pricebook. | The Pricing Detail tab opens and displays the grid with its single row |
+| 3 | Open the Pricing Detail tab for the full large test pricebook (2021-PB6). | The Pricing Detail tab opens and displays the grid loaded with its full set of rows |
+| 4 | On the large grid, navigate to a page beyond the first and locate a row by its Product Group Name (by content, not by row position). | The target row is found and displayed by its Product Group Name |
+| 5 | Confirm no cross-page duplication or row disappearance. | The high-volume management grid renders without error, and an off-screen row is located by its Product Group Name. The grid is not empty and the row is found by its name |
 
 **Expected**: The high-volume management grid renders without error, and an off-screen row is located by its Product Group Name. The grid is not empty and the row is found by its name.
 **Data**: office=1604, pricebook=2021-PB6
@@ -1243,19 +1349,21 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active; the anchor row "Balloon Light Decor" is at its default state.
 
 **Steps**:
-1. Open the Pricing Detail tab and locate "Balloon Light Decor".
-2. Edit its Max Discount to "22.50" via keyboard (Ctrl+A, Delete, type "22.50", then click outside the field).
-3. Click Save and confirm the dialog.
-4. Reload the page and reopen the Pricing Detail tab.
-5. Read its Max Discount value.
-6. Restore via ensureDefaultState.
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and locate "Balloon Light Decor". | The Pricing Detail tab opens and the "Balloon Light Decor" row is visible in the grid |
+| 2 | Edit its Max Discount to "22.50" via keyboard (Ctrl+A, Delete, type "22.50", then click outside the field). | The Max Discount field displays "22.50 %" once the field loses focus |
+| 3 | Click Save and confirm the dialog. | The confirmation dialog closes and the change is committed |
+| 4 | Reload the page and reopen the Pricing Detail tab. | The Pricing Detail tab reloads and displays the "Balloon Light Decor" row |
+| 5 | Read its Max Discount value. | The Max Discount value displays "22.50 %" |
+| 6 | Restore via ensureDefaultState. | A Max Discount edit committed via Save persists across a page reload. The row is located by its Product Group Name, never by a fixed position |
 
 **Expected**: A Max Discount edit committed via Save persists across a page reload. The row is located by its Product Group Name, never by a hardcoded row index.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor", value=22.50
 
 ---
 
-## TC-CPR-DET-055: Persistence — dirty state survives tab-switch and triggers unsaved guard
+## TC-CPR-DET-055: Persistence — unsaved changes survives tab-switch and triggers unsaved guard
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Surface |
@@ -1267,12 +1375,14 @@ Full dated inventory: `clients/encore/specs_planning/_internal/field-inventories
 **Preconditions**: On the Pricebook Details page with the Pricing Detail tab active and the grid in a clean state (Save disabled).
 
 **Steps**:
-1. Open the Pricing Detail tab and make a Max Discount edit on "Balloon Light Decor".
-2. Click the "Pricing Strategy" (or another pricebook tab) while the grid is dirty.
-3. Return to the Pricing Detail tab.
-4. Navigate away from the pricebook page entirely (e.g., click a breadcrumb link) while still dirty.
-5. Cancel the navigation.
-6. Revert the Max Discount edit back to its original value (Ctrl+A, Delete, type original value or clear, then click outside the field).
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Pricing Detail tab and make a Max Discount edit on "Balloon Light Decor". | The Max Discount field updates with the new value and the Save button becomes enabled |
+| 2 | Click the "Pricing Strategy" (or another pricebook tab) while the grid is dirty. | The Pricing Strategy tab becomes active while the Pricing Detail edit remains pending |
+| 3 | Return to the Pricing Detail tab. | The Pricing Detail tab becomes active again and displays the unsaved Max Discount edit still in place |
+| 4 | Navigate away from the pricebook page entirely (e.g., click a breadcrumb link) while still dirty. | A browser unsaved-changes confirmation prompt is displayed |
+| 5 | Cancel the navigation. | The navigation is cancelled and the Pricebook Details page remains displayed with the unsaved edit intact |
+| 6 | Revert the Max Discount edit back to its original value (Ctrl+A, Delete, type original value or clear, then click outside the field). | A dirty Detail grid preserves its pending changes during a Search↔Detail tab-switch. Navigating away from the pricebook page while dirty triggers the browser's unsaved-changes guard. Reverting all edits to their original values resets Save to disabled |
 
 **Expected**: A dirty Detail grid preserves its pending changes during a Search↔Detail tab-switch. Navigating away from the pricebook page while dirty triggers the browser's unsaved-changes guard. Reverting all edits to their original values resets Save to disabled.
 **Data**: office=1604, pricebook=2021-PB6, row="Balloon Light Decor"

@@ -1,7 +1,7 @@
 #!/usr/bin/env ts-node
 /**
  * xlsx-dump.ts — plain-text TSV dump of every sheet in
- * clients/encore/test_cases_xlsx/encore_test_cases.xlsx.
+ * clients/encore/testcases/encore_test_cases.xlsx.
  *
  * Used for:
  *   - PR review (binary XLSX diffs are unreadable; reviewers diff the dump)
@@ -19,7 +19,7 @@ import * as path from 'path';
 import ExcelJS from 'exceljs';
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const XLSX_PATH = path.join(REPO_ROOT, 'clients', 'encore', 'test_cases_xlsx', 'encore_test_cases.xlsx');
+const XLSX_PATH = path.join(REPO_ROOT, 'clients', 'encore', 'testcases', 'encore_test_cases.xlsx');
 
 interface DumpOpts {
   sheetFilter?: string;

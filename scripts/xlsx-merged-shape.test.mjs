@@ -17,7 +17,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const XLSX_DIR = path.join(REPO_ROOT, 'clients', 'encore', 'test_cases_xlsx');
+const XLSX_DIR = path.join(REPO_ROOT, 'clients', 'encore', 'testcases');
 const XLSX_PATH = path.join(XLSX_DIR, 'encore_test_cases.xlsx');
 
 const MERGED_HEADERS = [
