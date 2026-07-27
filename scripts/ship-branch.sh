@@ -114,13 +114,15 @@ git -C "$REPO_ROOT" archive HEAD clients/encore/ | tar -x -C "$SCRATCH" --strip-
 rm -rf "$SCRATCH/docs" "$SCRATCH/specs_planning" "$SCRATCH/readable_externals" \
        "$SCRATCH/.github" "$SCRATCH/.auth" "$SCRATCH/.claude" "$SCRATCH/CLAUDE.md"
 
+# Parse surface into an array — used by the spec filter (step 2).
+IFS=',' read -ra SURFACE_LIST <<< "$SURFACE"
+
 # 2. Trim tests/ to the module's surface + auth.setup.ts. auth.setup.ts is not a
 #    *.spec.ts so the find below never touches it (kept automatically). SURFACE may
 #    be a comma-separated list of globs (mirrors --modules comma syntax); each spec
 #    is kept if its path relative to tests/ matches ANY listed glob, both directly
 #    ($s) and one level down (*/$s). A single glob (legacy usage) is a list of one.
 if [[ -d "$SCRATCH/tests" ]]; then
-  IFS=',' read -ra SURFACE_LIST <<< "$SURFACE"
   find "$SCRATCH/tests" -type f -name '*.spec.ts' -print0 \
     | while IFS= read -r -d '' f; do
         rel="${f#$SCRATCH/tests/}"
@@ -162,10 +164,74 @@ if [[ -n "$TCS" ]]; then
   :
 fi
 
-# 3. Trim the workbook to the module scope (registry-driven + Overview-row prune).
+# 2d. Filter per-module split workbooks in testcases/ subdirectories by module code
+#     (registry-driven). Root-level files (the consolidated workbook and QA tracker)
+#     are untouched — xlsx-trim handles the consolidated one in step 3 below. Workbooks
+#     are module-scoped, so they filter by --modules via module-codes.json — NOT by
+#     --surface globs (which are file-scoped and cannot reliably match paths that
+#     include a directory component).
+if [[ -d "$SCRATCH/testcases" ]]; then
+  node -e '
+    const fs = require("fs");
+    const path = require("path");
+    const reg = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+    const modules = process.argv[2].split(",");
+    const tcBase = process.argv[3];
+
+    function resolveToCode(dir, stem) {
+      const normalized = stem.replace(/-/g, "_");
+      let groupCode = null;
+      for (const [code, mod] of Object.entries(reg.modules)) {
+        if (mod.dir === dir) { groupCode = code; break; }
+      }
+      if (!groupCode || !reg.submodules[groupCode]) return null;
+      const candidates = [normalized];
+      if (normalized.startsWith("location_") && !normalized.startsWith("locations_")) {
+        candidates.push("locations_" + normalized.slice("location_".length));
+      }
+      const subs = reg.submodules[groupCode];
+      for (const c of candidates) {
+        for (const [code, sub] of Object.entries(subs)) {
+          if (sub.sheet === c) return groupCode + "." + code;
+        }
+      }
+      for (const c of candidates) {
+        for (const [code, sub] of Object.entries(subs)) {
+          if (c.startsWith(sub.sheet) || sub.sheet.startsWith(c)) {
+            return groupCode + "." + code;
+          }
+        }
+      }
+      return null;
+    }
+
+    if (!fs.existsSync(tcBase)) process.exit(0);
+    for (const dirEnt of fs.readdirSync(tcBase, { withFileTypes: true })) {
+      if (!dirEnt.isDirectory()) continue;
+      const subdir = path.join(tcBase, dirEnt.name);
+      for (const fileEnt of fs.readdirSync(subdir, { withFileTypes: true })) {
+        if (!fileEnt.isFile() || !fileEnt.name.endsWith(".xlsx")) continue;
+        const filePath = path.join(subdir, fileEnt.name);
+        const stem = fileEnt.name.replace(/\.xlsx$/, "");
+        const code = resolveToCode(dirEnt.name, stem);
+        if (code === null) {
+          process.stderr.write("[ship-branch] WARNING: unresolvable split workbook, keeping: " +
+            dirEnt.name + "/" + fileEnt.name + "\n");
+          continue;
+        }
+        const group = code.split(".")[0];
+        const keep = modules.some(m => m === group || m === code);
+        if (!keep) fs.unlinkSync(filePath);
+      }
+    }
+  ' "$REPO_ROOT/export_test_cases/module-codes.json" "$MODULES" "$SCRATCH/testcases"
+  find "$SCRATCH/testcases" -mindepth 1 -type d -empty -delete 2>/dev/null || true
+fi
+
+# 3. Trim the consolidated workbook to the module scope (registry-driven + Overview-row prune).
 XLSX_TRIM_ARGS=( --modules="$MODULES" )
 [[ -n "$TCS" ]] && XLSX_TRIM_ARGS+=( --tcs="$TCS" )
-node "$REPO_ROOT/scripts/xlsx-trim.mjs" "$SCRATCH/test_cases_xlsx/encore_test_cases.xlsx" "${XLSX_TRIM_ARGS[@]}"
+node "$REPO_ROOT/scripts/xlsx-trim.mjs" "$SCRATCH/testcases/encore_test_cases.xlsx" "${XLSX_TRIM_ARGS[@]}"
 
 # 4. Throwaway git repo with EXPLICIT identity (never inherited in a temp dir).
 git -C "$SCRATCH" init -q

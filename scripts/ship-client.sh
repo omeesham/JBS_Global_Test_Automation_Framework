@@ -37,7 +37,7 @@ node scripts/verify-no-forbidden.mjs --client="$CLIENT"
 # (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase B). Encore-only check until a
 # second client onboards a workbook. Non-encore clients skip silently.
 if [[ "$CLIENT" == "encore" ]]; then
-  WORKBOOK_PATH="clients/encore/test_cases_xlsx/encore_test_cases.xlsx"
+  WORKBOOK_PATH="clients/encore/testcases/encore_test_cases.xlsx"
   if [[ ! -f "$WORKBOOK_PATH" ]]; then
     echo "ERR: $WORKBOOK_PATH missing. Run: npm run xlsx:build" >&2
     exit 6
@@ -67,8 +67,8 @@ shopt -s nullglob; WF=( "$OUT"/.github/workflows/*.yml "$OUT"/.github/workflows/
 # Post-ship: XLSX deliverable must be present in the archive
 # (PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase B). Encore-only check.
 if [[ "$CLIENT" == "encore" ]]; then
-  if [[ ! -f "$OUT/test_cases_xlsx/encore_test_cases.xlsx" ]]; then
-    echo "ERR: $OUT/test_cases_xlsx/encore_test_cases.xlsx missing in shipped archive" >&2
+  if [[ ! -f "$OUT/testcases/encore_test_cases.xlsx" ]]; then
+    echo "ERR: $OUT/testcases/encore_test_cases.xlsx missing in shipped archive" >&2
     exit 8
   fi
 fi
