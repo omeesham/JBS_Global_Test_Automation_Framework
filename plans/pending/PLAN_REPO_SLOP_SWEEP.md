@@ -7,11 +7,11 @@
 
 ---
 
-# PLAN_REPO_SLOP_SWEEP — Whole-Repo Slop Cleanup
+# PLAN_REPO_SLOP_SWEEP — Full Cleanup of Everything Claude and Copilot Have Touched
 
 ## Objective
 
-Clean the repo to only load-bearing files. Remove ~412 actionable findings (347 DELETE, 64 RELOCATE, 1 RENAME) identified by a machine-denominator 16-lot council audit across all in-scope tracked, untracked, and ignored files.
+Clean everything Claude and Copilot have ever written — inside this repository and outside it. The in-repo audit identified ~412 actionable findings (347 DELETE, 64 RELOCATE, 1 RENAME) across all tracked, untracked, and ignored files. A separate ~1.9 GB out-of-repo denominator (`~/.claude/`, `~/.copilot/`, `%LOCALAPPDATA%/Temp/claude/`) has never been in scope until now; its lots are enumerated in the "Out-of-Repo Scope" section below.
 
 **Nothing executes without Rutvik GO.** Category C and D lots require explicit per-item GO before any action is taken. Category A and B lots are dispatchable once Rutvik confirms the overall plan.
 
@@ -22,8 +22,8 @@ Clean the repo to only load-bearing files. Remove ~412 actionable findings (347 
 This plan is PARKED. A future (rested) session runs these IN ORDER — do not rush to execute:
 
 1. **STEP 0 — Upgrade + reconcile ULTRAAUDIT FIRST (mandatory; Owner Decision (e) = YES).** Before ANY Category C/D lot here touches a `.claude/**` harness file, run the `PLAN_ULTRAAUDIT_FIX_WAVE.md` upgrade: re-run its bug hunt over the full machine denominator (`.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`) and reconcile its fix-list against this sweep's DELETE-list. Reason: both plans touch the same harness files — fixing a file another lot deletes (or deleting one another lot fixes) is exactly the collision this prevents. See `PLAN_ULTRAAUDIT_FIX_WAVE.md` → "Execution Prerequisite".
-2. **STEP 1 — Category A** (safe untracked/ignored debris: root walk-dumps, scratch dirs, temp logs) may run independently of Step 0 — it touches no tracked source ULTRAAUDIT cares about.
-3. **STEP 2 — Categories B/C/D** run only AFTER Step 0's reconciliation, and only for items whose Owner Decision (below) is answered. C/D are per-item GO.
+2. **STEP 1 — Category A** (safe untracked/ignored debris: root walk-dumps, scratch dirs, temp logs) may run independently of Step 0 — it touches no tracked source ULTRAAUDIT cares about. **Out-of-repo Category A lots (ORP-A1 through ORP-A3 in "Out-of-Repo Scope") are also independent of Step 0 and may run at this step.**
+3. **STEP 2 — Categories B/C/D** run only AFTER Step 0's reconciliation, and only for items whose Owner Decision (below) is answered. C/D are per-item GO. **Out-of-repo Category C lots (ORP-C1 memory-prune — "Out-of-Repo Scope" section; Lot C3 pending-plan triage — Category C section) wait alongside in-repo C/D — per-item GO required for each.**
 4. **Answer the Owner Decisions batch first** — an unanswered decision means that lot waits, it does not proceed on a guess.
 
 No step is skipped for speed. If anything is unclear at run time: STOP, re-read this block + Owner Decisions — do not improvise.
@@ -42,7 +42,119 @@ The prior audit built its file denominator by **model judgment** — "list the f
 
 4. **Executors claimed grep sentinels that reviewers falsified.** LOT-01 review MISS-02/03: a missing file was classified as a delete candidate; "no matches" claims contained matches. The slop2 method's mandatory cross-provider reviewer re-executed all evidence — single-executor self-verification is insufficient.
 
+5. **This plan drew the same boundary at the repository edge.** After diagnosing the above, it set its own denominator at `git ls-files` — `~/.claude`, `~/.copilot`, and `%LOCALAPPDATA%/Temp/claude/` appeared nowhere in it. Roughly 1.9 GB of files written by Claude and Copilot lived outside that edge and were not in scope. This is the fourth instance of the same root cause: any boundary drawn by hand rather than by machine inherits the blind spots of whoever drew it.
+
 **Root cause** = a model-judged denominator inherits the model's blind spots (violates the machine-denominator law: judgment enumerates, machines own denominators). The fix is baked into this sweep's verification battery and into the self-cleaner's permanent denominator design.
+
+---
+
+## Out-of-Repo Scope
+
+Everything Claude and Copilot have written outside the repository boundary. Dispatcher measured 2026-07-29; figures are independently reproduced below.
+
+### Denominator
+
+**`~/.claude/` — dispatcher: ~932 MB · verified: 900.8 MB (−3.4%, within tolerance)**
+
+| Path | Dispatcher | Verified | Files | Note |
+|---|---|---|---|---|
+| `projects/` | 902 MB | 877.5 MB | 1,538 | Session transcripts; ~870 MB is this repo. Live memory folder. |
+| `delegation/` | 10.7 MB | 7.0 MB ⚠ | 1,494 | Live config + accumulated run state |
+| `plugins/` | 9.5 MB | 7.8 MB ⚠ | 728 | |
+| `state/` | 3.2 MB | 3.1 MB | 22 | gate-fires.log, hook-failures.log, delegation-nudge-failures.log, task-envelopes, ua-worker |
+| `oneliners/` | 1.9 MB | 1.9 MB | 11 | |
+| `tasks/` | 1.7 MB | 0.4 MB ⚠ | 1,005 | |
+| `telemetry/` | 1.4 MB | 1.3 MB | 31 | |
+| `session-env/` | 640 KB | ~0 | 0 | Empty dir |
+| `plans/` | 480 KB | 307 KB | 33 | Plan files outside the repo — random-word filenames, never in `plans/INDEX.md` |
+| `shell-snapshots/` | 457 KB | 205 KB ⚠ | 75 | |
+| `backups/` + `cache/` | 752 KB | 819 KB | 6 | |
+| loose files | — | — | — | `may_activity.txt` 327 KB, `history.jsonl`, `stats-cache.json`, 3 stale `settings.json.bak-*` |
+
+⚠ = delta >10% from dispatcher figure; attributed to runtime churn between measurement windows (delegation, tasks, shell-snapshots are high-churn runtime dirs). All totals within 10%.
+
+**`~/.copilot/` — dispatcher: ~981 MB · verified: 1,047.4 MB (+6.8%, within tolerance)**
+
+| Path | Dispatcher | Verified | Files | Note |
+|---|---|---|---|---|
+| `session-state/` | 786 MB | 749.8 MB | 8,489 | Largest single pile in the audit |
+| `updater/` | 185 MB | 181.3 MB | 2 | Update artifacts |
+| `logs/` | 8 MB | 7.8 MB | 56 | |
+| `data.db` | 2.7 MB | 2.6 MB | 1 | Live |
+| `data.db.pre-update-backup-*` | 2 MB | — | 1 | Superseded |
+| `agents-variants-archive/` | 76 KB | 102 KB | 10 | |
+
+**Elsewhere** — `%LOCALAPPDATA%/Temp/claude/`: dispatcher 645 MB · verified 614.1 MB (−4.8%). Session scratch dirs. Also: `~/.claude.json` 54 KB live; 40 `*.bak-*` files across `~/.claude` and `~/.copilot`; 3 orphan project dirs under `~/.claude/projects/` for repos other than this one.
+
+---
+
+### NEVER TOUCH — Hard Block (applies to every out-of-repo lot, read before acting on any path below)
+
+The following are the live delegation system shipped to the team repo on 2026-07-29 (commit `e37d13cf`). **No lot in this plan may delete, move, or modify any item below.** Deleting any of them breaks the workforce on this machine and desynchronises it from what colleagues installed.
+
+- `~/.claude/.credentials.json` — live credentials
+- `~/.claude/settings.json` — live and load-bearing (wires the delegation hooks)
+- `~/.claude/mcp.json`
+- `~/.claude.json`
+- `~/.claude/hooks/*.mjs`
+- `~/.claude/delegation/config.json`
+- `~/.claude/delegation/model-registry.json`
+- `~/.claude/delegation/registry-block.sh`
+- `~/.claude/delegation/DUTY_STACK.md`
+- `~/.claude/delegation/uplink-policy.json`
+- `~/.claude/delegation/routing-policy.json`
+- `~/.claude/delegation/ticket-template.md`
+- `~/.claude/delegation/ASKING_DOCTRINE.md`
+- `~/.claude/delegation/gates/` (entire directory)
+- `~/.copilot/agents/`
+- `~/.copilot/config.json`
+- `~/.copilot/mcp-config.json`
+
+---
+
+### Categorisation
+
+**Category A (dispatchable, no per-item GO):** `%LOCALAPPDATA%/Temp/claude/` session scratch dirs · `~/.copilot/updater/` · `~/.copilot/logs/` · `data.db.pre-update-backup-*` · the 40 `*.bak-*` files · `~/.claude/shell-snapshots/` · `~/.claude/session-env/` · `~/.claude/cache/`
+
+**Category C/D (per-item GO before anything):** `~/.claude/projects/` transcripts — 898 MB, but they are the provenance record for every session; deletion is a real loss, not just space · `~/.copilot/session-state/` 786 MB — the evidence behind every worker run · `~/.claude/plans/` — read all 33 before disposition; a plan outside `plans/` may hold work nobody tracked · `~/.claude/delegation/` accumulated run state, excluding the live config named in the NEVER-TOUCH block above
+
+---
+
+### Lot ORP-A1 — Temp scratch dirs + stale update artifacts *(Category A — dispatchable)*
+
+**Scope:** `%LOCALAPPDATA%/Temp/claude/` (614 MB), `~/.copilot/updater/` (181 MB), `~/.copilot/logs/` (7.8 MB), `data.db.pre-update-backup-*` (1 file), the 40 `*.bak-*` files across `~/.claude` and `~/.copilot`.
+
+**Action**: Remove the above. Confirm none is in the NEVER-TOUCH list before removing.
+
+**Verify battery**:
+1. `%LOCALAPPDATA%/Temp/claude/` → empty or absent after removal
+2. None of the NEVER-TOUCH paths modified — verify each exists and is unchanged after
+
+---
+
+### Lot ORP-A2 — Shell-snapshots + session-env + cache *(Category A — dispatchable)*
+
+**Scope:** `~/.claude/shell-snapshots/` (75 files) · `~/.claude/session-env/` (empty dir) · `~/.claude/cache/` (1 file)
+
+**Action**: Remove contents. Confirm `~/.claude/settings.json` (NEVER-TOUCH) is unchanged before and after.
+
+**Verify battery**:
+1. `git status --porcelain` in repo root → no repo files touched
+2. NEVER-TOUCH paths untouched
+
+---
+
+### Lot ORP-C1 — Memory-topic prune *(Category C — per-item Rutvik GO)*
+
+**Scope**: `~/.claude/projects/C--Users-rutvi-projects-encore-framework/memory/` — one index file plus 102 topic files.
+
+**Background**: A compaction on 2026-07-29 shortened wording only; the entry count did not move, so the index re-trips its size ceiling the moment anything is added. The real work is merging overlapping topic files and archiving stale ones so the *count* drops, not just the wording length.
+
+**Action (requires per-topic Rutvik GO)**: Read all 102 topic files. Identify overlapping topics (merge candidates) and stale topics (rules superseded by newer ones). Produce a triage table: file, current topic, recommendation (keep / merge-into / archive). **Stop.** Wait for per-item GO before merging or removing any file.
+
+**Verify battery**:
+1. Triage table covers all 102 topic files — count confirmed before and after
+2. No memory file modified, merged, or deleted until GO received — directory contents unchanged
 
 ---
 
@@ -119,7 +231,7 @@ No special GO required. Verify battery applies to each lot before marking done.
 
 #### Lot A5 — Misc leftover debris
 
-**Files (31 tracked):**
+**Files (29 tracked):**
 
 clients/encore root debris (14):
 - `clients/encore/clients/encore/specs_planning/_internal/evidence-cp-review-2026-07-13/02-detail-after-A10.png`
@@ -144,9 +256,7 @@ clients/encore orphan screenshots (3):
 - `clients/encore/specs_planning/_internal/field-inventories/account-address-2026-05-29-tab.png`
 - `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-search-2026-06-05.png`
 
-website debris (2):
-- `website/FRONTEND_INTEGRATION_RESPONSE.md`
-- `website/plan.md`
+website debris (2) — **REMOVED from scope per Owner Decision (c): website/ stays; see "Owner Decisions" below.**
 
 .claude/ leftover (2):
 - `.claude/channel/KT_PROMPT_FOR_COLLEAGUE.md`
@@ -312,6 +422,21 @@ Each item below needs explicit Rutvik GO before any implementation.
 
 ---
 
+#### Lot C3 — Pending-plan triage *(Category C — per-item Rutvik GO — no action without approval)*
+
+**Scope**: Every `.md` file in `plans/pending/` — plans that were built and never executed.
+
+**Action**: Assign each plan to one of four buckets: **useless** (orphaned, no value) · **vision worth salvaging** (good idea, never started) · **needs refining** (stale or incomplete) · **keep as-is** (active, still valid). Produce a triage table with one-line rationale per plan. **Stop.** The lot produces the triage table and stops.
+
+**⚠ CONSTRAINT: No pending plan is moved, edited, or deleted without Rutvik's explicit approval and interrogation after seeing the triage. This constraint is not a formality — every individual plan disposition requires his GO before any action is taken.**
+
+**Verify battery**:
+1. Triage table covers every `.md` file in `plans/pending/` — `git ls-files plans/pending/ | grep "\.md$" | wc -l` (currently 122) matches row count
+2. No pending plan file modified, moved, or deleted — `git status --porcelain` clean
+3. Nothing staged, committed, or pushed
+
+---
+
 ### Category D — Tracked/history-bearing content (per-item Rutvik GO required)
 
 Each item requires explicit Rutvik GO. Category D operations touch git history or large tracked deletions.
@@ -407,18 +532,14 @@ Decisions awaiting Rutvik. Nothing here runs until answered; C/D lots are per-it
 Rutvik chose HEAD-only, no rotation (training-instance key). Scrubbed in place (value → env-var placeholder) and committed isolated: **`2a37d1bf`**. History retains it (246 commits deep, already pushed to private remotes) — residual accepted, no force-push. Preference saved to memory.
 - **Sub-decision STILL OPEN — test passwords in `plans/done/PLAN_23/27/31/34*.md`:** same HEAD-only scrub (blank → placeholder), or leave (they're training creds in done-plans)? *Recommendation: scrub them the same way in Lot D — one commit, consistent with (a).*
 
-**(b) plans/done archival (640 files, 64 flagged for RELOCATE)**  
-Options: move 64 SUPERSEDED/SUBSUMED/FOLDED entries to `plans/archive/` (Lot B5) vs leave all in `plans/done/` (no action).  
-Recommendation: create `plans/archive/` and move the 64; keeps done/ as "recently executed" vs archive/ as "superseded history". Non-blocking for other lots.
+**(b) plans/done archival (640 files, 64 flagged for RELOCATE) — ✅ RESOLVED (2026-07-29).**
+They stay. `plans/done/` is the log of what was done; all 640 files remain in place. The 64 RELOCATE flags from LOT-09 come off the action list — Lot B5 is removed from the execution queue. *He redirected the concern:* the real problem is `plans/pending/` — plans that were built and never executed. Lot C3 (added above) triages them into four buckets; it produces the triage table and stops. No pending plan is moved, edited, or deleted without Rutvik's explicit approval and interrogation.
 
-**(c) website/ frontend sub-tree disposition**  
-`website/` is referenced 57× in `.claude` docs and confirmed LIVE (active SaaS product per README.md:42 + CURRENT_STATE.md).  
-Options: keep in place (no action beyond Lot D2 credential removal) vs relocate to a separate repo.  
-Recommendation: keep in place; the only action needed is Lot D2 (jiraconfig.txt removal). No structural change to website/ required by this sweep.
+**(c) website/ frontend sub-tree disposition — ✅ RESOLVED (2026-07-29).**
+Keep. No longer needed, but may be revived for reference or built on later. It stays until Rutvik deletes it himself. `website/` is removed from the DELETE list entirely — the two files previously listed as "website debris" in Lot A5 (`FRONTEND_INTEGRATION_RESPONSE.md`, `plan.md`) are no longer in scope for that lot. Lot D2 still applies independently to `website/frontend/src/data/jiraconfig.txt` (credential removal).
 
-**(d) Self-cleaner build timing**  
-Options: build now (Lot C1 in this sweep) vs defer to a separate plan after the manual cleanup lots complete.  
-Recommendation: build after Category A/B lots execute, so the sweeper's first run measures the post-cleanup baseline rather than re-reporting already-handled items. Non-blocking for Category A/B.
+**(d) Self-cleaner build timing — ✅ RESOLVED (2026-07-29).**
+Now. His words: now is the best time to do these things, never tomorrow. Lot C1 proceeds as part of this sweep, not deferred to a later plan.
 
 **(e) Upgrade ULTRAAUDIT — ✅ RESOLVED (2026-07-19): YES, upgrade-first.**
 Rutvik decided: upgrade `PLAN_ULTRAAUDIT_FIX_WAVE.md`, don't redo it. Its S0/S1 bug findings stay valid, but it inherited the same model-guessed-denominator blind spot (~197 files; ~1,080 harness/code files never got a correctness pass) and its fix-list may collide with this sweep's DELETE-list. **This is now baked as STEP 0 in "Execution Order" above** and as the "Execution Prerequisite" in the ULTRAAUDIT plan: when either plan runs, re-run the bug hunt over the full machine denominator + reconcile the two lists BEFORE any harness file is touched. No open sub-question remains here.
