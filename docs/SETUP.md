@@ -13,19 +13,9 @@ For new collaborators only. Existing collaborators skip this.
 
 Ask: "What's your name?" Copy `.claude/agents/COLLEAGUE.agent.md` → `.claude/agents/<NAME>.agent.md`, replace all `<YOUR_NAME>` placeholders, commit + push.
 
-## Step 2 — Create your local credentials file
+## Step 2 — Verify your local credentials file
 
-Local runs (ours only — Encore runs via CI) load `.env.local`, which is gitignored. Create `clients/encore/.env.local` (client root — `dotenv-flow` loads it from there, see `playwright.config.ts`) with:
-
-```ini
-CI_ENV=local
-BASE_URL=https://cloudapps-e2e.encoreglobal.com/navigator/
-HOME_URL=https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/home
-NAVIGATOR_USERNAME=<microsoft-sso-automation-user>
-NAVIGATOR_PASSWORD=<password>
-```
-
-Get the SSO automation-user credentials from the team. (CI uses `.env.e2e` + GitHub Secrets — no creds in the repo.)
+`clients/encore/.env.local` is tracked in git, so a fresh clone already has it filled in and working — you do not need to create it. `dotenv-flow` loads it from the client root (see `playwright.config.ts`). It holds the shared automation-account credentials; do not put personal credentials there.
 
 ## Step 3 — (Optional) Tune your local run
 
@@ -73,5 +63,5 @@ docker compose up -d && npm run server:start
 
 ## Security Rules
 
-- `.env.local` and `.env.server` are gitignored — your credentials live there and are never committed.
-- `.env.e2e` is the CI config and holds NO credentials; GitHub Actions injects them from repo Secrets.
+- `.env.local` is committed on purpose — it holds the shared automation-account credentials so a fresh clone works out of the box. It is never personal credentials. `.env.server` is genuinely gitignored — your personal server config lives there and is never committed.
+- `.env.e2e` is the CI config template and holds NO credentials. It exists so that a build server operator can supply credentials from that server's own secret store; this repository contains no CI workflow files (`git ls-files | grep -c '.github'` returns 0).

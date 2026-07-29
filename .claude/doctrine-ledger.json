@@ -150,7 +150,7 @@
       "id": "LR-043",
       "file": ".claude/rules/hooks-identity.md",
       "line": 59,
-      "enforced_by": ".claude/hooks/lib/check-identity-switch.mjs:167"
+      "enforced_by": ".claude/hooks/lib/check-identity-switch.mjs:179"
     },
     {
       "id": "d-execute-phase-0-1-cross-check-halt-claude-skills-execute-s",
@@ -416,13 +416,13 @@
       "id": "LR-046",
       "file": ".claude/rules/pipeline.md",
       "line": 147,
-      "enforced_by": "scripts/validate-plan-closure.mjs:612"
+      "enforced_by": "scripts/validate-plan-closure.mjs:665"
     },
     {
       "id": "append-and-close-is-forbidden",
       "file": ".claude/rules/pipeline.md",
       "line": 156,
-      "enforced_by": "scripts/validate-plan-closure.mjs:612"
+      "enforced_by": "scripts/validate-plan-closure.mjs:665"
     },
     {
       "id": "scope-of-strict",
@@ -480,7 +480,7 @@
       "id": "LR-049",
       "file": ".claude/rules/pipeline.md",
       "line": 417,
-      "enforced_by": "scripts/ship-client.sh:34"
+      "enforced_by": "scripts/ship-client.sh:79"
     },
     {
       "id": "LR-055",

@@ -414,7 +414,11 @@ Client deliverables ship through one and only one path: `npm run client:ship -- 
 The script wraps `git archive HEAD clients/<id>/`, which:
 
 - Includes only files tracked in git (gitignored content is structurally excluded).
-- Refuses if vendored framework is stale or if any forbidden pattern is staged.
+- Refuses unless the delivered payload passes the deny-list check. Tracked files matching DENY_GLOBS are
+  EXCLUDED from the deliverable, not a reason to refuse — specs_planning/, docs/, CLAUDE.md and .env.local
+  are force-tracked on purpose, so an index-scoped check can never pass. The exclusion list comes from
+  `verify-no-forbidden.mjs --emit-exclusions=<client>`; never hand-maintain a second copy of it.
+
 - Runs a `npx playwright test --list` smoke against the output.
 
 `cp -r clients/<id> /target/` is FORBIDDEN as a delivery mechanism. It copies the entire working tree including gitignored agent artifacts (CLAUDE.md, specs_planning/, .auth/, etc.) and bypasses the vendor-fresh check. Doing this leaks framework IP.

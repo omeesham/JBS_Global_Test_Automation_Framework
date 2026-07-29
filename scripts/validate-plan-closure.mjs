@@ -48,6 +48,7 @@ const FIXTURE_DIR = join(REPO_ROOT, 'scripts', 'test-fixtures', 'plan-closure');
 // a rollout-mode knob for the C6 check class. Lives in closure-config.json (a SEPARATE,
 // agent-writable file), NOT closure-overrides.json (which is a lock-path the agent cannot edit).
 const CLOSURE_CONFIG_PATH = join(REPO_ROOT, '.claude', 'closure-config.json');
+const GUARDRAIL_CONFIG_PATH = join(REPO_ROOT, '.claude', 'guardrail-config.json');
 
 const VALIDATOR_VERSION = '1.0';
 
@@ -99,6 +100,30 @@ function resolveTestStatusMode(cliTestStatusMode) {
     if (cfg && typeof cfg.test_status_mode === 'string') cfgMode = cfg.test_status_mode;
   } catch { /* no config → off */ }
   const m = (cliTestStatusMode || cfgMode || 'off').toLowerCase();
+  return (m === 'announce' || m === 'deny') ? m : 'off';
+}
+
+// === Cr activation mode (SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL Phase 2) — mirrors C6/Cx/Ct ===
+// Precedence: explicit CLI --recurrence-trial-mode=<off|announce|deny> > guardrail-config.json recurrence_trial_mode > 'off'.
+function resolveRecurrenceTrialMode(cliMode) {
+  let cfgMode = 'off';
+  try {
+    const cfg = JSON.parse(readFileSync(GUARDRAIL_CONFIG_PATH, 'utf-8'));
+    if (cfg && typeof cfg.recurrence_trial_mode === 'string') cfgMode = cfg.recurrence_trial_mode;
+  } catch { /* no config → off */ }
+  const m = (cliMode || cfgMode || 'off').toLowerCase();
+  return (m === 'announce' || m === 'deny') ? m : 'off';
+}
+
+// === Ci activation mode (PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION Phase 3) — mirrors C6/Cx/Ct/Cr ===
+// Precedence: explicit CLI --interaction-coverage-mode=<off|announce|deny> > guardrail-config.json interaction_coverage_mode > 'off'.
+function resolveInteractionCoverageMode(cliMode) {
+  let cfgMode = 'off';
+  try {
+    const cfg = JSON.parse(readFileSync(GUARDRAIL_CONFIG_PATH, 'utf-8'));
+    if (cfg && typeof cfg.interaction_coverage_mode === 'string') cfgMode = cfg.interaction_coverage_mode;
+  } catch { /* no config → off */ }
+  const m = (cliMode || cfgMode || 'off').toLowerCase();
   return (m === 'announce' || m === 'deny') ? m : 'off';
 }
 
@@ -879,6 +904,79 @@ function checkCt(body) {
   return { check: 'Ct', status: fails.length > 0 ? 'FAIL' : 'PASS', overridable: false, items };
 }
 
+// === Cr: Recurrence-trial detector (SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL Phase 2) ===
+// Shells out to scripts/check-recurrence-trial.mjs --file <planPath>. Fail-closed: if the
+// detector script is missing or crashes, Cr FAILs loudly — a gate that scores PASS when it
+// never ran manufactures false assurance (Hard Constraint 5).
+function checkCr(body, planPath) {
+  const detectorPath = join(__dirname, 'check-recurrence-trial.mjs');
+
+  if (!existsSync(detectorPath)) {
+    return {
+      check: 'Cr', status: 'FAIL', overridable: false,
+      items: [{ reason: 'Detector script missing: scripts/check-recurrence-trial.mjs — fail-closed (gate never ran)' }],
+    };
+  }
+
+  try {
+    const output = execSync(`node "${detectorPath}" --file "${planPath}"`, {
+      cwd: REPO_ROOT, encoding: 'utf-8', timeout: 30000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { check: 'Cr', status: 'PASS', overridable: false, items: [] };
+  } catch (err) {
+    const output = (err.stdout || '') + (err.stderr || '');
+    const lines = output.split('\n').filter(l => l.trim());
+    const items = lines
+      .filter(l => /FAIL/.test(l) && !/^VERDICT:/.test(l.trim()))
+      .map(l => ({ reason: l.trim() }));
+    if (items.length === 0) {
+      items.push({ reason: output.trim().slice(0, 300) || 'Detector exited non-zero with no parseable output' });
+    }
+    return { check: 'Cr', status: 'FAIL', overridable: false, items };
+  }
+}
+
+// === Ci: Interaction-coverage gate (PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION Phase 3) ===
+// Shells out to scripts/check-interaction-coverage.mjs --plan <planPath>. Fail-closed: if the
+// detector script or schema module is missing, Ci FAILs loudly — a gate that scores PASS when it
+// never ran manufactures false assurance.
+function checkCi(body, planPath) {
+  const detectorPath = join(__dirname, 'check-interaction-coverage.mjs');
+  const schemaPath = join(__dirname, 'walk-coverage', 'interaction-map-schema.mjs');
+
+  if (!existsSync(detectorPath)) {
+    return {
+      check: 'Ci', status: 'FAIL', overridable: false,
+      items: [{ reason: 'Detector script missing: scripts/check-interaction-coverage.mjs — fail-closed (gate never ran)' }],
+    };
+  }
+  if (!existsSync(schemaPath)) {
+    return {
+      check: 'Ci', status: 'FAIL', overridable: false,
+      items: [{ reason: 'Schema module missing: scripts/walk-coverage/interaction-map-schema.mjs — fail-closed (gate never ran)' }],
+    };
+  }
+
+  try {
+    const output = execSync(`node "${detectorPath}" --plan "${planPath}"`, {
+      cwd: REPO_ROOT, encoding: 'utf-8', timeout: 30000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { check: 'Ci', status: 'PASS', overridable: false, items: [] };
+  } catch (err) {
+    const output = (err.stdout || '') + (err.stderr || '');
+    const lines = output.split('\n').filter(l => l.trim());
+    const items = lines
+      .filter(l => /FAIL/.test(l) && !/^VERDICT:/.test(l.trim()))
+      .map(l => ({ reason: l.trim() }));
+    if (items.length === 0) {
+      items.push({ reason: output.trim().slice(0, 300) || 'Detector exited non-zero with no parseable output' });
+    }
+    return { check: 'Ci', status: 'FAIL', overridable: false, items };
+  }
+}
+
 // === Path exemption (M3 + R3) ===
 const RULE_EXEMPT_PATHS = [
   /\.claude[\/\\]rules[\/\\]plan-closure\.md$/,
@@ -980,13 +1078,37 @@ function validatePlan(body, planPath, opts = {}) {
     checks.push(ct);
   }
 
+  // Cr family activation (SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL Phase 2). off | announce | deny,
+  // mirroring C6/Cx/Ct: announce → measured + reported, verdict-neutral; deny → folded into verdict.
+  const recurrenceMode = resolveRecurrenceTrialMode(opts.recurrenceTrialMode);
+  const recurrenceMeasured = !!opts.dryRun || recurrenceMode === 'announce' || recurrenceMode === 'deny';
+  const recurrenceEnforced = !opts.dryRun && recurrenceMode === 'deny';
+  let cr = null;
+  if (recurrenceMeasured) {
+    cr = checkCr(body, planPath);
+    checks.push(cr);
+  }
+
+  // Ci family activation (PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION Phase 3). off | announce | deny,
+  // mirroring C6/Cx/Ct/Cr: announce → measured + reported, verdict-neutral; deny → folded into verdict.
+  const icMode = resolveInteractionCoverageMode(opts.interactionCoverageMode);
+  const icMeasured = !!opts.dryRun || icMode === 'announce' || icMode === 'deny';
+  const icEnforced = !opts.dryRun && icMode === 'deny';
+  let ci = null;
+  if (icMeasured) {
+    ci = checkCi(body, planPath);
+    checks.push(ci);
+  }
+
   // C1-C5 always fold into the verdict (C4 already incorporates the parent-cascade item via its
-  // own severity). C6 + Cx + Ct fold in only when enforced (deny, and not a dry-run).
+  // own severity). C6 + Cx + Ct + Cr + Ci fold in only when enforced (deny, and not a dry-run).
   const baseFail = [c1, c2, c3, c4, c5].some(c => c.status === 'FAIL');
   const c6Fail = c6Enforced && c6 && c6.status === 'FAIL';
   const cxFail = coverageEnforced && cx && cx.status === 'FAIL';
   const ctFail = testStatusEnforced && ct && ct.status === 'FAIL';
-  const anyFail = baseFail || c6Fail || cxFail || ctFail;
+  const crFail = recurrenceEnforced && cr && cr.status === 'FAIL';
+  const ciFail = icEnforced && ci && ci.status === 'FAIL';
+  const anyFail = baseFail || c6Fail || cxFail || ctFail || crFail || ciFail;
 
   return {
     plan: bn,
@@ -994,6 +1116,8 @@ function validatePlan(body, planPath, opts = {}) {
     c6_mode: c6Measured ? (opts.dryRun ? 'dry-run' : c6Mode) : 'off',
     coverage_mode: coverageMeasured ? (opts.dryRun ? 'dry-run' : coverageMode) : 'off',
     test_status_mode: testStatusMeasured ? (opts.dryRun ? 'dry-run' : testStatusMode) : 'off',
+    recurrence_trial_mode: recurrenceMeasured ? (opts.dryRun ? 'dry-run' : recurrenceMode) : 'off',
+    interaction_coverage_mode: icMeasured ? (opts.dryRun ? 'dry-run' : icMode) : 'off',
     checks,
   };
 }
@@ -1092,6 +1216,8 @@ function runSingle(planPath, opts) {
     c6Mode: opts.c6Mode,
     coverageMode: opts.coverageMode,
     testStatusMode: opts.testStatusMode,
+    recurrenceTrialMode: opts.recurrenceTrialMode,
+    interactionCoverageMode: opts.interactionCoverageMode,
     dryRun: opts.dryRun,
   });
 
@@ -1178,7 +1304,7 @@ function runAll(opts) {
     // `--all` actually evaluates at the requested mode instead of silently ignoring the flag.
     const result = validatePlan(body, planPath, {
       overrideMode: 'retro', forceCheck: true,
-      coverageMode: opts.coverageMode, testStatusMode: opts.testStatusMode, c6Mode: opts.c6Mode, dryRun: opts.dryRun,
+      coverageMode: opts.coverageMode, testStatusMode: opts.testStatusMode, c6Mode: opts.c6Mode, recurrenceTrialMode: opts.recurrenceTrialMode, interactionCoverageMode: opts.interactionCoverageMode, dryRun: opts.dryRun,
     });
     results.push(result);
 
@@ -1288,7 +1414,7 @@ function runSelfTest() {
     // Generic fixtures test C1-C5 semantics; C6 is exercised by dedicated synthetic fixtures
     // (PLAN_DONE_MEANS_DONE Phase 2.2a self-tests, run via --dry-run). Force C6 off here so the
     // legacy fixture verdicts stay stable regardless of closure-config.json's live c6_mode.
-    const result = validatePlan(body, fixturePath, { overrideMode: 'enforce', forceCheck: true, c6Mode: 'off', coverageMode: 'off', testStatusMode: 'off' });
+    const result = validatePlan(body, fixturePath, { overrideMode: 'enforce', forceCheck: true, c6Mode: 'off', coverageMode: 'off', testStatusMode: 'off', recurrenceTrialMode: 'off', interactionCoverageMode: 'off' });
 
     let expectPass = false;
     if (expectedVerdict === 'PASS') expectPass = true;
@@ -1348,9 +1474,13 @@ if (args.includes('--self-test')) {
   const coverageMode = coverageModeArg ? coverageModeArg.split('=')[1] : undefined;
   const testStatusModeArg = args.find(a => a.startsWith('--test-status-mode='));
   const testStatusMode = testStatusModeArg ? testStatusModeArg.split('=')[1] : undefined;
+  const recurrenceTrialModeArg = args.find(a => a.startsWith('--recurrence-trial-mode='));
+  const recurrenceTrialMode = recurrenceTrialModeArg ? recurrenceTrialModeArg.split('=')[1] : undefined;
+  const interactionCoverageModeArg = args.find(a => a.startsWith('--interaction-coverage-mode='));
+  const interactionCoverageMode = interactionCoverageModeArg ? interactionCoverageModeArg.split('=')[1] : undefined;
 
   if (all) {
-    const result = runAll({ json, reportOnly: reportOnly || !enforce, rewriteManifests, coverageMode, testStatusMode, c6Mode, dryRun });
+    const result = runAll({ json, reportOnly: reportOnly || !enforce, rewriteManifests, coverageMode, testStatusMode, c6Mode, recurrenceTrialMode, interactionCoverageMode, dryRun });
     if (enforce && !reportOnly && !rewriteManifests) {
       const anyFail = result.plans.some(p => p.status === 'FAIL');
       process.exit(anyFail ? 1 : 0);
@@ -1370,6 +1500,8 @@ if (args.includes('--self-test')) {
       c6Mode,
       coverageMode,
       testStatusMode,
+      recurrenceTrialMode,
+      interactionCoverageMode,
       overrideMode: staged ? 'staged' : contentFromStdin ? 'stdin' : 'enforce',
       forceCheck: contentFromStdin || dryRun,
     });

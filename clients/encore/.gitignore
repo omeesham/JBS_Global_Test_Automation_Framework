@@ -12,8 +12,7 @@ playwright/.cache/
 scripts/walks/
 src/selectors/SELECTOR_CATALOG.md
 
-# Local env overrides (never commit real env files) — env files live at client root post-2026-06-05 POM restructure
-.env.local
+# Local environment overrides — .env.*.local and .env.server are personal overrides, never ship
 .env.*.local
 .env.server
 

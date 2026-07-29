@@ -138,9 +138,32 @@ git -C "$REPO_ROOT" archive HEAD clients/encore/ | tar -x -C "$SCRATCH" --strip-
 
 # 1b. Remove paths that must never ship even when force-tracked in git (e.g. internal
 #     docs/ or specs_planning/ files that were added via git add -f during migrations).
-#     Mirrors the DENY_GLOBS in scripts/lib/forbidden-patterns.mjs.
-rm -rf "$SCRATCH/docs" "$SCRATCH/specs_planning" "$SCRATCH/readable_externals" \
-       "$SCRATCH/.github" "$SCRATCH/.auth" "$SCRATCH/.claude" "$SCRATCH/CLAUDE.md"
+#     Derived from DENY_GLOBS via --emit-exclusions (scripts/verify-no-forbidden.mjs)
+#     so this list cannot drift from the deny-list and is never hand-written here.
+#     .env.local and all other denied files are covered automatically — no coincidental
+#     dependency on the shipped .gitignore to filter credentials.
+#     NOTE: --emit-exclusions emits repo-relative paths (clients/encore/foo); the
+#     archive at line 137 used --strip-components=2, so paths inside $SCRATCH are
+#     client-relative (foo). Strip the prefix before removing.
+while IFS= read -r repo_rel; do
+  client_rel="${repo_rel#clients/encore/}"
+  rm -f "$SCRATCH/$client_rel" 2>/dev/null || true
+done < <(node "$REPO_ROOT/scripts/verify-no-forbidden.mjs" --emit-exclusions=encore)
+# Prune directories that became empty after stripping denied files.
+find "$SCRATCH" -mindepth 1 -type d -empty -delete 2>/dev/null || true
+
+# 1c. Supply a blank starter environment file.
+#     Step 1b removes the internal .env.local (credentials must never ship).
+#     This step places a blank replacement so the customer receives the file
+#     the setup instructions reference. A content check later in the pipeline
+#     confirms the replacement is the blank starter, not a credentials file.
+_ENV_TEMPLATE="$REPO_ROOT/scripts/deliverable/env-local.template"
+if [[ ! -f "$_ENV_TEMPLATE" ]]; then
+  echo "[ship-branch] FATAL: blank starter environment file missing at scripts/deliverable/env-local.template — payload cannot be assembled." >&2
+  exit 1
+fi
+cp "$_ENV_TEMPLATE" "$SCRATCH/.env.local"
+echo "[ship-branch] blank starter environment file added to payload."
 
 # Parse surface into an array — used by the spec filter (step 2).
 IFS=',' read -ra SURFACE_LIST <<< "$SURFACE"
@@ -274,7 +297,7 @@ git -C "$SCRATCH" archive HEAD | tar -x -C "$VERIFY"
 
 # 6. HARD deny-list gate — push is conditional on exit 0 (echo-and-continue already
 #    leaked once; feedback_gate_push_on_denylist).
-if ! node "$REPO_ROOT/scripts/verify-no-forbidden.mjs" --target="$VERIFY"; then
+if ! node "$REPO_ROOT/scripts/verify-no-forbidden.mjs" --target="$VERIFY" --require-env-local; then
   echo "[ship-branch] DENY-LIST FAILED on the trimmed extract — refusing to push." >&2
   exit 1
 fi

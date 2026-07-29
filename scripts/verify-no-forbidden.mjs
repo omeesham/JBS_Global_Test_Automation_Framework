@@ -14,6 +14,11 @@
  *   --staged-diff   : scan staged file contents for MARKER_GREP, fail on any hit.
  *   --staged=<file> : check a single staged path against DENY_GLOBS.
  *   --head-file=<file> : check a single pushed file (path + HEAD content) for forbidden patterns.
+ *   --emit-exclusions=<id> : print (one per line, stdout) every git-tracked file under
+ *                            clients/<id>/ that matchesDeny() classifies as denied. Exit 0
+ *                            even when the list is non-empty — this is a reporter, not a gate.
+ *                            Exit 2 on git failure or missing client value. Consumed by
+ *                            git-archive exclusion lists in ship scripts.
  */
 
 import { execSync } from 'node:child_process';
@@ -146,6 +151,30 @@ async function checkClient(client) {
   console.log(`[verify-no-forbidden] OK client=${client} tracked=${tracked.length}`);
 }
 
+async function emitExclusions(client) {
+  if (!client) {
+    console.error('[verify-no-forbidden] --emit-exclusions requires a client id');
+    process.exit(2);
+  }
+  let listing;
+  try {
+    // Use -z (NUL-separated, no C-quoting) so paths with non-ASCII chars are returned verbatim.
+    listing = execSync(`git ls-files -z clients/${client}/`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+  } catch {
+    console.error(`[verify-no-forbidden] git ls-files failed for clients/${client}/`);
+    process.exit(2);
+  }
+  const tracked = listing.split('\0').filter(Boolean);
+  // Match using the stripped form (same normalisation as checkClient), emit the full repo-relative path.
+  for (const fullPath of tracked) {
+    const stripped = fullPath.replace(new RegExp(`^clients/${client}/`), '/');
+    if (matchesDeny(stripped)) {
+      process.stdout.write(fullPath + '\n');
+    }
+  }
+  // Exit 0 even when list is non-empty — reporter only, not a gate.
+}
+
 async function checkTarget(target) {
   const root = path.resolve(target);
   if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) {
@@ -153,7 +182,66 @@ async function checkTarget(target) {
     process.exit(2);
   }
   const files = walkDir(root).map((p) => `/${p.replace(/\\/g, '/')}`);
-  const offending = files.filter(matchesDeny);
+
+  // A path-only rule cannot tell the blank starter template apart from a file
+  // that carries real credentials — both have the same name and both match
+  // DENY_GLOBS.  Only a byte-for-byte content comparison can make that
+  // distinction, so /.env.local gets a single narrow content-verified exception.
+  const TEMPLATE_PATH = path.join(REPO_ROOT, 'scripts', 'deliverable', 'env-local.template');
+  let templateBytes;
+  try {
+    templateBytes = fs.readFileSync(TEMPLATE_PATH);
+  } catch {
+    console.error('[verify-no-forbidden] env-local.template is missing — cannot verify .env.local in payload');
+    process.exit(1);
+  }
+  // Guard: a modified template must never become a licence to ship. If either
+  // credential line carries any text after the = sign, the template has been
+  // modified and must not serve as the comparison baseline.
+  const templateText = templateBytes.toString('utf-8');
+  if (/^NAVIGATOR_USERNAME=.+$/m.test(templateText) || /^NAVIGATOR_PASSWORD=.+$/m.test(templateText)) {
+    console.error('[verify-no-forbidden] env-local.template has a non-empty credential line — a modified template must not gate the payload check');
+    process.exit(1);
+  }
+
+  // --require-env-local: set by the delivery pipeline so a deleted packaging step cannot
+  // pass silently — a missing /.env.local is a hard failure when this flag is present.
+  // Without the flag, behaviour is unchanged (general-purpose scanner, no blanket requirement).
+  const requireEnvLocal = hasFlag('require-env-local');
+  if (requireEnvLocal && !files.includes('/.env.local')) {
+    console.error(
+      `[verify-no-forbidden] target=${target} missing /.env.local — ` +
+      `the payload is required to include the blank starter environment file`
+    );
+    process.exit(1);
+  }
+
+  const offending = [];
+  for (const rel of files) {
+    if (!matchesDeny(rel)) continue;
+    if (rel === '/.env.local') {
+      // Content-verified exception: only the byte-identical blank template is allowed through.
+      // Any other content — including a nested foo/.env.local — falls through to offending.
+      let payloadBytes;
+      try {
+        payloadBytes = fs.readFileSync(path.join(root, rel.slice(1)));
+      } catch {
+        console.error(`[verify-no-forbidden] target=${target} could not read /.env.local`);
+        process.exit(1);
+      }
+      if (!payloadBytes.equals(templateBytes)) {
+        console.error(
+          `[verify-no-forbidden] target=${target} /.env.local differs from the blank starter template ` +
+          `(template ${templateBytes.length} bytes, payload ${payloadBytes.length} bytes) — ` +
+          `the delivered environment file must be the unmodified blank template`
+        );
+        process.exit(1);
+      }
+      // Byte-identical — allow this file through.
+      continue;
+    }
+    offending.push(rel);
+  }
   if (offending.length > 0) {
     console.error(
       `[verify-no-forbidden] target=${target} found ${offending.length} forbidden file(s):\n` +
@@ -404,15 +492,17 @@ const client = arg('client');
 const target = arg('target');
 const staged = arg('staged');
 const headFile = arg('head-file');
+const emitExclusionsClient = arg('emit-exclusions');
 
 if (client) await checkClient(client);
 else if (target) await checkTarget(target);
 else if (hasFlag('staged-diff')) checkStagedDiff();
 else if (headFile) checkHeadFile(headFile);
 else if (staged) checkStagedFile(staged);
+else if (emitExclusionsClient !== null) await emitExclusions(emitExclusionsClient);
 else {
   console.error(
-    'Usage: verify-no-forbidden.mjs --client=<id> | --target=<path> | --staged-diff | --head-file=<file> | --staged=<file>'
+    'Usage: verify-no-forbidden.mjs --client=<id> | --target=<path> | --staged-diff | --head-file=<file> | --staged=<file> | --emit-exclusions=<id>'
   );
   process.exit(2);
 }
