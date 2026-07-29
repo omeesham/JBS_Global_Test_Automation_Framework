@@ -66,7 +66,7 @@ const OOS_CITATION_RX = [
 // rejected. The fabrication this gate prevents is exactly the corp-pricing miss: a control dispositioned
 // affordance-probed / read-only-verified by reading the spec instead of live-clicking it.
 const OBSERVATION_DISPOSITIONS = ['affordance-probed', 'read-only-verified'];
-const ALL_DISPOSITIONS = ['covered-by-TC', 'affordance-probed', 'read-only-verified', 'out-of-scope'];
+const ALL_DISPOSITIONS = ['covered-by-TC', 'affordance-probed', 'read-only-verified', 'out-of-scope', 'DIFFERENTIAL-DATA-REQUIRED'];
 
 export function parseCoverageSignals(text) {
   const t = text || '';
