@@ -42,8 +42,6 @@ that passing tests missed.
 npm run check:spec-quality
 npm run check:tc-parity
 npm run check:step-labels
-npm run check:save-honesty
-npm run check:dead-exports
 npm run check:untracked-knowledge
 ```
 
@@ -71,16 +69,25 @@ not a leak. Personal credentials must never go there.
 
 ## Step 4 — Delegation-material check
 
-Colleagues run their agent as a **direct worker**. They have no Copilot workforce. Shipping
-delegation tooling or doctrine configures a workflow they cannot run, which degrades their agent.
+Colleagues **do** run Copilot, and the delegation system ships to them on purpose (Rutvik reversed
+the earlier position on 2026-07-29). The tooling, the agent definitions, the rulebook, and the
+install guide under `.claude/skills/ultra-agents/setup/` are all meant to travel.
+
+What must **never** travel is the per-machine layer underneath it: run state, live tokens, and
+another person's paths. That is what this step checks.
 
 ```bash
-git diff origin/main..HEAD --name-only | grep -iE "ua-worker|worker-ext|copilot|council-|delegation" || true
-git diff origin/main..HEAD | grep -inE "copilot-worker|council-(worker|reviewer|planner|verifier)|--max-credits|--work-type|SELF_GRANT" || true
+git diff origin/main..HEAD --name-only | grep -iE "ua-worker/(runs|out|chips|tickets)|state/delegation-audit|\.bak-" || true
+git diff origin/main..HEAD | grep -inE "SELF_GRANT|ghp_|ghu_|Bearer |session_id\"\s*:\s*\"[0-9a-f]{8}-" || true
+git diff origin/main..HEAD | grep -inE "C:[\\\\/]Users[\\\\/][a-z]+|/c/Users/[a-z]+|/home/[a-z]+/" || true
 ```
 
 Any hit → **STOP**, report the paths, let the user decide. Do not silently drop files; do not
 silently push them.
+
+The third command is the one that bites. A gate script copied out of someone's home folder keeps
+their machine path baked in, so on a colleague's computer it matches nothing and silently allows
+everything. A gate that never fires still reads as protection — that is worse than no gate.
 
 ## Step 5 — Show the payload, then push
 

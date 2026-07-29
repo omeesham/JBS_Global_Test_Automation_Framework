@@ -1,0 +1,32 @@
+{
+  "_doc": "HARD layer (UPLINK_DOCTRINE §5). Read by the Supervisor (copilot-worker.sh uplink wires + .claude/hooks/lib/uplink/*.mjs) ONLY — the Worker never sees this file and cannot talk around it. Governs WHETHER anything happens: wire thresholds, budgets, class routing, oracle ladder, packet cap. Mirror of ASKING_DOCTRINE.md (SOFT layer). BOTH-HALVES RULE (§5): every steering change edits this file AND ASKING_DOCTRINE.md together — anything only here is a mystery to the Worker.",
+  "_provenance": "PLAN_UPLINK_PROTOCOL Phase 0.1 (2026-07-12). Sev S1 graduating incident: Rutvik owner directive 2026-07-12, assumption-leak class. LR-070. Lands announce-first per LR-069 §3.3 — NOTHING enforces until Phase 7 calibration flips mode to enforce.",
+  "mode": "announce",
+  "wires": {
+    "attempt_consult_at": 2,
+    "stall_consult": "ride STALL_MODE",
+    "empty_result_consult": true,
+    "recovered_stall_consult": true
+  },
+  "budgets": {
+    "_absolute": "§5 — a breach PARKS the ticket for a human, never expands the budget.",
+    "max_consults_per_ticket": 2,
+    "max_roundtrips_per_consult": 2,
+    "max_consults_per_day": 20
+  },
+  "packet": {
+    "max_chars": 4000,
+    "truncation_order": ["ruled_out", "attempt_history", "evidence_tail", "ask", "goal", "failing_state"],
+    "_truncation_note": "DROP order — first entry dropped first on overflow; goal + failing_state survive last (§3 law 2)."
+  },
+  "classes": ["clarify-scope", "diagnose", "unstick", "choose-between", "safety-review", "contract-fix"],
+  "wire_class_map": {
+    "preflight": "clarify-scope",
+    "attempt": "diagnose",
+    "stall": "unstick",
+    "empty_result": "diagnose",
+    "consequence": "safety-review"
+  },
+  "oracle_ladder": ["cache", "rulebook", "claude", "rutvik"],
+  "redaction": "deny-list in redact.mjs"
+}

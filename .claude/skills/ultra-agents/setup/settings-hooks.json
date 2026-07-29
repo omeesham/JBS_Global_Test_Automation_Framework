@@ -1,0 +1,61 @@
+{
+  "_README": "Merge the \"hooks\" block below into your own ~/.claude/settings.json. This is the Claude half of the workforce: without it your Claude never becomes a delegating CEO and never gets stopped from doing worker-tier work itself. Copy the setup/hooks/*.mjs files to ~/.claude/hooks/ first (see setup/README.md Step 4). If your settings.json already has a \"hooks\" key, merge the arrays — do not replace the key.",
+  "_note_matchers": "The matcher strings are tool-name regexes. Keep them exactly as written; they are what decides which tool calls each gate sees.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "node ~/.claude/hooks/delegation-primer.mjs" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          { "type": "command", "command": "node ~/.claude/hooks/ua-worker-guard.mjs" }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          { "type": "command", "command": "node ~/.claude/hooks/delegation-gate.mjs" }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|powershell|apply_patch",
+        "hooks": [
+          { "type": "command", "command": "node ~/.claude/hooks/check-config-liveness.mjs" }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|powershell|Task|Agent|apply_patch|mcp__filesystem__write_file|mcp__filesystem__create_directory|mcp__filesystem__move_file|mcp__filesystem__delete_file",
+        "hooks": [
+          { "type": "command", "command": "node ~/.claude/hooks/check-delegation-envelope.mjs" }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|powershell|Task|Agent|apply_patch",
+        "hooks": [
+          { "type": "command", "command": "node ~/.claude/hooks/check-weight-council.mjs" },
+          { "type": "command", "command": "node ~/.claude/hooks/check-isolation-perimeter.mjs" },
+          { "type": "command", "command": "node ~/.claude/hooks/check-closure-debt.mjs" }
+        ]
+      },
+      {
+        "matcher": "Task|Agent|Bash|powershell",
+        "hooks": [
+          { "type": "command", "command": "node ~/.claude/hooks/check-agent-parity.mjs" }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "node ~/.claude/hooks/labor-gate.mjs" },
+          { "type": "command", "command": "node ~/.claude/hooks/delegation-nudge.mjs" }
+        ]
+      }
+    ]
+  }
+}

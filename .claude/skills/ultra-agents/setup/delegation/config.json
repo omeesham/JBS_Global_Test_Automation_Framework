@@ -1,0 +1,10 @@
+{
+  "AUTO_SELF": "on",
+  "GATE": "on",
+  "MAX_WORKERS": 5,
+  "STALL_MODE": "warn",
+  "STALL_WARN_SECS": 300,
+  "stall_guard_action": "warn+bounce",
+  "stall_guard_bounce_delay_s": 60,
+  "stall_guard_max_bounces": 2
+}

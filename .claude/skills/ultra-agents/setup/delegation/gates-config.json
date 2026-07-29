@@ -1,0 +1,56 @@
+{
+  "_description": "Per-gate mode knob for all 6 assistant-layer hard gates. Modes: off|announce|deny. Final referee landing mode is announce for every gate until supervised real-deny E2E proves safe deny-flip.",
+  "_spec": "SUBPLAN_ASSISTANT_LAYER_HARDGATES.md §Ramp reconciliation",
+  "_kill_switch": "Set any gate to 'off' to disable it instantly. Set to 'announce' to downgrade from deny without losing fire telemetry.",
+  "G0": {
+    "mode": "announce",
+    "gate": "config-liveness-guard",
+    "sev": "S1",
+    "incident": "2026-07-13 /assistants ON was theater for 2 days — flag with no liveness proof changed no behavior",
+    "ramp_note": "Lands deny per owner emergency-accept (LR-069 §3.3.1); kill-switch flip to announce if false-positive rate > 0 in first 5 sessions"
+  },
+  "G1": {
+    "mode": "announce",
+    "gate": "delegation-envelope-gate",
+    "sev": "S0",
+    "incident": "2026-07-13 source-proven: /assistants on|off only writes assistant-state.json; sole consumer picks a reminder string; no PreToolUse gate enforces delegate-by-default",
+    "ramp_note": "S0 lands deny immediately; kill-switch is the safety valve"
+  },
+  "G2": {
+    "mode": "announce",
+    "gate": "weight-council-gate",
+    "sev": "S0",
+    "incident": "2026-07-13 rival-fight + interrogate + pre-exec audit + guilty-until-proven are prose Claude can skip; no structural gate enforces them",
+    "ramp_target": "deny",
+    "ramp_criterion": "zero false fires across 20 real weight-worthy actions with full envelope presence",
+    "ramp_started": "2026-07-13",
+    "ramp_complete": false
+  },
+  "G3": {
+    "mode": "announce",
+    "gate": "isolation-perimeter-gate",
+    "sev": "S0",
+    "incident": "2026-07-13 isolation verified once at setup but not a standing gate; account-switch could change behavior silently; personal-path writes not gated",
+    "ramp_note": "S0 lands deny immediately; narrow scope (out-of-perimeter paths) keeps false-positive risk low"
+  },
+  "G4": {
+    "mode": "announce",
+    "gate": "agent-parity-gate",
+    "sev": "S1",
+    "incident": "2026-07-13 raw Task/Agent dispatch seen without duty-stack inheritance, depth-cap, budget cap; workers get more permissions than the envelope authorized",
+    "ramp_target": "deny",
+    "ramp_criterion": "zero false fires across 20 real agent dispatches with full wrapper compliance",
+    "ramp_started": "2026-07-13",
+    "ramp_complete": false
+  },
+  "G5": {
+    "mode": "announce",
+    "gate": "closure-debt-gate",
+    "sev": "S1",
+    "incident": "2026-07-13 Stop hook WARNS only; no PreToolUse gate blocks next work until final-q + Receipt + lesson clear the debt — closure stops when owner reminds",
+    "ramp_target": "deny",
+    "ramp_criterion": "zero false fires across 10 real goal completions with debt-clear flow confirmed",
+    "ramp_started": "2026-07-13",
+    "ramp_complete": false
+  }
+}

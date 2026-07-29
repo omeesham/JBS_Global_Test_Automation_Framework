@@ -148,7 +148,7 @@ const sharedResolver = (f) => f === 'scripts/shared.mjs'
 
 const rowA = mkRow('2026-07-06T09:00', 'scripts/shared.mjs', 10);
 const rowB = mkRow('2026-07-06T13:00', 'scripts/shared.mjs', 20);
-const latestForShared = new Map([['scripts/shared.mjs', rowB]]);
+const latestForShared = new Map([['scripts/shared.mjs', rowB.whenMs]]);
 
 const lpfBothRows = computeRowViolations([rowA, rowB], sharedResolver, { latestRowForFile: latestForShared });
 check('lpf-earlier-row-skipped', lpfBothRows.violations.length, 0);
@@ -165,11 +165,30 @@ const fraudRow = mkRow('2026-07-06T09:00', 'scripts/fraud.mjs', 30);
 const fraudResolver = (f) => f === 'scripts/fraud.mjs'
   ? { time: at('2026-07-06T14:00'), source: 'mtime', exists: true }
   : { time: null, source: 'missing', exists: false };
-const latestForFraud = new Map([['scripts/fraud.mjs', fraudRow]]);
+const latestForFraud = new Map([['scripts/fraud.mjs', fraudRow.whenMs]]);
 
 const fraudCheck = computeRowViolations([fraudRow], fraudResolver, { latestRowForFile: latestForFraud });
 check('lpf-real-fraud-still-fires', fraudCheck.violations.length, 1);
 check('lpf-real-fraud-file', fraudCheck.violations[0]?.file, 'scripts/fraud.mjs');
+
+// ---- staged-file discriminator: graduating incident still fires; unstaged skips ----
+// Graduating incident: file has no prior commit but IS staged.
+// fileTrueTime falls through to mtime → fires. Simulated via resolver returning mtime.
+const gradStagedResolver = (f) => f === 'scripts/late.mjs'
+  ? { time: at('2026-07-06T14:32'), source: 'mtime', exists: true }
+  : { time: null, source: 'missing', exists: false };
+const gradStaged = computeRowViolations([mkRow('2026-07-06T09:00', 'scripts/late.mjs')], gradStagedResolver);
+check('discriminator-staged-graduating-fires', gradStaged.violations.length, 1);
+check('discriminator-staged-graduating-file', gradStaged.violations[0]?.file, 'scripts/late.mjs');
+
+// Same scenario — file NOT staged, no prior commit.
+// fileTrueTime returns {time:null, source:'no-prior-commit-not-staged'} → SKIP, no violation.
+const gradNotStagedResolver = (f) => f === 'scripts/late.mjs'
+  ? { time: null, source: 'no-prior-commit-not-staged', exists: false }
+  : { time: null, source: 'missing', exists: false };
+const gradNotStaged = computeRowViolations([mkRow('2026-07-06T09:00', 'scripts/late.mjs')], gradNotStagedResolver);
+check('discriminator-not-staged-no-violation', gradNotStaged.violations.length, 0);
+check('discriminator-not-staged-skipped', gradNotStaged.skipped.length, 1);
 
 // ---- extractFiles / cleanFileToken sanity ----
 check('extract-basic', extractFiles('a/b.ts, c/d.ts'), ['a/b.ts', 'c/d.ts']);
@@ -177,6 +196,29 @@ check('extract-moved', extractFiles('old.md -> new.md'), ['new.md']);
 check('extract-deleted-dropped', extractFiles('gone.md (deleted)'), []);
 check('extract-bareword-dropped', extractFiles('reindex, plans/x.md'), ['plans/x.md']);
 check('extract-annotation-stripped', extractFiles('src/foo.ts (edited)'), ['src/foo.ts']);
+
+// ---- later-row clearing: earlier row cleared by a later log row covering the file's mtime ----
+// Scenario: row A claims 2026-07-24T22:48 for 'scripts/w.sh'; file mtime is 2026-07-25T19:24
+// (would be a violation). But a later row in the full log at 2026-07-25T20:00 also names
+// 'scripts/w.sh' — its timestamp >= mtime, so row A is not backdating evidence.
+const rowALate = mkRow('2026-07-24T22:48', 'scripts/w.sh');
+const resolverLateFile = (f) => f === 'scripts/w.sh'
+  ? { time: at('2026-07-25T19:24'), source: 'mtime', exists: true }
+  : { time: null, source: 'missing', exists: false };
+const laterCovering = new Map([['scripts/w.sh', at('2026-07-25T20:00')]]);
+const clearedByLater = computeRowViolations([rowALate], resolverLateFile, { latestRowForFile: laterCovering });
+check('cleared-by-later-row', clearedByLater.violations.length, 0);
+
+// Graduating incident with no later row: must still fire.
+// Row claims 09:00, file mtime 14:32, latestRowForFile has only this row's own timestamp.
+const gradRow = mkRow('2026-07-06T09:00', 'scripts/grad.mjs');
+const resolverGradFile = (f) => f === 'scripts/grad.mjs'
+  ? { time: at('2026-07-06T14:32'), source: 'mtime', exists: true }
+  : { time: null, source: 'missing', exists: false };
+const gradOnlyOwn = new Map([['scripts/grad.mjs', at('2026-07-06T09:00')]]);
+const gradNoLater = computeRowViolations([gradRow], resolverGradFile, { latestRowForFile: gradOnlyOwn });
+check('graduating-no-later-row-fires', gradNoLater.violations.length, 1);
+check('graduating-no-later-row-file', gradNoLater.violations[0]?.file, 'scripts/grad.mjs');
 
 // ---- extractFiles brace-expansion (LR-037 brace-notation fix) ----
 // Reproduces the row-117 real case: "export_test_cases/{module-codes.json,types.ts,to-xlsx.ts}"

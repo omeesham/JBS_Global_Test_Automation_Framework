@@ -1,0 +1,79 @@
+{
+  "_description": "Config-liveness registry. Each entry binds a config flag to an executable assertion that proves ON behavior differs from OFF behavior. HOOK-OWNED (TP-1): the model cannot write this file — G0 denies any attempt. Only the hook process or Rutvik via SELF_GRANT may mint entries.",
+  "_state_path": "~/.claude/delegation/config-liveness-registry.json",
+  "_schema": "v1",
+  "entries": [
+    {
+      "id": "G0-liveness",
+      "flag": "G0.mode",
+      "config_file": "gates-config.json",
+      "assert_cmd": "node ${GATES_DIR}/G0/check-config-liveness.mjs --liveness-assert",
+      "on_behavior": "deny: write to unregistered-flag.json with key new_mode='announce' returns permissionDecision:deny",
+      "off_behavior": "allow: same write returns permissionDecision:allow",
+      "on_behavior_sha": "final-0713:g0:liveness-assert:on-detects-unregistered-flag",
+      "off_behavior_sha": "final-0713:g0:liveness-assert:off-skips-gate",
+      "last_proven": "2026-07-13T13:52:54.307+05:30",
+      "registered_by": "SUBPLAN_ASSISTANT_LAYER_HARDGATES.md build"
+    },
+    {
+      "id": "G1-liveness",
+      "flag": "G1.mode",
+      "config_file": "gates-config.json",
+      "assert_cmd": "node ${GATES_DIR}/G1/check-delegation-envelope.mjs --liveness-assert",
+      "on_behavior": "deny: substantive Bash without envelope returns permissionDecision:deny",
+      "off_behavior": "allow: same Bash without envelope returns permissionDecision:allow",
+      "on_behavior_sha": "final-0713:g1:liveness-assert:on-denies-substantive-bash-without-envelope",
+      "off_behavior_sha": "final-0713:g1:liveness-assert:off-skips-gate",
+      "last_proven": "2026-07-13T13:52:54.307+05:30",
+      "registered_by": "SUBPLAN_ASSISTANT_LAYER_HARDGATES.md build"
+    },
+    {
+      "id": "G2-liveness",
+      "flag": "G2.mode",
+      "config_file": "gates-config.json",
+      "assert_cmd": "node ${GATES_DIR}/G2/check-weight-council.mjs --liveness-assert",
+      "on_behavior": "announce: weight-worthy action without convergence artifact emits warn + fire telemetry",
+      "off_behavior": "allow: same action passes silently",
+      "on_behavior_sha": "final-0713:g2:liveness-assert:on-warns-or-denies-weight-worthy-without-receipt",
+      "off_behavior_sha": "final-0713:g2:liveness-assert:off-skips-gate",
+      "last_proven": "2026-07-13T13:52:54.307+05:30",
+      "registered_by": "SUBPLAN_ASSISTANT_LAYER_HARDGATES.md build"
+    },
+    {
+      "id": "G3-liveness",
+      "flag": "G3.mode",
+      "config_file": "gates-config.json",
+      "assert_cmd": "node ${GATES_DIR}/G3/check-isolation-perimeter.mjs --liveness-assert",
+      "on_behavior": "deny: write to out-of-perimeter path returns permissionDecision:deny",
+      "off_behavior": "allow: same write returns permissionDecision:allow",
+      "on_behavior_sha": "final-0713:g3:liveness-assert:on-denies-personal-path-and-leak-markers",
+      "off_behavior_sha": "final-0713:g3:liveness-assert:off-skips-gate",
+      "last_proven": "2026-07-13T13:52:54.307+05:30",
+      "registered_by": "SUBPLAN_ASSISTANT_LAYER_HARDGATES.md build"
+    },
+    {
+      "id": "G4-liveness",
+      "flag": "G4.mode",
+      "config_file": "gates-config.json",
+      "assert_cmd": "node ${GATES_DIR}/G4/check-agent-parity.mjs --liveness-assert",
+      "on_behavior": "announce: raw Task without envelope wrapper emits warn + fire telemetry",
+      "off_behavior": "allow: same dispatch passes silently",
+      "on_behavior_sha": "final-0713:g4:liveness-assert:on-warns-or-denies-raw-dispatch-without-parity",
+      "off_behavior_sha": "final-0713:g4:liveness-assert:off-skips-gate",
+      "last_proven": "2026-07-13T13:52:54.307+05:30",
+      "registered_by": "SUBPLAN_ASSISTANT_LAYER_HARDGATES.md build"
+    },
+    {
+      "id": "G5-liveness",
+      "flag": "G5.mode",
+      "config_file": "gates-config.json",
+      "assert_cmd": "node ${GATES_DIR}/G5/check-closure-debt.mjs --liveness-assert",
+      "on_behavior": "announce: new tool call with open debt emits warn + fire telemetry",
+      "off_behavior": "allow: same call with open debt passes silently",
+      "on_behavior_sha": "final-0713:g5:liveness-assert:on-warns-or-denies-open-closure-debt",
+      "off_behavior_sha": "final-0713:g5:liveness-assert:off-skips-gate",
+      "last_proven": "2026-07-13T13:52:54.307+05:30",
+      "registered_by": "SUBPLAN_ASSISTANT_LAYER_HARDGATES.md build"
+    }
+  ]
+}

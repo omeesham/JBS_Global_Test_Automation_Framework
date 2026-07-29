@@ -1,0 +1,90 @@
+{
+  "version": "1",
+  "generated": "2026-07-10",
+  "note": "Effort tiers verified via --log-level debug capability probes. effort_top is served directly — no re-parse required. probe_dir = evidence anchor for audit; absent probe_dir does not block the row. 2026-07-11: all 5 seed rows live-probe-confirmed (4c backfill) — probe_dir now points to real evidence.",
+  "models": [
+    {
+      "id": "claude-opus-4.6",
+      "effort_top": "max",
+      "tiers": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ],
+      "probe_dir": "~/.claude/state/ua-worker/probe-claude-opus-4.6-auto",
+      "note": "xhigh not supported; silently degrades if passed. Tiers from copilot-worker.sh static registry, verified 2026-07-09. | live-probe-confirmed 2026-07-11 (4c backfill; _dynreg_auto_probe exercised live, effort_top unchanged).",
+      "supports_long_context": true
+    },
+    {
+      "id": "claude-sonnet-4.6",
+      "effort_top": "max",
+      "tiers": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ],
+      "probe_dir": "~/.claude/state/ua-worker/probe-claude-sonnet-4.6-auto",
+      "note": "Same enum as opus-4.6. Verified 2026-07-09. | live-probe-confirmed 2026-07-11 (4c backfill; _dynreg_auto_probe exercised live, effort_top unchanged).",
+      "supports_long_context": true
+    },
+    {
+      "id": "gpt-5.5",
+      "effort_top": "xhigh",
+      "tiers": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "probe_dir": "~/.claude/state/ua-worker/probe-gpt-5.5-auto",
+      "note": "max not supported; xhigh is ceiling. Verified 2026-07-09. | live-probe-confirmed 2026-07-11 (4c backfill; _dynreg_auto_probe exercised live, effort_top unchanged).",
+      "supports_long_context": true
+    },
+    {
+      "id": "gpt-5-mini",
+      "effort_top": "high",
+      "tiers": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "probe_dir": "~/.claude/state/ua-worker/probe-gpt-5-mini-auto",
+      "note": "Verified 2026-07-10 from REAL probe log process-1783669002380-4484.log line 319: 'reasoning_effort': ['low','medium','high']. No xhigh, no max. | live-probe-confirmed 2026-07-11 (4c backfill; _dynreg_auto_probe exercised live, effort_top unchanged).",
+      "supports_long_context": false
+    },
+    {
+      "id": "claude-haiku-4.5",
+      "effort_top": "none",
+      "tiers": [],
+      "probe_dir": "~/.claude/state/ua-worker/probe-claude-haiku-4.5-auto",
+      "note": "No reasoning_effort array in capability block. --effort flag is omitted entirely. Verified 2026-07-09 (CLI agent-schema also confirms: effort not supported). | live-probe-confirmed 2026-07-11 (4c backfill; _dynreg_auto_probe exercised live, effort_top unchanged).",
+      "supports_long_context": false
+    },
+    {
+      "id": "gpt-5.3-codex",
+      "effort_top": "xhigh",
+      "tiers": [],
+      "probe_dir": "~/.claude/state/ua-worker/probe-gpt-5.3-codex-auto",
+      "note": "auto-probed 2026-07-22",
+      "supports_long_context": false
+    },
+    {
+      "id": "claude-sonnet-4.5",
+      "effort_top": "none",
+      "tiers": [],
+      "probe_dir": "~/.claude/state/ua-worker/probe-claude-sonnet-4.5-auto",
+      "note": "auto-probed 2026-07-24",
+      "supports_long_context": false
+    },
+    {
+      "id": "claude-opus-4.5",
+      "effort_top": "none",
+      "tiers": [],
+      "probe_dir": "~/.claude/state/ua-worker/probe-claude-opus-4.5-auto",
+      "note": "auto-probed 2026-07-25"
+    }
+  ]
+}

@@ -258,10 +258,26 @@ clients/*/scripts/_*.ts
 # Runtime key-rotation state (root-level; regenerated, never shipped — 2026-07-17 cleanB recon)
 /rotation-state.json
 
-# Delegation / copilot / uplink orchestration infra — kept on disk, NEVER shipped to the team repo
-# (a colleague's Claude is a direct WORKER, not a delegator — this infra would degrade their agent).
-# 2026-07-21: untracked via `git rm --cached`; history left intact. Do not re-add.
+# Delegation / copilot orchestration infra — now shipped to the team repo on purpose.
+# Colleagues run the same Copilot workforce and their setup must work exactly as this one does.
+# The 2026-07-21 "do not re-add" note is superseded as of 2026-07-29.
+
+# Uplink library — held back from the team repo deliberately. Nothing imports these except their
+# own test file, no hook wires them, and .claude/guardrail-config.json records that the "enforce"
+# code path was never built, so the knob is a silent no-op. Unfinished machinery, not mechanism.
+# Ship it when PLAN_UPLINK_PROTOCOL Phase 7 lands and something actually calls it.
 .claude/hooks/lib/uplink/
+
+# This remediation plan documents the scrubbed PII/markers verbatim — kept local, never shipped
+plans/pending/PLAN_REPO_MARKER_AND_PAIRING_REMEDIATION.md
+
+# Local editing backups — never ship
+*.bak-*
+# Per-machine delegation audit state
+.claude/state/delegation-audit/
+
+# Delegation plans stay local — the working mechanism ships, its planning history does not
+plans/pending/PLAN_ULTRA_AGENTS_COPILOT_WORKER.md
 plans/pending/PLAN_UPLINK_PROTOCOL.md
 plans/pending/SUBPLAN_UPLINK_WAVE2.md
 plans/pending/PLAN_LAZY_CEO_DELEGATOR.md
@@ -271,6 +287,3 @@ plans/done/PLAN_AUDIT_COPILOT.md
 plans/done/PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY.md
 plans/done/SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md
 plans/done/SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md
-
-# This remediation plan documents the scrubbed PII/markers verbatim — kept local, never shipped
-plans/pending/PLAN_REPO_MARKER_AND_PAIRING_REMEDIATION.md

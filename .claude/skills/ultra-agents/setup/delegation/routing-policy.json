@@ -1,0 +1,14 @@
+{
+  "version": "1",
+  "updated": "2026-07-10",
+  "constraints": "review/verify of model X must pick a different family (id-prefix) than X; if cheapest proven reviewer is same-family, take next candidate; probation dispatches always get full review pyramid and never carry protected-file or publishing steps",
+  "work_types": {
+    "build":  [{"model": "claude-sonnet-4.6", "status": "proven", "since": "2026-07-10", "evidence": "seeded from T0–T4 ladder (151+ real dispatches)"}],
+    "review": [{"model": "gpt-5.5",           "status": "proven", "since": "2026-07-10", "evidence": "seeded from T0–T4 ladder (151+ real dispatches)"}],
+    "verify": [{"model": "gpt-5-mini",         "status": "proven", "since": "2026-07-10", "evidence": "seeded from T0–T4 ladder (151+ real dispatches)"}],
+    "draft":  [{"model": "claude-opus-4.6",    "status": "proven", "since": "2026-07-10", "evidence": "seeded from T0–T4 ladder (151+ real dispatches)"}],
+    "rca":    [{"model": "claude-sonnet-4.6",  "status": "proven", "since": "2026-07-10", "evidence": "seeded from T0–T4 ladder (151+ real dispatches)"}],
+    "walk":   [{"model": "claude-haiku-4.5",   "status": "proven", "since": "2026-07-10", "evidence": "seeded from T0–T4 ladder (151+ real dispatches)"}],
+    "probe":  [{"model": "gpt-5-mini",         "status": "proven", "since": "2026-07-10", "evidence": "seeded from T0–T4 ladder (151+ real dispatches)"}]
+  }
+}

@@ -20,13 +20,20 @@
  *             re-checking them against HEAD file-times is the false-positive class this mode
  *             eliminates (LR-037 FP fix, 2026-07-06). No staged log changes → 0 rows → exit 0.
  *
- *             INTEGRITY NOTE: --staged still HARD-FAILS single-commit backdating — a row and
- *             its referenced files staged in the same commit with an earlier When than the
- *             files' mtime (LR-037's graduating incident). What it gives up vs the --recent
- *             window is split-commit backdating (write a row now, touch its files in a LATER
- *             commit); that is a deliberately-choreographed evasion, not the lazy backdating
- *             the gate targets, and it is the unavoidable price of removing the FP (you cannot
- *             re-validate an immutable committed row against HEAD without FP-ing on legit drift).
+ *             INTEGRITY NOTE: per-file timestamps are resolved point-in-time: for each
+ *             referenced file, the check runs `git log -1 --until=<rowWhen>` to find the
+ *             file's last commit AT OR BEFORE the row's claimed timestamp and compares against
+ *             that, not the file's latest-ever commit. This eliminates false positives where a
+ *             later commit legitimately re-touched a file an older row named. Same-commit
+ *             backdating for NEW files is still caught: a file with no prior commit has no
+ *             --until result. In that case the staged-file discriminator applies: if the file
+ *             IS part of the current staged change set, mtime is real evidence and the check
+ *             fires (claiming 09:00 for a file staged at 14:32 still fires). If the file is
+ *             NOT staged, mtime is unreliable (a later session may have re-touched it), so the
+ *             row is SKIPPED — missing evidence must not convict. Residual give-up: backdating
+ *             a row to any time after a file's most-recent prior committed state (while also
+ *             editing the file today) compares clean — the same deliberate-choreography class
+ *             as split-commit backdating, not the lazy single-commit backdating the gate targets.
  *
  * Full-scan flags (manual/advisory — noisy for historical rows, see INTEGRITY NOTE above):
  *   --json    Emit a JSON report instead of text.
@@ -182,6 +189,23 @@ export function extractFiles(cell) {
   return files;
 }
 
+/** Get git last-commit time (ms) for a file at or before asOfMs, or null if none. */
+function gitCommitTimeAsOf(relPath, asOfMs) {
+  try {
+    const untilIso = new Date(asOfMs).toISOString();
+    const out = execSync(`git log -1 --until="${untilIso}" --format=%cI -- "${relPath}"`, {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    if (!out) return null;
+    const t = Date.parse(out);
+    return Number.isFinite(t) ? t : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Get git last-commit time (ms) for a file, or null if not tracked / no commits. */
 function gitCommitTimeMs(relPath) {
   try {
@@ -207,8 +231,36 @@ function fsMtimeMs(relPath) {
   }
 }
 
-/** Compute true file time = max(mtime, git commit time). Returns { time, source, exists }. */
-function fileTrueTime(relPath) {
+/**
+ * Compute true file time = max(mtime, git commit time).
+ * When asOfMs is provided, uses point-in-time git history: compares the claim against the
+ * file's last commit AT OR BEFORE asOfMs rather than the latest commit ever.
+ *
+ * When no prior commit exists (gitAsOf === null) and stagedFiles is provided:
+ *   - File IS in stagedFiles: mtime is real evidence — fall through to mtime check.
+ *     This preserves same-commit backdating detection (the graduating incident).
+ *   - File NOT in stagedFiles: mtime is noise — we have no meaningful time signal for
+ *     this file at the claim time; return {time: null} so the row is SKIPPED.
+ *     Missing evidence must not convict (LR-037 bar).
+ *
+ * When stagedFiles is not provided (full/run mode): original fallback behavior.
+ * Returns { time, source, exists }.
+ */
+function fileTrueTime(relPath, asOfMs, stagedFiles) {
+  if (asOfMs != null) {
+    const gitAsOf = gitCommitTimeAsOf(relPath, asOfMs);
+    if (gitAsOf !== null) {
+      return { time: gitAsOf, source: 'git', exists: true };
+    }
+    // No commit at or before the claim.
+    // If stagedFiles is provided and this file is NOT staged, we have no meaningful
+    // time signal — mtime reflects the last edit on disk which may be days later
+    // (a later session re-touched the file), not when the row's work was done.
+    if (stagedFiles != null && !stagedFiles.has(relPath)) {
+      return { time: null, source: 'no-prior-commit-not-staged', exists: false };
+    }
+    // File IS staged (or no staged context) — mtime is the only signal; use it.
+  }
   const mtime = fsMtimeMs(relPath);
   const gtime = gitCommitTimeMs(relPath);
   const exists = mtime !== null;
@@ -321,12 +373,16 @@ export function computeRowViolations(rows, resolveTime, opts = {}) {
     const missingFiles = [];
     let generatedCount = 0;
     for (const f of files) {
-      // In latest-per-file mode, skip files for which this row is NOT the latest claim.
-      if (latestRowForFile && latestRowForFile.get(f) !== row) continue;
+      // If a later log row already names this file (and thus accounts for its mtime),
+      // this earlier row is not evidence of backdating — skip it.
+      if (latestRowForFile) {
+        const latestMs = latestRowForFile.get(f);
+        if (latestMs !== undefined && latestMs > row.whenMs) continue;
+      }
       // Commit-regenerated files (e.g. plans/INDEX.md) have their mtime bumped forward by
       // the very commit that carries this row — exclude from the backdating check (LR-037 FP).
       if (isGeneratedFile(f)) { generatedCount++; continue; }
-      const t = resolveTime(f);
+      const t = resolveTime(f, row.whenMs);
       if (t.time === null) {
         missingFiles.push(f);
         continue;
@@ -397,6 +453,54 @@ function report({ checked, violations, skipped, rowsTotal, baseline, mode }) {
   }
 }
 
+/**
+ * Read the staged (index) content of the activity-log file via `git show :<path>`.
+ * Falls back to reading the working-tree file if git fails (e.g., new untracked file).
+ * Returns empty string if neither is available.
+ */
+function getStagedLogContent() {
+  try {
+    return execSync(`git show :"${LOG_REL}"`, {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+  } catch {
+    try { return fs.readFileSync(LOG_PATH, 'utf8'); } catch { return ''; }
+  }
+}
+
+/**
+ * Resolve a file token to a canonical repo-relative key for the latestRowForFile map.
+ * For tokens that already contain a path separator, the token is used as-is.
+ * For bare filenames (no '/'), look up the staged file set for a path that ends with
+ * '/<token>' — this matches e.g. 'copilot-worker.sh' to
+ * '.claude/skills/ultra-agents/copilot-worker.sh' when that file is staged.
+ * If no match is found, the bare token is returned unchanged.
+ */
+function resolveToken(token, stagedFiles) {
+  if (token.includes('/')) return token;
+  const suffix = '/' + token;
+  for (const p of stagedFiles) {
+    if (p === token || p.endsWith(suffix)) return p;
+  }
+  return token;
+}
+
+/** Get the set of repo-relative paths currently in the staging index (forward-slash normalized). */
+function getStagedFileSet() {
+  try {
+    const out = execSync('git diff --cached --name-only', {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return new Set(out.trim().split(/\r?\n/).filter(Boolean));
+  } catch {
+    return new Set();
+  }
+}
+
 /** Read the staged diff of the activity-log file (empty string if nothing staged / git error). */
 function getStagedLogDiff() {
   try {
@@ -414,19 +518,28 @@ function getStagedLogDiff() {
 function runStaged() {
   const rows = parseStagedAddedRows(getStagedLogDiff());
 
-  // Apply the same "latest claim per file wins" logic used by run() with --latest-per-file.
-  // A staged row is only held responsible for a file if no LATER staged row also references
-  // that same file — earlier rows in the same multi-session backlog commit were honest when
-  // written; the later row already covers the file's true time.
+  const stagedFiles = getStagedFileSet();
+
+  // Build latestRowForFile from ALL rows in the full staged log content — not just the added
+  // rows. A later row anywhere in the log (pre-existing or newly added) that names the same
+  // file and carries a timestamp at or after the file's mtime accounts for that mtime; an
+  // earlier staged row naming the same file is therefore not evidence of backdating.
+  //
+  // Bare filename tokens (no '/') are resolved to their full repo-relative paths via the
+  // staged file set, so 'copilot-worker.sh' and '.claude/skills/ultra-agents/copilot-worker.sh'
+  // are treated as the same file when one is staged under the full path.
   const latestRowForFile = new Map();
-  for (const r of rows) {
+  for (const r of parseLog(getStagedLogContent())) {
     for (const f of extractFiles(r.filesCell)) {
-      const prev = latestRowForFile.get(f);
-      if (!prev || r.whenMs > prev.whenMs) latestRowForFile.set(f, r);
+      const key = resolveToken(f, stagedFiles);
+      const prev = latestRowForFile.get(key);
+      if (prev === undefined || r.whenMs > prev) latestRowForFile.set(key, r.whenMs);
     }
   }
 
-  const { violations, skipped, checked } = computeRowViolations(rows, fileTrueTime, { latestRowForFile });
+  const stagedResolver = (relPath, asOfMs) => fileTrueTime(relPath, asOfMs, stagedFiles);
+
+  const { violations, skipped, checked } = computeRowViolations(rows, stagedResolver, { latestRowForFile });
   report({ checked, violations, skipped, rowsTotal: rows.length, baseline: null, mode: 'staged' });
   return violations.length ? 1 : 0;
 }
@@ -451,15 +564,15 @@ function run() {
     candidateRows = candidateRows.filter(r => keep.has(r.lineNo));
   }
 
-  // In latest-per-file mode: for each (file → latest row) pair, only that row is
-  // responsible for ensuring its timestamp covers the file's true time.
+  // In latest-per-file mode: for each (file → latest whenMs) pair, only the latest
+  // row for each file is responsible for covering the file's true time.
   let latestRowForFile = null;
   if (latestPerFile) {
     latestRowForFile = new Map();
     for (const r of candidateRows) {
       for (const f of extractFiles(r.filesCell)) {
         const prev = latestRowForFile.get(f);
-        if (!prev || r.whenMs > prev.whenMs) latestRowForFile.set(f, r);
+        if (prev === undefined || r.whenMs > prev) latestRowForFile.set(f, r.whenMs);
       }
     }
   }
