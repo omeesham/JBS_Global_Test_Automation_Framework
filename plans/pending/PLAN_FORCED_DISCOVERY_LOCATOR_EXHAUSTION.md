@@ -10,6 +10,20 @@
 **PermissionMode**: auto
 **BrowserTool**: cli
 
+> **Relevance re-audit 2026-07-24 (council + cross-family review, read-only): KEEP-WITH-REBASE.**
+> 12/15 sections STILL-REQUIRED, 3/15 PARTIALLY-LANDED, 0 ALREADY-LANDED — the generative CRUD-invariant
+> oracle, Zero-Effect Probe Protocol, and opener-frontier BFS exist nowhere else in the repo. Three
+> rebase edits the EXECUTOR applies at Phase 0 before any build (do not skip):
+> 1. Phase 3 gate wiring must COMPOSE with the now-landed `scripts/walk-coverage/lib/coverage-manifest.mjs`
+>    (PROVENANCE_GATE, MANIFEST_MANDATORY_DATE) — layer on/extend, never duplicate.
+> 2. New dispositions (`DIFFERENTIAL-DATA-REQUIRED`, suspicion rows) must specify integration with the
+>    existing enum at `coverage-manifest.mjs:69` (`covered-by-TC, affordance-probed, read-only-verified,
+>    out-of-scope`) — no blank-slate assumption.
+> 3. `scripts/walk-coverage/fixtures/` already holds NM-2271 fixtures — the 2026-07-17 C/D/E/F fixtures
+>    coexist there; reference the current dir structure.
+> Evidence: `.claude/state/ua-worker/chips/delegation-temp/out-plan-relevance/` (verdict-plan-A.md,
+> TOPLINE.md, DEBATE.md; load-bearing claims re-grepped by CEO same day).
+
 ## Context
 
 2026-07-17: the Product Group Override module shipped "done" with silent gaps — Active-only checkbox
@@ -321,6 +335,338 @@ drops must never be feature drops, per SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL Phase 
 | WATCHDOG | closure checker | scripts/check-interaction-coverage.mjs | node scripts/check-interaction-coverage.mjs --dry-run exits 0 |
 | GARDENER | (none) | (none) | (none) |
 | OWNER | this plan, schema, gate ramp config | interaction-map schema file + LR-069 ramp keys | files exist per Phase 1/3 |
+
+## VERIFIED STATE — 2026-07-25 (CEO re-ran every command below)
+
+**Oracle 1 of 5 (zero-effect / 1222 class) is LANDED and PROVEN ON REAL WALK DATA.**
+
+`scripts/check-interaction-coverage.mjs` 403 → 453 lines. `zero-effect-disposition` sub-check at
+lines 105-124; self-test T11/T12 at 387-412; **27/27, exit 0** (CEO-run).
+
+Real-data RED→GREEN, fixture
+`.claude/state/ua-worker/chips/fdle/fixtures/evidence-C-dialog-active.interaction-map.json`:
+
+| direction | command | result |
+|---|---|---|
+| RED (walk's own disposition) | `node scripts/check-interaction-coverage.mjs --file <fixture>` | **exit 1** — `ZERO-EFFECT VIOLATION: dialog-active-checkbox` |
+| GREEN (disposition → `DIFFERENTIAL-DATA-REQUIRED`) | same, corrected copy | **exit 0** — PASS |
+
+**The finding is real, not manufactured.** Walk evidence C recorded the dialog Active checkbox as
+"IS functional" (line 192) on the strength of a network call firing — while that same run measured
+`inactive-count:0` (line 135), i.e. **zero data to differentiate against**. The 2,651→2,139 delta it
+leaned on came from a *different run ~30 minutes earlier*. That is exactly the 1222 class: a control
+certified as working in a data state where it could not be exercised. The correct disposition is
+`DIFFERENTIAL-DATA-REQUIRED`, and the oracle now says so mechanically.
+
+**Transcription caveat (honest):** the checker consumes JSON interaction maps; the 2026-07-17
+evidence is markdown, so the fixture is a hand-transcription of the real row, not the file itself.
+It is faithful but **lossy** — it omits the prior-run 2,139 count. Including it would strengthen the
+RED, not weaken it. The plan's "real fixtures, not synthetic" criterion is met in substance (real
+measured values), not literally (not the .md file). A markdown→interaction-map converter would close
+the gap properly and does not exist.
+
+### STILL OPEN on this plan
+- **4 of 5 oracle classes unimplemented** — UI-vs-persisted, round-trip, count, claim-census.
+  Placeholders named in a comment only.
+- The 6 bug-class → oracle → fixture maps (1604, NM-1940, NM-2186, virtualization, 1117/NM-2011).
+- Generative oracle SUPERSET proof (blind, no bug-history input).
+- `domain-invariants.json` Jira/Confluence harvest.
+- Ramp keys not recorded; gate not yet at `announce`.
+
+### Tooling note for future sessions
+The flag is **`--file <path.json>`**, NOT `--artifact`. Run `--help` before asserting a flag — that
+mistake produced false alarms twice in one session, both times blaming a worker who was correct.
+
+---
+
+## VERIFIED STATE — 2026-07-25 19:20 (supersedes the block above; CEO re-ran every command)
+
+**All 5 kernel oracles are implemented, adversarially attacked, and hardened. Self-test 27 → 67/67, exit 0.**
+
+| Oracle | Status | Evidence |
+|---|---|---|
+| 1 `zero-effect-disposition` | LIVE | FAILs the real evidence-C dialog-Active row, exit 1 |
+| 2 `ui-vs-persisted-parity` | LIVE + hardened | fires `UI-VS-PERSISTED VIOLATION` on a disagreeing io row |
+| 3 `round-trip-invariant` | LIVE + hardened | disposition now bound to the export/import pair |
+| 4 `count-source` | LIVE + hardened | FAILs every DOM variant; UNCHECKABLE on unsourced counts |
+| 5 `claim-census` | LIVE + hardened | empty / ghost census evidence now FAILs |
+
+**Oracles 4+5 went through the same cross-vendor fight as 1-3 and came back RED with 2 blockers.**
+gpt-5.5 broke them; the author defended and hardened; CEO re-fired every payload on real files:
+
+| Attack | Before | After (CEO-verified) |
+|---|---|---|
+| `DOM:raw-count.txt` (capital D) | PASS | **FAIL** — COUNT-SOURCE VIOLATION |
+| `"  dom:..."` (leading whitespace) | PASS | **FAIL** |
+| `dom-api:...` (prefix-adjacent) | PASS | **FAIL** |
+| `api:GET /items (from dom)` | PASS | UNCHECKABLE (treated as unsourced) |
+| `numRows` count alias | PASS | UNCHECKABLE (detection widened) |
+| `basis: claim:*` + empty census | PASS | **FAIL** — CLAIM-CENSUS VIOLATION |
+| `census:no-such-artifact.txt` | PASS | **FAIL** |
+| honest complete map (**control**) | PASS | **PASS, exit 0** — still not a wall |
+
+Oracle 4 exists precisely because a DOM count is an invalid probe on a virtualized grid (NM-2172);
+a check a capital letter defeated was not that check. Oracle 5 accepting `census:no-such-file.txt`
+rebuilt the 1117 / NM-2011 hole outright. **Self-test 27 → 97/97, exit 0.** LR-069 §3.4 rent header
+added (Sev + graduating incident: the 2026-07-17 override walk, where five CRUD invariants existed
+and none was instantiated on the surface).
+
+⚠ **The reviewer's own verdict carried a false premise** and it was corrected in the bounce: it
+claimed *"no pre-existing real interaction-map or walk-evidence artifacts were found"* and skipped
+the real-data over-firing test on that basis. They exist — its globs looked in the wrong place. A
+reviewer's limitation claim is a claim like any other and must be checked before it is inherited.
+
+**Verdict precedence fixed (was a silent hole).** A genuine FAIL used to be masked as UNCHECKABLE:
+a map with `persistedStateReRead.agrees=false` returned `VERDICT: UNCHECKABLE`, exit 2 — anything
+gating on exit 1 would have missed a real violation. Now **FAIL > UNCHECKABLE > PASS** (1/2/0),
+CEO-verified on the same map. Found independently by the cross-vendor reviewer and by the CEO.
+
+**Adversarial payloads, all closed** (cross-vendor review by gpt-5.5, then author defence, then CEO
+re-fire on real files). Oracle 2 was fooled 5 ways — empty `persistedStateReRead`, missing `agrees`,
+`agrees` as the string `"false"`, a save row misclassified as `filter`, and a DISCARD-probe that
+persisted data. Oracle 3 was satisfied by an **unrelated** io row carrying the disposition. All now
+UNCHECKABLE-or-FAIL, never PASS. **Honest control still PASSes at exit 0** — the checker is a
+detector, not a wall.
+
+**Fixtures: 6 of 6, real and literally verifiable.** `scripts/walk-coverage/fixtures/kernel-oracle-fixtures.json`
+carries S1-S6 (1222 · NM-2186 · NM-1940 · virtualization · 1117 · NM-2011) transcribed from the real
+2026-07-17 evidence B/C/E. An elision-aware provenance check greps every `sourceQuote` in its cited
+file: **6/6 OK, 0 bad**. The first pass shipped reconstructed quotes (0/6 verifiable) and was bounced.
+
+**Generative-oracle SUPERSET proof — HOLDS, and it is not a hardcoded list.**
+`node scripts/walk-coverage/generate-invariants.mjs --superset-proof` → exit 0:
+
+```
+kernel-1 -> I1   kernel-2 -> I5   kernel-3 -> I9   kernel-4 -> I7   kernel-5 -> I11
+UNCOVERED_ORACLES: none
+RICH_M_INVARIANT_COUNT: 12    MINIMAL_M_INVARIANT_COUNT: 2
+```
+
+CEO adversarial re-test (the check that actually settles it): feed a metamodel with `ioPairs: []` and
+`consumedClaims: []` → generator emits `I1 I2 I3 I4 I5 I6 I7 I8 I10` and **I9 + I11 disappear**.
+Remove the shape, lose the invariant. So generation is driven by the metamodel, and the plan's
+central claim — *a brand-new surface is covered the moment it is catalogued* — is mechanically true,
+not marketing.
+
+**Schema extended so the oracles can fire at all.** `persistedStateReRead`, `capability`, and
+`roundTripDisposition` had **0 grep hits** in `interaction-map-schema.mjs` — the oracles greened only
+against synthetic fixtures that invented their own inputs, i.e. a gate that could never fire on real
+data (the LR-062 precedent). Now present (12/9/8 hits), all optional/nullable so no existing map is
+invalidated, with `agrees` validated as an explicit boolean.
+
+**Domain-rule harvest — LANDED.** `scripts/walk-coverage/domain-invariants.json`: **9 invariants,
+0 rows without an openable source.** This is the half the generative oracle structurally cannot
+produce — business rules no CRUD-shape analysis can infer.
+
+Six came from a live Jira read (NAV-4529, read-only, cloudId `03ec286f-…`), and they are not
+academic:
+
+| id | rule | maps to |
+|---|---|---|
+| D1 | Priceguide list must persist on a CAD-only location — it saves **empty** | oracle 2 |
+| D2 | Print must be disabled when the save failed — it stays **enabled** | oracle 2 |
+| D3 | Report must honour the selected currency — always prints USD | oracle 1 |
+| D4 | Currency picker must offer only the location's currencies — offers USD to a CAD-only site | I10 |
+| D5 | Report must generate without USD | I3 |
+| D6 | UI must indicate currency for international locations | presentation |
+
+**D2 is the NM-2186 shape alive on a different surface**: a control whose *enabled state is itself a
+claim about persisted data*. A walk that checks only "is the button clickable" records a pass while
+the save silently failed. Three more rows are repo-documented (D7 office-1101 Labor gating,
+D8 currency-gated picker, D9 PG-286).
+
+Two limits are recorded **inside the file**, not just here: (a) coverage is `PARTIAL` — a 110-issue
+JQL sweep surfaced exactly ONE rule-bearing summary because rules live in issue *descriptions*, so a
+complete harvest needs a description-level pass over NAV plus the Confluence spec space, a dedicated
+session; (b) **D9 is flagged `UNVERIFIED-AGAINST-JIRA`** — carried forward from this plan's own body
+with no governing ticket located. An unverified domain rule is precisely the claim-without-census
+that oracle 5 exists to catch, so it is not laundered into the corpus as verified.
+
+**Second harvest pass (description-level, same session) — 13 invariants total, 0 without a source.**
+
+| id | rule | class |
+|---|---|---|
+| D10 | Max Discount % under 1% must survive its own read-back | round-trip (oracle 3 / I4) |
+| D11 | Special rate always permitted for Digital Branding | field-domain (I10) |
+| D12 | Canada-only: Venue Price Book is the Production-Order default | claim-census (oracle 5) |
+| D13 | Corp Override screen must stay viewable after a price-strategy assignment | read-totality (I3) |
+
+**D10 (NM-2142) is the most consequential row in the file.** A Max Discount Percent entered as
+`.003` reloads as **30%** — the decimal shifts two places, turning 0.3% into 30%, **silently, with no
+validation error**, on BOTH Pricing Details and Product Group Override. That is a 100× error on a
+discount field. Structurally it is the round-trip invariant at *field* level: the system's own output
+is not accepted by its own input. A walk that types a value and sees it accepted records a pass — the
+corruption only surfaces on re-entry, which is exactly why oracle 3 must fire on read-back and not on
+first render.
+
+D11-D13 are marked `harvestLevel: "summary-only"` — their summaries were read, not their
+descriptions. Recorded as such rather than presented as deeper than it was.
+
+**D9 (PG-286) demoted to `SEARCHED-NOT-FOUND`, retained not deleted.** Two independent Jira searches
+(`text ~ 286 AND text ~ override`; then `blank override price` / `override price required` /
+`product group 286`) returned **no governing ticket**. The rule appears only in this plan's own body,
+so it may be a walk observation that was promoted to a "rule" without a source. It carries an explicit
+*do not let this steer a disposition* note. Deleting it would erase the evidence of the gap; leaving
+it unflagged would be the exact claim-without-census that oracle 5 exists to catch.
+
+**Third harvest pass (project NM, rule-shaped summaries) — corpus now 19 rows, 0 without a source.**
+Every kernel oracle class is represented by a real, documented bug:
+
+| class | rows | notable |
+|---|---|---|
+| field-domain | 4 | D18 Barcodeable read-only on Item segment |
+| ui-vs-persisted-parity (2) | 3 | D19 Save/Update enablement contradicting form validity |
+| claim-census (5) | 3 | D8 now Jira-sourced |
+| count-source (4) | 3 | D15 sort spans page not result set; D17 non-deterministic Publish set |
+| round-trip-invariant (3) | 2 | **D14 = NM-1940** |
+| read-totality / zero-effect / presentation | 4 | |
+
+**D14 closes a provenance loop in this plan's own argument.** The plan cites "NM-1940 own-file
+rejected" as the reason oracle 3 exists; the ticket is now attached — *"Pricing Override Import –
+Valid Exported File Fails with 'Invalid Line / Required Fields Missing'"*. The oracle and its
+graduating incident are now linked in the corpus, not just in prose.
+
+**D8 upgraded in place, not duplicated** — `NM-2076` ("Product Group not displayed and Currency field
+disabled for Canada and some Mexico locations") turns the currency-gated picker from repo-lore into a
+Jira-sourced rule.
+
+**D15 and D17 are the count-oracle's real-world case.** A sort that orders only the current page looks
+correct on screen and is wrong in the data — the same read-what-is-rendered mistake as counting DOM
+nodes on a virtualized grid. D17 is worse: the Publish screen shows a *non-deterministic* subset, so
+two honest observations disagree and no single reading is safe.
+
+**Fourth pass (project NAV) — corpus at 25 rows, 0 without a source, spanning 10 oracle classes:**
+`field-domain` 5 · `ui-vs-persisted-parity` 4 · `claim-census` 4 · `count-source` 3 ·
+`zero-effect` 2 · `round-trip-invariant` 2 · `read-totality` 2 · `presentation` 1 ·
+**`permission-invariant` 1** · **`state-precondition` 1**.
+
+### ⚠ THE HARVEST FOUND A HOLE IN THE ORACLE SET ITSELF — recorded as `coverageGaps`
+
+**D20 / NAV-4180: a user with the Sales Read Only role CAN add recommendations to the Price Guide.**
+
+No oracle in this plan catches that, and none can. The 5 kernel oracles and every generated invariant
+I1-I11 reason about **a single actor's view of data**. Not one of them re-executes an action under a
+**different role** and asserts refusal. A walk performed as an admin cannot observe the defect at all
+— the control is present, it works, the data is correct. The bug is that someone *else* can reach it.
+
+This is the honest limit of the plan's central claim. "A brand-new surface is covered the moment it is
+catalogued" holds for **CRUD shape** — verbs, filters, grids, io pairs, typed fields — because those
+are what the metamodel extracts. **Role is not part of the shape it extracts**, so permission
+invariants fall outside the generated set entirely. Closing this needs a **role-partition oracle**
+(re-run a mutating action under each role, assert refusal for read-only) which does not exist and is
+not in scope here. It is recorded in the file's own `coverageGaps` so it cannot be quietly forgotten,
+rather than being buried as a 25th row that looks like all the others.
+
+`state-precondition` (D21, NAV-3357 — no proposal while a Quote DocuSign is active/pending) is a
+second class with no kernel-oracle home; noted, lower severity than the permission gap.
+
+## ⚠ FINAL-STATE ADVERSARIAL PASS — 2026-07-25 22:00. "99% / oracles hardened" WAS PREMATURE.
+
+Oracles 1-3 and 4-5 were attacked in two SEPARATE earlier passes and defended. **The post-defence
+final state had only ever been verified by the party who commissioned it.** Its first real attack
+returned **RED / NOT-SAFE-TO-RAMP** with 3 blockers and 4 majors.
+
+**BLOCKER — class relabeling defeated ALL FIVE oracles at once.** Every oracle scopes by `class`,
+which made the class label a **self-declared exemption**. A map relabeling zero-effect →
+`editable-cell`, save → `guard`, export/import → `menu-disclosure`/`add-picker`, count →
+`add-picker` with an empty `countSource`, and claim → `observed:*` returned **exit 0 PASS**. A walk
+that renamed its rows passed the entire suite. That is not a hole in one oracle — it is a bypass of
+the set.
+
+| finding | before | after (CEO-verified, each firing for its INTENDED reason) |
+|---|---|---|
+| 6-row full relabel escape | **exit 0 PASS** | **exit 1 FAIL** — zero-effect fires on the relabeled row, count-source flags all 6 |
+| `browser:` / `rendered:` / `client-side:` / empty `countSource` | PASS | UNCHECKABLE exit 2 (denylist → **allowlist**) |
+| `census:package.json` — any existing file as corroboration | PASS | FAIL — CLAIM-CENSUS VIOLATION |
+| honest **save-only io** (no io pair on the surface) | UNCHECKABLE — **20% FP rate** | **PASS exit 0** |
+| `null` element in the array | unhandled TypeError, **no VERDICT line** | controlled FAIL exit 1 |
+| degenerate probes (absent / `[]` / object) | PASS | rejected |
+| severity contract: header S0 vs config S1 ramp | contradictory | reconciled |
+| self-test | 97/97 | **123/123** |
+
+Verdict precedence (FAIL > UNCHECKABLE > PASS) held under every simultaneous-disagreement
+combination the reviewer tried — no masked FAIL by any route.
+
+### Round 3 — the fix's own mechanism is the next attack surface
+
+Round 2 attacked the round-1 fixes and found three more false negatives. The headline one is the
+clearest statement of the pattern in the whole session:
+
+| round | the fix | how the next round beat it |
+|---|---|---|
+| 1 | `dom:` **denylist** | `browser:` / `rendered:` / `client-side:` / empty string |
+| 2 | `api:`/`footer:` **prefix allowlist** | **`api:document.querySelectorAll rows`** — simply prefix it |
+| 3 | **whole-value content validation** | (holds so far) |
+
+A denylist was answered with a prefix-allowlist, and a prefix-allowlist is defeated by writing the
+prefix. The same shape as a sibling gate where a substring attack was answered with a minimum-LENGTH
+rule and then beaten by 25 dashes. **When reviewing a fix, attack the fix's mechanism, not the
+original payload.**
+
+Round-3 state, CEO-verified with the control that makes it meaningful:
+
+| payload | verdict |
+|---|---|
+| `api:document.querySelectorAll rows` | UNCHECKABLE exit 2 |
+| **`api:GET /api/location/location-lookup => 200` (genuine)** | **PASS exit 0** |
+| census artifact unrelated to the claim | FAIL exit 1 |
+| stealth relabel — evidence kept only in probe prose | UNCHECKABLE exit 2 |
+
+The second row is the point: without it, "the DOM-prefixed source is caught" is indistinguishable
+from "everything with `api:` is rejected". Self-test **133/133**.
+**False-positive rate: 20% → 0% across 7 honest maps** — the ramp disqualifier, now clean.
+
+**Not claimed**: a fourth round would find nothing. Three rounds is materially stronger than one and
+is not proof of exhaustion. The gate stays at `announce`, where a false negative costs coverage
+rather than blocking legitimate work — which is the correct place for it while false negatives remain
+plausible.
+
+### The pattern this session established — five for five
+
+| artifact | first genuine adversarial pass |
+|---|---|
+| fabrication detector | 3 holes → **5 MORE** on a second pass |
+| provenance gate | 3 blockers (incl. a clean pass printed on 89% of real data) |
+| recurrence detector (Plan B) | 1 blocker + 4 majors, **20% FP** |
+| oracles 4/5 | 2 blockers |
+| all 5 oracles, final state | 3 blockers + 4 majors, **20% FP** |
+
+**Dispatcher self-verification failed to catch a blocker in 5 of 5 cases.** It is necessary and
+demonstrably not sufficient. A 20% false-positive rate appeared independently in TWO gates, both of
+which were on the verge of being ramped to `deny` — at which point the gate itself becomes the defect
+by blocking legitimate closure.
+
+**Method note**: the CEO's own probe initially reported 8/8 for the WRONG REASON — every payload
+inherited the base fixture's pre-existing zero-effect violation, so nothing under test was actually
+exercised. It was caught only by reading the per-sub-check messages rather than the exit code. Exit
+code alone cannot distinguish "caught for my reason" from "caught for a different one".
+
+### STILL OPEN
+- `interaction_coverage_mode` is at `announce`; ramp to `deny` needs ≥10 clean sessions
+  (`ramp_target: 2026-08-24`, deadline machine-enforced by `scripts/check-ramp-expiry.mjs`).
+  **Time-gated, not work-gated** — no amount of effort closes this today.
+- **A role-partition oracle** to close the `permission-invariant` gap above. This is the largest
+  genuine gap the four harvest passes surfaced and deserves its own plan.
+  **Recipient filed 2026-07-29 per LR-040(b)**: [SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md](SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md)
+  — it extends the metamodel with `roles`/`actor` so the invariant is GENERATED rather than fixtured as a
+  one-off (the `crud-derivable` discipline), carries NAV-4180 as its RED fixture, names per-role test
+  credentials as the unlock, and carries `state-precondition` (NAV-3357) as a second homeless class so it
+  does not orphan.
+- Descriptions for D11-D25 (all harvested at summary level and flagged per-row as
+  `harvestLevel: summary-only` — not passed off as deeper than they were).
+- D9 still `SEARCHED-NOT-FOUND` — needs a source, or removal once someone confirms it was never a
+  real rule.
+
+### Method note that cost real time — worth reading before the next session
+Four separate CEO-authored test harnesses produced **false greens** today, each for a different
+reason: a truncated code extraction that exited 0 on a syntax error; run dirs with no logs so every
+payload "caught" via fail-closed; payloads whose absolute Windows paths the parser's regex rejects;
+and `countSource` written at the element top level when the source says plainly it *"lives in
+probe.after"*. Every one looked like a clean result. The only thing that exposed them was an
+**honest control** — a case that must come back CLEAN. A suite without one cannot distinguish
+"did not fire" from "did not run". Read the implementation before constructing a payload against it.
+
+---
 
 ## Acceptance criteria
 
