@@ -31,6 +31,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, appendF
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
+import { fireTelemetry } from "./hook-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
@@ -188,6 +189,7 @@ function handleValidate(payload, sessionId, transcriptPath) {
     transcript_path: transcriptPath || "",
   };
   appendStateEntry(stateFile, entry);
+  fireTelemetry('rca-verdict-gate', 'warn', sessionId);
 
   // Emit single stdout line. Stop-hook stdout becomes a transcript note that
   // /audit Step 2.8 can read (alongside the state file).

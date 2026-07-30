@@ -31,7 +31,7 @@ Claude must NEVER assume anything. EVER. Assumptions cause mistakes.
 
 ### Identity Discipline
 
-Codenames: HUNTER | GIVER | BUILDER | HEALER | WATCHDOG | GARDENER | OWNER. Active identity loads system-prompt context (NOT access-control for OWNER, which is short-circuited; pipeline identities are gated by §2 ownership). **Adoption is structural at WRITE-TIME, not on skill entry**: a skill's `auto-calls: identity` / `**Identity**:` frontmatter is a *declaration*, not a forcing function — nothing structurally loads the role mid-orchestration just because a skill ran. What actually enforces adoption is the PreToolUse identity write-gate (`.claude/hooks/lib/check-identity-switch.mjs`): pipeline identities are gated by §2, and (PLAN_IDENTITY_ENFORCEMENT Layer 1) an OWNER write to a pipeline-role-owned artifact *inside `/execute`* is gated until `/identity <ROLE>` is adopted (ramp knob `.claude/identity-gate-config.json`). Priority chain: explicit `/identity X` > active+compatible (skip) > auto-load default. See `@.claude/skills/identity/SKILL.md` + `.claude/rules/hooks-identity.md` LR-043 §A.1.
+Codenames: HUNTER (Requirements) | GIVER (Planner) | BUILDER (Generator) | HEALER (Healer) | WATCHDOG (Audit) | GARDENER (Maintainer) | OWNER (default — non-pipeline). Active identity loads system-prompt context (NOT access-control for OWNER, which is short-circuited; pipeline identities are gated by §2 ownership). **Adoption is structural at WRITE-TIME, not on skill entry**: a skill's `auto-calls: identity` / `**Identity**:` frontmatter is a *declaration*, not a forcing function — nothing structurally loads the role mid-orchestration just because a skill ran. What actually enforces adoption is the PreToolUse identity write-gate (`.claude/hooks/lib/check-identity-switch.mjs`): pipeline identities are gated by §2, and (PLAN_IDENTITY_ENFORCEMENT Layer 1) an OWNER write to a pipeline-role-owned artifact *inside `/execute`* is gated until `/identity <ROLE>` is adopted (ramp knob `.claude/identity-gate-config.json`). Priority chain: explicit `/identity X` > active+compatible (skip) > auto-load default. See `@.claude/skills/identity/SKILL.md` + `.claude/rules/hooks-identity.md` LR-043 §A.1.
 
 ### Guiding Vision (private contract)
 
@@ -60,7 +60,7 @@ Spawn subagents ≤ current model class, max 5 parallel without consent (ask for
 | Skill catalog (30 skills, descriptions, when-to-use) | `@.claude/skills/INDEX.md` |
 | Cross-cutting framework rules (bug filing, plans-reindex, handoff discipline, networkidle ban, activity-log timestamps) | `@docs/read_only_docs/LEARNED_RULES.md` |
 | Pipeline-agent shared rules (§2 ownership, ALL-* rules, RCA discipline, autonomy modes) | `@docs/read_only_docs/AGENT_SHARED_RULES.md` |
-| Active client (Encore-specific surfaces, business rules, baseline URL) | `@clients/encore/CLAUDE.md` |
+| Active client (Encore-specific rules LR-008/012/017/036/ENC-NNN, surfaces, baseline URL) | `@clients/encore/CLAUDE.md` |
 | Path-scoped framework rules — auto-load on matching file edits via `paths:` frontmatter | `.claude/rules/*.md` (angular, specs, hooks-identity, browser-tool, pipeline, baseline, data, inventory, deliverable) |
 | Field-inventory artifact spec (frontmatter keys, sections, staleness) | `@clients/encore/specs_planning/_internal/field-inventory-spec.md` |
 | Per-field-type case generation taxonomy (FCC reference) | `@clients/encore/specs_planning/_internal/field-case-generation.md` |
@@ -125,12 +125,6 @@ When a memory-file-only rule fails twice (READ + WRITE pattern), graduate it to 
 
 ---
 
-## Active Client
-
-`@clients/encore/CLAUDE.md` — Encore-specific rules (LR-008, LR-012, LR-017, LR-036, LR-ENC-NNN), product surfaces, baseline URL, business validations.
-
----
-
 ## Numbering Convention (LR-NNN lookup)
 
 Existing `LR-NNN` numbers are grandfathered. New framework rules continue after `LR-045`. New client-specific rules use `LR-{CLIENT}-NNN` (e.g., `LR-ENC-NNN`) to prevent collision. When looking up any `LR-NNN`:
@@ -138,12 +132,6 @@ Existing `LR-NNN` numbers are grandfathered. New framework rules continue after 
 1. Path-scoped framework rules: `.claude/rules/*.md`
 2. Cross-cutting framework rules: `@docs/read_only_docs/LEARNED_RULES.md`
 3. Client-specific rules: `@clients/${ACTIVE_CLIENT}/CLAUDE.md`
-
----
-
-## Identity Codenames
-
-`HUNTER` (Requirements) · `GIVER` (Planner) · `BUILDER` (Generator) · `HEALER` (Healer) · `WATCHDOG` (Audit) · `GARDENER` (Maintainer) · `OWNER` (default — non-pipeline).
 
 ---
 

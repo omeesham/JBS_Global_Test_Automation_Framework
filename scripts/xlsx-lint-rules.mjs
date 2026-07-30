@@ -5,7 +5,6 @@
  *
  * Imported by every gate so build / commit / ship enforce the SAME rules (ALL-026 DRY):
  *   - scripts/xlsx-vocab-lint.mjs        — commit-time CLI (npm run xlsx:lint)
- *   - export_test_cases/to-xlsx.ts       — build-time self-fail (dynamic import)
  *   - scripts/verify-no-forbidden.mjs    — ship-time gate (LR-049)
  *
  * Two leak classes are detected:

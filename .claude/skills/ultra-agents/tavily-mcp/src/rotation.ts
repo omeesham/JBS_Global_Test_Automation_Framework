@@ -5,7 +5,7 @@ import type { ExhaustedReason, RotationState } from "./types.js";
 const STATE_FILE = path.resolve("rotation-state.json");
 const STATE_TMP = path.resolve("rotation-state.json.tmp");
 
-const MAX_ROTATIONS = 4; // total key attempts per call
+const MAX_KEY_ATTEMPTS = 4; // total key attempts per call
 const MAX_429_RETRIES = 2;
 const MAX_5XX_RETRIES = 1;
 
@@ -162,6 +162,10 @@ type SelectResult =
   | { kind: "key"; keyIdx: number; keyId: string; apiKey: string }
   | { kind: "exhausted"; message: string };
 
+function formatExhaustedMessage(s: RotationState): string {
+  return "ALL_KEYS_EXHAUSTED: " + s.keys.map((k) => `${k.id}:${k.exhausted_reason ?? "active"}`).join(", ");
+}
+
 async function selectKey(): Promise<SelectResult> {
   const release = await mutex.acquire();
   try {
@@ -170,7 +174,7 @@ async function selectKey(): Promise<SelectResult> {
     if (needsMonthlyReset(s)) applyMonthlyReset(s);
     const idx = pickKeyIndex(s);
     if (idx === null) {
-      const msg = "ALL_KEYS_EXHAUSTED: " + s.keys.map((k) => `${k.id}:${k.exhausted_reason ?? "active"}`).join(", ");
+      const msg = formatExhaustedMessage(s);
       await persistState(s);
       return { kind: "exhausted", message: msg };
     }
@@ -218,7 +222,7 @@ async function buildAllExhaustedMessage(): Promise<string> {
   try {
     const s = state;
     if (!s) return "ALL_KEYS_EXHAUSTED: no state";
-    return "ALL_KEYS_EXHAUSTED: " + s.keys.map((k) => `${k.id}:${k.exhausted_reason ?? "active"}`).join(", ");
+    return formatExhaustedMessage(s);
   } finally {
     release();
   }
@@ -228,7 +232,7 @@ export async function executeWithRotation<T>(
   fn: (apiKey: string) => Promise<HttpCallResult<T>>,
   staticFallbackCredits: number
 ): Promise<{ ok: true; data: T } | { ok: false; message: string; isAllExhausted?: boolean }> {
-  for (let rotation = 0; rotation < MAX_ROTATIONS; rotation++) {
+  for (let rotation = 0; rotation < MAX_KEY_ATTEMPTS; rotation++) {
     const sel = await selectKey();
     if (sel.kind === "exhausted") {
       return { ok: false, message: sel.message, isAllExhausted: sel.message.startsWith("ALL_KEYS_EXHAUSTED") };
@@ -254,6 +258,9 @@ export async function executeWithRotation<T>(
 
       if (status === 429) {
         if (retries429 >= MAX_429_RETRIES) {
+          // Design: per-key 429-retry budget exhausted → return immediately.
+          // The outer rotation loop is NOT resumed; remaining keys are not tried.
+          // Rate-limit signals call-level capacity pressure, not a key-level auth issue.
           return { ok: false, message: `Rate limit exhausted retries on key ${keyId}: ${message}` };
         }
         const waitMs = (retryAfterSecs ?? 60) * 1000;

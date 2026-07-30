@@ -380,21 +380,6 @@ function renderTable(headers, rows) {
   return [head, sep, body].filter(Boolean).join('\n');
 }
 
-function sortPending(plans) {
-  // Sort: priority rank (P0 < P1 < P2 < P3 < —) then created date desc
-  const pRank = (p) => {
-    const m = String(p).match(/P(\d)/i);
-    return m ? Number(m[1]) : 99;
-  };
-  return [...plans].sort((a, b) => {
-    const d = pRank(a.priority) - pRank(b.priority);
-    if (d !== 0) return d;
-    const ac = a.created || a.mtime;
-    const bc = b.created || b.mtime;
-    return bc.localeCompare(ac);
-  });
-}
-
 /**
  * Cohort sort order — explicit user-chosen track ordering (2026-04-28, final).
  *   0 = AAE  (highest-leverage right now: SP-AAE-06 unblocks 10 superseded DQU subplans)

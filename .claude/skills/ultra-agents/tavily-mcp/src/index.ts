@@ -82,7 +82,7 @@ async function main(): Promise<void> {
         "Extract content from one or more URLs using Tavily. " +
         "Credits = ceil(url_count / 5) × depth_mult where depth_mult is 1 for basic and 2 for advanced.",
       inputSchema: {
-        urls: z.union([z.string(), z.array(z.string())]).describe("URL or list of URLs to extract (max 20)"),
+        urls: z.union([z.string(), z.array(z.string()).max(20)]).describe("URL or list of URLs to extract (max 20)"),
         extract_depth: z.enum(["basic", "advanced"]).default("basic").describe("Extraction depth"),
         query: z.string().optional().describe("Optional query string for result reranking"),
       },

@@ -42,6 +42,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve, join, isAbsolute } from "node:path";
 import { tmpdir } from "node:os";
 import { coverageVerdict } from "../../../scripts/walk-coverage/lib/coverage-manifest.mjs";
+import { fireTelemetry } from "./hook-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
@@ -245,6 +246,7 @@ function runHookMode() {
     if (!verdict.warn) return;
 
     ensureStateDir();
+    fireTelemetry('execution-completion-gate', 'warn', sessionId);
     const stateFile = join(STATE_DIR, `execution-completion-warnings-${safeFilename(sessionId)}.json`);
     const missing = verdict.missing || [];
     const incomplete = verdict.incompleteCoverage || [];

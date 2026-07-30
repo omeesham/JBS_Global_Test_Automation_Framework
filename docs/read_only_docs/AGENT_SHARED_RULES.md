@@ -1,5 +1,5 @@
 # Agent Shared Rules
-<!-- Last updated: 2026-04-20 | Streamlined: 578 → ~350 lines. §8-§11,§16-§17 flattened into Session Protocol. §0 Navigation-first added 2026-04-20. -->
+<!-- Last updated: 2026-04-20 | §8-§11,§16-§17 flattened into Session Protocol. §0 Navigation-first added 2026-04-20. -->
 
 ---
 

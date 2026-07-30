@@ -9,7 +9,7 @@
 //   --changed --enforce                  Plans changed in current commit set.
 //   --all --report-only                  Batch retro, always exit 0.
 //   --staged --enforce                   Pre-commit blob mode (git show :path).
-//   --content-from-stdin --plan <path>   Hook mode (projected body on stdin).
+//   --content-from-stdin --plan <path>   Hook mode (projected body on stdin). Records blocked-attempt breadcrumb on FAIL (M2).
 //   --json                               Structured findings to stdout.
 //   --self-test                          Synthetic fixture tests.
 //   --all --enforce --rewrite-manifests  Migration tool (user-invoked only).
@@ -24,8 +24,8 @@
 //   --test-status-mode=<off|announce|deny>   Override closure-config.json test_status_mode for this run.
 //   --dry-run also forces Cx + Ct measurement (verdict-neutral, exit 0).
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync, renameSync, appendFileSync } from 'node:fs';
-import { resolve, join, dirname, basename, relative, extname, sep } from 'node:path';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, renameSync, appendFileSync } from 'node:fs';
+import { resolve, join, dirname, basename, relative, sep } from 'node:path';
 import { execSync } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -37,8 +37,6 @@ const __dirname = dirname(__filename);
 const REPO_ROOT = resolve(__dirname, '..');
 const MANIFEST_DIR = join(REPO_ROOT, 'plans', '_closure_manifests');
 const OVERRIDES_PATH = join(REPO_ROOT, '.claude', 'closure-overrides.json');
-const SCHEMA_PATH = join(REPO_ROOT, '.claude', 'closure-overrides.schema.json');
-const LANDED_AT_PATH = join(REPO_ROOT, '.claude', 'closure-gate-landed-at.txt');
 const STATE_DIR = join(REPO_ROOT, '.claude', 'state');
 const ATTEMPTS_DIR = join(STATE_DIR, 'closure-attempts');
 const AUDITS_DIR = join(STATE_DIR, 'closure-audits');
@@ -198,12 +196,6 @@ const CLOSURE_FORBIDDEN_C1 = [
   /(?:^|\n)\s*[-*|]\s.{0,120}\bnot captured\b(?![A-Za-z-])/i,
   /(?:^|\n)\s*[-*|]\s.{0,120}\bnot exercised\b(?![A-Za-z-])/i,
 ];
-
-function isInFencedCodeBlock(body, matchIndex) {
-  const before = body.slice(0, matchIndex);
-  const fenceCount = (before.match(/^(```|~~~)/gm) || []).length;
-  return fenceCount % 2 === 1;
-}
 
 function shouldDropLineC1(line) {
   if (/^#{1,6}\s/.test(line)) return true;
@@ -570,7 +562,6 @@ function checkC4(body, planPath, parentCascadeMode = 'off') {
 
 // === C5: Strict-line vs deviation axis-match ===
 const STRICT_TOKEN_RX = /\b(zero|every|all\s+\d+|all-\d+|all\d+|100%|no exceptions|exhaustive|complete)\b/i;
-const ACCEPTANCE_HEADINGS = /^#{1,4}\s+(?:Acceptance|Closure|Acceptance Criteria)\s*$/im;
 const ACCEPTANCE_FIELDS = /(?:\*\*Acceptance\*\*|\*\*Coverage\*\*)\s*:/i;
 const PARENT_STRICT = /\*\*PARENT-STRICT-LINE\*\*/;
 
@@ -690,7 +681,7 @@ function splitTableRow(line) {
   let s = line.trim();
   if (s.startsWith('|')) s = s.slice(1);
   if (s.endsWith('|')) s = s.slice(0, -1);
-  const PLACEHOLDER = ' ';
+  const PLACEHOLDER = '';
   s = s.replace(/\\\|/g, PLACEHOLDER);
   return s.split('|').map(c => c.replace(new RegExp(PLACEHOLDER, 'g'), '\\|').trim());
 }
@@ -1239,7 +1230,7 @@ function runSingle(planPath, opts) {
     }
   }
 
-  if (result.status === 'FAIL') {
+  if (result.status === 'FAIL' && opts.contentFromStdin) {
     recordAttempt(absPath, result);
   }
 

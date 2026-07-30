@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Labor Gate v3 — PreToolUse hook binary + library.
+ * Labor Gate v4 — PreToolUse hook binary + library.
  *
  * When run as a binary: reads JSON hook payload from stdin, emits hook decision JSON to stdout.
  * When imported: exports checkCommand() for testing.
@@ -8,8 +8,10 @@
  * Fires only on the EXECUTED program — never on suite runners mentioned inside data
  * (heredoc bodies, redirect payloads, echo/printf strings, grep patterns).
  *
- * v3: Closes the `bash -c` evasion — shell wrappers (bash/sh -c/-lc/-ec) are unwrapped
- * and their payload is recursively analysed.
+ * v4: Per-pipeline-part classification. Every part in a pipeline is checked for shell-c
+ * wrappers (recursively), spec execution, and browser walks. The segment-level
+ * data-command skip is removed — classification runs on every part first, so a data
+ * prefix can never hide a gated part behind a short-circuit.
  *
  * @module build/labor-gate
  */
@@ -259,80 +261,65 @@ function isBrowserWalk(cmd) {
 }
 
 /**
- * Determine if a segment (possibly a pipeline) contains a spec execution or browser walk.
- * For pipelines, the first command is what matters for execution detection.
- */
-function segmentHasSpecExecution(segment) {
-  const pipelineParts = splitPipeline(segment);
-
-  if (pipelineParts.length > 0) {
-    const firstPart = pipelineParts[0];
-    if (isSpecExecution(firstPart) || isBrowserWalk(firstPart)) {
-      return true;
-    }
-  }
-
-  if (pipelineParts.length === 1) {
-    const program = getLeadingProgram(pipelineParts[0]);
-    if (DATA_COMMANDS.has(program)) return false;
-    return isSpecExecution(pipelineParts[0]) || isBrowserWalk(pipelineParts[0]);
-  }
-
-  return false;
-}
-
-/**
- * Check if a segment is a data-writing command.
- * After heredoc bodies are stripped, a line like `cat > ticket.md <<'EOF'` remains.
- * The leading program tells us it's a data command, so the segment is safe.
- */
-function isDataWritingSegment(segment) {
-  const program = getLeadingProgram(segment);
-  return DATA_COMMANDS.has(program);
-}
-
-/**
  * Data-aware command analysis. Fires only on the EXECUTED program.
- * v3: also unwraps bash/sh -c payloads and recurses.
+ * v4: per-pipeline-part classification — every part is checked for shell-c wrappers
+ * (recursively), spec execution, and browser walks. No segment-level data-command
+ * skip runs before classification; a data prefix can never hide a gated part.
  * @param {string} command - The full bash command string from the Bash tool
+ * @param {number} [_depth=0] - Internal recursion depth for shell-c unwrap
  * @returns {{ allow: boolean, pattern?: string, reason?: string }}
  */
-export function checkCommand(command) {
+export function checkCommand(command, _depth = 0) {
+  // Recursion bound: 5 levels far exceeds real-world nesting (1–2 typical).
+  // Deeper is pathological — deny rather than hang the hook.
+  if (_depth > 5) {
+    return {
+      allow: false,
+      pattern: SPEC_PATTERN_NAME,
+      reason: 'Shell wrapper recursion depth exceeded (>5) — denied',
+    };
+  }
+
   // Step 1: Strip heredoc bodies — text inside heredocs is data, not code
   const stripped = stripHeredocBodies(command);
 
   // Step 2: Split into compound segments (&&, ||, ;)
   const segments = splitCompoundCommand(stripped);
 
-  // Step 3: Check each segment
+  // Step 3: For each segment, classify every pipeline part by the full logic
   for (const segment of segments) {
     if (!segment.trim()) continue;
 
-    // If the leading program is a data command (cat, echo, grep, etc.), skip entirely
-    if (isDataWritingSegment(segment)) continue;
+    const pipelineParts = splitPipeline(segment);
 
-    // v3: unwrap shell -c wrappers and recurse
-    const shellPayload = extractShellCPayload(segment.trim());
-    if (shellPayload !== null) {
-      const inner = checkCommand(shellPayload);
-      if (!inner.allow) {
+    for (const part of pipelineParts) {
+      const trimmedPart = part.trim();
+      if (!trimmedPart) continue;
+
+      // 3a: shell -c wrapper → recurse the full check on the payload
+      const shellPayload = extractShellCPayload(trimmedPart);
+      if (shellPayload !== null) {
+        const inner = checkCommand(shellPayload, _depth + 1);
+        if (!inner.allow) {
+          return {
+            allow: false,
+            pattern: SPEC_PATTERN_NAME,
+            reason: `Detected spec/test execution inside shell wrapper: ${trimmedPart.slice(0, 80)}`,
+          };
+        }
+        continue;
+      }
+
+      // 3b: direct spec execution or browser walk → deny
+      if (isSpecExecution(trimmedPart) || isBrowserWalk(trimmedPart)) {
         return {
           allow: false,
           pattern: SPEC_PATTERN_NAME,
-          reason: `Detected spec/test execution inside shell wrapper: ${segment.trim().slice(0, 80)}`,
+          reason: `Detected spec/test execution in segment: ${segment.trim().slice(0, 80)}`,
         };
       }
-      // payload was safe — continue to next segment
-      continue;
     }
-
-    if (segmentHasSpecExecution(segment)) {
-      return {
-        allow: false,
-        pattern: SPEC_PATTERN_NAME,
-        reason: `Detected spec/test execution in segment: ${segment.trim().slice(0, 80)}`,
-      };
-    }
+    // 3c: no part triggered — segment is safe regardless of data-command status
   }
 
   return { allow: true };
@@ -370,7 +357,9 @@ function hasPipelineIdentity(transcriptPath) {
       try { obj = JSON.parse(line); } catch { continue; }
       const msg = obj.message ?? obj;
       if (!msg || msg.role !== 'assistant' || !Array.isArray(msg.content)) continue;
-      for (const c of msg.content) {
+      // PBUG-09: scan content in REVERSE so the LAST identity Skill call in the message decides.
+      for (let ci = msg.content.length - 1; ci >= 0; ci--) {
+        const c = msg.content[ci];
         if (c?.type !== 'tool_use' || c.name !== 'Skill') continue;
         if (c.input?.skill !== 'identity') continue;
         const arg = String(c.input.args || '').trim().split(/\s+/)[0].toLowerCase();
@@ -379,6 +368,14 @@ function hasPipelineIdentity(transcriptPath) {
     }
     return false;
   } catch { return false; }
+}
+
+function fireTelemetry(gate, verdict, target, cwdPath) {
+  try {
+    const logPath = join(cwdPath || '.', '.claude', 'state', 'gate-fires.log');
+    mkdirSync(dirname(logPath), { recursive: true });
+    appendFileSync(logPath, `${gate}, ${new Date().toISOString()}, ${verdict}, ${target}\n`);
+  } catch { /* swallow — telemetry failure must never affect gate verdict */ }
 }
 
 function logAudit(sessionId, command, pattern) {
@@ -407,7 +404,7 @@ async function main() {
       return;
     }
 
-    const { session_id, transcript_path, tool_name, tool_input } = payload;
+    const { session_id, transcript_path, tool_name, tool_input, cwd = '' } = payload;
 
     if (tool_name !== 'Bash') {
       emit('allow', 'labor-gate: not Bash — allow');
@@ -439,12 +436,14 @@ async function main() {
 
     if (mode === 'announce') {
       logAudit(session_id, command, matchedPattern);
+      fireTelemetry('labor-gate', 'announce', session_id, cwd);
       emit('allow', 'labor-gate: mode=announce — allow (audit logged)');
       return;
     }
 
     // mode === 'deny'
     logAudit(session_id, command, matchedPattern);
+    fireTelemetry('labor-gate', 'deny', session_id, cwd);
     emit('deny',
       `LABOR GATE: Spec/test execution detected (${matchedPattern}). ` +
       'Spec runs and browser walks must be ticketed to a T0/T1 worker via copilot-worker.sh.'

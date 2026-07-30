@@ -32,8 +32,9 @@ non-determinism must be resolved before the manifest is dispositioned.
 
 ## Step 3 — DOM spot-check (~10% of union)
 
-Load `reports/walk-coverage/<state>.json`. Take `Math.ceil(entries.length * 0.1)` entries,
-sampling roughly evenly across `inA`-only, `inB`-only, and intersection groups.
+Load `reports/walk-coverage/<state>.json`. Take at least one entry from each non-empty group
+(`inA`-only, `inB`-only, intersection) and at least `Math.ceil(entries.length * 0.1)` total;
+distribute any remaining quota evenly across groups.
 
 For each sampled entry, confirm on the live DOM that the element:
 - exists and is visible (not hidden, not inside a collapsed panel),

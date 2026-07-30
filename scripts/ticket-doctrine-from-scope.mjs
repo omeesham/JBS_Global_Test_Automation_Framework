@@ -240,10 +240,9 @@ export function loadRules(rulesDir) {
  *
  * @param {string[]} inputPaths — SCOPE entries (may be globs or concrete paths)
  * @param {Array<{ruleFile: string, globs: string[]}>} rules
- * @param {*} [_repoRoot] — deprecated, ignored (backward compatibility)
  * @returns {string[]}
  */
-export function findMatchingRules(inputPaths, rules, _repoRoot = null) {
+export function findMatchingRules(inputPaths, rules) {
   const matched = new Set();
   for (const rawEntry of inputPaths) {
     const entry = toPosix(rawEntry);
