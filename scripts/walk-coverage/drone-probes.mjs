@@ -212,6 +212,34 @@ export const PROBE_DEFINITIONS = {
     zeroEffectProtocol: 'If no machine-readable data source is available to cross-check the claim, emit DATA-BLOCKED with dataBlockedReason naming the claim and dataBlockedUnlock naming what data source would enable the census. A disposition driven by an unchecked claim is never acceptable.',
     emissionContract: 'PROBED with basis:census:<artifact-path> referencing a real, named artifact that contains the machine data used to verify the claim. basis:claim:<source> alone (without a corresponding census artifact) means the census has not run — the checker treats it as a CLAIM-CENSUS VIOLATION. The census step is mandatory; it fires before the disposition, not after.',
   },
+
+  // ---------------------------------------------------------------------------
+  // Oracle 4 — Count source (I7)
+  // Cross-Check Kernel oracle 4: row counts must come from the API response body
+  // or grid/table footer — never from enumerating rendered DOM rows. The grid
+  // virtualizes: the DOM holds a window, not the full set.
+  // The HTTP status of the request that produced the count is load-bearing:
+  //   absent status  → UNCHECKABLE (the request may have silently failed)
+  //   non-2xx status → REQUEST-FAILED (office-1604 class: HTTP 500 renders as
+  //                    "0 items found", visually identical to a genuinely empty
+  //                    result)
+  // Only a 2xx-sourced count is a real measurement.
+  // Schema field populated: countObservation { value, source, httpStatus }
+  // ---------------------------------------------------------------------------
+  'count-source': {
+    class: 'count-source',
+    requiredActions: [
+      'identify-count-surface: locate the count display — API response body field OR grid/table footer text; DOM row enumeration is forbidden (virtualization means DOM holds a window, not the full set)',
+      'record-source-request: identify the HTTP request whose response body or footer value produced the count; record its URL and the observed HTTP status code',
+      'gate-on-absent-status: if the HTTP status is absent (not observable), emit UNCHECKABLE with reason naming the missing status; do not proceed to record a count value',
+      'gate-on-non-2xx-status: if the HTTP status is non-2xx, emit REQUEST-FAILED with the status code and URL; do not treat the count value as a measurement',
+      'record-count: only on 2xx — read the count value from the API response field or footer text; never by enumerating rendered DOM nodes',
+      'assert-source-discipline: confirm the count source is "api-response" or "footer", never "dom"; a DOM-sourced count is a schema violation regardless of status',
+    ],
+    effectObservable: 'count value paired with its source HTTP status; absent status routes to UNCHECKABLE; non-2xx routes to REQUEST-FAILED; only a 2xx-sourced count is a real measurement',
+    zeroEffectProtocol: 'A zero count whose source status is absent is UNCHECKABLE — the request may have silently failed. A zero count whose source status is non-2xx is REQUEST-FAILED (office-1604 class: HTTP 500 renders as "0 items found", visually identical to a genuinely empty result). A zero count with a confirmed 2xx status is a valid (empty) measurement.',
+    emissionContract: 'PROBED with countObservation:{value:number, source:"api-response"|"footer", httpStatus:number}. Absent httpStatus → UNCHECKABLE. Non-2xx httpStatus → REQUEST-FAILED. source:"dom" → schema rejection. A count record missing httpStatus is treated as UNCHECKABLE, not PASS.',
+  },
 };
 
 /**
