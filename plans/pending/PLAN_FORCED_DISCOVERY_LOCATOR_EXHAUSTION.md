@@ -754,27 +754,102 @@ probe.after"*. Every one looked like a clean result. The only thing that exposed
 
 ## Acceptance criteria
 
-- [ ] Phase 0 RCA consumed; taxonomy adjusted or confirmed against it (cite RCA rows)
-- [ ] Interaction-axis taxonomy landed in field-case-generation.md (per-class mandatory effects)
-- [ ] Interaction-map schema + drone probe scripts defined and versioned
-- [ ] Pilot rediscovers 100% of the 2026-07-17 Override gaps machine-side (list them, tick each)
-- [ ] Cross-Check Kernel: all 5 oracle classes implemented in drone probe scripts + checker; gate
+Graded 2026-07-30 by a blind cross-family census (gpt-5.5, barred from citing this plan's own prose
+as evidence for its own criteria), then re-graded after the fixes that census prompted. **8 of 11 met,
+3 open.** Artifact: `.claude/state/ua-worker/chips/close2/out-census2/CENSUS.md`.
+
+- [x] Phase 0 RCA consumed; taxonomy adjusted or confirmed against it (cite RCA rows)
+      — 9 of 9 interaction-axis rows verified against the RCA text they cite; row 5 (`guard`) corrected
+      from "No RCA row bears on this class" to cite RCA Gap 4, which addresses dirty-state guard by name.
+- [x] Interaction-axis taxonomy landed in field-case-generation.md (per-class mandatory effects)
+- [x] Interaction-map schema + drone probe scripts defined and versioned
+- [x] Pilot rediscovers 100% of the 2026-07-17 Override gaps machine-side (list them, tick each)
+      — all six specimen maps FAIL the checker as intended; verified by direct rerun, not by self-report.
+- [x] Cross-Check Kernel: all 5 oracle classes implemented in drone probe scripts + checker; gate
       self-test RED on evidence-C dialog-Active row as-walked / GREEN once 1222 disposition attached
       (fixtures = the real 2026-07-17 C/D/E/F files, not synthetic)
+      — the census proved the count oracle was keyword-present only; `count-source` was then built as a
+      real probe class, taking the set from 4 of 5 to 5 of 5.
 - [ ] Every 2026-07-17 chat-found bug class has a named oracle + a fixture proving the checker
       catches it: 1604→failed-request, NM-1940→round-trip, NM-2186→UI-vs-persisted, 1222→zero-effect,
       virtualization→count-oracle, 1117/NM-2011→claim-census
-- [ ] Generative oracle exists (`generate-invariants.mjs`); run against the Override metamodel emits
+      — **OPEN.** Every specimen is caught, but two are caught by the wrong oracle. S3 (NM-1940) does not
+      trip `round-trip-invariant`: its element carries `class:io` without the export/import capability
+      pair oracle 3 requires, so oracle 3 reports "no export+import pair" and passes, and
+      `zero-effect-disposition` catches it instead. S6 (NM-2011 / office 1604) is caught by
+      `claim-census`, not by the failed-request path. The NM-1940 source does describe a genuine round
+      trip, so the fix is a fixture restructure into a matched export element and import element —
+      not a tag bolted onto one element. Recipient: this criterion, with the required specimen shape
+      recorded in `.claude/state/ua-worker/chips/close2/out-oracle36/REPORT.md`.
+- [x] Generative oracle exists (`generate-invariants.mjs`); run against the Override metamodel emits
       an invariant set that SUPERSETS all 7 catch-list bugs — proven by mapping each bug to the I-row
       that catches it BLIND (no bug-history input to the generator); denominator = generated set, not
       a fixed list
+      — the census caught this at 6 rows for 7 bugs: 1117 and NM-2011 shared one entry, and office 1604
+      was mapped to I7 (count-source) when it belongs on I3 (read-totality, "no 404/500 on listed ids").
+      Both corrected; CONTAINMENT_TABLE now lists seven rows with `ANTI_HARDCODE: PASS`.
 - [ ] Domain-oracle harvest produces `domain-invariants.json` from Jira/Confluence/old-site (not web);
       generator consumes it alongside the CRUD set
+      — **OPEN.** Consumption is proven: removing a domain row from a scratch corpus drops
+      `domainInvariantCount` and omits that row from real output. But the corpus itself still declares a
+      `permission-invariant` coverage gap, so source completeness is not met. Recipient:
+      [SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md](SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md), whose
+      Phase 4 closes that gap entry.
 - [ ] Honest residual named + floored: (1) unclassifiable control → LOUD UNKNOWN blocks closure
       (never silent); (2) undocumented intent → kernel flags the disagreement (detection), human only
       adjudicates (never the finding) — both route to the Human-Catch Reflex on first touch
-- [ ] Closure gate lands `announce` with LR-069 ramp keys recorded
-- [ ] Data-doctrine ladder encoded where dispositions are validated (gate + LR-040 text)
+      — **OPEN.** Both halves are mechanically enforced: `UNCLASSIFIED` blocks closure and is asserted by
+      self-test, and claim-census fails on unchecked external claims. What the census could not locate is
+      any route, hook, or named recipient implementing the **Human-Catch Reflex** hand-off. The detection
+      exists; the routing does not.
+- [x] Closure gate lands `announce` with LR-069 ramp keys recorded
+- [x] Data-doctrine ladder encoded where dispositions are validated (gate + LR-040 text)
+      — the gate rejects a `DIFFERENTIAL-DATA-REQUIRED` row lacking rung evidence, and rejects a rung-2
+      claim naming fewer than two surfaces.
+
+### Execution Summary
+
+**Status remains PENDING.** 8 of 11 acceptance criteria are met; criteria 6, 8 and 9 are open with named
+recipients above. This section records what was executed, per LR-027, so the record exists before any
+future closure rather than being written at flip time.
+
+**What landed (2026-07-30 session, 25 commits, none pushed):**
+
+- `count-source` added as a twelfth drone probe class — the count oracle had been keyword-present only,
+  which a blind cross-family census proved. It enforces I7 in all three parts: source is API or footer
+  and never DOM enumeration, the source request's HTTP status is recorded, absent status routes to
+  `UNCHECKABLE` and non-2xx to `REQUEST-FAILED`.
+- The real bug corpus was wired into `--self-test`. It had run 151 cases while containing no reference to
+  `kernel-oracle-fixtures.json` at all — the six real specimens sat outside the regression net. Each
+  specimen now asserts the **specific** sub-check that flags it, and removing the corpus fails the suite.
+- `scope-match` sub-check — a walk that measured the wrong office previously passed every sub-check while
+  recording `DIFFERENTIAL-DATA-REQUIRED` with rung-2 ladder evidence. Scope now comes from the request,
+  never the URL or header; mismatch FAILs, absence is `UNCHECKABLE`.
+- Count-bearing derived from element class rather than field presence. A `filter` probe could previously
+  dodge **both** count oracles by simply omitting `countSource`.
+- Seven-bug enumeration in the containment table, and office 1604 remapped from I7 to I3.
+- Ledger section-counter fixed: it scanned only `result.md`, so any worker following the discipline of
+  writing to a declared OUTPUT path was flagged `no-report-schema`. It was wrong on 4 of 11 dispatches.
+- Self-test 133 → 178 across the session.
+
+**Pilot record.** Nine attempts. Runs 4–8 each failed in a different, instructive way and each produced a
+gate: wrong office measured (URL routing changes the URL and header but leaves the grid stale), stale
+footer accepted, map passing vacuously, and a map authored from a prior run's numbers after the worker was
+refused browser access. Run 9 succeeded on merit — office 1137, dialog navigation, scope proven from the
+network log, filter exercised with a real delta (18 → 16), `VERDICT: PASS`. That PASS was confirmed
+non-vacuous by mutation: deleting `countSource` flips it to `UNCHECKABLE`, and altering `observedScopeId`
+flips `scope-match` to FAIL.
+
+**Open findings recorded elsewhere, not closed here:**
+
+- The grid renders 18 rows where the API returns 20 for office 1137 (single currency, so not a scoping
+  artifact). Two rows are not reaching the user and the exclusion criterion is undetermined.
+- Nothing in an interaction map or the checker distinguishes an observed walk from an authored one.
+  Attempt 8 demonstrated this by passing all oracles on numbers it never observed; it was caught only
+  because the worker disclosed it.
+- Office 1604 returns HTTP 500 on this endpoint, verified live and filed. A sweep suggested a wider blast
+  radius, but that sweep reported 1230 offices completed while covering 24 distinct, so its error data is
+  not trustworthy enough to amend the filing in either direction.
 
 ## Handoff
 
