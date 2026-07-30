@@ -311,6 +311,53 @@ Active checkbox, fire the ladder, surface an inactive office (1222-class) via cr
 self-produce, and file the picker-excludes-inactive suspicion WITHOUT being told 1222 exists. If the
 pilot needs the answer key, the Zero-Effect Protocol failed its own test.
 
+### PILOT RUN 1 — 2026-07-29/30, two blind drones. Partial pass, one real find.
+
+Two blind walks were dispatched under a BLINDNESS PROTOCOL forbidding every path that carries the
+answer key (`plans/`, `scripts/walk-coverage/`, the two checkers, `specs_planning/`, `reports/bugs/`,
+`.claude/state/` outside the run's own output dir, `docs/read_only_docs/`, `git log|show|blame`, Jira,
+Confluence, web).
+
+**Blindness verified, not asserted.** Both runs were swept afterwards by extracting the actual path
+arguments passed to read tools from the process log — not by grepping the log text, which
+false-positives on the prohibition list the ticket itself echoes into the prompt. Run 2 opened four
+files, all permitted (`clients/encore/CLAUDE.md`, `.claude/rules/browser-tool.md`,
+`clients/encore/.env.local`, its own `OBSERVATIONS.json`), and zero answer-key identifiers appear
+anywhere in its log. Artifacts: `.claude/state/ua-worker/chips/close2/out-drone/` and `out-drone2/`.
+
+| Named rediscovery target | Result |
+|---|---|
+| Dialog Active checkbox **existence** (the original screenshot gap) | **REDISCOVERED.** Both runs opened the Change Local Office dialog, enumerated it as its own state with `openedBy` naming the opener, and found the Active checkbox inside it. |
+| 1222 class — reach `DIFFERENTIAL-DATA-REQUIRED`, fire the ladder, surface an inactive office by cross-surface hunt, file the picker-excludes-inactive suspicion | **NOT REACHED.** Run 2 probed the dialog Active checkbox in both directions and recorded a faithful zero-delta (office list 2652 → 2652, count source `unavailable-dom-only`). It stopped there. The ladder never fired, and no cross-surface hunt for an inactive office was attempted. |
+
+**Why target 2 failed, precisely**: the drone treated "no populated office found" as terminal. It tried
+7 offices (1101, 1102, 1105, 1107, 1121, 1604, 1605), got `0 items found` on every one, and wrote
+`officeHuntExhausted: true`. That is a **data-state observation being closed as a population path** —
+exactly what LR-040 (c).1 forbids. Rung 2 of the ladder requires hunting the other-side entity *across
+all surfaces and artifacts*; the drone hunted one surface (each office's own PGO page) and stopped on
+budget. The ladder text exists; nothing made the drone execute it.
+
+### ⚠ THE PILOT'S REAL FIND — a footer count cannot distinguish empty from failed
+
+`scripts/walk-coverage/fixtures/kernel-oracle-fixtures.json` specimen 5 records that
+`GET /api/location/corporate-price-pg-override?localOfficeId=1604` **always returns HTTP 500**.
+Blind and independently, the drone visited office 1604, read the grid footer, and recorded
+`rowCount: 0, source: "footer text '0 items found'"`.
+
+**The footer said zero because the request died.** The count oracle as specified — "API response or
+footer total, never DOM" — treats the footer as authoritative, and the footer reports a failed request
+as an empty result set. Every zero-delta computed from two such counts looks exactly like a dead
+filter and is actually a dead request. The checker had no oracle for this at all: as of this run,
+`grep -nE "failed-request|httpStatus|statusCode" scripts/check-interaction-coverage.mjs` returned
+nothing, so specimen 5 was a recorded specimen that nothing failed on.
+
+This also means the office hunt above is confounded: some of those 7 zero counts may be 500s rather
+than genuinely empty grids, and the walk had no way to tell.
+
+**Fix landed as**: a `REQUEST-FAILED` disposition plus a count-observation validity precondition — a
+footer-sourced count is valid only alongside a recorded 2xx, and an **absent** status yields
+`UNCHECKABLE`, never `COVERED`. Absence of a recorded status is not evidence of success.
+
 ## Phase 3 — Gate wiring
 
 `scripts/check-interaction-coverage.mjs` (closure checker above) + hook per LR-069 announce-first;
