@@ -447,11 +447,22 @@ function validateArtifact(map, schema) {
 
   // Oracle 4 — count-source (NM-2172 virtualization)
   // Row/list counts must assert against API response or footer total, NEVER DOM node count.
-  // countSource lives in probe.after — not a top-level element field.
-  // FAIL: any probe.after has countSource starting with "dom:" (DOM count = invalid probe).
-  // UNCHECKABLE: probe has count-related keys (matching /[Cc]ount$/) but no countSource recorded.
-  // PASS: no count-claiming probes found, or all recorded sources are non-dom.
+  // "Is this probe count-bearing?" is a property of the element's CLASS, not of whether
+  // the author supplied a countSource field. Classes whose declared effect is a row-count
+  // measurement require countSource for ALL probe states — omitting the field is not evidence
+  // that the obligation was met. Derived from drone-probes.mjs effectObservable strings:
+  //   filter:     "row-count delta between filter states"         → count-bearing
+  //   sort:       "first-cell content delta between sort directions" → content delta, not count
+  //   pagination: "page-indicator delta + first-row content delta"  → content delta, not count
+  // FAIL:       any probe.after.countSource starts with "dom:" (DOM count = rendering artifact).
+  // UNCHECKABLE: count-bearing class probe lacks countSource in before or after state,
+  //              OR probe has count-related keys but no countSource — absent ≠ valid source.
+  // PASS:       all count-bearing probes carry a valid, sourced count.
   {
+    // Classes whose declared effect is measured by a row count — countSource is mandatory for
+    // all probe states. Derived from drone-probes.mjs effectObservable strings (see above).
+    const COUNT_BEARING_CLASSES = ['filter'];
+
     const allElements = Array.isArray(map.elements) ? map.elements : [];
     const countFails = [];
     const countRequestFailed = [];
@@ -459,8 +470,18 @@ function validateArtifact(map, schema) {
 
     for (const el of allElements) {
       if (!Array.isArray(el.probes)) continue;
+      const isCountBearingByClass = COUNT_BEARING_CLASSES.includes(el.class);
       let elFail = false, elUncheckable = false, elRequestFailed = false;
       for (const probe of el.probes) {
+        // For count-bearing classes the before state is also a count measurement — both
+        // the before and after counts must have their source documented.
+        // A filter probe records counts without declaring a countSource in before → UNCHECKABLE.
+        if (isCountBearingByClass && probe.before && typeof probe.before === 'object') {
+          if (!('countSource' in probe.before)) {
+            elUncheckable = true;
+            break;
+          }
+        }
         const after = probe.after;
         if (!after || typeof after !== 'object') continue;
         if ('countSource' in after) {
@@ -504,7 +525,7 @@ function validateArtifact(map, schema) {
           } else {
             elUncheckable = true; // non-string countSource; cannot classify
           }
-        } else if (probeHasCountKeys(probe)) {
+        } else if (isCountBearingByClass || probeHasCountKeys(probe)) {
           elUncheckable = true;
         }
       }
@@ -537,8 +558,8 @@ function validateArtifact(map, schema) {
         name: 'count-source',
         verdict: 'UNCHECKABLE',
         pass: false,
-        reason: `UNCHECKABLE (≠ PASS): ${countUncheckable.length} element(s) record count data without a countSource field — ` +
-          `absence of a source is not proof of a good source: [${countUncheckable.join(', ')}]`,
+        reason: `UNCHECKABLE (≠ PASS): ${countUncheckable.length} element(s) record counts without declaring a countSource — ` +
+          `count-bearing class (${COUNT_BEARING_CLASSES.join(', ')}) probes require countSource for all measured states; absence of a source is not proof of a valid measurement: [${countUncheckable.join(', ')}]`,
       });
     } else {
       checks.push({
@@ -575,8 +596,13 @@ function validateArtifact(map, schema) {
       let elMismatch = false, elUncheckable = false;
       for (const probe of el.probes) {
         if (!probe || typeof probe !== 'object') continue;
-        // A probe is count-bearing if it reads from a context-dependent surface.
+        // A probe is count-bearing if its element class declares a row-count effect AND the
+        // map declares a scope to compare against, or if it reads from a context-dependent surface.
+        // Class-based detection is gated on declaredScope presence: without a declared scope there
+        // is nothing to mismatch against, so the class-based trigger does not apply.
+        const COUNT_BEARING_CLASSES_SM = ['filter'];
         const isCountBearing =
+          (declaredScope !== null && COUNT_BEARING_CLASSES_SM.includes(el.class)) ||
           (typeof probe.footerSource === 'string' && probe.footerSource.trim()) ||
           (probe.after && typeof probe.after === 'object' && 'countSource' in probe.after) ||
           probeHasCountKeys(probe);
@@ -1302,8 +1328,10 @@ async function selfTest() {
   assert(r27.checks.find(c => c.name === 'count-source').pass,
     'api: countSource → count-source PASS');
 
-  // T28: Oracle 4 GREEN — no count probes → oracle N/A, count-source PASS
-  console.log('\n=== T28: Oracle 4 — no count probes → count-source PASS (N/A) ===');
+  // T28: Oracle 4 RED — filter (count-bearing class) probe with before state lacking countSource → UNCHECKABLE
+  // True catch: filter's effect is "row-count delta between filter states" (drone-probes.mjs);
+  // both states are count measurements so countSource is mandatory in the before state too.
+  console.log('\n=== T28: Oracle 4 — filter probe, before state lacks countSource → UNCHECKABLE ===');
   const o4NoCountMap = {
     version: '1.0.0', surface: 'test',
     elements: [{
@@ -1313,8 +1341,28 @@ async function selfTest() {
     }],
   };
   const r28 = validateArtifact(o4NoCountMap, schemaResult.mod);
-  assert(r28.checks.find(c => c.name === 'count-source').pass,
-    'no count-related probe keys → count-source PASS (oracle N/A)');
+  assert(r28.checks.some(c => c.name === 'count-source' && c.verdict === 'UNCHECKABLE'),
+    'filter is count-bearing by class — before-state probe lacks countSource → UNCHECKABLE (not N/A PASS)');
+
+  // T28-HC: Oracle 4+scope-match GREEN — filter probe with countSource in both before/after, matching scope → PASS (honest control)
+  console.log('\n=== T28-HC: Oracle 4+scope-match — filter probe, full countSource, matching scope → PASS ===');
+  const o4HonestControlMap = {
+    version: '1.0.0', surface: 'test', declaredScope: '1105',
+    elements: [{
+      elementId: 'active-filter', class: 'filter', emissionStatus: 'PROBED',
+      probes: [{
+        action: 'toggle-filter-off', observedScopeId: '1105',
+        before: { rowCount: 20, countSource: 'footer:20 items found', httpStatus: 200 },
+        after: { rowCount: 10, countSource: 'footer:10 items found', httpStatus: 200 },
+      }],
+      effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
+    }],
+  };
+  const r28hc = validateArtifact(o4HonestControlMap, schemaResult.mod);
+  assert(r28hc.checks.find(c => c.name === 'count-source').pass,
+    'filter probe with countSource in both before and after states → count-source PASS');
+  assert(r28hc.checks.find(c => c.name === 'scope-match').pass,
+    'filter probe with observedScopeId matching declaredScope → scope-match PASS (honest control)');
 
   // T29: Oracle 5 RED — basis: "claim:*" with no census → claim-census FAIL
   console.log('\n=== T29: Oracle 5 — claim basis, no census → claim-census FAIL ===');
