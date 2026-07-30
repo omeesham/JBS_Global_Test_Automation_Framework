@@ -247,6 +247,58 @@ function validateArtifact(map, schema) {
     });
   }
 
+  // Differential-data ladder (LR-040-D): any DIFFERENTIAL-DATA-REQUIRED element must carry
+  // rung-1 or rung-2 evidence on the `ladderEvidence` field. Absent or placeholder evidence
+  // blocks closure exactly like an undispositioned element. A rung-2 claim naming fewer than
+  // two surfaces is not rung-2 evidence — the design requires cross-surface hunting.
+  // Field chosen: `ladderEvidence` — no existing field naturally carries rung/attempt/surfaces;
+  // this name is unambiguous and the schema validator ignores unknown fields.
+  {
+    const ladderNoEvidence = [];
+    const ladderSingleSurface = [];
+    if (Array.isArray(map.elements)) {
+      for (const el of map.elements) {
+        if (el.disposition !== 'DIFFERENTIAL-DATA-REQUIRED') continue;
+        const ev = el.ladderEvidence;
+        if (!ev || typeof ev !== 'object' || Array.isArray(ev)) {
+          ladderNoEvidence.push(el.elementId || '(unknown)');
+          continue;
+        }
+        if (ev.rung !== 1 && ev.rung !== 2) {
+          ladderNoEvidence.push(el.elementId || '(unknown)');
+          continue;
+        }
+        if (!ev.attempted || typeof ev.attempted !== 'string' || !ev.attempted.trim()) {
+          ladderNoEvidence.push(el.elementId || '(unknown)');
+          continue;
+        }
+        if (ev.rung === 2) {
+          const validSurfaces = Array.isArray(ev.surfaces)
+            ? ev.surfaces.filter(s => typeof s === 'string' && s.trim())
+            : [];
+          if (validSurfaces.length < 2) {
+            ladderSingleSurface.push(el.elementId || '(unknown)');
+          }
+        }
+      }
+    }
+    const allFailed = [...ladderNoEvidence, ...ladderSingleSurface];
+    const parts = [];
+    if (ladderNoEvidence.length > 0)
+      parts.push(`no rung evidence: [${ladderNoEvidence.join(', ')}]`);
+    if (ladderSingleSurface.length > 0)
+      parts.push(`rung-2 with fewer than 2 surfaces (single-surface hunt is not rung 2): [${ladderSingleSurface.join(', ')}]`);
+    checks.push({
+      name: 'differential-data-ladder',
+      verdict: allFailed.length === 0 ? 'PASS' : 'FAIL',
+      pass: allFailed.length === 0,
+      reason: allFailed.length === 0
+        ? 'All DIFFERENTIAL-DATA-REQUIRED elements carry rung evidence'
+        : `LADDER VIOLATION: ${allFailed.length} DIFFERENTIAL-DATA-REQUIRED element(s) block closure — ` +
+          parts.join('; '),
+    });
+  }
+
   // Oracle 2 — ui-vs-persisted-parity (NM-2186 class)
   // Evidence-keyed: any PROBED element carrying persistedStateReRead claims persistence,
   // regardless of declared class (semantic invariant prevents class-relabeling escape).
@@ -1710,6 +1762,66 @@ async function selfTest() {
   }]}, schemaResult.mod);
   assert(r73.checks.find(c => c.name === 'unclassified-element').pass,
     'No UNCLASSIFIED elements → unclassified-element PASS');
+
+  // T74: Ladder RED — DIFFERENTIAL-DATA-REQUIRED with no ladderEvidence → FAIL naming elementId
+  console.log('\n=== T74: Ladder — DIFFERENTIAL-DATA-REQUIRED, no ladderEvidence → FAIL ===');
+  const r74 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'active-filter-no-evidence', class: 'filter', emissionStatus: 'PROBED',
+    probes: [{ action: 'toggle' }], effectObserved: false,
+    disposition: 'DIFFERENTIAL-DATA-REQUIRED', basis: 'observed:walk.txt',
+  }]}, schemaResult.mod);
+  assert(!r74.pass, 'DIFFERENTIAL-DATA-REQUIRED with no ladderEvidence → FAIL');
+  assert(r74.checks.some(c => c.name === 'differential-data-ladder' && !c.pass),
+    'differential-data-ladder check fails');
+  assert(r74.checks.find(c => c.name === 'differential-data-ladder').reason.includes('active-filter-no-evidence'),
+    'failure names the offending elementId');
+
+  // T75: Ladder RED — rung-2 evidence naming only one surface → FAIL
+  console.log('\n=== T75: Ladder — rung-2 with single surface → FAIL ===');
+  const r75 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'active-filter-one-surface', class: 'filter', emissionStatus: 'PROBED',
+    probes: [{ action: 'toggle' }], effectObserved: false,
+    disposition: 'DIFFERENTIAL-DATA-REQUIRED', basis: 'observed:walk.txt',
+    ladderEvidence: {
+      rung: 2,
+      attempted: 'searched location-lookup API seven ways, found all-active',
+      surfaces: ['location-lookup API'],
+    },
+  }]}, schemaResult.mod);
+  assert(!r75.pass, 'rung-2 with only one surface → FAIL');
+  assert(r75.checks.some(c => c.name === 'differential-data-ladder' && !c.pass),
+    'differential-data-ladder check fails for single-surface rung-2');
+
+  // T76: Ladder GREEN — DIFFERENTIAL-DATA-REQUIRED with complete rung-2 evidence (2 surfaces) → PASS (honest control)
+  console.log('\n=== T76: Ladder — complete rung-2 evidence (2 surfaces) → differential-data-ladder PASS ===');
+  const r76 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'active-filter-full-evidence', class: 'filter', emissionStatus: 'PROBED',
+    probes: [{ action: 'toggle' }], effectObserved: false,
+    disposition: 'DIFFERENTIAL-DATA-REQUIRED', basis: 'observed:walk.txt',
+    ladderEvidence: {
+      rung: 2,
+      attempted: 'searched for inactive offices across Location Settings and GET /api/locations',
+      surfaces: ['Location Settings admin tab', 'GET /api/locations endpoint'],
+    },
+  }]}, schemaResult.mod);
+  assert(r76.checks.find(c => c.name === 'differential-data-ladder').pass,
+    'Complete rung-2 evidence (2 surfaces) → differential-data-ladder PASS');
+  assert(r76.pass, 'DIFFERENTIAL-DATA-REQUIRED with complete rung-2 evidence → overall PASS (honest control)');
+
+  // T77: Ladder GREEN — rung-1 evidence (no surfaces required) → PASS
+  console.log('\n=== T77: Ladder — rung-1 evidence → differential-data-ladder PASS ===');
+  const r77 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'active-filter-rung1', class: 'filter', emissionStatus: 'PROBED',
+    probes: [{ action: 'toggle' }], effectObserved: false,
+    disposition: 'DIFFERENTIAL-DATA-REQUIRED', basis: 'observed:walk.txt',
+    ladderEvidence: {
+      rung: 1,
+      attempted: 'deactivated office 1604 via Location Settings admin to create other-side state',
+    },
+  }]}, schemaResult.mod);
+  assert(r77.checks.find(c => c.name === 'differential-data-ladder').pass,
+    'Rung-1 evidence (entity produced) → differential-data-ladder PASS');
+  assert(r77.pass, 'DIFFERENTIAL-DATA-REQUIRED with rung-1 evidence → overall PASS');
 
   fireTelemetry(fails === 0 ? 'pass' : 'fail', 'self-test');
 
