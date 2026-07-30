@@ -154,6 +154,46 @@ folder is 2.2 GB and two gitignored directories are **92%** of it.
 | `specs_planning/test-plans` | 448 KB | The actual work product |
 | `specs_planning/catalogs` | 132 KB | The actual work product |
 
+**Inside `reports` (927 MB):**
+
+| Path | Size | Read |
+|---|---|---|
+| `reports/allure-results` | **794 MB** | Raw Allure output. 86% of `reports/` on its own. |
+| `reports/allure-report` | 111 MB | The rendered report, generated *from* `allure-results` — both kept |
+| `reports/diagnostics` | 6.1 MB | Needs classification |
+| `reports/test-results.json` | 724 KB | Needs classification |
+| `reports/html-report` | 644 KB | A third report format alongside the other two |
+| `reports/_cli-run.log` | 472 KB | Scratch log at the `reports/` root |
+| `reports/walk-coverage` | 288 KB | Needs classification |
+| `reports/fcc-completion-run` | 236 KB | Needs classification |
+| `reports/junit-results.xml` | 228 KB | Needs classification |
+| `reports/bugs` | **68 KB** | The filed bug JSONs — the highest-value content in the directory, at 0.007% of its size |
+| `reports/screenshots`, `_extra-leaks.txt`, `_diag_pause.log`, `label-inventory.txt`, `_rerun2.log` | <300 KB total | Needs classification |
+
+**File counts**: `reports` = **91,634 files**. `specs_planning` = 2,751 files. The shipped payload
+(`src` + `tests` + `testcases`) is a few thousand at most.
+
+### It is one class, not five
+
+The five hypotheses below are not five problems. Measured directly:
+
+| Source | Size |
+|---|---|
+| `reports/allure-results` | 794 MB |
+| `reports/allure-report` (generated from the above) | 111 MB |
+| `specs_planning/_internal/defence-evidence-2026-06-01/run1+run2/allure-results` | 336 MB |
+| **Subtotal — raw Allure output and its rendering** | **1,241 MB (56% of the folder)** |
+| `specs_planning/_internal.zip` — archives `_internal`, which is 336 MB Allure of its 637 MB | up to +419 MB |
+
+So **one writer class — raw Allure output that nothing prunes** — accounts for at least 56% and
+plausibly ~75% of a 2.2 GB folder, and for roughly 90,000 of its ~94,000 files. It was then amplified
+twice: **copied** into a dated evidence directory, and **archived** in place on top of that.
+
+This is a better result than five separate RCAs, and it should be stated in the plan rather than
+discovered again in Phase 3: fix retention on Allure output and the problem is mostly gone. The
+remaining items (`.auth` profiles, `.playwright-cli` scratch, the doubled path, loose root files) are
+real and still in scope, but they are the tail, not the story.
+
 ### Three findings this measurement forces
 
 **1. The bloat never touched the ship boundary.** `specs_planning`, `reports`, `.auth` and
@@ -226,13 +266,16 @@ One RCA per class, each answering the same four questions:
   Phase 3 must answer*: which run produced it, was it ever consumed, and what was the intent (a
   handoff? a backup before a destructive edit?). *Prediction*: a one-shot agent convenience with no
   cleanup step, and the fix is that in-place archives are never written under a client folder.
-- **`_internal` at 637 MB — raw `allure-results` under dated evidence dirs.** Evidence capture copied
-  the *entire* Allure output (thousands of UUID files per run) rather than the report or a digest, and
-  nothing prunes dated evidence dirs. *Prediction*: needs a retention rule plus a rule about what
-  "evidence" means — a summarised artifact, not a raw run dump.
-- **`reports` at 927 MB** — same class as above, unmeasured internally. *Prediction*: accumulated
-  Playwright/Allure output across months with no retention. **Constraint**: reports and results are
-  never removed without asking; this one is archive-and-confirm, not clean.
+- **`_internal` at 637 MB — of which 336 MB is measured raw `allure-results`** across two runs in a
+  single dated evidence dir. Evidence capture copied the *entire* Allure output (thousands of UUID
+  files per run) rather than the report or a digest, and nothing prunes dated evidence dirs.
+  *Prediction*: needs a retention rule plus a rule about what "evidence" means — a summarised
+  artifact, not a raw run dump. *Open*: the other ~300 MB of `_internal` is not yet attributed.
+- **`reports` at 927 MB — measured: `allure-results` 794 MB + `allure-report` 111 MB = 97.6%.** Three
+  report formats are retained simultaneously (`allure-report`, `html-report`, `junit-results.xml`)
+  alongside the raw results they are all generated from. *Prediction*: no retention rule ever existed
+  and the raw results were never intended to be kept once rendered. **Constraint**: reports and
+  results are never removed without asking; this is archive-and-confirm, not clean.
 - **`.auth` at 63 MB** — Playwright `launchPersistentContext` writing full browser profiles. Storage
   state is ~20 KB; the profile is 3000× that. *Prediction*: profiles do not belong under the client
   folder at all, and nothing prunes them.
@@ -375,7 +418,9 @@ remains the owner's, never an agent's.
 - [ ] **B1** proven by live fire on both shapes: a `*.zip` write under `clients/encore/` and an `allure-results/` write under `specs_planning/` each produce a telemetry line. Both pasted.
 - [ ] **B2** — every accumulating directory named in the census carries a retention-policy row; any directory with no row is reported as a finding rather than silently omitted.
 - [ ] **B3** — the size governor runs at session end, compares against recorded budgets, and its output is pasted for a session where at least one directory is over budget. It deletes nothing.
-- [ ] The `reports/` internal breakdown is measured and dispositioned — it is 927 MB and this plan currently knows only its top-level size.
+- [ ] `reports/` is dispositioned per sub-directory (measurement done: `allure-results` 794 MB + `allure-report` 111 MB = 97.6%). Retaining raw results, a rendered Allure report, an HTML report and a JUnit XML simultaneously is either justified in writing or reduced.
+- [ ] The ~300 MB of `specs_planning/_internal` not attributed to `allure-results` is measured and dispositioned.
+- [ ] `_internal.zip` (419 MB) is opened far enough to say what it archives and whether anything in it exists nowhere else, **before** it is proposed for archive-move.
 - [ ] The 450-tracked-files-inside-an-ignored-directory state is resolved: each tracked path is either a deliberate re-include listed explicitly in `.gitignore`, or untracked. `git add` on `specs_planning/` no longer requires `-f` for the deliberate set.
 - [ ] The doubled `clients/encore/clients/` path is resolved and its root cause named with file:line or equivalent evidence.
 - [ ] Zero files deleted by any agent. Every removal is archive-move + prune-check + owner confirmation, with the confirmation quoted.
