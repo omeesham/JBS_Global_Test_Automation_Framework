@@ -358,6 +358,43 @@ than genuinely empty grids, and the walk had no way to tell.
 footer-sourced count is valid only alongside a recorded 2xx, and an **absent** status yields
 `UNCHECKABLE`, never `COVERED`. Absence of a recorded status is not evidence of success.
 
+### PILOT RUN 2 — 2026-07-30, on a bed that actually has data
+
+Runs 1 and 2 burned their budget hunting for a populated office because the ticket made them hunt. That
+was a dispatcher error, not a drone error: **the data beds were already recorded** in
+`clients/encore/src/data/corporate-override/override.ts` (office 4107, the live-certified round-trip
+target, product group 4298; office 9460 Labor, 212 items). Blinding a run to the *findings* is the
+point; blinding it to the *test-data setup* just wastes the run. Run 3 was handed the bed.
+
+**Result on office 4107 ("The Lodge at Spruce Peak"), footer count 1, httpStatus 200 on every count:**
+
+| Observation | Value |
+|---|---|
+| Equipment / Labor tab switch | Equipment 1, Labor 0 — **one API call served both**; the tab switch is client-side |
+| "Active only" checkbox (landing page) | count 1 in **both** states, **no new API call** — client-side filter. The single row's Active cell rendered a dash, not a boolean |
+| Currency filter | count 1 for both ALL and USD; the one row is USD |
+| Sort (Location) | count 1, first cell unchanged — a single row cannot demonstrate ordering |
+| Dialog Active checkbox | office list **identical** in both states — the same zero-effect run 2 saw, now observed independently a second time. Still `unavailable-dom-only`: the dialog exposes no footer or API count |
+
+**The bed is wrong for this job, and that is the finding.** 4107 carries **one row**. A filter cannot be
+proven against a single row sitting entirely on one side of it — every zero-delta above is
+uninformative by construction, exactly as a zero-row grid was. 4107 is an io / round-trip bed; it is
+not a filter-partition bed. The plan's own Phase 2 line names "Active-only bed 1105", and 1105's
+Override grid measured empty across two runs. **The bed list in this plan is stale and needs re-deriving
+from live counts before the pilot's filter half can mean anything.**
+
+**What the run got right, and it is the important part.** Asked to record where it looked for
+other-side entities, the drone wrote: *"Only one surface checked… No other surface was consulted for
+inactive entities."* It did not write "hunt exhausted". That single-surface disclosure is precisely the
+condition the ladder sub-check now FAILS on — so this walk's zero-delta rows would be correctly blocked
+as unproven rather than passing as evidence of a dead filter. **The pilot validated the gate by
+tripping it honestly.**
+
+**Named-target status after run 3**: dialog Active checkbox existence — REDISCOVERED, twice,
+independently. The 1222 target — still NOT reached: the zero-effect observation lands, the ladder does
+not fire, no inactive office is surfaced. What changed is that the incompleteness is now *caught*
+rather than silently accepted.
+
 ## Phase 3 — Gate wiring
 
 `scripts/check-interaction-coverage.mjs` (closure checker above) + hook per LR-069 announce-first;
