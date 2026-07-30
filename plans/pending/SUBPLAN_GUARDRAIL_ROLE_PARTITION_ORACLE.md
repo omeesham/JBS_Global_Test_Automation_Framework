@@ -56,10 +56,12 @@ and confirm with the client which roles are provisionable on the E2E environment
 exists, this is a **named blocker with a named unlock** — escalate via `/encore-questions` for a
 read-only-role account. Do not proceed to Phase 2 on a single account and do not simulate a role.
 
-### Role vocabulary — found 2026-07-30, no longer a gap
+### Role vocabulary — closed 2026-07-30 by live measurement, not by the documents below
 
-This subplan was authored without naming which roles to partition against. Two Confluence sources
-supply that, found during the domain-oracle harvest:
+This subplan was authored without naming which roles to partition against. The answer is
+**`NavigatorCloud.Pricing.ManagePricing`**, read from the live app — see the measured block that
+follows. The two Confluence sources below were found during the domain-oracle harvest and were the
+initial (incorrect) basis for that answer; they are kept for provenance:
 
 - **Navigator Legacy Permissions — Design Spec** (Confluence page `3871342594`, space NM) —
   *"Document all security roles (permissions), access levels, and authorization patterns used in the
@@ -73,10 +75,42 @@ supply that, found during the domain-oracle harvest:
   **Design-spec, not live-verified** — it documents the rewrite, not today's behaviour. Useful as the
   shape the read/write partition is heading toward; not evidence of what the live app enforces now.
 
-### What the legacy permissions spec actually gives us (read 2026-07-30)
+### ⚠ MEASURED 2026-07-30 — the legacy spec does NOT describe the app under test
 
-Confluence page `3871342594` was read in full. It supplies more than names — it supplies the whole
-partition mechanism, and it changes what Phase 2 needs.
+**Read this before the spec extract below.** A live sweep of the automation account's roles across 13
+offices (1169, 1137, 1172, 1146, 1105, 1115, 1107, 4107, 1101, 1605, 9460, 8843, 4104) settled the
+question the spec extract was speculating about, and settled it against the spec.
+
+- **No `User/Role?locationId=` endpoint exists in Navigator Cloud.** A network capture across office
+  changes found the only role-bearing call is **`GET /navigator/api/auth/session`** — a
+  **session-level** call, not a per-location one. Roles do not reload per office because they are not
+  scoped per office.
+- **The role keys are entirely different.** Navigator Cloud returns 19 namespaced permissions —
+  `NavigatorCloud.Pricing.ManagePricing`, `NavigatorCloud.Discount.ManageDiscount`,
+  `NavigatorCloud.ProductGroups.ManageProductGroups`, and so on. **`NavRevenueMgmt` does not exist
+  here.**
+- **Access is not the 1/2/3 scalar.** Every one of the 19 keys returns the string `FullAccess`. No
+  three-level view/edit distinction was observed.
+- **Nothing varies.** All 19 keys held identical values at all 13 offices — zero variation.
+
+**Consequence: the per-office unblock is dead, and the two-account escalation is now evidence-backed
+rather than assumed.** Phase 2 cannot run on the existing account under any office.
+
+**The escalation is now precise.** Ask for an account whose **`NavigatorCloud.Pricing.ManagePricing`
+is not `FullAccess`** — that is the permission governing this surface in the app actually under test.
+That is a far better request than "a read-only-role account", and it is checkable the moment
+credentials arrive by calling `GET /navigator/api/auth/session` and comparing the 19 keys.
+
+**How this error happened, so the next reader avoids it**: the Confluence spec is real, accurate, and
+about **legacy Navigator HeliosWeb**. It was treated as describing the system under test because it
+carries the product name. A design document for a predecessor system is not evidence about its
+successor. The block below is retained as legacy background only — **do not build Phase 1 or Phase 2
+against its role keys or its access model.**
+
+### Legacy HeliosWeb permissions spec — background only, superseded by the measurement above
+
+Confluence page `3871342594` was read in full. It describes the **legacy** application's partition
+mechanism. Retained because the *shape* of the problem it documents is still instructive.
 
 **The governing role for this surface is `NavRevenueMgmt`** — "Price books, discount pricing, **PG
 overrides**". Setup-screen edit gate: `roleCanEdit(NavRevenueMgmt)`. Menu visibility: corp +
@@ -95,12 +129,11 @@ needs:
 with `roleCanEdit → Value === 3` and `roleCanView → Value > 1`. So the refusal direction is
 concretely testable: `NavRevenueMgmt` at Value 2 must render the surface and refuse the mutation.
 
-**Roles are location-scoped and reload on office change** — served by
+~~**Roles are location-scoped and reload on office change**~~ — the legacy spec says roles are served by
 `GET User/Role?locationId=&userName=&culture=`, cached in `SessionKeys.Roles`, "refreshed on local
-office change". **This may unblock Phase 2 without new accounts**: the same automation account can hold
-different access values at different offices. Phase 0's first action should now be to call that
-endpoint across the offices we already use and look for a `NavRevenueMgmt` value that differs. If one
-exists, the partition is testable today.
+office change". **REFUTED for Navigator Cloud on 2026-07-30**: that endpoint does not exist here, roles
+come from a session-level `GET /navigator/api/auth/session`, and the account's 19 permissions were
+identical across all 13 offices tested. There is no per-office partition to exploit.
 
 **Ready-made fixture source**: the spec's own *Client / Server Discrepancies* table documents nine
 cases where the client UI gate and the backend API enforcement disagree — e.g. payment entry requires
@@ -110,10 +143,12 @@ role-partition bug class, already catalogued.** NAV-4180 belongs to it: Price Gu
 `NAVOrderEntry` locally but `NavRevenueMgmt` at corp, so a role that should not edit can reach it.
 Phase 2 should fixture from this table rather than inventing cases.
 
-**What remains blocked**: two accounts with genuinely different `NavRevenueMgmt` values, **if** the
-per-office lookup above finds none. That would still be an `/encore-questions` escalation — but it is
-now a last resort rather than the starting point, and it asks for a specific role at a specific access
-value instead of "a read-only account".
+**What remains blocked — now confirmed, not suspected**: a second account holding a restricted
+`NavigatorCloud.Pricing.ManagePricing`. The per-office lookup was performed and found no variation
+anywhere, so this is an `/encore-questions` escalation with the cheaper alternative already ruled out
+by measurement. Evidence:
+`.claude/state/ua-worker/chips/close2/out-rolesweep/ROLES.json` — 19 keys × 13 offices, all
+`FullAccess`, `variesAcross` reports zero varying keys.
 
 Phases 1 and 3 are buildable without the credentials; Phase 2 is not.
 
