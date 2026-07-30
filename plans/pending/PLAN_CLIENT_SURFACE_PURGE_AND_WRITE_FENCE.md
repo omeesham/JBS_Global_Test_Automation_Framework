@@ -22,8 +22,8 @@ its cleanliness is therefore a delivery-quality question, not a housekeeping pre
 On 2026-07-30 the owner opened the folder in Explorer and found a `clients/` directory **inside**
 `clients/encore/`. That is not a naming quirk — it is a path bug that wrote real files to a nonsense
 location, and nothing in the repo noticed. His words: *"i dont know how many shitty fuckups are alive
-in our whole fucking repo."* A first measurement pass the same night confirmed the folder had grown
-to well over 100 MB around a payload that is a small fraction of that.
+in our whole fucking repo."* The completed measurement is worse than the first pass suggested: the
+folder is **2.2 GB**, and the tracked payload that actually reaches the client is **~3 MB** of it.
 
 **The deeper problem is not the mess. It is that the mess was possible.** Every artifact catalogued
 below was written by an agent, on purpose, into a folder no agent should be able to write to freely.
@@ -121,26 +121,61 @@ in none of the three git listings is a finding in its own right.
 **Deliverable**: `clients/encore/specs_planning/_internal/client-surface-census-2026-07-30.md` —
 one row per file: path, size, mtime, git-status bucket, last-touching commit (or "never committed").
 
-### What the first measurement pass already found (2026-07-30, machine-measured)
+### Completed measurement (2026-07-31, machine-measured — supersedes the first partial pass)
 
-These are real numbers taken tonight; they scope the work but do **not** replace Phase 1.
+The `du` sweep finished and **inverted the working assumption**. The first pass named `.auth` (63 MB)
+and `.playwright-cli` (40 MB) as the headline bloat. They are not: together they are **4.6%**. The
+folder is 2.2 GB and two gitignored directories are **92%** of it.
 
-| Path | Size | Files | First read |
-|---|---|---|---|
-| `.auth/e2e-profile` | 37 MB | — | Persistent Chromium profile (cache, service workers, IndexedDB) |
-| `.auth/walk-b-profile` | 26 MB | — | Second persistent Chromium profile |
-| `.auth` (total) | 63 MB | 722 | Only 2 files (`*-state.json`, ~20 KB each) are actually needed |
-| `.playwright-cli` | 40 MB | 328 | Walk scratch: 4× 570 KB CSV exports, console logs back to 21 May |
-| `clients/encore/clients/` | 409 KB | 4 | **Path bug** — doubled path, untracked, never noticed |
-| `playwright-report-graft-green` | 1000 KB | — | Graft leftover; a second report dir beside `playwright-report` |
-| `playwright-report` | 816 KB | — | Standard Playwright output |
-| `docs` | 1.8 MB | 5 | Needs classification |
-| `logs` | 1.7 MB | 1 | Needs classification |
-| client root, loose | — | ~20 | `job3b-*.png` ×4, `nm22*-html-report.png` ×5, `part-a/b/c*.js` ×7, `diag.js`, `review2-*.txt` ×3, `step*.png` ×3 |
+| Path | Size | Git status | Tracked files | Read |
+|---|---|---|---|---|
+| `specs_planning` | **1.1 GB** | IGNORED (`.gitignore:188`) | **450** (1.4 MB) | 99.9% of its bytes are untracked. See sub-table. |
+| `reports` | **927 MB** | IGNORED (`clients/encore/.gitignore:3`) | 0 | Top-level size only; internals not yet broken down (Phase 1 owes this) |
+| `node_modules` | 95 MB | IGNORED | 0 | Expected; not a finding |
+| `.auth` | 63 MB | IGNORED | 0 | 722 files, 2 persistent Chromium profiles; only 2 `*-state.json` (~20 KB) are needed |
+| `.playwright-cli` | 40 MB | IGNORED | 0 | 328 files, walk scratch, console logs back to 21 May; no retention rule |
+| `docs` | 1.8 MB | — | — | Needs classification |
+| `logs` | 1.7 MB | — | — | Needs classification |
+| `playwright-report-graft-green` | 1000 KB | — | — | Graft leftover; second report dir beside `playwright-report` |
+| `testcases` | 932 KB | — | — | Deliverable XLSX — classification expected SHIPS |
+| `src` | 917 KB | tracked | — | The shipped payload |
+| `tests` | 840 KB | tracked | — | The shipped payload |
+| `playwright-report` | 816 KB | — | — | Standard Playwright output |
+| `clients/encore/clients/` | 409 KB | **untracked-and-NOT-ignored** | 0 | **Path bug** — doubled path, no rule anticipated it |
+| client root, loose | ~2.4 MB | **untracked-and-NOT-ignored** | 0 | `nm22*-html-report.png` ×5 (1.5 MB), `job3b-*.png` ×5, `step*.png` ×3, `part-a/b/c*.js` ×7, `diag.js`, `review2-*.txt` ×3 |
 
-**Not yet measured** — the `du` sweep timed out before reaching `reports/`, `scripts/`,
-`specs_planning/`, `src/`, `tests/`, `testcases/`. Phase 1 must cover them; do not assume they are
-clean because they are absent from this table.
+**Inside `specs_planning` (1.1 GB):**
+
+| Path | Size | Read |
+|---|---|---|
+| `specs_planning/_internal` | 637 MB | Raw `allure-results/` dumps under dated evidence dirs — thousands of UUID-named `*-result.json` / `*-attachment.txt` |
+| `specs_planning/_internal.zip` | **419 MB** | **A single file.** An in-place archive of the sibling `_internal/` directory. Pure duplication, and the largest single object in the client folder. |
+| `specs_planning/test-cases` | 1.5 MB | The actual work product |
+| `specs_planning/test-plans` | 448 KB | The actual work product |
+| `specs_planning/catalogs` | 132 KB | The actual work product |
+
+### Three findings this measurement forces
+
+**1. The bloat never touched the ship boundary.** `specs_planning`, `reports`, `.auth` and
+`.playwright-cli` are all gitignored, so `git archive` already excludes them — 92% of the bloat could
+never have reached the client. **This plan's original framing was wrong**: it treated the folder as a
+delivery-quality problem. It is primarily a *local disk and retention* problem, with a much smaller
+delivery-hygiene problem sitting beside it. Phase 4 is corrected accordingly.
+
+**2. The tracked set and the ignore fence disagree.** `.gitignore:188` ignores
+`clients/*/specs_planning/`, yet **450 files under it are tracked**. That state can only be reached by
+force-adds (`git add -f`), and it is why routine `git add` on those paths behaves confusingly — it was
+hit live during the 2026-07-30 session. A directory that is simultaneously ignored and tracked is an
+unstable fence, and it is a finding in its own right regardless of size.
+
+**3. The danger bucket is small but is exactly the class the fence must stop.**
+Untracked-and-not-ignored under `clients/encore/` = the doubled `clients/` dir plus ~20 loose root
+files (~2.8 MB total). Zero bytes of it was anticipated by any rule. Size is not the point — *nothing
+stopped the write* is the point.
+
+**Still owed by Phase 1**: the internal breakdown of `reports/` (927 MB, top-level figure only), and
+per-file mtimes across the whole tree. Do not treat any directory as clean merely because its
+top-level size is small.
 
 ---
 
@@ -184,25 +219,57 @@ One RCA per class, each answering the same four questions:
    `SURVIVES` or `CONVICTED`. A CONVICTED fix is rewired or retired **in this plan**, never left idling.
 4. **What makes recurrence structurally impossible?** Must be a mechanism. Prose is not an answer.
 
-### Working hypotheses (to be proven or refuted, not assumed)
+### Working hypotheses (to be proven or refuted, not assumed — ordered by measured size)
 
-- **The doubled `clients/` path** — a relative path (`clients/encore/…`) resolved while the process cwd
-  was already `clients/encore/`. Suspect any script or ticket that hard-codes a repo-relative path
-  without anchoring to the repo root. *Prediction*: the fix is cwd-anchoring plus a fence that refuses
-  the nonsense path outright.
+- **`_internal.zip` at 419 MB — the single largest object.** An agent archived `_internal/` in place
+  and never removed the archive, so the directory and its own zip now sit side by side. *Questions
+  Phase 3 must answer*: which run produced it, was it ever consumed, and what was the intent (a
+  handoff? a backup before a destructive edit?). *Prediction*: a one-shot agent convenience with no
+  cleanup step, and the fix is that in-place archives are never written under a client folder.
+- **`_internal` at 637 MB — raw `allure-results` under dated evidence dirs.** Evidence capture copied
+  the *entire* Allure output (thousands of UUID files per run) rather than the report or a digest, and
+  nothing prunes dated evidence dirs. *Prediction*: needs a retention rule plus a rule about what
+  "evidence" means — a summarised artifact, not a raw run dump.
+- **`reports` at 927 MB** — same class as above, unmeasured internally. *Prediction*: accumulated
+  Playwright/Allure output across months with no retention. **Constraint**: reports and results are
+  never removed without asking; this one is archive-and-confirm, not clean.
 - **`.auth` at 63 MB** — Playwright `launchPersistentContext` writing full browser profiles. Storage
   state is ~20 KB; the profile is 3000× that. *Prediction*: profiles do not belong under the client
   folder at all, and nothing prunes them.
 - **`.playwright-cli` at 40 MB** — walk scratch with no retention policy. Every walk appends; nothing
   ever prunes. *Prediction*: needs a retention rule, not a one-time clean.
+- **The doubled `clients/` path** — a relative path (`clients/encore/…`) resolved while the process cwd
+  was already `clients/encore/`. Suspect any script or ticket that hard-codes a repo-relative path
+  without anchoring to the repo root. *Prediction*: the fix is cwd-anchoring plus a fence that refuses
+  the nonsense path outright.
 - **Loose files at the client root** — agents defaulting to cwd when a ticket did not name an absolute
   output path. *Prediction*: this is the same root cause as the doubled path, and one fence closes both.
+- **450 tracked files under an ignored directory** — force-adds accumulated over time. *Questions*: was
+  each `-f` deliberate (the four agent-runtime files at `.gitignore:202-205` are re-included on
+  purpose), or is some of it accidental? *Prediction*: a legitimate core plus drift, and the fix is an
+  explicit re-include list in `.gitignore` so `git add` stops needing `-f`.
+
+**Prior-fix trial is mandatory for the retention class.** `.gitignore:188` and
+`clients/encore/.gitignore:3` are prior fixes that *did* work for their stated purpose — they kept
+this content out of the deliverable. They were never retention controls and must not be convicted for
+failing a job they never had. What is missing is a control that no one ever built. Name that honestly
+rather than blaming the ignore rules.
 
 ---
 
-## Phase 4 — the write fence (the actual deliverable, CEO-authored)
+## Phase 4 — the fences (the actual deliverable, CEO-authored)
+
+**Two arms, because the measurement proved one arm is not enough.** The original plan had only Arm A.
+Arm A would have caught the doubled `clients/` dir and the loose root files — ~2.8 MB, or **0.1%** of
+the problem. It would not have stopped a single byte of the 2.0 GB, because every one of those writes
+lands *inside* a legitimate, allowlisted, gitignored directory. A fence that stops 0.1% of the measured
+failure and is described as "the deliverable" is the kind of thing this plan exists to prevent.
+
+### Arm A — path fence (unanticipated locations)
 
 A PreToolUse gate that **denies** agent writes to `clients/<id>/` outside a declared allowlist.
+Targets the untracked-and-not-ignored bucket: the doubled path, loose root scratch, anything no rule
+anticipated.
 
 **Design constraints, all load-bearing:**
 
@@ -226,6 +293,39 @@ A PreToolUse gate that **denies** agent writes to `clients/<id>/` outside a decl
   wedge a session.
 
 **Escape hatch**: the LR-043 §A one-shot break-glass handshake, unchanged. Discretionary, never workflow.
+
+### Arm B — accumulation fence (the 92%)
+
+**A per-write gate is the wrong instrument for accumulation, and the plan must say so plainly.** No
+individual write in the 2.0 GB looks wrong. `allure-results/0071dc72-…-result.json` is a legitimate
+file with a legitimate name in a legitimate directory. There is no per-call signal to deny on, and a
+gate that walks a 1 GB directory to measure it blows the ≤200 ms budget (LR-069 §3.4) on every write
+in the session. Arm B is therefore **three controls at three different layers**, not one hook:
+
+- **B1 — shape denial (PreToolUse, cheap, deny-capable).** Two shapes are always wrong under a client
+  folder and both are detectable from the path alone, in constant time:
+  - an archive written in place (`*.zip`, `*.tar`, `*.tar.gz`, `*.7z`) anywhere under `clients/<id>/`
+    — this is the 419 MB `_internal.zip` class;
+  - a raw runner-output tree written under `specs_planning/` (`**/allure-results/**`,
+    `**/test-results/**`, `**/trace.zip`) — this is the 637 MB class.
+  Same ramp discipline as Arm A: `announce` first, telemetry from day one, promote on the criterion.
+- **B2 — retention rule with an owner (config, not prose).** Every accumulating directory gets a
+  declared retention policy in one place — `.playwright-cli`, `.auth` profiles, `reports/`,
+  `specs_planning/_internal/<dated-evidence>/`. A directory with no policy row is itself a finding.
+  **Enforcement is report-and-confirm, never autonomous delete** — Phase 5's constraint governs here
+  without exception.
+- **B3 — size governor (Stop hook, measure once per session, report only).** One `du` at session end,
+  compared against a recorded budget per directory. Over budget → a line in the session's output
+  naming the directory and its growth. This is the control that would have caught 2.0 GB in week one
+  instead of month six. It reports; it never deletes and never blocks.
+
+**Why B3 is a Stop hook and not a PreToolUse gate**: measuring is expensive and accumulation is slow.
+Once per session is enough to catch it early, and costs nothing per write. The failure this whole plan
+responds to is not that a bad write happened — it is that **nothing ever looked**.
+
+**Honest limit**: B1 denies two known shapes. It does not deny shapes nobody has thought of yet, and
+claiming otherwise would repeat the framing error this phase corrects. B3 is the general net precisely
+because it needs no foreknowledge of the shape — which is why it is not optional.
 
 ---
 
@@ -252,7 +352,7 @@ remains the owner's, never an agent's.
 
 | Identity | Owned artifact this plan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| OWNER | census, RCA set, fence, ramp config, archive batches | `clients/encore/specs_planning/_internal/client-surface-census-2026-07-30.md`<br>`.claude/hooks/lib/check-client-surface-write.mjs`<br>`.claude/guardrail-config.json` | `node .claude/hooks/lib/check-client-surface-write.mjs --self-test` exits 0 |
+| OWNER | census, RCA set, both fence arms, retention policy, size governor, ramp config, archive batches | `clients/encore/specs_planning/_internal/client-surface-census-2026-07-30.md`<br>`.claude/hooks/lib/check-client-surface-write.mjs`<br>`.claude/hooks/lib/check-client-surface-size.mjs`<br>`.claude/retention-policy.json`<br>`.claude/guardrail-config.json` | `node .claude/hooks/lib/check-client-surface-write.mjs --self-test` exits 0<br>`node .claude/hooks/lib/check-client-surface-size.mjs --self-test` exits 0 |
 | WATCHDOG | slop findings table over the tracked set | (skipped: findings are recorded inline in the census file's disposition column rather than a separate WATCHDOG table, so one artifact carries both) | census file has a non-empty disposition for every row |
 | GARDENER | archive-moves of AGENT-ONLY-ROT and SLOP | `_archive/client-surface-purge-2026-07-30/` | `node scripts/prune-check.mjs` reports zero live refs |
 | HUNTER | (none) | (none) | (none) |
@@ -270,8 +370,13 @@ remains the owner's, never an agent's.
 - [ ] Every file in the untracked-and-not-ignored bucket is either dispositioned SLOP or has a named `.gitignore` gap filed against it.
 - [ ] One RCA per slop class, each naming the writer, the permitting gap, the prior-fix trial verdict, and the structural fix.
 - [ ] Every CONVICTED prior fix is rewired or removed **within this plan** — none left idling.
-- [ ] The write fence exists, self-tests green, emits fire telemetry, and is recorded in `.claude/guardrail-config.json` with `ramp_started` / `ramp_target` / `ramp_note`.
-- [ ] The fence is proven by live fire: a deliberate write to a non-allowlisted path under `clients/encore/` is announced (or denied, post-ramp), with the telemetry line pasted.
+- [ ] **Arm A** exists, self-tests green, emits fire telemetry, and is recorded in `.claude/guardrail-config.json` with `ramp_started` / `ramp_target` / `ramp_note`.
+- [ ] **Arm A** proven by live fire: a deliberate write to a non-allowlisted path under `clients/encore/` is announced (or denied, post-ramp), with the telemetry line pasted.
+- [ ] **B1** proven by live fire on both shapes: a `*.zip` write under `clients/encore/` and an `allure-results/` write under `specs_planning/` each produce a telemetry line. Both pasted.
+- [ ] **B2** — every accumulating directory named in the census carries a retention-policy row; any directory with no row is reported as a finding rather than silently omitted.
+- [ ] **B3** — the size governor runs at session end, compares against recorded budgets, and its output is pasted for a session where at least one directory is over budget. It deletes nothing.
+- [ ] The `reports/` internal breakdown is measured and dispositioned — it is 927 MB and this plan currently knows only its top-level size.
+- [ ] The 450-tracked-files-inside-an-ignored-directory state is resolved: each tracked path is either a deliberate re-include listed explicitly in `.gitignore`, or untracked. `git add` on `specs_planning/` no longer requires `-f` for the deliberate set.
 - [ ] The doubled `clients/encore/clients/` path is resolved and its root cause named with file:line or equivalent evidence.
 - [ ] Zero files deleted by any agent. Every removal is archive-move + prune-check + owner confirmation, with the confirmation quoted.
 - [ ] `npm run client:ship -- --client=encore --out=<temp>` still succeeds and its deny-list check passes.
