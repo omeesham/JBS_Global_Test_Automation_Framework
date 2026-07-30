@@ -73,10 +73,47 @@ supply that, found during the domain-oracle harvest:
   **Design-spec, not live-verified** — it documents the rewrite, not today's behaviour. Useful as the
   shape the read/write partition is heading toward; not evidence of what the live app enforces now.
 
-**What remains blocked**: the credentials themselves. Knowing the role names does not create accounts
-that hold them. Phase 2 still requires at least two real accounts on the E2E environment — one holding
-the permitted role, one restricted — and that is still an `/encore-questions` escalation. The gap that
-closed is *which roles to ask for*; the gap that stands is *having them*.
+### What the legacy permissions spec actually gives us (read 2026-07-30)
+
+Confluence page `3871342594` was read in full. It supplies more than names — it supplies the whole
+partition mechanism, and it changes what Phase 2 needs.
+
+**The governing role for this surface is `NavRevenueMgmt`** — "Price books, discount pricing, **PG
+overrides**". Setup-screen edit gate: `roleCanEdit(NavRevenueMgmt)`. Menu visibility: corp +
+`roleCanView(NavRevenueMgmt)`. Backend: `PricebookController` / `PriceGuideController` /
+`DiscountMatrixController` enforce `NAVOrderEntry` **and** `NavRevenueMgmt`.
+
+**Access is a three-level scalar, not a boolean** — this is the both-directions mechanism the invariant
+needs:
+
+| Value | Constant | View | Edit |
+|---|---|---|---|
+| 1 | `ACCESS_TYPE_NONE` | No | No |
+| 2 | `ACCESS_TYPE_READ` | **Yes** | **No** |
+| 3 | `ACCESS_TYPE_EDIT` | Yes | Yes |
+
+with `roleCanEdit → Value === 3` and `roleCanView → Value > 1`. So the refusal direction is
+concretely testable: `NavRevenueMgmt` at Value 2 must render the surface and refuse the mutation.
+
+**Roles are location-scoped and reload on office change** — served by
+`GET User/Role?locationId=&userName=&culture=`, cached in `SessionKeys.Roles`, "refreshed on local
+office change". **This may unblock Phase 2 without new accounts**: the same automation account can hold
+different access values at different offices. Phase 0's first action should now be to call that
+endpoint across the offices we already use and look for a `NavRevenueMgmt` value that differs. If one
+exists, the partition is testable today.
+
+**Ready-made fixture source**: the spec's own *Client / Server Discrepancies* table documents nine
+cases where the client UI gate and the backend API enforcement disagree — e.g. payment entry requires
+`NavPayment` in the UI while `PaymentController` checks only `NAVOrderEntry`; `NavVenueTransferApprover`
+is defined and never enforced; the room-dashboard check is commented out. **That table is the
+role-partition bug class, already catalogued.** NAV-4180 belongs to it: Price Guide edit is
+`NAVOrderEntry` locally but `NavRevenueMgmt` at corp, so a role that should not edit can reach it.
+Phase 2 should fixture from this table rather than inventing cases.
+
+**What remains blocked**: two accounts with genuinely different `NavRevenueMgmt` values, **if** the
+per-office lookup above finds none. That would still be an `/encore-questions` escalation — but it is
+now a last resort rather than the starting point, and it asks for a specific role at a specific access
+value instead of "a read-only account".
 
 Phases 1 and 3 are buildable without the credentials; Phase 2 is not.
 
