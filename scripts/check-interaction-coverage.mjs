@@ -356,6 +356,7 @@ function validateArtifact(map, schema) {
   {
     const allElements = Array.isArray(map.elements) ? map.elements : [];
     const countFails = [];
+    const countRequestFailed = [];
     const countUncheckable = [];
 
     function probeHasCountKeys(probe) {
@@ -378,7 +379,7 @@ function validateArtifact(map, schema) {
 
     for (const el of allElements) {
       if (!Array.isArray(el.probes)) continue;
-      let elFail = false, elUncheckable = false;
+      let elFail = false, elUncheckable = false, elRequestFailed = false;
       for (const probe of el.probes) {
         const after = probe.after;
         if (!after || typeof after !== 'object') continue;
@@ -405,6 +406,18 @@ function validateArtifact(map, schema) {
                 const DOM_CONTENT_RE = /queryselector|document\.|getelement|innertext|\.rows\b|childnodes/;
                 if (DOM_CONTENT_RE.test(normSrc)) {
                   elUncheckable = true;
+                } else {
+                  // HTTP status precondition: a count taken while the request was failing is not
+                  // a measurement. Absent status is not evidence of success — fail conservatively.
+                  const httpStat = after.httpStatus;
+                  if (httpStat === undefined || httpStat === null) {
+                    elUncheckable = true; // absent status → UNCHECKABLE
+                  } else if (typeof httpStat === 'number' && httpStat >= 200 && httpStat < 300) {
+                    // 2xx → valid observation; count source accepted
+                  } else {
+                    elRequestFailed = true; // non-2xx → REQUEST-FAILED
+                    break;
+                  }
                 }
               }
             }
@@ -417,6 +430,7 @@ function validateArtifact(map, schema) {
       }
       const id = el.elementId || '(unknown)';
       if (elFail) countFails.push(id);
+      else if (elRequestFailed) countRequestFailed.push(id);
       else if (elUncheckable) countUncheckable.push(id);
     }
 
@@ -428,6 +442,15 @@ function validateArtifact(map, schema) {
         reason: `COUNT-SOURCE VIOLATION: ${countFails.length} element(s) use DOM node counts — ` +
           `virtualized grids render ~2 rows regardless of real total; DOM count is a rendering artifact, not a count: ` +
           `[${countFails.join(', ')}]`,
+      });
+    } else if (countRequestFailed.length > 0) {
+      checks.push({
+        name: 'count-source',
+        verdict: 'REQUEST-FAILED',
+        pass: false,
+        reason: `REQUEST-FAILED: ${countRequestFailed.length} element(s) have count observations sourced from a failed request (non-2xx status) — ` +
+          `a count taken while the underlying request was failing is not a measurement; zero-delta from two failed counts is not evidence about the control: ` +
+          `[${countRequestFailed.join(', ')}]`,
       });
     } else if (countUncheckable.length > 0) {
       checks.push({
@@ -1111,7 +1134,7 @@ async function selfTest() {
     version: '1.0.0', surface: 'test',
     elements: [{
       elementId: 'pagination-ctrl', class: 'pagination', emissionStatus: 'PROBED',
-      probes: [{ action: 'count-probe', before: { rowCount: 50 }, after: { rowCount: 50, countSource: 'api:GET /api/items returns 50' } }],
+      probes: [{ action: 'count-probe', before: { rowCount: 50 }, after: { rowCount: 50, countSource: 'api:GET /api/items returns 50', httpStatus: 200 } }],
       effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
     }],
   };
@@ -1410,7 +1433,7 @@ async function selfTest() {
   console.log('\n=== T54: BLOCKER 2 — footer: countSource → PASS ===');
   const r54 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
     elementId: 'pg', class: 'pagination', emissionStatus: 'PROBED',
-    probes: [{ action: 'cp', before: { rowCount: 50 }, after: { rowCount: 50, countSource: 'footer:Total 50 items' } }],
+    probes: [{ action: 'cp', before: { rowCount: 50 }, after: { rowCount: 50, countSource: 'footer:Total 50 items', httpStatus: 200 } }],
     effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
   }]}, schemaResult.mod);
   assert(r54.checks.find(c => c.name === 'count-source').pass, 'footer: countSource → count-source PASS');
@@ -1547,7 +1570,7 @@ async function selfTest() {
   console.log('\n=== T64: F1 — api:GET /items → count-source PASS (control) ===');
   const r64 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
     elementId: 'pg', class: 'pagination', emissionStatus: 'PROBED',
-    probes: [{ action: 'cp', before: { rowCount: 50 }, after: { rowCount: 50, countSource: 'api:GET /items' } }],
+    probes: [{ action: 'cp', before: { rowCount: 50 }, after: { rowCount: 50, countSource: 'api:GET /items', httpStatus: 200 } }],
     effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
   }]}, schemaResult.mod);
   assert(r64.checks.find(c => c.name === 'count-source').pass,
@@ -1606,6 +1629,39 @@ async function selfTest() {
   }]}, schemaResult.mod);
   assert(r68.checks.find(c => c.name === 'semantic-class-invariant').pass,
     'genuine add-picker (no io verbs) → semantic-class-invariant PASS');
+
+  // T69: REQUEST-FAILED RED — footer: countSource + httpStatus 500 → REQUEST-FAILED
+  console.log('\n=== T69: Oracle 4 — footer: countSource + httpStatus 500 → REQUEST-FAILED ===');
+  const r69 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'office-1604-grid', class: 'pagination', emissionStatus: 'PROBED',
+    probes: [{ action: 'load-grid', before: { rowCount: 0 }, after: { rowCount: 0, countSource: 'footer:0 items found', httpStatus: 500 } }],
+    effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
+  }]}, schemaResult.mod);
+  assert(!r69.pass, 'footer: countSource + httpStatus 500 → FAIL (REQUEST-FAILED ≠ COVERED)');
+  assert(r69.checks.some(c => c.name === 'count-source' && c.verdict === 'REQUEST-FAILED'),
+    'count-source verdict is REQUEST-FAILED for non-2xx status');
+
+  // T70: UNCHECKABLE — footer: countSource + absent httpStatus → UNCHECKABLE (not COVERED)
+  console.log('\n=== T70: Oracle 4 — footer: countSource + absent httpStatus → UNCHECKABLE ===');
+  const r70 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'grid-no-status', class: 'pagination', emissionStatus: 'PROBED',
+    probes: [{ action: 'load-grid', before: { rowCount: 0 }, after: { rowCount: 0, countSource: 'footer:0 items found' } }],
+    effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
+  }]}, schemaResult.mod);
+  assert(!r70.pass, 'footer: countSource + absent httpStatus → FAIL (UNCHECKABLE ≠ COVERED)');
+  assert(r70.checks.some(c => c.name === 'count-source' && c.verdict === 'UNCHECKABLE'),
+    'count-source verdict is UNCHECKABLE when httpStatus absent — absence of status ≠ evidence of success');
+
+  // T71: HONEST CONTROL — footer: countSource + httpStatus 200 + rowCount 0 → count-source PASS
+  // A genuine zero (empty table) must not be blocked; only failed-request zeros are rejected.
+  console.log('\n=== T71: Oracle 4 — footer: 2xx + count 0 → count-source PASS (honest control) ===');
+  const r71 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'empty-grid', class: 'pagination', emissionStatus: 'PROBED',
+    probes: [{ action: 'load-grid', before: { rowCount: 0 }, after: { rowCount: 0, countSource: 'footer:0 items found', httpStatus: 200 } }],
+    effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
+  }]}, schemaResult.mod);
+  assert(r71.checks.find(c => c.name === 'count-source').pass,
+    'footer: 2xx + count 0 → count-source PASS (genuine empty table is a valid observation)');
 
   fireTelemetry(fails === 0 ? 'pass' : 'fail', 'self-test');
 
