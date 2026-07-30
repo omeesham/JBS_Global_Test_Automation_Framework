@@ -37,6 +37,7 @@ const GATE_FIRES_LOG = join(STATE_DIR, 'gate-fires.log');
 const GATE_NAME = 'check-interaction-coverage';
 const SCHEMA_MODULE_PATH = join(__dirname, 'walk-coverage', 'interaction-map-schema.mjs');
 const ARTIFACTS_DIR = join(__dirname, 'walk-coverage', 'interaction-maps');
+const FIXTURES_PATH = join(__dirname, 'walk-coverage', 'fixtures', 'kernel-oracle-fixtures.json');
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -1822,6 +1823,101 @@ async function selfTest() {
   assert(r77.checks.find(c => c.name === 'differential-data-ladder').pass,
     'Rung-1 evidence (entity produced) → differential-data-ladder PASS');
   assert(r77.pass, 'DIFFERENTIAL-DATA-REQUIRED with rung-1 evidence → overall PASS');
+
+  // ── CORPUS: kernel-oracle-fixtures.json — six real bug specimens ─────────
+  // Each specimen must be flagged by the specific sub-check its bug class implies.
+  // expectedVerdict is carried as specimen.expectedVerdict in the fixture file.
+  // The reviewer's verify.txt display alias "expected=FAIL" is derived from that field.
+  // S3 FINDING documented below: round-trip-invariant does NOT fire on S3's map because
+  // the element lacks capability:'export'/'import' tags; zero-effect-disposition catches it.
+  console.log('\n=== CORPUS: kernel-oracle-fixtures.json ===');
+  let corpus = null;
+  try {
+    corpus = JSON.parse(readFileSync(FIXTURES_PATH, 'utf-8'));
+  } catch (e) {
+    assert(false, `kernel-oracle-fixtures.json must be readable — corpus missing or malformed: ${e.message}`);
+  }
+  const corpusOk = corpus !== null && Array.isArray(corpus.specimens) && corpus.specimens.length >= 6;
+  assert(corpusOk, 'Corpus has ≥6 specimens — empty or missing corpus fails this gate (wiring is load-bearing)');
+
+  if (corpusOk) {
+    const byId = Object.fromEntries(corpus.specimens.map(s => [s.id, s]));
+
+    // T78: S1-zero-effect (bugClass 1222/dead-filter) → zero-effect-disposition must fire
+    console.log('\n=== T78: Corpus S1-zero-effect — zero-effect-disposition fires ===');
+    const s1 = byId['S1-zero-effect'];
+    assert(s1 !== undefined, 'S1-zero-effect specimen present in corpus');
+    if (s1) {
+      const rs1 = validateArtifact(s1.map, schemaResult.mod);
+      assert(!rs1.pass, 'S1: verdict is FAIL (expectedVerdict=' + s1.expectedVerdict + ')');
+      assert(rs1.checks.some(c => c.name === 'zero-effect-disposition' && !c.pass),
+        'S1: zero-effect-disposition fires — dead filter (effectObserved:false without DIFFERENTIAL-DATA-REQUIRED)');
+    }
+
+    // T79: S2-ui-vs-persisted (NM-2186) → ui-vs-persisted-parity must be non-PASS
+    console.log('\n=== T79: Corpus S2-ui-vs-persisted — ui-vs-persisted-parity non-PASS ===');
+    const s2 = byId['S2-ui-vs-persisted'];
+    assert(s2 !== undefined, 'S2-ui-vs-persisted specimen present in corpus');
+    if (s2) {
+      const rs2 = validateArtifact(s2.map, schemaResult.mod);
+      assert(!rs2.pass, 'S2: verdict is FAIL (expectedVerdict=' + s2.expectedVerdict + ')');
+      assert(rs2.checks.some(c => c.name === 'ui-vs-persisted-parity' && !c.pass),
+        'S2: ui-vs-persisted-parity is non-PASS — io/PROBED without persistedStateReRead (UNCHECKABLE≠PASS)');
+    }
+
+    // T80: S3-round-trip (NM-1940)
+    // FINDING: round-trip-invariant does NOT fire — the map element has class:io but no
+    // capability:'export'/'import' tag, so oracle 3 is N/A and reports PASS.
+    // Actual catch: zero-effect-disposition fires (effectObserved:false, disposition:COVERED).
+    // We assert the FINDING explicitly rather than papering over it with a verdict-only check.
+    console.log('\n=== T80: Corpus S3-round-trip — FINDING: round-trip-invariant N/A; zero-effect-disposition catches it ===');
+    const s3 = byId['S3-round-trip'];
+    assert(s3 !== undefined, 'S3-round-trip specimen present in corpus');
+    if (s3) {
+      const rs3 = validateArtifact(s3.map, schemaResult.mod);
+      assert(!rs3.pass, 'S3: verdict is FAIL (expectedVerdict=' + s3.expectedVerdict + ')');
+      assert(rs3.checks.some(c => c.name === 'round-trip-invariant' && c.pass),
+        'S3 FINDING: round-trip-invariant is PASS (N/A) — map element has no capability:export/import tags; oracle 3 cannot apply to this specimen');
+      assert(rs3.checks.some(c => c.name === 'zero-effect-disposition' && !c.pass),
+        'S3: zero-effect-disposition fires instead — actual catch for effectObserved:false without DIFFERENTIAL-DATA-REQUIRED');
+    }
+
+    // T81: S4-count-source (NM-2172-virtualization) → count-source must fire
+    console.log('\n=== T81: Corpus S4-count-source — count-source fires ===');
+    const s4 = byId['S4-count-source'];
+    assert(s4 !== undefined, 'S4-count-source specimen present in corpus');
+    if (s4) {
+      const rs4 = validateArtifact(s4.map, schemaResult.mod);
+      assert(!rs4.pass, 'S4: verdict is FAIL (expectedVerdict=' + s4.expectedVerdict + ')');
+      assert(rs4.checks.some(c => c.name === 'count-source' && !c.pass),
+        'S4: count-source fires — dom: countSource is a virtualization rendering artifact, not a real row count');
+    }
+
+    // T82: S5-claim-census (1117) → claim-census must fire
+    console.log('\n=== T82: Corpus S5-claim-census — claim-census fires ===');
+    const s5 = byId['S5-claim-census'];
+    assert(s5 !== undefined, 'S5-claim-census specimen present in corpus');
+    if (s5) {
+      const rs5 = validateArtifact(s5.map, schemaResult.mod);
+      assert(!rs5.pass, 'S5: verdict is FAIL (expectedVerdict=' + s5.expectedVerdict + ')');
+      assert(rs5.checks.some(c => c.name === 'claim-census' && !c.pass),
+        'S5: claim-census fires — claim-sourced disposition with no machine-readable census evidence');
+    }
+
+    // T83: S6-jira-vs-live (NM-2011)
+    // Sub-check determined from specimen: element has basis:"claim:walk-evidence-..." with
+    // disposition:COVERED — a claim-driven disposition without census backing, same oracle 5 class
+    // as S5. The Jira "could not recreate" status is the external claim; live HTTP 500 contradicts it.
+    console.log('\n=== T83: Corpus S6-jira-vs-live — claim-census fires (sub-check from specimen) ===');
+    const s6 = byId['S6-jira-vs-live'];
+    assert(s6 !== undefined, 'S6-jira-vs-live specimen present in corpus');
+    if (s6) {
+      const rs6 = validateArtifact(s6.map, schemaResult.mod);
+      assert(!rs6.pass, 'S6: verdict is FAIL (expectedVerdict=' + s6.expectedVerdict + ')');
+      assert(rs6.checks.some(c => c.name === 'claim-census' && !c.pass),
+        'S6: claim-census fires — basis prefix "claim:" drives disposition without machine-readable census (NM-2011 Jira "could not recreate" vs live HTTP 500)');
+    }
+  }
 
   fireTelemetry(fails === 0 ? 'pass' : 'fail', 'self-test');
 
