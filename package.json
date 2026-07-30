@@ -50,7 +50,7 @@
     "metrics:update-trust": "ts-node scripts/agent-metrics.ts --update-trust",
     "planner:post-complete": "ts-node scripts/planner-post-complete.ts",
     "planner:export-all": "ts-node scripts/planner-post-complete.ts --all",
-    "pipeline:validate": "npm run validate:sync && npm run queue:validate && npm run lint:testcases && npm run detect:duplication && npm run plans:validate-overrides && npm run plans:validate-closure:changed && npm run plans:validate-layout && npm run verify:rules-fire && npm run verify:protected-names && npm run test:shared-paths && npm run check:coverage-manifest && npm run verify:no-stale-refs && npm run check:ramp-expiry",
+    "pipeline:validate": "npm run validate:sync && npm run queue:validate && npm run lint:testcases && npm run detect:duplication && npm run plans:validate-overrides && npm run plans:validate-closure:changed && npm run plans:validate-layout && npm run verify:rules-fire && npm run verify:protected-names && npm run test:shared-paths && npm run check:coverage-manifest && npm run verify:no-stale-refs && npm run check:ramp-expiry && npm run check:dispatch-argv && npm run check:fixture-provenance",
     "pipeline:preflight": "npm run validate:sync && npm run build:context && npm run lint:testcases && npm run validate:activity-log:preflight",
     "queue:archive": "ts-node scripts/archive-queue.ts",
     "queue:archive:dry": "ts-node scripts/archive-queue.ts --dry-run",
@@ -121,6 +121,8 @@
     "check:untracked-knowledge": "node scripts/check-untracked-knowledge.mjs",
     "check:ramp-expiry": "node scripts/check-ramp-expiry.mjs",
     "check:enforcement-claims": "node scripts/check-enforcement-claims.mjs",
+    "check:dispatch-argv": "node scripts/check-dispatch-argv.mjs",
+    "check:fixture-provenance": "node scripts/walk-coverage/check-fixture-provenance.mjs",
     "prepare": "npm run plans:hooks:install"
   },
   "keywords": [
