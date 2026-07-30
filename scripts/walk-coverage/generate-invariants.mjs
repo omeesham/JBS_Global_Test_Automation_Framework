@@ -260,17 +260,24 @@ const KERNEL_ORACLES = [
   },
   {
     id: 'kernel-5',
-    name: 'claim-census',
-    bugClass: '1117/NM-2011',
-    subsumption: 'Claim-census external-vs-machine catches unchecked-claim class',
+    name: 'claim-census-1117',
+    bugClass: '1117',
+    subsumption: 'Claim-census external-vs-machine catches unchecked-claim class (1117: "has data" = empty)',
     triggerPattern: /^claim:/,
   },
   {
     id: 'kernel-6',
-    name: 'request-status',
+    name: 'claim-census-nm2011',
+    bugClass: 'NM-2011',
+    subsumption: 'Claim-census external-vs-machine catches unchecked-claim class (NM-2011: Jira status vs live behavior)',
+    triggerPattern: /^claim:/,
+  },
+  {
+    id: 'kernel-7',
+    name: 'read-totality-1604',
     bugClass: 'office-1604',
-    subsumption: 'Count-source validity requires 2xx status; a count from a failed request (non-2xx httpStatus) is not a measurement — I7 subsumes this as a count-source validity precondition',
-    triggerPattern: /^grid:/,
+    subsumption: 'Read-totality census over enumerated id-set catches 500/404 on listed records — I3 subsumes office-1604 as a read-totality obligation',
+    triggerPattern: /^read-verb\+id-sources:/,
   },
 ];
 
