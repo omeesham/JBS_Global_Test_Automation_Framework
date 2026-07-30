@@ -774,10 +774,24 @@ if [ "$TICKET_MODE" = true ]; then
   # Per-section BOOLEAN sum, never a raw match count — a report repeating "## ASK" twice must score
   # 1 for that section, or the floor is trivially inflatable. Ticket mode prepends DUTY_STACK, so
   # every ticket-mode worker was contractually handed this exact schema.
+  _sec_result=0
   for _sec in DOCTRINE_READ FILES_INSPECTED PLAN DIFF_SUMMARY VERIFY_ARTIFACTS \
               DOCS_UPDATED EXTERNAL_CONTENT_CONSUMED CLEANUP ASK BLOCKERS_DEVIATIONS; do
-    grep -qaiE "^##[[:space:]]+${_sec}" "$RESULT" 2>/dev/null && REPORT_SECTIONS=$(( REPORT_SECTIONS + 1 ))
+    grep -qaiE "^##[[:space:]]+${_sec}" "$RESULT" 2>/dev/null && _sec_result=$(( _sec_result + 1 ))
   done
+  # Also scan the ticket's declared OUTPUT path (already parsed above as DECLARED_OUTPUT) and take
+  # the higher count. A sentinel stub (first line: copilot-worker: NO DELIVERABLE) always scores
+  # zero — it is the wrapper's own marker that nothing was delivered; counting its sections would
+  # convert the clearest failure signal into a pass. Only raise, never lower.
+  _sec_output=0
+  if [ -n "$DECLARED_OUTPUT" ] && [ -s "$DECLARED_OUTPUT" ] && \
+     ! head -1 "$DECLARED_OUTPUT" 2>/dev/null | grep -qa 'copilot-worker: NO DELIVERABLE'; then
+    for _sec in DOCTRINE_READ FILES_INSPECTED PLAN DIFF_SUMMARY VERIFY_ARTIFACTS \
+                DOCS_UPDATED EXTERNAL_CONTENT_CONSUMED CLEANUP ASK BLOCKERS_DEVIATIONS; do
+      grep -qaiE "^##[[:space:]]+${_sec}" "$DECLARED_OUTPUT" 2>/dev/null && _sec_output=$(( _sec_output + 1 ))
+    done
+  fi
+  [ "$_sec_output" -gt "$_sec_result" ] && REPORT_SECTIONS="$_sec_output" || REPORT_SECTIONS="$_sec_result"
 fi
 VERDICT_NEGATIVE=false
 if [ "$TICKET_MODE" = true ] && grep -qaiE '(VERDICT[^A-Za-z0-9]{0,6}(NOT-?(FIXED|COMPLETE|DONE|REACHED)|BLOCKED))|SESSION LIMIT REACHED|session (budget )?exhausted|budget[ -]exhausted' "$RESULT" 2>/dev/null; then
