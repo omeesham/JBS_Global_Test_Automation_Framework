@@ -36,7 +36,7 @@ export const INVARIANT_CATALOG = {
   I4:  { id: 'I4',  name: 'create-readback',           description: 'Created record readable immediately via GET (read-your-writes)' },
   I5:  { id: 'I5',  name: 'update-persist',            description: 'Updated value persists across reload + re-read' },
   I6:  { id: 'I6',  name: 'delete-removal',            description: 'Deleted record removed + referential integrity across dependent lists' },
-  I7:  { id: 'I7',  name: 'count-source',              description: 'Row counts from API/footer, never DOM nodes (virtualization-safe)' },
+  I7:  { id: 'I7',  name: 'count-source',              description: 'Row counts from API/footer, never DOM nodes (virtualization-safe); source request must have returned 2xx — absent status is not evidence of success, non-2xx count is not a measurement' },
   I8:  { id: 'I8',  name: 'status-flag-reachability',  description: 'Both flag states present in data; flag partitions every honoring list' },
   I9:  { id: 'I9',  name: 'io-round-trip',             description: "System's own output accepted by its own input" },
   I10: { id: 'I10', name: 'field-domain',              description: 'FCC axis: equivalence partitioning + BVA per typed field' },
@@ -264,6 +264,13 @@ const KERNEL_ORACLES = [
     bugClass: '1117/NM-2011',
     subsumption: 'Claim-census external-vs-machine catches unchecked-claim class',
     triggerPattern: /^claim:/,
+  },
+  {
+    id: 'kernel-6',
+    name: 'request-status',
+    bugClass: 'office-1604',
+    subsumption: 'Count-source validity requires 2xx status; a count from a failed request (non-2xx httpStatus) is not a measurement — I7 subsumes this as a count-source validity precondition',
+    triggerPattern: /^grid:/,
   },
 ];
 
