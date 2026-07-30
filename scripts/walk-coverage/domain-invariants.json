@@ -23,7 +23,8 @@
       "2026-07-25 targeted description-level queries → 4 further rules (NM-2142, NAV-4598, NAV-4575, NM-2206) and a negative result for PG-286",
       "2026-07-25 third pass, project NM rule-shaped summaries → 6 further rules (NM-1940, NM-2137, NM-2156, NM-2006, NM-2085, NM-3063/NM-2917) and a Jira source for D8 (NM-2076)",
       "2026-07-25 fourth pass, project NAV rule-shaped summaries → 6 further rules (NAV-4180, NAV-3357, NAV-4505, NAV-4624, NAV-3785, NAV-3784) and identification of the permission-invariant coverage gap",
-      "2026-07-30 old-site baseline read (clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-2026-06-05.md) → 0 rows added; module is baselineScope:baseline-absent — Corporate Pricing has no nav2 equivalent by authoritative user directive (2026-06-05); no domain rules extractable from an absent feature. Confluence not attempted: no Atlassian/Confluence tool available in this run's toolset."
+      "2026-07-30 old-site baseline read (clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-2026-06-05.md) → 0 rows added; module is baselineScope:baseline-absent — Corporate Pricing has no nav2 equivalent by authoritative user directive (2026-06-05); no domain rules extractable from an absent feature. Confluence not attempted: no Atlassian/Confluence tool available in this run's toolset.",
+      "2026-07-30 Confluence pass — Pricing page (https://encore.atlassian.net/wiki/spaces/NM/pages/3866099713/Pricing, NM space, last modified Jul 02 2026, author Akash Dubey) → 3 rows added (D26 PG-override storage shape, D27 two max-discount levels, D28 permission-class policies); all rows marked liveVerified:false and sourceType:confluence-design-spec (Pricing Microservice rewrite — design spec, not live-verified); 0 overlaps with existing rows; 0 observed-data contradictions found"
     ]
   },
   "coverageGaps": [
@@ -313,6 +314,44 @@
       "harvestLevel": "summary-only",
       "censusRequired": true,
       "whyItMatters": "Same family as D8/D12: a surface that is legitimately empty or disabled for one country and a defect for another. Without the census, a walk on a non-US location reads the disabled state as a bug, or reads it as fine, with equal confidence."
+    },
+    {
+      "id": "D26-pg-override-storage-shape",
+      "surface": "Corporate Pricing > Product Group Override",
+      "rule": "Each Product Group Override record is stored as one document per LocationNo with nested Currencies[].Overrides[]. Each override entry carries Price, MaxAllowedDiscount, and an Active flag. The export resolves the current corp price from the location's default corp strategies via cache.",
+      "oracleClass": "field-domain",
+      "mapsToGeneratedInvariant": "I10",
+      "source": "https://encore.atlassian.net/wiki/spaces/NM/pages/3866099713/Pricing",
+      "sourcePage": "Pricing — Navigator Microservices (NM) Confluence space",
+      "sourceType": "confluence-design-spec",
+      "liveVerified": false,
+      "provenanceNote": "Design spec for the Pricing Microservice rewrite — describes intended storage shape, not observed live behaviour. Author: Akash Dubey; last modified Jul 02 2026."
+    },
+    {
+      "id": "D27-two-max-discount-levels",
+      "surface": "Corporate Pricing > Product Group Override",
+      "rule": "There are two distinct MaxAllowedDiscount levels: pricebook level (ProductGroupPricing.MaxAllowedDiscount) and override level (ProductGroupOverrideDetail.MaxAllowedDiscount). Export supports a max-discount mode that emits discount columns instead of prices.",
+      "oracleClass": "field-domain",
+      "mapsToGeneratedInvariant": "I10",
+      "source": "https://encore.atlassian.net/wiki/spaces/NM/pages/3866099713/Pricing",
+      "sourcePage": "Pricing — Navigator Microservices (NM) Confluence space",
+      "sourceType": "confluence-design-spec",
+      "liveVerified": false,
+      "provenanceNote": "Design spec for the Pricing Microservice rewrite — describes intended discount model, not observed live behaviour. Author: Akash Dubey; last modified Jul 02 2026.",
+      "whyItMatters": "A walk that tests MaxAllowedDiscount at only one level may miss a bug where the pricebook-level cap is not honoured by the override-level value, or vice versa. The export mode difference means export tests must cover both price-column and discount-column outputs."
+    },
+    {
+      "id": "D28-pricing-auth-policies",
+      "surface": "Corporate Pricing > Product Group Override",
+      "rule": "All Product Group Override endpoints require authentication under Azure B2C. GET endpoints are gated by the PricingRead policy; POST and non-strategy DELETE endpoints by PricingWrite; DELETE for a pricing strategy by PricingDelete. Audit username is captured on writes via IIdentityProvider.GetUsername().",
+      "oracleClass": "permission-class",
+      "policyNames": ["PricingRead", "PricingWrite", "PricingDelete"],
+      "source": "https://encore.atlassian.net/wiki/spaces/NM/pages/3866099713/Pricing",
+      "sourcePage": "Pricing — Navigator Microservices (NM) Confluence space",
+      "sourceType": "confluence-design-spec",
+      "liveVerified": false,
+      "provenanceNote": "Design spec for the Pricing Microservice rewrite — describes intended authorization policies, not observed live enforcement. Author: Akash Dubey; last modified Jul 02 2026.",
+      "whyItMatters": "The read/write/delete policy split cannot be derived from CRUD shape alone. A role-partition oracle must assert both directions: a PricingRead-only credential must be refused by mutating endpoints. These are the exact policy names the service enforces per the design spec."
     }
   ]
 }
