@@ -412,13 +412,13 @@ drops must never be feature drops, per SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL Phase 
 
 | Identity | Owned artifact this plan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | walk denominators | (none — consumes the 2026-07-17 fleet's artifacts) | (none) |
-| GIVER | field-case-generation.md extension | interaction-axis taxonomy section | grep for the class table in the file |
+| HUNTER | walk denominators | (skipped: consumes the 2026-07-17 walk fleet's existing artifacts; this plan authors no new denominator) | (none) |
+| GIVER | field-case-generation.md extension | clients/encore/specs_planning/_internal/field-case-generation.md | grep for the §5 class table in the file |
 | BUILDER | pilot effect-TCs (Phase 2 diff feeds the gap-closure subplan, not authored here) | (none) | (none) |
 | HEALER | (none) | (none) | (none) |
-| WATCHDOG | closure checker | scripts/check-interaction-coverage.mjs | node scripts/check-interaction-coverage.mjs --dry-run exits 0 |
+| WATCHDOG | closure checker | scripts/check-interaction-coverage.mjs | node scripts/check-interaction-coverage.mjs --self-test exits 0 |
 | GARDENER | (none) | (none) | (none) |
-| OWNER | this plan, schema, gate ramp config | interaction-map schema file + LR-069 ramp keys | files exist per Phase 1/3 |
+| OWNER | this plan, schema, generator, gate ramp config | scripts/walk-coverage/interaction-map-schema.mjs<br>scripts/walk-coverage/generate-invariants.mjs<br>scripts/walk-coverage/drone-probes.mjs<br>scripts/walk-coverage/check-fixture-provenance.mjs<br>scripts/walk-coverage/domain-invariants.json<br>.claude/guardrail-config.json | node scripts/walk-coverage/generate-invariants.mjs --superset-proof exits 0 |
 
 ## VERIFIED STATE — 2026-07-25 (CEO re-ran every command below)
 
