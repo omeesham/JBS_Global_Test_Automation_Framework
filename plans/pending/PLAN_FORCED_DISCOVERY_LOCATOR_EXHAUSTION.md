@@ -805,6 +805,21 @@ as evidence for its own criteria), then re-graded after the fixes that census pr
       — the census caught this at 6 rows for 7 bugs: 1117 and NM-2011 shared one entry, and office 1604
       was mapped to I7 (count-source) when it belongs on I3 (read-totality, "no 404/500 on listed ids").
       Both corrected; CONTAINMENT_TABLE now lists seven rows with `ANTI_HARDCODE: PASS`.
+      — **Blindness re-verified 2026-07-30** by an independent read of the generator, after a chat-level
+      citation error (`SUPERSET_PROOF` was cited as the proof that the generator consumes domain rows; it
+      is not, and the plan never claimed it was — the consumption proof is the scratch-corpus drop
+      recorded under the next criterion). `runSupersetProof()` calls `generateInvariants(richM)` with a
+      single argument (`generate-invariants.mjs:315`), so `domainInvariants` takes its `[]` default
+      (signature, `:82`), and the domain auto-load at `:436-441` is unreachable because the function
+      exits at `:402`. **That is the criterion working as written** — this row demands the mapping be
+      proven BLIND, and a proof path carrying zero domain rows is exactly blind. Two separate paths,
+      both correct: `--superset-proof` blind by construction, `--metamodel` consuming the corpus at `:442`.
+      — **Precision note, deliberately not "fixed"**: oracles 1 (zero-effect) and 3 (round-trip) have
+      evaluation logic in the checker (`check-interaction-coverage.mjs:223-242/270-320` and `:399-446`)
+      but no entry in `drone-probes.mjs` `PROBE_DEFINITIONS`, which carries only oracles 2, 4 and 5.
+      They are evaluated from evidence the filter and io probes already emit, so they need no probe class
+      of their own. Recorded here because the acceptance line says "probe scripts + checker" and a reader
+      counting keys would otherwise find two missing and assume a hole.
 - [ ] Domain-oracle harvest produces `domain-invariants.json` from Jira/Confluence/old-site (not web);
       generator consumes it alongside the CRUD set
       — **OPEN.** Consumption is proven: removing a domain row from a scratch corpus drops
