@@ -162,6 +162,56 @@ export const PROBE_DEFINITIONS = {
     emissionContract: 'PROBED with effectObserved:boolean + secondSource:{type, ref}. Missing secondSource = R3 schema rejection.',
     secondSourceContract: 'The selector\'s own option set MUST be cross-checked against a second, independent source. The selector is not permitted to be its own oracle. The second source must be named (API list, sibling screen, export, DB count). A context-selector record whose option set cites no second source is rejected by the schema.',
   },
+
+  // ---------------------------------------------------------------------------
+  // Oracle 2 — UI-vs-persisted parity
+  // Cross-Check Kernel oracle 2: after every io/save/import probe outcome (success OR error),
+  // reload and re-read persisted state. UI claim ≠ server state = suspicion (NM-2186 class).
+  // Both directions are mandatory — a commit-only implementation is vacuous.
+  // Schema field populated: persistedStateReRead { agrees: boolean, ... }
+  // ---------------------------------------------------------------------------
+  'ui-vs-persisted-parity': {
+    class: 'ui-vs-persisted-parity',
+    requiredActions: [
+      // COMMIT direction — verify state landed
+      'commit-record-ui-claim: after the save/import action completes (success OR error toast), record the UI\'s claimed state (field values, record counts, visible confirmations)',
+      'commit-reload: perform a hard reload of the page (do not rely on in-memory state)',
+      'commit-read-persisted: re-read the same fields/counts from the freshly loaded page',
+      'commit-assert-parity: compare UI claim vs persisted read — if they disagree, emit UI-VS-PERSISTED VIOLATION; agreement is persistedStateReRead:{agrees:true}',
+      // DISCARD direction — verify nothing persisted
+      'discard-record-ui-state: after a deliberate no-save walk (form abandoned, dialog dismissed, guard-leave taken), record what the UI showed before navigation',
+      'discard-reload: perform a hard reload',
+      'discard-read-persisted: re-read the same fields/counts',
+      'discard-assert-inverse: verify the discarded change is absent from persisted state — if the change persisted, emit UI-VS-PERSISTED VIOLATION (discard direction); absence confirmed is persistedStateReRead:{agrees:true, direction:"discard"}',
+    ],
+    effectObservable: 'persistedStateReRead.agrees — true means UI claim and server state agree; false triggers automatic suspicion filing. Both commit (state landed) and discard (nothing persisted) directions must be reported.',
+    zeroEffectProtocol: 'Not applicable — a disagreement is never a zero-effect; it is a violation. An absent persistedStateReRead is UNCHECKABLE, not PASS.',
+    emissionContract: 'PROBED with persistedStateReRead:{agrees:boolean} for each direction exercised. Missing persistedStateReRead after any io/save/import outcome = oracle 2 UNCHECKABLE (schema treats absent as neither pass nor fail). A commit-direction record without a corresponding discard-direction record on the same surface is a partial-oracle gap.',
+  },
+
+  // ---------------------------------------------------------------------------
+  // Oracle 5 — Claim-vs-data census
+  // Cross-Check Kernel oracle 5: any external claim consumed by a walk (client statement,
+  // Jira status, prior artifact) MUST be verified against machine-readable data before it
+  // steers a disposition (1117 + NM-2011 class).
+  // The census runs BEFORE the claim influences a disposition — not as a post-hoc audit.
+  // Schema field populated: basis — must be census:<artifact>, not claim:<source>, after
+  // census evidence is gathered.
+  // ---------------------------------------------------------------------------
+  'claim-census': {
+    class: 'claim-census',
+    requiredActions: [
+      'identify-claim: record the external claim verbatim (client statement, Jira ticket text, prior artifact assertion, spec statement)',
+      'identify-claim-source: note the origin (Jira-ID, Confluence URL, email, prior artifact path)',
+      'collect-machine-data: BEFORE the claim steers any disposition, gather machine-readable counter-evidence (tenant export, live API response, second UI surface, DB count, network log)',
+      'cross-check: compare claim against machine data — agreement, partial match, or disagreement',
+      'record-census-artifact: save the raw machine-readable evidence as a named artifact (the census:<artifact> basis value)',
+      'disposition-gate: only after census evidence is in hand may the disposition be set — a claim-driven disposition with no census artifact is a CLAIM-CENSUS VIOLATION',
+    ],
+    effectObservable: 'census evidence artifact exists and is cited in basis:census:<artifact>; claim-vs-data agreement is documented before disposition is set',
+    zeroEffectProtocol: 'If no machine-readable data source is available to cross-check the claim, emit DATA-BLOCKED with dataBlockedReason naming the claim and dataBlockedUnlock naming what data source would enable the census. A disposition driven by an unchecked claim is never acceptable.',
+    emissionContract: 'PROBED with basis:census:<artifact-path> referencing a real, named artifact that contains the machine data used to verify the claim. basis:claim:<source> alone (without a corresponding census artifact) means the census has not run — the checker treats it as a CLAIM-CENSUS VIOLATION. The census step is mandatory; it fires before the disposition, not after.',
+  },
 };
 
 /**
