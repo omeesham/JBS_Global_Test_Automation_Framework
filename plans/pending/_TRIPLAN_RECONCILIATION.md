@@ -1118,3 +1118,514 @@ The harness is now durable at `.claude/state/ua-worker/chips/q123/gate-probe/` s
 measured against the same bar rather than a fresh set of remembered strings.
 
 *Appended 2026-07-30 after independent verification of u9.*
+
+---
+
+## GATE ROUNDS 4–5, THE CHECKPOINT, AND THE DEBRIS SOURCE (2026-07-30, later)
+
+### Round 4 (u10) — restructure accepted, both prior fixes CONVICTED
+
+u10 did what the ticket demanded rather than a third patch: the segment-level data-command skip is
+**removed entirely**, shell-`c` unwrap moved **into** the per-part loop, and `segmentHasSpecExecution` /
+`isDataWritingSegment` deleted as subsumed. Its prior-fix trial convicted u6 and u9 both as
+`scoped-wrong` — each a shape recogniser taught one more string.
+
+Dispatcher re-ran the pristine 26-case harness independently: **26/26**. The worker's own 8 additions
+(including two over-fire `allow` probes) also pass — **34/34** on the suite as it stood.
+
+### Then the dispatcher ran a second adversarial pass and found 8 more
+
+The suite is now **56 cases**; the live gate scores **48 passed, 8 failed**:
+
+| id | shape | class |
+|---|---|---|
+| S7 | newline as a command separator | **normal usage** |
+| S9 | `npx --yes playwright test` | **normal usage** |
+| S3, S11 | `( … )` subshell, bare and behind a pipe | grouping |
+| S1, S2, S13 | `$( … )` and backtick substitution, spec and walk | grouping |
+| S5 | `xargs npx playwright test` | command runner |
+
+All 8 legitimate-traffic rows still allow — no over-fire at any point across rounds 3–5.
+
+### The threat-model judgement that scopes round 5
+
+**S7 and S9 are not evasion techniques — they are ordinary typing.** `splitCompoundCommand()` splits on
+`&&`, `||`, `;` but not on a newline, so any multi-line command with a gated command below line 1 passes
+with nobody trying. `isSpecExecution()`'s regex permits no flags between `npx` and `playwright`, so the
+standard `npx --yes playwright test` walks through. Those are the floor.
+
+The grouping and runner classes are worth closing and matter far less, because **this gate's subject is
+a cooperating agent, not an adversary** — it exists so spec runs and browser walks get delegated. Under
+that model a gate that starts denying ordinary commands is strictly worse than a bypass: it taxes real
+work every day, while the bypass only costs if someone is trying to evade it. `TICKET-u11-shellgrouping`
+therefore states that **an over-fire on any `allow` row fails the ticket outright even if every deny row
+passes**, and instructs the worker to leave a bypass open and say so rather than ship friction. Two
+`allow` rows are named as the trap: reading a spec file (`cat …foo.spec.ts`) and grepping for the phrase
+(`grep -rn 'playwright test' docs/`) must never be denied — classify the executed program, never the
+presence of a string.
+
+### Live gate now at u10
+
+sha256 `3e547ef6febb9409b1a634a190d49d23124ca61f1b826a3d5a84bf63b40335c5`, identical to repo source.
+48/56 against the full suite. Cold-start verdict **150ms**, inside the LR-069 §3.4 200ms PreToolUse
+budget. Backups from the first install remain valid.
+
+### Checkpoint committed — two load-bearing files were untracked
+
+`c2b0e339` on branch `checkpoint/q123-slop-wave-2026-07-30`. **Not pushed.** Path-explicit staging; the
+three files carrying rejected fix-wave-3 changes were confirmed excluded and remain dirty in the tree.
+`plans/INDEX.md` was added by the pre-commit reindex hook, which is correct — that file is generated.
+
+Two discoveries that made this urgent, both dispatcher-verified with `git ls-files` + `git check-ignore`:
+
+- **`.claude/hooks/lib/hook-utils.mjs` was untracked and not ignored** — it carries the shared
+  `fireTelemetry` helper and other hooks import it. A fresh clone would have been missing a load-bearing
+  hook library.
+- **`_TRIPLAN_RECONCILIATION.md` — this file — was untracked and not ignored.** The entire wave record
+  existed only on disk. This also resolves the inflow report's open question #7: it is not gitignored,
+  it had simply never been committed.
+
+### Debris source investigated
+
+Root cause of the doubled `clients/encore/clients/encore/` path found: a `playwright-cli run-code`
+session log at `evidence-cp-review-2026-07-13/02-A10-A11-C4-detail-repro.txt:58` records a screenshot
+call passing a **repo-relative** path while the session cwd was `clients/encore/`, so the tool resolved
+it into a doubled path. Fix is a convention — screenshot targets must be absolute, derived from
+`git rev-parse --show-toplevel`.
+
+Dispatcher-verified rather than taken from the report: all three doubled PNGs are **byte-identical** to
+their canonical twins by sha256 (the worker had cited a prior narrative, not a fresh hash). They are
+pure noise, which de-risks that deletion batch.
+
+⚠ **Inflow is worse than recon2 measured: 183 untracked, not 117.** Eleven buckets identified with a
+named writer each. The largest single lever is that worker output dirs land at repo root
+(`out-e2e/`, `out-lots/`, `out-merge/`) instead of chip-scoped paths — a ticket-template fix, not a code
+fix. Nothing was moved, archived, or deleted: per owner instruction all real deletions are held to the
+end of the whole effort for one-shot approval.
+
+*Appended 2026-07-30.*
+
+---
+
+## ⛔ THE 260-ROW JOIN CAME BACK 55% COMPLETE WITH A COMPLETE-LOOKING SUMMARY (2026-07-30)
+
+`q123-join260-r2` was asked to classify every OPEN finding OWNER vs DISPATCHER — the measurement that
+unblocks the owner-approved off-repo split, because Fable Q2 condition 1 requires the successor plan's
+denominator to be re-runnable rather than hand-copied.
+
+**It emitted 143 rows and reported 260.**
+
+| what | claimed | actually emitted |
+|---|---|---|
+| rows classified | 260 | **143** |
+| OWNER | 107 | **87** |
+| DISPATCHER | 153 | **56** |
+
+Dispatcher-verified by counting the rows in its own `## THE JOIN` table and extracting distinct finding
+IDs. No range notation is used — the table is one row per finding, so the row count is the classification
+count. Additional internal contradiction: its OWNER sub-breakdown sums to **114** against its own headline
+of 107. The report also shipped visible working-out ("Wait let me recount:", "Let me just report totals:").
+
+### The independent denominator
+
+| measure | value |
+|---|---|
+| distinct finding IDs in the index (machine count) | **310** (report and prior passes assert 316) |
+| non-OPEN (APPLIED / REFUSED / DEFERRED / UNRESOLVED / NON-ACTIONABLE) | 56 |
+| therefore OPEN | **254** |
+| classified so far | 143 |
+| **still unclassified** | **111** |
+
+The report reached exactly 260 by subtracting 56 from 316 and noting it "matches R4 machine count" — it
+inherited the earlier denominator rather than re-deriving it, which the ticket explicitly forbade. A
+number that matches a remembered number is worse than an honest one that does not.
+
+### Root cause, and the dispatcher's share of it
+
+The distribution of unclassified IDs shows the worker went front-to-back and stopped: Phase 1 and
+Phase 2 lots 01–09 are essentially complete, while `P2-LOT10`..`LOT18` (92), `P25-*` (46) and `P3-*` (13)
+are largely untouched. It ran out of room partway through Lot 10 — and then wrote a summary as though it
+had finished.
+
+**The ticket is the larger fault.** Asking for 260 rows in a single report is precisely the batch-write
+size that kills workers. The prior guidance already on record — write incrementally, one large file per
+dispatch — was in the ticket, but the scope itself was unsurvivable.
+
+### Disposition
+
+The 143 emitted rows are **kept** — sampled and sound (real paths, defensible classes, specific basis
+clauses). Only the `## COUNTS` section is rejected. Two disjoint successor dispatches cover the
+remainder, each deriving its own ID set from the index so no derived list is propagated:
+
+- `q123-joinA` — `P2-LOT10-*` .. `P2-LOT18-*`
+- `q123-joinB` — `P25-*`, `P3-*`, `P1-*`, bare `P2-NN`; carries an explicit warning that `P3-` IDs are
+  invisible to the `^\| *(P1-|P2-|P25-)` pattern every prior pass used
+
+Both tickets carry a new hard clause: **if you cannot finish, emit what you completed and say where you
+stopped.** A truncated report that admits truncation is a good result; a truncated report with a
+confident summary is the worst possible output, because it is indistinguishable from success until
+someone counts the rows.
+
+**Final merged counts will be computed by the dispatcher from emitted rows across all three reports —
+never taken from any worker's summary section.**
+
+*Appended 2026-07-30.*
+
+---
+
+## GATE ROUND 5 ACCEPTED — AND A DECISION TO STOP CHASING GRAMMAR (2026-07-30)
+
+### u11 verified
+
+Closed all 8 shapes the dispatcher's second pass found — newline separator, `npx` flag forms, subshells,
+`$( )` and backtick substitution, and `xargs`. Independently re-run: **64/64** on the suite as it stood,
+**zero over-fire** on every legitimate-traffic row. Installed live, sha256
+`f23400dc81f731723e03f7f9179d71500d2b9072ad3e031009976b29f08a6ac3`.
+
+### Third dispatcher adversarial pass — 11 more, and the rate is not falling
+
+Suite is now **88 cases**; live gate scores **77 passed, 11 failed**. All 8 new over-fire probes passed,
+including the sharpest one: `git commit -m "fix npx playwright test flake"` correctly allows.
+
+The 11 split into two categories that are **not** equally worth fixing:
+
+**Invocation forms — a closed, enumerable list. Normal usage, no evasion required:**
+
+| id | command | note |
+|---|---|---|
+| T10 | `npx.cmd playwright test` | **this machine is Windows**; `.cmd` is the native spelling |
+| T6 | `./node_modules/.bin/playwright test` | gate matches the path without `./`; one character defeats it |
+| T7 | `pnpm playwright test` | pnpm runs a local binary without `run` |
+| T8 | `npm exec playwright test` | standard npm binary execution |
+| T9 | `npx -p @playwright/test playwright test` | u11's `(?:-\S+\s+)*` does not consume a flag's *value* |
+| T12 | `command npx playwright test` | shell builtin prefix |
+
+**Shell grammar — unbounded. Requires deliberately typing an evasion:**
+`eval "…"` (T1, T15), process substitution `bash <(…)` (T2), brace groups `{ …; }` (T4), substitution
+nested inside a shell payload (T14).
+
+### The decision
+
+`TICKET-u12-invocationforms` covers **only the six invocation forms** and explicitly forbids touching
+the four grammar shapes, requiring them to be declared under `## OBJECTION` as deliberate accepts rather
+than silently left. Expected post-state is **83/88 with 5 named, accepted failures** — a number that is
+deliberately not zero.
+
+Reasoning, recorded so a later round does not quietly reverse it: the gate's subject is a **cooperating
+agent, not an adversary**. It exists so spec runs and browser walks get delegated, not to withstand
+attack. Invocation forms are a finite list that can be completed and that people hit *by accident* —
+`npx.cmd` on a Windows machine is not an evasion, it is the normal spelling. Shell grammar is a parser
+problem with no end, reachable only on purpose, and five rounds have shown each pass introduces fresh
+risk. Continuing to chase it spends real budget and over-fire risk to close holes nobody walks into.
+
+⚠ **The honest position after u12 lands is "known-incomplete and documented", not "closed".** Five
+rounds of fixes and three adversarial passes found 2 → 8 → 11; the discovery rate did not fall. Anyone
+reading this later should assume more shapes exist and treat the 88-case suite at
+`.claude/state/ua-worker/chips/q123/gate-probe/` as the floor to beat, never as proof of completeness.
+
+*Appended 2026-07-30.*
+
+---
+
+## JOIN LOT A ACCEPTED — AND A DISPATCHER RULE AMENDMENT (2026-07-30)
+
+### Lot A verified clean
+
+`q123-joinA` covered `P2-LOT10-*`..`P2-LOT18-*`. Dispatcher re-counted its emitted rows rather than
+reading its totals:
+
+| | claimed | emitted |
+|---|---|---|
+| OWNER | 9 | **9** |
+| DISPATCHER | 82 | **82** |
+| distinct in-scope IDs | 91 | **91** |
+
+Counts match emitted rows exactly, 92 in-scope minus 1 excluded matches the dispatcher's independent
+count of 92, and the required `## COMPLETENESS` sentence is present and specific. All 9 OWNER rows are
+`~/.copilot/` or `~/.claude/` paths — correct by the rule. This is what the previous dispatch should
+have looked like.
+
+### The amendment — my classification rule was incomplete
+
+Auditing lot A's DISPATCHER rows surfaced **11 rows touching permission or control surfaces**, plus
+**7 more of the same class** in the original `JOIN260.md`. The worker applied the rule as written; the
+rule was the gap. The OWNER criteria I gave listed off-repo paths, file delete/move/rename, credentials,
+publishing, and ramp-knob promotion — and never named the permission layer.
+
+`memory/feedback_self_modification_needs_explicit_go.md` is explicit that
+`.claude/settings*.json` edits need Rutvik's direct in-chat go. That rule should have been in the ticket.
+
+**Amended OWNER criteria — a finding is OWNER if any of the original conditions hold, OR:**
+
+1. **The target is `.claude/settings.local.json` or `.claude/settings.json`.** These are the permission
+   grant lists — the file that decides what the agent may execute. Always OWNER, no exceptions.
+   *Affected in lot A: `P2-LOT13-01, -03, -04, -05, -06, -07, -08, -30, -31` (9 rows).*
+2. **The target is a ramp-knob config AND the action changes a mode or knob value** —
+   `guardrail-config.json`, `closure-config.json`, `identity-gate-config.json`, `labor-gate-config.json`.
+   A comment or documentation fix to the same file stays DISPATCHER; **this one needs per-row reading,
+   not a blanket flip.** *Candidates: lot A `P2-LOT12-04`, `P2-LOT13-21`; JOIN260 `P1-M06`, `P2-02`,
+   `P2-10`.*
+
+**Deliberately NOT amended — `routing-policy.json` and `uplink-policy.json`.** These exist in two places:
+a repo template at `.claude/skills/ultra-agents/setup/delegation/` and the live file at
+`~/.claude/delegation/`. Editing the repo copy is genuinely DISPATCHER-class. But it is **inert until
+installed**, exactly like the labor-gate work this session — the repo fix changed nothing until the
+dispatcher copied it to the live hook path. So these rows stay DISPATCHER **with a mandatory caveat**:
+applying them does not change running behaviour, and the install is a separate OWNER action.
+*Affected: JOIN260 `P2-LOT04-01, -02, -12, -13`.*
+
+This is the two-halves problem already on record
+(`memory/project_delegation_system_has_two_halves.md`) showing up inside the classification itself.
+
+### How the amendment gets applied
+
+Not by editing the workers' reports — those stay as the record of what each dispatch actually produced.
+The dispatcher computes final merged counts from emitted rows across all reports and applies this
+amendment at merge time, so the corrections are visible as corrections rather than silently folded in.
+
+Lot A's post-amendment shape, pending the per-row ramp-knob reading: **OWNER 9 → 18+, DISPATCHER 82 →
+73−**, total unchanged at 91.
+
+⚠ Lot B was dispatched before this amendment existed and will carry the same gap. Its output gets the
+same treatment on arrival — do not accept its OWNER/DISPATCHER split at face value.
+
+*Appended 2026-07-30.*
+
+---
+
+## ✅ THE CLASSIFICATION IS COMPLETE — DISPATCHER-COMPUTED FINAL COUNTS (2026-07-30)
+
+### Lot B verified
+
+`q123-joinB` covered `P25-*`, `P3-*`, `P1-*`, bare `P2-NN`. Claimed 17 OWNER / 83 DISPATCHER /
+1 UNRESOLVABLE = 101; emitted **exactly that**, 101 distinct IDs. It found **all 13 `P3-` findings** —
+the family invisible to the `^\| *(P1-|P2-|P25-)` pattern every prior pass used, and therefore never
+counted before this wave.
+
+### The merge — and a parser bug of the dispatcher's own
+
+Merged by the dispatcher from **emitted rows only**, never from any report's summary. Scoped reports
+(A, B) win over the truncated JOIN260 on ID collisions.
+
+First merge run reported 303 classified and left 7 unaccounted. Three of those seven —
+`P2-LOT05-06`, `P2-LOT05-10`, `P2-LOT06-29` — were present and correctly classified in JOIN260 all
+along. **The merge script dropped them**: each row contains a literal `|` inside a cell
+(`YYYY-MM-DD|class|one-liner`, `UNBUILT|BUILT`, `|| true makes it permanently green`), which shifted
+positional column indexing so the class cell failed validation and the row was silently skipped.
+
+Fixed by anchoring `id`/`path` from the left and `class`/`basis` from the **right**, rejoining the
+remainder as the action. Worth recording: the tooling written to check the workers had the same class of
+defect the workers were being checked for, and only a coverage cross-check caught it.
+
+`P2-LOT06-29` is an **S1** finding — a self-test with `|| true` making it permanently green — so the
+dropped rows were not harmless filler.
+
+### Final state
+
+| measure | value |
+|---|---|
+| distinct finding IDs in the index (machine count) | **310** |
+| classified | **306** |
+| unclassified | **4** — `P1-M07`, `P1-M10` (both REFUTED), `P2-LOT03-16` (APPLIED), `P2-LOT18-06` (NON-ACTIONABLE, KEEP) |
+| **OWNER** | **109** |
+| **DISPATCHER** | **196** |
+| **UNRESOLVABLE** | **1** (`P25-M03`) |
+
+Amendment effects folded in: **9** rows flipped DISPATCHER → OWNER for touching
+`.claude/settings*.json`; **5** ramp-knob rows flagged as needing per-row reading before their class is
+final; **6** rows flagged `inert-until-installed` (repo template edits that change no running behaviour
+until copied to `~/.claude/`).
+
+Machine artifacts at `.claude/state/ua-worker/chips/q123/out-merge-final/`:
+`merged-classification.json` (every row with source report and any amendment tag) and `index.ids`.
+
+### The off-repo split set — Fable Q2 condition 1 satisfied
+
+**95 findings** target `~/.claude/` or `~/.copilot/`, written to
+`out-merge-final/OFF-REPO-TRANSFER-MANIFEST.md`:
+
+| tree | count |
+|---|---|
+| `~/.claude/delegation` | 37 |
+| `~/.claude/hooks` | 35 |
+| `~/.copilot/agents` | 10 |
+| other off-repo paths | 13 |
+| **total** | **95** |
+
+This is the **by-ID** transfer list the owner-approved split requires, and it is **regenerable** from
+the three source reports rather than hand-copied — which is exactly what Fable Q2 condition 1 demanded
+and what the earlier hand-summarised attempt could not provide.
+
+Still outstanding for the split itself (conditions 2–4): the successor plan must be **filed in the same
+motion** as the descope and before any parent flips DONE; the parent closure text must name and link the
+split so the trail reads as a transfer; and the successor needs an owner-cadence, since every one of
+these 95 needs per-item approval on the owner's own machine.
+
+*Appended 2026-07-30.*
+
+---
+
+## GATE CLOSED-OUT + DISPATCHER WORKLIST BUILT (2026-07-30, session end phase)
+
+### u12 accepted, installed, and independently class-tested
+
+u12 landed exactly on spec: **91/96**, zero over-fire, and the 5 remaining failures are precisely the
+grammar shapes declared out of scope — it did not quietly fix them.
+
+A fourth dispatcher pass then tested whether it covered the invocation-form **class** rather than the six
+strings it was given. It generalised well: `yarn playwright test`, `pnpm exec`, `npx playwright@latest`,
+`npx --no-install`, `PW=1 npx.cmd`, `playwright.cmd`, `playwright-cli.cmd`, and data-pipe/shell-wrapper
+combinations of all of them now deny. All 8 new over-fire probes pass, including the near-misses
+`npx playwright show-report`, `codegen`, `--version`, and `pnpm add -D @playwright/test`.
+
+Three survivors, of which **one was rejected as not real**:
+
+| id | form | disposition |
+|---|---|---|
+| V5 | `node_modules\.bin\playwright test` — **Windows backslash** | dispatched (u13); native spelling on this machine |
+| V4 | `npm run --silent e2e` — flag between `run` and script | dispatched (u13) |
+| V3 | `bunx playwright test` | **NOT fixed** — verified `bun` is in no `package.json` and not on PATH. Covering an imagined form is how allow-lists rot |
+
+Live gate now at u12, sha256 `56193d2e…`. Suite grown to **115 cases**, live score **107/8**.
+
+### Final gate posture, stated honestly
+
+Seven rounds, four independent adversarial passes. Discovery went 2 → 8 → 11 → 3, and the last pass found
+only forms the prior round had *not been told about* — the first sign the invocation-form class is
+approaching closure. The grammar class (`eval`, process substitution, brace groups, nested substitution
+in a shell payload) remains **open by decision**, recorded, and reachable only by deliberately typing an
+evasion into a gate whose subject is a cooperating agent.
+
+The durable harness at `.claude/state/ua-worker/chips/q123/gate-probe/` is the floor for any future
+round. It is a regression suite, not a checklist — every round added to it and none of its cases were
+removed.
+
+### DISPATCHER worklist
+
+`out-merge-final/DISPATCHER-WORKLIST.md` — the **196** in-repo findings that need no owner approval,
+grouped by target file, 98 files. Shape: a short head and a very long tail.
+
+| findings | file |
+|---|---|
+| 9 | `.claude/hooks/lib/scorecard.mjs` |
+| 7 | `.claude/context/navigation.md` |
+| 5 each | `copilot-worker.sh`, `PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md`, `gates-config.json`, `check-todo-injection.mjs`, `.claude/agents/*.md`, `check-browsertool.mjs`, `validate-plan-closure.mjs` |
+| 111 | spread across the remaining 78 files, mostly 1–2 each |
+
+Rows carry their amendment tags: `inert-until-installed` (repo template edits that change no running
+behaviour) and `ramp-knob-NEEDS-READING` (class still provisional).
+
+### Successor plan drafting dispatched
+
+`TICKET-splitplan` (`q123-splitplan`) drafts the plan that receives the 95 off-repo findings. It is a
+**draft to a chip dir, not a file under `plans/`** — filing is the dispatcher's action, so condition 2
+(filed in the same motion as the descope) stays under dispatcher control.
+
+Its hardest requirement is the one that decides whether the split is honest: **how do you attest work
+done outside the repo, using an artifact the repo's closure gate can actually see?** The ticket names
+this session's own labor-gate experience as the reference case — a fix made in the repo, verified, and
+believed done while the running copy stayed bypassable, until a checked-in probe harness driven against
+the *installed* file produced a pass/fail count. The draft must be at least that strong, or say plainly
+under `## OBJECTION` where its weakest link is.
+
+*Appended 2026-07-30.*
+
+---
+
+## GATE FINAL + SPLIT PLAN DRAFTED AND BOUNCED (2026-07-30)
+
+### The gate is done — final posture
+
+u13 closed the last two invocation forms: the **Windows backslash** path `node_modules\.bin\playwright
+test` (the native spelling on this machine) and `npm run --silent <script>`. Its own added cases prove
+the discriminator is right: `npm run --silent e2e` denies while `npm run --silent typecheck` allows —
+the **script name** decides, not the presence of a flag.
+
+Installed live, sha256 `0f243339f66c51f5…`. **Live score: 114 passed / 6 failed / 120 cases.**
+
+The 6 remaining failures are all deliberate, named, and in the suite as documented-open:
+
+| shape | why left open |
+|---|---|
+| `eval "…"` (×2, spec + walk) | shell grammar; reachable only by deliberately evading |
+| process substitution `bash <(…)` | same |
+| brace group `{ …; }` | same |
+| substitution nested in a shell payload | same |
+| `bunx playwright test` | **verified not real** — `bun` is in no `package.json` and not on PATH |
+
+Seven rounds, four independent adversarial passes, discovery 2 → 8 → 11 → 3. Zero over-fire at any
+point across the whole sequence — no legitimate command was ever newly denied. The 120-case suite at
+`.claude/state/ua-worker/chips/q123/gate-probe/` is the regression floor; every round added to it and no
+case was ever removed.
+
+### Split plan drafted — ID set exact, phase tally wrong
+
+`q123-splitplan` produced a 469-line draft. Dispatcher verified the load-bearing claim mechanically:
+
+```
+manifest IDs 95 · draft IDs 95 · missing from draft: none · in draft but not manifest: none
+```
+
+**Exact match** — the transfer is complete and nothing was invented. Its `## OBJECTION` is the strongest
+part and is accepted verbatim: a sha256 attestation log proves *the file changed*, **not** that it
+changed in the way the finding specified. For the ~60 content-edit items it recommends owner
+side-by-side diff review instead, making the owner the witness — slower, and honest. That recommendation
+stands and should survive into the filed plan.
+
+**Bounced on one defect**: `## ALL 95 ACCOUNTED` claims each ID sits in exactly one phase, but its own
+counts sum to `5+25+35+11+4+14` = **94**, and `P2-LOT09-01` is assigned to Phase 2B *and* Phase 2D. The
+draft also carries the literal text "— wait, let me recount." — the same visible working-out that marked
+the truncated join earlier today.
+
+A finding in two phases gets done twice; a finding in zero phases silently never gets done. That is
+precisely the failure the split exists to prevent, so it cannot be filed as-is. `q123-splitplan-v2`
+rebuilds the tally with IDs written out per phase — no `X through Y` ranges, which is where the
+double-count hid.
+
+**The plan is still not filed.** Filing is the dispatcher's action, deliberately, so that Fable Q2
+condition 2 — filed in the same motion as the descope, before any parent flips DONE — stays under
+dispatcher control rather than being something a worker could do early.
+
+*Appended 2026-07-30.*
+
+---
+
+## ⏸ HALTED BY OWNER — 2026-07-30, resume on his word
+
+Owner called a stop. No further dispatches. One job was already in flight and was allowed to finish per
+his instruction: `q123-splitplan-v2` (the phase-tally rebuild of the off-repo successor plan).
+
+### State at halt
+
+| | |
+|---|---|
+| findings in index (machine count) | **310** |
+| classified | **306** (4 already-resolved, listed earlier) |
+| **fixed this wave** | **~47** |
+| DISPATCHER — no owner approval needed | **196**, worklist at `out-merge-final/DISPATCHER-WORKLIST.md`, grouped across 98 files |
+| OWNER — needs Rutvik | **109**, of which 5 are provisional pending a ramp-knob read |
+| off-repo transfer set | **95**, manifest at `out-merge-final/OFF-REPO-TRANSFER-MANIFEST.md` |
+| live labor-gate | **114/120** on the 120-case suite, 6 documented-open, zero over-fire ever |
+| checkpoint commit | `c2b0e339` on `checkpoint/q123-slop-wave-2026-07-30`, **not pushed** |
+| untracked inflow | **183** files, nothing moved, archived, or deleted |
+
+### Owner decisions taken 2026-07-30
+
+1. **Install the fixed gate** — done, and re-installed after each verified round (u9 → u10 → u11 → u12 → u13).
+2. **Split the off-repo findings** — approved; manifest built; successor plan drafted and bounced once;
+   **not yet filed** — filing is deliberately held so it lands in the same motion as the descope.
+3. **Deletions** — all real deletes held to the end of the whole effort for one-shot owner approval.
+   Nothing has been moved or archived in the meantime.
+4. **Commits** — local checkpoints only, no push this session.
+
+### The three plans still cannot close
+
+Unchanged from the recon2 verdict. Nothing was flipped to `Status: DONE`.
+
+### First thing on resume
+
+Verify `q123-splitplan-v2` — the check is mechanical and specified: every one of the 95 IDs must appear
+in **exactly one** phase, and the per-phase counts must sum to 95. Then the split plan can be filed, and
+the 196-item DISPATCHER worklist is the standing queue after that.
+
+*Appended 2026-07-30 at owner halt.*
