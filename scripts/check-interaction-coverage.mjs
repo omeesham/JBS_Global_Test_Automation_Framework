@@ -89,6 +89,25 @@ function validateArtifact(map, schema) {
   const checks = [];
   const { validateMap, VALID_EMISSION_STATUSES } = schema;
 
+  // Detects count observations by key name — case-insensitive, recursive.
+  // Covers explicit aliases (numRows, total, rowTotal, itemsFound, records) and
+  // any key containing "count" (e.g. rowCount, recordCount_v2, domRowCount).
+  // Recursion catches counts nested deeper than probe.before/after top-level.
+  // Used by both Oracle 4 (count-source) and scope-match.
+  function probeHasCountKeys(probe) {
+    const COUNT_RE = /count/i;
+    const COUNT_ALIAS_RE = /^(numrows?|total|rowtotal|itemsfound|records?)$/i;
+    function hasCountKey(obj) {
+      if (!obj || typeof obj !== 'object') return false;
+      for (const [k, v] of Object.entries(obj)) {
+        if (COUNT_RE.test(k) || COUNT_ALIAS_RE.test(k)) return true;
+        if (v && typeof v === 'object' && hasCountKey(v)) return true;
+      }
+      return false;
+    }
+    return hasCountKey(probe.before) || hasCountKey(probe.after);
+  }
+
   // Null/non-object element guard (controlled failure, no TypeError crash)
   if (Array.isArray(map.elements)) {
     const invalidEls = map.elements.filter(el => !el || typeof el !== 'object');
@@ -438,24 +457,6 @@ function validateArtifact(map, schema) {
     const countRequestFailed = [];
     const countUncheckable = [];
 
-    function probeHasCountKeys(probe) {
-      // Detects count observations by key name — case-insensitive, recursive.
-      // Covers explicit aliases (numRows, total, rowTotal, itemsFound, records) and
-      // any key containing "count" (e.g. rowCount, recordCount_v2, domRowCount).
-      // Recursion catches counts nested deeper than probe.before/after top-level.
-      const COUNT_RE = /count/i;
-      const COUNT_ALIAS_RE = /^(numrows?|total|rowtotal|itemsfound|records?)$/i;
-      function hasCountKey(obj) {
-        if (!obj || typeof obj !== 'object') return false;
-        for (const [k, v] of Object.entries(obj)) {
-          if (COUNT_RE.test(k) || COUNT_ALIAS_RE.test(k)) return true;
-          if (v && typeof v === 'object' && hasCountKey(v)) return true;
-        }
-        return false;
-      }
-      return hasCountKey(probe.before) || hasCountKey(probe.after);
-    }
-
     for (const el of allElements) {
       if (!Array.isArray(el.probes)) continue;
       let elFail = false, elUncheckable = false, elRequestFailed = false;
@@ -545,6 +546,86 @@ function validateArtifact(map, schema) {
         verdict: 'PASS',
         pass: true,
         reason: 'No DOM-only count evidence found — all count sources are valid or no count-claiming probes present',
+      });
+    }
+  }
+
+  // scope-match — wrong-office / wrong-context walk class (2026-07-30 incident: office 1169 vs 4107)
+  // A count-bearing probe must record the scope identifier (e.g. localOfficeId) present in the
+  // request that actually produced the count — NOT assumed from the URL bar or page header.
+  // The map's declaredScope field names the intended scope.
+  //
+  // count-bearing probe = has top-level footerSource, OR probe.after.countSource, OR count keys in before/after.
+  //
+  // FAIL:       observedScopeId present but differs from declaredScope — the count came from a
+  //             different context; every disposition derived from it is void.
+  // UNCHECKABLE: observedScopeId absent on a count-bearing probe, OR declaredScope absent when
+  //             observedScopeId would otherwise be compared — absence of scope ≠ proof of match.
+  // PASS:       No count-bearing probes, or all carry observedScopeId matching declaredScope.
+  {
+    const allElements = Array.isArray(map.elements) ? map.elements : [];
+    const scopeMismatch = [];
+    const scopeUncheckable = [];
+
+    const declaredScope = (map.declaredScope != null && typeof map.declaredScope === 'string' && map.declaredScope.trim())
+      ? map.declaredScope.trim() : null;
+
+    for (const el of allElements) {
+      if (!Array.isArray(el.probes)) continue;
+      let elMismatch = false, elUncheckable = false;
+      for (const probe of el.probes) {
+        if (!probe || typeof probe !== 'object') continue;
+        // A probe is count-bearing if it reads from a context-dependent surface.
+        const isCountBearing =
+          (typeof probe.footerSource === 'string' && probe.footerSource.trim()) ||
+          (probe.after && typeof probe.after === 'object' && 'countSource' in probe.after) ||
+          probeHasCountKeys(probe);
+        if (!isCountBearing) continue;
+
+        const observed = probe.observedScopeId;
+        if (observed === undefined || observed === null ||
+            (typeof observed === 'string' && !observed.trim())) {
+          elUncheckable = true;
+          break;
+        }
+        if (declaredScope === null) {
+          elUncheckable = true;
+          break;
+        }
+        if (String(observed).trim() !== declaredScope) {
+          elMismatch = true;
+          break;
+        }
+      }
+      const id = el.elementId || '(unknown)';
+      if (elMismatch) scopeMismatch.push(id);
+      else if (elUncheckable) scopeUncheckable.push(id);
+    }
+
+    if (scopeMismatch.length > 0) {
+      checks.push({
+        name: 'scope-match',
+        verdict: 'FAIL',
+        pass: false,
+        reason: `SCOPE-MISMATCH: ${scopeMismatch.length} element(s) record counts from a different context than declared ` +
+          `(declaredScope="${declaredScope}") — the walk measured a different scope; every disposition derived from it is void: ` +
+          `[${scopeMismatch.join(', ')}]`,
+      });
+    } else if (scopeUncheckable.length > 0) {
+      checks.push({
+        name: 'scope-match',
+        verdict: 'UNCHECKABLE',
+        pass: false,
+        reason: `UNCHECKABLE (≠ PASS): ${scopeUncheckable.length} element(s) read counts from a context-dependent surface ` +
+          `without recording observedScopeId — scope mismatch cannot be ruled out; ` +
+          `a count from an unrecorded scope is not a measurement: [${scopeUncheckable.join(', ')}]`,
+      });
+    } else {
+      checks.push({
+        name: 'scope-match',
+        verdict: 'PASS',
+        pass: true,
+        reason: 'No count-bearing probes found, or all carry observedScopeId matching declaredScope — scope-match oracle satisfied',
       });
     }
   }
@@ -1918,6 +1999,55 @@ async function selfTest() {
         'S6: claim-census fires — basis prefix "claim:" drives disposition without machine-readable census (NM-2011 Jira "could not recreate" vs live HTTP 500)');
     }
   }
+
+  // T84: scope-match RED — observedScopeId differs from declaredScope → FAIL
+  console.log('\n=== T84: scope-match — observedScopeId(4107) ≠ declaredScope(1169) → FAIL ===');
+  const scopeFailMap = {
+    version: '1.0.0', surface: 'test',
+    declaredScope: '1169',
+    elements: [{
+      elementId: 'active-filter-1169', class: 'filter', emissionStatus: 'PROBED',
+      probes: [{ action: 'toggle-filter', footerSource: 'grid-footer', gridFooter: '0 items found', observedScopeId: '4107' }],
+      effectObserved: false, disposition: 'DIFFERENTIAL-DATA-REQUIRED', basis: 'observed:walk.txt',
+      ladderEvidence: { rung: 2, attempted: 'searched two surfaces for inactive data', surfaces: ['direct-API', 'network-log'] },
+    }],
+  };
+  const r84 = validateArtifact(scopeFailMap, schemaResult.mod);
+  assert(!r84.pass, 'scope-match: observedScopeId(4107) ≠ declaredScope(1169) → FAIL');
+  assert(r84.checks.some(c => c.name === 'scope-match' && c.verdict === 'FAIL'),
+    'scope-match verdict FAIL — count came from a different context than declared');
+
+  // T85: scope-match GREEN — observedScopeId matches declaredScope → PASS (honest control)
+  console.log('\n=== T85: scope-match — scopes match → PASS (honest control) ===');
+  const scopePassMap = {
+    version: '1.0.0', surface: 'test',
+    declaredScope: '1169',
+    elements: [{
+      elementId: 'active-filter-1169', class: 'filter', emissionStatus: 'PROBED',
+      probes: [{ action: 'toggle-filter', footerSource: 'grid-footer', gridFooter: '19 items found', observedScopeId: '1169' }],
+      effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
+    }],
+  };
+  const r85 = validateArtifact(scopePassMap, schemaResult.mod);
+  assert(r85.checks.find(c => c.name === 'scope-match').pass,
+    'scope-match: observedScopeId matches declaredScope → scope-match PASS');
+
+  // T86: scope-match RED — count-bearing probe missing observedScopeId → UNCHECKABLE (not PASS)
+  console.log('\n=== T86: scope-match — absent observedScopeId on count-bearing probe → UNCHECKABLE ===');
+  const scopeUncheckMap = {
+    version: '1.0.0', surface: 'test',
+    declaredScope: '1169',
+    elements: [{
+      elementId: 'active-filter-1169', class: 'filter', emissionStatus: 'PROBED',
+      probes: [{ action: 'toggle-filter', footerSource: 'grid-footer', gridFooter: '0 items found' }],
+      effectObserved: false, disposition: 'DIFFERENTIAL-DATA-REQUIRED', basis: 'observed:walk.txt',
+      ladderEvidence: { rung: 2, attempted: 'searched two surfaces for inactive data', surfaces: ['direct-API', 'network-log'] },
+    }],
+  };
+  const r86 = validateArtifact(scopeUncheckMap, schemaResult.mod);
+  assert(!r86.pass, 'scope-match: absent observedScopeId → FAIL (UNCHECKABLE ≠ PASS)');
+  assert(r86.checks.some(c => c.name === 'scope-match' && c.verdict === 'UNCHECKABLE'),
+    'scope-match verdict UNCHECKABLE for missing observedScopeId — absent scope is not proof of match');
 
   fireTelemetry(fails === 0 ? 'pass' : 'fail', 'self-test');
 
