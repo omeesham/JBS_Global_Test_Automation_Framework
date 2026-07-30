@@ -22,7 +22,8 @@
       "2026-07-25 summary-level JQL over 110 recent issues → 1 rule-bearing summary (NAV-4529, 6 invariants)",
       "2026-07-25 targeted description-level queries → 4 further rules (NM-2142, NAV-4598, NAV-4575, NM-2206) and a negative result for PG-286",
       "2026-07-25 third pass, project NM rule-shaped summaries → 6 further rules (NM-1940, NM-2137, NM-2156, NM-2006, NM-2085, NM-3063/NM-2917) and a Jira source for D8 (NM-2076)",
-      "2026-07-25 fourth pass, project NAV rule-shaped summaries → 6 further rules (NAV-4180, NAV-3357, NAV-4505, NAV-4624, NAV-3785, NAV-3784) and identification of the permission-invariant coverage gap"
+      "2026-07-25 fourth pass, project NAV rule-shaped summaries → 6 further rules (NAV-4180, NAV-3357, NAV-4505, NAV-4624, NAV-3785, NAV-3784) and identification of the permission-invariant coverage gap",
+      "2026-07-30 old-site baseline read (clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-2026-06-05.md) → 0 rows added; module is baselineScope:baseline-absent — Corporate Pricing has no nav2 equivalent by authoritative user directive (2026-06-05); no domain rules extractable from an absent feature. Confluence not attempted: no Atlassian/Confluence tool available in this run's toolset."
     ]
   },
   "coverageGaps": [
