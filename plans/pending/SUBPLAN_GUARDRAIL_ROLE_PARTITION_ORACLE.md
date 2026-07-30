@@ -56,6 +56,28 @@ and confirm with the client which roles are provisionable on the E2E environment
 exists, this is a **named blocker with a named unlock** — escalate via `/encore-questions` for a
 read-only-role account. Do not proceed to Phase 2 on a single account and do not simulate a role.
 
+### Role vocabulary — found 2026-07-30, no longer a gap
+
+This subplan was authored without naming which roles to partition against. Two Confluence sources
+supply that, found during the domain-oracle harvest:
+
+- **Navigator Legacy Permissions — Design Spec** (Confluence page `3871342594`, space NM) —
+  *"Document all security roles (permissions), access levels, and authorization patterns used in the
+  legacy Navigator HeliosWeb application… preserving exact role keys, client UI gates, and backend API
+  enforcement."* This describes the **application actually under test** and is therefore the primary
+  source. **Read it before Phase 1** — it carries the exact role keys the oracle must assert against,
+  and the client-UI-gate vs backend-API-enforcement split is precisely the both-directions distinction
+  Phase 1 requires.
+- **Pricing** (Confluence page `3866099713`) — the successor microservice enforces three policies:
+  `PricingRead` on GETs, `PricingWrite` on POST/PUT/DELETE, `PricingDelete` on strategy deletion.
+  **Design-spec, not live-verified** — it documents the rewrite, not today's behaviour. Useful as the
+  shape the read/write partition is heading toward; not evidence of what the live app enforces now.
+
+**What remains blocked**: the credentials themselves. Knowing the role names does not create accounts
+that hold them. Phase 2 still requires at least two real accounts on the E2E environment — one holding
+the permitted role, one restricted — and that is still an `/encore-questions` escalation. The gap that
+closed is *which roles to ask for*; the gap that stands is *having them*.
+
 Phases 1 and 3 are buildable without the credentials; Phase 2 is not.
 
 ## Phase 1 — Extend the metamodel, not just the checker
