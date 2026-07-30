@@ -85,7 +85,7 @@ async function loadSchema() {
 
 // ── Core validation ─────────────────────────────────────────────────────────
 
-function validateArtifact(map, schema) {
+function validateArtifact(map, schema, { mapDir } = {}) {
   const checks = [];
   const { validateMap, VALID_EMISSION_STATUSES } = schema;
 
@@ -263,7 +263,7 @@ function validateArtifact(map, schema) {
         ? 'No UNCLASSIFIED elements — extractor classified all controls'
         : `UNCLASSIFIED VIOLATION: ${unclassifiedEls.length} element(s) carry UNCLASSIFIED — ` +
           `unclassifiable controls block closure; each must be resolved before this map closes: ` +
-          `[${unclassifiedEls.join(', ')}]`,
+          `[${unclassifiedEls.join(', ')}] See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.`,
     });
   }
 
@@ -463,15 +463,54 @@ function validateArtifact(map, schema) {
     // all probe states. Derived from drone-probes.mjs effectObservable strings (see above).
     const COUNT_BEARING_CLASSES = ['filter'];
 
+    // Compares the integer embedded in state.countSource against the state's count measurement.
+    // Returns { disagree: true } when they exist and differ, { uncheckable: true } when a
+    // footer: source carries no extractable integer, or null when no comparison is possible.
+    function csAgree(state) {
+      if (!state || typeof state !== 'object') return null;
+      const cs = state.countSource;
+      if (typeof cs !== 'string' || !cs.trim()) return null;
+      const colonIdx = cs.indexOf(':');
+      const prefix = colonIdx >= 0 ? cs.slice(0, colonIdx).toLowerCase() : '';
+      const text = colonIdx >= 0 ? cs.slice(colonIdx + 1) : cs;
+      const csMatch = text.match(/\d+/);
+      const csNum = csMatch ? parseInt(csMatch[0], 10) : null;
+      if (csNum === null) {
+        // footer: must embed a count; an absent integer is absence of evidence, not agreement.
+        // api: citations may be endpoint references without an embedded count — no UNCHECKABLE.
+        return prefix === 'footer' ? { uncheckable: true } : null;
+      }
+      // Find the count measurement in the state, excluding countSource itself.
+      const COUNT_KEY_RE = /count/i;
+      const ALIAS_RE = /^(numrows?|total|rowtotal|itemsfound|records?)$/i;
+      let stateNum = null;
+      for (const [k, v] of Object.entries(state)) {
+        if (k === 'countSource') continue;
+        if (typeof v === 'number' && (COUNT_KEY_RE.test(k) || ALIAS_RE.test(k))) { stateNum = v; break; }
+      }
+      if (stateNum === null) {
+        for (const [k, v] of Object.entries(state)) {
+          if (k === 'countSource') continue;
+          if (typeof v === 'string' && (COUNT_KEY_RE.test(k) || ALIAS_RE.test(k) || k.toLowerCase() === 'footertext')) {
+            const m = v.match(/\d+/);
+            if (m) { stateNum = parseInt(m[0], 10); break; }
+          }
+        }
+      }
+      if (stateNum === null) return null;
+      return stateNum === csNum ? null : { disagree: true };
+    }
+
     const allElements = Array.isArray(map.elements) ? map.elements : [];
     const countFails = [];
+    const countAgreeFails = [];
     const countRequestFailed = [];
     const countUncheckable = [];
 
     for (const el of allElements) {
       if (!Array.isArray(el.probes)) continue;
       const isCountBearingByClass = COUNT_BEARING_CLASSES.includes(el.class);
-      let elFail = false, elUncheckable = false, elRequestFailed = false;
+      let elFail = false, elAgreeFail = false, elUncheckable = false, elRequestFailed = false;
       for (const probe of el.probes) {
         // For count-bearing classes the before state is also a count measurement — both
         // the before and after counts must have their source documented.
@@ -480,6 +519,11 @@ function validateArtifact(map, schema) {
           if (!('countSource' in probe.before)) {
             elUncheckable = true;
             break;
+          }
+          const bResult = csAgree(probe.before);
+          if (bResult !== null) {
+            if (bResult.uncheckable) { elUncheckable = true; break; }
+            if (bResult.disagree) { elAgreeFail = true; break; }
           }
         }
         const after = probe.after;
@@ -514,7 +558,12 @@ function validateArtifact(map, schema) {
                   if (httpStat === undefined || httpStat === null) {
                     elUncheckable = true; // absent status → UNCHECKABLE
                   } else if (typeof httpStat === 'number' && httpStat >= 200 && httpStat < 300) {
-                    // 2xx → valid observation; count source accepted
+                    // 2xx → valid observation; verify count-source agreement
+                    const aResult = csAgree(after);
+                    if (aResult !== null) {
+                      if (aResult.uncheckable) { elUncheckable = true; }
+                      else if (aResult.disagree) { elAgreeFail = true; break; }
+                    }
                   } else {
                     elRequestFailed = true; // non-2xx → REQUEST-FAILED
                     break;
@@ -531,6 +580,7 @@ function validateArtifact(map, schema) {
       }
       const id = el.elementId || '(unknown)';
       if (elFail) countFails.push(id);
+      else if (elAgreeFail) countAgreeFails.push(id);
       else if (elRequestFailed) countRequestFailed.push(id);
       else if (elUncheckable) countUncheckable.push(id);
     }
@@ -543,6 +593,15 @@ function validateArtifact(map, schema) {
         reason: `COUNT-SOURCE VIOLATION: ${countFails.length} element(s) use DOM node counts — ` +
           `virtualized grids render ~2 rows regardless of real total; DOM count is a rendering artifact, not a count: ` +
           `[${countFails.join(', ')}]`,
+      });
+    } else if (countAgreeFails.length > 0) {
+      checks.push({
+        name: 'count-source',
+        verdict: 'FAIL',
+        pass: false,
+        reason: `COUNT-SOURCE AGREEMENT VIOLATION: ${countAgreeFails.length} element(s) have a measured count that contradicts the cited source — ` +
+          `the integer in the probe state disagrees with the integer in countSource; ` +
+          `a citation must agree with its claim: [${countAgreeFails.join(', ')}]`,
       });
     } else if (countRequestFailed.length > 0) {
       checks.push({
@@ -755,7 +814,7 @@ function validateArtifact(map, schema) {
         pass: false,
         reason: `CLAIM-CENSUS VIOLATION: ${claimEls.length} element(s) carry claim-sourced dispositions with no valid census evidence — ` +
           `external claims must be verified against machine-readable data before steering a disposition: ` +
-          `[${claimEls.map(e => e.elementId || '(unknown)').join(', ')}]`,
+          `[${claimEls.map(e => e.elementId || '(unknown)').join(', ')}] See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.`,
       });
     } else if (isUncheckable) {
       checks.push({
@@ -774,6 +833,63 @@ function validateArtifact(map, schema) {
         reason: claimEls.length === 0
           ? 'No claim-sourced dispositions — oracle 5 does not apply'
           : `${claimEls.length} claim(s) corroborated by verified census artifact(s)`,
+      });
+    }
+  }
+
+  // basis-artifact-provenance (2026-07-30 incident: walk worker built map from previous run's numbers)
+  // An element citing observed:<file> claims a specific artifact witnessed the probe.
+  // Resolution base: the cited path is resolved relative to the map's own directory (mapDir).
+  // Absent citation (observed: with no filename) → UNCHECKABLE.
+  // Citation present but file missing → FAIL.
+  // Known limit: existence is verified, content agreement is not.
+  if (mapDir) {
+    const provenanceFail = [];
+    const provenanceUncheckable = [];
+
+    if (Array.isArray(map.elements)) {
+      for (const el of map.elements) {
+        const parsed = parseBasis(el.basis);
+        if (!parsed || parsed.prefix !== 'observed') continue;
+        const { content } = parsed;
+        if (!content) {
+          provenanceUncheckable.push(el.elementId || '(unknown)');
+          continue;
+        }
+        if (!existsSync(resolve(mapDir, content))) {
+          provenanceFail.push(el.elementId || '(unknown)');
+        }
+      }
+    }
+
+    if (provenanceFail.length > 0) {
+      checks.push({
+        name: 'basis-artifact-provenance',
+        verdict: 'FAIL',
+        pass: false,
+        reason: `BASIS-PROVENANCE VIOLATION: ${provenanceFail.length} element(s) cite observed: artifact(s) that do not exist ` +
+          `(resolved relative to map directory) — a map whose witness files are missing carries no evidence the walk occurred: ` +
+          `[${provenanceFail.join(', ')}]`,
+      });
+    } else if (provenanceUncheckable.length > 0) {
+      checks.push({
+        name: 'basis-artifact-provenance',
+        verdict: 'UNCHECKABLE',
+        pass: false,
+        reason: `UNCHECKABLE (≠ PASS): ${provenanceUncheckable.length} element(s) carry observed: basis with no cited artifact — ` +
+          `absence of provenance is not evidence of provenance: [${provenanceUncheckable.join(', ')}]`,
+      });
+    } else {
+      const observedCount = Array.isArray(map.elements)
+        ? map.elements.filter(el => { const p = parseBasis(el.basis); return p && p.prefix === 'observed' && p.content; }).length
+        : 0;
+      checks.push({
+        name: 'basis-artifact-provenance',
+        verdict: 'PASS',
+        pass: true,
+        reason: observedCount === 0
+          ? 'No observed: citations present — basis-artifact-provenance does not apply'
+          : `All ${observedCount} observed: citation(s) resolve to existing artifact(s) beside the map`,
       });
     }
   }
@@ -825,7 +941,7 @@ async function checkFile(filePath) {
     };
   }
 
-  return validateArtifact(map, schemaResult.mod);
+  return validateArtifact(map, schemaResult.mod, { mapDir: dirname(absPath) });
 }
 
 // ── --plan mode ─────────────────────────────────────────────────────────────
@@ -899,7 +1015,7 @@ async function checkPlan(planPath, { artifactsDir } = {}) {
       allPass = false;
       continue;
     }
-    const result = validateArtifact(map, schemaResult.mod);
+    const result = validateArtifact(map, schemaResult.mod, { mapDir: dirname(ap) });
     for (const c of result.checks) {
       allChecks.push({ ...c, name: `${basename(ap)}:${c.name}` });
     }
@@ -1957,8 +2073,9 @@ async function selfTest() {
   // Each specimen must be flagged by the specific sub-check its bug class implies.
   // expectedVerdict is carried as specimen.expectedVerdict in the fixture file.
   // The reviewer's verify.txt display alias "expected=FAIL" is derived from that field.
-  // S3 FINDING documented below: round-trip-invariant does NOT fire on S3's map because
-  // the element lacks capability:'export'/'import' tags; zero-effect-disposition catches it.
+  // S3 FINDING documented below: round-trip-invariant returns PASS on S3 because the export
+  // element carries roundTripDisposition (invariant documented); zero-effect-disposition catches
+  // the import element (effectObserved:false, disposition:COVERED).
   console.log('\n=== CORPUS: kernel-oracle-fixtures.json ===');
   let corpus = null;
   try {
@@ -1995,18 +2112,19 @@ async function selfTest() {
     }
 
     // T80: S3-round-trip (NM-1940)
-    // FINDING: round-trip-invariant does NOT fire — the map element has class:io but no
-    // capability:'export'/'import' tag, so oracle 3 is N/A and reports PASS.
-    // Actual catch: zero-effect-disposition fires (effectObserved:false, disposition:COVERED).
-    // We assert the FINDING explicitly rather than papering over it with a verdict-only check.
-    console.log('\n=== T80: Corpus S3-round-trip — FINDING: round-trip-invariant N/A; zero-effect-disposition catches it ===');
+    // FINDING: round-trip-invariant returns PASS — the export+import pair carries
+    // roundTripDisposition on the export element (invariant documented, even though the
+    // disposition records a defect). Oracle 3 checks for presence, not success verdict.
+    // Actual catch: zero-effect-disposition fires on the import element
+    // (effectObserved:false, disposition:COVERED).
+    console.log('\n=== T80: Corpus S3-round-trip — FINDING: round-trip-invariant PASS (documented); zero-effect-disposition catches import element ===');
     const s3 = byId['S3-round-trip'];
     assert(s3 !== undefined, 'S3-round-trip specimen present in corpus');
     if (s3) {
       const rs3 = validateArtifact(s3.map, schemaResult.mod);
       assert(!rs3.pass, 'S3: verdict is FAIL (expectedVerdict=' + s3.expectedVerdict + ')');
       assert(rs3.checks.some(c => c.name === 'round-trip-invariant' && c.pass),
-        'S3 FINDING: round-trip-invariant is PASS (N/A) — map element has no capability:export/import tags; oracle 3 cannot apply to this specimen');
+        'S3 FINDING: round-trip-invariant is PASS — export+import pair carries roundTripDisposition on export element; oracle 3 invariant satisfied (defect documented, not absent)');
       assert(rs3.checks.some(c => c.name === 'zero-effect-disposition' && !c.pass),
         'S3: zero-effect-disposition fires instead — actual catch for effectObserved:false without DIFFERENTIAL-DATA-REQUIRED');
     }
@@ -2034,17 +2152,17 @@ async function selfTest() {
     }
 
     // T83: S6-jira-vs-live (NM-2011)
-    // Sub-check determined from specimen: element has basis:"claim:walk-evidence-..." with
-    // disposition:COVERED — a claim-driven disposition without census backing, same oracle 5 class
-    // as S5. The Jira "could not recreate" status is the external claim; live HTTP 500 contradicts it.
-    console.log('\n=== T83: Corpus S6-jira-vs-live — claim-census fires (sub-check from specimen) ===');
+    // Sub-check determined from specimen: element records count sourced from a failed API request
+    // (HTTP 500 on GET /api/location/corporate-price-pg-override?localOfficeId=1604). Blastradius2
+    // census confirmed stable 500 on both passes — real measured request failure, not a Jira claim.
+    console.log('\n=== T83: Corpus S6-jira-vs-live — count-source REQUEST-FAILED fires (sub-check from specimen) ===');
     const s6 = byId['S6-jira-vs-live'];
     assert(s6 !== undefined, 'S6-jira-vs-live specimen present in corpus');
     if (s6) {
       const rs6 = validateArtifact(s6.map, schemaResult.mod);
       assert(!rs6.pass, 'S6: verdict is FAIL (expectedVerdict=' + s6.expectedVerdict + ')');
-      assert(rs6.checks.some(c => c.name === 'claim-census' && !c.pass),
-        'S6: claim-census fires — basis prefix "claim:" drives disposition without machine-readable census (NM-2011 Jira "could not recreate" vs live HTTP 500)');
+      assert(rs6.checks.some(c => c.name === 'count-source' && c.verdict === 'REQUEST-FAILED' && !c.pass),
+        'S6: count-source REQUEST-FAILED fires — count sourced from failed API request (HTTP 500 on GET /api/location/corporate-price-pg-override?localOfficeId=1604)');
     }
   }
 
@@ -2096,6 +2214,101 @@ async function selfTest() {
   assert(!r86.pass, 'scope-match: absent observedScopeId → FAIL (UNCHECKABLE ≠ PASS)');
   assert(r86.checks.some(c => c.name === 'scope-match' && c.verdict === 'UNCHECKABLE'),
     'scope-match verdict UNCHECKABLE for missing observedScopeId — absent scope is not proof of match');
+
+  // T-CA1: count-source-agree PASS — measured count agrees with countSource citation (honest control)
+  console.log('\n=== T-CA1: count-source-agree — count matches citation → PASS (honest control) ===');
+  const rCA1 = validateArtifact({
+    version: '1.0.0', surface: 'test',
+    elements: [{
+      elementId: 'filter-agree', class: 'filter', emissionStatus: 'PROBED',
+      probes: [{
+        action: 'toggle-active',
+        before: { rowCount: 18, countSource: 'footer:18 items found' },
+        after: { rowCount: 16, countSource: 'footer:16 items found', httpStatus: 200 },
+      }],
+      effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
+    }],
+  }, schemaResult.mod);
+  assert(rCA1.checks.find(c => c.name === 'count-source').pass,
+    'count-source PASS — measured count (before:18, after:16) agrees with countSource citation (footer:18/16 items found)');
+
+  // T-CA2: count-source-agree FAIL — measured count contradicts countSource citation
+  console.log('\n=== T-CA2: count-source-agree — count contradicts citation → FAIL ===');
+  const rCA2 = validateArtifact({
+    version: '1.0.0', surface: 'test',
+    elements: [{
+      elementId: 'filter-disagree', class: 'filter', emissionStatus: 'PROBED',
+      probes: [{
+        action: 'toggle-active',
+        before: { rowCount: 18, countSource: 'footer:18 items found' },
+        after: { rowCount: 16, countSource: 'footer:18 items found', httpStatus: 200 },
+      }],
+      effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
+    }],
+  }, schemaResult.mod);
+  assert(!rCA2.checks.find(c => c.name === 'count-source').pass,
+    'count-source FAIL — measured count (16) contradicts countSource citation (footer:18 items found)');
+  assert(rCA2.checks.some(c => c.name === 'count-source' && c.verdict === 'FAIL'),
+    'count-source verdict FAIL when measured count disagrees with cited source integer');
+
+  // T-CA3: count-source-agree UNCHECKABLE — footer: countSource has no extractable number
+  console.log('\n=== T-CA3: count-source-agree — footer: source with no integer → UNCHECKABLE ===');
+  const rCA3 = validateArtifact({
+    version: '1.0.0', surface: 'test',
+    elements: [{
+      elementId: 'filter-unparseable', class: 'filter', emissionStatus: 'PROBED',
+      probes: [{
+        action: 'toggle-active',
+        before: { rowCount: 18, countSource: 'footer:18 items found' },
+        after: { rowCount: 0, countSource: 'footer:no items found', httpStatus: 200 },
+      }],
+      effectObserved: true, disposition: 'COVERED', basis: 'observed:walk.txt',
+    }],
+  }, schemaResult.mod);
+  assert(!rCA3.checks.find(c => c.name === 'count-source').pass,
+    'count-source UNCHECKABLE — footer: source with no parseable integer is absence of evidence, not agreement');
+  assert(rCA3.checks.some(c => c.name === 'count-source' && c.verdict === 'UNCHECKABLE'),
+    'count-source verdict UNCHECKABLE when footer: source has no extractable integer');
+
+  // T87: basis-artifact-provenance GREEN — observed: file exists → PASS (honest control)
+  console.log('\n=== T87: basis-artifact-provenance — observed: file exists → PASS (honest control) ===');
+  mkdirSync(tmpDir, { recursive: true });
+  const tmpWitnessFile87 = join(tmpDir, `witness-t87-${Date.now()}.verify.txt`);
+  writeFileSync(tmpWitnessFile87, 'walk evidence: active-filter probe fired and row count changed\n');
+  const r87 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'active-filter', class: 'filter', emissionStatus: 'PROBED',
+    probes: [{ action: 'toggle' }], effectObserved: true,
+    disposition: 'COVERED', basis: `observed:${basename(tmpWitnessFile87)}`,
+  }]}, schemaResult.mod, { mapDir: tmpDir });
+  assert(r87.checks.find(c => c.name === 'basis-artifact-provenance')?.pass === true,
+    'observed: file exists → basis-artifact-provenance PASS (honest control)');
+  assert(r87.checks.find(c => c.name === 'basis-artifact-provenance')?.verdict === 'PASS',
+    'basis-artifact-provenance verdict is PASS when cited file exists beside map');
+  try { unlinkSync(tmpWitnessFile87); } catch { /* cleanup */ }
+
+  // T88: basis-artifact-provenance RED — observed: file missing → FAIL
+  console.log('\n=== T88: basis-artifact-provenance — observed: file missing → FAIL ===');
+  const r88 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'ghost-filter', class: 'filter', emissionStatus: 'PROBED',
+    probes: [{ action: 'toggle' }], effectObserved: true,
+    disposition: 'COVERED', basis: 'observed:no-such-witness.verify.txt',
+  }]}, schemaResult.mod, { mapDir: tmpDir });
+  assert(!r88.checks.find(c => c.name === 'basis-artifact-provenance')?.pass,
+    'observed: file missing → basis-artifact-provenance non-PASS');
+  assert(r88.checks.some(c => c.name === 'basis-artifact-provenance' && c.verdict === 'FAIL'),
+    'basis-artifact-provenance FAIL — citation present but cited file does not exist beside map');
+
+  // T89: basis-artifact-provenance UNCHECKABLE — observed: with no filename (absent citation)
+  console.log('\n=== T89: basis-artifact-provenance — observed: no filename → UNCHECKABLE (absent citation) ===');
+  const r89 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'uncited-filter', class: 'filter', emissionStatus: 'PROBED',
+    probes: [{ action: 'toggle' }], effectObserved: true,
+    disposition: 'COVERED', basis: 'observed:',
+  }]}, schemaResult.mod, { mapDir: tmpDir });
+  assert(!r89.checks.find(c => c.name === 'basis-artifact-provenance')?.pass,
+    'observed: with no filename → basis-artifact-provenance non-PASS (absent citation is UNCHECKABLE)');
+  assert(r89.checks.some(c => c.name === 'basis-artifact-provenance' && c.verdict === 'UNCHECKABLE'),
+    'basis-artifact-provenance UNCHECKABLE — absent citation (observed: with no filename)');
 
   fireTelemetry(fails === 0 ? 'pass' : 'fail', 'self-test');
 

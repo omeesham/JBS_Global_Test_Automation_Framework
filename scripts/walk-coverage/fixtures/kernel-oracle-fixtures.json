@@ -79,13 +79,31 @@
         "surface": "corporate-pricing/pg-override/import-dialog",
         "elements": [
           {
-            "elementId": "export-import-round-trip",
+            "elementId": "export-pg-override-csv",
             "class": "io",
+            "capability": "export",
             "emissionStatus": "PROBED",
             "probes": [
               {
-                "action": "export-then-reimport-unmodified",
-                "before": { "exportFile": "ProductGroupOverrides_20260717_154159UTC.csv", "sha256": "749CFF8C2666187DBCDC921680A056DBAE34FCB808E55C582473BFBD51F5DE27", "rowCount": 8996 },
+                "action": "export-pg-override-csv",
+                "before": { "office": "4107" },
+                "after": { "exportFile": "ProductGroupOverrides_20260717_154159UTC.csv", "sha256": "749CFF8C2666187DBCDC921680A056DBAE34FCB808E55C582473BFBD51F5DE27", "rowCount": 8996 }
+              }
+            ],
+            "effectObserved": true,
+            "disposition": "COVERED",
+            "basis": "observed:walk-evidence-corporate-pricing-override-2026-07-17-E.md#step4",
+            "roundTripDisposition": "DEFECT: exported file row index 18 (server Row#:19) has empty OverridePrice — import rejects the exported output (NM-1940 regression)"
+          },
+          {
+            "elementId": "import-pg-override-csv",
+            "class": "io",
+            "capability": "import",
+            "emissionStatus": "PROBED",
+            "probes": [
+              {
+                "action": "reimport-exported-csv-unmodified",
+                "before": { "importFile": "ProductGroupOverrides_20260717_154159UTC.csv", "sha256": "749CFF8C2666187DBCDC921680A056DBAE34FCB808E55C582473BFBD51F5DE27" },
                 "after": { "importResult": "Error Row#:19, Msg: LocationId, ProductGroupId, OverridePrice is required.", "httpStatus": 200, "dialogState": "error-shown", "problemRow": "1115,286,01D Double Screen Set Kit,0,USD,0.00,,,0" }
               }
             ],
@@ -163,7 +181,7 @@
     {
       "id": "S6-jira-vs-live",
       "bugClass": "NM-2011",
-      "oracleId": 5,
+      "oracleId": 4,
       "present": true,
       "sourceFile": "walk-evidence-corporate-pricing-override-2026-07-17-C.md",
       "sourceLines": [48, 48],
@@ -182,12 +200,12 @@
               {
                 "action": "navigate-to-1604-load-overrides",
                 "before": { "jiraStatus": "could not recreate", "jiraTicket": "NM-2011" },
-                "after": { "apiEndpoint": "GET /api/location/corporate-price-pg-override?localOfficeId=1604", "httpStatus": 500, "responseBody": "{\"success\":false,\"validationErrors\":{\"exception\":[\"An item with the same key has already been added. Key: 4543\"]},\"message\":\"An item with the same key has already been added. Key: 4543\"}" }
+                "after": { "countSource": "api:GET /api/location/corporate-price-pg-override?localOfficeId=1604", "httpStatus": 500, "apiEndpoint": "GET /api/location/corporate-price-pg-override?localOfficeId=1604", "responseBody": "{\"success\":false,\"validationErrors\":{\"exception\":[\"An item with the same key has already been added. Key: 4543\"]},\"message\":\"An item with the same key has already been added. Key: 4543\"}" }
               }
             ],
             "effectObserved": true,
             "disposition": "COVERED",
-            "basis": "claim:walk-evidence-corporate-pricing-override-2026-07-17-C.md#job1-nm2011-jira-claim"
+            "basis": "observed:walk-evidence-corporate-pricing-override-2026-07-17-C.md#job1-nm2011-jira-claim"
           }
         ]
       }

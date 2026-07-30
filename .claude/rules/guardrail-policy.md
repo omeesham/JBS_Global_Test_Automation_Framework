@@ -89,7 +89,7 @@ the §3.4 dead-gate deletion posture and LR-050 in-scope-cleanup). **Layering a 
 unconvicted-but-failed old fix is FORBIDDEN.** Record the trial verdicts in the incident's RCA/plan.
 Enforcement companions: `/rca` Prior-Fix Trial phase (mandatory section on recurrence-class RCAs),
 `/planning` Step 3 recurrence gate (HALT without a trial section), and the machine closure-check per
-`plans/pending/SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md`. *Graduating incident*: 2026-07-17 Override
+`plans/pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md` (custodian; trial subplan closed 2026-07-29, ramp promotion outstanding). *Graduating incident*: 2026-07-17 Override
 walk gaps — LR-062/LR-064/FCC-taxonomy/walk HARD STOPs all existed and none fired (landing-page-only
 denominator, rubber-stampable prose mandates, no machine checking assertions).
 
@@ -114,3 +114,61 @@ denominator, rubber-stampable prose mandates, no machine checking assertions).
 **Trigger**: authoring/editing any delegation handoff where a judge accepts a single-turn/headless actor's output behind a GREEN/verdict/schema gate; any edit to the uplink control surface (`uplink-policy.json`, `ASKING_DOCTRINE.md`, `UPLINK_DOCTRINE.md`, the `copilot-worker.sh` UW-wires, `.claude/hooks/lib/uplink/*.mjs`); every `/compile-learnings` (run the §6 graduation scan).
 
 **Graduated from**: PLAN_UPLINK_PROTOCOL (2026-07-12). Cross-refs LR-069 (severity/ramp — uplink lands announce-first), LR-060 (assumptions-disposition on GREEN close), LR-064 (TDW is wave-2 C1), LR-046 (strict-line HALT is a Rutvik-tier ask-class), LR-063 (self-serve ladder — Rutvik is the top, not the first stop).
+
+## LR-071: Human-Catch Reflex routing — named hand-off for both residual classes
+
+**Purpose**: This rule documents where a human's answer goes when the interaction-coverage checker fires on a residual it cannot resolve autonomously. **This is a documented route, not an enforced mechanism** — it makes the hand-off explicit and auditable; it does not force anyone to follow it.
+
+**What enforcement would look like**: one line added to each FAIL `reason:` string in `scripts/check-interaction-coverage.mjs` — for `unclassified-element` (lines 264–266) and for `claim-census` (lines 756–758) — appending `See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.` That change was deliberately not made here per ticket scope constraints; it is recorded below as a follow-up.
+
+**Sev**: S1 — both residuals emit a FAIL verdict that blocks map closure; an unresolved FAIL that reaches a DONE-flip is silent quality drift surviving to commit/ship. **Graduating incident**: 2026-07-30 — Human-Catch Reflex detection existed in `check-interaction-coverage.mjs`; named routing did not (PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION criterion 9).
+
+### §LR-071.1 — Residual 1: Unclassifiable control
+
+**Trigger**: sub-check `unclassified-element`, verdict `FAIL`
+Source: `scripts/check-interaction-coverage.mjs` lines 258–267
+Reason string (verbatim): `UNCLASSIFIED VIOLATION: ${unclassifiedEls.length} element(s) carry UNCLASSIFIED — unclassifiable controls block closure; each must be resolved before this map closes: [${unclassifiedEls.join(', ')}]`
+
+**Recipient**: `scripts/walk-coverage/drone-probes.mjs` — the `PROBE_DEFINITIONS` export at line 26.
+
+**The edit**: add one new entry to the `PROBE_DEFINITIONS` object, covering the new control **class** (not the single instance that triggered the reflex). Copy the shape of an existing entry exactly:
+
+```js
+'<new-class-name>': {
+  class: '<new-class-name>',
+  requiredActions: [
+    'record-baseline: <what to observe before acting>',
+    '<verb-noun>: <deterministic playwright-cli action>',
+    'assert: <criterion that proves effect occurred>',
+  ],
+  effectObservable: '<what delta proves the control did something>',
+  zeroEffectProtocol: '<what emits on zero-delta — DIFFERENTIAL-DATA-REQUIRED or DATA-BLOCKED + unlock hint>',
+  emissionContract: 'PROBED with effectObserved:boolean …',
+},
+```
+
+The key set of `PROBE_DEFINITIONS` is the metamodel vocabulary. Existing **control-class** keys (9 of 12): `filter`, `sort`, `pagination`, `editable-cell`, `guard`, `io`, `menu-disclosure`, `add-picker`, `context-selector`; the remaining 3 keys (`claim-census`, `count-source`, `ui-vs-persisted-parity`) are Cross-Check Kernel verification oracles (not UI control classes) and are not extended by this route. Adding one entry here is the class-level extension the recurrence law requires — the entire class is covered, not one instance.
+
+**Proof it took**: `node scripts/check-interaction-coverage.mjs --self-test` passes; re-running the checker on the map that fired the reflex shows `unclassified-element: PASS`. The class never needs a human twice: it is now in `PROBE_DEFINITIONS` and future instances are classifiable without human input.
+
+### §LR-071.2 — Residual 2: Undocumented intent
+
+**Trigger**: sub-check `claim-census`, verdict `FAIL`
+Source: `scripts/check-interaction-coverage.mjs` lines 751–758
+Reason string (verbatim): `CLAIM-CENSUS VIOLATION: ${claimEls.length} element(s) carry claim-sourced dispositions with no valid census evidence — external claims must be verified against machine-readable data before steering a disposition: [${claimEls.map(e => e.elementId || '(unknown)').join(', ')}]`
+
+**Recipient**: the interaction-map JSON file for the affected surface — the file whose element carries `basis: "claim:…"`.
+
+**The edit**: the human adjudicates which side of the disagreement is correct, then adds a `census:` entry to the same map:
+
+1. Create or locate an evidence artifact (walk log, Jira export, or plain-text domain note) that captures the adjudicated truth and mentions the claim subject by name. File format is not constrained — the oracle binds by token overlap between artifact content and claim subject.
+2. Add one element row to the map with `basis: "census:<relative-path-to-artifact>"`. The artifact must exist on disk and its content must mention at least one token from the claim subject (the oracle validates this at line 739 of the checker).
+3. If the adjudicated rule is a business rule that applies across surfaces, also add it to the domain-invariant input corpus managed by SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md Phase 4. If that subplan has not landed, record the rule in the nearest surface's walk artifact until it does.
+
+**Proof it took**: re-running the checker on the affected map shows `claim-census: PASS`. The domain rule is now machine-readable; future surfaces that exercise it are covered without further human adjudication.
+
+**Recommended checker message change (follow-up, not made)**: in `scripts/check-interaction-coverage.mjs`, in the `unclassified-element` FAIL reason (line 265) and the `claim-census` FAIL reason (line 756), append the string `See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.` to each. This surfaces the route at the moment of failure.
+
+**Trigger**: any attempt to close or flip-DONE an interaction-map that produces a FAIL verdict on `unclassified-element` or `claim-census`.
+
+**Graduated from**: PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION criterion 9 (2026-07-30). Cross-refs LR-069 §3.5 (recurrence convicts — on first human touch, recurrence law triggers the edit above), LR-070 (uplink law — human adjudicates, never finds).

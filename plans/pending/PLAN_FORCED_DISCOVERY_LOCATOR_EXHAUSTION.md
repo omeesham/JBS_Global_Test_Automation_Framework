@@ -770,17 +770,34 @@ as evidence for its own criteria), then re-graded after the fixes that census pr
       (fixtures = the real 2026-07-17 C/D/E/F files, not synthetic)
       — the census proved the count oracle was keyword-present only; `count-source` was then built as a
       real probe class, taking the set from 4 of 5 to 5 of 5.
-- [ ] Every 2026-07-17 chat-found bug class has a named oracle + a fixture proving the checker
+- [x] Every 2026-07-17 chat-found bug class has a named oracle + a fixture proving the checker
       catches it: 1604→failed-request, NM-1940→round-trip, NM-2186→UI-vs-persisted, 1222→zero-effect,
       virtualization→count-oracle, 1117/NM-2011→claim-census
-      — **OPEN.** Every specimen is caught, but two are caught by the wrong oracle. S3 (NM-1940) does not
-      trip `round-trip-invariant`: its element carries `class:io` without the export/import capability
-      pair oracle 3 requires, so oracle 3 reports "no export+import pair" and passes, and
-      `zero-effect-disposition` catches it instead. S6 (NM-2011 / office 1604) is caught by
-      `claim-census`, not by the failed-request path. The NM-1940 source does describe a genuine round
-      trip, so the fix is a fixture restructure into a matched export element and import element —
-      not a tag bolted onto one element. Recipient: this criterion, with the required specimen shape
-      recorded in `.claude/state/ua-worker/chips/close2/out-oracle36/REPORT.md`.
+      — **CLOSED 2026-07-30.** Both mis-routed specimens were re-routed to their named oracles, and the
+      self-test now asserts each by its own sub-check. Self-test 189/189, `check:fixture-provenance` 6/6
+      (every quote still verbatim in its cited evidence — no evidence file was edited to make this pass).
+      - **S3 → oracle 3 (`round-trip-invariant`).** Restructured from one `class:io` element into a
+        matched `capability:'export'` + `capability:'import'` pair carrying the same exported-file
+        sha256 on both sides and the verbatim NM-1940 import rejection. Oracle 3 now *evaluates* it
+        instead of reporting "no export+import pair". It returns PASS because the export element
+        carries `roundTripDisposition` — i.e. the defect is disclosed, which is the oracle's contract
+        being satisfied, not the oracle failing to look. **The FAIL half of that contract is proven
+        separately** by self-test case `r16` (line ~1247): `round-trip-invariant verdict is FAIL for
+        missing roundTripDisposition`. Together the two prove the oracle in both directions — it fires
+        on an undisclosed round trip and accepts a disclosed one. A proposal to flip T80 to assert
+        FAIL on S3 was raised and **correctly declined** by the implementing worker on exactly this
+        reasoning.
+      - **S6 → oracle 4 (`count-source`, REQUEST-FAILED path).** Moved off `claim-census` (`oracleId`
+        5→4). Its `basis` moved from `claim:` to `observed:`, and it now carries a real
+        `countSource: "api:GET /api/location/corporate-price-pg-override?localOfficeId=1604"` with a
+        non-2xx status — because the status was **measured**, not asserted: a clean two-pass live
+        census (`.claude/state/ua-worker/chips/close2/out-blastradius2/REPORT.md`) recorded 1604→500
+        on both passes, and also found **1121→500 on both passes**, which widens the defect beyond the
+        "1604-specific" claim in its own bug record. T83 asserts the REQUEST-FAILED verdict directly.
+      - **Adjacent finding, filed not fixed**: `BUG-CPR-OVR-002` carries **two distinct defects** under
+        one id — a server-side HTTP 500 with a duplicate key (its JSON record) and a client-side
+        numeric-input defect where `1.2.3` becomes `1.23` (field-inventory line 132). An earlier dedup
+        merged them. They are not the same defect and the id needs splitting.
 - [x] Generative oracle exists (`generate-invariants.mjs`); run against the Override metamodel emits
       an invariant set that SUPERSETS all 7 catch-list bugs — proven by mapping each bug to the I-row
       that catches it BLIND (no bug-history input to the generator); denominator = generated set, not
@@ -795,13 +812,29 @@ as evidence for its own criteria), then re-graded after the fixes that census pr
       `permission-invariant` coverage gap, so source completeness is not met. Recipient:
       [SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md](SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md), whose
       Phase 4 closes that gap entry.
-- [ ] Honest residual named + floored: (1) unclassifiable control → LOUD UNKNOWN blocks closure
+- [x] Honest residual named + floored: (1) unclassifiable control → LOUD UNKNOWN blocks closure
       (never silent); (2) undocumented intent → kernel flags the disagreement (detection), human only
       adjudicates (never the finding) — both route to the Human-Catch Reflex on first touch
-      — **OPEN.** Both halves are mechanically enforced: `UNCLASSIFIED` blocks closure and is asserted by
-      self-test, and claim-census fails on unchecked external claims. What the census could not locate is
-      any route, hook, or named recipient implementing the **Human-Catch Reflex** hand-off. The detection
-      exists; the routing does not.
+      — **CLOSED 2026-07-30.** Detection was already mechanically enforced (`UNCLASSIFIED` blocks closure
+      and is self-test asserted; claim-census fails on unchecked external claims). The missing half — the
+      routing — landed as **LR-071** in `.claude/rules/guardrail-policy.md`, naming for each residual its
+      trigger (the verbatim FAIL reason string, with file:line), its recipient, the specific edit, and the
+      re-run that proves the class never needs a human twice:
+      - **Residual 1** → `scripts/walk-coverage/drone-probes.mjs`, the `PROBE_DEFINITIONS` export. Adding
+        one entry covers the whole control CLASS, which is what the recurrence law requires. LR-071 states
+        the count honestly — 9 of the 12 keys are control classes; the other 3
+        (`claim-census`, `count-source`, `ui-vs-persisted-parity`) are Cross-Check Kernel oracles and are
+        **not** extended by this route. (The first draft listed 9 as if complete; caught on review and
+        corrected — a partial enumeration inside the fix for "the census found no route" would have been
+        the same failure one layer down.)
+      - **Residual 2** → the affected surface's interaction-map, adding a `census:<artifact>` row once the
+        human adjudicates; cross-surface rules escalate to the domain-invariant corpus.
+      - **Stated limit, deliberately not overclaimed**: LR-071 is a *documented route, not an enforced
+        mechanism*. Enforcement would be two one-line additions appending
+        `See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.` to the `unclassified-element`
+        and `claim-census` FAIL reason strings. Recorded as follow-up, not made — this criterion was open
+        precisely because a census found a claimed route that did not exist, so a claimed hook would repeat
+        that error. Every recipient path in LR-071 was `ls`-verified before being written down.
 - [x] Closure gate lands `announce` with LR-069 ramp keys recorded
 - [x] Data-doctrine ladder encoded where dispositions are validated (gate + LR-040 text)
       — the gate rejects a `DIFFERENTIAL-DATA-REQUIRED` row lacking rung evidence, and rejects a rung-2

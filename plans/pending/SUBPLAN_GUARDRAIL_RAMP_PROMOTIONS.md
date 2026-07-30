@@ -106,11 +106,13 @@ rather than spawning a sibling — one custodian is the point.
 
 ## Inherited ramp obligations
 
-- **`recurrence_trial_mode`** — from `plans/pending/SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md`. That plan's
+- **`recurrence_trial_mode`** — from `plans/done/SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md`. That plan's
   body closed on evidence 2026-07-29 (detector hardened over six adversarial rounds, self-test 130/130,
   zero false positives across 604 plan files). Its AC4 — *"Zero false positives across ≥10 sessions
   before any deny promotion"* — is the only criterion outstanding and is time-gated. The count restarts
   from the hardened detector per the reviewer ruling recorded in that plan; it does not resume from 1.
+  Doctrine-ledger rule `3-5-recurrence-convicts-the-prior-fix-owner-doctrine-2026-07` — this ramp
+  promotion is the outstanding enforcement obligation for that rule (S1 UNENFORCED until deny lands).
 - **`interaction_coverage_mode`** — from `plans/pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md`,
   which remains PENDING on unbuilt work. Listed here so the ramp is not orphaned when that plan closes;
   its promotion is this subplan's regardless of when the parent lands.
