@@ -90,6 +90,21 @@ Labels like "TRACKED (by inference)" / "NOT-TRACKED (inferred)" / "scope-pushed"
 **Trigger**: every SP-B-*, SP-C-*, SP-D-*, and any future subplan whose Step-by-Step enumerates parents / columns / TCs; **plus any walk/catalog that encounters an empty surface (empty tab / "No results." grid / blank list) — the (c) empty-surface extension fires (record c.1/c.2/c.3)**.
 **Graduated from**: SP-B-LM-2 (2026-04-22) premature-DONE incident. The (c) empty-surface extension added 2026-06-19 by PLAN_CORP_PRICING_REWALK_REMEDIATION M4 (Labor override tab accepted empty, never investigated — the picker was currency-gated per NM-1472, Labor data lived on office 1101 per NM-1881). Cross-refs LR-057 (affordance probe), LR-061 (verify-before-blocked), LR-ENC-004 (Jira-first).
 
+### LR-040-D: Zero-delta trigger and the data-doctrine ladder (PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION, 2026-07-17)
+
+A probe that returned **no observable delta** is, by definition, a data need. The equivalence is exact: *"the probe returned no delta" ≡ "I need data on the other side of this filter"*. The disposition for a zero-delta probe on any mandatory-effect class (filter / sort / guard / pagination / io) is `DIFFERENTIAL-DATA-REQUIRED`, which fires the data-doctrine ladder explicitly and **by name**:
+
+- **Rung 1 — SELF-PRODUCE**: create the other-side state on a designated entity, reversibly (e.g. deactivate a designated office).
+- **Rung 2 — SELF-SERVE**: hunt for an existing other-side entity **across all surfaces and artifacts**, not just the probed control's own API. The concrete miss: a picker's own `location-lookup` was queried six ways and returned all-active, while the Location Settings admin surface — where the inactive entity was plainly visible — was never consulted.
+- **Rung 3 — ESCALATE**: only legal with rungs 1 and 2 evidenced.
+
+**Anti-calcification clause**: until ground truth disambiguates (an other-side entity is found and tested through the control), **no test case may be authored asserting the zero-effect as expected behavior**. The only legal outputs are: `BUG-CONFIRMED` (other-side entity exists but the control ignores it), `BY-DESIGN` (evidence the control's purpose is different), or the still-open `DIFFERENTIAL-DATA-REQUIRED` disposition.
+
+**Gate teeth**: an interaction-map row in `DIFFERENTIAL-DATA-REQUIRED` with no rung-1/rung-2 evidence attached BLOCKS closure exactly like an undispositioned element.
+
+**Trigger**: any interaction probe on a mandatory-effect class (filter / sort / guard / pagination / io) that returns no observable delta on the row set, state, or data.
+**Graduated from**: PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION (2026-07-17) — 1222 locator-exhaustion root cause (zero-delta filter probe accepted as terminal; inactive office never found through admin surface).
+
 ## LR-041: Conservative model + thinking selection — every subplan declares Model + Thinking + PermissionMode
 
 Every NEW subplan MUST declare in frontmatter:

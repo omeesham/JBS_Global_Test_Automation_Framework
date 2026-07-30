@@ -221,6 +221,32 @@ function validateArtifact(map, schema) {
       : `ZERO-EFFECT VIOLATION: ${zeroEffectViolations.length} element(s) with effectObserved:false lack DIFFERENTIAL-DATA-REQUIRED disposition: [${zeroEffectViolations.join(', ')}]`,
   });
 
+  // Unclassified-element guard: any element carrying UNCLASSIFIED in class, emissionStatus,
+  // or disposition is an unclassifiable control — a loud unknown that blocks closure.
+  // Field-case-generation.md §5: UNCLASSIFIED must never pass silently.
+  {
+    const unclassifiedEls = [];
+    if (Array.isArray(map.elements)) {
+      for (const el of map.elements) {
+        if (el.class === 'UNCLASSIFIED' ||
+            el.emissionStatus === 'UNCLASSIFIED' ||
+            el.disposition === 'UNCLASSIFIED') {
+          unclassifiedEls.push(el.elementId || '(unknown)');
+        }
+      }
+    }
+    checks.push({
+      name: 'unclassified-element',
+      verdict: unclassifiedEls.length === 0 ? 'PASS' : 'FAIL',
+      pass: unclassifiedEls.length === 0,
+      reason: unclassifiedEls.length === 0
+        ? 'No UNCLASSIFIED elements — extractor classified all controls'
+        : `UNCLASSIFIED VIOLATION: ${unclassifiedEls.length} element(s) carry UNCLASSIFIED — ` +
+          `unclassifiable controls block closure; each must be resolved before this map closes: ` +
+          `[${unclassifiedEls.join(', ')}]`,
+    });
+  }
+
   // Oracle 2 — ui-vs-persisted-parity (NM-2186 class)
   // Evidence-keyed: any PROBED element carrying persistedStateReRead claims persistence,
   // regardless of declared class (semantic invariant prevents class-relabeling escape).
@@ -1662,6 +1688,28 @@ async function selfTest() {
   }]}, schemaResult.mod);
   assert(r71.checks.find(c => c.name === 'count-source').pass,
     'footer: 2xx + count 0 → count-source PASS (genuine empty table is a valid observation)');
+
+  // T72: UNCLASSIFIED element → FAIL naming the offending elementId
+  console.log('\n=== T72: UNCLASSIFIED element → FAIL naming the id ===');
+  const r72 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'mystery-control', class: 'filter', emissionStatus: 'UNCLASSIFIED',
+    disposition: 'UNCLASSIFIED', basis: 'observed:walk.txt',
+  }]}, schemaResult.mod);
+  assert(!r72.pass, 'UNCLASSIFIED element → FAIL');
+  assert(r72.checks.some(c => c.name === 'unclassified-element' && !c.pass),
+    'unclassified-element check fails');
+  assert(r72.checks.find(c => c.name === 'unclassified-element').reason.includes('mystery-control'),
+    'failure names the offending elementId');
+
+  // T73: No UNCLASSIFIED elements → unclassified-element PASS (honest control)
+  console.log('\n=== T73: No UNCLASSIFIED elements → unclassified-element PASS (honest control) ===');
+  const r73 = validateArtifact({ version: '1.0.0', surface: 'test', elements: [{
+    elementId: 'clean-filter', class: 'filter', emissionStatus: 'PROBED',
+    probes: [{ action: 'toggle' }], effectObserved: true,
+    disposition: 'COVERED', basis: 'observed:walk.txt',
+  }]}, schemaResult.mod);
+  assert(r73.checks.find(c => c.name === 'unclassified-element').pass,
+    'No UNCLASSIFIED elements → unclassified-element PASS');
 
   fireTelemetry(fails === 0 ? 'pass' : 'fail', 'self-test');
 
