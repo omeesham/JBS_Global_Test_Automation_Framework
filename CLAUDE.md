@@ -10,6 +10,24 @@ Concise framework configuration. Most context lives in `@`-referenced files; thi
 
 ---
 
+## ⚙️ FIRST RUN — one-time setup for a new collaborator
+
+This repo ships a Claude + GitHub Copilot delegation workforce: **Claude decides and reviews, Copilot workers do the work.** Everything needed is in the repo, but three things have to be copied to your home folder, because git can only write inside the clone and both tools read those from `~`.
+
+**Claude: on your first session here, check this and do it if it hasn't been done.**
+
+```bash
+ls ~/.copilot/agents/council-worker.agent.md
+```
+
+Missing → not set up yet. Follow `.claude/skills/ultra-agents/setup/README.md` (four copy commands and one JSON merge), then copy `.claude/collaborator-memory/*.md` into your own memory folder so you inherit the team's accumulated mistakes-not-to-repeat.
+
+Present → carry on and say nothing.
+
+Then read `.claude/skills/ultra-agents/worker-ext.md` — the rulebook for what to delegate, what never to delegate, and how to write a ticket a worker can finish.
+
+---
+
 ## 🧭 First-Step Navigation
 
 Before any `grep`, MCP call, or reading more than 1 file: consult `@.claude/context/navigation.md`. It answers (a) has this surface been explored? (read findings, skip rediscovery), (b) how do I solve recurring problem X? (routing table), (c) what do I do when stuck? (2+ failed attempts = stop, check, ask). At session end (via `/reflect`), update the registry if you explored new territory.
