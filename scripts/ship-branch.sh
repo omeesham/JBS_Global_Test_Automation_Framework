@@ -93,6 +93,43 @@ if [[ -z "$MODULES" || -z "$SURFACE" ]]; then
     nm2271)                MODULES="${MODULES:-COR.N271}"; SURFACE="${SURFACE:-corporate-override-nm2271*}" ;;
     nm2272)                MODULES="${MODULES:-COR.N272}"; SURFACE="${SURFACE:-corporate-override-nm2272*}" ;;
     nm2273)                MODULES="${MODULES:-COR.N273}"; SURFACE="${SURFACE:-corporate-override-nm2273*}" ;;
+    main)
+      # Derive scope from delivery manifest — modules with status delivered or approved-next.
+      # Codes are validated against module-codes.json (the registry xlsx-trim uses downstream).
+      _manifest="$REPO_ROOT/scripts/deliverable/delivery-manifest.encore.json"
+      _modcodes="$REPO_ROOT/export_test_cases/module-codes.json"
+      if [[ ! -f "$_manifest" ]]; then
+        echo "[ship-branch] FATAL: delivery manifest not found at $_manifest" >&2; exit 1
+      fi
+      if [[ ! -f "$_modcodes" ]]; then
+        echo "[ship-branch] FATAL: module-codes.json not found at $_modcodes" >&2; exit 1
+      fi
+      _derived="$(node -e '
+        const m = require(process.argv[1]);
+        const reg = require(process.argv[2]);
+        const ok = new Set(["delivered", "approved-next"]);
+        const valid = new Set();
+        for (const [g, subs] of Object.entries(reg.submodules))
+          for (const s of Object.keys(subs)) valid.add(g + "." + s);
+        const inc = m.modules.filter(x => ok.has(x.status));
+        const codes = inc.map(mod => {
+          if (valid.has(mod.code)) return mod.code;
+          const g = mod.code.split(".")[0], subs = reg.submodules[g] || {};
+          const stem = (mod.specs[0] || "").split("/").pop().replace(/\.spec\.ts$/, "").replace(/-/g, "_");
+          for (const [s, info] of Object.entries(subs))
+            if (stem.startsWith(info.sheet) || info.sheet.startsWith(stem)) return g + "." + s;
+          return mod.code;
+        }).join(",");
+        const globs = inc.flatMap(x =>
+          x.specs.map(s => s.split("/").pop().replace(/\.spec\.ts$/, "") + "*")
+        ).join(",");
+        process.stdout.write(codes + "\n" + globs + "\n");
+      ' "$_manifest" "$_modcodes")" || { echo "[ship-branch] FATAL: failed to parse delivery manifest" >&2; exit 1; }
+      MODULES="${MODULES:-$(echo "$_derived" | head -n 1)}"
+      SURFACE="${SURFACE:-$(echo "$_derived" | sed -n '2p')}"
+      echo "[ship-branch] main: derived modules from manifest (status: delivered | approved-next)"
+      echo "[ship-branch] main modules: $MODULES"
+      ;;
     *) echo "[ship-branch] need --modules and --surface (no preset for branch '$BRANCH')" >&2; exit 2 ;;
   esac
 fi
@@ -292,6 +329,9 @@ git -C "$SCRATCH" config user.email "deliverable@jade-biz.com"
 git -C "$SCRATCH" config user.name "Encore Deliverable"
 git -C "$SCRATCH" config commit.gpgsign false
 git -C "$SCRATCH" add -A
+# .env.local is listed in the shipped .gitignore so plain `add -A` skips it.
+# Force-add so the blank starter survives the git-archive re-extract to VERIFY.
+git -C "$SCRATCH" add -f .env.local
 git -C "$SCRATCH" commit -q -m "Encore deliverable — $BRANCH module"
 
 # 5. CLEAN re-extract of the FINAL trimmed content (no node_modules/.git false-positives).
@@ -304,6 +344,13 @@ if ! node "$REPO_ROOT/scripts/verify-no-forbidden.mjs" --target="$VERIFY" --requ
   exit 1
 fi
 echo "[ship-branch] deny-list clean on $VERIFY"
+
+# 6b. Scope gate — every payload file must resolve to an approved module (fail-closed).
+if ! node "$REPO_ROOT/scripts/verify-approved-scope.mjs" --target="$VERIFY" --client=encore; then
+  echo "[ship-branch] SCOPE GATE FAILED — payload contains unapproved modules." >&2
+  exit 1
+fi
+echo "[ship-branch] scope gate clean on $VERIFY"
 
 # 7. Push (only with --push AND a clean gate). force-with-lease against the live tip.
 if [[ "$DO_PUSH" -ne 1 ]]; then
