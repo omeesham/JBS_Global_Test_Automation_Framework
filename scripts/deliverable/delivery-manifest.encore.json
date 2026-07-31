@@ -34,7 +34,7 @@
     },
     {
       "module": "INTERNAL.UNIT",
-      "description": "tests/_unit/step-wrapper.spec.ts exists on encore-mock/main (eae1ee9c). This is a framework-internal unit test that must never ship to any client."
+      "description": "tests/_unit/label-derivation.spec.ts exists on encore-mock/main (eae1ee9c). This is a framework-internal unit test that must never ship to any client."
     }
   ],
   "releases": {
@@ -1351,7 +1351,7 @@
       "name": "Internal Unit Tests",
       "status": "internal-only",
       "specs": [
-        "tests/_unit/step-wrapper.spec.ts"
+        "tests/_unit/label-derivation.spec.ts"
       ],
       "workbooks": [],
       "tc_ids": [],
@@ -1576,7 +1576,7 @@
     {
       "path": "src/fixtures/label-jargon.json",
       "category": "framework",
-      "reason": "Label definitions used by step-wrapper to produce readable report output"
+      "reason": "Label definitions used by label-derivation.ts to produce readable report output"
     },
     {
       "path": "src/fixtures/pages.fixture.ts",
@@ -1584,9 +1584,14 @@
       "reason": "Playwright fixture providing instantiated page objects to all test files"
     },
     {
-      "path": "src/fixtures/step-wrapper.ts",
+      "path": "src/fixtures/label-derivation.ts",
       "category": "framework",
-      "reason": "Wraps page object calls in labeled Playwright steps for report clarity"
+      "reason": "Turns page object method names into plain-English labels, using hand-written overrides when present"
+    },
+    {
+      "path": "src/fixtures/step-decorator.ts",
+      "category": "framework",
+      "reason": "Provides the annotation that shows each page object method as a plain-English step in the HTML report"
     },
     {
       "path": "src/pages/auth/login.page.ts",

@@ -87,9 +87,9 @@ When a walk, spec, RCA, `/find-bugs`, or `/encore-questions` session hits an emp
 
 ### LR-ENC-006: Client-readable Playwright report — every page-object action renders as a plain-English step
 
-The Encore HTML report ships to a non-technical client, so every public async page-object method that performs a user-visible action MUST render as a short plain-English sentence (≤ ~12 words, no selectors / `data-testid` / locator code) — via the `wrapWithSteps` fixture Proxy + `label-jargon.json` map; `LoginPage` excluded. Enforced by pre-commit `npm run check:step-labels`.
+The Encore HTML report ships to a non-technical client, so every public async page-object method that performs a user-visible action MUST render as a short plain-English sentence (≤ ~12 words, no selectors / `data-testid` / locator code) — via an `@step` annotation on each method plus the `label-jargon.json` map; `LoginPage` excluded. Enforced by pre-commit `npm run check:step-labels`.
 
-<!-- CEO POINTER: LR-ENC-006 step-wrapper Proxy / jargon-map / raw-`.page.<action>`-ban mechanism detail → ticket DOCTRINE; cite clients/encore/CLAUDE.md LR-ENC-006 + clients/encore/src/fixtures/step-wrapper.ts + label-jargon.json; VERIFY: worker ran `npm run check:step-labels` green and left no raw `.page.<action>` in specs -->
+<!-- CEO POINTER: LR-ENC-006 @step annotation / label-derivation / jargon-map / raw-`.page.<action>`-ban mechanism detail → ticket DOCTRINE; cite clients/encore/CLAUDE.md LR-ENC-006 + clients/encore/src/fixtures/label-derivation.ts + label-jargon.json; VERIFY: worker ran `npm run check:step-labels` green and left no raw `.page.<action>` in specs -->
 
 ### LR-008: Date offset validation — positivity constraints per field type
 Date-offset fields have sign constraints (relative-to-start Prep/Set/Delivery ≤ 0; relative-to-end Return/Strike/Pickup ≥ 0; Delivery additionally ≥ Prep per NM-1264). Test values must respect ALL constraints for the field under test.

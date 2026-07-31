@@ -24,6 +24,7 @@ import {
 import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { step } from '../../fixtures/step-decorator';
 
 /** Parsed result of a CSV file download (NM-2262 — reusable across the Corporate Pricing export flows). */
 export type CsvDownloadResult = {
@@ -138,6 +139,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     super(page, config);
   }
 
+  @step()
   async open(office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     await this.gotoSearch(office);
     await this.waitForGridLoaded();
@@ -151,32 +153,39 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * Initial load always has rows (591); P1 search narrows never go to 0, so waiting for the first
    * row is safe (Playwright auto-waits, no fixed sleep).
    */
+  @step()
   async waitForGridLoaded(timeout = 30_000): Promise<void> {
     await this.page.locator(S.colHeaderAny).first().waitFor({ state: 'visible', timeout });
     await this.page.locator(S.rowGridAny).first().waitFor({ state: 'visible', timeout });
   }
 
+  @step()
   async getColumnHeaders(): Promise<string[]> {
     return this.readAllTexts(S.colHeaderAny);
   }
 
+  @step()
   async getColumnCount(): Promise<number> {
     return this.page.locator(S.colHeaderAny).count();
   }
 
+  @step()
   async getVisibleRowCount(): Promise<number> {
     return this.page.locator(S.rowGridAny).count();
   }
 
+  @step()
   async getItemCountText(): Promise<string> {
     return (await this.page.locator(S.lblItemsFound).first().innerText()).replace(/\s+/g, ' ').trim();
   }
 
+  @step()
   async getItemCountNumber(): Promise<number> {
     const t = await this.getItemCountText();
     return parseInt(t.replace(/[^\d]/g, ''), 10);
   }
 
+  @step()
   async booleanCellsValid(maxRows = 15): Promise<{ hasTrue: boolean; allValid: boolean }> {
     const boolIdx = [3, 4, 5, 6, 7];
     const rows = this.page.locator(S.rowGridAny);
@@ -193,12 +202,14 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { hasTrue, allValid };
   }
 
+  @step()
   async readBooleanCell(row: Locator, colIndex: number): Promise<boolean> {
     const cell = row.locator('td').nth(colIndex);
     const txt = (await cell.innerText()).trim();
     return txt.includes(CORP_PRICING_SEARCH.booleanTrueMarker);
   }
 
+  @step()
   async findRowByName(name: string): Promise<Locator | null> {
     return this.findGridRowByContent(name);
   }
@@ -216,22 +227,27 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.setReactInput(selector, value);
   }
 
+  @step()
   async fillPricebookFilter(value: string): Promise<void> {
     await this.setTextFilter(S.txtFilterPricebook, value);
   }
 
+  @step()
   async clearPricebookFilter(): Promise<void> {
     await this.setTextFilter(S.txtFilterPricebook, '');
   }
 
+  @step()
   async fillStrategyFilter(value: string): Promise<void> {
     await this.setTextFilter(S.txtFilterStrategy, value);
   }
 
+  @step()
   async getPricebookFilterValue(): Promise<string> {
     return this.page.locator(S.txtFilterPricebook).inputValue();
   }
 
+  @step()
   async getStrategyFilterValue(): Promise<string> {
     return this.page.locator(S.txtFilterStrategy).inputValue();
   }
@@ -248,10 +264,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.page.locator('[role="checkbox"]').nth(idx);
   }
 
+  @step()
   async getCheckboxState(which: SearchCheckbox): Promise<boolean> {
     return (await this.checkbox(which).getAttribute('aria-checked')) === 'true';
   }
 
+  @step()
   async setCheckbox(which: SearchCheckbox, checked: boolean): Promise<void> {
     const cb = this.checkbox(which);
     if (checked) await cb.check();
@@ -271,22 +289,27 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out.filter(Boolean);
   }
 
+  @step()
   async getCurrencyOptions(): Promise<string[]> {
     return this.readComboOptions(S.drpFilterCurrency);
   }
 
+  @step()
   async getLocationOptions(): Promise<string[]> {
     return this.readComboOptions(S.drpFilterLocation);
   }
 
+  @step()
   async getCurrencyDefaultText(): Promise<string> {
     return (await this.page.locator(S.drpFilterCurrency).first().innerText()).replace(/\s+/g, ' ').trim();
   }
 
+  @step()
   async getLocationDefaultText(): Promise<string> {
     return (await this.page.locator(S.drpFilterLocation).first().innerText()).replace(/\s+/g, ' ').trim();
   }
 
+  @step()
   async selectCurrency(value: string): Promise<void> {
     await this.page.locator(S.drpFilterCurrency).first().click();
     await this.page.locator('[role="option"]', { hasText: value }).first().click();
@@ -299,6 +322,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * the 2652-option virtualized popover can detach an option mid-render. Used by the field-coverage
    * representative each-option case — exhaustive enumeration of all 2652 is out of scope.
    */
+  @step()
   async selectFirstRealLocation(): Promise<string> {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
@@ -327,6 +351,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    *  - `pageError`: count of "client-side exception" / "Application error" banners — expected 0 (the plain
    *    input is crash-safe, unlike the Radix combobox which tears down the page on DOM-tamper)
    */
+  @step()
   async probePricebookBoundary(
     value: string,
   ): Promise<{ staged: string; stagedLen: number; ariaInvalid: string | null; escaped: boolean; pageError: number }> {
@@ -344,10 +369,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { staged, stagedLen: staged.length, ariaInvalid, escaped: before !== after, pageError };
   }
 
+  @step()
   async clickSearch(): Promise<void> {
     await this.page.locator(S.btnSearch).first().click();
   }
 
+  @step()
   async clickReset(): Promise<void> {
     await this.page.locator(S.btnReset).first().click();
   }
@@ -357,6 +384,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * Avoids fixed sleeps — waits on the `/navigator/api/...pricing/strategies` response.
    * Returns the request URL (so callers can assert the query-param shape).
    */
+  @step()
   async searchAndWaitForList(): Promise<string> {
     const respPromise = this.page.waitForResponse(
       (r) => r.url().includes(CORP_PRICING_SEARCH_API),
@@ -391,6 +419,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     };
   }
 
+  @step()
   async clickPricebookName(name: string): Promise<void> {
     const row = await this.findRowByName(name);
     if (!row) throw new Error(`Price Book row not found for "${name}"`);
@@ -402,6 +431,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * under heavy-page timing, so re-click (Escape + retry) up to 3× until a menu item renders (the
    * proven Radix large-interaction retry pattern).
    */
+  @step()
   async openNewMenu(): Promise<void> {
     const item = this.page.locator(S.mnuNewEquipmentPricing).first();
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -417,11 +447,13 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await item.waitFor({ state: 'visible', timeout: 4_000 }); // final attempt — throws (real failure) if still closed
   }
 
+  @step()
   async clickNewEquipmentPricing(): Promise<void> {
     await this.openNewMenu();
     await this.page.locator(S.mnuNewEquipmentPricing).first().click();
   }
 
+  @step()
   async clickNewLaborPricing(): Promise<void> {
     await this.openNewMenu();
     await this.page.locator(S.mnuNewLaborPricing).first().click();
@@ -433,6 +465,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * test render (their label is not "visible text" to Playwright), but a shadow-walk over
    * `textContent` reliably finds all of them.
    */
+  @step()
   async getAllButtonTexts(): Promise<string[]> {
     return this.page.evaluate(() => {
       const acc: Element[] = [];
@@ -450,6 +483,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     });
   }
 
+  @step()
   async getNewMenuItemTexts(): Promise<string[]> {
     await this.openNewMenu();
     const eq = (await this.page.locator(S.mnuNewEquipmentPricing).first().innerText().catch(() => '')).trim();
@@ -458,10 +492,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return [eq, lb].filter(Boolean);
   }
 
+  @step()
   async getGridHeaders(): Promise<string[]> {
     return (await this.page.locator('thead th').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
   }
 
+  @step()
   async getPricebookNameCells(): Promise<{ text: string; isLink: boolean }[]> {
     const rows = this.page.locator('tbody tr');
     const n = await rows.count();
@@ -475,6 +511,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
+  @step()
   async getRowCellText(rowIndex: number, colIndex: number): Promise<string> {
     const cell = this.page.locator('tbody tr').nth(rowIndex).locator('td').nth(colIndex);
     return (await cell.innerText()).replace(/\s+/g, ' ').trim();
@@ -489,6 +526,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * Best-effort (.catch): if it genuinely never resolves (a real defect), the caller still reads "-"
    * and its currency assertion fails cleanly — this removes the race without weakening the assertion.
    */
+  @step()
   async waitForCurrencyColumnResolved(timeout = 15_000): Promise<void> {
     const headers = await this.getGridHeaders();
     const idx = headers.findIndex((h) => /currency/i.test(h));
@@ -519,14 +557,17 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await item.waitFor({ state: 'visible', timeout: 4_000 }); // final attempt — throws if still closed
   }
 
+  @step()
   async openExportMenu(): Promise<void> {
     await this.openToolbarMenu(S.btnExport);
   }
 
+  @step()
   async openImportMenu(): Promise<void> {
     await this.openToolbarMenu(S.btnImport);
   }
 
+  @step()
   async getMenuVariants(): Promise<string[]> {
     return (await this.page.locator(S.mnuToolbarVariant).allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
   }
@@ -539,6 +580,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * overlay catches to dismiss the menu. The heading sits top-left, well
    * outside the top-right Export/Import menu panel, so the click lands genuinely outside it.
    */
+  @step()
   async dismissToolbarMenuWithOutsideClick(): Promise<boolean> {
     const box = await this.page.locator(S.hdgCorporatePricing).first().boundingBox();
     if (box) await this.page.mouse.click(box.x + Math.min(box.width / 2, 40), box.y + box.height / 2);
@@ -562,12 +604,14 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.exportDialog().locator(S.cmbExportField).nth(1);
   }
 
+  @step()
   async openExportVariantDialog(variant: string): Promise<void> {
     await this.openExportMenu();
     await this.page.locator(S.mnuToolbarVariant, { hasText: variant }).first().click();
     await this.exportDialog().waitFor({ state: 'visible', timeout: 6_000 });
   }
 
+  @step()
   async getExportDialogInfo(): Promise<{ text: string; comboCount: number; buttons: string[]; continueDisabled: boolean }> {
     const dlg = this.exportDialog();
     const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
@@ -577,6 +621,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { text, comboCount, buttons, continueDisabled };
   }
 
+  @step()
   async isExportContinueEnabled(): Promise<boolean> {
     return this.exportDialog().locator('button', { hasText: /^Continue$/ }).first().isEnabled();
   }
@@ -595,6 +640,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.page.locator(S.optExportListItem, { hasText: new RegExp(`^${year}$`) }).first().click();
   }
 
+  @step()
   async setExportYears(years: Array<string | number>): Promise<void> {
     await this.openExportYearList();
     for (const y of years) await this.clickExportYearOption(y);
@@ -606,6 +652,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * years. Used to prove the 1–3 cap: after 3 are chosen, a 4th does not register (the app silently
    * refuses it), so the returned list still has 3 years.
    */
+  @step()
   async attemptExtraExportYear(year: string | number): Promise<string[]> {
     await this.openExportYearList();
     // Positive control: prove the extra option is actually present and clickable BEFORE clicking it, so a
@@ -620,12 +667,14 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return selected;
   }
 
+  @step()
   async getExportSelectedYears(): Promise<string[]> {
     const text = await this.exportYearCombo().innerText().catch(() => '');
     const years = text.match(/\d{4}/g) ?? [];
     return [...new Set(years)].sort();
   }
 
+  @step()
   async getExportCurrencyOptions(): Promise<string[]> {
     await this.exportCurrencyCombo().click();
     await this.page.locator(S.optExportListItem).first().waitFor({ state: 'visible', timeout: 4_000 });
@@ -634,16 +683,19 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return opts.map((t) => t.trim()).filter(Boolean);
   }
 
+  @step()
   async setExportCurrency(code: string): Promise<void> {
     await this.exportCurrencyCombo().click();
     await this.page.locator(S.optExportListItem, { hasText: new RegExp(`^${code}$`) }).first().click();
   }
 
+  @step()
   async cancelExportDialog(): Promise<boolean> {
     await this.exportDialog().locator('button', { hasText: /^Cancel$/ }).first().click().catch(() => { /* best-effort: fall through to the hidden-state check below, which is the real oracle for whether it closed */ });
     return this.exportDialog().waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
   }
 
+  @step()
   async closeExportDialog(): Promise<boolean> {
     await this.exportDialog().locator('button', { hasText: /^Close$/ }).first().click().catch(() => { /* best-effort: fall through to the hidden-state check below, which is the real oracle for whether it closed */ });
     return this.exportDialog().waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
@@ -654,6 +706,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * Cancel, and report whether any export request fired (should be false) plus whether the dialog closed.
    * The listener filters the backend export path, never the page URL.
    */
+  @step()
   async cancelExportAndCheckNoRequest(
     variant: string,
     years: Array<string | number>,
@@ -676,6 +729,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * the post-gate Continue button is the download trigger (the Export menu button only opens the menu).
    * Reuses the shared CSV capture (download + request + response status on the same click).
    */
+  @step()
   async downloadExportVariant(
     variant: string,
     years: Array<string | number>,
@@ -693,6 +747,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * response status — for the tests that assert the request params (currencyId / years / variant flags)
    * without needing to read the downloaded file. Any resulting download is left to auto-discard.
    */
+  @step()
   async continueExportAndCaptureRequest(): Promise<{ url: string; status: number }> {
     const continueBtn = this.exportDialog().locator('button', { hasText: /^Continue$/ }).first();
     const [req] = await Promise.all([
@@ -725,6 +780,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.page.locator(S.dlgImport).filter({ hasText: CORP_PRICING_TOOLBAR_IO.importDialog.prompt }).first();
   }
 
+  @step()
   async getImportDialogInfo(): Promise<{ text: string; buttons: string[]; hasFileInput: boolean }> {
     const dlg = this.importDialog();
     const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
@@ -733,6 +789,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { text, buttons, hasFileInput };
   }
 
+  @step()
   async closeImportDialog(): Promise<void> {
     const dlg = this.importDialog();
     if ((await dlg.count()) === 0) return;
@@ -771,6 +828,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * change REPLACES the upload dialog with this modal, so a caller that staged a change must dismiss THIS
    * modal (not the upload dialog) — otherwise its overlay lingers and blocks the next action.
    */
+  @step()
   async cancelPublishModal(): Promise<boolean> {
     const modal = this.publishModal();
     if ((await modal.count()) === 0) return true;
@@ -780,12 +838,14 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return modal.waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
   }
 
+  @step()
   async openImportAllVariantDialog(variant: string): Promise<void> {
     await this.openImportMenu();
     await this.page.locator(S.mnuToolbarVariant, { hasText: variant }).first().click();
     await this.importAllDialog().waitFor({ state: 'visible', timeout: 6_000 });
   }
 
+  @step()
   async getImportAllDialogInfo(): Promise<{ text: string; comboCount: number; buttons: string[]; continueDisabled: boolean }> {
     const dlg = this.importAllDialog();
     const text = (await dlg.innerText()).replace(/\s+/g, ' ').trim();
@@ -795,6 +855,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { text, comboCount, buttons, continueDisabled };
   }
 
+  @step()
   async isImportAllContinueEnabled(): Promise<boolean> {
     return this.importAllDialog().locator('button', { hasText: /^Continue$/ }).first().isEnabled();
   }
@@ -808,6 +869,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.page.locator(S.optImportAllListItem).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
   }
 
+  @step()
   async setImportAllYears(years: Array<string | number>): Promise<void> {
     await this.openImportAllYearList();
     for (const y of years) await this.page.locator(S.optImportAllListItem, { hasText: new RegExp(`^${y}$`) }).first().click();
@@ -820,6 +882,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * Fails loudly (no swallow) if the extra option is missing or its click fails — a "still 3" result must
    * mean the app REFUSED the 4th, not that the option was absent.
    */
+  @step()
   async attemptExtraImportAllYear(year: string | number): Promise<string[]> {
     await this.openImportAllYearList();
     const extra = this.page.locator(S.optImportAllListItem, { hasText: new RegExp(`^${year}$`) }).first();
@@ -830,12 +893,14 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return selected;
   }
 
+  @step()
   async getImportAllSelectedYears(): Promise<string[]> {
     const text = await this.importAllYearCombo().innerText().catch(() => '');
     const years = text.match(/\d{4}/g) ?? [];
     return [...new Set(years)].sort();
   }
 
+  @step()
   async getImportAllCurrencyOptions(): Promise<string[]> {
     await this.importAllCurrencyCombo().click();
     await this.page.locator(S.optImportAllListItem).first().waitFor({ state: 'visible', timeout: 4_000 });
@@ -844,21 +909,25 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return opts.map((t) => t.trim()).filter(Boolean);
   }
 
+  @step()
   async setImportAllCurrency(code: string): Promise<void> {
     await this.importAllCurrencyCombo().click();
     await this.page.locator(S.optImportAllListItem, { hasText: new RegExp(`^${code}$`) }).first().click();
   }
 
+  @step()
   async cancelImportAllDialog(): Promise<boolean> {
     await this.importAllDialog().locator('button', { hasText: /^Cancel$/ }).first().click().catch(() => { /* best-effort: the hidden-state check below is the real oracle */ });
     return this.importAllDialog().waitFor({ state: 'hidden', timeout: 3_000 }).then(() => true).catch(() => false);
   }
 
+  @step()
   async clickImportAllContinue(): Promise<void> {
     await this.importAllDialog().locator('button', { hasText: /^Continue$/ }).first().click();
     await this.importDialog().waitFor({ state: 'visible', timeout: 6_000 });
   }
 
+  @step()
   async openImportAllUploadFor(variant: string, years: Array<string | number>, currency: string): Promise<void> {
     await this.openImportAllVariantDialog(variant);
     await this.setImportAllYears(years);
@@ -872,6 +941,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * OR a settled message) and returns it. The file is chosen via Browse → the native chooser (the same
    * mechanic the Loc Pricing Import uses), but the outcome model differs so it is classified here.
    */
+  @step()
   async chooseImportAllFile(fixturePath: string): Promise<ImportAllOutcome> {
     const uploadDlg = this.importDialog();
     // The diff on choose fires GET pricing-export (scoped to the precondition Year(s)+Currency) for every
@@ -942,6 +1012,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * clicking (Publish is disabled until ≥1 row is checked). Returns the real commit outcome + the success
    * toast; never trusts the dialog alone for whether it persisted.
    */
+  @step()
   async publishStagedImport(opts?: { onlyProductGroupIds?: string[] }): Promise<ImportAllPublishResult> {
     const modal = this.publishModal();
     const only = opts?.onlyProductGroupIds;
@@ -992,6 +1063,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * header set, the "Total Items" label text, and the staged row count — the publish gate, the header
    * contract, and the item count, none of which the commit path (publishStagedImport) exposes.
    */
+  @step()
   async getPublishModalInfo(): Promise<{ publishDisabled: boolean; headers: string[]; totalItemsText: string; rowCount: number }> {
     const modal = this.publishModal();
     const publishDisabled = await modal.locator(S.btnPublish).first().isDisabled();
@@ -1001,6 +1073,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { publishDisabled, headers, totalItemsText, rowCount };
   }
 
+  @step()
   async checkOneStagedRow(): Promise<void> {
     await this.publishModal().locator('tbody').locator(S.chkPublishRow).first().check();
   }
@@ -1010,6 +1083,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * The export is the source of truth for what actually persisted (a different dataset from the on-screen
    * search grid), so pre/post-import checks compare this rather than the grid.
    */
+  @step()
   async captureImportAllCellValue(opts: { variant: string; years: Array<string | number>; currency: string; productGroupId: string; pricebook: string }): Promise<string> {
     const exp = await this.downloadExportVariant(opts.variant, opts.years, opts.currency);
     const colIdx = exp.headers.indexOf(opts.pricebook);
@@ -1030,6 +1104,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * columns. An omitted-column scenario cannot exist, making product-group ROW omission the only meaningful
    * "absent-from-file → untouched" proof.
    */
+  @step()
   async captureImportAllMergeCanaries(opts: { variant: string; years: Array<string | number>; currency: string; productGroupId: string; pricebook: string }): Promise<{
     target: { value: string };
     otherRow: { productGroupId: string; pricebook: string; value: string };
@@ -1057,6 +1132,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * file path and the cell's pre-change value (the natural baseline to restore to). The temp file is the
    * caller's to remove.
    */
+  @step()
   async buildImportAllSingleCellFixture(opts: { variant: string; years: Array<string | number>; currency: string; productGroupId: string; pricebook: string; newValue: string }): Promise<{ path: string; previousValue: string }> {
     const exp = await this.downloadExportVariant(opts.variant, opts.years, opts.currency);
     const colIdx = exp.headers.indexOf(opts.pricebook);
@@ -1078,6 +1154,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * export), so the browser diff stages exactly two rows — used to exercise multi-row staging + partial-
    * selection publish. Returns the temp path and each changed cell's pre-change value. The caller removes the file.
    */
+  @step()
   async buildImportAllMultiCellFixture(opts: { variant: string; years: Array<string | number>; currency: string; pricebook: string; changes: Array<{ productGroupId: string; newValue: string }> }): Promise<{ path: string; previousValues: Record<string, string> }> {
     const exp = await this.downloadExportVariant(opts.variant, opts.years, opts.currency);
     const colIdx = exp.headers.indexOf(opts.pricebook);
@@ -1107,10 +1184,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * 0 when none is present WITHOUT throwing — the correct oracle for "no upload dialog appeared". Reading
    * text off an absent dialog throws, and a blanket catch on that read masks a real crash as a false pass.
    */
+  @step()
   async importDialogCount(): Promise<number> {
     return this.importDialog().locator(S.inputImportFile).count();
   }
 
+  @step()
   async clickLocPricingExportAndCaptureUrl(): Promise<string> {
     const reqPromise = this.page.waitForRequest((r) => r.url().includes(CORP_PRICING_LOC_EXPORT_API), { timeout: 15_000 });
     await this.page.locator(S.btnLocPricingExport).first().click();
@@ -1161,10 +1240,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * Loc Pricing Export real download round-trip (NM-2262) — a thin wrapper over the generic CSV-download
    * capture. The grid-scoped Export variants call the same primitive with their own trigger + export path.
    */
+  @step()
   async downloadLocPricingExport(): Promise<CsvDownloadResult> {
     return this.captureCsvDownload(this.page.locator(S.btnLocPricingExport).first(), CORP_PRICING_LOC_EXPORT_API);
   }
 
+  @step()
   async openLocPricingImportDialog(): Promise<void> {
     await this.page.locator(S.btnLocPricingImport).first().click();
     await this.importDialog().waitFor({ state: 'visible', timeout: 6_000 });
@@ -1185,6 +1266,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * method throws, rather than passing a status-less "no request" result off as a rejection. Filters the
    * request on the import API path, not the page URL.
    */
+  @step()
   async uploadFileToOpenDialog(fixturePath: string): Promise<LocImportResult> {
     const dlg = this.importDialog();
     // Ground truth that an import was ATTEMPTED is the PUT firing. Arm it BEFORE choosing the file, because
@@ -1231,6 +1313,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return { success: false, status: null, message: dialogText, requestUrl: null, responseBody: null };
   }
 
+  @step()
   async locPricingImport(fixturePath: string): Promise<LocImportResult> {
     await this.openLocPricingImportDialog();
     return this.uploadFileToOpenDialog(fixturePath);
@@ -1242,6 +1325,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * compare these rows rather than the on-screen search grid (a different, tenant-wide dataset). Rows are
    * matched by content, never by position. Reuses the proven export download + parse.
    */
+  @step()
   async captureLocPricingCsvRows(locationNo: string): Promise<{ header: string[]; rows: string[][] }> {
     const csv = await this.downloadLocPricingExport();
     const locIdx = csv.headers.indexOf('LocationNo');
@@ -1254,6 +1338,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * mutating round-trip). Writes the rows to a temporary CSV, runs them through the real import, then
    * removes the temp file. Returns the import outcome so a caller can confirm the restore landed.
    */
+  @step()
   async restoreLocPricingRows(header: string[], rows: string[][]): Promise<LocImportResult> {
     const csv = [header, ...rows].map((r) => r.map(toCsvField).join(',')).join('\n') + '\n';
     const tmp = join(tmpdir(), `loc-pricing-restore-${process.pid}-${Date.now()}.csv`);
@@ -1265,6 +1350,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     }
   }
 
+  @step()
   async openGridOptions(): Promise<void> {
     const item = this.page.locator(S.mnuGridColumn).first();
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -1279,6 +1365,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await item.waitFor({ state: 'visible', timeout: 4_000 });
   }
 
+  @step()
   async getGridOptionColumns(): Promise<{ label: string; checked: boolean }[]> {
     const loc = this.page.locator(S.mnuGridColumn);
     const n = await loc.count();
@@ -1293,19 +1380,23 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
+  @step()
   async toggleGridColumn(label: string): Promise<void> {
     await this.page.locator(S.mnuGridColumn, { hasText: label }).first().click();
   }
 
+  @step()
   async closeGridOptions(): Promise<void> {
     await this.page.keyboard.press('Escape').catch(() => { /* nothing open */ });
     await this.page.locator(S.mnuGridColumn).first().waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => { /* already closed */ });
   }
 
+  @step()
   async resetGridToDefaultView(): Promise<void> {
     await this.page.locator('[role="menuitem"]', { hasText: 'Reset to Default View' }).first().click();
   }
 
+  @step()
   async isGridColumnVisible(label: string): Promise<boolean> {
     return (await this.getColumnHeaders()).some((h) => h === label || h.includes(label));
   }
@@ -1317,6 +1408,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
    * bounded retry re-reads the columns after a reload and re-toggles any still hidden, throwing if the
    * baseline cannot be restored.
    */
+  @step()
   async ensureAllGridColumnsVisible(): Promise<void> {
     const allColumnsChecked = async (): Promise<boolean> => {
       await this.openGridOptions();
@@ -1340,12 +1432,14 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     });
   }
 
+  @step()
   async getColumnIndexByName(name: string): Promise<number> {
     const headers = await this.getColumnHeaders();
     const exact = headers.indexOf(name);
     return exact >= 0 ? exact : headers.findIndex((h) => h.includes(name));
   }
 
+  @step()
   async readColumnForVisibleRows(name: string): Promise<string[]> {
     const idx = await this.getColumnIndexByName(name);
     if (idx < 0) throw new Error(`readColumnForVisibleRows: column "${name}" not found in grid headers`);
@@ -1356,6 +1450,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
+  @step()
   async readBooleanColumnForVisibleRows(name: string): Promise<boolean[]> {
     const idx = await this.getColumnIndexByName(name);
     if (idx < 0) throw new Error(`readBooleanColumnForVisibleRows: column "${name}" not found`);
@@ -1366,6 +1461,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
+  @step()
   async getFirstNPriceBookNames(n: number): Promise<string[]> {
     const rows = this.page.locator(S.rowGridAny);
     const count = Math.min(await rows.count(), n);
@@ -1374,14 +1470,17 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out;
   }
 
+  @step()
   async getTbodyRowCount(): Promise<number> {
     return this.page.locator(S.rowGridAny).count();
   }
 
+  @step()
   async hasNoResultsMessage(): Promise<boolean> {
     return this.isVisibleSafe(S.lblNoResults);
   }
 
+  @step()
   async getPricebookLinkCellCount(): Promise<number> {
     return this.page.locator(S.rowNameButton).count();
   }
@@ -1390,14 +1489,17 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.page.locator(S.drpPageSizeRole).filter({ hasText: /^\s*\d+\s*$/ }).first();
   }
 
+  @step()
   async hasPageSizeControl(): Promise<boolean> {
     return (await this.page.locator(S.drpPageSizeRole).filter({ hasText: /^\s*\d+\s*$/ }).count()) > 0;
   }
 
+  @step()
   async getPageSizeValue(): Promise<string> {
     return (await this.pageSizeCombo().innerText()).replace(/\s+/g, ' ').trim();
   }
 
+  @step()
   async getPageSizeOptions(): Promise<string[]> {
     await this.pageSizeCombo().click();
     await this.page.locator('[role="option"]').first().waitFor({ state: 'visible', timeout: 8_000 });
@@ -1406,6 +1508,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return out.filter(Boolean);
   }
 
+  @step()
   async setPageSize(value: string | number): Promise<void> {
     await this.pageSizeCombo().click();
     await this.page.locator('[role="option"]', { hasText: new RegExp(`^${value}$`) }).first().click();
@@ -1416,16 +1519,19 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return which === 'first' ? S.btnPageFirst : which === 'previous' ? S.btnPagePrev : which === 'next' ? S.btnPageNext : S.btnPageLast;
   }
 
+  @step()
   async hasPageNav(which: 'first' | 'previous' | 'next' | 'last'): Promise<boolean> {
     return (await this.page.locator(this.pageNavSelector(which)).count()) > 0;
   }
 
+  @step()
   async isPageNavDisabled(which: 'first' | 'previous' | 'next' | 'last'): Promise<boolean> {
     const b = this.page.locator(this.pageNavSelector(which)).first();
     if (await b.isDisabled().catch(() => false)) return true;
     return (await b.getAttribute('aria-disabled')) === 'true';
   }
 
+  @step()
   async clickPageNav(which: 'first' | 'previous' | 'next' | 'last'): Promise<void> {
     await this.page.locator(this.pageNavSelector(which)).first().click();
     await this.page.locator(S.rowGridAny).first().waitFor({ state: 'visible', timeout: 15_000 }).catch(() => { /* grid settles */ });
@@ -1435,10 +1541,12 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     return this.page.locator(S.colHeaderAny, { hasText: name }).first();
   }
 
+  @step()
   async columnHeaderHasButton(name: string): Promise<boolean> {
     return (await this.headerCell(name).locator('button').count()) > 0;
   }
 
+  @step()
   async clickColumnHeaderSort(name: string): Promise<void> {
     const btn = this.headerCell(name).locator('button').first();
     if ((await btn.count()) > 0) await btn.click();
@@ -1446,6 +1554,7 @@ export class CorporatePricingSearchPage extends CorporatePricingBasePage {
     await this.page.locator(S.rowGridAny).first().waitFor({ state: 'visible', timeout: 10_000 }).catch(() => { /* settle */ });
   }
 
+  @step()
   async getColumnAriaSort(name: string): Promise<string | null> {
     return this.headerCell(name).getAttribute('aria-sort');
   }

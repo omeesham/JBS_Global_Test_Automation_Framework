@@ -1,0 +1,15 @@
+// INTENTIONALLY INVALID — this file exists to prove check-step-labels.mjs catches violations.
+// Do not import or compile. Extension is .txt to stay outside the TypeScript compilation net.
+
+class FakePageObject {
+  // EXPECT: FLAGGED by check 4 — 'csv' is a denied-jargon word
+  @step('Download csv report')
+  async downloadCsvReport() {}
+
+  // EXPECT: PASS check 4 — clean plain-English label, no denied jargon
+  @step('Open shared setup tab')
+  async openSharedSetupTab() {}
+
+  // EXPECT: COUNTED by check 5 — bare async method (public by default) with no preceding @step decorator
+  async exportData() {}
+}

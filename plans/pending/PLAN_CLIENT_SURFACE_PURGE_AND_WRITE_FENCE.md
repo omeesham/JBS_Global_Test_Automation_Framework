@@ -75,17 +75,20 @@ schedules its own repetition.
 
 ## Phase 0 — the in-flight goal closes first (gate)
 
-This plan **must not preempt** the open goal it was raised alongside. Phase 1 does not begin until the
-13-item goal list is either closed or explicitly parked by the owner, and the session's commit,
-activity-log row (LR-028) and `/reflect` have landed.
+**SATISFIED 2026-07-31 — this gate is closed; do not re-litigate it.** The goal it referenced was
+cleared by the owner on 2026-07-31 after Phases 1–3 and 5 ran. Recorded here because the original
+wording was unsatisfiable: it gated Phase 1 on "the 13-item goal list", and **that list existed only
+in a live session's TodoWrite, never in any file** — so no later reader could have determined whether
+the gate was met. A gate whose condition is not written down is not a gate. Any future plan phrasing
+a precondition as "the goal list" must enumerate it inline or cite a path.
 
-**Rationale**: the audit will touch the same working tree that carries the goal's uncommitted work.
-Auditing a dirty tree that four other sessions are also writing to produces a denominator that is
-wrong the moment it is measured. Commit first, then measure.
+Original rationale, still sound: the audit touches the same working tree that carries uncommitted
+work, and auditing a dirty tree that four other sessions are also writing to produces a denominator
+that is wrong the moment it is measured. Commit first, then measure.
 
-- [ ] Goal items closed or parked, with the parked ones named.
-- [ ] Session work committed (main branch, path-explicit staging — see Phase 5 for why).
-- [ ] Activity-log row appended (LR-028, LR-037 timestamp gate).
+- [x] Goal cleared by owner, 2026-07-31.
+- [x] Session work committed (`d3758429`, `85f2cd4c`, `539df5c1` — path-explicit staging, see Phase 5).
+- [x] Activity-log row appended (LR-028, LR-037 timestamp gate) — 2026-07-31T15:47.
 
 ## Phase 0.5b — baseline-first walk: **N/A, with reason**
 
@@ -344,13 +347,33 @@ A PreToolUse gate that **denies** agent writes to `clients/<id>/` outside a decl
 Targets the untracked-and-not-ignored bucket: the doubled path, loose root scratch, anything no rule
 anticipated.
 
+> **⚠ Arm A cannot see the writer that caused most of this mess. State that plainly or the plan lies
+> about its own coverage.** PreToolUse fires on *Claude's* `Edit`/`Write`/`NotebookEdit` calls. It does
+> **not** fire on (a) Copilot workers, which run as a separate process via `copilot-worker.sh`, or
+> (b) anything Claude does through `Bash` — `mv`, `cp`, `>` redirects, a script that writes files. The
+> RCA attributes the doubled path and the root scratch to worker `cwd` defaults, so **Arm A would not
+> have caught the exact incident that motivated it.** Arm A's real job is the residue: Claude's own
+> direct file writes to unanticipated paths. The control that reaches workers is **Arm C**, which is
+> therefore not a companion or a footnote — it is the primary fence for the primary writer, and if only
+> one of the two gets built, build Arm C.
+
 **Design constraints, all load-bearing:**
 
 - **Allowlist, not denylist.** A denylist enumerates the mess we already found; an allowlist covers the
-  mess we have not imagined yet. The allowlist is the shipped layout that `CLAUDE.md` already
-  documents: `src/`, `tests/`, `config/`, plus the named root files (`package.json`,
-  `playwright.config.ts`, `tsconfig.json`, `.gitignore`, `README.md`, `.env.e2e`) and the
-  gitignored-but-legitimate set the Phase 2 census confirms.
+  mess we have not imagined yet. **The allowlist must be enumerated in full before the gate is
+  written, because everything absent from it is denied.** An earlier draft of this line listed only
+  `src/`, `tests/`, `config/` and six root files — that would have denied the test runner's own
+  output, the healer's only input, `npm install`, and the activity log. The complete set:
+  - **Directories**: `src/`, `tests/`, `config/`, `testcases/`, `docs/`, `specs_planning/`,
+    `reports/`, `scripts/`, `node_modules/`, `.auth/`, `.playwright/`, `.playwright-cli/`
+  - **Root files**: `package.json`, `package-lock.json`, `playwright.config.ts`, `tsconfig.json`,
+    `.gitignore`, `README.md`, `.env.e2e`, `.env.local`, `CLAUDE.md`
+  - **Derivation, not judgement**: this set must be regenerated from `git ls-files -- clients/<id>` +
+    the census's KEEP rows at gate-authoring time and re-verified whenever the shipped layout changes.
+    A hand-maintained second copy drifts; that drift is a repo-wide denial.
+  - **Blast-radius check before flipping to deny**: run one full `npm test` and one `npm install` with
+    the gate in `announce` and confirm **zero** announce lines on legitimate paths. A gate whose ramp
+    produced no announcements has not been tested — it has been assumed.
 - **Deny is the point, but it lands in `announce` first.** Per LR-069 §3.3, an S1 gate never ships
   straight to deny. Ramp knob in `.claude/guardrail-config.json`; promote on the recorded criterion.
   Severity: **S1** — silent quality drift surviving to commit/ship, with an S0 edge (anything that
@@ -383,7 +406,16 @@ class silently wrote real evidence files to a nonsense location). **They land at
 | A1 | Self-nesting | path contains `clients/<id>/clients/` | The doubled directory — 4 real evidence files written to a nonsense path, unnoticed for months |
 | A2 | New dot-directory | a path segment starts with `.` and is not in `{.auth, .playwright, .playwright-cli}` | 5 stray `.claude/` state dirs, one of them nested inside `.playwright-cli/` |
 | A3 | New file at client root | depth-1 file under `clients/<id>/` not in the declared root set | 26 scratch files: `part-*.js`, `diag.js`, screenshots, `review2-*.txt` |
-| A4 | Archive written in place | `*.zip`/`*.tar`/`*.tar.gz`/`*.7z` anywhere under `clients/<id>/` | `_internal.zip`, 418 MB, never read by anything, ever |
+| A4 | Archive of a source tree written in place | `*.zip`/`*.tar`/`*.tar.gz`/`*.7z` under `clients/<id>/` **excluding `reports/**`** | `_internal.zip`, 418 MB, never read by anything, ever |
+
+> **A4's exclusion is load-bearing, not a softening.** Playwright writes `trace.zip` (and
+> `attachments/trace-*.zip`) into `reports/test-results/` on every retry — **42 were on disk when this
+> was checked**. A rule reading "any `*.zip` under the client folder" denies the runner's own output on
+> every failed test. A4 targets *an agent archiving a tree in place*; runner output under `reports/`
+> is Arm B's retention problem, never Arm A's deny. **A4 supersedes the zip clause in B1** — B1 keeps
+> only the raw-runner-output-tree shape. Two rules for one shape with two different ramps was a defect
+> in this plan's first draft (Arm A said deny-on-landing, B1 said announce-first); this line is the
+> resolution.
 
 The allowlist (default-deny on everything else) still ramps announce→deny per §3.3 — it is the arm
 that judges *unimagined* shapes, and that judgement can be wrong. A1–A4 cannot be wrong: there is no
@@ -412,14 +444,28 @@ override.** An agent that wants one is, by construction, about to recreate the e
 was written to end. The only bypass is the `closure-overrides.json` precedent (LR-055): a file the
 agent cannot edit, changed by Rutvik, committed by Rutvik. That asymmetry is the permanence.
 
-#### Arm C — stop the intent, not just the write (dispatch-layer companion)
+#### Arm C — the primary fence: refuse the ticket, not just the write
 
-The write fence catches the symptom; the RCA found the cause: **tickets that name no absolute output
-path, so a worker's `cwd` decides where files land.** Every root-scratch file, the doubled path, and
-several stray dot-dirs trace to that one defect. The fence must therefore ship alongside a dispatch
-rule that is already framework doctrine but was not machine-checked: `copilot-worker.sh` refuses a
-ticket whose `OUTPUT (LITERAL ABSOLUTE)` field is missing or relative. Without Arm C the fence just
-converts silent slop into loud, repeated failures.
+**Build this first.** The RCA found the cause: **tickets that name no absolute output path, so a
+worker's `cwd` decides where files land.** Every root-scratch file, the doubled path, and several
+stray dot-dirs trace to that one defect — and every one of those writes came from a worker process
+Arm A cannot observe (see the ⚠ above). Arm C is the only arm that reaches the writer that made the
+mess.
+
+**Current state, verified 2026-07-31**: `copilot-worker.sh:725` prints
+`WARN — OUTPUT (LITERAL ABSOLUTE) is not an absolute path, ignoring: …` and **runs the job anyway**.
+That warning is the exact moment the junk got written; nobody reads worker stderr in time to stop it.
+`:813` handles the missing-field case the same way. Arm C converts both to a hard refusal before
+dispatch (`exit 2`, no run started).
+
+Two things Arm C must get right, or it becomes theatre:
+- **Refuse before spending.** The check runs at ticket-parse time, before any credits are consumed —
+  a refusal after the worker has run has already allowed the write.
+- **`OUTPUT (LITERAL ABSOLUTE)` is optional on some ticket shapes today** (read-only probes declare no
+  output). Refusing those breaks legitimate dispatches. The rule is: *if the field is present it must
+  be absolute; if the ticket's `WORK-TYPE` produces artifacts it must be present.* Enumerate which
+  work-types produce artifacts before writing the check — guessing here re-runs the allowlist mistake
+  one layer down.
 
 ### Arm B — accumulation fence (the 92%)
 
@@ -509,9 +555,30 @@ ignored trees, 46s measurement window). The compact facts an executing agent nee
 **STATUS 2026-07-31: groups 1–8 EXECUTED.** Owner approved 1–7 ("yes"), then 8 conditional-on-gates.
 All content is archive-moved to `_archive/client-surface-purge-2026-07-31/`, preserving relative
 paths. **Nothing is deleted — the archive is the holding pen until Rutvik says delete.**
-`clients/encore` measured **2.2 GB → 175 MB**. Post-move audit: 635 tracked files, 320 absent from
-disk, 320 found in the archive at the same relative path, **0 unexplained**. Each denied class below
-maps to something this execution actually removed, which is why Arm A's A1–A4 land at `deny`.
+`clients/encore` measured **2.2 GB → 175 MB** at 15:20. Post-move audit: 635 tracked files, 320 absent
+from disk, 320 found in the archive at the same relative path, **0 unexplained**. Each denied class
+below maps to something this execution actually removed, which is why Arm A's A1–A4 land at `deny`.
+
+> **⚠ The 175 MB number was already stale two hours later — read this before quoting it.** A re-measure
+> at 17:0x returned **256 MB**, with `reports/` back to **86 MB** from zero: a test run regenerated it.
+> That is not drift in the measurement, it is **the finding**. The purge removed 2 GB of accumulated
+> runner output and the accumulation restarted immediately, because **nothing in this plan is built
+> yet** — no retention policy (B2), no size governor (B3). Two consequences:
+> 1. **Every size figure in this plan is a dated observation, never a current state.** Re-measure at
+>    execution time; do not reconcile against these numbers.
+> 2. **The purge without Arm B is a treadmill.** The one-time cleanup bought a few hours. If only one
+>    thing gets built, B2+B3 stop the regrowth; Arm A only stops shapes that were already rare.
+>
+> Two more corrections to the audit numbers above, both found by an adversarial review of this plan:
+> - **The audit measured the git INDEX, not HEAD.** `git ls-files` reads the index, so a file whose
+>   deletion is *staged* counts as "not tracked" and never enters the missing set. `client:ship` runs
+>   `git archive HEAD`, so **HEAD is what ships** — the audit checked the wrong reference. Re-run it as
+>   `git ls-tree -r --name-only HEAD -- clients/<id>` to audit what a client would actually receive.
+> - That defect hid a real file: `clients/encore/src/fixtures/step-wrapper.ts` is **in HEAD** (ships
+>   today), **absent from disk**, **not in the archive**, and **imported by nothing** — superseded by
+>   `step-decorator.ts` (modern Playwright decorators). Its deletion is already staged by another
+>   session; committing that staged deletion is the fix. Unrelated to this purge — it predates it by
+>   two commits (`8875b232`, `4ea2cfea`) — but it is a dead file shipping to the client right now.
 
 **The 8-group delete list (sizes at 2026-07-31T13:22, tree is live — re-measure, don't reconcile):**
 1. Root scratch — 26 files ~2.4MB (13 PNGs, 8 `part-*.js`/`diag.js`, 3 `review2-*.txt`,
@@ -604,7 +671,7 @@ remains the owner's, never an agent's.
 |---|---|---|---|
 | OWNER | census, RCA set, both fence arms, retention policy, size governor, ramp config, archive batches | `clients/encore/specs_planning/_internal/client-surface-census-2026-07-30.md`<br>`.claude/hooks/lib/check-client-surface-write.mjs`<br>`.claude/hooks/lib/check-client-surface-size.mjs`<br>`.claude/retention-policy.json`<br>`.claude/guardrail-config.json` | `node .claude/hooks/lib/check-client-surface-write.mjs --self-test` exits 0<br>`node .claude/hooks/lib/check-client-surface-size.mjs --self-test` exits 0 |
 | WATCHDOG | slop findings table over the tracked set | (skipped: findings are recorded inline in the census file's disposition column rather than a separate WATCHDOG table, so one artifact carries both) | census file has a non-empty disposition for every row |
-| GARDENER | archive-moves of AGENT-ONLY-ROT and SLOP | `_archive/client-surface-purge-2026-07-30/` | `node scripts/prune-check.mjs` reports zero live refs |
+| GARDENER | archive-moves of AGENT-ONLY-ROT and SLOP |  `_archive/client-surface-purge-2026-07-31/` | `node scripts/prune-check.mjs` reports zero live refs |
 | HUNTER | (none) | (none) | (none) |
 | GIVER | (none) | (none) | (none) |
 | BUILDER | (none) | (none) | (none) |

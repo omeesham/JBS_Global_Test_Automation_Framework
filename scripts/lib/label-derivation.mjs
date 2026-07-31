@@ -1,7 +1,7 @@
 /**
  * Single-source label logic for the readable-report tooling. The DATA is loaded from
- * clients/encore/src/fixtures/label-jargon.json (the same file step-wrapper.ts imports at
- * runtime); camelToLabel MIRRORS step-wrapper.ts's runtime copy and must stay behaviourally
+ * clients/encore/src/fixtures/label-jargon.json (the same file label-derivation.ts imports at
+ * runtime); camelToLabel MIRRORS label-derivation.ts's runtime copy and must stay behaviourally
  * identical to it. Imported by generate-label-inventory.mjs and check-step-labels.mjs.
  */
 import { readFileSync } from 'node:fs';

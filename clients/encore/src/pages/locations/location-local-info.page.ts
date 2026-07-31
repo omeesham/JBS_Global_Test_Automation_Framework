@@ -1,4 +1,5 @@
 ﻿import { Page } from '@playwright/test';
+import { step } from '../../fixtures/step-decorator';
 import { LocationFormHelpers } from '../components/location-form-helpers.component';
 import { LocationSettingsSelectors } from '../../selectors';
 import { Log } from '../../utils/logger';
@@ -18,16 +19,19 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     Log.info('LocationLocalInfoPage initialized');
   }
 
+  @step()
   async navigateToLocalInfoTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabLocalInformation', 'btnSaveLocalInfo', officeNo);
   }
 
+  @step()
   async isOnLocalInfoTab(): Promise<boolean> {
     const tab = this.getElement('tabLocalInformation');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
+  @step()
   async reloadAndNavigateToLocalInfo(officeNo: string = '1604'): Promise<void> {
     Log.info('Reloading page and navigating back to Local Information');
  // Navigate away to a different route first to force the app to destroy + recreate the
@@ -38,6 +42,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     await this.navigateToLocalInfoTab(officeNo);
   }
 
+  @step()
   async captureLeftPanelBaseline(): Promise<LeftPanelBaseline> {
     Log.info('Capturing left-panel baseline values');
     const officeVal = await this.getElement('txtOffice').inputValue().catch(() => '');
@@ -56,22 +61,26 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return baseline;
   }
 
+  @step()
   async getBillingType(): Promise<'Master' | 'Direct'> {
     const masterChecked = (await this.getElement('rdoBillingTypeMaster').getAttribute('aria-checked').catch(() => null)) === 'true';
     return masterChecked ? 'Master' : 'Direct';
   }
 
+  @step()
   async selectBillingType(type: 'Master' | 'Direct'): Promise<void> {
     const key = type === 'Master' ? 'rdoBillingTypeMaster' : 'rdoBillingTypeDirect';
     await this.getElement(key).click();
     Log.info(`Selected Billing Type: ${type}`);
   }
 
+  @step()
   async getBillingWay(): Promise<'Event' | 'Daily'> {
     const eventChecked = (await this.getElement('rdoBillingWayEvent').getAttribute('aria-checked').catch(() => null)) === 'true';
     return eventChecked ? 'Event' : 'Daily';
   }
 
+  @step()
   async selectBillingWay(way: 'Event' | 'Daily'): Promise<void> {
     const key = way === 'Event' ? 'rdoBillingWayEvent' : 'rdoBillingWayDaily';
     await this.getElement(key).click();
@@ -79,6 +88,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     await this.page.waitForLoadState('domcontentloaded').catch(() => {});
   }
 
+  @step()
   async isSaveEnabled(): Promise<boolean> {
     const el = this.getElement('btnSaveLocalInfo');
     const disabled = await el.isDisabled().catch(() => true);
@@ -89,28 +99,34 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
  /**
  * Dialog timeout extended to 10s — this form has slower server validation.
  */
+  @step()
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSaveLocalInfo', 'dlgSaveChanges', 'btnSaveChangesConfirm', 10_000);
   }
 
+  @step()
   async waitForSaveToast(): Promise<void> {
     await this.getElement('toastLocalInfoUpdated').waitFor({ state: 'visible', timeout: 8000 });
     Log.info('Save success toast confirmed: "Local information updated"');
   }
 
+  @step()
   async isEffectiveDateDisabled(): Promise<boolean> {
     return await this.getElement('btnEffectiveDate').isDisabled().catch(() => true);
   }
 
+  @step()
   async isBillingCycleDisabled(): Promise<boolean> {
     return await this.getElement('drpBillingCycle').isDisabled().catch(() => true);
   }
 
+  @step()
   async getBillingCycleValue(): Promise<string> {
     const el = this.getElement('drpBillingCycle');
     return (await el.textContent().catch(() => '') ?? '').trim();
   }
 
+  @step()
   async testBoundaryValue(
     spinKey: keyof typeof LocationSettingsSelectors,
     value: string,
@@ -181,6 +197,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return { passed: true, detail: `${value} -> valid [ok]` };
   }
 
+  @step()
   async testDependency(
     trigger: keyof typeof LocationSettingsSelectors,
     triggerAction: 'check' | 'uncheck',
@@ -226,6 +243,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return { passed: failures.length === 0, failures };
   }
 
+  @step()
   async testMaxLength(
     fieldKey: keyof typeof LocationSettingsSelectors,
     maxLength: number,

@@ -1,6 +1,7 @@
 import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
 import { LocationSettingsSelectors } from '../../selectors';
+import { step } from '../../fixtures/step-decorator';
 
 export interface CheckboxState {
   checked: boolean;
@@ -21,6 +22,7 @@ export abstract class LocationFormHelpers extends BasePage {
  /**
  * The E2E environment briefly renders form fields as disabled during hydration.
  */
+  @step()
   async waitForFormReady(selectorKey: keyof typeof LocationSettingsSelectors, timeout = 10_000): Promise<void> {
     const el = this.getElement(selectorKey);
     await el.waitFor({ state: 'visible', timeout });
@@ -35,22 +37,26 @@ export abstract class LocationFormHelpers extends BasePage {
     Log.info(`[OK] Form ready: ${selectorKey} is enabled`);
   }
 
+  @step()
   async getCheckboxState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<CheckboxState> {
     const state = await this.getRadixCheckboxState(selectorKey);
     Log.info(`Checkbox [${selectorKey}] -> checked=${state.checked} disabled=${state.disabled}`);
     return state;
   }
 
+  @step()
   async checkCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
     if (!(await this.getRadixCheckboxState(selectorKey)).checked) { await el.check(); Log.info(`Checked: ${selectorKey}`); }
   }
 
+  @step()
   async uncheckCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
     if ((await this.getRadixCheckboxState(selectorKey)).checked) { await el.uncheck(); Log.info(`Unchecked: ${selectorKey}`); }
   }
 
+  @step()
   async toggleCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<boolean> {
     const el = this.getElement(selectorKey);
     const wasChecked = (await this.getRadixCheckboxState(selectorKey)).checked;
@@ -71,6 +77,7 @@ export abstract class LocationFormHelpers extends BasePage {
  * Walks from the checkbox button up to its <dd> parent, then reads the preceding <dt> sibling text.
  * Live-verified: term (dt) + definition (dd) confirmed in Local Information tab DOM.
  */
+  @step()
   async getCheckboxLabel(selectorKey: string): Promise<string> {
     const el = this.getElement(selectorKey as keyof typeof LocationSettingsSelectors);
     const label = await el.evaluate((button: Element) => {
@@ -82,6 +89,7 @@ export abstract class LocationFormHelpers extends BasePage {
     return label;
   }
 
+  @step()
   async getSpinState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<SpinState> {
     const el = this.getElement(selectorKey);
  // Custom percentage components display "4.00%"; strip the trailing % before returning.
@@ -92,6 +100,7 @@ export abstract class LocationFormHelpers extends BasePage {
     return { value, disabled };
   }
 
+  @step()
   async setSpinValue(selectorKey: keyof typeof LocationSettingsSelectors, value: string): Promise<void> {
     const el = this.getElement(selectorKey);
     await el.click();
@@ -106,10 +115,12 @@ export abstract class LocationFormHelpers extends BasePage {
     Log.info(`setSpinValue [${selectorKey}]: after Tab -> "${postTab}"`);
   }
 
+  @step()
   async getTextValue(selectorKey: keyof typeof LocationSettingsSelectors): Promise<string> {
     return await this.getElement(selectorKey).inputValue().catch(() => '');
   }
 
+  @step()
   async fillText(selectorKey: keyof typeof LocationSettingsSelectors, value: string): Promise<void> {
     const el = this.getElement(selectorKey);
     await el.click({ clickCount: 3 });
@@ -119,6 +130,7 @@ export abstract class LocationFormHelpers extends BasePage {
     Log.info(`Filled [${selectorKey}] = "${value.substring(0, 30)}"`);
   }
 
+  @step()
   async hasValidationError(errorText: string): Promise<boolean> {
     const visible = await this.getElement('errValidationMessage')
       .or(this.getElement('errMinBoundary'))
@@ -131,15 +143,18 @@ export abstract class LocationFormHelpers extends BasePage {
     return visible;
   }
 
+  @step()
   async hasErrorDialog(): Promise<boolean> {
     return await this.getElement('dlgErrorDialog').isVisible().catch(() => false);
   }
 
+  @step()
   async getErrorDialogMessage(): Promise<string> {
     const el = this.getElement('dlgErrorMessage');
     return ((await el.textContent().catch(() => '')) ?? '').trim();
   }
 
+  @step()
   async dismissErrorDialog(): Promise<void> {
     const dialog = this.getElement('dlgErrorDialog');
     await this.clickWithRetry('btnErrorOk');
@@ -147,19 +162,23 @@ export abstract class LocationFormHelpers extends BasePage {
     Log.info('Error dialog dismissed');
   }
 
+  @step()
   async getAttribute(selectorKey: keyof typeof LocationSettingsSelectors, attribute: string): Promise<string | null> {
     return await this.getElement(selectorKey).getAttribute(attribute).catch(() => null);
   }
 
+  @step()
   async getMaxLength(selectorKey: keyof typeof LocationSettingsSelectors): Promise<number> {
     const val = await this.getAttribute(selectorKey, 'maxlength');
     return val ? parseInt(val, 10) : -1;
   }
 
+  @step()
   async isFieldDisabled(selectorKey: keyof typeof LocationSettingsSelectors): Promise<boolean> {
     return await this.getElement(selectorKey).isDisabled().catch(() => true);
   }
 
+  @step()
   async verifyCheckboxDefaults(expected: Record<string, boolean>): Promise<{ allPassed: boolean; failures: string[] }> {
     const failures: string[] = [];
     for (const [key, expectedChecked] of Object.entries(expected)) {
@@ -172,6 +191,7 @@ export abstract class LocationFormHelpers extends BasePage {
     return { allPassed: failures.length === 0, failures };
   }
 
+  @step()
   async verifyCheckboxDisabledStates(expected: Record<string, boolean>): Promise<{ allPassed: boolean; failures: string[] }> {
     const failures: string[] = [];
     for (const [key, expectedDisabled] of Object.entries(expected)) {

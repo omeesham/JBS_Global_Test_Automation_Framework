@@ -19,6 +19,7 @@ import { CorporatePricingBasePage } from './corporate-pricing.page';
 import type { IConfig } from '../../types';
 import { CorporatePricingSelectors as S } from '../../selectors/corporate-pricing';
 import { NEW_PRICEBOOK } from '../../data/corporate-pricing/new-pricebook';
+import { step } from '../../fixtures/step-decorator';
 
 export type PricebookType = 'equipment' | 'labor';
 export type StrategyFlag = 'Is GSO' | 'Is Active' | 'Is Internal' | 'Is Productions';
@@ -28,27 +29,33 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     super(page, config);
   }
 
+  @step()
   async open(type: PricebookType = 'equipment', office: string = NEW_PRICEBOOK.office): Promise<void> {
     await this.gotoNewPricebook(office, type);
     await this.page.locator(S.npName).first().waitFor({ state: 'visible', timeout: 25_000 });
   }
 
+  @step()
   async getHeading(): Promise<string> {
     return (await this.page.locator(S.npHeading).first().innerText()).trim();
   }
 
+  @step()
   async setName(value: string): Promise<void> {
     await this.setReactInput(S.npName, value);
   }
 
+  @step()
   async getName(): Promise<string> {
     return this.page.locator(S.npName).first().inputValue();
   }
 
+  @step()
   async setYear(value: string): Promise<void> {
     await this.setReactInput(S.npYear, value);
   }
 
+  @step()
   async getYear(): Promise<string> {
     return this.page.locator(S.npYear).first().inputValue();
   }
@@ -61,18 +68,22 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     return this.page.locator(S.npCombobox).nth(1);
   }
 
+  @step()
   async getTypeValue(): Promise<string> {
     return (await this.typeCombo().innerText()).replace(/\s+/g, ' ').trim();
   }
 
+  @step()
   async isTypeDisabled(): Promise<boolean> {
     return this.typeCombo().isDisabled().catch(() => false);
   }
 
+  @step()
   async getCurrencyValue(): Promise<string> {
     return (await this.currencyCombo().innerText()).replace(/\s+/g, ' ').trim();
   }
 
+  @step()
   async getCurrencyOptions(): Promise<string[]> {
     await this.currencyCombo().click();
     await this.page.locator(S.npOption).first().waitFor({ state: 'visible', timeout: 8_000 });
@@ -81,6 +92,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     return out.filter(Boolean);
   }
 
+  @step()
   async getTabs(): Promise<string[]> {
     const tabs: string[] = [];
     if ((await this.page.locator(S.tabPricingStrategy).count()) > 0) tabs.push('Pricing Strategy');
@@ -88,29 +100,35 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     return tabs;
   }
 
+  @step()
   async clickDetailTab(): Promise<void> {
     await this.switchTab('Pricing Detail');
   }
 
+  @step()
   async getStrategyTotal(): Promise<number> {
     const txt = await this.page.locator(S.npStrategyTotal).first().innerText().catch(() => '');
     const m = txt.match(/Total:\s*(\d+)/);
     return m && m[1] ? parseInt(m[1], 10) : -1;
   }
 
+  @step()
   async hasNoStrategiesYet(): Promise<boolean> {
     return this.isVisibleSafe(S.npNoStrategies);
   }
 
+  @step()
   async openAddStrategyDialog(): Promise<void> {
     await this.page.getByRole('button', { name: 'New Pricing Strategy' }).first().click();
     await this.page.locator(S.npNewStrategyDialog).first().waitFor({ state: 'visible', timeout: 10_000 });
   }
 
+  @step()
   async isAddDialogOpen(): Promise<boolean> {
     return this.isVisibleSafe(S.npNewStrategyDialog);
   }
 
+  @step()
   async getDialogFlag(name: StrategyFlag): Promise<{ checked: boolean; disabled: boolean }> {
     const dlg = this.page.locator(S.npNewStrategyDialog).first();
     const cb = dlg.getByRole('checkbox', { name });
@@ -120,6 +138,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     };
   }
 
+  @step()
   async addStrategy(name: string = NEW_PRICEBOOK.strategyName): Promise<void> {
     await this.openAddStrategyDialog();
     await this.setReactInput(S.npDlgStrategyName, name);
@@ -132,6 +151,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
    * The app keeps the "Add" button disabled while the name is empty, so no strategy can
    * be added and the dialog stays open. The caller Cancels/Escapes afterward.
    */
+  @step()
   async getEmptyNameAddGuard(): Promise<{ stillOpen: boolean; addDisabled: boolean }> {
     await this.openAddStrategyDialog();
     const addButton = this.page
@@ -143,6 +163,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     return { stillOpen: await this.isAddDialogOpen(), addDisabled };
   }
 
+  @step()
   async cancelAddDialog(): Promise<void> {
     const dlg = this.page.locator(S.npNewStrategyDialog).first();
     if (await dlg.isVisible().catch(() => false)) {
@@ -151,16 +172,19 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     }
   }
 
+  @step()
   async removeStrategy(name: string = NEW_PRICEBOOK.strategyName): Promise<void> {
     const item = this.page.getByRole('button', { name }).first();
     await item.getByRole('button').first().click();
     await this.waitForAngularStable();
   }
 
+  @step()
   async getSourceGroupCount(): Promise<number> {
     return this.page.locator(S.npSourceRow).count();
   }
 
+  @step()
   async getSourceGroupSample(n = 5): Promise<string[]> {
     const out: string[] = [];
     const rows = this.page.locator(S.npSourceRow);
@@ -169,6 +193,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     return out;
   }
 
+  @step()
   async addProductGroupByName(name: string): Promise<void> {
     const row = this.page.locator(S.npSourceRow, { hasText: name }).first();
     await row.waitFor({ state: 'visible', timeout: 10_000 });
@@ -180,12 +205,14 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
    * sequence → adds it. This is the positive control that proves the drag primitive fires when adding
    * is allowed (create mode); the management-mode Detail tab uses the same primitive to prove no-add.
    */
+  @step()
   async dragProductGroupByName(name: string): Promise<void> {
     const row = this.page.locator(S.npSourceRow, { hasText: name }).first();
     await row.waitFor({ state: 'visible', timeout: 10_000 });
     await this.dragSourceToGrid(row, this.page.locator(S.npDetailGrid).first());
   }
 
+  @step()
   async getDetailGridRows(): Promise<string[]> {
     const rows = this.page.locator(S.npDetailGrid).first().locator('tbody tr');
     const out: string[] = [];
@@ -199,6 +226,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
    * dialog. Does NOT confirm — the caller MUST follow with `cancelSaveDialog()` to avoid an
    * irreversible commit. Throws (via base) if Save is disabled.
    */
+  @step()
   async clickSaveExpectDialog(): Promise<string> {
     await this.clickSaveButtonOrThrow('New Pricebook not savable');
     const dlg = this.page.locator(S.npSaveDialog).first();
@@ -206,6 +234,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     return (await dlg.innerText()).replace(/\s+/g, ' ').trim();
   }
 
+  @step()
   async cancelSaveDialog(): Promise<void> {
     const dlg = this.page.locator(S.npSaveDialog).first();
     if (await dlg.isVisible().catch(() => false)) {
@@ -214,6 +243,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     }
   }
 
+  @step()
   async fillMinimalSavable(
     name: string = NEW_PRICEBOOK.validName,
     year: string = NEW_PRICEBOOK.validYear,
@@ -230,6 +260,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
    * verified by content. Leaves Save enabled and the form UNCOMMITTED; the caller commits via
    * `confirmSaveAndGetNewId()`.
    */
+  @step()
   async fillSavableWithProductGroup(
     name: string,
     year: string = NEW_PRICEBOOK.validYear,
@@ -248,6 +279,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
    * pricebook's guid (parsed from the URL). IRREVERSIBLE — no UI delete/deactivate exists, so this is
    * called ONLY by the single committing persistence test. Throws (via base) if Save is disabled.
    */
+  @step()
   async confirmSaveAndGetNewId(): Promise<string> {
     const detailsRe = /\/details\/[0-9a-f-]+/i;
     // Under load the commit occasionally does not take on the first try — the "Save Changes" dialog
@@ -283,6 +315,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
    * React page). So this waits for the first data row to actually render before reading. Used by the
    * committing persistence test to prove a dragged/added product group survives the save+reload.
    */
+  @step()
   async readSavedDetailGroups(office: string, pricebookId: string): Promise<string[]> {
     await this.gotoDetails(office, pricebookId);
     await this.clickDetailTab();
@@ -296,6 +329,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
    * the border is the destructive (red) colour; with a valid year both change. The caller compares
    * the empty vs valid reads to prove the required state is visibly indicated (NM-2057).
    */
+  @step()
   async getYearValidationState(): Promise<{ ariaInvalid: string | null; borderColor: string }> {
     const year = this.page.locator(S.npYear).first();
     const ariaInvalid = await year.getAttribute('aria-invalid');
@@ -309,6 +343,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
    * exists" message appeared anywhere on the form. Used to document that the create page does NOT
    * block a duplicate pricebook name client-side (NM-2022).
    */
+  @step()
   async setNameAndReadUniqueness(name: string): Promise<{ ariaInvalid: string | null; hasInlineUniquenessError: boolean }> {
     await this.setName(name);
     await this.page.locator(S.npName).first().evaluate((el) => el.dispatchEvent(new Event('blur', { bubbles: true })));
@@ -328,6 +363,7 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
    * split across two text nodes ("No items added yet" + the action line), so this returns the text of
    * the tightest element that contains BOTH lines.
    */
+  @step()
   async getDetailEmptyStateHint(): Promise<string> {
     return this.page.evaluate(() => {
       const both = Array.from(document.querySelectorAll('*')).filter(
@@ -338,16 +374,19 @@ export class CorporatePricingNewPricebookPage extends CorporatePricingBasePage {
     });
   }
 
+  @step()
   async filterSourceGroups(query: string): Promise<void> {
     await this.setReactInput(S.npSearchProductGroups, query);
     await this.waitForAngularStable();
   }
 
+  @step()
   async clearSourceFilter(): Promise<void> {
     await this.setReactInput(S.npSearchProductGroups, '');
     await this.waitForAngularStable();
   }
 
+  @step()
   async clickStrategyTab(): Promise<void> {
     await this.switchTab('Pricing Strategy');
   }
