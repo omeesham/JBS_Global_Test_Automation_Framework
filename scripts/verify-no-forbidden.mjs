@@ -131,12 +131,13 @@ function walkDir(root, prefix = '') {
 async function checkClient(client) {
   let listing;
   try {
-    listing = execSync(`git ls-files clients/${client}/`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+    // Use -z (NUL-separated, no C-quoting) so paths with non-ASCII chars are returned verbatim.
+    listing = execSync(`git ls-files -z clients/${client}/`, { cwd: REPO_ROOT, encoding: 'utf-8' });
   } catch {
     console.error(`[verify-no-forbidden] git ls-files failed for clients/${client}/`);
     process.exit(2);
   }
-  const tracked = listing.split(/\r?\n/).filter(Boolean);
+  const tracked = listing.split('\0').filter(Boolean);
   // Strip leading clients/<id>/ for glob matching.
   const stripped = tracked.map((p) => p.replace(new RegExp(`^clients/${client}/`), '/'));
   const offending = stripped.filter(matchesDeny);
@@ -310,14 +311,15 @@ function hasStatusDoneAnyForm(content) {
 function checkStagedDiff() {
   let listing;
   try {
-    listing = execSync('git diff --cached --name-only --diff-filter=ACMR', {
+    // Use -z (NUL-separated, no C-quoting) so paths with non-ASCII chars are returned verbatim.
+    listing = execSync('git diff -z --cached --name-only --diff-filter=ACMR', {
       cwd: REPO_ROOT,
       encoding: 'utf-8',
     });
   } catch {
     process.exit(0);
   }
-  const staged = listing.split(/\r?\n/).filter(Boolean);
+  const staged = listing.split('\0').filter(Boolean);
   const offenders = [];
   // LR-054 / ALL-077 banned-phrase exemption list — files that legitimately
   // discuss the pattern when defining or quarantining it.
@@ -408,7 +410,16 @@ function checkHeadFile(file) {
   // Pre-push per-file content-scan mode: checks file content from the HEAD revision
   // (what actually ships). Path deny-globs scope which content patterns apply (via
   // isClientShipping), matching --staged-diff behavior. Binary files are skipped.
-  const rel = file.replace(/\\/g, '/');
+  //
+  // Defensive unquote: if a caller still passes a git C-quoted path (leading/trailing
+  // double-quotes with \NNN octal escapes), decode it to raw bytes. The -z fix in the
+  // pre-push hook should prevent this, but belt-and-suspenders for any other caller.
+  let rel = file.replace(/\\/g, '/');
+  if (rel.startsWith('"') && rel.endsWith('"')) {
+    rel = rel.slice(1, -1).replace(/\\([0-7]{3})/g, (_, oct) =>
+      String.fromCharCode(parseInt(oct, 8))
+    );
+  }
 
   // Skip historical artifacts (plans/done/ legitimately references internal vocab)
   if (rel.startsWith('plans/done/')) process.exit(0);
