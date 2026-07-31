@@ -466,6 +466,21 @@ function checkHeadFile(file) {
     process.exit(1);
   }
 
+  // Neutralise long base64 runs before MARKER_GREP to eliminate false positives from
+  // base64-encoded binary data embedded in JSON or similar containers. A run of 60+
+  // consecutive base64-alphabet chars [A-Za-z0-9+/=] cannot appear in ordinary English
+  // prose — prose always contains spaces (not in the base64 alphabet) that break such
+  // runs — so replacing them with a placeholder keeps full pattern strength on real text.
+  // 2026-07-31: clients/encore/specs_planning/_internal/defence-evidence-2026-06-01/run1/
+  // test-results.json (85,980,098 bytes) produced 155 false-positive MARKER_GREP hits
+  // from base64 noise inside JSON string values (e.g. the /f(?:u)ck/i pattern matched
+  // chance 4-char subsequences inside unbroken base64 runs); zero hits were in real prose.
+  // The threshold is 60: safely above the longest plausible English token (~45 chars) and
+  // well below the length of any real base64 blob. The staged-diff path is unchanged —
+  // no evidence of the same false-positive class there (diffs contain line-bounded context,
+  // not multi-kilobyte base64 blobs).
+  const scanBuf = buf.replace(/[A-Za-z0-9+/=]{60,}/g, '\x00B64\x00');
+
   // Apply content rules — same scoping as --staged-diff: client-shipping paths get the
   // full pattern set; all other paths get repo-wide MARKER_GREP only. Path deny-globs
   // are structurally embedded in isClientShipping() (deny-listed paths = not shipping).
@@ -474,7 +489,7 @@ function checkHeadFile(file) {
     : MARKER_GREP;
 
   for (const re of patterns) {
-    if (re.test(buf)) {
+    if (re.test(scanBuf)) {
       console.error(`[verify-no-forbidden] head-file content denied: ${rel} :: ${re}`);
       process.exit(1);
     }
