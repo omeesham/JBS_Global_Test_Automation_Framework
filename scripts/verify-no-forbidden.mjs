@@ -445,18 +445,24 @@ function checkHeadFile(file) {
   if (rel.startsWith('plans/pending/')) {
     let planBuf;
     try {
-      planBuf = execSync(`git show HEAD:${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+      // maxBuffer is explicit: Node's 1 MiB default caused a false fail-open skip on large plan
+      // files (2026-07-31: .playwright-cli/cpr-locpicker.yml at 1.04 MB silently skipped).
+      planBuf = execSync(`git show HEAD:${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024 });
     } catch { process.exit(0); }
     if (!hasStatusDoneAnyForm(planBuf)) process.exit(0);
   }
 
-  // Read content from HEAD revision (what is actually being pushed)
+  // Read content from HEAD revision (what is actually being pushed).
+  // maxBuffer is explicit: Node's 1 MiB default caused a false deny on large tracked files
+  // (2026-07-31: .playwright-cli/cpr-locpicker.yml at 1.04 MB hit ENOBUFS, was reported as
+  // a forbidden-pattern violation even though content was clean).
   let buf;
   try {
-    buf = execSync(`git show HEAD:${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+    buf = execSync(`git show HEAD:${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024 });
   } catch (err) {
     // File not found in HEAD — loud failure (missing expected input must never silent-skip)
     console.error(`[verify-no-forbidden] head-file git-show failed for path: ${rel}`);
+    console.error(`[verify-no-forbidden] cause: ${err.code} — ${err.message.split('\n')[0]}`);
     process.exit(1);
   }
 
