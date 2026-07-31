@@ -21,7 +21,7 @@
  *                            git-archive exclusion lists in ship scripts.
  */
 
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -447,7 +447,7 @@ function checkHeadFile(file) {
     try {
       // maxBuffer is explicit: Node's 1 MiB default caused a false fail-open skip on large plan
       // files (2026-07-31: .playwright-cli/cpr-locpicker.yml at 1.04 MB silently skipped).
-      planBuf = execSync(`git show HEAD:${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024 });
+      planBuf = execFileSync('git', ['show', `HEAD:${rel}`], { cwd: REPO_ROOT, encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024 });
     } catch { process.exit(0); }
     if (!hasStatusDoneAnyForm(planBuf)) process.exit(0);
   }
@@ -458,7 +458,7 @@ function checkHeadFile(file) {
   // a forbidden-pattern violation even though content was clean).
   let buf;
   try {
-    buf = execSync(`git show HEAD:${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024 });
+    buf = execFileSync('git', ['show', `HEAD:${rel}`], { cwd: REPO_ROOT, encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024 });
   } catch (err) {
     // File not found in HEAD — loud failure (missing expected input must never silent-skip)
     console.error(`[verify-no-forbidden] head-file git-show failed for path: ${rel}`);

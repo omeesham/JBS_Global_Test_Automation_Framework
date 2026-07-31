@@ -367,6 +367,60 @@ anticipated.
 
 **Escape hatch**: the LR-043 §A one-shot break-glass handshake, unchanged. Discretionary, never workflow.
 
+#### The four proven classes — deny on landing, no ramp (owner directive, 2026-07-31)
+
+Rutvik's instruction: *"make sure this plan knows what to prevent in future from slopping our encore
+folder in most permanent strictest way possible."* The ramp-first rule in LR-069 §3.3 exists so an
+unproven gate cannot wedge work on a class it misjudges. These four classes are not unproven — each
+one was **measured on disk this session**, each is decidable from the path string alone in constant
+time, and none has a single legitimate instance anywhere in the repo's history. Under §3.1 they are
+S0-shaped (they produced a 2.2 GB surface that nobody noticed for six months, and the doubled-path
+class silently wrote real evidence files to a nonsense location). **They land at `deny`, not
+`announce`.** Every other pattern the fence covers still ramps normally.
+
+| # | Denied shape | Constant-time rule | What it actually stopped |
+|---|---|---|---|
+| A1 | Self-nesting | path contains `clients/<id>/clients/` | The doubled directory — 4 real evidence files written to a nonsense path, unnoticed for months |
+| A2 | New dot-directory | a path segment starts with `.` and is not in `{.auth, .playwright, .playwright-cli}` | 5 stray `.claude/` state dirs, one of them nested inside `.playwright-cli/` |
+| A3 | New file at client root | depth-1 file under `clients/<id>/` not in the declared root set | 26 scratch files: `part-*.js`, `diag.js`, screenshots, `review2-*.txt` |
+| A4 | Archive written in place | `*.zip`/`*.tar`/`*.tar.gz`/`*.7z` anywhere under `clients/<id>/` | `_internal.zip`, 418 MB, never read by anything, ever |
+
+The allowlist (default-deny on everything else) still ramps announce→deny per §3.3 — it is the arm
+that judges *unimagined* shapes, and that judgement can be wrong. A1–A4 cannot be wrong: there is no
+correct reason to nest a client inside itself, drop a new dot-directory, scatter files at the client
+root, or zip a tree in place.
+
+#### Why "strictest" also means "provably firing"
+
+A deny that never fires is indistinguishable from no gate at all, and this repo has ≥8 gates shipped
+dark (LR-069 §3.4 known-gap). Strictness is therefore three obligations, not one:
+
+1. **Live-fire proof per class.** The self-test drives a real violating path through each of A1–A4 and
+   asserts a deny — a passing self-test that never exercised the deny branch proves nothing
+   (`feedback_a_green_check_can_be_an_artifact_of_invisibility`).
+2. **Discrimination proof.** A legitimate write (`src/pages/foo.page.ts`, `tests/x.spec.ts`) must
+   ALLOW in the same self-test run. A gate that denies everything, or allows everything, carries no
+   information (`feedback_a_signal_that_never_varies_is_not_a_signal`).
+3. **Telemetry from the first commit.** Every verdict — allow and deny — appends to
+   `.claude/state/gate-fires.log`. Without it the LR-069 demotion review runs blind and the gate is
+   unauditable.
+
+#### Why the override is Rutvik's, not an agent's
+
+The LR-043 §A one-shot handshake stays for the ramping allowlist. **A1–A4 have no agent-reachable
+override.** An agent that wants one is, by construction, about to recreate the exact class this plan
+was written to end. The only bypass is the `closure-overrides.json` precedent (LR-055): a file the
+agent cannot edit, changed by Rutvik, committed by Rutvik. That asymmetry is the permanence.
+
+#### Arm C — stop the intent, not just the write (dispatch-layer companion)
+
+The write fence catches the symptom; the RCA found the cause: **tickets that name no absolute output
+path, so a worker's `cwd` decides where files land.** Every root-scratch file, the doubled path, and
+several stray dot-dirs trace to that one defect. The fence must therefore ship alongside a dispatch
+rule that is already framework doctrine but was not machine-checked: `copilot-worker.sh` refuses a
+ticket whose `OUTPUT (LITERAL ABSOLUTE)` field is missing or relative. Without Arm C the fence just
+converts silent slop into loud, repeated failures.
+
 ### Arm B — accumulation fence (the 92%)
 
 **A per-write gate is the wrong instrument for accumulation, and the plan must say so plainly.** No
@@ -387,6 +441,14 @@ in the session. Arm B is therefore **three controls at three different layers**,
   `specs_planning/_internal/<dated-evidence>/`. A directory with no policy row is itself a finding.
   **Enforcement is report-and-confirm, never autonomous delete** — Phase 5's constraint governs here
   without exception.
+  **Owner ruling (Rutvik, 2026-07-31) — the policy classifies CONTENT, not directories.** Two classes:
+  - `regenerable-cache` — browser profiles, `.playwright/cli.config.json`, `node_modules`. **Never
+    deleted by policy or by hand**: removal is pure waste — the next run just regenerates it slower.
+  - `dead-output` — downloaded CSVs, console/run logs, report trees, evidence snapshots, stray
+    session-state dirs: anything that will NOT come back on its own. This is the only class the
+    retention policy expires, by age.
+  One folder can hold both classes (`.playwright-cli/` holds a regenerable profile AND months of dead
+  CSVs/logs) — the policy applies per content class WITHIN the folder, never folder-wholesale.
 - **B3 — size governor (Stop hook, measure once per session, report only).** One `du` at session end,
   compared against a recorded budget per directory. Over budget → a line in the session's output
   naming the directory and its growth. This is the control that would have caught 2.0 GB in week one
@@ -404,14 +466,129 @@ because it needs no foreknowledge of the shape — which is why it is not option
 
 ## Phase 5 — pay off the debt (owner-gated, no autonomous deletion)
 
-**No agent deletes anything in this plan.** The sequence per batch:
+**Owner posture change (Rutvik, 2026-07-31) — the presumption is FLIPPED.** Every file under
+`clients/encore/` is slop until it proves otherwise. KEEP requires one concrete cited proof:
+SHIPPED (declared layout + reachable), MANDATED (a skill/rule/hook names it, file:line), or
+REFERENCED (live code/config cites it — a reference from another delete-candidate does not count).
+"Probably needed" = delete-candidate. Regenerable-cache content is exempt from removal per the
+Arm B owner ruling (deleting it is waste, it comes back); only dead-output is ever removed.
 
-1. `git mv` / `mv` to `_archive/client-surface-purge-2026-07-30/`, preserving relative structure.
+**Re-enumerate at execution time — the list is a seed, not the scope.** The tree is live; new slop
+appears between sessions. The executing agent MUST re-run the enumeration (git ls-files triad +
+untracked + ignored-tree listing), diff against the dispositioned set in
+`.claude/state/ua-worker/chips/purge/out-redisp-lot-a/LOT-A.md` + `out-redisp-lot-b/LOT-B.md`
+(2026-07-31 re-audit, flipped presumption), and disposition anything NEW by the same rule. A frozen
+list from a prior session is never treated as the denominator.
+
+**Standing class authorizations.** When the owner confirms a batch, his yes covers the CLASS
+(path-shape + content-class), not just the enumerated files — so a new `part-x.js` at client root or
+a new stray `.claude/` dir found at execution time is pre-authorized by the earlier yes on its class.
+Record each confirmed class in the batch record. Anything matching NO confirmed class is presented
+fresh — never inferred-approved.
+
+**No agent deletes anything in this plan.** The sequence per batch (pre-authorized classes included):
+
+1. `git mv` / `mv` to `_archive/client-surface-purge-<date>/`, preserving relative structure.
 2. `node scripts/prune-check.mjs` — prove zero live references to every moved path.
-3. Present the batch to the owner as a list, per item, with size and the reason.
-4. Only on his per-batch confirmation does anything leave the archive.
+3. Present the batch to the owner as a list, per item, with size and the reason (for pre-authorized
+   classes: present as a post-move report naming the class authorization it rode on).
+4. Only on his per-batch confirmation (or a cited standing class authorization) does anything leave
+   the archive.
 
 Reports and results are never removed without asking — that constraint holds here without exception.
+The 2026-07-31 grouped delete list awaiting the owner's per-group yes lives at
+`.claude/state/ua-worker/chips/purge/ARCHIVE-BATCH-PROPOSAL.md` (superseded groups) + the chat-issued
+8-group list; fold both into the batch record on first execution.
+
+### 2026-07-31 findings record — research already burned, do NOT rediscover
+
+Full evidence: `.claude/state/ua-worker/chips/purge/out-redisp-lot-a/LOT-A.md` (635 tracked files,
+KEEP 237 / DELETE-CANDIDATE 198 / DELETE-ASK 200) + `out-redisp-lot-b/LOT-B.md` (untracked 29 exact +
+ignored trees, 46s measurement window). The compact facts an executing agent needs:
+
+**STATUS 2026-07-31: groups 1–8 EXECUTED.** Owner approved 1–7 ("yes"), then 8 conditional-on-gates.
+All content is archive-moved to `_archive/client-surface-purge-2026-07-31/`, preserving relative
+paths. **Nothing is deleted — the archive is the holding pen until Rutvik says delete.**
+`clients/encore` measured **2.2 GB → 175 MB**. Post-move audit: 635 tracked files, 320 absent from
+disk, 320 found in the archive at the same relative path, **0 unexplained**. Each denied class below
+maps to something this execution actually removed, which is why Arm A's A1–A4 land at `deny`.
+
+**The 8-group delete list (sizes at 2026-07-31T13:22, tree is live — re-measure, don't reconcile):**
+1. Root scratch — 26 files ~2.4MB (13 PNGs, 8 `part-*.js`/`diag.js`, 3 `review2-*.txt`,
+   `playwright-report-graft-green/`, `.machine-evidence/`).
+2. Doubled path `clients/encore/clients/` — cwd-bug duplicates, originals exist at correct path.
+3. Agent droppings — FIVE stray `.claude` dirs (`./`, `.playwright-cli/`, doubled path,
+   `specs_planning/`, `specs_planning/_internal/`), `logs/` (3MB), gate-fires logs, regguard txt,
+   `.dedupe-tmp/`, `scripts/walks/`.
+4. `.playwright-cli` dead contents ONLY — stale CSVs + console/run logs back to May. The profile and
+   `.playwright/cli.config.json` are regenerable-cache: STAY.
+5. `reports/` — 9 subtrees, all run output: allure-results 51,931 files/460MB, bugs, diagnostics,
+   fcc-completion, html-report, screenshots, test-results, verify-nm2268, walk-coverage (~473MB).
+6. `_internal.zip` 418MB — zero references found by RCA + re-grep; nothing has ever read it.
+7. `defence-evidence-2026-06-01/` — 2,446 files ~620MB June run snapshot; 200 of them git-tracked
+   (deletion includes untracking those).
+8. `specs_planning` one-off planning artifacts — per-file recheck complete (LOT-A.md
+   `## REDISPOSITION-R2 (bounce)`): **179 DELETE-CANDIDATE / 19 KEEP** of 198. The 19th KEEP
+   (`daily-status-bank.json`, read by end-day + end-week skills) was missed by BOTH worker passes and
+   caught by dispatcher spot-grep — CEO-corrected, not bounced a third time. Worker's other 18 KEEPs
+   carry verified cites (skills/rules/hooks/CLAUDE.md); navigation.md-only hits ruled NOT proof.
+   **OWNER RULING (Rutvik, 2026-07-31): group 8 approved CONDITIONAL on gates.** His condition:
+   "if the gates are fine, I am fine with their removal." Verified fine: walk-evidence gates
+   (LR-013/PF-G5, LR-062) demand a fresh artifact per walk, never historical files; every file a
+   gate/rule/hook names by path is in the 19 KEEPs which stay; prune-check flags anything a pending
+   plan still cites (flagged files remain archived, never deleted). The 179 ride the same
+   archive-move → prune-check pipeline as groups 1–7.
+
+**KEEP proofs already verified (don't re-litigate):** `src/**`+`tests/**`+configs+lockfile (shipped
+layout, reporter cited at playwright.config.ts:70, globalSetup :168); `testcases/*.xlsx` +
+`specs_planning/test-cases|test-plans` (ALL-071/LR-ENC-002); `.auth/` (playwright.config.ts:128,:154,:161 +
+auth.setup.ts — owner's login sessions); `node_modules` (regenerable but constantly needed = waste to
+delete); LR-049 force-tracked docs set; mandated memory files with cites: `agent-activity-log.md` +
+`agent-mistakes.md` (LR-028), `bug-archetypes.md` + `active-experiments.md` (audit SKILL + AGENT_SHARED_RULES),
+`field-inventory-spec.md` + `field-case-generation.md` (root CLAUDE.md @-references) — the last four
+were missed by the first worker pass and caught by dispatcher grep (lesson: lump verdicts hide
+mandated files; per-file proof or evidence-cited subgroups only).
+
+**Already executed:** `readable_externals/jbs/2026-04-23_multi-tenant-handoff/` archive-moved to
+`_archive/client-surface-purge-2026-07-31/` on owner order (2026-07-31); only historical plan records
+reference it.
+
+### Reference-check lessons (2026-07-31 execution — read before running the check again)
+
+1. **`prune-check.mjs` was O(candidates × repo) — FIXED at source 2026-07-31.** It re-walked and
+   re-read the whole repo once per candidate; at 595 candidates it produced zero output in 25+ minutes
+   and was killed. `scanRefs()` is replaced by `buildRefIndex()` (one walk, all stems) + `refsFor()`
+   (per-candidate lookup, still excluding self-references), and `_archive` joined `SKIP_DIRS` so
+   already-pruned content is never counted as a live reference. **612 candidates now complete in 90
+   seconds.** Two operational notes for the next run: exclude bulk machine-output trees
+   (`allure-results`, `test-results`) and check those as directories, and expect false positives —
+   the checker matches the bare basename as a substring, so a candidate named `spec.json`, `csv.json`,
+   or `console.log` matches nearly every source file. Read the cited file before acting on a verdict.
+2. **A slop-inventory citation is NOT a live reference.** The first pass "found" 74 referenced files;
+   ~19 of those were cited only by documents whose purpose is to LIST slop —
+   `PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md` (this file), `_REPO_SLOP_FINDINGS.md`,
+   `PLAN_REPO_SLOP_SWEEP.md`, `PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md` §"Junk is flagged".
+   Exclude those from the scan, or a purge can never complete — the delete list keeps citing itself.
+3. **Genuine references did exist and mattered.** 59 archived files were cited by real work: pending
+   subplans (`SUBPLAN_59D_OVERRIDE_NONCODE_FOOTPRINT`, `PLAN_ID_NAMING_AUDIT_AND_REMEDIATION`,
+   `PLAN_ENCORE_DELIVERABLE_REMEDIATION`) and by walk-coverage machinery
+   (`scripts/walk-coverage/fixtures/kernel-oracle-fixtures.json`, `freeze-nm2271-inputs.mjs`,
+   `domain-invariants.json` cite walk-evidence + field-inventory + old-site-baseline files by path).
+   All 59 were restored to their original paths. **The lump verdict would have broken the coverage
+   engine** — this is the third time in this purge that a group-level judgement hid live files.
+4. **Post-move audit that proves it:** `git ls-files -- clients/encore` → for each, does it exist on
+   disk, and if not, is it at the same relative path under the archive? Result after the corrected
+   run: 635 tracked, 320 absent, 320 found in the archive, **0 unexplained**. `clients/encore` =
+   **175 MB**, down from 2.2 GB.
+
+5. **What the fixed checker found on the rerun** (612 candidates, 90s): 484 safe, 48 untouchable
+   (modified in the last 24h), 80 live-ref. Of the 80, most were substring artefacts; **9 paths had
+   genuine citations and were restored**: `reports/bugs/` (the bug-baseline gate and four pending
+   plans read these), `reports/walk-coverage/` (`accept-denom.mjs` + walk-coverage fixtures),
+   `reports/label-inventory.txt`, `.playwright-cli/multi-loc.js` (two pending subplans),
+   the id-audit trio (`id-rename-map.json`, `baseline-testrail-dump.json`, `dump-testrail.mjs` —
+   consumed by `remediate.mjs`/`fix-offbyone.mjs` under PLAN_ID_NAMING_AUDIT_AND_REMEDIATION),
+   `evidence-cp-override-2026-07-13/raw-evidence.md`, and `scripts/walks/`.
 
 **Commit discipline for this plan and for the session that opened it**: the working tree currently
 carries ~125 modified files from **four concurrent sessions**, and HEAD is on
@@ -445,6 +622,10 @@ remains the owner's, never an agent's.
 - [ ] Every CONVICTED prior fix is rewired or removed **within this plan** — none left idling.
 - [ ] **Arm A** exists, self-tests green, emits fire telemetry, and is recorded in `.claude/guardrail-config.json` with `ramp_started` / `ramp_target` / `ramp_note`.
 - [ ] **Arm A** proven by live fire: a deliberate write to a non-allowlisted path under `clients/encore/` is announced (or denied, post-ramp), with the telemetry line pasted.
+- [ ] **A1–A4 each proven by live fire at `deny`** — one violating write per class, run for real, verdict pasted: `clients/encore/clients/x.md` (self-nesting) · `clients/encore/.claude/state/y.log` (new dot-dir) · `clients/encore/scratch.js` (client-root file) · `clients/encore/anything.zip` (in-place archive). A self-test that never executed the deny branch does not satisfy this row.
+- [ ] **A1–A4 proven to DISCRIMINATE** — in the same run, `clients/encore/src/pages/x.page.ts` and `clients/encore/tests/x.spec.ts` are ALLOWED, verdicts pasted. All-deny is as broken as all-allow.
+- [ ] **A1–A4 carry no agent-reachable override** — grep the gate source for the LR-043 handshake and confirm these four classes do not consult it; the only bypass is an owner-edited lock-path file.
+- [ ] **Arm C** — `copilot-worker.sh` refuses a ticket whose `OUTPUT (LITERAL ABSOLUTE)` is missing or relative; proven by dispatching one such ticket and pasting the refusal.
 - [ ] **B1** proven by live fire on both shapes: a `*.zip` write under `clients/encore/` and an `allure-results/` write under `specs_planning/` each produce a telemetry line. Both pasted.
 - [ ] **B2** — every accumulating directory named in the census carries a retention-policy row; any directory with no row is reported as a finding rather than silently omitted.
 - [ ] **B3** — the size governor runs at session end, compares against recorded budgets, and its output is pasted for a session where at least one directory is over budget. It deletes nothing.

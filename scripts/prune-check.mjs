@@ -33,7 +33,9 @@ const REPO_ROOT = process.cwd();
 const NOW_MS = Date.now();
 const H24_MS = 24 * 60 * 60 * 1000;
 const TERMINAL = new Set(['done', 'superseded', 'cancelled', 'subsumed']);
-const SKIP_DIRS = new Set(['node_modules', '.git', '.playwright-cli', 'dist', '.auth']);
+// `_archive` holds already-pruned content: a mention there is a historical record, never a live
+// reference, and counting it would make every archived file cite its archived neighbours.
+const SKIP_DIRS = new Set(['node_modules', '.git', '.playwright-cli', 'dist', '.auth', '_archive']);
 
 function* walkDir(dir, exts, skipAbsPaths) {
   let entries;
@@ -48,11 +50,6 @@ function* walkDir(dir, exts, skipAbsPaths) {
       yield full;
     }
   }
-}
-
-function hasStem(filePath, stem) {
-  try { return readFileSync(filePath, 'utf8').includes(stem); }
-  catch { return false; }
 }
 
 function planStatus(filePath) {
@@ -80,38 +77,49 @@ function applyGuards(absPath) {
   return null;
 }
 
-function scanRefs(absPath, stem) {
+/**
+ * Build the reference index ONCE for the whole candidate set, then answer every candidate
+ * from it.
+ *
+ * The original shape called scanRefs(candidate) inside the candidate loop, so each candidate
+ * re-walked and re-read the entire repo — cost was candidates × repo. At 595 candidates that
+ * produced no output in 25+ minutes and had to be killed (2026-07-31 client-surface purge).
+ * Cost is now repo + candidates, over the same 5 classes with the same skip rules.
+ *
+ * A file never counts as a reference to itself. That skip is per-candidate, so it cannot live
+ * in the shared walk and is applied at lookup time in refsFor() instead.
+ */
+function buildRefIndex(stems) {
   const plansDone = join(REPO_ROOT, 'plans', 'done');
-  const skipBase = [plansDone, absPath];
-  const refs = [];
-
-  // class 1: code refs
-  for (const f of walkDir(REPO_ROOT, new Set(['.ts', '.mjs', '.js']), skipBase)) {
-    if (hasStem(f, stem)) refs.push({ class: 'code', file: f });
-  }
-  // class 2: plan refs
+  const nodeModules = join(REPO_ROOT, 'node_modules');
   const plansDir = join(REPO_ROOT, 'plans');
-  if (existsSync(plansDir)) {
-    for (const f of walkDir(plansDir, new Set(['.md']), skipBase)) {
-      if (hasStem(f, stem)) refs.push({ class: 'plan', file: f });
-    }
-  }
-  // class 3: config refs
-  for (const f of walkDir(REPO_ROOT, new Set(['.json']), [join(REPO_ROOT, 'node_modules'), absPath])) {
-    if (hasStem(f, stem)) refs.push({ class: 'config', file: f });
-  }
-  // class 4: hook refs
-  for (const f of walkDir(REPO_ROOT, new Set(['.sh']), [absPath])) {
-    if (hasStem(f, stem)) refs.push({ class: 'hook', file: f });
-  }
-  // class 5: doc refs
   const docsDir = join(REPO_ROOT, 'docs');
-  if (existsSync(docsDir)) {
-    for (const f of walkDir(docsDir, new Set(['.md']), [absPath])) {
-      if (hasStem(f, stem)) refs.push({ class: 'doc', file: f });
+
+  const sources = [
+    { cls: 'code', root: REPO_ROOT, exts: new Set(['.ts', '.mjs', '.js']), skip: [plansDone] },
+    { cls: 'plan', root: plansDir, exts: new Set(['.md']), skip: [plansDone] },
+    { cls: 'config', root: REPO_ROOT, exts: new Set(['.json']), skip: [nodeModules] },
+    { cls: 'hook', root: REPO_ROOT, exts: new Set(['.sh']), skip: [] },
+    { cls: 'doc', root: docsDir, exts: new Set(['.md']), skip: [] },
+  ];
+
+  const index = new Map(stems.map(s => [s, []]));
+
+  for (const { cls, root, exts, skip } of sources) {
+    if (!existsSync(root)) continue;
+    for (const f of walkDir(root, exts, skip)) {
+      let text;
+      try { text = readFileSync(f, 'utf8'); } catch { continue; }
+      for (const stem of stems) {
+        if (text.includes(stem)) index.get(stem).push({ class: cls, file: f });
+      }
     }
   }
-  return refs;
+  return index;
+}
+
+function refsFor(index, absPath, stem) {
+  return (index.get(stem) || []).filter(r => r.file !== absPath);
 }
 
 function parseCandidates(args) {
@@ -132,6 +140,9 @@ if (!candidates.length) {
 const results = [];
 let hasLiveRef = false;
 
+// Guards first — a guarded candidate needs no reference scan, so keep it out of the index.
+const guarded = new Map();
+const toScan = [];
 for (const c of candidates) {
   const absPath = resolve(c);
   if (!existsSync(absPath)) {
@@ -139,9 +150,17 @@ for (const c of candidates) {
     process.exit(2);
   }
   const guard = applyGuards(absPath);
-  if (guard) { results.push({ path: c, ...guard }); continue; }
-  const stem = basename(c, extname(c));
-  const refs = scanRefs(absPath, stem);
+  if (guard) guarded.set(c, guard);
+  else toScan.push({ c, absPath, stem: basename(c, extname(c)) });
+}
+
+const refIndex = buildRefIndex([...new Set(toScan.map(t => t.stem))]);
+
+for (const c of candidates) {
+  const g = guarded.get(c);
+  if (g) { results.push({ path: c, ...g }); continue; }
+  const { absPath, stem } = toScan.find(t => t.c === c);
+  const refs = refsFor(refIndex, absPath, stem);
   if (refs.length > 0) {
     results.push({ path: c, verdict: 'live-ref', refs });
     hasLiveRef = true;
