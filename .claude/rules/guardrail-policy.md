@@ -119,7 +119,7 @@ denominator, rubber-stampable prose mandates, no machine checking assertions).
 
 **Purpose**: This rule documents where a human's answer goes when the interaction-coverage checker fires on a residual it cannot resolve autonomously. **This is a documented route, not an enforced mechanism** — it makes the hand-off explicit and auditable; it does not force anyone to follow it.
 
-**What enforcement would look like**: one line added to each FAIL `reason:` string in `scripts/check-interaction-coverage.mjs` — for `unclassified-element` (lines 264–266) and for `claim-census` (lines 756–758) — appending `See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.` That change was deliberately not made here per ticket scope constraints; it is recorded below as a follow-up.
+**The route is surfaced at the moment of failure**: both FAIL `reason:` strings in `scripts/check-interaction-coverage.mjs` end with `See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.` — `unclassified-element` at line 266, `claim-census` at line 817. Self-test: 189/189.
 
 **Sev**: S1 — both residuals emit a FAIL verdict that blocks map closure; an unresolved FAIL that reaches a DONE-flip is silent quality drift surviving to commit/ship. **Graduating incident**: 2026-07-30 — Human-Catch Reflex detection existed in `check-interaction-coverage.mjs`; named routing did not (PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION criterion 9).
 
@@ -127,7 +127,7 @@ denominator, rubber-stampable prose mandates, no machine checking assertions).
 
 **Trigger**: sub-check `unclassified-element`, verdict `FAIL`
 Source: `scripts/check-interaction-coverage.mjs` lines 258–267
-Reason string (verbatim): `UNCLASSIFIED VIOLATION: ${unclassifiedEls.length} element(s) carry UNCLASSIFIED — unclassifiable controls block closure; each must be resolved before this map closes: [${unclassifiedEls.join(', ')}]`
+Reason string (verbatim): `UNCLASSIFIED VIOLATION: ${unclassifiedEls.length} element(s) carry UNCLASSIFIED — unclassifiable controls block closure; each must be resolved before this map closes: [${unclassifiedEls.join(', ')}] See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.`
 
 **Recipient**: `scripts/walk-coverage/drone-probes.mjs` — the `PROBE_DEFINITIONS` export at line 26.
 
@@ -154,20 +154,18 @@ The key set of `PROBE_DEFINITIONS` is the metamodel vocabulary. Existing **contr
 ### §LR-071.2 — Residual 2: Undocumented intent
 
 **Trigger**: sub-check `claim-census`, verdict `FAIL`
-Source: `scripts/check-interaction-coverage.mjs` lines 751–758
-Reason string (verbatim): `CLAIM-CENSUS VIOLATION: ${claimEls.length} element(s) carry claim-sourced dispositions with no valid census evidence — external claims must be verified against machine-readable data before steering a disposition: [${claimEls.map(e => e.elementId || '(unknown)').join(', ')}]`
+Source: `scripts/check-interaction-coverage.mjs` lines 810–818
+Reason string (verbatim): `CLAIM-CENSUS VIOLATION: ${claimEls.length} element(s) carry claim-sourced dispositions with no valid census evidence — external claims must be verified against machine-readable data before steering a disposition: [${claimEls.map(e => e.elementId || '(unknown)').join(', ')}] See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.`
 
 **Recipient**: the interaction-map JSON file for the affected surface — the file whose element carries `basis: "claim:…"`.
 
 **The edit**: the human adjudicates which side of the disagreement is correct, then adds a `census:` entry to the same map:
 
 1. Create or locate an evidence artifact (walk log, Jira export, or plain-text domain note) that captures the adjudicated truth and mentions the claim subject by name. File format is not constrained — the oracle binds by token overlap between artifact content and claim subject.
-2. Add one element row to the map with `basis: "census:<relative-path-to-artifact>"`. The artifact must exist on disk and its content must mention at least one token from the claim subject (the oracle validates this at line 739 of the checker).
+2. Add one element row to the map with `basis: "census:<relative-path-to-artifact>"`. The artifact must exist on disk and its content must mention at least one token from the claim subject (the oracle validates this at line 825 of the checker).
 3. If the adjudicated rule is a business rule that applies across surfaces, also add it to the domain-invariant input corpus managed by SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md Phase 4. If that subplan has not landed, record the rule in the nearest surface's walk artifact until it does.
 
 **Proof it took**: re-running the checker on the affected map shows `claim-census: PASS`. The domain rule is now machine-readable; future surfaces that exercise it are covered without further human adjudication.
-
-**Recommended checker message change (follow-up, not made)**: in `scripts/check-interaction-coverage.mjs`, in the `unclassified-element` FAIL reason (line 265) and the `claim-census` FAIL reason (line 756), append the string `See .claude/rules/guardrail-policy.md §LR-071 for resolution steps.` to each. This surfaces the route at the moment of failure.
 
 **Trigger**: any attempt to close or flip-DONE an interaction-map that produces a FAIL verdict on `unclassified-element` or `claim-census`.
 
