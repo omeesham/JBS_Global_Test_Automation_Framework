@@ -170,8 +170,38 @@ folder is 2.2 GB and two gitignored directories are **92%** of it.
 | `reports/bugs` | **68 KB** | The filed bug JSONs — the highest-value content in the directory, at 0.007% of its size |
 | `reports/screenshots`, `_extra-leaks.txt`, `_diag_pause.log`, `label-inventory.txt`, `_rerun2.log` | <300 KB total | Needs classification |
 
-**File counts**: `reports` = **91,634 files**. `specs_planning` = 2,751 files. The shipped payload
-(`src` + `tests` + `testcases`) is a few thousand at most.
+**File counts**: `specs_planning` = 2,751 files. The shipped payload (`src` + `tests` + `testcases`)
+is a few thousand at most. For `reports`, see the drift warning immediately below — its count is not
+a stable number.
+
+### ⚠ The tree is LIVE — every figure here is a snapshot, not a census
+
+Measured 2026-07-31, twenty minutes apart, with the identical command from the identical directory:
+
+| Measure | ~12:05 | ~12:30 | Δ |
+|---|---|---|---|
+| `find reports -type f` | 91,634 | 52,022 | **−39,612 files** |
+| `du -sh reports` | 927 MB | 647 MB | **−280 MB** |
+
+Nothing in this plan caused that. Concurrent sessions are writing and pruning under
+`clients/encore/` continuously, and `reports/allure-results` is the churn surface. Three consequences,
+all load-bearing:
+
+1. **The earlier figures in this document were accurate when taken and are stale now.** They are kept
+   as a dated observation, not corrected away — the drift is the finding.
+2. **Phase 1 must record its measurement window** (start and end timestamp) and label its output a
+   snapshot. A census of a moving tree that does not state when it was taken is not reproducible, and
+   a later reader will treat a stale number as a current one — exactly what happened here.
+3. **Do not size a control off any single reading.** The 92%-of-bloat claim survives (the ratio is
+   stable even as the absolute shrinks), but any threshold expressed in absolute MB or file count
+   will be wrong within the hour. Arm B's size governor must therefore budget on *growth rate or
+   ratio*, not on a fixed ceiling.
+
+Independently confirmed: a full-disk walk returned **59,427** files for the whole client folder,
+which matches the Phase 1 git enumeration exactly (635 tracked + 58,763 ignored + 29 untracked).
+The identity `disk_walk == tracked ∪ ignored ∪ untracked` **reconciles**. An earlier suspicion of a
+~34,000-file gap was an artifact of comparing a fresh git enumeration against a stale disk count —
+the git side was right.
 
 ### It is one class, not five
 
