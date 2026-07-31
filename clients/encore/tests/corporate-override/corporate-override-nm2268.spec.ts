@@ -9,7 +9,7 @@ const GRID_ROW = CorporatePricingOverrideSelectors.ovrGridRowAny;
 const LOC = CORP_PRICING_OVERRIDE_FIXTURE.office; // location picker search needle ('1606')
 
 test.describe('Corporate Pricing — Product Group Override: Change Local Office picker search & Active filter @corporate-pricing @override', () => {
-  test('TC-CPR-OVR-039: Typing a partial office number narrows picker rows; clearing restores the full list', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-038: Typing a partial office number narrows picker rows; clearing restores the full list', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
     await p.reloadAndReselect(LOC);
     await p.openLocationPicker();
@@ -35,7 +35,7 @@ test.describe('Corporate Pricing — Product Group Override: Change Local Office
   // is confirmed inactive yet never appears in either state. Opening the picker fires ≥1 POST
   // (positive control proving the network listener works); toggling fires 0 POSTs — the Active
   // checkbox is a client-side filter only. The toggle assertion will fail when the app is fixed.
-  test('TC-CPR-OVR-040: Picker Active checkbox defaults unchecked; toggling is a client-side filter — no location-lookup POST fires', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-039: Picker Active checkbox defaults unchecked; toggling is a client-side filter — no location-lookup POST fires', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await p.reloadAndReselect(LOC);
     await test.step('Open picker — fires at least one location-lookup POST (positive control: listener works)', async () => {
@@ -86,8 +86,8 @@ test.describe('Corporate Pricing — Product Group Override: RBAC access gate @c
   // API surface a test could query to assert the deny-path. (NM-2126)
   //
   // The positive-path coverage (RM user CAN edit, CAN enable Save, CAN open Import) is already
-  // provided by TC-CPR-OVR-017, TC-CPR-OVR-018, and TC-CPR-OVR-033.
-  test.skip('TC-CPR-OVR-041: Non-Revenue-Management user sees a read-only Override grid — no edit, no Save, no Import [blocked: every automation account we hold has equivalent access and no RBAC state is exposed on the Override screen; a second automation account WITHOUT the 1101 Revenue Management role would make this automatable immediately; see NM-2126]', async () => {
+  // provided by TC-CPR-OVR-017, TC-CPR-OVR-018, and TC-CPR-OVR-032.
+  test.skip('TC-CPR-OVR-040: Non-Revenue-Management user sees a read-only Override grid — no edit, no Save, no Import [blocked: every automation account we hold has equivalent access and no RBAC state is exposed on the Override screen; a second automation account WITHOUT the 1101 Revenue Management role would make this automatable immediately; see NM-2126]', async () => {
     // Body intentionally empty — this test is permanently unautomatable.
     // See the describe-block comment above for the investigation evidence.
   });
@@ -96,7 +96,7 @@ test.describe('Corporate Pricing — Product Group Override: RBAC access gate @c
 test.describe('Override Toolbar — Location Picker Dismissal', () => {
   const BED = CORP_PRICING_OVERRIDE_FIXTURE;
 
-  test('TC-CPR-OVR-112: Escape closes the location picker without applying a location', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-111: Escape closes the location picker without applying a location', async ({ corporatePricingOverridePage: overridePage }) => {
     await overridePage.navigateToEquipmentRow(BED.office, BED.office, BED.mutationRowAnchor.productGroupId);
     const rowCountBefore = await overridePage.getVisibleRowCount();
 
@@ -114,7 +114,7 @@ test.describe('Override Toolbar — Location Picker Dismissal', () => {
     await expect(overridePage.page.locator('button:has-text("Save")')).toBeDisabled();
   });
 
-  test('TC-CPR-OVR-113: Cancel closes the location picker without applying a location', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-112: Cancel closes the location picker without applying a location', async ({ corporatePricingOverridePage: overridePage }) => {
     await overridePage.navigateToEquipmentRow(BED.office, BED.office, BED.mutationRowAnchor.productGroupId);
     const rowCountBefore = await overridePage.getVisibleRowCount();
 
@@ -134,7 +134,7 @@ test.describe('Override Toolbar — Location Picker Dismissal', () => {
     await expect(overridePage.page.locator('button:has-text("Save")')).toBeDisabled();
   });
 
-  test('TC-CPR-OVR-114: No-results empty state in the location picker', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-113: No-results empty state in the location picker', async ({ corporatePricingOverridePage: overridePage }) => {
     await overridePage.navigateToEquipmentRow(BED.office, BED.office, BED.mutationRowAnchor.productGroupId);
 
     // Open the picker dialog
@@ -154,7 +154,7 @@ test.describe('Override Toolbar — Location Picker Dismissal', () => {
     await dialog.waitFor({ state: 'hidden' });
   });
 
-  test('TC-CPR-OVR-115: Re-selecting the current office does not dirty the form (net-zero)', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-114: Re-selecting the current office does not dirty the form (net-zero)', async ({ corporatePricingOverridePage: overridePage }) => {
     await overridePage.navigateToEquipmentRow(BED.office, BED.office, BED.mutationRowAnchor.productGroupId);
     await expect(overridePage.page.locator('button:has-text("Save")')).toBeDisabled();
 

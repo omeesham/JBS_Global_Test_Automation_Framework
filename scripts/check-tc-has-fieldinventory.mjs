@@ -335,6 +335,139 @@ export function evaluate({ repoRoot, files, today, freshnessDays = FRESHNESS_DAY
   return { ok: violations.length === 0, violations };
 }
 
+// ── Owner-attested single-use skip token ──────────────────────────────────────
+
+const SKIP_TOKEN_REL = path.join('.claude', 'state', 'fieldinventory-skip.json');
+const SKIP_LOG_REL = path.join('reports', 'diagnostics', 'fieldinventory-skips.log');
+
+/**
+ * Read and validate the skip token at <repoRoot>/.claude/state/fieldinventory-skip.json.
+ * Returns:
+ *   { present: false }                        — file absent; normal gate path
+ *   { present: true, valid: false, error }    — file present but invalid; BLOCK
+ *   { present: true, valid: true, token, modules } — valid; caller may apply skip
+ *
+ * Every invalid condition fails CLOSED (block, never pass).
+ */
+export function readAndValidateSkipToken(repoRoot, today) {
+  const tokenPath = path.join(repoRoot, SKIP_TOKEN_REL);
+  if (!fs.existsSync(tokenPath)) return { present: false };
+
+  let raw;
+  try { raw = fs.readFileSync(tokenPath, 'utf8'); }
+  catch (e) { return { present: true, valid: false, error: `cannot read token: ${e.message}` }; }
+
+  let token;
+  try { token = JSON.parse(raw); }
+  catch (e) { return { present: true, valid: false, error: `malformed JSON in skip token: ${e.message}` }; }
+
+  if (token.attested_by !== 'rutvik')
+    return { present: true, valid: false, error: `attested_by must be "rutvik", got: ${JSON.stringify(token.attested_by)}` };
+
+  if (!token.authorising_quote || String(token.authorising_quote).length < 20)
+    return { present: true, valid: false, error: 'authorising_quote absent or under 20 characters' };
+
+  if (!token.reason || String(token.reason).length < 20)
+    return { present: true, valid: false, error: 'reason absent or under 20 characters' };
+
+  const mods = token.modules;
+  if (!Array.isArray(mods) || mods.length === 0)
+    return { present: true, valid: false, error: 'modules missing or empty — there is no blanket skip' };
+  if (mods.some(m => !m || m === '*' || String(m).includes('*')))
+    return { present: true, valid: false, error: 'modules contains a wildcard or empty entry — there is no blanket skip' };
+
+  if (!token.issued || !/^\d{4}-\d{2}-\d{2}$/.test(String(token.issued)))
+    return { present: true, valid: false, error: `issued is not a valid YYYY-MM-DD: ${JSON.stringify(token.issued)}` };
+
+  const issuedMs = Date.parse(token.issued + 'T00:00:00Z');
+  const todayMs = Date.parse(today + 'T00:00:00Z');
+  if (!Number.isFinite(issuedMs) || !Number.isFinite(todayMs))
+    return { present: true, valid: false, error: `issued date is not parseable: ${JSON.stringify(token.issued)}` };
+  if (issuedMs > todayMs)
+    return { present: true, valid: false, error: `token issued date ${token.issued} is in the future (today: ${today})` };
+  const ageDays = Math.round((todayMs - issuedMs) / (24 * 60 * 60 * 1000));
+  if (ageDays > 1)
+    return { present: true, valid: false, error: `token is ${ageDays} day(s) old (limit: 1 day); issued ${token.issued}, today ${today}` };
+
+  return { present: true, valid: true, token, modules: mods };
+}
+
+/**
+ * Given the violation list, decide whether a skip token covers them all.
+ * Returns:
+ *   { action: 'absent' }             — no token; caller proceeds with normal block
+ *   { action: 'block', reason }      — token present but rejected; caller must block
+ *   { action: 'skip', token, modules } — all violations covered; caller may exit 0
+ */
+export function evaluateSkipToken({ repoRoot, violations, today }) {
+  const sr = readAndValidateSkipToken(repoRoot, today);
+  if (!sr.present) return { action: 'absent' };
+  if (!sr.valid) return { action: 'block', reason: sr.error };
+
+  const { token, modules: skipMods } = sr;
+  const violatedSet = new Set(violations.map(v => moduleFromTcPath(v.path)));
+
+  // Every module named in token must have an actual violation right now.
+  for (const m of skipMods) {
+    if (!violatedSet.has(m))
+      return { action: 'block', reason: `module "${m}" is named in the skip token but is not currently blocked` };
+  }
+
+  // Every violated module must be covered by the token.
+  const uncovered = violations.filter(v => !skipMods.includes(moduleFromTcPath(v.path)));
+  if (uncovered.length > 0) {
+    const mods = [...new Set(uncovered.map(v => moduleFromTcPath(v.path)))].join(', ');
+    return { action: 'block', reason: `module(s) [${mods}] are violated but not named in the skip token` };
+  }
+
+  return { action: 'skip', token, modules: skipMods };
+}
+
+/**
+ * Execute a validated skip: print loud banner, append audit log, consume token.
+ * Must only be called when evaluateSkipToken returned { action: 'skip' }.
+ */
+export function performSkip({ repoRoot, token, modules, stagedPaths }) {
+  const ts = new Date().toISOString();
+  const SEP = '═'.repeat(74);
+
+  process.stderr.write(`\n╔${SEP}╗\n`);
+  process.stderr.write(`║  ⚠  FIELD-INVENTORY GATE SKIPPED — owner-attested single-use token  ⚠  ║\n`);
+  process.stderr.write(`╠${SEP}╣\n`);
+  process.stderr.write(`║  Skipped modules : ${modules.join(', ')}\n`);
+  process.stderr.write(`║  Attested by     : ${token.attested_by}\n`);
+  process.stderr.write(`║  Reason          : ${token.reason}\n`);
+  process.stderr.write(`║  Token issued    : ${token.issued}\n`);
+  process.stderr.write(`║\n`);
+  process.stderr.write(`║  WARNING: These test-case changes are NOT backed by a field-inventory\n`);
+  process.stderr.write(`║  walk. The owner personally authorised this one-time bypass.\n`);
+  process.stderr.write(`╚${SEP}╝\n\n`);
+
+  // Append audit row — append-only; code must never truncate this file.
+  const logDir = path.join(repoRoot, 'reports', 'diagnostics');
+  if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+  const logPath = path.join(logDir, 'fieldinventory-skips.log');
+  const logRow = JSON.stringify({
+    timestamp: ts,
+    modules,
+    attested_by: token.attested_by,
+    session_id: token.session_id ?? '',
+    reason: token.reason,
+    staged_files: stagedPaths,
+    authorising_quote: token.authorising_quote,
+  });
+  fs.appendFileSync(logPath, logRow + '\n');
+
+  // Consume token — move to a dated copy; never delete (consumed copy is evidence).
+  const tokenPath = path.join(repoRoot, SKIP_TOKEN_REL);
+  const consumedName = `fieldinventory-skip.consumed.${ts.replace(/[:.]/g, '-')}.json`;
+  const consumedPath = path.join(repoRoot, '.claude', 'state', consumedName);
+  fs.renameSync(tokenPath, consumedPath);
+
+  process.stderr.write(`[check-tc-has-fieldinventory] Token consumed → .claude/state/${consumedName}\n`);
+  process.stderr.write(`[check-tc-has-fieldinventory] Audit row appended → reports/diagnostics/fieldinventory-skips.log\n`);
+}
+
 // ---------- error formatting ----------
 function formatViolation(v) {
   const lines = [];
@@ -403,6 +536,19 @@ function main() {
     if (args.verbose) console.log('[check-tc-has-fieldinventory] OK');
     process.exit(0);
   }
+
+  // ── Skip token: checked before enforcing any violation ───────────────────────
+  const skipEval = evaluateSkipToken({ repoRoot: args.repoRoot, violations: result.violations, today });
+  if (skipEval.action === 'skip') {
+    performSkip({ repoRoot: args.repoRoot, token: skipEval.token, modules: skipEval.modules, stagedPaths: files.map(f => f.path) });
+    process.exit(0);
+  }
+  if (skipEval.action === 'block') {
+    process.stderr.write('[check-tc-has-fieldinventory] BLOCKED — skip token rejected.\n\n');
+    process.stderr.write(`  Token error: ${skipEval.reason}\n\n`);
+    process.exit(1);
+  }
+  // skipEval.action === 'absent' → fall through to normal violation handling
 
   // ── Violations found — behaviour depends on mode ──
   fireTelemetry(mode, result.violations.length);

@@ -7,17 +7,17 @@ import {
 } from '../../src/data/corporate-override/override';
 
 test.describe('Corporate Pricing — Product Group Override: grid text filter + sort effects (NM-2270) @corporate-pricing @override', () => {
-  // Office 1105: 9 Equipment rows total; walk-A certifies sort oracles and filter counts.
+  // Office 1105: 9 Equipment rows total; verified sort oracles and filter counts.
   test.beforeEach(async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
     await p.reloadAndReselect(CORP_PRICING_OVERRIDE_SORT_BED.office);
   });
 
-  // @fcc TC-CPR-OVR-045
-  test('TC-CPR-OVR-045: Text filter "Camlok" narrows the grid to matching rows; clearing restores the full set (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+  // @fcc TC-CPR-OVR-044
+  test('TC-CPR-OVR-044: Text filter "Camlok" narrows the grid to matching rows; clearing restores the full set (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
     const PGN_COL = CORP_PRICING_OVERRIDE.columnIndex.productGroupName;
 
-    // Baseline: all 9 rows visible (walk-A certified for office 1105)
+    // Baseline: all 9 rows visible (verified for office 1105)
     expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
 
     // Apply filter — only the 2 Camlok rows survive
@@ -34,11 +34,11 @@ test.describe('Corporate Pricing — Product Group Override: grid text filter + 
     expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
   });
 
-  // @fcc TC-CPR-OVR-046
-  test('TC-CPR-OVR-046: Product Group Name column sort: ascending first cell matches walk oracle and order is non-decreasing; descending first cell matches walk oracle and order is non-increasing (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+  // @fcc TC-CPR-OVR-045
+  test('TC-CPR-OVR-045: Product Group Name column sort: ascending first cell matches walk oracle and order is non-decreasing; descending first cell matches walk oracle and order is non-increasing (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
     const PGN_COL = CORP_PRICING_OVERRIDE.columnIndex.productGroupName;
 
-    // Sort ascending via the header dropdown menu (walk-A: sort is a dropdown, not a header-click toggle)
+    // Sort ascending via the header dropdown menu (sort is a dropdown, not a header-click toggle)
     await p.sortColumnViaDropdown('Product Group Name', 'ascending');
     expect(await p.getFirstRowCellText(PGN_COL)).toBe(CORP_PRICING_OVERRIDE_SORT_BED.productGroupNameAscFirstCell);
     const ascValues = await p.getColumnCellValues(PGN_COL);
@@ -55,8 +55,8 @@ test.describe('Corporate Pricing — Product Group Override: grid text filter + 
     }
   });
 
-  // @fcc TC-CPR-OVR-047
-  test('TC-CPR-OVR-047: Product Group column sort: ascending values are non-decreasing; descending values are non-increasing — self-verifying monotonic oracle (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+  // @fcc TC-CPR-OVR-046
+  test('TC-CPR-OVR-046: Product Group column sort: ascending values are non-decreasing; descending values are non-increasing — self-verifying monotonic oracle (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
     // Second sortable column: "Product Group" (numeric product group IDs, column index 1).
     // Compared numerically — the app sorts these as numbers (e.g. 2 before 10), not as strings.
     const PG_COL = CORP_PRICING_OVERRIDE.columnIndex.productGroup;
@@ -84,8 +84,8 @@ test.describe('Corporate Pricing — Product Group Override: grid text filter + 
     }
   });
 
-  // @fcc TC-CPR-OVR-049
-  test('TC-CPR-OVR-049: Text filter and column sort applied together: filtered rows match the filter and are correctly ordered (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+  // @fcc TC-CPR-OVR-048
+  test('TC-CPR-OVR-048: Text filter and column sort applied together: filtered rows match the filter and are correctly ordered (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
     const PGN_COL = CORP_PRICING_OVERRIDE.columnIndex.productGroupName;
 
     // Apply text filter, then sort — the filtered set must be the right count and non-decreasing
@@ -121,12 +121,12 @@ test.describe('Corporate Pricing — Product Group Override: Grid Options column
     await p.ensureAllGridColumnsVisible(CORP_PRICING_OVERRIDE_SORT_BED.office);
   });
 
-  // @fcc TC-CPR-OVR-048
-  test('TC-CPR-OVR-048: Hiding "Max Discount %" via Grid Options reduces visible column count; Reset to Default restores all columns (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
-    // Baseline: all 10 columns visible (walk-A certified)
+  // @fcc TC-CPR-OVR-047
+  test('TC-CPR-OVR-047: Hiding "Max Discount %" via Grid Options reduces visible column count; Reset to Default restores all columns (NM-2270)', async ({ corporatePricingOverridePage: p }) => {
+    // Baseline: all 10 columns visible (verified)
     expect(await p.getColumnCount()).toBe(CORP_PRICING_OVERRIDE_SORT_BED.gridDefaultColumnCount);
 
-    // Hide "Max Discount %" — visible column count must drop to 9 (walk-A certified)
+    // Hide "Max Discount %" — visible column count must drop to 9 (verified)
     await p.openGridOptions();
     await p.toggleGridColumn(CORP_PRICING_OVERRIDE_SORT_BED.gridHideTestColumn);
     await p.closeGridOptions();
@@ -143,7 +143,7 @@ test.describe('Corporate Pricing — Product Group Override: Grid Options column
 test.describe('Override Toolbar — Text Filter Boundary', () => {
   const BED = CORP_PRICING_OVERRIDE_FIXTURE;
 
-  test('TC-CPR-OVR-116: Text filter narrows grid and empty filter shows no results', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-115: Text filter narrows grid and empty filter shows no results', async ({ corporatePricingOverridePage: overridePage }) => {
     await overridePage.navigateToEquipmentRow(BED.office, BED.office, BED.mutationRowAnchor.productGroupId);
 
     // Grid-scoped row locator — excludes the product-group picker's second table
@@ -151,13 +151,13 @@ test.describe('Override Toolbar — Text Filter Boundary', () => {
     const filterInput = overridePage.page.getByPlaceholder('Filter Product Groups Override');
     const baselineCount = await gridRows.count();
 
-    // "70" selectively narrows to PG 2609 only (live evidence: bed-recount-w18.md)
+    // "70" selectively narrows to PG 2609 only
     await filterInput.fill('70');
     await expect(gridRows).toHaveCount(1, { timeout: 5_000 });
     // Assert the surviving row's identity — identity beats a count
     await expect(gridRows.first()).toContainText('2609');
 
-    // No-match string produces the "No results." empty state (live evidence: bed-recount-w18.md)
+    // No-match string produces the "No results." empty state
     await filterInput.fill('zzzz-no-match-w18');
     await expect(overridePage.page.locator('text=No results.')).toBeVisible({ timeout: 5_000 });
 

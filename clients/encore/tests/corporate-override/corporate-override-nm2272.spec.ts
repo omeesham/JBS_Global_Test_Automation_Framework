@@ -13,7 +13,7 @@ const columnValues = (content: string, headers: string[], column: string) => {
   const idx = headers.indexOf(column);
   return dataRows(content).map((l) => l.split(',')[idx] ?? '');
 };
-test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
+test.describe('Corporate Pricing Override — Export (NM-2272)', () => {
   const SCOPE = CORP_PRICING_OVERRIDE.export.scope;
   const EXPORT = CORP_PRICING_OVERRIDE.export;
   const GRID_API = CORP_PRICING_OVERRIDE.gridApi;
@@ -24,21 +24,21 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
       await p.reloadAndReselect(LOC);
     });
 
-  test('TC-CPR-OVR-128: Export returns every location in the tenant, not just the selected office', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-127: Export returns every location in the tenant, not just the selected office', async ({ corporatePricingOverridePage: p }) => {
     const r = await p.downloadOverrideExport();
     const locations = new Set(columnValues(r.content, r.headers, 'Location Id'));
     expect(locations.size).toBeGreaterThan(SCOPE.minDistinctLocations); // many offices, not one
     expect(locations.size).toBeGreaterThan(1); // the plain claim: the file is never single-office
   });
 
-  test('TC-CPR-OVR-129: Export carries the full override population, well above any single office', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-128: Export carries the full override population, well above any single office', async ({ corporatePricingOverridePage: p }) => {
     const r = await p.downloadOverrideExport();
     const rows = dataRows(r.content);
     expect(rows.length).toBeGreaterThan(SCOPE.minDataRows); // whole-tenant volume
     expect(rows.length).toBeGreaterThan(await p.getVisibleRowCount()); // strictly more than the grid shows
   });
 
-  test('TC-CPR-OVR-130: Switching to the Labor tab re-scopes the grid but not the export', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-129: Switching to the Labor tab re-scopes the grid but not the export', async ({ corporatePricingOverridePage: p }) => {
     // Positive control: the tab must visibly change what the grid shows.
     await p.switchOverrideTab('Equipment');
     const equipmentContent = (await p.downloadOverrideExport()).content;
@@ -55,7 +55,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     for (const v of SCOPE.expectedIsLaborValues) expect([...isLabor]).toContain(v); // both kinds still present
   });
 
-  test('TC-CPR-OVR-131: Choosing a different office re-scopes the grid but not the export', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-130: Choosing a different office re-scopes the grid but not the export', async ({ corporatePricingOverridePage: p }) => {
     const before = await p.downloadOverrideExport();
     const gridBefore = await p.getVisibleRowCount();
 
@@ -67,7 +67,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect(after.content).toBe(before.content); // the file is identical whichever office is selected
   });
 
-  test('TC-CPR-OVR-132: Active only hides inactive rows in the grid; the export keeps them', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-131: Active only hides inactive rows in the grid; the export keeps them', async ({ corporatePricingOverridePage: p }) => {
     // Office 1105 is the walk-verified bed that actually HAS inactive rows (9 total, 7 active). The
     // default fixture office has none, so the filter would have nothing to remove and the positive
     // control below could not fire.
@@ -83,7 +83,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect(inactive.length).toBeGreaterThan(0); // inactive overrides survive the export regardless
   });
 
-  test('TC-CPR-OVR-133: The Currency filter empties the grid for an absent currency; the export still carries every currency', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-132: The Currency filter empties the grid for an absent currency; the export still carries every currency', async ({ corporatePricingOverridePage: p }) => {
     const currencies = await p.getCurrencyOptions();
     const specific = currencies.filter((c) => c !== 'ALL');
     expect(specific.length).toBeGreaterThan(0);
@@ -98,7 +98,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect(exported.size).toBeGreaterThanOrEqual(SCOPE.minDistinctCurrencies); // every currency present, filter ignored
   });
 
-  test('TC-CPR-OVR-134: The text filter narrows the grid; the export is unchanged', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-133: The text filter narrows the grid; the export is unchanged', async ({ corporatePricingOverridePage: p }) => {
     const before = await p.downloadOverrideExport();
     const gridBefore = await p.getVisibleRowCount();
     expect(gridBefore).toBeGreaterThan(0);
@@ -114,7 +114,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     await p.clearFilter();
   });
 
-  test('TC-CPR-OVR-135: Rows-per-page changes how much of the grid is drawn; the export is unchanged', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-134: Rows-per-page changes how much of the grid is drawn; the export is unchanged', async ({ corporatePricingOverridePage: p }) => {
     await p.selectLocation(CORP_PRICING_OVERRIDE.pager.multiPageOffice);
     await p.waitForGridRows();
 
@@ -130,7 +130,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect(largeExport.content).toBe(smallExport.content); // ...while the file stays whole either way
   });
 
-  test('TC-CPR-OVR-136: Export on an empty, unscoped grid still returns the whole tenant', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-135: Export on an empty, unscoped grid still returns the whole tenant', async ({ corporatePricingOverridePage: p }) => {
     await p.open(); // fresh load, no office selected
     expect(await p.isEmpty()).toBe(true);
     expect(await p.getVisibleRowCount()).toBe(0);
@@ -140,7 +140,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect(new Set(columnValues(r.content, r.headers, 'Location Id')).size).toBeGreaterThan(SCOPE.minDistinctLocations);
   });
 
-  test('TC-CPR-OVR-137: The Equipment grid row count reconciles with the export rows for that office', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-136: The Equipment grid row count reconciles with the export rows for that office', async ({ corporatePricingOverridePage: p }) => {
     await p.switchOverrideTab('Equipment');
     await p.setActiveOnly(false);
     const gridRows = await p.getVisibleRowCount();
@@ -158,7 +158,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect(forThisOffice.length).toBeGreaterThanOrEqual(equipmentRows.length);
   });
 
-  test('TC-CPR-OVR-139: The CSV is well-formed — consistent line endings, a full column set on every row, and quoted inch marks', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-138: The CSV is well-formed — consistent line endings, a full column set on every row, and quoted inch marks', async ({ corporatePricingOverridePage: p }) => {
     const r = await p.downloadOverrideExportRaw();
 
     // Line endings are plain LF, never CRLF, and never a mix of the two. Checked on the raw bytes
@@ -178,7 +178,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     for (const line of quoted.slice(0, 20)) expect(line).toMatch(/"[^"]*""/); // well-formed quoting, not a stray character
   });
 
-  test('TC-CPR-OVR-140: The header row follows the requested locale while the data rows stay identical', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-139: The header row follows the requested locale while the data rows stay identical', async ({ corporatePricingOverridePage: p }) => {
     const english = await p.fetchExportForLocale('en-US');
     expect(english.status).toBe(200);
     expect(english.headerLine.split(',').map((h) => h.replace(/^"|"$/g, '').trim())).toEqual([...EXPORT.expectedHeaders]);
@@ -200,7 +200,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     }
   });
 
-  test('TC-CPR-OVR-141: A malformed or unknown locale falls back to English instead of failing', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-140: A malformed or unknown locale falls back to English instead of failing', async ({ corporatePricingOverridePage: p }) => {
     const english = await p.fetchExportForLocale('en-US');
     for (const locale of EXPORT.locales.malformed) {
       const r = await p.fetchExportForLocale(locale);
@@ -213,7 +213,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect(omitted.headerLine).toBe(english.headerLine); // omitting the parameter behaves like English
   });
 
-  test('TC-CPR-OVR-142: The grid loads for every healthy office, and office 1604 still fails the way we recorded it', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-141: The grid loads for every healthy office, and office 1604 still fails the way we recorded it', async ({ corporatePricingOverridePage: p }) => {
     for (const office of GRID_API.healthyOffices) {
       const r = await p.fetchGridStatusForOffice(office);
       expect(r.status, `office ${office} grid data`).toBe(200); // a regression here means the fault is spreading
@@ -231,7 +231,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     }
   });
 
-  test('TC-CPR-OVR-143: Tab, Currency and Active only combine without losing rows or breaking the export', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-142: Tab, Currency and Active only combine without losing rows or breaking the export', async ({ corporatePricingOverridePage: p }) => {
     const baseline = await p.downloadOverrideExport();
     await p.setActiveOnly(false);
     const unfiltered = await p.getVisibleRowCount();
@@ -255,7 +255,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect((await p.downloadOverrideExport()).content).toBe(baseline.content); // no combination reaches the file
   });
 
-  test('TC-CPR-OVR-144: Rows-per-page survives a reload, and the export is unaffected either way', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-143: Rows-per-page survives a reload, and the export is unaffected either way', async ({ corporatePricingOverridePage: p }) => {
     await p.selectLocation(CORP_PRICING_OVERRIDE.pager.multiPageOffice);
     await p.waitForGridRows();
     const before = await p.downloadOverrideExport();
@@ -273,7 +273,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect((await p.downloadOverrideExport()).content).toBe(before.content);
   });
 
-  test('TC-CPR-OVR-145: Sorting the grid does not reorder the exported file', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-144: Sorting the grid does not reorder the exported file', async ({ corporatePricingOverridePage: p }) => {
     const PGN = CORP_PRICING_OVERRIDE.columnIndex.productGroupName;
     const before = await p.downloadOverrideExport();
     const firstCellBefore = await p.getFirstRowCellText(PGN);
@@ -293,7 +293,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
       await p.reloadAndReselect(CORP_PRICING_OVERRIDE_ACTIVE_BED.office);
     });
 
-  test('TC-CPR-OVR-146: A row visible in the grid appears in the export with the same price, and text values survive intact', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-145: A row visible in the grid appears in the export with the same price, and text values survive intact', async ({ corporatePricingOverridePage: p }) => {
     const COL = CORP_PRICING_OVERRIDE.columnIndex;
     const productGroupId = await p.getFirstRowCellText(COL.productGroup);
     const productGroupName = await p.getFirstRowCellText(COL.productGroupName);
@@ -327,7 +327,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
     expect(r.content).not.toContain('�'); // decodes as valid UTF-8 end to end
   });
 
-  test('TC-CPR-OVR-147: Override Discount stays on the fraction scale, and the known percent-scale rows do not spread', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-146: Override Discount stays on the fraction scale, and the known percent-scale rows do not spread', async ({ corporatePricingOverridePage: p }) => {
     const r = await p.downloadOverrideExport();
     const idx = {
       location: r.headers.indexOf('Location Id'),
@@ -342,7 +342,7 @@ test.describe('Corporate Pricing Override — Export (NM-2272 graft)', () => {
 
     // The column stores a fraction: the grid multiplies by 100 to display it, so 0.06 reads as 6.00%.
     // A value above 1 therefore renders above 100% — beyond the cap the app itself enforces on entry
-    // (see TC-CPR-OVR-037). A handful of rows are stored that way and render as 1300% and 1400%.
+    // (see TC-CPR-OVR-036). A handful of rows are stored that way and render as 1300% and 1400%.
     const overScale = discounts.filter((d) => d.value > 1);
     const fractionScale = discounts.filter((d) => d.value <= 1);
     expect(fractionScale.length).toBeGreaterThan(overScale.length * 10); // the fraction scale is overwhelmingly the norm

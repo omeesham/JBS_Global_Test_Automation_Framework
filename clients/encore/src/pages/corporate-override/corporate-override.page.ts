@@ -695,7 +695,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
   /**
    * Sort a grid column by opening its header dropdown and clicking the
    * "Sort ascending" or "Sort descending" menu item. This is the live sort mechanism
-   * on the Override grid — a dropdown menu, not a header-click toggle (walk-A finding).
+   * on the Override grid — a dropdown menu, not a header-click toggle.
    * Waits for the grid to settle before returning (one-shot, not a poll loop).
    */
   async sortColumnViaDropdown(headerLabel: string, direction: 'ascending' | 'descending'): Promise<void> {
@@ -955,7 +955,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     await this.revertCellToOriginal(row, OS.ovrCellMaxDiscount);
   }
 
-  // --- BVA navigation helpers (NM-2271 lot contract) ---
+  // --- BVA navigation helpers (NM-2271) ---
 
   /** Navigate to an Equipment-tab row: reload → select location → ensure Equipment tab → find row by PG ID. */
   async navigateToEquipmentRow(office: string, needle: string, productGroup: string): Promise<Locator> {
@@ -1221,7 +1221,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     return this.probeEditOracle(row, 'maxDiscount', inputValue);
   }
 
-  // ── NM-2272 graft: export / grid-status / search-panel methods ──
+  // ── NM-2272: export / grid-status / search-panel methods ──
 
   /**
    * Same download as `downloadOverrideExport`, but also returns the file's RAW bytes so a test can
@@ -1293,7 +1293,7 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     };
   }
 
-  // ── NM-2273 graft: import methods ──
+  // ── NM-2273: import methods ──
 
   /**
    * Read the import dialog's upload gate: whether the Upload button is disabled and the

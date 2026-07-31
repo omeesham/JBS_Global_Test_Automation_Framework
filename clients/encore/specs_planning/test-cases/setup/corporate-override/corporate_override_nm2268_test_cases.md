@@ -19,7 +19,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-039: Typing a partial office number narrows picker rows; clearing restores the full list
+## TC-CPR-OVR-038: Typing a partial office number narrows picker rows; clearing restores the full list
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -57,7 +57,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-040: Picker Active checkbox defaults to unchecked; toggling is a client-side filter — no location-lookup server request fires on toggle
+## TC-CPR-OVR-039: Picker Active checkbox defaults to unchecked; toggling is a client-side filter — no location-lookup server request fires on toggle
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -105,7 +105,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-041: Non-Revenue-Management user sees a read-only Override grid — no edit, no Save, no Import
+## TC-CPR-OVR-040: Non-Revenue-Management user sees a read-only Override grid — no edit, no Save, no Import
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Skipped (blocked) | Functional |
@@ -147,12 +147,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-112: Pressing Escape closes the location picker without applying a location
+## TC-CPR-OVR-111: Pressing Escape closes the location picker without applying a location
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-030
+**Depends_On**: TC-CPR-OVR-029
 **Automatable**: Yes
 **Surface_Family**: launcher (QUICK)
 
@@ -186,12 +186,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-113: Cancel closes the location picker without applying a location
+## TC-CPR-OVR-112: Cancel closes the location picker without applying a location
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-030
+**Depends_On**: TC-CPR-OVR-029
 **Automatable**: Yes
 **Surface_Family**: launcher (QUICK)
 
@@ -225,12 +225,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-114: No-results empty state in the location picker when search matches nothing
+## TC-CPR-OVR-113: No-results empty state in the location picker when search matches nothing
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-039
+**Depends_On**: TC-CPR-OVR-038
 **Automatable**: Yes
 **Surface_Family**: launcher (QUICK)
 
@@ -264,12 +264,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-115: Re-selecting the current office does not dirty the form (no net change)
+## TC-CPR-OVR-114: Re-selecting the current office does not dirty the form (no net change)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-030
+**Depends_On**: TC-CPR-OVR-029
 **Automatable**: Yes
 **Surface_Family**: launcher (QUICK)
 

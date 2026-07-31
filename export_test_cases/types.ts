@@ -181,6 +181,7 @@ export const KNOWN_SUB_CODES = [
   'DET',  // detail
   'NPB',  // new_pricebook
   'OVR',  // override
+  'NAV',  // override_navigation (B5 — nav case split from OVR)
   'LEX',  // loc_pricing_export (NM-2262 — split from toolbar_io)
   'EXA',  // export_all (NM-2264 — split from toolbar_io)
   'LIM',  // loc_pricing_import (NM-2305 — split from toolbar_io)

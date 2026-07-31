@@ -38,7 +38,7 @@ test.describe('Corporate Pricing — Product Group Override: populated Labor gri
     await p.waitForGridRows();
   });
 
-  test('TC-CPR-OVR-050: Labor tab renders a populated grid with real data on office 9460 (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-049: Labor tab renders a populated grid with real data on office 9460 (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     expect(await p.getActiveTab()).toBe('Labor');
     expect(await p.getVisibleRowCount()).toBeGreaterThan(0); // populated, not the empty state
     // The bed is a triple-digit data set — the items-found counter, not the visible page, carries the total
@@ -47,7 +47,7 @@ test.describe('Corporate Pricing — Product Group Override: populated Labor gri
     expect(await p.findRowByProductGroup(CORP_PRICING_OVERRIDE_LABOR_VOLUME_BED.page1FirstRowAnchor)).not.toBeNull();
   });
 
-  test('TC-CPR-OVR-051: Labor grid text filter narrows to matching rows and clearing restores the page (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-050: Labor grid text filter narrows to matching rows and clearing restores the page (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     const before = await p.getVisibleRowCount();
     await p.filterProductGroups(CORP_PRICING_OVERRIDE_LABOR_VOLUME_BED.filterNeedle);
     const narrowed = await p.getVisibleRowCount();
@@ -58,7 +58,7 @@ test.describe('Corporate Pricing — Product Group Override: populated Labor gri
     expect(await p.getVisibleRowCount()).toBeGreaterThan(narrowed); // clearing restores the fuller page
   });
 
-  test('TC-CPR-OVR-052: Labor grid column sort orders Product Group Name ascending and descending (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-051: Labor grid column sort orders Product Group Name ascending and descending (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     // Self-verifying monotonic oracle — resilient to data drift on the shared bed.
     const nameCol = CORP_PRICING_OVERRIDE.columnIndex.productGroupName;
     await p.sortColumnViaDropdown('Product Group Name', 'ascending');
@@ -96,10 +96,10 @@ test.describe('Corporate Pricing — Product Group Override: Labor save-cycle (m
     await p.ensureDefaultState(L_ANCHOR, L_DEFAULTS, L_LOC, L_LOC, 'Labor'); // belt-and-suspenders restore (per-test baseline)
   });
 
-  test('TC-CPR-OVR-053: Labor Override Price save-cycle persists after reload and restores (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-052: Labor Override Price save-cycle persists after reload and restores (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(180_000);
     await saveAndVerifyCase({
-      id: 'TC-CPR-OVR-053',
+      id: 'TC-CPR-OVR-052',
       label: 'Labor Override Price save-cycle',
       baseline: () => p.ensureDefaultState(L_ANCHOR, L_DEFAULTS, L_LOC, L_LOC, 'Labor'),
       act: async () => {
@@ -122,10 +122,10 @@ test.describe('Corporate Pricing — Product Group Override: Labor save-cycle (m
     });
   });
 
-  test('TC-CPR-OVR-054: Labor Max Discount % save-cycle persists after reload and restores (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-053: Labor Max Discount % save-cycle persists after reload and restores (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(180_000);
     await saveAndVerifyCase({
-      id: 'TC-CPR-OVR-054',
+      id: 'TC-CPR-OVR-053',
       label: 'Labor Max Discount save-cycle',
       baseline: () => p.ensureDefaultState(L_ANCHOR, L_DEFAULTS, L_LOC, L_LOC, 'Labor'),
       act: async () => {
@@ -150,11 +150,11 @@ test.describe('Corporate Pricing — Product Group Override: Labor save-cycle (m
     });
   });
 
-  test('TC-CPR-OVR-055: Labor Active toggle save-cycle persists after reload and restores (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-054: Labor Active toggle save-cycle persists after reload and restores (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(180_000);
     let original: boolean = L_DEFAULTS.active;
     await saveAndVerifyCase({
-      id: 'TC-CPR-OVR-055',
+      id: 'TC-CPR-OVR-054',
       label: 'Labor Active toggle save-cycle',
       baseline: () => p.ensureDefaultState(L_ANCHOR, L_DEFAULTS, L_LOC, L_LOC, 'Labor'),
       act: async () => {
@@ -193,7 +193,7 @@ test.describe('Corporate Pricing — Product Group Override: unsaved-changes gua
     await p.waitForGridRows();
   });
 
-  test('TC-CPR-OVR-056: Navigating away from a dirty grid raises the unsaved-changes dialog; Stay keeps the page and the edit (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-055: Navigating away from a dirty grid raises the unsaved-changes dialog; Stay keeps the page and the edit (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(G_ANCHOR);
     expect(row).not.toBeNull();
     const original = parseFloat(await p.readOverridePrice(row!));
@@ -219,7 +219,7 @@ test.describe('Corporate Pricing — Product Group Override: unsaved-changes gua
     await p.discardAndLeave();
   });
 
-  test('TC-CPR-OVR-057: Discard in the unsaved-changes dialog leaves the page and drops the edit (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-056: Discard in the unsaved-changes dialog leaves the page and drops the edit (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(G_ANCHOR);
     expect(row).not.toBeNull();
     const original = parseFloat(await p.readOverridePrice(row!));
@@ -249,7 +249,7 @@ test.describe('Corporate Pricing — Product Group Override: Labor grid paginati
     await p.waitForGridRows();
   });
 
-  test('TC-CPR-OVR-058: Page navigation changes the visible rows and enables or disables the nav buttons at each end (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-057: Page navigation changes the visible rows and enables or disables the nav buttons at each end (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     // Page 1: backward navigation disabled, forward enabled (the bed spans multiple pages)
     const p1 = await p.getPaginationButtonStates();
     expect(p1.first, 'first-page button is disabled on page 1').toBe(true);
@@ -275,7 +275,7 @@ test.describe('Corporate Pricing — Product Group Override: Labor grid paginati
     expect(lastPageRows).toBeLessThanOrEqual(parseInt(await p.getRowsPerPageValue(), 10));
   });
 
-  test('TC-CPR-OVR-059: Raising rows-per-page shows more rows without changing the total (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-058: Raising rows-per-page shows more rows without changing the total (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     const rowsBefore = await p.getVisibleRowCount();
     const totalBefore = await p.getItemsFoundTotal();
     await p.setRowsPerPage('50');
@@ -284,7 +284,7 @@ test.describe('Corporate Pricing — Product Group Override: Labor grid paginati
     expect(await p.getItemsFoundTotal(), 'the total record count is unchanged by page size').toBe(totalBefore);
   });
 
-  test('TC-CPR-OVR-060: A page-1 row reads back identically after paging to the last page and returning (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-059: A page-1 row reads back identically after paging to the last page and returning (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     // Content-anchored round trip across the full page range — guards against windowing/render
     // corruption on the large data set (content anchor, not row index).
     const anchorText = await p.getFirstRowCellText(CORP_PRICING_OVERRIDE.columnIndex.productGroupName);
@@ -303,7 +303,7 @@ test.describe('Corporate Pricing — Product Group Override: keyboard access to 
     await p.reloadAndReselect(LOC);
   });
 
-  test('TC-CPR-OVR-062: Enter opens the Override Price editor on a focused cell; Escape closes it without dirtying the form (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-061: Enter opens the Override Price editor on a focused cell; Escape closes it without dirtying the form (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     const row = await p.findRowByProductGroup(ANCHOR);
     expect(row).not.toBeNull();
     const editorValue = await p.openOverridePriceEditorWithKeyboard(row!);
@@ -325,7 +325,7 @@ test.describe('Corporate Pricing — Product Group Override: currency-gated pick
     await p.reloadAndReselect(K_BED.office, K_BED.office);
   });
 
-  test('TC-CPR-OVR-063: The Product Group picker appears only when a specific currency is selected (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-062: The Product Group picker appears only when a specific currency is selected (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     // Default currency ALL: no picker
     expect(await p.isProductGroupPickerVisible(), 'no picker panel while Currency is ALL').toBe(false);
     // A specific currency reveals the picker with draggable product-group rows
@@ -334,7 +334,7 @@ test.describe('Corporate Pricing — Product Group Override: currency-gated pick
     expect(await p.getPickerDraggableRowCount(), 'the picker lists draggable product-group rows').toBeGreaterThan(0);
   });
 
-  test('TC-CPR-OVR-064: Dragging a picker row stages a new override row with no request until Save; Discard drops it (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-063: Dragging a picker row stages a new override row with no request until Save; Discard drops it (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     await p.selectCurrency(K_BED.gatingCurrency);
     await expect.poll(() => p.isProductGroupPickerVisible(), { timeout: 15_000 }).toBe(true);
     // The currency switch re-renders the grid — wait for its rows before taking the baseline count
@@ -373,7 +373,7 @@ test.describe('Corporate Pricing — Product Group Override: currency-gated pick
     await expect.poll(() => p.getVisibleRowCount(), { timeout: 15_000 }).toBe(rowsBefore); // staged row gone
   });
 
-  test('TC-CPR-OVR-065: The picker serves the Labor tab and drag staging works there too (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-064: The picker serves the Labor tab and drag staging works there too (NM-2271)', async ({ corporatePricingOverridePage: p }) => {
     await p.selectCurrency(K_BED.gatingCurrency);
     await expect.poll(() => p.isProductGroupPickerVisible(), { timeout: 15_000 }).toBe(true);
     await p.switchOverrideTab('Labor');
@@ -396,7 +396,7 @@ test.describe('Override BVA — Labor Override Price', () => {
   const ROW_PG565 = BED.rows[0].productGroupId; // PG 565 — Override Price 13.00
   const ROW_PG893 = BED.rows[1].productGroupId; // PG 893 — Override Price 12.00
 
-  test('TC-CPR-OVR-084: Clicking Override Price on Labor reveals editable number field', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-083: Clicking Override Price on Labor reveals editable number field', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     // Click the Override Price cell — column-specific selector matching probeEditOracle
@@ -412,7 +412,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     await editor.press('Escape');
   });
 
-  test('TC-CPR-OVR-085: 0 commits as 0.00 on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-084: 0 commits as 0.00 on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', '0');
@@ -422,7 +422,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-086: 25.50 mid-decimal commits on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-085: 25.50 mid-decimal commits on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', '25.50');
@@ -432,7 +432,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-087: 9999.99 large value commits on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-086: 9999.99 large value commits on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', '9999.99');
@@ -442,7 +442,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-088: -0.01 rejected on Labor Override Price (below-min boundary)', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-087: -0.01 rejected on Labor Override Price (below-min boundary)', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', OVERRIDE_BVA_REJECTED.negativeSmall.input);
@@ -458,7 +458,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.escapable, 'Editor must be escapable — NOT a focus trap').toBe(true);
   });
 
-  test('TC-CPR-OVR-089: 0.01 just above zero commits on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-088: 0.01 just above zero commits on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG893);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', '0.01');
@@ -468,7 +468,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-090: 12.345 third-decimal precision on Labor Override Price [TODO-UNVERIFIED display]', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-089: 12.345 third-decimal precision on Labor Override Price [TODO-UNVERIFIED display]', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', '12.345');
@@ -480,7 +480,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.displayedValue).toMatch(/^12\.3[0-9]{1,2}$/);
   });
 
-  test('TC-CPR-OVR-091: 999999.99 above-max probe on Labor Override Price [TODO-UNVERIFIED]', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-090: 999999.99 above-max probe on Labor Override Price [TODO-UNVERIFIED]', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG893);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', '999999.99');
@@ -492,7 +492,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-092: abc blanks Override Price to dash, Save enabled — defect evidence (Labor)', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-091: abc blanks Override Price to dash, Save enabled — defect evidence (Labor)', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', OVERRIDE_BVA_DEFECTS.blankCommits.input);
@@ -503,7 +503,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-093: 1.2.3 silently corrupts Override Price to 1.23 — defect evidence (Labor)', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-092: 1.2.3 silently corrupts Override Price to 1.23 — defect evidence (Labor)', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', OVERRIDE_BVA_DEFECTS.silentCorruptionOverridePrice.input);
@@ -514,7 +514,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-094: -5 rejected on Labor Override Price with full affordance oracle', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-093: -5 rejected on Labor Override Price with full affordance oracle', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', OVERRIDE_BVA_REJECTED.negativeFive.input);
@@ -531,7 +531,7 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.escapable, 'Editor must be escapable — NOT a focus trap').toBe(true);
   });
 
-  test('TC-CPR-OVR-095: 007 leading zeros stripped to 7.00 on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-094: 007 leading zeros stripped to 7.00 on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG893);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', '007');
@@ -541,20 +541,20 @@ test.describe('Override BVA — Labor Override Price', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-096: 1e5 commits as 100,000.00 on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-095: 1e5 commits as 100,000.00 on Labor Override Price', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG893);
 
     const result = await overridePage.probeEditOracle(row, 'overridePrice', '1e5');
 
     // 1e5 COMMITS on Override Price — no upper cap. Max Discount rejects it because >100 fires.
-    // Raw text preserves the thousands separator the oracle strips (ORACLE-FACTS: 100,000.00)
+    // Raw text preserves the thousands separator the oracle strips (100,000.00)
     expect(result.committed, '1e5 commits on Override Price — no upper cap').toBe(true);
     expect(result.displayedValue).toBe('100000.00');
     expect(result.rawDisplayedValue).toBe('100,000.00');
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-097: Reverting Override Price to original disables Save on Labor', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-096: Reverting Override Price to original disables Save on Labor', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     const result = await overridePage.editAndRevertToOriginal(
@@ -573,7 +573,7 @@ test.describe('Override BVA — Labor Active', () => {
   const BED = OVERRIDE_BVA_OFFICES.labor;
   const ROW_PG565 = BED.rows[0].productGroupId;
 
-  test('TC-CPR-OVR-098: Active toggle-then-revert disables Save on Labor', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-097: Active toggle-then-revert disables Save on Labor', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_PG565);
 
     // Read initial state
@@ -602,7 +602,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
 
   // --- Positive (P1–P3) ---
 
-  test('TC-CPR-OVR-099: 0 commits as 0.00 % — min valid', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-098: 0 commits as 0.00 % — min valid', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_1);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', '0');
@@ -612,7 +612,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-100: 50 commits as 50.00 % — mid-value', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-099: 50 commits as 50.00 % — mid-value', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_2);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_COMMITTED.fifty.input);
@@ -622,7 +622,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-101: 100 commits as 100.00 % — inclusive cap', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-100: 100 commits as 100.00 % — inclusive cap', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_1);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_COMMITTED.hundredCap.input);
@@ -634,7 +634,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
 
   // --- BVA (B1–B5) ---
 
-  test('TC-CPR-OVR-102: -0.01 rejected — just below minimum', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-101: -0.01 rejected — just below minimum', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_2);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_REJECTED.negativeSmall.input);
@@ -650,7 +650,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
     expect(result.escapable, 'Editor must be escapable — NOT a focus trap').toBe(true);
   });
 
-  test('TC-CPR-OVR-103: 0.5 commits as 50.00 % — 100x misread defect (highest severity, money bug)', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-102: 0.5 commits as 50.00 % — 100x misread defect (highest severity, money bug)', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_1);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_DEFECTS.hundredXMisread.input);
@@ -665,7 +665,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-104: 99.99 commits as 99.99 % — just below cap', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-103: 99.99 commits as 99.99 % — just below cap', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_2);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_COMMITTED.justUnderCap.input);
@@ -675,7 +675,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-105: 150 (>100) rejected with full affordance', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-104: 150 (>100) rejected with full affordance', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_1);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_REJECTED.overHundred.input);
@@ -691,7 +691,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
     expect(result.escapable, 'Editor must be escapable — NOT a focus trap').toBe(true);
   });
 
-  test('TC-CPR-OVR-106: -5 rejected with full affordance', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-105: -5 rejected with full affordance', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_2);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_REJECTED.negativeFive.input);
@@ -709,7 +709,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
 
   // --- Negative / Coercion (N1–N4) ---
 
-  test('TC-CPR-OVR-107: abc blanks cell to dash, Save stays enabled — blank-commits defect', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-106: abc blanks cell to dash, Save stays enabled — blank-commits defect', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_1);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_DEFECTS.blankCommits.input);
@@ -724,7 +724,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-108: 1.2.3 silently corrupts to 1.23 % — multi-dot defect', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-107: 1.2.3 silently corrupts to 1.23 % — multi-dot defect', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_2);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_DEFECTS.silentCorruptionMaxDiscount.input);
@@ -739,7 +739,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-109: 007 commits as 7.00 % — leading zeros stripped', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-108: 007 commits as 7.00 % — leading zeros stripped', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_1);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_COMMITTED.leadingZeros.input);
@@ -749,7 +749,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
     expect(result.saveEnabled).toBe(true);
   });
 
-  test('TC-CPR-OVR-110: 1e5 (scientific notation) rejected with full affordance', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-109: 1e5 (scientific notation) rejected with full affordance', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_2);
 
     const result = await overridePage.probeEditOracle(row, 'maxDiscount', OVERRIDE_BVA_REJECTED.scientificNotation.input);
@@ -767,7 +767,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
 
   // --- Save-cycle (S3) ---
 
-  test('TC-CPR-OVR-111: Save-cycle — reverting Max Discount % to original disables Save on Labor', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-110: Save-cycle — reverting Max Discount % to original disables Save on Labor', async ({ corporatePricingOverridePage: overridePage }) => {
     const row = await overridePage.navigateToLaborRow(BED.office, BED.office, ROW_1);
 
     const result = await overridePage.editAndRevertToOriginal(
@@ -784,7 +784,7 @@ test.describe('Override BVA — Labor Max Discount % (LOT-C)', () => {
 
 test.describe('Override SBC — Labor Sort Ordering', () => {
 
-  test('TC-CPR-OVR-119: Sort produces verifiable monotonic order on Labor tab', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-118: Sort produces verifiable monotonic order on Labor tab', async ({ corporatePricingOverridePage: overridePage }) => {
     // Office 9460 has 212 Labor rows (live-verified); default page size 20 — enough for sort proof
     await overridePage.reloadAndReselectTab(
       CORP_PRICING_OVERRIDE_LABOR_VOLUME_BED.office,
@@ -824,7 +824,7 @@ test.describe('Override Pagination — Rows-Per-Page Re-renders Grid (office 946
     expect(defaultRows).toBe(20);
   });
 
-  test('TC-CPR-OVR-121: Select 10 → grid shows exactly 10 rows', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-120: Select 10 → grid shows exactly 10 rows', async ({ corporatePricingOverridePage: overridePage }) => {
     // Change rows-per-page to 10 via the page-size dropdown (not a native select)
     await overridePage.setRowsPerPage('10');
 
@@ -841,7 +841,7 @@ test.describe('Override Pagination — Rows-Per-Page Re-renders Grid (office 946
     expect(totalItems).toBeGreaterThanOrEqual(BED.minExpectedRows);
   });
 
-  test('TC-CPR-OVR-122: Select 30 → grid shows exactly 30 rows', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-121: Select 30 → grid shows exactly 30 rows', async ({ corporatePricingOverridePage: overridePage }) => {
     // Change rows-per-page to 30 via the page-size dropdown
     await overridePage.setRowsPerPage('30');
 
@@ -857,7 +857,7 @@ test.describe('Override Pagination — Rows-Per-Page Re-renders Grid (office 946
     expect(totalItems).toBeGreaterThanOrEqual(BED.minExpectedRows);
   });
 
-  test('TC-CPR-OVR-123: Select 40 → grid shows exactly 40 rows', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-122: Select 40 → grid shows exactly 40 rows', async ({ corporatePricingOverridePage: overridePage }) => {
     // Change rows-per-page to 40 via the page-size dropdown
     await overridePage.setRowsPerPage('40');
 
@@ -873,7 +873,7 @@ test.describe('Override Pagination — Rows-Per-Page Re-renders Grid (office 946
     expect(totalItems).toBeGreaterThanOrEqual(BED.minExpectedRows);
   });
 
-  test('TC-CPR-OVR-124: Select 50 → grid shows exactly 50 rows', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-123: Select 50 → grid shows exactly 50 rows', async ({ corporatePricingOverridePage: overridePage }) => {
     // Change rows-per-page to 50 via the page-size dropdown
     await overridePage.setRowsPerPage('50');
 

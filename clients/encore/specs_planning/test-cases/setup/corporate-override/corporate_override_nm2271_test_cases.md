@@ -19,7 +19,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-050: Labor tab renders a populated grid with real data on office 9460
+## TC-CPR-OVR-049: Labor tab renders a populated grid with real data on office 9460
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -57,12 +57,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-051: Labor grid text filter narrows to matching rows and clearing restores the page
+## TC-CPR-OVR-050: Labor grid text filter narrows to matching rows and clearing restores the page
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 9460 selected; Labor tab active; no filter applied.
@@ -95,12 +95,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-052: Labor grid column sort orders Product Group Name ascending and descending
+## TC-CPR-OVR-051: Labor grid column sort orders Product Group Name ascending and descending
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 9460 selected; Labor tab active.
@@ -131,7 +131,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-053: Labor Override Price save-cycle persists after reload and restores
+## TC-CPR-OVR-052: Labor Override Price save-cycle persists after reload and restores
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Automated | Functional |
@@ -170,7 +170,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-054: Labor Max Discount % save-cycle persists after reload and restores
+## TC-CPR-OVR-053: Labor Max Discount % save-cycle persists after reload and restores
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Automated | Functional |
@@ -207,7 +207,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-055: Labor Active toggle save-cycle persists after reload and restores
+## TC-CPR-OVR-054: Labor Active toggle save-cycle persists after reload and restores
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Automated | Functional |
@@ -244,7 +244,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-056: Navigating away from a dirty grid raises the unsaved-changes dialog; Stay keeps the page and the edit
+## TC-CPR-OVR-055: Navigating away from a dirty grid raises the unsaved-changes dialog; Stay keeps the page and the edit
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -285,12 +285,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-057: Discard in the unsaved-changes dialog leaves the page and drops the edit
+## TC-CPR-OVR-056: Discard in the unsaved-changes dialog leaves the page and drops the edit
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-056
+**Depends_On**: TC-CPR-OVR-055
 **Automatable**: Yes
 
 **Preconditions**: Office 1105 Labor tab loaded; grid clean.
@@ -323,12 +323,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-058: Page navigation changes the visible rows and enables or disables the nav buttons at each end
+## TC-CPR-OVR-057: Page navigation changes the visible rows and enables or disables the nav buttons at each end
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: Office 9460 Labor tab loaded (multi-page data set); page 1; default rows-per-page.
@@ -362,12 +362,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-059: Raising rows-per-page shows more rows without changing the total
+## TC-CPR-OVR-058: Raising rows-per-page shows more rows without changing the total
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: Office 9460 Labor tab loaded; default rows-per-page (20).
@@ -399,12 +399,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-060: A page-1 row reads back identically after paging to the last page and returning
+## TC-CPR-OVR-059: A page-1 row reads back identically after paging to the last page and returning
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-058
+**Depends_On**: TC-CPR-OVR-057
 **Automatable**: Yes
 
 **Preconditions**: Office 9460 Labor tab loaded; page 1.
@@ -436,7 +436,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-062: Enter opens the Override Price editor on a focused cell; Escape closes it without dirtying the form
+## TC-CPR-OVR-061: Enter opens the Override Price editor on a focused cell; Escape closes it without dirtying the form
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -474,7 +474,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-063: The Product Group picker appears only when a specific currency is selected
+## TC-CPR-OVR-062: The Product Group picker appears only when a specific currency is selected
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -511,12 +511,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-064: Dragging a picker row stages a new override row with no request until Save; Discard drops it
+## TC-CPR-OVR-063: Dragging a picker row stages a new override row with no request until Save; Discard drops it
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-063
+**Depends_On**: TC-CPR-OVR-062
 **Automatable**: Yes
 
 **Preconditions**: Office 4104 selected; Currency USD; picker visible; Equipment tab.
@@ -553,12 +553,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-065: The picker serves the Labor tab and drag staging works there too
+## TC-CPR-OVR-064: The picker serves the Labor tab and drag staging works there too
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-063, TC-CPR-OVR-064
+**Depends_On**: TC-CPR-OVR-062, TC-CPR-OVR-063
 **Automatable**: Yes
 
 **Preconditions**: Office 4104 selected; Currency USD; picker visible.
@@ -577,9 +577,9 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## Wave-2 Coverage Expansion (NM-2271) — TC-CPR-OVR-066 through TC-CPR-OVR-127
+## Wave-2 Coverage Expansion (NM-2271) — TC-CPR-OVR-065 through TC-CPR-OVR-126
 
-## TC-CPR-OVR-084: Clicking Override Price cell on Labor reveals an editable field
+## TC-CPR-OVR-083: Clicking Override Price cell on Labor reveals an editable field
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Ready | Functional |
@@ -617,7 +617,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-085: Override Price accepts 0 on Labor (min valid)
+## TC-CPR-OVR-084: Override Price accepts 0 on Labor (min valid)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Ready | Functional |
@@ -654,7 +654,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-086: Override Price accepts mid-value decimal on Labor (25.50)
+## TC-CPR-OVR-085: Override Price accepts mid-value decimal on Labor (25.50)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Ready | Functional |
@@ -691,7 +691,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-087: Override Price accepts a large value on Labor (9999.99)
+## TC-CPR-OVR-086: Override Price accepts a large value on Labor (9999.99)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Ready | Functional |
@@ -728,7 +728,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-088: Override Price rejects -0.01 on Labor (below-min boundary)
+## TC-CPR-OVR-087: Override Price rejects -0.01 on Labor (below-min boundary)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Ready | Functional |
@@ -765,7 +765,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-089: Override Price accepts 0.01 on Labor (just above zero)
+## TC-CPR-OVR-088: Override Price accepts 0.01 on Labor (just above zero)
 | Priority | Status | Type |
 |----------|--------|------|
 | Low | Ready | Functional |
@@ -802,7 +802,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-090: Override Price 3rd decimal precision on Labor (12.345)
+## TC-CPR-OVR-089: Override Price 3rd decimal precision on Labor (12.345)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Ready | Functional |
@@ -840,7 +840,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-091: Override Price above-max probe on Labor (999999.99)
+## TC-CPR-OVR-090: Override Price above-max probe on Labor (999999.99)
 | Priority | Status | Type |
 |----------|--------|------|
 | Low | Ready | Functional |
@@ -878,7 +878,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-092: Defect — abc blanks Override Price to dash, Save stays enabled (Labor)
+## TC-CPR-OVR-091: Defect — abc blanks Override Price to dash, Save stays enabled (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Ready | Defect evidence |
@@ -915,7 +915,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-093: Defect — 1.2.3 silently corrupts Override Price to 1.23 (Labor)
+## TC-CPR-OVR-092: Defect — 1.2.3 silently corrupts Override Price to 1.23 (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Ready | Defect evidence |
@@ -952,7 +952,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-094: Rejected — negative -5 on Override Price with full affordance oracle (Labor)
+## TC-CPR-OVR-093: Rejected — negative -5 on Override Price with full affordance oracle (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Ready | Functional |
@@ -996,7 +996,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-095: Override Price leading zeros stripped on Labor (007 → 7.00)
+## TC-CPR-OVR-094: Override Price leading zeros stripped on Labor (007 → 7.00)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Ready | Functional |
@@ -1033,7 +1033,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-096: Override Price scientific notation 1e5 on Labor
+## TC-CPR-OVR-095: Override Price scientific notation 1e5 on Labor
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Ready | Functional |
@@ -1070,7 +1070,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-097: Reverting Override Price to original disables Save on Labor
+## TC-CPR-OVR-096: Reverting Override Price to original disables Save on Labor
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Ready | Functional |
@@ -1107,7 +1107,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-098: Active toggle-then-revert disables Save on Labor
+## TC-CPR-OVR-097: Active toggle-then-revert disables Save on Labor
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Ready | Functional |
@@ -1145,7 +1145,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-099: Committed — Max Discount % accepts 0 as min valid (Labor)
+## TC-CPR-OVR-098: Committed — Max Discount % accepts 0 as min valid (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Pending | BVA / Positive |
@@ -1187,7 +1187,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-100: Committed — Max Discount % accepts 50 as mid-value (Labor)
+## TC-CPR-OVR-099: Committed — Max Discount % accepts 50 as mid-value (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Pending | BVA / Positive |
@@ -1229,7 +1229,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-101: Committed — Max Discount % accepts 100 as inclusive cap (Labor)
+## TC-CPR-OVR-100: Committed — Max Discount % accepts 100 as inclusive cap (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Pending | BVA / Positive |
@@ -1271,7 +1271,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-102: Rejected — Max Discount % rejects -0.01 just below minimum (Labor)
+## TC-CPR-OVR-101: Rejected — Max Discount % rejects -0.01 just below minimum (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Pending | BVA / Boundary |
@@ -1316,7 +1316,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-103: Defect — Max Discount % 0.5 misread as 50.00 % (100× multiplier bug, Labor)
+## TC-CPR-OVR-102: Defect — Max Discount % 0.5 misread as 50.00 % (100× multiplier bug, Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Pending | BVA / Defect evidence |
@@ -1358,7 +1358,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-104: Committed — Max Discount % accepts 99.99 just below cap (Labor)
+## TC-CPR-OVR-103: Committed — Max Discount % accepts 99.99 just below cap (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Pending | BVA / Boundary |
@@ -1400,7 +1400,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-105: Rejected — Max Discount % rejects 150 above 100 cap (Labor)
+## TC-CPR-OVR-104: Rejected — Max Discount % rejects 150 above 100 cap (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Pending | BVA / Boundary |
@@ -1445,7 +1445,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-106: Rejected — Max Discount % rejects -5 negative value (Labor)
+## TC-CPR-OVR-105: Rejected — Max Discount % rejects -5 negative value (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Pending | BVA / Boundary |
@@ -1490,7 +1490,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-107: Defect — Max Discount % 'abc' blanks cell to dash, Save stays enabled (Labor)
+## TC-CPR-OVR-106: Defect — Max Discount % 'abc' blanks cell to dash, Save stays enabled (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Pending | Negative / Defect evidence |
@@ -1532,7 +1532,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-108: Defect — Max Discount % '1.2.3' silently corrupts to 1.23 % (Labor)
+## TC-CPR-OVR-107: Defect — Max Discount % '1.2.3' silently corrupts to 1.23 % (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Pending | Negative / Defect evidence |
@@ -1574,7 +1574,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-109: Committed — Max Discount % strips leading zeros from 007 (Labor)
+## TC-CPR-OVR-108: Committed — Max Discount % strips leading zeros from 007 (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Pending | Negative / Coercion |
@@ -1616,7 +1616,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-110: Rejected — Max Discount % rejects scientific notation 1e5 (Labor)
+## TC-CPR-OVR-109: Rejected — Max Discount % rejects scientific notation 1e5 (Labor)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Pending | Negative / Coercion |
@@ -1661,7 +1661,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-111: Save-cycle — reverting Max Discount % to original disables Save on Labor
+## TC-CPR-OVR-110: Save-cycle — reverting Max Discount % to original disables Save on Labor
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Pending | Save-cycle / Net-zero |
@@ -1702,12 +1702,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-119: Sort produces verifiable monotonic order on Labor tab
+## TC-CPR-OVR-118: Sort produces verifiable monotonic order on Labor tab
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 **Surface_Family**: combination (QUICK)
 
@@ -1744,7 +1744,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-121: Select 10 rows-per-page → grid renders exactly 10 rows (OVR-RPP-2)
+## TC-CPR-OVR-120: Select 10 rows-per-page → grid renders exactly 10 rows (OVR-RPP-2)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1784,7 +1784,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-122: Select 30 rows-per-page → grid renders exactly 30 rows (OVR-RPP-4)
+## TC-CPR-OVR-121: Select 30 rows-per-page → grid renders exactly 30 rows (OVR-RPP-4)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1824,7 +1824,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-123: Select 40 rows-per-page → grid renders exactly 40 rows (OVR-RPP-5)
+## TC-CPR-OVR-122: Select 40 rows-per-page → grid renders exactly 40 rows (OVR-RPP-5)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1864,7 +1864,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-124: Select 50 rows-per-page → grid renders exactly 50 rows (OVR-RPP-6)
+## TC-CPR-OVR-123: Select 50 rows-per-page → grid renders exactly 50 rows (OVR-RPP-6)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |

@@ -19,7 +19,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-042: Active-only removes inactive rows and restores the full set on uncheck
+## TC-CPR-OVR-041: Active-only removes inactive rows and restores the full set on uncheck
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -58,7 +58,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-043: Currency filter yields the exact row count for the present currency, 0 for an absent currency, and restores the full set
+## TC-CPR-OVR-042: Currency filter yields the exact row count for the present currency, 0 for an absent currency, and restores the full set
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -97,12 +97,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-044: Active-only and text filter applied simultaneously produce the correct intersection; filter order does not affect the result; resetting all restores the full row set
+## TC-CPR-OVR-043: Active-only and text filter applied simultaneously produce the correct intersection; filter order does not affect the result; resetting all restores the full row set
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-042
+**Depends_On**: TC-CPR-OVR-041
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 1105 selected; no filters active.
@@ -138,12 +138,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-125: Currency filter USD — yields only USD rows, CAD row absent (OVR-CUR-3)
+## TC-CPR-OVR-124: Currency filter USD — yields only USD rows, CAD row absent (OVR-CUR-3)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-043 (skipped — this replaces it)
+**Depends_On**: TC-CPR-OVR-042 (skipped — this replaces it)
 **Automatable**: Yes
 **Surface_Family**: dropdown (QUICK)
 
@@ -180,12 +180,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-126: Currency filter CAD — yields only CAD rows, identifies the single CAD row (OVR-CUR-4)
+## TC-CPR-OVR-125: Currency filter CAD — yields only CAD rows, identifies the single CAD row (OVR-CUR-4)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-043 (skipped — this replaces it)
+**Depends_On**: TC-CPR-OVR-042 (skipped — this replaces it)
 **Automatable**: Yes
 **Surface_Family**: dropdown (QUICK)
 
@@ -222,12 +222,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-127: Currency filter MXN — yields 0 rows on a USD/CAD-only office (OVR-CUR-5)
+## TC-CPR-OVR-126: Currency filter MXN — yields 0 rows on a USD/CAD-only office (OVR-CUR-5)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-043 (skipped — this replaces it)
+**Depends_On**: TC-CPR-OVR-042 (skipped — this replaces it)
 **Automatable**: Yes
 **Surface_Family**: dropdown (QUICK)
 

@@ -19,12 +19,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-148: Import dialog keeps Upload disabled until a file is attached
+## TC-CPR-OVR-147: Import dialog keeps Upload disabled until a file is attached
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-033
+**Depends_On**: TC-CPR-OVR-032
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with the certified import target office 4107 selected; no file attached.
@@ -58,12 +58,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-149: Malformed CSV is rejected with a readable error and changes zero rows
+## TC-CPR-OVR-148: Malformed CSV is rejected with a readable error and changes zero rows
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; the target row (product group 4298) present with its baseline Override Price.
@@ -96,12 +96,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-150: Empty CSV is rejected with a file-format error and changes zero rows
+## TC-CPR-OVR-149: Empty CSV is rejected with a file-format error and changes zero rows
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; the target row (product group 4298) present with its baseline Override Price.
@@ -134,12 +134,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-151: Valid import round-trip updates the Override Price then restores it (office 4107 / product group 4298)
+## TC-CPR-OVR-150: Valid import round-trip updates the Override Price then restores it (office 4107 / product group 4298)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present. The Export toolbar action produces the tenant-wide CSV (used here only to read the exact target row).
@@ -177,12 +177,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-153: Import rejects a row with an invalid currency and applies nothing
+## TC-CPR-OVR-152: Import rejects a row with an invalid currency and applies nothing
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present. The import is a per-row partial-success upload that returns a result body with success/failure counts — a 200 response does not by itself mean a row applied.
@@ -215,12 +215,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-154: Import rejects a negative Override Price and applies nothing
+## TC-CPR-OVR-153: Import rejects a negative Override Price and applies nothing
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.
@@ -253,12 +253,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-155: Import rejects an Override Discount above 100 — the 100 cap is enforced on import too
+## TC-CPR-OVR-154: Import rejects an Override Discount above 100 — the 100 cap is enforced on import too
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present. The grid caps Max Discount at 100 on manual edit.
@@ -291,12 +291,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-156: Import rejects a non-numeric Override Price with a decimal-format error
+## TC-CPR-OVR-155: Import rejects a non-numeric Override Price with a decimal-format error
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.
@@ -329,12 +329,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-157: Import rejects a nonexistent Product Group Id and applies nothing
+## TC-CPR-OVR-156: Import rejects a nonexistent Product Group Id and applies nothing
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.
@@ -367,12 +367,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-158: Import rejects a nonexistent Location and applies nothing
+## TC-CPR-OVR-157: Import rejects a nonexistent Location and applies nothing
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.
@@ -405,12 +405,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-159: Import rejects a row with too few columns naming the required fields
+## TC-CPR-OVR-158: Import rejects a row with too few columns naming the required fields
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.
@@ -443,12 +443,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-160: Import ignores extra trailing columns and applies the valid row
+## TC-CPR-OVR-159: Import ignores extra trailing columns and applies the valid row
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present. The fixture keeps the certified baseline Override Price so acceptance is proven without changing the value.
@@ -480,12 +480,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-161: Import rejects a header-only file with a file-format error
+## TC-CPR-OVR-160: Import rejects a header-only file with a file-format error
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.
@@ -518,12 +518,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-162: Import blocks a non-CSV file — Upload stays disabled with an unsupported-type message
+## TC-CPR-OVR-161: Import blocks a non-CSV file — Upload stays disabled with an unsupported-type message
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.
@@ -554,12 +554,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-163: Import dialog shows the attached file and dismisses without uploading
+## TC-CPR-OVR-162: Import dialog shows the attached file and dismisses without uploading
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.
@@ -591,12 +591,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-164: A file mixing one valid row and one invalid row is a partial success — the valid row applies, the invalid one fails
+## TC-CPR-OVR-163: A file mixing one valid row and one invalid row is a partial success — the valid row applies, the invalid one fails
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present. The import processes rows independently (a per-row partial-success upload), not all-or-nothing.
@@ -629,12 +629,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-165: A file with duplicate rows for the same override is accepted (both rows succeed, no duplicate error)
+## TC-CPR-OVR-164: A file with duplicate rows for the same override is accepted (both rows succeed, no duplicate error)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.
@@ -667,12 +667,12 @@ See `corporate_override_core_test_cases.md` — validation rules for Override Pr
 
 ---
 
-## TC-CPR-OVR-166: A large batch (6000 rows) is processed per-row without a stall or size limit
+## TC-CPR-OVR-165: A large batch (6000 rows) is processed per-row without a stall or size limit
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-050
+**Depends_On**: TC-CPR-OVR-049
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present.

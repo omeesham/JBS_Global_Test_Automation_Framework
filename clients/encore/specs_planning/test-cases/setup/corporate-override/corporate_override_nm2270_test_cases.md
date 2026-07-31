@@ -19,7 +19,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-045: Text filter "Camlok" narrows the grid to matching rows; clearing restores the full set
+## TC-CPR-OVR-044: Text filter "Camlok" narrows the grid to matching rows; clearing restores the full set
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -57,7 +57,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-046: Product Group Name column sort: ascending first cell matches walk oracle and order is non-decreasing; descending matches walk oracle and order is non-increasing
+## TC-CPR-OVR-045: Product Group Name column sort: ascending first cell matches walk oracle and order is non-decreasing; descending matches walk oracle and order is non-increasing
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -97,12 +97,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-047: Product Group column sort: ascending values are non-decreasing; descending values are non-increasing — self-verifying monotonic oracle
+## TC-CPR-OVR-046: Product Group column sort: ascending values are non-decreasing; descending values are non-increasing — self-verifying monotonic oracle
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-046
+**Depends_On**: TC-CPR-OVR-045
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 1105 selected; grid showing 9 rows.
@@ -113,9 +113,9 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 | 1 | Open the "Product Group" column header dropdown menu → click "Sort ascending" | The column header dropdown menu opens and displays sort options. |
 | 2 | Read all visible Product Group cells → values are non-decreasing (monotonic ascending check, no hardcoded first cell) | The Product Group column is displayed in non-decreasing numeric order. |
 | 3 | Open the header dropdown again → click "Sort descending" | The column header dropdown menu opens and displays sort options. |
-| 4 | Read all visible Product Group cells → values are non-increasing (monotonic descending check) | The "Product Group" column (numeric product group IDs) sorts correctly in both directions via the same header dropdown mechanism confirmed in TC-CPR-OVR-046. Monotonic ordering is asserted numerically (not as strings, since the app sorts by numeric value - e.g. 2 before 10) without relying on any fixed first-cell value. Confirms the sort mechanism is consistent across columns |
+| 4 | Read all visible Product Group cells → values are non-increasing (monotonic descending check) | The "Product Group" column (numeric product group IDs) sorts correctly in both directions via the same header dropdown mechanism confirmed in TC-CPR-OVR-045. Monotonic ordering is asserted numerically (not as strings, since the app sorts by numeric value - e.g. 2 before 10) without relying on any fixed first-cell value. Confirms the sort mechanism is consistent across columns |
 
-**Expected**: The "Product Group" column (numeric product group IDs) sorts correctly in both directions via the same header dropdown mechanism confirmed in TC-CPR-OVR-046. Monotonic ordering is asserted numerically (not as strings, since the app sorts by numeric value — e.g. 2 before 10) without relying on any hardcoded first-cell value. Confirms the sort mechanism is consistent across columns.
+**Expected**: The "Product Group" column (numeric product group IDs) sorts correctly in both directions via the same header dropdown mechanism confirmed in TC-CPR-OVR-045. Monotonic ordering is asserted numerically (not as strings, since the app sorts by numeric value — e.g. 2 before 10) without relying on any hardcoded first-cell value. Confirms the sort mechanism is consistent across columns.
 **Data**: office=1105; second sortable column "Product Group" (column index 1); comparison is numeric
 
 ---
@@ -135,12 +135,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-048: Hiding "Max Discount %" via Grid Options reduces visible column count; Reset to Default restores all columns
+## TC-CPR-OVR-047: Hiding "Max Discount %" via Grid Options reduces visible column count; Reset to Default restores all columns
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-031
+**Depends_On**: TC-CPR-OVR-030
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 1105 selected; all 10 columns visible (restored by beforeEach/afterEach).
@@ -174,12 +174,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-049: Text filter and column sort applied together: filtered rows match the filter and are correctly ordered
+## TC-CPR-OVR-048: Text filter and column sort applied together: filtered rows match the filter and are correctly ordered
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-045, TC-CPR-OVR-046
+**Depends_On**: TC-CPR-OVR-044, TC-CPR-OVR-045
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 1105 selected; no filters active; all 9 rows visible.
@@ -228,7 +228,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-116: Text filter narrows grid and empty filter shows no results
+## TC-CPR-OVR-115: Text filter narrows grid and empty filter shows no results
 | Priority | Status | Type |
 |----------|--------|------|
 | Low | Automated | Functional |

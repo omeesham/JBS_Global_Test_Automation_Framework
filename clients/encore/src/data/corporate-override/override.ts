@@ -278,7 +278,7 @@ export const OVERRIDE_NUMERIC_CASES = {
  */
 /**
  * Sort-order verification data for the office 1105 Equipment tab.
- * Verified 2026-07-17 (walk-A): the Override grid column sort is triggered via a header
+ * Verified 2026-07-17: the Override grid column sort is triggered via a header
  * dropdown menu ("Sort ascending" / "Sort descending" / "Hide column") — NOT a header-click toggle.
  * Product Group Name ASC first cell: "07A Compass Screen Set Kit";
  * Product Group Name DESC first cell: "Whiteboard Supply - Marker 4 Pk"
@@ -288,9 +288,9 @@ export const CORP_PRICING_OVERRIDE_SORT_BED = {
   office: '1105',
   productGroupNameAscFirstCell: '07A Compass Screen Set Kit',
   productGroupNameDescFirstCell: 'Whiteboard Supply - Marker 4 Pk',
-  /** Walk-A certified: all 10 columns visible at default state (after Reset to Default). */
+  /** Verified: all 10 columns visible at default state (after Reset to Default). */
   gridDefaultColumnCount: 10,
-  /** Walk-A certified: 9 columns visible after hiding "Max Discount %" via Grid Options. */
+  /** Verified: 9 columns visible after hiding "Max Discount %" via Grid Options. */
   gridHiddenColumnCount: 9,
   /** Column hidden in TC-CPR-OVR-048 to exercise the hide/reset round-trip. */
   gridHideTestColumn: 'Max Discount %',
@@ -417,7 +417,7 @@ export const CORP_PRICING_OVERRIDE_FIXTURE = {
  * diverge on this screen (the gap is three of the five known defects).
  *
  * Per-field divergence: Max Discount displays with "%" suffix; Override Price does not.
- * Values sourced from live oracle verification (ORACLE-FACTS.md).
+ * Values sourced from live oracle verification.
  */
 export const OVERRIDE_FIELD_ORACLE = {
   /** Values the app REJECTS (editor stays open / does not commit). */
@@ -495,7 +495,7 @@ export const CORP_PRICING_OVERRIDE_MULTI_CURRENCY_BED = {
   totalRowCount: 11,
 } as const;
 
-// --- NM-2271 BVA constants (lot-worker API contract) ---
+// --- NM-2271 BVA constants ---
 
 export const OVERRIDE_BVA_OFFICES = {
   equipment: {

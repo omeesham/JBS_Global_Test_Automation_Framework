@@ -4,7 +4,7 @@
 
 ---
 
-## TC-CPR-OVR-029: The Search action bar "Pricing Override" button navigates to the Override screen
+## TC-CPR-NAV-001: The Search action bar "Pricing Override" button navigates to the Override screen
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -28,11 +28,11 @@
 
 ## FIELD INVENTORY
 
-N/A — this file contains only TC-CPR-OVR-029, a URL-level navigation test (Search → Override screen). No editable fields are exercised. The full Override screen field inventory lives in `corporate-override/corporate_override_core_test_cases.md`.
+N/A — this file contains only TC-CPR-NAV-001, a URL-level navigation test (Search → Override screen). No editable fields are exercised. The full Override screen field inventory lives in `corporate-override/corporate_override_core_test_cases.md`.
 
 ## Validation Rules
 
-N/A — TC-CPR-OVR-029 verifies only that the "Pricing Override" action-bar button navigates to `/pg-override`. No field-level validation rules apply. See `corporate-override/corporate_override_core_test_cases.md` for Override field validation rules.
+N/A — TC-CPR-NAV-001 verifies only that the "Pricing Override" action-bar button navigates to `/pg-override`. No field-level validation rules apply. See `corporate-override/corporate_override_core_test_cases.md` for Override field validation rules.
 
 ## MCP_VERIFICATION_LOG
 

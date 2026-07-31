@@ -690,7 +690,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-030: The "Change Local Office" picker gates Select until a row is checked; Cancel applies nothing
+## TC-CPR-OVR-029: The "Change Local Office" picker gates Select until a row is checked; Cancel applies nothing
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -713,7 +713,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-031: Grid Options lists every column; toggling one hides its header and it persists across reload
+## TC-CPR-OVR-030: Grid Options lists every column; toggling one hides its header and it persists across reload
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -736,7 +736,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-032: Export downloads a Product Group Overrides CSV directly (no dialog)
+## TC-CPR-OVR-031: Export downloads a Product Group Overrides CSV directly (no dialog)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -754,12 +754,12 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 | 3 | the request hits `corporate-price-pg-override/export?locale=en-US` | The download request is sent to the corporate-price-pg-override export endpoint. |
 | 4 | the file is a non-empty CSV with a header row | The file contains a header row and at least one data row. |
 
-**Expected**: Export triggers a direct Product Group Overrides CSV download from the override export endpoint, carrying the exact 9-column header set in order (per-row content is a separate concern, covered by TC-CPR-OVR-038).
+**Expected**: Export triggers a direct Product Group Overrides CSV download from the override export endpoint, carrying the exact 9-column header set in order (per-row content is a separate concern, covered by TC-CPR-OVR-037).
 **Data**: location=1606
 
 ---
 
-## TC-CPR-OVR-033: Import opens the "Import All Pricing Overrides" dialog with a file input; Cancel closes it without uploading
+## TC-CPR-OVR-032: Import opens the "Import All Pricing Overrides" dialog with a file input; Cancel closes it without uploading
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -782,7 +782,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-034: Editing the Override Price on an inactive row auto-activates it
+## TC-CPR-OVR-033: Editing the Override Price on an inactive row auto-activates it
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -804,7 +804,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-035: Clicking a column header does not sort (no active sort state, row order unchanged)
+## TC-CPR-OVR-034: Clicking a column header does not sort (no active sort state, row order unchanged)
 | Priority | Status | Type |
 |----------|--------|------|
 | Low | Automated | Functional |
@@ -825,7 +825,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-036: Every row shows a Current Price value on office 1606 (no blank cell)
+## TC-CPR-OVR-035: Every row shows a Current Price value on office 1606 (no blank cell)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -845,7 +845,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-037: Max Discount % accepts values up to the 100 cap (inclusive)
+## TC-CPR-OVR-036: Max Discount % accepts values up to the 100 cap (inclusive)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -868,12 +868,12 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-038: Every downloaded CSV row is well-formed with valid IDs, currency, 0/1 flags, and money fields
+## TC-CPR-OVR-037: Every downloaded CSV row is well-formed with valid IDs, currency, 0/1 flags, and money fields
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with location 1606 selected.
@@ -890,7 +890,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-061: A blank Override Price renders as an em-dash in a muted style, not an empty cell
+## TC-CPR-OVR-060: A blank Override Price renders as an em-dash in a muted style, not an empty cell
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -912,7 +912,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-066: Override Price rejects negative input (−5) with full rejection oracle
+## TC-CPR-OVR-065: Override Price rejects negative input (−5) with full rejection oracle
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -934,7 +934,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-067: Override Price rejects below-min boundary (−0.01)
+## TC-CPR-OVR-066: Override Price rejects below-min boundary (−0.01)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -956,7 +956,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-068: Override Price accepts 3rd-decimal precision (0.001)
+## TC-CPR-OVR-067: Override Price accepts 3rd-decimal precision (0.001)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -978,7 +978,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-069: Override Price accepts large value — no hard upper max (999999)
+## TC-CPR-OVR-068: Override Price accepts large value — no hard upper max (999999)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -1000,7 +1000,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-070: Defect — Override Price silently commits 1.2.3 as 1.23 (multi-dot corruption)
+## TC-CPR-OVR-069: Defect — Override Price silently commits 1.2.3 as 1.23 (multi-dot corruption)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1022,7 +1022,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-071: Override Price with leading zeros (007) — zeros stripped
+## TC-CPR-OVR-070: Override Price with leading zeros (007) — zeros stripped
 | Priority | Status | Type |
 |----------|--------|------|
 | Low | Automated | Functional |
@@ -1044,7 +1044,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-072: Override Price with scientific notation (1e5)
+## TC-CPR-OVR-071: Override Price with scientific notation (1e5)
 | Priority | Status | Type |
 |----------|--------|------|
 | Low | Automated | Functional |
@@ -1066,7 +1066,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-073: Max Discount % accepts mid-range value (50)
+## TC-CPR-OVR-072: Max Discount % accepts mid-range value (50)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -1088,7 +1088,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-074: Max Discount % rejects below-min boundary (−0.01)
+## TC-CPR-OVR-073: Max Discount % rejects below-min boundary (−0.01)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1110,7 +1110,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-075: Defect — 0.5 in Max Discount % displays as 50.00 % (100× multiplier bug)
+## TC-CPR-OVR-074: Defect — 0.5 in Max Discount % displays as 50.00 % (100× multiplier bug)
 | Priority | Status | Type |
 |----------|--------|------|
 | Critical | Automated | Functional |
@@ -1134,7 +1134,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-076: Max Discount % accepts just-below-cap boundary (99.99)
+## TC-CPR-OVR-075: Max Discount % accepts just-below-cap boundary (99.99)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -1156,7 +1156,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-077: Max Discount % rejects above-cap (100.01) with full oracle — supersedes skipped TC-023
+## TC-CPR-OVR-076: Max Discount % rejects above-cap (100.01) with full oracle — supersedes skipped TC-023
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1178,7 +1178,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-078: Defect — abc blanks Max Discount % to em-dash with Save enabled
+## TC-CPR-OVR-077: Defect — abc blanks Max Discount % to em-dash with Save enabled
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1202,7 +1202,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-079: Defect — 1.2.3 in Max Discount % silently commits as 1.23 %
+## TC-CPR-OVR-078: Defect — 1.2.3 in Max Discount % silently commits as 1.23 %
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1224,7 +1224,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-080: Max Discount % rejects scientific notation (1e5)
+## TC-CPR-OVR-079: Max Discount % rejects scientific notation (1e5)
 | Priority | Status | Type |
 |----------|--------|------|
 | Medium | Automated | Functional |
@@ -1246,7 +1246,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-081: Max Discount % strips leading zeros (007 → 7.00 %)
+## TC-CPR-OVR-080: Max Discount % strips leading zeros (007 → 7.00 %)
 | Priority | Status | Type |
 |----------|--------|------|
 | Low | Automated | Functional |
@@ -1268,7 +1268,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-082: Max Discount % revert-to-original disables Save
+## TC-CPR-OVR-081: Max Discount % revert-to-original disables Save
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1290,7 +1290,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-083: Active toggle-then-revert disables Save
+## TC-CPR-OVR-082: Active toggle-then-revert disables Save
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1312,12 +1312,12 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-117: Import rejects a CSV with an empty Override Price — whole-file rejection (known defect)
+## TC-CPR-OVR-116: Import rejects a CSV with an empty Override Price — whole-file rejection (known defect)
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-033
+**Depends_On**: TC-CPR-OVR-032
 **Automatable**: Yes — pending live verification of the exact rejection mechanism
 **Surface_Family**: launcher (QUICK)
 
@@ -1342,7 +1342,7 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-118: Tab-switch from dirty Equipment grid to Labor — unsaved changes persists without a guard dialog
+## TC-CPR-OVR-117: Tab-switch from dirty Equipment grid to Labor — unsaved changes persists without a guard dialog
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -1372,12 +1372,12 @@ Full dated inventory: `field-inventories/corporate-pricing-override-2026-06-09.m
 
 ---
 
-## TC-CPR-OVR-120: Tab-switch from dirty Labor grid to Equipment — unsaved changes persists without a guard dialog
+## TC-CPR-OVR-119: Tab-switch from dirty Labor grid to Equipment — unsaved changes persists without a guard dialog
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-053
+**Depends_On**: TC-CPR-OVR-052
 **Automatable**: Yes — pending live verification of tab-switch dirty behavior
 **Surface_Family**: persistence (QUICK)
 
@@ -1429,12 +1429,12 @@ TC-059 already covers the one meaningful assertion available today (20→50 show
 
 ---
 
-## TC-CPR-OVR-138: The export tolerates rows with no Override Price and never drops them
+## TC-CPR-OVR-137: The export tolerates rows with no Override Price and never drops them
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-038
+**Depends_On**: TC-CPR-OVR-037
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with the fixture office selected.
@@ -1451,12 +1451,12 @@ TC-059 already covers the one meaningful assertion available today (20→50 show
 
 ---
 
-## TC-CPR-OVR-152: Raw export with an empty Override Price row is rejected and changes nothing
+## TC-CPR-OVR-151: Raw export with an empty Override Price row is rejected and changes nothing
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 4107 selected; product group 4298 present with its baseline Override Price. The raw tenant-wide export still contains one empty-Override-Price row.

@@ -17,8 +17,8 @@ test.describe('Corporate Pricing — Product Group Override: Active-only and tex
     await p.reloadAndReselect(CORP_PRICING_OVERRIDE_ACTIVE_BED.office);
   });
 
-  // @fcc TC-CPR-OVR-042
-  test('TC-CPR-OVR-042: Active-only removes inactive rows and restores the full set on uncheck (NM-2269)', async ({ corporatePricingOverridePage: p }) => {
+  // @fcc TC-CPR-OVR-041
+  test('TC-CPR-OVR-041: Active-only removes inactive rows and restores the full set on uncheck (NM-2269)', async ({ corporatePricingOverridePage: p }) => {
     // Baseline: Active-only is OFF; all 9 rows are visible (7 active + 2 inactive)
     expect(await p.getActiveOnlyState()).toBe(false);
     expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
@@ -43,7 +43,7 @@ test.describe('Corporate Pricing — Product Group Override: Active-only and tex
   // which matches only when currency is currently ALL — safe for one call per test.
   // Two-direction oracle: ALL shows rows; an absent currency shows 0. A filter that ignores
   // its input cannot satisfy both assertions simultaneously.
-  test('TC-CPR-OVR-043: Currency filter yields the exact row count for the present currency, 0 for an absent currency, and restores the full set', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-042: Currency filter yields the exact row count for the present currency, 0 for an absent currency, and restores the full set', async ({ corporatePricingOverridePage: p }) => {
     // Direction 1: ALL (baseline reset by beforeEach) shows the full row set
     expect(await p.getVisibleRowCount()).toBe(CORP_PRICING_OVERRIDE_ACTIVE_BED.totalRows);
 
@@ -54,8 +54,8 @@ test.describe('Corporate Pricing — Product Group Override: Active-only and tex
     expect(await p.getVisibleRowCount()).toBe(0);
   });
 
-  // @fcc TC-CPR-OVR-044
-  test('TC-CPR-OVR-044: Active-only and text filter applied simultaneously produce the correct intersection; filter order does not affect the result; resetting all restores the full row set (NM-2269)', async ({ corporatePricingOverridePage: p }) => {
+  // @fcc TC-CPR-OVR-043
+  test('TC-CPR-OVR-043: Active-only and text filter applied simultaneously produce the correct intersection; filter order does not affect the result; resetting all restores the full row set (NM-2269)', async ({ corporatePricingOverridePage: p }) => {
     // Phase A — text filter first, then Active-only on top
     // Camlok filter alone: 2 rows (both Camlok rows are inactive)
     await p.filterProductGroups(CORP_PRICING_OVERRIDE_ACTIVE_BED.textFilterCamlok);
@@ -93,7 +93,7 @@ test.describe('Corporate Pricing — Product Group Override: Active-only and tex
 test.describe('Override Currency Filter — Office 1145 (multi-currency bed)', () => {
   const BED = OVERRIDE_CURRENCY_BED;
 
-  test('TC-CPR-OVR-125: USD filter yields only USD rows — CAD row PG 425 absent', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-124: USD filter yields only USD rows — CAD row PG 425 absent', async ({ corporatePricingOverridePage: overridePage }) => {
     await overridePage.navigateToEquipmentRow(BED.office, BED.office, BED.rows.usdAnchor.productGroupId);
 
     // Baseline: ALL filter, 11 rows
@@ -116,7 +116,7 @@ test.describe('Override Currency Filter — Office 1145 (multi-currency bed)', (
     await expect(rows).toHaveCount(BED.totalRows, { timeout: 15_000 });
   });
 
-  test('TC-CPR-OVR-126: CAD filter yields only CAD rows — single row PG 425 present', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-125: CAD filter yields only CAD rows — single row PG 425 present', async ({ corporatePricingOverridePage: overridePage }) => {
     await overridePage.navigateToEquipmentRow(BED.office, BED.office, BED.rows.usdAnchor.productGroupId);
 
     const rows = overridePage.page.locator(GRID_ROW);
@@ -138,7 +138,7 @@ test.describe('Override Currency Filter — Office 1145 (multi-currency bed)', (
     await expect(rows).toHaveCount(BED.totalRows, { timeout: 15_000 });
   });
 
-  test('TC-CPR-OVR-127: MXN filter yields 0 rows on USD/CAD-only office', async ({ corporatePricingOverridePage: overridePage }) => {
+  test('TC-CPR-OVR-126: MXN filter yields 0 rows on USD/CAD-only office', async ({ corporatePricingOverridePage: overridePage }) => {
     await overridePage.navigateToEquipmentRow(BED.office, BED.office, BED.rows.usdAnchor.productGroupId);
 
     const rows = overridePage.page.locator(GRID_ROW);

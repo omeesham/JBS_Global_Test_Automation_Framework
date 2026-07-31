@@ -90,31 +90,91 @@ const EXCLUDE = (p) =>
   /^plans\/pending\/SUBPLAN_59A_TESTCASE_PIPELINE\.md$/.test(p) || // performed the test_cases_xlsx→testcases rename; its mapping tables and acceptance criteria must name the old path
   /^\.claude\/context\/navigation\.md$/.test(p); // migration-guidance doc: lists old→new pairs as instructional context for agents
 
-const tracked = execSync('git ls-files', { cwd: REPO_ROOT, encoding: 'utf8' })
-  .split(/\r?\n/).filter(Boolean);
+/**
+ * Given a line that matched a token regex, extract the path-like fragment that
+ * contains the match. Scans backward and forward from the match to include the
+ * full path token, stopping at whitespace and common string delimiters.
+ * Returns the fragment string, or null if no slash-containing fragment is found.
+ */
+export function extractPathFragment(line, re) {
+  const reCopy = new RegExp(re.source, re.flags);
+  const m = reCopy.exec(line);
+  if (!m) return null;
+  const STOP = /[\s"'`()[\]{},]/;
+  let start = m.index;
+  while (start > 0 && !STOP.test(line[start - 1])) start--;
+  let end = m.index + m[0].length;
+  while (end < line.length && !STOP.test(line[end])) end++;
+  const fragment = line.slice(start, end);
+  return fragment.includes('/') ? fragment : null;
+}
 
-const hits = [];
-let scanned = 0;
-for (const rel of tracked) {
-  if (!INCLUDE(rel) || EXCLUDE(rel)) continue;
-  let text;
-  try { text = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8'); } catch { continue; }
-  // Extensionless files: only scan if they carry a shell shebang
-  if (path.extname(rel) === '' && !text.startsWith('#!')) continue;
-  scanned++;
-  const lines = text.split(/\r?\n/);
-  for (let i = 0; i < lines.length; i++) {
-    for (const re of TOKENS) {
-      if (re.test(lines[i])) { hits.push(`${rel}:${i + 1}: ${lines[i].trim().slice(0, 120)}`); break; }
+/**
+ * Returns true if the extracted path fragment resolves to a tracked file.
+ * Tries the fragment as-is (repo-relative), then prefixed with each client
+ * directory present in the tracked set. Leading "./" is stripped before
+ * resolution. Unresolvable fragments return false (fail-closed: treated as stale).
+ */
+export function pathExistsInTracked(fragment, trackedSet) {
+  if (!fragment) return false;
+  const clean = fragment.replace(/^\.\//, '');
+  if (trackedSet.has(clean)) return true;
+  // Derive client IDs from the tracked set and try clients/<id>/<fragment>
+  const clientIds = new Set();
+  for (const p of trackedSet) {
+    const cm = p.match(/^clients\/([^/]+)\//);
+    if (cm) clientIds.add(cm[1]);
+  }
+  for (const id of clientIds) {
+    if (trackedSet.has(`clients/${id}/${clean}`)) return true;
+  }
+  return false;
+}
+
+/**
+ * Core scan logic. Accepts an optional trackedOverride (string[]) so tests can
+ * inject a synthetic file list without a real git repo.
+ */
+export function runCheck(repoRoot, trackedOverride) {
+  const tracked = trackedOverride ??
+    execSync('git ls-files', { cwd: repoRoot, encoding: 'utf8' }).split(/\r?\n/).filter(Boolean);
+  const trackedSet = new Set(tracked);
+  const hits = [];
+  let scanned = 0;
+  for (const rel of tracked) {
+    if (!INCLUDE(rel) || EXCLUDE(rel)) continue;
+    let text;
+    try { text = fs.readFileSync(path.join(repoRoot, rel), 'utf8'); } catch { continue; }
+    // Extensionless files: only scan if they carry a shell shebang
+    if (path.extname(rel) === '' && !text.startsWith('#!')) continue;
+    scanned++;
+    const lines = text.split(/\r?\n/);
+    for (let i = 0; i < lines.length; i++) {
+      for (const re of TOKENS) {
+        if (re.test(lines[i])) {
+          // A pattern match is a heuristic; the ground truth is the filesystem.
+          // If the referenced path still exists as a tracked file it is not stale.
+          // If it cannot be resolved (unresolvable = fail-closed) it is still stale.
+          const fragment = extractPathFragment(lines[i], re);
+          if (pathExistsInTracked(fragment, trackedSet)) break;
+          hits.push(`${rel}:${i + 1}: ${lines[i].trim().slice(0, 120)}`);
+          break;
+        }
+      }
     }
   }
+  return { hits, scanned };
 }
 
-if (hits.length) {
-  console.error(`[verify-no-stale-live-refs] ${hits.length} stale pre-restructure path ref(s) in the live layer:`);
-  for (const h of hits.slice(0, 40)) console.error('  ' + h);
-  if (hits.length > 40) console.error(`  … and ${hits.length - 40} more`);
-  process.exit(1);
+// Run as main entry point (not when imported by tests)
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const { hits, scanned } = runCheck(REPO_ROOT);
+  if (hits.length) {
+    console.error(`[verify-no-stale-live-refs] ${hits.length} stale pre-restructure path ref(s) in the live layer:`);
+    for (const h of hits.slice(0, 40)) console.error('  ' + h);
+    if (hits.length > 40) console.error(`  … and ${hits.length - 40} more`);
+    process.exit(1);
+  }
+  console.log(`[verify-no-stale-live-refs] OK — live layer carries zero pre-restructure path refs (${scanned} live files scanned)`);
+  process.exit(0);
 }
-console.log(`[verify-no-stale-live-refs] OK — live layer carries zero pre-restructure path refs (${scanned} live files scanned)`);
-process.exit(0);

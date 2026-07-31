@@ -8,11 +8,15 @@ playwright-report/
 playwright/.cache/
 *.tsbuildinfo
 
+# Test evidence runtime artifacts (field-case-runner rejected inputs, etc.)
+.test-evidence/
+
 # Agent-internal artifacts kept on disk but never shipped
 scripts/walks/
 src/selectors/SELECTOR_CATALOG.md
 
 # Local environment overrides — .env.*.local and .env.server are personal overrides, never ship
+.env.local
 .env.*.local
 .env.server
 

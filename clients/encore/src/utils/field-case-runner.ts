@@ -38,7 +38,7 @@ export interface FieldCase {
  * going up two levels reaches the client root (clients/encore/).
  */
 export function deriveReceiptsDir(): string {
-  return join(__dirname, '..', '..', '.machine-evidence', 'reject-oracle');
+  return join(__dirname, '..', '..', '.test-evidence', 'rejected-inputs');
 }
 
 /**
@@ -114,7 +114,7 @@ async function sampleAnnouncedSignal(
  *   (a) Announced — see transition contract above.
  *   (b) Escapable — Tab blur moves focus away (no focus trap); recorded BEFORE any cleanup Escape.
  *
- * Writes a tamper-evident receipt to `clients/encore/.machine-evidence/reject-oracle/<caseId>.json`.
+ * Writes a tamper-evident receipt to `clients/encore/.test-evidence/rejected-inputs/<caseId>.json`.
  * The receipt is bound to the spec file's content hash (spec_sha256) so stale receipts from
  * prior commits are detectable.
  *

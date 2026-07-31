@@ -19,12 +19,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-128: Export returns every location in the tenant, not just the selected office
+## TC-CPR-OVR-127: Export returns every location in the tenant, not just the selected office
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with the fixture office selected and the grid loaded.
@@ -56,12 +56,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-129: Export carries the full override population, well above any single office
+## TC-CPR-OVR-128: Export carries the full override population, well above any single office
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with the fixture office selected and the grid loaded.
@@ -93,12 +93,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-130: Switching to the Labor tab re-scopes the grid but not the export
+## TC-CPR-OVR-129: Switching to the Labor tab re-scopes the grid but not the export
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-002, TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-002, TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with an office selected that has rows on both the Equipment and Labor tabs.
@@ -131,12 +131,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-131: Choosing a different office re-scopes the grid but not the export
+## TC-CPR-OVR-130: Choosing a different office re-scopes the grid but not the export
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-030, TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-029, TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with the fixture office selected and the grid loaded.
@@ -169,12 +169,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-132: Active only hides inactive rows in the grid; the export keeps them
+## TC-CPR-OVR-131: Active only hides inactive rows in the grid; the export keeps them
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-042, TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-041, TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 1105 selected — the only walk-verified bed carrying inactive rows (9 total, 7 active).
@@ -206,12 +206,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-133: The Currency filter empties the grid for an absent currency; the export still carries every currency
+## TC-CPR-OVR-132: The Currency filter empties the grid for an absent currency; the export still carries every currency
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-043, TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-042, TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with an office selected and the Currency filter at ALL.
@@ -243,12 +243,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-134: The text filter narrows the grid; the export is unchanged
+## TC-CPR-OVR-133: The text filter narrows the grid; the export is unchanged
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-045, TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-044, TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with an office selected and no text filter applied.
@@ -281,12 +281,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-135: Rows-per-page changes how much of the grid is drawn; the export is unchanged
+## TC-CPR-OVR-134: Rows-per-page changes how much of the grid is drawn; the export is unchanged
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-011, TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-011, TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 1974 selected (161 Equipment rows, enough to span pages).
@@ -318,12 +318,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-136: Export on an empty, unscoped grid still returns the whole tenant
+## TC-CPR-OVR-135: Export on an empty, unscoped grid still returns the whole tenant
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-003, TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-003, TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: A fresh load of the Override screen with no office selected — the grid reads "No results." / "0 items found".
@@ -355,12 +355,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-137: The Equipment grid row count reconciles with the export rows for that office
+## TC-CPR-OVR-136: The Equipment grid row count reconciles with the export rows for that office
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with the fixture office selected, the Equipment tab active and Active only off.
@@ -392,12 +392,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-139: The CSV is well-formed — consistent line endings, a full column set on every row, and quoted inch marks
+## TC-CPR-OVR-138: The CSV is well-formed — consistent line endings, a full column set on every row, and quoted inch marks
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-038
+**Depends_On**: TC-CPR-OVR-037
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with the fixture office selected.
@@ -430,12 +430,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-140: The header row follows the requested locale while the data rows stay identical
+## TC-CPR-OVR-139: The header row follows the requested locale while the data rows stay identical
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen, signed in. The export endpoint is called directly because the Export button always sends en-US.
@@ -467,12 +467,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-141: A malformed or unknown locale falls back to English instead of failing
+## TC-CPR-OVR-140: A malformed or unknown locale falls back to English instead of failing
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-079
+**Depends_On**: TC-CPR-OVR-078
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen, signed in.
@@ -504,7 +504,7 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-142: The grid loads for every healthy office, and office 1604 still fails the way we recorded it
+## TC-CPR-OVR-141: The grid loads for every healthy office, and office 1604 still fails the way we recorded it
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
@@ -540,12 +540,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-143: Tab, Currency and Active only combine without losing rows or breaking the export
+## TC-CPR-OVR-142: Tab, Currency and Active only combine without losing rows or breaking the export
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-044, TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-043, TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with the fixture office selected and no filters applied.
@@ -580,12 +580,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-144: Rows-per-page survives a reload, and the export is unaffected either way
+## TC-CPR-OVR-143: Rows-per-page survives a reload, and the export is unaffected either way
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-073
+**Depends_On**: TC-CPR-OVR-072
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 1974 selected.
@@ -618,12 +618,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-145: Sorting the grid does not reorder the exported file
+## TC-CPR-OVR-144: Sorting the grid does not reorder the exported file
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-046, TC-CPR-OVR-032
+**Depends_On**: TC-CPR-OVR-045, TC-CPR-OVR-031
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with the fixture office selected and no sort applied.
@@ -656,12 +656,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-146: A row visible in the grid appears in the export with the same price, and text values survive intact
+## TC-CPR-OVR-145: A row visible in the grid appears in the export with the same price, and text values survive intact
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-038, TC-CPR-OVR-066
+**Depends_On**: TC-CPR-OVR-037, TC-CPR-OVR-065
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 1105 selected and the grid loaded.
@@ -697,12 +697,12 @@ See corporate_override_core_test_cases.md — validation rules for Override Pric
 
 ---
 
-## TC-CPR-OVR-147: Override Discount stays on the fraction scale, and the known percent-scale rows do not spread
+## TC-CPR-OVR-146: Override Discount stays on the fraction scale, and the known percent-scale rows do not spread
 | Priority | Status | Type |
 |----------|--------|------|
 | High | Automated | Functional |
 
-**Depends_On**: TC-CPR-OVR-037, TC-CPR-OVR-038
+**Depends_On**: TC-CPR-OVR-036, TC-CPR-OVR-037
 **Automatable**: Yes
 
 **Preconditions**: On the Override screen with office 1105 selected and the grid loaded.

@@ -102,7 +102,7 @@ export const CorporatePricingOverrideSelectors = {
   // table rows. The per-row selection checkboxes are inside tbody — using .first() in the page object selects the filter.
   ovrLocationPickerActiveCheckbox: '[role="dialog"]:has([data-testid="location-settings-modal-change-local-office-input-search"]) [role="checkbox"]',
 
-  // Column sort dropdown menu items (Radix dropdown, not header-click toggle — verified walk-A 2026-07-17).
+  // Column sort dropdown menu items (Radix dropdown, not header-click toggle — verified 2026-07-17).
   ovrSortMenuItemAsc: 'role=menuitem[name="Sort ascending"]',
   ovrSortMenuItemDesc: 'role=menuitem[name="Sort descending"]',
 } as const;

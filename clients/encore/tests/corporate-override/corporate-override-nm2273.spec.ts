@@ -48,8 +48,8 @@ const expectToastRejection = async (p: CorporatePricingOverridePage, fixtureName
   expect(await p.readOverridePrice((await p.findRowByProductGroup(RT.productGroupName))!), 'the grid is unchanged after the rejected file').toBe(before);
   return alert;
 };
-test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
-  test('TC-CPR-OVR-148: Import dialog keeps Upload disabled until a file is attached', async ({ corporatePricingOverridePage: p }) => {
+test.describe('Corporate Pricing Override — Import (NM-2273)', () => {
+  test('TC-CPR-OVR-147: Import dialog keeps Upload disabled until a file is attached', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
     await p.reloadAndReselect(RT.office);
     await p.openImportDialog();
@@ -69,7 +69,7 @@ test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
     expect(await p.isImportDialogVisible(), 'Cancel dismisses the dialog with nothing uploaded').toBe(false);
   });
 
-  test('TC-CPR-OVR-149: Malformed CSV is rejected with a readable error and changes zero rows', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-148: Malformed CSV is rejected with a readable error and changes zero rows', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await p.reloadAndReselect(RT.office);
     const rowBefore = await p.findRowByProductGroup(RT.productGroupName);
@@ -97,7 +97,7 @@ test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
     expect(await p.findRowByProductGroup(CORP_PRICING_OVERRIDE_ACTIVE_BED.inactiveGroupName1), 'a canary row is intact by content').not.toBeNull();
   });
 
-  test('TC-CPR-OVR-150: Empty CSV is rejected with a file-format error and changes zero rows', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-149: Empty CSV is rejected with a file-format error and changes zero rows', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await p.reloadAndReselect(RT.office);
     const rowBefore = await p.findRowByProductGroup(RT.productGroupName);
@@ -123,7 +123,7 @@ test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
     expect(await p.findRowByProductGroup(CORP_PRICING_OVERRIDE_ACTIVE_BED.inactiveGroupName1), 'a canary row is intact by content').not.toBeNull();
   });
 
-  test('TC-CPR-OVR-151: Valid import round-trip updates the Override Price then restores it (office 4107 / product group 4298)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-150: Valid import round-trip updates the Override Price then restores it (office 4107 / product group 4298)', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(180_000); // a modify + a restore import, each a clean response, plus a cross-office check and reloads
     await p.reloadAndReselect(RT.office);
 
@@ -209,44 +209,44 @@ test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
       }
     }
   });
-  test('TC-CPR-OVR-153: Import rejects a row with an invalid currency and applies nothing', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-152: Import rejects a row with an invalid currency and applies nothing', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await expectBodyRejection(p, IMP.validation.bodyErrors.invalidCurrency.fixture, IMP.validation.bodyErrors.invalidCurrency.errorContains);
   });
 
-  test('TC-CPR-OVR-154: Import rejects a negative Override Price and applies nothing', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-153: Import rejects a negative Override Price and applies nothing', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await expectBodyRejection(p, IMP.validation.bodyErrors.negativePrice.fixture, IMP.validation.bodyErrors.negativePrice.errorContains);
   });
 
-  test('TC-CPR-OVR-155: Import rejects an Override Discount above 100 — the 100 cap is enforced on import too', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-154: Import rejects an Override Discount above 100 — the 100 cap is enforced on import too', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await expectBodyRejection(p, IMP.validation.bodyErrors.discountOver100.fixture, IMP.validation.bodyErrors.discountOver100.errorContains);
   });
 
-  test('TC-CPR-OVR-156: Import rejects a non-numeric Override Price with a decimal-format error', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-155: Import rejects a non-numeric Override Price with a decimal-format error', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     const alert = await expectToastRejection(p, IMP.validation.toastErrors.nonNumericPrice.fixture);
     expect(alert, 'a non-numeric price is rejected with a decimal-format message').toMatch(IMP.validation.toastErrors.nonNumericPrice.pattern);
   });
 
-  test('TC-CPR-OVR-157: Import rejects a nonexistent Product Group Id and applies nothing', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-156: Import rejects a nonexistent Product Group Id and applies nothing', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await expectBodyRejection(p, IMP.validation.bodyErrors.nonexistentPg.fixture, IMP.validation.bodyErrors.nonexistentPg.errorContains);
   });
 
-  test('TC-CPR-OVR-158: Import rejects a nonexistent Location and applies nothing', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-157: Import rejects a nonexistent Location and applies nothing', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await expectBodyRejection(p, IMP.validation.bodyErrors.nonexistentLocation.fixture, IMP.validation.bodyErrors.nonexistentLocation.errorContains);
   });
 
-  test('TC-CPR-OVR-159: Import rejects a row with too few columns naming the required fields', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-158: Import rejects a row with too few columns naming the required fields', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     const alert = await expectToastRejection(p, IMP.validation.toastErrors.tooFewColumns.fixture);
     expect(alert, 'a too-short row is rejected naming the required fields').toMatch(IMP.validation.toastErrors.tooFewColumns.pattern);
   });
 
-  test('TC-CPR-OVR-160: Import ignores extra trailing columns and applies the valid row', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-159: Import ignores extra trailing columns and applies the valid row', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await p.reloadAndReselect(RT.office);
     await p.openImportDialog();
@@ -261,13 +261,13 @@ test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
     expect(parseFloat(await p.readOverridePrice((await p.findRowByProductGroup(RT.productGroupName))!)), 'the row holds the certified baseline').toBe(152.00);
   });
 
-  test('TC-CPR-OVR-161: Import rejects a header-only file with a file-format error', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-160: Import rejects a header-only file with a file-format error', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     const alert = await expectToastRejection(p, IMP.validation.toastErrors.headerOnly.fixture);
     expect(alert, 'a header-only file is rejected as a format error').toBe(IMP.validation.toastErrors.headerOnly.message);
   });
 
-  test('TC-CPR-OVR-162: Import blocks a non-CSV file — Upload stays disabled with an unsupported-type message', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-161: Import blocks a non-CSV file — Upload stays disabled with an unsupported-type message', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
     await p.reloadAndReselect(RT.office);
     await p.openImportDialog();
@@ -278,7 +278,7 @@ test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
     await p.closeImportDialog();
   });
 
-  test('TC-CPR-OVR-163: Import dialog shows the attached file and dismisses without uploading', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-162: Import dialog shows the attached file and dismisses without uploading', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(90_000);
     await p.reloadAndReselect(RT.office);
     await p.openImportDialog();
@@ -295,7 +295,7 @@ test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
     expect(await p.isImportDialogVisible(), 'a dismiss control closes the dialog with nothing uploaded').toBe(false);
   });
 
-  test('TC-CPR-OVR-164: A file mixing one valid row and one invalid row is a partial success — the valid row applies, the invalid one fails', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-163: A file mixing one valid row and one invalid row is a partial success — the valid row applies, the invalid one fails', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await p.reloadAndReselect(RT.office);
     const baseline = await p.readOverridePrice((await p.findRowByProductGroup(RT.productGroupName))!);
@@ -312,7 +312,7 @@ test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
     expect(await p.readOverridePrice((await p.findRowByProductGroup(RT.productGroupName))!), 'the target keeps its baseline value (the valid no-op row did not corrupt it)').toBe(baseline);
   });
 
-  test('TC-CPR-OVR-165: A file with duplicate rows for the same override is accepted (both rows succeed, no duplicate error)', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-164: A file with duplicate rows for the same override is accepted (both rows succeed, no duplicate error)', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(120_000);
     await p.reloadAndReselect(RT.office);
     const baseline = await p.readOverridePrice((await p.findRowByProductGroup(RT.productGroupName))!);
@@ -328,7 +328,7 @@ test.describe('Corporate Pricing Override — Import (NM-2273 graft)', () => {
     expect(await p.readOverridePrice((await p.findRowByProductGroup(RT.productGroupName))!), 'the target keeps its baseline value').toBe(baseline);
   });
 
-  test('TC-CPR-OVR-166: A large batch (6000 rows) is processed per-row without a stall or size limit', async ({ corporatePricingOverridePage: p }) => {
+  test('TC-CPR-OVR-165: A large batch (6000 rows) is processed per-row without a stall or size limit', async ({ corporatePricingOverridePage: p }) => {
     test.setTimeout(180_000);
     await p.reloadAndReselect(RT.office);
     const baseline = await p.readOverridePrice((await p.findRowByProductGroup(RT.productGroupName))!);
