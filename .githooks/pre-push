@@ -14,11 +14,6 @@ BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 # exists, scans the full tracked tree once (same fallback posture as section 4).
 # Uses -z (NUL-delimited) output so paths with non-ASCII bytes (e.g. em-dash U+2014)
 # are emitted raw — no C-style quoting/octal escaping that breaks downstream git show.
-if git rev-parse --verify --quiet "origin/$BRANCH" >/dev/null 2>&1; then
-  FILE_LIST="$(git diff -z --name-only --diff-filter=d "origin/$BRANCH"..HEAD)"
-else
-  FILE_LIST="$(git ls-files -z)"
-fi
 while IFS= read -r -d '' pushed_file; do
   [ -z "$pushed_file" ] && continue
   node scripts/verify-no-forbidden.mjs --head-file="$pushed_file" || {
@@ -27,7 +22,13 @@ while IFS= read -r -d '' pushed_file; do
     echo "pre-push-leak-scan, $(date -u +%Y-%m-%dT%H:%M:%SZ), deny, $pushed_file" >> .claude/state/gate-fires.log
     exit 1
   }
-done < <(printf '%s' "$FILE_LIST")
+done < <(
+  if git rev-parse --verify --quiet "origin/$BRANCH" >/dev/null 2>&1; then
+    git diff -z --name-only --diff-filter=d "origin/$BRANCH"..HEAD
+  else
+    git ls-files -z
+  fi
+)
 
 # 4. Workbook content-freshness + reproducibility gate — last-line defense vs a
 # `git commit --no-verify` that skipped the pre-commit gate, or post-commit drift.
