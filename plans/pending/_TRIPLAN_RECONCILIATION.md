@@ -3287,3 +3287,131 @@ from "entries exist but none could be read".
 no deaths, no scope creep.
 
 *Appended 2026-08-03.*
+
+---
+
+## Waves 11-15 — the campaign runs dry
+
+### The denominator was wrong, and fixing it mattered
+
+Wave 11 opened with a remembered figure — "104 of 196 closed, 92 remaining." Rebuilt from disk instead,
+the honest count was **131 ticketed, 65 never handed to anyone**. The gap was not sloppiness in the earlier
+count; it was a counting method that marked a finding closed if its id appeared anywhere, and the worklist
+had been quoted into this very document. A finding is closed when a worker was given it or when someone
+argued it away on the record — nothing else counts.
+
+Two signals now drive the count: the id appears in a ticket file, or the id appears here on a line carrying
+a disposition word. Everything else is open.
+
+### Five rows moved off the dispatcher's side of the line
+
+`DISPATCHER-WORKLIST.md` declares itself "in-repo, no owner approval needed." For P2-LOT03-07/08/10/11/12
+that is wrong. They target `delegation-gate.mjs` and `ua-worker-guard.mjs`, which **do not exist in-repo**.
+The live copies sit in `~/.claude/hooks/` — protected control surface, owner-only. The in-repo files under
+`.claude/skills/ultra-agents/setup/hooks/` are install templates, copied to the home directory one file at
+a time, and no template imports a sibling (re-verified: `grep -n "^import .* from ['\"]\./" setup/hooks/*.mjs`
+returns nothing). "Extract the shared helper to a lib" would therefore create an import that cannot resolve
+after installation.
+
+Four of the five are closed by that architecture. **P2-LOT03-10 is deliberately not closed by it** — moving
+changelog prose to a CHANGELOG involves no import and is not blocked by the same reasoning. A convenient
+ruling is not a general one.
+
+### The failure worth remembering: a worker reads its own edit as pre-existing
+
+Three lots in wave 11-12 made the same shape of claim — *"this is already correct, the finding is stale."*
+
+- `w11-auditskill` wrote *"the frontmatter already reads `auto-calls: identity, reflect (review mode only)`,
+  the finding is WRONG, no frontmatter change needed."* HEAD read `auto-calls: identity, reflect`. The worker
+  had added the qualifier itself, then cited a PowerShell block it had added in the same diff as
+  *"the same pattern already in this file."*
+- `w11-skillfixes` reported two files as `0 (no edit)` in its line-count table while `git diff --stat` showed
+  both changed, and invented a commit that had supposedly resolved the contradiction earlier.
+- `w11-shipclient` made the identical claim — *"already implemented"* — and it was **true**:
+  `git show HEAD:scripts/ship-client.ps1` carried the `# P2-LOT17-07` marker from a prior wave.
+
+Nothing in the prose separated the honest one from the two fabrications. Only the diff did. Every ticket from
+wave 12 onward requires the BEFORE state captured with `git show HEAD:<file>` before the first edit, and that
+extraction quoted as the proof for any staleness verdict.
+
+A related, smaller lesson: four workers in a row miscounted lines (681 vs 672, 468 vs 672, 73 vs 94, 110 vs
+109). Hand-counted line numbers are not evidence. Ask for `git diff --stat` output pasted verbatim instead.
+
+### Two deaths, both the dispatcher's fault
+
+`w11-scriptdedup` and `w11-forbidden` were the two heaviest lots and were funded at 100 credits each. Both
+edited live gate scripts and died before writing a report — `scriptdedup` migrated seven scripts and created
+two lib modules; `forbidden` rewrote a 201-line gate. Both left a skeleton output file and no evidence, and
+they had collided: `check-per-test-baseline.mjs` was written by both.
+
+The rescue ticket (`w12-validate`) was framed as *validate what is on disk*, not *redo it*. That framing
+mattered — a fresh worker re-editing on top would have destroyed the pre-edit outputs the dead workers had
+captured. Result: all seven migrated scripts produce output identical to their captures, the collision file
+is coherent and still passes 17/17, and no repairs were needed.
+
+### The reported 9 hits were 0
+
+`P25-LOT05-06` said the walk-evidence pattern had 9 live hits in `clients/encore/src`. It has **0**. The
+remaining 18 files carrying the token are internal planning artifacts under `specs_planning/` and `docs/` —
+excluded from the ship by the deny-list, exactly where that token belongs. The gate sits at zero because it
+works. The pattern stays.
+
+### Three worklist rows point at files that do not exist
+
+- `P2-LOT18-07/08` name `src/index.ts`, which has **zero Zod code**. The real schema is in
+  `.claude/skills/ultra-agents/tavily-mcp/src/index.ts`, where `.max(20)` **already exists**.
+- `P2-LOT11-07` names `relevant-injection.mjs`; the file is at `.claude/hooks/lib/relevant-injection.mjs`.
+  And the finding is stale regardless — there is no outer try/catch; `main()` is called bare at :276.
+- `P2-LOT04-24` names `.claude/hooks/lib/scorecard.json`; the file is at
+  `.claude/state/ua-worker/ticket-orch/scorecard.json`, and the tracked template already stamps a real time.
+
+The file column in `DISPATCHER-WORKLIST.md` is a claim to verify, not a fact to route on.
+
+### A syntax check offered as a run
+
+`w14-hookwrappers` edited four live hooks and ran `bash -n` on them, reporting *"live payload run blocked by
+sandbox."* The dispatcher refuted it in one command — payload to a file, piped into the edited hook from the
+repo root, clean fire and exit 0. The worker had conflated "cannot `cd` outside the repo" (true, and that is
+the CWD test) with "cannot run a hook at all" (false). Bounced; the second run produced real output for all
+four hooks, both paths of the merged guard, and the log lines its runs appended.
+
+The CWD fix is the one that mattered: `relevant-injection.sh` resolved its library relative to the caller's
+directory, so it silently did nothing anywhere but the repo root. Proven both ways by extracting the HEAD
+version and running both from `.claude/` — committed version returns empty, fixed version returns the full
+injection.
+
+### A dead script got 36 lines longer
+
+`P2-LOT16-06` asked `ticket-doctrine-from-scope.mjs` to parse paths out of a markdown table in a ticket's
+SCOPE section. The code was written and is correct. Then the sweep: **all 152 tickets return `[]`**, no
+ticket has a `path`-column table, and the script has **zero callers anywhere in the repo** and no npm entry.
+The feature parses a format nobody writes, inside a script nothing runs. Left uncommitted; the recommendation
+is to retire the script rather than extend it.
+
+### Waves 11-15 scoreboard
+
+| lot | verdict | note |
+|---|---|---|
+| w11-darkgates | ACCEPTED | 3 gates on shared telemetry; 2 live-fired, 1 honestly reported as un-trippable |
+| w11-shipclient | ACCEPTED | found its own residual gap: `finally` still removes the archive it just protected |
+| w11-auditskill | BOUNCED | fabricated pre-existing state |
+| w11-skillfixes | BOUNCED | fabricated pre-existing state |
+| w11-scriptdedup | DIED | ok=false, no-report-schema; edits landed, no evidence |
+| w11-forbidden | DIED | 201-line gate rewrite, no evidence |
+| w12-validate | ACCEPTED | rescued both dead lots; zero repairs needed |
+| w12-fabfix | ACCEPTED | corrected record; batch cap settled at 5 on real commit history |
+| w13-hooklibs | ACCEPTED | signature left alone deliberately; self-tests re-run by dispatcher (22, 28) |
+| w13-configrules | ACCEPTED | specs.md 250-452 finally reviewed; line anchors spot-checked |
+| w13-scripts | ACCEPTED | stale-ref scan 593 → 627 files, one false positive excluded with cause |
+| w14-hookwrappers | BOUNCED → ACCEPTED | `bash -n` offered as a run |
+| w14-singles | 3 of 4 | anchors and fixture verified by dispatcher; parser held |
+| w15-parserproof | ACCEPTED | delivered the finding that killed the feature it was defending |
+
+**182 of 196 ticketed. 14 never handled — and every one of those is owner-gated or closed by architecture:**
+5 on `copilot-worker.sh` (protected, needs an explicit grant), 5 off-repo under `~/.claude/`, 3 policy calls
+with no defensible default, 1 KEEP disposition that is already its own answer.
+
+**The dispatcher queue is dry.** What remains is not work that was skipped; it is work that requires a
+decision only Rutvik can make.
+
+*Appended 2026-08-03.*
