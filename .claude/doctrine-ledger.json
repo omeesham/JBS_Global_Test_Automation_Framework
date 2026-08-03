@@ -76,13 +76,13 @@
       "id": "LR-058",
       "file": ".claude/rules/deliverable.md",
       "line": 21,
-      "enforced_by": ".claude/hooks/lib/check-jargon.mjs:115"
+      "enforced_by": ".claude/hooks/lib/check-jargon.mjs:117"
     },
     {
       "id": "enforcement-defense-in-depth-write-time-commit-time-ship-tim",
       "file": ".claude/rules/deliverable.md",
       "line": 47,
-      "enforced_by": ".claude/hooks/lib/check-jargon.mjs:100"
+      "enforced_by": ".claude/hooks/lib/check-jargon.mjs:102"
     },
     {
       "id": "LR-069",
