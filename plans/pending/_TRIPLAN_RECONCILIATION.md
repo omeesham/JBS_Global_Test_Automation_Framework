@@ -2099,3 +2099,102 @@ removed line carries the same value. Not bounced for that, but noted.
 | NEW-06 | DISPATCHER | `test-browsertool-fixtures.mjs` prints `ALL PASS — 19 fixtures` while emitting 20 `PASS` lines. Its summary counter is off by one — the same counter-vs-reality shape this wave keeps finding. |
 
 *Appended 2026-08-03.*
+
+### `q123-w4-labelinv` — ACCEPTED. 1 applied, 1 finding was simply wrong.
+
+`statSync` was imported and never used — deleted, and the dispatcher confirmed zero occurrences remain.
+`P2-LOT16-05`'s "relative import" is `./lib/label-derivation.mjs`, whose bindings `resolveLabel` and
+`untranslatedJargon` are both used in the body. Correctly refused. Script runs clean: **823 methods,
+0 flagged, exit 0**.
+
+### The audit index's own precision, measured across four waves
+
+Worth stating because it changes how the remaining queue should be read. Of roughly 40 findings
+dispositioned so far, about a quarter were **not actionable as written**:
+
+| finding | what it actually was |
+|---|---|
+| `P2-LOT04-14` | would have **broken live dispatch** — the work-types it said to delete are still emitted by the wrapper |
+| `P25-M15`, `P25-M16`, `P25-M18`, `P25-M19` | already fixed in `c2b0e339`, earlier in this campaign |
+| `P2-10` | already fixed in `367363ff` |
+| `P2-LOT13-28`, `P2-LOT13-29` | nothing to apply — the condition described was not present |
+| `P2-LOT04-10` | wrong — `_state_path` is not self-referencing, it names the install target |
+| `P2-LOT16-05` | wrong — the import it calls dead is used twice |
+
+One of those would have caused an outage if applied on the finding's own say-so. That is the argument for
+the per-finding evidence requirements in every ticket — the grep, the usage proof, the fails-on-purpose
+row. They are not ceremony; they are what caught these.
+
+It also means the remaining count is an **upper bound on work, not a measure of it.** A finding is a
+hypothesis until a worker with the file open confirms it.
+
+*Appended 2026-08-03.*
+
+### `q123-w4-steplabels` — ACCEPTED. 2/2, and it navigated the trap the ticket warned about.
+
+**P25-M11 — the ESM guard.** `scripts/check-step-labels.mjs:365` now reads
+`if (import.meta.url === pathToFileURL(process.argv[1]).href)`, matching the house pattern in
+`scripts/check-dead-exports.mjs`. The named Windows trap — a naive string compare that silently stops
+`main()` running — was avoided. Verified both directions:
+
+- direct run: `PASS: step-labels — 22 page files, 30 spec files scanned, 0 violations`, exit 0
+- imported from a real file: `IMPORT-OK — exports: checkDecoratorPresence, checkHandLabelJargon,
+  checkLabelJargon, checkSpecRawPage`, exit 0, and `main()` did **not** fire
+
+*Dispatcher note on its own testing:* the first import attempt was `node --input-type=module -e "import(…)"`,
+which threw `ERR_INVALID_ARG_TYPE` because `node -e` leaves `process.argv[1]` undefined. That was an
+artifact of the test method, not a defect — a real importer has `argv[1]` set. Re-tested with a file on
+disk, which is the actual use case.
+
+**NEW-07 (DISPATCHER, minor):** `pathToFileURL(process.argv[1])` still throws when `argv[1]` is undefined
+(`node -e`, some eval contexts). A `process.argv[1] &&` prefix makes the guard total. Not bounced — the
+ticketed behaviour is met — but the same guard exists in other scripts and is worth sweeping once.
+
+**P25-M13 — dead regex deleted, with discrimination.** The standalone `ASYNC_METHOD_RE` is gone;
+`PUBLIC_ASYNC_METHOD_RE` at line 206, which merely contains the same substring, was correctly left alone.
+A careless grep-and-delete would have taken both.
+
+*Appended 2026-08-03.*
+
+### `q123-w4-enumpage` — ACCEPTED, and it surfaced the most serious finding of the wave.
+
+Both findings took the honest branch: the comments now describe what the code does, **and state the gap**
+rather than documenting it away. That was the hard-bounce condition and it was met.
+
+**NEW-08 — S1, the walk-coverage enumerator has never enumerated the Pricing Detail grid.**
+
+The worker's `## COVERAGE IMPACT` said `corporate-pricing-detail` has been counted as enumerating the
+Pricing Detail grid and does not. The dispatcher verified every link of that independently:
+
+- `scripts/walk-coverage/enumerate-page.mjs` — the `corporate-pricing-detail` entry has
+  `openerTestidPatterns: []`, **no** `activateTabs` key and **no** `openerRoleTextPatterns` key. Other
+  modules do configure these (lines 82, 106, 153), so their absence here is real, not a default.
+- The URL lands on the default Strategy tab. The "Pricing Detail" tab is a text button with no
+  `data-testid` and no exposed `aria-selected`, so nothing in the config can click it.
+- The spread `...MC_DATA['corporate-pricing-detail']` was the last way the gap could have been closed
+  elsewhere. It is not. `scripts/walk-coverage/lib/module-config.mjs` supplies exactly one key:
+
+```js
+'corporate-pricing-detail': {
+  requiredStates: [{ label: 'resting', evidence: 'enumeration:2026-06-05:zero-openers-found' }],
+},
+```
+
+**That evidence string is the finding.** `zero-openers-found` was recorded as proof that the resting state
+is complete. It is instead the exact output you get when the enumerator lands on the wrong tab with no
+opener configured — the absence of openers was read as *"nothing to open"* when it means *"I could not
+see the tab."* A green check produced by invisibility, with the invisibility written down as evidence.
+
+Scope of the claim, stated precisely so it is not over-read: **the enumerator's denominator for that grid
+is not a real denominator.** This says nothing about whether the Pricing Detail test cases are right —
+those come from a different artifact. What it does mean is that any machine-coverage figure for that grid
+derived from this enumerator is unsupported.
+
+**NEW-09 — the generic opener never existed.** The main loop's comment claimed openers were
+"configured testid patterns + generic (role=tab unselected, aria-expanded=false)". The generic half is
+not implemented; the filter returns false for anything without a configured testid match. So across
+**every** module, any tab or disclosure whose opener carries neither a `data-testid` nor an
+`openerRoleTextPatterns` entry is silently skipped. Which surfaces that has actually cost is a per-module
+audit this ticket correctly refused to guess at.
+
+*Appended 2026-08-03.*

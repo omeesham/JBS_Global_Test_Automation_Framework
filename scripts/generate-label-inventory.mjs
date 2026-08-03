@@ -10,7 +10,7 @@
  * Exit 0 = clean, exit 1 = at least one flagged method.
  */
 
-import { readFileSync, readdirSync, writeFileSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname, basename, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveLabel, untranslatedJargon } from './lib/label-derivation.mjs';

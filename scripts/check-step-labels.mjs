@@ -33,7 +33,7 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { resolve, dirname, join, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { untranslatedJargon, deniedJargon } from './lib/label-derivation.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -115,9 +115,7 @@ function getStagedFiles() {
 }
 
 // ---------- Check 1: label jargon ----------
-const ASYNC_METHOD_RE = /^\s*(?:public\s+|private\s+|protected\s+)?async\s+(\w+)\s*\(/gm;
-
-function checkLabelJargon(files) {
+export function checkLabelJargon(files) {
   const violations = [];
   for (const filePath of files) {
     const text = readFileSync(filePath, 'utf8');
@@ -137,12 +135,12 @@ function checkLabelJargon(files) {
   return violations;
 }
 
-// ---------- Check 3: direct .page.<action> in specs ----------
+// ---------- Check 2: direct .page.<action> in specs ----------
 const ACCESSOR_RE = /\b\w+\.page\.(locator|getByRole|getByText|getByTestId|getByLabel|getByPlaceholder)\b/;
 const ACTION_RE = /\.(click|fill|check|uncheck|press|type|selectOption|dblclick|setChecked)\(/;
 const EXEMPT_RE = /\.page\.(reload|waitForLoadState|url|goto|waitForTimeout|evaluate|route|on|off|waitForRequest|waitForResponse|waitForFunction|context|keyboard|mouse)\b/;
 
-function checkSpecRawPage(files) {
+export function checkSpecRawPage(files) {
   const violations = [];
   for (const filePath of files) {
     const text = readFileSync(filePath, 'utf8');
@@ -184,7 +182,7 @@ function jargonInLabel(label) {
   return label.split(/\s+/).map(w => w.toLowerCase()).filter(w => deniedJargon.includes(w));
 }
 
-function checkHandLabelJargon(files) {
+export function checkHandLabelJargon(files) {
   const violations = [];
   for (const filePath of files) {
     const text = readFileSync(filePath, 'utf8');
@@ -213,7 +211,7 @@ function isLoginPage(filePath) {
   return filePath.replace(/\\/g, '/').endsWith(LOGIN_PAGE_SUFFIX);
 }
 
-function checkDecoratorPresence(files) {
+export function checkDecoratorPresence(files) {
   const missing = [];
   for (const filePath of files) {
     if (isLoginPage(filePath)) continue;
@@ -364,4 +362,6 @@ function main() {
   process.exit(args.enforce ? 1 : 0);
 }
 
-main();
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

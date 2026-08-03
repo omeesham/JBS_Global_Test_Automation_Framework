@@ -122,9 +122,13 @@ export const MODULE_CONFIG = {
   },
   'corporate-pricing-detail': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/details/${args.pricebook || CPR_DETAIL_GUID}`,
-    // Same TEXT-tab caveat as strategy: the URL lands on the default Strategy tab — to enumerate the
-    // Pricing Detail GRID the re-walk must first click the "Pricing Detail" text tab (no testid to
-    // drive). Heavy page (~2430 rows + ~3707 draggables) → readiness is slow; that is expected.
+    // Same TEXT-tab caveat as strategy: the URL lands on the default Strategy tab. The "Pricing
+    // Detail" tab is a text button with no data-testid and aria-selected is not exposed, so neither
+    // activateTabs nor openerRoleTextPatterns is configured to click it. This entry therefore
+    // enumerates only the elements visible on the default (Strategy) tab load — the Pricing Detail
+    // GRID is NOT enumerated. GAP: to enumerate the Pricing Detail grid a role+text opener entry
+    // ({ role: 'tab', text: 'Pricing Detail' }) must be added to openerRoleTextPatterns and
+    // verified against the live page before enabling.
     contentMarker: 'text=Pricing Detail',
     openerTestidPatterns: [],
     excludeOptionRoles: true,
@@ -572,12 +576,17 @@ async function main() {
     const activated = new Set();
     for (let cycle = 1; cycle <= maxCycles; cycle++) {
       cur = await enumerateState(page);
-      // openers = configured testid patterns + generic (role=tab unselected, aria-expanded=false).
+      // openers = configured testid patterns only (matched against cfg.openerTestidPatterns).
+      // NOTE: generic aria-based openers (role=tab unselected, aria-expanded=false) are NOT
+      // implemented here — the filter returns false for any entry not matched by a configured
+      // testid pattern. Role/text openers are handled separately below via openerRoleTextPatterns.
+      // GAP: surfaces whose openers carry neither a data-testid nor a matching openerRoleTextPatterns
+      // entry will not be self-expanded by either pass.
       const openerKeys = cur.entries.filter(e => {
         if (activated.has(e.key)) return false;
         const k = e.key.toLowerCase();
         if (cfg && cfg.openerTestidPatterns && cfg.openerTestidPatterns.some(re => re.test(k))) return true;
-        return false;   // generic opener clicking is intentionally conservative (avoid mutating state)
+        return false;   // non-matching entries are skipped; generic aria-opener not implemented
       });
       let clicked = 0;
       for (const e of openerKeys) {
